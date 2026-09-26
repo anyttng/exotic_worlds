@@ -189,6 +189,7 @@
     "PhantomMoveControlMixin",
     "PhantomMoveTargetGoalMixin",
     "PhantomSweepAttackGoalMixin",
+    "PistonMovingBlockEntityMixin",
     "PlaySoundCommandMixin",
     "PlayerChunkSenderMixin",
     "PlayerDetectorMixin",
