@@ -3,13 +3,18 @@ package com.toroidalworld.mixin;
 import java.util.Map;
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.toroidalworld.ToroidalWorld;
 import com.toroidalworld.core.WorldFold;
 import com.toroidalworld.core.WorldLoopAttachments;
+import com.toroidalworld.engine.gen.FloatingCrumbs;
 import com.google.common.collect.Maps;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -25,7 +30,13 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.PalettedContainerFactory;
+import net.minecraft.world.level.chunk.ProtoChunk;
+import net.minecraft.world.level.chunk.storage.RegionStorageInfo;
 import net.minecraft.world.level.chunk.storage.SerializableChunkData;
 import net.minecraft.world.level.levelgen.structure.Structure;
 
@@ -40,6 +51,47 @@ public class SerializableChunkDataMixin {
 
     @Unique
     private static final String toroidal$REFERENCES_KEY = "References";
+
+    @Unique
+    private static final String toroidal$TERRAIN_MASK_KEY = ToroidalWorld.MODID + ":terrain_mask";
+
+    @Unique
+    private @Nullable CompoundTag toroidal$terrainMask;
+
+    @Inject(method = "copyOf", at = @At("RETURN"))
+    private static void toroidal$snapshotTerrainMask(ServerLevel level, ChunkAccess chunk,
+            CallbackInfoReturnable<SerializableChunkData> callback) {
+        ((SerializableChunkDataMixin) (Object) callback.getReturnValue()).toroidal$terrainMask =
+                FloatingCrumbs.savedMask(level, chunk.getPos());
+    }
+
+    @Inject(method = "write", at = @At("RETURN"))
+    private void toroidal$writeTerrainMask(CallbackInfoReturnable<CompoundTag> callback) {
+        CompoundTag mask = this.toroidal$terrainMask;
+        if (mask != null) {
+            callback.getReturnValue().put(toroidal$TERRAIN_MASK_KEY, mask);
+        }
+    }
+
+    @Inject(method = "parse", at = @At("RETURN"))
+    private static void toroidal$parseTerrainMask(LevelHeightAccessor levelHeight,
+            PalettedContainerFactory containerFactory, CompoundTag chunkData,
+            CallbackInfoReturnable<@Nullable SerializableChunkData> callback) {
+        SerializableChunkData data = callback.getReturnValue();
+        if (data != null) {
+            ((SerializableChunkDataMixin) (Object) data).toroidal$terrainMask =
+                    chunkData.getCompound(toroidal$TERRAIN_MASK_KEY).orElse(null);
+        }
+    }
+
+    @Inject(method = "read", at = @At("RETURN"))
+    private void toroidal$restoreTerrainMask(ServerLevel level, PoiManager poiManager, RegionStorageInfo regionInfo,
+            ChunkPos pos, CallbackInfoReturnable<ProtoChunk> callback) {
+        CompoundTag mask = this.toroidal$terrainMask;
+        if (mask != null) {
+            FloatingCrumbs.restoreMask(level, callback.getReturnValue(), mask);
+        }
+    }
 
     @WrapOperation(
             method = "read",
