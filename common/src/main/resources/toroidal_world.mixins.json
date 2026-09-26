@@ -50,6 +50,7 @@
     "ChunkGeneratorNearestRingMixin",
     "ChunkGeneratorRandomSpreadSearchMixin",
     "ChunkGeneratorReferencesMixin",
+    "ChunkGeneratorSpawnOverrideMixin",
     "ChunkGeneratorStructureStateMixin",
     "ChunkHolderMixin",
     "ChunkMapMixin",
