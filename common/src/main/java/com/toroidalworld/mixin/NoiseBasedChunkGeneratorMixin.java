@@ -1,7 +1,11 @@
 package com.toroidalworld.mixin;
 
+import java.util.OptionalInt;
 import java.util.Set;
+import java.util.function.Predicate;
 
+import org.apache.commons.lang3.mutable.MutableObject;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -17,8 +21,11 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseChunk;
@@ -67,6 +74,15 @@ public class NoiseBasedChunkGeneratorMixin {
                 ShapedChunkGenerator.transformerOf((NoiseBasedChunkGenerator) (Object) this),
                 () -> original.call(chunk, blender, noiseChunk, randomState, biomeManager, carverBiomeRegion,
                         materialRule));
+    }
+
+    @WrapMethod(method = "iterateNoiseColumn", order = BinderOrder.FOLD)
+    private OptionalInt toroidal$bindWhileReadingColumn(LevelHeightAccessor heightAccessor, RandomState randomState,
+            int blockX, int blockZ, @Nullable MutableObject<NoiseColumn> columnReference,
+            @Nullable Predicate<BlockState> tester, Operation<OptionalInt> original) {
+        return GenerationTransformerContext.withTransformer(
+                ShapedChunkGenerator.transformerOf((NoiseBasedChunkGenerator) (Object) this),
+                () -> original.call(heightAccessor, randomState, blockX, blockZ, columnReference, tester));
     }
 
     @ModifyReturnValue(method = "getOrigin", at = @At("RETURN"))
