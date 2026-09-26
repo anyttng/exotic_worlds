@@ -6,9 +6,13 @@ import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.toroidalworld.ToroidalWorld;
 import com.toroidalworld.core.WorldFold;
 import com.toroidalworld.core.WorldLoopAttachments;
+import com.toroidalworld.engine.gen.FloatingCrumbs;
 import com.google.common.collect.Maps;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -22,10 +26,15 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.storage.ChunkSerializer;
+import net.minecraft.world.level.chunk.storage.RegionStorageInfo;
 import net.minecraft.world.level.levelgen.structure.Structure;
 
 @Mixin(ChunkSerializer.class)
@@ -39,6 +48,27 @@ public class SerializableChunkDataMixin {
 
     @Unique
     private static final String toroidal$REFERENCES_KEY = "References";
+
+    @Unique
+    private static final String toroidal$TERRAIN_MASK_KEY = ToroidalWorld.MODID + ":terrain_mask";
+
+    @Inject(method = "write", at = @At("RETURN"))
+    private static void toroidal$writeTerrainMask(ServerLevel level, ChunkAccess chunk,
+            CallbackInfoReturnable<CompoundTag> callback) {
+        CompoundTag mask = FloatingCrumbs.savedMask(level, chunk.getPos());
+        if (mask != null) {
+            callback.getReturnValue().put(toroidal$TERRAIN_MASK_KEY, mask);
+        }
+    }
+
+    @Inject(method = "read", at = @At("RETURN"))
+    private static void toroidal$restoreTerrainMask(ServerLevel level, PoiManager poiManager,
+            RegionStorageInfo regionInfo, ChunkPos pos, CompoundTag chunkData,
+            CallbackInfoReturnable<ProtoChunk> callback) {
+        if (chunkData.contains(toroidal$TERRAIN_MASK_KEY, Tag.TAG_COMPOUND)) {
+            FloatingCrumbs.restoreMask(level, callback.getReturnValue(), chunkData.getCompound(toroidal$TERRAIN_MASK_KEY));
+        }
+    }
 
     // Vanilla's own literal, restated because the code it lives in is not reachable from here.
     @WrapOperation(
