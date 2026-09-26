@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.toroidalworld.accessors.CrumbSweepCache;
+import com.toroidalworld.accessors.PeriodicityMark;
 import com.toroidalworld.accessors.RelocatableBlockEntity;
 import com.toroidalworld.accessors.TerrainMaskCache;
 import com.toroidalworld.accessors.TransformerCache;
@@ -30,6 +31,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import net.minecraft.core.BlockPos;
@@ -49,7 +51,7 @@ import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.phys.AABB;
 
 @Mixin(Level.class)
-public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMaskCache {
+public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMaskCache, PeriodicityMark {
     @Unique
     private WorldFold toroidal$transformer;
 
@@ -58,6 +60,9 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
 
     @Unique
     private @Nullable TerrainMasks toroidal$terrainMasks;
+
+    @Unique
+    private final AtomicBoolean toroidal$periodicityClaimed = new AtomicBoolean();
 
     @WrapOperation(
             method = "getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;",
@@ -174,6 +179,11 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
         }
 
         return this.toroidal$terrainMasks;
+    }
+
+    @Override
+    public boolean toroidal$claimPeriodicityCheck() {
+        return this.toroidal$periodicityClaimed.compareAndSet(false, true);
     }
 
     @Unique

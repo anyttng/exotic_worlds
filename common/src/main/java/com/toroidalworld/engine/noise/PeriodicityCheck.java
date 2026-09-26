@@ -3,10 +3,10 @@ package com.toroidalworld.engine.noise;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 
+import com.toroidalworld.accessors.PeriodicityMark;
 import com.toroidalworld.core.ShapedChunkGenerator;
 import com.toroidalworld.core.WorldFold;
 import com.mojang.logging.LogUtils;
@@ -30,13 +30,12 @@ public final class PeriodicityCheck {
 
     private static final int SAMPLE_Y = 64;
 
-    private static final Set<String> DONE = ConcurrentHashMap.newKeySet();
-
     public static void runOnce(ServerLevel level, WorldFold transformer) {
-        String levelName = level.dimension().location().toString();
-        if (!DONE.add(levelName)) {
+        if (!((PeriodicityMark) level).toroidal$claimPeriodicityCheck()) {
             return;
         }
+
+        String levelName = level.dimension().location().toString();
 
         ChunkGenerator generator = level.getChunkSource().getGenerator();
         if (!ShapedChunkGenerator.tilesAtSeam(generator)) {
