@@ -99,6 +99,37 @@ class ShapedDimensionsTest {
         assertNull(ShapedDimensions.shapeOf(shaped, LevelStem.NETHER));
     }
 
+    @Test
+    void aShapedChosenPresetReplacesAnUnshapedResult() {
+        WorldDimensions chosen = overworldOf(new LoopedChunkGenerator(
+                plainsBiomeSource(), overworldNoiseSettings(), new CarriedShape(TORUS)));
+        WorldDimensions replaced = overworldOf(new NoiseBasedChunkGenerator(
+                plainsBiomeSource(), overworldNoiseSettings()));
+
+        assertSame(chosen, ShapedDimensions.keepChosenShape(replaced, chosen));
+    }
+
+    @Test
+    void aShapedResultStandsOverAShapedChosenPreset() {
+        WorldDimensions chosen = overworldOf(new LoopedChunkGenerator(
+                plainsBiomeSource(), overworldNoiseSettings(), new CarriedShape(TORUS)));
+        WorldDimensions created = overworldAndNetherOf(
+                new NoiseBasedChunkGenerator(plainsBiomeSource(), overworldNoiseSettings()),
+                new LoopedChunkGenerator(plainsBiomeSource(), overworldNoiseSettings(), new CarriedShape(CYLINDER)));
+
+        assertSame(created, ShapedDimensions.keepChosenShape(created, chosen));
+    }
+
+    @Test
+    void anUnshapedChosenPresetLeavesTheResult() {
+        WorldDimensions chosen = overworldOf(new NoiseBasedChunkGenerator(
+                plainsBiomeSource(), overworldNoiseSettings()));
+        WorldDimensions created = overworldOf(new ForeignChunkGenerator(
+                plainsBiomeSource(), overworldNoiseSettings()));
+
+        assertSame(created, ShapedDimensions.keepChosenShape(created, chosen));
+    }
+
     private static WorldDimensions overworldOf(ChunkGenerator generator) {
         return new WorldDimensions(Map.of(LevelStem.OVERWORLD, new LevelStem(
                 WORLDGEN.lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(BuiltinDimensionTypes.OVERWORLD),
