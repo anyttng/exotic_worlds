@@ -13,6 +13,7 @@ public class LithiumMixinPlugin extends MixinGatePlugin {
 
     private static final String STORE_KEY_MIXIN = "GameEventDispatchKeyMixin";
     private static final String CLOSEST_BATCH_MIXIN = "PoiClosestBatchMixin";
+    private static final String RETRY_MIXIN = "AcquirePoiRetryMixin";
 
     private static final String LITHIUM_PACKAGE = "net/caffeinemc/mods/lithium/common/";
     private static final String TRACKER_PACKAGE = LITHIUM_PACKAGE + "tracking/entity/";
@@ -56,6 +57,10 @@ public class LithiumMixinPlugin extends MixinGatePlugin {
 
         if (mixinClassName.endsWith(CLOSEST_BATCH_MIXIN)) {
             return LithiumPoiSearch.applies();
+        }
+
+        if (mixinClassName.endsWith(RETRY_MIXIN)) {
+            return LithiumPoiSearch.retryApplies();
         }
 
         return LITHIUM.present();
