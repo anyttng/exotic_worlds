@@ -3,16 +3,10 @@ package com.toroidalworld.engine.gen;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.OptionalInt;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
-
-import org.apache.commons.lang3.mutable.MutableObject;
-import org.jspecify.annotations.Nullable;
 
 import com.toroidalworld.core.CarriedShape;
 import com.toroidalworld.core.ShapedChunkGenerator;
-import com.toroidalworld.engine.noise.GenerationTransformerContext;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -20,9 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -92,18 +84,6 @@ public class LoopedChunkGenerator extends NoiseBasedChunkGenerator implements Sh
         }
         cache.put(folded, height);
         return height;
-    }
-
-    @Override
-    protected OptionalInt iterateNoiseColumn(
-            LevelHeightAccessor heightAccessor,
-            RandomState randomState,
-            int blockX,
-            int blockZ,
-            @Nullable MutableObject<NoiseColumn> columnReference,
-            @Nullable Predicate<BlockState> tester) {
-        return GenerationTransformerContext.withTransformer(transformer(),
-                () -> super.iterateNoiseColumn(heightAccessor, randomState, blockX, blockZ, columnReference, tester));
     }
 
     @Override
