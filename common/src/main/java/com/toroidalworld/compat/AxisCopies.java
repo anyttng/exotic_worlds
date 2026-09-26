@@ -56,6 +56,21 @@ public record AxisCopies(boolean loops, int min, int width) {
         return lapRange(first, last);
     }
 
+    public int[] drawnLaps(int spanMin, int spanMax, MapCopies mapCopies) {
+        int[] laps = laps(spanMin, spanMax);
+        if (mapCopies != MapCopies.SINGLE) {
+            return laps;
+        }
+
+        for (int lap : laps) {
+            if (lap == 0) {
+                return new int[] {0};
+            }
+        }
+
+        return new int[0];
+    }
+
     public int[] seams(int spanMin, int spanMax) {
         if (!this.loops) {
             return new int[0];

@@ -50,6 +50,14 @@ Circumnavigate the world — walk, sail or fly past the border and come out on t
     ordering="NONE"
     side="CLIENT"
 
+# FTB Chunks dependency — the map folds inject into private members the older FTB Chunks has not got.
+[[dependencies.${mod_id}]]
+    modId="ftbchunks"
+    type="optional"
+    versionRange="[${ftbchunks_min_version},)"
+    ordering="NONE"
+    side="CLIENT"
+
 # C2ME dependency — the compat mixins shadow C2ME internals the older C2ME has not got.
 [[dependencies.${mod_id}]]
     modId="c2me"
@@ -69,6 +77,9 @@ config="toroidal_world.compat.journeymap.mixins.json"
 
 [[mixins]]
 config="toroidal_world.compat.xaero.mixins.json"
+
+[[mixins]]
+config="toroidal_world.compat.ftbchunks.mixins.json"
 
 [[mixins]]
 config="toroidal_world.compat.c2me.mixins.json"

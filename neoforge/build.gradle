@@ -210,6 +210,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             mod_license            : mod_license,
             mod_version            : modIngameVersion,
             journeymap_min_version : journeymap_min_version,
+            ftbchunks_min_version  : ftbchunks_min_version,
             c2me_min_version       : c2me_neoforge_min_version,
     ]
     inputs.properties replaceProperties

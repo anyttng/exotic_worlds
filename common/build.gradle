@@ -44,6 +44,14 @@ repositories {
             includeGroup 'com.github.bawnorton.mixinsquared'
         }
     }
+    // FTB Chunks and ftb-library for the map compat mixins — FTB publishes nowhere else.
+    maven {
+        name = 'FTB'
+        url = 'https://maven.ftb.dev/releases'
+        content {
+            includeGroup 'dev.ftb.mods'
+        }
+    }
 }
 
 // C2ME publishes one jar that carries no classes of its own — every module rides inside it as a jar-in-jar, and no
@@ -135,6 +143,9 @@ dependencies {
     compileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     compileOnly "maven.modrinth:simple-atlas:${simple_atlas_version}"
     compileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"
+    // Non-transitive: the FTB poms pull in FTB Teams, FTB Backups and a JSON5 library, whose types no map fold names.
+    compileOnly("dev.ftb.mods:ftb-chunks-neoforge:${ftbchunks_version}") { transitive = false }
+    compileOnly("dev.ftb.mods:ftb-library-neoforge:${ftblibrary_version}") { transitive = false }
 }
 
 // Plain JUnit on the NeoForm vanilla classpath: NeoForm mode has no FML, hence no junit run-type and no applied
@@ -159,6 +170,9 @@ dependencies {
     testRuntimeOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     testCompileOnly "maven.modrinth:simple-atlas:${simple_atlas_version}"
     testRuntimeOnly "maven.modrinth:simple-atlas:${simple_atlas_version}"
+    // The claim-request fold takes and returns FTB Library's own XZ keys, so the tests build them.
+    testCompileOnly("dev.ftb.mods:ftb-library-neoforge:${ftblibrary_version}") { transitive = false }
+    testRuntimeOnly("dev.ftb.mods:ftb-library-neoforge:${ftblibrary_version}") { transitive = false }
     // The compat jars and Mixin on the test runtime alone: what the gate-symbol tests read is the class file each
     // gate names, and a config plugin cannot even load without IMixinConfigPlugin.
     testRuntimeOnly "maven.modrinth:journeymap:${journeymap_version}"

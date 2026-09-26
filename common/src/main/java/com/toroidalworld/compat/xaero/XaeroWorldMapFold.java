@@ -203,21 +203,6 @@ public final class XaeroWorldMapFold {
         return shape == null ? AxisCopies.UNBOUNDED : AxisCopies.ofChunks(shape, axis);
     }
 
-    public static int[] drawnLaps(AxisCopies copies, int spanMin, int spanMax, MapCopies mapCopies) {
-        int[] laps = copies.laps(spanMin, spanMax);
-        if (mapCopies != MapCopies.SINGLE) {
-            return laps;
-        }
-
-        for (int lap : laps) {
-            if (lap == 0) {
-                return new int[] {0};
-            }
-        }
-
-        return new int[0];
-    }
-
     public static double zoomFloorScale(double scaleMultiplier, MapCopies mapCopies, int windowWidth, int windowHeight) {
         ToroidalShape shape = browsedShape();
         if (shape == null) {

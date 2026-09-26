@@ -472,8 +472,8 @@ public abstract class GuiMapMixin {
         Window window = Minecraft.getInstance().getWindow();
         int[] spanX = XaeroWorldMapFold.viewSpan(this.cameraX, window.getWidth(), this.scale, slotSize);
         int[] spanZ = XaeroWorldMapFold.viewSpan(this.cameraZ, window.getHeight(), this.scale, slotSize);
-        int[] lapsX = XaeroWorldMapFold.drawnLaps(copiesX, spanX[0], spanX[1], this.toroidal$mapCopies);
-        int[] lapsZ = XaeroWorldMapFold.drawnLaps(copiesZ, spanZ[0], spanZ[1], this.toroidal$mapCopies);
+        int[] lapsX = copiesX.drawnLaps(spanX[0], spanX[1], this.toroidal$mapCopies);
+        int[] lapsZ = copiesZ.drawnLaps(spanZ[0], spanZ[1], this.toroidal$mapCopies);
         int viewBlockX = this.toroidal$slotViewBlockX;
         int viewBlockZ = this.toroidal$slotViewBlockZ;
         for (int originX : XaeroWorldMapFold.canonicalSlotOrigins(copiesX, viewBlockX, slotSize)) {

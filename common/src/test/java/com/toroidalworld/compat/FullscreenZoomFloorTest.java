@@ -31,12 +31,42 @@ class FullscreenZoomFloorTest {
     }
 
     @Test
+    void ftbChunksKeepsTheWorldAtLeast64PixelsWide() {
+        assertEquals(32, FullscreenZoomFloor.ftbChunksZoom(512), "a 512-block world: 512 * 32 / 256 = 64 px");
+        assertEquals(16, FullscreenZoomFloor.ftbChunksZoom(1024), "a 1024-block world: 64 * 256 / 1024 = 16");
+        assertEquals(128, FullscreenZoomFloor.ftbChunksZoom(128), "a 128-block world: 64 * 256 / 128 = 128");
+        assertEquals(55, FullscreenZoomFloor.ftbChunksZoom(300), "a 300-block world: ceil(16384 / 300) = 55");
+    }
+
+    @Test
+    void ftbChunksTakesTheNarrowestLoopedAxis() {
+        assertEquals(32, FullscreenZoomFloor.ftbChunksZoom(torus(1024, 512)), "the 512-block axis sets the floor");
+        assertEquals(32, FullscreenZoomFloor.ftbChunksZoom(cylinder(512)), "an unbounded axis asks for no floor");
+    }
+
+    @Test
     void journeyMapCoversTheWindowExactly() {
         assertEquals(2560, FullscreenZoomFloor.journeyMapCoverZoom(512, 2560),
                 "a 512-block world over 2560 px needs 2560 px per region, not the next power of two");
         assertEquals(86, FullscreenZoomFloor.journeyMapCoverZoom(8192, 1369), "ceil(1369 * 512 / 8192) is 86");
         assertEquals(16384, FullscreenZoomFloor.journeyMapCoverZoom(64, 2560),
                 "a floor past JourneyMap's deepest level is not held at 16384");
+    }
+
+    @Test
+    void ftbChunksCoversTheWindow() {
+        assertEquals(685, FullscreenZoomFloor.ftbChunksCoverZoom(512, 1369), "ceil(1369 * 256 / 512) is 685");
+        assertEquals(43, FullscreenZoomFloor.ftbChunksCoverZoom(8192, 1369), "ceil(1369 * 256 / 8192) is 43");
+        assertEquals(1024, FullscreenZoomFloor.ftbChunksCoverZoom(64, 2560),
+                "a floor past FTB Chunks' deepest zoom is not held at 1024");
+    }
+
+    @Test
+    void ftbChunksReadsEachLoopedAxisAgainstItsOwnWindowSide() {
+        assertEquals(685, FullscreenZoomFloor.ftbChunksCoverZoom(torus(1024, 512), 2560, 1369),
+                "X of 1024 over 2560 px needs 640 and Z of 512 over 1369 px needs 685, the larger holds");
+        assertEquals(86, FullscreenZoomFloor.ftbChunksCoverZoom(cylinder(4096), 2560, 1369),
+                "a cylinder reads its Z width against the window height alone: ceil(1369 * 256 / 4096) = 86");
     }
 
     @Test

@@ -1,0 +1,24 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.toroidalworld.compat.ftbchunks.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "com.toroidalworld.compat.ftbchunks.FtbChunksMixinPlugin",
+  "client": [
+    "ChunkButtonMixin",
+    "ChunkScreenPanelMixin",
+    "ChunkUpdateTaskMixin",
+    "FTBChunksClientMixin",
+    "LargeMapScreenMixin",
+    "MapChunkMixin",
+    "MapDimensionMixin",
+    "MapIconWidgetMixin",
+    "MapTileWidgetMixin",
+    "MinimapRegionCutoutTextureMixin",
+    "RegionMapPanelMixin",
+    "UpdateChunkFromServerTaskMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

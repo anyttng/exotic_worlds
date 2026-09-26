@@ -18,6 +18,7 @@ def modIngameVersion = withBuildSuffix(toroidal_world_version)
 def jarVersion = withBuildSuffix("${toroidal_world_version}+mc${minecraft_version}")
 // The metadata closure is detached from this script by the configuration cache, so the property is read here.
 def journeymapMinVersion = journeymap_min_version
+def ftbchunksMinVersion = ftbchunks_min_version
 def c2meMinVersion = c2me_fabric_min_version
 def c2meBrokenVersion = c2me_fabric_broken_version
 
@@ -58,6 +59,14 @@ repositories {
         url = 'https://maven.bawnorton.com/releases'
         content {
             includeGroup 'com.github.bawnorton.mixinsquared'
+        }
+    }
+    // FTB Chunks and ftb-library. Needed here too: common's sources compile in this module.
+    maven {
+        name = 'FTB'
+        url = 'https://maven.ftb.dev/releases'
+        content {
+            includeGroup 'dev.ftb.mods'
         }
     }
     // ModMenu, for the config-screen entrypoint.
@@ -132,6 +141,8 @@ dependencies {
     compileOnly "maven.modrinth:biolith:${biolith_version}"
     compileOnly "maven.modrinth:sodium:${sodium_version}"
     compileOnly files(xaeroLibJars).asFileTree.matching { include '*.jar' }
+    compileOnly("dev.ftb.mods:ftb-chunks-neoforge:${ftbchunks_version}") { transitive = false }
+    compileOnly("dev.ftb.mods:ftb-library-neoforge:${ftblibrary_version}") { transitive = false }
 
     // The 'modmenu' entrypoint class is only ever asked for by ModMenu itself, so it never loads without it.
     compileOnly "com.terraformersmc:modmenu:${modmenu_version}"
@@ -195,10 +206,12 @@ test {
 processResources {
     inputs.property 'version', modIngameVersion
     inputs.property 'journeymap_min_version', journeymapMinVersion
+    inputs.property 'ftbchunks_min_version', ftbchunksMinVersion
     inputs.property 'c2me_min_version', c2meMinVersion
     inputs.property 'c2me_broken_version', c2meBrokenVersion
     filesMatching('fabric.mod.json') {
         expand version: modIngameVersion, journeymap_min_version: journeymapMinVersion,
+                ftbchunks_min_version: ftbchunksMinVersion,
                 c2me_min_version: c2meMinVersion, c2me_broken_version: c2meBrokenVersion
     }
 }

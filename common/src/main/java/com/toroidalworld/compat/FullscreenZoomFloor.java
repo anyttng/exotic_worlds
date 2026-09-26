@@ -10,8 +10,11 @@ public final class FullscreenZoomFloor {
     public static final int MIN_WORLD_PIXELS = 64;
 
     public static final int JOURNEYMAP_REGION_BLOCKS = 512;
+    private static final int FTBCHUNKS_ZOOM_BLOCKS = 256;
 
     public static final int JOURNEYMAP_MAX_ZOOM = 16_384;
+
+    public static final int FTBCHUNKS_MAX_ZOOM = 1_024;
 
     public static int journeyMapZoom(ToroidalShape shape) {
         int floor = 0;
@@ -35,11 +38,33 @@ public final class FullscreenZoomFloor {
         return floor;
     }
 
+    public static int ftbChunksZoom(ToroidalShape shape) {
+        int floor = 0;
+        for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
+            if (shape.loops(axis)) {
+                floor = Math.max(floor, ftbChunksZoom(shape.widthBlocks(axis)));
+            }
+        }
+
+        return floor;
+    }
+
     public static int journeyMapCoverZoom(ToroidalShape shape, int windowWidth, int windowHeight) {
         int floor = 0;
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
             if (shape.loops(axis)) {
                 floor = Math.max(floor, journeyMapCoverZoom(shape.widthBlocks(axis), windowSide(axis, windowWidth, windowHeight)));
+            }
+        }
+
+        return floor;
+    }
+
+    public static int ftbChunksCoverZoom(ToroidalShape shape, int windowWidth, int windowHeight) {
+        int floor = 0;
+        for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
+            if (shape.loops(axis)) {
+                floor = Math.max(floor, ftbChunksCoverZoom(shape.widthBlocks(axis), windowSide(axis, windowWidth, windowHeight)));
             }
         }
 
@@ -70,6 +95,10 @@ public final class FullscreenZoomFloor {
         return Math.min(Math.ceilDiv(windowPixels * JOURNEYMAP_REGION_BLOCKS, widthBlocks), JOURNEYMAP_MAX_ZOOM);
     }
 
+    static int ftbChunksCoverZoom(int widthBlocks, int windowPixels) {
+        return Math.min(Math.ceilDiv(windowPixels * FTBCHUNKS_ZOOM_BLOCKS, widthBlocks), FTBCHUNKS_MAX_ZOOM);
+    }
+
     static double xaeroCoverScale(int widthBlocks, double scaleMultiplier, int windowPixels) {
         return windowPixels / (widthBlocks * scaleMultiplier);
     }
@@ -80,6 +109,10 @@ public final class FullscreenZoomFloor {
 
     static int journeyMapZoom(int widthBlocks) {
         return Math.ceilDiv(MIN_WORLD_PIXELS * JOURNEYMAP_REGION_BLOCKS, widthBlocks);
+    }
+
+    static int ftbChunksZoom(int widthBlocks) {
+        return Math.ceilDiv(MIN_WORLD_PIXELS * FTBCHUNKS_ZOOM_BLOCKS, widthBlocks);
     }
 
     static double xaeroScale(int widthBlocks, double scaleMultiplier) {

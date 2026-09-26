@@ -27,6 +27,7 @@
     "toroidal_world.fabric.mixins.json",
     "toroidal_world.compat.journeymap.mixins.json",
     "toroidal_world.compat.xaero.mixins.json",
+    "toroidal_world.compat.ftbchunks.mixins.json",
     "toroidal_world.compat.c2me.mixins.json",
     "toroidal_world.compat.distanthorizons.mixins.json",
     "toroidal_world.compat.terrablender.mixins.json",
@@ -49,6 +50,7 @@
   },
   "breaks": {
     "journeymap": "<${journeymap_min_version}",
+    "ftbchunks": "<${ftbchunks_min_version}",
     "c2me": ["<${c2me_min_version}", "${c2me_broken_version}"]
   }
 }

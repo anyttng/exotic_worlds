@@ -114,4 +114,35 @@ class AxisCopiesTest {
         assertEquals(-(WIDTH - 1), axis.withinOneLap(0, -3000), "a coordinate a lap back is not stopped at -(width - 1)");
         assertEquals(5000, AxisCopies.UNBOUNDED.withinOneLap(0, 5000), "an unbounded axis has laps");
     }
+
+    @Test
+    void aRepeatedMapDrawsEveryLapTheViewTouches() {
+        AxisCopies axis = AxisCopies.looped(MIN, WIDTH);
+        assertArrayEquals(new int[] {-1, 0, 1}, axis.drawnLaps(-1536, 1536, MapCopies.REPEATED),
+                "three worlds in view are not three laps");
+        assertArrayEquals(new int[] {3}, axis.drawnLaps(3000, 3100, MapCopies.REPEATED),
+                "a view in lap 3 does not draw lap 3");
+    }
+
+    @Test
+    void aSingleCopyMapDrawsTheCanonicalLapAlone() {
+        AxisCopies axis = AxisCopies.looped(MIN, WIDTH);
+        assertArrayEquals(new int[] {0}, axis.drawnLaps(-1536, 1536, MapCopies.SINGLE),
+                "the laps beside the world were drawn under SINGLE");
+        assertArrayEquals(new int[] {0}, axis.drawnLaps(500, 600, MapCopies.SINGLE),
+                "a view across the seam at 512 lost the canonical lap or kept lap 1");
+    }
+
+    @Test
+    void aSingleCopyMapDrawsNothingForAViewPastTheWorld() {
+        AxisCopies axis = AxisCopies.looped(MIN, WIDTH);
+        assertArrayEquals(new int[0], axis.drawnLaps(3000, 3100, MapCopies.SINGLE),
+                "a view in lap 3 drew a copy under SINGLE");
+    }
+
+    @Test
+    void anUnboundedAxisDrawsItsOneLapInBothModes() {
+        assertArrayEquals(new int[] {0}, AxisCopies.UNBOUNDED.drawnLaps(-40000000, 40000000, MapCopies.SINGLE),
+                "an unbounded axis lost its one lap under SINGLE");
+    }
 }
