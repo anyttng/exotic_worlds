@@ -24,8 +24,12 @@ public final class RegionLayerStack {
             return coord;
         }
 
-        RegionLayerFold resolved = RegionLayerFold.resolve(this.fold, transformer, this.topDepth);
-        this.fold = resolved;
+        RegionLayerFold cached = this.fold;
+        RegionLayerFold resolved = RegionLayerFold.resolve(cached, transformer, this.topDepth);
+        if (resolved != cached) {
+            this.fold = resolved;
+        }
+
         return resolved.apply(axis, depth, coord);
     }
 }
