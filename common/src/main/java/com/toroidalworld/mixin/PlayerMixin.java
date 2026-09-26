@@ -4,6 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import com.toroidalworld.accessors.TransformerSource;
 import com.toroidalworld.core.WorldFold;
+import com.toroidalworld.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -28,8 +29,6 @@ public class PlayerMixin {
     private boolean toroidal$wrappedEntityReach(AABB aabb, double buffer, Operation<Boolean> original) {
         Player player = (Player) (Object) this;
         WorldFold transformer = ((TransformerSource) player).toroidal$wrappedTransformer();
-        return transformer == null
-                ? original.call(aabb, buffer)
-                : original.call(transformer.foldBox(player.getEyePosition(), aabb).value(), buffer);
+        return original.call(FoldedBoxQuery.toward(transformer, player.getEyePosition(), aabb), buffer);
     }
 }

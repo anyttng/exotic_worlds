@@ -13,7 +13,6 @@ import com.toroidalworld.compat.FullscreenZoomFloor;
 import com.toroidalworld.compat.MapCopies;
 import com.toroidalworld.compat.MapCopyBudget;
 import com.toroidalworld.core.CoordinateConstants;
-import com.toroidalworld.core.WrapDomain;
 import com.toroidalworld.engine.seam.MapSurfaceCopies.Copies;
 
 import it.unimi.dsi.fastutil.ints.IntLinkedOpenHashSet;
@@ -95,7 +94,7 @@ public final class XaeroWorldMapFold {
     }
 
     private static int canonicalChunk(AxisCopies chunkCopies, int chunk) {
-        return chunkCopies.loops() ? new WrapDomain(chunkCopies.min(), chunkCopies.max()).wrap(chunk) : chunk;
+        return chunkCopies.wrap(chunk);
     }
 
     public static int tileOfChunk(Direction.Axis axis, int chunk) {
