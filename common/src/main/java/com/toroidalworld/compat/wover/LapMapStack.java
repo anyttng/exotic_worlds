@@ -1,8 +1,6 @@
 package com.toroidalworld.compat.wover;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 import com.toroidalworld.core.WorldFold;
@@ -10,7 +8,6 @@ import com.toroidalworld.core.WrapDomain;
 
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.ChunkPos;
 
 public final class LapMapStack<T> {
     public record Layering(int minValue, int maxValue, int maxIndex, int worldHeight, double layerDistortion) {
@@ -34,7 +31,7 @@ public final class LapMapStack<T> {
 
     private final double zPeriod;
 
-    private final Map<Long, List<LapChunk<T>>> chunks = new ConcurrentHashMap<>();
+    private final LapChunkCache<List<LapChunk<T>>> chunks;
 
     public LapMapStack(WorldFold fold, List<LapMap<T>> layers, Predicate<T> vertical, Layering layering, long seed) {
         this.fold = fold;
@@ -44,6 +41,7 @@ public final class LapMapStack<T> {
         this.noise = new OpenSimplexStandIn(seed);
         this.xPeriod = noisePeriod(fold.blockDomain(Direction.Axis.X));
         this.zPeriod = noisePeriod(fold.blockDomain(Direction.Axis.Z));
+        this.chunks = new LapChunkCache<>(() -> this.layers.getFirst().bounded(), this::build);
         for (int index = 0; index < this.layers.size(); index++) {
             int layer = index;
             this.layers.get(index).shareChunks((kx, kz) -> chunk(layer, kx, kz));
@@ -70,11 +68,7 @@ public final class LapMapStack<T> {
     }
 
     LapChunk<T> chunk(int layer, int kx, int kz) {
-        if (!this.layers.getFirst().bounded() && this.chunks.size() > LapMap.CACHE_LIMIT) {
-            this.chunks.clear();
-        }
-
-        return this.chunks.computeIfAbsent(ChunkPos.asLong(kx, kz), key -> build(kx, kz)).get(layer);
+        return this.chunks.get(kx, kz).get(layer);
     }
 
     private List<LapChunk<T>> build(int kx, int kz) {

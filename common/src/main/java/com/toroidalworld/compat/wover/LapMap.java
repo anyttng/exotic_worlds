@@ -1,27 +1,21 @@
 package com.toroidalworld.compat.wover;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.jspecify.annotations.Nullable;
 
 import com.toroidalworld.core.WorldFold;
 
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.ChunkPos;
 
 public abstract class LapMap<T> {
     interface ChunkSource<T> {
         LapChunk<T> chunk(int kx, int kz);
     }
 
-    static final int CACHE_LIMIT = 127;
-
     private final WorldFold fold;
 
     private final double factor;
 
-    private final Map<Long, LapChunk<T>> chunks = new ConcurrentHashMap<>();
+    private final LapChunkCache<LapChunk<T>> chunks = new LapChunkCache<>(this::bounded, this::buildChunk);
 
     private volatile @Nullable ChunkSource<T> shared;
 
@@ -58,10 +52,6 @@ public abstract class LapMap<T> {
             return source.chunk(kx, kz);
         }
 
-        if (!bounded() && this.chunks.size() > CACHE_LIMIT) {
-            this.chunks.clear();
-        }
-
-        return this.chunks.computeIfAbsent(ChunkPos.asLong(kx, kz), key -> buildChunk(kx, kz));
+        return this.chunks.get(kx, kz);
     }
 }
