@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.toroidalworld.accessors.TransformerSource;
 import com.toroidalworld.core.WorldFold;
+import com.toroidalworld.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -20,10 +21,6 @@ public class ThrownSplashPotionMixin {
                     target = "Lnet/minecraft/world/phys/AABB;distanceToSqr(Lnet/minecraft/world/phys/AABB;)D"))
     private double toroidal$splashReachThroughSeam(AABB burst, AABB victim, Operation<Double> original) {
         WorldFold transformer = ((TransformerSource) this).toroidal$wrappedTransformer();
-        if (transformer == null) {
-            return original.call(burst, victim);
-        }
-
-        return original.call(burst, transformer.foldBox(burst.getCenter(), victim).value());
+        return original.call(burst, FoldedBoxQuery.toward(transformer, burst.getCenter(), victim));
     }
 }
