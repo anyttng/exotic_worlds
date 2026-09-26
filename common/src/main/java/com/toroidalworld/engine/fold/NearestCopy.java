@@ -8,6 +8,7 @@ import org.jspecify.annotations.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.Vec3;
 
 public final class NearestCopy {
@@ -17,6 +18,10 @@ public final class NearestCopy {
 
     public static BlockPos toward(@Nullable WorldFold fold, BlockPos anchor, BlockPos target) {
         return fold == null ? target : fold.nearestCopy(anchor, target);
+    }
+
+    public static BlockPos toward(@Nullable WorldFold fold, BoundingBox box, BlockPos target) {
+        return fold == null ? target : fold.nearestCopy(box.getCenter(), target);
     }
 
     public static ChunkPos toward(@Nullable WorldFold fold, ChunkPos anchor, ChunkPos target) {
