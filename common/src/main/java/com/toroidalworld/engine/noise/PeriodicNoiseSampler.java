@@ -37,80 +37,73 @@ public final class PeriodicNoiseSampler {
 
     public static float sample(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold transformer, NoiseFrame frame, double scale, double x, double y, double z) {
-        return sample(permutations, xOffset, yOffset, zOffset, transformer, frame, scale, x, y, z, y, NO_FUDGE,
+        return sample(permutations, xOffset, yOffset, zOffset, transformer, frame, scale, x, y, z,
                 LapFloor.of(transformer));
     }
 
     public static float sampleSmeared(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold transformer, NoiseFrame frame, double scale, double x, double y, double z,
             double originalY, double fudgeYScale) {
-        return sample(permutations, xOffset, yOffset, zOffset, transformer, frame, scale, x, y, z, originalY,
-                fudgeYScale, LapFloor.of(transformer));
+        return sample(lattice(permutations, xOffset, yOffset, zOffset, fudgeYScale, transformer, frame, scale,
+                LapFloor.of(transformer)), x, y, z, originalY);
     }
 
     public static float sample(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold transformer, NoiseFrame frame, double scale, double x, double y, double z, LapFloor floor) {
-        return sample(permutations, xOffset, yOffset, zOffset, transformer, frame, scale, x, y, z, y, NO_FUDGE,
-                floor);
+        return sample(lattice(permutations, xOffset, yOffset, zOffset, NO_FUDGE, transformer, frame, scale, floor),
+                x, y, z, y);
     }
 
-    private static float sample(byte[] permutations, double xOffset, double yOffset, double zOffset,
-            WorldFold transformer, NoiseFrame frame, double scale, double x, double y, double z,
-            double originalY, double fudgeYScale, LapFloor floor) {
-        long xPeriod;
-        long yPeriod;
-        long zPeriod;
-        double xs;
-        double ys;
-        double zs;
-        double correction = 1.0;
-        double anchor = 0.0;
-        if (frame.isDefault()) {
-            WrapDomain xDomain = transformer.blockDomain(Direction.Axis.X);
-            WrapDomain zDomain = transformer.blockDomain(Direction.Axis.Z);
-            xPeriod = period(xDomain, scale, floor);
-            yPeriod = UNBOUNDED_PERIOD;
-            zPeriod = period(zDomain, scale, floor);
-            xs = foldAndScale(xDomain, xPeriod, scale, x) + xOffset;
-            ys = y + yOffset;
-            zs = foldAndScale(zDomain, zPeriod, scale, z) + zOffset;
-
-            double verticalShare = frame.verticalShare();
-            correction = OctaveVarianceCorrection.factor(xDomain, zDomain, scale, verticalShare);
-
-            double anchorGain = OctaveVarianceCorrection.anchorGain(xDomain, zDomain, scale, verticalShare);
-            if (anchorGain > 0.0) {
-                anchor = anchorGain * anchorSample(permutations, xDomain, zDomain, xPeriod, zPeriod, scale,
-                        xOffset, yOffset, zOffset);
-            }
-        } else {
+    static PeriodicLattice lattice(byte[] permutations, double xOffset, double yOffset, double zOffset,
+            double fudgeYScale, WorldFold transformer, NoiseFrame frame, double scale, LapFloor floor) {
+        if (!frame.isDefault()) {
             SlotAxes axes = frame.axes();
-            WrapDomain xDomain = axes.x().domainOf(transformer);
-            WrapDomain yDomain = axes.y().domainOf(transformer);
-            WrapDomain zDomain = axes.z().domainOf(transformer);
-            double xSlotScale = scale / axes.x().divisorIn(frame);
-            double ySlotScale = scale / axes.y().divisorIn(frame);
-            double zSlotScale = scale / axes.z().divisorIn(frame);
-            xPeriod = period(xDomain, xSlotScale, floor);
-            yPeriod = period(yDomain, ySlotScale, floor);
-            zPeriod = period(zDomain, zSlotScale, floor);
-            xs = slotCoord(axes.x(), xDomain, xPeriod, xSlotScale, x) + xOffset;
-            ys = slotCoord(axes.y(), yDomain, yPeriod, ySlotScale, y) + yOffset;
-            zs = slotCoord(axes.z(), zDomain, zPeriod, zSlotScale, z) + zOffset;
+            return new PeriodicLattice(permutations, xOffset, yOffset, zOffset, fudgeYScale,
+                    slotAxis(axes.x(), transformer, frame, scale, floor),
+                    slotAxis(axes.y(), transformer, frame, scale, floor),
+                    slotAxis(axes.z(), transformer, frame, scale, floor), 1.0, 0.0);
         }
 
+        WrapDomain xDomain = transformer.blockDomain(Direction.Axis.X);
+        WrapDomain zDomain = transformer.blockDomain(Direction.Axis.Z);
+        long xPeriod = period(xDomain, scale, floor);
+        long zPeriod = period(zDomain, scale, floor);
+        double verticalShare = frame.verticalShare();
+        double correction = OctaveVarianceCorrection.factor(xDomain, zDomain, scale, verticalShare);
+        double anchorGain = OctaveVarianceCorrection.anchorGain(xDomain, zDomain, scale, verticalShare);
+        double anchor = anchorGain > 0.0
+                ? anchorGain * anchorSample(permutations, xDomain, zDomain, xPeriod, zPeriod, scale, xOffset, yOffset,
+                        zOffset)
+                : 0.0;
+        return new PeriodicLattice(permutations, xOffset, yOffset, zOffset, fudgeYScale,
+                new PeriodicLattice.Axis(true, xDomain, xPeriod, scale), PeriodicLattice.Axis.PASS_THROUGH,
+                new PeriodicLattice.Axis(true, zDomain, zPeriod, scale), correction, anchor);
+    }
+
+    private static PeriodicLattice.Axis slotAxis(SlotAxis axis, WorldFold transformer, NoiseFrame frame, double scale,
+            LapFloor floor) {
+        WrapDomain domain = axis.domainOf(transformer);
+        double slotScale = scale / axis.divisorIn(frame);
+        return new PeriodicLattice.Axis(axis.carriesWorldAxis(), domain, period(domain, slotScale, floor), slotScale);
+    }
+
+    static float sample(PeriodicLattice lattice, double x, double y, double z, double originalY) {
+        double xs = lattice.x().coord(x) + lattice.xOffset();
+        double ys = lattice.y().coord(y) + lattice.yOffset();
+        double zs = lattice.z().coord(z) + lattice.zOffset();
         int xCell = Mth.floor(xs);
         int yCell = Mth.floor(ys);
         int zCell = Mth.floor(zs);
         float xFrac = (float) (xs - xCell);
         double yRelative = ys - yCell;
         float zFrac = (float) (zs - zCell);
+        double fudgeYScale = lattice.fudgeYScale();
         float yFracFudged = fudgeYScale == NO_FUDGE
                 ? (float) yRelative
                 : (float) (yRelative - fudgeY(originalY, yRelative, fudgeYScale));
-        float noise = sampleAndLerp(permutations, xCell, yCell, zCell, xFrac, yFracFudged, zFrac,
-                (float) yRelative, xPeriod, yPeriod, zPeriod);
-        return (float) (correction * noise) + (float) anchor;
+        float noise = sampleAndLerp(lattice.permutations(), xCell, yCell, zCell, xFrac, yFracFudged, zFrac,
+                (float) yRelative, lattice.x().period(), lattice.y().period(), lattice.z().period());
+        return (float) (lattice.correction() * noise) + (float) lattice.anchor();
     }
 
     private static double fudgeY(double originalY, double yRelative, double fudgeYScale) {
@@ -128,15 +121,6 @@ public final class PeriodicNoiseSampler {
         float yFrac = (float) (yOffset - yCell);
         return sampleAndLerp(permutations, xCell, yCell, zCell, (float) (xs - xCell), yFrac, (float) (zs - zCell),
                 yFrac, xPeriod, UNBOUNDED_PERIOD, zPeriod);
-    }
-
-    // A slot carrying no world axis arrives already scaled by its caller, so scaling it again would move the lattice.
-    private static double slotCoord(SlotAxis axis, WrapDomain domain, long period, double scale, double coord) {
-        if (!axis.carriesWorldAxis()) {
-            return coord;
-        }
-
-        return foldAndScale(domain, period, scale, coord);
     }
 
     static long period(WrapDomain domain, double scale, LapFloor floor) {
