@@ -24,16 +24,17 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
 
 public record PositionRows(Map<Identifier, List<TagPosition>> blockEntities, Map<Identifier, List<TagPosition>> entities,
-        Set<Identifier> deny) {
+        Set<Identifier> components, Set<Identifier> deny) {
     public static final String DIRECTORY = ToroidalWorld.MODID;
     public static final String FILE_NAME = "positions";
 
-    public static final PositionRows EMPTY = new PositionRows(Map.of(), Map.of(), Set.of());
+    public static final PositionRows EMPTY = new PositionRows(Map.of(), Map.of(), Set.of(), Set.of());
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final String BLOCK_ENTITIES_KEY = "block_entities";
     private static final String ENTITIES_KEY = "entities";
+    private static final String COMPONENTS_KEY = "components";
     private static final String DENY_KEY = "deny";
 
     private record Container(Nesting nesting, Map<String, PositionShape> keys) {
@@ -57,35 +58,44 @@ public record PositionRows(Map<Identifier, List<TagPosition>> blockEntities, Map
     public static final Codec<Map<Identifier, List<TagPosition>>> SUBJECTS_CODEC =
             Codec.unboundedMap(Identifier.CODEC, SUBJECT_CODEC);
 
-    private static final Codec<Set<Identifier>> DENY_CODEC =
+    static final Codec<Set<Identifier>> IDS_CODEC =
             Identifier.CODEC.listOf().xmap(Set::copyOf, List::copyOf);
 
     public static final Codec<PositionRows> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     SUBJECTS_CODEC.optionalFieldOf(BLOCK_ENTITIES_KEY, Map.of()).forGetter(PositionRows::blockEntities),
                     SUBJECTS_CODEC.optionalFieldOf(ENTITIES_KEY, Map.of()).forGetter(PositionRows::entities),
-                    DENY_CODEC.optionalFieldOf(DENY_KEY, Set.of()).forGetter(PositionRows::deny))
+                    IDS_CODEC.optionalFieldOf(COMPONENTS_KEY, Set.of()).forGetter(PositionRows::components),
+                    IDS_CODEC.optionalFieldOf(DENY_KEY, Set.of()).forGetter(PositionRows::deny))
             .apply(instance, PositionRows::new));
 
     public static PositionRows merge(Map<Identifier, PositionRows> files, Predicate<Identifier> blockEntityTypeKnown,
-            Predicate<Identifier> entityTypeKnown) {
+            Predicate<Identifier> entityTypeKnown, Predicate<Identifier> componentTypeKnown) {
         Map<Identifier, List<TagPosition>> blockEntities = new LinkedHashMap<>();
         Map<Identifier, List<TagPosition>> entities = new LinkedHashMap<>();
+        Set<Identifier> components = new HashSet<>();
         Set<Identifier> deny = new HashSet<>();
         files.forEach((file, rows) -> {
             mergeInto(blockEntities, file, BLOCK_ENTITIES_KEY, rows.blockEntities(), blockEntityTypeKnown);
             mergeInto(entities, file, ENTITIES_KEY, rows.entities(), entityTypeKnown);
+            rows.components().forEach(id -> {
+                if (componentTypeKnown.test(id)) {
+                    components.add(id);
+                } else {
+                    warnUnknown(file, COMPONENTS_KEY, id);
+                }
+            });
             deny.addAll(rows.deny());
         });
 
-        return new PositionRows(Map.copyOf(blockEntities), Map.copyOf(entities), Set.copyOf(deny));
+        return new PositionRows(Map.copyOf(blockEntities), Map.copyOf(entities), Set.copyOf(components),
+                Set.copyOf(deny));
     }
 
     private static void mergeInto(Map<Identifier, List<TagPosition>> merged, Identifier file, String section,
             Map<Identifier, List<TagPosition>> rows, Predicate<Identifier> known) {
         rows.forEach((id, positions) -> {
             if (!known.test(id)) {
-                LOGGER.warn("The {} file of namespace {} names {} under {}, which no mod registers; its rows are skipped",
-                        FILE_NAME, file.getNamespace(), id, section);
+                warnUnknown(file, section, id);
                 return;
             }
 
@@ -93,6 +103,11 @@ public record PositionRows(Map<Identifier, List<TagPosition>> blockEntities, Map
             joined.addAll(positions);
             merged.put(id, List.copyOf(joined));
         });
+    }
+
+    private static void warnUnknown(Identifier file, String section, Identifier id) {
+        LOGGER.warn("The {} file of namespace {} names {} under {}, which no mod registers; its rows are skipped",
+                FILE_NAME, file.getNamespace(), id, section);
     }
 
     private static List<TagPosition> positionsAt(Map<String, Either<PositionShape, Container>> addresses) {

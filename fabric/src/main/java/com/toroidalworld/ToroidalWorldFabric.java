@@ -4,8 +4,8 @@ import com.toroidalworld.engine.gen.LoopedChunkGenerator;
 import com.toroidalworld.engine.gen.LoopedFlatChunkGenerator;
 import com.toroidalworld.engine.gen.WorldLoopGenerators;
 import com.toroidalworld.engine.gen.WorldLoopTicketTypes;
-import com.toroidalworld.engine.net.BlockEntityPositionsPayload;
 import com.toroidalworld.engine.net.OpenMenuTranslation;
+import com.toroidalworld.engine.net.PositionRowsPayload;
 import com.toroidalworld.engine.net.PositionRowsReloadListener;
 import com.toroidalworld.engine.net.PositionRowsSync;
 import com.toroidalworld.engine.net.WrappingSettingsPayload;
@@ -48,8 +48,7 @@ public class ToroidalWorldFabric implements ModInitializer {
                 WorldLoopCriteria.CIRCUMNAVIGATE);
 
         PayloadTypeRegistry.clientboundPlay().register(WrappingSettingsPayload.TYPE, WrappingSettingsPayload.STREAM_CODEC);
-        PayloadTypeRegistry.clientboundPlay().register(BlockEntityPositionsPayload.TYPE,
-                BlockEntityPositionsPayload.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(PositionRowsPayload.TYPE, PositionRowsPayload.STREAM_CODEC);
 
         ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(PositionRowsReloadListener.ID,
                 new PositionRowsReloadListener());

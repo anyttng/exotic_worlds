@@ -1,15 +1,12 @@
 package com.toroidalworld.platform;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
 import java.util.function.IntFunction;
 
 import com.toroidalworld.core.FlatShape;
-import com.toroidalworld.engine.net.TagPositions;
+import com.toroidalworld.engine.net.PositionRowsPayload;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -27,7 +24,7 @@ public interface Platform {
 
     void sendWorldShape(ServerPlayer player, ResourceKey<Level> dimension, FlatShape shape);
 
-    void sendBlockEntityPositions(ServerPlayer player, Map<Identifier, List<TagPositions.TagPosition>> blockEntities);
+    void sendPositionRows(ServerPlayer player, PositionRowsPayload rows);
 
     IntFunction<RegistryFriendlyByteBuf> packetBuffers(ServerPlayer player);
 

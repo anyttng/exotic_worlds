@@ -1,7 +1,6 @@
 package com.toroidalworld.engine.net;
 
 import com.toroidalworld.ToroidalWorld;
-import com.toroidalworld.client.engine.SyncedTagFold;
 import com.toroidalworld.client.engine.WorldLoopClientNetwork;
 
 import net.neoforged.bus.api.SubscribeEvent;
@@ -23,9 +22,9 @@ public final class WorldLoopNetwork {
                 WrappingSettingsPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(() -> WorldLoopClientNetwork.apply(payload.dimension(), payload.shape())));
         registrar.playToClient(
-                BlockEntityPositionsPayload.TYPE,
-                BlockEntityPositionsPayload.STREAM_CODEC,
-                (payload, context) -> context.enqueueWork(() -> SyncedTagFold.declare(payload.blockEntities())));
+                PositionRowsPayload.TYPE,
+                PositionRowsPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> WorldLoopClientNetwork.declare(payload)));
     }
 
     @SubscribeEvent

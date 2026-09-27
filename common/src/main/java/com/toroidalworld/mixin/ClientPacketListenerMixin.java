@@ -1,6 +1,7 @@
 package com.toroidalworld.mixin;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -10,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.toroidalworld.InjectionTargets;
 import com.toroidalworld.client.engine.PublishedShapes;
 import com.toroidalworld.client.engine.SyncedTagFold;
+import com.toroidalworld.engine.net.ComponentPositions;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -27,6 +29,7 @@ public class ClientPacketListenerMixin {
     private void toroidal$forgetWhatTheServerPublished(CallbackInfo ci) {
         PublishedShapes.clear();
         SyncedTagFold.declare(Map.of());
+        ComponentPositions.declare(Set.of());
     }
 
     @WrapOperation(

@@ -11,10 +11,12 @@ public final class PositionRowsSync {
         current = rows;
         SpawnBufferFold.declare(rows.entities());
         RecordPayloadFold.deny(rows.deny());
+        ComponentPositions.declare(rows.components());
     }
 
     public static void sendTo(ServerPlayer player) {
-        Platforms.get().sendBlockEntityPositions(player, current.blockEntities());
+        PositionRows rows = current;
+        Platforms.get().sendPositionRows(player, new PositionRowsPayload(rows.blockEntities(), rows.components()));
     }
 
     private PositionRowsSync() {

@@ -4,6 +4,8 @@ import com.toroidalworld.accessors.ClientBoundsHolder;
 import com.toroidalworld.core.FlatShape;
 import com.toroidalworld.core.WorldFold;
 import com.toroidalworld.core.WorldFolds;
+import com.toroidalworld.engine.net.ComponentPositions;
+import com.toroidalworld.engine.net.PositionRowsPayload;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -18,6 +20,11 @@ public final class WorldLoopClientNetwork {
         if (level != null && level.dimension() == dimension) {
             ((ClientBoundsHolder) level).toroidal$setClientBounds(fold);
         }
+    }
+
+    public static void declare(PositionRowsPayload rows) {
+        SyncedTagFold.declare(rows.blockEntities());
+        ComponentPositions.declare(rows.components());
     }
 
     private WorldLoopClientNetwork() {

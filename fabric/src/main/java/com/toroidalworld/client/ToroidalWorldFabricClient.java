@@ -1,8 +1,7 @@
 package com.toroidalworld.client;
 
-import com.toroidalworld.client.engine.SyncedTagFold;
 import com.toroidalworld.client.engine.WorldLoopClientNetwork;
-import com.toroidalworld.engine.net.BlockEntityPositionsPayload;
+import com.toroidalworld.engine.net.PositionRowsPayload;
 import com.toroidalworld.engine.net.WrappingSettingsPayload;
 import com.toroidalworld.platform.Platforms;
 import com.toroidalworld.settings.SettingsService;
@@ -17,7 +16,7 @@ public class ToroidalWorldFabricClient implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(WrappingSettingsPayload.TYPE,
                 (payload, context) -> context.client().execute(() -> WorldLoopClientNetwork.apply(payload.dimension(), payload.shape())));
-        ClientPlayNetworking.registerGlobalReceiver(BlockEntityPositionsPayload.TYPE,
-                (payload, context) -> context.client().execute(() -> SyncedTagFold.declare(payload.blockEntities())));
+        ClientPlayNetworking.registerGlobalReceiver(PositionRowsPayload.TYPE,
+                (payload, context) -> context.client().execute(() -> WorldLoopClientNetwork.declare(payload)));
     }
 }
