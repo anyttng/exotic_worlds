@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.IntFunction;
 
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -42,6 +44,7 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.PositionAndRotation;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ExplosionParticleInfo;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -85,6 +88,7 @@ import net.minecraft.network.protocol.game.ServerboundBlockEntityTagQueryPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundPickItemFromBlockPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -100,6 +104,9 @@ import net.minecraft.world.entity.PositionPath;
 import net.minecraft.world.entity.PositionStep;
 import net.minecraft.world.entity.Relative;
 import net.minecraft.world.entity.vehicle.minecart.NewMinecartBehavior;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.LodestoneTracker;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.BlockPositionSource;
@@ -110,6 +117,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.entity.SignTextSlot;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.waypoints.Waypoint;
@@ -1046,6 +1054,32 @@ class PacketTranslatorTest {
         }
 
         @Test
+        void creativeSlotReturnsANamedComponentToTheServerFrame() {
+            ComponentPositions.declare(Set.of());
+            ItemStack compass = new ItemStack(Holder.direct(Items.COMPASS));
+            compass.set(DataComponents.LODESTONE_TRACKER,
+                    new LodestoneTracker(Optional.of(GlobalPos.of(Level.OVERWORLD, CLIENT_BLOCK)), true));
+
+            ServerboundSetCreativeModeSlotPacket translated = (ServerboundSetCreativeModeSlotPacket)
+                    PacketTranslator.toServer(new ServerboundSetCreativeModeSlotPacket(36, compass), context());
+
+            assertEquals(36, translated.slotNum());
+            assertEquals(Optional.of(GlobalPos.of(Level.OVERWORLD, SERVER_BLOCK)),
+                    translated.itemStack().get(DataComponents.LODESTONE_TRACKER).target());
+            assertEquals(Optional.of(GlobalPos.of(Level.OVERWORLD, CLIENT_BLOCK)),
+                    compass.get(DataComponents.LODESTONE_TRACKER).target());
+        }
+
+        @Test
+        void creativeSlotWithNoNamedComponentIsThePacketItself() {
+            ComponentPositions.declare(Set.of());
+            ServerboundSetCreativeModeSlotPacket packet =
+                    new ServerboundSetCreativeModeSlotPacket(36, new ItemStack(Holder.direct(Items.COMPASS)));
+
+            assertSame(packet, PacketTranslator.toServer(packet, context()));
+        }
+
+        @Test
         void pickItemFromBlockReturnsToTheServerFrame() {
             ServerboundPickItemFromBlockPacket translated = (ServerboundPickItemFromBlockPacket) PacketTranslator.toServer(
                     new ServerboundPickItemFromBlockPacket(CLIENT_BLOCK, true), context());
@@ -1189,6 +1223,20 @@ class PacketTranslatorTest {
         }
     }
 
+    record ShapedProbePayload(AABB bounds, Vector3d point, List<Vector3dc> path, ProbeMarker marker,
+            Optional<ProbeMarker> held) implements CustomPacketPayload {
+        static final Type<ShapedProbePayload> TYPE =
+                new Type<>(Identifier.fromNamespaceAndPath(ToroidalWorld.MODID, "shaped_probe"));
+
+        @Override
+        public Type<ShapedProbePayload> type() {
+            return TYPE;
+        }
+    }
+
+    record ProbeMarker(BlockPos pos) {
+    }
+
     record RewrittenProbePayload(BlockPos pos) implements CustomPacketPayload {
         static final Type<RewrittenProbePayload> TYPE =
                 new Type<>(Identifier.fromNamespaceAndPath(ToroidalWorld.MODID, "rewritten_probe"));
@@ -1213,6 +1261,7 @@ class PacketTranslatorTest {
     class RecordPayloads {
         private static final int SECTION_Y = 4;
         private static final double PATH_Y = 70.0;
+        private static final double BOX_SIDE = 1.0;
 
         @BeforeAll
         static void registerTheRewrittenProbeAndDenyTheDeniedOne() {
@@ -1224,6 +1273,12 @@ class PacketTranslatorTest {
         private static RecordProbePayload probeAt(BlockPos pos, Vec3 point, ChunkPos chunk) {
             return new RecordProbePayload(pos, Optional.of(pos), List.of(point), chunk,
                     SectionPos.of(chunk, SECTION_Y), GlobalPos.of(Level.OVERWORLD, pos), COUNT);
+        }
+
+        private static ShapedProbePayload shapedAt(BlockPos pos, double x, double z) {
+            Vector3d point = new Vector3d(x, PATH_Y, z);
+            return new ShapedProbePayload(new AABB(x, PATH_Y, z, x + BOX_SIDE, PATH_Y + BOX_SIDE, z + BOX_SIDE),
+                    point, List.of(point), new ProbeMarker(pos), Optional.of(new ProbeMarker(pos)));
         }
 
         @Test
@@ -1244,6 +1299,22 @@ class PacketTranslatorTest {
                     context());
 
             assertEquals(probeAt(SERVER_BLOCK, new Vec3(SERVER_X, PATH_Y, SERVER_Z), SERVER_CHUNK), translated.payload());
+        }
+
+        @Test
+        void clientboundRecordMovesItsBoxesVectorsAndNestedRecords() {
+            ClientboundCustomPayloadPacket translated = (ClientboundCustomPayloadPacket) PacketTranslator.toClient(
+                    new ClientboundCustomPayloadPacket(shapedAt(SERVER_BLOCK, SERVER_X, SERVER_Z)), context());
+
+            assertEquals(shapedAt(CLIENT_BLOCK, CLIENT_X, CLIENT_Z), translated.payload());
+        }
+
+        @Test
+        void serverboundRecordReturnsItsBoxesVectorsAndNestedRecords() {
+            ServerboundCustomPayloadPacket translated = (ServerboundCustomPayloadPacket) PacketTranslator.toServer(
+                    new ServerboundCustomPayloadPacket(shapedAt(CLIENT_BLOCK, CLIENT_X, CLIENT_Z)), context());
+
+            assertEquals(shapedAt(SERVER_BLOCK, SERVER_X, SERVER_Z), translated.payload());
         }
 
         @Test

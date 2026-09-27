@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.toroidalworld.InjectionTargets;
 import com.toroidalworld.accessors.TransformerSource;
 import com.toroidalworld.core.WorldFold;
+import com.toroidalworld.engine.fold.FoldedBoxQuery;
 import com.toroidalworld.engine.seam.SeamSteering;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -40,12 +41,7 @@ public class TransportItemsBetweenContainersMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/AABB;move(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/AABB;"))
     private AABB toroidal$reachBoxThroughSeam(AABB targetBox, @Local(argsOnly = true) PathfinderMob body,
             @Local(argsOnly = true) Vec3 fromPos) {
-        WorldFold transformer = ((TransformerSource) body).toroidal$wrappedTransformer();
-        if (transformer == null) {
-            return targetBox;
-        }
-
-        return transformer.foldBox(fromPos, targetBox).value();
+        return FoldedBoxQuery.toward(((TransformerSource) body).toroidal$wrappedTransformer(), fromPos, targetBox);
     }
 
     @ModifyExpressionValue(

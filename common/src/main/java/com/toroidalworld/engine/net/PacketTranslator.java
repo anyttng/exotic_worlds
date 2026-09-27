@@ -83,6 +83,7 @@ import net.minecraft.network.protocol.game.ServerboundJigsawGeneratePacket;
 import net.minecraft.network.protocol.game.ServerboundPickItemFromBlockPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCommandBlockPacket;
+import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
 import net.minecraft.network.protocol.game.ServerboundSetJigsawBlockPacket;
 import net.minecraft.network.protocol.game.ServerboundSetStructureBlockPacket;
 import net.minecraft.network.protocol.game.ServerboundSetTestBlockPacket;
@@ -98,6 +99,7 @@ import net.minecraft.world.entity.PositionPath;
 import net.minecraft.world.entity.PositionStep;
 import net.minecraft.world.entity.Relative;
 import net.minecraft.world.entity.vehicle.minecart.NewMinecartBehavior;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.gameevent.BlockPositionSource;
 import net.minecraft.world.level.storage.LevelData;
@@ -212,6 +214,7 @@ public final class PacketTranslator {
             Map.entry(ServerboundSetStructureBlockPacket.class, rewriter(PacketTranslator::setStructureBlock)),
             Map.entry(ServerboundSetTestBlockPacket.class, rewriter(PacketTranslator::setTestBlock)),
             Map.entry(ServerboundTestInstanceBlockActionPacket.class, rewriter(PacketTranslator::testInstanceBlockAction)),
+            Map.entry(ServerboundSetCreativeModeSlotPacket.class, rewriter(PacketTranslator::setCreativeModeSlot)),
             Map.entry(ServerboundCustomPayloadPacket.class, rewriter(
                     (ServerboundCustomPayloadPacket packet, TranslationContext context) -> customPayload(packet,
                             packet.payload(), SERVERBOUND_PAYLOAD_REWRITERS, RecordPayloadFold::toServer,
@@ -726,6 +729,14 @@ public final class PacketTranslator {
     private static ServerboundTestInstanceBlockActionPacket testInstanceBlockAction(ServerboundTestInstanceBlockActionPacket packet, TranslationContext context) {
         return new ServerboundTestInstanceBlockActionPacket(
                 context.toServer(packet.pos()), packet.action(), packet.data());
+    }
+
+    private static ServerboundSetCreativeModeSlotPacket setCreativeModeSlot(ServerboundSetCreativeModeSlotPacket packet,
+            TranslationContext context) {
+        ItemStack canonical = ComponentPositions.canonical(packet.itemStack(), context);
+        return canonical == packet.itemStack()
+                ? packet
+                : new ServerboundSetCreativeModeSlotPacket(packet.slotNum(), canonical);
     }
 
     private static BlockPos nearestCopyBlock(TranslationContext context, BlockPos pos) {

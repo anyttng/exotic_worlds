@@ -162,6 +162,15 @@ public final class ShapedDimensions {
         });
     }
 
+    public static WorldDimensions keepChosenShape(WorldDimensions created, WorldDimensions chosen) {
+        return isShaped(chosen) && !isShaped(created) ? chosen : created;
+    }
+
+    private static boolean isShaped(WorldDimensions dimensions) {
+        return dimensions.dimensions().values().stream()
+                .anyMatch(stem -> ShapedChunkGenerator.carriedShapeOf(stem.generator()) != null);
+    }
+
     public static @Nullable CarriedShape carriedShapeOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
         LevelStem stem = dimensions.get(key).orElse(null);
         return stem == null ? null : ShapedChunkGenerator.carriedShapeOf(stem.generator());

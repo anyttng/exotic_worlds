@@ -1,6 +1,5 @@
 package com.toroidalworld.mixin;
 
-import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -11,12 +10,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.toroidalworld.InjectionTargets;
 import com.toroidalworld.accessors.CrumbSweepCache;
+import com.toroidalworld.accessors.PeriodicityMark;
 import com.toroidalworld.accessors.RelocatableBlockEntity;
 import com.toroidalworld.accessors.TerrainMaskCache;
 import com.toroidalworld.accessors.TransformerCache;
 import com.toroidalworld.core.ShapedChunkGenerator;
 import com.toroidalworld.core.WorldFold;
-import com.toroidalworld.core.WorldFold.Folded;
 import com.toroidalworld.core.WorldFolds;
 import com.toroidalworld.core.WorldLoopAttachments;
 import com.toroidalworld.engine.fold.FoldedBoxQuery;
@@ -28,15 +27,12 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.AbortableIterationConsumer;
-import net.minecraft.util.Continuation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -50,7 +46,7 @@ import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.phys.AABB;
 
 @Mixin(Level.class)
-public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMaskCache {
+public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMaskCache, PeriodicityMark {
     @Unique
     private static final String toroidal$GET_ENTITIES =
             "getEntities(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;";
@@ -63,6 +59,9 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
 
     @Unique
     private @Nullable TerrainMasks toroidal$terrainMasks;
+
+    @Unique
+    private final AtomicBoolean toroidal$periodicityClaimed = new AtomicBoolean();
 
     @WrapOperation(
             method = "getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;",
@@ -119,21 +118,8 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
                     target = "Lnet/minecraft/world/level/entity/LevelEntityGetter;get(Lnet/minecraft/world/phys/AABB;Ljava/util/function/Consumer;)V"))
     private void toroidal$entitiesThroughSeam(LevelEntityGetter<Entity> entities, AABB box, Consumer<Entity> output,
             Operation<Void> original) {
-        WorldFold transformer = toroidal$transformer();
-        AABB reach = SeamEntitySearch.sectionReach(box);
-        if (!SeamEntitySearch.crossesSeam(transformer, reach)) {
-            original.call(entities, box, output);
-            return;
-        }
-
-        Set<Entity> seen = Collections.newSetFromMap(new IdentityHashMap<>());
-        for (Folded<AABB> piece : transformer.split(reach)) {
-            original.call(entities, piece.value(), (Consumer<Entity>) entity -> {
-                if (transformer.boxesOverlap(box, entity.getBoundingBox()) && seen.add(entity)) {
-                    output.accept(entity);
-                }
-            });
-        }
+        SeamEntitySearch.forEach(toroidal$transformer(), box, output,
+                (piece, sink) -> original.call(entities, piece, sink));
     }
 
     @WrapOperation(
@@ -153,32 +139,8 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
                     target = "Lnet/minecraft/world/level/entity/LevelEntityGetter;get(Lnet/minecraft/world/level/entity/EntityTypeTest;Lnet/minecraft/world/phys/AABB;Lnet/minecraft/util/AbortableIterationConsumer;)V"))
     private <U extends Entity> void toroidal$typedEntitiesThroughSeam(LevelEntityGetter<Entity> entities,
             EntityTypeTest<Entity, U> type, AABB box, AbortableIterationConsumer<U> output, Operation<Void> original) {
-        WorldFold transformer = toroidal$transformer();
-        AABB reach = SeamEntitySearch.sectionReach(box);
-        if (!SeamEntitySearch.crossesSeam(transformer, reach)) {
-            original.call(entities, type, box, output);
-            return;
-        }
-
-        Set<Entity> seen = Collections.newSetFromMap(new IdentityHashMap<>());
-        MutableBoolean aborted = new MutableBoolean();
-        for (Folded<AABB> piece : transformer.split(reach)) {
-            original.call(entities, type, piece.value(), (AbortableIterationConsumer<U>) entity -> {
-                if (!transformer.boxesOverlap(box, entity.getBoundingBox()) || !seen.add(entity)) {
-                    return Continuation.CONTINUE;
-                }
-
-                Continuation next = output.accept(entity);
-                if (next.shouldAbort()) {
-                    aborted.setTrue();
-                }
-
-                return next;
-            });
-            if (aborted.isTrue()) {
-                return;
-            }
-        }
+        SeamEntitySearch.forEachUntilAborted(toroidal$transformer(), box, output,
+                (piece, sink) -> original.call(entities, type, piece, sink));
     }
 
     @Unique
@@ -217,6 +179,11 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
         }
 
         return this.toroidal$terrainMasks;
+    }
+
+    @Override
+    public boolean toroidal$claimPeriodicityCheck() {
+        return this.toroidal$periodicityClaimed.compareAndSet(false, true);
     }
 
     @Unique

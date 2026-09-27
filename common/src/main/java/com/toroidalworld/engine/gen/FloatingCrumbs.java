@@ -22,6 +22,7 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.GenerationChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
@@ -137,6 +138,27 @@ public final class FloatingCrumbs {
         }
     }
 
+    public static @Nullable CompoundTag savedMask(ServerLevel level, ChunkPos pos) {
+        return sweepsCrumbs(level) ? terrainMasksOf(level).saved(pos) : null;
+    }
+
+    public static void restoreMask(ServerLevel level, ChunkAccess chunk, CompoundTag saved) {
+        if (!sweepsCrumbs(level)) {
+            return;
+        }
+
+        TerrainMask mask = terrainMasksOf(level).restore(chunk.getPos(), saved, chunk.getMinY(), chunk.getHeight());
+        if (mask != null) {
+            attachTerrainMask(chunk, mask);
+        }
+    }
+
+    public static void releaseMask(ServerLevel level, ChunkPos pos) {
+        if (sweepsCrumbs(level)) {
+            terrainMasksOf(level).release(pos);
+        }
+    }
+
     public static void sweepAcross(ServerLevel level, ChunkAccess chunk,
             StaticCache2D<GenerationChunkHolder> chunks) {
         if (!sweepsCrumbs(level)) {
@@ -145,13 +167,15 @@ public final class FloatingCrumbs {
 
         TerrainMasks masks = terrainMasksOf(level);
         ChunkPos centre = chunk.getPos();
-        long[] keys = new long[WINDOW_CHUNKS * WINDOW_CHUNKS];
+        GenerationChunkHolder[] holders = new GenerationChunkHolder[WINDOW_CHUNKS * WINDOW_CHUNKS];
+        long[] keys = new long[holders.length];
         TerrainMask[] window = new TerrainMask[keys.length];
 
         for (int stepZ = -1; stepZ <= 1; stepZ++) {
             for (int stepX = -1; stepX <= 1; stepX++) {
                 int index = (stepZ + 1) * WINDOW_CHUNKS + stepX + 1;
-                keys[index] = chunks.get(centre.x() + stepX, centre.z() + stepZ).getPos().pack();
+                holders[index] = chunks.get(centre.x() + stepX, centre.z() + stepZ);
+                keys[index] = holders[index].getPos().pack();
                 window[index] = masks.at(keys[index]);
             }
         }
@@ -159,8 +183,11 @@ public final class FloatingCrumbs {
         // The LIGHT step declares no write radius, so a region on it reports every read of a neighbour as unsafe.
         sweepWindow(chunk, window, () -> new WorldGenRegion(level, chunks,
                 ChunkPyramid.GENERATION_PYRAMID.getStepTo(ChunkStatus.FEATURES), chunk));
-        for (long key : keys) {
-            masks.consumed(key);
+        for (int index = 0; index < keys.length; index++) {
+            ChunkAccess neighbour = holders[index].getLatestChunk();
+            if (masks.consumed(keys[index]) && neighbour != null) {
+                neighbour.markUnsaved();
+            }
         }
     }
 

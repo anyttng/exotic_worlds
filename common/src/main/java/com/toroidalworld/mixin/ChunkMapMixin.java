@@ -7,7 +7,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.toroidalworld.InjectionTargets;
 import com.toroidalworld.accessors.ChunkResender;
@@ -19,6 +21,7 @@ import com.toroidalworld.accessors.TransformerHolder;
 import com.toroidalworld.core.ShapedChunkGenerator;
 import com.toroidalworld.core.WorldFold;
 import com.toroidalworld.core.WorldLoopAttachments;
+import com.toroidalworld.engine.gen.FloatingCrumbs;
 import com.toroidalworld.engine.gen.SeamDriveRequest;
 import com.toroidalworld.engine.noise.GenerationTransformerContext;
 import com.toroidalworld.engine.noise.TerrainCeiling;
@@ -30,8 +33,11 @@ import com.llamalad7.mixinextras.sugar.Local;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
+
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.SectionPos;
+import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.GenerationChunkHolder;
 import net.minecraft.server.level.ChunkTrackingView;
@@ -42,6 +48,7 @@ import net.minecraft.util.StaticCache2D;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.TicketStorage;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
@@ -79,6 +86,23 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
     @Shadow
     private static void dropChunk(ServerPlayer player, ChunkPos pos) {
         throw new AssertionError();
+    }
+
+    @Shadow
+    @Final
+    private Long2ObjectLinkedOpenHashMap<ChunkHolder> pendingUnloads;
+
+    @Shadow
+    public @Nullable ChunkHolder getUpdatingChunkIfPresent(long key) {
+        throw new AssertionError();
+    }
+
+    @Inject(method = "save(Lnet/minecraft/world/level/chunk/ChunkAccess;)Z", at = @At("RETURN"))
+    private void toroidal$releaseTerrainMask(ChunkAccess chunk, CallbackInfoReturnable<Boolean> callback) {
+        long key = chunk.getPos().pack();
+        if (this.getUpdatingChunkIfPresent(key) == null && !this.pendingUnloads.containsKey(key)) {
+            FloatingCrumbs.releaseMask(this.level, chunk.getPos());
+        }
     }
 
     @Override
