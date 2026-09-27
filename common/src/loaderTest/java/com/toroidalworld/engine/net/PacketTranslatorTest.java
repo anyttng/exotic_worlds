@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.IntFunction;
 
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -106,6 +108,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.waypoints.Waypoint;
@@ -1163,6 +1166,20 @@ class PacketTranslatorTest {
         }
     }
 
+    record ShapedProbePayload(AABB bounds, Vector3d point, List<Vector3dc> path, ProbeMarker marker,
+            Optional<ProbeMarker> held) implements CustomPacketPayload {
+        static final Type<ShapedProbePayload> TYPE =
+                new Type<>(Identifier.fromNamespaceAndPath(ToroidalWorld.MODID, "shaped_probe"));
+
+        @Override
+        public Type<ShapedProbePayload> type() {
+            return TYPE;
+        }
+    }
+
+    record ProbeMarker(BlockPos pos) {
+    }
+
     record RewrittenProbePayload(BlockPos pos) implements CustomPacketPayload {
         static final Type<RewrittenProbePayload> TYPE =
                 new Type<>(Identifier.fromNamespaceAndPath(ToroidalWorld.MODID, "rewritten_probe"));
@@ -1187,6 +1204,7 @@ class PacketTranslatorTest {
     class RecordPayloads {
         private static final int SECTION_Y = 4;
         private static final double PATH_Y = 70.0;
+        private static final double BOX_SIDE = 1.0;
 
         @BeforeAll
         static void registerTheRewrittenProbeAndDenyTheDeniedOne() {
@@ -1198,6 +1216,12 @@ class PacketTranslatorTest {
         private static RecordProbePayload probeAt(BlockPos pos, Vec3 point, ChunkPos chunk) {
             return new RecordProbePayload(pos, Optional.of(pos), List.of(point), chunk,
                     SectionPos.of(chunk, SECTION_Y), GlobalPos.of(Level.OVERWORLD, pos), COUNT);
+        }
+
+        private static ShapedProbePayload shapedAt(BlockPos pos, double x, double z) {
+            Vector3d point = new Vector3d(x, PATH_Y, z);
+            return new ShapedProbePayload(new AABB(x, PATH_Y, z, x + BOX_SIDE, PATH_Y + BOX_SIDE, z + BOX_SIDE),
+                    point, List.of(point), new ProbeMarker(pos), Optional.of(new ProbeMarker(pos)));
         }
 
         @Test
@@ -1218,6 +1242,22 @@ class PacketTranslatorTest {
                     context());
 
             assertEquals(probeAt(SERVER_BLOCK, new Vec3(SERVER_X, PATH_Y, SERVER_Z), SERVER_CHUNK), translated.payload());
+        }
+
+        @Test
+        void clientboundRecordMovesItsBoxesVectorsAndNestedRecords() {
+            ClientboundCustomPayloadPacket translated = (ClientboundCustomPayloadPacket) PacketTranslator.toClient(
+                    new ClientboundCustomPayloadPacket(shapedAt(SERVER_BLOCK, SERVER_X, SERVER_Z)), context());
+
+            assertEquals(shapedAt(CLIENT_BLOCK, CLIENT_X, CLIENT_Z), translated.payload());
+        }
+
+        @Test
+        void serverboundRecordReturnsItsBoxesVectorsAndNestedRecords() {
+            ServerboundCustomPayloadPacket translated = (ServerboundCustomPayloadPacket) PacketTranslator.toServer(
+                    new ServerboundCustomPayloadPacket(shapedAt(CLIENT_BLOCK, CLIENT_X, CLIENT_Z)), context());
+
+            assertEquals(shapedAt(SERVER_BLOCK, SERVER_X, SERVER_Z), translated.payload());
         }
 
         @Test
