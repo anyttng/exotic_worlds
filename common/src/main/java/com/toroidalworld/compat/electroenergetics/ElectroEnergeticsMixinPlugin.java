@@ -55,7 +55,22 @@ public class ElectroEnergeticsMixinPlugin extends ModPresenceGatePlugin {
             SECTION_INDEX, DETACHED_NODE_TICK, CHANGE_LENGTH_PACKET, LINEMANS_STICK, PLAYER_BOX, LEAVING_NODES,
             TRAIN_COLLECTORS, PANTOGRAPH_BLOCK, SHOE_BLOCK);
 
+    private static final String SPAWN_GUARD_MIXIN = "BulbSpawnGuardMixin";
+
+    private static final ModPresence SPAWN_GUARD = ModPresence.of(LOGGER,
+            "com/george_vi/electroenergetics/foundation/device/SpawnPreventingDevice.class",
+            "[electroenergetics-compat] gate spawn_guard_present",
+            new ModSymbol("com/george_vi/electroenergetics/events/GameEvents", "lambda$spawnMob$2",
+                    "(Lnet/neoforged/neoforge/event/entity/living/MobSpawnEvent$SpawnPlacementCheck;"
+                            + "Lcom/george_vi/electroenergetics/devices/device/SimulatedDevice;)Z"));
+
     public ElectroEnergeticsMixinPlugin() {
         super(ELECTRO_ENERGETICS);
+    }
+
+    @Override
+    public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        return super.shouldApplyMixin(targetClassName, mixinClassName)
+                && (!mixinClassName.endsWith(SPAWN_GUARD_MIXIN) || SPAWN_GUARD.present());
     }
 }

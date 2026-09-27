@@ -38,6 +38,9 @@ public final class InjectionTargets {
     public static final String BLOCK_POS_RELATIVE =
             "Lnet/minecraft/core/BlockPos;relative(Lnet/minecraft/core/Direction;)Lnet/minecraft/core/BlockPos;";
 
+    public static final String BLOCK_POS_RELATIVE_BY =
+            "Lnet/minecraft/core/BlockPos;relative(Lnet/minecraft/core/Direction;I)Lnet/minecraft/core/BlockPos;";
+
     public static final String BLOCK_POS_SUBTRACT =
             "Lnet/minecraft/core/BlockPos;subtract(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/BlockPos;";
 

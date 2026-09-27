@@ -30,6 +30,10 @@ public final class WireSpan {
                 .nearestCopy(anchor, end instanceof BlockPos pos ? pos : new BlockPos(end));
     }
 
+    public static BlockPos block(Level level, BlockPos pos) {
+        return WorldLoopAttachments.transformerOf(level).fold(pos);
+    }
+
     public static SectionPos section(Level level, SectionPos section) {
         return WorldLoopAttachments.transformerOf(level).fold(section);
     }
