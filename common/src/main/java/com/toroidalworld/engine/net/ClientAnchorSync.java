@@ -42,7 +42,7 @@ public final class ClientAnchorSync {
 
         BlockPos held = clientPosition.heldSpawn();
         BlockPos spawnPos = level.getSharedSpawnPos();
-        BlockPos want = PacketTranslator.nearestCopyBlock(transformer, clientPosition.chunk(), spawnPos);
+        BlockPos want = ClientboundPacketRewriters.nearestCopyBlock(transformer, clientPosition.chunk(), spawnPos);
         if (want.equals(held)) {
             return;
         }
@@ -55,7 +55,7 @@ public final class ClientAnchorSync {
             ClientPosition clientPosition) {
         WorldBorder border = level.getWorldBorder();
         BorderCenter held = clientPosition.heldBorderCenter();
-        BorderCenter want = PacketTranslator.nearestCopyCenter(transformer, clientPosition,
+        BorderCenter want = ClientboundPacketRewriters.nearestCopyCenter(transformer, clientPosition,
                 new BorderCenter(border.getCenterX(), border.getCenterZ()));
         if (want.equals(held)) {
             return;

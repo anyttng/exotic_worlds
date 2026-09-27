@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-class FloatingCrumbsTest {
+class CrumbFloodTest {
     private static final int SIDE = 16;
 
     private static final int HEIGHT = 8;
@@ -63,11 +63,11 @@ class FloatingCrumbsTest {
 
         List<Integer> sweep() {
             List<Integer> cleared = new ArrayList<>();
-            this.result = FloatingCrumbs.clearCrumbs(GRID, this.solid, this.fluid, this.blocks, cleared::add);
+            this.result = CrumbFlood.clearCrumbs(GRID, this.solid, this.fluid, this.blocks, cleared::add);
             return cleared;
         }
 
-        private FloatingCrumbs.Sweep result;
+        private CrumbFlood.Sweep result;
     }
 
     @Test
@@ -77,7 +77,7 @@ class FloatingCrumbsTest {
         List<Integer> cleared = grid.sweep();
 
         assertEquals(1, cleared.size());
-        assertEquals(new FloatingCrumbs.Sweep(1, 1, 1), grid.result);
+        assertEquals(new CrumbFlood.Sweep(1, 1, 1), grid.result);
         assertFalse(grid.at(8, 8, 4));
     }
 
@@ -89,7 +89,7 @@ class FloatingCrumbsTest {
             List<Integer> cleared = grid.sweep();
 
             assertTrue(cleared.isEmpty(), "swept a block against a chunk side at x=" + site[0] + " z=" + site[1]);
-            assertEquals(new FloatingCrumbs.Sweep(0, 0, 0), grid.result);
+            assertEquals(new CrumbFlood.Sweep(0, 0, 0), grid.result);
             assertTrue(grid.at(site[0], site[1], 4));
         }
     }
@@ -101,7 +101,7 @@ class FloatingCrumbsTest {
         List<Integer> cleared = grid.sweep();
 
         assertEquals(4, cleared.size());
-        assertEquals(new FloatingCrumbs.Sweep(1, 1, 4), grid.result);
+        assertEquals(new CrumbFlood.Sweep(1, 1, 4), grid.result);
     }
 
     @Test
@@ -110,15 +110,15 @@ class FloatingCrumbsTest {
 
         grid.sweep();
 
-        assertEquals(new FloatingCrumbs.Sweep(2, 2, 2), grid.result);
+        assertEquals(new CrumbFlood.Sweep(2, 2, 2), grid.result);
     }
 
     @Test
     void aComponentAtTheCeilingStandsAndOneBelowItGoes() {
         Grid grid = new Grid();
         int placed = 0;
-        for (int x = 4; x < 12 && placed < FloatingCrumbs.CRUMB_CEILING_BLOCKS; x++) {
-            for (int z = 4; z < 12 && placed < FloatingCrumbs.CRUMB_CEILING_BLOCKS; z++) {
+        for (int x = 4; x < 12 && placed < CrumbFlood.CRUMB_CEILING_BLOCKS; x++) {
+            for (int z = 4; z < 12 && placed < CrumbFlood.CRUMB_CEILING_BLOCKS; z++) {
                 grid.set(x, z, 4);
                 placed++;
             }
@@ -126,17 +126,17 @@ class FloatingCrumbsTest {
 
         List<Integer> cleared = grid.sweep();
 
-        assertEquals(FloatingCrumbs.CRUMB_CEILING_BLOCKS, placed);
+        assertEquals(CrumbFlood.CRUMB_CEILING_BLOCKS, placed);
         assertTrue(cleared.isEmpty(), "swept a component of exactly the ceiling");
-        assertEquals(new FloatingCrumbs.Sweep(1, 0, 0), grid.result);
+        assertEquals(new CrumbFlood.Sweep(1, 0, 0), grid.result);
     }
 
     @Test
     void oneBlockUnderTheCeilingGoes() {
         Grid grid = new Grid();
         int placed = 0;
-        for (int x = 4; x < 12 && placed < FloatingCrumbs.CRUMB_CEILING_BLOCKS - 1; x++) {
-            for (int z = 4; z < 12 && placed < FloatingCrumbs.CRUMB_CEILING_BLOCKS - 1; z++) {
+        for (int x = 4; x < 12 && placed < CrumbFlood.CRUMB_CEILING_BLOCKS - 1; x++) {
+            for (int z = 4; z < 12 && placed < CrumbFlood.CRUMB_CEILING_BLOCKS - 1; z++) {
                 grid.set(x, z, 4);
                 placed++;
             }
@@ -144,8 +144,8 @@ class FloatingCrumbsTest {
 
         List<Integer> cleared = grid.sweep();
 
-        assertEquals(FloatingCrumbs.CRUMB_CEILING_BLOCKS - 1, cleared.size());
-        assertEquals(new FloatingCrumbs.Sweep(1, 1, FloatingCrumbs.CRUMB_CEILING_BLOCKS - 1), grid.result);
+        assertEquals(CrumbFlood.CRUMB_CEILING_BLOCKS - 1, cleared.size());
+        assertEquals(new CrumbFlood.Sweep(1, 1, CrumbFlood.CRUMB_CEILING_BLOCKS - 1), grid.result);
     }
 
     @Test
@@ -162,7 +162,7 @@ class FloatingCrumbsTest {
         List<Integer> cleared = grid.sweep();
 
         assertTrue(cleared.isEmpty(), "swept a block sitting on terrain");
-        assertEquals(new FloatingCrumbs.Sweep(0, 0, 0), grid.result);
+        assertEquals(new CrumbFlood.Sweep(0, 0, 0), grid.result);
     }
 
     @Test
@@ -179,7 +179,7 @@ class FloatingCrumbsTest {
         List<Integer> cleared = grid.sweep();
 
         assertEquals(1, cleared.size());
-        assertEquals(new FloatingCrumbs.Sweep(1, 1, 1), grid.result);
+        assertEquals(new CrumbFlood.Sweep(1, 1, 1), grid.result);
         assertTrue(grid.at(8, 8, 0));
         assertFalse(grid.at(8, 8, 3));
     }
@@ -200,7 +200,7 @@ class FloatingCrumbsTest {
 
         grid.sweep();
 
-        assertEquals(FloatingCrumbs.NO_FLUID, grid.fluidAt(8, 8, 4));
+        assertEquals(CrumbFlood.NO_FLUID, grid.fluidAt(8, 8, 4));
     }
 
     @Test
@@ -243,7 +243,7 @@ class FloatingCrumbsTest {
         grid.sweep();
 
         assertEquals(SEA, grid.fluidAt(8, 8, 4));
-        assertEquals(FloatingCrumbs.NO_FLUID, grid.fluidAt(8, 8, 5));
+        assertEquals(CrumbFlood.NO_FLUID, grid.fluidAt(8, 8, 5));
     }
 
     @Test
@@ -262,7 +262,7 @@ class FloatingCrumbsTest {
         List<Integer> cleared = grid.sweep();
 
         assertEquals(3, cleared.size());
-        assertEquals(new FloatingCrumbs.Sweep(1, 1, 3), grid.result);
+        assertEquals(new CrumbFlood.Sweep(1, 1, 3), grid.result);
     }
 
     @Test
@@ -270,15 +270,15 @@ class FloatingCrumbsTest {
         BlockState waterlogged = Blocks.OAK_STAIRS.defaultBlockState()
                 .setValue(BlockStateProperties.WATERLOGGED, true);
 
-        assertTrue(FloatingCrumbs.solidCell(Blocks.STONE.defaultBlockState()));
-        assertTrue(FloatingCrumbs.solidCell(waterlogged));
-        assertFalse(FloatingCrumbs.solidCell(Blocks.WATER.defaultBlockState()));
-        assertFalse(FloatingCrumbs.solidCell(Blocks.AIR.defaultBlockState()));
+        assertTrue(CrumbFlood.solidCell(Blocks.STONE.defaultBlockState()));
+        assertTrue(CrumbFlood.solidCell(waterlogged));
+        assertFalse(CrumbFlood.solidCell(Blocks.WATER.defaultBlockState()));
+        assertFalse(CrumbFlood.solidCell(Blocks.AIR.defaultBlockState()));
         assertEquals(Blocks.WATER.defaultBlockState(),
-                FloatingCrumbs.sourceBlockOf(waterlogged.getFluidState()));
+                CrumbFlood.sourceBlockOf(waterlogged.getFluidState()));
         assertEquals(Blocks.LAVA.defaultBlockState(),
-                FloatingCrumbs.sourceBlockOf(Blocks.LAVA.defaultBlockState().getFluidState()));
-        assertEquals(Blocks.WATER.defaultBlockState(), FloatingCrumbs.sourceBlockOf(
+                CrumbFlood.sourceBlockOf(Blocks.LAVA.defaultBlockState().getFluidState()));
+        assertEquals(Blocks.WATER.defaultBlockState(), CrumbFlood.sourceBlockOf(
                 Blocks.WATER.defaultBlockState().setValue(BlockStateProperties.LEVEL, 3).getFluidState()));
     }
 }

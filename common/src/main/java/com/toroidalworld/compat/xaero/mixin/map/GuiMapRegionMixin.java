@@ -16,29 +16,22 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.toroidalworld.compat.AxisCopies;
 import com.toroidalworld.compat.MapCopies;
 import com.toroidalworld.compat.xaero.XaeroInjectionTargets;
 import com.toroidalworld.compat.xaero.XaeroWorldMapFold;
-import com.toroidalworld.core.CoordinateConstants;
 
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
-import net.minecraft.util.FastColor;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 
 import xaero.map.MapProcessor;
 import xaero.map.WorldMap;
-import xaero.map.graphics.MapRenderHelper;
 import xaero.map.graphics.renderer.multitexture.MultiTextureRenderTypeRenderer;
 import xaero.map.gui.GuiMap;
-import xaero.map.gui.MapTileSelection;
 import xaero.map.misc.Misc;
 import xaero.map.region.BranchLeveledRegion;
 import xaero.map.region.LeveledRegion;
@@ -51,7 +44,7 @@ import xaero.map.region.texture.RegionTexture;
 // injector and defaultRequire=1 accepts whichever the running loader has — the same dual-name pattern as
 // EntitySectionManagerMixin's addEntity/addEntityWithoutEvent.
 @Mixin(GuiMap.class)
-public abstract class GuiMapMixin {
+public abstract class GuiMapRegionMixin {
     @Shadow
     private int mouseBlockPosX;
     @Shadow
@@ -70,12 +63,6 @@ public abstract class GuiMapMixin {
     private boolean prevWaitingForBranchCache;
     @Shadow
     private boolean[] waitingForBranchCache;
-
-    @Unique
-    private static final int SEAM_ARGB = 0xCCFFFFFF;
-
-    @Unique
-    private static final float CHANNEL_MAX = 255.0F;
 
     @Unique
     private static final int REQUEST_BUFFER_SIZE = 10;
@@ -113,124 +100,15 @@ public abstract class GuiMapMixin {
     private final LongOpenHashSet toroidal$fannedRegions = new LongOpenHashSet();
     @Unique
     private final LongOpenHashSet toroidal$loopRegions = new LongOpenHashSet();
-    @Unique
-    private int toroidal$cursorLapX;
-    @Unique
-    private int toroidal$cursorLapZ;
-    @Unique
-    private int toroidal$selectionLapX;
-    @Unique
-    private int toroidal$selectionLapZ;
-    @Unique
-    private MapTileSelection toroidal$trackedSelection;
-    @Unique
-    private int toroidal$selectionEndX;
-    @Unique
-    private int toroidal$selectionEndZ;
-
-    @Shadow
-    private static double destScale;
-
-    @Shadow
-    private double getScaleMultiplier(int size) {
-        throw new AssertionError();
-    }
 
     @Inject(
             method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"},
             at = @At("HEAD"))
-    private void toroidal$beginFrame(CallbackInfo ci) {
+    private void toroidal$beginRegionFrame(CallbackInfo ci) {
         this.toroidal$drawnCanonicalSlots.clear();
         this.toroidal$fannedRegions.clear();
         this.toroidal$loopRegions.clear();
-        toroidal$floorZoomOut();
-    }
-
-    @Inject(method = "changeZoom(DI)V", at = @At("TAIL"))
-    private void toroidal$floorZoomOutOnChange(CallbackInfo ci) {
-        toroidal$floorZoomOut();
-    }
-
-    @Unique
-    private void toroidal$floorZoomOut() {
-        Window window = Minecraft.getInstance().getWindow();
         this.toroidal$mapCopies = MapCopies.current();
-        double floor = XaeroWorldMapFold.zoomFloorScale(
-                this.getScaleMultiplier(Math.min(window.getWidth(), window.getHeight())),
-                this.toroidal$mapCopies, window.getWidth(), window.getHeight());
-        if (floor > 0.0 && destScale < floor) {
-            destScale = floor;
-        }
-    }
-
-    @WrapOperation(
-            method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"},
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lxaero/map/entity/util/EntityUtil;getEntityX(Lnet/minecraft/world/entity/Entity;F)D"))
-    private double toroidal$foldCameraX(Entity entity, float partialTicks, Operation<Double> original) {
-        return XaeroWorldMapFold.foldCoord(Direction.Axis.X, original.call(entity, partialTicks));
-    }
-
-    @WrapOperation(
-            method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"},
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lxaero/map/entity/util/EntityUtil;getEntityZ(Lnet/minecraft/world/entity/Entity;F)D"))
-    private double toroidal$foldCameraZ(Entity entity, float partialTicks, Operation<Double> original) {
-        return XaeroWorldMapFold.foldCoord(Direction.Axis.Z, original.call(entity, partialTicks));
-    }
-
-    @Inject(
-            method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"},
-            at = @At(
-                    value = "INVOKE",
-                    target = XaeroInjectionTargets.MAP_PROCESSOR_GET_MAP_SAVE_LOAD,
-                    ordinal = 1))
-    private void toroidal$stopCameraAtTheEdge(CallbackInfo ci) {
-        if (this.toroidal$mapCopies != MapCopies.SINGLE || !XaeroWorldMapFold.active()) {
-            return;
-        }
-
-        Window window = Minecraft.getInstance().getWindow();
-        this.cameraX = XaeroWorldMapFold.copies(Direction.Axis.X).clampView(this.cameraX, window.getWidth() / 2.0 / this.scale);
-        this.cameraZ = XaeroWorldMapFold.copies(Direction.Axis.Z).clampView(this.cameraZ, window.getHeight() / 2.0 / this.scale);
-    }
-
-    @Inject(
-            method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"},
-            at = @At(
-                    value = "FIELD",
-                    target = "Lxaero/map/gui/GuiMap;mouseBlockPosZ:I",
-                    opcode = 181,
-                    ordinal = 1,
-                    shift = At.Shift.AFTER))
-    private void toroidal$foldCursorBlockPos(CallbackInfo ci) {
-        int rawX = this.mouseBlockPosX;
-        int rawZ = this.mouseBlockPosZ;
-        this.mouseBlockPosX = XaeroWorldMapFold.foldBlock(Direction.Axis.X, rawX);
-        this.mouseBlockPosZ = XaeroWorldMapFold.foldBlock(Direction.Axis.Z, rawZ);
-        this.toroidal$cursorLapX = rawX - this.mouseBlockPosX;
-        this.toroidal$cursorLapZ = rawZ - this.mouseBlockPosZ;
-    }
-
-    @WrapOperation(
-            method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"},
-            at = @At(value = "INVOKE", target = "Lxaero/map/gui/MapTileSelection;setEnd(II)V"))
-    private void toroidal$unwrapSelectionEnd(MapTileSelection selection, int endX, int endZ, Operation<Void> original) {
-        boolean fresh = selection != this.toroidal$trackedSelection;
-        this.toroidal$trackedSelection = selection;
-        AxisCopies copiesX = XaeroWorldMapFold.chunkCopies(Direction.Axis.X);
-        AxisCopies copiesZ = XaeroWorldMapFold.chunkCopies(Direction.Axis.Z);
-        int startX = selection.getStartX();
-        int startZ = selection.getStartZ();
-        int unwrappedX = copiesX.nearest(fresh ? startX : this.toroidal$selectionEndX, endX);
-        int unwrappedZ = copiesZ.nearest(fresh ? startZ : this.toroidal$selectionEndZ, endZ);
-        this.toroidal$selectionEndX = unwrappedX;
-        this.toroidal$selectionEndZ = unwrappedZ;
-        this.toroidal$selectionLapX = this.toroidal$cursorLapX - (unwrappedX - endX) * CoordinateConstants.CHUNK_WIDTH;
-        this.toroidal$selectionLapZ = this.toroidal$cursorLapZ - (unwrappedZ - endZ) * CoordinateConstants.CHUNK_WIDTH;
-        original.call(selection, copiesX.withinOneLap(startX, unwrappedX), copiesZ.withinOneLap(startZ, unwrappedZ));
     }
 
     @WrapOperation(
@@ -556,75 +434,5 @@ public abstract class GuiMapMixin {
                 }
             }
         }
-    }
-
-    @WrapOperation(
-            method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"},
-            at = @At(
-                    value = "INVOKE",
-                    target = XaeroInjectionTargets.MAP_RENDER_HELPER_RENDER_DYNAMIC_HIGHLIGHT,
-                    ordinal = 0))
-    private void toroidal$drawSeamGrid(
-            PoseStack matrixStack, VertexConsumer overlayBuffer, int flooredCameraX, int flooredCameraZ,
-            int leftX, int rightX, int topZ, int bottomZ,
-            float sideR, float sideG, float sideB, float sideA, float centerR, float centerG, float centerB, float centerA,
-            Operation<Void> original) {
-        if (!XaeroWorldMapFold.active()) {
-            original.call(matrixStack, overlayBuffer, flooredCameraX, flooredCameraZ, leftX, rightX, topZ, bottomZ,
-                    sideR, sideG, sideB, sideA, centerR, centerG, centerB, centerA);
-            return;
-        }
-
-        int lapX = this.toroidal$cursorLapX;
-        int lapZ = this.toroidal$cursorLapZ;
-        original.call(matrixStack, overlayBuffer, flooredCameraX, flooredCameraZ,
-                leftX + lapX, rightX + lapX, topZ + lapZ, bottomZ + lapZ,
-                sideR, sideG, sideB, sideA, centerR, centerG, centerB, centerA);
-        if (this.toroidal$mapCopies == MapCopies.SINGLE) {
-            return;
-        }
-
-        AxisCopies copiesX = XaeroWorldMapFold.copies(Direction.Axis.X);
-        AxisCopies copiesZ = XaeroWorldMapFold.copies(Direction.Axis.Z);
-        int thickness = Math.max(1, (int) Math.ceil(1.0 / this.scale));
-        Window window = Minecraft.getInstance().getWindow();
-        int[] spanX = XaeroWorldMapFold.viewSpan(this.cameraX, window.getWidth(), this.scale, thickness);
-        int[] spanZ = XaeroWorldMapFold.viewSpan(this.cameraZ, window.getHeight(), this.scale, thickness);
-        int[] linesX = copiesX.seams(spanX[0], spanX[1]);
-        int[] linesZ = copiesZ.seams(spanZ[0], spanZ[1]);
-        Matrix4f matrix = matrixStack.last().pose();
-        for (int lineX : linesX) {
-            MapRenderHelper.fillIntoExistingBuffer(matrix, overlayBuffer,
-                    lineX - flooredCameraX, spanZ[0] - flooredCameraZ,
-                    lineX - flooredCameraX + thickness, spanZ[1] - flooredCameraZ,
-                    FastColor.ARGB32.red(SEAM_ARGB) / CHANNEL_MAX, FastColor.ARGB32.green(SEAM_ARGB) / CHANNEL_MAX,
-                    FastColor.ARGB32.blue(SEAM_ARGB) / CHANNEL_MAX, FastColor.ARGB32.alpha(SEAM_ARGB) / CHANNEL_MAX);
-        }
-
-        for (int lineZ : linesZ) {
-            MapRenderHelper.fillIntoExistingBuffer(matrix, overlayBuffer,
-                    spanX[0] - flooredCameraX, lineZ - flooredCameraZ,
-                    spanX[1] - flooredCameraX, lineZ - flooredCameraZ + thickness,
-                    FastColor.ARGB32.red(SEAM_ARGB) / CHANNEL_MAX, FastColor.ARGB32.green(SEAM_ARGB) / CHANNEL_MAX,
-                    FastColor.ARGB32.blue(SEAM_ARGB) / CHANNEL_MAX, FastColor.ARGB32.alpha(SEAM_ARGB) / CHANNEL_MAX);
-        }
-    }
-
-    @WrapOperation(
-            method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"},
-            at = @At(
-                    value = "INVOKE",
-                    target = XaeroInjectionTargets.MAP_RENDER_HELPER_RENDER_DYNAMIC_HIGHLIGHT,
-                    ordinal = 1))
-    private void toroidal$drawSelectionInCursorCopy(
-            PoseStack matrixStack, VertexConsumer overlayBuffer, int flooredCameraX, int flooredCameraZ,
-            int leftX, int rightX, int topZ, int bottomZ,
-            float sideR, float sideG, float sideB, float sideA, float centerR, float centerG, float centerB, float centerA,
-            Operation<Void> original) {
-        int lapX = this.toroidal$selectionLapX;
-        int lapZ = this.toroidal$selectionLapZ;
-        original.call(matrixStack, overlayBuffer, flooredCameraX, flooredCameraZ,
-                leftX + lapX, rightX + lapX, topZ + lapZ, bottomZ + lapZ,
-                sideR, sideG, sideB, sideA, centerR, centerG, centerB, centerA);
     }
 }
