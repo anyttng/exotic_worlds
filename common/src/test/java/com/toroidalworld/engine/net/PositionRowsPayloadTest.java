@@ -17,9 +17,11 @@ import io.netty.buffer.Unpooled;
 
 import net.minecraft.resources.Identifier;
 
-class BlockEntityPositionsPayloadTest {
+class PositionRowsPayloadTest {
     private static final Identifier HOLDER_ID = Identifier.fromNamespaceAndPath("cject", "holder");
     private static final Identifier RELAY_ID = Identifier.fromNamespaceAndPath("pack", "relay");
+    private static final Identifier ANCHOR_COMPONENT_ID = Identifier.fromNamespaceAndPath("cject", "anchor");
+    private static final Identifier TARGET_COMPONENT_ID = Identifier.fromNamespaceAndPath("pack", "target");
 
     private static final List<TagPosition> HOLDER_POSITIONS = List.of(
             new TagPosition("Goal", PositionShape.PACKED_LONG),
@@ -32,24 +34,28 @@ class BlockEntityPositionsPayloadTest {
             List.of(new TagPosition(Nesting.EACH_OF_LIST, "Queue", "Destination", PositionShape.VEC3_LIST));
 
     @Test
-    void everyAddressFormCrossesTheWireAndDrainsTheBuffer() {
+    void everyAddressFormAndComponentCrossesTheWireAndDrainsTheBuffer() {
         ByteBuf buffer = Unpooled.buffer();
-        BlockEntityPositionsPayload.STREAM_CODEC.encode(buffer,
-                new BlockEntityPositionsPayload(Map.of(HOLDER_ID, HOLDER_POSITIONS, RELAY_ID, RELAY_POSITIONS)));
+        PositionRowsPayload.STREAM_CODEC.encode(buffer,
+                new PositionRowsPayload(Map.of(HOLDER_ID, HOLDER_POSITIONS, RELAY_ID, RELAY_POSITIONS),
+                        Set.of(ANCHOR_COMPONENT_ID, TARGET_COMPONENT_ID)));
 
-        BlockEntityPositionsPayload decoded = BlockEntityPositionsPayload.STREAM_CODEC.decode(buffer);
+        PositionRowsPayload decoded = PositionRowsPayload.STREAM_CODEC.decode(buffer);
 
         assertEquals(Set.of(HOLDER_ID, RELAY_ID), decoded.blockEntities().keySet());
         assertEquals(Set.copyOf(HOLDER_POSITIONS), Set.copyOf(decoded.blockEntities().get(HOLDER_ID)));
         assertEquals(Set.copyOf(RELAY_POSITIONS), Set.copyOf(decoded.blockEntities().get(RELAY_ID)));
+        assertEquals(Set.of(ANCHOR_COMPONENT_ID, TARGET_COMPONENT_ID), decoded.components());
         assertEquals(0, buffer.readableBytes());
     }
 
     @Test
     void noRowsCrossTheWireAsNoRows() {
         ByteBuf buffer = Unpooled.buffer();
-        BlockEntityPositionsPayload.STREAM_CODEC.encode(buffer, new BlockEntityPositionsPayload(Map.of()));
+        PositionRowsPayload.STREAM_CODEC.encode(buffer, new PositionRowsPayload(Map.of(), Set.of()));
 
-        assertEquals(Map.of(), BlockEntityPositionsPayload.STREAM_CODEC.decode(buffer).blockEntities());
+        PositionRowsPayload decoded = PositionRowsPayload.STREAM_CODEC.decode(buffer);
+        assertEquals(Map.of(), decoded.blockEntities());
+        assertEquals(Set.of(), decoded.components());
     }
 }

@@ -29,6 +29,7 @@ public final class PositionRowsReloadListener extends SimpleJsonResourceReloadLi
         });
 
         PositionRowsSync.apply(PositionRows.merge(positionFiles,
-                BuiltInRegistries.BLOCK_ENTITY_TYPE::containsKey, BuiltInRegistries.ENTITY_TYPE::containsKey));
+                BuiltInRegistries.BLOCK_ENTITY_TYPE::containsKey, BuiltInRegistries.ENTITY_TYPE::containsKey,
+                BuiltInRegistries.DATA_COMPONENT_TYPE::containsKey));
     }
 }

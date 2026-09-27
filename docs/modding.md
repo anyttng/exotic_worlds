@@ -165,6 +165,22 @@ A value whose tag type does not match its shape is left as it is.
 
 The server reads every namespace's file at start and on `/reload`, and sends the rows to each client as it joins and after each reload; a resource pack on the client adds none. A row naming an id no mod registers is logged and skipped. Where Toroidal World already carries a position at the same key for that block entity or entity, its own row is kept and yours is logged.
 
+### Positions your item components store
+
+A data component that holds a world position reaches the client as the server stored it, and a stack is not re-sent as the player walks, so the client reads it seated instead. Name the component type id in the same file:
+
+```json
+{
+  "components": [ "your_mod:linked_anchor" ]
+}
+```
+
+On a toroidal world, a read of a named component through `ItemStack.get` or `getOrDefault` on the client's own thread answers the copy nearest the player; the stack keeps the server's value, and a read through `getComponents()` is not seated. The value's form is read as a payload record's is: a `BlockPos`, `Vec3`, `ChunkPos`, `SectionPos` or `GlobalPos`, an `Optional` or a `List` of one, or a record holding them; a `GlobalPos` is seated only in the dimension the player stands in.
+
+A stack a creative-mode client puts into a slot has each named component folded back into the world's bounds on its way in, so a seated value your client code writes back into the stack never reaches the server as it was written.
+
+A component whose `BlockPos` is not a world position must not be named. `minecraft:lodestone_tracker` is named already. The list is read and sent like the rows above; an id naming no registered component type is logged and skipped.
+
 ### A particle type of your own
 
 ```java
