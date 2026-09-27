@@ -14,16 +14,20 @@ import static com.toroidalworld.engine.net.PacketTranslatorFixture.context;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import org.joml.Vector3d;
 import org.junit.jupiter.api.Test;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 class FoldedValueTest {
@@ -32,6 +36,8 @@ class FoldedValueTest {
     private static final int SECTION_Y = 4;
 
     private static final String UNFOLDED = "a label the fold knows nothing about";
+
+    private static final double HALF_SIDE = 0.5;
 
     private static Object toward(Object value) {
         return FoldedValue.toward(context(), ANCHOR, value);
@@ -102,6 +108,62 @@ class FoldedValueTest {
     }
 
     @Test
+    void boxMovesToTheCopyNearestItsCentre() {
+        assertEquals(boxAround(CLIENT_X, CLIENT_Z), toward(boxAround(SERVER_X, SERVER_Z)));
+    }
+
+    @Test
+    void listCopiesTheBoxesThatMove() {
+        assertEquals(List.of(boxAround(CLIENT_X, CLIENT_Z)), toward(List.of(boxAround(SERVER_X, SERVER_Z))));
+    }
+
+    @Test
+    void jomlVectorMovesToTheNearestCopy() {
+        assertEquals(new Vector3d(CLIENT_X, 64.0, CLIENT_Z), toward(new Vector3d(SERVER_X, 64.0, SERVER_Z)));
+    }
+
+    @Test
+    void jomlVectorAlreadyInTheClientFramePassesThrough() {
+        Vector3d point = new Vector3d(CLIENT_X, 64.0, CLIENT_Z);
+
+        assertSame(point, toward(point));
+    }
+
+    @Test
+    void optionalHoldsTheFoldedJomlVector() {
+        assertEquals(Optional.of(new Vector3d(CLIENT_X, 64.0, CLIENT_Z)),
+                toward(Optional.of(new Vector3d(SERVER_X, 64.0, SERVER_Z))));
+    }
+
+    @Test
+    void nestedRecordMovesItsPositions() {
+        assertEquals(new Marker(CLIENT_BLOCK, UNFOLDED), toward(new Marker(SERVER_BLOCK, UNFOLDED)));
+    }
+
+    @Test
+    void listCopiesTheNestedRecordsThatMove() {
+        assertEquals(List.of(new Marker(CLIENT_BLOCK, UNFOLDED)), toward(List.of(new Marker(SERVER_BLOCK, UNFOLDED))));
+    }
+
+    @Test
+    void recordThatHoldsItselfMovesEveryLevel() {
+        assertEquals(new Node(CLIENT_BLOCK, List.of(new Node(CLIENT_BLOCK, List.of()))),
+                toward(new Node(SERVER_BLOCK, List.of(new Node(SERVER_BLOCK, List.of())))));
+    }
+
+    @Test
+    void recordWithoutPositionsPassesThrough() {
+        Chain chain = new Chain(List.of(new Chain(List.of())));
+
+        assertSame(chain, toward(chain));
+    }
+
+    @Test
+    void nullInsideAListPassesThrough() {
+        assertEquals(Arrays.asList(CLIENT_BLOCK, null), toward(Arrays.asList(SERVER_BLOCK, null)));
+    }
+
+    @Test
     void valueOfAnUnknownTypePassesThrough() {
         assertSame(UNFOLDED, toward(UNFOLDED));
     }
@@ -120,5 +182,18 @@ class FoldedValueTest {
 
     private static UnaryOperator<Object> replaceTheLabel() {
         return value -> UNFOLDED.equals(value) ? CLIENT_BLOCK : value;
+    }
+
+    private static AABB boxAround(double x, double z) {
+        return new AABB(x - HALF_SIDE, 64.0, z - HALF_SIDE, x + HALF_SIDE, 64.0 + 2 * HALF_SIDE, z + HALF_SIDE);
+    }
+
+    record Marker(BlockPos pos, String label) {
+    }
+
+    record Node(BlockPos pos, List<Node> children) {
+    }
+
+    record Chain(List<Chain> links) {
     }
 }
