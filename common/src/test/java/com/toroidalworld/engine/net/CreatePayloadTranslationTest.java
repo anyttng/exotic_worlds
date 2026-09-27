@@ -2,6 +2,7 @@ package com.toroidalworld.engine.net;
 
 import static com.toroidalworld.compat.CompatFoldFixture.PER_AXIS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import com.simibubi.create.content.contraptions.glue.GlueEffectPacket;
 import com.simibubi.create.content.equipment.bell.SoulPulseEffectPacket;
 import com.simibubi.create.content.equipment.symmetryWand.SymmetryEffectPacket;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmPlacementPacket;
+import com.simibubi.create.content.logistics.box.PackageDestroyPacket;
 import com.simibubi.create.content.logistics.depot.EjectorPlacementPacket;
 import com.simibubi.create.content.logistics.packagePort.PackagePortPlacementPacket;
 import com.simibubi.create.content.logistics.packagerLink.WiFiEffectPacket;
@@ -30,7 +32,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 class CreatePayloadTranslationTest {
     private static final RegistryAccess.Frozen REGISTRIES =
@@ -48,6 +52,8 @@ class CreatePayloadTranslationTest {
     private static final BlockPos SERVER_BLOCK = new BlockPos(-232, 64, 8);
     private static final BlockPos CLIENT_BLOCK = new BlockPos(280, 64, 8);
     private static final BlockPos INLAND_BLOCK = new BlockPos(200, 64, 8);
+    private static final Vec3 SERVER_POINT = Vec3.atCenterOf(SERVER_BLOCK);
+    private static final Vec3 CLIENT_POINT = Vec3.atCenterOf(CLIENT_BLOCK);
 
     private static final BlockPos SERVER_MIRROR = new BlockPos(232, 64, 8);
     private static final BlockPos SERVER_PLACED = new BlockPos(-232, 64, 8);
@@ -75,27 +81,57 @@ class CreatePayloadTranslationTest {
         return seated(payload, NEAR_THE_EAST_EDGE);
     }
 
+    // The record fold's deny check reads payload.type(), which starts Create's own registration outside a loader.
+    private static CustomPacketPayload folded(CustomPacketPayload payload) {
+        TranslationContext context = contextAt(NEAR_THE_EAST_EDGE);
+        return RecordPayloadFold.formOf(payload.getClass())
+                .rebuilt(payload, value -> FoldedValue.walk(context, FoldedValue.toClient(context), value));
+    }
+
+    @Test
+    void everyPayloadTheRecordFoldCoversHasNoRewriterOfItsOwn() {
+        List<CustomPacketPayload> covered = List.of(
+                new ArmPlacementPacket.ClientBoundRequest(SERVER_BLOCK),
+                new EjectorPlacementPacket.ClientBoundRequest(SERVER_BLOCK),
+                new PackagePortPlacementPacket.ClientBoundRequest(SERVER_BLOCK),
+                new SoulPulseEffectPacket(SERVER_BLOCK, 5, true),
+                new WiFiEffectPacket(SERVER_BLOCK),
+                new GlueEffectPacket(SERVER_BLOCK, Direction.UP, true),
+                new RedstoneRequesterEffectPacket(SERVER_BLOCK, true),
+                new LogisticalStockResponsePacket(true, SERVER_BLOCK, List.of()),
+                new PackageDestroyPacket(SERVER_POINT, ItemStack.EMPTY));
+        for (CustomPacketPayload payload : covered) {
+            assertNull(PacketTranslator.production().clientboundPayloadFor(payload), payload.getClass().getName());
+        }
+    }
+
     @Test
     void everyPlacementEchoLandsOnTheCopyTheClientHolds() {
         assertEquals(new ArmPlacementPacket.ClientBoundRequest(CLIENT_BLOCK),
-                seated(new ArmPlacementPacket.ClientBoundRequest(SERVER_BLOCK)));
+                folded(new ArmPlacementPacket.ClientBoundRequest(SERVER_BLOCK)));
         assertEquals(new EjectorPlacementPacket.ClientBoundRequest(CLIENT_BLOCK),
-                seated(new EjectorPlacementPacket.ClientBoundRequest(SERVER_BLOCK)));
+                folded(new EjectorPlacementPacket.ClientBoundRequest(SERVER_BLOCK)));
         assertEquals(new PackagePortPlacementPacket.ClientBoundRequest(CLIENT_BLOCK),
-                seated(new PackagePortPlacementPacket.ClientBoundRequest(SERVER_BLOCK)));
+                folded(new PackagePortPlacementPacket.ClientBoundRequest(SERVER_BLOCK)));
     }
 
     @Test
     void everySingleBlockEffectLandsOnTheCopyTheClientHolds() {
         assertEquals(new SoulPulseEffectPacket(CLIENT_BLOCK, 5, true),
-                seated(new SoulPulseEffectPacket(SERVER_BLOCK, 5, true)));
-        assertEquals(new WiFiEffectPacket(CLIENT_BLOCK), seated(new WiFiEffectPacket(SERVER_BLOCK)));
+                folded(new SoulPulseEffectPacket(SERVER_BLOCK, 5, true)));
+        assertEquals(new WiFiEffectPacket(CLIENT_BLOCK), folded(new WiFiEffectPacket(SERVER_BLOCK)));
         assertEquals(new GlueEffectPacket(CLIENT_BLOCK, Direction.UP, true),
-                seated(new GlueEffectPacket(SERVER_BLOCK, Direction.UP, true)));
+                folded(new GlueEffectPacket(SERVER_BLOCK, Direction.UP, true)));
         assertEquals(new RedstoneRequesterEffectPacket(CLIENT_BLOCK, true),
-                seated(new RedstoneRequesterEffectPacket(SERVER_BLOCK, true)));
+                folded(new RedstoneRequesterEffectPacket(SERVER_BLOCK, true)));
         assertEquals(new LogisticalStockResponsePacket(true, CLIENT_BLOCK, List.of()),
-                seated(new LogisticalStockResponsePacket(true, SERVER_BLOCK, List.of())));
+                folded(new LogisticalStockResponsePacket(true, SERVER_BLOCK, List.of())));
+    }
+
+    @Test
+    void theDestroyedPackagesBurstLandsOnTheCopyTheClientHolds() {
+        ItemStack box = ItemStack.EMPTY;
+        assertEquals(new PackageDestroyPacket(CLIENT_POINT, box), folded(new PackageDestroyPacket(SERVER_POINT, box)));
     }
 
     @Test
@@ -113,7 +149,7 @@ class CreatePayloadTranslationTest {
     @Test
     void aPayloadInThePlayersOwnFrameTravelsUntouched() {
         WiFiEffectPacket inland = new WiFiEffectPacket(INLAND_BLOCK);
-        assertSame(inland, seated(inland));
+        assertSame(inland, folded(inland));
 
         SymmetryEffectPacket inlandSymmetry = new SymmetryEffectPacket(INLAND_BLOCK, List.of(INLAND_BLOCK));
         assertSame(inlandSymmetry, seated(inlandSymmetry));

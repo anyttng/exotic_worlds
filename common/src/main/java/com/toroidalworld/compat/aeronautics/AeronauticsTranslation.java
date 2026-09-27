@@ -3,7 +3,6 @@ package com.toroidalworld.compat.aeronautics;
 import java.util.Map;
 
 import org.joml.Vector3d;
-import org.jspecify.annotations.Nullable;
 
 import com.toroidalworld.client.engine.SyncedTagFold;
 import com.toroidalworld.compat.aeronautics.mixin.MultiMiningSyncAccessor;
@@ -15,7 +14,6 @@ import com.toroidalworld.engine.net.SpawnBufferFold;
 import com.toroidalworld.engine.net.TagPositions;
 import com.toroidalworld.engine.net.TranslationContext;
 
-import dev.eriksonn.aeronautics.network.packets.LevititeCatalystCrystallizationPacket;
 import dev.simulated_team.simulated.content.blocks.docking_connector.DockingConnectorBlockEntity;
 import dev.simulated_team.simulated.content.blocks.lasers.laser_pointer.LaserPointerBlockEntity;
 import dev.simulated_team.simulated.content.blocks.merging_glue.MergingGlueBlockEntity;
@@ -26,21 +24,14 @@ import dev.simulated_team.simulated.content.blocks.swivel_bearing.SwivelBearingB
 import dev.simulated_team.simulated.content.blocks.swivel_bearing.link_block.SwivelBearingPlateBlockEntity;
 import dev.simulated_team.simulated.content.entities.honey_glue.HoneyGlueEntity;
 import dev.simulated_team.simulated.index.SimEntityDataSerializers;
-import dev.simulated_team.simulated.network.packets.honey_glue.HoneyGlueSyncBoundsPacket;
-import dev.simulated_team.simulated.network.packets.linked_typewriter.TypewriterKeySavePacket;
 import dev.simulated_team.simulated.network.packets.lodestone_compass.UpdateClientLodestonePositionPacket;
-import dev.simulated_team.simulated.network.packets.physics_assembler.PhysicsAssemblerFailedPacket;
-import dev.simulated_team.simulated.network.packets.physics_assembler.PhysicsAssemblerFlickAndHoldLeverPacket;
 import dev.ryanhcode.offroad.handlers.server.MultiMiningServerManager;
 import dev.ryanhcode.offroad.network.borehead_bearing.ClientboundMultiMiningSync;
 import dev.simulated_team.simulated.network.packets.physics_staff.PhysicsStaffBeamPacket;
 import dev.simulated_team.simulated.network.packets.physics_staff.PhysicsStaffDragSessionsPacket;
-import dev.simulated_team.simulated.network.packets.rope.ClientboundRopeDataPacket;
-import dev.simulated_team.simulated.network.packets.rope.ClientboundRopeStoppedPacket;
 
 import net.createmod.catnip.data.Pair;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 // Nothing on a CompoundTag key or a payload component says it holds a world position, so every list below is
@@ -65,19 +56,10 @@ public final class AeronauticsTranslation {
         if (OffroadMod.present()) {
             registerOffroad();
         }
-
-        if (AeronauticsMod.present()) {
-            registerAeronautics();
-        }
-    }
-
-    private static void registerAeronautics() {
-        PacketTranslator.registerServerboundPayloadRewriter(LevititeCatalystCrystallizationPacket.class,
-                (payload, context) ->
-                        new LevititeCatalystCrystallizationPacket(context.toServer(payload.pos()), payload.hand()));
     }
 
     private static void registerOffroad() {
+        // Not a record, so the record fold cannot rebuild it.
         PacketTranslator.registerClientboundPayloadRewriter(ClientboundMultiMiningSync.class, (payload, context) -> {
             ClientboundMultiMiningSync seated = ClientboundMultiMiningSync.serverOutboundData(
                     ((MultiMiningSyncAccessor) (Object) payload).toroidal$breakingId());
@@ -93,34 +75,17 @@ public final class AeronauticsTranslation {
         registerSimulatedSyncedTags();
         SpawnBufferFold.register(HoneyGlueEntity.class, TagPositions.PositionShape.VEC3_LIST, HONEY_GLUE_POS_KEY);
 
-        PacketTranslator.registerServerboundPayloadRewriter(TypewriterKeySavePacket.class, (payload, context) ->
-                new TypewriterKeySavePacket(payload.changedKeys(), context.toServer(payload.pos()), payload.clearAll()));
-
-        PacketTranslator.registerClientboundPayloadRewriter(ClientboundRopeDataPacket.class, (payload, context) ->
-                new ClientboundRopeDataPacket(payload.interpolationTick(), seat(context, payload.ownerPos()),
-                        payload.uuid(), FoldedCopies.of(payload.points(), point -> seat(context, point)),
-                        seat(context, payload.startAttachmentPos()), seat(context, payload.endAttachmentPos())));
-
-        PacketTranslator.registerClientboundPayloadRewriter(ClientboundRopeStoppedPacket.class, (payload, context) ->
-                new ClientboundRopeStoppedPacket(seat(context, payload.ownerPos())));
-
-        PacketTranslator.registerClientboundPayloadRewriter(HoneyGlueSyncBoundsPacket.class, (payload, context) ->
-                new HoneyGlueSyncBoundsPacket(seat(context, payload.bounds()), payload.honeyGlueId(), payload.uuid()));
-
+        // A Pair component is out of the record fold's reach.
         PacketTranslator.registerClientboundPayloadRewriter(PhysicsStaffDragSessionsPacket.class, (payload, context) ->
                 new PhysicsStaffDragSessionsPacket(payload.dimension(),
                         FoldedCopies.of(payload.sessions(), session ->
                                 Pair.of(session.getFirst(), seat(context, session.getSecond())))));
 
-        PacketTranslator.registerClientboundPayloadRewriter(PhysicsAssemblerFailedPacket.class, (payload, context) ->
-                new PhysicsAssemblerFailedPacket(seat(context, payload.pos())));
-
-        PacketTranslator.registerClientboundPayloadRewriter(PhysicsAssemblerFlickAndHoldLeverPacket.class, (payload, context) ->
-                new PhysicsAssemblerFlickAndHoldLeverPacket(seat(context, payload.pos()), payload.flicked()));
-
+        // A compass target may name any point, so it takes the plain door, not the record fold's guarded one.
         PacketTranslator.registerClientboundPayloadRewriter(UpdateClientLodestonePositionPacket.class, (payload, context) ->
                 new UpdateClientLodestonePositionPacket(payload.id(), seat(context, payload.sentPosition())));
 
+        // Not a record, so the record fold cannot rebuild it.
         PacketTranslator.registerClientboundPayloadRewriter(PhysicsStaffBeamPacket.class, (payload, context) -> {
             PhysicsStaffBeamPacketAccessor beam = (PhysicsStaffBeamPacketAccessor) payload;
             return new PhysicsStaffBeamPacket(beam.toroidal$uuid(), seat(context, beam.toroidal$start()),
@@ -147,18 +112,13 @@ public final class AeronauticsTranslation {
         SyncedTagFold.register(LaserPointerBlockEntity.class, TagPositions.PositionShape.VEC3_LIST, LASER_HIT_KEY);
     }
 
-    private static @Nullable BlockPos seat(TranslationContext context, @Nullable BlockPos pos) {
-        return pos == null ? null : context.nearestCopy(pos);
+    private static BlockPos seat(TranslationContext context, BlockPos pos) {
+        return context.nearestCopy(pos);
     }
 
     private static Vector3d seat(TranslationContext context, Vector3d point) {
         Vec3 raw = JomlVectors.read(point);
         return JomlVectors.seated(point, raw, context.nearestCopy(raw));
-    }
-
-    private static AABB seat(TranslationContext context, AABB bounds) {
-        Vec3 corner = new Vec3(bounds.minX, bounds.minY, bounds.minZ);
-        return context.nearestCopyTransformation(corner).apply(bounds);
     }
 
     private AeronauticsTranslation() {

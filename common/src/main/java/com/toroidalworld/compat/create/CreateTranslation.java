@@ -2,16 +2,7 @@ package com.toroidalworld.compat.create;
 
 import java.util.List;
 
-import com.simibubi.create.content.contraptions.glue.GlueEffectPacket;
-import com.simibubi.create.content.equipment.bell.SoulPulseEffectPacket;
 import com.simibubi.create.content.equipment.symmetryWand.SymmetryEffectPacket;
-import com.simibubi.create.content.kinetics.mechanicalArm.ArmPlacementPacket;
-import com.simibubi.create.content.logistics.box.PackageDestroyPacket;
-import com.simibubi.create.content.logistics.depot.EjectorPlacementPacket;
-import com.simibubi.create.content.logistics.packagePort.PackagePortPlacementPacket;
-import com.simibubi.create.content.logistics.packagerLink.WiFiEffectPacket;
-import com.simibubi.create.content.logistics.redstoneRequester.RedstoneRequesterEffectPacket;
-import com.simibubi.create.content.logistics.stockTicker.LogisticalStockResponsePacket;
 import com.simibubi.create.content.schematics.cannon.SchematicannonBlockEntity;
 import com.simibubi.create.foundation.blockEntity.IMultiBlockEntityContainer;
 import com.simibubi.create.infrastructure.command.HighlightPacket;
@@ -22,7 +13,6 @@ import com.toroidalworld.engine.net.TagPositions;
 import com.toroidalworld.engine.net.TranslationContext;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
 
 // Nothing on a CompoundTag key or a payload component says it holds a world position, so every list below is
 // enumerated from Create 6.0.10's own read code and a bump of create_version means reading it again.
@@ -40,8 +30,7 @@ public final class CreateTranslation {
         }
 
         registerSyncedTags();
-        registerPlacementEchoes();
-        registerEffects();
+        registerPayloads();
     }
 
     private static void registerSyncedTags() {
@@ -53,56 +42,8 @@ public final class CreateTranslation {
                 TagPositions.PositionShape.BLOCK_POS, TARGET_KEY);
     }
 
-    private static void registerPlacementEchoes() {
-        PacketTranslator.registerClientboundPayloadRewriter(ArmPlacementPacket.ClientBoundRequest.class,
-                (payload, context) -> {
-                    BlockPos placed = seat(context, payload.pos());
-                    return placed == payload.pos() ? payload : new ArmPlacementPacket.ClientBoundRequest(placed);
-                });
-
-        PacketTranslator.registerClientboundPayloadRewriter(EjectorPlacementPacket.ClientBoundRequest.class,
-                (payload, context) -> {
-                    BlockPos placed = seat(context, payload.pos());
-                    return placed == payload.pos() ? payload : new EjectorPlacementPacket.ClientBoundRequest(placed);
-                });
-
-        PacketTranslator.registerClientboundPayloadRewriter(PackagePortPlacementPacket.ClientBoundRequest.class,
-                (payload, context) -> {
-                    BlockPos placed = seat(context, payload.pos());
-                    return placed == payload.pos()
-                            ? payload
-                            : new PackagePortPlacementPacket.ClientBoundRequest(placed);
-                });
-    }
-
-    private static void registerEffects() {
-        PacketTranslator.registerClientboundPayloadRewriter(SoulPulseEffectPacket.class, (payload, context) -> {
-            BlockPos centre = seat(context, payload.pos());
-            return centre == payload.pos()
-                    ? payload
-                    : new SoulPulseEffectPacket(centre, payload.distance(), payload.canOverlap());
-        });
-
-        PacketTranslator.registerClientboundPayloadRewriter(WiFiEffectPacket.class, (payload, context) -> {
-            BlockPos link = seat(context, payload.pos());
-            return link == payload.pos() ? payload : new WiFiEffectPacket(link);
-        });
-
-        PacketTranslator.registerClientboundPayloadRewriter(GlueEffectPacket.class, (payload, context) -> {
-            BlockPos glued = seat(context, payload.pos());
-            return glued == payload.pos()
-                    ? payload
-                    : new GlueEffectPacket(glued, payload.direction(), payload.fullBlock());
-        });
-
-        PacketTranslator.registerClientboundPayloadRewriter(RedstoneRequesterEffectPacket.class,
-                (payload, context) -> {
-                    BlockPos requester = seat(context, payload.pos());
-                    return requester == payload.pos()
-                            ? payload
-                            : new RedstoneRequesterEffectPacket(requester, payload.success());
-                });
-
+    private static void registerPayloads() {
+        // The record fold seats each placement around the player; these belong around the wand's mirror.
         PacketTranslator.registerClientboundPayloadRewriter(SymmetryEffectPacket.class, (payload, context) -> {
             BlockPos mirror = seat(context, payload.mirror());
             List<BlockPos> positions = FoldedCopies.of(payload.positions(),
@@ -112,31 +53,15 @@ public final class CreateTranslation {
                     : new SymmetryEffectPacket(mirror, positions);
         });
 
-        PacketTranslator.registerClientboundPayloadRewriter(LogisticalStockResponsePacket.class,
-                (payload, context) -> {
-                    BlockPos ticker = seat(context, payload.pos());
-                    return ticker == payload.pos()
-                            ? payload
-                            : new LogisticalStockResponsePacket(payload.lastPacket(), ticker, payload.items());
-                });
-
+        // The command may name any loaded block, so it takes the plain door, not the record fold's guarded one.
         PacketTranslator.registerClientboundPayloadRewriter(HighlightPacket.class, (payload, context) -> {
             BlockPos outlined = seat(context, payload.pos());
             return outlined == payload.pos() ? payload : new HighlightPacket(outlined);
-        });
-
-        PacketTranslator.registerClientboundPayloadRewriter(PackageDestroyPacket.class, (payload, context) -> {
-            Vec3 broken = seat(context, payload.location());
-            return broken == payload.location() ? payload : new PackageDestroyPacket(broken, payload.box());
         });
     }
 
     private static BlockPos seat(TranslationContext context, BlockPos pos) {
         return context.nearestCopy(pos);
-    }
-
-    private static Vec3 seat(TranslationContext context, Vec3 point) {
-        return context.nearestCopy(point);
     }
 
     private CreateTranslation() {
