@@ -5,6 +5,7 @@ import org.jspecify.annotations.Nullable;
 import com.simibubi.create.AllDataComponents;
 import com.toroidalworld.core.WorldFold;
 import com.toroidalworld.core.WorldLoopAttachments;
+import com.toroidalworld.engine.fold.FoldedBoxQuery;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
@@ -52,12 +53,8 @@ public final class CreateSchematicFold {
     }
 
     public static AABB glueInScanFrame(@Nullable Level level, AABB scanBox, AABB glueBox) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOfReader(level);
-        if (transformer == null) {
-            return glueBox;
-        }
-
-        return transformer.foldBox(scanBox.getCenter(), glueBox).value();
+        return FoldedBoxQuery.toward(WorldLoopAttachments.wrappedTransformerOfReader(level), scanBox.getCenter(),
+                glueBox);
     }
 
     public static BlockPos scannedControllerNear(@Nullable Level level, BlockPos lastKnown, BlockPos controller) {
