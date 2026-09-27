@@ -121,14 +121,10 @@ dependencies {
     implementation project(':common')
 
     // Bundled rather than borrowed from C2ME's own jar-in-jar: that copy is C2ME's implementation detail, and leaning
-    // on it would make the fold vanish the day C2ME drops or renames it. The open range is a floor, not a pin — where
-    // C2ME already carries a newer MixinSquared, JarJar keeps that one and ours is dropped.
-    jarJar(implementation("com.github.bawnorton.mixinsquared:mixinsquared-neoforge")) {
-        version {
-            require "[${mixinsquared_version},)"
-            prefer "${mixinsquared_version}"
-        }
-    }
+    // on it would make the fold vanish the day C2ME drops or renames it. ModDevGradle writes the fixed version as the
+    // open range [version,), a floor, not a pin — where C2ME already carries a newer MixinSquared, JarJar keeps that
+    // one and ours is dropped; a declared range would make Gradle re-list versions from the repository daily.
+    jarJar(implementation("com.github.bawnorton.mixinsquared:mixinsquared-neoforge:${mixinsquared_version}"))
 
     testImplementation platform("org.junit:junit-bom:${junit_version}")
     testImplementation 'org.junit.jupiter:junit-jupiter'
