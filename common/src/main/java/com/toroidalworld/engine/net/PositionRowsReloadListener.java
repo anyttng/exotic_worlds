@@ -40,6 +40,7 @@ public final class PositionRowsReloadListener extends SimpleJsonResourceReloadLi
                 .ifError(error -> LOGGER.error("Couldn't parse data file '{}': {}", file, error.message())));
 
         PositionRowsSync.apply(PositionRows.merge(positionFiles,
-                BuiltInRegistries.BLOCK_ENTITY_TYPE::containsKey, BuiltInRegistries.ENTITY_TYPE::containsKey));
+                BuiltInRegistries.BLOCK_ENTITY_TYPE::containsKey, BuiltInRegistries.ENTITY_TYPE::containsKey,
+                BuiltInRegistries.DATA_COMPONENT_TYPE::containsKey));
     }
 }

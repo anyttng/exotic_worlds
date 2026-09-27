@@ -1,12 +1,10 @@
 package com.toroidalworld.platform;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
 import java.util.function.IntFunction;
 
 import com.toroidalworld.core.FlatShape;
-import com.toroidalworld.engine.net.TagPositions;
+import com.toroidalworld.engine.net.PositionRowsPayload;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
@@ -45,8 +43,7 @@ public final class LoaderlessPlatform implements Platform {
     }
 
     @Override
-    public void sendBlockEntityPositions(ServerPlayer player,
-            Map<ResourceLocation, List<TagPositions.TagPosition>> blockEntities) {
+    public void sendPositionRows(ServerPlayer player, PositionRowsPayload rows) {
         throw new UnsupportedOperationException(NO_LOADER);
     }
 

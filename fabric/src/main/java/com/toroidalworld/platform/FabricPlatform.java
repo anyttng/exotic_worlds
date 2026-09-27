@@ -1,14 +1,11 @@
 package com.toroidalworld.platform;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
 import java.util.function.IntFunction;
 
 import com.toroidalworld.ToroidalWorld;
 import com.toroidalworld.core.FlatShape;
-import com.toroidalworld.engine.net.BlockEntityPositionsPayload;
-import com.toroidalworld.engine.net.TagPositions;
+import com.toroidalworld.engine.net.PositionRowsPayload;
 import com.toroidalworld.engine.net.WrappingSettingsPayload;
 
 import io.netty.buffer.Unpooled;
@@ -61,10 +58,9 @@ public final class FabricPlatform implements Platform {
     }
 
     @Override
-    public void sendBlockEntityPositions(ServerPlayer player,
-            Map<ResourceLocation, List<TagPositions.TagPosition>> blockEntities) {
-        if (ServerPlayNetworking.canSend(player, BlockEntityPositionsPayload.TYPE)) {
-            ServerPlayNetworking.send(player, new BlockEntityPositionsPayload(blockEntities));
+    public void sendPositionRows(ServerPlayer player, PositionRowsPayload rows) {
+        if (ServerPlayNetworking.canSend(player, PositionRowsPayload.TYPE)) {
+            ServerPlayNetworking.send(player, rows);
         }
     }
 

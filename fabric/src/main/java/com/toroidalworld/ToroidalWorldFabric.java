@@ -7,9 +7,9 @@ import com.toroidalworld.compat.sable.SableMod;
 import com.toroidalworld.engine.gen.LoopedChunkGenerator;
 import com.toroidalworld.engine.gen.LoopedFlatChunkGenerator;
 import com.toroidalworld.engine.gen.WorldLoopGenerators;
-import com.toroidalworld.engine.net.BlockEntityPositionsPayload;
 import com.toroidalworld.engine.net.FabricPositionRowsReloadListener;
 import com.toroidalworld.engine.net.OpenMenuTranslation;
+import com.toroidalworld.engine.net.PositionRowsPayload;
 import com.toroidalworld.engine.net.PositionRowsSync;
 import com.toroidalworld.engine.net.WrappingSettingsPayload;
 import com.toroidalworld.engine.seam.circumnavigation.WorldLoopCriteria;
@@ -52,8 +52,7 @@ public class ToroidalWorldFabric implements ModInitializer {
                 WorldLoopCriteria.CIRCUMNAVIGATE);
 
         PayloadTypeRegistry.playS2C().register(WrappingSettingsPayload.TYPE, WrappingSettingsPayload.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(BlockEntityPositionsPayload.TYPE,
-                BlockEntityPositionsPayload.STREAM_CODEC);
+        PayloadTypeRegistry.playS2C().register(PositionRowsPayload.TYPE, PositionRowsPayload.STREAM_CODEC);
 
         ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new FabricPositionRowsReloadListener());
         ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> PositionRowsSync.sendTo(player));

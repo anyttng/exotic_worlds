@@ -23,6 +23,8 @@ class PositionRowsTest {
     private static final ResourceLocation MISSING_ID = ResourceLocation.fromNamespaceAndPath("cject", "missing");
     private static final ResourceLocation OFFSET_PAYLOAD_ID = ResourceLocation.fromNamespaceAndPath("cject", "offset_probe");
     private static final ResourceLocation SIZE_PAYLOAD_ID = ResourceLocation.fromNamespaceAndPath("pack", "size_probe");
+    private static final ResourceLocation ANCHOR_COMPONENT_ID = ResourceLocation.fromNamespaceAndPath("cject", "anchor");
+    private static final ResourceLocation TARGET_COMPONENT_ID = ResourceLocation.fromNamespaceAndPath("pack", "target");
 
     private static final ResourceLocation CJECT_FILE = ResourceLocation.fromNamespaceAndPath("cject", PositionRows.FILE_NAME);
     private static final ResourceLocation PACK_FILE = ResourceLocation.fromNamespaceAndPath("pack", PositionRows.FILE_NAME);
@@ -65,7 +67,32 @@ class PositionRowsTest {
 
         assertTrue(rows.blockEntities().isEmpty());
         assertTrue(rows.entities().isEmpty());
+        assertTrue(rows.components().isEmpty());
         assertTrue(rows.deny().isEmpty());
+    }
+
+    @Test
+    void theComponentListDecodesToComponentIds() {
+        PositionRows rows = parse("""
+                { "components": [ "cject:anchor", "pack:target" ] }
+                """).getOrThrow();
+
+        assertEquals(Set.of(ANCHOR_COMPONENT_ID, TARGET_COMPONENT_ID), rows.components());
+    }
+
+    @Test
+    void aComponentNoModRegistersIsSkippedAndTheRestKept() {
+        PositionRows cject = parse("""
+                { "components": [ "cject:anchor", "cject:missing" ] }
+                """).getOrThrow();
+        PositionRows pack = parse("""
+                { "components": [ "pack:target" ] }
+                """).getOrThrow();
+
+        PositionRows merged = PositionRows.merge(Map.of(CJECT_FILE, cject, PACK_FILE, pack), id -> true, id -> true,
+                id -> !id.equals(MISSING_ID));
+
+        assertEquals(Set.of(ANCHOR_COMPONENT_ID, TARGET_COMPONENT_ID), merged.components());
     }
 
     @Test
@@ -86,7 +113,8 @@ class PositionRowsTest {
                 { "deny": [ "pack:size_probe" ] }
                 """).getOrThrow();
 
-        PositionRows merged = PositionRows.merge(Map.of(CJECT_FILE, cject, PACK_FILE, pack), id -> true, id -> true);
+        PositionRows merged =
+                PositionRows.merge(Map.of(CJECT_FILE, cject, PACK_FILE, pack), id -> true, id -> true, id -> true);
 
         assertEquals(Set.of(OFFSET_PAYLOAD_ID, SIZE_PAYLOAD_ID), merged.deny());
     }
@@ -116,7 +144,7 @@ class PositionRowsTest {
                 }
                 """).getOrThrow();
 
-        PositionRows merged = PositionRows.merge(Map.of(CJECT_FILE, file), HOLDER_ID::equals, id -> true);
+        PositionRows merged = PositionRows.merge(Map.of(CJECT_FILE, file), HOLDER_ID::equals, id -> true, id -> true);
 
         assertEquals(Set.of(HOLDER_ID), merged.blockEntities().keySet());
         assertTrue(!merged.blockEntities().containsKey(MISSING_ID));
@@ -131,7 +159,8 @@ class PositionRowsTest {
                 { "block_entities": { "cject:holder": { "Printer": { "Anchor": "block_pos" } } } }
                 """).getOrThrow();
 
-        PositionRows merged = PositionRows.merge(Map.of(CJECT_FILE, cject, PACK_FILE, pack), id -> true, id -> true);
+        PositionRows merged =
+                PositionRows.merge(Map.of(CJECT_FILE, cject, PACK_FILE, pack), id -> true, id -> true, id -> true);
 
         assertEquals(Set.of(
                         new TagPosition("Goal", PositionShape.PACKED_LONG),

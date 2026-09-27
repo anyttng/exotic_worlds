@@ -42,6 +42,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.VibrationParticleOption;
@@ -79,6 +80,7 @@ import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.protocol.game.ServerboundBlockEntityTagQueryPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -90,6 +92,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.RelativeMovement;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.LodestoneTracker;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
@@ -1030,6 +1035,32 @@ class PacketTranslatorTest {
                     mirroredContext());
 
             assertEquals(Direction.UP, translated.getDirection());
+        }
+
+        @Test
+        void creativeSlotReturnsANamedComponentToTheServerFrame() {
+            ComponentPositions.declare(Set.of());
+            ItemStack compass = new ItemStack(Holder.direct(Items.COMPASS));
+            compass.set(DataComponents.LODESTONE_TRACKER,
+                    new LodestoneTracker(Optional.of(GlobalPos.of(Level.OVERWORLD, CLIENT_BLOCK)), true));
+
+            ServerboundSetCreativeModeSlotPacket translated = (ServerboundSetCreativeModeSlotPacket)
+                    PacketTranslator.toServer(new ServerboundSetCreativeModeSlotPacket(36, compass), context());
+
+            assertEquals(36, translated.slotNum());
+            assertEquals(Optional.of(GlobalPos.of(Level.OVERWORLD, SERVER_BLOCK)),
+                    translated.itemStack().get(DataComponents.LODESTONE_TRACKER).target());
+            assertEquals(Optional.of(GlobalPos.of(Level.OVERWORLD, CLIENT_BLOCK)),
+                    compass.get(DataComponents.LODESTONE_TRACKER).target());
+        }
+
+        @Test
+        void creativeSlotWithNoNamedComponentIsThePacketItself() {
+            ComponentPositions.declare(Set.of());
+            ServerboundSetCreativeModeSlotPacket packet =
+                    new ServerboundSetCreativeModeSlotPacket(36, new ItemStack(Holder.direct(Items.COMPASS)));
+
+            assertSame(packet, PacketTranslator.toServer(packet, context()));
         }
 
         @Test
