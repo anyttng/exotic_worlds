@@ -9,6 +9,7 @@ import com.toroidalworld.compat.aeronautics.mixin.MultiMiningSyncAccessor;
 import com.toroidalworld.compat.aeronautics.mixin.PhysicsStaffBeamPacketAccessor;
 import com.toroidalworld.engine.fold.FoldedCopies;
 import com.toroidalworld.core.JomlVectors;
+import com.toroidalworld.engine.net.ComponentPositions;
 import com.toroidalworld.engine.net.PacketTranslator;
 import com.toroidalworld.engine.net.SpawnBufferFold;
 import com.toroidalworld.engine.net.TagPositions;
@@ -32,6 +33,7 @@ import dev.simulated_team.simulated.network.packets.physics_staff.PhysicsStaffDr
 
 import net.createmod.catnip.data.Pair;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
 // Nothing on a CompoundTag key or a payload component says it holds a world position, so every list below is
@@ -47,6 +49,8 @@ public final class AeronauticsTranslation {
     private static final String NAV_TARGET_KEY = "CurrentTarget";
     private static final String LASER_HIT_KEY = "HitPos";
     private static final String HONEY_GLUE_POS_KEY = "Pos";
+    private static final ResourceLocation ROPE_FIRST_CONNECTION_ID =
+            ResourceLocation.fromNamespaceAndPath("simulated", "rope_first_connection");
 
     public static void register() {
         if (SimulatedMod.present()) {
@@ -73,6 +77,7 @@ public final class AeronauticsTranslation {
 
     private static void registerSimulated() {
         registerSimulatedSyncedTags();
+        ComponentPositions.register(ROPE_FIRST_CONNECTION_ID);
         SpawnBufferFold.register(HoneyGlueEntity.class, TagPositions.PositionShape.VEC3_LIST, HONEY_GLUE_POS_KEY);
 
         // A Pair component is out of the record fold's reach.

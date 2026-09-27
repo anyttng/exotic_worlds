@@ -8,11 +8,13 @@ import com.simibubi.create.foundation.blockEntity.IMultiBlockEntityContainer;
 import com.simibubi.create.infrastructure.command.HighlightPacket;
 import com.toroidalworld.client.engine.SyncedTagFold;
 import com.toroidalworld.engine.fold.FoldedCopies;
+import com.toroidalworld.engine.net.ComponentPositions;
 import com.toroidalworld.engine.net.PacketTranslator;
 import com.toroidalworld.engine.net.TagPositions;
 import com.toroidalworld.engine.net.TranslationContext;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 
 // Nothing on a CompoundTag key or a payload component says it holds a world position, so every list below is
 // enumerated from Create 6.0.10's own read code and a bump of create_version means reading it again.
@@ -23,6 +25,8 @@ public final class CreateTranslation {
     private static final String ANCHOR_KEY = "Anchor";
     private static final String FLYING_BLOCKS_KEY = "FlyingBlocks";
     private static final String TARGET_KEY = "Target";
+    private static final ResourceLocation TRACK_TARGETING_SELECTED_POS_ID =
+            ResourceLocation.fromNamespaceAndPath("create", "track_targeting_item_selected_pos");
 
     public static void register() {
         if (!CreateMod.present()) {
@@ -31,6 +35,11 @@ public final class CreateTranslation {
 
         registerSyncedTags();
         registerPayloads();
+        registerComponents();
+    }
+
+    private static void registerComponents() {
+        ComponentPositions.register(TRACK_TARGETING_SELECTED_POS_ID);
     }
 
     private static void registerSyncedTags() {

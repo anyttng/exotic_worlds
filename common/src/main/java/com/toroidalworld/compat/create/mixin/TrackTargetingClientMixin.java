@@ -19,7 +19,7 @@ public class TrackTargetingClientMixin {
     @WrapOperation(method = "clientTick",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.ITEM_STACK_GET))
-    private static Object toroidal$foldHoveredTrack(ItemStack stack, DataComponentType<?> component,
+    private static Object toroidal$dropUnheldTrack(ItemStack stack, DataComponentType<?> component,
             Operation<Object> original) {
         Object value = original.call(stack, component);
         if (component != AllDataComponents.TRACK_TARGETING_ITEM_SELECTED_POS

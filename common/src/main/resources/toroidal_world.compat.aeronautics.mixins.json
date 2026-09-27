@@ -23,9 +23,6 @@
     "RopeStrandHolderBehaviorMixin",
     "ServerRopeStrandMixin"
   ],
-  "client": [
-    "ClientRopeItemHandlerMixin"
-  ],
   "injectors": {
     "defaultRequire": 1
   }

@@ -2,6 +2,7 @@ package com.toroidalworld.compat.electroenergetics;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 import com.george_vi.electroenergetics.content.railway_electrification.catenary.CatenaryConnection;
 import com.george_vi.electroenergetics.content.railway_electrification.catenary.ClearCatenaryPacket;
@@ -13,6 +14,7 @@ import com.george_vi.electroenergetics.content.wire.interaction.InteractWirePack
 import com.george_vi.electroenergetics.content.wire_spool.ChangeLengthWirePacket;
 import com.george_vi.electroenergetics.foundation.nodes.DirectionalInWorldNodeConnection;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNode;
+import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
 import com.george_vi.electroenergetics.foundation.nodes.NodeConnectionPoint;
 import com.george_vi.electroenergetics.simulation.RequestVoltageDataPacket;
 import com.george_vi.electroenergetics.simulation.SendVoltageDataPacket;
@@ -20,16 +22,33 @@ import com.george_vi.electroenergetics.simulation.infrastructure.SendNodeDataPac
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
 import com.toroidalworld.compat.electroenergetics.mixin.SendVoltageDataPacketAccessor;
 import com.toroidalworld.engine.fold.FoldedCopies;
+import com.toroidalworld.engine.net.ComponentPositions;
 import com.toroidalworld.engine.net.PacketTranslator;
 import com.toroidalworld.engine.net.TranslationContext;
 
 import net.createmod.catnip.data.Pair;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
 // Every payload of Create: Electro Energetics 1.21.1-1.1.1 that carries a node position, enumerated from its read
 // code; a bump of electroenergetics_version means reading it again.
 public final class ElectroEnergeticsTranslation {
+    private static final String NAMESPACE = "electroenergetics";
+    private static final ResourceLocation SELECTED_NODE_ID =
+            ResourceLocation.fromNamespaceAndPath(NAMESPACE, "selected_node");
+    private static final ResourceLocation NODE_CONNECTION_ID =
+            ResourceLocation.fromNamespaceAndPath(NAMESPACE, "node_connection");
+
+    private static final ComponentPositions.Mover NODE_MOVER = (stored, seat) -> {
+        UnaryOperator<BlockPos> move = pos -> (BlockPos) seat.apply(pos);
+        return switch (stored) {
+            case InWorldNode node -> WireNodes.moved(node, move);
+            case InWorldNodeConnection connection -> WireNodes.moved(connection, move);
+            default -> stored;
+        };
+    };
+
     public static void register() {
         if (!ElectroEnergeticsMod.present()) {
             return;
@@ -39,6 +58,12 @@ public final class ElectroEnergeticsTranslation {
         registerCatenary();
         registerNodes();
         registerRequests();
+        registerComponents();
+    }
+
+    private static void registerComponents() {
+        ComponentPositions.register(SELECTED_NODE_ID, NODE_MOVER);
+        ComponentPositions.register(NODE_CONNECTION_ID, NODE_MOVER);
     }
 
     private static void registerWires() {
