@@ -13,6 +13,14 @@ public final class ElectroEnergeticsInjectionTargets {
             "Lcom/george_vi/electroenergetics/foundation/nodes/InWorldNode;getPosition"
                     + "(Lnet/minecraft/world/level/Level;)Lnet/minecraft/world/phys/Vec3;";
 
+    public static final String STRUCTURE_TEMPLATE_MIXIN = "com.george_vi.electroenergetics.mixins.StructureTemplateMixin";
+    public static final String CAPTURE_HANDLER = "fillFromWorld";
+    public static final String PLACE_HANDLER = "placeInWorld";
+
+    public static final String SCHEMATIC_PRINTER_MIXIN = "com.george_vi.electroenergetics.mixins.SchematicPrinterMixin";
+    public static final String PRINT_ADVANCE_HANDLER = "electroEnergetics$advanceCurrentPos";
+    public static final String PRINT_TARGET_HANDLER = "electroEnergetics$handleCurrentTarget";
+
     private ElectroEnergeticsInjectionTargets() {
     }
 }

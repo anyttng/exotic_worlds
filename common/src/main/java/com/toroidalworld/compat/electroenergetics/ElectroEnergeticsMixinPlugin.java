@@ -49,11 +49,42 @@ public class ElectroEnergeticsMixinPlugin extends ModPresenceGatePlugin {
             "com/george_vi/electroenergetics/content/railway_electrification/third_rail/RailContactShoeBlockEntity",
             "handleOnServer", COLLECTOR_HANDLER);
 
+    private static final String STRUCTURE_TEMPLATE_MIXIN =
+            ElectroEnergeticsInjectionTargets.STRUCTURE_TEMPLATE_MIXIN.replace('.', '/');
+
+    private static final String SCHEMATIC_PRINTER_MIXIN =
+            ElectroEnergeticsInjectionTargets.SCHEMATIC_PRINTER_MIXIN.replace('.', '/');
+
+    private static final ModSymbol TEMPLATE_CAPTURE = new ModSymbol(STRUCTURE_TEMPLATE_MIXIN,
+            ElectroEnergeticsInjectionTargets.CAPTURE_HANDLER,
+            "(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Vec3i;Z"
+                    + "Lnet/minecraft/world/level/block/Block;"
+                    + "Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V");
+
+    private static final ModSymbol TEMPLATE_PLACE = new ModSymbol(STRUCTURE_TEMPLATE_MIXIN,
+            ElectroEnergeticsInjectionTargets.PLACE_HANDLER,
+            "(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/core/BlockPos;"
+                    + "Lnet/minecraft/core/BlockPos;"
+                    + "Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructurePlaceSettings;"
+                    + "Lnet/minecraft/util/RandomSource;I"
+                    + "Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable;)V");
+
+    private static final ModSymbol PRINT_ADVANCE = new ModSymbol(SCHEMATIC_PRINTER_MIXIN,
+            ElectroEnergeticsInjectionTargets.PRINT_ADVANCE_HANDLER,
+            "(Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable;)V");
+
+    private static final ModSymbol PRINT_TARGET = new ModSymbol(SCHEMATIC_PRINTER_MIXIN,
+            ElectroEnergeticsInjectionTargets.PRINT_TARGET_HANDLER,
+            "(Lcom/simibubi/create/content/schematics/SchematicPrinter$BlockTargetHandler;"
+                    + "Lcom/simibubi/create/content/schematics/SchematicPrinter$EntityTargetHandler;"
+                    + "Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V");
+
     private static final ModPresence ELECTRO_ENERGETICS = ModPresence.of(LOGGER,
             "com/george_vi/electroenergetics/CreateElectroEnergetics.class",
             "[electroenergetics-compat] gate electroenergetics_present",
             SECTION_INDEX, DETACHED_NODE_TICK, CHANGE_LENGTH_PACKET, LINEMANS_STICK, PLAYER_BOX, LEAVING_NODES,
-            TRAIN_COLLECTORS, PANTOGRAPH_BLOCK, SHOE_BLOCK);
+            TRAIN_COLLECTORS, PANTOGRAPH_BLOCK, SHOE_BLOCK, TEMPLATE_CAPTURE, TEMPLATE_PLACE, PRINT_ADVANCE,
+            PRINT_TARGET);
 
     private static final String SPAWN_GUARD_MIXIN = "BulbSpawnGuardMixin";
 
