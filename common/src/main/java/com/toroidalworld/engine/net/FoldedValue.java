@@ -2,9 +2,14 @@ package com.toroidalworld.engine.net;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
+
+import com.toroidalworld.core.DeckTransformation;
 import com.toroidalworld.core.WorldFold;
 import com.toroidalworld.engine.fold.FoldedCopies;
 
@@ -12,10 +17,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public final class FoldedValue {
-    record Leaves(UnaryOperator<BlockPos> blockPos, UnaryOperator<Vec3> position, UnaryOperator<ChunkPos> chunkPos) {
+    record Leaves(UnaryOperator<BlockPos> blockPos, UnaryOperator<Vec3> position, UnaryOperator<ChunkPos> chunkPos,
+            Function<Vec3, DeckTransformation> deck) {
     }
 
     public static Object toward(TranslationContext context, Supplier<Vec3> anchor, Object value) {
@@ -28,17 +35,18 @@ public final class FoldedValue {
         Leaves leaves = new Leaves(
                 pos -> nearestCopy(context, anchor.get(), pos),
                 position -> transformer.nearestCopy(anchor.get(), position),
-                chunkPos -> transformer.nearestCopy(new ChunkPos(BlockPos.containing(anchor.get())), chunkPos));
+                chunkPos -> transformer.nearestCopy(new ChunkPos(BlockPos.containing(anchor.get())), chunkPos),
+                centre -> transformer.nearestCopyTransformation(anchor.get(), centre));
         return walk(context, leaves, value, fallback);
     }
 
     static Leaves toClient(TranslationContext context) {
-        return new Leaves(context::toClient, context::toClient, context::toClient);
+        return new Leaves(context::toClient, context::toClient, context::toClient, context::nearestCopyTransformation);
     }
 
     static Leaves toServer(TranslationContext context) {
         WorldFold transformer = context.transformer();
-        return new Leaves(transformer::fold, transformer::fold, transformer::fold);
+        return new Leaves(transformer::fold, transformer::fold, transformer::fold, transformer::foldTransformation);
     }
 
     static Object walk(TranslationContext context, Leaves leaves, Object value) {
@@ -52,15 +60,35 @@ public final class FoldedValue {
     private static Object walk(TranslationContext context, Leaves leaves, Object value,
             UnaryOperator<Object> fallback) {
         return switch (value) {
+            case null -> null;
             case BlockPos pos -> leaves.blockPos().apply(pos);
             case Vec3 position -> leaves.position().apply(position);
             case ChunkPos chunkPos -> leaves.chunkPos().apply(chunkPos);
             case SectionPos sectionPos -> inside(leaves, sectionPos);
             case GlobalPos globalPos -> inside(context, leaves, globalPos);
+            case AABB box -> leaves.deck().apply(box.getCenter()).apply(box);
+            case Vector3dc vector -> inside(leaves, vector);
             case Optional<?> held -> inside(context, leaves, held, fallback);
             case List<?> values -> inside(context, leaves, values, fallback);
-            default -> fallback.apply(value);
+            default -> other(context, leaves, value, fallback);
         };
+    }
+
+    private static Object other(TranslationContext context, Leaves leaves, Object value,
+            UnaryOperator<Object> fallback) {
+        Object fallenBack = fallback.apply(value);
+        if (fallenBack != value || !(value instanceof Record record)) {
+            return fallenBack;
+        }
+
+        return RecordPayloadFold.formOf(record.getClass())
+                .rebuilt(record, component -> walk(context, leaves, component, fallback));
+    }
+
+    private static Vector3dc inside(Leaves leaves, Vector3dc vector) {
+        Vec3 position = new Vec3(vector.x(), vector.y(), vector.z());
+        Vec3 foldedPosition = leaves.position().apply(position);
+        return foldedPosition == position ? vector : new Vector3d(foldedPosition.x, foldedPosition.y, foldedPosition.z);
     }
 
     private static SectionPos inside(Leaves leaves, SectionPos sectionPos) {

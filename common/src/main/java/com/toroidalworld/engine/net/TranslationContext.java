@@ -303,7 +303,6 @@ public record TranslationContext(
         return transformer.nearestCopy(new Vec3(clientPosition.x(), position.y, clientPosition.z()), position);
     }
 
-    // mc/1.21: calls the transformation form, unused on main.
     public DeckTransformation nearestCopyTransformation(Vec3 position) {
         return transformer.nearestCopyTransformation(
                 new Vec3(clientPosition.x(), position.y, clientPosition.z()), position);

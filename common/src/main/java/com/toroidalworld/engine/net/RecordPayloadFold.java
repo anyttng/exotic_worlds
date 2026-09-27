@@ -6,6 +6,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.RecordComponent;
 import java.lang.reflect.Type;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -13,6 +14,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -24,13 +27,14 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public final class RecordPayloadFold {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final Set<Type> POSITION_TYPES =
-            Set.of(BlockPos.class, Vec3.class, ChunkPos.class, SectionPos.class, GlobalPos.class);
+    private static final Set<Type> POSITION_TYPES = Set.of(BlockPos.class, Vec3.class, ChunkPos.class,
+            SectionPos.class, GlobalPos.class, AABB.class, Vector3d.class, Vector3dc.class);
 
     private static final Set<Type> CONTAINER_TYPES = Set.of(Optional.class, List.class);
 
@@ -74,12 +78,26 @@ public final class RecordPayloadFold {
         return form.rebuilt(payload, value -> FoldedValue.walk(context, leaves, value));
     }
 
-    private static boolean carriesPosition(Type type) {
+    private static boolean carriesPosition(Type type, Set<Class<?>> visited) {
         if (type instanceof ParameterizedType parameterized && CONTAINER_TYPES.contains(parameterized.getRawType())) {
-            return POSITION_TYPES.contains(parameterized.getActualTypeArguments()[0]);
+            return carriesPosition(parameterized.getActualTypeArguments()[0], visited);
         }
 
-        return POSITION_TYPES.contains(type);
+        if (POSITION_TYPES.contains(type)) {
+            return true;
+        }
+
+        if (!(type instanceof Class<?> nested) || !nested.isRecord() || !visited.add(nested)) {
+            return false;
+        }
+
+        for (RecordComponent component : nested.getRecordComponents()) {
+            if (carriesPosition(component.getGenericType(), visited)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     static final class Form {
@@ -112,7 +130,7 @@ public final class RecordPayloadFold {
             boolean[] positions = new boolean[components.length];
             boolean carries = false;
             for (int index = 0; index < components.length; index++) {
-                positions[index] = carriesPosition(components[index].getGenericType());
+                positions[index] = carriesPosition(components[index].getGenericType(), new HashSet<>());
                 carries |= positions[index];
             }
 
@@ -140,17 +158,18 @@ public final class RecordPayloadFold {
             }
         }
 
-        private CustomPacketPayload rebuilt(CustomPacketPayload payload, UnaryOperator<Object> fold) {
+        @SuppressWarnings("unchecked")
+        <T> T rebuilt(T instance, UnaryOperator<Object> fold) {
             MethodHandle canonical = constructor;
             if (canonical == null) {
-                return payload;
+                return instance;
             }
 
             try {
                 Object[] values = new Object[accessors.length];
                 boolean changed = false;
                 for (int index = 0; index < accessors.length; index++) {
-                    Object value = (Object) accessors[index].invokeExact((Object) payload);
+                    Object value = (Object) accessors[index].invokeExact((Object) instance);
                     if (positions[index] && value != null) {
                         Object foldedValue = fold.apply(value);
                         changed |= foldedValue != value;
@@ -161,20 +180,20 @@ public final class RecordPayloadFold {
                 }
 
                 if (!changed) {
-                    return payload;
+                    return instance;
                 }
 
                 Object rebuilt = (Object) canonical.invokeExact(values);
-                return (CustomPacketPayload) rebuilt;
+                return (T) rebuilt;
             } catch (Error error) {
                 throw error;
             } catch (Throwable refusal) {
                 if (refusalLogged.compareAndSet(false, true)) {
-                    LOGGER.warn("Record payload {} refused its folded positions ({}); it crosses the seam unfolded",
-                            payload.getClass().getName(), refusal.toString());
+                    LOGGER.warn("Record {} refused its folded positions ({}); it crosses the seam unfolded",
+                            instance.getClass().getName(), refusal.toString());
                 }
 
-                return payload;
+                return instance;
             }
         }
     }
