@@ -3,11 +3,12 @@ package com.toroidalworld.mixin;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 
 import com.toroidalworld.core.WorldFold;
 import com.toroidalworld.engine.noise.GenerationTransformerContext;
 import com.toroidalworld.engine.noise.GenerationTransformerContext.Context;
-import com.toroidalworld.engine.noise.PeriodicNoiseSampler;
+import com.toroidalworld.engine.noise.PeriodicLattices;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -31,6 +32,9 @@ public class ImprovedNoiseMixin {
     @Final
     public double zo;
 
+    @Unique
+    private final PeriodicLattices toroidal$lattices = new PeriodicLattices();
+
     @WrapMethod(method = "noise(DDDDD)D")
     private double toroidal$periodicNoise(double x, double y, double z, double yScale, double yFudge, Operation<Double> original) {
         Context context = GenerationTransformerContext.context();
@@ -39,7 +43,7 @@ public class ImprovedNoiseMixin {
             return original.call(x, y, z, yScale, yFudge);
         }
 
-        return PeriodicNoiseSampler.sample(this.p, this.xo, this.yo, this.zo, transformer,
+        return this.toroidal$lattices.sample(this.p, this.xo, this.yo, this.zo, transformer,
                 context, x, y, z, yScale, yFudge);
     }
 }
