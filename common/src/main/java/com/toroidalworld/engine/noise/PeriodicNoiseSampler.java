@@ -42,50 +42,49 @@ public final class PeriodicNoiseSampler {
     static double sample(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold transformer, Context context,
             double x, double y, double z, double yScale, double yFudge, LapFloor floor) {
+        return sample(lattice(permutations, xOffset, yOffset, zOffset, transformer, context, floor),
+                x, y, z, yScale, yFudge);
+    }
+
+    static PeriodicLattice lattice(byte[] permutations, double xOffset, double yOffset, double zOffset,
+            WorldFold transformer, Context context, LapFloor floor) {
         SlotAxes axes = context.slotAxes();
         double scale = context.horizontalScale();
-
-        long xPeriod;
-        long yPeriod;
-        long zPeriod;
-        double xs;
-        double ys;
-        double zs;
-        double correction = 1.0;
-        double anchor = 0.0;
-        if (axes == SlotAxes.DEFAULT && context.xDivisor() == 1.0 && context.zDivisor() == 1.0) {
-            WrapDomain xDomain = transformer.blockDomain(Direction.Axis.X);
-            WrapDomain zDomain = transformer.blockDomain(Direction.Axis.Z);
-            xPeriod = period(xDomain, scale, floor);
-            yPeriod = UNBOUNDED_PERIOD;
-            zPeriod = period(zDomain, scale, floor);
-            xs = foldAndScale(xDomain, xPeriod, scale, x) + xOffset;
-            ys = y + yOffset;
-            zs = foldAndScale(zDomain, zPeriod, scale, z) + zOffset;
-
-            double verticalShare = context.verticalShare();
-            correction = OctaveVarianceCorrection.factor(xDomain, zDomain, scale, verticalShare);
-
-            double anchorGain = OctaveVarianceCorrection.anchorGain(xDomain, zDomain, scale, verticalShare);
-            if (anchorGain > 0.0) {
-                anchor = anchorGain * anchorSample(permutations, xDomain, zDomain, xPeriod, zPeriod, scale,
-                        xOffset, yOffset, zOffset);
-            }
-        } else {
-            WrapDomain xDomain = axes.x().domainOf(transformer);
-            WrapDomain yDomain = axes.y().domainOf(transformer);
-            WrapDomain zDomain = axes.z().domainOf(transformer);
-            double xSlotScale = scale / axes.x().divisorIn(context);
-            double ySlotScale = scale / axes.y().divisorIn(context);
-            double zSlotScale = scale / axes.z().divisorIn(context);
-            xPeriod = period(xDomain, xSlotScale, floor);
-            yPeriod = period(yDomain, ySlotScale, floor);
-            zPeriod = period(zDomain, zSlotScale, floor);
-            xs = slotCoord(axes.x(), xDomain, xPeriod, xSlotScale, x) + xOffset;
-            ys = slotCoord(axes.y(), yDomain, yPeriod, ySlotScale, y) + yOffset;
-            zs = slotCoord(axes.z(), zDomain, zPeriod, zSlotScale, z) + zOffset;
+        if (axes != SlotAxes.DEFAULT || context.xDivisor() != 1.0 || context.zDivisor() != 1.0) {
+            return new PeriodicLattice(permutations, xOffset, yOffset, zOffset,
+                    slotAxis(axes.x(), transformer, context, scale, floor),
+                    slotAxis(axes.y(), transformer, context, scale, floor),
+                    slotAxis(axes.z(), transformer, context, scale, floor), 1.0, 0.0);
         }
 
+        WrapDomain xDomain = transformer.blockDomain(Direction.Axis.X);
+        WrapDomain zDomain = transformer.blockDomain(Direction.Axis.Z);
+        long xPeriod = period(xDomain, scale, floor);
+        long zPeriod = period(zDomain, scale, floor);
+        double verticalShare = context.verticalShare();
+        double correction = OctaveVarianceCorrection.factor(xDomain, zDomain, scale, verticalShare);
+        double anchorGain = OctaveVarianceCorrection.anchorGain(xDomain, zDomain, scale, verticalShare);
+        double anchor = anchorGain > 0.0
+                ? anchorGain * anchorSample(permutations, xDomain, zDomain, xPeriod, zPeriod, scale, xOffset, yOffset,
+                        zOffset)
+                : 0.0;
+        return new PeriodicLattice(permutations, xOffset, yOffset, zOffset,
+                new PeriodicLattice.Axis(true, xDomain, xPeriod, scale), PeriodicLattice.Axis.PASS_THROUGH,
+                new PeriodicLattice.Axis(true, zDomain, zPeriod, scale), correction, anchor);
+    }
+
+    // A slot carrying no world axis arrives already scaled by its caller, so scaling it again would move the lattice.
+    private static PeriodicLattice.Axis slotAxis(SlotAxis axis, WorldFold transformer, Context context, double scale,
+            LapFloor floor) {
+        WrapDomain domain = axis.domainOf(transformer);
+        double slotScale = scale / axis.divisorIn(context);
+        return new PeriodicLattice.Axis(axis.carriesWorldAxis(), domain, period(domain, slotScale, floor), slotScale);
+    }
+
+    static double sample(PeriodicLattice lattice, double x, double y, double z, double yScale, double yFudge) {
+        double xs = lattice.x().coord(x) + lattice.xOffset();
+        double ys = lattice.y().coord(y) + lattice.yOffset();
+        double zs = lattice.z().coord(z) + lattice.zOffset();
         int xCell = Mth.floor(xs);
         int yCell = Mth.floor(ys);
         int zCell = Mth.floor(zs);
@@ -101,8 +100,9 @@ public final class PeriodicNoiseSampler {
             yFracFudge = 0.0;
         }
 
-        return correction * sampleAndLerp(permutations, xCell, yCell, zCell, xFrac, yFrac - yFracFudge, zFrac,
-                yFrac, xPeriod, yPeriod, zPeriod) + anchor;
+        return lattice.correction() * sampleAndLerp(lattice.permutations(), xCell, yCell, zCell, xFrac,
+                yFrac - yFracFudge, zFrac, yFrac, lattice.x().period(), lattice.y().period(), lattice.z().period())
+                + lattice.anchor();
     }
 
     public static double sampleLattice(byte[] permutations, double xs, double ys, double zs, long xPeriod,
@@ -127,15 +127,6 @@ public final class PeriodicNoiseSampler {
         double yFrac = yOffset - yCell;
         return sampleAndLerp(permutations, xCell, yCell, zCell, xs - xCell, yFrac, zs - zCell, yFrac,
                 xPeriod, UNBOUNDED_PERIOD, zPeriod);
-    }
-
-    // A slot carrying no world axis arrives already scaled by its caller, so scaling it again would move the lattice.
-    private static double slotCoord(SlotAxis axis, WrapDomain domain, long period, double scale, double coord) {
-        if (!axis.carriesWorldAxis()) {
-            return coord;
-        }
-
-        return foldAndScale(domain, period, scale, coord);
     }
 
     static long period(WrapDomain domain, double scale, LapFloor floor) {
