@@ -3,6 +3,7 @@ package com.toroidalworld.compat.create;
 import java.util.List;
 
 import com.simibubi.create.content.equipment.symmetryWand.SymmetryEffectPacket;
+import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelEffectPacket;
 import com.simibubi.create.content.schematics.cannon.SchematicannonBlockEntity;
 import com.simibubi.create.foundation.blockEntity.IMultiBlockEntityContainer;
 import com.simibubi.create.infrastructure.command.HighlightPacket;
@@ -67,6 +68,8 @@ public final class CreateTranslation {
             BlockPos outlined = seat(context, payload.pos());
             return outlined == payload.pos() ? payload : new HighlightPacket(outlined);
         });
+
+        PacketTranslator.registerClientboundPayloadRewriter(FactoryPanelEffectPacket.class, (payload, context) -> payload);
     }
 
     private static BlockPos seat(TranslationContext context, BlockPos pos) {

@@ -2,6 +2,7 @@ package com.toroidalworld.engine.net;
 
 import static com.toroidalworld.compat.CompatFoldFixture.PER_AXIS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -17,6 +18,9 @@ import com.simibubi.create.content.equipment.symmetryWand.SymmetryEffectPacket;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmPlacementPacket;
 import com.simibubi.create.content.logistics.box.PackageDestroyPacket;
 import com.simibubi.create.content.logistics.depot.EjectorPlacementPacket;
+import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBlock;
+import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelEffectPacket;
+import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelPosition;
 import com.simibubi.create.content.logistics.packagePort.PackagePortPlacementPacket;
 import com.simibubi.create.content.logistics.packagerLink.WiFiEffectPacket;
 import com.simibubi.create.content.logistics.redstoneRequester.RedstoneRequesterEffectPacket;
@@ -144,6 +148,14 @@ class CreatePayloadTranslationTest {
     void aSymmetryPlacementPastTheMirrorSeatsOnTheMirrorRatherThanOnThePlayer() {
         assertEquals(new SymmetryEffectPacket(SERVER_MIRROR, List.of(PLACED_BESIDE_THE_MIRROR)),
                 seated(new SymmetryEffectPacket(SERVER_MIRROR, List.of(SERVER_PLACED)), AT_THE_CENTRE));
+    }
+
+    @Test
+    void theFactoryPanelFeedbackCrossesTheBoundaryCanonical() {
+        FactoryPanelPosition acrossTheSeam = new FactoryPanelPosition(SERVER_BLOCK, FactoryPanelBlock.PanelSlot.TOP_LEFT);
+        FactoryPanelEffectPacket feedback = new FactoryPanelEffectPacket(acrossTheSeam, acrossTheSeam, true);
+        assertNotNull(PacketTranslator.production().clientboundPayloadFor(feedback));
+        assertSame(feedback, seated(feedback));
     }
 
     @Test
