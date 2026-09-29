@@ -18,14 +18,9 @@ public class DhMixinPlugin extends ModPresenceGatePlugin {
             "com/seibel/distanthorizons/core/sql/repo/FullDataSourceV2Repo", "createUpsertStatement",
             "(Lcom/seibel/distanthorizons/core/sql/dto/FullDataSourceV2DTO;)Ljava/sql/PreparedStatement;");
 
-    static final ModSymbol GENERATOR_BIND = new ModSymbol(
-            "com/seibel/distanthorizons/coreapi/DependencyInjection/WorldGeneratorInjector", "bind",
-            "(Lcom/seibel/distanthorizons/api/interfaces/world/IDhApiLevelWrapper;"
-                    + "Lcom/seibel/distanthorizons/api/interfaces/override/worldGenerator/IDhApiWorldGenerator;)V");
-
     private static final ModPresence DH = ModPresence.of(LOGGER,
             "com/seibel/distanthorizons/core/api/internal/ClientApi.class",
-            "[dh-compat] gate distanthorizons_present", LEVEL_CHUNK_HASH_REPO, REPO_UPSERT_STATEMENT, GENERATOR_BIND);
+            "[dh-compat] gate distanthorizons_present", LEVEL_CHUNK_HASH_REPO, REPO_UPSERT_STATEMENT);
 
     public DhMixinPlugin() {
         super(DH);
