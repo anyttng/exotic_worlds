@@ -332,3 +332,25 @@ GenerationHooks.atRandomState("band_floor", (randomState, shape, options, seaLev
 **A hook gates itself.** Every registered hook runs for every folding level of every world, whatever shape made it and whichever mod declared that shape — a hook is not scoped to the shape it was registered beside. A world builds one `RandomState` per dimension, so it runs once for the overworld, once for the nether and once for the End. Read `shape` and `options` and return early unless both are what the hook is for; reaching for a span on an axis that does not loop throws.
 
 The key orders the hooks against one another and, like an option key, must be unique across every mod. Registration closes at the same boundary as everything else.
+
+## Generating terrain outside the chunk map
+
+A mod that computes terrain itself — an LOD generator sampling noise on its own worker threads, a preview, a pre-generator — reads an unbounded vanilla world on a toroidal level unless it reads the level's field the way the chunk map does. `GenerationProbe` carries what that takes.
+
+**Sample the level's own router, with the fold bound.** Read the `RandomState` the level already holds, `serverLevel.getChunkSource().randomState()`, and sample it inside `GenerationProbe.withFold`. Only the chunk map's own steps bind the fold on their thread, so without the call a noise the chunk map reads folded answers the unbounded value, and heights and biomes stop matching the world a player walks into.
+
+```java
+if (ToroidalWorldApi.shapeOf(level).isPresent()) {
+    GenerationProbe.withFold(level, () -> sampleColumns(level, region));
+} else {
+    sampleColumns(level, region);
+}
+```
+
+The binding is per thread and lasts for the call, so each worker thread wraps its own batch. `GenerationProbe.randomState(level, seed)` builds the router the level's shape and options would give another seed; a router built by hand with `RandomState.create` carries no fold.
+
+**Key by the folded position.** A column past the world's edge is a copy of one inside it — store and look it up by `fold`, as [Which operation to reach for](#which-operation-to-reach-for) describes.
+
+**Clear what the chunk map clears.** On a toroidal level the chunk map removes masses of terrain left detached from the ground. `GenerationProbe.sweepCrumbs(level, chunk)` applies that pass to a chunk filled outside it, after the carvers; `clearBorderCrumbs` applies the pass over a 3 × 3 window that runs after lighting.
+
+**What the API does not cover.** Features, structures and End spikes a mod places with its own code miss what a toroidal level changes about them: structures sit on a folded sector grid, the level adds structure starts of its own, and none of it reaches code that computes placement itself.
