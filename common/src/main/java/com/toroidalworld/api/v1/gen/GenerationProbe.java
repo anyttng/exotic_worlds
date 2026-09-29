@@ -18,9 +18,10 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
 
 /**
- * What this mod does to terrain, offered to a harness that reproduces generation outside the chunk map — over many
- * seeds, in one server session, with no world on disk. Three pieces make a folded chunk what a player would see: the
- * router a seed is given, the fold bound on the thread that samples it, and the crumb sweep the carvers tail applies.
+ * What this mod does to terrain, offered to a mod that reproduces generation outside the chunk map — an LOD generator
+ * sampling on its own threads, or a harness measuring many seeds in one server session with no world on disk. Three
+ * pieces make a folded chunk what a player would see: the router a seed is given, the fold bound on the thread that
+ * samples it, and the crumb sweep the carvers tail applies.
  *
  * <p>Nothing here generates a chunk. The caller drives vanilla's own generator — {@code fillFromNoise},
  * {@code buildSurface}, {@code applyCarvers} — and uses these three to make that run the folded world's rather than

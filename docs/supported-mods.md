@@ -19,14 +19,15 @@ Toroidal World ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge an
 | Mod | Minecraft | Loaders | Status | Notes |
 | --- | --- | --- | --- | --- |
 | [Distant Horizons](https://modrinth.com/mod/distanthorizons) | All | NeoForge, Fabric | Supported | |
-| Distant Horizons SeedGen | 26.3, 26.2, 1.21.1 | NeoForge, Fabric | Supported | |
 | [Voxy](https://modrinth.com/mod/voxy) | All | Fabric | No seam support | |
 | Bobby | — | — | Not tested | |
+| Distant Horizons SeedGen | 26.3, 26.2, 1.21.1 | NeoForge, Fabric | Not supported | |
 
 ## Maps and navigation
 
 | Mod | Minecraft | Loaders | Status | Notes |
 | --- | --- | --- | --- | --- |
+| MapFrontiers | All | NeoForge, Fabric | No patch needed | |
 | [JourneyMap](https://modrinth.com/mod/journeymap) | All | NeoForge, Fabric | Supported | |
 | [Xaero's Minimap](https://modrinth.com/mod/xaeros-minimap) | All | NeoForge, Fabric | Supported | |
 | [Xaero's World Map](https://modrinth.com/mod/xaeros-world-map) | All | NeoForge, Fabric | Supported | |
@@ -45,7 +46,7 @@ Toroidal World ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge an
 | [Mekanism](https://modrinth.com/mod/mekanism) | 1.21.1 | NeoForge | Supported | |
 | Mekanism Generators | 1.21.1 | NeoForge | Supported | |
 | [AstikorCarts Redux](https://modrinth.com/mod/astikorcarts-redux) | 1.21.1 | NeoForge | Supported | |
-| [Create Electro Energetics](https://modrinth.com/mod/create-electro-energetics) | 1.21.1 | NeoForge | Partially supported | Structures do not keep wires across the world's edge |
+| [Create Electro Energetics](https://modrinth.com/mod/create-electro-energetics) | 1.21.1 | NeoForge | Supported | On the smallest worlds a distant wire can be drawn in the wrong place |
 
 ## Content and server side
 
