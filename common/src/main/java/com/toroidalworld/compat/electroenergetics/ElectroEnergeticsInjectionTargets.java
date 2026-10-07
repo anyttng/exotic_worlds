@@ -13,6 +13,9 @@ public final class ElectroEnergeticsInjectionTargets {
             "Lcom/george_vi/electroenergetics/foundation/nodes/InWorldNode;getPosition"
                     + "(Lnet/minecraft/world/level/Level;)Lnet/minecraft/world/phys/Vec3;";
 
+    public static final String ALL_WIRE_CONNECTIONS =
+            "Lcom/george_vi/electroenergetics/client/WireRenderer;getAllConnections()Ljava/util/List;";
+
     public static final String STRUCTURE_TEMPLATE_MIXIN = "com.george_vi.electroenergetics.mixins.StructureTemplateMixin";
     public static final String CAPTURE_HANDLER = "fillFromWorld";
     public static final String PLACE_HANDLER = "placeInWorld";

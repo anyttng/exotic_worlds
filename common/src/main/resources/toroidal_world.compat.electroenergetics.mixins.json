@@ -31,6 +31,16 @@
     "WireSpoolItemMixin",
     "WireSyncMixin"
   ],
+  "client": [
+    "LinemansStickRendererMixin",
+    "SendWireParticlesPacketMixin",
+    "WireEffectMixin",
+    "WireEffectsMixin",
+    "WireInteractionHandlerMixin",
+    "WireMeterMixin",
+    "WireRendererMixin",
+    "WireVisualMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

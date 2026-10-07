@@ -1,11 +1,15 @@
 package com.toroidalworld.compat.electroenergetics.mixin;
 
 import java.util.Map;
+import java.util.UUID;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.george_vi.electroenergetics.content.wire.WireSync;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -13,20 +17,45 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.toroidalworld.InjectionTargets;
 import com.toroidalworld.accessors.TransformerHolder;
+import com.toroidalworld.compat.electroenergetics.WireBox;
+import com.toroidalworld.compat.electroenergetics.WireBoxJump;
 import com.toroidalworld.compat.electroenergetics.WireSpan;
 import com.toroidalworld.core.WorldLoopAttachments;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.ChunkPos;
 
 @Mixin(value = WireSync.class, remap = false)
 public abstract class WireSyncMixin {
     @Shadow
     @Final
+    private static Map<UUID, ?> loadedChunks;
+
+    @Shadow
+    @Final
     private ServerLevel level;
+
+    @Shadow
+    public abstract void unloadForPlayer(ServerPlayer player);
+
+    @Inject(method = "handlePlayerEnterNewSection", at = @At("HEAD"))
+    private void toroidal$resendAfterAJump(ServerPlayer player, long newPos, CallbackInfo ci) {
+        if (loadedChunks.get(player.getUUID()) instanceof WireBox box
+                && WireBoxJump.mayReseat(WorldLoopAttachments.transformerOf(this.level), box.toroidal$centre(),
+                        box.toroidal$radius(), new ChunkPos(newPos), toroidal$boxRadius(WireSync.getViewDistance()))) {
+            this.unloadForPlayer(player);
+        }
+    }
 
     @ModifyExpressionValue(method = "handlePlayerEnterNewSection", at = @At(value = "INVOKE",
             target = "Lcom/george_vi/electroenergetics/content/wire/WireSync;getViewDistance()I"))
     private int toroidal$boxWithinHalfTheWorld(int viewDistance) {
+        return toroidal$boxRadius(viewDistance);
+    }
+
+    @Unique
+    private int toroidal$boxRadius(int viewDistance) {
         return WorldLoopAttachments.transformerOf(this.level).limitViewDistance(viewDistance);
     }
 
