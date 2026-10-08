@@ -42,23 +42,35 @@ public final class JourneyMapFold {
     private static @Nullable View fullscreenView;
     private static @Nullable View minimapView;
 
-    public static int foldRegionChunk(Direction.Axis axis, int chunk) {
-        ToroidalShape shape = ClientShapes.current();
-        return shape == null ? chunk : shape.foldChunk(axis, chunk);
+    public static ChunkPos foldRegionChunk(ChunkPos chunk) {
+        return foldRegionChunk(ClientShapes.current(), chunk);
     }
 
-    public static double foldCenterCoord(Direction.Axis axis, double coord) {
-        ToroidalShape shape = ClientShapes.current();
-        return shape == null ? coord : shape.foldCoord(axis, coord);
+    static ChunkPos foldRegionChunk(@Nullable ToroidalShape shape, ChunkPos chunk) {
+        return shape == null ? chunk : shape.fold(chunk);
     }
 
-    public static double seatPixelCoord(Direction.Axis axis, double ref, double coord, MapCopies copies) {
-        ToroidalShape shape = ClientShapes.current();
+    public static Vec3 foldCenter(double blockX, double blockZ) {
+        return foldCenter(ClientShapes.current(), blockX, blockZ);
+    }
+
+    static Vec3 foldCenter(@Nullable ToroidalShape shape, double blockX, double blockZ) {
+        Vec3 center = new Vec3(blockX, 0.0, blockZ);
+        return shape == null ? center : shape.fold(center);
+    }
+
+    public static Vec3 seatPixel(double refX, double refZ, double blockX, double blockZ, MapCopies copies) {
+        return seatPixel(ClientShapes.current(), refX, refZ, blockX, blockZ, copies);
+    }
+
+    static Vec3 seatPixel(@Nullable ToroidalShape shape, double refX, double refZ, double blockX, double blockZ,
+            MapCopies copies) {
+        Vec3 pixel = new Vec3(blockX, 0.0, blockZ);
         if (shape == null) {
-            return coord;
+            return pixel;
         }
 
-        return copies == MapCopies.SINGLE ? shape.foldCoord(axis, coord) : shape.nearestCoord(axis, ref, coord);
+        return copies == MapCopies.SINGLE ? shape.fold(pixel) : shape.nearestCopy(new Vec3(refX, 0.0, refZ), pixel);
     }
 
     public static MapCopies copiesOf(Context.UI ui) {
@@ -69,8 +81,13 @@ public final class JourneyMapFold {
         return copies(axis).clampView(center + delta, halfViewBlocks(zoom, windowPixels)) - center;
     }
 
-    public static double seatSingleCenter(Direction.Axis axis, double coord, int zoom, int windowPixels) {
-        return copies(axis).clampView(foldCenterCoord(axis, coord), halfViewBlocks(zoom, windowPixels));
+    public static double clampSingleCenter(Direction.Axis axis, double foldedCoord, int zoom, int windowPixels) {
+        return clampSingleCenter(ClientShapes.current(), axis, foldedCoord, zoom, windowPixels);
+    }
+
+    static double clampSingleCenter(@Nullable ToroidalShape shape, Direction.Axis axis, double foldedCoord, int zoom,
+            int windowPixels) {
+        return copies(shape, axis).clampView(foldedCoord, halfViewBlocks(zoom, windowPixels));
     }
 
     private static double halfViewBlocks(int zoom, int windowPixels) {
@@ -85,18 +102,19 @@ public final class JourneyMapFold {
         return ClientShapes.current() != null;
     }
 
-    public static int foldUiCoord(Direction.Axis axis, int coord) {
-        ToroidalShape shape = ClientShapes.current();
-        return shape == null ? coord : shape.foldBlock(axis, coord);
+    public static BlockPos foldUiBlock(BlockPos pos) {
+        return foldUiBlock(ClientShapes.current(), pos);
     }
 
-    public static BlockPos foldUiBlock(BlockPos pos) {
-        ToroidalShape shape = ClientShapes.current();
+    static BlockPos foldUiBlock(@Nullable ToroidalShape shape, BlockPos pos) {
         return shape == null || pos == null ? pos : shape.fold(pos);
     }
 
     public static AxisCopies copies(Direction.Axis axis) {
-        ToroidalShape shape = ClientShapes.current();
+        return copies(ClientShapes.current(), axis);
+    }
+
+    private static AxisCopies copies(@Nullable ToroidalShape shape, Direction.Axis axis) {
         return shape == null ? AxisCopies.UNBOUNDED : AxisCopies.of(shape, axis);
     }
 
@@ -168,7 +186,7 @@ public final class JourneyMapFold {
     }
 
     private static double worldCenter(@Nullable ToroidalShape shape, Direction.Axis axis) {
-        AxisCopies copies = shape == null ? AxisCopies.UNBOUNDED : AxisCopies.of(shape, axis);
+        AxisCopies copies = copies(shape, axis);
         return copies.loops() ? (copies.min() + copies.max()) / 2.0 : 0.0;
     }
 
@@ -194,8 +212,8 @@ public final class JourneyMapFold {
 
     static boolean regionInView(@Nullable ToroidalShape shape, int regionX, int regionZ, double boundsMinX,
             double boundsMinZ, double boundsMaxX, double boundsMaxZ) {
-        AxisCopies x = shape == null ? AxisCopies.UNBOUNDED : AxisCopies.of(shape, Direction.Axis.X);
-        AxisCopies z = shape == null ? AxisCopies.UNBOUNDED : AxisCopies.of(shape, Direction.Axis.Z);
+        AxisCopies x = copies(shape, Direction.Axis.X);
+        AxisCopies z = copies(shape, Direction.Axis.Z);
         List<WorldCopies.Copy> copies = WorldCopies.meeting(shape, spanMin(boundsMinX), spanMin(boundsMinZ),
                 spanMax(boundsMaxX), spanMax(boundsMaxZ));
         for (WorldCopies.Copy copy : copies) {
