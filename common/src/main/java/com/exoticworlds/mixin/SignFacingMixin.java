@@ -11,6 +11,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(SignBlockEntity.class)
 public class SignFacingMixin {
@@ -19,6 +20,7 @@ public class SignFacingMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.MTH_ATAN2))
     private double toroidal$facingAngleThroughSeam(double deltaZ, double deltaX, Operation<Double> original,
             @Local(argsOnly = true) Player player) {
-        return original.call(SeamAim.foldZ(player, deltaZ), SeamAim.foldX(player, deltaX));
+        Vec3 delta = SeamAim.foldDelta(player, deltaX, deltaZ);
+        return original.call(delta.z, delta.x);
     }
 }

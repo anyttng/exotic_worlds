@@ -25,7 +25,6 @@ import com.exoticworlds.mixin.StructureCheckAccessor;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
@@ -149,8 +148,8 @@ public final class AddedStructureStarts {
         }
 
         private List<Pick> enumeratePicks() {
-            WrapDomain xDomain = this.fold.chunkDomain(Direction.Axis.X);
-            WrapDomain zDomain = this.fold.chunkDomain(Direction.Axis.Z);
+            WrapDomain xDomain = this.fold.chunkLattice().x();
+            WrapDomain zDomain = this.fold.chunkLattice().z();
             if (!xDomain.loops() || !zDomain.loops()) {
                 throw new IllegalStateException("Picks are enumerated only where both horizontal axes loop");
             }

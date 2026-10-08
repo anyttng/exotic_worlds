@@ -6,10 +6,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
-import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.seam.SeamCommandErrors;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -17,7 +17,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Either;
 
-import net.minecraft.core.Direction;
 import net.minecraft.core.QuartPos;
 import net.minecraft.server.commands.FillBiomeCommand;
 import net.minecraft.server.level.ServerLevel;
@@ -72,12 +71,19 @@ public class FillBiomeCommandMixin {
             return;
         }
 
+        TranslationLattice lattice = transformer.blockLattice();
         int regionMinX = region.minX();
         int regionMinZ = region.minZ();
-        BiomeResolver inFrame = (quartX, quartY, quartZ) -> resolver.getNoiseBiome(
-                foldX ? toroidal$quartInRegionsFrame(transformer.blockDomain(Direction.Axis.X), regionMinX, quartX) : quartX,
-                quartY,
-                foldZ ? toroidal$quartInRegionsFrame(transformer.blockDomain(Direction.Axis.Z), regionMinZ, quartZ) : quartZ);
+        BiomeResolver inFrame = (quartX, quartY, quartZ) -> {
+            int blockX = QuartPos.toBlock(quartX);
+            int blockZ = QuartPos.toBlock(quartZ);
+            int zLaps = foldZ ? Math.floorDiv(blockZ - regionMinZ, lattice.z().domainLength) : 0;
+            int shiftedX = blockX - zLaps * lattice.skew();
+            int frameX = foldX || shiftedX != blockX ? lattice.x().wrapFrom(regionMinX, shiftedX) : blockX;
+            int frameZ = blockZ - zLaps * lattice.z().domainLength;
+            return resolver.getNoiseBiome(
+                    quartX + QuartPos.fromBlock(frameX - blockX), quartY, quartZ + QuartPos.fromBlock(frameZ - blockZ));
+        };
 
         original.call(chunk, inFrame);
     }
@@ -87,10 +93,4 @@ public class FillBiomeCommandMixin {
         return axis.isOver(minCoord) || axis.isOver(maxCoord);
     }
 
-    @Unique
-    private static int toroidal$quartInRegionsFrame(WrapDomain domain, int regionMinCoord, int quart) {
-        int block = QuartPos.toBlock(quart);
-        int inFrame = domain.wrapFrom(regionMinCoord, block);
-        return quart + QuartPos.fromBlock(inFrame - block);
-    }
 }

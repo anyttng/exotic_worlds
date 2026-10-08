@@ -2,11 +2,9 @@ package com.exoticworlds.engine.fold;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -50,10 +48,15 @@ class DimensionMappingTest {
     }
 
     @Test
-    void aShapeThatDoesNotDecomposeHasNoMappingYet() {
-        WorldFold skewed = new DeckGroupFold(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(64), 5));
+    void twoCopiesOnASkewedWorldMapToOnePointOfItsScaledLattice() {
+        WorldFold overworld = WorldFolds.of(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(64), 8));
+        WorldFold nether = WorldFolds.of(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(8), 1));
+        Vec3 position = new Vec3(100.0, 70.0, 300.0);
+        Vec3 copy = position.add(8 * 16, 0.0, 64 * 16);
 
-        assertThrows(IllegalStateException.class,
-                () -> DimensionMapping.map(skewed, xOnly(-4, 4), new Vec3(1.0, 70.0, 1.0), DECLARED));
+        Vec3 mapped = DimensionMapping.map(overworld, nether, position, DECLARED);
+
+        assertEquals(new Vec3(12.5, 70.0, 37.5), mapped);
+        assertEquals(mapped, DimensionMapping.map(overworld, nether, copy, DECLARED));
     }
 }

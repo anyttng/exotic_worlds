@@ -9,9 +9,9 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -27,13 +27,13 @@ public class ServerChunkCacheMixin {
     private WorldFold toroidal$transformer;
 
     @ModifyVariable(method = "getChunkFutureMainThread", at = @At("HEAD"), argsOnly = true, index = 1)
-    private int toroidal$wrapRequestedChunkX(int chunkX) {
-        return toroidal$transformer().chunkDomain(Direction.Axis.X).wrap(chunkX);
+    private int toroidal$wrapRequestedChunkX(int chunkX, @Local(argsOnly = true, ordinal = 1) int chunkZ) {
+        return toroidal$transformer().chunkLattice().foldX(chunkX, chunkZ);
     }
 
     @ModifyVariable(method = "getChunkFutureMainThread", at = @At("HEAD"), argsOnly = true, index = 2)
     private int toroidal$wrapRequestedChunkZ(int chunkZ) {
-        return toroidal$transformer().chunkDomain(Direction.Axis.Z).wrap(chunkZ);
+        return toroidal$transformer().chunkLattice().foldZ(chunkZ);
     }
 
     @ModifyVariable(
@@ -45,33 +45,33 @@ public class ServerChunkCacheMixin {
     }
 
     @ModifyVariable(method = "getChunkNow", at = @At("HEAD"), argsOnly = true, index = 1)
-    private int toroidal$wrapChunkX(int chunkX) {
-        return toroidal$transformer().chunkDomain(Direction.Axis.X).wrap(chunkX);
+    private int toroidal$wrapChunkX(int chunkX, @Local(argsOnly = true, ordinal = 1) int chunkZ) {
+        return toroidal$transformer().chunkLattice().foldX(chunkX, chunkZ);
     }
 
     @ModifyVariable(method = "getChunkNow", at = @At("HEAD"), argsOnly = true, index = 2)
     private int toroidal$wrapChunkZ(int chunkZ) {
-        return toroidal$transformer().chunkDomain(Direction.Axis.Z).wrap(chunkZ);
+        return toroidal$transformer().chunkLattice().foldZ(chunkZ);
     }
 
     @ModifyVariable(method = "hasChunk", at = @At("HEAD"), argsOnly = true, index = 1)
-    private int toroidal$wrapPresenceChunkX(int chunkX) {
-        return toroidal$transformer().chunkDomain(Direction.Axis.X).wrap(chunkX);
+    private int toroidal$wrapPresenceChunkX(int chunkX, @Local(argsOnly = true, ordinal = 1) int chunkZ) {
+        return toroidal$transformer().chunkLattice().foldX(chunkX, chunkZ);
     }
 
     @ModifyVariable(method = "hasChunk", at = @At("HEAD"), argsOnly = true, index = 2)
     private int toroidal$wrapPresenceChunkZ(int chunkZ) {
-        return toroidal$transformer().chunkDomain(Direction.Axis.Z).wrap(chunkZ);
+        return toroidal$transformer().chunkLattice().foldZ(chunkZ);
     }
 
     @ModifyVariable(method = "getChunkForLighting", at = @At("HEAD"), argsOnly = true, index = 1)
-    private int toroidal$wrapLightingChunkX(int chunkX) {
-        return toroidal$transformer().chunkDomain(Direction.Axis.X).wrap(chunkX);
+    private int toroidal$wrapLightingChunkX(int chunkX, @Local(argsOnly = true, ordinal = 1) int chunkZ) {
+        return toroidal$transformer().chunkLattice().foldX(chunkX, chunkZ);
     }
 
     @ModifyVariable(method = "getChunkForLighting", at = @At("HEAD"), argsOnly = true, index = 2)
     private int toroidal$wrapLightingChunkZ(int chunkZ) {
-        return toroidal$transformer().chunkDomain(Direction.Axis.Z).wrap(chunkZ);
+        return toroidal$transformer().chunkLattice().foldZ(chunkZ);
     }
 
     @ModifyVariable(method = "onLightUpdate", at = @At("HEAD"), argsOnly = true)

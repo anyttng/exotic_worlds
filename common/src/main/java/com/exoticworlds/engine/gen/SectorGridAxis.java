@@ -48,4 +48,17 @@ public final class SectorGridAxis {
         int cell = gridMin + Math.floorMod(originGrid + offset - gridMin, gridCount);
         return Math.max(cell * spacing, domain.lowerBound);
     }
+
+    public int lapsCrossed(int offset) {
+        return closes ? Math.floorDiv(originGrid + offset - gridMin, gridCount) : 0;
+    }
+
+    public int probeChunkShifted(int offset, int shiftChunks) {
+        int probe = probeChunk(offset);
+        if (shiftChunks == 0 || !closes) {
+            return probe;
+        }
+
+        return Math.max(Math.floorDiv(domain.wrap(probe + shiftChunks), spacing) * spacing, domain.lowerBound);
+    }
 }

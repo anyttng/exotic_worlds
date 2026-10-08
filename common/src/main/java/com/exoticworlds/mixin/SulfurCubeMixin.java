@@ -3,13 +3,15 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.engine.seam.SeamAim;
 import com.exoticworlds.engine.seam.SeamSteering;
 
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.cubemob.SulfurCube;
 import net.minecraft.world.phys.Vec3;
@@ -22,14 +24,11 @@ public class SulfurCubeMixin {
     @Unique
     private static final String PLAYER_PUSH = "playerPush(Lnet/minecraft/world/entity/player/Player;)V";
 
-    @ModifyVariable(method = KNOCKBACK, at = @At("HEAD"), argsOnly = true, ordinal = 1)
-    private double toroidal$knockbackDirX(double xd) {
-        return SeamAim.foldX((Entity) (Object) this, xd);
-    }
-
-    @ModifyVariable(method = KNOCKBACK, at = @At("HEAD"), argsOnly = true, ordinal = 2)
-    private double toroidal$knockbackDirZ(double zd) {
-        return SeamAim.foldZ((Entity) (Object) this, zd);
+    @WrapMethod(method = KNOCKBACK)
+    private void toroidal$knockbackThroughSeam(double power, double xd, double zd, DamageSource source, float damage,
+            boolean comesFromEffect, Operation<Void> original) {
+        Vec3 direction = SeamAim.foldDelta((Entity) (Object) this, xd, zd);
+        original.call(power, direction.x, direction.z, source, damage, comesFromEffect);
     }
 
     @ModifyExpressionValue(
