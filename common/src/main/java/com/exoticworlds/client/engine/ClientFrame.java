@@ -13,7 +13,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
@@ -74,15 +73,6 @@ public final class ClientFrame {
     public static @Nullable Vec3 nearestToCamera(@Nullable Vec3 target) {
         Entity camera = Minecraft.getInstance().getCameraEntity();
         return nearestCopy(camera == null ? null : camera.position(), target);
-    }
-
-    public static double nearestToCamera(Direction.Axis axis, double coord) {
-        Entity camera = Minecraft.getInstance().getCameraEntity();
-        if (camera == null) {
-            return coord;
-        }
-
-        return NearestCopy.toward(fold(), axis, camera.position().get(axis), coord);
     }
 
     public static @Nullable BlockPos heldCopy(BlockPos canonical) {

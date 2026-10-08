@@ -10,7 +10,7 @@ import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.world.phys.Vec3;
 
 import xaero.map.MapProcessor;
 
@@ -32,8 +32,7 @@ public abstract class MapProcessorMixin {
             return footprint;
         }
 
-        double foldedX = XaeroWorldMapFold.foldFootprintCoord(this.mainWorld, Direction.Axis.X, coords[0]);
-        double foldedZ = XaeroWorldMapFold.foldFootprintCoord(this.mainWorld, Direction.Axis.Z, coords[1]);
-        return foldedX == coords[0] && foldedZ == coords[1] ? footprint : new Double[] {foldedX, foldedZ};
+        Vec3 folded = XaeroWorldMapFold.foldFootprint(this.mainWorld, coords[0], coords[1]);
+        return folded.x == coords[0] && folded.z == coords[1] ? footprint : new Double[] {folded.x, folded.z};
     }
 }
