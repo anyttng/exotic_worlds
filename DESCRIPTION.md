@@ -19,7 +19,7 @@ How it does that, in short: [how it works](https://github.com/anyttng/exotic_wor
 
 ## Dedicated servers
 
-One line in `server.properties` creates a shaped world: `level-type=exotic_worlds:medium` for a toroidal one, `level-type=exotic_worlds:cylinder_medium` for a cylinder, each in five sizes — `tiny`, `small`, `medium`, `large`, `huge`. Custom sizes and the full walkthrough are in the [dedicated server guide](https://github.com/anyttng/exotic_worlds/blob/main/docs/dedicated-server.md).
+One line in `server.properties` creates a shaped world: `level-type=exotic_worlds:torus_medium` for a toroidal one, `level-type=exotic_worlds:cylinder_medium` for a cylinder, each in five sizes — `tiny`, `small`, `medium`, `large`, `huge`. Custom sizes and the full walkthrough are in the [dedicated server guide](https://github.com/anyttng/exotic_worlds/blob/main/docs/dedicated-server.md).
 
 ## Compatibility
 

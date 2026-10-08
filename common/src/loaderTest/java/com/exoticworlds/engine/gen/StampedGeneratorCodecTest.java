@@ -3,6 +3,7 @@ package com.exoticworlds.engine.gen;
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.migration.FormerNamespace;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.shape.WorldOptionSetup;
@@ -36,7 +37,8 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 
 @Timeout(60)
 class StampedGeneratorCodecTest {
-    private static final String SHAPE_KEY = ExoticWorlds.MODID + ":" + CarriedShape.WRAPPING_KEY;
+    private static final String KEY_PREFIX = ExoticWorlds.MODID + ":";
+    private static final String SHAPE_KEY = KEY_PREFIX + CarriedShape.WRAPPING_KEY;
     private static final String CLIMATE_SCALE_KEY =
             ExoticWorlds.MODID + ":" + CompactBiomes.KEY;
 
@@ -80,6 +82,25 @@ class StampedGeneratorCodecTest {
         CarriedShape decoded = carriedShapeOf(decode(encoded).getOrThrow());
         assertEquals(shape, decoded.shape());
         assertEquals(ClimateScale.OFF, decoded.generationOptions().get(CompactBiomes.OPTION));
+    }
+
+    @Test
+    void aStampUnderTheFormerNamespaceIsReadAndWrittenBackUnderTheCurrentOne() {
+        FlatShape shape = squareTorus(STAMPED_CHUNK_WIDTH);
+        CompoundTag current = encode(stamped(noiseGenerator(worldgen), shape, UNCOMPRESSED));
+        CompoundTag former = new CompoundTag();
+        current.forEach((key, value) -> former.put(
+                key.startsWith(KEY_PREFIX) ? FormerNamespace.formerKey(key) : key, value.copy()));
+        assertTrue(former.contains(FormerNamespace.formerKey(SHAPE_KEY)), "the fixture holds no former stamp");
+
+        ChunkGenerator decoded = decode(former).getOrThrow();
+        CarriedShape carried = carriedShapeOf(decoded);
+        assertEquals(shape, carried.shape());
+        assertEquals(ClimateScale.OFF, carried.generationOptions().get(CompactBiomes.OPTION));
+
+        CompoundTag rewritten = encode(decoded);
+        assertTrue(rewritten.contains(SHAPE_KEY));
+        assertFalse(rewritten.toString().contains(FormerNamespace.NAMESPACE), rewritten.toString());
     }
 
     @Test

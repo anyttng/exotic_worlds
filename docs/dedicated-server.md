@@ -8,18 +8,18 @@ A world's shape lives entirely in its chunk generators, so a dedicated server ne
 2. In `server.properties`, pick a preset — do this **before the first start**, the world type is read only when the world is created:
 
 ```properties
-level-type=exotic_worlds\:medium
+level-type=exotic_worlds\:torus_medium
 ```
 
 3. Start the server. No datapack needed.
 
 | Size | Toroidal `level-type` | Cylinder `level-type` | Overworld | Nether (portal scale) | End |
 | --- | --- | --- | --- | --- | --- |
-| Tiny | `exotic_worlds:tiny` | `exotic_worlds:cylinder_tiny` | 32 chunks (512 blocks) | 16 chunks (256 blocks), 1:2 | 256 chunks (4096 blocks) |
-| Small | `exotic_worlds:small` | `exotic_worlds:cylinder_small` | 64 chunks (1024 blocks) | 16 chunks (256 blocks), 1:4 | 320 chunks (5120 blocks) |
-| Medium | `exotic_worlds:medium` | `exotic_worlds:cylinder_medium` | 128 chunks (2048 blocks) | 16 chunks (256 blocks), 1:8 | 384 chunks (6144 blocks) |
-| Large | `exotic_worlds:large` | `exotic_worlds:cylinder_large` | 256 chunks (4096 blocks) | 32 chunks (512 blocks), 1:8 | 448 chunks (7168 blocks) |
-| Huge | `exotic_worlds:huge` | `exotic_worlds:cylinder_huge` | 512 chunks (8192 blocks) | 64 chunks (1024 blocks), 1:8 | 512 chunks (8192 blocks) |
+| Tiny | `exotic_worlds:torus_tiny` | `exotic_worlds:cylinder_tiny` | 32 chunks (512 blocks) | 16 chunks (256 blocks), 1:2 | 256 chunks (4096 blocks) |
+| Small | `exotic_worlds:torus_small` | `exotic_worlds:cylinder_small` | 64 chunks (1024 blocks) | 16 chunks (256 blocks), 1:4 | 320 chunks (5120 blocks) |
+| Medium | `exotic_worlds:torus_medium` | `exotic_worlds:cylinder_medium` | 128 chunks (2048 blocks) | 16 chunks (256 blocks), 1:8 | 384 chunks (6144 blocks) |
+| Large | `exotic_worlds:torus_large` | `exotic_worlds:cylinder_large` | 256 chunks (4096 blocks) | 32 chunks (512 blocks), 1:8 | 448 chunks (7168 blocks) |
+| Huge | `exotic_worlds:torus_huge` | `exotic_worlds:cylinder_huge` | 512 chunks (8192 blocks) | 64 chunks (1024 blocks), 1:8 | 512 chunks (8192 blocks) |
 
 A toroidal preset loops both horizontal axes at the given width. A cylinder preset loops along X at that width and leaves Z endless like vanilla — a cylinder looping along Z is a custom preset with the two axes swapped (below).
 
@@ -107,7 +107,7 @@ The `world/` folder does not exist yet on a fresh server — create it with just
 }
 ```
 
-Then point `server.properties` at it: `level-type=my_pack\:my_toroidal`. Left at `exotic_worlds\:medium`, the world is created from that preset and the pack changes nothing, with no warning in the log to say so.
+Then point `server.properties` at it: `level-type=my_pack\:my_toroidal`. Left at `exotic_worlds\:torus_medium`, the world is created from that preset and the pack changes nothing, with no warning in the log to say so.
 
 For a cylinder, give the looping axis its bounds and write the other axis as an empty object — the same axis in all three dimensions. This `wrapping` makes the overworld of a 64-chunk (1024-block) cylinder looping along Z:
 

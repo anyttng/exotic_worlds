@@ -15,6 +15,7 @@ import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.gen.FloatingCrumbs;
+import com.exoticworlds.migration.FormerNamespace;
 import com.google.common.collect.Maps;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -80,7 +81,7 @@ public class SerializableChunkDataMixin {
         SerializableChunkData data = callback.getReturnValue();
         if (data != null) {
             ((SerializableChunkDataMixin) (Object) data).toroidal$terrainMask =
-                    chunkData.getCompound(toroidal$TERRAIN_MASK_KEY).orElse(null);
+                    FormerNamespace.compound(chunkData, toroidal$TERRAIN_MASK_KEY).orElse(null);
         }
     }
 

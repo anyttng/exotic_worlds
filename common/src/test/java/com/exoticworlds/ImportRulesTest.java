@@ -28,6 +28,8 @@ class ImportRulesTest {
 
     private static final Set<String> ENGINE_READERS =
             Set.of("engine", "mixin", "accessors", "compat", "platform", "client.engine");
+    private static final String MIGRATION_GROUP = "migration";
+    private static final Set<String> MIGRATION_READERS = Set.of(MIGRATION_GROUP, "engine", MIXIN_SEGMENT);
     private static final Set<String> LOADER_ENTRIES =
             Set.of("WorldLoop", "WorldLoopNetwork", "ExoticWorldsNeoForge", "ExoticWorldsFabric",
                     "ExoticWorldsFabricClient", "VanillaBootstrapListener");
@@ -72,6 +74,13 @@ class ImportRulesTest {
         }
         if (readerGroup.equals("core") && !importedGroup.equals("core") && !isVocabulary(importedGroup)) {
             return "core is the vocabulary: it reads no work";
+        }
+        if (importedGroup.equals(MIGRATION_GROUP) && !MIGRATION_READERS.contains(readerGroup)) {
+            return "migration is read by the engine and the mixins alone, so deleting it touches nothing else";
+        }
+        if (readerGroup.equals(MIGRATION_GROUP) && !importedGroup.equals(MIGRATION_GROUP)
+                && !importedGroup.equals(ROOT_GROUP)) {
+            return "migration reads only the package root";
         }
         return null;
     }
