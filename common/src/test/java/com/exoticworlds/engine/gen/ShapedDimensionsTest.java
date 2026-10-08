@@ -43,6 +43,21 @@ class ShapedDimensionsTest {
             new WorldLoopBounds(new AxisBounds.Looped(-32, 32), AxisBounds.Unbounded.INSTANCE));
 
     @Test
+    void aDerivedStemScalesTheSkewWithTheWidths() {
+        FlatShape overworld = FlatShape.latticeTorus(WorldLoopBounds.ofWidths(256, 128), 16);
+
+        assertEquals(FlatShape.latticeTorus(WorldLoopBounds.ofWidths(32, 16), 2),
+                ShapedDimensions.derivedShape(overworld, 1.0, 8.0));
+    }
+
+    @Test
+    void aSkewThatScalesToNoWholeChunkDerivesNothing() {
+        FlatShape overworld = FlatShape.latticeTorus(WorldLoopBounds.ofWidths(256, 128), 12);
+
+        assertNull(ShapedDimensions.derivedShape(overworld, 1.0, 8.0));
+    }
+
+    @Test
     void strippingASuperflatShapeHandsBackThePlainFlatSourceOnItsOwnSettings() {
         FlatLevelGeneratorSettings settings = flatSettings();
         WorldDimensions stripped = ShapedDimensions.stripShapes(overworldOf(new LoopedFlatChunkGenerator(

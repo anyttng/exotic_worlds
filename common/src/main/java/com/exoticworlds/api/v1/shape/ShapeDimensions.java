@@ -24,11 +24,9 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
 public final class ShapeDimensions {
 
     /**
-     * The dimensions with each of the three vanilla stems carrying its declared spans and the world's options. A stem
-     * whose generator cannot take a shape is left alone, so a datapack dimension of another mod is never rewritten.
-     *
-     * @throws IllegalArgumentException if a declared shape is one the engine cannot fold — today, anything whose axes
-     *         do not fold independently of one another
+     * The dimensions with each of the three vanilla stems carrying its declared spans, skew included, and the world's
+     * options. A stem whose generator cannot take a shape is left alone, so a datapack dimension of another mod is
+     * never rewritten.
      */
     public static WorldDimensions withSpans(WorldDimensions dimensions, LoopSpans overworld, LoopSpans nether,
             LoopSpans end, GenerationOptions options) {
@@ -39,13 +37,14 @@ public final class ShapeDimensions {
     }
 
     /**
-     * The spans that stem was created with, or {@code null} where it carries no shape of ours. A shape reads this in
-     * {@link ShapeModule.Read} and refuses anything that is not its own geometry — normally by checking which axes
-     * {@link LoopSpans#loops} answers for.
+     * The spans that stem was created with, skew included, or {@code null} where it carries no shape of ours or one
+     * spans cannot state. A shape reads this in {@link ShapeModule.Read} and refuses anything that is not its own
+     * geometry — normally by checking which axes {@link LoopSpans#loops} answers for and its
+     * {@link LoopSpans#skewChunks()}.
      */
     public static @Nullable LoopSpans spansOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
         FlatShape shape = ShapedDimensions.shapeOf(dimensions, key);
-        return shape == null || !shape.decomposesPerAxis() ? null : new LoopSpans(shape.bounds());
+        return shape == null || shape.mirror() != null ? null : new LoopSpans(shape.bounds(), shape.skewChunks());
     }
 
     /**
@@ -58,7 +57,7 @@ public final class ShapeDimensions {
     }
 
     private static CarriedShape carried(LoopSpans spans, GenerationOptions options) {
-        return new CarriedShape(new FlatShape(spans.bounds(), FlatShape.NO_SKEW, null), options);
+        return new CarriedShape(FlatShape.of(spans), options);
     }
 
     private ShapeDimensions() {

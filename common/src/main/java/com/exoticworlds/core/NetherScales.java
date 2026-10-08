@@ -15,13 +15,19 @@ public final class NetherScales {
     }
 
     public static List<Integer> allowedFor(int overworldXChunkWidth, int overworldZChunkWidth) {
+        return allowedFor(overworldXChunkWidth, overworldZChunkWidth, FlatShape.NO_SKEW);
+    }
+
+    public static List<Integer> allowedFor(int overworldXChunkWidth, int overworldZChunkWidth,
+            int overworldSkewChunks) {
         int maxScale = Math.min(overworldXChunkWidth, overworldZChunkWidth) / WorldLoopSizes.MIN_CHUNK_WIDTH;
         if (maxScale < SMALLEST) {
             return List.of(SMALLEST);
         }
 
+        int widths = IntMath.gcd(overworldXChunkWidth, overworldZChunkWidth);
         List<Integer> scales = new ArrayList<>();
-        for (int divisor : Divisors.of(IntMath.gcd(overworldXChunkWidth, overworldZChunkWidth))) {
+        for (int divisor : Divisors.of(IntMath.gcd(widths, Math.abs(overworldSkewChunks)))) {
             if (divisor > maxScale) {
                 break;
             }
@@ -38,6 +44,11 @@ public final class NetherScales {
 
     public static int normalize(int scale, int overworldXChunkWidth, int overworldZChunkWidth) {
         return normalize(scale, allowedFor(overworldXChunkWidth, overworldZChunkWidth));
+    }
+
+    public static int normalize(int scale, int overworldXChunkWidth, int overworldZChunkWidth,
+            int overworldSkewChunks) {
+        return normalize(scale, allowedFor(overworldXChunkWidth, overworldZChunkWidth, overworldSkewChunks));
     }
 
     public static int normalize(int scale, List<Integer> allowed) {
@@ -58,7 +69,11 @@ public final class NetherScales {
     }
 
     public static int next(int scale, int overworldXChunkWidth, int overworldZChunkWidth) {
-        List<Integer> allowed = allowedFor(overworldXChunkWidth, overworldZChunkWidth);
+        return next(scale, overworldXChunkWidth, overworldZChunkWidth, FlatShape.NO_SKEW);
+    }
+
+    public static int next(int scale, int overworldXChunkWidth, int overworldZChunkWidth, int overworldSkewChunks) {
+        List<Integer> allowed = allowedFor(overworldXChunkWidth, overworldZChunkWidth, overworldSkewChunks);
         int index = allowed.indexOf(scale);
         return allowed.get((index + 1) % allowed.size());
     }

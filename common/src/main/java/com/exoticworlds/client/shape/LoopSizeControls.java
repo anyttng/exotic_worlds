@@ -8,12 +8,15 @@ import java.util.function.IntPredicate;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.CoordinateConstants;
+import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.core.WorldLoopSizes;
 import com.exoticworlds.shape.WorldLoopPresets;
+import com.google.common.math.IntMath;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.CommonLayouts;
 import net.minecraft.client.gui.layouts.LinearLayout;
@@ -26,6 +29,9 @@ public final class LoopSizeControls {
     private static final String SIZE_LABEL_KEY = "gui.exotic_worlds.toroidal_settings.size";
     private static final String SIZE_X_LABEL_KEY = "gui.exotic_worlds.toroidal_settings.size_x";
     private static final String SIZE_Z_LABEL_KEY = "gui.exotic_worlds.toroidal_settings.size_z";
+    private static final Component SKEW_LABEL = Component.translatable("gui.exotic_worlds.toroidal_settings.skew");
+    private static final String SKEW_LAPS_KEY = "gui.exotic_worlds.toroidal_settings.skew_laps";
+    private static final Component SKEW_HINT = Component.translatable("gui.exotic_worlds.toroidal_settings.skew_hint");
     private static final String EFFECTIVE_KEY = "gui.exotic_worlds.toroidal_settings.effective";
     private static final String TOO_SMALL_KEY = "gui.exotic_worlds.toroidal_settings.too_small";
     private static final String TOO_LARGE_KEY = "gui.exotic_worlds.toroidal_settings.too_large";
@@ -60,39 +66,43 @@ public final class LoopSizeControls {
 
     private final SizeField size;
     private final @Nullable SizeField zSize;
+    private final @Nullable SkewField skew;
     private final SizeField endSize;
 
     private int netherScale;
     private int wantedNetherScale;
     private int scalePickedForXSize;
     private int scalePickedForZSize;
+    private int scalePickedForSkew;
 
     private final Map<WorldLoopPresets, Button> presetButtons = new EnumMap<>(WorldLoopPresets.class);
     private Button netherScaleButton;
 
-    private LoopSizeControls(SizeField size, @Nullable SizeField zSize, int xChunkWidth, int zChunkWidth,
-            int netherScale, int endChunkWidth, Runnable onChange) {
+    private LoopSizeControls(SizeField size, @Nullable SizeField zSize, @Nullable SkewField skew, int xChunkWidth,
+            int zChunkWidth, int skewChunks, int netherScale, int endChunkWidth, Runnable onChange) {
         this.onChange = onChange;
         this.size = size;
         this.zSize = zSize;
+        this.skew = skew;
         this.endSize = new SizeField(END_SIZE_LABEL_KEY, END_EFFECTIVE_KEY, END_HINT,
                 WorldLoopSizes.END_MIN_CHUNK_WIDTH, WorldLoopSizes::isEndInRange, endChunkWidth);
         this.netherScale = netherScale;
         this.wantedNetherScale = netherScale;
         this.scalePickedForXSize = xChunkWidth;
         this.scalePickedForZSize = zChunkWidth;
+        this.scalePickedForSkew = skewChunks;
     }
 
     public static LoopSizeControls single(int chunkWidth, int netherScale, int endChunkWidth, Runnable onChange) {
-        return new LoopSizeControls(worldSizeField(SIZE_LABEL_KEY, chunkWidth), null, chunkWidth, chunkWidth,
-                netherScale, endChunkWidth, onChange);
+        return new LoopSizeControls(worldSizeField(SIZE_LABEL_KEY, chunkWidth), null, null, chunkWidth, chunkWidth,
+                FlatShape.NO_SKEW, netherScale, endChunkWidth, onChange);
     }
 
-    public static LoopSizeControls perAxis(int xChunkWidth, int zChunkWidth, int netherScale, int endChunkWidth,
-            Runnable onChange) {
+    public static LoopSizeControls perAxis(int xChunkWidth, int zChunkWidth, int skewChunks, int netherScale,
+            int endChunkWidth, Runnable onChange) {
         return new LoopSizeControls(worldSizeField(SIZE_X_LABEL_KEY, xChunkWidth),
-                worldSizeField(SIZE_Z_LABEL_KEY, zChunkWidth), xChunkWidth, zChunkWidth,
-                netherScale, endChunkWidth, onChange);
+                worldSizeField(SIZE_Z_LABEL_KEY, zChunkWidth), new SkewField(skewChunks), xChunkWidth, zChunkWidth,
+                skewChunks, netherScale, endChunkWidth, onChange);
     }
 
     public void addPresets(LinearLayout contents) {
@@ -119,6 +129,10 @@ public final class LoopSizeControls {
             this.zSize.add(font, contents, this::onSizeChanged);
         }
 
+        if (this.skew != null) {
+            this.skew.add(font, contents, this::onSizeChanged);
+        }
+
         this.netherScaleButton = contents.addChild(Button.builder(Component.empty(), button -> this.cycleNetherScale())
                 .width(FIELD_WIDTH)
                 .build());
@@ -135,6 +149,10 @@ public final class LoopSizeControls {
         return axis == Direction.Axis.Z && this.zSize != null ? this.zSize.effective() : this.size.effective();
     }
 
+    public @Nullable Integer effectiveSkew() {
+        return this.skew == null ? Integer.valueOf(FlatShape.NO_SKEW) : this.skew.effective();
+    }
+
     public int netherScale() {
         return this.netherScale;
     }
@@ -145,7 +163,7 @@ public final class LoopSizeControls {
 
     public boolean isComplete() {
         return this.effectiveSize(Direction.Axis.X) != null && this.effectiveSize(Direction.Axis.Z) != null
-                && this.endSize.effective() != null;
+                && this.effectiveSkew() != null && this.endSize.effective() != null;
     }
 
     private void apply(WorldLoopPresets preset) {
@@ -156,15 +174,21 @@ public final class LoopSizeControls {
             this.zSize.setValue(preset.chunkWidth());
         }
 
+        if (this.skew != null) {
+            this.skew.setValue(FlatShape.NO_SKEW);
+        }
+
         this.endSize.setValue(preset.endChunkWidth());
     }
 
     private boolean matchesPreset(WorldLoopPresets preset) {
         Integer effectiveXSize = this.effectiveSize(Direction.Axis.X);
         Integer effectiveZSize = this.effectiveSize(Direction.Axis.Z);
+        Integer effectiveSkew = this.effectiveSkew();
         Integer effectiveEndSize = this.endSize.effective();
         return effectiveXSize != null && effectiveXSize == preset.chunkWidth()
                 && effectiveZSize != null && effectiveZSize == preset.chunkWidth()
+                && effectiveSkew != null && effectiveSkew == FlatShape.NO_SKEW
                 && this.netherScale == preset.netherScale()
                 && effectiveEndSize != null && effectiveEndSize == preset.endChunkWidth();
     }
@@ -183,7 +207,12 @@ public final class LoopSizeControls {
             this.zSize.update();
         }
 
-        if (this.effectiveSize(Direction.Axis.X) == null || this.effectiveSize(Direction.Axis.Z) == null) {
+        if (this.skew != null) {
+            this.skew.update(this.effectiveSize(Direction.Axis.X));
+        }
+
+        if (this.effectiveSize(Direction.Axis.X) == null || this.effectiveSize(Direction.Axis.Z) == null
+                || this.effectiveSkew() == null) {
             this.netherScaleButton.active = false;
         } else {
             this.refreshNetherScale();
@@ -200,11 +229,14 @@ public final class LoopSizeControls {
     private void refreshNetherScale() {
         int xSizeChunks = this.effectiveSize(Direction.Axis.X);
         int zSizeChunks = this.effectiveSize(Direction.Axis.Z);
-        List<Integer> allowed = NetherScales.allowedFor(xSizeChunks, zSizeChunks);
-        boolean sizeChanged = xSizeChunks != this.scalePickedForXSize || zSizeChunks != this.scalePickedForZSize;
+        int skewChunks = this.effectiveSkew();
+        List<Integer> allowed = NetherScales.allowedFor(xSizeChunks, zSizeChunks, skewChunks);
+        boolean sizeChanged = xSizeChunks != this.scalePickedForXSize || zSizeChunks != this.scalePickedForZSize
+                || skewChunks != this.scalePickedForSkew;
         this.netherScale = NetherScales.normalize(sizeChanged ? this.wantedNetherScale : this.netherScale, allowed);
         this.scalePickedForXSize = xSizeChunks;
         this.scalePickedForZSize = zSizeChunks;
+        this.scalePickedForSkew = skewChunks;
         this.netherScaleButton.active = allowed.size() > 1;
 
         this.netherScaleButton.setMessage(netherScaleLine(this.netherScale));
@@ -229,11 +261,12 @@ public final class LoopSizeControls {
     private void cycleNetherScale() {
         Integer effectiveXSize = this.effectiveSize(Direction.Axis.X);
         Integer effectiveZSize = this.effectiveSize(Direction.Axis.Z);
-        if (effectiveXSize == null || effectiveZSize == null) {
+        Integer effectiveSkew = this.effectiveSkew();
+        if (effectiveXSize == null || effectiveZSize == null || effectiveSkew == null) {
             return;
         }
 
-        this.netherScale = NetherScales.next(this.netherScale, effectiveXSize, effectiveZSize);
+        this.netherScale = NetherScales.next(this.netherScale, effectiveXSize, effectiveZSize, effectiveSkew);
         this.wantedNetherScale = this.netherScale;
         this.refreshNetherScale();
         this.changed();
@@ -333,6 +366,61 @@ public final class LoopSizeControls {
                     ? Component.translatable(TOO_SMALL_KEY, this.minChunks)
                     : Component.translatable(TOO_LARGE_KEY, WorldLoopSizes.MAX_CHUNK_WIDTH);
             return bound.copy().append(CommonComponents.NEW_LINE).append(this.hint);
+        }
+    }
+
+    private static final class SkewField {
+        private String text;
+        private @Nullable Integer effective;
+        private DigitsEditBox edit;
+        private StringWidget laps;
+
+        private SkewField(int skewChunks) {
+            this.text = String.valueOf(skewChunks);
+        }
+
+        private void add(Font font, LinearLayout contents, Runnable onEdited) {
+            this.edit = new DigitsEditBox(font, FIELD_WIDTH, FIELD_HEIGHT, SKEW_LABEL);
+            this.edit.setMaxLength(FIELD_MAX_LENGTH);
+            this.edit.setValue(this.text);
+            this.edit.setResponder(value -> {
+                this.text = value;
+                onEdited.run();
+            });
+            contents.addChild(CommonLayouts.labeledElement(font, this.edit, SKEW_LABEL));
+            this.laps = contents.addChild(new StringWidget(FIELD_WIDTH, font.lineHeight, Component.empty(), font));
+        }
+
+        private void update(@Nullable Integer xChunkWidth) {
+            Integer skewChunks = this.edit.number();
+            if (skewChunks == null || xChunkWidth == null) {
+                this.effective = null;
+                this.laps.setMessage(Component.empty());
+                this.edit.setTooltip(Tooltip.create(SKEW_HINT));
+                return;
+            }
+
+            if (skewChunks >= xChunkWidth) {
+                this.effective = null;
+                this.laps.setMessage(Component.empty());
+                this.edit.setTooltip(Tooltip.create(Component.translatable(TOO_LARGE_KEY, xChunkWidth - 1).copy()
+                        .append(CommonComponents.NEW_LINE)
+                        .append(SKEW_HINT)));
+                return;
+            }
+
+            this.effective = skewChunks;
+            this.laps.setMessage(Component.translatable(SKEW_LAPS_KEY,
+                    xChunkWidth / IntMath.gcd(xChunkWidth, skewChunks)));
+            this.edit.setTooltip(Tooltip.create(SKEW_HINT));
+        }
+
+        private void setValue(int skewChunks) {
+            this.edit.setValue(String.valueOf(skewChunks));
+        }
+
+        private @Nullable Integer effective() {
+            return this.effective;
         }
     }
 }
