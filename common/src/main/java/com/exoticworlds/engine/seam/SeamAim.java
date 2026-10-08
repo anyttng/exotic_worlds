@@ -20,14 +20,11 @@ public final class SeamAim {
                 : transformer.foldDelta(viewer.position(), point);
     }
 
-    public static double foldX(Entity levelSource, double delta) {
+    public static Vec3 foldDelta(Entity levelSource, double deltaX, double deltaZ) {
         WorldFold transformer = ((TransformerSource) levelSource).toroidal$wrappedTransformer();
-        return transformer == null ? delta : SeamDelta.foldX(transformer, delta);
-    }
-
-    public static double foldZ(Entity levelSource, double delta) {
-        WorldFold transformer = ((TransformerSource) levelSource).toroidal$wrappedTransformer();
-        return transformer == null ? delta : SeamDelta.foldZ(transformer, delta);
+        return transformer == null
+                ? new Vec3(deltaX, 0.0, deltaZ)
+                : SeamDelta.fold(transformer, deltaX, deltaZ);
     }
 
     public static Vec3 foldDelta(Entity levelSource, Vec3 delta) {

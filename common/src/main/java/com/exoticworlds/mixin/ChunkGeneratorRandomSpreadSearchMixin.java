@@ -12,6 +12,7 @@ import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.api.v1.gen.StructureStarts;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.gen.AddedStructureStarts;
 import com.exoticworlds.engine.gen.SectorGridAxis;
@@ -22,7 +23,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
@@ -62,10 +62,9 @@ public class ChunkGeneratorRandomSpreadSearchMixin {
         List<StructureStarts.Added> added = AddedStructureStarts.of(serverLevel.getChunkSource().getGeneratorState(),
                 ((StructureManagerAccessor) structureManager).toroidal$structureCheck(), carried).of(placement);
 
-        SectorGridAxis xCells =
-                SectorGridAxis.of(transformer.chunkDomain(Direction.Axis.X), placement.spacing(), chunkOriginX);
-        SectorGridAxis zCells =
-                SectorGridAxis.of(transformer.chunkDomain(Direction.Axis.Z), placement.spacing(), chunkOriginZ);
+        TranslationLattice lattice = transformer.chunkLattice();
+        SectorGridAxis xCells = SectorGridAxis.of(lattice.x(), placement.spacing(), chunkOriginX);
+        SectorGridAxis zCells = SectorGridAxis.of(lattice.z(), placement.spacing(), chunkOriginZ);
         if (radius > Math.max(xCells.offsetCap(), zCells.offsetCap())) {
             return null;
         }
@@ -85,7 +84,7 @@ public class ChunkGeneratorRandomSpreadSearchMixin {
                     continue;
                 }
 
-                int probeX = xCells.probeChunk(x);
+                int probeX = xCells.probeChunkShifted(x, -zCells.lapsCrossed(z) * lattice.skew());
                 int probeZ = zCells.probeChunk(z);
                 ChunkPos candidate = placement.getPotentialStructureChunk(seed, probeX, probeZ);
                 if (!transformer.isOver(candidate)) {

@@ -9,7 +9,6 @@ import com.mojang.serialization.DataResult;
 import net.minecraft.core.Direction;
 
 public final class WorldFolds {
-    private static final String COUPLED_AXES = "its axes do not decompose";
     private static final String REVERSED_LOCAL_INDICES = "its seam reverses the local indices inside a chunk";
 
     public static final WorldFold NOOP = of(FlatShape.rectangle());
@@ -21,11 +20,13 @@ public final class WorldFolds {
     public static WorldFold of(FlatShape shape, GenerationOptions generationOptions) {
         verifyFoldable(shape).getOrThrow(IllegalArgumentException::new);
 
-        return new WorldLoopTransformer(shape.bounds(), generationOptions);
+        return shape.decomposesPerAxis()
+                ? new WorldLoopTransformer(shape.bounds(), generationOptions)
+                : new DeckGroupFold(shape, generationOptions);
     }
 
     public static DataResult<FlatShape> verifyFoldable(FlatShape shape) {
-        return verifyPreservesLocalIndices(shape).flatMap(WorldFolds::verifyDecomposable);
+        return verifyPreservesLocalIndices(shape);
     }
 
     public static DataResult<FlatShape> verifyGeneratable(FlatShape shape) {
@@ -50,12 +51,6 @@ public final class WorldFolds {
         return shape.preservesLocalIndices()
                 ? DataResult.success(shape)
                 : DataResult.error(() -> refusal(shape, REVERSED_LOCAL_INDICES));
-    }
-
-    public static DataResult<FlatShape> verifyDecomposable(FlatShape shape) {
-        return shape.decomposesPerAxis()
-                ? DataResult.success(shape)
-                : DataResult.error(() -> refusal(shape, COUPLED_AXES));
     }
 
     private static String refusal(FlatShape shape, String reason) {
