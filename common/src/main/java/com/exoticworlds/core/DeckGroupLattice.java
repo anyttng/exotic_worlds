@@ -323,7 +323,10 @@ final class DeckGroupLattice {
         List<DeckTransformation> copies = new ArrayList<>();
         Step first = this.steps[0];
         Step second = this.steps.length > 1 ? this.steps[1] : null;
-        for (int firstPower = -reach; firstPower <= reach; firstPower++) {
+        int[] firstLaps = first.onX() ? this.x.laps(minX, maxX) : this.z.laps(minZ, maxZ);
+        int lowestFirst = Math.max(firstLaps[0], -reach);
+        int highestFirst = Math.min(firstLaps[1], reach);
+        for (int firstPower = lowestFirst; firstPower <= highestFirst; firstPower++) {
             SeamTransform moved = first.generator().power(firstPower);
             int[] worldX = worldImage(this.x,
                     moved.applyCellX(this.x.lowerBound), moved.applyCellX(this.x.upperBound - 1));

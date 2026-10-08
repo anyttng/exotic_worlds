@@ -1,12 +1,17 @@
 package com.exoticworlds.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.exoticworlds.api.v1.SeamShift;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -103,6 +108,47 @@ public final class ToroidalShapeView implements ToroidalShape {
     }
 
     @Override
+    public List<SeamShift> copiesMeeting(AABB box) {
+        List<DeckTransformation> copies = copiesOf(box);
+        List<SeamShift> shifts = new ArrayList<>(copies.size());
+        for (DeckTransformation copy : copies) {
+            shifts.add(new SeamShiftView(copy));
+        }
+
+        return shifts;
+    }
+
+    @Override
+    public List<Oriented<Vec3>> copiesInside(AABB box, Vec3 pos) {
+        List<DeckTransformation> copies = copiesOf(box);
+        WorldFold.Folded<Vec3> folded = this.fold.foldOriented(pos);
+        List<Oriented<Vec3>> inside = new ArrayList<>(copies.size());
+        for (DeckTransformation copy : copies) {
+            Vec3 moved = copy.apply(folded.value());
+            if (inside(box, moved.x, moved.z)) {
+                inside.add(oriented(moved.equals(pos) ? pos : moved, folded.orientation().compose(copy.orientation())));
+            }
+        }
+
+        return inside;
+    }
+
+    @Override
+    public List<Oriented<BlockPos>> copiesInside(AABB box, BlockPos pos) {
+        List<DeckTransformation> copies = copiesOf(box);
+        WorldFold.Folded<BlockPos> folded = this.fold.foldOriented(pos);
+        List<Oriented<BlockPos>> inside = new ArrayList<>(copies.size());
+        for (DeckTransformation copy : copies) {
+            BlockPos moved = copy.apply(folded.value());
+            if (inside(box, moved.getX(), moved.getZ())) {
+                inside.add(oriented(moved.equals(pos) ? pos : moved, folded.orientation().compose(copy.orientation())));
+            }
+        }
+
+        return inside;
+    }
+
+    @Override
     public boolean decomposesPerAxis() {
         return this.fold.decomposesPerAxis();
     }
@@ -158,8 +204,27 @@ public final class ToroidalShapeView implements ToroidalShape {
     }
 
     private static <T> Oriented<T> oriented(WorldFold.Folded<T> folded) {
-        FoldOrientation orientation = folded.orientation();
-        return new Oriented<>(folded.value(), new Orientation(orientation.flipsX(), orientation.flipsZ()));
+        return oriented(folded.value(), folded.orientation());
+    }
+
+    private static <T> Oriented<T> oriented(T value, FoldOrientation orientation) {
+        return new Oriented<>(value, new Orientation(orientation.flipsX(), orientation.flipsZ()));
+    }
+
+    private List<DeckTransformation> copiesOf(AABB box) {
+        int minX = Mth.floor(box.minX);
+        int maxX = Mth.ceil(box.maxX) - 1;
+        int minZ = Mth.floor(box.minZ);
+        int maxZ = Mth.ceil(box.maxZ) - 1;
+        if (maxX < minX || maxZ < minZ) {
+            return List.of();
+        }
+
+        return this.fold.copiesTouching(new BoundingBox(minX, 0, minZ, maxX, 0, maxZ));
+    }
+
+    private static boolean inside(AABB box, double x, double z) {
+        return x >= box.minX && x < box.maxX && z >= box.minZ && z < box.maxZ;
     }
 
     private AxisBounds boundsOf(Direction.Axis axis) {
