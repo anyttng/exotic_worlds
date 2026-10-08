@@ -118,12 +118,20 @@ dependencies {
     testRuntimeOnly "maven.modrinth:terrablender:${terrablender_version}"
     testCompileOnly "maven.modrinth:biolith:${biolith_version}"
     testRuntimeOnly "maven.modrinth:biolith:${biolith_version}"
-    // The compat jars and Mixin on the test runtime alone: what the gate-symbol tests read is the class file each
-    // gate names, and a config plugin cannot even load without IMixinConfigPlugin.
+    // The compat jars on the test runtime alone: every compat gate reads its mixins' targets from these class files,
+    // and a config plugin cannot even load without IMixinConfigPlugin.
     testRuntimeOnly "maven.modrinth:journeymap:${journeymap_version}"
     testRuntimeOnly "maven.modrinth:xaeros-minimap:${xaero_minimap_version}"
     testRuntimeOnly "maven.modrinth:xaeros-world-map:${xaero_worldmap_version}"
+    testRuntimeOnly files(xaeroLibJars).asFileTree.matching { include '*.jar' }
+    testRuntimeOnly "maven.modrinth:sodium:${sodium_version}"
+    testRuntimeOnly "maven.modrinth:lithium:${lithium_version}"
+    testRuntimeOnly "maven.modrinth:scalablelux:${scalablelux_version}"
     testRuntimeOnly "net.fabricmc:sponge-mixin:${mixin_version}"
+    // The checker's fixture mixins carry the real annotations.
+    testCompileOnly "net.fabricmc:sponge-mixin:${mixin_version}"
+    testCompileOnly "io.github.llamalad7:mixinextras-common:${mixinextras_version}"
+    testCompileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"
     testImplementation platform("org.junit:junit-bom:${junit_version}")
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.junit.platform:junit-platform-launcher'

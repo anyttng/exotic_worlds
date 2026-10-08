@@ -1,17 +1,17 @@
 package com.exoticworlds.compat.c2me;
 
+import java.util.List;
+
 import com.mojang.logging.LogUtils;
 import com.exoticworlds.compat.ModPresence;
-import com.exoticworlds.compat.ModSymbol;
 
 public final class C2meNoTickVd {
-    private static final String NO_TICK_LOADER = "com/ishland/c2me/notickvd/common/PlayerNoTickLoader";
+    static final List<String> MIXINS = List.of("PlayerNoTickLoaderMixin", "ServerAccessibleChunkSendingMixin");
 
-    static final ModSymbol NO_TICK_LOADER_VIEW_DISTANCE =
-            new ModSymbol(NO_TICK_LOADER, "setViewDistance", "(I)V");
-
-    private static final ModPresence GATE = ModPresence.of(LogUtils.getLogger(), NO_TICK_LOADER + ".class",
-            "[c2me-compat] gate notickvd_present", NO_TICK_LOADER_VIEW_DISTANCE);
+    static final ModPresence GATE = ModPresence.gate(LogUtils.getLogger(), "[c2me-compat] gate notickvd_present")
+            .probing("com/ishland/c2me/notickvd/common/PlayerNoTickLoader.class")
+            .checking(C2meMixinPlugin.CONFIG, mixin -> MIXINS.contains(mixin))
+            .build();
 
     public static boolean present() {
         return GATE.present();

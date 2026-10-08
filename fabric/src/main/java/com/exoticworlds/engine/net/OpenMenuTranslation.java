@@ -11,9 +11,10 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.phys.Vec3;
 
 public final class OpenMenuTranslation {
-    private static final ModPresence GATE = ModPresence.of(LogUtils.getLogger(),
-            "net/fabricmc/fabric/impl/menu/Networking$OpenScreenPayload.class",
-            "[menu-api-compat] gate open_screen_present");
+    private static final ModPresence GATE = ModPresence.gate(LogUtils.getLogger(),
+                    "[menu-api-compat] gate open_screen_present")
+            .probing("net/fabricmc/fabric/impl/menu/Networking$OpenScreenPayload.class")
+            .build();
 
     public static void register() {
         if (GATE.present()) {

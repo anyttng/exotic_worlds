@@ -5,19 +5,15 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import com.exoticworlds.compat.ModPresence;
 import com.exoticworlds.compat.ModPresenceGatePlugin;
-import com.exoticworlds.compat.ModSymbol;
 
 public class TerraBlenderMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    static final ModSymbol ZOOM_RESULT = new ModSymbol(
-            "terrablender/worldgen/noise/AreaContext", "createResult",
-            "(Lterrablender/worldgen/noise/PixelTransformer;Lterrablender/worldgen/noise/Area;)"
-                    + "Lterrablender/worldgen/noise/Area;");
-
-    private static final ModPresence TERRABLENDER = ModPresence.of(LOGGER,
-            "terrablender/worldgen/noise/Area.class",
-            "[terrablender-compat] gate terrablender_present", ZOOM_RESULT);
+    private static final ModPresence TERRABLENDER = ModPresence.gate(LOGGER,
+                    "[terrablender-compat] gate terrablender_present")
+            .probing("terrablender/worldgen/noise/Area.class")
+            .checking("exotic_worlds.compat.terrablender.mixins.json")
+            .build();
 
     public TerraBlenderMixinPlugin() {
         super(TERRABLENDER);
