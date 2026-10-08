@@ -134,6 +134,10 @@ public interface WorldFold {
 
     List<DeckTransformation> copiesTouching(BoundingBox region, int reach);
 
+    default List<DeckTransformation> copiesTouching(BoundingBox region) {
+        return copiesTouching(region, Integer.MAX_VALUE);
+    }
+
     boolean foldsOntoItself(BoundingBox region);
 
     Folded<AABB> foldBox(Vec3 ref, AABB box);
