@@ -36,6 +36,7 @@
     "exotic_worlds.compat.betterend.mixins.json",
     "exotic_worlds.compat.sodium.mixins.json",
     "exotic_worlds.compat.simpleatlas.mixins.json",
+    "exotic_worlds.compat.seedviewer.mixins.json",
     "exotic_worlds.compat.lithium.mixins.json"
   ],
   "accessWidener": "exotic_worlds.accesswidener",

@@ -124,6 +124,7 @@ dependencies {
     compileOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
     compileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     compileOnly "maven.modrinth:simple-atlas:${simple_atlas_version}"
+    compileOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
     compileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"
 }
 
@@ -149,6 +150,8 @@ dependencies {
     testRuntimeOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     testCompileOnly "maven.modrinth:simple-atlas:${simple_atlas_version}"
     testRuntimeOnly "maven.modrinth:simple-atlas:${simple_atlas_version}"
+    testCompileOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
+    testRuntimeOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
     // The compat jars and Mixin on the test runtime alone: what the gate-symbol tests read is the class file each
     // gate names, and a config plugin cannot even load without IMixinConfigPlugin.
     testRuntimeOnly "maven.modrinth:journeymap:${journeymap_version}"
