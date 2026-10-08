@@ -34,6 +34,7 @@
     "exotic_worlds.compat.terrablender.mixins.json",
     "exotic_worlds.compat.biolith.mixins.json",
     "exotic_worlds.compat.wover.mixins.json",
+    "exotic_worlds.compat.betterend.mixins.json",
     "exotic_worlds.compat.sodium.mixins.json",
     "exotic_worlds.compat.lithium.mixins.json"
   ],

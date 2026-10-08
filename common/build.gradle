@@ -121,6 +121,8 @@ dependencies {
     compileOnly "maven.modrinth:sodium:${sodium_version}"
     compileOnly files(xaeroLibJars).asFileTree.matching { include '*.jar' }
     compileOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
+    compileOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
+    compileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     compileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"
 }
 
@@ -140,6 +142,10 @@ dependencies {
     testRuntimeOnly "maven.modrinth:biolith:${biolith_version}"
     testCompileOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
     testRuntimeOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
+    testCompileOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
+    testRuntimeOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
+    testCompileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
+    testRuntimeOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     // The compat jars on the test runtime alone: every compat gate reads its mixins' targets from these class files,
     // and a config plugin cannot even load without IMixinConfigPlugin.
     testRuntimeOnly "maven.modrinth:journeymap:${journeymap_version}"
