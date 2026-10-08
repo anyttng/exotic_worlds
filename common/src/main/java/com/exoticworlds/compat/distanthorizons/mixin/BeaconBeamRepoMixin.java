@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import org.spongepowered.asm.mixin.Mixin;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.AxisCopies;
+import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.compat.distanthorizons.DhKeys;
 import com.exoticworlds.compat.distanthorizons.DhRepoLevel;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -14,8 +14,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.seibel.distanthorizons.core.pos.blockPos.DhBlockPos;
 import com.seibel.distanthorizons.core.sql.dto.BeaconBeamDTO;
 import com.seibel.distanthorizons.core.sql.repo.BeaconBeamRepo;
-
-import net.minecraft.core.Direction;
 
 @Mixin(BeaconBeamRepo.class)
 public class BeaconBeamRepoMixin {
@@ -38,24 +36,16 @@ public class BeaconBeamRepoMixin {
             return original.call(minBlockX, maxBlockX, minBlockZ, maxBlockZ);
         }
 
-        AxisCopies x = AxisCopies.of(shape, Direction.Axis.X);
-        AxisCopies z = AxisCopies.of(shape, Direction.Axis.Z);
         ArrayList<BeaconBeamDTO> beams = new ArrayList<>();
-        for (int lapX : x.laps(minBlockX, maxBlockX)) {
-            for (int lapZ : z.laps(minBlockZ, maxBlockZ)) {
-                int offsetX = x.offset(lapX);
-                int offsetZ = z.offset(lapZ);
-                ArrayList<BeaconBeamDTO> lap = original.call(
-                        x.clipMin(minBlockX - offsetX), x.clipMax(maxBlockX - offsetX),
-                        z.clipMin(minBlockZ - offsetZ), z.clipMax(maxBlockZ - offsetZ));
-                for (BeaconBeamDTO beam : lap) {
-                    if (offsetX != 0 || offsetZ != 0) {
-                        beam.blockPos = new DhBlockPos(beam.blockPos.getX() + offsetX, beam.blockPos.getY(),
-                                beam.blockPos.getZ() + offsetZ);
-                    }
-
-                    beams.add(beam);
+        for (WorldCopies.Piece piece : WorldCopies.pieces(shape, minBlockX, minBlockZ, maxBlockX, maxBlockZ)) {
+            WorldCopies.Copy copy = piece.copy();
+            for (BeaconBeamDTO beam : original.call(piece.minX(), piece.maxX(), piece.minZ(), piece.maxZ())) {
+                if (!copy.isIdentity()) {
+                    beam.blockPos = new DhBlockPos(beam.blockPos.getX() + copy.dx(), beam.blockPos.getY(),
+                            beam.blockPos.getZ() + copy.dz());
                 }
+
+                beams.add(beam);
             }
         }
 

@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TileArea;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TilePiece;
 
 import net.minecraft.core.Direction;
@@ -132,24 +133,21 @@ public final class XaeroExportAssembly {
         this.tileChunkX = XaeroWorldMapFold.firstTileChunkOfRegion(this.rawRegionX) + slotX;
         this.tileChunkZ = XaeroWorldMapFold.firstTileChunkOfRegion(this.rawRegionZ) + slotZ;
         this.slotPieces.clear();
-        List<TilePiece> piecesX = XaeroWorldMapFold.tilePieces(XaeroWorldMapFold.chunkCopies(Direction.Axis.X), this.tileChunkX);
-        List<TilePiece> piecesZ = XaeroWorldMapFold.tilePieces(XaeroWorldMapFold.chunkCopies(Direction.Axis.Z), this.tileChunkZ);
+        List<TileArea> areas = XaeroWorldMapFold.tilePieces(this.tileChunkX, this.tileChunkZ);
         ExportMapTileChunk carrier = null;
-        for (TilePiece pieceX : piecesX) {
-            for (TilePiece pieceZ : piecesZ) {
-                ExportMapTileChunk chunk = canonicalChunk(pieceX.canonicalTile(), pieceZ.canonicalTile());
-                if (chunk == null) {
-                    continue;
-                }
+        for (TileArea area : areas) {
+            ExportMapTileChunk chunk = canonicalChunk(area.x().canonicalTile(), area.z().canonicalTile());
+            if (chunk == null) {
+                continue;
+            }
 
-                this.slotPieces.add(new SlotPiece(chunk, pieceX, pieceZ));
-                if (carrier == null) {
-                    carrier = chunk;
-                }
+            this.slotPieces.add(new SlotPiece(chunk, area.x(), area.z()));
+            if (carrier == null) {
+                carrier = chunk;
             }
         }
 
-        if (piecesX.size() == 1 && piecesZ.size() == 1) {
+        if (areas.size() == 1) {
             this.slotPieces.clear();
         }
 

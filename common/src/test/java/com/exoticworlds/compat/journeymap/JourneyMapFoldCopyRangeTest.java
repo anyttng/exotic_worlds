@@ -2,66 +2,63 @@ package com.exoticworlds.compat.journeymap;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.compat.AxisCopies;
+import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.MapShapes;
+import com.exoticworlds.compat.WorldCopies;
 
 class JourneyMapFoldCopyRangeTest {
     private static final int BLIT_BUDGET = 16384;
+    private static final ToroidalShape TINY = MapShapes.torus(-16, 16);
+    private static final int[] NEAR = {-1000, 1000};
+    private static final int[] FAR = {-50_000, 50_000};
 
     @Test
-    void theCapSpendsTheBlitBudgetOverTheTilesWithContent() {
-        assertEquals(63, JourneyMapFold.copyRangeCap(2, 1), "one tile on a torus: (sqrt(16384) - 1) / 2 = 63");
-        assertEquals(8191, JourneyMapFold.copyRangeCap(1, 1), "one tile on a cylinder: (16384 - 1) / 2 = 8191");
-        assertEquals(15, JourneyMapFold.copyRangeCap(2, 16), "16 tiles on a torus: (sqrt(1024) - 1) / 2 = 15");
-        assertEquals(511, JourneyMapFold.copyRangeCap(1, 16), "16 tiles on a cylinder: (1024 - 1) / 2 = 511");
-        assertEquals(0, JourneyMapFold.copyRangeCap(2, BLIT_BUDGET / 4), "4 blits per tile leave no torus copy");
-        assertEquals(1, JourneyMapFold.copyRangeCap(1, BLIT_BUDGET / 4), "4 blits per tile leave one cylinder copy per side");
-        assertEquals(0, JourneyMapFold.copyRangeCap(0, 1), "no looped axis got copies");
+    void theViewDrawsEveryCopyItTouches() {
+        assertEquals(25, JourneyMapFold.drawnCopies(TINY, 1, NEAR, NEAR, MapCopies.REPEATED).size(),
+                "-1000..999 touches copies -2..2 of a 512-block world on both axes");
     }
 
     @Test
-    void theRangeReachesTheFarthestLapTheViewTouches() {
-        AxisCopies tiny = AxisCopies.looped(-256, 512);
-        assertArrayEquals(new int[] {2, 2},
-                JourneyMapFold.copyRanges(tiny, tiny, 1, new int[] {-1000, 1000}, new int[] {-1000, 1000}, MapCopies.REPEATED),
-                "-1000..999 touches laps -2..2 of a 512-block world");
+    void theBudgetBindsOnlyWhenTheGridsTilesTimesTheCopiesOverrunIt() {
+        List<WorldCopies.Copy> copies = JourneyMapFold.drawnCopies(TINY, 16, FAR, FAR, MapCopies.REPEATED);
+        assertEquals(BLIT_BUDGET / 16, copies.size(), "16 tiles over 197 x 197 copies did not keep 1024 of them");
+        assertEquals(WorldCopies.IDENTITY, copies.get(0), "the world itself was not kept first");
+        assertTrue(copies.contains(new WorldCopies.Copy(1024, 0)), "a copy two worlds from the centre was dropped");
+        assertFalse(copies.contains(new WorldCopies.Copy(512 * 97, 0)), "a copy at the view's edge outran a nearer one");
+        assertEquals(197, JourneyMapFold.drawnCopies(MapShapes.cylinder(-16, 16), 16, FAR, FAR, MapCopies.REPEATED).size(),
+                "16 tiles over 197 copies of a cylinder do not stay inside the budget");
     }
 
     @Test
-    void theCapBindsOnlyWhenTheGridsTilesTimesTheLapsOverrunTheBudget() {
-        AxisCopies tiny = AxisCopies.looped(-256, 512);
-        int[] far = {-50_000, 50_000};
-        assertArrayEquals(new int[] {15, 15}, JourneyMapFold.copyRanges(tiny, tiny, 16, far, far, MapCopies.REPEATED),
-                "16 tiles over 197 x 197 laps overrun 16384 blits, so the torus cap (sqrt(1024) - 1) / 2 = 15 binds");
-        assertArrayEquals(new int[] {98, 0},
-                JourneyMapFold.copyRanges(tiny, AxisCopies.UNBOUNDED, 16, far, far, MapCopies.REPEATED),
-                "16 tiles over 197 laps of a cylinder stay inside the budget");
-    }
-
-    @Test
-    void anUnboundedAxisDrawsNoCopies() {
-        AxisCopies tiny = AxisCopies.looped(-256, 512);
-        assertArrayEquals(new int[] {0, 2}, JourneyMapFold.copyRanges(AxisCopies.UNBOUNDED, tiny, 1,
-                new int[] {-1000, 1000}, new int[] {-1000, 1000}, MapCopies.REPEATED), "an unbounded axis got copies");
-    }
-
-    @Test
-    void aSingleCopyMapDrawsNoCopyWhateverTheViewAsks() {
-        AxisCopies tiny = AxisCopies.looped(-256, 512);
-        assertArrayEquals(new int[] {0, 0},
-                JourneyMapFold.copyRanges(tiny, tiny, 1, new int[] {-1000, 1000}, new int[] {-1000, 1000}, MapCopies.SINGLE),
+    void aSingleCopyMapDrawsTheWorldAloneWhateverTheViewAsks() {
+        assertEquals(List.of(WorldCopies.IDENTITY), JourneyMapFold.drawnCopies(TINY, 1, NEAR, NEAR, MapCopies.SINGLE),
                 "a torus under SINGLE got copies");
     }
 
     @Test
     void aFewTilesOnAWideWorldStillGetTheCopyTheViewReaches() {
-        AxisCopies axis = AxisCopies.looped(-14992, 30000);
-        assertArrayEquals(new int[] {1, 0},
-                JourneyMapFold.copyRanges(axis, axis, 8, new int[] {14024, 15944}, new int[] {-960, 960}, MapCopies.REPEATED),
+        assertEquals(Set.of(WorldCopies.IDENTITY, new WorldCopies.Copy(30000, 0)),
+                new HashSet<>(JourneyMapFold.drawnCopies(MapShapes.torus(-937, 938), 8,
+                        new int[] {14024, 15944}, new int[] {-960, 960}, MapCopies.REPEATED)),
                 "8 tiles on a 60 x 60-region world, a view crossing the +X seam and none along Z");
+    }
+
+    @Test
+    void theRowPastALatticeSeamIsDrawnMovedByTheSkew() {
+        assertEquals(Set.of(new WorldCopies.Copy(-256, 512), new WorldCopies.Copy(256, 512)),
+                new HashSet<>(JourneyMapFold.drawnCopies(MapShapes.latticeTorus(-16, 16, 16), 1,
+                        new int[] {-256, 256}, new int[] {256, 768}, MapCopies.REPEATED)),
+                "the row above a skew-256 world is not drawn at -256 and 256");
     }
 
     @Test
