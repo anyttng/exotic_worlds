@@ -1,4 +1,4 @@
-package com.toroidalworld.compat.ftbchunks.mixin;
+package com.exoticworlds.compat.ftbchunks.mixin;
 
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
@@ -14,11 +14,11 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.toroidalworld.compat.MapCopies;
-import com.toroidalworld.compat.MapCopyBudget;
-import com.toroidalworld.compat.ftbchunks.FtbChunksFold;
-import com.toroidalworld.compat.ftbchunks.FtbChunksFold.SeamView;
-import com.toroidalworld.compat.ftbchunks.FtbChunksFold.TileBlit;
+import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.MapCopyBudget;
+import com.exoticworlds.compat.ftbchunks.FtbChunksFold;
+import com.exoticworlds.compat.ftbchunks.FtbChunksFold.SeamView;
+import com.exoticworlds.compat.ftbchunks.FtbChunksFold.TileBlit;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;

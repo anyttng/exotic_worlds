@@ -1,9 +1,9 @@
 {
   "required": false,
   "minVersion": "0.8",
-  "package": "com.toroidalworld.compat.ftbchunks.mixin",
+  "package": "com.exoticworlds.compat.ftbchunks.mixin",
   "compatibilityLevel": "JAVA_21",
-  "plugin": "com.toroidalworld.compat.ftbchunks.FtbChunksMixinPlugin",
+  "plugin": "com.exoticworlds.compat.ftbchunks.FtbChunksMixinPlugin",
   "client": [
     "ChunkButtonMixin",
     "ChunkScreenPanelMixin",

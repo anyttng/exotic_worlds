@@ -1,10 +1,10 @@
-package com.toroidalworld.compat.ftbchunks;
+package com.exoticworlds.compat.ftbchunks;
 
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-import com.toroidalworld.MixinGatePlugin;
-import com.toroidalworld.compat.ModPresence;
+import com.exoticworlds.MixinGatePlugin;
+import com.exoticworlds.compat.ModPresence;
 
 public class FtbChunksMixinPlugin extends MixinGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();

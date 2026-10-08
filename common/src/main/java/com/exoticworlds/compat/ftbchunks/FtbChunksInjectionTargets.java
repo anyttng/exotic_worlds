@@ -1,4 +1,4 @@
-package com.toroidalworld.compat.ftbchunks;
+package com.exoticworlds.compat.ftbchunks;
 
 public final class FtbChunksInjectionTargets {
     public static final String XZ_REGION_FROM_CHUNK =

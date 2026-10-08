@@ -1,4 +1,4 @@
-package com.toroidalworld.compat.ftbchunks.mixin;
+package com.exoticworlds.compat.ftbchunks.mixin;
 
 import java.util.Set;
 
@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-import com.toroidalworld.compat.ftbchunks.FtbChunksFold;
-import com.toroidalworld.compat.ftbchunks.FtbChunksInjectionTargets;
+import com.exoticworlds.compat.ftbchunks.FtbChunksFold;
+import com.exoticworlds.compat.ftbchunks.FtbChunksInjectionTargets;
 
 import dev.ftb.mods.ftbchunks.client.gui.ChunkScreenPanel;
 import dev.ftb.mods.ftblibrary.math.XZ;
