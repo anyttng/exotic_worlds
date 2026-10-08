@@ -1,4 +1,4 @@
-# Toroidal World
+# Exotic Worlds
 
 **Walk around the world.** The world has a finite size and no edge: cross the border on one side and you walk in from the opposite side — no barrier, no teleport, no visible seam. Or run an SMP where nobody can outrun anybody forever.
 
@@ -19,7 +19,7 @@ How it does that, in short: [how it works](https://github.com/vitalikyarina/toro
 
 ## Dedicated servers
 
-One line in `server.properties` creates a shaped world: `level-type=toroidal_world:medium` for a toroidal one, `level-type=toroidal_world:cylinder_medium` for a cylinder, each in five sizes — `tiny`, `small`, `medium`, `large`, `huge`. Custom sizes and the full walkthrough are in the [dedicated server guide](https://github.com/vitalikyarina/toroidal_world/blob/main/docs/dedicated-server.md).
+One line in `server.properties` creates a shaped world: `level-type=exotic_worlds:medium` for a toroidal one, `level-type=exotic_worlds:cylinder_medium` for a cylinder, each in five sizes — `tiny`, `small`, `medium`, `large`, `huge`. Custom sizes and the full walkthrough are in the [dedicated server guide](https://github.com/vitalikyarina/toroidal_world/blob/main/docs/dedicated-server.md).
 
 ## Compatibility
 

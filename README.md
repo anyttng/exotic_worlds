@@ -1,4 +1,4 @@
-# Toroidal World
+# Exotic Worlds
 
 A NeoForge and Fabric mod that gives the Minecraft world a finite shape with no edge — a seamless torus, where both horizontal axes loop, or a cylinder, where one loops and the other stays endless, with terrain, structures, mobs and gameplay continuous across the seam.
 
@@ -16,9 +16,9 @@ One `level-type` line in `server.properties` turns a dedicated server into a tor
 
 ## For mod developers
 
-`com.toroidalworld.api.v1` is the surface other mods read the world's shape through, make their own mechanisms work on it through, and declare a shape of their own through.
+`com.exoticworlds.api.v1` is the surface other mods read the world's shape through, make their own mechanisms work on it through, and declare a shape of their own through.
 
-**Reading a shape.** `ToroidalWorldApi.shapeOf` answers for a server level, `ToroidalWorldClientApi.shapeOf` for the client level — the client is deliberately told the world is infinite, so it needs its own entry point. Both hand back a `ToroidalShape`: the looping axes and their spans, and the folds that turn a coordinate into the canonical one, the copy nearest a reference, or the shortest vector through the seam.
+**Reading a shape.** `ExoticWorldsApi.shapeOf` answers for a server level, `ExoticWorldsClientApi.shapeOf` for the client level — the client is deliberately told the world is infinite, so it needs its own entry point. Both hand back a `ToroidalShape`: the looping axes and their spans, and the folds that turn a coordinate into the canonical one, the copy nearest a reference, or the shortest vector through the seam.
 
 **Declaring one.** A `ShapeModule` is a whole world shape — an id, its settings, and what it writes into the world's dimensions through `ShapeDimensions.withSpans`; it appears on the create-world screen beside the torus and the cylinder, which register the same way. `WorldOption` declares a value the player picks there and the world stores; `GenerationHooks.atRandomState` runs a mod's own code at the moment a folding level's noise router is built.
 
@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'com.toroidalworld:toroidal-world-api:<mod version>'
+    compileOnly 'com.exoticworlds:exotic-worlds-api:<mod version>'
 }
 ```
 
