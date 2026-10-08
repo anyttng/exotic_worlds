@@ -47,6 +47,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3x2fStack;
 
 @Mixin(targets = "journeymap.client.render.map.MapRenderer", remap = false)
@@ -164,32 +165,19 @@ public abstract class MapRendererMixin implements JourneyMapSeamPass {
     }
 
     @WrapMethod(method = CENTER)
-    private boolean toroidal$keepSingleViewOnTheMap(File worldDir, MapType mapType, double blockX, double blockZ, int zoom,
+    private boolean toroidal$foldCenter(File worldDir, MapType mapType, double blockX, double blockZ, int zoom,
             Operation<Boolean> original) {
+        Vec3 center = JourneyMapFold.foldCenter(blockX, blockZ);
         if (JourneyMapFold.copiesOf(this.getUIState().ui) != MapCopies.SINGLE || !JourneyMapFold.active()) {
-            return original.call(worldDir, mapType, blockX, blockZ, zoom);
+            return original.call(worldDir, mapType, center.x, center.z, zoom);
         }
 
         Window window = Minecraft.getInstance().getWindow();
         int flooredZoom = Math.max(zoom, JourneyMapFold.fullscreenZoomFloor());
         return original.call(worldDir, mapType,
-                JourneyMapFold.seatSingleCenter(Direction.Axis.X, blockX, flooredZoom, window.getWidth()),
-                JourneyMapFold.seatSingleCenter(Direction.Axis.Z, blockZ, flooredZoom, window.getHeight()),
+                JourneyMapFold.clampSingleCenter(Direction.Axis.X, center.x, flooredZoom, window.getWidth()),
+                JourneyMapFold.clampSingleCenter(Direction.Axis.Z, center.z, flooredZoom, window.getHeight()),
                 flooredZoom);
-    }
-
-    @ModifyVariable(
-            method = CENTER,
-            at = @At("HEAD"), ordinal = 0, argsOnly = true)
-    private double toroidal$foldCenterX(double blockX) {
-        return JourneyMapFold.foldCenterCoord(Direction.Axis.X, blockX);
-    }
-
-    @ModifyVariable(
-            method = CENTER,
-            at = @At("HEAD"), ordinal = 1, argsOnly = true)
-    private double toroidal$foldCenterZ(double blockZ) {
-        return JourneyMapFold.foldCenterCoord(Direction.Axis.Z, blockZ);
     }
 
     @Inject(method = BLOCK_PIXEL_IN_GRID, at = @At("HEAD"))
@@ -202,16 +190,15 @@ public abstract class MapRendererMixin implements JourneyMapSeamPass {
         toroidal$anchorPass = false;
     }
 
-    @ModifyVariable(method = BLOCK_COORD_PIXEL_IN_GRID, at = @At("HEAD"), ordinal = 0, argsOnly = true)
-    private double toroidal$foldPixelX(double blockX) {
-        return toroidal$anchorPass ? blockX : JourneyMapFold.seatPixelCoord(
-                Direction.Axis.X, this.centerBlockX, blockX, JourneyMapFold.copiesOf(this.getUIState().ui));
-    }
+    @WrapMethod(method = BLOCK_COORD_PIXEL_IN_GRID)
+    private Point2D.Double toroidal$seatPixel(double blockX, double blockZ, Operation<Point2D.Double> original) {
+        if (toroidal$anchorPass) {
+            return original.call(blockX, blockZ);
+        }
 
-    @ModifyVariable(method = BLOCK_COORD_PIXEL_IN_GRID, at = @At("HEAD"), ordinal = 1, argsOnly = true)
-    private double toroidal$foldPixelZ(double blockZ) {
-        return toroidal$anchorPass ? blockZ : JourneyMapFold.seatPixelCoord(
-                Direction.Axis.Z, this.centerBlockZ, blockZ, JourneyMapFold.copiesOf(this.getUIState().ui));
+        Vec3 seated = JourneyMapFold.seatPixel(this.centerBlockX, this.centerBlockZ, blockX, blockZ,
+                JourneyMapFold.copiesOf(this.getUIState().ui));
+        return original.call(seated.x, seated.z);
     }
 
     @ModifyVariable(method = MOVE, at = @At("HEAD"), ordinal = 0, argsOnly = true)

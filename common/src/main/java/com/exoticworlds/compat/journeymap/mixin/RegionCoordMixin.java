@@ -1,32 +1,23 @@
 package com.exoticworlds.compat.journeymap.mixin;
 
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import java.io.File;
 
+import org.spongepowered.asm.mixin.Mixin;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.exoticworlds.compat.journeymap.JourneyMapFold;
 
-import net.minecraft.core.Direction;
+import journeymap.client.model.map.MapType;
+import journeymap.client.model.region.RegionCoord;
+import net.minecraft.world.level.ChunkPos;
 
 @Mixin(targets = "journeymap.client.model.region.RegionCoord", remap = false)
 public class RegionCoordMixin {
-    @ModifyVariable(method = "fromChunkPos", at = @At("HEAD"), ordinal = 0, argsOnly = true)
-    private static int toroidal$foldChunkX(int chunkX) {
-        return JourneyMapFold.foldRegionChunk(Direction.Axis.X, chunkX);
-    }
-
-    @ModifyVariable(method = "fromChunkPos", at = @At("HEAD"), ordinal = 1, argsOnly = true)
-    private static int toroidal$foldChunkZ(int chunkZ) {
-        return JourneyMapFold.foldRegionChunk(Direction.Axis.Z, chunkZ);
-    }
-
-    @ModifyVariable(method = "getXOffset", at = @At("HEAD"), ordinal = 0, argsOnly = true)
-    private int toroidal$foldOffsetChunkX(int chunkX) {
-        return JourneyMapFold.foldRegionChunk(Direction.Axis.X, chunkX);
-    }
-
-    @ModifyVariable(method = "getZOffset", at = @At("HEAD"), ordinal = 0, argsOnly = true)
-    private int toroidal$foldOffsetChunkZ(int chunkZ) {
-        return JourneyMapFold.foldRegionChunk(Direction.Axis.Z, chunkZ);
+    @WrapMethod(method = "fromChunkPos")
+    private static RegionCoord toroidal$foldChunk(File worldDir, MapType mapType, int chunkX, int chunkZ,
+            Operation<RegionCoord> original) {
+        ChunkPos folded = JourneyMapFold.foldRegionChunk(new ChunkPos(chunkX, chunkZ));
+        return original.call(worldDir, mapType, folded.x(), folded.z());
     }
 }
