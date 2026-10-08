@@ -3,6 +3,7 @@ package com.exoticworlds.shape;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,12 +32,22 @@ class WorldLoopPresetsJsonTest {
     private static final String PRESET_RESOURCE_DIR = "/data/exotic_worlds/worldgen/world_preset/";
     private static final String LOOPED_GENERATOR_ID = "exotic_worlds:toroidal";
     private static final String CYLINDER_PRESET_PREFIX = "cylinder_";
+    private static final String TORUS_PRESET_PREFIX = "torus_";
+    private static final String PRESET_FILE_EXTENSION = ".json";
 
     @Test
     void everyPresetShipsATorusWorldPresetMatchingItsConfiguration() throws IOException {
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
-            assertPreset(preset.id(), preset, WorldLoopBounds::ofWidth, TorusSettings.OFFERED_OPTIONS,
-                    TorusSettings.DEFAULT.generationOptions());
+            assertPreset(TORUS_PRESET_PREFIX + preset.id(), preset, WorldLoopBounds::ofWidth,
+                    TorusSettings.OFFERED_OPTIONS, TorusSettings.DEFAULT.generationOptions());
+        }
+    }
+
+    @Test
+    void noPresetAnswersToABareSize() {
+        for (WorldLoopPresets preset : WorldLoopPresets.values()) {
+            String resource = PRESET_RESOURCE_DIR + preset.id() + PRESET_FILE_EXTENSION;
+            assertNull(WorldLoopPresetsJsonTest.class.getResource(resource), "a bare size preset ships: " + resource);
         }
     }
 
@@ -100,7 +111,7 @@ class WorldLoopPresetsJsonTest {
     }
 
     private static JsonObject readPresetJson(String presetId) throws IOException {
-        String resource = PRESET_RESOURCE_DIR + presetId + ".json";
+        String resource = PRESET_RESOURCE_DIR + presetId + PRESET_FILE_EXTENSION;
         try (InputStream stream = WorldLoopPresetsJsonTest.class.getResourceAsStream(resource)) {
             assertNotNull(stream, "missing jar resource " + resource);
             return JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
