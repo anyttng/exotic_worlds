@@ -142,6 +142,7 @@ dependencies {
     compileOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
     compileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     compileOnly "maven.modrinth:simple-atlas:${simple_atlas_version}"
+    compileOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
     compileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"
     // Non-transitive: the FTB poms pull in FTB Teams, FTB Backups and a JSON5 library, whose types no map fold names.
     compileOnly("dev.ftb.mods:ftb-chunks-neoforge:${ftbchunks_version}") { transitive = false }
@@ -173,6 +174,8 @@ dependencies {
     // The claim-request fold takes and returns FTB Library's own XZ keys, so the tests build them.
     testCompileOnly("dev.ftb.mods:ftb-library-neoforge:${ftblibrary_version}") { transitive = false }
     testRuntimeOnly("dev.ftb.mods:ftb-library-neoforge:${ftblibrary_version}") { transitive = false }
+    testCompileOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
+    testRuntimeOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
     // The compat jars and Mixin on the test runtime alone: what the gate-symbol tests read is the class file each
     // gate names, and a config plugin cannot even load without IMixinConfigPlugin.
     testRuntimeOnly "maven.modrinth:journeymap:${journeymap_version}"
