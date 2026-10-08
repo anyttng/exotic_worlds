@@ -13,7 +13,9 @@ public final class C2meWarpedAxisDotEmitter implements DotEmitter<C2meWarpedAxis
     public int doDotGen(C2meWarpedAxisNode node, DotGen.Context context, DotGen.Context.Builder builder) {
         return builder.hexagonShape()
                 .label("ToroidalWarpedAxis\\naxis=" + node.axis + "\\ndivisor=" + node.divisor
-                        + "\\ndomain=" + node.domain.lowerBound + ".." + node.domain.upperBound)
+                        + "\\nx=" + node.lattice.x().lowerBound + ".." + node.lattice.x().upperBound
+                        + "\\nz=" + node.lattice.z().lowerBound + ".." + node.lattice.z().upperBound
+                        + "\\nskew=" + node.lattice.skew())
                 .edge(context.generate(node.shift))
                 .label("shift")
                 .finish()

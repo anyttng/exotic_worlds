@@ -38,6 +38,10 @@ public interface WorldFold {
 
     WrapDomain chunkDomain(Direction.Axis axis);
 
+    TranslationLattice blockLattice();
+
+    TranslationLattice chunkLattice();
+
     boolean isOver(Vec3 pos);
 
     boolean isOver(BlockPos pos);

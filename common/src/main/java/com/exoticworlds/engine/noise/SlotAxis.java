@@ -1,10 +1,8 @@
 package com.exoticworlds.engine.noise;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
-
-import net.minecraft.core.Direction;
 
 public enum SlotAxis {
     X,
@@ -21,10 +19,10 @@ public enum SlotAxis {
         return carriesWorldAxis() ? coord : coord * uniformScale;
     }
 
-    public WrapDomain domainOf(WorldFold transformer) {
+    public WrapDomain domainOf(TranslationLattice lattice) {
         return switch (this) {
-            case X -> transformer.blockDomain(Direction.Axis.X);
-            case Z -> transformer.blockDomain(Direction.Axis.Z);
+            case X -> lattice.x();
+            case Z -> lattice.z();
             case NONE -> UNWRAPPED;
         };
     }

@@ -7,8 +7,8 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.noise.DensityFunctionSlotAxes;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.engine.noise.NoiseConstants;
@@ -126,9 +126,9 @@ public final class C2meDfcAst {
         if (fold.warped()) {
             double divisor = ClimateCompression.warpDivisor(noise.noise, transformer, fold.horizontalScale(),
                     fold.verticalShare());
-            foldedX = warpedSlot(source, CoordinateNode.Axis.X, axes.x().domainOf(transformer), noise.inputX,
+            foldedX = warpedSlot(source, CoordinateNode.Axis.X, transformer.blockLattice(), noise.inputX,
                     divisor);
-            foldedZ = warpedSlot(source, CoordinateNode.Axis.Z, axes.z().domainOf(transformer), noise.inputZ,
+            foldedZ = warpedSlot(source, CoordinateNode.Axis.Z, transformer.blockLattice(), noise.inputZ,
                     divisor);
         }
 
@@ -145,8 +145,8 @@ public final class C2meDfcAst {
         };
     }
 
-    private static AstNode warpedSlot(DensityFunction source, CoordinateNode.Axis axis, WrapDomain domain,
-            AstNode ownInput, double divisor) {
+    private static AstNode warpedSlot(DensityFunction source, CoordinateNode.Axis axis,
+            TranslationLattice lattice, AstNode ownInput, double divisor) {
         if (!(ownInput instanceof AddNode shifted
                 && shifted.left instanceof MulNode scaled
                 && scaled.left instanceof CoordinateNode coordinate
@@ -154,7 +154,7 @@ public final class C2meDfcAst {
             throw brokenShape(source, ownInput);
         }
 
-        return new C2meWarpedAxisNode(axis, domain, shifted.right, divisor);
+        return new C2meWarpedAxisNode(axis, lattice, shifted.right, divisor);
     }
 
     private static IllegalStateException brokenShape(DensityFunction source, AstNode produced) {
