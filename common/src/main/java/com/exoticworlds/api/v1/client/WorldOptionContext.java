@@ -32,9 +32,9 @@ public interface WorldOptionContext {
     }
 
     /**
-     * The shape the screen currently states — which axes loop and over how many chunks — or {@code null} while it
-     * states no width. The default reads both axes as looping over {@link #loopChunkWidth(Direction.Axis)}, so a
-     * screen whose shape leaves an axis unbounded overrides it.
+     * The shape the screen currently states — which axes loop, over how many chunks, and the skew — or {@code null}
+     * while it states no width. The default reads both axes as looping unskewed over
+     * {@link #loopChunkWidth(Direction.Axis)}, so a screen whose shape leaves an axis unbounded or skews overrides it.
      */
     default @Nullable LoopSpans loopSpans() {
         Integer xChunkWidth = loopChunkWidth(Direction.Axis.X);

@@ -34,7 +34,7 @@ public final class TorusDimensions {
     }
 
     private static LoopSpans readEndSpans(WorldDimensions dimensions) {
-        LoopSpans end = ShapeStems.spansOf(dimensions, LevelStem.END, LoopSpans::isSquare);
+        LoopSpans end = ShapeStems.spansOf(dimensions, LevelStem.END, TorusSettings::isPlainSquare);
         return end != null ? end : TorusSettings.DEFAULT.end();
     }
 
