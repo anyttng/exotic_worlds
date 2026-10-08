@@ -1,6 +1,7 @@
 package com.exoticworlds.compat.xaero.mixin.map;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,6 +20,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.renderpearl.api.textures.GpuTextureView;
 import com.exoticworlds.compat.AxisCopies;
 import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
 
@@ -151,10 +153,9 @@ public abstract class GuiMapRegionMixin {
             return;
         }
 
-        for (int originX : XaeroWorldMapFold.canonicalSlotOrigins(copiesX, regX * side, side)) {
-            for (int originZ : XaeroWorldMapFold.canonicalSlotOrigins(copiesZ, regZ * side, side)) {
-                this.toroidal$fannedRegions.add(ChunkPos.pack(Math.floorDiv(originX, side), Math.floorDiv(originZ, side)));
-            }
+        for (long origin : XaeroWorldMapFold.canonicalSlotOrigins(regX * side, regZ * side, side)) {
+            this.toroidal$fannedRegions.add(ChunkPos.pack(
+                    Math.floorDiv(ChunkPos.getX(origin), side), Math.floorDiv(ChunkPos.getZ(origin), side)));
         }
     }
 
@@ -347,63 +348,56 @@ public abstract class GuiMapRegionMixin {
         Window window = Minecraft.getInstance().getWindow();
         int[] spanX = XaeroWorldMapFold.viewSpan(this.cameraX, window.getWidth(), this.scale, slotSize);
         int[] spanZ = XaeroWorldMapFold.viewSpan(this.cameraZ, window.getHeight(), this.scale, slotSize);
-        int[] lapsX = XaeroWorldMapFold.drawnLaps(copiesX, spanX[0], spanX[1], this.toroidal$mapCopies);
-        int[] lapsZ = XaeroWorldMapFold.drawnLaps(copiesZ, spanZ[0], spanZ[1], this.toroidal$mapCopies);
+        List<WorldCopies.Copy> copies = XaeroWorldMapFold.drawnCopies(spanX, spanZ, this.toroidal$mapCopies);
         int viewBlockX = this.toroidal$slotViewBlockX;
         int viewBlockZ = this.toroidal$slotViewBlockZ;
-        for (int originX : XaeroWorldMapFold.canonicalSlotOrigins(copiesX, viewBlockX, slotSize)) {
-            for (int originZ : XaeroWorldMapFold.canonicalSlotOrigins(copiesZ, viewBlockZ, slotSize)) {
-                if (!this.toroidal$drawnCanonicalSlots.add(((long) originX << 32) ^ (originZ & 0xFFFFFFFFL))) {
-                    continue;
-                }
+        for (long origin : XaeroWorldMapFold.canonicalSlotOrigins(viewBlockX, viewBlockZ, slotSize)) {
+            if (!this.toroidal$drawnCanonicalSlots.add(origin)) {
+                continue;
+            }
 
-                RegionTexture<?> regionTexture = toroidal$canonicalRegionTexture(originX, originZ);
-                GpuTextureAndView textureAndView = regionTexture == null ? null : regionTexture.getGlColorTexture();
-                if (textureAndView == null) {
-                    continue;
-                }
+            int originX = ChunkPos.getX(origin);
+            int originZ = ChunkPos.getZ(origin);
+            RegionTexture<?> regionTexture = toroidal$canonicalRegionTexture(originX, originZ);
+            GpuTextureAndView textureAndView = regionTexture == null ? null : regionTexture.getGlColorTexture();
+            if (textureAndView == null) {
+                continue;
+            }
 
-                int clippedMinX = copiesX.clipMin(originX);
-                int clippedMaxX = copiesX.clipMax(originX + slotSize);
-                int clippedMinZ = copiesZ.clipMin(originZ);
-                int clippedMaxZ = copiesZ.clipMax(originZ + slotSize);
-                if (clippedMinX >= clippedMaxX || clippedMinZ >= clippedMaxZ) {
-                    continue;
-                }
+            int clippedMinX = copiesX.clipMin(originX);
+            int clippedMaxX = copiesX.clipMax(originX + slotSize);
+            int clippedMinZ = copiesZ.clipMin(originZ);
+            int clippedMaxZ = copiesZ.clipMax(originZ + slotSize);
+            if (clippedMinX >= clippedMaxX || clippedMinZ >= clippedMaxZ) {
+                continue;
+            }
 
-                float clippedX = x + (clippedMinX - viewBlockX);
-                float clippedY = y + (clippedMinZ - viewBlockZ);
-                float clippedWidth = clippedMaxX - clippedMinX;
-                float clippedHeight = clippedMaxZ - clippedMinZ;
-                float u1 = (float) (clippedMinX - originX) / slotSize;
-                float u2 = (float) (clippedMaxX - originX) / slotSize;
-                float v1 = (float) (clippedMinZ - originZ) / slotSize;
-                float v2 = (float) (clippedMaxZ - originZ) / slotSize;
-                for (int lapX : lapsX) {
-                    for (int lapZ : lapsZ) {
-                        float copyX = clippedX + copiesX.offset(lapX);
-                        float copyY = clippedY + copiesZ.offset(lapZ);
-                        BufferBuilder quad = renderer.begin(textureAndView.view);
-                        quad.addVertex(matrix, copyX, copyY + clippedHeight, 0.0F).setUv(u1, v2);
-                        quad.addVertex(matrix, copyX + clippedWidth, copyY + clippedHeight, 0.0F).setUv(u2, v2);
-                        quad.addVertex(matrix, copyX + clippedWidth, copyY, 0.0F).setUv(u2, v1);
-                        quad.addVertex(matrix, copyX, copyY, 0.0F).setUv(u1, v1);
-                    }
-                }
+            float clippedX = x + (clippedMinX - viewBlockX);
+            float clippedY = y + (clippedMinZ - viewBlockZ);
+            float clippedWidth = clippedMaxX - clippedMinX;
+            float clippedHeight = clippedMaxZ - clippedMinZ;
+            float u1 = (float) (clippedMinX - originX) / slotSize;
+            float u2 = (float) (clippedMaxX - originX) / slotSize;
+            float v1 = (float) (clippedMinZ - originZ) / slotSize;
+            float v2 = (float) (clippedMaxZ - originZ) / slotSize;
+            for (WorldCopies.Copy copy : copies) {
+                float copyX = clippedX + copy.dx();
+                float copyY = clippedY + copy.dz();
+                BufferBuilder quad = renderer.begin(textureAndView.view);
+                quad.addVertex(matrix, copyX, copyY + clippedHeight, 0.0F).setUv(u1, v2);
+                quad.addVertex(matrix, copyX + clippedWidth, copyY + clippedHeight, 0.0F).setUv(u2, v2);
+                quad.addVertex(matrix, copyX + clippedWidth, copyY, 0.0F).setUv(u2, v1);
+                quad.addVertex(matrix, copyX, copyY, 0.0F).setUv(u1, v1);
             }
         }
     }
 
     @Unique
     private @Nullable RegionTexture<?> toroidal$anyCanonicalTexture(int viewBlockX, int viewBlockZ, int slotSize) {
-        AxisCopies copiesX = XaeroWorldMapFold.copies(Direction.Axis.X);
-        AxisCopies copiesZ = XaeroWorldMapFold.copies(Direction.Axis.Z);
-        for (int originX : XaeroWorldMapFold.canonicalSlotOrigins(copiesX, viewBlockX, slotSize)) {
-            for (int originZ : XaeroWorldMapFold.canonicalSlotOrigins(copiesZ, viewBlockZ, slotSize)) {
-                RegionTexture<?> regionTexture = toroidal$canonicalRegionTexture(originX, originZ);
-                if (regionTexture != null) {
-                    return regionTexture;
-                }
+        for (long origin : XaeroWorldMapFold.canonicalSlotOrigins(viewBlockX, viewBlockZ, slotSize)) {
+            RegionTexture<?> regionTexture = toroidal$canonicalRegionTexture(ChunkPos.getX(origin), ChunkPos.getZ(origin));
+            if (regionTexture != null) {
+                return regionTexture;
             }
         }
 
