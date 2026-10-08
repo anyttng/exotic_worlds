@@ -22,11 +22,13 @@ import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
 import com.exoticworlds.core.CoordinateConstants;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 
+import xaero.map.entity.util.EntityUtil;
 import xaero.map.graphics.MapRenderHelper;
 import xaero.map.gui.GuiMap;
 import xaero.map.gui.MapTileSelection;
@@ -107,7 +109,8 @@ public abstract class GuiMapViewMixin {
                     value = "INVOKE",
                     target = "Lxaero/map/entity/util/EntityUtil;getEntityX(Lnet/minecraft/world/entity/Entity;F)D"))
     private double toroidal$foldCameraX(Entity entity, float partialTicks, Operation<Double> original) {
-        return XaeroWorldMapFold.foldCoord(Direction.Axis.X, original.call(entity, partialTicks));
+        return XaeroWorldMapFold.foldPoint(original.call(entity, partialTicks),
+                EntityUtil.getEntityZ(entity, partialTicks)).x;
     }
 
     @WrapOperation(
@@ -116,7 +119,8 @@ public abstract class GuiMapViewMixin {
                     value = "INVOKE",
                     target = "Lxaero/map/entity/util/EntityUtil;getEntityZ(Lnet/minecraft/world/entity/Entity;F)D"))
     private double toroidal$foldCameraZ(Entity entity, float partialTicks, Operation<Double> original) {
-        return XaeroWorldMapFold.foldCoord(Direction.Axis.Z, original.call(entity, partialTicks));
+        return XaeroWorldMapFold.foldPoint(EntityUtil.getEntityX(entity, partialTicks),
+                original.call(entity, partialTicks)).z;
     }
 
     @Inject(
@@ -145,8 +149,9 @@ public abstract class GuiMapViewMixin {
     private void toroidal$foldCursorBlockPos(CallbackInfo ci) {
         int rawX = this.mouseBlockPosX;
         int rawZ = this.mouseBlockPosZ;
-        this.mouseBlockPosX = XaeroWorldMapFold.foldBlock(Direction.Axis.X, rawX);
-        this.mouseBlockPosZ = XaeroWorldMapFold.foldBlock(Direction.Axis.Z, rawZ);
+        BlockPos folded = XaeroWorldMapFold.foldBlock(rawX, rawZ);
+        this.mouseBlockPosX = folded.getX();
+        this.mouseBlockPosZ = folded.getZ();
         this.toroidal$cursorLapX = rawX - this.mouseBlockPosX;
         this.toroidal$cursorLapZ = rawZ - this.mouseBlockPosZ;
     }

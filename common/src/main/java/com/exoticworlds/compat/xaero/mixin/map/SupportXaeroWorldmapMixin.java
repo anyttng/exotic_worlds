@@ -16,7 +16,7 @@ import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TileArea;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TilePiece;
 import com.exoticworlds.core.CoordinateConstants;
 
-import net.minecraft.core.Direction;
+import net.minecraft.world.level.ChunkPos;
 
 import xaero.common.graphics.renderer.multitexture.MultiTextureRenderTypeRenderer;
 import xaero.common.minimap.render.MinimapRendererHelper;
@@ -65,10 +65,8 @@ public abstract class SupportXaeroWorldmapMixin {
         }
 
         // A candidate value only, so the null-guarded chunk fetch runs at all; the chunk redirect re-fetches precisely.
-        return original.call(
-                processor,
-                XaeroWorldMapFold.foldRegion(Direction.Axis.X, regX),
-                XaeroWorldMapFold.foldRegion(Direction.Axis.Z, regZ));
+        ChunkPos folded = XaeroWorldMapFold.foldRegion(regX, regZ);
+        return original.call(processor, folded.x(), folded.z());
     }
 
     @WrapOperation(
@@ -87,12 +85,8 @@ public abstract class SupportXaeroWorldmapMixin {
             return existing;
         }
 
-        return original.call(
-                processor,
-                caveLayer,
-                XaeroWorldMapFold.foldRegion(Direction.Axis.X, regX),
-                XaeroWorldMapFold.foldRegion(Direction.Axis.Z, regZ),
-                create);
+        ChunkPos folded = XaeroWorldMapFold.foldRegion(regX, regZ);
+        return original.call(processor, caveLayer, folded.x(), folded.z(), create);
     }
 
     @WrapOperation(

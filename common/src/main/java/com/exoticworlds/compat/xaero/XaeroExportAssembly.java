@@ -13,6 +13,7 @@ import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TilePiece;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 
 import xaero.map.MapProcessor;
@@ -94,19 +95,17 @@ public final class XaeroExportAssembly {
             return;
         }
 
-        int[] candidatesX = XaeroWorldMapFold.canonicalRegions(Direction.Axis.X,
+        for (long candidate : XaeroWorldMapFold.canonicalRegions(
                 XaeroWorldMapFold.firstTileChunkOfRegion(rawRegionX),
-                XaeroWorldMapFold.firstTileChunkOfRegion(rawRegionX + 1) - 1);
-        int[] candidatesZ = XaeroWorldMapFold.canonicalRegions(Direction.Axis.Z,
                 XaeroWorldMapFold.firstTileChunkOfRegion(rawRegionZ),
-                XaeroWorldMapFold.firstTileChunkOfRegion(rawRegionZ + 1) - 1);
-        for (int candidateX : candidatesX) {
-            for (int candidateZ : candidatesZ) {
-                if (hasSource(candidateX, candidateZ)) {
-                    this.regionX = candidateX;
-                    this.regionZ = candidateZ;
-                    return;
-                }
+                XaeroWorldMapFold.firstTileChunkOfRegion(rawRegionX + 1) - 1,
+                XaeroWorldMapFold.firstTileChunkOfRegion(rawRegionZ + 1) - 1)) {
+            int candidateX = ChunkPos.getX(candidate);
+            int candidateZ = ChunkPos.getZ(candidate);
+            if (hasSource(candidateX, candidateZ)) {
+                this.regionX = candidateX;
+                this.regionZ = candidateZ;
+                return;
             }
         }
     }
