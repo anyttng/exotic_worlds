@@ -8,7 +8,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.exoticworlds.engine.seam.SeamAim;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.MinecartFurnace;
 
 @Mixin(MinecartFurnace.class)
@@ -22,15 +24,17 @@ public class MinecartFurnaceFuelMixin {
             method = toroidal$INTERACT,
             at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD,
                     target = "Lnet/minecraft/world/entity/vehicle/MinecartFurnace;xPush:D"))
-    private void toroidal$driveAwayXThroughSeam(MinecartFurnace furnace, double pushX, Operation<Void> original) {
-        original.call(furnace, SeamAim.foldX(furnace, pushX));
+    private void toroidal$driveAwayXThroughSeam(MinecartFurnace furnace, double pushX, Operation<Void> original,
+            @Local(argsOnly = true) Player player) {
+        original.call(furnace, SeamAim.foldDelta(furnace, pushX, furnace.getZ() - player.getZ()).x);
     }
 
     @WrapOperation(
             method = toroidal$INTERACT,
             at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD,
                     target = "Lnet/minecraft/world/entity/vehicle/MinecartFurnace;zPush:D"))
-    private void toroidal$driveAwayZThroughSeam(MinecartFurnace furnace, double pushZ, Operation<Void> original) {
-        original.call(furnace, SeamAim.foldZ(furnace, pushZ));
+    private void toroidal$driveAwayZThroughSeam(MinecartFurnace furnace, double pushZ, Operation<Void> original,
+            @Local(argsOnly = true) Player player) {
+        original.call(furnace, SeamAim.foldDelta(furnace, furnace.getX() - player.getX(), pushZ).z);
     }
 }

@@ -59,11 +59,12 @@ public final class CoastFieldLift {
         int xGrid = Math.max(1, xLength / stride);
         int zGrid = Math.max(1, zLength / stride);
         long cellBlocks = (long) stride * stride;
+        int skewCells = (int) Math.round((double) fold.blockLattice().skew() / stride);
 
         for (double candidate : CANDIDATES) {
             apply(coasts, candidate);
             long patch = GenerationTransformerContext.withTransformer(fold,
-                    () -> largestPatch(density, seaLevel, stride, xGrid, zGrid)) * cellBlocks;
+                    () -> largestPatch(density, seaLevel, stride, xGrid, zGrid, skewCells)) * cellBlocks;
             if (patch >= LAND_FLOOR_BLOCKS) {
                 return;
             }
@@ -89,7 +90,8 @@ public final class CoastFieldLift {
         return coasts;
     }
 
-    private static int largestPatch(DensityFunction density, int seaLevel, int stride, int xGrid, int zGrid) {
+    private static int largestPatch(DensityFunction density, int seaLevel, int stride, int xGrid, int zGrid,
+            int skewCells) {
         boolean[] land = new boolean[xGrid * zGrid];
         for (int ix = 0; ix < xGrid; ix++) {
             for (int iz = 0; iz < zGrid; iz++) {
@@ -98,10 +100,10 @@ public final class CoastFieldLift {
             }
         }
 
-        return largestComponent(land, xGrid, zGrid);
+        return largestComponent(land, xGrid, zGrid, skewCells);
     }
 
-    private static int largestComponent(boolean[] land, int xGrid, int zGrid) {
+    private static int largestComponent(boolean[] land, int xGrid, int zGrid, int skewCells) {
         boolean[] seen = new boolean[land.length];
         int[] queue = new int[land.length];
         int largest = 0;
@@ -122,7 +124,9 @@ public final class CoastFieldLift {
                 int z = cell % zGrid;
 
                 for (int[] step : NEIGHBOURS) {
-                    int next = Math.floorMod(x + step[0], xGrid) * zGrid + Math.floorMod(z + step[1], zGrid);
+                    int zLaps = Math.floorDiv(z + step[1], zGrid);
+                    int next = Math.floorMod(x + step[0] - zLaps * skewCells, xGrid) * zGrid
+                            + Math.floorMod(z + step[1], zGrid);
                     if (land[next] && !seen[next]) {
                         seen[next] = true;
                         queue[tail++] = next;

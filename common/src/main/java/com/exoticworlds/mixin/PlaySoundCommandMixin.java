@@ -23,7 +23,7 @@ public class PlaySoundCommandMixin {
     private static double toroidal$listenerXNearestTheSound(ServerPlayer listener, Operation<Double> original,
             @Local(argsOnly = true) CommandSourceStack source, @Local(argsOnly = true) Vec3 position) {
         return NearestCopy.toward(WorldLoopAttachments.wrappedTransformerOf(source.getLevel()), Direction.Axis.X,
-                position.x, original.call(listener));
+                position, listener.position().with(Direction.Axis.X, original.call(listener)));
     }
 
     @WrapOperation(
@@ -32,6 +32,6 @@ public class PlaySoundCommandMixin {
     private static double toroidal$listenerZNearestTheSound(ServerPlayer listener, Operation<Double> original,
             @Local(argsOnly = true) CommandSourceStack source, @Local(argsOnly = true) Vec3 position) {
         return NearestCopy.toward(WorldLoopAttachments.wrappedTransformerOf(source.getLevel()), Direction.Axis.Z,
-                position.z, original.call(listener));
+                position, listener.position().with(Direction.Axis.Z, original.call(listener)));
     }
 }

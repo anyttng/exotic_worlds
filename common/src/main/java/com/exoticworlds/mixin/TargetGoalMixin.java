@@ -5,14 +5,17 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.fold.SeamDelta;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
+import net.minecraft.world.level.pathfinder.Node;
 
 @Mixin(TargetGoal.class)
 public class TargetGoalMixin {
@@ -20,18 +23,24 @@ public class TargetGoalMixin {
     @Final
     protected Mob mob;
 
-    @ModifyVariable(method = "canReach", at = @At(value = "STORE", ordinal = 0), ordinal = 0)
-    private int toroidal$reachDeltaX(int deltaX) {
-        return SeamDelta.foldX(toroidal$transformer(), deltaX);
+    @WrapOperation(
+            method = "canReach",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getBlockX()I"))
+    private int toroidal$reachTargetNearX(LivingEntity target, Operation<Integer> original, @Local Node last) {
+        return toroidal$targetNear(last, new BlockPos(original.call(target), target.getBlockY(), target.getBlockZ()))
+                .getX();
     }
 
-    @ModifyVariable(method = "canReach", at = @At(value = "STORE", ordinal = 0), ordinal = 1)
-    private int toroidal$reachDeltaZ(int deltaZ) {
-        return SeamDelta.foldZ(toroidal$transformer(), deltaZ);
+    @WrapOperation(
+            method = "canReach",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getBlockZ()I"))
+    private int toroidal$reachTargetNearZ(LivingEntity target, Operation<Integer> original, @Local Node last) {
+        return toroidal$targetNear(last, new BlockPos(target.getBlockX(), target.getBlockY(), original.call(target)))
+                .getZ();
     }
 
     @Unique
-    private WorldFold toroidal$transformer() {
-        return WorldLoopAttachments.transformerOf(this.mob.level());
+    private BlockPos toroidal$targetNear(Node last, BlockPos target) {
+        return WorldLoopAttachments.transformerOf(this.mob.level()).nearestCopy(last.asBlockPos(), target);
     }
 }

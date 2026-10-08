@@ -50,6 +50,7 @@ public class TileEntityTeleporterMixin {
                     DimensionType.getTeleportationScale(targetType, entityType)));
         }
 
-        return original.call(SeamDelta.foldX(frame, difference.x), yDifference, SeamDelta.foldZ(frame, difference.z));
+        Vec3 folded = SeamDelta.fold(frame, difference);
+        return original.call(folded.x, yDifference, folded.z);
     }
 }

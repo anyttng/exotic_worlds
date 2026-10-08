@@ -33,6 +33,7 @@ class TranslationContextWarningTest {
     private static final ChunkPos CHUNK_PAST_THE_VIEW = new ChunkPos(12, 0);
     private static final double COORD_PAST_THE_REACH = 100.0;
     private static final Vec3 POSITION_PAST_THE_REACH = new Vec3(COORD_PAST_THE_REACH, 64.0, COORD_PAST_THE_REACH);
+    private static final Vec3 X_PAST_THE_REACH = new Vec3(COORD_PAST_THE_REACH, 64.0, 0.0);
 
     private static final String PARTICLE_KIND = "particle";
     private static final double PARTICLE_RADIUS = 32.0;
@@ -66,7 +67,7 @@ class TranslationContextWarningTest {
         TranslationContext context = contextAtTheOrigin();
 
         context.toClient(CHUNK_PAST_THE_VIEW);
-        context.toClientX(COORD_PAST_THE_REACH, PARTICLE);
+        context.toClientRelative(X_PAST_THE_REACH, false, true, PARTICLE);
 
         assertEquals(2, warnings.size(), warnings.toString());
         assertTrue(warnings.get(0).startsWith(CHUNK_WARNING), warnings.toString());
@@ -88,8 +89,8 @@ class TranslationContextWarningTest {
     void theSameWarningTwiceInOneSecondIsWrittenOnce() {
         TranslationContext context = contextAtTheOrigin();
 
-        context.toClientX(COORD_PAST_THE_REACH, PARTICLE);
-        context.toClientX(COORD_PAST_THE_REACH, PARTICLE);
+        context.toClientRelative(X_PAST_THE_REACH, false, true, PARTICLE);
+        context.toClientRelative(X_PAST_THE_REACH, false, true, PARTICLE);
 
         assertEquals(1, warnings.size(), warnings.toString());
     }
@@ -99,8 +100,8 @@ class TranslationContextWarningTest {
         TranslationContext context = contextAtTheOrigin();
         TranslationContext otherContext = contextAtTheOrigin();
 
-        context.toClientX(COORD_PAST_THE_REACH, PARTICLE);
-        otherContext.toClientX(COORD_PAST_THE_REACH, PARTICLE);
+        context.toClientRelative(X_PAST_THE_REACH, false, true, PARTICLE);
+        otherContext.toClientRelative(X_PAST_THE_REACH, false, true, PARTICLE);
 
         assertEquals(2, warnings.size(), warnings.toString());
     }

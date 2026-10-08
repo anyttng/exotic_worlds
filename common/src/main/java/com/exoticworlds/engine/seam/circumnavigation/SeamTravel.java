@@ -11,6 +11,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.exoticworlds.accessors.SeamTravelHolder;
 import com.exoticworlds.core.CoordinateConstants;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.Direction;
@@ -76,11 +77,15 @@ public final class SeamTravel {
         this.lastSpace = space;
         this.lastPosition = position;
 
-        if (fold == null || !fold.decomposesPerAxis() || previousPosition == null || !space.equals(previousSpace)) {
+        if (fold == null || previousPosition == null || !space.equals(previousSpace)) {
             return new Step(Vec3.ZERO, Set.of());
         }
 
         Vec3 folded = fold.foldDelta(previousPosition, position);
+        TranslationLattice lattice = fold.blockLattice();
+        double alongX = lattice.isSkewed()
+                ? folded.x - folded.z * lattice.skew() / lattice.z().domainLength
+                : folded.x;
         Set<Direction.Axis> closed = EnumSet.noneOf(Direction.Axis.class);
         Lap after = in(space);
 
@@ -89,8 +94,8 @@ public final class SeamTravel {
                 continue;
             }
 
-            int width = fold.blockDomain(axis).domainLength;
-            double travelled = after.on(axis) + (axis == Direction.Axis.X ? folded.x : folded.z);
+            int width = axis == Direction.Axis.X ? lattice.x().domainLength : lattice.z().domainLength;
+            double travelled = after.on(axis) + (axis == Direction.Axis.X ? alongX : folded.z);
             if (Math.abs(travelled) >= width) {
                 travelled -= Math.signum(travelled) * width;
                 closed.add(axis);

@@ -32,6 +32,10 @@ public final class NearestCopy {
         return fold == null ? coord : fold.blockDomain(axis).unwrapAround(anchor, coord);
     }
 
+    public static double toward(@Nullable WorldFold fold, Direction.Axis axis, Vec3 anchor, Vec3 target) {
+        return fold == null ? target.get(axis) : fold.nearestCopy(anchor, target).get(axis);
+    }
+
     // mc/1.21: calls the transformation forms, unused on main.
     public static DeckTransformation transformationToward(@Nullable WorldFold fold, Vec3 ref, Vec3 target) {
         return fold == null ? DeckTransformation.IDENTITY : fold.nearestCopyTransformation(ref, target);

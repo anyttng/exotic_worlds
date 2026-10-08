@@ -37,15 +37,13 @@ public class ServerExplosionMixin {
             method = "explode",
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_X))
     private double toroidal$knockbackOriginX(double entityX, @Local Entity entity) {
-        double folded = this.x + SeamAim.foldX(entity, entityX - this.x);
-        return folded;
+        return this.x + SeamAim.foldDelta(entity, entityX - this.x, entity.getZ() - this.z).x;
     }
 
     @ModifyExpressionValue(
             method = "explode",
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_Z))
     private double toroidal$knockbackOriginZ(double entityZ, @Local Entity entity) {
-        double folded = this.z + SeamAim.foldZ(entity, entityZ - this.z);
-        return folded;
+        return this.z + SeamAim.foldDelta(entity, entity.getX() - this.x, entityZ - this.z).z;
     }
 }

@@ -37,11 +37,15 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(ServerPlayer.class)
 public class ServerPlayerMixin implements SeamTravelHolder {
     @Unique
     private static final String TRAVEL_KEY = "exotic_worlds:travel";
+
+    @Unique
+    private static final String PLAYER_TICK = "Lnet/minecraft/world/entity/player/Player;tick()V";
 
     @Unique
     private SeamTravel toroidal$travel;
@@ -91,14 +95,10 @@ public class ServerPlayerMixin implements SeamTravelHolder {
         return SeamRespawnData.insideBounds(level, respawnPos);
     }
 
-    @ModifyVariable(method = "indicateDamage", at = @At("HEAD"), argsOnly = true, ordinal = 0)
-    private double toroidal$hurtDirX(double xd) {
-        return SeamAim.foldX((ServerPlayer) (Object) this, xd);
-    }
-
-    @ModifyVariable(method = "indicateDamage", at = @At("HEAD"), argsOnly = true, ordinal = 1)
-    private double toroidal$hurtDirZ(double zd) {
-        return SeamAim.foldZ((ServerPlayer) (Object) this, zd);
+    @WrapMethod(method = "indicateDamage")
+    private void toroidal$hurtDirThroughSeam(double xd, double zd, Operation<Void> original) {
+        Vec3 direction = SeamAim.foldDelta((ServerPlayer) (Object) this, xd, zd);
+        original.call(direction.x, direction.z);
     }
 
     @Inject(method = "changeDimension(Lnet/minecraft/world/level/portal/DimensionTransition;)Lnet/minecraft/world/entity/Entity;",
@@ -108,17 +108,13 @@ public class ServerPlayerMixin implements SeamTravelHolder {
         WorldShapeSync.sendTo((ServerPlayer) (Object) this);
     }
 
-    @Inject(method = "doTick",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;tick()V",
-                    shift = At.Shift.AFTER))
+    @Inject(method = "doTick", at = @At(value = "INVOKE", target = PLAYER_TICK, shift = At.Shift.AFTER))
     private void toroidal$refreshClientAnchors(CallbackInfo ci) {
         ServerPlayer player = (ServerPlayer) (Object) this;
         ClientAnchorSync.refresh(player);
     }
 
-    @Inject(method = "doTick",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;tick()V",
-                    shift = At.Shift.AFTER))
+    @Inject(method = "doTick", at = @At(value = "INVOKE", target = PLAYER_TICK, shift = At.Shift.AFTER))
     private void toroidal$sampleTravel(CallbackInfo ci) {
         CircumnavigationTracker.sample((ServerPlayer) (Object) this);
     }

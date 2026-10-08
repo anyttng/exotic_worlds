@@ -6,6 +6,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.TransformerSource;
@@ -22,19 +24,19 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(LivingEntity.class)
 public class LivingEntityMixin {
+    @Unique
+    private static final String CHECK_FALL_DAMAGE =
+            "checkFallDamage(DZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V";
+
     @ModifyVariable(method = "startSleeping", at = @At("HEAD"), argsOnly = true)
     private BlockPos toroidal$wrapBedPosition(BlockPos bedPosition) {
         return WorldLoopAttachments.transformerOf(((LivingEntity) (Object) this).level()).fold(bedPosition);
     }
 
-    @ModifyVariable(method = "knockback(DDD)V", at = @At("HEAD"), argsOnly = true, ordinal = 1)
-    private double toroidal$knockbackDirX(double xd) {
-        return SeamAim.foldX((LivingEntity) (Object) this, xd);
-    }
-
-    @ModifyVariable(method = "knockback(DDD)V", at = @At("HEAD"), argsOnly = true, ordinal = 2)
-    private double toroidal$knockbackDirZ(double zd) {
-        return SeamAim.foldZ((LivingEntity) (Object) this, zd);
+    @WrapMethod(method = "knockback(DDD)V")
+    private void toroidal$knockbackThroughSeam(double power, double xd, double zd, Operation<Void> original) {
+        Vec3 direction = SeamAim.foldDelta((LivingEntity) (Object) this, xd, zd);
+        original.call(power, direction.x, direction.z);
     }
 
     // On 1.21.1 the shield cone is measured in isDamageSourceBlocked, off vectorTo; 26.x moved it into
@@ -54,22 +56,18 @@ public class LivingEntityMixin {
         return SeamSteering.nearestCopy((LivingEntity) (Object) this, to);
     }
 
-    @ModifyExpressionValue(
-            method = "checkFallDamage(DZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V",
-            at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_X))
+    @ModifyExpressionValue(method = CHECK_FALL_DAMAGE, at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_X))
     private double toroidal$landingXNearBlock(double x, @Local(argsOnly = true) BlockPos pos) {
         return toroidal$nearestLandingCoordinate(Direction.Axis.X, x, pos);
     }
 
-    @ModifyExpressionValue(
-            method = "checkFallDamage(DZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V",
-            at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_Z))
+    @ModifyExpressionValue(method = CHECK_FALL_DAMAGE, at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_Z))
     private double toroidal$landingZNearBlock(double z, @Local(argsOnly = true) BlockPos pos) {
         return toroidal$nearestLandingCoordinate(Direction.Axis.Z, z, pos);
     }
 
     @ModifyExpressionValue(
-            method = "checkFallDamage(DZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V",
+            method = CHECK_FALL_DAMAGE,
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;blockPosition()Lnet/minecraft/core/BlockPos;"))
     private BlockPos toroidal$landingBlockNearBlock(BlockPos entityPos, @Local(argsOnly = true) BlockPos pos) {
         WorldFold transformer = ((TransformerSource) this).toroidal$wrappedTransformer();
@@ -79,6 +77,7 @@ public class LivingEntityMixin {
     @Unique
     private double toroidal$nearestLandingCoordinate(Direction.Axis axis, double coordinate, BlockPos landingBlock) {
         WorldFold transformer = ((TransformerSource) this).toroidal$wrappedTransformer();
-        return NearestCopy.toward(transformer, axis, landingBlock.get(axis) + 0.5, coordinate);
+        Vec3 position = ((LivingEntity) (Object) this).position().with(axis, coordinate);
+        return NearestCopy.toward(transformer, axis, Vec3.atCenterOf(landingBlock), position);
     }
 }

@@ -38,6 +38,10 @@ class ClientPositionTest {
     private static final FlatShape TORUS_SHAPE = FlatShape.torus(WorldLoopBounds.ofWidth(WIDTH_CHUNKS));
     private static final WorldFold TORUS = WorldFolds.of(TORUS_SHAPE);
     private static final WorldFold CYLINDER_X = WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, WIDTH_CHUNKS)));
+    private static final int SKEW_CHUNKS = 16;
+    private static final double SKEW_BLOCKS = SKEW_CHUNKS * 16.0;
+    private static final WorldFold SKEWED =
+            WorldFolds.of(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(WIDTH_CHUNKS), SKEW_CHUNKS));
     private static final int PLOT_MIN_CHUNK = 1_280_000;
     private static final int PLOT_MAX_CHUNK = 1_296_384;
     private static final ForeignSpan PLOT_CHUNKS = new ForeignSpan(PLOT_MIN_CHUNK, PLOT_MAX_CHUNK);
@@ -134,7 +138,28 @@ class ClientPositionTest {
         String warning = warnings.get(0);
         assertTrue(warning.startsWith(HALF_WORLD_WARNING), warning);
         assertTrue(warning.contains("by position_packet"), warning);
-        assertTrue(warning.contains("mirror x stepped from 100.5 to 612.5"), warning);
+        assertTrue(warning.contains("mirror stepped from (100.5, -20.25) to (612.5, -20.25)"), warning);
+    }
+
+    @Test
+    void onASkewedWorldAZLapWriteSeatsWithItsXShift() {
+        ClientPosition mirror = seeded(SKEWED);
+
+        mirror.set(new Vec3(MIRROR_X + SKEW_BLOCKS, PLOT_Y, MIRROR_Z + WIDTH_BLOCKS), MirrorWriter.PLAYER_MOVE);
+
+        assertEquals(MIRROR_X, mirror.x());
+        assertEquals(MIRROR_Z, mirror.z());
+        assertEquals(List.of(), warnings);
+    }
+
+    @Test
+    void onASkewedWorldAStepAlongTheLatticeDoesNotWarnWherePerAxisHalvesWould() {
+        ClientPosition mirror = seeded(SKEWED);
+
+        mirror.set(new Vec3(MIRROR_X, PLOT_Y, MIRROR_Z + 270.0), MirrorWriter.POSITION_PACKET);
+
+        assertEquals(MIRROR_Z + 270.0, mirror.z());
+        assertEquals(List.of(), warnings);
     }
 
     @Test
@@ -145,7 +170,7 @@ class ClientPositionTest {
 
         assertEquals(MIRROR_X + WIDTH_BLOCKS, mirror.x());
         assertEquals(1, warnings.size(), warnings.toString());
-        assertTrue(warnings.get(0).contains("mirror x stepped from 100.5 to 612.5"), warnings.get(0));
+        assertTrue(warnings.get(0).contains("mirror stepped from (100.5, -20.25) to (612.5, -20.25)"), warnings.get(0));
     }
 
     @Test

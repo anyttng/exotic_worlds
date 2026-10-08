@@ -114,8 +114,8 @@ class WorldFoldsTest {
     }
 
     @Test
-    void aCoupledShapeIsRefusedAndNamed() {
-        for (FlatShape shape : coupled()) {
+    void aMirroredShapeIsRefusedAndNamed() {
+        for (FlatShape shape : mirrored()) {
             IllegalArgumentException refused =
                     assertThrows(IllegalArgumentException.class, () -> WorldFolds.of(shape), shape.toString());
             assertTrue(refused.getMessage().contains(shape.identification().toString()), refused.getMessage());
@@ -123,19 +123,20 @@ class WorldFoldsTest {
     }
 
     @Test
-    void verifyPassesADecomposableShapeThrough() {
-        for (FlatShape shape : decomposable()) {
-            assertSame(shape, WorldFolds.verifyDecomposable(shape).getOrThrow(), shape.toString());
-        }
+    void aSkewedShapeGetsTheDeckGroupFoldOverItsLattice() {
+        WorldFold fold = WorldFolds.of(SKEWED, GenerationOptions.DEFAULT.with(OPTION, true));
+
+        assertTrue(fold instanceof DeckGroupFold, fold.getClass().getName());
+        assertEquals(SKEWED.bounds(), fold.bounds());
+        assertFalse(fold.decomposesPerAxis());
+        assertEquals(SKEWED.skewChunks(), fold.chunkLattice().skew());
+        assertTrue(fold.generationOptions().get(OPTION));
     }
 
     @Test
-    void verifyTurnsACoupledShapeIntoAnErrorRatherThanAThrow() {
-        for (FlatShape shape : coupled()) {
-            DataResult<FlatShape> result = WorldFolds.verifyDecomposable(shape);
-            assertTrue(result.isError(), shape.toString());
-            assertTrue(result.error().orElseThrow().message().contains(shape.identification().toString()),
-                    result.toString());
+    void aDecomposableShapeKeepsThePerAxisFold() {
+        for (FlatShape shape : decomposable()) {
+            assertTrue(WorldFolds.of(shape) instanceof WorldLoopTransformer, shape.toString());
         }
     }
 
@@ -168,7 +169,7 @@ class WorldFoldsTest {
 
     @Test
     void theFoldableGatePassesEveryShapeTheEngineCanCarry() {
-        for (FlatShape shape : decomposable()) {
+        for (FlatShape shape : Stream.concat(decomposable().stream(), Stream.of(SKEWED)).toList()) {
             assertSame(shape, WorldFolds.verifyFoldable(shape).getOrThrow(), shape.toString());
         }
     }
@@ -181,12 +182,5 @@ class WorldFoldsTest {
                     WorldFolds.verifyFoldable(shape).error().orElseThrow().message(),
                     shape.toString());
         }
-    }
-
-    @Test
-    void theFoldableGateStillRefusesASkewOnTheDecompositionGrounds() {
-        assertEquals(
-                WorldFolds.verifyDecomposable(SKEWED).error().orElseThrow().message(),
-                WorldFolds.verifyFoldable(SKEWED).error().orElseThrow().message());
     }
 }

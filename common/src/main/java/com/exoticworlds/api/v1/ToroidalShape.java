@@ -121,7 +121,7 @@ public interface ToroidalShape {
     ChunkPos fold(ChunkPos pos);
 
     /**
-     * The copy of {@code target} nearest {@code ref}, each looping axis folded on its own — the coordinates a
+     * The copy of {@code target} nearest {@code ref}, measured on both horizontal axes together — the coordinates a
      * renderer or a distance check should use so that something just across the seam reads as beside the reference,
      * not a world away. {@code target} may lie any number of laps out; Y passes through untouched. A {@code target}
      * already nearest {@code ref} comes back as the argument instance itself.

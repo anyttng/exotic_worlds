@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
@@ -25,6 +26,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -34,6 +36,9 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(Entity.class)
 public class EntityMixin implements TransformerSource {
+    @Unique
+    private static final String PUSH = "push(Lnet/minecraft/world/entity/Entity;)V";
+
     @WrapMethod(method = "distanceTo")
     private float toroidal$distanceThroughSeam(Entity other, Operation<Float> original) {
         WorldFold transformer = toroidal$wrappedTransformer();
@@ -112,14 +117,14 @@ public class EntityMixin implements TransformerSource {
         return SeamSteering.nearestCopy((Entity) (Object) this, pos);
     }
 
-    @ModifyVariable(method = "push(Lnet/minecraft/world/entity/Entity;)V", at = @At("STORE"), ordinal = 0)
-    private double toroidal$pushDeltaX(double deltaX) {
-        return SeamAim.foldX((Entity) (Object) this, deltaX);
+    @WrapOperation(method = PUSH, at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_X, ordinal = 0))
+    private double toroidal$pusherNearX(Entity other, Operation<Double> original) {
+        return SeamAim.nearestCoord((Entity) (Object) this, other, Direction.Axis.X, original.call(other));
     }
 
-    @ModifyVariable(method = "push(Lnet/minecraft/world/entity/Entity;)V", at = @At("STORE"), ordinal = 1)
-    private double toroidal$pushDeltaZ(double deltaZ) {
-        return SeamAim.foldZ((Entity) (Object) this, deltaZ);
+    @WrapOperation(method = PUSH, at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_Z, ordinal = 0))
+    private double toroidal$pusherNearZ(Entity other, Operation<Double> original) {
+        return SeamAim.nearestCoord((Entity) (Object) this, other, Direction.Axis.Z, original.call(other));
     }
 
     @WrapOperation(

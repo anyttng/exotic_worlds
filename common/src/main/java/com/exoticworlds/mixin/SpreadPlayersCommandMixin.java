@@ -8,9 +8,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.engine.fold.SeamDelta;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -163,39 +165,43 @@ public class SpreadPlayersCommandMixin {
     }
 
     @Unique
-    private static Vec3 toroidal$folded(WorldFold transformer, SpreadPositionAccessor position) {
-        return transformer.fold(new Vec3(position.toroidal$x(), 0.0, position.toroidal$z()));
-    }
-
-    @Unique
     private static boolean toroidal$fitsInHalfTheWorld(WorldFold transformer, double xSpan, double zSpan) {
-        return transformer.bounds().x().fitsInHalf(xSpan) && transformer.bounds().z().fitsInHalf(zSpan);
+        Vec3 diagonal = new Vec3(xSpan, 0.0, zSpan);
+        Vec3 antiDiagonal = new Vec3(xSpan, 0.0, -zSpan);
+        return SeamDelta.fold(transformer, diagonal).equals(diagonal)
+                && SeamDelta.fold(transformer, antiDiagonal).equals(antiDiagonal);
     }
 
     @Unique
     private static boolean toroidal$confine(SpreadPositionAccessor position, WorldFold transformer,
             boolean freeX, boolean freeZ, double minX, double minZ, double maxX, double maxZ) {
+        TranslationLattice lattice = transformer.blockLattice();
         boolean clamped = false;
-        if (freeX) {
-            position.toroidal$setX(toroidal$folded(transformer, position).x);
-        } else if (position.toroidal$x() < minX) {
-            position.toroidal$setX(minX);
-            clamped = true;
-        } else if (position.toroidal$x() > maxX) {
-            position.toroidal$setX(maxX);
-            clamped = true;
-        }
-
+        double x = position.toroidal$x();
+        double z = position.toroidal$z();
         if (freeZ) {
-            position.toroidal$setZ(toroidal$folded(transformer, position).z);
-        } else if (position.toroidal$z() < minZ) {
-            position.toroidal$setZ(minZ);
+            x -= (double) lattice.zLaps(z) * lattice.skew();
+            z = lattice.foldZ(z);
+        } else if (z < minZ) {
+            z = minZ;
             clamped = true;
-        } else if (position.toroidal$z() > maxZ) {
-            position.toroidal$setZ(maxZ);
+        } else if (z > maxZ) {
+            z = maxZ;
             clamped = true;
         }
 
+        if (freeX) {
+            x = lattice.x().wrap(x);
+        } else if (x < minX) {
+            x = minX;
+            clamped = true;
+        } else if (x > maxX) {
+            x = maxX;
+            clamped = true;
+        }
+
+        position.toroidal$setX(x);
+        position.toroidal$setZ(z);
         return clamped;
     }
 }

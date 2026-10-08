@@ -134,32 +134,32 @@ final class ClientboundPacketRewriters {
         Set<RelativeMovement> relatives = packet.getRelativeArguments();
         boolean relativeX = relatives.contains(RelativeMovement.X);
         boolean relativeZ = relatives.contains(RelativeMovement.Z);
-        Vec3 clientDestination = clientPosition.destinationOf(
-                context.transformer(), new Vec3(packet.getX(), packet.getY(), packet.getZ()), relatives);
+        double mirrorX = clientPosition.x();
+        double mirrorZ = clientPosition.z();
+        Vec3 position = new Vec3(packet.getX(), packet.getY(), packet.getZ());
+        Vec3 clientDestination = clientPosition.destinationOf(context.transformer(), position, relatives);
         clientPosition.set(clientDestination, MirrorWriter.POSITION_PACKET);
 
-        double sentX = relativeX
-                ? SeamDelta.foldX(context.transformer(), packet.getX())
-                : clientDestination.x;
-        double sentZ = relativeZ
-                ? SeamDelta.foldZ(context.transformer(), packet.getZ())
-                : clientDestination.z;
+        Vec3 sentPosition = relativeX && relativeZ
+                ? SeamDelta.fold(context.transformer(), position)
+                : new Vec3(
+                        relativeX ? clientDestination.x - mirrorX : clientDestination.x,
+                        position.y,
+                        relativeZ ? clientDestination.z - mirrorZ : clientDestination.z);
         return new ClientboundPlayerPositionPacket(
-                sentX,
+                sentPosition.x,
                 packet.getY(),
-                sentZ,
+                sentPosition.z,
                 packet.getYRot(), packet.getXRot(), relatives, packet.getId());
     }
 
     static ClientboundAddEntityPacket addEntity(ClientboundAddEntityPacket packet, TranslationContext context) {
-        PacketReach reach = context.trackedReach();
-        double clientX = context.toClientX(packet.getX(), reach);
-        double clientZ = context.toClientZ(packet.getZ(), reach);
+        Vec3 clientPos = context.toClient(new Vec3(packet.getX(), packet.getY(), packet.getZ()), context.trackedReach());
         return new ClientboundAddEntityPacket(
                 packet.getId(), packet.getUUID(),
-                clientX,
+                clientPos.x,
                 packet.getY(),
-                clientZ,
+                clientPos.z,
                 packet.getXRot(), packet.getYRot(), packet.getType(), packet.getData(),
                 new Vec3(packet.getXa(), packet.getYa(), packet.getZa()), packet.getYHeadRot());
     }

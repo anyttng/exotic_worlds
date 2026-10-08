@@ -6,7 +6,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.ChunkResender;
@@ -19,12 +18,12 @@ import com.exoticworlds.engine.seam.MirrorWriter;
 import com.exoticworlds.engine.seam.SeamSnap;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
-import com.llamalad7.mixinextras.sugar.ref.LocalDoubleRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ import java.util.List;
 import java.util.Set;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
@@ -76,24 +74,12 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
         return transformer == null ? neighbour : transformer.fold(neighbour);
     }
 
-    @ModifyVariable(method = "teleport(DDDFFLjava/util/Set;)V", at = @At("HEAD"), argsOnly = true, ordinal = 0)
-    private double toroidal$wrapTeleportX(double x) {
+    @WrapMethod(method = "teleport(DDDFFLjava/util/Set;)V")
+    private void toroidal$wrapTeleportDestination(double x, double y, double z, float yRot, float xRot,
+            Set<RelativeMovement> relatives, Operation<Void> original) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
-        if (transformer == null) {
-            return x;
-        }
-
-        return transformer.blockDomain(Direction.Axis.X).wrap(x);
-    }
-
-    @ModifyVariable(method = "teleport(DDDFFLjava/util/Set;)V", at = @At("HEAD"), argsOnly = true, ordinal = 2)
-    private double toroidal$wrapTeleportZ(double z) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
-        if (transformer == null) {
-            return z;
-        }
-
-        return transformer.blockDomain(Direction.Axis.Z).wrap(z);
+        Vec3 wrapped = transformer == null ? new Vec3(x, y, z) : transformer.fold(new Vec3(x, y, z));
+        original.call(wrapped.x, y, wrapped.z, yRot, xRot, relatives);
     }
 
     @Inject(method = "teleport(DDDFFLjava/util/Set;)V", at = @At("HEAD"))
@@ -214,25 +200,19 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;clampHorizontal(D)D",
                     ordinal = 0))
-    private double toroidal$continuousX(double clientX, Operation<Double> original,
+    private double toroidal$continuousX(double requestedX, Operation<Double> original,
             @Local(argsOnly = true) ServerboundMovePlayerPacket packet,
-            @Share("reportedX") LocalDoubleRef reportedX) {
-        double clamped = original.call(clientX);
+            @Share("continuous") LocalRef<Vec3> continuous) {
+        double clampedX = original.call(requestedX);
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
         if (transformer == null || !packet.hasPosition()) {
-            return clamped;
+            return clampedX;
         }
 
-        if (this.player.isPassenger()) {
-            return clamped;
-        }
-
-        reportedX.set(clamped);
-        double unwrapped = transformer.blockDomain(Direction.Axis.X).unwrapAround(this.player.getX(), clamped);
-
-        this.firstGoodX = transformer.blockDomain(Direction.Axis.X).unwrapAround(unwrapped, this.firstGoodX);
-        this.lastGoodX = transformer.blockDomain(Direction.Axis.X).unwrapAround(unwrapped, this.lastGoodX);
-        return unwrapped;
+        Vec3 seated = toroidal$seatPlayerMove(transformer, new Vec3(clampedX, packet.getY(this.player.getY()),
+                original.call(packet.getZ(this.player.getZ()))));
+        continuous.set(seated);
+        return seated.x;
     }
 
     @WrapOperation(
@@ -241,28 +221,32 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;clampHorizontal(D)D",
                     ordinal = 1))
-    private double toroidal$continuousZ(double clientZ, Operation<Double> original,
-            @Local(argsOnly = true) ServerboundMovePlayerPacket packet,
-            @Share("reportedX") LocalDoubleRef reportedX) {
-        double clamped = original.call(clientZ);
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
-        if (transformer == null || !packet.hasPosition()) {
-            return clamped;
-        }
+    private double toroidal$continuousZ(double requestedZ, Operation<Double> original,
+            @Share("continuous") LocalRef<Vec3> continuous) {
+        double clampedZ = original.call(requestedZ);
+        Vec3 seated = continuous.get();
+        return seated == null ? clampedZ : seated.z;
+    }
 
+    @Unique
+    private Vec3 toroidal$seatPlayerMove(WorldFold transformer, Vec3 clamped) {
+        ClientPosition mirror = this.toroidal$clientPosition;
         if (this.player.isPassenger()) {
             if (toroidal$ridesUncontrolled()) {
-                this.toroidal$clientPosition.set(this.player.position(), MirrorWriter.PASSENGER);
+                mirror.set(this.player.position(), MirrorWriter.PASSENGER);
             }
             return clamped;
         }
 
-        this.toroidal$clientPosition.set(new Vec3(reportedX.get(), packet.getY(this.player.getY()), clamped),
-                MirrorWriter.PLAYER_MOVE);
-        double unwrapped = transformer.blockDomain(Direction.Axis.Z).unwrapAround(this.player.getZ(), clamped);
+        mirror.set(clamped, MirrorWriter.PLAYER_MOVE);
+        Vec3 unwrapped = transformer.nearestCopy(this.player.position(), clamped);
 
-        this.firstGoodZ = transformer.blockDomain(Direction.Axis.Z).unwrapAround(unwrapped, this.firstGoodZ);
-        this.lastGoodZ = transformer.blockDomain(Direction.Axis.Z).unwrapAround(unwrapped, this.lastGoodZ);
+        Vec3 firstGood = transformer.nearestCopy(unwrapped, new Vec3(this.firstGoodX, unwrapped.y, this.firstGoodZ));
+        Vec3 lastGood = transformer.nearestCopy(unwrapped, new Vec3(this.lastGoodX, unwrapped.y, this.lastGoodZ));
+        this.firstGoodX = firstGood.x;
+        this.firstGoodZ = firstGood.z;
+        this.lastGoodX = lastGood.x;
+        this.lastGoodZ = lastGood.z;
         return unwrapped;
     }
 
@@ -294,15 +278,20 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
                     target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;clampHorizontal(D)D",
                     ordinal = 0))
     private double toroidal$vehicleContinuousX(double clientX, Operation<Double> original,
-            @Share("reportedVehicleX") LocalDoubleRef reportedX) {
-        double clamped = original.call(clientX);
+            @Local(argsOnly = true) ServerboundMoveVehiclePacket packet,
+            @Share("vehicleContinuous") LocalRef<Vec3> continuous) {
+        double clampedX = original.call(clientX);
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
         if (transformer == null) {
-            return clamped;
+            return clampedX;
         }
 
-        reportedX.set(clamped);
-        return transformer.blockDomain(Direction.Axis.X).unwrapAround(this.player.getRootVehicle().getX(), clamped);
+        double clampedZ = original.call(packet.getZ());
+        this.toroidal$clientPosition.set(new Vec3(clampedX, packet.getY(), clampedZ), MirrorWriter.VEHICLE_MOVE);
+        Entity vehicle = this.player.getRootVehicle();
+        Vec3 seated = transformer.nearestCopy(vehicle.position(), new Vec3(clampedX, vehicle.getY(), clampedZ));
+        continuous.set(seated);
+        return seated.x;
     }
 
     @WrapOperation(
@@ -312,16 +301,10 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
                     target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;clampHorizontal(D)D",
                     ordinal = 1))
     private double toroidal$vehicleContinuousZ(double clientZ, Operation<Double> original,
-            @Local(argsOnly = true) ServerboundMoveVehiclePacket packet,
-            @Share("reportedVehicleX") LocalDoubleRef reportedX) {
-        double clamped = original.call(clientZ);
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
-        if (transformer == null) {
-            return clamped;
-        }
-
-        this.toroidal$clientPosition.set(new Vec3(reportedX.get(), packet.getY(), clamped), MirrorWriter.VEHICLE_MOVE);
-        return transformer.blockDomain(Direction.Axis.Z).unwrapAround(this.player.getRootVehicle().getZ(), clamped);
+            @Share("vehicleContinuous") LocalRef<Vec3> continuous) {
+        double clampedZ = original.call(clientZ);
+        Vec3 seated = continuous.get();
+        return seated == null ? clampedZ : seated.z;
     }
 
     @Inject(method = "handleMoveVehicle", at = @At("RETURN"))
