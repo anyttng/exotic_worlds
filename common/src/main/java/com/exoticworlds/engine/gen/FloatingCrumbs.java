@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
@@ -142,7 +143,7 @@ public final class FloatingCrumbs {
     }
 
     public static void sweepAcross(ServerLevel level, ChunkAccess chunk,
-            StaticCache2D<GenerationChunkHolder> chunks) {
+            StaticCache2D<GenerationChunkHolder> chunks, Executor mainThread) {
         if (!sweepsCrumbs(level)) {
             return;
         }
@@ -165,10 +166,24 @@ public final class FloatingCrumbs {
         // The LIGHT step declares no write radius, so a region on it reports every read of a neighbour as unsafe.
         sweepWindow(chunk, window, () -> new WorldGenRegion(level, chunks,
                 ChunkPyramid.GENERATION_PYRAMID.getStepTo(ChunkStatus.FEATURES), chunk));
+        List<GenerationChunkHolder> read = new ArrayList<>(keys.length);
         for (int index = 0; index < keys.length; index++) {
-            ChunkAccess neighbour = holders[index].getLatestChunk();
-            if (masks.consumed(keys[index]) && neighbour != null) {
-                neighbour.markUnsaved();
+            if (masks.consumed(keys[index])) {
+                read.add(holders[index]);
+            }
+        }
+
+        if (!read.isEmpty()) {
+            // A LevelChunk's markUnsaved reaches ChunkMap.setChunkUnsaved, whose set only the server thread may touch.
+            mainThread.execute(() -> markUnsaved(read));
+        }
+    }
+
+    private static void markUnsaved(List<GenerationChunkHolder> holders) {
+        for (GenerationChunkHolder holder : holders) {
+            ChunkAccess latest = holder.getLatestChunk();
+            if (latest != null) {
+                latest.markUnsaved();
             }
         }
     }
