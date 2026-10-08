@@ -9,7 +9,9 @@ import java.util.Random;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -322,6 +324,94 @@ class PeriodicSimplexSamplerTest {
                     assertTrue(measured > VANILLA_SEAM_GAP_FLOOR,
                             () -> "vanilla's widest X seam gap is only " + measured + " "
                                     + at(DEFAULT, worldSeed, scale));
+                }
+            }
+        }
+    }
+
+    @Nested
+    class SkewedLattice {
+        private static final List<DeckGroupFold> SKEWED = List.of(
+                new DeckGroupFold(FlatShape.latticeTorus(new WorldLoopBounds(-16, 16, -16, 16), 5)),
+                new DeckGroupFold(FlatShape.latticeTorus(new WorldLoopBounds(-8, 8, -8, 8), -3)),
+                new DeckGroupFold(FlatShape.latticeTorus(new WorldLoopBounds(-32, 32, 0, 16), 13)));
+
+        @Test
+        void agreesAtEveryCopyUnderBothDeckGenerators() {
+            Random random = new Random(SEED);
+            for (DeckGroupFold transformer : SKEWED) {
+                TranslationLattice lattice = transformer.blockLattice();
+                double width = lattice.x().domainLength;
+                double height = lattice.z().domainLength;
+                double skew = lattice.skew();
+                double[][] copies = {{width, 0.0}, {skew, height}, {skew - width, height}, {-2.0 * skew, -2.0 * height}};
+                for (long worldSeed : WORLD_SEEDS) {
+                    NoiseInstance noise = NoiseInstance.of(worldSeed);
+                    for (double scale : SCALES) {
+                        for (int i = 0; i < LINE_SAMPLES; i++) {
+                            double x = blockInDomain(random, lattice.x());
+                            double z = blockInDomain(random, lattice.z());
+                            double base = noise.sample(transformer, scale, x, z);
+                            for (double[] copy : copies) {
+                                double moved = noise.sample(transformer, scale, x + copy[0], z + copy[1]);
+                                assertEquals(base, moved, () -> "sample(" + x + ", " + z + ") vs its copy "
+                                        + copy[0] + ", " + copy[1] + " " + at(transformer, worldSeed, scale));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        @Test
+        void closesAcrossBothSeamsAlongTheWholeLine() {
+            Random random = new Random(SEED);
+            for (DeckGroupFold transformer : SKEWED) {
+                TranslationLattice lattice = transformer.blockLattice();
+                WrapDomain xDomain = lattice.x();
+                WrapDomain zDomain = lattice.z();
+                for (long worldSeed : WORLD_SEEDS) {
+                    NoiseInstance noise = NoiseInstance.of(worldSeed);
+                    for (double scale : SCALES) {
+                        for (int i = 0; i < LINE_SAMPLES; i++) {
+                            double z = lineCoord(random, zDomain, i);
+                            double xGap = Math.abs(noise.sample(transformer, scale, xDomain.upperBound - SEAM_EPSILON, z)
+                                    - noise.sample(transformer, scale, xDomain.lowerBound, z));
+                            assertTrue(xGap <= CONTINUITY_TOLERANCE, () -> "X seam gap at z " + z + " is " + xGap
+                                    + " " + at(transformer, worldSeed, scale));
+
+                            double x = lineCoord(random, xDomain, i);
+                            double zGap = Math.abs(noise.sample(transformer, scale, x, zDomain.upperBound - SEAM_EPSILON)
+                                    - noise.sample(transformer, scale, x - lattice.skew(), zDomain.lowerBound));
+                            assertTrue(zGap <= CONTINUITY_TOLERANCE, () -> "Z seam gap at x " + x + " is " + zGap
+                                    + " " + at(transformer, worldSeed, scale));
+                        }
+                    }
+                }
+            }
+        }
+
+        @Test
+        void outputVariesAroundTheWorld() {
+            Random random = new Random(SEED);
+            for (DeckGroupFold transformer : SKEWED) {
+                TranslationLattice lattice = transformer.blockLattice();
+                for (long worldSeed : WORLD_SEEDS) {
+                    NoiseInstance noise = NoiseInstance.of(worldSeed);
+                    for (double scale : SPREAD_SCALES) {
+                        double min = Double.MAX_VALUE;
+                        double max = -Double.MAX_VALUE;
+                        for (int i = 0; i < LINE_SAMPLES; i++) {
+                            double value = noise.sample(transformer, scale, lineCoord(random, lattice.x(), i),
+                                    lineCoord(random, lattice.z(), i));
+                            min = Math.min(min, value);
+                            max = Math.max(max, value);
+                        }
+
+                        double spread = max - min;
+                        assertTrue(spread >= MIN_SPREAD, () -> "spread around the world is " + spread + " "
+                                + at(transformer, worldSeed, scale));
+                    }
                 }
             }
         }

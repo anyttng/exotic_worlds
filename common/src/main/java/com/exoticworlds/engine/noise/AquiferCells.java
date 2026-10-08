@@ -27,12 +27,12 @@ public record AquiferCells(TilingCellGrid levelGrid, DensitySampler level, Tilin
 
     public float level(int blockX, int cellY, int blockZ) {
         return this.level.sampleValue(SamplerContext.EMPTY_UNCACHED,
-                this.levelGrid.cellOriginX(blockX), cellY, this.levelGrid.cellOriginZ(blockZ));
+                this.levelGrid.cellOriginX(blockX, blockZ), cellY, this.levelGrid.cellOriginZ(blockZ));
     }
 
     public float type(int blockX, int cellY, int blockZ) {
         return this.type.sampleValue(SamplerContext.EMPTY_UNCACHED,
-                this.typeGrid.cellOriginX(blockX), cellY, this.typeGrid.cellOriginZ(blockZ));
+                this.typeGrid.cellOriginX(blockX, blockZ), cellY, this.typeGrid.cellOriginZ(blockZ));
     }
 
     private static DensitySampler compileOnGrid(FoldedCompileContext context, TilingCellGrid grid,

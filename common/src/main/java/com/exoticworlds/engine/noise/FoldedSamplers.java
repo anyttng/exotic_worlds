@@ -1,10 +1,9 @@
 package com.exoticworlds.engine.noise;
 
 import com.exoticworlds.accessors.CoastLiftCache;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
 
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.RandomSource;
@@ -165,11 +164,10 @@ public final class FoldedSamplers {
             double y = blockY * this.yScale + this.shiftY.sampleValue(context, blockX, blockY, blockZ);
             double z = blockZ;
             if (this.xzScale != 0.0) {
-                WrapDomain xDomain = this.fold.blockDomain(Direction.Axis.X);
-                WrapDomain zDomain = this.fold.blockDomain(Direction.Axis.Z);
-                x = DomainWarp.apply(xDomain, blockX, this.shiftX.sampleValue(context, blockX, blockY, blockZ),
-                        this.warpDivisor);
-                z = DomainWarp.apply(zDomain, blockZ, this.shiftZ.sampleValue(context, blockX, blockY, blockZ),
+                TranslationLattice lattice = this.fold.blockLattice();
+                x = DomainWarp.applyX(lattice, blockX, blockZ,
+                        this.shiftX.sampleValue(context, blockX, blockY, blockZ), this.warpDivisor);
+                z = DomainWarp.applyZ(lattice, blockZ, this.shiftZ.sampleValue(context, blockX, blockY, blockZ),
                         this.warpDivisor);
             }
 
@@ -219,11 +217,12 @@ public final class FoldedSamplers {
 
         @Override
         public float sampleValue(SamplerContext context, int blockX, int blockY, int blockZ) {
-            WrapDomain xDomain = this.fold.blockDomain(Direction.Axis.X);
-            WrapDomain zDomain = this.fold.blockDomain(Direction.Axis.Z);
-            int deltaX = xDomain.foldDelta(xDomain.wrap(this.point.getX()) - xDomain.wrap(blockX));
-            int deltaZ = zDomain.foldDelta(zDomain.wrap(this.point.getZ()) - zDomain.wrap(blockZ));
-            return this.metric.compute(deltaX, this.point.getY() - blockY, deltaZ);
+            TranslationLattice lattice = this.fold.blockLattice();
+            int deltaX = lattice.foldX(this.point.getX(), this.point.getZ()) - lattice.foldX(blockX, blockZ);
+            int deltaZ = lattice.foldZ(this.point.getZ()) - lattice.foldZ(blockZ);
+            int laps = lattice.nearestZLaps(deltaX, deltaZ);
+            return this.metric.compute(lattice.nearestDeltaX(deltaX, laps), this.point.getY() - blockY,
+                    lattice.nearestDeltaZ(deltaZ, laps));
         }
     }
 

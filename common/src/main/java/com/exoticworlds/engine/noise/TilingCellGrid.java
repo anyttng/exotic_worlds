@@ -3,18 +3,19 @@ package com.exoticworlds.engine.noise;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.Divisors;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
 
-import net.minecraft.core.Direction;
-
-public record TilingCellGrid(WorldFold transformer, int xCellWidth, int zCellWidth) {
+public record TilingCellGrid(WorldFold transformer, int xCellWidth, int zCellWidth, int skew, int rowsPerLap) {
     private static final int SMALLEST_CELL_COUNT = 1;
 
     public static TilingCellGrid of(WorldFold transformer, int vanillaCellWidth) {
-        return new TilingCellGrid(transformer,
-                tilingWidth(transformer.blockDomain(Direction.Axis.X), vanillaCellWidth),
-                tilingWidth(transformer.blockDomain(Direction.Axis.Z), vanillaCellWidth));
+        TranslationLattice lattice = transformer.blockLattice();
+        int xCellWidth = tilingWidth(lattice.x(), vanillaCellWidth);
+        int zCellWidth = tilingWidth(lattice.z(), vanillaCellWidth);
+        int rowsPerLap = lattice.isSkewed() ? lattice.z().domainLength / zCellWidth : SMALLEST_CELL_COUNT;
+        return new TilingCellGrid(transformer, xCellWidth, zCellWidth, lattice.skew(), rowsPerLap);
     }
 
     public static TilingCellGrid resolve(@Nullable TilingCellGrid cached,
@@ -24,8 +25,13 @@ public record TilingCellGrid(WorldFold transformer, int xCellWidth, int zCellWid
                 : of(transformer, vanillaCellWidth);
     }
 
-    public int cellOriginX(int blockX) {
-        return Math.floorDiv(blockX, this.xCellWidth) * this.xCellWidth;
+    public int cellOriginX(int blockX, int blockZ) {
+        if (this.skew == TranslationLattice.NO_SKEW) {
+            return Math.floorDiv(blockX, this.xCellWidth) * this.xCellWidth;
+        }
+
+        int rowOffset = (int) Math.floorDiv((long) Math.floorDiv(blockZ, this.zCellWidth) * this.skew, this.rowsPerLap);
+        return Math.floorDiv(blockX - rowOffset, this.xCellWidth) * this.xCellWidth + rowOffset;
     }
 
     public int cellOriginZ(int blockZ) {
