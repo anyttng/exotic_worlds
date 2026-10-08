@@ -6,6 +6,7 @@ import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.migration.FormerNamespace;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -21,6 +22,10 @@ public final class StampedGeneratorCodec {
     static final String SHAPE_KEY = KEY_PREFIX + CarriedShape.WRAPPING_KEY;
 
     private static final MapCodec<CarriedShape> CARRIED_CODEC = CarriedShape.mapCodec(KEY_PREFIX);
+
+    private static final String FORMER_SHAPE_KEY = FormerNamespace.formerKey(SHAPE_KEY);
+
+    private static final MapCodec<CarriedShape> FORMER_CARRIED_CODEC = CarriedShape.mapCodec(FormerNamespace.KEY_PREFIX);
 
     public static Codec<ChunkGenerator> over(Codec<ChunkGenerator> dispatch) {
         return new StampCarrying(dispatch);
@@ -56,14 +61,23 @@ public final class StampedGeneratorCodec {
                 Pair<ChunkGenerator, T> decoded) {
             ShapeStamp stamp = stampOf(decoded.getFirst());
             MapLike<T> map = ops.getMap(input).result().orElse(null);
-            if (stamp == null || map == null || map.get(SHAPE_KEY) == null) {
+            MapCodec<CarriedShape> codec = map == null ? null : stampCodecOf(map);
+            if (stamp == null || codec == null) {
                 return DataResult.success(decoded);
             }
 
-            return CARRIED_CODEC.decode(ops, map).map(carried -> {
+            return codec.decode(ops, map).map(carried -> {
                 stamp.toroidal$stamp(carried);
                 return decoded;
             });
+        }
+
+        private static <T> @Nullable MapCodec<CarriedShape> stampCodecOf(MapLike<T> map) {
+            if (map.get(SHAPE_KEY) != null) {
+                return CARRIED_CODEC;
+            }
+
+            return map.get(FORMER_SHAPE_KEY) != null ? FORMER_CARRIED_CODEC : null;
         }
     }
 

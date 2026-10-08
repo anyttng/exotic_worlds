@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.exoticworlds.ExoticWorlds;
+import com.exoticworlds.migration.FormerDataDirectory;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.FileToIdConverter;
@@ -15,8 +16,17 @@ import net.minecraft.util.profiling.ProfilerFiller;
 public final class PositionRowsReloadListener extends SimpleJsonResourceReloadListener<PositionRows> {
     public static final Identifier ID = Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, PositionRows.FILE_NAME);
 
+    private final FormerDataDirectory<PositionRows> formerDirectory = new FormerDataDirectory<>(PositionRows.CODEC);
+
     public PositionRowsReloadListener() {
         super(PositionRows.CODEC, FileToIdConverter.json(PositionRows.DIRECTORY));
+    }
+
+    @Override
+    protected Map<Identifier, PositionRows> prepare(ResourceManager manager, ProfilerFiller profiler) {
+        Map<Identifier, PositionRows> files = new HashMap<>(super.prepare(manager, profiler));
+        this.formerDirectory.prepare(manager, profiler).forEach(files::putIfAbsent);
+        return files;
     }
 
     @Override
