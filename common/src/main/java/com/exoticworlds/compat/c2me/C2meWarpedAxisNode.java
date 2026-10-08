@@ -2,20 +2,20 @@ package com.exoticworlds.compat.c2me;
 
 import java.util.Objects;
 
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.TranslationLattice;
 import com.ishland.c2me.opts.dfc.common.ast.AstNode;
 import com.ishland.c2me.opts.dfc.common.ast.AstTransformer;
 import com.ishland.c2me.opts.dfc.common.ast.misc.CoordinateNode;
 
 public final class C2meWarpedAxisNode implements AstNode {
     public final CoordinateNode.Axis axis;
-    public final WrapDomain domain;
+    public final TranslationLattice lattice;
     public final AstNode shift;
     public final double divisor;
 
-    public C2meWarpedAxisNode(CoordinateNode.Axis axis, WrapDomain domain, AstNode shift, double divisor) {
+    public C2meWarpedAxisNode(CoordinateNode.Axis axis, TranslationLattice lattice, AstNode shift, double divisor) {
         this.axis = Objects.requireNonNull(axis);
-        this.domain = Objects.requireNonNull(domain);
+        this.lattice = Objects.requireNonNull(lattice);
         this.shift = Objects.requireNonNull(shift);
         this.divisor = divisor;
     }
@@ -31,7 +31,7 @@ public final class C2meWarpedAxisNode implements AstNode {
 
         return transformer.transform(transformedShift == this.shift
                 ? this
-                : new C2meWarpedAxisNode(this.axis, this.domain, transformedShift, this.divisor));
+                : new C2meWarpedAxisNode(this.axis, this.lattice, transformedShift, this.divisor));
     }
 
     @Override
@@ -66,13 +66,13 @@ public final class C2meWarpedAxisNode implements AstNode {
 
     private boolean sameFields(C2meWarpedAxisNode that) {
         return this.axis == that.axis
-                && this.domain == that.domain
+                && this.lattice == that.lattice
                 && Double.compare(this.divisor, that.divisor) == 0;
     }
 
     private int fieldHash() {
         int result = this.axis.hashCode();
-        result = 31 * result + System.identityHashCode(this.domain);
+        result = 31 * result + System.identityHashCode(this.lattice);
         return 31 * result + Double.hashCode(this.divisor);
     }
 }

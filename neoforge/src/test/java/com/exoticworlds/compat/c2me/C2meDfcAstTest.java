@@ -285,8 +285,9 @@ class C2meDfcAstTest {
             };
             case MulNode mul -> evaluate(mul.left, x, y, z) * evaluate(mul.right, x, y, z);
             case AddNode add -> evaluate(add.left, x, y, z) + evaluate(add.right, x, y, z);
-            case C2meWarpedAxisNode warped -> DomainWarp.apply(warped.domain,
-                    warped.axis == CoordinateNode.Axis.X ? x : z, evaluate(warped.shift, x, y, z), warped.divisor);
+            case C2meWarpedAxisNode warped -> warped.axis == CoordinateNode.Axis.X
+                    ? DomainWarp.applyX(warped.lattice, x, z, evaluate(warped.shift, x, y, z), warped.divisor)
+                    : DomainWarp.applyZ(warped.lattice, z, evaluate(warped.shift, x, y, z), warped.divisor);
             default -> throw new IllegalStateException("no interpreter for " + node.getClass().getName());
         };
     }
