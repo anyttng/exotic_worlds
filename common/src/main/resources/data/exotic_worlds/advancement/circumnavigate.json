@@ -1,0 +1,20 @@
+{
+  "parent": "minecraft:adventure/root",
+  "display": {
+    "icon": {
+      "id": "minecraft:compass"
+    },
+    "title": {
+      "translate": "advancements.exotic_worlds.circumnavigate.title"
+    },
+    "description": {
+      "translate": "advancements.exotic_worlds.circumnavigate.description"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "circumnavigated": {
+      "trigger": "exotic_worlds:circumnavigate"
+    }
+  }
+}

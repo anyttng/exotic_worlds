@@ -5,7 +5,7 @@ plugins {
     id 'idea'
 }
 
-version = toroidal_world_version
+version = exotic_worlds_version
 group = mod_group_id
 
 // Mojang ships Java 25 to end users, so mods should target Java 25.
@@ -191,9 +191,9 @@ test {
         failOnNoMatchingTests = false
         // The scans are measurements, not the gate: test leaves them out, -Pscans runs nothing else.
         if (project.hasProperty('scans')) {
-            includeTestsMatching 'com.toroidalworld.scan.*'
+            includeTestsMatching 'com.exoticworlds.scan.*'
         } else {
-            excludeTestsMatching 'com.toroidalworld.scan.*'
+            excludeTestsMatching 'com.exoticworlds.scan.*'
         }
     }
     if (project.hasProperty('scans')) {
@@ -220,12 +220,12 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
-// The artifact a foreign mod compiles against: com/toroidalworld/api alone, out of this module's own output, so a
+// The artifact a foreign mod compiles against: com/exoticworlds/api alone, out of this module's own output, so a
 // consumer's compile classpath cannot reach an internal type at all. That the API's own signatures name no internal
 // is a separate guarantee, held by ApiSurfaceTest. The loader jars are not compile targets — the NeoForge one carries
 // the whole mod, the Fabric one is remapped.
-def apiPackage = 'com/toroidalworld/api/**'
-def apiArtifactId = 'toroidal-world-api'
+def apiPackage = 'com/exoticworlds/api/**'
+def apiArtifactId = 'exotic-worlds-api'
 
 var apiJar = tasks.register('apiJar', Jar) {
     archiveBaseName = apiArtifactId
@@ -266,13 +266,13 @@ publishing {
         register('api', MavenPublication) {
             groupId = mod_group_id
             artifactId = apiArtifactId
-            version = toroidal_world_version
+            version = exotic_worlds_version
             artifact apiJar
             artifact apiSourcesJar
             artifact apiJavadocJar
             pom {
-                name = 'Toroidal World API'
-                description = 'The semver-stable surface of Toroidal World for other mods.'
+                name = 'Exotic Worlds API'
+                description = 'The semver-stable surface of Exotic Worlds for other mods.'
                 url = 'https://github.com/vitalikyarina/toroidal_world'
                 licenses {
                     license {

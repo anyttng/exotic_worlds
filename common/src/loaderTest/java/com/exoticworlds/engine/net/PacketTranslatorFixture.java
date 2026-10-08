@@ -1,0 +1,80 @@
+package com.exoticworlds.engine.net;
+
+import java.util.function.IntFunction;
+import java.util.function.IntPredicate;
+
+import com.exoticworlds.core.DeckGroupFold;
+import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.engine.seam.ClientPosition;
+
+import io.netty.buffer.Unpooled;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+
+final class PacketTranslatorFixture {
+    static final WorldFold TRANSFORMER =
+            WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-32, 32, -32, 32)));
+    static final WorldFold MIRRORED_TRANSFORMER = new DeckGroupFold(FlatShape.mirrored(
+            new WorldLoopBounds(new AxisBounds.Looped(-32, 32), AxisBounds.Unbounded.INSTANCE),
+            Direction.Axis.Z, 0));
+    static final RegistryAccess.Frozen REGISTRIES =
+            RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
+
+    static final double MIRROR_X = 580.0;
+    static final double MIRROR_Z = -700.0;
+
+    static final BlockPos SERVER_BLOCK = new BlockPos(-510, 64, -505);
+    static final BlockPos CLIENT_BLOCK = new BlockPos(514, 64, -505);
+    static final BlockPos MIRRORED_SERVER_BLOCK = new BlockPos(-510, 64, 504);
+    static final BlockPos SERVER_CARRIED_BLOCK = new BlockPos(-510, 64, -100);
+    static final BlockPos CLIENT_CARRIED_BLOCK = new BlockPos(514, 64, -100);
+    static final BlockPos MIRROR_CARRIED_BLOCK = new BlockPos(514, 64, -1124);
+    static final ChunkPos SERVER_CHUNK = new ChunkPos(-32, -32);
+    static final ChunkPos CLIENT_CHUNK = new ChunkPos(32, -32);
+
+    static final double SERVER_X = -500.5;
+    static final double CLIENT_X = 523.5;
+    static final double SERVER_Z = 500.0;
+    static final double CLIENT_Z = -524.0;
+
+    static final int VIEW_DISTANCE = 16;
+
+    static final IntFunction<RegistryFriendlyByteBuf> BUFFERS =
+            capacity -> new RegistryFriendlyByteBuf(Unpooled.buffer(capacity), REGISTRIES);
+
+    static TranslationContext context() {
+        return context(entityId -> false, entityId -> null);
+    }
+
+    static TranslationContext mirroredContext() {
+        ClientPosition mirror = new ClientPosition();
+        mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, MIRRORED_TRANSFORMER);
+        return new TranslationContext(MIRRORED_TRANSFORMER, mirror, BUFFERS, Level.OVERWORLD,
+                VIEW_DISTANCE, VIEW_DISTANCE, entityId -> false, entityId -> null, entityId -> null, () -> {});
+    }
+
+    static TranslationContext context(IntPredicate ownVehicle, IntFunction<Vec3> entityPosition) {
+        return context(ownVehicle, entityPosition, entityId -> null);
+    }
+
+    static TranslationContext context(IntPredicate ownVehicle, IntFunction<Vec3> entityPosition,
+            IntFunction<TagPositions.Subject> entity) {
+        ClientPosition mirror = new ClientPosition();
+        mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, TRANSFORMER);
+        return new TranslationContext(TRANSFORMER, mirror, BUFFERS, Level.OVERWORLD,
+                VIEW_DISTANCE, VIEW_DISTANCE, ownVehicle, entityPosition, entity, () -> {});
+    }
+
+    private PacketTranslatorFixture() {
+    }
+}

@@ -1,0 +1,35 @@
+package com.exoticworlds.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.core.WorldLoopAttachments;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+
+import net.minecraft.advancements.criterion.DistancePredicate;
+import net.minecraft.advancements.criterion.DistanceTrigger;
+import net.minecraft.advancements.criterion.FallAfterExplosionTrigger;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
+
+@Mixin({
+        DistanceTrigger.TriggerInstance.class,
+        FallAfterExplosionTrigger.TriggerInstance.class})
+public class DistanceBoundsMixin {
+    @WrapOperation(
+            method = "matches",
+            at = @At(value = "INVOKE",
+                    target = InjectionTargets.DISTANCE_PREDICATE_MATCHES))
+    private boolean toroidal$boundThroughSeam(DistancePredicate bounds,
+            double referenceX, double referenceY, double referenceZ,
+            double measuredX, double measuredY, double measuredZ,
+            Operation<Boolean> original, @Local(argsOnly = true) ServerLevel level) {
+        Vec3 folded = WorldLoopAttachments.transformerOf(level).nearestCopy(
+                new Vec3(referenceX, referenceY, referenceZ),
+                new Vec3(measuredX, measuredY, measuredZ));
+        return original.call(bounds, referenceX, referenceY, referenceZ, folded.x, folded.y, folded.z);
+    }
+}

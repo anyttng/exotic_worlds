@@ -1,0 +1,21 @@
+package com.exoticworlds.compat.c2me.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import com.exoticworlds.compat.c2me.C2meFoldedNoiseDotEmitter;
+import com.exoticworlds.compat.c2me.C2meFoldedNoiseNode;
+import com.exoticworlds.compat.c2me.C2meWarpedAxisDotEmitter;
+import com.exoticworlds.compat.c2me.C2meWarpedAxisNode;
+import com.ishland.c2me.opts.dfc.common.gen.dot.DotGenRegistry;
+
+@Mixin(DotGenRegistry.class)
+public class DotGenRegistryMixin {
+    @Inject(method = "<clinit>", at = @At("TAIL"))
+    private static void toroidal$registerFoldedNoise(CallbackInfo ci) {
+        DotGenRegistry.REGISTRY.registerExactMatch(C2meFoldedNoiseNode.class, C2meFoldedNoiseDotEmitter.INSTANCE);
+        DotGenRegistry.REGISTRY.registerExactMatch(C2meWarpedAxisNode.class, C2meWarpedAxisDotEmitter.INSTANCE);
+    }
+}

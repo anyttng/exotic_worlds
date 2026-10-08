@@ -4,18 +4,18 @@ plugins {
 }
 
 ext {
-    mod_id = 'toroidal_world'
+    mod_id = 'exotic_worlds'
 }
 
-version = toroidal_world_version
+version = exotic_worlds_version
 group = mod_group_id
 
 def withBuildSuffix = { baseVersion ->
     def buildSuffix = findProperty("${mod_id}_build")
     buildSuffix ? "${baseVersion}-${buildSuffix}" : baseVersion
 }
-def modIngameVersion = withBuildSuffix(toroidal_world_version)
-def jarVersion = withBuildSuffix("${toroidal_world_version}+mc${minecraft_version}")
+def modIngameVersion = withBuildSuffix(exotic_worlds_version)
+def jarVersion = withBuildSuffix("${exotic_worlds_version}+mc${minecraft_version}")
 // The metadata closure is detached from this script by the configuration cache, so the property is read here.
 def journeymapMinVersion = journeymap_min_version
 def ftbchunksMinVersion = ftbchunks_min_version
@@ -36,7 +36,7 @@ evaluationDependsOn(':common')
 def commonMain = project(':common').sourceSets.main
 
 loom {
-    accessWidenerPath = file('src/main/resources/toroidal_world.accesswidener')
+    accessWidenerPath = file('src/main/resources/exotic_worlds.accesswidener')
 }
 
 repositories {
@@ -179,9 +179,9 @@ test {
         failOnNoMatchingTests = false
         // The scans are measurements, not the gate: test leaves them out, -Pscans runs nothing else.
         if (project.hasProperty('scans')) {
-            includeTestsMatching 'com.toroidalworld.scan.*'
+            includeTestsMatching 'com.exoticworlds.scan.*'
         } else {
-            excludeTestsMatching 'com.toroidalworld.scan.*'
+            excludeTestsMatching 'com.exoticworlds.scan.*'
         }
     }
     if (project.hasProperty('scans')) {

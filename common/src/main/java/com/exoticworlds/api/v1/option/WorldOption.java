@@ -1,0 +1,6 @@
+package com.exoticworlds.api.v1.option;
+
+import com.mojang.serialization.Codec;
+
+public record WorldOption<T>(String key, int position, Codec<T> codec, T defaultValue) {
+}

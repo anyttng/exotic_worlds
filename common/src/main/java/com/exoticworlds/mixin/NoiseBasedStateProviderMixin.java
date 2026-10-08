@@ -1,0 +1,33 @@
+package com.exoticworlds.mixin;
+
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+
+import com.exoticworlds.engine.noise.ContextScaledNoise;
+import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.levelgen.feature.stateproviders.NoiseBasedStateProvider;
+import net.minecraft.world.level.levelgen.synth.NormalNoise;
+
+@Mixin(NoiseBasedStateProvider.class)
+public class NoiseBasedStateProviderMixin {
+    @Shadow
+    @Final
+    protected NormalNoise noise;
+
+    @WrapMethod(method = "getNoiseValue(Lnet/minecraft/core/BlockPos;D)D")
+    private double toroidal$rawCoordinateNoise(BlockPos pos, double scale, Operation<Double> original) {
+        Context generation = GenerationTransformerContext.context();
+        if (!generation.transformer().isWrapped()) {
+            return original.call(pos, scale);
+        }
+
+        return ContextScaledNoise.sample(generation, this.noise,
+                pos.getX(), pos.getY() * scale, pos.getZ(), scale);
+    }
+}

@@ -1,0 +1,28 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.journeymap.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "com.exoticworlds.compat.journeymap.JourneyMapMixinPlugin",
+  "client": [
+    "BaseOverlayDrawStepMixin",
+    "ClientWaypointImplMixin",
+    "DrawImageStepMixin",
+    "DrawMarkerStepMixin",
+    "DrawPolygonStepMixin",
+    "FullscreenMixin",
+    "LayerDelegateMixin",
+    "LocationFormatMixin",
+    "MapRendererAccessor",
+    "MapRendererMixin",
+    "MapStateMixin",
+    "ModOverlayLayerMixin",
+    "PolygonGeometryDrawPassMixin",
+    "RegionCoordMixin",
+    "RegionTileAccessor",
+    "RegionTileMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
