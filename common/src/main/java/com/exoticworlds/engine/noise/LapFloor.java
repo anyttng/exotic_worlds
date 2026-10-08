@@ -1,0 +1,23 @@
+package com.exoticworlds.engine.noise;
+
+import com.exoticworlds.core.WorldFold;
+
+import net.minecraft.core.Direction;
+
+public enum LapFloor {
+    FOUR_CELLS(4L),
+    TWO_CELLS(2L),
+    HELD(PeriodicNoiseSampler.HELD_PERIOD);
+
+    final long period;
+
+    LapFloor(long period) {
+        this.period = period;
+    }
+
+    public static LapFloor of(WorldFold transformer) {
+        boolean bothLoop = transformer.blockDomain(Direction.Axis.X).loops()
+                && transformer.blockDomain(Direction.Axis.Z).loops();
+        return bothLoop ? TWO_CELLS : HELD;
+    }
+}

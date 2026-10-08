@@ -59,37 +59,37 @@ Circumnavigate the world — walk, sail or fly past the border and come out on t
     side="BOTH"
 
 [[mixins]]
-config="toroidal_world.mixins.json"
+config="exotic_worlds.mixins.json"
 
 [[mixins]]
-config="toroidal_world.shape.mixins.json"
+config="exotic_worlds.shape.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.journeymap.mixins.json"
+config="exotic_worlds.compat.journeymap.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.xaero.mixins.json"
+config="exotic_worlds.compat.xaero.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.c2me.mixins.json"
+config="exotic_worlds.compat.c2me.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.distanthorizons.mixins.json"
+config="exotic_worlds.compat.distanthorizons.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.scalablelux.mixins.json"
+config="exotic_worlds.compat.scalablelux.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.terrablender.mixins.json"
+config="exotic_worlds.compat.terrablender.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.biolith.mixins.json"
+config="exotic_worlds.compat.biolith.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.sodium.mixins.json"
+config="exotic_worlds.compat.sodium.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.lithium.mixins.json"
+config="exotic_worlds.compat.lithium.mixins.json"
 
 [[mixins]]
-config="toroidal_world.neoforge.mixins.json"
+config="exotic_worlds.neoforge.mixins.json"

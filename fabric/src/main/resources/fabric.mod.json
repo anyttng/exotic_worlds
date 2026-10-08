@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "toroidal_world",
+  "id": "exotic_worlds",
   "version": "${version}",
-  "name": "Toroidal World",
+  "name": "Exotic Worlds",
   "description": "Circumnavigate the world — walk, sail or fly past the border and come out on the far side. No walls, no teleports, one seamless world.",
   "authors": [
     "Anyttng"
@@ -12,30 +12,30 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.toroidalworld.ToroidalWorldFabric"
+      "com.exoticworlds.ExoticWorldsFabric"
     ],
     "client": [
-      "com.toroidalworld.client.ToroidalWorldFabricClient"
+      "com.exoticworlds.client.ExoticWorldsFabricClient"
     ],
     "modmenu": [
-      "com.toroidalworld.client.ToroidalWorldModMenu"
+      "com.exoticworlds.client.ExoticWorldsModMenu"
     ]
   },
   "mixins": [
-    "toroidal_world.mixins.json",
-    "toroidal_world.shape.mixins.json",
-    "toroidal_world.fabric.mixins.json",
-    "toroidal_world.compat.journeymap.mixins.json",
-    "toroidal_world.compat.xaero.mixins.json",
-    "toroidal_world.compat.c2me.mixins.json",
-    "toroidal_world.compat.distanthorizons.mixins.json",
-    "toroidal_world.compat.scalablelux.mixins.json",
-    "toroidal_world.compat.terrablender.mixins.json",
-    "toroidal_world.compat.biolith.mixins.json",
-    "toroidal_world.compat.sodium.mixins.json",
-    "toroidal_world.compat.lithium.mixins.json"
+    "exotic_worlds.mixins.json",
+    "exotic_worlds.shape.mixins.json",
+    "exotic_worlds.fabric.mixins.json",
+    "exotic_worlds.compat.journeymap.mixins.json",
+    "exotic_worlds.compat.xaero.mixins.json",
+    "exotic_worlds.compat.c2me.mixins.json",
+    "exotic_worlds.compat.distanthorizons.mixins.json",
+    "exotic_worlds.compat.scalablelux.mixins.json",
+    "exotic_worlds.compat.terrablender.mixins.json",
+    "exotic_worlds.compat.biolith.mixins.json",
+    "exotic_worlds.compat.sodium.mixins.json",
+    "exotic_worlds.compat.lithium.mixins.json"
   ],
-  "accessWidener": "toroidal_world.accesswidener",
+  "accessWidener": "exotic_worlds.accesswidener",
   "depends": {
     "fabricloader": ">=0.19.5",
     "fabric-api": "*",

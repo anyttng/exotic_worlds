@@ -1,0 +1,19 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.lithium.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "com.exoticworlds.compat.lithium.LithiumMixinPlugin",
+  "mixins": [
+    "AcquirePoiRetryMixin",
+    "EnderDragonPartsMixin",
+    "GameEventDispatchKeyMixin",
+    "LithiumEntityCollisionsMixin",
+    "PoiClosestBatchMixin",
+    "SectionedEntityQueryMixin",
+    "WorldHelperMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
