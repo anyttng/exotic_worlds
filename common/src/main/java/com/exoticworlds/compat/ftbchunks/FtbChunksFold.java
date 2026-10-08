@@ -1,4 +1,4 @@
-package com.toroidalworld.compat.ftbchunks;
+package com.exoticworlds.compat.ftbchunks;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -6,11 +6,11 @@ import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 
-import com.toroidalworld.api.v1.ToroidalShape;
-import com.toroidalworld.compat.AxisCopies;
-import com.toroidalworld.compat.ClientShapes;
-import com.toroidalworld.compat.FullscreenZoomFloor;
-import com.toroidalworld.compat.MapCopies;
+import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.compat.AxisCopies;
+import com.exoticworlds.compat.ClientShapes;
+import com.exoticworlds.compat.FullscreenZoomFloor;
+import com.exoticworlds.compat.MapCopies;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;

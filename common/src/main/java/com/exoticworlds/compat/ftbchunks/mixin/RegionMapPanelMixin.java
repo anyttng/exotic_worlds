@@ -1,4 +1,4 @@
-package com.toroidalworld.compat.ftbchunks.mixin;
+package com.exoticworlds.compat.ftbchunks.mixin;
 
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -12,10 +12,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.toroidalworld.compat.MapCopies;
-import com.toroidalworld.compat.ftbchunks.FtbChunksFold;
-import com.toroidalworld.compat.ftbchunks.FtbChunksFold.SeamView;
-import com.toroidalworld.compat.ftbchunks.FtbChunksFold.TileBlit;
+import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.ftbchunks.FtbChunksFold;
+import com.exoticworlds.compat.ftbchunks.FtbChunksFold.SeamView;
+import com.exoticworlds.compat.ftbchunks.FtbChunksFold.TileBlit;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;

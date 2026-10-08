@@ -1,4 +1,4 @@
-package com.toroidalworld.compat.ftbchunks.mixin;
+package com.exoticworlds.compat.ftbchunks.mixin;
 
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.toroidalworld.compat.ftbchunks.FtbChunksFold;
+import com.exoticworlds.compat.ftbchunks.FtbChunksFold;
 
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;

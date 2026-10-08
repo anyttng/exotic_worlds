@@ -1,4 +1,4 @@
-package com.toroidalworld.engine.noise;
+package com.exoticworlds.engine.noise;
 
 import java.util.ArrayList;
 import java.util.List;

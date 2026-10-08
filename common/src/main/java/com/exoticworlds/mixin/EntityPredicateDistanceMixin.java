@@ -1,9 +1,9 @@
-package com.toroidalworld.mixin;
+package com.exoticworlds.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.toroidalworld.core.WorldLoopAttachments;
+import com.exoticworlds.core.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;

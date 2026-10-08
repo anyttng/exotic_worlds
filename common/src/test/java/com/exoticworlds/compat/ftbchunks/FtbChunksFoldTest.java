@@ -1,4 +1,4 @@
-package com.toroidalworld.compat.ftbchunks;
+package com.exoticworlds.compat.ftbchunks;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -8,14 +8,14 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.toroidalworld.api.v1.TestShapes;
-import com.toroidalworld.api.v1.ToroidalShape;
-import com.toroidalworld.compat.AxisCopies;
-import com.toroidalworld.core.CoordinateConstants;
-import com.toroidalworld.core.FlatShape;
-import com.toroidalworld.core.WorldFolds;
-import com.toroidalworld.core.WorldLoopBounds;
-import com.toroidalworld.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.api.v1.TestShapes;
+import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.compat.AxisCopies;
+import com.exoticworlds.core.CoordinateConstants;
+import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.Direction;
 

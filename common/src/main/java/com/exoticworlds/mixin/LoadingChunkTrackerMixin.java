@@ -1,12 +1,12 @@
-package com.toroidalworld.mixin;
+package com.exoticworlds.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.toroidalworld.accessors.LevelBindable;
-import com.toroidalworld.accessors.LevelBindRegistry;
+import com.exoticworlds.accessors.LevelBindable;
+import com.exoticworlds.accessors.LevelBindRegistry;
 
 import net.minecraft.server.level.DistanceManager;
 import net.minecraft.world.level.TicketStorage;

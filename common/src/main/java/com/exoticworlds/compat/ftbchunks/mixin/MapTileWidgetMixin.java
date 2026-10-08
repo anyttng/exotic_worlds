@@ -1,4 +1,4 @@
-package com.toroidalworld.compat.ftbchunks.mixin;
+package com.exoticworlds.compat.ftbchunks.mixin;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.toroidalworld.compat.ftbchunks.FtbChunksFold;
-import com.toroidalworld.compat.ftbchunks.FtbChunksFold.TileBlit;
+import com.exoticworlds.compat.ftbchunks.FtbChunksFold;
+import com.exoticworlds.compat.ftbchunks.FtbChunksFold.TileBlit;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
