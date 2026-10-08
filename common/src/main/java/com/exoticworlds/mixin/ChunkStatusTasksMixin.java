@@ -73,7 +73,7 @@ public class ChunkStatusTasksMixin {
             StaticCache2D<GenerationChunkHolder> chunks,
             ChunkAccess chunk) {
         return original.thenApply(lit -> {
-            FloatingCrumbs.sweepAcross(context.level(), lit, chunks);
+            FloatingCrumbs.sweepAcross(context.level(), lit, chunks, context.mainThreadExecutor());
             return lit;
         });
     }
