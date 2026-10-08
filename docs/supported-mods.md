@@ -1,6 +1,6 @@
 # Supported Mods
 
-Toroidal World ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and Fabric. The mods below are grouped by what they do, and inside each group they run in this order: **no patch needed**, where the mod already works on a toroidal world and Toroidal World carries no code for it; **supported**, where it works because Toroidal World carries code for it; **partially supported**, where the mod is folded across the seam and the limits left are named beside it; **no seam support**, where the mod runs but nothing folds it across the seam; and **not tested**, where nobody has run it against a shaped world yet.
+Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and Fabric. The mods below are grouped by what they do, and inside each group they run in this order: **no patch needed**, where the mod already works on a toroidal world and Exotic Worlds carries no code for it; **supported**, where it works because Exotic Worlds carries code for it; **partially supported**, where the mod is folded across the seam and the limits left are named beside it; **no seam support**, where the mod runs but nothing folds it across the seam; and **not tested**, where nobody has run it against a shaped world yet.
 
 ## Rendering and performance
 
