@@ -26,7 +26,7 @@ One `level-type` line in `server.properties` turns a dedicated server into a tor
 
 ```groovy
 repositories {
-    maven { url = 'https://raw.githubusercontent.com/vitalikyarina/toroidal_world/maven/' }
+    maven { url = 'https://raw.githubusercontent.com/anyttng/exotic_worlds/maven/' }
 }
 
 dependencies {

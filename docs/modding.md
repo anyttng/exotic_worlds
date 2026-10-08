@@ -12,7 +12,7 @@ Reading a shape is the first part of this page; making your own mechanism work o
 repositories {
     maven {
         name = 'Exotic Worlds'
-        url = 'https://raw.githubusercontent.com/vitalikyarina/toroidal_world/maven/'
+        url = 'https://raw.githubusercontent.com/anyttng/exotic_worlds/maven/'
     }
 }
 
