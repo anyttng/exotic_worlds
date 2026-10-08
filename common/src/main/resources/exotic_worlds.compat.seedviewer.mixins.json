@@ -1,0 +1,17 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.seedviewer.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.seedviewer.SeedViewerMixinPlugin",
+  "client": [
+    "BiomeSamplerMixin",
+    "NoiseSamplerMixin",
+    "PointSamplerMixin",
+    "SeedPreviewWidgetMixin",
+    "WorldCreationPreviewContextMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

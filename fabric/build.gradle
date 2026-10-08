@@ -301,6 +301,9 @@ dependencies {
     compileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     // Sodium: the unpacked neoforge mod jar, as in common; its level slice carries no game name the fold renames.
     compileOnly files(sodiumModJars).asFileTree.matching { include '*.jar' }
+    // Seed Viewer rides modCompileOnly as the FABRIC flavor, as the Xaero jars do: its samplers' constructors and its
+    // preview builder name game types, and remapJar carries the mixin targets onto intermediary only through it.
+    modCompileOnly "maven.modrinth:seed-viewer:${seed_viewer_fabric_version}"
 
     // The 'modmenu' entrypoint class is only ever asked for by ModMenu itself, so it never loads without it.
     // modCompileOnly: its screen-factory API names the game's Screen, which only the remapped jar spells in this

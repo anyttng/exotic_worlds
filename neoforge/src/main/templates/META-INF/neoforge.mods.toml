@@ -162,4 +162,7 @@ config="exotic_worlds.compat.sodium.mixins.json"
 config="exotic_worlds.compat.lithium.mixins.json"
 
 [[mixins]]
+config="exotic_worlds.compat.seedviewer.mixins.json"
+
+[[mixins]]
 config="exotic_worlds.neoforge.mixins.json"

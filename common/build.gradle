@@ -226,6 +226,7 @@ dependencies {
     compileOnly "maven.modrinth:sable:${sable_version}"
     compileOnly "maven.modrinth:simple-clouds:${simpleclouds_version}"
     compileOnly "maven.modrinth:mekanism:${mekanism_version}"
+    compileOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
     // Non-transitive: the FTB poms ask for Architectury, whose types no map fold names — pulling its maven in would
     // put a whole mod on the compile classpath to satisfy a reference nothing makes.
     compileOnly("dev.ftb.mods:ftb-chunks-neoforge:${ftbchunks_version}") { transitive = false }
@@ -288,6 +289,8 @@ dependencies {
     testCompileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     testRuntimeOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     testRuntimeOnly "maven.modrinth:wunderlib-neoforge:${wunderlib_version}"
+    testCompileOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
+    testRuntimeOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
     // The compat jars and Mixin on the test runtime alone: what the gate-symbol tests read is the class file each
     // gate names, and a config plugin cannot even load without IMixinConfigPlugin.
     testRuntimeOnly "maven.modrinth:journeymap:${journeymap_version}"
