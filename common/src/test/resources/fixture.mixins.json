@@ -1,0 +1,10 @@
+{
+  "package": "com.exoticworlds.compat.fixture",
+  "mixins": [
+    "MixinFixtures$WrapOperationPresent",
+    "MixinFixtures$ShadowFieldMissing"
+  ],
+  "client": [
+    "MixinFixtures$InjectPresent"
+  ]
+}
