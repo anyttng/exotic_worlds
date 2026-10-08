@@ -6,6 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 
 import com.exoticworlds.ExoticWorlds;
+import com.exoticworlds.migration.FormerDataDirectory;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.mojang.logging.LogUtils;
@@ -24,8 +25,17 @@ public final class PositionRowsReloadListener extends SimpleJsonResourceReloadLi
 
     private static final Gson GSON = new Gson();
 
+    private final FormerDataDirectory formerDirectory = new FormerDataDirectory();
+
     public PositionRowsReloadListener() {
         super(GSON, PositionRows.DIRECTORY);
+    }
+
+    @Override
+    protected Map<ResourceLocation, JsonElement> prepare(ResourceManager manager, ProfilerFiller profiler) {
+        Map<ResourceLocation, JsonElement> files = new HashMap<>(super.prepare(manager, profiler));
+        this.formerDirectory.prepare(manager, profiler).forEach(files::putIfAbsent);
+        return files;
     }
 
     @Override

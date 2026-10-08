@@ -13,6 +13,7 @@ import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.gen.FloatingCrumbs;
+import com.exoticworlds.migration.FormerNamespace;
 import com.google.common.collect.Maps;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -26,7 +27,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
@@ -65,9 +65,8 @@ public class SerializableChunkDataMixin {
     private static void toroidal$restoreTerrainMask(ServerLevel level, PoiManager poiManager,
             RegionStorageInfo regionInfo, ChunkPos pos, CompoundTag chunkData,
             CallbackInfoReturnable<ProtoChunk> callback) {
-        if (chunkData.contains(toroidal$TERRAIN_MASK_KEY, Tag.TAG_COMPOUND)) {
-            FloatingCrumbs.restoreMask(level, callback.getReturnValue(), chunkData.getCompound(toroidal$TERRAIN_MASK_KEY));
-        }
+        FormerNamespace.compound(chunkData, toroidal$TERRAIN_MASK_KEY)
+                .ifPresent(mask -> FloatingCrumbs.restoreMask(level, callback.getReturnValue(), mask));
     }
 
     // Vanilla's own literal, restated because the code it lives in is not reachable from here.

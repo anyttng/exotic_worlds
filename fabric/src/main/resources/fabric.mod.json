@@ -27,6 +27,7 @@
   "mixins": [
     "exotic_worlds.mixins.json",
     "exotic_worlds.shape.mixins.json",
+    "exotic_worlds.migration.mixins.json",
     "exotic_worlds.fabric.mixins.json",
     "exotic_worlds.compat.journeymap.mixins.json",
     "exotic_worlds.compat.xaero.mixins.json",
