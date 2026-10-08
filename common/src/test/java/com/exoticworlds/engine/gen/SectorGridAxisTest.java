@@ -127,6 +127,35 @@ class SectorGridAxisTest {
     }
 
     @Test
+    void lapsCrossedCountsTheWrapsTheCellWalkTook() {
+        forEachClosedAxis((domain, spacing, origin, axis, cells) -> {
+            int originCell = Math.floorDiv(origin, spacing);
+            for (int offset = -axis.offsetCap(); offset <= axis.offsetCap(); offset++) {
+                int laps = axis.lapsCrossed(offset);
+                int cell = Math.floorDiv(axis.probeChunk(offset), spacing);
+                assertEquals(originCell + offset - laps * cells.size(), cell,
+                        in(domain, spacing, origin) + " offset " + offset);
+            }
+        });
+    }
+
+    @Test
+    void aShiftedProbeLandsInTheCellOfTheShiftedChunkInsideTheWorld() {
+        forEachClosedAxis((domain, spacing, origin, axis, cells) -> {
+            for (int offset = -axis.offsetCap(); offset <= axis.offsetCap(); offset++) {
+                assertEquals(axis.probeChunk(offset), axis.probeChunkShifted(offset, 0));
+                for (int shift : new int[] {-5, 3, 17}) {
+                    int shifted = axis.probeChunkShifted(offset, shift);
+                    String context = in(domain, spacing, origin) + " offset " + offset + " shift " + shift;
+                    assertTrue(shifted >= domain.lowerBound && shifted < domain.upperBound, context);
+                    assertEquals(Math.floorDiv(domain.wrap(axis.probeChunk(offset) + shift), spacing),
+                            Math.floorDiv(shifted, spacing), context);
+                }
+            }
+        });
+    }
+
+    @Test
     void anOpenAxisKeepsVanillaArithmetic() {
         WrapDomain open = new WrapDomain.Noop();
         for (int spacing : SPACINGS) {

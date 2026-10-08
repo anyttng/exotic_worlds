@@ -67,6 +67,20 @@ class SeamTravelTest {
     }
 
     @Test
+    void onASkewedWorldWalkingAlongTheZLapVectorClosesZAndLeavesXUntravelled() {
+        WorldFold skewed = WorldFolds.of(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(WIDTH_CHUNKS), 8));
+        SeamTravel travel = seeded(skewed, Level.OVERWORLD, 0.0, 0.0);
+
+        assertEquals(Set.of(), stepTo(travel, skewed, Level.OVERWORLD, 50.0, 200.0).closed());
+        assertEquals(Set.of(), stepTo(travel, skewed, Level.OVERWORLD, -28.0, -112.0).closed());
+        SeamTravel.Step closing = stepTo(travel, skewed, Level.OVERWORLD, 22.0, 88.0);
+
+        assertEquals(Set.of(Direction.Axis.Z), closing.closed());
+        assertEquals(0.0, travel.in(Level.OVERWORLD).x(), TOLERANCE);
+        assertEquals(88.0, travel.in(Level.OVERWORLD).z(), TOLERANCE);
+    }
+
+    @Test
     void crossingTheSeamCountsTheShortStepAndNotTheWorldWidth() {
         SeamTravel travel = seeded(TORUS, Level.OVERWORLD, MAX_BLOCK, 0.0);
 

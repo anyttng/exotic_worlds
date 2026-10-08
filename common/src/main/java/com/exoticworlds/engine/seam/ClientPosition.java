@@ -9,14 +9,12 @@ import com.exoticworlds.accessors.ClientPositionHolder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 import com.exoticworlds.engine.LogRateGate;
 import com.exoticworlds.engine.LogRateGates;
 import com.exoticworlds.engine.fold.SeamDelta;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -71,27 +69,11 @@ public final class ClientPosition {
         return currMirror;
     }
 
-    public void setX(double x, MirrorWriter writer) {
-        Mirror currMirror = this.mirror;
-        double seatedX = clientCopy(writer, Direction.Axis.X, currMirror, x);
-        checkStep(writer, Direction.Axis.X, currMirror.transformer().bounds().x(), currMirror.x(), seatedX, currMirror.space());
-        this.mirror = new Mirror(seatedX, currMirror.z(), currMirror.space(), currMirror.transformer());
-    }
-
-    public void setZ(double z, MirrorWriter writer) {
-        Mirror currMirror = this.mirror;
-        double seatedZ = clientCopy(writer, Direction.Axis.Z, currMirror, z);
-        checkStep(writer, Direction.Axis.Z, currMirror.transformer().bounds().z(), currMirror.z(), seatedZ, currMirror.space());
-        this.mirror = new Mirror(currMirror.x(), seatedZ, currMirror.space(), currMirror.transformer());
-    }
-
     public void set(double x, double z, MirrorWriter writer) {
         Mirror currMirror = this.mirror;
-        double seatedX = clientCopy(writer, Direction.Axis.X, currMirror, x);
-        double seatedZ = clientCopy(writer, Direction.Axis.Z, currMirror, z);
-        checkStep(writer, Direction.Axis.X, currMirror.transformer().bounds().x(), currMirror.x(), seatedX, currMirror.space());
-        checkStep(writer, Direction.Axis.Z, currMirror.transformer().bounds().z(), currMirror.z(), seatedZ, currMirror.space());
-        this.mirror = new Mirror(seatedX, seatedZ, currMirror.space(), currMirror.transformer());
+        Vec3 seated = clientCopy(writer, currMirror, new Vec3(x, 0.0, z));
+        checkStep(writer, currMirror, seated);
+        this.mirror = new Mirror(seated.x, seated.z, currMirror.space(), currMirror.transformer());
     }
 
     public boolean describes(ResourceKey<Level> dimension) {
@@ -148,32 +130,34 @@ public final class ClientPosition {
 
     public Vec3 destinationOf(WorldFold fold, Vec3 position, Set<Relative> relatives) {
         Mirror currMirror = seededMirror();
-        double clientX = relatives.contains(Relative.X)
-                ? currMirror.x() + SeamDelta.foldX(fold, position.x)
-                : fold.blockDomain(Direction.Axis.X).unwrapAround(currMirror.x(), position.x);
-        double clientZ = relatives.contains(Relative.Z)
-                ? currMirror.z() + SeamDelta.foldZ(fold, position.z)
-                : fold.blockDomain(Direction.Axis.Z).unwrapAround(currMirror.z(), position.z);
-        return new Vec3(clientX, position.y, clientZ);
-    }
-
-    private static double clientCopy(MirrorWriter writer, Direction.Axis axis, Mirror currMirror, double reported) {
-        if (!writer.needsSeating()) {
-            return reported;
+        boolean relativeX = relatives.contains(Relative.X);
+        boolean relativeZ = relatives.contains(Relative.Z);
+        if (relativeX && relativeZ) {
+            Vec3 step = SeamDelta.fold(fold, position.x, position.z);
+            return new Vec3(currMirror.x() + step.x, position.y, currMirror.z() + step.z);
         }
 
-        double current = axis == Direction.Axis.X ? currMirror.x() : currMirror.z();
-        return currMirror.transformer().blockDomain(axis).unwrapAround(current, reported);
+        Vec3 reported = new Vec3(
+                relativeX ? currMirror.x() + position.x : position.x,
+                position.y,
+                relativeZ ? currMirror.z() + position.z : position.z);
+        return fold.nearestCopy(new Vec3(currMirror.x(), position.y, currMirror.z()), reported);
     }
 
-    private void checkStep(MirrorWriter writer, Direction.Axis axis, AxisBounds bounds, double from, double to,
-            @Nullable ResourceKey<Level> space) {
-        if (bounds.fitsInHalf(Math.abs(to - from)) || !warnGate.tryPass()) {
+    private static Vec3 clientCopy(MirrorWriter writer, Mirror currMirror, Vec3 reported) {
+        return writer.needsSeating()
+                ? currMirror.transformer().nearestCopy(new Vec3(currMirror.x(), 0.0, currMirror.z()), reported)
+                : reported;
+    }
+
+    private void checkStep(MirrorWriter writer, Mirror from, Vec3 to) {
+        Vec3 step = new Vec3(to.x - from.x(), 0.0, to.z - from.z());
+        if (SeamDelta.fold(from.transformer(), step).equals(step) || !warnGate.tryPass()) {
             return;
         }
 
-        LOGGER.warn("Half-world step invariant violated in {} by {}: mirror {} stepped from {} to {} without a rebase",
-                spaceName(space), writer.key(), axis.getName(), from, to);
+        LOGGER.warn("Half-world step invariant violated in {} by {}: mirror stepped from ({}, {}) to ({}, {}) without a rebase",
+                spaceName(from.space()), writer.key(), from.x(), from.z(), to.x, to.z);
     }
 
     private static Object spaceName(@Nullable ResourceKey<Level> space) {

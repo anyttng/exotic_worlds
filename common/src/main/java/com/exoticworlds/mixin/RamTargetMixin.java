@@ -2,30 +2,24 @@ package com.exoticworlds.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.engine.seam.SeamAim;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 
-import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.entity.ai.behavior.RamTarget;
+import net.minecraft.world.entity.animal.goat.Goat;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(RamTarget.class)
 public class RamTargetMixin {
-    @ModifyArg(
+    @WrapOperation(
             method = "start(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/animal/goat/Goat;J)V",
-            at = @At(value = "INVOKE", target = InjectionTargets.VEC3_INIT),
-            index = 0)
-    private double toroidal$ramDirectionX(double deltaX, @Local(argsOnly = true) Goat body) {
-        return SeamAim.foldX(body, deltaX);
-    }
-
-    @ModifyArg(
-            method = "start(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/animal/goat/Goat;J)V",
-            at = @At(value = "INVOKE", target = InjectionTargets.VEC3_INIT),
-            index = 2)
-    private double toroidal$ramDirectionZ(double deltaZ, @Local(argsOnly = true) Goat body) {
-        return SeamAim.foldZ(body, deltaZ);
+            at = @At(value = "NEW", target = InjectionTargets.VEC3_NEW))
+    private Vec3 toroidal$ramDirectionThroughSeam(double x, double y, double z, Operation<Vec3> original,
+            @Local(argsOnly = true) Goat body) {
+        return SeamAim.foldDelta(body, original.call(x, y, z));
     }
 }

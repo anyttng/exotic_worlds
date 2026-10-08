@@ -129,13 +129,17 @@ final class ClientboundPacketRewriters {
 
         boolean relativeX = packet.relatives().contains(Relative.X);
         boolean relativeZ = packet.relatives().contains(Relative.Z);
+        double mirrorX = clientPosition.x();
+        double mirrorZ = clientPosition.z();
         Vec3 clientDestination = clientPosition.destinationOf(context.transformer(), position, packet.relatives());
         clientPosition.set(clientDestination.x, clientDestination.z, MirrorWriter.POSITION_PACKET);
 
-        Vec3 sentPosition = new Vec3(
-                relativeX ? SeamDelta.foldX(context.transformer(), position.x) : clientDestination.x,
-                position.y,
-                relativeZ ? SeamDelta.foldZ(context.transformer(), position.z) : clientDestination.z);
+        Vec3 sentPosition = relativeX && relativeZ
+                ? SeamDelta.fold(context.transformer(), position)
+                : new Vec3(
+                        relativeX ? clientDestination.x - mirrorX : clientDestination.x,
+                        position.y,
+                        relativeZ ? clientDestination.z - mirrorZ : clientDestination.z);
         return new ClientboundPlayerPositionPacket(
                 packet.id(),
                 new PositionMoveRotation(sentPosition, change.deltaMovement(), change.yRot(), change.xRot()),
@@ -180,10 +184,7 @@ final class ClientboundPacketRewriters {
         PacketReach reach = context.trackedReach();
         Vec3 position = change.position();
         Vec3 clientPos = relatives.contains(Relative.X) || relatives.contains(Relative.Z)
-                ? new Vec3(
-                        relatives.contains(Relative.X) ? position.x : context.toClientX(position.x, reach),
-                        position.y,
-                        relatives.contains(Relative.Z) ? position.z : context.toClientZ(position.z, reach))
+                ? context.toClientRelative(position, relatives.contains(Relative.X), relatives.contains(Relative.Z), reach)
                 : context.toClient(position, reach);
         return new PositionMoveRotation(clientPos, change.deltaMovement(), change.yRot(), change.xRot());
     }

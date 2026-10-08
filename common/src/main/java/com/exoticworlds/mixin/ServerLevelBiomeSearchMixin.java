@@ -14,7 +14,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -48,8 +47,8 @@ public class ServerLevelBiomeSearchMixin {
     private static int toroidal$radiusToCoverTheWorld(WorldFold transformer, int maxSearchRadius,
             int sampleResolutionHorizontal) {
         int steps = Math.max(
-                transformer.blockDomain(Direction.Axis.X).stepsToCoverTheWorld(sampleResolutionHorizontal),
-                transformer.blockDomain(Direction.Axis.Z).stepsToCoverTheWorld(sampleResolutionHorizontal));
+                transformer.blockLattice().x().stepsToCoverTheWorld(sampleResolutionHorizontal),
+                transformer.blockLattice().z().stepsToCoverTheWorld(sampleResolutionHorizontal));
         return (int) Math.min(maxSearchRadius, (long) steps * sampleResolutionHorizontal);
     }
 }
