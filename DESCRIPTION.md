@@ -10,7 +10,7 @@
 - The Nether and the End follow the shape — the Nether scaled relative to the overworld, the End with its own size.
 - Modded terrain and modded dimensions come along. A world-generation mod that changes vanilla's terrain settings keeps its terrain, wrapped; a modded dimension takes the world's shape as long as it generates the vanilla way, and one with a generator of its own is left as its mod makes it.
 
-How it does that, in short: [how it works](https://github.com/vitalikyarina/toroidal_world/blob/main/docs/how-it-works.md).
+How it does that, in short: [how it works](https://github.com/anyttng/exotic_worlds/blob/main/docs/how-it-works.md).
 
 ## World shapes
 
@@ -19,7 +19,7 @@ How it does that, in short: [how it works](https://github.com/vitalikyarina/toro
 
 ## Dedicated servers
 
-One line in `server.properties` creates a shaped world: `level-type=exotic_worlds:medium` for a toroidal one, `level-type=exotic_worlds:cylinder_medium` for a cylinder, each in five sizes — `tiny`, `small`, `medium`, `large`, `huge`. Custom sizes and the full walkthrough are in the [dedicated server guide](https://github.com/vitalikyarina/toroidal_world/blob/main/docs/dedicated-server.md).
+One line in `server.properties` creates a shaped world: `level-type=exotic_worlds:medium` for a toroidal one, `level-type=exotic_worlds:cylinder_medium` for a cylinder, each in five sizes — `tiny`, `small`, `medium`, `large`, `huge`. Custom sizes and the full walkthrough are in the [dedicated server guide](https://github.com/anyttng/exotic_worlds/blob/main/docs/dedicated-server.md).
 
 ## Compatibility
 
@@ -29,7 +29,7 @@ Runs on **NeoForge** and **Fabric**.
 - [JourneyMap](https://modrinth.com/mod/journeymap) 6.0.5 or newer, [Xaero's Minimap](https://modrinth.com/mod/xaeros-minimap) and [Xaero's World Map](https://modrinth.com/mod/xaeros-world-map).
 - [Distant Horizons](https://modrinth.com/mod/distanthorizons) — the far side of the world shows across the seam, out to half the world width.
 
-Every mod checked against the world's shape, with the game versions and loaders each one applies to, is in the [supported mods list](https://github.com/vitalikyarina/toroidal_world/blob/main/docs/supported-mods.md).
+Every mod checked against the world's shape, with the game versions and loaders each one applies to, is in the [supported mods list](https://github.com/anyttng/exotic_worlds/blob/main/docs/supported-mods.md).
 
 ## Before you download
 
@@ -38,4 +38,4 @@ Every mod checked against the world's shape, with the game versions and loaders 
 
 ## Bug reports
 
-Found something broken — especially anything that behaves differently near the seam? Report it on the [issue tracker](https://github.com/vitalikyarina/toroidal_world/issues).
+Found something broken — especially anything that behaves differently near the seam? Report it on the [issue tracker](https://github.com/anyttng/exotic_worlds/issues).
