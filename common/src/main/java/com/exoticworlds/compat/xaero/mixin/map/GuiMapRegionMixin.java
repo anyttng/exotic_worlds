@@ -28,6 +28,7 @@ import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
 
@@ -131,10 +132,9 @@ public abstract class GuiMapRegionMixin {
         }
 
         // A candidate value only, so the draw block runs at all; the texture redirect re-resolves each slot precisely.
-        int foldedOriginX = XaeroWorldMapFold.foldBlock(Direction.Axis.X, regX * side);
-        int foldedOriginZ = XaeroWorldMapFold.foldBlock(Direction.Axis.Z, regZ * side);
-        int candidateX = Math.floorDiv(foldedOriginX, side);
-        int candidateZ = Math.floorDiv(foldedOriginZ, side);
+        BlockPos foldedOrigin = XaeroWorldMapFold.foldBlock(regX * side, regZ * side);
+        int candidateX = Math.floorDiv(foldedOrigin.getX(), side);
+        int candidateZ = Math.floorDiv(foldedOrigin.getZ(), side);
         LeveledRegion<?> candidate = original.call(processor, caveLayer, candidateX, candidateZ, level);
         if (candidate != null) {
             this.toroidal$loopRegions.add(ChunkPos.pack(candidateX, candidateZ));
@@ -237,10 +237,10 @@ public abstract class GuiMapRegionMixin {
             return existing;
         }
 
-        int foldedRegX = Math.floorDiv(XaeroWorldMapFold.foldBlock(Direction.Axis.X, regX * XaeroWorldMapFold.REGION_BLOCKS),
-                XaeroWorldMapFold.REGION_BLOCKS);
-        int foldedRegZ = Math.floorDiv(XaeroWorldMapFold.foldBlock(Direction.Axis.Z, regZ * XaeroWorldMapFold.REGION_BLOCKS),
-                XaeroWorldMapFold.REGION_BLOCKS);
+        BlockPos foldedOrigin = XaeroWorldMapFold.foldBlock(regX * XaeroWorldMapFold.REGION_BLOCKS,
+                regZ * XaeroWorldMapFold.REGION_BLOCKS);
+        int foldedRegX = Math.floorDiv(foldedOrigin.getX(), XaeroWorldMapFold.REGION_BLOCKS);
+        int foldedRegZ = Math.floorDiv(foldedOrigin.getZ(), XaeroWorldMapFold.REGION_BLOCKS);
         return original.call(processor, caveLayer, foldedRegX, foldedRegZ,
                 processor.regionExists(caveLayer, foldedRegX, foldedRegZ));
     }
@@ -303,15 +303,14 @@ public abstract class GuiMapRegionMixin {
             return toroidal$anyCanonicalTexture(viewBlockX, viewBlockZ, slotSize);
         }
 
-        int foldedBlockX = XaeroWorldMapFold.foldBlock(Direction.Axis.X, viewBlockX);
-        int foldedBlockZ = XaeroWorldMapFold.foldBlock(Direction.Axis.Z, viewBlockZ);
-        if (foldedBlockX == viewBlockX && foldedBlockZ == viewBlockZ) {
+        BlockPos foldedBlock = XaeroWorldMapFold.foldBlock(viewBlockX, viewBlockZ);
+        if (foldedBlock.getX() == viewBlockX && foldedBlock.getZ() == viewBlockZ) {
             return isCandidate ? null : original.call(region, slotX, slotZ);
         }
 
         this.toroidal$slotFolded = true;
         return this.toroidal$mapCopies == MapCopies.SINGLE
-                ? null : toroidal$canonicalRegionTexture(foldedBlockX, foldedBlockZ);
+                ? null : toroidal$canonicalRegionTexture(foldedBlock.getX(), foldedBlock.getZ());
     }
 
     @WrapOperation(
