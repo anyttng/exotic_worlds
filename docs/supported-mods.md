@@ -35,6 +35,7 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | FTB Chunks | 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | |
 | JourneyMap Integration | 1.21.1 | NeoForge, Fabric | Supported | |
 | [Simple Atlas](https://modrinth.com/mod/simple-atlas) | 26.2, 26.1.2 | Fabric | Supported | Where the world's width is not a whole number of maps, maps across the world's edge overlap and no copies are drawn |
+| [Seed Viewer](https://modrinth.com/mod/seed-viewer) | 26.2, 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | |
 
 ## Machines and vehicles
 
