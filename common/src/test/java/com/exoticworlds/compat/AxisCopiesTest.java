@@ -1,6 +1,5 @@
 package com.exoticworlds.compat;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -13,36 +12,12 @@ class AxisCopiesTest {
     private static final int WIDTH = 1024;
 
     @Test
-    void aLoopedAxisNamesItsBoundsAndOffsets() {
+    void aLoopedAxisNamesItsBounds() {
         AxisCopies axis = AxisCopies.looped(MIN, WIDTH);
         assertTrue(axis.loops(), "the looped axis reads as unbounded");
         assertEquals(MIN, axis.min(), "the first block moved");
         assertEquals(MIN + WIDTH, axis.max(), "the exclusive bound is not min + width");
-        assertEquals(-WIDTH, axis.offset(-1), "the lap before the world is not a width back");
-        assertEquals(0, axis.offset(0), "the canonical lap is offset");
-        assertEquals(WIDTH, axis.offset(1), "the lap after the world is not a width on");
-    }
-
-    @Test
-    void theLapsAreTheCopiesTouchingTheSpan() {
-        AxisCopies axis = AxisCopies.looped(MIN, WIDTH);
-        assertArrayEquals(new int[] {0}, axis.laps(MIN, MIN + WIDTH), "the canonical world alone is not one lap");
-        assertArrayEquals(new int[] {-1, 0, 1}, axis.laps(MIN - WIDTH, MIN + 2 * WIDTH),
-                "three worlds are not three laps");
-        assertArrayEquals(new int[] {0, 1}, axis.laps(500, 600), "a span across the seam at 512 does not touch laps 0 and 1");
-        assertArrayEquals(new int[] {3}, axis.laps(3000, 3100), "3000..3100 lies in lap floor((3000 + 512) / 1024) = 3");
-        assertArrayEquals(new int[] {-2, -1}, axis.laps(-2000, -1000), "-2000..-1000 spans laps -2 and -1");
-    }
-
-    @Test
-    void theSeamsOutlineEveryCopyInTheSpan() {
-        AxisCopies axis = AxisCopies.looped(MIN, WIDTH);
-        assertArrayEquals(new int[] {MIN - WIDTH, MIN, MIN + WIDTH, MIN + 2 * WIDTH},
-                axis.seams(MIN - WIDTH, MIN + 2 * WIDTH), "three copies are not outlined by four seams");
-        assertArrayEquals(new int[] {MIN, MIN + WIDTH}, axis.seams(-100, 100),
-                "a span inside the world is not outlined by its two seams");
-        assertArrayEquals(new int[] {MIN + 3 * WIDTH, MIN + 4 * WIDTH, MIN + 5 * WIDTH}, axis.seams(3000, 4200),
-                "3000..4200 touches laps 3 and 4: three seams");
+        assertEquals(WIDTH, axis.width(), "the width is not the extent");
     }
 
     @Test
@@ -57,13 +32,10 @@ class AxisCopiesTest {
     }
 
     @Test
-    void anUnboundedAxisDrawsTheOneLapWithNoSeamAndNoOffset() {
+    void anUnboundedAxisHasNoExtent() {
         AxisCopies axis = AxisCopies.UNBOUNDED;
         assertFalse(axis.loops(), "the unbounded axis reads as looped");
-        assertArrayEquals(new int[] {0}, axis.laps(-40000000, 40000000), "an unbounded axis has copies");
-        assertArrayEquals(new int[0], axis.seams(-40000000, 40000000), "an unbounded axis has a seam");
-        assertEquals(0, axis.offset(-1), "an unbounded axis offsets a lap");
-        assertEquals(0, axis.offset(1), "an unbounded axis offsets a lap");
+        assertEquals(0, axis.width(), "an unbounded axis has a width");
     }
 
     @Test
@@ -95,17 +67,6 @@ class AxisCopiesTest {
     }
 
     @Test
-    void theNearestCopyIsTheOneWithinHalfAWidthOfTheReference() {
-        AxisCopies axis = AxisCopies.looped(MIN, WIDTH);
-        assertEquals(500, axis.nearest(400, 500), "a copy within half a width moved");
-        assertEquals(1000, axis.nearest(900, -24), "-24 seen from 900 is not the copy at 1000");
-        assertEquals(500 - WIDTH, axis.nearest(-400, 500), "500 seen from -400 is not the copy a lap back");
-        assertEquals(WIDTH / 2, axis.nearest(0, WIDTH / 2), "the exact half-width tie moved");
-        assertEquals(-WIDTH / 2, axis.nearest(0, -WIDTH / 2), "the exact half-width tie moved");
-        assertEquals(5000, AxisCopies.UNBOUNDED.nearest(0, 5000), "an unbounded axis has copies");
-    }
-
-    @Test
     void withinOneLapStopsTheCoordinateAWorldShortOfLappingTheAnchor() {
         AxisCopies axis = AxisCopies.looped(MIN, WIDTH);
         assertEquals(100, axis.withinOneLap(0, 100), "a coordinate inside one lap moved");
@@ -113,36 +74,5 @@ class AxisCopiesTest {
         assertEquals(WIDTH - 1, axis.withinOneLap(0, 3000), "a coordinate past the lap is not stopped at width - 1");
         assertEquals(-(WIDTH - 1), axis.withinOneLap(0, -3000), "a coordinate a lap back is not stopped at -(width - 1)");
         assertEquals(5000, AxisCopies.UNBOUNDED.withinOneLap(0, 5000), "an unbounded axis has laps");
-    }
-
-    @Test
-    void aRepeatedMapDrawsEveryLapTheViewTouches() {
-        AxisCopies axis = AxisCopies.looped(MIN, WIDTH);
-        assertArrayEquals(new int[] {-1, 0, 1}, axis.drawnLaps(-1536, 1536, MapCopies.REPEATED),
-                "three worlds in view are not three laps");
-        assertArrayEquals(new int[] {3}, axis.drawnLaps(3000, 3100, MapCopies.REPEATED),
-                "a view in lap 3 does not draw lap 3");
-    }
-
-    @Test
-    void aSingleCopyMapDrawsTheCanonicalLapAlone() {
-        AxisCopies axis = AxisCopies.looped(MIN, WIDTH);
-        assertArrayEquals(new int[] {0}, axis.drawnLaps(-1536, 1536, MapCopies.SINGLE),
-                "the laps beside the world were drawn under SINGLE");
-        assertArrayEquals(new int[] {0}, axis.drawnLaps(500, 600, MapCopies.SINGLE),
-                "a view across the seam at 512 lost the canonical lap or kept lap 1");
-    }
-
-    @Test
-    void aSingleCopyMapDrawsNothingForAViewPastTheWorld() {
-        AxisCopies axis = AxisCopies.looped(MIN, WIDTH);
-        assertArrayEquals(new int[0], axis.drawnLaps(3000, 3100, MapCopies.SINGLE),
-                "a view in lap 3 drew a copy under SINGLE");
-    }
-
-    @Test
-    void anUnboundedAxisDrawsItsOneLapInBothModes() {
-        assertArrayEquals(new int[] {0}, AxisCopies.UNBOUNDED.drawnLaps(-40000000, 40000000, MapCopies.SINGLE),
-                "an unbounded axis lost its one lap under SINGLE");
     }
 }
