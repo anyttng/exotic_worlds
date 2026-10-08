@@ -150,6 +150,38 @@ class NetherScalesTest {
     }
 
     @Nested
+    class Skew {
+        @Test
+        void noSkewAgreesWithTheTwoWidthForm() {
+            for (int xWidth : WIDTHS) {
+                for (int zWidth : WIDTHS) {
+                    assertEquals(NetherScales.allowedFor(xWidth, zWidth),
+                            NetherScales.allowedFor(xWidth, zWidth, FlatShape.NO_SKEW),
+                            () -> "widths " + xWidth + " x " + zWidth);
+                }
+            }
+        }
+
+        @Test
+        void everyAllowedScaleDividesTheSkewToo() {
+            for (int skew = -64; skew <= 64; skew++) {
+                for (int scale : NetherScales.allowedFor(256, 128, skew)) {
+                    assertEquals(0, skew % scale, "skew " + skew + " scale " + scale);
+                }
+            }
+        }
+
+        @Test
+        void theSkewNarrowsTheScalesTheWidthsAllow() {
+            assertEquals(List.of(1, 2, 4), NetherScales.allowedFor(256, 256, 4));
+            assertEquals(List.of(1), NetherScales.allowedFor(256, 256, 5));
+            assertEquals(List.of(1, 2), NetherScales.allowedFor(256, 256, -6));
+            assertEquals(4, NetherScales.normalize(NetherScales.DEFAULT, 256, 256, 4));
+            assertEquals(1, NetherScales.next(4, 256, 256, 4));
+        }
+    }
+
+    @Nested
     class Cycling {
         @Test
         void nextWalksTheWholeListInOrderAndWrapsAround() {

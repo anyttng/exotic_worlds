@@ -8,7 +8,6 @@ import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.shape.climate.ClimateCompression;
 import com.exoticworlds.shape.noise.DensityNoises;
 
@@ -30,7 +29,7 @@ final class ClimateFactorPreview {
         }
 
         return OptionalDouble.of(ClimateCompression.factor(
-                WorldFolds.of(new FlatShape(WorldLoopBounds.of(spans), FlatShape.NO_SKEW, null), generationOptions),
+                WorldFolds.of(FlatShape.of(spans), generationOptions),
                 temperature.noise(),
                 CLIMATE_XZ_SCALE,
                 HORIZONTAL_SHARE));

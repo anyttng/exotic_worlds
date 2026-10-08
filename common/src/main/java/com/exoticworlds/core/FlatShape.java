@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -137,6 +138,10 @@ public record FlatShape(WorldLoopBounds bounds, int skewChunks, @Nullable Mirror
 
     public static FlatShape latticeTorus(WorldLoopBounds bounds, int skewChunks) {
         return new FlatShape(bounds, skewChunks, null);
+    }
+
+    public static FlatShape of(LoopSpans spans) {
+        return new FlatShape(WorldLoopBounds.of(spans), spans.skewChunks(), null);
     }
 
     public static FlatShape mirrored(WorldLoopBounds bounds, Direction.Axis mirroredAxis, int mirrorLineChunk) {
