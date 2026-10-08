@@ -17,11 +17,11 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.exoticworlds.compat.AxisCopies;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
 
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.ChunkPos;
 
 import xaero.map.MapProcessor;
 import xaero.map.MapWriter;
@@ -94,12 +94,13 @@ public abstract class MapWriterMixin {
             return;
         }
 
-        AxisCopies copiesX = XaeroWorldMapFold.chunkCopies(Direction.Axis.X);
-        AxisCopies copiesZ = XaeroWorldMapFold.chunkCopies(Direction.Axis.Z);
-        this.toroidal$insideX = XaeroWorldMapFold.insideTile(copiesX, chunkX);
-        this.toroidal$insideZ = XaeroWorldMapFold.insideTile(copiesZ, chunkZ);
-        this.toroidal$lastInsideX = XaeroWorldMapFold.lastInsideTile(copiesX, chunkX);
-        this.toroidal$lastInsideZ = XaeroWorldMapFold.lastInsideTile(copiesZ, chunkZ);
+        ChunkPos canonical = XaeroWorldMapFold.canonicalChunk(chunkX, chunkZ);
+        this.toroidal$insideX = XaeroWorldMapFold.insideTile(canonical.x);
+        this.toroidal$insideZ = XaeroWorldMapFold.insideTile(canonical.z);
+        this.toroidal$lastInsideX = XaeroWorldMapFold.lastInsideTile(
+                XaeroWorldMapFold.chunkCopies(Direction.Axis.X), canonical.x);
+        this.toroidal$lastInsideZ = XaeroWorldMapFold.lastInsideTile(
+                XaeroWorldMapFold.chunkCopies(Direction.Axis.Z), canonical.z);
     }
 
     @ModifyExpressionValue(

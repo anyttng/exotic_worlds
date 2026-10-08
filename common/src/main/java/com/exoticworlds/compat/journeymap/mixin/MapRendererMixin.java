@@ -3,6 +3,7 @@ package com.exoticworlds.compat.journeymap.mixin;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.objectweb.asm.Opcodes;
@@ -22,10 +23,9 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.platform.Window;
-import com.exoticworlds.compat.AxisCopies;
 import com.exoticworlds.compat.FullscreenZoomFloor;
 import com.exoticworlds.compat.MapCopies;
-import com.exoticworlds.compat.MapCopyBudget;
+import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.compat.journeymap.JourneyMapFold;
 
 import journeymap.api.v2.client.display.Context;
@@ -45,6 +45,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 
 @Mixin(targets = "journeymap.client.render.map.MapRenderer", remap = false)
@@ -233,14 +234,13 @@ public abstract class MapRendererMixin {
         int maxX = centerRegion.regionX + regionCount;
         int minZ = centerRegion.regionZ - regionCount;
         int maxZ = centerRegion.regionZ + regionCount;
-        int[] regionsZ = JourneyMapFold.gridRegions(Direction.Axis.Z, minZ, maxZ);
-        for (int x : JourneyMapFold.gridRegions(Direction.Axis.X, minX, maxX)) {
-            for (int z : regionsZ) {
-                boolean walkedByJourneyMap = x >= minX && x <= maxX && z >= minZ && z <= maxZ;
-                if (!walkedByJourneyMap && imageFiles.contains(x + "," + z + ".png")) {
-                    RegionCoord coord = RegionCoord.fromRegionPos(this.worldDir, x, z, this.state.getDimension());
-                    this.regions.putIfAbsent(token, coord, () -> RegionTileAccessor.toroidal$create(coord, this.state));
-                }
+        for (long region : JourneyMapFold.gridRegions(minX, minZ, maxX, maxZ)) {
+            int x = ChunkPos.getX(region);
+            int z = ChunkPos.getZ(region);
+            boolean walkedByJourneyMap = x >= minX && x <= maxX && z >= minZ && z <= maxZ;
+            if (!walkedByJourneyMap && imageFiles.contains(x + "," + z + ".png")) {
+                RegionCoord coord = RegionCoord.fromRegionPos(this.worldDir, x, z, this.state.getDimension());
+                this.regions.putIfAbsent(token, coord, () -> RegionTileAccessor.toroidal$create(coord, this.state));
             }
         }
     }
@@ -273,36 +273,23 @@ public abstract class MapRendererMixin {
             return;
         }
 
-        AxisCopies copiesX = JourneyMapFold.copies(Direction.Axis.X);
-        AxisCopies copiesZ = JourneyMapFold.copies(Direction.Axis.Z);
         Window window = Minecraft.getInstance().getWindow();
         int viewportX = toroidal$viewportPixels(this.contextUi, window.getWidth());
         int viewportZ = toroidal$viewportPixels(this.contextUi, window.getHeight());
         int[] spanX = JourneyMapFold.viewSpan(view.centerX(), viewportX, this.zoom);
         int[] spanZ = JourneyMapFold.viewSpan(view.centerZ(), viewportZ, this.zoom);
-        int[] ranges = MapCopyBudget.copyRanges(copiesX, copiesZ, view.tiles(), spanX, spanZ,
+        List<WorldCopies.Copy> drawn = JourneyMapFold.drawnCopies(view.tiles(), spanX, spanZ,
                 JourneyMapFold.copiesOf(this.contextUi));
-        JourneyMapFold.recordCopyRange(this.contextUi, ranges[0], ranges[1]);
-        if (ranges[0] == 0 && ranges[1] == 0) {
-            return;
-        }
-
+        JourneyMapFold.recordCopies(this.contextUi, drawn);
         RegionCoord region = ((RegionTile) tile).getRegionCoord();
-        int[] lapsX = JourneyMapFold.tileLaps(copiesX, region.regionX * FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS,
-                FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS, spanX[0], spanX[1], ranges[0]);
-        int[] lapsZ = JourneyMapFold.tileLaps(copiesZ, region.regionZ * FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS,
-                FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS, spanZ[0], spanZ[1], ranges[1]);
-        double periodX = JourneyMapFold.worldPixelPeriod(Direction.Axis.X, this.zoom);
-        double periodZ = JourneyMapFold.worldPixelPeriod(Direction.Axis.Z, this.zoom);
-        for (int lapX : lapsX) {
-            for (int lapZ : lapsZ) {
-                if (lapX == 0 && lapZ == 0) {
-                    continue;
-                }
-
-                original.call(tile, graphics, buffers,
-                        pixelOffsetX + lapX * periodX, pixelOffsetZ + lapZ * periodZ, alpha, mapType, shaderIndex);
-            }
+        List<WorldCopies.Copy> copies = JourneyMapFold.tileCopies(drawn,
+                region.regionX * FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS,
+                region.regionZ * FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS,
+                FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS, spanX, spanZ);
+        double pixelsPerBlock = JourneyMapFold.pixelsPerBlock(this.zoom);
+        for (WorldCopies.Copy copy : copies) {
+            original.call(tile, graphics, buffers, pixelOffsetX + copy.dx() * pixelsPerBlock,
+                    pixelOffsetZ + copy.dz() * pixelsPerBlock, alpha, mapType, shaderIndex);
         }
     }
 

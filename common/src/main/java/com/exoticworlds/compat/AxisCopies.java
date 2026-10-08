@@ -90,11 +90,6 @@ public final class AxisCopies {
         return seams;
     }
 
-    public int reach(int spanMin, int spanMax) {
-        int[] laps = laps(spanMin, spanMax);
-        return laps.length == 0 ? 0 : Math.max(-laps[0], laps[laps.length - 1]);
-    }
-
     public double clampView(double center, double halfSpan) {
         if (this.domain == null) {
             return center;
@@ -109,14 +104,6 @@ public final class AxisCopies {
 
     public int offset(int lap) {
         return lap * width();
-    }
-
-    public int wrap(int coord) {
-        return this.domain == null ? coord : this.domain.wrap(coord);
-    }
-
-    public int nearest(int reference, int coord) {
-        return this.domain == null ? coord : this.domain.unwrapAround(reference, coord);
     }
 
     public int withinOneLap(int anchor, int coord) {

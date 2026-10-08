@@ -16,6 +16,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.exoticworlds.compat.AxisCopies;
 import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
 import com.exoticworlds.core.CoordinateConstants;
@@ -24,6 +25,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ChunkPos;
 
 import xaero.map.graphics.MapRenderHelper;
 import xaero.map.gui.GuiMap;
@@ -163,8 +165,12 @@ public abstract class GuiMapViewMixin {
         AxisCopies copiesZ = XaeroWorldMapFold.chunkCopies(Direction.Axis.Z);
         int startX = selection.getStartX();
         int startZ = selection.getStartZ();
-        int unwrappedX = copiesX.nearest(fresh ? startX : this.toroidal$selectionEndX, endX);
-        int unwrappedZ = copiesZ.nearest(fresh ? startZ : this.toroidal$selectionEndZ, endZ);
+        ChunkPos reference = fresh
+                ? new ChunkPos(startX, startZ)
+                : new ChunkPos(this.toroidal$selectionEndX, this.toroidal$selectionEndZ);
+        ChunkPos unwrapped = XaeroWorldMapFold.nearestChunk(reference, endX, endZ);
+        int unwrappedX = unwrapped.x;
+        int unwrappedZ = unwrapped.z;
         this.toroidal$selectionEndX = unwrappedX;
         this.toroidal$selectionEndZ = unwrappedZ;
         this.toroidal$selectionLapX = this.toroidal$cursorLapX - (unwrappedX - endX) * CoordinateConstants.CHUNK_WIDTH;
@@ -198,27 +204,16 @@ public abstract class GuiMapViewMixin {
             return;
         }
 
-        AxisCopies copiesX = XaeroWorldMapFold.copies(Direction.Axis.X);
-        AxisCopies copiesZ = XaeroWorldMapFold.copies(Direction.Axis.Z);
         int thickness = Math.max(1, (int) Math.ceil(1.0 / this.scale));
         Window window = Minecraft.getInstance().getWindow();
         int[] spanX = XaeroWorldMapFold.viewSpan(this.cameraX, window.getWidth(), this.scale, thickness);
         int[] spanZ = XaeroWorldMapFold.viewSpan(this.cameraZ, window.getHeight(), this.scale, thickness);
-        int[] linesX = copiesX.seams(spanX[0], spanX[1]);
-        int[] linesZ = copiesZ.seams(spanZ[0], spanZ[1]);
         Matrix4f matrix = matrixStack.last().pose();
-        for (int lineX : linesX) {
+        for (WorldCopies.Edge seam : XaeroWorldMapFold.seams(spanX, spanZ)) {
             MapRenderHelper.fillIntoExistingBuffer(matrix, overlayBuffer,
-                    lineX - flooredCameraX, spanZ[0] - flooredCameraZ,
-                    lineX - flooredCameraX + thickness, spanZ[1] - flooredCameraZ,
-                    FastColor.ARGB32.red(SEAM_ARGB) / CHANNEL_MAX, FastColor.ARGB32.green(SEAM_ARGB) / CHANNEL_MAX,
-                    FastColor.ARGB32.blue(SEAM_ARGB) / CHANNEL_MAX, FastColor.ARGB32.alpha(SEAM_ARGB) / CHANNEL_MAX);
-        }
-
-        for (int lineZ : linesZ) {
-            MapRenderHelper.fillIntoExistingBuffer(matrix, overlayBuffer,
-                    spanX[0] - flooredCameraX, lineZ - flooredCameraZ,
-                    spanX[1] - flooredCameraX, lineZ - flooredCameraZ + thickness,
+                    seam.fromX() - flooredCameraX, seam.fromZ() - flooredCameraZ,
+                    Math.max(seam.toX(), seam.fromX() + thickness) - flooredCameraX,
+                    Math.max(seam.toZ(), seam.fromZ() + thickness) - flooredCameraZ,
                     FastColor.ARGB32.red(SEAM_ARGB) / CHANNEL_MAX, FastColor.ARGB32.green(SEAM_ARGB) / CHANNEL_MAX,
                     FastColor.ARGB32.blue(SEAM_ARGB) / CHANNEL_MAX, FastColor.ARGB32.alpha(SEAM_ARGB) / CHANNEL_MAX);
         }
