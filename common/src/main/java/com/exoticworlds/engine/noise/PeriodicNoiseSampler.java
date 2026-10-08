@@ -29,7 +29,7 @@ public final class PeriodicNoiseSampler {
             {0, -1, -1}
     };
 
-    static final long UNBOUNDED_PERIOD = 0L;
+    public static final long UNBOUNDED_PERIOD = 0L;
 
     static final long HELD_PERIOD = -1L;
 
@@ -134,6 +134,16 @@ public final class PeriodicNoiseSampler {
         }
 
         return axes.z() == axis ? Z_SLOT : NO_SLOT;
+    }
+
+    public static float sampleLattice(byte[] permutations, double xs, double ys, double zs, long xPeriod,
+            long zPeriod) {
+        int xCell = Mth.floor(xs);
+        int yCell = Mth.floor(ys);
+        int zCell = Mth.floor(zs);
+        float yFrac = (float) (ys - yCell);
+        return sampleAndLerp(permutations, xCell, yCell, zCell, (float) (xs - xCell), yFrac, (float) (zs - zCell),
+                yFrac, xPeriod, UNBOUNDED_PERIOD, zPeriod);
     }
 
     static float sample(PeriodicLattice lattice, double x, double y, double z, double originalY) {

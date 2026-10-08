@@ -1,0 +1,20 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.wover.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "com.exoticworlds.compat.wover.WoverMixinPlugin",
+  "mixins": [
+    "HexBiomeMapMixin",
+    "MapStackMixin",
+    "NetherNoiseConditionMixin",
+    "SquareBiomeMapMixin",
+    "ThresholdConditionImplMixin",
+    "VolumeThresholdConditionImplMixin",
+    "WoverBiomeSourceMixin",
+    "WoverChunkGeneratorImplMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

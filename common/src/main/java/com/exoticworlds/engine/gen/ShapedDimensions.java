@@ -96,23 +96,31 @@ public final class ShapedDimensions {
                 continue;
             }
 
-            ChunkGenerator rebuilt = shapedGeneratorFor(datapackStem.generator(), carried);
-            if (rebuilt != null) {
-                restored.put(entry.key(), Platforms.get().withGenerator(datapackStem, rebuilt));
-                overrides.put(entry.key(), override(Outcome.RESHAPED, datapackStem));
-                continue;
-            }
-
-            ChunkGenerator stamped = isStampableOverStoredShape(datapackStem.generator())
-                    ? stampedGeneratorFor(datapackStem.generator(), carried)
-                    : null;
+            ChunkGenerator shaped = withStoredShape(datapackStem.generator(), carried);
             restored.put(entry.key(),
-                    stamped == null ? storedStem : Platforms.get().withGenerator(datapackStem, stamped));
-            overrides.put(entry.key(), override(stamped == null ? Outcome.REFUSED : Outcome.STAMPED, datapackStem));
+                    shaped == null ? storedStem : Platforms.get().withGenerator(datapackStem, shaped));
+            overrides.put(entry.key(), override(outcomeOf(shaped), datapackStem));
         }
 
         DatapackStemOverrides.replaceAll(overrides);
         return restored.isEmpty() ? datapackDimensions : withStems(datapackDimensions, restored);
+    }
+
+    public static @Nullable ChunkGenerator withStoredShape(ChunkGenerator replacement, CarriedShape carried) {
+        ChunkGenerator rebuilt = shapedGeneratorFor(replacement, carried);
+        if (rebuilt != null) {
+            return rebuilt;
+        }
+
+        return isStampableOverStoredShape(replacement) ? stampedGeneratorFor(replacement, carried) : null;
+    }
+
+    private static Outcome outcomeOf(@Nullable ChunkGenerator shaped) {
+        if (shaped == null) {
+            return Outcome.REFUSED;
+        }
+
+        return shaped instanceof ShapedChunkGenerator ? Outcome.RESHAPED : Outcome.STAMPED;
     }
 
     private static StemOverride override(Outcome outcome, LevelStem datapackStem) {
