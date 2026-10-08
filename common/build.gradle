@@ -249,7 +249,7 @@ publishing {
             pom {
                 name = 'Exotic Worlds API'
                 description = 'The semver-stable surface of Exotic Worlds for other mods.'
-                url = 'https://github.com/vitalikyarina/toroidal_world'
+                url = 'https://github.com/anyttng/exotic_worlds'
                 licenses {
                     license {
                         name = mod_license
