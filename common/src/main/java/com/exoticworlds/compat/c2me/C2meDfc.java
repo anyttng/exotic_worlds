@@ -1,17 +1,17 @@
 package com.exoticworlds.compat.c2me;
 
+import java.util.List;
+
 import com.mojang.logging.LogUtils;
 import com.exoticworlds.compat.ModPresence;
-import com.exoticworlds.compat.ModSymbol;
 
 public final class C2meDfc {
-    static final ModSymbol AST_REGISTRY = new ModSymbol(
-            "com/ishland/c2me/opts/dfc/common/ast/McToAst", "REGISTRY",
-            "Lcom/ishland/c2me/opts/dfc/common/ast/FrontendRegistry;");
+    static final List<String> MIXINS = List.of("McToAstMixin", "BytecodeGenRegistryMixin", "DotGenRegistryMixin");
 
-    private static final ModPresence GATE = ModPresence.of(LogUtils.getLogger(),
-            "com/ishland/c2me/opts/dfc/mixin/MixinNoiseConfig.class",
-            "[c2me-compat] gate dfc_present", AST_REGISTRY);
+    static final ModPresence GATE = ModPresence.gate(LogUtils.getLogger(), "[c2me-compat] gate dfc_present")
+            .probing("com/ishland/c2me/opts/dfc/mixin/MixinNoiseConfig.class")
+            .checking(C2meMixinPlugin.CONFIG, MIXINS::contains)
+            .build();
 
     public static boolean present() {
         return GATE.present();

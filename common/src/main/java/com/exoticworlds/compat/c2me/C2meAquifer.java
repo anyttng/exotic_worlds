@@ -6,17 +6,14 @@ import java.lang.reflect.Modifier;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModSymbol;
 
 public final class C2meAquifer {
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    static final String MIXIN = "AquiferSeamMixin";
+
     private static final String CONFIG_CLASS = "com.ishland.c2me.opts.worldgen.vanilla.common.Config";
     private static final String OPTIMIZE_AQUIFER_FIELD = "optimizeAquifer";
-
-    static final ModSymbol SAMPLER_INIT_HANDLER = new ModSymbol(
-            "com/ishland/c2me/opts/worldgen/vanilla/mixin/aquifer/MixinAquiferSamplerImpl", "onInit",
-            "(Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V");
 
     private static final boolean OPTIMIZED = readOptimizeAquifer(C2meAquifer.class.getClassLoader());
 
@@ -33,15 +30,8 @@ public final class C2meAquifer {
                 return false;
             }
 
-            if (!SAMPLER_INIT_HANDLER.carriedBy(classLoader)) {
-                LOGGER.warn("[c2me-compat] gate c2me_present=true optimize_aquifer=true symbol_present=false symbol={}",
-                        SAMPLER_INIT_HANDLER);
-                return false;
-            }
-
-            LOGGER.info("[c2me-compat] gate c2me_present=true optimize_aquifer=true symbol_present=true symbol={}",
-                    SAMPLER_INIT_HANDLER);
-            return true;
+            LOGGER.info("[c2me-compat] gate c2me_present=true optimize_aquifer=true");
+            return C2meMixinPlugin.AQUIFER_GATE.present();
         } catch (ClassNotFoundException absent) {
             return false;
         } catch (ReflectiveOperationException | LinkageError changed) {

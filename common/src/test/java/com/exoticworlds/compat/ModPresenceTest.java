@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URL;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -17,48 +16,72 @@ class ModPresenceTest {
 
     private static final String SHIPPED_CLASS = "com/exoticworlds/compat/ModPresence.class";
     private static final String ABSENT_CLASS = "com/exoticworlds/compat/NoSuchModEntryPoint.class";
-
-    private static final ModSymbol CARRIED_SYMBOL =
-            new ModSymbol("com/exoticworlds/compat/ModPresence", "probe", "(Ljava/lang/String;)Z");
-
-    private static final ModSymbol MOVED_SYMBOL =
-            new ModSymbol("com/exoticworlds/compat/ModPresence", "probe", "(I)Z");
+    private static final String CONFIG = "fixture.mixins.json";
+    private static final String ABSENT_CONFIG = "no_such.mixins.json";
+    private static final String FIXTURES = "com.exoticworlds.compat.fixture.MixinFixtures$";
+    private static final String MIXIN_PREFIX = "MixinFixtures$";
+    private static final String WRAP_PRESENT = "WrapOperationPresent";
+    private static final String SHADOW_MISSING = "ShadowFieldMissing";
+    private static final String INJECT_PRESENT = "InjectPresent";
 
     @Test
-    void aGateWhoseModCarriesTheSymbolOpens() {
-        assertTrue(ModPresence.of(LOGGER, SHIPPED_CLASS, "[test-compat] gate carried_present", CARRIED_SYMBOL)
-                .present(), "the class is on the classpath and declares the member the gate names");
+    void aGateWhoseCoveredMixinsAllHoldOpens() {
+        assertTrue(ModPresence.gate(LOGGER, "[test-compat] gate holding_present")
+                .probing(SHIPPED_CLASS)
+                .checking(CONFIG, mixin -> !mixin.equals(MIXIN_PREFIX + SHADOW_MISSING))
+                .build().present(), "every mixin the gate covers names only members its target has");
     }
 
     @Test
-    void aGateClosesOnTheOneSymbolOfSeveralTheModLost() {
-        assertFalse(ModPresence.of(LOGGER, SHIPPED_CLASS, "[test-compat] gate one_moved_present",
-                CARRIED_SYMBOL, MOVED_SYMBOL).present(),
-                "a gate with one carried and one moved symbol opened");
+    void aGateClosesOnTheOneMixinOfSeveralThatLostAMember() {
+        assertFalse(ModPresence.gate(LOGGER, "[test-compat] gate one_moved_present")
+                .probing(SHIPPED_CLASS)
+                .checking(CONFIG)
+                .build().present(), "one covered mixin shadows a field its target no longer declares");
     }
 
     @Test
-    void aGateWhoseModLostTheSymbolCloses() {
-        assertFalse(ModPresence.of(LOGGER, SHIPPED_CLASS, "[test-compat] gate moved_present", MOVED_SYMBOL).present(),
-                "the mod is installed, but this build no longer carries the member the mixins need");
+    void aMixinTheGateDoesNotCoverNeverClosesIt() {
+        assertTrue(ModPresence.gate(LOGGER, "[test-compat] gate narrowed_present")
+                .probing(SHIPPED_CLASS)
+                .checking(CONFIG, (MIXIN_PREFIX + WRAP_PRESENT)::equals)
+                .build().present(), "the refused mixin belongs to another gate's set");
     }
 
     @Test
-    void aGateWhoseModIsAbsentClosesWithoutLookingForTheSymbol() {
-        assertFalse(ModPresence.of(LOGGER, ABSENT_CLASS, "[test-compat] gate uninstalled_present", CARRIED_SYMBOL)
-                .present(), "no jar on the classpath carries the mod the gate stands in front of");
+    void aGateWhoseModIsAbsentClosesWithoutReadingItsConfig() {
+        assertFalse(ModPresence.gate(LOGGER, "[test-compat] gate uninstalled_present")
+                .probing(ABSENT_CLASS)
+                .checking(ABSENT_CONFIG)
+                .build().present(), "an absent mod closes the gate before its config is opened");
     }
 
     @Test
-    void aResourceOnTheClasspathReadsAsPresent() {
-        assertTrue(ModPresence.of(LOGGER, SHIPPED_CLASS, "[test-compat] gate shipped_present").present(),
-                "the mod's own class file resolves through the loader the factory picks");
+    void aGateClosesWhenAnyOfItsResourcesIsAbsent() {
+        assertFalse(ModPresence.gate(LOGGER, "[test-compat] gate half_installed_present")
+                .probing(SHIPPED_CLASS, ABSENT_CLASS)
+                .build().present(), "a gate standing on two mods needs both");
     }
 
     @Test
-    void aResourceNothingShipsReadsAsAbsent() {
-        assertFalse(ModPresence.of(LOGGER, ABSENT_CLASS, "[test-compat] gate absent_present").present(),
-                "no jar on the classpath carries that class file");
+    void aGateWithoutAConfigIsTheBareProbe() {
+        assertTrue(ModPresence.gate(LOGGER, "[test-compat] gate shipped_present").probing(SHIPPED_CLASS).build()
+                .present(), "the mod's own class file resolves through the loader the builder picks");
+        assertFalse(ModPresence.gate(LOGGER, "[test-compat] gate absent_present").probing(ABSENT_CLASS).build()
+                .present(), "no jar on the classpath carries that class file");
+    }
+
+    @Test
+    void aGateCoversTheConfigMixinsItsPredicateTakesOnBothSides() {
+        ModPresence gate = ModPresence.gate(LOGGER, "[test-compat] gate covering_present")
+                .probing(SHIPPED_CLASS)
+                .checking(CONFIG, mixin -> !mixin.equals(MIXIN_PREFIX + SHADOW_MISSING))
+                .build();
+
+        assertTrue(gate.covers(FIXTURES + WRAP_PRESENT), "a common mixin the predicate takes");
+        assertTrue(gate.covers(FIXTURES + INJECT_PRESENT), "a client mixin the predicate takes");
+        assertFalse(gate.covers(FIXTURES + SHADOW_MISSING), "the predicate leaves this one to another gate");
+        assertFalse(gate.covers("com.exoticworlds.mixin." + WRAP_PRESENT), "a mixin of another config's package");
     }
 
     @Test
@@ -70,7 +93,8 @@ class ModPresenceTest {
     @Test
     void theProbeAsksTheClassLoaderOnce() {
         CountingLoader loader = new CountingLoader(SHIPPED_CLASS);
-        ModPresence gate = new ModPresence(LOGGER, loader, SHIPPED_CLASS, "[test-compat] gate once_present", List.of());
+        ModPresence gate = ModPresence.gate(LOGGER, "[test-compat] gate once_present").probing(SHIPPED_CLASS)
+                .build(loader);
 
         assertTrue(gate.present());
         assertTrue(gate.present());
