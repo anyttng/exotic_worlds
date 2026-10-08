@@ -1,0 +1,28 @@
+package com.exoticworlds.compat.aeronautics;
+
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
+import org.jspecify.annotations.Nullable;
+import com.exoticworlds.core.JomlVectors;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldLoopAttachments;
+
+import net.minecraft.world.level.Level;
+
+public final class SpringSeamFrame {
+
+    public static Vector3d seat(@Nullable Level level, Vector3dc own, Vector3d partner) {
+        return seat(level == null ? null : WorldLoopAttachments.wrappedTransformerOfReader(level), own, partner);
+    }
+
+    static Vector3d seat(@Nullable WorldFold fold, Vector3dc own, Vector3d partner) {
+        if (fold == null) {
+            return partner;
+        }
+
+        return JomlVectors.seat(fold, JomlVectors.read(own), partner);
+    }
+
+    private SpringSeamFrame() {
+    }
+}

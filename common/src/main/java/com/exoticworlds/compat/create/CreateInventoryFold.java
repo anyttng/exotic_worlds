@@ -1,0 +1,104 @@
+package com.exoticworlds.compat.create;
+
+import java.util.List;
+
+import org.jspecify.annotations.Nullable;
+
+import com.simibubi.create.api.packager.InventoryIdentifier;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldLoopAttachments;
+
+import net.createmod.catnip.math.BlockFace;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+
+public final class CreateInventoryFold {
+    public static @Nullable InventoryIdentifier fold(Level level, @Nullable InventoryIdentifier identifier) {
+        if (identifier == null) {
+            return null;
+        }
+
+        return fold(WorldLoopAttachments.wrappedTransformerOf(level), identifier);
+    }
+
+    static @Nullable InventoryIdentifier fold(@Nullable WorldFold transformer,
+            @Nullable InventoryIdentifier identifier) {
+        if (identifier == null || transformer == null) {
+            return identifier;
+        }
+
+        return new SeamIdentifier(canonical(transformer, identifier), transformer);
+    }
+
+    static InventoryIdentifier canonical(WorldFold transformer, InventoryIdentifier identifier) {
+        return switch (identifier) {
+            case InventoryIdentifier.Single single ->
+                    new InventoryIdentifier.Single(transformer.fold(single.pos()));
+            case InventoryIdentifier.MultiFace multiFace ->
+                    new InventoryIdentifier.MultiFace(transformer.fold(multiFace.pos()), multiFace.sides());
+            case InventoryIdentifier.Pair pair -> new InventoryIdentifier.Pair(
+                    transformer.fold(pair.first()), transformer.fold(pair.second()));
+            case InventoryIdentifier.Bounds bounds -> seamBounds(transformer, bounds);
+            default -> identifier;
+        };
+    }
+
+    private static InventoryIdentifier seamBounds(WorldFold transformer, InventoryIdentifier.Bounds bounds) {
+        if (!transformer.crossesBounds(bounds.bounds())) {
+            return bounds;
+        }
+
+        return new SeamBounds(transformer.split(bounds.bounds()).stream().map(WorldFold.Folded::value).toList());
+    }
+
+    private CreateInventoryFold() {
+    }
+
+    private static final class SeamIdentifier implements InventoryIdentifier {
+        private final InventoryIdentifier canonical;
+        private final WorldFold transformer;
+
+        private SeamIdentifier(InventoryIdentifier canonical, WorldFold transformer) {
+            this.canonical = canonical;
+            this.transformer = transformer;
+        }
+
+        @Override
+        public boolean contains(BlockFace face) {
+            BlockPos canonicalPos = transformer.fold(face.getPos());
+            return canonical.contains(
+                    canonicalPos == face.getPos() ? face : new BlockFace(canonicalPos, face.getFace()));
+        }
+
+        // The transformer is how this identity folds, not what it names: letting it into equality would make Create
+        // de-duplicate two levels' inventories differently in a wrapped world than in an unwrapped one.
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof SeamIdentifier seam && canonical.equals(seam.canonical);
+        }
+
+        @Override
+        public int hashCode() {
+            return canonical.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return canonical.toString();
+        }
+    }
+
+    private record SeamBounds(List<BoundingBox> regions) implements InventoryIdentifier {
+        @Override
+        public boolean contains(BlockFace face) {
+            for (BoundingBox region : regions) {
+                if (region.isInside(face.getPos())) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+}

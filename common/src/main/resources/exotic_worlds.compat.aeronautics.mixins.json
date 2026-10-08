@@ -1,0 +1,29 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.aeronautics.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.aeronautics.AeronauticsMixinPlugin",
+  "mixins": [
+    "AbstractLinkedReceiverBlockEntityMixin",
+    "BlockHoldInteractionMixin",
+    "DiagramReachMixin",
+    "DockingConnectorPairMixin",
+    "MergingGlueBlockEntityMixin",
+    "SpringBlockEntityMixin",
+    "LaunchedPlungerEntityMixin",
+    "MagnetMapMixin",
+    "MagnetPairMixin",
+    "RedstoneMagnetBlockEntityMixin",
+    "MultiMiningSyncAccessor",
+    "MapNavigationTargetMixin",
+    "NavTableTargetFrameMixin",
+    "PhysicsStaffBeamPacketAccessor",
+    "PropellerActorBehaviourMixin",
+    "RopeStrandHolderBehaviorMixin",
+    "ServerRopeStrandMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

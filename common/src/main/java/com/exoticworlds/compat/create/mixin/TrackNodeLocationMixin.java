@@ -1,0 +1,62 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.jspecify.annotations.Nullable;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import com.simibubi.create.content.trains.graph.TrackNodeLocation;
+import com.exoticworlds.compat.create.CreateSeamFold;
+import com.exoticworlds.compat.create.CreateTrackFold;
+import com.exoticworlds.compat.create.TrackNodeKeyFold;
+import com.exoticworlds.core.WorldFold;
+
+import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+
+@Mixin(value = TrackNodeLocation.class, remap = false)
+public abstract class TrackNodeLocationMixin extends Vec3i implements TrackNodeKeyFold {
+    @Shadow
+    public ResourceKey<Level> dimension;
+
+    protected TrackNodeLocationMixin(int x, int y, int z) {
+        super(x, y, z);
+    }
+
+    @Override
+    public void toroidal$foldNodeKey(@Nullable Level level) {
+        WorldFold transformer = CreateSeamFold.transformerOf(level, this.dimension);
+        if (transformer == null) {
+            return;
+        }
+
+        Vec3i canonical = CreateTrackFold.canonicalNodeKey(transformer, this);
+        if (canonical == this) {
+            return;
+        }
+
+        setX(canonical.getX());
+        setZ(canonical.getZ());
+    }
+
+    @Inject(method = "in(Lnet/minecraft/world/level/Level;)Lcom/simibubi/create/content/trains/graph/TrackNodeLocation;",
+            at = @At("RETURN"))
+    private void toroidal$foldKeyInLevel(Level level, CallbackInfoReturnable<TrackNodeLocation> cir) {
+        toroidal$foldNodeKey(level);
+    }
+
+    @Inject(method = "in(Lnet/minecraft/resources/ResourceKey;)Lcom/simibubi/create/content/trains/graph/TrackNodeLocation;",
+            at = @At("RETURN"))
+    private void toroidal$foldKeyInDimension(ResourceKey<Level> dimension,
+            CallbackInfoReturnable<TrackNodeLocation> cir) {
+        toroidal$foldNodeKey(null);
+    }
+
+    @Inject(method = "read", at = @At("RETURN"))
+    private static void toroidal$foldKeyOnRead(CallbackInfoReturnable<TrackNodeLocation> cir) {
+        ((TrackNodeKeyFold) cir.getReturnValue()).toroidal$foldNodeKey(null);
+    }
+}

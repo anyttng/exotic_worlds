@@ -1,0 +1,48 @@
+package com.exoticworlds.compat.aeronautics.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import com.exoticworlds.compat.aeronautics.MagnetSectionKeys;
+import com.exoticworlds.core.WorldFold;
+
+import dev.simulated_team.simulated.content.blocks.redstone_magnet.MagnetMap;
+import dev.simulated_team.simulated.util.SimMovementContext;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.LevelAccessor;
+
+@Mixin(value = MagnetMap.class, remap = false)
+public class MagnetMapMixin {
+    @Unique
+    private static final String SEARCH_FOLD = "toroidal$searchFold";
+
+    @WrapMethod(method = "addMagnet")
+    private void toroidal$addAtPhysicalSection(LevelAccessor level, SectionPos sectionPos, BlockPos pos,
+            Operation<Void> original) {
+        original.call(level, MagnetSectionKeys.physical(level, sectionPos), pos);
+    }
+
+    @WrapMethod(method = "removeMagnet")
+    private void toroidal$removeAtPhysicalSection(LevelAccessor level, SectionPos sectionPos, BlockPos pos,
+            Operation<Void> original) {
+        original.call(level, MagnetSectionKeys.physical(level, sectionPos), pos);
+    }
+
+    @WrapOperation(
+            method = "findNearby",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/core/SectionPos;of(III)Lnet/minecraft/core/SectionPos;"))
+    private SectionPos toroidal$buildPhysicalSection(int x, int y, int z, Operation<SectionPos> original,
+            @Local(argsOnly = true) SimMovementContext context, @Share(SEARCH_FOLD) LocalRef<WorldFold> fold) {
+        return MagnetSectionKeys.physical(context.level(), fold, original.call(x, y, z));
+    }
+}

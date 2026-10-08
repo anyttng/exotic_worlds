@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.simpleclouds.client.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.simpleclouds.client.SimpleCloudsRenderMixinPlugin",
+  "client": [
+    "ComputeShaderMixin",
+    "MultiRegionCloudMeshGeneratorMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,130 @@
+package com.exoticworlds.compat.sable;
+
+import java.util.List;
+
+import org.joml.Vector3d;
+import org.jspecify.annotations.Nullable;
+
+import com.exoticworlds.compat.sable.mixin.SubLevelAccessor;
+import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.JomlVectors;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldLoopAttachments;
+
+import dev.ryanhcode.sable.api.physics.PhysicsPipeline;
+import dev.ryanhcode.sable.api.physics.PhysicsPipelineBody;
+import dev.ryanhcode.sable.companion.math.BoundingBox3d;
+import dev.ryanhcode.sable.companion.math.BoundingBox3i;
+import dev.ryanhcode.sable.companion.math.Pose3d;
+import dev.ryanhcode.sable.companion.math.Pose3dc;
+import dev.ryanhcode.sable.sublevel.ServerSubLevel;
+import dev.ryanhcode.sable.sublevel.system.SubLevelPhysicsSystem;
+import dev.ryanhcode.sable.sublevel.system.ticket.PhysicsChunkTicketManager;
+
+import net.minecraft.core.SectionPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.Vec3;
+
+public final class SablePoseFold {
+    private static final double SECTION_REACH_BLOCKS = 1.0;
+    private static final double VELOCITY_EPSILON_SQUARED = 1.0E-18;
+
+    public static void reseat(SubLevelPhysicsSystem system, ServerSubLevel subLevel, Pose3d readback) {
+        ServerLevel level = system.getLevel();
+        WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(level);
+        if (fold == null) {
+            return;
+        }
+
+        PhysicsPipeline pipeline = system.getPipeline();
+        List<PhysicsPipelineBody> group = SableConstraintGraph.groupOf(pipeline, subLevel);
+        List<SableMemberPose> members = SableMemberPose.substep(pipeline, group, subLevel, readback);
+        Vector3d centroid = new Vector3d();
+        int counted = 0;
+        for (SableMemberPose member : members) {
+            Pose3dc pose = member.pose();
+            if (pose != null) {
+                centroid.add(pose.position());
+                counted++;
+            }
+        }
+
+        centroid.div(counted);
+        Vec3 centre = JomlVectors.read(centroid);
+        if (!fold.isOver(centre)) {
+            return;
+        }
+
+        shiftGroup(system, members, fold.foldTransformation(centre), subLevel, readback);
+    }
+
+    static void shiftGroup(SubLevelPhysicsSystem system, List<SableMemberPose> members, DeckTransformation seat,
+            @Nullable ServerSubLevel self, @Nullable Pose3d readback) {
+        SableRigidShift.requireTranslation(seat);
+        PhysicsPipeline pipeline = system.getPipeline();
+        for (SableMemberPose member : members) {
+            shift(system, pipeline, member, self, readback, seat);
+        }
+
+        SableBodyShift.fire(system.getLevel(), SableMemberPose.bodies(members), seat);
+    }
+
+    private static void shift(SubLevelPhysicsSystem system, PhysicsPipeline pipeline, SableMemberPose member,
+            @Nullable ServerSubLevel self, @Nullable Pose3d readback, DeckTransformation seat) {
+        Pose3dc pose = member.pose();
+        if (pose == null) {
+            return;
+        }
+
+        PhysicsPipelineBody body = member.body();
+        Vector3d target = moved(seat, new Vector3d(pose.position()));
+        Vector3d linearBefore = pipeline.getLinearVelocity(body, new Vector3d());
+        Vector3d angularBefore = pipeline.getAngularVelocity(body, new Vector3d());
+        pipeline.teleport(body, target, pose.orientation());
+        Vector3d linearLost = linearBefore.sub(pipeline.getLinearVelocity(body, new Vector3d()), new Vector3d());
+        Vector3d angularLost = angularBefore.sub(pipeline.getAngularVelocity(body, new Vector3d()), new Vector3d());
+        if (linearLost.lengthSquared() > VELOCITY_EPSILON_SQUARED || angularLost.lengthSquared() > VELOCITY_EPSILON_SQUARED) {
+            pipeline.addLinearAndAngularVelocity(body, linearLost, angularLost);
+        }
+
+        if (body == self) {
+            readback.position().set(target);
+        }
+
+        if (body instanceof ServerSubLevel subLevel) {
+            moved(seat, ((SubLevelAccessor) subLevel).toroidal$lastPose().position());
+            moved(seat, subLevel.lastNetworkedPose().position());
+            subLevel.updateBoundingBox();
+            uploadSections(system, pipeline, subLevel);
+        }
+    }
+
+    private static Vector3d moved(DeckTransformation seat, Vector3d position) {
+        return JomlVectors.write(seat.apply(JomlVectors.read(position)), position);
+    }
+
+    private static void uploadSections(SubLevelPhysicsSystem system, PhysicsPipeline pipeline, ServerSubLevel subLevel) {
+        ServerLevel level = system.getLevel();
+        PhysicsChunkTicketManager tickets = system.getTicketManager();
+        BoundingBox3d reach = new BoundingBox3d(subLevel.boundingBox());
+        reach.expand(SECTION_REACH_BLOCKS, reach);
+        BoundingBox3i chunks = reach.chunkBoundsFrom();
+        for (int x = chunks.minX(); x <= chunks.maxX(); x++) {
+            for (int z = chunks.minZ(); z <= chunks.maxZ(); z++) {
+                LevelChunk chunk = level.getChunk(x, z);
+                for (int y = chunks.minY(); y <= chunks.maxY(); y++) {
+                    int index = level.getSectionIndexFromSectionY(y);
+                    if (index < 0 || index >= level.getSectionsCount()) {
+                        continue;
+                    }
+
+                    tickets.addSectionIfNotTracked(level, chunk.getSection(index), SectionPos.of(x, y, z), pipeline);
+                }
+            }
+        }
+    }
+
+    private SablePoseFold() {
+    }
+}

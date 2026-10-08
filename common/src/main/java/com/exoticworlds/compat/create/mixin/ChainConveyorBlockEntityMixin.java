@@ -1,0 +1,40 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.simibubi.create.content.kinetics.chainConveyor.ChainConveyorBlockEntity;
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.compat.create.CreateSeamFold;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+
+@Mixin(value = ChainConveyorBlockEntity.class, remap = false)
+public class ChainConveyorBlockEntityMixin {
+    @WrapOperation(
+            method = {"addConnectionTo", "removeConnectionTo", "propagateRotationTo"},
+            at = @At(value = "INVOKE",
+                    target = InjectionTargets.BLOCK_POS_SUBTRACT),
+            require = 3,
+            allow = 3)
+    private BlockPos toroidal$foldConnectionDelta(BlockPos target, Vec3i anchorPos, Operation<BlockPos> original) {
+        ChainConveyorBlockEntity self = (ChainConveyorBlockEntity) (Object) this;
+        return CreateSeamFold.foldDelta(self.getLevel(), self.getBlockPos(), target,
+                original.call(target, anchorPos));
+    }
+
+    @WrapOperation(
+            method = "removeInvalidConnections",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/core/BlockPos;multiply(I)Lnet/minecraft/core/BlockPos;"),
+            require = 1,
+            allow = 1)
+    private BlockPos toroidal$foldFarEndKey(BlockPos delta, int factor, Operation<BlockPos> original) {
+        ChainConveyorBlockEntity self = (ChainConveyorBlockEntity) (Object) this;
+        return CreateSeamFold.farEndDelta(self.getLevel(), self.getBlockPos(), delta,
+                original.call(delta, factor));
+    }
+}

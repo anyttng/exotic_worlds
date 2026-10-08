@@ -1,0 +1,40 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.sable.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.sable.SableMixinPlugin",
+  "mixins": [
+    "ActiveSableCompanionMixin",
+    "BiomeFrameMixin",
+    "EntityFrameMixin",
+    "ExplosionFrameMixin",
+    "GameEventDispatcherFrameMixin",
+    "PhysicsChunkTicketInhabitedMixin",
+    "PhysicsChunkTicketManagerMixin",
+    "PlayerReachFrameMixin",
+    "Pose3dcMixin",
+    "RapierConstraintHandleMixin",
+    "RapierGenericConstraintHandleMixin",
+    "RapierPhysicsPipelineMixin",
+    "ServerboundPunchSubLevelPacketMixin",
+    "ServerEntityFrameMixin",
+    "ServerGamePacketListenerImplFrameMixin",
+    "ServerLevelFrameMixin",
+    "ServerPlayerReachFrameMixin",
+    "SignFacingFrameMixin",
+    "SubLevelAccessor",
+    "SubLevelContainerMixin",
+    "SubLevelHoldingChunkMapMixin",
+    "SubLevelInclusiveLevelEntityGetterMixin",
+    "SubLevelPhysicsSystemMixin",
+    "SubLevelTrackingSystemMixin"
+  ],
+  "client": [
+    "ClientboundSableSnapshotDualPacketMixin",
+    "ClientboundStartTrackingSubLevelPacketMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

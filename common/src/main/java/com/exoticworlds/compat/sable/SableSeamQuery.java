@@ -1,0 +1,28 @@
+package com.exoticworlds.compat.sable;
+
+import com.exoticworlds.core.JomlVectors;
+import com.exoticworlds.core.WorldFold;
+
+import dev.ryanhcode.sable.companion.math.BoundingBox3d;
+import dev.ryanhcode.sable.companion.math.BoundingBox3dc;
+
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+
+public final class SableSeamQuery {
+    public static boolean intersects(WorldFold fold, BoundingBox3dc subLevelBox, BoundingBox3dc query) {
+        Vec3 queryCentre = JomlVectors.centre(query.minX(), query.minY(), query.minZ(),
+                query.maxX(), query.maxY(), query.maxZ());
+        AABB subLevelAabb = new AABB(subLevelBox.minX(), subLevelBox.minY(), subLevelBox.minZ(),
+                subLevelBox.maxX(), subLevelBox.maxY(), subLevelBox.maxZ());
+        AABB nearest = fold.foldBox(queryCentre, subLevelAabb).value();
+        if (nearest == subLevelAabb) {
+            return subLevelBox.intersects(query);
+        }
+
+        return new BoundingBox3d(nearest).intersects(query);
+    }
+
+    private SableSeamQuery() {
+    }
+}

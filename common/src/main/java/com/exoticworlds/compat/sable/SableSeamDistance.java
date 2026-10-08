@@ -1,0 +1,30 @@
+package com.exoticworlds.compat.sable;
+
+import org.joml.Vector3dc;
+import org.jspecify.annotations.Nullable;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.exoticworlds.core.JomlVectors;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldLoopAttachments;
+
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+
+public final class SableSeamDistance {
+    public static double rectilinear(Level level, Vector3dc from, Vector3dc to, Operation<Double> original) {
+        return rectilinear(WorldLoopAttachments.wrappedTransformerOfReader(level), from, to, original);
+    }
+
+    public static double rectilinear(@Nullable WorldFold fold, Vector3dc from, Vector3dc to, Operation<Double> original) {
+        if (fold == null) {
+            return original.call(from, to);
+        }
+
+        Vec3 delta = fold.foldDelta(JomlVectors.read(from), JomlVectors.read(to));
+        return Math.max(Math.abs(delta.x), Math.max(Math.abs(delta.y), Math.abs(delta.z)));
+    }
+
+    private SableSeamDistance() {
+    }
+}

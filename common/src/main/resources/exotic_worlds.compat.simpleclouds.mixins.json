@@ -1,0 +1,19 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.simpleclouds.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.simpleclouds.SimpleCloudsMixinPlugin",
+  "mixins": [
+    "CloudGeneratorMixin",
+    "CloudManagerAccessor",
+    "CloudManagerMixin",
+    "CloudRegionMixin",
+    "ServerCloudManagerMixin",
+    "SpawnRegionMixin",
+    "TickChunksMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.electroenergetics.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.electroenergetics.ElectroEnergeticsMixinPlugin",
+  "mixins": [
+    "AlternatorBrushesBlockEntityMixin",
+    "AttachmentInteractionMixin",
+    "BulbSpawnGuardMixin",
+    "CatenaryModuleMixin",
+    "ChangeLengthWireInteractionBehaviourMixin",
+    "ChunkCuboidEntryMixin",
+    "ChangeLengthWirePacketMixin",
+    "DetachedNodeEntityMixin",
+    "DevicePartnerReadMixin",
+    "HVSwitchBlockMixin",
+    "InfrastructureSavedDataMixin",
+    "PantographBlockEntityMixin",
+    "RailContactShoeBlockEntityMixin",
+    "RequestVoltageDataPacketMixin",
+    "SchematicPrinterWireMixin",
+    "SendVoltageDataPacketAccessor",
+    "StructureTemplateWireMixin",
+    "WireCrossContactModuleMixin",
+    "WireElectrocutionModuleMixin",
+    "WireInteractionBehaviourMixin",
+    "WireLifetimeModuleMixin",
+    "WireRemovalSoundMixin",
+    "WireSimulationStateMixin",
+    "WireSpoolItemMixin",
+    "WireSyncMixin"
+  ],
+  "client": [
+    "LinemansStickRendererMixin",
+    "PantographMovementBehaviourMixin",
+    "SendWireParticlesPacketMixin",
+    "WireEffectMixin",
+    "WireEffectsMixin",
+    "WireInteractionHandlerMixin",
+    "WireMeterMixin",
+    "WireRendererMixin",
+    "WireVisualMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

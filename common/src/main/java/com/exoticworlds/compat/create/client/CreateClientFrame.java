@@ -1,0 +1,66 @@
+package com.exoticworlds.compat.create.client;
+
+import java.util.Collection;
+
+import org.jspecify.annotations.Nullable;
+
+import com.exoticworlds.client.engine.ClientFrame;
+import com.exoticworlds.compat.create.CreateSeamFold;
+import com.exoticworlds.engine.fold.FoldedBoxQuery;
+import com.exoticworlds.engine.fold.FoldedCopies;
+import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.WorldFold;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+
+public final class CreateClientFrame {
+    public static BlockPos nearestCopy(@Nullable BlockGetter world, BlockPos canonical) {
+        return ClientFrame.isClientLevel(world) ? inViewerFrame(canonical) : canonical;
+    }
+
+    public static Collection<BlockPos> nearestCopies(@Nullable BlockGetter world, Collection<BlockPos> canonical) {
+        return ClientFrame.isClientLevel(world) ? FoldedCopies.of(canonical, CreateClientFrame::inViewerFrame) : canonical;
+    }
+
+    public static BlockPos inViewerFrame(BlockPos canonical) {
+        return ClientFrame.nearestToPlayer(canonical);
+    }
+
+    public static DeckTransformation inViewerFrameTransformation(BlockPos canonical) {
+        return ClientFrame.nearestCopyTransformation(canonical);
+    }
+
+    public static @Nullable BlockPos heldInViewerFrame(BlockPos canonical) {
+        return ClientFrame.heldCopy(canonical);
+    }
+
+    public static BlockPos nearestCopy(@Nullable BlockPos anchor, BlockPos target) {
+        return ClientFrame.nearestCopy(anchor, target);
+    }
+
+    public static Vec3 nearestCopy(@Nullable Vec3 anchor, Vec3 target) {
+        return ClientFrame.nearestCopy(anchor, target);
+    }
+
+    public static Vec3 inFrameOf(@Nullable Vec3 anchor, Vec3 point) {
+        WorldFold fold = ClientFrame.fold();
+        Entity camera = Minecraft.getInstance().getCameraEntity();
+        if (fold == null || anchor == null || camera == null) {
+            return point;
+        }
+
+        return CreateSeamFold.inFrameOf(fold, camera.getEyePosition(), anchor, point);
+    }
+
+    public static AABB foldBoxToward(@Nullable Vec3 anchor, AABB box) {
+        return anchor == null ? box : FoldedBoxQuery.toward(ClientFrame.fold(), anchor, box);
+    }
+
+    private CreateClientFrame() {
+    }
+}

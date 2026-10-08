@@ -1,0 +1,39 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.mekanism.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.mekanism.MekanismMixinPlugin",
+  "mixins": [
+    "CenteredBoundingBoxMixin",
+    "DynamicNetworkMixin",
+    "FormationProtocolMixin",
+    "IValveHandlerMixin",
+    "IdlePathMixin",
+    "IndexedCuboidMapMixin",
+    "LogisticalTransporterBaseMixin",
+    "MultiblockDataMixin",
+    "NetworkAcceptorCacheMixin",
+    "OrphanPathFinderMixin",
+    "Pos3DMixin",
+    "RadiationLevelDataMixin",
+    "RadiationManagerMixin",
+    "SPSMultiblockDataMixin",
+    "StructureHelperMixin",
+    "StructureMixin",
+    "TeleporterFrequencyMixin",
+    "TileEntityBasicLaserMixin",
+    "TileEntityMultiblockMixin",
+    "TileEntityStructuralMultiblockMixin",
+    "TileEntityTeleporterMixin",
+    "TransporterManagerMixin",
+    "TransporterPathfinderMixin",
+    "TransporterPathfinderPathfinderMixin",
+    "TransporterStackMixin",
+    "VoxelCuboidMixin",
+    "VoxelPlaneAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
