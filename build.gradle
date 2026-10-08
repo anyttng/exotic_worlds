@@ -8,7 +8,7 @@ plugins {
 // The loader jars are this script's inputs, so their tasks have to exist before it names them.
 evaluationDependsOnChildren()
 
-def modId = 'toroidal_world'
+def modId = 'exotic_worlds'
 def buildSuffix = findProperty("${modId}_build")
 def withBuildSuffix = { baseVersion -> buildSuffix ? "${baseVersion}-${buildSuffix}" : baseVersion }
 
@@ -19,7 +19,7 @@ def fabricJar = project(':fabric').tasks.named('jar', Jar)
 // reads only its own metadata and its own nested libraries. The manifest is the Fabric build's, whose Fabric-Mixin
 // attributes Fabric Loader reads; shared classes are the NeoForge build's, which are common's own output.
 tasks.register('modJar', Zip) {
-    archiveFileName = "${modId}-${withBuildSuffix("${toroidal_world_version}+mc${minecraft_version}")}.jar"
+    archiveFileName = "${modId}-${withBuildSuffix("${exotic_worlds_version}+mc${minecraft_version}")}.jar"
     destinationDirectory = layout.buildDirectory.dir('libs')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 

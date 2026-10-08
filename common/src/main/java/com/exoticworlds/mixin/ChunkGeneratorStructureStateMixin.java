@@ -1,0 +1,109 @@
+package com.exoticworlds.mixin;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+
+import org.jspecify.annotations.Nullable;
+
+import com.exoticworlds.accessors.AddedStartsHolder;
+import com.exoticworlds.accessors.TransformerHolder;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.engine.gen.AddedStructureStarts;
+import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.sugar.Local;
+
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
+
+@Mixin(ChunkGeneratorStructureState.class)
+public abstract class ChunkGeneratorStructureStateMixin implements TransformerHolder, AddedStartsHolder {
+    // Vanilla searches a radius of 112 blocks, so the answer lies in [centre*16 - 104, centre*16 + 120].
+    @Unique
+    private static final int toroidal$BIOME_SEARCH_REACH_CHUNKS = 7;
+
+    @Unique
+    private WorldFold toroidal$transformer = WorldFolds.NOOP;
+
+    @Unique
+    private volatile @Nullable AddedStructureStarts toroidal$addedStarts;
+
+    @Override
+    public @Nullable AddedStructureStarts toroidal$addedStarts() {
+        return this.toroidal$addedStarts;
+    }
+
+    @Override
+    public void toroidal$addedStarts(AddedStructureStarts starts) {
+        this.toroidal$addedStarts = starts;
+    }
+
+    @Override
+    public WorldFold toroidal$transformer() {
+        return this.toroidal$transformer;
+    }
+
+    @Override
+    public void toroidal$setTransformer(WorldFold transformer) {
+        this.toroidal$transformer = transformer;
+    }
+
+    @ModifyArg(
+            method = "generateRingPositions",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Ljava/util/concurrent/CompletableFuture;supplyAsync(Ljava/util/function/Supplier;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;"),
+            index = 0)
+    private Supplier<ChunkPos> toroidal$searchOnThisWorldsNoise(Supplier<ChunkPos> search,
+            @Local(name = "i") int ringIndex,
+            @Local(name = "initialX") int ringChunkX,
+            @Local(name = "initialZ") int ringChunkZ) {
+        WorldFold transformer = this.toroidal$transformer;
+        if (ringIndex > 0
+                && transformer.chunkOvershoot(new ChunkPos(ringChunkX, ringChunkZ)) > toroidal$BIOME_SEARCH_REACH_CHUNKS) {
+            ChunkPos beyondTheWorld = new ChunkPos(ringChunkX, ringChunkZ);
+            return () -> beyondTheWorld;
+        }
+
+        return () -> GenerationTransformerContext.withTransformer(transformer, search);
+    }
+
+    @ModifyReturnValue(method = "generateRingPositions", at = @At("RETURN"))
+    private CompletableFuture<List<ChunkPos>> toroidal$ringsWithinTheWorld(
+            CompletableFuture<List<ChunkPos>> original) {
+        WorldFold transformer = this.toroidal$transformer;
+        if (!transformer.isWrapped()) {
+            return original;
+        }
+
+        return original.thenApply(positions -> toroidal$theWorldsShare(transformer, positions));
+    }
+
+    @Unique
+    private static List<ChunkPos> toroidal$theWorldsShare(WorldFold transformer, List<ChunkPos> positions) {
+        List<ChunkPos> inBounds = new ArrayList<>(positions.size());
+        for (ChunkPos position : positions) {
+            if (!transformer.isOver(position)) {
+                inBounds.add(position);
+            }
+        }
+
+        if (inBounds.size() == positions.size()) {
+            return positions;
+        }
+
+        if (!inBounds.isEmpty()) {
+            return List.copyOf(inBounds);
+        }
+
+        return List.of(transformer.fold(positions.getFirst()));
+    }
+}

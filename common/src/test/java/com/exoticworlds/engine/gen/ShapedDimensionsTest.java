@@ -1,0 +1,194 @@
+package com.exoticworlds.engine.gen;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.junit.jupiter.api.Test;
+
+import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.registries.VanillaRegistries;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.biome.FixedBiomeSource;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.DebugLevelSource;
+import net.minecraft.world.level.levelgen.FlatLevelSource;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.WorldDimensions;
+import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
+
+class ShapedDimensionsTest {
+    private static final HolderLookup.Provider WORLDGEN = VanillaRegistries.createLookup();
+
+    private static final FlatShape TORUS = FlatShape.torus(WorldLoopBounds.ofWidth(32));
+
+    private static final FlatShape CYLINDER = FlatShape.cylinder(
+            new WorldLoopBounds(new AxisBounds.Looped(-32, 32), AxisBounds.Unbounded.INSTANCE));
+
+    @Test
+    void strippingASuperflatShapeHandsBackThePlainFlatSourceOnItsOwnSettings() {
+        FlatLevelGeneratorSettings settings = flatSettings();
+        WorldDimensions stripped = ShapedDimensions.stripShapes(overworldOf(new LoopedFlatChunkGenerator(
+                settings, new CarriedShape(TORUS))));
+
+        ChunkGenerator generator = overworldGeneratorOf(stripped);
+        assertNull(ShapedDimensions.shapeOf(stripped, LevelStem.OVERWORLD));
+        assertFalse(generator instanceof ShapedChunkGenerator, generator.getClass().getName());
+        assertSame(settings, ((FlatLevelSource) generator).settings());
+    }
+
+    @Test
+    void strippingANoiseShapeHandsBackThePlainNoiseGeneratorOnItsOwnBiomesAndSettings() {
+        BiomeSource biomes = plainsBiomeSource();
+        Holder<NoiseGeneratorSettings> settings = overworldNoiseSettings();
+        WorldDimensions stripped = ShapedDimensions.stripShapes(overworldOf(new LoopedChunkGenerator(
+                biomes, settings, new CarriedShape(TORUS))));
+
+        ChunkGenerator generator = overworldGeneratorOf(stripped);
+        assertNull(ShapedDimensions.shapeOf(stripped, LevelStem.OVERWORLD));
+        assertFalse(generator instanceof ShapedChunkGenerator, generator.getClass().getName());
+        assertSame(biomes, generator.getBiomeSource());
+        assertSame(settings, ((NoiseBasedChunkGenerator) generator).generatorSettings());
+    }
+
+    @Test
+    void reShapingASuperflatWorldRebuildsFromTheFlatSettingsRatherThanTheOldShape() {
+        FlatLevelGeneratorSettings settings = flatSettings();
+        WorldDimensions reshaped = ShapedDimensions.withShape(
+                overworldOf(new LoopedFlatChunkGenerator(settings, new CarriedShape(TORUS))),
+                LevelStem.OVERWORLD, new CarriedShape(CYLINDER));
+
+        assertEquals(CYLINDER, ShapedDimensions.shapeOf(reshaped, LevelStem.OVERWORLD));
+        assertSame(settings, ((LoopedFlatChunkGenerator) overworldGeneratorOf(reshaped)).settings());
+    }
+
+    @Test
+    void strippingAnUnshapedWorldHandsBackTheArgument() {
+        WorldDimensions vanilla = overworldOf(new NoiseBasedChunkGenerator(
+                plainsBiomeSource(), overworldNoiseSettings()));
+
+        assertSame(vanilla, ShapedDimensions.stripShapes(vanilla));
+    }
+
+    @Test
+    void anOverworldThatRefusesTheShapeLeavesTheNetherUntouched() {
+        WorldDimensions foreign = overworldAndNetherOf(
+                new ForeignChunkGenerator(plainsBiomeSource(), overworldNoiseSettings()),
+                new NoiseBasedChunkGenerator(plainsBiomeSource(), overworldNoiseSettings()));
+
+        WorldDimensions shaped = ShapedDimensions.withShapes(foreign,
+                new CarriedShape(TORUS), new CarriedShape(TORUS), new CarriedShape(TORUS));
+
+        assertSame(foreign, shaped);
+        assertNull(ShapedDimensions.shapeOf(shaped, LevelStem.NETHER));
+    }
+
+    @Test
+    void aVanillaReplacementTakesTheStoredShapeOnItsOwnBiomesAndSettings() {
+        BiomeSource biomes = plainsBiomeSource();
+        Holder<NoiseGeneratorSettings> settings = overworldNoiseSettings();
+        CarriedShape carried = new CarriedShape(CYLINDER);
+
+        ChunkGenerator shaped = ShapedDimensions.withStoredShape(new NoiseBasedChunkGenerator(biomes, settings),
+                carried);
+
+        LoopedChunkGenerator looped = (LoopedChunkGenerator) shaped;
+        assertSame(carried, looped.carriedShape());
+        assertSame(biomes, looped.getBiomeSource());
+        assertSame(settings, looped.generatorSettings());
+    }
+
+    @Test
+    void aReplacementWhoseTerrainIsNotNoiseIsRefusedTheStoredShape() {
+        ChunkGenerator debug = new DebugLevelSource(WORLDGEN.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS));
+
+        assertNull(ShapedDimensions.withStoredShape(debug, new CarriedShape(TORUS)));
+    }
+
+    @Test
+    void aShapedChosenPresetReplacesAnUnshapedResult() {
+        WorldDimensions chosen = overworldOf(new LoopedChunkGenerator(
+                plainsBiomeSource(), overworldNoiseSettings(), new CarriedShape(TORUS)));
+        WorldDimensions replaced = overworldOf(new NoiseBasedChunkGenerator(
+                plainsBiomeSource(), overworldNoiseSettings()));
+
+        assertSame(chosen, ShapedDimensions.keepChosenShape(replaced, chosen));
+    }
+
+    @Test
+    void aShapedResultStandsOverAShapedChosenPreset() {
+        WorldDimensions chosen = overworldOf(new LoopedChunkGenerator(
+                plainsBiomeSource(), overworldNoiseSettings(), new CarriedShape(TORUS)));
+        WorldDimensions created = overworldAndNetherOf(
+                new NoiseBasedChunkGenerator(plainsBiomeSource(), overworldNoiseSettings()),
+                new LoopedChunkGenerator(plainsBiomeSource(), overworldNoiseSettings(), new CarriedShape(CYLINDER)));
+
+        assertSame(created, ShapedDimensions.keepChosenShape(created, chosen));
+    }
+
+    @Test
+    void anUnshapedChosenPresetLeavesTheResult() {
+        WorldDimensions chosen = overworldOf(new NoiseBasedChunkGenerator(
+                plainsBiomeSource(), overworldNoiseSettings()));
+        WorldDimensions created = overworldOf(new ForeignChunkGenerator(
+                plainsBiomeSource(), overworldNoiseSettings()));
+
+        assertSame(created, ShapedDimensions.keepChosenShape(created, chosen));
+    }
+
+    private static WorldDimensions overworldOf(ChunkGenerator generator) {
+        return new WorldDimensions(Map.of(LevelStem.OVERWORLD, new LevelStem(
+                WORLDGEN.lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(BuiltinDimensionTypes.OVERWORLD),
+                generator)));
+    }
+
+    private static WorldDimensions overworldAndNetherOf(ChunkGenerator overworld, ChunkGenerator nether) {
+        return new WorldDimensions(Map.of(
+                LevelStem.OVERWORLD, new LevelStem(
+                        WORLDGEN.lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(BuiltinDimensionTypes.OVERWORLD),
+                        overworld),
+                LevelStem.NETHER, new LevelStem(
+                        WORLDGEN.lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(BuiltinDimensionTypes.NETHER),
+                        nether)));
+    }
+
+    private static ChunkGenerator overworldGeneratorOf(WorldDimensions dimensions) {
+        return dimensions.dimensions().get(LevelStem.OVERWORLD).generator();
+    }
+
+    private static FlatLevelGeneratorSettings flatSettings() {
+        return new FlatLevelGeneratorSettings(Optional.empty(),
+                WORLDGEN.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS), List.of());
+    }
+
+    private static BiomeSource plainsBiomeSource() {
+        return new FixedBiomeSource(WORLDGEN.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS));
+    }
+
+    private static Holder<NoiseGeneratorSettings> overworldNoiseSettings() {
+        return WORLDGEN.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.OVERWORLD);
+    }
+
+    private static class ForeignChunkGenerator extends NoiseBasedChunkGenerator {
+        ForeignChunkGenerator(BiomeSource biomes, Holder<NoiseGeneratorSettings> settings) {
+            super(biomes, settings);
+        }
+    }
+}

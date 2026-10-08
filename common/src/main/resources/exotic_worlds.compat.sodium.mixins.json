@@ -1,0 +1,15 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.sodium.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "com.exoticworlds.compat.sodium.SodiumMixinPlugin",
+  "client": [
+    "BlockRendererMixin",
+    "LevelSliceMixin",
+    "NonTerrainBlockRenderContextMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

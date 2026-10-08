@@ -1,0 +1,51 @@
+package com.exoticworlds.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.engine.seam.SeamAim;
+import com.exoticworlds.engine.seam.SeamSteering;
+
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.monster.cubemob.SulfurCube;
+import net.minecraft.world.phys.Vec3;
+
+@Mixin(SulfurCube.class)
+public class SulfurCubeMixin {
+    @Unique
+    private static final String KNOCKBACK = "knockback(DDDLnet/minecraft/world/damagesource/DamageSource;FZ)V";
+
+    @Unique
+    private static final String PLAYER_PUSH = "playerPush(Lnet/minecraft/world/entity/player/Player;)V";
+
+    @ModifyVariable(method = KNOCKBACK, at = @At("HEAD"), argsOnly = true, ordinal = 1)
+    private double toroidal$knockbackDirX(double xd) {
+        return SeamAim.foldX((Entity) (Object) this, xd);
+    }
+
+    @ModifyVariable(method = KNOCKBACK, at = @At("HEAD"), argsOnly = true, ordinal = 2)
+    private double toroidal$knockbackDirZ(double zd) {
+        return SeamAim.foldZ((Entity) (Object) this, zd);
+    }
+
+    @ModifyExpressionValue(
+            method = KNOCKBACK,
+            at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_EYE_POSITION))
+    private Vec3 toroidal$attackerEyeThroughSeam(Vec3 attackerEye) {
+        return SeamSteering.nearestCopy((Entity) (Object) this, attackerEye);
+    }
+
+    @ModifyExpressionValue(method = KNOCKBACK, at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_POSITION))
+    private Vec3 toroidal$attackerFeetThroughSeam(Vec3 attackerFeet) {
+        return SeamSteering.nearestCopy((Entity) (Object) this, attackerFeet);
+    }
+
+    @ModifyExpressionValue(method = PLAYER_PUSH, at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_POSITION))
+    private Vec3 toroidal$pusherFeetThroughSeam(Vec3 pusherFeet) {
+        return SeamSteering.nearestCopy((Entity) (Object) this, pusherFeet);
+    }
+}

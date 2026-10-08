@@ -1,0 +1,27 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.c2me.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "com.exoticworlds.compat.c2me.C2meMixinPlugin",
+  "mixinPriority": 1200,
+  "mixins": [
+    "AquiferSeamMixin",
+    "BytecodeGenRegistryMixin",
+    "DotGenRegistryMixin",
+    "McToAstMixin",
+    "NewChunkHolderVanillaInterfaceMixin",
+    "NewChunkStatusMixin",
+    "PerlinNoiseMixin",
+    "PlayerNoTickLoaderMixin",
+    "SchedulingUtilLockMixin",
+    "SchedulingManagerMixin",
+    "ServerAccessibleChunkSendingMixin",
+    "ServerBlockTickingMixin",
+    "TheChunkSystemMixin",
+    "VanillaWorldGenerationDelegateMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

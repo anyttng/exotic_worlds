@@ -1,0 +1,19 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.simpleatlas.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "com.exoticworlds.compat.simpleatlas.SimpleAtlasMixinPlugin",
+  "mixins": [
+    "AtlasMapSelectorMixin",
+    "AtlasWaypointDecorationsMixin",
+    "ModNetworkingMixin"
+  ],
+  "client": [
+    "AtlasIconMixin",
+    "AtlasScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

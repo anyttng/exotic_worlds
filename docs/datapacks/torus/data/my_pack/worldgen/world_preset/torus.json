@@ -3,7 +3,7 @@
     "minecraft:overworld": {
       "type": "minecraft:overworld",
       "generator": {
-        "type": "toroidal_world:toroidal",
+        "type": "exotic_worlds:toroidal",
         "biome_source": {
           "type": "minecraft:multi_noise",
           "preset": "minecraft:overworld"
@@ -30,7 +30,7 @@
     "minecraft:the_nether": {
       "type": "minecraft:the_nether",
       "generator": {
-        "type": "toroidal_world:toroidal",
+        "type": "exotic_worlds:toroidal",
         "biome_source": {
           "type": "minecraft:multi_noise",
           "preset": "minecraft:nether"
@@ -57,7 +57,7 @@
     "minecraft:the_end": {
       "type": "minecraft:the_end",
       "generator": {
-        "type": "toroidal_world:toroidal",
+        "type": "exotic_worlds:toroidal",
         "biome_source": {
           "type": "minecraft:the_end"
         },
