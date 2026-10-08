@@ -84,82 +84,82 @@ Circumnavigate the world — walk, sail or fly past the border and come out on t
     side="BOTH"
 
 [[mixins]]
-config="toroidal_world.mixins.json"
+config="exotic_worlds.mixins.json"
 
 [[mixins]]
-config="toroidal_world.shape.mixins.json"
+config="exotic_worlds.shape.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.journeymap.mixins.json"
+config="exotic_worlds.compat.journeymap.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.xaero.mixins.json"
+config="exotic_worlds.compat.xaero.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.ftbchunks.mixins.json"
+config="exotic_worlds.compat.ftbchunks.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.ftbxaerocompat.mixins.json"
+config="exotic_worlds.compat.ftbxaerocompat.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.jmi.mixins.json"
+config="exotic_worlds.compat.jmi.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.c2me.mixins.json"
+config="exotic_worlds.compat.c2me.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.distanthorizons.mixins.json"
+config="exotic_worlds.compat.distanthorizons.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.create.mixins.json"
+config="exotic_worlds.compat.create.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.sable.mixins.json"
+config="exotic_worlds.compat.sable.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.aeronautics.mixins.json"
+config="exotic_worlds.compat.aeronautics.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.simpleclouds.mixins.json"
+config="exotic_worlds.compat.simpleclouds.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.simpleclouds.client.mixins.json"
+config="exotic_worlds.compat.simpleclouds.client.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.mekanism.mixins.json"
+config="exotic_worlds.compat.mekanism.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.terrablender.mixins.json"
+config="exotic_worlds.compat.terrablender.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.reterraforged.mixins.json"
+config="exotic_worlds.compat.reterraforged.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.astikorcarts.mixins.json"
+config="exotic_worlds.compat.astikorcarts.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.electroenergetics.mixins.json"
+config="exotic_worlds.compat.electroenergetics.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.mtchunkgeneration.mixins.json"
+config="exotic_worlds.compat.mtchunkgeneration.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.scalablelux.mixins.json"
+config="exotic_worlds.compat.scalablelux.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.biolith.mixins.json"
+config="exotic_worlds.compat.biolith.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.wover.mixins.json"
+config="exotic_worlds.compat.wover.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.betterend.mixins.json"
+config="exotic_worlds.compat.betterend.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.sodium.mixins.json"
+config="exotic_worlds.compat.sodium.mixins.json"
 
 [[mixins]]
-config="toroidal_world.compat.lithium.mixins.json"
+config="exotic_worlds.compat.lithium.mixins.json"
 
 [[mixins]]
-config="toroidal_world.neoforge.mixins.json"
+config="exotic_worlds.neoforge.mixins.json"

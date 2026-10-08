@@ -8,9 +8,9 @@ plugins {
 // The loader jars are this script's inputs, so their tasks have to exist before it names them.
 evaluationDependsOnChildren()
 
-def modId = 'toroidal_world'
+def modId = 'exotic_worlds'
 def shellId = "${modId}_bundle"
-def modVersion = toroidal_world_version
+def modVersion = exotic_worlds_version
 def buildSuffix = findProperty("${modId}_build")
 def withBuildSuffix = { baseVersion -> buildSuffix ? "${baseVersion}-${buildSuffix}" : baseVersion }
 def shellVersion = withBuildSuffix(modVersion)
@@ -24,7 +24,7 @@ def fabricJarName = fabricJar.get().archiveFileName.get()
 // 1.21.1 is obfuscated: the Fabric build names the game in intermediary and the NeoForge build in Mojmap, so the two
 // class sets cannot share one jar's root the way the 26.x merge does. The jar that ships is a shell instead — no
 // classes of its own, both loader jars nested whole, and each loader reads only its own metadata and opens only the
-// jar that metadata names. The shell carries its own mod id: the nested jar is the one that is toroidal_world.
+// jar that metadata names. The shell carries its own mod id: the nested jar is the one that is exotic_worlds.
 def shellMetadata = tasks.register('shellMetadata') {
     def outputDir = layout.buildDirectory.dir('shell')
     def neoforgePath = "META-INF/jarjar/${neoforgeJarName}"
@@ -47,14 +47,14 @@ license="${modLicense}"
 [[mods]]
 modId="${shellId}"
 version="${shellVersion}"
-displayName="Toroidal World (NeoForge and Fabric)"
-description='''Carries the NeoForge and Fabric builds of Toroidal World; each loader loads its own.'''
+displayName="Exotic Worlds (NeoForge and Fabric)"
+description='''Carries the NeoForge and Fabric builds of Exotic Worlds; each loader loads its own.'''
 """
 
         new File(root, 'META-INF/jarjar').mkdirs()
         new File(root, 'META-INF/jarjar/metadata.json').text = groovy.json.JsonOutput.prettyPrint(
                 groovy.json.JsonOutput.toJson([jars: [[
-                        identifier  : [group: 'com.toroidalworld', artifact: "${modId}-neoforge"],
+                        identifier  : [group: 'com.exoticworlds', artifact: "${modId}-neoforge"],
                         version     : [range: "[${shellVersion},)", artifactVersion: shellVersion],
                         path        : neoforgePath,
                         isObfuscated: false]]]))
@@ -63,8 +63,8 @@ description='''Carries the NeoForge and Fabric builds of Toroidal World; each lo
                 schemaVersion: 1,
                 id           : shellId,
                 version      : shellVersion,
-                name         : 'Toroidal World (NeoForge and Fabric)',
-                description  : 'Carries the NeoForge and Fabric builds of Toroidal World; each loader loads its own.',
+                name         : 'Exotic Worlds (NeoForge and Fabric)',
+                description  : 'Carries the NeoForge and Fabric builds of Exotic Worlds; each loader loads its own.',
                 license      : modLicense,
                 environment  : '*',
                 jars         : [[file: fabricPath]]]))

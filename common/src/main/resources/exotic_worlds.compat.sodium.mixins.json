@@ -1,0 +1,13 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.sodium.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.sodium.SodiumMixinPlugin",
+  "client": [
+    "LevelSliceMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

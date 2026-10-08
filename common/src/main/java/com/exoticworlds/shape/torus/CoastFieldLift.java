@@ -1,0 +1,141 @@
+package com.exoticworlds.shape.torus;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.exoticworlds.accessors.CoastLiftCache;
+import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.api.v1.gen.GenerationHooks;
+import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.shape.noise.DensityNoises;
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.levelgen.DensityFunction;
+import net.minecraft.world.level.levelgen.DensityFunction.NoiseHolder;
+import net.minecraft.world.level.levelgen.NoiseRouter;
+import net.minecraft.world.level.levelgen.RandomState;
+
+public final class CoastFieldLift {
+    static final long LAND_FLOOR_BLOCKS = 4096L;
+
+    private static final double[] CANDIDATES = {0.0, 0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.6, 0.8, 1.0, 1.3, 1.6};
+
+    private static final int STRIDE_BLOCKS = 16;
+
+    private static final int GRID_CAP = 64;
+
+    private static final int[][] NEIGHBOURS = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+    public static void register() {
+        GenerationHooks.atRandomState(GuaranteedLand.KEY, CoastFieldLift::solve);
+    }
+
+    private static void solve(RandomState randomState, ToroidalShape shape, GenerationOptions options, int seaLevel) {
+        if (!options.get(GuaranteedLand.OPTION)) {
+            return;
+        }
+
+        if (!shape.loops(Direction.Axis.X) || !shape.loops(Direction.Axis.Z)) {
+            return;
+        }
+
+        WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
+        if (fold == null) {
+            return;
+        }
+
+        int xLength = shape.widthBlocks(Direction.Axis.X);
+        int zLength = shape.widthBlocks(Direction.Axis.Z);
+
+        List<CoastLiftCache> coasts = coastNoises(randomState.router());
+        if (coasts.isEmpty()) {
+            return;
+        }
+
+        DensityFunction density = randomState.router().finalDensity();
+        int stride = Math.max(STRIDE_BLOCKS, Math.max(xLength, zLength) / GRID_CAP);
+        int xGrid = Math.max(1, xLength / stride);
+        int zGrid = Math.max(1, zLength / stride);
+        long cellBlocks = (long) stride * stride;
+
+        for (double candidate : CANDIDATES) {
+            apply(coasts, candidate);
+            long patch = GenerationTransformerContext.withTransformer(fold,
+                    () -> largestPatch(density, seaLevel, stride, xGrid, zGrid)) * cellBlocks;
+            if (patch >= LAND_FLOOR_BLOCKS) {
+                return;
+            }
+        }
+
+        apply(coasts, CANDIDATES[CANDIDATES.length - 1]);
+    }
+
+    private static void apply(List<CoastLiftCache> coasts, double lift) {
+        for (CoastLiftCache coast : coasts) {
+            coast.toroidal$coastLift(lift);
+        }
+    }
+
+    private static List<CoastLiftCache> coastNoises(NoiseRouter router) {
+        List<CoastLiftCache> coasts = new ArrayList<>();
+        for (NoiseHolder noise : DensityNoises.matching(router.continents(), CoastFields::isCoast)) {
+            if (noise.noise() instanceof CoastLiftCache coast) {
+                coasts.add(coast);
+            }
+        }
+
+        return coasts;
+    }
+
+    private static int largestPatch(DensityFunction density, int seaLevel, int stride, int xGrid, int zGrid) {
+        boolean[] land = new boolean[xGrid * zGrid];
+        for (int ix = 0; ix < xGrid; ix++) {
+            for (int iz = 0; iz < zGrid; iz++) {
+                land[ix * zGrid + iz] = density.compute(
+                        new DensityFunction.SinglePointContext(ix * stride, seaLevel, iz * stride)) > 0.0;
+            }
+        }
+
+        return largestComponent(land, xGrid, zGrid);
+    }
+
+    private static int largestComponent(boolean[] land, int xGrid, int zGrid) {
+        boolean[] seen = new boolean[land.length];
+        int[] queue = new int[land.length];
+        int largest = 0;
+
+        for (int start = 0; start < land.length; start++) {
+            if (!land[start] || seen[start]) {
+                continue;
+            }
+
+            seen[start] = true;
+            queue[0] = start;
+            int head = 0;
+            int tail = 1;
+
+            while (head < tail) {
+                int cell = queue[head++];
+                int x = cell / zGrid;
+                int z = cell % zGrid;
+
+                for (int[] step : NEIGHBOURS) {
+                    int next = Math.floorMod(x + step[0], xGrid) * zGrid + Math.floorMod(z + step[1], zGrid);
+                    if (land[next] && !seen[next]) {
+                        seen[next] = true;
+                        queue[tail++] = next;
+                    }
+                }
+            }
+
+            largest = Math.max(largest, tail);
+        }
+
+        return largest;
+    }
+
+    private CoastFieldLift() {
+    }
+}

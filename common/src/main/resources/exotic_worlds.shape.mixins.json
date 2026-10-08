@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.client.shape.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "CreateWorldScreenAccessor",
+    "CreateWorldScreenMixin",
+    "WorldTabMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

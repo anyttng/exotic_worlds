@@ -1,0 +1,31 @@
+package com.exoticworlds.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.engine.seam.SeamAim;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.horse.Llama;
+
+@Mixin(Llama.class)
+public class LlamaSpitAimMixin {
+    @WrapOperation(
+            method = "spit(Lnet/minecraft/world/entity/LivingEntity;)V",
+            at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_X))
+    private double toroidal$aimTargetX(LivingEntity target, Operation<Double> original) {
+        return SeamAim.nearestCoord((Entity) (Object) this, target, Direction.Axis.X, original.call(target));
+    }
+
+    @WrapOperation(
+            method = "spit(Lnet/minecraft/world/entity/LivingEntity;)V",
+            at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_Z))
+    private double toroidal$aimTargetZ(LivingEntity target, Operation<Double> original) {
+        return SeamAim.nearestCoord((Entity) (Object) this, target, Direction.Axis.Z, original.call(target));
+    }
+}

@@ -1,0 +1,28 @@
+package com.exoticworlds.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.engine.seam.SeamRange;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Position;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.behavior.ValidateNearbyPoi;
+
+@Mixin(ValidateNearbyPoi.class)
+public class ValidateNearbyPoiMixin {
+    @WrapOperation(
+            method = "*",
+            require = 1,
+            at = @At(value = "INVOKE",
+                    target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
+    private static boolean toroidal$poiInRangeThroughSeam(BlockPos poiPos, Position bodyPosition, double distance,
+            Operation<Boolean> original, @Local(argsOnly = true) LivingEntity body) {
+        return SeamRange.closerToCenterThan(body, poiPos, bodyPosition, distance);
+    }
+}

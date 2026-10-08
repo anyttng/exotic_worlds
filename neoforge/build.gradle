@@ -7,9 +7,9 @@ plugins {
 evaluationDependsOn(':common')
 
 ext {
-    mod_id = 'toroidal_world'
-    mod_name = 'Toroidal World'
-    mod_version = toroidal_world_version
+    mod_id = 'exotic_worlds'
+    mod_name = 'Exotic Worlds'
+    mod_version = exotic_worlds_version
 }
 
 version = mod_version
@@ -122,7 +122,7 @@ neoForge {
     // Everything else runs as plain JUnit in common.
     unitTest {
         enable()
-        testedMod = mods.toroidal_world
+        testedMod = mods.exotic_worlds
     }
 }
 
@@ -157,9 +157,9 @@ test {
         failOnNoMatchingTests = false
         // The scans are measurements, not the gate: test leaves them out, -Pscans runs nothing else.
         if (project.hasProperty('scans')) {
-            includeTestsMatching 'com.toroidalworld.scan.*'
+            includeTestsMatching 'com.exoticworlds.scan.*'
         } else {
-            excludeTestsMatching 'com.toroidalworld.scan.*'
+            excludeTestsMatching 'com.exoticworlds.scan.*'
         }
     }
     if (project.hasProperty('scans')) {

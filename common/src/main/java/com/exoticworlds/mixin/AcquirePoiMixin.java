@@ -1,0 +1,30 @@
+package com.exoticworlds.mixin;
+
+import org.jspecify.annotations.Nullable;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.core.WorldLoopAttachments;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.ai.behavior.AcquirePoi;
+
+@Mixin(AcquirePoi.class)
+public class AcquirePoiMixin {
+    @ModifyExpressionValue(
+            method = "*",
+            require = 1,
+            at = @At(value = "INVOKE", target = InjectionTargets.PATH_GET_TARGET))
+    private static @Nullable BlockPos toroidal$wrapClaimedPoi(@Nullable BlockPos target,
+            @Local(argsOnly = true) ServerLevel level) {
+        if (target == null) {
+            return null;
+        }
+
+        return WorldLoopAttachments.transformerOf(level).fold(target);
+    }
+}

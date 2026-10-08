@@ -1,0 +1,82 @@
+package com.exoticworlds.mixin;
+
+import org.jspecify.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+
+import com.exoticworlds.accessors.ClimateCompressionCache;
+import com.exoticworlds.accessors.ClimateFieldMark;
+import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.PeriodicOctaveSampler;
+import com.exoticworlds.shape.climate.ClimateCompression;
+import com.exoticworlds.shape.climate.ClimateCompression.Resolved;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+
+import it.unimi.dsi.fastutil.doubles.DoubleList;
+import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
+import net.minecraft.world.level.levelgen.synth.PerlinNoise;
+
+@Mixin(PerlinNoise.class)
+public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMark {
+    @Unique
+    private @Nullable Resolved toroidal$climateCompression;
+
+    @Unique
+    private volatile boolean toroidal$climateField;
+
+    @Shadow
+    @Final
+    private ImprovedNoise[] noiseLevels;
+
+    @Shadow
+    @Final
+    private DoubleList amplitudes;
+
+    @Shadow
+    @Final
+    private double lowestFreqValueFactor;
+
+    @Shadow
+    @Final
+    private double lowestFreqInputFactor;
+
+    @WrapMethod(method = "getValue(DDDDDZ)D")
+    private double toroidal$periodicValue(double x, double y, double z, double yScale, double yFudge,
+            boolean useNoiseOrigin, Operation<Double> original) {
+        Context generation = GenerationTransformerContext.context();
+        if (!generation.transformer().isWrapped()) {
+            return original.call(x, y, z, yScale, yFudge, useNoiseOrigin);
+        }
+
+        double declaredScale = generation.horizontalScale();
+        double baseScale = declaredScale * ClimateCompression.resolve(this, generation.transformer(),
+                this.toroidal$climateField, this.amplitudes, this.lowestFreqInputFactor, declaredScale,
+                generation.verticalShare());
+        return PeriodicOctaveSampler.sample(generation, baseScale, this.noiseLevels, this.amplitudes,
+                this.lowestFreqInputFactor, this.lowestFreqValueFactor, x, y, z, yScale, yFudge, useNoiseOrigin);
+    }
+
+    @Override
+    public boolean toroidal$climateField() {
+        return this.toroidal$climateField;
+    }
+
+    @Override
+    public void toroidal$markClimateField() {
+        this.toroidal$climateField = true;
+    }
+
+    @Override
+    public @Nullable Resolved toroidal$climateCompression() {
+        return this.toroidal$climateCompression;
+    }
+
+    @Override
+    public void toroidal$climateCompression(Resolved resolved) {
+        this.toroidal$climateCompression = resolved;
+    }
+}

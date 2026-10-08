@@ -1,0 +1,27 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.distanthorizons.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.distanthorizons.DhMixinPlugin",
+  "mixins": [
+    "AbstractDhLevelMixin",
+    "AbstractDhRepoMixin",
+    "BeaconBeamRepoMixin",
+    "ChunkHashRepoMixin",
+    "ChunkWrapperMixin",
+    "FullDataSourceProviderV2Mixin",
+    "FullDataSourceV2RepoMixin",
+    "GeneratedFullDataSourceProviderMixin",
+    "WorldGenerationQueueMixin"
+  ],
+  "client": [
+    "LodQuadTreeAccessor",
+    "LodQuadTreeMixin",
+    "QuadTreeMixin",
+    "RenderBufferHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
