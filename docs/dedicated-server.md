@@ -1,4 +1,4 @@
-# Running a Toroidal World on a Dedicated Server
+# Running Exotic Worlds on a Dedicated Server
 
 A world's shape lives entirely in its chunk generators, so a dedicated server needs no screen: the mod ships the same named world sizes the create-world screen offers as world presets, for the toroidal world and for the cylinder, and one `server.properties` line picks one. The result is a fully shaped world — overworld, nether and End — that behaves exactly like one created in singleplayer. Joining players need the mod installed; they receive the world's bounds automatically on login.
 
@@ -8,18 +8,18 @@ A world's shape lives entirely in its chunk generators, so a dedicated server ne
 2. In `server.properties`, pick a preset — do this **before the first start**, the world type is read only when the world is created:
 
 ```properties
-level-type=toroidal_world\:medium
+level-type=exotic_worlds\:torus_medium
 ```
 
 3. Start the server. No datapack needed.
 
 | Size | Toroidal `level-type` | Cylinder `level-type` | Overworld | Nether (portal scale) | End |
 | --- | --- | --- | --- | --- | --- |
-| Tiny | `toroidal_world:tiny` | `toroidal_world:cylinder_tiny` | 32 chunks (512 blocks) | 16 chunks (256 blocks), 1:2 | 256 chunks (4096 blocks) |
-| Small | `toroidal_world:small` | `toroidal_world:cylinder_small` | 64 chunks (1024 blocks) | 16 chunks (256 blocks), 1:4 | 320 chunks (5120 blocks) |
-| Medium | `toroidal_world:medium` | `toroidal_world:cylinder_medium` | 128 chunks (2048 blocks) | 16 chunks (256 blocks), 1:8 | 384 chunks (6144 blocks) |
-| Large | `toroidal_world:large` | `toroidal_world:cylinder_large` | 256 chunks (4096 blocks) | 32 chunks (512 blocks), 1:8 | 448 chunks (7168 blocks) |
-| Huge | `toroidal_world:huge` | `toroidal_world:cylinder_huge` | 512 chunks (8192 blocks) | 64 chunks (1024 blocks), 1:8 | 512 chunks (8192 blocks) |
+| Tiny | `exotic_worlds:torus_tiny` | `exotic_worlds:cylinder_tiny` | 32 chunks (512 blocks) | 16 chunks (256 blocks), 1:2 | 256 chunks (4096 blocks) |
+| Small | `exotic_worlds:torus_small` | `exotic_worlds:cylinder_small` | 64 chunks (1024 blocks) | 16 chunks (256 blocks), 1:4 | 320 chunks (5120 blocks) |
+| Medium | `exotic_worlds:torus_medium` | `exotic_worlds:cylinder_medium` | 128 chunks (2048 blocks) | 16 chunks (256 blocks), 1:8 | 384 chunks (6144 blocks) |
+| Large | `exotic_worlds:torus_large` | `exotic_worlds:cylinder_large` | 256 chunks (4096 blocks) | 32 chunks (512 blocks), 1:8 | 448 chunks (7168 blocks) |
+| Huge | `exotic_worlds:torus_huge` | `exotic_worlds:cylinder_huge` | 512 chunks (8192 blocks) | 64 chunks (1024 blocks), 1:8 | 512 chunks (8192 blocks) |
 
 A toroidal preset loops both horizontal axes at the given width. A cylinder preset loops along X at that width and leaves Z endless like vanilla — a cylinder looping along Z is a custom preset with the two axes swapped (below).
 
@@ -67,7 +67,7 @@ The `world/` folder does not exist yet on a fresh server — create it with just
     "minecraft:overworld": {
       "type": "minecraft:overworld",
       "generator": {
-        "type": "toroidal_world:toroidal",
+        "type": "exotic_worlds:toroidal",
         "biome_source": { "type": "minecraft:multi_noise", "preset": "minecraft:overworld" },
         "settings": "minecraft:overworld",
         "wrapping": {
@@ -80,7 +80,7 @@ The `world/` folder does not exist yet on a fresh server — create it with just
     "minecraft:the_nether": {
       "type": "minecraft:the_nether",
       "generator": {
-        "type": "toroidal_world:toroidal",
+        "type": "exotic_worlds:toroidal",
         "biome_source": { "type": "minecraft:multi_noise", "preset": "minecraft:nether" },
         "settings": "minecraft:nether",
         "wrapping": {
@@ -93,7 +93,7 @@ The `world/` folder does not exist yet on a fresh server — create it with just
     "minecraft:the_end": {
       "type": "minecraft:the_end",
       "generator": {
-        "type": "toroidal_world:toroidal",
+        "type": "exotic_worlds:toroidal",
         "biome_source": { "type": "minecraft:the_end" },
         "settings": "minecraft:end",
         "wrapping": {
@@ -107,7 +107,7 @@ The `world/` folder does not exist yet on a fresh server — create it with just
 }
 ```
 
-Then point `server.properties` at it: `level-type=my_pack\:my_toroidal`. Left at `toroidal_world\:medium`, the world is created from that preset and the pack changes nothing, with no warning in the log to say so.
+Then point `server.properties` at it: `level-type=my_pack\:my_toroidal`. Left at `exotic_worlds\:torus_medium`, the world is created from that preset and the pack changes nothing, with no warning in the log to say so.
 
 For a cylinder, give the looping axis its bounds and write the other axis as an empty object — the same axis in all three dimensions. This `wrapping` makes the overworld of a 64-chunk (1024-block) cylinder looping along Z:
 
@@ -128,7 +128,7 @@ The empty object is required: an axis left out of `wrapping` is an error, not an
 - **Nether** — the overworld width divided by the portal scale, and the scale must divide it exactly; the nether itself must stay at least 16 chunks (256 blocks) wide. An uneven ratio breaks portal linking near the seam. The arithmetic, the ceiling it puts on the scale and the widths that trip over it are in [Nether width](#nether-width).
 - **End** — independent of the other two, at least 192 chunks (3072 blocks) on every looping axis, and in a cylinder looping along the same axis as the overworld. Smaller Ends lose the outer island ring — no end cities, no elytra — and let gateway teleports reach across the seam.
 
-For a Superflat world use `"type": "toroidal_world:toroidal_flat"` with a `"settings"` object of the flat generator instead of the noise settings id.
+For a Superflat world use `"type": "exotic_worlds:toroidal_flat"` with a `"settings"` object of the flat generator instead of the noise settings id.
 
 ## Nether width
 

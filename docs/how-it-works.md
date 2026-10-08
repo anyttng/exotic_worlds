@@ -1,4 +1,4 @@
-# How Toroidal World Works
+# How Exotic Worlds Works
 
 The mod does four things: it gives the world a fixed width, makes the terrain repeat exactly at that width, measures every distance to the nearest copy of the target, and puts anything that walks off one side back in on the other.
 

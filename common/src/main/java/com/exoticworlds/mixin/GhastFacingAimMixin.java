@@ -1,0 +1,34 @@
+package com.exoticworlds.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.engine.seam.SeamAim;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.monster.Ghast;
+
+@Mixin(Ghast.class)
+public class GhastFacingAimMixin {
+    @WrapOperation(
+            method = "faceMovementDirection(Lnet/minecraft/world/entity/Mob;)V",
+            at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_X))
+    private static double toroidal$aimTargetX(LivingEntity target, Operation<Double> original,
+            @Local(argsOnly = true) Mob ghast) {
+        return SeamAim.nearestCoord(ghast, target, Direction.Axis.X, original.call(target));
+    }
+
+    @WrapOperation(
+            method = "faceMovementDirection(Lnet/minecraft/world/entity/Mob;)V",
+            at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_Z))
+    private static double toroidal$aimTargetZ(LivingEntity target, Operation<Double> original,
+            @Local(argsOnly = true) Mob ghast) {
+        return SeamAim.nearestCoord(ghast, target, Direction.Axis.Z, original.call(target));
+    }
+}

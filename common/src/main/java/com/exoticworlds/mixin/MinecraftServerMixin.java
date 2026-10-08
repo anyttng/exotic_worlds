@@ -1,0 +1,79 @@
+package com.exoticworlds.mixin;
+
+import org.jspecify.annotations.Nullable;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import com.exoticworlds.ExoticWorlds;
+import com.exoticworlds.core.RegistrationBoundary;
+import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.gen.WorldShapeReport;
+import com.exoticworlds.engine.level.CurrentServer;
+import com.exoticworlds.engine.level.SeamRespawnData;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.level.storage.ServerLevelData;
+
+@Mixin(MinecraftServer.class)
+public class MinecraftServerMixin {
+    @Inject(method = "runServer", at = @At("HEAD"))
+    private void toroidal$publishCurrentServer(CallbackInfo ci) {
+        CurrentServer.set((MinecraftServer) (Object) this);
+    }
+
+    @Inject(method = "runServer", at = @At("RETURN"))
+    private void toroidal$clearCurrentServer(CallbackInfo ci) {
+        CurrentServer.clear();
+    }
+
+    @Inject(method = "runServer", at = @At("HEAD"))
+    private void toroidal$closeRegistrationBoundary(CallbackInfo ci) {
+        RegistrationBoundary.STARTUP.close();
+    }
+
+    @Inject(method = "createLevels", at = @At("TAIL"))
+    private void toroidal$logWorldShape(CallbackInfo ci) {
+        for (WorldShapeReport.Line line : WorldShapeReport.lines((MinecraftServer) (Object) this)) {
+            if (line.broken()) {
+                ExoticWorlds.LOGGER.warn(line.text());
+            } else {
+                ExoticWorlds.LOGGER.info(line.text());
+            }
+        }
+    }
+
+    @WrapOperation(
+            method = "setInitialSpawn",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/level/PlayerSpawnFinder;getSpawnPosInChunk(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/core/BlockPos;"))
+    private static @Nullable BlockPos toroidal$searchWrappedChunk(ServerLevel level, ChunkPos chunkPos,
+            Operation<@Nullable BlockPos> original) {
+        return original.call(level, WorldLoopAttachments.transformerOf(level).fold(chunkPos));
+    }
+
+    @WrapOperation(
+            method = "setInitialSpawn",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/storage/ServerLevelData;setSpawn(Lnet/minecraft/world/level/storage/LevelData$RespawnData;)V"))
+    private static void toroidal$storeInitialSpawnInsideBounds(ServerLevelData levelData,
+            LevelData.RespawnData respawnData, Operation<Void> original, @Local(argsOnly = true) ServerLevel level) {
+        original.call(levelData, SeamRespawnData.insideBounds(level.getServer(), respawnData));
+    }
+
+    @ModifyVariable(method = "setRespawnData", at = @At("HEAD"), argsOnly = true)
+    private LevelData.RespawnData toroidal$storeWorldSpawnInsideBounds(LevelData.RespawnData respawnData) {
+        return SeamRespawnData.insideBounds((MinecraftServer) (Object) this, respawnData);
+    }
+}

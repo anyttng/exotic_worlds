@@ -1,0 +1,69 @@
+package com.exoticworlds.compat.c2me;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
+import org.slf4j.Logger;
+
+import com.mojang.logging.LogUtils;
+import com.exoticworlds.compat.ModSymbol;
+
+public final class C2meAquifer {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
+    private static final String CONFIG_CLASS = "com.ishland.c2me.opts.worldgen.vanilla.common.Config";
+    private static final String OPTIMIZE_AQUIFER_FIELD = "optimizeAquifer";
+
+    static final ModSymbol SAMPLER_INIT_HANDLER = new ModSymbol(
+            "com/ishland/c2me/opts/worldgen/vanilla/mixin/aquifer/MixinAquiferSamplerImpl", "onInit",
+            "(Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;)V");
+
+    private static final boolean OPTIMIZED = readOptimizeAquifer(C2meAquifer.class.getClassLoader());
+
+    public static boolean optimizesAquifer() {
+        return OPTIMIZED;
+    }
+
+    static boolean readOptimizeAquifer(ClassLoader classLoader) {
+        try {
+            boolean optimized = readSwitch(
+                    Class.forName(CONFIG_CLASS, true, classLoader).getField(OPTIMIZE_AQUIFER_FIELD));
+            if (!optimized) {
+                LOGGER.info("[c2me-compat] gate c2me_present=true optimize_aquifer=false");
+                return false;
+            }
+
+            if (!SAMPLER_INIT_HANDLER.carriedBy(classLoader)) {
+                LOGGER.warn("[c2me-compat] gate c2me_present=true optimize_aquifer=true symbol_present=false symbol={}",
+                        SAMPLER_INIT_HANDLER);
+                return false;
+            }
+
+            LOGGER.info("[c2me-compat] gate c2me_present=true optimize_aquifer=true symbol_present=true symbol={}",
+                    SAMPLER_INIT_HANDLER);
+            return true;
+        } catch (ClassNotFoundException absent) {
+            return false;
+        } catch (ReflectiveOperationException | LinkageError changed) {
+            // A read failure assumes C2ME still owns computeSubstance: that guess fails loudly, while standing down leaves the seam unfolded and silent.
+            LOGGER.warn("[c2me-compat] cannot read {}.{}, assuming C2ME owns the aquifer",
+                    CONFIG_CLASS, OPTIMIZE_AQUIFER_FIELD, changed);
+            return true;
+        }
+    }
+
+    private static boolean readSwitch(Field switchField) throws ReflectiveOperationException {
+        if (switchField.getType() != boolean.class) {
+            throw new NoSuchFieldException(switchField + " is no longer boolean");
+        }
+
+        if (!Modifier.isStatic(switchField.getModifiers())) {
+            throw new NoSuchFieldException(switchField + " is no longer static");
+        }
+
+        return switchField.getBoolean(null);
+    }
+
+    private C2meAquifer() {
+    }
+}

@@ -1,0 +1,29 @@
+package com.exoticworlds.mixin;
+
+import org.jspecify.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.exoticworlds.engine.seam.SeamSteering;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader;
+
+@Mixin(targets = "net.minecraft.world.entity.npc.wanderingtrader.WanderingTrader$WanderToPositionGoal")
+public class WanderToPositionGoalMixin {
+    @Shadow
+    @Final
+    private WanderingTrader trader;
+
+    @ModifyExpressionValue(
+            method = { "canUse", "tick" },
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/npc/wanderingtrader/WanderingTrader;"
+                            + "getWanderTarget()Lnet/minecraft/core/BlockPos;"))
+    private @Nullable BlockPos toroidal$wanderTargetThroughSeam(@Nullable BlockPos wanderTarget) {
+        return wanderTarget == null ? null : SeamSteering.nearestCopy(this.trader, wanderTarget);
+    }
+}

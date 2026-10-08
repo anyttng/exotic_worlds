@@ -1,6 +1,6 @@
 # Supported Mods
 
-Toroidal World ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and Fabric. The mods below are grouped by what they do, and inside each group they run in this order: **no patch needed**, where the mod already works on a toroidal world and Toroidal World carries no code for it; **supported**, where it works because Toroidal World carries code for it; **partially supported**, where the mod is folded across the seam and the limits left are named beside it; **no seam support**, where the mod runs but nothing folds it across the seam; and **not tested**, where nobody has run it against a shaped world yet.
+Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and Fabric. The mods below are grouped by what they do, and inside each group they run in this order: **no patch needed**, where the mod already works on a toroidal world and Exotic Worlds carries no code for it; **supported**, where it works because Exotic Worlds carries code for it; **partially supported**, where the mod is folded across the seam and the limits left are named beside it; **no seam support**, where the mod runs but nothing folds it across the seam; and **not tested**, where nobody has run it against a shaped world yet.
 
 ## Rendering and performance
 
@@ -19,19 +19,20 @@ Toroidal World ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge an
 | Mod | Minecraft | Loaders | Status | Notes |
 | --- | --- | --- | --- | --- |
 | [Distant Horizons](https://modrinth.com/mod/distanthorizons) | All | NeoForge, Fabric | Supported | |
-| Distant Horizons SeedGen | 26.3, 26.2, 1.21.1 | NeoForge, Fabric | Supported | |
 | [Voxy](https://modrinth.com/mod/voxy) | All | Fabric | No seam support | |
 | Bobby | — | — | Not tested | |
+| Distant Horizons SeedGen | 26.3, 26.2, 1.21.1 | NeoForge, Fabric | Not supported | |
 
 ## Maps and navigation
 
 | Mod | Minecraft | Loaders | Status | Notes |
 | --- | --- | --- | --- | --- |
+| MapFrontiers | All | NeoForge, Fabric | No patch needed | |
 | [JourneyMap](https://modrinth.com/mod/journeymap) | All | NeoForge, Fabric | Supported | |
 | [Xaero's Minimap](https://modrinth.com/mod/xaeros-minimap) | All | NeoForge, Fabric | Supported | |
 | [Xaero's World Map](https://modrinth.com/mod/xaeros-world-map) | All | NeoForge, Fabric | Supported | |
 | FTB Chunks x Xaero's Map Compat | 1.21.1 | NeoForge | Supported | |
-| FTB Chunks | 1.21.1 | NeoForge, Fabric | Supported | |
+| FTB Chunks | 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | |
 | JourneyMap Integration | 1.21.1 | NeoForge, Fabric | Supported | |
 | [Simple Atlas](https://modrinth.com/mod/simple-atlas) | 26.2, 26.1.2 | Fabric | Supported | Where the world's width is not a whole number of maps, maps across the world's edge overlap and no copies are drawn |
 
@@ -45,7 +46,7 @@ Toroidal World ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge an
 | [Mekanism](https://modrinth.com/mod/mekanism) | 1.21.1 | NeoForge | Supported | |
 | Mekanism Generators | 1.21.1 | NeoForge | Supported | |
 | [AstikorCarts Redux](https://modrinth.com/mod/astikorcarts-redux) | 1.21.1 | NeoForge | Supported | |
-| [Create Electro Energetics](https://modrinth.com/mod/create-electro-energetics) | 1.21.1 | NeoForge | Partially supported | Electric trains and structures do not keep wires across the world's edge |
+| [Create Electro Energetics](https://modrinth.com/mod/create-electro-energetics) | 1.21.1 | NeoForge | Supported | |
 
 ## Content and server side
 

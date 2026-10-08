@@ -1,0 +1,22 @@
+package com.exoticworlds.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.exoticworlds.engine.seam.SeamSteering;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.animal.turtle.Turtle;
+
+@Mixin(targets = "net.minecraft.world.entity.animal.turtle.Turtle$TurtleMoveControl")
+public class TurtleMoveControlMixin {
+    @WrapOperation(
+            method = "updateSpeed",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/animal/turtle/Turtle;getHomePos()Lnet/minecraft/core/BlockPos;"))
+    private BlockPos toroidal$homeThroughSeam(Turtle turtle, Operation<BlockPos> original) {
+        return SeamSteering.nearestCopy(turtle, original.call(turtle));
+    }
+}

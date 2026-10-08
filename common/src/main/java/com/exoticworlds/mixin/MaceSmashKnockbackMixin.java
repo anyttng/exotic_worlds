@@ -1,0 +1,25 @@
+package com.exoticworlds.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.engine.seam.SeamAim;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
+
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.MaceItem;
+import net.minecraft.world.phys.Vec3;
+
+@Mixin(MaceItem.class)
+public class MaceSmashKnockbackMixin {
+    @ModifyExpressionValue(
+            method = "lambda$knockback$0",
+            at = @At(
+                    value = "INVOKE",
+                    target = InjectionTargets.VEC3_SUBTRACT))
+    private static Vec3 toroidal$smashPushThroughSeam(Vec3 direction, @Local(argsOnly = true) LivingEntity nearby) {
+        return SeamAim.foldDelta(nearby, direction);
+    }
+}

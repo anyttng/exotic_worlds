@@ -1,6 +1,6 @@
-# Toroidal World from Another Mod
+# Exotic Worlds from Another Mod
 
-Toroidal World exposes one package to other mods: `com.toroidalworld.api.v1`. It does three things. It answers what the world's shape is and folds coordinates into it, so a mod that measures distance, keys storage by position or draws a marker keeps working when the world loops. It lets a mod carry its own packets, particles and rigid groups across the seam, which nothing but that mod's author can do for them. And it lets a mod declare a world shape of its own, which the player then picks on the create-world screen beside the ones this mod ships.
+Exotic Worlds exposes one package to other mods: `com.exoticworlds.api.v1`. It does three things. It answers what the world's shape is and folds coordinates into it, so a mod that measures distance, keys storage by position or draws a marker keeps working when the world loops. It lets a mod carry its own packets, particles and rigid groups across the seam, which nothing but that mod's author can do for them. And it lets a mod declare a world shape of its own, which the player then picks on the create-world screen beside the ones this mod ships.
 
 Everything outside that package is internal — it moves between releases without notice, and mixins into it are unsupported.
 
@@ -11,26 +11,26 @@ Reading a shape is the first part of this page; making your own mechanism work o
 ```groovy
 repositories {
     maven {
-        name = 'Toroidal World'
-        url = 'https://raw.githubusercontent.com/vitalikyarina/toroidal_world/maven/'
+        name = 'Exotic Worlds'
+        url = 'https://raw.githubusercontent.com/anyttng/exotic_worlds/maven/'
     }
 }
 
 dependencies {
-    compileOnly 'com.toroidalworld:toroidal-world-api:<mod version>'
+    compileOnly 'com.exoticworlds:exotic-worlds-api:<mod version>'
 }
 ```
 
 The API version is the mod version; `maven-metadata.xml` under the coordinate lists what is published. Sources and javadoc are published beside the jar.
 
-`compileOnly` is the point: the artifact carries the API package alone, and at runtime the classes come from the Toroidal World the player installed. Declare the mod as an optional dependency of yours and check that it is loaded before you touch any `com.toroidalworld` class — the mod id is `toroidal_world`. A class that names one of them fails to load when the mod is absent, so keep those calls in a class you reach only after the check, not in a field initialiser of a class that always loads.
+`compileOnly` is the point: the artifact carries the API package alone, and at runtime the classes come from the copy of Exotic Worlds the player installed. Declare the mod as an optional dependency of yours and check that it is loaded before you touch any `com.exoticworlds` class — the mod id is `exotic_worlds`. A class that names one of them fails to load when the mod is absent, so keep those calls in a class you reach only after the check, not in a field initialiser of a class that always loads.
 
 ## Server side
 
-`ToroidalWorldApi.shapeOf(level)` answers the geometry of a level whose own engine knows its bounds — a `ServerLevel`, or anything delegating to one. It is empty when no axis of that level loops, which is the normal answer on a world that is not toroidal.
+`ExoticWorldsApi.shapeOf(level)` answers the geometry of a level whose own engine knows its bounds — a `ServerLevel`, or anything delegating to one. It is empty when no axis of that level loops, which is the normal answer on a world that is not toroidal.
 
 ```java
-Optional<ToroidalShape> shape = ToroidalWorldApi.shapeOf(level);
+Optional<ToroidalShape> shape = ExoticWorldsApi.shapeOf(level);
 if (shape.isEmpty()) {
     return distance(from, to);
 }
@@ -38,17 +38,17 @@ if (shape.isEmpty()) {
 
 The view is immutable and cheap; hold it for as long as the level lives.
 
-`ToroidalWorldApi.travelOf(player, axis)` answers how far a player has travelled toward the next lap of the dimension they are in, in blocks, signed with the direction of travel. Pacing back and forth cancels out, crossing the seam does not count as a world width, and one whole width comes off each time a lap closes.
+`ExoticWorldsApi.travelOf(player, axis)` answers how far a player has travelled toward the next lap of the dimension they are in, in blocks, signed with the direction of travel. Pacing back and forth cancels out, crossing the seam does not count as a world width, and one whole width comes off each time a lap closes.
 
 ## Client side
 
-A client level's own engine believes the world is infinite. That is deliberate — it is what keeps vanilla rendering and chunk loading working across the seam — and it is why `ToroidalWorldApi.shapeOf` answers empty for a `ClientLevel` even in a world that loops. The bounds the server declared ride apart on the client level, and `ToroidalWorldClientApi` is what reads them:
+A client level's own engine believes the world is infinite. That is deliberate — it is what keeps vanilla rendering and chunk loading working across the seam — and it is why `ExoticWorldsApi.shapeOf` answers empty for a `ClientLevel` even in a world that loops. The bounds the server declared ride apart on the client level, and `ExoticWorldsClientApi` is what reads them:
 
 ```java
-Optional<ToroidalShape> shape = ToroidalWorldClientApi.shapeOf(clientLevel);
+Optional<ToroidalShape> shape = ExoticWorldsClientApi.shapeOf(clientLevel);
 ```
 
-Every looping level arrives on login and on dimension change, before the first chunk, so a shape is there by the time anything is drawn. `ToroidalWorldClientApi.shapeOf(dimension)` takes a `ResourceKey<Level>` instead and answers for a dimension the player is not standing in — what a fullscreen map browsing another dimension folds by.
+Every looping level arrives on login and on dimension change, before the first chunk, so a shape is there by the time anything is drawn. `ExoticWorldsClientApi.shapeOf(dimension)` takes a `ResourceKey<Level>` instead and answers for a dimension the player is not standing in — what a fullscreen map browsing another dimension folds by.
 
 Client coordinates near the seam run whole world widths away from the server's, because the client holds whichever copy it was sent. Fold before you key anything by position, and measure against the player rather than against raw coordinates.
 
@@ -130,9 +130,9 @@ The lists of every namespace are joined on the server; a rewriter registered for
 
 ### Positions your block entity or entity stores
 
-A block entity's sync tag and an entity's spawn data are NBT, and nothing in a tag says which number is a world position. Name those keys in a data file, and each one reaches the client on the copy of the world that client holds — no code, and no dependency on Toroidal World. The file ships in your own jar or in a datapack, one per namespace:
+A block entity's sync tag and an entity's spawn data are NBT, and nothing in a tag says which number is a world position. Name those keys in a data file, and each one reaches the client on the copy of the world that client holds — no code, and no dependency on Exotic Worlds. The file ships in your own jar or in a datapack, one per namespace:
 
-`data/<namespace>/toroidal_world/positions.json`
+`data/<namespace>/exotic_worlds/positions.json`
 
 ```json
 {
@@ -163,7 +163,7 @@ A value whose tag type does not match its shape is left as it is.
 
 `block_entities` rows apply to the tag a client receives for the block entity, with its chunk or on its own update. `entities` rows apply on NeoForge alone, to the spawn data of an entity implementing `IEntityWithComplexSpawn` whose buffer opens with a compound tag; Fabric has no such buffer.
 
-The server reads every namespace's file at start and on `/reload`, and sends the rows to each client as it joins and after each reload; a resource pack on the client adds none. A row naming an id no mod registers is logged and skipped. Where Toroidal World already carries a position at the same key for that block entity or entity, its own row is kept and yours is logged.
+The server reads every namespace's file at start and on `/reload`, and sends the rows to each client as it joins and after each reload; a resource pack on the client adds none. A row naming an id no mod registers is logged and skipped. Where Exotic Worlds already carries a position at the same key for that block entity or entity, its own row is kept and yours is logged.
 
 ### Positions your item components store
 
@@ -245,7 +245,7 @@ public static final ShapeModule<BandSettings> MODULE = ShapeModule.of(
 
 `MODULE.register()` enrols it. Call that from your mod's initialiser: the registry closes at `MinecraftServer.runServer`, before the levels load, and a `register` past that throws instead of being silently half-effective.
 
-The settings type is yours and Toroidal World never looks inside it. `MODULE.settings()` is what a Customize screen reads and `MODULE.settings(chosen)` what it writes back; the module holds the player's choice until the world is made.
+The settings type is yours and Exotic Worlds never looks inside it. `MODULE.settings()` is what a Customize screen reads and `MODULE.settings(chosen)` what it writes back; the module holds the player's choice until the world is made.
 
 The shape's name and tooltip come from `gui.<namespace>.world_shape.<path>` and that key plus `.hint` — for the module above, `gui.your_mod.world_shape.band` and `gui.your_mod.world_shape.band.hint`.
 
@@ -332,3 +332,25 @@ GenerationHooks.atRandomState("band_floor", (randomState, shape, options, seaLev
 **A hook gates itself.** Every registered hook runs for every folding level of every world, whatever shape made it and whichever mod declared that shape — a hook is not scoped to the shape it was registered beside. A world builds one `RandomState` per dimension, so it runs once for the overworld, once for the nether and once for the End. Read `shape` and `options` and return early unless both are what the hook is for; reaching for a span on an axis that does not loop throws.
 
 The key orders the hooks against one another and, like an option key, must be unique across every mod. Registration closes at the same boundary as everything else.
+
+## Generating terrain outside the chunk map
+
+A mod that computes terrain itself — an LOD generator sampling noise on its own worker threads, a preview, a pre-generator — reads an unbounded vanilla world on a toroidal level unless it reads the level's field the way the chunk map does. `GenerationProbe` carries what that takes.
+
+**Sample the level's own router, with the fold bound.** Read the `RandomState` the level already holds, `serverLevel.getChunkSource().randomState()`, and sample it inside `GenerationProbe.withFold`. Only the chunk map's own steps bind the fold on their thread, so without the call a noise the chunk map reads folded answers the unbounded value, and heights and biomes stop matching the world a player walks into.
+
+```java
+if (ExoticWorldsApi.shapeOf(level).isPresent()) {
+    GenerationProbe.withFold(level, () -> sampleColumns(level, region));
+} else {
+    sampleColumns(level, region);
+}
+```
+
+The binding is per thread and lasts for the call, so each worker thread wraps its own batch. `GenerationProbe.randomState(level, seed)` builds the router the level's shape and options would give another seed; a router built by hand with `RandomState.create` carries no fold.
+
+**Key by the folded position.** A column past the world's edge is a copy of one inside it — store and look it up by `fold`, as [Which operation to reach for](#which-operation-to-reach-for) describes.
+
+**Clear what the chunk map clears.** On a toroidal level the chunk map removes masses of terrain left detached from the ground. `GenerationProbe.sweepCrumbs(level, chunk)` applies that pass to a chunk filled outside it, after the carvers; `clearBorderCrumbs` applies the pass over a 3 × 3 window that runs after lighting.
+
+**What the API does not cover.** Features, structures and End spikes a mod places with its own code miss what a toroidal level changes about them: structures sit on a folded sector grid, the level adds structure starts of its own, and none of it reaches code that computes placement itself.
