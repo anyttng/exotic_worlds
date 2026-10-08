@@ -11,6 +11,7 @@ import com.toroidalworld.core.WorldFold;
 import com.toroidalworld.core.WorldFolds;
 import com.toroidalworld.core.WorldLoopBounds;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
 class WireCopiesTest {
@@ -23,6 +24,28 @@ class WireCopiesTest {
     private static final Vec3 WEST_END_BESIDE_EAST = new Vec3(-500.0 + LAP, 70.0, 5.0);
     private static final Vec3 EAST_END_BESIDE_WEST = new Vec3(480.0 - LAP, 70.0, 5.0);
     private static final float NEAR_FIRST_END = 0.25F;
+    private static final BlockPos INLAND_HOLDER_1 = BlockPos.containing(INLAND_1);
+    private static final BlockPos INLAND_HOLDER_2 = BlockPos.containing(INLAND_2);
+    private static final BlockPos FAR_EAST_HOLDER = BlockPos.containing(FAR_EAST_END);
+    private static final BlockPos FAR_WEST_HOLDER = BlockPos.containing(FAR_WEST_END);
+
+    @Test
+    void aLineInOnePieceHasOneCopy() {
+        assertFalse(WireCopies.parted(TORUS, INLAND_HOLDER_1, INLAND_HOLDER_2));
+        assertEquals(new WireCopies.BlockSpan(INLAND_HOLDER_1, INLAND_HOLDER_2),
+                WireCopies.from(TORUS, INLAND_HOLDER_1, INLAND_HOLDER_2, WireCopies.FIRST_END));
+        assertEquals(new WireCopies.BlockSpan(INLAND_HOLDER_1, INLAND_HOLDER_2),
+                WireCopies.from(TORUS, INLAND_HOLDER_1, INLAND_HOLDER_2, WireCopies.SECOND_END));
+    }
+
+    @Test
+    void eachHolderCarriesItsCopyAndSeatsTheOtherBesideIt() {
+        assertTrue(WireCopies.parted(TORUS, FAR_EAST_HOLDER, FAR_WEST_HOLDER));
+        assertEquals(new WireCopies.BlockSpan(FAR_EAST_HOLDER, BlockPos.containing(WEST_END_BESIDE_EAST)),
+                WireCopies.from(TORUS, FAR_EAST_HOLDER, FAR_WEST_HOLDER, WireCopies.FIRST_END));
+        assertEquals(new WireCopies.BlockSpan(BlockPos.containing(EAST_END_BESIDE_WEST), FAR_WEST_HOLDER),
+                WireCopies.from(TORUS, FAR_EAST_HOLDER, FAR_WEST_HOLDER, WireCopies.SECOND_END));
+    }
 
     @Test
     void aWireInOnePieceHasOneCopy() {

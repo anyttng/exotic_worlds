@@ -33,6 +33,7 @@
   ],
   "client": [
     "LinemansStickRendererMixin",
+    "PantographMovementBehaviourMixin",
     "SendWireParticlesPacketMixin",
     "WireEffectMixin",
     "WireEffectsMixin",

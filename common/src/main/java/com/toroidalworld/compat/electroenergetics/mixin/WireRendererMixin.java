@@ -1,20 +1,26 @@
 package com.toroidalworld.compat.electroenergetics.mixin;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.george_vi.electroenergetics.CEERegistries;
 import com.george_vi.electroenergetics.client.WireEffect;
 import com.george_vi.electroenergetics.client.WireRenderer;
 import com.george_vi.electroenergetics.config.CEEConfigs;
+import com.george_vi.electroenergetics.content.railway_electrification.catenary.CatenaryConnection;
 import com.george_vi.electroenergetics.foundation.nodes.InWorldNodeConnection;
+import com.george_vi.electroenergetics.simulation.WireType;
 import com.george_vi.electroenergetics.simulation.infrastructure.WireData;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -22,6 +28,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalDoubleRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.toroidalworld.compat.electroenergetics.CatenaryCopies;
 import com.toroidalworld.compat.electroenergetics.ElectroEnergeticsInjectionTargets;
 import com.toroidalworld.compat.electroenergetics.SecondEndWire;
 import com.toroidalworld.compat.electroenergetics.WireCopies;
@@ -34,12 +41,54 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = WireRenderer.class, remap = false)
 public abstract class WireRendererMixin {
+    private static final ResourceLocation STANDARD_WIRE =
+            ResourceLocation.fromNamespaceAndPath("electroenergetics", "standard");
     @Unique
     private static final Map<InWorldNodeConnection, WireEffect> toroidal$secondEndEffects = new HashMap<>();
+    @Unique
+    private static final Map<CatenaryConnection, WireEffect> toroidal$secondEndCatenaryEffects = new HashMap<>();
+
+    @ModifyExpressionValue(method = "render", at = @At(value = "FIELD",
+            target = ElectroEnergeticsInjectionTargets.CATENARY_LINES, opcode = Opcodes.GETSTATIC))
+    private static List<CatenaryConnection> toroidal$catenaryFromEachEnd(List<CatenaryConnection> lines,
+            @Local(name = "level") ClientLevel level) {
+        return CatenaryCopies.fromEachEnd(level, lines);
+    }
+
+    @Inject(method = "addCatenary", at = @At(value = "INVOKE",
+            target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+            shift = At.Shift.AFTER))
+    private static void toroidal$addSecondEndCatenaryEffect(CatenaryConnection line, CallbackInfo ci) {
+        toroidal$queueSecondEndCatenary(line);
+    }
+
+    @Inject(method = "removeCatenary", at = @At("RETURN"))
+    private static void toroidal$removeSecondEndCatenaryEffect(CatenaryConnection line, CallbackInfo ci) {
+        WireEffect effect = toroidal$secondEndCatenaryEffects.remove(line);
+        if (effect != null) {
+            VisualizationHelper.queueRemove(effect);
+        }
+    }
+
+    @Inject(method = "clearAllCatenaryConnections", at = @At("RETURN"))
+    private static void toroidal$clearSecondEndCatenaryEffects(CallbackInfo ci) {
+        toroidal$dropSecondEndCatenaryEffects();
+    }
+
+    @Inject(method = "recreateVisuals", at = @At("RETURN"))
+    private static void toroidal$recreateSecondEndCatenaryEffects(CallbackInfo ci) {
+        toroidal$dropSecondEndCatenaryEffects();
+        if (!CEEConfigs.client().disableFlywheelWireRendering.get()) {
+            for (CatenaryConnection line : WireRenderer.CATENARY) {
+                toroidal$queueSecondEndCatenary(line);
+            }
+        }
+    }
 
     @WrapOperation(method = "render",
             at = @At(value = "INVOKE", target = ElectroEnergeticsInjectionTargets.ALL_WIRE_CONNECTIONS))
@@ -114,6 +163,34 @@ public abstract class WireRendererMixin {
         }
 
         VisualizationHelper.queueAdd(effect);
+    }
+
+    @Unique
+    private static void toroidal$queueSecondEndCatenary(CatenaryConnection line) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (!CatenaryCopies.parted(level, line)) {
+            return;
+        }
+
+        WireType standard = CEERegistries.WIRE_TYPE.get(STANDARD_WIRE);
+        WireEffect effect = new WireEffect(level, line, standard,
+                new WireData(standard, 0.0F, Collections.emptyList(), 0.0));
+        ((WireCopyHolder) (Object) effect).toroidal$setEnd(WireCopies.SECOND_END);
+        WireEffect replaced = toroidal$secondEndCatenaryEffects.put(line, effect);
+        if (replaced != null) {
+            VisualizationHelper.queueRemove(replaced);
+        }
+
+        VisualizationHelper.queueAdd(effect);
+    }
+
+    @Unique
+    private static void toroidal$dropSecondEndCatenaryEffects() {
+        for (WireEffect effect : toroidal$secondEndCatenaryEffects.values()) {
+            VisualizationHelper.queueRemove(effect);
+        }
+
+        toroidal$secondEndCatenaryEffects.clear();
     }
 
     @Unique

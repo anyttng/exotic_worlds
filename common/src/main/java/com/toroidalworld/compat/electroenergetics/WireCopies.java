@@ -3,6 +3,7 @@ package com.toroidalworld.compat.electroenergetics;
 import com.toroidalworld.core.DeckTransformation;
 import com.toroidalworld.core.WorldFold;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
 public final class WireCopies {
@@ -12,7 +13,14 @@ public final class WireCopies {
     public record Span(Vec3 pos1, Vec3 pos2) {
     }
 
+    public record BlockSpan(BlockPos pos1, BlockPos pos2) {
+    }
+
     public static boolean parted(WorldFold fold, Vec3 pos1, Vec3 pos2) {
+        return !fold.nearestCopy(pos1, pos2).equals(pos2);
+    }
+
+    public static boolean parted(WorldFold fold, BlockPos pos1, BlockPos pos2) {
         return !fold.nearestCopy(pos1, pos2).equals(pos2);
     }
 
@@ -20,6 +28,12 @@ public final class WireCopies {
         return end == SECOND_END
                 ? new Span(fold.nearestCopy(pos2, pos1), pos2)
                 : new Span(pos1, fold.nearestCopy(pos1, pos2));
+    }
+
+    public static BlockSpan from(WorldFold fold, BlockPos pos1, BlockPos pos2, int end) {
+        return end == SECOND_END
+                ? new BlockSpan(fold.nearestCopy(pos2, pos1), pos2)
+                : new BlockSpan(pos1, fold.nearestCopy(pos1, pos2));
     }
 
     public static Span around(WorldFold fold, Vec3 pos1, Vec3 pos2, float point, Vec3 viewer) {

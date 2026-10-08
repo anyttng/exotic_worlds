@@ -1,16 +1,23 @@
 package com.toroidalworld.compat.electroenergetics.mixin;
 
+import java.util.List;
+
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.george_vi.electroenergetics.client.WireEffects;
+import com.george_vi.electroenergetics.content.railway_electrification.catenary.CatenaryConnection;
 import com.george_vi.electroenergetics.foundation.WirePoints;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.toroidalworld.InjectionTargets;
 import com.toroidalworld.client.engine.ClientFrame;
+import com.toroidalworld.compat.electroenergetics.CatenaryCopies;
+import com.toroidalworld.compat.electroenergetics.ElectroEnergeticsInjectionTargets;
 import com.toroidalworld.compat.electroenergetics.WireCopies;
 import com.toroidalworld.core.WorldLoopAttachments;
 
@@ -29,6 +36,13 @@ public abstract class WireEffectsMixin {
                 WireCopies.FIRST_END).pos2();
         pos2.set(seated);
         return original.call(from, seated);
+    }
+
+    @ModifyExpressionValue(method = "tick", at = @At(value = "FIELD",
+            target = ElectroEnergeticsInjectionTargets.CATENARY_LINES, opcode = Opcodes.GETSTATIC))
+    private static List<CatenaryConnection> toroidal$catenaryInOnePiece(List<CatenaryConnection> lines,
+            @Local(name = "mc") Minecraft mc) {
+        return CatenaryCopies.inOnePiece(mc.level, lines);
     }
 
     @WrapOperation(method = "spawnDrippingWater", at = @At(value = "INVOKE", target = WIRE_POINT, ordinal = 0))

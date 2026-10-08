@@ -16,6 +16,8 @@ public final class ElectroEnergeticsInjectionTargets {
     public static final String ALL_WIRE_CONNECTIONS =
             "Lcom/george_vi/electroenergetics/client/WireRenderer;getAllConnections()Ljava/util/List;";
 
+    public static final String CATENARY_LINES = "Lcom/george_vi/electroenergetics/client/WireRenderer;CATENARY:Ljava/util/List;";
+
     public static final String STRUCTURE_TEMPLATE_MIXIN = "com.george_vi.electroenergetics.mixins.StructureTemplateMixin";
     public static final String CAPTURE_HANDLER = "fillFromWorld";
     public static final String PLACE_HANDLER = "placeInWorld";
