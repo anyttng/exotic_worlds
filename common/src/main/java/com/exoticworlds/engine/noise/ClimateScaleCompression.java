@@ -1,10 +1,10 @@
 package com.exoticworlds.engine.noise;
 
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
 
 import it.unimi.dsi.fastutil.doubles.DoubleList;
-import net.minecraft.core.Direction;
 
 public final class ClimateScaleCompression {
     public static final double NO_COMPRESSION = 1.0;
@@ -31,8 +31,9 @@ public final class ClimateScaleCompression {
     }
 
     static int lapBlocks(WorldFold fold) {
-        WrapDomain xDomain = fold.blockDomain(Direction.Axis.X);
-        WrapDomain zDomain = fold.blockDomain(Direction.Axis.Z);
+        TranslationLattice lattice = fold.blockLattice();
+        WrapDomain xDomain = lattice.x();
+        WrapDomain zDomain = lattice.z();
         if (xDomain.loops() && zDomain.loops()) {
             return Math.min(xDomain.domainLength, zDomain.domainLength);
         }

@@ -20,6 +20,9 @@ final class WorldLoopTransformer implements WorldFold {
     private final VectorOps vectors;
     private final BlockOps blocks;
 
+    private final TranslationLattice blockLattice;
+    private final TranslationLattice chunkLattice;
+
     private final WorldLoopBounds bounds;
 
     private final boolean wrapped;
@@ -53,6 +56,8 @@ final class WorldLoopTransformer implements WorldFold {
                 chunkDomainFor(bounds.z(), foreignFrames, Direction.Axis.Z));
         this.vectors = new VectorOps();
         this.blocks = new BlockOps();
+        this.blockLattice = TranslationLattice.unskewed(this.coords.x, this.coords.z);
+        this.chunkLattice = TranslationLattice.unskewed(this.chunks.x, this.chunks.z);
     }
 
     private static WrapDomain chunkDomainFor(AxisBounds axisBounds, List<ForeignFrame> foreignFrames,
@@ -362,6 +367,16 @@ final class WorldLoopTransformer implements WorldFold {
             case Z -> chunks.z;
             case Y -> throw new IllegalArgumentException("The fold contract carries no Y axis");
         };
+    }
+
+    @Override
+    public TranslationLattice blockLattice() {
+        return this.blockLattice;
+    }
+
+    @Override
+    public TranslationLattice chunkLattice() {
+        return this.chunkLattice;
     }
 
     @Override

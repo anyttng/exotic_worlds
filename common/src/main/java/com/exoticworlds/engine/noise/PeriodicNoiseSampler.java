@@ -1,10 +1,12 @@
 package com.exoticworlds.engine.noise;
 
+import org.jspecify.annotations.Nullable;
+
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
 
-import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
@@ -32,6 +34,11 @@ public final class PeriodicNoiseSampler {
 
     static final long HELD_PERIOD = -1L;
 
+    private static final int X_SLOT = 0;
+    private static final int Y_SLOT = 1;
+    private static final int Z_SLOT = 2;
+    private static final int NO_SLOT = -1;
+
     public static double sample(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold transformer, Context context,
             double x, double y, double z, double yScale, double yFudge) {
@@ -48,40 +55,87 @@ public final class PeriodicNoiseSampler {
 
     static PeriodicLattice lattice(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold transformer, Context context, LapFloor floor) {
+        TranslationLattice translations = transformer.blockLattice();
         SlotAxes axes = context.slotAxes();
         double scale = context.horizontalScale();
         if (axes != SlotAxes.DEFAULT || context.xDivisor() != 1.0 || context.zDivisor() != 1.0) {
-            return new PeriodicLattice(permutations, xOffset, yOffset, zOffset,
-                    slotAxis(axes.x(), transformer, context, scale, floor),
-                    slotAxis(axes.y(), transformer, context, scale, floor),
-                    slotAxis(axes.z(), transformer, context, scale, floor), 1.0, 0.0);
+            PeriodicLattice.Axis xAxis = slotAxis(axes.x(), translations, context, scale, floor);
+            PeriodicLattice.Axis yAxis = slotAxis(axes.y(), translations, context, scale, floor);
+            PeriodicLattice.Axis zAxis = slotAxis(axes.z(), translations, context, scale, floor);
+            return new PeriodicLattice(permutations, xOffset, yOffset, zOffset, xAxis, yAxis, zAxis, 1.0, 0.0,
+                    slotShear(translations, axes, xAxis, yAxis, zAxis));
         }
 
-        WrapDomain xDomain = transformer.blockDomain(Direction.Axis.X);
-        WrapDomain zDomain = transformer.blockDomain(Direction.Axis.Z);
+        WrapDomain xDomain = translations.x();
+        WrapDomain zDomain = translations.z();
         long xPeriod = period(xDomain, scale, floor);
         long zPeriod = period(zDomain, scale, floor);
         double verticalShare = context.verticalShare();
         double correction = OctaveVarianceCorrection.factor(xDomain, zDomain, scale, verticalShare);
         double anchorGain = OctaveVarianceCorrection.anchorGain(xDomain, zDomain, scale, verticalShare);
+        PeriodicLattice.Axis xAxis = new PeriodicLattice.Axis(true, xDomain, xPeriod, scale);
+        PeriodicLattice.Axis zAxis = new PeriodicLattice.Axis(true, zDomain, zPeriod, scale);
+        if (translations.isSkewed()) {
+            PeriodicLattice.Shear shear = PeriodicLattice.Shear.of(translations, X_SLOT, Z_SLOT, xPeriod, zPeriod);
+            double anchor = anchorGain > 0.0
+                    ? anchorGain * sample(new PeriodicLattice(permutations, xOffset, yOffset, zOffset,
+                            xAxis, PeriodicLattice.Axis.PASS_THROUGH, zAxis, 1.0, 0.0, shear), 0.0, 0.0, 0.0, 0.0, 0.0)
+                    : 0.0;
+            return new PeriodicLattice(permutations, xOffset, yOffset, zOffset,
+                    xAxis, PeriodicLattice.Axis.PASS_THROUGH, zAxis, correction, anchor, shear);
+        }
+
         double anchor = anchorGain > 0.0
                 ? anchorGain * anchorSample(permutations, xDomain, zDomain, xPeriod, zPeriod, scale, xOffset, yOffset,
                         zOffset)
                 : 0.0;
         return new PeriodicLattice(permutations, xOffset, yOffset, zOffset,
-                new PeriodicLattice.Axis(true, xDomain, xPeriod, scale), PeriodicLattice.Axis.PASS_THROUGH,
-                new PeriodicLattice.Axis(true, zDomain, zPeriod, scale), correction, anchor);
+                xAxis, PeriodicLattice.Axis.PASS_THROUGH, zAxis, correction, anchor, null);
     }
 
     // A slot carrying no world axis arrives already scaled by its caller, so scaling it again would move the lattice.
-    private static PeriodicLattice.Axis slotAxis(SlotAxis axis, WorldFold transformer, Context context, double scale,
-            LapFloor floor) {
-        WrapDomain domain = axis.domainOf(transformer);
+    private static PeriodicLattice.Axis slotAxis(SlotAxis axis, TranslationLattice translations, Context context,
+            double scale, LapFloor floor) {
+        WrapDomain domain = axis.domainOf(translations);
         double slotScale = scale / axis.divisorIn(context);
         return new PeriodicLattice.Axis(axis.carriesWorldAxis(), domain, period(domain, slotScale, floor), slotScale);
     }
 
+    private static PeriodicLattice.@Nullable Shear slotShear(TranslationLattice translations, SlotAxes axes,
+            PeriodicLattice.Axis... slotAxes) {
+        if (!translations.isSkewed()) {
+            return null;
+        }
+
+        int xSlot = slotOf(axes, SlotAxis.X);
+        int zSlot = slotOf(axes, SlotAxis.Z);
+        if (xSlot < 0 || zSlot < 0) {
+            throw new IllegalStateException("A skewed lattice closes only on a frame carrying both world axes, got "
+                    + axes);
+        }
+
+        return PeriodicLattice.Shear.of(translations, xSlot, zSlot, slotAxes[xSlot].period(),
+                slotAxes[zSlot].period());
+    }
+
+    private static int slotOf(SlotAxes axes, SlotAxis axis) {
+        if (axes.x() == axis) {
+            return X_SLOT;
+        }
+
+        if (axes.y() == axis) {
+            return Y_SLOT;
+        }
+
+        return axes.z() == axis ? Z_SLOT : NO_SLOT;
+    }
+
     static double sample(PeriodicLattice lattice, double x, double y, double z, double yScale, double yFudge) {
+        PeriodicLattice.Shear shear = lattice.shear();
+        if (shear != null) {
+            return sampleSheared(lattice, shear, x, y, z, yScale, yFudge);
+        }
+
         double xs = lattice.x().coord(x) + lattice.xOffset();
         double ys = lattice.y().coord(y) + lattice.yOffset();
         double zs = lattice.z().coord(z) + lattice.zOffset();
@@ -91,18 +145,103 @@ public final class PeriodicNoiseSampler {
         double xFrac = xs - xCell;
         double yFrac = ys - yCell;
         double zFrac = zs - zCell;
+        return lattice.correction() * sampleAndLerp(lattice.permutations(), xCell, yCell, zCell, xFrac,
+                yFrac - yFracFudge(yFrac, yScale, yFudge), zFrac, yFrac, lattice.x().period(), lattice.y().period(),
+                lattice.z().period()) + lattice.anchor();
+    }
 
-        double yFracFudge;
-        if (yScale != 0.0) {
-            double fudgeLimit = yFudge >= 0.0 && yFudge < yFrac ? yFudge : yFrac;
-            yFracFudge = Mth.floor(fudgeLimit / yScale + 1.0E-7F) * yScale;
-        } else {
-            yFracFudge = 0.0;
+    private static double sampleSheared(PeriodicLattice lattice, PeriodicLattice.Shear shear, double x, double y,
+            double z, double yScale, double yFudge) {
+        double worldX = slotValue(shear.xSlot(), x, y, z);
+        double worldZ = slotValue(shear.zSlot(), x, y, z);
+        double noiseX = shear.noiseX(worldX, worldZ);
+        double noiseZ = shear.noiseZ(worldZ);
+        double xs = shearedCoord(X_SLOT, shear, lattice.x(), x, noiseX, noiseZ) + lattice.xOffset();
+        double ys = shearedCoord(Y_SLOT, shear, lattice.y(), y, noiseX, noiseZ) + lattice.yOffset();
+        double zs = shearedCoord(Z_SLOT, shear, lattice.z(), z, noiseX, noiseZ) + lattice.zOffset();
+        int xCell = Mth.floor(xs);
+        int yCell = Mth.floor(ys);
+        int zCell = Mth.floor(zs);
+        double xFrac = xs - xCell;
+        double yFrac = ys - yCell;
+        double zFrac = zs - zCell;
+        double yFracFudged = yFrac - yFracFudge(yFrac, yScale, yFudge);
+        byte[] permutations = lattice.permutations();
+        double d000 = gradDot(shearedHash(permutations, lattice, shear, xCell, yCell, zCell),
+                xFrac, yFracFudged, zFrac);
+        double d100 = gradDot(shearedHash(permutations, lattice, shear, xCell + 1L, yCell, zCell),
+                xFrac - 1.0, yFracFudged, zFrac);
+        double d010 = gradDot(shearedHash(permutations, lattice, shear, xCell, yCell + 1L, zCell),
+                xFrac, yFracFudged - 1.0, zFrac);
+        double d110 = gradDot(shearedHash(permutations, lattice, shear, xCell + 1L, yCell + 1L, zCell),
+                xFrac - 1.0, yFracFudged - 1.0, zFrac);
+        double d001 = gradDot(shearedHash(permutations, lattice, shear, xCell, yCell, zCell + 1L),
+                xFrac, yFracFudged, zFrac - 1.0);
+        double d101 = gradDot(shearedHash(permutations, lattice, shear, xCell + 1L, yCell, zCell + 1L),
+                xFrac - 1.0, yFracFudged, zFrac - 1.0);
+        double d011 = gradDot(shearedHash(permutations, lattice, shear, xCell, yCell + 1L, zCell + 1L),
+                xFrac, yFracFudged - 1.0, zFrac - 1.0);
+        double d111 = gradDot(shearedHash(permutations, lattice, shear, xCell + 1L, yCell + 1L, zCell + 1L),
+                xFrac - 1.0, yFracFudged - 1.0, zFrac - 1.0);
+        double noise = Mth.lerp3(Mth.smoothstep(xFrac), Mth.smoothstep(yFrac), Mth.smoothstep(zFrac),
+                d000, d100, d010, d110, d001, d101, d011, d111);
+        return lattice.correction() * noise + lattice.anchor();
+    }
+
+    private static double yFracFudge(double yFrac, double yScale, double yFudge) {
+        if (yScale == 0.0) {
+            return 0.0;
         }
 
-        return lattice.correction() * sampleAndLerp(lattice.permutations(), xCell, yCell, zCell, xFrac,
-                yFrac - yFracFudge, zFrac, yFrac, lattice.x().period(), lattice.y().period(), lattice.z().period())
-                + lattice.anchor();
+        double fudgeLimit = yFudge >= 0.0 && yFudge < yFrac ? yFudge : yFrac;
+        return Mth.floor(fudgeLimit / yScale + 1.0E-7F) * yScale;
+    }
+
+    private static double slotValue(int slot, double x, double y, double z) {
+        return switch (slot) {
+            case X_SLOT -> x;
+            case Y_SLOT -> y;
+            default -> z;
+        };
+    }
+
+    private static double shearedCoord(int slot, PeriodicLattice.Shear shear, PeriodicLattice.Axis axis,
+            double input, double noiseX, double noiseZ) {
+        if (slot == shear.xSlot()) {
+            return noiseX;
+        }
+
+        return slot == shear.zSlot() ? noiseZ : axis.coord(input);
+    }
+
+    private static int shearedHash(byte[] permutations, PeriodicLattice lattice, PeriodicLattice.Shear shear,
+            long xCell, long yCell, long zCell) {
+        long worldZ = slotCell(shear.zSlot(), xCell, yCell, zCell);
+        long laps = Math.floorDiv(worldZ, shear.zPeriod());
+        long reducedZ = worldZ - laps * shear.zPeriod();
+        long reducedX = Math.floorMod(slotCell(shear.xSlot(), xCell, yCell, zCell) - laps * shear.skewCells(),
+                shear.xPeriod());
+        long x = reducedCell(X_SLOT, shear, lattice.x(), xCell, reducedX, reducedZ);
+        long y = reducedCell(Y_SLOT, shear, lattice.y(), yCell, reducedX, reducedZ);
+        long z = reducedCell(Z_SLOT, shear, lattice.z(), zCell, reducedX, reducedZ);
+        return p(permutations, p(permutations, p(permutations, x) + y) + z);
+    }
+
+    private static long slotCell(int slot, long xCell, long yCell, long zCell) {
+        return switch (slot) {
+            case X_SLOT -> xCell;
+            case Y_SLOT -> yCell;
+            default -> zCell;
+        };
+    }
+
+    private static long reducedCell(int slot, PeriodicLattice.Shear shear, PeriodicLattice.Axis axis, long cell,
+            long reducedX, long reducedZ) {
+        if (slot == shear.xSlot()) {
+            return reducedX;
+        }
+
+        return slot == shear.zSlot() ? reducedZ : wrapCell(cell, axis.period());
     }
 
     public static double sampleLattice(byte[] permutations, double xs, double ys, double zs, long xPeriod,

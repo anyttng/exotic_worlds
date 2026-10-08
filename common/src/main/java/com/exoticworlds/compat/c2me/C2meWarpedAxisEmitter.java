@@ -3,7 +3,7 @@ package com.exoticworlds.compat.c2me;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.InstructionAdapter;
 
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.engine.noise.DomainWarp;
 import com.ishland.c2me.opts.dfc.common.ast.misc.CoordinateNode;
 import com.ishland.c2me.opts.dfc.common.gen.jvm.BytecodeEmitter;
@@ -14,12 +14,20 @@ public final class C2meWarpedAxisEmitter implements BytecodeEmitter<C2meWarpedAx
     public static final C2meWarpedAxisEmitter INSTANCE = new C2meWarpedAxisEmitter();
 
     private static final String WARP_CLASS = Type.getInternalName(DomainWarp.class);
-    private static final String DOMAIN_DESC = Type.getDescriptor(WrapDomain.class);
+    private static final String LATTICE_DESC = Type.getDescriptor(TranslationLattice.class);
 
-    private static final String WARP_METHOD = "apply";
-    private static final String WARP_DESC = Type.getMethodDescriptor(
+    private static final String WARP_X_METHOD = "applyX";
+    private static final String WARP_X_DESC = Type.getMethodDescriptor(
             Type.DOUBLE_TYPE,
-            Type.getType(WrapDomain.class),
+            Type.getType(TranslationLattice.class),
+            Type.INT_TYPE,
+            Type.INT_TYPE,
+            Type.DOUBLE_TYPE,
+            Type.DOUBLE_TYPE);
+    private static final String WARP_Z_METHOD = "applyZ";
+    private static final String WARP_Z_DESC = Type.getMethodDescriptor(
+            Type.DOUBLE_TYPE,
+            Type.getType(TranslationLattice.class),
             Type.INT_TYPE,
             Type.DOUBLE_TYPE,
             Type.DOUBLE_TYPE);
@@ -36,24 +44,29 @@ public final class C2meWarpedAxisEmitter implements BytecodeEmitter<C2meWarpedAx
     @Override
     public void doBytecodeGenSingle(C2meWarpedAxisNode node, BytecodeGen.Context context, InstructionAdapter m,
             BytecodeGen.Context.LocalVarConsumer localVarConsumer) {
-        String domainField = context.newField(WrapDomain.class, node.domain);
+        String latticeField = context.newField(TranslationLattice.class, node.lattice);
         ValuesMethodDefF64 shiftMethod = context.newSingleMethodF64(node.shift);
+        boolean xAxis = node.axis == CoordinateNode.Axis.X;
 
         m.load(0, InstructionAdapter.OBJECT_TYPE);
-        m.getfield(context.className, domainField, DOMAIN_DESC);
-        m.load(node.axis == CoordinateNode.Axis.X ? SINGLE_X_LOCAL : SINGLE_Z_LOCAL, Type.INT_TYPE);
+        m.getfield(context.className, latticeField, LATTICE_DESC);
+        if (xAxis) {
+            m.load(SINGLE_X_LOCAL, Type.INT_TYPE);
+        }
+
+        m.load(SINGLE_Z_LOCAL, Type.INT_TYPE);
         context.callDelegateSingle(m, shiftMethod);
         m.dconst(node.divisor);
-        m.invokestatic(WARP_CLASS, WARP_METHOD, WARP_DESC, false);
+        invokeWarp(m, xAxis);
         m.areturn(Type.DOUBLE_TYPE);
     }
 
     @Override
     public void doBytecodeGenMulti(C2meWarpedAxisNode node, BytecodeGen.Context context, InstructionAdapter m,
             BytecodeGen.Context.LocalVarConsumer localVarConsumer) {
-        String domainField = context.newField(WrapDomain.class, node.domain);
+        String latticeField = context.newField(TranslationLattice.class, node.lattice);
         ValuesMethodDefF64 shiftMethod = context.newMultiMethodF64(node.shift);
-        int coordsLocal = node.axis == CoordinateNode.Axis.X ? MULTI_X_LOCAL : MULTI_Z_LOCAL;
+        boolean xAxis = node.axis == CoordinateNode.Axis.X;
         boolean constantShift = shiftMethod.isConst();
         if (!constantShift) {
             context.callDelegateMulti(m, shiftMethod, RESULT_ARRAY_LOCAL);
@@ -63,8 +76,14 @@ public final class C2meWarpedAxisEmitter implements BytecodeEmitter<C2meWarpedAx
             m.load(RESULT_ARRAY_LOCAL, InstructionAdapter.OBJECT_TYPE);
             m.load(idx, Type.INT_TYPE);
             m.load(0, InstructionAdapter.OBJECT_TYPE);
-            m.getfield(context.className, domainField, DOMAIN_DESC);
-            m.load(coordsLocal, InstructionAdapter.OBJECT_TYPE);
+            m.getfield(context.className, latticeField, LATTICE_DESC);
+            if (xAxis) {
+                m.load(MULTI_X_LOCAL, InstructionAdapter.OBJECT_TYPE);
+                m.load(idx, Type.INT_TYPE);
+                m.aload(Type.INT_TYPE);
+            }
+
+            m.load(MULTI_Z_LOCAL, InstructionAdapter.OBJECT_TYPE);
             m.load(idx, Type.INT_TYPE);
             m.aload(Type.INT_TYPE);
             if (constantShift) {
@@ -76,9 +95,17 @@ public final class C2meWarpedAxisEmitter implements BytecodeEmitter<C2meWarpedAx
             }
 
             m.dconst(node.divisor);
-            m.invokestatic(WARP_CLASS, WARP_METHOD, WARP_DESC, false);
+            invokeWarp(m, xAxis);
             m.astore(Type.DOUBLE_TYPE);
         });
         m.areturn(Type.VOID_TYPE);
+    }
+
+    private static void invokeWarp(InstructionAdapter m, boolean xAxis) {
+        if (xAxis) {
+            m.invokestatic(WARP_CLASS, WARP_X_METHOD, WARP_X_DESC, false);
+        } else {
+            m.invokestatic(WARP_CLASS, WARP_Z_METHOD, WARP_Z_DESC, false);
+        }
     }
 }

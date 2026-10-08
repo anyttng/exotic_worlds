@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.DomainWarp;
@@ -17,7 +18,6 @@ import com.exoticworlds.shape.climate.ClimateCompression;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.levelgen.DensityFunction;
 
 @Mixin(targets = "net.minecraft.world.level.levelgen.DensityFunctions$ShiftedNoise")
@@ -63,10 +63,9 @@ public class DensityFunctionsShiftedNoiseMixin {
         double z = context.blockZ();
         if (xzScale != 0.0) {
             double divisor = this.toroidal$warpDivisor(transformer, xzScale);
-            x = DomainWarp.apply(transformer.blockDomain(Direction.Axis.X), context.blockX(),
-                    this.shiftX.compute(context), divisor);
-            z = DomainWarp.apply(transformer.blockDomain(Direction.Axis.Z), context.blockZ(),
-                    this.shiftZ.compute(context), divisor);
+            TranslationLattice lattice = transformer.blockLattice();
+            x = DomainWarp.applyX(lattice, context.blockX(), context.blockZ(), this.shiftX.compute(context), divisor);
+            z = DomainWarp.applyZ(lattice, context.blockZ(), this.shiftZ.compute(context), divisor);
         }
 
         return ContextScaledNoise.sample(generation, this.noise, x, y, z, xzScale,

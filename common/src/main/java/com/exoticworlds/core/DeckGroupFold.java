@@ -3,6 +3,8 @@ package com.exoticworlds.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
@@ -21,6 +23,10 @@ public final class DeckGroupFold implements WorldFold {
 
     private final DeckGroupLattice chunks;
 
+    private final @Nullable TranslationLattice blockLattice;
+
+    private final @Nullable TranslationLattice chunkLattice;
+
     private final boolean wrapped;
 
     private final GenerationOptions generationOptions;
@@ -37,6 +43,8 @@ public final class DeckGroupFold implements WorldFold {
         this.generationOptions = generationOptions;
         this.chunks = new DeckGroupLattice(shape, 1);
         this.blocks = new DeckGroupLattice(shape, CoordinateConstants.CHUNK_WIDTH);
+        this.chunkLattice = translationLatticeOf(shape, this.chunks, 1);
+        this.blockLattice = translationLatticeOf(shape, this.blocks, CoordinateConstants.CHUNK_WIDTH);
     }
 
     public FlatShape shape() {
@@ -113,6 +121,29 @@ public final class DeckGroupFold implements WorldFold {
             case Z -> lattice.z;
             case Y -> throw new IllegalArgumentException("The fold contract carries no Y axis");
         };
+    }
+
+    @Override
+    public TranslationLattice blockLattice() {
+        return translationLattice(this.blockLattice);
+    }
+
+    @Override
+    public TranslationLattice chunkLattice() {
+        return translationLattice(this.chunkLattice);
+    }
+
+    private TranslationLattice translationLattice(@Nullable TranslationLattice lattice) {
+        if (lattice == null) {
+            throw new IllegalStateException(this.shape.identification() + " is not a translation lattice");
+        }
+
+        return lattice;
+    }
+
+    private static @Nullable TranslationLattice translationLatticeOf(FlatShape shape, DeckGroupLattice lattice,
+            int unit) {
+        return shape.mirror() == null ? new TranslationLattice(lattice.x, lattice.z, shape.skewChunks() * unit) : null;
     }
 
     @Override

@@ -6,7 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -149,13 +151,64 @@ class TilingCellGridTest {
             for (int x = domain.lowerBound - width; x < domain.upperBound + width; x += PERIODICITY_STEP) {
                 String at = "at x=" + x + " in a " + chunkWidth + "-chunk world on a "
                         + vanillaCellWidth + "-block vanilla grid";
-                assertEquals(domain.wrap(grid.cellOriginX(x)), domain.wrap(grid.cellOriginX(x + width)), at);
+                assertEquals(domain.wrap(grid.cellOriginX(x, x)), domain.wrap(grid.cellOriginX(x + width, x)), at);
                 assertEquals(domain.wrap(grid.cellOriginZ(x)), domain.wrap(grid.cellOriginZ(x + width)), at);
             }
         }
 
         private int vanillaCellOrigin(WrapDomain domain, int blockCoord) {
             return domain.wrap(Math.floorDiv(blockCoord, TYPE_CELL_WIDTH) * TYPE_CELL_WIDTH);
+        }
+    }
+
+    @Nested
+    class SkewedLattice {
+        private static final int[] SKEW_CHUNKS = {1, 3, -5, 8};
+
+        @Test
+        void anOddChunkSkewKeepsBothVanillaCellWidths() {
+            for (int skewChunks : SKEW_CHUNKS) {
+                WorldFold transformer = skewed(skewChunks);
+                assertEquals(TYPE_CELL_WIDTH, TilingCellGrid.of(transformer, TYPE_CELL_WIDTH).xCellWidth());
+                assertEquals(LEVEL_CELL_WIDTH, TilingCellGrid.of(transformer, LEVEL_CELL_WIDTH).xCellWidth());
+            }
+        }
+
+        @Test
+        void aCellAndItsDeckCopyFoldOntoOneOrigin() {
+            for (int skewChunks : SKEW_CHUNKS) {
+                WorldFold transformer = skewed(skewChunks);
+                TranslationLattice lattice = transformer.blockLattice();
+                int width = lattice.x().domainLength;
+                int height = lattice.z().domainLength;
+                int skew = lattice.skew();
+                for (int vanillaCellWidth : new int[] {TYPE_CELL_WIDTH, LEVEL_CELL_WIDTH}) {
+                    TilingCellGrid grid = TilingCellGrid.of(transformer, vanillaCellWidth);
+                    for (int x = lattice.x().lowerBound - width; x < lattice.x().upperBound; x += PERIODICITY_STEP) {
+                        for (int z = lattice.z().lowerBound - height; z < lattice.z().upperBound;
+                                z += PERIODICITY_STEP * 5) {
+                            String at = "at " + x + ", " + z + " under a " + skewChunks + "-chunk skew on a "
+                                    + vanillaCellWidth + "-block vanilla grid";
+                            assertSameFoldedOrigin(lattice, grid, x, z, x + width, z, at);
+                            assertSameFoldedOrigin(lattice, grid, x, z, x + skew, z + height, at);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void assertSameFoldedOrigin(TranslationLattice lattice, TilingCellGrid grid, int x, int z,
+                int copyX, int copyZ, String at) {
+            int originX = grid.cellOriginX(x, z);
+            int originZ = grid.cellOriginZ(z);
+            int copyOriginX = grid.cellOriginX(copyX, copyZ);
+            int copyOriginZ = grid.cellOriginZ(copyZ);
+            assertEquals(lattice.foldX(originX, originZ), lattice.foldX(copyOriginX, copyOriginZ), at);
+            assertEquals(lattice.foldZ(originZ), lattice.foldZ(copyOriginZ), at);
+        }
+
+        private WorldFold skewed(int skewChunks) {
+            return new DeckGroupFold(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(32), skewChunks));
         }
     }
 }
