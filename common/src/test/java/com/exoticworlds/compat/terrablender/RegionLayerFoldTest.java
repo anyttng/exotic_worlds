@@ -14,6 +14,7 @@ import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 
 import net.minecraft.core.Direction;
+import net.minecraft.core.QuartPos;
 
 import terrablender.worldgen.noise.Area;
 import terrablender.worldgen.noise.AreaContext;
@@ -45,46 +46,54 @@ class RegionLayerFoldTest {
     private static final double[] FACTORS = {NO_COMPRESSION, 2.5, 4.0};
     private static final double[] COMPRESSED_FACTORS = {2.0, 2.5, 4.0};
     private static final int SIZE_Z_STRIDE = 13;
+    private static final int SEAM_STRIP_QUARTS = 64;
 
     private static WorldFold torus(int chunkWidth) {
         return WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(chunkWidth)));
+    }
+
+    private static WorldFold latticeTorus(int chunkWidth, int skewChunks) {
+        return WorldFolds.of(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(chunkWidth), skewChunks));
     }
 
     private static int topDepth(int regionSize) {
         return 1 + FIXED_ZOOMS + regionSize;
     }
 
-    private interface LayerFold {
-        int apply(Direction.Axis axis, int depth, int coord);
+    private static int foldX(@Nullable RegionLayerFold fold, int depth, int x, int z) {
+        return fold == null ? x : fold.foldX(depth, x, z);
+    }
+
+    private static int foldZ(@Nullable RegionLayerFold fold, int depth, int z) {
+        return fold == null ? z : fold.foldZ(depth, z);
     }
 
     private static Area regionMap(int regionSize, @Nullable RegionLayerFold fold) {
-        LayerFold layerFold = fold == null ? (axis, depth, coord) -> coord : fold::apply;
         AreaContext initialContext = new AreaContext(CONTEXT_CACHE, SEED, INITIAL_MODIFIER);
         Area area = new Area((x, z) -> {
-            int foldedX = layerFold.apply(Direction.Axis.X, 0, x);
-            int foldedZ = layerFold.apply(Direction.Axis.Z, 0, z);
+            int foldedX = foldX(fold, 0, x, z);
+            int foldedZ = foldZ(fold, 0, z);
             initialContext.initRandom(foldedX, foldedZ);
             return initialContext.nextRandom(REGIONS);
         }, CONTEXT_CACHE);
 
-        area = zoom(area, ZoomLayer.FUZZY, FUZZY_MODIFIER, 1, layerFold);
+        area = zoom(area, ZoomLayer.FUZZY, FUZZY_MODIFIER, 1, fold);
         for (int zoom = 0; zoom < FIXED_ZOOMS; zoom++) {
-            area = zoom(area, ZoomLayer.NORMAL, FIXED_ZOOM_MODIFIER + zoom, 2 + zoom, layerFold);
+            area = zoom(area, ZoomLayer.NORMAL, FIXED_ZOOM_MODIFIER + zoom, 2 + zoom, fold);
         }
 
         for (int zoom = 0; zoom < regionSize; zoom++) {
-            area = zoom(area, ZoomLayer.NORMAL, SIZE_ZOOM_MODIFIER + zoom, 2 + FIXED_ZOOMS + zoom, layerFold);
+            area = zoom(area, ZoomLayer.NORMAL, SIZE_ZOOM_MODIFIER + zoom, 2 + FIXED_ZOOMS + zoom, fold);
         }
 
         return area;
     }
 
-    private static Area zoom(Area parent, ZoomLayer layer, long modifier, int depth, LayerFold layerFold) {
+    private static Area zoom(Area parent, ZoomLayer layer, long modifier, int depth, @Nullable RegionLayerFold fold) {
         AreaContext context = new AreaContext(CONTEXT_CACHE, SEED, modifier);
         return new Area((x, z) -> {
-            int foldedX = layerFold.apply(Direction.Axis.X, depth, x);
-            int foldedZ = layerFold.apply(Direction.Axis.Z, depth, z);
+            int foldedX = foldX(fold, depth, x, z);
+            int foldedZ = foldZ(fold, depth, z);
             context.initRandom(foldedX, foldedZ);
             return layer.apply(context, parent, foldedX, foldedZ);
         }, MAX_CACHE);
@@ -99,6 +108,44 @@ class RegionLayerFoldTest {
                             chunkWidth + " chunks, region size " + regionSize + ", factor " + factor);
                 }
             }
+        }
+    }
+
+    @Test
+    void latticeMapReadsTheSameRegionAtEveryLatticeCopy() {
+        for (double factor : FACTORS) {
+            for (int chunkWidth : CHUNK_WIDTHS) {
+                for (int skewChunks : skewsOf(chunkWidth)) {
+                    String world = chunkWidth + " chunks, skew " + skewChunks + " chunks, factor " + factor;
+                    RegionLayerFold fold = RegionLayerFold.of(latticeTorus(chunkWidth, skewChunks),
+                            topDepth(DEFAULT_REGION_SIZE), factor);
+                    assertLatticePeriodic(regionMap(DEFAULT_REGION_SIZE, fold), fold.x(),
+                            QuartPos.fromSection(skewChunks), world);
+                }
+            }
+        }
+    }
+
+    private static int[] skewsOf(int chunkWidth) {
+        return new int[] {1, chunkWidth / 3, -chunkWidth / 4, chunkWidth / 2};
+    }
+
+    private static void assertLatticePeriodic(Area map, LayerAxis axis, int skewQuarts, String world) {
+        int lap = axis.lap();
+        int stride = Math.max(1, lap / SAMPLES_PER_LINE);
+        for (int line = 0; line < SAMPLE_LINES; line++) {
+            int cross = axis.min() + line * lap / SAMPLE_LINES;
+            for (int along = axis.min() - lap; along < axis.min() + lap; along += stride) {
+                assertEquals(map.get(along, cross), map.get(along + lap, cross),
+                        "X quart " + along + " in " + world);
+                assertEquals(map.get(cross, along), map.get(cross + skewQuarts, along + lap),
+                        "Z quart " + along + " in " + world);
+            }
+        }
+
+        for (int along = axis.min() - SEAM_STRIP_QUARTS; along < axis.min() + SEAM_STRIP_QUARTS; along++) {
+            assertEquals(map.get(0, along), map.get(skewQuarts, along + lap),
+                    "Z seam quart " + along + " in " + world);
         }
     }
 
@@ -156,7 +203,7 @@ class RegionLayerFoldTest {
         RegionLayerFold fold = RegionLayerFold.of(cylinder, topDepth(DEFAULT_REGION_SIZE), NO_COMPRESSION);
         for (int depth = 0; depth <= topDepth(DEFAULT_REGION_SIZE); depth++) {
             for (int coord = -5000; coord < 5000; coord += 37) {
-                assertEquals(coord, fold.apply(Direction.Axis.Z, depth, coord));
+                assertEquals(coord, fold.foldZ(depth, coord));
             }
         }
     }
@@ -222,9 +269,9 @@ class RegionLayerFoldTest {
         WorldFold cylinder = WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 64)));
         RegionLayerFold fold = RegionLayerFold.of(cylinder, topDepth, factor);
         for (int coord = -5000; coord < 5000; coord += 37) {
-            assertEquals((int) Math.floor(coord * factor), fold.apply(Direction.Axis.Z, topDepth, coord));
+            assertEquals((int) Math.floor(coord * factor), fold.foldZ(topDepth, coord));
             for (int depth = 0; depth < topDepth; depth++) {
-                assertEquals(coord, fold.apply(Direction.Axis.Z, depth, coord));
+                assertEquals(coord, fold.foldZ(depth, coord));
             }
         }
     }
