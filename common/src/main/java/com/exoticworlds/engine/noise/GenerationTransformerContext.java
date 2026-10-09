@@ -173,6 +173,10 @@ public final class GenerationTransformerContext {
         return CONTEXT.get();
     }
 
+    public static @Nullable WorldFold carriedOrBound(@Nullable WorldFold carried) {
+        return carried != null ? carried : CONTEXT.get().wrappedTransformer();
+    }
+
     public static <T> T withTransformer(WorldFold transformer, Supplier<T> action) {
         Context context = CONTEXT.get();
         WorldFold previous = context.transformer;
