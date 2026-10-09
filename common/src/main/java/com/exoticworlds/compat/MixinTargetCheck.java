@@ -9,7 +9,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.ClassReader;
@@ -46,16 +45,8 @@ public final class MixinTargetCheck {
     private record Loaded(boolean present, @Nullable ClassNode model) {
     }
 
-    private record MemberRef(@Nullable String owner, String name, @Nullable String descriptor) {
-    }
-
     private static final String CLASS_SUFFIX = ".class";
     private static final List<String> GAME_PACKAGES = List.of("net/minecraft/", "com/mojang/");
-    private static final Pattern INTERMEDIARY_METHOD = Pattern.compile("method_\\d+");
-    private static final Pattern INTERMEDIARY_CLASS = Pattern.compile("net/minecraft/class_\\d+");
-    private static final String GAME_PACKAGE = "net/minecraft/";
-    private static final String INTERMEDIARY_LEVEL = "net/minecraft/class_1937.class";
-    private static final String MOJMAP_LEVEL = "net/minecraft/world/level/Level.class";
 
     private static final String MIXIN = "Lorg/spongepowered/asm/mixin/Mixin;";
     private static final String PSEUDO = "Lorg/spongepowered/asm/mixin/Pseudo;";
@@ -81,9 +72,6 @@ public final class MixinTargetCheck {
     private static final String AT_NEW = "NEW";
 
     private static final String HANDLER_SELECTOR = "@MixinSquared:Handler";
-    private static final String ANY_QUANTIFIER = "*";
-    private static final String PLUS_QUANTIFIER = "+";
-    private static final char QUANTIFIER_OPEN = '{';
     private static final String DEFAULT_SHADOW_PREFIX = "shadow$";
     private static final String CONSTRUCTOR = "<init>";
     private static final String VOID_RETURN = "V";
@@ -91,18 +79,11 @@ public final class MixinTargetCheck {
     private static final List<String> INVOKER_PREFIXES = List.of("call", "invoke");
     private static final int ANY_ORDINAL = -1;
     private static final int ANY_OPCODE = -1;
-    private static final int NAME_VALUE_PAIR = 2;
 
     private final ClassLoader classLoader;
     private final Map<String, String> bodySources;
     private final Map<String, Loaded> loaded = new HashMap<>();
-    private @Nullable Namespace runtime;
-
-    private enum Namespace {
-        MOJMAP,
-        INTERMEDIARY,
-        UNKNOWN
-    }
+    private LoaderSpellings.@Nullable Namespace runtime;
 
     public MixinTargetCheck(ClassLoader classLoader, Map<String, String> bodySources) {
         this.classLoader = classLoader;
@@ -120,14 +101,13 @@ public final class MixinTargetCheck {
             return List.of();
         }
 
-        List<AnnotationNode> classAnnotations = annotationsOf(ownModel.visibleAnnotations,
-                ownModel.invisibleAnnotations);
-        Optional<AnnotationNode> mixin = find(classAnnotations, MIXIN);
+        List<AnnotationNode> classAnnotations = MixinAnnotations.of(ownModel);
+        Optional<AnnotationNode> mixin = MixinAnnotations.find(classAnnotations, MIXIN);
         if (mixin.isEmpty()) {
             return List.of();
         }
 
-        boolean pseudo = find(classAnnotations, PSEUDO).isPresent();
+        boolean pseudo = MixinAnnotations.find(classAnnotations, PSEUDO).isPresent();
         List<String> targets = targetsOf(mixin.get());
         List<String> present = new ArrayList<>();
         List<Refusal> refusals = new ArrayList<>();
@@ -156,7 +136,7 @@ public final class MixinTargetCheck {
         ClassNode targetModel = isGame(target) ? null : load(target).model();
 
         for (FieldNode field : mixin.fields) {
-            Optional<AnnotationNode> shadow = find(annotationsOf(field.visibleAnnotations, field.invisibleAnnotations),
+            Optional<AnnotationNode> shadow = MixinAnnotations.find(MixinAnnotations.of(field),
                     SHADOW);
             if (shadow.isPresent() && targetModel != null
                     && !hasField(targetModel, shadowNames(shadow.get(), field.name, false), field.desc)) {
@@ -165,7 +145,7 @@ public final class MixinTargetCheck {
         }
 
         for (MethodNode method : mixin.methods) {
-            List<AnnotationNode> annotations = annotationsOf(method.visibleAnnotations, method.invisibleAnnotations);
+            List<AnnotationNode> annotations = MixinAnnotations.of(method);
             String name = method.name;
             String descriptor = method.desc;
             for (AnnotationNode annotation : annotations) {
@@ -193,7 +173,7 @@ public final class MixinTargetCheck {
                         }
                     }
                     default -> {
-                        if (element(annotation, METHOD_KEY).isPresent()) {
+                        if (MixinAnnotations.element(annotation, METHOD_KEY).isPresent()) {
                             checkInjector(mixinClassName, annotation, annotations, target, refusals);
                         }
                     }
@@ -207,16 +187,16 @@ public final class MixinTargetCheck {
         List<MethodNode> bodies = new ArrayList<>();
         String bodyOwner = null;
         List<String> selfTargets = List.of();
-        List<String> selectors = strings(injector, METHOD_KEY);
+        List<String> selectors = MixinAnnotations.strings(injector, METHOD_KEY);
         for (String selector : selectors) {
             if (selector.equals(HANDLER_SELECTOR)) {
-                Optional<AnnotationNode> handler = find(siblings, TARGET_HANDLER);
+                Optional<AnnotationNode> handler = MixinAnnotations.find(siblings, TARGET_HANDLER);
                 if (handler.isEmpty()) {
                     continue;
                 }
 
-                bodyOwner = internalName(string(handler.get(), HANDLER_MIXIN_KEY));
-                String handlerName = string(handler.get(), HANDLER_NAME_KEY);
+                bodyOwner = internalName(MixinAnnotations.string(handler.get(), HANDLER_MIXIN_KEY));
+                String handlerName = MixinAnnotations.string(handler.get(), HANDLER_NAME_KEY);
                 Loaded owner = load(bodyOwner);
                 if (!owner.present()) {
                     refusals.add(new Refusal(mixinClassName, bodyOwner, Reason.MISSING_CLASS));
@@ -235,7 +215,7 @@ public final class MixinTargetCheck {
                 }
 
                 bodies.addAll(found);
-                selfTargets = find(annotationsOf(ownerModel.visibleAnnotations, ownerModel.invisibleAnnotations), MIXIN)
+                selfTargets = MixinAnnotations.find(MixinAnnotations.of(ownerModel), MIXIN)
                         .map(MixinTargetCheck::targetsOf)
                         .orElse(List.of());
                 continue;
@@ -253,7 +233,8 @@ public final class MixinTargetCheck {
 
             List<MethodNode> found = selected(owner, selector);
             if (found.isEmpty()) {
-                if (twinSelected(owner, selector, selectors)) {
+                if (LoaderSpellings.twinSelected(selector, selectors,
+                        other -> !other.equals(HANDLER_SELECTOR) && !selected(owner, other).isEmpty())) {
                     continue;
                 }
 
@@ -268,57 +249,31 @@ public final class MixinTargetCheck {
             return;
         }
 
-        for (AnnotationNode at : nested(injector, AT_KEY)) {
+        for (AnnotationNode at : MixinAnnotations.nested(injector, AT_KEY)) {
             checkAt(mixinClassName, bodyOwner, selfTargets, at, bodies, refusals);
         }
     }
 
     private static List<MethodNode> selected(ClassNode owner, String selector) {
-        MemberRef selected = parse(selector);
+        MemberRef selected = MemberRef.parse(selector);
         return methods(owner, name -> selected.name().isEmpty() || selected.name().equals(name),
                 candidate -> selected.descriptor() == null || selected.descriptor().equals(candidate));
     }
 
-    // 1.21 names a method twice where its loaders spell it apart (Mojmap and intermediary): one of the pair suffices.
-    private static boolean twinSelected(ClassNode owner, String selector, List<String> selectors) {
-        boolean intermediary = isIntermediary(selector);
-        int parameters = parameterCount(selector);
-        for (String other : selectors) {
-            if (!other.equals(selector) && !other.equals(HANDLER_SELECTOR) && isIntermediary(other) != intermediary
-                    && (parameters < 0 || parameterCount(other) < 0 || parameterCount(other) == parameters)
-                    && !selected(owner, other).isEmpty()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static boolean isIntermediary(String selector) {
-        MemberRef selected = parse(selector);
-        return INTERMEDIARY_METHOD.matcher(selected.name()).matches()
-                || selected.descriptor() != null && INTERMEDIARY_CLASS.matcher(selected.descriptor()).find();
-    }
-
-    private static int parameterCount(String selector) {
-        String descriptor = parse(selector).descriptor();
-        return descriptor == null || !descriptor.startsWith("(") ? -1 : Type.getArgumentTypes(descriptor).length;
-    }
-
     private static void checkAt(String mixinClassName, @Nullable String bodyOwner, List<String> selfTargets,
             AnnotationNode at, List<MethodNode> bodies, List<Refusal> refusals) {
-        String target = element(at, TARGET_KEY).map(MixinTargetCheck::asString).orElse("");
-        int needed = Math.max(integer(at, ORDINAL_KEY, ANY_ORDINAL), 0) + 1;
+        String target = MixinAnnotations.element(at, TARGET_KEY).map(MixinAnnotations::asString).orElse("");
+        int needed = Math.max(MixinAnnotations.integer(at, ORDINAL_KEY, ANY_ORDINAL), 0) + 1;
         Reason reason;
         int found;
-        switch (string(at, VALUE_KEY)) {
+        switch (MixinAnnotations.string(at, VALUE_KEY)) {
             case AT_INVOKE -> {
                 reason = Reason.MISSING_INVOKE;
-                found = countInvokes(bodies, parse(target), bodyOwner, selfTargets);
+                found = countInvokes(bodies, MemberRef.parse(target), bodyOwner, selfTargets);
             }
             case AT_FIELD -> {
                 reason = Reason.MISSING_FIELD_ACCESS;
-                found = countFieldAccesses(bodies, parse(target), integer(at, OPCODE_KEY, ANY_OPCODE), bodyOwner,
+                found = countFieldAccesses(bodies, MemberRef.parse(target), MixinAnnotations.integer(at, OPCODE_KEY, ANY_OPCODE), bodyOwner,
                         selfTargets);
             }
             case AT_NEW -> {
@@ -345,7 +300,7 @@ public final class MixinTargetCheck {
         int count = 0;
         for (MethodNode body : bodies) {
             for (AbstractInsnNode element : body.instructions) {
-                if (element instanceof MethodInsnNode invoke && matches(wanted,
+                if (element instanceof MethodInsnNode invoke && wanted.matches(
                         merged(invoke.owner, bodyOwner, selfTargets, wanted), invoke.name, invoke.desc)) {
                     count++;
                 }
@@ -362,7 +317,7 @@ public final class MixinTargetCheck {
             for (AbstractInsnNode element : body.instructions) {
                 if (element instanceof FieldInsnNode access
                         && (opcode == ANY_OPCODE || access.getOpcode() == opcode)
-                        && matches(wanted, merged(access.owner, bodyOwner, selfTargets, wanted), access.name,
+                        && wanted.matches(merged(access.owner, bodyOwner, selfTargets, wanted), access.name,
                                 access.desc)) {
                     count++;
                 }
@@ -411,89 +366,17 @@ public final class MixinTargetCheck {
             return false;
         }
 
-        Namespace spelled = namespaceOf(model);
-        return spelled != Namespace.UNKNOWN && runtime() != Namespace.UNKNOWN && spelled != runtime();
+        LoaderSpellings.Namespace spelled = LoaderSpellings.namespaceOf(model);
+        return spelled != LoaderSpellings.Namespace.UNKNOWN && runtime() != LoaderSpellings.Namespace.UNKNOWN
+                && spelled != runtime();
     }
 
-    private Namespace runtime() {
+    private LoaderSpellings.Namespace runtime() {
         if (this.runtime == null) {
-            this.runtime = this.classLoader.getResource(INTERMEDIARY_LEVEL) != null ? Namespace.INTERMEDIARY
-                    : this.classLoader.getResource(MOJMAP_LEVEL) != null ? Namespace.MOJMAP : Namespace.UNKNOWN;
+            this.runtime = LoaderSpellings.runtimeOf(this.classLoader);
         }
 
         return this.runtime;
-    }
-
-    private static Namespace namespaceOf(ClassNode model) {
-        List<String> spellings = new ArrayList<>();
-        model.fields.forEach(field -> spellings.add(field.desc));
-        for (MethodNode method : model.methods) {
-            spellings.add(method.desc);
-            for (AbstractInsnNode element : method.instructions) {
-                if (element instanceof MethodInsnNode invoke) {
-                    spellings.add(invoke.owner);
-                    spellings.add(invoke.desc);
-                } else if (element instanceof FieldInsnNode access) {
-                    spellings.add(access.owner);
-                    spellings.add(access.desc);
-                }
-            }
-        }
-
-        boolean intermediary = false;
-        boolean mojmap = false;
-        for (String spelling : spellings) {
-            for (int index = spelling.indexOf(GAME_PACKAGE); index >= 0;
-                    index = spelling.indexOf(GAME_PACKAGE, index + 1)) {
-                if (INTERMEDIARY_CLASS.matcher(spelling).region(index, spelling.length()).lookingAt()) {
-                    intermediary = true;
-                } else {
-                    mojmap = true;
-                }
-            }
-        }
-
-        return intermediary == mojmap ? Namespace.UNKNOWN : intermediary ? Namespace.INTERMEDIARY : Namespace.MOJMAP;
-    }
-
-    private static boolean matches(MemberRef wanted, String owner, String name, String descriptor) {
-        return wanted.name().equals(name)
-                && (wanted.owner() == null || wanted.owner().equals(owner))
-                && (wanted.descriptor() == null || wanted.descriptor().equals(descriptor));
-    }
-
-    private static MemberRef parse(String reference) {
-        String owner = null;
-        String rest = reference;
-        int semicolon = rest.indexOf(';');
-        int paren = rest.indexOf('(');
-        if (rest.startsWith("L") && semicolon > 0 && (paren < 0 || semicolon < paren)) {
-            owner = rest.substring(1, semicolon);
-            rest = rest.substring(semicolon + 1);
-        }
-
-        int colon = rest.indexOf(':');
-        paren = rest.indexOf('(');
-        if (colon >= 0 && (paren < 0 || colon < paren)) {
-            return new MemberRef(owner, withoutQuantifier(rest.substring(0, colon)), rest.substring(colon + 1));
-        }
-
-        if (paren >= 0) {
-            return new MemberRef(owner, withoutQuantifier(rest.substring(0, paren)), rest.substring(paren));
-        }
-
-        return new MemberRef(owner, withoutQuantifier(rest), null);
-    }
-
-    private static String withoutQuantifier(String name) {
-        int brace = name.indexOf(QUANTIFIER_OPEN);
-        if (brace >= 0) {
-            return name.substring(0, brace);
-        }
-
-        return name.endsWith(ANY_QUANTIFIER) || name.endsWith(PLUS_QUANTIFIER)
-                ? name.substring(0, name.length() - 1)
-                : name;
     }
 
     private static List<MethodNode> methods(ClassNode owner, Predicate<String> name, Predicate<String> descriptor) {
@@ -523,14 +406,14 @@ public final class MixinTargetCheck {
 
     private static List<String> shadowNames(AnnotationNode shadow, String name, boolean method) {
         List<String> names = new ArrayList<>();
-        String prefix = element(shadow, PREFIX_KEY).map(MixinTargetCheck::asString).orElse(DEFAULT_SHADOW_PREFIX);
+        String prefix = MixinAnnotations.element(shadow, PREFIX_KEY).map(MixinAnnotations::asString).orElse(DEFAULT_SHADOW_PREFIX);
         names.add(method && name.startsWith(prefix) ? name.substring(prefix.length()) : name);
-        names.addAll(strings(shadow, ALIASES_KEY));
+        names.addAll(MixinAnnotations.strings(shadow, ALIASES_KEY));
         return names;
     }
 
     private static String generatedName(AnnotationNode annotation, String methodName, List<String> prefixes) {
-        String explicit = element(annotation, VALUE_KEY).map(MixinTargetCheck::asString).orElse("");
+        String explicit = MixinAnnotations.element(annotation, VALUE_KEY).map(MixinAnnotations::asString).orElse("");
         if (!explicit.isEmpty()) {
             return explicit;
         }
@@ -576,95 +459,17 @@ public final class MixinTargetCheck {
 
     private static List<String> targetsOf(AnnotationNode mixin) {
         List<String> targets = new ArrayList<>();
-        for (Object value : values(mixin, VALUE_KEY)) {
+        for (Object value : MixinAnnotations.values(mixin, VALUE_KEY)) {
             if (value instanceof Type type) {
                 targets.add(type.getInternalName());
             }
         }
 
-        for (String target : strings(mixin, TARGETS_KEY)) {
+        for (String target : MixinAnnotations.strings(mixin, TARGETS_KEY)) {
             targets.add(internalName(target));
         }
 
         return targets;
-    }
-
-    private static List<AnnotationNode> annotationsOf(@Nullable List<AnnotationNode> visible,
-            @Nullable List<AnnotationNode> invisible) {
-        List<AnnotationNode> annotations = new ArrayList<>();
-        if (visible != null) {
-            annotations.addAll(visible);
-        }
-
-        if (invisible != null) {
-            annotations.addAll(invisible);
-        }
-
-        return annotations;
-    }
-
-    private static Optional<AnnotationNode> find(List<AnnotationNode> annotations, String descriptor) {
-        for (AnnotationNode annotation : annotations) {
-            if (annotation.desc.equals(descriptor)) {
-                return Optional.of(annotation);
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    private static Optional<Object> element(AnnotationNode annotation, String name) {
-        if (annotation.values == null) {
-            return Optional.empty();
-        }
-
-        for (int index = 0; index + 1 < annotation.values.size(); index += NAME_VALUE_PAIR) {
-            if (name.equals(annotation.values.get(index))) {
-                return Optional.of(annotation.values.get(index + 1));
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    private static List<?> values(AnnotationNode annotation, String name) {
-        return element(annotation, name)
-                .<List<?>>map(value -> value instanceof List<?> array ? array : List.of(value))
-                .orElse(List.of());
-    }
-
-    private static List<String> strings(AnnotationNode annotation, String name) {
-        List<String> strings = new ArrayList<>();
-        for (Object value : values(annotation, name)) {
-            strings.add(asString(value));
-        }
-
-        return strings;
-    }
-
-    private static List<AnnotationNode> nested(AnnotationNode annotation, String name) {
-        List<AnnotationNode> nested = new ArrayList<>();
-        for (Object value : values(annotation, name)) {
-            if (value instanceof AnnotationNode inner) {
-                nested.add(inner);
-            }
-        }
-
-        return nested;
-    }
-
-    private static String string(AnnotationNode annotation, String name) {
-        return element(annotation, name).map(MixinTargetCheck::asString).orElse("");
-    }
-
-    private static int integer(AnnotationNode annotation, String name, int fallback) {
-        return element(annotation, name)
-                .map(value -> value instanceof Integer number ? number : fallback)
-                .orElse(fallback);
-    }
-
-    private static String asString(Object value) {
-        return value instanceof String string ? string : "";
     }
 
     private Loaded load(String internalName) {
