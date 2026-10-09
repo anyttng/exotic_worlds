@@ -4,6 +4,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.compat.wover.OpenSimplexStandIn;
 import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
 
@@ -19,18 +20,18 @@ public final class EndTerrainLap {
 
     private final WorldFold fold;
 
-    private final WrapDomain x;
+    private final TranslationLattice lattice;
 
-    private final WrapDomain z;
+    private final LapFrame frame;
 
     private final OpenSimplexStandIn first;
 
     private final OpenSimplexStandIn second;
 
-    private EndTerrainLap(WorldFold fold, long seed) {
+    EndTerrainLap(WorldFold fold, long seed) {
         this.fold = fold;
-        this.x = fold.blockDomain(Direction.Axis.X);
-        this.z = fold.blockDomain(Direction.Axis.Z);
+        this.lattice = fold.blockLattice();
+        this.frame = new LapFrame(this.lattice);
         RandomSource random = new LegacyRandomSource(seed);
         for (int layer = 0; layer < ISLAND_LAYER_SEEDS; layer++) {
             random.nextInt();
@@ -61,24 +62,25 @@ public final class EndTerrainLap {
         return this.second;
     }
 
-    public int foldX(int block) {
-        return this.x.wrap(block);
+    public int foldX(int blockX, int blockZ) {
+        return this.lattice.foldX(blockX, blockZ);
     }
 
-    public int foldZ(int block) {
-        return this.z.wrap(block);
+    public int foldZ(int blockZ) {
+        return this.lattice.foldZ(blockZ);
+    }
+
+    public double frameX(double x, double z) {
+        return this.frame.frameX(x, z);
     }
 
     public double period(Direction.Axis axis, double unitBlocks) {
-        WrapDomain domain = domain(axis);
+        WrapDomain domain = axis == Direction.Axis.X ? this.lattice.x() : this.lattice.z();
         return domain.loops() ? domain.domainLength / unitBlocks : OpenSimplexStandIn.UNBOUNDED;
     }
 
     public LapIslandPlacement.Grid grid(double distance) {
-        return new LapIslandPlacement.Grid(IslandLapAxis.of(this.x, distance), IslandLapAxis.of(this.z, distance));
-    }
-
-    private WrapDomain domain(Direction.Axis axis) {
-        return axis == Direction.Axis.X ? this.x : this.z;
+        return new LapIslandPlacement.Grid(IslandLapAxis.of(this.lattice.x(), distance),
+                IslandLapAxis.of(this.lattice.z(), distance), this.frame);
     }
 }
