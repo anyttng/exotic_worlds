@@ -34,8 +34,8 @@ public final class SquareLapMap<T> extends LapMap<T> {
         super(fold, factor);
         this.picker = picker;
         this.cellBlocks = sizeXZ / factor;
-        this.x = LapAxis.of(fold.blockDomain(Direction.Axis.X), this.cellBlocks, false, CHUNK_SIDE);
-        this.z = LapAxis.of(fold.blockDomain(Direction.Axis.Z), this.cellBlocks, false, CHUNK_SIDE);
+        this.x = LapAxis.of(blocks(Direction.Axis.X), this.cellBlocks, false, CHUNK_SIDE);
+        this.z = LapAxis.of(blocks(Direction.Axis.Z), this.cellBlocks, false, CHUNK_SIDE);
         this.noiseX = new OpenSimplexStandIn(seed << 1);
         this.noiseZ = new OpenSimplexStandIn((seed << 1) | 1L);
         this.depth = Math.max(0, (int) Math.ceil(Math.log(this.cellBlocks) / Math.log(2.0)) - DEPTH_OFFSET);
@@ -43,7 +43,7 @@ public final class SquareLapMap<T> extends LapMap<T> {
 
     @Override
     public T biomeAt(double blockX, double blockZ) {
-        double latticeX = this.x.toLattice(blockX);
+        double latticeX = this.x.toLattice(frameX(blockX, blockZ));
         double latticeZ = this.z.toLattice(blockZ);
         double size = 1 << this.depth;
         double px = latticeX * size;

@@ -3,6 +3,8 @@ package com.exoticworlds.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.Direction;
@@ -25,6 +27,8 @@ final class DeckGroupLattice {
     private final Step[] steps;
 
     private final SeamTransform[] candidates;
+
+    final @Nullable TranslationLattice translations;
 
     DeckGroupLattice(FlatShape shape, int unit) {
         AxisBounds xBounds = shape.bounds().x();
@@ -51,6 +55,7 @@ final class DeckGroupLattice {
 
         this.steps = orderSteps(xStep, zStep, mirrorsZ);
         this.candidates = buildCandidates(this.steps);
+        this.translations = mirror == null ? new TranslationLattice(this.x, this.z, skew) : null;
     }
 
     private static int mirrorShift(int mirrorLine, WrapDomain mirrored) {
@@ -106,6 +111,21 @@ final class DeckGroupLattice {
         }
 
         return built.toArray(new SeamTransform[0]);
+    }
+
+    private SeamTransform[] candidatesNear(double deltaX, double deltaZ) {
+        if (this.translations == null) {
+            return this.candidates;
+        }
+
+        long[] shifts = this.translations.nearShifts(deltaX, deltaZ);
+        SeamTransform[] near = new SeamTransform[shifts.length / 2];
+        for (int index = 0; index < near.length; index++) {
+            near[index] = SeamTransform.translation(
+                    Math.toIntExact(-shifts[2 * index]), Math.toIntExact(-shifts[2 * index + 1]));
+        }
+
+        return near;
     }
 
     SeamTransform foldCells(int cellX, int cellZ) {
@@ -171,7 +191,8 @@ final class DeckGroupLattice {
         long bestDistance = squared((long) targetX - refX) + squared((long) targetZ - refZ);
         long bestShiftX = 0;
         long bestShiftZ = 0;
-        for (SeamTransform candidate : this.candidates) {
+        for (SeamTransform candidate : candidatesNear(foldedTargetX - toRef.applyCellX(refX),
+                foldedTargetZ - toRef.applyCellZ(refZ))) {
             int inFrameX = candidate.applyCellX(foldedTargetX);
             int inFrameZ = candidate.applyCellZ(foldedTargetZ);
             long copyX = fromRef.applyCellX(inFrameX);
@@ -202,7 +223,8 @@ final class DeckGroupLattice {
         double bestDistance = squared(targetX - refX) + squared(targetZ - refZ);
         double bestShiftX = 0.0;
         double bestShiftZ = 0.0;
-        for (SeamTransform candidate : this.candidates) {
+        for (SeamTransform candidate : candidatesNear(foldedTargetX - toRef.applyX(refX),
+                foldedTargetZ - toRef.applyZ(refZ))) {
             double inFrameX = candidate.applyX(foldedTargetX);
             double inFrameZ = candidate.applyZ(foldedTargetZ);
             double copyX = fromRef.applyX(inFrameX);
@@ -223,11 +245,15 @@ final class DeckGroupLattice {
     }
 
     double nearestBoxGap(double pointX, double pointZ, double minX, double maxX, double minZ, double maxZ) {
-        SeamTransform toBox = foldCoords((minX + maxX) / 2.0, (minZ + maxZ) / 2.0);
-        SeamTransform fromPoint = foldCoords(pointX, pointZ).inverse();
+        double centreX = (minX + maxX) / 2.0;
+        double centreZ = (minZ + maxZ) / 2.0;
+        SeamTransform toBox = foldCoords(centreX, centreZ);
+        SeamTransform toPoint = foldCoords(pointX, pointZ);
+        SeamTransform fromPoint = toPoint.inverse();
 
         double best = gapSquared(minX, maxX, minZ, maxZ, pointX, pointZ);
-        for (SeamTransform candidate : this.candidates) {
+        for (SeamTransform candidate : candidatesNear(toBox.applyX(centreX) - toPoint.applyX(pointX),
+                toBox.applyZ(centreZ) - toPoint.applyZ(pointZ))) {
             SeamTransform move = toBox.then(candidate).then(fromPoint);
             double firstX = move.applyX(minX);
             double secondX = move.applyX(maxX);

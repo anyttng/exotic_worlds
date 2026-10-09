@@ -59,8 +59,8 @@ public final class HexLapMap<T> extends LapMap<T> {
         double cellScale = scale / factor;
         this.seed = seed;
         this.picker = picker;
-        this.x = LapAxis.of(fold.blockDomain(Direction.Axis.X), cellScale / RAD_INNER, false, CHUNK_SIDE);
-        this.z = LapAxis.of(fold.blockDomain(Direction.Axis.Z), cellScale, true, CHUNK_SIDE);
+        this.x = LapAxis.of(blocks(Direction.Axis.X), cellScale / RAD_INNER, false, CHUNK_SIDE);
+        this.z = LapAxis.of(blocks(Direction.Axis.Z), cellScale, true, CHUNK_SIDE);
         this.warps = new OpenSimplexStandIn[] {
                 new OpenSimplexStandIn((long) seed << 1), new OpenSimplexStandIn(((long) seed << 1) | 1L)};
         this.warpOctaves = (int) Math.min(Math.ceil(Math.log(cellScale) / Math.log(2.0)), MAX_WARP_OCTAVES);
@@ -68,7 +68,7 @@ public final class HexLapMap<T> extends LapMap<T> {
 
     @Override
     public T biomeAt(double blockX, double blockZ) {
-        double px = this.x.toLattice(blockX);
+        double px = this.x.toLattice(frameX(blockX, blockZ));
         double pz = this.z.toLattice(blockZ);
         double dx = warp(px, pz, 0, this.x.period(), this.z.period()) * WARP;
         double dz = warp(pz, px, 1, this.z.period(), this.x.period()) * WARP;

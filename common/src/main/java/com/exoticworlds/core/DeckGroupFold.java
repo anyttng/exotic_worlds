@@ -43,8 +43,8 @@ public final class DeckGroupFold implements WorldFold {
         this.generationOptions = generationOptions;
         this.chunks = new DeckGroupLattice(shape, 1);
         this.blocks = new DeckGroupLattice(shape, CoordinateConstants.CHUNK_WIDTH);
-        this.chunkLattice = translationLatticeOf(shape, this.chunks, 1);
-        this.blockLattice = translationLatticeOf(shape, this.blocks, CoordinateConstants.CHUNK_WIDTH);
+        this.chunkLattice = this.chunks.translations;
+        this.blockLattice = this.blocks.translations;
     }
 
     public FlatShape shape() {
@@ -139,11 +139,6 @@ public final class DeckGroupFold implements WorldFold {
         }
 
         return lattice;
-    }
-
-    private static @Nullable TranslationLattice translationLatticeOf(FlatShape shape, DeckGroupLattice lattice,
-            int unit) {
-        return shape.mirror() == null ? new TranslationLattice(lattice.x, lattice.z, shape.skewChunks() * unit) : null;
     }
 
     @Override
