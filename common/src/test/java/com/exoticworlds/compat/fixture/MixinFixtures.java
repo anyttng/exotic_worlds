@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Slice;
 
 import com.bawnorton.mixinsquared.TargetHandler;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -274,6 +275,53 @@ public final class MixinFixtures {
     @Mixin(FixtureTarget.class)
     public static class BodyFromAnotherClass {
         @WrapOperation(method = "work", at = @At(value = "INVOKE", target = ABS))
+        private void wrap() {
+        }
+    }
+
+    @Mixin(FixtureTarget.class)
+    public static class SlicePresent {
+        @ModifyExpressionValue(method = "work", at = @At(value = "FIELD", target = COUNTER),
+                slice = @Slice(from = @At(value = "INVOKE", target = HELPER),
+                        to = @At(value = "NEW", target = "java/lang/StringBuilder")))
+        private void modify() {
+        }
+    }
+
+    @Mixin(FixtureTarget.class)
+    public static class SliceFromMissing {
+        @ModifyExpressionValue(method = "work", at = @At(value = "FIELD", target = COUNTER),
+                slice = @Slice(from = @At(value = "INVOKE", target = ABSENT_CALL)))
+        private void modify() {
+        }
+    }
+
+    @Mixin(FixtureTarget.class)
+    public static class SliceToMissing {
+        @ModifyExpressionValue(method = "work", at = @At(value = "INVOKE", target = HELPER),
+                slice = @Slice(to = @At(value = "FIELD", target = ABSENT_FIELD)))
+        private void modify() {
+        }
+    }
+
+    @Mixin(FixtureTarget.class)
+    public static class InjectSliceMissing {
+        @Inject(method = "work", at = @At(value = "INVOKE", target = HELPER),
+                slice = @Slice(to = @At(value = "INVOKE", target = ABSENT_CALL)))
+        private void inject() {
+        }
+    }
+
+    @Mixin(FixtureTarget.class)
+    public static class EverySelectedMethodPresent {
+        @WrapOperation(method = {"work", "again"}, at = @At(value = "INVOKE", target = HELPER))
+        private void wrap() {
+        }
+    }
+
+    @Mixin(FixtureTarget.class)
+    public static class OneSelectedMethodMissing {
+        @WrapOperation(method = {"work", "create"}, at = @At(value = "INVOKE", target = HELPER))
         private void wrap() {
         }
     }
