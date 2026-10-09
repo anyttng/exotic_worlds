@@ -182,6 +182,7 @@ dependencies {
     testRuntimeOnly "maven.modrinth:xaeros-minimap:${xaero_minimap_version}"
     testRuntimeOnly "maven.modrinth:xaeros-world-map:${xaero_worldmap_version}"
     testRuntimeOnly files(xaeroLibJars).asFileTree.matching { include '*.jar' }
+    testRuntimeOnly("dev.ftb.mods:ftb-chunks-neoforge:${ftbchunks_version}") { transitive = false }
     testRuntimeOnly "maven.modrinth:sodium:${sodium_version}"
     testRuntimeOnly "maven.modrinth:lithium:${lithium_version}"
     testRuntimeOnly "maven.modrinth:scalablelux:${scalablelux_version}"
