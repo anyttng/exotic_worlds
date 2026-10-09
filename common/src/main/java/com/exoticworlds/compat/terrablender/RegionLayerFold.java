@@ -69,8 +69,8 @@ public record RegionLayerFold(WorldFold transformer, int topDepth, double factor
                 return this.origin + offset;
             }
 
-            long rawSpan = this.scaledLap - stretchedStart;
-            long virtualSpan = this.virtualLap - stretchedStart;
+            long rawSpan = (long) this.scaledLap - stretchedStart;
+            long virtualSpan = (long) this.virtualLap - stretchedStart;
             return this.origin + stretchedStart + (int) ((offset - stretchedStart) * virtualSpan / rawSpan);
         }
 

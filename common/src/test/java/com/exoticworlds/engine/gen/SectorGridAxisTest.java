@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.junit.jupiter.api.Test;
@@ -36,8 +37,8 @@ class SectorGridAxisTest {
         return origins;
     }
 
-    private static TreeSet<Integer> walkCells(WrapDomain domain, int spacing) {
-        TreeSet<Integer> cells = new TreeSet<>();
+    private static Set<Integer> walkCells(WrapDomain domain, int spacing) {
+        Set<Integer> cells = new TreeSet<>();
         for (int chunk = domain.lowerBound; chunk < domain.upperBound; chunk++) {
             cells.add(Math.floorDiv(chunk, spacing));
         }
@@ -59,13 +60,13 @@ class SectorGridAxisTest {
     }
 
     private interface ClosedAxisCheck {
-        void run(WrapDomain domain, int spacing, int origin, SectorGridAxis axis, TreeSet<Integer> cells);
+        void run(WrapDomain domain, int spacing, int origin, SectorGridAxis axis, Set<Integer> cells);
     }
 
     private static void forEachClosedAxis(ClosedAxisCheck check) {
         for (WrapDomain domain : DOMAINS) {
             for (int spacing : SPACINGS) {
-                TreeSet<Integer> cells = walkCells(domain, spacing);
+                Set<Integer> cells = walkCells(domain, spacing);
                 for (int origin : origins(domain)) {
                     check.run(domain, spacing, origin, SectorGridAxis.of(domain, spacing, origin), cells);
                 }

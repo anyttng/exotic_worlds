@@ -16,7 +16,7 @@ class MeasuredReachTest {
 
     @Test
     void theRadiusStandsForTheLengthOfTheSend() {
-        try (MeasuredReach ignored = MeasuredReach.measuring(PARTICLE_RADIUS)) {
+        try (MeasuredReach _ = MeasuredReach.measuring(PARTICLE_RADIUS)) {
             assertEquals(PARTICLE_RADIUS, MeasuredReach.blocks());
         }
 
@@ -25,8 +25,8 @@ class MeasuredReachTest {
 
     @Test
     void anInnerSendGivesTheOuterRadiusBack() {
-        try (MeasuredReach ignoredOuter = MeasuredReach.measuring(PARTICLE_RADIUS)) {
-            try (MeasuredReach ignoredInner = MeasuredReach.measuring(SOUND_RADIUS)) {
+        try (MeasuredReach _ = MeasuredReach.measuring(PARTICLE_RADIUS)) {
+            try (MeasuredReach _ = MeasuredReach.measuring(SOUND_RADIUS)) {
                 assertEquals(SOUND_RADIUS, MeasuredReach.blocks());
             }
 

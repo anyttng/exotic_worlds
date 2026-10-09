@@ -132,7 +132,7 @@ public class ServerLevelMixin {
             return false;
         }
 
-        try (MeasuredReach ignored = MeasuredReach.measuring(range)) {
+        try (MeasuredReach _ = MeasuredReach.measuring(range)) {
             player.connection.send(packet);
         }
 
@@ -147,7 +147,7 @@ public class ServerLevelMixin {
                             + "send(Lnet/minecraft/network/protocol/Packet;)V"))
     private void toroidal$measureExplosionReach(ServerGamePacketListenerImpl connection, Packet<?> packet,
             Operation<Void> original) {
-        try (MeasuredReach ignored = MeasuredReach.measuring(EXPLOSION_RANGE)) {
+        try (MeasuredReach _ = MeasuredReach.measuring(EXPLOSION_RANGE)) {
             original.call(connection, packet);
         }
     }
