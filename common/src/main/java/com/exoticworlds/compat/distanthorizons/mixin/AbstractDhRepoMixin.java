@@ -4,8 +4,8 @@ import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.distanthorizons.DhKeys;
+import com.exoticworlds.compat.distanthorizons.DhLattice;
 import com.exoticworlds.compat.distanthorizons.DhProbes;
 import com.exoticworlds.compat.distanthorizons.DhRepoLevel;
 import com.exoticworlds.compat.distanthorizons.DhShapes;
@@ -29,21 +29,21 @@ public class AbstractDhRepoMixin implements DhRepoLevel {
     }
 
     @Override
-    public @Nullable ToroidalShape toroidal$shape() {
-        ToroidalShape shape = DhShapes.of(this.toroidal$level);
-        boolean present = shape != null;
+    public @Nullable DhLattice toroidal$lattice() {
+        DhLattice lattice = DhShapes.of(this.toroidal$level);
+        boolean present = lattice != null;
         if (this.toroidal$shapeSeen == null || this.toroidal$shapeSeen != present) {
             this.toroidal$shapeSeen = present;
             DhProbes.repoShape(this, this.toroidal$level, present);
         }
 
-        return shape;
+        return lattice;
     }
 
     @WrapMethod(method = "getByKey(Ljava/lang/Object;)Lcom/seibel/distanthorizons/core/sql/dto/IBaseDTO;")
     private @Nullable IBaseDTO<?> toroidal$answerTheAskedKey(Object key, Operation<@Nullable IBaseDTO<?>> original) {
         IBaseDTO<?> dto = original.call(key);
-        if (dto != null && this.toroidal$shape() != null) {
+        if (dto != null && this.toroidal$lattice() != null) {
             DhKeys.reseat(dto, key);
         }
 

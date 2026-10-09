@@ -5,9 +5,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.ClientShapes;
 import com.exoticworlds.compat.distanthorizons.DhKeys;
+import com.exoticworlds.compat.distanthorizons.DhLattice;
+import com.exoticworlds.compat.distanthorizons.DhShapes;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.seibel.distanthorizons.core.pos.blockPos.DhBlockPos2D;
@@ -31,12 +31,12 @@ public class RenderBufferHandlerMixin {
             return false;
         }
 
-        ToroidalShape shape = ClientShapes.current();
-        if (shape == null) {
+        DhLattice lattice = DhShapes.current();
+        if (lattice == null) {
             return true;
         }
 
         DhBlockPos2D center = this.lodQuadTree.getCenterBlockPos();
-        return DhKeys.isNearestCopy(shape, center.x, center.z, section.pos);
+        return DhKeys.isNearestCopy(lattice, center.x, center.z, section.pos);
     }
 }

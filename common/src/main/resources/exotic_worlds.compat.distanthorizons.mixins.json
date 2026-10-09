@@ -9,6 +9,8 @@
     "AbstractDhRepoMixin",
     "BeaconBeamRepoMixin",
     "ChunkHashRepoMixin",
+    "ChunkUpdateQueueManagerMixin",
+    "ChunkWrapperAccessor",
     "ChunkWrapperMixin",
     "FullDataSourceProviderV2Mixin",
     "FullDataSourceV2RepoMixin",

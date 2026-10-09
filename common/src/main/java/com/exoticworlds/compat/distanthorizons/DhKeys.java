@@ -2,7 +2,6 @@ package com.exoticworlds.compat.distanthorizons;
 
 import java.util.function.Supplier;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.seibel.distanthorizons.core.pos.DhChunkPos;
 import com.seibel.distanthorizons.core.pos.DhSectionPos;
 import com.seibel.distanthorizons.core.pos.blockPos.DhBlockPos;
@@ -11,22 +10,23 @@ import com.seibel.distanthorizons.core.sql.dto.ChunkHashDTO;
 import com.seibel.distanthorizons.core.sql.dto.FullDataSourceV2DTO;
 import com.seibel.distanthorizons.core.sql.dto.IBaseDTO;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
 
 public final class DhKeys {
     public static final byte LEAF = DhSectionPos.SECTION_MINIMUM_DETAIL_LEVEL;
 
-    public static long foldSection(ToroidalShape shape, long pos) {
-        if (shape == null) {
+    public static long foldSection(DhLattice lattice, long pos) {
+        if (lattice == null) {
             return pos;
         }
 
         byte detail = DhSectionPos.getDetailLevel(pos);
         int rawX = DhSectionPos.getX(pos);
         int rawZ = DhSectionPos.getZ(pos);
-        int x = DhFold.foldSection(shape, Direction.Axis.X, detail, rawX);
-        int z = DhFold.foldSection(shape, Direction.Axis.Z, detail, rawZ);
+        int x = DhFold.foldSectionX(lattice, detail, rawX, rawZ);
+        int z = DhFold.foldSectionZ(lattice, detail, rawZ);
         if (x == rawX && z == rawZ) {
             DhProbes.keyKept(DhProbes.Key.SECTION);
             return pos;
@@ -37,21 +37,21 @@ public final class DhKeys {
         return folded;
     }
 
-    public static DhChunkPos foldChunk(ToroidalShape shape, DhChunkPos pos) {
-        return foldChunk(shape, pos, pos.getX(), pos.getZ(), DhChunkPos::new);
+    public static DhChunkPos foldChunk(DhLattice lattice, DhChunkPos pos) {
+        return foldChunk(lattice, pos, pos.getX(), pos.getZ(), DhChunkPos::new);
     }
 
-    public static ChunkPos foldChunk(ToroidalShape shape, ChunkPos pos) {
-        return foldChunk(shape, pos, pos.x, pos.z, ChunkPos::new);
+    public static ChunkPos foldChunk(DhLattice lattice, ChunkPos pos) {
+        return foldChunk(lattice, pos, pos.x, pos.z, ChunkPos::new);
     }
 
-    private static <P> P foldChunk(ToroidalShape shape, P pos, int rawX, int rawZ, ChunkFactory<P> factory) {
-        if (shape == null) {
+    private static <P> P foldChunk(DhLattice lattice, P pos, int rawX, int rawZ, ChunkFactory<P> factory) {
+        if (lattice == null) {
             return pos;
         }
 
-        int x = DhFold.foldChunk(shape, Direction.Axis.X, LEAF, rawX);
-        int z = DhFold.foldChunk(shape, Direction.Axis.Z, LEAF, rawZ);
+        int x = DhFold.foldChunkX(lattice, LEAF, rawX, rawZ);
+        int z = DhFold.foldChunkZ(lattice, LEAF, rawZ);
         if (x == rawX && z == rawZ) {
             DhProbes.keyKept(DhProbes.Key.CHUNK);
             return pos;
@@ -61,82 +61,84 @@ public final class DhKeys {
         return factory.at(x, z);
     }
 
-    public static DhBlockPos foldBlock(ToroidalShape shape, DhBlockPos pos) {
-        if (shape == null) {
+    public static DhBlockPos foldBlock(DhLattice lattice, DhBlockPos pos) {
+        if (lattice == null) {
             return pos;
         }
 
-        int x = shape.foldBlock(Direction.Axis.X, pos.getX());
-        int z = shape.foldBlock(Direction.Axis.Z, pos.getZ());
-        if (x == pos.getX() && z == pos.getZ()) {
+        BlockPos raw = new BlockPos(pos.getX(), pos.getY(), pos.getZ());
+        BlockPos block = lattice.shape().fold(raw);
+        if (block == raw) {
             DhProbes.keyKept(DhProbes.Key.BEACON);
             return pos;
         }
 
-        DhBlockPos folded = new DhBlockPos(x, pos.getY(), z);
+        DhBlockPos folded = new DhBlockPos(block.getX(), block.getY(), block.getZ());
         DhProbes.beaconKeyFolded(pos, folded);
         return folded;
     }
 
-    public static boolean containsACopy(ToroidalShape shape, long sectionPos, long copyPos) {
-        byte detail = DhSectionPos.getDetailLevel(sectionPos);
-        byte copyDetail = DhSectionPos.getDetailLevel(copyPos);
-        return DhFold.containsACopy(shape, Direction.Axis.X, detail, DhSectionPos.getX(sectionPos), copyDetail,
-                DhSectionPos.getX(copyPos))
-                && DhFold.containsACopy(shape, Direction.Axis.Z, detail, DhSectionPos.getZ(sectionPos), copyDetail,
-                        DhSectionPos.getZ(copyPos));
+    public static boolean containsACopy(DhLattice lattice, long sectionPos, long copyPos) {
+        return DhFold.containsACopy(lattice, DhSectionPos.getDetailLevel(sectionPos), DhSectionPos.getX(sectionPos),
+                DhSectionPos.getZ(sectionPos), DhSectionPos.getDetailLevel(copyPos), DhSectionPos.getX(copyPos),
+                DhSectionPos.getZ(copyPos));
     }
 
-    public static long nearestSection(ToroidalShape shape, int refBlockX, int refBlockZ, long pos) {
-        byte snap = snapLevel(shape);
+    public static long nearestSection(DhLattice lattice, int refBlockX, int refBlockZ, long pos) {
         byte detail = DhSectionPos.getDetailLevel(pos);
         int rawX = DhSectionPos.getX(pos);
         int rawZ = DhSectionPos.getZ(pos);
-        int x = DhFold.nearestSection(shape, Direction.Axis.X, snap, detail, refBlockX, rawX);
-        int z = DhFold.nearestSection(shape, Direction.Axis.Z, snap, detail, refBlockZ, rawZ);
-        if (x == rawX && z == rawZ) {
+        DhFold.Section nearest = DhFold.nearestSection(lattice, snapLevel(lattice), detail, refBlockX, refBlockZ,
+                rawX, rawZ);
+        if (nearest.x() == rawX && nearest.z() == rawZ) {
             return pos;
         }
 
-        return DhSectionPos.encode(detail, x, z);
+        return DhSectionPos.encode(detail, nearest.x(), nearest.z());
     }
 
-    public static boolean isNearestCopy(ToroidalShape shape, int refBlockX, int refBlockZ, long pos) {
-        byte snap = snapLevel(shape);
+    public static boolean isNearestCopy(DhLattice lattice, int refBlockX, int refBlockZ, long pos) {
+        byte snap = snapLevel(lattice);
         byte detail = DhSectionPos.getDetailLevel(pos);
-        return DhFold.isNearestSection(shape, Direction.Axis.X, snap, detail, refBlockX, DhSectionPos.getX(pos))
-                && DhFold.isNearestSection(shape, Direction.Axis.Z, snap, detail, refBlockZ, DhSectionPos.getZ(pos));
+        return DhFold.isNearestSection(lattice, Direction.Axis.X, snap, detail, refBlockX, DhSectionPos.getX(pos))
+                && DhFold.isNearestSection(lattice, Direction.Axis.Z, snap, detail, refBlockZ, DhSectionPos.getZ(pos));
     }
 
-    public static boolean straddlesNearestCopy(ToroidalShape shape, int refBlockX, int refBlockZ, long pos) {
-        byte snap = snapLevel(shape);
+    public static boolean isNearestBeam(DhLattice lattice, int refBlockX, int refBlockZ, DhBlockPos beam) {
+        int width = DhFold.sectionWidthBlocks(LEAF);
+        long leaf = DhSectionPos.encode(LEAF, Math.floorDiv(beam.getX(), width), Math.floorDiv(beam.getZ(), width));
+        return isNearestCopy(lattice, refBlockX, refBlockZ, leaf);
+    }
+
+    public static boolean straddlesNearestCopy(DhLattice lattice, int refBlockX, int refBlockZ, long pos) {
+        byte snap = snapLevel(lattice);
         byte detail = DhSectionPos.getDetailLevel(pos);
         int x = DhSectionPos.getX(pos);
         int z = DhSectionPos.getZ(pos);
-        return DhFold.overlapsNearestWindow(shape, Direction.Axis.X, snap, detail, refBlockX, x)
-                && DhFold.overlapsNearestWindow(shape, Direction.Axis.Z, snap, detail, refBlockZ, z)
-                && !isNearestCopy(shape, refBlockX, refBlockZ, pos);
+        return DhFold.overlapsNearestWindow(lattice, Direction.Axis.X, snap, detail, refBlockX, x)
+                && DhFold.overlapsNearestWindow(lattice, Direction.Axis.Z, snap, detail, refBlockZ, z)
+                && !isNearestCopy(lattice, refBlockX, refBlockZ, pos);
     }
 
-    public static byte snapLevel(ToroidalShape shape) {
-        return DhFold.snapDetailLevel(shape, LEAF);
+    public static byte snapLevel(DhLattice lattice) {
+        return DhFold.snapDetailLevel(lattice, LEAF);
     }
 
-    public static Object foldKey(ToroidalShape shape, Object key) {
+    public static Object foldKey(DhLattice lattice, Object key) {
         if (key instanceof Long pos) {
-            return foldSection(shape, pos);
+            return foldSection(lattice, pos);
         } else if (key instanceof DhChunkPos pos) {
-            return foldChunk(shape, pos);
+            return foldChunk(lattice, pos);
         } else if (key instanceof DhBlockPos pos) {
-            return foldBlock(shape, pos);
+            return foldBlock(lattice, pos);
         }
 
         return key;
     }
 
-    public static <T> T withFoldedKey(ToroidalShape shape, IBaseDTO<?> dto, Supplier<T> statement) {
+    public static <T> T withFoldedKey(DhLattice lattice, IBaseDTO<?> dto, Supplier<T> statement) {
         Object raw = dto.getKey();
-        reseat(dto, foldKey(shape, raw));
+        reseat(dto, foldKey(lattice, raw));
         try {
             return statement.get();
         } finally {

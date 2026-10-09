@@ -7,6 +7,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.compat.distanthorizons.DhKeys;
+import com.exoticworlds.compat.distanthorizons.DhInjectionTargets;
+import com.exoticworlds.compat.distanthorizons.DhRowCopies;
 import com.exoticworlds.compat.distanthorizons.DhShapes;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -19,9 +21,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 // naming the chunk type in that loader's own mapping. Each is unloadable on the other loader, so both are named here
 // and only the running loader's copy is ever transformed. The constructor is named in both mappings for the same
 // reason GuiMapMixin names its render override twice: with two targets the remapper resolves neither descriptor.
-@Mixin(targets = {
-        "com.seibel.distanthorizons.common.wrappers.chunk.ChunkWrapper_neoforge",
-        "com.seibel.distanthorizons.common.wrappers.chunk.ChunkWrapper"})
+@Mixin(targets = {DhInjectionTargets.CHUNK_WRAPPER_NEOFORGE, DhInjectionTargets.CHUNK_WRAPPER})
 public class ChunkWrapperMixin {
     // Mixin refuses a remappable @Shadow on a multi-target mixin; the field is Distant Horizons' own, never remapped.
     @Shadow(remap = false)
@@ -44,8 +44,10 @@ public class ChunkWrapperMixin {
     private ChunkPos toroidal$foldedChunkPos(ChunkAccess chunk, Operation<ChunkPos> original) {
         ChunkPos folded = this.toroidal$foldedPos;
         if (folded == null) {
-            ChunkPos raw = original.call(chunk);
-            folded = DhKeys.foldChunk(DhShapes.clientFrame(this.wrappedLevel), raw);
+            ChunkPos copy = DhRowCopies.pendingCopy();
+            folded = copy != null
+                    ? copy
+                    : DhKeys.foldChunk(DhShapes.clientFrame(this.wrappedLevel), original.call(chunk));
             this.toroidal$foldedPos = folded;
         }
 
