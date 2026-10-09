@@ -52,6 +52,14 @@ repositories {
             includeGroup 'dev.ftb.mods'
         }
     }
+    // Fabric Loader, for the one enum unpacked out of it below.
+    maven {
+        name = 'FabricMC'
+        url = 'https://maven.fabricmc.net/'
+        content {
+            includeGroup 'net.fabricmc'
+        }
+    }
 }
 
 // C2ME publishes one jar that carries no classes of its own — every module rides inside it as a jar-in-jar, and no
@@ -122,6 +130,26 @@ dependencies {
     betterEndNeoForge "maven.modrinth:betterend-neoforge:${betterend_neoforge_version}"
 }
 
+// BetterEnd, BCLib and Distant Horizons annotate classes with Fabric's @Environment, and javac warns unconditionally
+// on the enum it names when that is missing. The enum's class file alone is unpacked from the pinned loader, so the
+// rest of Fabric Loader stays off this module's classpath.
+configurations {
+    fabricEnvType {
+        transitive = false
+    }
+}
+
+dependencies {
+    fabricEnvType "net.fabricmc:fabric-loader:${fabric_loader_version}"
+}
+
+var fabricEnvTypeClass = tasks.register('unpackFabricEnvType', Sync) {
+    from(zipTree(configurations.fabricEnvType.singleFile)) {
+        include 'net/fabricmc/api/EnvType.class'
+    }
+    into layout.buildDirectory.dir('fabric-envtype')
+}
+
 // NeoForm brings only vanilla; the mixin annotations the sources carry come from the same artifacts the NeoForge
 // runtime ships (pinned in gradle.properties from the neo_version userdev config). compileOnly — applying them is
 // the loaders' business.
@@ -139,6 +167,7 @@ dependencies {
     compileOnly "maven.modrinth:sodium:${sodium_version}"
     compileOnly files(xaeroLibJars).asFileTree.matching { include '*.jar' }
     compileOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
+    compileOnly files(fabricEnvTypeClass)
     compileOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
     compileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     compileOnly "maven.modrinth:simple-atlas:${simple_atlas_version}"

@@ -22,7 +22,7 @@ public class PointedDripstoneBlockMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_STATE_GET_OFFSET))
     private static Vec3 toroidal$seedDripOffset(BlockState state, BlockPos pos, Operation<Vec3> original,
             @Local(argsOnly = true) Level level) {
-        try (BlockOffsetSeed ignored = BlockOffsetSeed.seededBy(level)) {
+        try (BlockOffsetSeed _ = BlockOffsetSeed.seededBy(level)) {
             return original.call(state, pos);
         }
     }

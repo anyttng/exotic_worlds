@@ -396,7 +396,7 @@ class SeamDistanceTest {
             }
 
             double shiftLaps = (foldedMin - boxMin) / domain.domainLength;
-            assertEquals(Math.round(shiftLaps), shiftLaps, 1e-9,
+            assertEquals((double) Math.round(shiftLaps), shiftLaps, 1e-9,
                     () -> axis + " shift left its lattice " + in(transformer));
         }
 
@@ -426,8 +426,8 @@ class SeamDistanceTest {
 
                 ChunkPos from = new ChunkPos(random.nextInt(2_001) - 1_000, random.nextInt(2_001) - 1_000);
                 ChunkPos to = new ChunkPos(random.nextInt(2_001) - 1_000, random.nextInt(2_001) - 1_000);
-                long flatDx = to.x() - from.x();
-                long flatDz = to.z() - from.z();
+                long flatDx = (long) to.x() - from.x();
+                long flatDz = (long) to.z() - from.z();
                 assertEquals(flatDx * flatDx + flatDz * flatDz, disabled.sqrChunkDistance(from, to));
                 assertEquals(from.getChessboardDistance(to), from.getChessboardDistance(disabled.nearestCopy(from, to)));
 

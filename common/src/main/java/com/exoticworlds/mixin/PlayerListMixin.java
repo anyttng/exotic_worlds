@@ -52,7 +52,7 @@ public class PlayerListMixin {
                     : player.distanceToSqr(x, y, z);
 
             if (distanceSqr < range * range) {
-                try (MeasuredReach ignored = MeasuredReach.measuring(range)) {
+                try (MeasuredReach _ = MeasuredReach.measuring(range)) {
                     player.connection.send(packet);
                 }
             }

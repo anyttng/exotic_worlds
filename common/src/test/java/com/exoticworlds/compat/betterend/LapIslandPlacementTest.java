@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.IntBinaryOperator;
 
 import org.betterx.betterend.noise.OpenSimplexNoise;
 import org.betterx.betterend.world.generator.LayerOptions;
@@ -32,13 +31,13 @@ class LapIslandPlacementTest {
 
     private static final LapIslandPlacement.Centre CENTRE = new LapIslandPlacement.Centre(true, 256, 1024L * 1024L);
 
-    private static final IntBinaryOperator SEED_OF = (x, z) -> {
+    private static final OpenSimplexNoise COVERAGE = new OpenSimplexNoise(SEED);
+
+    private static int seedOf(int x, int z) {
         int h = SEED + x * 374761393 + z * 668265263;
         h = (h ^ h >> 13) * 1274126177;
         return h ^ h >> 16;
-    };
-
-    private static final OpenSimplexNoise COVERAGE = new OpenSimplexNoise(SEED);
+    }
 
     @Test
     void aWindowOneLapAwayPlacesTheSameIslandsOneLapShifted() {
@@ -94,7 +93,8 @@ class LapIslandPlacementTest {
 
     private static List<LapIslandPlacement.Island> place(int cellX, int cellZ, LapIslandPlacement.Centre centre) {
         List<LapIslandPlacement.Island> islands = new ArrayList<>();
-        LapIslandPlacement.place(islands, GRID, cellX, cellZ, MAX_HEIGHT, MEDIUM, SEED_OF, COVERAGE, centre);
+        LapIslandPlacement.place(islands, GRID, cellX, cellZ, MAX_HEIGHT, MEDIUM, LapIslandPlacementTest::seedOf,
+                COVERAGE, centre);
         return islands;
     }
 }

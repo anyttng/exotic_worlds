@@ -126,6 +126,7 @@ public final class ReplacementNoiseFold {
         return built;
     }
 
+    @SuppressWarnings("ArrayRecordComponent")
     private record Octaves(long seed, ImprovedNoise[] noises) {
     }
 

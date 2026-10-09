@@ -1,6 +1,7 @@
 package com.exoticworlds.compat.fixture;
 
 public class FixtureForeignMixin {
+    @SuppressWarnings("ReturnValueIgnored")
     public void handler() {
         Integer.valueOf(1);
     }

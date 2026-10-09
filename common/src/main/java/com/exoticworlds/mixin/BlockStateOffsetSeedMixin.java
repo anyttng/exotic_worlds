@@ -84,7 +84,7 @@ public abstract class BlockStateOffsetSeedMixin {
 
     @Unique
     private static VoxelShape toroidal$seeded(BlockGetter level, Supplier<VoxelShape> shape) {
-        try (BlockOffsetSeed ignored = BlockOffsetSeed.seededBy(level)) {
+        try (BlockOffsetSeed _ = BlockOffsetSeed.seededBy(level)) {
             return shape.get();
         }
     }

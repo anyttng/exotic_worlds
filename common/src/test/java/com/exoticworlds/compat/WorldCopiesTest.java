@@ -117,7 +117,7 @@ class WorldCopiesTest {
             for (int column = -20; column <= 20; column++) {
                 int dx = column * WIDTH + row * skew;
                 int dz = row * WIDTH;
-                boolean meetsZ = !zLoops || LOWER + dz < maxZ && LOWER + WIDTH + dz > minZ;
+                boolean meetsZ = !zLoops || (LOWER + dz < maxZ && LOWER + WIDTH + dz > minZ);
                 if (meetsZ && LOWER + dx < maxX && LOWER + WIDTH + dx > minX) {
                     copies.add(new WorldCopies.Copy(dx, dz));
                 }

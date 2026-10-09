@@ -45,6 +45,7 @@ public abstract class LoopSettingsScreen<S> extends Screen {
     private ScrollableLayout contentsScroll;
     private Button doneButton;
 
+    @SuppressWarnings("this-escape")
     protected LoopSettingsScreen(Component title, Screen parent, Function<Runnable, LoopSizeControls> controls,
             GenerationOptions generationOptions, Collection<? extends WorldOption<?>> offeredOptions,
             Consumer<S> onDone) {
