@@ -18,7 +18,15 @@ public final class LapIslandPlacement {
     public record Centre(boolean island, int biomesSize, long innerVoidSquared) {
     }
 
-    public record Grid(IslandLapAxis x, IslandLapAxis z) {
+    public record Grid(IslandLapAxis x, IslandLapAxis z, LapFrame frame) {
+        public int cellX(double blockX, double blockZ) {
+            return this.x.cell(this.frame.frameX(blockX, blockZ));
+        }
+
+        int reachX() {
+            double reach = Math.min(this.x.cellBlocks(), this.z.cellBlocks()) * (1.0 + Math.abs(this.frame.shear()));
+            return (int) Math.ceil(reach / this.x.cellBlocks());
+        }
     }
 
     private static final int CENTRAL_ISLAND_Y = 64;
@@ -32,26 +40,26 @@ public final class LapIslandPlacement {
     public static void place(List<Island> into, Grid grid, int cellX, int cellZ, int maxHeight, LayerOptions options,
             IntBinaryOperator seedOf, OpenSimplexNoise coverage, Centre centre) {
         into.clear();
-        for (int offsetX = -REACH; offsetX <= REACH; offsetX++) {
+        int reachX = grid.reachX();
+        for (int offsetX = -reachX; offsetX <= reachX; offsetX++) {
             int rawX = cellX + offsetX;
             int canonicalX = grid.x().wrap(rawX);
-            long fromOriginX = grid.x().nearestToOrigin(canonicalX);
             for (int offsetZ = -REACH; offsetZ <= REACH; offsetZ++) {
                 int rawZ = cellZ + offsetZ;
                 int canonicalZ = grid.z().wrap(rawZ);
-                long fromOriginZ = grid.z().nearestToOrigin(canonicalZ);
-                if (fromOriginX * fromOriginX + fromOriginZ * fromOriginZ <= options.centerDist) {
+                long[] fromOrigin = cellsFromOrigin(grid, canonicalX, canonicalZ);
+                if (fromOrigin[0] * fromOrigin[0] + fromOrigin[1] * fromOrigin[1] <= options.centerDist) {
                     continue;
                 }
 
                 RandomSource random = new LegacyRandomSource(seedOf.applyAsInt(canonicalX, canonicalZ));
-                double blockX = (canonicalX + random.nextFloat()) * grid.x().cellBlocks();
+                double frameX = (canonicalX + random.nextFloat()) * grid.x().cellBlocks();
                 double blockY = MHelper.randRange(options.minY, options.maxY, random) * maxHeight;
                 double blockZ = (canonicalZ + random.nextFloat()) * grid.z().cellBlocks();
+                double blockX = grid.frame().blockX(frameX, blockZ);
                 if (coverage.eval(blockX * COVERAGE_FREQUENCY, blockZ * COVERAGE_FREQUENCY) > options.coverage) {
                     BlockPos canonical = new BlockPos((int) blockX, (int) blockY, (int) blockZ);
-                    into.add(new Island(canonical,
-                            canonical.offset(grid.x().shift(rawX), 0, grid.z().shift(rawZ))));
+                    into.add(new Island(canonical, seated(canonical, grid, grid.x().laps(rawX), grid.z().laps(rawZ))));
                 }
             }
         }
@@ -61,21 +69,44 @@ public final class LapIslandPlacement {
 
     private static void clearCentre(List<Island> into, Grid grid, int cellX, int cellZ, LayerOptions options,
             Centre centre) {
-        if (!centre.island()
-                || Math.abs(grid.x().nearestToOrigin(grid.x().wrap(cellX))) >= centre.biomesSize()
-                || Math.abs(grid.z().nearestToOrigin(grid.z().wrap(cellZ))) >= centre.biomesSize()) {
+        if (!centre.island()) {
+            return;
+        }
+
+        long[] fromOrigin = cellsFromOrigin(grid, cellX, cellZ);
+        if (Math.abs(fromOrigin[0]) >= centre.biomesSize() || Math.abs(fromOrigin[1]) >= centre.biomesSize()) {
             return;
         }
 
         into.removeIf(island -> {
-            long x = (long) island.canonical().getX() - grid.x().originCopy(island.canonical().getX());
-            long z = (long) island.canonical().getZ() - grid.z().originCopy(island.canonical().getZ());
+            BlockPos canonical = island.canonical();
+            long[] laps = originLapsNearest(grid, canonical.getX(), canonical.getZ());
+            long x = canonical.getX() - grid.frame().shiftX(laps[0], laps[1]);
+            long z = canonical.getZ() - grid.frame().shiftZ(laps[1]);
             return x * x + z * z < centre.innerVoidSquared();
         });
         if (options.hasCentralIsland) {
-            into.add(new Island(CENTRAL_ISLAND, new BlockPos(grid.x().originCopy(middle(grid.x(), cellX)),
-                    CENTRAL_ISLAND_Y, grid.z().originCopy(middle(grid.z(), cellZ)))));
+            double middleZ = middle(grid.z(), cellZ);
+            long[] laps = originLapsNearest(grid, grid.frame().blockX(middle(grid.x(), cellX), middleZ), middleZ);
+            into.add(new Island(CENTRAL_ISLAND, seated(CENTRAL_ISLAND, grid, laps[0], laps[1])));
         }
+    }
+
+    private static BlockPos seated(BlockPos canonical, Grid grid, long lapsX, long lapsZ) {
+        return canonical.offset(Math.toIntExact(grid.frame().shiftX(lapsX, lapsZ)), 0,
+                Math.toIntExact(grid.frame().shiftZ(lapsZ)));
+    }
+
+    private static long[] cellsFromOrigin(Grid grid, int cellX, int cellZ) {
+        double middleZ = middle(grid.z(), cellZ);
+        long[] laps = grid.frame().nearestOriginLaps(grid.frame().blockX(middle(grid.x(), cellX), middleZ), middleZ,
+                grid.x().originLapsOfCell(cellX), grid.z().originLapsOfCell(cellZ));
+        return new long[] {cellX - laps[0] * grid.x().cells(), cellZ - laps[1] * grid.z().cells()};
+    }
+
+    private static long[] originLapsNearest(Grid grid, double blockX, double blockZ) {
+        return grid.frame().nearestOriginLaps(blockX, blockZ,
+                grid.x().originLaps(grid.frame().frameX(blockX, blockZ)), grid.z().originLaps(blockZ));
     }
 
     private static double middle(IslandLapAxis axis, int cell) {
