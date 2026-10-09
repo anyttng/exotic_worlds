@@ -5,9 +5,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.compat.distanthorizons.DhClientShapes;
 import com.exoticworlds.compat.distanthorizons.DhKeys;
 import com.exoticworlds.compat.distanthorizons.DhLattice;
-import com.exoticworlds.compat.distanthorizons.DhShapes;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.seibel.distanthorizons.core.pos.blockPos.DhBlockPos2D;
@@ -31,7 +31,7 @@ public class RenderBufferHandlerMixin {
             return false;
         }
 
-        DhLattice lattice = DhShapes.current();
+        DhLattice lattice = DhClientShapes.current();
         if (lattice == null) {
             return true;
         }

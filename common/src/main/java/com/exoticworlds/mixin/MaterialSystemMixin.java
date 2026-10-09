@@ -1,12 +1,16 @@
 package com.exoticworlds.mixin;
 
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
@@ -15,11 +19,18 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.PositionalRandomFactory;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import net.minecraft.world.level.levelgen.material.MaterialSystem;
 import net.minecraft.world.level.levelgen.synth.Noise;
 
 @Mixin(MaterialSystem.class)
-public class MaterialSystemMixin {
+public class MaterialSystemMixin implements TransformerSource {
+    @Unique
+    private @Nullable TransformerSource toroidal$randomState;
+
     @Shadow
     @Final
     private Noise badlandsPillarNoise;
@@ -36,11 +47,23 @@ public class MaterialSystemMixin {
     @Final
     private Noise icebergPillarRoofNoise;
 
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void toroidal$keepRandomState(RandomState randomState, BlockState defaultBlock, int seaLevel,
+            DensityFunction preliminarySurfaceFunction, PositionalRandomFactory noiseRandom, CallbackInfo callback) {
+        this.toroidal$randomState = (TransformerSource) (Object) randomState;
+    }
+
+    @Override
+    public @Nullable WorldFold toroidal$wrappedTransformer() {
+        TransformerSource randomState = this.toroidal$randomState;
+        return randomState != null ? randomState.toroidal$wrappedTransformer() : null;
+    }
+
     @WrapOperation(
             method = {"getSurfaceDepth", "getSurfaceSecondary", "getBand"},
             at = @At(value = "INVOKE", target = InjectionTargets.NOISE_GET))
     private float toroidal$blockPositionNoise(Noise noise, double x, double y, double z, Operation<Float> original) {
-        WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
+        WorldFold transformer = GenerationTransformerContext.carriedOrBound(this.toroidal$wrappedTransformer());
         if (transformer == null) {
             return original.call(noise, x, y, z);
         }
@@ -63,7 +86,7 @@ public class MaterialSystemMixin {
     @Unique
     private float toroidal$rawCoordinateNoise(Noise noise, double x, double y, double z, int blockX, int blockZ,
             Operation<Float> original) {
-        WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
+        WorldFold transformer = GenerationTransformerContext.carriedOrBound(this.toroidal$wrappedTransformer());
         if (transformer == null) {
             return original.call(noise, x, y, z);
         }
