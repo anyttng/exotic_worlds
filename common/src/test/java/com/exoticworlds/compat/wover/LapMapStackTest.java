@@ -10,6 +10,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -38,18 +39,28 @@ class LapMapStackTest {
 
     @Test
     void theLayerPickRepeatsOnTheLapAndReachesBothLayers() {
-        WorldFold fold = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-64, 64, -48, 48)));
+        assertLayerPickRepeats(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-64, 64, -48, 48))));
+    }
+
+    @Test
+    void onASkewedNetherTheLayerPickRepeatsAlongBothLatticeVectors() {
+        assertLayerPickRepeats(WorldFolds.of(FlatShape.latticeTorus(new WorldLoopBounds(-64, 64, -48, 48), 19)));
+    }
+
+    private static void assertLayerPickRepeats(WorldFold fold) {
         LapMapStack<Integer> stack =
                 new LapMapStack<>(fold, List.of(), LapMapStackTest::isVertical, AMPLIFIED_NETHER, SEED);
-        WrapDomain x = fold.blockDomain(Direction.Axis.X);
-        WrapDomain z = fold.blockDomain(Direction.Axis.Z);
+        TranslationLattice lattice = fold.blockLattice();
+        WrapDomain x = lattice.x();
+        WrapDomain z = lattice.z();
         Set<Integer> picked = new HashSet<>();
         for (int bx = x.lowerBound - 64; bx < x.upperBound; bx += 7) {
             for (int bz = z.lowerBound - 64; bz < z.upperBound; bz += 11) {
                 int layer = stack.layer(bx, BORDER_Y, bz);
                 picked.add(layer);
                 assertEquals(layer, stack.layer(bx + x.domainLength, BORDER_Y, bz), "x " + bx + " z " + bz);
-                assertEquals(layer, stack.layer(bx, BORDER_Y, bz + z.domainLength), "x " + bx + " z " + bz);
+                assertEquals(layer, stack.layer(bx + lattice.skew(), BORDER_Y, bz + z.domainLength),
+                        "x " + bx + " z " + bz);
             }
         }
 

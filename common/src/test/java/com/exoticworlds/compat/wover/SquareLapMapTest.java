@@ -54,6 +54,12 @@ class SquareLapMapTest {
     }
 
     @Test
+    void aSkewedNetherRepeatsAlongBothLatticeVectors() {
+        WorldFold fold = WorldFolds.of(FlatShape.latticeTorus(new WorldLoopBounds(-150, 150, -82, 82), 37));
+        HexLapMapTest.assertPeriodic(map(fold, 64), fold);
+    }
+
+    @Test
     void aCylinderRepeatsOnItsLoopedAxisAndKeepsTheOtherOpen() {
         WorldFold cylinder = WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 256)));
         SquareLapMap<Integer> map = map(cylinder, DEFAULT_SIZE);

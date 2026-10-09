@@ -16,6 +16,7 @@ import org.betterx.wover.util.RandomizedWeightedList;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -211,6 +212,11 @@ class HexLapMapTest {
     }
 
     @Test
+    void aSkewedNetherRepeatsAlongBothLatticeVectors() {
+        assertPeriodic(WorldFolds.of(FlatShape.latticeTorus(new WorldLoopBounds(-75, 75, -41, 41), 23)), DEFAULT_SCALE);
+    }
+
+    @Test
     void aCylinderRepeatsOnItsLoopedAxisAndKeepsTheOtherOpen() {
         WorldFold cylinder = WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 256)));
         HexLapMap<Integer> map = map(cylinder, DEFAULT_SCALE);
@@ -397,10 +403,12 @@ class HexLapMapTest {
     }
 
     static void assertPeriodic(LapMap<Integer> map, WorldFold fold) {
-        WrapDomain xDomain = fold.blockDomain(Direction.Axis.X);
-        WrapDomain zDomain = fold.blockDomain(Direction.Axis.Z);
+        TranslationLattice lattice = fold.blockLattice();
+        WrapDomain xDomain = lattice.x();
+        WrapDomain zDomain = lattice.z();
         int xLap = xDomain.domainLength;
         int zLap = zDomain.domainLength;
+        int skew = lattice.skew();
         int xStride = Math.max(MIN_STRIDE_BLOCKS, xLap / SAMPLES_PER_LAP);
         int zStride = Math.max(MIN_STRIDE_BLOCKS, zLap / SAMPLES_PER_LAP);
         Set<Integer> seen = new HashSet<>();
@@ -409,7 +417,7 @@ class HexLapMapTest {
                 int biome = map.biomeAt(x, z);
                 seen.add(biome);
                 assertEquals(biome, map.biomeAt(x + xLap, z), "x " + x + " z " + z + " one lap away on X");
-                assertEquals(biome, map.biomeAt(x, z + zLap), "x " + x + " z " + z + " one lap away on Z");
+                assertEquals(biome, map.biomeAt(x + skew, z + zLap), "x " + x + " z " + z + " one lap away on Z");
             }
         }
 
