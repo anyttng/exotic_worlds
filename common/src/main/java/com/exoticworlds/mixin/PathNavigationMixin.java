@@ -19,8 +19,10 @@ import com.exoticworlds.engine.fold.SeamDelta;
 import com.exoticworlds.engine.seam.SeamRange;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.Mob;
@@ -30,6 +32,9 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(PathNavigation.class)
 public class PathNavigationMixin implements NavigationShifter {
+    @Unique
+    private static final String MATH_ABS = "Ljava/lang/Math;abs(D)D";
+
     @Shadow
     @Final
     protected Mob mob;
@@ -59,20 +64,28 @@ public class PathNavigationMixin implements NavigationShifter {
         return FoldedCopies.of(targets, target -> transformer.nearestCopy(from, target));
     }
 
-    @WrapOperation(
-            method = "followThePath",
-            at = @At(value = "INVOKE", target = "Ljava/lang/Math;abs(D)D", ordinal = 0))
-    private double toroidal$nodeDistanceX(double delta, Operation<Double> original) {
-        WorldFold transformer = toroidal$wrappedTransformer();
-        return transformer == null ? original.call(delta) : Math.abs(SeamDelta.foldX(transformer, delta));
+    @WrapOperation(method = "followThePath", at = @At(value = "INVOKE", target = MATH_ABS, ordinal = 0))
+    private double toroidal$nodeDistanceX(double delta, Operation<Double> original, @Local Vec3i node) {
+        return toroidal$nodeDistance(Direction.Axis.X, delta, node, original);
     }
 
-    @WrapOperation(
-            method = "followThePath",
-            at = @At(value = "INVOKE", target = "Ljava/lang/Math;abs(D)D", ordinal = 2))
-    private double toroidal$nodeDistanceZ(double delta, Operation<Double> original) {
+    @WrapOperation(method = "followThePath", at = @At(value = "INVOKE", target = MATH_ABS, ordinal = 2))
+    private double toroidal$nodeDistanceZ(double delta, Operation<Double> original, @Local Vec3i node) {
+        return toroidal$nodeDistance(Direction.Axis.Z, delta, node, original);
+    }
+
+    @Unique
+    private double toroidal$nodeDistance(Direction.Axis axis, double delta, Vec3i node, Operation<Double> original) {
         WorldFold transformer = toroidal$wrappedTransformer();
-        return transformer == null ? original.call(delta) : Math.abs(SeamDelta.foldZ(transformer, delta));
+        if (transformer == null) {
+            return original.call(delta);
+        }
+
+        Direction.Axis other = axis == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X;
+        double nodeOffset = this.mob.position().get(axis) - delta - node.get(axis);
+        double otherDelta = this.mob.position().get(other) - (node.get(other) + nodeOffset);
+        Vec3 pair = axis == Direction.Axis.X ? new Vec3(delta, 0.0, otherDelta) : new Vec3(otherDelta, 0.0, delta);
+        return Math.abs(SeamDelta.fold(transformer, pair).get(axis));
     }
 
     @WrapOperation(

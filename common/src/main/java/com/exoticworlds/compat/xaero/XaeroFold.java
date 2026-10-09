@@ -8,7 +8,7 @@ import com.exoticworlds.compat.ClientShapes;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.world.phys.Vec3;
 
 public final class XaeroFold {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -24,12 +24,8 @@ public final class XaeroFold {
         return shape.fold(spawn);
     }
 
-    public static double nearestElementCoord(Direction.Axis axis, double coord) {
-        return ClientFrame.nearestToCamera(axis, coord);
-    }
-
-    public static int nearestWaypointBlock(Direction.Axis axis, int coord) {
-        return (int) Math.round(ClientFrame.nearestToCamera(axis, coord));
+    public static Vec3 nearestToCamera(double blockX, double blockZ) {
+        return ClientFrame.nearestToCamera(new Vec3(blockX, 0.0, blockZ));
     }
 
     public static BlockPos foldInfoDisplayPos(Object infoDisplay, BlockPos playerPos) {

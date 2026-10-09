@@ -37,6 +37,7 @@ final class BlendedNoiseFixture {
         return mixed ^ (mixed >>> 31);
     }
 
+    @SuppressWarnings("ArrayRecordComponent")
     record Octave(PerlinNoise vanilla, byte[] permutations, double xo, double yo, double zo) {
         static Octave of(long seed) {
             PerlinNoise vanilla = new PerlinNoise(new LegacyRandomSource(seed));

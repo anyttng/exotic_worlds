@@ -1,7 +1,5 @@
 package com.exoticworlds.compat.xaero.mixin.map;
 
-import java.util.ArrayDeque;
-
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,11 +15,13 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.exoticworlds.compat.AxisCopies;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
 
+import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
+
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.ChunkPos;
 
 import xaero.map.MapProcessor;
 import xaero.map.MapWriter;
@@ -53,7 +53,7 @@ public abstract class MapWriterMixin {
     private static final int CHUNK_Z_ARG = 9;
 
     @Unique
-    private final ArrayDeque<int[]> toroidal$visitQueue = new ArrayDeque<>();
+    private final LongArrayFIFOQueue toroidal$visitQueue = new LongArrayFIFOQueue();
     @Unique
     private boolean toroidal$foldedPosition;
     @Unique
@@ -73,16 +73,15 @@ public abstract class MapWriterMixin {
     private void toroidal$foldWriteKeys(Args args) {
         int tileChunkX = args.get(16);
         int tileChunkZ = args.get(17);
-        int foldedX = XaeroWorldMapFold.tileOfChunk(Direction.Axis.X, args.<Integer>get(20));
-        int foldedZ = XaeroWorldMapFold.tileOfChunk(Direction.Axis.Z, args.<Integer>get(21));
-        if (foldedX == tileChunkX && foldedZ == tileChunkZ) {
+        ChunkPos folded = XaeroWorldMapFold.tileOfChunk(args.<Integer>get(20), args.<Integer>get(21));
+        if (folded.x() == tileChunkX && folded.z() == tileChunkZ) {
             return;
         }
 
-        args.set(16, foldedX);
-        args.set(17, foldedZ);
-        args.set(18, XaeroWorldMapFold.tileChunkInRegion(foldedX));
-        args.set(19, XaeroWorldMapFold.tileChunkInRegion(foldedZ));
+        args.set(16, folded.x());
+        args.set(17, folded.z());
+        args.set(18, XaeroWorldMapFold.tileChunkInRegion(folded.x()));
+        args.set(19, XaeroWorldMapFold.tileChunkInRegion(folded.z()));
     }
 
     @Inject(method = "writeChunk", at = @At("HEAD"))
@@ -94,12 +93,13 @@ public abstract class MapWriterMixin {
             return;
         }
 
-        AxisCopies copiesX = XaeroWorldMapFold.chunkCopies(Direction.Axis.X);
-        AxisCopies copiesZ = XaeroWorldMapFold.chunkCopies(Direction.Axis.Z);
-        this.toroidal$insideX = XaeroWorldMapFold.insideTile(copiesX, chunkX);
-        this.toroidal$insideZ = XaeroWorldMapFold.insideTile(copiesZ, chunkZ);
-        this.toroidal$lastInsideX = XaeroWorldMapFold.lastInsideTile(copiesX, chunkX);
-        this.toroidal$lastInsideZ = XaeroWorldMapFold.lastInsideTile(copiesZ, chunkZ);
+        ChunkPos canonical = XaeroWorldMapFold.canonicalChunk(chunkX, chunkZ);
+        this.toroidal$insideX = XaeroWorldMapFold.insideTile(canonical.x());
+        this.toroidal$insideZ = XaeroWorldMapFold.insideTile(canonical.z());
+        this.toroidal$lastInsideX = XaeroWorldMapFold.lastInsideTile(
+                XaeroWorldMapFold.chunkCopies(Direction.Axis.X), canonical.x());
+        this.toroidal$lastInsideZ = XaeroWorldMapFold.lastInsideTile(
+                XaeroWorldMapFold.chunkCopies(Direction.Axis.Z), canonical.z());
     }
 
     @ModifyExpressionValue(
@@ -159,8 +159,8 @@ public abstract class MapWriterMixin {
                     target = "Lxaero/map/pool/MapTilePool;get(Ljava/lang/String;II)Lxaero/map/region/MapTile;"))
     private MapTile toroidal$canonicalTileChunk(MapTilePool pool, String dimension, int chunkX, int chunkZ,
             Operation<MapTile> original) {
-        return original.call(pool, dimension, XaeroWorldMapFold.foldChunk(Direction.Axis.X, chunkX),
-                XaeroWorldMapFold.foldChunk(Direction.Axis.Z, chunkZ));
+        ChunkPos canonical = XaeroWorldMapFold.canonicalChunk(chunkX, chunkZ);
+        return original.call(pool, dimension, canonical.x(), canonical.z());
     }
 
     @WrapOperation(
@@ -175,17 +175,14 @@ public abstract class MapWriterMixin {
         }
 
         if (this.toroidal$visitQueue.isEmpty()) {
-            int[] regionsX = XaeroWorldMapFold.canonicalRegions(Direction.Axis.X, this.startTileChunkX, this.endTileChunkX);
-            int[] regionsZ = XaeroWorldMapFold.canonicalRegions(Direction.Axis.Z, this.startTileChunkZ, this.endTileChunkZ);
-            for (int canonicalRegionX : regionsX) {
-                for (int canonicalRegionZ : regionsZ) {
-                    this.toroidal$visitQueue.add(new int[] {canonicalRegionX, canonicalRegionZ});
-                }
+            for (long region : XaeroWorldMapFold.canonicalRegions(this.startTileChunkX, this.startTileChunkZ,
+                    this.endTileChunkX, this.endTileChunkZ)) {
+                this.toroidal$visitQueue.enqueue(region);
             }
         }
 
-        int[] next = this.toroidal$visitQueue.poll();
-        return original.call(processor, caveLayer, next[0], next[1], true);
+        long next = this.toroidal$visitQueue.dequeueLong();
+        return original.call(processor, caveLayer, ChunkPos.getX(next), ChunkPos.getZ(next), true);
     }
 
     @WrapOperation(
@@ -199,8 +196,7 @@ public abstract class MapWriterMixin {
             return;
         }
 
-        int canonicalX = XaeroWorldMapFold.foldComparisonChunk(Direction.Axis.X, x);
-        int canonicalZ = XaeroWorldMapFold.foldComparisonChunk(Direction.Axis.Z, z);
-        original.call(canonicalX, canonicalZ, level, canonicalX, canonicalZ);
+        ChunkPos canonical = XaeroWorldMapFold.foldComparison(x, z);
+        original.call(canonical.x(), canonical.z(), level, canonical.x(), canonical.z());
     }
 }

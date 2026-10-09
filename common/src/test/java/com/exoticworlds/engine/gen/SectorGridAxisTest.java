@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.junit.jupiter.api.Test;
@@ -36,8 +37,8 @@ class SectorGridAxisTest {
         return origins;
     }
 
-    private static TreeSet<Integer> walkCells(WrapDomain domain, int spacing) {
-        TreeSet<Integer> cells = new TreeSet<>();
+    private static Set<Integer> walkCells(WrapDomain domain, int spacing) {
+        Set<Integer> cells = new TreeSet<>();
         for (int chunk = domain.lowerBound; chunk < domain.upperBound; chunk++) {
             cells.add(Math.floorDiv(chunk, spacing));
         }
@@ -59,13 +60,13 @@ class SectorGridAxisTest {
     }
 
     private interface ClosedAxisCheck {
-        void run(WrapDomain domain, int spacing, int origin, SectorGridAxis axis, TreeSet<Integer> cells);
+        void run(WrapDomain domain, int spacing, int origin, SectorGridAxis axis, Set<Integer> cells);
     }
 
     private static void forEachClosedAxis(ClosedAxisCheck check) {
         for (WrapDomain domain : DOMAINS) {
             for (int spacing : SPACINGS) {
-                TreeSet<Integer> cells = walkCells(domain, spacing);
+                Set<Integer> cells = walkCells(domain, spacing);
                 for (int origin : origins(domain)) {
                     check.run(domain, spacing, origin, SectorGridAxis.of(domain, spacing, origin), cells);
                 }
@@ -122,6 +123,35 @@ class SectorGridAxisTest {
                 String context = in(domain, spacing, origin) + " offset " + offset + " probe " + probe;
                 assertTrue(probe >= domain.lowerBound && probe < domain.upperBound, context);
                 assertTrue(cells.contains(Math.floorDiv(probe, spacing)), context);
+            }
+        });
+    }
+
+    @Test
+    void lapsCrossedCountsTheWrapsTheCellWalkTook() {
+        forEachClosedAxis((domain, spacing, origin, axis, cells) -> {
+            int originCell = Math.floorDiv(origin, spacing);
+            for (int offset = -axis.offsetCap(); offset <= axis.offsetCap(); offset++) {
+                int laps = axis.lapsCrossed(offset);
+                int cell = Math.floorDiv(axis.probeChunk(offset), spacing);
+                assertEquals(originCell + offset - laps * cells.size(), cell,
+                        in(domain, spacing, origin) + " offset " + offset);
+            }
+        });
+    }
+
+    @Test
+    void aShiftedProbeLandsInTheCellOfTheShiftedChunkInsideTheWorld() {
+        forEachClosedAxis((domain, spacing, origin, axis, cells) -> {
+            for (int offset = -axis.offsetCap(); offset <= axis.offsetCap(); offset++) {
+                assertEquals(axis.probeChunk(offset), axis.probeChunkShifted(offset, 0));
+                for (int shift : new int[] {-5, 3, 17}) {
+                    int shifted = axis.probeChunkShifted(offset, shift);
+                    String context = in(domain, spacing, origin) + " offset " + offset + " shift " + shift;
+                    assertTrue(shifted >= domain.lowerBound && shifted < domain.upperBound, context);
+                    assertEquals(Math.floorDiv(domain.wrap(axis.probeChunk(offset) + shift), spacing),
+                            Math.floorDiv(shifted, spacing), context);
+                }
             }
         });
     }

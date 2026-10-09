@@ -48,4 +48,4 @@ The jar lands in `build/libs/`. The Gradle wrapper provisions the required JDK i
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+PolyForm Shield 1.0.0, see [LICENSE](LICENSE).

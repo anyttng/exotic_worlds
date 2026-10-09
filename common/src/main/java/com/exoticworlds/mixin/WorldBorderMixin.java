@@ -10,13 +10,11 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.accessors.TransformerHolder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.engine.fold.SeamBorder;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
-import net.minecraft.core.Direction;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -67,39 +65,19 @@ public class WorldBorderMixin implements TransformerHolder {
     @ModifyReturnValue(method = "isWithinBounds(DDD)Z", at = @At("RETURN"))
     private boolean toroidal$boundsThroughSeam(boolean original, double x, double z, double margin) {
         WorldFold transformer = this.toroidal$transformer;
-        if (!transformer.isWrapped()) {
-            return original;
-        }
-
-        return toroidal$insideAxis(transformer.blockDomain(Direction.Axis.X), getMinX(), getMaxX(), x, margin)
-                && toroidal$insideAxis(transformer.blockDomain(Direction.Axis.Z), getMinZ(), getMaxZ(), z, margin);
+        return transformer.isWrapped() ? toroidal$border(transformer).inside(x, z, margin) : original;
     }
 
     @ModifyReturnValue(method = "getDistanceToBorder(DD)D", at = @At("RETURN"))
     private double toroidal$distanceThroughSeam(double original, double x, double z) {
         WorldFold transformer = this.toroidal$transformer;
-        if (!transformer.isWrapped()) {
-            return original;
-        }
-
-        double xGap = toroidal$gapToAxisEdge(transformer.blockDomain(Direction.Axis.X), getMinX(), getMaxX(), x);
-        double zGap = toroidal$gapToAxisEdge(transformer.blockDomain(Direction.Axis.Z), getMinZ(), getMaxZ(), z);
-        return Math.min(xGap, zGap);
+        return transformer.isWrapped() ? toroidal$border(transformer).distanceToEdge(x, z) : original;
     }
 
     @ModifyReturnValue(method = "clampVec3ToBound(DDD)Lnet/minecraft/world/phys/Vec3;", at = @At("RETURN"))
     private Vec3 toroidal$clampThroughSeam(Vec3 original, double x, double y, double z) {
         WorldFold transformer = this.toroidal$transformer;
-        if (!transformer.isWrapped()) {
-            return original;
-        }
-
-        WrapDomain xDomain = transformer.blockDomain(Direction.Axis.X);
-        WrapDomain zDomain = transformer.blockDomain(Direction.Axis.Z);
-        return new Vec3(
-                xDomain.wrap(toroidal$clampToAxis(xDomain, getMinX(), getMaxX(), x)),
-                y,
-                zDomain.wrap(toroidal$clampToAxis(zDomain, getMinZ(), getMaxZ(), z)));
+        return transformer.isWrapped() ? transformer.fold(toroidal$border(transformer).clamped(x, y, z)) : original;
     }
 
     @WrapMethod(method = "getCollisionShape")
@@ -118,7 +96,7 @@ public class WorldBorderMixin implements TransformerHolder {
         VoxelShape wall = this.toroidal$wall;
         if (wall == null || bounds == null
                 || bounds[0] != minX || bounds[1] != maxX || bounds[2] != minZ || bounds[3] != maxZ) {
-            wall = toroidal$buildWall(transformer, minX, maxX, minZ, maxZ);
+            wall = toroidal$buildWall(toroidal$border(transformer));
             this.toroidal$wall = wall;
             this.toroidal$wallBounds = new double[] {minX, maxX, minZ, maxZ};
         }
@@ -127,55 +105,20 @@ public class WorldBorderMixin implements TransformerHolder {
     }
 
     @Unique
-    private static VoxelShape toroidal$buildWall(WorldFold transformer,
-            double minX, double maxX, double minZ, double maxZ) {
+    private SeamBorder toroidal$border(WorldFold transformer) {
+        return new SeamBorder(transformer.blockLattice(), getMinX(), getMaxX(), getMinZ(), getMaxZ());
+    }
+
+    @Unique
+    private static VoxelShape toroidal$buildWall(SeamBorder border) {
         VoxelShape wall = Shapes.INFINITY;
-        for (double xShift : toroidal$copyShifts(transformer.blockDomain(Direction.Axis.X))) {
-            for (double zShift : toroidal$copyShifts(transformer.blockDomain(Direction.Axis.Z))) {
-                wall = Shapes.join(wall, Shapes.box(
-                        Math.floor(minX + xShift), Double.NEGATIVE_INFINITY, Math.floor(minZ + zShift),
-                        Math.ceil(maxX + xShift), Double.POSITIVE_INFINITY, Math.ceil(maxZ + zShift)),
-                        BooleanOp.ONLY_FIRST);
-            }
+        for (Vec3 shift : border.wallShifts()) {
+            wall = Shapes.join(wall, Shapes.box(
+                    Math.floor(border.minX() + shift.x), Double.NEGATIVE_INFINITY, Math.floor(border.minZ() + shift.z),
+                    Math.ceil(border.maxX() + shift.x), Double.POSITIVE_INFINITY, Math.ceil(border.maxZ() + shift.z)),
+                    BooleanOp.ONLY_FIRST);
         }
 
         return wall;
-    }
-
-    @Unique
-    private static double[] toroidal$copyShifts(WrapDomain domain) {
-        return domain.domainLength == 0
-                ? new double[] {0.0}
-                : new double[] {-domain.domainLength, 0.0, domain.domainLength};
-    }
-
-    // Vanilla's own reading, x >= min - margin && x < max + margin, restated so the offset can be the folded one.
-    @Unique
-    private static boolean toroidal$insideAxis(WrapDomain domain, double min, double max, double coord, double margin) {
-        if (domain.coversWorld(max - min)) {
-            return true;
-        }
-
-        double half = (max - min) / 2.0;
-        double offset = domain.foldDelta(coord - (min + max) / 2.0);
-        return offset >= -half - margin && offset < half + margin;
-    }
-
-    @Unique
-    private static double toroidal$gapToAxisEdge(WrapDomain domain, double min, double max, double coord) {
-        double half = (max - min) / 2.0;
-        double offset = domain.foldDelta(coord - (min + max) / 2.0);
-        return half - Math.abs(offset);
-    }
-
-    @Unique
-    private static double toroidal$clampToAxis(WrapDomain domain, double min, double max, double coord) {
-        if (domain.coversWorld(max - min)) {
-            return coord;
-        }
-
-        double nearestCentre = domain.unwrapAround(coord, (min + max) / 2.0);
-        double half = (max - min) / 2.0;
-        return Mth.clamp(coord, nearestCentre - half, nearestCentre + half - 1.0E-5F);
     }
 }

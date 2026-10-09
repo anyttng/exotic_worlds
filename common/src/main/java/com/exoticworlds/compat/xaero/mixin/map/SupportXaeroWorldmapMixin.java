@@ -12,10 +12,11 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
+import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TileArea;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TilePiece;
 import com.exoticworlds.core.CoordinateConstants;
 
-import net.minecraft.core.Direction;
+import net.minecraft.world.level.ChunkPos;
 
 import xaero.common.graphics.renderer.multitexture.MultiTextureRenderTypeRenderer;
 import xaero.common.minimap.render.MinimapRendererHelper;
@@ -46,9 +47,7 @@ public abstract class SupportXaeroWorldmapMixin {
     @Unique
     private MapProcessor toroidal$processor;
     @Unique
-    private @Nullable List<TilePiece> toroidal$piecesX;
-    @Unique
-    private @Nullable List<TilePiece> toroidal$piecesZ;
+    private @Nullable List<TileArea> toroidal$areas;
 
     @WrapOperation(
             method = "renderChunks",
@@ -66,10 +65,8 @@ public abstract class SupportXaeroWorldmapMixin {
         }
 
         // A candidate value only, so the null-guarded chunk fetch runs at all; the chunk redirect re-fetches precisely.
-        return original.call(
-                processor,
-                XaeroWorldMapFold.foldRegion(Direction.Axis.X, regX),
-                XaeroWorldMapFold.foldRegion(Direction.Axis.Z, regZ));
+        ChunkPos folded = XaeroWorldMapFold.foldRegion(regX, regZ);
+        return original.call(processor, folded.x(), folded.z());
     }
 
     @WrapOperation(
@@ -88,12 +85,8 @@ public abstract class SupportXaeroWorldmapMixin {
             return existing;
         }
 
-        return original.call(
-                processor,
-                caveLayer,
-                XaeroWorldMapFold.foldRegion(Direction.Axis.X, regX),
-                XaeroWorldMapFold.foldRegion(Direction.Axis.Z, regZ),
-                create);
+        ChunkPos folded = XaeroWorldMapFold.foldRegion(regX, regZ);
+        return original.call(processor, caveLayer, folded.x(), folded.z(), create);
     }
 
     @WrapOperation(
@@ -112,8 +105,7 @@ public abstract class SupportXaeroWorldmapMixin {
             return region == null ? null : original.call(region, localX, localZ);
         }
 
-        this.toroidal$piecesX = null;
-        this.toroidal$piecesZ = null;
+        this.toroidal$areas = null;
         WorldMapSession session = WorldMapSession.getCurrentSession();
         if (session == null) {
             return region == null ? null : original.call(region, localX, localZ);
@@ -121,33 +113,30 @@ public abstract class SupportXaeroWorldmapMixin {
 
         MapProcessor processor = session.getMapProcessor();
         this.toroidal$processor = processor;
-        List<TilePiece> piecesX = XaeroWorldMapFold.tilePieces(XaeroWorldMapFold.chunkCopies(Direction.Axis.X), mirrorTileX);
-        List<TilePiece> piecesZ = XaeroWorldMapFold.tilePieces(XaeroWorldMapFold.chunkCopies(Direction.Axis.Z), mirrorTileZ);
+        List<TileArea> areas = XaeroWorldMapFold.tilePieces(mirrorTileX, mirrorTileZ);
         MapTileChunk shown = null;
-        for (TilePiece pieceX : piecesX) {
-            for (TilePiece pieceZ : piecesZ) {
-                MapRegion canonicalRegion = toroidal$canonicalRegion(pieceX.canonicalTile(), pieceZ.canonicalTile());
-                if (canonicalRegion == null) {
-                    continue;
-                }
+        for (TileArea area : areas) {
+            int canonicalTileX = area.x().canonicalTile();
+            int canonicalTileZ = area.z().canonicalTile();
+            MapRegion canonicalRegion = toroidal$canonicalRegion(canonicalTileX, canonicalTileZ);
+            if (canonicalRegion == null) {
+                continue;
+            }
 
-                if (canonicalRegion != region) {
-                    processor.beforeMinimapRegionRender(canonicalRegion);
-                }
+            if (canonicalRegion != region) {
+                processor.beforeMinimapRegionRender(canonicalRegion);
+            }
 
-                MapTileChunk chunk = original.call(canonicalRegion,
-                        XaeroWorldMapFold.tileChunkInRegion(pieceX.canonicalTile()),
-                        XaeroWorldMapFold.tileChunkInRegion(pieceZ.canonicalTile()));
-                if (chunk != null && (shown == null || toroidal$textureOf(shown) == null && toroidal$textureOf(chunk) != null)) {
-                    shown = chunk;
-                    this.toroidal$foldedRegion = canonicalRegion;
-                }
+            MapTileChunk chunk = original.call(canonicalRegion,
+                    XaeroWorldMapFold.tileChunkInRegion(canonicalTileX), XaeroWorldMapFold.tileChunkInRegion(canonicalTileZ));
+            if (chunk != null && (shown == null || toroidal$textureOf(shown) == null && toroidal$textureOf(chunk) != null)) {
+                shown = chunk;
+                this.toroidal$foldedRegion = canonicalRegion;
             }
         }
 
-        if (piecesX.size() > 1 || piecesZ.size() > 1) {
-            this.toroidal$piecesX = piecesX;
-            this.toroidal$piecesZ = piecesZ;
+        if (areas.size() > 1) {
+            this.toroidal$areas = areas;
         }
 
         return shown;
@@ -165,41 +154,40 @@ public abstract class SupportXaeroWorldmapMixin {
     private void toroidal$drawTilePieces(SupportXaeroWorldmap support, Matrix4f matrix, float x, float y, int textureX,
             int textureY, float width, float height, MapTileChunk chunk, MultiTextureRenderTypeRenderer noLightRenderer,
             MultiTextureRenderTypeRenderer withLightRenderer, MinimapRendererHelper helper, Operation<Void> original) {
-        List<TilePiece> piecesX = this.toroidal$piecesX;
-        List<TilePiece> piecesZ = this.toroidal$piecesZ;
-        if (piecesX == null || piecesZ == null) {
+        List<TileArea> areas = this.toroidal$areas;
+        if (areas == null) {
             original.call(support, matrix, x, y, textureX, textureY, width, height, chunk, noLightRenderer,
                     withLightRenderer, helper);
             return;
         }
 
-        for (TilePiece pieceX : piecesX) {
-            for (TilePiece pieceZ : piecesZ) {
-                MapRegion canonicalRegion = toroidal$canonicalRegion(pieceX.canonicalTile(), pieceZ.canonicalTile());
-                MapTileChunk piece = canonicalRegion == null ? null : canonicalRegion.getChunk(
-                        XaeroWorldMapFold.tileChunkInRegion(pieceX.canonicalTile()),
-                        XaeroWorldMapFold.tileChunkInRegion(pieceZ.canonicalTile()));
-                GpuTextureAndView texture = piece == null ? null : toroidal$textureOf(piece);
-                if (texture == null) {
-                    continue;
-                }
-
-                if (canonicalRegion != this.toroidal$foldedRegion) {
-                    support.bumpLoadedRegion(this.toroidal$processor, canonicalRegion);
-                }
-
-                MultiTextureRenderUtil.prepareTexturedRect(matrix,
-                        x + pieceX.rawOffset() * CoordinateConstants.CHUNK_WIDTH,
-                        y + pieceZ.rawOffset() * CoordinateConstants.CHUNK_WIDTH,
-                        pieceX.firstInside() * CoordinateConstants.CHUNK_WIDTH,
-                        (pieceZ.firstInside() + pieceZ.count()) * CoordinateConstants.CHUNK_WIDTH,
-                        pieceX.count() * CoordinateConstants.CHUNK_WIDTH,
-                        pieceZ.count() * CoordinateConstants.CHUNK_WIDTH,
-                        -pieceZ.count() * CoordinateConstants.CHUNK_WIDTH,
-                        XaeroWorldMapFold.SLOT_BLOCKS,
-                        texture.view,
-                        piece.getLeafTexture().getTextureHasLight() ? withLightRenderer : noLightRenderer);
+        for (TileArea area : areas) {
+            TilePiece pieceX = area.x();
+            TilePiece pieceZ = area.z();
+            MapRegion canonicalRegion = toroidal$canonicalRegion(pieceX.canonicalTile(), pieceZ.canonicalTile());
+            MapTileChunk piece = canonicalRegion == null ? null : canonicalRegion.getChunk(
+                    XaeroWorldMapFold.tileChunkInRegion(pieceX.canonicalTile()),
+                    XaeroWorldMapFold.tileChunkInRegion(pieceZ.canonicalTile()));
+            GpuTextureAndView texture = piece == null ? null : toroidal$textureOf(piece);
+            if (texture == null) {
+                continue;
             }
+
+            if (canonicalRegion != this.toroidal$foldedRegion) {
+                support.bumpLoadedRegion(this.toroidal$processor, canonicalRegion);
+            }
+
+            MultiTextureRenderUtil.prepareTexturedRect(matrix,
+                    x + pieceX.rawOffset() * CoordinateConstants.CHUNK_WIDTH,
+                    y + pieceZ.rawOffset() * CoordinateConstants.CHUNK_WIDTH,
+                    pieceX.firstInside() * CoordinateConstants.CHUNK_WIDTH,
+                    (pieceZ.firstInside() + pieceZ.count()) * CoordinateConstants.CHUNK_WIDTH,
+                    pieceX.count() * CoordinateConstants.CHUNK_WIDTH,
+                    pieceZ.count() * CoordinateConstants.CHUNK_WIDTH,
+                    -pieceZ.count() * CoordinateConstants.CHUNK_WIDTH,
+                    XaeroWorldMapFold.SLOT_BLOCKS,
+                    texture.view,
+                    piece.getLeafTexture().getTextureHasLight() ? withLightRenderer : noLightRenderer);
         }
     }
 

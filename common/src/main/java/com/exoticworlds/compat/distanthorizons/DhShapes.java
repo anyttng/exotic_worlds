@@ -2,46 +2,52 @@ package com.exoticworlds.compat.distanthorizons;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.api.v1.ExoticWorldsApi;
-import com.exoticworlds.compat.ClientShapes;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldLoopAttachments;
 import com.seibel.distanthorizons.api.interfaces.world.IDhApiLevelWrapper;
 import com.seibel.distanthorizons.core.level.IDhLevel;
 import com.seibel.distanthorizons.core.wrapperInterfaces.world.ILevelWrapper;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 
 public final class DhShapes {
-    public static @Nullable ToroidalShape of(IDhLevel level) {
+    public static @Nullable DhLattice of(IDhLevel level) {
         return level == null ? null : of(level.getLevelWrapper());
     }
 
-    public static @Nullable ToroidalShape of(IDhApiLevelWrapper wrapper) {
-        return shapeOf(mcLevel(wrapper));
+    public static @Nullable DhLattice of(IDhApiLevelWrapper wrapper) {
+        return latticeOf(mcLevel(wrapper));
     }
 
-    public static @Nullable ToroidalShape clientFrame(ILevelWrapper wrapper) {
+    public static @Nullable DhLattice clientFrame(ILevelWrapper wrapper) {
         Level mcLevel = mcLevel(wrapper);
-        return mcLevel != null && mcLevel.isClientSide() ? shapeOf(mcLevel) : null;
+        return mcLevel != null && mcLevel.isClientSide() ? latticeOf(mcLevel) : null;
+    }
+
+    public static @Nullable DhLattice current() {
+        return latticeOf(Minecraft.getInstance().level);
     }
 
     private static @Nullable Level mcLevel(IDhApiLevelWrapper wrapper) {
         return wrapper != null && wrapper.getWrappedMcObject() instanceof Level mcLevel ? mcLevel : null;
     }
 
-    private static @Nullable ToroidalShape shapeOf(Level mcLevel) {
+    private static @Nullable DhLattice latticeOf(@Nullable Level mcLevel) {
         if (mcLevel == null) {
             return null;
         }
 
-        ToroidalShape shape = mcLevel.isClientSide()
-                ? ClientShapes.of(mcLevel)
-                : ExoticWorldsApi.shapeOf(mcLevel).orElse(null);
-        if (shape != null) {
-            DhProbes.keyPeriod(shape, DhKeys.LEAF);
+        WorldFold fold = mcLevel.isClientSide()
+                ? WorldLoopAttachments.wrappedClientBoundsTransformerOf(mcLevel)
+                : WorldLoopAttachments.wrappedTransformerOf(mcLevel);
+        if (fold == null) {
+            return null;
         }
 
-        return shape;
+        DhLattice lattice = DhLattice.of(fold);
+        DhProbes.keyPeriod(lattice, DhKeys.LEAF);
+        return lattice;
     }
 
     private DhShapes() {

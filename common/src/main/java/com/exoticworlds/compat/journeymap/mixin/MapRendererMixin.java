@@ -22,6 +22,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.platform.Window;
 import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.compat.journeymap.JourneyMapFold;
 import com.exoticworlds.compat.journeymap.JourneyMapSeamPass;
 
@@ -44,7 +45,9 @@ import net.minecraft.client.renderer.state.gui.ColoredRectangleRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix3x2fStack;
 
@@ -163,32 +166,19 @@ public abstract class MapRendererMixin implements JourneyMapSeamPass {
     }
 
     @WrapMethod(method = CENTER)
-    private boolean toroidal$keepSingleViewOnTheMap(File worldDir, MapType mapType, double blockX, double blockZ, int zoom,
+    private boolean toroidal$foldCenter(File worldDir, MapType mapType, double blockX, double blockZ, int zoom,
             Operation<Boolean> original) {
+        Vec3 center = JourneyMapFold.foldCenter(blockX, blockZ);
         if (JourneyMapFold.copiesOf(this.getUIState().ui) != MapCopies.SINGLE || !JourneyMapFold.active()) {
-            return original.call(worldDir, mapType, blockX, blockZ, zoom);
+            return original.call(worldDir, mapType, center.x, center.z, zoom);
         }
 
         Window window = Minecraft.getInstance().getWindow();
         int flooredZoom = Math.max(zoom, JourneyMapFold.fullscreenZoomFloor());
         return original.call(worldDir, mapType,
-                JourneyMapFold.seatSingleCenter(Direction.Axis.X, blockX, flooredZoom, window.getWidth()),
-                JourneyMapFold.seatSingleCenter(Direction.Axis.Z, blockZ, flooredZoom, window.getHeight()),
+                JourneyMapFold.clampSingleCenter(Direction.Axis.X, center.x, flooredZoom, window.getWidth()),
+                JourneyMapFold.clampSingleCenter(Direction.Axis.Z, center.z, flooredZoom, window.getHeight()),
                 flooredZoom);
-    }
-
-    @ModifyVariable(
-            method = CENTER,
-            at = @At("HEAD"), ordinal = 0, argsOnly = true)
-    private double toroidal$foldCenterX(double blockX) {
-        return JourneyMapFold.foldCenterCoord(Direction.Axis.X, blockX);
-    }
-
-    @ModifyVariable(
-            method = CENTER,
-            at = @At("HEAD"), ordinal = 1, argsOnly = true)
-    private double toroidal$foldCenterZ(double blockZ) {
-        return JourneyMapFold.foldCenterCoord(Direction.Axis.Z, blockZ);
     }
 
     @Inject(method = BLOCK_PIXEL_IN_GRID, at = @At("HEAD"))
@@ -201,16 +191,15 @@ public abstract class MapRendererMixin implements JourneyMapSeamPass {
         toroidal$anchorPass = false;
     }
 
-    @ModifyVariable(method = BLOCK_COORD_PIXEL_IN_GRID, at = @At("HEAD"), ordinal = 0, argsOnly = true)
-    private double toroidal$foldPixelX(double blockX) {
-        return toroidal$anchorPass ? blockX : JourneyMapFold.seatPixelCoord(
-                Direction.Axis.X, this.centerBlockX, blockX, JourneyMapFold.copiesOf(this.getUIState().ui));
-    }
+    @WrapMethod(method = BLOCK_COORD_PIXEL_IN_GRID)
+    private Point2D.Double toroidal$seatPixel(double blockX, double blockZ, Operation<Point2D.Double> original) {
+        if (toroidal$anchorPass) {
+            return original.call(blockX, blockZ);
+        }
 
-    @ModifyVariable(method = BLOCK_COORD_PIXEL_IN_GRID, at = @At("HEAD"), ordinal = 1, argsOnly = true)
-    private double toroidal$foldPixelZ(double blockZ) {
-        return toroidal$anchorPass ? blockZ : JourneyMapFold.seatPixelCoord(
-                Direction.Axis.Z, this.centerBlockZ, blockZ, JourneyMapFold.copiesOf(this.getUIState().ui));
+        Vec3 seated = JourneyMapFold.seatPixel(this.centerBlockX, this.centerBlockZ, blockX, blockZ,
+                JourneyMapFold.copiesOf(this.getUIState().ui));
+        return original.call(seated.x, seated.z);
     }
 
     @ModifyVariable(method = MOVE, at = @At("HEAD"), ordinal = 0, argsOnly = true)
@@ -241,14 +230,13 @@ public abstract class MapRendererMixin implements JourneyMapSeamPass {
         int maxX = centerRegion.regionX + regionCount;
         int minZ = centerRegion.regionZ - regionCount;
         int maxZ = centerRegion.regionZ + regionCount;
-        int[] regionsZ = JourneyMapFold.gridRegions(Direction.Axis.Z, minZ, maxZ);
-        for (int x : JourneyMapFold.gridRegions(Direction.Axis.X, minX, maxX)) {
-            for (int z : regionsZ) {
-                boolean walkedByJourneyMap = x >= minX && x <= maxX && z >= minZ && z <= maxZ;
-                if (!walkedByJourneyMap && imageFiles.contains(x + "," + z + ".png")) {
-                    RegionCoord coord = RegionCoord.fromRegionPos(this.worldDir, x, z, this.state.getDimension());
-                    this.regions.putIfAbsent(token, coord, () -> RegionTileAccessor.toroidal$create(coord, this.state, this::markSurfaceDirty));
-                }
+        for (long region : JourneyMapFold.gridRegions(minX, minZ, maxX, maxZ)) {
+            int x = ChunkPos.getX(region);
+            int z = ChunkPos.getZ(region);
+            boolean walkedByJourneyMap = x >= minX && x <= maxX && z >= minZ && z <= maxZ;
+            if (!walkedByJourneyMap && imageFiles.contains(x + "," + z + ".png")) {
+                RegionCoord coord = RegionCoord.fromRegionPos(this.worldDir, x, z, this.state.getDimension());
+                this.regions.putIfAbsent(token, coord, () -> RegionTileAccessor.toroidal$create(coord, this.state, this::markSurfaceDirty));
             }
         }
     }
@@ -272,18 +260,15 @@ public abstract class MapRendererMixin implements JourneyMapSeamPass {
         Window window = Minecraft.getInstance().getWindow();
         int[] spanX = JourneyMapFold.viewSpan(this.centerBlockX, window.getWidth(), this.zoom);
         int[] spanZ = JourneyMapFold.viewSpan(this.centerBlockZ, window.getHeight(), this.zoom);
-        int[] seamsX = JourneyMapFold.copies(Direction.Axis.X).seams(spanX[0], spanX[1]);
-        int[] seamsZ = JourneyMapFold.copies(Direction.Axis.Z).seams(spanZ[0], spanZ[1]);
-
         Matrix3x2f poseSnapshot = new Matrix3x2f(pose);
-        for (int seam : seamsX) {
-            int pixelX = (int) (this.getBlockPixelInGrid(new BlockPos(seam, 0, 0)).x + offsetX);
-            toroidal$fillSeam(graphics, poseSnapshot, pixelX, 0, pixelX + 1, window.getHeight());
-        }
-
-        for (int seam : seamsZ) {
-            int pixelZ = (int) (this.getBlockPixelInGrid(new BlockPos(0, 0, seam)).y + offsetZ);
-            toroidal$fillSeam(graphics, poseSnapshot, 0, pixelZ, window.getWidth(), pixelZ + 1);
+        for (WorldCopies.Edge seam : JourneyMapFold.seams(spanX, spanZ)) {
+            Point2D.Double from = this.getBlockPixelInGrid(new BlockPos(seam.fromX(), 0, seam.fromZ()));
+            Point2D.Double to = this.getBlockPixelInGrid(new BlockPos(seam.toX(), 0, seam.toZ()));
+            int x0 = (int) (from.x + offsetX);
+            int y0 = (int) (from.y + offsetZ);
+            int x1 = (int) (to.x + offsetX);
+            int y1 = (int) (to.y + offsetZ);
+            toroidal$fillSeam(graphics, poseSnapshot, x0, y0, Math.max(x1, x0 + 1), Math.max(y1, y0 + 1));
         }
     }
 

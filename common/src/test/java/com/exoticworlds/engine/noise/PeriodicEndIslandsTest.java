@@ -10,7 +10,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.accessors.CoastLiftCache;
+import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -154,6 +156,58 @@ class PeriodicEndIslandsTest {
             }
 
             assertStoodOnIslands(hits, "in the non-negative quadrant");
+        }
+    }
+
+    @Nested
+    class SkewedLattice {
+        private static final WorldFold SKEWED = new DeckGroupFold(
+                FlatShape.latticeTorus(new WorldLoopBounds(-128, 128, -96, 96), 37));
+
+        private static final TranslationLattice LATTICE = SKEWED.blockLattice();
+
+        private static final int[][] COPIES = {
+                {LATTICE.x().domainLength, 0},
+                {LATTICE.skew(), LATTICE.z().domainLength},
+                {LATTICE.skew() - LATTICE.x().domainLength, LATTICE.z().domainLength},
+                {-LATTICE.skew(), -LATTICE.z().domainLength}};
+
+        @Test
+        void outerIslandsAreTheSameAtEveryDeckCopyAcrossTheSeams() {
+            Random random = new Random(SEED);
+            int hits = 0;
+            for (int i = 0; i < SAMPLES; i++) {
+                int x = LATTICE.x().lowerBound - SWEEP_REACH_BLOCKS + random.nextInt(2 * SWEEP_REACH_BLOCKS);
+                int z = LATTICE.z().lowerBound - SWEEP_REACH_BLOCKS + random.nextInt(2 * SWEEP_REACH_BLOCKS);
+                float base = PeriodicEndIslands.outerHeightValue(ISLAND_NOISE, SKEWED, x, z);
+                for (int[] copy : COPIES) {
+                    assertEquals(base, PeriodicEndIslands.outerHeightValue(ISLAND_NOISE, SKEWED, x + copy[0],
+                            z + copy[1]), () -> "outer islands at (" + x + ", " + z + ") vs its copy " + copy[0]
+                                    + ", " + copy[1]);
+                }
+                hits += base > NO_ISLAND_HEIGHT ? 1 : 0;
+            }
+
+            assertStoodOnIslands(hits, "across the seams of a skewed lattice");
+        }
+
+        @Test
+        void theMainIslandIsTheSameAtEveryDeckCopy() {
+            DensitySampler distance = FoldedSamplers.distanceToPoint(new FoldedCompileContext(SEEDED, SKEWED, NO_LIFT),
+                    Vec3i.ZERO, DistanceMetric.EUCLIDEAN);
+            Random random = new Random(SEED);
+            for (int i = 0; i < SAMPLES; i++) {
+                int x = random.nextInt(2 * MAIN_ISLAND_REACH_BLOCKS) - MAIN_ISLAND_REACH_BLOCKS;
+                int z = random.nextInt(2 * MAIN_ISLAND_REACH_BLOCKS) - MAIN_ISLAND_REACH_BLOCKS;
+                float base = distance.sampleValue(SamplerContext.EMPTY_UNCACHED, x, 0, z);
+                assertTrue(base < MAIN_ISLAND_PEAK_HEIGHT - NO_ISLAND_HEIGHT,
+                        () -> "the main island does not reach (" + x + ", " + z + ")");
+                for (int[] copy : COPIES) {
+                    assertEquals(base, distance.sampleValue(SamplerContext.EMPTY_UNCACHED, x + copy[0], 0,
+                            z + copy[1]), () -> "main island at (" + x + ", " + z + ") vs its copy " + copy[0]
+                                    + ", " + copy[1]);
+                }
+            }
         }
     }
 

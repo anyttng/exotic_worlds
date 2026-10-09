@@ -13,8 +13,10 @@ import com.exoticworlds.api.v1.net.SeamContext;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.ToroidalShapeView;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.engine.fold.RelativePosition;
 import com.exoticworlds.engine.seam.ClientPosition;
 import com.exoticworlds.platform.Platforms;
 import com.mojang.logging.LogUtils;
@@ -143,29 +145,29 @@ public record TranslationContext(
     public List<ChunkPos> forgetCandidates(ChunkPos chunkPos) {
         ChunkPos anchor = clientPosition.chunk();
         ChunkPos nearest = transformer.nearestCopy(anchor, chunkPos);
+        TranslationLattice lattice = transformer.chunkLattice();
         int ambiguityReach = copyAmbiguityReach();
-        int[] xCandidates = axisCandidates(
-                transformer.chunkDomain(Direction.Axis.X), nearest.x(), nearest.x() - anchor.x(), ambiguityReach);
-        int[] zCandidates = axisCandidates(
-                transformer.chunkDomain(Direction.Axis.Z), nearest.z(), nearest.z() - anchor.z(), ambiguityReach);
+        int[] xLaps = candidateLaps(lattice.x(), nearest.x() - anchor.x(), ambiguityReach);
+        int[] zLaps = candidateLaps(lattice.z(), nearest.z() - anchor.z(), ambiguityReach);
 
-        List<ChunkPos> candidates = new ArrayList<>(xCandidates.length * zCandidates.length);
-        for (int xCandidate : xCandidates) {
-            for (int zCandidate : zCandidates) {
-                candidates.add(new ChunkPos(xCandidate, zCandidate));
+        List<ChunkPos> candidates = new ArrayList<>(xLaps.length * zLaps.length);
+        for (int xLap : xLaps) {
+            for (int zLap : zLaps) {
+                candidates.add(new ChunkPos(
+                        nearest.x() + xLap * lattice.x().domainLength + zLap * lattice.skew(),
+                        nearest.z() + zLap * lattice.z().domainLength));
             }
         }
 
         return candidates;
     }
 
-    private static int[] axisCandidates(WrapDomain domain, int nearest, int delta, int ambiguityReach) {
-        if (Math.abs(delta) <= ambiguityReach) {
-            return new int[] {nearest};
+    private static int[] candidateLaps(WrapDomain domain, int delta, int ambiguityReach) {
+        if (Math.abs(delta) <= ambiguityReach || !domain.loops()) {
+            return new int[] {0};
         }
 
-        int other = domain.otherCopy(nearest, delta);
-        return other == nearest ? new int[] {nearest} : new int[] {nearest, other};
+        return new int[] {0, delta > 0 ? -1 : 1};
     }
 
     private int viewReach() {
@@ -176,16 +178,17 @@ public record TranslationContext(
         return transformer.maxViewDistance() + VIEW_REACH_SLACK;
     }
 
-    public double toClientX(double x, PacketReach reach) {
-        double clientX = nearestCopyX(x);
-        guardReach(reach, Direction.Axis.X, x, clientX, clientPosition.x());
-        return clientX;
-    }
-
-    public double toClientZ(double z, PacketReach reach) {
-        double clientZ = nearestCopyZ(z);
-        guardReach(reach, Direction.Axis.Z, z, clientZ, clientPosition.z());
-        return clientZ;
+    public Vec3 toClientRelative(Vec3 position, boolean relativeX, boolean relativeZ, PacketReach reach) {
+        Vec3 anchor = new Vec3(clientPosition.x(), position.y, clientPosition.z());
+        Vec3 clientPos = RelativePosition.moved(position, relativeX, relativeZ, anchor,
+                held -> transformer.nearestCopy(anchor, held));
+        if (!relativeX) {
+            guardReach(reach, Direction.Axis.X, position.x, clientPos.x, anchor.x);
+        }
+        if (!relativeZ) {
+            guardReach(reach, Direction.Axis.Z, position.z, clientPos.z, anchor.z);
+        }
+        return clientPos;
     }
 
     public PacketReach trackedReach() {
@@ -194,13 +197,18 @@ public record TranslationContext(
 
     private void guardReach(PacketReach reach, Direction.Axis axis, double serverValue, double clientValue,
             double anchor) {
-        if (!withinReach(clientValue, anchor, reach) && carriesReach(transformer.blockDomain(axis), reach)) {
+        if (!withinReach(clientValue, anchor, reach)
+                && carriesReach(rectangleAxis(transformer.blockLattice(), axis), reach)) {
             warnCoordFarFromAnchor(reach, axis, serverValue, clientValue, anchor);
         }
     }
 
     private boolean chunkOutOfView(Direction.Axis axis, int delta, int viewReach) {
-        return Math.abs(delta) > viewReach && carriesView(transformer.chunkDomain(axis), viewReach);
+        return Math.abs(delta) > viewReach && carriesView(rectangleAxis(transformer.chunkLattice(), axis), viewReach);
+    }
+
+    private static WrapDomain rectangleAxis(TranslationLattice lattice, Direction.Axis axis) {
+        return axis == Direction.Axis.X ? lattice.x() : lattice.z();
     }
 
     static boolean withinReach(double clientValue, double anchor, PacketReach reach) {
@@ -213,14 +221,6 @@ public record TranslationContext(
 
     static boolean carriesView(WrapDomain chunkDomain, int viewReach) {
         return chunkDomain.fitsInHalf(viewReach + CoordinateConstants.VIEW_DISTANCE_MARGIN);
-    }
-
-    public double nearestCopyX(double x) {
-        return transformer.blockDomain(Direction.Axis.X).unwrapAround(clientPosition.x(), x);
-    }
-
-    public double nearestCopyZ(double z) {
-        return transformer.blockDomain(Direction.Axis.Z).unwrapAround(clientPosition.z(), z);
     }
 
     private enum Warning {

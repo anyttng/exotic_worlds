@@ -61,7 +61,7 @@ public final class WorldShapeReport {
         WorldLoopBounds bounds = shape.bounds();
         StemOverride override = overrideOf(level);
         ChunkGenerator generator = level.getChunkSource().getGenerator();
-        Note netherScale = netherScale(server, level, bounds);
+        Note netherScale = netherScale(server, level, shape);
         Note endWidth = endWidth(level, bounds);
         return new Line(netherScale.broken() || endWidth.broken(), "World shape: " + level.dimension().identifier()
                 + " generator=" + generatorId(generator)
@@ -69,6 +69,7 @@ public final class WorldShapeReport {
                 + " identification=" + shape.identification()
                 + " x=" + bounds.x().spanText() + " z=" + bounds.z().spanText() + " chunks"
                 + ", " + widths(bounds)
+                + skew(shape)
                 + seamTerrain(generator)
                 + netherScale.text()
                 + endWidth.text()
@@ -81,8 +82,8 @@ public final class WorldShapeReport {
         double scale = level.dimensionType().coordinateScale();
         FlatShape derived = ShapedDimensions.derivedShape(overworldShape, overworldScale, scale);
         String reason = derived == null
-                ? "coordinate scale " + scale + " derives no whole-chunk width in range from the overworld's "
-                        + widths(overworldShape.bounds())
+                ? "coordinate scale " + scale + " derives no whole-chunk width in range or whole-chunk skew from the"
+                        + " overworld's " + widths(overworldShape.bounds()) + skew(overworldShape)
                 : "a derivable " + widths(derived.bounds()) + " never reached the generator";
         return "World shape: " + level.dimension().identifier() + " not wrapped"
                 + " generator=" + generatorId(level.getChunkSource().getGenerator())
@@ -158,13 +159,50 @@ public final class WorldShapeReport {
         return widths.toString();
     }
 
-    private static Note netherScale(MinecraftServer server, ServerLevel level, WorldLoopBounds bounds) {
+    private static String skew(FlatShape shape) {
+        return shape.skewChunks() == FlatShape.NO_SKEW ? "" : ", skew " + shape.skewChunks() + " chunks";
+    }
+
+    private static Note netherScale(MinecraftServer server, ServerLevel level, FlatShape shape) {
         if (level.dimension() != Level.NETHER) {
             return Note.NONE;
         }
 
         FlatShape overworldShape = shapeOf(server.overworld());
-        return overworldShape == null ? Note.NONE : netherScaleNote(overworldShape.bounds(), bounds);
+        if (overworldShape == null) {
+            return Note.NONE;
+        }
+
+        Note widths = netherScaleNote(overworldShape.bounds(), shape.bounds());
+        if (widths.broken()) {
+            return widths;
+        }
+
+        Note skew = netherSkewNote(overworldShape, shape);
+        return skew.broken() ? skew : widths;
+    }
+
+    static Note netherSkewNote(FlatShape overworld, FlatShape nether) {
+        if (!sharedLoop(overworld.bounds(), nether.bounds(), Direction.Axis.X)) {
+            return Note.NONE;
+        }
+
+        int overworldWidth = overworld.bounds().chunkWidth(Direction.Axis.X);
+        int netherWidth = nether.bounds().chunkWidth(Direction.Axis.X);
+        if (overworldWidth % netherWidth != 0) {
+            return Note.NONE;
+        }
+
+        int scale = overworldWidth / netherWidth;
+        int overworldSkew = overworld.skewChunks();
+        int netherSkew = nether.skewChunks();
+        if (overworldSkew % scale == 0 && Math.floorMod(overworldSkew - netherSkew * scale, overworldWidth) == 0) {
+            return Note.NONE;
+        }
+
+        return new Note(true, ", BROKEN nether skew: an overworld skewed by " + overworldSkew + " chunks at scale 1:"
+                + scale + " does not match a nether skewed by " + netherSkew
+                + " chunks, so portals will not line up across the Z seam");
     }
 
     static Note netherScaleNote(WorldLoopBounds overworld, WorldLoopBounds nether) {

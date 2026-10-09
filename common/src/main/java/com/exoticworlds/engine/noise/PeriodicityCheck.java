@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 
 import com.exoticworlds.accessors.PeriodicityMark;
 import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.mojang.logging.LogUtils;
 
@@ -50,7 +51,8 @@ public final class PeriodicityCheck {
         Climate.Sampler sampler = randomState.createClimateSampler(SamplerContext.EMPTY_UNCACHED);
         BiomeResolver biomes = generator.getBiomeSource().createResolver(sampler);
         Direction.Axis lapAxis = transformer.bounds().loops(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
-        int widthBlocks = transformer.blockDomain(lapAxis).domainLength;
+        TranslationLattice lattice = transformer.blockLattice();
+        int widthBlocks = (lapAxis == Direction.Axis.X ? lattice.x() : lattice.z()).domainLength;
         String axisName = lapAxis.getName().toUpperCase(Locale.ROOT);
 
         Set<String> brokenFields = new LinkedHashSet<>();
@@ -122,7 +124,8 @@ public final class PeriodicityCheck {
         broken |= collect(brokenFields, "continentalness", here.continentalness(), lapAway.continentalness());
         broken |= collect(brokenFields, "erosion", here.erosion(), lapAway.erosion());
         broken |= collect(brokenFields, "depth", here.depth(), lapAway.depth());
-        return broken | collect(brokenFields, "weirdness", here.weirdness(), lapAway.weirdness());
+        broken |= collect(brokenFields, "weirdness", here.weirdness(), lapAway.weirdness());
+        return broken;
     }
 
     private static boolean collect(Set<String> brokenFields, String field, long here, long lapAway) {

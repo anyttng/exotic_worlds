@@ -29,6 +29,10 @@ class ClientPositionTest {
     private static final double WIDTH_BLOCKS = 512.0;
     private static final WorldFold TORUS = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(WIDTH_CHUNKS)));
     private static final WorldFold CYLINDER_X = WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, WIDTH_CHUNKS)));
+    private static final int SKEW_CHUNKS = 16;
+    private static final double SKEW_BLOCKS = SKEW_CHUNKS * 16.0;
+    private static final WorldFold SKEWED =
+            WorldFolds.of(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(WIDTH_CHUNKS), SKEW_CHUNKS));
     private static final double MIRROR_X = 100.5;
     private static final double MIRROR_Z = -20.25;
     private static final String HALF_WORLD_WARNING = "Half-world step invariant violated";
@@ -52,8 +56,8 @@ class ClientPositionTest {
     void aClientAuthoredWriteAWholeLapAwayStaysOnTheClientsCopy() {
         ClientPosition mirror = seeded(TORUS);
 
-        mirror.setX(MIRROR_X + WIDTH_BLOCKS, MirrorWriter.PLAYER_MOVE);
-        mirror.setZ(MIRROR_Z - WIDTH_BLOCKS, MirrorWriter.VEHICLE_MOVE);
+        mirror.set(MIRROR_X + WIDTH_BLOCKS, MIRROR_Z, MirrorWriter.PLAYER_MOVE);
+        mirror.set(MIRROR_X, MIRROR_Z - WIDTH_BLOCKS, MirrorWriter.VEHICLE_MOVE);
 
         assertEquals(MIRROR_X, mirror.x());
         assertEquals(MIRROR_Z, mirror.z());
@@ -75,10 +79,10 @@ class ClientPositionTest {
     void aClientAuthoredWriteWithinHalfAWorldIsTakenAsIs() {
         ClientPosition mirror = seeded(TORUS);
 
-        mirror.setX(MIRROR_X + 200.0, MirrorWriter.PLAYER_MOVE);
+        mirror.set(MIRROR_X + 200.0, MIRROR_Z, MirrorWriter.PLAYER_MOVE);
         assertEquals(MIRROR_X + 200.0, mirror.x());
 
-        mirror.setX(MIRROR_X + 200.0 - 255.0, MirrorWriter.PLAYER_MOVE);
+        mirror.set(MIRROR_X + 200.0 - 255.0, MIRROR_Z, MirrorWriter.PLAYER_MOVE);
         assertEquals(MIRROR_X + 200.0 - 255.0, mirror.x());
         assertEquals(List.of(), warnings);
     }
@@ -87,10 +91,10 @@ class ClientPositionTest {
     void aClientAuthoredWriteExactlyHalfAWorldAwayIsTakenAsIsAndDoesNotWarn() {
         ClientPosition mirror = seeded(TORUS);
 
-        mirror.setX(MIRROR_X + WIDTH_BLOCKS / 2, MirrorWriter.PLAYER_MOVE);
+        mirror.set(MIRROR_X + WIDTH_BLOCKS / 2, MIRROR_Z, MirrorWriter.PLAYER_MOVE);
         assertEquals(MIRROR_X + WIDTH_BLOCKS / 2, mirror.x());
 
-        mirror.setZ(MIRROR_Z - WIDTH_BLOCKS / 2, MirrorWriter.VEHICLE_MOVE);
+        mirror.set(MIRROR_X + WIDTH_BLOCKS / 2, MIRROR_Z - WIDTH_BLOCKS / 2, MirrorWriter.VEHICLE_MOVE);
         assertEquals(MIRROR_Z - WIDTH_BLOCKS / 2, mirror.z());
         assertEquals(List.of(), warnings);
     }
@@ -107,17 +111,38 @@ class ClientPositionTest {
         String warning = warnings.get(0);
         assertTrue(warning.startsWith(HALF_WORLD_WARNING), warning);
         assertTrue(warning.contains("by position_packet"), warning);
-        assertTrue(warning.contains("mirror x stepped from 100.5 to 612.5"), warning);
+        assertTrue(warning.contains("mirror stepped from (100.5, -20.25) to (612.5, -20.25)"), warning);
+    }
+
+    @Test
+    void onASkewedWorldAZLapWriteSeatsWithItsXShift() {
+        ClientPosition mirror = seeded(SKEWED);
+
+        mirror.set(MIRROR_X + SKEW_BLOCKS, MIRROR_Z + WIDTH_BLOCKS, MirrorWriter.PLAYER_MOVE);
+
+        assertEquals(MIRROR_X, mirror.x());
+        assertEquals(MIRROR_Z, mirror.z());
+        assertEquals(List.of(), warnings);
+    }
+
+    @Test
+    void onASkewedWorldAStepAlongTheLatticeDoesNotWarnWherePerAxisHalvesWould() {
+        ClientPosition mirror = seeded(SKEWED);
+
+        mirror.set(MIRROR_X, MIRROR_Z + 270.0, MirrorWriter.POSITION_PACKET);
+
+        assertEquals(MIRROR_Z + 270.0, mirror.z());
+        assertEquals(List.of(), warnings);
     }
 
     @Test
     void theEndlessAxisOfACylinderTakesAnyStep() {
         ClientPosition mirror = seeded(CYLINDER_X);
 
-        mirror.setZ(MIRROR_Z + WIDTH_BLOCKS, MirrorWriter.PLAYER_MOVE);
+        mirror.set(MIRROR_X, MIRROR_Z + WIDTH_BLOCKS, MirrorWriter.PLAYER_MOVE);
         assertEquals(MIRROR_Z + WIDTH_BLOCKS, mirror.z());
 
-        mirror.setX(MIRROR_X + WIDTH_BLOCKS, MirrorWriter.PLAYER_MOVE);
+        mirror.set(MIRROR_X + WIDTH_BLOCKS, MIRROR_Z + WIDTH_BLOCKS, MirrorWriter.PLAYER_MOVE);
         assertEquals(MIRROR_X, mirror.x());
         assertEquals(List.of(), warnings);
     }
@@ -126,7 +151,7 @@ class ClientPositionTest {
     void anUnseededMirrorAcceptsAClientAuthoredWrite() {
         ClientPosition mirror = new ClientPosition();
 
-        assertDoesNotThrow(() -> mirror.setX(WIDTH_BLOCKS, MirrorWriter.PLAYER_MOVE));
+        assertDoesNotThrow(() -> mirror.set(WIDTH_BLOCKS, 0.0, MirrorWriter.PLAYER_MOVE));
         assertEquals(List.of(), warnings);
     }
 

@@ -1,5 +1,7 @@
 package com.exoticworlds.api.v1;
 
+import java.util.List;
+
 import com.exoticworlds.core.FoldOrientation;
 
 import net.minecraft.core.BlockPos;
@@ -30,42 +32,48 @@ public interface ToroidalShape {
     boolean loops(Direction.Axis axis);
 
     /**
-     * The first chunk inside the world on a looping axis.
+     * The first chunk inside the world on a looping axis. Where the shape does not
+     * {@linkplain #decomposesPerAxis() decompose per axis} it bounds the canonical rectangle, not a period.
      *
      * @throws IllegalArgumentException if {@code axis} does not loop
      */
     int minChunk(Direction.Axis axis);
 
     /**
-     * The first chunk past the world on a looping axis (exclusive bound).
+     * The first chunk past the world on a looping axis (exclusive bound). Where the shape does not
+     * {@linkplain #decomposesPerAxis() decompose per axis} it bounds the canonical rectangle, not a period.
      *
      * @throws IllegalArgumentException if {@code axis} does not loop
      */
     int maxChunk(Direction.Axis axis);
 
     /**
-     * The world's width in chunks on a looping axis.
+     * The world's width in chunks on a looping axis. Where the shape does not
+     * {@linkplain #decomposesPerAxis() decompose per axis} it is the canonical rectangle's width, not a period.
      *
      * @throws IllegalArgumentException if {@code axis} does not loop
      */
     int widthChunks(Direction.Axis axis);
 
     /**
-     * The first block coordinate inside the world on a looping axis.
+     * The first block coordinate inside the world on a looping axis. Where the shape does not
+     * {@linkplain #decomposesPerAxis() decompose per axis} it bounds the canonical rectangle, not a period.
      *
      * @throws IllegalArgumentException if {@code axis} does not loop
      */
     int minBlock(Direction.Axis axis);
 
     /**
-     * The first block coordinate past the world on a looping axis (exclusive bound).
+     * The first block coordinate past the world on a looping axis (exclusive bound). Where the shape does not
+     * {@linkplain #decomposesPerAxis() decompose per axis} it bounds the canonical rectangle, not a period.
      *
      * @throws IllegalArgumentException if {@code axis} does not loop
      */
     int maxBlock(Direction.Axis axis);
 
     /**
-     * The world's width in blocks on a looping axis.
+     * The world's width in blocks on a looping axis. Where the shape does not
+     * {@linkplain #decomposesPerAxis() decompose per axis} it is the canonical rectangle's width, not a period.
      *
      * @throws IllegalArgumentException if {@code axis} does not loop
      */
@@ -116,7 +124,7 @@ public interface ToroidalShape {
     ChunkPos fold(ChunkPos pos);
 
     /**
-     * The copy of {@code target} nearest {@code ref}, each looping axis folded on its own — the coordinates a
+     * The copy of {@code target} nearest {@code ref}, measured on both horizontal axes together — the coordinates a
      * renderer or a distance check should use so that something just across the seam reads as beside the reference,
      * not a world away. {@code target} may lie any number of laps out; Y passes through untouched. A {@code target}
      * already nearest {@code ref} comes back as the argument instance itself.
@@ -162,6 +170,27 @@ public interface ToroidalShape {
      * argument back.
      */
     Vec3 shortestDelta(Vec3 from, Vec3 to);
+
+    /**
+     * Every copy of the world that meets a horizontal rectangle, as the one move that carries the world into it —
+     * what a map drawing its tiles asks once per frame. Near a seam, or where the rectangle is wider than the world,
+     * that is more than one copy, and on a skewed shape a copy one row over is also moved sideways, so a copy is
+     * never rebuilt from {@link #widthBlocks(Direction.Axis)}. The rectangle is {@code box} on X and Z, half-open
+     * like every span here; its Y is ignored, and an empty one meets nothing. Where the world itself meets the
+     * rectangle, its {@linkplain SeamShift#isIdentity() identity} shift comes first.
+     */
+    List<SeamShift> copiesMeeting(AABB box);
+
+    /**
+     * Every copy of {@code pos} lying inside a horizontal rectangle — what a marker drawn on a map asks. The
+     * rectangle is read as in {@link #copiesMeeting(AABB)}: a position on its min edge is inside, one on its max edge
+     * is not. {@code pos} may lie any number of laps out; Y passes through untouched, and a copy that lands where
+     * {@code pos} already is comes back as the argument instance itself.
+     */
+    List<Oriented<Vec3>> copiesInside(AABB box, Vec3 pos);
+
+    /** {@link #copiesInside(AABB, Vec3)} on the block grid, a block read at its own coordinates. */
+    List<Oriented<BlockPos>> copiesInside(AABB box, BlockPos pos);
 
     /**
      * Whether this shape's horizontal axes fold independently of one another. {@code false} where crossing a seam

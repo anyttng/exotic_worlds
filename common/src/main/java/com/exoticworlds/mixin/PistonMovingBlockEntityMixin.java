@@ -37,7 +37,7 @@ public class PistonMovingBlockEntityMixin {
     private static double toroidal$riderXTowardHoney(Entity entity, Operation<Double> original,
             @Local(argsOnly = true) AABB honey) {
         return NearestCopy.toward(((TransformerSource) entity).toroidal$wrappedTransformer(), Direction.Axis.X,
-                honey.getCenter().x, original.call(entity));
+                honey.getCenter(), entity.position().with(Direction.Axis.X, original.call(entity)));
     }
 
     @WrapOperation(
@@ -46,6 +46,6 @@ public class PistonMovingBlockEntityMixin {
     private static double toroidal$riderZTowardHoney(Entity entity, Operation<Double> original,
             @Local(argsOnly = true) AABB honey) {
         return NearestCopy.toward(((TransformerSource) entity).toroidal$wrappedTransformer(), Direction.Axis.Z,
-                honey.getCenter().z, original.call(entity));
+                honey.getCenter(), entity.position().with(Direction.Axis.Z, original.call(entity)));
     }
 }

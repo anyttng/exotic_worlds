@@ -1,6 +1,8 @@
 package com.exoticworlds.engine.noise;
 
+import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -55,6 +57,7 @@ class PeriodicNoiseSamplerTest {
         return WorldFolds.of(FlatShape.torus(bounds));
     }
 
+    @SuppressWarnings("ArrayRecordComponent")
     private record NoiseInstance(long worldSeed, PerlinNoise vanilla, byte[] permutations,
             double xo, double yo, double zo) {
         static NoiseInstance of(long worldSeed) {
@@ -306,6 +309,170 @@ class PeriodicNoiseSamplerTest {
                 assertTrue(spread >= MIN_SPREAD,
                         () -> "a held octave is flat along the open axis, spread " + spread + " with seed " + worldSeed);
             }
+        }
+    }
+
+    @Nested
+    class SkewedLattice {
+        private static final List<DeckGroupFold> SKEWED = List.of(
+                new DeckGroupFold(FlatShape.latticeTorus(SQUARE, 5)),
+                new DeckGroupFold(FlatShape.latticeTorus(ODD_BOUNDS, 2)),
+                new DeckGroupFold(FlatShape.latticeTorus(UNEVEN_BOUNDS, -11)));
+
+        private static final double[] SKEWED_SCALES = {0.25, 1.0, 100.0, 1.17, 1.0 / 2048.0};
+
+        private static final double[] SEAM_SCALES = {0.25, 1.0, 1.17, 1.0 / 2048.0};
+
+        private static final double SEAM_STEP = 1.0 / 1024.0;
+
+        private static final double GRADIENT_BOUND = 8.0;
+
+        private static final double FLOAT_SLACK = 1.0E-5;
+
+        private static final NoiseFrame SHIFT_B = new NoiseFrame(DensityFunctionSlotAxes.SHIFT_B,
+                NoiseConstants.UNDIVIDED, NoiseConstants.UNDIVIDED,
+                GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE);
+
+        private static final NoiseFrame DIVIDED = new NoiseFrame(SlotAxes.DEFAULT, 64.0, 16.0,
+                GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE);
+
+        @Test
+        void agreesAtEveryCopyUnderBothDeckGenerators() {
+            Random random = new Random(SEED);
+            for (DeckGroupFold transformer : SKEWED) {
+                TranslationLattice lattice = transformer.blockLattice();
+                double width = lattice.x().domainLength;
+                double height = lattice.z().domainLength;
+                double skew = lattice.skew();
+                double[][] copies = {{width, 0.0}, {skew, height}, {skew - width, height}, {-2.0 * skew, -2.0 * height}};
+                for (long worldSeed : WORLD_SEEDS) {
+                    NoiseInstance noise = NoiseInstance.of(worldSeed);
+                    for (double scale : SKEWED_SCALES) {
+                        for (double fudge : FUDGE_SCALES) {
+                            for (int i = 0; i < LINE_SAMPLES; i++) {
+                                double x = blockInDomain(random, lattice.x());
+                                double y = sampleY(random);
+                                double z = blockInDomain(random, lattice.z());
+                                double base = noise.sample(transformer, scale, x, y, z, fudge);
+                                for (double[] copy : copies) {
+                                    double moved = noise.sample(transformer, scale, x + copy[0], y, z + copy[1],
+                                            fudge);
+                                    assertEquals(base, moved, () -> "sample(" + x + ", " + y + ", " + z
+                                            + ") vs its copy " + copy[0] + ", " + copy[1]
+                                            + " " + at(transformer, worldSeed, scale));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        @Test
+        void slotFramesAgreeAtEveryCopy() {
+            Random random = new Random(SEED);
+            for (DeckGroupFold transformer : SKEWED) {
+                TranslationLattice lattice = transformer.blockLattice();
+                double skew = lattice.skew();
+                double height = lattice.z().domainLength;
+                double width = lattice.x().domainLength;
+                for (long worldSeed : WORLD_SEEDS) {
+                    NoiseInstance noise = NoiseInstance.of(worldSeed);
+                    for (double scale : SKEWED_SCALES) {
+                        for (int i = 0; i < LINE_SAMPLES; i++) {
+                            double x = blockInDomain(random, lattice.x());
+                            double z = blockInDomain(random, lattice.z());
+                            double y = sampleY(random);
+                            assertEquals(shiftB(noise, transformer, scale, x, z),
+                                    shiftB(noise, transformer, scale, x + skew, z + height),
+                                    () -> "shift_b frame at " + x + ", " + z + " " + at(transformer, worldSeed, scale));
+                            assertEquals(divided(noise, transformer, scale, x, y, z),
+                                    divided(noise, transformer, scale, x + skew - width, y, z + height),
+                                    () -> "divided frame at " + x + ", " + z + " " + at(transformer, worldSeed, scale));
+                        }
+                    }
+                }
+            }
+        }
+
+        @Test
+        void neverJumpsAcrossTheFoldBoundary() {
+            Random random = new Random(SEED);
+            for (DeckGroupFold transformer : SKEWED) {
+                TranslationLattice lattice = transformer.blockLattice();
+                for (long worldSeed : WORLD_SEEDS) {
+                    NoiseInstance noise = NoiseInstance.of(worldSeed);
+                    for (double scale : SEAM_SCALES) {
+                        double flooredScale = (double) LapFloor.TWO_CELLS.period
+                                / Math.min(lattice.x().domainLength, lattice.z().domainLength);
+                        double bound = GRADIENT_BOUND * Math.max(scale, flooredScale) * 2.0 * SEAM_STEP + FLOAT_SLACK;
+                        for (int i = 0; i < LINE_SAMPLES; i++) {
+                            double y = sampleY(random);
+                            double x = lineCoord(random, lattice.x(), i);
+                            double seamZ = lattice.z().upperBound;
+                            double acrossZ = Math.abs(noise.sample(transformer, scale, x, y, seamZ - SEAM_STEP, NO_FUDGE)
+                                    - noise.sample(transformer, scale, x, y, seamZ + SEAM_STEP, NO_FUDGE));
+                            assertTrue(acrossZ <= bound, () -> "jump " + acrossZ + " across the Z seam at x=" + x
+                                    + " " + at(transformer, worldSeed, scale));
+
+                            double z = lineCoord(random, lattice.z(), i);
+                            double seamX = lattice.x().upperBound;
+                            double acrossX = Math.abs(noise.sample(transformer, scale, seamX - SEAM_STEP, y, z, NO_FUDGE)
+                                    - noise.sample(transformer, scale, seamX + SEAM_STEP, y, z, NO_FUDGE));
+                            assertTrue(acrossX <= bound, () -> "jump " + acrossX + " across the X seam at z=" + z
+                                    + " " + at(transformer, worldSeed, scale));
+                        }
+                    }
+                }
+            }
+        }
+
+        @Test
+        void outputVariesAroundTheWorld() {
+            Random random = new Random(SEED);
+            for (DeckGroupFold transformer : SKEWED) {
+                TranslationLattice lattice = transformer.blockLattice();
+                for (long worldSeed : WORLD_SEEDS) {
+                    NoiseInstance noise = NoiseInstance.of(worldSeed);
+                    for (double scale : SCALES) {
+                        double min = Double.MAX_VALUE;
+                        double max = -Double.MAX_VALUE;
+                        double y = sampleY(random);
+                        for (int i = 0; i < LINE_SAMPLES; i++) {
+                            double value = noise.sample(transformer, scale, lineCoord(random, lattice.x(), i), y,
+                                    lineCoord(random, lattice.z(), i), NO_FUDGE);
+                            min = Math.min(min, value);
+                            max = Math.max(max, value);
+                        }
+
+                        double spread = max - min;
+                        assertTrue(spread >= MIN_SPREAD, () -> "spread around the world is " + spread + " "
+                                + at(transformer, worldSeed, scale));
+                    }
+                }
+            }
+        }
+
+        @Test
+        void aSkewRoundingToNoWholeCellStillTiltsTheField() {
+            WorldFold torus = torus(SQUARE);
+            WorldFold skewed = new DeckGroupFold(FlatShape.latticeTorus(SQUARE, 5));
+            double starved = 1.0 / 2048.0;
+            NoiseInstance noise = NoiseInstance.of(SEED);
+            double z = skewed.blockLattice().z().upperBound - 1.0;
+            assertTrue(noise.sample(torus, starved, 0.0, 0.0, z, NO_FUDGE)
+                    != noise.sample(skewed, starved, 0.0, 0.0, z, NO_FUDGE));
+        }
+
+        private static double shiftB(NoiseInstance noise, WorldFold transformer, double scale, double x, double z) {
+            return PeriodicNoiseSampler.sample(noise.permutations(), noise.xo(), noise.yo(), noise.zo(), transformer,
+                    SHIFT_B, scale, z, x, 0.0);
+        }
+
+        private static double divided(NoiseInstance noise, WorldFold transformer, double scale, double x, double y,
+                double z) {
+            return PeriodicNoiseSampler.sample(noise.permutations(), noise.xo(), noise.yo(), noise.zo(), transformer,
+                    DIVIDED, scale, x, y, z);
         }
     }
 

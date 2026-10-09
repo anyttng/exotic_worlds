@@ -66,7 +66,7 @@ public final class NoiseScaleLadder {
         for (DensityFunction root : roots) {
             DensityFunctionNodes.forEach(root, node -> {
                 if (node instanceof NoiseFunction noise) {
-                    scales.computeIfAbsent(noise.noise(), unused -> new TreeSet<>()).add(noise.xzScale());
+                    scales.computeIfAbsent(noise.noise(), _ -> new TreeSet<>()).add(noise.xzScale());
                 }
             });
         }

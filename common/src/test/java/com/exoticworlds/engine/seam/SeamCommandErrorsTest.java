@@ -54,6 +54,16 @@ class SeamCommandErrorsTest {
     }
 
     @Test
+    void aSkewedWorldRefusesOnItsOwnRectangleOnBothAxes() {
+        WorldFold skewed = WorldFolds.of(FlatShape.latticeTorus(new WorldLoopBounds(-32, 32, -32, 32), 5));
+
+        CommandSyntaxException refusal = assertThrows(CommandSyntaxException.class,
+                () -> SeamCommandErrors.requireInsideWorld(skewed, Direction.Axis.X, 600.5));
+        assertArrayEquals(new Object[] {600L, MIN_BLOCK, MAX_BLOCK}, argsOf(refusal));
+        assertDoesNotThrow(() -> SeamCommandErrors.requireInsideWorld(skewed, Direction.Axis.Z, MAX_BLOCK + 0.9));
+    }
+
+    @Test
     void refusesNothingOnAnUnboundedAxis() {
         assertDoesNotThrow(() -> SeamCommandErrors.requireInsideWorld(X_ONLY, Direction.Axis.Z, FAR_OUTSIDE));
         assertDoesNotThrow(() -> SeamCommandErrors.requireInsideWorld(WorldFolds.NOOP, Direction.Axis.X, FAR_OUTSIDE));

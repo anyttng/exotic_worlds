@@ -27,7 +27,6 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 
 | Mod | Minecraft | Loaders | Status | Notes |
 | --- | --- | --- | --- | --- |
-| MapFrontiers | All | NeoForge, Fabric | No patch needed | |
 | [JourneyMap](https://modrinth.com/mod/journeymap) | All | NeoForge, Fabric | Supported | |
 | [Xaero's Minimap](https://modrinth.com/mod/xaeros-minimap) | All | NeoForge, Fabric | Supported | |
 | [Xaero's World Map](https://modrinth.com/mod/xaeros-world-map) | All | NeoForge, Fabric | Supported | |
@@ -35,6 +34,8 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | FTB Chunks | 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | |
 | JourneyMap Integration | 1.21.1 | NeoForge, Fabric | Supported | |
 | [Simple Atlas](https://modrinth.com/mod/simple-atlas) | 26.2, 26.1.2 | Fabric | Supported | Where the world's width is not a whole number of maps, maps across the world's edge overlap and no copies are drawn |
+| [Seed Viewer](https://modrinth.com/mod/seed-viewer) | 26.2, 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | |
+| MapFrontiers | All | NeoForge, Fabric | No seam support | |
 
 ## Machines and vehicles
 
@@ -66,6 +67,6 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | [TerraBlender](https://modrinth.com/mod/terrablender) | All | NeoForge | Supported | |
 | [Biolith](https://modrinth.com/mod/biolith) | All | NeoForge, Fabric | Supported | |
 | MTChunkGeneration | 1.21.1 | NeoForge | Supported | |
-| BetterEnd and BetterNether | 26.2, 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | |
+| BetterEnd and BetterNether | All | NeoForge, Fabric | Supported | |
 | [ReTerraForged](https://www.curseforge.com/minecraft/mc-mods/reterraforged-unofficial) | 1.21.1 | NeoForge, Fabric | Supported | Small worlds get shorter rivers or none |
 | One Dimension | — | — | Not tested | |

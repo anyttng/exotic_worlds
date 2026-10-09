@@ -4,6 +4,7 @@ import com.exoticworlds.accessors.CoastLiftCache;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.gen.GenerationHooks;
 import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.shape.noise.DensityNoises;
 
@@ -37,7 +38,8 @@ public final class CoastFieldLift {
             return;
         }
 
-        if (GenerationTransformerContext.context().routerBuildTransformer() == null) {
+        WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
+        if (fold == null) {
             return;
         }
 
@@ -55,10 +57,11 @@ public final class CoastFieldLift {
         int xGrid = Math.max(1, xLength / stride);
         int zGrid = Math.max(1, zLength / stride);
         long cellBlocks = (long) stride * stride;
+        int skewCells = (int) Math.round((double) fold.blockLattice().skew() / stride);
 
         for (double candidate : CANDIDATES) {
             lift.toroidal$coastLift(candidate);
-            long patch = largestPatch(density, seaLevel, stride, xGrid, zGrid) * cellBlocks;
+            long patch = largestPatch(density, seaLevel, stride, xGrid, zGrid, skewCells) * cellBlocks;
             if (patch >= LAND_FLOOR_BLOCKS) {
                 return;
             }
@@ -67,7 +70,8 @@ public final class CoastFieldLift {
         lift.toroidal$coastLift(CANDIDATES[CANDIDATES.length - 1]);
     }
 
-    private static int largestPatch(DensitySampler density, int seaLevel, int stride, int xGrid, int zGrid) {
+    private static int largestPatch(DensitySampler density, int seaLevel, int stride, int xGrid, int zGrid,
+            int skewCells) {
         boolean[] land = new boolean[xGrid * zGrid];
         for (int ix = 0; ix < xGrid; ix++) {
             for (int iz = 0; iz < zGrid; iz++) {
@@ -76,10 +80,10 @@ public final class CoastFieldLift {
             }
         }
 
-        return largestComponent(land, xGrid, zGrid);
+        return largestComponent(land, xGrid, zGrid, skewCells);
     }
 
-    private static int largestComponent(boolean[] land, int xGrid, int zGrid) {
+    private static int largestComponent(boolean[] land, int xGrid, int zGrid, int skewCells) {
         boolean[] seen = new boolean[land.length];
         int[] queue = new int[land.length];
         int largest = 0;
@@ -100,7 +104,9 @@ public final class CoastFieldLift {
                 int z = cell % zGrid;
 
                 for (int[] step : NEIGHBOURS) {
-                    int next = Math.floorMod(x + step[0], xGrid) * zGrid + Math.floorMod(z + step[1], zGrid);
+                    int zLaps = Math.floorDiv(z + step[1], zGrid);
+                    int next = Math.floorMod(x + step[0] - zLaps * skewCells, xGrid) * zGrid
+                            + Math.floorMod(z + step[1], zGrid);
                     if (land[next] && !seen[next]) {
                         seen[next] = true;
                         queue[tail++] = next;

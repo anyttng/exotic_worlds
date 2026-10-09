@@ -96,23 +96,31 @@ public final class ShapedDimensions {
                 continue;
             }
 
-            ChunkGenerator rebuilt = shapedGeneratorFor(datapackStem.generator(), carried);
-            if (rebuilt != null) {
-                restored.put(entry.key(), Platforms.get().withGenerator(datapackStem, rebuilt));
-                overrides.put(entry.key(), override(Outcome.RESHAPED, datapackStem));
-                continue;
-            }
-
-            ChunkGenerator stamped = isStampableOverStoredShape(datapackStem.generator())
-                    ? stampedGeneratorFor(datapackStem.generator(), carried)
-                    : null;
+            ChunkGenerator shaped = withStoredShape(datapackStem.generator(), carried);
             restored.put(entry.key(),
-                    stamped == null ? storedStem : Platforms.get().withGenerator(datapackStem, stamped));
-            overrides.put(entry.key(), override(stamped == null ? Outcome.REFUSED : Outcome.STAMPED, datapackStem));
+                    shaped == null ? storedStem : Platforms.get().withGenerator(datapackStem, shaped));
+            overrides.put(entry.key(), override(outcomeOf(shaped), datapackStem));
         }
 
         DatapackStemOverrides.replaceAll(overrides);
         return restored.isEmpty() ? datapackDimensions : withStems(datapackDimensions, restored);
+    }
+
+    public static @Nullable ChunkGenerator withStoredShape(ChunkGenerator replacement, CarriedShape carried) {
+        ChunkGenerator rebuilt = shapedGeneratorFor(replacement, carried);
+        if (rebuilt != null) {
+            return rebuilt;
+        }
+
+        return isStampableOverStoredShape(replacement) ? stampedGeneratorFor(replacement, carried) : null;
+    }
+
+    private static Outcome outcomeOf(@Nullable ChunkGenerator shaped) {
+        if (shaped == null) {
+            return Outcome.REFUSED;
+        }
+
+        return shaped instanceof ShapedChunkGenerator ? Outcome.RESHAPED : Outcome.STAMPED;
     }
 
     private static StemOverride override(Outcome outcome, LevelStem datapackStem) {
@@ -142,7 +150,7 @@ public final class ShapedDimensions {
         }
 
         FlatShape worldShape = carried.shape();
-        if (worldShape.skewChunks() != FlatShape.NO_SKEW || worldShape.mirror() != null) {
+        if (worldShape.mirror() != null) {
             return;
         }
 
@@ -188,7 +196,16 @@ public final class ShapedDimensions {
 
         AxisBounds x = derivedAxis(worldShape.bounds().x(), overworldScale, scale);
         AxisBounds z = derivedAxis(worldShape.bounds().z(), overworldScale, scale);
-        return x == null || z == null ? null : new FlatShape(new WorldLoopBounds(x, z), FlatShape.NO_SKEW, null);
+        Integer skewChunks = derivedChunks(worldShape.skewChunks(), overworldScale, scale);
+        return x == null || z == null || skewChunks == null
+                ? null
+                : new FlatShape(new WorldLoopBounds(x, z), skewChunks, null);
+    }
+
+    private static @Nullable Integer derivedChunks(int chunks, double overworldScale, double scale) {
+        double derived = chunks * overworldScale / scale;
+        int whole = (int) derived;
+        return derived == whole ? whole : null;
     }
 
     private static @Nullable AxisBounds derivedAxis(AxisBounds axis, double overworldScale, double scale) {
@@ -196,9 +213,8 @@ public final class ShapedDimensions {
             return axis;
         }
 
-        double derived = looped.chunkWidth() * overworldScale / scale;
-        int chunkWidth = (int) derived;
-        return derived == chunkWidth && WorldLoopSizes.isInRange(chunkWidth)
+        Integer chunkWidth = derivedChunks(looped.chunkWidth(), overworldScale, scale);
+        return chunkWidth != null && WorldLoopSizes.isInRange(chunkWidth)
                 ? AxisBounds.Looped.ofWidth(chunkWidth)
                 : null;
     }

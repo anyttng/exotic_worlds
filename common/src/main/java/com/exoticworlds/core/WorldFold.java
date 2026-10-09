@@ -38,6 +38,10 @@ public interface WorldFold {
 
     WrapDomain chunkDomain(Direction.Axis axis);
 
+    TranslationLattice blockLattice();
+
+    TranslationLattice chunkLattice();
+
     boolean isOver(Vec3 pos);
 
     boolean isOver(BlockPos pos);
@@ -129,6 +133,10 @@ public interface WorldFold {
     }
 
     List<DeckTransformation> copiesTouching(BoundingBox region, int reach);
+
+    default List<DeckTransformation> copiesTouching(BoundingBox region) {
+        return copiesTouching(region, Integer.MAX_VALUE);
+    }
 
     boolean foldsOntoItself(BoundingBox region);
 

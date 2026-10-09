@@ -44,6 +44,14 @@ repositories {
             includeGroup 'com.github.bawnorton.mixinsquared'
         }
     }
+    // Fabric Loader, for the one enum unpacked out of it below.
+    maven {
+        name = 'FabricMC'
+        url = 'https://maven.fabricmc.net/'
+        content {
+            includeGroup 'net.fabricmc'
+        }
+    }
 }
 
 // C2ME publishes one jar that carries no classes of its own — every module rides inside it as a jar-in-jar, and no
@@ -85,6 +93,45 @@ var xaeroLibJars = tasks.register('unpackXaeroLib', Sync) {
     into layout.buildDirectory.dir('xaerolib')
 }
 
+// WorldWeaver's Fabric jar carries its modules as jar-in-jars; the biome-map fold mixins name its generator and math
+// types. Unpacked the same way, compile and test classpath alone.
+configurations {
+    woverModules
+}
+
+dependencies {
+    woverModules "maven.modrinth:worldweaver-neoforge:${worldweaver_version}"
+}
+
+var woverModuleJars = tasks.register('unpackWoverModules', Sync) {
+    from(zipTree(configurations.woverModules.singleFile)) {
+        include 'META-INF/jars/*.jar'
+        eachFile { it.relativePath = new RelativePath(true, it.name) }
+    }
+    includeEmptyDirs = false
+    into layout.buildDirectory.dir('wover-modules')
+}
+
+// BetterEnd, BCLib and Distant Horizons annotate classes with Fabric's @Environment, and javac warns unconditionally
+// on the enum it names when that is missing. The enum's class file alone is unpacked from the pinned loader, so the
+// rest of Fabric Loader stays off this module's classpath.
+configurations {
+    fabricEnvType {
+        transitive = false
+    }
+}
+
+dependencies {
+    fabricEnvType "net.fabricmc:fabric-loader:${fabric_loader_version}"
+}
+
+var fabricEnvTypeClass = tasks.register('unpackFabricEnvType', Sync) {
+    from(zipTree(configurations.fabricEnvType.singleFile)) {
+        include 'net/fabricmc/api/EnvType.class'
+    }
+    into layout.buildDirectory.dir('fabric-envtype')
+}
+
 // NeoForm brings only vanilla; the mixin annotations the sources carry come from the same artifacts the NeoForge
 // runtime ships (pinned in gradle.properties from the neo_version userdev config). compileOnly — applying them is
 // the loaders' business.
@@ -101,6 +148,10 @@ dependencies {
     compileOnly "maven.modrinth:biolith:${biolith_version}"
     compileOnly "maven.modrinth:sodium:${sodium_version}"
     compileOnly files(xaeroLibJars).asFileTree.matching { include '*.jar' }
+    compileOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
+    compileOnly files(fabricEnvTypeClass)
+    compileOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
+    compileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     compileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"
 }
 
@@ -118,12 +169,26 @@ dependencies {
     testRuntimeOnly "maven.modrinth:terrablender:${terrablender_version}"
     testCompileOnly "maven.modrinth:biolith:${biolith_version}"
     testRuntimeOnly "maven.modrinth:biolith:${biolith_version}"
-    // The compat jars and Mixin on the test runtime alone: what the gate-symbol tests read is the class file each
-    // gate names, and a config plugin cannot even load without IMixinConfigPlugin.
+    testCompileOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
+    testRuntimeOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
+    testCompileOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
+    testRuntimeOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
+    testCompileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
+    testRuntimeOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
+    // The compat jars on the test runtime alone: every compat gate reads its mixins' targets from these class files,
+    // and a config plugin cannot even load without IMixinConfigPlugin.
     testRuntimeOnly "maven.modrinth:journeymap:${journeymap_version}"
     testRuntimeOnly "maven.modrinth:xaeros-minimap:${xaero_minimap_version}"
     testRuntimeOnly "maven.modrinth:xaeros-world-map:${xaero_worldmap_version}"
+    testRuntimeOnly files(xaeroLibJars).asFileTree.matching { include '*.jar' }
+    testRuntimeOnly "maven.modrinth:sodium:${sodium_version}"
+    testRuntimeOnly "maven.modrinth:lithium:${lithium_version}"
+    testRuntimeOnly "maven.modrinth:scalablelux:${scalablelux_version}"
     testRuntimeOnly "net.fabricmc:sponge-mixin:${mixin_version}"
+    // The checker's fixture mixins carry the real annotations.
+    testCompileOnly "net.fabricmc:sponge-mixin:${mixin_version}"
+    testCompileOnly "io.github.llamalad7:mixinextras-common:${mixinextras_version}"
+    testCompileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"
     testImplementation platform("org.junit:junit-bom:${junit_version}")
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.junit.platform:junit-platform-launcher'

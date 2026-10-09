@@ -1,10 +1,9 @@
 package com.exoticworlds.engine.noise;
 
 import com.exoticworlds.core.CoordinateConstants;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
 
-import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 
@@ -35,15 +34,14 @@ public final class PeriodicEndIslands {
         int chunkZ = Math.floorDiv(blockZ, CoordinateConstants.CHUNK_WIDTH);
         int subSectionX = Math.floorMod(Math.floorDiv(blockX, SECTION_WIDTH), SECTIONS_PER_CHUNK);
         int subSectionZ = Math.floorMod(Math.floorDiv(blockZ, SECTION_WIDTH), SECTIONS_PER_CHUNK);
-        WrapDomain xDomain = transformer.chunkDomain(Direction.Axis.X);
-        WrapDomain zDomain = transformer.chunkDomain(Direction.Axis.Z);
+        TranslationLattice lattice = transformer.chunkLattice();
 
         for (int xo = -ISLAND_SEARCH_CHUNK_REACH; xo <= ISLAND_SEARCH_CHUNK_REACH; xo++) {
             for (int zo = -ISLAND_SEARCH_CHUNK_REACH; zo <= ISLAND_SEARCH_CHUNK_REACH; zo++) {
-                long cellX = xDomain.wrap(chunkX + xo);
-                long cellZ = zDomain.wrap(chunkZ + zo);
+                long cellX = lattice.foldX(chunkX + xo, chunkZ + zo);
+                long cellZ = lattice.foldZ(chunkZ + zo);
                 if (cellX * cellX + cellZ * cellZ > OUTER_ISLAND_MIN_CHUNK_DISTANCE_SQUARED
-                        && islandNoise.get(cellX, cellZ) < ISLAND_NOISE_THRESHOLD) {
+                        && islandNoise.get((double) cellX, (double) cellZ) < ISLAND_NOISE_THRESHOLD) {
                     float islandSize = (Mth.abs((float) cellX) * ISLAND_SIZE_X_FACTOR
                             + Mth.abs((float) cellZ) * ISLAND_SIZE_Z_FACTOR) % ISLAND_SIZE_SPREAD + ISLAND_SIZE_MIN;
                     float xd = subSectionX - xo * SECTIONS_PER_CHUNK;

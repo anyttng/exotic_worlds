@@ -6,6 +6,7 @@
   "plugin": "com.exoticworlds.compat.journeymap.JourneyMapMixinPlugin",
   "client": [
     "BaseOverlayDrawStepMixin",
+    "CaveRendererMixin",
     "ClientWaypointImplMixin",
     "DrawImageStepMixin",
     "DrawMarkerStepMixin",
@@ -19,6 +20,7 @@
     "ModOverlayLayerMixin",
     "PolygonGeometryDrawPassMixin",
     "RegionCoordMixin",
+    "RegionImageSetMixin",
     "RegionTileAccessor",
     "RegionTileMixin"
   ],

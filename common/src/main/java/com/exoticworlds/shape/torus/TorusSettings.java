@@ -5,6 +5,7 @@ import java.util.List;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.option.WorldOption;
 import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.core.WorldLoopSizes;
 import com.exoticworlds.shape.climate.ClimateScale;
@@ -30,11 +31,19 @@ public record TorusSettings(LoopSpans overworld, int netherScale, LoopSpans end,
         return overworld.chunkWidth(axis);
     }
 
+    public int skewChunks() {
+        return overworld.skewChunks();
+    }
+
     public int endChunkWidth() {
         return end.chunkWidth(Direction.Axis.X);
     }
 
     public static boolean isTorus(LoopSpans spans) {
         return spans.loops(Direction.Axis.X) && spans.loops(Direction.Axis.Z);
+    }
+
+    public static boolean isPlainSquare(LoopSpans spans) {
+        return spans.isSquare() && spans.skewChunks() == FlatShape.NO_SKEW;
     }
 }

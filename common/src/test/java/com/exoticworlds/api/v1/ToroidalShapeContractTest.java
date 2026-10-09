@@ -7,7 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,6 +34,7 @@ class ToroidalShapeContractTest {
     private static final int MAX_CHUNK = 8;
     private static final int WIDTH = (MAX_CHUNK - MIN_CHUNK) * UNIT;
     private static final int LOWER = MIN_CHUNK * UNIT;
+    private static final int LATTICE_SKEW_CHUNKS = 3;
 
     private static final AxisBounds.Looped LOOPED = new AxisBounds.Looped(MIN_CHUNK, MAX_CHUNK);
     private static final WorldLoopBounds BOTH = new WorldLoopBounds(LOOPED, LOOPED);
@@ -51,7 +55,7 @@ class ToroidalShapeContractTest {
     }
 
     private static ToroidalShape latticeTorus() {
-        return TestShapes.of(new DeckGroupFold(FlatShape.latticeTorus(BOTH, 3)));
+        return TestShapes.of(new DeckGroupFold(FlatShape.latticeTorus(BOTH, LATTICE_SKEW_CHUNKS)));
     }
 
     @Nested
@@ -289,6 +293,147 @@ class ToroidalShapeContractTest {
             assertTrue(latticeTorus().preservesLocalIndices(), "a skew lost the local indices");
             assertFalse(mobius().preservesLocalIndices(), "a band kept its local indices");
             assertFalse(klein().preservesLocalIndices(), "a bottle kept its local indices");
+        }
+    }
+
+    @Nested
+    class ListingCopies {
+        private static final int SKEW = LATTICE_SKEW_CHUNKS * UNIT;
+        private static final int UPPER = LOWER + WIDTH;
+        private static final int ORBIT_REACH = 8;
+        private static final double Y = 64.0;
+
+        private static final AABB INSIDE = new AABB(LOWER + 10, 0, LOWER + 10, LOWER + 20, 0, LOWER + 20);
+        private static final AABB ACROSS_THE_Z_SEAM = new AABB(0, 0, UPPER - 8, 8, 0, UPPER + 8);
+        private static final AABB WIDER_THAN_THE_WORLD =
+                new AABB(LOWER - WIDTH / 2.0, 0, LOWER - WIDTH / 2.0, UPPER + WIDTH / 2.0, 0, UPPER + WIDTH / 2.0);
+        private static final AABB LAPS_OUT = new AABB(
+                LOWER + 5 * WIDTH - 3, 0, LOWER - 4 * WIDTH - 3, LOWER + 5 * WIDTH + 3, 0, LOWER - 4 * WIDTH + 3);
+        private static final AABB ONE_WORLD_PAST_THE_EDGE = new AABB(LOWER, 0, LOWER, UPPER + WIDTH, 0, UPPER);
+
+        private static ToroidalShape cylinder() {
+            return TestShapes.of(WorldFolds.of(FlatShape.cylinder(X_ONLY)));
+        }
+
+        @Test
+        void everyCopyThatMeetsTheRectangleIsListedOnceWithTheWorldFirst() {
+            for (AABB box : List.of(INSIDE, ACROSS_THE_Z_SEAM, WIDER_THAN_THE_WORLD, LAPS_OUT)) {
+                assertOrbit(torus(), 0, true, box, "torus");
+                assertOrbit(cylinder(), 0, false, box, "cylinder");
+                assertOrbit(latticeTorus(), SKEW, true, box, "lattice torus");
+            }
+        }
+
+        @Test
+        void aRectangleInsideTheWorldMeetsTheWorldAlone() {
+            for (ToroidalShape shape : List.of(torus(), cylinder(), latticeTorus())) {
+                List<SeamShift> copies = shape.copiesMeeting(INSIDE);
+                assertEquals(1, copies.size(), "a rectangle inside the world met " + copies.size() + " copies");
+                assertTrue(copies.getFirst().isIdentity(), "the one copy met is not the world itself");
+            }
+        }
+
+        @Test
+        void aSkewedCopyOneRowUpSitsTheSkewOver() {
+            List<SeamShift> copies = latticeTorus().copiesMeeting(ACROSS_THE_Z_SEAM);
+            assertEquals(List.of(BlockPos.ZERO, new BlockPos(SKEW, 0, WIDTH)), offsetsOf(copies),
+                    "the copy across the z seam is not the skew over");
+        }
+
+        @Test
+        void anEmptyRectangleMeetsNothing() {
+            AABB flat = new AABB(LOWER + 10, 0, LOWER + 10, LOWER + 10, 0, LOWER + 20);
+            for (ToroidalShape shape : List.of(torus(), cylinder(), latticeTorus())) {
+                assertTrue(shape.copiesMeeting(flat).isEmpty(), "an empty rectangle met a copy");
+                assertTrue(shape.copiesInside(flat, new Vec3(LOWER + 10, Y, LOWER + 15)).isEmpty(),
+                        "a position was found inside an empty rectangle");
+            }
+        }
+
+        @Test
+        void aPositionOnTheMinEdgeIsInsideAndOneOnTheMaxEdgeIsNot() {
+            ToroidalShape shape = torus();
+            AABB inland = new AABB(LOWER, 0, LOWER, 10, 0, UPPER);
+            Vec3 onMin = new Vec3(LOWER, Y, 0.5);
+            assertEquals(List.of(onMin), valuesOf(shape.copiesInside(inland, onMin)), "a position on the min edge");
+            assertTrue(shape.copiesInside(inland, new Vec3(10, Y, 0.5)).isEmpty(), "a position on the max edge");
+            assertTrue(shape.copiesInside(inland, new BlockPos(10, 64, 0)).isEmpty(), "a block on the max edge");
+
+            assertEquals(List.of(new Vec3(LOWER, Y, 0.5), new Vec3(UPPER, Y, 0.5)),
+                    valuesOf(shape.copiesInside(ONE_WORLD_PAST_THE_EDGE, new Vec3(UPPER, Y, 0.5))),
+                    "the copies of a position on both edges");
+            assertEquals(List.of(new BlockPos(LOWER, 64, 0), new BlockPos(UPPER, 64, 0)),
+                    valuesOf(shape.copiesInside(ONE_WORLD_PAST_THE_EDGE, new BlockPos(UPPER + WIDTH, 64, 0))),
+                    "the copies of a block on both edges");
+        }
+
+        @Test
+        void aCopyAcrossTheSkewedSeamLandsTheSkewOver() {
+            List<Oriented<Vec3>> copies = latticeTorus().copiesInside(
+                    new AABB(-64, 0, UPPER - 8, 64, 0, UPPER + 8), new Vec3(0.5, Y, LOWER + 1.5));
+            assertEquals(List.of(new Vec3(SKEW + 0.5, Y, UPPER + 1.5)), valuesOf(copies),
+                    "the copy of a position past the z seam");
+            assertTrue(copies.getFirst().isIdentity(), "an unmirrored copy reported a flip");
+        }
+
+        @Test
+        void aCopyWherePositionAlreadyIsHandsTheArgumentBack() {
+            Vec3 inside = new Vec3(LOWER + 15.5, Y, LOWER + 15.5);
+            Vec3 lapOut = new Vec3(UPPER + 5.5, Y, LOWER + 15.5);
+            BlockPos blockLapOut = new BlockPos(UPPER + 5, 64, LOWER + 15);
+            AABB pastTheSeam = new AABB(UPPER, 0, LOWER, UPPER + 16, 0, UPPER);
+            ToroidalShape shape = torus();
+            assertSame(inside, shape.copiesInside(INSIDE, inside).getFirst().value(), "a position inside was rebuilt");
+            assertSame(lapOut, shape.copiesInside(pastTheSeam, lapOut).getFirst().value(),
+                    "a position a lap out was rebuilt where its copy is itself");
+            assertSame(blockLapOut, shape.copiesInside(pastTheSeam, blockLapOut).getFirst().value(),
+                    "a block a lap out was rebuilt where its copy is itself");
+        }
+
+        @Test
+        void aCopyAcrossAMirroredSeamReportsTheFlip() {
+            List<Oriented<Vec3>> copies = mobius().copiesInside(
+                    new AABB(UPPER, 0, -32, UPPER + 16, 0, 32), new Vec3(LOWER + 5.5, Y, 10.5));
+            assertEquals(List.of(new Vec3(UPPER + 5.5, Y, -10.5)), valuesOf(copies),
+                    "the copy across the mirrored seam");
+            assertTrue(copies.getFirst().orientation().flipsZ(), "the mirrored copy did not report its flip");
+        }
+
+        private static void assertOrbit(ToroidalShape shape, int skew, boolean zLoops, AABB box, String name) {
+            List<SeamShift> copies = shape.copiesMeeting(box);
+            List<BlockPos> offsets = offsetsOf(copies);
+            assertEquals(expectedOffsets(skew, zLoops, box), new HashSet<>(offsets),
+                    name + ": copiesMeeting(" + box + ") disagrees with the orbit");
+            assertEquals(new HashSet<>(offsets).size(), offsets.size(), name + ": a copy listed twice");
+            for (int index = 1; index < copies.size(); index++) {
+                assertFalse(copies.get(index).isIdentity(), name + ": the world itself is not listed first");
+            }
+        }
+
+        private static Set<BlockPos> expectedOffsets(int skew, boolean zLoops, AABB box) {
+            Set<BlockPos> expected = new HashSet<>();
+            int rows = zLoops ? ORBIT_REACH : 0;
+            for (int row = -rows; row <= rows; row++) {
+                for (int column = -ORBIT_REACH; column <= ORBIT_REACH; column++) {
+                    int dx = column * WIDTH + row * skew;
+                    int dz = row * WIDTH;
+                    boolean meetsX = LOWER + dx < box.maxX && box.minX < UPPER + dx;
+                    boolean meetsZ = !zLoops || (LOWER + dz < box.maxZ && box.minZ < UPPER + dz);
+                    if (meetsX && meetsZ) {
+                        expected.add(new BlockPos(dx, 0, dz));
+                    }
+                }
+            }
+
+            return expected;
+        }
+
+        private static List<BlockPos> offsetsOf(List<SeamShift> copies) {
+            return copies.stream().map(copy -> copy.apply(BlockPos.ZERO)).toList();
+        }
+
+        private static <T> List<T> valuesOf(List<Oriented<T>> copies) {
+            return copies.stream().map(Oriented::value).toList();
         }
     }
 }

@@ -106,6 +106,7 @@ class TerrainWallScan {
             double gradientMax) {
     }
 
+    @SuppressWarnings("ArrayRecordComponent")
     private record Pass(String name, List<Site> blades, int[] bladesPerLevel, List<Field> fields, double landShare) {
     }
 
@@ -629,8 +630,8 @@ class TerrainWallScan {
 
                 double acrossX = thickness(density, corners, ix, iz, true);
                 double acrossZ = thickness(density, corners, ix, iz, false);
-                boolean wall = acrossX < BLADE_BLOCKS && solidRun(density, corners, ix, iz, false) >= RIDGE_CORNERS
-                        || acrossZ < BLADE_BLOCKS && solidRun(density, corners, ix, iz, true) >= RIDGE_CORNERS;
+                boolean wall = (acrossX < BLADE_BLOCKS && solidRun(density, corners, ix, iz, false) >= RIDGE_CORNERS)
+                        || (acrossZ < BLADE_BLOCKS && solidRun(density, corners, ix, iz, true) >= RIDGE_CORNERS);
                 if (!wall) {
                     continue;
                 }

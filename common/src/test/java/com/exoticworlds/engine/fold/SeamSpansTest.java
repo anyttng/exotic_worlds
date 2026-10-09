@@ -1,6 +1,5 @@
 package com.exoticworlds.engine.fold;
 
-import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -13,7 +12,6 @@ import static com.exoticworlds.core.WorldFoldFixture.X_ONLY_BOUNDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -35,6 +33,8 @@ class SeamSpansTest {
     private static final WorldFold X_ONLY = WorldFolds.of(FlatShape.cylinder(X_ONLY_BOUNDS));
 
     private static final List<WorldFold> FOLDS = List.of(EVEN, ODD, UNEVEN, X_ONLY, WorldFolds.NOOP);
+
+    private static final WorldFold SKEWED = WorldFolds.of(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(64), 5));
 
     private static WorldFold torus(WorldLoopBounds bounds) {
         return WorldFolds.of(FlatShape.torus(bounds));
@@ -177,11 +177,27 @@ class SeamSpansTest {
     }
 
     @Test
-    void aShapeThatDoesNotDecomposeRefusesTheCornerPairReading() {
-        WorldFold skewed = new DeckGroupFold(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(64), 5));
-        BoundingBox region = new BoundingBox(-500, 0, -500, 500, 4, 500);
+    void aSkewedRegionWithinHalfTheLatticeIsLeftAlone() {
+        BoundingBox region = new BoundingBox(-200, 0, -200, 200, 4, 200);
 
-        assertThrows(IllegalStateException.class, () -> SeamSpans.crossesSeam(skewed, region));
-        assertThrows(IllegalStateException.class, () -> SeamSpans.foldAcrossSeam(skewed, region));
+        assertFalse(SeamSpans.crossesSeam(SKEWED, region));
+        assertSame(region, SeamSpans.foldAcrossSeam(SKEWED, region));
+    }
+
+    @Test
+    void aSkewedRegionAcrossTheZSeamReadsTheShortWayThroughTheLattice() {
+        BoundingBox region = new BoundingBox(100, 0, -500, 300, 4, 500);
+
+        assertTrue(SeamSpans.crossesSeam(SKEWED, region));
+        assertEquals(new BoundingBox(180, 0, 500, 300, 4, 524), SeamSpans.foldAcrossSeam(SKEWED, region));
+    }
+
+    @Test
+    void whereBothDiagonalsFoldTheShorterRegionIsTaken() {
+        WorldFold longSkewed = WorldFolds.of(FlatShape.latticeTorus(new WorldLoopBounds(-256, 256, -96, 96), 200));
+        BoundingBox region = new BoundingBox(-2032, 0, -1520, 2944, 0, 1520);
+
+        assertTrue(SeamSpans.crossesSeam(longSkewed, region));
+        assertEquals(new BoundingBox(2944, 0, -1552, 2960, 0, -1520), SeamSpans.foldAcrossSeam(longSkewed, region));
     }
 }

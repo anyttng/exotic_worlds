@@ -8,10 +8,12 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TileArea;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TilePiece;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 
 import xaero.map.MapProcessor;
@@ -93,19 +95,17 @@ public final class XaeroExportAssembly {
             return;
         }
 
-        int[] candidatesX = XaeroWorldMapFold.canonicalRegions(Direction.Axis.X,
+        for (long candidate : XaeroWorldMapFold.canonicalRegions(
                 XaeroWorldMapFold.firstTileChunkOfRegion(rawRegionX),
-                XaeroWorldMapFold.firstTileChunkOfRegion(rawRegionX + 1) - 1);
-        int[] candidatesZ = XaeroWorldMapFold.canonicalRegions(Direction.Axis.Z,
                 XaeroWorldMapFold.firstTileChunkOfRegion(rawRegionZ),
-                XaeroWorldMapFold.firstTileChunkOfRegion(rawRegionZ + 1) - 1);
-        for (int candidateX : candidatesX) {
-            for (int candidateZ : candidatesZ) {
-                if (hasSource(candidateX, candidateZ)) {
-                    this.regionX = candidateX;
-                    this.regionZ = candidateZ;
-                    return;
-                }
+                XaeroWorldMapFold.firstTileChunkOfRegion(rawRegionX + 1) - 1,
+                XaeroWorldMapFold.firstTileChunkOfRegion(rawRegionZ + 1) - 1)) {
+            int candidateX = ChunkPos.getX(candidate);
+            int candidateZ = ChunkPos.getZ(candidate);
+            if (hasSource(candidateX, candidateZ)) {
+                this.regionX = candidateX;
+                this.regionZ = candidateZ;
+                return;
             }
         }
     }
@@ -132,24 +132,21 @@ public final class XaeroExportAssembly {
         this.tileChunkX = XaeroWorldMapFold.firstTileChunkOfRegion(this.rawRegionX) + slotX;
         this.tileChunkZ = XaeroWorldMapFold.firstTileChunkOfRegion(this.rawRegionZ) + slotZ;
         this.slotPieces.clear();
-        List<TilePiece> piecesX = XaeroWorldMapFold.tilePieces(XaeroWorldMapFold.chunkCopies(Direction.Axis.X), this.tileChunkX);
-        List<TilePiece> piecesZ = XaeroWorldMapFold.tilePieces(XaeroWorldMapFold.chunkCopies(Direction.Axis.Z), this.tileChunkZ);
+        List<TileArea> areas = XaeroWorldMapFold.tilePieces(this.tileChunkX, this.tileChunkZ);
         ExportMapTileChunk carrier = null;
-        for (TilePiece pieceX : piecesX) {
-            for (TilePiece pieceZ : piecesZ) {
-                ExportMapTileChunk chunk = canonicalChunk(pieceX.canonicalTile(), pieceZ.canonicalTile());
-                if (chunk == null) {
-                    continue;
-                }
+        for (TileArea area : areas) {
+            ExportMapTileChunk chunk = canonicalChunk(area.x().canonicalTile(), area.z().canonicalTile());
+            if (chunk == null) {
+                continue;
+            }
 
-                this.slotPieces.add(new SlotPiece(chunk, pieceX, pieceZ));
-                if (carrier == null) {
-                    carrier = chunk;
-                }
+            this.slotPieces.add(new SlotPiece(chunk, area.x(), area.z()));
+            if (carrier == null) {
+                carrier = chunk;
             }
         }
 
-        if (piecesX.size() == 1 && piecesZ.size() == 1) {
+        if (areas.size() == 1) {
             this.slotPieces.clear();
         }
 
@@ -249,7 +246,7 @@ public final class XaeroExportAssembly {
     private @Nullable ExportMapRegion load(int regionX, int regionZ) {
         if (this.updateConfig == null) {
             this.updateConfig = new MapUpdateFastConfig(this.processor);
-            this.includingHighlights = (Boolean) WorldMap.INSTANCE.getConfigs().getClientConfigManager()
+            this.includingHighlights = WorldMap.INSTANCE.getConfigs().getClientConfigManager()
                     .getPrimaryConfigManager().getEffective(WorldMapPrimaryClientConfigOptions.EXPORT_HIGHLIGHTS);
         }
 

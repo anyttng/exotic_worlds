@@ -39,7 +39,7 @@ public final class ShapeStems {
                 ? overworld.chunkWidth(Direction.Axis.X)
                 : overworld.chunkWidth(Direction.Axis.Z);
         int zChunkWidth = overworld.loops(Direction.Axis.Z) ? overworld.chunkWidth(Direction.Axis.Z) : xChunkWidth;
-        return NetherScales.normalize(netherScale, xChunkWidth, zChunkWidth);
+        return NetherScales.normalize(netherScale, xChunkWidth, zChunkWidth, overworld.skewChunks());
     }
 
     private ShapeStems() {

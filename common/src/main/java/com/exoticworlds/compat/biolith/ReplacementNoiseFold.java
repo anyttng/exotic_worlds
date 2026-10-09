@@ -123,6 +123,7 @@ public final class ReplacementNoiseFold {
         return built;
     }
 
+    @SuppressWarnings("ArrayRecordComponent")
     private record Octaves(long seed, PerlinNoise[] noises) {
     }
 

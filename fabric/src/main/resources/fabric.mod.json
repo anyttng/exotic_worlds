@@ -7,7 +7,7 @@
   "authors": [
     "Anyttng"
   ],
-  "license": "MIT",
+  "license": "PolyForm-Shield-1.0.0",
   "icon": "logo.png",
   "environment": "*",
   "entrypoints": {
@@ -33,6 +33,8 @@
     "exotic_worlds.compat.scalablelux.mixins.json",
     "exotic_worlds.compat.terrablender.mixins.json",
     "exotic_worlds.compat.biolith.mixins.json",
+    "exotic_worlds.compat.wover.mixins.json",
+    "exotic_worlds.compat.betterend.mixins.json",
     "exotic_worlds.compat.sodium.mixins.json",
     "exotic_worlds.compat.lithium.mixins.json"
   ],

@@ -15,6 +15,7 @@ import com.exoticworlds.accessors.TrackedEntityRefresher;
 import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.RelativePosition;
 import com.exoticworlds.engine.seam.ClientPosition;
 import com.exoticworlds.engine.seam.MirrorWriter;
 import com.exoticworlds.engine.seam.SeamSnap;
@@ -29,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket;
@@ -86,19 +86,13 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
         }
 
         Vec3 position = destination.position();
-        double wrappedX = relatives.contains(Relative.X)
-                ? position.x
-                : transformer.blockDomain(Direction.Axis.X).wrap(position.x);
-        double wrappedZ = relatives.contains(Relative.Z)
-                ? position.z
-                : transformer.blockDomain(Direction.Axis.Z).wrap(position.z);
-        if (wrappedX == position.x && wrappedZ == position.z) {
+        Vec3 wrapped = RelativePosition.moved(position, relatives.contains(Relative.X), relatives.contains(Relative.Z),
+                this.player.position(), transformer::fold);
+        if (wrapped == position) {
             return destination;
         }
 
-        return new PositionMoveRotation(
-                new Vec3(wrappedX, position.y, wrappedZ),
-                destination.deltaMovement(), destination.yRot(), destination.xRot());
+        return new PositionMoveRotation(wrapped, destination.deltaMovement(), destination.yRot(), destination.xRot());
     }
 
     @Inject(method = toroidal$TELEPORT, at = @At("HEAD"))
@@ -216,27 +210,18 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
                     value = "INVOKE",
                     target = toroidal$CLAMP_HORIZONTAL,
                     ordinal = 0))
-    private double toroidal$continuousX(double clientX, Operation<Double> original) {
-        double clamped = original.call(clientX);
+    private double toroidal$continuousX(double requestedX, Operation<Double> original,
+            @Local(argsOnly = true, ordinal = 2) double requestedZ,
+            @Share("continuous") LocalRef<Vec3> continuous) {
+        double clampedX = original.call(requestedX);
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
         if (transformer == null) {
-            return clamped;
+            return clampedX;
         }
 
-        ClientPosition mirror = this.toroidal$clientPosition;
-        if (this.player.isPassenger()) {
-            if (toroidal$ridesUncontrolled()) {
-                mirror.setX(this.player.getX(), MirrorWriter.PASSENGER);
-            }
-            return clamped;
-        }
-
-        mirror.setX(clamped, MirrorWriter.PLAYER_MOVE);
-        double unwrapped = transformer.blockDomain(Direction.Axis.X).unwrapAround(this.player.getX(), clamped);
-
-        this.firstGoodX = transformer.blockDomain(Direction.Axis.X).unwrapAround(unwrapped, this.firstGoodX);
-        this.lastGoodX = transformer.blockDomain(Direction.Axis.X).unwrapAround(unwrapped, this.lastGoodX);
-        return unwrapped;
+        Vec3 seated = toroidal$seatPlayerMove(transformer, clampedX, original.call(requestedZ));
+        continuous.set(seated);
+        return seated.x;
     }
 
     @WrapOperation(
@@ -245,26 +230,33 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
                     value = "INVOKE",
                     target = toroidal$CLAMP_HORIZONTAL,
                     ordinal = 1))
-    private double toroidal$continuousZ(double clientZ, Operation<Double> original) {
-        double clamped = original.call(clientZ);
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
-        if (transformer == null) {
-            return clamped;
-        }
+    private double toroidal$continuousZ(double requestedZ, Operation<Double> original,
+            @Share("continuous") LocalRef<Vec3> continuous) {
+        double clampedZ = original.call(requestedZ);
+        Vec3 seated = continuous.get();
+        return seated == null ? clampedZ : seated.z;
+    }
 
+    @Unique
+    private Vec3 toroidal$seatPlayerMove(WorldFold transformer, double clampedX, double clampedZ) {
+        Vec3 clamped = new Vec3(clampedX, this.player.getY(), clampedZ);
         ClientPosition mirror = this.toroidal$clientPosition;
         if (this.player.isPassenger()) {
             if (toroidal$ridesUncontrolled()) {
-                mirror.setZ(this.player.getZ(), MirrorWriter.PASSENGER);
+                mirror.set(this.player.getX(), this.player.getZ(), MirrorWriter.PASSENGER);
             }
             return clamped;
         }
 
-        mirror.setZ(clamped, MirrorWriter.PLAYER_MOVE);
-        double unwrapped = transformer.blockDomain(Direction.Axis.Z).unwrapAround(this.player.getZ(), clamped);
+        mirror.set(clampedX, clampedZ, MirrorWriter.PLAYER_MOVE);
+        Vec3 unwrapped = transformer.nearestCopy(this.player.position(), clamped);
 
-        this.firstGoodZ = transformer.blockDomain(Direction.Axis.Z).unwrapAround(unwrapped, this.firstGoodZ);
-        this.lastGoodZ = transformer.blockDomain(Direction.Axis.Z).unwrapAround(unwrapped, this.lastGoodZ);
+        Vec3 firstGood = transformer.nearestCopy(unwrapped, new Vec3(this.firstGoodX, unwrapped.y, this.firstGoodZ));
+        Vec3 lastGood = transformer.nearestCopy(unwrapped, new Vec3(this.lastGoodX, unwrapped.y, this.lastGoodZ));
+        this.firstGoodX = firstGood.x;
+        this.firstGoodZ = firstGood.z;
+        this.lastGoodX = lastGood.x;
+        this.lastGoodZ = lastGood.z;
         return unwrapped;
     }
 
@@ -294,15 +286,21 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
                     value = "INVOKE",
                     target = toroidal$CLAMP_HORIZONTAL,
                     ordinal = 0))
-    private double toroidal$vehicleContinuousX(double clientX, Operation<Double> original) {
-        double clamped = original.call(clientX);
+    private double toroidal$vehicleContinuousX(double clientX, Operation<Double> original,
+            @Local(argsOnly = true) ServerboundMoveVehiclePacket packet,
+            @Share("vehicleContinuous") LocalRef<Vec3> continuous) {
+        double clampedX = original.call(clientX);
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
         if (transformer == null) {
-            return clamped;
+            return clampedX;
         }
 
-        ClientPosition.of(this.player).setX(clamped, MirrorWriter.VEHICLE_MOVE);
-        return transformer.blockDomain(Direction.Axis.X).unwrapAround(this.player.getRootVehicle().getX(), clamped);
+        double clampedZ = original.call(packet.movingTo().position().z());
+        this.toroidal$clientPosition.set(clampedX, clampedZ, MirrorWriter.VEHICLE_MOVE);
+        Entity vehicle = this.player.getRootVehicle();
+        Vec3 seated = transformer.nearestCopy(vehicle.position(), new Vec3(clampedX, vehicle.getY(), clampedZ));
+        continuous.set(seated);
+        return seated.x;
     }
 
     @WrapOperation(
@@ -311,15 +309,11 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
                     value = "INVOKE",
                     target = toroidal$CLAMP_HORIZONTAL,
                     ordinal = 1))
-    private double toroidal$vehicleContinuousZ(double clientZ, Operation<Double> original) {
-        double clamped = original.call(clientZ);
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
-        if (transformer == null) {
-            return clamped;
-        }
-
-        ClientPosition.of(this.player).setZ(clamped, MirrorWriter.VEHICLE_MOVE);
-        return transformer.blockDomain(Direction.Axis.Z).unwrapAround(this.player.getRootVehicle().getZ(), clamped);
+    private double toroidal$vehicleContinuousZ(double clientZ, Operation<Double> original,
+            @Share("vehicleContinuous") LocalRef<Vec3> continuous) {
+        double clampedZ = original.call(clientZ);
+        Vec3 seated = continuous.get();
+        return seated == null ? clampedZ : seated.z;
     }
 
     @Inject(method = "handleMoveVehicle", at = @At("RETURN"))

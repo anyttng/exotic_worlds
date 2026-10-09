@@ -15,8 +15,8 @@ import com.exoticworlds.compat.scalablelux.LightLockFolds;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.llamalad7.mixinextras.sugar.Local;
 
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 
@@ -49,13 +49,13 @@ public class StarLightInterfaceMixin implements TransformerSource {
     }
 
     @ModifyVariable(method = "getAnyChunkNow", at = @At("HEAD"), argsOnly = true, index = 1)
-    private int toroidal$wrapChunkX(int chunkX) {
-        return toroidal$transformer().chunkDomain(Direction.Axis.X).wrap(chunkX);
+    private int toroidal$wrapChunkX(int chunkX, @Local(argsOnly = true, ordinal = 1) int chunkZ) {
+        return toroidal$transformer().chunkLattice().foldX(chunkX, chunkZ);
     }
 
     @ModifyVariable(method = "getAnyChunkNow", at = @At("HEAD"), argsOnly = true, index = 2)
     private int toroidal$wrapChunkZ(int chunkZ) {
-        return toroidal$transformer().chunkDomain(Direction.Axis.Z).wrap(chunkZ);
+        return toroidal$transformer().chunkLattice().foldZ(chunkZ);
     }
 
     @Override

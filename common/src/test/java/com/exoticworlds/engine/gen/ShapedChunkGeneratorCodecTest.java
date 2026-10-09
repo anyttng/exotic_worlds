@@ -47,10 +47,6 @@ class ShapedChunkGeneratorCodecTest {
     private static final String FROZEN_ON_DISK_KEY = "wrapping";
     private static final String CLIMATE_SCALE_KEY = CompactBiomes.KEY;
     private static final String GUARANTEED_LAND_KEY = GuaranteedLand.KEY;
-    private static final String MODE_KEY = "mode";
-    private static final String FACTOR_KEY = "factor";
-
-    private static final int CUSTOM_FACTOR = 6;
 
     private static final String TORUS_WRAPPING =
             "{\"x\":{\"min_chunk\":-16,\"max_chunk\":16},\"z\":{\"min_chunk\":-16,\"max_chunk\":16}}";
@@ -59,10 +55,14 @@ class ShapedChunkGeneratorCodecTest {
     private static final String SKEWED_WRAPPING =
             "{\"x\":{\"min_chunk\":-16,\"max_chunk\":16},\"z\":{\"min_chunk\":-16,\"max_chunk\":16},"
                     + "\"skew_chunks\":5}";
+    private static final String MIRRORED_WRAPPING =
+            "{\"x\":{\"min_chunk\":-16,\"max_chunk\":16},\"z\":{\"min_chunk\":-16,\"max_chunk\":16},"
+                    + "\"mirror\":{\"axis\":\"z\",\"line_chunk\":-7}}";
 
     @Test
     void theShapeFieldCarriesEveryShapeTheEngineCanFold() {
-        for (FlatShape shape : List.of(FlatShape.torus(SQUARE), FlatShape.cylinder(X_ONLY))) {
+        for (FlatShape shape : List.of(FlatShape.torus(SQUARE), FlatShape.cylinder(X_ONLY),
+                FlatShape.latticeTorus(SQUARE, 5))) {
             JsonElement written =
                     CarriedShape.SHAPE_CODEC.encodeStart(JsonOps.INSTANCE, shape).getOrThrow();
             assertEquals(shape, CarriedShape.SHAPE_CODEC.parse(JsonOps.INSTANCE, written).getOrThrow(),
@@ -78,10 +78,9 @@ class ShapedChunkGeneratorCodecTest {
     }
 
     @Test
-    void aWorldFileCarryingASkewedLatticeRefusesToLoad() {
-        assertTrue(readError("{\"x\":{\"min_chunk\":-16,\"max_chunk\":16},"
-                + "\"z\":{\"min_chunk\":-16,\"max_chunk\":16},\"skew_chunks\":5}")
-                .contains(FlatShape.Identification.LATTICE_TORUS.toString()));
+    void aWorldFileCarryingASkewedLatticeLoads() {
+        assertEquals(FlatShape.latticeTorus(SQUARE, 5), CarriedShape.SHAPE_CODEC
+                .parse(JsonOps.INSTANCE, JsonParser.parseString(SKEWED_WRAPPING)).getOrThrow());
     }
 
     @Test
@@ -122,14 +121,17 @@ class ShapedChunkGeneratorCodecTest {
     }
 
     private static void assertGated(MapCodec<?> generatorCodec) {
-        String coupled = generatorError(generatorCodec, SKEWED_WRAPPING);
-        assertTrue(coupled.contains(Identification.LATTICE_TORUS.toString()), coupled);
+        String mirrored = generatorError(generatorCodec, MIRRORED_WRAPPING);
+        assertTrue(mirrored.contains(Identification.KLEIN.toString()), mirrored);
 
         String narrow = generatorError(generatorCodec, TOO_NARROW_WRAPPING);
         assertTrue(narrow.contains(WorldLoopSizes.describe(WorldLoopSizes.MIN_CHUNK_WIDTH)), narrow);
 
+        String skewed = generatorError(generatorCodec, SKEWED_WRAPPING);
+        assertFalse(skewed.contains(Identification.LATTICE_TORUS.toString()), skewed);
+
         String torus = generatorError(generatorCodec, TORUS_WRAPPING);
-        assertFalse(torus.contains(Identification.LATTICE_TORUS.toString()), torus);
+        assertFalse(torus.contains(Identification.KLEIN.toString()), torus);
     }
 
     private static String generatorError(MapCodec<?> generatorCodec, String wrapping) {
@@ -141,15 +143,19 @@ class ShapedChunkGeneratorCodecTest {
     }
 
     @Test
-    void aNoiseGeneratorCannotBeBuiltAroundACoupledShape() {
-        IllegalArgumentException refused = assertThrows(IllegalArgumentException.class,
-                () -> noiseGenerator(FlatShape.latticeTorus(SQUARE, 5)));
+    void aSkewedNoiseGeneratorReadsBackItsShape() {
+        RegistryOps<JsonElement> ops = WORLDGEN.createSerializationContext(JsonOps.INSTANCE);
+        FlatShape skewed = FlatShape.latticeTorus(SQUARE, 5);
 
-        assertTrue(refused.getMessage().contains(Identification.LATTICE_TORUS.toString()), refused.getMessage());
+        JsonElement encoded =
+                LoopedChunkGenerator.CODEC.codec().encodeStart(ops, noiseGenerator(skewed)).getOrThrow();
+
+        assertEquals(skewed,
+                LoopedChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow().carriedShape().shape());
     }
 
     @Test
-    void aFlatGeneratorCannotBeBuiltAroundACoupledShape() {
+    void aFlatGeneratorCannotBeBuiltAroundAMirroredShape() {
         IllegalArgumentException refused = assertThrows(IllegalArgumentException.class,
                 () -> flatGenerator(FlatShape.mirrored(SQUARE, Direction.Axis.Z, -7)));
 
