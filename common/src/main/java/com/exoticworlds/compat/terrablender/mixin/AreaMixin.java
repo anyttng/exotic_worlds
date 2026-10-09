@@ -6,10 +6,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.compat.terrablender.LayeredArea;
 import com.exoticworlds.compat.terrablender.RegionLayerStack;
-
-import net.minecraft.core.Direction;
 
 import terrablender.worldgen.noise.Area;
 
@@ -39,14 +38,14 @@ public class AreaMixin implements LayeredArea {
     }
 
     @ModifyVariable(method = "get", at = @At("HEAD"), argsOnly = true, ordinal = 0)
-    private int toroidal$foldX(int x) {
+    private int toroidal$foldX(int x, @Local(argsOnly = true, ordinal = 1) int z) {
         RegionLayerStack stack = this.toroidal$stack;
-        return stack == null ? x : stack.fold(Direction.Axis.X, this.toroidal$depth, x);
+        return stack == null ? x : stack.foldX(this.toroidal$depth, x, z);
     }
 
     @ModifyVariable(method = "get", at = @At("HEAD"), argsOnly = true, ordinal = 1)
     private int toroidal$foldZ(int z) {
         RegionLayerStack stack = this.toroidal$stack;
-        return stack == null ? z : stack.fold(Direction.Axis.Z, this.toroidal$depth, z);
+        return stack == null ? z : stack.foldZ(this.toroidal$depth, z);
     }
 }

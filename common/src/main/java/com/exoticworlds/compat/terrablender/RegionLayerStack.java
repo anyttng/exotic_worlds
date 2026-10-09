@@ -5,8 +5,6 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 
-import net.minecraft.core.Direction;
-
 public final class RegionLayerStack {
     private volatile int topDepth;
 
@@ -18,10 +16,20 @@ public final class RegionLayerStack {
         }
     }
 
-    public int fold(Direction.Axis axis, int depth, int coord) {
+    public int foldX(int depth, int coordX, int coordZ) {
+        RegionLayerFold resolved = resolved();
+        return resolved == null ? coordX : resolved.foldX(depth, coordX, coordZ);
+    }
+
+    public int foldZ(int depth, int coordZ) {
+        RegionLayerFold resolved = resolved();
+        return resolved == null ? coordZ : resolved.foldZ(depth, coordZ);
+    }
+
+    private @Nullable RegionLayerFold resolved() {
         WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
         if (transformer == null) {
-            return coord;
+            return null;
         }
 
         RegionLayerFold cached = this.fold;
@@ -30,6 +38,6 @@ public final class RegionLayerStack {
             this.fold = resolved;
         }
 
-        return resolved.apply(axis, depth, coord);
+        return resolved;
     }
 }
