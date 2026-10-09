@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.api.v1.TestShapes;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.MapShapes;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -30,8 +31,12 @@ class AtlasLayoutFoldTest {
     private static final ToroidalShape CYLINDER = TestShapes.of(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(
             TINY, AxisBounds.Unbounded.INSTANCE))));
 
+    private static final ToroidalShape LATTICE = MapShapes.latticeTorus(-8, 8, 8);
+
     private static final List<AtlasTilePayload> ACROSS_THE_EDGE = List.of(
             tile(1, 256, 0), tile(2, 128, 0), tile(3, -128, 0));
+
+    private static final List<AtlasTilePayload> ACROSS_THE_SKEWED_EDGE = List.of(tile(1, 0, 64), tile(2, -128, -64));
 
     @Test
     void repeatedLaysTheMapsAcrossTheEdgeSideBySide() {
@@ -56,6 +61,24 @@ class AtlasLayoutFoldTest {
                 MapCopies.REPEATED);
 
         assertEquals(List.of(256, 128, -128), relaid.stream().map(AtlasTilePayload::centerX).toList());
+    }
+
+    @Test
+    void repeatedLaysTheMapPastTheZSeamOnItsSkewedCopy() {
+        List<AtlasTilePayload> relaid = AtlasLayoutFold.relaid(ACROSS_THE_SKEWED_EDGE, BLOCKS_PER_TILE,
+                shapes(LATTICE), MapCopies.REPEATED);
+
+        assertEquals(List.of(0, 0), tileXs(relaid));
+        assertEquals(List.of(0, 1), tileYs(relaid));
+    }
+
+    @Test
+    void singleKeepsTheSkewedMapWhereItWasMade() {
+        List<AtlasTilePayload> relaid = AtlasLayoutFold.relaid(ACROSS_THE_SKEWED_EDGE, BLOCKS_PER_TILE,
+                shapes(LATTICE), MapCopies.SINGLE);
+
+        assertEquals(List.of(1, 0), tileXs(relaid));
+        assertEquals(List.of(1, 0), tileYs(relaid));
     }
 
     @Test

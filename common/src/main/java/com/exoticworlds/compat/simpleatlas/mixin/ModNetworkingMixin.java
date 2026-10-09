@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.engine.fold.NearestCopy;
+import com.exoticworlds.compat.simpleatlas.MapCentreSeat;
 import com.exoticworlds.engine.seam.MapSeamFold;
 
 import net.minecraft.core.Direction;
@@ -24,8 +24,8 @@ public class ModNetworkingMixin {
                     opcode = Opcodes.GETFIELD))
     private static int toroidal$centerXNearWaypoint(int centerX, @Local(argsOnly = true) MapItemSavedData data,
             @Local(argsOnly = true) AtlasContents.WaypointData waypoint) {
-        return (int) NearestCopy.toward(MapSeamFold.transformerFor(null, data.dimension), Direction.Axis.X,
-                waypoint.worldX(), centerX);
+        return MapCentreSeat.toward(MapSeamFold.transformerFor(null, data.dimension), Direction.Axis.X,
+                waypoint.worldX(), waypoint.worldZ(), data);
     }
 
     @ModifyExpressionValue(
@@ -34,7 +34,7 @@ public class ModNetworkingMixin {
                     opcode = Opcodes.GETFIELD))
     private static int toroidal$centerZNearWaypoint(int centerZ, @Local(argsOnly = true) MapItemSavedData data,
             @Local(argsOnly = true) AtlasContents.WaypointData waypoint) {
-        return (int) NearestCopy.toward(MapSeamFold.transformerFor(null, data.dimension), Direction.Axis.Z,
-                waypoint.worldZ(), centerZ);
+        return MapCentreSeat.toward(MapSeamFold.transformerFor(null, data.dimension), Direction.Axis.Z,
+                waypoint.worldX(), waypoint.worldZ(), data);
     }
 }
