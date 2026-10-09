@@ -67,6 +67,6 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | [TerraBlender](https://modrinth.com/mod/terrablender) | All | NeoForge | Supported | |
 | [Biolith](https://modrinth.com/mod/biolith) | All | NeoForge, Fabric | Supported | |
 | MTChunkGeneration | 1.21.1 | NeoForge | Supported | |
-| BetterEnd and BetterNether | 26.2, 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | |
+| BetterEnd and BetterNether | All | NeoForge, Fabric | Supported | |
 | [ReTerraForged](https://www.curseforge.com/minecraft/mc-mods/reterraforged-unofficial) | 1.21.1 | NeoForge, Fabric | Supported | Small worlds get shorter rivers or none |
 | One Dimension | — | — | Not tested | |
