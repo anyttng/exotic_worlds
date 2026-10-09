@@ -11,12 +11,13 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.ref.LocalDoubleRef;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.compat.simpleatlas.AtlasCopies;
@@ -68,7 +69,16 @@ public abstract class AtlasScreenMixin {
     private @Nullable List<AtlasCopies.Offset> toroidal$copies;
 
     @Unique
+    private AtlasCopies.@Nullable Layout toroidal$copiesLayout;
+
+    @Unique
+    private @Nullable MapCopies toroidal$copiesMode;
+
+    @Unique
     private @Nullable String toroidal$copiesDimension;
+
+    @Unique
+    private @Nullable AtlasView toroidal$copiesArea;
 
     @Unique
     private float toroidal$copiesOriginX;
@@ -80,19 +90,7 @@ public abstract class AtlasScreenMixin {
     private float toroidal$copiesTileSize;
 
     @Unique
-    private int toroidal$copiesScreenWidth;
-
-    @Unique
-    private int toroidal$copiesScreenHeight;
-
-    @Unique
     private @Nullable AtlasView toroidal$singleWorld;
-
-    @Unique
-    private float toroidal$singleLapX;
-
-    @Unique
-    private float toroidal$singleLapZ;
 
     @Shadow
     private static Map<String, Object> buildDimensionTileBounds(List<AtlasTilePayload> tiles) {
@@ -185,24 +183,20 @@ public abstract class AtlasScreenMixin {
         float pixelsPerBlock = tileSize / blocksPerTile;
         float worldX = view.contentX();
         float worldWidth = view.contentWidth();
-        this.toroidal$singleLapX = 0.0F;
         if (shape.loops(Direction.Axis.X)) {
             worldWidth = shape.widthBlocks(Direction.Axis.X) * pixelsPerBlock;
             this.panX += AtlasView.panInside(toroidal$worldStartX(view, dimension, first, columns, tileSize,
                     blocksPerTile, shape), worldWidth, view.contentX(), view.contentWidth());
             worldX = toroidal$worldStartX(view, dimension, first, columns, tileSize, blocksPerTile, shape);
-            this.toroidal$singleLapX = worldWidth;
         }
 
         float worldY = view.contentY();
         float worldHeight = view.contentHeight();
-        this.toroidal$singleLapZ = 0.0F;
         if (shape.loops(Direction.Axis.Z)) {
             worldHeight = shape.widthBlocks(Direction.Axis.Z) * pixelsPerBlock;
             this.panY += AtlasView.panInside(toroidal$worldStartY(view, dimension, first, rows, tileSize,
                     blocksPerTile, shape), worldHeight, view.contentY(), view.contentHeight());
             worldY = toroidal$worldStartY(view, dimension, first, rows, tileSize, blocksPerTile, shape);
-            this.toroidal$singleLapZ = worldHeight;
         }
 
         this.toroidal$singleWorld = new AtlasView(worldX, worldY, worldWidth, worldHeight);
@@ -225,29 +219,32 @@ public abstract class AtlasScreenMixin {
     }
 
     @ModifyArg(method = "screenToWorldPoint", at = @At(value = "INVOKE", target = WORLD_POINT_INIT), index = 0)
-    private double toroidal$foldClickX(double x, @Local(name = "tile") AtlasTilePayload tile) {
-        return AtlasTileFold.foldOnTile(tile, Direction.Axis.X, x);
+    private double toroidal$foldClickX(double x, @Local(name = "tile") AtlasTilePayload tile,
+            @Local(name = "worldZ") double z) {
+        return AtlasTileFold.foldOnTile(tile, x, z).x;
     }
 
     @ModifyArg(method = "screenToWorldPoint", at = @At(value = "INVOKE", target = WORLD_POINT_INIT), index = 1)
-    private double toroidal$foldClickZ(double z, @Local(name = "tile") AtlasTilePayload tile) {
-        return AtlasTileFold.foldOnTile(tile, Direction.Axis.Z, z);
+    private double toroidal$foldClickZ(double z, @Local(name = "tile") AtlasTilePayload tile,
+            @Local(name = "worldX") double x) {
+        return AtlasTileFold.foldOnTile(tile, x, z).z;
     }
 
-    @ModifyVariable(method = {"screenToWorldPoint", "findMapIdAtScreenPoint"}, at = @At("HEAD"), argsOnly = true,
-            ordinal = 0)
-    private double toroidal$pointerOntoBaseX(double mouseX, @Local(argsOnly = true, ordinal = 0) float mapOriginX,
-            @Local(argsOnly = true, ordinal = 2) float scaledTileSize, @Local(argsOnly = true) String dimension) {
-        return AtlasCopies.ontoBase(mouseX, toroidal$period(dimension, Direction.Axis.X, scaledTileSize), mapOriginX,
-                toroidal$span(dimension, Direction.Axis.X) * scaledTileSize);
-    }
+    @Inject(method = {"screenToWorldPoint", "findMapIdAtScreenPoint"}, at = @At("HEAD"))
+    private void toroidal$pointerOntoBase(CallbackInfoReturnable<?> cir,
+            @Local(argsOnly = true, ordinal = 0) LocalDoubleRef mouseX,
+            @Local(argsOnly = true, ordinal = 1) LocalDoubleRef mouseY,
+            @Local(argsOnly = true, ordinal = 0) float mapOriginX, @Local(argsOnly = true, ordinal = 1) float mapOriginY,
+            @Local(argsOnly = true, ordinal = 2) float scaledTileSize) {
+        List<AtlasCopies.Offset> copies = toroidal$tileCopies(mapOriginX, mapOriginY, scaledTileSize);
+        AtlasCopies.Layout layout = this.toroidal$copiesLayout;
+        if (layout == null) {
+            return;
+        }
 
-    @ModifyVariable(method = {"screenToWorldPoint", "findMapIdAtScreenPoint"}, at = @At("HEAD"), argsOnly = true,
-            ordinal = 1)
-    private double toroidal$pointerOntoBaseZ(double mouseY, @Local(argsOnly = true, ordinal = 1) float mapOriginY,
-            @Local(argsOnly = true, ordinal = 2) float scaledTileSize, @Local(argsOnly = true) String dimension) {
-        return AtlasCopies.ontoBase(mouseY, toroidal$period(dimension, Direction.Axis.Z, scaledTileSize), mapOriginY,
-                toroidal$span(dimension, Direction.Axis.Z) * scaledTileSize);
+        AtlasCopies.Offset under = AtlasCopies.under(mouseX.get(), mouseY.get(), copies, layout);
+        mouseX.set(mouseX.get() - under.x());
+        mouseY.set(mouseY.get() - under.y());
     }
 
     @WrapOperation(
@@ -272,7 +269,7 @@ public abstract class AtlasScreenMixin {
                 graphics.disableScissor();
             } else {
                 original.call(screen, graphics, mapId, copyX, copyY, scale);
-                toroidal$drawWorldEdge(graphics, tile, mapId, copyX, copyY, scale);
+                toroidal$drawWorldEdge(graphics, tile, copyX, copyY, scale);
             }
 
             boolean copy = offset.x() != 0.0F || offset.y() != 0.0F;
@@ -340,73 +337,53 @@ public abstract class AtlasScreenMixin {
     }
 
     @Unique
-    private List<AtlasCopies.Offset> toroidal$tileCopies(float mapOriginX, float mapOriginY, float scaledTileSize) {
-        if (MapCopies.current() != MapCopies.SINGLE) {
-            return toroidal$repeatedCopies(mapOriginX, mapOriginY, scaledTileSize);
-        }
+    private List<AtlasCopies.Offset> toroidal$iconCopies(float mapOriginX, float mapOriginY, float scaledTileSize) {
+        return MapCopies.current() == MapCopies.SINGLE
+                ? AtlasCopies.BASE_ONLY
+                : toroidal$tileCopies(mapOriginX, mapOriginY, scaledTileSize);
+    }
 
-        AtlasView singleWorld = this.toroidal$singleWorld;
-        if (singleWorld == null) {
+    @Unique
+    private List<AtlasCopies.Offset> toroidal$tileCopies(float mapOriginX, float mapOriginY, float scaledTileSize) {
+        MapCopies mode = MapCopies.current();
+        Screen screen = (Screen) (Object) this;
+        AtlasView area = mode == MapCopies.SINGLE ? this.toroidal$singleWorld : AtlasView.of(screen.width,
+                screen.height);
+        if (area == null) {
             return AtlasCopies.BASE_ONLY;
         }
 
         String dimension = this.getSelectedDimension();
-        return AtlasCopies.visible(this.toroidal$singleLapX, this.toroidal$singleLapZ, mapOriginX, mapOriginY,
-                toroidal$span(dimension, Direction.Axis.X) * scaledTileSize,
-                toroidal$span(dimension, Direction.Axis.Z) * scaledTileSize, singleWorld);
-    }
-
-    @Unique
-    private List<AtlasCopies.Offset> toroidal$iconCopies(float mapOriginX, float mapOriginY, float scaledTileSize) {
-        return MapCopies.current() == MapCopies.SINGLE
-                ? AtlasCopies.BASE_ONLY
-                : toroidal$repeatedCopies(mapOriginX, mapOriginY, scaledTileSize);
-    }
-
-    @Unique
-    private float toroidal$period(String dimension, Direction.Axis axis, float scaledTileSize) {
-        if (MapCopies.current() != MapCopies.SINGLE) {
-            return toroidal$lapTiles(dimension, axis) * scaledTileSize;
-        }
-
-        if (this.toroidal$singleWorld == null) {
-            return 0.0F;
-        }
-
-        return axis == Direction.Axis.X ? this.toroidal$singleLapX : this.toroidal$singleLapZ;
-    }
-
-    @Unique
-    private List<AtlasCopies.Offset> toroidal$repeatedCopies(float mapOriginX, float mapOriginY,
-            float scaledTileSize) {
-        String dimension = this.getSelectedDimension();
-        Screen screen = (Screen) (Object) this;
-        if (this.toroidal$copies != null && dimension.equals(this.toroidal$copiesDimension)
+        if (this.toroidal$copies != null && mode == this.toroidal$copiesMode
+                && dimension.equals(this.toroidal$copiesDimension) && area.equals(this.toroidal$copiesArea)
                 && mapOriginX == this.toroidal$copiesOriginX && mapOriginY == this.toroidal$copiesOriginY
-                && scaledTileSize == this.toroidal$copiesTileSize && screen.width == this.toroidal$copiesScreenWidth
-                && screen.height == this.toroidal$copiesScreenHeight) {
+                && scaledTileSize == this.toroidal$copiesTileSize) {
             return this.toroidal$copies;
         }
 
-        List<AtlasCopies.Offset> copies = AtlasCopies.visible(
-                toroidal$lapTiles(dimension, Direction.Axis.X) * scaledTileSize,
-                toroidal$lapTiles(dimension, Direction.Axis.Z) * scaledTileSize, mapOriginX, mapOriginY,
-                toroidal$span(dimension, Direction.Axis.X) * scaledTileSize,
-                toroidal$span(dimension, Direction.Axis.Z) * scaledTileSize, AtlasView.of(screen.width, screen.height));
+        AtlasTilePayload first = toroidal$firstTile(dimension);
+        int blocksPerTile = toroidal$blocksPerTile(first);
+        AtlasCopies.Layout layout = first == null || blocksPerTile == 0
+                ? null
+                : new AtlasCopies.Layout(mapOriginX, mapOriginY,
+                        toroidal$span(dimension, Direction.Axis.X) * scaledTileSize,
+                        toroidal$span(dimension, Direction.Axis.Z) * scaledTileSize,
+                        first.centerX() - blocksPerTile / 2 - this.localTileX(dimension, first) * blocksPerTile,
+                        first.centerZ() - blocksPerTile / 2 - this.localTileY(dimension, first) * blocksPerTile,
+                        scaledTileSize / blocksPerTile);
+        List<AtlasCopies.Offset> copies = layout == null
+                ? AtlasCopies.BASE_ONLY
+                : AtlasCopies.visible(AtlasTileFold.shapeOf(dimension), layout, area,
+                        mode == MapCopies.SINGLE ? AtlasCopies.ANY_MOVE : blocksPerTile);
         this.toroidal$copies = copies;
+        this.toroidal$copiesLayout = layout;
+        this.toroidal$copiesMode = mode;
         this.toroidal$copiesDimension = dimension;
+        this.toroidal$copiesArea = area;
         this.toroidal$copiesOriginX = mapOriginX;
         this.toroidal$copiesOriginY = mapOriginY;
         this.toroidal$copiesTileSize = scaledTileSize;
-        this.toroidal$copiesScreenWidth = screen.width;
-        this.toroidal$copiesScreenHeight = screen.height;
         return copies;
-    }
-
-    @Unique
-    private int toroidal$lapTiles(String dimension, Direction.Axis axis) {
-        int blocksPerTile = toroidal$blocksPerTile(toroidal$firstTile(dimension));
-        return blocksPerTile == 0 ? 0 : AtlasCopies.lapTiles(AtlasTileFold.shapeOf(dimension), axis, blocksPerTile);
     }
 
     @Unique
@@ -457,20 +434,15 @@ public abstract class AtlasScreenMixin {
     }
 
     @Unique
-    private static void toroidal$drawWorldEdge(GuiGraphicsExtractor graphics, AtlasTilePayload tile, int mapId,
-            float x, float y, float scale) {
-        if (MapCopies.current() == MapCopies.SINGLE) {
-            return;
-        }
-
+    private static void toroidal$drawWorldEdge(GuiGraphicsExtractor graphics, AtlasTilePayload tile, float x, float y,
+            float scale) {
         int blocksPerTile = toroidal$blocksPerTile(tile);
         if (blocksPerTile == 0) {
             return;
         }
 
-        int[] columns = AtlasTileFold.edgePixels(tile, blocksPerTile, Direction.Axis.X);
-        int[] rows = AtlasTileFold.edgePixels(tile, blocksPerTile, Direction.Axis.Z);
-        if (columns.length == 0 && rows.length == 0) {
+        List<AtlasTileFold.SeamLine> lines = AtlasTileFold.seamLines(tile, blocksPerTile);
+        if (lines.isEmpty()) {
             return;
         }
 
@@ -478,12 +450,12 @@ public abstract class AtlasScreenMixin {
         graphics.pose().pushMatrix();
         graphics.pose().translate(x, y);
         graphics.pose().scale(scale, scale);
-        for (int column : columns) {
-            toroidal$fillEdge(graphics, column, 0, column + thickness, AtlasTileFold.MAP_PIXELS);
-        }
-
-        for (int row : rows) {
-            toroidal$fillEdge(graphics, 0, row, AtlasTileFold.MAP_PIXELS, row + thickness);
+        for (AtlasTileFold.SeamLine line : lines) {
+            if (line.vertical()) {
+                toroidal$fillEdge(graphics, line.at(), line.from(), line.at() + thickness, line.to());
+            } else {
+                toroidal$fillEdge(graphics, line.from(), line.at(), line.to(), line.at() + thickness);
+            }
         }
 
         graphics.pose().popMatrix();
