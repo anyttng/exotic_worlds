@@ -36,8 +36,7 @@ public class ChunkWrapperMixin {
                 "<init>(Lnet/minecraft/world/level/chunk/ChunkAccess;"
                         + "Lcom/seibel/distanthorizons/core/wrapperInterfaces/world/ILevelWrapper;)V",
                 "<init>(Lnet/minecraft/class_2791;"
-                        + "Lcom/seibel/distanthorizons/core/wrapperInterfaces/world/ILevelWrapper;)V",
-                "getMinBlockX", "getMinBlockZ"},
+                        + "Lcom/seibel/distanthorizons/core/wrapperInterfaces/world/ILevelWrapper;)V"},
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getPos()Lnet/minecraft/world/level/ChunkPos;"))
