@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.betterend.mixin.neoforge",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "com.exoticworlds.compat.betterend.BetterEndNeoForgeMixinPlugin",
+  "mixins": [
+    "SplitNoiseConditionMixin",
+    "UmbraSurfaceNoiseConditionMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -106,6 +106,9 @@ config="exotic_worlds.compat.wover.mixins.json"
 config="exotic_worlds.compat.betterend.mixins.json"
 
 [[mixins]]
+config="exotic_worlds.compat.betterend.neoforge.mixins.json"
+
+[[mixins]]
 config="exotic_worlds.compat.sodium.mixins.json"
 
 [[mixins]]
