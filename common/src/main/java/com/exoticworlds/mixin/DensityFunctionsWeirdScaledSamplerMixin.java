@@ -32,7 +32,7 @@ public class DensityFunctionsWeirdScaledSamplerMixin {
         }
 
         // Y keeps vanilla's division: only the horizontal coordinate needs the raw block value to fold on the world circle.
-        try (Context.ScaleScope scope = generation.withScale(1.0 / rarity)) {
+        try (Context.ScaleScope _ = generation.withScale(1.0 / rarity)) {
             return original.call(noiseHolder, (double) context.blockX(), scaledY, (double) context.blockZ());
         }
     }
