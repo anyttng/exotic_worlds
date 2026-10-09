@@ -15,6 +15,10 @@ public final class SeedViewerInjectionTargets {
             + "Lnet/acenia/seedviewer/client/render/BiomeColorProvider;"
             + "Lnet/acenia/seedviewer/client/model/BiomeCatalog;Ljava/util/Map;Ljava/lang/String;)V";
 
+    public static final String DRAW_TILES = "drawTiles";
+
+    public static final String DISABLE_SCISSOR = "Lnet/minecraft/client/gui/GuiGraphics;disableScissor()V";
+
     private SeedViewerInjectionTargets() {
     }
 }
