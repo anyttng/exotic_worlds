@@ -9,6 +9,8 @@
     "NoiseSamplerMixin",
     "PointSamplerMixin",
     "SeedPreviewWidgetMixin",
+    "SeedViewerScreenMixin",
+    "WorldCreationPreviewContextAccessor",
     "WorldCreationPreviewContextMixin"
   ],
   "injectors": {

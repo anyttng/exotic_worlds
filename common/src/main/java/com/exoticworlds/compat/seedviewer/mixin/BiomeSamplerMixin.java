@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.BinderOrder;
 import com.exoticworlds.compat.seedviewer.CreationShape;
+import com.exoticworlds.compat.seedviewer.FoldedBiomeSampler;
 import com.exoticworlds.compat.seedviewer.FoldedSampleCache;
 import com.exoticworlds.compat.seedviewer.SeedViewerInjectionTargets;
 import com.exoticworlds.core.WorldFold;
@@ -25,7 +26,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.biome.Biome;
 
 @Mixin(BiomeSampler.class)
-public class BiomeSamplerMixin {
+public class BiomeSamplerMixin implements FoldedBiomeSampler {
     @Unique
     private WorldFold toroidal$fold;
 
@@ -51,6 +52,11 @@ public class BiomeSamplerMixin {
         Supplier<Holder<Biome>> evaluate = () -> GenerationTransformerContext.withTransformer(this.toroidal$fold,
                 () -> original.call(blockX, blockY, blockZ));
         return cache == null ? evaluate.get() : cache.get(blockX, blockY, blockZ, evaluate);
+    }
+
+    @Override
+    public WorldFold toroidal$fold() {
+        return this.toroidal$fold;
     }
 
     @Unique
