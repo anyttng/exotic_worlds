@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,8 +66,8 @@ final class ScanReports {
 
     static void note(String scan, String name, String keys) {
         Path path = PROGRESS.computeIfAbsent(scan, ScanReports::freshProgress);
-        String line = PROGRESS_TAG + " " + name + " at=" + LocalTime.now().format(PROGRESS_CLOCK) + " " + keys
-                + System.lineSeparator();
+        String line = PROGRESS_TAG + " " + name + " at=" + LocalTime.now(ZoneId.systemDefault()).format(PROGRESS_CLOCK)
+                + " " + keys + System.lineSeparator();
         synchronized (PROGRESS) {
             try {
                 Files.writeString(path, line, StandardCharsets.UTF_8, StandardOpenOption.CREATE,

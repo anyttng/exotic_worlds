@@ -47,10 +47,6 @@ class ShapedChunkGeneratorCodecTest {
     private static final String FROZEN_ON_DISK_KEY = "wrapping";
     private static final String CLIMATE_SCALE_KEY = CompactBiomes.KEY;
     private static final String GUARANTEED_LAND_KEY = GuaranteedLand.KEY;
-    private static final String MODE_KEY = "mode";
-    private static final String FACTOR_KEY = "factor";
-
-    private static final int CUSTOM_FACTOR = 6;
 
     private static final String TORUS_WRAPPING =
             "{\"x\":{\"min_chunk\":-16,\"max_chunk\":16},\"z\":{\"min_chunk\":-16,\"max_chunk\":16}}";

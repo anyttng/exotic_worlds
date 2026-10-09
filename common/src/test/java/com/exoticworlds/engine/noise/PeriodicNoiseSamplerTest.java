@@ -57,6 +57,7 @@ class PeriodicNoiseSamplerTest {
         return WorldFolds.of(FlatShape.torus(bounds));
     }
 
+    @SuppressWarnings("ArrayRecordComponent")
     private record NoiseInstance(long worldSeed, PerlinNoise vanilla, byte[] permutations,
             double xo, double yo, double zo) {
         static NoiseInstance of(long worldSeed) {

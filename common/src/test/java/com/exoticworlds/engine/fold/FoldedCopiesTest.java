@@ -20,7 +20,9 @@ class FoldedCopiesTest {
     private static final BlockPos C = new BlockPos(3, 64, 3);
     private static final BlockPos D = new BlockPos(4, 64, 4);
 
-    private static final UnaryOperator<BlockPos> MOVE_C = pos -> pos == C ? pos.above() : pos;
+    private static BlockPos moveC(BlockPos pos) {
+        return pos == C ? pos.above() : pos;
+    }
 
     @Test
     void aListWithNothingMovedComesBackAsTheSameObject() {
@@ -45,7 +47,7 @@ class FoldedCopiesTest {
 
     @Test
     void theMovedElementIsReplacedAndThePrefixIsKeptAsIs() {
-        List<BlockPos> folded = FoldedCopies.of(List.of(A, B, C, D), MOVE_C);
+        List<BlockPos> folded = FoldedCopies.of(List.of(A, B, C, D), FoldedCopiesTest::moveC);
 
         assertEquals(List.of(A, B, C.above(), D), folded);
         assertSame(A, folded.get(0));
@@ -64,7 +66,7 @@ class FoldedCopiesTest {
     void aSetKeepsItsIterationOrder() {
         Set<BlockPos> source = new LinkedHashSet<>(List.of(D, C, B, A));
 
-        Set<BlockPos> folded = FoldedCopies.of(source, MOVE_C);
+        Set<BlockPos> folded = FoldedCopies.of(source, FoldedCopiesTest::moveC);
 
         assertEquals(List.of(D, C.above(), B, A), List.copyOf(folded));
     }
@@ -73,7 +75,7 @@ class FoldedCopiesTest {
     void aBareCollectionFoldsInOrder() {
         Collection<BlockPos> source = List.of(A, C, B);
 
-        Collection<BlockPos> folded = FoldedCopies.of(source, MOVE_C);
+        Collection<BlockPos> folded = FoldedCopies.of(source, FoldedCopiesTest::moveC);
 
         assertInstanceOf(List.class, folded);
         assertEquals(List.of(A, C.above(), B), List.copyOf(folded));

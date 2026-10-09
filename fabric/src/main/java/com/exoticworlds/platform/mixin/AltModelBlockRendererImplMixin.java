@@ -26,7 +26,7 @@ public class AltModelBlockRendererImplMixin {
             return original.call(state, pos);
         }
 
-        try (BlockOffsetSeed ignored = BlockOffsetSeed.seededBy(level)) {
+        try (BlockOffsetSeed _ = BlockOffsetSeed.seededBy(level)) {
             return original.call(state, pos);
         }
     }

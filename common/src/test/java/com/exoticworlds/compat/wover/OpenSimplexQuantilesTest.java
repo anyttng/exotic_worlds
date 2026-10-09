@@ -40,6 +40,7 @@ class OpenSimplexQuantilesTest {
     private static final Path REPORT =
             Path.of(System.getProperty("toroidal.reports", "build/reports")).resolve("open-simplex-quantiles.txt");
 
+    @SuppressWarnings("ArrayRecordComponent")
     private record Magnitudes(double[] openSimplex, double[] standIn) {
         double[] openSimplexKnots() {
             return knots(this.openSimplex);

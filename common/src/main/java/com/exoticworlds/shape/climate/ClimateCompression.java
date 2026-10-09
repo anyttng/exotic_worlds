@@ -79,7 +79,7 @@ public final class ClimateCompression {
     }
 
     private static double detuneOf(double frequency) {
-        return frequency / Math.pow(2.0, Math.round(Math.log(frequency) / LN_2));
+        return frequency / Math.pow(2.0, (double) Math.round(Math.log(frequency) / LN_2));
     }
 
     private ClimateCompression() {

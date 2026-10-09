@@ -110,7 +110,7 @@ class TranslationContextWarningTest {
     void aSendThatMeasuredItsRadiusIsJudgedAgainstIt() {
         TranslationContext context = contextAnchoredAt(ANCHOR_NEAR_THE_SEAM);
 
-        try (MeasuredReach ignored = MeasuredReach.measuring(PARTICLE_RADIUS)) {
+        try (MeasuredReach _ = MeasuredReach.measuring(PARTICLE_RADIUS)) {
             assertEquals(ITS_NEAREST_COPY, context.toClientMeasured(POSITION_ACROSS_THE_SEAM, PARTICLE_KIND));
         }
 
@@ -129,7 +129,7 @@ class TranslationContextWarningTest {
     @Test
     void theRadiusDoesNotOutliveTheSendThatMeasuredIt() {
         TranslationContext context = contextAnchoredAt(ANCHOR_NEAR_THE_SEAM);
-        try (MeasuredReach ignored = MeasuredReach.measuring(PARTICLE_RADIUS)) {
+        try (MeasuredReach _ = MeasuredReach.measuring(PARTICLE_RADIUS)) {
             context.toClientMeasured(POSITION_ACROSS_THE_SEAM, PARTICLE_KIND);
         }
 

@@ -64,6 +64,7 @@ public final class DensityFunctionFixture {
 
         @Override
         @Deprecated
+        @SuppressWarnings("InlineMeSuggester")
         public RandomSource createEndIslandRandom() {
             return new LegacyRandomSource(SEED);
         }

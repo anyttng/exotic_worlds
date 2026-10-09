@@ -41,7 +41,7 @@ public final class PeriodicEndIslands {
                 long cellX = lattice.foldX(chunkX + xo, chunkZ + zo);
                 long cellZ = lattice.foldZ(chunkZ + zo);
                 if (cellX * cellX + cellZ * cellZ > OUTER_ISLAND_MIN_CHUNK_DISTANCE_SQUARED
-                        && islandNoise.get(cellX, cellZ) < ISLAND_NOISE_THRESHOLD) {
+                        && islandNoise.get((double) cellX, (double) cellZ) < ISLAND_NOISE_THRESHOLD) {
                     float islandSize = (Mth.abs((float) cellX) * ISLAND_SIZE_X_FACTOR
                             + Mth.abs((float) cellZ) * ISLAND_SIZE_Z_FACTOR) % ISLAND_SIZE_SPREAD + ISLAND_SIZE_MIN;
                     float xd = subSectionX - xo * SECTIONS_PER_CHUNK;

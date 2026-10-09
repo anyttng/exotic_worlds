@@ -55,6 +55,7 @@ class PeriodicSimplexSamplerTest {
         return WorldFolds.of(FlatShape.torus(new WorldLoopBounds(xChunkMin, xChunkMax, zChunkMin, zChunkMax)));
     }
 
+    @SuppressWarnings("ArrayRecordComponent")
     private record NoiseInstance(SimplexNoise vanilla, byte[] permutations, double xo, double zo) {
         static NoiseInstance of(long worldSeed) {
             SimplexNoise vanilla = new SimplexNoise(new LegacyRandomSource(worldSeed));

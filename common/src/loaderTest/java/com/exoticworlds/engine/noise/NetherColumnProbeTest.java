@@ -290,6 +290,7 @@ class NetherColumnProbeTest {
         return solid;
     }
 
+    @SuppressWarnings("ArrayRecordComponent")
     private record Histogram(int[] counts, int total) {
         static Histogram of(int[][] levels, int minY, int height) {
             int[] counts = new int[height + 2];

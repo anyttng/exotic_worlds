@@ -1,7 +1,6 @@
 package com.exoticworlds.engine.gen;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,18 +36,16 @@ public class LoopedChunkGenerator extends NoiseBasedChunkGenerator implements Sh
 
     private final CarriedShape carriedShape;
 
-    private final List<Map<Long, Integer>> baseHeightCache;
+    private final Map<Heightmap.Types, Map<Long, Integer>> baseHeightCache = new EnumMap<>(Heightmap.Types.class);
 
     public LoopedChunkGenerator(BiomeSource biomeSource, Holder<NoiseGeneratorSettings> settings,
             CarriedShape carriedShape) {
         super(biomeSource, settings);
         this.carriedShape = carriedShape;
 
-        List<Map<Long, Integer>> caches = new ArrayList<>();
-        for (int i = 0; i < Heightmap.Types.values().length; i++) {
-            caches.add(new ConcurrentHashMap<>());
+        for (Heightmap.Types type : Heightmap.Types.values()) {
+            this.baseHeightCache.put(type, new ConcurrentHashMap<>());
         }
-        this.baseHeightCache = List.copyOf(caches);
     }
 
     @Override
@@ -71,7 +68,7 @@ public class LoopedChunkGenerator extends NoiseBasedChunkGenerator implements Sh
     public int getBaseHeight(int x, int z, Heightmap.Types type, LevelHeightAccessor heightAccessor,
             RandomState randomState) {
         long folded = transformer().foldBlockNode(BlockPos.asLong(x, 0, z));
-        Map<Long, Integer> cache = this.baseHeightCache.get(type.ordinal());
+        Map<Long, Integer> cache = this.baseHeightCache.get(type);
 
         Integer cached = cache.get(folded);
         if (cached != null) {

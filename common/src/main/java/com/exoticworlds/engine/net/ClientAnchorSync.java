@@ -31,7 +31,7 @@ public final class ClientAnchorSync {
 
         refreshSpawn(player, level, transformer, clientPosition);
         refreshBorderCenter(player, level, transformer, clientPosition);
-        refreshCacheCenter(player, level, transformer, clientPosition);
+        refreshCacheCenter(player, transformer, clientPosition);
     }
 
     private static void refreshSpawn(ServerPlayer player, ServerLevel level, WorldFold transformer,
@@ -64,8 +64,7 @@ public final class ClientAnchorSync {
         player.connection.send(new ClientboundSetBorderCenterPacket(border));
     }
 
-    private static void refreshCacheCenter(ServerPlayer player, ServerLevel level, WorldFold transformer,
-            ClientPosition clientPosition) {
+    private static void refreshCacheCenter(ServerPlayer player, WorldFold transformer, ClientPosition clientPosition) {
         ChunkPos held = clientPosition.heldCacheCenter();
         if (held == null || !(player.getChunkTrackingView() instanceof ChunkTrackingView.Positioned view)) {
             return;

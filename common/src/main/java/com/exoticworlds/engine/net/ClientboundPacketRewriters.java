@@ -321,26 +321,24 @@ final class ClientboundPacketRewriters {
 
     private static ParticleOptions toClientParticle(TranslationContext context, ParticleOptions particle,
             Vec3 clientOrigin) {
-        switch (particle) {
-            case TrailParticleOption trail -> {
-                return new TrailParticleOption(
-                        context.transformer().nearestCopy(clientOrigin, trail.target()),
-                        trail.color(), trail.duration());
-            }
+        return switch (particle) {
+            case TrailParticleOption trail -> new TrailParticleOption(
+                    context.transformer().nearestCopy(clientOrigin, trail.target()),
+                    trail.color(), trail.duration());
             case VibrationParticleOption vibration -> {
                 if (!(vibration.getDestination() instanceof BlockPositionSource destination)) {
-                    return particle;
+                    yield particle;
                 }
 
                 BlockPos clientDestination = FoldedValue.nearestCopy(context, clientOrigin, destination.pos());
-                return new VibrationParticleOption(
+                yield new VibrationParticleOption(
                         new BlockPositionSource(clientDestination), vibration.getArrivalInTicks());
             }
             default -> {
                 ParticleRewriter<ParticleOptions> particleRewriter = PacketTranslator.particleRewriterFor(particle);
-                return particleRewriter == null ? particle : particleRewriter.rewrite(particle, context, clientOrigin);
+                yield particleRewriter == null ? particle : particleRewriter.rewrite(particle, context, clientOrigin);
             }
-        }
+        };
     }
 
     private static WeightedList<ExplosionParticleInfo> toClientBlockParticles(TranslationContext context,

@@ -54,6 +54,7 @@ class OpenSimplexStandInTest {
         double at(double x, double z);
     }
 
+    @SuppressWarnings("ArrayRecordComponent")
     private record Warp(OpenSimplexNoise[] own, OpenSimplexStandIn[] standIn) {
         static Warp of(Random random) {
             return new Warp(new OpenSimplexNoise[] {new OpenSimplexNoise(random.nextLong()),

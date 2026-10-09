@@ -124,7 +124,8 @@ public final class PeriodicityCheck {
         broken |= collect(brokenFields, "continentalness", here.continentalness(), lapAway.continentalness());
         broken |= collect(brokenFields, "erosion", here.erosion(), lapAway.erosion());
         broken |= collect(brokenFields, "depth", here.depth(), lapAway.depth());
-        return broken | collect(brokenFields, "weirdness", here.weirdness(), lapAway.weirdness());
+        broken |= collect(brokenFields, "weirdness", here.weirdness(), lapAway.weirdness());
+        return broken;
     }
 
     private static boolean collect(Set<String> brokenFields, String field, long here, long lapAway) {
