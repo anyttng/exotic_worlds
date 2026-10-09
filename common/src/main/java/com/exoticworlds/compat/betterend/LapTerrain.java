@@ -65,12 +65,13 @@ public final class LapTerrain {
         }
 
         private double sum(OpenSimplexStandIn odd, OpenSimplexStandIn even, double x, double z) {
+            double frameX = this.lap.frameX(x, z);
             double sum = 0.0;
             for (int octave = 0; octave < WARP_FREQUENCIES.length; octave++) {
                 double frequency = WARP_FREQUENCIES[octave];
                 OpenSimplexStandIn noise = (octave & 1) == 0 ? odd : even;
-                sum += noise.eval(x * frequency, z * frequency, this.xPeriod * frequency, this.zPeriod * frequency)
-                        * WARP_AMPLITUDES[octave];
+                sum += noise.eval(frameX * frequency, z * frequency, this.xPeriod * frequency,
+                        this.zPeriod * frequency) * WARP_AMPLITUDES[octave];
             }
 
             return sum;
@@ -88,7 +89,7 @@ public final class LapTerrain {
         locker.lock();
         try {
             GenerationTransformerContext.runWithTransformer(lap.fold(), () -> fillFolded(lap, layers, buffer,
-                    lap.foldX(posX), lap.foldZ(posZ), scaleXZ, scaleY, maxHeight));
+                    lap.foldX(posX, posZ), lap.foldZ(posZ), scaleXZ, scaleY, maxHeight));
         } finally {
             locker.unlock();
         }
@@ -194,11 +195,12 @@ public final class LapTerrain {
 
     private static float withDetail(EndTerrainLap lap, float dist, double x, double y, double z, double xPeriod,
             double zPeriod) {
+        double frameX = lap.frameX(x, z);
         for (int octave = 0; octave < DETAIL_FREQUENCIES.length; octave++) {
             double frequency = DETAIL_FREQUENCIES[octave];
             OpenSimplexStandIn noise = (octave & 1) == 0 ? lap.first() : lap.second();
             double amplitude = DETAIL_AMPLITUDES[octave];
-            dist += (float) (noise.eval(x * frequency, y * frequency, z * frequency, xPeriod * frequency,
+            dist += (float) (noise.eval(frameX * frequency, y * frequency, z * frequency, xPeriod * frequency,
                     zPeriod * frequency) * amplitude + amplitude);
         }
 
