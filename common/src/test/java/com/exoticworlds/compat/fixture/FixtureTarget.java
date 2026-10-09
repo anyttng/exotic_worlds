@@ -9,6 +9,10 @@ public class FixtureTarget {
         new StringBuilder();
     }
 
+    public void again() {
+        helper(2);
+    }
+
     public int helper(int value) {
         return value;
     }

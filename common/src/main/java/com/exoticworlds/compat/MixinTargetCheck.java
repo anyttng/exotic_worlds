@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 
 public final class MixinTargetCheck {
     public enum Reason {
@@ -43,6 +44,9 @@ public final class MixinTargetCheck {
     private record Loaded(boolean present, ClassModel model) {
     }
 
+    private record Selection(String owner, List<MethodModel> bodies) {
+    }
+
     private static final String CLASS_SUFFIX = ".class";
     private static final List<String> GAME_PACKAGES = List.of("net/minecraft/", "com/mojang/");
 
@@ -57,6 +61,9 @@ public final class MixinTargetCheck {
     private static final String TARGETS_KEY = "targets";
     private static final String METHOD_KEY = "method";
     private static final String AT_KEY = "at";
+    private static final String SLICE_KEY = "slice";
+    private static final String SLICE_FROM_KEY = "from";
+    private static final String SLICE_TO_KEY = "to";
     private static final String TARGET_KEY = "target";
     private static final String ORDINAL_KEY = "ordinal";
     private static final String OPCODE_KEY = "opcode";
@@ -179,8 +186,7 @@ public final class MixinTargetCheck {
 
     private void checkInjector(String mixinClassName, Annotation injector, List<Annotation> siblings, String target,
             List<Refusal> refusals) {
-        List<MethodModel> bodies = new ArrayList<>();
-        String bodyOwner = null;
+        List<Selection> selections = new ArrayList<>();
         for (String selector : MixinAnnotations.strings(injector, METHOD_KEY)) {
             if (selector.equals(HANDLER_SELECTOR)) {
                 Optional<Annotation> handler = MixinAnnotations.find(siblings, TARGET_HANDLER);
@@ -188,7 +194,7 @@ public final class MixinTargetCheck {
                     continue;
                 }
 
-                bodyOwner = internalName(MixinAnnotations.string(handler.get(), HANDLER_MIXIN_KEY));
+                String bodyOwner = internalName(MixinAnnotations.string(handler.get(), HANDLER_MIXIN_KEY));
                 String handlerName = MixinAnnotations.string(handler.get(), HANDLER_NAME_KEY);
                 Loaded owner = load(bodyOwner);
                 if (!owner.present()) {
@@ -206,11 +212,11 @@ public final class MixinTargetCheck {
                     return;
                 }
 
-                bodies.addAll(found);
+                selections.add(new Selection(bodyOwner, found));
                 continue;
             }
 
-            bodyOwner = bodyOwnerOf(mixinClassName, target);
+            String bodyOwner = bodyOwnerOf(mixinClassName, target);
             if (isGame(bodyOwner)) {
                 return;
             }
@@ -228,47 +234,57 @@ public final class MixinTargetCheck {
                 return;
             }
 
-            bodies.addAll(found);
+            selections.add(new Selection(bodyOwner, found));
         }
 
-        if (bodies.isEmpty()) {
-            return;
+        List<Annotation> points = new ArrayList<>(MixinAnnotations.nested(injector, AT_KEY));
+        for (Annotation slice : MixinAnnotations.nested(injector, SLICE_KEY)) {
+            points.addAll(MixinAnnotations.nested(slice, SLICE_FROM_KEY));
+            points.addAll(MixinAnnotations.nested(slice, SLICE_TO_KEY));
         }
 
-        for (Annotation at : MixinAnnotations.nested(injector, AT_KEY)) {
-            checkAt(mixinClassName, bodyOwner, at, bodies, refusals);
+        for (Selection selection : selections) {
+            for (Annotation at : points) {
+                checkAt(mixinClassName, selection, at, refusals);
+            }
         }
     }
 
-    private static void checkAt(String mixinClassName, String bodyOwner, Annotation at, List<MethodModel> bodies,
-            List<Refusal> refusals) {
+    private static void checkAt(String mixinClassName, Selection selection, Annotation at, List<Refusal> refusals) {
         String target = MixinAnnotations.element(at, TARGET_KEY).map(MixinAnnotations::asString).orElse("");
         int needed = Math.max(MixinAnnotations.integer(at, ORDINAL_KEY, ANY_ORDINAL), 0) + 1;
         Reason reason;
-        int found;
+        ToIntFunction<MethodModel> counter;
         switch (MixinAnnotations.string(at, VALUE_KEY)) {
             case AT_INVOKE -> {
                 reason = Reason.MISSING_INVOKE;
-                found = countInvokes(bodies, MemberRef.parse(target));
+                MemberRef wanted = MemberRef.parse(target);
+                counter = body -> countInvokes(body, wanted);
             }
             case AT_FIELD -> {
                 reason = Reason.MISSING_FIELD_ACCESS;
-                found = countFieldAccesses(bodies, MemberRef.parse(target),
-                        MixinAnnotations.integer(at, OPCODE_KEY, ANY_OPCODE));
+                MemberRef wanted = MemberRef.parse(target);
+                int opcode = MixinAnnotations.integer(at, OPCODE_KEY, ANY_OPCODE);
+                counter = body -> countFieldAccesses(body, wanted, opcode);
             }
             case AT_NEW -> {
                 reason = Reason.MISSING_NEW;
-                found = countNews(bodies, target);
+                counter = body -> countNews(body, target);
             }
             default -> {
                 return;
             }
         }
 
-        if (found < needed) {
-            refusals.add(new Refusal(mixinClassName,
-                    bodyOwner + "#" + bodies.getFirst().methodName().stringValue() + "@" + target, reason));
+        for (MethodModel body : selection.bodies()) {
+            if (counter.applyAsInt(body) >= needed) {
+                return;
+            }
         }
+
+        refusals.add(new Refusal(mixinClassName,
+                selection.owner() + "#" + selection.bodies().getFirst().methodName().stringValue() + "@" + target,
+                reason));
     }
 
     private String bodyOwnerOf(String mixinClassName, String target) {
@@ -276,55 +292,49 @@ public final class MixinTargetCheck {
         return substitute != null && load(substitute).present() ? substitute : target;
     }
 
-    private static int countInvokes(List<MethodModel> bodies, MemberRef wanted) {
+    private static int countInvokes(MethodModel body, MemberRef wanted) {
         int count = 0;
-        for (MethodModel body : bodies) {
-            for (CodeElement element : codeOf(body)) {
-                if (element instanceof InvokeInstruction invoke
-                        && wanted.matches(invoke.owner().asInternalName(), invoke.name().stringValue(),
-                                invoke.type().stringValue())) {
-                    count++;
-                }
+        for (CodeElement element : codeOf(body)) {
+            if (element instanceof InvokeInstruction invoke
+                    && wanted.matches(invoke.owner().asInternalName(), invoke.name().stringValue(),
+                            invoke.type().stringValue())) {
+                count++;
             }
         }
 
         return count;
     }
 
-    private static int countFieldAccesses(List<MethodModel> bodies, MemberRef wanted, int opcode) {
+    private static int countFieldAccesses(MethodModel body, MemberRef wanted, int opcode) {
         int count = 0;
-        for (MethodModel body : bodies) {
-            for (CodeElement element : codeOf(body)) {
-                if (element instanceof FieldInstruction access
-                        && (opcode == ANY_OPCODE || access.opcode().bytecode() == opcode)
-                        && wanted.matches(access.owner().asInternalName(), access.name().stringValue(),
-                                access.type().stringValue())) {
-                    count++;
-                }
+        for (CodeElement element : codeOf(body)) {
+            if (element instanceof FieldInstruction access
+                    && (opcode == ANY_OPCODE || access.opcode().bytecode() == opcode)
+                    && wanted.matches(access.owner().asInternalName(), access.name().stringValue(),
+                            access.type().stringValue())) {
+                count++;
             }
         }
 
         return count;
     }
 
-    private static int countNews(List<MethodModel> bodies, String target) {
+    private static int countNews(MethodModel body, String target) {
         boolean byConstructor = target.startsWith("(");
         String created = byConstructor ? unwrapDescriptor(target.substring(target.indexOf(')') + 1))
                 : unwrapDescriptor(target);
         String constructor = byConstructor ? parametersOf(target) + VOID_RETURN : null;
         int count = 0;
-        for (MethodModel body : bodies) {
-            for (CodeElement element : codeOf(body)) {
-                if (byConstructor && element instanceof InvokeInstruction invoke
-                        && invoke.opcode() == Opcode.INVOKESPECIAL
-                        && invoke.owner().asInternalName().equals(created)
-                        && invoke.name().equalsString(CONSTRUCTOR)
-                        && invoke.type().equalsString(constructor)) {
-                    count++;
-                } else if (!byConstructor && element instanceof NewObjectInstruction creation
-                        && creation.className().asInternalName().equals(created)) {
-                    count++;
-                }
+        for (CodeElement element : codeOf(body)) {
+            if (byConstructor && element instanceof InvokeInstruction invoke
+                    && invoke.opcode() == Opcode.INVOKESPECIAL
+                    && invoke.owner().asInternalName().equals(created)
+                    && invoke.name().equalsString(CONSTRUCTOR)
+                    && invoke.type().equalsString(constructor)) {
+                count++;
+            } else if (!byConstructor && element instanceof NewObjectInstruction creation
+                    && creation.className().asInternalName().equals(created)) {
+                count++;
             }
         }
 

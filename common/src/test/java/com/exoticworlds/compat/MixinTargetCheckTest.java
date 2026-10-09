@@ -1,6 +1,7 @@
 package com.exoticworlds.compat;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ class MixinTargetCheckTest {
                 MixinFixtures.AccessorPresent.class, MixinFixtures.InvokerPresent.class,
                 MixinFixtures.TargetHandlerPresent.class, MixinFixtures.PseudoOneOfTwoPresent.class,
                 MixinFixtures.NewPresent.class, MixinFixtures.NewByConstructorPresent.class,
+                MixinFixtures.SlicePresent.class, MixinFixtures.EverySelectedMethodPresent.class,
                 MixinFixtures.GameTarget.class);
     }
 
@@ -52,7 +54,11 @@ class MixinTargetCheckTest {
                 Arguments.of(MixinFixtures.TargetClassMissing.class, Reason.MISSING_CLASS),
                 Arguments.of(MixinFixtures.NewMissing.class, Reason.MISSING_NEW),
                 Arguments.of(MixinFixtures.OrdinalBeyondTheCalls.class, Reason.MISSING_INVOKE),
-                Arguments.of(MixinFixtures.BodyFromAnotherClass.class, Reason.MISSING_INVOKE));
+                Arguments.of(MixinFixtures.BodyFromAnotherClass.class, Reason.MISSING_INVOKE),
+                Arguments.of(MixinFixtures.SliceFromMissing.class, Reason.MISSING_INVOKE),
+                Arguments.of(MixinFixtures.SliceToMissing.class, Reason.MISSING_FIELD_ACCESS),
+                Arguments.of(MixinFixtures.InjectSliceMissing.class, Reason.MISSING_INVOKE),
+                Arguments.of(MixinFixtures.OneSelectedMethodMissing.class, Reason.MISSING_INVOKE));
     }
 
     @ParameterizedTest
@@ -85,6 +91,15 @@ class MixinTargetCheckTest {
                 Map.of(MixinFixtures.WrapOperationPresent.class.getName(), "com/exoticworlds/compat/fixture/Nowhere"));
 
         assertEquals(List.of(), refusals, "with no substitute on the classpath the target's own body holds the call");
+    }
+
+    @Test
+    void aRefusalNamesTheSelectedMethodThatLacksTheTarget() {
+        List<Refusal> refusals = check(MixinFixtures.OneSelectedMethodMissing.class, Map.of());
+
+        assertEquals(1, refusals.size(), "only one of the two selected methods lacks the call: " + refusals);
+        assertTrue(refusals.getFirst().member().contains("#create@"),
+                "the refusal names the method without the call: " + refusals.getFirst().member());
     }
 
     @Test
