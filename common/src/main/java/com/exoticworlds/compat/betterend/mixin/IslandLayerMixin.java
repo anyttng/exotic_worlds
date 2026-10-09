@@ -86,7 +86,7 @@ public abstract class IslandLayerMixin implements LapIslands {
             this.toroidal$lastX = Integer.MIN_VALUE;
         }
 
-        int cellX = grid.x().cell(x);
+        int cellX = grid.cellX(x, z);
         int cellZ = grid.z().cell(z);
         if (cellX == this.toroidal$lastX && cellZ == this.toroidal$lastZ && maxHeight == this.toroidal$lastHeight) {
             return;
