@@ -17,11 +17,11 @@ public class ChunkHashRepoMixin {
     @WrapMethod(method = "setPreparedStatementWhereClause(Ljava/sql/PreparedStatement;ILcom/seibel/distanthorizons/core/pos/DhChunkPos;)I")
     private int toroidal$foldWhereKey(PreparedStatement statement, int index, DhChunkPos pos,
             Operation<Integer> original) {
-        return original.call(statement, index, DhKeys.foldChunk(DhRepoLevel.shapeOf(this), pos));
+        return original.call(statement, index, DhKeys.foldChunk(DhRepoLevel.latticeOf(this), pos));
     }
 
     @WrapMethod(method = "createUpsertStatement(Lcom/seibel/distanthorizons/core/sql/dto/ChunkHashDTO;)Ljava/sql/PreparedStatement;")
     private PreparedStatement toroidal$foldUpsert(ChunkHashDTO dto, Operation<PreparedStatement> original) {
-        return DhKeys.withFoldedKey(DhRepoLevel.shapeOf(this), dto, () -> original.call(dto));
+        return DhKeys.withFoldedKey(DhRepoLevel.latticeOf(this), dto, () -> original.call(dto));
     }
 }

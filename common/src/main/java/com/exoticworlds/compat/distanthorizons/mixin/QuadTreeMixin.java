@@ -2,8 +2,8 @@ package com.exoticworlds.compat.distanthorizons.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.distanthorizons.DhFold;
+import com.exoticworlds.compat.distanthorizons.DhLattice;
 import com.exoticworlds.compat.distanthorizons.DhShapes;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -23,14 +23,14 @@ public class QuadTreeMixin {
             return inSquare;
         }
 
-        ToroidalShape shape = DhShapes.of(((LodQuadTreeAccessor) tree).toroidal$level());
-        if (shape == null) {
+        DhLattice lattice = DhShapes.of(((LodQuadTreeAccessor) tree).toroidal$level());
+        if (lattice == null) {
             return true;
         }
 
         DhBlockPos2D center = tree.getCenterBlockPos();
         int width = DhSectionPos.getBlockWidth(pos);
-        return DhFold.overlapsNearestLap(shape, Direction.Axis.X, center.x, DhSectionPos.getX(pos) * width, width)
-                && DhFold.overlapsNearestLap(shape, Direction.Axis.Z, center.z, DhSectionPos.getZ(pos) * width, width);
+        return DhFold.overlapsNearestLap(lattice, Direction.Axis.X, center.x, DhSectionPos.getX(pos) * width, width)
+                && DhFold.overlapsNearestLap(lattice, Direction.Axis.Z, center.z, DhSectionPos.getZ(pos) * width, width);
     }
 }

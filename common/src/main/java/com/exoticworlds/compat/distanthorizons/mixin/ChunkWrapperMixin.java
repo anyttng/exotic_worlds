@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.compat.distanthorizons.DhKeys;
+import com.exoticworlds.compat.distanthorizons.DhRowCopies;
 import com.exoticworlds.compat.distanthorizons.DhShapes;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -36,8 +37,10 @@ public class ChunkWrapperMixin {
     private ChunkPos toroidal$foldedChunkPos(ChunkAccess chunk, Operation<ChunkPos> original) {
         ChunkPos folded = this.toroidal$foldedPos;
         if (folded == null) {
-            ChunkPos raw = original.call(chunk);
-            folded = DhKeys.foldChunk(DhShapes.clientFrame(this.wrappedLevel), raw);
+            ChunkPos copy = DhRowCopies.pendingCopy();
+            folded = copy != null
+                    ? copy
+                    : DhKeys.foldChunk(DhShapes.clientFrame(this.wrappedLevel), original.call(chunk));
             this.toroidal$foldedPos = folded;
         }
 
