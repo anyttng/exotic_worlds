@@ -116,7 +116,7 @@ public final class FtbChunksFold {
 
     static int[] seamPixels(AxisCopies copies, int originPixel, int regionTilePixels, int viewFrom, int viewTo) {
         double pixelsPerBlock = regionTilePixels / (double) REGION_BLOCKS;
-        int[] seams = copies.seams((int) Math.floor((viewFrom - originPixel) / pixelsPerBlock),
+        int[] seams = seams(copies, (int) Math.floor((viewFrom - originPixel) / pixelsPerBlock),
                 (int) Math.ceil((viewTo - originPixel) / pixelsPerBlock));
         int[] pixels = new int[seams.length];
         for (int i = 0; i < seams.length; i++) {
@@ -124,6 +124,63 @@ public final class FtbChunksFold {
         }
 
         return pixels;
+    }
+
+    private static int[] seams(AxisCopies copies, int spanMin, int spanMax) {
+        if (!copies.loops()) {
+            return new int[0];
+        }
+
+        int[] laps = laps(copies, spanMin, spanMax);
+        if (laps.length == 0) {
+            return laps;
+        }
+
+        int[] seams = new int[laps.length + 1];
+        for (int i = 0; i < laps.length; i++) {
+            seams[i] = copies.min() + laps[i] * copies.width();
+        }
+
+        seams[laps.length] = copies.max() + laps[laps.length - 1] * copies.width();
+        return seams;
+    }
+
+    public static int[] drawnLaps(Direction.Axis axis, int spanMin, int spanMax, MapCopies mapCopies) {
+        return drawnLaps(copies(axis), spanMin, spanMax, mapCopies);
+    }
+
+    static int[] drawnLaps(AxisCopies copies, int spanMin, int spanMax, MapCopies mapCopies) {
+        int[] laps = laps(copies, spanMin, spanMax);
+        if (mapCopies != MapCopies.SINGLE) {
+            return laps;
+        }
+
+        for (int lap : laps) {
+            if (lap == 0) {
+                return new int[] {0};
+            }
+        }
+
+        return new int[0];
+    }
+
+    private static int[] laps(AxisCopies copies, int spanMin, int spanMax) {
+        if (!copies.loops()) {
+            return new int[] {0};
+        }
+
+        int first = Math.floorDiv(spanMin - copies.min(), copies.width());
+        int last = Math.floorDiv(spanMax - 1 - copies.min(), copies.width());
+        if (last < first) {
+            return new int[0];
+        }
+
+        int[] laps = new int[last - first + 1];
+        for (int i = 0; i < laps.length; i++) {
+            laps[i] = first + i;
+        }
+
+        return laps;
     }
 
     public static double clampScroll(Direction.Axis axis, double scroll, int regionMin, int regionTilePixels,

@@ -15,7 +15,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.exoticworlds.compat.MapCopies;
-import com.exoticworlds.compat.MapCopyBudget;
 import com.exoticworlds.compat.ftbchunks.FtbChunksFold;
 import com.exoticworlds.compat.ftbchunks.FtbChunksFold.SeamView;
 import com.exoticworlds.compat.ftbchunks.FtbChunksFold.TileBlit;
@@ -95,9 +94,9 @@ public abstract class RegionMapPanelMixin {
         int originX = panel.getX() - this.regionMinX * tilePixels;
         int originY = panel.getY() - this.regionMinZ * tilePixels;
         MapCopies mapCopies = MapCopies.current();
-        int[] lapsX = MapCopyBudget.drawnLaps(FtbChunksFold.copies(Direction.Axis.X),
+        int[] lapsX = FtbChunksFold.drawnLaps(Direction.Axis.X,
                 Mth.floor((x - originX) / pixelsPerBlock), Mth.ceil((x + w - originX) / pixelsPerBlock), mapCopies);
-        int[] lapsZ = MapCopyBudget.drawnLaps(FtbChunksFold.copies(Direction.Axis.Z),
+        int[] lapsZ = FtbChunksFold.drawnLaps(Direction.Axis.Z,
                 Mth.floor((y - originY) / pixelsPerBlock), Mth.ceil((y + h - originY) / pixelsPerBlock), mapCopies);
         int reachX = 0;
         int reachZ = 0;

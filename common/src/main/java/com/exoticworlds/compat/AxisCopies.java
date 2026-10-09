@@ -32,19 +32,6 @@ public final class AxisCopies {
         return new AxisCopies(new WrapDomain(min, min + width));
     }
 
-    public static int[] lapRange(int first, int last) {
-        if (last < first) {
-            return new int[0];
-        }
-
-        int[] laps = new int[last - first + 1];
-        for (int i = 0; i < laps.length; i++) {
-            laps[i] = first + i;
-        }
-
-        return laps;
-    }
-
     public boolean loops() {
         return this.domain != null;
     }
@@ -59,35 +46,6 @@ public final class AxisCopies {
 
     public int width() {
         return this.domain == null ? 0 : this.domain.domainLength;
-    }
-
-    public int[] laps(int spanMin, int spanMax) {
-        if (this.domain == null) {
-            return new int[] {0};
-        }
-
-        int first = Math.floorDiv(spanMin - this.domain.lowerBound, this.domain.domainLength);
-        int last = Math.floorDiv(spanMax - 1 - this.domain.lowerBound, this.domain.domainLength);
-        return lapRange(first, last);
-    }
-
-    public int[] seams(int spanMin, int spanMax) {
-        if (this.domain == null) {
-            return new int[0];
-        }
-
-        int[] laps = laps(spanMin, spanMax);
-        if (laps.length == 0) {
-            return laps;
-        }
-
-        int[] seams = new int[laps.length + 1];
-        for (int i = 0; i < laps.length; i++) {
-            seams[i] = this.domain.lowerBound + offset(laps[i]);
-        }
-
-        seams[laps.length] = this.domain.upperBound + offset(laps[laps.length - 1]);
-        return seams;
     }
 
     public double clampView(double center, double halfSpan) {

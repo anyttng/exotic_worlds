@@ -13,21 +13,6 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 public final class MapCopyBudget {
     public static final int MAX_TILE_BLITS = 16_384;
 
-    public static int[] drawnLaps(AxisCopies copies, int spanMin, int spanMax, MapCopies mapCopies) {
-        int[] laps = copies.laps(spanMin, spanMax);
-        if (mapCopies != MapCopies.SINGLE) {
-            return laps;
-        }
-
-        for (int lap : laps) {
-            if (lap == 0) {
-                return new int[] {0};
-            }
-        }
-
-        return new int[0];
-    }
-
     public static Copies painted(AxisCopies x, int rangeX, AxisCopies z, int rangeZ) {
         return new Copies(Math.max(rangeX, rangeZ), new BoundingBox(
                 paintedMin(x, x.offset(-rangeX)), Integer.MIN_VALUE, paintedMin(z, z.offset(-rangeZ)),
