@@ -91,9 +91,9 @@ public abstract class RegionMapPanelMixin {
         int originX = panel.getX() - this.regionMinX * tilePixels;
         int originY = panel.getY() - this.regionMinZ * tilePixels;
         MapCopies mapCopies = MapCopies.current();
-        int[] lapsX = FtbChunksFold.copies(Direction.Axis.X).drawnLaps(
+        int[] lapsX = FtbChunksFold.drawnLaps(Direction.Axis.X,
                 Mth.floor((x - originX) / pixelsPerBlock), Mth.ceil((x + w - originX) / pixelsPerBlock), mapCopies);
-        int[] lapsZ = FtbChunksFold.copies(Direction.Axis.Z).drawnLaps(
+        int[] lapsZ = FtbChunksFold.drawnLaps(Direction.Axis.Z,
                 Mth.floor((y - originY) / pixelsPerBlock), Mth.ceil((y + h - originY) / pixelsPerBlock), mapCopies);
 
         // Copies go under the canonical pass: that pass draws the icons, and an icon straddling the seam has to

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.api.v1.TestShapes;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.AxisCopies;
+import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.WorldFolds;
@@ -74,6 +75,38 @@ class FtbChunksFoldTest {
                 "a view inside lap 0 still gets both of its seams, off-view or not");
         assertArrayEquals(new int[0], FtbChunksFold.seamPixels(AxisCopies.UNBOUNDED, 100, 64, 68, 196),
                 "an unbounded axis has no seam");
+    }
+
+    @Test
+    void aRepeatedMapDrawsEveryLapTheViewTouches() {
+        AxisCopies axis = AxisCopies.looped(-512, 1024);
+        assertArrayEquals(new int[] {-1, 0, 1}, FtbChunksFold.drawnLaps(axis, -1536, 1536, MapCopies.REPEATED),
+                "three worlds in view are not three laps");
+        assertArrayEquals(new int[] {3}, FtbChunksFold.drawnLaps(axis, 3000, 3100, MapCopies.REPEATED),
+                "a view in lap 3 does not draw lap 3");
+    }
+
+    @Test
+    void aSingleCopyMapDrawsTheCanonicalLapAlone() {
+        AxisCopies axis = AxisCopies.looped(-512, 1024);
+        assertArrayEquals(new int[] {0}, FtbChunksFold.drawnLaps(axis, -1536, 1536, MapCopies.SINGLE),
+                "the laps beside the world were drawn under SINGLE");
+        assertArrayEquals(new int[] {0}, FtbChunksFold.drawnLaps(axis, 500, 600, MapCopies.SINGLE),
+                "a view across the seam at 512 lost the canonical lap or kept lap 1");
+    }
+
+    @Test
+    void aSingleCopyMapDrawsNothingForAViewPastTheWorld() {
+        AxisCopies axis = AxisCopies.looped(-512, 1024);
+        assertArrayEquals(new int[0], FtbChunksFold.drawnLaps(axis, 3000, 3100, MapCopies.SINGLE),
+                "a view in lap 3 drew a copy under SINGLE");
+    }
+
+    @Test
+    void anUnboundedAxisDrawsItsOneLapInBothModes() {
+        assertArrayEquals(new int[] {0},
+                FtbChunksFold.drawnLaps(AxisCopies.UNBOUNDED, -40000000, 40000000, MapCopies.SINGLE),
+                "an unbounded axis lost its one lap under SINGLE");
     }
 
     @Test
