@@ -6,7 +6,6 @@ import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.AxisCopies;
 
 import net.minecraft.core.Direction;
 
@@ -55,7 +54,16 @@ public final class AtlasCopies {
 
         int first = (int) Math.floor((areaStart - start - length) / period) + 1;
         int last = (int) Math.ceil((areaStart + areaLength - start) / period) - 1;
-        return AxisCopies.lapRange(first, last);
+        if (last < first) {
+            return new int[0];
+        }
+
+        int[] laps = new int[last - first + 1];
+        for (int i = 0; i < laps.length; i++) {
+            laps[i] = first + i;
+        }
+
+        return laps;
     }
 
     private AtlasCopies() {
