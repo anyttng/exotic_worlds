@@ -17,8 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 
 import org.joml.Vector3d;
 import org.junit.jupiter.api.Test;
@@ -31,16 +29,18 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 class FoldedValueTest {
-    private static final Supplier<Vec3> ANCHOR = () -> new Vec3(MIRROR_X, 0.0, MIRROR_Z);
-
     private static final int SECTION_Y = 4;
 
     private static final String UNFOLDED = "a label the fold knows nothing about";
 
     private static final double HALF_SIDE = 0.5;
 
+    private static Vec3 anchor() {
+        return new Vec3(MIRROR_X, 0.0, MIRROR_Z);
+    }
+
     private static Object toward(Object value) {
-        return FoldedValue.toward(context(), ANCHOR, value);
+        return FoldedValue.toward(context(), FoldedValueTest::anchor, value);
     }
 
     @Test
@@ -171,17 +171,17 @@ class FoldedValueTest {
     @Test
     void valueOfAnUnknownTypeReachesTheFallback() {
         assertEquals(CLIENT_BLOCK,
-                FoldedValue.toward(context(), ANCHOR, UNFOLDED, replaceTheLabel()));
+                FoldedValue.toward(context(), FoldedValueTest::anchor, UNFOLDED, FoldedValueTest::replaceTheLabel));
     }
 
     @Test
     void theFallbackReachesInsideAContainer() {
-        assertEquals(Optional.of(CLIENT_BLOCK),
-                FoldedValue.toward(context(), ANCHOR, Optional.of(UNFOLDED), replaceTheLabel()));
+        assertEquals(Optional.of(CLIENT_BLOCK), FoldedValue.toward(context(), FoldedValueTest::anchor,
+                Optional.of(UNFOLDED), FoldedValueTest::replaceTheLabel));
     }
 
-    private static UnaryOperator<Object> replaceTheLabel() {
-        return value -> UNFOLDED.equals(value) ? CLIENT_BLOCK : value;
+    private static Object replaceTheLabel(Object value) {
+        return UNFOLDED.equals(value) ? CLIENT_BLOCK : value;
     }
 
     private static AABB boxAround(double x, double z) {

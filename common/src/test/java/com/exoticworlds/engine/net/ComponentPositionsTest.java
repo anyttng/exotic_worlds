@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.UnaryOperator;
 
 import org.junit.jupiter.api.Test;
 
@@ -55,8 +54,9 @@ class ComponentPositionsTest {
     private static final ComponentPositions.Mover KEEP_DETACHED =
             (stored, seat) -> DETACHED.equals(stored) ? stored : seat.apply(stored);
 
-    private static final UnaryOperator<Object> TOWARD_ANCHOR =
-            value -> FoldedValue.toward(TORUS, Level.OVERWORLD, ANCHOR, value);
+    private static Object towardAnchor(Object value) {
+        return FoldedValue.toward(TORUS, Level.OVERWORLD, ANCHOR, value);
+    }
 
     private static Map<DataComponentType<?>, ComponentPositions.Mover> resolve(
             Map<ResourceLocation, ComponentPositions.Mover> javaRows, Set<ResourceLocation> declared) {
@@ -101,7 +101,8 @@ class ComponentPositionsTest {
         ItemStack stack = new ItemStack(Holder.direct(Items.STICK));
         stack.set(ANCHOR_TYPE, STORED);
 
-        ItemStack seated = ComponentPositions.seatedIn(declared(ANCHOR_ID), stack, TOWARD_ANCHOR);
+        ItemStack seated =
+                ComponentPositions.seatedIn(declared(ANCHOR_ID), stack, ComponentPositionsTest::towardAnchor);
 
         assertNotSame(stack, seated);
         assertEquals(SEATED, seated.get(ANCHOR_TYPE));
@@ -113,7 +114,7 @@ class ComponentPositionsTest {
         ItemStack stack = new ItemStack(Holder.direct(Items.STICK));
         stack.set(ANCHOR_TYPE, STORED);
 
-        assertSame(stack, ComponentPositions.seatedIn(declared(), stack, TOWARD_ANCHOR));
+        assertSame(stack, ComponentPositions.seatedIn(declared(), stack, ComponentPositionsTest::towardAnchor));
     }
 
     @Test
@@ -121,13 +122,14 @@ class ComponentPositionsTest {
         ItemStack stack = new ItemStack(Holder.direct(Items.STICK));
         stack.set(ANCHOR_TYPE, SEATED);
 
-        assertSame(stack, ComponentPositions.seatedIn(declared(ANCHOR_ID), stack, TOWARD_ANCHOR));
+        assertSame(stack,
+                ComponentPositions.seatedIn(declared(ANCHOR_ID), stack, ComponentPositionsTest::towardAnchor));
     }
 
     @Test
     void aLodestoneTargetInTheAnchorsDimensionIsSeatedThroughTheRecord() {
         ItemStack seated = ComponentPositions.seatedIn(declared(),
-                compassTracking(GlobalPos.of(Level.OVERWORLD, STORED)), TOWARD_ANCHOR);
+                compassTracking(GlobalPos.of(Level.OVERWORLD, STORED)), ComponentPositionsTest::towardAnchor);
 
         assertEquals(Optional.of(GlobalPos.of(Level.OVERWORLD, SEATED)),
                 seated.get(DataComponents.LODESTONE_TRACKER).target());
@@ -137,7 +139,7 @@ class ComponentPositionsTest {
     void aLodestoneTargetInAnotherDimensionIsLeftAlone() {
         ItemStack compass = compassTracking(GlobalPos.of(Level.NETHER, STORED));
 
-        assertSame(compass, ComponentPositions.seatedIn(declared(), compass, TOWARD_ANCHOR));
+        assertSame(compass, ComponentPositions.seatedIn(declared(), compass, ComponentPositionsTest::towardAnchor));
     }
 
     @Test
@@ -148,7 +150,8 @@ class ComponentPositionsTest {
         ItemStack attached = new ItemStack(Holder.direct(Items.STICK));
         attached.set(NODE_TYPE, STORED);
 
-        assertSame(detached, ComponentPositions.seatedIn(rows, detached, TOWARD_ANCHOR));
-        assertEquals(SEATED, ComponentPositions.seatedIn(rows, attached, TOWARD_ANCHOR).get(NODE_TYPE));
+        assertSame(detached, ComponentPositions.seatedIn(rows, detached, ComponentPositionsTest::towardAnchor));
+        assertEquals(SEATED,
+                ComponentPositions.seatedIn(rows, attached, ComponentPositionsTest::towardAnchor).get(NODE_TYPE));
     }
 }

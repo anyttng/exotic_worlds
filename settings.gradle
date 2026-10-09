@@ -12,6 +12,7 @@ pluginManagement {
         // Loom ships two plugin ids: 'net.fabricmc.fabric-loom' is LoomNoRemapGradlePlugin, which forces
         // disableObfuscation and suits the unobfuscated 26.x line; 1.21.x is obfuscated and needs the remapping one.
         id 'net.fabricmc.fabric-loom-remap' version "${fabric_loom_version}"
+        id 'net.ltgt.errorprone' version '5.1.1'
     }
 }
 

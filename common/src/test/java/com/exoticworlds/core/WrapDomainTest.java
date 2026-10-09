@@ -474,7 +474,7 @@ class WrapDomainTest {
                     double unwrapped = domain.unwrapAround(ref, coord);
                     double laps = (coord - unwrapped) / domain.domainLength;
 
-                    assertEquals(Math.round(laps), laps, 1e-9,
+                    assertEquals((double) Math.round(laps), laps, 1e-9,
                             () -> "unwrapAround(" + ref + ", " + coord + ") left its lattice " + in(domain));
                     if (Math.round(laps) == 0L) {
                         assertEquals(coord, unwrapped, 0.0,
@@ -535,7 +535,7 @@ class WrapDomainTest {
                     if (Math.abs(deltaD) >= domain.domainLength) continue;
                     double foldedD = domain.foldDelta(deltaD);
                     double laps = (deltaD - foldedD) / domain.domainLength;
-                    assertEquals(Math.round(laps), laps, 1e-9,
+                    assertEquals((double) Math.round(laps), laps, 1e-9,
                             () -> "foldDelta(" + deltaD + ") left its lattice " + in(domain));
                     assertTrue(Math.abs(foldedD) <= domain.domainLength / 2.0 + 1e-9,
                             () -> "foldDelta(" + deltaD + ") = " + foldedD + " is over half a world " + in(domain));

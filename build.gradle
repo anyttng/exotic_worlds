@@ -3,6 +3,29 @@
 plugins {
     id 'base'
     id 'idea'
+    id 'net.ltgt.errorprone' apply false
+}
+
+// Static analysis on every compile task, tests included: a warning fails the build. Deprecation stays off because an
+// API deprecated on one game line is still the only one on another.
+subprojects {
+    pluginManager.withPlugin('java') {
+        pluginManager.apply('net.ltgt.errorprone')
+
+        dependencies {
+            errorprone "com.google.errorprone:error_prone_core:${errorprone_version}"
+        }
+
+        tasks.withType(JavaCompile).configureEach {
+            // Java 21 has no unnamed variable, so a resource held only for its scope stays named and try stays off.
+            options.compilerArgs += ['-Xlint:all,-deprecation,-processing,-classfile,-serial,-try', '-Werror']
+            // Shadowed fields and injected handlers read as unused or unreachable outside the mixin runtime.
+            options.errorprone.excludedPaths = '.*/mixin/.*'
+            // Identity is the contract wherever == is written (an unchanged fold returns the same instance); format
+            // strings are constants by the workspace's own rule.
+            options.errorprone.disable('ReferenceEquality', 'InlineFormatString')
+        }
+    }
 }
 
 // The loader jars are this script's inputs, so their tasks have to exist before it names them.

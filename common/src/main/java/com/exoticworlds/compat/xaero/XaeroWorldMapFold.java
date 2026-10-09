@@ -260,8 +260,8 @@ public final class XaeroWorldMapFold {
 
         AxisCopies x = AxisCopies.of(shape, Direction.Axis.X);
         AxisCopies z = AxisCopies.of(shape, Direction.Axis.Z);
-        if (x.loops() && Math.floorMod(x.min(), slotSizeBlocks) != 0
-                || z.loops() && Math.floorMod(z.min(), slotSizeBlocks) != 0) {
+        if ((x.loops() && Math.floorMod(x.min(), slotSizeBlocks) != 0)
+                || (z.loops() && Math.floorMod(z.min(), slotSizeBlocks) != 0)) {
             return false;
         }
 

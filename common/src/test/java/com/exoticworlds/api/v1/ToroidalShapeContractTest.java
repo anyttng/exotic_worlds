@@ -418,7 +418,7 @@ class ToroidalShapeContractTest {
                     int dx = column * WIDTH + row * skew;
                     int dz = row * WIDTH;
                     boolean meetsX = LOWER + dx < box.maxX && box.minX < UPPER + dx;
-                    boolean meetsZ = !zLoops || LOWER + dz < box.maxZ && box.minZ < UPPER + dz;
+                    boolean meetsZ = !zLoops || (LOWER + dz < box.maxZ && box.minZ < UPPER + dz);
                     if (meetsX && meetsZ) {
                         expected.add(new BlockPos(dx, 0, dz));
                     }

@@ -22,6 +22,7 @@ public final class DhProbes {
     private static final Set<String> SEEN_KEY_PERIODS = ConcurrentHashMap.newKeySet();
     private static final Set<DhSeamSql.Site> SEEN_SEAM_SQL_SITES = ConcurrentHashMap.newKeySet();
 
+    @SuppressWarnings("ImmutableEnumChecker")
     enum Key {
         SECTION("section"),
         CHUNK("chunk"),

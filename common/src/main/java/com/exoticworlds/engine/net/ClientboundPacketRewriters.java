@@ -360,22 +360,22 @@ final class ClientboundPacketRewriters {
 
     private static ParticleOptions toClientParticle(TranslationContext context, ParticleOptions particle,
             Vec3 clientOrigin) {
-        switch (particle) {
+        return switch (particle) {
             case VibrationParticleOption vibration -> {
                 if (!(vibration.getDestination() instanceof BlockPositionSource destination)) {
-                    return particle;
+                    yield particle;
                 }
 
                 BlockPos serverDestination = ((BlockPositionSourceAccessor) destination).toroidal$getPos();
                 BlockPos clientDestination = FoldedValue.nearestCopy(context, clientOrigin, serverDestination);
-                return new VibrationParticleOption(
+                yield new VibrationParticleOption(
                         new BlockPositionSource(clientDestination), vibration.getArrivalInTicks());
             }
             default -> {
                 PacketRewriters.ParticleRewriter<ParticleOptions> particleRewriter = context.rewriters().particleFor(particle);
-                return particleRewriter == null ? particle : particleRewriter.rewrite(particle, context, clientOrigin);
+                yield particleRewriter == null ? particle : particleRewriter.rewrite(particle, context, clientOrigin);
             }
-        }
+        };
     }
 
     static Packet<?> setDefaultSpawnPosition(ClientboundSetDefaultSpawnPositionPacket packet, TranslationContext context) {

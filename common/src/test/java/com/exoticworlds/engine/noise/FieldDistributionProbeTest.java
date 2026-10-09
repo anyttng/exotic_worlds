@@ -36,6 +36,7 @@ import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 // spike-zone share stays in vanilla's neighborhood (the amplifying v1 doubled it and failed in-game), and a pooled
 // field-variance band checks the composition.
 class FieldDistributionProbeTest {
+    @SuppressWarnings("ArrayRecordComponent")
     private record NoiseParams(String name, int firstOctave, double[] amplitudes) {
         int spanOctaves() {
             int min = Integer.MAX_VALUE;

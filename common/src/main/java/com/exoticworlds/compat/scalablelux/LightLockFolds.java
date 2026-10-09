@@ -30,6 +30,7 @@ public final class LightLockFolds {
         return fold != null ? fold.foldChunkKey(chunkKey) : chunkKey;
     }
 
+    @SuppressWarnings("NonApiType")
     public static <T> ArrayList<T> distinct(ArrayList<T> tokens) {
         LinkedHashSet<T> unique = new LinkedHashSet<>(tokens);
         return unique.size() == tokens.size() ? tokens : new ArrayList<>(unique);

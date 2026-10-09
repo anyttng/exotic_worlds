@@ -26,6 +26,7 @@ class LightLockFoldsTest {
         return WorldFolds.of(FlatShape.torus(new WorldLoopBounds(looped, looped)));
     }
 
+    @SuppressWarnings("NonApiType")
     private static ArrayList<Token> square(WorldFold fold, int centerX, int centerZ) {
         ArrayList<Token> tokens = new ArrayList<>();
         for (int i = -RADIUS; i <= RADIUS; i++) {

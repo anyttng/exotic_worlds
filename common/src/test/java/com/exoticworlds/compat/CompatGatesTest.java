@@ -76,7 +76,7 @@ class CompatGatesTest {
     }
 
     private static ModPresenceGatePlugin pluginOf(JsonObject config) throws ReflectiveOperationException {
-        return (ModPresenceGatePlugin) Class.forName(config.get(PLUGIN_KEY).getAsString())
+        return Class.forName(config.get(PLUGIN_KEY).getAsString()).asSubclass(ModPresenceGatePlugin.class)
                 .getDeclaredConstructor().newInstance();
     }
 

@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,15 +29,18 @@ class LapMapStackTest {
 
     private static final long SEED = 0x904L;
 
-    private static final Predicate<Integer> IS_VERTICAL = biome -> biome == VERTICAL;
-
     private static final LapPicker<Integer> PICKER = new LapPicker<>(
             random -> random.nextInt(PALETTE), (biome, random) -> biome);
+
+    private static boolean isVertical(int biome) {
+        return biome == VERTICAL;
+    }
 
     @Test
     void theLayerPickRepeatsOnTheLapAndReachesBothLayers() {
         WorldFold fold = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-64, 64, -48, 48)));
-        LapMapStack<Integer> stack = new LapMapStack<>(fold, List.of(), IS_VERTICAL, AMPLIFIED_NETHER, SEED);
+        LapMapStack<Integer> stack =
+                new LapMapStack<>(fold, List.of(), LapMapStackTest::isVertical, AMPLIFIED_NETHER, SEED);
         WrapDomain x = fold.blockDomain(Direction.Axis.X);
         WrapDomain z = fold.blockDomain(Direction.Axis.Z);
         Set<Integer> picked = new HashSet<>();
@@ -77,7 +79,7 @@ class LapMapStackTest {
         List<LapMap<Integer>> layers = List.of(
                 new HexLapMap<>(fold, 32.0F, ClimateScaleCompression.NO_COMPRESSION, 1, PICKER),
                 new HexLapMap<>(fold, 32.0F, ClimateScaleCompression.NO_COMPRESSION, 2, PICKER));
-        new LapMapStack<>(fold, layers, IS_VERTICAL, AMPLIFIED_NETHER, SEED);
+        new LapMapStack<>(fold, layers, LapMapStackTest::isVertical, AMPLIFIED_NETHER, SEED);
         LapAxis x = layers.getFirst().axis(Direction.Axis.X);
         LapAxis z = layers.getFirst().axis(Direction.Axis.Z);
         int vertical = 0;

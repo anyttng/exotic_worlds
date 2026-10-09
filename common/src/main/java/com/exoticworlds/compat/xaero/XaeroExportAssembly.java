@@ -246,7 +246,7 @@ public final class XaeroExportAssembly {
     private @Nullable ExportMapRegion load(int regionX, int regionZ) {
         if (this.updateConfig == null) {
             this.updateConfig = new MapUpdateFastConfig(this.processor);
-            this.includingHighlights = (Boolean) WorldMap.INSTANCE.getConfigs().getClientConfigManager()
+            this.includingHighlights = WorldMap.INSTANCE.getConfigs().getClientConfigManager()
                     .getPrimaryConfigManager().getEffective(WorldMapPrimaryClientConfigOptions.EXPORT_HIGHLIGHTS);
         }
 

@@ -5,6 +5,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WrapDomain;
 
+@SuppressWarnings("ArrayRecordComponent")
 record PeriodicLattice(byte[] permutations, double xOffset, double yOffset, double zOffset,
         Axis x, Axis y, Axis z, double correction, double anchor, @Nullable Shear shear) {
     record Axis(boolean folds, WrapDomain domain, long period, double scale) {

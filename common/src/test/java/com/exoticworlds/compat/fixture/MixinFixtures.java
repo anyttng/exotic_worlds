@@ -17,6 +17,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
+@SuppressWarnings("UnusedMethod")
 public final class MixinFixtures {
     private static final String TARGET = "com.exoticworlds.compat.fixture.FixtureTarget";
     private static final String NOWHERE = "com.exoticworlds.compat.fixture.Nowhere";

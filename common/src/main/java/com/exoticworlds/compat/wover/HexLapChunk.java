@@ -1,8 +1,6 @@
 package com.exoticworlds.compat.wover;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 
 final class HexLapChunk<T> implements LapChunk<T> {
@@ -114,13 +112,13 @@ final class HexLapChunk<T> implements LapChunk<T> {
         int columns = seedLines(this.sideX, this.wrapX);
         int rows = seedLines(this.sideZ, this.wrapZ);
         int seeds = seedCount(this.sideX, this.sideZ, this.wrapX, this.wrapZ);
-        List<Integer> slots = new ArrayList<>(columns * rows);
+        IntArrayList slots = new IntArrayList(columns * rows);
         for (int slot = 0; slot < columns * rows; slot++) {
             slots.add(slot);
         }
 
         while (slots.size() > seeds) {
-            slots.remove(random.nextInt(slots.size()));
+            slots.removeInt(random.nextInt(slots.size()));
         }
 
         for (int slot : slots) {

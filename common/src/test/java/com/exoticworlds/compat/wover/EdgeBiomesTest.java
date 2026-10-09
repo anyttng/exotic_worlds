@@ -58,6 +58,7 @@ class EdgeBiomesTest {
         LapMap<PickableBiome> make(WorldFold fold, double factor, LapPicker<PickableBiome> picker);
     }
 
+    @SuppressWarnings("ArrayRecordComponent")
     private record Palette(PickableBiome[] biomes, PickableBiome edged, PickableBiome edge) {
         static Palette create() {
             PickableBiome[] biomes = new PickableBiome[PALETTE];

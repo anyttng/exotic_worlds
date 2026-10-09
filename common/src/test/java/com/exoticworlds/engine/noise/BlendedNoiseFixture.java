@@ -52,6 +52,7 @@ final class BlendedNoiseFixture {
         return mixed ^ (mixed >>> 31);
     }
 
+    @SuppressWarnings("ArrayRecordComponent")
     record Octave(ImprovedNoise vanilla, byte[] permutations, double xo, double yo, double zo) {
         static Octave of(long seed) {
             ImprovedNoise vanilla = new ImprovedNoise(new LegacyRandomSource(seed));
@@ -78,6 +79,7 @@ final class BlendedNoiseFixture {
         }
     }
 
+    @SuppressWarnings("ArrayRecordComponent")
     record Replica(Octave[] mainOctaves, Octave[] minOctaves, Octave[] maxOctaves) {
         static Replica of(long seed) {
             Octave[] mainOctaves = new Octave[MAIN_OCTAVES];

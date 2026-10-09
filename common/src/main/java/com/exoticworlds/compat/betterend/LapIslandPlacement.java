@@ -68,8 +68,8 @@ public final class LapIslandPlacement {
         }
 
         into.removeIf(island -> {
-            long x = island.canonical().getX() - grid.x().originCopy(island.canonical().getX());
-            long z = island.canonical().getZ() - grid.z().originCopy(island.canonical().getZ());
+            long x = (long) island.canonical().getX() - grid.x().originCopy(island.canonical().getX());
+            long z = (long) island.canonical().getZ() - grid.z().originCopy(island.canonical().getZ());
             return x * x + z * z < centre.innerVoidSquared();
         });
         if (options.hasCentralIsland) {

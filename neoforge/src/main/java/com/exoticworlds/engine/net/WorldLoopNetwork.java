@@ -15,6 +15,7 @@ public final class WorldLoopNetwork {
     private static final String PROTOCOL_VERSION = "1";
 
     @SubscribeEvent
+    @SuppressWarnings("FutureReturnValueIgnored")
     static void onRegisterPayloads(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION).optional();
         registrar.playToClient(

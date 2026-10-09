@@ -34,7 +34,7 @@ public final class NoiseScaleLadder {
             return NONE;
         }
 
-        Map<NormalNoise, Map<Double, Double>> separated = new IdentityHashMap<>();
+        IdentityHashMap<NormalNoise, Map<Double, Double>> separated = new IdentityHashMap<>();
         for (Scales scales : scalesOf(roots).values()) {
             if (scales.ascending().size() < 2) {
                 continue;
@@ -68,7 +68,7 @@ public final class NoiseScaleLadder {
 
     @SuppressWarnings("deprecation")
     private static Map<NormalNoise, Scales> scalesOf(List<DensityFunction> roots) {
-        Map<NormalNoise, Scales> scales = new IdentityHashMap<>();
+        IdentityHashMap<NormalNoise, Scales> scales = new IdentityHashMap<>();
         DensityFunction.Visitor collector = new DensityFunction.Visitor() {
             @Override
             public DensityFunction apply(DensityFunction input) {
@@ -92,7 +92,7 @@ public final class NoiseScaleLadder {
     private static void add(Map<NormalNoise, Scales> scales, DensityFunction.NoiseHolder holder, double xzScale) {
         NormalNoise noise = holder.noise();
         if (noise != null) {
-            scales.computeIfAbsent(noise, unused -> new Scales(noise, holder.noiseData().value(), new TreeSet<>()))
+            scales.computeIfAbsent(noise, key -> new Scales(noise, holder.noiseData().value(), new TreeSet<>()))
                     .ascending().add(xzScale);
         }
     }
