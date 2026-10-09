@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.compat.distanthorizons.DhClientShapes;
 import com.exoticworlds.compat.distanthorizons.DhFold;
 import com.exoticworlds.compat.distanthorizons.DhKeys;
 import com.exoticworlds.compat.distanthorizons.DhLattice;
@@ -125,7 +126,7 @@ public class LodQuadTreeMixin {
                     target = "Lcom/seibel/distanthorizons/core/pos/DhSectionPos;contains(JJ)Z"))
     private static boolean toroidal$cancelByACopyOfTheSection(long sectionPos, long genPos,
             Operation<Boolean> original) {
-        DhLattice lattice = DhShapes.current();
+        DhLattice lattice = DhClientShapes.current();
         return lattice == null
                 ? original.call(sectionPos, genPos)
                 : DhKeys.containsACopy(lattice, sectionPos, genPos);

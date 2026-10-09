@@ -1,6 +1,7 @@
 package com.exoticworlds.mixin;
 
 import java.util.OptionalInt;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -13,13 +14,17 @@ import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
+import net.minecraft.core.Holder;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.WorldGenerationContext;
 import net.minecraft.world.level.levelgen.blending.Blender;
 
 @Mixin(NoiseBasedChunkGenerator.class)
@@ -48,6 +53,28 @@ public class NoiseBasedChunkGeneratorMixin {
         GenerationTransformerContext.runWithTransformer(
                 ShapedChunkGenerator.transformerOf((NoiseBasedChunkGenerator) (Object) this),
                 () -> original.call(blender, randomState, structureManager, protoChunk));
+    }
+
+    @WrapMethod(
+            method = "buildSurface(Lnet/minecraft/world/level/chunk/ChunkAccess;"
+                    + "Lnet/minecraft/world/level/levelgen/WorldGenerationContext;"
+                    + "Lnet/minecraft/world/level/levelgen/RandomState;Lnet/minecraft/world/level/StructureManager;"
+                    + "Lnet/minecraft/world/level/biome/BiomeManager;Lnet/minecraft/world/level/levelgen/blending/Blender;"
+                    + "Ljava/util/Set;)V",
+            order = BinderOrder.FOLD)
+    private void toroidal$bindWhileBuildingSurface(
+            ChunkAccess protoChunk,
+            WorldGenerationContext context,
+            RandomState randomState,
+            StructureManager structureManager,
+            BiomeManager biomeManager,
+            Blender blender,
+            @Nullable Set<Holder<Biome>> possibleBiomes,
+            Operation<Void> original) {
+        GenerationTransformerContext.runWithTransformer(
+                ShapedChunkGenerator.transformerOf((NoiseBasedChunkGenerator) (Object) this),
+                () -> original.call(protoChunk, context, randomState, structureManager, biomeManager, blender,
+                        possibleBiomes));
     }
 
     @WrapMethod(method = "iterateNoiseColumn", order = BinderOrder.FOLD)
