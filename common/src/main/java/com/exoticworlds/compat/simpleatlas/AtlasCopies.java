@@ -39,7 +39,7 @@ public final class AtlasCopies {
     }
 
     public static double ontoBase(double coord, float period, float baseStart, float baseLength) {
-        if (period <= 0.0F || coord >= baseStart && coord < baseStart + baseLength) {
+        if (period <= 0.0F || (coord >= baseStart && coord < baseStart + baseLength)) {
             return coord;
         }
 
