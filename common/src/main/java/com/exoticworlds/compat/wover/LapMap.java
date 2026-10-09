@@ -2,7 +2,9 @@ package com.exoticworlds.compat.wover;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WrapDomain;
 
 import net.minecraft.core.Direction;
 
@@ -13,6 +15,8 @@ public abstract class LapMap<T> {
 
     private final WorldFold fold;
 
+    private final TranslationLattice lattice;
+
     private final double factor;
 
     private final LapChunkCache<LapChunk<T>> chunks = new LapChunkCache<>(this::bounded, this::buildChunk);
@@ -21,7 +25,16 @@ public abstract class LapMap<T> {
 
     LapMap(WorldFold fold, double factor) {
         this.fold = fold;
+        this.lattice = fold.blockLattice();
         this.factor = factor;
+    }
+
+    WrapDomain blocks(Direction.Axis axis) {
+        return axis == Direction.Axis.X ? this.lattice.x() : this.lattice.z();
+    }
+
+    double frameX(double blockX, double blockZ) {
+        return this.lattice.rectangleX(blockX, blockZ);
     }
 
     public boolean covers(WorldFold fold) {

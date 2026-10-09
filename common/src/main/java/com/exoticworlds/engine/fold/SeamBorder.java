@@ -49,11 +49,9 @@ public record SeamBorder(TranslationLattice lattice, double minX, double maxX, d
         WrapDomain zDomain = this.lattice.z();
         double dx = x - centreX();
         double dz = z - centreZ();
-        double nearestDz = zDomain.unwrapAround(0.0, dz);
-        long nearestLaps = lapsOf(dz - nearestDz);
         double best = Double.NEGATIVE_INFINITY;
-        for (long laps : lapsNearestFirst(nearestLaps)) {
-            double zOffset = laps == nearestLaps ? nearestDz : dz - (double) laps * zDomain.domainLength;
+        for (long laps : this.lattice.zLapsNear(dx, dz)) {
+            double zOffset = dz - (double) laps * zDomain.domainLength;
             double xOffset = this.lattice.x().unwrapAround(0.0, dx - (double) laps * this.lattice.skew());
             best = Math.max(best, Math.min(halfX() - Math.abs(xOffset), halfZ() - Math.abs(zOffset)));
         }
@@ -64,13 +62,11 @@ public record SeamBorder(TranslationLattice lattice, double minX, double maxX, d
     public Vec3 clamped(double x, double y, double z) {
         WrapDomain xDomain = this.lattice.x();
         WrapDomain zDomain = this.lattice.z();
-        double nearestCentreZ = zDomain.unwrapAround(z, centreZ());
-        long nearestLaps = lapsOf(nearestCentreZ - centreZ());
         double boxX = centreX();
         double boxZ = centreZ();
         double bestGap = Double.NEGATIVE_INFINITY;
-        for (long laps : lapsNearestFirst(nearestLaps)) {
-            double copyZ = laps == nearestLaps ? nearestCentreZ : centreZ() + (double) laps * zDomain.domainLength;
+        for (long laps : this.lattice.zLapsNear(x - centreX(), z - centreZ())) {
+            double copyZ = centreZ() + (double) laps * zDomain.domainLength;
             double copyX = xDomain.unwrapAround(x, centreX() + (double) laps * this.lattice.skew());
             double gap = Math.min(halfX() - Math.abs(x - copyX), halfZ() - Math.abs(z - copyZ));
             if (gap > bestGap) {
@@ -104,16 +100,6 @@ public record SeamBorder(TranslationLattice lattice, double minX, double maxX, d
         int step = IntMath.gcd(Math.abs(this.lattice.skew()), width);
         double span = 2.0 * (halfX() + margin);
         return span >= step || Mth.positiveModulo(dx + halfX() + margin, (double) step) < span;
-    }
-
-    private long lapsOf(double zShift) {
-        return this.lattice.z().loops() ? Math.round(zShift / this.lattice.z().domainLength) : 0L;
-    }
-
-    private long[] lapsNearestFirst(long nearestLaps) {
-        return this.lattice.z().loops()
-                ? new long[] {nearestLaps, nearestLaps - 1, nearestLaps + 1}
-                : new long[] {nearestLaps};
     }
 
     private static int[] neighbourLaps(WrapDomain domain) {
