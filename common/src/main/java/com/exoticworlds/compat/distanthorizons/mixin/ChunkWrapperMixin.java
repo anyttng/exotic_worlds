@@ -27,10 +27,8 @@ public class ChunkWrapperMixin {
     private ChunkPos toroidal$foldedPos;
 
     @WrapOperation(
-            method = {
-                "<init>(Lnet/minecraft/world/level/chunk/ChunkAccess;"
-                        + "Lcom/seibel/distanthorizons/core/wrapperInterfaces/world/ILevelWrapper;)V",
-                "getMinBlockX", "getMinBlockZ"},
+            method = "<init>(Lnet/minecraft/world/level/chunk/ChunkAccess;"
+                    + "Lcom/seibel/distanthorizons/core/wrapperInterfaces/world/ILevelWrapper;)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getPos()Lnet/minecraft/world/level/ChunkPos;"))
