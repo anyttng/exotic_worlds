@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -25,6 +26,10 @@ class LapNoiseTest {
 
     private static final int CYLINDER_WIDTH = 32;
 
+    private static final int SKEW_CHUNKS = 13;
+
+    private static final int SKEWED_STEP = 41;
+
     @Test
     void aConditionReadRepeatsOneLapOnOnATinyTorus() {
         assertRepeatsOnLoopingAxes(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-16, 16, -16, 16))));
@@ -41,7 +46,31 @@ class LapNoiseTest {
                 CYLINDER_WIDTH)));
         assertRepeatsOnLoopingAxes(cylinder);
         for (double scale : CONDITION_SCALES) {
-            assertEquals(OpenSimplexStandIn.UNBOUNDED, LapNoise.period(cylinder, Direction.Axis.Z, scale));
+            assertEquals(OpenSimplexStandIn.UNBOUNDED, LapNoise.period(cylinder.blockLattice().z(), scale));
+        }
+    }
+
+    @Test
+    void onASkewedNetherAConditionReadRepeatsAlongBothLatticeVectors() {
+        WorldFold fold = WorldFolds.of(FlatShape.latticeTorus(new WorldLoopBounds(-40, 40, -24, 24), SKEW_CHUNKS));
+        TranslationLattice lattice = fold.blockLattice();
+        OpenSimplexStandIn noise = new OpenSimplexStandIn(SEED);
+        int widthX = lattice.x().domainLength;
+        int widthZ = lattice.z().domainLength;
+        for (double scale : CONDITION_SCALES) {
+            for (int x = lattice.x().lowerBound; x < lattice.x().upperBound; x += SKEWED_STEP) {
+                for (int z = lattice.z().lowerBound; z < lattice.z().upperBound; z += SKEWED_STEP) {
+                    String where = x + ", " + z + " at scale " + scale;
+                    double read = LapNoise.eval(noise, fold, x * scale, z * scale, scale, scale);
+                    assertEquals(read, LapNoise.eval(noise, fold, (x + widthX) * scale, z * scale, scale, scale),
+                            TOLERANCE, where + " one X lap on");
+                    assertEquals(read, LapNoise.eval(noise, fold, (x + lattice.skew()) * scale, (z + widthZ) * scale,
+                            scale, scale), TOLERANCE, where + " one Z lap on");
+                    double volume = LapNoise.eval(noise, fold, x * scale, SURFACE_Y * scale, z * scale, scale, scale);
+                    assertEquals(volume, LapNoise.eval(noise, fold, (x + lattice.skew()) * scale, SURFACE_Y * scale,
+                            (z + widthZ) * scale, scale, scale), TOLERANCE, where + " one Z lap on in three dimensions");
+                }
+            }
         }
     }
 

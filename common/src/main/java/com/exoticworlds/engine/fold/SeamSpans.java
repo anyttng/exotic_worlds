@@ -11,8 +11,21 @@ public final class SeamSpans {
     }
 
     public static BoundingBox foldAcrossSeam(WorldFold fold, BoundingBox region) {
-        BoundingBox across = acrossDiagonal(fold, region);
-        return across.equals(region) ? acrossAntiDiagonal(fold, region) : across;
+        BoundingBox diagonal = acrossDiagonal(fold, region);
+        BoundingBox antiDiagonal = acrossAntiDiagonal(fold, region);
+        if (diagonal.equals(region)) {
+            return antiDiagonal;
+        }
+
+        return antiDiagonal.equals(region) || horizontalSpan(diagonal) <= horizontalSpan(antiDiagonal)
+                ? diagonal
+                : antiDiagonal;
+    }
+
+    private static long horizontalSpan(BoundingBox region) {
+        long x = region.getXSpan();
+        long z = region.getZSpan();
+        return x * x + z * z;
     }
 
     private static BoundingBox acrossDiagonal(WorldFold fold, BoundingBox region) {

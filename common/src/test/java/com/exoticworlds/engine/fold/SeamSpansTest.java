@@ -191,4 +191,13 @@ class SeamSpansTest {
         assertTrue(SeamSpans.crossesSeam(SKEWED, region));
         assertEquals(new BoundingBox(180, 0, 500, 300, 4, 524), SeamSpans.foldAcrossSeam(SKEWED, region));
     }
+
+    @Test
+    void whereBothDiagonalsFoldTheShorterRegionIsTaken() {
+        WorldFold longSkewed = WorldFolds.of(FlatShape.latticeTorus(new WorldLoopBounds(-256, 256, -96, 96), 200));
+        BoundingBox region = new BoundingBox(-2032, 0, -1520, 2944, 0, 1520);
+
+        assertTrue(SeamSpans.crossesSeam(longSkewed, region));
+        assertEquals(new BoundingBox(2944, 0, -1552, 2960, 0, -1520), SeamSpans.foldAcrossSeam(longSkewed, region));
+    }
 }

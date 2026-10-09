@@ -3,10 +3,10 @@ package com.exoticworlds.compat.wover;
 import java.util.List;
 import java.util.function.Predicate;
 
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
 
-import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 
 public final class LapMapStack<T> {
@@ -18,6 +18,8 @@ public final class LapMapStack<T> {
     private static final double ROUND = 0.5;
 
     private final WorldFold fold;
+
+    private final TranslationLattice lattice;
 
     private final List<LapMap<T>> layers;
 
@@ -39,8 +41,9 @@ public final class LapMapStack<T> {
         this.vertical = vertical;
         this.layering = layering;
         this.noise = new OpenSimplexStandIn(seed);
-        this.xPeriod = noisePeriod(fold.blockDomain(Direction.Axis.X));
-        this.zPeriod = noisePeriod(fold.blockDomain(Direction.Axis.Z));
+        this.lattice = fold.blockLattice();
+        this.xPeriod = noisePeriod(this.lattice.x());
+        this.zPeriod = noisePeriod(this.lattice.z());
         this.chunks = new LapChunkCache<>(() -> this.layers.getFirst().bounded(), this::build);
         for (int index = 0; index < this.layers.size(); index++) {
             int layer = index;
@@ -61,7 +64,8 @@ public final class LapMapStack<T> {
             return this.layering.maxIndex();
         }
 
-        double distortion = this.noise.eval(x * LAYER_NOISE_RATE, z * LAYER_NOISE_RATE, this.xPeriod, this.zPeriod)
+        double distortion = this.noise.eval(this.lattice.rectangleX(x, z) * LAYER_NOISE_RATE, z * LAYER_NOISE_RATE,
+                this.xPeriod, this.zPeriod)
                 * this.layering.layerDistortion();
         int layer = Mth.floor((y + distortion) / this.layering.worldHeight() * this.layering.maxIndex() + ROUND);
         return Mth.clamp(layer, 0, this.layering.maxIndex());
