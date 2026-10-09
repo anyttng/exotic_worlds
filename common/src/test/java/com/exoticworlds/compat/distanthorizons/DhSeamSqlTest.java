@@ -2,6 +2,7 @@ package com.exoticworlds.compat.distanthorizons;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
 import java.nio.file.Path;
@@ -12,8 +13,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import com.exoticworlds.api.v1.TestShapes;
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -31,6 +30,10 @@ class DhSeamSqlTest {
     private static final int NEAR_THE_SEAM = 500;
     private static final int REGEN_REACH = 80;
     private static final int CHUNKS_PER_LEAF_ROW = 64;
+    private static final int LEAF_SKEW_CHUNKS = 4;
+    private static final int LEAF_SKEW_BLOCKS = LEAF_SKEW_CHUNKS * 16;
+    private static final int LEAF_BLOCKS = 64;
+    private static final int LAPS = 3;
 
     private static final String DATABASE_TYPE = "jdbc:dh_sqlite";
     private static final String DATABASE_FILE = "dh.sqlite";
@@ -44,15 +47,59 @@ class DhSeamSqlTest {
     @TempDir
     Path dir;
 
-    private static ToroidalShape torus() {
+    private static DhLattice torus() {
         AxisBounds.Looped looped = new AxisBounds.Looped(-HALF_CHUNKS, HALF_CHUNKS);
-        return TestShapes.of(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(looped, looped))));
+        return DhLattice.of(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(looped, looped))));
     }
 
-    private static ToroidalShape cylinder() {
+    private static DhLattice cylinder() {
         AxisBounds.Looped looped = new AxisBounds.Looped(-HALF_CHUNKS, HALF_CHUNKS);
-        return TestShapes.of(WorldFolds.of(
+        return DhLattice.of(WorldFolds.of(
                 FlatShape.torus(new WorldLoopBounds(looped, AxisBounds.Unbounded.INSTANCE))));
+    }
+
+    private static DhLattice lattice() {
+        AxisBounds.Looped looped = new AxisBounds.Looped(-HALF_CHUNKS, HALF_CHUNKS);
+        return DhLattice.of(WorldFolds.of(
+                FlatShape.latticeTorus(new WorldLoopBounds(looped, looped), LEAF_SKEW_CHUNKS)));
+    }
+
+    @Test
+    void aSkewedWorldTakesTheRowOneZLapOnWhereTheSkewMovesIt() throws Exception {
+        try (FullDataSourceV2Repo repo = repoWithLeafRowsAlongX(lattice(), PARENT_SQL, DhSeamSql.Site.UPDATE)) {
+            assertEquals(List.of(-1), xs(repo.getParentPositionsToUpdate(0, WIDTH_BLOCKS - 24, 1)));
+        }
+    }
+
+    @Test
+    void aSkewedWorldRanksByTheShortestDistanceOverEveryLatticeCopy() throws Exception {
+        try (FullDataSourceV2Repo repo = repoWithLeafRowsAlongX(lattice(), PARENT_SQL, DhSeamSql.Site.UPDATE)) {
+            for (int targetX = -700; targetX <= 700; targetX += 233) {
+                for (int targetZ = -1500; targetZ <= 1500; targetZ += 271) {
+                    LongArrayList ranked =
+                            repo.getParentPositionsToUpdate(targetX, targetZ, LAST_LEAF - FIRST_LEAF + 1);
+                    long previous = Long.MIN_VALUE;
+                    for (int x : xs(ranked)) {
+                        long distance = latticeManhattan(x * LEAF_BLOCKS - targetX, -targetZ);
+                        assertTrue(previous <= distance, "target " + targetX + "," + targetZ + " row " + x);
+                        previous = distance;
+                    }
+                }
+            }
+        }
+    }
+
+    private static long latticeManhattan(long deltaX, long deltaZ) {
+        long nearest = Long.MAX_VALUE;
+        for (int i = -LAPS; i <= LAPS; i++) {
+            for (int j = -LAPS; j <= LAPS; j++) {
+                long copyX = deltaX + (long) i * WIDTH_BLOCKS + (long) j * LEAF_SKEW_BLOCKS;
+                long copyZ = deltaZ + (long) j * WIDTH_BLOCKS;
+                nearest = Math.min(nearest, Math.abs(copyX) + Math.abs(copyZ));
+            }
+        }
+
+        return nearest;
     }
 
     @Test
@@ -125,25 +172,25 @@ class DhSeamSqlTest {
         }
     }
 
-    private FullDataSourceV2Repo repoWithLeafRowsAlongX(ToroidalShape shape, String sqlField, DhSeamSql.Site site)
+    private FullDataSourceV2Repo repoWithLeafRowsAlongX(DhLattice lattice, String sqlField, DhSeamSql.Site site)
             throws Exception {
         FullDataSourceV2Repo repo = openRepo();
         for (int x = FIRST_LEAF; x <= LAST_LEAF; x++) {
             insertLeaf(repo, x, 0);
         }
 
-        rewriteInPlace(repo, shape, sqlField, site);
+        rewriteInPlace(repo, lattice, sqlField, site);
         return repo;
     }
 
-    private FullDataSourceV2Repo repoWithLeafRowsAlongZ(ToroidalShape shape, String sqlField, DhSeamSql.Site site)
+    private FullDataSourceV2Repo repoWithLeafRowsAlongZ(DhLattice lattice, String sqlField, DhSeamSql.Site site)
             throws Exception {
         FullDataSourceV2Repo repo = openRepo();
         for (int z = FIRST_LEAF; z <= LAST_LEAF; z++) {
             insertLeaf(repo, 0, z);
         }
 
-        rewriteInPlace(repo, shape, sqlField, site);
+        rewriteInPlace(repo, lattice, sqlField, site);
         return repo;
     }
 
@@ -159,11 +206,11 @@ class DhSeamSqlTest {
         }
     }
 
-    private static void rewriteInPlace(FullDataSourceV2Repo repo, ToroidalShape shape, String sqlField,
+    private static void rewriteInPlace(FullDataSourceV2Repo repo, DhLattice lattice, String sqlField,
             DhSeamSql.Site site) throws Exception {
         Field field = FullDataSourceV2Repo.class.getDeclaredField(sqlField);
         field.setAccessible(true);
-        field.set(repo, DhSeamSql.rewrite(shape, (String) field.get(repo), site));
+        field.set(repo, DhSeamSql.rewrite(lattice, (String) field.get(repo), site));
     }
 
     private static String sqlOf(FullDataSourceV2Repo repo, String sqlField) throws Exception {

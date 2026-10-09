@@ -40,33 +40,34 @@ public final class DhProbes {
         }
     }
 
-    public static void keyPeriod(ToroidalShape shape, byte leafDetailLevel) {
+    public static void keyPeriod(DhLattice lattice, byte leafDetailLevel) {
+        ToroidalShape shape = lattice.shape();
         String widthX = widthValue(shape, Direction.Axis.X);
         String widthZ = widthValue(shape, Direction.Axis.Z);
-        if (!SEEN_KEY_PERIODS.add(widthX + ":" + widthZ)) {
+        if (!SEEN_KEY_PERIODS.add(widthX + ":" + widthZ + ":" + lattice.skewBlocks())) {
             return;
         }
 
+        DhFold.Period period = DhFold.period(lattice, leafDetailLevel);
         LOGGER.info("[dh-compat] key_period width_x_blocks={} period_x_blocks={} laps_x={}"
-                + " width_z_blocks={} period_z_blocks={} laps_z={}",
-                widthX, periodValue(shape, Direction.Axis.X, leafDetailLevel),
-                lapsValue(shape, Direction.Axis.X, leafDetailLevel),
-                widthZ, periodValue(shape, Direction.Axis.Z, leafDetailLevel),
-                lapsValue(shape, Direction.Axis.Z, leafDetailLevel));
+                + " width_z_blocks={} period_z_blocks={} laps_z={} skew_blocks={} shift_x_blocks={}",
+                widthX, periodValue(shape, Direction.Axis.X, period.xBlocks()),
+                lapsValue(shape, Direction.Axis.X, period.xBlocks()),
+                widthZ, periodValue(shape, Direction.Axis.Z, period.zBlocks()),
+                lapsValue(shape, Direction.Axis.Z, period.zBlocks()),
+                lattice.skewBlocks(), period.xShiftBlocks());
     }
 
     static String widthValue(ToroidalShape shape, Direction.Axis axis) {
         return shape.loops(axis) ? String.valueOf(shape.widthBlocks(axis)) : NONE;
     }
 
-    static String periodValue(ToroidalShape shape, Direction.Axis axis, byte leafDetailLevel) {
-        return shape.loops(axis) ? String.valueOf(DhFold.periodBlocks(shape, axis, leafDetailLevel)) : NONE;
+    static String periodValue(ToroidalShape shape, Direction.Axis axis, long periodBlocks) {
+        return shape.loops(axis) ? String.valueOf(periodBlocks) : NONE;
     }
 
-    static String lapsValue(ToroidalShape shape, Direction.Axis axis, byte leafDetailLevel) {
-        return shape.loops(axis)
-                ? String.valueOf(DhFold.periodBlocks(shape, axis, leafDetailLevel) / shape.widthBlocks(axis))
-                : NONE;
+    static String lapsValue(ToroidalShape shape, Direction.Axis axis, long periodBlocks) {
+        return shape.loops(axis) ? String.valueOf(periodBlocks / shape.widthBlocks(axis)) : NONE;
     }
 
     public static void repoShape(Object repo, IDhLevel level, boolean present) {
