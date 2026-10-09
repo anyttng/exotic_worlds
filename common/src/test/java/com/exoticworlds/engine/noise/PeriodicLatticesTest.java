@@ -65,6 +65,7 @@ class PeriodicLatticesTest {
         }
     }
 
+    @SuppressWarnings("ArrayRecordComponent")
     private record Noise(byte[] permutations, double xo, double yo, double zo) {
         static Noise of(Random random) {
             byte[] permutations = new byte[256];

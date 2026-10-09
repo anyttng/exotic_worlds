@@ -23,6 +23,7 @@ final class C2meCompiledFunctions {
     private static final double SHIFT_X = 3.0;
     private static final double SHIFT_Z = -5.0;
 
+    @SuppressWarnings("ArrayRecordComponent")
     record Points(int[] xs, int[] ys, int[] zs) implements DensityFunction.ContextProvider {
         static Points over(WorldFold fold, int count) {
             Random random = new Random(SEED);
