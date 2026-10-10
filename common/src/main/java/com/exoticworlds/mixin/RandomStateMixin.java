@@ -9,9 +9,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.exoticworlds.core.GenerationMoments;
 import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.DensityRewrites;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
 
@@ -26,6 +28,13 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 public class RandomStateMixin {
     private static final String CONSTRUCTOR = "<init>(Lnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;"
             + "Lnet/minecraft/core/HolderGetter;J)V";
+
+    @ModifyExpressionValue(method = CONSTRUCTOR, at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;noiseRouter()Lnet/minecraft/world/level/levelgen/NoiseRouter;"))
+    private NoiseRouter toroidal$rewriteKeyedDensities(NoiseRouter router) {
+        WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
+        return fold != null ? DensityRewrites.apply(router, fold) : router;
+    }
 
     // Before RETURN: C2ME compiles the router at its own RETURN inject and reads the separated scales there.
     @Inject(method = CONSTRUCTOR, at = @At(value = "FIELD",

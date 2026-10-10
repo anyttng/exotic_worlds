@@ -71,6 +71,7 @@
     "DedicatedServerPropertiesMixin",
     "DefaultRandomPosMixin",
     "DensityFunctionsEndIslandMixin",
+    "DensityFunctionsHolderHolderMixin",
     "DensityFunctionsNoiseMixin",
     "DensityFunctionsShiftBMixin",
     "DensityFunctionsShiftNoiseMixin",
