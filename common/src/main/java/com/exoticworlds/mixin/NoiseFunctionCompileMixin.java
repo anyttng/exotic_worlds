@@ -39,10 +39,10 @@ public class NoiseFunctionCompileMixin {
         boolean coast = noise.unwrapKey().filter(CoastFields::isCoast).isPresent();
         DensityFunction zero = DensityFunctions.zero();
         if (self.shiftX().equals(zero) && self.shiftY().equals(zero) && self.shiftZ().equals(zero)) {
-            return FoldedSamplers.noise(folded, stack, xzScale, yScale, layerFactors, coast);
+            return FoldedSamplers.noise(folded, stack, xzScale, self.xzScale(), yScale, layerFactors, coast);
         }
 
-        return FoldedSamplers.shiftedNoise(folded, stack, xzScale, yScale, layerFactors, coast,
+        return FoldedSamplers.shiftedNoise(folded, stack, xzScale, self.xzScale(), yScale, layerFactors, coast,
                 ClimateCompression.warpDivisor(noise, folded.fold(), xzScale, verticalShare),
                 self.shiftX(), self.shiftY(), self.shiftZ());
     }

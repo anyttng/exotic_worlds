@@ -15,6 +15,12 @@ public final class DomainWarp {
         return lattice.foldZ(blockZ) + shift / divisor;
     }
 
+    public static boolean carries(TranslationLattice lattice, int blockX, int blockZ, double shiftX, double shiftZ,
+            double vanillaXzScale) {
+        return lattice.x().canLap(applyX(lattice, blockX, blockZ, shiftX, vanillaXzScale))
+                && lattice.z().canLap(applyZ(lattice, blockZ, shiftZ, vanillaXzScale));
+    }
+
     private DomainWarp() {
     }
 }

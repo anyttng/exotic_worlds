@@ -33,6 +33,10 @@ public final class PeriodicNoiseSampler {
 
     static final long HELD_PERIOD = -1L;
 
+    private static final int LATTICE_OFFSET_SPAN = 256;
+
+    static final long MAX_INDEXED_PERIOD = Integer.MAX_VALUE - LATTICE_OFFSET_SPAN;
+
     static final double NO_FUDGE = 0.0;
 
     private static final int X_SLOT = 0;

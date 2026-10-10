@@ -25,4 +25,14 @@ final class PeriodicOctaves {
 
         return value;
     }
+
+    boolean indexable() {
+        for (PeriodicLattice lattice : this.lattices) {
+            if (!lattice.indexable()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
