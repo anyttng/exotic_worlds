@@ -3,21 +3,18 @@ package com.exoticworlds.compat.ftbchunks;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.MixinGatePlugin;
 import com.exoticworlds.compat.ModPresence;
+import com.exoticworlds.compat.ModPresenceGatePlugin;
 
-public class FtbChunksMixinPlugin extends MixinGatePlugin {
+public class FtbChunksMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final boolean FTBCHUNKS_PRESENT = ModPresence.probe("dev/ftb/mods/ftbchunks/FTBChunks.class");
+    private static final ModPresence FTBCHUNKS = ModPresence.gate(LOGGER, "[ftbc-compat] gate ftbchunks_present")
+            .probing("dev/ftb/mods/ftbchunks/FTBChunks.class")
+            .checking("exotic_worlds.compat.ftbchunks.mixins.json")
+            .build();
 
-    @Override
-    public void onLoad(String mixinPackage) {
-        LOGGER.info("[ftbc-compat] gate ftbchunks_present={}", FTBCHUNKS_PRESENT);
-    }
-
-    @Override
-    public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return FTBCHUNKS_PRESENT;
+    public FtbChunksMixinPlugin() {
+        super(FTBCHUNKS);
     }
 }

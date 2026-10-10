@@ -147,6 +147,16 @@ var sableCompanionJars = tasks.register('unpackSableCompanion', Sync) {
     into layout.buildDirectory.dir('sable-companion')
 }
 
+// Sable's physics backend rides its own nested jar; the Sable compat gate reads the Rapier classes its mixins target.
+var sableRapierJars = tasks.register('unpackSableRapier', Sync) {
+    from(zipTree(configurations.sableJarJar.singleFile)) {
+        include 'META-INF/jarjar/dev.ryanhcode.sable.sable-sable_rapier-*.jar'
+        eachFile { it.relativePath = new RelativePath(true, it.name) }
+    }
+    includeEmptyDirs = false
+    into layout.buildDirectory.dir('sable-rapier')
+}
+
 // Create Aeronautics publishes a container jar: its three mods ride jar-in-jar and the outer jar holds no classes at
 // all. The payload rewriters name types from two of them, so those two are unpacked and ride compileOnly beside it;
 // the eriksonn module is content no rewriter touches.
@@ -270,6 +280,7 @@ dependencies {
     testCompileOnly "io.github.llamalad7:mixinextras-common:${mixinextras_version}"
     testRuntimeOnly "maven.modrinth:sable:${sable_version}"
     testRuntimeOnly files(sableCompanionJars).asFileTree.matching { include '*.jar' }
+    testRuntimeOnly files(sableRapierJars).asFileTree.matching { include '*.jar' }
     testRuntimeOnly "io.github.llamalad7:mixinextras-common:${mixinextras_version}"
     testCompileOnly "maven.modrinth:distanthorizons:${distanthorizons_version}"
     testRuntimeOnly "maven.modrinth:distanthorizons:${distanthorizons_version}"
@@ -291,14 +302,29 @@ dependencies {
     testRuntimeOnly "maven.modrinth:wunderlib-neoforge:${wunderlib_version}"
     testCompileOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
     testRuntimeOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
-    // The compat jars and Mixin on the test runtime alone: what the gate-symbol tests read is the class file each
-    // gate names, and a config plugin cannot even load without IMixinConfigPlugin.
+    // The compat jars on the test runtime alone: every compat gate reads its mixins' targets from these class files,
+    // and a config plugin cannot even load without IMixinConfigPlugin.
     testRuntimeOnly "maven.modrinth:journeymap:${journeymap_version}"
+    testRuntimeOnly "info.journeymap:journeymap-api-neoforge:${journeymap_api_version}"
     testRuntimeOnly "maven.modrinth:xaeros-minimap:${xaero_minimap_version}"
     testRuntimeOnly "maven.modrinth:xaeros-world-map:${xaero_worldmap_version}"
+    testRuntimeOnly files(xaeroLibJars).asFileTree.matching { include '*.jar' }
+    testRuntimeOnly files(sodiumModJars).asFileTree.matching { include '*.jar' }
+    testRuntimeOnly "maven.modrinth:mekanism:${mekanism_version}"
+    testRuntimeOnly "maven.modrinth:simple-clouds:${simpleclouds_version}"
+    testRuntimeOnly files(simpleCloudsApiJars).asFileTree.matching { include '*.jar' }
+    testRuntimeOnly("dev.ftb.mods:ftb-chunks-neoforge:${ftbchunks_version}") { transitive = false }
+    testRuntimeOnly "maven.modrinth:astikorcarts-redux:${astikorcarts_version}"
+    testRuntimeOnly "maven.modrinth:create-electro-energetics:${electroenergetics_version}"
+    testRuntimeOnly "curse.maven:mt-chunk-generation-1120044:${mtchunkgeneration_version}"
+    testRuntimeOnly "maven.modrinth:journeymap-integration:${jmi_version}"
+    testRuntimeOnly "maven.modrinth:lithium:${lithium_version}"
+    testRuntimeOnly "maven.modrinth:scalablelux:${scalablelux_version}"
     testRuntimeOnly "net.fabricmc:sponge-mixin:${mixin_version}"
-    // Mixin brings ASM, which the C2ME gate tests write their config class file with.
+    // The checker's fixture mixins carry the real annotations.
     testCompileOnly "net.fabricmc:sponge-mixin:${mixin_version}"
+    testCompileOnly "io.github.llamalad7:mixinextras-common:${mixinextras_version}"
+    testCompileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"
     testImplementation platform("org.junit:junit-bom:${junit_version}")
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.junit.platform:junit-platform-launcher'

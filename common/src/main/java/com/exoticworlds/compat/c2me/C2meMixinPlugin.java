@@ -3,58 +3,37 @@ package com.exoticworlds.compat.c2me;
 import org.spongepowered.asm.mixin.Mixins;
 
 import com.bawnorton.mixinsquared.MixinSquaredBootstrap;
-import com.exoticworlds.MixinGatePlugin;
+import com.mojang.logging.LogUtils;
+import com.exoticworlds.compat.ModPresence;
+import com.exoticworlds.compat.ModPresenceGatePlugin;
 
-public class C2meMixinPlugin extends MixinGatePlugin {
-    private static final String AQUIFER_MIXIN = "AquiferSeamMixin";
+public class C2meMixinPlugin extends ModPresenceGatePlugin {
+    static final String CONFIG = "exotic_worlds.compat.c2me.mixins.json";
 
-    private static final String OCTAVE_NOISE_MIXIN = "PerlinNoiseMixin";
+    static final ModPresence AQUIFER_GATE = ModPresence.gate(LogUtils.getLogger(),
+                    "[c2me-compat] gate aquifer_handler_present")
+            .probing("com/ishland/c2me/opts/worldgen/vanilla/mixin/aquifer/MixinAquiferSamplerImpl.class")
+            .checking(CONFIG, C2meAquifer.MIXIN::equals)
+            .build();
 
-    private static final String LIGHTING_LOCK_MIXIN = "SchedulingUtilLockMixin";
-
-    private static final String[] NO_TICK_VD_MIXINS = {
-            "PlayerNoTickLoaderMixin",
-            "ServerAccessibleChunkSendingMixin"
-    };
-
-    private static final String[] DFC_MIXINS = {
-            "McToAstMixin",
-            "BytecodeGenRegistryMixin",
-            "DotGenRegistryMixin"
-    };
+    public C2meMixinPlugin() {
+        super(C2meChunkSystem.GATE, C2meLightingLock.GATE, C2meNoTickVd.GATE, C2meOctaveNoise.GATE, C2meDfc.GATE,
+                AQUIFER_GATE);
+    }
 
     @Override
     public void onLoad(String mixinPackage) {
         MixinSquaredBootstrap.init();
         Mixins.registerErrorHandlerClass(C2meMixinErrorHandler.class.getName());
+        super.onLoad(mixinPackage);
     }
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (mixinClassName.endsWith(AQUIFER_MIXIN)) {
+        if (AQUIFER_GATE.covers(mixinClassName)) {
             return C2meAquifer.optimizesAquifer();
         }
 
-        if (mixinClassName.endsWith(OCTAVE_NOISE_MIXIN)) {
-            return C2meOctaveNoise.present();
-        }
-
-        if (mixinClassName.endsWith(LIGHTING_LOCK_MIXIN)) {
-            return C2meLightingLock.present();
-        }
-
-        for (String noTickVdMixin : NO_TICK_VD_MIXINS) {
-            if (mixinClassName.endsWith(noTickVdMixin)) {
-                return C2meNoTickVd.present();
-            }
-        }
-
-        for (String dfcMixin : DFC_MIXINS) {
-            if (mixinClassName.endsWith(dfcMixin)) {
-                return C2meDfc.present();
-            }
-        }
-
-        return C2meChunkSystem.present();
+        return super.shouldApplyMixin(targetClassName, mixinClassName);
     }
 }

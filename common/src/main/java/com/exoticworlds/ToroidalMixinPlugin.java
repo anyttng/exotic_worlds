@@ -25,7 +25,7 @@ public class ToroidalMixinPlugin extends MixinGatePlugin {
         }
 
         if (SABLE_CLAIMED_MIXINS.contains(mixinClassName)) {
-            return !SableMod.present();
+            return !SableMod.installed();
         }
 
         return true;

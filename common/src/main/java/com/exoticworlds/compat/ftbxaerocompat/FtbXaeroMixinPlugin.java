@@ -3,22 +3,18 @@ package com.exoticworlds.compat.ftbxaerocompat;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.MixinGatePlugin;
 import com.exoticworlds.compat.ModPresence;
+import com.exoticworlds.compat.ModPresenceGatePlugin;
 
-public class FtbXaeroMixinPlugin extends MixinGatePlugin {
+public class FtbXaeroMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final boolean FTBXAERO_PRESENT =
-            ModPresence.probe("dev/satherov/ftbxaerocompat/FTBXaeroCompat.class");
+    private static final ModPresence FTBXAERO = ModPresence.gate(LOGGER, "[ftbxaero-compat] gate ftbxaerocompat_present")
+            .probing("dev/satherov/ftbxaerocompat/FTBXaeroCompat.class")
+            .checking("exotic_worlds.compat.ftbxaerocompat.mixins.json")
+            .build();
 
-    @Override
-    public void onLoad(String mixinPackage) {
-        LOGGER.info("[ftbxaero-compat] gate ftbxaerocompat_present={}", FTBXAERO_PRESENT);
-    }
-
-    @Override
-    public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return FTBXAERO_PRESENT;
+    public FtbXaeroMixinPlugin() {
+        super(FTBXAERO);
     }
 }

@@ -3,38 +3,38 @@ package com.exoticworlds.compat.xaero;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.MixinGatePlugin;
 import com.exoticworlds.compat.ModPresence;
-import com.exoticworlds.compat.ModSymbol;
+import com.exoticworlds.compat.ModPresenceGatePlugin;
 
-public class XaeroMixinPlugin extends MixinGatePlugin {
+public class XaeroMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    static final ModSymbol WAYPOINT_SCALED_X =
-            new ModSymbol("xaero/common/minimap/waypoints/Waypoint", "getX", "(D)I");
+    private static final String CONFIG = "exotic_worlds.compat.xaero.mixins.json";
+    private static final String MINIMAP_RESOURCE = "xaero/common/HudMod.class";
+    private static final String WORLDMAP_RESOURCE = "xaero/map/WorldMap.class";
+    private static final String WORLDMAP_MIXIN_PACKAGE = "map.";
+    private static final String SUPPORT_WORLDMAP_MIXIN = WORLDMAP_MIXIN_PACKAGE + "SupportXaeroWorldmapMixin";
 
-    static final ModSymbol WORLDMAP_CAMERA_X = new ModSymbol("xaero/map/gui/GuiMap", "cameraX", "D");
+    private static final ModPresence XAERO_MINIMAP = ModPresence.gate(LOGGER,
+                    "[xaero-compat] gate xaero_minimap_present")
+            .probing(MINIMAP_RESOURCE)
+            .checking(CONFIG, mixin -> !mixin.startsWith(WORLDMAP_MIXIN_PACKAGE))
+            .build();
 
-    private static final ModPresence XAERO_MINIMAP = ModPresence.of(LOGGER,
-            "xaero/common/HudMod.class", "[xaero-compat] gate xaero_minimap_present", WAYPOINT_SCALED_X);
+    private static final ModPresence XAERO_WORLDMAP = ModPresence.gate(LOGGER,
+                    "[xaero-compat] gate xaero_worldmap_present")
+            .probing(WORLDMAP_RESOURCE)
+            .checking(CONFIG, mixin -> mixin.startsWith(WORLDMAP_MIXIN_PACKAGE)
+                    && !mixin.equals(SUPPORT_WORLDMAP_MIXIN))
+            .build();
 
-    private static final ModPresence XAERO_WORLDMAP = ModPresence.of(LOGGER,
-            "xaero/map/WorldMap.class", "[xaero-compat] gate xaero_worldmap_present", WORLDMAP_CAMERA_X);
+    private static final ModPresence XAERO_BOTH = ModPresence.gate(LOGGER,
+                    "[xaero-compat] gate xaero_minimap_worldmap_present")
+            .probing(MINIMAP_RESOURCE, WORLDMAP_RESOURCE)
+            .checking(CONFIG, SUPPORT_WORLDMAP_MIXIN::equals)
+            .build();
 
-    private static final String WORLDMAP_MIXIN_PACKAGE = ".mixin.map.";
-
-    @Override
-    public void onLoad(String mixinPackage) {
-        XAERO_MINIMAP.present();
-        XAERO_WORLDMAP.present();
-    }
-
-    @Override
-    public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (mixinClassName.endsWith("SupportXaeroWorldmapMixin")) {
-            return XAERO_MINIMAP.present() && XAERO_WORLDMAP.present();
-        }
-
-        return mixinClassName.contains(WORLDMAP_MIXIN_PACKAGE) ? XAERO_WORLDMAP.present() : XAERO_MINIMAP.present();
+    public XaeroMixinPlugin() {
+        super(XAERO_MINIMAP, XAERO_WORLDMAP, XAERO_BOTH);
     }
 }

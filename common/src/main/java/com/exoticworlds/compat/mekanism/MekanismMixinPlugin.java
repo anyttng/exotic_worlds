@@ -5,17 +5,14 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import com.exoticworlds.compat.ModPresence;
 import com.exoticworlds.compat.ModPresenceGatePlugin;
-import com.exoticworlds.compat.ModSymbol;
 
 public class MekanismMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    static final ModSymbol TELEPORTER_CLOSEST_COORDS = new ModSymbol(
-            "mekanism/common/content/teleporter/TeleporterFrequency", "getClosestCoords",
-            "(Lnet/minecraft/core/GlobalPos;)Lnet/minecraft/core/GlobalPos;");
-
-    private static final ModPresence MEKANISM = ModPresence.of(LOGGER, "mekanism/common/Mekanism.class",
-            "[mek-compat] gate mekanism_present", TELEPORTER_CLOSEST_COORDS);
+    private static final ModPresence MEKANISM = ModPresence.gate(LOGGER, "[mek-compat] gate mekanism_present")
+            .probing("mekanism/common/Mekanism.class")
+            .checking("exotic_worlds.compat.mekanism.mixins.json")
+            .build();
 
     public MekanismMixinPlugin() {
         super(MEKANISM);

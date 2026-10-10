@@ -2,17 +2,20 @@ package com.exoticworlds.compat.c2me;
 
 import com.mojang.logging.LogUtils;
 import com.exoticworlds.compat.ModPresence;
-import com.exoticworlds.compat.ModSymbol;
 
 public final class C2meLightingLock {
-    public static final String OVERWRITE_RESOURCE =
-            "com/ishland/c2me/threading/lighting/mixin/scalablelux/MixinSchedulingUtil.class";
+    public static final String OVERWRITE_CLASS =
+            "com/ishland/c2me/threading/lighting/mixin/scalablelux/MixinSchedulingUtil";
 
-    static final ModSymbol SCHEDULE_TASK = new ModSymbol(
-            "ca/spottedleaf/starlight/common/thread/SchedulingUtil", "scheduleTask", "(ILjava/lang/Runnable;III)V");
+    public static final String OVERWRITE_RESOURCE = OVERWRITE_CLASS + ".class";
 
-    private static final ModPresence GATE = ModPresence.of(LogUtils.getLogger(), OVERWRITE_RESOURCE,
-            "[c2me-compat] gate lighting_lock_present", SCHEDULE_TASK);
+    static final String MIXIN = "SchedulingUtilLockMixin";
+
+    static final ModPresence GATE = ModPresence.gate(LogUtils.getLogger(), "[c2me-compat] gate lighting_lock_present")
+            .probing(OVERWRITE_RESOURCE, "ca/spottedleaf/starlight/common/thread/SchedulingUtil.class")
+            .checking(C2meMixinPlugin.CONFIG, MIXIN::equals)
+            .bodyFrom(MIXIN, OVERWRITE_CLASS)
+            .build();
 
     public static boolean present() {
         return GATE.present();

@@ -1,15 +1,9 @@
 package com.exoticworlds.compat.sable;
 
-import com.exoticworlds.MixinGatePlugin;
+import com.exoticworlds.compat.ModPresenceGatePlugin;
 
-public class SableMixinPlugin extends MixinGatePlugin {
-    @Override
-    public void onLoad(String mixinPackage) {
-        SableMod.present();
-    }
-
-    @Override
-    public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return SableMod.present();
+public class SableMixinPlugin extends ModPresenceGatePlugin {
+    public SableMixinPlugin() {
+        super(SableMod.GATE);
     }
 }

@@ -3,21 +3,18 @@ package com.exoticworlds.compat.jmi;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.MixinGatePlugin;
 import com.exoticworlds.compat.ModPresence;
+import com.exoticworlds.compat.ModPresenceGatePlugin;
 
-public class JmiMixinPlugin extends MixinGatePlugin {
+public class JmiMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final boolean JMI_PRESENT = ModPresence.probe("me/frankv/jmi/JMI.class");
+    private static final ModPresence JMI = ModPresence.gate(LOGGER, "[jmi-compat] gate jmi_present")
+            .probing("me/frankv/jmi/JMI.class")
+            .checking("exotic_worlds.compat.jmi.mixins.json")
+            .build();
 
-    @Override
-    public void onLoad(String mixinPackage) {
-        LOGGER.info("[jmi-compat] gate jmi_present={}", JMI_PRESENT);
-    }
-
-    @Override
-    public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return JMI_PRESENT;
+    public JmiMixinPlugin() {
+        super(JMI);
     }
 }
