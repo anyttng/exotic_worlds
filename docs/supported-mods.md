@@ -54,6 +54,7 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | Mod | Minecraft | Loaders | Status | Notes |
 | --- | --- | --- | --- | --- |
 | [Polymer](https://modrinth.com/mod/polymer)-based mods, such as [Lootr](https://modrinth.com/mod/lootr) | 26.2, 26.1.2, 1.21.1 | NeoForge, Fabric | No patch needed | |
+| Immersive Portals | 1.21.1 | NeoForge, Fabric | No seam support | |
 
 ## World generation
 
