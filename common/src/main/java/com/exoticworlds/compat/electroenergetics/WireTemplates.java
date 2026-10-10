@@ -21,8 +21,7 @@ public final class WireTemplates {
             return block;
         }
 
-        BlockPos centre = new BlockPos(origin).offset(size.getX() / 2, size.getY() / 2, size.getZ() / 2);
-        return WorldLoopAttachments.transformerOfReader(level).nearestCopy(centre, block);
+        return BoxCopies.seat(WorldLoopAttachments.transformerOfReader(level), new BlockPos(origin), size, block);
     }
 
     public static InWorldNode inCaptureBox(Level level, Vec3i origin, Vec3i size, InWorldNode node) {

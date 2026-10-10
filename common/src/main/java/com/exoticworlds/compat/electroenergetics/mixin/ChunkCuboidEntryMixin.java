@@ -9,6 +9,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.exoticworlds.accessors.TransformerHolder;
+import com.exoticworlds.compat.electroenergetics.BoxCopies;
 import com.exoticworlds.compat.electroenergetics.WireBox;
 import com.exoticworlds.compat.electroenergetics.WireChunkKeys;
 import com.exoticworlds.core.WorldFold;
@@ -56,7 +57,8 @@ public abstract class ChunkCuboidEntryMixin implements TransformerHolder, WireBo
 
     @WrapMethod(method = "includes(II)Z")
     private boolean toroidal$includesNearestCopy(int x, int z, Operation<Boolean> original) {
-        ChunkPos seated = this.toroidal$transformer.nearestCopy(this.toroidal$centre(), new ChunkPos(x, z));
+        ChunkPos seated = BoxCopies.seat(this.toroidal$transformer, this.toroidal$centre(), this.toroidal$radius(),
+                new ChunkPos(x, z));
         return original.call(seated.x, seated.z);
     }
 
