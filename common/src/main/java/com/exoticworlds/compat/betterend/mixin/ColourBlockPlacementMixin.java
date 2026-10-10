@@ -22,13 +22,10 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 public class ColourBlockPlacementMixin {
     private static final double SCALE = 0.1;
 
-    private static final String PLACEMENT_DESCRIPTOR =
-            "(Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/level/block/state/BlockState;";
-
-    // The client predicts the placement too, so it reads the same lap noise through its own fold. The Fabric jar
-    // spells this override in intermediary, and the remapper cannot resolve an override in a foreign class.
+    // The client predicts the placement too, so it reads the same lap noise through its own fold.
     @WrapOperation(
-            method = {"getStateForPlacement" + PLACEMENT_DESCRIPTOR, "method_9605" + PLACEMENT_DESCRIPTOR},
+            method = "getStateForPlacement(Lnet/minecraft/world/item/context/BlockPlaceContext;)"
+                    + "Lnet/minecraft/world/level/block/state/BlockState;",
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_3D))
     private double toroidal$lapColourNoise(OpenSimplexNoise noise, double x, double y, double z,
             Operation<Double> original, @Local(argsOnly = true) BlockPlaceContext context) {
