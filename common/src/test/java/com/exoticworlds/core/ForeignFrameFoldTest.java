@@ -10,13 +10,17 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.shape.climate.ClimateScale;
+import com.exoticworlds.shape.climate.CompactBiomes;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -35,6 +39,12 @@ class ForeignFrameFoldTest {
     private static final ForeignSpan PLOT_CHUNKS = new ForeignSpan(PLOT_MIN_CHUNK, PLOT_MAX_CHUNK);
     private static final WorldFold FRAMED = WorldFolds.of(SHAPE, List.of(new ForeignFrame(PLOT_CHUNKS, PLOT_CHUNKS)));
     private static final WorldFold BARE = WorldFolds.of(SHAPE);
+    private static final int LATTICE_SKEW_CHUNKS = 7;
+    private static final FlatShape LATTICE_SHAPE =
+            FlatShape.latticeTorus(WorldLoopBounds.ofWidth(WORLD_CHUNKS), LATTICE_SKEW_CHUNKS);
+    private static final WorldFold LATTICE =
+            WorldFolds.of(LATTICE_SHAPE, List.of(new ForeignFrame(PLOT_CHUNKS, PLOT_CHUNKS)));
+    private static final WorldFold BARE_LATTICE = WorldFolds.of(LATTICE_SHAPE);
 
     private static final ChunkPos PLOT_CHUNK_POS = new ChunkPos(PLOT_CHUNK, PLOT_CHUNK);
     private static final BlockPos PLOT_BLOCK_POS = new BlockPos(PLOT_BLOCK, SEA_LEVEL, PLOT_BLOCK);
@@ -163,5 +173,118 @@ class ForeignFrameFoldTest {
         assertEquals(BARE.bounds(), FRAMED.bounds());
         assertTrue(FRAMED.isWrapped());
         assertEquals(BARE.maxViewDistance(), FRAMED.maxViewDistance());
+    }
+
+    @Test
+    void aFramedFoldHandsBackTheWorldsOptions() {
+        GenerationOptions options = GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
+        List<ForeignFrame> frames = List.of(new ForeignFrame(PLOT_CHUNKS, PLOT_CHUNKS));
+        assertSame(options, WorldFolds.of(SHAPE, frames, options).generationOptions());
+        assertSame(options, WorldFolds.of(LATTICE_SHAPE, frames, options).generationOptions());
+    }
+
+    @Test
+    void aBareLatticePullsThePlotIntoTheWorld() {
+        assertNotEquals(PLOT_CHUNK_POS, BARE_LATTICE.fold(PLOT_CHUNK_POS));
+        assertNotEquals(PLOT_BLOCK_POS, BARE_LATTICE.fold(PLOT_BLOCK_POS));
+        assertTrue(BARE_LATTICE.isOver(PLOT_BLOCK_POS));
+    }
+
+    @Test
+    void theLatticeFoldHandsThePlotPositionBack() {
+        assertFalse(LATTICE.decomposesPerAxis());
+        assertSame(PLOT_CHUNK_POS, LATTICE.fold(PLOT_CHUNK_POS));
+        assertSame(PLOT_BLOCK_POS, LATTICE.fold(PLOT_BLOCK_POS));
+        assertSame(PLOT_VEC, LATTICE.fold(PLOT_VEC));
+        assertSame(PLOT_BLOCK_POS, LATTICE.foldOriented(PLOT_BLOCK_POS).value());
+        assertTrue(LATTICE.foldTransformation(PLOT_VEC).isIdentity());
+
+        SectionPos section = SectionPos.of(PLOT_CHUNK, 4, PLOT_CHUNK);
+        assertSame(section, LATTICE.fold(section));
+
+        long chunkKey = ChunkPos.asLong(PLOT_CHUNK, PLOT_CHUNK);
+        long blockNode = BlockPos.asLong(PLOT_BLOCK, SEA_LEVEL, PLOT_BLOCK);
+        assertEquals(chunkKey, LATTICE.foldChunkKey(chunkKey));
+        assertEquals(blockNode, LATTICE.foldBlockNode(blockNode));
+    }
+
+    @Test
+    void aPlotPositionIsNotOverTheLatticeBounds() {
+        assertFalse(LATTICE.isOver(PLOT_CHUNK_POS));
+        assertFalse(LATTICE.isOver(PLOT_BLOCK_POS));
+        assertFalse(LATTICE.isOver(PLOT_VEC));
+        assertEquals(0, LATTICE.chunkOvershoot(PLOT_CHUNK_POS));
+    }
+
+    @Test
+    void theLatticeNearestCopyLeavesEitherOperandInThePlotWhereItIs() {
+        assertSame(PLOT_BLOCK_POS, LATTICE.nearestCopy(WORLD_BLOCK_POS, PLOT_BLOCK_POS));
+        assertSame(WORLD_BLOCK_POS, LATTICE.nearestCopy(PLOT_BLOCK_POS, WORLD_BLOCK_POS));
+        assertSame(PLOT_VEC, LATTICE.nearestCopy(WORLD_VEC, PLOT_VEC));
+        assertSame(WORLD_VEC, LATTICE.nearestCopy(PLOT_VEC, WORLD_VEC));
+        assertSame(PLOT_CHUNK_POS, LATTICE.nearestCopy(new ChunkPos(0, 0), PLOT_CHUNK_POS));
+        assertTrue(LATTICE.nearestCopyTransformation(WORLD_VEC, PLOT_VEC).isIdentity());
+        assertTrue(LATTICE.nearestCopyTransformation(PLOT_BLOCK_POS, WORLD_BLOCK_POS).isIdentity());
+
+        assertNotEquals(PLOT_BLOCK_POS, BARE_LATTICE.nearestCopy(WORLD_BLOCK_POS, PLOT_BLOCK_POS));
+    }
+
+    @Test
+    void theLatticeReadsDeltaAndDistanceToThePlotRaw() {
+        assertEquals(PLOT_VEC.subtract(WORLD_VEC), LATTICE.foldDelta(WORLD_VEC, PLOT_VEC));
+
+        double raw = WORLD_VEC.distanceToSqr(PLOT_VEC);
+        assertEquals(raw, LATTICE.sqrDistance(WORLD_VEC, PLOT_VEC), 0.0);
+        assertEquals(raw, LATTICE.sqrDistance(PLOT_VEC, WORLD_VEC), 0.0);
+
+        AABB plotBox = new AABB(PLOT_BLOCK_POS).inflate(3.0);
+        assertEquals(plotBox.distanceToSqr(WORLD_VEC), LATTICE.sqrDistanceToBox(plotBox, WORLD_VEC), 0.0);
+    }
+
+    @Test
+    void aPlotBoxIsNeitherMovedNorSplitOnTheLattice() {
+        AABB plotBox = new AABB(PLOT_BLOCK_POS).inflate(3.0);
+        assertSame(plotBox, LATTICE.foldBox(WORLD_VEC, plotBox).value());
+        assertFalse(LATTICE.crossesBounds(plotBox));
+        List<WorldFold.Folded<AABB>> pieces = LATTICE.split(plotBox);
+        assertEquals(1, pieces.size());
+        assertSame(plotBox, pieces.get(0).value());
+
+        BoundingBox plotRegion = BoundingBox.fromCorners(PLOT_BLOCK_POS, PLOT_BLOCK_POS.offset(5, 5, 5));
+        assertFalse(LATTICE.crossesBounds(plotRegion));
+        assertEquals(1, LATTICE.split(plotRegion).size());
+        assertEquals(FRAMED.copiesTouching(plotRegion), LATTICE.copiesTouching(plotRegion));
+        assertFalse(LATTICE.foldsOntoItself(plotRegion));
+
+        assertTrue(BARE_LATTICE.crossesBounds(plotBox));
+    }
+
+    @Test
+    void theLatticeDomainsNameTheFrame() {
+        assertTrue(LATTICE.blockLattice().x().isForeign(PLOT_BLOCK));
+        assertTrue(LATTICE.blockLattice().z().isForeign(PLOT_BLOCK));
+        assertTrue(LATTICE.chunkLattice().x().isForeign(PLOT_CHUNK));
+        assertTrue(LATTICE.chunkLattice().z().isForeign(PLOT_CHUNK));
+        assertFalse(LATTICE.blockLattice().x().isForeign(WORLD_BLOCK_POS.getX()));
+    }
+
+    @Test
+    void oneLatticeStepOutStillFolds() {
+        int widthBlocks = WORLD_CHUNKS * CoordinateConstants.CHUNK_WIDTH;
+        int skewBlocks = LATTICE_SKEW_CHUNKS * CoordinateConstants.CHUNK_WIDTH;
+        BlockPos oneStepOut = WORLD_BLOCK_POS.offset(skewBlocks, 0, widthBlocks);
+        assertEquals(WORLD_BLOCK_POS, LATTICE.fold(oneStepOut));
+        assertEquals(WORLD_BLOCK_POS, LATTICE.nearestCopy(WORLD_BLOCK_POS, oneStepOut));
+
+        BlockPos negatedBlock = new BlockPos(-PLOT_BLOCK, SEA_LEVEL, -PLOT_BLOCK);
+        assertEquals(BARE_LATTICE.fold(negatedBlock), LATTICE.fold(negatedBlock));
+        assertTrue(LATTICE.isOver(negatedBlock));
+    }
+
+    @Test
+    void aPositionForeignOnOneAxisPassesWholeOnTheLattice() {
+        ChunkPos mixed = new ChunkPos(PLOT_CHUNK, 8 + WORLD_CHUNKS);
+        assertSame(mixed, LATTICE.fold(mixed));
+        assertFalse(LATTICE.isOver(mixed));
     }
 }

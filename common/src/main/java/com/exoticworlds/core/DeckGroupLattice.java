@@ -30,11 +30,11 @@ final class DeckGroupLattice {
 
     final @Nullable TranslationLattice translations;
 
-    DeckGroupLattice(FlatShape shape, int unit) {
+    DeckGroupLattice(FlatShape shape, List<ForeignSpan> xSpans, List<ForeignSpan> zSpans, int unit) {
         AxisBounds xBounds = shape.bounds().x();
         AxisBounds zBounds = shape.bounds().z();
-        this.x = domainOf(xBounds, unit);
-        this.z = domainOf(zBounds, unit);
+        this.x = domainOf(xBounds, xSpans, unit);
+        this.z = domainOf(zBounds, zSpans, unit);
 
         FlatShape.Mirror mirror = shape.mirror();
         boolean mirrorsZ = mirror != null && mirror.axis() == Direction.Axis.Z;
@@ -69,9 +69,9 @@ final class DeckGroupLattice {
         return anchor + (2 * offset > mirrored.domainLength ? offset - mirrored.domainLength : offset);
     }
 
-    private static WrapDomain domainOf(AxisBounds axis, int unit) {
+    private static WrapDomain domainOf(AxisBounds axis, List<ForeignSpan> spans, int unit) {
         return switch (axis) {
-            case AxisBounds.Looped looped -> new WrapDomain(looped.minChunk() * unit, looped.maxChunk() * unit);
+            case AxisBounds.Looped looped -> new WrapDomain(looped.minChunk() * unit, looped.maxChunk() * unit, spans);
             case AxisBounds.Unbounded() -> new WrapDomain.Noop();
         };
     }

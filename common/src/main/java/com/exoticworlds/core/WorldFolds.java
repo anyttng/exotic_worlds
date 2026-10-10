@@ -26,13 +26,13 @@ public final class WorldFolds {
         return of(shape, List.of(), generationOptions);
     }
 
-    private static WorldFold of(FlatShape shape, List<ForeignFrame> foreignFrames,
+    public static WorldFold of(FlatShape shape, List<ForeignFrame> foreignFrames,
             GenerationOptions generationOptions) {
         verifyFoldable(shape).getOrThrow(IllegalArgumentException::new);
 
         return shape.decomposesPerAxis()
                 ? new WorldLoopTransformer(shape.bounds(), foreignFrames, generationOptions)
-                : new DeckGroupFold(shape, generationOptions);
+                : new DeckGroupFold(shape, foreignFrames, generationOptions);
     }
 
     public static DataResult<FlatShape> verifyFoldable(FlatShape shape) {

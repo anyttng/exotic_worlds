@@ -208,7 +208,7 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
         List<ForeignFrame> foreignFrames = ForeignFrames.of(level);
         return foreignFrames.isEmpty()
                 ? carried.fold()
-                : WorldFolds.of(carried.shape(), foreignFrames);
+                : WorldFolds.of(carried.shape(), foreignFrames, carried.generationOptions());
     }
 
     // Whether rain falls on a block is the same temperature field the ice is placed from, asked outside any
