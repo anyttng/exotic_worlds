@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.compat.simpleclouds.CloudShape;
 import com.exoticworlds.compat.simpleclouds.SimpleCloudsShapes;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -24,9 +24,9 @@ import dev.nonamecrackers2.simpleclouds.common.cloud.region.CloudRegion;
 import dev.nonamecrackers2.simpleclouds.common.cloud.spawning.CloudGenerator;
 import dev.nonamecrackers2.simpleclouds.common.world.SpawnRegion;
 
-import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = CloudGenerator.class, remap = false)
 public abstract class CloudGeneratorMixin {
@@ -85,13 +85,13 @@ public abstract class CloudGeneratorMixin {
 
     @WrapOperation(method = CREATE_REGION, at = @At(value = "INVOKE", target = "Lorg/joml/Vector2f;distance(FFFF)F"))
     private float toroidal$seatSpacing(float x, float z, float regionX, float regionZ, Operation<Float> original) {
-        ToroidalShape shape = SimpleCloudsShapes.current();
+        CloudShape shape = SimpleCloudsShapes.current();
         if (shape == null) {
             return original.call(x, z, regionX, regionZ);
         }
 
-        return original.call(x, z, (float) shape.nearestCoord(Direction.Axis.X, x, regionX),
-                (float) shape.nearestCoord(Direction.Axis.Z, z, regionZ));
+        Vec3 seated = shape.shape().nearestCopy(new Vec3(x, 0.0, z), new Vec3(regionX, 0.0, regionZ));
+        return original.call(x, z, (float) seated.x, (float) seated.z);
     }
 
     @Unique

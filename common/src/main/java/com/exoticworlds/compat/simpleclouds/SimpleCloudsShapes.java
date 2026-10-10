@@ -5,9 +5,9 @@ import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.api.v1.ExoticWorldsApi;
-import com.exoticworlds.compat.ClientShapes;
 import com.exoticworlds.core.ThreadScope;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldLoopAttachments;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -15,14 +15,13 @@ import net.minecraft.world.level.Level;
 public final class SimpleCloudsShapes {
     public static final float BLOCKS_PER_CLOUD_UNIT = 8.0F;
 
-    private static final ThreadScope<ToroidalShape> BOUND = new ThreadScope<>();
+    private static final ThreadScope<CloudShape> BOUND = new ThreadScope<>();
 
-    public static @Nullable ToroidalShape of(@Nullable Level level) {
-        if (level == null) {
-            return null;
-        }
-
-        return level.isClientSide() ? ClientShapes.of(level) : ExoticWorldsApi.shapeOf(level).orElse(null);
+    public static @Nullable CloudShape of(@Nullable Level level) {
+        WorldFold fold = level != null && level.isClientSide()
+                ? WorldLoopAttachments.wrappedClientBoundsTransformerOf(level)
+                : WorldLoopAttachments.wrappedTransformerOf(level);
+        return fold == null ? null : CloudShape.of(fold);
     }
 
     public static <R> R bound(@Nullable Level level, Supplier<R> body) {
@@ -36,7 +35,7 @@ public final class SimpleCloudsShapes {
         });
     }
 
-    public static @Nullable ToroidalShape current() {
+    public static @Nullable CloudShape current() {
         return BOUND.current();
     }
 
@@ -44,9 +43,10 @@ public final class SimpleCloudsShapes {
         return shape.loops(axis) ? shape.widthBlocks(axis) / BLOCKS_PER_CLOUD_UNIT : 0.0F;
     }
 
-    public static CloudLattice latticeOf(ToroidalShape shape, float m00, float m01, float m10, float m11) {
-        return CloudLattice.of(lapInCloudUnits(shape, Direction.Axis.X), lapInCloudUnits(shape, Direction.Axis.Z), m00,
-                m01, m10, m11);
+    public static CloudLattice latticeOf(CloudShape cloudShape, float m00, float m01, float m10, float m11) {
+        ToroidalShape shape = cloudShape.shape();
+        return CloudLattice.of(lapInCloudUnits(shape, Direction.Axis.X), lapInCloudUnits(shape, Direction.Axis.Z),
+                cloudShape.skewBlocks() / BLOCKS_PER_CLOUD_UNIT, m00, m01, m10, m11);
     }
 
     private SimpleCloudsShapes() {

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.api.v1.ToroidalShape;
 
 public final class CloudRegionShaderSource {
     public static final String SHADER_ID = "simpleclouds:cloud_regions";
@@ -74,7 +73,7 @@ public final class CloudRegionShaderSource {
         return rewritten;
     }
 
-    public static float[] withLattice(float[] region, @Nullable ToroidalShape shape) {
+    public static float[] withLattice(float[] region, @Nullable CloudShape shape) {
         if (!rewritten || region.length != REGION_FLOATS) {
             return region;
         }

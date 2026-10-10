@@ -1,5 +1,7 @@
 package com.exoticworlds.compat.simpleclouds;
 
+import net.minecraft.world.phys.Vec2;
+
 public record CloudLattice(float lapAX, float lapAZ, float lapBX, float lapBZ, float inverse00, float inverse01,
         float inverse10, float inverse11) {
     public static final CloudLattice NONE = new CloudLattice(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
@@ -10,7 +12,7 @@ public record CloudLattice(float lapAX, float lapAZ, float lapBX, float lapBZ, f
     private static final int MAX_REDUCTION_STEPS = 64;
     private static final int NEIGHBOURS = 1;
 
-    public static CloudLattice of(float lapX, float lapZ, float m00, float m01, float m10, float m11) {
+    public static CloudLattice of(float lapX, float lapZ, float skewX, float m00, float m01, float m10, float m11) {
         if (lapX == UNBOUNDED && lapZ == UNBOUNDED) {
             return NONE;
         }
@@ -24,7 +26,7 @@ public record CloudLattice(float lapAX, float lapAZ, float lapBX, float lapBZ, f
 
         float ax = lapX;
         float az = 0.0F;
-        float bx = 0.0F;
+        float bx = skewX;
         float bz = lapZ;
         for (int step = 0; step < MAX_REDUCTION_STEPS; step++) {
             if (squaredImage(ax, az, m00, m01, m10, m11) > squaredImage(bx, bz, m00, m01, m10, m11)) {
@@ -58,14 +60,6 @@ public record CloudLattice(float lapAX, float lapAZ, float lapBX, float lapBZ, f
                 t1x / determinant);
     }
 
-    public float seatedX(float posX, float posZ, float m00, float m01, float m10, float m11, float x, float z) {
-        return seat(posX, posZ, m00, m01, m10, m11, x, z, true);
-    }
-
-    public float seatedZ(float posX, float posZ, float m00, float m01, float m10, float m11, float x, float z) {
-        return seat(posX, posZ, m00, m01, m10, m11, x, z, false);
-    }
-
     public void pack(float[] target, int offset) {
         target[offset] = this.lapAX;
         target[offset + 1] = this.lapAZ;
@@ -77,9 +71,8 @@ public record CloudLattice(float lapAX, float lapAZ, float lapBX, float lapBZ, f
         target[offset + 7] = this.inverse11;
     }
 
-    // Ties break on the seated position, so the X and Z reads of one query pick the same copy from either lap.
-    private float seat(float posX, float posZ, float m00, float m01, float m10, float m11, float x, float z,
-            boolean wantX) {
+    // Ties break on the seated position exactly as the shader's toroidal_seat does, so both pick the same copy.
+    public Vec2 seated(float posX, float posZ, float m00, float m01, float m10, float m11, float x, float z) {
         float vx = x - posX;
         float vz = z - posZ;
         float ux = m00 * vx + m10 * vz;
@@ -105,7 +98,7 @@ public record CloudLattice(float lapAX, float lapAZ, float lapBX, float lapBZ, f
             }
         }
 
-        return wantX ? bestX : bestZ;
+        return new Vec2(bestX, bestZ);
     }
 
     private static float squaredImage(float x, float z, float m00, float m01, float m10, float m11) {

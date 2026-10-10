@@ -4,46 +4,41 @@ import org.joml.Matrix2f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
-import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.compat.simpleclouds.CloudShape;
 import com.exoticworlds.compat.simpleclouds.SimpleCloudsShapes;
-import com.llamalad7.mixinextras.sugar.Local;
 
 import dev.nonamecrackers2.simpleclouds.common.cloud.region.CloudRegion;
+
+import net.minecraft.world.phys.Vec2;
 
 @Mixin(value = CloudRegion.class, remap = false)
 public abstract class CloudRegionMixin {
     @Unique
-    private static final String CIRCLE = "circle";
-    @Unique
     private static final float CURRENT_TICK = 1.0F;
+    @Unique
+    private static final int REGION_ARG = 0;
+    @Unique
+    private static final int X_ARG = 1;
+    @Unique
+    private static final int Z_ARG = 2;
 
-    @ModifyVariable(method = CIRCLE, at = @At("HEAD"), argsOnly = true, ordinal = 0)
-    private static float toroidal$seatQueryX(float x, @Local(argsOnly = true) CloudRegion region,
-            @Local(argsOnly = true, ordinal = 1) float z) {
-        ToroidalShape shape = SimpleCloudsShapes.current();
+    @ModifyArgs(method = "calculateAt", at = @At(value = "INVOKE",
+            target = "Ldev/nonamecrackers2/simpleclouds/common/cloud/region/CloudRegion;circle(Ldev/nonamecrackers2/simpleclouds/common/cloud/region/CloudRegion;FF)Ldev/nonamecrackers2/simpleclouds/common/cloud/region/CloudRegion$CompositeResult;"))
+    private static void toroidal$seatQuery(Args args) {
+        CloudShape shape = SimpleCloudsShapes.current();
         if (shape == null) {
-            return x;
+            return;
         }
 
+        CloudRegion region = args.get(REGION_ARG);
         Matrix2f transform = region.createTransform(CURRENT_TICK);
-        return SimpleCloudsShapes.latticeOf(shape, transform.m00, transform.m01, transform.m10, transform.m11)
-                .seatedX(region.getPosX(), region.getPosZ(), transform.m00, transform.m01, transform.m10,
-                        transform.m11, x, z);
-    }
-
-    @ModifyVariable(method = CIRCLE, at = @At("HEAD"), argsOnly = true, ordinal = 1)
-    private static float toroidal$seatQueryZ(float z, @Local(argsOnly = true) CloudRegion region,
-            @Local(argsOnly = true, ordinal = 0) float x) {
-        ToroidalShape shape = SimpleCloudsShapes.current();
-        if (shape == null) {
-            return z;
-        }
-
-        Matrix2f transform = region.createTransform(CURRENT_TICK);
-        return SimpleCloudsShapes.latticeOf(shape, transform.m00, transform.m01, transform.m10, transform.m11)
-                .seatedZ(region.getPosX(), region.getPosZ(), transform.m00, transform.m01, transform.m10,
-                        transform.m11, x, z);
+        Vec2 seated = SimpleCloudsShapes.latticeOf(shape, transform.m00, transform.m01, transform.m10, transform.m11)
+                .seated(region.getPosX(), region.getPosZ(), transform.m00, transform.m01, transform.m10,
+                        transform.m11, args.get(X_ARG), args.get(Z_ARG));
+        args.set(X_ARG, seated.x);
+        args.set(Z_ARG, seated.y);
     }
 }
