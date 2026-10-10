@@ -10,7 +10,6 @@ import com.exoticworlds.compat.reterraforged.RtfEntry;
 import com.exoticworlds.compat.reterraforged.RtfLap;
 import com.exoticworlds.core.WorldFold;
 
-import net.minecraft.core.Direction;
 import raccoonman.reterraforged.world.worldgen.densityfunction.NoiseFunction;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 
@@ -25,8 +24,7 @@ public abstract class NoiseFunctionMixin {
         }
 
         try (RtfLap.Frame.Scope lap = RtfLap.frame().bind(fold)) {
-            return original.call(noise, RtfEntry.foldBlock(fold, Direction.Axis.X, x),
-                    RtfEntry.foldBlock(fold, Direction.Axis.Z, z), seed);
+            return original.call(noise, RtfEntry.foldX(fold, x, z), RtfEntry.foldZ(fold, z), seed);
         }
     }
 }

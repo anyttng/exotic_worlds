@@ -14,6 +14,7 @@ import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
@@ -73,6 +74,8 @@ class RtfClimateCompressionTest {
     private static final float CONTINENT_SLACK_BLOCKS = 450.0F;
 
     private static final int NARROW_CHUNKS = 64;
+
+    private static final int SKEW_CHUNKS = 5;
 
     private static final int WIDE_CHUNKS = 5000;
 
@@ -250,8 +253,10 @@ class RtfClimateCompressionTest {
         Random random = new Random(SAMPLE_SEED);
         try (RtfLap.Frame.Scope lap = frame.bind(fold)) {
             for (int i = 0; i < LAG_SAMPLES; i++) {
-                float x = frame.shift(Direction.Axis.X, (float) (random.nextDouble() * SPREAD));
-                float z = frame.shift(Direction.Axis.Z, (float) (random.nextDouble() * SPREAD));
+                float rawX = (float) (random.nextDouble() * SPREAD);
+                float rawZ = (float) (random.nextDouble() * SPREAD);
+                float x = frame.shiftX(rawX, rawZ);
+                float z = frame.shiftZ(rawZ);
                 Cell plain = climate(module, x, z);
                 Cell compressed;
                 try (RtfLap.Frame.Scope once = frame.compress(ClimateScaleCompression.NO_COMPRESSION)) {
@@ -309,6 +314,31 @@ class RtfClimateCompressionTest {
     }
 
     @Test
+    void theCompressedBiomeCellsJoinOnASkewedLattice() {
+        ClimateModule module = defaultModule(MODULE_SEED);
+        WorldFold fold = skewed(NARROW_CHUNKS, ClimateScale.OFF);
+        RtfLap.Frame frame = RtfLap.frame();
+        try (RtfLap.Frame.Scope lap = frame.bind(fold)) {
+            for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
+                for (double factor : new double[] {ClimateScaleCompression.NO_COMPRESSION, COMPRESSION,
+                        FRACTIONAL_COMPRESSION}) {
+                    assertJoinedAt(module, frame, fold, axis, 0, factor);
+                    assertJoinedAt(module, frame, fold, axis, domain(fold, axis).lowerBound
+                            + domain(fold, axis).domainLength, factor);
+                }
+            }
+        }
+    }
+
+    @Test
+    void aSkewedLatticeFitsItsClimateAsTheTorusOfItsLaps() {
+        WorldFold torus = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(NARROW_CHUNKS)),
+                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.AUTO));
+        assertEquals(RtfClimateCompression.factor(torus, DEFAULT_SCALES),
+                RtfClimateCompression.factor(skewed(NARROW_CHUNKS, ClimateScale.AUTO), DEFAULT_SCALES), EXACT);
+    }
+
+    @Test
     void theFrameIsLeftAsItWasFound() {
         RtfLap.Frame frame = RtfLap.frame();
         WorldFold fold = shapes(NARROW_CHUNKS, ClimateScale.OFF)[0];
@@ -335,9 +365,9 @@ class RtfClimateCompressionTest {
         int jumps = 0;
         try (RtfLap.Frame.Scope lap = frame.bind(fold)) {
             for (int line = 0; line < CROSS_LINES; line++) {
-                float cross = frame.shift(Direction.Axis.Z, crossMin + line * span / (float) CROSS_LINES);
+                float cross = frame.shiftZ(crossMin + line * span / (float) CROSS_LINES);
                 for (int i = 0; i <= 2 * STRIP; i++) {
-                    float along = frame.shift(Direction.Axis.X, i - STRIP);
+                    float along = frame.shiftX(i - STRIP, cross);
                     edge[i] = climate(module, (float) (along * FRACTIONAL_COMPRESSION),
                             (float) (cross * FRACTIONAL_COMPRESSION)).biomeRegionEdge;
                 }
@@ -355,10 +385,10 @@ class RtfClimateCompressionTest {
     private static void assertJoinedAt(ClimateModule module, RtfLap.Frame frame, WorldFold fold,
             Direction.Axis axis, int join, double factor) {
         Direction.Axis crossAxis = axis == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X;
-        int span = fold.blockDomain(axis).domainLength;
-        boolean crossLoops = fold.blockDomain(crossAxis).loops();
-        int crossMin = crossLoops ? fold.blockDomain(crossAxis).lowerBound : -span / 2;
-        int crossSpan = crossLoops ? fold.blockDomain(crossAxis).domainLength : span;
+        int span = domain(fold, axis).domainLength;
+        boolean crossLoops = domain(fold, crossAxis).loops();
+        int crossMin = crossLoops ? domain(fold, crossAxis).lowerBound : -span / 2;
+        int crossSpan = crossLoops ? domain(fold, crossAxis).domainLength : span;
         float[] edge = new float[2 * STRIP + 1];
         for (int line = 0; line < CROSS_LINES; line++) {
             int cross = crossMin + line * crossSpan / CROSS_LINES;
@@ -430,8 +460,8 @@ class RtfClimateCompressionTest {
 
     private static Cell compressedClimate(ClimateModule module, RtfLap.Frame frame, float x, float z,
             double factor) {
-        float shiftedX = frame.shift(Direction.Axis.X, x);
-        float shiftedZ = frame.shift(Direction.Axis.Z, z);
+        float shiftedX = frame.shiftX(x, z);
+        float shiftedZ = frame.shiftZ(z);
         if (factor == ClimateScaleCompression.NO_COMPRESSION) {
             return climate(module, shiftedX, shiftedZ);
         }
@@ -453,6 +483,15 @@ class RtfClimateCompressionTest {
                 WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(chunks)), options),
                 WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, chunks)), options),
                 WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.Z, chunks)), options)};
+    }
+
+    private static WorldFold skewed(int chunks, ClimateScale scale) {
+        return WorldFolds.of(new FlatShape(WorldLoopBounds.ofWidth(chunks), SKEW_CHUNKS, null),
+                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, scale));
+    }
+
+    private static WrapDomain domain(WorldFold fold, Direction.Axis axis) {
+        return axis == Direction.Axis.X ? fold.blockLattice().x() : fold.blockLattice().z();
     }
 
     private static double lapBlocks(WorldFold fold, Direction.Axis axis) {

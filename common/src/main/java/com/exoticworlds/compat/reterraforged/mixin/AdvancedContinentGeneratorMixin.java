@@ -3,6 +3,7 @@ package com.exoticworlds.compat.reterraforged.mixin;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -39,7 +40,7 @@ public abstract class AdvancedContinentGeneratorMixin {
         }
 
         try (RtfLap.Frame.Scope lattice = frame.octave(this.frequency)) {
-            original.call(cell, frame.shift(Direction.Axis.X, x), frame.shift(Direction.Axis.Z, y));
+            original.call(cell, frame.latticeX(x, y), frame.shiftZ(y));
         }
     }
 
@@ -82,8 +83,9 @@ public abstract class AdvancedContinentGeneratorMixin {
         }
 
         AbstractContinentAccessor continent = (AbstractContinentAccessor) (Object) this;
-        original.call(cell, (int) (CellCenters.correctedX(frame, continent.toroidal$seed(), cellX, cellY,
-                continent.toroidal$jitter()) / frame.snappedFrequency(Direction.Axis.X, this.frequency)));
+        float x = CellCenters.correctedX(frame, continent.toroidal$seed(), cellX, cellY, continent.toroidal$jitter())
+                / frame.snappedFrequency(Direction.Axis.X, this.frequency);
+        original.call(cell, (int) (frame.sheared() ? frame.outerX(x, toroidal$blockZ(frame, cellX, cellY)) : x));
     }
 
     @WrapOperation(method = "apply", at = @At(value = "FIELD", target = ReTerraForgedInjectionTargets.CELL_CONTINENT_Z,
@@ -96,8 +98,13 @@ public abstract class AdvancedContinentGeneratorMixin {
             return;
         }
 
+        original.call(cell, (int) toroidal$blockZ(frame, cellX, cellY));
+    }
+
+    @Unique
+    private float toroidal$blockZ(RtfLap.Frame frame, int cellX, int cellY) {
         AbstractContinentAccessor continent = (AbstractContinentAccessor) (Object) this;
-        original.call(cell, (int) (CellCenters.correctedZ(frame, continent.toroidal$seed(), cellX, cellY,
-                continent.toroidal$jitter()) / frame.snappedFrequency(Direction.Axis.Z, this.frequency)));
+        return CellCenters.correctedZ(frame, continent.toroidal$seed(), cellX, cellY, continent.toroidal$jitter())
+                / frame.snappedFrequency(Direction.Axis.Z, this.frequency);
     }
 }

@@ -1,6 +1,5 @@
 package com.exoticworlds.compat.reterraforged;
 
-import net.minecraft.core.Direction;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.function.Interpolation;
 
@@ -16,15 +15,13 @@ public final class RtfOctaves {
 
     public static float sum(RtfLap.Frame frame, LatticeSample sample, Interpolation interpolation, float x, float z,
             int firstSeed, int octaves, double frequency, float lacunarity, float gain, float firstAmplitude) {
-        float shiftedX = frame.shift(Direction.Axis.X, x);
-        float shiftedZ = frame.shift(Direction.Axis.Z, z);
         float sum = 0.0F;
         float amplitude = firstAmplitude;
         double octaveFrequency = frequency;
         for (int octave = 0; octave < octaves; octave++) {
             try (RtfLap.Frame.Scope lattice = frame.octave(octaveFrequency)) {
-                sum += sample.at(shiftedX * frame.xScale(), shiftedZ * frame.zScale(), firstSeed + octave,
-                        interpolation) * amplitude;
+                sum += sample.at(frame.latticeX(x, z) * frame.xScale(), frame.shiftZ(z) * frame.zScale(),
+                        firstSeed + octave, interpolation) * amplitude;
             }
 
             octaveFrequency *= lacunarity;
@@ -36,8 +33,6 @@ public final class RtfOctaves {
 
     public static float ridge(RtfLap.Frame frame, LatticeSample sample, Interpolation interpolation, float x, float z,
             int firstSeed, int octaves, double frequency, float lacunarity, float gain, float[] spectralWeights) {
-        float shiftedX = frame.shift(Direction.Axis.X, x);
-        float shiftedZ = frame.shift(Direction.Axis.Z, z);
         float amplitude = RIDGE_FIRST_AMPLITUDE;
         float value = 0.0F;
         float weight = 1.0F;
@@ -45,8 +40,8 @@ public final class RtfOctaves {
         for (int octave = 0; octave < octaves; octave++) {
             float signal;
             try (RtfLap.Frame.Scope lattice = frame.octave(octaveFrequency)) {
-                signal = sample.at(shiftedX * frame.xScale(), shiftedZ * frame.zScale(), firstSeed + octave,
-                        interpolation);
+                signal = sample.at(frame.latticeX(x, z) * frame.xScale(), frame.shiftZ(z) * frame.zScale(),
+                        firstSeed + octave, interpolation);
             }
 
             signal = RIDGE_OFFSET - Math.abs(signal);

@@ -1,6 +1,5 @@
 package com.exoticworlds.compat.reterraforged;
 
-import net.minecraft.core.Direction;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 
 // A value that holds for a whole lattice cell is computed from the cell's folded index, never from the point that
@@ -15,13 +14,13 @@ public final class CellCenters {
     private static final float VERTEX_SLACK = 1.0E-4F;
 
     public static float jitteredX(RtfLap.Frame frame, int seed, int cellX, int cellY, float jitter) {
-        int canonicalX = frame.fold(Direction.Axis.X, cellX);
-        return canonicalX + NoiseUtil.cell(seed, canonicalX, frame.fold(Direction.Axis.Z, cellY)).x() * jitter;
+        int canonicalX = frame.foldX(cellX, cellY);
+        return canonicalX + NoiseUtil.cell(seed, canonicalX, frame.foldZ(cellY)).x() * jitter;
     }
 
     public static float jitteredZ(RtfLap.Frame frame, int seed, int cellX, int cellY, float jitter) {
-        int canonicalY = frame.fold(Direction.Axis.Z, cellY);
-        return canonicalY + NoiseUtil.cell(seed, frame.fold(Direction.Axis.X, cellX), canonicalY).y() * jitter;
+        int canonicalY = frame.foldZ(cellY);
+        return canonicalY + NoiseUtil.cell(seed, frame.foldX(cellX, cellY), canonicalY).y() * jitter;
     }
 
     public static float correctedX(RtfLap.Frame frame, int seed, int cellX, int cellY, float jitter) {
@@ -42,8 +41,8 @@ public final class CellCenters {
     }
 
     private static float corrected(RtfLap.Frame frame, int seed, int cellX, int cellY, float jitter, boolean x) {
-        int canonicalX = frame.fold(Direction.Axis.X, cellX);
-        int canonicalY = frame.fold(Direction.Axis.Z, cellY);
+        int canonicalX = frame.foldX(cellX, cellY);
+        int canonicalY = frame.foldZ(cellY);
         NoiseUtil.Vec2f own = NoiseUtil.cell(seed, canonicalX, canonicalY);
         float point = x ? canonicalX + own.x() * jitter : canonicalY + own.y() * jitter;
         float sum = 0.0F;
@@ -60,8 +59,8 @@ public final class CellCenters {
     }
 
     private static float centroid(RtfLap.Frame frame, int seed, int cellX, int cellY, float jitter, boolean x) {
-        int canonicalX = frame.fold(Direction.Axis.X, cellX);
-        int canonicalY = frame.fold(Direction.Axis.Z, cellY);
+        int canonicalX = frame.foldX(cellX, cellY);
+        int canonicalY = frame.foldZ(cellY);
         NoiseUtil.Vec2f own = NoiseUtil.cell(seed, canonicalX, canonicalY);
         float pointX = canonicalX + own.x() * jitter;
         float pointY = canonicalY + own.y() * jitter;

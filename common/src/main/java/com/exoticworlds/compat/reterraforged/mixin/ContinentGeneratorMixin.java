@@ -49,7 +49,7 @@ public abstract class ContinentGeneratorMixin {
         }
 
         try (RtfLap.Frame.Scope lattice = frame.octave(this.frequency)) {
-            original.call(cell, frame.shift(Direction.Axis.X, x), frame.shift(Direction.Axis.Z, y));
+            original.call(cell, frame.latticeX(x, y), frame.shiftZ(y));
         }
     }
 
@@ -61,7 +61,7 @@ public abstract class ContinentGeneratorMixin {
         }
 
         try (RtfLap.Frame.Scope lattice = frame.octave(this.frequency)) {
-            return original.call(frame.shift(Direction.Axis.X, x), frame.shift(Direction.Axis.Z, y));
+            return original.call(frame.latticeX(x, y), frame.shiftZ(y));
         }
     }
 
@@ -73,7 +73,7 @@ public abstract class ContinentGeneratorMixin {
         }
 
         try (RtfLap.Frame.Scope lattice = frame.octave(this.frequency)) {
-            return original.call(frame.shift(Direction.Axis.X, x), frame.shift(Direction.Axis.Z, z));
+            return original.call(frame.latticeX(x, z), frame.shiftZ(z));
         }
     }
 
@@ -123,13 +123,19 @@ public abstract class ContinentGeneratorMixin {
 
     @Unique
     private int toroidal$centerX(RtfLap.Frame frame, int cellX, int cellY) {
-        return (int) (CellCenters.jitteredX(frame, this.seed, cellX, cellY, this.offsetAlpha)
-                / frame.snappedFrequency(Direction.Axis.X, this.frequency));
+        float x = CellCenters.jitteredX(frame, this.seed, cellX, cellY, this.offsetAlpha)
+                / frame.snappedFrequency(Direction.Axis.X, this.frequency);
+        return (int) (frame.sheared() ? frame.outerX(x, toroidal$blockZ(frame, cellX, cellY)) : x);
     }
 
     @Unique
     private int toroidal$centerZ(RtfLap.Frame frame, int cellX, int cellY) {
-        return (int) (CellCenters.jitteredZ(frame, this.seed, cellX, cellY, this.offsetAlpha)
-                / frame.snappedFrequency(Direction.Axis.Z, this.frequency));
+        return (int) toroidal$blockZ(frame, cellX, cellY);
+    }
+
+    @Unique
+    private float toroidal$blockZ(RtfLap.Frame frame, int cellX, int cellY) {
+        return CellCenters.jitteredZ(frame, this.seed, cellX, cellY, this.offsetAlpha)
+                / frame.snappedFrequency(Direction.Axis.Z, this.frequency);
     }
 }

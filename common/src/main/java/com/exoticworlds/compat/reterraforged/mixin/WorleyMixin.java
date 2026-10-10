@@ -10,7 +10,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.exoticworlds.compat.reterraforged.RtfLap;
 
-import net.minecraft.core.Direction;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.function.CellFunction;
 import raccoonman.reterraforged.world.worldgen.noise.function.DistanceFunction;
@@ -61,8 +60,8 @@ public abstract class WorleyMixin {
 
         float value;
         try (RtfLap.Frame.Scope lattice = frame.octave(this.frequency)) {
-            float latticeX = frame.shift(Direction.Axis.X, x) * frame.xScale();
-            float latticeZ = frame.shift(Direction.Axis.Z, z) * frame.zScale();
+            float latticeX = frame.latticeX(x, z) * frame.xScale();
+            float latticeZ = frame.shiftZ(z) * frame.zScale();
             value = sample(latticeX, latticeZ, seed, this.distance, this.cellFunction, this.distanceFunction,
                     this.lookup);
         }
@@ -82,8 +81,8 @@ public abstract class WorleyMixin {
             return original.call(function, seed, cellX, cellY, nearest, vector, lookup);
         }
 
-        int canonicalX = frame.fold(Direction.Axis.X, cellX);
-        int canonicalY = frame.fold(Direction.Axis.Z, cellY);
+        int canonicalX = frame.foldX(cellX, cellY);
+        int canonicalY = frame.foldZ(cellY);
         try (RtfLap.Frame.Scope open = frame.open()) {
             return original.call(function, seed, canonicalX, canonicalY, nearest, vector, lookup);
         }

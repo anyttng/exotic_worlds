@@ -1,5 +1,6 @@
 package com.exoticworlds.compat.reterraforged;
 
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
@@ -28,8 +29,9 @@ public final class RtfClimateCompression {
 
     static double fitted(WorldFold fold, RtfClimateScales scales) {
         double fit = ClimateScaleCompression.NO_COMPRESSION;
+        TranslationLattice lattice = fold.blockLattice();
         for (Direction.Axis axis : HORIZONTAL) {
-            WrapDomain domain = fold.blockDomain(axis);
+            WrapDomain domain = axis == Direction.Axis.X ? lattice.x() : lattice.z();
             if (domain.loops()) {
                 double cellsPerLap = domain.domainLength * LATTICE_HALF_CELLS / halfBlocks(axis, scales);
                 fit = Math.max(fit, ClimateScaleCompression.fittedToCells(cellsPerLap));

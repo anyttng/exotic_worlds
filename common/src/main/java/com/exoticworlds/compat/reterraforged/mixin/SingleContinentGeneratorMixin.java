@@ -37,14 +37,15 @@ public abstract class SingleContinentGeneratorMixin {
 
         double xLap = frame.lap(Direction.Axis.X);
         double zLap = frame.lap(Direction.Axis.Z);
+        double skew = frame.skew();
         LappedCenter held = this.toroidal$lappedCenter;
-        if (held != null && held.xLap() == xLap && held.zLap() == zLap) {
+        if (held != null && held.xLap() == xLap && held.zLap() == zLap && held.skew() == skew) {
             return held.center();
         }
 
         long packed = ((SimpleContinent) (Object) this).getNearestCenter(ORIGIN, ORIGIN);
         NoiseUtil.Vec2i lapped = new NoiseUtil.Vec2i(PosUtil.unpackLeft(packed), PosUtil.unpackRight(packed));
-        this.toroidal$lappedCenter = new LappedCenter(xLap, zLap, lapped);
+        this.toroidal$lappedCenter = new LappedCenter(xLap, zLap, skew, lapped);
         return lapped;
     }
 }

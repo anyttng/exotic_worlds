@@ -8,8 +8,6 @@ import com.exoticworlds.compat.reterraforged.RtfEntry;
 import com.exoticworlds.compat.reterraforged.RtfLap;
 import com.exoticworlds.core.WorldFold;
 
-import net.minecraft.core.Direction;
-
 @Mixin(targets = "raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule$Source", remap = false)
 public abstract class StrataRuleSourceMixin {
     @WrapMethod(method = "initBuffer")
@@ -21,7 +19,7 @@ public abstract class StrataRuleSourceMixin {
         }
 
         try (RtfLap.Frame.Scope lap = RtfLap.frame().bind(fold)) {
-            original.call(RtfEntry.foldBlock(fold, Direction.Axis.X, x), RtfEntry.foldBlock(fold, Direction.Axis.Z, z));
+            original.call(RtfEntry.foldX(fold, x, z), RtfEntry.foldZ(fold, z));
         }
     }
 }

@@ -6,7 +6,6 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.exoticworlds.compat.reterraforged.RtfLap;
 
-import net.minecraft.core.Direction;
 import raccoonman.reterraforged.world.worldgen.cell.continent.advanced.AbstractContinent;
 
 @Mixin(value = AbstractContinent.class, remap = false)
@@ -19,6 +18,6 @@ public abstract class AbstractContinentMixin {
             return original.call(cellX, cellY);
         }
 
-        return original.call(frame.fold(Direction.Axis.X, cellX), frame.fold(Direction.Axis.Z, cellY));
+        return original.call(frame.foldX(cellX, cellY), frame.foldZ(cellY));
     }
 }

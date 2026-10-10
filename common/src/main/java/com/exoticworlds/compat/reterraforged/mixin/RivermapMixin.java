@@ -7,7 +7,6 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.exoticworlds.compat.reterraforged.RtfLap;
 
-import net.minecraft.core.Direction;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.cell.rivermap.Rivermap;
 
@@ -29,8 +28,8 @@ public abstract class RivermapMixin {
             return;
         }
 
-        float seatedX = (float) frame.seat(Direction.Axis.X, x, this.x);
-        float seatedZ = (float) frame.seat(Direction.Axis.Z, z, this.z);
+        float seatedX = (float) frame.seatX(x, z, this.x, this.z);
+        float seatedZ = (float) frame.seatZ(z, this.z);
         try (RtfLap.Frame.Scope open = frame.open()) {
             original.call(cell, seatedX, seatedZ);
         }

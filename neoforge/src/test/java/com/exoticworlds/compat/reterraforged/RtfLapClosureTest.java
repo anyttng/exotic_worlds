@@ -9,10 +9,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.WrapDomain;
 
 import net.minecraft.core.Direction;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
@@ -47,6 +49,14 @@ class RtfLapClosureTest {
     private static final int CELLS_PAST_LAP = 3;
 
     private static final int CELL_ROW = 5;
+
+    private static final int SKEW_CHUNKS = 5;
+
+    private static final int SKEW_CELL_SCALE = 97;
+
+    private static final float CELL_JITTER = 0.7F;
+
+    private static final int FRAME_SEAM = 0;
 
     private static final String WORLDGEN = "raccoonman.reterraforged.world.worldgen.";
 
@@ -116,6 +126,12 @@ class RtfLapClosureTest {
     }
 
     @Test
+    void everyContinuousNoiseJoinsAcrossTheSeamsOfASkewedTorus() {
+        assertJoined(skewed(NARROW_CHUNKS));
+        assertJoined(skewed(WIDE_CHUNKS));
+    }
+
+    @Test
     void everyContinuousNoiseJoinsAcrossTheSeamOfACylinder() {
         assertJoined(cylinder(NARROW_CHUNKS));
         assertJoined(cylinder(WIDE_CHUNKS));
@@ -155,6 +171,25 @@ class RtfLapClosureTest {
         }
     }
 
+    @Test
+    void aLatticeCellOneZLapOnHashesAsTheCellItCopies() {
+        try (RtfLap.Frame.Scope lap = RtfLap.frame().bind(skewed(NARROW_CHUNKS));
+                RtfLap.Frame.Scope lattice = RtfLap.frame().octave(1.0 / SKEW_CELL_SCALE)) {
+            RtfLap.Frame frame = RtfLap.frame();
+            int skewCells = frame.skewCells();
+            int rows = frame.zPeriod();
+            assertTrue(Math.floorMod(skewCells, frame.xPeriod()) != 0, "the skew moves the lattice by whole cells");
+            assertEquals(NoiseUtil.valCoord2D(SEED, CELLS_PAST_LAP, CELL_ROW),
+                    NoiseUtil.valCoord2D(SEED, CELLS_PAST_LAP + skewCells, CELL_ROW + rows));
+            assertEquals(NoiseUtil.cell(SEED, CELLS_PAST_LAP, CELL_ROW),
+                    NoiseUtil.cell(SEED, CELLS_PAST_LAP - skewCells, CELL_ROW - rows));
+            assertEquals(CellCenters.correctedX(frame, SEED, CELLS_PAST_LAP, CELL_ROW, CELL_JITTER),
+                    CellCenters.correctedX(frame, SEED, CELLS_PAST_LAP + skewCells, CELL_ROW + rows, CELL_JITTER));
+            assertEquals(CellCenters.correctedZ(frame, SEED, CELLS_PAST_LAP, CELL_ROW, CELL_JITTER),
+                    CellCenters.correctedZ(frame, SEED, CELLS_PAST_LAP + skewCells, CELL_ROW + rows, CELL_JITTER));
+        }
+    }
+
     // A mixin applies when its target loads, and a refused injector throws then; loading every target here finds it
     // in the suite rather than at server boot.
     @Test
@@ -181,11 +216,14 @@ class RtfLapClosureTest {
             for (Map.Entry<String, Noise> entry : CONTINUOUS.entrySet()) {
                 boolean varies = false;
                 for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
-                    if (!fold.blockDomain(axis).loops()) {
+                    WrapDomain domain = domain(fold, axis);
+                    if (!domain.loops()) {
                         continue;
                     }
 
-                    varies |= assertJoinedAlong(fold, axis, entry.getKey(), entry.getValue());
+                    for (int join : new int[] {domain.lowerBound + domain.domainLength, FRAME_SEAM}) {
+                        varies |= assertJoinedAlong(fold, axis, join, entry.getKey(), entry.getValue());
+                    }
                 }
 
                 assertTrue(varies, entry.getKey() + " never changes beside the seam");
@@ -193,22 +231,23 @@ class RtfLapClosureTest {
         }
     }
 
-    private static boolean assertJoinedAlong(WorldFold fold, Direction.Axis axis, String name, Noise noise) {
+    private static boolean assertJoinedAlong(WorldFold fold, Direction.Axis axis, int join, String name,
+            Noise noise) {
         Direction.Axis crossAxis = axis == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X;
-        int min = fold.blockDomain(axis).lowerBound;
-        int span = fold.blockDomain(axis).domainLength;
-        int seam = min + span;
-        boolean crossLoops = fold.blockDomain(crossAxis).loops();
-        int crossMin = crossLoops ? fold.blockDomain(crossAxis).lowerBound : -span / 2;
-        int crossSpan = crossLoops ? fold.blockDomain(crossAxis).domainLength : span;
+        TranslationLattice lattice = fold.blockLattice();
+        int span = domain(fold, axis).domainLength;
+        boolean crossLoops = domain(fold, crossAxis).loops();
+        int crossMin = crossLoops ? domain(fold, crossAxis).lowerBound : -span / 2;
+        int crossSpan = crossLoops ? domain(fold, crossAxis).domainLength : span;
         boolean varies = false;
         float[] values = new float[2 * STRIP + 1];
         for (int line = 0; line < LINES; line++) {
             int cross = crossMin + line * crossSpan / LINES;
-            // The last canonical block stands beside the first one, so the strip is read from both ends of the bounds.
             for (int i = 0; i <= 2 * STRIP; i++) {
-                float along = i < STRIP ? seam - STRIP + i : min + i - STRIP;
-                values[i] = axis == Direction.Axis.X ? noise.compute(along, cross, 0) : noise.compute(cross, along, 0);
+                int along = join - STRIP + i;
+                int x = axis == Direction.Axis.X ? along : cross;
+                int z = axis == Direction.Axis.X ? cross : along;
+                values[i] = noise.compute(lattice.foldX(x, z), lattice.foldZ(z), 0);
             }
 
             float seamStep = Math.abs(values[STRIP] - values[STRIP - 1]);
@@ -220,11 +259,19 @@ class RtfLapClosureTest {
             }
 
             varies |= besideStep > 0.0F;
-            assertTrue(seamStep <= STEP_FACTOR * besideStep + STEP_SLACK, name + " jumps across the " + axis
-                    + " seam at " + cross + ": " + seamStep + " against " + besideStep + " beside it");
+            assertTrue(seamStep <= STEP_FACTOR * besideStep + STEP_SLACK, name + " jumps across " + join + " on "
+                    + axis + " at " + cross + ": " + seamStep + " against " + besideStep + " beside it");
         }
 
         return varies;
+    }
+
+    private static WrapDomain domain(WorldFold fold, Direction.Axis axis) {
+        return axis == Direction.Axis.X ? fold.blockLattice().x() : fold.blockLattice().z();
+    }
+
+    private static WorldFold skewed(int chunks) {
+        return WorldFolds.of(new FlatShape(new WorldLoopBounds(-chunks, chunks, -chunks, chunks), SKEW_CHUNKS, null));
     }
 
     private static WorldFold torus(int chunks) {

@@ -30,7 +30,9 @@ public abstract class SinMixin {
         }
 
         float blend = this.alpha.compute(x, z, seed);
-        float sx = NoiseUtil.sin(x * frame.snappedAngular(Direction.Axis.X, this.frequency));
+        float angularX = frame.snappedAngular(Direction.Axis.X, this.frequency);
+        float shear = frame.angularShear(angularX);
+        float sx = NoiseUtil.sin(shear == RtfLap.UNSHEARED ? x * angularX : x * angularX + z * shear);
         float sz = NoiseUtil.sin(z * frame.snappedAngular(Direction.Axis.Z, this.frequency));
         float noise = blend == 0.0F ? sx : blend == 1.0F ? sz : NoiseUtil.lerp(sx, sz, blend);
         return NoiseUtil.map(noise, -1.0F, 1.0F, 2.0F);

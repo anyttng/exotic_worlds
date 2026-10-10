@@ -98,7 +98,7 @@ public abstract class ClimateModuleMixin implements RtfClimateScales {
         }
 
         try (RtfLap.Frame.Scope lattice = frame.octave(this.biomeFreq)) {
-            original.call(cell, frame.shift(Direction.Axis.X, x), frame.shift(Direction.Axis.Z, z), originalX,
+            original.call(cell, frame.latticeX(x, z), frame.shiftZ(z), originalX,
                     originalZ, mask);
         }
     }

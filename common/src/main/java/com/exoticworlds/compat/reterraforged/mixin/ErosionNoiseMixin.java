@@ -11,7 +11,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.compat.reterraforged.RtfLap;
 
-import net.minecraft.core.Direction;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.module.Erosion;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
@@ -56,8 +55,6 @@ public abstract class ErosionNoiseMixin {
             return original.call(x, y, cache);
         }
 
-        float shiftedX = frame.shift(Direction.Axis.X, x);
-        float shiftedY = frame.shift(Direction.Axis.Z, y);
         float sum = 0.0F;
         float max = 0.0F;
         float gain = 1.0F;
@@ -66,8 +63,8 @@ public abstract class ErosionNoiseMixin {
         for (int octave = 0; octave < this.octaves; octave++) {
             float value;
             try (RtfLap.Frame.Scope lattice = frame.octave(octaveScale / distance)) {
-                float latticeX = shiftedX * frame.xScale() * distance;
-                float latticeY = shiftedY * frame.zScale() * distance;
+                float latticeX = frame.latticeX(x, y) * frame.xScale() * distance;
+                float latticeY = frame.shiftZ(y) * frame.zScale() * distance;
                 value = getSingleErosionValue(latticeX, latticeY, distance, cache);
             }
 
@@ -93,8 +90,9 @@ public abstract class ErosionNoiseMixin {
             return original.call(dx, dy, px, py, module, cache);
         }
 
-        int cellX = frame.fold(Direction.Axis.X, NoiseUtil.floor(px / cellSize));
-        int cellY = frame.fold(Direction.Axis.Z, NoiseUtil.floor(py / cellSize));
+        int rowY = NoiseUtil.floor(py / cellSize);
+        int cellX = frame.foldX(NoiseUtil.floor(px / cellSize), rowY);
+        int cellY = frame.foldZ(rowY);
         NoiseUtil.Vec2f vector = NoiseUtil.cell(this.seed, cellX, cellY);
         try (RtfLap.Frame.Scope open = frame.open()) {
             return original.call(dx, dy, (cellX + vector.x()) * cellSize, (cellY + vector.y()) * cellSize, module,

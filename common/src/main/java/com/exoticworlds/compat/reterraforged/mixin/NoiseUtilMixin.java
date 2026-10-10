@@ -4,6 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.compat.reterraforged.RtfLap;
 
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
@@ -16,8 +17,8 @@ public class NoiseUtilMixin {
 
     @ModifyVariable(method = {"coord2D", "coord2D_24", "valCoord2D", "hash2D"}, at = @At("HEAD"), argsOnly = true,
             ordinal = X_ORDINAL)
-    private static int toroidal$wrapLatticeX(int x) {
-        return RtfLap.wrapLatticeX(x);
+    private static int toroidal$wrapLatticeX(int x, @Local(argsOnly = true, ordinal = Z_ORDINAL) int z) {
+        return RtfLap.wrapLatticeX(x, z);
     }
 
     @ModifyVariable(method = {"coord2D", "coord2D_24", "valCoord2D", "hash2D"}, at = @At("HEAD"), argsOnly = true,

@@ -3,6 +3,7 @@ package com.exoticworlds.compat.reterraforged.mixin;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -47,7 +48,7 @@ public abstract class RegionModuleMixin {
         }
 
         try (RtfLap.Frame.Scope lattice = frame.octave(this.frequency)) {
-            original.call(cell, frame.shift(Direction.Axis.X, x), frame.shift(Direction.Axis.Z, z));
+            original.call(cell, frame.latticeX(x, z), frame.shiftZ(z));
         }
     }
 
@@ -69,17 +70,26 @@ public abstract class RegionModuleMixin {
     private void toroidal$canonicalCenterX(Cell cell, float value, Operation<Void> original,
             @Local(name = "cellX") int cellX, @Local(name = "cellY") int cellY) {
         RtfLap.Frame frame = RtfLap.boundFrame();
-        original.call(cell, frame == null ? value
-                : CellCenters.jitteredX(frame, this.seed, cellX, cellY, REGION_JITTER)
-                        / frame.snappedFrequency(Direction.Axis.X, this.frequency));
+        if (frame == null) {
+            original.call(cell, value);
+            return;
+        }
+
+        float x = CellCenters.jitteredX(frame, this.seed, cellX, cellY, REGION_JITTER)
+                / frame.snappedFrequency(Direction.Axis.X, this.frequency);
+        original.call(cell, frame.sheared() ? frame.outerX(x, toroidal$blockZ(frame, cellX, cellY)) : x);
     }
 
     @WrapOperation(method = "apply", at = @At(value = "FIELD", target = CENTER_Z, opcode = Opcodes.PUTFIELD))
     private void toroidal$canonicalCenterZ(Cell cell, float value, Operation<Void> original,
             @Local(name = "cellX") int cellX, @Local(name = "cellY") int cellY) {
         RtfLap.Frame frame = RtfLap.boundFrame();
-        original.call(cell, frame == null ? value
-                : CellCenters.jitteredZ(frame, this.seed, cellX, cellY, REGION_JITTER)
-                        / frame.snappedFrequency(Direction.Axis.Z, this.frequency));
+        original.call(cell, frame == null ? value : toroidal$blockZ(frame, cellX, cellY));
+    }
+
+    @Unique
+    private float toroidal$blockZ(RtfLap.Frame frame, int cellX, int cellY) {
+        return CellCenters.jitteredZ(frame, this.seed, cellX, cellY, REGION_JITTER)
+                / frame.snappedFrequency(Direction.Axis.Z, this.frequency);
     }
 }

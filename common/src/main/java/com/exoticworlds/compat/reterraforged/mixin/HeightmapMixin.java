@@ -17,7 +17,6 @@ import com.exoticworlds.compat.reterraforged.RtfLap;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 
-import net.minecraft.core.Direction;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.cell.CellPopulator;
 import raccoonman.reterraforged.world.worldgen.cell.climate.Climate;
@@ -72,7 +71,7 @@ public abstract class HeightmapMixin implements LapCarrier {
 
         RtfLap.Frame frame = RtfLap.frame();
         try (RtfLap.Frame.Scope lap = frame.bind(fold)) {
-            original.call(cell, frame.shift(Direction.Axis.X, x), frame.shift(Direction.Axis.Z, z), applyClimate);
+            original.call(cell, frame.shiftX(x, z), frame.shiftZ(z), applyClimate);
         }
     }
 
@@ -86,7 +85,7 @@ public abstract class HeightmapMixin implements LapCarrier {
 
         RtfLap.Frame frame = RtfLap.frame();
         try (RtfLap.Frame.Scope lap = frame.bind(fold)) {
-            original.call(cell, frame.shift(Direction.Axis.X, x), frame.shift(Direction.Axis.Z, z));
+            original.call(cell, frame.shiftX(x, z), frame.shiftZ(z));
         }
     }
 
@@ -100,7 +99,7 @@ public abstract class HeightmapMixin implements LapCarrier {
 
         RtfLap.Frame frame = RtfLap.frame();
         try (RtfLap.Frame.Scope lap = frame.bind(fold)) {
-            original.call(cell, frame.shift(Direction.Axis.X, x), frame.shift(Direction.Axis.Z, z), rivermap);
+            original.call(cell, frame.shiftX(x, z), frame.shiftZ(z), rivermap);
         }
     }
 
@@ -114,7 +113,7 @@ public abstract class HeightmapMixin implements LapCarrier {
 
         RtfLap.Frame frame = RtfLap.frame();
         try (RtfLap.Frame.Scope lap = frame.bind(fold)) {
-            original.call(cell, frame.shift(Direction.Axis.X, x), frame.shift(Direction.Axis.Z, z), applyClimate);
+            original.call(cell, frame.shiftX(x, z), frame.shiftZ(z), applyClimate);
         }
     }
 

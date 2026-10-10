@@ -8,7 +8,6 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.exoticworlds.compat.reterraforged.RtfLap;
 
-import net.minecraft.core.Direction;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.function.DistanceFunction;
 import raccoonman.reterraforged.world.worldgen.noise.function.EdgeFunction;
@@ -46,8 +45,8 @@ public abstract class WorleyEdgeMixin {
 
         float value;
         try (RtfLap.Frame.Scope lattice = frame.octave(this.frequency)) {
-            float latticeX = frame.shift(Direction.Axis.X, x) * frame.xScale();
-            float latticeZ = frame.shift(Direction.Axis.Z, z) * frame.zScale();
+            float latticeX = frame.latticeX(x, z) * frame.xScale();
+            float latticeZ = frame.shiftZ(z) * frame.zScale();
             value = sample(latticeX, latticeZ, seed, this.distance, this.edgeFunction, this.distanceFunction);
         }
 
