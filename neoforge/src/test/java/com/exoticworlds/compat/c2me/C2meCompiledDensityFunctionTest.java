@@ -56,6 +56,35 @@ class C2meCompiledDensityFunctionTest {
     }
 
     @Test
+    void theCompiledWarpFromShiftFunctionsComputesLikeTheVanillaPath() {
+        DensityFunction source = C2meCompiledFunctions.liveWarpedSource();
+        DensityFunction compiled = C2meCompiledFunctions.compileFolded("toroidal_live_warp", source, SQUARE);
+        C2meCompiledFunctions.Points points = C2meCompiledFunctions.Points.over(SQUARE, SAMPLES);
+
+        for (int i = 0; i < SAMPLES; i++) {
+            DensityFunction.FunctionContext at = points.forIndex(i);
+            double vanilla = GenerationTransformerContext.withTransformer(SQUARE, () -> source.compute(at));
+            double emitted = GenerationTransformerContext.withTransformer(SQUARE, () -> compiled.compute(at));
+
+            assertEquals(vanilla, emitted, "at (" + at.blockX() + ", " + at.blockY() + ", " + at.blockZ() + ")");
+        }
+    }
+
+    @Test
+    void theCompiledWarpFromShiftFunctionsFillsAnArrayLikeTheVanillaPath() {
+        DensityFunction source = C2meCompiledFunctions.liveWarpedSource();
+        DensityFunction compiled = C2meCompiledFunctions.compileFolded("toroidal_live_warp", source, SQUARE);
+        C2meCompiledFunctions.Points points = C2meCompiledFunctions.Points.over(SQUARE, SAMPLES);
+        double[] vanilla = new double[SAMPLES];
+        double[] emitted = new double[SAMPLES];
+
+        GenerationTransformerContext.runWithTransformer(SQUARE, () -> source.fillArray(vanilla, points));
+        GenerationTransformerContext.runWithTransformer(SQUARE, () -> compiled.fillArray(emitted, points));
+
+        assertArrayEquals(vanilla, emitted);
+    }
+
+    @Test
     void theCompiledEndIslandFunctionRepeatsOneWorldWidthAwayAcrossTheSeam() {
         DensityFunction compiled = C2meCompiledFunctions.compileFolded("toroidal_end_islands", END_ISLANDS, TORUS);
         WrapDomain xDomain = TORUS.blockDomain(Direction.Axis.X);

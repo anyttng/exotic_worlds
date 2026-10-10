@@ -36,7 +36,7 @@ public class DensityFunctionsNoiseMixin {
 
         double xzScale = NoiseScaleLadder.installedScale(this.noise, this.xzScale);
         return ContextScaledNoise.sample(generation, this.noise,
-                context.blockX(), context.blockY() * this.yScale, context.blockZ(), xzScale,
+                context.blockX(), context.blockY() * this.yScale, context.blockZ(), xzScale, this.xzScale,
                 GenerationTransformerContext.verticalShare(xzScale, this.yScale));
     }
 }

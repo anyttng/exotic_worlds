@@ -2,7 +2,6 @@ package com.exoticworlds.compat.c2me;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
-import com.exoticworlds.engine.noise.DomainWarp;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.shape.climate.ClimateCompression;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.CLIMATE_AMPLITUDES;
@@ -18,6 +17,7 @@ import static com.exoticworlds.engine.noise.DensityFunctionFixture.blockIn;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.blockY;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.withClimateNoise;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.withLiveNoise;
+import static com.exoticworlds.engine.noise.DensityFunctionFixture.withNoiseOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -40,6 +40,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
+import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 class C2meDfcAstTest {
     private static final int PERIODICITY_SAMPLES = 32;
@@ -60,6 +61,19 @@ class C2meDfcAstTest {
 
     private static final int GRID_SAMPLES = 16;
 
+    private static final float UNLAPPABLE_SHIFT = 1.01F;
+
+    private static final double UNLAPPABLE_XZ_SCALE = 0x1p-52;
+
+    private static final double UNINDEXABLE_XZ_SCALE = 0x1p-25;
+
+    private static final float LAPPABLE_SHIFT = 0.982F;
+
+    private static final int UNINDEXABLE_FIRST_OCTAVE = 88;
+
+    private static final NormalNoise.NoiseParameters UNINDEXABLE_PARAMETERS =
+            new NormalNoise.NoiseParameters(UNINDEXABLE_FIRST_OCTAVE, 1.0);
+
     @Test
     void noiseFoldsToTheSameSample() {
         assertFoldMatchesVanilla(withLiveNoise(DensityFunctions.noise(NOISE_DATA, XZ_SCALE, Y_SCALE)));
@@ -69,6 +83,27 @@ class C2meDfcAstTest {
     void shiftedNoiseCarriesEveryShift() {
         assertFoldMatchesVanilla(withShiftY(withLiveNoise(DensityFunctions.shiftedNoise2d(
                 DensityFunctions.constant(SHIFT_X), DensityFunctions.constant(SHIFT_Z), XZ_SCALE, NOISE_DATA))));
+    }
+
+    @Test
+    void aWarpPastTheLapRangeFoldsToTheSameSample() {
+        assertFoldMatchesVanilla(withLiveNoise(DensityFunctions.shiftedNoise2d(
+                DensityFunctions.constant(UNLAPPABLE_SHIFT), DensityFunctions.constant(UNLAPPABLE_SHIFT),
+                UNLAPPABLE_XZ_SCALE, NOISE_DATA)));
+    }
+
+    @Test
+    void aWarpedNoiseWhosePeriodOverflowsTheCellIndexFoldsToTheSameSample() {
+        assertFoldMatchesVanilla(withNoiseOf(DensityFunctions.shiftedNoise2d(
+                DensityFunctions.zero(), DensityFunctions.constant(LAPPABLE_SHIFT), UNINDEXABLE_XZ_SCALE, NOISE_DATA),
+                UNINDEXABLE_PARAMETERS));
+    }
+
+    @Test
+    void aNoiseWhosePeriodOverflowsTheCellIndexFoldsToTheSameSample() {
+        assertFoldMatchesVanilla(withNoiseOf(
+                DensityFunctions.noise(NOISE_DATA, UNINDEXABLE_XZ_SCALE, UNINDEXABLE_XZ_SCALE),
+                UNINDEXABLE_PARAMETERS));
     }
 
     @Test
@@ -268,11 +303,16 @@ class C2meDfcAstTest {
         }
 
         C2meFoldedNoiseNode fold = assertInstanceOf(C2meFoldedNoiseNode.class, node);
+        double slotX = evaluate(fold.slotX, x, y, z);
+        double slotY = evaluate(fold.slotY, x, y, z);
+        double slotZ = evaluate(fold.slotZ, x, y, z);
+        double sample = fold.warped()
+                ? ContextScaledNoise.sampleWrappedWarped(fold.transformer, fold.noise, x, slotY, z, slotX, slotZ,
+                        fold.warpDivisor, fold.horizontalScale, fold.vanillaScale, fold.verticalShare)
+                : ContextScaledNoise.sampleWrapped(fold.transformer, fold.slotAxes, fold.noise, slotX, slotY, slotZ,
+                        fold.horizontalScale, fold.vanillaScale, fold.verticalShare);
 
-        return ContextScaledNoise.sampleWrapped(fold.transformer, fold.slotAxes, fold.noise,
-                evaluate(fold.foldedX, x, y, z), evaluate(fold.foldedY, x, y, z), evaluate(fold.foldedZ, x, y, z),
-                fold.horizontalScale, fold.verticalShare)
-                * amplitude;
+        return sample * amplitude;
     }
 
     private static double evaluate(AstNode node, int x, int y, int z) {
@@ -285,9 +325,6 @@ class C2meDfcAstTest {
             };
             case MulNode mul -> evaluate(mul.left, x, y, z) * evaluate(mul.right, x, y, z);
             case AddNode add -> evaluate(add.left, x, y, z) + evaluate(add.right, x, y, z);
-            case C2meWarpedAxisNode warped -> warped.axis == CoordinateNode.Axis.X
-                    ? DomainWarp.applyX(warped.lattice, x, z, evaluate(warped.shift, x, y, z), warped.divisor)
-                    : DomainWarp.applyZ(warped.lattice, z, evaluate(warped.shift, x, y, z), warped.divisor);
             default -> throw new IllegalStateException("no interpreter for " + node.getClass().getName());
         };
     }
