@@ -1,5 +1,7 @@
 package com.exoticworlds.compat.ftbchunks.mixin;
 
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
@@ -15,12 +17,15 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.compat.ftbchunks.FtbChunksFold;
+import com.exoticworlds.compat.ftbchunks.FtbChunksFold.SeamLine;
 import com.exoticworlds.compat.ftbchunks.FtbChunksFold.SeamView;
 import com.exoticworlds.compat.ftbchunks.FtbChunksFold.TileBlit;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 
@@ -49,6 +54,9 @@ public abstract class RegionMapPanelMixin {
 
     @Shadow
     int regionMinZ;
+
+    @Shadow
+    int blockX;
 
     @Unique
     private @Nullable SeamView toroidal$seamView;
@@ -84,22 +92,17 @@ public abstract class RegionMapPanelMixin {
         }
 
         int tilePixels = this.largeMap.getRegionTileSize();
-        double periodX = FtbChunksFold.worldPixelPeriod(Direction.Axis.X, tilePixels);
-        double periodZ = FtbChunksFold.worldPixelPeriod(Direction.Axis.Z, tilePixels);
 
-        // The laps are the ones whose copy falls inside the view in block terms — the canonical square can sit at
-        // the edge of the scrolled canvas or past it, so a fixed reach around it leaves the far side bare.
+        // The copies are the ones that fall inside the view in block terms — the canonical square can sit at the
+        // edge of the scrolled canvas or past it, so a fixed reach around it leaves the far side bare.
         panel.setOffset(true);
         double pixelsPerBlock = tilePixels / (double) REGION_BLOCKS;
         int originX = panel.getX() - this.regionMinX * tilePixels;
         int originY = panel.getY() - this.regionMinZ * tilePixels;
         MapCopies mapCopies = MapCopies.current();
-        int[] lapsX = FtbChunksFold.drawnLaps(Direction.Axis.X,
-                Mth.floor((x - originX) / pixelsPerBlock), Mth.ceil((x + w - originX) / pixelsPerBlock), mapCopies);
-        int[] lapsZ = FtbChunksFold.drawnLaps(Direction.Axis.Z,
-                Mth.floor((y - originY) / pixelsPerBlock), Mth.ceil((y + h - originY) / pixelsPerBlock), mapCopies);
-        int reachX = 0;
-        int reachZ = 0;
+        List<WorldCopies.Copy> copies = FtbChunksFold.drawnCopies(
+                Mth.floor((x - originX) / pixelsPerBlock), Mth.floor((y - originY) / pixelsPerBlock),
+                Mth.ceil((x + w - originX) / pixelsPerBlock), Mth.ceil((y + h - originY) / pixelsPerBlock), mapCopies);
 
         // Copies go under the canonical pass: that pass draws the icons, and an icon straddling the seam has to
         // stay on top of the copy beside it.
@@ -108,17 +111,13 @@ public abstract class RegionMapPanelMixin {
             GuiHelper.pushScissor(panel.getWindow(), x, y, w, h);
         }
 
-        for (int lapX : lapsX) {
-            for (int lapZ : lapsZ) {
-                if (lapX == 0 && lapZ == 0) {
-                    continue;
-                }
-
-                reachX = Math.max(reachX, Math.abs(lapX));
-                reachZ = Math.max(reachZ, Math.abs(lapZ));
-                toroidal$blitCopy(panel, graphics, x, y, w, h,
-                        (int) Math.round(lapX * periodX), (int) Math.round(lapZ * periodZ));
+        for (WorldCopies.Copy copy : copies) {
+            if (copy.isIdentity()) {
+                continue;
             }
+
+            toroidal$blitCopy(panel, graphics, x, y, w, h,
+                    (int) Math.round(copy.dx() * pixelsPerBlock), (int) Math.round(copy.dz() * pixelsPerBlock));
         }
 
         if (scissor) {
@@ -126,7 +125,7 @@ public abstract class RegionMapPanelMixin {
         }
 
         panel.setOffset(false);
-        FtbChunksFold.recordLargeMapCopyRange(reachX, reachZ);
+        FtbChunksFold.recordLargeMapCopies(copies);
 
         toroidal$seamView = mapCopies == MapCopies.SINGLE
                 ? null
@@ -142,14 +141,12 @@ public abstract class RegionMapPanelMixin {
             return;
         }
 
-        for (int seamX : FtbChunksFold.seamPixels(Direction.Axis.X, view.originX(), view.tilePixels(), view.x(),
-                view.x() + view.width())) {
-            graphics.fill(seamX, view.y(), seamX + SEAM_LINE_WIDTH, view.y() + view.height(), SEAM_LINE_ARGB);
-        }
-
-        for (int seamZ : FtbChunksFold.seamPixels(Direction.Axis.Z, view.originY(), view.tilePixels(), view.y(),
-                view.y() + view.height())) {
-            graphics.fill(view.x(), seamZ, view.x() + view.width(), seamZ + SEAM_LINE_WIDTH, SEAM_LINE_ARGB);
+        for (SeamLine line : FtbChunksFold.seamLines(view)) {
+            if (line.vertical()) {
+                graphics.fill(line.at(), line.from(), line.at() + SEAM_LINE_WIDTH, line.to(), SEAM_LINE_ARGB);
+            } else {
+                graphics.fill(line.from(), line.at(), line.to(), line.at() + SEAM_LINE_WIDTH, SEAM_LINE_ARGB);
+            }
         }
     }
 
@@ -187,14 +184,10 @@ public abstract class RegionMapPanelMixin {
     }
 
     @ModifyExpressionValue(method = "draw",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 0))
-    private int toroidal$foldPickX(int blockX) {
-        return FtbChunksFold.foldBlock(Direction.Axis.X, blockX);
-    }
-
-    @ModifyExpressionValue(method = "draw",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 1))
-    private int toroidal$foldPickZ(int blockZ) {
-        return FtbChunksFold.foldBlock(Direction.Axis.Z, blockZ);
+    private int toroidal$foldPick(int blockZ) {
+        BlockPos folded = FtbChunksFold.foldBlock(this.blockX, blockZ);
+        this.blockX = folded.getX();
+        return folded.getZ();
     }
 }

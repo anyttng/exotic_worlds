@@ -2,8 +2,10 @@ package com.exoticworlds.compat.ftbchunks;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
@@ -14,10 +16,13 @@ import com.exoticworlds.compat.ClientShapes;
 import com.exoticworlds.compat.FullscreenZoomFloor;
 import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.compat.MapCopyBudget;
+import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.engine.seam.MapSurfaceCopies.Copies;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import dev.ftb.mods.ftbchunks.client.map.MapDimension;
@@ -26,29 +31,20 @@ import dev.ftb.mods.ftbchunks.client.map.MapRegionData;
 import dev.ftb.mods.ftblibrary.math.XZ;
 
 public final class FtbChunksFold {
+    public static final int REGION_BLOCKS = 512;
+
     static final int REGION_CHUNKS = 32;
-    private static final int REGION_BLOCKS = 512;
     private static final int CHUNK_BLOCKS = 16;
     private static final int TILE_PIXELS_PER_ZOOM = 2;
 
     private static final int MINIMAP_CHUNKS = 15;
     private static final int MINIMAP_CENTRE_CHUNK = 7;
 
-    private static int largeMapRangeX;
-    private static int largeMapRangeZ;
-
-    public static int foldChunk(Direction.Axis axis, int chunk) {
-        ToroidalShape shape = ClientShapes.current();
-        return shape == null ? chunk : shape.foldChunk(axis, chunk);
-    }
-
-    public static int foldBlock(Direction.Axis axis, int coord) {
-        ToroidalShape shape = ClientShapes.current();
-        return shape == null ? coord : shape.foldBlock(axis, coord);
-    }
+    private static List<WorldCopies.Copy> largeMapCopies = List.of(WorldCopies.IDENTITY);
 
     public static XZ chunkOf(int chunkX, int chunkZ) {
-        return XZ.of(foldChunk(Direction.Axis.X, chunkX), foldChunk(Direction.Axis.Z, chunkZ));
+        ChunkPos folded = foldedChunk(ClientShapes.current(), chunkX, chunkZ);
+        return XZ.of(folded.x, folded.z);
     }
 
     public static XZ chunkOf(ChunkPos pos) {
@@ -57,6 +53,11 @@ public final class FtbChunksFold {
 
     public static XZ chunkOf(XZ chunk) {
         return chunkOf(chunk.x(), chunk.z());
+    }
+
+    public static ChunkPos foldedChunkPos(ChunkPos pos) {
+        ToroidalShape shape = ClientShapes.current();
+        return shape == null ? pos : shape.fold(pos);
     }
 
     public static Set<XZ> foldedChunks(Set<XZ> chunks) {
@@ -70,23 +71,36 @@ public final class FtbChunksFold {
 
         Set<XZ> folded = new HashSet<>(chunks.size());
         for (XZ chunk : chunks) {
-            folded.add(XZ.of(shape.foldChunk(Direction.Axis.X, chunk.x()),
-                    shape.foldChunk(Direction.Axis.Z, chunk.z())));
+            ChunkPos pos = shape.fold(new ChunkPos(chunk.x(), chunk.z()));
+            folded.add(XZ.of(pos.x, pos.z));
         }
 
         return folded;
     }
 
     public static XZ regionOfChunk(int chunkX, int chunkZ) {
-        return XZ.regionFromChunk(foldChunk(Direction.Axis.X, chunkX), foldChunk(Direction.Axis.Z, chunkZ));
+        ChunkPos folded = foldedChunk(ClientShapes.current(), chunkX, chunkZ);
+        return XZ.regionFromChunk(folded.x, folded.z);
     }
 
     public static XZ regionOfChunk(ChunkPos pos) {
         return regionOfChunk(pos.x, pos.z);
     }
 
-    public static XZ regionOfBlock(int x, int z) {
-        return XZ.regionFromBlock(foldBlock(Direction.Axis.X, x), foldBlock(Direction.Axis.Z, z));
+    public static BlockPos foldBlock(int x, int z) {
+        BlockPos pos = new BlockPos(x, 0, z);
+        ToroidalShape shape = ClientShapes.current();
+        return shape == null ? pos : shape.fold(pos);
+    }
+
+    public static Vec3 foldPosition(Vec3 position) {
+        ToroidalShape shape = ClientShapes.current();
+        return shape == null ? position : shape.fold(position);
+    }
+
+    static ChunkPos foldedChunk(@Nullable ToroidalShape shape, int chunkX, int chunkZ) {
+        ChunkPos pos = new ChunkPos(chunkX, chunkZ);
+        return shape == null ? pos : shape.fold(pos);
     }
 
     public static int loopedAxes() {
@@ -98,89 +112,46 @@ public final class FtbChunksFold {
         return (shape.loops(Direction.Axis.X) ? 1 : 0) + (shape.loops(Direction.Axis.Z) ? 1 : 0);
     }
 
-    public static double worldPixelPeriod(Direction.Axis axis, int regionTilePixels) {
-        return worldPixelPeriod(ClientShapes.current(), axis, regionTilePixels);
+    public static List<WorldCopies.Copy> drawnCopies(int minX, int minZ, int maxX, int maxZ, MapCopies mapCopies) {
+        return drawnCopies(ClientShapes.current(), minX, minZ, maxX, maxZ, mapCopies);
     }
 
-    static double worldPixelPeriod(@Nullable ToroidalShape shape, Direction.Axis axis, int regionTilePixels) {
-        if (shape == null || !shape.loops(axis)) {
-            return 0.0;
-        }
-
-        return shape.widthBlocks(axis) * (regionTilePixels / (double) REGION_BLOCKS);
-    }
-
-    public static int[] seamPixels(Direction.Axis axis, int originPixel, int regionTilePixels, int viewFrom, int viewTo) {
-        return seamPixels(copies(axis), originPixel, regionTilePixels, viewFrom, viewTo);
-    }
-
-    static int[] seamPixels(AxisCopies copies, int originPixel, int regionTilePixels, int viewFrom, int viewTo) {
-        double pixelsPerBlock = regionTilePixels / (double) REGION_BLOCKS;
-        int[] seams = seams(copies, (int) Math.floor((viewFrom - originPixel) / pixelsPerBlock),
-                (int) Math.ceil((viewTo - originPixel) / pixelsPerBlock));
-        int[] pixels = new int[seams.length];
-        for (int i = 0; i < seams.length; i++) {
-            pixels[i] = originPixel + (int) Math.round(seams[i] * pixelsPerBlock);
-        }
-
-        return pixels;
-    }
-
-    private static int[] seams(AxisCopies copies, int spanMin, int spanMax) {
-        if (!copies.loops()) {
-            return new int[0];
-        }
-
-        int[] laps = laps(copies, spanMin, spanMax);
-        if (laps.length == 0) {
-            return laps;
-        }
-
-        int[] seams = new int[laps.length + 1];
-        for (int i = 0; i < laps.length; i++) {
-            seams[i] = copies.min() + laps[i] * copies.width();
-        }
-
-        seams[laps.length] = copies.max() + laps[laps.length - 1] * copies.width();
-        return seams;
-    }
-
-    public static int[] drawnLaps(Direction.Axis axis, int spanMin, int spanMax, MapCopies mapCopies) {
-        return drawnLaps(copies(axis), spanMin, spanMax, mapCopies);
-    }
-
-    static int[] drawnLaps(AxisCopies copies, int spanMin, int spanMax, MapCopies mapCopies) {
-        int[] laps = laps(copies, spanMin, spanMax);
+    static List<WorldCopies.Copy> drawnCopies(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ,
+            MapCopies mapCopies) {
+        List<WorldCopies.Copy> copies = WorldCopies.meeting(shape, minX, minZ, maxX, maxZ);
         if (mapCopies != MapCopies.SINGLE) {
-            return laps;
+            return copies;
         }
 
-        for (int lap : laps) {
-            if (lap == 0) {
-                return new int[] {0};
-            }
-        }
-
-        return new int[0];
+        return copies.contains(WorldCopies.IDENTITY) ? List.of(WorldCopies.IDENTITY) : List.of();
     }
 
-    private static int[] laps(AxisCopies copies, int spanMin, int spanMax) {
-        if (!copies.loops()) {
-            return new int[] {0};
+    public static List<SeamLine> seamLines(SeamView view) {
+        return seamLines(ClientShapes.current(), view);
+    }
+
+    static List<SeamLine> seamLines(@Nullable ToroidalShape shape, SeamView view) {
+        double pixelsPerBlock = view.tilePixels() / (double) REGION_BLOCKS;
+        int minX = (int) Math.floor((view.x() - view.originX()) / pixelsPerBlock);
+        int maxX = (int) Math.ceil((view.x() + view.width() - view.originX()) / pixelsPerBlock);
+        int minZ = (int) Math.floor((view.y() - view.originY()) / pixelsPerBlock);
+        int maxZ = (int) Math.ceil((view.y() + view.height() - view.originY()) / pixelsPerBlock);
+        List<SeamLine> lines = new ArrayList<>();
+        for (WorldCopies.Edge edge : WorldCopies.seams(shape, minX, minZ, maxX, maxZ)) {
+            int fromX = pixel(view.originX(), edge.fromX(), pixelsPerBlock);
+            int fromY = pixel(view.originY(), edge.fromZ(), pixelsPerBlock);
+            int toX = pixel(view.originX(), edge.toX(), pixelsPerBlock);
+            int toY = pixel(view.originY(), edge.toZ(), pixelsPerBlock);
+            lines.add(edge.fromX() == edge.toX()
+                    ? new SeamLine(true, fromX, fromY, toY)
+                    : new SeamLine(false, fromY, fromX, toX));
         }
 
-        int first = Math.floorDiv(spanMin - copies.min(), copies.width());
-        int last = Math.floorDiv(spanMax - 1 - copies.min(), copies.width());
-        if (last < first) {
-            return new int[0];
-        }
+        return lines;
+    }
 
-        int[] laps = new int[last - first + 1];
-        for (int i = 0; i < laps.length; i++) {
-            laps[i] = first + i;
-        }
-
-        return laps;
+    private static int pixel(int originPixel, int block, double pixelsPerBlock) {
+        return originPixel + (int) Math.round(block * pixelsPerBlock);
     }
 
     public static double clampScroll(Direction.Axis axis, double scroll, int regionMin, int regionTilePixels,
@@ -210,34 +181,28 @@ public final class FtbChunksFold {
                 : FullscreenZoomFloor.ftbChunksZoom(shape);
     }
 
-    public static void recordLargeMapCopyRange(int rangeX, int rangeZ) {
-        largeMapRangeX = rangeX;
-        largeMapRangeZ = rangeZ;
+    public record TileBlit(int x, int y, int width, int height, float u0, float v0, float u1, float v1) {
+    }
+
+    public static void recordLargeMapCopies(List<WorldCopies.Copy> copies) {
+        largeMapCopies = copies;
     }
 
     public static Copies largeMapCopies() {
-        return MapCopyBudget.painted(copies(Direction.Axis.X), largeMapRangeX,
-                copies(Direction.Axis.Z), largeMapRangeZ);
-    }
-
-    public static Vec3 foldPosition(Vec3 position) {
-        ToroidalShape shape = ClientShapes.current();
-        if (shape == null) {
-            return position;
-        }
-
-        return new Vec3(shape.foldCoord(Direction.Axis.X, position.x), position.y,
-                shape.foldCoord(Direction.Axis.Z, position.z));
-    }
-
-    public record TileBlit(int x, int y, int width, int height, float u0, float v0, float u1, float v1) {
+        return MapCopyBudget.painted(ClientShapes.current(), largeMapCopies);
     }
 
     public record SeamView(int originX, int originY, int tilePixels, int x, int y, int width, int height) {
     }
 
-    // The part of a region tile that lies inside the world, as a screen rectangle and its texture window. The rest
-    // of the region image is opaque black, so a tile blitted whole paints over whatever copy lies beside it.
+    public record SeamLine(boolean vertical, int at, int from, int to) {
+    }
+
+    record HaloPixel(int sourceX, int sourceZ, int haloX, int haloZ) {
+    }
+
+    // The part of a region tile that lies inside the world, as a screen rectangle and its window of the region image
+    // in image pixels. The rest of the image is opaque black, so a tile blitted whole paints over the copy beside it.
     public static @Nullable TileBlit worldPartOf(int regionX, int regionZ, int x, int y, int width, int height) {
         int[] spanX = worldSpanInRegion(Direction.Axis.X, regionX);
         int[] spanZ = worldSpanInRegion(Direction.Axis.Z, regionZ);
@@ -271,71 +236,71 @@ public final class FtbChunksFold {
         return new int[] {from, Math.max(from, to)};
     }
 
-    // FTB shades a pixel against its north and west neighbours inside the same region image, so the world's west
-    // and north edge columns would read an unexplored neighbour on every copy. The edge column of each world side is
-    // mirrored one block past the opposite side, into the region that holds that block; the halo lies outside
-    // worldSpanInRegion and is never blitted.
+    // FTB shades a pixel against its north and west neighbours inside the same region image, so the world's edge
+    // pixels would read an unexplored neighbour on every copy; the halo lies outside worldSpanInRegion and is never
+    // blitted.
     public static void mirrorSeamEdges(MapDimension dimension, int foldedChunkX, int foldedChunkZ) {
-        ToroidalShape shape = ClientShapes.current();
-        if (shape == null) {
+        List<HaloPixel> halo = haloPixels(ClientShapes.current(), foldedChunkX, foldedChunkZ);
+        if (halo.isEmpty()) {
             return;
         }
 
-        if (shape.loops(Direction.Axis.X)) {
-            if (foldedChunkX == shape.maxChunk(Direction.Axis.X) - 1) {
-                mirrorColumn(dimension, shape.maxBlock(Direction.Axis.X) - 1, shape.minBlock(Direction.Axis.X) - 1,
-                        foldedChunkZ);
-            }
-
-            if (foldedChunkX == shape.minChunk(Direction.Axis.X)) {
-                mirrorColumn(dimension, shape.minBlock(Direction.Axis.X), shape.maxBlock(Direction.Axis.X),
-                        foldedChunkZ);
-            }
+        MapRegionData source = dimension.getRegion(XZ.regionFromChunk(foldedChunkX, foldedChunkZ)).getDataBlocking();
+        Map<XZ, MapRegion> touched = new HashMap<>();
+        for (HaloPixel pixel : halo) {
+            MapRegion target = touched.computeIfAbsent(XZ.regionFromBlock(pixel.haloX(), pixel.haloZ()),
+                    dimension::getRegion);
+            copyPixel(source, regionIndex(pixel.sourceX(), pixel.sourceZ()), target.getDataBlocking(),
+                    regionIndex(pixel.haloX(), pixel.haloZ()));
         }
 
-        if (shape.loops(Direction.Axis.Z)) {
-            if (foldedChunkZ == shape.maxChunk(Direction.Axis.Z) - 1) {
-                mirrorRow(dimension, shape.maxBlock(Direction.Axis.Z) - 1, shape.minBlock(Direction.Axis.Z) - 1,
-                        foldedChunkX);
-            }
-
-            if (foldedChunkZ == shape.minChunk(Direction.Axis.Z)) {
-                mirrorRow(dimension, shape.minBlock(Direction.Axis.Z), shape.maxBlock(Direction.Axis.Z),
-                        foldedChunkX);
-            }
+        for (MapRegion region : touched.values()) {
+            region.update(true);
         }
     }
 
-    private static void mirrorColumn(MapDimension dimension, int sourceBlockX, int haloBlockX, int chunkZ) {
-        int regionZ = Math.floorDiv(chunkZ, REGION_CHUNKS);
-        MapRegionData source = dimension.getRegion(XZ.of(Math.floorDiv(sourceBlockX, REGION_BLOCKS), regionZ))
-                .getDataBlocking();
-        MapRegion halo = dimension.getRegion(XZ.of(Math.floorDiv(haloBlockX, REGION_BLOCKS), regionZ));
-        MapRegionData target = halo.getDataBlocking();
-        int sourceX = Math.floorMod(sourceBlockX, REGION_BLOCKS);
-        int haloX = Math.floorMod(haloBlockX, REGION_BLOCKS);
-        int firstRow = Math.floorMod(chunkZ, REGION_CHUNKS) * CHUNK_BLOCKS;
-        for (int row = firstRow; row < firstRow + CHUNK_BLOCKS; row++) {
-            copyPixel(source, sourceX + row * REGION_BLOCKS, target, haloX + row * REGION_BLOCKS);
+    static List<HaloPixel> haloPixels(@Nullable ToroidalShape shape, int foldedChunkX, int foldedChunkZ) {
+        if (shape == null) {
+            return List.of();
         }
 
-        halo.update(true);
+        int chunkMinX = foldedChunkX * CHUNK_BLOCKS;
+        int chunkMinZ = foldedChunkZ * CHUNK_BLOCKS;
+        AABB ring = new AABB(ringMin(shape, Direction.Axis.X, chunkMinX), 0.0, ringMin(shape, Direction.Axis.Z, chunkMinZ),
+                ringMax(shape, Direction.Axis.X, chunkMinX), 1.0, ringMax(shape, Direction.Axis.Z, chunkMinZ));
+        List<HaloPixel> halo = new ArrayList<>();
+        for (int z = chunkMinZ; z < chunkMinZ + CHUNK_BLOCKS; z++) {
+            for (int x = chunkMinX; x < chunkMinX + CHUNK_BLOCKS; x++) {
+                if (!onWorldEdge(shape, Direction.Axis.X, x) && !onWorldEdge(shape, Direction.Axis.Z, z)) {
+                    continue;
+                }
+
+                BlockPos pixel = new BlockPos(x, 0, z);
+                for (ToroidalShape.Oriented<BlockPos> copy : shape.copiesInside(ring, pixel)) {
+                    if (!copy.value().equals(pixel)) {
+                        halo.add(new HaloPixel(x, z, copy.value().getX(), copy.value().getZ()));
+                    }
+                }
+            }
+        }
+
+        return halo;
     }
 
-    private static void mirrorRow(MapDimension dimension, int sourceBlockZ, int haloBlockZ, int chunkX) {
-        int regionX = Math.floorDiv(chunkX, REGION_CHUNKS);
-        MapRegionData source = dimension.getRegion(XZ.of(regionX, Math.floorDiv(sourceBlockZ, REGION_BLOCKS)))
-                .getDataBlocking();
-        MapRegion halo = dimension.getRegion(XZ.of(regionX, Math.floorDiv(haloBlockZ, REGION_BLOCKS)));
-        MapRegionData target = halo.getDataBlocking();
-        int sourceRow = Math.floorMod(sourceBlockZ, REGION_BLOCKS) * REGION_BLOCKS;
-        int haloRow = Math.floorMod(haloBlockZ, REGION_BLOCKS) * REGION_BLOCKS;
-        int firstColumn = Math.floorMod(chunkX, REGION_CHUNKS) * CHUNK_BLOCKS;
-        for (int column = firstColumn; column < firstColumn + CHUNK_BLOCKS; column++) {
-            copyPixel(source, sourceRow + column, target, haloRow + column);
-        }
+    private static int ringMin(ToroidalShape shape, Direction.Axis axis, int chunkMin) {
+        return shape.loops(axis) ? shape.minBlock(axis) - 1 : chunkMin;
+    }
 
-        halo.update(true);
+    private static int ringMax(ToroidalShape shape, Direction.Axis axis, int chunkMin) {
+        return shape.loops(axis) ? shape.maxBlock(axis) + 1 : chunkMin + CHUNK_BLOCKS;
+    }
+
+    private static boolean onWorldEdge(ToroidalShape shape, Direction.Axis axis, int coord) {
+        return shape.loops(axis) && (coord == shape.minBlock(axis) || coord == shape.maxBlock(axis) - 1);
+    }
+
+    private static int regionIndex(int x, int z) {
+        return Math.floorMod(x, REGION_BLOCKS) + Math.floorMod(z, REGION_BLOCKS) * REGION_BLOCKS;
     }
 
     private static void copyPixel(MapRegionData source, int from, MapRegionData target, int to) {
@@ -352,13 +317,14 @@ public final class FtbChunksFold {
         return shape == null ? AxisCopies.UNBOUNDED : AxisCopies.of(shape, axis);
     }
 
-    public static int[] minimapSplits(Direction.Axis axis, int centreChunk, int[] unfolded) {
-        return minimapSplits(ClientShapes.current(), axis, centreChunk, unfolded);
+    public static int[] minimapSplits(Direction.Axis axis, XZ centreChunk, int[] unfolded) {
+        return minimapSplits(ClientShapes.current(), axis, centreChunk.x(), centreChunk.z(), unfolded);
     }
 
-    // FTB's own loop reads any number of cuts, so a seam adds one wherever the folded window stops being one run
-    // inside one region image.
-    static int[] minimapSplits(@Nullable ToroidalShape shape, Direction.Axis axis, int centreChunk, int[] unfolded) {
+    // FTB's own loop reads any number of cuts and copies each piece as one run from one region image, so a cut goes
+    // wherever any row or column of the folded window stops being one run inside one region.
+    static int[] minimapSplits(@Nullable ToroidalShape shape, Direction.Axis axis, int centreChunkX, int centreChunkZ,
+            int[] unfolded) {
         if (shape == null || !shape.loops(axis)) {
             return unfolded;
         }
@@ -366,18 +332,36 @@ public final class FtbChunksFold {
         int[] cuts = new int[MINIMAP_CHUNKS + 1];
         int count = 0;
         cuts[count++] = 0;
-        int previous = shape.foldChunk(axis, centreChunk - MINIMAP_CENTRE_CHUNK);
-        for (int chunk = 1; chunk < MINIMAP_CHUNKS; chunk++) {
-            int folded = shape.foldChunk(axis, centreChunk + chunk - MINIMAP_CENTRE_CHUNK);
-            if (folded != previous + 1 || regionOf(folded) != regionOf(previous)) {
-                cuts[count++] = chunk;
+        for (int along = 1; along < MINIMAP_CHUNKS; along++) {
+            if (runBreaks(shape, axis, centreChunkX - MINIMAP_CENTRE_CHUNK, centreChunkZ - MINIMAP_CENTRE_CHUNK, along)) {
+                cuts[count++] = along;
             }
-
-            previous = folded;
         }
 
         cuts[count++] = MINIMAP_CHUNKS;
         return Arrays.copyOf(cuts, count);
+    }
+
+    private static boolean runBreaks(ToroidalShape shape, Direction.Axis axis, int firstChunkX, int firstChunkZ,
+            int along) {
+        int stepX = axis == Direction.Axis.X ? 1 : 0;
+        int stepZ = 1 - stepX;
+        for (int across = 0; across < MINIMAP_CHUNKS; across++) {
+            int chunkX = firstChunkX + (stepX == 1 ? along : across);
+            int chunkZ = firstChunkZ + (stepZ == 1 ? along : across);
+            ChunkPos here = shape.fold(new ChunkPos(chunkX, chunkZ));
+            ChunkPos before = shape.fold(new ChunkPos(chunkX - stepX, chunkZ - stepZ));
+            if (here.x != before.x + stepX || here.z != before.z + stepZ
+                    || regionOf(here.x) != regionOf(before.x) || regionOf(here.z) != regionOf(before.z)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static int regionImagePixel(int chunk, int chunksPerRegion) {
+        return (chunk & chunksPerRegion - 1) * CHUNK_BLOCKS;
     }
 
     private static int regionOf(int chunk) {

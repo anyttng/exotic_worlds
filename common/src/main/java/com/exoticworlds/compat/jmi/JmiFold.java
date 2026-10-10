@@ -9,8 +9,7 @@ import net.minecraft.world.level.ChunkPos;
 
 public final class JmiFold {
     public static ChunkPos foldChunk(ChunkPos chunk) {
-        return new ChunkPos(FtbChunksFold.foldChunk(Direction.Axis.X, chunk.x),
-                FtbChunksFold.foldChunk(Direction.Axis.Z, chunk.z));
+        return FtbChunksFold.foldedChunkPos(chunk);
     }
 
     public static ChunkPos seatNearPlayer(ChunkPos folded) {
