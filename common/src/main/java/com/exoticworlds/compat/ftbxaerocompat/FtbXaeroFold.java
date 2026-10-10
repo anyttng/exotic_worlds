@@ -6,7 +6,6 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.compat.ftbchunks.FtbChunksFold;
 
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
 
 import dev.ftb.mods.ftbchunks.client.map.MapDimension;
@@ -21,11 +20,9 @@ public final class FtbXaeroFold {
             return player;
         }
 
-        int midX = Math.floorDiv(selection.getLeft() + selection.getRight(), 2);
-        int midZ = Math.floorDiv(selection.getTop() + selection.getBottom(), 2);
-        return new ChunkPos(
-                FtbChunksFold.nearestChunk(Direction.Axis.X, midX, player.x),
-                FtbChunksFold.nearestChunk(Direction.Axis.Z, midZ, player.z));
+        ChunkPos middle = new ChunkPos(Math.floorDiv(selection.getLeft() + selection.getRight(), 2),
+                Math.floorDiv(selection.getTop() + selection.getBottom(), 2));
+        return FtbChunksFold.nearestChunk(middle, player);
     }
 
     public static boolean regionHasStoredClaims(int regionX, int regionZ) {
@@ -35,13 +32,9 @@ public final class FtbXaeroFold {
         }
 
         Map<XZ, MapRegion> regions = dimension.getRegions();
-        int[] canonicalX = FtbChunksFold.canonicalRegions(Direction.Axis.X, regionX);
-        int[] canonicalZ = FtbChunksFold.canonicalRegions(Direction.Axis.Z, regionZ);
-        for (int x : canonicalX) {
-            for (int z : canonicalZ) {
-                if (regions.get(XZ.of(x, z)) != null) {
-                    return true;
-                }
+        for (XZ region : FtbChunksFold.canonicalRegions(regionX, regionZ)) {
+            if (regions.get(region) != null) {
+                return true;
             }
         }
 

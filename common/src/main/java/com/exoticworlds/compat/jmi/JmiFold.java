@@ -4,7 +4,6 @@ import com.exoticworlds.compat.ftbchunks.FtbChunksFold;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
 
 public final class JmiFold {
@@ -18,9 +17,7 @@ public final class JmiFold {
             return folded;
         }
 
-        ChunkPos anchor = foldChunk(player.chunkPosition());
-        return new ChunkPos(FtbChunksFold.nearestChunk(Direction.Axis.X, anchor.x, folded.x),
-                FtbChunksFold.nearestChunk(Direction.Axis.Z, anchor.z, folded.z));
+        return FtbChunksFold.nearestChunk(foldChunk(player.chunkPosition()), folded);
     }
 
     private JmiFold() {

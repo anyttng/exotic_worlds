@@ -126,55 +126,74 @@ class FtbChunksFoldTest {
 
     @Test
     void aPlayerALapOutComesBackBesideTheSelection() {
-        assertEquals(15, FtbChunksFold.nearestChunk(torus(512), Direction.Axis.X, 14, 47),
+        assertEquals(new ChunkPos(15, 3),
+                FtbChunksFold.nearestChunk(torus(512), new ChunkPos(14, 3), new ChunkPos(47, 3)),
                 "chunk 47 is chunk 15 one lap out of a 32-chunk world, and 15 is what sits beside 14");
-        assertEquals(15, FtbChunksFold.nearestChunk(torus(512), Direction.Axis.X, 14, 15),
-                "a chunk already nearest the reference is itself");
+        ChunkPos beside = new ChunkPos(15, 3);
+        assertSame(beside, FtbChunksFold.nearestChunk(torus(512), new ChunkPos(14, 3), beside),
+                "a chunk already nearest the reference was rebuilt");
     }
 
     @Test
     void theCopyAcrossTheSeamIsTheNearOne() {
-        assertEquals(-17, FtbChunksFold.nearestChunk(torus(512), Direction.Axis.X, -16, 15),
+        assertEquals(new ChunkPos(-17, 3),
+                FtbChunksFold.nearestChunk(torus(512), new ChunkPos(-16, 3), new ChunkPos(15, 3)),
                 "chunk 15 is one chunk west of chunk -16 through the seam, so it reads as -17 beside it");
     }
 
     @Test
+    void aPlayerPastASkewedSeamComesBackMovedSideways() {
+        assertEquals(new ChunkPos(6, 34),
+                FtbChunksFold.nearestChunk(LATTICE, new ChunkPos(5, 33), new ChunkPos(30, 2)),
+                "chunk (30, 2) one Z lap up sits 8 chunks east, at (6, 34) beside the selection, not at (-2, 34)");
+    }
+
+    @Test
     void anAxisThatDoesNotLoopKeepsTheChunk() {
-        assertEquals(47, FtbChunksFold.nearestChunk(cylinder(512), Direction.Axis.X, 14, 47),
+        assertEquals(new ChunkPos(47, 3),
+                FtbChunksFold.nearestChunk(cylinder(512), new ChunkPos(14, 3), new ChunkPos(47, 3)),
                 "an unbounded axis has no other copy to come back from");
-        assertEquals(47, FtbChunksFold.nearestChunk(null, Direction.Axis.X, 14, 47),
-                "an unwrapped world has no other copy to come back from");
+        ChunkPos chunk = new ChunkPos(47, 3);
+        assertSame(chunk, FtbChunksFold.nearestChunk(null, new ChunkPos(14, 3), chunk),
+                "an unwrapped world rebuilt the chunk");
     }
 
     @Test
     void aRegionInsideTheWorldIsItself() {
-        assertArrayEquals(new int[] {0}, FtbChunksFold.canonicalRegions(torus(1024), Direction.Axis.X, 0),
+        assertEquals(Set.of(XZ.of(0, 0)), FtbChunksFold.canonicalRegions(torus(1024), 0, 0),
                 "chunks 0..31 of a 64-chunk world are region 0");
-        assertArrayEquals(new int[] {1}, FtbChunksFold.canonicalRegions(torus(1024), Direction.Axis.X, 1),
+        assertEquals(Set.of(XZ.of(1, 1)), FtbChunksFold.canonicalRegions(torus(1024), 1, 1),
                 "chunks 32..63 of a 64-chunk world are region 1");
     }
 
     @Test
     void aRegionAWholeLapOutFoldsOntoTheOneItMirrors() {
-        assertArrayEquals(new int[] {0}, FtbChunksFold.canonicalRegions(torus(1024), Direction.Axis.X, 2),
+        assertEquals(Set.of(XZ.of(0, 1)), FtbChunksFold.canonicalRegions(torus(1024), 2, 1),
                 "chunks 64..95 wrap onto 0..31");
-        assertArrayEquals(new int[] {1}, FtbChunksFold.canonicalRegions(torus(1024), Direction.Axis.X, -1),
+        assertEquals(Set.of(XZ.of(1, 1)), FtbChunksFold.canonicalRegions(torus(1024), -1, 1),
                 "chunks -32..-1 wrap onto 32..63");
     }
 
     @Test
     void aRegionSplitsWhereTheWorldIsNotAWholeNumberOfRegions() {
-        assertArrayEquals(new int[] {1, 0}, FtbChunksFold.canonicalRegions(torus(768), Direction.Axis.X, 1),
+        assertEquals(Set.of(XZ.of(1, 0), XZ.of(0, 0)), FtbChunksFold.canonicalRegions(torus(768), 1, 0),
                 "a 48-chunk world leaves chunks 32..47 in region 1 and wraps 48..63 onto region 0");
-        assertArrayEquals(new int[] {0}, FtbChunksFold.canonicalRegions(torus(768), Direction.Axis.X, 0),
+        assertEquals(Set.of(XZ.of(0, 0)), FtbChunksFold.canonicalRegions(torus(768), 0, 0),
                 "chunks 0..31 of a 48-chunk world stay in region 0");
     }
 
     @Test
+    void aRegionPastASkewedSeamFoldsMovedSideways() {
+        assertEquals(Set.of(XZ.of(1, 0), XZ.of(0, 0)),
+                FtbChunksFold.canonicalRegions(MapShapes.latticeTorus(0, 64, SKEW_CHUNKS), 0, 2),
+                "one Z lap up a 64-chunk world moves 8 chunks west, so the region's first 8 columns land in region 1");
+    }
+
+    @Test
     void anAxisThatDoesNotLoopKeepsTheRegion() {
-        assertArrayEquals(new int[] {7}, FtbChunksFold.canonicalRegions(cylinder(512), Direction.Axis.X, 7),
+        assertEquals(Set.of(XZ.of(7, 0)), FtbChunksFold.canonicalRegions(cylinder(512), 7, 0),
                 "an unbounded axis has nothing to fold onto");
-        assertArrayEquals(new int[] {7}, FtbChunksFold.canonicalRegions(null, Direction.Axis.X, 7),
+        assertEquals(Set.of(XZ.of(7, 3)), FtbChunksFold.canonicalRegions(null, 7, 3),
                 "an unwrapped world has nothing to fold onto");
     }
 

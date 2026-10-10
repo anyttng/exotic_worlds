@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -368,47 +369,42 @@ public final class FtbChunksFold {
         return Math.floorDiv(chunk, REGION_CHUNKS);
     }
 
-    public static int nearestChunk(Direction.Axis axis, int refChunk, int chunk) {
-        return nearestChunk(ClientShapes.current(), axis, refChunk, chunk);
+    public static ChunkPos nearestChunk(ChunkPos ref, ChunkPos chunk) {
+        return nearestChunk(ClientShapes.current(), ref, chunk);
     }
 
-    static int nearestChunk(@Nullable ToroidalShape shape, Direction.Axis axis, int refChunk, int chunk) {
-        if (shape == null || !shape.loops(axis) || !shape.decomposesPerAxis()) {
+    static ChunkPos nearestChunk(@Nullable ToroidalShape shape, ChunkPos ref, ChunkPos chunk) {
+        if (shape == null) {
             return chunk;
         }
 
-        double nearest = shape.nearestCoord(axis, chunkCentre(refChunk), chunkCentre(chunk));
-        return Math.floorDiv((int) Math.floor(nearest), CHUNK_BLOCKS);
+        BlockPos origin = chunk.getWorldPosition();
+        BlockPos nearest = shape.nearestCopy(ref.getWorldPosition(), origin);
+        return nearest == origin ? chunk : new ChunkPos(nearest);
     }
 
-    private static double chunkCentre(int chunk) {
-        return chunk * (double) CHUNK_BLOCKS + CHUNK_BLOCKS / 2.0;
+    public static Set<XZ> canonicalRegions(int regionX, int regionZ) {
+        return canonicalRegions(ClientShapes.current(), regionX, regionZ);
     }
 
-    public static int[] canonicalRegions(Direction.Axis axis, int region) {
-        return canonicalRegions(ClientShapes.current(), axis, region);
-    }
-
-    static int[] canonicalRegions(@Nullable ToroidalShape shape, Direction.Axis axis, int region) {
-        if (shape == null || !shape.loops(axis)) {
-            return new int[] {region};
-        }
-
-        List<Integer> canonical = new ArrayList<>();
-        int firstChunk = region * REGION_CHUNKS;
-        for (int chunk = firstChunk; chunk < firstChunk + REGION_CHUNKS; chunk++) {
-            int folded = regionOf(shape.foldChunk(axis, chunk));
-            if (!canonical.contains(folded)) {
-                canonical.add(folded);
+    static Set<XZ> canonicalRegions(@Nullable ToroidalShape shape, int regionX, int regionZ) {
+        int minX = regionX * REGION_BLOCKS;
+        int minZ = regionZ * REGION_BLOCKS;
+        Set<XZ> regions = new LinkedHashSet<>();
+        for (WorldCopies.Piece piece : WorldCopies.pieces(shape, minX, minZ, minX + REGION_BLOCKS,
+                minZ + REGION_BLOCKS)) {
+            for (int x = regionOfBlock(piece.minX()); x <= regionOfBlock(piece.maxX() - 1); x++) {
+                for (int z = regionOfBlock(piece.minZ()); z <= regionOfBlock(piece.maxZ() - 1); z++) {
+                    regions.add(XZ.of(x, z));
+                }
             }
         }
 
-        int[] result = new int[canonical.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = canonical.get(i);
-        }
+        return regions;
+    }
 
-        return result;
+    private static int regionOfBlock(int block) {
+        return Math.floorDiv(block, REGION_BLOCKS);
     }
 
     private FtbChunksFold() {
