@@ -5,6 +5,7 @@ import com.exoticworlds.compat.aeronautics.AeronauticsTranslation;
 import com.exoticworlds.compat.create.CreateTranslation;
 import com.exoticworlds.compat.electroenergetics.ElectroEnergeticsTranslation;
 import com.exoticworlds.compat.aeronautics.AeronauticsMod;
+import com.exoticworlds.compat.northbound.NorthboundLatitude;
 import com.exoticworlds.compat.sable.SableMod;
 import com.exoticworlds.engine.gen.LoopedChunkGenerator;
 import com.exoticworlds.engine.gen.LoopedFlatChunkGenerator;
@@ -45,6 +46,7 @@ public final class WorldLoop {
         AeronauticsTranslation.register();
         ElectroEnergeticsTranslation.register();
         GenerationHookSetup.registerAll();
+        NorthboundLatitude.register();
 
         CHUNK_GENERATORS.register(WorldLoopGenerators.TOROIDAL_ID, () -> LoopedChunkGenerator.CODEC);
         CHUNK_GENERATORS.register(WorldLoopGenerators.TOROIDAL_FLAT_ID, () -> LoopedFlatChunkGenerator.CODEC);
