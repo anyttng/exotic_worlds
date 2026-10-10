@@ -26,8 +26,8 @@ public class WrapDomain {
             return 0;
         }
 
-        double quotient = Math.floor((coord - lowerBound) / domainLength);
-        if (!(quotient > Integer.MIN_VALUE && quotient <= Integer.MAX_VALUE)) {
+        double quotient = lapQuotient(coord);
+        if (!countsLaps(quotient)) {
             return 0;
         }
 
@@ -37,6 +37,18 @@ public class WrapDomain {
         }
 
         return Math.toIntExact(laps);
+    }
+
+    public boolean canLap(double coord) {
+        return !Double.isNaN(coord) && (!isOver(coord) || countsLaps(lapQuotient(coord)));
+    }
+
+    private double lapQuotient(double coord) {
+        return Math.floor((coord - lowerBound) / domainLength);
+    }
+
+    private static boolean countsLaps(double quotient) {
+        return quotient > Integer.MIN_VALUE && quotient <= Integer.MAX_VALUE;
     }
 
     public double wrap(double coord) {

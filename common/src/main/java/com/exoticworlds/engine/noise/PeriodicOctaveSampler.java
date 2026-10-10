@@ -11,28 +11,6 @@ import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import net.minecraft.world.level.levelgen.synth.SmearedPerlinNoise;
 
 public final class PeriodicOctaveSampler {
-    public static float sample(WorldFold transformer, NoiseFrame frame, double scale, NoiseStack stack,
-            double x, double y, double z) {
-        return sample(transformer, frame, scale, null, stack, x, y, z);
-    }
-
-    public static float sample(WorldFold transformer, NoiseFrame frame, double scale, double @Nullable [] layerFactors,
-            NoiseStack stack, double x, double y, double z) {
-        SlotAxes axes = frame.axes();
-        LapFloor floor = LapFloor.of(transformer);
-        NoiseStack.Layer[] layers = stack.layers;
-        float value = 0.0F;
-        for (int i = 0; i < layers.length; i++) {
-            NoiseStack.Layer layer = layers[i];
-            double frequency = layer.frequency();
-            PeriodicLattice lattice = lattice(transformer, frame, layerScale(scale, layerFactors, i, frequency),
-                    floor, layer.noise());
-            value += layer.amplitude() * octave(axes, lattice, frequency, x, y, z);
-        }
-
-        return value;
-    }
-
     static PeriodicOctaves compile(WorldFold transformer, NoiseFrame frame, double scale,
             double @Nullable [] layerFactors, NoiseStack stack) {
         LapFloor floor = LapFloor.of(transformer);

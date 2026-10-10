@@ -33,6 +33,8 @@ public final class PeriodicNoiseSampler {
 
     static final long HELD_PERIOD = -1L;
 
+    static final long MAX_INDEXED_PERIOD = 1L << 36;
+
     static final double NO_FUDGE = 0.0;
 
     private static final int X_SLOT = 0;
@@ -138,9 +140,9 @@ public final class PeriodicNoiseSampler {
 
     public static float sampleLattice(byte[] permutations, double xs, double ys, double zs, long xPeriod,
             long zPeriod) {
-        int xCell = Mth.floor(xs);
-        int yCell = Mth.floor(ys);
-        int zCell = Mth.floor(zs);
+        long xCell = Mth.lfloor(xs);
+        long yCell = Mth.lfloor(ys);
+        long zCell = Mth.lfloor(zs);
         float yFrac = (float) (ys - yCell);
         return sampleAndLerp(permutations, xCell, yCell, zCell, (float) (xs - xCell), yFrac, (float) (zs - zCell),
                 yFrac, xPeriod, UNBOUNDED_PERIOD, zPeriod);
@@ -155,9 +157,9 @@ public final class PeriodicNoiseSampler {
         double xs = lattice.x().coord(x) + lattice.xOffset();
         double ys = lattice.y().coord(y) + lattice.yOffset();
         double zs = lattice.z().coord(z) + lattice.zOffset();
-        int xCell = Mth.floor(xs);
-        int yCell = Mth.floor(ys);
-        int zCell = Mth.floor(zs);
+        long xCell = Mth.lfloor(xs);
+        long yCell = Mth.lfloor(ys);
+        long zCell = Mth.lfloor(zs);
         float xFrac = (float) (xs - xCell);
         double yRelative = ys - yCell;
         float zFrac = (float) (zs - zCell);
@@ -179,9 +181,9 @@ public final class PeriodicNoiseSampler {
         double xs = shearedCoord(X_SLOT, shear, lattice.x(), x, noiseX, noiseZ) + lattice.xOffset();
         double ys = shearedCoord(Y_SLOT, shear, lattice.y(), y, noiseX, noiseZ) + lattice.yOffset();
         double zs = shearedCoord(Z_SLOT, shear, lattice.z(), z, noiseX, noiseZ) + lattice.zOffset();
-        int xCell = Mth.floor(xs);
-        int yCell = Mth.floor(ys);
-        int zCell = Mth.floor(zs);
+        long xCell = Mth.lfloor(xs);
+        long yCell = Mth.lfloor(ys);
+        long zCell = Mth.lfloor(zs);
         float xFrac = (float) (xs - xCell);
         double yRelative = ys - yCell;
         float zFrac = (float) (zs - zCell);
@@ -267,9 +269,9 @@ public final class PeriodicNoiseSampler {
             long xPeriod, long zPeriod, double scale, double xOffset, double yOffset, double zOffset) {
         double xs = foldAndScale(xDomain, xPeriod, scale, 0.0) + xOffset;
         double zs = foldAndScale(zDomain, zPeriod, scale, 0.0) + zOffset;
-        int xCell = Mth.floor(xs);
-        int zCell = Mth.floor(zs);
-        int yCell = Mth.floor(yOffset);
+        long xCell = Mth.lfloor(xs);
+        long zCell = Mth.lfloor(zs);
+        long yCell = Mth.lfloor(yOffset);
         float yFrac = (float) (yOffset - yCell);
         return sampleAndLerp(permutations, xCell, yCell, zCell, (float) (xs - xCell), yFrac, (float) (zs - zCell),
                 yFrac, xPeriod, UNBOUNDED_PERIOD, zPeriod);
@@ -298,7 +300,7 @@ public final class PeriodicNoiseSampler {
         return period == HELD_PERIOD ? 0.0 : domain.wrap(coord) * ((double) period / domain.domainLength);
     }
 
-    private static float sampleAndLerp(byte[] permutations, int xCell, int yCell, int zCell,
+    private static float sampleAndLerp(byte[] permutations, long xCell, long yCell, long zCell,
             float xFrac, float yFracFudged, float zFrac, float yFracOriginal,
             long xPeriod, long yPeriod, long zPeriod) {
         int x0 = p(permutations, wrapCell(xCell, xPeriod));

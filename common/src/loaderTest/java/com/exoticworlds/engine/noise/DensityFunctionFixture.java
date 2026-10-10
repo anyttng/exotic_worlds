@@ -85,6 +85,10 @@ public final class DensityFunctionFixture {
         return new DensityFunctionCompiler(new FoldedCompileContext(SEEDED, fold, NO_LIFT)).getSampler(function);
     }
 
+    public static DensitySampler compileVanilla(DensityFunction function) {
+        return new DensityFunctionCompiler(SEEDED).getSampler(function);
+    }
+
     public static DensitySampler compileSeparated(DensityFunction function, WorldFold fold) {
         return new DensityFunctionCompiler(new FoldedCompileContext(SEEDED, fold, NO_LIFT, ladderOf(function, fold)))
                 .getSampler(function);

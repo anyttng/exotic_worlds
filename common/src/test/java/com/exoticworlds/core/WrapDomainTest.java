@@ -174,6 +174,20 @@ class WrapDomainTest {
         }
 
         @Test
+        void canLapAnswersWhetherWrapFolds() {
+            for (WrapDomain domain : DOMAINS) {
+                double reachable = domain.lowerBound + (double) domain.domainLength * (Integer.MAX_VALUE - 1);
+                double beyond = domain.lowerBound + (double) domain.domainLength * ((double) Integer.MAX_VALUE + 2.0);
+                assertTrue(domain.canLap(domain.lowerBound), in(domain));
+                assertTrue(domain.canLap(reachable), in(domain));
+                assertFalse(domain.canLap(beyond), in(domain));
+                assertFalse(domain.canLap(-beyond), in(domain));
+                assertFalse(domain.canLap(Double.POSITIVE_INFINITY), in(domain));
+                assertFalse(domain.canLap(Double.NaN), in(domain));
+            }
+        }
+
+        @Test
         void shiftTowardStandsStillWhenItsShiftDoesNotFit() {
             for (WrapDomain domain : DOMAINS) {
                 assertEquals(0, domain.shiftToward(0.0, Double.POSITIVE_INFINITY), in(domain));

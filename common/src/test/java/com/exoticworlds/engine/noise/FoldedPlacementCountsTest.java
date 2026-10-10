@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -28,6 +29,8 @@ class FoldedPlacementCountsTest {
 
     private static final double[] NOISE_FACTORS = {80.0, 400.0, 1.0};
     private static final double[] NOISE_LEVELS = {0.0, -0.8};
+
+    private static final double UNCARRIED_FACTOR = 1.0E-7;
 
     private static final double BAMBOO_OFFSET = 0.3;
     private static final int BAMBOO_RATIO = 160;
@@ -128,6 +131,29 @@ class FoldedPlacementCountsTest {
                         assertEquals(count(fold, x, z, factor), count(fold, x + xPeriod, z + zPeriod, factor),
                                 () -> "count(" + x + ", " + z + ") vs the corner lap in " + fold
                                         + " with noise factor " + factor);
+                    }
+                }
+            }
+        }
+
+        @Test
+        void aFactorPastTheSimplexBoundSamplesVanillaAtTheFoldedBlock() {
+            Random random = new Random(SEED);
+            NoiseBasedCountPlacement vanilla =
+                    NoiseBasedCountPlacement.of(BAMBOO_RATIO, UNCARRIED_FACTOR, BAMBOO_OFFSET);
+            for (WorldFold fold : WRAPPED_X) {
+                TranslationLattice lattice = fold.blockLattice();
+                int xPeriod = lap(fold, Direction.Axis.X);
+                int zPeriod = fold.blockDomain(Direction.Axis.Z).loops() ? lap(fold, Direction.Axis.Z) : 0;
+                for (int i = 0; i < LINE_SAMPLES; i++) {
+                    int x = blockInDomain(random, fold.blockDomain(Direction.Axis.X));
+                    int z = lineCoord(random, fold.blockDomain(Direction.Axis.Z), i);
+                    for (int[] block : new int[][] {{x, z}, {x + xPeriod, z}, {x, z + zPeriod}}) {
+                        int expected = vanilla.count(RandomSource.create(SEED),
+                                new BlockPos(lattice.foldX(block[0], block[1]), 0, lattice.foldZ(block[1])));
+                        assertEquals(expected, count(fold, block[0], block[1], UNCARRIED_FACTOR),
+                                () -> "count(" + block[0] + ", " + block[1] + ") vs vanilla at the folded block in "
+                                        + fold);
                     }
                 }
             }
