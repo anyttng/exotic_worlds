@@ -8,6 +8,7 @@ import static com.exoticworlds.engine.noise.DensityFunctionFixture.WORLDS;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.blockIn;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.blockY;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.withLiveNoise;
+import static com.exoticworlds.engine.noise.DensityFunctionFixture.withNoiseOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -16,10 +17,12 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.core.TranslationLattice;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
+import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 class ShiftFunctionPeriodicityTest {
     private static final int SAMPLES = 64;
@@ -32,6 +35,40 @@ class ShiftFunctionPeriodicityTest {
             new ShiftFunction("shift", withLiveNoise(DensityFunctions.shift(NOISE_DATA))),
             new ShiftFunction("shift_a", withLiveNoise(DensityFunctions.shiftA(NOISE_DATA))),
             new ShiftFunction("shift_b", withLiveNoise(DensityFunctions.shiftB(NOISE_DATA))));
+
+    private static final int UNINDEXABLE_FIRST_OCTAVE = 36;
+
+    private static final NormalNoise.NoiseParameters UNINDEXABLE_PARAMETERS =
+            new NormalNoise.NoiseParameters(UNINDEXABLE_FIRST_OCTAVE, 1.0);
+
+    private static final List<ShiftFunction> UNINDEXABLE_SHIFTS = List.of(
+            new ShiftFunction("shift", withNoiseOf(DensityFunctions.shift(NOISE_DATA), UNINDEXABLE_PARAMETERS)),
+            new ShiftFunction("shift_a", withNoiseOf(DensityFunctions.shiftA(NOISE_DATA), UNINDEXABLE_PARAMETERS)),
+            new ShiftFunction("shift_b", withNoiseOf(DensityFunctions.shiftB(NOISE_DATA), UNINDEXABLE_PARAMETERS)));
+
+    @Test
+    void aShiftWhosePeriodOverflowsTheCellIndexSamplesVanillaAtTheFoldedBlock() {
+        Random random = new Random(SEED);
+        for (ShiftFunction shift : UNINDEXABLE_SHIFTS) {
+            for (WorldFold transformer : WORLDS) {
+                TranslationLattice lattice = transformer.blockLattice();
+                int xWidth = transformer.blockDomain(Direction.Axis.X).domainLength;
+                int zWidth = transformer.blockDomain(Direction.Axis.Z).domainLength;
+                for (int i = 0; i < SAMPLES; i++) {
+                    int x = blockIn(random, transformer.blockDomain(Direction.Axis.X));
+                    int y = blockY(random);
+                    int z = blockIn(random, transformer.blockDomain(Direction.Axis.Z));
+                    for (int[] block : new int[][] {{x, z}, {x + xWidth, z}, {x, z + zWidth}}) {
+                        double expected = shift.function().compute(new DensityFunction.SinglePointContext(
+                                lattice.foldX(block[0], block[1]), y, lattice.foldZ(block[1])));
+                        assertEquals(expected, sample(shift, transformer, block[0], y, block[1]),
+                                shift.name() + " at the folded block in " + transformer + " at (" + block[0] + ", "
+                                        + y + ", " + block[1] + ")");
+                    }
+                }
+            }
+        }
+    }
 
     @Test
     void everyShiftFunctionAgreesOneWorldWidthApartInX() {
