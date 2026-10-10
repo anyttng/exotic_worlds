@@ -54,15 +54,19 @@ public final class FoldedSamplers {
 
     public static DensitySampler noise(FoldedCompileContext context, NoiseStack stack, double xzScale,
             double vanillaXzScale, double yScale, double[] layerFactors, boolean coast) {
-        PeriodicOctaves octaves = PeriodicOctaveSampler.compile(context.fold(), frameOf(context, xzScale, yScale),
-                xzScale, layerFactors, stack);
-        if (!octaves.indexable()) {
-            DensitySampler zero = DensityFunctions.zero().compileSampler(context);
-            return new VanillaAtFoldSampler(context.fold(), stack, vanillaXzScale, yScale, liftOf(context, coast),
-                    zero, zero, zero);
+        return octavesOrVanilla(context, PeriodicOctaveSampler.compile(context.fold(),
+                frameOf(context, xzScale, yScale), xzScale, layerFactors, stack), stack, vanillaXzScale, yScale,
+                liftOf(context, coast));
+    }
+
+    private static DensitySampler octavesOrVanilla(FoldedCompileContext context, PeriodicOctaves octaves,
+            NoiseStack stack, double vanillaXzScale, double yScale, CoastLiftCache coastLift) {
+        if (octaves.indexable()) {
+            return new NoiseSampler(octaves, yScale, coastLift);
         }
 
-        return new NoiseSampler(octaves, yScale, liftOf(context, coast));
+        DensitySampler zero = DensityFunctions.zero().compileSampler(context);
+        return new VanillaAtFoldSampler(context.fold(), stack, vanillaXzScale, yScale, coastLift, zero, zero, zero);
     }
 
     public static DensitySampler shiftedNoise(FoldedCompileContext context, NoiseStack stack, double xzScale,
@@ -95,39 +99,44 @@ public final class FoldedSamplers {
     }
 
     public static DensitySampler shift(FoldedCompileContext context, Holder<NormalNoise> noise) {
-        return new ShiftSampler(shiftOctaves(context, noise, SlotAxes.DEFAULT), NoiseConstants.SHIFT_SCALE, false);
+        return shiftSampler(context, noise, SlotAxes.DEFAULT, NoiseConstants.SHIFT_SCALE, false);
     }
 
     public static DensitySampler shiftA(FoldedCompileContext context, Holder<NormalNoise> noise) {
-        return new ShiftSampler(shiftOctaves(context, noise, SlotAxes.DEFAULT), NO_Y_SCALE, false);
+        return shiftSampler(context, noise, SlotAxes.DEFAULT, NO_Y_SCALE, false);
     }
 
     public static DensitySampler shiftB(FoldedCompileContext context, Holder<NormalNoise> noise) {
-        return new ShiftSampler(shiftOctaves(context, noise, DensityFunctionSlotAxes.SHIFT_B), NO_Y_SCALE, true);
+        return shiftSampler(context, noise, DensityFunctionSlotAxes.SHIFT_B, NO_Y_SCALE, true);
     }
 
-    private static PeriodicOctaves shiftOctaves(FoldedCompileContext context, Holder<NormalNoise> noise,
-            SlotAxes axes) {
-        return PeriodicOctaveSampler.compile(context.fold(),
+    private static DensitySampler shiftSampler(FoldedCompileContext context, Holder<NormalNoise> noise,
+            SlotAxes axes, double yScale, boolean transposed) {
+        NoiseStack stack = stackOf(context.createNoiseSampler(noise));
+        PeriodicOctaves octaves = PeriodicOctaveSampler.compile(context.fold(),
                 frameOf(context, axes, GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE),
-                NoiseConstants.SHIFT_SCALE, null, stackOf(context.createNoiseSampler(noise)));
+                NoiseConstants.SHIFT_SCALE, null, stack);
+        return octaves.indexable()
+                ? new ShiftSampler(octaves, yScale, transposed)
+                : new VanillaShiftAtFoldSampler(context.fold(), stack, yScale, transposed);
     }
 
     public static DensitySampler blended(FoldedCompileContext context, BlendedNoise blended) {
         BlendedNoise.FbmSet fbms = blended.createFbmSet(context.createRandom(BlendedNoise.NOISE_SEED));
         double xzMultiplier = blended.xzMultiplier();
         double yMultiplier = blended.yMultiplier();
+        double mainXzScale = xzMultiplier / blended.xzFactor();
         WorldFold fold = context.fold();
         NoiseFrame frame = frameOf(context, SlotAxes.DEFAULT, GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE);
-        DensitySampler minLimit = new NoiseSampler(
-                PeriodicOctaveSampler.compile(fold, frame, xzMultiplier, null, fbms.minLimitNoise()), yMultiplier,
-                NO_LIFT);
-        DensitySampler maxLimit = new NoiseSampler(
-                PeriodicOctaveSampler.compile(fold, frame, xzMultiplier, null, fbms.maxLimitNoise()), yMultiplier,
-                NO_LIFT);
-        DensitySampler main = new NoiseSampler(
-                PeriodicOctaveSampler.compile(fold, frame, xzMultiplier / blended.xzFactor(), null, fbms.mainNoise()),
-                yMultiplier / blended.yFactor(), NO_LIFT);
+        DensitySampler minLimit = octavesOrVanilla(context,
+                PeriodicOctaveSampler.compile(fold, frame, xzMultiplier, null, fbms.minLimitNoise()),
+                fbms.minLimitNoise(), xzMultiplier, yMultiplier, NO_LIFT);
+        DensitySampler maxLimit = octavesOrVanilla(context,
+                PeriodicOctaveSampler.compile(fold, frame, xzMultiplier, null, fbms.maxLimitNoise()),
+                fbms.maxLimitNoise(), xzMultiplier, yMultiplier, NO_LIFT);
+        DensitySampler main = octavesOrVanilla(context,
+                PeriodicOctaveSampler.compile(fold, frame, mainXzScale, null, fbms.mainNoise()),
+                fbms.mainNoise(), mainXzScale, yMultiplier / blended.yFactor(), NO_LIFT);
         DensitySampler choice = new ClampFunction.Sampler(
                 new BinaryFunction.ConstAddSampler(main, BLEND_CHOICE_OFFSET), BLEND_CHOICE_MIN, BLEND_CHOICE_MAX);
         return new LerpFunction.Sampler(choice, minLimit, maxLimit);
@@ -214,10 +223,28 @@ public final class FoldedSamplers {
         }
     }
 
-    private static float vanillaAtFold(TranslationLattice lattice, Noise noise, double xzScale, int blockX, double y,
-            int blockZ, double shiftX, double shiftZ) {
-        return noise.get(lattice.foldX(blockX, blockZ) * xzScale + shiftX, y,
-                lattice.foldZ(blockZ) * xzScale + shiftZ);
+    static float vanillaAtFold(TranslationLattice lattice, Noise noise, double xzScale, double x, double y,
+            double z, double shiftX, double shiftZ) {
+        return noise.get(lattice.foldX(x, z) * xzScale + shiftX, y, lattice.foldZ(z) * xzScale + shiftZ);
+    }
+
+    private record VanillaShiftAtFoldSampler(WorldFold fold, Noise noise, double yScale, boolean transposed)
+            implements DensitySampler {
+        @Override
+        public void sampleVolume(SamplerContext context, DensityBuffer outputBuffer, DensityVolume volume) {
+            DensitySampler.sampleVolumeNaive(context, outputBuffer, volume, this);
+        }
+
+        @Override
+        public float sampleValue(SamplerContext context, int blockX, int blockY, int blockZ) {
+            TranslationLattice lattice = this.fold.blockLattice();
+            double x = lattice.foldX(blockX, blockZ) * NoiseConstants.SHIFT_SCALE;
+            double z = lattice.foldZ(blockZ) * NoiseConstants.SHIFT_SCALE;
+            float value = this.transposed
+                    ? this.noise.get(z, x, 0.0)
+                    : this.noise.get(x, blockY * this.yScale, z);
+            return value * SHIFT_AMPLITUDE;
+        }
     }
 
     private record ShiftSampler(PeriodicOctaves octaves, double yScale, boolean transposed) implements DensitySampler {

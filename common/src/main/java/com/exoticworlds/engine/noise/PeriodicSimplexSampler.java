@@ -18,6 +18,15 @@ public final class PeriodicSimplexSampler {
     private static final int GRADIENT_COUNT = 12;
     private static final int PERMUTATION_MASK = 0xFF;
 
+    private static final long MAX_LAP_PERIOD = 1L << 29;
+
+    public static boolean carries(WorldFold transformer, double scale) {
+        TranslationLattice lattice = transformer.blockLattice();
+        LapFloor floor = LapFloor.of(transformer);
+        return PeriodicNoiseSampler.period(lattice.x(), scale, floor) <= MAX_LAP_PERIOD
+                && PeriodicNoiseSampler.period(lattice.z(), scale, floor) <= MAX_LAP_PERIOD;
+    }
+
     public static float sampleStack(WorldFold transformer, double scale, NoiseStack stack, double x, double z) {
         float value = 0.0F;
         for (NoiseStack.Layer layer : stack.layers) {
