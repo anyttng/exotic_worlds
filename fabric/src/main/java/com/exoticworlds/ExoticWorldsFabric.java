@@ -1,5 +1,6 @@
 package com.exoticworlds;
 
+import com.exoticworlds.compat.northbound.NorthboundLatitude;
 import com.exoticworlds.engine.gen.LoopedChunkGenerator;
 import com.exoticworlds.engine.gen.LoopedFlatChunkGenerator;
 import com.exoticworlds.engine.gen.WorldLoopGenerators;
@@ -33,6 +34,7 @@ public class ExoticWorldsFabric implements ModInitializer {
         WorldOptionSetup.registerAll();
         WorldShapeSetup.registerAll();
         GenerationHookSetup.registerAll();
+        NorthboundLatitude.register();
 
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR,
                 Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, WorldLoopGenerators.TOROIDAL_ID),

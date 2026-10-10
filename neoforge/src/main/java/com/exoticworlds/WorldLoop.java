@@ -1,6 +1,7 @@
 package com.exoticworlds;
 
 import com.exoticworlds.client.settings.SettingsScreenFactory;
+import com.exoticworlds.compat.northbound.NorthboundLatitude;
 import com.exoticworlds.engine.gen.LoopedChunkGenerator;
 import com.exoticworlds.engine.gen.LoopedFlatChunkGenerator;
 import com.exoticworlds.engine.gen.WorldLoopGenerators;
@@ -40,6 +41,7 @@ public final class WorldLoop {
         WorldOptionSetup.registerAll();
         WorldShapeSetup.registerAll();
         GenerationHookSetup.registerAll();
+        NorthboundLatitude.register();
 
         CHUNK_GENERATORS.register(WorldLoopGenerators.TOROIDAL_ID, () -> LoopedChunkGenerator.CODEC);
         CHUNK_GENERATORS.register(WorldLoopGenerators.TOROIDAL_FLAT_ID, () -> LoopedFlatChunkGenerator.CODEC);
