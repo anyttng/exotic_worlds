@@ -77,7 +77,7 @@ public abstract class SubLevelInclusiveLevelEntityGetterMixin<T extends EntityAc
             return;
         }
 
-        AbortableIterationConsumer<U> once = FoldedBoxQuery.deduplicating(consumer);
+        AbortableIterationConsumer<U> once = FoldedBoxQuery.deduplicatingAbortable(consumer);
         for (AABB piece : pieces) {
             original.call(delegate, typeTest, piece, once);
         }

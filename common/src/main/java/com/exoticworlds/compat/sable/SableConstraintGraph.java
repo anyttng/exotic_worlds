@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
@@ -14,7 +13,7 @@ import dev.ryanhcode.sable.api.physics.PhysicsPipelineBody;
 
 public final class SableConstraintGraph {
     private final List<SableConstraintEdge> edges = new ArrayList<>();
-    private @Nullable Map<PhysicsPipelineBody, List<PhysicsPipelineBody>> groups;
+    private @Nullable IdentityHashMap<PhysicsPipelineBody, List<PhysicsPipelineBody>> groups;
 
     public static List<PhysicsPipelineBody> groupOf(PhysicsPipeline pipeline, PhysicsPipelineBody start) {
         return pipeline instanceof SableConstraintGraphHolder holder
@@ -56,7 +55,7 @@ public final class SableConstraintGraph {
             return List.of(start);
         }
 
-        Map<PhysicsPipelineBody, List<PhysicsPipelineBody>> groups = this.groups;
+        IdentityHashMap<PhysicsPipelineBody, List<PhysicsPipelineBody>> groups = this.groups;
         if (groups == null) {
             groups = this.walkGroups();
             this.groups = groups;
@@ -76,14 +75,14 @@ public final class SableConstraintGraph {
         return group;
     }
 
-    private Map<PhysicsPipelineBody, List<PhysicsPipelineBody>> walkGroups() {
-        Map<PhysicsPipelineBody, List<PhysicsPipelineBody>> neighbours = new IdentityHashMap<>();
+    private IdentityHashMap<PhysicsPipelineBody, List<PhysicsPipelineBody>> walkGroups() {
+        IdentityHashMap<PhysicsPipelineBody, List<PhysicsPipelineBody>> neighbours = new IdentityHashMap<>();
         for (SableConstraintEdge edge : this.edges) {
             neighbours.computeIfAbsent(edge.first(), body -> new ArrayList<>()).add(edge.second());
             neighbours.computeIfAbsent(edge.second(), body -> new ArrayList<>()).add(edge.first());
         }
 
-        Map<PhysicsPipelineBody, List<PhysicsPipelineBody>> groups = new IdentityHashMap<>();
+        IdentityHashMap<PhysicsPipelineBody, List<PhysicsPipelineBody>> groups = new IdentityHashMap<>();
         Set<PhysicsPipelineBody> seen = Collections.newSetFromMap(new IdentityHashMap<>());
         for (PhysicsPipelineBody start : neighbours.keySet()) {
             if (!seen.add(start)) {

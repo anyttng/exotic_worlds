@@ -245,6 +245,25 @@ var fabricEnvTypeClass = tasks.register('unpackFabricEnvType', Sync) {
     into layout.buildDirectory.dir('fabric-envtype')
 }
 
+// The NeoForge compat jars annotate their subscribers with the event bus's EventPriority, absent from this NeoForm
+// classpath; as with EnvType, the enum's class file alone is unpacked.
+configurations {
+    neoEventPriority {
+        transitive = false
+    }
+}
+
+dependencies {
+    neoEventPriority "net.neoforged:bus:${neoforge_bus_version}"
+}
+
+var neoEventPriorityClass = tasks.register('unpackNeoEventPriority', Sync) {
+    from(zipTree(configurations.neoEventPriority.singleFile)) {
+        include 'net/neoforged/bus/api/EventPriority.class'
+    }
+    into layout.buildDirectory.dir('neo-eventpriority')
+}
+
 // NeoForm brings only vanilla; the mixin annotations the sources carry come from the same artifacts the NeoForge
 // runtime ships (pinned in gradle.properties from the neo_version userdev config). compileOnly — applying them is
 // the loaders' business.
@@ -281,6 +300,7 @@ dependencies {
     compileOnly "maven.modrinth:worldweaver-neoforge:${worldweaver_version}"
     compileOnly files(sodiumModJars).asFileTree.matching { include '*.jar' }
     compileOnly files(fabricEnvTypeClass)
+    compileOnly files(neoEventPriorityClass)
     compileOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
     compileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     compileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"

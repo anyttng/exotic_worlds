@@ -37,7 +37,7 @@ public final class FoldedBoxQuery {
         };
     }
 
-    public static <T> AbortableIterationConsumer<T> deduplicating(AbortableIterationConsumer<T> output) {
+    public static <T> AbortableIterationConsumer<T> deduplicatingAbortable(AbortableIterationConsumer<T> output) {
         Set<T> seen = Collections.newSetFromMap(new IdentityHashMap<>());
         return value -> seen.add(value)
                 ? output.accept(value)

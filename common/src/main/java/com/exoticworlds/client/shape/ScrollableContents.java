@@ -139,7 +139,7 @@ public class ScrollableContents extends AbstractContainerWidget {
 
         int scrollerHeight = this.scrollerHeight();
         int x = this.getX() + this.getWidth() - SCROLLBAR_WIDTH;
-        int y = this.getY() + (int) this.scrollAmount * (this.getHeight() - scrollerHeight) / maxScroll;
+        int y = this.getY() + ((int) this.scrollAmount) * (this.getHeight() - scrollerHeight) / maxScroll;
         RenderSystem.enableBlend();
         graphics.blitSprite(SCROLLER_BACKGROUND_SPRITE, x, this.getY(), SCROLLBAR_WIDTH, this.getHeight());
         graphics.blitSprite(SCROLLER_SPRITE, x, y, SCROLLBAR_WIDTH, scrollerHeight);

@@ -32,7 +32,7 @@ final class LoaderSpellings {
     static boolean isIntermediary(String selector) {
         MemberRef selected = MemberRef.parse(selector);
         return INTERMEDIARY_METHOD.matcher(selected.name()).matches()
-                || selected.descriptor() != null && INTERMEDIARY_CLASS.matcher(selected.descriptor()).find();
+                || (selected.descriptor() != null && INTERMEDIARY_CLASS.matcher(selected.descriptor()).find());
     }
 
     // A method named twice, once per loader's spelling, holds when either one is found.

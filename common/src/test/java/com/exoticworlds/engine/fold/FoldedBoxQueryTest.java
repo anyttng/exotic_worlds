@@ -142,7 +142,7 @@ class FoldedBoxQueryTest {
     @Test
     void theAbortableConsumerPassesAnInstanceOnceAndAnEqualOneAgain() {
         List<AABB> seen = new ArrayList<>();
-        AbortableIterationConsumer<AABB> once = FoldedBoxQuery.deduplicating(box -> {
+        AbortableIterationConsumer<AABB> once = FoldedBoxQuery.deduplicatingAbortable(box -> {
             seen.add(box);
             return AbortableIterationConsumer.Continuation.CONTINUE;
         });
@@ -159,7 +159,7 @@ class FoldedBoxQueryTest {
     @Test
     void theAbortableConsumerHandsTheAbortBackToTheCaller() {
         AbortableIterationConsumer<AABB> once =
-                FoldedBoxQuery.deduplicating(box -> AbortableIterationConsumer.Continuation.ABORT);
+                FoldedBoxQuery.deduplicatingAbortable(box -> AbortableIterationConsumer.Continuation.ABORT);
 
         assertEquals(AbortableIterationConsumer.Continuation.ABORT, once.accept(BOX));
     }
@@ -167,7 +167,7 @@ class FoldedBoxQueryTest {
     @Test
     void aRepeatedInstanceContinuesWithoutReachingTheCallee() {
         List<AABB> seen = new ArrayList<>();
-        AbortableIterationConsumer<AABB> once = FoldedBoxQuery.deduplicating(box -> {
+        AbortableIterationConsumer<AABB> once = FoldedBoxQuery.deduplicatingAbortable(box -> {
             seen.add(box);
             return AbortableIterationConsumer.Continuation.ABORT;
         });

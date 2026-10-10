@@ -96,8 +96,8 @@ public record CloudLattice(float lapAX, float lapAZ, float lapBX, float lapBZ, f
                 float seatedX = x + a * this.lapAX + b * this.lapBX;
                 float seatedZ = z + a * this.lapAZ + b * this.lapBZ;
                 float length = squaredImage(seatedX - posX, seatedZ - posZ, m00, m01, m10, m11);
-                if (length < bestLength || length == bestLength
-                        && (seatedX < bestX || seatedX == bestX && seatedZ < bestZ)) {
+                if (length < bestLength || (length == bestLength
+                        && (seatedX < bestX || (seatedX == bestX && seatedZ < bestZ)))) {
                     bestX = seatedX;
                     bestZ = seatedZ;
                     bestLength = length;

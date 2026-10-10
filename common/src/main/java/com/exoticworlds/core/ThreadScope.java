@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
 public final class ThreadScope<T> {
+    @SuppressWarnings("ThreadLocalUsage")
     private final ThreadLocal<@Nullable T> bound = new ThreadLocal<>();
 
     public <R> R with(@Nullable T value, Supplier<R> body) {

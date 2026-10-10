@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.List;
-import java.util.function.IntFunction;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -44,9 +43,6 @@ class CreatePayloadTranslationTest {
     private static final RegistryAccess.Frozen REGISTRIES =
             RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 
-    private static final IntFunction<RegistryFriendlyByteBuf> BUFFERS =
-            capacity -> new RegistryFriendlyByteBuf(Unpooled.buffer(capacity), REGISTRIES);
-
     private static final int VIEW_DISTANCE = 16;
 
     private static final double NEAR_THE_EAST_EDGE = 200.0;
@@ -71,7 +67,7 @@ class CreatePayloadTranslationTest {
     private static TranslationContext contextAt(double playerX) {
         ClientPosition mirror = new ClientPosition();
         mirror.rebase(playerX, PLAYER_Z, Level.OVERWORLD, null, PER_AXIS);
-        return new TranslationContext(PER_AXIS, mirror, BUFFERS, Level.OVERWORLD,
+        return new TranslationContext(PER_AXIS, mirror, CreatePayloadTranslationTest::buffer, Level.OVERWORLD,
                 VIEW_DISTANCE, VIEW_DISTANCE, entityId -> false, entityId -> null, entityId -> null, () -> {},
                 PacketTranslator.production());
     }
@@ -165,5 +161,9 @@ class CreatePayloadTranslationTest {
 
         SymmetryEffectPacket inlandSymmetry = new SymmetryEffectPacket(INLAND_BLOCK, List.of(INLAND_BLOCK));
         assertSame(inlandSymmetry, seated(inlandSymmetry));
+    }
+
+    private static RegistryFriendlyByteBuf buffer(int capacity) {
+        return new RegistryFriendlyByteBuf(Unpooled.buffer(capacity), REGISTRIES);
     }
 }
