@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.accessors.ClimateCompressionCache;
 import com.exoticworlds.accessors.ClimateFieldMark;
+import com.exoticworlds.accessors.IndexableNoise;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
 import com.exoticworlds.engine.noise.PeriodicOctaveSampler;
@@ -21,7 +22,7 @@ import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
 @Mixin(PerlinNoise.class)
-public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMark {
+public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMark, IndexableNoise {
     @Unique
     private @Nullable Resolved toroidal$climateCompression;
 
@@ -51,12 +52,22 @@ public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMa
             return original.call(x, y, z, yScale, yFudge);
         }
 
+        return PeriodicOctaveSampler.sample(generation, this.toroidal$baseScale(generation), this.noiseLevels,
+                this.amplitudes, this.lowestFreqInputFactor, this.lowestFreqValueFactor, x, y, z, yScale, yFudge);
+    }
+
+    @Override
+    public boolean toroidal$indexable(Context context) {
+        return context.wrappedTransformer() == null || PeriodicOctaveSampler.indexable(context,
+                this.toroidal$baseScale(context), this.noiseLevels, this.lowestFreqInputFactor);
+    }
+
+    @Unique
+    private double toroidal$baseScale(Context generation) {
         double declaredScale = generation.horizontalScale();
-        double baseScale = declaredScale * ClimateCompression.resolve(this, generation.transformer(),
+        return declaredScale * ClimateCompression.resolve(this, generation.transformer(),
                 this.toroidal$climateField, this.amplitudes, this.lowestFreqInputFactor, declaredScale,
                 generation.verticalShare());
-        return PeriodicOctaveSampler.sample(generation, baseScale, this.noiseLevels, this.amplitudes,
-                this.lowestFreqInputFactor, this.lowestFreqValueFactor, x, y, z, yScale, yFudge);
     }
 
     @Override

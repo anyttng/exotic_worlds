@@ -29,6 +29,11 @@ public final class PeriodicLattices {
                 x, y, z, yScale, yFudge);
     }
 
+    public boolean indexable(byte[] permutations, double xOffset, double yOffset, double zOffset,
+            WorldFold transformer, Context context) {
+        return latticeFor(permutations, xOffset, yOffset, zOffset, transformer, context).indexable();
+    }
+
     PeriodicLattice latticeFor(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold transformer, Context context) {
         Entry[] current = this.entries;

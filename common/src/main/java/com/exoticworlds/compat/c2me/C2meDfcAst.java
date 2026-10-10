@@ -7,7 +7,6 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.DensityFunctionSlotAxes;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
@@ -67,9 +66,10 @@ public final class C2meDfcAst {
             case DensityFunctions.Noise noise -> noiseFold(noise);
             case DensityFunctions.ShiftedNoise shifted -> shiftedNoiseFold(shifted);
             case DensityFunctions.Shift _, DensityFunctions.ShiftA _ -> new Fold(SlotAxes.DEFAULT,
-                    NoiseConstants.SHIFT_SCALE, GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE, true, false);
-            case DensityFunctions.ShiftB _ -> new Fold(DensityFunctionSlotAxes.SHIFT_B, NoiseConstants.SHIFT_SCALE,
+                    NoiseConstants.SHIFT_SCALE, NoiseConstants.SHIFT_SCALE,
                     GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE, true, false);
+            case DensityFunctions.ShiftB _ -> new Fold(DensityFunctionSlotAxes.SHIFT_B, NoiseConstants.SHIFT_SCALE,
+                    NoiseConstants.SHIFT_SCALE, GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE, true, false);
             default -> null;
         };
     }
@@ -101,33 +101,32 @@ public final class C2meDfcAst {
     @SuppressWarnings("deprecation")
     private static Fold noiseFold(DensityFunctions.Noise noise) {
         double xzScale = NoiseScaleLadder.installedScale(noise.noise(), noise.xzScale());
-        return new Fold(SlotAxes.DEFAULT, xzScale,
+        return new Fold(SlotAxes.DEFAULT, xzScale, noise.xzScale(),
                 GenerationTransformerContext.verticalShare(xzScale, noise.yScale()), false, false);
     }
 
     private static Fold shiftedNoiseFold(DensityFunctions.ShiftedNoise shifted) {
         double xzScale = NoiseScaleLadder.installedScale(shifted.noise(), shifted.xzScale());
-        return new Fold(SlotAxes.DEFAULT, xzScale,
+        return new Fold(SlotAxes.DEFAULT, xzScale, shifted.xzScale(),
                 GenerationTransformerContext.verticalShare(xzScale, shifted.yScale()), false, xzScale != 0.0);
     }
 
     private static AstNode foldNoise(DensityFunction source, GenericShiftedNoiseNode noise, Fold fold,
             WorldFold transformer) {
         SlotAxes axes = fold.axes();
-        AstNode foldedX = slotNode(axes.x(), noise.inputX);
-        AstNode foldedZ = slotNode(axes.z(), noise.inputZ);
+        AstNode slotY = slotNode(axes.y(), noise.inputY);
         if (fold.warped()) {
-            double divisor = ClimateCompression.warpDivisor(noise.noise, transformer, fold.horizontalScale(),
-                    fold.verticalShare());
-            foldedX = warpedSlot(source, CoordinateNode.Axis.X, transformer.blockLattice(), noise.inputX,
-                    divisor);
-            foldedZ = warpedSlot(source, CoordinateNode.Axis.Z, transformer.blockLattice(), noise.inputZ,
-                    divisor);
+            return new C2meFoldedNoiseNode(noise.inputX, noise.inputY, noise.inputZ, noise.noise,
+                    shiftOf(source, CoordinateNode.Axis.X, noise.inputX), slotY,
+                    shiftOf(source, CoordinateNode.Axis.Z, noise.inputZ), axes, fold.horizontalScale(),
+                    fold.vanillaScale(), fold.verticalShare(), ClimateCompression.warpDivisor(noise.noise,
+                            transformer, fold.horizontalScale(), fold.verticalShare()), transformer);
         }
 
         return new C2meFoldedNoiseNode(noise.inputX, noise.inputY, noise.inputZ, noise.noise,
-                foldedX, slotNode(axes.y(), noise.inputY), foldedZ,
-                axes, fold.horizontalScale(), fold.verticalShare(), transformer);
+                slotNode(axes.x(), noise.inputX), slotY, slotNode(axes.z(), noise.inputZ), axes,
+                fold.horizontalScale(), fold.vanillaScale(), fold.verticalShare(), C2meFoldedNoiseNode.UNWARPED,
+                transformer);
     }
 
     private static AstNode slotNode(SlotAxis axis, AstNode ownInput) {
@@ -138,8 +137,7 @@ public final class C2meDfcAst {
         };
     }
 
-    private static AstNode warpedSlot(DensityFunction source, CoordinateNode.Axis axis,
-            TranslationLattice lattice, AstNode ownInput, double divisor) {
+    private static AstNode shiftOf(DensityFunction source, CoordinateNode.Axis axis, AstNode ownInput) {
         if (!(ownInput instanceof AddNode shifted
                 && shifted.left instanceof MulNode scaled
                 && scaled.left instanceof CoordinateNode coordinate
@@ -147,7 +145,7 @@ public final class C2meDfcAst {
             throw brokenShape(source, ownInput);
         }
 
-        return new C2meWarpedAxisNode(axis, lattice, shifted.right, divisor);
+        return shifted.right;
     }
 
     private static IllegalStateException brokenShape(DensityFunction source, AstNode produced) {
@@ -156,8 +154,8 @@ public final class C2meDfcAst {
                 + " — C2ME no longer compiles this function to the node the toroidal fold replaces");
     }
 
-    private record Fold(SlotAxes axes, double horizontalScale, double verticalShare, boolean amplified,
-            boolean warped) {
+    private record Fold(SlotAxes axes, double horizontalScale, double vanillaScale, double verticalShare,
+            boolean amplified, boolean warped) {
     }
 
     private C2meDfcAst() {

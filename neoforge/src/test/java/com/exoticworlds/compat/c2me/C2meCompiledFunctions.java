@@ -4,10 +4,12 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.CLIMATE_NOISE_DATA;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.CLIMATE_XZ_SCALE;
+import static com.exoticworlds.engine.noise.DensityFunctionFixture.NOISE_DATA;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.SEED;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.blockIn;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.blockY;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.withClimateNoise;
+import static com.exoticworlds.engine.noise.DensityFunctionFixture.withLiveNoise;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import java.util.Random;
@@ -57,6 +59,11 @@ final class C2meCompiledFunctions {
         return withClimateNoise(DensityFunctions.shiftedNoise2d(
                 DensityFunctions.constant(SHIFT_X), DensityFunctions.constant(SHIFT_Z),
                 CLIMATE_XZ_SCALE, CLIMATE_NOISE_DATA));
+    }
+
+    static DensityFunction liveWarpedSource() {
+        return withLiveNoise(DensityFunctions.shiftedNoise2d(
+                DensityFunctions.shiftA(NOISE_DATA), DensityFunctions.shiftB(NOISE_DATA), CLIMATE_XZ_SCALE, NOISE_DATA));
     }
 
     static DensityFunction compileFolded(String name, DensityFunction source, WorldFold fold) {
