@@ -13,16 +13,17 @@ public final class C2meFoldedNoiseDotEmitter implements DotEmitter<C2meFoldedNoi
     @Override
     public int doDotGen(C2meFoldedNoiseNode node, DotGen.Context context, DotGen.Context.Builder builder) {
         return builder.hexagonShape()
-                .label("ToroidalFoldedNoise\\nscale=" + node.horizontalScale
-                        + "\\nshare=" + node.verticalShare + "\\naxes=" + node.slotAxes)
-                .edge(context.generate(node.foldedX))
-                .label("foldedX")
+                .label("ToroidalFoldedNoise\\nscale=" + node.horizontalScale + "\\nvanilla=" + node.vanillaScale
+                        + "\\nshare=" + node.verticalShare + "\\naxes=" + node.slotAxes
+                        + "\\nwarpDivisor=" + node.warpDivisor)
+                .edge(context.generate(node.slotX))
+                .label("slotX")
                 .finish()
-                .edge(context.generate(node.foldedY))
-                .label("foldedY")
+                .edge(context.generate(node.slotY))
+                .label("slotY")
                 .finish()
-                .edge(context.generate(node.foldedZ))
-                .label("foldedZ")
+                .edge(context.generate(node.slotZ))
+                .label("slotZ")
                 .finish()
                 .edge(context.generate(node.inputX))
                 .label("inputX")

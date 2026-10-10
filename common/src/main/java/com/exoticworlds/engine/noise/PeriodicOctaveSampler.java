@@ -1,5 +1,6 @@
 package com.exoticworlds.engine.noise;
 
+import com.exoticworlds.accessors.IndexableNoise;
 import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
 
 import it.unimi.dsi.fastutil.doubles.DoubleList;
@@ -41,6 +42,24 @@ public final class PeriodicOctaveSampler {
         }
 
         return value;
+    }
+
+    // The period grows with the scale, so the finest octave is the first to outgrow the cell index.
+    public static boolean indexable(Context generation, double baseScale, ImprovedNoise[] noiseLevels,
+            double lowestFreqInputFactor) {
+        int finest = noiseLevels.length - 1;
+        while (finest >= 0 && noiseLevels[finest] == null) {
+            finest--;
+        }
+
+        if (finest < 0) {
+            return true;
+        }
+
+        try (Context.ScaleScope scope = generation.openScale()) {
+            scope.rescale(baseScale * Math.scalb(lowestFreqInputFactor, finest));
+            return ((IndexableNoise) (Object) noiseLevels[finest]).toroidal$indexable(generation);
+        }
     }
 
     private PeriodicOctaveSampler() {

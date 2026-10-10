@@ -15,6 +15,14 @@ record PeriodicLattice(byte[] permutations, double xOffset, double yOffset, doub
         double coord(double coord) {
             return this.folds ? PeriodicNoiseSampler.foldAndScale(this.domain, this.period, this.scale, coord) : coord;
         }
+
+        boolean indexable() {
+            return this.period <= PeriodicNoiseSampler.MAX_INDEXED_PERIOD;
+        }
+    }
+
+    boolean indexable() {
+        return this.x.indexable() && this.y.indexable() && this.z.indexable();
     }
 
     record Shear(TranslationLattice lattice, int xSlot, int zSlot, long xPeriod, long zPeriod, long skewCells,

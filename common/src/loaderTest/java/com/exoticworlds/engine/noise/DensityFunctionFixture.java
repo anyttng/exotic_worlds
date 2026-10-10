@@ -60,6 +60,11 @@ public final class DensityFunctionFixture {
         return withNoise(function, CLIMATE_NOISE);
     }
 
+    public static DensityFunction withNoiseOf(DensityFunction function, NormalNoise.NoiseParameters parameters) {
+        return withNoise(function, new DensityFunction.NoiseHolder(Holder.direct(parameters),
+                NormalNoise.create(new LegacyRandomSource(SEED), parameters)));
+    }
+
     private static DensityFunction withNoise(DensityFunction function, DensityFunction.NoiseHolder holder) {
         return function.mapAll(new DensityFunction.Visitor() {
             @Override

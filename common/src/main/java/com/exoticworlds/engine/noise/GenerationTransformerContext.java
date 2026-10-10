@@ -20,6 +20,7 @@ public final class GenerationTransformerContext {
         private WorldFold transformer = WorldFolds.NOOP;
         private @Nullable WorldFold routerBuild;
         private double horizontalScale = NoiseConstants.UNSCALED;
+        private double vanillaScale = NoiseConstants.UNSCALED;
         private double verticalShare = UNDECLARED_VERTICAL_SHARE;
         private double xDivisor = NoiseConstants.UNDIVIDED;
         private double zDivisor = NoiseConstants.UNDIVIDED;
@@ -44,6 +45,10 @@ public final class GenerationTransformerContext {
             return this.horizontalScale;
         }
 
+        public double vanillaScale() {
+            return this.vanillaScale;
+        }
+
         public double verticalShare() {
             return this.verticalShare;
         }
@@ -61,16 +66,24 @@ public final class GenerationTransformerContext {
         }
 
         public ScaleScope withScale(double scale) {
-            this.scaleScope.push();
-            this.horizontalScale = scale;
-            return this.scaleScope;
+            return withScales(scale, scale);
         }
 
         public ScaleScope withScale(double scale, double verticalShare) {
+            return withScales(scale, scale, verticalShare);
+        }
+
+        public ScaleScope withScales(double scale, double vanillaScale) {
             this.scaleScope.push();
             this.horizontalScale = scale;
-            this.verticalShare = verticalShare;
+            this.vanillaScale = vanillaScale;
             return this.scaleScope;
+        }
+
+        public ScaleScope withScales(double scale, double vanillaScale, double verticalShare) {
+            ScaleScope scope = withScales(scale, vanillaScale);
+            this.verticalShare = verticalShare;
+            return scope;
         }
 
         public DivisorScope withDivisors(double xDivisor, double zDivisor) {
@@ -87,18 +100,29 @@ public final class GenerationTransformerContext {
 
         public BindingScope bind(WorldFold boundTransformer, SlotAxes boundAxes, double boundScale,
                 double boundVerticalShare) {
+            return bind(boundTransformer, boundAxes, boundScale, boundScale, boundVerticalShare);
+        }
+
+        public BindingScope bind(WorldFold boundTransformer, SlotAxes boundAxes, double boundScale,
+                double boundVanillaScale, double boundVerticalShare) {
             this.bindingScope.push();
             this.transformer = boundTransformer;
             this.slotAxes = boundAxes;
             this.horizontalScale = boundScale;
+            this.vanillaScale = boundVanillaScale;
             this.verticalShare = boundVerticalShare;
             return this.bindingScope;
+        }
+
+        public BindingScope unbound() {
+            return bind(WorldFolds.NOOP, SlotAxes.DEFAULT, NoiseConstants.UNSCALED, UNDECLARED_VERTICAL_SHARE);
         }
 
         public final class BindingScope implements AutoCloseable {
             private final ObjectStack<WorldFold> previousTransformers = new ObjectStack<>();
             private final ObjectStack<SlotAxes> previousAxes = new ObjectStack<>();
             private final DoubleStack previousScales = new DoubleStack();
+            private final DoubleStack previousVanillaScales = new DoubleStack();
             private final DoubleStack previousShares = new DoubleStack();
 
             private BindingScope() {
@@ -108,6 +132,7 @@ public final class GenerationTransformerContext {
                 this.previousTransformers.push(transformer);
                 this.previousAxes.push(slotAxes);
                 this.previousScales.push(horizontalScale);
+                this.previousVanillaScales.push(vanillaScale);
                 this.previousShares.push(verticalShare);
             }
 
@@ -116,12 +141,14 @@ public final class GenerationTransformerContext {
                 transformer = this.previousTransformers.pop();
                 slotAxes = this.previousAxes.pop();
                 horizontalScale = this.previousScales.pop();
+                vanillaScale = this.previousVanillaScales.pop();
                 verticalShare = this.previousShares.pop();
             }
         }
 
         public final class ScaleScope implements AutoCloseable {
             private final DoubleStack previousScales = new DoubleStack();
+            private final DoubleStack previousVanillaScales = new DoubleStack();
             private final DoubleStack previousShares = new DoubleStack();
 
             private ScaleScope() {
@@ -129,6 +156,7 @@ public final class GenerationTransformerContext {
 
             private void push() {
                 this.previousScales.push(horizontalScale);
+                this.previousVanillaScales.push(vanillaScale);
                 this.previousShares.push(verticalShare);
             }
 
@@ -143,6 +171,7 @@ public final class GenerationTransformerContext {
             @Override
             public void close() {
                 horizontalScale = this.previousScales.pop();
+                vanillaScale = this.previousVanillaScales.pop();
                 verticalShare = this.previousShares.pop();
             }
         }
