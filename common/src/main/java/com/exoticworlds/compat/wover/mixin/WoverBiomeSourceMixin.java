@@ -17,9 +17,7 @@ import net.minecraft.world.level.biome.Climate;
 
 @Mixin({WoverNetherBiomeSource.class, WoverEndBiomeSource.class})
 public class WoverBiomeSourceMixin {
-    // The Fabric jar spells this override in intermediary, and the remapper cannot resolve an override in a foreign class.
-    @WrapMethod(method = {InjectionTargets.BIOME_SOURCE_GET_NOISE_BIOME,
-            "method_38109(IIILnet/minecraft/world/level/biome/Climate$Sampler;)Lnet/minecraft/core/Holder;"})
+    @WrapMethod(method = InjectionTargets.BIOME_SOURCE_GET_NOISE_BIOME)
     private Holder<Biome> toroidal$foldedNoiseBiome(int quartX, int quartY, int quartZ, Climate.Sampler sampler,
             Operation<Holder<Biome>> original) {
         WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
