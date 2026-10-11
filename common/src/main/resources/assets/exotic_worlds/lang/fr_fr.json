@@ -66,5 +66,7 @@
   "gui.exotic_worlds.settings.map_copies": "Copies du monde sur la carte plein écran",
   "gui.exotic_worlds.settings.map_copies_hint": "Comment les mods de carte affichent en plein écran un monde refermé sur lui-même : « Répété » remplit la fenêtre de ses copies, « Unique » montre le monde une seule fois et empêche de déplacer ou de dézoomer la carte au-delà de ses bords. Les minicartes le répètent toujours.",
   "gui.exotic_worlds.settings.map_copies.repeated": "Répété",
-  "gui.exotic_worlds.settings.map_copies.single": "Unique"
+  "gui.exotic_worlds.settings.map_copies.single": "Unique",
+  "gui.exotic_worlds.settings.seam_lines": "Lignes de couture sur la carte plein écran",
+  "gui.exotic_worlds.settings.seam_lines_hint": "Trace une ligne à chaque couture du monde entre les copies d'un monde refermé sur lui-même sur la carte plein écran. Ne fonctionne qu'avec « Répété » : « Unique » ne montre aucune couture."
 }

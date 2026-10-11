@@ -8,6 +8,7 @@ import java.util.function.UnaryOperator;
 
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
+import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.WorldFold;
@@ -59,6 +60,17 @@ public final class FoldedValue {
 
     static Object walk(TranslationContext context, Leaves leaves, Object value) {
         return walk(context.dimension(), leaves, value, UnaryOperator.identity());
+    }
+
+    static Object moved(ResourceKey<Level> dimension, DeckTransformation move, Object value) {
+        return walk(dimension, new Leaves(move::apply, move::apply, move::apply, centre -> move), value,
+                UnaryOperator.identity());
+    }
+
+    static @Nullable Vec3 anchorOf(ResourceKey<Level> dimension, Object value) {
+        FirstPosition first = new FirstPosition();
+        walk(dimension, first.leaves(), value, UnaryOperator.identity());
+        return first.position;
     }
 
     static BlockPos nearestCopy(TranslationContext context, Vec3 anchor, BlockPos pos) {
@@ -129,6 +141,36 @@ public final class FoldedValue {
     private static List<?> inside(ResourceKey<Level> dimension, Leaves leaves, List<?> values,
             UnaryOperator<Object> fallback) {
         return FoldedCopies.of((List<Object>) values, value -> walk(dimension, leaves, value, fallback));
+    }
+
+    private static final class FirstPosition {
+        private @Nullable Vec3 position;
+
+        Leaves leaves() {
+            return new Leaves(
+                    pos -> {
+                        seen(Vec3.atCenterOf(pos));
+                        return pos;
+                    },
+                    position -> {
+                        seen(position);
+                        return position;
+                    },
+                    chunkPos -> {
+                        seen(Vec3.atCenterOf(chunkPos.getMiddleBlockPosition(0)));
+                        return chunkPos;
+                    },
+                    centre -> {
+                        seen(centre);
+                        return DeckTransformation.IDENTITY;
+                    });
+        }
+
+        private void seen(Vec3 candidate) {
+            if (position == null) {
+                position = candidate;
+            }
+        }
     }
 
     private FoldedValue() {

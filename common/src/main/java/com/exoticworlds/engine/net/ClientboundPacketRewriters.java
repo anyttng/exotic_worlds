@@ -8,7 +8,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-import com.exoticworlds.accessors.ChunkPacketPosition;
 import com.exoticworlds.api.v1.net.ParticleRewriter;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.SeamDelta;
@@ -47,8 +46,10 @@ import net.minecraft.network.protocol.game.ClientboundDamageEventPacket;
 import net.minecraft.network.protocol.game.ClientboundEntityPositionSyncPacket;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.network.protocol.game.ClientboundLightUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundMoveMinecartPacket;
 import net.minecraft.network.protocol.game.ClientboundMoveVehiclePacket;
 import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
@@ -92,13 +93,15 @@ final class ClientboundPacketRewriters {
 
     private static final int DEFAULT_BUFFER_CAPACITY = 256;
 
-    static Packet<?> chunkPosition(Packet<?> packet, int x, int z, TranslationContext context) {
-        ChunkPos clientPos = context.toClient(new ChunkPos(x, z));
+    static ClientboundLevelChunkWithLightPacket levelChunk(ClientboundLevelChunkWithLightPacket packet, TranslationContext context) {
+        ChunkPos clientPos = context.toClient(new ChunkPos(packet.x(), packet.z()));
+        return new ClientboundLevelChunkWithLightPacket(
+                clientPos.x(), clientPos.z(), packet.chunkData(), packet.lightData());
+    }
 
-        ChunkPacketPosition accessor = (ChunkPacketPosition) packet;
-        accessor.toroidal$setX(clientPos.x());
-        accessor.toroidal$setZ(clientPos.z());
-        return packet;
+    static ClientboundLightUpdatePacket lightUpdate(ClientboundLightUpdatePacket packet, TranslationContext context) {
+        ChunkPos clientPos = context.toClient(new ChunkPos(packet.x(), packet.z()));
+        return new ClientboundLightUpdatePacket(clientPos.x(), clientPos.z(), packet.lightData());
     }
 
     static Packet<?> forgetChunk(ClientboundForgetLevelChunkPacket packet, TranslationContext context) {

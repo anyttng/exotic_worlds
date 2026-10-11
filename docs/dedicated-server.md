@@ -1,17 +1,19 @@
 # Running Exotic Worlds on a Dedicated Server
 
-A world's shape lives entirely in its chunk generators, so a dedicated server needs no screen: the mod ships the same named world sizes the create-world screen offers as world presets, for the toroidal world and for the cylinder, and one `server.properties` line picks one. The result is a fully shaped world — overworld, nether and End — that behaves exactly like one created in singleplayer. Joining players need the mod installed; they receive the world's bounds automatically on login.
+The mod ships the named world sizes the create-world screen offers as world presets, for the toroidal world and for the cylinder, and one `server.properties` line picks one. The result is a fully shaped world (overworld, nether and End) that behaves exactly like one created in singleplayer. Joining players need the mod installed; they receive the world's bounds automatically on login.
 
 ## Setup
 
 1. Put the mod jar into the server's `mods/` folder.
-2. In `server.properties`, pick a preset — do this **before the first start**, the world type is read only when the world is created:
+2. In `server.properties`, pick a preset **before the first start**, because the world type is read only when the world is created:
 
 ```properties
 level-type=exotic_worlds\:torus_medium
 ```
 
 3. Start the server. No datapack needed.
+
+A server that has already run needs a fresh `world` folder, and fresh means the whole folder. A half-cleared one is worse than an untouched one: with `level.dat` still in place and `data/minecraft/world_gen_settings.dat` deleted, the server neither loads the old world nor creates a new one; it stops on `Overworld settings missing` before the world type is ever read. Delete the folder, then put any datapack back into `world/datapacks/`.
 
 | Size | Toroidal `level-type` | Cylinder `level-type` | Overworld | Nether (portal scale) | End |
 | --- | --- | --- | --- | --- | --- |
@@ -21,15 +23,15 @@ level-type=exotic_worlds\:torus_medium
 | Large | `exotic_worlds:torus_large` | `exotic_worlds:cylinder_large` | 256 chunks (4096 blocks) | 32 chunks (512 blocks), 1:8 | 448 chunks (7168 blocks) |
 | Huge | `exotic_worlds:torus_huge` | `exotic_worlds:cylinder_huge` | 512 chunks (8192 blocks) | 64 chunks (1024 blocks), 1:8 | 512 chunks (8192 blocks) |
 
-A toroidal preset loops both horizontal axes at the given width. A cylinder preset loops along X at that width and leaves Z endless like vanilla — a cylinder looping along Z is a custom preset with the two axes swapped (below).
+A toroidal preset loops both horizontal axes at the given width. A cylinder preset loops along X at that width and leaves Z endless like vanilla; a cylinder looping along Z is a custom preset with the two axes swapped (below).
 
-If the id has a typo, vanilla logs a warning (`Failed to parse level-type …, defaulting to minecraft:normal`) and silently creates an ordinary infinite world — check the first lines of the log if the world comes out non-toroidal.
+If the id has a typo, vanilla logs a warning (`Failed to parse level-type …, defaulting to minecraft:normal`) and silently creates an ordinary infinite world. Check the first lines of the log if the world comes out non-toroidal.
 
 WorldWeaver, the library behind BetterEnd and BetterNether, replaces `level-type` with its own default preset, and the log says nothing. Set `force_default_world_preset` to `false` in `config/wover/main.json` (the file is written on the first start), then create the world again from a fresh `world` folder.
 
 ## Custom sizes
 
-Two ready packs sit next to this page: [`datapacks/torus/`](datapacks/torus) loops both axes, [`datapacks/cylinder/`](datapacks/cylinder) loops X alone. Both carry a 192-chunk (3072-block) overworld, a 24-chunk (384-block) nether at 1:8 and a 256-chunk (4096-block) End; the toroidal one also states `climate_compression` in its `custom` form. Copy the folder into `world/datapacks/` **before the first server start**, point `server.properties` at `my_pack\:torus` or `my_pack\:cylinder`, and edit the numbers to the size you want. Change the overworld and the nether has to follow it — [Nether width](#nether-width) carries the arithmetic.
+Two ready packs sit next to this page: [`datapacks/torus/`](datapacks/torus) loops both axes, [`datapacks/cylinder/`](datapacks/cylinder) loops X alone. Both carry a 192-chunk (3072-block) overworld, a 24-chunk (384-block) nether at 1:8 and a 256-chunk (4096-block) End; the toroidal one also states `climate_compression` in its `custom` form. Copy the folder into `world/datapacks/` **before the first server start**, point `server.properties` at `my_pack\:torus` or `my_pack\:cylinder`, and edit the numbers to the size you want. Change the overworld and the nether has to follow it, as [Size rules](#size-rules) describes.
 
 For a size outside the preset spread, define your own world preset in a datapack:
 
@@ -43,7 +45,7 @@ world/datapacks/my-toroidal/
                 └── my_toroidal.json
 ```
 
-The `world/` folder does not exist yet on a fresh server — create it with just the datapack inside; the server builds the rest around it and enables the pack automatically on first start. The preset resolves as `data/<namespace>/worldgen/world_preset/<file>.json` → `level-type=<namespace>\:<file>`, where the backslash escapes the colon `.properties` would otherwise read as the end of the key.
+The `world/` folder does not exist yet on a fresh server: create it with just the datapack inside; the server builds the rest around it and enables the pack automatically on first start. The preset resolves as `data/<namespace>/worldgen/world_preset/<file>.json` → `level-type=<namespace>\:<file>`, where the backslash escapes the colon `.properties` would otherwise read as the end of the key.
 
 `pack.mcmeta`:
 
@@ -59,7 +61,7 @@ The `world/` folder does not exist yet on a fresh server — create it with just
 
 121 is the data pack format of Minecraft 26.3. For another game version, read `pack_version.data_major` out of the `version.json` inside the game jar.
 
-`my_toroidal.json` — the example carries the `tiny` configuration; change the `wrapping` bounds per dimension:
+`my_toroidal.json` (the example carries the `tiny` configuration; change the `wrapping` bounds per dimension):
 
 ```json
 {
@@ -109,7 +111,9 @@ The `world/` folder does not exist yet on a fresh server — create it with just
 
 Then point `server.properties` at it: `level-type=my_pack\:my_toroidal`. Left at `exotic_worlds\:torus_medium`, the world is created from that preset and the pack changes nothing, with no warning in the log to say so.
 
-For a cylinder, give the looping axis its bounds and write the other axis as an empty object — the same axis in all three dimensions. This `wrapping` makes the overworld of a 64-chunk (1024-block) cylinder looping along Z:
+For a Superflat world use `"type": "exotic_worlds:toroidal_flat"` with a `"settings"` object of the flat generator instead of the noise settings id.
+
+For a cylinder, give the looping axis its bounds and write the other axis as an empty object, the same axis in all three dimensions. This `wrapping` makes the overworld of a 64-chunk (1024-block) cylinder looping along Z:
 
 ```json
 "wrapping": {
@@ -120,44 +124,31 @@ For a cylinder, give the looping axis its bounds and write the other axis as an 
 
 The empty object is required: an axis left out of `wrapping` is an error, not an endless axis.
 
+For a toroidal world with a shift per lap, add `skew_chunks` to the overworld's `wrapping`: crossing the Z edge then also moves X by that many chunks. This `wrapping` makes a 128-chunk (2048-block) toroidal overworld whose Z crossing moves X by 16 chunks:
+
+```json
+"wrapping": {
+  "x": { "min_chunk": -64, "max_chunk": 64 },
+  "z": { "min_chunk": -64, "max_chunk": 64 },
+  "skew_chunks": 16
+}
+```
+
+The nether's `wrapping` takes the overworld's skew divided by the portal scale, here `"skew_chunks": 2` at 1:8 ([Size rules](#size-rules)). The End is left without one, as the create-world screen leaves it.
+
 ### Size rules
 
-`min_chunk`/`max_chunk` are a half-open chunk range: `-16 … 16` means 32 chunks (512 blocks), block bounds −256 … 255. The create-world screen enforces these rules for you. A hand-written preset is checked at startup instead: a width under the floor stops the server before anything is generated, and the other two are named as `BROKEN` on the `World shape:` lines, logged at `WARN`:
+`min_chunk`/`max_chunk` are a half-open chunk range: `-16 … 16` means 32 chunks (512 blocks), block bounds −256 … 255. The create-world screen enforces these rules for you. A hand-written preset is checked at startup instead: a width under the floor stops the server before anything is generated, and the rest are named as `BROKEN` on the `World shape:` lines, logged at `WARN`:
 
-- **Overworld** — every looping axis at least 16 chunks (256 blocks), centered on zero as the example does (`min_chunk = -width/2`).
-- **Nether** — the overworld width divided by the portal scale, and the scale must divide it exactly; the nether itself must stay at least 16 chunks (256 blocks) wide. An uneven ratio breaks portal linking near the seam. The arithmetic, the ceiling it puts on the scale and the widths that trip over it are in [Nether width](#nether-width).
-- **End** — independent of the other two, at least 192 chunks (3072 blocks) on every looping axis, and in a cylinder looping along the same axis as the overworld. Smaller Ends lose the outer island ring — no end cities, no elytra — and let gateway teleports reach across the seam.
-
-For a Superflat world use `"type": "exotic_worlds:toroidal_flat"` with a `"settings"` object of the flat generator instead of the noise settings id.
-
-## Nether width
-
-The nether's bounds are the overworld's, divided by the portal scale: take the overworld's `min_chunk` and `max_chunk`, divide both by the scale, and write the result into the nether generator. Two limits sit on that division. It has to come out whole — otherwise the startup line reports `BROKEN portal scale on the x axis`. And the nether may never be narrower than 16 chunks (256 blocks). Together they put a ceiling on the scale — no world can carry one deeper than its own width divided by 16.
-
-Widths below are in chunks.
-
-| Overworld | Scale | Nether | What it shows |
-| --- | --- | --- | --- |
-| 256 (`-128 … 128`) | 1:8 | 32 (`-16 … 16`) | What right looks like: both widths even, both loops centered |
-| 128 (`-64 … 64`) | 1:8 | 16 (`-8 … 8`) | The narrowest overworld that still carries 1:8 |
-| 96 (`-48 … 48`) | 1:8 | 12 | Divides cleanly and is refused anyway: 12 is under the 16-chunk floor. The same overworld carries 1:6 → 16 (`-8 … 8`) |
-| 100 (`-50 … 50`) | 1:8 | 12.5 | Does not divide, so the line comes out `BROKEN`. The deepest scale on offer is 1:5 → 20 (`-10 … 10`) |
-| 200 (`-100 … 100`) | 1:8 | 25 (`-12 … 13`) | Divides, but into an odd width no loop can center. 1:10 gives 20; an overworld of 208 gives 26 (`-13 … 13`) |
-| 3920 (`-1960 … 1960`) | 1:8 | 490 (`-245 … 245`) | A hand-typed width with nothing to watch for |
-| 12345 | 1:15 | 823 (`-411 … 412`) | 1:8 does not exist here: 12345 is 3 × 5 × 823, and the ceiling is 771 |
-| 29 | 1:1 | 29 (`-14 … 15`) | A prime width: 1:1 is the only ratio it has |
-| 27 | 1:1 | 27 (`-13 … 14`) | Composite, but every divisor except 1 sits above the ceiling |
-| `x: -96 … 96`, `z: {}` | 1:8 | `x: -12 … 12`, `z: {}` | A cylinder: numbers written into the nether's `z` pass without a word, and loop an axis the overworld leaves open |
-
-An odd width can never produce an even nether — every divisor of an odd number divides it into odd parts — so that nether's loop never centers on zero.
-
-Choose the overworld as a multiple of 16 chunks, 128 or wider, and none of this comes up: 1:8 always divides, and the nether lands even and centered.
+- **Overworld**: every looping axis at least 16 chunks (256 blocks), centered on zero as the example does (`min_chunk = -width/2`).
+- **Nether**: the overworld width divided by the portal scale, and the scale must divide it exactly (`BROKEN portal scale`); the nether itself must stay at least 16 chunks (256 blocks) wide. An uneven ratio breaks portal linking near the world's edge. Choose the overworld as a multiple of 16 chunks, 128 or wider, and 1:8 always divides, with the nether even and centered. With `skew_chunks`, the scale must divide the skew too, and the nether's skew is the overworld's divided by the scale (`BROKEN nether skew`).
+- **End**: independent of the other two, at least 192 chunks (3072 blocks) on every looping axis (`BROKEN End width`), and in a cylinder looping along the same axis as the overworld. Smaller Ends lose the outer island ring (no end cities, no elytra) and let gateway teleports reach across the world's edge.
 
 ## World options
 
 Next to `wrapping`, the generator takes the options the create-world screen offers. Each dimension carries its own, so an option goes on the generator of every dimension it should apply to.
 
-**`climate_compression`** (toroidal and cylinder) shrinks biomes so a full climate fits into one lap of the world; coastlines and terrain keep their usual size. It takes either a boolean — `true` for Auto, `false` for Off — or an object naming the mode:
+**`climate_compression`** (toroidal and cylinder) shrinks biomes so a full climate fits into one lap of the world; coastlines and terrain keep their usual size. It takes either a boolean (`true` for Auto, `false` for Off) or an object naming the mode:
 
 ```json
 "climate_compression": { "mode": "strong" }
@@ -167,10 +158,10 @@ Next to `wrapping`, the generator takes the options the create-world screen offe
 "climate_compression": { "mode": "custom", "factor": 6 }
 ```
 
-- `off` — biomes keep their vanilla size, so a small world may come out all forest or all desert.
-- `auto` — shrinks them just enough for one climate per lap; on a world already wide enough it changes nothing.
-- `strong` — shrinks them four times over, and more where fitting the climate needs more, never less than `auto`.
-- `custom` — shrinks them exactly `factor` times, a whole number from 1 to 16. `factor` is read in this mode alone.
+- `off`: biomes keep their vanilla size, so a small world may come out all forest or all desert.
+- `auto`: shrinks them just enough for one climate per lap; on a world already wide enough it changes nothing.
+- `strong`: shrinks them four times over, and more where fitting the climate needs more, never less than `auto`.
+- `custom`: shrinks them exactly `factor` times, a whole number from 1 to 64. `factor` is read in this mode alone.
 
 **Leaving the field out means `auto`, not off.** Every shipped preset writes `"climate_compression": false`, so a hand-written preset started from one keeps that line, or gets compressed biomes it never asked for.
 
@@ -180,6 +171,4 @@ Next to `wrapping`, the generator takes the options the create-world screen offe
 
 ## Notes
 
-- To get a toroidal or cylinder world, start from a fresh `world` folder.
-- Fresh means the whole `world` folder. A half-cleared one is worse than an untouched one: with `level.dat` still in place and `data/minecraft/world_gen_settings.dat` deleted, the server neither loads the old world nor creates a new one — it stops on `Overworld settings missing` before the world type is ever read. Delete the folder, then put the datapack back into `world/datapacks/`.
-- A datapack that declares `minecraft:overworld`, `minecraft:the_nether` or `minecraft:the_end` cannot take the shape away. Such a stem normally replaces the world's own generator for that dimension; here it is rebuilt on the shape the world was created with, so the pack's terrain choice applies and the world keeps looping. The `World shape:` line logged at startup reports `shape=restored` and names the pack's generator — `shape=stamp`, where that generator kept its own class and the shape was stamped onto it, or `shape=stored`, where it could take no shape at all and the world's own was kept.
+- A datapack that declares `minecraft:overworld`, `minecraft:the_nether` or `minecraft:the_end` cannot take the shape away. Such a stem normally replaces the world's own generator for that dimension; here it is rebuilt on the shape the world was created with, so the pack's terrain choice applies and the world keeps looping. The `World shape:` line logged at startup reports `shape=restored` and names the pack's generator: `shape=stamp`, where that generator kept its own class and the shape was stamped onto it, or `shape=stored`, where it could take no shape at all and the world's own was kept.

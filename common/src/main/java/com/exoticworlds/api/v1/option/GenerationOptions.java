@@ -27,7 +27,12 @@ public final class GenerationOptions {
 
     public <T> GenerationOptions with(WorldOption<T> option, T value) {
         Map<WorldOption<?>, Object> grown = new HashMap<>(this.chosen);
-        grown.put(option, value);
+        if (value.equals(option.defaultValue())) {
+            grown.remove(option);
+        } else {
+            grown.put(option, value);
+        }
+
         return new GenerationOptions(Map.copyOf(grown));
     }
 

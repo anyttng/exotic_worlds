@@ -66,5 +66,7 @@
   "gui.exotic_worlds.settings.map_copies": "全画面マップのワールドのコピー",
   "gui.exotic_worlds.settings.map_copies_hint": "マップMODがループするワールドを全画面でどう表示するか。「繰り返し」はウィンドウ全体をワールドのコピーで埋め、「1つだけ」はワールドを1回だけ表示し、端を越えてマップを動かしたりズームアウトしたりできなくします。ミニマップは常に繰り返し表示します。",
   "gui.exotic_worlds.settings.map_copies.repeated": "繰り返し",
-  "gui.exotic_worlds.settings.map_copies.single": "1つだけ"
+  "gui.exotic_worlds.settings.map_copies.single": "1つだけ",
+  "gui.exotic_worlds.settings.seam_lines": "全画面マップの継ぎ目の線",
+  "gui.exotic_worlds.settings.seam_lines_hint": "全画面マップで、ループするワールドのコピー同士の継ぎ目すべてに線を引きます。「繰り返し」でのみ有効です。「1つだけ」では継ぎ目は表示されません。"
 }

@@ -253,7 +253,7 @@ public abstract class MapRendererMixin implements JourneyMapSeamPass {
     @Override
     public void toroidal$drawSeams(GuiGraphicsExtractor graphics, Matrix3x2fStack pose, double offsetX, double offsetZ) {
         if (!Context.UI.Fullscreen.equals(this.getUIState().ui) || JourneyMapFold.loopedAxes() == 0
-                || JourneyMapFold.copiesOf(Context.UI.Fullscreen) == MapCopies.SINGLE) {
+                || !JourneyMapFold.copiesOf(Context.UI.Fullscreen).drawsSeamLines()) {
             return;
         }
 

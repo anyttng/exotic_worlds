@@ -4,6 +4,7 @@ import static com.exoticworlds.engine.net.PacketTranslatorFixture.*;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -249,7 +251,10 @@ class PacketTranslatorTest {
             ClientboundLevelChunkWithLightPacket translated =
                     (ClientboundLevelChunkWithLightPacket) PacketTranslator.toClient(packet, context());
 
-            assertSame(packet, translated);
+            assertNotSame(packet, translated);
+            assertEquals(SERVER_CHUNK, new ChunkPos(packet.x(), packet.z()));
+            assertSame(packet.chunkData(), translated.chunkData());
+            assertSame(packet.lightData(), translated.lightData());
             assertEquals(CLIENT_CHUNK.x(), translated.x());
             assertEquals(CLIENT_CHUNK.z(), translated.z());
             assertTrue(translated.chunkData().getHeightmaps().isEmpty());
@@ -271,7 +276,9 @@ class PacketTranslatorTest {
             ClientboundLightUpdatePacket translated =
                     (ClientboundLightUpdatePacket) PacketTranslator.toClient(packet, context());
 
-            assertSame(packet, translated);
+            assertNotSame(packet, translated);
+            assertEquals(SERVER_CHUNK, new ChunkPos(packet.x(), packet.z()));
+            assertSame(packet.lightData(), translated.lightData());
             assertEquals(CLIENT_CHUNK.x(), translated.x());
             assertEquals(CLIENT_CHUNK.z(), translated.z());
             assertTrue(translated.lightData().skyUpdates().isEmpty());
@@ -1109,22 +1116,14 @@ class PacketTranslatorTest {
         }
 
         @Test
-        void interactFoldsTheHitTowardTheEntity() {
-            Vec3 entityPosition = new Vec3(511.5, 64.0, 0.0);
+        void interactKeepsTheHitOffsetForATargetAtTheFarBound() {
+            Vec3 entityPosition = new Vec3(-511.8, 64.0, 0.0);
+            Vec3 offset = new Vec3(0.5, 0.5, 0.25);
             ServerboundInteractPacket translated = (ServerboundInteractPacket) PacketTranslator.toServer(
-                    new ServerboundInteractPacket(21, InteractionHand.MAIN_HAND, new Vec3(516.0, 64.5, 0.25), false),
+                    new ServerboundInteractPacket(21, InteractionHand.MAIN_HAND, offset, false),
                     context(entityId -> false, entityId -> entityId == 21 ? entityPosition : null));
 
-            assertEquals(new Vec3(516.0, 64.5, 0.25), translated.location());
-        }
-
-        @Test
-        void interactWithoutTheEntityFallsBackToThePlainWrap() {
-            ServerboundInteractPacket translated = (ServerboundInteractPacket) PacketTranslator.toServer(
-                    new ServerboundInteractPacket(21, InteractionHand.MAIN_HAND, new Vec3(516.0, 64.5, 0.25), false),
-                    context());
-
-            assertEquals(new Vec3(-508.0, 64.5, 0.25), translated.location());
+            assertEquals(offset, translated.location());
         }
     }
 
@@ -1267,7 +1266,7 @@ class PacketTranslatorTest {
         static void registerTheRewrittenProbeAndDenyTheDeniedOne() {
             PacketRewriters.registerClientboundPayload(RewrittenProbePayload.class,
                     (payload, context) -> new RewrittenProbePayload(BlockPos.ZERO));
-            RecordPayloadFold.deny(Set.of(DeniedProbePayload.TYPE.id()));
+            RecordPayloadFold.declare(Set.of(DeniedProbePayload.TYPE.id()), Map.of());
         }
 
         private static RecordProbePayload probeAt(BlockPos pos, Vec3 point, ChunkPos chunk) {

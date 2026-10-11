@@ -52,7 +52,6 @@ import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundTrackedWaypointPacket;
 import net.minecraft.network.protocol.game.ServerboundBlockEntityTagQueryPacket;
-import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundJigsawGeneratePacket;
 import net.minecraft.network.protocol.game.ServerboundPickItemFromBlockPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
@@ -74,12 +73,8 @@ public final class PacketTranslator {
             SERVERBOUND_PAYLOAD_REWRITERS = new StartupRegistry<>("Serverbound payload rewriters");
 
     private static final Map<Class<?>, BiFunction<Packet<?>, TranslationContext, Packet<?>>> TO_CLIENT = Map.ofEntries(
-            Map.entry(ClientboundLevelChunkWithLightPacket.class, rewriter(
-                    (ClientboundLevelChunkWithLightPacket packet, TranslationContext context) ->
-                            ClientboundPacketRewriters.chunkPosition(packet, packet.x(), packet.z(), context))),
-            Map.entry(ClientboundLightUpdatePacket.class, rewriter(
-                    (ClientboundLightUpdatePacket packet, TranslationContext context) ->
-                            ClientboundPacketRewriters.chunkPosition(packet, packet.x(), packet.z(), context))),
+            Map.entry(ClientboundLevelChunkWithLightPacket.class, rewriter(ClientboundPacketRewriters::levelChunk)),
+            Map.entry(ClientboundLightUpdatePacket.class, rewriter(ClientboundPacketRewriters::lightUpdate)),
             Map.entry(ClientboundForgetLevelChunkPacket.class, rewriter(ClientboundPacketRewriters::forgetChunk)),
             Map.entry(ClientboundSetChunkCacheCenterPacket.class, rewriter(ClientboundPacketRewriters::chunkCacheCenter)),
             Map.entry(ClientboundChunksBiomesPacket.class, rewriter(ClientboundPacketRewriters::chunkBiomes)),
@@ -154,7 +149,6 @@ public final class PacketTranslator {
             Map.entry(ServerboundPickItemFromBlockPacket.class, rewriter(ServerboundPacketRewriters::pickItemFromBlock)),
             Map.entry(ServerboundSignUpdatePacket.class, rewriter(ServerboundPacketRewriters::signUpdate)),
             Map.entry(ServerboundBlockEntityTagQueryPacket.class, rewriter(ServerboundPacketRewriters::blockEntityTagQuery)),
-            Map.entry(ServerboundInteractPacket.class, rewriter(ServerboundPacketRewriters::interact)),
             Map.entry(ServerboundJigsawGeneratePacket.class, rewriter(ServerboundPacketRewriters::jigsawGenerate)),
             Map.entry(ServerboundSetCommandBlockPacket.class, rewriter(ServerboundPacketRewriters::setCommandBlock)),
             Map.entry(ServerboundSetJigsawBlockPacket.class, rewriter(ServerboundPacketRewriters::setJigsawBlock)),

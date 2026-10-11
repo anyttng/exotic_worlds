@@ -1,62 +1,68 @@
 package com.exoticworlds.mixin;
 
-import java.util.List;
-
-import org.jspecify.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.net.MeasuredReach;
 import com.exoticworlds.engine.net.WorldShapeSync;
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 
+import net.minecraft.core.Direction;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(PlayerList.class)
 public class PlayerListMixin {
-    @Shadow
-    @Final
-    private List<ServerPlayer> players;
+    @WrapOperation(method = "broadcast", at = @At(value = "INVOKE", target = InjectionTargets.SERVER_PLAYER_GET_X))
+    private double toroidal$listenerXThroughSeam(ServerPlayer player, Operation<Double> original,
+            @Local(argsOnly = true, name = "x") double x, @Local(argsOnly = true, name = "y") double y,
+            @Local(argsOnly = true, name = "z") double z) {
+        return toroidal$listenerCoord(player, Direction.Axis.X, new Vec3(x, y, z), original);
+    }
 
-    @WrapMethod(method = "broadcast")
-    private void toroidal$broadcastThroughSeam(@Nullable Player except, double x, double y, double z, double range,
-            ResourceKey<Level> dimension, Packet<?> packet, Operation<Void> original) {
-        for (ServerPlayer player : this.players) {
-            if (player == except || player.level().dimension() != dimension) {
-                continue;
-            }
+    @WrapOperation(method = "broadcast", at = @At(value = "INVOKE", target = InjectionTargets.SERVER_PLAYER_GET_Z))
+    private double toroidal$listenerZThroughSeam(ServerPlayer player, Operation<Double> original,
+            @Local(argsOnly = true, name = "x") double x, @Local(argsOnly = true, name = "y") double y,
+            @Local(argsOnly = true, name = "z") double z) {
+        return toroidal$listenerCoord(player, Direction.Axis.Z, new Vec3(x, y, z), original);
+    }
 
-            WorldFold transformer = WorldLoopAttachments.transformerOf(player.level());
-            double distanceSqr = transformer.isWrapped()
-                    ? transformer.sqrDistance(player.getX(), player.getY(), player.getZ(), x, y, z)
-                    : player.distanceToSqr(x, y, z);
-
-            if (distanceSqr < range * range) {
-                try (MeasuredReach _ = MeasuredReach.measuring(range)) {
-                    player.connection.send(packet);
-                }
-            }
+    @WrapOperation(
+            method = "broadcast",
+            at = @At(value = "INVOKE", target = InjectionTargets.SERVER_GAME_PACKET_LISTENER_SEND))
+    private void toroidal$measureBroadcastReach(ServerGamePacketListenerImpl connection, Packet<?> packet,
+            Operation<Void> original, @Local(argsOnly = true, name = "range") double range) {
+        try (MeasuredReach _ = MeasuredReach.measuring(range)) {
+            original.call(connection, packet);
         }
+    }
+
+    @Unique
+    private static double toroidal$listenerCoord(ServerPlayer player, Direction.Axis axis, Vec3 event,
+            Operation<Double> original) {
+        WorldFold transformer = ((TransformerSource) player).toroidal$wrappedTransformer();
+        return transformer == null
+                ? original.call(player)
+                : NearestCopy.toward(transformer, axis, event, player.position());
     }
 
     @Inject(method = "placeNewPlayer", at = @At("TAIL"))
