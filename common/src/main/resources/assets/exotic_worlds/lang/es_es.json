@@ -69,5 +69,7 @@
   "gui.exotic_worlds.settings.map_copies": "Copias del mundo en el mapa a pantalla completa",
   "gui.exotic_worlds.settings.map_copies_hint": "Cómo los mods de mapas muestran un mundo cerrado sobre sí mismo a pantalla completa: «Repetido» llena la ventana con sus copias, «Única» muestra el mundo una sola vez y no deja desplazar ni alejar el mapa más allá de sus bordes. Los minimapas siempre lo repiten.",
   "gui.exotic_worlds.settings.map_copies.repeated": "Repetido",
-  "gui.exotic_worlds.settings.map_copies.single": "Única"
+  "gui.exotic_worlds.settings.map_copies.single": "Única",
+  "gui.exotic_worlds.settings.seam_lines": "Líneas de costura en el mapa a pantalla completa",
+  "gui.exotic_worlds.settings.seam_lines_hint": "Dibuja una línea en cada costura del mundo entre las copias de un mundo cerrado sobre sí mismo en el mapa a pantalla completa. Solo funciona con «Repetido»: «Única» no muestra ninguna costura."
 }

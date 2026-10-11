@@ -205,7 +205,7 @@ public abstract class GuiMapViewMixin {
         original.call(matrixStack, overlayBuffer, flooredCameraX, flooredCameraZ,
                 leftX + lapX, rightX + lapX, topZ + lapZ, bottomZ + lapZ,
                 sideR, sideG, sideB, sideA, centerR, centerG, centerB, centerA);
-        if (this.toroidal$mapCopies == MapCopies.SINGLE) {
+        if (!this.toroidal$mapCopies.drawsSeamLines()) {
             return;
         }
 

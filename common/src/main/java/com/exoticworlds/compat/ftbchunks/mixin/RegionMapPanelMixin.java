@@ -127,7 +127,7 @@ public abstract class RegionMapPanelMixin {
         panel.setOffset(false);
         FtbChunksFold.recordLargeMapCopies(copies);
 
-        toroidal$seamView = mapCopies == MapCopies.SINGLE
+        toroidal$seamView = !mapCopies.drawsSeamLines()
                 ? null
                 : new SeamView(originX, originY, tilePixels, x, y, w, h);
         original.call(panel, graphics, theme, x, y, w, h);

@@ -69,5 +69,7 @@
   "gui.exotic_worlds.settings.map_copies": "Fullscreen map copies",
   "gui.exotic_worlds.settings.map_copies_hint": "How map mods show a looped world full screen: Repeated fills the window with its copies, Single shows the world once and stops panning and zooming out at its edges. Minimaps always repeat it.",
   "gui.exotic_worlds.settings.map_copies.repeated": "Repeated",
-  "gui.exotic_worlds.settings.map_copies.single": "Single"
+  "gui.exotic_worlds.settings.map_copies.single": "Single",
+  "gui.exotic_worlds.settings.seam_lines": "Fullscreen map seam lines",
+  "gui.exotic_worlds.settings.seam_lines_hint": "Draws a line at every world seam between the copies of a looped world on the fullscreen map. Works with Repeated alone: Single shows no seam."
 }
