@@ -300,6 +300,7 @@
     "ClientPacketListenerMixin",
     "CompassAngleStateMixin",
     "DataComponentHolderMixin",
+    "DebugEntryChunkGenerationMixin",
     "DebugEntryPositionMixin",
     "LevelHeldBlockEntityMixin",
     "LevelRendererMixin",
