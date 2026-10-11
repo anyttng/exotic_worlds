@@ -129,17 +129,25 @@ public record TranslationContext(
     }
 
     public ChunkPos toClientCacheCenter(ChunkPos chunkPos) {
-        ChunkPos clientPos = transformer.nearestCopy(clientPosition.chunk(), chunkPos);
+        ChunkPos clientPos = nearestCopy(chunkPos);
         clientPosition.setHeldCacheCenter(clientPos);
         return clientPos;
     }
 
     public ChunkPos nearestCopy(ChunkPos chunkPos) {
-        return transformer.nearestCopy(clientPosition.chunk(), chunkPos);
+        return nearestCopy(transformer, clientPosition, chunkPos);
     }
 
     public BlockPos nearestCopy(BlockPos pos) {
-        return transformer.reseat(pos, nearestCopy(ChunkPos.containing(pos)));
+        return nearestCopy(transformer, clientPosition, pos);
+    }
+
+    public static ChunkPos nearestCopy(WorldFold transformer, ClientPosition clientPosition, ChunkPos chunkPos) {
+        return transformer.nearestCopy(clientPosition.chunk(), chunkPos);
+    }
+
+    public static BlockPos nearestCopy(WorldFold transformer, ClientPosition clientPosition, BlockPos pos) {
+        return transformer.reseat(pos, nearestCopy(transformer, clientPosition, ChunkPos.containing(pos)));
     }
 
     public List<ChunkPos> forgetCandidates(ChunkPos chunkPos) {

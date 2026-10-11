@@ -27,6 +27,6 @@ public abstract class BlockStateInsideMixin {
             at = @At("HEAD"),
             argsOnly = true)
     private BlockPos toroidal$canonicalShapePos(BlockPos pos, @Local(argsOnly = true) BlockGetter getter) {
-        return getter instanceof Level level ? WorldLoopAttachments.transformerOf(level).fold(pos) : pos;
+        return WorldLoopAttachments.transformerIfLevel(getter).fold(pos);
     }
 }
