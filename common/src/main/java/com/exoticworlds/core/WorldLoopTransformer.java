@@ -185,7 +185,7 @@ final class WorldLoopTransformer implements WorldFold {
 
     @Override
     public boolean crossesBounds(AABB box) {
-        return !coords.x.containsSpan(box.minX, box.maxX) || !coords.z.containsSpan(box.minZ, box.maxZ);
+        return SeamBoxes.crosses(coords.x, coords.z, box);
     }
 
     private List<AABB> splitAcrossBounds(AABB box) {
@@ -207,8 +207,7 @@ final class WorldLoopTransformer implements WorldFold {
 
     @Override
     public boolean crossesBounds(BoundingBox region) {
-        return coords.x.isOver(region.minX()) || coords.x.isOver(region.maxX())
-                || coords.z.isOver(region.minZ()) || coords.z.isOver(region.maxZ());
+        return SeamBoxes.crosses(coords.x, coords.z, region);
     }
 
     private List<BoundingBox> splitAcrossBounds(BoundingBox region) {
@@ -229,7 +228,7 @@ final class WorldLoopTransformer implements WorldFold {
     }
 
     private static double seamGap(WrapDomain domain, double min, double max, double coord) {
-        double center = (min + max) / 2.0;
+        double center = SeamBoxes.centre(min, max);
         double nearestCenter = domain.unwrapAround(coord, center);
         return Math.max(Math.abs(nearestCenter - coord) - (max - min) / 2.0, 0.0);
     }
@@ -539,9 +538,8 @@ final class WorldLoopTransformer implements WorldFold {
     @Override
     public double sqrDistanceToBox(AABB box, Vec3 point) {
         double xGap = seamGap(coords.x, box.minX, box.maxX, point.x);
-        double yGap = Math.max(Math.max(box.minY - point.y, point.y - box.maxY), 0.0);
         double zGap = seamGap(coords.z, box.minZ, box.maxZ, point.z);
-        return xGap * xGap + yGap * yGap + zGap * zGap;
+        return xGap * xGap + SeamBoxes.sqrYGap(box, point) + zGap * zGap;
     }
 
     @Override
@@ -565,8 +563,8 @@ final class WorldLoopTransformer implements WorldFold {
 
     @Override
     public Folded<AABB> foldBox(Vec3 ref, AABB box) {
-        double centerX = (box.minX + box.maxX) / 2.0;
-        double centerZ = (box.minZ + box.maxZ) / 2.0;
+        double centerX = SeamBoxes.centre(box.minX, box.maxX);
+        double centerZ = SeamBoxes.centre(box.minZ, box.maxZ);
         double shiftX = coords.x.unwrapAround(ref.x, centerX) - centerX;
         double shiftZ = coords.z.unwrapAround(ref.z, centerZ) - centerZ;
         return Folded.of(shiftX == 0.0 && shiftZ == 0.0 ? box : box.move(shiftX, 0.0, shiftZ));
