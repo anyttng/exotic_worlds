@@ -10,10 +10,10 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.RelocatableBlockEntity;
 import com.exoticworlds.client.engine.SyncedTagFold;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.BlockEntitySeat;
 import com.exoticworlds.engine.fold.ChunkSeat;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -60,17 +60,7 @@ public class LevelChunkMixin {
 
     @Inject(method = "setBlockEntity", at = @At("HEAD"))
     private void toroidal$wrapBlockEntityIdentity(BlockEntity blockEntity, CallbackInfo ci) {
-        WorldFold transformer = WorldLoopAttachments.transformerOf(this.level);
-        if (!transformer.isWrapped()) {
-            return;
-        }
-
-        BlockPos pos = blockEntity.getBlockPos();
-        if (!transformer.isOver(pos)) {
-            return;
-        }
-
-        ((RelocatableBlockEntity) blockEntity).toroidal$relocate(transformer.fold(pos));
+        BlockEntitySeat.intoBounds(WorldLoopAttachments.transformerOf(this.level), blockEntity);
     }
 
     @WrapOperation(

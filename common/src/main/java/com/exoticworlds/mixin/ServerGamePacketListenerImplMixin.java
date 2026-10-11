@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.exoticworlds.accessors.ChunkResender;
 import com.exoticworlds.accessors.ClientPositionHolder;
 import com.exoticworlds.accessors.TrackedEntityRefresher;
-import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.seam.ClientPosition;
 import com.exoticworlds.engine.seam.MirrorWriter;
@@ -252,22 +251,14 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
 
     @Inject(method = "handleMovePlayer", at = @At("RETURN"))
     private void toroidal$wrapIntoBounds(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
-        if (transformer == null) {
+        if (!SeamSnap.intoBounds(this.player)) {
             return;
         }
 
-        DeckTransformation lap = transformer.foldTransformation(this.player.position());
-        if (lap.isIdentity()) {
-            return;
-        }
-
-        Vec3 wrapped = lap.apply(this.player.position());
-        SeamSnap.withPassengers(this.player, lap);
-        this.firstGoodX = wrapped.x;
-        this.firstGoodZ = wrapped.z;
-        this.lastGoodX = wrapped.x;
-        this.lastGoodZ = wrapped.z;
+        this.firstGoodX = this.player.getX();
+        this.firstGoodZ = this.player.getZ();
+        this.lastGoodX = this.player.getX();
+        this.lastGoodZ = this.player.getZ();
         this.player.serverLevel().getChunkSource().move(this.player);
     }
 
@@ -309,22 +300,10 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
 
     @Inject(method = "handleMoveVehicle", at = @At("RETURN"))
     private void toroidal$wrapVehicleIntoBounds(ServerboundMoveVehiclePacket packet, CallbackInfo ci) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
-        if (transformer == null) {
-            return;
-        }
-
         Entity vehicle = this.player.getRootVehicle();
-        if (vehicle == this.player) {
+        if (vehicle == this.player || !SeamSnap.intoBounds(vehicle)) {
             return;
         }
-
-        DeckTransformation lap = transformer.foldTransformation(vehicle.position());
-        if (lap.isIdentity()) {
-            return;
-        }
-
-        SeamSnap.withPassengers(vehicle, lap);
 
         this.vehicleFirstGoodX = vehicle.getX();
         this.vehicleFirstGoodZ = vehicle.getZ();

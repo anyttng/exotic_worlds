@@ -12,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.LevelBindable;
-import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.net.ListenerCopies;
 import com.exoticworlds.engine.net.MeasuredReach;
@@ -61,18 +60,8 @@ public class ServerLevelMixin {
 
     @Inject(method = "tickNonPassenger", at = @At("TAIL"))
     private void toroidal$wrapEntityIntoBounds(Entity entity, CallbackInfo ci) {
-        if (entity instanceof Player) {
-            return;
-        }
-
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf((ServerLevel) (Object) this);
-        if (transformer == null) {
-            return;
-        }
-
-        DeckTransformation lap = transformer.foldTransformation(entity.position());
-        if (!lap.isIdentity()) {
-            SeamSnap.withPassengers(entity, lap);
+        if (!(entity instanceof Player)) {
+            SeamSnap.intoBounds(entity);
         }
     }
 

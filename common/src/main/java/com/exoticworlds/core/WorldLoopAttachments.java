@@ -9,12 +9,17 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 
 public final class WorldLoopAttachments {
     public static WorldFold transformerOf(Level level) {
         return ((TransformerCache) level).toroidal$transformer();
+    }
+
+    public static WorldFold transformerIfLevel(@Nullable LevelHeightAccessor accessor) {
+        return accessor instanceof Level level ? transformerOf(level) : WorldFolds.NOOP;
     }
 
     public static @Nullable WorldFold wrappedTransformerOf(@Nullable Level level) {

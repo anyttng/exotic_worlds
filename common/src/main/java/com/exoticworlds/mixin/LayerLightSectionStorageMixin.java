@@ -7,14 +7,12 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LightChunkGetter;
 import net.minecraft.world.level.lighting.LayerLightSectionStorage;
 
@@ -29,7 +27,7 @@ public abstract class LayerLightSectionStorageMixin {
 
     @WrapOperation(
             method = "updateSectionStatus",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/core/SectionPos;offset(JIII)J"))
+            at = @At(value = "INVOKE", target = InjectionTargets.SECTION_POS_OFFSET))
     private long toroidal$foldNeighborSection(long sectionNode, int stepX, int stepY, int stepZ,
             Operation<Long> original) {
         long neighborNode = original.call(sectionNode, stepX, stepY, stepZ);
@@ -40,10 +38,7 @@ public abstract class LayerLightSectionStorageMixin {
     @Unique
     private WorldFold toroidal$transformer() {
         if (this.toroidal$transformer == null) {
-            BlockGetter level = this.chunkSource.getLevel();
-            this.toroidal$transformer = level instanceof Level realLevel
-                    ? WorldLoopAttachments.transformerOf(realLevel)
-                    : WorldFolds.NOOP;
+            this.toroidal$transformer = WorldLoopAttachments.transformerIfLevel(this.chunkSource.getLevel());
         }
 
         return this.toroidal$transformer;

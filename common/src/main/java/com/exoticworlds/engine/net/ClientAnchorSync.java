@@ -42,7 +42,7 @@ public final class ClientAnchorSync {
 
         BlockPos held = clientPosition.heldSpawn();
         BlockPos spawnPos = level.getSharedSpawnPos();
-        BlockPos want = ClientboundPacketRewriters.nearestCopyBlock(transformer, clientPosition.chunk(), spawnPos);
+        BlockPos want = TranslationContext.nearestCopy(transformer, clientPosition, spawnPos);
         if (want.equals(held)) {
             return;
         }
@@ -70,8 +70,7 @@ public final class ClientAnchorSync {
             return;
         }
 
-        ChunkPos mirrorChunk = clientPosition.chunk();
-        ChunkPos want = transformer.nearestCopy(mirrorChunk, view.center());
+        ChunkPos want = TranslationContext.nearestCopy(transformer, clientPosition, view.center());
         if (want.equals(held)) {
             return;
         }

@@ -217,7 +217,7 @@ final class ClientboundPacketRewriters {
 
     static ClientboundLevelEventPacket levelEvent(ClientboundLevelEventPacket packet, TranslationContext context) {
         BlockPos clientPos = packet.isGlobalEvent()
-                ? nearestCopyBlock(context, packet.getPos())
+                ? context.nearestCopy(packet.getPos())
                 : toClientBlock(context, packet.getPos(), ChunkTraffic.LEVEL_EVENT);
         return new ClientboundLevelEventPacket(
                 packet.getType(), clientPos, packet.getData(), packet.isGlobalEvent());
@@ -385,8 +385,7 @@ final class ClientboundPacketRewriters {
             return packet;
         }
 
-        BlockPos serverPos = packet.getPos();
-        BlockPos clientPos = nearestCopyBlock(context, serverPos);
+        BlockPos clientPos = context.nearestCopy(packet.getPos());
         context.clientPosition().setHeldSpawn(clientPos);
         return new ClientboundSetDefaultSpawnPositionPacket(clientPos, packet.getAngle());
     }
@@ -443,14 +442,6 @@ final class ClientboundPacketRewriters {
 
     static BlockPos toClientBlock(TranslationContext context, BlockPos pos, ChunkTraffic traffic) {
         return context.transformer().reseat(pos, context.toClient(new ChunkPos(pos), traffic));
-    }
-
-    private static BlockPos nearestCopyBlock(TranslationContext context, BlockPos pos) {
-        return context.nearestCopy(pos);
-    }
-
-    static BlockPos nearestCopyBlock(WorldFold transformer, ChunkPos anchor, BlockPos pos) {
-        return transformer.reseat(pos, transformer.nearestCopy(anchor, new ChunkPos(pos)));
     }
 
     private ClientboundPacketRewriters() {

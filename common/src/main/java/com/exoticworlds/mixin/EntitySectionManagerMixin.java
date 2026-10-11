@@ -1,6 +1,5 @@
 package com.exoticworlds.mixin;
 
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -11,9 +10,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.exoticworlds.accessors.LevelBindable;
-import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.level.BoundLevelFold;
 import com.exoticworlds.engine.seam.SeamSnap;
 
 import net.minecraft.server.level.ServerLevel;
@@ -29,11 +27,11 @@ public class EntitySectionManagerMixin<T extends EntityAccess> implements LevelB
     private EntitySectionStorage<T> sectionStorage;
 
     @Unique
-    private @Nullable ServerLevel toroidal$level;
+    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
 
     @Override
     public void toroidal$bindLevel(ServerLevel level) {
-        this.toroidal$level = level;
+        this.toroidal$bound.bind(level);
         ((LevelBindable) this.sectionStorage).toroidal$bindLevel(level);
     }
 
@@ -44,21 +42,9 @@ public class EntitySectionManagerMixin<T extends EntityAccess> implements LevelB
             at = @At("HEAD"),
             require = 1)
     private void toroidal$wrapJoiningEntity(EntityAccess entity, boolean loaded, CallbackInfoReturnable<Boolean> cir) {
-        if (!(entity instanceof Entity actualEntity)) {
-            return;
+        if (entity instanceof Entity actualEntity) {
+            SeamSnap.intoBounds(actualEntity);
         }
-
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(actualEntity.level());
-        if (transformer == null) {
-            return;
-        }
-
-        DeckTransformation lap = transformer.foldTransformation(actualEntity.position());
-        if (lap.isIdentity()) {
-            return;
-        }
-
-        SeamSnap.withPassengers(actualEntity, lap);
     }
 
     @ModifyArg(
@@ -67,7 +53,7 @@ public class EntitySectionManagerMixin<T extends EntityAccess> implements LevelB
             index = 0,
             expect = 3)
     private long toroidal$askThePhysicalChunk(long chunkKey) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.toroidal$level);
+        WorldFold transformer = this.toroidal$bound.wrapped();
         return transformer == null ? chunkKey : transformer.foldChunkKey(chunkKey);
     }
 }
