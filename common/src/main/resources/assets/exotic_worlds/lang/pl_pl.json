@@ -66,5 +66,7 @@
   "gui.exotic_worlds.settings.map_copies": "Kopie świata na mapie pełnoekranowej",
   "gui.exotic_worlds.settings.map_copies_hint": "Jak mody map pokazują zapętlony świat na pełnym ekranie: „Powtarzane” wypełnia okno jego kopiami, „Pojedyncza” pokazuje świat raz i nie pozwala przesunąć ani oddalić mapy poza jego krawędzie. Minimapy zawsze go powtarzają.",
   "gui.exotic_worlds.settings.map_copies.repeated": "Powtarzane",
-  "gui.exotic_worlds.settings.map_copies.single": "Pojedyncza"
+  "gui.exotic_worlds.settings.map_copies.single": "Pojedyncza",
+  "gui.exotic_worlds.settings.seam_lines": "Linie szwów na mapie pełnoekranowej",
+  "gui.exotic_worlds.settings.seam_lines_hint": "Rysuje linię na każdym szwie świata między kopiami zapętlonego świata na mapie pełnoekranowej. Działa tylko z „Powtarzane”: „Pojedyncza” nie pokazuje szwu."
 }
