@@ -125,7 +125,6 @@
     "HopperBlockEntityMixin",
     "ImprovedNoiseMixin",
     "InitializeBorderPacketAccessor",
-    "InteractPacketAccessor",
     "InteractWithDoorMixin",
     "LandOnOwnersShoulderGoalMixin",
     "LandRandomPosMixin",
