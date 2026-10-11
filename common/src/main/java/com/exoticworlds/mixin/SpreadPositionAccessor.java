@@ -2,6 +2,7 @@ package com.exoticworlds.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.gen.Invoker;
 
 import net.minecraft.server.commands.SpreadPlayersCommand;
 
@@ -18,4 +19,9 @@ public interface SpreadPositionAccessor {
 
     @Accessor("z")
     void toroidal$setZ(double z);
+
+    @Invoker("<init>")
+    static SpreadPlayersCommand.Position toroidal$create() {
+        throw new AssertionError();
+    }
 }

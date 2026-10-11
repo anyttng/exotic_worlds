@@ -1,30 +1,34 @@
 package com.exoticworlds.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(Player.class)
 public class PlayerMixin {
-    @WrapMethod(method = "isWithinBlockInteractionRange")
-    private boolean toroidal$wrappedBlockReach(BlockPos pos, double buffer, Operation<Boolean> original) {
-        Player player = (Player) (Object) this;
-        WorldFold transformer = ((TransformerSource) player).toroidal$wrappedTransformer();
+    @WrapOperation(
+            method = "isWithinBlockInteractionRange",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/phys/AABB;distanceToSqr(Lnet/minecraft/world/phys/Vec3;)D"))
+    private double toroidal$wrappedBlockReach(AABB block, Vec3 eye, Operation<Double> original) {
+        WorldFold transformer = ((TransformerSource) this).toroidal$wrappedTransformer();
         if (transformer == null) {
-            return original.call(pos, buffer);
+            return original.call(block, eye);
         }
 
-        double maxRange = player.blockInteractionRange() + buffer;
-        return transformer.sqrDistanceToBox(new AABB(pos), player.getEyePosition()) < maxRange * maxRange;
+        return transformer.sqrDistanceToBox(block, eye);
     }
 
     @WrapMethod(method = "isWithinEntityInteractionRange(Lnet/minecraft/world/phys/AABB;D)Z")

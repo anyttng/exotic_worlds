@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.SeamTravelHolder;
 import com.exoticworlds.accessors.TrackedEntityRefresher;
 import com.exoticworlds.core.WorldFold;
@@ -17,14 +18,16 @@ import com.exoticworlds.engine.level.SeamRespawnData;
 import com.exoticworlds.engine.net.ClientAnchorSync;
 import com.exoticworlds.engine.net.WorldShapeSync;
 import com.exoticworlds.engine.seam.SeamAim;
+import com.exoticworlds.engine.seam.SeamSteering;
 import com.exoticworlds.engine.seam.circumnavigation.CircumnavigationTracker;
 import com.exoticworlds.engine.seam.circumnavigation.SeamTravel;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 
-import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.portal.TeleportTransition;
@@ -35,12 +38,6 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(ServerPlayer.class)
 public class ServerPlayerMixin implements SeamTravelHolder {
-    @Unique
-    private static final double BED_REACH_HORIZONTAL = 3.0;
-
-    @Unique
-    private static final double BED_REACH_VERTICAL = 2.0;
-
     @Unique
     private static final String TRAVEL_KEY = "exotic_worlds:travel";
 
@@ -131,18 +128,10 @@ public class ServerPlayerMixin implements SeamTravelHolder {
         refresher.toroidal$refreshTrackedEntities(player);
     }
 
-    @WrapMethod(method = "isReachableBedBlock")
-    private boolean toroidal$bedReachThroughSeam(BlockPos bedBlockPos, Operation<Boolean> original) {
-        ServerPlayer player = (ServerPlayer) (Object) this;
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(player.level());
-        if (transformer == null) {
-            return original.call(bedBlockPos);
-        }
-
-        Vec3 bedCenter = Vec3.atBottomCenterOf(bedBlockPos);
-        Vec3 delta = transformer.foldDelta(player.position(), bedCenter);
-        return Math.abs(delta.x) <= BED_REACH_HORIZONTAL
-                && Math.abs(delta.y) <= BED_REACH_VERTICAL
-                && Math.abs(delta.z) <= BED_REACH_HORIZONTAL;
+    @WrapOperation(
+            method = "isReachableBedBlock",
+            at = @At(value = "INVOKE", target = InjectionTargets.VEC3_AT_BOTTOM_CENTER_OF))
+    private Vec3 toroidal$bedTowardSleeper(Vec3i bedBlockPos, Operation<Vec3> original) {
+        return SeamSteering.nearestCopy((ServerPlayer) (Object) this, original.call(bedBlockPos));
     }
 }
