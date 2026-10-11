@@ -20,9 +20,10 @@ import com.exoticworlds.engine.seam.SeamRange;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalDoubleRef;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.Mob;
@@ -65,27 +66,24 @@ public class PathNavigationMixin implements NavigationShifter {
     }
 
     @WrapOperation(method = "followThePath", at = @At(value = "INVOKE", target = MATH_ABS, ordinal = 0))
-    private double toroidal$nodeDistanceX(double delta, Operation<Double> original, @Local Vec3i node) {
-        return toroidal$nodeDistance(Direction.Axis.X, delta, node, original);
-    }
-
-    @WrapOperation(method = "followThePath", at = @At(value = "INVOKE", target = MATH_ABS, ordinal = 2))
-    private double toroidal$nodeDistanceZ(double delta, Operation<Double> original, @Local Vec3i node) {
-        return toroidal$nodeDistance(Direction.Axis.Z, delta, node, original);
-    }
-
-    @Unique
-    private double toroidal$nodeDistance(Direction.Axis axis, double delta, Vec3i node, Operation<Double> original) {
+    private double toroidal$nodeDistanceX(double delta, Operation<Double> original, @Local Vec3i node,
+            @Share("lapZ") LocalDoubleRef lapZ) {
         WorldFold transformer = toroidal$wrappedTransformer();
         if (transformer == null) {
             return original.call(delta);
         }
 
-        Direction.Axis other = axis == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X;
-        double nodeOffset = this.mob.position().get(axis) - delta - node.get(axis);
-        double otherDelta = this.mob.position().get(other) - (node.get(other) + nodeOffset);
-        Vec3 pair = axis == Direction.Axis.X ? new Vec3(delta, 0.0, otherDelta) : new Vec3(otherDelta, 0.0, delta);
-        return Math.abs(SeamDelta.fold(transformer, pair).get(axis));
+        double nodeOffset = this.mob.getX() - delta - node.getX();
+        double deltaZ = this.mob.getZ() - (node.getZ() + nodeOffset);
+        Vec3 folded = SeamDelta.fold(transformer, delta, deltaZ);
+        lapZ.set(folded.z - deltaZ);
+        return Math.abs(folded.x);
+    }
+
+    @WrapOperation(method = "followThePath", at = @At(value = "INVOKE", target = MATH_ABS, ordinal = 2))
+    private double toroidal$nodeDistanceZ(double delta, Operation<Double> original,
+            @Share("lapZ") LocalDoubleRef lapZ) {
+        return original.call(delta + lapZ.get());
     }
 
     @WrapOperation(
