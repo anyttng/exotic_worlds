@@ -78,6 +78,13 @@ public final class InjectionTargets {
     public static final String POSITIONAL_RANDOM_FACTORY_AT =
             "Lnet/minecraft/world/level/levelgen/PositionalRandomFactory;at(III)Lnet/minecraft/util/RandomSource;";
 
+    public static final String SERVER_GAME_PACKET_LISTENER_SEND =
+            "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V";
+
+    public static final String SERVER_PLAYER_GET_X = "Lnet/minecraft/server/level/ServerPlayer;getX()D";
+
+    public static final String SERVER_PLAYER_GET_Z = "Lnet/minecraft/server/level/ServerPlayer;getZ()D";
+
     public static final String STATIC_CACHE_2D_CREATE =
             "Lnet/minecraft/util/StaticCache2D;create(IIILnet/minecraft/util/StaticCache2D$Initializer;)Lnet/minecraft/util/StaticCache2D;";
 

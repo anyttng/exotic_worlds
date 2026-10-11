@@ -1,65 +1,89 @@
 package com.exoticworlds.mixin;
 
+import java.util.Map;
+
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFold;
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
-import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.StructureAccess;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 
 @Mixin(ChunkGenerator.class)
 public class ChunkGeneratorReferencesMixin {
-    // Vanilla's own scan reach, restated here because the loop it lives in is.
     @Unique
-    private static final int toroidal$REFERENCE_RANGE = 8;
+    private static final String SOURCE_POS = "sourcePos";
 
-    @WrapMethod(method = "createReferences")
-    private void toroidal$referencesThroughSeam(WorldGenLevel level, StructureManager structureManager,
-            ChunkAccess centerChunk, Operation<Void> original) {
+    @WrapOperation(
+            method = "createReferences",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getAllStarts()Ljava/util/Map;"))
+    private Map<Structure, StructureStart> toroidal$startsOfNearestCopy(ChunkAccess sourceChunk,
+            Operation<Map<Structure, StructureStart>> original, @Local(argsOnly = true) ChunkAccess centerChunk,
+            @Local(name = "sourceX") int sourceX, @Local(name = "sourceZ") int sourceZ,
+            @Share(SOURCE_POS) LocalRef<@Nullable ChunkPos> sourcePos) {
         WorldFold transformer = ShapedChunkGenerator.wrappedTransformerOf((ChunkGenerator) (Object) this);
         if (transformer == null) {
-            original.call(level, structureManager, centerChunk);
-            return;
+            return original.call(sourceChunk);
         }
 
-        ChunkPos centerPos = centerChunk.getPos();
-        int centerChunkX = centerPos.x();
-        int centerChunkZ = centerPos.z();
-        SectionPos centerSection = SectionPos.bottomOf(centerChunk);
-
-        for (int sourceX = centerChunkX - toroidal$REFERENCE_RANGE; sourceX <= centerChunkX + toroidal$REFERENCE_RANGE; sourceX++) {
-            for (int sourceZ = centerChunkZ - toroidal$REFERENCE_RANGE; sourceZ <= centerChunkZ + toroidal$REFERENCE_RANGE; sourceZ++) {
-                ChunkPos source = new ChunkPos(sourceX, sourceZ);
-                if (!transformer.nearestCopy(centerPos, transformer.fold(source)).equals(source)) {
-                    continue;
-                }
-
-                ChunkAccess sourceChunk = level.getChunk(sourceX, sourceZ);
-                ChunkPos sourcePos = sourceChunk.getPos();
-
-                ChunkPos foldedCenter = transformer.deckTransformation(source, sourcePos).apply(centerPos);
-                long referenceKey = sourcePos.pack();
-
-                for (StructureStart start : sourceChunk.getAllStarts().values()) {
-                    if (start.isValid() && start.getBoundingBox().intersects(
-                            foldedCenter.getMinBlockX(),
-                            foldedCenter.getMinBlockZ(),
-                            foldedCenter.getMaxBlockX(),
-                            foldedCenter.getMaxBlockZ())) {
-                        structureManager.addReferenceForStructure(
-                                centerSection, start.getStructure(), referenceKey, centerChunk);
-                    }
-                }
-            }
+        ChunkPos source = new ChunkPos(sourceX, sourceZ);
+        if (!transformer.nearestCopy(centerChunk.getPos(), transformer.fold(source)).equals(source)) {
+            return Map.of();
         }
+
+        sourcePos.set(sourceChunk.getPos());
+        return original.call(sourceChunk);
+    }
+
+    @WrapOperation(
+            method = "createReferences",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/levelgen/structure/BoundingBox;intersects(IIII)Z"))
+    private boolean toroidal$intersectsInSourceFrame(BoundingBox box, int minX, int minZ, int maxX, int maxZ,
+            Operation<Boolean> original, @Local(argsOnly = true) ChunkAccess centerChunk,
+            @Local(name = "sourceX") int sourceX, @Local(name = "sourceZ") int sourceZ,
+            @Share(SOURCE_POS) LocalRef<@Nullable ChunkPos> sourcePos) {
+        WorldFold transformer = ShapedChunkGenerator.wrappedTransformerOf((ChunkGenerator) (Object) this);
+        ChunkPos physical = sourcePos.get();
+        if (transformer == null || physical == null) {
+            return original.call(box, minX, minZ, maxX, maxZ);
+        }
+
+        ChunkPos foldedCenter = transformer.deckTransformation(new ChunkPos(sourceX, sourceZ), physical)
+                .apply(centerChunk.getPos());
+        return original.call(box, foldedCenter.getMinBlockX(), foldedCenter.getMinBlockZ(),
+                foldedCenter.getMaxBlockX(), foldedCenter.getMaxBlockZ());
+    }
+
+    @WrapOperation(
+            method = "createReferences",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/StructureManager;addReferenceForStructure("
+                            + "Lnet/minecraft/core/SectionPos;Lnet/minecraft/world/level/levelgen/structure/Structure;J"
+                            + "Lnet/minecraft/world/level/chunk/StructureAccess;)V"))
+    private void toroidal$referencePhysicalSource(StructureManager structureManager, SectionPos centerSection,
+            Structure structure, long reference, StructureAccess centerChunk, Operation<Void> original,
+            @Share(SOURCE_POS) LocalRef<@Nullable ChunkPos> sourcePos) {
+        ChunkPos physical = sourcePos.get();
+        original.call(structureManager, centerSection, structure, physical == null ? reference : physical.pack(),
+                centerChunk);
     }
 }
