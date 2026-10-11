@@ -41,7 +41,7 @@ public class NetherPortalBlockMixin {
 
         double declaredScale = DimensionType.getTeleportationScale(
                 entity.level().dimensionType(), newLevel.dimensionType());
-        BlockPos mapped = BlockPos.containing(DimensionMapping.map(source, destination, entity.position(), declaredScale));
+        BlockPos mapped = worldBorder.clampToBounds(DimensionMapping.map(source, destination, entity.position(), declaredScale));
 
         return original.call(self, newLevel, entity, portalEntryPos, mapped, toNether, worldBorder);
     }
