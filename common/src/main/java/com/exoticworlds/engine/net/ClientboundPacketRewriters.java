@@ -362,7 +362,7 @@ final class ClientboundPacketRewriters {
 
     static ClientboundTrackedWaypointPacket trackedWaypoint(ClientboundTrackedWaypointPacket packet, TranslationContext context) {
         if (packet.waypoint() instanceof Vec3iWaypointAccessor waypoint) {
-            waypoint.toroidal$setVector(nearestCopyBlock(context, BlockPos.ZERO.offset(waypoint.toroidal$getVector())));
+            waypoint.toroidal$setVector(context.nearestCopy(BlockPos.ZERO.offset(waypoint.toroidal$getVector())));
         } else if (packet.waypoint() instanceof ChunkWaypointAccessor waypoint) {
             waypoint.toroidal$setChunkPos(context.nearestCopy(waypoint.toroidal$getChunkPos()));
         }
@@ -376,7 +376,7 @@ final class ClientboundPacketRewriters {
             return packet;
         }
 
-        BlockPos clientPos = nearestCopyBlock(context, respawnData.pos());
+        BlockPos clientPos = context.nearestCopy(respawnData.pos());
         context.clientPosition().setHeldSpawn(clientPos);
         return new ClientboundSetDefaultSpawnPositionPacket(new LevelData.RespawnData(
                 GlobalPos.of(respawnData.dimension(), clientPos),
@@ -442,14 +442,6 @@ final class ClientboundPacketRewriters {
                 .map(data -> new ClientboundChunksBiomesPacket.ChunkBiomeData(
                         context.toClient(data.pos()), data.buffer()))
                 .toList());
-    }
-
-    private static BlockPos nearestCopyBlock(TranslationContext context, BlockPos pos) {
-        return nearestCopyBlock(context.transformer(), context.clientPosition().chunk(), pos);
-    }
-
-    static BlockPos nearestCopyBlock(WorldFold transformer, ChunkPos anchor, BlockPos pos) {
-        return transformer.reseat(pos, transformer.nearestCopy(anchor, ChunkPos.containing(pos)));
     }
 
     private static <T, P> T rewritePosition(BiConsumer<T, RegistryFriendlyByteBuf> writer,
