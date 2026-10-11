@@ -34,7 +34,6 @@ Every mod checked against the world's shape, with the game versions and loaders 
 ## Before you download
 
 - The world shape is chosen **at world creation**: an existing vanilla world cannot be converted into a toroidal or cylinder one (or back).
-- The mod is pre-1.0: world compatibility between mod versions is not guaranteed until 1.0.
 
 ## Bug reports
 
