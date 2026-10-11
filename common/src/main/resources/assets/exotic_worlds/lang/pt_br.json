@@ -66,5 +66,7 @@
   "gui.exotic_worlds.settings.map_copies": "Cópias do mundo no mapa em tela cheia",
   "gui.exotic_worlds.settings.map_copies_hint": "Como os mods de mapa mostram um mundo que se fecha em tela cheia: \"Repetido\" preenche a janela com cópias dele, \"Única\" mostra o mundo uma só vez e não deixa mover nem afastar o mapa além das bordas. Os minimapas sempre o repetem.",
   "gui.exotic_worlds.settings.map_copies.repeated": "Repetido",
-  "gui.exotic_worlds.settings.map_copies.single": "Única"
+  "gui.exotic_worlds.settings.map_copies.single": "Única",
+  "gui.exotic_worlds.settings.seam_lines": "Linhas de emenda no mapa em tela cheia",
+  "gui.exotic_worlds.settings.seam_lines_hint": "Desenha uma linha em cada emenda do mundo entre as cópias de um mundo que se fecha no mapa em tela cheia. Só funciona com \"Repetido\": \"Única\" não mostra nenhuma emenda."
 }

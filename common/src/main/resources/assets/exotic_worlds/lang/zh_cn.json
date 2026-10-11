@@ -66,5 +66,7 @@
   "gui.exotic_worlds.settings.map_copies": "全屏地图上的世界副本",
   "gui.exotic_worlds.settings.map_copies_hint": "地图模组全屏显示循环世界的方式：“重复”用世界的副本铺满窗口，“单个”只显示一次世界，地图无法拖动或缩小到边缘之外。小地图始终重复显示。",
   "gui.exotic_worlds.settings.map_copies.repeated": "重复",
-  "gui.exotic_worlds.settings.map_copies.single": "单个"
+  "gui.exotic_worlds.settings.map_copies.single": "单个",
+  "gui.exotic_worlds.settings.seam_lines": "全屏地图上的接缝线",
+  "gui.exotic_worlds.settings.seam_lines_hint": "在全屏地图上，于循环世界各副本之间的每条世界接缝处画一条线。仅在“重复”模式下生效：“单个”模式不显示接缝。"
 }

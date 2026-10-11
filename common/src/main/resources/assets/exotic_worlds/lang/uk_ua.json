@@ -66,5 +66,7 @@
   "gui.exotic_worlds.settings.map_copies": "Копії світу на повноекранній мапі",
   "gui.exotic_worlds.settings.map_copies_hint": "Як моди мап показують зациклений світ на весь екран: «Повторювати» заповнює вікно його копіями, «Одна копія» показує світ один раз і не дає відсунути чи віддалити мапу за його краї. Мінімапи завжди повторюють світ.",
   "gui.exotic_worlds.settings.map_copies.repeated": "Повторювати",
-  "gui.exotic_worlds.settings.map_copies.single": "Одна копія"
+  "gui.exotic_worlds.settings.map_copies.single": "Одна копія",
+  "gui.exotic_worlds.settings.seam_lines": "Лінії швів на повноекранній мапі",
+  "gui.exotic_worlds.settings.seam_lines_hint": "Позначає лінією кожен шов світу між копіями зацикленого світу на повноекранній мапі. Діє лише з «Повторювати»: в «Одна копія» шва не видно."
 }
