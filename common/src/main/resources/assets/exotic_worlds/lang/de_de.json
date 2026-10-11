@@ -66,5 +66,7 @@
   "gui.exotic_worlds.settings.map_copies": "Weltkopien auf der Vollbildkarte",
   "gui.exotic_worlds.settings.map_copies_hint": "Wie Karten-Mods eine geschlossene Welt im Vollbild zeigen: „Wiederholt“ füllt das Fenster mit ihren Kopien, „Einzeln“ zeigt die Welt einmal und lässt die Karte nicht über ihre Ränder hinaus verschieben oder herauszoomen. Minikarten wiederholen sie immer.",
   "gui.exotic_worlds.settings.map_copies.repeated": "Wiederholt",
-  "gui.exotic_worlds.settings.map_copies.single": "Einzeln"
+  "gui.exotic_worlds.settings.map_copies.single": "Einzeln",
+  "gui.exotic_worlds.settings.seam_lines": "Nahtlinien auf der Vollbildkarte",
+  "gui.exotic_worlds.settings.seam_lines_hint": "Zeichnet auf der Vollbildkarte an jeder Weltnaht zwischen den Kopien einer geschlossenen Welt eine Linie. Wirkt nur mit „Wiederholt“: „Einzeln“ zeigt keine Naht."
 }

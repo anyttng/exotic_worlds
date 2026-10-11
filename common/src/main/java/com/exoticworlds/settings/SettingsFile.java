@@ -22,6 +22,13 @@ public final class SettingsFile {
             edges. Minimaps always repeat it.
             Allowed values: REPEATED, SINGLE.""";
 
+    public static final String SEAM_LINES_KEY = "seam_lines";
+
+    private static final String SEAM_LINES_COMMENT = """
+            Whether a map mod's fullscreen map draws a line at every edge of the world's copies.
+            Applies to REPEATED alone: SINGLE draws no line.
+            Allowed values: true, false.""";
+
     private static final Gson GSON = new Gson();
     private static final String INDENT = "  ";
     private static final String COMMENT_MARK = "// ";
@@ -38,18 +45,20 @@ public final class SettingsFile {
             return defaults;
         }
 
-        return new Settings(mapCopies(json, defaults.mapCopies()));
+        return new Settings(mapCopies(json, defaults.mapCopies()), seamLines(json, defaults.seamLines()));
     }
 
     public static void save(Path file, Settings settings) {
-        String entry = entry(MAP_COPIES_KEY, new JsonPrimitive(settings.mapCopies().name()), MAP_COPIES_COMMENT);
+        String entries = entry(MAP_COPIES_KEY, new JsonPrimitive(settings.mapCopies().name()), MAP_COPIES_COMMENT)
+                + ",\n"
+                + entry(SEAM_LINES_KEY, new JsonPrimitive(settings.seamLines()), SEAM_LINES_COMMENT);
         try {
             Path parent = file.getParent();
             if (parent != null) {
                 Files.createDirectories(parent);
             }
 
-            Files.writeString(file, "{\n" + entry + "\n}\n", StandardCharsets.UTF_8);
+            Files.writeString(file, "{\n" + entries + "\n}\n", StandardCharsets.UTF_8);
         } catch (IOException e) {
             ExoticWorlds.LOGGER.error("Could not write the settings file {}", file, e);
         }
@@ -90,6 +99,17 @@ public final class SettingsFile {
         }
 
         ExoticWorlds.LOGGER.warn("Setting {} is {}; falling back to {}", MAP_COPIES_KEY,
+                value == null ? "missing" : value, fallback);
+        return fallback;
+    }
+
+    private static boolean seamLines(JsonObject json, boolean fallback) {
+        JsonElement value = json.get(SEAM_LINES_KEY);
+        if (value != null && value.isJsonPrimitive() && value.getAsJsonPrimitive().isBoolean()) {
+            return value.getAsBoolean();
+        }
+
+        ExoticWorlds.LOGGER.warn("Setting {} is {}; falling back to {}", SEAM_LINES_KEY,
                 value == null ? "missing" : value, fallback);
         return fallback;
     }
