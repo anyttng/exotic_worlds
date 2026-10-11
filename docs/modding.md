@@ -118,15 +118,32 @@ Register from your mod's initialiser, beside everything else: the table closes a
 
 A context belongs to the packet being rewritten. Never hold one past the call.
 
-A `BlockPos` component that is not a world position — an offset, a size — is folded all the same. Name such a payload by its payload type id in the `positions.json` file of your namespace, described in the next section, and it crosses untouched in both directions:
+A `BlockPos` component that is not a world position (an offset, a size, a position local to a contraption) is folded all the same, and two positions that belong together, such as the corners of one selection, are folded each on its own, so a pair straddling the seam arrives a world apart. Say what the type cannot in the `positions.json` file of your namespace, described in the next section: a `payloads` row, keyed by the payload type id, names record components and gives each a role.
 
 ```json
 {
-  "deny": [ "your_mod:structure_bounds" ]
+  "payloads": {
+    "your_mod:structure_bounds": { "origin": "world", "size": "untouched" },
+    "your_mod:selection": { "from": "group", "to": "group" }
+  }
 }
 ```
 
-The lists of every namespace are joined on the server; a rewriter registered for the class still runs.
+- `world` folds the component as a world position, as it would be unnamed.
+- `untouched` crosses as sent, both ways.
+- `group` members move together, by the one move that takes the first of them (in the record's component order, past an empty `Optional` or a `null`) into the world's bounds on the way in, or to the copy nearest the player on the way out. The others keep their distance from it, past the bounds if that is where it puts them.
+
+A component the row does not name folds by its type. A name the record does not declare is skipped, with a warning in the server log. A row reaches the record's own components, not those of a record nested in one. Where two namespaces give one component different roles, it folds by its type and the server log says so.
+
+To leave a whole payload alone, list its id under `deny`: it then crosses untouched in both directions, whatever a `payloads` row says.
+
+```json
+{
+  "deny": [ "your_mod:raw_cursor" ]
+}
+```
+
+The rows of every namespace are joined on the server; a rewriter registered for the class still runs.
 
 ### Positions your block entity or entity stores
 

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -1271,7 +1272,7 @@ class PacketTranslatorTest {
         static void registerTheRewrittenProbeAndDenyTheDeniedOne() {
             PacketRewriters.registerClientboundPayload(RewrittenProbePayload.class,
                     (payload, context) -> new RewrittenProbePayload(BlockPos.ZERO));
-            RecordPayloadFold.deny(Set.of(DeniedProbePayload.TYPE.id()));
+            RecordPayloadFold.declare(Set.of(DeniedProbePayload.TYPE.id()), Map.of());
         }
 
         private static RecordProbePayload probeAt(BlockPos pos, Vec3 point, ChunkPos chunk) {
