@@ -28,19 +28,11 @@ public record DeckTransformation(SeamTransform blocks) {
     }
 
     public Vec3 apply(Vec3 pos) {
-        if (isIdentity()) {
-            return pos;
-        }
-
-        return new Vec3(this.blocks.applyX(pos.x), pos.y, this.blocks.applyZ(pos.z));
+        return this.blocks.apply(pos);
     }
 
     public BlockPos apply(BlockPos pos) {
-        if (isIdentity()) {
-            return pos;
-        }
-
-        return new BlockPos(this.blocks.applyCellX(pos.getX()), pos.getY(), this.blocks.applyCellZ(pos.getZ()));
+        return this.blocks.apply(pos);
     }
 
     public ChunkPos apply(ChunkPos chunk) {
@@ -54,30 +46,10 @@ public record DeckTransformation(SeamTransform blocks) {
     }
 
     public AABB apply(AABB box) {
-        if (isIdentity()) {
-            return box;
-        }
-
-        double firstX = this.blocks.applyX(box.minX);
-        double secondX = this.blocks.applyX(box.maxX);
-        double firstZ = this.blocks.applyZ(box.minZ);
-        double secondZ = this.blocks.applyZ(box.maxZ);
-        return new AABB(
-                Math.min(firstX, secondX), box.minY, Math.min(firstZ, secondZ),
-                Math.max(firstX, secondX), box.maxY, Math.max(firstZ, secondZ));
+        return this.blocks.apply(box);
     }
 
     public BoundingBox apply(BoundingBox box) {
-        if (isIdentity()) {
-            return box;
-        }
-
-        int firstX = this.blocks.applyCellX(box.minX());
-        int secondX = this.blocks.applyCellX(box.maxX());
-        int firstZ = this.blocks.applyCellZ(box.minZ());
-        int secondZ = this.blocks.applyCellZ(box.maxZ());
-        return new BoundingBox(
-                Math.min(firstX, secondX), box.minY(), Math.min(firstZ, secondZ),
-                Math.max(firstX, secondX), box.maxY(), Math.max(firstZ, secondZ));
+        return this.blocks.apply(box);
     }
 }
