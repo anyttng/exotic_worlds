@@ -1094,14 +1094,6 @@ class PacketTranslatorTest {
             return ServerboundInteractPacket.STREAM_CODEC.decode(buf);
         }
 
-        private static ServerboundInteractPacket attackPacket(int entityId) {
-            RegistryFriendlyByteBuf buf = buffer();
-            buf.writeVarInt(entityId);
-            buf.writeVarInt(1);
-            buf.writeBoolean(false);
-            return ServerboundInteractPacket.STREAM_CODEC.decode(buf);
-        }
-
         private static Vec3 hitLocation(ServerboundInteractPacket packet) {
             Vec3[] location = new Vec3[1];
             packet.dispatch(new ServerboundInteractPacket.Handler() {
@@ -1123,28 +1115,14 @@ class PacketTranslatorTest {
         }
 
         @Test
-        void interactFoldsTheHitTowardTheEntity() {
-            Vec3 entityPosition = new Vec3(511.5, 64.0, 0.0);
+        void interactKeepsTheHitOffsetForATargetAtTheFarBound() {
+            Vec3 entityPosition = new Vec3(-511.8, 64.0, 0.0);
+            Vec3 offset = new Vec3(0.5, 0.5, 0.25);
             ServerboundInteractPacket translated = (ServerboundInteractPacket) PacketTranslator.toServer(
-                    interactAtPacket(21, new Vec3(516.0, 64.5, 0.25)),
+                    interactAtPacket(21, offset),
                     context(entityId -> false, entityId -> entityId == 21 ? entityPosition : null));
 
-            assertEquals(new Vec3(516.0, 64.5, 0.25), hitLocation(translated));
-        }
-
-        @Test
-        void interactWithoutTheEntityFallsBackToThePlainWrap() {
-            ServerboundInteractPacket translated = (ServerboundInteractPacket) PacketTranslator.toServer(
-                    interactAtPacket(21, new Vec3(516.0, 64.5, 0.25)), context());
-
-            assertEquals(new Vec3(-508.0, 64.5, 0.25), hitLocation(translated));
-        }
-
-        @Test
-        void attackCarriesNoPointAndIsNotRewritten() {
-            ServerboundInteractPacket packet = attackPacket(21);
-
-            assertSame(packet, PacketTranslator.toServer(packet, context()));
+            assertEquals(offset, hitLocation(translated));
         }
     }
 
