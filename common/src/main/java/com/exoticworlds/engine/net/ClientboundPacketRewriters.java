@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import com.exoticworlds.accessors.ChunkPacketCopy;
 import com.exoticworlds.accessors.ChunkPacketPosition;
 import com.exoticworlds.engine.fold.SeamDelta;
 import com.exoticworlds.core.WorldFold;
@@ -98,10 +99,11 @@ final class ClientboundPacketRewriters {
             TranslationContext context) {
         ChunkPos clientPos = context.toClient(new ChunkPos(x, z), traffic);
 
-        ChunkPacketPosition accessor = (ChunkPacketPosition) packet;
+        Packet<?> copy = ((ChunkPacketCopy) packet).toroidal$copy();
+        ChunkPacketPosition accessor = (ChunkPacketPosition) copy;
         accessor.toroidal$setX(clientPos.x);
         accessor.toroidal$setZ(clientPos.z);
-        return packet;
+        return copy;
     }
 
     static Packet<?> forgetChunk(ClientboundForgetLevelChunkPacket packet, TranslationContext context) {

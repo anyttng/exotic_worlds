@@ -4,6 +4,7 @@ import static com.exoticworlds.engine.net.PacketTranslatorFixture.*;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -235,7 +236,10 @@ class PacketTranslatorTest {
             ClientboundLevelChunkWithLightPacket translated =
                     (ClientboundLevelChunkWithLightPacket) PacketTranslator.toClient(packet, context());
 
-            assertSame(packet, translated);
+            assertNotSame(packet, translated);
+            assertEquals(SERVER_CHUNK, new ChunkPos(packet.getX(), packet.getZ()));
+            assertSame(packet.getChunkData(), translated.getChunkData());
+            assertSame(packet.getLightData(), translated.getLightData());
             assertEquals(CLIENT_CHUNK.x, translated.getX());
             assertEquals(CLIENT_CHUNK.z, translated.getZ());
             assertTrue(translated.getChunkData().getHeightmaps().isEmpty());
@@ -257,7 +261,9 @@ class PacketTranslatorTest {
             ClientboundLightUpdatePacket translated =
                     (ClientboundLightUpdatePacket) PacketTranslator.toClient(packet, context());
 
-            assertSame(packet, translated);
+            assertNotSame(packet, translated);
+            assertEquals(SERVER_CHUNK, new ChunkPos(packet.getX(), packet.getZ()));
+            assertSame(packet.getLightData(), translated.getLightData());
             assertEquals(CLIENT_CHUNK.x, translated.getX());
             assertEquals(CLIENT_CHUNK.z, translated.getZ());
             assertTrue(translated.getLightData().getSkyUpdates().isEmpty());
