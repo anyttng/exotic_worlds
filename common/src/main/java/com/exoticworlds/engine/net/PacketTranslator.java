@@ -73,12 +73,8 @@ public final class PacketTranslator {
             SERVERBOUND_PAYLOAD_REWRITERS = new StartupRegistry<>("Serverbound payload rewriters");
 
     private static final Map<Class<?>, BiFunction<Packet<?>, TranslationContext, Packet<?>>> TO_CLIENT = Map.ofEntries(
-            Map.entry(ClientboundLevelChunkWithLightPacket.class, rewriter(
-                    (ClientboundLevelChunkWithLightPacket packet, TranslationContext context) ->
-                            ClientboundPacketRewriters.chunkPosition(packet, packet.x(), packet.z(), context))),
-            Map.entry(ClientboundLightUpdatePacket.class, rewriter(
-                    (ClientboundLightUpdatePacket packet, TranslationContext context) ->
-                            ClientboundPacketRewriters.chunkPosition(packet, packet.x(), packet.z(), context))),
+            Map.entry(ClientboundLevelChunkWithLightPacket.class, rewriter(ClientboundPacketRewriters::levelChunk)),
+            Map.entry(ClientboundLightUpdatePacket.class, rewriter(ClientboundPacketRewriters::lightUpdate)),
             Map.entry(ClientboundForgetLevelChunkPacket.class, rewriter(ClientboundPacketRewriters::forgetChunk)),
             Map.entry(ClientboundSetChunkCacheCenterPacket.class, rewriter(ClientboundPacketRewriters::chunkCacheCenter)),
             Map.entry(ClientboundChunksBiomesPacket.class, rewriter(ClientboundPacketRewriters::chunkBiomes)),
