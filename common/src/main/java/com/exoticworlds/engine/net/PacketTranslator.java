@@ -51,7 +51,6 @@ import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundTrackedWaypointPacket;
 import net.minecraft.network.protocol.game.ServerboundBlockEntityTagQueryPacket;
-import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundJigsawGeneratePacket;
 import net.minecraft.network.protocol.game.ServerboundPickItemFromBlockPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
@@ -152,7 +151,6 @@ public final class PacketTranslator {
             Map.entry(ServerboundPickItemFromBlockPacket.class, rewriter(ServerboundPacketRewriters::pickItemFromBlock)),
             Map.entry(ServerboundSignUpdatePacket.class, rewriter(ServerboundPacketRewriters::signUpdate)),
             Map.entry(ServerboundBlockEntityTagQueryPacket.class, rewriter(ServerboundPacketRewriters::blockEntityTagQuery)),
-            Map.entry(ServerboundInteractPacket.class, rewriter(ServerboundPacketRewriters::interact)),
             Map.entry(ServerboundJigsawGeneratePacket.class, rewriter(ServerboundPacketRewriters::jigsawGenerate)),
             Map.entry(ServerboundSetCommandBlockPacket.class, rewriter(ServerboundPacketRewriters::setCommandBlock)),
             Map.entry(ServerboundSetJigsawBlockPacket.class, rewriter(ServerboundPacketRewriters::setJigsawBlock)),

@@ -1083,22 +1083,14 @@ class PacketTranslatorTest {
         }
 
         @Test
-        void interactFoldsTheHitTowardTheEntity() {
-            Vec3 entityPosition = new Vec3(511.5, 64.0, 0.0);
+        void interactKeepsTheHitOffsetForATargetAtTheFarBound() {
+            Vec3 entityPosition = new Vec3(-511.8, 64.0, 0.0);
+            Vec3 offset = new Vec3(0.5, 0.5, 0.25);
             ServerboundInteractPacket translated = (ServerboundInteractPacket) PacketTranslator.toServer(
-                    new ServerboundInteractPacket(21, InteractionHand.MAIN_HAND, new Vec3(516.0, 64.5, 0.25), false),
+                    new ServerboundInteractPacket(21, InteractionHand.MAIN_HAND, offset, false),
                     context(entityId -> false, entityId -> entityId == 21 ? entityPosition : null));
 
-            assertEquals(new Vec3(516.0, 64.5, 0.25), translated.location());
-        }
-
-        @Test
-        void interactWithoutTheEntityFallsBackToThePlainWrap() {
-            ServerboundInteractPacket translated = (ServerboundInteractPacket) PacketTranslator.toServer(
-                    new ServerboundInteractPacket(21, InteractionHand.MAIN_HAND, new Vec3(516.0, 64.5, 0.25), false),
-                    context());
-
-            assertEquals(new Vec3(-508.0, 64.5, 0.25), translated.location());
+            assertEquals(offset, translated.location());
         }
     }
 

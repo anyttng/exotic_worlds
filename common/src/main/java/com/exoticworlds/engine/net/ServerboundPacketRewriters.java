@@ -5,7 +5,6 @@ import com.exoticworlds.engine.fold.SeamHit;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ServerboundBlockEntityTagQueryPacket;
-import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundJigsawGeneratePacket;
 import net.minecraft.network.protocol.game.ServerboundPickItemFromBlockPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
@@ -19,7 +18,6 @@ import net.minecraft.network.protocol.game.ServerboundTestInstanceBlockActionPac
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 
 final class ServerboundPacketRewriters {
     static ServerboundUseItemOnPacket useItemOn(ServerboundUseItemOnPacket packet, TranslationContext context) {
@@ -50,17 +48,6 @@ final class ServerboundPacketRewriters {
     static ServerboundBlockEntityTagQueryPacket blockEntityTagQuery(ServerboundBlockEntityTagQueryPacket packet, TranslationContext context) {
         return new ServerboundBlockEntityTagQueryPacket(
                 packet.getTransactionId(), context.toServer(packet.getPos()));
-    }
-
-    static ServerboundInteractPacket interact(ServerboundInteractPacket packet, TranslationContext context) {
-        Vec3 targetPosition = context.entityPosition().apply(packet.entityId());
-        Vec3 location = packet.location();
-
-        Vec3 serverLocation = targetPosition == null
-                ? context.toServer(location)
-                : context.transformer().nearestCopy(targetPosition, location);
-        return new ServerboundInteractPacket(
-                packet.entityId(), packet.hand(), serverLocation, packet.usingSecondaryAction());
     }
 
     static ServerboundJigsawGeneratePacket jigsawGenerate(ServerboundJigsawGeneratePacket packet, TranslationContext context) {
