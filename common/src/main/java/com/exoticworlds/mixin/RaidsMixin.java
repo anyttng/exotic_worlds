@@ -1,6 +1,5 @@
 package com.exoticworlds.mixin;
 
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -10,6 +9,7 @@ import com.exoticworlds.accessors.LevelBindable;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
+import com.exoticworlds.engine.level.BoundLevelFold;
 import com.exoticworlds.engine.seam.SeamRange;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -26,19 +26,19 @@ import net.minecraft.world.entity.raid.Raids;
 @Mixin(Raids.class)
 public class RaidsMixin implements LevelBindable {
     @Unique
-    private @Nullable ServerLevel toroidal$level;
+    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
 
     @Override
     public void toroidal$bindLevel(ServerLevel level) {
-        this.toroidal$level = level;
+        this.toroidal$bound.bind(level);
     }
 
     @WrapOperation(
             method = "getNearbyRaid",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
     private double toroidal$raidDistanceThroughSeam(BlockPos raidCenter, Vec3i pos, Operation<Double> original) {
-        ServerLevel level = this.toroidal$level;
-        return level == null ? original.call(raidCenter, pos) : SeamRange.sqr(level, raidCenter, pos);
+        WorldFold transformer = this.toroidal$bound.wrapped();
+        return transformer == null ? original.call(raidCenter, pos) : SeamRange.sqr(transformer, raidCenter, pos);
     }
 
     @WrapOperation(

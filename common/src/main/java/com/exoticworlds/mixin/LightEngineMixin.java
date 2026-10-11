@@ -9,12 +9,9 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.accessors.TransformerHolder;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopAttachments;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LightChunkGetter;
 import net.minecraft.world.level.lighting.LightEngine;
 
@@ -37,10 +34,7 @@ public abstract class LightEngineMixin implements TransformerHolder {
     @Override
     public WorldFold toroidal$transformer() {
         if (this.toroidal$transformer == null) {
-            BlockGetter level = this.chunkSource.getLevel();
-            this.toroidal$transformer = level instanceof Level realLevel
-                    ? WorldLoopAttachments.transformerOf(realLevel)
-                    : WorldFolds.NOOP;
+            this.toroidal$transformer = WorldLoopAttachments.transformerIfLevel(this.chunkSource.getLevel());
         }
 
         return this.toroidal$transformer;

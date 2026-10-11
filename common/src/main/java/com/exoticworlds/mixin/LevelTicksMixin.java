@@ -1,6 +1,5 @@
 package com.exoticworlds.mixin;
 
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.exoticworlds.accessors.LevelBindable;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFold.Folded;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.level.BoundLevelFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -22,24 +21,17 @@ import net.minecraft.world.ticks.ScheduledTick;
 @Mixin(LevelTicks.class)
 public class LevelTicksMixin<T> implements LevelBindable {
     @Unique
-    private @Nullable ServerLevel toroidal$level;
-
-    @Unique
-    private WorldFold toroidal$transformer;
+    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
 
     @Override
     public void toroidal$bindLevel(ServerLevel level) {
-        this.toroidal$level = level;
+        this.toroidal$bound.bind(level);
     }
 
     @ModifyVariable(method = "schedule", at = @At("HEAD"), argsOnly = true)
     private ScheduledTick<T> toroidal$fileTickAtPhysicalPos(ScheduledTick<T> tick) {
-        if (this.toroidal$level == null) {
-            return tick;
-        }
-
-        WorldFold transformer = toroidal$transformer();
-        if (!transformer.isWrapped()) {
+        WorldFold transformer = this.toroidal$bound.wrapped();
+        if (transformer == null) {
             return tick;
         }
 
@@ -64,26 +56,14 @@ public class LevelTicksMixin<T> implements LevelBindable {
 
     @Unique
     private BlockPos toroidal$foldQueried(BlockPos pos) {
-        if (this.toroidal$level == null) {
-            return pos;
-        }
-
-        WorldFold transformer = toroidal$transformer();
-        if (!transformer.isWrapped()) {
-            return pos;
-        }
-
-        return transformer.fold(pos);
+        WorldFold transformer = this.toroidal$bound.wrapped();
+        return transformer == null ? pos : transformer.fold(pos);
     }
 
     @Inject(method = "clearArea", at = @At("HEAD"), cancellable = true)
     private void toroidal$clearEachCopyOfTheArea(BoundingBox area, CallbackInfo ci) {
-        if (this.toroidal$level == null) {
-            return;
-        }
-
-        WorldFold transformer = toroidal$transformer();
-        if (!transformer.isWrapped() || !transformer.crossesBounds(area)) {
+        WorldFold transformer = this.toroidal$bound.wrapped();
+        if (transformer == null || !transformer.crossesBounds(area)) {
             return;
         }
 
@@ -94,14 +74,5 @@ public class LevelTicksMixin<T> implements LevelBindable {
         for (Folded<BoundingBox> piece : transformer.split(area)) {
             ticks.clearArea(piece.value());
         }
-    }
-
-    @Unique
-    private WorldFold toroidal$transformer() {
-        if (this.toroidal$transformer == null) {
-            this.toroidal$transformer = WorldLoopAttachments.transformerOf(this.toroidal$level);
-        }
-
-        return this.toroidal$transformer;
     }
 }
