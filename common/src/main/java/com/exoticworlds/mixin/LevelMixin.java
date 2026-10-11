@@ -54,7 +54,7 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
     private @Nullable Boolean toroidal$sweepsCrumbs;
 
     @Unique
-    private @Nullable TerrainMasks toroidal$terrainMasks;
+    private final TerrainMasks toroidal$terrainMasks = new TerrainMasks();
 
     @Unique
     private final AtomicBoolean toroidal$periodicityClaimed = new AtomicBoolean();
@@ -170,10 +170,6 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
 
     @Override
     public TerrainMasks toroidal$terrainMasks() {
-        if (this.toroidal$terrainMasks == null) {
-            this.toroidal$terrainMasks = new TerrainMasks();
-        }
-
         return this.toroidal$terrainMasks;
     }
 
