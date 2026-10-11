@@ -2,9 +2,7 @@
 
 Exotic Worlds exposes one package to other mods: `com.exoticworlds.api.v1`. It does three things. It answers what the world's shape is and folds coordinates into it, so a mod that measures distance, keys storage by position or draws a marker keeps working when the world loops. It lets a mod carry its own packets, particles and rigid groups across the seam, which nothing but that mod's author can do for them. And it lets a mod declare a world shape of its own, which the player then picks on the create-world screen beside the ones this mod ships.
 
-Everything outside that package is internal — it moves between releases without notice, and mixins into it are unsupported.
-
-Reading a shape is the first part of this page; making your own mechanism work on one starts at [Making your own mechanism cross the seam](#making-your-own-mechanism-cross-the-seam), and declaring a shape at [Declaring a world shape](#declaring-a-world-shape).
+Everything outside that package is internal: it moves between releases without notice, and mixins into it are unsupported.
 
 ## Depending on it
 
@@ -21,13 +19,13 @@ dependencies {
 }
 ```
 
-The API version is the mod version; `maven-metadata.xml` under the coordinate lists what is published. Sources and javadoc are published beside the jar.
+The API version is the mod version; `maven-metadata.xml` under the coordinate lists what is published. Sources and javadoc are published beside the jar. The API follows semantic versioning against the mod version: within a major version, members are not removed or changed incompatibly.
 
-`compileOnly` is the point: the artifact carries the API package alone, and at runtime the classes come from the copy of Exotic Worlds the player installed. Declare the mod as an optional dependency of yours and check that it is loaded before you touch any `com.exoticworlds` class — the mod id is `exotic_worlds`. A class that names one of them fails to load when the mod is absent, so keep those calls in a class you reach only after the check, not in a field initialiser of a class that always loads.
+`compileOnly` is the point: the artifact carries the API package alone, and at runtime the classes come from the copy of Exotic Worlds the player installed. Declare the mod as an optional dependency of yours and check that it is loaded before you touch any `com.exoticworlds` class; the mod id is `exotic_worlds`. A class that names one of them fails to load when the mod is absent, so keep those calls in a class you reach only after the check, not in a field initialiser of a class that always loads.
 
 ## Server side
 
-`ExoticWorldsApi.shapeOf(level)` answers the geometry of a level whose own engine knows its bounds — a `ServerLevel`, or anything delegating to one. It is empty when no axis of that level loops, which is the normal answer on a world that is not toroidal.
+`ExoticWorldsApi.shapeOf(level)` answers the geometry of a level whose own engine knows its bounds: a `ServerLevel`, or anything delegating to one. It is empty when no axis of that level loops, which is the normal answer on a world that is not toroidal.
 
 ```java
 Optional<ToroidalShape> shape = ExoticWorldsApi.shapeOf(level);
@@ -42,13 +40,13 @@ The view is immutable and cheap; hold it for as long as the level lives.
 
 ## Client side
 
-A client level's own engine believes the world is infinite. That is deliberate — it is what keeps vanilla rendering and chunk loading working across the seam — and it is why `ExoticWorldsApi.shapeOf` answers empty for a `ClientLevel` even in a world that loops. The bounds the server declared ride apart on the client level, and `ExoticWorldsClientApi` is what reads them:
+A client level's own engine believes the world is infinite. That is deliberate: it is what keeps vanilla rendering and chunk loading working across the seam, and it is why `ExoticWorldsApi.shapeOf` answers empty for a `ClientLevel` even in a world that loops. The bounds the server declared ride apart on the client level, and `ExoticWorldsClientApi` is what reads them:
 
 ```java
 Optional<ToroidalShape> shape = ExoticWorldsClientApi.shapeOf(clientLevel);
 ```
 
-Every looping level arrives on login and on dimension change, before the first chunk, so a shape is there by the time anything is drawn. `ExoticWorldsClientApi.shapeOf(dimension)` takes a `ResourceKey<Level>` instead and answers for a dimension the player is not standing in — what a fullscreen map browsing another dimension folds by.
+Every looping level arrives on login and on dimension change, before the first chunk, so a shape is there by the time anything is drawn. `ExoticWorldsClientApi.shapeOf(dimension)` takes a `ResourceKey<Level>` instead and answers for a dimension the player is not standing in, which is what a fullscreen map browsing another dimension folds by.
 
 Client coordinates near the seam run whole world widths away from the server's, because the client holds whichever copy it was sent. Fold before you key anything by position, and measure against the player rather than against raw coordinates.
 
@@ -56,11 +54,13 @@ Client coordinates near the seam run whole world widths away from the server's, 
 
 `ToroidalShape` offers three ways to move a coordinate, and they are not interchangeable:
 
-- **`fold`** — the canonical position inside the world's bounds. Use it wherever a position becomes a key: a map, a set, a saved record, a hash. Two coordinates a lap apart are the same place, and only `fold` makes them the same key.
-- **`nearestCopy(ref, target)`** — the copy of `target` closest to `ref`, one axis at a time. Use it wherever something is drawn or compared: a renderer, a range check, a squared distance. Something just across the seam reads as beside the reference instead of a world away.
-- **`shortestDelta(from, to)`** — the vector from one to the other, measured through the seam where that is shorter. Use it wherever a direction or a signed distance is the answer: a waypoint arrow, a compass, a distance readout. It equals `nearestCopy(from, to).subtract(from)`.
+- **`fold`**: the canonical position inside the world's bounds. Use it wherever a position becomes a key: a map, a set, a saved record, a hash. Two coordinates a lap apart are the same place, and only `fold` makes them the same key.
+- **`nearestCopy(ref, target)`**: the copy of `target` closest to `ref`. Use it wherever something is drawn or compared: a renderer, a range check, a squared distance. Something just across the seam reads as beside the reference instead of a world away.
+- **`shortestDelta(from, to)`**: the vector from one to the other, measured through the seam where that is shorter. Use it wherever a direction or a signed distance is the answer: a waypoint arrow, a compass, a distance readout. It equals `nearestCopy(from, to).subtract(from)`.
 
-Ask `loops(axis)` before any per-axis member — `minChunk`, `maxBlock`, `widthChunks` and the rest throw `IllegalArgumentException` on an axis that does not loop, and `Direction.Axis.Y` never loops.
+Two more answer for a rectangle rather than a reference point, which is what a map needs. `copiesMeeting(box)` lists every copy of the world that meets a horizontal rectangle, each as the `SeamShift` that carries the world there: a map asks it once per frame to know which tiles to draw. `copiesInside(box, pos)` lists every copy of one position inside the rectangle, in `Vec3` and `BlockPos` forms: a marker on that map asks it. Near a seam, or where the rectangle is wider than the world, both answer more than one copy. Build a copy from these, never by adding `widthBlocks`: on a skewed shape a copy one row over is also moved sideways.
+
+Ask `loops(axis)` before any per-axis member: `minChunk`, `maxBlock`, `widthChunks` and the rest throw `IllegalArgumentException` on an axis that does not loop, and `Direction.Axis.Y` never loops.
 
 ## The `==` guarantee
 
@@ -73,301 +73,27 @@ if (folded != pos) {
 }
 ```
 
-`shortestDelta` is the one exception — its result is neither of its arguments, so it can only answer by value.
+`shortestDelta` is the one exception: its result is neither of its arguments, so it can only answer by value.
 
 ## The two capability flags
 
-`ToroidalShape` carries two flags that describe folds this mod does not yet hand out. Every shape a player can create today — the torus and the cylinder — answers `true` to both, because the engine refuses to build a fold that answers `false`. They are in the API so that code written now survives the day one lands.
+`ToroidalShape` carries two flags that say which shortcuts a shape allows. A plain torus and a cylinder answer `true` to both.
 
-`decomposesPerAxis()` is false where crossing a seam on one axis moves or flips the other. There the per-axis members — `foldCoord`, `foldBlock`, `foldChunk`, `nearestCoord` — throw `IllegalStateException`, because one axis cannot be folded without the other; only the whole-position folds answer correctly. Reach for `fold(pos)` over `foldBlock(axis, coord)` where either will do, and the question never arises.
+`decomposesPerAxis()` is false where crossing the seam on one axis also moves or flips the other. A player can create such a world today: a toroidal one with a shift per lap, where crossing the Z seam also moves X by the chosen number of chunks. There the per-axis members (`foldCoord`, `foldBlock`, `foldChunk`, `nearestCoord`) throw `IllegalStateException`, because one axis cannot be folded without the other; only the whole-position folds answer correctly. Reach for `fold(pos)` over `foldBlock(axis, coord)` where either will do, and the question never arises.
 
-`preservesLocalIndices()` is false on a shape whose seam mirrors, where crossing it reverses a position's index inside its own chunk. Anything keyed by the low bits of a coordinate must be rebuilt across such a fold rather than carried over.
+`preservesLocalIndices()` is false on a shape whose seam mirrors, where crossing it reverses a position's index inside its own chunk. Anything keyed by the low bits of a coordinate must be rebuilt across such a fold rather than carried over. No shape answers `false` yet, because the engine refuses to build a mirrored fold; the flag is in the API so that code written now survives the day one lands.
 
-Across a mirrored seam a direction, a velocity or an offset that travelled with a position points the wrong way. The `Oriented` forms — `foldOriented`, `nearestCopyOriented` — report what the fold did, and `applyToDelta` carries a vector through the same turn:
+Across a mirrored seam a direction, a velocity or an offset that travelled with a position points the wrong way. The `Oriented` forms (`foldOriented`, `nearestCopyOriented`) report what the fold did, and `applyToDelta` carries a vector through the same turn:
 
 ```java
 ToroidalShape.Oriented<Vec3> folded = shape.foldOriented(position);
 Vec3 heading = folded.orientation().applyToDelta(velocity);
 ```
 
-`Orientation.IDENTITY` is the only orientation an unmirrored shape ever reports — which today means the only one you will see — and `preservesHandedness()` tells a half turn from a genuine mirror.
+`Orientation.IDENTITY` is the only orientation an unmirrored shape ever reports (which today means the only one you will see), and `preservesHandedness()` tells a half turn from a genuine mirror.
 
-## Making your own mechanism cross the seam
+## The rest of the API
 
-Everything above moves a coordinate you are holding. This part is about the coordinates you are *sending*, and about groups of them that have to stay together.
-
-Every vanilla packet that carries a world position is already rewritten on its way out — the server's canonical position becomes whichever copy that client is holding, and back again on the way in. A payload of yours is too, when it is a record that keeps each world position in a component of its own; for the rest, a registered rewriter says which field is a position.
-
-### A payload of your own
-
-A payload declared as a record needs no code. Each component whose declared type is `BlockPos`, `Vec3`, `ChunkPos`, `SectionPos` or `GlobalPos`, or an `Optional` or a `List` of one, is folded on its way out and on its way back, and the record is rebuilt through its canonical constructor; a `GlobalPos` folds only in the dimension the player stands in. A record with no such component, or none that moved, is handed on as it is.
-
-What a record cannot say takes a rewriter: a position written into a byte array by hand, a position inside a component of any other type, a `long` holding a packed position.
-
-```java
-PacketRewriters.registerClientboundPayload(StationCursorPayload.class, (payload, context) ->
-        new StationCursorPayload(context.toClient(payload.target())));
-
-PacketRewriters.registerServerboundPayload(StationPickPayload.class, (payload, context) ->
-        new StationPickPayload(context.toServer(payload.picked())));
-```
-
-`SeamContext` is the two frames one connection has. `toClient` takes a canonical position to the copy that client holds — the one to write into anything it will draw, place or measure against. `toServer` folds a position the client sent back into the world's bounds. Both come in `BlockPos`, `Vec3` and (clientbound) `ChunkPos` forms, both hand the argument instance itself back when nothing moved, and `context.shape()` is the level's whole geometry for anything the two do not cover.
-
-Register from your mod's initialiser, beside everything else: the table closes at `MinecraftServer.runServer`, before the levels load, and a later registration throws rather than being silently half-effective. A rewriter runs for payloads of that exact class, on a folding level and nowhere else — on an ordinary world nothing you registered is ever called. Where one is registered the record fold does not run for that class; the record fold spells each position the way `toClient` and `toServer` do, so moving a payload between the two routes changes nothing its receiver reads.
-
-A context belongs to the packet being rewritten. Never hold one past the call.
-
-A `BlockPos` component that is not a world position (an offset, a size, a position local to a contraption) is folded all the same, and two positions that belong together, such as the corners of one selection, are folded each on its own, so a pair straddling the seam arrives a world apart. Say what the type cannot in the `positions.json` file of your namespace, described in the next section: a `payloads` row, keyed by the payload type id, names record components and gives each a role.
-
-```json
-{
-  "payloads": {
-    "your_mod:structure_bounds": { "origin": "world", "size": "untouched" },
-    "your_mod:selection": { "from": "group", "to": "group" }
-  }
-}
-```
-
-- `world` folds the component as a world position, as it would be unnamed.
-- `untouched` crosses as sent, both ways.
-- `group` members move together, by the one move that takes the first of them (in the record's component order, past an empty `Optional` or a `null`) into the world's bounds on the way in, or to the copy nearest the player on the way out. The others keep their distance from it, past the bounds if that is where it puts them.
-
-A component the row does not name folds by its type. A name the record does not declare is skipped, with a warning in the server log. A row reaches the record's own components, not those of a record nested in one. Where two namespaces give one component different roles, it folds by its type and the server log says so.
-
-To leave a whole payload alone, list its id under `deny`: it then crosses untouched in both directions, whatever a `payloads` row says.
-
-```json
-{
-  "deny": [ "your_mod:raw_cursor" ]
-}
-```
-
-The rows of every namespace are joined on the server; a rewriter registered for the class still runs.
-
-### Positions your block entity or entity stores
-
-A block entity's sync tag and an entity's spawn data are NBT, and nothing in a tag says which number is a world position. Name those keys in a data file, and each one reaches the client on the copy of the world that client holds — no code, and no dependency on Exotic Worlds. The file ships in your own jar or in a datapack, one per namespace:
-
-`data/<namespace>/exotic_worlds/positions.json`
-
-```json
-{
-  "block_entities": {
-    "your_mod:relay": {
-      "Partner": "block_pos",
-      "Link": { "Target": "block_pos" },
-      "Queue": [ { "Destination": "vec3_list" } ]
-    }
-  },
-  "entities": {
-    "your_mod:tether": {
-      "Anchor": "packed_long"
-    }
-  }
-}
-```
-
-A row is keyed by the block entity type or entity type id. Inside it, a key whose value is a shape is a position at the top level of the tag; a key whose value is an object names a compound, and each key inside it is a position in that compound; a key whose value is a list of one object names a list of compounds, and each key of that object is a position in every compound of the list. One level of nesting is all a row describes.
-
-A shape says how the position is written:
-
-- `block_pos` — an int array of three, as `BlockPos.CODEC` writes it
-- `packed_long` — a long, as `BlockPos.asLong` writes it
-- `vec3_list` — a list of three doubles, as `Vec3.CODEC` writes it
-
-A value whose tag type does not match its shape is left as it is.
-
-`block_entities` rows apply to the tag a client receives for the block entity, with its chunk or on its own update. `entities` rows apply on NeoForge alone, to the spawn data of an entity implementing `IEntityWithComplexSpawn` whose buffer opens with a compound tag; Fabric has no such buffer.
-
-The server reads every namespace's file at start and on `/reload`, and sends the rows to each client as it joins and after each reload; a resource pack on the client adds none. A row naming an id no mod registers is logged and skipped. Where Exotic Worlds already carries a position at the same key for that block entity or entity, its own row is kept and yours is logged.
-
-### Positions your item components store
-
-A data component that holds a world position reaches the client as the server stored it, and a stack is not re-sent as the player walks, so the client reads it seated instead. Name the component type id in the same file:
-
-```json
-{
-  "components": [ "your_mod:linked_anchor" ]
-}
-```
-
-On a toroidal world, a read of a named component through `ItemStack.get` or `getOrDefault` on the client's own thread answers the copy nearest the player; the stack keeps the server's value, and a read through `getComponents()` is not seated. The value's form is read as a payload record's is: a `BlockPos`, `Vec3`, `ChunkPos`, `SectionPos` or `GlobalPos`, an `Optional` or a `List` of one, or a record holding them; a `GlobalPos` is seated only in the dimension the player stands in.
-
-A stack a creative-mode client puts into a slot has each named component folded back into the world's bounds on its way in, so a seated value your client code writes back into the stack never reaches the server as it was written.
-
-A component whose `BlockPos` is not a world position must not be named. `minecraft:lodestone_tracker` is named already. The list is read and sent like the rows above; an id naming no registered component type is logged and skipped.
-
-### A particle type of your own
-
-```java
-PacketRewriters.registerParticle(BeaconTrailOption.class, (particle, context, clientOrigin) ->
-        new BeaconTrailOption(context.toClient(particle.destination())));
-```
-
-`clientOrigin` is where the particle itself lands in the client's frame. Seat a position the particle points at near that rather than near the player, or a long trail flips across the seam halfway along.
-
-### A group that has to stay rigid
-
-A contraption, a vehicle, a multiblock, a set of linked nodes — anything whose members are meaningless apart. Seating each member with `nearestCopy` tears it: two blocks four apart, but on opposite sides of half a world width from your reference, pick different copies and end up a world away from each other.
-
-Take one shift from an anchor instead, and apply it to every member:
-
-```java
-SeamShift shift = shape.shiftToNearestCopy(player.position(), contraption.anchor());
-for (BlockPos member : contraption.blocks()) {
-    render(shift.apply(member));
-}
-Vec3 heading = shift.orientation().applyToDelta(contraption.velocity());
-```
-
-`apply` comes in `Vec3`, `BlockPos`, `ChunkPos` and `AABB` forms; the box form moves rigidly too, so its size never changes and it is never split at a seam. `isIdentity()` is the normal answer for a group already in the right copy, and there every `apply` hands its argument straight back.
-
-A shift is not a vector, which is why subtracting a seated anchor from the original and adding that difference to the rest is wrong: across a seam that mirrors, the shift also turns the space it moves. `orientation()` is that turn, and `applyToDelta` carries a velocity or a facing through it.
-
-`ToroidalShape.nearestCopy(ref, box)` is the same rigid move for a single box you do not need a shift object for.
-
-### Anchors the client already has
-
-```java
-BlockPos seated = ClientAnchors.nearestToCamera(marker);
-```
-
-`ClientAnchors` reads the anchor off the running client, so you state which one you mean and nothing else: `nearestToPlayer` in `BlockPos`, `Vec3` and `ChunkPos`, `nearestToCamera` for a point. Reaching for the wrong one shows — something drawn folds toward the camera, and in third person or a spectator's view that is not where the player is.
-
-With no level, no player or no folding world every member hands the argument straight back, so a call needs no guard of its own.
-
-`ClientAnchors.heldCopy` answers a different question: which copy of a position the client is *holding*, not which is nearest. A client near a seam is sent one copy of a chunk and not the others, and which one is the server's choice. Anything you key by a block position on the client — a block entity, a rendered overlay, a cached state — has to be keyed by the copy that is actually there:
-
-```java
-BlockPos held = ClientAnchors.heldCopy(canonical);
-if (held == null) {
-    return;
-}
-```
-
-`null` means the client holds none of them. Treat it as "not loaded"; using the canonical position instead puts your entry on a chunk that is not there.
-
-## Declaring a world shape
-
-A shape is one declaration: an id, the settings it starts from, what it writes into the world's dimensions at creation, and how it reads itself back out of an existing world.
-
-```java
-public static final ShapeModule<BandSettings> MODULE = ShapeModule.of(
-        ResourceLocation.fromNamespaceAndPath("your_mod", "band"),
-        BandSettings.DEFAULT,
-        BandDimensions::apply,
-        BandDimensions::read);
-```
-
-`MODULE.register()` enrols it. Call that from your mod's initialiser: the registry closes at `MinecraftServer.runServer`, before the levels load, and a `register` past that throws instead of being silently half-effective.
-
-The settings type is yours and Exotic Worlds never looks inside it. `MODULE.settings()` is what a Customize screen reads and `MODULE.settings(chosen)` what it writes back; the module holds the player's choice until the world is made.
-
-The shape's name and tooltip come from `gui.<namespace>.world_shape.<path>` and that key plus `.hint` — for the module above, `gui.your_mod.world_shape.band` and `gui.your_mod.world_shape.band.hint`.
-
-### The geometry it declares
-
-`LoopSpans` is the whole of it: which horizontal axes loop and over what span of chunks. Spans are half-open — `minChunk` is the first chunk inside the world, `maxChunk` the first one past it.
-
-```java
-LoopSpans.ofWidth(24);                        // both axes, 24 chunks, centred on the origin
-LoopSpans.ofWidths(24, 48);                   // X over 24 chunks, Z over 48, each centred
-LoopSpans.ofWidth(Direction.Axis.Z, 24);      // Z alone; X runs to the vanilla world border
-LoopSpans.of(Direction.Axis.X, -12, 12);      // an explicit span
-```
-
-Which flat surface the world ends up being is read off the spans, never declared: both axes give a torus, one gives a cylinder, neither gives an ordinary world. `scaledDown(scale)` divides every looping axis and re-centres — how the nether is normally derived from the overworld, so the vanilla portal ratio still lands inside the world.
-
-`ShapeDimensions` writes those spans into the three vanilla stems, and reads them back:
-
-```java
-public static WorldDimensions apply(WorldDimensions dimensions, BandSettings settings) {
-    LoopSpans spans = settings.spans();
-    return ShapeDimensions.withSpans(dimensions, spans, spans.scaledDown(8), spans, settings.options());
-}
-
-public static @Nullable BandSettings read(WorldDimensions dimensions) {
-    LoopSpans spans = ShapeDimensions.spansOf(dimensions, LevelStem.OVERWORLD);
-    if (spans == null || spans.loops(Direction.Axis.X) || !spans.loops(Direction.Axis.Z)) {
-        return null;
-    }
-
-    return new BandSettings(spans, ShapeDimensions.optionsOf(dimensions, LevelStem.OVERWORLD));
-}
-```
-
-`read` is asked of every registered shape when an existing world is opened, and the first one to answer non-null owns it. So refuse anything you did not write: check which axes loop, not merely that a shape is there. `spansOf` answers `null` for a stem carrying no shape of ours, and for one whose axes do not fold independently — geometry this API cannot declare.
-
-The dimensions handed to `apply` have had any earlier shape stripped, so state your whole geometry rather than amending someone else's. A stem whose generator cannot take a shape is left alone.
-
-### The settings screen
-
-`ShapeCustomizers` maps the shape's id to the screen behind the Customize button; a shape with no customizer registered leaves that button dark. Register it from the client side only.
-
-```java
-ShapeCustomizers.register(MODULE.id(), parent -> new BandSettingsScreen(parent, MODULE.settings(), MODULE::settings));
-```
-
-## Declaring a world option
-
-A world option is a value the player picks at creation, stored in the world and read back at load. It is a declaration, not a screen: the codec key, where it sits among the other options, its codec and its default.
-
-```java
-public static final WorldOption<Boolean> OPTION =
-        new WorldOption<>("band_floor", 100, Codec.BOOL, Boolean.FALSE);
-
-WorldOptions.register(OPTION);
-```
-
-The key is written into the world's generators and must be unique across every mod. `position` orders the option against the others on a settings screen; equal positions fall back to the key.
-
-`GenerationOptions` is the value set a world carries — `get(option)` to read, `with(option, value)` to write, `GenerationOptions.DEFAULT` to start from. Only a value that differs from its option's default is written to the world file, so an option nobody touched costs nothing on disk.
-
-The client half is one control per option:
-
-```java
-WorldOptionControls.register(OPTION, BandFloorControl::new);
-```
-
-A `WorldOptionControl` adds its own widgets, commits its value into the options, and may veto **Done** while its value is unusable. It reaches the screen around it only through `WorldOptionContext` — the parent screen, the loop width the screen states on each axis (`loopChunkWidth(axis)`; the no-argument form answers the narrower one), the current options, a change signal and a rebuild request. A shape's settings screen builds them all with `WorldOptionControls.createAll(context)`, in registry order.
-
-## Hooking a generation moment
-
-`GenerationHooks.atRandomState(key, hook)` runs a hook as a level's `RandomState` finishes building — the moment its noise router exists and nothing has sampled it yet, so rewriting a noise in that router still reaches every chunk.
-
-```java
-GenerationHooks.atRandomState("band_floor", (randomState, shape, options, seaLevel) -> {
-    if (shape.loops(Direction.Axis.X) || !shape.loops(Direction.Axis.Z) || !options.get(OPTION)) {
-        return;
-    }
-
-    liftTheCoastNoise(randomState.router(), shape.widthBlocks(Direction.Axis.Z));
-});
-```
-
-**A hook gates itself.** Every registered hook runs for every folding level of every world, whatever shape made it and whichever mod declared that shape — a hook is not scoped to the shape it was registered beside. A world builds one `RandomState` per dimension, so it runs once for the overworld, once for the nether and once for the End. Read `shape` and `options` and return early unless both are what the hook is for; reaching for a span on an axis that does not loop throws.
-
-The key orders the hooks against one another and, like an option key, must be unique across every mod. Registration closes at the same boundary as everything else.
-
-## Generating terrain outside the chunk map
-
-A mod that computes terrain itself — an LOD generator sampling noise on its own worker threads, a preview, a pre-generator — reads an unbounded vanilla world on a toroidal level unless it reads the level's field the way the chunk map does. `GenerationProbe` carries what that takes.
-
-**Sample the level's own router, with the fold bound.** Read the `RandomState` the level already holds, `serverLevel.getChunkSource().randomState()`, and sample it inside `GenerationProbe.withFold`. Only the chunk map's own steps bind the fold on their thread, so without the call a noise the chunk map reads folded answers the unbounded value, and heights and biomes stop matching the world a player walks into.
-
-```java
-if (ExoticWorldsApi.shapeOf(level).isPresent()) {
-    GenerationProbe.withFold(level, () -> sampleColumns(level, region));
-} else {
-    sampleColumns(level, region);
-}
-```
-
-The binding is per thread and lasts for the call, so each worker thread wraps its own batch. `GenerationProbe.randomState(level, seed)` builds the router the level's shape and options would give another seed; a router built by hand with `RandomState.create` carries no fold.
-
-**Key by the folded position.** A column past the world's edge is a copy of one inside it — store and look it up by `fold`, as [Which operation to reach for](#which-operation-to-reach-for) describes.
-
-**Clear what the chunk map clears.** On a toroidal level the chunk map removes masses of terrain left detached from the ground. `GenerationProbe.sweepCrumbs(level, chunk)` applies that pass to a chunk filled outside it, after the carvers; `clearBorderCrumbs` applies the pass over a 3 × 3 window that runs after lighting.
-
-**What the API does not cover.** Features, structures and End spikes a mod places with its own code miss what a toroidal level changes about them: structures sit on a folded sector grid, the level adds structure starts of its own, and none of it reaches code that computes placement itself.
+- [Making your own mechanism cross the seam](modding/crossing.md): packets, particles, the positions your blocks, entities and items store, rigid groups, client anchors.
+- [Declaring a world shape](modding/shapes.md): a shape of your own, its settings screen, world options.
+- [Hooking world generation](modding/generation.md): generation hooks, structure starts, terrain computed outside the chunk map.
