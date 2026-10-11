@@ -1,13 +1,9 @@
 package com.exoticworlds.core;
 
-import java.util.Arrays;
-
 public final class TranslationLattice {
     public static final int NO_SKEW = 0;
 
     private static final int[] NEIGHBOURS = {0, -1, 1};
-
-    private static final long[] NO_SHIFT = {0L, 0L};
 
     private final WrapDomain x;
 
@@ -104,30 +100,37 @@ public final class TranslationLattice {
                 : coordX - (coordZ - this.z.lowerBound) * this.skew / this.z.domainLength;
     }
 
-    public long[] nearShifts(double deltaX, double deltaZ) {
+    public int nearCount() {
         return switch (this.rank) {
-            case 0 -> NO_SHIFT;
-            case 1 -> nearShiftsOnLine(deltaX, deltaZ);
-            default -> nearShiftsOnPlane(deltaX, deltaZ);
+            case 0 -> 1;
+            case 1 -> NEIGHBOURS.length;
+            default -> NEIGHBOURS.length * NEIGHBOURS.length;
         };
     }
 
-    public long[] zLapsNear(double deltaX, double deltaZ) {
-        if (!this.z.loops()) {
-            return new long[] {0L};
-        }
+    public long nearFirst(double deltaX, double deltaZ) {
+        return switch (this.rank) {
+            case 0 -> 0L;
+            case 1 -> Math.round((deltaX * this.firstX + deltaZ * this.firstZ)
+                    / ((double) this.firstX * this.firstX + (double) this.firstZ * this.firstZ));
+            default -> Math.round((deltaX * this.secondZ - deltaZ * this.secondX) / determinant());
+        };
+    }
 
-        long[] shifts = nearShifts(deltaX, deltaZ);
-        long[] laps = new long[shifts.length / 2];
-        int count = 0;
-        for (int index = 1; index < shifts.length; index += 2) {
-            long lap = shifts[index] / this.z.domainLength;
-            if (!contains(laps, count, lap)) {
-                laps[count++] = lap;
-            }
-        }
+    public long nearSecond(double deltaX, double deltaZ) {
+        return this.rank < 2 ? 0L : Math.round((deltaZ * this.firstX - deltaX * this.firstZ) / determinant());
+    }
 
-        return Arrays.copyOf(laps, count);
+    public long nearShiftX(long first, long second, int index) {
+        return firstTimes(first, index) * this.firstX + secondTimes(second, index) * this.secondX;
+    }
+
+    public long nearShiftZ(long first, long second, int index) {
+        return firstTimes(first, index) * this.firstZ + secondTimes(second, index) * this.secondZ;
+    }
+
+    public long nearZLap(long first, long second, int index) {
+        return this.z.loops() ? nearShiftZ(first, second, index) / this.z.domainLength : 0L;
     }
 
     public int nearestZLaps(int deltaX, int deltaZ) {
@@ -136,12 +139,15 @@ public final class TranslationLattice {
             return this.z.loops() ? (deltaZ - folded) / this.z.domainLength : 0;
         }
 
+        long first = nearFirst(deltaX, deltaZ);
+        long second = nearSecond(deltaX, deltaZ);
         int nearest = 0;
         long nearestLength = Long.MAX_VALUE;
-        for (long lap : zLapsNear(deltaX, deltaZ)) {
-            long length = squaredLength(deltaX, deltaZ, Math.toIntExact(lap));
+        for (int index = 0; index < nearCount(); index++) {
+            int lap = Math.toIntExact(nearZLap(first, second, index));
+            long length = squaredLength(deltaX, deltaZ, lap);
             if (length < nearestLength) {
-                nearest = Math.toIntExact(lap);
+                nearest = lap;
                 nearestLength = length;
             }
         }
@@ -163,36 +169,16 @@ public final class TranslationLattice {
         return reducedX * reducedX + reducedZ * reducedZ;
     }
 
-    private long[] nearShiftsOnLine(double deltaX, double deltaZ) {
-        double along = (deltaX * this.firstX + deltaZ * this.firstZ)
-                / ((double) this.firstX * this.firstX + (double) this.firstZ * this.firstZ);
-        long centre = Math.round(along);
-        long[] shifts = new long[NEIGHBOURS.length * 2];
-        for (int index = 0; index < NEIGHBOURS.length; index++) {
-            long times = centre + NEIGHBOURS[index];
-            shifts[2 * index] = times * this.firstX;
-            shifts[2 * index + 1] = times * this.firstZ;
-        }
-
-        return shifts;
+    private long firstTimes(long first, int index) {
+        return first + NEIGHBOURS[this.rank == 2 ? index / NEIGHBOURS.length : index];
     }
 
-    private long[] nearShiftsOnPlane(double deltaX, double deltaZ) {
-        double determinant = (double) this.firstX * this.secondZ - (double) this.firstZ * this.secondX;
-        long firstCentre = Math.round((deltaX * this.secondZ - deltaZ * this.secondX) / determinant);
-        long secondCentre = Math.round((deltaZ * this.firstX - deltaX * this.firstZ) / determinant);
-        long[] shifts = new long[NEIGHBOURS.length * NEIGHBOURS.length * 2];
-        int index = 0;
-        for (int firstStep : NEIGHBOURS) {
-            for (int secondStep : NEIGHBOURS) {
-                long first = firstCentre + firstStep;
-                long second = secondCentre + secondStep;
-                shifts[index++] = first * this.firstX + second * this.secondX;
-                shifts[index++] = first * this.firstZ + second * this.secondZ;
-            }
-        }
+    private long secondTimes(long second, int index) {
+        return this.rank == 2 ? second + NEIGHBOURS[index % NEIGHBOURS.length] : 0L;
+    }
 
-        return shifts;
+    private double determinant() {
+        return (double) this.firstX * this.secondZ - (double) this.firstZ * this.secondX;
     }
 
     private static long[] reducedBasis(long firstX, long firstZ, long secondX, long secondZ) {
@@ -218,15 +204,5 @@ public final class TranslationLattice {
             vx -= times * ux;
             vz -= times * uz;
         }
-    }
-
-    private static boolean contains(long[] values, int count, long value) {
-        for (int index = 0; index < count; index++) {
-            if (values[index] == value) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
