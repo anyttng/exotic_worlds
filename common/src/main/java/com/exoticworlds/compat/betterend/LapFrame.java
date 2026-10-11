@@ -43,10 +43,12 @@ public final class LapFrame {
         long bestX = pickX;
         long bestZ = pickZ;
         double best = squaredFromCopy(blockX, blockZ, pickX, pickZ);
-        long[] shifts = this.lattice.nearShifts(blockX, blockZ);
-        for (int index = 0; index < shifts.length; index += 2) {
-            long lapsZ = lapsOf(shifts[index + 1], this.lattice.z());
-            long lapsX = lapsOf(shifts[index] - lapsZ * this.lattice.skew(), this.lattice.x());
+        long first = this.lattice.nearFirst(blockX, blockZ);
+        long second = this.lattice.nearSecond(blockX, blockZ);
+        for (int index = 0; index < this.lattice.nearCount(); index++) {
+            long lapsZ = lapsOf(this.lattice.nearShiftZ(first, second, index), this.lattice.z());
+            long lapsX = lapsOf(this.lattice.nearShiftX(first, second, index) - lapsZ * this.lattice.skew(),
+                    this.lattice.x());
             double squared = squaredFromCopy(blockX, blockZ, lapsX, lapsZ);
             if (squared < best) {
                 best = squared;

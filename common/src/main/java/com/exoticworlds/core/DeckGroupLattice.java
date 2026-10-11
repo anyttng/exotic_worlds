@@ -115,19 +115,55 @@ final class DeckGroupLattice {
         return built.toArray(new SeamTransform[0]);
     }
 
-    private SeamTransform[] candidatesNear(double deltaX, double deltaZ) {
-        if (this.translations == null) {
-            return this.candidates;
-        }
+    private int candidateCount() {
+        return this.translations == null ? this.candidates.length : this.translations.nearCount();
+    }
 
-        long[] shifts = this.translations.nearShifts(deltaX, deltaZ);
-        SeamTransform[] near = new SeamTransform[shifts.length / 2];
-        for (int index = 0; index < near.length; index++) {
-            near[index] = SeamTransform.translation(
-                    Math.toIntExact(-shifts[2 * index]), Math.toIntExact(-shifts[2 * index + 1]));
-        }
+    private long nearFirst(double deltaX, double deltaZ) {
+        return this.translations == null ? 0L : this.translations.nearFirst(deltaX, deltaZ);
+    }
 
-        return near;
+    private long nearSecond(double deltaX, double deltaZ) {
+        return this.translations == null ? 0L : this.translations.nearSecond(deltaX, deltaZ);
+    }
+
+    private SeamTransform candidate(int index, long first, long second) {
+        return this.translations == null
+                ? this.candidates[index]
+                : SeamTransform.translation(
+                        candidateShiftX(index, first, second), candidateShiftZ(index, first, second));
+    }
+
+    private int candidateShiftX(int index, long first, long second) {
+        return Math.toIntExact(-this.translations.nearShiftX(first, second, index));
+    }
+
+    private int candidateShiftZ(int index, long first, long second) {
+        return Math.toIntExact(-this.translations.nearShiftZ(first, second, index));
+    }
+
+    private int candidateCellX(int index, long first, long second, int x) {
+        return this.translations == null
+                ? this.candidates[index].applyCellX(x)
+                : x + candidateShiftX(index, first, second);
+    }
+
+    private int candidateCellZ(int index, long first, long second, int z) {
+        return this.translations == null
+                ? this.candidates[index].applyCellZ(z)
+                : z + candidateShiftZ(index, first, second);
+    }
+
+    private double candidateX(int index, long first, long second, double x) {
+        return this.translations == null
+                ? this.candidates[index].applyX(x)
+                : x + candidateShiftX(index, first, second);
+    }
+
+    private double candidateZ(int index, long first, long second, double z) {
+        return this.translations == null
+                ? this.candidates[index].applyZ(z)
+                : z + candidateShiftZ(index, first, second);
     }
 
     SeamTransform foldCells(int cellX, int cellZ) {
@@ -189,14 +225,17 @@ final class DeckGroupLattice {
         int foldedTargetX = toTarget.applyCellX(targetX);
         int foldedTargetZ = toTarget.applyCellZ(targetZ);
 
-        SeamTransform best = SeamTransform.IDENTITY;
+        int deltaX = foldedTargetX - toRef.applyCellX(refX);
+        int deltaZ = foldedTargetZ - toRef.applyCellZ(refZ);
+        long first = nearFirst(deltaX, deltaZ);
+        long second = nearSecond(deltaX, deltaZ);
+        int bestIndex = -1;
         long bestDistance = squared((long) targetX - refX) + squared((long) targetZ - refZ);
         long bestShiftX = 0;
         long bestShiftZ = 0;
-        for (SeamTransform candidate : candidatesNear(foldedTargetX - toRef.applyCellX(refX),
-                foldedTargetZ - toRef.applyCellZ(refZ))) {
-            int inFrameX = candidate.applyCellX(foldedTargetX);
-            int inFrameZ = candidate.applyCellZ(foldedTargetZ);
+        for (int index = 0; index < candidateCount(); index++) {
+            int inFrameX = candidateCellX(index, first, second, foldedTargetX);
+            int inFrameZ = candidateCellZ(index, first, second, foldedTargetZ);
             long copyX = fromRef.applyCellX(inFrameX);
             long copyZ = fromRef.applyCellZ(inFrameZ);
             long distance = squared(copyX - refX) + squared(copyZ - refZ);
@@ -204,14 +243,16 @@ final class DeckGroupLattice {
             long shiftZ = copyZ - targetZ;
             if (distance < bestDistance || (distance == bestDistance
                     && closerToRest(shiftX, shiftZ, bestShiftX, bestShiftZ))) {
-                best = toTarget.then(candidate).then(fromRef);
+                bestIndex = index;
                 bestDistance = distance;
                 bestShiftX = shiftX;
                 bestShiftZ = shiftZ;
             }
         }
 
-        return best;
+        return bestIndex < 0
+                ? SeamTransform.IDENTITY
+                : toTarget.then(candidate(bestIndex, first, second)).then(fromRef);
     }
 
     SeamTransform nearestCoords(double refX, double refZ, double targetX, double targetZ) {
@@ -221,14 +262,17 @@ final class DeckGroupLattice {
         double foldedTargetX = toTarget.applyX(targetX);
         double foldedTargetZ = toTarget.applyZ(targetZ);
 
-        SeamTransform best = SeamTransform.IDENTITY;
+        double deltaX = foldedTargetX - toRef.applyX(refX);
+        double deltaZ = foldedTargetZ - toRef.applyZ(refZ);
+        long first = nearFirst(deltaX, deltaZ);
+        long second = nearSecond(deltaX, deltaZ);
+        int bestIndex = -1;
         double bestDistance = squared(targetX - refX) + squared(targetZ - refZ);
         double bestShiftX = 0.0;
         double bestShiftZ = 0.0;
-        for (SeamTransform candidate : candidatesNear(foldedTargetX - toRef.applyX(refX),
-                foldedTargetZ - toRef.applyZ(refZ))) {
-            double inFrameX = candidate.applyX(foldedTargetX);
-            double inFrameZ = candidate.applyZ(foldedTargetZ);
+        for (int index = 0; index < candidateCount(); index++) {
+            double inFrameX = candidateX(index, first, second, foldedTargetX);
+            double inFrameZ = candidateZ(index, first, second, foldedTargetZ);
             double copyX = fromRef.applyX(inFrameX);
             double copyZ = fromRef.applyZ(inFrameZ);
             double distance = squared(copyX - refX) + squared(copyZ - refZ);
@@ -236,14 +280,16 @@ final class DeckGroupLattice {
             double shiftZ = copyZ - targetZ;
             if (distance < bestDistance || (distance == bestDistance
                     && closerToRest(shiftX, shiftZ, bestShiftX, bestShiftZ))) {
-                best = toTarget.then(candidate).then(fromRef);
+                bestIndex = index;
                 bestDistance = distance;
                 bestShiftX = shiftX;
                 bestShiftZ = shiftZ;
             }
         }
 
-        return best;
+        return bestIndex < 0
+                ? SeamTransform.IDENTITY
+                : toTarget.then(candidate(bestIndex, first, second)).then(fromRef);
     }
 
     double nearestBoxGap(double pointX, double pointZ, AABB box) {
@@ -253,9 +299,13 @@ final class DeckGroupLattice {
         SeamTransform toPoint = foldCoords(pointX, pointZ);
         SeamTransform fromPoint = toPoint.inverse();
 
+        double deltaX = toBox.applyX(centreX) - toPoint.applyX(pointX);
+        double deltaZ = toBox.applyZ(centreZ) - toPoint.applyZ(pointZ);
+        long first = nearFirst(deltaX, deltaZ);
+        long second = nearSecond(deltaX, deltaZ);
         double best = gapSquared(box, pointX, pointZ);
-        for (SeamTransform candidate : candidatesNear(toBox.applyX(centreX) - toPoint.applyX(pointX),
-                toBox.applyZ(centreZ) - toPoint.applyZ(pointZ))) {
+        for (int index = 0; index < candidateCount(); index++) {
+            SeamTransform candidate = candidate(index, first, second);
             best = Math.min(best, gapSquared(toBox.then(candidate).then(fromPoint).apply(box), pointX, pointZ));
         }
 

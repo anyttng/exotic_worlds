@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 
@@ -33,11 +34,16 @@ public final class SableChunkKeys {
     }
 
     public static List<ChunkPos> rawAliases(WorldFold fold, ChunkPos physical) {
-        long[] shifts = fold.chunkLattice().nearShifts(0.0, 0.0);
-        List<ChunkPos> aliases = new ArrayList<>(shifts.length / 2);
-        for (int index = 0; index < shifts.length; index += 2) {
-            if (shifts[index] != 0L || shifts[index + 1] != 0L) {
-                aliases.add(new ChunkPos(physical.x + Math.toIntExact(shifts[index]), physical.z + Math.toIntExact(shifts[index + 1])));
+        TranslationLattice lattice = fold.chunkLattice();
+        long first = lattice.nearFirst(0.0, 0.0);
+        long second = lattice.nearSecond(0.0, 0.0);
+        int count = lattice.nearCount();
+        List<ChunkPos> aliases = new ArrayList<>(count);
+        for (int index = 0; index < count; index++) {
+            long shiftX = lattice.nearShiftX(first, second, index);
+            long shiftZ = lattice.nearShiftZ(first, second, index);
+            if (shiftX != 0L || shiftZ != 0L) {
+                aliases.add(new ChunkPos(physical.x + Math.toIntExact(shiftX), physical.z + Math.toIntExact(shiftZ)));
             }
         }
 

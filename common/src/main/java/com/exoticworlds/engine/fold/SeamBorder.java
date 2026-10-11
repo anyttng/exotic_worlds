@@ -50,7 +50,10 @@ public record SeamBorder(TranslationLattice lattice, double minX, double maxX, d
         double dx = x - centreX();
         double dz = z - centreZ();
         double best = Double.NEGATIVE_INFINITY;
-        for (long laps : this.lattice.zLapsNear(dx, dz)) {
+        long first = this.lattice.nearFirst(dx, dz);
+        long second = this.lattice.nearSecond(dx, dz);
+        for (int index = 0; index < this.lattice.nearCount(); index++) {
+            long laps = this.lattice.nearZLap(first, second, index);
             double zOffset = dz - (double) laps * zDomain.domainLength;
             double xOffset = this.lattice.x().unwrapAround(0.0, dx - (double) laps * this.lattice.skew());
             best = Math.max(best, Math.min(halfX() - Math.abs(xOffset), halfZ() - Math.abs(zOffset)));
@@ -65,7 +68,10 @@ public record SeamBorder(TranslationLattice lattice, double minX, double maxX, d
         double boxX = centreX();
         double boxZ = centreZ();
         double bestGap = Double.NEGATIVE_INFINITY;
-        for (long laps : this.lattice.zLapsNear(x - centreX(), z - centreZ())) {
+        long first = this.lattice.nearFirst(x - centreX(), z - centreZ());
+        long second = this.lattice.nearSecond(x - centreX(), z - centreZ());
+        for (int index = 0; index < this.lattice.nearCount(); index++) {
+            long laps = this.lattice.nearZLap(first, second, index);
             double copyZ = centreZ() + (double) laps * zDomain.domainLength;
             double copyX = xDomain.unwrapAround(x, centreX() + (double) laps * this.lattice.skew());
             double gap = Math.min(halfX() - Math.abs(x - copyX), halfZ() - Math.abs(z - copyZ));
