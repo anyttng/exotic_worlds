@@ -1,6 +1,7 @@
 package com.exoticworlds.engine.net;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.function.Predicate;
 import org.slf4j.Logger;
 
 import com.exoticworlds.ExoticWorlds;
+import com.exoticworlds.engine.net.RecordPayloadFold.Role;
 import com.exoticworlds.engine.net.TagPositions.Nesting;
 import com.exoticworlds.engine.net.TagPositions.PositionShape;
 import com.exoticworlds.engine.net.TagPositions.TagPosition;
@@ -24,11 +26,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
 
 public record PositionRows(Map<Identifier, List<TagPosition>> blockEntities, Map<Identifier, List<TagPosition>> entities,
-        Set<Identifier> components, Set<Identifier> deny) {
+        Set<Identifier> components, Set<Identifier> deny, Map<Identifier, Map<String, Role>> payloads) {
     public static final String DIRECTORY = ExoticWorlds.MODID;
     public static final String FILE_NAME = "positions";
 
-    public static final PositionRows EMPTY = new PositionRows(Map.of(), Map.of(), Set.of(), Set.of());
+    public static final PositionRows EMPTY = new PositionRows(Map.of(), Map.of(), Set.of(), Set.of(), Map.of());
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -36,6 +38,7 @@ public record PositionRows(Map<Identifier, List<TagPosition>> blockEntities, Map
     private static final String ENTITIES_KEY = "entities";
     private static final String COMPONENTS_KEY = "components";
     private static final String DENY_KEY = "deny";
+    private static final String PAYLOADS_KEY = "payloads";
 
     private record Container(Nesting nesting, Map<String, PositionShape> keys) {
     }
@@ -61,11 +64,15 @@ public record PositionRows(Map<Identifier, List<TagPosition>> blockEntities, Map
     static final Codec<Set<Identifier>> IDS_CODEC =
             Identifier.CODEC.listOf().xmap(Set::copyOf, List::copyOf);
 
+    private static final Codec<Map<Identifier, Map<String, Role>>> PAYLOADS_CODEC =
+            Codec.unboundedMap(Identifier.CODEC, Codec.unboundedMap(Codec.STRING, Role.CODEC));
+
     public static final Codec<PositionRows> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     SUBJECTS_CODEC.optionalFieldOf(BLOCK_ENTITIES_KEY, Map.of()).forGetter(PositionRows::blockEntities),
                     SUBJECTS_CODEC.optionalFieldOf(ENTITIES_KEY, Map.of()).forGetter(PositionRows::entities),
                     IDS_CODEC.optionalFieldOf(COMPONENTS_KEY, Set.of()).forGetter(PositionRows::components),
-                    IDS_CODEC.optionalFieldOf(DENY_KEY, Set.of()).forGetter(PositionRows::deny))
+                    IDS_CODEC.optionalFieldOf(DENY_KEY, Set.of()).forGetter(PositionRows::deny),
+                    PAYLOADS_CODEC.optionalFieldOf(PAYLOADS_KEY, Map.of()).forGetter(PositionRows::payloads))
             .apply(instance, PositionRows::new));
 
     public static PositionRows merge(Map<Identifier, PositionRows> files, Predicate<Identifier> blockEntityTypeKnown,
@@ -74,6 +81,8 @@ public record PositionRows(Map<Identifier, List<TagPosition>> blockEntities, Map
         Map<Identifier, List<TagPosition>> entities = new LinkedHashMap<>();
         Set<Identifier> components = new HashSet<>();
         Set<Identifier> deny = new HashSet<>();
+        Map<Identifier, Map<String, Role>> payloads = new HashMap<>();
+        Map<Identifier, Set<String>> conflicts = new HashMap<>();
         files.forEach((file, rows) -> {
             mergeInto(blockEntities, file, BLOCK_ENTITIES_KEY, rows.blockEntities(), blockEntityTypeKnown);
             mergeInto(entities, file, ENTITIES_KEY, rows.entities(), entityTypeKnown);
@@ -85,10 +94,35 @@ public record PositionRows(Map<Identifier, List<TagPosition>> blockEntities, Map
                 }
             });
             deny.addAll(rows.deny());
+            mergePayloads(payloads, conflicts, file, rows.payloads());
         });
 
+        Map<Identifier, Map<String, Role>> joinedPayloads = new HashMap<>();
+        payloads.forEach((id, roles) -> joinedPayloads.put(id, Map.copyOf(roles)));
         return new PositionRows(Map.copyOf(blockEntities), Map.copyOf(entities), Set.copyOf(components),
-                Set.copyOf(deny));
+                Set.copyOf(deny), Map.copyOf(joinedPayloads));
+    }
+
+    private static void mergePayloads(Map<Identifier, Map<String, Role>> merged,
+            Map<Identifier, Set<String>> conflicts, Identifier file, Map<Identifier, Map<String, Role>> rows) {
+        rows.forEach((id, roles) -> {
+            Map<String, Role> joined = merged.computeIfAbsent(id, payload -> new HashMap<>());
+            Set<String> conflicted = conflicts.computeIfAbsent(id, payload -> new HashSet<>());
+            roles.forEach((component, role) -> {
+                if (conflicted.contains(component)) {
+                    return;
+                }
+
+                Role held = joined.putIfAbsent(component, role);
+                if (held != null && held != role) {
+                    joined.remove(component);
+                    conflicted.add(component);
+                    LOGGER.warn("The {} file of namespace {} names component {} of payload {} {}, which another"
+                            + " namespace names {}; the component folds by its type", FILE_NAME, file.getNamespace(),
+                            component, id, role.getSerializedName(), held.getSerializedName());
+                }
+            });
+        });
     }
 
     private static void mergeInto(Map<Identifier, List<TagPosition>> merged, Identifier file, String section,

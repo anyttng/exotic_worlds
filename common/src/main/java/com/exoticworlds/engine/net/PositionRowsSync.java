@@ -10,7 +10,7 @@ public final class PositionRowsSync {
     static void apply(PositionRows rows) {
         current = rows;
         SpawnBufferFold.declare(rows.entities());
-        RecordPayloadFold.deny(rows.deny());
+        RecordPayloadFold.declare(rows.deny(), rows.payloads());
         ComponentPositions.declare(rows.components());
     }
 

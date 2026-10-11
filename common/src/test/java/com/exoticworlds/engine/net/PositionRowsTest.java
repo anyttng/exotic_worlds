@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import com.exoticworlds.engine.net.RecordPayloadFold.Role;
 import com.exoticworlds.engine.net.TagPositions.Nesting;
 import com.exoticworlds.engine.net.TagPositions.PositionShape;
 import com.exoticworlds.engine.net.TagPositions.TagPosition;
@@ -69,6 +70,7 @@ class PositionRowsTest {
         assertTrue(rows.entities().isEmpty());
         assertTrue(rows.components().isEmpty());
         assertTrue(rows.deny().isEmpty());
+        assertTrue(rows.payloads().isEmpty());
     }
 
     @Test
@@ -166,5 +168,59 @@ class PositionRowsTest {
                         new TagPosition("Goal", PositionShape.PACKED_LONG),
                         new TagPosition(Nesting.COMPOUND, "Printer", "Anchor", PositionShape.BLOCK_POS)),
                 Set.copyOf(merged.blockEntities().get(HOLDER_ID)));
+    }
+
+    @Test
+    void thePayloadRowsDecodeToRoles() {
+        PositionRows rows = parse("""
+                {
+                  "payloads": {
+                    "cject:offset_probe": { "from": "group", "to": "group" },
+                    "pack:size_probe": { "origin": "world", "size": "untouched" }
+                  }
+                }
+                """).getOrThrow();
+
+        assertEquals(Map.of(
+                        OFFSET_PAYLOAD_ID, Map.of("from", Role.GROUP, "to", Role.GROUP),
+                        SIZE_PAYLOAD_ID, Map.of("origin", Role.WORLD, "size", Role.UNTOUCHED)),
+                rows.payloads());
+    }
+
+    @Test
+    void aRoleNobodyNamedFailsTheFile() {
+        assertTrue(parse("""
+                { "payloads": { "cject:offset_probe": { "offset": "local" } } }
+                """).isError());
+    }
+
+    @Test
+    void twoNamespacesNamingOnePayloadJoinTheirComponents() {
+        PositionRows cject = parse("""
+                { "payloads": { "pack:size_probe": { "origin": "world" } } }
+                """).getOrThrow();
+        PositionRows pack = parse("""
+                { "payloads": { "pack:size_probe": { "size": "untouched" } } }
+                """).getOrThrow();
+
+        PositionRows merged =
+                PositionRows.merge(Map.of(CJECT_FILE, cject, PACK_FILE, pack), id -> true, id -> true, id -> true);
+
+        assertEquals(Map.of("origin", Role.WORLD, "size", Role.UNTOUCHED), merged.payloads().get(SIZE_PAYLOAD_ID));
+    }
+
+    @Test
+    void aComponentTwoNamespacesNameDifferentlyIsDroppedAndTheRestKept() {
+        PositionRows cject = parse("""
+                { "payloads": { "pack:size_probe": { "origin": "world", "size": "untouched" } } }
+                """).getOrThrow();
+        PositionRows pack = parse("""
+                { "payloads": { "pack:size_probe": { "size": "group" } } }
+                """).getOrThrow();
+
+        PositionRows merged =
+                PositionRows.merge(Map.of(CJECT_FILE, cject, PACK_FILE, pack), id -> true, id -> true, id -> true);
+
+        assertEquals(Map.of("origin", Role.WORLD), merged.payloads().get(SIZE_PAYLOAD_ID));
     }
 }
