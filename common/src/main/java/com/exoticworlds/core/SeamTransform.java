@@ -1,5 +1,11 @@
 package com.exoticworlds.core;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+
 public record SeamTransform(int xSign, int zSign, int xShift, int zShift) {
     public static final SeamTransform IDENTITY = new SeamTransform(1, 1, 0, 0);
 
@@ -43,6 +49,52 @@ public record SeamTransform(int xSign, int zSign, int xShift, int zShift) {
 
     public int applyCellZ(int z) {
         return this.zSign * z + this.zShift + (this.zSign < 0 ? -1 : 0);
+    }
+
+    public Vec3 apply(Vec3 pos) {
+        if (isIdentity()) {
+            return pos;
+        }
+
+        return new Vec3(applyX(pos.x), pos.y, applyZ(pos.z));
+    }
+
+    public BlockPos apply(BlockPos pos) {
+        if (isIdentity()) {
+            return pos;
+        }
+
+        return new BlockPos(applyCellX(pos.getX()), pos.getY(), applyCellZ(pos.getZ()));
+    }
+
+    public ChunkPos apply(ChunkPos pos) {
+        if (isIdentity()) {
+            return pos;
+        }
+
+        return new ChunkPos(applyCellX(pos.x()), applyCellZ(pos.z()));
+    }
+
+    public AABB apply(AABB box) {
+        if (isIdentity()) {
+            return box;
+        }
+
+        return new AABB(applyX(box.minX), box.minY, applyZ(box.minZ), applyX(box.maxX), box.maxY, applyZ(box.maxZ));
+    }
+
+    public BoundingBox apply(BoundingBox box) {
+        if (isIdentity()) {
+            return box;
+        }
+
+        int firstX = applyCellX(box.minX());
+        int secondX = applyCellX(box.maxX());
+        int firstZ = applyCellZ(box.minZ());
+        int secondZ = applyCellZ(box.maxZ());
+        return new BoundingBox(
+                Math.min(firstX, secondX), box.minY(), Math.min(firstZ, secondZ),
+                Math.max(firstX, secondX), box.maxY(), Math.max(firstZ, secondZ));
     }
 
     public SeamTransform then(SeamTransform next) {

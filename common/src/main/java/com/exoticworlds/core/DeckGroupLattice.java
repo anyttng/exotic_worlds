@@ -8,15 +8,17 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.phys.AABB;
 
 final class DeckGroupLattice {
     private static final int CANDIDATE_REACH = 2;
 
     private static final int COORD_FOLD_ATTEMPTS = 3;
 
-    record CoordPiece(double minX, double maxX, double minZ, double maxZ, SeamTransform applied) {}
+    record CoordPiece(AABB box, SeamTransform applied) {}
 
-    record CellPiece(int minX, int maxX, int minZ, int maxZ, SeamTransform applied) {}
+    record CellPiece(BoundingBox box, SeamTransform applied) {}
 
     private record Step(SeamTransform generator, boolean onX) {}
 
@@ -244,61 +246,45 @@ final class DeckGroupLattice {
         return best;
     }
 
-    double nearestBoxGap(double pointX, double pointZ, double minX, double maxX, double minZ, double maxZ) {
-        double centreX = (minX + maxX) / 2.0;
-        double centreZ = (minZ + maxZ) / 2.0;
+    double nearestBoxGap(double pointX, double pointZ, AABB box) {
+        double centreX = SeamBoxes.centre(box.minX, box.maxX);
+        double centreZ = SeamBoxes.centre(box.minZ, box.maxZ);
         SeamTransform toBox = foldCoords(centreX, centreZ);
         SeamTransform toPoint = foldCoords(pointX, pointZ);
         SeamTransform fromPoint = toPoint.inverse();
 
-        double best = gapSquared(minX, maxX, minZ, maxZ, pointX, pointZ);
+        double best = gapSquared(box, pointX, pointZ);
         for (SeamTransform candidate : candidatesNear(toBox.applyX(centreX) - toPoint.applyX(pointX),
                 toBox.applyZ(centreZ) - toPoint.applyZ(pointZ))) {
-            SeamTransform move = toBox.then(candidate).then(fromPoint);
-            double firstX = move.applyX(minX);
-            double secondX = move.applyX(maxX);
-            double firstZ = move.applyZ(minZ);
-            double secondZ = move.applyZ(maxZ);
-            best = Math.min(best, gapSquared(
-                    Math.min(firstX, secondX), Math.max(firstX, secondX),
-                    Math.min(firstZ, secondZ), Math.max(firstZ, secondZ),
-                    pointX, pointZ));
+            best = Math.min(best, gapSquared(toBox.then(candidate).then(fromPoint).apply(box), pointX, pointZ));
         }
 
         return best;
     }
 
-    private static double gapSquared(double minX, double maxX, double minZ, double maxZ,
-            double pointX, double pointZ) {
-        double xGap = Math.max(Math.max(minX - pointX, pointX - maxX), 0.0);
-        double zGap = Math.max(Math.max(minZ - pointZ, pointZ - maxZ), 0.0);
+    private static double gapSquared(AABB box, double pointX, double pointZ) {
+        double xGap = Math.max(Math.max(box.minX - pointX, pointX - box.maxX), 0.0);
+        double zGap = Math.max(Math.max(box.minZ - pointZ, pointZ - box.maxZ), 0.0);
         return xGap * xGap + zGap * zGap;
     }
 
-    List<CoordPiece> splitCoords(double minX, double maxX, double minZ, double maxZ) {
+    List<CoordPiece> splitCoords(AABB box) {
         List<CoordPiece> pieces = new ArrayList<>();
-        pieces.add(new CoordPiece(minX, maxX, minZ, maxZ, SeamTransform.IDENTITY));
+        pieces.add(new CoordPiece(box, SeamTransform.IDENTITY));
         for (Step step : this.steps) {
             WrapDomain domain = step.onX() ? this.x : this.z;
             List<CoordPiece> next = new ArrayList<>();
             for (CoordPiece piece : pieces) {
-                double low = step.onX() ? piece.minX() : piece.minZ();
-                double high = step.onX() ? piece.maxX() : piece.maxZ();
+                AABB span = piece.box();
+                double low = step.onX() ? span.minX : span.minZ;
+                double high = step.onX() ? span.maxX : span.maxZ;
                 for (double[] slice : sliceSpan(domain, low, high)) {
                     long laps = (long) Math.floor((slice[0] - domain.lowerBound) / domain.domainLength);
                     SeamTransform move = step.generator().power(Math.toIntExact(-laps));
-                    double lowX = step.onX() ? slice[0] : piece.minX();
-                    double highX = step.onX() ? slice[1] : piece.maxX();
-                    double lowZ = step.onX() ? piece.minZ() : slice[0];
-                    double highZ = step.onX() ? piece.maxZ() : slice[1];
-                    double firstX = move.applyX(lowX);
-                    double secondX = move.applyX(highX);
-                    double firstZ = move.applyZ(lowZ);
-                    double secondZ = move.applyZ(highZ);
-                    next.add(new CoordPiece(
-                            Math.min(firstX, secondX), Math.max(firstX, secondX),
-                            Math.min(firstZ, secondZ), Math.max(firstZ, secondZ),
-                            piece.applied().then(move)));
+                    AABB sliced = step.onX()
+                            ? new AABB(slice[0], span.minY, span.minZ, slice[1], span.maxY, span.maxZ)
+                            : new AABB(span.minX, span.minY, slice[0], span.maxX, span.maxY, slice[1]);
+                    next.add(new CoordPiece(move.apply(sliced), piece.applied().then(move)));
                 }
             }
 
@@ -308,30 +294,23 @@ final class DeckGroupLattice {
         return pieces;
     }
 
-    List<CellPiece> splitCells(int minX, int maxX, int minZ, int maxZ) {
+    List<CellPiece> splitCells(BoundingBox region) {
         List<CellPiece> pieces = new ArrayList<>();
-        pieces.add(new CellPiece(minX, maxX, minZ, maxZ, SeamTransform.IDENTITY));
+        pieces.add(new CellPiece(region, SeamTransform.IDENTITY));
         for (Step step : this.steps) {
             WrapDomain domain = step.onX() ? this.x : this.z;
             List<CellPiece> next = new ArrayList<>();
             for (CellPiece piece : pieces) {
-                int low = step.onX() ? piece.minX() : piece.minZ();
-                int high = step.onX() ? piece.maxX() : piece.maxZ();
+                BoundingBox span = piece.box();
+                int low = step.onX() ? span.minX() : span.minZ();
+                int high = step.onX() ? span.maxX() : span.maxZ();
                 for (int[] slice : sliceCellSpan(domain, low, high)) {
                     long laps = Math.floorDiv((long) slice[0] - domain.lowerBound, domain.domainLength);
                     SeamTransform move = step.generator().power(Math.toIntExact(-laps));
-                    int lowX = step.onX() ? slice[0] : piece.minX();
-                    int highX = step.onX() ? slice[1] : piece.maxX();
-                    int lowZ = step.onX() ? piece.minZ() : slice[0];
-                    int highZ = step.onX() ? piece.maxZ() : slice[1];
-                    int firstX = move.applyCellX(lowX);
-                    int secondX = move.applyCellX(highX);
-                    int firstZ = move.applyCellZ(lowZ);
-                    int secondZ = move.applyCellZ(highZ);
-                    next.add(new CellPiece(
-                            Math.min(firstX, secondX), Math.max(firstX, secondX),
-                            Math.min(firstZ, secondZ), Math.max(firstZ, secondZ),
-                            piece.applied().then(move)));
+                    BoundingBox sliced = step.onX()
+                            ? new BoundingBox(slice[0], span.minY(), span.minZ(), slice[1], span.maxY(), span.maxZ())
+                            : new BoundingBox(span.minX(), span.minY(), slice[0], span.maxX(), span.maxY(), slice[1]);
+                    next.add(new CellPiece(move.apply(sliced), piece.applied().then(move)));
                 }
             }
 
@@ -384,19 +363,22 @@ final class DeckGroupLattice {
         return copies;
     }
 
-    boolean foldsOntoItself(int minX, int maxX, int minZ, int maxZ) {
+    boolean foldsOntoItself(BoundingBox region) {
         if (this.steps.length == 0) {
             return false;
         }
 
+        int minX = region.minX();
+        int maxX = region.maxX();
+        int minZ = region.minZ();
+        int maxZ = region.maxZ();
         Step first = this.steps[0];
         Step second = this.steps.length > 1 ? this.steps[1] : null;
         WrapDomain own = first.onX() ? this.x : this.z;
         long extent = first.onX() ? (long) maxX - minX : (long) maxZ - minZ;
         int highestPower = Math.toIntExact(extent / own.domainLength);
         for (int firstPower = -highestPower; firstPower <= highestPower; firstPower++) {
-            SeamTransform moved = first.generator().power(firstPower);
-            CellPiece image = movedCells(moved, minX, maxX, minZ, maxZ);
+            BoundingBox image = first.generator().power(firstPower).apply(region);
             if (second == null) {
                 if (firstPower != 0 && meets(image.minX(), image.maxX(), minX, maxX)
                         && meets(image.minZ(), image.maxZ(), minZ, maxZ)) {
@@ -437,16 +419,6 @@ final class DeckGroupLattice {
         } else {
             copies.add(new DeckTransformation(element));
         }
-    }
-
-    private static CellPiece movedCells(SeamTransform move, int minX, int maxX, int minZ, int maxZ) {
-        int firstX = move.applyCellX(minX);
-        int secondX = move.applyCellX(maxX);
-        int firstZ = move.applyCellZ(minZ);
-        int secondZ = move.applyCellZ(maxZ);
-        return new CellPiece(
-                Math.min(firstX, secondX), Math.max(firstX, secondX),
-                Math.min(firstZ, secondZ), Math.max(firstZ, secondZ), move);
     }
 
     private static List<double[]> sliceSpan(WrapDomain domain, double min, double max) {
