@@ -109,13 +109,20 @@ public final class FtbChunksFold {
     }
 
     public static BlockPos foldBlock(int x, int z) {
+        return foldBlock(ClientShapes.current(), x, z);
+    }
+
+    public static BlockPos foldBlock(ResourceKey<Level> dimension, int x, int z) {
+        return foldBlock(ClientShapes.of(dimension), x, z);
+    }
+
+    private static BlockPos foldBlock(@Nullable ToroidalShape shape, int x, int z) {
         BlockPos pos = new BlockPos(x, 0, z);
-        ToroidalShape shape = ClientShapes.current();
         return shape == null ? pos : shape.fold(pos);
     }
 
-    public static Vec3 foldPosition(Vec3 position) {
-        ToroidalShape shape = ClientShapes.current();
+    public static Vec3 foldPosition(ResourceKey<Level> dimension, Vec3 position) {
+        ToroidalShape shape = ClientShapes.of(dimension);
         return shape == null ? position : shape.fold(position);
     }
 
@@ -124,8 +131,8 @@ public final class FtbChunksFold {
         return shape == null ? pos : shape.fold(pos);
     }
 
-    public static int loopedAxes() {
-        ToroidalShape shape = ClientShapes.current();
+    public static int loopedAxes(ResourceKey<Level> dimension) {
+        ToroidalShape shape = ClientShapes.of(dimension);
         if (shape == null) {
             return 0;
         }
@@ -133,8 +140,9 @@ public final class FtbChunksFold {
         return (shape.loops(Direction.Axis.X) ? 1 : 0) + (shape.loops(Direction.Axis.Z) ? 1 : 0);
     }
 
-    public static List<WorldCopies.Copy> drawnCopies(int minX, int minZ, int maxX, int maxZ, MapCopies mapCopies) {
-        return drawnCopies(ClientShapes.current(), minX, minZ, maxX, maxZ, mapCopies);
+    public static List<WorldCopies.Copy> drawnCopies(ResourceKey<Level> dimension, int minX, int minZ, int maxX,
+            int maxZ, MapCopies mapCopies) {
+        return drawnCopies(ClientShapes.of(dimension), minX, minZ, maxX, maxZ, mapCopies);
     }
 
     static List<WorldCopies.Copy> drawnCopies(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ,
@@ -147,8 +155,8 @@ public final class FtbChunksFold {
         return copies.contains(WorldCopies.IDENTITY) ? List.of(WorldCopies.IDENTITY) : List.of();
     }
 
-    public static List<SeamLine> seamLines(SeamView view) {
-        return seamLines(ClientShapes.current(), view);
+    public static List<SeamLine> seamLines(ResourceKey<Level> dimension, SeamView view) {
+        return seamLines(ClientShapes.of(dimension), view);
     }
 
     static List<SeamLine> seamLines(@Nullable ToroidalShape shape, SeamView view) {
@@ -175,9 +183,9 @@ public final class FtbChunksFold {
         return originPixel + (int) Math.round(block * pixelsPerBlock);
     }
 
-    public static double clampScroll(Direction.Axis axis, double scroll, int regionMin, int regionTilePixels,
-            int panelPixels) {
-        return clampScroll(copies(axis), scroll, regionMin, regionTilePixels, panelPixels);
+    public static double clampScroll(ResourceKey<Level> dimension, Direction.Axis axis, double scroll, int regionMin,
+            int regionTilePixels, int panelPixels) {
+        return clampScroll(copies(dimension, axis), scroll, regionMin, regionTilePixels, panelPixels);
     }
 
     static double clampScroll(AxisCopies copies, double scroll, int regionMin, int regionTilePixels, int panelPixels) {
@@ -187,12 +195,12 @@ public final class FtbChunksFold {
         return scroll + (clamped - centre) * pixelsPerBlock;
     }
 
-    public static int tileFloor(int windowWidth, int windowHeight) {
-        return zoomFloor(windowWidth, windowHeight) * TILE_PIXELS_PER_ZOOM;
+    public static int tileFloor(ResourceKey<Level> dimension, int windowWidth, int windowHeight) {
+        return zoomFloor(dimension, windowWidth, windowHeight) * TILE_PIXELS_PER_ZOOM;
     }
 
-    public static int zoomFloor(int windowWidth, int windowHeight) {
-        ToroidalShape shape = ClientShapes.current();
+    public static int zoomFloor(ResourceKey<Level> dimension, int windowWidth, int windowHeight) {
+        ToroidalShape shape = ClientShapes.of(dimension);
         if (shape == null) {
             return 0;
         }
@@ -222,11 +230,11 @@ public final class FtbChunksFold {
     record HaloPixel(int sourceX, int sourceZ, int haloX, int haloZ) {
     }
 
-    // The part of a region tile that lies inside the world, as a screen rectangle and its window of the region image
-    // in image pixels. The rest of the image is opaque black, so a tile blitted whole paints over the copy beside it.
-    public static @Nullable TileBlit worldPartOf(int regionX, int regionZ, int x, int y, int width, int height) {
-        int[] spanX = worldSpanInRegion(Direction.Axis.X, regionX);
-        int[] spanZ = worldSpanInRegion(Direction.Axis.Z, regionZ);
+    public static @Nullable TileBlit worldPartOf(ResourceKey<Level> dimension, int regionX, int regionZ, int x, int y,
+            int width, int height) {
+        ToroidalShape shape = ClientShapes.of(dimension);
+        int[] spanX = worldSpanInRegion(shape, Direction.Axis.X, regionX);
+        int[] spanZ = worldSpanInRegion(shape, Direction.Axis.Z, regionZ);
         if (spanX[0] >= spanX[1] || spanZ[0] >= spanZ[1]) {
             return null;
         }
@@ -245,8 +253,7 @@ public final class FtbChunksFold {
         return blockOffset / (float) REGION_BLOCKS;
     }
 
-    static int[] worldSpanInRegion(Direction.Axis axis, int region) {
-        ToroidalShape shape = ClientShapes.current();
+    static int[] worldSpanInRegion(@Nullable ToroidalShape shape, Direction.Axis axis, int region) {
         int regionStart = region * REGION_BLOCKS;
         if (shape == null || !shape.loops(axis)) {
             return new int[] {0, REGION_BLOCKS};
@@ -257,9 +264,6 @@ public final class FtbChunksFold {
         return new int[] {from, Math.max(from, to)};
     }
 
-    // FTB shades a pixel against its north and west neighbours inside the same region image, so the world's edge
-    // pixels would read an unexplored neighbour on every copy; the halo lies outside worldSpanInRegion and is never
-    // blitted.
     public static void mirrorSeamEdges(MapDimension dimension, int foldedChunkX, int foldedChunkZ) {
         List<HaloPixel> halo = haloPixels(ClientShapes.of(dimension.dimension), foldedChunkX, foldedChunkZ);
         if (halo.isEmpty()) {
@@ -333,8 +337,8 @@ public final class FtbChunksFold {
         target.setBlockIndex(to, source.getBlockIndex(from));
     }
 
-    public static AxisCopies copies(Direction.Axis axis) {
-        ToroidalShape shape = ClientShapes.current();
+    public static AxisCopies copies(ResourceKey<Level> dimension, Direction.Axis axis) {
+        ToroidalShape shape = ClientShapes.of(dimension);
         return shape == null ? AxisCopies.UNBOUNDED : AxisCopies.of(shape, axis);
     }
 
@@ -342,8 +346,6 @@ public final class FtbChunksFold {
         return minimapSplits(ClientShapes.current(), axis, centreChunk.x(), centreChunk.z(), unfolded);
     }
 
-    // FTB's own loop reads any number of cuts and copies each piece as one run from one region image, so a cut goes
-    // wherever any row or column of the folded window stops being one run inside one region.
     static int[] minimapSplits(@Nullable ToroidalShape shape, Direction.Axis axis, int centreChunkX, int centreChunkZ,
             int[] unfolded) {
         if (shape == null || !shape.loops(axis)) {

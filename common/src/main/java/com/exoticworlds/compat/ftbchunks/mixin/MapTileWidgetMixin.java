@@ -32,15 +32,14 @@ public abstract class MapTileWidgetMixin {
         ((Widget) (Object) this).setDrawLayer(Widget.DrawLayer.BACKGROUND);
     }
 
-    // The tile paints only its part inside the world: the copies already lie beside it, and its black margin would
-    // paint over them.
     @WrapOperation(method = "draw",
             at = @At(value = "INVOKE",
                     target = "Ldev/ftb/mods/ftblibrary/ui/GuiHelper;drawTexturedRect(Lnet/minecraft/client/gui/GuiGraphics;"
                             + "IIIILdev/ftb/mods/ftblibrary/icon/Color4I;FFFF)V"))
     private void toroidal$blitWorldPartOnly(GuiGraphics graphics, int x, int y, int w, int h, Color4I color,
             float u0, float v0, float u1, float v1, Operation<Void> original) {
-        TileBlit blit = FtbChunksFold.worldPartOf(this.region.pos.x(), this.region.pos.z(), x, y, w, h);
+        TileBlit blit = FtbChunksFold.worldPartOf(this.region.dimension.dimension, this.region.pos.x(),
+                this.region.pos.z(), x, y, w, h);
         if (blit == null) {
             return;
         }

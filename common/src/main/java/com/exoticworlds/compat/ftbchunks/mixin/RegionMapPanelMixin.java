@@ -27,7 +27,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 
 import dev.ftb.mods.ftbchunks.client.gui.LargeMapScreen;
 import dev.ftb.mods.ftbchunks.client.gui.MapTileWidget;
@@ -69,22 +71,22 @@ public abstract class RegionMapPanelMixin {
         }
 
         RegionMapPanel panel = (RegionMapPanel) (Object) this;
+        ResourceKey<Level> dimension = this.largeMap.currentDimension();
         int tilePixels = this.largeMap.getRegionTileSize();
-        panel.setScrollX(FtbChunksFold.clampScroll(Direction.Axis.X, panel.getScrollX(), this.regionMinX, tilePixels,
-                panel.width));
-        panel.setScrollY(FtbChunksFold.clampScroll(Direction.Axis.Z, panel.getScrollY(), this.regionMinZ, tilePixels,
-                panel.height));
+        panel.setScrollX(FtbChunksFold.clampScroll(dimension, Direction.Axis.X, panel.getScrollX(), this.regionMinX,
+                tilePixels, panel.width));
+        panel.setScrollY(FtbChunksFold.clampScroll(dimension, Direction.Axis.Z, panel.getScrollY(), this.regionMinZ,
+                tilePixels, panel.height));
     }
 
-    // A copy is the same tile blitted again at a lap's offset — never a second pass through Panel.draw, which drags
-    // the icons, their pose changes and a fresh texture-id round trip along with it.
     @WrapOperation(method = "draw",
             at = @At(value = "INVOKE",
                     target = "Ldev/ftb/mods/ftblibrary/ui/Panel;draw(Lnet/minecraft/client/gui/GuiGraphics;"
                             + "Ldev/ftb/mods/ftblibrary/ui/Theme;IIII)V"))
     private void toroidal$drawWrappedCopies(RegionMapPanel panel, GuiGraphics graphics, Theme theme, int x, int y,
             int w, int h, Operation<Void> original) {
-        int loopedAxes = FtbChunksFold.loopedAxes();
+        ResourceKey<Level> dimension = this.largeMap.currentDimension();
+        int loopedAxes = FtbChunksFold.loopedAxes(dimension);
         if (loopedAxes == 0) {
             toroidal$seamView = null;
             original.call(panel, graphics, theme, x, y, w, h);
@@ -92,15 +94,12 @@ public abstract class RegionMapPanelMixin {
         }
 
         int tilePixels = this.largeMap.getRegionTileSize();
-
-        // The copies are the ones that fall inside the view in block terms — the canonical square can sit at the
-        // edge of the scrolled canvas or past it, so a fixed reach around it leaves the far side bare.
         panel.setOffset(true);
         double pixelsPerBlock = tilePixels / (double) REGION_BLOCKS;
         int originX = panel.getX() - this.regionMinX * tilePixels;
         int originY = panel.getY() - this.regionMinZ * tilePixels;
         MapCopies mapCopies = MapCopies.current();
-        List<WorldCopies.Copy> copies = FtbChunksFold.drawnCopies(
+        List<WorldCopies.Copy> copies = FtbChunksFold.drawnCopies(dimension,
                 Mth.floor((x - originX) / pixelsPerBlock), Mth.floor((y - originY) / pixelsPerBlock),
                 Mth.ceil((x + w - originX) / pixelsPerBlock), Mth.ceil((y + h - originY) / pixelsPerBlock), mapCopies);
 
@@ -141,7 +140,7 @@ public abstract class RegionMapPanelMixin {
             return;
         }
 
-        for (SeamLine line : FtbChunksFold.seamLines(view)) {
+        for (SeamLine line : FtbChunksFold.seamLines(this.largeMap.currentDimension(), view)) {
             if (line.vertical()) {
                 graphics.fill(line.at(), line.from(), line.at() + SEAM_LINE_WIDTH, line.to(), SEAM_LINE_ARGB);
             } else {
@@ -164,7 +163,8 @@ public abstract class RegionMapPanelMixin {
                 continue;
             }
 
-            TileBlit blit = FtbChunksFold.worldPartOf(tile.region.pos.x(), tile.region.pos.z(),
+            TileBlit blit = FtbChunksFold.worldPartOf(tile.region.dimension.dimension, tile.region.pos.x(),
+                    tile.region.pos.z(),
                     tile.getX() + offsetX, tile.getY() + offsetY, tile.width, tile.height);
             if (blit == null || blit.x() + blit.width() <= viewX || blit.x() >= viewX + viewWidth
                     || blit.y() + blit.height() <= viewY || blit.y() >= viewY + viewHeight) {
@@ -186,7 +186,7 @@ public abstract class RegionMapPanelMixin {
     @ModifyExpressionValue(method = "draw",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 1))
     private int toroidal$foldPick(int blockZ) {
-        BlockPos folded = FtbChunksFold.foldBlock(this.blockX, blockZ);
+        BlockPos folded = FtbChunksFold.foldBlock(this.largeMap.currentDimension(), this.blockX, blockZ);
         this.blockX = folded.getX();
         return folded.getZ();
     }
