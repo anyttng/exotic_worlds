@@ -122,7 +122,7 @@ public abstract class RegionMapPanelMixin {
 
         panel.setOffset(false);
 
-        toroidal$seamView = mapCopies == MapCopies.SINGLE
+        toroidal$seamView = !mapCopies.drawsSeamLines()
                 ? null
                 : new SeamView(originX, originY, tilePixels, x, y, w, h);
         original.call(panel, graphics, theme, x, y, w, h);
