@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Random;
 
@@ -35,6 +36,8 @@ import com.ishland.c2me.opts.dfc.common.ast.binary.AddNode;
 import com.ishland.c2me.opts.dfc.common.ast.binary.MulNode;
 import com.ishland.c2me.opts.dfc.common.ast.misc.ConstantNode;
 import com.ishland.c2me.opts.dfc.common.ast.misc.CoordinateNode;
+import com.ishland.c2me.opts.dfc.common.ast.misc.DelegateNode;
+import com.ishland.c2me.opts.dfc.common.ast.noise.DFTWeirdScaledSamplerNode;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -53,6 +56,8 @@ class C2meDfcAstTest {
     private static final double Y_SCALE = 0.3;
     private static final double SHIFT_X = 3.0;
     private static final double SHIFT_Y = 7.0;
+    private static final String RARITY_VALUE_MAPPER =
+            "net.minecraft.world.level.levelgen.DensityFunctions$WeirdScaledSampler$RarityValueMapper";
     private static final double SHIFT_Z = -5.0;
 
     private static final double FLAT_Y_SCALE = 0.0;
@@ -219,6 +224,19 @@ class C2meDfcAstTest {
     }
 
     @Test
+    void caveSamplerOnARouterThatWrapsNothingKeepsTheCompiledNode() {
+        assertInstanceOf(DFTWeirdScaledSamplerNode.class, McToAst.toAst(caveSampler()),
+                "a router that wraps nothing has no fold to keep in one place, so the sampler must stay compiled");
+    }
+
+    @Test
+    void caveSamplerOnAWrappedRouterDelegatesToTheFoldedBody() {
+        assertInstanceOf(DelegateNode.class,
+                GenerationTransformerContext.withRouterBuild(SQUARE, () -> McToAst.toAst(caveSampler())),
+                "a compiled sampler on a wrapped router skips the rarity fold of the vanilla body");
+    }
+
+    @Test
     void blendDensityOverAFoldedNoiseIsNotReported() {
         DensityFunction source = DensityFunctions.blendDensity(
                 withLiveNoise(DensityFunctions.noise(NOISE_DATA, XZ_SCALE, Y_SCALE)));
@@ -251,6 +269,19 @@ class C2meDfcAstTest {
 
         assertTrue(C2meDfcAst.reportsMiss(source, produced, SQUARE));
         assertTrue(C2meDfcAst.reportsMiss(source, produced, RECTANGULAR));
+    }
+
+    private static DensityFunction caveSampler() {
+        try {
+            Class<?> mapper = Class.forName(RARITY_VALUE_MAPPER);
+            Method factory = DensityFunctions.class.getMethod("weirdScaledSampler", DensityFunction.class,
+                    Holder.class, mapper);
+            Object type1 = mapper.getEnumConstants()[0];
+            return withLiveNoise((DensityFunction) factory.invoke(null, DensityFunctions.constant(SHIFT_Y), NOISE_DATA,
+                    type1));
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private static AstNode unfoldedNoiseNode() {
