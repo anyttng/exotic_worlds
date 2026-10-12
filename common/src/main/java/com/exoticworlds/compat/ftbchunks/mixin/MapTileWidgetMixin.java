@@ -23,8 +23,6 @@ public abstract class MapTileWidgetMixin {
     @Final
     public MapRegion region;
 
-    // The tile paints only its part inside the world: the copies already lie beside it, and its black margin would
-    // paint over them.
     @WrapOperation(method = "draw",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit("
@@ -33,7 +31,8 @@ public abstract class MapTileWidgetMixin {
     private void toroidal$blitWorldPartOnly(GuiGraphicsExtractor graphics, RenderPipeline pipeline, Identifier texture,
             int x, int y, float u, float v, int width, int height, int srcWidth, int srcHeight, int textureWidth,
             int textureHeight, int color, Operation<Void> original) {
-        TileBlit blit = FtbChunksFold.worldPartOf(this.region.pos.x(), this.region.pos.z(), x, y, width, height);
+        TileBlit blit = FtbChunksFold.worldPartOf(this.region.dimension.dimension, this.region.pos.x(),
+                this.region.pos.z(), x, y, width, height);
         if (blit == null) {
             return;
         }

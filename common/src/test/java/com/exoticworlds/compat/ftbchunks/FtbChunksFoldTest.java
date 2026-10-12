@@ -155,10 +155,12 @@ class FtbChunksFoldTest {
     @Test
     void anUnwrappedWorldDrawsItselfInBothModes() {
         assertEquals(List.of(WorldCopies.IDENTITY),
-                FtbChunksFold.drawnCopies(null, -40000000, -40000000, 40000000, 40000000, MapCopies.SINGLE),
+                FtbChunksFold.drawnCopies((ToroidalShape) null, -40000000, -40000000, 40000000, 40000000,
+                        MapCopies.SINGLE),
                 "an unwrapped world lost itself under SINGLE");
         assertEquals(List.of(WorldCopies.IDENTITY),
-                FtbChunksFold.drawnCopies(null, -40000000, -40000000, 40000000, 40000000, MapCopies.REPEATED),
+                FtbChunksFold.drawnCopies((ToroidalShape) null, -40000000, -40000000, 40000000, 40000000,
+                        MapCopies.REPEATED),
                 "an unwrapped world grew copies under REPEATED");
     }
 
@@ -178,7 +180,7 @@ class FtbChunksFoldTest {
 
     @Test
     void anUnwrappedWorldDrawsNoSeam() {
-        assertEquals(List.of(), FtbChunksFold.seamLines(null,
+        assertEquals(List.of(), FtbChunksFold.seamLines((ToroidalShape) null,
                 new FtbChunksFold.SeamView(0, 0, FtbChunksFold.REGION_BLOCKS, -256, 200, 512, 200)),
                 "an unwrapped world drew a seam");
     }
