@@ -11,6 +11,7 @@ public final class C2meNoTickVd {
     static final ModPresence GATE = ModPresence.gate(LogUtils.getLogger(), "[c2me-compat] gate notickvd_present")
             .probing("com/ishland/c2me/notickvd/common/PlayerNoTickLoader.class")
             .checking(C2meMixinPlugin.CONFIG, mixin -> MIXINS.contains(mixin))
+            .requiring(C2meChunkSystem.GATE)
             .build();
 
     public static boolean present() {
