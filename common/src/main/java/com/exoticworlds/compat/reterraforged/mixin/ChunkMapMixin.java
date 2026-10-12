@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.compat.reterraforged.LapCarrier;
-import com.exoticworlds.compat.reterraforged.RtfLap;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFold;
 
@@ -41,7 +40,6 @@ public abstract class ChunkMapMixin {
             return;
         }
 
-        ((LapCarrier) (Object) context.generator.getHeightmap()).toroidal$carryFold(fold);
-        RtfLap.activate();
+        LapCarrier.carry(context, fold);
     }
 }

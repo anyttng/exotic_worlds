@@ -29,7 +29,8 @@ def reTerraForgedCompat = ['**/compat/reterraforged/**']
 sourceSets.main.java.srcDir registerFreeTerraForgedSources('generateFreeTerraForgedMain', 'src/main/java',
         reTerraForgedCompat, [
         '**/compat/reterraforged/mixin/ArchipelagoPopulatorMixin.java',
-        '**/compat/reterraforged/mixin/UpliftContinentGeneratorMixin.java'])
+        '**/compat/reterraforged/mixin/UpliftContinentGeneratorMixin.java',
+        '**/compat/reterraforged/preview/**'])
 sourceSets.main.resources.srcDir registerFreeTerraForgedSources('generateFreeTerraForgedResources',
         'src/main/resources', ['exotic_worlds.compat.reterraforged.mixins.json'], [])
 

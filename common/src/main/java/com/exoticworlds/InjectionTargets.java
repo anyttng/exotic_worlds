@@ -49,6 +49,9 @@ public final class InjectionTargets {
     public static final String CHUNK_POS_AS_LONG_BLOCK =
             "Lnet/minecraft/world/level/ChunkPos;asLong(Lnet/minecraft/core/BlockPos;)J";
 
+    public static final String COMPLETABLE_FUTURE_SUPPLY_ASYNC = "Ljava/util/concurrent/CompletableFuture;supplyAsync"
+            + "(Ljava/util/function/Supplier;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;";
+
     public static final String DENSITY_FUNCTION_COMPUTE =
             "Lnet/minecraft/world/level/levelgen/DensityFunction;compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D";
 

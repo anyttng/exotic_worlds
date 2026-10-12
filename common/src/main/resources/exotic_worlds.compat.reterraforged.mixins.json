@@ -19,6 +19,7 @@
     "ErosionNoiseMixin",
     "FastPoissonMixin",
     "FrequencyMixin",
+    "GeneratorContextMixin",
     "HeightmapMixin",
     "LegacyTemperatureMixin",
     "NoiseFunctionMixin",

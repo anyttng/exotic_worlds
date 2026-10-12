@@ -1,7 +1,8 @@
-package com.exoticworlds.compat.seedviewer;
+package com.exoticworlds.compat;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 
@@ -32,6 +33,11 @@ public final class CreationShape {
         return carried == null
                 ? UNSHAPED
                 : FINGERPRINTS.computeIfAbsent(carried, shape -> FINGERPRINT_PREFIX + FINGERPRINTS.size());
+    }
+
+    public static <T> Supplier<T> underRouterBuild(WorldCreationContext settings, Supplier<T> build) {
+        WorldFold fold = fold(settings);
+        return () -> GenerationTransformerContext.withRouterBuild(fold, build);
     }
 
     public static WorldFold routerBuildFold() {

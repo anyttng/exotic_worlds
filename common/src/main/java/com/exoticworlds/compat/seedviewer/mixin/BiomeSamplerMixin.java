@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.BinderOrder;
-import com.exoticworlds.compat.seedviewer.CreationShape;
+import com.exoticworlds.compat.CreationShape;
 import com.exoticworlds.compat.seedviewer.FoldedBiomeSampler;
 import com.exoticworlds.compat.seedviewer.FoldedSampleCache;
 import com.exoticworlds.compat.seedviewer.SeedViewerInjectionTargets;

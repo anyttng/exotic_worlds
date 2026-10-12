@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import com.exoticworlds.BinderOrder;
-import com.exoticworlds.compat.seedviewer.CreationShape;
+import com.exoticworlds.compat.CreationShape;
 import com.exoticworlds.compat.seedviewer.SeedViewerInjectionTargets;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;

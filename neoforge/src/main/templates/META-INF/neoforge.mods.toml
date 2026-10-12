@@ -138,10 +138,16 @@ config="exotic_worlds.compat.terrablender.mixins.json"
 config="exotic_worlds.compat.reterraforged.mixins.json"
 
 [[mixins]]
+config="exotic_worlds.compat.reterraforged.preview.mixins.json"
+
+[[mixins]]
 config="exotic_worlds.compat.freeterraforged.mixins.json"
 
 [[mixins]]
 config="exotic_worlds.compat.freeterraforged.banding.mixins.json"
+
+[[mixins]]
+config="exotic_worlds.compat.freeterraforged.preview.mixins.json"
 
 [[mixins]]
 config="exotic_worlds.compat.astikorcarts.mixins.json"
