@@ -33,13 +33,11 @@ public final class C2meDfcAst {
     private static @Nullable WorldFold reportedMissesFor;
 
     public static AstNode fold(DensityFunction source, AstNode produced) {
-        // The cave sampler folds inside its own rarity division, in DensityFunctionsWeirdScaledSamplerMixin; a second
-        // fold compiled here would have to agree with that one block for block.
+        WorldFold transformer = GenerationTransformerContext.context().routerBuildTransformer();
         if (source instanceof DensityFunctions.WeirdScaledSampler) {
-            return new DelegateNode(source);
+            return transformer != null ? new DelegateNode(source) : produced;
         }
 
-        WorldFold transformer = GenerationTransformerContext.context().routerBuildTransformer();
         Fold fold = foldOf(source);
         if (fold == null) {
             if (reportsMiss(source, produced, transformer)) {
