@@ -19,7 +19,9 @@ import com.exoticworlds.compat.WorldCopies;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -43,17 +45,25 @@ public final class FtbChunksFold {
         return XZ.of(folded.x(), folded.z());
     }
 
-    public static XZ chunkOf(ChunkPos pos) {
-        return chunkOf(pos.x(), pos.z());
-    }
-
     public static XZ chunkOf(XZ chunk) {
         return chunkOf(chunk.x(), chunk.z());
     }
 
-    public static ChunkPos foldedChunkPos(ChunkPos pos) {
-        ToroidalShape shape = ClientShapes.current();
-        return shape == null ? pos : shape.fold(pos);
+    public static XZ chunkOf(ResourceKey<Level> dimension, int chunkX, int chunkZ) {
+        ChunkPos folded = foldedChunk(ClientShapes.of(dimension), chunkX, chunkZ);
+        return XZ.of(folded.x(), folded.z());
+    }
+
+    public static XZ chunkOf(ResourceKey<Level> dimension, ChunkPos pos) {
+        return chunkOf(dimension, pos.x(), pos.z());
+    }
+
+    public static XZ chunkOf(ResourceKey<Level> dimension, XZ chunk) {
+        return chunkOf(dimension, chunk.x(), chunk.z());
+    }
+
+    public static ChunkPos foldedChunkPos(ResourceKey<Level> dimension, ChunkPos pos) {
+        return foldedChunk(ClientShapes.of(dimension), pos.x(), pos.z());
     }
 
     public static Set<XZ> foldedChunks(Set<XZ> chunks) {
@@ -79,8 +89,13 @@ public final class FtbChunksFold {
         return XZ.regionFromChunk(folded.x(), folded.z());
     }
 
-    public static XZ regionOfChunk(ChunkPos pos) {
-        return regionOfChunk(pos.x(), pos.z());
+    public static XZ regionOfChunk(ResourceKey<Level> dimension, int chunkX, int chunkZ) {
+        ChunkPos folded = foldedChunk(ClientShapes.of(dimension), chunkX, chunkZ);
+        return XZ.regionFromChunk(folded.x(), folded.z());
+    }
+
+    public static XZ regionOfChunk(ResourceKey<Level> dimension, ChunkPos pos) {
+        return regionOfChunk(dimension, pos.x(), pos.z());
     }
 
     public static BlockPos foldBlock(int x, int z) {
@@ -224,7 +239,7 @@ public final class FtbChunksFold {
     // pixels would read an unexplored neighbour on every copy; the halo lies outside worldSpanInRegion and is never
     // blitted.
     public static void mirrorSeamEdges(MapDimension dimension, int foldedChunkX, int foldedChunkZ) {
-        List<HaloPixel> halo = haloPixels(ClientShapes.current(), foldedChunkX, foldedChunkZ);
+        List<HaloPixel> halo = haloPixels(ClientShapes.of(dimension.dimension), foldedChunkX, foldedChunkZ);
         if (halo.isEmpty()) {
             return;
         }

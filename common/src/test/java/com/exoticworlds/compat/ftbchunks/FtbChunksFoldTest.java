@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.TestShapes;
 import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.client.engine.PublishedShapes;
 import com.exoticworlds.compat.AxisCopies;
 import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.compat.MapShapes;
@@ -26,6 +27,7 @@ import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 
 import dev.ftb.mods.ftblibrary.math.XZ;
 
@@ -240,6 +242,26 @@ class FtbChunksFoldTest {
     void anUnwrappedWorldKeepsTheSelectionItself() {
         Set<XZ> selection = Set.of(XZ.of(9000, 33));
         assertSame(selection, FtbChunksFold.foldedChunks(null, selection), "an unwrapped world was rebuilt");
+    }
+
+    @Test
+    void anOverworldKeyFoldsByTheOverworldWhateverElseIsPublished() {
+        PublishedShapes.publish(Level.OVERWORLD, WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(64))));
+        PublishedShapes.publish(Level.NETHER, WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(8))));
+        try {
+            assertEquals(XZ.of(10, 0), FtbChunksFold.chunkOf(Level.OVERWORLD, 10, 0),
+                    "chunk 10 is canonical in a 64-chunk Overworld and was folded by the 8-chunk Nether");
+            assertEquals(XZ.of(0, 0), FtbChunksFold.regionOfChunk(Level.OVERWORLD, new ChunkPos(10, 0)),
+                    "the Overworld region key was taken from a chunk folded by the Nether");
+            assertEquals(new ChunkPos(10, 0), FtbChunksFold.foldedChunkPos(Level.OVERWORLD, new ChunkPos(10, 0)),
+                    "the Overworld owner key was folded by the Nether");
+            assertEquals(XZ.of(2, 0), FtbChunksFold.chunkOf(Level.NETHER, XZ.of(10, 0)),
+                    "the Nether's own key does not fold by its 8-chunk shape");
+            assertEquals(XZ.of(40, 0), FtbChunksFold.chunkOf(Level.END, 40, 0),
+                    "a dimension the server never published folded its key");
+        } finally {
+            PublishedShapes.clear();
+        }
     }
 
     @Test
