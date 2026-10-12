@@ -31,6 +31,7 @@ public final class ModPresence {
     private final Predicate<String> covering;
     private final Map<String, String> bodySources;
     private final Map<String, BooleanSupplier> withheld;
+    private final List<ModPresence> required;
 
     private String mixinPackage;
     private List<String> configMixins;
@@ -58,6 +59,7 @@ public final class ModPresence {
         this.covering = builder.covering;
         this.bodySources = Map.copyOf(builder.bodySources);
         this.withheld = Map.copyOf(builder.withheld);
+        this.required = List.copyOf(builder.required);
     }
 
     public boolean covers(String mixinClassName) {
@@ -91,6 +93,13 @@ public final class ModPresence {
         for (String resource : this.resources) {
             if (!probe(this.classLoader, resource)) {
                 this.logger.info("{}=false", this.gateLabel);
+                return false;
+            }
+        }
+
+        for (ModPresence gate : this.required) {
+            if (!gate.present()) {
+                this.logger.warn("{}=true admitted=false requires={}", this.gateLabel, gate.gateLabel);
                 return false;
             }
         }
@@ -176,6 +185,7 @@ public final class ModPresence {
         private final List<String> resources = new ArrayList<>();
         private final Map<String, String> bodySources = new HashMap<>();
         private final Map<String, BooleanSupplier> withheld = new HashMap<>();
+        private final List<ModPresence> required = new ArrayList<>();
 
         private String config;
         private Predicate<String> covering = mixin -> true;
@@ -207,6 +217,11 @@ public final class ModPresence {
 
         public Builder withholding(String mixin, BooleanSupplier when) {
             this.withheld.put(mixin, when);
+            return this;
+        }
+
+        public Builder requiring(ModPresence gate) {
+            this.required.add(gate);
             return this;
         }
 
