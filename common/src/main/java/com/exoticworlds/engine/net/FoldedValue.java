@@ -34,11 +34,15 @@ public final class FoldedValue {
 
     public static Object toward(TranslationContext context, Supplier<Vec3> anchor, Object value,
             UnaryOperator<Object> fallback) {
-        return walk(context.dimension(), towardLeaves(context.transformer(), anchor), value, fallback);
+        return walk(context, towardLeaves(context, anchor), value, fallback);
     }
 
     public static Object toward(WorldFold transformer, ResourceKey<Level> dimension, Vec3 anchor, Object value) {
         return walk(dimension, towardLeaves(transformer, () -> anchor), value, UnaryOperator.identity());
+    }
+
+    static Leaves towardLeaves(TranslationContext context, Supplier<Vec3> anchor) {
+        return towardLeaves(context.transformer(), anchor);
     }
 
     private static Leaves towardLeaves(WorldFold transformer, Supplier<Vec3> anchor) {
@@ -59,7 +63,11 @@ public final class FoldedValue {
     }
 
     static Object walk(TranslationContext context, Leaves leaves, Object value) {
-        return walk(context.dimension(), leaves, value, UnaryOperator.identity());
+        return walk(context, leaves, value, UnaryOperator.identity());
+    }
+
+    static Object walk(TranslationContext context, Leaves leaves, Object value, UnaryOperator<Object> fallback) {
+        return walk(context.dimension(), leaves, value, fallback);
     }
 
     static Object moved(ResourceKey<Level> dimension, DeckTransformation move, Object value) {

@@ -226,10 +226,12 @@ final class ClientboundPacketRewriters {
     static ClientboundSetEntityDataPacket setEntityData(ClientboundSetEntityDataPacket packet, TranslationContext context) {
         List<SynchedEntityData.DataValue<?>> items = packet.packedItems();
         Supplier<Vec3> anchor = Suppliers.memoize(() -> resolveEntityAnchor(packet.id(), context));
+        FoldedValue.Leaves leaves = FoldedValue.towardLeaves(context, anchor);
+        UnaryOperator<Object> fallback = particleFold(context, anchor);
         List<SynchedEntityData.DataValue<?>> translated = new ArrayList<>(items.size());
         boolean changed = false;
         for (SynchedEntityData.DataValue<?> item : items) {
-            SynchedEntityData.DataValue<?> clientItem = toClientData(item, anchor, context);
+            SynchedEntityData.DataValue<?> clientItem = toClientData(item, anchor, leaves, fallback, context);
             changed |= clientItem != item;
             translated.add(clientItem);
         }
@@ -248,7 +250,8 @@ final class ClientboundPacketRewriters {
     }
 
     private static SynchedEntityData.DataValue<?> toClientData(SynchedEntityData.DataValue<?> item,
-            Supplier<Vec3> anchor, TranslationContext context) {
+            Supplier<Vec3> anchor, FoldedValue.Leaves leaves, UnaryOperator<Object> fallback,
+            TranslationContext context) {
         PacketRewriters.EntityDataRewriter<Object> dataRewriter = context.rewriters().entityDataFor(item);
         if (dataRewriter != null) {
             Object rewritten = dataRewriter.rewrite(item.value(), context, anchor.get());
@@ -260,7 +263,7 @@ final class ClientboundPacketRewriters {
             return item;
         }
 
-        Object clientValue = FoldedValue.toward(context, anchor, value, particleFold(context, anchor));
+        Object clientValue = FoldedValue.walk(context, leaves, value, fallback);
         return clientValue == value ? item : withValue(item, clientValue);
     }
 
