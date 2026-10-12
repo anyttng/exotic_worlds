@@ -298,10 +298,7 @@ public final class DeckGroupFold implements WorldFold {
 
     @Override
     public int sqrChunkDistance(ChunkPos from, ChunkPos to) {
-        SeamTransform move = this.chunks.nearestCells(from.x(), from.z(), to.x(), to.z());
-        int dx = move.applyCellX(to.x()) - from.x();
-        int dz = move.applyCellZ(to.z()) - from.z();
-        return dx * dx + dz * dz;
+        return (int) this.chunks.nearestCellsSqrDistance(from.x(), from.z(), to.x(), to.z());
     }
 
     @Override
@@ -325,9 +322,9 @@ public final class DeckGroupFold implements WorldFold {
             return List.of(Folded.of(box));
         }
 
-        List<DeckGroupLattice.CoordPiece> reduced = this.blocks.splitCoords(box);
+        List<DeckGroupRegions.CoordPiece> reduced = this.blocks.regions.splitCoords(box);
         List<Folded<AABB>> pieces = new ArrayList<>(reduced.size());
-        for (DeckGroupLattice.CoordPiece piece : reduced) {
+        for (DeckGroupRegions.CoordPiece piece : reduced) {
             pieces.add(new Folded<>(piece.box(), piece.applied().orientation()));
         }
 
@@ -340,9 +337,9 @@ public final class DeckGroupFold implements WorldFold {
             return List.of(Folded.of(region));
         }
 
-        List<DeckGroupLattice.CellPiece> reduced = this.blocks.splitCells(region);
+        List<DeckGroupRegions.CellPiece> reduced = this.blocks.regions.splitCells(region);
         List<Folded<BoundingBox>> pieces = new ArrayList<>(reduced.size());
-        for (DeckGroupLattice.CellPiece piece : reduced) {
+        for (DeckGroupRegions.CellPiece piece : reduced) {
             pieces.add(new Folded<>(piece.box(), piece.applied().orientation()));
         }
 
@@ -372,12 +369,12 @@ public final class DeckGroupFold implements WorldFold {
             throw new IllegalArgumentException("A copy reach is never negative, got " + reach);
         }
 
-        return this.blocks.copiesTouching(region.minX(), region.maxX(), region.minZ(), region.maxZ(), reach);
+        return this.blocks.regions.copiesTouching(region.minX(), region.maxX(), region.minZ(), region.maxZ(), reach);
     }
 
     @Override
     public boolean foldsOntoItself(BoundingBox region) {
-        return this.blocks.foldsOntoItself(region);
+        return this.blocks.regions.foldsOntoItself(region);
     }
 
     @Override
@@ -388,7 +385,7 @@ public final class DeckGroupFold implements WorldFold {
     }
 
     private static boolean horizontallyIntersects(BoundingBox first, BoundingBox second) {
-        return DeckGroupLattice.meets(first.minX(), first.maxX(), second.minX(), second.maxX())
-                && DeckGroupLattice.meets(first.minZ(), first.maxZ(), second.minZ(), second.maxZ());
+        return DeckGroupRegions.meets(first.minX(), first.maxX(), second.minX(), second.maxX())
+                && DeckGroupRegions.meets(first.minZ(), first.maxZ(), second.minZ(), second.maxZ());
     }
 }
