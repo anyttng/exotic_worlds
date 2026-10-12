@@ -11,7 +11,6 @@ import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.LevelHolder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.fold.FoldedOrder;
 import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.server.level.ChunkMap;
@@ -34,7 +33,7 @@ public class PlayerChunkSenderMixin {
             return original;
         }
 
-        return FoldedOrder.of(original, pending -> transformer.nearestCopy(playerPos, ChunkPos.unpack(pending)).pack());
+        return Comparator.comparingInt(pending -> transformer.sqrChunkDistance(playerPos, ChunkPos.unpack(pending)));
     }
 
     @ModifyArg(
