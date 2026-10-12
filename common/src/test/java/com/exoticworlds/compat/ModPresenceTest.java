@@ -64,6 +64,34 @@ class ModPresenceTest {
     }
 
     @Test
+    void aGateClosesWhenAGateItRequiresRefuses() {
+        ModPresence refusing = ModPresence.gate(LOGGER, "[test-compat] gate required_refusing_present")
+                .probing(SHIPPED_CLASS)
+                .checking(CONFIG, (MIXIN_PREFIX + SHADOW_MISSING)::equals)
+                .build();
+
+        assertFalse(ModPresence.gate(LOGGER, "[test-compat] gate requiring_refused_present")
+                .probing(SHIPPED_CLASS)
+                .checking(CONFIG, (MIXIN_PREFIX + WRAP_PRESENT)::equals)
+                .requiring(refusing)
+                .build().present(), "its own mixin holds, but it casts into what the refused gate's mixins add");
+    }
+
+    @Test
+    void aGateWhoseRequiredGateAdmitsOpens() {
+        ModPresence admitting = ModPresence.gate(LOGGER, "[test-compat] gate required_admitting_present")
+                .probing(SHIPPED_CLASS)
+                .checking(CONFIG, (MIXIN_PREFIX + INJECT_PRESENT)::equals)
+                .build();
+
+        assertTrue(ModPresence.gate(LOGGER, "[test-compat] gate requiring_admitted_present")
+                .probing(SHIPPED_CLASS)
+                .checking(CONFIG, (MIXIN_PREFIX + WRAP_PRESENT)::equals)
+                .requiring(admitting)
+                .build().present(), "both its own mixin and the required gate's hold");
+    }
+
+    @Test
     void aGateWithoutAConfigIsTheBareProbe() {
         assertTrue(ModPresence.gate(LOGGER, "[test-compat] gate shipped_present").probing(SHIPPED_CLASS).build()
                 .present(), "the mod's own class file resolves through the loader the builder picks");
