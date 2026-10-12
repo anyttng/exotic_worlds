@@ -70,9 +70,9 @@ public final class PeriodicityCheck {
                 int lapAwayQuartZ = QuartPos.fromBlock(zLapAway);
 
                 Climate.TargetPoint climateHere = GenerationTransformerContext.withTransformer(transformer,
-                        () -> sampler.sample(quartX, quartY, quartZ));
+                        () -> ClimateFields.at(sampler, quartX, quartY, quartZ));
                 Climate.TargetPoint climateLapAway = GenerationTransformerContext.withTransformer(transformer,
-                        () -> sampler.sample(lapAwayQuartX, quartY, lapAwayQuartZ));
+                        () -> ClimateFields.at(sampler, lapAwayQuartX, quartY, lapAwayQuartZ));
                 broken |= collectClimate(brokenFields, climateHere, climateLapAway);
 
                 Holder<Biome> biomeHere = GenerationTransformerContext.withTransformer(transformer,

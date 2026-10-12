@@ -46,9 +46,10 @@ class ClimateSamplerPeriodicityTest {
             for (int i = 0; i < SAMPLES; i++) {
                 int x = i * (width / SAMPLES);
                 int z = (i * 37) % width;
-                Climate.TargetPoint here = sampler.sample(QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z));
+                Climate.TargetPoint here =
+                        ClimateFields.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z));
                 Climate.TargetPoint lapAway =
-                        sampler.sample(QuartPos.fromBlock(x + width), quartY, QuartPos.fromBlock(z));
+                        ClimateFields.at(sampler, QuartPos.fromBlock(x + width), quartY, QuartPos.fromBlock(z));
                 collect(broken, "temperature", here.temperature(), lapAway.temperature());
                 collect(broken, "humidity", here.humidity(), lapAway.humidity());
                 collect(broken, "continentalness", here.continentalness(), lapAway.continentalness());
@@ -77,11 +78,12 @@ class ClimateSamplerPeriodicityTest {
             for (int i = 0; i < SAMPLES; i++) {
                 int x = i * (width / SAMPLES);
                 int z = (i * 37) % width;
-                Climate.TargetPoint here = sampler.sample(QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z));
+                Climate.TargetPoint here =
+                        ClimateFields.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z));
                 Climate.TargetPoint alongX =
-                        sampler.sample(QuartPos.fromBlock(x + width), quartY, QuartPos.fromBlock(z));
+                        ClimateFields.at(sampler, QuartPos.fromBlock(x + width), quartY, QuartPos.fromBlock(z));
                 Climate.TargetPoint alongZ =
-                        sampler.sample(QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z + width));
+                        ClimateFields.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z + width));
                 collect(broken, "temperature", here.temperature(), alongX.temperature());
                 collect(broken, "humidity", here.humidity(), alongX.humidity());
                 collect(broken, "continentalness", here.continentalness(), alongX.continentalness());

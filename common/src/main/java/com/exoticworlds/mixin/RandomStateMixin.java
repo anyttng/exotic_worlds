@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.exoticworlds.accessors.FoldedClimateSampler;
 import com.exoticworlds.core.GenerationMoments;
 import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
@@ -85,6 +86,7 @@ public class RandomStateMixin {
             HolderGetter<NormalNoise.NoiseParameters> noises, long seed, CallbackInfo callback) {
         WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
         if (fold != null) {
+            ((FoldedClimateSampler) (Object) ((RandomState) (Object) this).sampler()).toroidal$fold(fold);
             GenerationMoments.runAtRandomState((RandomState) (Object) this, new ToroidalShapeView(fold),
                     fold.generationOptions(), settings.seaLevel());
         }
