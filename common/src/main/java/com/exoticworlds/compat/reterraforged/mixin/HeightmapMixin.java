@@ -53,6 +53,7 @@ public abstract class HeightmapMixin implements LapCarrier {
     public void toroidal$carryFold(WorldFold fold) {
         this.toroidal$climateCompression =
                 RtfClimateCompression.factor(fold, (RtfClimateScales) (Object) this.climate.biomeNoise());
+        RtfClimateCompression.remember(fold, this.toroidal$climateCompression);
         this.toroidal$fold = fold;
     }
 

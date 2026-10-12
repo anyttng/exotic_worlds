@@ -43,6 +43,8 @@
     "exotic_worlds.compat.scalablelux.mixins.json",
     "exotic_worlds.compat.biolith.mixins.json",
     "exotic_worlds.compat.reterraforged.mixins.json",
+    "exotic_worlds.compat.freeterraforged.mixins.json",
+    "exotic_worlds.compat.freeterraforged.banding.mixins.json",
     "exotic_worlds.compat.wover.mixins.json",
     "exotic_worlds.compat.betterend.mixins.json",
     "exotic_worlds.compat.sodium.mixins.json",

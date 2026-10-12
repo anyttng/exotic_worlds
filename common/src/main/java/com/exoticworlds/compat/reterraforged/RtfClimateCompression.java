@@ -1,5 +1,10 @@
 package com.exoticworlds.compat.reterraforged;
 
+import java.util.Map;
+
+import org.jspecify.annotations.Nullable;
+
+import com.google.common.collect.MapMaker;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
@@ -23,8 +28,20 @@ public final class RtfClimateCompression {
 
     private static final Direction.Axis[] HORIZONTAL = {Direction.Axis.X, Direction.Axis.Z};
 
+    // The factor each level's heightmap took, for the biome placement read outside the heightmap.
+    private static final Map<WorldFold, Double> BY_FOLD = new MapMaker().weakKeys().makeMap();
+
     public static double factor(WorldFold fold, RtfClimateScales scales) {
         return ClimateCompression.factor(fold, CLIMATE_FIELD, HORIZONTAL_SHARE, () -> fitted(fold, scales));
+    }
+
+    public static void remember(WorldFold fold, double factor) {
+        BY_FOLD.put(fold, factor);
+    }
+
+    public static double of(@Nullable WorldFold fold) {
+        return fold == null ? ClimateScaleCompression.NO_COMPRESSION
+                : BY_FOLD.getOrDefault(fold, ClimateScaleCompression.NO_COMPRESSION);
     }
 
     static double fitted(WorldFold fold, RtfClimateScales scales) {

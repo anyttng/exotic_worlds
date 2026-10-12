@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.DirectoryStream;
@@ -16,14 +17,14 @@ import java.util.Set;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.google.common.base.Splitter;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 class CompatGatesTest {
-    private static final String REPO_ROOT_PROPERTY = "toroidal.repoRoot";
-    private static final String RESOURCES = "common/src/main/resources";
+    private static final String RESOURCE_DIRS_PROPERTY = "toroidal.resourceDirs";
     private static final String COMPAT_CONFIGS = "exotic_worlds.compat.*.mixins.json";
     private static final String PLUGIN_KEY = "plugin";
     private static final String PACKAGE_KEY = "package";
@@ -34,13 +35,20 @@ class CompatGatesTest {
     private static final Set<String> SHUT_ON_THIS_LINE = Set.of("exotic_worlds.compat.scalablelux.mixins.json");
 
     static List<Path> configs() throws IOException {
+        String resourceDirs = System.getProperty(RESOURCE_DIRS_PROPERTY);
         List<Path> configs = new ArrayList<>();
-        try (DirectoryStream<Path> found = Files.newDirectoryStream(
-                Path.of(System.getProperty(REPO_ROOT_PROPERTY)).resolve(RESOURCES), COMPAT_CONFIGS)) {
-            found.forEach(configs::add);
+        for (String resourceDir : Splitter.on(File.pathSeparatorChar).split(resourceDirs)) {
+            Path dir = Path.of(resourceDir);
+            if (!Files.isDirectory(dir)) {
+                continue;
+            }
+
+            try (DirectoryStream<Path> found = Files.newDirectoryStream(dir, COMPAT_CONFIGS)) {
+                found.forEach(configs::add);
+            }
         }
 
-        assertTrue(!configs.isEmpty(), "no compat config found under " + RESOURCES);
+        assertTrue(!configs.isEmpty(), "no compat config found under " + resourceDirs);
         return configs;
     }
 

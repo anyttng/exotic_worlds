@@ -1,0 +1,32 @@
+// FreeTerraForged is ReTerraForged repackaged: raccoonman.reterraforged became etcodehome.freeterraforged and the RTF
+// type prefix became FTF. Its compat is therefore ReTerraForged's compat compiled a second time under these renames, so
+// a seam fix has one source; a file whose target FreeTerraForged changed is excluded here and written by hand beside it.
+def freeTerraForgedRenames = [
+        'raccoonman.reterraforged': 'etcodehome.freeterraforged',
+        'raccoonman/reterraforged': 'etcodehome/freeterraforged',
+        'RETERRAFORGED'           : 'FREETERRAFORGED',
+        'ReTerraForged'           : 'FreeTerraForged',
+        'reterraforged'           : 'freeterraforged',
+]
+def freeTerraForgedTypePrefix = ~/RTF(?=[A-Z])/
+
+def renamedForFreeTerraForged = { String text ->
+    String renamed = text
+    freeTerraForgedRenames.each { from, to -> renamed = renamed.replace(from, to) }
+    return renamed.replaceAll(freeTerraForgedTypePrefix, 'FTF')
+}
+
+ext.registerFreeTerraForgedSources = { String taskName, Object sourceDir, List<String> included, List<String> excluded ->
+    return tasks.register(taskName, Sync) {
+        inputs.property('renames', freeTerraForgedRenames)
+        inputs.property('typePrefix', freeTerraForgedTypePrefix.pattern())
+        from(sourceDir) {
+            include included
+            exclude excluded
+            filter { String line -> renamedForFreeTerraForged(line) }
+            eachFile { it.path = renamedForFreeTerraForged(it.path) }
+        }
+        includeEmptyDirs = false
+        into layout.buildDirectory.dir("generated/freeterraforged/${taskName}")
+    }
+}
