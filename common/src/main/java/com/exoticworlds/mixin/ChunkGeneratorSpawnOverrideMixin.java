@@ -29,6 +29,10 @@ public class ChunkGeneratorSpawnOverrideMixin {
 
         WorldFold fold = WorldLoopAttachments.transformerOfReader(
                 ((StructureManagerAccessor) structureManager).toroidal$level());
+        if (!fold.isWrapped()) {
+            return check;
+        }
+
         return start -> start.getBoundingBox().isInside(NearestCopy.toward(fold, start.getBoundingBox(), pos));
     }
 }
