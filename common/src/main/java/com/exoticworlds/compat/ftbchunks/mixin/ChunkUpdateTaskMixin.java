@@ -46,7 +46,7 @@ public abstract class ChunkUpdateTaskMixin {
     private XZ toroidal$foldRegionKey(ChunkPos pos, Operation<XZ> original) {
         toroidal$rawChunkX = pos.x;
         toroidal$rawChunkZ = pos.z;
-        toroidal$regionKey = FtbChunksFold.regionOfChunk(pos);
+        toroidal$regionKey = FtbChunksFold.regionOfChunk(this.level.dimension(), pos);
         return toroidal$regionKey;
     }
 
@@ -55,7 +55,7 @@ public abstract class ChunkUpdateTaskMixin {
                     target = "Ldev/ftb/mods/ftblibrary/math/XZ;of(Lnet/minecraft/world/level/ChunkPos;)"
                             + "Ldev/ftb/mods/ftblibrary/math/XZ;"))
     private XZ toroidal$foldChunkKey(ChunkPos pos, Operation<XZ> original) {
-        return FtbChunksFold.chunkOf(pos);
+        return FtbChunksFold.chunkOf(this.level.dimension(), pos);
     }
 
     @Inject(method = "runMapTask", at = @At("TAIL"))
@@ -64,7 +64,7 @@ public abstract class ChunkUpdateTaskMixin {
             return;
         }
 
-        XZ folded = FtbChunksFold.chunkOf(toroidal$rawChunkX, toroidal$rawChunkZ);
+        XZ folded = FtbChunksFold.chunkOf(this.level.dimension(), toroidal$rawChunkX, toroidal$rawChunkZ);
         FtbChunksFold.mirrorSeamEdges(this.manager.getDimension(this.level.dimension()), folded.x(), folded.z());
     }
 }
