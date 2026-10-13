@@ -177,7 +177,6 @@
     "NoiseThresholdCountPlacementMixin",
     "NormalNoiseMixin",
     "OfferFlowerGoalMixin",
-    "OreVeinSeamMixin",
     "ParrotMixin",
     "PathMixin",
     "PathNavigationAccessor",
