@@ -1,7 +1,5 @@
 package com.exoticworlds.compat.seedviewer.mixin;
 
-import java.util.function.Supplier;
-
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -49,9 +47,12 @@ public class BiomeSamplerMixin implements FoldedBiomeSampler {
     private Holder<Biome> toroidal$sampleTheFoldedField(int blockX, int blockY, int blockZ,
             Operation<Holder<Biome>> original) {
         FoldedSampleCache<Holder<Biome>> cache = this.toroidal$cache;
-        Supplier<Holder<Biome>> evaluate = () -> GenerationTransformerContext.withTransformer(this.toroidal$fold,
-                () -> original.call(blockX, blockY, blockZ));
-        return cache == null ? evaluate.get() : cache.get(blockX, blockY, blockZ, evaluate);
+        if (cache == null) {
+            return original.call(blockX, blockY, blockZ);
+        }
+
+        return cache.get(blockX, blockY, blockZ, () -> GenerationTransformerContext.withTransformer(this.toroidal$fold,
+                () -> original.call(blockX, blockY, blockZ)));
     }
 
     @Override

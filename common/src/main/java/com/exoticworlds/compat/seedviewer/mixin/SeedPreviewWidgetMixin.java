@@ -32,6 +32,21 @@ public class SeedPreviewWidgetMixin {
     @Shadow
     private WorldCreationPreviewContext previewContext;
 
+    @Inject(method = SeedViewerInjectionTargets.CONSTRUCTOR, at = @At("RETURN"))
+    private void toroidal$startTheScreensFingerprints(CallbackInfo callback) {
+        CreationShape.forgetFingerprints();
+    }
+
+    @Inject(method = "seedviewer$onSelected", at = @At("RETURN"))
+    private void toroidal$keepTheShapeForTheSession(CallbackInfo callback) {
+        CreationShape.openSession();
+    }
+
+    @Inject(method = "seedviewer$onDeselected", at = @At("HEAD"))
+    private void toroidal$dropTheSessionsShape(CallbackInfo callback) {
+        CreationShape.closeSession();
+    }
+
     @ModifyReturnValue(method = "settingsFingerprint", at = @At("RETURN"))
     private String toroidal$fingerprintTheChosenShape(String fingerprint, @Local WorldCreationContext settings) {
         return fingerprint + CreationShape.fingerprint(settings);
