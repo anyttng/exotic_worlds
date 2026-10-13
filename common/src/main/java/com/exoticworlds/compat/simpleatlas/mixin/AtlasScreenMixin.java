@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -112,16 +113,6 @@ public abstract class AtlasScreenMixin {
         throw new AssertionError();
     }
 
-    @Shadow
-    private boolean isContextMenuOpen() {
-        throw new AssertionError();
-    }
-
-    @Shadow
-    private void renderHoveredTileHighlight(GuiGraphicsExtractor graphics, float x, float y, float scaledTileSize) {
-        throw new AssertionError();
-    }
-
     @Inject(method = "<init>", at = @At("RETURN"))
     private void toroidal$relayTiles(CallbackInfo ci) {
         Minecraft minecraft = Minecraft.getInstance();
@@ -170,7 +161,7 @@ public abstract class AtlasScreenMixin {
 
         int columns = toroidal$span(dimension, Direction.Axis.X);
         int rows = toroidal$span(dimension, Direction.Axis.Z);
-        float heldZoom = Math.min(AtlasView.MAX_ZOOM, Math.max(this.zoom, floor));
+        float heldZoom = Math.max(floor, Math.min(AtlasView.MAX_ZOOM, this.zoom));
         if (heldZoom != this.zoom) {
             this.panX = toroidal$panKeepingCentre(this.panX, view.contentX(), view.contentWidth(), columns, this.zoom,
                     heldZoom);
@@ -236,13 +227,8 @@ public abstract class AtlasScreenMixin {
             @Local(argsOnly = true, ordinal = 1) LocalDoubleRef mouseY,
             @Local(argsOnly = true, ordinal = 0) float mapOriginX, @Local(argsOnly = true, ordinal = 1) float mapOriginY,
             @Local(argsOnly = true, ordinal = 2) float scaledTileSize) {
-        List<AtlasCopies.Offset> copies = toroidal$tileCopies(mapOriginX, mapOriginY, scaledTileSize);
-        AtlasCopies.Layout layout = this.toroidal$copiesLayout;
-        if (layout == null) {
-            return;
-        }
-
-        AtlasCopies.Offset under = AtlasCopies.under(mouseX.get(), mouseY.get(), copies, layout);
+        AtlasCopies.Offset under = toroidal$copyUnder(mouseX.get(), mouseY.get(), mapOriginX, mapOriginY,
+                scaledTileSize);
         mouseX.set(mouseX.get() - under.x());
         mouseY.set(mouseY.get() - under.y());
     }
@@ -254,29 +240,52 @@ public abstract class AtlasScreenMixin {
     private void toroidal$drawTileCopies(AtlasScreen screen, GuiGraphicsExtractor graphics, int mapId, float x,
             float y, float scale, Operation<Void> original, @Local(name = "tile") AtlasTilePayload tile,
             @Local(name = "mapOriginX") float mapOriginX, @Local(name = "mapOriginY") float mapOriginY,
-            @Local(name = "scaledTileSize") float scaledTileSize,
-            @Local(name = "mouseWithinAtlasContent") boolean mouseWithinAtlasContent,
-            @Local(argsOnly = true, ordinal = 0) int mouseX, @Local(argsOnly = true, ordinal = 1) int mouseY) {
+            @Local(name = "scaledTileSize") float scaledTileSize) {
         AtlasView singleWorld = this.toroidal$singleWorld;
         for (AtlasCopies.Offset offset : toroidal$tileCopies(mapOriginX, mapOriginY, scaledTileSize)) {
             float copyX = x + offset.x();
             float copyY = y + offset.y();
             if (singleWorld != null) {
-                graphics.enableScissor(Mth.floor(singleWorld.contentX()), Mth.floor(singleWorld.contentY()),
-                        Mth.ceil(singleWorld.contentX() + singleWorld.contentWidth()),
-                        Mth.ceil(singleWorld.contentY() + singleWorld.contentHeight()));
+                toroidal$scissorTo(graphics, singleWorld);
                 original.call(screen, graphics, mapId, copyX, copyY, scale);
                 graphics.disableScissor();
             } else {
                 original.call(screen, graphics, mapId, copyX, copyY, scale);
                 toroidal$drawWorldEdge(graphics, tile, copyX, copyY, scale);
             }
+        }
+    }
 
-            boolean copy = offset.x() != 0.0F || offset.y() != 0.0F;
-            if (copy && mouseWithinAtlasContent && !this.isContextMenuOpen() && mouseX >= copyX
-                    && mouseX < copyX + scaledTileSize && mouseY >= copyY && mouseY < copyY + scaledTileSize) {
-                this.renderHoveredTileHighlight(graphics, copyX, copyY, scaledTileSize);
-            }
+    @ModifyVariable(method = "extractRenderState", at = @At("STORE"), name = "hovered")
+    private boolean toroidal$hoverTileCopy(boolean hovered, @Local(name = "x") float x, @Local(name = "y") float y,
+            @Local(name = "mapOriginX") float mapOriginX, @Local(name = "mapOriginY") float mapOriginY,
+            @Local(name = "scaledTileSize") float scaledTileSize,
+            @Local(name = "mouseWithinAtlasContent") boolean mouseWithinAtlasContent,
+            @Local(argsOnly = true, ordinal = 0) int mouseX, @Local(argsOnly = true, ordinal = 1) int mouseY) {
+        AtlasCopies.Offset under = toroidal$copyUnder(mouseX, mouseY, mapOriginX, mapOriginY, scaledTileSize);
+        double baseX = mouseX - under.x();
+        double baseY = mouseY - under.y();
+        return mouseWithinAtlasContent && baseX >= x && baseX < x + scaledTileSize && baseY >= y
+                && baseY < y + scaledTileSize;
+    }
+
+    @WrapOperation(
+            method = "extractRenderState",
+            at = @At(value = "INVOKE",
+                    target = "Lrubbertoe/simple_atlas/client/screen/AtlasScreen;renderHoveredTileHighlight(Lnet/minecraft/client/gui/GuiGraphicsExtractor;FFF)V"))
+    private void toroidal$highlightCopyUnder(AtlasScreen screen, GuiGraphicsExtractor graphics, float x, float y,
+            float scaledTileSize, Operation<Void> original, @Local(name = "mapOriginX") float mapOriginX,
+            @Local(name = "mapOriginY") float mapOriginY, @Local(argsOnly = true, ordinal = 0) int mouseX,
+            @Local(argsOnly = true, ordinal = 1) int mouseY) {
+        AtlasCopies.Offset under = toroidal$copyUnder(mouseX, mouseY, mapOriginX, mapOriginY, scaledTileSize);
+        AtlasView singleWorld = this.toroidal$singleWorld;
+        if (singleWorld != null) {
+            toroidal$scissorTo(graphics, singleWorld);
+        }
+
+        original.call(screen, graphics, x + under.x(), y + under.y(), scaledTileSize);
+        if (singleWorld != null) {
+            graphics.disableScissor();
         }
     }
 
@@ -341,6 +350,14 @@ public abstract class AtlasScreenMixin {
         return MapCopies.current() == MapCopies.SINGLE
                 ? AtlasCopies.BASE_ONLY
                 : toroidal$tileCopies(mapOriginX, mapOriginY, scaledTileSize);
+    }
+
+    @Unique
+    private AtlasCopies.Offset toroidal$copyUnder(double mouseX, double mouseY, float mapOriginX, float mapOriginY,
+            float scaledTileSize) {
+        List<AtlasCopies.Offset> copies = toroidal$tileCopies(mapOriginX, mapOriginY, scaledTileSize);
+        AtlasCopies.Layout layout = this.toroidal$copiesLayout;
+        return layout == null ? AtlasCopies.BASE : AtlasCopies.under(mouseX, mouseY, copies, layout);
     }
 
     @Unique
@@ -431,6 +448,12 @@ public abstract class AtlasScreenMixin {
         double tilesFromOrigin = (centre - oldOrigin) / oldTile;
         double newBase = contentStart + (contentLength - span * newTile) / 2.0F;
         return centre - tilesFromOrigin * newTile - newBase;
+    }
+
+    @Unique
+    private static void toroidal$scissorTo(GuiGraphicsExtractor graphics, AtlasView area) {
+        graphics.enableScissor(Mth.floor(area.contentX()), Mth.floor(area.contentY()),
+                Mth.ceil(area.contentX() + area.contentWidth()), Mth.ceil(area.contentY() + area.contentHeight()));
     }
 
     @Unique
