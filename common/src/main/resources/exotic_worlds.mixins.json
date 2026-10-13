@@ -91,7 +91,6 @@
     "EntityGetterMixin",
     "EntityMixin",
     "EntityPortalPositionMixin",
-    "EntityPredicateDistanceMixin",
     "EntitySectionCallbackMixin",
     "EntitySectionManagerMixin",
     "EntitySectionStorageMixin",
