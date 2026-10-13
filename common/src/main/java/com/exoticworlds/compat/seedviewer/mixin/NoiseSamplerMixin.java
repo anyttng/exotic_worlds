@@ -1,9 +1,8 @@
 package com.exoticworlds.compat.seedviewer.mixin;
 
+import java.util.EnumMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,6 +17,7 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopAttachments;
 
+import net.acenia.seedviewer.client.worldgen.NoiseMapType;
 import net.acenia.seedviewer.client.worldgen.NoiseSampler;
 import net.minecraft.server.level.ServerLevel;
 
@@ -27,18 +27,18 @@ public class NoiseSamplerMixin implements FoldedNoiseSampler {
     private WorldFold toroidal$fold = WorldFolds.NOOP;
 
     @Unique
-    private final Map<String, FoldedSampleCache<Float>> toroidal$caches = new ConcurrentHashMap<>();
+    private Map<NoiseMapType, FoldedSampleCache<Float>> toroidal$caches = Map.of();
 
     @Inject(method = SeedViewerInjectionTargets.CONSTRUCTOR + SeedViewerInjectionTargets.FROM_RANDOM_STATE,
             at = @At("RETURN"))
     private void toroidal$takeTheRouterBuildsFold(CallbackInfo callback) {
-        this.toroidal$fold = CreationShape.routerBuildFold();
+        toroidal$bind(CreationShape.routerBuildFold());
     }
 
     @Inject(method = SeedViewerInjectionTargets.CONSTRUCTOR + SeedViewerInjectionTargets.FROM_LEVEL,
             at = @At("RETURN"))
     private void toroidal$takeTheLevelsFold(ServerLevel level, CallbackInfo callback) {
-        this.toroidal$fold = WorldLoopAttachments.transformerOf(level);
+        toroidal$bind(WorldLoopAttachments.transformerOf(level));
     }
 
     @Override
@@ -47,9 +47,20 @@ public class NoiseSamplerMixin implements FoldedNoiseSampler {
     }
 
     @Override
-    public @Nullable FoldedSampleCache<Float> toroidal$cache(String layer) {
-        return this.toroidal$fold.isWrapped()
-                ? this.toroidal$caches.computeIfAbsent(layer, name -> FoldedSampleCache.perBlock(this.toroidal$fold))
-                : null;
+    public FoldedSampleCache<Float> toroidal$cache(NoiseMapType type) {
+        return this.toroidal$caches.get(type);
+    }
+
+    @Unique
+    private void toroidal$bind(WorldFold fold) {
+        Map<NoiseMapType, FoldedSampleCache<Float>> caches = new EnumMap<>(NoiseMapType.class);
+        if (fold.isWrapped()) {
+            for (NoiseMapType type : NoiseMapType.values()) {
+                caches.put(type, FoldedSampleCache.perBlock(fold));
+            }
+        }
+
+        this.toroidal$fold = fold;
+        this.toroidal$caches = caches;
     }
 }

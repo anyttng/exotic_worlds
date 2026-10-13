@@ -1,12 +1,11 @@
 package com.exoticworlds.compat.seedviewer;
 
-import org.jspecify.annotations.Nullable;
-
 import com.exoticworlds.core.WorldFold;
+
+import net.acenia.seedviewer.client.worldgen.NoiseMapType;
 
 public interface FoldedNoiseSampler {
     WorldFold toroidal$fold();
 
-    @Nullable
-    FoldedSampleCache<Float> toroidal$cache(String layer);
+    FoldedSampleCache<Float> toroidal$cache(NoiseMapType type);
 }

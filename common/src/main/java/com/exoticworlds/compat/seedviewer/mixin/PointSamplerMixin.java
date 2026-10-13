@@ -1,14 +1,11 @@
 package com.exoticworlds.compat.seedviewer.mixin;
 
-import java.util.function.Supplier;
-
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import com.exoticworlds.BinderOrder;
 import com.exoticworlds.compat.seedviewer.FoldedNoiseSampler;
-import com.exoticworlds.compat.seedviewer.FoldedSampleCache;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -28,9 +25,11 @@ public class PointSamplerMixin {
             Operation<Float> original) {
         FoldedNoiseSampler sampler = (FoldedNoiseSampler) (Object) this.this$0;
         WorldFold fold = sampler.toroidal$fold();
-        FoldedSampleCache<Float> cache = sampler.toroidal$cache(type.modeId());
-        Supplier<Float> evaluate = () -> GenerationTransformerContext.withTransformer(fold,
-                () -> original.call(type, blockX, blockY, blockZ));
-        return cache == null ? evaluate.get() : cache.get(blockX, blockY, blockZ, evaluate);
+        if (!fold.isWrapped()) {
+            return original.call(type, blockX, blockY, blockZ);
+        }
+
+        return sampler.toroidal$cache(type).get(blockX, blockY, blockZ, () -> GenerationTransformerContext.withTransformer(
+                fold, () -> original.call(type, blockX, blockY, blockZ)));
     }
 }
