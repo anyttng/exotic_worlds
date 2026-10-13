@@ -42,6 +42,10 @@ public record AtlasView(float contentX, float contentY, float contentWidth, floa
     }
 
     public static float panInside(float worldStart, float worldLength, float viewStart, float viewLength) {
+        if (worldLength <= viewLength) {
+            return viewStart + (viewLength - worldLength) / 2.0F - worldStart;
+        }
+
         if (worldStart > viewStart) {
             return viewStart - worldStart;
         }
