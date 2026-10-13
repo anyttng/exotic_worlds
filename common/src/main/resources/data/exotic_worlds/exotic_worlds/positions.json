@@ -3,6 +3,9 @@
     "create:glue_in_area": {
       "from": "group",
       "to": "group"
+    },
+    "create:instant_schematic": {
+      "bounds": "untouched"
     }
   }
 }

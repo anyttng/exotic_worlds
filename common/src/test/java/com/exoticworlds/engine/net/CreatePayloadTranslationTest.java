@@ -5,8 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.lang.reflect.RecordComponent;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -24,8 +35,12 @@ import com.simibubi.create.content.logistics.packagePort.PackagePortPlacementPac
 import com.simibubi.create.content.logistics.packagerLink.WiFiEffectPacket;
 import com.simibubi.create.content.logistics.redstoneRequester.RedstoneRequesterEffectPacket;
 import com.simibubi.create.content.logistics.stockTicker.LogisticalStockResponsePacket;
+import com.simibubi.create.content.schematics.packet.InstantSchematicPacket;
+import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.compat.create.CreateTranslation;
 import com.exoticworlds.engine.seam.ClientPosition;
+import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
@@ -35,6 +50,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -58,6 +74,12 @@ class CreatePayloadTranslationTest {
     private static final BlockPos SERVER_MIRROR = new BlockPos(232, 64, 8);
     private static final BlockPos SERVER_PLACED = new BlockPos(-232, 64, 8);
     private static final BlockPos PLACED_BESIDE_THE_MIRROR = new BlockPos(280, 64, 8);
+
+    private static final String POSITIONS_FILE =
+            "data/" + ExoticWorlds.MODID + "/" + PositionRows.DIRECTORY + "/" + PositionRows.FILE_NAME + ".json";
+    private static final ResourceLocation INSTANT_SCHEMATIC_ID =
+            ResourceLocation.fromNamespaceAndPath("create", "instant_schematic");
+    private static final String INSTANT_SCHEMATIC_SIZE = "bounds";
 
     @BeforeAll
     static void registerTheCreateRewriters() {
@@ -155,12 +177,32 @@ class CreatePayloadTranslationTest {
     }
 
     @Test
+    void theInstantUploadRowKeepsTheSizeAndLeavesTheOriginToTheFold() throws IOException {
+        Map<String, RecordPayloadFold.Role> row = shippedPayloadRows().get(INSTANT_SCHEMATIC_ID);
+        assertEquals(Map.of(INSTANT_SCHEMATIC_SIZE, RecordPayloadFold.Role.UNTOUCHED), row);
+
+        Set<String> components = Arrays.stream(InstantSchematicPacket.class.getRecordComponents())
+                .map(RecordComponent::getName)
+                .collect(Collectors.toSet());
+        assertTrue(components.containsAll(row.keySet()), "InstantSchematicPacket declares " + components);
+    }
+
+    @Test
     void aPayloadInThePlayersOwnFrameTravelsUntouched() {
         WiFiEffectPacket inland = new WiFiEffectPacket(INLAND_BLOCK);
         assertSame(inland, folded(inland));
 
         SymmetryEffectPacket inlandSymmetry = new SymmetryEffectPacket(INLAND_BLOCK, List.of(INLAND_BLOCK));
         assertSame(inlandSymmetry, seated(inlandSymmetry));
+    }
+
+    private static Map<ResourceLocation, Map<String, RecordPayloadFold.Role>> shippedPayloadRows() throws IOException {
+        try (InputStream stream = CreatePayloadTranslationTest.class.getClassLoader().getResourceAsStream(POSITIONS_FILE)) {
+            assertNotNull(stream, POSITIONS_FILE + " is not on the test classpath");
+            try (Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+                return PositionRows.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(reader)).getOrThrow().payloads();
+            }
+        }
     }
 
     private static RegistryFriendlyByteBuf buffer(int capacity) {
