@@ -7,12 +7,15 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.exoticworlds.core.GenerationMoments;
 import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.gen.CanonicalRandomFactory;
 import com.exoticworlds.engine.noise.DensityRewrites;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
@@ -21,6 +24,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
+import net.minecraft.world.level.levelgen.PositionalRandomFactory;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
@@ -34,6 +38,34 @@ public class RandomStateMixin {
     private NoiseRouter toroidal$rewriteKeyedDensities(NoiseRouter router) {
         WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
         return fold != null ? DensityRewrites.apply(router, fold) : router;
+    }
+
+    @ModifyArg(
+            method = CONSTRUCTOR,
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/levelgen/SurfaceSystem;<init>("
+                            + "Lnet/minecraft/world/level/levelgen/RandomState;"
+                            + "Lnet/minecraft/world/level/block/state/BlockState;I"
+                            + "Lnet/minecraft/world/level/levelgen/PositionalRandomFactory;)V"),
+            index = 3)
+    private PositionalRandomFactory toroidal$surfaceRandomFromCanonical(PositionalRandomFactory noiseRandom) {
+        return toroidal$canonical(noiseRandom);
+    }
+
+    @ModifyExpressionValue(
+            method = CONSTRUCTOR,
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/util/RandomSource;forkPositional()"
+                            + "Lnet/minecraft/world/level/levelgen/PositionalRandomFactory;"),
+            slice = @Slice(
+                    from = @At(value = "CONSTANT", args = "stringValue=ore"),
+                    to = @At(value = "FIELD",
+                            target = "Lnet/minecraft/world/level/levelgen/RandomState;oreRandom:"
+                                    + "Lnet/minecraft/world/level/levelgen/PositionalRandomFactory;",
+                            opcode = Opcodes.PUTFIELD)))
+    private PositionalRandomFactory toroidal$oreRandomFromCanonical(PositionalRandomFactory oreRandom) {
+        return toroidal$canonical(oreRandom);
     }
 
     // Before RETURN: C2ME compiles the router at its own RETURN inject and reads the separated scales there.
@@ -56,6 +88,12 @@ public class RandomStateMixin {
             GenerationMoments.runAtRandomState((RandomState) (Object) this, new ToroidalShapeView(fold),
                     fold.generationOptions(), settings.seaLevel());
         }
+    }
+
+    @Unique
+    private static PositionalRandomFactory toroidal$canonical(PositionalRandomFactory factory) {
+        WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
+        return fold == null ? factory : new CanonicalRandomFactory(factory, fold);
     }
 
     @Unique

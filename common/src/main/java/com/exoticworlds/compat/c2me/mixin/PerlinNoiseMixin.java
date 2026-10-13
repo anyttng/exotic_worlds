@@ -4,12 +4,10 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.exoticworlds.accessors.ClimateCompressionCache;
-import com.exoticworlds.accessors.ClimateFieldMark;
+import com.exoticworlds.accessors.PerlinBaseScale;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
 import com.exoticworlds.engine.noise.PeriodicOctaveSampler;
-import com.exoticworlds.shape.climate.ClimateCompression;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -47,10 +45,7 @@ public class PerlinNoiseMixin {
             return original.call(x, y, z);
         }
 
-        double declaredScale = generation.horizontalScale();
-        double baseScale = declaredScale * ClimateCompression.resolve((ClimateCompressionCache) (Object) this,
-                generation.transformer(), ((ClimateFieldMark) (Object) this).toroidal$climateField(),
-                this.amplitudes, this.lowestFreqInputFactor, declaredScale, generation.verticalShare());
+        double baseScale = ((PerlinBaseScale) (Object) this).toroidal$baseScale(generation);
         // The zeros are what C2ME's loop passes every octave, kept so the two walks differ in nothing but the fold.
         return PeriodicOctaveSampler.sample(generation, baseScale, this.noiseLevels, this.amplitudes,
                 this.lowestFreqInputFactor, this.lowestFreqValueFactor, x, y, z, 0.0, 0.0, false);

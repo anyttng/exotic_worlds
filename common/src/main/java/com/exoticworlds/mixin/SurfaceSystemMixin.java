@@ -6,16 +6,12 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
 import com.exoticworlds.engine.noise.NoiseConstants;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.levelgen.PositionalRandomFactory;
 import net.minecraft.world.level.levelgen.SurfaceSystem;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
@@ -50,16 +46,6 @@ public class SurfaceSystemMixin {
         try (Context.ScaleScope scope = generation.withScale(scale)) {
             return original.call(noise, x / scale, y, z / scale);
         }
-    }
-
-    @WrapOperation(
-            method = {"getSurfaceDepth", "frozenOceanExtension"},
-            at = @At(value = "INVOKE", target = InjectionTargets.POSITIONAL_RANDOM_FACTORY_AT))
-    private RandomSource toroidal$seedColumnFromCanonical(
-            PositionalRandomFactory factory, int blockX, int blockY, int blockZ, Operation<RandomSource> original) {
-        long canonical = GenerationTransformerContext.context().transformer()
-                .foldBlockNode(BlockPos.asLong(blockX, blockY, blockZ));
-        return original.call(factory, BlockPos.getX(canonical), blockY, BlockPos.getZ(canonical));
     }
 
     @Unique
