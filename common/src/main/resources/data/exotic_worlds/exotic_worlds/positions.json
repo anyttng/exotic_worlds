@@ -1,0 +1,8 @@
+{
+  "payloads": {
+    "create:glue_in_area": {
+      "from": "group",
+      "to": "group"
+    }
+  }
+}
