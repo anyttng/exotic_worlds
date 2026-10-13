@@ -1,5 +1,11 @@
 {
   "payloads": {
+    "create:contraption_block_changed": {
+      "localPos": "untouched"
+    },
+    "create:contraption_interact": {
+      "localPos": "untouched"
+    },
     "create:glue_in_area": {
       "from": "group",
       "to": "group"
