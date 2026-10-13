@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import com.exoticworlds.core.WorldFold;
 
+import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
@@ -11,13 +12,24 @@ import net.minecraft.core.QuartPos;
 public final class FoldedSampleCache<T> {
     private static final int CAPACITY = 1 << 20;
 
+    private static final int STRIPES = 16;
+
+    private static final int STRIPE_CAPACITY = CAPACITY / STRIPES;
+
+    private static final int STRIPE_SHIFT = Long.SIZE - Integer.numberOfTrailingZeros(STRIPES);
+
     private final WorldFold fold;
     private final boolean perQuart;
-    private final Long2ObjectOpenHashMap<T> values = new Long2ObjectOpenHashMap<>();
+    private final Long2ObjectOpenHashMap<T>[] stripes;
 
+    @SuppressWarnings("unchecked")
     private FoldedSampleCache(WorldFold fold, boolean perQuart) {
         this.fold = fold;
         this.perQuart = perQuart;
+        this.stripes = (Long2ObjectOpenHashMap<T>[]) new Long2ObjectOpenHashMap<?>[STRIPES];
+        for (int stripe = 0; stripe < STRIPES; stripe++) {
+            this.stripes[stripe] = new Long2ObjectOpenHashMap<>();
+        }
     }
 
     public static <T> FoldedSampleCache<T> perQuart(WorldFold fold) {
@@ -32,20 +44,21 @@ public final class FoldedSampleCache<T> {
         long key = this.fold.foldBlockNode(this.perQuart
                 ? BlockPos.asLong(quartCorner(blockX), quartCorner(blockY), quartCorner(blockZ))
                 : BlockPos.asLong(blockX, blockY, blockZ));
+        Long2ObjectOpenHashMap<T> stripe = this.stripes[(int) (HashCommon.mix(key) >>> STRIPE_SHIFT)];
         T cached;
-        synchronized (this.values) {
-            cached = this.values.get(key);
+        synchronized (stripe) {
+            cached = stripe.get(key);
         }
         if (cached != null) {
             return cached;
         }
 
         T value = sample.get();
-        synchronized (this.values) {
-            if (this.values.size() >= CAPACITY) {
-                this.values.clear();
+        synchronized (stripe) {
+            if (stripe.size() >= STRIPE_CAPACITY) {
+                stripe.clear();
             }
-            this.values.put(key, value);
+            stripe.put(key, value);
         }
         return value;
     }
