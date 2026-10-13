@@ -22,8 +22,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public final class CreateSeamFold {
-    private static final ServerFoldMemo SERVER_FOLDS = new ServerFoldMemo();
-
     public static @Nullable WorldFold transformerOf(@Nullable Level level,
             @Nullable ResourceKey<Level> dimension) {
         if (level != null) {
@@ -39,8 +37,7 @@ public final class CreateSeamFold {
             return clientTransformerOf(dimension);
         }
 
-        return SERVER_FOLDS.of(server, dimension,
-                () -> WorldLoopAttachments.wrappedTransformerOf(server, dimension));
+        return WorldLoopAttachments.wrappedTransformerOf(server, dimension);
     }
 
     private static @Nullable WorldFold clientTransformerOf(ResourceKey<Level> dimension) {
