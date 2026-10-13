@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.compat.AlignedPeriod;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -41,12 +42,12 @@ class DhLatticeFoldTest {
     class TheSublatticeTheSectionGridKeeps {
         @Test
         void aSkewOfWholeLeavesKeepsOneLapOnBothAxes() {
-            assertEquals(new DhFold.Period(WIDTH_BLOCKS, WIDTH_BLOCKS, 64), DhFold.period(lattice(LEAF_SKEW_CHUNKS), LEAF));
+            assertEquals(new AlignedPeriod(WIDTH_BLOCKS, WIDTH_BLOCKS, 64), DhFold.period(lattice(LEAF_SKEW_CHUNKS), LEAF));
         }
 
         @Test
         void aSkewOfOneChunkTakesFourZLapsToLandOnTheLeafGrid() {
-            assertEquals(new DhFold.Period(WIDTH_BLOCKS, 4L * WIDTH_BLOCKS, 64),
+            assertEquals(new AlignedPeriod(WIDTH_BLOCKS, 4L * WIDTH_BLOCKS, 64),
                     DhFold.period(lattice(CHUNK_SKEW_CHUNKS), LEAF));
         }
 
