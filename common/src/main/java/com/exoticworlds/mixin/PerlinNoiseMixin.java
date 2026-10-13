@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.Unique;
 import com.exoticworlds.accessors.ClimateCompressionCache;
 import com.exoticworlds.accessors.ClimateFieldMark;
 import com.exoticworlds.accessors.IndexableNoise;
+import com.exoticworlds.accessors.PerlinBaseScale;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
 import com.exoticworlds.engine.noise.PeriodicOctaveSampler;
@@ -22,7 +23,7 @@ import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
 @Mixin(PerlinNoise.class)
-public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMark, IndexableNoise {
+public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMark, IndexableNoise, PerlinBaseScale {
     @Unique
     private @Nullable Resolved toroidal$climateCompression;
 
@@ -62,8 +63,8 @@ public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMa
                 this.toroidal$baseScale(context), this.noiseLevels, this.lowestFreqInputFactor);
     }
 
-    @Unique
-    private double toroidal$baseScale(Context generation) {
+    @Override
+    public double toroidal$baseScale(Context generation) {
         double declaredScale = generation.horizontalScale();
         return declaredScale * ClimateCompression.resolve(this, generation.transformer(),
                 this.toroidal$climateField, this.amplitudes, this.lowestFreqInputFactor, declaredScale,
