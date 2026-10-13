@@ -1,6 +1,7 @@
 package com.exoticworlds.compat.distanthorizons;
 
 import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.compat.AlignedPeriod;
 import com.exoticworlds.core.CoordinateConstants;
 
 import net.minecraft.core.Direction;
@@ -8,11 +9,6 @@ import net.minecraft.core.SectionPos;
 
 public final class DhFold {
     private static final int SNAP_CELLS_PER_WORLD = 16;
-    private static final long NO_PERIOD = 0L;
-    private static final int INVERSE_NEWTON_STEPS = 5;
-
-    public record Period(long xBlocks, long zBlocks, long xShiftBlocks) {
-    }
 
     public record Section(int x, int z) {
     }
@@ -47,59 +43,15 @@ public final class DhFold {
     }
 
     public static long periodBlocks(ToroidalShape shape, Direction.Axis axis, byte detailLevel) {
-        return alignedPeriodBlocks(shape.widthBlocks(axis), detailLevel);
+        return AlignedPeriod.blocks(shape.widthBlocks(axis), detailLevel);
     }
 
     public static int periodSections(ToroidalShape shape, Direction.Axis axis, byte detailLevel) {
         return (int) (periodBlocks(shape, axis, detailLevel) / sectionWidthBlocks(detailLevel));
     }
 
-    public static Period period(DhLattice lattice, byte detailLevel) {
-        ToroidalShape shape = lattice.shape();
-        long x = shape.loops(Direction.Axis.X)
-                ? alignedPeriodBlocks(shape.widthBlocks(Direction.Axis.X), detailLevel)
-                : NO_PERIOD;
-        if (!shape.loops(Direction.Axis.Z)) {
-            return new Period(x, NO_PERIOD, 0L);
-        }
-
-        int widthZ = shape.widthBlocks(Direction.Axis.Z);
-        int lapsExponent = detailLevel - Math.min(detailLevel, Integer.numberOfTrailingZeros(widthZ));
-        if (!lattice.isSkewed()) {
-            return new Period(x, ((long) widthZ) << lapsExponent, 0L);
-        }
-
-        int widthX = shape.widthBlocks(Direction.Axis.X);
-        int alignX = Math.min(detailLevel, Integer.numberOfTrailingZeros(widthX));
-        lapsExponent = Math.max(lapsExponent, alignX - Integer.numberOfTrailingZeros(lattice.skewBlocks()));
-        long rowShift = ((long) lattice.skewBlocks()) << lapsExponent;
-        return new Period(x, ((long) widthZ) << lapsExponent, alignedShift(widthX, detailLevel, rowShift, x));
-    }
-
-    private static long alignedPeriodBlocks(int worldWidth, byte detailLevel) {
-        int gcd = 1 << Math.min(Integer.numberOfTrailingZeros(worldWidth), detailLevel);
-        return (long) (worldWidth / gcd) * sectionWidthBlocks(detailLevel);
-    }
-
-    private static long alignedShift(int widthX, byte detailLevel, long rowShift, long periodX) {
-        int alignX = Integer.numberOfTrailingZeros(widthX);
-        if (alignX >= detailLevel) {
-            return Math.floorMod(rowShift, periodX);
-        }
-
-        long oddWidth = widthX >> alignX;
-        long mask = (1L << (detailLevel - alignX)) - 1;
-        long laps = (-(rowShift >> alignX) * inverseOfOdd(oddWidth)) & mask;
-        return Math.floorMod(rowShift + laps * widthX, periodX);
-    }
-
-    private static long inverseOfOdd(long odd) {
-        long inverse = odd;
-        for (int step = 0; step < INVERSE_NEWTON_STEPS; step++) {
-            inverse *= 2 - odd * inverse;
-        }
-
-        return inverse;
+    public static AlignedPeriod period(DhLattice lattice, byte detailLevel) {
+        return AlignedPeriod.of(lattice.shape(), lattice.skewBlocks(), detailLevel);
     }
 
     public static int foldSectionX(DhLattice lattice, byte detailLevel, int sectionX, int sectionZ) {
@@ -129,7 +81,7 @@ public final class DhFold {
 
     private static int foldX(DhLattice lattice, byte detailLevel, int unitBlocks, int valueX, int valueZ) {
         ToroidalShape shape = lattice.shape();
-        Period period = period(lattice, detailLevel);
+        AlignedPeriod period = period(lattice, detailLevel);
         long blockX = (long) valueX * unitBlocks;
         if (period.xShiftBlocks() != 0L) {
             long blockZ = (long) valueZ * unitBlocks;
@@ -184,7 +136,7 @@ public final class DhFold {
         long cornerZ = (long) sectionZ * width;
         long copyX = (long) copySectionX * sectionWidthBlocks(copyDetailLevel);
         long copyZ = (long) copySectionZ * sectionWidthBlocks(copyDetailLevel);
-        Period period = period(lattice, copyDetailLevel);
+        AlignedPeriod period = period(lattice, copyDetailLevel);
         if (!shape.loops(Direction.Axis.Z)) {
             return copyZ >= cornerZ && copyZ < cornerZ + width && copyXInside(shape, period, cornerX, width, copyX);
         }
@@ -203,7 +155,8 @@ public final class DhFold {
         return false;
     }
 
-    private static boolean copyXInside(ToroidalShape shape, Period period, long cornerX, long width, long copyX) {
+    private static boolean copyXInside(ToroidalShape shape, AlignedPeriod period, long cornerX, long width,
+            long copyX) {
         if (shape.loops(Direction.Axis.X)) {
             copyX += Math.ceilDiv(cornerX - copyX, period.xBlocks()) * period.xBlocks();
         }
@@ -244,7 +197,7 @@ public final class DhFold {
     public static Section nearestSection(DhLattice lattice, byte snapLevel, byte detailLevel, int refBlockX,
             int refBlockZ, int sectionX, int sectionZ) {
         ToroidalShape shape = lattice.shape();
-        Period period = period(lattice, detailLevel);
+        AlignedPeriod period = period(lattice, detailLevel);
         int width = sectionWidthBlocks(detailLevel);
         long x = sectionX;
         long z = sectionZ;
