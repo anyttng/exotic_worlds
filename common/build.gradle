@@ -44,6 +44,14 @@ repositories {
             includeGroup 'com.github.bawnorton.mixinsquared'
         }
     }
+    // Eminus is published on CurseForge alone.
+    maven {
+        name = 'CurseMaven'
+        url = 'https://cursemaven.com'
+        content {
+            includeGroup 'curse.maven'
+        }
+    }
     // Fabric Loader, for the one enum unpacked out of it below.
     maven {
         name = 'FabricMC'
@@ -147,6 +155,7 @@ dependencies {
     compileOnly "maven.modrinth:terrablender:${terrablender_version}"
     compileOnly "maven.modrinth:biolith:${biolith_version}"
     compileOnly "maven.modrinth:sodium:${sodium_version}"
+    compileOnly "curse.maven:eminus-${eminus_cf_project}:${eminus_cf_file}"
     compileOnly files(xaeroLibJars).asFileTree.matching { include '*.jar' }
     compileOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
     compileOnly files(fabricEnvTypeClass)
@@ -188,6 +197,8 @@ dependencies {
     testRuntimeOnly "maven.modrinth:xaeros-world-map:${xaero_worldmap_version}"
     testRuntimeOnly files(xaeroLibJars).asFileTree.matching { include '*.jar' }
     testRuntimeOnly "maven.modrinth:sodium:${sodium_version}"
+    testCompileOnly "curse.maven:eminus-${eminus_cf_project}:${eminus_cf_file}"
+    testRuntimeOnly "curse.maven:eminus-${eminus_cf_project}:${eminus_cf_file}"
     testRuntimeOnly "maven.modrinth:lithium:${lithium_version}"
     testRuntimeOnly "maven.modrinth:scalablelux:${scalablelux_version}"
     testRuntimeOnly "net.fabricmc:sponge-mixin:${mixin_version}"

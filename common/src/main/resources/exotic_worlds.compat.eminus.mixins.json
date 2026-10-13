@@ -1,0 +1,25 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.eminus.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "com.exoticworlds.compat.eminus.EminusMixinPlugin",
+  "client": [
+    "CellCacheMixin",
+    "CellMergerMixin",
+    "ClientSessionMixin",
+    "ColumnCoverageMixin",
+    "DimensionRuntimeMixin",
+    "FarQuadsMixin",
+    "FarRendererMixin",
+    "GameHandlesMixin",
+    "NodeTableMixin",
+    "ShaderManagerConfigsMixin",
+    "TreeManagerMixin",
+    "TreeRingMixin",
+    "TreeTraversalMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

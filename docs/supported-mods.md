@@ -19,6 +19,7 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | Mod | Minecraft | Loaders | Status | Notes |
 | --- | --- | --- | --- | --- |
 | [Distant Horizons](https://modrinth.com/mod/distanthorizons) | All | NeoForge, Fabric | Supported | |
+| [Eminus](https://www.curseforge.com/minecraft/mc-mods/eminus) | All | NeoForge, Fabric | Supported | |
 | [Voxy](https://modrinth.com/mod/voxy) | All | Fabric | No edge support | |
 | Bobby | — | — | Not tested | |
 | Distant Horizons SeedGen | All | NeoForge, Fabric | Not supported | |
