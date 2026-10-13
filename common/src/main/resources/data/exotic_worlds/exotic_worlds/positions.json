@@ -12,6 +12,10 @@
     },
     "create:instant_schematic": {
       "bounds": "untouched"
+    },
+    "simulated:honey_glue_spawn": {
+      "from": "group",
+      "to": "group"
     }
   }
 }
