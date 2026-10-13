@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.compat.AlignedPeriod;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -39,7 +40,7 @@ class DhRowCopiesTest {
     }
 
     private static long rowsOfThePeriod(DhLattice lattice) {
-        DhFold.Period period = DhFold.period(lattice, LEAF);
+        AlignedPeriod period = DhFold.period(lattice, LEAF);
         long lapsX = period.xBlocks() / lattice.shape().widthBlocks(Direction.Axis.X);
         long lapsZ = period.zBlocks() / lattice.shape().widthBlocks(Direction.Axis.Z);
         return lapsX * lapsZ;

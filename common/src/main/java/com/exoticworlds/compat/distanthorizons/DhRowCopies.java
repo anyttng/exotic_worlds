@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.compat.AlignedPeriod;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
@@ -17,7 +18,7 @@ public final class DhRowCopies {
 
     public static List<ChunkPos> copiesOf(DhLattice lattice, int chunkX, int chunkZ) {
         ToroidalShape shape = lattice.shape();
-        DhFold.Period period = DhFold.period(lattice, DhKeys.LEAF);
+        AlignedPeriod period = DhFold.period(lattice, DhKeys.LEAF);
         int lapsX = laps(shape, Direction.Axis.X, period.xBlocks());
         int lapsZ = laps(shape, Direction.Axis.Z, period.zBlocks());
         if (lapsX == 1 && lapsZ == 1) {

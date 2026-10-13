@@ -48,7 +48,7 @@ repositories {
             includeGroup 'maven.modrinth'
         }
     }
-    // ReTerraForged is on CurseForge alone.
+    // ReTerraForged and Eminus are on CurseForge alone.
     maven {
         name = 'CurseMaven'
         url = 'https://cursemaven.com'
@@ -119,6 +119,25 @@ var sodiumModJars = tasks.register('unpackSodiumMod', Sync) {
     }
     includeEmptyDirs = false
     into layout.buildDirectory.dir('sodium-mod')
+}
+
+// Eminus's published file carries no classes of its own: each loader's build rides inside it, the NeoForge one in
+// jarjar. The fold mixins name its internals, so that inner jar is unpacked and rides compileOnly beside the others.
+configurations {
+    eminusModJar
+}
+
+dependencies {
+    eminusModJar "curse.maven:eminus-${eminus_cf_project}:${eminus_cf_file}"
+}
+
+var eminusModJars = tasks.register('unpackEminusMod', Sync) {
+    from(zipTree(configurations.eminusModJar.singleFile)) {
+        include 'META-INF/jarjar/eminus-neoforge-*.jar'
+        eachFile { it.relativePath = new RelativePath(true, it.name) }
+    }
+    includeEmptyDirs = false
+    into layout.buildDirectory.dir('eminus-mod')
 }
 
 // Two of the jars Create carries in jar-in-jar have to be on the compile classpath, and neither is reachable from the
@@ -312,6 +331,7 @@ dependencies {
     compileOnly "curse.maven:mt-chunk-generation-1120044:${mtchunkgeneration_version}"
     compileOnly "maven.modrinth:worldweaver-neoforge:${worldweaver_version}"
     compileOnly files(sodiumModJars).asFileTree.matching { include '*.jar' }
+    compileOnly files(eminusModJars).asFileTree.matching { include '*.jar' }
     compileOnly files(fabricEnvTypeClass)
     compileOnly files(neoEventPriorityClass)
     compileOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
@@ -387,6 +407,8 @@ dependencies {
     testRuntimeOnly "maven.modrinth:create-electro-energetics:${electroenergetics_version}"
     testRuntimeOnly "curse.maven:mt-chunk-generation-1120044:${mtchunkgeneration_version}"
     testRuntimeOnly "maven.modrinth:journeymap-integration:${jmi_version}"
+    testCompileOnly files(eminusModJars).asFileTree.matching { include '*.jar' }
+    testRuntimeOnly files(eminusModJars).asFileTree.matching { include '*.jar' }
     testRuntimeOnly "maven.modrinth:lithium:${lithium_version}"
     testRuntimeOnly "maven.modrinth:scalablelux:${scalablelux_version}"
     testRuntimeOnly "net.fabricmc:sponge-mixin:${mixin_version}"

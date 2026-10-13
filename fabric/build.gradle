@@ -125,6 +125,25 @@ var sodiumModJars = tasks.register('unpackSodiumMod', Sync) {
     into layout.buildDirectory.dir('sodium-mod')
 }
 
+// Same unpack as in common, for the same reason: common's classes are remapped against this module's classpath, and
+// the fold mixins name Eminus's internals.
+configurations {
+    eminusModJar
+}
+
+dependencies {
+    eminusModJar "curse.maven:eminus-${eminus_cf_project}:${eminus_cf_file}"
+}
+
+var eminusModJars = tasks.register('unpackEminusMod', Sync) {
+    from(zipTree(configurations.eminusModJar.singleFile)) {
+        include 'META-INF/jarjar/eminus-neoforge-*.jar'
+        eachFile { it.relativePath = new RelativePath(true, it.name) }
+    }
+    includeEmptyDirs = false
+    into layout.buildDirectory.dir('eminus-mod')
+}
+
 // Same unpack as in common, for the same reason: Ponder and Flywheel ride jar-in-jar inside the Create jar, and
 // without VirtualBlockEntity and AbstractBlockEntityVisual on the classpath neither a Create block entity's members
 // nor its visual classes resolve. Plain compileOnly and the neoforge flavor, like the Create jar beside it — there is
@@ -302,6 +321,8 @@ dependencies {
     compileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     // Sodium: the unpacked neoforge mod jar, as in common; its level slice carries no game name the fold renames.
     compileOnly files(sodiumModJars).asFileTree.matching { include '*.jar' }
+    // Eminus: the unpacked neoforge mod jar, as in common; no member the fold mixins name carries a game type.
+    compileOnly files(eminusModJars).asFileTree.matching { include '*.jar' }
     // Seed Viewer rides modCompileOnly as the FABRIC flavor, as the Xaero jars do: its samplers' constructors and its
     // preview builder name game types, and remapJar carries the mixin targets onto intermediary only through it.
     modCompileOnly "maven.modrinth:seed-viewer:${seed_viewer_fabric_version}"
