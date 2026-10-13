@@ -143,6 +143,8 @@ public final class InjectionTargets {
     public static final String VEC3_SUBTRACT =
             "Lnet/minecraft/world/phys/Vec3;subtract(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;";
 
+    public static final String VECTOR3D_SUB = "Lorg/joml/Vector3d;sub(Lorg/joml/Vector3dc;)Lorg/joml/Vector3d;";
+
     private InjectionTargets() {
     }
 }

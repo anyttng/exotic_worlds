@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.core.JomlVectors;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
@@ -20,7 +21,7 @@ import net.minecraft.world.level.block.entity.SignBlockEntity;
 public abstract class SignFacingFrameMixin {
     @WrapOperation(
             method = "isFacingFrontText",
-            at = @At(value = "INVOKE", target = "Lorg/joml/Vector3d;sub(Lorg/joml/Vector3dc;)Lorg/joml/Vector3d;"))
+            at = @At(value = "INVOKE", target = InjectionTargets.VECTOR3D_SUB))
     private Vector3d toroidal$playerDeltaThroughSeam(Vector3d playerPosition, Vector3dc centre,
             Operation<Vector3d> original) {
         WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(((BlockEntity) (Object) this).getLevel());
