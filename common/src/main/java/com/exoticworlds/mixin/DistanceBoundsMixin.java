@@ -11,16 +11,18 @@ import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.advancements.criterion.DistancePredicate;
 import net.minecraft.advancements.criterion.DistanceTrigger;
+import net.minecraft.advancements.criterion.EntityPredicate;
 import net.minecraft.advancements.criterion.FallAfterExplosionTrigger;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
 @Mixin({
         DistanceTrigger.TriggerInstance.class,
-        FallAfterExplosionTrigger.TriggerInstance.class})
+        FallAfterExplosionTrigger.TriggerInstance.class,
+        EntityPredicate.class})
 public class DistanceBoundsMixin {
     @WrapOperation(
-            method = "matches",
+            method = "matches*",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.DISTANCE_PREDICATE_MATCHES))
     private boolean toroidal$boundThroughSeam(DistancePredicate bounds,

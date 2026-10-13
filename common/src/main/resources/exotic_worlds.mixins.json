@@ -94,7 +94,6 @@
     "EntityAccessor",
     "EntityGetterMixin",
     "EntityMixin",
-    "EntityPredicateDistanceMixin",
     "EntitySectionCallbackMixin",
     "EntitySectionManagerMixin",
     "EntitySectionStorageMixin",
@@ -309,8 +308,7 @@
     "DebugEntryPositionMixin",
     "LevelHeldBlockEntityMixin",
     "ModelBlockRendererMixin",
-    "RenderSectionRegionMixin",
-    "WeatherEffectRendererMixin"
+    "RenderSectionRegionMixin"
   ],
   "injectors": {
     "defaultRequire": 1
