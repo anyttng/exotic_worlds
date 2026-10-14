@@ -37,8 +37,7 @@ public class RaidMixin {
             at = @At(
                     value = "INVOKE",
                     target = InjectionTargets.VEC3_AT_CENTER_OF))
-    private Vec3 toroidal$raidHornThroughSeam(Vec3 raidLoc, @Local(argsOnly = true) ServerLevel level,
-            @Local ServerPlayer listener) {
+    private Vec3 toroidal$raidHornThroughSeam(Vec3 raidLoc, @Local ServerPlayer listener) {
         return SeamSteering.nearestCopy(listener, raidLoc);
     }
 
