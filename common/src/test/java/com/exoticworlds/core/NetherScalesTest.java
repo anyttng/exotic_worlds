@@ -23,19 +23,31 @@ class NetherScalesTest {
         return allowed;
     }
 
+    private static List<Integer> allowedFor(int chunkWidth) {
+        return NetherScales.allowedFor(chunkWidth, chunkWidth, FlatShape.NO_SKEW);
+    }
+
+    private static int normalize(int scale, int chunkWidth) {
+        return NetherScales.normalize(scale, chunkWidth, chunkWidth, FlatShape.NO_SKEW);
+    }
+
+    private static int next(int scale, int chunkWidth) {
+        return NetherScales.next(scale, chunkWidth, chunkWidth, FlatShape.NO_SKEW);
+    }
+
     @Nested
     class AllowedScales {
         @Test
         void matchTheExhaustiveReferenceOnEveryWidthShape() {
             for (int width : WIDTHS) {
-                assertEquals(allowedNaive(width), NetherScales.allowedFor(width), () -> "width " + width);
+                assertEquals(allowedNaive(width), allowedFor(width), () -> "width " + width);
             }
         }
 
         @Test
         void everyAllowedScaleDividesTheWidthAndLeavesAWorkingNether() {
             for (int width : WIDTHS) {
-                for (int scale : NetherScales.allowedFor(width)) {
+                for (int scale : allowedFor(width)) {
                     assertEquals(0, width % scale, "width " + width + " scale " + scale);
                     assertTrue(NetherScales.netherChunkWidth(width, scale) >= WorldLoopSizes.MIN_CHUNK_WIDTH,
                             "width " + width + " scale " + scale + " leaves too narrow a nether");
@@ -47,14 +59,14 @@ class NetherScalesTest {
 
         @Test
         void theSmallestWorldAdmitsOnlyOneToOne() {
-            assertEquals(List.of(1), NetherScales.allowedFor(WorldLoopSizes.MIN_CHUNK_WIDTH));
-            assertEquals(List.of(1), NetherScales.allowedFor(WorldLoopSizes.MIN_CHUNK_WIDTH - 2));
+            assertEquals(List.of(1), allowedFor(WorldLoopSizes.MIN_CHUNK_WIDTH));
+            assertEquals(List.of(1), allowedFor(WorldLoopSizes.MIN_CHUNK_WIDTH - 2));
         }
 
         @Test
         void vanillasEightToOneNeedsAWorldEightMinimumsWide() {
-            assertTrue(NetherScales.allowedFor(8 * WorldLoopSizes.MIN_CHUNK_WIDTH).contains(NetherScales.DEFAULT));
-            assertFalse(NetherScales.allowedFor(8 * WorldLoopSizes.MIN_CHUNK_WIDTH - 16).contains(NetherScales.DEFAULT));
+            assertTrue(allowedFor(8 * WorldLoopSizes.MIN_CHUNK_WIDTH).contains(NetherScales.DEFAULT));
+            assertFalse(allowedFor(8 * WorldLoopSizes.MIN_CHUNK_WIDTH - 16).contains(NetherScales.DEFAULT));
         }
     }
 
@@ -63,9 +75,9 @@ class NetherScalesTest {
         @Test
         void returnsTheLargestAllowedScaleNotAboveAndBothOverloadsAgree() {
             for (int width : WIDTHS) {
-                List<Integer> allowed = NetherScales.allowedFor(width);
+                List<Integer> allowed = allowedFor(width);
                 for (int scale = 0; scale <= 300; scale++) {
-                    int normalized = NetherScales.normalize(scale, width);
+                    int normalized = normalize(scale, width);
                     assertTrue(allowed.contains(normalized),
                             "width " + width + ": normalize(" + scale + ") = " + normalized + " is not allowed");
                     for (int candidate : allowed) {
@@ -84,52 +96,44 @@ class NetherScalesTest {
         @Test
         void aMemberNormalizesToItself() {
             for (int width : WIDTHS) {
-                for (int scale : NetherScales.allowedFor(width)) {
-                    assertEquals(scale, NetherScales.normalize(scale, width), "width " + width);
+                for (int scale : allowedFor(width)) {
+                    assertEquals(scale, normalize(scale, width), "width " + width);
                 }
             }
         }
 
         @Test
         void theDefaultWinsWheneverTheWidthAdmitsIt() {
-            assertEquals(8, NetherScales.normalize(NetherScales.DEFAULT, 128));
-            assertEquals(8, NetherScales.normalize(NetherScales.DEFAULT, 4096));
+            assertEquals(8, normalize(NetherScales.DEFAULT, 128));
+            assertEquals(8, normalize(NetherScales.DEFAULT, 4096));
         }
 
         @Test
         void theDefaultFallsDownTheChainWhenDisallowed() {
-            assertEquals(2, NetherScales.normalize(NetherScales.DEFAULT, 32));
-            assertEquals(1, NetherScales.normalize(NetherScales.DEFAULT, 16));
-            assertEquals(3, NetherScales.normalize(NetherScales.DEFAULT, 129));
+            assertEquals(2, normalize(NetherScales.DEFAULT, 32));
+            assertEquals(1, normalize(NetherScales.DEFAULT, 16));
+            assertEquals(3, normalize(NetherScales.DEFAULT, 129));
         }
 
         @Test
         void aDisallowedScaleFallsToTheLargestAllowedBelowIt() {
-            assertEquals(2, NetherScales.normalize(3, 128));
-            assertEquals(1, NetherScales.normalize(0, 128));
-            assertEquals(8, NetherScales.normalize(300, 128));
+            assertEquals(2, normalize(3, 128));
+            assertEquals(1, normalize(0, 128));
+            assertEquals(8, normalize(300, 128));
         }
     }
 
     @Nested
     class TwoWidths {
         @Test
-        void equalWidthsAgreeWithTheSingleWidthForm() {
-            for (int width : WIDTHS) {
-                assertEquals(NetherScales.allowedFor(width), NetherScales.allowedFor(width, width),
-                        () -> "width " + width);
-            }
-        }
-
-        @Test
         void matchTheExhaustiveReferenceOfBothAxes() {
             for (int xWidth : WIDTHS) {
                 for (int zWidth : WIDTHS) {
                     List<Integer> expected = new ArrayList<>(allowedNaive(xWidth));
                     expected.retainAll(allowedNaive(zWidth));
-                    assertEquals(expected, NetherScales.allowedFor(xWidth, zWidth),
+                    assertEquals(expected, NetherScales.allowedFor(xWidth, zWidth, FlatShape.NO_SKEW),
                             () -> "widths " + xWidth + " x " + zWidth);
-                    assertEquals(expected, NetherScales.allowedFor(zWidth, xWidth),
+                    assertEquals(expected, NetherScales.allowedFor(zWidth, xWidth, FlatShape.NO_SKEW),
                             () -> "widths " + zWidth + " x " + xWidth);
                 }
             }
@@ -137,31 +141,20 @@ class NetherScalesTest {
 
         @Test
         void theNarrowerAxisCapsTheScale() {
-            assertEquals(List.of(1, 2), NetherScales.allowedFor(32, 1024));
-            assertEquals(2, NetherScales.normalize(NetherScales.DEFAULT, 32, 1024));
+            assertEquals(List.of(1, 2), NetherScales.allowedFor(32, 1024, FlatShape.NO_SKEW));
+            assertEquals(2, NetherScales.normalize(NetherScales.DEFAULT, 32, 1024, FlatShape.NO_SKEW));
         }
 
         @Test
         void aScaleMustDivideBothWidths() {
-            assertEquals(List.of(1, 2, 4), NetherScales.allowedFor(128, 100));
-            assertEquals(4, NetherScales.normalize(NetherScales.DEFAULT, 128, 100));
-            assertEquals(1, NetherScales.next(4, 128, 100));
+            assertEquals(List.of(1, 2, 4), NetherScales.allowedFor(128, 100, FlatShape.NO_SKEW));
+            assertEquals(4, NetherScales.normalize(NetherScales.DEFAULT, 128, 100, FlatShape.NO_SKEW));
+            assertEquals(1, NetherScales.next(4, 128, 100, FlatShape.NO_SKEW));
         }
     }
 
     @Nested
     class Skew {
-        @Test
-        void noSkewAgreesWithTheTwoWidthForm() {
-            for (int xWidth : WIDTHS) {
-                for (int zWidth : WIDTHS) {
-                    assertEquals(NetherScales.allowedFor(xWidth, zWidth),
-                            NetherScales.allowedFor(xWidth, zWidth, FlatShape.NO_SKEW),
-                            () -> "widths " + xWidth + " x " + zWidth);
-                }
-            }
-        }
-
         @Test
         void everyAllowedScaleDividesTheSkewToo() {
             for (int skew = -64; skew <= 64; skew++) {
@@ -186,10 +179,10 @@ class NetherScalesTest {
         @Test
         void nextWalksTheWholeListInOrderAndWrapsAround() {
             for (int width : WIDTHS) {
-                List<Integer> allowed = NetherScales.allowedFor(width);
+                List<Integer> allowed = allowedFor(width);
                 for (int index = 0; index < allowed.size(); index++) {
                     assertEquals(allowed.get((index + 1) % allowed.size()),
-                            NetherScales.next(allowed.get(index), width),
+                            next(allowed.get(index), width),
                             "width " + width + " from " + allowed.get(index));
                 }
             }
@@ -197,8 +190,8 @@ class NetherScalesTest {
 
         @Test
         void anUnknownScaleAdvancesToTheFirstAllowed() {
-            assertEquals(1, NetherScales.next(7, 128));
-            assertEquals(1, NetherScales.next(-3, 128));
+            assertEquals(1, next(7, 128));
+            assertEquals(1, next(-3, 128));
         }
     }
 }

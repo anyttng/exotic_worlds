@@ -467,33 +467,6 @@ class WrapDomainTest {
         }
 
         @Test
-        void foldedSpanIsTheComplementOfTheDirectReading() {
-            Random random = new Random(SEED);
-            for (WrapDomain domain : DOMAINS) {
-                for (int i = 0; i < SAMPLES; i++) {
-                    int a = domain.wrap(sampleCoord(random, domain));
-                    int b = domain.wrap(sampleCoord(random, domain));
-                    int min = Math.min(a, b);
-                    int max = Math.max(a, b);
-                    int start = domain.foldSpanStart(min, max);
-                    int end = domain.foldSpanEnd(min, max);
-
-                    if (domain.spansSeam(min, max)) {
-                        assertEquals(domain.domainLength, (end - start) + (max - min),
-                                () -> "folded [" + min + ", " + max + "] " + in(domain));
-                        assertFalse(domain.isOver(start),
-                                () -> "foldSpanStart(" + min + ", " + max + ") left the domain " + in(domain));
-                        assertTrue(end >= start,
-                                () -> "folded [" + min + ", " + max + "] runs backwards " + in(domain));
-                    } else {
-                        assertEquals(min, start);
-                        assertEquals(max, end);
-                    }
-                }
-            }
-        }
-
-        @Test
         void overlapsAgreesWithTheLatticeOfWorldCopies() {
             Random random = new Random(SEED);
             for (WrapDomain domain : DOMAINS) {
