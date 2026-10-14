@@ -141,7 +141,7 @@ class PeriodicLatticesTest {
     void aFullTableDropsTheOldestKey() {
         Noise noise = Noise.of(new Random(SEED));
         PeriodicLattices table = new PeriodicLattices();
-        PeriodicLattice[] lattices = new PeriodicLattice[PeriodicLattices.CAPACITY + 1];
+        PeriodicLattice[] lattices = new PeriodicLattice[ContextKeyedCache.CAPACITY + 1];
         for (int i = 0; i < lattices.length; i++) {
             lattices[i] = noise.latticeIn(table, STARVED_TORUS.withScale(STARVED_SCALE * (i + 1)));
         }
