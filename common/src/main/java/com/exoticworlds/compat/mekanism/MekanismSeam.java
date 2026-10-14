@@ -2,9 +2,12 @@ package com.exoticworlds.compat.mekanism;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.NearestCopy;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -38,6 +41,14 @@ public final class MekanismSeam {
 
     public static AABB nearestCopy(@Nullable Level level, Vec3 anchor, AABB box) {
         return WorldLoopAttachments.transformerOfReader(level).foldBox(anchor, box).value();
+    }
+
+    public static Vec3 stopOnAxis(@Nullable Level level, Vec3 origin, Direction.Axis axis, Vec3 entity) {
+        return stopOnAxis(WorldLoopAttachments.transformerOfReader(level), origin, axis, entity);
+    }
+
+    static Vec3 stopOnAxis(WorldFold fold, Vec3 origin, Direction.Axis axis, Vec3 entity) {
+        return origin.with(axis, NearestCopy.toward(fold, axis, origin, entity));
     }
 
     private MekanismSeam() {
