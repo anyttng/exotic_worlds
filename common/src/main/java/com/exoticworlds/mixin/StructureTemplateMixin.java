@@ -3,6 +3,7 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.SeamDelta;
@@ -18,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 public class StructureTemplateMixin {
     @ModifyExpressionValue(
             method = "fillEntityList",
-            at = @At(value = "NEW", target = "(DDD)Lnet/minecraft/world/phys/Vec3;"))
+            at = @At(value = "NEW", target = InjectionTargets.VEC3_NEW))
     private Vec3 toroidal$entityOffsetInScanFrame(Vec3 offset, @Local(argsOnly = true) Level level) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
         if (transformer == null) {

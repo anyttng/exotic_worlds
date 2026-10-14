@@ -47,8 +47,11 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 
 @Mixin(value = PoiManager.class, priority = 1100)
 public class PoiManagerMixin {
+    @Unique
     private static final String FIND_CLOSEST =
             "findClosest(Ljava/util/function/Predicate;Lnet/minecraft/core/BlockPos;ILnet/minecraft/world/entity/ai/village/poi/PoiManager$Occupancy;)Ljava/util/Optional;";
+
+    @Unique
     private static final String FIND_CLOSEST_FILTERED =
             "findClosest(Ljava/util/function/Predicate;Ljava/util/function/Predicate;Lnet/minecraft/core/BlockPos;ILnet/minecraft/world/entity/ai/village/poi/PoiManager$Occupancy;)Ljava/util/Optional;";
 

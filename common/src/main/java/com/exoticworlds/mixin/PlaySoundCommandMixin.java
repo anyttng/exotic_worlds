@@ -3,6 +3,7 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -19,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 public class PlaySoundCommandMixin {
     @WrapOperation(
             method = "playSound",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;getX()D"))
+            at = @At(value = "INVOKE", target = InjectionTargets.SERVER_PLAYER_GET_X))
     private static double toroidal$listenerXNearestTheSound(ServerPlayer listener, Operation<Double> original,
             @Local(argsOnly = true) CommandSourceStack source, @Local(argsOnly = true) Vec3 position) {
         return NearestCopy.toward(WorldLoopAttachments.wrappedTransformerOf(source.getLevel()), Direction.Axis.X,
@@ -28,7 +29,7 @@ public class PlaySoundCommandMixin {
 
     @WrapOperation(
             method = "playSound",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;getZ()D"))
+            at = @At(value = "INVOKE", target = InjectionTargets.SERVER_PLAYER_GET_Z))
     private static double toroidal$listenerZNearestTheSound(ServerPlayer listener, Operation<Double> original,
             @Local(argsOnly = true) CommandSourceStack source, @Local(argsOnly = true) Vec3 position) {
         return NearestCopy.toward(WorldLoopAttachments.wrappedTransformerOf(source.getLevel()), Direction.Axis.Z,
