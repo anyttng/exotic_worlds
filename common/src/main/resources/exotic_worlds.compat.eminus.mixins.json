@@ -8,16 +8,22 @@
     "CellCacheMixin",
     "CellMergerMixin",
     "ClientSessionMixin",
+    "ColumnCoverageMissingMixin",
     "ColumnCoverageMixin",
     "DimensionRuntimeMixin",
     "FarQuadsMixin",
     "FarRendererMixin",
     "GameHandlesMixin",
+    "MeshServiceFailuresMixin",
+    "MeshServiceMixin",
     "NodeTableMixin",
     "ShaderManagerConfigsMixin",
+    "TreeChangesMixin",
+    "TreeManagerChangesMixin",
     "TreeManagerMixin",
     "TreeRingMixin",
-    "TreeTraversalMixin"
+    "TreeTraversalMixin",
+    "TreeTraversalWaitingMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -57,6 +57,11 @@ public class DimensionRuntimeMixin implements CellFoldHolder {
         EminusShapes.matchStore(folder, toroidal$fold);
     }
 
+    @Inject(method = "closeStore", at = @At("RETURN"))
+    private void toroidal$stampClosedStore(CallbackInfo ci) {
+        EminusShapes.stampStore(folder, toroidal$fold);
+    }
+
     @Inject(method = "openCells", at = @At("RETURN"))
     private void toroidal$foldCells(CallbackInfo ci) {
         CellFoldHolder.setFold(cells, toroidal$fold);

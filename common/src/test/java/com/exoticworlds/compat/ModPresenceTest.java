@@ -113,6 +113,19 @@ class ModPresenceTest {
     }
 
     @Test
+    void aWithheldMixinIsNeitherCheckedNorApplied() {
+        ModPresence gate = ModPresence.gate(LOGGER, "[test-compat] gate withheld_present")
+                .probing(SHIPPED_CLASS)
+                .checking(CONFIG)
+                .withholding(MIXIN_PREFIX + SHADOW_MISSING, () -> true)
+                .build();
+
+        assertTrue(gate.present(), "the one mixin naming a missing member is withheld, so the rest opens the gate");
+        assertFalse(gate.admits(FIXTURES + SHADOW_MISSING), "a withheld mixin is never applied");
+        assertTrue(gate.admits(FIXTURES + WRAP_PRESENT), "the mixins beside it apply");
+    }
+
+    @Test
     void theBareProbeAnswersTheSameAsAGate() {
         assertTrue(ModPresence.probe(SHIPPED_CLASS), "the bare probe resolves the shipped class through the same loader");
         assertFalse(ModPresence.probe(ABSENT_CLASS), "the bare probe reads an absent class as absent");
