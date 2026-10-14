@@ -40,6 +40,8 @@ public final class XaeroWorldMapFold {
 
     private static final int COMPARISON_CHUNK_OFFSET = 16;
 
+    private static final long[] NO_REGIONS = new long[0];
+
     private static @Nullable ToroidalShape browsedShape() {
         WorldMapSession session = WorldMapSession.getCurrentSession();
         MapProcessor processor = session == null ? null : session.getMapProcessor();
@@ -176,14 +178,6 @@ public final class XaeroWorldMapFold {
         return new ChunkPos(regionOfTileChunk(tile.x), regionOfTileChunk(tile.z));
     }
 
-    public static boolean regionCrossesSeam(Direction.Axis axis, int region) {
-        return regionCrossesSeam(copies(axis), region);
-    }
-
-    static boolean regionCrossesSeam(AxisCopies copies, int region) {
-        return spanLeavesWorld(copies, region * REGION_BLOCKS, REGION_BLOCKS);
-    }
-
     public static ChunkPos foldComparison(int comparisonX, int comparisonZ) {
         return foldComparison(browsedShape(), comparisonX, comparisonZ);
     }
@@ -233,6 +227,102 @@ public final class XaeroWorldMapFold {
         }
 
         return origins.toLongArray();
+    }
+
+    public static long @Nullable [] frameRegions(int minTileChunkX, int minTileChunkZ, int maxTileChunkX,
+            int maxTileChunkZ) {
+        return frameRegions(browsedShape(), minTileChunkX, minTileChunkZ, maxTileChunkX, maxTileChunkZ);
+    }
+
+    static long @Nullable [] frameRegions(@Nullable ToroidalShape shape, int minTileChunkX, int minTileChunkZ,
+            int maxTileChunkX, int maxTileChunkZ) {
+        if (shape == null
+                || (!spanLeavesWorld(AxisCopies.of(shape, Direction.Axis.X), minTileChunkX * SLOT_BLOCKS,
+                        (maxTileChunkX + 1 - minTileChunkX) * SLOT_BLOCKS)
+                && !spanLeavesWorld(AxisCopies.of(shape, Direction.Axis.Z), minTileChunkZ * SLOT_BLOCKS,
+                        (maxTileChunkZ + 1 - minTileChunkZ) * SLOT_BLOCKS))) {
+            return null;
+        }
+
+        return canonicalRegions(shape, minTileChunkX, minTileChunkZ, maxTileChunkX, maxTileChunkZ);
+    }
+
+    public static long[] fannedRegions(int leveledRegX, int leveledRegZ, int level) {
+        return fannedRegions(browsedShape(), leveledRegX, leveledRegZ, level);
+    }
+
+    static long[] fannedRegions(@Nullable ToroidalShape shape, int leveledRegX, int leveledRegZ, int level) {
+        int side = REGION_BLOCKS << level;
+        if (shape == null
+                || (!spanLeavesWorld(AxisCopies.of(shape, Direction.Axis.X), leveledRegX * side, side)
+                && !spanLeavesWorld(AxisCopies.of(shape, Direction.Axis.Z), leveledRegZ * side, side))) {
+            return NO_REGIONS;
+        }
+
+        long[] regions = canonicalSlotOrigins(shape, leveledRegX * side, leveledRegZ * side, side);
+        for (int i = 0; i < regions.length; i++) {
+            regions[i] = ChunkPos.asLong(Math.floorDiv(ChunkPos.getX(regions[i]), side),
+                    Math.floorDiv(ChunkPos.getZ(regions[i]), side));
+        }
+
+        return regions;
+    }
+
+    public static long[] fannedLeaves(int leveledRegX, int leveledRegZ, int level) {
+        return fannedLeaves(browsedShape(), leveledRegX, leveledRegZ, level);
+    }
+
+    static long[] fannedLeaves(@Nullable ToroidalShape shape, int leveledRegX, int leveledRegZ, int level) {
+        int leaves = 1 << level;
+        long[] regions = fannedRegions(shape, leveledRegX, leveledRegZ, level);
+        long[] fanned = new long[regions.length * leaves * leaves];
+        int next = 0;
+        for (long region : regions) {
+            for (int leafX = 0; leafX < leaves; leafX++) {
+                for (int leafZ = 0; leafZ < leaves; leafZ++) {
+                    fanned[next++] = ChunkPos.asLong(ChunkPos.getX(region) * leaves + leafX,
+                            ChunkPos.getZ(region) * leaves + leafZ);
+                }
+            }
+        }
+
+        return fanned;
+    }
+
+    public static List<TilePlacement> placements(int originX, int originZ, int size, List<WorldCopies.Copy> copies) {
+        return placements(browsedShape(), originX, originZ, size, copies);
+    }
+
+    static List<TilePlacement> placements(@Nullable ToroidalShape shape, int originX, int originZ, int size,
+            List<WorldCopies.Copy> copies) {
+        AxisCopies x = shape == null ? AxisCopies.UNBOUNDED : AxisCopies.of(shape, Direction.Axis.X);
+        AxisCopies z = shape == null ? AxisCopies.UNBOUNDED : AxisCopies.of(shape, Direction.Axis.Z);
+        int minX = x.clipMin(originX);
+        int maxX = x.clipMax(originX + size);
+        int minZ = z.clipMin(originZ);
+        int maxZ = z.clipMax(originZ + size);
+        if (minX >= maxX || minZ >= maxZ) {
+            return List.of();
+        }
+
+        float u1 = (float) (minX - originX) / size;
+        float u2 = (float) (maxX - originX) / size;
+        float v1 = (float) (minZ - originZ) / size;
+        float v2 = (float) (maxZ - originZ) / size;
+        List<TilePlacement> placements = new ArrayList<>(copies.size());
+        for (WorldCopies.Copy copy : copies) {
+            placements.add(new TilePlacement(minX + copy.dx(), minZ + copy.dz(), maxX - minX, maxZ - minZ,
+                    u1, v1, u2, v2));
+        }
+
+        return placements;
+    }
+
+    public record TilePlacement(int minX, int minZ, int width, int height, float u1, float v1, float u2, float v2) {
+        public boolean meets(int spanMinX, int spanMinZ, int spanMaxX, int spanMaxZ) {
+            return this.minX < spanMaxX && this.minX + this.width > spanMinX
+                    && this.minZ < spanMaxZ && this.minZ + this.height > spanMinZ;
+        }
     }
 
     public static boolean spanLeavesWorld(AxisCopies copies, int first, int size) {

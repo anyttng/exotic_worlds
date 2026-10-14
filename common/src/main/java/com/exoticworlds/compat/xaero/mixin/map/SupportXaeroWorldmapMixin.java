@@ -179,16 +179,22 @@ public abstract class SupportXaeroWorldmapMixin {
                 support.bumpLoadedRegion(this.toroidal$processor, canonicalRegion);
             }
 
-            helper.prepareMyTexturedModalRect(matrix,
-                    x + pieceX.rawOffset() * CoordinateConstants.CHUNK_WIDTH,
-                    y + pieceZ.rawOffset() * CoordinateConstants.CHUNK_WIDTH,
+            float pieceXOnScreen = x + pieceX.rawOffset() * CoordinateConstants.CHUNK_WIDTH;
+            float pieceYOnScreen = y + pieceZ.rawOffset() * CoordinateConstants.CHUNK_WIDTH;
+            int pieceWidth = pieceX.count() * CoordinateConstants.CHUNK_WIDTH;
+            int pieceHeight = pieceZ.count() * CoordinateConstants.CHUNK_WIDTH;
+            if (pieceZ.firstInside() == 0) {
+                original.call(support, matrix, pieceXOnScreen, pieceYOnScreen,
+                        pieceX.firstInside() * CoordinateConstants.CHUNK_WIDTH, textureY, (float) pieceWidth,
+                        (float) pieceHeight, piece, noLightRenderer, withLightRenderer, helper);
+                continue;
+            }
+
+            // prepareMapTexturedRect starts every piece at the tile's first row, so a piece inside it goes direct.
+            helper.prepareMyTexturedModalRect(matrix, pieceXOnScreen, pieceYOnScreen,
                     pieceX.firstInside() * CoordinateConstants.CHUNK_WIDTH,
                     (pieceZ.firstInside() + pieceZ.count()) * CoordinateConstants.CHUNK_WIDTH,
-                    pieceX.count() * CoordinateConstants.CHUNK_WIDTH,
-                    pieceZ.count() * CoordinateConstants.CHUNK_WIDTH,
-                    -pieceZ.count() * CoordinateConstants.CHUNK_WIDTH,
-                    XaeroWorldMapFold.SLOT_BLOCKS,
-                    texture,
+                    pieceWidth, pieceHeight, -pieceHeight, XaeroWorldMapFold.SLOT_BLOCKS, texture,
                     piece.getLeafTexture().getTextureHasLight() ? withLightRenderer : noLightRenderer);
         }
     }

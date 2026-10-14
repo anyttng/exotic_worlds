@@ -1,37 +1,55 @@
 package com.exoticworlds.compat.xaero;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+
+import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.compat.AxisCopies;
+import com.exoticworlds.compat.MapShapes;
+
+import net.minecraft.world.level.ChunkPos;
 
 class XaeroWorldMapFoldSeamTest {
     @Test
-    void aRegionInsideAnAlignedWorldStaysCanonical() {
-        AxisCopies axis = AxisCopies.looped(-512, 1024);
-        assertFalse(XaeroWorldMapFold.regionCrossesSeam(axis, -1), "region -1 covers -512..-1, the world's first half");
-        assertFalse(XaeroWorldMapFold.regionCrossesSeam(axis, 0), "region 0 covers 0..511, the world's second half");
-        assertTrue(XaeroWorldMapFold.regionCrossesSeam(axis, 1), "region 1 lies past the seam at 512");
-        assertTrue(XaeroWorldMapFold.regionCrossesSeam(axis, -2), "region -2 lies before the seam at -512");
+    void aRegionInsideAnAlignedWorldFansOutNothing() {
+        assertArrayEquals(new long[0], XaeroWorldMapFold.fannedRegions(MapShapes.torus(-32, 32), -1, 0, 0),
+                "region -1 covers -512..-1, the world's first half");
+        assertArrayEquals(new long[0], XaeroWorldMapFold.fannedRegions(MapShapes.torus(-32, 32), 0, -1, 0),
+                "region 0 covers 0..511, the world's second half");
     }
 
     @Test
-    void everyRegionOfAHalfShiftedWorldCrossesASeam() {
-        AxisCopies axis = AxisCopies.looped(-256, 512);
-        assertTrue(XaeroWorldMapFold.regionCrossesSeam(axis, 0), "region 0 spans 0..511 against a world ending at 255");
-        assertTrue(XaeroWorldMapFold.regionCrossesSeam(axis, -1), "region -1 spans -512..-1 against a world starting at -256");
+    void aRegionPastAnAlignedSeamFansOutItsCanonicalRegion() {
+        assertArrayEquals(new long[] {ChunkPos.asLong(-1, 0)},
+                XaeroWorldMapFold.fannedRegions(MapShapes.torus(-32, 32), 1, 0, 0),
+                "region 1 covers 512..1023, one lap past the seam at 512");
     }
 
     @Test
-    void aRegionWiderThanTheWorldCrossesASeam() {
-        assertTrue(XaeroWorldMapFold.regionCrossesSeam(AxisCopies.looped(-128, 256), 0),
-                "a 256-block world fits twice into region 0");
+    void aRegionOfAHalfShiftedWorldFansOutEveryRegionItsFoldedSpanTouches() {
+        assertArrayEquals(
+                sorted(ChunkPos.asLong(-1, -1), ChunkPos.asLong(-1, 0), ChunkPos.asLong(0, -1), ChunkPos.asLong(0, 0)),
+                sorted(XaeroWorldMapFold.fannedRegions(MapShapes.torus(-16, 16), 0, 0, 0)),
+                "region 0 spans 0..511 against a world of -256..255 on both axes");
     }
 
     @Test
-    void anUnloopedAxisNeverCrosses() {
-        assertFalse(XaeroWorldMapFold.regionCrossesSeam(AxisCopies.UNBOUNDED, 7), "an unbounded axis has no seam");
+    void aBranchRegionFansOutItsLeavesRegionByRegion() {
+        assertArrayEquals(
+                new long[] {ChunkPos.asLong(-2, 0), ChunkPos.asLong(-2, 1), ChunkPos.asLong(-1, 0), ChunkPos.asLong(-1, 1)},
+                XaeroWorldMapFold.fannedLeaves(MapShapes.torus(-64, 64), 1, 0, 1),
+                "level-1 region 1 covers 1024..2047, one lap past the seam, so it fans out level-1 region -1");
+    }
+
+    @Test
+    void anUnshapedWorldFansOutNothing() {
+        assertArrayEquals(new long[0], XaeroWorldMapFold.fannedRegions(null, 7, 0, 0), "an unshaped world has no seam");
+    }
+
+    private static long[] sorted(long... regions) {
+        long[] copy = regions.clone();
+        Arrays.sort(copy);
+        return copy;
     }
 }
