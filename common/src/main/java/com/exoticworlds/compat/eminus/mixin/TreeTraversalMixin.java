@@ -16,15 +16,13 @@ import com.eminus.render.tree.NodeTable;
 import com.eminus.render.tree.TreeNode;
 import com.eminus.render.tree.TreeRing;
 import com.exoticworlds.compat.eminus.CellFoldHolder;
+import com.exoticworlds.compat.eminus.LapTest;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.sugar.Local;
 
 @Mixin(targets = "com.eminus.render.tree.TreeTraversal")
-public class TreeTraversalMixin {
-    @Unique
-    private static final double NO_MARGIN = 0.0;
-
+public class TreeTraversalMixin implements LapTest {
     @Shadow
     @Final
     private NodeTable nodes;
@@ -60,8 +58,8 @@ public class TreeTraversalMixin {
         return original.call(key) && toroidal$meets(key, NO_MARGIN);
     }
 
-    @Unique
-    private boolean toroidal$meets(long key, double margin) {
+    @Override
+    public boolean toroidal$meets(long key, double margin) {
         int minX = CellFrame.originXOf(key);
         int minZ = CellFrame.originZOf(key);
         int side = DetailLevel.blocksPerCell(CellKey.level(key));
