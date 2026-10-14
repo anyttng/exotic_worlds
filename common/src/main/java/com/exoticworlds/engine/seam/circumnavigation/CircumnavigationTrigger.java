@@ -22,8 +22,10 @@ public class CircumnavigationTrigger extends SimpleCriterionTrigger<Circumnaviga
 
     public record TriggerInstance(Optional<ContextAwarePredicate> player)
             implements SimpleCriterionTrigger.SimpleInstance {
+        private static final String PLAYER_KEY = "player";
+
         public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player))
+                EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf(PLAYER_KEY).forGetter(TriggerInstance::player))
                 .apply(instance, TriggerInstance::new));
     }
 }

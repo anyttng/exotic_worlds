@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
@@ -25,7 +26,10 @@ import net.minecraft.world.level.portal.PortalForcer;
 
 @Mixin(value = PortalForcer.class, priority = 1100)
 public class PortalForcerMixin {
+    @Unique
     private static final int NETHER_SEARCH_RADIUS = 16;
+
+    @Unique
     private static final int OVERWORLD_SEARCH_RADIUS = 128;
 
     @Shadow

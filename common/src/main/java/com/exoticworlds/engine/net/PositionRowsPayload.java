@@ -15,8 +15,10 @@ import net.minecraft.resources.Identifier;
 
 public record PositionRowsPayload(Map<Identifier, List<TagPositions.TagPosition>> blockEntities,
         Set<Identifier> components) implements CustomPacketPayload {
+    private static final String PAYLOAD_ID = "position_rows";
+
     public static final Type<PositionRowsPayload> TYPE =
-            new Type<>(Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, "position_rows"));
+            new Type<>(Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, PAYLOAD_ID));
 
     public static final StreamCodec<ByteBuf, PositionRowsPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.fromCodec(PositionRows.SUBJECTS_CODEC), PositionRowsPayload::blockEntities,
