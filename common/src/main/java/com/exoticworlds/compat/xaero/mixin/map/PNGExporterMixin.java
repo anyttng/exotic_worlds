@@ -1,35 +1,30 @@
 package com.exoticworlds.compat.xaero.mixin.map;
 
-import java.nio.ByteBuffer;
-
-import org.jspecify.annotations.Nullable;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.blaze3d.textures.GpuTextureView;
 import com.exoticworlds.compat.xaero.XaeroExportAssembly;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
 
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.dimension.DimensionType;
 
 import xaero.map.MapProcessor;
-import xaero.map.file.OldFormatSupport;
 import xaero.map.file.RegionDetection;
-import xaero.map.file.export.PNGExportResult;
 import xaero.map.file.export.PNGExporter;
-import xaero.map.gui.MapTileSelection;
+import xaero.map.graphics.renderer.multitexture.MultiTextureRenderTypeRenderer;
 import xaero.map.highlight.DimensionHighlighterHandler;
 import xaero.map.region.ExportMapRegion;
 import xaero.map.region.ExportMapTileChunk;
 import xaero.map.region.MapLayer;
 import xaero.map.region.MapRegion;
-import xaero.map.region.texture.ExportLeafRegionTexture;
 import xaero.map.world.MapDimension;
 
 @Mixin(value = PNGExporter.class, remap = false)
@@ -37,11 +32,27 @@ public abstract class PNGExporterMixin {
     @Unique
     private final XaeroExportAssembly toroidal$assembly = new XaeroExportAssembly();
 
-    @Inject(method = "export", at = @At("HEAD"))
-    private void toroidal$beginExport(MapProcessor processor, Registry<Biome> biomes,
-            Registry<DimensionType> dimensionTypes, MapTileSelection selection, OldFormatSupport oldFormatSupport,
-            CallbackInfoReturnable<PNGExportResult> cir) {
-        this.toroidal$assembly.begin(processor, biomes, oldFormatSupport);
+    @ModifyVariable(method = "export", at = @At("STORE"), name = "minRegionX")
+    private int toroidal$walkFromRegionX(int minRegionX, @Local(name = "minTileChunkX") int minTileChunkX,
+            @Local(name = "minTileChunkZ") int minTileChunkZ, @Local(name = "maxTileChunkX") int maxTileChunkX,
+            @Local(name = "maxTileChunkZ") int maxTileChunkZ) {
+        this.toroidal$assembly.beginFrame(minTileChunkX, minTileChunkZ, maxTileChunkX, maxTileChunkZ);
+        return this.toroidal$assembly.walking() ? 0 : minRegionX;
+    }
+
+    @ModifyVariable(method = "export", at = @At("STORE"), name = "minRegionZ")
+    private int toroidal$walkFromRegionZ(int minRegionZ) {
+        return this.toroidal$assembly.walking() ? 0 : minRegionZ;
+    }
+
+    @ModifyVariable(method = "export", at = @At("STORE"), name = "maxRegionX")
+    private int toroidal$walkToRegionX(int maxRegionX) {
+        return this.toroidal$assembly.walking() ? 0 : maxRegionX;
+    }
+
+    @ModifyVariable(method = "export", at = @At("STORE"), name = "maxRegionZ")
+    private int toroidal$walkToRegionZ(int maxRegionZ) {
+        return this.toroidal$assembly.walking() ? this.toroidal$assembly.lastWalkedRegion() : maxRegionZ;
     }
 
     @WrapOperation(
@@ -85,52 +96,33 @@ public abstract class PNGExporterMixin {
     @WrapOperation(method = "export", at = @At(value = "NEW", target = "xaero/map/region/ExportMapRegion"))
     private ExportMapRegion toroidal$buildSourceRegion(MapDimension dimension, int regionX, int regionZ,
             int caveLayer, Registry<Biome> biomes, Operation<ExportMapRegion> original) {
-        ExportMapRegion region = original.call(dimension, this.toroidal$assembly.regionX(),
-                this.toroidal$assembly.regionZ(), caveLayer, biomes);
-        this.toroidal$assembly.adopt(region);
-        return region;
-    }
-
-    @WrapOperation(
-            method = "export",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lxaero/map/region/ExportMapRegion;getChunk(II)Lxaero/map/region/ExportMapTileChunk;"))
-    private @Nullable ExportMapTileChunk toroidal$resolveSlot(ExportMapRegion region, int slotX, int slotZ,
-            Operation<ExportMapTileChunk> original) {
-        if (!this.toroidal$assembly.assembling()) {
-            return original.call(region, slotX, slotZ);
-        }
-
-        return this.toroidal$assembly.chunk(slotX, slotZ);
-    }
-
-    @WrapOperation(
-            method = "export",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lxaero/map/region/texture/ExportLeafRegionTexture;getDirectColorBuffer()Ljava/nio/ByteBuffer;"))
-    private ByteBuffer toroidal$assembleSlotColors(ExportLeafRegionTexture texture, Operation<ByteBuffer> original) {
-        ByteBuffer buffer = original.call(texture);
-        return this.toroidal$assembly.assembling() ? this.toroidal$assembly.colorBuffer(buffer) : buffer;
+        return original.call(dimension, this.toroidal$assembly.regionX(), this.toroidal$assembly.regionZ(), caveLayer,
+                biomes);
     }
 
     @WrapOperation(
             method = "export",
             at = @At(value = "INVOKE", target = "Lxaero/map/region/ExportMapTileChunk;getX()I"))
     private int toroidal$slotX(ExportMapTileChunk chunk, Operation<Integer> original) {
-        return this.toroidal$assembly.assembling() ? this.toroidal$assembly.tileChunkX() : original.call(chunk);
+        return this.toroidal$assembly.walking() ? this.toroidal$assembly.tileChunkX(chunk) : original.call(chunk);
     }
 
     @WrapOperation(
             method = "export",
             at = @At(value = "INVOKE", target = "Lxaero/map/region/ExportMapTileChunk;getZ()I"))
     private int toroidal$slotZ(ExportMapTileChunk chunk, Operation<Integer> original) {
-        return this.toroidal$assembly.assembling() ? this.toroidal$assembly.tileChunkZ() : original.call(chunk);
+        return this.toroidal$assembly.walking() ? this.toroidal$assembly.tileChunkZ(chunk) : original.call(chunk);
     }
 
-    @Inject(method = "export", at = @At("RETURN"))
-    private void toroidal$endExport(CallbackInfoReturnable<PNGExportResult> cir) {
-        this.toroidal$assembly.end();
+    @WrapOperation(
+            method = "export",
+            at = @At(value = "INVOKE", target = XaeroInjectionTargets.GUI_MAP_RENDER_TEXTURED_MODAL_RECT_WITH_LIGHTING_3))
+    private void toroidal$drawTileCopies(Matrix4f matrix, float x, float y, float width, float height,
+            GpuTextureView texture, boolean hasLight, MultiTextureRenderTypeRenderer renderer, Operation<Void> original) {
+        if (this.toroidal$assembly.walking()) {
+            this.toroidal$assembly.draw(matrix, x, y, texture, hasLight, renderer);
+        } else {
+            original.call(matrix, x, y, width, height, texture, hasLight, renderer);
+        }
     }
 }
