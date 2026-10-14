@@ -167,14 +167,6 @@ public class WrapDomain {
         return laps;
     }
 
-    public int otherCopy(int coord, int delta) {
-        if (isForeign(coord)) {
-            return coord;
-        }
-
-        return delta > 0 ? coord - domainLength : coord + domainLength;
-    }
-
     public boolean loops() {
         return true;
     }
@@ -244,14 +236,6 @@ public class WrapDomain {
         return Math.abs((long) toCoord - fromCoord) > seamRadius;
     }
 
-    public int foldSpanStart(int minCoord, int maxCoord) {
-        return spansSeam(minCoord, maxCoord) ? maxCoord : minCoord;
-    }
-
-    public int foldSpanEnd(int minCoord, int maxCoord) {
-        return spansSeam(minCoord, maxCoord) ? minCoord + domainLength : maxCoord;
-    }
-
     public boolean overlaps(int aMin, int aMax, int bMin, int bMax) {
         if (isForeign(aMin) || isForeign(aMax) || isForeign(bMin) || isForeign(bMax)) {
             return aMin <= bMax && bMin <= aMax;
@@ -298,10 +282,6 @@ public class WrapDomain {
         }
 
         return delta;
-    }
-
-    public double mapFrom(WrapDomain source, double coord, double declaredScale) {
-        return wrap(coord * scaleFrom(source, declaredScale));
     }
 
     public double scaleFrom(WrapDomain source, double declaredScale) {
@@ -384,11 +364,6 @@ public class WrapDomain {
         @Override
         int shiftToward(int refCoord, int coord) {
             return 0;
-        }
-
-        @Override
-        public int otherCopy(int coord, int delta) {
-            return coord;
         }
 
         @Override

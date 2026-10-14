@@ -151,8 +151,6 @@ public final class InjectionTargets {
 
     public static final String VEC3_DISTANCE_TO_SQR_XYZ = "Lnet/minecraft/world/phys/Vec3;distanceToSqr(DDD)D";
 
-    public static final String VEC3_INIT = "Lnet/minecraft/world/phys/Vec3;<init>(DDD)V";
-
     public static final String VEC3_NEW = "(DDD)Lnet/minecraft/world/phys/Vec3;";
 
     public static final String VEC3_SUBTRACT =

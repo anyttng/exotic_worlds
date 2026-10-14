@@ -1,6 +1,7 @@
 package com.exoticworlds.scan;
 
 import com.exoticworlds.core.CoordinateConstants;
+import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -91,7 +92,8 @@ class ClimateScan {
         int widthBlocks(WorldType type) {
             int blocks = this.chunkWidth * CoordinateConstants.CHUNK_WIDTH;
             return type.nether()
-                    ? blocks / NetherScales.normalize(this.netherScale, this.chunkWidth)
+                    ? blocks / NetherScales.normalize(this.netherScale, this.chunkWidth, this.chunkWidth,
+                            FlatShape.NO_SKEW)
                     : blocks;
         }
     }

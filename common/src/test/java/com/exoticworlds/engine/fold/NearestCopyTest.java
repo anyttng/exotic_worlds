@@ -112,18 +112,18 @@ class NearestCopyTest {
 
     @Test
     void towardANullFoldHandsTheCoordinateBack() {
-        assertEquals(TARGET.x, NearestCopy.toward(null, Direction.Axis.X, ANCHOR_ACROSS_THE_SEAM.x, TARGET.x));
+        assertEquals(TARGET.x, NearestCopy.toward(null, Direction.Axis.X, ANCHOR_ACROSS_THE_SEAM, TARGET));
     }
 
     @Test
     void towardAFoldThatWrapsNothingHandsTheCoordinateBack() {
         assertEquals(TARGET.x,
-                NearestCopy.toward(WorldFolds.NOOP, Direction.Axis.X, ANCHOR_ACROSS_THE_SEAM.x, TARGET.x));
+                NearestCopy.toward(WorldFolds.NOOP, Direction.Axis.X, ANCHOR_ACROSS_THE_SEAM, TARGET));
     }
 
     @Test
     void towardAnAnchorAcrossTheSeamSeatsTheCoordinateInTheLappedCopy() {
         assertEquals(TARGET.x - WIDTH,
-                NearestCopy.toward(CYLINDER, Direction.Axis.X, ANCHOR_ACROSS_THE_SEAM.x, TARGET.x));
+                NearestCopy.toward(CYLINDER, Direction.Axis.X, ANCHOR_ACROSS_THE_SEAM, TARGET));
     }
 }
