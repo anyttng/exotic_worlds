@@ -11,6 +11,7 @@ import com.exoticworlds.accessors.ClimateFieldMark;
 import com.exoticworlds.accessors.CoastLiftCache;
 import com.exoticworlds.accessors.IndexableNoise;
 import com.exoticworlds.accessors.NoiseScaleRungs;
+import com.exoticworlds.engine.noise.ContextKeyedCache;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
@@ -40,6 +41,9 @@ public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, Noise
 
     @Unique
     private volatile Map<Double, Double> toroidal$scaleRungs = Map.of();
+
+    @Unique
+    private final ContextKeyedCache<Boolean> toroidal$indexability = new ContextKeyedCache<>();
 
     @Override
     public void toroidal$markClimateField() {
@@ -82,6 +86,16 @@ public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, Noise
 
     @Override
     public boolean toroidal$indexable(Context context) {
+        Boolean cached = this.toroidal$indexability.find(context.transformer(), context);
+        if (cached != null) {
+            return cached;
+        }
+
+        return this.toroidal$indexability.put(context.transformer(), context, toroidal$decideIndexable(context));
+    }
+
+    @Unique
+    private boolean toroidal$decideIndexable(Context context) {
         if (!((IndexableNoise) (Object) this.first).toroidal$indexable(context)) {
             return false;
         }
