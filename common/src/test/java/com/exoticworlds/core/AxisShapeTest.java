@@ -71,37 +71,6 @@ class AxisShapeTest {
     }
 
     @Nested
-    class OtherCopy {
-        @Test
-        void isOneWholeWorldAwayOnTheFarSideOfTheReference() {
-            for (WrapDomain domain : LOOPED) {
-                for (int coordStep = -70; coordStep <= 70; coordStep += 3) {
-                    int coord = coordStep;
-                    int ahead = domain.otherCopy(coord, 5);
-                    int behind = domain.otherCopy(coord, -5);
-
-                    assertTrue(ahead < coord, () -> "otherCopy(" + coord + ", ahead) went further ahead " + in(domain));
-                    assertTrue(behind > coord, () -> "otherCopy(" + coord + ", behind) went further back " + in(domain));
-                    assertEquals(domain.domainLength, coord - ahead, () -> "otherCopy(" + coord + ") " + in(domain));
-                    assertEquals(domain.domainLength, behind - coord, () -> "otherCopy(" + coord + ") " + in(domain));
-                    assertEquals(domain.wrap(coord), domain.wrap(ahead),
-                            () -> "otherCopy(" + coord + ") names another place " + in(domain));
-                    assertEquals(domain.wrap(coord), domain.wrap(behind),
-                            () -> "otherCopy(" + coord + ") names another place " + in(domain));
-                }
-            }
-        }
-
-        @Test
-        void disabledAxisOffersNoSecondCopy() {
-            for (int coord : COORDS) {
-                assertEquals(coord, NOOP.otherCopy(coord, 500));
-                assertEquals(coord, NOOP.otherCopy(coord, -500));
-            }
-        }
-    }
-
-    @Nested
     class FoldsOntoItself {
         @Test
         void agreesWithWhetherWrappingSuchARunRepeatsAPlace() {
@@ -199,13 +168,6 @@ class AxisShapeTest {
         void twoClosedAxesTakeTheirOwnWidthsRatioWhateverTheDimensionsDeclare() {
             assertEquals(0.125, narrow.scaleFrom(wide, 3.0));
             assertEquals(8.0, wide.scaleFrom(narrow, 3.0));
-            assertEquals(32.0, narrow.mapFrom(wide, 256.0, 3.0));
-        }
-
-        @Test
-        void aMappedCoordinateIsFoldedIntoTheDestination() {
-            assertEquals(-64.0, narrow.mapFrom(wide, 512.0, DECLARED));
-            assertEquals(-32.0, narrow.mapFrom(wide, 768.0, DECLARED));
         }
 
         @Test
@@ -213,19 +175,16 @@ class AxisShapeTest {
             assertEquals(DECLARED, narrow.scaleFrom(NOOP, DECLARED));
             assertEquals(DECLARED, NOOP.scaleFrom(wide, DECLARED));
             assertEquals(DECLARED, NOOP.scaleFrom(NOOP, DECLARED));
-
-            assertEquals(12.5, narrow.mapFrom(NOOP, 100.0, DECLARED));
-            assertEquals(1.25e8, NOOP.mapFrom(wide, 1.0e9, DECLARED));
         }
 
         @Test
         void noWidthIsEverDividedBy() {
             for (WrapDomain destination : List.of(wide, NOOP)) {
                 for (WrapDomain source : List.of(narrow, NOOP)) {
-                    double mapped = destination.mapFrom(source, 1234.0, DECLARED);
+                    double scale = destination.scaleFrom(source, DECLARED);
 
-                    assertTrue(Double.isFinite(mapped),
-                            () -> "mapFrom gave " + mapped + " crossing " + in(source) + " to " + in(destination));
+                    assertTrue(Double.isFinite(scale),
+                            () -> "scaleFrom gave " + scale + " crossing " + in(source) + " to " + in(destination));
                 }
             }
         }

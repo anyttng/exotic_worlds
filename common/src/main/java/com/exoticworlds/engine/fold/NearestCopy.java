@@ -28,10 +28,6 @@ public final class NearestCopy {
         return fold == null ? target : fold.nearestCopy(anchor, target);
     }
 
-    public static double toward(@Nullable WorldFold fold, Direction.Axis axis, double anchor, double coord) {
-        return fold == null ? coord : fold.blockDomain(axis).unwrapAround(anchor, coord);
-    }
-
     public static double toward(@Nullable WorldFold fold, Direction.Axis axis, Vec3 anchor, Vec3 target) {
         return fold == null ? target.get(axis) : fold.nearestCopy(anchor, target).get(axis);
     }

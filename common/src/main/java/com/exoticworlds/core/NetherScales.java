@@ -10,14 +10,6 @@ public final class NetherScales {
 
     private static final int SMALLEST = 1;
 
-    public static List<Integer> allowedFor(int overworldChunkWidth) {
-        return allowedFor(overworldChunkWidth, overworldChunkWidth);
-    }
-
-    public static List<Integer> allowedFor(int overworldXChunkWidth, int overworldZChunkWidth) {
-        return allowedFor(overworldXChunkWidth, overworldZChunkWidth, FlatShape.NO_SKEW);
-    }
-
     public static List<Integer> allowedFor(int overworldXChunkWidth, int overworldZChunkWidth,
             int overworldSkewChunks) {
         int maxScale = Math.min(overworldXChunkWidth, overworldZChunkWidth) / WorldLoopSizes.MIN_CHUNK_WIDTH;
@@ -38,14 +30,6 @@ public final class NetherScales {
         return scales;
     }
 
-    public static int normalize(int scale, int overworldChunkWidth) {
-        return normalize(scale, allowedFor(overworldChunkWidth));
-    }
-
-    public static int normalize(int scale, int overworldXChunkWidth, int overworldZChunkWidth) {
-        return normalize(scale, allowedFor(overworldXChunkWidth, overworldZChunkWidth));
-    }
-
     public static int normalize(int scale, int overworldXChunkWidth, int overworldZChunkWidth,
             int overworldSkewChunks) {
         return normalize(scale, allowedFor(overworldXChunkWidth, overworldZChunkWidth, overworldSkewChunks));
@@ -62,14 +46,6 @@ public final class NetherScales {
         }
 
         return fallen;
-    }
-
-    public static int next(int scale, int overworldChunkWidth) {
-        return next(scale, overworldChunkWidth, overworldChunkWidth);
-    }
-
-    public static int next(int scale, int overworldXChunkWidth, int overworldZChunkWidth) {
-        return next(scale, overworldXChunkWidth, overworldZChunkWidth, FlatShape.NO_SKEW);
     }
 
     public static int next(int scale, int overworldXChunkWidth, int overworldZChunkWidth, int overworldSkewChunks) {

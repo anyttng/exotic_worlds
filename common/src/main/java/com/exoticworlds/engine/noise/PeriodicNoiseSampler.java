@@ -50,13 +50,6 @@ public final class PeriodicNoiseSampler {
                 LapFloor.of(transformer));
     }
 
-    public static float sampleSmeared(byte[] permutations, double xOffset, double yOffset, double zOffset,
-            WorldFold transformer, NoiseFrame frame, double scale, double x, double y, double z,
-            double originalY, double fudgeYScale) {
-        return sample(lattice(permutations, xOffset, yOffset, zOffset, fudgeYScale, transformer, frame, scale,
-                LapFloor.of(transformer)), x, y, z, originalY);
-    }
-
     public static float sample(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold transformer, NoiseFrame frame, double scale, double x, double y, double z, LapFloor floor) {
         return sample(lattice(permutations, xOffset, yOffset, zOffset, NO_FUDGE, transformer, frame, scale, floor),

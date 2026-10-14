@@ -69,8 +69,8 @@ class PeriodicNoiseSamplerTest {
         double sample(WorldFold transformer, double scale, double x, double y, double z, double fudgeYScale) {
             return fudgeYScale == NO_FUDGE
                     ? PeriodicNoiseSampler.sample(permutations, xo, yo, zo, transformer, FRAME, scale, x, y, z)
-                    : PeriodicNoiseSampler.sampleSmeared(permutations, xo, yo, zo, transformer, FRAME, scale,
-                            x, y, z, y, fudgeYScale);
+                    : PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(permutations, xo, yo, zo,
+                            fudgeYScale, transformer, FRAME, scale, LapFloor.of(transformer)), x, y, z, y);
         }
 
         @SuppressWarnings("deprecation")

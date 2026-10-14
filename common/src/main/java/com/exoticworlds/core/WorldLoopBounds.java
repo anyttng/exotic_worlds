@@ -51,11 +51,6 @@ public record WorldLoopBounds(AxisBounds x, AxisBounds z) {
             }
 
             @Override
-            public boolean fitsInHalf(double blockSpan) {
-                return 2 * blockSpan <= blockWidth();
-            }
-
-            @Override
             public boolean coversWorld(double blockSpan) {
                 return blockSpan >= blockWidth();
             }
@@ -85,11 +80,6 @@ public record WorldLoopBounds(AxisBounds x, AxisBounds z) {
             }
 
             @Override
-            public boolean fitsInHalf(double blockSpan) {
-                return true;
-            }
-
-            @Override
             public boolean coversWorld(double blockSpan) {
                 return false;
             }
@@ -111,8 +101,6 @@ public record WorldLoopBounds(AxisBounds x, AxisBounds z) {
         }
 
         boolean isOver(double blockCoord);
-
-        boolean fitsInHalf(double blockSpan);
 
         boolean coversWorld(double blockSpan);
 
