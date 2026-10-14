@@ -250,14 +250,20 @@ public final class FtbChunksFold {
 
         MapRegionData source = dimension.getRegion(XZ.regionFromChunk(foldedChunkX, foldedChunkZ)).getDataBlocking();
         Map<XZ, MapRegion> touched = new HashMap<>();
+        Set<MapRegion> changed = new HashSet<>();
         for (HaloPixel pixel : halo) {
             MapRegion target = touched.computeIfAbsent(XZ.regionFromBlock(pixel.haloX(), pixel.haloZ()),
                     dimension::getRegion);
-            copyPixel(source, regionIndex(pixel.sourceX(), pixel.sourceZ()), target.getDataBlocking(),
-                    regionIndex(pixel.haloX(), pixel.haloZ()));
+            int from = regionIndex(pixel.sourceX(), pixel.sourceZ());
+            int to = regionIndex(pixel.haloX(), pixel.haloZ());
+            MapRegionData targetData = target.getDataBlocking();
+            if (!samePixel(source, from, targetData, to)) {
+                copyPixel(source, from, targetData, to);
+                changed.add(target);
+            }
         }
 
-        for (MapRegion region : touched.values()) {
+        for (MapRegion region : changed) {
             region.update(true);
         }
     }
@@ -304,6 +310,15 @@ public final class FtbChunksFold {
 
     private static int regionIndex(int x, int z) {
         return Math.floorMod(x, REGION_BLOCKS) + Math.floorMod(z, REGION_BLOCKS) * REGION_BLOCKS;
+    }
+
+    private static boolean samePixel(MapRegionData source, int from, MapRegionData target, int to) {
+        return target.height[to] == source.height[from]
+                && target.waterLightAndBiome[to] == source.waterLightAndBiome[from]
+                && target.foliage[to] == source.foliage[from]
+                && target.grass[to] == source.grass[from]
+                && target.water[to] == source.water[from]
+                && target.getBlockIndex(to) == source.getBlockIndex(from);
     }
 
     private static void copyPixel(MapRegionData source, int from, MapRegionData target, int to) {
