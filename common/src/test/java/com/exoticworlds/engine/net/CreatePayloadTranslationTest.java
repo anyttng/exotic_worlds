@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.simibubi.create.content.contraptions.glue.GlueEffectPacket;
+import com.simibubi.create.content.contraptions.sync.LimbSwingUpdatePacket;
 import com.simibubi.create.content.equipment.bell.SoulPulseEffectPacket;
 import com.simibubi.create.content.equipment.symmetryWand.SymmetryEffectPacket;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmPlacementPacket;
@@ -70,6 +71,9 @@ class CreatePayloadTranslationTest {
     private static final BlockPos INLAND_BLOCK = new BlockPos(200, 64, 8);
     private static final Vec3 SERVER_POINT = Vec3.atCenterOf(SERVER_BLOCK);
     private static final Vec3 CLIENT_POINT = Vec3.atCenterOf(CLIENT_BLOCK);
+
+    private static final int RIDER_ID = 7;
+    private static final float NO_LIMB_SWING = 0.0F;
 
     private static final BlockPos SERVER_MIRROR = new BlockPos(232, 64, 8);
     private static final BlockPos SERVER_PLACED = new BlockPos(-232, 64, 8);
@@ -148,6 +152,12 @@ class CreatePayloadTranslationTest {
                 folded(new RedstoneRequesterEffectPacket(SERVER_BLOCK, true)));
         assertEquals(new LogisticalStockResponsePacket(true, CLIENT_BLOCK, List.of()),
                 folded(new LogisticalStockResponsePacket(true, SERVER_BLOCK, List.of())));
+    }
+
+    @Test
+    void theRidersSyncedPositionLandsOnTheCopyTheClientHolds() {
+        assertEquals(new LimbSwingUpdatePacket(RIDER_ID, CLIENT_POINT, NO_LIMB_SWING),
+                folded(new LimbSwingUpdatePacket(RIDER_ID, SERVER_POINT, NO_LIMB_SWING)));
     }
 
     @Test

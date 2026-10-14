@@ -4,7 +4,6 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.NearestCopy;
-import com.exoticworlds.engine.seam.MapSeamFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
@@ -40,7 +39,7 @@ public final class CreateStationMapFold {
     }
 
     private static @Nullable WorldFold transformerFor(ResourceKey<Level> dimension) {
-        return MapSeamFold.transformerFor(null, dimension);
+        return CreateSeamFold.transformerOf(null, dimension);
     }
 
     private CreateStationMapFold() {

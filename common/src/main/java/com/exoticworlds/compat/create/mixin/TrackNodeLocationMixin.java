@@ -42,12 +42,6 @@ public abstract class TrackNodeLocationMixin extends Vec3i implements TrackNodeK
         setZ(canonical.getZ());
     }
 
-    @Inject(method = "in(Lnet/minecraft/world/level/Level;)Lcom/simibubi/create/content/trains/graph/TrackNodeLocation;",
-            at = @At("RETURN"))
-    private void toroidal$foldKeyInLevel(Level level, CallbackInfoReturnable<TrackNodeLocation> cir) {
-        toroidal$foldNodeKey(level);
-    }
-
     @Inject(method = "in(Lnet/minecraft/resources/ResourceKey;)Lcom/simibubi/create/content/trains/graph/TrackNodeLocation;",
             at = @At("RETURN"))
     private void toroidal$foldKeyInDimension(ResourceKey<Level> dimension,

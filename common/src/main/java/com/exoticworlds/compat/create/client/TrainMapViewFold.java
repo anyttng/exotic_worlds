@@ -47,8 +47,7 @@ public final class TrainMapViewFold {
 
     public static long foldPixelNode(int x, int z) {
         WorldFold transformer = transformer();
-        long node = BlockPos.asLong(x, 0, z);
-        return transformer == null ? node : transformer.foldBlockNode(node);
+        return transformer == null ? BlockPos.asLong(x, 0, z) : foldPixelNode(transformer, x, z);
     }
 
     public static long foldPixelNode(WorldFold transformer, int x, int z) {
@@ -93,17 +92,13 @@ public final class TrainMapViewFold {
     }
 
     public static Rect2i canonicalView(DeckTransformation copy, Rect2i view) {
-        BoundingBox canonical = toCanonical(copy).apply(new BoundingBox(view.getX(), 0, view.getY(),
+        BoundingBox canonical = copy.inverse().apply(new BoundingBox(view.getX(), 0, view.getY(),
                 view.getX() + view.getWidth() - 1, 0, view.getY() + view.getHeight() - 1));
         return new Rect2i(canonical.minX(), canonical.minZ(), canonical.getXSpan(), canonical.getZSpan());
     }
 
     public static BlockPos canonicalPixel(DeckTransformation copy, int x, int z) {
-        return toCanonical(copy).apply(new BlockPos(x, 0, z));
-    }
-
-    private static DeckTransformation toCanonical(DeckTransformation copy) {
-        return new DeckTransformation(copy.blocks().inverse());
+        return copy.inverse().apply(new BlockPos(x, 0, z));
     }
 
     private TrainMapViewFold() {
