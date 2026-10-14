@@ -118,6 +118,10 @@ public final class InjectionTargets {
 
     public static final String SECTION_POS_OFFSET = "Lnet/minecraft/core/SectionPos;offset(JIII)J";
 
+    public static final String SERVER_PLAYER_GET_X = "Lnet/minecraft/server/level/ServerPlayer;getX()D";
+
+    public static final String SERVER_PLAYER_GET_Z = "Lnet/minecraft/server/level/ServerPlayer;getZ()D";
+
     public static final String SET_CONTAINS = "Ljava/util/Set;contains(Ljava/lang/Object;)Z";
 
     public static final String STATIC_CACHE_2D_CREATE =

@@ -1,6 +1,7 @@
 package com.exoticworlds.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
@@ -20,6 +21,7 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(PistonMovingBlockEntity.class)
 public class PistonMovingBlockEntityMixin {
+    @Unique
     private static final String MATCHES_STICKY_CRITERIA = "matchesStickyCritera";
 
     @WrapOperation(

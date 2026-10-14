@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.SeamTravelHolder;
 import com.exoticworlds.accessors.TrackedEntityRefresher;
 import com.exoticworlds.core.WorldFold;
@@ -42,7 +43,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(ServerPlayer.class)
 public class ServerPlayerMixin implements SeamTravelHolder {
     @Unique
-    private static final String TRAVEL_KEY = "exotic_worlds:travel";
+    private static final String TRAVEL_KEY = ExoticWorlds.MODID + ":travel";
 
     @Unique
     private static final String PLAYER_TICK = "Lnet/minecraft/world/entity/player/Player;tick()V";
