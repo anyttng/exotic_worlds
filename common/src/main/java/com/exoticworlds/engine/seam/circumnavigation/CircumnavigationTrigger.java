@@ -22,8 +22,10 @@ public class CircumnavigationTrigger extends SimpleCriterionTrigger<Circumnaviga
 
     public record TriggerInstance(Optional<Holder<LootItemCondition>> player)
             implements SimpleCriterionTrigger.SimpleInstance {
+        private static final String PLAYER_KEY = "player";
+
         public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                LootItemCondition.CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player))
+                LootItemCondition.CODEC.optionalFieldOf(PLAYER_KEY).forGetter(TriggerInstance::player))
                 .apply(instance, TriggerInstance::new));
     }
 }
