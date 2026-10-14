@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.accessors.IndexableNoise;
 import com.exoticworlds.core.TranslationLattice;
+import com.exoticworlds.engine.noise.ContextKeyedCache;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -24,6 +25,19 @@ public class BlendedNoiseMixin {
 
     @Unique
     private static final int LIMIT_OCTAVES = 16;
+
+    @Unique
+    private static final int MAIN_INDEXABLE = 1;
+
+    @Unique
+    private static final int MIN_INDEXABLE = 2;
+
+    @Unique
+    private static final int MAX_INDEXABLE = 4;
+
+    @Unique
+    private final ContextKeyedCache<Integer> toroidal$indexability = new ContextKeyedCache<>();
+
     @Shadow
     @Final
     private PerlinNoise minLimitNoise;
@@ -76,9 +90,10 @@ public class BlendedNoiseMixin {
         double limitZ = lattice.foldZ(context.blockZ()) * this.xzMultiplier;
         double mainX = limitX / this.xzFactor;
         double mainZ = limitZ / this.xzFactor;
-        boolean mainIndexable = toroidal$indexable(generation, this.mainNoise, MAIN_OCTAVES, mainScale);
-        boolean minIndexable = toroidal$indexable(generation, this.minLimitNoise, LIMIT_OCTAVES, this.xzMultiplier);
-        boolean maxIndexable = toroidal$indexable(generation, this.maxLimitNoise, LIMIT_OCTAVES, this.xzMultiplier);
+        int indexableStacks = toroidal$indexableStacks(generation, mainScale);
+        boolean mainIndexable = (indexableStacks & MAIN_INDEXABLE) != 0;
+        boolean minIndexable = (indexableStacks & MIN_INDEXABLE) != 0;
+        boolean maxIndexable = (indexableStacks & MAX_INDEXABLE) != 0;
         double blendMin = 0.0;
         double blendMax = 0.0;
         double mainNoiseValue = 0.0;
@@ -133,6 +148,21 @@ public class BlendedNoiseMixin {
 
             return toroidal$blendLimits(factor, blendMin / 512.0, blendMax / 512.0) / 128.0;
         }
+    }
+
+    @Unique
+    private int toroidal$indexableStacks(Context generation, double mainScale) {
+        Integer cached = this.toroidal$indexability.find(generation.transformer(), generation);
+        if (cached != null) {
+            return cached;
+        }
+
+        int decided = (toroidal$indexable(generation, this.mainNoise, MAIN_OCTAVES, mainScale) ? MAIN_INDEXABLE : 0)
+                | (toroidal$indexable(generation, this.minLimitNoise, LIMIT_OCTAVES, this.xzMultiplier)
+                        ? MIN_INDEXABLE : 0)
+                | (toroidal$indexable(generation, this.maxLimitNoise, LIMIT_OCTAVES, this.xzMultiplier)
+                        ? MAX_INDEXABLE : 0);
+        return this.toroidal$indexability.put(generation.transformer(), generation, decided);
     }
 
     @Unique
