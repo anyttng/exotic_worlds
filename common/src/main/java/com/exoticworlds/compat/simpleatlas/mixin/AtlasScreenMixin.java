@@ -22,6 +22,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalDoubleRef;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.compat.simpleatlas.AtlasCopies;
+import com.exoticworlds.compat.simpleatlas.AtlasEdgeLines;
 import com.exoticworlds.compat.simpleatlas.AtlasLayoutFold;
 import com.exoticworlds.compat.simpleatlas.AtlasTileFold;
 import com.exoticworlds.compat.simpleatlas.AtlasView;
@@ -46,8 +47,6 @@ public abstract class AtlasScreenMixin {
 
     private static final String ICON_RENDER_ARGS =
             "(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/Minecraft;Ljava/util/List;FFF)V";
-
-    private static final int EDGE_ARGB = 0xCCFFFFFF;
 
     @Shadow
     @Final
@@ -242,6 +241,7 @@ public abstract class AtlasScreenMixin {
             @Local(name = "mapOriginX") float mapOriginX, @Local(name = "mapOriginY") float mapOriginY,
             @Local(name = "scaledTileSize") float scaledTileSize) {
         AtlasView singleWorld = this.toroidal$singleWorld;
+        List<AtlasTileFold.SeamLine> lines = singleWorld == null ? toroidal$seamLinesOf(tile) : List.of();
         for (AtlasCopies.Offset offset : toroidal$tileCopies(mapOriginX, mapOriginY, scaledTileSize)) {
             float copyX = x + offset.x();
             float copyY = y + offset.y();
@@ -251,7 +251,7 @@ public abstract class AtlasScreenMixin {
                 graphics.disableScissor();
             } else {
                 original.call(screen, graphics, mapId, copyX, copyY, scale);
-                toroidal$drawWorldEdge(graphics, tile, copyX, copyY, scale);
+                AtlasEdgeLines.draw(graphics, lines, copyX, copyY, scale);
             }
         }
     }
@@ -457,36 +457,8 @@ public abstract class AtlasScreenMixin {
     }
 
     @Unique
-    private static void toroidal$drawWorldEdge(GuiGraphicsExtractor graphics, AtlasTilePayload tile, float x, float y,
-            float scale) {
+    private static List<AtlasTileFold.SeamLine> toroidal$seamLinesOf(AtlasTilePayload tile) {
         int blocksPerTile = toroidal$blocksPerTile(tile);
-        if (blocksPerTile == 0) {
-            return;
-        }
-
-        List<AtlasTileFold.SeamLine> lines = AtlasTileFold.seamLines(tile, blocksPerTile);
-        if (lines.isEmpty()) {
-            return;
-        }
-
-        int thickness = Math.max(1, Mth.ceil(1.0F / scale));
-        graphics.pose().pushMatrix();
-        graphics.pose().translate(x, y);
-        graphics.pose().scale(scale, scale);
-        for (AtlasTileFold.SeamLine line : lines) {
-            if (line.vertical()) {
-                toroidal$fillEdge(graphics, line.at(), line.from(), line.at() + thickness, line.to());
-            } else {
-                toroidal$fillEdge(graphics, line.from(), line.at(), line.to(), line.at() + thickness);
-            }
-        }
-
-        graphics.pose().popMatrix();
-    }
-
-    @Unique
-    private static void toroidal$fillEdge(GuiGraphicsExtractor graphics, int x0, int y0, int x1, int y1) {
-        graphics.fill(x0, y0, Math.min(x1, AtlasTileFold.MAP_PIXELS), Math.min(y1, AtlasTileFold.MAP_PIXELS),
-                EDGE_ARGB);
+        return blocksPerTile == 0 ? List.of() : AtlasTileFold.seamLines(tile, blocksPerTile);
     }
 }
