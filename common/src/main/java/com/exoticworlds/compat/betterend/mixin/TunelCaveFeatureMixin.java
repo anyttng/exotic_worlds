@@ -7,10 +7,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.compat.LapNoise;
+import com.exoticworlds.compat.OpenSimplexStandIn;
+import com.exoticworlds.compat.StandInHolder;
 import com.exoticworlds.compat.betterend.BetterEndInjectionTargets;
-import com.exoticworlds.compat.wover.LapNoise;
-import com.exoticworlds.compat.wover.OpenSimplexStandIn;
-import com.exoticworlds.compat.wover.StandInHolder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;

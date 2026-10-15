@@ -5,12 +5,10 @@ import org.betterx.betterend.world.surface.SplitNoiseCondition;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.compat.LapNoise;
+import com.exoticworlds.compat.StandInHolder;
 import com.exoticworlds.compat.betterend.BetterEndInjectionTargets;
-import com.exoticworlds.compat.wover.LapNoise;
-import com.exoticworlds.compat.wover.StandInHolder;
 import com.exoticworlds.compat.wover.WoverInjectionTargets;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -22,9 +20,7 @@ public class SplitNoiseConditionMixin {
             method = {WoverInjectionTargets.GET_NUMBER, "getNoise(II)D"},
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_2D))
     private double toroidal$lapNoise(OpenSimplexNoise noise, double x, double z, Operation<Double> original) {
-        WorldFold fold = GenerationTransformerContext.context().wrappedTransformer();
-        return fold == null
-                ? original.call(noise, x, z)
-                : LapNoise.eval(((StandInHolder) (Object) noise).toroidal$standIn(), fold, x, z, SCALE, SCALE);
+        return LapNoise.boundEval(((StandInHolder) (Object) noise).toroidal$standIn(), x, z, SCALE, SCALE,
+                () -> original.call(noise, x, z));
     }
 }

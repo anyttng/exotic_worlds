@@ -3,6 +3,7 @@ package com.exoticworlds.compat.wover;
 import java.util.List;
 import java.util.function.Predicate;
 
+import com.exoticworlds.compat.OpenSimplexStandIn;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
