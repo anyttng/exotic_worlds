@@ -19,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedOrder;
 import com.exoticworlds.engine.seam.SeamRange;
@@ -33,7 +32,6 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.SectionPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
@@ -288,9 +286,8 @@ public class PoiManagerMixin {
     private WorldFold toroidal$levelFold() {
         WorldFold transformer = this.toroidal$levelTransformer;
         if (transformer == null) {
-            transformer = ((SectionStorageAccessor) this).toroidal$getLevelHeightAccessor() instanceof ServerLevel level
-                    ? WorldLoopAttachments.transformerOf(level)
-                    : WorldFolds.NOOP;
+            transformer = WorldLoopAttachments.transformerIfLevel(
+                    ((SectionStorageAccessor) this).toroidal$getLevelHeightAccessor());
             this.toroidal$levelTransformer = transformer;
         }
 
