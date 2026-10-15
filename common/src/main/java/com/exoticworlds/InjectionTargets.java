@@ -32,6 +32,9 @@ public final class InjectionTargets {
 
     public static final String BLOCK_POS_EQUALS = "Lnet/minecraft/core/BlockPos;equals(Ljava/lang/Object;)Z";
 
+    public static final String BLOCK_POS_OFFSET =
+            "Lnet/minecraft/core/BlockPos;offset(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/BlockPos;";
+
     public static final String BLOCK_POS_OFFSET_PACKED =
             "Lnet/minecraft/core/BlockPos;offset(JLnet/minecraft/core/Direction;)J";
 
@@ -43,6 +46,9 @@ public final class InjectionTargets {
 
     public static final String BLOCK_POS_SUBTRACT =
             "Lnet/minecraft/core/BlockPos;subtract(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/BlockPos;";
+
+    public static final String BOUNDING_BOX_IS_INSIDE =
+            "Lnet/minecraft/world/level/levelgen/structure/BoundingBox;isInside(Lnet/minecraft/core/Vec3i;)Z";
 
     public static final String CHUNK_POS_AS_LONG = "Lnet/minecraft/world/level/ChunkPos;asLong(II)J";
 

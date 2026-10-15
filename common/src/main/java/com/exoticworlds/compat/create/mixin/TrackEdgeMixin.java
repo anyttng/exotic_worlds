@@ -18,6 +18,7 @@ import com.simibubi.create.content.trains.graph.TrackNodeLocation;
 import com.simibubi.create.content.trains.track.BezierConnection;
 import com.simibubi.create.content.trains.track.TrackMaterial;
 import com.exoticworlds.compat.create.BezierCurveFold;
+import com.exoticworlds.compat.create.CatnipInjectionTargets;
 import com.exoticworlds.compat.create.CreateFrameSeat;
 import com.exoticworlds.compat.create.CreateInjectionTargets;
 import com.exoticworlds.compat.create.CreateSeamFold;
@@ -67,7 +68,7 @@ public abstract class TrackEdgeMixin {
 
     @WrapOperation(method = "getPositionSmoothed",
             at = @At(value = "INVOKE",
-                    target = "Lnet/createmod/catnip/math/VecHelper;lerp(FLnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;"))
+                    target = CatnipInjectionTargets.VEC_HELPER_LERP))
     private Vec3 toroidal$foldSmoothedEnds(float t, Vec3 fromNode1, Vec3 fromNode2, Operation<Vec3> original) {
         TrackNodeLocation location = this.node1.getLocation();
         Vec3 anchor = location.getLocation();

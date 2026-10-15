@@ -6,8 +6,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;
 
 public final class CreateTrackFold {
-    // TrackNodeLocation stores Math.round(coord * 2) — the rail ends of one block are one unit apart on each side of
-    // its centre, so every node coordinate is a whole number of half-blocks.
+    // Mirrors the Math.round(coord * 2) key TrackNodeLocation stores.
     private static final int NODE_KEY_UNITS_PER_BLOCK = 2;
 
     public static Vec3i canonicalNodeKey(WorldFold transformer, Vec3i key) {

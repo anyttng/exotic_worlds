@@ -18,13 +18,6 @@ public final class TrainMapFrame {
 
     private static @Nullable WorldFold frame;
 
-    public static void during(@Nullable ResourceKey<Level> drawnDimension, Runnable pass) {
-        during(drawnDimension, () -> {
-            pass.run();
-            return null;
-        });
-    }
-
     public static <T> T during(@Nullable ResourceKey<Level> drawnDimension, Supplier<T> pass) {
         boolean previouslyBound = bound;
         WorldFold previousFrame = frame;

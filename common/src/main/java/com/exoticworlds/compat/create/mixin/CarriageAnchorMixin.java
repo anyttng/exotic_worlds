@@ -31,14 +31,15 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(targets = "com.simibubi.create.content.trains.entity.Carriage$DimensionalCarriageEntity", remap = false)
 public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
+    @Unique
+    private static final String COUPLE_GET_SECOND = "Lnet/createmod/catnip/data/Couple;getSecond()Ljava/lang/Object;";
+
     @Shadow
     public Vec3 positionAnchor;
 
     @Shadow
     public TrackNodeLocation pivot;
 
-    // Read for the level alone. The carriage entity's own class names a NeoForge interface the loader-free module cannot
-    // see, so it is taken as the Entity it also is, through a reference whose type parameter is erased anyway.
     @Shadow
     public WeakReference<?> entity;
 
@@ -54,8 +55,7 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
                 anchor == null ? null : CreateSeamFold.canonicalOnServer(this.toroidal$dimension, anchor));
     }
 
-    // Ordinal 2 alone: the two earlier reads build the chunk lookahead, this one moves the carriage, and the riders
-    // have to follow it.
+    // Ordinal 2 only: the two earlier reads build the chunk lookahead, this one moves the carriage and its riders.
     @ModifyExpressionValue(method = "alignEntity",
             at = @At(value = "FIELD", opcode = Opcodes.GETFIELD,
                     target = CreateInjectionTargets.CARRIAGE_POSITION_ANCHOR,
@@ -71,8 +71,7 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
         return written;
     }
 
-    @ModifyExpressionValue(method = "alignEntity",
-            at = @At(value = "INVOKE", target = "Lnet/createmod/catnip/data/Couple;getSecond()Ljava/lang/Object;"))
+    @ModifyExpressionValue(method = "alignEntity", at = @At(value = "INVOKE", target = COUPLE_GET_SECOND))
     private Object toroidal$coupledAnchorInLeadingFrame(Object coupled, @Local(ordinal = 0) Vec3 leading) {
         Entity carriageEntity = toroidal$entity();
         if (carriageEntity == null || !(coupled instanceof Vec3 trailing)) {
@@ -105,8 +104,7 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
         return toroidal$anchorInClientFrame(anchor);
     }
 
-    @ModifyExpressionValue(method = "updateCutoff",
-            at = @At(value = "INVOKE", target = "Lnet/createmod/catnip/data/Couple;getSecond()Ljava/lang/Object;"))
+    @ModifyExpressionValue(method = "updateCutoff", at = @At(value = "INVOKE", target = COUPLE_GET_SECOND))
     private Object toroidal$trailingAnchorInLeadingFrame(Object trailing, @Local(ordinal = 0) Vec3 leading) {
         if (!(trailing instanceof Vec3 trailingAnchor)) {
             return trailing;

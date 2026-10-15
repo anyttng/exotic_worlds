@@ -66,7 +66,7 @@ public class StructureTemplateWireMixin {
     @ModifyExpressionValue(
             method = "@MixinSquared:Handler",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/core/BlockPos;offset(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/BlockPos;"))
+                    target = InjectionTargets.BLOCK_POS_OFFSET))
     @TargetHandler(
             mixin = ElectroEnergeticsInjectionTargets.STRUCTURE_TEMPLATE_MIXIN,
             name = ElectroEnergeticsInjectionTargets.PLACE_HANDLER)

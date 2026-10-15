@@ -48,8 +48,6 @@ public class ConnectivityHandlerMixin {
                     target = InjectionTargets.BLOCK_POS_RELATIVE))
     private static BlockPos toroidal$foldFrontierStepIntoBoundFrame(BlockPos next,
             @Local(argsOnly = true) BlockGetter level, @Local(ordinal = 0) int minX, @Local(ordinal = 2) int minZ) {
-        // Create arms minX/minZ only for a Y-axis multi and leaves them at MIN_VALUE otherwise, where folding the
-        // step toward them would overflow the delta and there is no horizontal bound to keep honest anyway.
         if (minX == Integer.MIN_VALUE || minZ == Integer.MIN_VALUE || !(level instanceof Level blockLevel)) {
             return next;
         }

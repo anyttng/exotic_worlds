@@ -29,7 +29,7 @@ public class TrackGraphVisualizerMixin {
 
     @WrapOperation(method = {"visualiseSignalEdgeGroups", "debugViewGraph"},
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/phys/AABB;intersects(Lnet/minecraft/world/phys/AABB;)Z"))
+                    target = InjectionTargets.AABB_INTERSECTS))
     private static boolean toroidal$foldGraphBounds(AABB graphBounds, AABB viewerBox, Operation<Boolean> original) {
         return original.call(CreateClientFrame.foldBoxToward(viewerBox.getCenter(), graphBounds), viewerBox);
     }

@@ -40,10 +40,6 @@ public final class CreateClientFrame {
         return ClientFrame.heldCopy(canonical);
     }
 
-    public static BlockPos nearestCopy(@Nullable BlockPos anchor, BlockPos target) {
-        return ClientFrame.nearestCopy(anchor, target);
-    }
-
     public static Vec3 nearestCopy(@Nullable Vec3 anchor, Vec3 target) {
         return ClientFrame.nearestCopy(anchor, target);
     }

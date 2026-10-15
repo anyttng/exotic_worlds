@@ -17,8 +17,7 @@ public final class SymmetryMirrorFold {
             return mirror;
         }
 
-        // The stack hands back the mirror it stores, so a folded position set on it would move the player's own
-        // mirror a world width every time they build across the seam.
+        // A copy, since the stack hands back its stored mirror and moving it would move the player's own.
         return SymmetryMirrorAccessor.toroidal$create(
                 mirror.getOrientationIndex(), nearest, mirror.typeName(), mirror.enable);
     }

@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.FramedStructureStart;
 import com.exoticworlds.accessors.LevelHolder;
 import com.exoticworlds.core.WorldFold;
@@ -64,7 +65,7 @@ public class StructureManagerMixin {
     @WrapOperation(
             method = "getStructureAt(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/structure/Structure;)Lnet/minecraft/world/level/levelgen/structure/StructureStart;",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/levelgen/structure/BoundingBox;isInside(Lnet/minecraft/core/Vec3i;)Z"))
+                    target = InjectionTargets.BOUNDING_BOX_IS_INSIDE))
     private boolean toroidal$startBoxThroughSeam(BoundingBox box, Vec3i pos, Operation<Boolean> original,
             @Local(argsOnly = true) BlockPos blockPos) {
         return original.call(box, NearestCopy.toward(WorldLoopAttachments.transformerOfReader(this.level), box, blockPos));

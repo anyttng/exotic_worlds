@@ -29,7 +29,7 @@ public class AirCurrentMixin {
     @WrapOperation(
             method = TICK_AFFECTED_ENTITIES,
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/Entity;getBoundingBox()Lnet/minecraft/world/phys/AABB;"))
+                    target = InjectionTargets.ENTITY_GET_BOUNDING_BOX))
     private AABB toroidal$foldEntityBox(Entity entity, Operation<AABB> original,
             @Share(SEATED_ENTITY) LocalRef<Entity> seatedEntity, @Share(SEAT) LocalRef<DeckTransformation> seat) {
         AABB rawBox = original.call(entity);

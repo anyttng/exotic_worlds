@@ -71,8 +71,7 @@ public final class CreateInventoryFold {
                     canonicalPos == face.getPos() ? face : new BlockFace(canonicalPos, face.getFace()));
         }
 
-        // The transformer is how this identity folds, not what it names: letting it into equality would make Create
-        // de-duplicate two levels' inventories differently in a wrapped world than in an unwrapped one.
+        // The transformer stays out of equality, or Create de-duplicates inventories differently in a wrapped world.
         @Override
         public boolean equals(Object other) {
             return other instanceof SeamIdentifier seam && canonical.equals(seam.canonical);

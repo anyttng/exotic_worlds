@@ -11,8 +11,7 @@ import net.minecraft.network.FriendlyByteBuf;
 
 @Mixin(FriendlyByteBuf.class)
 public class FriendlyByteBufMenuPositionMixin {
-    // BlockPos.STREAM_CODEC decodes through this static, so narrowing the target to the instance readBlockPos
-    // would leave every codec-carried position in a Create menu payload unfolded and silent.
+    // BlockPos.STREAM_CODEC decodes through this static; the instance readBlockPos leaves codec positions unfolded.
     @ModifyReturnValue(
             method = "readBlockPos(Lio/netty/buffer/ByteBuf;)Lnet/minecraft/core/BlockPos;",
             at = @At("RETURN"))

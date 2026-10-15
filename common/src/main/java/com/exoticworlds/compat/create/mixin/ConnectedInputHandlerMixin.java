@@ -37,7 +37,7 @@ public abstract class ConnectedInputHandlerMixin {
 
     @WrapOperation(method = "toggleConnection",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/core/BlockPos;offset(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/BlockPos;"))
+                    target = InjectionTargets.BLOCK_POS_OFFSET))
     private static BlockPos toroidal$controllerInCanonicalFrame(BlockPos position, Vec3i delta,
             Operation<BlockPos> original, @Local(argsOnly = true) Level world) {
         return CreateSeamFold.canonicalOnServer(world, original.call(position, delta));

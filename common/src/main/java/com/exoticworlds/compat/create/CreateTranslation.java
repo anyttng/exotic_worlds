@@ -17,8 +17,7 @@ import com.exoticworlds.engine.net.TranslationContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 
-// Nothing on a CompoundTag key or a payload component says it holds a world position, so every list below is
-// enumerated from Create 6.0.10's own read code and a bump of create_version means reading it again.
+// Every list below is copied from Create 6.0.10's read code, so a create_version bump reads that code again.
 public final class CreateTranslation {
     public static final String CONTROLLER_KEY = "Controller";
     public static final String LAST_KNOWN_POS_KEY = "LastKnownPos";

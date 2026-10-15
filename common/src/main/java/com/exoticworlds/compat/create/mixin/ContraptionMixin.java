@@ -129,8 +129,7 @@ public class ContraptionMixin {
             CallbackInfo ci) {
         for (StructureBlockInfo info : capturedMultiblocks.values()) {
             CompoundTag nbt = info.nbt();
-            // The rotation branch leaves Controller as the capture-time local and marks the part with LastKnownPos,
-            // and addBlocksToWorld drops that Controller outright — canonicalizing a local would corrupt it.
+            // A LastKnownPos part keeps its capture-time local Controller, which canonicalizing would corrupt.
             if (nbt == null || !nbt.contains(CreateTranslation.CONTROLLER_KEY)
                     || nbt.contains(CreateTranslation.LAST_KNOWN_POS_KEY)) {
                 continue;

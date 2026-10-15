@@ -97,10 +97,6 @@ public final class CreateSeamFold {
         return NearestCopy.toward(transformer, anchor, target);
     }
 
-    public static BlockPos nearestCopy(@Nullable WorldFold transformer, BlockPos anchor, BlockPos target) {
-        return nearest(transformer, anchor, target);
-    }
-
     public static DeckTransformation nearestCopyTransformation(@Nullable Level level, Vec3 anchor, Vec3 target) {
         return NearestCopy.transformationToward(transformerOf(level, null), anchor, target);
     }
@@ -124,11 +120,6 @@ public final class CreateSeamFold {
 
     public static Vec3 inFrameOf(WorldFold transformer, Vec3 viewer, Vec3 anchor, Vec3 point) {
         return CreateFrameSeat.of(transformer, viewer, anchor).apply(point);
-    }
-
-    public static Vec3 inFrameOf(@Nullable Level level, Vec3 viewer, Vec3 anchor, Vec3 point) {
-        WorldFold transformer = transformerOf(level, null);
-        return transformer == null ? point : inFrameOf(transformer, viewer, anchor, point);
     }
 
     public static BlockHitResult canonical(@Nullable ServerLevel level, BlockHitResult hit) {
@@ -181,8 +172,7 @@ public final class CreateSeamFold {
         return level instanceof ServerLevel serverLevel ? canonical(serverLevel, hit) : hit;
     }
 
-    // On the client the same write is the frame the viewer stands in: canonicalising it there jumps the carriage a
-    // world width at the seam.
+    // Off the server thread the write is the viewer's frame, and canonicalising it jumps the carriage a world width.
     public static Vec3 canonicalOnServer(@Nullable ResourceKey<Level> dimension, Vec3 position) {
         MinecraftServer server = CurrentServer.get();
         if (server == null || !server.isSameThread()) {

@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.simibubi.create.content.contraptions.glue.SuperGlueEntity;
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.compat.create.CreateSchematicFold;
 import com.exoticworlds.compat.create.CreateSeamFold;
 
@@ -21,7 +22,7 @@ public class SuperGlueEntityMixin {
     @ModifyExpressionValue(
             method = "contains",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/phys/Vec3;atCenterOf(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/world/phys/Vec3;"))
+                    target = InjectionTargets.VEC3_AT_CENTER_OF))
     private Vec3 toroidal$foldBlockIntoTheBondFrame(Vec3 blockCenter) {
         Entity glue = (Entity) (Object) this;
         return CreateSeamFold.foldPointToBox(glue.level(), glue.getBoundingBox(), blockCenter);

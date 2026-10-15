@@ -13,9 +13,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
-// The menu payload is opaque to the packet layer, so its positions arrive canonical while the client names the same
-// blocks in its own frame; they are folded as they are read rather than where they are looked up, because
-// FactoryPanelBehaviour.at refuses a canonical position at its isLoaded gate before any lookup happens.
+// Folded on read, since FactoryPanelBehaviour.at refuses a canonical position at its isLoaded gate before any lookup.
 public final class CreateMenuFrame {
     private static final ThreadScope<Frame> PAYLOAD_FRAME = new ThreadScope<>();
 
