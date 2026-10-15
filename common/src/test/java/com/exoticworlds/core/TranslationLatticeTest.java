@@ -23,6 +23,7 @@ class TranslationLatticeTest {
     private static final int SKEW_BLOCKS = SKEW_CHUNKS * CoordinateConstants.CHUNK_WIDTH;
     private static final int SWEEP = 1500;
     private static final int STEP = 37;
+    private static final int QUART_BITS = 2;
 
     static final int[][] LONG_SHAPES = {
             {1024, 32, 100}, {1024, 16, 300}, {1024, 16, -511}, {2048, 16, 777}, {64, 48, 5}, {1024, 16, 0}};
@@ -57,6 +58,25 @@ class TranslationLatticeTest {
                 assertEquals(LATTICE.foldZ(fractionZ), LATTICE.foldZ(fractionZ + WIDTH_Z));
             }
         }
+    }
+
+    @Test
+    void integerRectangleXRoundsTheExactShearUp() {
+        for (int x = -SWEEP; x <= SWEEP; x += STEP) {
+            for (int z = -SWEEP; z <= SWEEP; z += STEP) {
+                assertEquals((int) Math.ceil(LATTICE.rectangleX((double) x, z)), LATTICE.rectangleX(x, z));
+            }
+        }
+    }
+
+    @Test
+    void scaledDownLatticeKeepsTheLapsInTheCoarserUnit() {
+        TranslationLattice quarts = LATTICE.scaledDown(QUART_BITS);
+        assertEquals(LATTICE.x().lowerBound >> QUART_BITS, quarts.x().lowerBound);
+        assertEquals(WIDTH_X >> QUART_BITS, quarts.x().domainLength);
+        assertEquals(LATTICE.z().lowerBound >> QUART_BITS, quarts.z().lowerBound);
+        assertEquals(WIDTH_Z >> QUART_BITS, quarts.z().domainLength);
+        assertEquals(SKEW_BLOCKS >> QUART_BITS, quarts.skew());
     }
 
     @Test
