@@ -38,6 +38,16 @@ public final class SablePoseFold {
         }
 
         PhysicsPipeline pipeline = system.getPipeline();
+        if (SableConstraintGraph.isAlone(pipeline, subLevel)) {
+            Vec3 position = JomlVectors.read(readback.position());
+            if (fold.isOver(position)) {
+                shiftGroup(system, List.of(new SableMemberPose(subLevel, readback)), fold.foldTransformation(position),
+                        subLevel, readback);
+            }
+
+            return;
+        }
+
         List<PhysicsPipelineBody> group = SableConstraintGraph.groupOf(pipeline, subLevel);
         List<SableMemberPose> members = SableMemberPose.substep(pipeline, group, subLevel, readback);
         Vector3d centroid = new Vector3d();

@@ -1,7 +1,9 @@
 package com.exoticworlds.compat.sable;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.joml.Vector3d;
 import org.joml.Vector3dc;
 import org.jspecify.annotations.Nullable;
 
@@ -10,25 +12,29 @@ import com.exoticworlds.core.ForeignFrames;
 import com.exoticworlds.core.JomlVectors;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.phys.Vec3;
 
 public final class SeamFrame {
-    private static final ThreadLocal<@Nullable Binding> BOUND = new ThreadLocal<>();
+    private static final ThreadLocal<@Nullable Binding<?>> BOUND = new ThreadLocal<>();
 
-    private static final class Binding {
+    private static final class Binding<A> {
         private final WorldFold fold;
         private final @Nullable Level level;
-        private final Supplier<Vec3> source;
+        private final A subject;
+        private final Function<? super A, Vec3> source;
 
         private @Nullable Vec3 seated;
         private boolean seating;
+        private @Nullable PoseSeat lastPose;
 
-        private Binding(WorldFold fold, @Nullable Level level, Supplier<Vec3> source) {
+        private Binding(WorldFold fold, @Nullable Level level, A subject, Function<? super A, Vec3> source) {
             this.fold = fold;
             this.level = level;
+            this.subject = subject;
             this.source = source;
         }
 
@@ -38,7 +44,7 @@ public final class SeamFrame {
                 return known;
             }
 
-            Vec3 raw = this.source.get();
+            Vec3 raw = this.source.apply(this.subject);
             if (this.level == null) {
                 this.seated = raw;
                 return raw;
@@ -53,6 +59,26 @@ public final class SeamFrame {
 
             this.seated = known;
             return known;
+        }
+
+        private Vector3dc seatPose(Vector3dc position) {
+            PoseSeat last = this.lastPose;
+            if (last == null || !last.holds(position)) {
+                Vec3 raw = JomlVectors.read(position);
+                DeckTransformation seat = this.fold.nearestCopyTransformation(anchor(), raw);
+                last = new PoseSeat(raw.x, raw.y, raw.z,
+                        seat.isIdentity() ? null : JomlVectors.write(seat.apply(raw), new Vector3d()));
+                this.lastPose = last;
+            }
+
+            Vector3dc shifted = last.seated();
+            return shifted == null ? position : shifted;
+        }
+    }
+
+    private record PoseSeat(double x, double y, double z, @Nullable Vector3dc seated) {
+        private boolean holds(Vector3dc position) {
+            return position.x() == this.x && position.y() == this.y && position.z() == this.z;
         }
     }
 
@@ -70,7 +96,29 @@ public final class SeamFrame {
 
     public static <R> R with(@Nullable WorldFold fold, @Nullable Level level, Supplier<Vec3> anchor,
             Supplier<R> body) {
-        return scoped(fold == null ? null : new Binding(fold, level, anchor), body);
+        return scoped(fold == null ? null : new Binding<>(fold, level, anchor, Supplier::get), body);
+    }
+
+    public static <A, R> R with(LevelReader reader, A subject, Function<? super A, Vec3> anchor,
+            Operation<R> original, Object... args) {
+        return with(WorldLoopAttachments.wrappedTransformerOfReader(reader),
+                reader instanceof Level level ? level : null, subject, anchor, original, args);
+    }
+
+    public static <A, R> R with(@Nullable WorldFold fold, @Nullable Level level, A subject,
+            Function<? super A, Vec3> anchor, Operation<R> original, Object... args) {
+        Binding<?> binding = fold == null ? null : new Binding<>(fold, level, subject, anchor);
+        Binding<?> previous = BOUND.get();
+        if (binding == null && previous == null) {
+            return original.call(args);
+        }
+
+        rebind(binding);
+        try {
+            return original.call(args);
+        } finally {
+            rebind(previous);
+        }
     }
 
     public static <R> R unbound(Supplier<R> body) {
@@ -81,17 +129,21 @@ public final class SeamFrame {
         return BOUND.get() != null;
     }
 
-    public static DeckTransformation shiftOf(Vector3dc posePosition) {
-        Binding binding = BOUND.get();
+    public static Vector3dc seatPose(Vector3dc position) {
+        Binding<?> binding = BOUND.get();
         if (binding == null || binding.seating) {
-            return DeckTransformation.IDENTITY;
+            return position;
         }
 
-        return binding.fold.nearestCopyTransformation(binding.anchor(), JomlVectors.read(posePosition));
+        return binding.seatPose(position);
     }
 
-    private static <R> R scoped(@Nullable Binding binding, Supplier<R> body) {
-        Binding previous = BOUND.get();
+    private static <R> R scoped(@Nullable Binding<?> binding, Supplier<R> body) {
+        Binding<?> previous = BOUND.get();
+        if (binding == null && previous == null) {
+            return body.get();
+        }
+
         rebind(binding);
         try {
             return body.get();
@@ -100,7 +152,7 @@ public final class SeamFrame {
         }
     }
 
-    private static void rebind(@Nullable Binding binding) {
+    private static void rebind(@Nullable Binding<?> binding) {
         if (binding == null) {
             BOUND.remove();
         } else {

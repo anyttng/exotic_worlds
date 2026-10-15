@@ -17,6 +17,7 @@ import dev.ryanhcode.sable.companion.math.BoundingBox3dc;
 import dev.ryanhcode.sable.sublevel.SubLevel;
 
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = SubLevelContainer.class, remap = false)
 public abstract class SubLevelContainerMixin {
@@ -35,8 +36,11 @@ public abstract class SubLevelContainerMixin {
             return original;
         }
 
-        return () -> this.allSubLevels.stream()
-                .filter(subLevel -> SableSeamQuery.intersects(fold, subLevel.boundingBox(), bounds))
-                .iterator();
+        return () -> {
+            Vec3 queryCentre = SableSeamQuery.centreOf(bounds);
+            return this.allSubLevels.stream()
+                    .filter(subLevel -> SableSeamQuery.intersects(fold, queryCentre, subLevel.boundingBox(), bounds))
+                    .iterator();
+        };
     }
 }

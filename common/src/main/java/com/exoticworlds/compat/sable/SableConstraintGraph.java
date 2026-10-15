@@ -21,6 +21,10 @@ public final class SableConstraintGraph {
                 : List.of(start);
     }
 
+    public static boolean isAlone(PhysicsPipeline pipeline, PhysicsPipelineBody body) {
+        return !(pipeline instanceof SableConstraintGraphHolder holder) || holder.toroidal$constraintGraph().isAlone(body);
+    }
+
     public SableConstraintEdge record(PhysicsPipelineBody first, PhysicsPipelineBody second) {
         SableConstraintEdge edge = new SableConstraintEdge(this, first, second);
         this.edges.add(edge);
@@ -55,14 +59,22 @@ public final class SableConstraintGraph {
             return List.of(start);
         }
 
+        List<PhysicsPipelineBody> group = this.groups().get(start);
+        return group == null ? List.of(start) : live(group);
+    }
+
+    public boolean isAlone(PhysicsPipelineBody body) {
+        return this.edges.isEmpty() || this.groups().get(body) == null;
+    }
+
+    private IdentityHashMap<PhysicsPipelineBody, List<PhysicsPipelineBody>> groups() {
         IdentityHashMap<PhysicsPipelineBody, List<PhysicsPipelineBody>> groups = this.groups;
         if (groups == null) {
             groups = this.walkGroups();
             this.groups = groups;
         }
 
-        List<PhysicsPipelineBody> group = groups.get(start);
-        return group == null ? List.of(start) : live(group);
+        return groups;
     }
 
     private static List<PhysicsPipelineBody> live(List<PhysicsPipelineBody> group) {

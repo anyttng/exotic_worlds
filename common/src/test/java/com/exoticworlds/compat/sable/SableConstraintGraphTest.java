@@ -207,4 +207,33 @@ class SableConstraintGraphTest {
 
         assertThrows(UnsupportedOperationException.class, () -> graph.groupOf(lead).add(new Body()));
     }
+
+    @Test
+    void aBodyInAnEmptyGraphIsAlone() {
+        assertTrue(new SableConstraintGraph().isAlone(new Body()));
+    }
+
+    @Test
+    void aBodyNoEdgeTouchesIsAloneBesideAJoinedPair() {
+        SableConstraintGraph graph = new SableConstraintGraph();
+        Body lead = new Body();
+        Body trail = new Body();
+        graph.record(lead, trail);
+
+        assertTrue(graph.isAlone(new Body()));
+        assertFalse(graph.isAlone(lead));
+        assertFalse(graph.isAlone(trail));
+    }
+
+    @Test
+    void aBodyWhoseLastEdgeWasDroppedIsAloneAgain() {
+        SableConstraintGraph graph = new SableConstraintGraph();
+        Body lead = new Body();
+        SableConstraintEdge edge = graph.record(lead, new Body());
+        assertFalse(graph.isAlone(lead));
+
+        edge.drop();
+
+        assertTrue(graph.isAlone(lead));
+    }
 }

@@ -24,7 +24,6 @@ import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 
 @Mixin(SubLevelInclusiveLevelEntityGetter.class)
 public abstract class SubLevelInclusiveLevelEntityGetterMixin<T extends EntityAccess> {
@@ -34,15 +33,13 @@ public abstract class SubLevelInclusiveLevelEntityGetterMixin<T extends EntityAc
 
     @WrapMethod(method = "get(Lnet/minecraft/world/phys/AABB;Ljava/util/function/Consumer;)V")
     private void toroidal$frameOnBoxQuery(AABB box, Consumer<T> consumer, Operation<Void> original) {
-        Vec3 centre = box.getCenter();
-        SeamFrame.run(this.level, () -> centre, () -> original.call(box, consumer));
+        SeamFrame.with(this.level, box, AABB::getCenter, original, box, consumer);
     }
 
     @WrapMethod(method = "get(Lnet/minecraft/world/level/entity/EntityTypeTest;Lnet/minecraft/world/phys/AABB;Lnet/minecraft/util/AbortableIterationConsumer;)V")
     private <U extends T> void toroidal$frameOnTypedBoxQuery(EntityTypeTest<T, U> typeTest, AABB box,
             AbortableIterationConsumer<U> consumer, Operation<Void> original) {
-        Vec3 centre = box.getCenter();
-        SeamFrame.run(this.level, () -> centre, () -> original.call(typeTest, box, consumer));
+        SeamFrame.with(this.level, box, AABB::getCenter, original, typeTest, box, consumer);
     }
 
     @WrapOperation(

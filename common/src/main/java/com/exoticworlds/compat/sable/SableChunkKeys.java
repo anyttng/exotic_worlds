@@ -24,6 +24,14 @@ public final class SableChunkKeys {
         return fold.fold(raw);
     }
 
+    public static long physical(ServerLevel level, long rawKey) {
+        return physical(WorldLoopAttachments.transformerOf(level), rawKey);
+    }
+
+    public static long physical(WorldFold fold, long rawKey) {
+        return fold.foldChunkKey(rawKey);
+    }
+
     public static List<ChunkPos> rawAliases(WorldFold fold, ChunkPos physical) {
         long[] shifts = fold.chunkLattice().nearShifts(0.0, 0.0);
         List<ChunkPos> aliases = new ArrayList<>(shifts.length / 2);

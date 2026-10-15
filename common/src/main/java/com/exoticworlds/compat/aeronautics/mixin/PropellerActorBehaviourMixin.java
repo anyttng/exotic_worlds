@@ -35,7 +35,7 @@ public abstract class PropellerActorBehaviourMixin {
     @WrapOperation(method = "pushEntities", at = @At(value = "INVOKE", target = PROPELLER_CENTRE))
     private Vector3d toroidal$centreInTheEntityFrame(Pose3d pose, Vector3d centre, Operation<Vector3d> original,
             @Local Entity entity) {
-        return SeamFrame.with(entity.level(), entity::position, () -> original.call(pose, centre));
+        return SeamFrame.with(entity.level(), entity, Entity::position, original, pose, centre);
     }
 
     @WrapOperation(method = "pushEntities", at = @At(value = "INVOKE", target = InjectionTargets.VECTOR3D_SUB))
@@ -55,6 +55,6 @@ public abstract class PropellerActorBehaviourMixin {
     @WrapOperation(method = "pushEntities", at = @At(value = "INVOKE", target = AIRFLOW_RAY))
     private BlockHitResult toroidal$rayInTheEntityFrame(Level level, ClipContext context,
             Operation<BlockHitResult> original, @Local Entity entity) {
-        return SeamFrame.with(level, entity::position, () -> original.call(level, context));
+        return SeamFrame.with(level, entity, Entity::position, original, level, context);
     }
 }

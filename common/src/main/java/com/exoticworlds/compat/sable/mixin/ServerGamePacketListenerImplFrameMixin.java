@@ -16,6 +16,7 @@ import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.Entity;
 
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ServerGamePacketListenerImplFrameMixin {
@@ -24,36 +25,36 @@ public abstract class ServerGamePacketListenerImplFrameMixin {
 
     @WrapMethod(method = "handleMovePlayer")
     private void toroidal$frameOnMove(ServerboundMovePlayerPacket packet, Operation<Void> original) {
-        toroidal$framed(() -> original.call(packet));
+        toroidal$framed(original, packet);
     }
 
     @WrapMethod(method = "handleMoveVehicle")
     private void toroidal$frameOnVehicleMove(ServerboundMoveVehiclePacket packet, Operation<Void> original) {
-        toroidal$framed(() -> original.call(packet));
+        toroidal$framed(original, packet);
     }
 
     @WrapMethod(method = "handlePlayerAction")
     private void toroidal$frameOnPlayerAction(ServerboundPlayerActionPacket packet, Operation<Void> original) {
-        toroidal$framed(() -> original.call(packet));
+        toroidal$framed(original, packet);
     }
 
     @WrapMethod(method = "handleUseItemOn")
     private void toroidal$frameOnUseItemOn(ServerboundUseItemOnPacket packet, Operation<Void> original) {
-        toroidal$framed(() -> original.call(packet));
+        toroidal$framed(original, packet);
     }
 
     @WrapMethod(method = "handleUseItem")
     private void toroidal$frameOnUseItem(ServerboundUseItemPacket packet, Operation<Void> original) {
-        toroidal$framed(() -> original.call(packet));
+        toroidal$framed(original, packet);
     }
 
     @WrapMethod(method = "handleInteract")
     private void toroidal$frameOnInteract(ServerboundInteractPacket packet, Operation<Void> original) {
-        toroidal$framed(() -> original.call(packet));
+        toroidal$framed(original, packet);
     }
 
     @Unique
-    private void toroidal$framed(Runnable body) {
-        SeamFrame.run(this.player.serverLevel(), this.player::position, body);
+    private void toroidal$framed(Operation<Void> original, Object packet) {
+        SeamFrame.with(this.player.serverLevel(), this.player, Entity::position, original, packet);
     }
 }

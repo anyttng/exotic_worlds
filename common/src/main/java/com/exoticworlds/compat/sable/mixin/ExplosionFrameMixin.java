@@ -10,7 +10,6 @@ import com.exoticworlds.compat.sable.SeamFrame;
 
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 
 @Mixin(Explosion.class)
 public abstract class ExplosionFrameMixin {
@@ -18,12 +17,8 @@ public abstract class ExplosionFrameMixin {
     @Final
     private Level level;
 
-    @Shadow
-    public abstract Vec3 center();
-
     @WrapMethod(method = "explode")
     private void toroidal$frameOnExplosion(Operation<Void> original) {
-        Vec3 centre = this.center();
-        SeamFrame.run(this.level, () -> centre, original::call);
+        SeamFrame.with(this.level, (Explosion) (Object) this, Explosion::center, original);
     }
 }

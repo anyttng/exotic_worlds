@@ -7,7 +7,6 @@ import org.joml.Vector3d;
 import com.exoticworlds.client.engine.SyncedTagFold;
 import com.exoticworlds.compat.aeronautics.mixin.MultiMiningSyncAccessor;
 import com.exoticworlds.compat.aeronautics.mixin.PhysicsStaffBeamPacketAccessor;
-import com.exoticworlds.engine.fold.FoldedCopies;
 import com.exoticworlds.core.JomlVectors;
 import com.exoticworlds.engine.net.ComponentPositions;
 import com.exoticworlds.engine.net.PacketTranslator;
@@ -29,9 +28,7 @@ import dev.simulated_team.simulated.network.packets.lodestone_compass.UpdateClie
 import dev.ryanhcode.offroad.handlers.server.MultiMiningServerManager;
 import dev.ryanhcode.offroad.network.borehead_bearing.ClientboundMultiMiningSync;
 import dev.simulated_team.simulated.network.packets.physics_staff.PhysicsStaffBeamPacket;
-import dev.simulated_team.simulated.network.packets.physics_staff.PhysicsStaffDragSessionsPacket;
 
-import net.createmod.catnip.data.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
@@ -65,26 +62,30 @@ public final class AeronauticsTranslation {
     private static void registerOffroad() {
         // Not a record, so the record fold cannot rebuild it.
         PacketTranslator.registerClientboundPayloadRewriter(ClientboundMultiMiningSync.class, (payload, context) -> {
-            ClientboundMultiMiningSync seated = ClientboundMultiMiningSync.serverOutboundData(
-                    ((MultiMiningSyncAccessor) (Object) payload).toroidal$breakingId());
-            for (Map.Entry<BlockPos, MultiMiningServerManager.BlockBreakingData> entry : payload.inData.entrySet()) {
-                seated.inData.put(seat(context, entry.getKey()), entry.getValue());
+            for (BlockPos pos : payload.inData.keySet()) {
+                if (seat(context, pos) != pos) {
+                    return seatedMining(payload, context);
+                }
             }
 
-            return seated;
+            return payload;
         });
+    }
+
+    private static ClientboundMultiMiningSync seatedMining(ClientboundMultiMiningSync payload, TranslationContext context) {
+        ClientboundMultiMiningSync seated = ClientboundMultiMiningSync.serverOutboundData(
+                ((MultiMiningSyncAccessor) (Object) payload).toroidal$breakingId());
+        for (Map.Entry<BlockPos, MultiMiningServerManager.BlockBreakingData> entry : payload.inData.entrySet()) {
+            seated.inData.put(seat(context, entry.getKey()), entry.getValue());
+        }
+
+        return seated;
     }
 
     private static void registerSimulated() {
         registerSimulatedSyncedTags();
         ComponentPositions.register(ROPE_FIRST_CONNECTION_ID);
         SpawnBufferFold.register(HoneyGlueEntity.class, TagPositions.PositionShape.VEC3_LIST, HONEY_GLUE_POS_KEY);
-
-        // A Pair component is out of the record fold's reach.
-        PacketTranslator.registerClientboundPayloadRewriter(PhysicsStaffDragSessionsPacket.class, (payload, context) ->
-                new PhysicsStaffDragSessionsPacket(payload.dimension(),
-                        FoldedCopies.of(payload.sessions(), session ->
-                                Pair.of(session.getFirst(), seat(context, session.getSecond())))));
 
         // A compass target may name any point, so it takes the plain door, not the record fold's guarded one.
         PacketTranslator.registerClientboundPayloadRewriter(UpdateClientLodestonePositionPacket.class, (payload, context) ->

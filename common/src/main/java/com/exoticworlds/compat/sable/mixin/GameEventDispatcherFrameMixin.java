@@ -1,5 +1,7 @@
 package com.exoticworlds.compat.sable.mixin;
 
+import java.util.function.Function;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,6 +24,6 @@ public abstract class GameEventDispatcherFrameMixin {
 
     @WrapMethod(method = "post")
     private void toroidal$frameOnGameEvent(Holder<GameEvent> event, Vec3 source, GameEvent.Context context, Operation<Void> original) {
-        SeamFrame.run(this.level, () -> source, () -> original.call(event, source, context));
+        SeamFrame.with(this.level, source, Function.identity(), original, event, source, context);
     }
 }

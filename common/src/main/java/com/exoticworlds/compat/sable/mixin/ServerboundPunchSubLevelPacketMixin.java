@@ -13,6 +13,7 @@ import com.exoticworlds.compat.sable.SeamFrame;
 import dev.ryanhcode.sable.companion.math.Pose3d;
 import dev.ryanhcode.sable.network.packets.tcp.ServerboundPunchSubLevelPacket;
 
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
 @Mixin(ServerboundPunchSubLevelPacket.class)
@@ -27,6 +28,6 @@ public abstract class ServerboundPunchSubLevelPacketMixin {
                     @At(value = "INVOKE", target = PLAYER_INVERSE, ordinal = 2)
             })
     private Vector3d toroidal$frameOnPunch(Pose3d pose, Vector3d global, Operation<Vector3d> original, @Local Player player) {
-        return SeamFrame.with(player.level(), player::position, () -> original.call(pose, global));
+        return SeamFrame.with(player.level(), player, Entity::position, original, pose, global);
     }
 }

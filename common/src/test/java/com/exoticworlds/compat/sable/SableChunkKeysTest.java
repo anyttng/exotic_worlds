@@ -31,4 +31,20 @@ class SableChunkKeysTest {
     void anUnwrappedLevelKeysByTheRawChunk() {
         assertSame(ONE_LAP_ON, SableChunkKeys.physical(WorldFolds.NOOP, ONE_LAP_ON));
     }
+
+    @Test
+    void aKeyOneLapOnIsFoldedToThePhysicalKey() {
+        assertEquals(ChunkPos.asLong(-10, 3), SableChunkKeys.physical(PER_AXIS, ChunkPos.asLong(-10 + WIDTH_CHUNKS, 3 - WIDTH_CHUNKS)));
+    }
+
+    @Test
+    void aKeyInsideTheBoundsKeepsItsValue() {
+        assertEquals(ChunkPos.asLong(-10, 3), SableChunkKeys.physical(PER_AXIS, ChunkPos.asLong(-10, 3)));
+    }
+
+    @Test
+    void anUnwrappedLevelKeepsTheRawKey() {
+        long raw = ChunkPos.asLong(-10 + WIDTH_CHUNKS, 3 - WIDTH_CHUNKS);
+        assertEquals(raw, SableChunkKeys.physical(WorldFolds.NOOP, raw));
+    }
 }

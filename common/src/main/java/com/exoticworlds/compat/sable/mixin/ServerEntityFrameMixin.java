@@ -24,6 +24,6 @@ public abstract class ServerEntityFrameMixin {
 
     @WrapMethod(method = "sendChanges")
     private void toroidal$frameOnTracking(Operation<Void> original) {
-        SeamFrame.run(this.level, this.entity::position, original::call);
+        SeamFrame.with(this.level, this.entity, Entity::position, original);
     }
 }

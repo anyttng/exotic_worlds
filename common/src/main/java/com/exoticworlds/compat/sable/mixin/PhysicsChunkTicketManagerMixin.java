@@ -19,7 +19,7 @@ public class PhysicsChunkTicketManagerMixin {
     @WrapMethod(method = "inhabitChunk")
     private void toroidal$inhabitPhysicalChunk(ServerLevel level, DistanceManager distanceManager, UUID subLevelId, long gameTime,
             long chunkLong, int x, int z, Operation<Void> original) {
-        ChunkPos physical = SableChunkKeys.physical(level, new ChunkPos(x, z));
-        original.call(level, distanceManager, subLevelId, gameTime, physical.toLong(), physical.x, physical.z);
+        long physical = SableChunkKeys.physical(level, ChunkPos.asLong(x, z));
+        original.call(level, distanceManager, subLevelId, gameTime, physical, ChunkPos.getX(physical), ChunkPos.getZ(physical));
     }
 }
