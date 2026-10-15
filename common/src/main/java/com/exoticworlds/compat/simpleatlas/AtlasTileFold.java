@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.ExoticWorldsClientApi;
+import com.exoticworlds.compat.ClientShapes;
 import com.exoticworlds.compat.WorldCopies;
 
 import net.minecraft.core.registries.Registries;
@@ -39,8 +40,7 @@ public final class AtlasTileFold {
     }
 
     static Vec3 foldOnTile(@Nullable ToroidalShape shape, double x, double z) {
-        Vec3 point = new Vec3(x, 0.0, z);
-        return shape == null ? point : shape.fold(point);
+        return ClientShapes.fold(shape, new Vec3(x, 0.0, z));
     }
 
     public static List<SeamLine> seamLines(AtlasTilePayload tile, int blocksPerTile) {
