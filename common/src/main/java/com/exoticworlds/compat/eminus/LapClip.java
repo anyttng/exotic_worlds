@@ -1,5 +1,6 @@
 package com.exoticworlds.compat.eminus;
 
+import java.util.List;
 import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
@@ -27,28 +28,38 @@ public final class LapClip {
             "core/far_pack", new Entry("EminusFragment eminus_fragment() {", "eminus_cellOrigin",
                     "eminus_voxelPoint", "eminus_variantInfo"));
 
-    private static final String FUNCTION = String.join(NEWLINE,
-            "#ifdef " + DEFINE,
-            "bool toroidal_outside_lap(ivec3 origin, vec3 voxel, int level) {",
-            "    vec2 point = vec2(origin.xz - CameraBlockPos.xz) + voxel.xz * float(1 << level) + CameraOffset.xz;",
-            "    float shear = 0.0;",
-            "#if " + DEFINE_Z + " > 0",
-            "    if (abs(point.y) >= float(" + DEFINE_Z + ") * 0.5) {",
-            "        return true;",
-            "    }",
-            "    shear = point.y / float(" + DEFINE_Z + ") * float(" + DEFINE_SKEW + ");",
-            "#endif",
-            "#if " + DEFINE_X + " > 0",
-            "    if (abs(point.x - shear) >= float(" + DEFINE_X + ") * 0.5) {",
-            "        return true;",
-            "    }",
-            "#endif",
-            "    return false;",
-            "}",
-            "#endif",
-            "");
+    private record Frame(String sampler, String function) {
+    }
+
+    private static final List<Frame> FRAMES = List.of(
+            new Frame("uniform sampler2D EminusAtlas;", function("EminusCameraBlockPos", "EminusCameraOffset")),
+            new Frame("uniform sampler2D Atlas;", function("CameraBlockPos", "CameraOffset")));
 
     private LapClip() {
+    }
+
+    private static String function(String cameraBlockPos, String cameraOffset) {
+        return String.join(NEWLINE,
+                "#ifdef " + DEFINE,
+                "bool toroidal_outside_lap(ivec3 origin, vec3 voxel, int level) {",
+                "    vec2 point = vec2(origin.xz - " + cameraBlockPos + ".xz) + voxel.xz * float(1 << level) + "
+                        + cameraOffset + ".xz;",
+                "    float shear = 0.0;",
+                "#if " + DEFINE_Z + " > 0",
+                "    if (abs(point.y) >= float(" + DEFINE_Z + ") * 0.5) {",
+                "        return true;",
+                "    }",
+                "    shear = point.y / float(" + DEFINE_Z + ") * float(" + DEFINE_SKEW + ");",
+                "#endif",
+                "#if " + DEFINE_X + " > 0",
+                "    if (abs(point.x - shear) >= float(" + DEFINE_X + ") * 0.5) {",
+                "        return true;",
+                "    }",
+                "#endif",
+                "    return false;",
+                "}",
+                "#endif",
+                "");
     }
 
     public static @Nullable String fragmentShader(String resourcePath) {
@@ -73,6 +84,12 @@ public final class LapClip {
             return source;
         }
 
+        Frame frame = frameOf(source);
+        if (frame == null) {
+            LOGGER.warn("[eminus-compat] lap_clip_skipped shader={} reason=unknown_frame", path);
+            return source;
+        }
+
         int body = marker + entry.marker().length();
         String discard = String.join(NEWLINE, "",
                 "#ifdef " + DEFINE,
@@ -81,7 +98,17 @@ public final class LapClip {
                 "        discard;",
                 "    }",
                 "#endif");
-        return source.substring(0, marker) + FUNCTION + source.substring(marker, body) + discard
+        return source.substring(0, marker) + frame.function() + source.substring(marker, body) + discard
                 + source.substring(body);
+    }
+
+    private static @Nullable Frame frameOf(String source) {
+        for (Frame frame : FRAMES) {
+            if (source.contains(frame.sampler())) {
+                return frame;
+            }
+        }
+
+        return null;
     }
 }
