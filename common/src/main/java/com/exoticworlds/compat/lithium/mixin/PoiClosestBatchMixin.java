@@ -14,7 +14,6 @@ import com.exoticworlds.mixin.SectionStorageAccessor;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 
@@ -29,8 +28,8 @@ public class PoiClosestBatchMixin {
             PoiManager.Occupancy status,
             long count,
             Operation<Collection<Pair<Holder<PoiType>, BlockPos>>> original) {
-        if (!(((SectionStorageAccessor) this).toroidal$getLevelHeightAccessor() instanceof ServerLevel level)
-                || WorldLoopAttachments.wrappedTransformerOf(level) == null) {
+        if (!WorldLoopAttachments.transformerIfLevel(((SectionStorageAccessor) this).toroidal$getLevelHeightAccessor())
+                .isWrapped()) {
             return original.call(typeFilter, posFilter, center, radius, status, count);
         }
 

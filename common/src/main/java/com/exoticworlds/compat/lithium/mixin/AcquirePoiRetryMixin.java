@@ -9,12 +9,10 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.compat.lithium.LithiumInjectionTargets;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.mixin.SectionStorageAccessor;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.behavior.AcquirePoi;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 
@@ -28,9 +26,8 @@ public class AcquirePoiRetryMixin {
             name = LithiumInjectionTargets.RETRY_MARKER_LAMBDA)
     private static long toroidal$retryDistanceThroughSeam(BlockPos poiPos, BlockPos center, Operation<Long> original,
             @Local(argsOnly = true) PoiManager poiManager) {
-        WorldFold fold = ((SectionStorageAccessor) poiManager).toroidal$getLevelHeightAccessor() instanceof ServerLevel level
-                ? WorldLoopAttachments.transformerOf(level)
-                : WorldFolds.NOOP;
+        WorldFold fold = WorldLoopAttachments.transformerIfLevel(
+                ((SectionStorageAccessor) poiManager).toroidal$getLevelHeightAccessor());
         return original.call(fold.nearestCopy(center, poiPos), center);
     }
 }
