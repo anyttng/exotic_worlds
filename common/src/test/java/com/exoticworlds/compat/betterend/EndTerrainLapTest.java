@@ -1,19 +1,23 @@
 package com.exoticworlds.compat.betterend;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.wover.OpenSimplexStandIn;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.TranslationLattice;
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 
 import net.minecraft.core.Direction;
 
 class EndTerrainLapTest {
-    private static final long SEED = 0x1040L;
+    private static final long FIRST_SEED = 0x1040L;
+
+    private static final long SECOND_SEED = 0x1041L;
 
     private static final WorldLoopBounds BOUNDS = new WorldLoopBounds(-40, 40, -24, 24);
 
@@ -28,6 +32,15 @@ class EndTerrainLapTest {
     private static final int SURFACE_Y = 64;
 
     private static final double TOLERANCE = 1.0E-9;
+
+    @Test
+    void theLapReadsTheStandInsOfBetterEndsNoiseObjects() {
+        OpenSimplexStandIn first = new OpenSimplexStandIn(FIRST_SEED);
+        OpenSimplexStandIn second = new OpenSimplexStandIn(SECOND_SEED);
+        EndTerrainLap lap = new EndTerrainLap(WorldFolds.of(FlatShape.torus(BOUNDS)), () -> first, () -> second);
+        assertSame(first, lap.first());
+        assertSame(second, lap.second());
+    }
 
     @Test
     void onASkewedEndTheFoldReadsTheSameAlongBothLatticeVectors() {
@@ -84,7 +97,7 @@ class EndTerrainLapTest {
 
     @Test
     void anUnskewedEndKeepsTheFrameAndTheFoldPerAxis() {
-        EndTerrainLap lap = new EndTerrainLap(WorldFolds.of(FlatShape.torus(BOUNDS)), SEED);
+        EndTerrainLap lap = lapOn(WorldFolds.of(FlatShape.torus(BOUNDS)));
         TranslationLattice lattice = WorldFolds.of(FlatShape.torus(BOUNDS)).blockLattice();
         for (int x = 3 * lattice.x().lowerBound; x < 3 * lattice.x().upperBound; x += STEP) {
             for (int z = 3 * lattice.z().lowerBound; z < 3 * lattice.z().upperBound; z += STEP) {
@@ -97,8 +110,8 @@ class EndTerrainLapTest {
 
     @Test
     void aCylinderEndLeavesTheOpenAxisUnbounded() {
-        EndTerrainLap lap = new EndTerrainLap(
-                WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, CYLINDER_CHUNKS))), SEED);
+        EndTerrainLap lap = lapOn(
+                WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, CYLINDER_CHUNKS))));
         assertEquals(OpenSimplexStandIn.UNBOUNDED, lap.period(Direction.Axis.Z, 1.0));
     }
 
@@ -113,7 +126,13 @@ class EndTerrainLapTest {
     }
 
     private static EndTerrainLap skewed() {
-        return new EndTerrainLap(WorldFolds.of(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS)), SEED);
+        return lapOn(WorldFolds.of(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS)));
+    }
+
+    private static EndTerrainLap lapOn(WorldFold fold) {
+        OpenSimplexStandIn first = new OpenSimplexStandIn(FIRST_SEED);
+        OpenSimplexStandIn second = new OpenSimplexStandIn(SECOND_SEED);
+        return new EndTerrainLap(fold, () -> first, () -> second);
     }
 
     private static TranslationLattice lattice() {
