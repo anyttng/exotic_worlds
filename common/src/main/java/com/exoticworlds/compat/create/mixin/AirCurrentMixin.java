@@ -6,6 +6,8 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.simibubi.create.content.kinetics.fan.AirCurrent;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.compat.create.CreateSeamFold;
@@ -17,22 +19,42 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = AirCurrent.class, remap = false)
 public class AirCurrentMixin {
+    @Unique
+    private static final String TICK_AFFECTED_ENTITIES = "tickAffectedEntities";
+    @Unique
+    private static final String SEATED_ENTITY = "toroidal$seatedEntity";
+    @Unique
+    private static final String SEAT = "toroidal$seat";
+
     @WrapOperation(
-            method = "tickAffectedEntities",
+            method = TICK_AFFECTED_ENTITIES,
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/Entity;getBoundingBox()Lnet/minecraft/world/phys/AABB;"))
-    private AABB toroidal$foldEntityBox(Entity entity, Operation<AABB> original) {
+    private AABB toroidal$foldEntityBox(Entity entity, Operation<AABB> original,
+            @Share(SEATED_ENTITY) LocalRef<Entity> seatedEntity, @Share(SEAT) LocalRef<DeckTransformation> seat) {
         AABB rawBox = original.call(entity);
-        return toroidal$seatTransformation(entity.position()).apply(rawBox);
+        return toroidal$seatOf(entity, entity.position(), seatedEntity, seat).apply(rawBox);
     }
 
     @WrapOperation(
-            method = "tickAffectedEntities",
+            method = TICK_AFFECTED_ENTITIES,
             at = @At(value = "INVOKE",
                     target = InjectionTargets.ENTITY_POSITION))
-    private Vec3 toroidal$foldEntityPosition(Entity entity, Operation<Vec3> original) {
+    private Vec3 toroidal$foldEntityPosition(Entity entity, Operation<Vec3> original,
+            @Share(SEATED_ENTITY) LocalRef<Entity> seatedEntity, @Share(SEAT) LocalRef<DeckTransformation> seat) {
         Vec3 raw = original.call(entity);
-        return toroidal$seatTransformation(raw).apply(raw);
+        return toroidal$seatOf(entity, raw, seatedEntity, seat).apply(raw);
+    }
+
+    @Unique
+    private DeckTransformation toroidal$seatOf(Entity entity, Vec3 raw, LocalRef<Entity> seatedEntity,
+            LocalRef<DeckTransformation> seat) {
+        if (seatedEntity.get() != entity) {
+            seatedEntity.set(entity);
+            seat.set(toroidal$seatTransformation(raw));
+        }
+
+        return seat.get();
     }
 
     @Unique
