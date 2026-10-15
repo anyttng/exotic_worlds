@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.compat.betterend.BetterEndInjectionTargets;
 import com.exoticworlds.compat.wover.LapNoise;
-import com.exoticworlds.compat.wover.OpenSimplexStandIn;
+import com.exoticworlds.compat.wover.StandInHolder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -18,14 +18,9 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 public class UmbraSurfaceNoiseConditionMixin {
     private static final String GET_DEPTH = "getDepth(II)I";
 
-    private static final long SEED = 1512L;
-
     private static final double BROAD_SCALE = 0.03;
 
     private static final double FINE_SCALE = 0.1;
-
-    @Unique
-    private static final OpenSimplexStandIn toroidal$STAND_IN = new OpenSimplexStandIn(SEED);
 
     @WrapOperation(
             method = GET_DEPTH,
@@ -49,6 +44,6 @@ public class UmbraSurfaceNoiseConditionMixin {
         WorldFold fold = GenerationTransformerContext.context().wrappedTransformer();
         return fold == null
                 ? original.call(noise, x, z)
-                : LapNoise.eval(toroidal$STAND_IN, fold, x, z, scale, scale);
+                : LapNoise.eval(((StandInHolder) (Object) noise).toroidal$standIn(), fold, x, z, scale, scale);
     }
 }

@@ -103,4 +103,5 @@ tasks.register('modJar', Jar) {
     from(shellMetadata)
     from(neoforgeJar) { into 'META-INF/jarjar' }
     from(fabricJar) { into 'META-INF/jars' }
+    from('THIRD_PARTY_NOTICES')
 }
