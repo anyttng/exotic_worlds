@@ -10,13 +10,13 @@ import com.exoticworlds.core.WrapDomain;
 import net.minecraft.core.QuartPos;
 
 public record RegionLayerFold(WorldFold transformer, int topDepth, double factor, LayerAxis x, LayerAxis z,
-        int skew) {
+        TranslationLattice quarts) {
     public static RegionLayerFold of(WorldFold transformer, int topDepth, double factor) {
         TranslationLattice lattice = transformer.blockLattice();
         return new RegionLayerFold(transformer, topDepth, factor,
                 LayerAxis.of(lattice.x(), topDepth, factor),
                 LayerAxis.of(lattice.z(), topDepth, factor),
-                QuartPos.fromBlock(lattice.skew()));
+                lattice.scaledDown(QuartPos.BITS));
     }
 
     static RegionLayerFold resolve(@Nullable RegionLayerFold cached, WorldFold transformer, int topDepth) {
@@ -27,7 +27,7 @@ public record RegionLayerFold(WorldFold transformer, int topDepth, double factor
 
     public int foldX(int depth, int coordX, int coordZ) {
         return depth == this.topDepth
-                ? this.x.toVirtual(sheared(coordX, coordZ))
+                ? this.x.toVirtual(this.quarts.rectangleX(coordX, coordZ))
                 : this.x.fold(coordX, this.topDepth - depth);
     }
 
@@ -35,17 +35,6 @@ public record RegionLayerFold(WorldFold transformer, int topDepth, double factor
         return depth == this.topDepth
                 ? this.z.toVirtual(coordZ)
                 : this.z.fold(coordZ, this.topDepth - depth);
-    }
-
-    private int sheared(int quartX, int quartZ) {
-        if (this.skew == TranslationLattice.NO_SKEW) {
-            return quartX;
-        }
-
-        long offset = (long) quartZ - this.z.min();
-        long laps = Math.floorDiv(offset, this.z.lap());
-        long row = offset - laps * this.z.lap();
-        return (int) (quartX - laps * this.skew - Math.floorDiv(row * this.skew, this.z.lap()));
     }
 
     public record LayerAxis(boolean loops, double factor, int lap, int min, int scaledLap, int origin, int interior,
