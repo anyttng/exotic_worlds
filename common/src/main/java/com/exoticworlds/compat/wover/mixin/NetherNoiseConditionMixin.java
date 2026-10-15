@@ -7,11 +7,9 @@ import org.betterx.wover.surface.impl.numeric.NetherNoiseCondition;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.compat.wover.LapNoise;
-import com.exoticworlds.compat.wover.StandInHolder;
+import com.exoticworlds.compat.LapNoise;
+import com.exoticworlds.compat.StandInHolder;
 import com.exoticworlds.compat.wover.WoverInjectionTargets;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -22,13 +20,8 @@ public class NetherNoiseConditionMixin {
             at = @At(value = "INVOKE", target = "Lorg/betterx/wover/math/api/noise/OpenSimplexNoise;eval(DDD)D"))
     private double toroidal$lapNoise(OpenSimplexNoise noise, double x, double y, double z,
             Operation<Double> original) {
-        WorldFold fold = GenerationTransformerContext.context().wrappedTransformer();
-        if (fold == null) {
-            return original.call(noise, x, y, z);
-        }
-
         VolumeThresholdCondition volume = Conditions.NETHER_VOLUME_NOISE;
-        return LapNoise.eval(((StandInHolder) volume).toroidal$standIn(), fold, x, y, z, volume.getScaleX(),
-                volume.getScaleZ());
+        return LapNoise.boundEval(((StandInHolder) volume).toroidal$standIn(), x, y, z, volume.getScaleX(),
+                volume.getScaleZ(), () -> original.call(noise, x, y, z));
     }
 }

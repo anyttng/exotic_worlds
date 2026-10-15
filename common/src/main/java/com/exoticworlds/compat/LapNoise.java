@@ -1,10 +1,25 @@
-package com.exoticworlds.compat.wover;
+package com.exoticworlds.compat;
+
+import java.util.function.DoubleSupplier;
 
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.engine.noise.GenerationTransformerContext;
 
 public final class LapNoise {
+    public static double boundEval(OpenSimplexStandIn noise, double x, double z, double xScale, double zScale,
+            DoubleSupplier original) {
+        WorldFold fold = GenerationTransformerContext.context().wrappedTransformer();
+        return fold == null ? original.getAsDouble() : eval(noise, fold, x, z, xScale, zScale);
+    }
+
+    public static double boundEval(OpenSimplexStandIn noise, double x, double y, double z, double xScale,
+            double zScale, DoubleSupplier original) {
+        WorldFold fold = GenerationTransformerContext.context().wrappedTransformer();
+        return fold == null ? original.getAsDouble() : eval(noise, fold, x, y, z, xScale, zScale);
+    }
+
     public static double eval(OpenSimplexStandIn noise, WorldFold fold, double x, double z, double xScale,
             double zScale) {
         TranslationLattice lattice = fold.blockLattice();

@@ -7,8 +7,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.exoticworlds.compat.wover.OpenSimplexStandIn;
-import com.exoticworlds.compat.wover.StandInHolder;
+import com.exoticworlds.compat.OpenSimplexStandIn;
+import com.exoticworlds.compat.StandInHolder;
 
 @Mixin(OpenSimplexNoise.class)
 public class OpenSimplexNoiseMixin implements StandInHolder {

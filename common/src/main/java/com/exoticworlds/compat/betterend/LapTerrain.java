@@ -8,8 +8,8 @@ import org.betterx.betterend.world.generator.IslandLayer;
 import org.betterx.betterend.world.generator.TerrainBoolCache;
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.compat.OpenSimplexStandIn;
 import com.exoticworlds.compat.betterend.mixin.TerrainGeneratorAccessor;
-import com.exoticworlds.compat.wover.OpenSimplexStandIn;
 import com.exoticworlds.engine.fold.FoldedQuart;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 
