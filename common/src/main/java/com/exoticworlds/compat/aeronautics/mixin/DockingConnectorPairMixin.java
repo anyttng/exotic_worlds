@@ -2,6 +2,7 @@ package com.exoticworlds.compat.aeronautics.mixin;
 
 import org.joml.Vector3d;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -15,7 +16,9 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = DockingConnectorPair.class, remap = false)
 public class DockingConnectorPairMixin {
+    @Unique
     private static final int PROJECTED_TIP_1 = 2;
+    @Unique
     private static final int PROJECTED_TIP_2 = 3;
 
     @ModifyReturnValue(method = "getAverageTipPosition", at = @At("RETURN"))

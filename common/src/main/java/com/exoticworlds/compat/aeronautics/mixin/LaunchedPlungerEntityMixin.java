@@ -1,6 +1,7 @@
 package com.exoticworlds.compat.aeronautics.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -16,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = LaunchedPlungerEntity.class, remap = false)
 public class LaunchedPlungerEntityMixin {
+    @Unique
     private static final String DEFLECTION = "lambda$static$0";
 
     @WrapOperation(

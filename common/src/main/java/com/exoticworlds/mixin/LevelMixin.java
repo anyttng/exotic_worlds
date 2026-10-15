@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.CrumbSweepCache;
 import com.exoticworlds.accessors.PeriodicityMark;
 import com.exoticworlds.accessors.RelocatableBlockEntity;
@@ -116,7 +117,7 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
             method = "getEntities(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/entity/LevelEntityGetter;get(Lnet/minecraft/world/phys/AABB;Ljava/util/function/Consumer;)V"))
+                    target = InjectionTargets.LEVEL_ENTITY_GETTER_GET))
     private void toroidal$entitiesThroughSeam(LevelEntityGetter<Entity> entities, AABB box, Consumer<Entity> output,
             Operation<Void> original) {
         SeamEntitySearch.forEach(toroidal$transformer(), box, output,
@@ -127,7 +128,7 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
             method = "getEntities(Lnet/minecraft/world/level/entity/EntityTypeTest;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;Ljava/util/List;I)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/entity/LevelEntityGetter;get(Lnet/minecraft/world/level/entity/EntityTypeTest;Lnet/minecraft/world/phys/AABB;Lnet/minecraft/util/AbortableIterationConsumer;)V"))
+                    target = InjectionTargets.LEVEL_ENTITY_GETTER_GET_TYPED))
     private <U extends Entity> void toroidal$typedEntitiesThroughSeam(LevelEntityGetter<Entity> entities,
             EntityTypeTest<Entity, U> type, AABB box, AbortableIterationConsumer<U> output, Operation<Void> original) {
         SeamEntitySearch.forEachUntilAborted(toroidal$transformer(), box, output,

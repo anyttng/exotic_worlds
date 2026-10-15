@@ -15,8 +15,7 @@ import com.exoticworlds.core.WorldLoopAttachments;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 
-// Sable overwrites isFacingFrontText at 1000 and measures the player from the sign's centre out of its sub-level; the
-// vanilla SignFacingMixin has nothing to wrap in that body, so this one takes the player to the copy nearest that centre.
+// Mixin refuses to inject into a method a mixin of equal priority overwrote; Sable overwrites isFacingFrontText at 1000.
 @Mixin(value = SignBlockEntity.class, priority = 1100)
 public abstract class SignFacingFrameMixin {
     @WrapOperation(

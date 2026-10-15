@@ -37,11 +37,11 @@ class SableConstraintGraphTest {
     void anEdgeLeavesTheStoreWithItsConstraintAndNoReadInBetween() {
         SableConstraintGraph graph = new SableConstraintGraph();
         SableConstraintEdge edge = graph.record(new Body(), new Body());
-        assertFalse(graph.isEmpty());
+        assertEquals(1, graph.size());
 
         edge.drop();
 
-        assertTrue(graph.isEmpty(), "nothing walked the store between record and drop");
+        assertEquals(0, graph.size(), "nothing walked the store between record and drop");
     }
 
     @Test
@@ -67,7 +67,7 @@ class SableConstraintGraphTest {
 
         graph.dropBody(shared);
 
-        assertTrue(graph.isEmpty());
+        assertEquals(0, graph.size());
     }
 
     @Test

@@ -4,6 +4,7 @@ import org.joml.Vector3d;
 import org.joml.Vector3dc;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -27,8 +28,10 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = PropellerActorBehaviour.class, remap = false)
 public abstract class PropellerActorBehaviourMixin {
+    @Unique
     private static final String PROPELLER_CENTRE =
             "Ldev/ryanhcode/sable/companion/math/Pose3d;transformPosition(Lorg/joml/Vector3d;)Lorg/joml/Vector3d;";
+    @Unique
     private static final String AIRFLOW_RAY =
             "Lnet/minecraft/world/level/Level;clip(Lnet/minecraft/world/level/ClipContext;)Lnet/minecraft/world/phys/BlockHitResult;";
 

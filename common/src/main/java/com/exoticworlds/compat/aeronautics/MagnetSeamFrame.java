@@ -16,7 +16,7 @@ public final class MagnetSeamFrame {
     private static final double HALF = 0.5;
 
     public static Vector3d midpoint(@Nullable Level level, Vec3 tip1, Vec3 tip2, Vector3d average) {
-        return midpoint(foldOf(level), tip1, tip2, average);
+        return midpoint(WorldLoopAttachments.wrappedTransformerOfReader(level), tip1, tip2, average);
     }
 
     static Vector3d midpoint(@Nullable WorldFold fold, Vec3 tip1, Vec3 tip2, Vector3d average) {
@@ -35,7 +35,7 @@ public final class MagnetSeamFrame {
 
     public static Object seatNearbyMagnet(BlockEntity self, Object nearby) {
         Level level = self.getLevel();
-        WorldFold fold = foldOf(level);
+        WorldFold fold = WorldLoopAttachments.wrappedTransformerOfReader(level);
         if (fold == null || !(nearby instanceof Vector3d)) {
             return nearby;
         }
@@ -50,10 +50,6 @@ public final class MagnetSeamFrame {
         }
 
         return JomlVectors.seat(fold, anchor, position);
-    }
-
-    private static @Nullable WorldFold foldOf(@Nullable Level level) {
-        return level == null ? null : WorldLoopAttachments.wrappedTransformerOfReader(level);
     }
 
     private MagnetSeamFrame() {
