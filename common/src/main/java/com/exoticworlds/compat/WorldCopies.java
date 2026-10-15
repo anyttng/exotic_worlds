@@ -8,8 +8,11 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.api.v1.SeamShift;
 import com.exoticworlds.api.v1.ToroidalShape;
 
+import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
 
 public final class WorldCopies {
@@ -39,8 +42,8 @@ public final class WorldCopies {
     }
 
     public static List<Piece> pieces(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ) {
-        AxisCopies x = shape == null ? AxisCopies.UNBOUNDED : AxisCopies.of(shape, Direction.Axis.X);
-        AxisCopies z = shape == null ? AxisCopies.UNBOUNDED : AxisCopies.of(shape, Direction.Axis.Z);
+        AxisCopies x = AxisCopies.of(shape, Direction.Axis.X);
+        AxisCopies z = AxisCopies.of(shape, Direction.Axis.Z);
         List<Piece> pieces = new ArrayList<>();
         for (Copy copy : meeting(shape, minX, minZ, maxX, maxZ)) {
             int pieceMinX = x.clipMin(minX - copy.dx());
@@ -53,6 +56,20 @@ public final class WorldCopies {
         }
 
         return pieces;
+    }
+
+    public static long[] canonicalCells(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ,
+            int cellBlocks) {
+        LongLinkedOpenHashSet cells = new LongLinkedOpenHashSet();
+        for (Piece piece : pieces(shape, minX, minZ, maxX, maxZ)) {
+            for (int x = Math.floorDiv(piece.minX(), cellBlocks); x <= Math.floorDiv(piece.maxX() - 1, cellBlocks); x++) {
+                for (int z = Math.floorDiv(piece.minZ(), cellBlocks); z <= Math.floorDiv(piece.maxZ() - 1, cellBlocks); z++) {
+                    cells.add(ChunkPos.pack(x, z));
+                }
+            }
+        }
+
+        return cells.toLongArray();
     }
 
     public static List<Edge> seams(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ) {
