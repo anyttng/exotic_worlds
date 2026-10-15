@@ -31,13 +31,8 @@ public abstract class ConnectedInputHandlerMixin {
     @WrapMethod(method = "toggleConnection")
     private static void toroidal$toggleInOneFrame(Level world, BlockPos pos, BlockPos pos2,
             Operation<Void> original) {
-        if (!(world instanceof ServerLevel serverLevel)) {
-            original.call(world, pos, pos2);
-            return;
-        }
-
-        original.call(world, CreateSeamFold.canonical(serverLevel, pos),
-                CreateSeamFold.canonical(serverLevel, pos2));
+        original.call(world, CreateSeamFold.canonicalOnServer(world, pos),
+                CreateSeamFold.canonicalOnServer(world, pos2));
     }
 
     @WrapOperation(method = "toggleConnection",
@@ -45,8 +40,7 @@ public abstract class ConnectedInputHandlerMixin {
                     target = "Lnet/minecraft/core/BlockPos;offset(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/BlockPos;"))
     private static BlockPos toroidal$controllerInCanonicalFrame(BlockPos position, Vec3i delta,
             Operation<BlockPos> original, @Local(argsOnly = true) Level world) {
-        return CreateSeamFold.canonical(world instanceof ServerLevel serverLevel ? serverLevel : null,
-                original.call(position, delta));
+        return CreateSeamFold.canonicalOnServer(world, original.call(position, delta));
     }
 
     @SuppressWarnings("unchecked")
@@ -60,8 +54,7 @@ public abstract class ConnectedInputHandlerMixin {
             return collected;
         }
 
-        return CrafterGroupFold.canonicalMembers(world instanceof ServerLevel serverLevel ? serverLevel : null,
-                (Set<BlockPos>) members);
+        return CrafterGroupFold.canonicalMembers(world, (Set<BlockPos>) members);
     }
 
     @WrapOperation(method = "toggleConnection",
@@ -69,8 +62,7 @@ public abstract class ConnectedInputHandlerMixin {
                     target = InjectionTargets.BLOCK_POS_RELATIVE))
     private static BlockPos toroidal$floodStepInCanonicalFrame(BlockPos current, Direction direction,
             Operation<BlockPos> original, @Local(argsOnly = true) Level world) {
-        return CreateSeamFold.canonical(world instanceof ServerLevel serverLevel ? serverLevel : null,
-                original.call(current, direction));
+        return CreateSeamFold.canonicalOnServer(world, original.call(current, direction));
     }
 
     @Inject(method = "initAndAddAll", at = @At("RETURN"))

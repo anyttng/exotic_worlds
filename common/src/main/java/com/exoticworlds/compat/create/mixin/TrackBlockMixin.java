@@ -9,7 +9,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.simibubi.create.content.trains.track.TrackBlock;
 import com.exoticworlds.compat.create.CreateSeamFold;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -21,10 +20,6 @@ public class TrackBlockMixin {
                     target = "Lnet/minecraft/world/level/levelgen/structure/BoundingBox;isInside(Lnet/minecraft/core/Vec3i;)Z"))
     private boolean toroidal$clickInAssemblyFrame(BoundingBox area, Vec3i clicked, Operation<Boolean> original,
             @Local(argsOnly = true) Level level) {
-        if (!(clicked instanceof BlockPos position)) {
-            return original.call(area, clicked);
-        }
-
-        return original.call(area, CreateSeamFold.foldPositionToBox(level, area, position));
+        return original.call(area, CreateSeamFold.foldPositionToBox(level, area, clicked));
     }
 }

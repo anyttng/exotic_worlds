@@ -11,9 +11,11 @@ import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.core.WorldLoopAttachments;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
@@ -49,12 +51,12 @@ public final class CreateSeamFold {
         return WorldLoopAttachments.wrappedTransformerOfReader(clientLevel);
     }
 
-    public static BlockPos foldDelta(@Nullable Level level, BlockPos anchor, BlockPos target, BlockPos rawDelta) {
+    public static BlockPos foldDelta(@Nullable Level level, Vec3i anchor, BlockPos target, BlockPos rawDelta) {
         if (level == null) {
             return rawDelta;
         }
 
-        return delta(WorldLoopAttachments.wrappedTransformerOfReader(level), anchor, target, rawDelta);
+        return delta(WorldLoopAttachments.wrappedTransformerOfReader(level), asBlockPos(anchor), target, rawDelta);
     }
 
     public static BlockPos farEndDelta(@Nullable Level level, BlockPos anchor, BlockPos delta, BlockPos rawFarEnd) {
@@ -74,8 +76,8 @@ public final class CreateSeamFold {
         return BlockPos.containing(seated);
     }
 
-    public static BlockPos nearestCopy(@Nullable Level level, BlockPos anchor, BlockPos target) {
-        return nearest(transformerOf(level, null), anchor, target);
+    public static BlockPos nearestCopy(@Nullable Level level, Vec3i anchor, BlockPos target) {
+        return nearest(transformerOf(level, null), asBlockPos(anchor), target);
     }
 
     public static Vec3 nearestCopy(@Nullable Level level, Vec3 anchor, Vec3 target) {
@@ -103,12 +105,13 @@ public final class CreateSeamFold {
         return NearestCopy.transformationToward(transformerOf(level, null), anchor, target);
     }
 
-    public static BlockPos foldPositionToBox(@Nullable Level level, BoundingBox box, BlockPos position) {
+    public static BlockPos foldPositionToBox(@Nullable Level level, BoundingBox box, Vec3i position) {
+        BlockPos block = asBlockPos(position);
         if (level == null) {
-            return position;
+            return block;
         }
 
-        return foldPositionToBox(WorldLoopAttachments.wrappedTransformerOfReader(level), box, position);
+        return foldPositionToBox(WorldLoopAttachments.wrappedTransformerOfReader(level), box, block);
     }
 
     static BlockPos foldPositionToBox(@Nullable WorldFold transformer, BoundingBox box, BlockPos position) {
@@ -166,6 +169,18 @@ public final class CreateSeamFold {
         return WorldLoopAttachments.transformerOfReader(level).fold(position);
     }
 
+    public static BlockPos canonicalOnServer(@Nullable BlockGetter level, BlockPos position) {
+        return level instanceof ServerLevel serverLevel ? canonical(serverLevel, position) : position;
+    }
+
+    public static Vec3 canonicalOnServer(@Nullable BlockGetter level, Vec3 position) {
+        return level instanceof ServerLevel serverLevel ? canonical(serverLevel, position) : position;
+    }
+
+    public static BlockHitResult canonicalOnServer(@Nullable BlockGetter level, BlockHitResult hit) {
+        return level instanceof ServerLevel serverLevel ? canonical(serverLevel, hit) : hit;
+    }
+
     // On the client the same write is the frame the viewer stands in: canonicalising it there jumps the carriage a
     // world width at the seam.
     public static Vec3 canonicalOnServer(@Nullable ResourceKey<Level> dimension, Vec3 position) {
@@ -208,6 +223,10 @@ public final class CreateSeamFold {
 
     static BlockPos nearest(@Nullable WorldFold transformer, BlockPos anchor, BlockPos target) {
         return NearestCopy.toward(transformer, anchor, target);
+    }
+
+    public static BlockPos asBlockPos(Vec3i position) {
+        return position instanceof BlockPos block ? block : new BlockPos(position);
     }
 
     private CreateSeamFold() {

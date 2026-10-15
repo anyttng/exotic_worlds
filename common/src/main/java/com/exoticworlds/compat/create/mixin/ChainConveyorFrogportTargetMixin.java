@@ -22,10 +22,10 @@ public class ChainConveyorFrogportTargetMixin {
                     target = InjectionTargets.BLOCK_POS_SUBTRACT))
     private BlockPos toroidal$foldPortDelta(BlockPos conveyor, Vec3i port, Operation<BlockPos> original,
             PackagePortBlockEntity ppbe, LevelAccessor levelAccessor, BlockPos portPos) {
-        if (!(levelAccessor instanceof Level level) || !(port instanceof BlockPos anchor)) {
+        if (!(levelAccessor instanceof Level level)) {
             return original.call(conveyor, port);
         }
 
-        return original.call(CreateSeamFold.nearestCopy(level, anchor, conveyor), port);
+        return original.call(CreateSeamFold.nearestCopy(level, port, conveyor), port);
     }
 }

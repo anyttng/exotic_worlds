@@ -22,11 +22,6 @@ public class AutoRequestDataMixin {
                     target = InjectionTargets.BLOCK_POS_SUBTRACT))
     private static BlockPos toroidal$foldKeeperDelta(BlockPos target, Vec3i placed, Operation<BlockPos> original,
             Level level, Player player, BlockPos position, ItemStack itemStack) {
-        BlockPos raw = original.call(target, placed);
-        if (!(placed instanceof BlockPos anchor)) {
-            return raw;
-        }
-
-        return CreateSeamFold.foldDelta(level, anchor, target, raw);
+        return CreateSeamFold.foldDelta(level, placed, target, original.call(target, placed));
     }
 }

@@ -20,11 +20,7 @@ public class ClickToLinkBlockItemMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
     private boolean toroidal$foldSelectionReach(BlockPos selected, Vec3i placed, double maxDistance,
             Operation<Boolean> original, UseOnContext context) {
-        if (!(placed instanceof BlockPos anchor)) {
-            return original.call(selected, placed, maxDistance);
-        }
-
-        BlockPos folded = CreateSeamFold.nearestCopy(context.getLevel(), anchor, selected);
+        BlockPos folded = CreateSeamFold.nearestCopy(context.getLevel(), placed, selected);
         return original.call(folded, placed, maxDistance);
     }
 
@@ -33,11 +29,6 @@ public class ClickToLinkBlockItemMixin {
                     target = InjectionTargets.BLOCK_POS_SUBTRACT))
     private BlockPos toroidal$foldSelectionOffset(BlockPos selected, Vec3i placed, Operation<BlockPos> original,
             UseOnContext context) {
-        BlockPos raw = original.call(selected, placed);
-        if (!(placed instanceof BlockPos anchor)) {
-            return raw;
-        }
-
-        return CreateSeamFold.foldDelta(context.getLevel(), anchor, selected, raw);
+        return CreateSeamFold.foldDelta(context.getLevel(), placed, selected, original.call(selected, placed));
     }
 }

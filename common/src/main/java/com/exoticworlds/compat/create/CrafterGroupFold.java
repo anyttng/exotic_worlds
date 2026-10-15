@@ -13,6 +13,7 @@ import com.exoticworlds.core.WorldLoopAttachments;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 
 public final class CrafterGroupFold {
@@ -56,10 +57,10 @@ public final class CrafterGroupFold {
         }
     }
 
-    public static Set<BlockPos> canonicalMembers(@Nullable ServerLevel level, Set<BlockPos> raw) {
+    public static Set<BlockPos> canonicalMembers(@Nullable BlockGetter level, Set<BlockPos> raw) {
         Set<BlockPos> folded = new LinkedHashSet<>(raw.size());
         for (BlockPos member : raw) {
-            folded.add(CreateSeamFold.canonical(level, member));
+            folded.add(CreateSeamFold.canonicalOnServer(level, member));
         }
 
         return folded;

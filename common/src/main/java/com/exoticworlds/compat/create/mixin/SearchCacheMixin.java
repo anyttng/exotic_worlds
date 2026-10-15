@@ -8,7 +8,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.compat.create.CreateSeamFold;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -19,14 +18,13 @@ public class SearchCacheMixin {
                     + "Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Ljava/util/Optional;",
             at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private BlockPos toroidal$canonicalLookupKey(BlockPos pos, @Local(argsOnly = true) BlockGetter level) {
-        return CreateSeamFold.canonical(level instanceof ServerLevel serverLevel ? serverLevel : null, pos);
+        return CreateSeamFold.canonicalOnServer(level, pos);
     }
 
     @ModifyVariable(
             method = "put(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/entity/BlockEntity;)V",
             at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private BlockPos toroidal$canonicalStoreKey(BlockPos pos, @Local(argsOnly = true) BlockEntity target) {
-        return CreateSeamFold.canonical(target.getLevel() instanceof ServerLevel serverLevel ? serverLevel : null,
-                pos);
+        return CreateSeamFold.canonicalOnServer(target.getLevel(), pos);
     }
 }

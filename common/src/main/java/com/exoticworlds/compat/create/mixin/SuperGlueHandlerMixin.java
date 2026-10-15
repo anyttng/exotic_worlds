@@ -15,7 +15,6 @@ import com.exoticworlds.compat.create.CreateSeamFold;
 import java.util.function.BiFunction;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -24,9 +23,7 @@ public class SuperGlueHandlerMixin {
     @ModifyVariable(method = "glueInOffHandAppliesOnBlockPlace", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private static BlockPos toroidal$canonicalizeThePlacedBlock(BlockPos placed,
             @Local(argsOnly = true) Player placer) {
-        return placer.level() instanceof ServerLevel serverLevel
-                ? CreateSeamFold.canonical(serverLevel, placed)
-                : placed;
+        return CreateSeamFold.canonicalOnServer(placer.level(), placed);
     }
 
     @ModifyArg(method = "glueInOffHandAppliesOnBlockPlace",
@@ -35,20 +32,14 @@ public class SuperGlueHandlerMixin {
             index = 1)
     private static BiFunction<BlockPos, BlockState, BlockState> toroidal$traceAgainstTheCanonicalBlock(
             BiFunction<BlockPos, BlockState, BlockState> stateGetter, @Local(argsOnly = true) Player placer) {
-        if (!(placer.level() instanceof ServerLevel serverLevel)) {
-            return stateGetter;
-        }
-
-        return (tracePos, state) -> stateGetter.apply(CreateSeamFold.canonical(serverLevel, tracePos), state);
+        return (tracePos, state) -> stateGetter.apply(CreateSeamFold.canonicalOnServer(placer.level(), tracePos),
+                state);
     }
 
     @WrapOperation(method = "glueInOffHandAppliesOnBlockPlace",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_EQUALS))
     private static boolean toroidal$namesThePlacedBlock(BlockPos hitNeighbour, Object placed,
             Operation<Boolean> original, @Local(argsOnly = true) Player placer) {
-        BlockPos namedNeighbour = placer.level() instanceof ServerLevel serverLevel
-                ? CreateSeamFold.canonical(serverLevel, hitNeighbour)
-                : hitNeighbour;
-        return original.call(namedNeighbour, placed);
+        return original.call(CreateSeamFold.canonicalOnServer(placer.level(), hitNeighbour), placed);
     }
 }

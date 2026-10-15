@@ -12,7 +12,6 @@ import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.compat.create.CreateInjectionTargets;
 import com.exoticworlds.compat.create.CreateSeamFold;
 
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -50,6 +49,6 @@ public abstract class TrainCollisionMixin {
 
     @ModifyExpressionValue(method = COLLIDING_METHOD, at = @At(value = "INVOKE", target = InjectionTargets.VEC3_ADD))
     private Vec3 toroidal$wrapCollisionPoint(Vec3 point, @Local(argsOnly = true) Level level) {
-        return level instanceof ServerLevel serverLevel ? CreateSeamFold.canonical(serverLevel, point) : point;
+        return CreateSeamFold.canonicalOnServer(level, point);
     }
 }

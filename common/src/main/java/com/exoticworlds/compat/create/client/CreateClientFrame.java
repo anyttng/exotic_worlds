@@ -13,6 +13,7 @@ import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.phys.AABB;
@@ -27,8 +28,8 @@ public final class CreateClientFrame {
         return ClientFrame.isClientLevel(world) ? FoldedCopies.of(canonical, CreateClientFrame::inViewerFrame) : canonical;
     }
 
-    public static BlockPos inViewerFrame(BlockPos canonical) {
-        return ClientFrame.nearestToPlayer(canonical);
+    public static BlockPos inViewerFrame(Vec3i canonical) {
+        return ClientFrame.nearestToPlayer(CreateSeamFold.asBlockPos(canonical));
     }
 
     public static DeckTransformation inViewerFrameTransformation(BlockPos canonical) {

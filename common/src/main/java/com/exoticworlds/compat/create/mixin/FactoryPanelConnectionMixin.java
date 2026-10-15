@@ -18,10 +18,6 @@ public class FactoryPanelConnectionMixin {
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_SUBTRACT))
     private BlockPos toroidal$foldStoredSource(BlockPos target, Vec3i source, Operation<BlockPos> original) {
-        if (!(source instanceof BlockPos stored)) {
-            return original.call(target, source);
-        }
-
-        return original.call(target, CreateClientFrame.inViewerFrame(stored));
+        return original.call(target, CreateClientFrame.inViewerFrame(source));
     }
 }
