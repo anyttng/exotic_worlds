@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.compat.AlignedPeriod;
 import com.seibel.distanthorizons.core.level.IDhLevel;
 import com.seibel.distanthorizons.core.pos.DhSectionPos;
 import com.seibel.distanthorizons.core.pos.blockPos.DhBlockPos;
@@ -49,7 +50,7 @@ public final class DhProbes {
             return;
         }
 
-        DhFold.Period period = DhFold.period(lattice, leafDetailLevel);
+        AlignedPeriod period = DhFold.period(lattice, leafDetailLevel);
         LOGGER.info("[dh-compat] key_period width_x_blocks={} period_x_blocks={} laps_x={}"
                 + " width_z_blocks={} period_z_blocks={} laps_z={} skew_blocks={} shift_x_blocks={}",
                 widthX, periodValue(shape, Direction.Axis.X, period.xBlocks()),

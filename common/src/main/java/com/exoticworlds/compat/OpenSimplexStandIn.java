@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.wover;
+package com.exoticworlds.compat;
 
 import com.exoticworlds.engine.noise.PeriodicNoiseSampler;
 

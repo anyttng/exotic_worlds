@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.CoastLiftCache;
+import com.exoticworlds.accessors.FoldedClimateSampler;
 import com.exoticworlds.accessors.FoldedRandomState;
 import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.core.GenerationMoments;
@@ -21,9 +22,11 @@ import com.exoticworlds.engine.noise.AquiferCells;
 import com.exoticworlds.engine.noise.FoldedCompileContext;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.core.HolderGetter;
+import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.PositionalRandomFactory;
 import net.minecraft.world.level.levelgen.NoiseRouter;
@@ -91,6 +94,14 @@ public class RandomStateMixin implements CoastLiftCache, TransformerSource, Fold
             GenerationMoments.runAtRandomState((RandomState) (Object) this, new ToroidalShapeView(fold),
                     fold.generationOptions(), seaLevel);
         }
+    }
+
+    @ModifyReturnValue(method = "createClimateSampler", at = @At("RETURN"))
+    private Climate.Sampler toroidal$stampTheFold(Climate.Sampler sampler) {
+        if (this.toroidal$fold != null) {
+            ((FoldedClimateSampler) (Object) sampler).toroidal$fold(this.toroidal$fold);
+        }
+        return sampler;
     }
 
     @Unique

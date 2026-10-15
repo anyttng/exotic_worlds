@@ -37,8 +37,7 @@ public class BeaconBeamRepoMixin {
         }
 
         ArrayList<BeaconBeamDTO> beams = new ArrayList<>();
-        for (WorldCopies.Piece piece : WorldCopies.pieces(lattice.shape(), minBlockX, minBlockZ, maxBlockX,
-                maxBlockZ)) {
+        for (WorldCopies.Piece piece : DhKeys.beamPieces(lattice, minBlockX, maxBlockX, minBlockZ, maxBlockZ)) {
             WorldCopies.Copy copy = piece.copy();
             for (BeaconBeamDTO beam : original.call(piece.minX(), piece.maxX(), piece.minZ(), piece.maxZ())) {
                 if (!copy.isIdentity()) {

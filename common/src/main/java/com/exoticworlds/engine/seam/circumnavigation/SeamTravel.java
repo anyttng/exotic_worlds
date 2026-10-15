@@ -24,9 +24,13 @@ public final class SeamTravel {
     public record Lap(double x, double z) {
         public static final Lap ZERO = new Lap(0.0, 0.0);
 
+        private static final String X_KEY = "x";
+
+        private static final String Z_KEY = "z";
+
         static final Codec<Lap> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.DOUBLE.fieldOf("x").forGetter(Lap::x),
-                Codec.DOUBLE.fieldOf("z").forGetter(Lap::z))
+                Codec.DOUBLE.fieldOf(X_KEY).forGetter(Lap::x),
+                Codec.DOUBLE.fieldOf(Z_KEY).forGetter(Lap::z))
                 .apply(instance, Lap::new));
 
         public double on(Direction.Axis axis) {

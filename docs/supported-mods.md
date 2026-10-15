@@ -19,6 +19,7 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | Mod | Minecraft | Loaders | Status | Notes |
 | --- | --- | --- | --- | --- |
 | [Distant Horizons](https://modrinth.com/mod/distanthorizons) | All | NeoForge, Fabric | Supported | |
+| [Eminus](https://www.curseforge.com/minecraft/mc-mods/eminus) | All | NeoForge, Fabric | Supported | |
 | [Voxy](https://modrinth.com/mod/voxy) | All | Fabric | No edge support | |
 | Bobby | — | — | Not tested | |
 | Distant Horizons SeedGen | All | NeoForge, Fabric | Not supported | |
@@ -71,4 +72,5 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | BetterEnd and BetterNether | All | NeoForge, Fabric | Supported | |
 | Northbound | 26.2, 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | A toroidal world is cold at its north and south edges and warm in the middle |
 | [ReTerraForged](https://www.curseforge.com/minecraft/mc-mods/reterraforged-unofficial) | 1.21.1 | NeoForge, Fabric | Partially supported | Small worlds get shorter rivers or none |
+| [FreeTerraForged](https://modrinth.com/mod/freeterraforged) | 1.21.1 | NeoForge, Fabric | Partially supported | Small worlds get shorter rivers or none |
 | One Dimension | — | — | Not tested | |

@@ -1,12 +1,12 @@
 package com.exoticworlds.mixin;
 
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.accessors.LevelBindable;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.level.BoundLevelFold;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -17,11 +17,11 @@ import net.minecraft.world.level.pathfinder.PathTypeCache;
 @Mixin(PathTypeCache.class)
 public class PathTypeCacheMixin implements LevelBindable {
     @Unique
-    private @Nullable ServerLevel toroidal$level;
+    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
 
     @Override
     public void toroidal$bindLevel(ServerLevel level) {
-        this.toroidal$level = level;
+        this.toroidal$bound.bind(level);
     }
 
     @WrapOperation(
@@ -32,7 +32,7 @@ public class PathTypeCacheMixin implements LevelBindable {
             require = 2)
     private long toroidal$keyThePhysicalBlock(BlockPos pos, Operation<Long> original) {
         long key = original.call(pos);
-        ServerLevel level = this.toroidal$level;
-        return level == null ? key : WorldLoopAttachments.transformerOf(level).foldBlockNode(key);
+        WorldFold transformer = this.toroidal$bound.wrapped();
+        return transformer == null ? key : transformer.foldBlockNode(key);
     }
 }

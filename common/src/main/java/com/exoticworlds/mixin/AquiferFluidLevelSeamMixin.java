@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.AquiferCellsHolder;
 import com.exoticworlds.engine.noise.AquiferCells;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -20,9 +21,7 @@ public class AquiferFluidLevelSeamMixin implements AquiferCellsHolder {
 
     @WrapOperation(
             method = "computeRandomizedFluidSurfaceLevel",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/levelgen/densityfunction/DensitySampler$Bound;sampleValue(III)F"))
+            at = @At(value = "INVOKE", target = InjectionTargets.DENSITY_SAMPLER_BOUND_SAMPLE_VALUE))
     private float toroidal$fluidLevelFromTilingCell(DensitySampler.Bound noise, int cellX, int cellY, int cellZ,
             Operation<Float> original,
             @Local(argsOnly = true, ordinal = 0) int blockX,

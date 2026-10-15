@@ -27,7 +27,11 @@ public class ChunkGeneratorSpawnOverrideMixin {
             return check;
         }
 
-        WorldFold fold = WorldLoopAttachments.transformerOf(level);
+        WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(level);
+        if (fold == null) {
+            return check;
+        }
+
         return start -> start.getBoundingBox().isInside(NearestCopy.toward(fold, start.getBoundingBox(), pos));
     }
 }

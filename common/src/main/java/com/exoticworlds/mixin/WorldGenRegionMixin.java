@@ -38,6 +38,11 @@ import net.minecraft.world.ticks.LevelTickAccess;
 
 @Mixin(WorldGenRegion.class)
 public abstract class WorldGenRegionMixin implements LevelHolder {
+    @Unique
+    private static final String NEW_BLOCK_ENTITY =
+            "Lnet/minecraft/world/level/block/EntityBlock;newBlockEntity(Lnet/minecraft/core/BlockPos;"
+                    + "Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/level/block/entity/BlockEntity;";
+
     @Shadow
     @Final
     private ServerLevel level;
@@ -119,9 +124,7 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @WrapOperation(
             method = "setBlock",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/block/EntityBlock;newBlockEntity(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/level/block/entity/BlockEntity;"))
+            at = @At(value = "INVOKE", target = NEW_BLOCK_ENTITY))
     private @Nullable BlockEntity toroidal$createBlockEntityInChunkFrame(
             EntityBlock block, BlockPos pos, BlockState state, Operation<BlockEntity> original, @Local ChunkAccess chunk) {
         return original.call(block, this.toroidal$keyIn(chunk, pos), state);
@@ -180,9 +183,7 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @WrapOperation(
             method = "getBlockEntity",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/block/EntityBlock;newBlockEntity(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/level/block/entity/BlockEntity;"))
+            at = @At(value = "INVOKE", target = NEW_BLOCK_ENTITY))
     private @Nullable BlockEntity toroidal$rebuildBlockEntityInChunkFrame(
             EntityBlock block, BlockPos pos, BlockState state, Operation<BlockEntity> original, @Local ChunkAccess chunk) {
         return original.call(block, this.toroidal$keyIn(chunk, pos), state);

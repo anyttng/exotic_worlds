@@ -39,6 +39,9 @@ public final class InjectionTargets {
     public static final String DENSITY_FUNCTION_COMPUTE =
             "Lnet/minecraft/world/level/levelgen/DensityFunction;compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D";
 
+    public static final String DENSITY_SAMPLER_BOUND_SAMPLE_VALUE =
+            "Lnet/minecraft/world/level/levelgen/densityfunction/DensitySampler$Bound;sampleValue(III)F";
+
     public static final String DISTANCE_PREDICATE_MATCHES =
             "Lnet/minecraft/advancements/predicates/DistancePredicate;matches(DDDDDD)Z";
 
@@ -78,6 +81,8 @@ public final class InjectionTargets {
     public static final String POSITIONAL_RANDOM_FACTORY_AT =
             "Lnet/minecraft/world/level/levelgen/PositionalRandomFactory;at(III)Lnet/minecraft/util/RandomSource;";
 
+    public static final String SECTION_POS_OFFSET = "Lnet/minecraft/core/SectionPos;offset(JIII)J";
+
     public static final String SERVER_GAME_PACKET_LISTENER_SEND =
             "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V";
 
@@ -114,8 +119,6 @@ public final class InjectionTargets {
             "Lnet/minecraft/world/phys/Vec3;distanceToSqr(Lnet/minecraft/world/phys/Vec3;)D";
 
     public static final String VEC3_DISTANCE_TO_SQR_XYZ ="Lnet/minecraft/world/phys/Vec3;distanceToSqr(DDD)D";
-
-    public static final String VEC3_INIT = "Lnet/minecraft/world/phys/Vec3;<init>(DDD)V";
 
     public static final String VEC3_NEW = "(DDD)Lnet/minecraft/world/phys/Vec3;";
 

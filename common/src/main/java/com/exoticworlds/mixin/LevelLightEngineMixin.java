@@ -10,13 +10,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopAttachments;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.DataLayer;
@@ -90,9 +88,7 @@ public class LevelLightEngineMixin {
     @Unique
     private WorldFold toroidal$transformer() {
         if (this.toroidal$transformer == null) {
-            this.toroidal$transformer = this.levelHeightAccessor instanceof Level level
-                    ? WorldLoopAttachments.transformerOf(level)
-                    : WorldFolds.NOOP;
+            this.toroidal$transformer = WorldLoopAttachments.transformerIfLevel(this.levelHeightAccessor);
         }
 
         return this.toroidal$transformer;

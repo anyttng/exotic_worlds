@@ -12,8 +12,10 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
 public record WrappingSettingsPayload(ResourceKey<Level> dimension, FlatShape shape) implements CustomPacketPayload {
+    private static final String PAYLOAD_ID = "wrapping_settings";
+
     public static final Type<WrappingSettingsPayload> TYPE =
-            new Type<>(Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, "wrapping_settings"));
+            new Type<>(Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, PAYLOAD_ID));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, WrappingSettingsPayload> STREAM_CODEC =
             StreamCodec.composite(

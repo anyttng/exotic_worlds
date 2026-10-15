@@ -1,6 +1,5 @@
 package com.exoticworlds.mixin;
 
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -10,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.accessors.LevelBindable;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.level.BoundLevelFold;
 
 import net.minecraft.server.level.DistanceManager;
 import net.minecraft.server.level.LoadingChunkTracker;
@@ -36,11 +35,11 @@ public class DistanceManagerMixin implements LevelBindable {
     private DistanceManager.PlayerTicketTracker playerTicketManager;
 
     @Unique
-    private @Nullable ServerLevel toroidal$level;
+    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
 
     @Override
     public void toroidal$bindLevel(ServerLevel level) {
-        this.toroidal$level = level;
+        this.toroidal$bound.bind(level);
         ((LevelBindable) this.loadingChunkTracker).toroidal$bindLevel(level);
         ((LevelBindable) this.simulationChunkTracker).toroidal$bindLevel(level);
         ((LevelBindable) this.naturalSpawnChunkCounter).toroidal$bindLevel(level);
@@ -59,12 +58,7 @@ public class DistanceManagerMixin implements LevelBindable {
 
     @Unique
     private long toroidal$foldKey(long key) {
-        WorldFold transformer = this.toroidal$wrappedTransformer();
+        WorldFold transformer = this.toroidal$bound.wrapped();
         return transformer == null ? key : transformer.foldChunkKey(key);
-    }
-
-    @Unique
-    private @Nullable WorldFold toroidal$wrappedTransformer() {
-        return WorldLoopAttachments.wrappedTransformerOf(this.toroidal$level);
     }
 }

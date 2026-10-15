@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.betterx.betterend.noise.OpenSimplexNoise;
 import org.betterx.betterend.world.generator.IslandLayer;
 import org.betterx.betterend.world.generator.TerrainBoolCache;
 import org.betterx.betterend.world.generator.TerrainGenerator;
@@ -30,6 +31,16 @@ public interface TerrainGeneratorAccessor {
 
     @Accessor("smallIslands")
     static IslandLayer toroidal$smallIslands() {
+        throw new AssertionError();
+    }
+
+    @Accessor("noise1")
+    static OpenSimplexNoise toroidal$noise1() {
+        throw new AssertionError();
+    }
+
+    @Accessor("noise2")
+    static OpenSimplexNoise toroidal$noise2() {
         throw new AssertionError();
     }
 

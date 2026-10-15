@@ -15,7 +15,6 @@ import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.LevelBindable;
 import com.exoticworlds.accessors.TransformerHolder;
 import com.exoticworlds.accessors.TransformerSource;
-import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
@@ -84,18 +83,8 @@ public class ServerLevelMixin {
 
     @Inject(method = "tickNonPassenger", at = @At("TAIL"))
     private void toroidal$wrapEntityIntoBounds(Entity entity, CallbackInfo ci) {
-        if (entity instanceof Player) {
-            return;
-        }
-
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf((ServerLevel) (Object) this);
-        if (transformer == null) {
-            return;
-        }
-
-        DeckTransformation lap = transformer.foldTransformation(entity.position());
-        if (!lap.isIdentity()) {
-            SeamSnap.withPassengers(entity, lap);
+        if (!(entity instanceof Player)) {
+            SeamSnap.intoBounds(entity);
         }
     }
 

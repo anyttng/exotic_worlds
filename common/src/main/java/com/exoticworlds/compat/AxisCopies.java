@@ -16,12 +16,12 @@ public final class AxisCopies {
         this.domain = domain;
     }
 
-    public static AxisCopies of(ToroidalShape shape, Direction.Axis axis) {
-        return shape.loops(axis) ? looped(shape.minBlock(axis), shape.widthBlocks(axis)) : UNBOUNDED;
+    public static AxisCopies of(@Nullable ToroidalShape shape, Direction.Axis axis) {
+        return shape != null && shape.loops(axis) ? looped(shape.minBlock(axis), shape.widthBlocks(axis)) : UNBOUNDED;
     }
 
-    public static AxisCopies ofChunks(ToroidalShape shape, Direction.Axis axis) {
-        return shape.loops(axis) ? looped(shape.minChunk(axis), shape.widthChunks(axis)) : UNBOUNDED;
+    public static AxisCopies ofChunks(@Nullable ToroidalShape shape, Direction.Axis axis) {
+        return shape != null && shape.loops(axis) ? looped(shape.minChunk(axis), shape.widthChunks(axis)) : UNBOUNDED;
     }
 
     public static AxisCopies looped(int min, int width) {

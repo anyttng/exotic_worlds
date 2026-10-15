@@ -22,6 +22,9 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(Mob.class)
 public class MobMixin {
+    @Unique
+    private static final String HOME_POSITION = "Lnet/minecraft/world/entity/Mob;homePosition:Lnet/minecraft/core/BlockPos;";
+
     @ModifyVariable(method = "lookAt(Lnet/minecraft/world/entity/Entity;FF)V", at = @At("STORE"), ordinal = 0)
     private double toroidal$lookDeltaX(double deltaX, @Local(argsOnly = true) Entity target) {
         return SeamAim.deltaTo((Mob) (Object) this, target.position()).x;
@@ -42,18 +45,14 @@ public class MobMixin {
 
     @ModifyExpressionValue(
             method = "isWithinHome(Lnet/minecraft/core/BlockPos;)Z",
-            at = @At(value = "FIELD",
-                    target = "Lnet/minecraft/world/entity/Mob;homePosition:Lnet/minecraft/core/BlockPos;",
-                    opcode = Opcodes.GETFIELD))
+            at = @At(value = "FIELD", target = HOME_POSITION, opcode = Opcodes.GETFIELD))
     private BlockPos toroidal$homeThroughSeam(BlockPos home, @Local(argsOnly = true) BlockPos pos) {
         return toroidal$nearestHome(home, pos);
     }
 
     @ModifyExpressionValue(
             method = "isWithinHome(Lnet/minecraft/world/phys/Vec3;)Z",
-            at = @At(value = "FIELD",
-                    target = "Lnet/minecraft/world/entity/Mob;homePosition:Lnet/minecraft/core/BlockPos;",
-                    opcode = Opcodes.GETFIELD))
+            at = @At(value = "FIELD", target = HOME_POSITION, opcode = Opcodes.GETFIELD))
     private BlockPos toroidal$homeVecThroughSeam(BlockPos home, @Local(argsOnly = true) Vec3 pos) {
         return toroidal$nearestHome(home, BlockPos.containing(pos));
     }

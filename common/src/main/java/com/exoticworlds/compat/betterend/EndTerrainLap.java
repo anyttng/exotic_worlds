@@ -1,8 +1,11 @@
 package com.exoticworlds.compat.betterend;
 
+import org.betterx.betterend.noise.OpenSimplexNoise;
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.compat.wover.OpenSimplexStandIn;
+import com.exoticworlds.compat.OpenSimplexStandIn;
+import com.exoticworlds.compat.StandInHolder;
+import com.exoticworlds.compat.betterend.mixin.TerrainGeneratorAccessor;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
@@ -10,12 +13,8 @@ import com.exoticworlds.core.WrapDomain;
 
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.levelgen.LegacyRandomSource;
 
 public final class EndTerrainLap {
-    private static final int ISLAND_LAYER_SEEDS = 3;
-
     private static volatile @Nullable EndTerrainLap current;
 
     private final WorldFold fold;
@@ -28,22 +27,21 @@ public final class EndTerrainLap {
 
     private final OpenSimplexStandIn second;
 
-    EndTerrainLap(WorldFold fold, long seed) {
+    EndTerrainLap(WorldFold fold, StandInHolder first, StandInHolder second) {
         this.fold = fold;
         this.lattice = fold.blockLattice();
         this.frame = new LapFrame(this.lattice);
-        RandomSource random = new LegacyRandomSource(seed);
-        for (int layer = 0; layer < ISLAND_LAYER_SEEDS; layer++) {
-            random.nextInt();
-        }
-
-        this.first = new OpenSimplexStandIn(random.nextInt());
-        this.second = new OpenSimplexStandIn(random.nextInt());
+        this.first = first.toroidal$standIn();
+        this.second = second.toroidal$standIn();
     }
 
-    public static void capture(ServerLevel level, long seed) {
+    public static void capture(ServerLevel level) {
         WorldFold fold = ShapedChunkGenerator.wrappedTransformerOf(level.getChunkSource().getGenerator());
-        current = fold == null ? null : new EndTerrainLap(fold, seed);
+        OpenSimplexNoise first = TerrainGeneratorAccessor.toroidal$noise1();
+        OpenSimplexNoise second = TerrainGeneratorAccessor.toroidal$noise2();
+        current = fold == null || first == null || second == null
+                ? null
+                : new EndTerrainLap(fold, (StandInHolder) (Object) first, (StandInHolder) (Object) second);
     }
 
     public static @Nullable EndTerrainLap current() {

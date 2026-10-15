@@ -63,6 +63,14 @@ class XaeroWorldMapFoldSeatTest {
     }
 
     @Test
+    void aWriteWindowAcrossTheXSeamInsideOneRawRegionVisitsTwoCanonicalRegions() {
+        assertArrayEquals(new long[] {ChunkPos.pack(0, 0), ChunkPos.pack(-1, 0)},
+                XaeroWorldMapFold.canonicalRegions(TORUS, 1, 0, 6, 1),
+                "blocks [64, 448) sit in raw region 0 alone, so the visit loop needs two rows, not one");
+        assertArrayEquals(new long[] {ChunkPos.pack(0, 0)}, XaeroWorldMapFold.canonicalRegions(null, 1, 0, 6, 1));
+    }
+
+    @Test
     void aSlotGluesOnlyWhereTheSkewIsAWholeNumberOfSlots() {
         assertTrue(XaeroWorldMapFold.glueableAt(TORUS, 256));
         assertTrue(XaeroWorldMapFold.glueableAt(CYLINDER, 256));

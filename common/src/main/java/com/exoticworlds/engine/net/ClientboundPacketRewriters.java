@@ -84,6 +84,9 @@ final class ClientboundPacketRewriters {
 
     private static final String EXPLOSION_KIND = "explosion";
 
+    private static final Set<Class<?>> POSITIONLESS_VALUES = Set.of(Byte.class, Short.class, Integer.class,
+            Long.class, Float.class, Double.class, Boolean.class, Character.class, String.class);
+
     private static final StreamCodec<FriendlyByteBuf, BorderCenter> BORDER_CENTER_CODEC = StreamCodec.of(
             (buffer, center) -> {
                 buffer.writeDouble(center.x());
@@ -242,10 +245,12 @@ final class ClientboundPacketRewriters {
     static ClientboundSetEntityDataPacket setEntityData(ClientboundSetEntityDataPacket packet, TranslationContext context) {
         List<SynchedEntityData.DataValue<?>> items = packet.packedItems();
         Supplier<Vec3> anchor = Suppliers.memoize(() -> resolveEntityAnchor(packet.id(), context));
+        FoldedValue.Leaves leaves = FoldedValue.towardLeaves(context, anchor);
+        UnaryOperator<Object> fallback = particleFold(context, anchor);
         List<SynchedEntityData.DataValue<?>> translated = new ArrayList<>(items.size());
         boolean changed = false;
         for (SynchedEntityData.DataValue<?> item : items) {
-            SynchedEntityData.DataValue<?> clientItem = toClientData(item, anchor, context);
+            SynchedEntityData.DataValue<?> clientItem = toClientData(item, leaves, fallback, context);
             changed |= clientItem != item;
             translated.add(clientItem);
         }
@@ -264,9 +269,13 @@ final class ClientboundPacketRewriters {
     }
 
     private static SynchedEntityData.DataValue<?> toClientData(SynchedEntityData.DataValue<?> item,
-            Supplier<Vec3> anchor, TranslationContext context) {
+            FoldedValue.Leaves leaves, UnaryOperator<Object> fallback, TranslationContext context) {
         Object value = item.value();
-        Object clientValue = FoldedValue.toward(context, anchor, value, particleFold(context, anchor));
+        if (value == null || POSITIONLESS_VALUES.contains(value.getClass())) {
+            return item;
+        }
+
+        Object clientValue = FoldedValue.walk(context, leaves, value, fallback);
         return clientValue == value ? item : withValue(item, clientValue);
     }
 
@@ -362,7 +371,7 @@ final class ClientboundPacketRewriters {
 
     static ClientboundTrackedWaypointPacket trackedWaypoint(ClientboundTrackedWaypointPacket packet, TranslationContext context) {
         if (packet.waypoint() instanceof Vec3iWaypointAccessor waypoint) {
-            waypoint.toroidal$setVector(nearestCopyBlock(context, BlockPos.ZERO.offset(waypoint.toroidal$getVector())));
+            waypoint.toroidal$setVector(context.nearestCopy(BlockPos.ZERO.offset(waypoint.toroidal$getVector())));
         } else if (packet.waypoint() instanceof ChunkWaypointAccessor waypoint) {
             waypoint.toroidal$setChunkPos(context.nearestCopy(waypoint.toroidal$getChunkPos()));
         }
@@ -376,7 +385,7 @@ final class ClientboundPacketRewriters {
             return packet;
         }
 
-        BlockPos clientPos = nearestCopyBlock(context, respawnData.pos());
+        BlockPos clientPos = context.nearestCopy(respawnData.pos());
         context.clientPosition().setHeldSpawn(clientPos);
         return new ClientboundSetDefaultSpawnPositionPacket(new LevelData.RespawnData(
                 GlobalPos.of(respawnData.dimension(), clientPos),
@@ -442,14 +451,6 @@ final class ClientboundPacketRewriters {
                 .map(data -> new ClientboundChunksBiomesPacket.ChunkBiomeData(
                         context.toClient(data.pos()), data.buffer()))
                 .toList());
-    }
-
-    private static BlockPos nearestCopyBlock(TranslationContext context, BlockPos pos) {
-        return nearestCopyBlock(context.transformer(), context.clientPosition().chunk(), pos);
-    }
-
-    static BlockPos nearestCopyBlock(WorldFold transformer, ChunkPos anchor, BlockPos pos) {
-        return transformer.reseat(pos, transformer.nearestCopy(anchor, ChunkPos.containing(pos)));
     }
 
     private static <T, P> T rewritePosition(BiConsumer<T, RegistryFriendlyByteBuf> writer,

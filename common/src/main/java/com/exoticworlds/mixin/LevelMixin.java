@@ -11,13 +11,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.CrumbSweepCache;
 import com.exoticworlds.accessors.PeriodicityMark;
-import com.exoticworlds.accessors.RelocatableBlockEntity;
 import com.exoticworlds.accessors.TerrainMaskCache;
 import com.exoticworlds.accessors.TransformerCache;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.BlockEntitySeat;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.exoticworlds.engine.fold.SeamEntitySearch;
 import com.exoticworlds.engine.gen.FloatingCrumbs;
@@ -98,17 +98,7 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
 
     @Inject(method = "setBlockEntity", at = @At("HEAD"))
     private void toroidal$wrapBlockEntityIdentity(BlockEntity blockEntity, CallbackInfo ci) {
-        WorldFold transformer = toroidal$transformer();
-        if (!transformer.isWrapped()) {
-            return;
-        }
-
-        BlockPos pos = blockEntity.getBlockPos();
-        if (!transformer.isOver(pos)) {
-            return;
-        }
-
-        ((RelocatableBlockEntity) blockEntity).toroidal$relocate(transformer.fold(pos));
+        BlockEntitySeat.intoBounds(toroidal$transformer(), blockEntity);
     }
 
     @WrapOperation(

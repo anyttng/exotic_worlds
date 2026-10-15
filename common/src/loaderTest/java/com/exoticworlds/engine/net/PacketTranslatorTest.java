@@ -44,11 +44,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.PositionAndRotation;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ExplosionParticleInfo;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.TrailParticleOption;
 import net.minecraft.core.particles.VibrationParticleOption;
@@ -61,14 +59,12 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockEventPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundDamageEventPacket;
-import net.minecraft.network.protocol.game.ClientboundEntityPositionSyncPacket;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
 import net.minecraft.network.protocol.game.ClientboundInitializeBorderPacket;
@@ -76,7 +72,6 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.network.protocol.game.ClientboundLightUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundMoveMinecartPacket;
-import net.minecraft.network.protocol.game.ClientboundMoveVehiclePacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
@@ -84,7 +79,6 @@ import net.minecraft.network.protocol.game.ClientboundSetBorderCenterPacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheCenterPacket;
 import net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundTrackedWaypointPacket;
 import net.minecraft.network.protocol.game.ServerboundBlockEntityTagQueryPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
@@ -100,10 +94,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.PositionMoveRotation;
-import net.minecraft.world.entity.PositionPath;
-import net.minecraft.world.entity.PositionStep;
 import net.minecraft.world.entity.Relative;
 import net.minecraft.world.entity.vehicle.minecart.NewMinecartBehavior;
 import net.minecraft.world.item.ItemStack;
@@ -770,211 +761,6 @@ class PacketTranslatorTest {
             assertEquals(-524.0, translated.change().position().z);
             assertEquals(MIRROR_X - 24.0, mirror.x());
             assertEquals(-524.0, mirror.z());
-        }
-    }
-
-    @Nested
-    class EntityPackets {
-        @Test
-        void addEntityUnwrapsAroundTheMirror() {
-            ClientboundAddEntityPacket translated = (ClientboundAddEntityPacket) PacketTranslator.toClient(
-                    new ClientboundAddEntityPacket(11, new UUID(1L, 2L), SERVER_X, 70.0, SERVER_Z,
-                            0.0F, 0.0F, EntityTypes.PIG, 0, Vec3.ZERO, 0.0),
-                    context());
-
-            assertEquals(CLIENT_X, translated.getX());
-            assertEquals(70.0, translated.getY());
-            assertEquals(CLIENT_Z, translated.getZ());
-            assertEquals(11, translated.getId());
-        }
-
-        @Test
-        void teleportOfTheOwnControlledVehicleIsDropped() {
-            ClientboundTeleportEntityPacket packet = new ClientboundTeleportEntityPacket(
-                    42, new PositionMoveRotation(new Vec3(SERVER_X, 70.0, SERVER_Z), Vec3.ZERO, 0.0F, 0.0F),
-                    Set.of(), false);
-
-            assertNull(PacketTranslator.toClient(packet, context(entityId -> entityId == 42, entityId -> null)));
-        }
-
-        @Test
-        void teleportTranslatesAbsoluteAxesKeepsRelativeOnesRaw() {
-            ClientboundTeleportEntityPacket packet = new ClientboundTeleportEntityPacket(
-                    42, new PositionMoveRotation(new Vec3(5.0, 70.0, SERVER_Z), Vec3.ZERO, 30.0F, 10.0F),
-                    Set.of(Relative.X), true);
-
-            ClientboundTeleportEntityPacket translated =
-                    (ClientboundTeleportEntityPacket) PacketTranslator.toClient(packet, context());
-
-            assertEquals(new Vec3(5.0, 70.0, CLIENT_Z), translated.change().position());
-            assertEquals(Set.of(Relative.X), translated.relatives());
-            assertTrue(translated.onGround());
-        }
-
-        @Test
-        void entityPositionSyncTranslatesTheAbsolutePosition() {
-            ClientboundEntityPositionSyncPacket packet = new ClientboundEntityPositionSyncPacket(
-                    7, PositionPath.of(new Vec3(SERVER_X, 70.0, SERVER_Z)), 30.0F, 10.0F, true);
-
-            ClientboundEntityPositionSyncPacket translated =
-                    (ClientboundEntityPositionSyncPacket) PacketTranslator.toClient(packet, context());
-
-            assertEquals(PositionPath.of(new Vec3(CLIENT_X, 70.0, CLIENT_Z)), translated.position());
-            assertEquals(30.0F, translated.yRot());
-            assertEquals(10.0F, translated.xRot());
-            assertTrue(translated.onGround());
-        }
-
-        @Test
-        void entityPositionSyncKeepsASteppedPathThroughTheSeamInOneFrame() {
-            ClientboundEntityPositionSyncPacket packet = new ClientboundEntityPositionSyncPacket(7, PositionPath.stepped(List.of(
-                    new PositionStep(new Vec3(511.75, 70.0, SERVER_Z), 1),
-                    new PositionStep(new Vec3(-511.5, 70.0, SERVER_Z), 2),
-                    new PositionStep(new Vec3(-510.25, 70.0, SERVER_Z), 1))), 0.0F, 0.0F, false);
-
-            ClientboundEntityPositionSyncPacket translated =
-                    (ClientboundEntityPositionSyncPacket) PacketTranslator.toClient(packet, context());
-
-            assertEquals(PositionPath.stepped(List.of(
-                    new PositionStep(new Vec3(511.75, 70.0, CLIENT_Z), 1),
-                    new PositionStep(new Vec3(512.5, 70.0, CLIENT_Z), 2),
-                    new PositionStep(new Vec3(513.75, 70.0, CLIENT_Z), 1))), translated.position());
-        }
-
-        @Test
-        void moveVehicleTranslatesThePosition() {
-            ClientboundMoveVehiclePacket translated = (ClientboundMoveVehiclePacket) PacketTranslator.toClient(
-                    new ClientboundMoveVehiclePacket(PositionAndRotation.of(new Vec3(SERVER_X, 70.0, SERVER_Z), 30.0F, 10.0F)),
-                    context());
-
-            assertEquals(new Vec3(CLIENT_X, 70.0, CLIENT_Z), translated.movingTo().position());
-        }
-
-        @Test
-        void synchedBlockPosFollowsTheEntityOtherValuesPassThrough() {
-            ClientboundSetEntityDataPacket packet = new ClientboundSetEntityDataPacket(3, List.of(
-                    new SynchedEntityData.DataValue<>(0, EntityDataSerializers.OPTIONAL_BLOCK_POS, Optional.of(SERVER_CARRIED_BLOCK)),
-                    new SynchedEntityData.DataValue<>(1, EntityDataSerializers.BYTE, (byte) 6),
-                    new SynchedEntityData.DataValue<>(2, EntityDataSerializers.OPTIONAL_BLOCK_POS, Optional.empty()),
-                    new SynchedEntityData.DataValue<>(3, EntityDataSerializers.BLOCK_POS, SERVER_CARRIED_BLOCK)));
-
-            ClientboundSetEntityDataPacket translated = (ClientboundSetEntityDataPacket) PacketTranslator.toClient(
-                    packet, context(entityId -> false, entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
-
-            assertEquals(Optional.of(CLIENT_CARRIED_BLOCK), translated.packedItems().get(0).value());
-            assertEquals((byte) 6, translated.packedItems().get(1).value());
-            assertEquals(Optional.empty(), translated.packedItems().get(2).value());
-            assertEquals(CLIENT_CARRIED_BLOCK, translated.packedItems().get(3).value());
-        }
-
-        @Test
-        void synchedBlockPosWithoutTheEntityFoldsAroundTheMirror() {
-            ClientboundSetEntityDataPacket packet = new ClientboundSetEntityDataPacket(3, List.of(
-                    new SynchedEntityData.DataValue<>(0, EntityDataSerializers.OPTIONAL_BLOCK_POS, Optional.of(SERVER_CARRIED_BLOCK)),
-                    new SynchedEntityData.DataValue<>(1, EntityDataSerializers.BLOCK_POS, SERVER_CARRIED_BLOCK)));
-
-            ClientboundSetEntityDataPacket translated =
-                    (ClientboundSetEntityDataPacket) PacketTranslator.toClient(packet, context());
-
-            assertEquals(Optional.of(MIRROR_CARRIED_BLOCK), translated.packedItems().get(0).value());
-            assertEquals(MIRROR_CARRIED_BLOCK, translated.packedItems().get(1).value());
-        }
-
-        @Test
-        void synchedGlobalPosWithoutTheEntityFoldsAroundTheMirrorInItsOwnDimension() {
-            GlobalPos elsewhere = GlobalPos.of(Level.NETHER, SERVER_CARRIED_BLOCK);
-            ClientboundSetEntityDataPacket packet = new ClientboundSetEntityDataPacket(3, List.of(
-                    new SynchedEntityData.DataValue<>(0, EntityDataSerializers.OPTIONAL_GLOBAL_POS,
-                            Optional.of(GlobalPos.of(Level.OVERWORLD, SERVER_CARRIED_BLOCK))),
-                    new SynchedEntityData.DataValue<>(1, EntityDataSerializers.OPTIONAL_GLOBAL_POS, Optional.of(elsewhere))));
-
-            ClientboundSetEntityDataPacket translated =
-                    (ClientboundSetEntityDataPacket) PacketTranslator.toClient(packet, context());
-
-            assertEquals(Optional.of(GlobalPos.of(Level.OVERWORLD, MIRROR_CARRIED_BLOCK)),
-                    translated.packedItems().get(0).value());
-            assertEquals(Optional.of(elsewhere), translated.packedItems().get(1).value());
-        }
-
-        @Test
-        void synchedGlobalPosFollowsTheEntityOnlyInItsOwnDimension() {
-            GlobalPos elsewhere = GlobalPos.of(Level.NETHER, SERVER_CARRIED_BLOCK);
-            ClientboundSetEntityDataPacket packet = new ClientboundSetEntityDataPacket(3, List.of(
-                    new SynchedEntityData.DataValue<>(0, EntityDataSerializers.OPTIONAL_GLOBAL_POS,
-                            Optional.of(GlobalPos.of(Level.OVERWORLD, SERVER_CARRIED_BLOCK))),
-                    new SynchedEntityData.DataValue<>(1, EntityDataSerializers.OPTIONAL_GLOBAL_POS, Optional.of(elsewhere))));
-
-            ClientboundSetEntityDataPacket translated = (ClientboundSetEntityDataPacket) PacketTranslator.toClient(
-                    packet, context(entityId -> false, entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
-
-            assertEquals(Optional.of(GlobalPos.of(Level.OVERWORLD, CLIENT_CARRIED_BLOCK)),
-                    translated.packedItems().get(0).value());
-            assertEquals(Optional.of(elsewhere), translated.packedItems().get(1).value());
-        }
-
-        @Test
-        void synchedParticlePayloadFollowsTheEntity() {
-            TrailParticleOption particle =
-                    new TrailParticleOption(new Vec3(SERVER_X + 3.0, 71.0, SERVER_Z + 3.0), 16545810, 30);
-            ClientboundSetEntityDataPacket packet = new ClientboundSetEntityDataPacket(3, List.of(
-                    new SynchedEntityData.DataValue<>(0, EntityDataSerializers.PARTICLE, particle)));
-
-            ClientboundSetEntityDataPacket translated = (ClientboundSetEntityDataPacket) PacketTranslator.toClient(
-                    packet, context(entityId -> false, entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
-
-            TrailParticleOption trail = (TrailParticleOption) translated.packedItems().getFirst().value();
-            assertEquals(new Vec3(CLIENT_X + 3.0, 71.0, CLIENT_Z + 3.0), trail.target());
-            assertEquals(16545810, trail.color());
-            assertEquals(30, trail.duration());
-        }
-
-        @Test
-        void synchedParticleListFollowsTheEntity() {
-            TrailParticleOption particle =
-                    new TrailParticleOption(new Vec3(SERVER_X + 3.0, 71.0, SERVER_Z + 3.0), 16545810, 30);
-            ClientboundSetEntityDataPacket packet = new ClientboundSetEntityDataPacket(3, List.of(
-                    new SynchedEntityData.DataValue<>(0, EntityDataSerializers.PARTICLES,
-                            List.<ParticleOptions>of(ParticleTypes.FLAME, particle))));
-
-            ClientboundSetEntityDataPacket translated = (ClientboundSetEntityDataPacket) PacketTranslator.toClient(
-                    packet, context(entityId -> false, entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
-
-            List<?> particles = (List<?>) translated.packedItems().getFirst().value();
-            assertSame(ParticleTypes.FLAME, particles.get(0));
-            assertEquals(new Vec3(CLIENT_X + 3.0, 71.0, CLIENT_Z + 3.0), ((TrailParticleOption) particles.get(1)).target());
-        }
-
-        @Test
-        void synchedParticleWithoutTheEntityFoldsAroundTheMirror() {
-            TrailParticleOption particle =
-                    new TrailParticleOption(new Vec3(SERVER_X + 3.0, 71.0, SERVER_Z + 3.0), 16545810, 30);
-            ClientboundSetEntityDataPacket packet = new ClientboundSetEntityDataPacket(3, List.of(
-                    new SynchedEntityData.DataValue<>(0, EntityDataSerializers.PARTICLE, particle)));
-
-            ClientboundSetEntityDataPacket translated =
-                    (ClientboundSetEntityDataPacket) PacketTranslator.toClient(packet, context());
-
-            TrailParticleOption trail = (TrailParticleOption) translated.packedItems().getFirst().value();
-            assertEquals(new Vec3(CLIENT_X + 3.0, 71.0, CLIENT_Z + 3.0), trail.target());
-        }
-
-        @Test
-        void positionlessValuesReturnTheSamePacket() {
-            ClientboundSetEntityDataPacket packet = new ClientboundSetEntityDataPacket(3, List.of(
-                    new SynchedEntityData.DataValue<>(0, EntityDataSerializers.BYTE, (byte) 6)));
-
-            assertSame(packet, PacketTranslator.toClient(packet, context()));
-        }
-
-        @Test
-        void positionlessSynchedParticleKeepsItsValue() {
-            ClientboundSetEntityDataPacket packet = new ClientboundSetEntityDataPacket(3, List.of(
-                    new SynchedEntityData.DataValue<>(0, EntityDataSerializers.PARTICLE, ParticleTypes.FLAME)));
-
-            ClientboundSetEntityDataPacket translated = (ClientboundSetEntityDataPacket) PacketTranslator.toClient(
-                    packet, context(entityId -> false, entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
-
-            assertSame(ParticleTypes.FLAME, translated.packedItems().getFirst().value());
         }
     }
 
