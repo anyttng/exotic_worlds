@@ -23,6 +23,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.MapViewSpan;
 import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
@@ -437,8 +438,8 @@ public abstract class GuiMapRegionMixin {
         }
 
         Window window = Minecraft.getInstance().getWindow();
-        int[] spanX = XaeroWorldMapFold.viewSpan(this.cameraX, window.getWidth(), this.scale, slotSize);
-        int[] spanZ = XaeroWorldMapFold.viewSpan(this.cameraZ, window.getHeight(), this.scale, slotSize);
+        int[] spanX = MapViewSpan.of(this.cameraX, window.getWidth(), this.scale, slotSize);
+        int[] spanZ = MapViewSpan.of(this.cameraZ, window.getHeight(), this.scale, slotSize);
         List<WorldCopies.Copy> copies = XaeroWorldMapFold.drawnCopies(spanX, spanZ, this.toroidal$mapCopies);
         int viewBlockX = this.toroidal$slotViewBlockX;
         int viewBlockZ = this.toroidal$slotViewBlockZ;
