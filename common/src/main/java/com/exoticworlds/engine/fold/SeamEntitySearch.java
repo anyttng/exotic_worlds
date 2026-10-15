@@ -17,7 +17,7 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFold.Folded;
 
 import net.minecraft.util.AbortableIterationConsumer;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.entity.EntityAccess;
 import net.minecraft.world.phys.AABB;
 
 public final class SeamEntitySearch {
@@ -30,13 +30,13 @@ public final class SeamEntitySearch {
         return fold.isWrapped() && fold.crossesBounds(reach);
     }
 
-    public static <E extends Entity> List<E> collect(WorldFold fold, AABB box, Function<AABB, List<E>> walk) {
+    public static <E extends EntityAccess> List<E> collect(WorldFold fold, AABB box, Function<AABB, List<E>> walk) {
         AABB reach = sectionReach(box);
         if (!crossesSeam(fold, reach)) {
             return walk.apply(box);
         }
 
-        Predicate<Entity> firstOverlap = firstOverlap(fold, box);
+        Predicate<EntityAccess> firstOverlap = firstOverlap(fold, box);
         List<E> found = new ArrayList<>();
         for (Folded<AABB> piece : fold.split(reach)) {
             for (E entity : walk.apply(piece.value())) {
@@ -49,7 +49,7 @@ public final class SeamEntitySearch {
         return found;
     }
 
-    public static <E extends Entity> void forEach(WorldFold fold, AABB box, Consumer<E> output,
+    public static <E extends EntityAccess> void forEach(WorldFold fold, AABB box, Consumer<E> output,
             BiConsumer<AABB, Consumer<E>> walk) {
         AABB reach = sectionReach(box);
         if (!crossesSeam(fold, reach)) {
@@ -57,7 +57,7 @@ public final class SeamEntitySearch {
             return;
         }
 
-        Predicate<Entity> firstOverlap = firstOverlap(fold, box);
+        Predicate<EntityAccess> firstOverlap = firstOverlap(fold, box);
         Consumer<E> once = entity -> {
             if (firstOverlap.test(entity)) {
                 output.accept(entity);
@@ -68,7 +68,7 @@ public final class SeamEntitySearch {
         }
     }
 
-    public static <E extends Entity> void forEachUntilAborted(WorldFold fold, AABB box,
+    public static <E extends EntityAccess> void forEachUntilAborted(WorldFold fold, AABB box,
             AbortableIterationConsumer<E> output, BiConsumer<AABB, AbortableIterationConsumer<E>> walk) {
         AABB reach = sectionReach(box);
         if (!crossesSeam(fold, reach)) {
@@ -76,7 +76,7 @@ public final class SeamEntitySearch {
             return;
         }
 
-        Predicate<Entity> firstOverlap = firstOverlap(fold, box);
+        Predicate<EntityAccess> firstOverlap = firstOverlap(fold, box);
         MutableBoolean aborted = new MutableBoolean();
         AbortableIterationConsumer<E> once = entity -> {
             if (!firstOverlap.test(entity)) {
@@ -98,8 +98,8 @@ public final class SeamEntitySearch {
         }
     }
 
-    private static Predicate<Entity> firstOverlap(WorldFold fold, AABB box) {
-        Set<Entity> seen = Collections.newSetFromMap(new IdentityHashMap<>());
+    private static Predicate<EntityAccess> firstOverlap(WorldFold fold, AABB box) {
+        Set<EntityAccess> seen = Collections.newSetFromMap(new IdentityHashMap<>());
         return entity -> fold.boxesOverlap(box, entity.getBoundingBox()) && seen.add(entity);
     }
 

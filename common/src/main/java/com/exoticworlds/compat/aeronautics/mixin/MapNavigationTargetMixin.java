@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.compat.sable.SableSeamDistance;
 
 import dev.simulated_team.simulated.content.navigation_targets.MapNavigationTarget;
 
@@ -23,6 +23,6 @@ public class MapNavigationTargetMixin {
             expect = 2)
     private static double toroidal$distanceTheShortWayRound(Vec3 from, double x, double y, double z,
             Operation<Double> original, @Local(argsOnly = true) @Nullable Level level) {
-        return WorldLoopAttachments.transformerOfReader(level).sqrDistance(from.x, from.y, from.z, x, y, z);
+        return SableSeamDistance.sqr(level, from, x, y, z, original);
     }
 }

@@ -1,19 +1,20 @@
 package com.exoticworlds.compat.sable.mixin;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.exoticworlds.compat.sable.SableEntityQuery;
 import com.exoticworlds.compat.sable.SeamFrame;
-import com.exoticworlds.engine.fold.FoldedBoxQuery;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.SeamEntitySearch;
 
 import dev.ryanhcode.sable.util.SubLevelInclusiveLevelEntityGetter;
 
@@ -51,16 +52,8 @@ public abstract class SubLevelInclusiveLevelEntityGetterMixin<T extends EntityAc
                     target = "Lnet/minecraft/world/level/entity/LevelEntityGetter;get(Lnet/minecraft/world/phys/AABB;Ljava/util/function/Consumer;)V"))
     private void toroidal$delegateThroughSeam(LevelEntityGetter<T> delegate, AABB box, Consumer<T> consumer,
             Operation<Void> original) {
-        List<AABB> pieces = SableEntityQuery.pieces(this.level, box);
-        if (pieces.size() == 1) {
-            original.call(delegate, pieces.getFirst(), consumer);
-            return;
-        }
-
-        Consumer<T> once = FoldedBoxQuery.deduplicating(consumer);
-        for (AABB piece : pieces) {
-            original.call(delegate, piece, once);
-        }
+        SeamEntitySearch.forEach(toroidal$fold(), box, consumer,
+                (piece, sink) -> original.call(delegate, piece, sink));
     }
 
     @WrapOperation(
@@ -71,15 +64,12 @@ public abstract class SubLevelInclusiveLevelEntityGetterMixin<T extends EntityAc
     private <U extends T> void toroidal$typedDelegateThroughSeam(LevelEntityGetter<T> delegate,
             EntityTypeTest<T, U> typeTest, AABB box, AbortableIterationConsumer<U> consumer,
             Operation<Void> original) {
-        List<AABB> pieces = SableEntityQuery.pieces(this.level, box);
-        if (pieces.size() == 1) {
-            original.call(delegate, typeTest, pieces.getFirst(), consumer);
-            return;
-        }
+        SeamEntitySearch.forEachUntilAborted(toroidal$fold(), box, consumer,
+                (piece, sink) -> original.call(delegate, typeTest, piece, sink));
+    }
 
-        AbortableIterationConsumer<U> once = FoldedBoxQuery.deduplicatingAbortable(consumer);
-        for (AABB piece : pieces) {
-            original.call(delegate, typeTest, piece, once);
-        }
+    @Unique
+    private WorldFold toroidal$fold() {
+        return WorldLoopAttachments.transformerOf(this.level);
     }
 }

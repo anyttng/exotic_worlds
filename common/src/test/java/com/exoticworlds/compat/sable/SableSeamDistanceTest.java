@@ -49,4 +49,37 @@ class SableSeamDistanceTest {
 
         assertEquals(SENTINEL, SableSeamDistance.rectilinear((WorldFold) null, FROM, TO, original), 0.0);
     }
+
+    @Test
+    void theSquaredDistanceSumsEveryFoldedAxis() {
+        assertEquals(4180.0, SableSeamDistance.sqr(FOLD, FROM, TO, REFUSES), 0.0,
+                "x folds to 12, z to 56, and y stays 30");
+    }
+
+    @Test
+    void theSquaredDistanceToCoordinatesSumsEveryFoldedAxis() {
+        assertEquals(4180.0, SableSeamDistance.sqr(FOLD, FROM, FROM.x(), FROM.y(), FROM.z(),
+                TO.x(), TO.y(), TO.z(), REFUSES), 0.0, "x folds to 12, z to 56, and y stays 30");
+    }
+
+    @Test
+    void anUnwrappedLevelLeavesTheSquaredDistanceToTheCallee() {
+        Operation<Double> original = args -> {
+            assertArrayEquals(new Object[] {FROM, TO}, args);
+            return SENTINEL;
+        };
+
+        assertEquals(SENTINEL, SableSeamDistance.sqr((WorldFold) null, FROM, TO, original), 0.0);
+    }
+
+    @Test
+    void anUnwrappedLevelLeavesTheSquaredDistanceToCoordinatesToTheCallee() {
+        Operation<Double> original = args -> {
+            assertArrayEquals(new Object[] {FROM, TO.x(), TO.y(), TO.z()}, args);
+            return SENTINEL;
+        };
+
+        assertEquals(SENTINEL, SableSeamDistance.sqr(null, FROM, FROM.x(), FROM.y(), FROM.z(),
+                TO.x(), TO.y(), TO.z(), original), 0.0);
+    }
 }

@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import org.joml.Vector3d;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 
 import net.minecraft.world.phys.Vec3;
@@ -84,7 +85,7 @@ class MagnetSeamFrameTest {
         Vec3 far = highTip(-250.0);
         Vector3d average = averageOf(near, far);
 
-        assertSame(average, MagnetSeamFrame.midpoint(null, near, far, average));
+        assertSame(average, MagnetSeamFrame.midpoint((WorldFold) null, near, far, average));
         assertSame(average, MagnetSeamFrame.midpoint(WorldFolds.NOOP, near, far, average));
         assertEquals(averageOf(near, far), average);
     }

@@ -8,7 +8,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.compat.sable.SableSeamDistance;
-import com.exoticworlds.core.WorldLoopAttachments;
 
 import dev.ryanhcode.sable.ActiveSableCompanion;
 
@@ -26,8 +25,7 @@ public abstract class ActiveSableCompanionMixin {
             at = @At(value = "INVOKE", target = "Lorg/joml/Vector3dc;distanceSquared(Lorg/joml/Vector3dc;)D"))
     private double toroidal$sqrDistanceThroughSeam(Vector3dc from, Vector3dc to, Operation<Double> original,
             @Local(argsOnly = true) Level level) {
-        return WorldLoopAttachments.transformerOfReader(level)
-                .sqrDistance(from.x(), from.y(), from.z(), to.x(), to.y(), to.z());
+        return SableSeamDistance.sqr(level, from, to, original);
     }
 
     @WrapOperation(

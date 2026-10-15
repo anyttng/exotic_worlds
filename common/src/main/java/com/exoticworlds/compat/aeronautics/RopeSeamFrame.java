@@ -31,12 +31,19 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public final class RopeSeamFrame {
-    public static Vec3 seatStart(RopeStrandHolderBehavior owner, RopeStrandHolderBehavior target, Vec3 start) {
-        return seat(owner, target, start);
-    }
+    public static Vec3 seat(RopeStrandHolderBehavior owner, RopeStrandHolderBehavior target, Vec3 point) {
+        Level level = owner.blockEntity.getLevel();
+        WorldFold fold = WorldLoopAttachments.wrappedTransformerOfReader(level);
+        if (fold == null) {
+            return point;
+        }
 
-    public static Vec3 seatTarget(RopeStrandHolderBehavior owner, RopeStrandHolderBehavior target, Vec3 point) {
-        return seat(owner, target, point);
+        Vec3 ownerLocal = owner.getAttachmentPoint();
+        Vec3 targetLocal = target.getAttachmentPoint();
+        boolean ownerOnSubLevel = Sable.HELPER.getContaining(level, ownerLocal) != null;
+        boolean targetOnSubLevel = !ownerOnSubLevel && Sable.HELPER.getContaining(level, targetLocal) != null;
+        Vec3 anchor = Sable.HELPER.projectOutOfSubLevel(level, targetOnSubLevel ? targetLocal : ownerLocal);
+        return fold.nearestCopy(anchor, point);
     }
 
     public static Vector3d seatAttachment(ServerRopeStrand strand, RopeAttachment attachment, ServerLevel level,
@@ -144,21 +151,6 @@ public final class RopeSeamFrame {
         }
 
         return null;
-    }
-
-    private static Vec3 seat(RopeStrandHolderBehavior owner, RopeStrandHolderBehavior target, Vec3 point) {
-        Level level = owner.blockEntity.getLevel();
-        WorldFold fold = WorldLoopAttachments.wrappedTransformerOfReader(level);
-        if (fold == null) {
-            return point;
-        }
-
-        Vec3 ownerLocal = owner.getAttachmentPoint();
-        Vec3 targetLocal = target.getAttachmentPoint();
-        boolean ownerOnSubLevel = Sable.HELPER.getContaining(level, ownerLocal) != null;
-        boolean targetOnSubLevel = !ownerOnSubLevel && Sable.HELPER.getContaining(level, targetLocal) != null;
-        Vec3 anchor = Sable.HELPER.projectOutOfSubLevel(level, targetOnSubLevel ? targetLocal : ownerLocal);
-        return fold.nearestCopy(anchor, point);
     }
 
     private RopeSeamFrame() {
