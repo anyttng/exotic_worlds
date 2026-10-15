@@ -1,5 +1,6 @@
 package com.exoticworlds.compat.xaero.mixin.map;
 
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -7,6 +8,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
@@ -17,8 +19,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
-
-import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
@@ -53,7 +53,7 @@ public abstract class MapWriterMixin {
     private static final int CHUNK_Z_ARG = 9;
 
     @Unique
-    private final LongArrayFIFOQueue toroidal$visitQueue = new LongArrayFIFOQueue();
+    private long @Nullable [] toroidal$visitRegions;
     @Unique
     private boolean toroidal$foldedPosition;
     @Unique
@@ -163,6 +163,30 @@ public abstract class MapWriterMixin {
         return original.call(pool, dimension, canonical.x, canonical.z);
     }
 
+    @ModifyVariable(method = "onRender", at = @At("STORE"), name = "startRegionX")
+    private int toroidal$visitFromRegionX(int startRegionX) {
+        this.toroidal$visitRegions = XaeroWorldMapFold.active()
+                ? XaeroWorldMapFold.canonicalRegions(this.startTileChunkX, this.startTileChunkZ,
+                        this.endTileChunkX, this.endTileChunkZ)
+                : null;
+        return this.toroidal$visitRegions == null ? startRegionX : 0;
+    }
+
+    @ModifyVariable(method = "onRender", at = @At("STORE"), name = "startRegionZ")
+    private int toroidal$visitFromRegionZ(int startRegionZ) {
+        return this.toroidal$visitRegions == null ? startRegionZ : 0;
+    }
+
+    @ModifyVariable(method = "onRender", at = @At("STORE"), name = "endRegionX")
+    private int toroidal$visitToRegionX(int endRegionX) {
+        return this.toroidal$visitRegions == null ? endRegionX : 0;
+    }
+
+    @ModifyVariable(method = "onRender", at = @At("STORE"), name = "endRegionZ")
+    private int toroidal$visitToRegionZ(int endRegionZ) {
+        return this.toroidal$visitRegions == null ? endRegionZ : this.toroidal$visitRegions.length - 1;
+    }
+
     @WrapOperation(
             method = "onRender",
             at = @At(
@@ -170,19 +194,12 @@ public abstract class MapWriterMixin {
                     target = XaeroInjectionTargets.MAP_PROCESSOR_GET_LEAF_MAP_REGION))
     private MapRegion toroidal$visitCanonicalRegion(MapProcessor processor, int caveLayer, int regionX, int regionZ,
             boolean create, Operation<MapRegion> original) {
-        if (!XaeroWorldMapFold.active()) {
+        if (this.toroidal$visitRegions == null) {
             return original.call(processor, caveLayer, regionX, regionZ, create);
         }
 
-        if (this.toroidal$visitQueue.isEmpty()) {
-            for (long region : XaeroWorldMapFold.canonicalRegions(this.startTileChunkX, this.startTileChunkZ,
-                    this.endTileChunkX, this.endTileChunkZ)) {
-                this.toroidal$visitQueue.enqueue(region);
-            }
-        }
-
-        long next = this.toroidal$visitQueue.dequeueLong();
-        return original.call(processor, caveLayer, ChunkPos.getX(next), ChunkPos.getZ(next), true);
+        long region = this.toroidal$visitRegions[regionZ];
+        return original.call(processor, caveLayer, ChunkPos.getX(region), ChunkPos.getZ(region), create);
     }
 
     @WrapOperation(
