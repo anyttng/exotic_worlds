@@ -1,7 +1,10 @@
 package com.exoticworlds.compat.distanthorizons;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
+import com.exoticworlds.compat.WorldCopies;
 import com.seibel.distanthorizons.core.pos.DhChunkPos;
 import com.seibel.distanthorizons.core.pos.DhSectionPos;
 import com.seibel.distanthorizons.core.pos.blockPos.DhBlockPos;
@@ -108,6 +111,16 @@ public final class DhKeys {
         int width = DhFold.sectionWidthBlocks(LEAF);
         long leaf = DhSectionPos.encode(LEAF, Math.floorDiv(beam.getX(), width), Math.floorDiv(beam.getZ(), width));
         return isNearestCopy(lattice, refBlockX, refBlockZ, leaf);
+    }
+
+    public static List<WorldCopies.Piece> beamPieces(DhLattice lattice, int minX, int maxX, int minZ, int maxZ) {
+        List<WorldCopies.Piece> pieces = new ArrayList<>();
+        for (WorldCopies.Piece piece : WorldCopies.pieces(lattice.shape(), minX, minZ, maxX + 1, maxZ + 1)) {
+            pieces.add(new WorldCopies.Piece(piece.copy(), piece.minX(), piece.minZ(), piece.maxX() - 1,
+                    piece.maxZ() - 1));
+        }
+
+        return pieces;
     }
 
     public static boolean straddlesNearestCopy(DhLattice lattice, int refBlockX, int refBlockZ, long pos) {
