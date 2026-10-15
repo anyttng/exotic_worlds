@@ -12,6 +12,9 @@ import com.exoticworlds.compat.WorldCopies;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.saveddata.maps.MapId;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.phys.Vec3;
 
 import rubbertoe.simple_atlas.network.AtlasTilePayload;
@@ -60,6 +63,21 @@ public final class AtlasTileFold {
         }
 
         return lines;
+    }
+
+    public static @Nullable AtlasTilePayload firstOf(List<AtlasTilePayload> tiles, String dimension) {
+        for (AtlasTilePayload tile : tiles) {
+            if (tile.dimension().equals(dimension)) {
+                return tile;
+            }
+        }
+
+        return null;
+    }
+
+    public static int blocksPerTile(@Nullable Level level, @Nullable AtlasTilePayload tile) {
+        MapItemSavedData data = tile == null || level == null ? null : level.getMapData(new MapId(tile.mapId()));
+        return data == null ? 0 : MAP_PIXELS << data.scale;
     }
 
     public static @Nullable ToroidalShape shapeOf(String dimension) {

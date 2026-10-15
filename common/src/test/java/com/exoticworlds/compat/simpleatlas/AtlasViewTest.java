@@ -6,13 +6,13 @@ import org.junit.jupiter.api.Test;
 
 class AtlasViewTest {
     @Test
-    void theContentAreaMatchesSimpleAtlasOnAFullHdScreen() {
-        assertEquals(new AtlasView(606.0F, 324.0F, 708.0F, 429.0F), AtlasView.of(1920, 1080));
+    void theZoomFloorLetsTheWorldCoverTheView() {
+        assertEquals(0.921875F, AtlasView.zoomCovering(236.0F, 512, 128, 64.0F));
     }
 
     @Test
-    void theZoomFloorLetsTheWorldCoverTheView() {
-        assertEquals(0.921875F, AtlasView.zoomCovering(236.0F, 512, 128));
+    void aZoomChangeKeepsTheMapUnderTheViewCentre() {
+        assertEquals(-40.0, AtlasView.panKeepingCentre(10.0, 100.0F, 20.0F, 64.0F, 0.0F, 128.0F));
     }
 
     @Test

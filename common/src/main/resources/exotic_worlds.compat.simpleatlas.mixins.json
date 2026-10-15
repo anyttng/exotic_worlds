@@ -12,7 +12,9 @@
   "client": [
     "AtlasIconMixin",
     "AtlasIconPointAccessor",
-    "AtlasScreenMixin"
+    "AtlasScreenMixin",
+    "AtlasSingleViewMixin",
+    "AtlasViewportAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
