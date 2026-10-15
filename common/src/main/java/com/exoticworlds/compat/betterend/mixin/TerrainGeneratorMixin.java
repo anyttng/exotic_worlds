@@ -19,7 +19,7 @@ public class TerrainGeneratorMixin {
     @Inject(method = "onServerLevelInit", at = @At("RETURN"))
     private static void toroidal$captureLap(ServerLevel level, LevelStem levelStem, long seed, CallbackInfo ci) {
         if (level.dimension() == Level.END) {
-            EndTerrainLap.capture(level, seed);
+            EndTerrainLap.capture(level);
         }
     }
 

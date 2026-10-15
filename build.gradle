@@ -60,4 +60,5 @@ tasks.register('modJar', Zip) {
                     && neoforgeEntries.get().contains(element.relativePath.pathString)
         }
     }
+    from('THIRD_PARTY_NOTICES')
 }
