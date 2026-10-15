@@ -49,6 +49,10 @@ public final class TranslationLattice {
         return new TranslationLattice(x, z, NO_SKEW);
     }
 
+    public TranslationLattice scaledDown(int bits) {
+        return new TranslationLattice(scaledDomain(this.x, bits), scaledDomain(this.z, bits), this.skew >> bits);
+    }
+
     public WrapDomain x() {
         return this.x;
     }
@@ -98,6 +102,13 @@ public final class TranslationLattice {
         return this.skew == NO_SKEW
                 ? coordX
                 : coordX - (coordZ - this.z.lowerBound) * this.skew / this.z.domainLength;
+    }
+
+    public int rectangleX(int coordX, int coordZ) {
+        return this.skew == NO_SKEW
+                ? coordX
+                : (int) (coordX - Math.floorDiv(((long) coordZ - this.z.lowerBound) * this.skew,
+                        this.z.domainLength));
     }
 
     public int nearCount() {
@@ -179,6 +190,10 @@ public final class TranslationLattice {
 
     private double determinant() {
         return (double) this.firstX * this.secondZ - (double) this.firstZ * this.secondX;
+    }
+
+    private static WrapDomain scaledDomain(WrapDomain domain, int bits) {
+        return domain.loops() ? new WrapDomain(domain.lowerBound >> bits, domain.upperBound >> bits) : domain;
     }
 
     private static long[] reducedBasis(long firstX, long firstZ, long secondX, long secondZ) {
