@@ -2,10 +2,8 @@ package com.exoticworlds.compat.betterend;
 
 import org.betterx.betterend.noise.OpenSimplexNoise;
 
-import com.exoticworlds.compat.wover.LapNoise;
-import com.exoticworlds.compat.wover.StandInHolder;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.compat.LapNoise;
+import com.exoticworlds.compat.StandInHolder;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
 public final class BetterEndSurfaceNoise {
@@ -24,10 +22,8 @@ public final class BetterEndSurfaceNoise {
     }
 
     private static double lap(OpenSimplexNoise noise, double x, double z, double scale, Operation<Double> original) {
-        WorldFold fold = GenerationTransformerContext.context().wrappedTransformer();
-        return fold == null
-                ? original.call(noise, x, z)
-                : LapNoise.eval(((StandInHolder) (Object) noise).toroidal$standIn(), fold, x, z, scale, scale);
+        return LapNoise.boundEval(((StandInHolder) (Object) noise).toroidal$standIn(), x, z, scale, scale,
+                () -> original.call(noise, x, z));
     }
 
     private BetterEndSurfaceNoise() {

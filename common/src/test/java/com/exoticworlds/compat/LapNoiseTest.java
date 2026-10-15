@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.wover;
+package com.exoticworlds.compat;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

@@ -3,9 +3,9 @@ package com.exoticworlds.compat.betterend;
 import org.betterx.betterend.noise.OpenSimplexNoise;
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.compat.OpenSimplexStandIn;
+import com.exoticworlds.compat.StandInHolder;
 import com.exoticworlds.compat.betterend.mixin.TerrainGeneratorAccessor;
-import com.exoticworlds.compat.wover.OpenSimplexStandIn;
-import com.exoticworlds.compat.wover.StandInHolder;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
