@@ -1,5 +1,7 @@
 package com.exoticworlds.compat;
 
+import java.util.function.ToDoubleFunction;
+
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.core.CoordinateConstants;
 
@@ -14,44 +16,28 @@ public final class FullscreenZoomFloor {
     public static final int JOURNEYMAP_MAX_ZOOM = 16_384;
 
     public static int journeyMapZoom(ToroidalShape shape) {
-        int floor = 0;
-        for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (shape.loops(axis)) {
-                floor = Math.max(floor, journeyMapZoom(shape.widthBlocks(axis)));
-            }
-        }
-
-        return floor;
+        return (int) maxOverLoopedAxes(shape, axis -> journeyMapZoom(shape.widthBlocks(axis)));
     }
 
     public static double xaeroScale(ToroidalShape shape, double scaleMultiplier) {
-        double floor = 0.0;
-        for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (shape.loops(axis)) {
-                floor = Math.max(floor, xaeroScale(shape.widthBlocks(axis), scaleMultiplier));
-            }
-        }
-
-        return floor;
+        return maxOverLoopedAxes(shape, axis -> xaeroScale(shape.widthBlocks(axis), scaleMultiplier));
     }
 
     public static int journeyMapCoverZoom(ToroidalShape shape, int windowWidth, int windowHeight) {
-        int floor = 0;
-        for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (shape.loops(axis)) {
-                floor = Math.max(floor, journeyMapCoverZoom(shape.widthBlocks(axis), windowSide(axis, windowWidth, windowHeight)));
-            }
-        }
-
-        return floor;
+        return (int) maxOverLoopedAxes(shape,
+                axis -> journeyMapCoverZoom(shape.widthBlocks(axis), windowSide(axis, windowWidth, windowHeight)));
     }
 
     public static double xaeroCoverScale(ToroidalShape shape, double scaleMultiplier, int windowWidth, int windowHeight) {
+        return maxOverLoopedAxes(shape,
+                axis -> xaeroCoverScale(shape.widthBlocks(axis), scaleMultiplier, windowSide(axis, windowWidth, windowHeight)));
+    }
+
+    private static double maxOverLoopedAxes(ToroidalShape shape, ToDoubleFunction<Direction.Axis> floorOf) {
         double floor = 0.0;
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
             if (shape.loops(axis)) {
-                floor = Math.max(floor,
-                        xaeroCoverScale(shape.widthBlocks(axis), scaleMultiplier, windowSide(axis, windowWidth, windowHeight)));
+                floor = Math.max(floor, floorOf.applyAsDouble(axis));
             }
         }
 
