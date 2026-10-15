@@ -39,21 +39,9 @@ public class TheChunkSystemMixin implements TransformerSource {
         ((TransformerSourceBindable) this.schedulingManager).toroidal$bindTransformerSource(this);
     }
 
-    @Unique
-    private boolean toroidal$resolved;
-
-    @Unique
-    private @Nullable WorldFold toroidal$transformer;
-
     @Override
     public @Nullable WorldFold toroidal$wrappedTransformer() {
-        if (!this.toroidal$resolved) {
-            this.toroidal$transformer =
-                    WorldLoopAttachments.wrappedTransformerOf(((LevelHolder) (Object) this.tacs).toroidal$level());
-            this.toroidal$resolved = true;
-        }
-
-        return this.toroidal$transformer;
+        return WorldLoopAttachments.wrappedTransformerOf(((LevelHolder) (Object) this.tacs).toroidal$level());
     }
 
     @Unique
