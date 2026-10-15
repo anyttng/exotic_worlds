@@ -19,17 +19,16 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalDoubleRef;
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.compat.simpleatlas.AtlasCopies;
 import com.exoticworlds.compat.simpleatlas.AtlasEdgeLines;
 import com.exoticworlds.compat.simpleatlas.AtlasLayoutFold;
 import com.exoticworlds.compat.simpleatlas.AtlasTileFold;
 import com.exoticworlds.compat.simpleatlas.AtlasView;
+import com.exoticworlds.compat.simpleatlas.AtlasViews;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.saveddata.maps.MapId;
@@ -56,15 +55,6 @@ public abstract class AtlasScreenMixin {
     @Final
     private Map<String, Object> dimensionTileBounds;
 
-    @Shadow
-    private float zoom;
-
-    @Shadow
-    private double panX;
-
-    @Shadow
-    private double panY;
-
     @Unique
     private @Nullable List<AtlasCopies.Offset> toroidal$copies;
 
@@ -88,9 +78,6 @@ public abstract class AtlasScreenMixin {
 
     @Unique
     private float toroidal$copiesTileSize;
-
-    @Unique
-    private @Nullable AtlasView toroidal$singleWorld;
 
     @Unique
     private boolean toroidal$seamLines;
@@ -138,84 +125,6 @@ public abstract class AtlasScreenMixin {
         this.toroidal$seamLines = MapCopies.current().drawsSeamLines();
     }
 
-    @Inject(method = "extractRenderState", at = @At("HEAD"))
-    private void toroidal$holdSingleView(CallbackInfo ci) {
-        this.toroidal$singleWorld = null;
-        if (MapCopies.current() != MapCopies.SINGLE) {
-            return;
-        }
-
-        String dimension = this.getSelectedDimension();
-        ToroidalShape shape = AtlasTileFold.shapeOf(dimension);
-        AtlasTilePayload first = toroidal$firstTile(dimension);
-        int blocksPerTile = toroidal$blocksPerTile(first);
-        if (shape == null || first == null || blocksPerTile == 0) {
-            return;
-        }
-
-        Screen screen = (Screen) (Object) this;
-        AtlasView view = AtlasView.of(screen.width, screen.height);
-        float floor = AtlasView.MIN_ZOOM;
-        if (shape.loops(Direction.Axis.X)) {
-            floor = Math.max(floor, AtlasView.zoomCovering(view.contentWidth(), shape.widthBlocks(Direction.Axis.X),
-                    blocksPerTile));
-        }
-
-        if (shape.loops(Direction.Axis.Z)) {
-            floor = Math.max(floor, AtlasView.zoomCovering(view.contentHeight(),
-                    shape.widthBlocks(Direction.Axis.Z), blocksPerTile));
-        }
-
-        int columns = toroidal$span(dimension, Direction.Axis.X);
-        int rows = toroidal$span(dimension, Direction.Axis.Z);
-        float heldZoom = Math.max(floor, Math.min(AtlasView.MAX_ZOOM, this.zoom));
-        if (heldZoom != this.zoom) {
-            this.panX = toroidal$panKeepingCentre(this.panX, view.contentX(), view.contentWidth(), columns, this.zoom,
-                    heldZoom);
-            this.panY = toroidal$panKeepingCentre(this.panY, view.contentY(), view.contentHeight(), rows, this.zoom,
-                    heldZoom);
-            this.zoom = heldZoom;
-        }
-
-        float tileSize = AtlasView.TILE_PIXELS_AT_ZOOM_ONE * this.zoom;
-        float pixelsPerBlock = tileSize / blocksPerTile;
-        float worldX = view.contentX();
-        float worldWidth = view.contentWidth();
-        if (shape.loops(Direction.Axis.X)) {
-            worldWidth = shape.widthBlocks(Direction.Axis.X) * pixelsPerBlock;
-            this.panX += AtlasView.panInside(toroidal$worldStartX(view, dimension, first, columns, tileSize,
-                    blocksPerTile, shape), worldWidth, view.contentX(), view.contentWidth());
-            worldX = toroidal$worldStartX(view, dimension, first, columns, tileSize, blocksPerTile, shape);
-        }
-
-        float worldY = view.contentY();
-        float worldHeight = view.contentHeight();
-        if (shape.loops(Direction.Axis.Z)) {
-            worldHeight = shape.widthBlocks(Direction.Axis.Z) * pixelsPerBlock;
-            this.panY += AtlasView.panInside(toroidal$worldStartY(view, dimension, first, rows, tileSize,
-                    blocksPerTile, shape), worldHeight, view.contentY(), view.contentHeight());
-            worldY = toroidal$worldStartY(view, dimension, first, rows, tileSize, blocksPerTile, shape);
-        }
-
-        this.toroidal$singleWorld = new AtlasView(worldX, worldY, worldWidth, worldHeight);
-    }
-
-    @Unique
-    private float toroidal$worldStartX(AtlasView view, String dimension, AtlasTilePayload first, int columns,
-            float tileSize, int blocksPerTile, ToroidalShape shape) {
-        float originX = view.contentX() + (view.contentWidth() - columns * tileSize) / 2.0F + (float) this.panX;
-        return originX + this.localTileX(dimension, first) * tileSize
-                + (shape.minBlock(Direction.Axis.X) - (first.centerX() - blocksPerTile / 2)) * tileSize / blocksPerTile;
-    }
-
-    @Unique
-    private float toroidal$worldStartY(AtlasView view, String dimension, AtlasTilePayload first, int rows,
-            float tileSize, int blocksPerTile, ToroidalShape shape) {
-        float originY = view.contentY() + (view.contentHeight() - rows * tileSize) / 2.0F + (float) this.panY;
-        return originY + this.localTileY(dimension, first) * tileSize
-                + (shape.minBlock(Direction.Axis.Z) - (first.centerZ() - blocksPerTile / 2)) * tileSize / blocksPerTile;
-    }
-
     @ModifyArg(method = "screenToWorldPoint", at = @At(value = "INVOKE", target = WORLD_POINT_INIT), index = 0)
     private double toroidal$foldClickX(double x, @Local(name = "tile") AtlasTilePayload tile,
             @Local(name = "worldZ") double z) {
@@ -248,7 +157,7 @@ public abstract class AtlasScreenMixin {
             float y, float scale, Operation<Void> original, @Local(name = "tile") AtlasTilePayload tile,
             @Local(name = "mapOriginX") float mapOriginX, @Local(name = "mapOriginY") float mapOriginY,
             @Local(name = "scaledTileSize") float scaledTileSize) {
-        AtlasView singleWorld = this.toroidal$singleWorld;
+        AtlasView singleWorld = toroidal$views().toroidal$singleWorld();
         List<AtlasTileFold.SeamLine> lines = this.toroidal$seamLines ? toroidal$seamLinesOf(tile) : List.of();
         for (AtlasCopies.Offset offset : toroidal$tileCopies(mapOriginX, mapOriginY, scaledTileSize)) {
             float copyX = x + offset.x();
@@ -286,7 +195,7 @@ public abstract class AtlasScreenMixin {
             @Local(name = "mapOriginY") float mapOriginY, @Local(argsOnly = true, ordinal = 0) int mouseX,
             @Local(argsOnly = true, ordinal = 1) int mouseY) {
         AtlasCopies.Offset under = toroidal$copyUnder(mouseX, mouseY, mapOriginX, mapOriginY, scaledTileSize);
-        AtlasView singleWorld = this.toroidal$singleWorld;
+        AtlasView singleWorld = toroidal$views().toroidal$singleWorld();
         if (singleWorld != null) {
             toroidal$scissorTo(graphics, singleWorld);
         }
@@ -371,9 +280,8 @@ public abstract class AtlasScreenMixin {
     @Unique
     private List<AtlasCopies.Offset> toroidal$tileCopies(float mapOriginX, float mapOriginY, float scaledTileSize) {
         MapCopies mode = MapCopies.current();
-        Screen screen = (Screen) (Object) this;
-        AtlasView area = mode == MapCopies.SINGLE ? this.toroidal$singleWorld : AtlasView.of(screen.width,
-                screen.height);
+        AtlasViews views = toroidal$views();
+        AtlasView area = mode == MapCopies.SINGLE ? views.toroidal$singleWorld() : views.toroidal$view();
         if (area == null) {
             return AtlasCopies.BASE_ONLY;
         }
@@ -386,8 +294,8 @@ public abstract class AtlasScreenMixin {
             return this.toroidal$copies;
         }
 
-        AtlasTilePayload first = toroidal$firstTile(dimension);
-        int blocksPerTile = toroidal$blocksPerTile(first);
+        AtlasTilePayload first = AtlasTileFold.firstOf(this.tiles, dimension);
+        int blocksPerTile = AtlasTileFold.blocksPerTile(Minecraft.getInstance().level, first);
         AtlasCopies.Layout layout = first == null || blocksPerTile == 0
                 ? null
                 : new AtlasCopies.Layout(mapOriginX, mapOriginY,
@@ -427,35 +335,8 @@ public abstract class AtlasScreenMixin {
     }
 
     @Unique
-    private @Nullable AtlasTilePayload toroidal$firstTile(String dimension) {
-        for (AtlasTilePayload tile : this.tiles) {
-            if (tile.dimension().equals(dimension)) {
-                return tile;
-            }
-        }
-
-        return null;
-    }
-
-    @Unique
-    private static int toroidal$blocksPerTile(@Nullable AtlasTilePayload tile) {
-        Minecraft minecraft = Minecraft.getInstance();
-        MapItemSavedData data = tile == null || minecraft.level == null
-                ? null
-                : minecraft.level.getMapData(new MapId(tile.mapId()));
-        return data == null ? 0 : AtlasTileFold.MAP_PIXELS << data.scale;
-    }
-
-    @Unique
-    private static double toroidal$panKeepingCentre(double pan, float contentStart, float contentLength, int span,
-            float oldZoom, float newZoom) {
-        float oldTile = AtlasView.TILE_PIXELS_AT_ZOOM_ONE * oldZoom;
-        float newTile = AtlasView.TILE_PIXELS_AT_ZOOM_ONE * newZoom;
-        float centre = contentStart + contentLength / 2.0F;
-        double oldOrigin = contentStart + (contentLength - span * oldTile) / 2.0F + pan;
-        double tilesFromOrigin = (centre - oldOrigin) / oldTile;
-        double newBase = contentStart + (contentLength - span * newTile) / 2.0F;
-        return centre - tilesFromOrigin * newTile - newBase;
+    private AtlasViews toroidal$views() {
+        return (AtlasViews) (Object) this;
     }
 
     @Unique
@@ -466,7 +347,7 @@ public abstract class AtlasScreenMixin {
 
     @Unique
     private static List<AtlasTileFold.SeamLine> toroidal$seamLinesOf(AtlasTilePayload tile) {
-        int blocksPerTile = toroidal$blocksPerTile(tile);
+        int blocksPerTile = AtlasTileFold.blocksPerTile(Minecraft.getInstance().level, tile);
         return blocksPerTile == 0 ? List.of() : AtlasTileFold.seamLines(tile, blocksPerTile);
     }
 }
