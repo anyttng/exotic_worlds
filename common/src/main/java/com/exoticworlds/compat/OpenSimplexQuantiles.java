@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.wover;
+package com.exoticworlds.compat;
 
 import java.util.Arrays;
 
