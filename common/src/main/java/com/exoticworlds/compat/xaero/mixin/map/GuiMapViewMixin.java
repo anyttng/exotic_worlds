@@ -16,6 +16,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.exoticworlds.compat.AxisCopies;
 import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.MapViewSpan;
 import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
@@ -138,8 +139,10 @@ public abstract class GuiMapViewMixin {
         }
 
         Window window = Minecraft.getInstance().getWindow();
-        this.cameraX = XaeroWorldMapFold.copies(Direction.Axis.X).clampView(this.cameraX, window.getWidth() / 2.0 / this.scale);
-        this.cameraZ = XaeroWorldMapFold.copies(Direction.Axis.Z).clampView(this.cameraZ, window.getHeight() / 2.0 / this.scale);
+        this.cameraX = XaeroWorldMapFold.copies(Direction.Axis.X)
+                .clampView(this.cameraX, MapViewSpan.halfBlocks(window.getWidth(), this.scale));
+        this.cameraZ = XaeroWorldMapFold.copies(Direction.Axis.Z)
+                .clampView(this.cameraZ, MapViewSpan.halfBlocks(window.getHeight(), this.scale));
     }
 
     @Inject(
@@ -211,8 +214,8 @@ public abstract class GuiMapViewMixin {
 
         int thickness = Math.max(1, (int) Math.ceil(1.0 / this.scale));
         Window window = Minecraft.getInstance().getWindow();
-        int[] spanX = XaeroWorldMapFold.viewSpan(this.cameraX, window.getWidth(), this.scale, thickness);
-        int[] spanZ = XaeroWorldMapFold.viewSpan(this.cameraZ, window.getHeight(), this.scale, thickness);
+        int[] spanX = MapViewSpan.of(this.cameraX, window.getWidth(), this.scale, thickness);
+        int[] spanZ = MapViewSpan.of(this.cameraZ, window.getHeight(), this.scale, thickness);
         Matrix4f matrix = matrixStack.last().pose();
         for (WorldCopies.Edge seam : XaeroWorldMapFold.seams(spanX, spanZ)) {
             MapRenderHelper.fillIntoExistingBuffer(matrix, overlayBuffer,

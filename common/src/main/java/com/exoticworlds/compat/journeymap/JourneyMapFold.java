@@ -16,12 +16,11 @@ import com.exoticworlds.compat.ClientShapes;
 import com.exoticworlds.compat.FullscreenZoomFloor;
 import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.compat.MapCopyBudget;
+import com.exoticworlds.compat.MapViewSpan;
 import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.engine.seam.MapSurfaceCopies.Copies;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.logging.LogUtils;
-
-import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -47,7 +46,7 @@ public final class JourneyMapFold {
     }
 
     static ChunkPos foldRegionChunk(@Nullable ToroidalShape shape, ChunkPos chunk) {
-        return shape == null ? chunk : shape.fold(chunk);
+        return ClientShapes.fold(shape, chunk);
     }
 
     public static Vec3 foldCenter(double blockX, double blockZ) {
@@ -55,8 +54,7 @@ public final class JourneyMapFold {
     }
 
     static Vec3 foldCenter(@Nullable ToroidalShape shape, double blockX, double blockZ) {
-        Vec3 center = new Vec3(blockX, 0.0, blockZ);
-        return shape == null ? center : shape.fold(center);
+        return ClientShapes.fold(shape, new Vec3(blockX, 0.0, blockZ));
     }
 
     public static Vec3 seatPixel(double refX, double refZ, double blockX, double blockZ, MapCopies copies) {
@@ -87,11 +85,11 @@ public final class JourneyMapFold {
 
     static double clampSingleCenter(@Nullable ToroidalShape shape, Direction.Axis axis, double foldedCoord, int zoom,
             int windowPixels) {
-        return copies(shape, axis).clampView(foldedCoord, halfViewBlocks(zoom, windowPixels));
+        return AxisCopies.of(shape, axis).clampView(foldedCoord, halfViewBlocks(zoom, windowPixels));
     }
 
     private static double halfViewBlocks(int zoom, int windowPixels) {
-        return windowPixels / 2.0 * FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS / Math.max(1, zoom);
+        return MapViewSpan.halfBlocks(windowPixels, pixelsPerBlock(Math.max(1, zoom)));
     }
 
     public static Vec3 nearestToPlayer(Vec3 position) {
@@ -107,15 +105,11 @@ public final class JourneyMapFold {
     }
 
     static BlockPos foldUiBlock(@Nullable ToroidalShape shape, BlockPos pos) {
-        return shape == null || pos == null ? pos : shape.fold(pos);
+        return pos == null ? null : ClientShapes.fold(shape, pos);
     }
 
     public static AxisCopies copies(Direction.Axis axis) {
-        return copies(ClientShapes.current(), axis);
-    }
-
-    private static AxisCopies copies(@Nullable ToroidalShape shape, Direction.Axis axis) {
-        return shape == null ? AxisCopies.UNBOUNDED : AxisCopies.of(shape, axis);
+        return AxisCopies.of(ClientShapes.current(), axis);
     }
 
     public static double pixelsPerBlock(int zoom) {
@@ -155,8 +149,7 @@ public final class JourneyMapFold {
     }
 
     public static int[] viewSpan(double centerBlock, int windowPixels, int zoom) {
-        double halfSpanBlocks = halfViewBlocks(zoom, windowPixels);
-        return new int[] {(int) Math.floor(centerBlock - halfSpanBlocks), (int) Math.ceil(centerBlock + halfSpanBlocks)};
+        return MapViewSpan.of(centerBlock, windowPixels, pixelsPerBlock(Math.max(1, zoom)), 0);
     }
 
     public static List<WorldCopies.Copy> drawnCopies(int gridTiles, int[] spanX, int[] spanZ, MapCopies copies) {
@@ -186,7 +179,7 @@ public final class JourneyMapFold {
     }
 
     private static double worldCenter(@Nullable ToroidalShape shape, Direction.Axis axis) {
-        AxisCopies copies = copies(shape, axis);
+        AxisCopies copies = AxisCopies.of(shape, axis);
         return copies.loops() ? (copies.min() + copies.max()) / 2.0 : 0.0;
     }
 
@@ -212,8 +205,8 @@ public final class JourneyMapFold {
 
     static boolean regionInView(@Nullable ToroidalShape shape, int regionX, int regionZ, double boundsMinX,
             double boundsMinZ, double boundsMaxX, double boundsMaxZ) {
-        AxisCopies x = copies(shape, Direction.Axis.X);
-        AxisCopies z = copies(shape, Direction.Axis.Z);
+        AxisCopies x = AxisCopies.of(shape, Direction.Axis.X);
+        AxisCopies z = AxisCopies.of(shape, Direction.Axis.Z);
         List<WorldCopies.Copy> copies = WorldCopies.meeting(shape, spanMin(boundsMinX), spanMin(boundsMinZ),
                 spanMax(boundsMaxX), spanMax(boundsMaxZ));
         for (WorldCopies.Copy copy : copies) {
@@ -249,25 +242,12 @@ public final class JourneyMapFold {
 
     static long[] gridRegions(@Nullable ToroidalShape shape, int firstRegionX, int firstRegionZ, int lastRegionX,
             int lastRegionZ) {
-        LongLinkedOpenHashSet regions = new LongLinkedOpenHashSet();
-        for (WorldCopies.Piece piece : WorldCopies.pieces(shape, regionBlock(firstRegionX), regionBlock(firstRegionZ),
-                regionBlock(lastRegionX + 1), regionBlock(lastRegionZ + 1))) {
-            for (int x = regionOf(piece.minX()); x <= regionOf(piece.maxX() - 1); x++) {
-                for (int z = regionOf(piece.minZ()); z <= regionOf(piece.maxZ() - 1); z++) {
-                    regions.add(ChunkPos.asLong(x, z));
-                }
-            }
-        }
-
-        return regions.toLongArray();
+        return WorldCopies.canonicalCells(shape, regionBlock(firstRegionX), regionBlock(firstRegionZ),
+                regionBlock(lastRegionX + 1), regionBlock(lastRegionZ + 1), FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS);
     }
 
     private static int regionBlock(int region) {
         return region * FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS;
-    }
-
-    private static int regionOf(int block) {
-        return Math.floorDiv(block, FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS);
     }
 
     public static List<WorldCopies.Edge> seams(int[] spanX, int[] spanZ) {

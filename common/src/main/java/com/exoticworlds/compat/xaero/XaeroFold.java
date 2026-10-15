@@ -16,12 +16,7 @@ public final class XaeroFold {
     private static volatile Object[] coordReadoutDisplays;
 
     public static BlockPos foldWorldNodeSpawn(BlockPos spawn) {
-        ToroidalShape shape = ClientShapes.current();
-        if (shape == null || spawn == null) {
-            return spawn;
-        }
-
-        return shape.fold(spawn);
+        return spawn == null ? null : ClientShapes.fold(ClientShapes.current(), spawn);
     }
 
     public static Vec3 nearestToCamera(double blockX, double blockZ) {
