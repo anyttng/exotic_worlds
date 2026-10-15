@@ -92,6 +92,9 @@ public abstract class AtlasScreenMixin {
     @Unique
     private @Nullable AtlasView toroidal$singleWorld;
 
+    @Unique
+    private boolean toroidal$seamLines;
+
     @Shadow
     private static Map<String, Object> buildDimensionTileBounds(List<AtlasTilePayload> tiles) {
         throw new AssertionError();
@@ -128,6 +131,11 @@ public abstract class AtlasScreenMixin {
         this.tiles.addAll(relaid);
         this.dimensionTileBounds.clear();
         this.dimensionTileBounds.putAll(buildDimensionTileBounds(this.tiles));
+    }
+
+    @Inject(method = "extractRenderState", at = @At("HEAD"))
+    private void toroidal$readSeamLines(CallbackInfo ci) {
+        this.toroidal$seamLines = MapCopies.current().drawsSeamLines();
     }
 
     @Inject(method = "extractRenderState", at = @At("HEAD"))
@@ -241,7 +249,7 @@ public abstract class AtlasScreenMixin {
             @Local(name = "mapOriginX") float mapOriginX, @Local(name = "mapOriginY") float mapOriginY,
             @Local(name = "scaledTileSize") float scaledTileSize) {
         AtlasView singleWorld = this.toroidal$singleWorld;
-        List<AtlasTileFold.SeamLine> lines = singleWorld == null ? toroidal$seamLinesOf(tile) : List.of();
+        List<AtlasTileFold.SeamLine> lines = this.toroidal$seamLines ? toroidal$seamLinesOf(tile) : List.of();
         for (AtlasCopies.Offset offset : toroidal$tileCopies(mapOriginX, mapOriginY, scaledTileSize)) {
             float copyX = x + offset.x();
             float copyY = y + offset.y();
