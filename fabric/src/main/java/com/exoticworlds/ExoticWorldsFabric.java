@@ -3,6 +3,7 @@ package com.exoticworlds;
 import com.exoticworlds.compat.aeronautics.AeronauticsTranslation;
 import com.exoticworlds.compat.create.CreateTranslation;
 import com.exoticworlds.compat.aeronautics.AeronauticsMod;
+import com.exoticworlds.compat.moonlight.MoonlightParticles;
 import com.exoticworlds.compat.northbound.NorthboundLatitude;
 import com.exoticworlds.compat.sable.SableMod;
 import com.exoticworlds.engine.gen.LoopedChunkGenerator;
@@ -42,6 +43,7 @@ public class ExoticWorldsFabric implements ModInitializer {
         AeronauticsTranslation.register();
         GenerationHookSetup.registerAll();
         NorthboundLatitude.register();
+        MoonlightParticles.register();
 
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR,
                 ResourceLocation.fromNamespaceAndPath(ExoticWorlds.MODID, WorldLoopGenerators.TOROIDAL_ID),
