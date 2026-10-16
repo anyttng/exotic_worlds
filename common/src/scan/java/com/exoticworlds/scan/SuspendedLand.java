@@ -158,7 +158,7 @@ final class SuspendedLand {
                 source.finalDensity(),
                 source.veinToggle(),
                 source.veinRidged(),
-                new PreliminarySurfaceLevel(source.initialDensityWithoutJaggedness()));
+                new PreliminarySurfaceLevel(source.initialDensityWithoutJaggedness(), settings.noiseSettings()));
         return new NoiseGeneratorSettings(
                 settings.noiseSettings(),
                 settings.defaultBlock(),

@@ -67,7 +67,7 @@ class TerrainCeilingCutTest {
 
     // The column walk in PreliminarySurfaceLevel: its step, and the density it reads as solid. The ceiling of
     // this line stands on one of those steps, so both numbers decide where the ramp begins.
-    private static final int CEILING_SCAN_STEP = 8;
+    private static final int CEILING_SCAN_STEP = CELL_HEIGHT;
 
     private static final double SOLID_DENSITY = 0.390625;
 

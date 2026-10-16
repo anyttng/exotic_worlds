@@ -16,6 +16,7 @@ import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
+import net.minecraft.world.level.levelgen.NoiseSettings;
 
 public final class TerrainCeiling {
     private static final String VANILLA_NAMESPACE = "minecraft";
@@ -32,7 +33,7 @@ public final class TerrainCeiling {
 
     @SuppressWarnings("deprecation")
     public static NoiseGeneratorSettings withCeiling(NoiseGeneratorSettings settings) {
-        NoiseRouter ceilinged = withCeiling(settings.noiseRouter());
+        NoiseRouter ceilinged = withCeiling(settings.noiseRouter(), settings.noiseSettings());
         return ceilinged == settings.noiseRouter()
                 ? settings
                 : new NoiseGeneratorSettings(
@@ -50,10 +51,10 @@ public final class TerrainCeiling {
     }
 
     public static @Nullable DensityFunction ceiling(NoiseGeneratorSettings settings) {
-        return ceilingOf(settings.noiseRouter());
+        return ceilingOf(settings.noiseRouter(), settings.noiseSettings());
     }
 
-    private static @Nullable DensityFunction ceilingOf(NoiseRouter source) {
+    private static @Nullable DensityFunction ceilingOf(NoiseRouter source, NoiseSettings bounds) {
         DensityFunctions.TwoArgumentSimpleFunction jaggedness = jaggednessProduct(source.finalDensity());
         if (jaggedness == null) {
             return null;
@@ -80,13 +81,13 @@ public final class TerrainCeiling {
         return DensityFunctions.add(
                 DensityFunctions.add(
                         DensityFunctions.flatCache(new PreliminarySurfaceLevel(
-                                source.initialDensityWithoutJaggedness())),
+                                source.initialDensityWithoutJaggedness(), bounds)),
                         DensityFunctions.constant(base)),
                 headroom);
     }
 
-    static NoiseRouter withCeiling(NoiseRouter source) {
-        DensityFunction ceiling = ceilingOf(source);
+    static NoiseRouter withCeiling(NoiseRouter source, NoiseSettings bounds) {
+        DensityFunction ceiling = ceilingOf(source, bounds);
         if (ceiling == null) {
             return source;
         }

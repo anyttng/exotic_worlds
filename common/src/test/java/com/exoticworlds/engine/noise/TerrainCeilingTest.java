@@ -23,8 +23,20 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.NoiseRouter;
+import net.minecraft.world.level.levelgen.NoiseSettings;
 
 class TerrainCeilingTest {
+    private static final int OVERWORLD_MIN_Y = -64;
+
+    private static final int OVERWORLD_HEIGHT = 384;
+
+    private static final int SIZE_HORIZONTAL = 1;
+
+    private static final int SIZE_VERTICAL = 2;
+
+    private static final NoiseSettings OVERWORLD =
+            NoiseSettings.create(OVERWORLD_MIN_Y, OVERWORLD_HEIGHT, SIZE_HORIZONTAL, SIZE_VERTICAL);
+
     private static final String JAGGEDNESS_PATH = "overworld/jaggedness";
 
     private static final String FOREIGN_PATH = "overworld/factor";
@@ -46,7 +58,7 @@ class TerrainCeilingTest {
     private static final double TOLERANCE = 1.0e-9;
 
     private static double densityAt(NoiseRouter router, int y) {
-        return TerrainCeiling.withCeiling(router).finalDensity()
+        return TerrainCeiling.withCeiling(router, OVERWORLD).finalDensity()
                 .compute(new DensityFunction.SinglePointContext(0, y, 0));
     }
 
@@ -116,13 +128,13 @@ class TerrainCeilingTest {
         @Test
         void aRouterWithoutAJaggednessNodeIsHandedBackUnchanged() {
             NoiseRouter source = router(DensityFunctions.constant(0.0));
-            assertSame(source, TerrainCeiling.withCeiling(source));
+            assertSame(source, TerrainCeiling.withCeiling(source, OVERWORLD));
         }
 
         @Test
         void aProductOverAnotherRegisteredFunctionIsNotJaggedness() {
             NoiseRouter source = router(jaggednessProduct(FOREIGN_PATH, 0.0));
-            assertSame(source, TerrainCeiling.withCeiling(source));
+            assertSame(source, TerrainCeiling.withCeiling(source, OVERWORLD));
         }
     }
 
@@ -188,7 +200,7 @@ class TerrainCeilingTest {
     class TheHeadroomNode {
         @Test
         void aSplineThatCannotGoNegativeIsNotWrappedInAMax() {
-            NoiseRouter ceilinged = TerrainCeiling.withCeiling(routerWithJaggedness(0.5));
+            NoiseRouter ceilinged = TerrainCeiling.withCeiling(routerWithJaggedness(0.5), OVERWORLD);
             assertEquals(0, maxNodeCount(ceilinged.finalDensity()));
         }
 
