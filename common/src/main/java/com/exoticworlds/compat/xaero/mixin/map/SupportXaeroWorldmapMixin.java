@@ -7,15 +7,20 @@ import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.compat.AxisCopies;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TileArea;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TilePiece;
 import com.exoticworlds.core.CoordinateConstants;
 
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
 
 import xaero.common.graphics.renderer.multitexture.MultiTextureRenderTypeRenderer;
@@ -48,6 +53,19 @@ public abstract class SupportXaeroWorldmapMixin {
     private MapProcessor toroidal$processor;
     @Unique
     private @Nullable List<TileArea> toroidal$areas;
+    @Unique
+    private @Nullable ToroidalShape toroidal$shape;
+    @Unique
+    private AxisCopies toroidal$copiesX = AxisCopies.UNBOUNDED;
+    @Unique
+    private AxisCopies toroidal$copiesZ = AxisCopies.UNBOUNDED;
+
+    @Inject(method = "renderChunks", at = @At("HEAD"))
+    private void toroidal$resolveChunksShape(CallbackInfo ci) {
+        this.toroidal$shape = XaeroWorldMapFold.browsedShape();
+        this.toroidal$copiesX = AxisCopies.of(this.toroidal$shape, Direction.Axis.X);
+        this.toroidal$copiesZ = AxisCopies.of(this.toroidal$shape, Direction.Axis.Z);
+    }
 
     @WrapOperation(
             method = "renderChunks",
@@ -60,12 +78,12 @@ public abstract class SupportXaeroWorldmapMixin {
         this.toroidal$fetchRegionZ = regZ;
         this.toroidal$fetchIsLeaf = false;
         MapRegion existing = original.call(processor, regX, regZ);
-        if (existing != null || !XaeroWorldMapFold.active()) {
+        if (existing != null || this.toroidal$shape == null) {
             return existing;
         }
 
         // A candidate value only, so the null-guarded chunk fetch runs at all; the chunk redirect re-fetches precisely.
-        ChunkPos folded = XaeroWorldMapFold.foldRegion(regX, regZ);
+        ChunkPos folded = XaeroWorldMapFold.foldRegion(this.toroidal$shape, regX, regZ);
         return original.call(processor, folded.x(), folded.z());
     }
 
@@ -81,11 +99,11 @@ public abstract class SupportXaeroWorldmapMixin {
         this.toroidal$fetchIsLeaf = true;
         this.toroidal$fetchLeafLayer = caveLayer;
         MapRegion existing = original.call(processor, caveLayer, regX, regZ, create);
-        if (existing != null || !XaeroWorldMapFold.active()) {
+        if (existing != null || this.toroidal$shape == null) {
             return existing;
         }
 
-        ChunkPos folded = XaeroWorldMapFold.foldRegion(regX, regZ);
+        ChunkPos folded = XaeroWorldMapFold.foldRegion(this.toroidal$shape, regX, regZ);
         return original.call(processor, caveLayer, folded.x(), folded.z(), create);
     }
 
@@ -101,11 +119,13 @@ public abstract class SupportXaeroWorldmapMixin {
         this.toroidal$mirrorTileX = mirrorTileX;
         this.toroidal$mirrorTileZ = mirrorTileZ;
         this.toroidal$foldedRegion = null;
-        if (!XaeroWorldMapFold.active()) {
+        this.toroidal$areas = null;
+        ToroidalShape shape = this.toroidal$shape;
+        if (shape == null
+                || !XaeroWorldMapFold.tileLeavesWorld(this.toroidal$copiesX, this.toroidal$copiesZ, mirrorTileX, mirrorTileZ)) {
             return region == null ? null : original.call(region, localX, localZ);
         }
 
-        this.toroidal$areas = null;
         WorldMapSession session = WorldMapSession.getCurrentSession();
         if (session == null) {
             return region == null ? null : original.call(region, localX, localZ);
@@ -113,7 +133,7 @@ public abstract class SupportXaeroWorldmapMixin {
 
         MapProcessor processor = session.getMapProcessor();
         this.toroidal$processor = processor;
-        List<TileArea> areas = XaeroWorldMapFold.tilePieces(mirrorTileX, mirrorTileZ);
+        List<TileArea> areas = XaeroWorldMapFold.tilePieces(shape, mirrorTileX, mirrorTileZ);
         MapTileChunk shown = null;
         for (TileArea area : areas) {
             int canonicalTileX = area.x().canonicalTile();
@@ -215,14 +235,14 @@ public abstract class SupportXaeroWorldmapMixin {
             method = "renderChunks",
             at = @At(value = "INVOKE", target = "Lxaero/map/region/MapTileChunk;getX()I"))
     private int toroidal$placeAtMirrorX(MapTileChunk chunk, Operation<Integer> original) {
-        return XaeroWorldMapFold.active() ? this.toroidal$mirrorTileX : original.call(chunk);
+        return this.toroidal$shape != null ? this.toroidal$mirrorTileX : original.call(chunk);
     }
 
     @WrapOperation(
             method = "renderChunks",
             at = @At(value = "INVOKE", target = "Lxaero/map/region/MapTileChunk;getZ()I"))
     private int toroidal$placeAtMirrorZ(MapTileChunk chunk, Operation<Integer> original) {
-        return XaeroWorldMapFold.active() ? this.toroidal$mirrorTileZ : original.call(chunk);
+        return this.toroidal$shape != null ? this.toroidal$mirrorTileZ : original.call(chunk);
     }
 
     @WrapOperation(
