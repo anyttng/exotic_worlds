@@ -126,6 +126,7 @@ dependencies {
     // open range [version,), a floor, not a pin — where C2ME already carries a newer MixinSquared, JarJar keeps that
     // one and ours is dropped; a declared range would make Gradle re-list versions from the repository daily.
     jarJar(implementation("com.github.bawnorton.mixinsquared:mixinsquared-neoforge:${mixinsquared_version}"))
+    jarJar(project(':frames'))
 
     testImplementation platform("org.junit:junit-bom:${junit_version}")
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -174,6 +175,7 @@ configurations {
 dependencies {
     c2meModules "maven.modrinth:c2me-neoforge:${c2me_version}"
     testRuntimeOnly "maven.modrinth:c2me-neoforge:${c2me_version}"
+    testRuntimeOnly project(':frames')
 }
 
 var c2meModuleJars = tasks.register('unpackC2meModules', Sync) {
