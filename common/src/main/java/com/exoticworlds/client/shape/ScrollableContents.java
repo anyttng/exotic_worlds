@@ -84,6 +84,10 @@ public class ScrollableContents extends AbstractContainerWidget {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (!this.isMouseOver(mouseX, mouseY)) {
+            return false;
+        }
+
         if (this.overScrollbar(mouseX, mouseY)) {
             this.scrolling = button == 0;
             return this.scrolling;
