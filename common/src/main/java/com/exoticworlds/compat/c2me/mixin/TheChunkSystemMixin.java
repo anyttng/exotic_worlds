@@ -55,7 +55,7 @@ public class TheChunkSystemMixin implements TransformerSource {
             boolean isUpgrade,
             Throwable throwable,
             CallbackInfoReturnable<?> cir) {
-        toroidal$LOGGER.warn("[c2me-compat] chunk_transaction_failed chunk={} status={} upgrade={}",
+        toroidal$LOGGER.warn("[ew/c2me-compat] chunk_transaction_failed chunk={} status={} upgrade={}",
                 holder.getKey(), nextStatus, isUpgrade, throwable);
     }
 }

@@ -43,7 +43,7 @@ public final class XaeroFramesProcessor implements ClassProcessor {
                 int removed = XaeroFrames.strip(method);
                 strippedRenderState = copy(method);
                 context.audit(AUDIT, String.valueOf(removed));
-                LOGGER.info("[xaero-compat] frames gui_map_stripped labels_removed={}", removed);
+                LOGGER.info("[ew/xaero-compat] frames gui_map_stripped labels_removed={}", removed);
                 return ComputeFlags.SIMPLE_REWRITE;
             }
         }

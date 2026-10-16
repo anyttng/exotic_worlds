@@ -16,7 +16,7 @@ public class EminusMixinPlugin extends ModPresenceGatePlugin {
     private static final String MISSING_COLUMNS_MIXIN = "ColumnCoverageMissingMixin";
     private static final String WAITING_MIXIN = "TreeTraversalWaitingMixin";
 
-    private static final ModPresence EMINUS = ModPresence.gate(LOGGER, "[eminus-compat] gate eminus_present")
+    private static final ModPresence EMINUS = ModPresence.gate(LOGGER, "[ew/eminus-compat] gate eminus_present")
             .probing("com/eminus/cell/cache/CellCache.class")
             .checking("exotic_worlds.compat.eminus.mixins.json")
             .withholding(TREE_MANAGER_CHANGES_MIXIN, EminusMixinPlugin::changesLiveInTreeChanges)

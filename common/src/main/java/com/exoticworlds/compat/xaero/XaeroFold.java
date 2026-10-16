@@ -59,7 +59,7 @@ public final class XaeroFold {
                     displays.getField("CHUNK_COORDINATES").get(null),
             };
         } catch (ReflectiveOperationException e) {
-            LOGGER.info("[xaero-compat] info_fold_targets_missing error={}", e.toString());
+            LOGGER.info("[ew/xaero-compat] info_fold_targets_missing error={}", e.toString());
             resolved = new Object[0];
         }
 

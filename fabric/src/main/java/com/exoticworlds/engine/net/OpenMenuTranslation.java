@@ -12,7 +12,7 @@ import net.minecraft.world.phys.Vec3;
 
 public final class OpenMenuTranslation {
     private static final ModPresence GATE = ModPresence.gate(LogUtils.getLogger(),
-                    "[menu-api-compat] gate open_screen_present")
+                    "[ew/menu-api-compat] gate open_screen_present")
             .probing("net/fabricmc/fabric/impl/menu/Networking$OpenScreenPayload.class")
             .build();
 

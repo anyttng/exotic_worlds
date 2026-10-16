@@ -80,13 +80,13 @@ public final class LapClip {
 
         int marker = source.indexOf(entry.marker());
         if (marker < 0) {
-            LOGGER.warn("[eminus-compat] lap_clip_skipped shader={} reason=no_entry_point", path);
+            LOGGER.warn("[ew/eminus-compat] lap_clip_skipped shader={} reason=no_entry_point", path);
             return source;
         }
 
         Frame frame = frameOf(source);
         if (frame == null) {
-            LOGGER.warn("[eminus-compat] lap_clip_skipped shader={} reason=unknown_frame", path);
+            LOGGER.warn("[ew/eminus-compat] lap_clip_skipped shader={} reason=unknown_frame", path);
             return source;
         }
 

@@ -26,17 +26,17 @@ public final class C2meAquifer {
             boolean optimized = readSwitch(
                     Class.forName(CONFIG_CLASS, true, classLoader).getField(OPTIMIZE_AQUIFER_FIELD));
             if (!optimized) {
-                LOGGER.info("[c2me-compat] gate c2me_present=true optimize_aquifer=false");
+                LOGGER.info("[ew/c2me-compat] gate c2me_present=true optimize_aquifer=false");
                 return false;
             }
 
-            LOGGER.info("[c2me-compat] gate c2me_present=true optimize_aquifer=true");
+            LOGGER.info("[ew/c2me-compat] gate c2me_present=true optimize_aquifer=true");
             return C2meMixinPlugin.AQUIFER_GATE.present();
         } catch (ClassNotFoundException absent) {
             return false;
         } catch (ReflectiveOperationException | LinkageError changed) {
             // A read failure assumes C2ME still owns computeSubstance: that guess fails loudly, while standing down leaves the seam unfolded and silent.
-            LOGGER.warn("[c2me-compat] cannot read {}.{}, assuming C2ME owns the aquifer",
+            LOGGER.warn("[ew/c2me-compat] cannot read {}.{}, assuming C2ME owns the aquifer",
                     CONFIG_CLASS, OPTIMIZE_AQUIFER_FIELD, changed);
             return true;
         }

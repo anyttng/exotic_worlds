@@ -20,16 +20,16 @@ public class LithiumMixinPlugin extends ModPresenceGatePlugin {
     private static final String RETRY_MIXIN = "AcquirePoiRetryMixin";
     private static final List<String> OPTION_MIXINS = List.of(STORE_KEY_MIXIN, CLOSEST_BATCH_MIXIN, RETRY_MIXIN);
 
-    private static final ModPresence LITHIUM = ModPresence.gate(LOGGER, "[lithium-compat] gate lithium_present")
+    private static final ModPresence LITHIUM = ModPresence.gate(LOGGER, "[ew/lithium-compat] gate lithium_present")
             .probing("net/caffeinemc/mods/lithium/common/tracking/entity/SectionedEntityMovementTracker.class")
             .checking(CONFIG, mixin -> !OPTION_MIXINS.contains(mixin))
             .build();
 
-    static final ModPresence STORE_KEY_GATE = optionGate("[lithium-compat] gate game_events_dispatch_present",
+    static final ModPresence STORE_KEY_GATE = optionGate("[ew/lithium-compat] gate game_events_dispatch_present",
             STORE_KEY_MIXIN, LithiumInjectionTargets.GAME_EVENT_DISPATCHER_MIXIN);
-    static final ModPresence CLOSEST_BATCH_GATE = optionGate("[lithium-compat] gate ai_poi_present",
+    static final ModPresence CLOSEST_BATCH_GATE = optionGate("[ew/lithium-compat] gate ai_poi_present",
             CLOSEST_BATCH_MIXIN, LithiumInjectionTargets.POI_MANAGER_MIXIN);
-    static final ModPresence RETRY_GATE = optionGate("[lithium-compat] gate ai_poi_tasks_present",
+    static final ModPresence RETRY_GATE = optionGate("[ew/lithium-compat] gate ai_poi_tasks_present",
             RETRY_MIXIN, LithiumInjectionTargets.TASKS_ACQUIRE_POI_MIXIN);
 
     public LithiumMixinPlugin() {
