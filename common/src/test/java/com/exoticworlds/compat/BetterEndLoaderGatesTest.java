@@ -65,7 +65,7 @@ class BetterEndLoaderGatesTest {
                     return found != null ? found : super.getResource(name);
                 }
             };
-            return ModPresence.gate(LOGGER, "[betterend-compat] gate betterend_" + loader + "_present")
+            return ModPresence.gate(LOGGER, "[ew/betterend-compat] gate betterend_" + loader + "_present")
                     .probing(TERRAIN_GENERATOR)
                     .checking(config)
                     .build(build)

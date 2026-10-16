@@ -231,7 +231,7 @@ public final class AddedStructureStarts {
             for (StructureStarts.Added added : proposed) {
                 String refusal = refusalOf(added, picked);
                 if (refusal != null) {
-                    ExoticWorlds.LOGGER.warn("[structure-starts] dropped structure={} chunk={} reason={}",
+                    ExoticWorlds.LOGGER.warn("[ew/structure-starts] dropped structure={} chunk={} reason={}",
                             added.structure().getRegisteredName(), added.chunk(), refusal);
                 } else if (seen.add(added)) {
                     accepted.add(added);

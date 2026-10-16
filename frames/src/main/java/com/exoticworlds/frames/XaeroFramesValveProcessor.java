@@ -39,7 +39,7 @@ public final class XaeroFramesValveProcessor implements ClassProcessor {
     public ComputeFlags processClass(TransformationContext context) {
         MethodNode stripped = XaeroFramesProcessor.strippedRenderState();
         if (stripped == null) {
-            LOGGER.warn("[xaero-compat] frames gui_map_valve stripped_copy=false");
+            LOGGER.warn("[ew/xaero-compat] frames gui_map_valve stripped_copy=false");
             return ComputeFlags.NO_REWRITE;
         }
 
@@ -54,13 +54,13 @@ public final class XaeroFramesValveProcessor implements ClassProcessor {
             String refusal = refusal(context.node(), method);
             long ms = (System.nanoTime() - started) / 1_000_000L;
             if (refusal == null) {
-                LOGGER.info("[xaero-compat] frames gui_map_valve exceeded=false restored=false ms={}", ms);
+                LOGGER.info("[ew/xaero-compat] frames gui_map_valve exceeded=false restored=false ms={}", ms);
                 return ComputeFlags.NO_REWRITE;
             }
 
             methods.set(index, stripped);
             context.audit(AUDIT, refusal);
-            LOGGER.warn("[xaero-compat] frames gui_map_valve exceeded=true restored=true ms={} cause={}", ms, refusal);
+            LOGGER.warn("[ew/xaero-compat] frames gui_map_valve exceeded=true restored=true ms={} cause={}", ms, refusal);
             return ComputeFlags.SIMPLE_REWRITE;
         }
 

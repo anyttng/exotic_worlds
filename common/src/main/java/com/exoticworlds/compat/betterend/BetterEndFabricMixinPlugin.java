@@ -9,7 +9,7 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 public class BetterEndFabricMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final ModPresence BETTER_END = ModPresence.gate(LOGGER, "[betterend-compat] gate betterend_fabric_present")
+    private static final ModPresence BETTER_END = ModPresence.gate(LOGGER, "[ew/betterend-compat] gate betterend_fabric_present")
             .probing("org/betterx/betterend/world/generator/TerrainGenerator.class")
             .checking("exotic_worlds.compat.betterend.fabric.mixins.json")
             .build();
