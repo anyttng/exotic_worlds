@@ -3,6 +3,7 @@ package com.exoticworlds.compat.reterraforged.mixin;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -17,6 +18,7 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 
 @Mixin(value = Erosion.class, remap = false)
 public abstract class ErosionNoiseMixin {
+    @Unique
     private static final int GRID_SIZE_ORDINAL = 2;
 
     @Shadow

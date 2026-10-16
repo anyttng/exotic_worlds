@@ -6,7 +6,7 @@ import org.jspecify.annotations.Nullable;
 
 import net.minecraft.world.level.Level;
 
-// Published from client-only code alone — a publish from common class-loads Minecraft on a dedicated server.
+// Published from client-only code alone: a publish from common class-loads Minecraft on a dedicated server.
 public final class CurrentClientLevel {
     private static volatile @Nullable Supplier<@Nullable Level> current;
 

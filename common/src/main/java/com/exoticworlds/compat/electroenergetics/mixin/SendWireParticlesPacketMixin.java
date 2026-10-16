@@ -3,6 +3,7 @@ package com.exoticworlds.compat.electroenergetics.mixin;
 import java.util.List;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.george_vi.electroenergetics.content.wire.SendWireParticlesPacket;
@@ -19,6 +20,7 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = SendWireParticlesPacket.class, remap = false)
 public abstract class SendWireParticlesPacketMixin {
+    @Unique
     private static final String LIST_GET = "Ljava/util/List;get(I)Ljava/lang/Object;";
 
     @WrapOperation(method = "handle", at = @At(value = "INVOKE",

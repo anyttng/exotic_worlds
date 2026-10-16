@@ -42,6 +42,7 @@ import dev.ftb.mods.ftblibrary.ui.Widget;
 @Mixin(value = RegionMapPanel.class, remap = false)
 public abstract class RegionMapPanelMixin {
     // MapTileWidget.draw switches to linear filtering once a tile is narrower than 512 window pixels.
+    @Unique
     private static final double LINEAR_FILTER_BELOW_PIXELS = 512.0;
     private static final int SEAM_LINE_ARGB = 0xCCFFFFFF;
     private static final int SEAM_LINE_WIDTH = 1;
@@ -148,6 +149,7 @@ public abstract class RegionMapPanelMixin {
         }
     }
 
+    @Unique
     private static void toroidal$blitCopy(RegionMapPanel panel, GuiGraphics graphics, int viewX, int viewY,
             int viewWidth, int viewHeight, int offsetX, int offsetY) {
         for (Widget widget : panel.getWidgets()) {
@@ -155,8 +157,7 @@ public abstract class RegionMapPanelMixin {
                 continue;
             }
 
-            // The id call is what uploads a pending image and sets the loaded flag, so it goes before the check —
-            // the order MapTileWidget.draw keeps.
+            // The id call uploads a pending image and sets the loaded flag, so it precedes the check, as in MapTileWidget.draw.
             int id = tile.region.getRenderedMapImageTextureId();
             if (!tile.region.isMapImageLoaded()) {
                 continue;

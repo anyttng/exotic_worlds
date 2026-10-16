@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.george_vi.electroenergetics.client.WireEffects;
@@ -26,6 +27,7 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = WireEffects.class, remap = false)
 public abstract class WireEffectsMixin {
+    @Unique
     private static final String WIRE_POINT =
             "Lcom/george_vi/electroenergetics/foundation/WirePoints;get(I)Lnet/minecraft/world/phys/Vec3;";
 

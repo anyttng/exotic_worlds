@@ -26,6 +26,7 @@ import net.minecraft.core.SectionPos;
 
 @Mixin(value = IndexedCuboidMap.class, remap = false)
 public class IndexedCuboidMapMixin implements RadiationIndexFrame {
+    @Unique
     private static final String TRACK_BOX = "track(Ljava/lang/Object;Lnet/minecraft/core/BlockPos;IIIIII)V";
 
     @Shadow

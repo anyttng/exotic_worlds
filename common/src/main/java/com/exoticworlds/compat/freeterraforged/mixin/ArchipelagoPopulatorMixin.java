@@ -15,16 +15,22 @@ import etcodehome.freeterraforged.world.worldgen.noise.module.Noise;
 // Three coastal noises are read at the position times a fixed factor of FreeTerraForged's own.
 @Mixin(value = ArchipelagoPopulator.class, remap = false)
 public abstract class ArchipelagoPopulatorMixin {
+    @Unique
     private static final int COASTAL_MODULATION = 0;
 
+    @Unique
     private static final int ANGULAR_COAST = 1;
 
+    @Unique
     private static final int SHELF_DETAIL = 2;
 
+    @Unique
     private static final float COASTAL_MODULATION_FACTOR = 0.005F;
 
+    @Unique
     private static final float ANGULAR_COAST_FACTOR = 0.008F;
 
+    @Unique
     private static final float SHELF_DETAIL_FACTOR = 0.02F;
 
     @WrapOperation(method = "apply",

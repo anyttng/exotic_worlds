@@ -28,8 +28,7 @@ public abstract class InfrastructureSavedDataMixin {
     }
 
     @WrapOperation(method = "removeAndDropConnection",
-            at = @At(value = "INVOKE", target = "Lcom/george_vi/electroenergetics/foundation/QuadraticWireHelper;posAt"
-                    + "(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;F)Lnet/minecraft/world/phys/Vec3;"))
+            at = @At(value = "INVOKE", target = ElectroEnergeticsInjectionTargets.WIRE_POS_AT_UNIT_DIP))
     private Vec3 toroidal$wireDropOnShortSpan(Vec3 from, Vec3 to, float point, Operation<Vec3> original) {
         return original.call(from, WireSpan.seat(this.level, from, to), point);
     }

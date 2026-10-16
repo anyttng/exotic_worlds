@@ -15,11 +15,7 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
-// The three-argument method is wrapped directly rather than through MixinSquared: an overwrite leaves no handler to
-// target, only the method carrying someone else's body, and this config's 1200 lands after C2ME's inherited 1100.
-// Naming C2ME's handler instead would be a name from a foreign jar, and on this game version that jar is compiled per
-// loader — the NeoForge build calls it getValue, the Fabric one method_15416, so the selector can only ever resolve on
-// one of the two. A vanilla method name has no such problem: Loom remaps it.
+// Wraps the vanilla method, not C2ME's overwrite handler, whose name differs between the NeoForge and Fabric jars.
 @Mixin(PerlinNoise.class)
 public class PerlinNoiseMixin {
     @Shadow

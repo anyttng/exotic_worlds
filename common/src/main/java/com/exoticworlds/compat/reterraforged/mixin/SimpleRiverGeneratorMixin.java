@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -20,6 +21,7 @@ import raccoonman.reterraforged.world.worldgen.cell.rivermap.river.Network;
 
 @Mixin(value = SimpleRiverGenerator.class, remap = false)
 public abstract class SimpleRiverGeneratorMixin {
+    @Unique
     private static final String DISTANCE_TO_OCEAN =
             "Lraccoonman/reterraforged/world/worldgen/cell/continent/SimpleContinent;getDistanceToOcean(IIFF)F";
 

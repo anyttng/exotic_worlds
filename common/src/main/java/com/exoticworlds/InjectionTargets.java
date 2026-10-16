@@ -15,6 +15,8 @@ public final class InjectionTargets {
             "Lnet/minecraft/world/level/block/entity/BlockEntity;loadWithComponents(Lnet/minecraft/nbt/CompoundTag;"
                     + "Lnet/minecraft/core/HolderLookup$Provider;)V";
 
+    public static final String BLOCK_POS_AS_LONG = "Lnet/minecraft/core/BlockPos;asLong()J";
+
     public static final String BLOCK_POS_CLOSER_THAN =
             "Lnet/minecraft/core/BlockPos;closerThan(Lnet/minecraft/core/Vec3i;D)Z";
 

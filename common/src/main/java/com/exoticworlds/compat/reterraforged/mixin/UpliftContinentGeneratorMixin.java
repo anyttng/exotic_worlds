@@ -3,6 +3,7 @@ package com.exoticworlds.compat.reterraforged.mixin;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -20,11 +21,14 @@ import raccoonman.reterraforged.world.worldgen.cell.continent.uplift.UpliftConti
 
 @Mixin(value = UpliftContinentGenerator.class, remap = false)
 public abstract class UpliftContinentGeneratorMixin {
+    @Unique
     private static final String FREQUENCY =
             "Lraccoonman/reterraforged/world/worldgen/cell/continent/uplift/UpliftContinentGenerator;frequency:F";
 
+    @Unique
     private static final int X_READ = 0;
 
+    @Unique
     private static final int Z_READ = 1;
 
     @Shadow

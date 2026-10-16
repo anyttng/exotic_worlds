@@ -60,10 +60,6 @@ public final class AxisCopies {
                 : Math.max(low, Math.min(high, center));
     }
 
-    public int offset(int lap) {
-        return lap * width();
-    }
-
     public int withinOneLap(int anchor, int coord) {
         if (this.domain == null) {
             return coord;

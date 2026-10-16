@@ -30,6 +30,7 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = CloudGenerator.class, remap = false)
 public abstract class CloudGeneratorMixin {
+    @Unique
     private static final String CREATE_REGION =
             "createRegion(Ldev/nonamecrackers2/simpleclouds/api/common/cloud/spawning/SpawnInfo;FFFFLnet/minecraft/util/RandomSource;Z)Ljava/util/Optional;";
 

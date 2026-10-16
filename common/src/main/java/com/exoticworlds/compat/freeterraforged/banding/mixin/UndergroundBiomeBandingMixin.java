@@ -1,6 +1,7 @@
 package com.exoticworlds.compat.freeterraforged.banding.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
@@ -16,15 +17,20 @@ import etcodehome.freeterraforged.world.worldgen.biome.UndergroundBiomeBanding;
 
 @Mixin(value = UndergroundBiomeBanding.class, remap = false)
 public abstract class UndergroundBiomeBandingMixin {
+    @Unique
     private static final String SAMPLE = "sample3d";
 
+    @Unique
     private static final String CELL_HASH =
             "Letcodehome/freeterraforged/world/worldgen/biome/UndergroundBiomeBanding;cellHash(JIIIJ)J";
 
+    @Unique
     private static final int BLOCK_X = 0;
 
+    @Unique
     private static final int BLOCK_Z = 2;
 
+    @Unique
     private static final int HORIZONTAL_SIZE = 3;
 
     @ModifyVariable(method = SAMPLE, at = @At("STORE"), name = "x")

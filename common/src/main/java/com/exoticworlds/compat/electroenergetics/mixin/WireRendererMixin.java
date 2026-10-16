@@ -28,6 +28,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalDoubleRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.compat.electroenergetics.CatenaryCopies;
 import com.exoticworlds.compat.electroenergetics.ElectroEnergeticsInjectionTargets;
 import com.exoticworlds.compat.electroenergetics.SecondEndWire;
@@ -46,6 +47,7 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = WireRenderer.class, remap = false)
 public abstract class WireRendererMixin {
+    @Unique
     private static final ResourceLocation STANDARD_WIRE =
             ResourceLocation.fromNamespaceAndPath("electroenergetics", "standard");
     @Unique
@@ -61,7 +63,7 @@ public abstract class WireRendererMixin {
     }
 
     @Inject(method = "addCatenary", at = @At(value = "INVOKE",
-            target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+            target = InjectionTargets.MAP_PUT,
             shift = At.Shift.AFTER))
     private static void toroidal$addSecondEndCatenaryEffect(CatenaryConnection line, CallbackInfo ci) {
         toroidal$queueSecondEndCatenary(line);

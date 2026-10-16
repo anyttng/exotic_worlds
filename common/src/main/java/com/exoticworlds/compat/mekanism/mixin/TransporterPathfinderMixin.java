@@ -1,6 +1,7 @@
 package com.exoticworlds.compat.mekanism.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -20,7 +21,9 @@ import net.minecraft.core.Direction;
 
 @Mixin(value = TransporterPathfinder.class, remap = false)
 public class TransporterPathfinderMixin {
+    @Unique
     private static final int DESTINATION_INDEX = 0;
+    @Unique
     private static final int LAST_TRANSPORTER_INDEX = 1;
 
     @WrapOperation(method = "getNewRRPath",

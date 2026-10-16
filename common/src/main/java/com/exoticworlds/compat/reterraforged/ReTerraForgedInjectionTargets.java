@@ -1,9 +1,7 @@
 package com.exoticworlds.compat.reterraforged;
 
 public final class ReTerraForgedInjectionTargets {
-    // ReTerraForged is compiled per loader: its override of DensityFunction.compute carries the Mojmap name in the
-    // NeoForge jar and the intermediary one in the Fabric jar, and the remapper cannot resolve an override it only
-    // meets in a foreign class, so both names are listed and the running loader's one matches.
+    // Both names: each loader's ReTerraForged jar carries its own, and the remapper cannot resolve a foreign override.
     public static final String COMPUTE = "compute";
 
     public static final String COMPUTE_INTERMEDIARY = "method_40464";

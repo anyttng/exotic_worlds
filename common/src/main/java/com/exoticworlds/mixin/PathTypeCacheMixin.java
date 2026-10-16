@@ -4,6 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.LevelBindable;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.level.BoundLevelFold;
@@ -28,7 +29,7 @@ public class PathTypeCacheMixin implements LevelBindable {
             method = {
                     "getOrCompute(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/pathfinder/PathType;",
                     "invalidate(Lnet/minecraft/core/BlockPos;)V" },
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/core/BlockPos;asLong()J"),
+            at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_AS_LONG),
             require = 2)
     private long toroidal$keyThePhysicalBlock(BlockPos pos, Operation<Long> original) {
         long key = original.call(pos);

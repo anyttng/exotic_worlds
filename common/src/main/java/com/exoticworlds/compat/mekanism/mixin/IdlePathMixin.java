@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.compat.mekanism.MekanismInjectionTargets;
 import com.exoticworlds.compat.mekanism.MekanismSeam;
 
@@ -30,7 +31,7 @@ public class IdlePathMixin {
     private BlockPos start;
 
     @WrapOperation(method = "loopSide",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/core/BlockPos;asLong()J"))
+            at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_AS_LONG))
     private long toroidal$foldStoredNode(BlockPos pos, Operation<Long> original) {
         return MekanismSeam.fold(this.network.getWorld(), original.call(pos));
     }

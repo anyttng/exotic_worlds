@@ -19,6 +19,7 @@ import net.minecraft.world.phys.Vec3;
 public abstract class PantographMovementBehaviourMixin {
     @Unique
     private static final String WIRE_START = "toroidal$wireStart";
+    @Unique
     private static final String BLOCK_BOTTOM_CENTER =
             "Lnet/minecraft/core/BlockPos;getBottomCenter()Lnet/minecraft/world/phys/Vec3;";
 

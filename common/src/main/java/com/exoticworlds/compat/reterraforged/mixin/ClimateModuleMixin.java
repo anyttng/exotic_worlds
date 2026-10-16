@@ -27,25 +27,35 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 
 @Mixin(value = ClimateModule.class, remap = false)
 public abstract class ClimateModuleMixin implements RtfClimateScales {
+    @Unique
     private static final String APPLY = "apply(Lraccoonman/reterraforged/world/worldgen/cell/Cell;FFFFZ)V";
 
+    @Unique
     private static final String BIOME_FREQUENCY =
             "Lraccoonman/reterraforged/world/worldgen/cell/climate/ClimateModule;biomeFreq:F";
 
+    @Unique
     private static final int X_READ = 0;
 
+    @Unique
     private static final int Z_READ = 1;
 
+    @Unique
     private static final int CENTER_X_READ = 2;
 
+    @Unique
     private static final int CENTER_Z_READ = 3;
 
+    @Unique
     private static final int MOUNTAIN_X_READ = 4;
 
+    @Unique
     private static final int MOUNTAIN_Z_READ = 5;
 
+    @Unique
     private static final int MOISTURE_SCALE_LOCAL = 1;
 
+    @Unique
     private static final int TEMPERATURE_SCALE_LOCAL = 2;
 
     @Unique
@@ -156,9 +166,6 @@ public abstract class ClimateModuleMixin implements RtfClimateScales {
         }
     }
 
-    // Past the warps every climate noise is read at a lattice position, a biome cell's point or a region centre times
-    // the biome frequency, so its lap is the lattice's: a cell reached across the seam P cells on reads what it reads
-    // from the near side.
     @WrapOperation(method = APPLY, at = @At(value = "INVOKE", target = ReTerraForgedInjectionTargets.NOISE_COMPUTE))
     private float toroidal$latticeLap(Noise noise, float x, float z, int seed, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();

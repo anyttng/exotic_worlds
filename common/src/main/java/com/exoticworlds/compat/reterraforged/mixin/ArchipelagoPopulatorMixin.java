@@ -1,6 +1,7 @@
 package com.exoticworlds.compat.reterraforged.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -15,17 +16,23 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 // The island mountains and volcanoes are read at the position times a frequency modifier of their own.
 @Mixin(value = ArchipelagoPopulator.class, remap = false)
 public abstract class ArchipelagoPopulatorMixin {
+    @Unique
     private static final String CHANCE_MASK = "Lraccoonman/reterraforged/world/worldgen/cell/terrain/populator/"
             + "ArchipelagoPopulator;chanceMask(Lraccoonman/reterraforged/world/worldgen/noise/module/Noise;FFF)F";
 
+    @Unique
     private static final int MOUNTAIN_MASK = 0;
 
+    @Unique
     private static final int VOLCANO_MASK = 1;
 
+    @Unique
     private static final int HILL_HEIGHT = 3;
 
+    @Unique
     private static final int RIDGE_HEIGHT = 4;
 
+    @Unique
     private static final int VOLCANO_HEIGHT = 5;
 
     @WrapOperation(method = "apply", at = @At(value = "INVOKE", target = CHANCE_MASK, ordinal = MOUNTAIN_MASK))

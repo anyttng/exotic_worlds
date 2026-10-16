@@ -22,8 +22,10 @@ import net.minecraft.world.phys.Vec3;
 public abstract class PantographBlockEntityMixin {
     @Unique
     private static final String WIRE_START = "toroidal$wireStart";
+    @Unique
     private static final String CATENARY_START = "Lcom/george_vi/electroenergetics/content/railway_electrification/"
             + "catenary/CatenaryConnection;getStartPos()Lnet/minecraft/world/phys/Vec3;";
+    @Unique
     private static final String CATENARY_END = "Lcom/george_vi/electroenergetics/content/railway_electrification/"
             + "catenary/CatenaryConnection;getEndingPos()Lnet/minecraft/world/phys/Vec3;";
 

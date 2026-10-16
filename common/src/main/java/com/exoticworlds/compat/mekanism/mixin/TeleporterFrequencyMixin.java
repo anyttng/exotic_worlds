@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.level.CurrentServer;
 
@@ -20,7 +21,7 @@ import net.minecraft.server.MinecraftServer;
 public class TeleporterFrequencyMixin {
     @WrapOperation(
             method = "getClosestCoords",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/core/BlockPos;distSqr(Lnet/minecraft/core/Vec3i;)D"),
+            at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR),
             require = 2,
             expect = 2)
     private double toroidal$distanceTheShortWayRound(BlockPos from, Vec3i to, Operation<Double> original,

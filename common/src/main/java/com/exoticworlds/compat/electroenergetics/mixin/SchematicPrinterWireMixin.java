@@ -2,6 +2,7 @@ package com.exoticworlds.compat.electroenergetics.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.bawnorton.mixinsquared.TargetHandler;
@@ -18,6 +19,13 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = SchematicPrinter.class, priority = 1300, remap = false)
 public abstract class SchematicPrinterWireMixin {
+    @Unique
+    private static final String SCHEMATIC_PRINTER_MIXIN = "com.george_vi.electroenergetics.mixins.SchematicPrinterMixin";
+    @Unique
+    private static final String PRINT_ADVANCE_HANDLER = "electroEnergetics$advanceCurrentPos";
+    @Unique
+    private static final String PRINT_TARGET_HANDLER = "electroEnergetics$handleCurrentTarget";
+
     @Shadow
     private SchematicLevel blockReader;
 
@@ -26,12 +34,10 @@ public abstract class SchematicPrinterWireMixin {
 
     @WrapOperation(
             method = "@MixinSquared:Handler",
-            at = @At(value = "INVOKE",
-                    target = "Lcom/george_vi/electroenergetics/foundation/QuadraticWireHelper;posAt"
-                            + "(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;F)Lnet/minecraft/world/phys/Vec3;"))
+            at = @At(value = "INVOKE", target = ElectroEnergeticsInjectionTargets.WIRE_POS_AT_UNIT_DIP))
     @TargetHandler(
-            mixin = ElectroEnergeticsInjectionTargets.SCHEMATIC_PRINTER_MIXIN,
-            name = ElectroEnergeticsInjectionTargets.PRINT_ADVANCE_HANDLER)
+            mixin = SCHEMATIC_PRINTER_MIXIN,
+            name = PRINT_ADVANCE_HANDLER)
     private Vec3 toroidal$wireTargetInSchematicFrame(Vec3 end1, Vec3 end2, float t, Operation<Vec3> original) {
         Vec3 point = original.call(end1, WireTemplates.besideInSchematic(this.blockReader, end1, end2), t);
         return WireTemplates.inSchematicFrame(this.blockReader, this.schematicAnchor, point);
@@ -43,8 +49,8 @@ public abstract class SchematicPrinterWireMixin {
                     target = "Lcom/simibubi/create/content/schematics/SchematicPrinter;getCurrentTarget()"
                             + "Lnet/minecraft/core/BlockPos;"))
     @TargetHandler(
-            mixin = ElectroEnergeticsInjectionTargets.SCHEMATIC_PRINTER_MIXIN,
-            name = ElectroEnergeticsInjectionTargets.PRINT_TARGET_HANDLER)
+            mixin = SCHEMATIC_PRINTER_MIXIN,
+            name = PRINT_TARGET_HANDLER)
     private BlockPos toroidal$canonicalLabelTarget(BlockPos target) {
         return WireTemplates.canonical(this.blockReader, target);
     }

@@ -25,13 +25,17 @@ import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 
 @Mixin(value = ContinentGenerator.class, remap = false)
 public abstract class ContinentGeneratorMixin {
+    @Unique
     private static final String FREQUENCY =
             "Lraccoonman/reterraforged/world/worldgen/cell/continent/simple/ContinentGenerator;frequency:F";
 
+    @Unique
     private static final String POS_PACK = "Lraccoonman/reterraforged/world/worldgen/util/PosUtil;pack(II)J";
 
+    @Unique
     private static final int X_READ = 0;
 
+    @Unique
     private static final int Z_READ = 1;
 
     @Shadow

@@ -31,8 +31,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
-// Every payload of Create: Electro Energetics 1.21.1-1.1.1 that carries a node position, enumerated from its read
-// code; a bump of electroenergetics_version means reading it again.
+// Every node-carrying payload of Electro Energetics 1.21.1-1.1.2, read from its code; a version bump means reading it again.
 public final class ElectroEnergeticsTranslation {
     private static final String NAMESPACE = "electroenergetics";
     private static final ResourceLocation SELECTED_NODE_ID =

@@ -20,9 +20,11 @@ import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 // cell holding the origin, found again under the lap the level runs with.
 @Mixin(value = SingleContinentGenerator.class, remap = false)
 public abstract class SingleContinentGeneratorMixin {
+    @Unique
     private static final String CENTER = "Lraccoonman/reterraforged/world/worldgen/cell/continent/simple/"
             + "SingleContinentGenerator;center:Lraccoonman/reterraforged/world/worldgen/noise/NoiseUtil$Vec2i;";
 
+    @Unique
     private static final float ORIGIN = 0.0F;
 
     @Unique

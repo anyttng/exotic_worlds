@@ -23,14 +23,17 @@ public abstract class ChunkButtonMixin {
     }
 
     @WrapOperation(method = "<init>",
-            at = @At(value = "INVOKE", target = FtbChunksInjectionTargets.MAP_REGION_DATA_GET_CHUNK))
+            at = @At(value = "INVOKE",
+                    target = "Ldev/ftb/mods/ftbchunks/client/map/MapRegionData;getChunk(Ldev/ftb/mods/ftblibrary/math/XZ;)"
+                            + "Ldev/ftb/mods/ftbchunks/client/map/MapChunk;"))
     private MapChunk toroidal$foldChunkKey(MapRegionData data, XZ chunk, Operation<MapChunk> original) {
         return original.call(data, FtbChunksFold.chunkOf(chunk));
     }
 
     @ModifyExpressionValue(method = "tick",
             at = @At(value = "FIELD", opcode = Opcodes.GETFIELD,
-                    target = FtbChunksInjectionTargets.CHUNK_BUTTON_CHUNK_POS))
+                    target = "Ldev/ftb/mods/ftbchunks/client/gui/ChunkScreenPanel$ChunkButton;chunkPos:"
+                            + "Ldev/ftb/mods/ftblibrary/math/XZ;"))
     private XZ toroidal$foldExpiryKey(XZ original) {
         return FtbChunksFold.chunkOf(original);
     }

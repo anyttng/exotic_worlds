@@ -23,11 +23,10 @@ import raccoonman.reterraforged.world.worldgen.cell.climate.Climate;
 import raccoonman.reterraforged.world.worldgen.cell.heightmap.Heightmap;
 import raccoonman.reterraforged.world.worldgen.cell.rivermap.Rivermap;
 
-// The heightmap is the one surface every reader of ReTerraForged's field goes through, its tile workers included, so
-// it binds the lap itself rather than trusting a thread that queued the work, and takes its position a whole lap over,
-// so that every copy of a column enters the field as one number.
+// Binds the lap itself: its tile workers run off the thread that queued the work.
 @Mixin(value = Heightmap.class, remap = false)
 public abstract class HeightmapMixin implements LapCarrier {
+    @Unique
     private static final int TERRAIN_POPULATOR_ORDINAL = 1;
 
     @Unique
