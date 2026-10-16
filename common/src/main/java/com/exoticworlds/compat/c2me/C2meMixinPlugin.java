@@ -11,7 +11,7 @@ public class C2meMixinPlugin extends ModPresenceGatePlugin {
     static final String CONFIG = "exotic_worlds.compat.c2me.mixins.json";
 
     static final ModPresence AQUIFER_GATE = ModPresence.gate(LogUtils.getLogger(),
-                    "[c2me-compat] gate aquifer_handler_present")
+                    "[ew/c2me-compat] gate aquifer_handler_present")
             .probing("com/ishland/c2me/opts/worldgen/vanilla/mixin/aquifer/MixinAquiferSamplerImpl.class")
             .checking(CONFIG, C2meAquifer.MIXIN::equals)
             .build();
