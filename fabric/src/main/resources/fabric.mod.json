@@ -52,7 +52,8 @@
     "exotic_worlds.compat.sodium.mixins.json",
     "exotic_worlds.compat.seedviewer.mixins.json",
     "exotic_worlds.compat.lithium.mixins.json",
-    "exotic_worlds.compat.eminus.mixins.json"
+    "exotic_worlds.compat.eminus.mixins.json",
+    "exotic_worlds.compat.moonlight.mixins.json"
   ],
   "accessWidener": "exotic_worlds.accesswidener",
   "depends": {
