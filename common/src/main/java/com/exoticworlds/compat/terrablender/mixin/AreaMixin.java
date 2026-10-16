@@ -7,7 +7,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.exoticworlds.compat.terrablender.LayeredArea;
+import com.exoticworlds.compat.terrablender.RegionLayerFold;
 import com.exoticworlds.compat.terrablender.RegionLayerStack;
 
 import terrablender.worldgen.noise.Area;
@@ -38,14 +40,15 @@ public class AreaMixin implements LayeredArea {
     }
 
     @ModifyVariable(method = "get", at = @At("HEAD"), argsOnly = true, ordinal = 0)
-    private int toroidal$foldX(int x, @Local(argsOnly = true, ordinal = 1) int z) {
+    private int toroidal$foldCoordinates(int x, @Local(argsOnly = true, ordinal = 1) LocalIntRef z) {
         RegionLayerStack stack = this.toroidal$stack;
-        return stack == null ? x : stack.foldX(this.toroidal$depth, x, z);
-    }
+        RegionLayerFold fold = stack == null ? null : stack.resolved();
+        if (fold == null) {
+            return x;
+        }
 
-    @ModifyVariable(method = "get", at = @At("HEAD"), argsOnly = true, ordinal = 1)
-    private int toroidal$foldZ(int z) {
-        RegionLayerStack stack = this.toroidal$stack;
-        return stack == null ? z : stack.foldZ(this.toroidal$depth, z);
+        int rawZ = z.get();
+        z.set(fold.foldZ(this.toroidal$depth, rawZ));
+        return fold.foldX(this.toroidal$depth, x, rawZ);
     }
 }
