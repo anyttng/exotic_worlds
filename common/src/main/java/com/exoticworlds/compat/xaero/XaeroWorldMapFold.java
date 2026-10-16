@@ -39,7 +39,7 @@ public final class XaeroWorldMapFold {
 
     private static final long[] NO_REGIONS = new long[0];
 
-    private static @Nullable ToroidalShape browsedShape() {
+    public static @Nullable ToroidalShape browsedShape() {
         WorldMapSession session = WorldMapSession.getCurrentSession();
         MapProcessor processor = session == null ? null : session.getMapProcessor();
         MapWorld mapWorld = processor == null ? null : processor.getMapWorld();
@@ -61,11 +61,7 @@ public final class XaeroWorldMapFold {
                 BoundingBox.infinite());
     }
 
-    public static List<TileArea> tilePieces(int rawTileX, int rawTileZ) {
-        return tilePieces(browsedShape(), rawTileX, rawTileZ);
-    }
-
-    static List<TileArea> tilePieces(@Nullable ToroidalShape shape, int rawTileX, int rawTileZ) {
+    public static List<TileArea> tilePieces(@Nullable ToroidalShape shape, int rawTileX, int rawTileZ) {
         int firstChunkX = rawTileX * TILE_CHUNK_CHUNKS;
         int firstChunkZ = rawTileZ * TILE_CHUNK_CHUNKS;
         List<TileArea> areas = new ArrayList<>();
@@ -87,6 +83,13 @@ public final class XaeroWorldMapFold {
         return areas;
     }
 
+    public static boolean tileLeavesWorld(AxisCopies blockCopiesX, AxisCopies blockCopiesZ, int rawTileX,
+            int rawTileZ) {
+        int tileBlocks = chunkBlock(TILE_CHUNK_CHUNKS);
+        return spanLeavesWorld(blockCopiesX, rawTileX * tileBlocks, tileBlocks)
+                || spanLeavesWorld(blockCopiesZ, rawTileZ * tileBlocks, tileBlocks);
+    }
+
     private static List<TilePiece> axisPieces(int minChunk, int maxChunk, int rawShift) {
         List<TilePiece> pieces = new ArrayList<>();
         int canonical = minChunk;
@@ -104,11 +107,7 @@ public final class XaeroWorldMapFold {
         return SectionPos.sectionToBlockCoord(chunk);
     }
 
-    public static ChunkPos canonicalChunk(int chunkX, int chunkZ) {
-        return canonicalChunk(browsedShape(), chunkX, chunkZ);
-    }
-
-    static ChunkPos canonicalChunk(@Nullable ToroidalShape shape, int chunkX, int chunkZ) {
+    public static ChunkPos canonicalChunk(@Nullable ToroidalShape shape, int chunkX, int chunkZ) {
         return ClientShapes.fold(shape, new ChunkPos(chunkX, chunkZ));
     }
 
@@ -131,11 +130,7 @@ public final class XaeroWorldMapFold {
         return lastInWorld ? TILE_CHUNK_CHUNKS - 1 : insideTile(canonicalChunk);
     }
 
-    public static ChunkPos tileOfChunk(int chunkX, int chunkZ) {
-        return tileOfChunk(browsedShape(), chunkX, chunkZ);
-    }
-
-    static ChunkPos tileOfChunk(@Nullable ToroidalShape shape, int chunkX, int chunkZ) {
+    public static ChunkPos tileOfChunk(@Nullable ToroidalShape shape, int chunkX, int chunkZ) {
         ChunkPos canonical = canonicalChunk(shape, chunkX, chunkZ);
         return new ChunkPos(Math.floorDiv(canonical.x, TILE_CHUNK_CHUNKS),
                 Math.floorDiv(canonical.z, TILE_CHUNK_CHUNKS));
@@ -159,32 +154,19 @@ public final class XaeroWorldMapFold {
         return Math.floorMod(tileChunk, REGION_TILE_CHUNKS);
     }
 
-    public static ChunkPos foldRegion(int regionX, int regionZ) {
-        return foldRegion(browsedShape(), regionX, regionZ);
-    }
-
-    static ChunkPos foldRegion(@Nullable ToroidalShape shape, int regionX, int regionZ) {
+    public static ChunkPos foldRegion(@Nullable ToroidalShape shape, int regionX, int regionZ) {
         ChunkPos tile = tileOfChunk(shape, firstTileChunkOfRegion(regionX) * TILE_CHUNK_CHUNKS,
                 firstTileChunkOfRegion(regionZ) * TILE_CHUNK_CHUNKS);
         return new ChunkPos(regionOfTileChunk(tile.x), regionOfTileChunk(tile.z));
     }
 
-    public static ChunkPos foldComparison(int comparisonX, int comparisonZ) {
-        return foldComparison(browsedShape(), comparisonX, comparisonZ);
-    }
-
-    static ChunkPos foldComparison(@Nullable ToroidalShape shape, int comparisonX, int comparisonZ) {
+    public static ChunkPos foldComparison(@Nullable ToroidalShape shape, int comparisonX, int comparisonZ) {
         ChunkPos canonical = canonicalChunk(shape, comparisonX + COMPARISON_CHUNK_OFFSET,
                 comparisonZ + COMPARISON_CHUNK_OFFSET);
         return new ChunkPos(canonical.x - COMPARISON_CHUNK_OFFSET, canonical.z - COMPARISON_CHUNK_OFFSET);
     }
 
-    public static long[] canonicalRegions(int startTileChunkX, int startTileChunkZ, int endTileChunkX,
-            int endTileChunkZ) {
-        return canonicalRegions(browsedShape(), startTileChunkX, startTileChunkZ, endTileChunkX, endTileChunkZ);
-    }
-
-    static long[] canonicalRegions(@Nullable ToroidalShape shape, int startTileChunkX, int startTileChunkZ,
+    public static long[] canonicalRegions(@Nullable ToroidalShape shape, int startTileChunkX, int startTileChunkZ,
             int endTileChunkX, int endTileChunkZ) {
         return WorldCopies.canonicalCells(shape,
                 chunkBlock(startTileChunkX * TILE_CHUNK_CHUNKS), chunkBlock(startTileChunkZ * TILE_CHUNK_CHUNKS),
@@ -192,11 +174,8 @@ public final class XaeroWorldMapFold {
                 REGION_BLOCKS);
     }
 
-    public static long[] canonicalSlotOrigins(int viewBlockX, int viewBlockZ, int slotSize) {
-        return canonicalSlotOrigins(browsedShape(), viewBlockX, viewBlockZ, slotSize);
-    }
-
-    static long[] canonicalSlotOrigins(@Nullable ToroidalShape shape, int viewBlockX, int viewBlockZ, int slotSize) {
+    public static long[] canonicalSlotOrigins(@Nullable ToroidalShape shape, int viewBlockX, int viewBlockZ,
+            int slotSize) {
         long[] slots = slotCells(shape, viewBlockX, viewBlockZ, slotSize);
         for (int i = 0; i < slots.length; i++) {
             slots[i] = ChunkPos.asLong(ChunkPos.getX(slots[i]) * slotSize, ChunkPos.getZ(slots[i]) * slotSize);
@@ -228,11 +207,7 @@ public final class XaeroWorldMapFold {
         return canonicalRegions(shape, minTileChunkX, minTileChunkZ, maxTileChunkX, maxTileChunkZ);
     }
 
-    public static long[] fannedRegions(int leveledRegX, int leveledRegZ, int level) {
-        return fannedRegions(browsedShape(), leveledRegX, leveledRegZ, level);
-    }
-
-    static long[] fannedRegions(@Nullable ToroidalShape shape, int leveledRegX, int leveledRegZ, int level) {
+    public static long[] fannedRegions(@Nullable ToroidalShape shape, int leveledRegX, int leveledRegZ, int level) {
         int side = REGION_BLOCKS << level;
         if (shape == null
                 || (!spanLeavesWorld(AxisCopies.of(shape, Direction.Axis.X), leveledRegX * side, side)
@@ -243,11 +218,7 @@ public final class XaeroWorldMapFold {
         return slotCells(shape, leveledRegX * side, leveledRegZ * side, side);
     }
 
-    public static long[] fannedLeaves(int leveledRegX, int leveledRegZ, int level) {
-        return fannedLeaves(browsedShape(), leveledRegX, leveledRegZ, level);
-    }
-
-    static long[] fannedLeaves(@Nullable ToroidalShape shape, int leveledRegX, int leveledRegZ, int level) {
+    public static long[] fannedLeaves(@Nullable ToroidalShape shape, int leveledRegX, int leveledRegZ, int level) {
         int leaves = 1 << level;
         long[] regions = fannedRegions(shape, leveledRegX, leveledRegZ, level);
         long[] fanned = new long[regions.length * leaves * leaves];
@@ -268,7 +239,7 @@ public final class XaeroWorldMapFold {
         return placements(browsedShape(), originX, originZ, size, copies);
     }
 
-    static List<TilePlacement> placements(@Nullable ToroidalShape shape, int originX, int originZ, int size,
+    public static List<TilePlacement> placements(@Nullable ToroidalShape shape, int originX, int originZ, int size,
             List<WorldCopies.Copy> copies) {
         AxisCopies x = AxisCopies.of(shape, Direction.Axis.X);
         AxisCopies z = AxisCopies.of(shape, Direction.Axis.Z);
@@ -309,15 +280,11 @@ public final class XaeroWorldMapFold {
         return foldBlock(browsedShape(), blockX, blockZ);
     }
 
-    static BlockPos foldBlock(@Nullable ToroidalShape shape, int blockX, int blockZ) {
+    public static BlockPos foldBlock(@Nullable ToroidalShape shape, int blockX, int blockZ) {
         return ClientShapes.fold(shape, new BlockPos(blockX, 0, blockZ));
     }
 
-    public static boolean glueableAt(int slotSizeBlocks) {
-        return glueableAt(browsedShape(), slotSizeBlocks);
-    }
-
-    static boolean glueableAt(@Nullable ToroidalShape shape, int slotSizeBlocks) {
+    public static boolean glueableAt(@Nullable ToroidalShape shape, int slotSizeBlocks) {
         if (shape == null) {
             return false;
         }
@@ -353,7 +320,7 @@ public final class XaeroWorldMapFold {
         return drawnCopies(browsedShape(), spanX, spanZ, mapCopies);
     }
 
-    static List<WorldCopies.Copy> drawnCopies(@Nullable ToroidalShape shape, int[] spanX, int[] spanZ,
+    public static List<WorldCopies.Copy> drawnCopies(@Nullable ToroidalShape shape, int[] spanX, int[] spanZ,
             MapCopies mapCopies) {
         List<WorldCopies.Copy> copies = WorldCopies.meeting(shape, spanX[0], spanZ[0], spanX[1], spanZ[1]);
         if (mapCopies != MapCopies.SINGLE) {
