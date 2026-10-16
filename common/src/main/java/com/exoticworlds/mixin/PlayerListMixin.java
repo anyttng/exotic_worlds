@@ -3,9 +3,11 @@ package com.exoticworlds.mixin;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -37,6 +39,10 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(PlayerList.class)
 public class PlayerListMixin {
+    @Unique
+    private static final String BROADCAST_ALL =
+            "Lnet/minecraft/server/players/PlayerList;broadcastAll(Lnet/minecraft/network/protocol/Packet;)V";
+
     @Shadow
     @Final
     private List<ServerPlayer> players;
@@ -82,10 +88,39 @@ public class PlayerListMixin {
         ClientPosition.rebase(respawned);
     }
 
+    @WrapOperation(
+            method = "placeNewPlayer",
+            at = @At(value = "FIELD", target = "Lnet/minecraft/server/players/PlayerList;viewDistance:I",
+                    opcode = Opcodes.GETFIELD))
+    private int toroidal$loginViewDistance(PlayerList playerList, Operation<Integer> original,
+            @Local(argsOnly = true) ServerPlayer player) {
+        return WorldShapeSync.distanceFor(player, original.call(playerList));
+    }
+
+    @WrapOperation(
+            method = "placeNewPlayer",
+            at = @At(value = "FIELD", target = "Lnet/minecraft/server/players/PlayerList;simulationDistance:I",
+                    opcode = Opcodes.GETFIELD))
+    private int toroidal$loginSimulationDistance(PlayerList playerList, Operation<Integer> original,
+            @Local(argsOnly = true) ServerPlayer player) {
+        return WorldShapeSync.distanceFor(player, original.call(playerList));
+    }
+
     @Inject(method = "respawn", at = @At("TAIL"))
     private void toroidal$sendBoundsOnRespawn(ServerPlayer player, boolean keepAllPlayerData,
             Entity.RemovalReason removalReason, CallbackInfoReturnable<ServerPlayer> cir) {
         WorldShapeSync.sendTo(cir.getReturnValue());
+    }
+
+    @WrapOperation(method = "setViewDistance", at = @At(value = "INVOKE", target = BROADCAST_ALL))
+    private void toroidal$sendViewDistancePerLevel(PlayerList playerList, Packet<?> packet, Operation<Void> original) {
+        playerList.getPlayers().forEach(WorldShapeSync::sendViewDistance);
+    }
+
+    @WrapOperation(method = "setSimulationDistance", at = @At(value = "INVOKE", target = BROADCAST_ALL))
+    private void toroidal$sendSimulationDistancePerLevel(PlayerList playerList, Packet<?> packet,
+            Operation<Void> original) {
+        playerList.getPlayers().forEach(WorldShapeSync::sendSimulationDistance);
     }
 
     @WrapOperation(
