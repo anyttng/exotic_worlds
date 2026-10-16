@@ -22,16 +22,20 @@ import com.seibel.distanthorizons.core.pos.blockPos.DhBlockPos2D;
 
 @Mixin(WorldGenerationQueue.class)
 public class WorldGenerationQueueMixin {
+    @Unique
     private static final String GENERATOR =
             "Lcom/seibel/distanthorizons/api/interfaces/override/worldGenerator/IDhApiWorldGenerator;";
 
+    @Unique
     private static final String MODE_POOL_CONSUMER =
             "Lcom/seibel/distanthorizons/api/enums/worldGeneration/EDhApiDistantGeneratorMode;"
                     + "Ljava/util/concurrent/ExecutorService;Ljava/util/function/Consumer;)"
                     + "Ljava/util/concurrent/CompletableFuture;";
 
+    @Unique
     private static final int CHUNKS_POOL_INDEX = 5;
 
+    @Unique
     private static final int LOD_POOL_INDEX = 7;
 
     @Shadow

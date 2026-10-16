@@ -5,6 +5,7 @@ import org.betterx.betterend.blocks.JellyshroomCapBlock;
 import org.betterx.betterend.blocks.UmbrellaTreeMembraneBlock;
 import org.betterx.betterend.noise.OpenSimplexNoise;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.compat.LapNoise;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 
 @Mixin({HelixTreeLeavesBlock.class, JellyshroomCapBlock.class, UmbrellaTreeMembraneBlock.class})
 public class ColourBlockPlacementMixin {
+    @Unique
     private static final double SCALE = 0.1;
 
     // The client predicts the placement too, so it reads the same lap noise through its own fold.
