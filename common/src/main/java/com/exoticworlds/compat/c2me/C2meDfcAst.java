@@ -160,7 +160,7 @@ public final class C2meDfcAst {
     private static IllegalStateException brokenShape(DensityFunction source, AstNode produced) {
         return new IllegalStateException("[c2me-compat] dfc_ast broken_shape type=" + source.getClass().getName()
                 + " produced=" + produced.getClass().getName()
-                + ": C2ME no longer compiles this function to the node the toroidal fold replaces");
+                + "; C2ME no longer compiles this function to the node the toroidal fold replaces");
     }
 
     private record Fold(SlotAxes axes, double horizontalScale, double vanillaScale, double verticalShare,

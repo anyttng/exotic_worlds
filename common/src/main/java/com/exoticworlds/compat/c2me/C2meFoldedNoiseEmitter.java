@@ -87,8 +87,6 @@ public final class C2meFoldedNoiseEmitter implements BytecodeEmitter<C2meFoldedN
             Type.DOUBLE_TYPE,
             Type.DOUBLE_TYPE);
 
-    // C2ME's own arrangement: the block coordinates as ints, and the result array doubling as the buffer for the
-    // first input that needs one.
     private static final int SINGLE_X_LOCAL = 1;
     private static final int SINGLE_Z_LOCAL = 3;
     private static final int RESULT_ARRAY_LOCAL = 1;
