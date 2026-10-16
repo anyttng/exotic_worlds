@@ -24,7 +24,8 @@ class MixinTargetCheckTest {
     static Stream<Class<?>> admitted() {
         return Stream.of(MixinFixtures.WrapOperationPresent.class, MixinFixtures.WrapMethodPresent.class,
                 MixinFixtures.WrapMethodQuantified.class,
-                MixinFixtures.InjectPresent.class, MixinFixtures.ModifyReturnValuePresent.class,
+                MixinFixtures.InjectPresent.class, MixinFixtures.InjectReturnablePresent.class,
+                MixinFixtures.ModifyReturnValuePresent.class,
                 MixinFixtures.ModifyExpressionValuePresent.class, MixinFixtures.ModifyVariablePresent.class,
                 MixinFixtures.ModifyArgPresent.class, MixinFixtures.ModifyArgsPresent.class,
                 MixinFixtures.ShadowFieldPresent.class, MixinFixtures.ShadowMethodPresent.class,
@@ -32,7 +33,8 @@ class MixinTargetCheckTest {
                 MixinFixtures.TargetHandlerPresent.class, MixinFixtures.PseudoOneOfTwoPresent.class,
                 MixinFixtures.NewPresent.class, MixinFixtures.NewByConstructorPresent.class,
                 MixinFixtures.SlicePresent.class, MixinFixtures.EverySelectedMethodPresent.class,
-                MixinFixtures.GameTarget.class);
+                MixinFixtures.GameTarget.class, MixinFixtures.AnyMethodSelector.class,
+                MixinFixtures.TargetHandlerShadowCall.class);
     }
 
     static Stream<Arguments> refused() {
@@ -40,6 +42,9 @@ class MixinTargetCheckTest {
                 Arguments.of(MixinFixtures.WrapOperationMissing.class, Reason.MISSING_INVOKE),
                 Arguments.of(MixinFixtures.WrapMethodMissing.class, Reason.MISSING_METHOD),
                 Arguments.of(MixinFixtures.InjectMissing.class, Reason.MISSING_METHOD),
+                Arguments.of(MixinFixtures.InjectCallbackInfoIntoValue.class, Reason.WRONG_CALLBACK),
+                Arguments.of(MixinFixtures.InjectReturnableIntoVoid.class, Reason.WRONG_CALLBACK),
+                Arguments.of(MixinFixtures.InjectWithoutCallback.class, Reason.WRONG_CALLBACK),
                 Arguments.of(MixinFixtures.ModifyReturnValueMissing.class, Reason.MISSING_METHOD),
                 Arguments.of(MixinFixtures.ModifyExpressionValueMissing.class, Reason.MISSING_FIELD_ACCESS),
                 Arguments.of(MixinFixtures.ModifyVariableMissing.class, Reason.MISSING_METHOD),
