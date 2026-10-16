@@ -32,6 +32,10 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(PlayerList.class)
 public class PlayerListMixin {
+    @Unique
+    private static final String BROADCAST_ALL =
+            "Lnet/minecraft/server/players/PlayerList;broadcastAll(Lnet/minecraft/network/protocol/Packet;)V";
+
     @WrapOperation(method = "broadcast", at = @At(value = "INVOKE", target = InjectionTargets.SERVER_PLAYER_GET_X))
     private double toroidal$listenerXThroughSeam(ServerPlayer player, Operation<Double> original,
             @Local(argsOnly = true, name = "x") double x, @Local(argsOnly = true, name = "y") double y,
@@ -71,10 +75,37 @@ public class PlayerListMixin {
         WorldShapeSync.sendAllTo(player);
     }
 
+    @WrapOperation(
+            method = "placeNewPlayer",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/server/players/PlayerList;getViewDistance()I"))
+    private int toroidal$loginViewDistance(PlayerList playerList, Operation<Integer> original,
+            @Local(argsOnly = true) ServerPlayer player) {
+        return WorldShapeSync.distanceFor(player, original.call(playerList));
+    }
+
+    @WrapOperation(
+            method = "placeNewPlayer",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/server/players/PlayerList;getSimulationDistance()I"))
+    private int toroidal$loginSimulationDistance(PlayerList playerList, Operation<Integer> original,
+            @Local(argsOnly = true) ServerPlayer player) {
+        return WorldShapeSync.distanceFor(player, original.call(playerList));
+    }
+
     @Inject(method = "respawn", at = @At("TAIL"))
     private void toroidal$sendBoundsOnRespawn(ServerPlayer player, boolean keepAllPlayerData,
             Entity.RemovalReason removalReason, CallbackInfoReturnable<ServerPlayer> cir) {
         WorldShapeSync.sendTo(cir.getReturnValue());
+    }
+
+    @WrapOperation(method = "setViewDistance", at = @At(value = "INVOKE", target = BROADCAST_ALL))
+    private void toroidal$sendViewDistancePerLevel(PlayerList playerList, Packet<?> packet, Operation<Void> original) {
+        playerList.getPlayers().forEach(WorldShapeSync::sendViewDistance);
+    }
+
+    @WrapOperation(method = "setSimulationDistance", at = @At(value = "INVOKE", target = BROADCAST_ALL))
+    private void toroidal$sendSimulationDistancePerLevel(PlayerList playerList, Packet<?> packet,
+            Operation<Void> original) {
+        playerList.getPlayers().forEach(WorldShapeSync::sendSimulationDistance);
     }
 
     @WrapOperation(
