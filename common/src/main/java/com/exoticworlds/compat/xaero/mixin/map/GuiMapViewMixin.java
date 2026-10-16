@@ -6,12 +6,14 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import org.joml.Matrix4f;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -22,11 +24,11 @@ import com.exoticworlds.compat.SeamLine;
 import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
-import com.exoticworlds.core.CoordinateConstants;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
@@ -53,9 +55,16 @@ public abstract class GuiMapViewMixin {
     private double cameraX;
     @Shadow
     private double cameraZ;
+    @Shadow
+    private Entity player;
+    @Shadow
+    private MapTileSelection mapTileSelection;
 
     @Unique
     private static final float CHANNEL_MAX = 255.0F;
+
+    @Unique
+    private static final String MAP_TILE_SELECTION_SET_END = "Lxaero/map/gui/MapTileSelection;setEnd(II)V";
 
     @Unique
     private MapCopies toroidal$mapCopies = MapCopies.REPEATED;
@@ -73,6 +82,10 @@ public abstract class GuiMapViewMixin {
     private int toroidal$selectionEndX;
     @Unique
     private int toroidal$selectionEndZ;
+    @Unique
+    private boolean toroidal$selectionEndPending;
+    @Unique
+    private ChunkPos toroidal$selectionEnd = ChunkPos.ZERO;
 
     @Shadow
     private static double destScale;
@@ -106,24 +119,22 @@ public abstract class GuiMapViewMixin {
         }
     }
 
-    @WrapOperation(
+    @ModifyExpressionValue(
             method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"},
             at = @At(
                     value = "INVOKE",
                     target = "Lxaero/map/entity/util/EntityUtil;getEntityX(Lnet/minecraft/world/entity/Entity;F)D"))
-    private double toroidal$foldCameraX(Entity entity, float partialTicks, Operation<Double> original) {
-        return XaeroWorldMapFold.foldPoint(original.call(entity, partialTicks),
-                EntityUtil.getEntityZ(entity, partialTicks)).x;
+    private double toroidal$foldCameraX(double x, @Local(name = "partialTicks") float partialTicks) {
+        return XaeroWorldMapFold.foldPoint(x, EntityUtil.getEntityZ(this.player, partialTicks)).x;
     }
 
-    @WrapOperation(
+    @ModifyExpressionValue(
             method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"},
             at = @At(
                     value = "INVOKE",
                     target = "Lxaero/map/entity/util/EntityUtil;getEntityZ(Lnet/minecraft/world/entity/Entity;F)D"))
-    private double toroidal$foldCameraZ(Entity entity, float partialTicks, Operation<Double> original) {
-        return XaeroWorldMapFold.foldPoint(EntityUtil.getEntityX(entity, partialTicks),
-                original.call(entity, partialTicks)).z;
+    private double toroidal$foldCameraZ(double z, @Local(name = "partialTicks") float partialTicks) {
+        return XaeroWorldMapFold.foldPoint(EntityUtil.getEntityX(this.player, partialTicks), z).z;
     }
 
     @Inject(
@@ -162,10 +173,26 @@ public abstract class GuiMapViewMixin {
         this.toroidal$cursorLapZ = rawZ - this.mouseBlockPosZ;
     }
 
-    @WrapOperation(
-            method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"},
-            at = @At(value = "INVOKE", target = "Lxaero/map/gui/MapTileSelection;setEnd(II)V"))
-    private void toroidal$unwrapSelectionEnd(MapTileSelection selection, int endX, int endZ, Operation<Void> original) {
+    @ModifyArg(method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"}, at = @At(value = "INVOKE", target = MAP_TILE_SELECTION_SET_END), index = 0)
+    private int toroidal$unwrapSelectionEndX(int endX) {
+        return toroidal$unwrappedSelectionEnd().x;
+    }
+
+    @ModifyArg(method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"}, at = @At(value = "INVOKE", target = MAP_TILE_SELECTION_SET_END), index = 1)
+    private int toroidal$unwrapSelectionEndZ(int endZ) {
+        return toroidal$unwrappedSelectionEnd().z;
+    }
+
+    @Unique
+    private ChunkPos toroidal$unwrappedSelectionEnd() {
+        if (this.toroidal$selectionEndPending) {
+            this.toroidal$selectionEndPending = false;
+            return this.toroidal$selectionEnd;
+        }
+
+        MapTileSelection selection = this.mapTileSelection;
+        int endX = SectionPos.blockToSectionCoord(this.mouseBlockPosX);
+        int endZ = SectionPos.blockToSectionCoord(this.mouseBlockPosZ);
         boolean fresh = selection != this.toroidal$trackedSelection;
         this.toroidal$trackedSelection = selection;
         AxisCopies copiesX = XaeroWorldMapFold.chunkCopies(Direction.Axis.X);
@@ -180,34 +207,46 @@ public abstract class GuiMapViewMixin {
         int unwrappedZ = unwrapped.z;
         this.toroidal$selectionEndX = unwrappedX;
         this.toroidal$selectionEndZ = unwrappedZ;
-        this.toroidal$selectionLapX = this.toroidal$cursorLapX - (unwrappedX - endX) * CoordinateConstants.CHUNK_WIDTH;
-        this.toroidal$selectionLapZ = this.toroidal$cursorLapZ - (unwrappedZ - endZ) * CoordinateConstants.CHUNK_WIDTH;
-        original.call(selection, copiesX.withinOneLap(startX, unwrappedX), copiesZ.withinOneLap(startZ, unwrappedZ));
+        this.toroidal$selectionLapX = this.toroidal$cursorLapX - SectionPos.sectionToBlockCoord(unwrappedX - endX);
+        this.toroidal$selectionLapZ = this.toroidal$cursorLapZ - SectionPos.sectionToBlockCoord(unwrappedZ - endZ);
+        this.toroidal$selectionEnd = new ChunkPos(copiesX.withinOneLap(startX, unwrappedX),
+                copiesZ.withinOneLap(startZ, unwrappedZ));
+        this.toroidal$selectionEndPending = true;
+        return this.toroidal$selectionEnd;
     }
 
-    @WrapOperation(
+    @ModifyVariable(method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"}, at = @At("STORE"), name = "chunkHighlightLeftX")
+    private int toroidal$seatHighlightLeft(int leftX) {
+        return leftX + this.toroidal$cursorLapX;
+    }
+
+    @ModifyVariable(method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"}, at = @At("STORE"), name = "chunkHighlightRightX")
+    private int toroidal$seatHighlightRight(int rightX) {
+        return rightX + this.toroidal$cursorLapX;
+    }
+
+    @ModifyVariable(method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"}, at = @At("STORE"), name = "chunkHighlightTopZ")
+    private int toroidal$seatHighlightTop(int topZ) {
+        return topZ + this.toroidal$cursorLapZ;
+    }
+
+    @ModifyVariable(method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"}, at = @At("STORE"), name = "chunkHighlightBottomZ")
+    private int toroidal$seatHighlightBottom(int bottomZ) {
+        return bottomZ + this.toroidal$cursorLapZ;
+    }
+
+    @Inject(
             method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"},
             at = @At(
                     value = "INVOKE",
-                    target = XaeroInjectionTargets.MAP_RENDER_HELPER_RENDER_DYNAMIC_HIGHLIGHT,
-                    ordinal = 0))
-    private void toroidal$drawSeamGrid(
-            PoseStack matrixStack, VertexConsumer overlayBuffer, int flooredCameraX, int flooredCameraZ,
-            int leftX, int rightX, int topZ, int bottomZ,
-            float sideR, float sideG, float sideB, float sideA, float centerR, float centerG, float centerB, float centerA,
-            Operation<Void> original) {
-        if (!XaeroWorldMapFold.active()) {
-            original.call(matrixStack, overlayBuffer, flooredCameraX, flooredCameraZ, leftX, rightX, topZ, bottomZ,
-                    sideR, sideG, sideB, sideA, centerR, centerG, centerB, centerA);
-            return;
-        }
-
-        int lapX = this.toroidal$cursorLapX;
-        int lapZ = this.toroidal$cursorLapZ;
-        original.call(matrixStack, overlayBuffer, flooredCameraX, flooredCameraZ,
-                leftX + lapX, rightX + lapX, topZ + lapZ, bottomZ + lapZ,
-                sideR, sideG, sideB, sideA, centerR, centerG, centerB, centerA);
-        if (!this.toroidal$mapCopies.drawsSeamLines()) {
+                    target = "Lxaero/map/graphics/MapRenderHelper;renderDynamicHighlight(Lcom/mojang/blaze3d/vertex/PoseStack;"
+                            + "Lcom/mojang/blaze3d/vertex/VertexConsumer;IIIIIIFFFFFFFF)V",
+                    ordinal = 0,
+                    shift = At.Shift.AFTER))
+    private void toroidal$drawSeamGrid(CallbackInfo ci, @Local(name = "matrixStack") PoseStack matrixStack,
+            @Local(name = "overlayBuffer") VertexConsumer overlayBuffer,
+            @Local(name = "flooredCameraX") int flooredCameraX, @Local(name = "flooredCameraZ") int flooredCameraZ) {
+        if (!this.toroidal$mapCopies.drawsSeamLines() || !XaeroWorldMapFold.active()) {
             return;
         }
 
@@ -228,21 +267,31 @@ public abstract class GuiMapViewMixin {
         }
     }
 
-    @WrapOperation(
+    @ModifyExpressionValue(
             method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"},
-            at = @At(
-                    value = "INVOKE",
-                    target = XaeroInjectionTargets.MAP_RENDER_HELPER_RENDER_DYNAMIC_HIGHLIGHT,
-                    ordinal = 1))
-    private void toroidal$drawSelectionInCursorCopy(
-            PoseStack matrixStack, VertexConsumer overlayBuffer, int flooredCameraX, int flooredCameraZ,
-            int leftX, int rightX, int topZ, int bottomZ,
-            float sideR, float sideG, float sideB, float sideA, float centerR, float centerG, float centerB, float centerA,
-            Operation<Void> original) {
-        int lapX = this.toroidal$selectionLapX;
-        int lapZ = this.toroidal$selectionLapZ;
-        original.call(matrixStack, overlayBuffer, flooredCameraX, flooredCameraZ,
-                leftX + lapX, rightX + lapX, topZ + lapZ, bottomZ + lapZ,
-                sideR, sideG, sideB, sideA, centerR, centerG, centerB, centerA);
+            at = @At(value = "INVOKE", target = "Lxaero/map/gui/MapTileSelection;getLeft()I"))
+    private int toroidal$seatSelectionLeft(int left) {
+        return left + SectionPos.blockToSectionCoord(this.toroidal$selectionLapX);
+    }
+
+    @ModifyExpressionValue(
+            method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"},
+            at = @At(value = "INVOKE", target = "Lxaero/map/gui/MapTileSelection;getRight()I"))
+    private int toroidal$seatSelectionRight(int right) {
+        return right + SectionPos.blockToSectionCoord(this.toroidal$selectionLapX);
+    }
+
+    @ModifyExpressionValue(
+            method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"},
+            at = @At(value = "INVOKE", target = "Lxaero/map/gui/MapTileSelection;getTop()I"))
+    private int toroidal$seatSelectionTop(int top) {
+        return top + SectionPos.blockToSectionCoord(this.toroidal$selectionLapZ);
+    }
+
+    @ModifyExpressionValue(
+            method = {"render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", "method_25394(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"},
+            at = @At(value = "INVOKE", target = "Lxaero/map/gui/MapTileSelection;getBottom()I"))
+    private int toroidal$seatSelectionBottom(int bottom) {
+        return bottom + SectionPos.blockToSectionCoord(this.toroidal$selectionLapZ);
     }
 }

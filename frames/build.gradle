@@ -1,0 +1,33 @@
+plugins {
+    id 'java-library'
+}
+
+version = exotic_worlds_version
+group = mod_group_id
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+repositories {
+    maven {
+        name = 'NeoForged'
+        url = 'https://maven.neoforged.net/releases'
+    }
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly("net.neoforged.fancymodloader:loader:${fml_version}") { transitive = false }
+    compileOnly("cpw.mods:modlauncher:${modlauncher_version}") { transitive = false }
+    compileOnly "org.ow2.asm:asm-tree:${asm_version}"
+    compileOnly "org.slf4j:slf4j-api:${slf4j_version}"
+}
+
+base {
+    archivesName = 'exotic_worlds-xaero-frames'
+}
+
+tasks.named('jar', Jar) {
+    manifest {
+        attributes('FMLModType': 'LIBRARY', 'Automatic-Module-Name': 'com.exoticworlds.frames')
+    }
+}

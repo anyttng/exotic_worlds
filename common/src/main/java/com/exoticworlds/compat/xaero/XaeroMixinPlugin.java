@@ -1,6 +1,8 @@
 package com.exoticworlds.compat.xaero;
 
+import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
+import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import com.mojang.logging.LogUtils;
 import com.exoticworlds.compat.ModPresence;
@@ -14,6 +16,9 @@ public class XaeroMixinPlugin extends ModPresenceGatePlugin {
     private static final String WORLDMAP_RESOURCE = "xaero/map/WorldMap.class";
     private static final String WORLDMAP_MIXIN_PACKAGE = "map.";
     private static final String SUPPORT_WORLDMAP_MIXIN = WORLDMAP_MIXIN_PACKAGE + "SupportXaeroWorldmapMixin";
+    private static final String GUI_MAP_REGION_MIXIN = WORLDMAP_MIXIN_PACKAGE + "GuiMapRegionMixin";
+    private static final String GUI_MAP_VIEW_MIXIN = WORLDMAP_MIXIN_PACKAGE + "GuiMapViewMixin";
+    private static final String GUI_MAP_CLASS = "xaero.map.gui.GuiMap";
 
     private static final ModPresence XAERO_MINIMAP = ModPresence.gate(LOGGER,
                     "[xaero-compat] gate xaero_minimap_present")
@@ -26,6 +31,8 @@ public class XaeroMixinPlugin extends ModPresenceGatePlugin {
             .probing(WORLDMAP_RESOURCE)
             .checking(CONFIG, mixin -> mixin.startsWith(WORLDMAP_MIXIN_PACKAGE)
                     && !mixin.equals(SUPPORT_WORLDMAP_MIXIN))
+            .withholding(GUI_MAP_REGION_MIXIN, XaeroFrameBudget::exceeded)
+            .withholding(GUI_MAP_VIEW_MIXIN, XaeroFrameBudget::exceeded)
             .build();
 
     private static final ModPresence XAERO_BOTH = ModPresence.gate(LOGGER,
@@ -34,7 +41,17 @@ public class XaeroMixinPlugin extends ModPresenceGatePlugin {
             .checking(CONFIG, SUPPORT_WORLDMAP_MIXIN::equals)
             .build();
 
+    private boolean guiMapValveRan;
+
     public XaeroMixinPlugin() {
         super(XAERO_MINIMAP, XAERO_WORLDMAP, XAERO_BOTH);
+    }
+
+    @Override
+    public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
+        if (GUI_MAP_CLASS.equals(targetClassName) && !this.guiMapValveRan) {
+            this.guiMapValveRan = true;
+            XaeroFrameBudget.restoreIfRefused(targetClass);
+        }
     }
 }

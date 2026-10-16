@@ -414,6 +414,9 @@ dependencies {
     testRuntimeOnly "maven.modrinth:lithium:${lithium_version}"
     testRuntimeOnly "maven.modrinth:scalablelux:${scalablelux_version}"
     testRuntimeOnly "net.fabricmc:sponge-mixin:${mixin_version}"
+    testRuntimeOnly "org.ow2.asm:asm:${asm_version}"
+    testRuntimeOnly "org.ow2.asm:asm-tree:${asm_version}"
+    testRuntimeOnly project(':frames')
     // The checker's fixture mixins carry the real annotations.
     testCompileOnly "net.fabricmc:sponge-mixin:${mixin_version}"
     testCompileOnly "io.github.llamalad7:mixinextras-common:${mixinextras_version}"
