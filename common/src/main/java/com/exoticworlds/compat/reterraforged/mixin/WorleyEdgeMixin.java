@@ -45,9 +45,8 @@ public abstract class WorleyEdgeMixin {
 
         float value;
         try (RtfLap.Frame.Scope lattice = frame.octave(this.frequency)) {
-            float latticeX = frame.latticeX(x, z) * frame.xScale();
-            float latticeZ = frame.shiftZ(z) * frame.zScale();
-            value = sample(latticeX, latticeZ, seed, this.distance, this.edgeFunction, this.distanceFunction);
+            value = sample(frame.latticeU(x, z), frame.latticeV(z), seed, this.distance, this.edgeFunction,
+                    this.distanceFunction);
         }
 
         return NoiseUtil.map(value, this.edgeFunction.min(), this.edgeFunction.max(), this.edgeFunction.range());

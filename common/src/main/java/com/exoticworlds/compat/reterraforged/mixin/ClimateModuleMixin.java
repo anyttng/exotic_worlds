@@ -106,15 +106,13 @@ public abstract class ClimateModuleMixin implements RtfClimateScales {
     @ModifyExpressionValue(method = APPLY,
             at = @At(value = "FIELD", target = BIOME_FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = X_READ))
     private float toroidal$snapX(float frequency) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
-        return frame == null ? frequency : frame.snappedFrequency(Direction.Axis.X, frequency);
+        return RtfLap.snapped(Direction.Axis.X, frequency);
     }
 
     @ModifyExpressionValue(method = APPLY,
             at = @At(value = "FIELD", target = BIOME_FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = Z_READ))
     private float toroidal$snapZ(float frequency) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
-        return frame == null ? frequency : frame.snappedFrequency(Direction.Axis.Z, frequency);
+        return RtfLap.snapped(Direction.Axis.Z, frequency);
     }
 
     // A cell centre divided by this read is the block the continent is asked about, which Compact biomes never moves.

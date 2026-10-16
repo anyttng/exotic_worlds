@@ -63,9 +63,8 @@ public abstract class ErosionNoiseMixin {
         for (int octave = 0; octave < this.octaves; octave++) {
             float value;
             try (RtfLap.Frame.Scope lattice = frame.octave(octaveScale / distance)) {
-                float latticeX = frame.latticeX(x, y) * frame.xScale() * distance;
-                float latticeY = frame.shiftZ(y) * frame.zScale() * distance;
-                value = getSingleErosionValue(latticeX, latticeY, distance, cache);
+                value = getSingleErosionValue(frame.latticeU(x, y) * distance, frame.latticeV(y) * distance, distance,
+                        cache);
             }
 
             sum += value * gain;

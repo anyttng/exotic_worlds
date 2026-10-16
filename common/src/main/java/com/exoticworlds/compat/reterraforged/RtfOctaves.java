@@ -20,8 +20,8 @@ public final class RtfOctaves {
         double octaveFrequency = frequency;
         for (int octave = 0; octave < octaves; octave++) {
             try (RtfLap.Frame.Scope lattice = frame.octave(octaveFrequency)) {
-                sum += sample.at(frame.latticeX(x, z) * frame.xScale(), frame.shiftZ(z) * frame.zScale(),
-                        firstSeed + octave, interpolation) * amplitude;
+                sum += sample.at(frame.latticeU(x, z), frame.latticeV(z), firstSeed + octave,
+                        interpolation) * amplitude;
             }
 
             octaveFrequency *= lacunarity;
@@ -40,8 +40,7 @@ public final class RtfOctaves {
         for (int octave = 0; octave < octaves; octave++) {
             float signal;
             try (RtfLap.Frame.Scope lattice = frame.octave(octaveFrequency)) {
-                signal = sample.at(frame.latticeX(x, z) * frame.xScale(), frame.shiftZ(z) * frame.zScale(),
-                        firstSeed + octave, interpolation);
+                signal = sample.at(frame.latticeU(x, z), frame.latticeV(z), firstSeed + octave, interpolation);
             }
 
             signal = RIDGE_OFFSET - Math.abs(signal);

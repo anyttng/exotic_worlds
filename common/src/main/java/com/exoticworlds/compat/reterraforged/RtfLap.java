@@ -57,6 +57,11 @@ public final class RtfLap {
         return frame.bound() ? frame : null;
     }
 
+    public static float snapped(Direction.Axis axis, float frequency) {
+        Frame frame = boundFrame();
+        return frame == null ? frequency : frame.snappedFrequency(axis, frequency);
+    }
+
     public static final class Frame {
         private double xLap = OPEN;
         private double zLap = OPEN;
@@ -262,6 +267,14 @@ public final class RtfLap {
             double laps = zLaps(z);
             return wrapX(x - laps * this.entrySkew
                     + (this.skew - this.entrySkew) * (z - laps * this.zLap) / this.zLap);
+        }
+
+        public float latticeU(float x, float z) {
+            return latticeX(x, z) * this.xScale;
+        }
+
+        public float latticeV(float z) {
+            return shiftZ(z) * this.zScale;
         }
 
         public boolean sheared() {

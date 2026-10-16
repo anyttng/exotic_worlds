@@ -1,5 +1,6 @@
 package com.exoticworlds.compat.reterraforged;
 
+import net.minecraft.core.Direction;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 
 // A value that holds for a whole lattice cell is computed from the cell's folded index, never from the point that
@@ -12,6 +13,57 @@ public final class CellCenters {
     private static final float VERTEX_DETERMINANT_FLOOR = 1.0E-5F;
 
     private static final float VERTEX_SLACK = 1.0E-4F;
+
+    public enum Center {
+        JITTERED {
+            @Override
+            float x(RtfLap.Frame frame, int seed, int cellX, int cellY, float jitter) {
+                return jitteredX(frame, seed, cellX, cellY, jitter);
+            }
+
+            @Override
+            float z(RtfLap.Frame frame, int seed, int cellX, int cellY, float jitter) {
+                return jitteredZ(frame, seed, cellX, cellY, jitter);
+            }
+        },
+        CORRECTED {
+            @Override
+            float x(RtfLap.Frame frame, int seed, int cellX, int cellY, float jitter) {
+                return correctedX(frame, seed, cellX, cellY, jitter);
+            }
+
+            @Override
+            float z(RtfLap.Frame frame, int seed, int cellX, int cellY, float jitter) {
+                return correctedZ(frame, seed, cellX, cellY, jitter);
+            }
+        },
+        CENTROID {
+            @Override
+            float x(RtfLap.Frame frame, int seed, int cellX, int cellY, float jitter) {
+                return centroidX(frame, seed, cellX, cellY, jitter);
+            }
+
+            @Override
+            float z(RtfLap.Frame frame, int seed, int cellX, int cellY, float jitter) {
+                return centroidZ(frame, seed, cellX, cellY, jitter);
+            }
+        };
+
+        abstract float x(RtfLap.Frame frame, int seed, int cellX, int cellY, float jitter);
+
+        abstract float z(RtfLap.Frame frame, int seed, int cellX, int cellY, float jitter);
+    }
+
+    public static float blockX(RtfLap.Frame frame, Center center, int seed, int cellX, int cellY, float jitter,
+            float frequency) {
+        float x = center.x(frame, seed, cellX, cellY, jitter) / frame.snappedFrequency(Direction.Axis.X, frequency);
+        return frame.sheared() ? frame.outerX(x, blockZ(frame, center, seed, cellX, cellY, jitter, frequency)) : x;
+    }
+
+    public static float blockZ(RtfLap.Frame frame, Center center, int seed, int cellX, int cellY, float jitter,
+            float frequency) {
+        return center.z(frame, seed, cellX, cellY, jitter) / frame.snappedFrequency(Direction.Axis.Z, frequency);
+    }
 
     public static float jitteredX(RtfLap.Frame frame, int seed, int cellX, int cellY, float jitter) {
         int canonicalX = frame.foldX(cellX, cellY);

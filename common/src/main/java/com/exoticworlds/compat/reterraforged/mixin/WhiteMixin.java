@@ -24,9 +24,7 @@ public abstract class WhiteMixin {
         }
 
         try (RtfLap.Frame.Scope lattice = frame.octave(this.frequency)) {
-            float latticeX = frame.latticeX(x, z) * frame.xScale();
-            float latticeZ = frame.shiftZ(z) * frame.zScale();
-            return Math.abs(White.sample(latticeX, latticeZ, seed));
+            return Math.abs(White.sample(frame.latticeU(x, z), frame.latticeV(z), seed));
         }
     }
 }

@@ -12,7 +12,8 @@ import com.exoticworlds.compat.reterraforged.RtfEntry;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import raccoonman.reterraforged.world.worldgen.densityfunction.CellSampler;
 
-@Mixin(CellSampler.class)
+@Mixin(value = CellSampler.class,
+        targets = "raccoonman.reterraforged.world.worldgen.densityfunction.CellSampler$CacheChunk")
 public abstract class CellSamplerMixin {
     @WrapOperation(method = {ReTerraForgedInjectionTargets.COMPUTE, ReTerraForgedInjectionTargets.COMPUTE_INTERMEDIARY},
             at = @At(value = "INVOKE", target = InjectionTargets.FUNCTION_CONTEXT_BLOCK_X))

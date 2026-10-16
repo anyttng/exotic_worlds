@@ -60,10 +60,8 @@ public abstract class WorleyMixin {
 
         float value;
         try (RtfLap.Frame.Scope lattice = frame.octave(this.frequency)) {
-            float latticeX = frame.latticeX(x, z) * frame.xScale();
-            float latticeZ = frame.shiftZ(z) * frame.zScale();
-            value = sample(latticeX, latticeZ, seed, this.distance, this.cellFunction, this.distanceFunction,
-                    this.lookup);
+            value = sample(frame.latticeU(x, z), frame.latticeV(z), seed, this.distance, this.cellFunction,
+                    this.distanceFunction, this.lookup);
         }
 
         return this.cellFunction.mapValue(value, this.min, this.max, this.max - this.min);

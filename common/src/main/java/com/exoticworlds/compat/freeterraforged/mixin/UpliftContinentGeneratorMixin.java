@@ -3,7 +3,6 @@ package com.exoticworlds.compat.freeterraforged.mixin;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -62,15 +61,13 @@ public abstract class UpliftContinentGeneratorMixin {
     @ModifyExpressionValue(method = {"apply", "getSmoothVoronoiGradient"},
             at = @At(value = "FIELD", target = FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = X_READ))
     private float toroidal$snapX(float frequency) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
-        return frame == null ? frequency : frame.snappedFrequency(Direction.Axis.X, frequency);
+        return RtfLap.snapped(Direction.Axis.X, frequency);
     }
 
     @ModifyExpressionValue(method = {"apply", "getSmoothVoronoiGradient"},
             at = @At(value = "FIELD", target = FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = Z_READ))
     private float toroidal$snapZ(float frequency) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
-        return frame == null ? frequency : frame.snappedFrequency(Direction.Axis.Z, frequency);
+        return RtfLap.snapped(Direction.Axis.Z, frequency);
     }
 
     @WrapOperation(method = "apply", at = @At(value = "FIELD",
@@ -84,9 +81,8 @@ public abstract class UpliftContinentGeneratorMixin {
         }
 
         AbstractContinentAccessor continent = (AbstractContinentAccessor) (Object) this;
-        float x = CellCenters.centroidX(frame, continent.toroidal$seed(), cellX, cellY, continent.toroidal$jitter())
-                / frame.snappedFrequency(Direction.Axis.X, this.frequency);
-        original.call(cell, Math.round(frame.sheared() ? frame.outerX(x, toroidal$blockZ(frame, cellX, cellY)) : x));
+        original.call(cell, Math.round(CellCenters.blockX(frame, CellCenters.Center.CENTROID,
+                continent.toroidal$seed(), cellX, cellY, continent.toroidal$jitter(), this.frequency)));
     }
 
     @WrapOperation(method = "apply", at = @At(value = "FIELD",
@@ -99,13 +95,8 @@ public abstract class UpliftContinentGeneratorMixin {
             return;
         }
 
-        original.call(cell, Math.round(toroidal$blockZ(frame, cellX, cellY)));
-    }
-
-    @Unique
-    private float toroidal$blockZ(RtfLap.Frame frame, int cellX, int cellY) {
         AbstractContinentAccessor continent = (AbstractContinentAccessor) (Object) this;
-        return CellCenters.centroidZ(frame, continent.toroidal$seed(), cellX, cellY, continent.toroidal$jitter())
-                / frame.snappedFrequency(Direction.Axis.Z, this.frequency);
+        original.call(cell, Math.round(CellCenters.blockZ(frame, CellCenters.Center.CENTROID,
+                continent.toroidal$seed(), cellX, cellY, continent.toroidal$jitter(), this.frequency)));
     }
 }

@@ -80,15 +80,13 @@ public abstract class ContinentGeneratorMixin {
     @ModifyExpressionValue(method = {"apply", "getEdgeValue", "getNearestCenter"},
             at = @At(value = "FIELD", target = FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = X_READ))
     private float toroidal$snapX(float frequency) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
-        return frame == null ? frequency : frame.snappedFrequency(Direction.Axis.X, frequency);
+        return RtfLap.snapped(Direction.Axis.X, frequency);
     }
 
     @ModifyExpressionValue(method = {"apply", "getEdgeValue", "getNearestCenter"},
             at = @At(value = "FIELD", target = FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = Z_READ))
     private float toroidal$snapZ(float frequency) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
-        return frame == null ? frequency : frame.snappedFrequency(Direction.Axis.Z, frequency);
+        return RtfLap.snapped(Direction.Axis.Z, frequency);
     }
 
     @WrapOperation(method = "apply", at = @At(value = "FIELD", target = ReTerraForgedInjectionTargets.CELL_CONTINENT_X,
@@ -123,19 +121,13 @@ public abstract class ContinentGeneratorMixin {
 
     @Unique
     private int toroidal$centerX(RtfLap.Frame frame, int cellX, int cellY) {
-        float x = CellCenters.jitteredX(frame, this.seed, cellX, cellY, this.offsetAlpha)
-                / frame.snappedFrequency(Direction.Axis.X, this.frequency);
-        return (int) (frame.sheared() ? frame.outerX(x, toroidal$blockZ(frame, cellX, cellY)) : x);
+        return (int) CellCenters.blockX(frame, CellCenters.Center.JITTERED, this.seed, cellX, cellY, this.offsetAlpha,
+                this.frequency);
     }
 
     @Unique
     private int toroidal$centerZ(RtfLap.Frame frame, int cellX, int cellY) {
-        return (int) toroidal$blockZ(frame, cellX, cellY);
-    }
-
-    @Unique
-    private float toroidal$blockZ(RtfLap.Frame frame, int cellX, int cellY) {
-        return CellCenters.jitteredZ(frame, this.seed, cellX, cellY, this.offsetAlpha)
-                / frame.snappedFrequency(Direction.Axis.Z, this.frequency);
+        return (int) CellCenters.blockZ(frame, CellCenters.Center.JITTERED, this.seed, cellX, cellY, this.offsetAlpha,
+                this.frequency);
     }
 }
