@@ -100,7 +100,6 @@ public abstract class MapRendererMixin {
     @Shadow(remap = false)
     public abstract UIState getUIState();
 
-    // Render-thread only, like every caller of these methods.
     @Unique
     private static boolean toroidal$anchorPass;
 

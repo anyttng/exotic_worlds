@@ -1,6 +1,7 @@
 package com.exoticworlds.compat.terrablender.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -13,7 +14,9 @@ import terrablender.worldgen.noise.PixelTransformer;
 
 @Mixin(value = AreaContext.class, remap = false)
 public class AreaContextMixin {
+    @Unique
     private static final String TRANSFORMER = "Lterrablender/worldgen/noise/PixelTransformer;";
+    @Unique
     private static final String AREA = "Lterrablender/worldgen/noise/Area;";
 
     @ModifyReturnValue(method = "createResult(" + TRANSFORMER + ")" + AREA, at = @At("RETURN"))
@@ -24,7 +27,7 @@ public class AreaContextMixin {
 
     @ModifyReturnValue(method = "createResult(" + TRANSFORMER + AREA + ")" + AREA, at = @At("RETURN"))
     private Area toroidal$enrolZoomLayer(Area area, PixelTransformer transformer, Area parent) {
-        enrolAbove(area, (LayeredArea) (Object) parent);
+        toroidal$enrolAbove(area, (LayeredArea) (Object) parent);
         return area;
     }
 
@@ -32,11 +35,12 @@ public class AreaContextMixin {
     private Area toroidal$enrolMergeLayer(Area area, PixelTransformer transformer, Area first, Area second) {
         LayeredArea firstLayer = (LayeredArea) (Object) first;
         LayeredArea secondLayer = (LayeredArea) (Object) second;
-        enrolAbove(area, firstLayer.toroidal$depth() >= secondLayer.toroidal$depth() ? firstLayer : secondLayer);
+        toroidal$enrolAbove(area, firstLayer.toroidal$depth() >= secondLayer.toroidal$depth() ? firstLayer : secondLayer);
         return area;
     }
 
-    private static void enrolAbove(Area area, LayeredArea parent) {
+    @Unique
+    private static void toroidal$enrolAbove(Area area, LayeredArea parent) {
         RegionLayerStack stack = parent.toroidal$stack();
         ((LayeredArea) (Object) area).toroidal$enrol(stack != null ? stack : new RegionLayerStack(),
                 parent.toroidal$depth() + 1);

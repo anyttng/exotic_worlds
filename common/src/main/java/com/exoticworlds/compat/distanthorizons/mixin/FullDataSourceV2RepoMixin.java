@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.compat.distanthorizons.DhKeys;
@@ -21,6 +22,7 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 
 @Mixin(FullDataSourceV2Repo.class)
 public class FullDataSourceV2RepoMixin {
+    @Unique
     private static final String CREATE_PREPARED_STATEMENT = "Lcom/seibel/distanthorizons/core/sql/repo/FullDataSourceV2Repo;"
             + "createPreparedStatement(Ljava/lang/String;)Ljava/sql/PreparedStatement;";
 

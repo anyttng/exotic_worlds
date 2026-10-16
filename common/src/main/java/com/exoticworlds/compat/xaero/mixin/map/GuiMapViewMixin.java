@@ -1,5 +1,6 @@
 package com.exoticworlds.compat.xaero.mixin.map;
 
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -148,7 +149,7 @@ public abstract class GuiMapViewMixin {
             at = @At(
                     value = "FIELD",
                     target = "Lxaero/map/gui/GuiMap;mouseBlockPosZ:I",
-                    opcode = 181,
+                    opcode = Opcodes.PUTFIELD,
                     ordinal = 1,
                     shift = At.Shift.AFTER))
     private void toroidal$foldCursorBlockPos(CallbackInfo ci) {
