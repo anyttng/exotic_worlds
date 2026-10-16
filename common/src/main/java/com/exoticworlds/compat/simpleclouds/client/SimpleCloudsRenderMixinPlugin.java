@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import com.exoticworlds.compat.ModPresence;
 import com.exoticworlds.compat.ModPresenceGatePlugin;
+import com.exoticworlds.compat.simpleclouds.SimpleCloudsMixinPlugin;
 
 public class SimpleCloudsRenderMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -12,6 +13,7 @@ public class SimpleCloudsRenderMixinPlugin extends ModPresenceGatePlugin {
     private static final ModPresence SIMPLE_CLOUDS_RENDER = ModPresence.gate(LOGGER, "[sc-compat] gate simpleclouds_render_present")
             .probing("dev/nonamecrackers2/simpleclouds/SimpleCloudsMod.class")
             .checking("exotic_worlds.compat.simpleclouds.client.mixins.json")
+            .requiring(SimpleCloudsMixinPlugin.SIMPLE_CLOUDS)
             .build();
 
     public SimpleCloudsRenderMixinPlugin() {
