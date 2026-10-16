@@ -3,6 +3,7 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
@@ -19,9 +20,7 @@ import net.minecraft.world.phys.Vec3;
 public class PlayerMixin {
     @WrapOperation(
             method = "isWithinBlockInteractionRange",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/phys/AABB;distanceToSqr(Lnet/minecraft/world/phys/Vec3;)D"))
+            at = @At(value = "INVOKE", target = InjectionTargets.AABB_DISTANCE_TO_SQR))
     private double toroidal$wrappedBlockReach(AABB block, Vec3 eye, Operation<Double> original) {
         WorldFold transformer = ((TransformerSource) this).toroidal$wrappedTransformer();
         if (transformer == null) {
