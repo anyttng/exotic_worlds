@@ -10,10 +10,6 @@ public final class C2meChunkSystem {
                     && !mixin.equals(C2meLightingLock.MIXIN) && !C2meNoTickVd.MIXINS.contains(mixin))
             .build();
 
-    public static boolean present() {
-        return GATE.present();
-    }
-
     private C2meChunkSystem() {
     }
 }
