@@ -17,6 +17,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.exoticworlds.compat.AxisCopies;
 import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.compat.MapViewSpan;
+import com.exoticworlds.compat.SeamLine;
 import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
@@ -53,9 +54,6 @@ public abstract class GuiMapViewMixin {
 
     @Shadow
     protected abstract double getScaleMultiplier(int screenShortSide);
-
-    @Unique
-    private static final int SEAM_ARGB = 0xCCFFFFFF;
 
     @Unique
     private MapCopies toroidal$mapCopies = MapCopies.REPEATED;
@@ -218,7 +216,8 @@ public abstract class GuiMapViewMixin {
                     seam.fromX() - flooredCameraX, seam.fromZ() - flooredCameraZ,
                     Math.max(seam.toX(), seam.fromX() + thickness) - flooredCameraX,
                     Math.max(seam.toZ(), seam.fromZ() + thickness) - flooredCameraZ,
-                    ARGB.redFloat(SEAM_ARGB), ARGB.greenFloat(SEAM_ARGB), ARGB.blueFloat(SEAM_ARGB), ARGB.alphaFloat(SEAM_ARGB));
+                    ARGB.redFloat(SeamLine.LINE_ARGB), ARGB.greenFloat(SeamLine.LINE_ARGB),
+                    ARGB.blueFloat(SeamLine.LINE_ARGB), ARGB.alphaFloat(SeamLine.LINE_ARGB));
         }
     }
 

@@ -6,7 +6,6 @@ import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.api.v1.ExoticWorldsClientApi;
 import com.exoticworlds.compat.AxisCopies;
 import com.exoticworlds.compat.ClientShapes;
 import com.exoticworlds.compat.FullscreenZoomFloor;
@@ -42,7 +41,7 @@ public final class XaeroWorldMapFold {
         MapProcessor processor = session == null ? null : session.getMapProcessor();
         MapWorld mapWorld = processor == null ? null : processor.getMapWorld();
         MapDimension dimension = mapWorld == null ? null : mapWorld.getCurrentDimension();
-        return dimension == null ? null : ExoticWorldsClientApi.shapeOf(dimension.getDimId()).orElse(null);
+        return dimension == null ? null : ClientShapes.of(dimension.getDimId());
     }
 
     public static boolean active() {

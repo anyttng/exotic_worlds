@@ -68,6 +68,16 @@ class FullscreenZoomFloorTest {
                 "a cylinder reads its Z width against the window height alone: ceil(1369 * 512 / 4096) = 172");
         assertEquals(5.0, FullscreenZoomFloor.xaeroCoverScale(torus(512, 1024), 1.0, 2560, 1369), 1e-12,
                 "X of 512 over 2560 px outweighs Z of 1024 over 1369 px");
+        assertEquals(0.78125F, FullscreenZoomFloor.simpleAtlasCoverZoom(torus(1024, 512), 320.0F, 200.0F, 128, 64.0F),
+                "X of 1024 over 320 px needs 0.625 and Z of 512 over 200 px needs 0.78125, the larger holds");
+        assertEquals(0.390625F, FullscreenZoomFloor.simpleAtlasCoverZoom(cylinder(1024), 320.0F, 200.0F, 128, 64.0F),
+                "a cylinder reads its Z width against the view height alone: 200 * 128 / (64 * 1024)");
+    }
+
+    @Test
+    void simpleAtlasCoversTheView() {
+        assertEquals(0.921875F, FullscreenZoomFloor.simpleAtlasCoverZoom(512, 236.0F, 128, 64.0F),
+                "236 px over 512 blocks of 128-block tiles drawn 64 px wide");
     }
 
     @Test
