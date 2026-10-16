@@ -11,10 +11,6 @@ public final class C2meOctaveNoise {
             .checking(C2meMixinPlugin.CONFIG, MIXIN::equals)
             .build();
 
-    public static boolean present() {
-        return GATE.present();
-    }
-
     private C2meOctaveNoise() {
     }
 }

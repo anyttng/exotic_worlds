@@ -41,9 +41,11 @@ import rubbertoe.simple_atlas.network.AtlasTilePayload;
 
 @Mixin(AtlasScreen.class)
 public abstract class AtlasScreenMixin {
+    @Unique
     private static final String WORLD_POINT_INIT =
             "Lrubbertoe/simple_atlas/client/screen/AtlasScreen$WorldPoint;<init>(DD)V";
 
+    @Unique
     private static final String ICON_RENDER_ARGS =
             "(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/Minecraft;Ljava/util/List;FFF)V";
 
