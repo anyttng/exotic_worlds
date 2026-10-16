@@ -70,15 +70,6 @@ public final class DhFold {
         return foldZ(lattice, leafDetailLevel, SectionPos.SECTION_SIZE, chunkZ);
     }
 
-    public static int foldBlock(ToroidalShape shape, Direction.Axis axis, byte leafDetailLevel, int block) {
-        if (!shape.loops(axis)) {
-            return block;
-        }
-
-        long period = periodBlocks(shape, axis, leafDetailLevel);
-        return (int) (block - Math.floorDiv((long) block - shape.minBlock(axis), period) * period);
-    }
-
     private static int foldX(DhLattice lattice, byte detailLevel, int unitBlocks, int valueX, int valueZ) {
         ToroidalShape shape = lattice.shape();
         AlignedPeriod period = period(lattice, detailLevel);
