@@ -1,12 +1,14 @@
 package com.exoticworlds.compat.simpleclouds.mixin;
 
-import org.joml.Matrix2f;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
+import org.spongepowered.asm.mixin.injection.Coerce;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.exoticworlds.compat.simpleclouds.CloudRegionSeat;
 import com.exoticworlds.compat.simpleclouds.CloudShape;
 import com.exoticworlds.compat.simpleclouds.SimpleCloudsShapes;
 
@@ -18,27 +20,29 @@ import net.minecraft.world.phys.Vec2;
 public abstract class CloudRegionMixin {
     @Unique
     private static final float CURRENT_TICK = 1.0F;
-    @Unique
-    private static final int REGION_ARG = 0;
-    @Unique
-    private static final int X_ARG = 1;
-    @Unique
-    private static final int Z_ARG = 2;
 
-    @ModifyArgs(method = "calculateAt", at = @At(value = "INVOKE",
+    @Unique
+    private @Nullable CloudRegionSeat toroidal$seat;
+
+    @WrapOperation(method = "calculateAt", at = @At(value = "INVOKE",
             target = "Ldev/nonamecrackers2/simpleclouds/common/cloud/region/CloudRegion;circle(Ldev/nonamecrackers2/simpleclouds/common/cloud/region/CloudRegion;FF)Ldev/nonamecrackers2/simpleclouds/common/cloud/region/CloudRegion$CompositeResult;"))
-    private static void toroidal$seatQuery(Args args) {
+    private static @Coerce Object toroidal$seatQuery(CloudRegion region, float x, float z,
+            Operation<Object> original) {
         CloudShape shape = SimpleCloudsShapes.current();
         if (shape == null) {
-            return;
+            return original.call(region, x, z);
         }
 
-        CloudRegion region = args.get(REGION_ARG);
-        Matrix2f transform = region.createTransform(CURRENT_TICK);
-        Vec2 seated = SimpleCloudsShapes.latticeOf(shape, transform.m00, transform.m01, transform.m10, transform.m11)
-                .seated(region.getPosX(), region.getPosZ(), transform.m00, transform.m01, transform.m10,
-                        transform.m11, args.get(X_ARG), args.get(Z_ARG));
-        args.set(X_ARG, seated.x);
-        args.set(Z_ARG, seated.y);
+        CloudRegionMixin seats = (CloudRegionMixin) (Object) region;
+        float stretch = region.getStretch(CURRENT_TICK);
+        float rotation = region.getRotation(CURRENT_TICK);
+        CloudRegionSeat seat = seats.toroidal$seat;
+        if (seat == null || !seat.holds(shape, stretch, rotation)) {
+            seat = CloudRegionSeat.of(shape, stretch, rotation, region.createTransform(CURRENT_TICK));
+            seats.toroidal$seat = seat;
+        }
+
+        Vec2 seated = seat.seated(region.getPosX(), region.getPosZ(), x, z);
+        return original.call(region, seated.x, seated.y);
     }
 }

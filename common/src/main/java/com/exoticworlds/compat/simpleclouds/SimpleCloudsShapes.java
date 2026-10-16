@@ -17,11 +17,26 @@ public final class SimpleCloudsShapes {
 
     private static final ThreadScope<CloudShape> BOUND = new ThreadScope<>();
 
+    private static final ThreadLocal<@Nullable FoldShape> LAST = new ThreadLocal<>();
+
+    private record FoldShape(WorldFold fold, CloudShape shape) {
+    }
+
     public static @Nullable CloudShape of(@Nullable Level level) {
         WorldFold fold = level != null && level.isClientSide()
                 ? WorldLoopAttachments.wrappedClientBoundsTransformerOf(level)
                 : WorldLoopAttachments.wrappedTransformerOf(level);
-        return fold == null ? null : CloudShape.of(fold);
+        if (fold == null) {
+            return null;
+        }
+
+        FoldShape last = LAST.get();
+        if (last == null || last.fold() != fold) {
+            last = new FoldShape(fold, CloudShape.of(fold));
+            LAST.set(last);
+        }
+
+        return last.shape();
     }
 
     public static <R> R bound(@Nullable Level level, Supplier<R> body) {
