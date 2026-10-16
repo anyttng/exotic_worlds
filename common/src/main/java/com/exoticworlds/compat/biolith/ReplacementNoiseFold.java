@@ -18,8 +18,6 @@ import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
 public final class ReplacementNoiseFold {
-    public static final double NOT_FOLDED = Double.NaN;
-
     private static final double OPEN_SIMPLEX_FLAT_AMPLITUDE = 1.971;
 
     private static final double OPEN_SIMPLEX_VOLUME_AMPLITUDE = 1.489;
@@ -56,17 +54,14 @@ public final class ReplacementNoiseFold {
         this.verticalScaleSlots = verticalScaleSlots.clone();
     }
 
-    public static boolean folded(double sum) {
-        return !Double.isNaN(sum);
-    }
-
-    public double sum(long seed, double[] scaleQuarts, int quartX, int quartZ, DensityFunction temperature) {
-        return sum(seed, scaleQuarts, quartX, FLAT_QUART_Y, quartZ, OPEN_SIMPLEX_FLAT_AMPLITUDE, temperature);
-    }
-
-    public double sum(long seed, double[] scaleQuarts, int quartX, int quartY, int quartZ,
+    public double sum(WorldFold fold, long seed, double[] scaleQuarts, int quartX, int quartZ,
             DensityFunction temperature) {
-        return sum(seed, scaleQuarts, quartX, quartY, quartZ, OPEN_SIMPLEX_VOLUME_AMPLITUDE, temperature);
+        return sum(fold, seed, scaleQuarts, quartX, FLAT_QUART_Y, quartZ, OPEN_SIMPLEX_FLAT_AMPLITUDE, temperature);
+    }
+
+    public double sum(WorldFold fold, long seed, double[] scaleQuarts, int quartX, int quartY, int quartZ,
+            DensityFunction temperature) {
+        return sum(fold, seed, scaleQuarts, quartX, quartY, quartZ, OPEN_SIMPLEX_VOLUME_AMPLITUDE, temperature);
     }
 
     double compression(WorldFold fold, DensityFunction temperature) {
@@ -80,14 +75,9 @@ public final class ReplacementNoiseFold {
         return factor;
     }
 
-    private double sum(long seed, double[] scaleQuarts, int quartX, int quartY, int quartZ, double amplitude,
-            DensityFunction temperature) {
+    private double sum(WorldFold fold, long seed, double[] scaleQuarts, int quartX, int quartY, int quartZ,
+            double amplitude, DensityFunction temperature) {
         Context context = GenerationTransformerContext.context();
-        WorldFold fold = context.wrappedTransformer();
-        if (fold == null) {
-            return NOT_FOLDED;
-        }
-
         double factor = compression(fold, temperature);
         Octaves resolved = octavesFor(seed);
         double x = QuartPos.toBlock(quartX);

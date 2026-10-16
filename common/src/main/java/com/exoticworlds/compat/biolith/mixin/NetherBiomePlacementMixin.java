@@ -12,6 +12,8 @@ import com.terraformersmc.biolith.impl.biome.NetherBiomePlacement;
 import com.terraformersmc.biolith.impl.noise.OpenSimplexNoise2;
 import com.exoticworlds.compat.LevelTemperature;
 import com.exoticworlds.compat.biolith.ReplacementNoiseFold;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.GenerationTransformerContext;
 
 @Mixin(NetherBiomePlacement.class)
 public abstract class NetherBiomePlacementMixin extends DimensionBiomePlacement {
@@ -40,14 +42,13 @@ public abstract class NetherBiomePlacementMixin extends DimensionBiomePlacement 
     @Inject(method = "getLocalNoise", at = @At("HEAD"), cancellable = true)
     private void toroidal$foldedLocalNoise(int x, int y, int z, CallbackInfoReturnable<Double> cir) {
         OpenSimplexNoise2 noise = this.replacementNoise;
-        if (noise == null) {
+        WorldFold fold = GenerationTransformerContext.context().wrappedTransformer();
+        if (noise == null || fold == null) {
             return;
         }
 
-        double sum = this.toroidal$fold.sum(noise.getSeed(), this.scale, x, y, z,
+        double sum = this.toroidal$fold.sum(fold, noise.getSeed(), this.scale, x, y, z,
                 this.toroidal$temperature.of(this.world));
-        if (ReplacementNoiseFold.folded(sum)) {
-            cir.setReturnValue(this.normalize(sum / TOROIDAL_SUM_DIVISOR));
-        }
+        cir.setReturnValue(this.normalize(sum / TOROIDAL_SUM_DIVISOR));
     }
 }
