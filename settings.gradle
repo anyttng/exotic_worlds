@@ -21,5 +21,6 @@ plugins {
 rootProject.name = 'exotic-worlds'
 
 include 'common'
+include 'frames'
 include 'neoforge'
 include 'fabric'
