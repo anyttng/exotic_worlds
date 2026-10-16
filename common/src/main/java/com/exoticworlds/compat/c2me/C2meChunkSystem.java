@@ -11,10 +11,6 @@ public final class C2meChunkSystem {
                     && !mixin.equals(C2meOctaveNoise.MIXIN) && !C2meDfc.MIXINS.contains(mixin))
             .build();
 
-    public static boolean present() {
-        return GATE.present();
-    }
-
     private C2meChunkSystem() {
     }
 }

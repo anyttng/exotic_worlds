@@ -17,10 +17,6 @@ public final class C2meLightingLock {
             .bodyFrom(MIXIN, OVERWRITE_CLASS)
             .build();
 
-    public static boolean present() {
-        return GATE.present();
-    }
-
     private C2meLightingLock() {
     }
 }

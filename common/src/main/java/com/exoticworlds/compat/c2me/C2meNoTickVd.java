@@ -14,10 +14,6 @@ public final class C2meNoTickVd {
             .requiring(C2meChunkSystem.GATE)
             .build();
 
-    public static boolean present() {
-        return GATE.present();
-    }
-
     private C2meNoTickVd() {
     }
 }
