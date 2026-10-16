@@ -26,7 +26,7 @@ public final class ServerLevelType {
 
         WorldDimensions kept = ShapedDimensions.keepChosenShape(created, chosen.get().value().createWorldDimensions());
         if (kept != created) {
-            ExoticWorlds.LOGGER.warn("[server-preset] restored level_type={} reason=replaced_before_creation",
+            ExoticWorlds.LOGGER.warn("[ew/server-preset] restored level_type={} reason=replaced_before_creation",
                     chosen.get().key().location());
         }
 

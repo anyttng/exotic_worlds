@@ -8,7 +8,7 @@ import com.exoticworlds.compat.ModPresence;
 public final class C2meNoTickVd {
     static final List<String> MIXINS = List.of("PlayerNoTickLoaderMixin", "ServerAccessibleChunkSendingMixin");
 
-    static final ModPresence GATE = ModPresence.gate(LogUtils.getLogger(), "[c2me-compat] gate notickvd_present")
+    static final ModPresence GATE = ModPresence.gate(LogUtils.getLogger(), "[ew/c2me-compat] gate notickvd_present")
             .probing("com/ishland/c2me/notickvd/common/PlayerNoTickLoader.class")
             .checking(C2meMixinPlugin.CONFIG, mixin -> MIXINS.contains(mixin))
             .requiring(C2meChunkSystem.GATE)

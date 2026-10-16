@@ -10,7 +10,7 @@ import com.exoticworlds.compat.journeymap.JourneyMapMixinPlugin;
 public class JmiMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final ModPresence JMI = ModPresence.gate(LOGGER, "[jmi-compat] gate jmi_present")
+    private static final ModPresence JMI = ModPresence.gate(LOGGER, "[ew/jmi-compat] gate jmi_present")
             .probing("me/frankv/jmi/JMI.class")
             .checking("exotic_worlds.compat.jmi.mixins.json")
             .requiring(JourneyMapMixinPlugin.JOURNEYMAP)

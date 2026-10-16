@@ -337,7 +337,7 @@ public final class JourneyMapFold {
     }
 
     public static void gridDropped(String reason, String from, String to, int tilesDropped) {
-        LOGGER.info("[jm-compat] grid_dropped reason={} from={} to={} tiles_dropped={}",
+        LOGGER.info("[ew/jm-compat] grid_dropped reason={} from={} to={} tiles_dropped={}",
                 reason, from.replace(' ', '_'), to.replace(' ', '_'), tilesDropped);
     }
 

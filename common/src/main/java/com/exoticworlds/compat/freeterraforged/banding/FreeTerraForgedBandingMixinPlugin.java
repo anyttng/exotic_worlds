@@ -10,7 +10,7 @@ public class FreeTerraForgedBandingMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final ModPresence BANDING = ModPresence.gate(LOGGER,
-                    "[freeterraforged-compat] gate freeterraforged_banding_present")
+                    "[ew/freeterraforged-compat] gate freeterraforged_banding_present")
             .probing("etcodehome/freeterraforged/world/worldgen/biome/UndergroundBiomeBanding.class")
             .checking("exotic_worlds.compat.freeterraforged.banding.mixins.json")
             .build();

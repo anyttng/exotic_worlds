@@ -21,13 +21,13 @@ public class XaeroMixinPlugin extends ModPresenceGatePlugin {
     private static final String GUI_MAP_CLASS = "xaero.map.gui.GuiMap";
 
     private static final ModPresence XAERO_MINIMAP = ModPresence.gate(LOGGER,
-                    "[xaero-compat] gate xaero_minimap_present")
+                    "[ew/xaero-compat] gate xaero_minimap_present")
             .probing(MINIMAP_RESOURCE)
             .checking(CONFIG, mixin -> !mixin.startsWith(WORLDMAP_MIXIN_PACKAGE))
             .build();
 
     private static final ModPresence XAERO_WORLDMAP = ModPresence.gate(LOGGER,
-                    "[xaero-compat] gate xaero_worldmap_present")
+                    "[ew/xaero-compat] gate xaero_worldmap_present")
             .probing(WORLDMAP_RESOURCE)
             .checking(CONFIG, mixin -> mixin.startsWith(WORLDMAP_MIXIN_PACKAGE)
                     && !mixin.equals(SUPPORT_WORLDMAP_MIXIN))
@@ -36,7 +36,7 @@ public class XaeroMixinPlugin extends ModPresenceGatePlugin {
             .build();
 
     private static final ModPresence XAERO_BOTH = ModPresence.gate(LOGGER,
-                    "[xaero-compat] gate xaero_minimap_worldmap_present")
+                    "[ew/xaero-compat] gate xaero_minimap_worldmap_present")
             .probing(MINIMAP_RESOURCE, WORLDMAP_RESOURCE)
             .checking(CONFIG, SUPPORT_WORLDMAP_MIXIN::equals)
             .build();

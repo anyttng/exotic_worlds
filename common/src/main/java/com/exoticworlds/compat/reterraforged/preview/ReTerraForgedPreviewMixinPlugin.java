@@ -10,7 +10,7 @@ public class ReTerraForgedPreviewMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final ModPresence PREVIEW = ModPresence.gate(LOGGER,
-                    "[reterraforged-compat] gate reterraforged_preview_present")
+                    "[ew/reterraforged-compat] gate reterraforged_preview_present")
             .probing("raccoonman/reterraforged/client/gui/screen/presetconfig/Preview2D.class")
             .checking("exotic_worlds.compat.reterraforged.preview.mixins.json")
             .build();

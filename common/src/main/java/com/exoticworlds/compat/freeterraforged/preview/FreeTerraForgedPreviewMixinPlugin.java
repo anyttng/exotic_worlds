@@ -10,7 +10,7 @@ public class FreeTerraForgedPreviewMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final ModPresence PREVIEW = ModPresence.gate(LOGGER,
-                    "[freeterraforged-compat] gate freeterraforged_preview_present")
+                    "[ew/freeterraforged-compat] gate freeterraforged_preview_present")
             .probing("etcodehome/freeterraforged/client/gui/screen/presetconfig/IPreviewHandler.class")
             .checking("exotic_worlds.compat.freeterraforged.preview.mixins.json")
             .build();

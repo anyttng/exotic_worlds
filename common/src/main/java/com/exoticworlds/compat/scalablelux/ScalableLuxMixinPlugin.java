@@ -14,7 +14,7 @@ public class ScalableLuxMixinPlugin extends ModPresenceGatePlugin {
     private static final String SCHEDULING_TOKENS_MIXIN = "SchedulingUtilTokensMixin";
 
     private static final ModPresence SCALABLELUX = ModPresence.gate(LOGGER,
-                    "[scalablelux-compat] gate scalablelux_present")
+                    "[ew/scalablelux-compat] gate scalablelux_present")
             .probing("ca/spottedleaf/starlight/common/light/StarLightInterface.class")
             .checking("exotic_worlds.compat.scalablelux.mixins.json")
             .withholding(SCHEDULING_LOCK_MIXIN, ScalableLuxMixinPlugin::c2meOwnsTheLock)

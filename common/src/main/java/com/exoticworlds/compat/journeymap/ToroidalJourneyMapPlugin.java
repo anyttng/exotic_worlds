@@ -33,7 +33,7 @@ public class ToroidalJourneyMapPlugin implements IClientPlugin {
     public void initialize(IClientAPI api) {
         this.api = api;
         ClientEventRegistry.MAPPING_EVENT.subscribe(ExoticWorlds.MODID, this::onMapping);
-        LOGGER.info("[jm-compat] plugin initialized jm_api={}", api.getClass().getName());
+        LOGGER.info("[ew/jm-compat] plugin initialized jm_api={}", api.getClass().getName());
     }
 
     private void onMapping(MappingEvent event) {
@@ -56,7 +56,7 @@ public class ToroidalJourneyMapPlugin implements IClientPlugin {
             try {
                 this.api.show(overlay);
             } catch (Exception e) {
-                LOGGER.warn("[jm-compat] seam_overlay show failed", e);
+                LOGGER.warn("[ew/jm-compat] seam_overlay show failed", e);
             }
         }
     }

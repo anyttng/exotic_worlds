@@ -105,7 +105,7 @@ public final class FormerPlayerFiles {
         try (Stream<Path> listed = Files.list(directory)) {
             files = listed.filter(Files::isRegularFile).filter(wanted).toList();
         } catch (IOException unlisted) {
-            ExoticWorlds.LOGGER.warn("[migration] cannot list {}: {}", directory, unlisted.toString());
+            ExoticWorlds.LOGGER.warn("[ew/migration] cannot list {}: {}", directory, unlisted.toString());
             return;
         }
 
@@ -125,16 +125,16 @@ public final class FormerPlayerFiles {
             if (Util.safeReplaceOrMoveFile(file, temp, replaced, false)) {
                 Files.deleteIfExists(replaced);
             } else {
-                ExoticWorlds.LOGGER.warn("[migration] cannot replace {}; it keeps its {} ids", file,
+                ExoticWorlds.LOGGER.warn("[ew/migration] cannot replace {}; it keeps its {} ids", file,
                         FormerNamespace.NAMESPACE);
             }
         } catch (IOException | RuntimeException unreadable) {
-            ExoticWorlds.LOGGER.warn("[migration] cannot rewrite {}: {}", file, unreadable.toString());
+            ExoticWorlds.LOGGER.warn("[ew/migration] cannot rewrite {}: {}", file, unreadable.toString());
         } finally {
             try {
                 Files.deleteIfExists(temp);
             } catch (IOException undeletable) {
-                ExoticWorlds.LOGGER.warn("[migration] cannot delete {}", temp);
+                ExoticWorlds.LOGGER.warn("[ew/migration] cannot delete {}", temp);
             }
         }
     }

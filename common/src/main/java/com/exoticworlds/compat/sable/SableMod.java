@@ -7,7 +7,7 @@ import com.exoticworlds.core.ForeignFrames;
 public final class SableMod {
     private static final String PROBE = "dev/ryanhcode/sable/Sable.class";
 
-    static final ModPresence GATE = ModPresence.gate(LogUtils.getLogger(), "[sable-compat] gate sable_present")
+    static final ModPresence GATE = ModPresence.gate(LogUtils.getLogger(), "[ew/sable-compat] gate sable_present")
             .probing(PROBE)
             .checking("exotic_worlds.compat.sable.mixins.json")
             .build();

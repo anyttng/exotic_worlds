@@ -58,7 +58,7 @@ public final class CloudRegionShaderSource {
         boolean anchored = count(source, STRUCT_ANCHOR) == 1 && count(source, CIRCLE_ANCHOR) == 1
                 && count(source, CALL_ANCHOR) == 1;
         if (!anchored) {
-            ExoticWorlds.LOGGER.warn("[sc-compat] cloud_regions_shader rewritten=false text=the shader no longer carries"
+            ExoticWorlds.LOGGER.warn("[ew/sc-compat] cloud_regions_shader rewritten=false text=the shader no longer carries"
                     + " the anchors of Simple Clouds 0.7.3, so the drawn cloud field stays unfolded");
             return source;
         }

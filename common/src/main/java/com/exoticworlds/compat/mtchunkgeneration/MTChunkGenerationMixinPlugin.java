@@ -9,7 +9,7 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 public class MTChunkGenerationMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final ModPresence MT_CHUNK_GENERATION = ModPresence.gate(LOGGER, "[mtchunkgeneration-compat] gate mtchunkgeneration_present")
+    private static final ModPresence MT_CHUNK_GENERATION = ModPresence.gate(LOGGER, "[ew/mtchunkgeneration-compat] gate mtchunkgeneration_present")
             .probing("dev/theagameplayer/mtchunkgeneration/world/level/levelgen/MTLayer.class")
             .checking("exotic_worlds.compat.mtchunkgeneration.mixins.json")
             .build();

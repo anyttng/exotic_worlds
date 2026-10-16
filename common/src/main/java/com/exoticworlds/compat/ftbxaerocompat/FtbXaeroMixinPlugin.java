@@ -9,7 +9,7 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 public class FtbXaeroMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final ModPresence FTBXAERO = ModPresence.gate(LOGGER, "[ftbxaero-compat] gate ftbxaerocompat_present")
+    private static final ModPresence FTBXAERO = ModPresence.gate(LOGGER, "[ew/ftbxaero-compat] gate ftbxaerocompat_present")
             .probing("dev/satherov/ftbxaerocompat/FTBXaeroCompat.class")
             .checking("exotic_worlds.compat.ftbxaerocompat.mixins.json")
             .build();

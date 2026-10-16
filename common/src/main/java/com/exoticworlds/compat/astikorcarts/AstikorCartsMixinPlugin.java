@@ -9,7 +9,7 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 public class AstikorCartsMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final ModPresence ASTIKOR_CARTS = ModPresence.gate(LOGGER, "[astikor-compat] gate astikorcarts_present")
+    private static final ModPresence ASTIKOR_CARTS = ModPresence.gate(LOGGER, "[ew/astikor-compat] gate astikorcarts_present")
             .probing("com/jusipat/astikorcartsredux/AstikorCartsRedux.class")
             .checking("exotic_worlds.compat.astikorcarts.mixins.json")
             .build();

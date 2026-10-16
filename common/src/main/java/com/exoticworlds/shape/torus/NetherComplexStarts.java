@@ -59,7 +59,7 @@ public final class NetherComplexStarts {
 
             ChunkPos chosen = firstFree(shape, chunk -> set.canStart(structure, chunk), taken, spread.separation());
             if (chosen == null) {
-                ExoticWorlds.LOGGER.warn("[guaranteed-nether-complexes] no chunk in bounds takes structure={}",
+                ExoticWorlds.LOGGER.warn("[ew/guaranteed-nether-complexes] no chunk in bounds takes structure={}",
                         structure.getRegisteredName());
                 continue;
             }

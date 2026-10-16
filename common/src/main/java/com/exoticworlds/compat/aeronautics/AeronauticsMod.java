@@ -6,7 +6,7 @@ import com.exoticworlds.compat.sable.SableBodyShift;
 import com.exoticworlds.compat.sable.SableMod;
 
 public final class AeronauticsMod {
-    static final ModPresence GATE = ModPresence.gate(LogUtils.getLogger(), "[aeronautics-compat] gate aeronautics_present")
+    static final ModPresence GATE = ModPresence.gate(LogUtils.getLogger(), "[ew/aeronautics-compat] gate aeronautics_present")
             .probing("dev/eriksonn/aeronautics/Aeronautics.class")
             .checking(AeronauticsMixinPlugin.CONFIG, AeronauticsMixinPlugin.AERONAUTICS_MIXINS::contains)
             .build();

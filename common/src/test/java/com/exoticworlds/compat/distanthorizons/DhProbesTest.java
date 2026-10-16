@@ -66,7 +66,7 @@ class DhProbesTest {
         DhKeys.foldChunk(lattice, new ChunkPos(1, 1));
         DhKeys.foldChunk(lattice, new ChunkPos(2, 2));
         DhKeys.foldChunk(lattice, new ChunkPos(WIDTH_CHUNKS, 1));
-        assertEquals("[dh-compat] folded_key key_type=chunk raw=64,1 folded=0,1 unchanged_keys=2",
+        assertEquals("[ew/dh-compat] folded_key key_type=chunk raw=64,1 folded=0,1 unchanged_keys=2",
                 DhProbes.foldedKeyLine(DhProbes.Key.CHUNK, "64,1", "0,1"));
     }
 
@@ -92,7 +92,7 @@ class DhProbesTest {
 
     @Test
     void theSeamSqlLineNamesItsSiteAndWhetherDhsDistanceWasFound() {
-        assertEquals("[dh-compat] seam_sql site=regen_count matched=false",
+        assertEquals("[ew/dh-compat] seam_sql site=regen_count matched=false",
                 DhProbes.seamSqlLine(DhSeamSql.Site.REGEN_COUNT, false));
     }
 }

@@ -41,7 +41,7 @@ public final class SeamOverlays {
             overlays.add(line(dimension, spanX[0], z.min(), spanX[1], z.min() + 1));
         }
 
-        LOGGER.info("[jm-compat] seam_overlays dim={} {} {} overlays={}",
+        LOGGER.info("[ew/jm-compat] seam_overlays dim={} {} {} overlays={}",
                 dimension.location(), describe("x", x), describe("z", z), overlays.size());
         return overlays;
     }

@@ -38,7 +38,7 @@ public final class XaeroFrameBudget {
             long started = System.nanoTime();
             ClassLoader loader = XaeroFrameBudget.class.getClassLoader();
             Verdict verdict = measure(loader, read(loader, GUI_MAP_RESOURCE), RENDER_METHODS, BUDGET, true);
-            LOGGER.info("[xaero-compat] gate xaero_worldmap_frames budget_exceeded={} asm_limit_present={} class_found={}"
+            LOGGER.info("[ew/xaero-compat] gate xaero_worldmap_frames budget_exceeded={} asm_limit_present={} class_found={}"
                     + " stripped={} budget={} ms={}", verdict.exceeded(), verdict.limitPresent(), verdict.classFound(),
                     verdict.stripped(), BUDGET, (System.nanoTime() - started) / 1_000_000L);
             exceeded = verdict.exceeded();

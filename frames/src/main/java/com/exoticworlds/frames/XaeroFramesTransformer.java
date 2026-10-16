@@ -24,7 +24,7 @@ public final class XaeroFramesTransformer implements ITransformer<MethodNode> {
     public MethodNode transform(MethodNode input, ITransformerVotingContext context) {
         int removed = XaeroFrames.strip(input);
         strippedRender = copy(input);
-        LOGGER.info("[xaero-compat] frames gui_map_stripped labels_removed={}", removed);
+        LOGGER.info("[ew/xaero-compat] frames gui_map_stripped labels_removed={}", removed);
         return input;
     }
 

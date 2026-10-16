@@ -16,7 +16,7 @@ public final class XaeroFramesValve {
     public static boolean restore(ClassNode node) {
         MethodNode stripped = XaeroFramesTransformer.strippedRender();
         if (stripped == null) {
-            LOGGER.warn("[xaero-compat] frames gui_map_valve stripped_copy=false");
+            LOGGER.warn("[ew/xaero-compat] frames gui_map_valve stripped_copy=false");
             return false;
         }
 
@@ -31,12 +31,12 @@ public final class XaeroFramesValve {
             String refusal = refusal(node, method);
             long ms = (System.nanoTime() - started) / 1_000_000L;
             if (refusal == null) {
-                LOGGER.info("[xaero-compat] frames gui_map_valve exceeded=false restored=false ms={}", ms);
+                LOGGER.info("[ew/xaero-compat] frames gui_map_valve exceeded=false restored=false ms={}", ms);
                 return false;
             }
 
             methods.set(index, stripped);
-            LOGGER.warn("[xaero-compat] frames gui_map_valve exceeded=true restored=true ms={} cause={}", ms, refusal);
+            LOGGER.warn("[ew/xaero-compat] frames gui_map_valve exceeded=true restored=true ms={} cause={}", ms, refusal);
             return true;
         }
 

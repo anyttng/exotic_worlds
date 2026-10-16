@@ -15,12 +15,12 @@ public class LithiumMixinPlugin extends ModPresenceGatePlugin {
 
     private static final String STORE_KEY_MIXIN = "GameEventDispatchKeyMixin";
 
-    private static final ModPresence LITHIUM = ModPresence.gate(LOGGER, "[lithium-compat] gate lithium_present")
+    private static final ModPresence LITHIUM = ModPresence.gate(LOGGER, "[ew/lithium-compat] gate lithium_present")
             .probing("net/caffeinemc/mods/lithium/common/tracking/entity/SectionedEntityMovementTracker.class")
             .checking(CONFIG, mixin -> !mixin.equals(STORE_KEY_MIXIN))
             .build();
 
-    static final ModPresence STORE_KEY_GATE = optionGate("[lithium-compat] gate game_events_dispatch_present",
+    static final ModPresence STORE_KEY_GATE = optionGate("[ew/lithium-compat] gate game_events_dispatch_present",
             STORE_KEY_MIXIN, LithiumInjectionTargets.GAME_EVENT_DISPATCHER_MIXIN);
 
     public LithiumMixinPlugin() {
