@@ -4,9 +4,11 @@ import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 
-public record DhLattice(ToroidalShape shape, int skewBlocks) {
+public record DhLattice(ToroidalShape shape, int skewBlocks, String seamDistance) {
     public static DhLattice of(WorldFold fold) {
-        return new DhLattice(new ToroidalShapeView(fold), fold.blockLattice().skew());
+        ToroidalShape shape = new ToroidalShapeView(fold);
+        int skewBlocks = fold.blockLattice().skew();
+        return new DhLattice(shape, skewBlocks, DhSeamSql.seamDistance(shape, skewBlocks));
     }
 
     public boolean isSkewed() {
