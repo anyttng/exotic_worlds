@@ -106,7 +106,6 @@ public abstract class MapRendererMixin implements JourneyMapSeamPass {
     @Unique
     private static final int SEAM_ARGB = 0x59FFFFFF;
 
-    // Render-thread only, like every caller of these methods.
     @Unique
     private static boolean toroidal$anchorPass;
 

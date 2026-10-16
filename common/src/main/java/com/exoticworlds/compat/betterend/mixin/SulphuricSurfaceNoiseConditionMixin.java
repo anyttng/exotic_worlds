@@ -3,6 +3,7 @@ package com.exoticworlds.compat.betterend.mixin;
 import org.betterx.betterend.noise.OpenSimplexNoise;
 import org.betterx.betterend.world.surface.SulphuricSurfaceNoiseCondition;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.compat.LapNoise;
@@ -14,8 +15,10 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 @Mixin(SulphuricSurfaceNoiseCondition.class)
 public class SulphuricSurfaceNoiseConditionMixin {
+    @Unique
     private static final double BROAD_SCALE = 0.03;
 
+    @Unique
     private static final double FINE_SCALE = 0.1;
 
     @WrapOperation(
