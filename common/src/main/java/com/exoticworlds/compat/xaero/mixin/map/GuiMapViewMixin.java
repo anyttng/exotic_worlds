@@ -17,6 +17,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.exoticworlds.compat.AxisCopies;
 import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.compat.MapViewSpan;
+import com.exoticworlds.compat.SeamLine;
 import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
@@ -51,9 +52,6 @@ public abstract class GuiMapViewMixin {
     private double cameraX;
     @Shadow
     private double cameraZ;
-
-    @Unique
-    private static final int SEAM_ARGB = 0xCCFFFFFF;
 
     @Unique
     private static final float CHANNEL_MAX = 255.0F;
@@ -222,8 +220,10 @@ public abstract class GuiMapViewMixin {
                     seam.fromX() - flooredCameraX, seam.fromZ() - flooredCameraZ,
                     Math.max(seam.toX(), seam.fromX() + thickness) - flooredCameraX,
                     Math.max(seam.toZ(), seam.fromZ() + thickness) - flooredCameraZ,
-                    FastColor.ARGB32.red(SEAM_ARGB) / CHANNEL_MAX, FastColor.ARGB32.green(SEAM_ARGB) / CHANNEL_MAX,
-                    FastColor.ARGB32.blue(SEAM_ARGB) / CHANNEL_MAX, FastColor.ARGB32.alpha(SEAM_ARGB) / CHANNEL_MAX);
+                    FastColor.ARGB32.red(SeamLine.LINE_ARGB) / CHANNEL_MAX,
+                    FastColor.ARGB32.green(SeamLine.LINE_ARGB) / CHANNEL_MAX,
+                    FastColor.ARGB32.blue(SeamLine.LINE_ARGB) / CHANNEL_MAX,
+                    FastColor.ARGB32.alpha(SeamLine.LINE_ARGB) / CHANNEL_MAX);
         }
     }
 

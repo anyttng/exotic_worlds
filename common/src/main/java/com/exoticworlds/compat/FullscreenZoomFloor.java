@@ -58,6 +58,13 @@ public final class FullscreenZoomFloor {
                 axis -> xaeroCoverScale(shape.widthBlocks(axis), scaleMultiplier, windowSide(axis, windowWidth, windowHeight)));
     }
 
+    // mc/26.2: Simple Atlas holds its SINGLE view at this zoom.
+    public static float simpleAtlasCoverZoom(ToroidalShape shape, float viewWidth, float viewHeight, int blocksPerTile,
+            float tilePixels) {
+        return (float) maxOverLoopedAxes(shape, axis -> simpleAtlasCoverZoom(shape.widthBlocks(axis),
+                windowSide(axis, viewWidth, viewHeight), blocksPerTile, tilePixels));
+    }
+
     private static double maxOverLoopedAxes(ToroidalShape shape, ToDoubleFunction<Direction.Axis> floorOf) {
         double floor = 0.0;
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
@@ -89,7 +96,15 @@ public final class FullscreenZoomFloor {
         return windowPixels / (widthBlocks * scaleMultiplier);
     }
 
+    static float simpleAtlasCoverZoom(int widthBlocks, float viewPixels, int blocksPerTile, float tilePixels) {
+        return viewPixels * blocksPerTile / (tilePixels * widthBlocks);
+    }
+
     private static int windowSide(Direction.Axis axis, int windowWidth, int windowHeight) {
+        return axis == Direction.Axis.X ? windowWidth : windowHeight;
+    }
+
+    private static float windowSide(Direction.Axis axis, float windowWidth, float windowHeight) {
         return axis == Direction.Axis.X ? windowWidth : windowHeight;
     }
 
