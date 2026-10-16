@@ -11,12 +11,12 @@ import com.seibel.distanthorizons.core.wrapperInterfaces.world.ILevelWrapper;
 import net.minecraft.world.level.Level;
 
 public final class DhShapes {
-    public static @Nullable DhLattice of(IDhLevel level) {
-        return level == null ? null : of(level.getLevelWrapper());
-    }
+    private static final DhLatticeMemo CLIENT = new DhLatticeMemo();
 
-    public static @Nullable DhLattice of(IDhApiLevelWrapper wrapper) {
-        return latticeOf(mcLevel(wrapper));
+    public static @Nullable DhLattice of(IDhLevel level) {
+        return level == null
+                ? null
+                : ((DhLevelLattice) level).toroidal$lattices().latticeOf(foldOf(mcLevel(level.getLevelWrapper())));
     }
 
     public static @Nullable WorldFold serverFoldOf(IDhLevel level) {
@@ -26,28 +26,25 @@ public final class DhShapes {
 
     public static @Nullable DhLattice clientFrame(ILevelWrapper wrapper) {
         Level mcLevel = mcLevel(wrapper);
-        return mcLevel != null && mcLevel.isClientSide() ? latticeOf(mcLevel) : null;
+        return mcLevel != null && mcLevel.isClientSide() ? clientLattice(mcLevel) : null;
+    }
+
+    static @Nullable DhLattice clientLattice(@Nullable Level mcLevel) {
+        return CLIENT.latticeOf(foldOf(mcLevel));
     }
 
     private static @Nullable Level mcLevel(IDhApiLevelWrapper wrapper) {
         return wrapper != null && wrapper.getWrappedMcObject() instanceof Level mcLevel ? mcLevel : null;
     }
 
-    static @Nullable DhLattice latticeOf(@Nullable Level mcLevel) {
+    private static @Nullable WorldFold foldOf(@Nullable Level mcLevel) {
         if (mcLevel == null) {
             return null;
         }
 
-        WorldFold fold = mcLevel.isClientSide()
+        return mcLevel.isClientSide()
                 ? WorldLoopAttachments.wrappedClientBoundsTransformerOf(mcLevel)
                 : WorldLoopAttachments.wrappedTransformerOf(mcLevel);
-        if (fold == null) {
-            return null;
-        }
-
-        DhLattice lattice = DhLattice.of(fold);
-        DhProbes.keyPeriod(lattice, DhKeys.LEAF);
-        return lattice;
     }
 
     private DhShapes() {
