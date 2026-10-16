@@ -44,7 +44,11 @@ public abstract class RegionMapPanelMixin {
     // MapTileWidget.draw switches to linear filtering once a tile is narrower than 512 window pixels.
     @Unique
     private static final double LINEAR_FILTER_BELOW_PIXELS = 512.0;
+
+    @Unique
     private static final int SEAM_LINE_ARGB = 0xCCFFFFFF;
+
+    @Unique
     private static final int SEAM_LINE_WIDTH = 1;
 
     @Shadow
@@ -103,8 +107,7 @@ public abstract class RegionMapPanelMixin {
                 Mth.floor((x - originX) / pixelsPerBlock), Mth.floor((y - originY) / pixelsPerBlock),
                 Mth.ceil((x + w - originX) / pixelsPerBlock), Mth.ceil((y + h - originY) / pixelsPerBlock), mapCopies);
 
-        // Copies go under the canonical pass: that pass draws the icons, and an icon straddling the seam has to
-        // stay on top of the copy beside it.
+        // Copies draw before the canonical pass, which draws the icons, so an icon on the seam stays above them.
         boolean scissor = panel.getOnlyRenderWidgetsInside();
         if (scissor) {
             GuiHelper.pushScissor(panel.getWindow(), x, y, w, h);
@@ -132,8 +135,7 @@ public abstract class RegionMapPanelMixin {
         original.call(panel, graphics, theme, x, y, w, h);
     }
 
-    // Panel.draw calls this between its BACKGROUND and FOREGROUND layers, under the panel's scissor: the tiles are
-    // moved to BACKGROUND (MapTileWidgetMixin), so the lines land over the terrain and under every icon.
+    // Not @Unique: it overrides Panel.drawOffsetBackground, drawn between the BACKGROUND tiles and FOREGROUND icons.
     public void drawOffsetBackground(GuiGraphics graphics, Theme theme, int x, int y, int w, int h) {
         SeamView view = toroidal$seamView;
         if (view == null) {
