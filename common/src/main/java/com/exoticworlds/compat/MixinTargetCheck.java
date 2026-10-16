@@ -30,7 +30,8 @@ public final class MixinTargetCheck {
         MISSING_FIELD,
         MISSING_INVOKE,
         MISSING_FIELD_ACCESS,
-        MISSING_NEW;
+        MISSING_NEW,
+        WRONG_CALLBACK;
 
         @Override
         public String toString() {
@@ -44,7 +45,7 @@ public final class MixinTargetCheck {
     private record Loaded(boolean present, ClassModel model) {
     }
 
-    private record Selection(String owner, List<MethodModel> bodies) {
+    private record Selection(String owner, List<MethodModel> bodies, List<String> selfTargets) {
     }
 
     private static final String CLASS_SUFFIX = ".class";
@@ -56,6 +57,10 @@ public final class MixinTargetCheck {
     private static final String ACCESSOR = "Lorg/spongepowered/asm/mixin/gen/Accessor;";
     private static final String INVOKER = "Lorg/spongepowered/asm/mixin/gen/Invoker;";
     private static final String TARGET_HANDLER = "Lcom/bawnorton/mixinsquared/TargetHandler;";
+    private static final String INJECT = "Lorg/spongepowered/asm/mixin/injection/Inject;";
+    private static final String CALLBACK_INFO = "Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;";
+    private static final String CALLBACK_INFO_RETURNABLE =
+            "Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable;";
 
     private static final String VALUE_KEY = "value";
     private static final String TARGETS_KEY = "targets";
@@ -176,7 +181,7 @@ public final class MixinTargetCheck {
                     }
                     default -> {
                         if (MixinAnnotations.element(annotation, METHOD_KEY).isPresent()) {
-                            checkInjector(mixinClassName, annotation, annotations, target, refusals);
+                            checkInjector(mixinClassName, annotation, annotations, descriptor, target, refusals);
                         }
                     }
                 }
@@ -184,8 +189,8 @@ public final class MixinTargetCheck {
         }
     }
 
-    private void checkInjector(String mixinClassName, Annotation injector, List<Annotation> siblings, String target,
-            List<Refusal> refusals) {
+    private void checkInjector(String mixinClassName, Annotation injector, List<Annotation> siblings,
+            String handlerDescriptor, String target, List<Refusal> refusals) {
         List<Selection> selections = new ArrayList<>();
         for (String selector : MixinAnnotations.strings(injector, METHOD_KEY)) {
             if (selector.equals(HANDLER_SELECTOR)) {
@@ -212,7 +217,10 @@ public final class MixinTargetCheck {
                     return;
                 }
 
-                selections.add(new Selection(bodyOwner, found));
+                List<String> selfTargets = MixinAnnotations.find(MixinAnnotations.of(owner.model()), MIXIN)
+                        .map(MixinTargetCheck::targetsOf)
+                        .orElse(List.of());
+                selections.add(new Selection(bodyOwner, found, selfTargets));
                 continue;
             }
 
@@ -227,14 +235,19 @@ public final class MixinTargetCheck {
             }
 
             MemberRef selected = MemberRef.parse(selector);
-            List<MethodModel> found = methods(owner, selected.name()::equals,
+            List<MethodModel> found = methods(owner,
+                    name -> selected.name().isEmpty() || selected.name().equals(name),
                     candidate -> selected.descriptor() == null || selected.descriptor().equals(candidate));
             if (found.isEmpty()) {
                 refusals.add(new Refusal(mixinClassName, bodyOwner + "#" + selector, Reason.MISSING_METHOD));
                 return;
             }
 
-            selections.add(new Selection(bodyOwner, found));
+            selections.add(new Selection(bodyOwner, found, List.of()));
+        }
+
+        if (injector.className().equalsString(INJECT)) {
+            checkCallback(mixinClassName, handlerDescriptor, selections, refusals);
         }
 
         List<Annotation> points = new ArrayList<>(MixinAnnotations.nested(injector, AT_KEY));
@@ -250,6 +263,22 @@ public final class MixinTargetCheck {
         }
     }
 
+    private static void checkCallback(String mixinClassName, String handlerDescriptor, List<Selection> selections,
+            List<Refusal> refusals) {
+        String parameters = parametersOf(handlerDescriptor);
+        for (Selection selection : selections) {
+            for (MethodModel body : selection.bodies()) {
+                boolean returns = !body.methodTypeSymbol().returnType().descriptorString().equals(VOID_RETURN);
+                if (!parameters.contains(returns ? CALLBACK_INFO_RETURNABLE : CALLBACK_INFO)) {
+                    String member = selection.owner() + "#" + body.methodName().stringValue()
+                            + body.methodType().stringValue();
+                    refusals.add(new Refusal(mixinClassName, member, Reason.WRONG_CALLBACK));
+                    return;
+                }
+            }
+        }
+    }
+
     private static void checkAt(String mixinClassName, Selection selection, Annotation at, List<Refusal> refusals) {
         String target = MixinAnnotations.element(at, TARGET_KEY).map(MixinAnnotations::asString).orElse("");
         int needed = Math.max(MixinAnnotations.integer(at, ORDINAL_KEY, ANY_ORDINAL), 0) + 1;
@@ -259,13 +288,13 @@ public final class MixinTargetCheck {
             case AT_INVOKE -> {
                 reason = Reason.MISSING_INVOKE;
                 MemberRef wanted = MemberRef.parse(target);
-                counter = body -> countInvokes(body, wanted);
+                counter = body -> countInvokes(body, wanted, selection);
             }
             case AT_FIELD -> {
                 reason = Reason.MISSING_FIELD_ACCESS;
                 MemberRef wanted = MemberRef.parse(target);
                 int opcode = MixinAnnotations.integer(at, OPCODE_KEY, ANY_OPCODE);
-                counter = body -> countFieldAccesses(body, wanted, opcode);
+                counter = body -> countFieldAccesses(body, wanted, opcode, selection);
             }
             case AT_NEW -> {
                 reason = Reason.MISSING_NEW;
@@ -287,16 +316,25 @@ public final class MixinTargetCheck {
                 reason));
     }
 
+    // A foreign mixin's call to its own shadow names the mixin as owner until Mixin merges it into its target.
+    private static String merged(String owner, Selection selection, MemberRef wanted) {
+        return owner.equals(selection.owner()) && wanted.owner() != null
+                && selection.selfTargets().contains(wanted.owner())
+                ? wanted.owner()
+                : owner;
+    }
+
     private String bodyOwnerOf(String mixinClassName, String target) {
         String substitute = this.bodySources.get(mixinClassName);
         return substitute != null && load(substitute).present() ? substitute : target;
     }
 
-    private static int countInvokes(MethodModel body, MemberRef wanted) {
+    private static int countInvokes(MethodModel body, MemberRef wanted, Selection selection) {
         int count = 0;
         for (CodeElement element : codeOf(body)) {
             if (element instanceof InvokeInstruction invoke
-                    && wanted.matches(invoke.owner().asInternalName(), invoke.name().stringValue(),
+                    && wanted.matches(merged(invoke.owner().asInternalName(), selection, wanted),
+                            invoke.name().stringValue(),
                             invoke.type().stringValue())) {
                 count++;
             }
@@ -305,12 +343,13 @@ public final class MixinTargetCheck {
         return count;
     }
 
-    private static int countFieldAccesses(MethodModel body, MemberRef wanted, int opcode) {
+    private static int countFieldAccesses(MethodModel body, MemberRef wanted, int opcode, Selection selection) {
         int count = 0;
         for (CodeElement element : codeOf(body)) {
             if (element instanceof FieldInstruction access
                     && (opcode == ANY_OPCODE || access.opcode().bytecode() == opcode)
-                    && wanted.matches(access.owner().asInternalName(), access.name().stringValue(),
+                    && wanted.matches(merged(access.owner().asInternalName(), selection, wanted),
+                            access.name().stringValue(),
                             access.type().stringValue())) {
                 count++;
             }

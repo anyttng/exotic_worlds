@@ -7,12 +7,14 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.eminus.cell.CellFrame;
 import com.eminus.cell.CellKey;
 import com.eminus.cell.DetailLevel;
 import com.eminus.render.tree.CameraFrame;
 import com.eminus.render.tree.NodeTable;
+import com.eminus.render.tree.RenderList;
 import com.eminus.render.tree.TreeNode;
 import com.eminus.render.tree.TreeRing;
 import com.exoticworlds.compat.eminus.CellFoldHolder;
@@ -33,8 +35,19 @@ public class TreeTraversalMixin implements LapTest {
     @Unique
     private double toroidal$eyeZ;
 
-    @Inject(method = {"walk", "list"}, at = @At("HEAD"))
+    @Inject(method = "walk", at = @At("HEAD"))
     private void toroidal$holdTheEye(CallbackInfo ci, @Local(argsOnly = true) CameraFrame camera) {
+        toroidal$hold(camera);
+    }
+
+    @Inject(method = "list", at = @At("HEAD"))
+    private void toroidal$holdTheListEye(CallbackInfoReturnable<RenderList> cir,
+            @Local(argsOnly = true) CameraFrame camera) {
+        toroidal$hold(camera);
+    }
+
+    @Unique
+    private void toroidal$hold(CameraFrame camera) {
         toroidal$eyeX = camera.eyeX();
         toroidal$eyeZ = camera.eyeZ();
     }
