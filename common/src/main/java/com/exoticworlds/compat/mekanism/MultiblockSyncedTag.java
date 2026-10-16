@@ -12,6 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public final class MultiblockSyncedTag {
     static final String MIN_KEY = "min";
@@ -43,12 +44,9 @@ public final class MultiblockSyncedTag {
         }
 
         CompoundTag seated = tag.copy();
-        BlockPos a = move.apply(min.get());
-        BlockPos b = move.apply(max.get());
-        seated.put(MIN_KEY, NbtUtils.writeBlockPos(new BlockPos(Math.min(a.getX(), b.getX()),
-                Math.min(a.getY(), b.getY()), Math.min(a.getZ(), b.getZ()))));
-        seated.put(MAX_KEY, NbtUtils.writeBlockPos(new BlockPos(Math.max(a.getX(), b.getX()),
-                Math.max(a.getY(), b.getY()), Math.max(a.getZ(), b.getZ()))));
+        BoundingBox moved = move.apply(BoundingBox.fromCorners(min.get(), max.get()));
+        seated.put(MIN_KEY, NbtUtils.writeBlockPos(new BlockPos(moved.minX(), moved.minY(), moved.minZ())));
+        seated.put(MAX_KEY, NbtUtils.writeBlockPos(new BlockPos(moved.maxX(), moved.maxY(), moved.maxZ())));
         for (String key : POSITION_KEYS) {
             move(seated, key, move);
         }

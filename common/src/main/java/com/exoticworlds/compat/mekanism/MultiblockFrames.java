@@ -18,6 +18,7 @@ import mekanism.common.lib.math.voxel.VoxelPlane;
 import mekanism.common.lib.multiblock.Structure;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public final class MultiblockFrames {
     public static void moveOntoAnchor(Structure absorbing, Structure absorbed) {
@@ -53,12 +54,9 @@ public final class MultiblockFrames {
             return cuboid;
         }
 
-        BlockPos a = move.apply(min);
-        BlockPos b = move.apply(cuboid.getMaxPos());
-        cuboid.setMinPos(new BlockPos(Math.min(a.getX(), b.getX()), Math.min(a.getY(), b.getY()),
-                Math.min(a.getZ(), b.getZ())));
-        cuboid.setMaxPos(new BlockPos(Math.max(a.getX(), b.getX()), Math.max(a.getY(), b.getY()),
-                Math.max(a.getZ(), b.getZ())));
+        BoundingBox moved = move.apply(BoundingBox.fromCorners(min, cuboid.getMaxPos()));
+        cuboid.setMinPos(new BlockPos(moved.minX(), moved.minY(), moved.minZ()));
+        cuboid.setMaxPos(new BlockPos(moved.maxX(), moved.maxY(), moved.maxZ()));
         return cuboid;
     }
 

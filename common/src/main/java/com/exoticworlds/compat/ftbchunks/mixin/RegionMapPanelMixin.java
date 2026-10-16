@@ -43,7 +43,6 @@ import dev.ftb.mods.ftblibrary.ui.Widget;
 public abstract class RegionMapPanelMixin {
     // MapTileWidget.draw switches to linear filtering once a tile is narrower than 512 window pixels.
     private static final double LINEAR_FILTER_BELOW_PIXELS = 512.0;
-    private static final int REGION_BLOCKS = 512;
     private static final int SEAM_LINE_ARGB = 0xCCFFFFFF;
     private static final int SEAM_LINE_WIDTH = 1;
 
@@ -95,7 +94,7 @@ public abstract class RegionMapPanelMixin {
 
         int tilePixels = this.largeMap.getRegionTileSize();
         panel.setOffset(true);
-        double pixelsPerBlock = tilePixels / (double) REGION_BLOCKS;
+        double pixelsPerBlock = tilePixels / (double) FtbChunksFold.REGION_BLOCKS;
         int originX = panel.getX() - this.regionMinX * tilePixels;
         int originY = panel.getY() - this.regionMinZ * tilePixels;
         MapCopies mapCopies = MapCopies.current();

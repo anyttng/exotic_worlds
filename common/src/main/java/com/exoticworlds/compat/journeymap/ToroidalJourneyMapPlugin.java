@@ -1,11 +1,9 @@
 package com.exoticworlds.compat.journeymap;
 
-import java.util.Optional;
-
 import org.slf4j.Logger;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.api.v1.ExoticWorldsClientApi;
+import com.exoticworlds.compat.ClientShapes;
 import com.exoticworlds.ExoticWorlds;
 import com.mojang.logging.LogUtils;
 
@@ -49,12 +47,12 @@ public class ToroidalJourneyMapPlugin implements IClientPlugin {
             return;
         }
 
-        Optional<ToroidalShape> shape = ExoticWorldsClientApi.shapeOf(level);
-        if (shape.isEmpty() || !this.api.playerAccepts(ExoticWorlds.MODID, DisplayType.Polygon)) {
+        ToroidalShape shape = ClientShapes.of(level);
+        if (shape == null || !this.api.playerAccepts(ExoticWorlds.MODID, DisplayType.Polygon)) {
             return;
         }
 
-        for (PolygonOverlay overlay : SeamOverlays.build(event.dimension, shape.get())) {
+        for (PolygonOverlay overlay : SeamOverlays.build(event.dimension, shape)) {
             try {
                 this.api.show(overlay);
             } catch (Exception e) {
