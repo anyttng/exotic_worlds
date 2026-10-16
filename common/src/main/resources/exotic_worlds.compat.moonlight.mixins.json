@@ -6,7 +6,8 @@
   "plugin": "com.exoticworlds.compat.moonlight.MoonlightMixinPlugin",
   "mixins": [
     "MarkerSeatMixin",
-    "MarkerToggleWindowMixin"
+    "MarkerToggleWindowMixin",
+    "SpawnBoxStartSeatMixin"
   ],
   "injectors": {
     "defaultRequire": 1
