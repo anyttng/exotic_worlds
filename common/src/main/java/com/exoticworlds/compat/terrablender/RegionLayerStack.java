@@ -16,17 +16,7 @@ public final class RegionLayerStack {
         }
     }
 
-    public int foldX(int depth, int coordX, int coordZ) {
-        RegionLayerFold resolved = resolved();
-        return resolved == null ? coordX : resolved.foldX(depth, coordX, coordZ);
-    }
-
-    public int foldZ(int depth, int coordZ) {
-        RegionLayerFold resolved = resolved();
-        return resolved == null ? coordZ : resolved.foldZ(depth, coordZ);
-    }
-
-    private @Nullable RegionLayerFold resolved() {
+    public @Nullable RegionLayerFold resolved() {
         WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
         if (transformer == null) {
             return null;

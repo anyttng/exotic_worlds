@@ -1,7 +1,6 @@
 package com.exoticworlds.compat.biolith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -164,7 +163,7 @@ class ReplacementNoiseFoldTest {
     private static double folded(ReplacementNoiseFold fold, WorldFold transformer, int quartX, int quartZ) {
         double[] sum = new double[1];
         GenerationTransformerContext.withTransformer(transformer,
-                () -> sum[0] = fold.sum(WORLD_SEED, OVERWORLD_SCALE_QUARTS, quartX, quartZ,
+                () -> sum[0] = fold.sum(transformer, WORLD_SEED, OVERWORLD_SCALE_QUARTS, quartX, quartZ,
                         VanillaWorldgen.OVERWORLD_TEMPERATURE));
         return sum[0];
     }
@@ -181,7 +180,7 @@ class ReplacementNoiseFoldTest {
             int quartZ) {
         double[] sum = new double[1];
         GenerationTransformerContext.withTransformer(transformer,
-                () -> sum[0] = fold.sum(WORLD_SEED, NETHER_SCALE_QUARTS, quartX, quartY, quartZ,
+                () -> sum[0] = fold.sum(transformer, WORLD_SEED, NETHER_SCALE_QUARTS, quartX, quartY, quartZ,
                         VanillaWorldgen.NETHER_TEMPERATURE));
         return sum[0];
     }
@@ -372,12 +371,6 @@ class ReplacementNoiseFoldTest {
                     }
                 }
             }
-        }
-
-        @Test
-        void answersNotFoldedWithoutATransformer() {
-            assertFalse(ReplacementNoiseFold.folded(
-                    fold().sum(WORLD_SEED, OVERWORLD_SCALE_QUARTS, 0, 0, VanillaWorldgen.OVERWORLD_TEMPERATURE)));
         }
 
         @Test
