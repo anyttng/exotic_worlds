@@ -1,6 +1,7 @@
 package com.exoticworlds.compat.ftbchunks.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
@@ -17,9 +18,11 @@ import dev.ftb.mods.ftblibrary.math.XZ;
 
 @Mixin(value = MinimapRegionCutoutTexture.class, remap = false)
 public abstract class MinimapRegionCutoutTextureMixin {
+    @Unique
     private static final String UPDATE =
             "update(Lnet/minecraft/resources/ResourceKey;Ldev/ftb/mods/ftblibrary/math/XZ;)V";
 
+    @Unique
     private static final String REGION_SPLITS =
             "Ldev/ftb/mods/ftbchunks/client/minimap/MinimapRegionCutoutTexture;regionSplits(I)[I";
 

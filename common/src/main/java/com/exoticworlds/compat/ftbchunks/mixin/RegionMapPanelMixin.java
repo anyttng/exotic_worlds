@@ -40,7 +40,10 @@ import dev.ftb.mods.ftblibrary.icon.Color4I;
 
 @Mixin(value = RegionMapPanel.class, remap = false)
 public abstract class RegionMapPanelMixin {
+    @Unique
     private static final int SEAM_LINE_ARGB = 0xCCFFFFFF;
+
+    @Unique
     private static final int SEAM_LINE_WIDTH = 1;
 
     @Shadow
@@ -100,8 +103,7 @@ public abstract class RegionMapPanelMixin {
                 Mth.floor((x - originX) / pixelsPerBlock), Mth.floor((y - originY) / pixelsPerBlock),
                 Mth.ceil((x + w - originX) / pixelsPerBlock), Mth.ceil((y + h - originY) / pixelsPerBlock), mapCopies);
 
-        // Copies go under the canonical pass: that pass draws the icons, and an icon straddling the seam has to
-        // stay on top of the copy beside it.
+        // Copies draw before the canonical pass, which draws the icons, so an icon on the seam stays above them.
         boolean scissor = panel.getOnlyRenderWidgetsInside();
         if (scissor) {
             graphics.enableScissor(x, y, x + w, y + h);
@@ -128,8 +130,7 @@ public abstract class RegionMapPanelMixin {
         original.call(panel, graphics, theme, x, y, w, h);
     }
 
-    // Panel.draw calls this between its BACKGROUND and FOREGROUND layers, under the panel's scissor: the tiles draw
-    // on BACKGROUND, so the lines land over the terrain and under every icon.
+    // Not @Unique: it overrides Panel.drawOffsetBackground, drawn between the BACKGROUND tiles and FOREGROUND icons.
     public void drawOffsetBackground(GuiGraphicsExtractor graphics, Theme theme, int x, int y, int w, int h) {
         SeamView view = toroidal$seamView;
         if (view == null) {

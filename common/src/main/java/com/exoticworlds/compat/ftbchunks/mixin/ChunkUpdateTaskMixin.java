@@ -20,10 +20,12 @@ import dev.ftb.mods.ftbchunks.client.map.ChunkUpdateTask;
 import dev.ftb.mods.ftbchunks.client.map.MapManager;
 import dev.ftb.mods.ftblibrary.math.XZ;
 
-// Only the keys fold: the client level holds its chunks where the server sent them, so the rest of the task reads
-// the world at the raw position.
+// Only the keys fold: the client level holds each chunk at the raw position the server sent it to.
 @Mixin(value = ChunkUpdateTask.class, remap = false)
 public abstract class ChunkUpdateTaskMixin {
+    @Unique
+    private static final String XZ_TYPE = "Ldev/ftb/mods/ftblibrary/math/XZ;";
+
     @Shadow
     private @Nullable MapManager manager;
 
@@ -42,8 +44,7 @@ public abstract class ChunkUpdateTaskMixin {
 
     @WrapOperation(method = "runMapTask",
             at = @At(value = "INVOKE",
-                    target = "Ldev/ftb/mods/ftblibrary/math/XZ;regionFromChunk(Lnet/minecraft/world/level/ChunkPos;)"
-                            + "Ldev/ftb/mods/ftblibrary/math/XZ;"))
+                    target = XZ_TYPE + "regionFromChunk(Lnet/minecraft/world/level/ChunkPos;)" + XZ_TYPE))
     private XZ toroidal$foldRegionKey(ChunkPos pos, Operation<XZ> original) {
         toroidal$rawChunkX = pos.x();
         toroidal$rawChunkZ = pos.z();
@@ -53,8 +54,7 @@ public abstract class ChunkUpdateTaskMixin {
 
     @WrapOperation(method = "runMapTask",
             at = @At(value = "INVOKE",
-                    target = "Ldev/ftb/mods/ftblibrary/math/XZ;of(Lnet/minecraft/world/level/ChunkPos;)"
-                            + "Ldev/ftb/mods/ftblibrary/math/XZ;"))
+                    target = XZ_TYPE + "of(Lnet/minecraft/world/level/ChunkPos;)" + XZ_TYPE))
     private XZ toroidal$foldChunkKey(ChunkPos pos, Operation<XZ> original) {
         return FtbChunksFold.chunkOf(this.level.dimension(), pos);
     }
