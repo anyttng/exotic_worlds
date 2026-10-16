@@ -13,10 +13,13 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.compat.reterraforged.CellCenters;
 import com.exoticworlds.compat.reterraforged.ReTerraForgedInjectionTargets;
+import com.exoticworlds.compat.reterraforged.RiverReach;
 import com.exoticworlds.compat.reterraforged.RtfLap;
 
 import net.minecraft.core.Direction;
+import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
+import raccoonman.reterraforged.world.worldgen.cell.continent.SimpleContinent;
 import raccoonman.reterraforged.world.worldgen.cell.continent.simple.ContinentGenerator;
 import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 
@@ -39,6 +42,9 @@ public abstract class ContinentGeneratorMixin {
 
     @Shadow
     private float offsetAlpha;
+
+    @Shadow
+    private WorldSettings.ControlPoints controlPoints;
 
     @WrapMethod(method = "apply")
     private void toroidal$closeApply(Cell cell, float x, float y, Operation<Void> original) {
@@ -75,6 +81,18 @@ public abstract class ContinentGeneratorMixin {
         try (RtfLap.Frame.Scope lattice = frame.octave(this.frequency)) {
             return original.call(frame.latticeX(x, z), frame.shiftZ(z));
         }
+    }
+
+    @WrapMethod(method = "getDistanceToOcean")
+    private float toroidal$firstCoast(int x, int z, float dx, float dz, Operation<Float> original) {
+        RtfLap.Frame frame = RtfLap.boundFrame();
+        float reach = frame == null ? RiverReach.UNBOUNDED : RiverReach.reach(frame, dx, dz);
+        if (reach == RiverReach.UNBOUNDED) {
+            return original.call(x, z, dx, dz);
+        }
+
+        return RiverReach.distanceToOcean((SimpleContinent) (Object) this, this.controlPoints.shallowOcean, x, z, dx,
+                dz, reach);
     }
 
     @ModifyExpressionValue(method = {"apply", "getEdgeValue", "getNearestCenter"},

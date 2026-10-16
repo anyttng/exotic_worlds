@@ -1,9 +1,8 @@
 package com.exoticworlds.compat.reterraforged;
 
 import net.minecraft.core.Direction;
+import raccoonman.reterraforged.world.worldgen.cell.continent.SimpleContinent;
 
-// A river network is carved around its continent's canonical centre, each point seated on the copy nearest that
-// centre, so the network has to fit inside half a lap of it or the seating cuts it at the far side of the world.
 public final class RiverReach {
     // A root's forks reach 0.44 of their parent's length, two levels deep: 1 + 0.44 + 0.44^2, rounded up.
     private static final float NETWORK_REACH = 1.64F;
@@ -17,9 +16,46 @@ public final class RiverReach {
 
     private static final float HALF = 0.5F;
 
+    private static final float COAST_STEP = 8.0F;
+
+    private static final float COAST_PRECISION = 10.0F;
+
+    public static final float UNBOUNDED = Float.MAX_VALUE;
+
     public static float clamp(RtfLap.Frame frame, float length, float dx, float dz) {
-        float reach = Math.min(axisReach(frame, Direction.Axis.X, dx), axisReach(frame, Direction.Axis.Z, dz));
-        return Math.min(length, reach);
+        return Math.min(length, reach(frame, dx, dz));
+    }
+
+    public static float reach(RtfLap.Frame frame, float dx, float dz) {
+        return Math.min(axisReach(frame, Direction.Axis.X, dx), axisReach(frame, Direction.Axis.Z, dz));
+    }
+
+    public static float distanceToOcean(SimpleContinent continent, float shallowOcean, int x, int z, float dx,
+            float dz, float reach) {
+        float land = 0.0F;
+        for (float sea = COAST_STEP; sea < reach; sea += COAST_STEP) {
+            if (continent.getEdgeValue(x + dx * sea, z + dz * sea) <= shallowOcean) {
+                return coastBetween(continent, shallowOcean, x, z, dx, dz, land, sea);
+            }
+
+            land = sea;
+        }
+
+        return reach;
+    }
+
+    private static float coastBetween(SimpleContinent continent, float shallowOcean, int x, int z, float dx, float dz,
+            float land, float sea) {
+        while (sea - land >= COAST_PRECISION) {
+            float mid = (land + sea) * HALF;
+            if (continent.getEdgeValue(x + dx * mid, z + dz * mid) > shallowOcean) {
+                land = mid;
+            } else {
+                sea = mid;
+            }
+        }
+
+        return sea;
     }
 
     public static boolean fits(RtfLap.Frame frame) {
@@ -30,7 +66,7 @@ public final class RiverReach {
     private static float axisReach(RtfLap.Frame frame, Direction.Axis axis, float direction) {
         double lap = frame.lap(axis);
         if (lap == RtfLap.OPEN || direction == 0.0F) {
-            return Float.MAX_VALUE;
+            return UNBOUNDED;
         }
 
         return (float) ((lap * HALF - CARVE_MARGIN) / (Math.abs(direction) * NETWORK_REACH));
