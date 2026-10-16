@@ -32,7 +32,8 @@ public final class MixinTargetCheck {
         MISSING_FIELD,
         MISSING_INVOKE,
         MISSING_FIELD_ACCESS,
-        MISSING_NEW;
+        MISSING_NEW,
+        WRONG_CALLBACK;
 
         @Override
         public String toString() {
@@ -58,6 +59,10 @@ public final class MixinTargetCheck {
     private static final String ACCESSOR = "Lorg/spongepowered/asm/mixin/gen/Accessor;";
     private static final String INVOKER = "Lorg/spongepowered/asm/mixin/gen/Invoker;";
     private static final String TARGET_HANDLER = "Lcom/bawnorton/mixinsquared/TargetHandler;";
+    private static final String INJECT = "Lorg/spongepowered/asm/mixin/injection/Inject;";
+    private static final String CALLBACK_INFO = "Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfo;";
+    private static final String CALLBACK_INFO_RETURNABLE =
+            "Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable;";
 
     private static final String VALUE_KEY = "value";
     private static final String TARGETS_KEY = "targets";
@@ -181,7 +186,7 @@ public final class MixinTargetCheck {
                     }
                     default -> {
                         if (MixinAnnotations.element(annotation, METHOD_KEY).isPresent()) {
-                            checkInjector(mixinClassName, annotation, annotations, target, refusals);
+                            checkInjector(mixinClassName, annotation, annotations, descriptor, target, refusals);
                         }
                     }
                 }
@@ -190,7 +195,7 @@ public final class MixinTargetCheck {
     }
 
     private void checkInjector(String mixinClassName, AnnotationNode injector, List<AnnotationNode> siblings,
-            String target, List<Refusal> refusals) {
+            String handlerDescriptor, String target, List<Refusal> refusals) {
         List<Selection> selections = new ArrayList<>();
         List<String> selectors = MixinAnnotations.strings(injector, METHOD_KEY);
         for (String selector : selectors) {
@@ -250,6 +255,10 @@ public final class MixinTargetCheck {
             selections.add(new Selection(bodyOwner, found, List.of()));
         }
 
+        if (injector.desc.equals(INJECT)) {
+            checkCallback(mixinClassName, handlerDescriptor, selections, refusals);
+        }
+
         List<AnnotationNode> points = new ArrayList<>(MixinAnnotations.nested(injector, AT_KEY));
         for (AnnotationNode slice : MixinAnnotations.nested(injector, SLICE_KEY)) {
             points.addAll(MixinAnnotations.nested(slice, SLICE_FROM_KEY));
@@ -267,6 +276,21 @@ public final class MixinTargetCheck {
         MemberRef selected = MemberRef.parse(selector);
         return methods(owner, name -> selected.name().isEmpty() || selected.name().equals(name),
                 candidate -> selected.descriptor() == null || selected.descriptor().equals(candidate));
+    }
+
+    private static void checkCallback(String mixinClassName, String handlerDescriptor, List<Selection> selections,
+            List<Refusal> refusals) {
+        String parameters = parametersOf(handlerDescriptor);
+        for (Selection selection : selections) {
+            for (MethodNode body : selection.bodies()) {
+                boolean returns = !Type.getReturnType(body.desc).getDescriptor().equals(VOID_RETURN);
+                if (!parameters.contains(returns ? CALLBACK_INFO_RETURNABLE : CALLBACK_INFO)) {
+                    String member = selection.owner() + "#" + body.name + body.desc;
+                    refusals.add(new Refusal(mixinClassName, member, Reason.WRONG_CALLBACK));
+                    return;
+                }
+            }
+        }
     }
 
     private static void checkAt(String mixinClassName, Selection selection, AnnotationNode at,

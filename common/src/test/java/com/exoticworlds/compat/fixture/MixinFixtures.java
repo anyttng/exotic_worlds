@@ -11,6 +11,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Slice;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.bawnorton.mixinsquared.TargetHandler;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -18,7 +20,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
-@SuppressWarnings("UnusedMethod")
+@SuppressWarnings({"UnusedMethod", "UnusedVariable"})
 public final class MixinFixtures {
     private static final String TARGET = "com.exoticworlds.compat.fixture.FixtureTarget";
     private static final String NOWHERE = "com.exoticworlds.compat.fixture.Nowhere";
@@ -71,13 +73,41 @@ public final class MixinFixtures {
     @Mixin(FixtureTarget.class)
     public static class InjectPresent {
         @Inject(method = "work", at = @At("HEAD"))
-        private void inject() {
+        private void inject(CallbackInfo callback) {
         }
     }
 
     @Mixin(FixtureTarget.class)
     public static class InjectMissing {
         @Inject(method = "absent", at = @At("HEAD"))
+        private void inject(CallbackInfo callback) {
+        }
+    }
+
+    @Mixin(FixtureTarget.class)
+    public static class InjectReturnablePresent {
+        @Inject(method = "helper", at = @At("HEAD"))
+        private void inject(int value, CallbackInfoReturnable<Integer> callback) {
+        }
+    }
+
+    @Mixin(FixtureTarget.class)
+    public static class InjectCallbackInfoIntoValue {
+        @Inject(method = "helper", at = @At("HEAD"))
+        private void inject(CallbackInfo callback) {
+        }
+    }
+
+    @Mixin(FixtureTarget.class)
+    public static class InjectReturnableIntoVoid {
+        @Inject(method = "work", at = @At("HEAD"))
+        private void inject(CallbackInfoReturnable<Integer> callback) {
+        }
+    }
+
+    @Mixin(FixtureTarget.class)
+    public static class InjectWithoutCallback {
+        @Inject(method = "work", at = @At("HEAD"))
         private void inject() {
         }
     }
@@ -232,7 +262,7 @@ public final class MixinFixtures {
     @Mixin(targets = {TARGET, NOWHERE})
     public static class PseudoOneOfTwoPresent {
         @Inject(method = "work", at = @At("HEAD"))
-        private void inject() {
+        private void inject(CallbackInfo callback) {
         }
     }
 
@@ -310,7 +340,7 @@ public final class MixinFixtures {
     public static class InjectSliceMissing {
         @Inject(method = "work", at = @At(value = "INVOKE", target = HELPER),
                 slice = @Slice(to = @At(value = "INVOKE", target = ABSENT_CALL)))
-        private void inject() {
+        private void inject(CallbackInfo callback) {
         }
     }
 
@@ -350,8 +380,8 @@ public final class MixinFixtures {
 
     @Mixin(FixtureTarget.class)
     public static class AnyMethodSelector {
-        @Inject(method = "*", at = @At("HEAD"))
-        private void inject() {
+        @WrapOperation(method = "*", at = @At(value = "INVOKE", target = HELPER))
+        private void wrap() {
         }
     }
 
