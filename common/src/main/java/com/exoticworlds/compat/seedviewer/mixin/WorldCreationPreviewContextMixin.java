@@ -1,6 +1,7 @@
 package com.exoticworlds.compat.seedviewer.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
@@ -19,11 +20,16 @@ import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
 
 @Mixin(WorldCreationPreviewContext.class)
 public class WorldCreationPreviewContextMixin {
+    @Unique
+    private static final String PREVIEW_CONTEXT =
+            "Lnet/acenia/seedviewer/client/screen/createworld/WorldCreationPreviewContext;";
+
+    @Unique
     private static final String BUILD = "build(Lnet/minecraft/client/gui/screens/worldselection/CreateWorldScreen;"
             + "Lnet/minecraft/client/gui/screens/worldselection/WorldCreationUiState;"
-            + "Lnet/acenia/seedviewer/client/screen/createworld/WorldgenEditorState;Z)"
-            + "Lnet/acenia/seedviewer/client/screen/createworld/WorldCreationPreviewContext;";
+            + "Lnet/acenia/seedviewer/client/screen/createworld/WorldgenEditorState;Z)" + PREVIEW_CONTEXT;
 
+    @Unique
     private static final int WORLDGEN_IDENTITY = 3;
 
     @WrapMethod(method = BUILD, order = BinderOrder.FOLD)
@@ -38,8 +44,7 @@ public class WorldCreationPreviewContextMixin {
             method = BUILD,
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/acenia/seedviewer/client/screen/createworld/WorldCreationPreviewContext;"
-                            + SeedViewerInjectionTargets.CONSTRUCTOR + SeedViewerInjectionTargets.CONTEXT_DESCRIPTOR),
+                    target = PREVIEW_CONTEXT + SeedViewerInjectionTargets.CONSTRUCTOR + SeedViewerInjectionTargets.CONTEXT_DESCRIPTOR),
             index = WORLDGEN_IDENTITY)
     private static String toroidal$identifyTheChosenShape(String worldgenIdentity,
             @Local(argsOnly = true) WorldCreationUiState uiState) {

@@ -13,10 +13,6 @@ public final class C2meDfc {
             .checking(C2meMixinPlugin.CONFIG, MIXINS::contains)
             .build();
 
-    public static boolean present() {
-        return GATE.present();
-    }
-
     private C2meDfc() {
     }
 }
