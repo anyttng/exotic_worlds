@@ -56,8 +56,7 @@ public class LevelTicksMixin<T> implements LevelBindable {
 
     @Unique
     private BlockPos toroidal$foldQueried(BlockPos pos) {
-        WorldFold transformer = this.toroidal$bound.wrapped();
-        return transformer == null ? pos : transformer.fold(pos);
+        return this.toroidal$bound.fold().fold(pos);
     }
 
     @Inject(method = "clearArea", at = @At("HEAD"), cancellable = true)

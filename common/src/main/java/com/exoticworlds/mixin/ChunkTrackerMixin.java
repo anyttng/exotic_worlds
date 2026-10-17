@@ -31,12 +31,7 @@ public class ChunkTrackerMixin implements LevelBindable, TransformerCache {
             at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_POS_AS_LONG),
             expect = 2)
     private long toroidal$physicalNeighborKey(int chunkX, int chunkZ, Operation<Long> original) {
-        WorldFold transformer = this.toroidal$bound.wrapped();
-        if (transformer == null) {
-            return original.call(chunkX, chunkZ);
-        }
-
-        long folded = transformer.foldChunkKey(ChunkPos.asLong(chunkX, chunkZ));
+        long folded = this.toroidal$bound.fold().foldChunkKey(ChunkPos.asLong(chunkX, chunkZ));
         return original.call(ChunkPos.getX(folded), ChunkPos.getZ(folded));
     }
 

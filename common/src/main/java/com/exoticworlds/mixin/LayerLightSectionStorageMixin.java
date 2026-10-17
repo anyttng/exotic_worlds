@@ -30,9 +30,7 @@ public abstract class LayerLightSectionStorageMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.SECTION_POS_OFFSET))
     private long toroidal$foldNeighborSection(long sectionNode, int stepX, int stepY, int stepZ,
             Operation<Long> original) {
-        long neighborNode = original.call(sectionNode, stepX, stepY, stepZ);
-        WorldFold transformer = toroidal$transformer();
-        return transformer.isWrapped() ? transformer.foldSectionNode(neighborNode) : neighborNode;
+        return toroidal$transformer().foldSectionNode(original.call(sectionNode, stepX, stepY, stepZ));
     }
 
     @Unique

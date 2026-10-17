@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.engine.seam.SeamMemory;
+import com.exoticworlds.core.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
 import net.minecraft.core.BlockPos;
@@ -29,6 +29,6 @@ public class BeeGoToHiveGoalMixin {
             method = "hasReachedTarget",
             at = @At(value = "INVOKE", target = InjectionTargets.PATH_GET_TARGET))
     private BlockPos toroidal$pathTargetCanonical(BlockPos target) {
-        return SeamMemory.canonical(this.toroidal$bee, target);
+        return WorldLoopAttachments.transformerOf(this.toroidal$bee.level()).fold(target);
     }
 }

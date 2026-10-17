@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.engine.seam.SeamMemory;
+import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.seam.SeamSteering;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -34,7 +34,7 @@ public class BeePollinateGoalMixin {
 
     @ModifyReturnValue(method = "findNearbyFlower", at = @At("RETURN"))
     private Optional<BlockPos> toroidal$foundFlowerCanonical(Optional<BlockPos> found) {
-        return found.map(pos -> SeamMemory.canonical(this.toroidal$bee, pos));
+        return found.map(WorldLoopAttachments.transformerOf(this.toroidal$bee.level())::fold);
     }
 
     @ModifyExpressionValue(
