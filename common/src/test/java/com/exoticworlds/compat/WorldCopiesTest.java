@@ -2,6 +2,7 @@ package com.exoticworlds.compat;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
@@ -87,6 +88,35 @@ class WorldCopiesTest {
     void anUnshapedWorldKeepsTheViewAsItsOnePiece() {
         assertEquals(List.of(new WorldCopies.Piece(WorldCopies.IDENTITY, 15040, 7, 15104, 71)),
                 WorldCopies.pieces(null, 15040, 7, 15104, 71));
+    }
+
+    @Test
+    void aCopyListWiderThanTheViewClipsToTheSamePiecesAsTheShape() {
+        for (ToroidalShape shape : List.of(TORUS, LATTICE, CYLINDER)) {
+            List<WorldCopies.Copy> wide = WorldCopies.meeting(shape, -5000, -5000, 5000, 5000);
+            assertEquals(new HashSet<>(WorldCopies.pieces(shape, -1100, -900, 1300, 700)),
+                    new HashSet<>(WorldCopies.pieces(shape, wide, -1100, -900, 1300, 700)),
+                    "a copy that misses the view left a piece, or one that meets it lost its piece");
+            assertEquals(new HashSet<>(WorldCopies.meeting(shape, -1100, -900, 1300, 700)),
+                    new HashSet<>(WorldCopies.meeting(shape, wide, -1100, -900, 1300, 700)),
+                    "the wide list kept a copy the view does not meet");
+        }
+    }
+
+    @Test
+    void aWindowAnswersARectangleInsideItWithItsOwnCopies() {
+        WorldCopies.Window window = WorldCopies.Window.of(LATTICE, -2000, -2000, 2000, 2000);
+        assertSame(window.copies(), window.copiesFor(-300, 200, 400, 900), "the window asked the shape again");
+    }
+
+    @Test
+    void aWindowAsksTheShapeForARectangleReachingPastIt() {
+        WorldCopies.Window window = WorldCopies.Window.of(LATTICE, -100, -100, 100, 100);
+        assertEquals(WorldCopies.meeting(LATTICE, 50, 50, 900, 900), window.copiesFor(50, 50, 900, 900),
+                "the window answered a rectangle it does not hold with its own copies");
+        assertEquals(Set.of(WorldCopies.IDENTITY, new WorldCopies.Copy(SKEW, WIDTH)),
+                new HashSet<>(window.meeting(50, 50, 200, 300)),
+                "50..199 x 50..299 meets the world and the row above it, whose copy at 0..511 is moved by the skew");
     }
 
     @Test

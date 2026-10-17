@@ -33,7 +33,6 @@ import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 
 import xaero.lib.client.graphics.GpuTextureAndView;
@@ -136,14 +135,14 @@ public abstract class GuiMapRegionMixin {
     private @Nullable LeveledRegion<?> toroidal$leveledOrFold(@Nullable LeveledRegion<?> existing, int caveLayer,
             int regX, int regZ, int level) {
         XaeroRegionFrame frame = this.toroidal$frame;
-        frame.beginView(caveLayer, regX, regZ, level);
+        frame.beginView(caveLayer, regX, regZ, level, this.cameraX, this.cameraZ, this.scale);
         this.toroidal$loopRegions.add(ChunkPos.pack(regX, regZ));
         ToroidalShape shape = frame.shape();
         if (shape == null) {
             return existing;
         }
 
-        for (long fanned : XaeroWorldMapFold.fannedRegions(shape, regX, regZ, level)) {
+        for (long fanned : frame.fannedRegions(regX, regZ)) {
             this.toroidal$fannedRegions.add(fanned);
         }
 
@@ -237,8 +236,7 @@ public abstract class GuiMapRegionMixin {
             slice = @Slice(
                     from = @At(value = "INVOKE", target = MAP_PROCESSOR_GET_LEVELED_REGION, ordinal = 1),
                     to = @At(value = "INVOKE", target = MAP_PROCESSOR_GET_LEVELED_REGION, ordinal = 2)))
-    private int toroidal$extendLeafColumn(int leveledSideInRegions, @Local(name = "textureLevel") int textureLevel,
-            @Local(name = "leveledRegX") int leveledRegX, @Local(name = "leveledRegZ") int leveledRegZ,
+    private int toroidal$extendLeafColumn(int leveledSideInRegions, @Local(name = "leveledRegX") int leveledRegX, @Local(name = "leveledRegZ") int leveledRegZ,
             @Local(name = "leafRegionMinX") int leafRegionMinX, @Local(name = "leafRegionMinZ") int leafRegionMinZ,
             @Local(name = "leafX") int leafX, @Local(name = "minLeafRegX") int minLeafRegX,
             @Local(name = "maxLeafRegX") int maxLeafRegX) {
@@ -254,7 +252,7 @@ public abstract class GuiMapRegionMixin {
         if (this.toroidal$fannedLeafColumn == NO_COLUMN && regX >= minLeafRegX && regX <= maxLeafRegX) {
             this.toroidal$fannedLeafColumn = regX;
             this.toroidal$fannedLeaves = toroidal$untakenLeaves(
-                    XaeroWorldMapFold.fannedLeaves(this.toroidal$frame.shape(), leveledRegX, leveledRegZ, textureLevel));
+                    this.toroidal$frame.fannedLeaves(leveledRegX, leveledRegZ));
         }
 
         return regX == this.toroidal$fannedLeafColumn
@@ -455,7 +453,7 @@ public abstract class GuiMapRegionMixin {
         float y = textureZ - flooredCameraZ;
         boolean hasLight = regionTexture.getTextureHasLight();
         MultiTextureRenderTypeRenderer renderer = hasLight ? withLightRenderer : noLightRenderer;
-        List<WorldCopies.Copy> copies = frame.drawnCopies(slotSize, this.cameraX, this.cameraZ, this.scale);
+        List<WorldCopies.Copy> copies = frame.drawnCopies();
         int viewBlockX = frame.slotViewBlockX();
         int viewBlockZ = frame.slotViewBlockZ();
         for (long origin : frame.slotOrigins(slotSize)) {
