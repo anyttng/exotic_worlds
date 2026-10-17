@@ -13,6 +13,8 @@ import org.spongepowered.asm.mixin.injection.Coerce;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.compat.AxisCopies;
+import com.exoticworlds.compat.FullscreenZoomFloor;
 import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.compat.simpleatlas.AtlasTileFold;
 import com.exoticworlds.compat.simpleatlas.AtlasView;
@@ -120,19 +122,9 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
             return viewport;
         }
 
-        float heldZoom = this.zoom;
-        if (shape.loops(Direction.Axis.X)) {
-            heldZoom = Math.max(heldZoom, AtlasView.zoomCovering(view.contentWidth(),
-                    shape.widthBlocks(Direction.Axis.X), blocksPerTile, TILE_SIZE));
-        }
-
-        if (shape.loops(Direction.Axis.Z)) {
-            heldZoom = Math.max(heldZoom, AtlasView.zoomCovering(view.contentHeight(),
-                    shape.widthBlocks(Direction.Axis.Z), blocksPerTile, TILE_SIZE));
-        }
-
         this.toroidal$tileBeforeHold = TILE_SIZE * this.zoom;
-        this.zoom = heldZoom;
+        this.zoom = Math.max(this.zoom, FullscreenZoomFloor.simpleAtlasCoverZoom(shape, view.contentWidth(),
+                view.contentHeight(), blocksPerTile, TILE_SIZE));
         return viewport;
     }
 
@@ -192,7 +184,8 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
             worldWidth = shape.widthBlocks(Direction.Axis.X) * pixelsPerBlock;
             float start = toroidal$worldStart(originX + (float) this.panX, this.localTileX(dimension, first),
                     first.centerX(), shape.minBlock(Direction.Axis.X), tile, blocksPerTile);
-            float shift = AtlasView.panInside(start, worldWidth, view.contentX(), view.contentWidth());
+            float shift = AtlasView.panInside(AxisCopies.of(shape, Direction.Axis.X), start, view.contentX(),
+                    view.contentWidth(), pixelsPerBlock);
             this.panX += shift;
             worldX = start + shift;
         }
@@ -203,7 +196,8 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
             worldHeight = shape.widthBlocks(Direction.Axis.Z) * pixelsPerBlock;
             float start = toroidal$worldStart(originY + (float) this.panY, this.localTileY(dimension, first),
                     first.centerZ(), shape.minBlock(Direction.Axis.Z), tile, blocksPerTile);
-            float shift = AtlasView.panInside(start, worldHeight, view.contentY(), view.contentHeight());
+            float shift = AtlasView.panInside(AxisCopies.of(shape, Direction.Axis.Z), start, view.contentY(),
+                    view.contentHeight(), pixelsPerBlock);
             this.panY += shift;
             worldY = start + shift;
         }

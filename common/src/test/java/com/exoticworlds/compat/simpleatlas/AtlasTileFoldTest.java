@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.MapShapes;
+import com.exoticworlds.compat.SeamLine;
 
 import net.minecraft.world.phys.Vec3;
 
@@ -34,13 +35,13 @@ class AtlasTileFoldTest {
 
     @Test
     void aTileAcrossTheXSeamDrawsOneColumn() {
-        assertEquals(Set.of(new AtlasTileFold.SeamLine(true, 64, 0, 128)),
+        assertEquals(Set.of(new SeamLine(true, 64, 0, 128)),
                 Set.copyOf(AtlasTileFold.seamLines(TORUS, tile(128, 0), BLOCKS_PER_TILE)));
     }
 
     @Test
     void theXSeamStopsAtTheZSeamWhereTheSkewMovesIt() {
-        assertEquals(Set.of(new AtlasTileFold.SeamLine(true, 64, 0, 64), new AtlasTileFold.SeamLine(false, 64, 0, 128)),
+        assertEquals(Set.of(new SeamLine(true, 64, 0, 64), new SeamLine(false, 64, 0, 128)),
                 Set.copyOf(AtlasTileFold.seamLines(LATTICE, tile(128, 128), BLOCKS_PER_TILE)));
     }
 

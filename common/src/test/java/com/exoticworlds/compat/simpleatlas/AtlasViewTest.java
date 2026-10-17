@@ -4,11 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.compat.AxisCopies;
+
 class AtlasViewTest {
-    @Test
-    void theZoomFloorLetsTheWorldCoverTheView() {
-        assertEquals(0.921875F, AtlasView.zoomCovering(236.0F, 512, 128, 64.0F));
-    }
+    private static final float ONE_PIXEL_PER_BLOCK = 1.0F;
 
     @Test
     void aZoomChangeKeepsTheMapUnderTheViewCentre() {
@@ -17,17 +16,19 @@ class AtlasViewTest {
 
     @Test
     void aWorldThatLeavesTheViewIsPulledBackInside() {
-        assertEquals(-10.0F, AtlasView.panInside(10.0F, 100.0F, 0.0F, 100.0F));
-        assertEquals(50.0F, AtlasView.panInside(-50.0F, 100.0F, 0.0F, 100.0F));
-        assertEquals(0.0F, AtlasView.panInside(-10.0F, 120.0F, 0.0F, 100.0F));
+        assertEquals(-10.0F, AtlasView.panInside(AxisCopies.looped(0, 100), 10.0F, 0.0F, 100.0F, ONE_PIXEL_PER_BLOCK));
+        assertEquals(50.0F, AtlasView.panInside(AxisCopies.looped(0, 100), -50.0F, 0.0F, 100.0F, ONE_PIXEL_PER_BLOCK));
+        assertEquals(0.0F, AtlasView.panInside(AxisCopies.looped(0, 120), -10.0F, 0.0F, 100.0F, ONE_PIXEL_PER_BLOCK));
     }
 
     @Test
     void aWorldPulledInsideStaysWhereItWasPut() {
-        for (float worldLength : new float[] {60.0F, 100.0F, 140.0F}) {
+        for (int worldBlocks : new int[] {60, 100, 140}) {
+            AxisCopies axis = AxisCopies.looped(0, worldBlocks);
             float worldStart = 30.0F;
-            worldStart += AtlasView.panInside(worldStart, worldLength, 0.0F, 100.0F);
-            assertEquals(0.0F, AtlasView.panInside(worldStart, worldLength, 0.0F, 100.0F), "world " + worldLength);
+            worldStart += AtlasView.panInside(axis, worldStart, 0.0F, 100.0F, ONE_PIXEL_PER_BLOCK);
+            assertEquals(0.0F, AtlasView.panInside(axis, worldStart, 0.0F, 100.0F, ONE_PIXEL_PER_BLOCK),
+                    "world " + worldBlocks);
         }
     }
 }

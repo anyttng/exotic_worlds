@@ -6,8 +6,8 @@ import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.api.v1.ExoticWorldsClientApi;
 import com.exoticworlds.compat.ClientShapes;
+import com.exoticworlds.compat.SeamLine;
 import com.exoticworlds.compat.WorldCopies;
 
 import net.minecraft.core.registries.Registries;
@@ -22,9 +22,6 @@ import rubbertoe.simple_atlas.network.AtlasTilePayload;
 
 public final class AtlasTileFold {
     public static final int MAP_PIXELS = 128;
-
-    public record SeamLine(boolean vertical, int at, int from, int to) {
-    }
 
     public static Vec3 nearestToTile(AtlasTilePayload tile, double x, double z) {
         return nearestToTile(shapeOf(tile.dimension()), tile, x, z);
@@ -54,12 +51,7 @@ public final class AtlasTileFold {
         List<SeamLine> lines = new ArrayList<>();
         for (WorldCopies.Edge edge : WorldCopies.seams(shape, minX, minZ, minX + blocksPerTile,
                 minZ + blocksPerTile)) {
-            boolean vertical = edge.fromX() == edge.toX();
-            lines.add(vertical
-                    ? new SeamLine(true, (edge.fromX() - minX) / blocksPerPixel, (edge.fromZ() - minZ) / blocksPerPixel,
-                            Math.ceilDiv(edge.toZ() - minZ, blocksPerPixel))
-                    : new SeamLine(false, (edge.fromZ() - minZ) / blocksPerPixel,
-                            (edge.fromX() - minX) / blocksPerPixel, Math.ceilDiv(edge.toX() - minX, blocksPerPixel)));
+            lines.add(SeamLine.of(edge, -minX / blocksPerPixel, -minZ / blocksPerPixel, 1.0 / blocksPerPixel));
         }
 
         return lines;
@@ -82,9 +74,7 @@ public final class AtlasTileFold {
 
     public static @Nullable ToroidalShape shapeOf(String dimension) {
         Identifier id = Identifier.tryParse(dimension);
-        return id == null
-                ? null
-                : ExoticWorldsClientApi.shapeOf(ResourceKey.create(Registries.DIMENSION, id)).orElse(null);
+        return id == null ? null : ClientShapes.of(ResourceKey.create(Registries.DIMENSION, id));
     }
 
     private AtlasTileFold() {

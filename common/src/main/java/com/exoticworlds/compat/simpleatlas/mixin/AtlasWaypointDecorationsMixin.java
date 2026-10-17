@@ -8,7 +8,6 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.compat.simpleatlas.MapCentreSeat;
-import com.exoticworlds.engine.seam.MapSeamFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
@@ -24,8 +23,7 @@ public class AtlasWaypointDecorationsMixin {
                     opcode = Opcodes.GETFIELD))
     private static int toroidal$centerXNearWaypoint(int centerX, @Local(argsOnly = true) MapItemSavedData data,
             @Local(argsOnly = true) AtlasContents.WaypointData waypoint) {
-        return MapCentreSeat.toward(MapSeamFold.transformerFor(null, data.dimension), Direction.Axis.X,
-                waypoint.worldX(), waypoint.worldZ(), data);
+        return MapCentreSeat.towardWaypoint(Direction.Axis.X, waypoint, data);
     }
 
     @ModifyExpressionValue(
@@ -34,7 +32,6 @@ public class AtlasWaypointDecorationsMixin {
                     opcode = Opcodes.GETFIELD))
     private static int toroidal$centerZNearWaypoint(int centerZ, @Local(argsOnly = true) MapItemSavedData data,
             @Local(argsOnly = true) AtlasContents.WaypointData waypoint) {
-        return MapCentreSeat.toward(MapSeamFold.transformerFor(null, data.dimension), Direction.Axis.Z,
-                waypoint.worldX(), waypoint.worldZ(), data);
+        return MapCentreSeat.towardWaypoint(Direction.Axis.Z, waypoint, data);
     }
 }

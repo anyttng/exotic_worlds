@@ -20,6 +20,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalDoubleRef;
 import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.SeamLine;
 import com.exoticworlds.compat.simpleatlas.AtlasCopies;
 import com.exoticworlds.compat.simpleatlas.AtlasEdgeLines;
 import com.exoticworlds.compat.simpleatlas.AtlasLayoutFold;
@@ -160,7 +161,7 @@ public abstract class AtlasScreenMixin {
             @Local(name = "mapOriginX") float mapOriginX, @Local(name = "mapOriginY") float mapOriginY,
             @Local(name = "scaledTileSize") float scaledTileSize) {
         AtlasView singleWorld = toroidal$views().toroidal$singleWorld();
-        List<AtlasTileFold.SeamLine> lines = this.toroidal$seamLines ? toroidal$seamLinesOf(tile) : List.of();
+        List<SeamLine> lines = this.toroidal$seamLines ? toroidal$seamLinesOf(tile) : List.of();
         for (AtlasCopies.Offset offset : toroidal$tileCopies(mapOriginX, mapOriginY, scaledTileSize)) {
             float copyX = x + offset.x();
             float copyY = y + offset.y();
@@ -348,7 +349,7 @@ public abstract class AtlasScreenMixin {
     }
 
     @Unique
-    private static List<AtlasTileFold.SeamLine> toroidal$seamLinesOf(AtlasTilePayload tile) {
+    private static List<SeamLine> toroidal$seamLinesOf(AtlasTilePayload tile) {
         int blocksPerTile = AtlasTileFold.blocksPerTile(Minecraft.getInstance().level, tile);
         return blocksPerTile == 0 ? List.of() : AtlasTileFold.seamLines(tile, blocksPerTile);
     }
