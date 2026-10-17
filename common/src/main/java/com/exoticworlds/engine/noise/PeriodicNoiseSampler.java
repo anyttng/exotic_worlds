@@ -35,7 +35,7 @@ public final class PeriodicNoiseSampler {
 
     static final long MAX_INDEXED_PERIOD = 1L << 36;
 
-    static final double NO_FUDGE = 0.0;
+    public static final double NO_FUDGE = 0.0;
 
     private static final int X_SLOT = 0;
     private static final int Y_SLOT = 1;
@@ -44,19 +44,7 @@ public final class PeriodicNoiseSampler {
 
     private static final float FUDGE_EPSILON = 1.0E-7F;
 
-    public static float sample(byte[] permutations, double xOffset, double yOffset, double zOffset,
-            WorldFold transformer, NoiseFrame frame, double scale, double x, double y, double z) {
-        return sample(permutations, xOffset, yOffset, zOffset, transformer, frame, scale, x, y, z,
-                LapFloor.of(transformer));
-    }
-
-    public static float sample(byte[] permutations, double xOffset, double yOffset, double zOffset,
-            WorldFold transformer, NoiseFrame frame, double scale, double x, double y, double z, LapFloor floor) {
-        return sample(lattice(permutations, xOffset, yOffset, zOffset, NO_FUDGE, transformer, frame, scale, floor),
-                x, y, z, y);
-    }
-
-    static PeriodicLattice lattice(byte[] permutations, double xOffset, double yOffset, double zOffset,
+    public static PeriodicLattice lattice(byte[] permutations, double xOffset, double yOffset, double zOffset,
             double fudgeYScale, WorldFold transformer, NoiseFrame frame, double scale, LapFloor floor) {
         TranslationLattice translations = transformer.blockLattice();
         if (!frame.isDefault()) {
@@ -141,7 +129,7 @@ public final class PeriodicNoiseSampler {
                 yFrac, xPeriod, UNBOUNDED_PERIOD, zPeriod);
     }
 
-    static float sample(PeriodicLattice lattice, double x, double y, double z, double originalY) {
+    public static float sample(PeriodicLattice lattice, double x, double y, double z, double originalY) {
         PeriodicLattice.Shear shear = lattice.shear();
         if (shear != null) {
             return sampleSheared(lattice, shear, x, y, z, originalY);

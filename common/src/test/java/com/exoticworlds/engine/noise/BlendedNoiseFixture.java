@@ -103,14 +103,14 @@ final class BlendedNoiseFixture {
 
     static double sample(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold fold, double scale, double x, double y, double z, double verticalShare) {
-        return PeriodicNoiseSampler.sample(permutations, xOffset, yOffset, zOffset, fold, frameOf(verticalShare),
-                scale, x, y, z);
+        return sample(permutations, xOffset, yOffset, zOffset, fold, scale, x, y, z, verticalShare,
+                LapFloor.of(fold));
     }
 
     static double sample(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold fold, double scale, double x, double y, double z, double verticalShare, LapFloor floor) {
-        return PeriodicNoiseSampler.sample(permutations, xOffset, yOffset, zOffset, fold, frameOf(verticalShare),
-                scale, x, y, z, floor);
+        return PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(permutations, xOffset, yOffset, zOffset,
+                PeriodicNoiseSampler.NO_FUDGE, fold, frameOf(verticalShare), scale, floor), x, y, z, y);
     }
 
     private static NoiseFrame frameOf(double verticalShare) {
