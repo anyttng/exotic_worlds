@@ -3,6 +3,7 @@ package com.exoticworlds.compat.seedviewer;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.AxisCopies;
 import com.exoticworlds.compat.FullscreenZoomFloor;
+import com.exoticworlds.compat.SeamLine;
 import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
@@ -14,7 +15,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Direction;
 
 public final class SeamLines {
-    private static final int SEAM_ARGB = 0xCCFFFFFF;
+    private static final int SEAM_PIXELS = 1;
 
     public static void draw(GuiGraphics graphics, BiomeSampler sampler, MapCamera camera,
             MapViewport viewport) {
@@ -38,7 +39,10 @@ public final class SeamLines {
             int y0 = screenY(camera, viewport, seam.fromZ());
             int x1 = screenX(camera, viewport, seam.toX());
             int y1 = screenY(camera, viewport, seam.toZ());
-            graphics.fill(x0, y0, Math.max(x1, x0 + 1), Math.max(y1, y0 + 1), SEAM_ARGB);
+            SeamLine line = seam.fromX() == seam.toX()
+                    ? new SeamLine(true, x0, y0, Math.max(y1, y0 + 1))
+                    : new SeamLine(false, y0, x0, Math.max(x1, x0 + 1));
+            line.fill(graphics, SEAM_PIXELS);
         }
     }
 
