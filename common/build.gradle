@@ -391,6 +391,7 @@ dependencies {
     testRuntimeOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     testRuntimeOnly "maven.modrinth:wunderlib-neoforge:${wunderlib_version}"
     testRuntimeOnly "maven.modrinth:moonlight:${moonlight_version}"
+    testRuntimeOnly "maven.modrinth:supplementaries:${supplementaries_version}"
     testCompileOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
     testRuntimeOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
     // The compat jars on the test runtime alone: every compat gate reads its mixins' targets from these class files,

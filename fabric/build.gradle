@@ -327,6 +327,7 @@ dependencies {
     // preview builder name game types, and remapJar carries the mixin targets onto intermediary only through it.
     modCompileOnly "maven.modrinth:seed-viewer:${seed_viewer_fabric_version}"
     modCompileOnly "maven.modrinth:moonlight:${moonlight_fabric_version}"
+    modCompileOnly "maven.modrinth:supplementaries:${supplementaries_fabric_version}"
 
     // The 'modmenu' entrypoint class is only ever asked for by ModMenu itself, so it never loads without it.
     // modCompileOnly: its screen-factory API names the game's Screen, which only the remapped jar spells in this
