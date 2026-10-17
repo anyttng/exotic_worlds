@@ -248,7 +248,7 @@
     "StoringChunkProgressListenerMixin",
     "StructureBlockEntityMixin",
     "StructureCheckAccessor",
-    "StructureCheckBiomeMixin",
+    "StructureCheckMixin",
     "StructureGenerateBindingMixin",
     "StructureManagerAccessor",
     "StructureManagerMixin",
