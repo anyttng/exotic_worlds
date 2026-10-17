@@ -41,7 +41,7 @@ public final class C2meDfcAst {
         Fold fold = foldOf(source);
         if (fold == null) {
             if (reportsMiss(source, produced, transformer)) {
-                LOGGER.warn("[c2me-compat] dfc_ast noise_not_folded type={}", source.getClass().getName());
+                LOGGER.warn("[ew/c2me-compat] dfc_ast noise_not_folded type={}", source.getClass().getName());
             }
 
             return produced;
@@ -154,7 +154,7 @@ public final class C2meDfcAst {
     }
 
     private static IllegalStateException brokenShape(DensityFunction source, AstNode produced) {
-        return new IllegalStateException("[c2me-compat] dfc_ast broken_shape type=" + source.getClass().getName()
+        return new IllegalStateException("[ew/c2me-compat] dfc_ast broken_shape type=" + source.getClass().getName()
                 + " produced=" + produced.getClass().getName()
                 + "; C2ME no longer compiles this function to the node the toroidal fold replaces");
     }

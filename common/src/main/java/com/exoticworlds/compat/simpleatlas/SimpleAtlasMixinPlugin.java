@@ -9,7 +9,7 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 public class SimpleAtlasMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final ModPresence SIMPLE_ATLAS = ModPresence.gate(LOGGER, "[simpleatlas-compat] gate simpleatlas_present")
+    private static final ModPresence SIMPLE_ATLAS = ModPresence.gate(LOGGER, "[ew/simpleatlas-compat] gate simpleatlas_present")
             .probing("rubbertoe/simple_atlas/map/AtlasMapSelector.class")
             .checking("exotic_worlds.compat.simpleatlas.mixins.json")
             .build();
