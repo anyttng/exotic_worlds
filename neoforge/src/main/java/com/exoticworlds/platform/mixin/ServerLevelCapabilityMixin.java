@@ -5,7 +5,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 
 import net.minecraft.core.BlockPos;
@@ -25,7 +24,6 @@ public class ServerLevelCapabilityMixin {
 
     @Unique
     private BlockPos toroidal$canonicalKey(BlockPos pos) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf((ServerLevel) (Object) this);
-        return transformer == null ? pos : transformer.fold(pos);
+        return WorldLoopAttachments.transformerOf((ServerLevel) (Object) this).fold(pos);
     }
 }

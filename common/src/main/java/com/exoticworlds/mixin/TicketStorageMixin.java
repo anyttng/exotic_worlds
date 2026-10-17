@@ -10,7 +10,6 @@ import java.util.List;
 
 import com.exoticworlds.accessors.LevelBindable;
 import com.exoticworlds.accessors.LevelBindRegistry;
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.level.BoundLevelFold;
 
 import net.minecraft.server.level.ServerLevel;
@@ -49,7 +48,6 @@ public class TicketStorageMixin implements LevelBindable, LevelBindRegistry {
 
     @Unique
     private long toroidal$foldKey(long key) {
-        WorldFold transformer = this.toroidal$bound.wrapped();
-        return transformer == null ? key : transformer.foldChunkKey(key);
+        return this.toroidal$bound.fold().foldChunkKey(key);
     }
 }

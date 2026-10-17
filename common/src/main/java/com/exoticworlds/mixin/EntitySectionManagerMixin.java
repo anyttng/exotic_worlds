@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.exoticworlds.accessors.LevelBindable;
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.level.BoundLevelFold;
 import com.exoticworlds.engine.seam.SeamSnap;
 
@@ -53,7 +52,6 @@ public class EntitySectionManagerMixin<T extends EntityAccess> implements LevelB
             index = 0,
             expect = 4)
     private long toroidal$askThePhysicalChunk(long chunkKey) {
-        WorldFold transformer = this.toroidal$bound.wrapped();
-        return transformer == null ? chunkKey : transformer.foldChunkKey(chunkKey);
+        return this.toroidal$bound.fold().foldChunkKey(chunkKey);
     }
 }

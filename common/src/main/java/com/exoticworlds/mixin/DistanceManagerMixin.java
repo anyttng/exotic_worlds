@@ -8,7 +8,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.accessors.LevelBindable;
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.level.BoundLevelFold;
 
 import net.minecraft.server.level.DistanceManager;
@@ -53,7 +52,6 @@ public class DistanceManagerMixin implements LevelBindable {
 
     @Unique
     private long toroidal$foldKey(long key) {
-        WorldFold transformer = this.toroidal$bound.wrapped();
-        return transformer == null ? key : transformer.foldChunkKey(key);
+        return this.toroidal$bound.fold().foldChunkKey(key);
     }
 }

@@ -2,7 +2,6 @@ package com.exoticworlds.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -22,8 +21,7 @@ public class TheEndGatewayBlockEntityMixin {
 
     @WrapMethod(method = "setExitPosition(Lnet/minecraft/core/BlockPos;Z)V")
     private void toroidal$foldExitPosition(BlockPos exactPosition, boolean exact, Operation<Void> original) {
-        WorldFold transformer =
-                WorldLoopAttachments.wrappedTransformerOf(((BlockEntity) (Object) this).getLevel());
-        original.call(transformer == null ? exactPosition : transformer.fold(exactPosition), exact);
+        original.call(WorldLoopAttachments.transformerIfLevel(((BlockEntity) (Object) this).getLevel())
+                .fold(exactPosition), exact);
     }
 }
