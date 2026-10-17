@@ -1,27 +1,18 @@
 package com.exoticworlds.compat.simpleatlas;
 
-public record AtlasView(float contentX, float contentY, float contentWidth, float contentHeight) {
-    public static float zoomCovering(float viewLength, int worldBlocks, int blocksPerTile, float tilePixelsAtZoomOne) {
-        return viewLength * blocksPerTile / (tilePixelsAtZoomOne * worldBlocks);
-    }
+import com.exoticworlds.compat.AxisCopies;
 
+public record AtlasView(float contentX, float contentY, float contentWidth, float contentHeight) {
     public static double panKeepingCentre(double pan, float centre, float originBefore, float tileBefore,
             float origin, float tile) {
         double tilesFromOrigin = (centre - originBefore - pan) / tileBefore;
         return centre - tilesFromOrigin * tile - origin;
     }
 
-    public static float panInside(float worldStart, float worldLength, float viewStart, float viewLength) {
-        if (worldLength <= viewLength) {
-            return viewStart + (viewLength - worldLength) / 2.0F - worldStart;
-        }
-
-        if (worldStart > viewStart) {
-            return viewStart - worldStart;
-        }
-
-        float worldEnd = worldStart + worldLength;
-        float viewEnd = viewStart + viewLength;
-        return worldEnd < viewEnd ? viewEnd - worldEnd : 0.0F;
+    public static float panInside(AxisCopies axis, float worldStart, float viewStart, float viewLength,
+            float pixelsPerBlock) {
+        double centre = axis.min() + (viewStart + viewLength / 2.0 - worldStart) / pixelsPerBlock;
+        double clamped = axis.clampView(centre, viewLength / 2.0 / pixelsPerBlock);
+        return (float) ((centre - clamped) * pixelsPerBlock);
     }
 }
