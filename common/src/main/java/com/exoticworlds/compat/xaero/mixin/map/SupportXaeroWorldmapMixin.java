@@ -12,8 +12,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.AxisCopies;
+import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TileArea;
@@ -60,12 +62,21 @@ public abstract class SupportXaeroWorldmapMixin {
     private AxisCopies toroidal$copiesX = AxisCopies.UNBOUNDED;
     @Unique
     private AxisCopies toroidal$copiesZ = AxisCopies.UNBOUNDED;
+    @Unique
+    private WorldCopies.@Nullable Window toroidal$window;
 
     @Inject(method = "renderChunks", at = @At("HEAD"))
-    private void toroidal$resolveChunksShape(CallbackInfo ci) {
-        this.toroidal$shape = XaeroWorldMapFold.browsedShape();
-        this.toroidal$copiesX = AxisCopies.of(this.toroidal$shape, Direction.Axis.X);
-        this.toroidal$copiesZ = AxisCopies.of(this.toroidal$shape, Direction.Axis.Z);
+    private void toroidal$resolveChunksShape(CallbackInfo ci, @Local(argsOnly = true, name = "minViewX") int minViewX,
+            @Local(argsOnly = true, name = "maxViewX") int maxViewX,
+            @Local(argsOnly = true, name = "minViewZ") int minViewZ,
+            @Local(argsOnly = true, name = "maxViewZ") int maxViewZ) {
+        ToroidalShape shape = XaeroWorldMapFold.browsedShape();
+        this.toroidal$shape = shape;
+        this.toroidal$copiesX = AxisCopies.of(shape, Direction.Axis.X);
+        this.toroidal$copiesZ = AxisCopies.of(shape, Direction.Axis.Z);
+        this.toroidal$window = shape == null ? null : WorldCopies.Window.of(shape,
+                XaeroWorldMapFold.tileBlock(minViewX), XaeroWorldMapFold.tileBlock(minViewZ),
+                XaeroWorldMapFold.tileBlock(maxViewX + 1), XaeroWorldMapFold.tileBlock(maxViewZ + 1));
     }
 
     @WrapOperation(
@@ -121,8 +132,8 @@ public abstract class SupportXaeroWorldmapMixin {
         this.toroidal$mirrorTileZ = mirrorTileZ;
         this.toroidal$foldedRegion = null;
         this.toroidal$areas = null;
-        ToroidalShape shape = this.toroidal$shape;
-        if (shape == null
+        WorldCopies.Window window = this.toroidal$window;
+        if (window == null
                 || !XaeroWorldMapFold.tileLeavesWorld(this.toroidal$copiesX, this.toroidal$copiesZ, mirrorTileX, mirrorTileZ)) {
             return region == null ? null : original.call(region, localX, localZ);
         }
@@ -134,7 +145,7 @@ public abstract class SupportXaeroWorldmapMixin {
 
         MapProcessor processor = session.getMapProcessor();
         this.toroidal$processor = processor;
-        List<TileArea> areas = XaeroWorldMapFold.tilePieces(shape, mirrorTileX, mirrorTileZ);
+        List<TileArea> areas = XaeroWorldMapFold.tilePieces(window, mirrorTileX, mirrorTileZ);
         MapTileChunk shown = null;
         for (TileArea area : areas) {
             int canonicalTileX = area.x().canonicalTile();

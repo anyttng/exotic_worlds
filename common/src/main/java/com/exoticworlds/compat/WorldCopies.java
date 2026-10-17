@@ -41,11 +41,26 @@ public final class WorldCopies {
         return copies;
     }
 
+    public static List<Copy> meeting(@Nullable ToroidalShape shape, List<Copy> copies, int minX, int minZ, int maxX,
+            int maxZ) {
+        List<Copy> meeting = new ArrayList<>(copies.size());
+        for (Piece piece : pieces(shape, copies, minX, minZ, maxX, maxZ)) {
+            meeting.add(piece.copy());
+        }
+
+        return meeting;
+    }
+
     public static List<Piece> pieces(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ) {
+        return pieces(shape, meeting(shape, minX, minZ, maxX, maxZ), minX, minZ, maxX, maxZ);
+    }
+
+    public static List<Piece> pieces(@Nullable ToroidalShape shape, List<Copy> copies, int minX, int minZ, int maxX,
+            int maxZ) {
         AxisCopies x = AxisCopies.of(shape, Direction.Axis.X);
         AxisCopies z = AxisCopies.of(shape, Direction.Axis.Z);
         List<Piece> pieces = new ArrayList<>();
-        for (Copy copy : meeting(shape, minX, minZ, maxX, maxZ)) {
+        for (Copy copy : copies) {
             int pieceMinX = x.clipMin(minX - copy.dx());
             int pieceMaxX = x.clipMax(maxX - copy.dx());
             int pieceMinZ = z.clipMin(minZ - copy.dz());
@@ -60,8 +75,13 @@ public final class WorldCopies {
 
     public static long[] canonicalCells(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ,
             int cellBlocks) {
+        return canonicalCells(shape, meeting(shape, minX, minZ, maxX, maxZ), minX, minZ, maxX, maxZ, cellBlocks);
+    }
+
+    public static long[] canonicalCells(@Nullable ToroidalShape shape, List<Copy> copies, int minX, int minZ, int maxX,
+            int maxZ, int cellBlocks) {
         LongLinkedOpenHashSet cells = new LongLinkedOpenHashSet();
-        for (Piece piece : pieces(shape, minX, minZ, maxX, maxZ)) {
+        for (Piece piece : pieces(shape, copies, minX, minZ, maxX, maxZ)) {
             for (int x = Math.floorDiv(piece.minX(), cellBlocks); x <= Math.floorDiv(piece.maxX() - 1, cellBlocks); x++) {
                 for (int z = Math.floorDiv(piece.minZ(), cellBlocks); z <= Math.floorDiv(piece.maxZ() - 1, cellBlocks); z++) {
                     cells.add(ChunkPos.asLong(x, z));
@@ -107,6 +127,24 @@ public final class WorldCopies {
     }
 
     public record Edge(int fromX, int fromZ, int toX, int toZ) {
+    }
+
+    public record Window(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ, List<Copy> copies) {
+        public static Window of(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ) {
+            return new Window(shape, minX, minZ, maxX, maxZ, WorldCopies.meeting(shape, minX, minZ, maxX, maxZ));
+        }
+
+        public List<Copy> copiesFor(int minX, int minZ, int maxX, int maxZ) {
+            if (minX >= this.minX && minZ >= this.minZ && maxX <= this.maxX && maxZ <= this.maxZ) {
+                return this.copies;
+            }
+
+            return WorldCopies.meeting(this.shape, minX, minZ, maxX, maxZ);
+        }
+
+        public List<Copy> meeting(int minX, int minZ, int maxX, int maxZ) {
+            return WorldCopies.meeting(this.shape, copiesFor(minX, minZ, maxX, maxZ), minX, minZ, maxX, maxZ);
+        }
     }
 
     private WorldCopies() {
