@@ -8,7 +8,7 @@ import com.exoticworlds.compat.LevelClimateCompression;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
-import com.exoticworlds.engine.noise.PeriodicNoiseSampler;
+import com.exoticworlds.engine.noise.PeriodicLattices;
 
 import net.minecraft.core.QuartPos;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -40,7 +40,7 @@ public final class ReplacementNoiseFold {
 
     private final int[] verticalScaleSlots;
 
-    private volatile @Nullable Octaves octaves;
+    private volatile @Nullable Lattices lattices;
 
     private volatile @Nullable Compression compression;
 
@@ -79,7 +79,7 @@ public final class ReplacementNoiseFold {
             double amplitude, DensityFunction temperature) {
         Context context = GenerationTransformerContext.context();
         double factor = compression(fold, temperature);
-        Octaves resolved = octavesFor(seed);
+        Lattices resolved = latticesFor(seed);
         double x = QuartPos.toBlock(quartX);
         double y = QuartPos.toBlock(quartY);
         double z = QuartPos.toBlock(quartZ);
@@ -91,33 +91,35 @@ public final class ReplacementNoiseFold {
             double verticalQuarts = scaleQuarts[this.verticalScaleSlots[octave]] * OPEN_SIMPLEX_COLUMN_RATE / factor;
             double verticalScale = 1.0 / (verticalQuarts * BLOCKS_PER_QUART);
             try (Context.ScaleScope _ = context.withScale(scale)) {
-                sum += this.weights[octave] * PeriodicNoiseSampler.sample(noise.p, noise.xo, noise.yo, noise.zo,
-                        fold, context, x, PerlinNoise.wrap(y * verticalScale), z, NO_Y_SCALE, NO_FUDGE);
+                sum += this.weights[octave] * resolved.lattices()[octave].sample(noise.p, noise.xo, noise.yo,
+                        noise.zo, fold, context, x, PerlinNoise.wrap(y * verticalScale), z, NO_Y_SCALE, NO_FUDGE);
             }
         }
 
         return sum * amplitude;
     }
 
-    private Octaves octavesFor(long seed) {
-        Octaves held = this.octaves;
+    private Lattices latticesFor(long seed) {
+        Lattices held = this.lattices;
         if (held != null && held.seed() == seed) {
             return held;
         }
 
         WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(seed));
         ImprovedNoise[] noises = new ImprovedNoise[this.weights.length];
+        PeriodicLattices[] octaveLattices = new PeriodicLattices[this.weights.length];
         for (int octave = 0; octave < noises.length; octave++) {
             noises[octave] = new ImprovedNoise(random);
+            octaveLattices[octave] = new PeriodicLattices();
         }
 
-        Octaves built = new Octaves(seed, noises);
-        this.octaves = built;
+        Lattices built = new Lattices(seed, noises, octaveLattices);
+        this.lattices = built;
         return built;
     }
 
     @SuppressWarnings("ArrayRecordComponent")
-    private record Octaves(long seed, ImprovedNoise[] noises) {
+    private record Lattices(long seed, ImprovedNoise[] noises, PeriodicLattices[] lattices) {
     }
 
     private record Compression(WorldFold fold, DensityFunction temperature, double factor) {
