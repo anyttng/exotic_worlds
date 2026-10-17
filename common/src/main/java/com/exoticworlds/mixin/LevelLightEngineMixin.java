@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.level.BoundLevelFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -26,9 +26,13 @@ public class LevelLightEngineMixin {
     @Final
     protected LevelHeightAccessor levelHeightAccessor;
 
-    // The engine runs on its own thread and never changes level, so the transformer is read once from behind it.
     @Unique
-    private @Nullable WorldFold toroidal$transformer;
+    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void toroidal$bindLevel(CallbackInfo ci) {
+        this.toroidal$bound.bind(this.levelHeightAccessor);
+    }
 
     @Inject(method = "checkBlock", at = @At("HEAD"), cancellable = true)
     private void toroidal$skipPhantomBlock(BlockPos pos, CallbackInfo ci) {
@@ -75,22 +79,13 @@ public class LevelLightEngineMixin {
 
     @Unique
     private boolean toroidal$isPhantom(ChunkPos pos) {
-        WorldFold transformer = toroidal$transformer();
+        WorldFold transformer = this.toroidal$bound.fold();
         return transformer.isWrapped() && transformer.isOver(pos);
     }
 
     @Unique
     private boolean toroidal$isPhantom(int chunkX, int chunkZ) {
-        WorldFold transformer = toroidal$transformer();
+        WorldFold transformer = this.toroidal$bound.fold();
         return transformer.isWrapped() && transformer.isOver(new ChunkPos(chunkX, chunkZ));
-    }
-
-    @Unique
-    private WorldFold toroidal$transformer() {
-        if (this.toroidal$transformer == null) {
-            this.toroidal$transformer = WorldLoopAttachments.transformerIfLevel(this.levelHeightAccessor);
-        }
-
-        return this.toroidal$transformer;
     }
 }

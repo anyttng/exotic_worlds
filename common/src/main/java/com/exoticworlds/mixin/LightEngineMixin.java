@@ -5,11 +5,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.TransformerHolder;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.level.BoundLevelFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.chunk.LightChunkGetter;
@@ -22,20 +24,20 @@ public abstract class LightEngineMixin implements TransformerHolder {
     protected LightChunkGetter chunkSource;
 
     @Unique
-    private WorldFold toroidal$transformer;
+    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void toroidal$bindLevel(CallbackInfo ci) {
+        this.toroidal$bound.bind(this.chunkSource.getLevel());
+    }
 
     @ModifyVariable(method = "getLightValue(Lnet/minecraft/core/BlockPos;)I", at = @At("HEAD"), argsOnly = true)
     private BlockPos toroidal$wrapLightValuePos(BlockPos pos) {
         return toroidal$transformer().fold(pos);
     }
 
-    // Read once on the light thread and shared with both engines; resolution is idempotent, so the field is not volatile.
     @Override
     public WorldFold toroidal$transformer() {
-        if (this.toroidal$transformer == null) {
-            this.toroidal$transformer = WorldLoopAttachments.transformerIfLevel(this.chunkSource.getLevel());
-        }
-
-        return this.toroidal$transformer;
+        return this.toroidal$bound.fold();
     }
 }
