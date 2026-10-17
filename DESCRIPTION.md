@@ -1,42 +1,44 @@
 # Exotic Worlds
 
-**Sail west and come home from the east.** Exotic Worlds wraps your world around: walk, fly or sail across the world's edge and you arrive from the opposite side. No barrier, no teleport, nothing to see where you crossed.
+**Sail west and come home from the east.** Exotic Worlds wraps your world around. Walk, fly or sail across the world's edge and you come back in from the opposite side. There is no barrier and no teleport, and nothing marks the spot where you crossed.
 
 <img src="https://raw.githubusercontent.com/anyttng/exotic_worlds/main/docs/images/flight.avif" alt="Flying straight across a tiny toroidal world and arriving back at the landmark from the opposite side">
 
-## Before you download
-
-- The world shape is chosen **at world creation**: an existing vanilla world cannot be converted into a toroidal or cylinder one (or back).
-
-## Features
-
-- A **World Shape** option on the world-creation screen: pick a shape, set the size in chunks.
-- Terrain wraps: mountains, biomes and structures carry on across the world's edge, with no mirrored wall or cut-off cliff.
-- The game works across the edge, not just the blocks: mob AI and pathfinding, projectiles and explosions, sounds and particles, compasses and lodestones, villages and raids, distance-based advancements all treat the world as round. In short: [how it works](https://github.com/anyttng/exotic_worlds/blob/main/docs/how-it-works.md).
-- The Nether and the End take the shape too: the Nether scaled to the overworld, the End with its own size.
-- Modded terrain and dimensions come along: a world-generation mod that changes vanilla's terrain settings keeps its terrain, wrapped; a modded dimension that generates the vanilla way takes the world's shape, and one with its own generator is left as its mod makes it.
+Make a world small enough that every player on the server lives a short walk away, or just keep going in one direction until you spot your own base ahead of you. Mobs, arrows, maps and compasses all treat the world as round; the details are in [how it works](https://github.com/anyttng/exotic_worlds/blob/main/docs/how-it-works.md).
 
 ## World shapes
 
-- **Toroidal**: both horizontal axes loop. You can also set a shift: crossing the Z edge then moves you along X too, so arriving back where you started can take several laps.
+- **Toroidal**: the world loops both ways. Go east and you come back from the west, go north and you come back from the south.
 
   <img src="https://raw.githubusercontent.com/anyttng/exotic_worlds/main/docs/images/torus-map.png" width="480" alt="A tiny toroidal world on JourneyMap">
 
-  *A tiny toroidal world on JourneyMap: the same world repeats in every direction, and the white lines mark the world's edge.*
+  *A tiny toroidal world on JourneyMap. The same world repeats in every direction, and the white lines mark the edge.*
 
   <img src="https://raw.githubusercontent.com/anyttng/exotic_worlds/main/docs/images/skewed-torus-map.png" width="480" alt="A tiny toroidal world with a shift on JourneyMap">
 
-  *The same with a shift: each row of copies is shifted along X against the rows next to it.*
+  *The same world with a shift. Each row of copies is offset sideways from the rows next to it.*
 
-- **Cylinder**: one horizontal axis loops, the other goes on forever like vanilla; you pick which axis loops, and the Nether and the End loop along the same one.
+- **Cylinder**: the world loops one way, east to west or north to south, and goes on forever the other way, as in vanilla. The Nether and the End loop along the same direction.
 
   <img src="https://raw.githubusercontent.com/anyttng/exotic_worlds/main/docs/images/cylinder-map.png" width="480" alt="A tiny cylinder world on JourneyMap">
 
-  *A cylinder: the world repeats along X and runs on along Z.*
+  *A cylinder. The world repeats along X and runs on along Z.*
+
+## Settings
+
+Pick a shape under **World Shape** on the world-creation screen, then tune it:
+
+- **Size**: five presets from Tiny to Huge, or your own size in chunks, with X and Z set separately.
+- **Nether scale**: 1:2, 1:4 or 1:8 against the overworld. The End gets a size of its own.
+- **Shift** (toroidal only): crossing the north or south edge also moves you east or west, so getting back to where you started can take several laps.
+- **Compact biomes**: shrinks biomes so a full range of climates fits into a small world. Without it a small world may be all forest or all desert.
+- **Guaranteed land** and **Guaranteed fortress and bastion**: keep a small world from coming out all ocean, and a small Nether from having no fortress or bastion at all.
+
+The shape is chosen when the world is created. An existing world cannot be converted into a shaped one, and a shaped world cannot be turned back.
 
 ## Dedicated servers
 
-One line in `server.properties` creates a shaped world: `level-type=exotic_worlds:torus_medium` for a toroidal one, `level-type=exotic_worlds:cylinder_medium` for a cylinder, each in five sizes: `tiny`, `small`, `medium`, `large`, `huge`. Custom sizes and the full walkthrough are in the [dedicated server guide](https://github.com/anyttng/exotic_worlds/blob/main/docs/dedicated-server.md).
+One line in `server.properties` creates a shaped world. Use `level-type=exotic_worlds:torus_medium` for a toroidal world or `level-type=exotic_worlds:cylinder_medium` for a cylinder. Both come in five sizes (`tiny`, `small`, `medium`, `large`, `huge`). Custom sizes and the full walkthrough are in the [dedicated server guide](https://github.com/anyttng/exotic_worlds/blob/main/docs/dedicated-server.md).
 
 ## Compatibility
 
@@ -46,8 +48,8 @@ Runs on **NeoForge** and **Fabric**.
 - [JourneyMap](https://modrinth.com/mod/journeymap), [Xaero's Minimap](https://modrinth.com/mod/xaeros-minimap) and [Xaero's World Map](https://modrinth.com/mod/xaeros-world-map).
 - [Distant Horizons](https://modrinth.com/mod/distanthorizons): the far side of the world shows across the world's edge, out to half the world width.
 
-Every mod checked against the world's shape, with the game versions and loaders each one applies to, is in the [supported mods list](https://github.com/anyttng/exotic_worlds/blob/main/docs/supported-mods.md).
+Every mod we have checked against a shaped world, with the game versions and loaders it applies to, is in the [supported mods list](https://github.com/anyttng/exotic_worlds/blob/main/docs/supported-mods.md).
 
 ## Bug reports
 
-Found something broken, especially anything that behaves differently near the world's edge? Report it on the [issue tracker](https://github.com/anyttng/exotic_worlds/issues).
+Found something broken, especially near the world's edge? Report it on the [issue tracker](https://github.com/anyttng/exotic_worlds/issues).
