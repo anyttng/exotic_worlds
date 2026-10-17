@@ -26,8 +26,7 @@ public abstract class LightEngineMixin implements TransformerHolder {
 
     @ModifyVariable(method = "getLightValue(Lnet/minecraft/core/BlockPos;)I", at = @At("HEAD"), argsOnly = true)
     private BlockPos toroidal$wrapLightValuePos(BlockPos pos) {
-        WorldFold transformer = toroidal$transformer();
-        return transformer.isWrapped() ? transformer.fold(pos) : pos;
+        return toroidal$transformer().fold(pos);
     }
 
     // Read once on the light thread and shared with both engines; resolution is idempotent, so the field is not volatile.
