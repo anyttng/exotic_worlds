@@ -37,30 +37,28 @@ public final class DhSeamSql {
 
         boolean matched = sql.contains(PLAIN_DISTANCE);
         DhProbes.seamSql(site, matched);
-        return matched ? sql.replace(PLAIN_DISTANCE, seamDistance(lattice)) : sql;
+        return matched ? sql.replace(PLAIN_DISTANCE, lattice.seamDistance()) : sql;
     }
 
-    private static String seamDistance(DhLattice lattice) {
-        ToroidalShape shape = lattice.shape();
-        if (lattice.isSkewed()) {
-            return latticeDistance(lattice);
+    static String seamDistance(ToroidalShape shape, int skewBlocks) {
+        if (skewBlocks != 0) {
+            return latticeDistance(shape, skewBlocks);
         }
 
         return axisDistance(shape, Direction.Axis.X, CORNER_X + " - " + TARGET_X) + " + "
                 + axisDistance(shape, Direction.Axis.Z, CORNER_Z + " - " + TARGET_Z);
     }
 
-    private static String latticeDistance(DhLattice lattice) {
-        ToroidalShape shape = lattice.shape();
+    private static String latticeDistance(ToroidalShape shape, int skewBlocks) {
         int widthZ = shape.widthBlocks(Direction.Axis.Z);
         String deltaX = "(" + CORNER_X + " - " + TARGET_X + ")";
         String deltaZ = "(" + CORNER_Z + " - " + TARGET_Z + ")";
         String lappedZ = lapped(deltaZ, widthZ);
         String rowBelow = "((" + deltaZ + " - " + lappedZ + ") / " + widthZ + ")";
-        long reach = DhFold.rowsThatCanWin(lattice);
+        long reach = DhFold.rowsThatCanWin(shape, skewBlocks);
         List<String> rows = new ArrayList<>();
         for (long row = -reach; row <= 1 + reach; row++) {
-            String shiftedX = deltaX + " - (" + rowBelow + " + " + row + ") * " + lattice.skewBlocks();
+            String shiftedX = deltaX + " - (" + rowBelow + " + " + row + ") * " + skewBlocks;
             rows.add("abs(" + lappedZ + " - " + row * widthZ + ") + "
                     + axisDistance(shape, Direction.Axis.X, shiftedX));
         }

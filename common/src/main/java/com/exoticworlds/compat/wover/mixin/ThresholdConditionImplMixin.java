@@ -23,6 +23,7 @@ import net.minecraft.world.level.levelgen.material.MaterialRuleContext;
 
 @Mixin(ThresholdConditionImpl.class)
 public class ThresholdConditionImplMixin {
+    @Unique
     private static final int ROUGHNESS_Y = 0;
 
     @Shadow

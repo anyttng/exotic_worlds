@@ -51,7 +51,7 @@ public final class DhProbes {
         }
 
         AlignedPeriod period = DhFold.period(lattice, leafDetailLevel);
-        LOGGER.info("[dh-compat] key_period width_x_blocks={} period_x_blocks={} laps_x={}"
+        LOGGER.info("[ew/dh-compat] key_period width_x_blocks={} period_x_blocks={} laps_x={}"
                 + " width_z_blocks={} period_z_blocks={} laps_z={} skew_blocks={} shift_x_blocks={}",
                 widthX, periodValue(shape, Direction.Axis.X, period.xBlocks()),
                 lapsValue(shape, Direction.Axis.X, period.xBlocks()),
@@ -73,7 +73,7 @@ public final class DhProbes {
     }
 
     public static void repoShape(Object repo, IDhLevel level, boolean present) {
-        LOGGER.info("[dh-compat] repo_shape repo={} level={} shape={}",
+        LOGGER.info("[ew/dh-compat] repo_shape repo={} level={} shape={}",
                 repo.getClass().getSimpleName(), levelName(level), present ? "present" : "absent");
     }
 
@@ -104,7 +104,7 @@ public final class DhProbes {
     }
 
     static String foldedKeyLine(Key key, String raw, String folded) {
-        return "[dh-compat] folded_key key_type=" + key.label
+        return "[ew/dh-compat] folded_key key_type=" + key.label
                 + " raw=" + raw + " folded=" + folded + " unchanged_keys=" + key.kept.sum();
     }
 
@@ -123,7 +123,7 @@ public final class DhProbes {
     }
 
     static String seamSqlLine(DhSeamSql.Site site, boolean matched) {
-        return "[dh-compat] seam_sql site=" + site.label + " matched=" + matched;
+        return "[ew/dh-compat] seam_sql site=" + site.label + " matched=" + matched;
     }
 
     static int foldedKeyLines(Key key) {

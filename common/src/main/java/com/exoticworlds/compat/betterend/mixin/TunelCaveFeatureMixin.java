@@ -21,12 +21,16 @@ import net.minecraft.world.level.WorldGenLevel;
 
 @Mixin(TunelCaveFeature.class)
 public class TunelCaveFeatureMixin {
+    @Unique
     private static final String CARVE_COLUMN = "lambda$generate$0";
 
+    @Unique
     private static final double HORIZONTAL_SCALE = 0.02;
 
+    @Unique
     private static final double VERTICAL_SCALE = 0.01;
 
+    @Unique
     private static final double DISTORTION_SCALE = 0.1;
 
     @WrapOperation(

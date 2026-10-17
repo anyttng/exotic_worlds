@@ -6,7 +6,6 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.compat.LevelClimateCompression;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.engine.noise.LapFloor;
 import com.exoticworlds.engine.noise.NoiseFrame;
 import com.exoticworlds.engine.noise.PeriodicNoiseSampler;
@@ -19,8 +18,6 @@ import net.minecraft.world.level.levelgen.synth.GradientNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
 public final class ReplacementNoiseFold {
-    public static final double NOT_FOLDED = Double.NaN;
-
     private static final NoiseFrame UNDAMPED_FRAME = NoiseFrame.UNDECLARED;
 
     private static final double OPEN_SIMPLEX_FLAT_AMPLITUDE = 1.971;
@@ -55,17 +52,14 @@ public final class ReplacementNoiseFold {
         this.verticalScaleSlots = verticalScaleSlots.clone();
     }
 
-    public static boolean folded(double sum) {
-        return !Double.isNaN(sum);
-    }
-
-    public double sum(long seed, double[] scaleQuarts, int quartX, int quartZ, DensityFunction temperature) {
-        return sum(seed, scaleQuarts, quartX, FLAT_QUART_Y, quartZ, OPEN_SIMPLEX_FLAT_AMPLITUDE, temperature);
-    }
-
-    public double sum(long seed, double[] scaleQuarts, int quartX, int quartY, int quartZ,
+    public double sum(WorldFold fold, long seed, double[] scaleQuarts, int quartX, int quartZ,
             DensityFunction temperature) {
-        return sum(seed, scaleQuarts, quartX, quartY, quartZ, OPEN_SIMPLEX_VOLUME_AMPLITUDE, temperature);
+        return sum(fold, seed, scaleQuarts, quartX, FLAT_QUART_Y, quartZ, OPEN_SIMPLEX_FLAT_AMPLITUDE, temperature);
+    }
+
+    public double sum(WorldFold fold, long seed, double[] scaleQuarts, int quartX, int quartY, int quartZ,
+            DensityFunction temperature) {
+        return sum(fold, seed, scaleQuarts, quartX, quartY, quartZ, OPEN_SIMPLEX_VOLUME_AMPLITUDE, temperature);
     }
 
     double compression(WorldFold fold, DensityFunction temperature) {
@@ -79,13 +73,8 @@ public final class ReplacementNoiseFold {
         return factor;
     }
 
-    private double sum(long seed, double[] scaleQuarts, int quartX, int quartY, int quartZ, double amplitude,
-            DensityFunction temperature) {
-        WorldFold fold = GenerationTransformerContext.context().wrappedTransformer();
-        if (fold == null) {
-            return NOT_FOLDED;
-        }
-
+    private double sum(WorldFold fold, long seed, double[] scaleQuarts, int quartX, int quartY, int quartZ,
+            double amplitude, DensityFunction temperature) {
         double factor = compression(fold, temperature);
         Octaves resolved = octavesFor(seed);
         double x = QuartPos.toBlock(quartX);

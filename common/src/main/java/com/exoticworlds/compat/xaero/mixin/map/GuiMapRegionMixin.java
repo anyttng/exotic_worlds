@@ -20,12 +20,11 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.blaze3d.platform.Window;
-import com.mojang.renderpearl.api.textures.GpuTextureView;
+import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.MapCopies;
-import com.exoticworlds.compat.MapViewSpan;
 import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
+import com.exoticworlds.compat.xaero.XaeroRegionFrame;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TilePlacement;
 
@@ -33,9 +32,8 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 
 import xaero.lib.client.graphics.GpuTextureAndView;
@@ -61,6 +59,8 @@ public abstract class GuiMapRegionMixin {
     @Shadow
     private double cameraZ;
     @Shadow
+    private MapProcessor mapProcessor;
+    @Shadow
     private ArrayList<BranchLeveledRegion> branchRegionBuffer;
     @Shadow
     private boolean prevWaitingForBranchCache;
@@ -83,29 +83,11 @@ public abstract class GuiMapRegionMixin {
     private static final long NO_LEAF = Long.MIN_VALUE;
     @Unique
     private static final int NO_COLUMN = Integer.MIN_VALUE;
+    @Unique
+    private static final int REGION_SHIFT = 9;
 
     @Unique
-    private MapCopies toroidal$mapCopies = MapCopies.REPEATED;
-    @Unique
-    private MapProcessor toroidal$processor;
-    @Unique
-    private int toroidal$viewLeveledRegX;
-    @Unique
-    private int toroidal$viewLeveledRegZ;
-    @Unique
-    private int toroidal$viewLevel;
-    @Unique
-    private int toroidal$viewCaveLayer;
-    @Unique
-    private LeveledRegion<?> toroidal$leveledCandidate;
-    @Unique
-    private boolean toroidal$slotFolded;
-    @Unique
-    private int toroidal$slotViewBlockX;
-    @Unique
-    private int toroidal$slotViewBlockZ;
-    @Unique
-    private final LongOpenHashSet toroidal$drawnCanonicalSlots = new LongOpenHashSet();
+    private final XaeroRegionFrame toroidal$frame = new XaeroRegionFrame();
     @Unique
     private final LongOpenHashSet toroidal$fannedRegions = new LongOpenHashSet();
     @Unique
@@ -123,32 +105,45 @@ public abstract class GuiMapRegionMixin {
 
     @Inject(method = "extractRenderState", at = @At("HEAD"))
     private void toroidal$beginRegionFrame(CallbackInfo ci) {
-        this.toroidal$drawnCanonicalSlots.clear();
         this.toroidal$fannedRegions.clear();
         this.toroidal$loopRegions.clear();
         this.toroidal$fannedLeavesTaken.clear();
         this.toroidal$fannedLeavesOwner = NO_OWNER;
-        this.toroidal$mapCopies = MapCopies.current();
+        this.toroidal$frame.begin();
     }
 
-    @WrapOperation(
+    @ModifyExpressionValue(
             method = "extractRenderState",
-            at = @At(value = "INVOKE", target = MAP_PROCESSOR_GET_LEVELED_REGION))
-    private @Nullable LeveledRegion<?> toroidal$fetchLeveledRegion(MapProcessor processor, int caveLayer, int regX, int regZ,
-            int level, Operation<@Nullable LeveledRegion<?>> original) {
-        this.toroidal$processor = processor;
-        this.toroidal$viewLeveledRegX = regX;
-        this.toroidal$viewLeveledRegZ = regZ;
-        this.toroidal$viewLevel = level;
-        this.toroidal$viewCaveLayer = caveLayer;
-        this.toroidal$leveledCandidate = null;
-        LeveledRegion<?> existing = original.call(processor, caveLayer, regX, regZ, level);
+            at = @At(value = "INVOKE", target = MAP_PROCESSOR_GET_LEVELED_REGION, ordinal = 0))
+    private @Nullable LeveledRegion<?> toroidal$fetchHoverLeveledRegion(@Nullable LeveledRegion<?> existing,
+            @Local(name = "renderedCaveLayer") int caveLayer, @Local(name = "mouseRegX") int regX,
+            @Local(name = "mouseRegZ") int regZ, @Local(name = "textureLevel") int level) {
+        return toroidal$leveledOrFold(existing, caveLayer, regX, regZ, level);
+    }
+
+    @ModifyExpressionValue(
+            method = "extractRenderState",
+            at = {
+                    @At(value = "INVOKE", target = MAP_PROCESSOR_GET_LEVELED_REGION, ordinal = 1),
+                    @At(value = "INVOKE", target = MAP_PROCESSOR_GET_LEVELED_REGION, ordinal = 2)})
+    private @Nullable LeveledRegion<?> toroidal$fetchViewLeveledRegion(@Nullable LeveledRegion<?> existing,
+            @Local(name = "renderedCaveLayer") int caveLayer, @Local(name = "leveledRegX") int regX,
+            @Local(name = "leveledRegZ") int regZ, @Local(name = "textureLevel") int level) {
+        return toroidal$leveledOrFold(existing, caveLayer, regX, regZ, level);
+    }
+
+    @Unique
+    private @Nullable LeveledRegion<?> toroidal$leveledOrFold(@Nullable LeveledRegion<?> existing, int caveLayer,
+            int regX, int regZ, int level) {
+        XaeroRegionFrame frame = this.toroidal$frame;
+        frame.beginView(caveLayer, regX, regZ, level);
         this.toroidal$loopRegions.add(ChunkPos.pack(regX, regZ));
-        if (!XaeroWorldMapFold.active()) {
+        ToroidalShape shape = frame.shape();
+        if (shape == null) {
             return existing;
         }
 
-        for (long fanned : XaeroWorldMapFold.fannedRegions(regX, regZ, level)) {
+        for (long fanned : XaeroWorldMapFold.fannedRegions(shape, regX, regZ, level)) {
             this.toroidal$fannedRegions.add(fanned);
         }
 
@@ -156,18 +151,42 @@ public abstract class GuiMapRegionMixin {
             return existing;
         }
 
-        // A candidate value only, so the draw block runs at all; the texture redirect re-resolves each slot precisely.
         int side = XaeroWorldMapFold.REGION_BLOCKS << level;
-        BlockPos foldedOrigin = XaeroWorldMapFold.foldBlock(regX * side, regZ * side);
-        int candidateX = Math.floorDiv(foldedOrigin.getX(), side);
-        int candidateZ = Math.floorDiv(foldedOrigin.getZ(), side);
-        LeveledRegion<?> candidate = original.call(processor, caveLayer, candidateX, candidateZ, level);
-        if (candidate != null) {
-            this.toroidal$loopRegions.add(ChunkPos.pack(candidateX, candidateZ));
+        int minX = regX * side;
+        int minZ = regZ * side;
+        int maxX = minX + side - 1;
+        int maxZ = minZ + side - 1;
+        LeveledRegion<?> candidate = toroidal$texturedCanonical(shape, caveLayer, level, minX, minZ);
+        if (candidate == null) {
+            candidate = toroidal$texturedCanonical(shape, caveLayer, level, maxX, minZ);
         }
 
-        this.toroidal$leveledCandidate = candidate;
+        if (candidate == null) {
+            candidate = toroidal$texturedCanonical(shape, caveLayer, level, minX, maxZ);
+        }
+
+        if (candidate == null) {
+            candidate = toroidal$texturedCanonical(shape, caveLayer, level, maxX, maxZ);
+        }
+
+        frame.candidate(candidate);
         return candidate;
+    }
+
+    @Unique
+    private @Nullable LeveledRegion<?> toroidal$texturedCanonical(ToroidalShape shape, int caveLayer, int level,
+            int blockX, int blockZ) {
+        int side = XaeroWorldMapFold.REGION_BLOCKS << level;
+        BlockPos folded = XaeroWorldMapFold.foldBlock(shape, blockX, blockZ);
+        int canonicalX = Math.floorDiv(folded.getX(), side);
+        int canonicalZ = Math.floorDiv(folded.getZ(), side);
+        LeveledRegion<?> region = this.mapProcessor.getLeveledRegion(caveLayer, canonicalX, canonicalZ, level);
+        if (region == null || !region.hasTextures()) {
+            return null;
+        }
+
+        this.toroidal$loopRegions.add(ChunkPos.pack(canonicalX, canonicalZ));
+        return region;
     }
 
     @Inject(
@@ -192,9 +211,9 @@ public abstract class GuiMapRegionMixin {
 
     @Unique
     private void toroidal$keepRegion(int regX, int regZ) {
-        MapProcessor processor = this.toroidal$processor;
-        int level = this.toroidal$viewLevel;
-        LeveledRegion<?> region = processor.getLeveledRegion(this.toroidal$viewCaveLayer, regX, regZ, level);
+        MapProcessor processor = this.mapProcessor;
+        int level = this.toroidal$frame.viewLevel();
+        LeveledRegion<?> region = processor.getLeveledRegion(this.toroidal$frame.viewCaveLayer(), regX, regZ, level);
         if (region == null || processor.isUploadingPaused() || WorldMap.pauseRequests) {
             return;
         }
@@ -235,7 +254,7 @@ public abstract class GuiMapRegionMixin {
         if (this.toroidal$fannedLeafColumn == NO_COLUMN && regX >= minLeafRegX && regX <= maxLeafRegX) {
             this.toroidal$fannedLeafColumn = regX;
             this.toroidal$fannedLeaves = toroidal$untakenLeaves(
-                    XaeroWorldMapFold.fannedLeaves(leveledRegX, leveledRegZ, textureLevel));
+                    XaeroWorldMapFold.fannedLeaves(this.toroidal$frame.shape(), leveledRegX, leveledRegZ, textureLevel));
         }
 
         return regX == this.toroidal$fannedLeafColumn
@@ -275,58 +294,67 @@ public abstract class GuiMapRegionMixin {
                 ? this.toroidal$fannedLeaves[index] : NO_LEAF;
     }
 
-    @WrapOperation(
+    @ModifyExpressionValue(
             method = "extractRenderState",
             at = @At(value = "INVOKE", target = "Lxaero/map/MapProcessor;regionExists(III)Z"),
             slice = @Slice(
                     from = @At(value = "INVOKE", target = MAP_PROCESSOR_GET_LEVELED_REGION, ordinal = 1),
                     to = @At(value = "INVOKE", target = MAP_PROCESSOR_GET_LEVELED_REGION, ordinal = 2)))
-    private boolean toroidal$fannedLeafExists(MapProcessor processor, int caveLayer, int regX, int regZ,
-            Operation<Boolean> original) {
-        long leaf = toroidal$fannedLeaf(regX, regZ);
-        return leaf == NO_LEAF
-                ? original.call(processor, caveLayer, regX, regZ)
-                : original.call(processor, caveLayer, ChunkPos.getX(leaf), ChunkPos.getZ(leaf));
+    private boolean toroidal$fannedLeafExists(boolean exists, @Local(name = "regX") int regX,
+            @Local(name = "regZ") int regZ) {
+        return exists && toroidal$fannedLeaf(regX, regZ) == NO_LEAF;
     }
 
-    @WrapOperation(
+    @ModifyExpressionValue(
             method = "extractRenderState",
             at = @At(value = "INVOKE", target = XaeroInjectionTargets.MAP_PROCESSOR_GET_LEAF_MAP_REGION),
             slice = @Slice(
                     from = @At(value = "INVOKE", target = MAP_PROCESSOR_GET_LEVELED_REGION, ordinal = 1),
                     to = @At(value = "INVOKE", target = MAP_PROCESSOR_GET_LEVELED_REGION, ordinal = 2)))
-    private @Nullable MapRegion toroidal$fetchLoopLeaf(MapProcessor processor, int caveLayer, int regX, int regZ,
-            boolean create, Operation<@Nullable MapRegion> original) {
+    private @Nullable MapRegion toroidal$fetchLoopLeaf(@Nullable MapRegion existing,
+            @Local(name = "renderedCaveLayer") int caveLayer, @Local(name = "regX") int regX,
+            @Local(name = "regZ") int regZ) {
         long leaf = toroidal$fannedLeaf(regX, regZ);
         return leaf == NO_LEAF
-                ? toroidal$leafOrFold(processor, caveLayer, regX, regZ, create, original)
-                : original.call(processor, caveLayer, ChunkPos.getX(leaf), ChunkPos.getZ(leaf), create);
+                ? toroidal$leafOrFold(existing, caveLayer, regX, regZ)
+                : toroidal$leafRegion(caveLayer, ChunkPos.getX(leaf), ChunkPos.getZ(leaf));
     }
 
-    @WrapOperation(
+    @ModifyExpressionValue(
             method = "extractRenderState",
-            at = {
-                    @At(value = "INVOKE", target = XaeroInjectionTargets.MAP_PROCESSOR_GET_LEAF_MAP_REGION, ordinal = 0),
-                    @At(value = "INVOKE", target = XaeroInjectionTargets.MAP_PROCESSOR_GET_LEAF_MAP_REGION, ordinal = 3)})
-    private @Nullable MapRegion toroidal$fetchLeafRegion(MapProcessor processor, int caveLayer, int regX, int regZ,
-            boolean create, Operation<@Nullable MapRegion> original) {
-        return toroidal$leafOrFold(processor, caveLayer, regX, regZ, create, original);
+            at = @At(value = "INVOKE", target = XaeroInjectionTargets.MAP_PROCESSOR_GET_LEAF_MAP_REGION, ordinal = 0))
+    private @Nullable MapRegion toroidal$fetchHoverLeaf(@Nullable MapRegion existing,
+            @Local(name = "renderedCaveLayer") int caveLayer) {
+        return toroidal$leafOrFold(existing, caveLayer, this.mouseBlockPosX >> REGION_SHIFT,
+                this.mouseBlockPosZ >> REGION_SHIFT);
+    }
+
+    @ModifyExpressionValue(
+            method = "extractRenderState",
+            at = @At(value = "INVOKE", target = XaeroInjectionTargets.MAP_PROCESSOR_GET_LEAF_MAP_REGION, ordinal = 3))
+    private @Nullable MapRegion toroidal$fetchDebugLeaf(@Nullable MapRegion existing,
+            @Local(name = "renderedCaveLayer") int caveLayer, @Local(name = "regX") int regX,
+            @Local(name = "regZ") int regZ) {
+        return toroidal$leafOrFold(existing, caveLayer, regX, regZ);
     }
 
     @Unique
-    private @Nullable MapRegion toroidal$leafOrFold(MapProcessor processor, int caveLayer, int regX, int regZ,
-            boolean create, Operation<@Nullable MapRegion> original) {
-        MapRegion existing = original.call(processor, caveLayer, regX, regZ, create);
-        if (existing != null || !XaeroWorldMapFold.active()) {
+    private @Nullable MapRegion toroidal$leafOrFold(@Nullable MapRegion existing, int caveLayer, int regX, int regZ) {
+        ToroidalShape shape = this.toroidal$frame.shape();
+        if (existing != null || shape == null) {
             return existing;
         }
 
-        BlockPos foldedOrigin = XaeroWorldMapFold.foldBlock(regX * XaeroWorldMapFold.REGION_BLOCKS,
+        BlockPos foldedOrigin = XaeroWorldMapFold.foldBlock(shape, regX * XaeroWorldMapFold.REGION_BLOCKS,
                 regZ * XaeroWorldMapFold.REGION_BLOCKS);
-        int foldedRegX = Math.floorDiv(foldedOrigin.getX(), XaeroWorldMapFold.REGION_BLOCKS);
-        int foldedRegZ = Math.floorDiv(foldedOrigin.getZ(), XaeroWorldMapFold.REGION_BLOCKS);
-        return original.call(processor, caveLayer, foldedRegX, foldedRegZ,
-                processor.regionExists(caveLayer, foldedRegX, foldedRegZ));
+        return toroidal$leafRegion(caveLayer, Math.floorDiv(foldedOrigin.getX(), XaeroWorldMapFold.REGION_BLOCKS),
+                Math.floorDiv(foldedOrigin.getZ(), XaeroWorldMapFold.REGION_BLOCKS));
+    }
+
+    @Unique
+    private @Nullable MapRegion toroidal$leafRegion(int caveLayer, int regX, int regZ) {
+        MapProcessor processor = this.mapProcessor;
+        return processor.getLeafMapRegion(caveLayer, regX, regZ, processor.regionExists(caveLayer, regX, regZ));
     }
 
     @WrapOperation(
@@ -342,155 +370,115 @@ public abstract class GuiMapRegionMixin {
         }
     }
 
-    @WrapOperation(
+    @ModifyExpressionValue(
             method = "extractRenderState",
-            at = @At(value = "INVOKE", target = "Lxaero/map/region/LeveledRegion;hasTextures()Z"))
-    private boolean toroidal$candidateHasTextures(LeveledRegion<?> region, Operation<Boolean> original) {
-        if (XaeroWorldMapFold.active() && region != null && region == this.toroidal$leveledCandidate) {
-            return true;
+            at = @At(value = "INVOKE", target = LEVELED_REGION_GET_TEXTURE, ordinal = 0))
+    private @Nullable RegionTexture<?> toroidal$foldHoverTexture(@Nullable RegionTexture<?> texture) {
+        if (this.toroidal$frame.shape() == null) {
+            return texture;
         }
 
-        return original.call(region);
+        return this.toroidal$frame.canonicalRegionTexture(this.mapProcessor, this.mouseBlockPosX, this.mouseBlockPosZ);
     }
 
-    @WrapOperation(
+    @ModifyExpressionValue(
             method = "extractRenderState",
-            at = @At(
-                    value = "INVOKE",
-                    target = LEVELED_REGION_GET_TEXTURE,
-                    ordinal = 0))
-    private @Nullable RegionTexture<?> toroidal$foldHoverTexture(LeveledRegion<?> region, int textureX, int textureZ,
-            Operation<RegionTexture<?>> original) {
-        if (!XaeroWorldMapFold.active()) {
-            return original.call(region, textureX, textureZ);
+            at = @At(value = "INVOKE", target = LEVELED_REGION_GET_TEXTURE, ordinal = 1))
+    private @Nullable RegionTexture<?> toroidal$foldLeafTexture(@Nullable RegionTexture<?> texture,
+            @Local(name = "leveledRegion") LeveledRegion<?> region, @Local(name = "o") int slotX,
+            @Local(name = "p") int slotZ) {
+        XaeroRegionFrame frame = this.toroidal$frame;
+        boolean isCandidate = frame.isCandidate(region);
+        frame.beginSlot(slotX, slotZ);
+        ToroidalShape shape = frame.shape();
+        if (shape == null) {
+            return isCandidate ? null : texture;
         }
 
-        return toroidal$canonicalRegionTexture(this.mouseBlockPosX, this.mouseBlockPosZ);
-    }
-
-    @WrapOperation(
-            method = "extractRenderState",
-            at = @At(
-                    value = "INVOKE",
-                    target = LEVELED_REGION_GET_TEXTURE,
-                    ordinal = 1))
-    private @Nullable RegionTexture<?> toroidal$foldLeafTexture(LeveledRegion<?> region, int slotX, int slotZ,
-            Operation<RegionTexture<?>> original) {
-        this.toroidal$slotFolded = false;
-        boolean isCandidate = region == this.toroidal$leveledCandidate;
-        int level = this.toroidal$viewLevel;
-        int slotSize = XaeroWorldMapFold.SLOT_BLOCKS << level;
-        int side = XaeroWorldMapFold.REGION_BLOCKS << level;
-        int viewBlockX = this.toroidal$viewLeveledRegX * side + slotX * slotSize;
-        int viewBlockZ = this.toroidal$viewLeveledRegZ * side + slotZ * slotSize;
-        this.toroidal$slotViewBlockX = viewBlockX;
-        this.toroidal$slotViewBlockZ = viewBlockZ;
-        if (!XaeroWorldMapFold.active()) {
-            return isCandidate ? null : original.call(region, slotX, slotZ);
-        }
-
-        if (!XaeroWorldMapFold.glueableAt(slotSize)) {
-            if (!isCandidate
-                    && !XaeroWorldMapFold.spanLeavesWorld(XaeroWorldMapFold.copies(Direction.Axis.X), viewBlockX, slotSize)
-                    && !XaeroWorldMapFold.spanLeavesWorld(XaeroWorldMapFold.copies(Direction.Axis.Z), viewBlockZ, slotSize)) {
-                return original.call(region, slotX, slotZ);
+        int slotSize = frame.slotSize();
+        if (!frame.glueableAt(slotSize)) {
+            if (!isCandidate && frame.slotInsideWorld(slotSize)) {
+                return texture;
             }
 
-            this.toroidal$slotFolded = true;
-            return toroidal$anyCanonicalTexture(viewBlockX, viewBlockZ, slotSize);
+            frame.slotFolded(true);
+            return frame.anyCanonicalTexture(this.mapProcessor);
         }
 
-        BlockPos foldedBlock = XaeroWorldMapFold.foldBlock(viewBlockX, viewBlockZ);
+        int viewBlockX = frame.slotViewBlockX();
+        int viewBlockZ = frame.slotViewBlockZ();
+        BlockPos foldedBlock = XaeroWorldMapFold.foldBlock(shape, viewBlockX, viewBlockZ);
         if (foldedBlock.getX() == viewBlockX && foldedBlock.getZ() == viewBlockZ) {
-            return isCandidate ? null : original.call(region, slotX, slotZ);
+            return isCandidate ? null : texture;
         }
 
-        this.toroidal$slotFolded = true;
-        return this.toroidal$mapCopies == MapCopies.SINGLE
-                ? null : toroidal$canonicalRegionTexture(foldedBlock.getX(), foldedBlock.getZ());
+        frame.slotFolded(true);
+        return frame.mapCopies() == MapCopies.SINGLE
+                ? null : frame.canonicalRegionTexture(this.mapProcessor, foldedBlock.getX(), foldedBlock.getZ());
     }
 
-    @WrapOperation(
+    @ModifyExpressionValue(
+            method = "extractRenderState",
+            at = @At(value = "INVOKE", target = LEVELED_REGION_GET_TEXTURE, ordinal = 2))
+    private @Nullable RegionTexture<?> toroidal$suppressFoldedRootTexture(@Nullable RegionTexture<?> texture) {
+        return this.toroidal$frame.shape() != null && this.toroidal$frame.slotFolded() ? null : texture;
+    }
+
+    @ModifyExpressionValue(
             method = "extractRenderState",
             at = @At(
                     value = "INVOKE",
-                    target = LEVELED_REGION_GET_TEXTURE,
-                    ordinal = 2))
-    private @Nullable RegionTexture<?> toroidal$suppressFoldedRootTexture(LeveledRegion<?> region, int textureX, int textureZ,
-            Operation<RegionTexture<?>> original) {
-        if (XaeroWorldMapFold.active() && this.toroidal$slotFolded) {
-            return null;
+                    target = "Lxaero/map/region/texture/RegionTexture;getGlColorTexture()"
+                            + "Lxaero/lib/client/graphics/GpuTextureAndView;",
+                    ordinal = 0),
+            slice = @Slice(
+                    from = @At(
+                            value = "INVOKE",
+                            target = "Lxaero/map/gui/GuiMap;renderTexturedModalSubRectWithLighting(Lorg/joml/Matrix4f;"
+                                    + "FFFFFFFFLcom/mojang/renderpearl/api/textures/GpuTextureView;Z"
+                                    + "Lxaero/map/graphics/renderer/multitexture/MultiTextureRenderTypeRenderer;)V")))
+    private @Nullable GpuTextureAndView toroidal$drawClippedPeriodCopies(@Nullable GpuTextureAndView texture,
+            @Local(name = "matrix") Matrix4f matrix, @Local(name = "textureX") int textureX,
+            @Local(name = "textureZ") int textureZ, @Local(name = "flooredCameraX") int flooredCameraX,
+            @Local(name = "flooredCameraZ") int flooredCameraZ,
+            @Local(name = "regionTexture") RegionTexture<?> regionTexture,
+            @Local(name = "withLightRenderer") MultiTextureRenderTypeRenderer withLightRenderer,
+            @Local(name = "noLightRenderer") MultiTextureRenderTypeRenderer noLightRenderer) {
+        XaeroRegionFrame frame = this.toroidal$frame;
+        ToroidalShape shape = frame.shape();
+        int slotSize = frame.slotSize();
+        if (texture == null || shape == null || frame.glueableAt(slotSize)) {
+            return texture;
         }
 
-        return original.call(region, textureX, textureZ);
-    }
-
-    @WrapOperation(
-            method = "extractRenderState",
-            at = @At(value = "INVOKE", target = XaeroInjectionTargets.GUI_MAP_RENDER_TEXTURED_MODAL_RECT_WITH_LIGHTING_3))
-    private void toroidal$drawClippedPeriodCopies(
-            Matrix4f matrix, float x, float y, float width, float height,
-            GpuTextureView texture, boolean hasLight, MultiTextureRenderTypeRenderer renderer, Operation<Void> original) {
-        int slotSize = XaeroWorldMapFold.SLOT_BLOCKS << this.toroidal$viewLevel;
-        if (!XaeroWorldMapFold.active() || XaeroWorldMapFold.glueableAt(slotSize)) {
-            original.call(matrix, x, y, width, height, texture, hasLight, renderer);
-            return;
-        }
-
-        Window window = Minecraft.getInstance().getWindow();
-        int[] spanX = MapViewSpan.of(this.cameraX, window.getWidth(), this.scale, slotSize);
-        int[] spanZ = MapViewSpan.of(this.cameraZ, window.getHeight(), this.scale, slotSize);
-        List<WorldCopies.Copy> copies = XaeroWorldMapFold.drawnCopies(spanX, spanZ, this.toroidal$mapCopies);
-        int viewBlockX = this.toroidal$slotViewBlockX;
-        int viewBlockZ = this.toroidal$slotViewBlockZ;
-        for (long origin : XaeroWorldMapFold.canonicalSlotOrigins(viewBlockX, viewBlockZ, slotSize)) {
-            if (!this.toroidal$drawnCanonicalSlots.add(origin)) {
+        float x = textureX - flooredCameraX;
+        float y = textureZ - flooredCameraZ;
+        boolean hasLight = regionTexture.getTextureHasLight();
+        MultiTextureRenderTypeRenderer renderer = hasLight ? withLightRenderer : noLightRenderer;
+        List<WorldCopies.Copy> copies = frame.drawnCopies(slotSize, this.cameraX, this.cameraZ, this.scale);
+        int viewBlockX = frame.slotViewBlockX();
+        int viewBlockZ = frame.slotViewBlockZ();
+        for (long origin : frame.slotOrigins(slotSize)) {
+            if (!frame.drawnOnce(origin)) {
                 continue;
             }
 
             int originX = ChunkPos.getX(origin);
             int originZ = ChunkPos.getZ(origin);
-            RegionTexture<?> regionTexture = toroidal$canonicalRegionTexture(originX, originZ);
-            GpuTextureAndView textureAndView = regionTexture == null ? null : regionTexture.getGlColorTexture();
+            RegionTexture<?> canonical = frame.canonicalRegionTexture(this.mapProcessor, originX, originZ);
+            GpuTextureAndView textureAndView = canonical == null ? null : canonical.getGlColorTexture();
             if (textureAndView == null) {
                 continue;
             }
 
-            for (TilePlacement placement : XaeroWorldMapFold.placements(originX, originZ, slotSize, copies)) {
+            for (TilePlacement placement : XaeroWorldMapFold.placements(shape, originX, originZ, slotSize, copies)) {
                 GuiMap.renderTexturedModalSubRectWithLighting(matrix, x + (placement.minX() - viewBlockX),
                         y + (placement.minZ() - viewBlockZ), placement.u1(), placement.v1(), placement.u2(),
                         placement.v2(), placement.width(), placement.height(), textureAndView.view, hasLight,
                         renderer);
             }
         }
-    }
-
-    @Unique
-    private @Nullable RegionTexture<?> toroidal$anyCanonicalTexture(int viewBlockX, int viewBlockZ, int slotSize) {
-        for (long origin : XaeroWorldMapFold.canonicalSlotOrigins(viewBlockX, viewBlockZ, slotSize)) {
-            RegionTexture<?> regionTexture = toroidal$canonicalRegionTexture(ChunkPos.getX(origin), ChunkPos.getZ(origin));
-            if (regionTexture != null) {
-                return regionTexture;
-            }
-        }
 
         return null;
-    }
-
-    @Unique
-    private @Nullable RegionTexture<?> toroidal$canonicalRegionTexture(int canonicalBlockX, int canonicalBlockZ) {
-        int level = this.toroidal$viewLevel;
-        int slotSize = XaeroWorldMapFold.SLOT_BLOCKS << level;
-        int side = XaeroWorldMapFold.REGION_BLOCKS << level;
-        int canonicalRegX = Math.floorDiv(canonicalBlockX, side);
-        int canonicalRegZ = Math.floorDiv(canonicalBlockZ, side);
-        LeveledRegion<?> canonical = this.toroidal$processor
-                .getLeveledRegion(this.toroidal$viewCaveLayer, canonicalRegX, canonicalRegZ, level);
-        if (canonical == null || !canonical.hasTextures()) {
-            return null;
-        }
-
-        return canonical.getTexture((canonicalBlockX - canonicalRegX * side) / slotSize,
-                (canonicalBlockZ - canonicalRegZ * side) / slotSize);
     }
 }

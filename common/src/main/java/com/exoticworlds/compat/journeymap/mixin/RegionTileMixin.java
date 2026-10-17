@@ -39,7 +39,6 @@ public abstract class RegionTileMixin {
     @Shadow(remap = false)
     private int zoom;
 
-    // Render-thread only, like the render call itself.
     @Unique
     private static boolean toroidal$drawingCopies;
 

@@ -11,15 +11,11 @@ public final class C2meLightingLock {
 
     static final String MIXIN = "SchedulingUtilLockMixin";
 
-    static final ModPresence GATE = ModPresence.gate(LogUtils.getLogger(), "[c2me-compat] gate lighting_lock_present")
+    static final ModPresence GATE = ModPresence.gate(LogUtils.getLogger(), "[ew/c2me-compat] gate lighting_lock_present")
             .probing(OVERWRITE_RESOURCE, "ca/spottedleaf/starlight/common/thread/SchedulingUtil.class")
             .checking(C2meMixinPlugin.CONFIG, MIXIN::equals)
             .bodyFrom(MIXIN, OVERWRITE_CLASS)
             .build();
-
-    public static boolean present() {
-        return GATE.present();
-    }
 
     private C2meLightingLock() {
     }

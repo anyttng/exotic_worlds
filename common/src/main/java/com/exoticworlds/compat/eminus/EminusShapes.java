@@ -50,9 +50,9 @@ public final class EminusShapes {
 
             Files.createDirectories(folder);
             Files.writeString(marker, stamp(folder, fold), StandardCharsets.UTF_8);
-            LOGGER.info("[eminus-compat] store_reset folder={} written={} shape={}", folder, written, fold);
+            LOGGER.info("[ew/eminus-compat] store_reset folder={} written={} shape={}", folder, written, fold);
         } catch (IOException failure) {
-            LOGGER.error("[eminus-compat] store_reset_failed folder={} shape={}", folder, fold, failure);
+            LOGGER.error("[ew/eminus-compat] store_reset_failed folder={} shape={}", folder, fold, failure);
         }
     }
 
@@ -64,7 +64,7 @@ public final class EminusShapes {
         try {
             Files.writeString(folder.resolve(MARKER_FILE), stamp(folder, fold), StandardCharsets.UTF_8);
         } catch (IOException failure) {
-            LOGGER.error("[eminus-compat] store_stamp_failed folder={} shape={}", folder, fold, failure);
+            LOGGER.error("[ew/eminus-compat] store_stamp_failed folder={} shape={}", folder, fold, failure);
         }
     }
 

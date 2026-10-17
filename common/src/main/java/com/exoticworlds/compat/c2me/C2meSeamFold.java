@@ -4,9 +4,11 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.core.WorldFold;
+import com.ishland.c2me.base.common.scheduler.SchedulingManager;
 import com.ishland.c2me.rewrites.chunksystem.common.ChunkLoadingContext;
+import com.ishland.flowsched.executor.LockToken;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.minecraft.util.StaticCache2D;
 import net.minecraft.world.level.ChunkPos;
 
@@ -48,17 +50,25 @@ public final class C2meSeamFold {
         return transformer.fold(new ChunkPos(chunkX, chunkZ));
     }
 
-    public static long[] canonicalLockPositions(
-            WorldFold transformer, int baseChunkX, int baseChunkZ, int sizeX, int sizeZ) {
-        LongOpenHashSet folded = new LongOpenHashSet(sizeX * sizeZ);
-
-        for (int offsetX = 0; offsetX < sizeX; offsetX++) {
-            for (int offsetZ = 0; offsetZ < sizeZ; offsetZ++) {
-                folded.add(transformer.foldChunkKey(ChunkPos.pack(baseChunkX + offsetX, baseChunkZ + offsetZ)));
-            }
+    public static long lockKey(SchedulingManager schedulingManager, long chunkKey) {
+        WorldFold transformer = ((TransformerSource) schedulingManager).toroidal$wrappedTransformer();
+        if (transformer == null) {
+            return chunkKey;
         }
 
-        return folded.toLongArray();
+        return transformer.foldChunkKey(chunkKey);
+    }
+
+    public static LockToken[] lockTokens(SchedulingManager schedulingManager, LockToken[] tokens) {
+        if (((TransformerSource) schedulingManager).toroidal$wrappedTransformer() == null) {
+            return tokens;
+        }
+
+        return withoutRepeats(tokens);
+    }
+
+    static LockToken[] withoutRepeats(LockToken[] tokens) {
+        return new ObjectLinkedOpenHashSet<>(tokens).toArray(LockToken[]::new);
     }
 
     private C2meSeamFold() {

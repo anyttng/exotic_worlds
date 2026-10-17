@@ -42,7 +42,7 @@ public final class PeriodicityCheck {
 
         ChunkGenerator generator = level.getChunkSource().getGenerator();
         if (!ShapedChunkGenerator.tilesAtSeam(generator)) {
-            LOGGER.info("[world-loop] periodicity_skipped level={} generator={}",
+            LOGGER.info("[ew/world-loop] periodicity_skipped level={} generator={}",
                     levelName, generator.getClass().getSimpleName());
             return;
         }
@@ -95,13 +95,13 @@ public final class PeriodicityCheck {
 
         int samples = SAMPLE_X.length * SAMPLE_Z.length;
         if (brokenFields.isEmpty()) {
-            LOGGER.info("[world-loop] periodicity_ok level={} axis={} width_blocks={} samples={}",
+            LOGGER.info("[ew/world-loop] periodicity_ok level={} axis={} width_blocks={} samples={}",
                     levelName, axisName, widthBlocks, samples);
             return;
         }
 
         LOGGER.warn(
-                "[world-loop] periodicity_broken level={} axis={} width_blocks={} fields={} broken_samples={} samples={}",
+                "[ew/world-loop] periodicity_broken level={} axis={} width_blocks={} fields={} broken_samples={} samples={}",
                 levelName, axisName, widthBlocks, String.join(",", brokenFields), brokenSamples, samples);
     }
 

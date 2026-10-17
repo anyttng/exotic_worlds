@@ -11,6 +11,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Slice;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.bawnorton.mixinsquared.TargetHandler;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -18,7 +20,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
-@SuppressWarnings("UnusedMethod")
+@SuppressWarnings({"UnusedMethod", "UnusedVariable"})
 public final class MixinFixtures {
     private static final String TARGET = "com.exoticworlds.compat.fixture.FixtureTarget";
     private static final String NOWHERE = "com.exoticworlds.compat.fixture.Nowhere";
@@ -30,6 +32,7 @@ public final class MixinFixtures {
     private static final String VALUE_OF = "Ljava/lang/Integer;valueOf(I)Ljava/lang/Integer;";
     private static final String ABS = "Ljava/lang/Math;abs(I)I";
     private static final String HANDLER = "@MixinSquared:Handler";
+    private static final String SHADOWING_MIXIN = "com.exoticworlds.compat.fixture.FixtureShadowingMixin";
 
     @Mixin(FixtureTarget.class)
     public static class WrapOperationPresent {
@@ -69,13 +72,41 @@ public final class MixinFixtures {
     @Mixin(FixtureTarget.class)
     public static class InjectPresent {
         @Inject(method = "work", at = @At("HEAD"))
-        private void inject() {
+        private void inject(CallbackInfo callback) {
         }
     }
 
     @Mixin(FixtureTarget.class)
     public static class InjectMissing {
         @Inject(method = "absent", at = @At("HEAD"))
+        private void inject(CallbackInfo callback) {
+        }
+    }
+
+    @Mixin(FixtureTarget.class)
+    public static class InjectReturnablePresent {
+        @Inject(method = "helper", at = @At("HEAD"))
+        private void inject(int value, CallbackInfoReturnable<Integer> callback) {
+        }
+    }
+
+    @Mixin(FixtureTarget.class)
+    public static class InjectCallbackInfoIntoValue {
+        @Inject(method = "helper", at = @At("HEAD"))
+        private void inject(CallbackInfo callback) {
+        }
+    }
+
+    @Mixin(FixtureTarget.class)
+    public static class InjectReturnableIntoVoid {
+        @Inject(method = "work", at = @At("HEAD"))
+        private void inject(CallbackInfoReturnable<Integer> callback) {
+        }
+    }
+
+    @Mixin(FixtureTarget.class)
+    public static class InjectWithoutCallback {
+        @Inject(method = "work", at = @At("HEAD"))
         private void inject() {
         }
     }
@@ -230,7 +261,7 @@ public final class MixinFixtures {
     @Mixin(targets = {TARGET, NOWHERE})
     public static class PseudoOneOfTwoPresent {
         @Inject(method = "work", at = @At("HEAD"))
-        private void inject() {
+        private void inject(CallbackInfo callback) {
         }
     }
 
@@ -308,7 +339,7 @@ public final class MixinFixtures {
     public static class InjectSliceMissing {
         @Inject(method = "work", at = @At(value = "INVOKE", target = HELPER),
                 slice = @Slice(to = @At(value = "INVOKE", target = ABSENT_CALL)))
-        private void inject() {
+        private void inject(CallbackInfo callback) {
         }
     }
 
@@ -330,6 +361,21 @@ public final class MixinFixtures {
     public static class GameTarget {
         @Shadow
         public int absent;
+    }
+
+    @Mixin(FixtureTarget.class)
+    public static class AnyMethodSelector {
+        @WrapOperation(method = "*", at = @At(value = "INVOKE", target = HELPER))
+        private void wrap() {
+        }
+    }
+
+    @Mixin(FixtureTarget.class)
+    public static class TargetHandlerShadowCall {
+        @WrapOperation(method = HANDLER, at = @At(value = "INVOKE", target = HELPER))
+        @TargetHandler(mixin = SHADOWING_MIXIN, name = "handler")
+        private void wrap() {
+        }
     }
 
     private MixinFixtures() {

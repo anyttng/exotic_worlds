@@ -70,15 +70,6 @@ public final class DhFold {
         return foldZ(lattice, leafDetailLevel, SectionPos.SECTION_SIZE, chunkZ);
     }
 
-    public static int foldBlock(ToroidalShape shape, Direction.Axis axis, byte leafDetailLevel, int block) {
-        if (!shape.loops(axis)) {
-            return block;
-        }
-
-        long period = periodBlocks(shape, axis, leafDetailLevel);
-        return (int) (block - Math.floorDiv((long) block - shape.minBlock(axis), period) * period);
-    }
-
     private static int foldX(DhLattice lattice, byte detailLevel, int unitBlocks, int valueX, int valueZ) {
         ToroidalShape shape = lattice.shape();
         AlignedPeriod period = period(lattice, detailLevel);
@@ -282,7 +273,7 @@ public final class DhFold {
 
         long widthZ = shape.widthBlocks(Direction.Axis.Z);
         long below = Math.floorDiv(deltaZ, widthZ);
-        long reach = rowsThatCanWin(lattice);
+        long reach = rowsThatCanWin(shape, lattice.skewBlocks());
         long nearest = Long.MAX_VALUE;
         for (long row = below - reach; row <= below + 1 + reach; row++) {
             long distance = Math.max(axisDistance(shape, deltaX - row * lattice.skewBlocks()),
@@ -293,12 +284,11 @@ public final class DhFold {
         return nearest;
     }
 
-    static long rowsThatCanWin(DhLattice lattice) {
-        if (!lattice.isSkewed()) {
+    static long rowsThatCanWin(ToroidalShape shape, int skewBlocks) {
+        if (skewBlocks == 0) {
             return 0L;
         }
 
-        ToroidalShape shape = lattice.shape();
         return Math.ceilDiv(shape.widthBlocks(Direction.Axis.X), 2L * shape.widthBlocks(Direction.Axis.Z));
     }
 
