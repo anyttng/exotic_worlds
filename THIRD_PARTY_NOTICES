@@ -40,6 +40,16 @@ Derived files, under common/src/main/java/com/exoticworlds/compat/wover/:
   mixin/ThresholdConditionImplMixin.java
 
 
+C2ME
+
+Copyright (c) 2021-2026 ishland
+
+Derived files, under common/src/main/java/com/exoticworlds/compat/c2me/:
+  C2meFoldedNoiseEmitter.java
+  C2meFoldedNoiseNode.java
+  C2meFoldedNoiseDotEmitter.java
+
+
 MIT License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
