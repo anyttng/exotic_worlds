@@ -380,7 +380,7 @@ public final class DeckGroupFold implements WorldFold {
     @Override
     public Folded<AABB> foldBox(Vec3 ref, AABB box) {
         SeamTransform move = this.blocks.nearestCoords(ref.x, ref.z,
-                SeamBoxes.centre(box.minX, box.maxX), SeamBoxes.centre(box.minZ, box.maxZ));
+                SeamBoxes.center(box.minX, box.maxX), SeamBoxes.center(box.minZ, box.maxZ));
         return move.isIdentity() ? Folded.of(box) : new Folded<>(move.apply(box), move.orientation());
     }
 

@@ -32,7 +32,7 @@ public final class PeriodicEndIslands {
         TranslationLattice blockLattice = transformer.blockLattice();
         int sectionX = blockLattice.foldX(blockX, blockZ) / SECTION_WIDTH;
         int sectionZ = blockLattice.foldZ(blockZ) / SECTION_WIDTH;
-        float doffs = Mth.clamp(
+        float height = Mth.clamp(
                 ISLAND_PEAK_HEIGHT - Mth.sqrt(sectionX * sectionX + sectionZ * sectionZ) * MAIN_ISLAND_SIZE,
                 MIN_HEIGHT_VALUE, MAX_HEIGHT_VALUE);
 
@@ -52,14 +52,14 @@ public final class PeriodicEndIslands {
                             + Mth.abs((float) cellZ) * ISLAND_SIZE_Z_FACTOR) % ISLAND_SIZE_SPREAD + ISLAND_SIZE_MIN;
                     float xd = subSectionX - xo * SECTIONS_PER_CHUNK;
                     float zd = subSectionZ - zo * SECTIONS_PER_CHUNK;
-                    float newDoffs = Mth.clamp(ISLAND_PEAK_HEIGHT - Mth.sqrt(xd * xd + zd * zd) * islandSize,
+                    float newHeight = Mth.clamp(ISLAND_PEAK_HEIGHT - Mth.sqrt(xd * xd + zd * zd) * islandSize,
                             MIN_HEIGHT_VALUE, MAX_HEIGHT_VALUE);
-                    doffs = Math.max(doffs, newDoffs);
+                    height = Math.max(height, newHeight);
                 }
             }
         }
 
-        return doffs;
+        return height;
     }
 
     public static double density(float heightValue) {

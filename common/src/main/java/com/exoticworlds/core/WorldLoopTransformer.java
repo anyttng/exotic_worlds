@@ -228,7 +228,7 @@ final class WorldLoopTransformer implements WorldFold {
     }
 
     private static double seamGap(WrapDomain domain, double min, double max, double coord) {
-        double center = SeamBoxes.centre(min, max);
+        double center = SeamBoxes.center(min, max);
         double nearestCenter = domain.unwrapAround(coord, center);
         return Math.max(Math.abs(nearestCenter - coord) - (max - min) / 2.0, 0.0);
     }
@@ -563,8 +563,8 @@ final class WorldLoopTransformer implements WorldFold {
 
     @Override
     public Folded<AABB> foldBox(Vec3 ref, AABB box) {
-        double centerX = SeamBoxes.centre(box.minX, box.maxX);
-        double centerZ = SeamBoxes.centre(box.minZ, box.maxZ);
+        double centerX = SeamBoxes.center(box.minX, box.maxX);
+        double centerZ = SeamBoxes.center(box.minZ, box.maxZ);
         double shiftX = coords.x.unwrapAround(ref.x, centerX) - centerX;
         double shiftZ = coords.z.unwrapAround(ref.z, centerZ) - centerZ;
         return Folded.of(shiftX == 0.0 && shiftZ == 0.0 ? box : box.move(shiftX, 0.0, shiftZ));

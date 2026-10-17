@@ -11,7 +11,7 @@ public final class EdgeBiomes {
 
     private static final float[] HEX_RING_Z = new float[HEX_RING_POINTS];
 
-    private static final double SQUARE_NEIGHBOUR_BLOCKS = 1.0;
+    private static final double SQUARE_NEIGHBOR_BLOCKS = 1.0;
 
     static {
         for (int point = 0; point < HEX_RING_POINTS; point++) {
@@ -53,7 +53,7 @@ public final class EdgeBiomes {
 
         PickableBiome search = parent != null ? parent : biome;
         double radius = radius(map, search.edgeSize);
-        double step = SQUARE_NEIGHBOUR_BLOCKS / map.factor();
+        double step = SQUARE_NEIGHBOR_BLOCKS / map.factor();
         boolean edge = !search.isSame(map.biomeAt(x + radius, z))
                 || !search.isSame(map.biomeAt(x - radius, z))
                 || !search.isSame(map.biomeAt(x, z + radius))

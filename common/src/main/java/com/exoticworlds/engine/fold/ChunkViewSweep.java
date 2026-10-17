@@ -5,7 +5,7 @@ import com.exoticworlds.core.WorldFold;
 import net.minecraft.world.level.ChunkPos;
 
 public sealed interface ChunkViewSweep {
-    int NEIGHBOUR_RING = 1;
+    int NEIGHBOR_RING = 1;
 
     record OverBoth(int minX, int minZ, int maxX, int maxZ) implements ChunkViewSweep {
         @Override
@@ -28,8 +28,8 @@ public sealed interface ChunkViewSweep {
     static ChunkViewSweep between(WorldFold fold, ChunkPos previousCenter, int previousViewDistance,
             ChunkPos nextCenter, int nextViewDistance) {
         ChunkPos nearestNextCenter = fold.nearestCopy(previousCenter, nextCenter);
-        int previousRadius = previousViewDistance + NEIGHBOUR_RING;
-        int nextRadius = nextViewDistance + NEIGHBOUR_RING;
+        int previousRadius = previousViewDistance + NEIGHBOR_RING;
+        int nextRadius = nextViewDistance + NEIGHBOR_RING;
 
         long reach = (long) previousRadius + nextRadius;
         if (Math.abs((long) nearestNextCenter.x() - previousCenter.x()) > reach
@@ -45,6 +45,6 @@ public sealed interface ChunkViewSweep {
     }
 
     private static int span(int viewDistance) {
-        return 2 * (viewDistance + NEIGHBOUR_RING) + 1;
+        return 2 * (viewDistance + NEIGHBOR_RING) + 1;
     }
 }

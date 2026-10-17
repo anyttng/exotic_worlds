@@ -144,27 +144,27 @@ class DeckGroupFoldMatrixTest {
     private static final Case MOBIUS_X = new Case("mobius (mirror on X)",
             FlatShape.mirrored(Z_ONLY, Direction.Axis.X, 0), new Group(false, true, 0, false, true, 0));
 
-    private static final Case KLEIN_CENTRED = new Case("klein (mirror on Z, on the world centre)",
+    private static final Case KLEIN_CENTERED = new Case("klein (mirror on Z, on the world center)",
             FlatShape.mirrored(BOTH, Direction.Axis.Z, 0), new Group(true, true, 0, true, false, 0));
 
-    private static final Case KLEIN_OFFSET = new Case("klein (mirror on Z, off centre)",
+    private static final Case KLEIN_OFFSET = new Case("klein (mirror on Z, off center)",
             FlatShape.mirrored(BOTH, Direction.Axis.Z, OFFSET_MIRROR_CHUNK),
             new Group(true, true, 0, true, false, OFFSET_MIRROR_LINE));
 
-    private static final Case KLEIN_X_CENTRED = new Case("klein (mirror on X, on the world centre)",
+    private static final Case KLEIN_X_CENTERED = new Case("klein (mirror on X, on the world center)",
             FlatShape.mirrored(BOTH, Direction.Axis.X, 0), new Group(true, true, 0, false, true, 0));
 
-    private static final Case KLEIN_X_OFFSET = new Case("klein (mirror on X, off centre)",
+    private static final Case KLEIN_X_OFFSET = new Case("klein (mirror on X, off center)",
             FlatShape.mirrored(BOTH, Direction.Axis.X, OFFSET_MIRROR_CHUNK),
             new Group(true, true, 0, false, true, OFFSET_MIRROR_LINE));
 
     private static List<Case> cases() {
         return List.of(RECTANGLE, CYLINDER, TORUS, LATTICE_TORUS,
-                MOBIUS, MOBIUS_X, KLEIN_CENTRED, KLEIN_OFFSET, KLEIN_X_CENTRED, KLEIN_X_OFFSET);
+                MOBIUS, MOBIUS_X, KLEIN_CENTERED, KLEIN_OFFSET, KLEIN_X_CENTERED, KLEIN_X_OFFSET);
     }
 
     private static List<Case> mirroredCases() {
-        return List.of(MOBIUS, MOBIUS_X, KLEIN_CENTRED, KLEIN_OFFSET, KLEIN_X_CENTRED, KLEIN_X_OFFSET);
+        return List.of(MOBIUS, MOBIUS_X, KLEIN_CENTERED, KLEIN_OFFSET, KLEIN_X_CENTERED, KLEIN_X_OFFSET);
     }
 
     private static List<Case> decomposableCases() {
@@ -315,7 +315,7 @@ class DeckGroupFoldMatrixTest {
         }
 
         @Test
-        void theCellFoldAgreesWithTheCoordinateFoldAtTheCellCentre() {
+        void theCellFoldAgreesWithTheCoordinateFoldAtTheCellCenter() {
             for (Case testCase : cases()) {
                 DeckGroupFold fold = testCase.fold();
                 Random random = new Random(SEED + 3);
@@ -323,9 +323,9 @@ class DeckGroupFoldMatrixTest {
                     int x = sample(random);
                     int z = sample(random);
                     BlockPos cell = fold.fold(new BlockPos(x, 64, z));
-                    Vec3 centre = fold.fold(new Vec3(x + 0.5, 64.0, z + 0.5));
-                    assertEquals(cell.getX() + 0.5, centre.x, testCase.name() + ": cell and coordinate x disagree");
-                    assertEquals(cell.getZ() + 0.5, centre.z, testCase.name() + ": cell and coordinate z disagree");
+                    Vec3 center = fold.fold(new Vec3(x + 0.5, 64.0, z + 0.5));
+                    assertEquals(cell.getX() + 0.5, center.x, testCase.name() + ": cell and coordinate x disagree");
+                    assertEquals(cell.getZ() + 0.5, center.z, testCase.name() + ": cell and coordinate z disagree");
                 }
             }
         }
@@ -460,16 +460,16 @@ class DeckGroupFoldMatrixTest {
 
         @Test
         void theTieDoesNotDependOnWhereTheBoundsAreDrawn() {
-            DeckGroupFold centred = new DeckGroupFold(FlatShape.torus(BOTH));
+            DeckGroupFold centered = new DeckGroupFold(FlatShape.torus(BOTH));
             DeckGroupFold shifted = new DeckGroupFold(FlatShape.torus(
                     new WorldLoopBounds(new AxisBounds.Looped(-5, 11), new AxisBounds.Looped(-5, 11))));
             BlockPos ref = new BlockPos(0, 64, 0);
             BlockPos target = new BlockPos(WIDTH / 2, 64, WIDTH / 2);
-            BlockPos fromCentred = centred.nearestCopy(ref, target);
+            BlockPos fromCentered = centered.nearestCopy(ref, target);
             BlockPos fromShifted = shifted.nearestCopy(ref, target);
-            assertEquals(fromCentred.getX() - ref.getX(), fromShifted.getX() - ref.getX(),
+            assertEquals(fromCentered.getX() - ref.getX(), fromShifted.getX() - ref.getX(),
                     "the tie was decided from the bounds, not from the arguments");
-            assertEquals(fromCentred.getZ() - ref.getZ(), fromShifted.getZ() - ref.getZ(),
+            assertEquals(fromCentered.getZ() - ref.getZ(), fromShifted.getZ() - ref.getZ(),
                     "the tie was decided from the bounds, not from the arguments");
         }
 
@@ -535,16 +535,16 @@ class DeckGroupFoldMatrixTest {
             DeckTransformation move = fold.nearestCopyTransformation(ref, target);
             assertEquals(nearest, move.apply(target), "the transformation did not seat the copy it names");
 
-            BlockPos neighbour = target.offset(0, 0, RIGID_SPAN);
-            BlockPos lapped = neighbour.offset(
+            BlockPos neighbor = target.offset(0, 0, RIGID_SPAN);
+            BlockPos lapped = neighbor.offset(
                     nearest.getX() - target.getX(), 0, nearest.getZ() - target.getZ());
 
-            assertEquals(nearest.offset(0, 0, -RIGID_SPAN), move.apply(neighbour),
+            assertEquals(nearest.offset(0, 0, -RIGID_SPAN), move.apply(neighbor),
                     "the mirror did not reverse the rest of the rigid group");
             assertEquals(nearest.offset(0, 0, RIGID_SPAN), lapped,
-                    "the lap vector no longer seats the neighbour on the unmirrored side");
-            assertEquals(fold.nearestCopy(ref, neighbour), move.apply(neighbour),
-                    "the seated neighbour is not the copy the fold names for it");
+                    "the lap vector no longer seats the neighbor on the unmirrored side");
+            assertEquals(fold.nearestCopy(ref, neighbor), move.apply(neighbor),
+                    "the seated neighbor is not the copy the fold names for it");
         }
 
         @Test
@@ -630,11 +630,11 @@ class DeckGroupFoldMatrixTest {
                 DeckGroupFold fold = testCase.fold();
                 BlockPos pos = new BlockPos(LOWER + 5, 64, LOWER + 7);
                 ChunkPos chunk = chunkOf(pos.getX(), pos.getZ());
-                ChunkPos neighbour = new ChunkPos(chunk.x() + 1, chunk.z());
-                assertThrows(IllegalArgumentException.class, () -> fold.reseat(pos, neighbour),
-                        testCase.name() + ": a neighbouring chunk passed as a copy");
-                assertThrows(IllegalArgumentException.class, () -> fold.deckTransformation(chunk, neighbour),
-                        testCase.name() + ": a deck transformation onto a neighbouring chunk");
+                ChunkPos neighbor = new ChunkPos(chunk.x() + 1, chunk.z());
+                assertThrows(IllegalArgumentException.class, () -> fold.reseat(pos, neighbor),
+                        testCase.name() + ": a neighboring chunk passed as a copy");
+                assertThrows(IllegalArgumentException.class, () -> fold.deckTransformation(chunk, neighbor),
+                        testCase.name() + ": a deck transformation onto a neighboring chunk");
             }
         }
 
@@ -1250,9 +1250,9 @@ class DeckGroupFoldMatrixTest {
                 }
 
                 ChunkPos chunk = new ChunkPos(MIN_CHUNK, MIN_CHUNK);
-                ChunkPos neighbour = new ChunkPos(MIN_CHUNK + 1, MIN_CHUNK);
-                assertThrows(IllegalArgumentException.class, () -> perAxis.deckTransformation(chunk, neighbour),
-                        testCase.name() + ": the per-axis transformer accepted a neighbouring chunk as a copy");
+                ChunkPos neighbor = new ChunkPos(MIN_CHUNK + 1, MIN_CHUNK);
+                assertThrows(IllegalArgumentException.class, () -> perAxis.deckTransformation(chunk, neighbor),
+                        testCase.name() + ": the per-axis transformer accepted a neighboring chunk as a copy");
             }
         }
 
@@ -1267,8 +1267,8 @@ class DeckGroupFoldMatrixTest {
                         testCase.name() + ": the contract answered for Y");
             }
 
-            for (Case testCase : List.of(LATTICE_TORUS, MOBIUS, MOBIUS_X, KLEIN_CENTRED, KLEIN_OFFSET,
-                    KLEIN_X_CENTRED, KLEIN_X_OFFSET)) {
+            for (Case testCase : List.of(LATTICE_TORUS, MOBIUS, MOBIUS_X, KLEIN_CENTERED, KLEIN_OFFSET,
+                    KLEIN_X_CENTERED, KLEIN_X_OFFSET)) {
                 DeckGroupFold fold = testCase.fold();
                 assertFalse(fold.decomposesPerAxis(), testCase.name() + ": should not decompose per axis");
                 assertThrows(IllegalStateException.class, () -> fold.blockDomain(Direction.Axis.X),
@@ -1329,7 +1329,7 @@ class DeckGroupFoldMatrixTest {
         void aMirroredCopyComesBackFlippedAboutTheMirrorLine() {
             BoundingBox region =
                     new BoundingBox(UPPER - SEAM_STRADDLE, 60, 0, UPPER + SEAM_STRADDLE, 68, PINNED_WIDTH - 1);
-            for (Case testCase : List.of(MOBIUS, KLEIN_CENTRED, KLEIN_OFFSET)) {
+            for (Case testCase : List.of(MOBIUS, KLEIN_CENTERED, KLEIN_OFFSET)) {
                 int mirrorLine = testCase.group().mirrorLine();
                 List<DeckTransformation> copies = testCase.fold().copiesTouching(region, 1);
                 DeckTransformation flipped = new DeckTransformation(SeamTransform.glideX(WIDTH, 2 * mirrorLine));
@@ -1383,19 +1383,19 @@ class DeckGroupFoldMatrixTest {
         @Test
         void oneBlockPastAWorldAlongATranslationFoldsOntoItself() {
             BoundingBox alongX = new BoundingBox(0, 60, 0, WIDTH, 68, PINNED_WIDTH - 1);
-            for (Case testCase : List.of(CYLINDER, TORUS, LATTICE_TORUS, KLEIN_X_CENTRED, KLEIN_X_OFFSET)) {
+            for (Case testCase : List.of(CYLINDER, TORUS, LATTICE_TORUS, KLEIN_X_CENTERED, KLEIN_X_OFFSET)) {
                 assertTrue(testCase.fold().foldsOntoItself(alongX), testCase.name() + ": " + alongX);
             }
 
             BoundingBox alongZ = new BoundingBox(0, 60, 0, PINNED_WIDTH - 1, 68, WIDTH);
-            for (Case testCase : List.of(TORUS, KLEIN_CENTRED, KLEIN_OFFSET)) {
+            for (Case testCase : List.of(TORUS, KLEIN_CENTERED, KLEIN_OFFSET)) {
                 assertTrue(testCase.fold().foldsOntoItself(alongZ), testCase.name() + ": " + alongZ);
             }
         }
 
         @Test
         void oneBlockPastAWorldAlongAGlideFoldsOntoItselfOnlyAcrossTheMirrorLine() {
-            for (Case testCase : List.of(MOBIUS, KLEIN_CENTRED, KLEIN_OFFSET)) {
+            for (Case testCase : List.of(MOBIUS, KLEIN_CENTERED, KLEIN_OFFSET)) {
                 int mirrorLine = testCase.group().mirrorLine();
                 BoundingBox besideTheLine = new BoundingBox(0, 60, mirrorLine + MIRROR_STRADDLE, WIDTH, 68,
                         mirrorLine + MIRROR_STRADDLE + PINNED_WIDTH - 1);
@@ -1405,7 +1405,7 @@ class DeckGroupFoldMatrixTest {
                 assertTrue(testCase.fold().foldsOntoItself(acrossTheLine), testCase.name() + ": " + acrossTheLine);
             }
 
-            for (Case testCase : List.of(MOBIUS_X, KLEIN_X_CENTRED, KLEIN_X_OFFSET)) {
+            for (Case testCase : List.of(MOBIUS_X, KLEIN_X_CENTERED, KLEIN_X_OFFSET)) {
                 int mirrorLine = testCase.group().mirrorLine();
                 BoundingBox besideTheLine = new BoundingBox(mirrorLine + MIRROR_STRADDLE, 60, 0,
                         mirrorLine + MIRROR_STRADDLE + PINNED_WIDTH - 1, 68, WIDTH);

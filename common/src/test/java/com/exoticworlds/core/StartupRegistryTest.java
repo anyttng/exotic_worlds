@@ -77,7 +77,7 @@ class StartupRegistryTest {
     }
 
     @Test
-    void everyRegistryEnrolledInTheBoundaryClosesWithIt() {
+    void everyRegistryRegisteredInTheBoundaryClosesWithIt() {
         StartupRegistry<String, Integer> first = registry();
         StartupRegistry<String, Integer> second = registry();
         first.register("one", 1);

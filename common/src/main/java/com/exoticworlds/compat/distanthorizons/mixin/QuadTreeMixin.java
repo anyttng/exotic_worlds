@@ -17,7 +17,7 @@ import net.minecraft.core.Direction;
 @Mixin(QuadTree.class)
 public class QuadTreeMixin {
     @WrapMethod(method = "isSectionPosInBounds(J)Z")
-    private boolean toroidal$holdOneLapAroundTheCentre(long pos, Operation<Boolean> original) {
+    private boolean toroidal$holdOneLapAroundTheCenter(long pos, Operation<Boolean> original) {
         boolean inSquare = original.call(pos);
         if (!inSquare || !((Object) this instanceof LodQuadTree tree)) {
             return inSquare;

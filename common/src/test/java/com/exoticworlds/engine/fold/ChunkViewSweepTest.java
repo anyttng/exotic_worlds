@@ -51,7 +51,7 @@ class ChunkViewSweepTest {
     }
 
     @Test
-    void noPairOfCentresInsideTheWorldEverSplitsTheSweep() {
+    void noPairOfCentersInsideTheWorldEverSplitsTheSweep() {
         ChunkPos seamCorner = new ChunkPos(MAX_CHUNK, MAX_CHUNK);
 
         for (int x = MIN_CHUNK; x <= MAX_CHUNK; x++) {

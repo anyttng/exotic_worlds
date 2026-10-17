@@ -23,7 +23,7 @@ public interface SeamContext {
     /** The geometry of the level this connection is in — every fold not tied to the client's frame. */
     ToroidalShape shape();
 
-    /** The copy of {@code pos} this client holds, seated in the copy of its own chunk. */
+    /** The copy of {@code pos} this client holds, placed in the copy of its own chunk. */
     BlockPos toClient(BlockPos pos);
 
     /** The copy of {@code pos} this client holds. */

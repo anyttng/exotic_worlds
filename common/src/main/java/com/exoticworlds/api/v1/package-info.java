@@ -32,8 +32,8 @@
  *       connection each one is on.</li>
  *   <li>{@link com.exoticworlds.api.v1.SeamShift}, taken from
  *       {@link com.exoticworlds.api.v1.ToroidalShape#shiftToNearestCopy}, carries a whole rigid group into one
- *       copy of the world — seating its members one by one tears it in half.</li>
- *   <li>{@link com.exoticworlds.api.v1.client.ClientAnchors} seats a position against the anchors a client
+ *       copy of the world — moving its members one by one tears it in half.</li>
+ *   <li>{@link com.exoticworlds.api.v1.client.ClientAnchors} moves a position to the copy nearest the anchors a client
  *       already has: its player, its camera, and the copy of a position it is actually holding.</li>
  * </ul>
  *
