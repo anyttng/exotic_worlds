@@ -45,17 +45,9 @@ public final class SpreadRingScan {
         }
 
         for (int x = -radius; x <= radius; x++) {
-            if (Math.abs(x) > this.xCells.offsetCap()) {
-                continue;
-            }
-
             boolean xEdge = x == -radius || x == radius;
             for (int z = -radius; z <= radius; z++) {
                 if (!xEdge && z != -radius && z != radius) {
-                    continue;
-                }
-
-                if (Math.abs(z) > this.zCells.offsetCap()) {
                     continue;
                 }
 
@@ -69,8 +61,13 @@ public final class SpreadRingScan {
         return null;
     }
 
-    private <T> @Nullable T cell(int x, int z, Function<ChunkPos, @Nullable T> candidate,
+    // mc/1.21: Supplementaries' structure locator folds the cells of its own round rings through it.
+    public <T> @Nullable T cell(int x, int z, Function<ChunkPos, @Nullable T> candidate,
             Function<StructureStarts.Added, @Nullable T> addedStart) {
+        if (Math.abs(x) > this.xCells.offsetCap() || Math.abs(z) > this.zCells.offsetCap()) {
+            return null;
+        }
+
         int probeX = this.xCells.probeChunkShifted(x, -this.zCells.lapsCrossed(z) * this.skew);
         int probeZ = this.zCells.probeChunk(z);
         ChunkPos picked = this.placement.getPotentialStructureChunk(this.seed, probeX, probeZ);
