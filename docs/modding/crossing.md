@@ -16,7 +16,7 @@ It takes five keys, each described below where it is used: `payloads` and `deny`
 
 ## A payload of your own
 
-A payload declared as a record needs no code. Each component whose declared type is `BlockPos`, `Vec3`, `ChunkPos`, `SectionPos` or `GlobalPos`, or an `Optional` or a `List` of one, is folded on its way out and on its way back, and the record is rebuilt through its canonical constructor; a `GlobalPos` folds only in the dimension the player stands in. A record with no such component, or none that moved, is handed on as it is.
+A payload declared as a record needs no code. Each component whose declared type is `BlockPos`, `Vec3`, `ChunkPos`, `SectionPos` or `GlobalPos`, or an `Optional` or a `List` of one, is folded on its way out and on its way back. The record is rebuilt through its canonical constructor. A `GlobalPos` folds only in the dimension the player stands in. A record with no such component, or none that moved, is handed on as it is.
 
 What a record cannot say takes a rewriter: a position written into a byte array by hand, a position inside a component of any other type, a `long` holding a packed position.
 
@@ -30,11 +30,11 @@ PacketRewriters.registerServerboundPayload(StationPickPayload.class, (payload, c
 
 `SeamContext` is the two frames one connection has. `toClient` takes a canonical position to the copy that client holds, the one to write into anything it will draw, place or measure against. `toServer` folds a position the client sent back into the world's bounds. Both come in `BlockPos`, `Vec3` and (clientbound) `ChunkPos` forms, both hand the argument instance itself back when nothing moved, and `context.shape()` is the level's whole geometry for anything the two do not cover.
 
-Register from your mod's initialiser, beside everything else: the table closes at `MinecraftServer.runServer`, before the levels load, and a later registration throws rather than being silently half-effective. A rewriter runs for payloads of that exact class, on a folding level and nowhere else; on an ordinary world nothing you registered is ever called. Where one is registered the record fold does not run for that class; the record fold spells each position the way `toClient` and `toServer` do, so moving a payload between the two routes changes nothing its receiver reads.
+Register from your mod's initializer, beside everything else: the table closes at `MinecraftServer.runServer`, before the levels load, and a later registration throws rather than being silently half-effective. A rewriter runs for payloads of that exact class, on a folding level and nowhere else; on an ordinary world nothing you registered is ever called. Where one is registered the record fold does not run for that class; the record fold spells each position the way `toClient` and `toServer` do, so moving a payload between the two routes changes nothing its receiver reads.
 
 A context belongs to the packet being rewritten. Never hold one past the call.
 
-A `BlockPos` component that is not a world position (an offset, a size, a position local to a contraption) is folded all the same, and two positions that belong together, such as the corners of one selection, are folded each on its own, so a pair straddling the seam arrives a world apart. Say what the type cannot in a `payloads` row of [the positions file](#the-positions-file): keyed by the payload type id, it names record components and gives each a role.
+A `BlockPos` component that is not a world position (an offset, a size, a position local to a contraption) is folded all the same. Two positions that belong together, such as the corners of one selection, are folded each on its own, so a pair straddling the seam arrives a world apart. Say what the type cannot in a `payloads` row of [the positions file](#the-positions-file). The row is keyed by the payload type id; it names record components and gives each a role.
 
 ```json
 {
@@ -47,7 +47,7 @@ A `BlockPos` component that is not a world position (an offset, a size, a positi
 
 - `world` folds the component as a world position, as it would be unnamed.
 - `untouched` crosses as sent, both ways.
-- `group` members move together, by the one move that takes the first of them (in the record's component order, past an empty `Optional` or a `null`) into the world's bounds on the way in, or to the copy nearest the player on the way out. The others keep their distance from it, past the bounds if that is where it puts them.
+- `group` members move together. The first of them (in the record's component order, past an empty `Optional` or a `null`) is taken into the world's bounds on the way in, or to the copy nearest the player on the way out. The others move by the same shift and keep their distance from it, past the bounds if that is where it puts them.
 
 A component the row does not name folds by its type. A name the record does not declare is skipped, with a warning in the server log. A row reaches the record's own components, not those of a record nested in one. Where two namespaces give one component different roles, it folds by its type and the server log says so.
 
@@ -82,7 +82,7 @@ A block entity's sync tag and an entity's spawn data are NBT, and nothing in a t
 }
 ```
 
-A row is keyed by the block entity type or entity type id. Inside it, a key whose value is a shape is a position at the top level of the tag; a key whose value is an object names a compound, and each key inside it is a position in that compound; a key whose value is a list of one object names a list of compounds, and each key of that object is a position in every compound of the list. One level of nesting is all a row describes.
+A row is keyed by the block entity type or entity type id. Inside it, a key whose value is a shape is a position at the top level of the tag. A key whose value is an object names a compound, and each key inside it is a position in that compound. A key whose value is a list of one object names a list of compounds, and each key of that object is a position in every compound of the list. One level of nesting is all a row describes.
 
 A shape says how the position is written:
 
@@ -98,7 +98,7 @@ The server sends the rows to each client as it joins and after each reload. A ro
 
 ## Positions your item components store
 
-A data component that holds a world position reaches the client as the server stored it, and a stack is not re-sent as the player walks, so the client reads it seated instead. Name the component type id in the same file:
+A data component that holds a world position reaches the client as the server stored it, and a stack is not re-sent as the player walks, so the client reads it moved to the copy nearest the player instead. Name the component type id in the same file:
 
 ```json
 {
@@ -106,9 +106,9 @@ A data component that holds a world position reaches the client as the server st
 }
 ```
 
-On a toroidal world, a read of a named component through `ItemStack.get` or `getOrDefault` on the client's own thread answers the copy nearest the player; the stack keeps the server's value, and a read through `getComponents()` is not seated. The value's form is read as a payload record's is: a `BlockPos`, `Vec3`, `ChunkPos`, `SectionPos` or `GlobalPos`, an `Optional` or a `List` of one, or a record holding them; a `GlobalPos` is seated only in the dimension the player stands in.
+On a toroidal world, a read of a named component through `ItemStack.get` or `getOrDefault` on the client's own thread answers the copy nearest the player. The stack keeps the server's value, and a read through `getComponents()` is not moved. The value's form is read as a payload record's is: a `BlockPos`, `Vec3`, `ChunkPos`, `SectionPos` or `GlobalPos`, an `Optional` or a `List` of one, or a record holding them. A `GlobalPos` is moved only in the dimension the player stands in.
 
-A stack a creative-mode client puts into a slot has each named component folded back into the world's bounds on its way in, so a seated value your client code writes back into the stack never reaches the server as it was written.
+When a creative-mode client puts a stack into a slot, each named component is folded back into the world's bounds on its way in. A nearest-copy value your client code writes back into the stack therefore never reaches the server as it was written.
 
 A component whose `BlockPos` is not a world position must not be named. `minecraft:lodestone_tracker` is named already. The list is read and sent like the rows above; an id naming no registered component type is logged and skipped.
 
@@ -119,11 +119,11 @@ PacketRewriters.registerParticle(BeaconTrailOption.class, (particle, context, cl
         new BeaconTrailOption(context.toClient(particle.destination())));
 ```
 
-`clientOrigin` is where the particle itself lands in the client's frame. Seat a position the particle points at near that rather than near the player, or a long trail flips across the seam halfway along.
+`clientOrigin` is where the particle itself lands in the client's frame. Move a position the particle points at to the copy nearest that, not nearest the player, or a long trail flips across the seam halfway along.
 
 ## A group that has to stay rigid
 
-A contraption, a vehicle, a multiblock, a set of linked nodes: anything whose members are meaningless apart. Seating each member with `nearestCopy` tears it: two blocks four apart, but on opposite sides of half a world width from your reference, pick different copies and end up a world away from each other.
+A contraption, a vehicle, a multiblock, a set of linked nodes: anything whose members are meaningless apart. Moving each member with `nearestCopy` on its own tears it: two blocks four apart, but on opposite sides of half a world width from your reference, pick different copies and end up a world away from each other.
 
 Take one shift from an anchor instead, and apply it to every member:
 
@@ -137,14 +137,14 @@ Vec3 heading = shift.orientation().applyToDelta(contraption.velocity());
 
 `apply` comes in `Vec3`, `BlockPos`, `ChunkPos` and `AABB` forms; the box form moves rigidly too, so its size never changes and it is never split at a seam. `isIdentity()` is the normal answer for a group already in the right copy, and there every `apply` hands its argument straight back.
 
-A shift is not a vector, which is why subtracting a seated anchor from the original and adding that difference to the rest is wrong: across a seam that mirrors, the shift also turns the space it moves. `orientation()` is that turn, and `applyToDelta` carries a velocity or a facing through it.
+A shift is not a vector, which is why subtracting the anchor's nearest copy from the original and adding that difference to the rest is wrong: across a seam that mirrors, the shift also turns the space it moves. `orientation()` is that turn, and `applyToDelta` carries a velocity or a facing through it.
 
 `ToroidalShape.nearestCopy(ref, box)` is the same rigid move for a single box you do not need a shift object for.
 
 ## Anchors the client already has
 
 ```java
-BlockPos seated = ClientAnchors.nearestToCamera(marker);
+BlockPos nearest = ClientAnchors.nearestToCamera(marker);
 ```
 
 `ClientAnchors` reads the anchor off the running client, so you state which one you mean and nothing else: `nearestToPlayer` in `BlockPos`, `Vec3` and `ChunkPos`, `nearestToCamera` for a point. Reaching for the wrong one shows: something drawn folds toward the camera, and in third person or a spectator's view that is not where the player is.
