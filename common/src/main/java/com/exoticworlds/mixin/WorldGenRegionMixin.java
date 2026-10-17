@@ -68,12 +68,12 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @Unique
     private @Nullable ChunkPos toroidal$nearestPastTheReach(int chunkX, int chunkZ) {
-        ChunkPos centre = this.center.getPos();
-        if (centre.getChessboardDistance(chunkX, chunkZ) < this.generatingStep.directDependencies().size()) {
+        ChunkPos center = this.center.getPos();
+        if (center.getChessboardDistance(chunkX, chunkZ) < this.generatingStep.directDependencies().size()) {
             return null;
         }
 
-        ChunkPos nearest = NearestCopy.toward(WorldLoopAttachments.wrappedTransformerOf(this.level), centre,
+        ChunkPos nearest = NearestCopy.toward(WorldLoopAttachments.wrappedTransformerOf(this.level), center,
                 new ChunkPos(chunkX, chunkZ));
         return nearest.x == chunkX && nearest.z == chunkZ ? null : nearest;
     }

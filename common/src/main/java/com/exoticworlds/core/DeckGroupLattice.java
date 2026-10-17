@@ -320,14 +320,14 @@ final class DeckGroupLattice {
     }
 
     double nearestBoxGap(double pointX, double pointZ, AABB box) {
-        double centreX = SeamBoxes.centre(box.minX, box.maxX);
-        double centreZ = SeamBoxes.centre(box.minZ, box.maxZ);
-        SeamTransform toBox = foldCoords(centreX, centreZ);
+        double centerX = SeamBoxes.center(box.minX, box.maxX);
+        double centerZ = SeamBoxes.center(box.minZ, box.maxZ);
+        SeamTransform toBox = foldCoords(centerX, centerZ);
         SeamTransform toPoint = foldCoords(pointX, pointZ);
         SeamTransform fromPoint = toPoint.inverse();
 
-        double deltaX = toBox.applyX(centreX) - toPoint.applyX(pointX);
-        double deltaZ = toBox.applyZ(centreZ) - toPoint.applyZ(pointZ);
+        double deltaX = toBox.applyX(centerX) - toPoint.applyX(pointX);
+        double deltaZ = toBox.applyZ(centerZ) - toPoint.applyZ(pointZ);
         long first = nearFirst(deltaX, deltaZ);
         long second = nearSecond(deltaX, deltaZ);
         double best = gapSquared(box, pointX, pointZ);

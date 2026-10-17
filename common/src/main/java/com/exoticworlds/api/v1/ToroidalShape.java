@@ -149,7 +149,7 @@ public interface ToroidalShape {
     BlockPos nearestCopy(BlockPos ref, BlockPos target);
 
     /**
-     * The whole box carried into the copy nearest {@code ref}, chosen by where its centre lands. The box moves
+     * The whole box carried into the copy nearest {@code ref}, chosen by where its center lands. The box moves
      * rigidly — its size never changes and it is never split at a seam, so a box straddling one comes back
      * straddling it. That is what a range check, a selection or a rendered bound wants: one box in the frame the
      * reference is in, rather than the pieces the world would cut it into. Y passes through untouched, and a box
@@ -159,7 +159,7 @@ public interface ToroidalShape {
 
     /**
      * The one move that carries a whole rigid group into the copy nearest {@code ref}, chosen by where
-     * {@code anchor} — one position of the group — lands. Apply the result to every member: seating each member on
+     * {@code anchor} — one position of the group — lands. Apply the result to every member: moving each member on
      * its own with {@link #nearestCopy(Vec3, Vec3)} lets two of them pick different copies and tears the group in
      * half. Y passes through untouched.
      */
@@ -230,7 +230,7 @@ public interface ToroidalShape {
         }
 
         /**
-         * A direction, velocity or offset carried across the same fold. Apply this to any vector that travelled
+         * A direction, velocity or offset carried across the same fold. Apply this to any vector that traveled
          * with the folded position, or it will point the wrong way on the far side of a mirrored seam.
          */
         public Vec3 applyToDelta(Vec3 delta) {

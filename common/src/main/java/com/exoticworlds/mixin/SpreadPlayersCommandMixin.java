@@ -41,22 +41,22 @@ public class SpreadPlayersCommandMixin {
         }
     }
 
-    // This line's bytecode carries no local names: Position ordinal 2 is the neighbour, 0 the position it pushes.
+    // This line's bytecode carries no local names: Position ordinal 2 is the neighbor, 0 the position it pushes.
     @ModifyVariable(method = "spreadPositions", at = @At("STORE"), ordinal = 2)
-    private static SpreadPlayersCommand.Position toroidal$neighbourThroughSeam(
-            SpreadPlayersCommand.Position neighbour, @Local(ordinal = 0) SpreadPlayersCommand.Position position,
+    private static SpreadPlayersCommand.Position toroidal$neighborThroughSeam(
+            SpreadPlayersCommand.Position neighbor, @Local(ordinal = 0) SpreadPlayersCommand.Position position,
             @Share(SPREAD_FOLD) LocalRef<@Nullable WorldFold> spreadFold) {
         WorldFold transformer = spreadFold.get();
         if (transformer == null) {
-            return neighbour;
+            return neighbor;
         }
 
         SpreadPositionAccessor from = (SpreadPositionAccessor) position;
-        SpreadPositionAccessor to = (SpreadPositionAccessor) neighbour;
+        SpreadPositionAccessor to = (SpreadPositionAccessor) neighbor;
         Vec3 raw = new Vec3(to.toroidal$x(), 0.0, to.toroidal$z());
         Vec3 nearest = transformer.nearestCopy(new Vec3(from.toroidal$x(), 0.0, from.toroidal$z()), raw);
         if (nearest == raw) {
-            return neighbour;
+            return neighbor;
         }
 
         SpreadPlayersCommand.Position copy = SpreadPositionAccessor.toroidal$create();

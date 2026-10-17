@@ -40,7 +40,7 @@ class BlockParticleTranslationTest {
     }
 
     @Test
-    void explosionParticlesFollowTheTranslatedCentre() {
+    void explosionParticlesFollowTheTranslatedCenter() {
         BlockState state = Blocks.STONE.defaultBlockState();
         ClientboundExplodePacket translated = (ClientboundExplodePacket) PacketTranslator.toClient(
                 new ClientboundExplodePacket(

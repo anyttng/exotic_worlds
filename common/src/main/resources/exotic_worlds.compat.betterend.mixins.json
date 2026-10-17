@@ -5,7 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.exoticworlds.compat.betterend.BetterEndMixinPlugin",
   "mixins": [
-    "ColourBlockPlacementMixin",
+    "ColorBlockPlacementMixin",
     "IslandLayerMixin",
     "OpenSimplexNoiseMixin",
     "SplitNoiseConditionMixin",

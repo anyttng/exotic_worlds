@@ -296,10 +296,10 @@ public final class XaeroWorldMapFold {
             return false;
         }
 
-        List<WorldCopies.Copy> neighbours = WorldCopies.meeting(shape,
+        List<WorldCopies.Copy> neighbors = WorldCopies.meeting(shape,
                 x.loops() ? x.min() - x.width() : 0, z.loops() ? z.min() - z.width() : 0,
                 x.loops() ? x.max() + x.width() : 1, z.loops() ? z.max() + z.width() : 1);
-        for (WorldCopies.Copy copy : neighbours) {
+        for (WorldCopies.Copy copy : neighbors) {
             if (Math.floorMod(copy.dx(), slotSizeBlocks) != 0 || Math.floorMod(copy.dz(), slotSizeBlocks) != 0) {
                 return false;
             }

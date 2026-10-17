@@ -32,7 +32,7 @@ class JourneyMapFoldCopyRangeTest {
         List<WorldCopies.Copy> copies = JourneyMapFold.drawnCopies(TINY, 16, FAR, FAR, MapCopies.REPEATED);
         assertEquals(BLIT_BUDGET / 16, copies.size(), "16 tiles over 197 x 197 copies did not keep 1024 of them");
         assertEquals(WorldCopies.IDENTITY, copies.get(0), "the world itself was not kept first");
-        assertTrue(copies.contains(new WorldCopies.Copy(1024, 0)), "a copy two worlds from the centre was dropped");
+        assertTrue(copies.contains(new WorldCopies.Copy(1024, 0)), "a copy two worlds from the center was dropped");
         assertFalse(copies.contains(new WorldCopies.Copy(512 * 97, 0)), "a copy at the view's edge outran a nearer one");
         assertEquals(197, JourneyMapFold.drawnCopies(MapShapes.cylinder(-16, 16), 16, FAR, FAR, MapCopies.REPEATED).size(),
                 "16 tiles over 197 copies of a cylinder do not stay inside the budget");

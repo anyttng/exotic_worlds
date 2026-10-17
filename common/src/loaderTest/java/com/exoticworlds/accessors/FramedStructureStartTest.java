@@ -53,7 +53,7 @@ class FramedStructureStartTest {
     }
 
     @Test
-    void aStartAlreadyNearestTheCentreComesBackItself() {
+    void aStartAlreadyNearestTheCenterComesBackItself() {
         StructureStart start = validStart(INSIDE);
 
         assertSame(start, framedToward(start, CENTER),

@@ -25,7 +25,7 @@ public final class HexLapMap<T> extends LapMap<T> {
 
     private static final double ROW_OFFSET = 0.5;
 
-    private static final double CELL_CENTRE = 0.5;
+    private static final double CELL_CENTER = 0.5;
 
     private static final double WARP = 0.2;
 
@@ -83,8 +83,8 @@ public final class HexLapMap<T> extends LapMap<T> {
         }
 
         int cellX = Mth.floor(px);
-        float pointX = (float) (px - cellX - CELL_CENTRE);
-        float pointZ = (float) (pz - cellZ - CELL_CENTRE);
+        float pointX = (float) (px - cellX - CELL_CENTER);
+        float pointZ = (float) (pz - cellZ - CELL_CENTER);
         if (Math.abs(pointZ) < ROW_CORE || insideHexagon(pointZ * RAD_INNER, pointX)) {
             return cellBiome(cellX, cellZ);
         }

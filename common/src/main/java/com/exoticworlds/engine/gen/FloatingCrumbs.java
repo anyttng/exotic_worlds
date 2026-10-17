@@ -42,7 +42,7 @@ public final class FloatingCrumbs {
 
     private static final int WINDOW_COLUMNS = WINDOW_CHUNKS * CHUNK_COLUMNS;
 
-    private static final int CENTRE_INDEX = WINDOW_CHUNKS + 1;
+    private static final int CENTER_INDEX = WINDOW_CHUNKS + 1;
 
     private static final int CLEARED_SEED = 64;
 
@@ -148,7 +148,7 @@ public final class FloatingCrumbs {
         }
 
         TerrainMasks masks = terrainMasksOf(level);
-        ChunkPos centre = chunk.getPos();
+        ChunkPos center = chunk.getPos();
         GenerationChunkHolder[] holders = new GenerationChunkHolder[WINDOW_CHUNKS * WINDOW_CHUNKS];
         long[] keys = new long[holders.length];
         TerrainMask[] window = new TerrainMask[keys.length];
@@ -156,13 +156,13 @@ public final class FloatingCrumbs {
         for (int stepZ = -1; stepZ <= 1; stepZ++) {
             for (int stepX = -1; stepX <= 1; stepX++) {
                 int index = (stepZ + 1) * WINDOW_CHUNKS + stepX + 1;
-                holders[index] = chunks.get(centre.x + stepX, centre.z + stepZ);
+                holders[index] = chunks.get(center.x + stepX, center.z + stepZ);
                 keys[index] = holders[index].getPos().toLong();
                 window[index] = masks.at(keys[index]);
             }
         }
 
-        // The LIGHT step declares no write radius, so a region on it reports every read of a neighbour as unsafe.
+        // The LIGHT step declares no write radius, so a region on it reports every read of a neighbor as unsafe.
         sweepWindow(chunk, window, () -> new WorldGenRegion(level, chunks,
                 ChunkPyramid.GENERATION_PYRAMID.getStepTo(ChunkStatus.FEATURES), chunk));
         for (int index = 0; index < keys.length; index++) {
@@ -179,13 +179,13 @@ public final class FloatingCrumbs {
             return NO_POSITIONS;
         }
 
-        TerrainMask centre = window[CENTRE_INDEX];
+        TerrainMask center = window[CENTER_INDEX];
         CellGrid grid = cleared.grid;
         int[] cells = new int[cleared.count];
         for (int i = 0; i < cleared.count; i++) {
             int cell = cleared.cells[i];
-            cells[i] = centre.cellOf(centreLocalX(grid, cell), cleared.lowestY + grid.layer(cell),
-                    centreLocalZ(grid, cell));
+            cells[i] = center.cellOf(centerLocalX(grid, cell), cleared.lowestY + grid.layer(cell),
+                    centerLocalZ(grid, cell));
         }
 
         return clearInChunk(chunk, cells, cleared.count, reader.get());
@@ -202,14 +202,14 @@ public final class FloatingCrumbs {
             return NO_POSITIONS;
         }
 
-        ChunkPos pos = masks[CENTRE_INDEX].pos();
+        ChunkPos pos = masks[CENTER_INDEX].pos();
         CellGrid grid = cleared.grid;
         long[] positions = new long[cleared.count];
         for (int i = 0; i < cleared.count; i++) {
             int cell = cleared.cells[i];
-            positions[i] = BlockPos.asLong(pos.getMinBlockX() + centreLocalX(grid, cell),
+            positions[i] = BlockPos.asLong(pos.getMinBlockX() + centerLocalX(grid, cell),
                     cleared.lowestY + grid.layer(cell),
-                    pos.getMinBlockZ() + centreLocalZ(grid, cell));
+                    pos.getMinBlockZ() + centerLocalZ(grid, cell));
         }
 
         return positions;
@@ -242,8 +242,8 @@ public final class FloatingCrumbs {
             }
         }
 
-        TerrainMask centre = window[CENTRE_INDEX];
-        if (lowestY > highestY || centre.isEmpty()) {
+        TerrainMask center = window[CENTER_INDEX];
+        if (lowestY > highestY || center.isEmpty()) {
             return null;
         }
 
@@ -253,10 +253,10 @@ public final class FloatingCrumbs {
         int[] pending = new int[CrumbFlood.CRUMB_CEILING_BLOCKS];
         Cleared cleared = new Cleared(grid, lowestY);
 
-        for (int y = centre.lowestY(); y <= centre.highestY(); y++) {
+        for (int y = center.lowestY(); y <= center.highestY(); y++) {
             for (int localZ = 0; localZ < CHUNK_COLUMNS; localZ++) {
                 for (int localX = 0; localX < CHUNK_COLUMNS; localX++) {
-                    if (!centre.solidAt(localX, y, localZ)) {
+                    if (!center.solidAt(localX, y, localZ)) {
                         continue;
                     }
 
@@ -271,11 +271,11 @@ public final class FloatingCrumbs {
         return cleared;
     }
 
-    private static int centreLocalX(CellGrid window, int cell) {
+    private static int centerLocalX(CellGrid window, int cell) {
         return window.localX(cell) - CHUNK_COLUMNS;
     }
 
-    private static int centreLocalZ(CellGrid window, int cell) {
+    private static int centerLocalZ(CellGrid window, int cell) {
         return window.localZ(cell) - CHUNK_COLUMNS;
     }
 
@@ -297,20 +297,20 @@ public final class FloatingCrumbs {
 
             for (int axis = 0; axis < CellGrid.AXES && !overCeiling; axis++) {
                 for (int step = -1; step <= 1; step += 2) {
-                    int neighbour = grid.neighbour(cell, axis, step);
-                    if (neighbour == CellGrid.NO_CELL
-                            || !windowSolid(window, grid, neighbour, cleared.lowestY)) {
+                    int neighbor = grid.neighbor(cell, axis, step);
+                    if (neighbor == CellGrid.NO_CELL
+                            || !windowSolid(window, grid, neighbor, cleared.lowestY)) {
                         continue;
                     }
 
-                    if (rejected.get(neighbour) || tail == pending.length) {
+                    if (rejected.get(neighbor) || tail == pending.length) {
                         overCeiling = true;
                         break;
                     }
 
-                    if (!taken.get(neighbour)) {
-                        taken.set(neighbour);
-                        pending[tail++] = neighbour;
+                    if (!taken.get(neighbor)) {
+                        taken.set(neighbor);
+                        pending[tail++] = neighbor;
                     }
                 }
             }
@@ -324,12 +324,12 @@ public final class FloatingCrumbs {
             return;
         }
 
-        TerrainMask centre = window[CENTRE_INDEX];
+        TerrainMask center = window[CENTER_INDEX];
         for (int i = 0; i < tail; i++) {
             int cell = pending[i];
-            if (chunkIndexOf(grid, cell) == CENTRE_INDEX
-                    && centre.untouchedAt(centreLocalX(grid, cell), cleared.lowestY + grid.layer(cell),
-                            centreLocalZ(grid, cell))) {
+            if (chunkIndexOf(grid, cell) == CENTER_INDEX
+                    && center.untouchedAt(centerLocalX(grid, cell), cleared.lowestY + grid.layer(cell),
+                            centerLocalZ(grid, cell))) {
                 cleared.add(cell);
             }
         }

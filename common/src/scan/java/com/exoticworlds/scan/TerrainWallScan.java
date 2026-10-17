@@ -77,7 +77,7 @@ class TerrainWallScan {
 
     private static final int NO_COLUMN = Integer.MIN_VALUE;
 
-    private static final int[][] NEEDLE_NEIGHBOURS = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    private static final int[][] NEEDLE_NEIGHBORS = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
     private static final String NEEDLE_KIND = "needle";
 
@@ -167,7 +167,7 @@ class TerrainWallScan {
                 .append("-block cells, so a corner grid of that step carries the whole shape of the terrain.")
                 .append(System.lineSeparator())
                 .append("thickness = width in blocks of the solid band around a corner, from the linear crossing")
-                .append(" to its two neighbours along one axis; a blade is under ")
+                .append(" to its two neighbors along one axis; a blade is under ")
                 .append(String.format(Locale.ROOT, "%.1f", BLADE_BLOCKS))
                 .append(" blocks across one axis while at least ").append(RIDGE_CORNERS)
                 .append(" corners stay solid along the other.").append(System.lineSeparator())
@@ -267,7 +267,7 @@ class TerrainWallScan {
         report.append("Needle scan - the highest solid block of every column, walked down the real final density,")
                 .append(" no chunk generation.").append(System.lineSeparator())
                 .append("A needle is a column standing at least ").append(NEEDLE_DROP_BLOCKS)
-                .append(" blocks above all four of its neighbours; the blade metric of the wall scan reads the")
+                .append(" blocks above all four of its neighbors; the blade metric of the wall scan reads the")
                 .append(" generator's ").append(CELL_WIDTH).append("-block corner lattice and cannot see one.")
                 .append(System.lineSeparator())
                 .append("Per preset: ").append(NEEDLE_SEEDS).append(" seeds, one ").append(NEEDLE_WINDOW_BLOCKS)
@@ -276,7 +276,7 @@ class TerrainWallScan {
                 .append("The column is walked from the top of the dimension down in ").append(COARSE_STEP_BLOCKS)
                 .append("-block steps and refined to the block, so a solid layer thinner than one step is")
                 .append(" reported only where it is the highest one.").append(System.lineSeparator())
-                .append("pits = the same test downward: columns sitting that far below all four neighbours.")
+                .append("pits = the same test downward: columns sitting that far below all four neighbors.")
                 .append(" Reported, not gated - ordinary seabed relief clears the same threshold.")
                 .append(System.lineSeparator())
                 .append("The control binds WorldFolds.NOOP, so it reads the same windows of an unbounded vanilla")
@@ -338,7 +338,7 @@ class TerrainWallScan {
 
         report.append(System.lineSeparator())
                 .append("seeds = seeds carrying at least one needle; needles = the count over every window;")
-                .append(" worst = the largest drop to a neighbour.")
+                .append(" worst = the largest drop to a neighbor.")
                 .append(System.lineSeparator());
 
         appendSites(report, sites);
@@ -346,7 +346,7 @@ class TerrainWallScan {
                 "seconds per seed, so ten is the ceiling the set affords over ten preset rows"),
                 report.toString());
 
-        assertTrue(widened.isEmpty(), "a folded lap steps higher between neighbours than its control: " + widened);
+        assertTrue(widened.isEmpty(), "a folded lap steps higher between neighbors than its control: " + widened);
     }
 
     private static List<String> overrun(String presetId, Jumps torus, Jumps control) {
@@ -461,10 +461,10 @@ class TerrainWallScan {
                 int rise = Integer.MAX_VALUE;
                 int fall = Integer.MAX_VALUE;
 
-                for (int[] step : NEEDLE_NEIGHBOURS) {
-                    int neighbour = height(heights[(dx + step[0]) * span + dz + step[1]], noiseSettings);
-                    rise = Math.min(rise, here - neighbour);
-                    fall = Math.min(fall, neighbour - here);
+                for (int[] step : NEEDLE_NEIGHBORS) {
+                    int neighbor = height(heights[(dx + step[0]) * span + dz + step[1]], noiseSettings);
+                    rise = Math.min(rise, here - neighbor);
+                    fall = Math.min(fall, neighbor - here);
                 }
 
                 if (rise >= NEEDLE_DROP_BLOCKS) {

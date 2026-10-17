@@ -21,7 +21,7 @@ class SeamBorderTest {
     private static final int SKEW = 5 * 16;
     private static final double HALF = 100.0;
     private static final int LONG_SKEW_CHUNKS = 300;
-    private static final double LONG_CENTRE = 1000.0;
+    private static final double LONG_CENTER = 1000.0;
     private static final long LONG_SEED = 20261009L;
     private static final int LONG_SAMPLES = 4000;
 
@@ -70,22 +70,22 @@ class SeamBorderTest {
     void onALongSkewedWorldTheEdgeIsMeasuredOnTheBestCopy() {
         TranslationLattice lattice = WorldFolds.of(
                 FlatShape.latticeTorus(new WorldLoopBounds(-512, 512, -8, 8), LONG_SKEW_CHUNKS)).blockLattice();
-        SeamBorder border = new SeamBorder(lattice, LONG_CENTRE - HALF, LONG_CENTRE + HALF, -HALF, HALF);
+        SeamBorder border = new SeamBorder(lattice, LONG_CENTER - HALF, LONG_CENTER + HALF, -HALF, HALF);
         Random random = new Random(LONG_SEED);
         for (int sample = 0; sample < LONG_SAMPLES; sample++) {
             double x = random.nextInt(-lattice.x().domainLength, lattice.x().domainLength) + 0.5;
             double z = random.nextInt(-3 * lattice.z().domainLength, 3 * lattice.z().domainLength) + 0.5;
-            assertEquals(deepestInside(lattice, x - LONG_CENTRE, z), border.distanceToEdge(x, z), "at " + x + ", " + z);
+            assertEquals(deepestInside(lattice, x - LONG_CENTER, z), border.distanceToEdge(x, z), "at " + x + ", " + z);
         }
     }
 
     private static double deepestInside(TranslationLattice lattice, double deltaX, double deltaZ) {
         int widthX = lattice.x().domainLength;
         int widthZ = lattice.z().domainLength;
-        long centre = Math.round(deltaZ / widthZ);
+        long center = Math.round(deltaZ / widthZ);
         long reach = widthX / widthZ + 2L;
         double deepest = Double.NEGATIVE_INFINITY;
-        for (long laps = centre - reach; laps <= centre + reach; laps++) {
+        for (long laps = center - reach; laps <= center + reach; laps++) {
             double offsetZ = deltaZ - (double) laps * widthZ;
             double x = deltaX - (double) laps * lattice.skew();
             double lapped = x - Math.floor(x / widthX) * widthX;

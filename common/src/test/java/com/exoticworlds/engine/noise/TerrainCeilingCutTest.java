@@ -181,7 +181,7 @@ class TerrainCeilingCutTest {
     void noPlateauSurvivesTheCellTheCeilingStepsAcross() {
         for (int blockX = STEP_CELL_X + 1; blockX < STEP_CELL_X + CELL_WIDTH; blockX++) {
             assertNotEquals(densityAt(blockX - 1, PROBE_Y), densityAt(blockX, PROBE_Y),
-                    "blockX " + blockX + " carries its neighbour's density unchanged");
+                    "blockX " + blockX + " carries its neighbor's density unchanged");
         }
     }
 

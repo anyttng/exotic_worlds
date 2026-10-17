@@ -82,12 +82,12 @@ public final class GenerationProbe {
     }
 
     /**
-     * The block positions the tail of the {@code LIGHT} step clears in the centre chunk of a 3 x 3 window: a mass
+     * The block positions the tail of the {@code LIGHT} step clears in the center chunk of a 3 x 3 window: a mass
      * under the sweep's ceiling that stays inside the window, made of terrain no later step has written over. Only
-     * the centre chunk's own blocks are named, so a caller sweeping a lap asks once per chunk and a mass straddling
+     * the center chunk's own blocks are named, so a caller sweeping a lap asks once per chunk and a mass straddling
      * a border loses each of its shares to the chunk that holds it. A window with a snapshot missing names nothing.
      *
-     * @param window the window's nine snapshots, row major from the lowest corner, the centre at index 4
+     * @param window the window's nine snapshots, row major from the lowest corner, the center at index 4
      * @throws IllegalArgumentException if the window does not hold nine snapshots
      */
     public static long[] borderCrumbs(TerrainSnapshot[] window) {
@@ -96,15 +96,15 @@ public final class GenerationProbe {
     }
 
     /**
-     * Writes into the centre chunk of a 3 x 3 window what the tail of the {@code LIGHT} step writes there: every
+     * Writes into the center chunk of a 3 x 3 window what the tail of the {@code LIGHT} step writes there: every
      * position {@link #borderCrumbs} names takes the fluid around it or air, and then every block above one of them
      * that can no longer stand, by its own survival check, takes the fluid it carried or air. A caller holding chunks
      * outside the chunk map applies the pass with this and reads the world a player gets. A window with a snapshot
      * missing writes nothing.
      *
-     * @param chunk the centre chunk, written in place
-     * @param window the window's nine snapshots, row major from the lowest corner, the centre at index 4
-     * @param reader what the survival checks read: the centre chunk and the eight around it
+     * @param chunk the center chunk, written in place
+     * @param window the window's nine snapshots, row major from the lowest corner, the center at index 4
+     * @param reader what the survival checks read: the center chunk and the eight around it
      * @return every position written, the positions {@link #borderCrumbs} names first
      * @throws IllegalArgumentException if the window does not hold nine snapshots
      */

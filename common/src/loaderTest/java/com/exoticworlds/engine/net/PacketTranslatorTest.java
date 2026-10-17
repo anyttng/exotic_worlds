@@ -437,7 +437,7 @@ class PacketTranslatorTest {
         }
 
         @Test
-        void initializeBorderMovesTheCentreToTheNearestCopy() {
+        void initializeBorderMovesTheCenterToTheNearestCopy() {
             TranslationContext context = context();
             ClientboundInitializeBorderPacket translated =
                     (ClientboundInitializeBorderPacket) PacketTranslator.toClient(initializePacket(), context);
@@ -448,7 +448,7 @@ class PacketTranslatorTest {
         }
 
         @Test
-        void initializeBorderKeepsEverythingAfterTheCentre() {
+        void initializeBorderKeepsEverythingAfterTheCenter() {
             ClientboundInitializeBorderPacket translated =
                     (ClientboundInitializeBorderPacket) PacketTranslator.toClient(initializePacket(), context());
 
@@ -461,7 +461,7 @@ class PacketTranslatorTest {
         }
 
         @Test
-        void setBorderCenterMovesTheCentreToTheNearestCopy() {
+        void setBorderCenterMovesTheCenterToTheNearestCopy() {
             TranslationContext context = context();
             ClientboundSetBorderCenterPacket translated =
                     (ClientboundSetBorderCenterPacket) PacketTranslator.toClient(centerPacket(), context);
@@ -590,7 +590,7 @@ class PacketTranslatorTest {
         }
 
         @Test
-        void explosionBlownBlocksShiftWithTheCentre() {
+        void explosionBlownBlocksShiftWithTheCenter() {
             List<BlockPos> blown = List.of(
                     BlockPos.containing(SERVER_X, 70.0, SERVER_Z),
                     BlockPos.containing(SERVER_X + 2.0, 71.0, SERVER_Z - 1.0));

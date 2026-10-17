@@ -26,7 +26,7 @@ import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 
 @Mixin(ChunkGeneratorStructureState.class)
 public abstract class ChunkGeneratorStructureStateMixin implements TransformerHolder, AddedStartsHolder {
-    // Vanilla searches a radius of 112 blocks, so the answer lies in [centre*16 - 104, centre*16 + 120].
+    // Vanilla searches a radius of 112 blocks, so the answer lies in [center*16 - 104, center*16 + 120].
     @Unique
     private static final int toroidal$BIOME_SEARCH_REACH_CHUNKS = 7;
 

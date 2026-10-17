@@ -368,7 +368,7 @@ class HexLapMapTest {
             }
 
             double lapShare = (double) lapBorders / lapPairs;
-            assertEquals(1.0, lapShare / ownShare, REGION_TOLERANCE, "neighbouring cells reading two biomes: the lap "
+            assertEquals(1.0, lapShare / ownShare, REGION_TOLERANCE, "neighboring cells reading two biomes: the lap "
                     + "chunk " + side + " cells wide " + lapShare + " against WorldWeaver's " + ownShare);
         }
     }

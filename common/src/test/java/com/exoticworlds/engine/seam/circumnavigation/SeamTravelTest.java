@@ -67,7 +67,7 @@ class SeamTravelTest {
     }
 
     @Test
-    void onASkewedWorldWalkingAlongTheZLapVectorClosesZAndLeavesXUntravelled() {
+    void onASkewedWorldWalkingAlongTheZLapVectorClosesZAndLeavesXUntraveled() {
         WorldFold skewed = WorldFolds.of(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(WIDTH_CHUNKS), 8));
         SeamTravel travel = seeded(skewed, Level.OVERWORLD, 0.0, 0.0);
 

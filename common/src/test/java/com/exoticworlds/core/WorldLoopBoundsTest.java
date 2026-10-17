@@ -188,7 +188,7 @@ class WorldLoopBoundsTest {
     }
 
     @Test
-    void ofWidthsCentresEachAxisOnItsOwnWidthAndTheNarrowerAxisBoundsTheView() {
+    void ofWidthsCentersEachAxisOnItsOwnWidthAndTheNarrowerAxisBoundsTheView() {
         WorldLoopBounds rectangle = WorldLoopBounds.ofWidths(64, 128);
 
         assertEquals(new WorldLoopBounds(-32, 32, -64, 64), rectangle);
@@ -199,7 +199,7 @@ class WorldLoopBoundsTest {
     }
 
     @Test
-    void ofWidthOnOneAxisLoopsThatAxisCentredAndLeavesTheOtherUnbounded() {
+    void ofWidthOnOneAxisLoopsThatAxisCenteredAndLeavesTheOtherUnbounded() {
         assertEquals(new WorldLoopBounds(new AxisBounds.Looped(-16, 16), AxisBounds.Unbounded.INSTANCE),
                 WorldLoopBounds.ofWidth(Direction.Axis.X, 32));
         assertEquals(new WorldLoopBounds(AxisBounds.Unbounded.INSTANCE, new AxisBounds.Looped(-2, 3)),
@@ -225,7 +225,7 @@ class WorldLoopBoundsTest {
     }
 
     @Test
-    void scaledDownDividesEveryLoopedWidthRecentredAndLeavesAnUnboundedAxisAlone() {
+    void scaledDownDividesEveryLoopedWidthRecenteredAndLeavesAnUnboundedAxisAlone() {
         assertEquals(WorldLoopBounds.ofWidth(16), WorldLoopBounds.ofWidth(32).scaledDown(2));
         assertEquals(WorldLoopBounds.ofWidth(32), new WorldLoopBounds(-48, 16, 0, 64).scaledDown(2));
         assertEquals(WorldLoopBounds.ofWidth(Direction.Axis.Z, 16),
