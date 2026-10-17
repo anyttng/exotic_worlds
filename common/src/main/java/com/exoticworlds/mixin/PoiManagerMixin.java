@@ -7,20 +7,21 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedOrder;
+import com.exoticworlds.engine.level.BoundLevelFold;
 import com.exoticworlds.engine.seam.SeamRange;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -56,6 +57,15 @@ public class PoiManagerMixin {
     @Shadow
     @Final
     private LongSet loadedChunks;
+
+    @Unique
+    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void toroidal$bindLevel(CallbackInfo ci) {
+        this.toroidal$bound.bind(((SectionStorageAccessor) this).toroidal$getLevelHeightAccessor());
+    }
+
     @WrapMethod(method = "getInSquare")
     private Stream<PoiRecord> toroidal$squareThroughSeam(
             Predicate<Holder<PoiType>> predicate,
@@ -63,7 +73,7 @@ public class PoiManagerMixin {
             int radius,
             PoiManager.Occupancy occupancy,
             Operation<Stream<PoiRecord>> original) {
-        WorldFold transformer = toroidal$transformer();
+        WorldFold transformer = this.toroidal$bound.wrapped();
         if (transformer == null) {
             return original.call(predicate, center, radius, occupancy);
         }
@@ -88,7 +98,7 @@ public class PoiManagerMixin {
             int radius,
             PoiManager.Occupancy occupancy,
             Operation<Stream<PoiRecord>> original) {
-        WorldFold transformer = toroidal$transformer();
+        WorldFold transformer = this.toroidal$bound.wrapped();
         if (transformer == null) {
             return original.call(predicate, center, radius, occupancy);
         }
@@ -105,7 +115,7 @@ public class PoiManagerMixin {
             int radius,
             PoiManager.Occupancy occupancy,
             Operation<Optional<BlockPos>> original) {
-        WorldFold transformer = toroidal$transformer();
+        WorldFold transformer = this.toroidal$bound.wrapped();
         if (transformer == null) {
             return original.call(predicate, center, radius, occupancy);
         }
@@ -123,7 +133,7 @@ public class PoiManagerMixin {
             int radius,
             PoiManager.Occupancy occupancy,
             Operation<Optional<BlockPos>> original) {
-        WorldFold transformer = toroidal$transformer();
+        WorldFold transformer = this.toroidal$bound.wrapped();
         if (transformer == null) {
             return original.call(predicate, filter, center, radius, occupancy);
         }
@@ -141,7 +151,7 @@ public class PoiManagerMixin {
             int radius,
             PoiManager.Occupancy occupancy,
             Operation<Optional<Pair<Holder<PoiType>, BlockPos>>> original) {
-        WorldFold transformer = toroidal$transformer();
+        WorldFold transformer = this.toroidal$bound.wrapped();
         if (transformer == null) {
             return original.call(predicate, center, radius, occupancy);
         }
@@ -159,7 +169,7 @@ public class PoiManagerMixin {
             int radius,
             PoiManager.Occupancy occupancy,
             Operation<Optional<BlockPos>> original) {
-        if (toroidal$transformer() == null) {
+        if (this.toroidal$bound.wrapped() == null) {
             return original.call(predicate, filter, center, radius, occupancy);
         }
 
@@ -175,7 +185,7 @@ public class PoiManagerMixin {
             int radius,
             RandomSource random,
             Operation<Optional<BlockPos>> original) {
-        if (toroidal$transformer() == null) {
+        if (this.toroidal$bound.wrapped() == null) {
             return original.call(predicate, filter, occupancy, center, radius, random);
         }
 
@@ -191,7 +201,7 @@ public class PoiManagerMixin {
             int radius,
             PoiManager.Occupancy occupancy,
             Operation<Long> original) {
-        if (toroidal$transformer() == null) {
+        if (this.toroidal$bound.wrapped() == null) {
             return original.call(predicate, center, radius, occupancy);
         }
 
@@ -204,7 +214,7 @@ public class PoiManagerMixin {
             index = 0)
     private Comparator<Pair<Holder<PoiType>, BlockPos>> toroidal$sortThroughSeam(
             Comparator<Pair<Holder<PoiType>, BlockPos>> original, @Local(argsOnly = true) BlockPos center) {
-        WorldFold transformer = toroidal$transformer();
+        WorldFold transformer = this.toroidal$bound.wrapped();
         if (transformer == null) {
             return original;
         }
@@ -218,7 +228,7 @@ public class PoiManagerMixin {
 
     @WrapMethod(method = "ensureLoadedAndValid")
     private void toroidal$loadThroughSeam(LevelReader reader, BlockPos center, int radius, Operation<Void> original) {
-        WorldFold transformer = toroidal$transformer();
+        WorldFold transformer = this.toroidal$bound.wrapped();
         if (transformer == null) {
             original.call(reader, center, radius);
             return;
@@ -238,7 +248,7 @@ public class PoiManagerMixin {
 
     @WrapMethod(method = "sectionsToVillage")
     private int toroidal$villageDistanceThroughSeam(SectionPos sectionPos, Operation<Integer> original) {
-        WorldFold transformer = toroidal$transformer();
+        WorldFold transformer = this.toroidal$bound.wrapped();
         if (transformer == null) {
             return original.call(sectionPos);
         }
@@ -252,7 +262,7 @@ public class PoiManagerMixin {
             ordinal = 0,
             argsOnly = true)
     private BlockPos toroidal$positionThroughSeam(BlockPos pos) {
-        return toroidal$levelFold().fold(pos);
+        return this.toroidal$bound.fold().fold(pos);
     }
 
     @Unique
@@ -279,24 +289,4 @@ public class PoiManagerMixin {
         return transformer.bounds().x().foldsOntoItself(span) || transformer.bounds().z().foldsOntoItself(span);
     }
 
-    @Unique
-    private @Nullable WorldFold toroidal$levelTransformer;
-
-    @Unique
-    private WorldFold toroidal$levelFold() {
-        WorldFold transformer = this.toroidal$levelTransformer;
-        if (transformer == null) {
-            transformer = WorldLoopAttachments.transformerIfLevel(
-                    ((SectionStorageAccessor) this).toroidal$getLevelHeightAccessor());
-            this.toroidal$levelTransformer = transformer;
-        }
-
-        return transformer;
-    }
-
-    @Unique
-    private @Nullable WorldFold toroidal$transformer() {
-        WorldFold transformer = toroidal$levelFold();
-        return transformer.isWrapped() ? transformer : null;
-    }
 }

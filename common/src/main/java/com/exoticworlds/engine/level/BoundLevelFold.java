@@ -6,15 +6,16 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopAttachments;
 
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelHeightAccessor;
 
 public final class BoundLevelFold {
-    private @Nullable ServerLevel level;
+    private @Nullable Level level;
 
     private @Nullable WorldFold fold;
 
-    public void bind(ServerLevel level) {
-        this.level = level;
+    public void bind(@Nullable LevelHeightAccessor accessor) {
+        this.level = accessor instanceof Level level ? level : null;
         this.fold = null;
     }
 
@@ -24,7 +25,7 @@ public final class BoundLevelFold {
             return fold;
         }
 
-        ServerLevel level = this.level;
+        Level level = this.level;
         if (level == null) {
             return WorldFolds.NOOP;
         }
