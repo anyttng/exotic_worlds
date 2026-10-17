@@ -30,7 +30,7 @@ class JourneyMapFoldSeatTest {
     }
 
     @Test
-    void aMarkerPastTheZSeamOfALatticeTorusSitsOnTheCopyNearestTheCentre() {
+    void aMarkerPastTheZSeamOfALatticeTorusSitsOnTheCopyNearestTheCenter() {
         assertEquals(new Vec3(-156, 0, 262),
                 JourneyMapFold.seatPixel(LATTICE, 0, 200, 100, -250, MapCopies.REPEATED),
                 "the copy across the Z seam is moved 256 blocks in X by the skew");
@@ -51,7 +51,7 @@ class JourneyMapFoldSeatTest {
     }
 
     @Test
-    void aSingleMapCentreOfALatticeTorusFoldsWholeBeforeItIsHeldInside() {
+    void aSingleMapCenterOfALatticeTorusFoldsWholeBeforeItIsHeldInside() {
         Vec3 center = JourneyMapFold.foldCenter(LATTICE, 0, 400);
         assertEquals(new Vec3(-256, 0, -112), center);
         assertEquals(-192.0,

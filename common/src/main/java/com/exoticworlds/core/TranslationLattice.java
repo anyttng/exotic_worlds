@@ -3,7 +3,7 @@ package com.exoticworlds.core;
 public final class TranslationLattice {
     public static final int NO_SKEW = 0;
 
-    private static final int[] NEIGHBOURS = {0, -1, 1};
+    private static final int[] NEIGHBORS = {0, -1, 1};
 
     private final WrapDomain x;
 
@@ -114,8 +114,8 @@ public final class TranslationLattice {
     public int nearCount() {
         return switch (this.rank) {
             case 0 -> 1;
-            case 1 -> NEIGHBOURS.length;
-            default -> NEIGHBOURS.length * NEIGHBOURS.length;
+            case 1 -> NEIGHBORS.length;
+            default -> NEIGHBORS.length * NEIGHBORS.length;
         };
     }
 
@@ -181,11 +181,11 @@ public final class TranslationLattice {
     }
 
     private long firstTimes(long first, int index) {
-        return first + NEIGHBOURS[this.rank == 2 ? index / NEIGHBOURS.length : index];
+        return first + NEIGHBORS[this.rank == 2 ? index / NEIGHBORS.length : index];
     }
 
     private long secondTimes(long second, int index) {
-        return this.rank == 2 ? second + NEIGHBOURS[index % NEIGHBOURS.length] : 0L;
+        return this.rank == 2 ? second + NEIGHBORS[index % NEIGHBORS.length] : 0L;
     }
 
     private double determinant() {

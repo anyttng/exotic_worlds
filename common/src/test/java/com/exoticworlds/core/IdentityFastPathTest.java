@@ -347,11 +347,11 @@ class IdentityFastPathTest {
     }
 
     @Test
-    void foldBoxKeepsItsValueAndReturnsABoxWhoseCentreNeedsNoShiftUntouched() {
+    void foldBoxKeepsItsValueAndReturnsABoxWhoseCenterNeedsNoShiftUntouched() {
         forEach(FOLDS, (fold, random) -> {
             AABB box = sampleBox(random, fold);
-            boolean anchoredAtTheCentre = random.nextBoolean();
-            Vec3 ref = anchoredAtTheCentre ? box.getCenter() : sampleVec(random, fold);
+            boolean anchoredAtTheCenter = random.nextBoolean();
+            Vec3 ref = anchoredAtTheCenter ? box.getCenter() : sampleVec(random, fold);
             AABB folded = fold.foldBox(ref, box).value();
 
             if (fold.decomposesPerAxis()) {
@@ -363,7 +363,7 @@ class IdentityFastPathTest {
                         () -> "foldBox(" + ref + ", " + box + ") " + in(fold));
             }
 
-            assertUntouched(box, folded, anchoredAtTheCentre, fold);
+            assertUntouched(box, folded, anchoredAtTheCenter, fold);
         });
     }
 

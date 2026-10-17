@@ -28,7 +28,7 @@ public final class PeriodicEndIslands {
     private static final float HEIGHT_VALUE_PER_DENSITY = 128.0F;
 
     public static float outerHeightValue(SimplexNoise islandNoise, WorldFold transformer, int blockX, int blockZ) {
-        float doffs = MIN_HEIGHT_VALUE;
+        float height = MIN_HEIGHT_VALUE;
 
         int chunkX = Math.floorDiv(blockX, CoordinateConstants.CHUNK_WIDTH);
         int chunkZ = Math.floorDiv(blockZ, CoordinateConstants.CHUNK_WIDTH);
@@ -46,14 +46,14 @@ public final class PeriodicEndIslands {
                             + Mth.abs((float) cellZ) * ISLAND_SIZE_Z_FACTOR) % ISLAND_SIZE_SPREAD + ISLAND_SIZE_MIN;
                     float xd = subSectionX - xo * SECTIONS_PER_CHUNK;
                     float zd = subSectionZ - zo * SECTIONS_PER_CHUNK;
-                    float newDoffs = Mth.clamp(ISLAND_PEAK_HEIGHT - Mth.sqrt(xd * xd + zd * zd) * islandSize,
+                    float newHeight = Mth.clamp(ISLAND_PEAK_HEIGHT - Mth.sqrt(xd * xd + zd * zd) * islandSize,
                             MIN_HEIGHT_VALUE, MAX_HEIGHT_VALUE);
-                    doffs = Math.max(doffs, newDoffs);
+                    height = Math.max(height, newHeight);
                 }
             }
         }
 
-        return doffs;
+        return height;
     }
 
     public static float density(float heightValue) {

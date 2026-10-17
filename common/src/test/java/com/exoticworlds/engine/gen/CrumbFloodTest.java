@@ -105,7 +105,7 @@ class CrumbFloodTest {
     }
 
     @Test
-    void aDiagonalNeighbourIsAnotherComponent() {
+    void aDiagonalNeighborIsAnotherComponent() {
         Grid grid = new Grid().set(8, 8, 4).set(9, 9, 5);
 
         grid.sweep();

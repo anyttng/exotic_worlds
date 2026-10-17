@@ -193,23 +193,23 @@ public final class DhFold {
         long x = sectionX;
         long z = sectionZ;
         if (shape.loops(Direction.Axis.Z)) {
-            long laps = lapsToward(period.zBlocks(), windowCentreBlock(snapLevel, detailLevel, z) - refBlockZ);
+            long laps = lapsToward(period.zBlocks(), windowCenterBlock(snapLevel, detailLevel, z) - refBlockZ);
             z -= laps * (period.zBlocks() / width);
             x -= laps * (period.xShiftBlocks() / width);
         }
 
         if (shape.loops(Direction.Axis.X)) {
-            long laps = lapsToward(period.xBlocks(), windowCentreBlock(snapLevel, detailLevel, x) - refBlockX);
+            long laps = lapsToward(period.xBlocks(), windowCenterBlock(snapLevel, detailLevel, x) - refBlockX);
             x -= laps * (period.xBlocks() / width);
         }
 
         return new Section((int) x, (int) z);
     }
 
-    private static long windowCentreBlock(byte snapLevel, byte detailLevel, long section) {
+    private static long windowCenterBlock(byte snapLevel, byte detailLevel, long section) {
         return detailLevel <= snapLevel
-                ? sectionCentreBlock(snapLevel, section >> (snapLevel - detailLevel))
-                : sectionCentreBlock(detailLevel, section);
+                ? sectionCenterBlock(snapLevel, section >> (snapLevel - detailLevel))
+                : sectionCenterBlock(detailLevel, section);
     }
 
     public static boolean isNearestSection(DhLattice lattice, Direction.Axis axis, byte snapLevel,
@@ -221,11 +221,11 @@ public final class DhFold {
 
         long worldWidth = shape.widthBlocks(axis);
         if (detailLevel <= snapLevel) {
-            return lapsToward(worldWidth, windowCentreBlock(snapLevel, detailLevel, section) - refBlock) == 0;
+            return lapsToward(worldWidth, windowCenterBlock(snapLevel, detailLevel, section) - refBlock) == 0;
         }
 
-        long first = sectionCentreBlock(snapLevel, firstCell(snapLevel, detailLevel, section));
-        long last = sectionCentreBlock(snapLevel, lastCell(snapLevel, detailLevel, section));
+        long first = sectionCenterBlock(snapLevel, firstCell(snapLevel, detailLevel, section));
+        long last = sectionCenterBlock(snapLevel, lastCell(snapLevel, detailLevel, section));
         return lapsToward(worldWidth, first - refBlock) == 0 && lapsToward(worldWidth, last - refBlock) == 0;
     }
 
@@ -241,8 +241,8 @@ public final class DhFold {
         }
 
         long worldWidth = shape.widthBlocks(axis);
-        long first = sectionCentreBlock(snapLevel, firstCell(snapLevel, detailLevel, section));
-        long last = sectionCentreBlock(snapLevel, lastCell(snapLevel, detailLevel, section));
+        long first = sectionCenterBlock(snapLevel, firstCell(snapLevel, detailLevel, section));
+        long last = sectionCenterBlock(snapLevel, lastCell(snapLevel, detailLevel, section));
         return lapsToward(worldWidth, first - refBlock) <= 0 && lapsToward(worldWidth, last - refBlock) >= 0;
     }
 
@@ -254,7 +254,7 @@ public final class DhFold {
         return firstCell(snapLevel, detailLevel, section) + (1L << (detailLevel - snapLevel)) - 1;
     }
 
-    private static long sectionCentreBlock(byte detailLevel, long section) {
+    private static long sectionCenterBlock(byte detailLevel, long section) {
         int width = sectionWidthBlocks(detailLevel);
         return section * width + width / 2;
     }

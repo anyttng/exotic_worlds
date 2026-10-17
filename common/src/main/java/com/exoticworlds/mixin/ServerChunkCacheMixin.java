@@ -46,7 +46,7 @@ public class ServerChunkCacheMixin {
             method = {"addTicketWithRadius", "removeTicketWithRadius", "addTicketAndLoadWithRadius"},
             at = @At("HEAD"),
             argsOnly = true)
-    private ChunkPos toroidal$foldTicketCentre(ChunkPos pos) {
+    private ChunkPos toroidal$foldTicketCenter(ChunkPos pos) {
         return this.toroidal$bound.fold().fold(pos);
     }
 

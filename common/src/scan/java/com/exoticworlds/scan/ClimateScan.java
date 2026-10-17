@@ -71,7 +71,7 @@ class ClimateScan {
 
     private static final double OCEAN_CONTINENTALNESS = -0.19;
 
-    private static final int[][] PATCH_NEIGHBOURS = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    private static final int[][] PATCH_NEIGHBORS = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
     private static final int UNBOUNDED_SPAN_BLOCKS = 8192;
 
@@ -544,7 +544,7 @@ class ClimateScan {
                 int x = cell / grid;
                 int z = cell % grid;
 
-                for (int[] step : PATCH_NEIGHBOURS) {
+                for (int[] step : PATCH_NEIGHBORS) {
                     int next = Math.floorMod(x + step[0], grid) * grid + Math.floorMod(z + step[1], grid);
                     if (land[next] && !seen[next]) {
                         seen[next] = true;

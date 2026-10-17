@@ -37,8 +37,8 @@ public final class SeamTravel {
             return axis == Direction.Axis.X ? x : z;
         }
 
-        Lap with(Direction.Axis axis, double travelled) {
-            return axis == Direction.Axis.X ? new Lap(travelled, z) : new Lap(x, travelled);
+        Lap with(Direction.Axis axis, double traveled) {
+            return axis == Direction.Axis.X ? new Lap(traveled, z) : new Lap(x, traveled);
         }
     }
 
@@ -99,13 +99,13 @@ public final class SeamTravel {
             }
 
             int width = axis == Direction.Axis.X ? lattice.x().domainLength : lattice.z().domainLength;
-            double travelled = after.on(axis) + (axis == Direction.Axis.X ? alongX : folded.z);
-            if (Math.abs(travelled) >= width) {
-                travelled -= Math.signum(travelled) * width;
+            double traveled = after.on(axis) + (axis == Direction.Axis.X ? alongX : folded.z);
+            if (Math.abs(traveled) >= width) {
+                traveled -= Math.signum(traveled) * width;
                 closed.add(axis);
             }
 
-            after = after.with(axis, travelled);
+            after = after.with(axis, traveled);
         }
 
         laps.put(space, after);

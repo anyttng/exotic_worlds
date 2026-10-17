@@ -14,9 +14,9 @@ final class HexLapChunk<T> implements LapChunk<T> {
 
     private static final int BORDER_SOURCE_STEP = 2;
 
-    private static final int[][] EVEN_ROW_NEIGHBOURS = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {1, -1}};
+    private static final int[][] EVEN_ROW_NEIGHBORS = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {1, -1}};
 
-    private static final int[][] ODD_ROW_NEIGHBOURS = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {-1, 1}, {-1, -1}};
+    private static final int[][] ODD_ROW_NEIGHBORS = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {-1, 1}, {-1, -1}};
 
     private final int sideX;
 
@@ -81,8 +81,8 @@ final class HexLapChunk<T> implements LapChunk<T> {
                     }
 
                     out[index] = in[index];
-                    int[] step = neighbours(z)[random.nextInt(EVEN_ROW_NEIGHBOURS.length)];
-                    int side = neighbour(x, z, step);
+                    int[] step = neighbors(z)[random.nextInt(EVEN_ROW_NEIGHBORS.length)];
+                    int side = neighbor(x, z, step);
                     if (side >= 0 && out[side] == null) {
                         out[side] = in[index];
                     }
@@ -174,19 +174,19 @@ final class HexLapChunk<T> implements LapChunk<T> {
             buffer[center] = biome;
         }
 
-        for (int[] step : neighbours(z)) {
-            int side = neighbour(x, z, step);
+        for (int[] step : neighbors(z)) {
+            int side = neighbor(x, z, step);
             if (side >= 0 && buffer[side] == mask) {
                 buffer[side] = biome;
             }
         }
     }
 
-    private int[][] neighbours(int z) {
-        return ((this.zOrigin + z) & 1) == 0 ? EVEN_ROW_NEIGHBOURS : ODD_ROW_NEIGHBOURS;
+    private int[][] neighbors(int z) {
+        return ((this.zOrigin + z) & 1) == 0 ? EVEN_ROW_NEIGHBORS : ODD_ROW_NEIGHBORS;
     }
 
-    private int neighbour(int x, int z, int[] step) {
+    private int neighbor(int x, int z, int[] step) {
         int nx = x + step[0];
         int nz = z + step[1];
         if (this.wrapX) {

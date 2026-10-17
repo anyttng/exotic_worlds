@@ -108,7 +108,7 @@ class FoldedValueTest {
     }
 
     @Test
-    void boxMovesToTheCopyNearestItsCentre() {
+    void boxMovesToTheCopyNearestItsCenter() {
         assertEquals(boxAround(CLIENT_X, CLIENT_Z), toward(boxAround(SERVER_X, SERVER_Z)));
     }
 

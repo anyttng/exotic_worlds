@@ -476,7 +476,7 @@ class PacketTranslatorTest {
         }
 
         @Test
-        void initializeBorderMovesTheCentreToTheNearestCopy() {
+        void initializeBorderMovesTheCenterToTheNearestCopy() {
             TranslationContext context = context();
             ClientboundInitializeBorderPacket translated =
                     (ClientboundInitializeBorderPacket) PacketTranslator.toClient(initializePacket(), context);
@@ -487,7 +487,7 @@ class PacketTranslatorTest {
         }
 
         @Test
-        void initializeBorderKeepsEverythingAfterTheCentre() {
+        void initializeBorderKeepsEverythingAfterTheCenter() {
             ClientboundInitializeBorderPacket translated =
                     (ClientboundInitializeBorderPacket) PacketTranslator.toClient(initializePacket(), context());
 
@@ -500,7 +500,7 @@ class PacketTranslatorTest {
         }
 
         @Test
-        void setBorderCenterMovesTheCentreToTheNearestCopy() {
+        void setBorderCenterMovesTheCenterToTheNearestCopy() {
             TranslationContext context = context();
             ClientboundSetBorderCenterPacket translated =
                     (ClientboundSetBorderCenterPacket) PacketTranslator.toClient(centerPacket(), context);
@@ -659,7 +659,7 @@ class PacketTranslatorTest {
         }
 
         @Test
-        void explosionParticleFollowsTheTranslatedCentre() {
+        void explosionParticleFollowsTheTranslatedCenter() {
             Vec3 serverTarget = new Vec3(SERVER_X + 3.0, 71.0, SERVER_Z + 3.0);
             ClientboundExplodePacket translated = (ClientboundExplodePacket) PacketTranslator.toClient(
                     new ClientboundExplodePacket(

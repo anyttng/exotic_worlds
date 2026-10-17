@@ -50,7 +50,7 @@ public final class FoldedValue {
                 pos -> transformer.nearestCopy(BlockPos.containing(anchor.get()), pos),
                 position -> transformer.nearestCopy(anchor.get(), position),
                 chunkPos -> transformer.nearestCopy(ChunkPos.containing(BlockPos.containing(anchor.get())), chunkPos),
-                centre -> transformer.nearestCopyTransformation(anchor.get(), centre));
+                center -> transformer.nearestCopyTransformation(anchor.get(), center));
     }
 
     static Leaves toClient(TranslationContext context) {
@@ -71,7 +71,7 @@ public final class FoldedValue {
     }
 
     static Object moved(ResourceKey<Level> dimension, DeckTransformation move, Object value) {
-        return walk(dimension, new Leaves(move::apply, move::apply, move::apply, centre -> move), value,
+        return walk(dimension, new Leaves(move::apply, move::apply, move::apply, center -> move), value,
                 UnaryOperator.identity());
     }
 
@@ -168,8 +168,8 @@ public final class FoldedValue {
                         seen(Vec3.atCenterOf(chunkPos.getMiddleBlockPosition(0)));
                         return chunkPos;
                     },
-                    centre -> {
-                        seen(centre);
+                    center -> {
+                        seen(center);
                         return DeckTransformation.IDENTITY;
                     });
         }

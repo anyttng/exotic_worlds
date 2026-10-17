@@ -155,10 +155,10 @@ class TranslationLatticeTest {
     static double shortestSquared(TranslationLattice lattice, double deltaX, double deltaZ) {
         int widthX = lattice.x().domainLength;
         int widthZ = lattice.z().domainLength;
-        long centre = Math.round(deltaZ / widthZ);
+        long center = Math.round(deltaZ / widthZ);
         long reach = widthX / widthZ + 2L;
         double shortest = Double.MAX_VALUE;
-        for (long laps = centre - reach; laps <= centre + reach; laps++) {
+        for (long laps = center - reach; laps <= center + reach; laps++) {
             double z = deltaZ - (double) laps * widthZ;
             double x = deltaX - (double) laps * lattice.skew();
             double lapped = x - Math.floor(x / widthX) * widthX;

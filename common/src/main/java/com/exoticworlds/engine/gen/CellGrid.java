@@ -54,7 +54,7 @@ final class CellGrid {
         return localX == 0 || localZ == 0 || localX == this.columns - 1 || localZ == this.columns - 1;
     }
 
-    int neighbour(int cell, int axis, int step) {
+    int neighbor(int cell, int axis, int step) {
         int localX = this.localX(cell);
         int localZ = this.localZ(cell);
         int layer = this.layer(cell);

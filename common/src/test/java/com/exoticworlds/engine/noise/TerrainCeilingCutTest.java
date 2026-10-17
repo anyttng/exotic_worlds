@@ -87,7 +87,7 @@ class TerrainCeilingCutTest {
     void noFourBlockPlateauSurvivesOnTheCut() {
         for (int blockX = 1; blockX < COLUMNS; blockX++) {
             assertNotEquals(densityAt(blockX - 1, PROBE_Y), densityAt(blockX, PROBE_Y),
-                    "blockX " + blockX + " carries its neighbour's density unchanged");
+                    "blockX " + blockX + " carries its neighbor's density unchanged");
         }
     }
 
