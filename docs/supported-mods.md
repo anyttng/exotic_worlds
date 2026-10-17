@@ -1,6 +1,13 @@
 # Supported Mods
 
-Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and Fabric. The mods below are grouped by what they do, and inside each group they run in this order: **no patch needed**, where the mod already works on a toroidal world and Exotic Worlds carries no code for it; **supported**, where it works because Exotic Worlds carries code for it; **partially supported**, where Exotic Worlds carries code for it and what still breaks at the world's edge is named beside it; **no edge support**, where the mod runs but nothing makes it work across the world's edge; **not tested**, where nobody has run it against a shaped world yet; and **not supported**, where support would need changes inside the mod itself.
+Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and Fabric. The mods below are grouped by what they do. Inside each group they run in the order of these statuses:
+
+- **No patch needed**: the mod already works on a shaped world, and Exotic Worlds carries no code for it.
+- **Supported**: it works because Exotic Worlds carries code for it.
+- **Partially supported**: Exotic Worlds carries code for it, and what still breaks at the world's edge is named beside it.
+- **No edge support**: the mod runs, but nothing makes it work across the world's edge.
+- **Not tested**: nobody has run it against a shaped world yet.
+- **Not supported**: support would need changes inside the mod itself.
 
 ## Rendering and performance
 

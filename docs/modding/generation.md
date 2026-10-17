@@ -33,8 +33,8 @@ GenerationHooks.atStructureStarts("band_beacons", set -> {
     }
 
     Holder<Structure> beacon = set.structureSet().value().structures().get(0).structure();
-    ChunkPos centre = new ChunkPos(0, 0);
-    return set.canStart(beacon, centre) ? List.of(new StructureStarts.Added(beacon, centre)) : List.of();
+    ChunkPos center = new ChunkPos(0, 0);
+    return set.canStart(beacon, center) ? List.of(new StructureStarts.Added(beacon, center)) : List.of();
 });
 ```
 
@@ -47,7 +47,7 @@ Every answer depends on the seed, the shape and the options alone, so a hook tha
 
 ## Generating terrain outside the chunk map
 
-A mod that computes terrain itself (an LOD generator sampling noise on its own worker threads, a preview, a pre-generator) reads an unbounded vanilla world on a toroidal level unless it reads the level's field the way the chunk map does. `GenerationProbe` carries what that takes.
+A mod that computes terrain itself (an LOD generator sampling noise on its own worker threads, a preview, a pre-generator) sees an unbounded vanilla world on a toroidal level. It has to read the level's field the way the chunk map does, and `GenerationProbe` carries what that takes.
 
 **Sample the level's own router, with the fold bound.** Read the `RandomState` the level already holds, `serverLevel.getChunkSource().randomState()`, and sample it inside `GenerationProbe.withFold`. Only the chunk map's own steps bind the fold on their thread, so without the call a noise the chunk map reads folded answers the unbounded value, and heights and biomes stop matching the world a player walks into.
 
@@ -66,9 +66,9 @@ The binding is per thread and lasts for the call, so each worker thread wraps it
 **Clear what the chunk map clears.** On a toroidal level the chunk map removes masses of terrain left detached from the ground, in two passes. `GenerationProbe.sweepCrumbs(level, chunk)` applies the first to a chunk filled outside the chunk map, after the carvers. The second runs after lighting, over a 3 × 3 window of chunks:
 
 1. Take `GenerationProbe.snapshotOf(chunk)` of every swept chunk; a chunk that never went through `sweepCrumbs` has none.
-2. Put the nine snapshots of a window in row-major order from the lowest corner, the centre at index 4.
-3. Call `clearBorderCrumbs(centre, window, reader)`, where `reader` reads the centre chunk and the eight around it. It writes the centre chunk alone, so a caller covering a region calls it once per chunk.
+2. Put the nine snapshots of a window in row-major order from the lowest corner, the center at index 4.
+3. Call `clearBorderCrumbs(center, window, reader)`, where `reader` reads the center chunk and the eight around it. It writes the center chunk alone, so a caller covering a region calls it once per chunk.
 
 `borderCrumbs(window)` names the same positions without writing them. A window with a snapshot missing changes nothing.
 
-**What the API does not cover.** Features, structures and End spikes a mod places with its own code miss what a toroidal level changes about them: structures sit on a folded sector grid, the level adds structure starts of its own, and none of it reaches code that computes placement itself.
+**What the API does not cover.** Features, structures and End spikes a mod places with its own code miss what a toroidal level changes about them. Structures sit on a folded sector grid, and the level adds structure starts of its own; none of that reaches code that computes placement itself.
