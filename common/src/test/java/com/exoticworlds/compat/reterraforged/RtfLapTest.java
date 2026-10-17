@@ -19,7 +19,11 @@ class RtfLapTest {
 
     private static final int WIDE_CHUNKS = 5000;
 
-    private static final double CONTINENT_FREQUENCY = 1.0 / 12000.0;
+    private static final int CONTINENT_SCALE = 3000;
+
+    private static final int PRESET_ROOTS = 8;
+
+    private static final double CONTINENT_FREQUENCY = 1.0 / (CONTINENT_SCALE * 4.0);
 
     private static final double[] FREQUENCIES = {1.0 / 3.0, 1.0 / 97.0, 1.0 / 1500.0, CONTINENT_FREQUENCY, 1.0 / 90000.0};
 
@@ -108,6 +112,20 @@ class RtfLapTest {
 
         try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(torus(32))) {
             assertFalse(RiverReach.fits(RtfLap.frame()), "a 1024-block world carries no rivers");
+        }
+    }
+
+    @Test
+    void rootsPerContinentFollowTheSnappedCell() {
+        assertEquals(3, rootCount(torus(NARROW_CHUNKS)), "an 8192-block torus snaps the cell to 4096 of 12000");
+        assertEquals(8, rootCount(torus(WIDE_CHUNKS)), "a wide torus keeps the preset's cell and its roots");
+        assertEquals(7, rootCount(cylinder(NARROW_CHUNKS)), "a cylinder shrinks the cell on its looping axis alone");
+        assertEquals(1, rootCount(torus(32)), "a root count never rounds to zero");
+    }
+
+    private static int rootCount(WorldFold fold) {
+        try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(fold)) {
+            return RiverReach.rootCount(RtfLap.frame(), PRESET_ROOTS, CONTINENT_SCALE);
         }
     }
 

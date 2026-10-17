@@ -22,6 +22,12 @@ public final class RiverReach {
 
     public static final float UNBOUNDED = Float.MAX_VALUE;
 
+    private static final int CONTINENT_CELL_PER_SCALE = 4;
+
+    private static final double WHOLE_CELL = 1.0;
+
+    private static final int MIN_ROOTS = 1;
+
     public static float clamp(RtfLap.Frame frame, float length, float dx, float dz) {
         return Math.min(length, reach(frame, dx, dz));
     }
@@ -56,6 +62,22 @@ public final class RiverReach {
         }
 
         return sea;
+    }
+
+    public static int rootCount(RtfLap.Frame frame, int count, int continentScale) {
+        double frequency = 1.0 / ((double) continentScale * CONTINENT_CELL_PER_SCALE);
+        double xRatio = cellRatio(frame, Direction.Axis.X, frequency);
+        double zRatio = cellRatio(frame, Direction.Axis.Z, frequency);
+        return Math.max(MIN_ROOTS, (int) Math.round(count * Math.sqrt(xRatio * zRatio)));
+    }
+
+    private static double cellRatio(RtfLap.Frame frame, Direction.Axis axis, double frequency) {
+        double lap = frame.lap(axis);
+        if (lap == RtfLap.OPEN) {
+            return WHOLE_CELL;
+        }
+
+        return lap * frequency / frame.cells(axis, frequency);
     }
 
     public static boolean fits(RtfLap.Frame frame) {

@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -24,6 +26,22 @@ public abstract class SimpleRiverGeneratorMixin {
     @Unique
     private static final String DISTANCE_TO_OCEAN =
             "Lraccoonman/reterraforged/world/worldgen/cell/continent/SimpleContinent;getDistanceToOcean(IIFF)F";
+
+    @Unique
+    private static final String COUNT =
+            "Lraccoonman/reterraforged/world/worldgen/cell/continent/simple/SimpleRiverGenerator;count:I";
+
+    @ModifyExpressionValue(method = "generateRoots",
+            at = @At(value = "FIELD", target = COUNT, opcode = Opcodes.GETFIELD))
+    private int toroidal$rootsForTheCell(int count) {
+        RtfLap.Frame frame = RtfLap.boundFrame();
+        if (frame == null) {
+            return count;
+        }
+
+        return RiverReach.rootCount(frame, count,
+                ((BaseRiverGeneratorAccessor) (Object) this).toroidal$continentScale());
+    }
 
     // A world too narrow for a root to run past its own start carries no rivers.
     @WrapMethod(method = "generateRoots")
