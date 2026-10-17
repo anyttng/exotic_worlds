@@ -173,6 +173,7 @@
     "NoiseChunkAccessor",
     "NoiseChunkAquiferCellsMixin",
     "NoiseFunctionCompileMixin",
+    "NoiseStackMixin",
     "NoiseThresholdCountPlacementMixin",
     "OfferFlowerGoalMixin",
     "ParrotMixin",
