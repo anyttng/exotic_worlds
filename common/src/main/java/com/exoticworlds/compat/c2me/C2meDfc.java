@@ -8,7 +8,7 @@ import com.exoticworlds.compat.ModPresence;
 public final class C2meDfc {
     static final List<String> MIXINS = List.of("McToAstMixin", "BytecodeGenRegistryMixin", "DotGenRegistryMixin");
 
-    static final ModPresence GATE = ModPresence.gate(LogUtils.getLogger(), "[c2me-compat] gate dfc_present")
+    static final ModPresence GATE = ModPresence.gate(LogUtils.getLogger(), "[ew/c2me-compat] gate dfc_present")
             .probing("com/ishland/c2me/opts/dfc/mixin/MixinNoiseConfig.class")
             .checking(C2meMixinPlugin.CONFIG, MIXINS::contains)
             .build();
