@@ -9,7 +9,7 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 public class SeedViewerMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final ModPresence SEED_VIEWER = ModPresence.gate(LOGGER, "[seedviewer-compat] gate seedviewer_present")
+    private static final ModPresence SEED_VIEWER = ModPresence.gate(LOGGER, "[ew/seedviewer-compat] gate seedviewer_present")
             .probing("net/acenia/seedviewer/client/worldgen/BiomeSampler.class")
             .checking("exotic_worlds.compat.seedviewer.mixins.json")
             .build();
