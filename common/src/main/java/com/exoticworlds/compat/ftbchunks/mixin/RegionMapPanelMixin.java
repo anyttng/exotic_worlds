@@ -17,9 +17,9 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.SeamLine;
 import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.compat.ftbchunks.FtbChunksFold;
-import com.exoticworlds.compat.ftbchunks.FtbChunksFold.SeamLine;
 import com.exoticworlds.compat.ftbchunks.FtbChunksFold.SeamView;
 import com.exoticworlds.compat.ftbchunks.FtbChunksFold.TileBlit;
 
@@ -44,9 +44,6 @@ public abstract class RegionMapPanelMixin {
     // MapTileWidget.draw switches to linear filtering once a tile is narrower than 512 window pixels.
     @Unique
     private static final double LINEAR_FILTER_BELOW_PIXELS = 512.0;
-
-    @Unique
-    private static final int SEAM_LINE_ARGB = 0xCCFFFFFF;
 
     @Unique
     private static final int SEAM_LINE_WIDTH = 1;
@@ -143,11 +140,7 @@ public abstract class RegionMapPanelMixin {
         }
 
         for (SeamLine line : FtbChunksFold.seamLines(this.largeMap.currentDimension(), view)) {
-            if (line.vertical()) {
-                graphics.fill(line.at(), line.from(), line.at() + SEAM_LINE_WIDTH, line.to(), SEAM_LINE_ARGB);
-            } else {
-                graphics.fill(line.from(), line.at(), line.to(), line.at() + SEAM_LINE_WIDTH, SEAM_LINE_ARGB);
-            }
+            line.fill(graphics, SEAM_LINE_WIDTH);
         }
     }
 

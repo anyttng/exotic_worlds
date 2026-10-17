@@ -18,6 +18,7 @@ import com.exoticworlds.client.engine.PublishedShapes;
 import com.exoticworlds.compat.AxisCopies;
 import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.compat.MapShapes;
+import com.exoticworlds.compat.SeamLine;
 import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.FlatShape;
@@ -241,12 +242,12 @@ class FtbChunksFoldTest {
     void theXSeamPastASkewedZSeamMovesWithItsRow() {
         FtbChunksFold.SeamView view = new FtbChunksFold.SeamView(0, 0, FtbChunksFold.REGION_BLOCKS, -256, 200, 512,
                 200);
-        assertEquals(Set.of(new FtbChunksFold.SeamLine(true, -256, 200, 256),
-                new FtbChunksFold.SeamLine(true, -256 + SKEW, 256, 400)),
+        assertEquals(Set.of(new SeamLine(true, -256, 200, 256),
+                new SeamLine(true, -256 + SKEW, 256, 400)),
                 verticalLines(FtbChunksFold.seamLines(CENTRED_LATTICE, view)),
                 "the X seam of the row above the world is not 128 blocks east of the world's own");
-        assertEquals(Set.of(new FtbChunksFold.SeamLine(true, -256, 200, 256),
-                new FtbChunksFold.SeamLine(true, -256, 256, 400)),
+        assertEquals(Set.of(new SeamLine(true, -256, 200, 256),
+                new SeamLine(true, -256, 256, 400)),
                 verticalLines(FtbChunksFold.seamLines(CENTRED_TORUS, view)),
                 "a plain torus moved its X seam between rows");
     }
@@ -376,9 +377,9 @@ class FtbChunksFoldTest {
         return ONE_PIECE;
     }
 
-    private static Set<FtbChunksFold.SeamLine> verticalLines(List<FtbChunksFold.SeamLine> lines) {
-        Set<FtbChunksFold.SeamLine> vertical = new HashSet<>();
-        for (FtbChunksFold.SeamLine line : lines) {
+    private static Set<SeamLine> verticalLines(List<SeamLine> lines) {
+        Set<SeamLine> vertical = new HashSet<>();
+        for (SeamLine line : lines) {
             if (line.vertical()) {
                 vertical.add(line);
             }

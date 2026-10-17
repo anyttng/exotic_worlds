@@ -17,6 +17,7 @@ import com.exoticworlds.compat.ClientShapes;
 import com.exoticworlds.compat.FullscreenZoomFloor;
 import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.compat.MapCopyBudget;
+import com.exoticworlds.compat.SeamLine;
 import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.engine.seam.MapSurfaceCopies.Copies;
 
@@ -163,20 +164,10 @@ public final class FtbChunksFold {
         int maxZ = (int) Math.ceil((view.y() + view.height() - view.originY()) / pixelsPerBlock);
         List<SeamLine> lines = new ArrayList<>();
         for (WorldCopies.Edge edge : WorldCopies.seams(shape, minX, minZ, maxX, maxZ)) {
-            int fromX = pixel(view.originX(), edge.fromX(), pixelsPerBlock);
-            int fromY = pixel(view.originY(), edge.fromZ(), pixelsPerBlock);
-            int toX = pixel(view.originX(), edge.toX(), pixelsPerBlock);
-            int toY = pixel(view.originY(), edge.toZ(), pixelsPerBlock);
-            lines.add(edge.fromX() == edge.toX()
-                    ? new SeamLine(true, fromX, fromY, toY)
-                    : new SeamLine(false, fromY, fromX, toX));
+            lines.add(SeamLine.of(edge, view.originX(), view.originY(), pixelsPerBlock));
         }
 
         return lines;
-    }
-
-    private static int pixel(int originPixel, int block, double pixelsPerBlock) {
-        return originPixel + (int) Math.round(block * pixelsPerBlock);
     }
 
     public static double clampScroll(ResourceKey<Level> dimension, Direction.Axis axis, double scroll, int regionMin,
@@ -218,9 +209,6 @@ public final class FtbChunksFold {
     }
 
     public record SeamView(int originX, int originY, int tilePixels, int x, int y, int width, int height) {
-    }
-
-    public record SeamLine(boolean vertical, int at, int from, int to) {
     }
 
     record HaloPixel(int sourceX, int sourceZ, int haloX, int haloZ) {
