@@ -26,7 +26,7 @@ public final class CoastFieldLift {
 
     private static final int GRID_CAP = 64;
 
-    private static final int[][] NEIGHBOURS = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    private static final int[][] NEIGHBORS = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
     public static void register() {
         GenerationHooks.atRandomState(GuaranteedLand.KEY, CoastFieldLift::solve);
@@ -123,7 +123,7 @@ public final class CoastFieldLift {
                 int x = cell / zGrid;
                 int z = cell % zGrid;
 
-                for (int[] step : NEIGHBOURS) {
+                for (int[] step : NEIGHBORS) {
                     int zLaps = Math.floorDiv(z + step[1], zGrid);
                     int next = Math.floorMod(x + step[0] - zLaps * skewCells, xGrid) * zGrid
                             + Math.floorMod(z + step[1], zGrid);

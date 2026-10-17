@@ -24,7 +24,7 @@ class DistanceBoundsSeamTest {
     private static final Vec3 ACROSS_THE_SEAM = new Vec3(-253.5, 64.0, 0.0);
 
     @Test
-    void horizontalAtLeastIsNoLongerSatisfiedByANeighbour() {
+    void horizontalAtLeastIsNoLongerSatisfiedByANeighbor() {
         DistancePredicate sniperDuel = DistancePredicate.horizontal(MinMaxBounds.Doubles.atLeast(50.0));
 
         assertTrue(matches(sniperDuel, PLAYER, ACROSS_THE_SEAM));

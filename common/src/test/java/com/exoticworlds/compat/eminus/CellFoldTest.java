@@ -188,11 +188,11 @@ class CellFoldTest {
         for (int level = DetailLevel.MIN; level <= DetailLevel.MAX; level++) {
             int side = DetailLevel.blocksPerCell(level);
             int reach = farReach(shape) / side + 2;
-            int centreX = CellFrame.cellX((int) Math.floor(eyeX), level);
-            int centreZ = CellFrame.cellZ((int) Math.floor(eyeZ), level);
+            int centerX = CellFrame.cellX((int) Math.floor(eyeX), level);
+            int centerZ = CellFrame.cellZ((int) Math.floor(eyeZ), level);
             Map<Long, List<double[]>> byStoredKey = new HashMap<>();
-            for (int cellX = centreX - reach; cellX <= centreX + reach; cellX++) {
-                for (int cellZ = centreZ - reach; cellZ <= centreZ + reach; cellZ++) {
+            for (int cellX = centerX - reach; cellX <= centerX + reach; cellX++) {
+                for (int cellZ = centerZ - reach; cellZ <= centerZ + reach; cellZ++) {
                     double minX = (double) cellX * side;
                     double minZ = (double) cellZ * side;
                     if (fold.meetsLap(minX, minZ, minX + side, minZ + side, eyeX, eyeZ, 0.0)) {

@@ -20,29 +20,29 @@ public class AreaContextMixin {
     private static final String AREA = "Lterrablender/worldgen/noise/Area;";
 
     @ModifyReturnValue(method = "createResult(" + TRANSFORMER + ")" + AREA, at = @At("RETURN"))
-    private Area toroidal$enrolInitialLayer(Area area) {
-        ((LayeredArea) (Object) area).toroidal$enrol(new RegionLayerStack(), 0);
+    private Area toroidal$registerInitialLayer(Area area) {
+        ((LayeredArea) (Object) area).toroidal$register(new RegionLayerStack(), 0);
         return area;
     }
 
     @ModifyReturnValue(method = "createResult(" + TRANSFORMER + AREA + ")" + AREA, at = @At("RETURN"))
-    private Area toroidal$enrolZoomLayer(Area area, PixelTransformer transformer, Area parent) {
-        toroidal$enrolAbove(area, (LayeredArea) (Object) parent);
+    private Area toroidal$registerZoomLayer(Area area, PixelTransformer transformer, Area parent) {
+        toroidal$registerAbove(area, (LayeredArea) (Object) parent);
         return area;
     }
 
     @ModifyReturnValue(method = "createResult(" + TRANSFORMER + AREA + AREA + ")" + AREA, at = @At("RETURN"))
-    private Area toroidal$enrolMergeLayer(Area area, PixelTransformer transformer, Area first, Area second) {
+    private Area toroidal$registerMergeLayer(Area area, PixelTransformer transformer, Area first, Area second) {
         LayeredArea firstLayer = (LayeredArea) (Object) first;
         LayeredArea secondLayer = (LayeredArea) (Object) second;
-        toroidal$enrolAbove(area, firstLayer.toroidal$depth() >= secondLayer.toroidal$depth() ? firstLayer : secondLayer);
+        toroidal$registerAbove(area, firstLayer.toroidal$depth() >= secondLayer.toroidal$depth() ? firstLayer : secondLayer);
         return area;
     }
 
     @Unique
-    private static void toroidal$enrolAbove(Area area, LayeredArea parent) {
+    private static void toroidal$registerAbove(Area area, LayeredArea parent) {
         RegionLayerStack stack = parent.toroidal$stack();
-        ((LayeredArea) (Object) area).toroidal$enrol(stack != null ? stack : new RegionLayerStack(),
+        ((LayeredArea) (Object) area).toroidal$register(stack != null ? stack : new RegionLayerStack(),
                 parent.toroidal$depth() + 1);
     }
 }

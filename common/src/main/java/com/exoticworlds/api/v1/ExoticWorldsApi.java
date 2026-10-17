@@ -29,7 +29,7 @@ public final class ExoticWorldsApi {
     }
 
     /**
-     * How far {@code player} has travelled along {@code axis} toward the next lap of the dimension they are in,
+     * How far {@code player} has traveled along {@code axis} toward the next lap of the dimension they are in,
      * in blocks, signed with the direction of travel. Pacing back and forth cancels out, crossing the seam does
      * not count as a world width, and one whole width is taken off each time a lap closes. Where crossing the Z
      * seam also shifts X, the X total leaves out the shift a Z lap carries, so walking one Z lap moves it by

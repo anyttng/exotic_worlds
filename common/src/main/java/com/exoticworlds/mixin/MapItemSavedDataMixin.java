@@ -42,7 +42,7 @@ public class MapItemSavedDataMixin {
     @WrapMethod(method = "addDecoration")
     private void toroidal$seatDecoration(Holder<MapDecorationType> type, @Nullable LevelAccessor level, String key,
             double xPos, double zPos, double yRot, @Nullable Component name, Operation<Void> original) {
-        Vec3 seated = NearestCopy.toward(MapSeamFold.transformerFor(level, this.dimension), toroidal$centre(),
+        Vec3 seated = NearestCopy.toward(MapSeamFold.transformerFor(level, this.dimension), toroidal$center(),
                 new Vec3(xPos, 0.0, zPos));
         original.call(type, level, key, seated.x, seated.z, yRot, name);
     }
@@ -51,18 +51,18 @@ public class MapItemSavedDataMixin {
     private double toroidal$foldBannerX(double xPos, @Local(argsOnly = true) LevelAccessor level,
             @Local(argsOnly = true) BlockPos pos) {
         return NearestCopy.toward(MapSeamFold.transformerFor(level, this.dimension), Direction.Axis.X,
-                toroidal$centre(), Vec3.atBottomCenterOf(pos));
+                toroidal$center(), Vec3.atBottomCenterOf(pos));
     }
 
     @ModifyVariable(method = "toggleBanner", at = @At("STORE"), ordinal = 1)
     private double toroidal$foldBannerZ(double zPos, @Local(argsOnly = true) LevelAccessor level,
             @Local(argsOnly = true) BlockPos pos) {
         return NearestCopy.toward(MapSeamFold.transformerFor(level, this.dimension), Direction.Axis.Z,
-                toroidal$centre(), Vec3.atBottomCenterOf(pos));
+                toroidal$center(), Vec3.atBottomCenterOf(pos));
     }
 
     @Unique
-    private Vec3 toroidal$centre() {
+    private Vec3 toroidal$center() {
         return new Vec3(this.centerX, 0.0, this.centerZ);
     }
 }

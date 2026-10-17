@@ -193,12 +193,12 @@ class NetherColumnProbeTest {
     }
 
     private record Relief(double floorTop1Share, double floorTop3Share, int distinctFloorLevels,
-            double meanNeighbourDelta, double ceilingTop1Share, int distinctCeilingLevels, double solidShare) {
+            double meanNeighborDelta, double ceilingTop1Share, int distinctCeilingLevels, double solidShare) {
         String line() {
             return String.format(
-                    "floor_top1=%.3f floor_top3=%.3f floor_levels=%d neighbour_delta=%.2f blocks"
+                    "floor_top1=%.3f floor_top3=%.3f floor_levels=%d neighbor_delta=%.2f blocks"
                             + " ceiling_top1=%.3f ceiling_levels=%d solid_share=%.3f",
-                    this.floorTop1Share, this.floorTop3Share, this.distinctFloorLevels, this.meanNeighbourDelta,
+                    this.floorTop1Share, this.floorTop3Share, this.distinctFloorLevels, this.meanNeighborDelta,
                     this.ceilingTop1Share, this.distinctCeilingLevels, this.solidShare);
         }
     }
@@ -243,18 +243,18 @@ class NetherColumnProbeTest {
             }
         }
 
-        double neighbourSum = 0.0;
-        int neighbourCount = 0;
+        double neighborSum = 0.0;
+        int neighborCount = 0;
         for (int i = 0; i < GRID; i++) {
             for (int j = 0; j < GRID; j++) {
                 if (i + 1 < GRID) {
-                    neighbourSum += Math.abs(floors[i + 1][j] - floors[i][j]);
-                    neighbourCount++;
+                    neighborSum += Math.abs(floors[i + 1][j] - floors[i][j]);
+                    neighborCount++;
                 }
 
                 if (j + 1 < GRID) {
-                    neighbourSum += Math.abs(floors[i][j + 1] - floors[i][j]);
-                    neighbourCount++;
+                    neighborSum += Math.abs(floors[i][j + 1] - floors[i][j]);
+                    neighborCount++;
                 }
             }
         }
@@ -262,7 +262,7 @@ class NetherColumnProbeTest {
         Histogram floorHistogram = Histogram.of(floors, minY, height);
         Histogram ceilingHistogram = Histogram.of(ceilings, minY, height);
         return new Relief(floorHistogram.topShare(1), floorHistogram.topShare(TOP_LEVELS),
-                floorHistogram.distinct(), neighbourSum / neighbourCount,
+                floorHistogram.distinct(), neighborSum / neighborCount,
                 ceilingHistogram.topShare(1), ceilingHistogram.distinct(),
                 solidBlocks / (double) (GRID * GRID * height));
     }

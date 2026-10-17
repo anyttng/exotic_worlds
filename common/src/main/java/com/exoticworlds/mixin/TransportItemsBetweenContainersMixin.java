@@ -47,8 +47,8 @@ public class TransportItemsBetweenContainersMixin {
     @ModifyExpressionValue(
             method = "canSeeAnyTargetSide",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/core/BlockPos;getCenter()Lnet/minecraft/world/phys/Vec3;"))
-    private Vec3 toroidal$sightCentreThroughSeam(Vec3 centre, @Local(argsOnly = true) PathfinderMob body) {
-        return SeamSteering.nearestCopy(body, centre);
+    private Vec3 toroidal$sightCenterThroughSeam(Vec3 center, @Local(argsOnly = true) PathfinderMob body) {
+        return SeamSteering.nearestCopy(body, center);
     }
 
     @ModifyExpressionValue(

@@ -24,7 +24,7 @@ class ChunkTrackingDifferenceTest {
     private static final int MIN_CHUNK = -16;
     private static final int MAX_CHUNK = 15;
     private static final int VIEW_DISTANCE = 8;
-    private static final int NEIGHBOUR_BUFFER = 2;
+    private static final int NEIGHBOR_BUFFER = 2;
 
     private static final WorldFold CYLINDER = WorldFolds.of(FlatShape.cylinder(
             new WorldLoopBounds(new AxisBounds.Looped(MIN_CHUNK, MAX_CHUNK + 1), AxisBounds.Unbounded.INSTANCE)));
@@ -75,8 +75,8 @@ class ChunkTrackingDifferenceTest {
 
         for (int x = centerX - radius; x <= centerX + radius; x++) {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
-                long deltaX = Math.max(0, Math.abs(x - centerX) - NEIGHBOUR_BUFFER);
-                long deltaZ = Math.max(0, Math.abs(z - centerZ) - NEIGHBOUR_BUFFER);
+                long deltaX = Math.max(0, Math.abs(x - centerX) - NEIGHBOR_BUFFER);
+                long deltaZ = Math.max(0, Math.abs(z - centerZ) - NEIGHBOR_BUFFER);
                 if (deltaX * deltaX + deltaZ * deltaZ < (long) VIEW_DISTANCE * VIEW_DISTANCE) {
                     chunks.add(fold.fold(new ChunkPos(x, z)));
                 }

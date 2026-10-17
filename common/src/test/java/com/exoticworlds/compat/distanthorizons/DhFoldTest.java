@@ -233,7 +233,7 @@ class DhFoldTest {
         private final DhLattice tiny = torus(-16, 16);
 
         @Test
-        void aWorldCentredOnZeroIsExactUpToItsHalfWidth() {
+        void aWorldCenteredOnZeroIsExactUpToItsHalfWidth() {
             assertEquals(CHUNK_16, DhFold.maxExactDetailLevel(tiny));
         }
 
@@ -328,7 +328,7 @@ class DhFoldTest {
         }
 
         @Test
-        void aSectionContainsItsOwnCopiesAndNoNeighbour() {
+        void aSectionContainsItsOwnCopiesAndNoNeighbor() {
             assertTrue(DhFold.containsACopy(odd, LEAF, 5, 0, LEAF, 5 + 3 * 101, 0));
             assertFalse(DhFold.containsACopy(odd, LEAF, 5, 0, LEAF, 6, 0));
         }
@@ -437,7 +437,7 @@ class DhFoldTest {
         private final DhLattice lattice = torus(0, WIDTH_CHUNKS);
 
         @Test
-        void aSectionWhoseCornerIsNearButWhoseCentreIsFarIsSeatedOnTheFarSide() {
+        void aSectionWhoseCornerIsNearButWhoseCenterIsFarIsSeatedOnTheFarSide() {
             int ref = 470;
             int section = SECTIONS_PER_WORLD - 1;
             assertFalse(DhFold.isNearestSection(lattice, Direction.Axis.X, SNAP, LEAF, ref, section));
@@ -466,7 +466,7 @@ class DhFoldTest {
     }
 
     @Nested
-    class TheTreeHoldsOneLapAroundItsCentre {
+    class TheTreeHoldsOneLapAroundItsCenter {
         private static final int LEAF_WIDTH = DhFold.sectionWidthBlocks(LEAF);
         private static final int REF = 100;
         private static final int HALF = WIDTH_BLOCKS / 2;

@@ -22,20 +22,20 @@ public final class SpreadRingScan {
     private final SectorGridAxis zCells;
 
     private SpreadRingScan(WorldFold fold, List<StructureStarts.Added> added,
-            RandomSpreadStructurePlacement placement, long seed, ChunkPos centre) {
+            RandomSpreadStructurePlacement placement, long seed, ChunkPos center) {
         TranslationLattice lattice = fold.chunkLattice();
         this.fold = fold;
         this.added = added;
         this.placement = placement;
         this.seed = seed;
         this.skew = lattice.skew();
-        this.xCells = SectorGridAxis.of(lattice.x(), placement.spacing(), centre.x());
-        this.zCells = SectorGridAxis.of(lattice.z(), placement.spacing(), centre.z());
+        this.xCells = SectorGridAxis.of(lattice.x(), placement.spacing(), center.x());
+        this.zCells = SectorGridAxis.of(lattice.z(), placement.spacing(), center.z());
     }
 
     public static SpreadRingScan of(WorldFold fold, AddedStructureStarts added,
-            RandomSpreadStructurePlacement placement, long seed, ChunkPos centre) {
-        return new SpreadRingScan(fold, added.of(placement), placement, seed, centre);
+            RandomSpreadStructurePlacement placement, long seed, ChunkPos center) {
+        return new SpreadRingScan(fold, added.of(placement), placement, seed, center);
     }
 
     public <T> @Nullable T ring(int radius, Function<ChunkPos, @Nullable T> candidate,

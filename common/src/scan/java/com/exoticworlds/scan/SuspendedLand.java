@@ -237,13 +237,13 @@ final class SuspendedLand {
         }
 
         for (int cluster = 0; cluster < CLUSTERS && !hits.isEmpty(); cluster++) {
-            Hit centre = densest(hits);
-            int columns = suspendedColumns(ceiling, density, centre, seaLevel);
+            Hit center = densest(hits);
+            int columns = suspendedColumns(ceiling, density, center, seaLevel);
             if (columns >= SITE_COLUMNS) {
-                return new Sweep(new Site(type, seed, centre.blockX(), centre.blockZ(), columns), reach);
+                return new Sweep(new Site(type, seed, center.blockX(), center.blockZ(), columns), reach);
             }
 
-            hits.removeIf(hit -> within(centre, hit));
+            hits.removeIf(hit -> within(center, hit));
         }
 
         return new Sweep(null, reach);
@@ -258,35 +258,35 @@ final class SuspendedLand {
     private static Hit densest(List<Hit> hits) {
         Hit densest = hits.get(0);
         int best = -1;
-        for (Hit centre : hits) {
-            int neighbours = 0;
+        for (Hit center : hits) {
+            int neighbors = 0;
             for (Hit hit : hits) {
-                if (within(centre, hit)) {
-                    neighbours++;
+                if (within(center, hit)) {
+                    neighbors++;
                 }
             }
 
-            if (neighbours > best) {
-                best = neighbours;
-                densest = centre;
+            if (neighbors > best) {
+                best = neighbors;
+                densest = center;
             }
         }
 
         return densest;
     }
 
-    private static boolean within(Hit centre, Hit hit) {
-        return Math.abs(hit.blockX() - centre.blockX()) <= WINDOW_BLOCKS / 2
-                && Math.abs(hit.blockZ() - centre.blockZ()) <= WINDOW_BLOCKS / 2;
+    private static boolean within(Hit center, Hit hit) {
+        return Math.abs(hit.blockX() - center.blockX()) <= WINDOW_BLOCKS / 2
+                && Math.abs(hit.blockZ() - center.blockZ()) <= WINDOW_BLOCKS / 2;
     }
 
-    private static int suspendedColumns(DensityFunction ceiling, DensityFunction density, Hit centre,
+    private static int suspendedColumns(DensityFunction ceiling, DensityFunction density, Hit center,
             int seaLevel) {
         int columns = 0;
         for (int dx = -WINDOW_BLOCKS / 2; dx <= WINDOW_BLOCKS / 2; dx += STRIDE_BLOCKS) {
             for (int dz = -WINDOW_BLOCKS / 2; dz <= WINDOW_BLOCKS / 2; dz += STRIDE_BLOCKS) {
-                int blockX = centre.blockX() + dx;
-                int blockZ = centre.blockZ() + dz;
+                int blockX = center.blockX() + dx;
+                int blockZ = center.blockZ() + dz;
                 int top = topSolid(density, blockX, blockZ, seaLevel);
                 if (top != Integer.MIN_VALUE && top - at(ceiling, blockX, blockZ) >= SUSPENDED_BLOCKS) {
                     columns++;

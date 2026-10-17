@@ -42,7 +42,7 @@ public class EntitySelectorMixin {
     @WrapOperation(
             method = {"findEntities", "findPlayers"},
             at = @At(value = "INVOKE", target = "Ljava/util/function/Function;apply(Ljava/lang/Object;)Ljava/lang/Object;"))
-    private Object toroidal$refuseCentreOutsideWorld(Function<Object, Object> position, Object senderPosition,
+    private Object toroidal$refuseCenterOutsideWorld(Function<Object, Object> position, Object senderPosition,
             Operation<Object> original, @Local(argsOnly = true) CommandSourceStack sender)
             throws CommandSyntaxException {
         Object resolved = original.call(position, senderPosition);

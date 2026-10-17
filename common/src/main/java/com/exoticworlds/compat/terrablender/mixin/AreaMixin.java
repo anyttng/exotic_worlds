@@ -23,7 +23,7 @@ public class AreaMixin implements LayeredArea {
     private int toroidal$depth;
 
     @Override
-    public void toroidal$enrol(RegionLayerStack stack, int depth) {
+    public void toroidal$register(RegionLayerStack stack, int depth) {
         this.toroidal$stack = stack;
         this.toroidal$depth = depth;
         stack.raise(depth);

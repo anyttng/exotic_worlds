@@ -74,8 +74,8 @@ public class WorldGenerationQueueMixin {
 
     @WrapOperation(method = "lambda$tryStartNextWorldGenTask$0", at = @At(value = "INVOKE",
             target = "Lcom/seibel/distanthorizons/core/pos/blockPos/DhBlockPos2D;chebyshevDist(Lcom/seibel/distanthorizons/core/pos/blockPos/DhBlockPos2D;)I"))
-    private static int toroidal$seamChebyshevDist(DhBlockPos2D centre, DhBlockPos2D target,
+    private static int toroidal$seamChebyshevDist(DhBlockPos2D center, DhBlockPos2D target,
             Operation<Integer> original) {
-        return target instanceof SeamTarget seam ? seam.chebyshevDistFrom(centre) : original.call(centre, target);
+        return target instanceof SeamTarget seam ? seam.chebyshevDistFrom(center) : original.call(center, target);
     }
 }

@@ -43,17 +43,17 @@ public final class LoopSpans {
         this.skewChunks = FlatShape.latticeTorus(bounds, skewChunks).skewChunks();
     }
 
-    /** Both axes looping over {@code chunkWidth} chunks, centred on the origin. */
+    /** Both axes looping over {@code chunkWidth} chunks, centered on the origin. */
     public static LoopSpans ofWidth(int chunkWidth) {
         return new LoopSpans(WorldLoopBounds.ofWidth(chunkWidth));
     }
 
-    /** X looping over {@code xChunkWidth} chunks and Z over {@code zChunkWidth}, both centred on the origin. */
+    /** X looping over {@code xChunkWidth} chunks and Z over {@code zChunkWidth}, both centered on the origin. */
     public static LoopSpans ofWidths(int xChunkWidth, int zChunkWidth) {
         return new LoopSpans(WorldLoopBounds.ofWidths(xChunkWidth, zChunkWidth));
     }
 
-    /** One axis looping over {@code chunkWidth} chunks, centred on the origin; the other stays unbounded. */
+    /** One axis looping over {@code chunkWidth} chunks, centered on the origin; the other stays unbounded. */
     public static LoopSpans ofWidth(Direction.Axis axis, int chunkWidth) {
         return new LoopSpans(WorldLoopBounds.ofWidth(axis, chunkWidth));
     }
@@ -122,7 +122,7 @@ public final class LoopSpans {
     }
 
     /**
-     * These spans with every looping axis and the skew divided by {@code scale} and re-centred — how the nether of a
+     * These spans with every looping axis and the skew divided by {@code scale} and re-centered — how the nether of a
      * shaped world is normally derived from its overworld, so that the vanilla portal ratio still lands inside the
      * world and every copy of an overworld position maps onto a copy of the same nether position.
      *

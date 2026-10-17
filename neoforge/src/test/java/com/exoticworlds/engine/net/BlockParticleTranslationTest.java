@@ -39,7 +39,7 @@ class BlockParticleTranslationTest {
     }
 
     @Test
-    void explosionBlockParticlesFollowTheTranslatedCentre() {
+    void explosionBlockParticlesFollowTheTranslatedCenter() {
         BlockState state = Blocks.STONE.defaultBlockState();
         WeightedList<ExplosionParticleInfo> blockParticles = WeightedList.of(new ExplosionParticleInfo(
                 new BlockParticleOption(ParticleTypes.BLOCK, state, SERVER_BLOCK), 1.5F, 0.5F));

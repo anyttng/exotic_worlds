@@ -96,7 +96,7 @@ public abstract class IslandLayerMixin implements LapIslands {
         this.toroidal$lastZ = cellZ;
         this.toroidal$lastHeight = maxHeight;
         LapIslandPlacement.place(this.toroidal$islands, grid, cellX, cellZ, maxHeight, this.options, this::getSeed,
-                this.density, toroidal$centre());
+                this.density, toroidal$center());
     }
 
     @Override
@@ -118,11 +118,11 @@ public abstract class IslandLayerMixin implements LapIslands {
     }
 
     @Unique
-    private static LapIslandPlacement.Centre toroidal$centre() {
+    private static LapIslandPlacement.Center toroidal$center() {
         WoverEndConfig config = TerrainGenerator.config;
         return config == null
-                ? new LapIslandPlacement.Centre(false, 0, 0L)
-                : new LapIslandPlacement.Centre(GeneratorOptions.hasCentralIsland(), config.centerBiomesSize,
+                ? new LapIslandPlacement.Center(false, 0, 0L)
+                : new LapIslandPlacement.Center(GeneratorOptions.hasCentralIsland(), config.centerBiomesSize,
                         config.innerVoidRadiusSquared);
     }
 }
