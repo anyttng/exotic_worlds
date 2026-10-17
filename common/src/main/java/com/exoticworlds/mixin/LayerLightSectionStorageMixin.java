@@ -1,15 +1,15 @@
 package com.exoticworlds.mixin;
 
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.level.BoundLevelFold;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -23,22 +23,18 @@ public abstract class LayerLightSectionStorageMixin {
     protected LightChunkGetter chunkSource;
 
     @Unique
-    private @Nullable WorldFold toroidal$transformer;
+    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void toroidal$bindLevel(CallbackInfo ci) {
+        this.toroidal$bound.bind(this.chunkSource.getLevel());
+    }
 
     @WrapOperation(
             method = "updateSectionStatus",
             at = @At(value = "INVOKE", target = InjectionTargets.SECTION_POS_OFFSET))
     private long toroidal$foldNeighborSection(long sectionNode, int stepX, int stepY, int stepZ,
             Operation<Long> original) {
-        return toroidal$transformer().foldSectionNode(original.call(sectionNode, stepX, stepY, stepZ));
-    }
-
-    @Unique
-    private WorldFold toroidal$transformer() {
-        if (this.toroidal$transformer == null) {
-            this.toroidal$transformer = WorldLoopAttachments.transformerIfLevel(this.chunkSource.getLevel());
-        }
-
-        return this.toroidal$transformer;
+        return this.toroidal$bound.fold().foldSectionNode(original.call(sectionNode, stepX, stepY, stepZ));
     }
 }
