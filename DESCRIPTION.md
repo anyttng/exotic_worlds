@@ -8,21 +8,25 @@ Make a world small enough that every player on the server lives a short walk awa
 
 ## World shapes
 
-- **Toroidal**: the world loops both ways. Go east and you come back from the west, go north and you come back from the south.
+### Toroidal
 
-  <img src="https://raw.githubusercontent.com/anyttng/exotic_worlds/main/docs/images/torus-map.png" width="480" alt="A tiny toroidal world on JourneyMap">
+The world loops both ways. Go east and you come back from the west, go north and you come back from the south.
 
-  *A tiny toroidal world on JourneyMap. The same world repeats in every direction, and the white lines mark the edge.*
+<img src="https://raw.githubusercontent.com/anyttng/exotic_worlds/main/docs/images/torus-map.png" width="480" alt="A tiny toroidal world on JourneyMap">
 
-  <img src="https://raw.githubusercontent.com/anyttng/exotic_worlds/main/docs/images/skewed-torus-map.png" width="480" alt="A tiny toroidal world with a shift on JourneyMap">
+*A tiny toroidal world on JourneyMap. The same world repeats in every direction, and the white lines mark the edge.*
 
-  *The same world with a shift. Each row of copies is offset sideways from the rows next to it.*
+<img src="https://raw.githubusercontent.com/anyttng/exotic_worlds/main/docs/images/skewed-torus-map.png" width="480" alt="A tiny toroidal world with a shift on JourneyMap">
 
-- **Cylinder**: the world loops one way, east to west or north to south, and goes on forever the other way, as in vanilla. The Nether and the End loop along the same direction.
+*The same world with a shift. Each row of copies is offset sideways from the rows next to it.*
 
-  <img src="https://raw.githubusercontent.com/anyttng/exotic_worlds/main/docs/images/cylinder-map.png" width="480" alt="A tiny cylinder world on JourneyMap">
+### Cylinder
 
-  *A cylinder. The world repeats along X and runs on along Z.*
+The world loops one way, east to west or north to south, and goes on forever the other way, as in vanilla. The Nether and the End loop along the same direction.
+
+<img src="https://raw.githubusercontent.com/anyttng/exotic_worlds/main/docs/images/cylinder-map.png" width="480" alt="A tiny cylinder world on JourneyMap">
+
+*A cylinder. The world repeats along X and runs on along Z.*
 
 ## Settings
 
