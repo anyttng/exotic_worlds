@@ -12,10 +12,7 @@ import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
-import net.minecraft.server.level.ChunkMap;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
 
 @Mixin(targets = "net/minecraft/server/level/ChunkMap$TrackedEntity")
@@ -32,21 +29,5 @@ public class TrackedEntityMixin {
     private Vec3 exotic_worlds$deltaThroughSeam(Vec3 playerPosition, Vec3 entityPosition, Operation<Vec3> original) {
         WorldFold transformer = ((TransformerSource) this.entity).exotic_worlds$wrappedTransformer();
         return original.call(NearestCopy.toward(transformer, entityPosition, playerPosition), entityPosition);
-    }
-
-    @WrapOperation(
-            method = "updatePlayer",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/server/level/ChunkMap;isChunkTracked(Lnet/minecraft/server/level/ServerPlayer;II)Z"))
-    private boolean exotic_worlds$trackPhysicalChunk(ChunkMap chunkMap, ServerPlayer player, int chunkX, int chunkZ,
-            Operation<Boolean> original) {
-        WorldFold transformer = ((TransformerSource) this.entity).exotic_worlds$wrappedTransformer();
-        if (transformer == null) {
-            return original.call(chunkMap, player, chunkX, chunkZ);
-        }
-
-        long folded = transformer.foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
-        return original.call(chunkMap, player, ChunkPos.getX(folded), ChunkPos.getZ(folded));
     }
 }

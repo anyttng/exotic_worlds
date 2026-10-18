@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -32,7 +33,7 @@ public class ServerEntityMixin {
 
     @WrapWithCondition(
             method = "sendPairingData",
-            at = @At(value = "INVOKE", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V"))
+            at = @At(value = "INVOKE", target = InjectionTargets.CONSUMER_ACCEPT))
     private boolean exotic_worlds$suppressPrematureVehiclePassengers(Consumer<?> broadcast, Object packet,
             @Local(argsOnly = true) ServerPlayer player) {
         if (!(packet instanceof ClientboundSetPassengersPacket passengers)
