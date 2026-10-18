@@ -6,7 +6,10 @@
   "plugin": "com.exoticworlds.compat.supplementaries.SupplementariesMixinPlugin",
   "mixins": [
     "AntiqueMapHolderSeatMixin",
-    "SignPostCompassTargetSeatMixin"
+    "BellowsGapSeatMixin",
+    "SignPostCompassTargetSeatMixin",
+    "SpringLauncherPushSeatMixin",
+    "TurnTableOffsetSeatMixin"
   ],
   "injectors": {
     "defaultRequire": 1
