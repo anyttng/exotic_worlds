@@ -1,9 +1,13 @@
 package com.exoticworlds.engine.fold;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -58,6 +62,24 @@ class ChunkTrackingDifferenceTest {
 
         assertEquals(without(nextChunks, previousChunks), entered);
         assertEquals(without(previousChunks, nextChunks), left);
+    }
+
+    @Test
+    void aRawPositionAcrossTheSeamIsTrackedAsItsPhysicalChunk() {
+        ChunkTrackingView.Positioned view = view(TORUS, MAX_CHUNK, 0);
+
+        assertTrue(view.contains(MAX_CHUNK + 1, 0), "the raw neighbor across the seam is refused");
+        assertEquals(view.contains(MIN_CHUNK + 2, 0), view.contains(MAX_CHUNK + 3, 0));
+        assertFalse(view.contains(MAX_CHUNK + VIEW_DISTANCE + NEIGHBOR_BUFFER + 1, 0));
+    }
+
+    @Test
+    void forEachOverTheSeamVisitsEachPhysicalChunkOnce() {
+        List<ChunkPos> visited = new ArrayList<>();
+        view(TORUS, MAX_CHUNK, 0).forEach(visited::add);
+
+        assertEquals(viewChunks(TORUS, MAX_CHUNK, 0), new HashSet<>(visited));
+        assertEquals(visited.size(), new HashSet<>(visited).size(), "a physical chunk was visited twice");
     }
 
     private static ChunkTrackingView.Positioned view(WorldFold fold, int centerX, int centerZ) {
