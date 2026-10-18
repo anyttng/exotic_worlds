@@ -45,8 +45,8 @@ class JomlVectorsTest {
     }
 
     @Test
-    void centreIsTheMidpointOfEveryAxis() {
-        assertEquals(new Vec3(1.0, 5.0, -2.0), JomlVectors.centre(-3.0, 0.0, -6.0, 5.0, 10.0, 2.0));
+    void centerIsTheMidpointOfEveryAxis() {
+        assertEquals(new Vec3(1.0, 5.0, -2.0), JomlVectors.center(-3.0, 0.0, -6.0, 5.0, 10.0, 2.0));
     }
 
     @Test

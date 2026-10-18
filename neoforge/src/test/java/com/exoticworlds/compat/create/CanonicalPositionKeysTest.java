@@ -19,7 +19,7 @@ import net.minecraft.core.BlockPos;
 class CanonicalPositionKeysTest {
     private static final BlockPos CANONICAL = new BlockPos(10, 64, 3);
     private static final BlockPos RAW = new BlockPos(10 + WORLD_BLOCKS, 64, 3);
-    private static final BlockPos NEIGHBOUR = new BlockPos(-20, 64, 7);
+    private static final BlockPos NEIGHBOR = new BlockPos(-20, 64, 7);
 
     private static final String VALUE = "behaviour";
     private static final String ABSENT = "absent";
@@ -44,24 +44,24 @@ class CanonicalPositionKeysTest {
     void theRawPositionNamesTheCanonicalOneOneLapAway() {
         assertTrue(PER_AXIS.isOver(RAW), RAW + " must sit outside the bounds");
         assertEquals(CANONICAL, PER_AXIS.fold(RAW));
-        assertFalse(PER_AXIS.isOver(NEIGHBOUR), NEIGHBOUR + " must sit inside the bounds");
+        assertFalse(PER_AXIS.isOver(NEIGHBOR), NEIGHBOR + " must sit inside the bounds");
     }
 
     @Test
     void removeAllAnswersTheSameOnBothSizeBranches() {
-        Set<BlockPos> largerThanItsArgument = canonicalKeys(CANONICAL, NEIGHBOUR);
+        Set<BlockPos> largerThanItsArgument = canonicalKeys(CANONICAL, NEIGHBOR);
         Set<BlockPos> noLargerThanItsArgument = canonicalKeys(CANONICAL);
 
         assertTrue(largerThanItsArgument.removeAll(Set.of(RAW)));
         assertTrue(noLargerThanItsArgument.removeAll(Set.of(RAW)));
 
-        assertEquals(Set.of(NEIGHBOUR), largerThanItsArgument);
+        assertEquals(Set.of(NEIGHBOR), largerThanItsArgument);
         assertTrue(noLargerThanItsArgument.isEmpty());
     }
 
     @Test
     void retainAllKeepsTheKeyItsArgumentNamesRaw() {
-        Set<BlockPos> keys = canonicalKeys(CANONICAL, NEIGHBOUR);
+        Set<BlockPos> keys = canonicalKeys(CANONICAL, NEIGHBOR);
 
         assertTrue(keys.retainAll(Set.of(RAW)));
 

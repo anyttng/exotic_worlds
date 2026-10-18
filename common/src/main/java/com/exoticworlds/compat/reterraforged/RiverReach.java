@@ -11,7 +11,7 @@ public final class RiverReach {
     // (350), rounded up.
     private static final float CARVE_MARGIN = 1024.0F;
 
-    // Twice the 400 blocks a root starts out from its centre, so a root still runs past its own start.
+    // Twice the 400 blocks a root starts out from its center, so a root still runs past its own start.
     private static final float MIN_ROOT_LENGTH = 800.0F;
 
     private static final float HALF = 0.5F;

@@ -19,7 +19,7 @@ import net.minecraft.core.Direction;
 import etcodehome.freeterraforged.world.worldgen.cell.Cell;
 import etcodehome.freeterraforged.world.worldgen.cell.continent.uplift.UpliftContinentGenerator;
 
-// FreeTerraForged writes the continent centre in apply itself, where ReTerraForged wrote it in the gradient.
+// FreeTerraForged writes the continent center in apply itself, where ReTerraForged wrote it in the gradient.
 @Mixin(value = UpliftContinentGenerator.class, remap = false)
 public abstract class UpliftContinentGeneratorMixin {
     @Unique

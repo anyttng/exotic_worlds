@@ -125,10 +125,10 @@ public abstract class ClimateModuleMixin implements RtfClimateScales {
         return RtfLap.snapped(Direction.Axis.Z, frequency);
     }
 
-    // A cell centre divided by this read is the block the continent is asked about, which Compact biomes never moves.
+    // A cell center divided by this read is the block the continent is asked about, which Compact biomes never moves.
     @ModifyExpressionValue(method = APPLY,
             at = @At(value = "FIELD", target = BIOME_FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = CENTER_X_READ))
-    private float exotic_worlds$centreBlockX(float frequency) {
+    private float exotic_worlds$centerBlockX(float frequency) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         return frame == null
                 ? frequency
@@ -137,14 +137,14 @@ public abstract class ClimateModuleMixin implements RtfClimateScales {
 
     @ModifyExpressionValue(method = APPLY,
             at = @At(value = "FIELD", target = BIOME_FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = CENTER_Z_READ))
-    private float exotic_worlds$centreBlockZ(float frequency) {
+    private float exotic_worlds$centerBlockZ(float frequency) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         return frame == null
                 ? frequency
                 : (float) (frame.snappedFrequency(Direction.Axis.Z, frequency) * frame.compression());
     }
 
-    // A terrain region centre is a block of the world, read into the compressed climate cells here.
+    // A terrain region center is a block of the world, read into the compressed climate cells here.
     @ModifyExpressionValue(method = APPLY, at = {
             @At(value = "FIELD", target = BIOME_FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = MOUNTAIN_X_READ),
             @At(value = "FIELD", target = BIOME_FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = MOUNTAIN_Z_READ)})

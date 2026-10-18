@@ -22,8 +22,8 @@ import net.minecraft.world.phys.Vec3;
 
 class CreateStationMapFoldTest {
     private static final int MARKER_HEIGHT = 64;
-    private static final int MAP_CENTRE_X = 250;
-    private static final int MAP_CENTRE_Z = 10;
+    private static final int MAP_CENTER_X = 250;
+    private static final int MAP_CENTER_Z = 10;
     private static final int PAST_THE_X_BOUND = 300;
     private static final int ACROSS_THE_SEAM_X = -250;
     private static final int FAR_ALONG_Z = 5 * WORLD_BLOCKS + 7;
@@ -35,11 +35,11 @@ class CreateStationMapFoldTest {
 
     @Test
     void aTargetPastTheXBoundLandsOneWorldWidthBack() {
-        BlockPos target = new BlockPos(PAST_THE_X_BOUND, MARKER_HEIGHT, MAP_CENTRE_Z);
+        BlockPos target = new BlockPos(PAST_THE_X_BOUND, MARKER_HEIGHT, MAP_CENTER_Z);
         for (WorldFold fold : TRANSLATING) {
             BlockPos canonical = CreateStationMapFold.canonicalTarget(fold, target);
 
-            assertEquals(new BlockPos(PAST_THE_X_BOUND - WORLD_BLOCKS, MARKER_HEIGHT, MAP_CENTRE_Z), canonical,
+            assertEquals(new BlockPos(PAST_THE_X_BOUND - WORLD_BLOCKS, MARKER_HEIGHT, MAP_CENTER_Z), canonical,
                     "in " + fold);
         }
     }
@@ -47,15 +47,15 @@ class CreateStationMapFoldTest {
     @Test
     void aTargetPastTheGlideSeamOfAMirroredWorldLandsOnTheMirroredColumn() {
         BlockPos canonical = CreateStationMapFold.canonicalTarget(MIRRORED,
-                new BlockPos(PAST_THE_X_BOUND, MARKER_HEIGHT, MAP_CENTRE_Z));
+                new BlockPos(PAST_THE_X_BOUND, MARKER_HEIGHT, MAP_CENTER_Z));
 
         assertEquals(new BlockPos(PAST_THE_X_BOUND - WORLD_BLOCKS, MARKER_HEIGHT,
-                2 * MIRROR_LINE_BLOCKS - MAP_CENTRE_Z - 1), canonical);
+                2 * MIRROR_LINE_BLOCKS - MAP_CENTER_Z - 1), canonical);
     }
 
     @Test
     void aTargetInsideTheBoundsIsTheTargetItself() {
-        BlockPos inside = new BlockPos(30, MARKER_HEIGHT, MAP_CENTRE_Z);
+        BlockPos inside = new BlockPos(30, MARKER_HEIGHT, MAP_CENTER_Z);
         for (WorldFold fold : EVERY_SHAPE) {
             assertSame(inside, CreateStationMapFold.canonicalTarget(fold, inside), "in " + fold);
         }
@@ -70,45 +70,45 @@ class CreateStationMapFoldTest {
     }
 
     @Test
-    void aTargetAcrossTheSeamFromTheMapCentreIsSeatedBesideIt() {
-        BlockPos target = new BlockPos(ACROSS_THE_SEAM_X, MARKER_HEIGHT, MAP_CENTRE_Z);
+    void aTargetAcrossTheSeamFromTheMapCenterIsSeatedBesideIt() {
+        BlockPos target = new BlockPos(ACROSS_THE_SEAM_X, MARKER_HEIGHT, MAP_CENTER_Z);
         for (WorldFold fold : TRANSLATING) {
-            BlockPos seated = CreateStationMapFold.targetInMapFrame(fold, MAP_CENTRE_X, MAP_CENTRE_Z, target);
+            BlockPos seated = CreateStationMapFold.targetInMapFrame(fold, MAP_CENTER_X, MAP_CENTER_Z, target);
 
-            assertEquals(new BlockPos(ACROSS_THE_SEAM_X + WORLD_BLOCKS, MARKER_HEIGHT, MAP_CENTRE_Z), seated,
+            assertEquals(new BlockPos(ACROSS_THE_SEAM_X + WORLD_BLOCKS, MARKER_HEIGHT, MAP_CENTER_Z), seated,
                     "in " + fold);
         }
     }
 
     @Test
-    void aTargetAcrossTheGlideSeamFromTheMapCentreIsSeatedMirrored() {
-        BlockPos seated = CreateStationMapFold.targetInMapFrame(MIRRORED, MAP_CENTRE_X, MAP_CENTRE_Z,
-                new BlockPos(ACROSS_THE_SEAM_X, MARKER_HEIGHT, MAP_CENTRE_Z));
+    void aTargetAcrossTheGlideSeamFromTheMapCenterIsSeatedMirrored() {
+        BlockPos seated = CreateStationMapFold.targetInMapFrame(MIRRORED, MAP_CENTER_X, MAP_CENTER_Z,
+                new BlockPos(ACROSS_THE_SEAM_X, MARKER_HEIGHT, MAP_CENTER_Z));
 
         assertEquals(new BlockPos(ACROSS_THE_SEAM_X + WORLD_BLOCKS, MARKER_HEIGHT,
-                2 * MIRROR_LINE_BLOCKS - MAP_CENTRE_Z - 1), seated);
+                2 * MIRROR_LINE_BLOCKS - MAP_CENTER_Z - 1), seated);
     }
 
     @Test
     void aTargetSeatedIntoTheMapFrameKeepsTheUnboundedAxis() {
-        BlockPos seated = CreateStationMapFold.targetInMapFrame(DECK_CYLINDER, MAP_CENTRE_X, MAP_CENTRE_Z,
+        BlockPos seated = CreateStationMapFold.targetInMapFrame(DECK_CYLINDER, MAP_CENTER_X, MAP_CENTER_Z,
                 new BlockPos(ACROSS_THE_SEAM_X, MARKER_HEIGHT, FAR_ALONG_Z));
 
         assertEquals(new BlockPos(ACROSS_THE_SEAM_X + WORLD_BLOCKS, MARKER_HEIGHT, FAR_ALONG_Z), seated);
     }
 
     @Test
-    void aTargetBesideTheMapCentreIsTheTargetItself() {
-        BlockPos beside = new BlockPos(30, MARKER_HEIGHT, MAP_CENTRE_Z);
+    void aTargetBesideTheMapCenterIsTheTargetItself() {
+        BlockPos beside = new BlockPos(30, MARKER_HEIGHT, MAP_CENTER_Z);
         for (WorldFold fold : EVERY_SHAPE) {
-            assertSame(beside, CreateStationMapFold.targetInMapFrame(fold, 20, MAP_CENTRE_Z, beside), "in " + fold);
+            assertSame(beside, CreateStationMapFold.targetInMapFrame(fold, 20, MAP_CENTER_Z, beside), "in " + fold);
         }
     }
 
     @Test
-    void aToggledCentreAcrossTheSeamIsSeatedBesideTheMapCentre() {
+    void aToggledCenterAcrossTheSeamIsSeatedBesideTheMapCenter() {
         for (WorldFold fold : TRANSLATING) {
-            Vec3 seated = CreateStationMapFold.centreInMapFrame(fold, MAP_CENTRE_X, MAP_CENTRE_Z,
+            Vec3 seated = CreateStationMapFold.centerInMapFrame(fold, MAP_CENTER_X, MAP_CENTER_Z,
                     TOGGLED_X, TOGGLED_Z);
 
             assertEquals(new Vec3(TOGGLED_X + WORLD_BLOCKS, 0.0, TOGGLED_Z), seated, "in " + fold);
@@ -116,17 +116,17 @@ class CreateStationMapFoldTest {
     }
 
     @Test
-    void aToggledCentreAcrossTheGlideSeamIsSeatedMirrored() {
-        Vec3 seated = CreateStationMapFold.centreInMapFrame(MIRRORED, MAP_CENTRE_X, MAP_CENTRE_Z,
+    void aToggledCenterAcrossTheGlideSeamIsSeatedMirrored() {
+        Vec3 seated = CreateStationMapFold.centerInMapFrame(MIRRORED, MAP_CENTER_X, MAP_CENTER_Z,
                 TOGGLED_X, TOGGLED_Z);
 
         assertEquals(new Vec3(TOGGLED_X + WORLD_BLOCKS, 0.0, 2 * MIRROR_LINE_BLOCKS - TOGGLED_Z), seated);
     }
 
     @Test
-    void aToggledCentreBesideTheMapCentreKeepsItsCoordinates() {
+    void aToggledCenterBesideTheMapCenterKeepsItsCoordinates() {
         for (WorldFold fold : EVERY_SHAPE) {
-            Vec3 seated = CreateStationMapFold.centreInMapFrame(fold, 20, MAP_CENTRE_Z, 30.5, TOGGLED_Z);
+            Vec3 seated = CreateStationMapFold.centerInMapFrame(fold, 20, MAP_CENTER_Z, 30.5, TOGGLED_Z);
 
             assertEquals(new Vec3(30.5, 0.0, TOGGLED_Z), seated, "in " + fold);
         }
@@ -134,11 +134,11 @@ class CreateStationMapFoldTest {
 
     @Test
     void withoutAServerEveryDimensionMethodHandsBackWhatItWasGiven() {
-        BlockPos target = new BlockPos(PAST_THE_X_BOUND, MARKER_HEIGHT, MAP_CENTRE_Z);
+        BlockPos target = new BlockPos(PAST_THE_X_BOUND, MARKER_HEIGHT, MAP_CENTER_Z);
 
         assertSame(target, CreateStationMapFold.canonicalTarget(Level.OVERWORLD, target));
-        assertSame(target, CreateStationMapFold.targetInMapFrame(Level.OVERWORLD, MAP_CENTRE_X, MAP_CENTRE_Z, target));
-        assertEquals(new Vec3(TOGGLED_X, 0.0, TOGGLED_Z), CreateStationMapFold.centreInMapFrame(Level.OVERWORLD,
-                MAP_CENTRE_X, MAP_CENTRE_Z, TOGGLED_X, TOGGLED_Z));
+        assertSame(target, CreateStationMapFold.targetInMapFrame(Level.OVERWORLD, MAP_CENTER_X, MAP_CENTER_Z, target));
+        assertEquals(new Vec3(TOGGLED_X, 0.0, TOGGLED_Z), CreateStationMapFold.centerInMapFrame(Level.OVERWORLD,
+                MAP_CENTER_X, MAP_CENTER_Z, TOGGLED_X, TOGGLED_Z));
     }
 }

@@ -133,7 +133,7 @@ class CreateSeamFoldTest {
     }
 
     @Test
-    void aPositionIsFoldedTowardTheBoxCentreAndNotItsCorner() {
+    void aPositionIsFoldedTowardTheBoxCenterAndNotItsCorner() {
         BoundingBox box = new BoundingBox(-250, 0, -10, 250, 10, 10);
         BlockPos corner = new BlockPos(box.minX(), box.minY(), box.minZ());
         BlockPos beyondTheCorner = new BlockPos(255, 5, 0);
@@ -145,7 +145,7 @@ class CreateSeamFoldTest {
     }
 
     @Test
-    void aPositionPastHalfAWorldFromTheBoxCentreIsFolded() {
+    void aPositionPastHalfAWorldFromTheBoxCenterIsFolded() {
         BoundingBox box = new BoundingBox(-250, 0, -10, 250, 10, 10);
         BlockPos beyond = new BlockPos(-300, 5, 0);
         for (WorldFold fold : ALL) {

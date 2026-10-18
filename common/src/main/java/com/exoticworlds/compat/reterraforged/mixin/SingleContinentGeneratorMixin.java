@@ -16,7 +16,7 @@ import raccoonman.reterraforged.world.worldgen.cell.continent.simple.SingleConti
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.util.PosUtil;
 
-// The one continent is found at construction, before any lap is known; on a lap it is the canonical centre of the
+// The one continent is found at construction, before any lap is known; on a lap it is the canonical center of the
 // cell holding the origin, found again under the lap the level runs with.
 @Mixin(value = SingleContinentGenerator.class, remap = false)
 public abstract class SingleContinentGeneratorMixin {

@@ -166,9 +166,9 @@ public final class FloatingCrumbs {
         sweepWindow(chunk, window, () -> new WorldGenRegion(level, chunks,
                 ChunkPyramid.GENERATION_PYRAMID.getStepTo(ChunkStatus.FEATURES), chunk));
         for (int index = 0; index < keys.length; index++) {
-            ChunkAccess neighbour = holders[index].getLatestChunk();
-            if (masks.consumed(keys[index]) && neighbour != null) {
-                neighbour.setUnsaved(true);
+            ChunkAccess neighbor = holders[index].getLatestChunk();
+            if (masks.consumed(keys[index]) && neighbor != null) {
+                neighbor.setUnsaved(true);
             }
         }
     }

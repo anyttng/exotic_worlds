@@ -29,30 +29,30 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(value = PropellerActorBehaviour.class, remap = false)
 public abstract class PropellerActorBehaviourMixin {
     @Unique
-    private static final String PROPELLER_CENTRE =
+    private static final String PROPELLER_CENTER =
             "Ldev/ryanhcode/sable/companion/math/Pose3d;transformPosition(Lorg/joml/Vector3d;)Lorg/joml/Vector3d;";
     @Unique
     private static final String AIRFLOW_RAY =
             "Lnet/minecraft/world/level/Level;clip(Lnet/minecraft/world/level/ClipContext;)Lnet/minecraft/world/phys/BlockHitResult;";
 
-    @WrapOperation(method = "pushEntities", at = @At(value = "INVOKE", target = PROPELLER_CENTRE))
-    private Vector3d exotic_worlds$centreInTheEntityFrame(Pose3d pose, Vector3d centre, Operation<Vector3d> original,
+    @WrapOperation(method = "pushEntities", at = @At(value = "INVOKE", target = PROPELLER_CENTER))
+    private Vector3d exotic_worlds$centerInTheEntityFrame(Pose3d pose, Vector3d center, Operation<Vector3d> original,
             @Local Entity entity) {
-        return SeamFrame.with(entity.level(), entity, Entity::position, original, pose, centre);
+        return SeamFrame.with(entity.level(), entity, Entity::position, original, pose, center);
     }
 
     @WrapOperation(method = "pushEntities", at = @At(value = "INVOKE", target = InjectionTargets.VECTOR3D_SUB))
-    private Vector3d exotic_worlds$offsetFromTheNearestCentre(Vector3d entityCentre, Vector3dc centre,
+    private Vector3d exotic_worlds$offsetFromTheNearestCenter(Vector3d entityCenter, Vector3dc center,
             Operation<Vector3d> original, @Local Entity entity, @Local @Nullable SubLevel subLevel) {
         if (subLevel != null) {
-            return original.call(entityCentre, centre);
+            return original.call(entityCenter, center);
         }
 
         Level level = entity.level();
-        Vec3 raw = JomlVectors.read(centre);
+        Vec3 raw = JomlVectors.read(center);
         Vec3 seated = WorldLoopAttachments.transformerOfReader(level)
                 .nearestCopy(ForeignFrames.seatInWorld(level, entity.position()), raw);
-        return original.call(entityCentre, seated == raw ? centre : JomlVectors.write(seated, new Vector3d()));
+        return original.call(entityCenter, seated == raw ? center : JomlVectors.write(seated, new Vector3d()));
     }
 
     @WrapOperation(method = "pushEntities", at = @At(value = "INVOKE", target = AIRFLOW_RAY))

@@ -12,7 +12,7 @@ public final class JomlVectors {
         return new Vec3(vector.x(), vector.y(), vector.z());
     }
 
-    public static Vec3 centre(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+    public static Vec3 center(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
         return new Vec3((minX + maxX) * HALF, (minY + maxY) * HALF, (minZ + maxZ) * HALF);
     }
 

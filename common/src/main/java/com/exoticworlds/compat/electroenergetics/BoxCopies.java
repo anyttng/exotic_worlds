@@ -15,12 +15,12 @@ import net.minecraft.world.phys.AABB;
 public final class BoxCopies {
     private static final int BOX_HEIGHT = 1;
 
-    public static ChunkPos seat(WorldFold fold, ChunkPos centre, int radius, ChunkPos chunk) {
-        return new ChunkPos(seat(fold, square(centre, radius), middle(centre), middle(chunk)));
+    public static ChunkPos seat(WorldFold fold, ChunkPos center, int radius, ChunkPos chunk) {
+        return new ChunkPos(seat(fold, square(center, radius), middle(center), middle(chunk)));
     }
 
-    public static int count(WorldFold fold, ChunkPos centre, int radius, ChunkPos chunk) {
-        return copies(fold, square(centre, radius), middle(chunk)).size();
+    public static int count(WorldFold fold, ChunkPos center, int radius, ChunkPos chunk) {
+        return copies(fold, square(center, radius), middle(chunk)).size();
     }
 
     public static BlockPos seat(WorldFold fold, BlockPos origin, Vec3i size, BlockPos pos) {
@@ -29,8 +29,8 @@ public final class BoxCopies {
         return seat(fold, box, origin.offset(size.getX() / 2, size.getY() / 2, size.getZ() / 2), pos);
     }
 
-    private static BlockPos seat(WorldFold fold, AABB box, BlockPos centre, BlockPos pos) {
-        BlockPos nearest = fold.nearestCopy(centre, pos);
+    private static BlockPos seat(WorldFold fold, AABB box, BlockPos center, BlockPos pos) {
+        BlockPos nearest = fold.nearestCopy(center, pos);
         if (inside(box, nearest)) {
             return nearest;
         }
@@ -38,7 +38,7 @@ public final class BoxCopies {
         BlockPos seated = nearest;
         long seatedDistance = Long.MAX_VALUE;
         for (ToroidalShape.Oriented<BlockPos> copy : copies(fold, box, pos)) {
-            long distance = horizontalDistance(centre, copy.value());
+            long distance = horizontalDistance(center, copy.value());
             if (distance < seatedDistance) {
                 seated = copy.value();
                 seatedDistance = distance;
@@ -52,9 +52,9 @@ public final class BoxCopies {
         return new ToroidalShapeView(fold).copiesInside(box, pos);
     }
 
-    private static AABB square(ChunkPos centre, int radius) {
-        return new AABB(blockOf(centre.x - radius), 0, blockOf(centre.z - radius), blockOf(centre.x + radius + 1),
-                BOX_HEIGHT, blockOf(centre.z + radius + 1));
+    private static AABB square(ChunkPos center, int radius) {
+        return new AABB(blockOf(center.x - radius), 0, blockOf(center.z - radius), blockOf(center.x + radius + 1),
+                BOX_HEIGHT, blockOf(center.z + radius + 1));
     }
 
     private static BlockPos middle(ChunkPos chunk) {

@@ -63,7 +63,7 @@ class CreatePayloadTranslationTest {
     private static final int VIEW_DISTANCE = 16;
 
     private static final double NEAR_THE_EAST_EDGE = 200.0;
-    private static final double AT_THE_CENTRE = 8.0;
+    private static final double AT_THE_CENTER = 8.0;
     private static final double PLAYER_Z = 8.0;
 
     private static final BlockPos SERVER_BLOCK = new BlockPos(-232, 64, 8);
@@ -175,7 +175,7 @@ class CreatePayloadTranslationTest {
     @Test
     void aSymmetryPlacementPastTheMirrorSeatsOnTheMirrorRatherThanOnThePlayer() {
         assertEquals(new SymmetryEffectPacket(SERVER_MIRROR, List.of(PLACED_BESIDE_THE_MIRROR)),
-                seated(new SymmetryEffectPacket(SERVER_MIRROR, List.of(SERVER_PLACED)), AT_THE_CENTRE));
+                seated(new SymmetryEffectPacket(SERVER_MIRROR, List.of(SERVER_PLACED)), AT_THE_CENTER));
     }
 
     @Test

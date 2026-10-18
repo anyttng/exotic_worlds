@@ -61,12 +61,12 @@ public final class SablePoseFold {
         }
 
         centroid.div(counted);
-        Vec3 centre = JomlVectors.read(centroid);
-        if (!fold.isOver(centre)) {
+        Vec3 center = JomlVectors.read(centroid);
+        if (!fold.isOver(center)) {
             return;
         }
 
-        shiftGroup(system, members, fold.foldTransformation(centre), subLevel, readback);
+        shiftGroup(system, members, fold.foldTransformation(center), subLevel, readback);
     }
 
     static void shiftGroup(SubLevelPhysicsSystem system, List<SableMemberPose> members, DeckTransformation seat,

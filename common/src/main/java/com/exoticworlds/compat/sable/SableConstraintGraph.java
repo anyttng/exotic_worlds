@@ -82,15 +82,15 @@ public final class SableConstraintGraph {
     }
 
     private IdentityHashMap<PhysicsPipelineBody, List<PhysicsPipelineBody>> walkGroups() {
-        IdentityHashMap<PhysicsPipelineBody, List<PhysicsPipelineBody>> neighbours = new IdentityHashMap<>();
+        IdentityHashMap<PhysicsPipelineBody, List<PhysicsPipelineBody>> neighbors = new IdentityHashMap<>();
         for (SableConstraintEdge edge : this.edges) {
-            neighbours.computeIfAbsent(edge.first(), body -> new ArrayList<>()).add(edge.second());
-            neighbours.computeIfAbsent(edge.second(), body -> new ArrayList<>()).add(edge.first());
+            neighbors.computeIfAbsent(edge.first(), body -> new ArrayList<>()).add(edge.second());
+            neighbors.computeIfAbsent(edge.second(), body -> new ArrayList<>()).add(edge.first());
         }
 
         IdentityHashMap<PhysicsPipelineBody, List<PhysicsPipelineBody>> groups = new IdentityHashMap<>();
         Set<PhysicsPipelineBody> seen = Collections.newSetFromMap(new IdentityHashMap<>());
-        for (PhysicsPipelineBody start : neighbours.keySet()) {
+        for (PhysicsPipelineBody start : neighbors.keySet()) {
             if (!seen.add(start)) {
                 continue;
             }
@@ -98,7 +98,7 @@ public final class SableConstraintGraph {
             List<PhysicsPipelineBody> group = new ArrayList<>();
             group.add(start);
             for (int index = 0; index < group.size(); index++) {
-                for (PhysicsPipelineBody other : neighbours.get(group.get(index))) {
+                for (PhysicsPipelineBody other : neighbors.get(group.get(index))) {
                     if (seen.add(other)) {
                         group.add(other);
                     }

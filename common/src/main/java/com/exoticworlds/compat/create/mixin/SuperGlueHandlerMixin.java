@@ -38,8 +38,8 @@ public class SuperGlueHandlerMixin {
 
     @WrapOperation(method = "glueInOffHandAppliesOnBlockPlace",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_EQUALS))
-    private static boolean exotic_worlds$namesThePlacedBlock(BlockPos hitNeighbour, Object placed,
+    private static boolean exotic_worlds$namesThePlacedBlock(BlockPos hitNeighbor, Object placed,
             Operation<Boolean> original, @Local(argsOnly = true) Player placer) {
-        return original.call(CreateSeamFold.canonicalOnServer(placer.level(), hitNeighbour), placed);
+        return original.call(CreateSeamFold.canonicalOnServer(placer.level(), hitNeighbor), placed);
     }
 }

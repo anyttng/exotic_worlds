@@ -125,10 +125,10 @@ public final class RopeSeamFrame {
     }
 
     private static @Nullable Vec3 anchorOf(ServerLevel level, RopeAttachment attachment) {
-        Vec3 centre = attachment.blockAttachment().getCenter();
+        Vec3 center = attachment.blockAttachment().getCenter();
         UUID body = attachment.subLevelID();
         if (body == null) {
-            return centre;
+            return center;
         }
 
         ServerSubLevelContainer container = SubLevelContainer.getContainer(level);
@@ -138,7 +138,7 @@ public final class RopeSeamFrame {
         }
 
         Vector3d world = server.logicalPose()
-                .transformPosition(new Vector3d(centre.x, centre.y, centre.z), new Vector3d());
+                .transformPosition(new Vector3d(center.x, center.y, center.z), new Vector3d());
         return JomlVectors.read(world);
     }
 

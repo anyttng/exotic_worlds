@@ -10,7 +10,7 @@ public record CloudLattice(float lapAX, float lapAZ, float lapBX, float lapBZ, f
 
     private static final float UNBOUNDED = 0.0F;
     private static final int MAX_REDUCTION_STEPS = 64;
-    private static final int NEIGHBOURS = 1;
+    private static final int NEIGHBORS = 1;
 
     public static CloudLattice of(float lapX, float lapZ, float skewX, float m00, float m01, float m10, float m11) {
         if (lapX == UNBOUNDED && lapZ == UNBOUNDED) {
@@ -82,8 +82,8 @@ public record CloudLattice(float lapAX, float lapAZ, float lapBX, float lapBZ, f
         float bestX = x;
         float bestZ = z;
         float bestLength = Float.POSITIVE_INFINITY;
-        for (int i = -NEIGHBOURS; i <= NEIGHBOURS; i++) {
-            for (int j = -NEIGHBOURS; j <= NEIGHBOURS; j++) {
+        for (int i = -NEIGHBORS; i <= NEIGHBORS; i++) {
+            for (int j = -NEIGHBORS; j <= NEIGHBORS; j++) {
                 int a = baseA + i;
                 int b = baseB + j;
                 float seatedX = x + a * this.lapAX + b * this.lapBX;

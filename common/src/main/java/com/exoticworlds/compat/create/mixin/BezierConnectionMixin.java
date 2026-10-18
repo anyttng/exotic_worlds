@@ -47,9 +47,9 @@ public abstract class BezierConnectionMixin implements BezierCurveFold {
         exotic_worlds$canonicaliseEnd(transformer, true);
         exotic_worlds$canonicaliseEnd(transformer, false);
 
-        Vec3 ownerCentre = Vec3.atCenterOf(this.bePositions.getFirst());
+        Vec3 ownerCenter = Vec3.atCenterOf(this.bePositions.getFirst());
         Vec3 rawNearEnd = this.starts.getFirst();
-        Vec3 nearEnd = transformer.nearestCopy(ownerCentre, rawNearEnd);
+        Vec3 nearEnd = transformer.nearestCopy(ownerCenter, rawNearEnd);
         if (nearEnd != rawNearEnd) {
             this.starts.setFirst(nearEnd);
         }

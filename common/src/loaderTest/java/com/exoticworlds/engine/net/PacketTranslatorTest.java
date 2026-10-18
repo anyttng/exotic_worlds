@@ -606,7 +606,7 @@ class PacketTranslatorTest {
         }
 
         @Test
-        void blownBlocksAreUntouchedWhenTheCentreDoesNotMove() {
+        void blownBlocksAreUntouchedWhenTheCenterDoesNotMove() {
             ClientPosition mirror = new ClientPosition();
             mirror.rebase(100.0, 50.0, Level.OVERWORLD, null, TRANSFORMER);
             TranslationContext context = new TranslationContext(TRANSFORMER, mirror, BUFFERS,

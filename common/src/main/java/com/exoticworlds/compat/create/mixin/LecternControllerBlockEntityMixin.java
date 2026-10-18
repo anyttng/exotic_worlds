@@ -18,8 +18,8 @@ public class LecternControllerBlockEntityMixin {
     @WrapOperation(method = "playerInRange",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_DISTANCE_TO_SQR))
-    private static double exotic_worlds$foldLecternReach(Vec3 eye, Vec3 centre, Operation<Double> original,
+    private static double exotic_worlds$foldLecternReach(Vec3 eye, Vec3 center, Operation<Double> original,
             Player player, Level world) {
-        return original.call(eye, CreateSeamFold.nearestCopy(world, eye, centre));
+        return original.call(eye, CreateSeamFold.nearestCopy(world, eye, center));
     }
 }

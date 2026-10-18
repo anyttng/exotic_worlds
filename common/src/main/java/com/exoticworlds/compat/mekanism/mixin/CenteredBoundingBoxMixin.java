@@ -65,7 +65,7 @@ public class CenteredBoundingBoxMixin implements RadiationBoxFrame {
     }
 
     @ModifyVariable(method = "isInside(Lnet/minecraft/core/Vec3i;)Z", at = @At("HEAD"), argsOnly = true)
-    private Vec3i exotic_worlds$copyNearestCentre(Vec3i vector) {
+    private Vec3i exotic_worlds$copyNearestCenter(Vec3i vector) {
         BlockPos target = vector instanceof BlockPos pos ? pos : new BlockPos(vector);
         BlockPos copy = this.exotic_worlds$fold.nearestCopy(BlockPos.of(this.center), target);
         return copy.equals(target) ? vector : copy;

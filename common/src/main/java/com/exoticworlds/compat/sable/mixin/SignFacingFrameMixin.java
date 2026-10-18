@@ -21,13 +21,13 @@ public abstract class SignFacingFrameMixin {
     @WrapOperation(
             method = "isFacingFrontText",
             at = @At(value = "INVOKE", target = InjectionTargets.VECTOR3D_SUB))
-    private Vector3d exotic_worlds$playerDeltaThroughSeam(Vector3d playerPosition, Vector3dc centre,
+    private Vector3d exotic_worlds$playerDeltaThroughSeam(Vector3d playerPosition, Vector3dc center,
             Operation<Vector3d> original) {
         WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(((BlockEntity) (Object) this).getLevel());
         if (fold == null) {
-            return original.call(playerPosition, centre);
+            return original.call(playerPosition, center);
         }
 
-        return original.call(JomlVectors.seat(fold, JomlVectors.read(centre), playerPosition), centre);
+        return original.call(JomlVectors.seat(fold, JomlVectors.read(center), playerPosition), center);
     }
 }

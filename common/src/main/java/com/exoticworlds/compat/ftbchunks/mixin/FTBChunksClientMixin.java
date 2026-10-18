@@ -54,17 +54,17 @@ public abstract class FTBChunksClientMixin {
                     + "Ldev/ftb/mods/ftbchunks/client/map/MapDimension;)V";
 
     @WrapOperation(method = UPDATE_MINIMAP, at = @At(value = "INVOKE", target = REGION_SPLITS, ordinal = 0))
-    private int[] exotic_worlds$splitMinimapAlongX(int centreChunk, Operation<int[]> original,
-            @Local(argsOnly = true, ordinal = 1) int centreChunkZ) {
-        return FtbChunksFold.minimapSplits(Direction.Axis.X, XZ.of(centreChunk, centreChunkZ),
-                original.call(centreChunk));
+    private int[] exotic_worlds$splitMinimapAlongX(int centerChunk, Operation<int[]> original,
+            @Local(argsOnly = true, ordinal = 1) int centerChunkZ) {
+        return FtbChunksFold.minimapSplits(Direction.Axis.X, XZ.of(centerChunk, centerChunkZ),
+                original.call(centerChunk));
     }
 
     @WrapOperation(method = UPDATE_MINIMAP, at = @At(value = "INVOKE", target = REGION_SPLITS, ordinal = 1))
-    private int[] exotic_worlds$splitMinimapAlongZ(int centreChunk, Operation<int[]> original,
-            @Local(argsOnly = true, ordinal = 0) int centreChunkX) {
-        return FtbChunksFold.minimapSplits(Direction.Axis.Z, XZ.of(centreChunkX, centreChunk),
-                original.call(centreChunk));
+    private int[] exotic_worlds$splitMinimapAlongZ(int centerChunk, Operation<int[]> original,
+            @Local(argsOnly = true, ordinal = 0) int centerChunkX) {
+        return FtbChunksFold.minimapSplits(Direction.Axis.Z, XZ.of(centerChunkX, centerChunk),
+                original.call(centerChunk));
     }
 
     @WrapOperation(method = UPDATE_MINIMAP,

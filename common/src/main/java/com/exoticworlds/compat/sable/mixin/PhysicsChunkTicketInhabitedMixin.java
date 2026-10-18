@@ -32,10 +32,10 @@ public abstract class PhysicsChunkTicketInhabitedMixin {
             return original.call(level, inhabits);
         }
 
-        Vec3 centre = JomlVectors.centre(bounds.minX(), bounds.minY(), bounds.minZ(),
+        Vec3 center = JomlVectors.center(bounds.minX(), bounds.minY(), bounds.minZ(),
                 bounds.maxX(), bounds.maxY(), bounds.maxZ());
         Predicate<ServerPlayer> inhabitsAcrossSeam = player -> {
-            Vec3 position = fold.nearestCopy(centre, player.getBoundingBox().getCenter());
+            Vec3 position = fold.nearestCopy(center, player.getBoundingBox().getCenter());
             return bounds.contains(position.x, position.y, position.z);
         };
         return original.call(level, inhabitsAcrossSeam);

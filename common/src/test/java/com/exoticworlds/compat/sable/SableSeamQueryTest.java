@@ -71,6 +71,6 @@ class SableSeamQueryTest {
     }
 
     private static boolean intersects(WorldFold fold, BoundingBox3d subLevel, BoundingBox3d query) {
-        return SableSeamQuery.intersects(fold, SableSeamQuery.centreOf(query), subLevel, query);
+        return SableSeamQuery.intersects(fold, SableSeamQuery.centerOf(query), subLevel, query);
     }
 }

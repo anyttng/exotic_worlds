@@ -53,9 +53,9 @@ public class StationMapMarkerMixin {
 
     @ModifyVariable(method = "toggleStation", at = @At("STORE"), ordinal = 1, remap = false)
     private double exotic_worlds$toggledStationInMapFrame(double zCenter, @Local(name = "xCenter") LocalDoubleRef xCenter) {
-        Vec3 centre = CreateStationMapFold.centreInMapFrame(this.dimension, this.centerX, this.centerZ,
+        Vec3 center = CreateStationMapFold.centerInMapFrame(this.dimension, this.centerX, this.centerZ,
                 xCenter.get(), zCenter);
-        xCenter.set(centre.x);
-        return centre.z;
+        xCenter.set(center.x);
+        return center.z;
     }
 }

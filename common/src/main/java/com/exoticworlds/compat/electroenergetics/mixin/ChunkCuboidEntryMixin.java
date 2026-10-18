@@ -46,7 +46,7 @@ public abstract class ChunkCuboidEntryMixin implements TransformerHolder, WireBo
     }
 
     @Override
-    public ChunkPos exotic_worlds$centre() {
+    public ChunkPos exotic_worlds$center() {
         return new ChunkPos(Math.floorDiv(this.minX + this.maxX - 1, 2), Math.floorDiv(this.minZ + this.maxZ - 1, 2));
     }
 
@@ -57,7 +57,7 @@ public abstract class ChunkCuboidEntryMixin implements TransformerHolder, WireBo
 
     @WrapMethod(method = "includes(II)Z")
     private boolean exotic_worlds$includesNearestCopy(int x, int z, Operation<Boolean> original) {
-        ChunkPos seated = BoxCopies.seat(this.exotic_worlds$transformer, this.exotic_worlds$centre(), this.exotic_worlds$radius(),
+        ChunkPos seated = BoxCopies.seat(this.exotic_worlds$transformer, this.exotic_worlds$center(), this.exotic_worlds$radius(),
                 new ChunkPos(x, z));
         return original.call(seated.x, seated.z);
     }

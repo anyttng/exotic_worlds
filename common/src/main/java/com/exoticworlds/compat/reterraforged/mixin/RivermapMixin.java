@@ -10,8 +10,8 @@ import com.exoticworlds.compat.reterraforged.RtfLap;
 import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.cell.rivermap.Rivermap;
 
-// A continent's rivers are one network around its canonical centre: a point is carved on the copy nearest that
-// centre, where every copy of the point lands, so the network needs no lap of its own and runs on the open lattice.
+// A continent's rivers are one network around its canonical center: a point is carved on the copy nearest that
+// center, where every copy of the point lands, so the network needs no lap of its own and runs on the open lattice.
 @Mixin(value = Rivermap.class, remap = false)
 public abstract class RivermapMixin {
     @Shadow

@@ -68,8 +68,8 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/core/BlockPos;relative(Lnet/minecraft/core/Direction;)Lnet/minecraft/core/BlockPos;"))
-    private BlockPos exotic_worlds$wrapAckedNeighbour(BlockPos neighbour) {
-        return WorldLoopAttachments.transformerOf(this.player.level()).fold(neighbour);
+    private BlockPos exotic_worlds$wrapAckedNeighbor(BlockPos neighbor) {
+        return WorldLoopAttachments.transformerOf(this.player.level()).fold(neighbor);
     }
 
     @WrapMethod(method = "teleport(DDDFFLjava/util/Set;)V")

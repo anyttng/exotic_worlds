@@ -37,9 +37,9 @@ public abstract class SubLevelContainerMixin {
         }
 
         return () -> {
-            Vec3 queryCentre = SableSeamQuery.centreOf(bounds);
+            Vec3 queryCenter = SableSeamQuery.centerOf(bounds);
             return this.allSubLevels.stream()
-                    .filter(subLevel -> SableSeamQuery.intersects(fold, queryCentre, subLevel.boundingBox(), bounds))
+                    .filter(subLevel -> SableSeamQuery.intersects(fold, queryCenter, subLevel.boundingBox(), bounds))
                     .iterator();
         };
     }

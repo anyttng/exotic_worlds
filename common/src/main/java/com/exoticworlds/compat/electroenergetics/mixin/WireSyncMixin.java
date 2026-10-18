@@ -42,7 +42,7 @@ public abstract class WireSyncMixin {
     @Inject(method = "handlePlayerEnterNewSection", at = @At("HEAD"))
     private void exotic_worlds$resendAfterAJump(ServerPlayer player, long newPos, CallbackInfo ci) {
         if (loadedChunks.get(player.getUUID()) instanceof WireBox box
-                && WireBoxJump.mayReseat(WorldLoopAttachments.transformerOf(this.level), box.exotic_worlds$centre(),
+                && WireBoxJump.mayReseat(WorldLoopAttachments.transformerOf(this.level), box.exotic_worlds$center(),
                         box.exotic_worlds$radius(), new ChunkPos(newPos), exotic_worlds$boxRadius(WireSync.getViewDistance()))) {
             this.unloadForPlayer(player);
         }

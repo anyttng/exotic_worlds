@@ -104,9 +104,9 @@ class SableHotPathScan {
 
     private static int intersecting(WorldFold fold, BoundingBox3d[] subLevels, BoundingBox3d query) {
         int hits = 0;
-        Vec3 queryCentre = SableSeamQuery.centreOf(query);
+        Vec3 queryCenter = SableSeamQuery.centerOf(query);
         for (BoundingBox3d subLevel : subLevels) {
-            if (SableSeamQuery.intersects(fold, queryCentre, subLevel, query)) {
+            if (SableSeamQuery.intersects(fold, queryCenter, subLevel, query)) {
                 hits++;
             }
         }

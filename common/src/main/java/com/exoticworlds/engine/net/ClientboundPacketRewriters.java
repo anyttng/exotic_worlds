@@ -81,7 +81,7 @@ final class ClientboundPacketRewriters {
             },
             buffer -> new BorderCenter(buffer.readDouble(), buffer.readDouble()));
 
-    // A section has no stream codec of its own on this version, but it has always travelled as the packed long its
+    // A section has no stream codec of its own on this version, but it has always traveled as the packed long its
     // own accessors read back, so the codec the swap below needs is two lines rather than a reason to rebuild the packet.
     private static final StreamCodec<FriendlyByteBuf, SectionPos> SECTION_POS_CODEC = StreamCodec.of(
             (buffer, section) -> buffer.writeLong(section.asLong()),

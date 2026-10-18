@@ -116,7 +116,7 @@ class CloudLatticeTest {
 
     private static double bruteForceNearest(float lapX, float lapZ, float skew, float m00, float m01, float m10,
             float m11, float towardRegionX, float towardRegionZ, float stretch) {
-        long centreZ = lapZ == 0.0F ? 0 : Math.round(towardRegionZ / (double) lapZ);
+        long centerZ = lapZ == 0.0F ? 0 : Math.round(towardRegionZ / (double) lapZ);
         double shortestLap = Math.min(lapX == 0.0F ? Double.MAX_VALUE : lapX, lapZ == 0.0F ? Double.MAX_VALUE : lapZ);
         boolean torus = lapX != 0.0F && lapZ != 0.0F;
         double within = torus ? Math.hypot(lapX + Math.abs(skew), lapZ) : Math.hypot(towardRegionX, towardRegionZ);
@@ -124,10 +124,10 @@ class CloudLatticeTest {
         int reachX = lapX == 0.0F ? 0 : reach;
         int reachZ = lapZ == 0.0F ? 0 : reach;
         double best = Double.MAX_VALUE;
-        for (long b = centreZ - reachZ; b <= centreZ + reachZ; b++) {
+        for (long b = centerZ - reachZ; b <= centerZ + reachZ; b++) {
             double rowShift = b * (double) skew;
-            long centreX = lapX == 0.0F ? 0 : Math.round((towardRegionX - rowShift) / lapX);
-            for (long a = centreX - reachX; a <= centreX + reachX; a++) {
+            long centerX = lapX == 0.0F ? 0 : Math.round((towardRegionX - rowShift) / lapX);
+            for (long a = centerX - reachX; a <= centerX + reachX; a++) {
                 best = Math.min(best, image(a * (double) lapX + rowShift - towardRegionX,
                         b * (double) lapZ - towardRegionZ, m00, m01, m10, m11));
             }

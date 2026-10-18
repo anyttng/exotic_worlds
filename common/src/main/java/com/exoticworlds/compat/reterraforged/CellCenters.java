@@ -8,7 +8,7 @@ import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 public final class CellCenters {
     private static final float CENTER_CORRECTION = 0.35F;
 
-    private static final int NEIGHBOURS = 8;
+    private static final int NEIGHBORS = 8;
 
     private static final float VERTEX_DETERMINANT_FLOOR = 1.0E-5F;
 
@@ -101,13 +101,13 @@ public final class CellCenters {
         for (int cy = canonicalY - 1; cy <= canonicalY + 1; cy++) {
             for (int cx = canonicalX - 1; cx <= canonicalX + 1; cx++) {
                 if (cx != canonicalX || cy != canonicalY) {
-                    NoiseUtil.Vec2f neighbour = NoiseUtil.cell(seed, cx, cy);
-                    sum += x ? cx + neighbour.x() * jitter : cy + neighbour.y() * jitter;
+                    NoiseUtil.Vec2f neighbor = NoiseUtil.cell(seed, cx, cy);
+                    sum += x ? cx + neighbor.x() * jitter : cy + neighbor.y() * jitter;
                 }
             }
         }
 
-        return NoiseUtil.lerp(point, sum / NEIGHBOURS, CENTER_CORRECTION);
+        return NoiseUtil.lerp(point, sum / NEIGHBORS, CENTER_CORRECTION);
     }
 
     private static float centroid(RtfLap.Frame frame, int seed, int cellX, int cellY, float jitter, boolean x) {
@@ -116,15 +116,15 @@ public final class CellCenters {
         NoiseUtil.Vec2f own = NoiseUtil.cell(seed, canonicalX, canonicalY);
         float pointX = canonicalX + own.x() * jitter;
         float pointY = canonicalY + own.y() * jitter;
-        float[] neighbourX = new float[NEIGHBOURS];
-        float[] neighbourY = new float[NEIGHBOURS];
+        float[] neighborX = new float[NEIGHBORS];
+        float[] neighborY = new float[NEIGHBORS];
         int index = 0;
         for (int cy = canonicalY - 1; cy <= canonicalY + 1; cy++) {
             for (int cx = canonicalX - 1; cx <= canonicalX + 1; cx++) {
                 if (cx != canonicalX || cy != canonicalY) {
-                    NoiseUtil.Vec2f neighbour = NoiseUtil.cell(seed, cx, cy);
-                    neighbourX[index] = cx + neighbour.x() * jitter;
-                    neighbourY[index] = cy + neighbour.y() * jitter;
+                    NoiseUtil.Vec2f neighbor = NoiseUtil.cell(seed, cx, cy);
+                    neighborX[index] = cx + neighbor.x() * jitter;
+                    neighborY[index] = cy + neighbor.y() * jitter;
                     index++;
                 }
             }
@@ -134,14 +134,14 @@ public final class CellCenters {
         float sumY = 0.0F;
         int vertices = 0;
         float ownSquare = pointX * pointX + pointY * pointY;
-        for (int i = 0; i < NEIGHBOURS; i++) {
-            float dx1 = neighbourX[i] - pointX;
-            float dy1 = neighbourY[i] - pointY;
-            float b1 = 0.5F * (neighbourX[i] * neighbourX[i] + neighbourY[i] * neighbourY[i] - ownSquare);
-            for (int j = i + 1; j < NEIGHBOURS; j++) {
-                float dx2 = neighbourX[j] - pointX;
-                float dy2 = neighbourY[j] - pointY;
-                float b2 = 0.5F * (neighbourX[j] * neighbourX[j] + neighbourY[j] * neighbourY[j] - ownSquare);
+        for (int i = 0; i < NEIGHBORS; i++) {
+            float dx1 = neighborX[i] - pointX;
+            float dy1 = neighborY[i] - pointY;
+            float b1 = 0.5F * (neighborX[i] * neighborX[i] + neighborY[i] * neighborY[i] - ownSquare);
+            for (int j = i + 1; j < NEIGHBORS; j++) {
+                float dx2 = neighborX[j] - pointX;
+                float dy2 = neighborY[j] - pointY;
+                float b2 = 0.5F * (neighborX[j] * neighborX[j] + neighborY[j] * neighborY[j] - ownSquare);
                 float determinant = dx1 * dy2 - dy1 * dx2;
                 if (Math.abs(determinant) < VERTEX_DETERMINANT_FLOOR) {
                     continue;
@@ -150,7 +150,7 @@ public final class CellCenters {
                 float vx = (b1 * dy2 - b2 * dy1) / determinant;
                 float vy = (dx1 * b2 - dx2 * b1) / determinant;
                 float ownDistance = (vx - pointX) * (vx - pointX) + (vy - pointY) * (vy - pointY);
-                if (isVertex(neighbourX, neighbourY, i, j, vx, vy, ownDistance)) {
+                if (isVertex(neighborX, neighborY, i, j, vx, vy, ownDistance)) {
                     sumX += vx;
                     sumY += vy;
                     vertices++;
@@ -165,14 +165,14 @@ public final class CellCenters {
         return x ? sumX / vertices : sumY / vertices;
     }
 
-    private static boolean isVertex(float[] neighbourX, float[] neighbourY, int i, int j, float vx, float vy,
+    private static boolean isVertex(float[] neighborX, float[] neighborY, int i, int j, float vx, float vy,
             float ownDistance) {
-        for (int k = 0; k < NEIGHBOURS; k++) {
+        for (int k = 0; k < NEIGHBORS; k++) {
             if (k == i || k == j) {
                 continue;
             }
 
-            float distance = (vx - neighbourX[k]) * (vx - neighbourX[k]) + (vy - neighbourY[k]) * (vy - neighbourY[k]);
+            float distance = (vx - neighborX[k]) * (vx - neighborX[k]) + (vy - neighborY[k]) * (vy - neighborY[k]);
             if (distance < ownDistance - VERTEX_SLACK) {
                 return false;
             }
