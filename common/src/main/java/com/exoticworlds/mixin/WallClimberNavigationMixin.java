@@ -18,9 +18,9 @@ public class WallClimberNavigationMixin {
             method = "tick",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean toroidal$climbTargetReachThroughSeam(BlockPos climbPos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$climbTargetReachThroughSeam(BlockPos climbPos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan(((PathNavigationAccessor) this).toroidal$mob(), climbPos, bodyPosition,
+        return SeamRange.closerToCenterThan(((PathNavigationAccessor) this).exotic_worlds$mob(), climbPos, bodyPosition,
                 distance);
     }
 }

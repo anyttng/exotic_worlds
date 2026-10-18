@@ -21,7 +21,7 @@ public class LocateHidingPlaceMixin {
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN),
             expect = 2)
-    private static boolean toroidal$hidingPlaceReachThroughSeam(BlockPos hidingPos, Position bodyPosition,
+    private static boolean exotic_worlds$hidingPlaceReachThroughSeam(BlockPos hidingPos, Position bodyPosition,
             double distance, Operation<Boolean> original, @Local(argsOnly = true) LivingEntity body) {
         return SeamRange.closerToCenterThan(body, hidingPos, bodyPosition, distance);
     }

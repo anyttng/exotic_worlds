@@ -15,7 +15,7 @@ public final class LapIslandPlacement {
     public record Island(BlockPos canonical, BlockPos seated) {
     }
 
-    public record Centre(boolean island, int biomesSize, long innerVoidSquared) {
+    public record Center(boolean island, int biomesSize, long innerVoidSquared) {
     }
 
     public record Grid(IslandLapAxis x, IslandLapAxis z, LapFrame frame) {
@@ -38,7 +38,7 @@ public final class LapIslandPlacement {
     private static final int REACH = 1;
 
     public static void place(List<Island> into, Grid grid, int cellX, int cellZ, int maxHeight, LayerOptions options,
-            IntBinaryOperator seedOf, OpenSimplexNoise coverage, Centre centre) {
+            IntBinaryOperator seedOf, OpenSimplexNoise coverage, Center center) {
         into.clear();
         int reachX = grid.reachX();
         for (int offsetX = -reachX; offsetX <= reachX; offsetX++) {
@@ -64,17 +64,17 @@ public final class LapIslandPlacement {
             }
         }
 
-        clearCentre(into, grid, cellX, cellZ, options, centre);
+        clearCenter(into, grid, cellX, cellZ, options, center);
     }
 
-    private static void clearCentre(List<Island> into, Grid grid, int cellX, int cellZ, LayerOptions options,
-            Centre centre) {
-        if (!centre.island()) {
+    private static void clearCenter(List<Island> into, Grid grid, int cellX, int cellZ, LayerOptions options,
+            Center center) {
+        if (!center.island()) {
             return;
         }
 
         long[] fromOrigin = cellsFromOrigin(grid, cellX, cellZ);
-        if (Math.abs(fromOrigin[0]) >= centre.biomesSize() || Math.abs(fromOrigin[1]) >= centre.biomesSize()) {
+        if (Math.abs(fromOrigin[0]) >= center.biomesSize() || Math.abs(fromOrigin[1]) >= center.biomesSize()) {
             return;
         }
 
@@ -83,7 +83,7 @@ public final class LapIslandPlacement {
             long[] laps = originLapsNearest(grid, canonical.getX(), canonical.getZ());
             long x = canonical.getX() - grid.frame().shiftX(laps[0], laps[1]);
             long z = canonical.getZ() - grid.frame().shiftZ(laps[1]);
-            return x * x + z * z < centre.innerVoidSquared();
+            return x * x + z * z < center.innerVoidSquared();
         });
         if (options.hasCentralIsland) {
             double middleZ = middle(grid.z(), cellZ);

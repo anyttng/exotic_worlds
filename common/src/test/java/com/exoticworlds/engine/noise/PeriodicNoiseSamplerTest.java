@@ -67,10 +67,8 @@ class PeriodicNoiseSamplerTest {
         }
 
         double sample(WorldFold transformer, double scale, double x, double y, double z, double fudgeYScale) {
-            return fudgeYScale == NO_FUDGE
-                    ? PeriodicNoiseSampler.sample(permutations, xo, yo, zo, transformer, FRAME, scale, x, y, z)
-                    : PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(permutations, xo, yo, zo,
-                            fudgeYScale, transformer, FRAME, scale, LapFloor.of(transformer)), x, y, z, y);
+            return PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(permutations, xo, yo, zo, fudgeYScale,
+                    transformer, FRAME, scale, LapFloor.of(transformer)), x, y, z, y);
         }
 
         @SuppressWarnings("deprecation")
@@ -465,14 +463,16 @@ class PeriodicNoiseSamplerTest {
         }
 
         private static double shiftB(NoiseInstance noise, WorldFold transformer, double scale, double x, double z) {
-            return PeriodicNoiseSampler.sample(noise.permutations(), noise.xo(), noise.yo(), noise.zo(), transformer,
-                    SHIFT_B, scale, z, x, 0.0);
+            return PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(noise.permutations(), noise.xo(),
+                    noise.yo(), noise.zo(), NO_FUDGE, transformer, SHIFT_B, scale, LapFloor.of(transformer)),
+                    z, x, 0.0, x);
         }
 
         private static double divided(NoiseInstance noise, WorldFold transformer, double scale, double x, double y,
                 double z) {
-            return PeriodicNoiseSampler.sample(noise.permutations(), noise.xo(), noise.yo(), noise.zo(), transformer,
-                    DIVIDED, scale, x, y, z);
+            return PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(noise.permutations(), noise.xo(),
+                    noise.yo(), noise.zo(), NO_FUDGE, transformer, DIVIDED, scale, LapFloor.of(transformer)),
+                    x, y, z, y);
         }
     }
 

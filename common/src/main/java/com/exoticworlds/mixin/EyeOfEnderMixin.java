@@ -22,12 +22,12 @@ public class EyeOfEnderMixin {
             "Lnet/minecraft/world/entity/projectile/EyeOfEnder;updateDeltaMovement(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;";
 
     @WrapMethod(method = "signalTo")
-    private void toroidal$signalThroughSeam(Vec3 target, Operation<Void> original) {
+    private void exotic_worlds$signalThroughSeam(Vec3 target, Operation<Void> original) {
         original.call(SeamSteering.nearestCopy((EyeOfEnder) (Object) this, target));
     }
 
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = UPDATE_DELTA_MOVEMENT))
-    private Vec3 toroidal$steerThroughSeam(Vec3 movement, Vec3 position, Vec3 target, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$steerThroughSeam(Vec3 movement, Vec3 position, Vec3 target, Operation<Vec3> original) {
         EyeOfEnder self = (EyeOfEnder) (Object) this;
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(self.level());
         return original.call(movement, position, NearestCopy.toward(transformer, position, target));

@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -32,8 +33,8 @@ public class ServerEntityMixin {
 
     @WrapWithCondition(
             method = "sendPairingData",
-            at = @At(value = "INVOKE", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V"))
-    private boolean toroidal$suppressPrematureVehiclePassengers(Consumer<?> broadcast, Object packet,
+            at = @At(value = "INVOKE", target = InjectionTargets.CONSUMER_ACCEPT))
+    private boolean exotic_worlds$suppressPrematureVehiclePassengers(Consumer<?> broadcast, Object packet,
             @Local(argsOnly = true) ServerPlayer player) {
         if (!(packet instanceof ClientboundSetPassengersPacket passengers)
                 || passengers.getVehicle() == this.entity.getId()) {
@@ -45,11 +46,11 @@ public class ServerEntityMixin {
         }
 
         Entity vehicle = this.entity.getVehicle();
-        return vehicle == null || toroidal$isWatching(player, vehicle);
+        return vehicle == null || exotic_worlds$isWatching(player, vehicle);
     }
 
     @Unique
-    private boolean toroidal$isWatching(ServerPlayer player, Entity watched) {
+    private boolean exotic_worlds$isWatching(ServerPlayer player, Entity watched) {
         ChunkMap.TrackedEntity tracked = this.level.getChunkSource().chunkMap.entityMap.get(watched.getId());
         if (tracked == null) {
             return false;

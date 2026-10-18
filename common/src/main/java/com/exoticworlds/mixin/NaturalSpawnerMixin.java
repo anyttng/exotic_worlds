@@ -23,7 +23,7 @@ public class NaturalSpawnerMixin {
     @WrapOperation(
             method = "isRightDistanceToPlayerAndSpawnPoint",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private static boolean toroidal$spawnRadiusThroughSeam(BlockPos spawnPos, Position candidate, double distance,
+    private static boolean exotic_worlds$spawnRadiusThroughSeam(BlockPos spawnPos, Position candidate, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) ServerLevel level) {
         return SeamRange.closerToCenterThan(level, spawnPos, candidate, distance);
     }
@@ -31,9 +31,9 @@ public class NaturalSpawnerMixin {
     @ModifyExpressionValue(
             method = "createState",
             at = @At(value = "NEW", target = "net/minecraft/world/level/PotentialCalculator"))
-    private static PotentialCalculator toroidal$bindSpawnPotentialToLevel(PotentialCalculator spawnPotential,
+    private static PotentialCalculator exotic_worlds$bindSpawnPotentialToLevel(PotentialCalculator spawnPotential,
             @Local(argsOnly = true) ServerLevel level) {
-        ((TransformerHolder) spawnPotential).toroidal$setTransformer(WorldLoopAttachments.transformerOf(level));
+        ((TransformerHolder) spawnPotential).exotic_worlds$setTransformer(WorldLoopAttachments.transformerOf(level));
         return spawnPotential;
     }
 }

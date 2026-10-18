@@ -61,7 +61,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(ChunkMap.class)
 public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveScheduler, TrackedEntityRefresher {
     @Unique
-    private static final String toroidal$SECTION_POS_OF_ENTITY =
+    private static final String exotic_worlds$SECTION_POS_OF_ENTITY =
             "Lnet/minecraft/core/SectionPos;of(Lnet/minecraft/world/level/entity/EntityAccess;)Lnet/minecraft/core/SectionPos;";
 
     @Shadow
@@ -98,7 +98,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
     }
 
     @Inject(method = "save(Lnet/minecraft/world/level/chunk/ChunkAccess;)Z", at = @At("RETURN"))
-    private void toroidal$releaseTerrainMask(ChunkAccess chunk, CallbackInfoReturnable<Boolean> callback) {
+    private void exotic_worlds$releaseTerrainMask(ChunkAccess chunk, CallbackInfoReturnable<Boolean> callback) {
         long key = chunk.getPos().pack();
         if (this.getUpdatingChunkIfPresent(key) == null && !this.pendingUnloads.containsKey(key)) {
             FloatingCrumbs.releaseMask(this.level, chunk.getPos());
@@ -106,31 +106,31 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
     }
 
     @Override
-    public void toroidal$dropTrackedChunks(ServerPlayer player) {
+    public void exotic_worlds$dropTrackedChunks(ServerPlayer player) {
         this.applyChunkTrackingView(player, ChunkTrackingView.EMPTY);
     }
 
     @Override
-    public void toroidal$resendTrackedChunks(ServerPlayer player) {
+    public void exotic_worlds$resendTrackedChunks(ServerPlayer player) {
         this.updateChunkTracking(player);
     }
 
     @Override
-    public void toroidal$dropChunks(ServerPlayer player, List<ChunkPos> chunks) {
+    public void exotic_worlds$dropChunks(ServerPlayer player, List<ChunkPos> chunks) {
         for (ChunkPos chunkPos : chunks) {
             dropChunk(player, chunkPos);
         }
     }
 
     @Override
-    public void toroidal$resendChunks(ServerPlayer player, List<ChunkPos> chunks) {
+    public void exotic_worlds$resendChunks(ServerPlayer player, List<ChunkPos> chunks) {
         for (ChunkPos chunkPos : chunks) {
             this.markChunkPendingToSend(player, chunkPos);
         }
     }
 
     @Override
-    public void toroidal$refreshTrackedEntities(ServerPlayer player) {
+    public void exotic_worlds$refreshTrackedEntities(ServerPlayer player) {
         if (WorldLoopAttachments.wrappedTransformerOf(this.level) == null) {
             return;
         }
@@ -147,9 +147,9 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/level/ChunkMap;updateChunkTracking(Lnet/minecraft/server/level/ServerPlayer;)V",
                     shift = At.Shift.AFTER))
-    private void toroidal$refreshTrackingOnServerViewChange(int newViewDistance, CallbackInfo ci,
+    private void exotic_worlds$refreshTrackingOnServerViewChange(int newViewDistance, CallbackInfo ci,
             @Local ServerPlayer player) {
-        this.toroidal$refreshTrackedEntities(player);
+        this.exotic_worlds$refreshTrackedEntities(player);
     }
 
     @Shadow
@@ -160,7 +160,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
     @WrapOperation(
             method = "applyStep",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/util/StaticCache2D;get(II)Ljava/lang/Object;"))
-    private Object toroidal$stepRunsOnItsOwnHolder(
+    private Object exotic_worlds$stepRunsOnItsOwnHolder(
             StaticCache2D<GenerationChunkHolder> cache,
             int chunkX,
             int chunkZ,
@@ -176,7 +176,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
     @WrapOperation(
             method = "getChunkRangeFuture",
             at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_POS_PACK))
-    private long toroidal$rangeOverPhysicalChunks(int chunkX, int chunkZ, Operation<Long> original) {
+    private long exotic_worlds$rangeOverPhysicalChunks(int chunkX, int chunkZ, Operation<Long> original) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
         if (transformer == null) {
             return original.call(chunkX, chunkZ);
@@ -187,33 +187,33 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
     }
 
     @Unique
-    private final ConcurrentLinkedQueue<SeamDriveRequest> toroidal$driveRequests = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<SeamDriveRequest> exotic_worlds$driveRequests = new ConcurrentLinkedQueue<>();
 
     @Override
-    public void toroidal$requestDrive(GenerationChunkHolder holder, ChunkStatus status) {
+    public void exotic_worlds$requestDrive(GenerationChunkHolder holder, ChunkStatus status) {
         if (WorldLoopAttachments.wrappedTransformerOf(this.level) == null) {
             return;
         }
 
-        this.toroidal$driveRequests.add(new SeamDriveRequest(holder, status));
+        this.exotic_worlds$driveRequests.add(new SeamDriveRequest(holder, status));
     }
 
     @ModifyVariable(method = "getLatestStatus", at = @At("HEAD"), argsOnly = true)
-    private long toroidal$foldLatestStatusKey(long key) {
+    private long exotic_worlds$foldLatestStatusKey(long key) {
         return WorldLoopAttachments.transformerOf(this.level).foldChunkKey(key);
     }
 
     @Inject(method = "runGenerationTasks", at = @At("HEAD"))
-    private void toroidal$driveWaitedOnHolders(CallbackInfo ci) {
+    private void exotic_worlds$driveWaitedOnHolders(CallbackInfo ci) {
         ChunkMap scheduler = (ChunkMap) (Object) this;
         SeamDriveRequest request;
-        while ((request = this.toroidal$driveRequests.poll()) != null) {
+        while ((request = this.exotic_worlds$driveRequests.poll()) != null) {
             request.holder().scheduleChunkGenerationTask(request.status(), scheduler);
         }
     }
 
     @Override
-    public ServerLevel toroidal$level() {
+    public ServerLevel exotic_worlds$level() {
         return this.level;
     }
 
@@ -229,7 +229,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
                             + "Lnet/minecraft/core/HolderGetter;J"
                             + "Lnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;)"
                             + "Lnet/minecraft/world/level/levelgen/RandomState;"))
-    private RandomState toroidal$bindRouterBuild(
+    private RandomState exotic_worlds$bindRouterBuild(
             HolderGetter<NormalNoise> noises,
             long seed,
             NoiseGeneratorSettings settings,
@@ -250,7 +250,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
                             + "Lnet/minecraft/world/level/block/state/BlockState;I"
                             + "Lnet/minecraft/world/level/levelgen/NoiseRouter;)"
                             + "Lnet/minecraft/world/level/levelgen/RandomState;"))
-    private RandomState toroidal$bindPlainRouterBuild(
+    private RandomState exotic_worlds$bindPlainRouterBuild(
             HolderGetter<NormalNoise> noises,
             long seed,
             boolean useLegacyRandom,
@@ -264,40 +264,40 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void toroidal$bindLevelToTickets(CallbackInfo ci) {
-        ((LevelBindable) this.getDistanceManager()).toroidal$bindLevel(this.level);
-        ((LevelBindable) this.ticketStorage).toroidal$bindLevel(this.level);
+    private void exotic_worlds$bindLevelToTickets(CallbackInfo ci) {
+        ((LevelBindable) this.getDistanceManager()).exotic_worlds$bindLevel(this.level);
+        ((LevelBindable) this.ticketStorage).exotic_worlds$bindLevel(this.level);
     }
 
     @WrapOperation(
             method = "updatePlayerStatus",
             at = @At(
                     value = "INVOKE",
-                    target = toroidal$SECTION_POS_OF_ENTITY))
-    private SectionPos toroidal$canonicalStatusSection(EntityAccess entity, Operation<SectionPos> original) {
-        return toroidal$canonical(original.call(entity));
+                    target = exotic_worlds$SECTION_POS_OF_ENTITY))
+    private SectionPos exotic_worlds$canonicalStatusSection(EntityAccess entity, Operation<SectionPos> original) {
+        return exotic_worlds$canonical(original.call(entity));
     }
 
     @WrapOperation(
             method = "updatePlayerPos",
             at = @At(
                     value = "INVOKE",
-                    target = toroidal$SECTION_POS_OF_ENTITY))
-    private SectionPos toroidal$canonicalPosSection(EntityAccess entity, Operation<SectionPos> original) {
-        return toroidal$canonical(original.call(entity));
+                    target = exotic_worlds$SECTION_POS_OF_ENTITY))
+    private SectionPos exotic_worlds$canonicalPosSection(EntityAccess entity, Operation<SectionPos> original) {
+        return exotic_worlds$canonical(original.call(entity));
     }
 
     @WrapOperation(
             method = "move",
             at = @At(
                     value = "INVOKE",
-                    target = toroidal$SECTION_POS_OF_ENTITY))
-    private SectionPos toroidal$canonicalMoveSection(EntityAccess entity, Operation<SectionPos> original) {
-        return toroidal$canonical(original.call(entity));
+                    target = exotic_worlds$SECTION_POS_OF_ENTITY))
+    private SectionPos exotic_worlds$canonicalMoveSection(EntityAccess entity, Operation<SectionPos> original) {
+        return exotic_worlds$canonical(original.call(entity));
     }
 
     @Unique
-    private SectionPos toroidal$canonical(SectionPos section) {
+    private SectionPos exotic_worlds$canonical(SectionPos section) {
         return WorldLoopAttachments.transformerOf(this.level).fold(section);
     }
 
@@ -306,21 +306,33 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/level/ServerPlayer;chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
-    private ChunkPos toroidal$canonicalViewCenter(ServerPlayer player, Operation<ChunkPos> original) {
+    private ChunkPos exotic_worlds$canonicalViewCenter(ServerPlayer player, Operation<ChunkPos> original) {
         return WorldLoopAttachments.transformerOf(this.level).fold(original.call(player));
     }
 
     @WrapOperation(
             method = "updateChunkTracking",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkTrackingView;of(Lnet/minecraft/world/level/ChunkPos;I)Lnet/minecraft/server/level/ChunkTrackingView;"))
-    private ChunkTrackingView toroidal$trackWrapped(ChunkPos center, int viewDistance, Operation<ChunkTrackingView> original) {
+    private ChunkTrackingView exotic_worlds$trackWrapped(ChunkPos center, int viewDistance, Operation<ChunkTrackingView> original) {
         ChunkTrackingView view = original.call(center, viewDistance);
-        ((TransformerHolder) (Object) view).toroidal$setTransformer(WorldLoopAttachments.transformerOf(this.level));
+        ((TransformerHolder) (Object) view).exotic_worlds$setTransformer(WorldLoopAttachments.transformerOf(this.level));
         return view;
     }
 
+    @WrapMethod(method = "isChunkTracked")
+    private boolean exotic_worlds$trackPhysicalChunk(ServerPlayer player, int chunkX, int chunkZ,
+            Operation<Boolean> original) {
+        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
+        if (transformer == null) {
+            return original.call(player, chunkX, chunkZ);
+        }
+
+        long folded = transformer.foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
+        return original.call(player, ChunkPos.getX(folded), ChunkPos.getZ(folded));
+    }
+
     @WrapMethod(method = "getPlayerViewDistance")
-    private int toroidal$clampLoopedViewDistance(ServerPlayer player, Operation<Integer> original) {
+    private int exotic_worlds$clampLoopedViewDistance(ServerPlayer player, Operation<Integer> original) {
         int vanilla = original.call(player);
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
         return transformer == null ? vanilla : transformer.limitViewDistance(vanilla);
@@ -329,21 +341,19 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
     @WrapOperation(
             method = "playerIsCloseEnoughForSpawning",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;euclideanDistanceSquared(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/phys/Vec3;)D"))
-    private double toroidal$wrappedSpawnDistance(ChunkPos chunkPos, Vec3 pos, Operation<Double> original) {
+    private double exotic_worlds$wrappedSpawnDistance(ChunkPos chunkPos, Vec3 pos, Operation<Double> original) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
         if (transformer == null) {
             return original.call(chunkPos, pos);
         }
 
-        double chunkCenterX = SectionPos.sectionToBlockCoord(chunkPos.x(), 8);
-        double chunkCenterZ = SectionPos.sectionToBlockCoord(chunkPos.z(), 8);
-        return transformer.sqrDistance(pos.x, 0.0, pos.z, chunkCenterX, 0.0, chunkCenterZ);
+        return transformer.sqrDistance(pos.x, 0.0, pos.z, chunkPos.getMiddleBlockX(), 0.0, chunkPos.getMiddleBlockZ());
     }
 
     @WrapOperation(
             method = "playerIsCloseEnoughTo",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO))
-    private double toroidal$wrappedPlayerDistance(Vec3 playerPos, Vec3 pos, Operation<Double> original) {
+    private double exotic_worlds$wrappedPlayerDistance(Vec3 playerPos, Vec3 pos, Operation<Double> original) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
         if (transformer == null) {
             return original.call(playerPos, pos);

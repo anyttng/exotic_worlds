@@ -26,14 +26,14 @@ public class MoveControlMixin implements NavigationShifter {
     protected double wantedZ;
 
     @WrapMethod(method = "setWantedPosition")
-    private void toroidal$wantedPositionThroughSeam(double x, double y, double z, double speedModifier,
+    private void exotic_worlds$wantedPositionThroughSeam(double x, double y, double z, double speedModifier,
             Operation<Void> original) {
         Vec3 nearest = SeamSteering.nearestCopy(this.mob, new Vec3(x, y, z));
         original.call(nearest.x, nearest.y, nearest.z, speedModifier);
     }
 
     @Override
-    public void toroidal$shiftBy(int shiftX, int shiftZ) {
+    public void exotic_worlds$shiftBy(int shiftX, int shiftZ) {
         this.wantedX += shiftX;
         this.wantedZ += shiftZ;
     }

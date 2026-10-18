@@ -24,7 +24,7 @@ public class ChunkUpdateQueueManagerMixin {
                     value = "INVOKE",
                     target = "Lcom/seibel/distanthorizons/core/level/IDhLevel;"
                             + "updateChunkAsync(Lcom/seibel/distanthorizons/core/wrapperInterfaces/chunk/IChunkWrapper;I)V"))
-    private void toroidal$updateEveryRowCopy(IDhLevel level, IChunkWrapper chunk, int chunkHash,
+    private void exotic_worlds$updateEveryRowCopy(IDhLevel level, IChunkWrapper chunk, int chunkHash,
             Operation<Void> original) {
         original.call(level, chunk, chunkHash);
         DhLattice lattice = DhShapes.of(level);
@@ -36,8 +36,8 @@ public class ChunkUpdateQueueManagerMixin {
         for (ChunkPos copyPos : DhRowCopies.copiesOf(lattice, pos.getX(), pos.getZ())) {
             ChunkWrapper copy = DhRowCopies.buildAt(copyPos, wrapper::copy);
             ChunkWrapperAccessor light = (ChunkWrapperAccessor) wrapper;
-            copy.setBlockLightStorage(light.toroidal$blockLightStorage());
-            copy.setSkyLightStorage(light.toroidal$skyLightStorage());
+            copy.setBlockLightStorage(light.exotic_worlds$blockLightStorage());
+            copy.setSkyLightStorage(light.exotic_worlds$skyLightStorage());
             copy.setIsDhBlockLightCorrect(wrapper.isDhBlockLightingCorrect());
             copy.setIsDhSkyLightCorrect(wrapper.isDhSkyLightCorrect());
             original.call(level, copy, chunkHash);

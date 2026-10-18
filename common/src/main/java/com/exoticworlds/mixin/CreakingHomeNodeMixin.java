@@ -24,7 +24,7 @@ public class CreakingHomeNodeMixin {
             method = "getPathType",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR),
             require = 2)
-    private double toroidal$homeDistanceThroughSeam(BlockPos home, Vec3i pos, Operation<Double> original) {
+    private double exotic_worlds$homeDistanceThroughSeam(BlockPos home, Vec3i pos, Operation<Double> original) {
         return SeamRange.sqr(this.this$0, home, pos);
     }
 }

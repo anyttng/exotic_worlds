@@ -53,7 +53,7 @@ class FramedStructureStartTest {
     }
 
     @Test
-    void aStartAlreadyNearestTheCentreComesBackItself() {
+    void aStartAlreadyNearestTheCenterComesBackItself() {
         StructureStart start = validStart(INSIDE);
 
         assertSame(start, framedToward(start, CENTER),
@@ -62,7 +62,7 @@ class FramedStructureStartTest {
 
     private static StructureStart framedToward(StructureStart start, ChunkPos center) {
         WorldGenLevel unusedLevel = null;
-        return ((FramedStructureStart) (Object) start).toroidal$framedToward(unusedLevel, TORUS, center);
+        return ((FramedStructureStart) (Object) start).exotic_worlds$framedToward(unusedLevel, TORUS, center);
     }
 
     private static StructureStart validStart(ChunkPos pos) {

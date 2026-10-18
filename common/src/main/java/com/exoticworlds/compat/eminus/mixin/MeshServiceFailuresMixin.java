@@ -15,9 +15,9 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 @Mixin(MeshService.class)
 public class MeshServiceFailuresMixin {
     @WrapOperation(method = "build", at = @At(value = "INVOKE", target = EminusInjectionTargets.MESH_LISTENER_FAILED))
-    private void toroidal$failEveryCopy(MeshListener listener, long key, long request, Operation<Void> original) {
+    private void exotic_worlds$failEveryCopy(MeshListener listener, long key, long request, Operation<Void> original) {
         original.call(listener, key, request);
-        CopyBuilds<CellHandle> copies = ((MeshServiceCopies) (Object) this).toroidal$copies();
+        CopyBuilds<CellHandle> copies = ((MeshServiceCopies) (Object) this).exotic_worlds$copies();
         for (CopyBuilds.Member<CellHandle> copy : copies.delivered(request)) {
             original.call(listener, copy.key(), copy.request());
         }

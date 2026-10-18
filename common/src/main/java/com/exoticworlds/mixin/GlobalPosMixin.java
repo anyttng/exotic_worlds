@@ -21,7 +21,7 @@ public class GlobalPosMixin {
             method = "isCloseEnough",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/core/BlockPos;distChessboard(Lnet/minecraft/core/Vec3i;)I"))
-    private int toroidal$chessboardThroughSeam(BlockPos stored, Vec3i asked, Operation<Integer> original,
+    private int exotic_worlds$chessboardThroughSeam(BlockPos stored, Vec3i asked, Operation<Integer> original,
             ResourceKey<Level> dimension) {
         return SeamRange.chessboard(
                 WorldLoopAttachments.wrappedTransformerOf(CurrentServer.get(), dimension), stored, asked);

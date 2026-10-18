@@ -23,7 +23,7 @@ public final class LightLockFolds {
 
     public static long foldKey(int ownerTag, long chunkKey) {
         Owner owner = OWNERS.get(ownerTag);
-        return foldKey(owner != null ? owner.source().toroidal$wrappedTransformer() : null, chunkKey);
+        return foldKey(owner != null ? owner.source().exotic_worlds$wrappedTransformer() : null, chunkKey);
     }
 
     static long foldKey(@Nullable WorldFold fold, long chunkKey) {

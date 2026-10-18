@@ -164,15 +164,15 @@ class SeamTransformTest {
     @Nested
     class CellsAgainstCoordinates {
         @Test
-        void aCellCentreTransformsToTheTransformedCellCentre() {
+        void aCellCenterTransformsToTheTransformedCellCenter() {
             Random random = new Random(SEED);
             for (SeamTransform transform : transforms()) {
                 for (int sample = 0; sample < SAMPLES; sample++) {
                     int coord = random.nextInt(20000) - 10000;
                     assertEquals(transform.applyCellX(coord) + 0.5, transform.applyX(coord + 0.5),
-                            transform + " puts the cell centre elsewhere on x");
+                            transform + " puts the cell center elsewhere on x");
                     assertEquals(transform.applyCellZ(coord) + 0.5, transform.applyZ(coord + 0.5),
-                            transform + " puts the cell centre elsewhere on z");
+                            transform + " puts the cell center elsewhere on z");
                 }
             }
         }

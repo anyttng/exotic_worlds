@@ -20,7 +20,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.world.item.context.BlockPlaceContext;
 
 @Mixin({HelixTreeLeavesBlock.class, JellyshroomCapBlock.class, UmbrellaTreeMembraneBlock.class})
-public class ColourBlockPlacementMixin {
+public class ColorBlockPlacementMixin {
     @Unique
     private static final double SCALE = 0.1;
 
@@ -29,11 +29,11 @@ public class ColourBlockPlacementMixin {
             method = "getStateForPlacement(Lnet/minecraft/world/item/context/BlockPlaceContext;)"
                     + "Lnet/minecraft/world/level/block/state/BlockState;",
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_3D))
-    private double toroidal$lapColourNoise(OpenSimplexNoise noise, double x, double y, double z,
+    private double exotic_worlds$lapColorNoise(OpenSimplexNoise noise, double x, double y, double z,
             Operation<Double> original, @Local(argsOnly = true) BlockPlaceContext context) {
         WorldFold fold = WorldLoopAttachments.transformerOfReader(context.getLevel());
         return fold.isWrapped()
-                ? LapNoise.eval(((StandInHolder) (Object) noise).toroidal$standIn(), fold, x, y, z, SCALE, SCALE)
+                ? LapNoise.eval(((StandInHolder) (Object) noise).exotic_worlds$standIn(), fold, x, y, z, SCALE, SCALE)
                 : original.call(noise, x, y, z);
     }
 }

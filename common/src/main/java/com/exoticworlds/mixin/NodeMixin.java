@@ -31,7 +31,7 @@ public class NodeMixin implements NavigationShifter {
     private int hash;
 
     @Override
-    public void toroidal$shiftBy(int shiftX, int shiftZ) {
+    public void exotic_worlds$shiftBy(int shiftX, int shiftZ) {
         this.x += shiftX;
         this.z += shiftZ;
         this.hash = Node.createHash(this.x, this.y, this.z);

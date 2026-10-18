@@ -18,7 +18,7 @@ public interface HoglinBaseMixin {
     @WrapOperation(
             method = "throwTarget(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/LivingEntity;)V",
             at = @At(value = "NEW", target = InjectionTargets.VEC3_NEW))
-    private static Vec3 toroidal$tossDirectionThroughSeam(double x, double y, double z, Operation<Vec3> original,
+    private static Vec3 exotic_worlds$tossDirectionThroughSeam(double x, double y, double z, Operation<Vec3> original,
             @Local(argsOnly = true, ordinal = 0) LivingEntity body) {
         return SeamAim.foldDelta(body, original.call(x, y, z));
     }

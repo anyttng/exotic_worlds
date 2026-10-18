@@ -44,22 +44,22 @@ public abstract class IslandLayerMixin implements LapIslands {
     private LayerOptions options;
 
     @Unique
-    private final List<LapIslandPlacement.Island> toroidal$islands = new ArrayList<>();
+    private final List<LapIslandPlacement.Island> exotic_worlds$islands = new ArrayList<>();
 
     @Unique
-    private @Nullable EndTerrainLap toroidal$lap;
+    private @Nullable EndTerrainLap exotic_worlds$lap;
 
     @Unique
-    private LapIslandPlacement.@Nullable Grid toroidal$grid;
+    private LapIslandPlacement.@Nullable Grid exotic_worlds$grid;
 
     @Unique
-    private int toroidal$lastX = Integer.MIN_VALUE;
+    private int exotic_worlds$lastX = Integer.MIN_VALUE;
 
     @Unique
-    private int toroidal$lastZ = Integer.MIN_VALUE;
+    private int exotic_worlds$lastZ = Integer.MIN_VALUE;
 
     @Unique
-    private int toroidal$lastHeight;
+    private int exotic_worlds$lastHeight;
 
     @Shadow
     private int getSeed(int x, int z) {
@@ -77,32 +77,32 @@ public abstract class IslandLayerMixin implements LapIslands {
     }
 
     @Override
-    public void toroidal$updatePositionsOnLap(EndTerrainLap lap, double x, double z, int maxHeight) {
-        LapIslandPlacement.Grid grid = this.toroidal$grid;
-        if (grid == null || this.toroidal$lap != lap) {
+    public void exotic_worlds$updatePositionsOnLap(EndTerrainLap lap, double x, double z, int maxHeight) {
+        LapIslandPlacement.Grid grid = this.exotic_worlds$grid;
+        if (grid == null || this.exotic_worlds$lap != lap) {
             grid = lap.grid(this.options.distance);
-            this.toroidal$grid = grid;
-            this.toroidal$lap = lap;
-            this.toroidal$lastX = Integer.MIN_VALUE;
+            this.exotic_worlds$grid = grid;
+            this.exotic_worlds$lap = lap;
+            this.exotic_worlds$lastX = Integer.MIN_VALUE;
         }
 
         int cellX = grid.cellX(x, z);
         int cellZ = grid.z().cell(z);
-        if (cellX == this.toroidal$lastX && cellZ == this.toroidal$lastZ && maxHeight == this.toroidal$lastHeight) {
+        if (cellX == this.exotic_worlds$lastX && cellZ == this.exotic_worlds$lastZ && maxHeight == this.exotic_worlds$lastHeight) {
             return;
         }
 
-        this.toroidal$lastX = cellX;
-        this.toroidal$lastZ = cellZ;
-        this.toroidal$lastHeight = maxHeight;
-        LapIslandPlacement.place(this.toroidal$islands, grid, cellX, cellZ, maxHeight, this.options, this::getSeed,
-                this.density, toroidal$centre());
+        this.exotic_worlds$lastX = cellX;
+        this.exotic_worlds$lastZ = cellZ;
+        this.exotic_worlds$lastHeight = maxHeight;
+        LapIslandPlacement.place(this.exotic_worlds$islands, grid, cellX, cellZ, maxHeight, this.options, this::getSeed,
+                this.density, exotic_worlds$center());
     }
 
     @Override
-    public float toroidal$densityOnLap(double x, double y, double z) {
+    public float exotic_worlds$densityOnLap(double x, double y, double z) {
         float distance = FAR;
-        for (LapIslandPlacement.Island island : this.toroidal$islands) {
+        for (LapIslandPlacement.Island island : this.exotic_worlds$islands) {
             distance = Math.min(distance,
                     getRelativeDistance(getIsland(island.canonical()), island.seated(), x, y, z));
         }
@@ -111,18 +111,18 @@ public abstract class IslandLayerMixin implements LapIslands {
     }
 
     @Override
-    public float toroidal$densityOnLap(double x, double y, double z, float height) {
+    public float exotic_worlds$densityOnLap(double x, double y, double z, float height) {
         this.noise.setIntensity(height);
         this.noise.setRadius(NOISE_RADIUS / (1.0F + height));
-        return toroidal$densityOnLap(x, y, z);
+        return exotic_worlds$densityOnLap(x, y, z);
     }
 
     @Unique
-    private static LapIslandPlacement.Centre toroidal$centre() {
+    private static LapIslandPlacement.Center exotic_worlds$center() {
         WoverEndConfig config = TerrainGenerator.config;
         return config == null
-                ? new LapIslandPlacement.Centre(false, 0, 0L)
-                : new LapIslandPlacement.Centre(GeneratorOptions.hasCentralIsland(), config.centerBiomesSize,
+                ? new LapIslandPlacement.Center(false, 0, 0L)
+                : new LapIslandPlacement.Center(GeneratorOptions.hasCentralIsland(), config.centerBiomesSize,
                         config.innerVoidRadiusSquared);
     }
 }

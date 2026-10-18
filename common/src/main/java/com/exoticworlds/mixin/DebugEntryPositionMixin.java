@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
@@ -23,16 +24,19 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(DebugEntryPosition.class)
 public class DebugEntryPositionMixin {
+    @Unique
+    private static final int POSITION_LINES = 3;
+
     @ModifyArg(
             method = "display",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/components/debug/DebugScreenDisplayer;addToGroup(Lnet/minecraft/resources/Identifier;Ljava/util/Collection;)V"),
             index = 1)
-    private Collection<String> toroidal$wrapPositionLines(Collection<String> lines) {
+    private Collection<String> exotic_worlds$wrapPositionLines(Collection<String> lines) {
         Minecraft minecraft = Minecraft.getInstance();
         Level level = minecraft.level;
-        if (level == null || lines.size() < 3) {
+        if (level == null || lines.size() < POSITION_LINES) {
             return lines;
         }
 
@@ -59,7 +63,7 @@ public class DebugEntryPositionMixin {
                 wrappedChunk.x(), SectionPos.blockToSectionCoord(feet.getY()), wrappedChunk.z(),
                 wrappedChunk.getRegionLocalX(), wrappedChunk.getRegionLocalZ(),
                 wrappedChunk.getRegionX(), wrappedChunk.getRegionZ()));
-        wrapped.addAll(3, List.of(
+        wrapped.addAll(POSITION_LINES, List.of(
                 String.format(Locale.ROOT, "Unwrapped XYZ: %.3f / %.5f / %.3f", rawX, entity.getY(), rawZ),
                 String.format(Locale.ROOT, "Unwrapped Block: %d %d %d", feet.getX(), feet.getY(), feet.getZ()),
                 String.format(Locale.ROOT, "Unwrapped Chunk: %d %d %d",

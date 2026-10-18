@@ -63,26 +63,26 @@ public class ServerLevelMixin {
     private PersistentEntitySectionManager<Entity> entityManager;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void toroidal$bindLevelToTickContainers(CallbackInfo ci) {
+    private void exotic_worlds$bindLevelToTickContainers(CallbackInfo ci) {
         ServerLevel level = (ServerLevel) (Object) this;
-        ((LevelBindable) level.getBlockTicks()).toroidal$bindLevel(level);
-        ((LevelBindable) level.getFluidTicks()).toroidal$bindLevel(level);
-        ((LevelBindable) level.getRaids()).toroidal$bindLevel(level);
-        ((LevelBindable) this.entityManager).toroidal$bindLevel(level);
-        ((LevelBindable) level.getPathTypeCache()).toroidal$bindLevel(level);
+        ((LevelBindable) level.getBlockTicks()).exotic_worlds$bindLevel(level);
+        ((LevelBindable) level.getFluidTicks()).exotic_worlds$bindLevel(level);
+        ((LevelBindable) level.getRaids()).exotic_worlds$bindLevel(level);
+        ((LevelBindable) this.entityManager).exotic_worlds$bindLevel(level);
+        ((LevelBindable) level.getPathTypeCache()).exotic_worlds$bindLevel(level);
     }
 
     @Inject(method = "getWorldBorder", at = @At("RETURN"))
-    private void toroidal$bindBorderToLevelShape(CallbackInfoReturnable<WorldBorder> cir) {
+    private void exotic_worlds$bindBorderToLevelShape(CallbackInfoReturnable<WorldBorder> cir) {
         WorldFold transformer = WorldLoopAttachments.transformerOf((ServerLevel) (Object) this);
         TransformerHolder border = (TransformerHolder) cir.getReturnValue();
-        if (border.toroidal$transformer() != transformer) {
-            border.toroidal$setTransformer(transformer);
+        if (border.exotic_worlds$transformer() != transformer) {
+            border.exotic_worlds$setTransformer(transformer);
         }
     }
 
     @Inject(method = "tickNonPassenger", at = @At("TAIL"))
-    private void toroidal$wrapEntityIntoBounds(Entity entity, CallbackInfo ci) {
+    private void exotic_worlds$wrapEntityIntoBounds(Entity entity, CallbackInfo ci) {
         if (!(entity instanceof Player)) {
             SeamSnap.intoBounds(entity);
         }
@@ -93,7 +93,7 @@ public class ServerLevelMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/ChunkPos;rangeClosed(Lnet/minecraft/world/level/ChunkPos;I)Ljava/util/stream/Stream;"))
-    private Stream<ChunkPos> toroidal$waitOnPhysicalChunks(
+    private Stream<ChunkPos> exotic_worlds$waitOnPhysicalChunks(
             ChunkPos center, int radius, Operation<Stream<ChunkPos>> original) {
         Stream<ChunkPos> square = original.call(center, radius);
         ServerLevel level = (ServerLevel) (Object) this;
@@ -108,7 +108,7 @@ public class ServerLevelMixin {
     @WrapOperation(
             method = SEND_PARTICLES_TO_PLAYER,
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean toroidal$particleRangeThroughSeam(BlockPos listener, Position particle, double range,
+    private boolean exotic_worlds$particleRangeThroughSeam(BlockPos listener, Position particle, double range,
             Operation<Boolean> original) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf((ServerLevel) (Object) this);
         if (transformer == null) {
@@ -121,7 +121,7 @@ public class ServerLevelMixin {
     @WrapOperation(
             method = SEND_PARTICLES_TO_PLAYER,
             at = @At(value = "INVOKE", target = InjectionTargets.SERVER_GAME_PACKET_LISTENER_SEND))
-    private void toroidal$measureParticleReach(ServerGamePacketListenerImpl connection, Packet<?> packet,
+    private void exotic_worlds$measureParticleReach(ServerGamePacketListenerImpl connection, Packet<?> packet,
             Operation<Void> original, @Local(argsOnly = true) boolean overrideLimiter) {
         try (MeasuredReach _ = MeasuredReach.measuring(
                 overrideLimiter ? OVERRIDDEN_PARTICLE_RANGE : PARTICLE_RANGE)) {
@@ -132,7 +132,7 @@ public class ServerLevelMixin {
     @WrapOperation(
             method = "explode",
             at = @At(value = "INVOKE", target = InjectionTargets.SERVER_GAME_PACKET_LISTENER_SEND))
-    private void toroidal$measureExplosionReach(ServerGamePacketListenerImpl connection, Packet<?> packet,
+    private void exotic_worlds$measureExplosionReach(ServerGamePacketListenerImpl connection, Packet<?> packet,
             Operation<Void> original) {
         try (MeasuredReach _ = MeasuredReach.measuring(EXPLOSION_RANGE)) {
             original.call(connection, packet);
@@ -142,7 +142,7 @@ public class ServerLevelMixin {
     @WrapOperation(
             method = "lambda$globalLevelEvent$0",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_AT_CENTER_OF))
-    private Vec3 toroidal$globalEventTowardListener(Vec3i pos, Operation<Vec3> original,
+    private Vec3 exotic_worlds$globalEventTowardListener(Vec3i pos, Operation<Vec3> original,
             @Local(argsOnly = true) ServerPlayer player) {
         return SeamSteering.nearestCopy(player, original.call(pos));
     }
@@ -150,30 +150,30 @@ public class ServerLevelMixin {
     @WrapOperation(
             method = "destroyBlockProgress",
             at = @At(value = "INVOKE", target = InjectionTargets.SERVER_PLAYER_GET_X))
-    private double toroidal$crackListenerXThroughSeam(ServerPlayer player, Operation<Double> original,
+    private double exotic_worlds$crackListenerXThroughSeam(ServerPlayer player, Operation<Double> original,
             @Local(argsOnly = true) BlockPos blockPos) {
-        return toroidal$listenerCoord(player, Direction.Axis.X, blockPos, original);
+        return exotic_worlds$listenerCoord(player, Direction.Axis.X, blockPos, original);
     }
 
     @WrapOperation(
             method = "destroyBlockProgress",
             at = @At(value = "INVOKE", target = InjectionTargets.SERVER_PLAYER_GET_Z))
-    private double toroidal$crackListenerZThroughSeam(ServerPlayer player, Operation<Double> original,
+    private double exotic_worlds$crackListenerZThroughSeam(ServerPlayer player, Operation<Double> original,
             @Local(argsOnly = true) BlockPos blockPos) {
-        return toroidal$listenerCoord(player, Direction.Axis.Z, blockPos, original);
+        return exotic_worlds$listenerCoord(player, Direction.Axis.Z, blockPos, original);
     }
 
     @Unique
-    private static double toroidal$listenerCoord(ServerPlayer player, Direction.Axis axis, BlockPos blockPos,
+    private static double exotic_worlds$listenerCoord(ServerPlayer player, Direction.Axis axis, BlockPos blockPos,
             Operation<Double> original) {
-        WorldFold transformer = ((TransformerSource) player).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) player).exotic_worlds$wrappedTransformer();
         return transformer == null
                 ? original.call(player)
                 : NearestCopy.toward(transformer, axis, Vec3.atLowerCornerOf(blockPos), player.position());
     }
 
     @WrapMethod(method = "tickPrecipitation")
-    private void toroidal$bindPrecipitationTransformer(BlockPos pos, Operation<Void> original) {
+    private void exotic_worlds$bindPrecipitationTransformer(BlockPos pos, Operation<Void> original) {
         ServerLevel level = (ServerLevel) (Object) this;
         GenerationTransformerContext.runWithTransformer(
                 WorldLoopAttachments.transformerOf(level), () -> original.call(pos));

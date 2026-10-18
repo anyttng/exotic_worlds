@@ -18,7 +18,7 @@ public class SonicBoomAimMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/LivingEntity;getEyePosition()Lnet/minecraft/world/phys/Vec3;"))
-    private static Vec3 toroidal$boomTargetThroughSeam(Vec3 eyePosition, @Local(argsOnly = true) Warden body) {
+    private static Vec3 exotic_worlds$boomTargetThroughSeam(Vec3 eyePosition, @Local(argsOnly = true) Warden body) {
         return SeamSteering.nearestCopy(body, eyePosition);
     }
 }

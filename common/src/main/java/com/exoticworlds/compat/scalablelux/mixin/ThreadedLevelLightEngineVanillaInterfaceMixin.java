@@ -11,7 +11,7 @@ import com.exoticworlds.compat.scalablelux.LightLockFolds;
         remap = false)
 public class ThreadedLevelLightEngineVanillaInterfaceMixin {
     @Inject(method = "close", at = @At("HEAD"))
-    private void toroidal$releaseLockOwner(CallbackInfo ci) {
+    private void exotic_worlds$releaseLockOwner(CallbackInfo ci) {
         LightLockFolds.release(this);
     }
 }

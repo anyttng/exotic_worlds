@@ -1,9 +1,13 @@
 package com.exoticworlds.engine.fold;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -24,7 +28,7 @@ class ChunkTrackingDifferenceTest {
     private static final int MIN_CHUNK = -16;
     private static final int MAX_CHUNK = 15;
     private static final int VIEW_DISTANCE = 8;
-    private static final int NEIGHBOUR_BUFFER = 2;
+    private static final int NEIGHBOR_BUFFER = 2;
 
     private static final WorldFold CYLINDER = WorldFolds.of(FlatShape.cylinder(
             new WorldLoopBounds(new AxisBounds.Looped(MIN_CHUNK, MAX_CHUNK + 1), AxisBounds.Unbounded.INSTANCE)));
@@ -60,12 +64,30 @@ class ChunkTrackingDifferenceTest {
         assertEquals(without(previousChunks, nextChunks), left);
     }
 
+    @Test
+    void aRawPositionAcrossTheSeamIsTrackedAsItsPhysicalChunk() {
+        ChunkTrackingView.Positioned view = view(TORUS, MAX_CHUNK, 0);
+
+        assertTrue(view.contains(MAX_CHUNK + 1, 0), "the raw neighbor across the seam is refused");
+        assertEquals(view.contains(MIN_CHUNK + 2, 0), view.contains(MAX_CHUNK + 3, 0));
+        assertFalse(view.contains(MAX_CHUNK + VIEW_DISTANCE + NEIGHBOR_BUFFER + 1, 0));
+    }
+
+    @Test
+    void forEachOverTheSeamVisitsEachPhysicalChunkOnce() {
+        List<ChunkPos> visited = new ArrayList<>();
+        view(TORUS, MAX_CHUNK, 0).forEach(visited::add);
+
+        assertEquals(viewChunks(TORUS, MAX_CHUNK, 0), new HashSet<>(visited));
+        assertEquals(visited.size(), new HashSet<>(visited).size(), "a physical chunk was visited twice");
+    }
+
     private static ChunkTrackingView.Positioned view(WorldFold fold, int centerX, int centerZ) {
         ChunkTrackingView.Positioned view =
                 (ChunkTrackingView.Positioned) ChunkTrackingView.of(new ChunkPos(centerX, centerZ), VIEW_DISTANCE);
-        ((TransformerHolder) (Object) view).toroidal$setTransformer(fold);
+        ((TransformerHolder) (Object) view).exotic_worlds$setTransformer(fold);
 
-        assertSame(fold, ((TransformerHolder) (Object) view).toroidal$transformer(), "the view kept no transformer");
+        assertSame(fold, ((TransformerHolder) (Object) view).exotic_worlds$transformer(), "the view kept no transformer");
         return view;
     }
 
@@ -75,8 +97,8 @@ class ChunkTrackingDifferenceTest {
 
         for (int x = centerX - radius; x <= centerX + radius; x++) {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
-                long deltaX = Math.max(0, Math.abs(x - centerX) - NEIGHBOUR_BUFFER);
-                long deltaZ = Math.max(0, Math.abs(z - centerZ) - NEIGHBOUR_BUFFER);
+                long deltaX = Math.max(0, Math.abs(x - centerX) - NEIGHBOR_BUFFER);
+                long deltaZ = Math.max(0, Math.abs(z - centerZ) - NEIGHBOR_BUFFER);
                 if (deltaX * deltaX + deltaZ * deltaZ < (long) VIEW_DISTANCE * VIEW_DISTANCE) {
                     chunks.add(fold.fold(new ChunkPos(x, z)));
                 }

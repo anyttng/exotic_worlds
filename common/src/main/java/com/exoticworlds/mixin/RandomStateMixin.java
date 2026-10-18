@@ -37,23 +37,23 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 @Mixin(RandomState.class)
 public class RandomStateMixin implements CoastLiftCache, TransformerSource, FoldedRandomState {
     @Unique
-    private static final String toroidal$CONSTRUCTOR = "<init>(Lnet/minecraft/core/HolderGetter;JZ"
+    private static final String exotic_worlds$CONSTRUCTOR = "<init>(Lnet/minecraft/core/HolderGetter;JZ"
             + "Lnet/minecraft/world/level/block/state/BlockState;ILnet/minecraft/world/level/levelgen/NoiseRouter;)V";
 
     @Unique
-    private volatile double toroidal$coastLift;
+    private volatile double exotic_worlds$coastLift;
 
     @Unique
-    private @Nullable WorldFold toroidal$fold;
+    private @Nullable WorldFold exotic_worlds$fold;
 
     @Unique
-    private @Nullable FoldedCompileContext toroidal$compileContext;
+    private @Nullable FoldedCompileContext exotic_worlds$compileContext;
 
     @Unique
-    private volatile @Nullable AquiferCells toroidal$aquiferCells;
+    private volatile @Nullable AquiferCells exotic_worlds$aquiferCells;
 
     @ModifyArg(
-            method = toroidal$CONSTRUCTOR,
+            method = exotic_worlds$CONSTRUCTOR,
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/levelgen/material/MaterialSystem;<init>("
@@ -62,34 +62,34 @@ public class RandomStateMixin implements CoastLiftCache, TransformerSource, Fold
                             + "Lnet/minecraft/world/level/levelgen/densityfunction/DensityFunction;"
                             + "Lnet/minecraft/world/level/levelgen/PositionalRandomFactory;)V"),
             index = 4)
-    private PositionalRandomFactory toroidal$materialRandomFromCanonical(PositionalRandomFactory noiseRandom) {
+    private PositionalRandomFactory exotic_worlds$materialRandomFromCanonical(PositionalRandomFactory noiseRandom) {
         WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
         return fold == null ? noiseRandom : new CanonicalRandomFactory(noiseRandom, fold);
     }
 
     @ModifyArg(
-            method = toroidal$CONSTRUCTOR,
+            method = exotic_worlds$CONSTRUCTOR,
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/levelgen/densityfunction/DensityFunctionCompiler;<init>("
                             + "Lnet/minecraft/world/level/levelgen/densityfunction/DensityFunction$CompileContext;)V"))
-    private DensityFunction.CompileContext toroidal$compileWithTheFold(DensityFunction.CompileContext context,
+    private DensityFunction.CompileContext exotic_worlds$compileWithTheFold(DensityFunction.CompileContext context,
             @Local(argsOnly = true) NoiseRouter router) {
         WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
         if (fold == null) {
             return context;
         }
 
-        this.toroidal$compileContext = new FoldedCompileContext(context, fold, this,
-                NoiseScaleLadder.of(fold, toroidal$roots(router), context));
-        return this.toroidal$compileContext;
+        this.exotic_worlds$compileContext = new FoldedCompileContext(context, fold, this,
+                NoiseScaleLadder.of(fold, exotic_worlds$roots(router), context));
+        return this.exotic_worlds$compileContext;
     }
 
-    @Inject(method = toroidal$CONSTRUCTOR, at = @At("RETURN"))
-    private void toroidal$runGenerationHooks(HolderGetter<NormalNoise> noises, long seed, boolean useLegacyRandom,
+    @Inject(method = exotic_worlds$CONSTRUCTOR, at = @At("RETURN"))
+    private void exotic_worlds$runGenerationHooks(HolderGetter<NormalNoise> noises, long seed, boolean useLegacyRandom,
             BlockState defaultBlock, int seaLevel, NoiseRouter router, CallbackInfo callback) {
         WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
-        this.toroidal$fold = fold;
+        this.exotic_worlds$fold = fold;
         if (fold != null) {
             GenerationMoments.runAtRandomState((RandomState) (Object) this, new ToroidalShapeView(fold),
                     fold.generationOptions(), seaLevel);
@@ -97,46 +97,46 @@ public class RandomStateMixin implements CoastLiftCache, TransformerSource, Fold
     }
 
     @ModifyReturnValue(method = "createClimateSampler", at = @At("RETURN"))
-    private Climate.Sampler toroidal$stampTheFold(Climate.Sampler sampler) {
-        if (this.toroidal$fold != null) {
-            ((FoldedClimateSampler) (Object) sampler).toroidal$fold(this.toroidal$fold);
+    private Climate.Sampler exotic_worlds$stampTheFold(Climate.Sampler sampler) {
+        if (this.exotic_worlds$fold != null) {
+            ((FoldedClimateSampler) (Object) sampler).exotic_worlds$fold(this.exotic_worlds$fold);
         }
         return sampler;
     }
 
     @Unique
-    private static List<DensityFunction> toroidal$roots(NoiseRouter router) {
+    private static List<DensityFunction> exotic_worlds$roots(NoiseRouter router) {
         return List.of(router.temperature(), router.vegetation(), router.continents(), router.erosion(),
                 router.depth(), router.ridges(), router.chunkSurfaceLevel(), router.finalDensity());
     }
 
     @Override
-    public @Nullable FoldedCompileContext toroidal$compileContext() {
-        return this.toroidal$compileContext;
+    public @Nullable FoldedCompileContext exotic_worlds$compileContext() {
+        return this.exotic_worlds$compileContext;
     }
 
     @Override
-    public @Nullable AquiferCells toroidal$aquiferCells() {
-        return this.toroidal$aquiferCells;
+    public @Nullable AquiferCells exotic_worlds$aquiferCells() {
+        return this.exotic_worlds$aquiferCells;
     }
 
     @Override
-    public void toroidal$aquiferCells(AquiferCells cells) {
-        this.toroidal$aquiferCells = cells;
+    public void exotic_worlds$aquiferCells(AquiferCells cells) {
+        this.exotic_worlds$aquiferCells = cells;
     }
 
     @Override
-    public @Nullable WorldFold toroidal$wrappedTransformer() {
-        return this.toroidal$fold;
+    public @Nullable WorldFold exotic_worlds$wrappedTransformer() {
+        return this.exotic_worlds$fold;
     }
 
     @Override
-    public double toroidal$coastLift() {
-        return this.toroidal$coastLift;
+    public double exotic_worlds$coastLift() {
+        return this.exotic_worlds$coastLift;
     }
 
     @Override
-    public void toroidal$coastLift(double lift) {
-        this.toroidal$coastLift = lift;
+    public void exotic_worlds$coastLift(double lift) {
+        this.exotic_worlds$coastLift = lift;
     }
 }

@@ -23,7 +23,7 @@ public class AquiferSeamMixin {
     @TargetHandler(
             mixin = "com.ishland.c2me.opts.worldgen.vanilla.mixin.aquifer.MixinAquiferSamplerImpl",
             name = "onInit")
-    private void toroidal$seedAquiferCellFromCanonical(
+    private void exotic_worlds$seedAquiferCellFromCanonical(
             PositionalRandomFactory factory,
             RandomSource random,
             int gridX,

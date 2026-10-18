@@ -4,10 +4,10 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 
 public interface ClientBoundsHolder {
-    default WorldFold toroidal$clientBounds() {
+    default WorldFold exotic_worlds$clientBounds() {
         return WorldFolds.NOOP;
     }
 
-    default void toroidal$setClientBounds(WorldFold transformer) {
+    default void exotic_worlds$setClientBounds(WorldFold transformer) {
     }
 }

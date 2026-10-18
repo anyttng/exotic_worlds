@@ -32,6 +32,8 @@ public final class InjectionTargets {
 
     public static final String CHUNK_POS_PACK = "Lnet/minecraft/world/level/ChunkPos;pack(II)J";
 
+    public static final String CONSUMER_ACCEPT = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V";
+
     public static final String DENSITY_FUNCTION_COMPILE_SAMPLER =
             "compileSampler(Lnet/minecraft/world/level/levelgen/densityfunction/DensityFunction$CompileContext;)"
                     + "Lnet/minecraft/world/level/levelgen/densityfunction/DensitySampler;";

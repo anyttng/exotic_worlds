@@ -5,8 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.accessors.TransformerSource;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
 import net.minecraft.world.entity.Entity;
@@ -21,12 +20,11 @@ public class EntitySectionCallbackMixin {
     @ModifyExpressionValue(
             method = "onMove",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/core/SectionPos;asLong(Lnet/minecraft/core/BlockPos;)J"))
-    private long toroidal$fileInPhysicalSection(long sectionKey) {
+    private long exotic_worlds$fileInPhysicalSection(long sectionKey) {
         if (!(this.entity instanceof Entity actualEntity)) {
             return sectionKey;
         }
 
-        WorldFold transformer = ((TransformerSource) actualEntity).toroidal$wrappedTransformer();
-        return transformer == null ? sectionKey : transformer.foldSectionNode(sectionKey);
+        return WorldLoopAttachments.transformerOf(actualEntity.level()).foldSectionNode(sectionKey);
     }
 }

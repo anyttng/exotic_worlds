@@ -6,7 +6,7 @@ import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WrapDomain;
 
 @SuppressWarnings("ArrayRecordComponent")
-record PeriodicLattice(byte[] permutations, double xOffset, double yOffset, double zOffset, double fudgeYScale,
+public record PeriodicLattice(byte[] permutations, double xOffset, double yOffset, double zOffset, double fudgeYScale,
         Axis x, Axis y, Axis z, double correction, double anchor, @Nullable Shear shear) {
     record Axis(boolean folds, WrapDomain domain, long period, double scale) {
         static final Axis PASS_THROUGH = new Axis(false, new WrapDomain.Noop(), PeriodicNoiseSampler.UNBOUNDED_PERIOD,

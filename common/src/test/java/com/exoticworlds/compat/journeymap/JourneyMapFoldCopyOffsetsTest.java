@@ -88,11 +88,11 @@ class JourneyMapFoldCopyOffsetsTest {
     }
 
     @Test
-    void aSingleCopyOverlayKeepsTheCopyNearestTheScreenCentre() {
+    void aSingleCopyOverlayKeepsTheCopyNearestTheScreenCenter() {
         double[][] offsets = {{-400.0, 0.0}, {0.0, 0.0}, {400.0, 0.0}};
         double[][] kept = JourneyMapFold.nearestCopyOffset(offsets, rect(100.0, 275.0, 50.0, 50.0), SCREEN);
         assertArrayEquals(new double[][] {{400.0, 0.0}}, kept,
-                "the copy at 500..550 sits nearest the screen centre at 500");
+                "the copy at 500..550 sits nearest the screen center at 500");
     }
 
     @Test

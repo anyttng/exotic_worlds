@@ -28,9 +28,9 @@ public class PrepareRamNearestTargetMixin {
             method = "calculateRammingStartPosition",
             at = @At(value = "INVOKE", target = InjectionTargets.STREAM_SORTED),
             index = 0)
-    private Comparator<BlockPos> toroidal$ramStartOrderThroughSeam(Comparator<BlockPos> original,
+    private Comparator<BlockPos> exotic_worlds$ramStartOrderThroughSeam(Comparator<BlockPos> original,
             @Local(argsOnly = true) PathfinderMob body) {
-        WorldFold transformer = ((TransformerSource) body).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) body).exotic_worlds$wrappedTransformer();
         if (transformer == null) {
             return original;
         }
@@ -42,7 +42,7 @@ public class PrepareRamNearestTargetMixin {
             method = "tick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/PathfinderMob;J)V",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/ai/behavior/PrepareRamNearestTarget$RamCandidate;getStartPosition()Lnet/minecraft/core/BlockPos;"))
-    private BlockPos toroidal$ramStartThroughSeam(BlockPos startPos, @Local(argsOnly = true) PathfinderMob body) {
+    private BlockPos exotic_worlds$ramStartThroughSeam(BlockPos startPos, @Local(argsOnly = true) PathfinderMob body) {
         return WorldLoopAttachments.transformerOf(body.level()).fold(startPos);
     }
 
@@ -50,9 +50,9 @@ public class PrepareRamNearestTargetMixin {
             method = "tick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/PathfinderMob;J)V",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/ai/behavior/PrepareRamNearestTarget;getEdgeOfBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/Vec3;"))
-    private Vec3 toroidal$ramEdgeThroughSeam(PrepareRamNearestTarget<?> self, BlockPos startRamPos, BlockPos targetPos,
+    private Vec3 exotic_worlds$ramEdgeThroughSeam(PrepareRamNearestTarget<?> self, BlockPos startRamPos, BlockPos targetPos,
             Operation<Vec3> original, @Local(argsOnly = true) PathfinderMob body) {
-        WorldFold transformer = ((TransformerSource) body).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) body).exotic_worlds$wrappedTransformer();
         return original.call(self, NearestCopy.toward(transformer, targetPos, startRamPos), targetPos);
     }
 }

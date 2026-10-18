@@ -8,7 +8,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.accessors.LevelBindable;
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.level.BoundLevelFold;
 
 import net.minecraft.server.level.DistanceManager;
@@ -35,30 +34,29 @@ public class DistanceManagerMixin implements LevelBindable {
     private DistanceManager.PlayerTicketTracker playerTicketManager;
 
     @Unique
-    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
+    private final BoundLevelFold exotic_worlds$bound = new BoundLevelFold();
 
     @Override
-    public void toroidal$bindLevel(ServerLevel level) {
-        this.toroidal$bound.bind(level);
-        ((LevelBindable) this.loadingChunkTracker).toroidal$bindLevel(level);
-        ((LevelBindable) this.simulationChunkTracker).toroidal$bindLevel(level);
-        ((LevelBindable) this.naturalSpawnChunkCounter).toroidal$bindLevel(level);
-        ((LevelBindable) this.playerTicketManager).toroidal$bindLevel(level);
+    public void exotic_worlds$bindLevel(ServerLevel level) {
+        this.exotic_worlds$bound.bind(level);
+        ((LevelBindable) this.loadingChunkTracker).exotic_worlds$bindLevel(level);
+        ((LevelBindable) this.simulationChunkTracker).exotic_worlds$bindLevel(level);
+        ((LevelBindable) this.naturalSpawnChunkCounter).exotic_worlds$bindLevel(level);
+        ((LevelBindable) this.playerTicketManager).exotic_worlds$bindLevel(level);
     }
 
     @ModifyVariable(method = "inEntityTickingRange", at = @At("HEAD"), argsOnly = true)
-    private long toroidal$entityTickingOnPhysicalChunk(long chunkKey) {
-        return this.toroidal$foldKey(chunkKey);
+    private long exotic_worlds$entityTickingOnPhysicalChunk(long chunkKey) {
+        return this.exotic_worlds$foldKey(chunkKey);
     }
 
     @ModifyVariable(method = "inBlockTickingRange", at = @At("HEAD"), argsOnly = true)
-    private long toroidal$blockTickingOnPhysicalChunk(long chunkKey) {
-        return this.toroidal$foldKey(chunkKey);
+    private long exotic_worlds$blockTickingOnPhysicalChunk(long chunkKey) {
+        return this.exotic_worlds$foldKey(chunkKey);
     }
 
     @Unique
-    private long toroidal$foldKey(long key) {
-        WorldFold transformer = this.toroidal$bound.wrapped();
-        return transformer == null ? key : transformer.foldChunkKey(key);
+    private long exotic_worlds$foldKey(long key) {
+        return this.exotic_worlds$bound.fold().foldChunkKey(key);
     }
 }

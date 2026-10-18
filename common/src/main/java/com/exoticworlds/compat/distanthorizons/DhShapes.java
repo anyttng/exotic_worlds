@@ -16,7 +16,7 @@ public final class DhShapes {
     public static @Nullable DhLattice of(IDhLevel level) {
         return level == null
                 ? null
-                : ((DhLevelLattice) level).toroidal$lattices().latticeOf(foldOf(mcLevel(level.getLevelWrapper())));
+                : ((DhLevelLattice) level).exotic_worlds$lattices().latticeOf(foldOf(mcLevel(level.getLevelWrapper())));
     }
 
     public static @Nullable WorldFold serverFoldOf(IDhLevel level) {

@@ -97,7 +97,7 @@ public final class SeamRange {
     }
 
     private static @Nullable WorldFold transformerOf(Entity levelSource) {
-        return ((TransformerSource) levelSource).toroidal$wrappedTransformer();
+        return ((TransformerSource) levelSource).exotic_worlds$wrappedTransformer();
     }
 
     private SeamRange() {

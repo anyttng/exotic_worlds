@@ -21,20 +21,20 @@ public class CreakingHeartBlockEntityMixin {
             "Lnet/minecraft/world/phys/AABB;getCenter()Lnet/minecraft/world/phys/Vec3;";
 
     @ModifyExpressionValue(method = "creakingHurt", at = @At(value = "INVOKE", target = AABB_GET_CENTER))
-    private Vec3 toroidal$hurtTargetThroughSeam(Vec3 centre) {
-        return toroidal$nearestToHeart((CreakingHeartBlockEntity) (Object) this, centre);
+    private Vec3 exotic_worlds$hurtTargetThroughSeam(Vec3 center) {
+        return exotic_worlds$nearestToHeart((CreakingHeartBlockEntity) (Object) this, center);
     }
 
     @ModifyExpressionValue(method = "lambda$serverTick$0", at = @At(value = "INVOKE", target = AABB_GET_CENTER))
-    private static Vec3 toroidal$hurtRefreshThroughSeam(Vec3 centre,
+    private static Vec3 exotic_worlds$hurtRefreshThroughSeam(Vec3 center,
             @Local(argsOnly = true) CreakingHeartBlockEntity heart) {
-        return toroidal$nearestToHeart(heart, centre);
+        return exotic_worlds$nearestToHeart(heart, center);
     }
 
     @Unique
-    private static Vec3 toroidal$nearestToHeart(CreakingHeartBlockEntity heart, Vec3 centre) {
+    private static Vec3 exotic_worlds$nearestToHeart(CreakingHeartBlockEntity heart, Vec3 center) {
         BlockPos heartPos = heart.getBlockPos();
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(heart.getLevel());
-        return NearestCopy.toward(transformer, Vec3.atCenterOf(heartPos), centre);
+        return NearestCopy.toward(transformer, Vec3.atCenterOf(heartPos), center);
     }
 }

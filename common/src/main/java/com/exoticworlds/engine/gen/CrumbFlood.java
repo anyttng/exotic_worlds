@@ -56,10 +56,10 @@ final class CrumbFlood {
 
                 for (int axis = 0; axis < CellGrid.AXES; axis++) {
                     for (int step = -1; step <= 1; step += 2) {
-                        int neighbour = grid.neighbour(cell, axis, step);
-                        if (neighbour != CellGrid.NO_CELL && solid[neighbour] && !taken[neighbour]) {
-                            taken[neighbour] = true;
-                            pending[tail++] = neighbour;
+                        int neighbor = grid.neighbor(cell, axis, step);
+                        if (neighbor != CellGrid.NO_CELL && solid[neighbor] && !taken[neighbor]) {
+                            taken[neighbor] = true;
+                            pending[tail++] = neighbor;
                         }
                     }
                 }
@@ -116,9 +116,9 @@ final class CrumbFlood {
                     continue;
                 }
 
-                int neighbour = grid.neighbour(cell, axis, step);
-                if (neighbour != CellGrid.NO_CELL && fluid[neighbour] != NO_FLUID) {
-                    return fluid[neighbour];
+                int neighbor = grid.neighbor(cell, axis, step);
+                if (neighbor != CellGrid.NO_CELL && fluid[neighbor] != NO_FLUID) {
+                    return fluid[neighbor];
                 }
             }
         }

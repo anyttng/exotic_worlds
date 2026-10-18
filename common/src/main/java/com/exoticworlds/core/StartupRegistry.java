@@ -17,7 +17,7 @@ public final class StartupRegistry<K, V> {
 
     StartupRegistry(RegistrationBoundary boundary, String subject) {
         this.subject = subject;
-        boundary.enrol(this);
+        boundary.register(this);
     }
 
     public synchronized void register(K key, V value) {

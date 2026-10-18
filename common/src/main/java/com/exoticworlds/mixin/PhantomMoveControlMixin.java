@@ -24,7 +24,7 @@ public class PhantomMoveControlMixin {
             at = @At(value = "FIELD",
                     target = InjectionTargets.PHANTOM_MOVE_TARGET_POINT,
                     opcode = Opcodes.GETFIELD))
-    private Vec3 toroidal$moveTargetThroughSeam(Vec3 moveTargetPoint) {
+    private Vec3 exotic_worlds$moveTargetThroughSeam(Vec3 moveTargetPoint) {
         return SeamSteering.nearestCopy(this.phantom, moveTargetPoint);
     }
 }

@@ -22,10 +22,10 @@ public abstract class DrawPolygonStepMixin {
                             + "Lorg/joml/Matrix3x2fStack;DDLjava/util/List;Ljava/util/List;Ljava/util/List;"
                             + "Lnet/minecraft/client/renderer/texture/AbstractTexture;"
                             + "Ljourneymap/api/v2/client/model/ShapeProperties;)V"))
-    private void toroidal$polygonOnEveryCopy(GuiGraphicsExtractor graphics, Matrix3x2fStack pose, double xOffset,
+    private void exotic_worlds$polygonOnEveryCopy(GuiGraphicsExtractor graphics, Matrix3x2fStack pose, double xOffset,
             double yOffset, List<?> fillPoints, List<?> strokePoints, List<?> texturePoints, AbstractTexture texture,
             ShapeProperties properties, Operation<Void> original) {
-        for (double[] copy : ((OverlayCopies) (Object) this).toroidal$copies()) {
+        for (double[] copy : ((OverlayCopies) (Object) this).exotic_worlds$copies()) {
             original.call(graphics, pose, xOffset + copy[0], yOffset + copy[1], fillPoints, strokePoints,
                     texturePoints, texture, properties);
         }

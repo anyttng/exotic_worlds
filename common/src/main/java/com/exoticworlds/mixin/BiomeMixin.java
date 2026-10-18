@@ -27,51 +27,51 @@ import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 @Mixin(value = Biome.class, priority = 1100)
 public class BiomeMixin {
     @Unique
-    private static final String toroidal$GET_HEIGHT_ADJUSTED_TEMPERATURE =
+    private static final String exotic_worlds$GET_HEIGHT_ADJUSTED_TEMPERATURE =
             "getHeightAdjustedTemperature(Lnet/minecraft/core/BlockPos;I)F";
 
     @Unique
-    private static final float toroidal$LARGE_VARIATION_AMPLITUDE = 7.0F;
+    private static final float exotic_worlds$LARGE_VARIATION_AMPLITUDE = 7.0F;
 
     @Unique
-    private static final double toroidal$ICE_PATCH_THRESHOLD = 0.3;
+    private static final double exotic_worlds$ICE_PATCH_THRESHOLD = 0.3;
 
     @Unique
-    private static final double toroidal$SMALL_VARIATION_THRESHOLD = 0.8;
+    private static final double exotic_worlds$SMALL_VARIATION_THRESHOLD = 0.8;
 
     @Unique
-    private static final float toroidal$ICE_PATCH_TEMPERATURE = 0.2F;
+    private static final float exotic_worlds$ICE_PATCH_TEMPERATURE = 0.2F;
 
     @Unique
-    private final ThreadLocal<FoldedTemperatureCache> toroidal$foldedTemperatureCache =
+    private final ThreadLocal<FoldedTemperatureCache> exotic_worlds$foldedTemperatureCache =
             ThreadLocal.withInitial(FoldedTemperatureCache::new);
 
     @WrapOperation(
             method = "getTemperature(Lnet/minecraft/core/BlockPos;I)F",
             at = @At(value = "INVOKE", target = "Ljava/lang/ThreadLocal;get()Ljava/lang/Object;"),
             require = 0)
-    private Object toroidal$temperatureCacheOfBoundFold(ThreadLocal<?> cache, Operation<Object> original) {
+    private Object exotic_worlds$temperatureCacheOfBoundFold(ThreadLocal<?> cache, Operation<Object> original) {
         WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
         if (transformer == null) {
             return original.call(cache);
         }
 
-        return this.toroidal$foldedTemperatureCache.get().temperaturesUnder(transformer);
+        return this.exotic_worlds$foldedTemperatureCache.get().temperaturesUnder(transformer);
     }
 
     @WrapMethod(method = "shouldFreeze(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Z)Z")
-    private boolean toroidal$freezeThroughSeam(
+    private boolean exotic_worlds$freezeThroughSeam(
             LevelReader level, BlockPos pos, boolean checkNeighbors, Operation<Boolean> original) {
-        return toroidal$boundToLevel(level, () -> original.call(level, pos, checkNeighbors));
+        return exotic_worlds$boundToLevel(level, () -> original.call(level, pos, checkNeighbors));
     }
 
     @WrapMethod(method = "shouldSnow(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;)Z")
-    private boolean toroidal$snowThroughSeam(LevelReader level, BlockPos pos, Operation<Boolean> original) {
-        return toroidal$boundToLevel(level, () -> original.call(level, pos));
+    private boolean exotic_worlds$snowThroughSeam(LevelReader level, BlockPos pos, Operation<Boolean> original) {
+        return exotic_worlds$boundToLevel(level, () -> original.call(level, pos));
     }
 
     @Unique
-    private <T> T toroidal$boundToLevel(LevelReader level, Supplier<T> action) {
+    private <T> T exotic_worlds$boundToLevel(LevelReader level, Supplier<T> action) {
         WorldFold transformer = WorldLoopAttachments.noiseTransformerOfReader(level);
         if (transformer == null) {
             return action.get();
@@ -81,11 +81,11 @@ public class BiomeMixin {
     }
 
     @WrapOperation(
-            method = toroidal$GET_HEIGHT_ADJUSTED_TEMPERATURE,
+            method = exotic_worlds$GET_HEIGHT_ADJUSTED_TEMPERATURE,
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/biome/Biome$TemperatureModifier;modifyTemperature(Lnet/minecraft/core/BlockPos;F)F"))
-    private float toroidal$periodicTemperatureModifier(
+    private float exotic_worlds$periodicTemperatureModifier(
             Biome.TemperatureModifier modifier, BlockPos pos, float baseTemperature, Operation<Float> original) {
         if (modifier != Biome.TemperatureModifier.FROZEN) {
             return original.call(modifier, pos, baseTemperature);
@@ -96,22 +96,22 @@ public class BiomeMixin {
             return original.call(modifier, pos, baseTemperature);
         }
 
-        return toroidal$frozenPatchTemperature(transformer, pos, baseTemperature);
+        return exotic_worlds$frozenPatchTemperature(transformer, pos, baseTemperature);
     }
 
     @SuppressWarnings("removal")
     @Unique
-    private static float toroidal$frozenPatchTemperature(WorldFold transformer, BlockPos pos, float baseTemperature) {
+    private static float exotic_worlds$frozenPatchTemperature(WorldFold transformer, BlockPos pos, float baseTemperature) {
         double largeVariation = PeriodicSimplexSampler.sampleStack(transformer, NoiseConstants.FROZEN_TEMPERATURE_SCALE,
-                (NoiseStack) Biome.FROZEN_TEMPERATURE_NOISE, pos.getX(), pos.getZ()) * toroidal$LARGE_VARIATION_AMPLITUDE;
+                (NoiseStack) Biome.FROZEN_TEMPERATURE_NOISE, pos.getX(), pos.getZ()) * exotic_worlds$LARGE_VARIATION_AMPLITUDE;
         SimplexNoise biomeInfo = (SimplexNoise) Biome.BIOME_INFO_NOISE;
         double edgeVariation = PeriodicSimplexSampler.sample(biomeInfo, transformer,
                 NoiseConstants.BIOME_INFO_EDGE_SCALE, pos.getX(), pos.getZ());
-        if (largeVariation + edgeVariation < toroidal$ICE_PATCH_THRESHOLD) {
+        if (largeVariation + edgeVariation < exotic_worlds$ICE_PATCH_THRESHOLD) {
             double smallVariation = PeriodicSimplexSampler.sample(biomeInfo, transformer,
                     NoiseConstants.BIOME_INFO_PATCH_SCALE, pos.getX(), pos.getZ());
-            if (smallVariation < toroidal$SMALL_VARIATION_THRESHOLD) {
-                return toroidal$ICE_PATCH_TEMPERATURE;
+            if (smallVariation < exotic_worlds$SMALL_VARIATION_THRESHOLD) {
+                return exotic_worlds$ICE_PATCH_TEMPERATURE;
             }
         }
 
@@ -119,9 +119,9 @@ public class BiomeMixin {
     }
 
     @WrapOperation(
-            method = toroidal$GET_HEIGHT_ADJUSTED_TEMPERATURE,
+            method = exotic_worlds$GET_HEIGHT_ADJUSTED_TEMPERATURE,
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/synth/Noise;get(DD)F"))
-    private float toroidal$rawCoordinateHeightNoise(Noise noise, double x, double z, Operation<Float> original,
+    private float exotic_worlds$rawCoordinateHeightNoise(Noise noise, double x, double z, Operation<Float> original,
             @Local(argsOnly = true) BlockPos pos) {
         WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
         if (transformer == null) {

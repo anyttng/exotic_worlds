@@ -9,10 +9,10 @@ import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
 @Mixin(ClientboundSectionBlocksUpdatePacket.class)
 public interface SectionBlocksUpdatePacketAccessor {
     @Invoker("write")
-    void toroidal$write(FriendlyByteBuf output);
+    void exotic_worlds$write(FriendlyByteBuf output);
 
     @Invoker("<init>")
-    static ClientboundSectionBlocksUpdatePacket toroidal$create(FriendlyByteBuf input) {
+    static ClientboundSectionBlocksUpdatePacket exotic_worlds$create(FriendlyByteBuf input) {
         throw new AssertionError();
     }
 }

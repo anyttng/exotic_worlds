@@ -16,7 +16,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 @Mixin(DebugEntryChunkGeneration.class)
 public class DebugEntryChunkGenerationMixin {
     @WrapMethod(method = "update")
-    private void toroidal$sampleThisWorldsField(@Nullable LevelChunk serverChunk, BlockPos feetPos,
+    private void exotic_worlds$sampleThisWorldsField(@Nullable LevelChunk serverChunk, BlockPos feetPos,
             ServerLevel serverLevel, Operation<Void> original) {
         GenerationTransformerContext.runWithTransformer(WorldLoopAttachments.transformerOf(serverLevel),
                 () -> original.call(serverChunk, feetPos, serverLevel));

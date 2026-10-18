@@ -26,9 +26,9 @@ public class MaterialRuleContextNoiseMixin {
     MaterialRuleContext this$0;
 
     @WrapOperation(method = "getAsDouble", at = @At(value = "INVOKE", target = InjectionTargets.NOISE_GET))
-    private float toroidal$blockPositionNoise(Noise noise, double x, double y, double z, Operation<Float> original) {
+    private float exotic_worlds$blockPositionNoise(Noise noise, double x, double y, double z, Operation<Float> original) {
         WorldFold transformer = GenerationTransformerContext.carriedOrBound(
-                ((TransformerSource) (Object) this.this$0).toroidal$wrappedTransformer());
+                ((TransformerSource) (Object) this.this$0).exotic_worlds$wrappedTransformer());
         if (transformer == null) {
             return original.call(noise, x, y, z);
         }

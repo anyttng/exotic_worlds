@@ -5,11 +5,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.TransformerHolder;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.level.BoundLevelFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.chunk.LightChunkGetter;
@@ -22,21 +24,20 @@ public abstract class LightEngineMixin implements TransformerHolder {
     protected LightChunkGetter chunkSource;
 
     @Unique
-    private WorldFold toroidal$transformer;
+    private final BoundLevelFold exotic_worlds$bound = new BoundLevelFold();
 
-    @ModifyVariable(method = "getLightValue(Lnet/minecraft/core/BlockPos;)I", at = @At("HEAD"), argsOnly = true)
-    private BlockPos toroidal$wrapLightValuePos(BlockPos pos) {
-        WorldFold transformer = toroidal$transformer();
-        return transformer.isWrapped() ? transformer.fold(pos) : pos;
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void exotic_worlds$bindLevel(CallbackInfo ci) {
+        this.exotic_worlds$bound.bind(this.chunkSource.getLevel());
     }
 
-    // Read once on the light thread and shared with both engines; resolution is idempotent, so the field is not volatile.
-    @Override
-    public WorldFold toroidal$transformer() {
-        if (this.toroidal$transformer == null) {
-            this.toroidal$transformer = WorldLoopAttachments.transformerIfLevel(this.chunkSource.getLevel());
-        }
+    @ModifyVariable(method = "getLightValue(Lnet/minecraft/core/BlockPos;)I", at = @At("HEAD"), argsOnly = true)
+    private BlockPos exotic_worlds$wrapLightValuePos(BlockPos pos) {
+        return exotic_worlds$transformer().fold(pos);
+    }
 
-        return this.toroidal$transformer;
+    @Override
+    public WorldFold exotic_worlds$transformer() {
+        return this.exotic_worlds$bound.fold();
     }
 }

@@ -10,8 +10,8 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(Entity.class)
 public interface EntityAccessor {
     @Accessor("lastKnownPosition")
-    @Nullable Vec3 toroidal$lastKnownPosition();
+    @Nullable Vec3 exotic_worlds$lastKnownPosition();
 
     @Accessor("lastKnownPosition")
-    void toroidal$setLastKnownPosition(@Nullable Vec3 position);
+    void exotic_worlds$setLastKnownPosition(@Nullable Vec3 position);
 }

@@ -18,17 +18,17 @@ public abstract class ClientWaypointImplMixin {
     public abstract Vec3 getPosition();
 
     @ModifyReturnValue(method = "getPosition", at = @At("RETURN"))
-    private Vec3 toroidal$foldPosition(Vec3 original) {
+    private Vec3 exotic_worlds$foldPosition(Vec3 original) {
         return JourneyMapFold.nearestToPlayer(original);
     }
 
     @ModifyReturnValue(method = "positionFromPlayer", at = @At("RETURN"))
-    private Vec3 toroidal$foldFromPlayer(Vec3 original) {
+    private Vec3 exotic_worlds$foldFromPlayer(Vec3 original) {
         return JourneyMapFold.nearestToPlayer(original);
     }
 
     @WrapMethod(method = "distanceSquared")
-    private double toroidal$foldDistanceSquared(Entity entity, Operation<Double> original) {
+    private double exotic_worlds$foldDistanceSquared(Entity entity, Operation<Double> original) {
         return JourneyMapFold.active() ? entity.distanceToSqr(this.getPosition()) : original.call(entity);
     }
 }

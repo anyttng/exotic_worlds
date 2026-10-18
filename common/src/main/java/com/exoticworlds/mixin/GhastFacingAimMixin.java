@@ -19,7 +19,7 @@ public class GhastFacingAimMixin {
     @WrapOperation(
             method = "faceMovementDirection(Lnet/minecraft/world/entity/Mob;)V",
             at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_X))
-    private static double toroidal$aimTargetX(LivingEntity target, Operation<Double> original,
+    private static double exotic_worlds$aimTargetX(LivingEntity target, Operation<Double> original,
             @Local(argsOnly = true) Mob ghast) {
         return SeamAim.nearestCoord(ghast, target, Direction.Axis.X, original.call(target));
     }
@@ -27,7 +27,7 @@ public class GhastFacingAimMixin {
     @WrapOperation(
             method = "faceMovementDirection(Lnet/minecraft/world/entity/Mob;)V",
             at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_Z))
-    private static double toroidal$aimTargetZ(LivingEntity target, Operation<Double> original,
+    private static double exotic_worlds$aimTargetZ(LivingEntity target, Operation<Double> original,
             @Local(argsOnly = true) Mob ghast) {
         return SeamAim.nearestCoord(ghast, target, Direction.Axis.Z, original.call(target));
     }

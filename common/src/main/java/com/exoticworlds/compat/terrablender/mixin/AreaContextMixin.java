@@ -20,29 +20,29 @@ public class AreaContextMixin {
     private static final String AREA = "Lterrablender/worldgen/noise/Area;";
 
     @ModifyReturnValue(method = "createResult(" + TRANSFORMER + ")" + AREA, at = @At("RETURN"))
-    private Area toroidal$enrolInitialLayer(Area area) {
-        ((LayeredArea) (Object) area).toroidal$enrol(new RegionLayerStack(), 0);
+    private Area exotic_worlds$registerInitialLayer(Area area) {
+        ((LayeredArea) (Object) area).exotic_worlds$register(new RegionLayerStack(), 0);
         return area;
     }
 
     @ModifyReturnValue(method = "createResult(" + TRANSFORMER + AREA + ")" + AREA, at = @At("RETURN"))
-    private Area toroidal$enrolZoomLayer(Area area, PixelTransformer transformer, Area parent) {
-        toroidal$enrolAbove(area, (LayeredArea) (Object) parent);
+    private Area exotic_worlds$registerZoomLayer(Area area, PixelTransformer transformer, Area parent) {
+        exotic_worlds$registerAbove(area, (LayeredArea) (Object) parent);
         return area;
     }
 
     @ModifyReturnValue(method = "createResult(" + TRANSFORMER + AREA + AREA + ")" + AREA, at = @At("RETURN"))
-    private Area toroidal$enrolMergeLayer(Area area, PixelTransformer transformer, Area first, Area second) {
+    private Area exotic_worlds$registerMergeLayer(Area area, PixelTransformer transformer, Area first, Area second) {
         LayeredArea firstLayer = (LayeredArea) (Object) first;
         LayeredArea secondLayer = (LayeredArea) (Object) second;
-        toroidal$enrolAbove(area, firstLayer.toroidal$depth() >= secondLayer.toroidal$depth() ? firstLayer : secondLayer);
+        exotic_worlds$registerAbove(area, firstLayer.exotic_worlds$depth() >= secondLayer.exotic_worlds$depth() ? firstLayer : secondLayer);
         return area;
     }
 
     @Unique
-    private static void toroidal$enrolAbove(Area area, LayeredArea parent) {
-        RegionLayerStack stack = parent.toroidal$stack();
-        ((LayeredArea) (Object) area).toroidal$enrol(stack != null ? stack : new RegionLayerStack(),
-                parent.toroidal$depth() + 1);
+    private static void exotic_worlds$registerAbove(Area area, LayeredArea parent) {
+        RegionLayerStack stack = parent.exotic_worlds$stack();
+        ((LayeredArea) (Object) area).exotic_worlds$register(stack != null ? stack : new RegionLayerStack(),
+                parent.exotic_worlds$depth() + 1);
     }
 }

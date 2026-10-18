@@ -20,18 +20,18 @@ public interface EntityGetterMixin {
     @WrapOperation(
             method = "getEntityCollisions(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;)Ljava/util/List;",
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_BOUNDING_BOX))
-    private static AABB toroidal$collisionBoxThroughSeam(Entity found, Operation<AABB> original,
+    private static AABB exotic_worlds$collisionBoxThroughSeam(Entity found, Operation<AABB> original,
             @Local(argsOnly = true) AABB testArea) {
-        return FoldedBoxQuery.toward(((TransformerSource) found).toroidal$wrappedTransformer(), testArea.getCenter(),
+        return FoldedBoxQuery.toward(((TransformerSource) found).exotic_worlds$wrappedTransformer(), testArea.getCenter(),
                 original.call(found));
     }
 
     @WrapOperation(
             method = "isUnobstructed(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/shapes/VoxelShape;)Z",
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_BOUNDING_BOX))
-    private static AABB toroidal$obstructionBoxThroughSeam(Entity found, Operation<AABB> original,
+    private static AABB exotic_worlds$obstructionBoxThroughSeam(Entity found, Operation<AABB> original,
             @Local(argsOnly = true) VoxelShape shape) {
-        return FoldedBoxQuery.toward(((TransformerSource) found).toroidal$wrappedTransformer(),
+        return FoldedBoxQuery.toward(((TransformerSource) found).exotic_worlds$wrappedTransformer(),
                 shape.bounds().getCenter(), original.call(found));
     }
 }

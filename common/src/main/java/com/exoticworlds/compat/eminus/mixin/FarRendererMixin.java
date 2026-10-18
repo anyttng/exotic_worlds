@@ -23,16 +23,16 @@ public class FarRendererMixin {
     private DimensionRuntime runtime;
 
     @Unique
-    private final DrawnLap toroidal$lap = new DrawnLap();
+    private final DrawnLap exotic_worlds$lap = new DrawnLap();
 
     @WrapOperation(
             method = "stepFrame",
             at = @At(value = "INVOKE",
                     target = "Lcom/eminus/render/far/MeshOrder;update(Lcom/eminus/render/tree/RenderList;"
                             + "Lcom/eminus/cell/CellFrame;DDD)V"))
-    private void toroidal$drawTheLapOfThisFrame(MeshOrder order, RenderList list, CellFrame frame, double eyeX,
+    private void exotic_worlds$drawTheLapOfThisFrame(MeshOrder order, RenderList list, CellFrame frame, double eyeX,
             double eyeY, double eyeZ, Operation<Void> original) {
-        original.call(order, toroidal$lap.of(CellFoldHolder.foldOf(runtime), list, eyeX, eyeZ), frame, eyeX, eyeY,
+        original.call(order, exotic_worlds$lap.of(CellFoldHolder.foldOf(runtime), list, eyeX, eyeZ), frame, eyeX, eyeY,
                 eyeZ);
     }
 }

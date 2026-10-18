@@ -135,10 +135,10 @@ class PillarSiteScan {
                             continue;
                         }
 
-                        int neighbour = index(nx, nz, ny);
-                        if (solid[neighbour] && !taken[neighbour]) {
-                            taken[neighbour] = true;
-                            pending[tail++] = neighbour;
+                        int neighbor = index(nx, nz, ny);
+                        if (solid[neighbor] && !taken[neighbor]) {
+                            taken[neighbor] = true;
+                            pending[tail++] = neighbor;
                         }
                     }
                 }

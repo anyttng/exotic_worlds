@@ -6,9 +6,9 @@ import com.exoticworlds.engine.noise.AquiferCells;
 import com.exoticworlds.engine.noise.FoldedCompileContext;
 
 public interface FoldedRandomState {
-    @Nullable FoldedCompileContext toroidal$compileContext();
+    @Nullable FoldedCompileContext exotic_worlds$compileContext();
 
-    @Nullable AquiferCells toroidal$aquiferCells();
+    @Nullable AquiferCells exotic_worlds$aquiferCells();
 
-    void toroidal$aquiferCells(AquiferCells cells);
+    void exotic_worlds$aquiferCells(AquiferCells cells);
 }

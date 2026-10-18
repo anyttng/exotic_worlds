@@ -18,7 +18,7 @@ public class BlockEntityMixin implements RelocatableBlockEntity {
     protected BlockPos worldPosition;
 
     @Override
-    public void toroidal$relocate(BlockPos pos) {
+    public void exotic_worlds$relocate(BlockPos pos) {
         this.worldPosition = pos.immutable();
     }
 }

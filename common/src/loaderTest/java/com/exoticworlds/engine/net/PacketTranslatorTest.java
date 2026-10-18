@@ -425,7 +425,7 @@ class PacketTranslatorTest {
                     ClientboundTrackedWaypointPacket.addWaypointPosition(new UUID(1L, 2L), new Waypoint.Icon(), SERVER_BLOCK),
                     context());
 
-            assertEquals(CLIENT_BLOCK, BlockPos.ZERO.offset(((Vec3iWaypointAccessor) translated.waypoint()).toroidal$getVector()));
+            assertEquals(CLIENT_BLOCK, BlockPos.ZERO.offset(((Vec3iWaypointAccessor) translated.waypoint()).exotic_worlds$getVector()));
         }
 
         @Test
@@ -434,7 +434,7 @@ class PacketTranslatorTest {
                     ClientboundTrackedWaypointPacket.addWaypointChunk(new UUID(1L, 2L), new Waypoint.Icon(), SERVER_CHUNK),
                     context());
 
-            assertEquals(CLIENT_CHUNK, ((ChunkWaypointAccessor) translated.waypoint()).toroidal$getChunkPos());
+            assertEquals(CLIENT_CHUNK, ((ChunkWaypointAccessor) translated.waypoint()).exotic_worlds$getChunkPos());
         }
 
         @Test
@@ -476,7 +476,7 @@ class PacketTranslatorTest {
         }
 
         @Test
-        void initializeBorderMovesTheCentreToTheNearestCopy() {
+        void initializeBorderMovesTheCenterToTheNearestCopy() {
             TranslationContext context = context();
             ClientboundInitializeBorderPacket translated =
                     (ClientboundInitializeBorderPacket) PacketTranslator.toClient(initializePacket(), context);
@@ -487,7 +487,7 @@ class PacketTranslatorTest {
         }
 
         @Test
-        void initializeBorderKeepsEverythingAfterTheCentre() {
+        void initializeBorderKeepsEverythingAfterTheCenter() {
             ClientboundInitializeBorderPacket translated =
                     (ClientboundInitializeBorderPacket) PacketTranslator.toClient(initializePacket(), context());
 
@@ -500,7 +500,7 @@ class PacketTranslatorTest {
         }
 
         @Test
-        void setBorderCenterMovesTheCentreToTheNearestCopy() {
+        void setBorderCenterMovesTheCenterToTheNearestCopy() {
             TranslationContext context = context();
             ClientboundSetBorderCenterPacket translated =
                     (ClientboundSetBorderCenterPacket) PacketTranslator.toClient(centerPacket(), context);
@@ -555,8 +555,8 @@ class PacketTranslatorTest {
                     context());
 
             PlayerLookAtPacketAccessor accessor = (PlayerLookAtPacketAccessor) translated;
-            assertEquals(CLIENT_X, accessor.toroidal$getX());
-            assertEquals(CLIENT_Z, accessor.toroidal$getZ());
+            assertEquals(CLIENT_X, accessor.exotic_worlds$getX());
+            assertEquals(CLIENT_Z, accessor.exotic_worlds$getZ());
             assertSame(EntityAnchorArgument.Anchor.EYES, translated.getFromAnchor());
         }
 
@@ -659,7 +659,7 @@ class PacketTranslatorTest {
         }
 
         @Test
-        void explosionParticleFollowsTheTranslatedCentre() {
+        void explosionParticleFollowsTheTranslatedCenter() {
             Vec3 serverTarget = new Vec3(SERVER_X + 3.0, 71.0, SERVER_Z + 3.0);
             ClientboundExplodePacket translated = (ClientboundExplodePacket) PacketTranslator.toClient(
                     new ClientboundExplodePacket(

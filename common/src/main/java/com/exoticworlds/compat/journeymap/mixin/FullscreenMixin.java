@@ -24,7 +24,7 @@ public abstract class FullscreenMixin {
     private static MapRenderer mapRenderer;
 
     @ModifyVariable(method = "setZoom(I)V", at = @At("HEAD"), argsOnly = true)
-    private int toroidal$keepSingleZoomOnTheLevels(int zoom) {
+    private int exotic_worlds$keepSingleZoomOnTheLevels(int zoom) {
         if (MapCopies.current() != MapCopies.SINGLE) {
             return zoom;
         }
@@ -33,7 +33,7 @@ public abstract class FullscreenMixin {
     }
 
     @ModifyReturnValue(method = "getMouseDrag", at = @At("RETURN"))
-    private Point2D.Double toroidal$stopDragAtTheEdge(Point2D.Double drag) {
+    private Point2D.Double exotic_worlds$stopDragAtTheEdge(Point2D.Double drag) {
         if (MapCopies.current() != MapCopies.SINGLE || !JourneyMapFold.active()) {
             return drag;
         }

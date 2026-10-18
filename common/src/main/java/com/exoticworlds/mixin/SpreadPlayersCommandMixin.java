@@ -31,36 +31,36 @@ public class SpreadPlayersCommandMixin {
     private static final String SPREAD_FOLD = "spreadFold";
 
     @Inject(method = "spreadPositions", at = @At("HEAD"))
-    private static void toroidal$resolveSpreadFold(Vec2 center, double spreadDist, ServerLevel level,
+    private static void exotic_worlds$resolveSpreadFold(Vec2 center, double spreadDist, ServerLevel level,
             RandomSource random, double minX, double minZ, double maxX, double maxZ, int maxHeight,
             SpreadPlayersCommand.Position[] positions, boolean respectTeams, CallbackInfo ci,
             @Share(SPREAD_FOLD) LocalRef<@Nullable WorldFold> spreadFold) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
-        if (transformer != null && !toroidal$fitsInHalfTheWorld(transformer, maxX - minX, maxZ - minZ)) {
+        if (transformer != null && !exotic_worlds$fitsInHalfTheWorld(transformer, maxX - minX, maxZ - minZ)) {
             spreadFold.set(transformer);
         }
     }
 
     @ModifyVariable(method = "spreadPositions", at = @At("STORE"), name = "neighbour")
-    private static SpreadPlayersCommand.Position toroidal$neighbourThroughSeam(
-            SpreadPlayersCommand.Position neighbour, @Local(name = "position") SpreadPlayersCommand.Position position,
+    private static SpreadPlayersCommand.Position exotic_worlds$neighborThroughSeam(
+            SpreadPlayersCommand.Position neighbor, @Local(name = "position") SpreadPlayersCommand.Position position,
             @Share(SPREAD_FOLD) LocalRef<@Nullable WorldFold> spreadFold) {
         WorldFold transformer = spreadFold.get();
         if (transformer == null) {
-            return neighbour;
+            return neighbor;
         }
 
         SpreadPositionAccessor from = (SpreadPositionAccessor) position;
-        SpreadPositionAccessor to = (SpreadPositionAccessor) neighbour;
-        Vec3 raw = new Vec3(to.toroidal$x(), 0.0, to.toroidal$z());
-        Vec3 nearest = transformer.nearestCopy(new Vec3(from.toroidal$x(), 0.0, from.toroidal$z()), raw);
+        SpreadPositionAccessor to = (SpreadPositionAccessor) neighbor;
+        Vec3 raw = new Vec3(to.exotic_worlds$x(), 0.0, to.exotic_worlds$z());
+        Vec3 nearest = transformer.nearestCopy(new Vec3(from.exotic_worlds$x(), 0.0, from.exotic_worlds$z()), raw);
         if (nearest == raw) {
-            return neighbour;
+            return neighbor;
         }
 
-        SpreadPlayersCommand.Position copy = SpreadPositionAccessor.toroidal$create();
-        ((SpreadPositionAccessor) copy).toroidal$setX(nearest.x);
-        ((SpreadPositionAccessor) copy).toroidal$setZ(nearest.z);
+        SpreadPlayersCommand.Position copy = SpreadPositionAccessor.exotic_worlds$create();
+        ((SpreadPositionAccessor) copy).exotic_worlds$setX(nearest.x);
+        ((SpreadPositionAccessor) copy).exotic_worlds$setZ(nearest.z);
         return copy;
     }
 
@@ -69,7 +69,7 @@ public class SpreadPlayersCommandMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/commands/SpreadPlayersCommand$Position;clamp(DDDD)Z"))
-    private static boolean toroidal$confineAcrossSeam(SpreadPlayersCommand.Position position, double minX,
+    private static boolean exotic_worlds$confineAcrossSeam(SpreadPlayersCommand.Position position, double minX,
             double minZ, double maxX, double maxZ, Operation<Boolean> original,
             @Share(SPREAD_FOLD) LocalRef<@Nullable WorldFold> spreadFold) {
         WorldFold transformer = spreadFold.get();
@@ -77,7 +77,7 @@ public class SpreadPlayersCommandMixin {
             return original.call(position, minX, minZ, maxX, maxZ);
         }
 
-        return toroidal$confine((SpreadPositionAccessor) position, transformer, minX, minZ, maxX, maxZ);
+        return exotic_worlds$confine((SpreadPositionAccessor) position, transformer, minX, minZ, maxX, maxZ);
     }
 
     @WrapOperation(
@@ -86,7 +86,7 @@ public class SpreadPlayersCommandMixin {
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/commands/SpreadPlayersCommand$Position;"
                             + "randomize(Lnet/minecraft/util/RandomSource;DDDD)V"))
-    private static void toroidal$randomizeAcrossSeam(SpreadPlayersCommand.Position position, RandomSource random,
+    private static void exotic_worlds$randomizeAcrossSeam(SpreadPlayersCommand.Position position, RandomSource random,
             double minX, double minZ, double maxX, double maxZ, Operation<Void> original,
             @Share(SPREAD_FOLD) LocalRef<@Nullable WorldFold> spreadFold) {
         WorldFold transformer = spreadFold.get();
@@ -98,8 +98,8 @@ public class SpreadPlayersCommandMixin {
         AxisBounds xAxis = transformer.bounds().x();
         AxisBounds zAxis = transformer.bounds().z();
         original.call(position, random,
-                toroidal$randomMin(xAxis, minX, maxX), toroidal$randomMin(zAxis, minZ, maxZ),
-                toroidal$randomMax(xAxis, minX, maxX), toroidal$randomMax(zAxis, minZ, maxZ));
+                exotic_worlds$randomMin(xAxis, minX, maxX), exotic_worlds$randomMin(zAxis, minZ, maxZ),
+                exotic_worlds$randomMax(xAxis, minX, maxX), exotic_worlds$randomMax(zAxis, minZ, maxZ));
     }
 
     @WrapOperation(
@@ -107,7 +107,7 @@ public class SpreadPlayersCommandMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/commands/SpreadPlayersCommand$Position;dist(Lnet/minecraft/server/commands/SpreadPlayersCommand$Position;)D"))
-    private static double toroidal$distThroughSeam(SpreadPlayersCommand.Position position,
+    private static double exotic_worlds$distThroughSeam(SpreadPlayersCommand.Position position,
             SpreadPlayersCommand.Position target, Operation<Double> original,
             @Local(argsOnly = true) ServerLevel level) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
@@ -118,12 +118,12 @@ public class SpreadPlayersCommandMixin {
         SpreadPositionAccessor from = (SpreadPositionAccessor) position;
         SpreadPositionAccessor to = (SpreadPositionAccessor) target;
         Vec3 delta = transformer.foldDelta(
-                new Vec3(from.toroidal$x(), 0.0, from.toroidal$z()), new Vec3(to.toroidal$x(), 0.0, to.toroidal$z()));
+                new Vec3(from.exotic_worlds$x(), 0.0, from.exotic_worlds$z()), new Vec3(to.exotic_worlds$x(), 0.0, to.exotic_worlds$z()));
         return Math.sqrt(delta.x * delta.x + delta.z * delta.z);
     }
 
     @Unique
-    private static boolean toroidal$fitsInHalfTheWorld(WorldFold transformer, double xSpan, double zSpan) {
+    private static boolean exotic_worlds$fitsInHalfTheWorld(WorldFold transformer, double xSpan, double zSpan) {
         Vec3 diagonal = new Vec3(xSpan, 0.0, zSpan);
         Vec3 antiDiagonal = new Vec3(xSpan, 0.0, -zSpan);
         return SeamDelta.fold(transformer, diagonal).equals(diagonal)
@@ -131,24 +131,24 @@ public class SpreadPlayersCommandMixin {
     }
 
     @Unique
-    private static double toroidal$randomMin(AxisBounds axis, double min, double max) {
+    private static double exotic_worlds$randomMin(AxisBounds axis, double min, double max) {
         return axis.coversWorld(max - min) && axis instanceof AxisBounds.Looped looped ? looped.minBlock() : min;
     }
 
     @Unique
-    private static double toroidal$randomMax(AxisBounds axis, double min, double max) {
+    private static double exotic_worlds$randomMax(AxisBounds axis, double min, double max) {
         return axis.coversWorld(max - min) && axis instanceof AxisBounds.Looped looped ? looped.maxBlock() : max;
     }
 
     @Unique
-    private static boolean toroidal$confine(SpreadPositionAccessor position, WorldFold transformer,
+    private static boolean exotic_worlds$confine(SpreadPositionAccessor position, WorldFold transformer,
             double minX, double minZ, double maxX, double maxZ) {
         boolean freeX = transformer.bounds().x().coversWorld(maxX - minX);
         boolean freeZ = transformer.bounds().z().coversWorld(maxZ - minZ);
         TranslationLattice lattice = transformer.blockLattice();
         boolean clamped = false;
-        double x = position.toroidal$x();
-        double z = position.toroidal$z();
+        double x = position.exotic_worlds$x();
+        double z = position.exotic_worlds$z();
         if (freeZ) {
             x -= (double) lattice.zLaps(z) * lattice.skew();
             z = lattice.foldZ(z);
@@ -170,8 +170,8 @@ public class SpreadPlayersCommandMixin {
             clamped = true;
         }
 
-        position.toroidal$setX(x);
-        position.toroidal$setZ(z);
+        position.exotic_worlds$setX(x);
+        position.exotic_worlds$setZ(z);
         return clamped;
     }
 }

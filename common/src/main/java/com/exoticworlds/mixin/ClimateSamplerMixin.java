@@ -16,22 +16,22 @@ import net.minecraft.world.level.biome.Climate;
 @Mixin(Climate.Sampler.class)
 public class ClimateSamplerMixin implements FoldedClimateSampler {
     @Unique
-    private WorldFold toroidal$fold = WorldFolds.NOOP;
+    private WorldFold exotic_worlds$fold = WorldFolds.NOOP;
 
     @WrapMethod(method = "sample", order = BinderOrder.FOLD)
-    private Climate.TargetPoint toroidal$sampleTheCanonicalCopy(int quartX, int quartY, int quartZ,
+    private Climate.TargetPoint exotic_worlds$sampleTheCanonicalCopy(int quartX, int quartY, int quartZ,
             Operation<Climate.TargetPoint> original) {
-        long folded = FoldedQuart.fold(this.toroidal$fold, quartX, quartY, quartZ);
+        long folded = FoldedQuart.fold(this.exotic_worlds$fold, quartX, quartY, quartZ);
         return original.call(FoldedQuart.x(folded), quartY, FoldedQuart.z(folded));
     }
 
     @Override
-    public WorldFold toroidal$fold() {
-        return this.toroidal$fold;
+    public WorldFold exotic_worlds$fold() {
+        return this.exotic_worlds$fold;
     }
 
     @Override
-    public void toroidal$fold(WorldFold fold) {
-        this.toroidal$fold = fold;
+    public void exotic_worlds$fold(WorldFold fold) {
+        this.exotic_worlds$fold = fold;
     }
 }

@@ -55,9 +55,9 @@ class LapIslandPlacementTest {
 
     private static final BlockPos CENTRAL = new BlockPos(0, CENTRAL_Y, 0);
 
-    private static final LapIslandPlacement.Centre NO_CENTRE = new LapIslandPlacement.Centre(false, 0, 0L);
+    private static final LapIslandPlacement.Center NO_CENTER = new LapIslandPlacement.Center(false, 0, 0L);
 
-    private static final LapIslandPlacement.Centre CENTRE = new LapIslandPlacement.Centre(true, 256, 1024L * 1024L);
+    private static final LapIslandPlacement.Center CENTER = new LapIslandPlacement.Center(true, 256, 1024L * 1024L);
 
     private static final OpenSimplexNoise COVERAGE = new OpenSimplexNoise(SEED);
 
@@ -71,12 +71,12 @@ class LapIslandPlacementTest {
     void aWindowOneLapAwayPlacesTheSameIslandsOneLapShifted() {
         int cells = GRID.x().cells();
         int placed = 0;
-        for (LapIslandPlacement.Centre centre : new LapIslandPlacement.Centre[] {NO_CENTRE, CENTRE}) {
+        for (LapIslandPlacement.Center center : new LapIslandPlacement.Center[] {NO_CENTER, CENTER}) {
             for (int cellX = -2; cellX < cells + 2; cellX++) {
                 for (int cellZ = -2; cellZ < cells + 2; cellZ += 3) {
-                    List<LapIslandPlacement.Island> here = place(cellX, cellZ, centre);
-                    List<LapIslandPlacement.Island> away = place(cellX + cells, cellZ - cells, centre);
-                    String name = "cell " + cellX + ", " + cellZ + " with " + centre;
+                    List<LapIslandPlacement.Island> here = place(cellX, cellZ, center);
+                    List<LapIslandPlacement.Island> away = place(cellX + cells, cellZ - cells, center);
+                    String name = "cell " + cellX + ", " + cellZ + " with " + center;
                     assertEquals(here.size(), away.size(), name);
                     for (int i = 0; i < here.size(); i++) {
                         assertEquals(here.get(i).canonical(), away.get(i).canonical(), name);
@@ -96,7 +96,7 @@ class LapIslandPlacementTest {
         int last = GRID.x().cells() - 1;
         int seatedPastTheSeam = 0;
         for (int cellZ = 0; cellZ < GRID.z().cells(); cellZ++) {
-            for (LapIslandPlacement.Island island : place(last, cellZ, NO_CENTRE)) {
+            for (LapIslandPlacement.Island island : place(last, cellZ, NO_CENTER)) {
                 BlockPos canonical = island.canonical();
                 int canonicalCell = GRID.x().cell(canonical.getX());
                 int expected = canonicalCell == 0 ? canonical.getX() + LAP : canonical.getX();
@@ -111,8 +111,8 @@ class LapIslandPlacementTest {
     @Test
     void theCentralIslandSitsOnTheOriginCopyNearestTheWindow() {
         int last = GRID.x().cells() - 1;
-        List<LapIslandPlacement.Island> nearOrigin = place(0, 0, CENTRE);
-        List<LapIslandPlacement.Island> pastTheSeam = place(last + GRID.x().cells(), 0, CENTRE);
+        List<LapIslandPlacement.Island> nearOrigin = place(0, 0, CENTER);
+        List<LapIslandPlacement.Island> pastTheSeam = place(last + GRID.x().cells(), 0, CENTER);
         assertTrue(nearOrigin.stream().anyMatch(island -> island.seated().equals(new BlockPos(0, 64, 0))),
                 "the central island is missing beside the origin: " + nearOrigin);
         assertTrue(pastTheSeam.stream().noneMatch(island -> island.seated().getX() == 0),
@@ -124,14 +124,14 @@ class LapIslandPlacementTest {
         int cellsX = SKEWED.x().cells();
         int cellsZ = SKEWED.z().cells();
         int placed = 0;
-        for (LapIslandPlacement.Centre centre : new LapIslandPlacement.Centre[] {NO_CENTRE, CENTRE}) {
+        for (LapIslandPlacement.Center center : new LapIslandPlacement.Center[] {NO_CENTER, CENTER}) {
             for (int cellX = -2; cellX < cellsX + 2; cellX++) {
                 for (int cellZ = -2; cellZ < cellsZ + 2; cellZ += 3) {
-                    List<LapIslandPlacement.Island> here = place(SKEWED, cellX, cellZ, centre);
-                    String name = "cell " + cellX + ", " + cellZ + " with " + centre;
-                    assertShifted(here, place(SKEWED, cellX + cellsX, cellZ, centre),
+                    List<LapIslandPlacement.Island> here = place(SKEWED, cellX, cellZ, center);
+                    String name = "cell " + cellX + ", " + cellZ + " with " + center;
+                    assertShifted(here, place(SKEWED, cellX + cellsX, cellZ, center),
                             SKEWED_LATTICE.x().domainLength, 0, name + " one X lap on");
-                    assertShifted(here, place(SKEWED, cellX, cellZ + cellsZ, centre), SKEWED_LATTICE.skew(),
+                    assertShifted(here, place(SKEWED, cellX, cellZ + cellsZ, center), SKEWED_LATTICE.skew(),
                             SKEWED_LATTICE.z().domainLength, name + " one Z lap on");
                     placed += here.size();
                 }
@@ -148,7 +148,7 @@ class LapIslandPlacementTest {
                 double middleZ = (cellZ + 0.5) * SKEWED.z().cellBlocks();
                 double middleX = SKEWED.frame().blockX((cellX + 0.5) * SKEWED.x().cellBlocks(), middleZ);
                 BlockPos expected = nearestOriginCopy(middleX, middleZ).atY(CENTRAL_Y);
-                List<LapIslandPlacement.Island> islands = place(SKEWED, cellX, cellZ, CENTRE);
+                List<LapIslandPlacement.Island> islands = place(SKEWED, cellX, cellZ, CENTER);
                 assertTrue(islands.stream().anyMatch(island -> island.canonical().equals(CENTRAL)
                         && island.seated().equals(expected)),
                         "cell " + cellX + ", " + cellZ + " misses the central island at " + expected + ": " + islands);
@@ -161,13 +161,13 @@ class LapIslandPlacementTest {
         int removed = 0;
         for (int cellX = -2; cellX < SKEWED.x().cells() + 2; cellX++) {
             for (int cellZ = -2; cellZ < SKEWED.z().cells() + 2; cellZ += 2) {
-                List<LapIslandPlacement.Island> cleared = place(SKEWED, cellX, cellZ, CENTRE);
-                for (LapIslandPlacement.Island island : place(SKEWED, cellX, cellZ, NO_CENTRE)) {
+                List<LapIslandPlacement.Island> cleared = place(SKEWED, cellX, cellZ, CENTER);
+                for (LapIslandPlacement.Island island : place(SKEWED, cellX, cellZ, NO_CENTER)) {
                     BlockPos canonical = island.canonical();
                     BlockPos copy = nearestOriginCopy(canonical.getX(), canonical.getZ());
                     long x = (long) canonical.getX() - copy.getX();
                     long z = (long) canonical.getZ() - copy.getZ();
-                    boolean inVoid = x * x + z * z < CENTRE.innerVoidSquared();
+                    boolean inVoid = x * x + z * z < CENTER.innerVoidSquared();
                     assertEquals(!inVoid, cleared.contains(island),
                             "island " + canonical + " " + Math.sqrt((double) (x * x + z * z)) + " blocks from the origin copy "
                                     + copy + " in cell " + cellX + ", " + cellZ);
@@ -186,7 +186,7 @@ class LapIslandPlacementTest {
         Set<BlockPos> region = new HashSet<>();
         for (int cellX = -COPY_REACH; cellX < cellsX + COPY_REACH; cellX++) {
             for (int cellZ = -COPY_REACH; cellZ < cellsZ + COPY_REACH; cellZ++) {
-                place(SKEWED, cellX, cellZ, NO_CENTRE).forEach(island -> region.add(island.seated()));
+                place(SKEWED, cellX, cellZ, NO_CENTER).forEach(island -> region.add(island.seated()));
             }
         }
 
@@ -195,7 +195,7 @@ class LapIslandPlacementTest {
         for (int cellX = 0; cellX < cellsX; cellX += 3) {
             for (int cellZ = 0; cellZ < cellsZ; cellZ += 3) {
                 Set<BlockPos> window = new HashSet<>();
-                place(SKEWED, cellX, cellZ, NO_CENTRE).forEach(island -> window.add(island.seated()));
+                place(SKEWED, cellX, cellZ, NO_CENTER).forEach(island -> window.add(island.seated()));
                 for (int i = 0; i < WINDOW_SAMPLES; i++) {
                     for (int k = 0; k < WINDOW_SAMPLES; k++) {
                         double pointZ = (cellZ + (k + 0.5) / WINDOW_SAMPLES) * SKEWED.z().cellBlocks();
@@ -243,15 +243,15 @@ class LapIslandPlacementTest {
         return nearest;
     }
 
-    private static List<LapIslandPlacement.Island> place(int cellX, int cellZ, LapIslandPlacement.Centre centre) {
-        return place(GRID, cellX, cellZ, centre);
+    private static List<LapIslandPlacement.Island> place(int cellX, int cellZ, LapIslandPlacement.Center center) {
+        return place(GRID, cellX, cellZ, center);
     }
 
     private static List<LapIslandPlacement.Island> place(LapIslandPlacement.Grid grid, int cellX, int cellZ,
-            LapIslandPlacement.Centre centre) {
+            LapIslandPlacement.Center center) {
         List<LapIslandPlacement.Island> islands = new ArrayList<>();
         LapIslandPlacement.place(islands, grid, cellX, cellZ, MAX_HEIGHT, MEDIUM, LapIslandPlacementTest::seedOf,
-                COVERAGE, centre);
+                COVERAGE, center);
         return islands;
     }
 }

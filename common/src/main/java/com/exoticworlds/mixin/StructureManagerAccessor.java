@@ -9,5 +9,5 @@ import net.minecraft.world.level.levelgen.structure.StructureCheck;
 @Mixin(StructureManager.class)
 public interface StructureManagerAccessor {
     @Accessor("structureCheck")
-    StructureCheck toroidal$structureCheck();
+    StructureCheck exotic_worlds$structureCheck();
 }

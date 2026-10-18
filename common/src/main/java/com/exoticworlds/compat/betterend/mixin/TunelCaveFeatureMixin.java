@@ -36,44 +36,44 @@ public class TunelCaveFeatureMixin {
     @WrapOperation(
             method = CARVE_COLUMN,
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_3D, ordinal = 0))
-    private double toroidal$lapHorizontalNoise(OpenSimplexNoise noise, double x, double y, double z,
+    private double exotic_worlds$lapHorizontalNoise(OpenSimplexNoise noise, double x, double y, double z,
             Operation<Double> original, @Local(argsOnly = true) WorldGenLevel world) {
-        WorldFold fold = toroidal$fold(world);
+        WorldFold fold = exotic_worlds$fold(world);
         return fold == null
                 ? original.call(noise, x, y, z)
-                : LapNoise.eval(toroidal$standIn(noise), fold, x, y, z, HORIZONTAL_SCALE, HORIZONTAL_SCALE);
+                : LapNoise.eval(exotic_worlds$standIn(noise), fold, x, y, z, HORIZONTAL_SCALE, HORIZONTAL_SCALE);
     }
 
     @WrapOperation(
             method = CARVE_COLUMN,
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_2D, ordinal = 0))
-    private double toroidal$lapVerticalNoise(OpenSimplexNoise noise, double x, double z, Operation<Double> original,
+    private double exotic_worlds$lapVerticalNoise(OpenSimplexNoise noise, double x, double z, Operation<Double> original,
             @Local(argsOnly = true) WorldGenLevel world) {
-        WorldFold fold = toroidal$fold(world);
+        WorldFold fold = exotic_worlds$fold(world);
         return fold == null
                 ? original.call(noise, x, z)
-                : LapNoise.eval(toroidal$standIn(noise), fold, x, z, VERTICAL_SCALE, VERTICAL_SCALE);
+                : LapNoise.eval(exotic_worlds$standIn(noise), fold, x, z, VERTICAL_SCALE, VERTICAL_SCALE);
     }
 
     @WrapOperation(
             method = CARVE_COLUMN,
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_3D, ordinal = 1))
-    private double toroidal$lapDistortionNoise(OpenSimplexNoise noise, double x, double y, double z,
+    private double exotic_worlds$lapDistortionNoise(OpenSimplexNoise noise, double x, double y, double z,
             Operation<Double> original, @Local(argsOnly = true) WorldGenLevel world) {
-        WorldFold fold = toroidal$fold(world);
+        WorldFold fold = exotic_worlds$fold(world);
         return fold == null
                 ? original.call(noise, x, y, z)
-                : LapNoise.eval(toroidal$standIn(noise), fold, x, y, z, DISTORTION_SCALE, DISTORTION_SCALE);
+                : LapNoise.eval(exotic_worlds$standIn(noise), fold, x, y, z, DISTORTION_SCALE, DISTORTION_SCALE);
     }
 
     // The columns run on ForkJoin threads, where GenerationTransformerContext holds no fold.
     @Unique
-    private static @Nullable WorldFold toroidal$fold(WorldGenLevel world) {
+    private static @Nullable WorldFold exotic_worlds$fold(WorldGenLevel world) {
         return WorldLoopAttachments.wrappedTransformerOf(world.getLevel());
     }
 
     @Unique
-    private static OpenSimplexStandIn toroidal$standIn(OpenSimplexNoise noise) {
-        return ((StandInHolder) (Object) noise).toroidal$standIn();
+    private static OpenSimplexStandIn exotic_worlds$standIn(OpenSimplexNoise noise) {
+        return ((StandInHolder) (Object) noise).exotic_worlds$standIn();
     }
 }

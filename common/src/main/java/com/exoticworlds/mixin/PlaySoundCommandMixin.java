@@ -21,7 +21,7 @@ public class PlaySoundCommandMixin {
     @WrapOperation(
             method = "playSound",
             at = @At(value = "INVOKE", target = InjectionTargets.SERVER_PLAYER_GET_X))
-    private static double toroidal$listenerXNearestTheSound(ServerPlayer listener, Operation<Double> original,
+    private static double exotic_worlds$listenerXNearestTheSound(ServerPlayer listener, Operation<Double> original,
             @Local(argsOnly = true) CommandSourceStack source, @Local(argsOnly = true) Vec3 position) {
         return NearestCopy.toward(WorldLoopAttachments.wrappedTransformerOf(source.getLevel()), Direction.Axis.X,
                 position, listener.position().with(Direction.Axis.X, original.call(listener)));
@@ -30,7 +30,7 @@ public class PlaySoundCommandMixin {
     @WrapOperation(
             method = "playSound",
             at = @At(value = "INVOKE", target = InjectionTargets.SERVER_PLAYER_GET_Z))
-    private static double toroidal$listenerZNearestTheSound(ServerPlayer listener, Operation<Double> original,
+    private static double exotic_worlds$listenerZNearestTheSound(ServerPlayer listener, Operation<Double> original,
             @Local(argsOnly = true) CommandSourceStack source, @Local(argsOnly = true) Vec3 position) {
         return NearestCopy.toward(WorldLoopAttachments.wrappedTransformerOf(source.getLevel()), Direction.Axis.Z,
                 position, listener.position().with(Direction.Axis.Z, original.call(listener)));

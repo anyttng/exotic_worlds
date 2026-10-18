@@ -17,24 +17,24 @@ import net.minecraft.world.level.chunk.ProtoChunk;
 @Mixin(ProtoChunk.class)
 public class ProtoChunkMixin implements TerrainMaskHolder {
     @Unique
-    private @Nullable TerrainMask toroidal$terrainMask;
+    private @Nullable TerrainMask exotic_worlds$terrainMask;
 
     @Override
-    public @Nullable TerrainMask toroidal$terrainMask() {
-        return this.toroidal$terrainMask;
+    public @Nullable TerrainMask exotic_worlds$terrainMask() {
+        return this.exotic_worlds$terrainMask;
     }
 
     @Override
-    public void toroidal$terrainMask(TerrainMask mask) {
-        this.toroidal$terrainMask = mask;
+    public void exotic_worlds$terrainMask(TerrainMask mask) {
+        this.exotic_worlds$terrainMask = mask;
     }
 
     @Inject(
             method = "setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Lnet/minecraft/world/level/block/state/BlockState;",
             at = @At("HEAD"))
-    private void toroidal$markWritten(BlockPos pos, BlockState state, int flags,
+    private void exotic_worlds$markWritten(BlockPos pos, BlockState state, int flags,
             CallbackInfoReturnable<@Nullable BlockState> callback) {
-        TerrainMask mask = this.toroidal$terrainMask;
+        TerrainMask mask = this.exotic_worlds$terrainMask;
         if (mask != null) {
             mask.wrote(pos);
         }

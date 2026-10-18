@@ -16,7 +16,7 @@ final class SeamBoxes {
                 || z.isOver(region.minZ()) || z.isOver(region.maxZ());
     }
 
-    static double centre(double min, double max) {
+    static double center(double min, double max) {
         return (min + max) / 2.0;
     }
 

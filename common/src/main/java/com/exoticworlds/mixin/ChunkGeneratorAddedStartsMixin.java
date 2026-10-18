@@ -29,7 +29,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 @Mixin(ChunkGenerator.class)
 public class ChunkGeneratorAddedStartsMixin {
     @Inject(method = "createStructures", at = @At("RETURN"))
-    private void toroidal$generateAddedStarts(RegistryAccess registryAccess, ChunkGeneratorStructureState state,
+    private void exotic_worlds$generateAddedStarts(RegistryAccess registryAccess, ChunkGeneratorStructureState state,
             StructureManager structureManager, ChunkAccess centerChunk,
             StructureTemplateManager structureTemplateManager, ResourceKey<Level> level, CallbackInfo callback) {
         if (SharedConstants.DEBUG_DISABLE_STRUCTURES) {
@@ -44,7 +44,7 @@ public class ChunkGeneratorAddedStartsMixin {
 
         ChunkPos chunk = centerChunk.getPos();
         List<StructureSet.StructureSelectionEntry> added = AddedStructureStarts.of(state,
-                ((StructureManagerAccessor) structureManager).toroidal$structureCheck(), carried).at(chunk);
+                ((StructureManagerAccessor) structureManager).exotic_worlds$structureCheck(), carried).at(chunk);
         if (added.isEmpty()) {
             return;
         }
@@ -57,7 +57,7 @@ public class ChunkGeneratorAddedStartsMixin {
                 continue;
             }
 
-            ((ChunkGeneratorAccessor) generator).toroidal$tryGenerateStructure(entry, structureManager, registryAccess,
+            ((ChunkGeneratorAccessor) generator).exotic_worlds$tryGenerateStructure(entry, structureManager, registryAccess,
                     state.randomState(), structureTemplateManager, state.getLevelSeed(), centerChunk, chunk, level,
                     climateSampler);
         }

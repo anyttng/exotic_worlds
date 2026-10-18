@@ -20,7 +20,7 @@ public class NonTerrainBlockRenderContextMixin {
     @WrapOperation(
             method = "tesselateBlock",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_STATE_GET_OFFSET))
-    private Vec3 toroidal$seedModelOffset(BlockState state, BlockPos pos, Operation<Vec3> original,
+    private Vec3 exotic_worlds$seedModelOffset(BlockState state, BlockPos pos, Operation<Vec3> original,
             @Local(argsOnly = true) BlockAndTintGetter level) {
         if (!state.hasOffsetFunction()) {
             return original.call(state, pos);

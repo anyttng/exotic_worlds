@@ -14,7 +14,7 @@ import net.minecraft.server.commands.SetWorldSpawnCommand;
 @Mixin(SetWorldSpawnCommand.class)
 public class SetWorldSpawnCommandMixin {
     @ModifyVariable(method = "setSpawn", at = @At("HEAD"), argsOnly = true)
-    private static BlockPos toroidal$worldSpawnInsideBounds(BlockPos pos,
+    private static BlockPos exotic_worlds$worldSpawnInsideBounds(BlockPos pos,
             @Local(argsOnly = true) CommandSourceStack source) {
         return WorldLoopAttachments.transformerOf(source.getLevel()).fold(pos);
     }

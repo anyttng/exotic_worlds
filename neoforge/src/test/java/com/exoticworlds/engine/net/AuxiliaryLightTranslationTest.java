@@ -19,18 +19,18 @@ class AuxiliaryLightTranslationTest {
     private static final byte TORCH_LIGHT = 14;
     private static final byte LANTERN_LIGHT = 10;
 
-    private static final BlockPos SERVER_NEIGHBOUR = SERVER_BLOCK.offset(3, 2, 5);
-    private static final BlockPos CLIENT_NEIGHBOUR = CLIENT_BLOCK.offset(3, 2, 5);
+    private static final BlockPos SERVER_NEIGHBOR = SERVER_BLOCK.offset(3, 2, 5);
+    private static final BlockPos CLIENT_NEIGHBOR = CLIENT_BLOCK.offset(3, 2, 5);
 
     @Test
     void eachLightOfAChunkHeldALapAwayLandsOnItsKeyInTheHeldCopy() {
         AuxiliaryLightDataPayload seated = (AuxiliaryLightDataPayload) AuxiliaryLightTranslation.seated(
                 new AuxiliaryLightDataPayload(SERVER_CHUNK,
-                        Map.of(SERVER_BLOCK, TORCH_LIGHT, SERVER_NEIGHBOUR, LANTERN_LIGHT)),
+                        Map.of(SERVER_BLOCK, TORCH_LIGHT, SERVER_NEIGHBOR, LANTERN_LIGHT)),
                 context());
 
         assertEquals(CLIENT_CHUNK, seated.pos());
-        assertEquals(Map.of(CLIENT_BLOCK, TORCH_LIGHT, CLIENT_NEIGHBOUR, LANTERN_LIGHT), seated.entries());
+        assertEquals(Map.of(CLIENT_BLOCK, TORCH_LIGHT, CLIENT_NEIGHBOR, LANTERN_LIGHT), seated.entries());
     }
 
     @Test

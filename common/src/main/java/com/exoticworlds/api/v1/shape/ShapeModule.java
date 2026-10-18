@@ -75,7 +75,7 @@ public final class ShapeModule<S> {
     }
 
     /**
-     * Enrols the shape in the World Shape list.
+     * Registers the shape in the World Shape list.
      *
      * @throws IllegalStateException if the registration boundary has already closed
      */

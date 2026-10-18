@@ -26,18 +26,18 @@ public class UmbraSurfaceNoiseConditionMixin {
     @WrapOperation(
             method = GET_DEPTH,
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_2D, ordinal = 0))
-    private static double toroidal$lapBroadNoise(OpenSimplexNoise noise, double x, double z,
+    private static double exotic_worlds$lapBroadNoise(OpenSimplexNoise noise, double x, double z,
             Operation<Double> original) {
-        return LapNoise.boundEval(((StandInHolder) (Object) noise).toroidal$standIn(), x, z, BROAD_SCALE, BROAD_SCALE,
+        return LapNoise.boundEval(((StandInHolder) (Object) noise).exotic_worlds$standIn(), x, z, BROAD_SCALE, BROAD_SCALE,
                 () -> original.call(noise, x, z));
     }
 
     @WrapOperation(
             method = GET_DEPTH,
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_2D, ordinal = 1))
-    private static double toroidal$lapFineNoise(OpenSimplexNoise noise, double x, double z,
+    private static double exotic_worlds$lapFineNoise(OpenSimplexNoise noise, double x, double z,
             Operation<Double> original) {
-        return LapNoise.boundEval(((StandInHolder) (Object) noise).toroidal$standIn(), x, z, FINE_SCALE, FINE_SCALE,
+        return LapNoise.boundEval(((StandInHolder) (Object) noise).exotic_worlds$standIn(), x, z, FINE_SCALE, FINE_SCALE,
                 () -> original.call(noise, x, z));
     }
 }

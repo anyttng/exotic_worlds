@@ -15,7 +15,7 @@ import net.minecraft.world.level.biome.BiomeResolver;
 @Mixin({WoverNetherBiomeSource.class, WoverEndBiomeSource.class})
 public class WoverBiomeSourceMixin {
     @ModifyReturnValue(method = "createResolver", at = @At("RETURN"))
-    private BiomeResolver toroidal$foldedResolver(BiomeResolver resolver) {
+    private BiomeResolver exotic_worlds$foldedResolver(BiomeResolver resolver) {
         return (quartX, quartY, quartZ) -> {
             WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
             if (transformer == null) {

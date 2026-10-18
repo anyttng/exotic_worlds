@@ -37,20 +37,20 @@ public class StructureManagerMixin {
 
     @WrapMethod(
             method = "startsForStructure(IILjava/util/function/Predicate;)Ljava/util/List;")
-    private List<StructureStart> toroidal$startsInTheAskingChunksFrame(int chunkX, int chunkZ, Predicate<Structure> matcher,
+    private List<StructureStart> exotic_worlds$startsInTheAskingChunksFrame(int chunkX, int chunkZ, Predicate<Structure> matcher,
             Operation<List<StructureStart>> original) {
         List<StructureStart> starts = original.call(chunkX, chunkZ, matcher);
         if (!(this.level instanceof WorldGenRegion region)) {
             return starts;
         }
 
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(((LevelHolder) region).toroidal$level());
+        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(((LevelHolder) region).exotic_worlds$level());
         if (transformer != null && !starts.isEmpty()) {
             ChunkPos pos = new ChunkPos(chunkX, chunkZ);
             List<StructureStart> framed = new ArrayList<>(starts.size());
             for (StructureStart start : starts) {
                 StructureStart inFrame = ((FramedStructureStart) (Object) start)
-                        .toroidal$framedToward(region, transformer, pos);
+                        .exotic_worlds$framedToward(region, transformer, pos);
                 if (inFrame != null) {
                     framed.add(inFrame);
                 }
@@ -69,13 +69,13 @@ public class StructureManagerMixin {
             },
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/levelgen/structure/BoundingBox;isInside(Lnet/minecraft/core/Vec3i;)Z"))
-    private boolean toroidal$startBoxThroughSeam(BoundingBox box, Vec3i pos, Operation<Boolean> original,
+    private boolean exotic_worlds$startBoxThroughSeam(BoundingBox box, Vec3i pos, Operation<Boolean> original,
             @Local(argsOnly = true) BlockPos blockPos) {
         return original.call(box, NearestCopy.toward(WorldLoopAttachments.transformerOfReader(this.level), box, blockPos));
     }
 
     @WrapMethod(method = "structureHasPieceAt(IIILnet/minecraft/world/level/levelgen/structure/StructureStart;)Z")
-    private boolean toroidal$piecesThroughSeam(int x, int y, int z, StructureStart start, Operation<Boolean> original) {
+    private boolean exotic_worlds$piecesThroughSeam(int x, int y, int z, StructureStart start, Operation<Boolean> original) {
         if (!start.isValid()) {
             return original.call(x, y, z, start);
         }

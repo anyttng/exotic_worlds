@@ -24,7 +24,7 @@ public class WaypointAzimuthConnectionMixin {
             method = {"<init>", "update"},
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/LivingEntity;position()Lnet/minecraft/world/phys/Vec3;"))
-    private Vec3 toroidal$sourcePositionThroughSeam(LivingEntity sourceEntity, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$sourcePositionThroughSeam(LivingEntity sourceEntity, Operation<Vec3> original) {
         return SeamSteering.nearestCopy(this.receiver, original.call(sourceEntity));
     }
 }

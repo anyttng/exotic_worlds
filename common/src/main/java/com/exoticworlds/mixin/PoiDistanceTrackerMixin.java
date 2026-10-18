@@ -13,9 +13,9 @@ import net.minecraft.world.entity.ai.village.poi.PoiManager;
 @Mixin(targets = "net.minecraft.world.entity.ai.village.poi.PoiManager$DistanceTracker")
 public class PoiDistanceTrackerMixin {
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void toroidal$bindOwningLevel(PoiManager owner, CallbackInfo ci) {
-        if (((SectionStorageAccessor) owner).toroidal$getLevelHeightAccessor() instanceof ServerLevel level) {
-            ((LevelBindable) (Object) this).toroidal$bindLevel(level);
+    private void exotic_worlds$bindOwningLevel(PoiManager owner, CallbackInfo ci) {
+        if (((SectionStorageAccessor) owner).exotic_worlds$getLevelHeightAccessor() instanceof ServerLevel level) {
+            ((LevelBindable) (Object) this).exotic_worlds$bindLevel(level);
         }
     }
 }

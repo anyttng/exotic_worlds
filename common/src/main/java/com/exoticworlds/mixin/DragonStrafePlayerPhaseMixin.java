@@ -19,24 +19,24 @@ public class DragonStrafePlayerPhaseMixin {
     @WrapOperation(
             method = "doServerTick",
             at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_X))
-    private double toroidal$aimTargetX(LivingEntity target, Operation<Double> original) {
-        return SeamAim.nearestCoord(((DragonPhaseAccessor) this).toroidal$dragon(),
+    private double exotic_worlds$aimTargetX(LivingEntity target, Operation<Double> original) {
+        return SeamAim.nearestCoord(((DragonPhaseAccessor) this).exotic_worlds$dragon(),
                 target, Direction.Axis.X, original.call(target));
     }
 
     @WrapOperation(
             method = "doServerTick",
             at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_Z))
-    private double toroidal$aimTargetZ(LivingEntity target, Operation<Double> original) {
-        return SeamAim.nearestCoord(((DragonPhaseAccessor) this).toroidal$dragon(),
+    private double exotic_worlds$aimTargetZ(LivingEntity target, Operation<Double> original) {
+        return SeamAim.nearestCoord(((DragonPhaseAccessor) this).exotic_worlds$dragon(),
                 target, Direction.Axis.Z, original.call(target));
     }
 
     @WrapOperation(
             method = "doServerTick",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO_SQR_XYZ))
-    private double toroidal$targetWindowThroughSeam(Vec3 target, double x, double y, double z,
+    private double exotic_worlds$targetWindowThroughSeam(Vec3 target, double x, double y, double z,
             Operation<Double> original) {
-        return SeamRange.sqr(((DragonPhaseAccessor) this).toroidal$dragon(), target, x, y, z);
+        return SeamRange.sqr(((DragonPhaseAccessor) this).exotic_worlds$dragon(), target, x, y, z);
     }
 }

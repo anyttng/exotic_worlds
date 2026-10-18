@@ -10,5 +10,5 @@ import net.minecraft.server.dedicated.Settings;
 @Mixin(Settings.class)
 public interface SettingsAccessor {
     @Accessor("properties")
-    Properties toroidal$getProperties();
+    Properties exotic_worlds$getProperties();
 }

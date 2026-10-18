@@ -15,7 +15,7 @@ public class CreakingMixin {
     @ModifyExpressionValue(
             method = "playerIsStuckInYou",
             at = @At(value = "INVOKE", target = InjectionTargets.PLAYER_GET_EYE_POSITION))
-    private Vec3 toroidal$stuckEyeThroughSeam(Vec3 eyePosition) {
+    private Vec3 exotic_worlds$stuckEyeThroughSeam(Vec3 eyePosition) {
         return SeamSteering.nearestCopy((Creaking) (Object) this, eyePosition);
     }
 }

@@ -16,18 +16,18 @@ public abstract class WaypointMixin {
     private int z;
 
     @ModifyReturnValue(method = "getX(D)I", at = @At("RETURN"))
-    private int toroidal$foldX(int original, double dimDiv) {
-        return (int) Math.round(XaeroFold.nearestToCamera(original, toroidal$scaled(this.z, dimDiv)).x);
+    private int exotic_worlds$foldX(int original, double dimDiv) {
+        return (int) Math.round(XaeroFold.nearestToCamera(original, exotic_worlds$scaled(this.z, dimDiv)).x);
     }
 
     @ModifyReturnValue(method = "getZ(D)I", at = @At("RETURN"))
-    private int toroidal$foldZ(int original, double dimDiv) {
-        return (int) Math.round(XaeroFold.nearestToCamera(toroidal$scaled(this.x, dimDiv), original).z);
+    private int exotic_worlds$foldZ(int original, double dimDiv) {
+        return (int) Math.round(XaeroFold.nearestToCamera(exotic_worlds$scaled(this.x, dimDiv), original).z);
     }
 
     // Restates getX(D)/getZ(D): calling the other getter instead recurses through its handler.
     @Unique
-    private static int toroidal$scaled(int coord, double dimDiv) {
+    private static int exotic_worlds$scaled(int coord, double dimDiv) {
         return dimDiv == 1.0 ? coord : (int) Math.floor(coord / dimDiv);
     }
 }

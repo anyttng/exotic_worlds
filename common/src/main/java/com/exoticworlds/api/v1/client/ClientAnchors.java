@@ -14,8 +14,8 @@ import net.minecraft.world.phys.Vec3;
  * The two anchors a client already has — the player and the camera — and the copy of a position the client is
  * actually holding.
  *
- * <p>{@link com.exoticworlds.api.v1.ToroidalShape#nearestCopy(Vec3, Vec3)} needs a reference to seat a position
- * against. On the client that reference is nearly always one of these two, and reaching for the wrong one shows:
+ * <p>{@link com.exoticworlds.api.v1.ToroidalShape#nearestCopy(Vec3, Vec3)} needs a reference to move a position
+ * toward. On the client that reference is nearly always one of these two, and reaching for the wrong one shows:
  * something drawn folds toward the camera, not the player, and in third person or a spectator's view those are
  * different places. These take the anchor off the running client, so a caller states which one it means and
  * nothing else.</p>
@@ -40,7 +40,7 @@ public final class ClientAnchors {
         return ClientFrame.nearestToPlayer(target);
     }
 
-    /** The copy of {@code target} nearest the camera — what anything drawn in the world is seated against. */
+    /** The copy of {@code target} nearest the camera — what anything drawn in the world is moved toward. */
     public static @Nullable Vec3 nearestToCamera(@Nullable Vec3 target) {
         return ClientFrame.nearestToCamera(target);
     }

@@ -16,7 +16,7 @@ public class EndermanTeleportTowardsMixin {
     @WrapOperation(
             method = "teleportTowards(Lnet/minecraft/world/entity/Entity;)Z",
             at = @At(value = "NEW", target = InjectionTargets.VEC3_NEW))
-    private Vec3 toroidal$teleportDeltaThroughSeam(double x, double y, double z, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$teleportDeltaThroughSeam(double x, double y, double z, Operation<Vec3> original) {
         return SeamAim.foldDelta((Enderman) (Object) this, original.call(x, y, z));
     }
 }

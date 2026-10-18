@@ -17,7 +17,7 @@ public abstract class HoneyBlockMixin {
             method = "isSlidingDown(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;)Z",
             at = @At("HEAD"),
             argsOnly = true)
-    private BlockPos toroidal$slideAgainstNearestCopy(BlockPos pos, @Local(argsOnly = true) Entity entity) {
+    private BlockPos exotic_worlds$slideAgainstNearestCopy(BlockPos pos, @Local(argsOnly = true) Entity entity) {
         return SeamSteering.nearestCopy(entity, pos);
     }
 }

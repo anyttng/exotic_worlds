@@ -18,7 +18,7 @@ public abstract class HopperBlockEntityMixin {
     @WrapOperation(
             method = "entityInside(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/level/block/entity/HopperBlockEntity;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/AABB;move(DDD)Lnet/minecraft/world/phys/AABB;"))
-    private static AABB toroidal$boxAgainstNearestCopy(AABB box, double dx, double dy, double dz, Operation<AABB> original,
+    private static AABB exotic_worlds$boxAgainstNearestCopy(AABB box, double dx, double dy, double dz, Operation<AABB> original,
             @Local(argsOnly = true) BlockPos pos, @Local(argsOnly = true) Entity entity) {
         BlockPos nearest = SeamSteering.nearestCopy(entity, pos);
         return nearest == pos

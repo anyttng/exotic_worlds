@@ -5,7 +5,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.accessors.LevelBindable;
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.level.BoundLevelFold;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -17,11 +16,11 @@ import net.minecraft.world.level.pathfinder.PathTypeCache;
 @Mixin(PathTypeCache.class)
 public class PathTypeCacheMixin implements LevelBindable {
     @Unique
-    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
+    private final BoundLevelFold exotic_worlds$bound = new BoundLevelFold();
 
     @Override
-    public void toroidal$bindLevel(ServerLevel level) {
-        this.toroidal$bound.bind(level);
+    public void exotic_worlds$bindLevel(ServerLevel level) {
+        this.exotic_worlds$bound.bind(level);
     }
 
     @WrapOperation(
@@ -30,9 +29,7 @@ public class PathTypeCacheMixin implements LevelBindable {
                     "invalidate(Lnet/minecraft/core/BlockPos;)V" },
             at = @At(value = "INVOKE", target = "Lnet/minecraft/core/BlockPos;asLong()J"),
             require = 2)
-    private long toroidal$keyThePhysicalBlock(BlockPos pos, Operation<Long> original) {
-        long key = original.call(pos);
-        WorldFold transformer = this.toroidal$bound.wrapped();
-        return transformer == null ? key : transformer.foldBlockNode(key);
+    private long exotic_worlds$keyThePhysicalBlock(BlockPos pos, Operation<Long> original) {
+        return this.exotic_worlds$bound.fold().foldBlockNode(original.call(pos));
     }
 }

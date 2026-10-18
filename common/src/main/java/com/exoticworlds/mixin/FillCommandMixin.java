@@ -17,7 +17,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 @Mixin(FillCommand.class)
 public class FillCommandMixin {
     @Inject(method = "fillBlocks", at = @At("HEAD"))
-    private static void toroidal$refuseRegionAcrossSeam(CallbackInfoReturnable<Integer> cir,
+    private static void exotic_worlds$refuseRegionAcrossSeam(CallbackInfoReturnable<Integer> cir,
             @Local(argsOnly = true) CommandSourceStack source,
             @Local(argsOnly = true) BoundingBox region) throws CommandSyntaxException {
         SeamCommandErrors.requireUnambiguousRegion(

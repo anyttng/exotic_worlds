@@ -8,6 +8,7 @@ import com.exoticworlds.compat.LevelClimateCompression;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.LapFloor;
 import com.exoticworlds.engine.noise.NoiseFrame;
+import com.exoticworlds.engine.noise.PeriodicLattice;
 import com.exoticworlds.engine.noise.PeriodicNoiseSampler;
 
 import net.minecraft.core.QuartPos;
@@ -38,7 +39,7 @@ public final class ReplacementNoiseFold {
 
     private final int[] verticalScaleSlots;
 
-    private volatile @Nullable Octaves octaves;
+    private volatile @Nullable Lattices lattices;
 
     private volatile @Nullable Compression compression;
 
@@ -76,44 +77,49 @@ public final class ReplacementNoiseFold {
     private double sum(WorldFold fold, long seed, double[] scaleQuarts, int quartX, int quartY, int quartZ,
             double amplitude, DensityFunction temperature) {
         double factor = compression(fold, temperature);
-        Octaves resolved = octavesFor(seed);
+        Lattices resolved = latticesFor(fold, factor, seed, scaleQuarts);
         double x = QuartPos.toBlock(quartX);
         double y = QuartPos.toBlock(quartY);
         double z = QuartPos.toBlock(quartZ);
         double sum = 0.0;
         for (int octave = 0; octave < this.weights.length; octave++) {
-            PerlinNoise noise = resolved.noises()[octave];
-            double horizontalQuarts = scaleQuarts[this.horizontalScaleSlots[octave]] * OPEN_SIMPLEX_ROW_RATE / factor;
-            double scale = 1.0 / (horizontalQuarts * BLOCKS_PER_QUART);
-            double verticalQuarts = scaleQuarts[this.verticalScaleSlots[octave]] * OPEN_SIMPLEX_COLUMN_RATE / factor;
-            double verticalScale = 1.0 / (verticalQuarts * BLOCKS_PER_QUART);
-            sum += this.weights[octave] * PeriodicNoiseSampler.sample(noise.perms, noise.offsetX, noise.offsetY,
-                    noise.offsetZ, fold, UNDAMPED_FRAME, scale, x, GradientNoise.wrap(y * verticalScale), z,
-                    LapFloor.of(fold));
+            PeriodicLattice lattice = resolved.lattices()[octave];
+            double octaveY = GradientNoise.wrap(y * resolved.verticalScales()[octave]);
+            sum += this.weights[octave] * PeriodicNoiseSampler.sample(lattice, x, octaveY, z, octaveY);
         }
 
         return sum * amplitude;
     }
 
-    private Octaves octavesFor(long seed) {
-        Octaves held = this.octaves;
-        if (held != null && held.seed() == seed) {
+    private Lattices latticesFor(WorldFold fold, double factor, long seed, double[] scaleQuarts) {
+        Lattices held = this.lattices;
+        if (held != null && held.seed() == seed && held.factor() == factor && held.scaleQuarts() == scaleQuarts
+                && held.fold().equals(fold)) {
             return held;
         }
 
         WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(seed));
-        PerlinNoise[] noises = new PerlinNoise[this.weights.length];
-        for (int octave = 0; octave < noises.length; octave++) {
-            noises[octave] = new PerlinNoise(random);
+        LapFloor floor = LapFloor.of(fold);
+        PeriodicLattice[] octaveLattices = new PeriodicLattice[this.weights.length];
+        double[] verticalScales = new double[this.weights.length];
+        for (int octave = 0; octave < octaveLattices.length; octave++) {
+            PerlinNoise noise = new PerlinNoise(random);
+            double horizontalQuarts = scaleQuarts[this.horizontalScaleSlots[octave]] * OPEN_SIMPLEX_ROW_RATE / factor;
+            double scale = 1.0 / (horizontalQuarts * BLOCKS_PER_QUART);
+            double verticalQuarts = scaleQuarts[this.verticalScaleSlots[octave]] * OPEN_SIMPLEX_COLUMN_RATE / factor;
+            verticalScales[octave] = 1.0 / (verticalQuarts * BLOCKS_PER_QUART);
+            octaveLattices[octave] = PeriodicNoiseSampler.lattice(noise.perms, noise.offsetX, noise.offsetY,
+                    noise.offsetZ, PeriodicNoiseSampler.NO_FUDGE, fold, UNDAMPED_FRAME, scale, floor);
         }
 
-        Octaves built = new Octaves(seed, noises);
-        this.octaves = built;
+        Lattices built = new Lattices(fold, factor, seed, scaleQuarts, octaveLattices, verticalScales);
+        this.lattices = built;
         return built;
     }
 
     @SuppressWarnings("ArrayRecordComponent")
-    private record Octaves(long seed, PerlinNoise[] noises) {
+    private record Lattices(WorldFold fold, double factor, long seed, double[] scaleQuarts,
+            PeriodicLattice[] lattices, double[] verticalScales) {
     }
 
     private record Compression(WorldFold fold, DensityFunction temperature, double factor) {

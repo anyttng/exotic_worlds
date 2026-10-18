@@ -26,9 +26,9 @@ public class ConnectionMixin {
     }
 
     @WrapMethod(method = "send(Lnet/minecraft/network/protocol/Packet;Lio/netty/channel/ChannelFutureListener;Z)V")
-    private void toroidal$translateOutgoing(Packet<?> packet, @Nullable ChannelFutureListener listener, boolean flush,
+    private void exotic_worlds$translateOutgoing(Packet<?> packet, @Nullable ChannelFutureListener listener, boolean flush,
             Operation<Void> original) {
-        ServerPlayer player = toroidal$playerOf(this.getPacketListener());
+        ServerPlayer player = exotic_worlds$playerOf(this.getPacketListener());
         if (player == null) {
             original.call(packet, listener, flush);
             return;
@@ -41,13 +41,13 @@ public class ConnectionMixin {
     }
 
     @ModifyVariable(method = "channelRead0", at = @At("HEAD"), argsOnly = true)
-    private Packet<?> toroidal$translateIncoming(Packet<?> packet) {
-        ServerPlayer player = toroidal$playerOf(this.getPacketListener());
+    private Packet<?> exotic_worlds$translateIncoming(Packet<?> packet) {
+        ServerPlayer player = exotic_worlds$playerOf(this.getPacketListener());
         return player == null ? packet : PacketTranslator.toServer(packet, player);
     }
 
     @Unique
-    private static @Nullable ServerPlayer toroidal$playerOf(@Nullable PacketListener listener) {
+    private static @Nullable ServerPlayer exotic_worlds$playerOf(@Nullable PacketListener listener) {
         return listener instanceof ServerGamePacketListenerImpl gameListener ? gameListener.player : null;
     }
 }
