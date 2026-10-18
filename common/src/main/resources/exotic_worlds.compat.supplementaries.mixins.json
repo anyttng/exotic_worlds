@@ -16,6 +16,7 @@
     "RedMerchantWanderTargetSeatMixin",
     "SignPostCompassTargetSeatMixin",
     "SpringLauncherPushSeatMixin",
+    "StructureLocatorSeamMixin",
     "TurnTableOffsetSeatMixin",
     "UseCannonGoalSeatMixin"
   ],
