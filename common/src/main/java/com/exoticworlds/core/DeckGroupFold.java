@@ -139,6 +139,14 @@ public final class DeckGroupFold implements WorldFold {
         return foreign(lattice, coordX, coordZ) ? SeamTransform.IDENTITY : lattice.foldCoords(coordX, coordZ);
     }
 
+    private static long lapsOfCells(DeckGroupLattice lattice, int cellX, int cellZ) {
+        return foreign(lattice, cellX, cellZ) ? DeckGroupLaps.NONE : lattice.laps.ofCells(cellX, cellZ);
+    }
+
+    private static long lapsOfCoords(DeckGroupLattice lattice, double coordX, double coordZ) {
+        return foreign(lattice, coordX, coordZ) ? DeckGroupLaps.NONE : lattice.laps.ofCoords(coordX, coordZ);
+    }
+
     private static SeamTransform nearestCells(DeckGroupLattice lattice, int refX, int refZ, int targetX, int targetZ) {
         return foreign(lattice, refX, refZ) || foreign(lattice, targetX, targetZ)
                 ? SeamTransform.IDENTITY
@@ -189,53 +197,71 @@ public final class DeckGroupFold implements WorldFold {
 
     @Override
     public Vec3 fold(Vec3 pos) {
-        return foldCoords(this.blocks, pos.x, pos.z).apply(pos);
+        DeckGroupLaps laps = this.blocks.laps;
+        long folded = lapsOfCoords(this.blocks, pos.x, pos.z);
+        return folded == DeckGroupLaps.NONE
+                ? pos
+                : new Vec3(laps.foldX(folded, pos.x), pos.y, laps.foldZ(folded, pos.z));
     }
 
     @Override
     public BlockPos fold(BlockPos pos) {
-        return foldCells(this.blocks, pos.getX(), pos.getZ()).apply(pos);
+        DeckGroupLaps laps = this.blocks.laps;
+        long folded = lapsOfCells(this.blocks, pos.getX(), pos.getZ());
+        return folded == DeckGroupLaps.NONE
+                ? pos
+                : new BlockPos(laps.foldCellX(folded, pos.getX()), pos.getY(), laps.foldCellZ(folded, pos.getZ()));
     }
 
     @Override
     public ChunkPos fold(ChunkPos pos) {
-        return foldCells(this.chunks, pos.x, pos.z).apply(pos);
+        DeckGroupLaps laps = this.chunks.laps;
+        long folded = lapsOfCells(this.chunks, pos.x, pos.z);
+        return folded == DeckGroupLaps.NONE
+                ? pos
+                : new ChunkPos(laps.foldCellX(folded, pos.x), laps.foldCellZ(folded, pos.z));
     }
 
     @Override
     public SectionPos fold(SectionPos pos) {
-        SeamTransform applied = foldCells(this.chunks,pos.x(), pos.z());
-        return applied.isIdentity()
+        DeckGroupLaps laps = this.chunks.laps;
+        long folded = lapsOfCells(this.chunks, pos.x(), pos.z());
+        return folded == DeckGroupLaps.NONE
                 ? pos
-                : SectionPos.of(applied.applyCellX(pos.x()), pos.y(), applied.applyCellZ(pos.z()));
+                : SectionPos.of(laps.foldCellX(folded, pos.x()), pos.y(), laps.foldCellZ(folded, pos.z()));
     }
 
     @Override
     public long foldBlockNode(long blockNode) {
         int x = BlockPos.getX(blockNode);
         int z = BlockPos.getZ(blockNode);
-        SeamTransform applied = foldCells(this.blocks,x, z);
-        return applied.isIdentity()
+        DeckGroupLaps laps = this.blocks.laps;
+        long folded = lapsOfCells(this.blocks, x, z);
+        return folded == DeckGroupLaps.NONE
                 ? blockNode
-                : BlockPos.asLong(applied.applyCellX(x), BlockPos.getY(blockNode), applied.applyCellZ(z));
+                : BlockPos.asLong(laps.foldCellX(folded, x), BlockPos.getY(blockNode), laps.foldCellZ(folded, z));
     }
 
     @Override
     public long foldChunkKey(long chunkKey) {
         int x = ChunkPos.getX(chunkKey);
         int z = ChunkPos.getZ(chunkKey);
-        SeamTransform applied = foldCells(this.chunks,x, z);
-        return applied.isIdentity() ? chunkKey : ChunkPos.asLong(applied.applyCellX(x), applied.applyCellZ(z));
+        DeckGroupLaps laps = this.chunks.laps;
+        long folded = lapsOfCells(this.chunks, x, z);
+        return folded == DeckGroupLaps.NONE
+                ? chunkKey
+                : ChunkPos.asLong(laps.foldCellX(folded, x), laps.foldCellZ(folded, z));
     }
 
     @Override
     public long foldSectionNode(long sectionNode) {
         int x = SectionPos.x(sectionNode);
         int z = SectionPos.z(sectionNode);
-        SeamTransform applied = foldCells(this.chunks,x, z);
-        return applied.isIdentity()
+        DeckGroupLaps laps = this.chunks.laps;
+        long folded = lapsOfCells(this.chunks, x, z);
+        return folded == DeckGroupLaps.NONE
                 ? sectionNode
-                : SectionPos.asLong(applied.applyCellX(x), SectionPos.y(sectionNode), applied.applyCellZ(z));
+                : SectionPos.asLong(laps.foldCellX(folded, x), SectionPos.y(sectionNode), laps.foldCellZ(folded, z));
     }
 
     @Override
@@ -335,11 +361,11 @@ public final class DeckGroupFold implements WorldFold {
 
     @Override
     public double sqrDistance(double xFrom, double yFrom, double zFrom, double xTo, double yTo, double zTo) {
-        SeamTransform move = nearestCoords(this.blocks,xFrom, zFrom, xTo, zTo);
-        double dx = move.applyX(xTo) - xFrom;
         double dy = yTo - yFrom;
-        double dz = move.applyZ(zTo) - zFrom;
-        return dx * dx + dy * dy + dz * dz;
+        double horizontal = foreign(this.blocks, xFrom, zFrom) || foreign(this.blocks, xTo, zTo)
+                ? (xTo - xFrom) * (xTo - xFrom) + (zTo - zFrom) * (zTo - zFrom)
+                : this.blocks.nearestCoordsSqrDistance(xFrom, zFrom, xTo, zTo);
+        return horizontal + dy * dy;
     }
 
     @Override
