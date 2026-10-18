@@ -49,6 +49,14 @@ public abstract class SupportXaeroWorldmapMixin {
     private int exotic_worlds$mirrorTileZ;
     @Unique
     private static final int NO_TEXTURE = -1;
+    @Unique
+    private static final int MIN_VIEW_X_ARG = 4;
+    @Unique
+    private static final int MAX_VIEW_X_ARG = 5;
+    @Unique
+    private static final int MIN_VIEW_Z_ARG = 6;
+    @Unique
+    private static final int MAX_VIEW_Z_ARG = 7;
 
     @Unique
     private MapRegion exotic_worlds$foldedRegion;
@@ -66,10 +74,10 @@ public abstract class SupportXaeroWorldmapMixin {
     private WorldCopies.@Nullable Window exotic_worlds$window;
 
     @Inject(method = "renderChunks", at = @At("HEAD"))
-    private void exotic_worlds$resolveChunksShape(CallbackInfo ci, @Local(argsOnly = true, name = "minViewX") int minViewX,
-            @Local(argsOnly = true, name = "maxViewX") int maxViewX,
-            @Local(argsOnly = true, name = "minViewZ") int minViewZ,
-            @Local(argsOnly = true, name = "maxViewZ") int maxViewZ) {
+    private void exotic_worlds$resolveChunksShape(CallbackInfo ci, @Local(argsOnly = true, ordinal = MIN_VIEW_X_ARG) int minViewX,
+            @Local(argsOnly = true, ordinal = MAX_VIEW_X_ARG) int maxViewX,
+            @Local(argsOnly = true, ordinal = MIN_VIEW_Z_ARG) int minViewZ,
+            @Local(argsOnly = true, ordinal = MAX_VIEW_Z_ARG) int maxViewZ) {
         ToroidalShape shape = XaeroWorldMapFold.browsedShape();
         this.exotic_worlds$shape = shape;
         this.exotic_worlds$copiesX = AxisCopies.of(shape, Direction.Axis.X);
