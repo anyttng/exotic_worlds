@@ -68,8 +68,7 @@ public final class FtbChunksFold {
     }
 
     public static ChunkPos foldedChunkPos(ChunkPos pos) {
-        ToroidalShape shape = ClientShapes.current();
-        return shape == null ? pos : shape.fold(pos);
+        return ClientShapes.fold(ClientShapes.current(), pos);
     }
 
     public static ChunkPos foldedChunkPos(ResourceKey<Level> dimension, ChunkPos pos) {
@@ -117,18 +116,15 @@ public final class FtbChunksFold {
     }
 
     private static BlockPos foldBlock(@Nullable ToroidalShape shape, int x, int z) {
-        BlockPos pos = new BlockPos(x, 0, z);
-        return shape == null ? pos : shape.fold(pos);
+        return ClientShapes.fold(shape, new BlockPos(x, 0, z));
     }
 
     public static Vec3 foldPosition(ResourceKey<Level> dimension, Vec3 position) {
-        ToroidalShape shape = ClientShapes.of(dimension);
-        return shape == null ? position : shape.fold(position);
+        return ClientShapes.fold(ClientShapes.of(dimension), position);
     }
 
     static ChunkPos foldedChunk(@Nullable ToroidalShape shape, int chunkX, int chunkZ) {
-        ChunkPos pos = new ChunkPos(chunkX, chunkZ);
-        return shape == null ? pos : shape.fold(pos);
+        return ClientShapes.fold(shape, new ChunkPos(chunkX, chunkZ));
     }
 
     public static int loopedAxes(ResourceKey<Level> dimension) {

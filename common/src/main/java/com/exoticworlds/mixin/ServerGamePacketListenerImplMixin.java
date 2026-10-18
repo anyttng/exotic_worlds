@@ -69,15 +69,13 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
                     value = "INVOKE",
                     target = "Lnet/minecraft/core/BlockPos;relative(Lnet/minecraft/core/Direction;)Lnet/minecraft/core/BlockPos;"))
     private BlockPos toroidal$wrapAckedNeighbour(BlockPos neighbour) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
-        return transformer == null ? neighbour : transformer.fold(neighbour);
+        return WorldLoopAttachments.transformerOf(this.player.level()).fold(neighbour);
     }
 
     @WrapMethod(method = "teleport(DDDFFLjava/util/Set;)V")
     private void toroidal$wrapTeleportDestination(double x, double y, double z, float yRot, float xRot,
             Set<RelativeMovement> relatives, Operation<Void> original) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
-        Vec3 wrapped = transformer == null ? new Vec3(x, y, z) : transformer.fold(new Vec3(x, y, z));
+        Vec3 wrapped = WorldLoopAttachments.transformerOf(this.player.level()).fold(new Vec3(x, y, z));
         original.call(wrapped.x, y, wrapped.z, yRot, xRot, relatives);
     }
 

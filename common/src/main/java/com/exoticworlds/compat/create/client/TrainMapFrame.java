@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 import com.simibubi.create.compat.trainmap.TrainMapRenderer;
 import com.exoticworlds.compat.create.CreateSeamFold;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldFolds;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -16,7 +17,7 @@ import net.minecraft.world.level.Level;
 public final class TrainMapFrame {
     private static boolean bound;
 
-    private static @Nullable WorldFold frame;
+    private static WorldFold frame = WorldFolds.NOOP;
 
     public static <T> T during(@Nullable ResourceKey<Level> drawnDimension, Supplier<T> pass) {
         boolean previouslyBound = bound;
@@ -31,7 +32,7 @@ public final class TrainMapFrame {
         }
     }
 
-    static @Nullable WorldFold current() {
+    static WorldFold current() {
         return bound ? frame : resolve(TrainMapRenderer.INSTANCE.trackingDim);
     }
 
@@ -44,13 +45,13 @@ public final class TrainMapFrame {
         return CreateSeamFold.transformerOf(level, null);
     }
 
-    private static @Nullable WorldFold resolve(@Nullable ResourceKey<Level> drawnDimension) {
+    private static WorldFold resolve(@Nullable ResourceKey<Level> drawnDimension) {
         ClientLevel level = Minecraft.getInstance().level;
-        if (level == null) {
-            return null;
+        if (level == null || (drawnDimension != null && drawnDimension != level.dimension())) {
+            return WorldFolds.NOOP;
         }
 
-        return transformerOf(drawnDimension == null ? level.dimension() : drawnDimension);
+        return CreateSeamFold.foldOf(level, null);
     }
 
     private TrainMapFrame() {

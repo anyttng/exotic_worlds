@@ -16,6 +16,7 @@ import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldFolds;
 
 import net.minecraft.world.phys.Vec3;
 
@@ -161,8 +162,8 @@ class CarriageBogeyFrameTest {
         Vec3 leading = new Vec3(PAST_THE_X_BOUND, BOGEY_HEIGHT, INSIDE_Z);
         Vec3 raw = new Vec3(ACROSS_THE_SEAM_X, BOGEY_HEIGHT, INSIDE_Z);
 
-        assertSame(leading, frame.lead(null, TRAIN, FIRST_CARRIAGE, leading));
-        assertSame(raw, frame.trail(null, TRAIN, FIRST_CARRIAGE, raw, lookup));
+        assertSame(leading, frame.lead(WorldFolds.NOOP, TRAIN, FIRST_CARRIAGE, leading));
+        assertSame(raw, frame.trail(WorldFolds.NOOP, TRAIN, FIRST_CARRIAGE, raw, lookup));
         assertEquals(0, lookup.calls);
     }
 }

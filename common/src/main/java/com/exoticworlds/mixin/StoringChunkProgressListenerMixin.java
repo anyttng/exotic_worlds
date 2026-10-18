@@ -8,6 +8,7 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.level.CurrentServer;
 
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.progress.StoringChunkProgressListener;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -16,7 +17,9 @@ import net.minecraft.world.level.Level;
 public class StoringChunkProgressListenerMixin {
     @ModifyVariable(method = "onStatusChange", at = @At("HEAD"), argsOnly = true)
     private ChunkPos toroidal$foldStoredChunk(ChunkPos chunk) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(CurrentServer.get(), Level.OVERWORLD);
-        return transformer == null ? chunk : new ChunkPos(transformer.foldChunkKey(chunk.toLong()));
+        MinecraftServer server = CurrentServer.get();
+        WorldFold transformer =
+                WorldLoopAttachments.transformerIfLevel(server == null ? null : server.getLevel(Level.OVERWORLD));
+        return new ChunkPos(transformer.foldChunkKey(chunk.toLong()));
     }
 }

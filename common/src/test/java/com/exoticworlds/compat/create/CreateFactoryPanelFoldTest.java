@@ -78,6 +78,5 @@ class CreateFactoryPanelFoldTest {
         FactoryPanelPosition raw = panel(ONE_LAP_AWAY);
 
         assertSame(raw, CreateFactoryPanelFold.canonical(WorldFolds.NOOP, raw));
-        assertSame(raw, CreateFactoryPanelFold.canonical((WorldFold) null, raw));
     }
 }

@@ -21,8 +21,8 @@ public final class CreateFactoryPanelFold {
         return canonical(WorldLoopAttachments.transformerOfReader(level), position);
     }
 
-    static FactoryPanelPosition canonical(@Nullable WorldFold transformer, FactoryPanelPosition position) {
-        BlockPos canonical = CreateSeamFold.canonical(transformer, position.pos());
+    static FactoryPanelPosition canonical(WorldFold transformer, FactoryPanelPosition position) {
+        BlockPos canonical = transformer.fold(position.pos());
         return canonical.equals(position.pos()) ? position : new FactoryPanelPosition(canonical, position.slot());
     }
 

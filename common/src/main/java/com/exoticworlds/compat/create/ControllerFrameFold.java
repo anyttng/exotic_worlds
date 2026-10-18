@@ -3,7 +3,6 @@ package com.exoticworlds.compat.create;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.compat.create.client.CreateClientFrame;
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 
 import net.minecraft.core.BlockPos;
@@ -19,8 +18,7 @@ public final class ControllerFrameFold {
             return CreateClientFrame.nearestCopy(level, controller);
         }
 
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
-        return transformer == null ? controller : transformer.fold(controller);
+        return WorldLoopAttachments.transformerOf(level).fold(controller);
     }
 
     private ControllerFrameFold() {

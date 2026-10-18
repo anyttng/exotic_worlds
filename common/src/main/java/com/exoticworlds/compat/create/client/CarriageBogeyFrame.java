@@ -8,7 +8,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.simibubi.create.compat.trainmap.TrainMapSync.TrainMapSyncEntry;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.fold.NearestCopy;
 
 import net.minecraft.world.phys.Vec3;
 
@@ -35,22 +34,21 @@ public final class CarriageBogeyFrame {
                         () -> original.call(entry, carriageIndex, true, time));
     }
 
-    public Vec3 lead(@Nullable WorldFold transformer, Object leadingTrain, int leadingCarriage, Vec3 raw) {
-        Vec3 canonical = transformer == null ? raw : transformer.fold(raw);
+    public Vec3 lead(WorldFold transformer, Object leadingTrain, int leadingCarriage, Vec3 raw) {
+        Vec3 canonical = transformer.fold(raw);
         this.train = leadingTrain;
         this.carriageIndex = leadingCarriage;
         this.leading = canonical;
         return canonical;
     }
 
-    public Vec3 trail(@Nullable WorldFold transformer, Object trailingTrain, int trailingCarriage, Vec3 raw,
+    public Vec3 trail(WorldFold transformer, Object trailingTrain, int trailingCarriage, Vec3 raw,
             Supplier<Vec3> leadingBogey) {
         Vec3 known = this.leading;
         if (known == null || this.train != trailingTrain || this.carriageIndex != trailingCarriage) {
-            Vec3 rawLeading = leadingBogey.get();
-            known = transformer == null ? rawLeading : transformer.fold(rawLeading);
+            known = transformer.fold(leadingBogey.get());
         }
 
-        return NearestCopy.toward(transformer, known, raw);
+        return transformer.nearestCopy(known, raw);
     }
 }

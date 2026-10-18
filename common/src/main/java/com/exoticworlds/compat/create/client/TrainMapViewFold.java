@@ -2,8 +2,6 @@ package com.exoticworlds.compat.create.client;
 
 import java.util.List;
 
-import org.jspecify.annotations.Nullable;
-
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.exoticworlds.compat.create.CreateTrackFold;
 import com.exoticworlds.core.DeckTransformation;
@@ -24,7 +22,7 @@ public final class TrainMapViewFold {
     public record NearestNodeKey(Vec3i anchor, Vec3i raw, Vec3i nearest) {
     }
 
-    public static @Nullable WorldFold transformer() {
+    public static WorldFold transformer() {
         return TrainMapFrame.current();
     }
 
@@ -32,22 +30,21 @@ public final class TrainMapViewFold {
         return nearestNodeKey(transformer(), anchor, key, memo);
     }
 
-    public static NearestNodeKey nearestNodeKey(@Nullable WorldFold transformer, Vec3i anchor, Vec3i key,
+    public static NearestNodeKey nearestNodeKey(WorldFold transformer, Vec3i anchor, Vec3i key,
             LocalRef<NearestNodeKey> memo) {
         NearestNodeKey known = memo.get();
         if (known != null && known.anchor() == anchor && known.raw() == key) {
             return known;
         }
 
-        NearestNodeKey folded = new NearestNodeKey(anchor, key,
-                transformer == null ? key : CreateTrackFold.nearestNodeKey(transformer, anchor, key));
+        NearestNodeKey folded =
+                new NearestNodeKey(anchor, key, CreateTrackFold.nearestNodeKey(transformer, anchor, key));
         memo.set(folded);
         return folded;
     }
 
     public static long foldPixelNode(int x, int z) {
-        WorldFold transformer = transformer();
-        return transformer == null ? BlockPos.asLong(x, 0, z) : foldPixelNode(transformer, x, z);
+        return foldPixelNode(transformer(), x, z);
     }
 
     public static long foldPixelNode(WorldFold transformer, int x, int z) {
@@ -55,17 +52,12 @@ public final class TrainMapViewFold {
     }
 
     public static Vec3 canonical(Vec3 position) {
-        WorldFold transformer = transformer();
-        if (transformer == null) {
-            return position;
-        }
-
-        return transformer.fold(position);
+        return transformer().fold(position);
     }
 
     public static List<DeckTransformation> copiesDrawnFor(Rect2i bounds) {
         WorldFold transformer = transformer();
-        if (transformer == null) {
+        if (!transformer.isWrapped()) {
             return List.of(DeckTransformation.IDENTITY);
         }
 

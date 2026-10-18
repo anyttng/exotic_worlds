@@ -129,7 +129,6 @@ class CreateSeamFoldTest {
         BlockPos raw = delta.multiply(-1);
 
         assertSame(raw, CreateSeamFold.farEndDelta(WorldFolds.NOOP, ANCHOR, delta, raw));
-        assertSame(raw, CreateSeamFold.farEndDelta((WorldFold) null, ANCHOR, delta, raw));
         assertSame(raw, CreateSeamFold.farEndDelta((Level) null, ANCHOR, delta, raw));
     }
 
@@ -230,14 +229,11 @@ class CreateSeamFoldTest {
                 new Vec3(300.25, 64.5, 10.75), Direction.NORTH, PAST_THE_BOUNDS, true);
 
         assertSame(hit, CreateSeamFold.canonical(WorldFolds.NOOP, hit));
-        assertSame(hit, CreateSeamFold.canonical((WorldFold) null, hit));
         assertSame(hit, CreateSeamFold.canonical((ServerLevel) null, hit));
     }
 
     @Test
     void anUnwrappedWorldGivesTheCanonicalPositionBackByIdentity() {
-        assertSame(PAST_THE_BOUNDS, CreateSeamFold.canonical(WorldFolds.NOOP, PAST_THE_BOUNDS));
-        assertSame(PAST_THE_BOUNDS, CreateSeamFold.canonical((WorldFold) null, PAST_THE_BOUNDS));
         assertSame(PAST_THE_BOUNDS, CreateSeamFold.canonical((ServerLevel) null, PAST_THE_BOUNDS));
     }
 
