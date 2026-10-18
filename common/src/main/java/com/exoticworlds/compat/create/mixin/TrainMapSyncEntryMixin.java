@@ -27,7 +27,7 @@ public abstract class TrainMapSyncEntryMixin {
     public List<ResourceKey<Level>> dimensions;
 
     @Inject(method = "updateFrom", at = @At("RETURN"))
-    private void toroidal$carryPreviousAcrossSeam(TrainMapSync.TrainMapSyncEntry other, boolean light,
+    private void exotic_worlds$carryPreviousAcrossSeam(TrainMapSync.TrainMapSyncEntry other, boolean light,
             CallbackInfo ci) {
         TrainMapSyncFold.rebaseOnto(this.prevPositions, this.positions, this.dimensions,
                 TrainMapFrame::transformerOf);

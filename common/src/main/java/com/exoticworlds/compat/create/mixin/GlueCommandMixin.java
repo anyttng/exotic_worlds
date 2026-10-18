@@ -26,7 +26,7 @@ public class GlueCommandMixin {
     @ModifyArg(method = "register",
             at = @At(value = "INVOKE",
                     target = "Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;executes(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;"))
-    private static Command<CommandSourceStack> toroidal$refuseAnAmbiguousBond(Command<CommandSourceStack> glue) {
+    private static Command<CommandSourceStack> exotic_worlds$refuseAnAmbiguousBond(Command<CommandSourceStack> glue) {
         return context -> {
             BlockPos from = BlockPosArgument.getLoadedBlockPos(context, FROM_ARGUMENT);
             BlockPos to = BlockPosArgument.getLoadedBlockPos(context, TO_ARGUMENT);

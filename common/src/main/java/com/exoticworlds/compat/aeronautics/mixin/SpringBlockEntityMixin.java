@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 @Mixin(value = SpringBlockEntity.class, remap = false)
 public class SpringBlockEntityMixin {
     @ModifyVariable(method = "sable$physicsTick", at = @At("STORE"), name = "positionB")
-    private Vector3d toroidal$seatPartnerInOwnFrame(Vector3d partnerPosition,
+    private Vector3d exotic_worlds$seatPartnerInOwnFrame(Vector3d partnerPosition,
             @Local(name = "positionA") Vector3d ownPosition) {
         return SpringSeamFrame.seat(((BlockEntity) (Object) this).getLevel(), ownPosition, partnerPosition);
     }

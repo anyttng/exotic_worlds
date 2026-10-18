@@ -18,7 +18,7 @@ public interface Pose3dcMixin {
                     "bakeIntoMatrix"
             },
             at = @At(value = "INVOKE", target = "Ldev/ryanhcode/sable/companion/math/Pose3dc;position()Lorg/joml/Vector3dc;"))
-    private static Vector3dc toroidal$positionInTheEntityFrame(Vector3dc position) {
+    private static Vector3dc exotic_worlds$positionInTheEntityFrame(Vector3dc position) {
         return SeamFrame.seatPose(position);
     }
 }

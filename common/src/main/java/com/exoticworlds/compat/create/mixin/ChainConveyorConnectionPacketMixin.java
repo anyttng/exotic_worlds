@@ -18,7 +18,7 @@ public class ChainConveyorConnectionPacketMixin {
             method = "applySettings",
             at = @At(value = "FIELD", opcode = Opcodes.GETFIELD,
                     target = "Lcom/simibubi/create/content/kinetics/chainConveyor/ChainConveyorConnectionPacket;targetPos:Lnet/minecraft/core/BlockPos;"))
-    private BlockPos toroidal$foldTargetPos(BlockPos targetPos, ServerPlayer player, ChainConveyorBlockEntity be) {
+    private BlockPos exotic_worlds$foldTargetPos(BlockPos targetPos, ServerPlayer player, ChainConveyorBlockEntity be) {
         return CreateSeamFold.nearestCopy(be.getLevel(), be.getBlockPos(), targetPos);
     }
 }

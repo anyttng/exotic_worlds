@@ -30,13 +30,13 @@ public abstract class RadiationLevelDataMixin implements RadiationLevelFrame {
     public abstract void radiate(BlockPos pos, double magnitude);
 
     @Override
-    public void toroidal$bind(WorldFold fold) {
+    public void exotic_worlds$bind(WorldFold fold) {
         RadiationIndexFrame index = (RadiationIndexFrame) this.sources;
-        if (index.toroidal$fold() == fold) {
+        if (index.exotic_worlds$fold() == fold) {
             return;
         }
 
-        index.toroidal$bind(fold);
+        index.exotic_worlds$bind(fold);
         List<RadiationSource> unseated = this.sources.values().stream()
                 .filter(source -> !fold.fold(source.getPosition()).equals(source.getPosition()))
                 .toList();
@@ -47,16 +47,16 @@ public abstract class RadiationLevelDataMixin implements RadiationLevelFrame {
     }
 
     @ModifyVariable(method = {"radiate", "removeRadiationSource"}, at = @At("HEAD"), argsOnly = true, require = 2)
-    private BlockPos toroidal$foldSourcePosition(BlockPos pos) {
-        return ((RadiationIndexFrame) this.sources).toroidal$fold().fold(pos);
+    private BlockPos exotic_worlds$foldSourcePosition(BlockPos pos) {
+        return ((RadiationIndexFrame) this.sources).exotic_worlds$fold().fold(pos);
     }
 
     @WrapOperation(method = "getRadiationLevelAndMaxMagnitude",
             at = @At(value = "INVOKE", target = "Lmekanism/common/lib/radiation/RadiationUtil;computeExposure("
                     + "Lmekanism/common/lib/radiation/RadiationSource;Lnet/minecraft/core/BlockPos;)D"))
-    private double toroidal$exposureFromNearestCopy(RadiationSource source, BlockPos checkPos,
+    private double exotic_worlds$exposureFromNearestCopy(RadiationSource source, BlockPos checkPos,
             Operation<Double> original) {
-        WorldFold fold = ((RadiationIndexFrame) this.sources).toroidal$fold();
+        WorldFold fold = ((RadiationIndexFrame) this.sources).exotic_worlds$fold();
         return original.call(source, fold.nearestCopy(source.getPosition(), checkPos));
     }
 }

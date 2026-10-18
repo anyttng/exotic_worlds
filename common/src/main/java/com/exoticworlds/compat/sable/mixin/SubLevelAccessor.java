@@ -9,5 +9,5 @@ import dev.ryanhcode.sable.sublevel.SubLevel;
 @Mixin(value = SubLevel.class, remap = false)
 public interface SubLevelAccessor {
     @Accessor("lastPose")
-    Pose3d toroidal$lastPose();
+    Pose3d exotic_worlds$lastPose();
 }

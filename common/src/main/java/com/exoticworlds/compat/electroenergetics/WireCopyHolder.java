@@ -1,7 +1,7 @@
 package com.exoticworlds.compat.electroenergetics;
 
 public interface WireCopyHolder {
-    int toroidal$end();
+    int exotic_worlds$end();
 
-    void toroidal$setEnd(int end);
+    void exotic_worlds$setEnd(int end);
 }

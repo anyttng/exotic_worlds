@@ -18,7 +18,7 @@ import net.minecraft.core.Direction;
 public class NetworkAcceptorCacheMixin {
     @WrapOperation(method = "updateTransmitterOnSide",
             at = @At(value = "INVOKE", target = MekanismInjectionTargets.WORLD_UTILS_RELATIVE_POS))
-    private long toroidal$foldAcceptorKey(long pos, Direction side, Operation<Long> original,
+    private long exotic_worlds$foldAcceptorKey(long pos, Direction side, Operation<Long> original,
             @Local(argsOnly = true) Transmitter<?, ?, ?> transmitter) {
         return MekanismSeam.fold(transmitter.getLevel(), original.call(pos, side));
     }

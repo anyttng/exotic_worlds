@@ -15,7 +15,7 @@ public class FriendlyByteBufMenuPositionMixin {
     @ModifyReturnValue(
             method = "readBlockPos(Lio/netty/buffer/ByteBuf;)Lnet/minecraft/core/BlockPos;",
             at = @At("RETURN"))
-    private static BlockPos toroidal$foldMenuPayloadPosition(BlockPos canonical) {
+    private static BlockPos exotic_worlds$foldMenuPayloadPosition(BlockPos canonical) {
         return CreateMenuFrame.fold(canonical);
     }
 }

@@ -14,7 +14,7 @@ import net.minecraft.world.phys.BlockHitResult;
 @Mixin(value = RaycastHelper.class, remap = false)
 public class RaycastHelperMixin {
     @ModifyReturnValue(method = "rayTraceRange", at = @At("RETURN"))
-    private static @Nullable BlockHitResult toroidal$canonicaliseHit(@Nullable BlockHitResult hit, Level level) {
+    private static @Nullable BlockHitResult exotic_worlds$canonicaliseHit(@Nullable BlockHitResult hit, Level level) {
         return hit == null ? null : CreateSeamFold.canonicalOnServer(level, hit);
     }
 }

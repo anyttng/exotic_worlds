@@ -23,7 +23,7 @@ public class TransporterPathfinderPathfinderMixin {
 
     @WrapOperation(method = "find",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/core/BlockPos$MutableBlockPos;asLong()J"))
-    private long toroidal$foldNode(BlockPos.MutableBlockPos neighbor, Operation<Long> original) {
+    private long exotic_worlds$foldNode(BlockPos.MutableBlockPos neighbor, Operation<Long> original) {
         return MekanismSeam.fold(this.world, original.call(neighbor));
     }
 
@@ -32,13 +32,13 @@ public class TransporterPathfinderPathfinderMixin {
                     + "Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;)D"),
             require = 4,
             expect = 4)
-    private double toroidal$distanceTheShortWayRound(BlockPos start, BlockPos end, Operation<Double> original) {
+    private double exotic_worlds$distanceTheShortWayRound(BlockPos start, BlockPos end, Operation<Double> original) {
         return original.call(start, MekanismSeam.nearestCopy(this.world, start, end));
     }
 
     @WrapOperation(method = "isValidDestination",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_EQUALS))
-    private boolean toroidal$sameBlockAcrossTheEdge(BlockPos neighbor, Object finalNode,
+    private boolean exotic_worlds$sameBlockAcrossTheEdge(BlockPos neighbor, Object finalNode,
             Operation<Boolean> original) {
         Object folded = finalNode instanceof BlockPos pos ? MekanismSeam.fold(this.world, pos) : finalNode;
         return original.call(MekanismSeam.fold(this.world, neighbor), folded);

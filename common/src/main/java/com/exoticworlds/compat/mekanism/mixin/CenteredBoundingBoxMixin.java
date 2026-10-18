@@ -37,37 +37,37 @@ public class CenteredBoundingBoxMixin implements RadiationBoxFrame {
     private int maxZ;
 
     @Unique
-    private WorldFold toroidal$fold = WorldFolds.NOOP;
+    private WorldFold exotic_worlds$fold = WorldFolds.NOOP;
 
     @Override
-    public void toroidal$setFold(WorldFold fold) {
-        this.toroidal$fold = fold;
+    public void exotic_worlds$setFold(WorldFold fold) {
+        this.exotic_worlds$fold = fold;
     }
 
     @Override
-    public int toroidal$minX() {
+    public int exotic_worlds$minX() {
         return this.minX;
     }
 
     @Override
-    public int toroidal$minZ() {
+    public int exotic_worlds$minZ() {
         return this.minZ;
     }
 
     @Override
-    public int toroidal$maxX() {
+    public int exotic_worlds$maxX() {
         return this.maxX;
     }
 
     @Override
-    public int toroidal$maxZ() {
+    public int exotic_worlds$maxZ() {
         return this.maxZ;
     }
 
     @ModifyVariable(method = "isInside(Lnet/minecraft/core/Vec3i;)Z", at = @At("HEAD"), argsOnly = true)
-    private Vec3i toroidal$copyNearestCentre(Vec3i vector) {
+    private Vec3i exotic_worlds$copyNearestCentre(Vec3i vector) {
         BlockPos target = vector instanceof BlockPos pos ? pos : new BlockPos(vector);
-        BlockPos copy = this.toroidal$fold.nearestCopy(BlockPos.of(this.center), target);
+        BlockPos copy = this.exotic_worlds$fold.nearestCopy(BlockPos.of(this.center), target);
         return copy.equals(target) ? vector : copy;
     }
 }

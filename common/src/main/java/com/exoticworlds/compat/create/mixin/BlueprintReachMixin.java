@@ -14,7 +14,7 @@ import net.minecraft.world.phys.AABB;
 @Mixin(value = BlueprintEntity.class, remap = false)
 public class BlueprintReachMixin {
     @ModifyVariable(method = "canPlayerUse", at = @At("STORE"), ordinal = 0)
-    private AABB toroidal$foldBlueprintBox(AABB box, Player player) {
+    private AABB exotic_worlds$foldBlueprintBox(AABB box, Player player) {
         return FoldedBoxQuery.toward(
                 WorldLoopAttachments.wrappedTransformerOfReader(player.level()), player.position(), box);
     }

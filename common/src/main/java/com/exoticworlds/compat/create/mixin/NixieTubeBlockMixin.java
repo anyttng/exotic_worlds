@@ -27,7 +27,7 @@ public abstract class NixieTubeBlockMixin {
             @At(value = "INVOKE", target = LEVEL_GET_BLOCK_STATE, ordinal = 1),
             @At(value = "INVOKE", target = LEVEL_GET_BLOCK_STATE, ordinal = 2),
             @At(value = "INVOKE", target = LEVEL_GET_BLOCK_STATE, ordinal = 3) })
-    private static BlockState toroidal$closeTheRing(LevelAccessor world, BlockPos pos, Operation<BlockState> original,
+    private static BlockState exotic_worlds$closeTheRing(LevelAccessor world, BlockPos pos, Operation<BlockState> original,
             @Share("walkClosure") LocalRef<CreateWalkClosure> closureRef,
             @Share("walkClosureResolved") LocalBooleanRef resolved) {
         return CreateWalkClosure.read(world, pos, original, closureRef, resolved);

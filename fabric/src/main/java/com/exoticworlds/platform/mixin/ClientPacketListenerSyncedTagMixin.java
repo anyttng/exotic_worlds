@@ -18,7 +18,7 @@ public class ClientPacketListenerSyncedTagMixin {
     @WrapOperation(
             method = "method_38542",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_ENTITY_LOAD_WITH_COMPONENTS))
-    private void toroidal$seatSyncedPositions(BlockEntity blockEntity, CompoundTag tag,
+    private void exotic_worlds$seatSyncedPositions(BlockEntity blockEntity, CompoundTag tag,
             HolderLookup.Provider registries, Operation<Void> original) {
         original.call(blockEntity, SyncedTagFold.inFrameOf(blockEntity, tag), registries);
     }

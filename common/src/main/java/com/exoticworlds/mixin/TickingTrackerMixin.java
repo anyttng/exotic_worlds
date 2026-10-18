@@ -12,17 +12,17 @@ import net.minecraft.server.level.TickingTracker;
 @Mixin(TickingTracker.class)
 public class TickingTrackerMixin {
     @ModifyVariable(method = "addTicket(JLnet/minecraft/server/level/Ticket;)V", at = @At("HEAD"), argsOnly = true)
-    private long toroidal$foldAddedTicketKey(long key) {
-        return this.toroidal$foldTicketKey(key);
+    private long exotic_worlds$foldAddedTicketKey(long key) {
+        return this.exotic_worlds$foldTicketKey(key);
     }
 
     @ModifyVariable(method = "removeTicket(JLnet/minecraft/server/level/Ticket;)V", at = @At("HEAD"), argsOnly = true)
-    private long toroidal$foldRemovedTicketKey(long key) {
-        return this.toroidal$foldTicketKey(key);
+    private long exotic_worlds$foldRemovedTicketKey(long key) {
+        return this.exotic_worlds$foldTicketKey(key);
     }
 
     @Unique
-    private long toroidal$foldTicketKey(long key) {
-        return ((TransformerCache) (Object) this).toroidal$transformer().foldChunkKey(key);
+    private long exotic_worlds$foldTicketKey(long key) {
+        return ((TransformerCache) (Object) this).exotic_worlds$transformer().foldChunkKey(key);
     }
 }

@@ -31,7 +31,7 @@ public class FactoryPanelConnectionPacketMixin {
     @Inject(method = "applySettings(Lnet/minecraft/server/level/ServerPlayer;"
             + "Lcom/simibubi/create/content/logistics/factoryBoard/FactoryPanelBlockEntity;)V",
             at = @At("HEAD"))
-    private void toroidal$canonicalisePanelPositions(ServerPlayer player, FactoryPanelBlockEntity blockEntity,
+    private void exotic_worlds$canonicalisePanelPositions(ServerPlayer player, FactoryPanelBlockEntity blockEntity,
             CallbackInfo ci) {
         ServerLevel level = player.serverLevel();
         this.fromPos = CreateFactoryPanelFold.canonical(level, this.fromPos);

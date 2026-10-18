@@ -27,24 +27,24 @@ public abstract class BeltBlockEntityControllerMixin implements SeamKeyedBlockEn
     public int beltLength;
 
     @ModifyVariable(method = "setController", at = @At("HEAD"), argsOnly = true)
-    private BlockPos toroidal$foldIncomingController(BlockPos stored) {
+    private BlockPos exotic_worlds$foldIncomingController(BlockPos stored) {
         BlockEntity self = (BlockEntity) (Object) this;
         return ControllerFrameFold.inFrameOf(self.getLevel(), stored);
     }
 
     @Inject(method = "read", at = @At("RETURN"))
-    private void toroidal$foldReadController(CompoundTag compound, Provider registries, boolean clientPacket,
+    private void exotic_worlds$foldReadController(CompoundTag compound, Provider registries, boolean clientPacket,
             CallbackInfo ci) {
-        toroidal$foldStoredController();
+        exotic_worlds$foldStoredController();
     }
 
     @Override
-    public void toroidal$rekey() {
-        toroidal$foldStoredController();
+    public void exotic_worlds$rekey() {
+        exotic_worlds$foldStoredController();
     }
 
     @Unique
-    private void toroidal$foldStoredController() {
+    private void exotic_worlds$foldStoredController() {
         BlockPos stored = this.controller;
         if (stored == null || beltLength == 0) {
             return;

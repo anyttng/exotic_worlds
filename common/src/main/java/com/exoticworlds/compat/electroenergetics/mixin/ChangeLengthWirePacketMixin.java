@@ -16,13 +16,13 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(targets = "com.george_vi.electroenergetics.content.wire_spool.ChangeLengthWirePacket", remap = false)
 public abstract class ChangeLengthWirePacketMixin {
     @WrapOperation(method = "handle", at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO))
-    private double toroidal$shortSpan(Vec3 from, Vec3 to, Operation<Double> original,
+    private double exotic_worlds$shortSpan(Vec3 from, Vec3 to, Operation<Double> original,
             @Local(argsOnly = true) ServerPlayer player) {
         return original.call(from, WireSpan.seat(player.level(), from, to));
     }
 
     @WrapOperation(method = "handle", at = @At(value = "INVOKE", target = CatnipInjectionTargets.VEC_HELPER_LERP))
-    private Vec3 toroidal$dropOnShortSpan(float point, Vec3 from, Vec3 to, Operation<Vec3> original,
+    private Vec3 exotic_worlds$dropOnShortSpan(float point, Vec3 from, Vec3 to, Operation<Vec3> original,
             @Local(argsOnly = true) ServerPlayer player) {
         return original.call(point, from, WireSpan.seat(player.level(), from, to));
     }

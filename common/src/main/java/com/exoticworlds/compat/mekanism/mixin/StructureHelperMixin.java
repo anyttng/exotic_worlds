@@ -24,7 +24,7 @@ public class StructureHelperMixin {
             },
             at = @At("RETURN"),
             require = 2)
-    private static @Nullable VoxelCuboid toroidal$seatCanonicalMin(@Nullable VoxelCuboid cuboid,
+    private static @Nullable VoxelCuboid exotic_worlds$seatCanonicalMin(@Nullable VoxelCuboid cuboid,
             @Local(argsOnly = true) Structure structure) {
         return MultiblockFrames.seatCanonicalMin(structure, cuboid);
     }

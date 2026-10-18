@@ -20,7 +20,7 @@ public abstract class LegacyTemperatureMixin {
     // The band runs along Z alone: the original multiplies z by its own frequency, so z arrives pre-scaled to land on
     // whole turns per lap.
     @WrapMethod(method = "compute")
-    private float toroidal$closeOnLap(float x, float z, int seed, Operation<Float> original) {
+    private float exotic_worlds$closeOnLap(float x, float z, int seed, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null || frame.lap(Direction.Axis.Z) == RtfLap.OPEN) {
             return original.call(x, z, seed);

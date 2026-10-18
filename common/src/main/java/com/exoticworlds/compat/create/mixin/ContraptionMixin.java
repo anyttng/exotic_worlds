@@ -59,13 +59,13 @@ public class ContraptionMixin {
     protected Multimap<BlockPos, StructureBlockInfo> capturedMultiblocks;
 
     @ModifyVariable(method = "searchMovedStructure", at = @At("STORE"), ordinal = 0)
-    private Set<BlockPos> toroidal$closeTheWalkOnCanonicalKeys(Set<BlockPos> visited, Level world, BlockPos pos,
+    private Set<BlockPos> exotic_worlds$closeTheWalkOnCanonicalKeys(Set<BlockPos> visited, Level world, BlockPos pos,
             Direction forcedDirection) {
         return LappedKeys.set(world);
     }
 
     @WrapMethod(method = "moveBlock")
-    private boolean toroidal$dropANameItsOwnCopyAlreadyClaimed(Level world, Direction forcedDirection,
+    private boolean exotic_worlds$dropANameItsOwnCopyAlreadyClaimed(Level world, Direction forcedDirection,
             Queue<BlockPos> frontier, Set<BlockPos> visited, Operation<Boolean> original) {
         BlockPos polled = frontier.peek();
         if (polled == null || !visited.contains(polled)) {
@@ -77,7 +77,7 @@ public class ContraptionMixin {
     }
 
     @Inject(method = "searchMovedStructure", at = @At("RETURN"))
-    private void toroidal$refuseAStructureThatCirclesTheWorld(Level world, BlockPos pos, Direction forcedDirection,
+    private void exotic_worlds$refuseAStructureThatCirclesTheWorld(Level world, BlockPos pos, Direction forcedDirection,
             CallbackInfoReturnable<Boolean> cir, @Local Set<BlockPos> visited) throws AssemblyException {
         if (visited instanceof LappedKeys keys && keys.lapped() != null) {
             throw new AssemblyException(Component.translatable(CIRCLES_THE_WORLD_KEY));
@@ -88,13 +88,13 @@ public class ContraptionMixin {
             method = "captureMultiblock",
             at = @At(value = "INVOKE",
                     target = CatnipInjectionTargets.NBT_HELPER_READ_BLOCK_POS))
-    private BlockPos toroidal$foldCapturedController(BlockPos stored, BlockPos localPos, StructureBlockInfo info,
+    private BlockPos exotic_worlds$foldCapturedController(BlockPos stored, BlockPos localPos, StructureBlockInfo info,
             BlockEntity be) {
         return CreateSeamFold.nearestCopy(be.getLevel(), localPos.offset(anchor), stored);
     }
 
     @WrapMethod(method = "moveChassis")
-    private boolean toroidal$walkChassisInTheAssemblyFrame(Level world, BlockPos pos, Direction movementDirection,
+    private boolean exotic_worlds$walkChassisInTheAssemblyFrame(Level world, BlockPos pos, Direction movementDirection,
             Queue<BlockPos> frontier, Set<BlockPos> visited, Operation<Boolean> original) {
         return ChassisWalkFrame.withAnchor(world, pos,
                 () -> original.call(world, pos, movementDirection, frontier, visited));
@@ -105,7 +105,7 @@ public class ContraptionMixin {
                     target = "Ljava/util/Set;forEach(Ljava/util/function/Consumer;)V"),
             require = 1,
             allow = 1)
-    private void toroidal$foldGlueIntoTheLocalFrame(Level world, BlockPos offset, CallbackInfo ci) {
+    private void exotic_worlds$foldGlueIntoTheLocalFrame(Level world, BlockPos offset, CallbackInfo ci) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(world);
         if (transformer == null) {
             return;
@@ -118,14 +118,14 @@ public class ContraptionMixin {
     @ModifyExpressionValue(method = "addBlocksToWorld",
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/contraptions/StructureTransform;apply(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/core/BlockPos;"))
-    private BlockPos toroidal$canonicalDisassemblyTarget(BlockPos target, @Local(argsOnly = true) Level world) {
+    private BlockPos exotic_worlds$canonicalDisassemblyTarget(BlockPos target, @Local(argsOnly = true) Level world) {
         return CreateSeamFold.canonicalOnServer(world, target);
     }
 
     @Inject(method = "addBlocksToWorld",
             at = @At(value = "INVOKE", shift = At.Shift.AFTER,
                     target = "Lcom/simibubi/create/content/contraptions/Contraption;translateMultiblockControllers(Lcom/simibubi/create/content/contraptions/StructureTransform;)V"))
-    private void toroidal$canonicalizeTranslatedControllers(Level world, StructureTransform transform,
+    private void exotic_worlds$canonicalizeTranslatedControllers(Level world, StructureTransform transform,
             CallbackInfo ci) {
         for (StructureBlockInfo info : capturedMultiblocks.values()) {
             CompoundTag nbt = info.nbt();

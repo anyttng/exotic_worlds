@@ -30,10 +30,10 @@ public abstract class HeightmapMixin implements LapCarrier {
     private static final int TERRAIN_POPULATOR_ORDINAL = 1;
 
     @Unique
-    private volatile @Nullable WorldFold toroidal$fold;
+    private volatile @Nullable WorldFold exotic_worlds$fold;
 
     @Unique
-    private volatile double toroidal$climateCompression = ClimateScaleCompression.NO_COMPRESSION;
+    private volatile double exotic_worlds$climateCompression = ClimateScaleCompression.NO_COMPRESSION;
 
     @Shadow
     @Final
@@ -44,26 +44,26 @@ public abstract class HeightmapMixin implements LapCarrier {
     private Climate climate;
 
     @Override
-    public @Nullable WorldFold toroidal$fold() {
-        return this.toroidal$fold;
+    public @Nullable WorldFold exotic_worlds$fold() {
+        return this.exotic_worlds$fold;
     }
 
     @Override
-    public void toroidal$carryFold(WorldFold fold) {
-        this.toroidal$climateCompression =
+    public void exotic_worlds$carryFold(WorldFold fold) {
+        this.exotic_worlds$climateCompression =
                 RtfClimateCompression.factor(fold, (RtfClimateScales) (Object) this.climate.biomeNoise());
-        RtfClimateCompression.remember(fold, this.toroidal$climateCompression);
-        this.toroidal$fold = fold;
+        RtfClimateCompression.remember(fold, this.exotic_worlds$climateCompression);
+        this.exotic_worlds$fold = fold;
     }
 
     @Override
-    public double toroidal$climateCompression() {
-        return this.toroidal$climateCompression;
+    public double exotic_worlds$climateCompression() {
+        return this.exotic_worlds$climateCompression;
     }
 
     @WrapMethod(method = "apply")
-    private void toroidal$bindApply(Cell cell, float x, float z, boolean applyClimate, Operation<Void> original) {
-        WorldFold fold = this.toroidal$fold;
+    private void exotic_worlds$bindApply(Cell cell, float x, float z, boolean applyClimate, Operation<Void> original) {
+        WorldFold fold = this.exotic_worlds$fold;
         if (fold == null) {
             original.call(cell, x, z, applyClimate);
             return;
@@ -76,8 +76,8 @@ public abstract class HeightmapMixin implements LapCarrier {
     }
 
     @WrapMethod(method = "applyTerrain")
-    private void toroidal$bindTerrain(Cell cell, float x, float z, Operation<Void> original) {
-        WorldFold fold = this.toroidal$fold;
+    private void exotic_worlds$bindTerrain(Cell cell, float x, float z, Operation<Void> original) {
+        WorldFold fold = this.exotic_worlds$fold;
         if (fold == null) {
             original.call(cell, x, z);
             return;
@@ -90,8 +90,8 @@ public abstract class HeightmapMixin implements LapCarrier {
     }
 
     @WrapMethod(method = "applyRivers")
-    private void toroidal$bindRivers(Cell cell, float x, float z, Rivermap rivermap, Operation<Void> original) {
-        WorldFold fold = this.toroidal$fold;
+    private void exotic_worlds$bindRivers(Cell cell, float x, float z, Rivermap rivermap, Operation<Void> original) {
+        WorldFold fold = this.exotic_worlds$fold;
         if (fold == null) {
             original.call(cell, x, z, rivermap);
             return;
@@ -104,8 +104,8 @@ public abstract class HeightmapMixin implements LapCarrier {
     }
 
     @WrapMethod(method = "applyClimate")
-    private void toroidal$bindClimate(Cell cell, float x, float z, boolean applyClimate, Operation<Void> original) {
-        WorldFold fold = this.toroidal$fold;
+    private void exotic_worlds$bindClimate(Cell cell, float x, float z, boolean applyClimate, Operation<Void> original) {
+        WorldFold fold = this.exotic_worlds$fold;
         if (fold == null) {
             original.call(cell, x, z, applyClimate);
             return;
@@ -120,10 +120,10 @@ public abstract class HeightmapMixin implements LapCarrier {
     @WrapOperation(method = "applyClimate", at = @At(value = "INVOKE",
             target = "Lraccoonman/reterraforged/world/worldgen/cell/climate/Climate;apply"
                     + "(Lraccoonman/reterraforged/world/worldgen/cell/Cell;FFZ)V"))
-    private void toroidal$compressClimate(Climate climate, Cell cell, float x, float z, boolean applyClimate,
+    private void exotic_worlds$compressClimate(Climate climate, Cell cell, float x, float z, boolean applyClimate,
             Operation<Void> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
-        double factor = this.toroidal$climateCompression;
+        double factor = this.exotic_worlds$climateCompression;
         if (frame == null || factor == ClimateScaleCompression.NO_COMPRESSION) {
             original.call(climate, cell, x, z, applyClimate);
             return;
@@ -139,7 +139,7 @@ public abstract class HeightmapMixin implements LapCarrier {
             target = "Lraccoonman/reterraforged/world/worldgen/cell/CellPopulator;apply"
                     + "(Lraccoonman/reterraforged/world/worldgen/cell/Cell;FF)V",
             ordinal = TERRAIN_POPULATOR_ORDINAL))
-    private void toroidal$scaleTerrainLap(CellPopulator populator, Cell cell, float x, float z,
+    private void exotic_worlds$scaleTerrainLap(CellPopulator populator, Cell cell, float x, float z,
             Operation<Void> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {

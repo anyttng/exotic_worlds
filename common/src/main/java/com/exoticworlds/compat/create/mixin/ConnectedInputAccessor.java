@@ -12,8 +12,8 @@ import net.minecraft.core.BlockPos;
 @Mixin(value = ConnectedInputHandler.ConnectedInput.class, remap = false)
 public interface ConnectedInputAccessor {
     @Accessor("data")
-    List<BlockPos> toroidal$data();
+    List<BlockPos> exotic_worlds$data();
 
     @Accessor("isController")
-    boolean toroidal$isController();
+    boolean exotic_worlds$isController();
 }

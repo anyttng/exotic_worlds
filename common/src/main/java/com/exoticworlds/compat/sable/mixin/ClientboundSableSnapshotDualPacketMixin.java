@@ -25,7 +25,7 @@ public class ClientboundSableSnapshotDualPacketMixin {
     @Inject(
             method = "handleClient(Lnet/minecraft/world/level/Level;Ldev/ryanhcode/sable/network/packets/PacketReceiveMode;)V",
             at = @At("HEAD"))
-    private void toroidal$reseatReceivedPoses(Level level, PacketReceiveMode mode, CallbackInfo ci) {
+    private void exotic_worlds$reseatReceivedPoses(Level level, PacketReceiveMode mode, CallbackInfo ci) {
         for (ClientboundSableSnapshotDualPacket.Entry entry : this.entries) {
             SableClientFrame.reseat(entry.pose());
         }

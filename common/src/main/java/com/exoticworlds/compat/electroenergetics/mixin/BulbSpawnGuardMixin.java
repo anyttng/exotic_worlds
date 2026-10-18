@@ -17,7 +17,7 @@ import net.minecraft.core.Vec3i;
 public abstract class BulbSpawnGuardMixin {
     @WrapOperation(method = "lambda$spawnMob$2",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
-    private static double toroidal$spawnBesideDevice(BlockPos device, Vec3i spawn, Operation<Double> original,
+    private static double exotic_worlds$spawnBesideDevice(BlockPos device, Vec3i spawn, Operation<Double> original,
             @Local(argsOnly = true) SimulatedDevice guard) {
         return original.call(device, WireSpan.seat(guard.level, device, spawn));
     }

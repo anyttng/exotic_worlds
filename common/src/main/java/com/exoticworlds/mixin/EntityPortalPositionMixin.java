@@ -22,8 +22,8 @@ public class EntityPortalPositionMixin {
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/portal/PortalShape;getRelativePosition(Lnet/minecraft/BlockUtil$FoundRectangle;Lnet/minecraft/core/Direction$Axis;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/entity/EntityDimensions;)Lnet/minecraft/world/phys/Vec3;"),
             index = 2)
-    private Vec3 toroidal$portalPositionNearestCorner(Vec3 position, @Local(argsOnly = true) BlockUtil.FoundRectangle portalArea) {
-        WorldFold transformer = ((TransformerSource) (Object) this).toroidal$wrappedTransformer();
+    private Vec3 exotic_worlds$portalPositionNearestCorner(Vec3 position, @Local(argsOnly = true) BlockUtil.FoundRectangle portalArea) {
+        WorldFold transformer = ((TransformerSource) (Object) this).exotic_worlds$wrappedTransformer();
         return NearestCopy.toward(transformer, Vec3.atLowerCornerOf(portalArea.minCorner), position);
     }
 }

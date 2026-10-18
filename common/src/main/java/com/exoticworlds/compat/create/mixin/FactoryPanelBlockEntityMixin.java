@@ -17,13 +17,13 @@ import net.minecraft.server.level.ServerLevel;
 @Mixin(value = FactoryPanelBlockEntity.class, remap = false)
 public abstract class FactoryPanelBlockEntityMixin implements SeamKeyedBlockEntity {
     @Inject(method = "read", at = @At("RETURN"))
-    private void toroidal$rekeyOnRead(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket,
+    private void exotic_worlds$rekeyOnRead(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket,
             CallbackInfo ci) {
-        toroidal$rekey();
+        exotic_worlds$rekey();
     }
 
     @Override
-    public void toroidal$rekey() {
+    public void exotic_worlds$rekey() {
         FactoryPanelBlockEntity panelBE = (FactoryPanelBlockEntity) (Object) this;
         if (!(panelBE.getLevel() instanceof ServerLevel serverLevel)) {
             return;

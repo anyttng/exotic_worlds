@@ -46,7 +46,7 @@ public abstract class RegionModuleMixin {
     private float frequency;
 
     @WrapMethod(method = "apply")
-    private void toroidal$closeApply(Cell cell, float x, float z, Operation<Void> original) {
+    private void exotic_worlds$closeApply(Cell cell, float x, float z, Operation<Void> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
             original.call(cell, x, z);
@@ -60,18 +60,18 @@ public abstract class RegionModuleMixin {
 
     @ModifyExpressionValue(method = "apply",
             at = @At(value = "FIELD", target = FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = X_READ))
-    private float toroidal$snapX(float frequency) {
+    private float exotic_worlds$snapX(float frequency) {
         return RtfLap.snapped(Direction.Axis.X, frequency);
     }
 
     @ModifyExpressionValue(method = "apply",
             at = @At(value = "FIELD", target = FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = Z_READ))
-    private float toroidal$snapZ(float frequency) {
+    private float exotic_worlds$snapZ(float frequency) {
         return RtfLap.snapped(Direction.Axis.Z, frequency);
     }
 
     @WrapOperation(method = "apply", at = @At(value = "FIELD", target = CENTER_X, opcode = Opcodes.PUTFIELD))
-    private void toroidal$canonicalCenterX(Cell cell, float value, Operation<Void> original,
+    private void exotic_worlds$canonicalCenterX(Cell cell, float value, Operation<Void> original,
             @Local(name = "cellX") int cellX, @Local(name = "cellY") int cellY) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
@@ -84,7 +84,7 @@ public abstract class RegionModuleMixin {
     }
 
     @WrapOperation(method = "apply", at = @At(value = "FIELD", target = CENTER_Z, opcode = Opcodes.PUTFIELD))
-    private void toroidal$canonicalCenterZ(Cell cell, float value, Operation<Void> original,
+    private void exotic_worlds$canonicalCenterZ(Cell cell, float value, Operation<Void> original,
             @Local(name = "cellX") int cellX, @Local(name = "cellY") int cellY) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         original.call(cell, frame == null

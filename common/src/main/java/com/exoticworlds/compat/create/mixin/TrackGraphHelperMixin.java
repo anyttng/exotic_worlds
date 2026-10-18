@@ -19,7 +19,7 @@ public abstract class TrackGraphHelperMixin {
     @WrapOperation(method = "getGraphLocationAt",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_SUBTRACT))
-    private static Vec3 toroidal$foldWalkDelta(Vec3 target, Vec3 anchor, Operation<Vec3> original, Level level,
+    private static Vec3 exotic_worlds$foldWalkDelta(Vec3 target, Vec3 anchor, Operation<Vec3> original, Level level,
             BlockPos pos, AxisDirection targetDirection, Vec3 targetAxis) {
         return original.call(CreateSeamFold.nearestCopy(level, anchor, target), anchor);
     }
@@ -27,7 +27,7 @@ public abstract class TrackGraphHelperMixin {
     @WrapOperation(method = "getGraphLocationAt",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_DISTANCE_TO))
-    private static double toroidal$foldNodeDistance(Vec3 anchor, Vec3 target, Operation<Double> original, Level level,
+    private static double exotic_worlds$foldNodeDistance(Vec3 anchor, Vec3 target, Operation<Double> original, Level level,
             BlockPos pos, AxisDirection targetDirection, Vec3 targetAxis) {
         return original.call(anchor, CreateSeamFold.nearestCopy(level, anchor, target));
     }

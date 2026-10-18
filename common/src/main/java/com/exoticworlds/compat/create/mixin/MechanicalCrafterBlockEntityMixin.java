@@ -17,18 +17,18 @@ import net.minecraft.server.level.ServerLevel;
 @Mixin(value = MechanicalCrafterBlockEntity.class, remap = false)
 public abstract class MechanicalCrafterBlockEntityMixin implements SeamKeyedBlockEntity {
     @Inject(method = "read", at = @At("RETURN"))
-    private void toroidal$normalizeOnRead(CompoundTag compound, HolderLookup.Provider registries,
+    private void exotic_worlds$normalizeOnRead(CompoundTag compound, HolderLookup.Provider registries,
             boolean clientPacket, CallbackInfo ci) {
-        toroidal$normalizeWithLevel();
+        exotic_worlds$normalizeWithLevel();
     }
 
     @Override
-    public void toroidal$rekey() {
-        toroidal$normalizeWithLevel();
+    public void exotic_worlds$rekey() {
+        exotic_worlds$normalizeWithLevel();
     }
 
     @Unique
-    private void toroidal$normalizeWithLevel() {
+    private void exotic_worlds$normalizeWithLevel() {
         MechanicalCrafterBlockEntity crafter = (MechanicalCrafterBlockEntity) (Object) this;
         if (!(crafter.getLevel() instanceof ServerLevel serverLevel)) {
             return;

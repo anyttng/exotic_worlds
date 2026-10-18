@@ -20,14 +20,14 @@ import net.minecraft.world.level.LevelAccessor;
 @Mixin(value = RedstoneLinkNetworkHandler.class, remap = false)
 public class RedstoneLinkNetworkHandlerMixin {
     @Unique
-    private static final String SEATED_FROM = "toroidal$seatedFrom";
+    private static final String SEATED_FROM = "exotic_worlds$seatedFrom";
 
     @WrapOperation(method = "updateNetworkOf",
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/redstone/link/RedstoneLinkNetworkHandler;withinRange("
                             + "Lcom/simibubi/create/content/redstone/link/IRedstoneLinkable;"
                             + "Lcom/simibubi/create/content/redstone/link/IRedstoneLinkable;)Z"))
-    private boolean toroidal$foldLinkRange(IRedstoneLinkable from, IRedstoneLinkable to,
+    private boolean exotic_worlds$foldLinkRange(IRedstoneLinkable from, IRedstoneLinkable to,
             Operation<Boolean> original, LevelAccessor world, @Share(SEATED_FROM) LocalRef<BlockPos> seatedFromRef) {
         if (from == to || !(world instanceof Level level)) {
             return original.call(from, to);

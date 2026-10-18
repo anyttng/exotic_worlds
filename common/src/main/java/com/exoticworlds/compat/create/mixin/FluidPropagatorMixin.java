@@ -16,7 +16,7 @@ import net.minecraft.world.level.Level;
 @Mixin(value = FluidPropagator.class, remap = false)
 public class FluidPropagatorMixin {
     @ModifyVariable(method = "resetAffectedFluidNetworks", at = @At("STORE"), ordinal = 0)
-    private static Set<BlockPos> toroidal$canonicalVisited(Set<BlockPos> visited, Level world, BlockPos start,
+    private static Set<BlockPos> exotic_worlds$canonicalVisited(Set<BlockPos> visited, Level world, BlockPos start,
             Direction side) {
         return CanonicalPositionKeys.set(world);
     }

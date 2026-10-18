@@ -21,7 +21,7 @@ public class GearboxRendererMixin {
             method = "renderSafe(Lcom/simibubi/create/content/kinetics/gearbox/GearboxBlockEntity;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_SUBTRACT))
-    private BlockPos toroidal$foldSourceDelta(BlockPos sourcePos, Vec3i anchorPos, Operation<BlockPos> original,
+    private BlockPos exotic_worlds$foldSourceDelta(BlockPos sourcePos, Vec3i anchorPos, Operation<BlockPos> original,
             GearboxBlockEntity be, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int light,
             int overlay) {
         return CreateSeamFold.foldDelta(be.getLevel(), be.getBlockPos(), sourcePos,

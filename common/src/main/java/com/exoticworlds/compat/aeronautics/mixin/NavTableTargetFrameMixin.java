@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(value = NavTableBlockEntity.class, remap = false)
 public class NavTableTargetFrameMixin {
     @ModifyReturnValue(method = "getTargetPosition", at = @At("RETURN"))
-    private Vec3 toroidal$seatTargetByTheTable(Vec3 target, @Local(argsOnly = true) boolean project) {
+    private Vec3 exotic_worlds$seatTargetByTheTable(Vec3 target, @Local(argsOnly = true) boolean project) {
         return project && target != null
                 ? NavTableSeamFrame.seatTarget((NavTableBlockEntity) (Object) this, target)
                 : target;

@@ -20,34 +20,34 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(value = WireVisual.class, remap = false)
 public abstract class WireVisualMixin implements WireCopyHolder {
     @Unique
-    private int toroidal$end = WireCopies.FIRST_END;
+    private int exotic_worlds$end = WireCopies.FIRST_END;
 
     @Override
-    public int toroidal$end() {
-        return this.toroidal$end;
+    public int exotic_worlds$end() {
+        return this.exotic_worlds$end;
     }
 
     @Override
-    public void toroidal$setEnd(int end) {
-        this.toroidal$end = end;
+    public void exotic_worlds$setEnd(int end) {
+        this.exotic_worlds$end = end;
     }
 
     @ModifyExpressionValue(method = "recreateInstances", at = @At(value = "INVOKE",
             target = "Lcom/george_vi/electroenergetics/foundation/nodes/InWorldNodeConnection;"
                     + "isFullyLoaded(Lnet/minecraft/world/level/Level;)Z"))
-    private boolean toroidal$secondEndOnlyWhenParted(boolean loaded, @Local(argsOnly = true) ClientLevel level,
+    private boolean exotic_worlds$secondEndOnlyWhenParted(boolean loaded, @Local(argsOnly = true) ClientLevel level,
             @Local(name = "pos1") Vec3 pos1, @Local(name = "pos2") Vec3 pos2) {
-        return loaded && (this.toroidal$end == WireCopies.FIRST_END
+        return loaded && (this.exotic_worlds$end == WireCopies.FIRST_END
                 || WireCopies.parted(WorldLoopAttachments.transformerOfReader(level), pos1, pos2));
     }
 
     @Inject(method = "recreateInstances", at = @At(value = "INVOKE",
             target = "Ldev/engine_room/flywheel/api/visualization/VisualizationContext;renderOrigin()"
                     + "Lnet/minecraft/core/Vec3i;"))
-    private void toroidal$seatOnItsEnd(ClientLevel level, float partialTick, boolean light, CallbackInfo ci,
+    private void exotic_worlds$seatOnItsEnd(ClientLevel level, float partialTick, boolean light, CallbackInfo ci,
             @Local(name = "pos1") LocalRef<Vec3> pos1, @Local(name = "pos2") LocalRef<Vec3> pos2) {
         WireCopies.Span span = WireCopies.from(WorldLoopAttachments.transformerOfReader(level), pos1.get(),
-                pos2.get(), this.toroidal$end);
+                pos2.get(), this.exotic_worlds$end);
         pos1.set(span.pos1());
         pos2.set(span.pos2());
     }

@@ -103,7 +103,7 @@ public final class SablePoseFold {
         }
 
         if (body instanceof ServerSubLevel subLevel) {
-            moved(seat, ((SubLevelAccessor) subLevel).toroidal$lastPose().position());
+            moved(seat, ((SubLevelAccessor) subLevel).exotic_worlds$lastPose().position());
             moved(seat, subLevel.lastNetworkedPose().position());
             subLevel.updateBoundingBox();
             uploadSections(system, pipeline, subLevel);

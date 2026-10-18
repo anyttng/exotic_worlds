@@ -23,10 +23,10 @@ public class RadiationManagerMixin {
             },
             at = @At("RETURN"),
             require = 2)
-    private static @Nullable RadiationLevelData toroidal$bindLevelFold(@Nullable RadiationLevelData data,
+    private static @Nullable RadiationLevelData exotic_worlds$bindLevelFold(@Nullable RadiationLevelData data,
             @Local(argsOnly = true) Level level) {
         if (data != null) {
-            ((RadiationLevelFrame) (Object) data).toroidal$bind(WorldLoopAttachments.transformerOf(level));
+            ((RadiationLevelFrame) (Object) data).exotic_worlds$bind(WorldLoopAttachments.transformerOf(level));
         }
 
         return data;

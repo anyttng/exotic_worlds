@@ -18,7 +18,7 @@ public class GantryShaftBlockEntityMixin {
             method = "isCustomConnection",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_SUBTRACT))
-    private BlockPos toroidal$foldCarriageDelta(BlockPos carriagePos, Vec3i shaftPos, Operation<BlockPos> original) {
+    private BlockPos exotic_worlds$foldCarriageDelta(BlockPos carriagePos, Vec3i shaftPos, Operation<BlockPos> original) {
         GantryShaftBlockEntity self = (GantryShaftBlockEntity) (Object) this;
         BlockPos rawDelta = original.call(carriagePos, shaftPos);
         return CreateSeamFold.foldDelta(self.getLevel(), self.getBlockPos(), carriagePos, rawDelta);

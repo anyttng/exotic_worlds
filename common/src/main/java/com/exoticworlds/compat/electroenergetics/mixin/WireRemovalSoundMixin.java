@@ -19,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 public abstract class WireRemovalSoundMixin {
     @WrapOperation(method = "interactWire",
             at = @At(value = "INVOKE", target = ElectroEnergeticsInjectionTargets.CONNECTION_POINT_POS_AT))
-    private Vec3 toroidal$soundOnShortSpan(NodeConnectionPoint point, Vec3 from, Vec3 to, float dip,
+    private Vec3 exotic_worlds$soundOnShortSpan(NodeConnectionPoint point, Vec3 from, Vec3 to, float dip,
             Operation<Vec3> original, @Local(argsOnly = true) Level level) {
         return original.call(point, from, WireSpan.seat(level, from, to), dip);
     }

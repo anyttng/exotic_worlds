@@ -18,7 +18,7 @@ public class DirectionalShaftHalvesBlockEntityMixin {
             method = "getSourceFacing",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_SUBTRACT))
-    private BlockPos toroidal$foldSourceDelta(BlockPos sourcePos, Vec3i anchorPos, Operation<BlockPos> original) {
+    private BlockPos exotic_worlds$foldSourceDelta(BlockPos sourcePos, Vec3i anchorPos, Operation<BlockPos> original) {
         DirectionalShaftHalvesBlockEntity self = (DirectionalShaftHalvesBlockEntity) (Object) this;
         return CreateSeamFold.foldDelta(self.getLevel(), self.getBlockPos(), sourcePos,
                 original.call(sourcePos, anchorPos));

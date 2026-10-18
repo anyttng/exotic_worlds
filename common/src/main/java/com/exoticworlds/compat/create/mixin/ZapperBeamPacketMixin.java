@@ -18,7 +18,7 @@ public abstract class ZapperBeamPacketMixin {
                     value = "INVOKE",
                     target = "Lcom/simibubi/create/content/equipment/zapper/ZapperRenderHandler$LaserBeam;"
                             + "<init>(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;)V"))
-    private void toroidal$beamEndOnTheFoldedMuzzle(Args args) {
+    private void exotic_worlds$beamEndOnTheFoldedMuzzle(Args args) {
         Vec3 muzzle = args.get(0);
         Vec3 raw = args.get(1);
         args.set(1, CreateClientFrame.nearestCopy(muzzle, raw));

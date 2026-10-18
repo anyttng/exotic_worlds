@@ -16,7 +16,7 @@ public class EnderManMixin {
     @WrapOperation(
             method = "isLookingAtMe",
             at = @At(value = "NEW", target = InjectionTargets.VEC3_NEW))
-    private Vec3 toroidal$gazeThroughSeam(double x, double y, double z, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$gazeThroughSeam(double x, double y, double z, Operation<Vec3> original) {
         return SeamAim.foldDelta((EnderMan) (Object) this, original.call(x, y, z));
     }
 }

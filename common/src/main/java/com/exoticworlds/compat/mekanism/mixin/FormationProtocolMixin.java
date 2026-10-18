@@ -26,7 +26,7 @@ public class FormationProtocolMixin {
 
     @WrapOperation(method = "doUpdate",
             at = @At(value = "INVOKE", target = InjectionTargets.SET_CONTAINS))
-    private boolean toroidal$pointerInCuboidFrame(Set<BlockPos> locations, Object pointerPos,
+    private boolean exotic_worlds$pointerInCuboidFrame(Set<BlockPos> locations, Object pointerPos,
             Operation<Boolean> original) {
         Iterator<BlockPos> any = locations.iterator();
         if (!any.hasNext() || !(pointerPos instanceof BlockPos pos)) {

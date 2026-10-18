@@ -20,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public abstract class PoleHelperMixin {
     @WrapOperation(method = "attachedPoles", at = @At(value = "INVOKE",
             target = InjectionTargets.LEVEL_GET_BLOCK_STATE))
-    private BlockState toroidal$closeTheRing(Level world, BlockPos pos, Operation<BlockState> original,
+    private BlockState exotic_worlds$closeTheRing(Level world, BlockPos pos, Operation<BlockState> original,
             @Share("walkClosure") LocalRef<CreateWalkClosure> closureRef,
             @Share("walkClosureResolved") LocalBooleanRef resolved) {
         return CreateWalkClosure.read(world, pos, original, closureRef, resolved);

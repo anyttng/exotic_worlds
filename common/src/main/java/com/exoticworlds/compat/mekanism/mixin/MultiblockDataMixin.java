@@ -19,12 +19,12 @@ public abstract class MultiblockDataMixin implements MultiblockDataFrame {
     public abstract VoxelCuboid getBounds();
 
     @Override
-    public VoxelCuboid toroidal$bounds() {
+    public VoxelCuboid exotic_worlds$bounds() {
         return this.getBounds();
     }
 
     @ModifyVariable(method = "isKnownLocation", at = @At("HEAD"), argsOnly = true)
-    private BlockPos toroidal$seatOntoFrame(BlockPos pos) {
+    private BlockPos exotic_worlds$seatOntoFrame(BlockPos pos) {
         return MultiblockFrames.seatOnto(this.getBounds(), pos);
     }
 }

@@ -28,12 +28,12 @@ public final class CrafterGroupFold {
     public static void normalizeGroup(ServerLevel level, MechanicalCrafterBlockEntity controller) {
         normalizeOwn(level, controller);
         ConnectedInputAccessor input = (ConnectedInputAccessor) controller.getInput();
-        if (!input.toroidal$isController()) {
+        if (!input.exotic_worlds$isController()) {
             return;
         }
 
         BlockPos controllerPos = controller.getBlockPos();
-        for (BlockPos delta : List.copyOf(input.toroidal$data())) {
+        for (BlockPos delta : List.copyOf(input.exotic_worlds$data())) {
             if (delta.equals(BlockPos.ZERO)) {
                 continue;
             }
@@ -46,7 +46,7 @@ public final class CrafterGroupFold {
     }
 
     public static void normalizeOwn(ServerLevel level, MechanicalCrafterBlockEntity crafter) {
-        List<BlockPos> data = ((ConnectedInputAccessor) crafter.getInput()).toroidal$data();
+        List<BlockPos> data = ((ConnectedInputAccessor) crafter.getInput()).exotic_worlds$data();
         BlockPos owner = crafter.getBlockPos();
         for (int index = 0; index < data.size(); index++) {
             BlockPos raw = data.get(index);

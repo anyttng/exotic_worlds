@@ -9,7 +9,7 @@ import com.exoticworlds.compat.reterraforged.RtfLap;
 @Mixin(targets = "raccoonman.reterraforged.world.worldgen.noise.module.Warp", remap = false)
 public abstract class WarpMixin {
     @WrapMethod(method = "compute")
-    private float toroidal$shiftBeforeWarp(float x, float z, int seed, Operation<Float> original) {
+    private float exotic_worlds$shiftBeforeWarp(float x, float z, int seed, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
             return original.call(x, z, seed);

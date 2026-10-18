@@ -59,10 +59,10 @@ public abstract class ClimateModuleMixin implements RtfClimateScales {
     private static final int TEMPERATURE_SCALE_LOCAL = 2;
 
     @Unique
-    private int toroidal$temperatureScale;
+    private int exotic_worlds$temperatureScale;
 
     @Unique
-    private int toroidal$moistureScale;
+    private int exotic_worlds$moistureScale;
 
     @Shadow
     private float biomeFreq;
@@ -76,30 +76,30 @@ public abstract class ClimateModuleMixin implements RtfClimateScales {
     private Noise warpZ;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$keepScales(CallbackInfo callback,
+    private void exotic_worlds$keepScales(CallbackInfo callback,
             @Local(ordinal = MOISTURE_SCALE_LOCAL) int moistScale,
             @Local(ordinal = TEMPERATURE_SCALE_LOCAL) int tempScale) {
-        this.toroidal$moistureScale = moistScale;
-        this.toroidal$temperatureScale = tempScale;
+        this.exotic_worlds$moistureScale = moistScale;
+        this.exotic_worlds$temperatureScale = tempScale;
     }
 
     @Override
-    public float toroidal$biomeFrequency() {
+    public float exotic_worlds$biomeFrequency() {
         return this.biomeFreq;
     }
 
     @Override
-    public int toroidal$temperatureScale() {
-        return this.toroidal$temperatureScale;
+    public int exotic_worlds$temperatureScale() {
+        return this.exotic_worlds$temperatureScale;
     }
 
     @Override
-    public int toroidal$moistureScale() {
-        return this.toroidal$moistureScale;
+    public int exotic_worlds$moistureScale() {
+        return this.exotic_worlds$moistureScale;
     }
 
     @WrapMethod(method = APPLY)
-    private void toroidal$closeApply(Cell cell, float x, float z, float originalX, float originalZ, boolean mask,
+    private void exotic_worlds$closeApply(Cell cell, float x, float z, float originalX, float originalZ, boolean mask,
             Operation<Void> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
@@ -115,20 +115,20 @@ public abstract class ClimateModuleMixin implements RtfClimateScales {
 
     @ModifyExpressionValue(method = APPLY,
             at = @At(value = "FIELD", target = BIOME_FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = X_READ))
-    private float toroidal$snapX(float frequency) {
+    private float exotic_worlds$snapX(float frequency) {
         return RtfLap.snapped(Direction.Axis.X, frequency);
     }
 
     @ModifyExpressionValue(method = APPLY,
             at = @At(value = "FIELD", target = BIOME_FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = Z_READ))
-    private float toroidal$snapZ(float frequency) {
+    private float exotic_worlds$snapZ(float frequency) {
         return RtfLap.snapped(Direction.Axis.Z, frequency);
     }
 
     // A cell centre divided by this read is the block the continent is asked about, which Compact biomes never moves.
     @ModifyExpressionValue(method = APPLY,
             at = @At(value = "FIELD", target = BIOME_FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = CENTER_X_READ))
-    private float toroidal$centreBlockX(float frequency) {
+    private float exotic_worlds$centreBlockX(float frequency) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         return frame == null
                 ? frequency
@@ -137,7 +137,7 @@ public abstract class ClimateModuleMixin implements RtfClimateScales {
 
     @ModifyExpressionValue(method = APPLY,
             at = @At(value = "FIELD", target = BIOME_FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = CENTER_Z_READ))
-    private float toroidal$centreBlockZ(float frequency) {
+    private float exotic_worlds$centreBlockZ(float frequency) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         return frame == null
                 ? frequency
@@ -148,14 +148,14 @@ public abstract class ClimateModuleMixin implements RtfClimateScales {
     @ModifyExpressionValue(method = APPLY, at = {
             @At(value = "FIELD", target = BIOME_FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = MOUNTAIN_X_READ),
             @At(value = "FIELD", target = BIOME_FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = MOUNTAIN_Z_READ)})
-    private float toroidal$compressMountain(float frequency) {
+    private float exotic_worlds$compressMountain(float frequency) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         return frame == null ? frequency : (float) (frequency * frame.compression());
     }
 
     @WrapOperation(method = APPLY, at = @At(value = "INVOKE",
             target = "Lraccoonman/reterraforged/world/worldgen/cell/continent/Continent;getLandValue(FF)F"))
-    private float toroidal$landOnTheWorldLap(Continent continent, float x, float z, Operation<Float> original) {
+    private float exotic_worlds$landOnTheWorldLap(Continent continent, float x, float z, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null || frame.compression() == ClimateScaleCompression.NO_COMPRESSION) {
             return original.call(continent, x, z);
@@ -167,7 +167,7 @@ public abstract class ClimateModuleMixin implements RtfClimateScales {
     }
 
     @WrapOperation(method = APPLY, at = @At(value = "INVOKE", target = ReTerraForgedInjectionTargets.NOISE_COMPUTE))
-    private float toroidal$latticeLap(Noise noise, float x, float z, int seed, Operation<Float> original) {
+    private float exotic_worlds$latticeLap(Noise noise, float x, float z, int seed, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null || noise == this.warpX || noise == this.warpZ) {
             return original.call(noise, x, z, seed);

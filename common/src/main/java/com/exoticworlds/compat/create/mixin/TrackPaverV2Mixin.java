@@ -21,7 +21,7 @@ public abstract class TrackPaverV2Mixin {
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.TRACK_NODE_LOCATION_GET_LOCATION,
                     ordinal = 1))
-    private static Vec3 toroidal$foldSecondNode(TrackNodeLocation target, Operation<Vec3> original, PaveTask task,
+    private static Vec3 exotic_worlds$foldSecondNode(TrackNodeLocation target, Operation<Vec3> original, PaveTask task,
             TrackGraph graph, TrackEdge edge, double from, double to) {
         return CreateSeamFold.nearestCopy(target.getDimension(), edge.node1.getLocation().getLocation(),
                 original.call(target));

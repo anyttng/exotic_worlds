@@ -18,12 +18,12 @@ public abstract class SymmetryHandlerMixin {
                     + "getPosition()Lnet/minecraft/world/phys/Vec3;";
 
     @ModifyExpressionValue(method = "onRenderWorld", at = @At(value = "INVOKE", target = MIRROR_POSITION))
-    private static Vec3 toroidal$mirrorInTheRenderFrame(Vec3 canonical) {
+    private static Vec3 exotic_worlds$mirrorInTheRenderFrame(Vec3 canonical) {
         return ClientFrame.nearestToCamera(canonical);
     }
 
     @ModifyExpressionValue(method = "onClientTick", at = @At(value = "INVOKE", target = MIRROR_POSITION))
-    private static Vec3 toroidal$mirrorInTheParticleFrame(Vec3 canonical) {
+    private static Vec3 exotic_worlds$mirrorInTheParticleFrame(Vec3 canonical) {
         return ClientFrame.nearestToCamera(canonical);
     }
 }

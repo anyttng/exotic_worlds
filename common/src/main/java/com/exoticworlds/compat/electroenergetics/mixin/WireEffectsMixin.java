@@ -32,7 +32,7 @@ public abstract class WireEffectsMixin {
             "Lcom/george_vi/electroenergetics/foundation/WirePoints;get(I)Lnet/minecraft/world/phys/Vec3;";
 
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO, ordinal = 0))
-    private static double toroidal$wireInOnePiece(Vec3 from, Vec3 to, Operation<Double> original,
+    private static double exotic_worlds$wireInOnePiece(Vec3 from, Vec3 to, Operation<Double> original,
             @Local(name = "mc") Minecraft mc, @Local(name = "pos2") LocalRef<Vec3> pos2) {
         Vec3 seated = WireCopies.from(WorldLoopAttachments.transformerOfReader(mc.level), from, to,
                 WireCopies.FIRST_END).pos2();
@@ -42,18 +42,18 @@ public abstract class WireEffectsMixin {
 
     @ModifyExpressionValue(method = "tick", at = @At(value = "FIELD",
             target = ElectroEnergeticsInjectionTargets.CATENARY_LINES, opcode = Opcodes.GETSTATIC))
-    private static List<CatenaryConnection> toroidal$catenaryInOnePiece(List<CatenaryConnection> lines,
+    private static List<CatenaryConnection> exotic_worlds$catenaryInOnePiece(List<CatenaryConnection> lines,
             @Local(name = "mc") Minecraft mc) {
         return CatenaryCopies.inOnePiece(mc.level, lines);
     }
 
     @WrapOperation(method = "spawnDrippingWater", at = @At(value = "INVOKE", target = WIRE_POINT, ordinal = 0))
-    private static Vec3 toroidal$dripNearestThePlayer(WirePoints points, int index, Operation<Vec3> original) {
+    private static Vec3 exotic_worlds$dripNearestThePlayer(WirePoints points, int index, Operation<Vec3> original) {
         return ClientFrame.nearestToPlayer(original.call(points, index));
     }
 
     @WrapOperation(method = "spawnDrippingWater", at = @At(value = "INVOKE", target = WIRE_POINT, ordinal = 1))
-    private static Vec3 toroidal$nextPointBesideIt(WirePoints points, int index, Operation<Vec3> original,
+    private static Vec3 exotic_worlds$nextPointBesideIt(WirePoints points, int index, Operation<Vec3> original,
             @Local(name = "point") Vec3 point) {
         return ClientFrame.nearestCopy(point, original.call(points, index));
     }

@@ -16,7 +16,7 @@ import net.minecraft.world.phys.AABB;
 public class TileEntityBasicLaserMixin {
     @WrapOperation(method = "onUpdateServer",
             at = @At(value = "INVOKE", target = InjectionTargets.AABB_INTERSECTS))
-    private boolean toroidal$refractedBeamAtNearestCopy(AABB entityBox, AABB beamBox, Operation<Boolean> original,
+    private boolean exotic_worlds$refractedBeamAtNearestCopy(AABB entityBox, AABB beamBox, Operation<Boolean> original,
             @Local Level level) {
         return original.call(entityBox, MekanismSeam.nearestCopy(level, entityBox.getCenter(), beamBox));
     }

@@ -22,7 +22,7 @@ public abstract class FrequencyMixin {
 
     // A coordinate multiplied by a varying factor has no lap left; only a constant factor carries the frame along.
     @WrapMethod(method = "compute")
-    private float toroidal$carryLap(float x, float z, int seed, Operation<Float> original) {
+    private float exotic_worlds$carryLap(float x, float z, int seed, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
             return original.call(x, z, seed);

@@ -23,21 +23,21 @@ public abstract class LogisticalTransporterBaseMixin {
                     + "Lmekanism/common/lib/inventory/TransitRequest$TransitResponse;",
             at = @At(value = "INVOKE", target = "Lmekanism/common/util/WorldUtils;sideDifference("
                     + "Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/core/Direction;"))
-    private Direction toroidal$outputterSide(BlockPos pos, BlockPos outputter, Operation<Direction> original) {
-        return original.call(pos, MekanismSeam.nearestCopy(this.toroidal$self().getLevel(), pos, outputter));
+    private Direction exotic_worlds$outputterSide(BlockPos pos, BlockPos outputter, Operation<Direction> original) {
+        return original.call(pos, MekanismSeam.nearestCopy(this.exotic_worlds$self().getLevel(), pos, outputter));
     }
 
     @WrapOperation(method = "onUpdateServer",
             at = @At(value = "INVOKE",
                     target = "Lmekanism/common/content/transporter/TransporterStack;getSide(JJ)"
                             + "Lnet/minecraft/core/Direction;"))
-    private Direction toroidal$nextSide(TransporterStack stack, long pos, long target,
+    private Direction exotic_worlds$nextSide(TransporterStack stack, long pos, long target,
             Operation<Direction> original) {
-        return original.call(stack, pos, MekanismSeam.nearestCopy(this.toroidal$self().getLevel(), pos, target));
+        return original.call(stack, pos, MekanismSeam.nearestCopy(this.exotic_worlds$self().getLevel(), pos, target));
     }
 
     @Unique
-    private LogisticalTransporterBase toroidal$self() {
+    private LogisticalTransporterBase exotic_worlds$self() {
         return (LogisticalTransporterBase) (Object) this;
     }
 }

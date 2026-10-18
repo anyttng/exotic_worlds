@@ -16,7 +16,7 @@ public abstract class AbstractContraptionEntityClientMixin {
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/contraptions/AbstractContraptionEntity;"
                             + "handleStallInformation(DDDF)V"))
-    private static void toroidal$stallInTheContraptionFrame(AbstractContraptionEntityClientMixin contraption,
+    private static void exotic_worlds$stallInTheContraptionFrame(AbstractContraptionEntityClientMixin contraption,
             double x, double y, double z, float angle, Operation<Void> original) {
         Entity entity = (Entity) (Object) contraption;
         Vec3 folded = CreateContraptionFold.inFrameOf(entity, new Vec3(x, y, z));

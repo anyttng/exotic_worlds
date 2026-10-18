@@ -18,43 +18,43 @@ import com.exoticworlds.compat.sable.SableMotorGoalHolder;
 @Mixin(targets = "dev.ryanhcode.sable.physics.impl.rapier.constraint.RapierConstraintHandle", remap = false)
 public class RapierConstraintHandleMixin implements SableMotorGoalHolder, SableConstraintEdgeHolder {
     @Unique
-    private @Nullable SableMotorGoal toroidal$motorGoal;
+    private @Nullable SableMotorGoal exotic_worlds$motorGoal;
 
     @Unique
-    private @Nullable SableConstraintEdge toroidal$constraintEdge;
+    private @Nullable SableConstraintEdge exotic_worlds$constraintEdge;
 
     @Override
-    public @Nullable SableMotorGoal toroidal$motorGoal() {
-        return this.toroidal$motorGoal;
+    public @Nullable SableMotorGoal exotic_worlds$motorGoal() {
+        return this.exotic_worlds$motorGoal;
     }
 
     @Override
-    public void toroidal$motorGoal(@Nullable SableMotorGoal goal) {
-        this.toroidal$motorGoal = goal;
+    public void exotic_worlds$motorGoal(@Nullable SableMotorGoal goal) {
+        this.exotic_worlds$motorGoal = goal;
     }
 
     @Override
-    public void toroidal$constraintEdge(@Nullable SableConstraintEdge edge) {
-        this.toroidal$constraintEdge = edge;
+    public void exotic_worlds$constraintEdge(@Nullable SableConstraintEdge edge) {
+        this.exotic_worlds$constraintEdge = edge;
     }
 
     @Inject(method = "remove", at = @At("HEAD"))
-    private void toroidal$forgetConstraint(CallbackInfo callback) {
-        SableConstraintEdge edge = this.toroidal$constraintEdge;
+    private void exotic_worlds$forgetConstraint(CallbackInfo callback) {
+        SableConstraintEdge edge = this.exotic_worlds$constraintEdge;
         if (edge != null) {
             edge.drop();
-            this.toroidal$constraintEdge = null;
+            this.exotic_worlds$constraintEdge = null;
         }
 
-        this.toroidal$motorGoal = null;
+        this.exotic_worlds$motorGoal = null;
     }
 
     @WrapOperation(method = "setMotor",
             at = @At(value = "INVOKE",
                     target = "Ldev/ryanhcode/sable/physics/impl/rapier/Rapier3D;setConstraintMotor(JJIDDDZD)V"))
-    private void toroidal$seatMotorGoal(long sceneHandle, long handle, int axis, double target, double stiffness,
+    private void exotic_worlds$seatMotorGoal(long sceneHandle, long handle, int axis, double target, double stiffness,
             double damping, boolean hasForceLimit, double maxForce, Operation<Void> original) {
-        SableMotorGoal goal = this.toroidal$motorGoal;
+        SableMotorGoal goal = this.exotic_worlds$motorGoal;
         if (goal == null || !goal.record(axis, target, stiffness, damping, hasForceLimit, maxForce)) {
             original.call(sceneHandle, handle, axis, target, stiffness, damping, hasForceLimit, maxForce);
             return;

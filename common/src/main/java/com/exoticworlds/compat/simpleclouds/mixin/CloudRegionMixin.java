@@ -22,11 +22,11 @@ public abstract class CloudRegionMixin {
     private static final float CURRENT_TICK = 1.0F;
 
     @Unique
-    private @Nullable CloudRegionSeat toroidal$seat;
+    private @Nullable CloudRegionSeat exotic_worlds$seat;
 
     @WrapOperation(method = "calculateAt", at = @At(value = "INVOKE",
             target = "Ldev/nonamecrackers2/simpleclouds/common/cloud/region/CloudRegion;circle(Ldev/nonamecrackers2/simpleclouds/common/cloud/region/CloudRegion;FF)Ldev/nonamecrackers2/simpleclouds/common/cloud/region/CloudRegion$CompositeResult;"))
-    private static @Coerce Object toroidal$seatQuery(CloudRegion region, float x, float z,
+    private static @Coerce Object exotic_worlds$seatQuery(CloudRegion region, float x, float z,
             Operation<Object> original) {
         CloudShape shape = SimpleCloudsShapes.current();
         if (shape == null) {
@@ -36,10 +36,10 @@ public abstract class CloudRegionMixin {
         CloudRegionMixin seats = (CloudRegionMixin) (Object) region;
         float stretch = region.getStretch(CURRENT_TICK);
         float rotation = region.getRotation(CURRENT_TICK);
-        CloudRegionSeat seat = seats.toroidal$seat;
+        CloudRegionSeat seat = seats.exotic_worlds$seat;
         if (seat == null || !seat.holds(shape, stretch, rotation)) {
             seat = CloudRegionSeat.of(shape, stretch, rotation, region.createTransform(CURRENT_TICK));
-            seats.toroidal$seat = seat;
+            seats.exotic_worlds$seat = seat;
         }
 
         Vec2 seated = seat.seated(region.getPosX(), region.getPosZ(), x, z);

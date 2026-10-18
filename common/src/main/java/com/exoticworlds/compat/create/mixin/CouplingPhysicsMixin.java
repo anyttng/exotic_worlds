@@ -17,7 +17,7 @@ public class CouplingPhysicsMixin {
     @WrapOperation(method = "hardCollisionStep",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_DISTANCE_TO))
-    private static double toroidal$stressBetweenTheNearCopies(Vec3 position, Vec3 otherPosition,
+    private static double exotic_worlds$stressBetweenTheNearCopies(Vec3 position, Vec3 otherPosition,
             Operation<Double> original, @Local(argsOnly = true) Level world) {
         return original.call(position, CreateSeamFold.nearestCopy(world, position, otherPosition));
     }
@@ -26,7 +26,7 @@ public class CouplingPhysicsMixin {
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_SUBTRACT,
                     ordinal = 0))
-    private static Vec3 toroidal$linkBetweenTheNearCopies(Vec3 otherPosition, Vec3 position, Operation<Vec3> original,
+    private static Vec3 exotic_worlds$linkBetweenTheNearCopies(Vec3 otherPosition, Vec3 position, Operation<Vec3> original,
             @Local(argsOnly = true) Level world) {
         return original.call(CreateSeamFold.nearestCopy(world, position, otherPosition), position);
     }
@@ -34,7 +34,7 @@ public class CouplingPhysicsMixin {
     @WrapOperation(method = "softCollisionStep",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_DISTANCE_TO))
-    private static double toroidal$futureStressBetweenTheNearCopies(Vec3 position, Vec3 otherPosition,
+    private static double exotic_worlds$futureStressBetweenTheNearCopies(Vec3 position, Vec3 otherPosition,
             Operation<Double> original, @Local(argsOnly = true) Level world) {
         return original.call(position, CreateSeamFold.nearestCopy(world, position, otherPosition));
     }
@@ -43,7 +43,7 @@ public class CouplingPhysicsMixin {
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_SUBTRACT,
                     ordinal = 0))
-    private static Vec3 toroidal$futureLinkBetweenTheNearCopies(Vec3 otherPosition, Vec3 position,
+    private static Vec3 exotic_worlds$futureLinkBetweenTheNearCopies(Vec3 otherPosition, Vec3 position,
             Operation<Vec3> original, @Local(argsOnly = true) Level world) {
         return original.call(CreateSeamFold.nearestCopy(world, position, otherPosition), position);
     }

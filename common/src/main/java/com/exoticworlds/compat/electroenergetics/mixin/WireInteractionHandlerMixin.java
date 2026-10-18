@@ -26,13 +26,13 @@ import net.minecraft.world.phys.Vec3;
 public abstract class WireInteractionHandlerMixin {
     @WrapOperation(method = "tick",
             at = @At(value = "INVOKE", target = ElectroEnergeticsInjectionTargets.ALL_WIRE_CONNECTIONS))
-    private static List<Pair<InWorldNodeConnection, WireData>> toroidal$pickPerEnd(
+    private static List<Pair<InWorldNodeConnection, WireData>> exotic_worlds$pickPerEnd(
             Operation<List<Pair<InWorldNodeConnection, WireData>>> original, @Local(name = "mc") Minecraft mc) {
         return SecondEndWire.withSecondEnds(mc.level, original.call());
     }
 
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO, ordinal = 1))
-    private static double toroidal$seatPickedPass(Vec3 from, Vec3 to, Operation<Double> original,
+    private static double exotic_worlds$seatPickedPass(Vec3 from, Vec3 to, Operation<Double> original,
             @Local(name = "mc") Minecraft mc, @Local(name = "wire") Pair<?, ?> wire,
             @Local(name = "pos1") LocalRef<Vec3> pos1, @Local(name = "pos2") LocalRef<Vec3> pos2) {
         WireCopies.Span span = WireCopies.from(WorldLoopAttachments.transformerOfReader(mc.level), from, to,
@@ -44,7 +44,7 @@ public abstract class WireInteractionHandlerMixin {
 
     @WrapOperation(method = "tick",
             at = @At(value = "INVOKE", target = ElectroEnergeticsInjectionTargets.WIRE_POS_AT))
-    private static Vec3 toroidal$highlightOnTheAimedCopy(Vec3 from, Vec3 to, float point, float sag,
+    private static Vec3 exotic_worlds$highlightOnTheAimedCopy(Vec3 from, Vec3 to, float point, float sag,
             Operation<Vec3> original, @Local(name = "mc") Minecraft mc,
             @Local(name = "pos1") LocalRef<Vec3> pos1, @Local(name = "pos2") LocalRef<Vec3> pos2) {
         WireCopies.Span span = WireCopies.around(WorldLoopAttachments.transformerOfReader(mc.level), from, to,

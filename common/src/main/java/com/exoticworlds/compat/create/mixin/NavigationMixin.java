@@ -24,31 +24,31 @@ public abstract class NavigationMixin {
             + "Lcom/simibubi/create/content/trains/entity/Navigation$StationTest;)V";
 
     @Unique
-    private static final String DESTINATION_FOLD = "toroidal$destinationFold";
+    private static final String DESTINATION_FOLD = "exotic_worlds$destinationFold";
 
     @WrapOperation(method = SEARCH,
             at = @At(value = "INVOKE", target = CreateInjectionTargets.TRACK_NODE_LOCATION_GET_LOCATION, ordinal = 1))
-    private Vec3 toroidal$foldRemainingMin(TrackNodeLocation destinationNode, Operation<Vec3> original,
+    private Vec3 exotic_worlds$foldRemainingMin(TrackNodeLocation destinationNode, Operation<Vec3> original,
             @Local Vec3 newNodePosition, @Share(DESTINATION_FOLD) LocalRef<FoldedPoint> memo) {
-        return toroidal$nearestTo(newNodePosition, destinationNode, original.call(destinationNode), memo);
+        return exotic_worlds$nearestTo(newNodePosition, destinationNode, original.call(destinationNode), memo);
     }
 
     @WrapOperation(method = SEARCH,
             at = @At(value = "INVOKE", target = CreateInjectionTargets.TRACK_NODE_LOCATION_GET_LOCATION, ordinal = 2))
-    private Vec3 toroidal$foldRemainingMid(TrackNodeLocation destinationNode, Operation<Vec3> original,
+    private Vec3 exotic_worlds$foldRemainingMid(TrackNodeLocation destinationNode, Operation<Vec3> original,
             @Local Vec3 newNodePosition, @Share(DESTINATION_FOLD) LocalRef<FoldedPoint> memo) {
-        return toroidal$nearestTo(newNodePosition, destinationNode, original.call(destinationNode), memo);
+        return exotic_worlds$nearestTo(newNodePosition, destinationNode, original.call(destinationNode), memo);
     }
 
     @WrapOperation(method = SEARCH,
             at = @At(value = "INVOKE", target = CreateInjectionTargets.TRACK_NODE_LOCATION_GET_LOCATION, ordinal = 3))
-    private Vec3 toroidal$foldRemainingMax(TrackNodeLocation destinationNode, Operation<Vec3> original,
+    private Vec3 exotic_worlds$foldRemainingMax(TrackNodeLocation destinationNode, Operation<Vec3> original,
             @Local Vec3 newNodePosition, @Share(DESTINATION_FOLD) LocalRef<FoldedPoint> memo) {
-        return toroidal$nearestTo(newNodePosition, destinationNode, original.call(destinationNode), memo);
+        return exotic_worlds$nearestTo(newNodePosition, destinationNode, original.call(destinationNode), memo);
     }
 
     @Unique
-    private Vec3 toroidal$nearestTo(Vec3 anchor, TrackNodeLocation destinationNode, Vec3 rawDestination,
+    private Vec3 exotic_worlds$nearestTo(Vec3 anchor, TrackNodeLocation destinationNode, Vec3 rawDestination,
             LocalRef<FoldedPoint> memo) {
         FoldedPoint known = memo.get();
         if (known != null && known.isFor(anchor, destinationNode)) {

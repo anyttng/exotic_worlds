@@ -36,7 +36,7 @@ public abstract class ArchipelagoPopulatorMixin {
     private static final int VOLCANO_HEIGHT = 5;
 
     @WrapOperation(method = "apply", at = @At(value = "INVOKE", target = CHANCE_MASK, ordinal = MOUNTAIN_MASK))
-    private float toroidal$mountainMaskLap(Noise selector, float chance, float x, float z,
+    private float exotic_worlds$mountainMaskLap(Noise selector, float chance, float x, float z,
             Operation<Float> original, @Local(name = "mountainFreqMod") float modifier) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
@@ -49,7 +49,7 @@ public abstract class ArchipelagoPopulatorMixin {
     }
 
     @WrapOperation(method = "apply", at = @At(value = "INVOKE", target = CHANCE_MASK, ordinal = VOLCANO_MASK))
-    private float toroidal$volcanoMaskLap(Noise selector, float chance, float x, float z,
+    private float exotic_worlds$volcanoMaskLap(Noise selector, float chance, float x, float z,
             Operation<Float> original, @Local(name = "volcanoFreqMod") float modifier) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
@@ -64,7 +64,7 @@ public abstract class ArchipelagoPopulatorMixin {
     @WrapOperation(method = "apply", at = {
             @At(value = "INVOKE", target = ReTerraForgedInjectionTargets.NOISE_COMPUTE, ordinal = HILL_HEIGHT),
             @At(value = "INVOKE", target = ReTerraForgedInjectionTargets.NOISE_COMPUTE, ordinal = RIDGE_HEIGHT)})
-    private float toroidal$mountainLap(Noise noise, float x, float z, int seed, Operation<Float> original,
+    private float exotic_worlds$mountainLap(Noise noise, float x, float z, int seed, Operation<Float> original,
             @Local(name = "mountainFreqMod") float modifier) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
@@ -78,7 +78,7 @@ public abstract class ArchipelagoPopulatorMixin {
 
     @WrapOperation(method = "apply",
             at = @At(value = "INVOKE", target = ReTerraForgedInjectionTargets.NOISE_COMPUTE, ordinal = VOLCANO_HEIGHT))
-    private float toroidal$volcanoLap(Noise noise, float x, float z, int seed, Operation<Float> original,
+    private float exotic_worlds$volcanoLap(Noise noise, float x, float z, int seed, Operation<Float> original,
             @Local(name = "volcanoFreqMod") float modifier) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {

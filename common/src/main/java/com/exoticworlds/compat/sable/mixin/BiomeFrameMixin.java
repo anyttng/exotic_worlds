@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(Biome.class)
 public abstract class BiomeFrameMixin {
     @WrapMethod(method = "shouldFreeze(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Z)Z")
-    private boolean toroidal$frameOnFreeze(LevelReader reader, BlockPos pos, boolean mustBeAtEdge, Operation<Boolean> original) {
+    private boolean exotic_worlds$frameOnFreeze(LevelReader reader, BlockPos pos, boolean mustBeAtEdge, Operation<Boolean> original) {
         return SeamFrame.with(reader, pos, Vec3::atCenterOf, original, reader, pos, mustBeAtEdge);
     }
 }

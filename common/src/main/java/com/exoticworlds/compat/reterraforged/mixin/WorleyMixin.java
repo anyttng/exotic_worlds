@@ -52,7 +52,7 @@ public abstract class WorleyMixin {
     }
 
     @WrapMethod(method = "compute")
-    private float toroidal$closeOnLap(float x, float z, int seed, Operation<Float> original) {
+    private float exotic_worlds$closeOnLap(float x, float z, int seed, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
             return original.call(x, z, seed);
@@ -72,7 +72,7 @@ public abstract class WorleyMixin {
             target = "Lraccoonman/reterraforged/world/worldgen/noise/function/CellFunction;apply(IIIF"
             + "Lraccoonman/reterraforged/world/worldgen/noise/NoiseUtil$Vec2f;"
             + "Lraccoonman/reterraforged/world/worldgen/noise/module/Noise;)F"))
-    private static float toroidal$canonicalCell(CellFunction function, int seed, int cellX, int cellY, float nearest,
+    private static float exotic_worlds$canonicalCell(CellFunction function, int seed, int cellX, int cellY, float nearest,
             NoiseUtil.Vec2f vector, Noise lookup, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {

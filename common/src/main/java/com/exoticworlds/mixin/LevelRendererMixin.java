@@ -29,9 +29,9 @@ public class LevelRendererMixin {
     private ClientLevel level;
 
     @WrapMethod(method = "renderSnowAndRain")
-    private void toroidal$bindWeatherCurtainTransformer(LightTexture lightTexture, float partialTick,
+    private void exotic_worlds$bindWeatherCurtainTransformer(LightTexture lightTexture, float partialTick,
             double cameraX, double cameraY, double cameraZ, Operation<Void> original) {
-        @Nullable WorldFold bounds = toroidal$clientBounds();
+        @Nullable WorldFold bounds = exotic_worlds$clientBounds();
         if (bounds == null) {
             original.call(lightTexture, partialTick, cameraX, cameraY, cameraZ);
             return;
@@ -42,8 +42,8 @@ public class LevelRendererMixin {
     }
 
     @WrapMethod(method = "tickRain")
-    private void toroidal$bindRainParticleTransformer(Camera camera, Operation<Void> original) {
-        @Nullable WorldFold bounds = toroidal$clientBounds();
+    private void exotic_worlds$bindRainParticleTransformer(Camera camera, Operation<Void> original) {
+        @Nullable WorldFold bounds = exotic_worlds$clientBounds();
         if (bounds == null) {
             original.call(camera);
             return;
@@ -53,7 +53,7 @@ public class LevelRendererMixin {
     }
 
     @Unique
-    private @Nullable WorldFold toroidal$clientBounds() {
+    private @Nullable WorldFold exotic_worlds$clientBounds() {
         return this.level == null ? null : WorldLoopAttachments.wrappedClientBoundsTransformerOf(this.level);
     }
 }

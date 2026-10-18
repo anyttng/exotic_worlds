@@ -16,7 +16,7 @@ public class BlockEntityDataPacketMixin {
             method = "handle",
             at = @At(value = "FIELD", opcode = Opcodes.GETFIELD,
                     target = "Lcom/simibubi/create/foundation/networking/BlockEntityDataPacket;pos:Lnet/minecraft/core/BlockPos;"))
-    private BlockPos toroidal$foldLookupIntoTheClientFrame(BlockPos canonical) {
+    private BlockPos exotic_worlds$foldLookupIntoTheClientFrame(BlockPos canonical) {
         return CreateClientFrame.inViewerFrame(canonical);
     }
 }

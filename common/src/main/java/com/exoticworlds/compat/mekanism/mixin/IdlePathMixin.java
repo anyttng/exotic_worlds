@@ -32,13 +32,13 @@ public class IdlePathMixin {
 
     @WrapOperation(method = "loopSide",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_AS_LONG))
-    private long toroidal$foldStoredNode(BlockPos pos, Operation<Long> original) {
+    private long exotic_worlds$foldStoredNode(BlockPos pos, Operation<Long> original) {
         return MekanismSeam.fold(this.network.getWorld(), original.call(pos));
     }
 
     @WrapOperation(method = "getDestination",
             at = @At(value = "INVOKE", target = MekanismInjectionTargets.WORLD_UTILS_RELATIVE_POS))
-    private long toroidal$foldStoredEnd(long pos, Direction side, Operation<Long> original) {
+    private long exotic_worlds$foldStoredEnd(long pos, Direction side, Operation<Long> original) {
         return MekanismSeam.fold(this.network.getWorld(), original.call(pos, side));
     }
 
@@ -47,7 +47,7 @@ public class IdlePathMixin {
                     + "canInsertToTransporter(Lmekanism/common/content/network/transmitter/LogisticalTransporterBase;"
                     + "Lnet/minecraft/core/Direction;"
                     + "Lmekanism/common/content/network/transmitter/LogisticalTransporterBase;)Z"))
-    private boolean toroidal$stopAfterOneLap(TransporterStack stack, LogisticalTransporterBase transmitter,
+    private boolean exotic_worlds$stopAfterOneLap(TransporterStack stack, LogisticalTransporterBase transmitter,
             Direction from, LogisticalTransporterBase transporterFrom, Operation<Boolean> original,
             @Local BlockPos pos) {
         if (MekanismSeam.fold(this.network.getWorld(), pos).equals(this.start)) {

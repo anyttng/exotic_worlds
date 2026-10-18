@@ -20,7 +20,7 @@ public class ChainConveyorFrogportTargetMixin {
     @WrapOperation(method = "register",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_SUBTRACT))
-    private BlockPos toroidal$foldPortDelta(BlockPos conveyor, Vec3i port, Operation<BlockPos> original,
+    private BlockPos exotic_worlds$foldPortDelta(BlockPos conveyor, Vec3i port, Operation<BlockPos> original,
             PackagePortBlockEntity ppbe, LevelAccessor levelAccessor, BlockPos portPos) {
         if (!(levelAccessor instanceof Level level)) {
             return original.call(conveyor, port);

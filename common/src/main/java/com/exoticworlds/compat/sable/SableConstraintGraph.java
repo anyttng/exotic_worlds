@@ -17,12 +17,12 @@ public final class SableConstraintGraph {
 
     public static List<PhysicsPipelineBody> groupOf(PhysicsPipeline pipeline, PhysicsPipelineBody start) {
         return pipeline instanceof SableConstraintGraphHolder holder
-                ? holder.toroidal$constraintGraph().groupOf(start)
+                ? holder.exotic_worlds$constraintGraph().groupOf(start)
                 : List.of(start);
     }
 
     public static boolean isAlone(PhysicsPipeline pipeline, PhysicsPipelineBody body) {
-        return !(pipeline instanceof SableConstraintGraphHolder holder) || holder.toroidal$constraintGraph().isAlone(body);
+        return !(pipeline instanceof SableConstraintGraphHolder holder) || holder.exotic_worlds$constraintGraph().isAlone(body);
     }
 
     public SableConstraintEdge record(PhysicsPipelineBody first, PhysicsPipelineBody second) {

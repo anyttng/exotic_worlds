@@ -17,7 +17,7 @@ public class FactoryPanelConnectionMixin {
     @WrapOperation(method = "calculatePathDiff",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_SUBTRACT))
-    private BlockPos toroidal$foldStoredSource(BlockPos target, Vec3i source, Operation<BlockPos> original) {
+    private BlockPos exotic_worlds$foldStoredSource(BlockPos target, Vec3i source, Operation<BlockPos> original) {
         return original.call(target, CreateClientFrame.inViewerFrame(source));
     }
 }

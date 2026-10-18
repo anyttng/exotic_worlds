@@ -15,7 +15,7 @@ public class PignataRopeHoldSeatMixin {
             method = { "setLeashedTo", "isYankedByLeash", "isLeashTaut", "getLeashConstraintPull" },
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/Entity;getRopeHoldPosition(F)Lnet/minecraft/world/phys/Vec3;"))
-    private Vec3 toroidal$ropeNearestPignata(Vec3 rope) {
+    private Vec3 exotic_worlds$ropeNearestPignata(Vec3 rope) {
         return SeamSteering.nearestCopy((Entity) (Object) this, rope);
     }
 }

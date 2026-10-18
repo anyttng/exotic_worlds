@@ -19,18 +19,18 @@ import dev.ftb.mods.ftblibrary.math.XZ;
 public abstract class ClaimsHighlighterMixin {
     @WrapOperation(method = "getChunk",
             at = @At(value = "INVOKE", target = FtbChunksInjectionTargets.XZ_REGION_FROM_CHUNK))
-    private static XZ toroidal$foldRegionKey(int chunkX, int chunkZ, Operation<XZ> original) {
+    private static XZ exotic_worlds$foldRegionKey(int chunkX, int chunkZ, Operation<XZ> original) {
         return FtbChunksFold.regionOfChunk(chunkX, chunkZ);
     }
 
     @WrapOperation(method = "getChunk",
             at = @At(value = "INVOKE", target = FtbChunksInjectionTargets.XZ_OF))
-    private static XZ toroidal$foldChunkKey(int chunkX, int chunkZ, Operation<XZ> original) {
+    private static XZ exotic_worlds$foldChunkKey(int chunkX, int chunkZ, Operation<XZ> original) {
         return FtbChunksFold.chunkOf(chunkX, chunkZ);
     }
 
     @ModifyReturnValue(method = "regionHasHighlights", at = @At("RETURN"))
-    private boolean toroidal$foldRegionHighlights(boolean original, ResourceKey<Level> key, int regionX, int regionZ) {
+    private boolean exotic_worlds$foldRegionHighlights(boolean original, ResourceKey<Level> key, int regionX, int regionZ) {
         return original || FtbXaeroFold.regionHasStoredClaims(regionX, regionZ);
     }
 }

@@ -14,7 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 public class PistonCooperatorSeatMixin {
     @ModifyExpressionValue(method = "getCooperators",
             at = @At(value = "INVOKE", target = "Ljava/util/Map$Entry;getKey()Ljava/lang/Object;"))
-    private static Object toroidal$candidateNearestPiston(Object candidate, @Local(argsOnly = true) ServerLevel level,
+    private static Object exotic_worlds$candidateNearestPiston(Object candidate, @Local(argsOnly = true) ServerLevel level,
             @Local(argsOnly = true) BlockPos pistonPos) {
         return WorldLoopAttachments.transformerOf(level).nearestCopy(pistonPos, (BlockPos) candidate);
     }

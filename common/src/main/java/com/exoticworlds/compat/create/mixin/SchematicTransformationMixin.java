@@ -26,12 +26,12 @@ public class SchematicTransformationMixin {
     private BlockPos target;
 
     @ModifyVariable(method = "init", argsOnly = true, at = @At("HEAD"))
-    private BlockPos toroidal$anchorInViewerFrame(BlockPos anchor) {
+    private BlockPos exotic_worlds$anchorInViewerFrame(BlockPos anchor) {
         return CreateClientFrame.inViewerFrame(anchor);
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
-    private void toroidal$reanchorOnViewer(CallbackInfo ci) {
+    private void exotic_worlds$reanchorOnViewer(CallbackInfo ci) {
         DeckTransformation seat = CreateClientFrame.inViewerFrameTransformation(target);
         if (seat.isIdentity()) {
             return;

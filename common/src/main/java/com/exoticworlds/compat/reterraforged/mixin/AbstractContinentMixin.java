@@ -19,7 +19,7 @@ public abstract class AbstractContinentMixin {
 
     // The default continent is the cell at the origin, and every copy of it one lap away is the same continent.
     @WrapMethod(method = "isDefaultContinent")
-    private boolean toroidal$foldDefault(int cellX, int cellY, Operation<Boolean> original) {
+    private boolean exotic_worlds$foldDefault(int cellX, int cellY, Operation<Boolean> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
             return original.call(cellX, cellY);
@@ -29,7 +29,7 @@ public abstract class AbstractContinentMixin {
     }
 
     @WrapMethod(method = "getDistanceToOcean")
-    private float toroidal$firstCoast(int x, int z, float dx, float dz, Operation<Float> original) {
+    private float exotic_worlds$firstCoast(int x, int z, float dx, float dz, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         float reach = frame == null ? RiverReach.UNBOUNDED : RiverReach.reach(frame, dx, dz);
         if (reach == RiverReach.UNBOUNDED) {

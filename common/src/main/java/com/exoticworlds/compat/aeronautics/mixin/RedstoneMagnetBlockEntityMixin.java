@@ -18,7 +18,7 @@ public class RedstoneMagnetBlockEntityMixin {
     @WrapOperation(
             method = "spawnParticles",
             at = @At(value = "INVOKE", target = "Ljava/util/HashMap;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"))
-    private Object toroidal$seatFieldSource(HashMap<Object, Object> positions, Object nearby, Object moment,
+    private Object exotic_worlds$seatFieldSource(HashMap<Object, Object> positions, Object nearby, Object moment,
             Operation<Object> original) {
         return original.call(positions, MagnetSeamFrame.seatNearbyMagnet((BlockEntity) (Object) this, nearby), moment);
     }

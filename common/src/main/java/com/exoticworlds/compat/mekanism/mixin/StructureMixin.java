@@ -20,36 +20,36 @@ import net.minecraft.world.level.Level;
 @Mixin(value = Structure.class, remap = false)
 public class StructureMixin implements MultiblockStructureFrame {
     @Unique
-    private @Nullable BlockPos toroidal$anchor;
+    private @Nullable BlockPos exotic_worlds$anchor;
 
     @Unique
-    private @Nullable Level toroidal$level;
+    private @Nullable Level exotic_worlds$level;
 
     @Override
-    public @Nullable BlockPos toroidal$anchor() {
-        return this.toroidal$anchor;
+    public @Nullable BlockPos exotic_worlds$anchor() {
+        return this.exotic_worlds$anchor;
     }
 
     @Override
-    public @Nullable Level toroidal$level() {
-        return this.toroidal$level;
+    public @Nullable Level exotic_worlds$level() {
+        return this.exotic_worlds$level;
     }
 
     @Inject(method = "init", at = @At("HEAD"))
-    private void toroidal$recordAnchor(IMultiblockBase node, CallbackInfo ci) {
-        this.toroidal$anchor = node.getBlockPos();
-        this.toroidal$level = node.getLevel();
+    private void exotic_worlds$recordAnchor(IMultiblockBase node, CallbackInfo ci) {
+        this.exotic_worlds$anchor = node.getBlockPos();
+        this.exotic_worlds$level = node.getLevel();
     }
 
     @Inject(method = "add", at = @At("HEAD"))
-    private void toroidal$moveOntoAnchor(Structure absorbed, CallbackInfo ci) {
+    private void exotic_worlds$moveOntoAnchor(Structure absorbed, CallbackInfo ci) {
         if (absorbed != (Object) this) {
             MultiblockFrames.moveOntoAnchor((Structure) (Object) this, absorbed);
         }
     }
 
     @ModifyVariable(method = "getTile", at = @At("HEAD"), argsOnly = true)
-    private BlockPos toroidal$foldNodeKey(BlockPos pos) {
+    private BlockPos exotic_worlds$foldNodeKey(BlockPos pos) {
         return MultiblockFrames.fold((Structure) (Object) this, pos);
     }
 }

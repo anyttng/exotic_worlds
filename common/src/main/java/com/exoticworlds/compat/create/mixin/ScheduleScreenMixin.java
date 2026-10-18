@@ -19,7 +19,7 @@ public abstract class ScheduleScreenMixin {
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_DISTANCE_TO),
             allow = 1)
-    private static double toroidal$stationDistanceInTheViewerFrame(Vec3 station, Vec3 viewer,
+    private static double exotic_worlds$stationDistanceInTheViewerFrame(Vec3 station, Vec3 viewer,
             Operation<Double> original) {
         return original.call(CreateClientFrame.nearestCopy(viewer, station), viewer);
     }

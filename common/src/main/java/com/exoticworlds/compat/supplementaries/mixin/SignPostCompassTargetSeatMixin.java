@@ -17,7 +17,7 @@ import net.minecraft.world.item.ItemStack;
 public class SignPostCompassTargetSeatMixin {
     @WrapOperation(method = "handleInteraction", at = @At(value = "INVOKE",
             target = "Lnet/mehvahdjukaar/supplementaries/common/block/tiles/SignPostBlockTile;getCompassTrackedPos(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/core/BlockPos;"))
-    private @Nullable BlockPos toroidal$targetNearestSign(ServerLevel level, ItemStack compass,
+    private @Nullable BlockPos exotic_worlds$targetNearestSign(ServerLevel level, ItemStack compass,
             Operation<BlockPos> original, @Local(argsOnly = true) BlockPos signPos) {
         BlockPos target = original.call(level, compass);
         return target == null ? null : WorldLoopAttachments.transformerOf(level).nearestCopy(signPos, target);

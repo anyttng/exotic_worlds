@@ -9,26 +9,26 @@ import com.george_vi.electroenergetics.simulation.SendVoltageDataPacket;
 @Mixin(value = SendVoltageDataPacket.class, remap = false)
 public interface SendVoltageDataPacketAccessor {
     @Accessor("nodes")
-    InWorldNode[] toroidal$nodes();
+    InWorldNode[] exotic_worlds$nodes();
 
     @Accessor("nodes")
-    void toroidal$setNodes(InWorldNode[] nodes);
+    void exotic_worlds$setNodes(InWorldNode[] nodes);
 
     @Accessor("voltages")
-    double[] toroidal$voltages();
+    double[] exotic_worlds$voltages();
 
     @Accessor("voltages")
-    void toroidal$setVoltages(double[] voltages);
+    void exotic_worlds$setVoltages(double[] voltages);
 
     @Accessor("microTicks")
-    int toroidal$microTicks();
+    int exotic_worlds$microTicks();
 
     @Accessor("microTicks")
-    void toroidal$setMicroTicks(int microTicks);
+    void exotic_worlds$setMicroTicks(int microTicks);
 
     @Accessor("frequencies")
-    float[] toroidal$frequencies();
+    float[] exotic_worlds$frequencies();
 
     @Accessor("frequencies")
-    void toroidal$setFrequencies(float[] frequencies);
+    void exotic_worlds$setFrequencies(float[] frequencies);
 }

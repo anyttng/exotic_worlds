@@ -3,13 +3,13 @@ package com.exoticworlds.compat.mekanism;
 import com.exoticworlds.core.WorldFold;
 
 public interface RadiationBoxFrame {
-    void toroidal$setFold(WorldFold fold);
+    void exotic_worlds$setFold(WorldFold fold);
 
-    int toroidal$minX();
+    int exotic_worlds$minX();
 
-    int toroidal$minZ();
+    int exotic_worlds$minZ();
 
-    int toroidal$maxX();
+    int exotic_worlds$maxX();
 
-    int toroidal$maxZ();
+    int exotic_worlds$maxZ();
 }

@@ -27,7 +27,7 @@ public class FluidNetworkMixin {
     Map<BlockPos, WeakReference<FluidTransportBehaviour>> cache;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$canonicaliseKeys(Level world, BlockFace location, Supplier<?> sourceSupplier,
+    private void exotic_worlds$canonicaliseKeys(Level world, BlockFace location, Supplier<?> sourceSupplier,
             CallbackInfo ci) {
         this.visited = CanonicalPositionKeys.set(world);
         this.cache = CanonicalPositionKeys.map(world);

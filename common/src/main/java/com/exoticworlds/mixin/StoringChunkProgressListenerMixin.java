@@ -16,7 +16,7 @@ import net.minecraft.world.level.Level;
 @Mixin(StoringChunkProgressListener.class)
 public class StoringChunkProgressListenerMixin {
     @ModifyVariable(method = "onStatusChange", at = @At("HEAD"), argsOnly = true)
-    private ChunkPos toroidal$foldStoredChunk(ChunkPos chunk) {
+    private ChunkPos exotic_worlds$foldStoredChunk(ChunkPos chunk) {
         MinecraftServer server = CurrentServer.get();
         WorldFold transformer =
                 WorldLoopAttachments.transformerIfLevel(server == null ? null : server.getLevel(Level.OVERWORLD));

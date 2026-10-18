@@ -21,7 +21,7 @@ import raccoonman.reterraforged.client.gui.screen.presetconfig.Preview3D;
 public abstract class PreviewMixin {
     @WrapOperation(method = "executeRegenerate",
             at = @At(value = "INVOKE", target = InjectionTargets.COMPLETABLE_FUTURE_SUPPLY_ASYNC))
-    private CompletableFuture<?> toroidal$buildUnderTheChosenShape(Supplier<?> build, Executor executor,
+    private CompletableFuture<?> exotic_worlds$buildUnderTheChosenShape(Supplier<?> build, Executor executor,
             Operation<CompletableFuture<?>> original, @Local WorldCreationContext settings) {
         return original.call(CreationShape.underRouterBuild(settings, build), executor);
     }

@@ -1,5 +1,5 @@
 package com.exoticworlds.compat.sable;
 
 public interface SableConstraintGraphHolder {
-    SableConstraintGraph toroidal$constraintGraph();
+    SableConstraintGraph exotic_worlds$constraintGraph();
 }

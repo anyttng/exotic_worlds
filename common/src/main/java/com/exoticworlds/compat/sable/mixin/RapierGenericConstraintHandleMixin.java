@@ -14,18 +14,18 @@ import com.exoticworlds.compat.sable.SableMotorGoalHolder;
         remap = false)
 public class RapierGenericConstraintHandleMixin {
     @Inject(method = "setFrame1", at = @At("HEAD"))
-    private void toroidal$followStaticFrame(Vector3dc localPosition, Quaterniondc localOrientation,
+    private void exotic_worlds$followStaticFrame(Vector3dc localPosition, Quaterniondc localOrientation,
             CallbackInfo callback) {
-        SableMotorGoal goal = ((SableMotorGoalHolder) (Object) this).toroidal$motorGoal();
+        SableMotorGoal goal = ((SableMotorGoalHolder) (Object) this).exotic_worlds$motorGoal();
         if (goal != null) {
             goal.staticFrame(localPosition, localOrientation);
         }
     }
 
     @Inject(method = "setFrame2", at = @At("HEAD"))
-    private void toroidal$followBodyFrame(Vector3dc localPosition, Quaterniondc localOrientation,
+    private void exotic_worlds$followBodyFrame(Vector3dc localPosition, Quaterniondc localOrientation,
             CallbackInfo callback) {
-        SableMotorGoal goal = ((SableMotorGoalHolder) (Object) this).toroidal$motorGoal();
+        SableMotorGoal goal = ((SableMotorGoalHolder) (Object) this).exotic_worlds$motorGoal();
         if (goal != null) {
             goal.bodyFrame(localPosition);
         }

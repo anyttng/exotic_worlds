@@ -14,7 +14,7 @@ import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 @Mixin(value = GeneratorContext.class, remap = false)
 public abstract class GeneratorContextMixin {
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$carryRouterBuildFold(CallbackInfo callback) {
+    private void exotic_worlds$carryRouterBuildFold(CallbackInfo callback) {
         WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
         if (fold != null && fold.isWrapped()) {
             LapCarrier.carry((GeneratorContext) (Object) this, fold);

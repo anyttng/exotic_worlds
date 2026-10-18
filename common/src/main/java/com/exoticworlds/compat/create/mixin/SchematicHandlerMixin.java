@@ -19,7 +19,7 @@ public class SchematicHandlerMixin {
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/foundation/blockEntity/IMultiBlockEntityContainer;"
                             + "getController()Lnet/minecraft/core/BlockPos;"))
-    private BlockPos toroidal$foldScannedController(IMultiBlockEntityContainer container,
+    private BlockPos exotic_worlds$foldScannedController(IMultiBlockEntityContainer container,
             Operation<BlockPos> original) {
         BlockPos controller = original.call(container);
         BlockPos lastKnown = container.getLastKnownPos();

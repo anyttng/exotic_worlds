@@ -16,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(value = Pos3D.class, remap = false)
 public class Pos3DMixin {
     @ModifyReturnValue(method = "adjustPosition", at = @At("RETURN"))
-    private Pos3D toroidal$stopOnOwnAxis(Pos3D stop, @Local(argsOnly = true) Direction direction,
+    private Pos3D exotic_worlds$stopOnOwnAxis(Pos3D stop, @Local(argsOnly = true) Direction direction,
             @Local(argsOnly = true) Entity entity) {
         Vec3 seated = MekanismSeam.stopOnAxis(entity.level(), (Vec3) (Object) this, direction.getAxis(),
                 entity.position());

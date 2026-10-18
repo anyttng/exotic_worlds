@@ -24,12 +24,12 @@ public abstract class WireCrossContactModuleMixin {
     ServerLevel level;
 
     @ModifyVariable(method = "computeCrossContactFor", at = @At("STORE"), name = "bb2")
-    private AABB toroidal$otherBoxBesideWire(AABB bb2, @Local(name = "bb") AABB bb) {
+    private AABB exotic_worlds$otherBoxBesideWire(AABB bb2, @Local(name = "bb") AABB bb) {
         return WireSpan.apply(WireSpan.wireToward(this.level, bb.getCenter(), bb2), bb2);
     }
 
     @ModifyVariable(method = "computeCrossContactFor", at = @At("STORE"), name = "points2")
-    private List<Vec3> toroidal$otherPointsBesideWire(List<Vec3> points2, @Local(name = "bb") AABB bb,
+    private List<Vec3> exotic_worlds$otherPointsBesideWire(List<Vec3> points2, @Local(name = "bb") AABB bb,
             @Local(name = "connectionData2") ConnectionEntry other) {
         return WireSpan.apply(WireSpan.wireToward(this.level, bb.getCenter(), other.bb), points2);
     }

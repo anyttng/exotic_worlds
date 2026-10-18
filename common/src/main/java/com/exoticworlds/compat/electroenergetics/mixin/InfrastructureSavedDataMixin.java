@@ -22,14 +22,14 @@ public abstract class InfrastructureSavedDataMixin {
 
     @WrapOperation(method = "removeConnection",
             at = @At(value = "INVOKE", target = ElectroEnergeticsInjectionTargets.WIRE_POS_AT))
-    private Vec3 toroidal$attachmentDropOnShortSpan(Vec3 from, Vec3 to, float point, float dip,
+    private Vec3 exotic_worlds$attachmentDropOnShortSpan(Vec3 from, Vec3 to, float point, float dip,
             Operation<Vec3> original) {
         return original.call(from, WireSpan.seat(this.level, from, to), point, dip);
     }
 
     @WrapOperation(method = "removeAndDropConnection",
             at = @At(value = "INVOKE", target = ElectroEnergeticsInjectionTargets.WIRE_POS_AT_UNIT_DIP))
-    private Vec3 toroidal$wireDropOnShortSpan(Vec3 from, Vec3 to, float point, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$wireDropOnShortSpan(Vec3 from, Vec3 to, float point, Operation<Vec3> original) {
         return original.call(from, WireSpan.seat(this.level, from, to), point);
     }
 }

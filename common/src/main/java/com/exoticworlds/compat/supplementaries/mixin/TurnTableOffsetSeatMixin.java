@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(targets = "net.mehvahdjukaar.supplementaries.common.block.blocks.TurnTableBlock")
 public class TurnTableOffsetSeatMixin {
     @ModifyExpressionValue(method = "stepOn", at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_POSITION))
-    private Vec3 toroidal$positionNearestTable(Vec3 position, @Local(argsOnly = true) Level level,
+    private Vec3 exotic_worlds$positionNearestTable(Vec3 position, @Local(argsOnly = true) Level level,
             @Local(ordinal = 0) Vec3 origin) {
         return WorldLoopAttachments.transformerOf(level).nearestCopy(origin, position);
     }

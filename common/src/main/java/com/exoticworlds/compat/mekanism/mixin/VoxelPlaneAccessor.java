@@ -12,17 +12,17 @@ import net.minecraft.core.BlockPos;
 @Mixin(value = VoxelPlane.class, remap = false)
 public interface VoxelPlaneAccessor {
     @Accessor("minCol")
-    void toroidal$setMinCol(int minCol);
+    void exotic_worlds$setMinCol(int minCol);
 
     @Accessor("maxCol")
-    void toroidal$setMaxCol(int maxCol);
+    void exotic_worlds$setMaxCol(int maxCol);
 
     @Accessor("minRow")
-    void toroidal$setMinRow(int minRow);
+    void exotic_worlds$setMinRow(int minRow);
 
     @Accessor("maxRow")
-    void toroidal$setMaxRow(int maxRow);
+    void exotic_worlds$setMaxRow(int maxRow);
 
     @Accessor("outsideSet")
-    Set<BlockPos> toroidal$outsideSet();
+    Set<BlockPos> exotic_worlds$outsideSet();
 }

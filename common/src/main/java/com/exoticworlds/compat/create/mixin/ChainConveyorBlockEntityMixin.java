@@ -20,7 +20,7 @@ public class ChainConveyorBlockEntityMixin {
                     target = InjectionTargets.BLOCK_POS_SUBTRACT),
             require = 3,
             allow = 3)
-    private BlockPos toroidal$foldConnectionDelta(BlockPos target, Vec3i anchorPos, Operation<BlockPos> original) {
+    private BlockPos exotic_worlds$foldConnectionDelta(BlockPos target, Vec3i anchorPos, Operation<BlockPos> original) {
         ChainConveyorBlockEntity self = (ChainConveyorBlockEntity) (Object) this;
         return CreateSeamFold.foldDelta(self.getLevel(), self.getBlockPos(), target,
                 original.call(target, anchorPos));
@@ -32,7 +32,7 @@ public class ChainConveyorBlockEntityMixin {
                     target = "Lnet/minecraft/core/BlockPos;multiply(I)Lnet/minecraft/core/BlockPos;"),
             require = 1,
             allow = 1)
-    private BlockPos toroidal$foldFarEndKey(BlockPos delta, int factor, Operation<BlockPos> original) {
+    private BlockPos exotic_worlds$foldFarEndKey(BlockPos delta, int factor, Operation<BlockPos> original) {
         ChainConveyorBlockEntity self = (ChainConveyorBlockEntity) (Object) this;
         return CreateSeamFold.farEndDelta(self.getLevel(), self.getBlockPos(), delta,
                 original.call(delta, factor));

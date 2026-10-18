@@ -21,7 +21,7 @@ public class SchematicPlacePacketMixin {
             method = "handle",
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.SCHEMATIC_PRINTER_LOAD_SCHEMATIC))
-    private void toroidal$anchorInstantPrintOnPlayer(SchematicPrinter printer, ItemStack blueprint, Level level,
+    private void exotic_worlds$anchorInstantPrintOnPlayer(SchematicPrinter printer, ItemStack blueprint, Level level,
             boolean processNBT, Operation<Void> original, @Local(argsOnly = true) ServerPlayer player) {
         original.call(printer, CreateSchematicFold.anchoredNear(level, player.blockPosition(), blueprint), level,
                 processNBT);

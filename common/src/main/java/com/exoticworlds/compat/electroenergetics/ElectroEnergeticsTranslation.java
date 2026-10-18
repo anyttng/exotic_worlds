@@ -110,7 +110,7 @@ public final class ElectroEnergeticsTranslation {
 
         PacketTranslator.registerClientboundPayloadRewriter(SendVoltageDataPacket.class, (payload, context) -> {
             SendVoltageDataPacketAccessor voltages = (SendVoltageDataPacketAccessor) (Object) payload;
-            InWorldNode[] nodes = voltages.toroidal$nodes();
+            InWorldNode[] nodes = voltages.exotic_worlds$nodes();
             InWorldNode[] seated = null;
             for (int i = 0; i < nodes.length; i++) {
                 InWorldNode node = seat(context, nodes[i]);
@@ -144,10 +144,10 @@ public final class ElectroEnergeticsTranslation {
     private static SendVoltageDataPacket withNodes(SendVoltageDataPacketAccessor source, InWorldNode[] nodes) {
         SendVoltageDataPacket copy = new SendVoltageDataPacket();
         SendVoltageDataPacketAccessor target = (SendVoltageDataPacketAccessor) (Object) copy;
-        target.toroidal$setNodes(nodes);
-        target.toroidal$setVoltages(source.toroidal$voltages());
-        target.toroidal$setMicroTicks(source.toroidal$microTicks());
-        target.toroidal$setFrequencies(source.toroidal$frequencies());
+        target.exotic_worlds$setNodes(nodes);
+        target.exotic_worlds$setVoltages(source.exotic_worlds$voltages());
+        target.exotic_worlds$setMicroTicks(source.exotic_worlds$microTicks());
+        target.exotic_worlds$setFrequencies(source.exotic_worlds$frequencies());
         return copy;
     }
 

@@ -18,11 +18,11 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(value = RailContactShoeBlockEntity.class, remap = false)
 public abstract class RailContactShoeBlockEntityMixin {
     @Unique
-    private static final String WIRE_START = "toroidal$wireStart";
+    private static final String WIRE_START = "exotic_worlds$wireStart";
 
     @ModifyExpressionValue(method = "handleOnServer",
             at = @At(value = "INVOKE", target = ElectroEnergeticsInjectionTargets.NODE_GET_POSITION, ordinal = 0))
-    private Vec3 toroidal$wireStartBesideCollector(Vec3 start, @Local(name = "inWorldPos") Vec3 collector,
+    private Vec3 exotic_worlds$wireStartBesideCollector(Vec3 start, @Local(name = "inWorldPos") Vec3 collector,
             @Share(WIRE_START) LocalRef<Vec3> seated) {
         seated.set(WireSpan.seatIfPresent(((BlockEntity) (Object) this).getLevel(), collector, start));
         return seated.get();
@@ -30,7 +30,7 @@ public abstract class RailContactShoeBlockEntityMixin {
 
     @ModifyExpressionValue(method = "handleOnServer",
             at = @At(value = "INVOKE", target = ElectroEnergeticsInjectionTargets.NODE_GET_POSITION, ordinal = 1))
-    private Vec3 toroidal$wireEndBesideStart(Vec3 end, @Share(WIRE_START) LocalRef<Vec3> seated) {
+    private Vec3 exotic_worlds$wireEndBesideStart(Vec3 end, @Share(WIRE_START) LocalRef<Vec3> seated) {
         return WireSpan.seatIfPresent(((BlockEntity) (Object) this).getLevel(), seated.get(), end);
     }
 }

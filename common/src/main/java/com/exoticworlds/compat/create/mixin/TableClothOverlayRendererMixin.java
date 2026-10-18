@@ -22,7 +22,7 @@ public abstract class TableClothOverlayRendererMixin {
                     target = "Lcom/simibubi/create/content/logistics/tableCloth/ShoppingListItem;"
                             + "getList(Lnet/minecraft/world/item/ItemStack;)"
                             + "Lcom/simibubi/create/content/logistics/tableCloth/ShoppingListItem$ShoppingList;"))
-    private static @Nullable ShoppingList toroidal$purchaseKeysInTheViewerFrame(@Nullable ShoppingList canonical) {
+    private static @Nullable ShoppingList exotic_worlds$purchaseKeysInTheViewerFrame(@Nullable ShoppingList canonical) {
         if (canonical == null) {
             return null;
         }

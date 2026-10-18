@@ -201,7 +201,7 @@ class PacketTranslatorEntityTest {
         VibrationParticleOption vibration =
                 (VibrationParticleOption) translated.packedItems().getFirst().value();
         BlockPositionSource destination = (BlockPositionSource) vibration.getDestination();
-        assertEquals(CLIENT_BLOCK, ((BlockPositionSourceAccessor) destination).toroidal$getPos());
+        assertEquals(CLIENT_BLOCK, ((BlockPositionSourceAccessor) destination).exotic_worlds$getPos());
         assertEquals(12, vibration.getArrivalInTicks());
     }
 
@@ -220,7 +220,7 @@ class PacketTranslatorEntityTest {
         assertSame(ParticleTypes.FLAME, particles.get(0));
         BlockPositionSource destination =
                 (BlockPositionSource) ((VibrationParticleOption) particles.get(1)).getDestination();
-        assertEquals(CLIENT_BLOCK, ((BlockPositionSourceAccessor) destination).toroidal$getPos());
+        assertEquals(CLIENT_BLOCK, ((BlockPositionSourceAccessor) destination).exotic_worlds$getPos());
     }
 
     @Test
@@ -236,7 +236,7 @@ class PacketTranslatorEntityTest {
         VibrationParticleOption vibration =
                 (VibrationParticleOption) translated.packedItems().getFirst().value();
         BlockPositionSource destination = (BlockPositionSource) vibration.getDestination();
-        assertEquals(CLIENT_BLOCK, ((BlockPositionSourceAccessor) destination).toroidal$getPos());
+        assertEquals(CLIENT_BLOCK, ((BlockPositionSourceAccessor) destination).exotic_worlds$getPos());
     }
 
     @Test

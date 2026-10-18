@@ -34,31 +34,31 @@ public abstract class CarriagePairMixin {
     @Inject(method = "getDimensional(Lnet/minecraft/resources/ResourceKey;)"
             + "Lcom/simibubi/create/content/trains/entity/Carriage$DimensionalCarriageEntity;",
             at = @At("RETURN"))
-    private void toroidal$bindDimensionToCarriageEntity(ResourceKey<Level> dimension,
+    private void exotic_worlds$bindDimensionToCarriageEntity(ResourceKey<Level> dimension,
             CallbackInfoReturnable<Carriage.DimensionalCarriageEntity> cir) {
-        ((CarriageEntityFrame) cir.getReturnValue()).toroidal$bindCarriageDimension(dimension);
+        ((CarriageEntityFrame) cir.getReturnValue()).exotic_worlds$bindCarriageDimension(dimension);
     }
 
     @WrapOperation(method = "updateContraptionAnchors",
             at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD,
                     target = CreateInjectionTargets.CARRIAGE_POSITION_ANCHOR))
-    private void toroidal$storeAnchorInWorldFrame(Carriage.DimensionalCarriageEntity dce, Vec3 anchor,
+    private void exotic_worlds$storeAnchorInWorldFrame(Carriage.DimensionalCarriageEntity dce, Vec3 anchor,
             Operation<Void> original) {
         original.call(dce, anchor == null
                 ? null
-                : CreateSeamFold.canonicalOnServer(((CarriageEntityFrame) dce).toroidal$carriageDimension(), anchor));
+                : CreateSeamFold.canonicalOnServer(((CarriageEntityFrame) dce).exotic_worlds$carriageDimension(), anchor));
     }
 
     @WrapOperation(method = "getAnchorDiff",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_DISTANCE_TO))
-    private double toroidal$foldAnchorSpan(Vec3 leading, Vec3 trailing, Operation<Double> original) {
+    private double exotic_worlds$foldAnchorSpan(Vec3 leading, Vec3 trailing, Operation<Double> original) {
         return original.call(leading,
                 CreateSeamFold.nearestCopy(getLeadingPoint().node1.getLocation().dimension, leading, trailing));
     }
 
     @ModifyReturnValue(method = "getPositionInDimension", at = @At("RETURN"))
-    private Optional<BlockPos> toroidal$publishCanonicalPosition(Optional<BlockPos> position,
+    private Optional<BlockPos> exotic_worlds$publishCanonicalPosition(Optional<BlockPos> position,
             @Local(argsOnly = true) ResourceKey<Level> dimension) {
         return position.map(pos -> CreateSeamFold.canonical(dimension, pos));
     }
@@ -66,11 +66,11 @@ public abstract class CarriagePairMixin {
     @ModifyExpressionValue(method = "pivoted",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_ADD_SCALARS))
-    private Vec3 toroidal$pivotInPointFrame(Vec3 portalVec,
+    private Vec3 exotic_worlds$pivotInPointFrame(Vec3 portalVec,
             @Local(argsOnly = true) Carriage.DimensionalCarriageEntity dce,
             @Local(argsOnly = true) ResourceKey<Level> dimension,
             @Local(ordinal = 0) Vec3 startVec) {
-        return CreateSeamFold.nearestCopy(((CarriageEntityFrame) dce).toroidal$carriageLevel(), dimension,
+        return CreateSeamFold.nearestCopy(((CarriageEntityFrame) dce).exotic_worlds$carriageLevel(), dimension,
                 startVec, portalVec);
     }
 }

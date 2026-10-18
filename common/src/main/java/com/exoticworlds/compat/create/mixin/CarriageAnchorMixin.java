@@ -44,15 +44,15 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
     public WeakReference<?> entity;
 
     @Unique
-    private @Nullable ResourceKey<Level> toroidal$dimension;
+    private @Nullable ResourceKey<Level> exotic_worlds$dimension;
 
     @WrapOperation(method = "read",
             at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD,
                     target = CreateInjectionTargets.CARRIAGE_POSITION_ANCHOR))
-    private void toroidal$storeLoadedAnchorInWorldFrame(Carriage.DimensionalCarriageEntity dce, Vec3 anchor,
+    private void exotic_worlds$storeLoadedAnchorInWorldFrame(Carriage.DimensionalCarriageEntity dce, Vec3 anchor,
             Operation<Void> original) {
         original.call(dce,
-                anchor == null ? null : CreateSeamFold.canonicalOnServer(this.toroidal$dimension, anchor));
+                anchor == null ? null : CreateSeamFold.canonicalOnServer(this.exotic_worlds$dimension, anchor));
     }
 
     // Ordinal 2 only: the two earlier reads build the chunk lookahead, this one moves the carriage and its riders.
@@ -60,20 +60,20 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
             at = @At(value = "FIELD", opcode = Opcodes.GETFIELD,
                     target = CreateInjectionTargets.CARRIAGE_POSITION_ANCHOR,
                     ordinal = 2))
-    private Vec3 toroidal$anchorForWrite(Vec3 anchor) {
-        Vec3 written = toroidal$anchorInClientFrame(anchor);
-        Entity carriageEntity = toroidal$entity();
+    private Vec3 exotic_worlds$anchorForWrite(Vec3 anchor) {
+        Vec3 written = exotic_worlds$anchorInClientFrame(anchor);
+        Entity carriageEntity = exotic_worlds$entity();
         if (carriageEntity == null || carriageEntity.level().isClientSide()) {
             return written;
         }
 
-        toroidal$carryAboard(carriageEntity, written);
+        exotic_worlds$carryAboard(carriageEntity, written);
         return written;
     }
 
     @ModifyExpressionValue(method = "alignEntity", at = @At(value = "INVOKE", target = COUPLE_GET_SECOND))
-    private Object toroidal$coupledAnchorInLeadingFrame(Object coupled, @Local(ordinal = 0) Vec3 leading) {
-        Entity carriageEntity = toroidal$entity();
+    private Object exotic_worlds$coupledAnchorInLeadingFrame(Object coupled, @Local(ordinal = 0) Vec3 leading) {
+        Entity carriageEntity = exotic_worlds$entity();
         if (carriageEntity == null || !(coupled instanceof Vec3 trailing)) {
             return coupled;
         }
@@ -84,8 +84,8 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
     @ModifyExpressionValue(method = "alignEntity",
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/trains/entity/CarriageContraptionEntity;position()Lnet/minecraft/world/phys/Vec3;"))
-    private Vec3 toroidal$entityPositionInAnchorFrame(Vec3 position) {
-        Entity carriageEntity = toroidal$entity();
+    private Vec3 exotic_worlds$entityPositionInAnchorFrame(Vec3 position) {
+        Entity carriageEntity = exotic_worlds$entity();
         Vec3 anchor = this.positionAnchor;
         if (carriageEntity == null || anchor == null) {
             return position;
@@ -95,55 +95,55 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
     }
 
     @ModifyReturnValue(method = "leadingAnchor", at = @At("RETURN"))
-    private Vec3 toroidal$leadingAnchorInClientFrame(Vec3 anchor) {
-        return toroidal$anchorInClientFrame(anchor);
+    private Vec3 exotic_worlds$leadingAnchorInClientFrame(Vec3 anchor) {
+        return exotic_worlds$anchorInClientFrame(anchor);
     }
 
     @ModifyReturnValue(method = "trailingAnchor", at = @At("RETURN"))
-    private Vec3 toroidal$trailingAnchorInClientFrame(Vec3 anchor) {
-        return toroidal$anchorInClientFrame(anchor);
+    private Vec3 exotic_worlds$trailingAnchorInClientFrame(Vec3 anchor) {
+        return exotic_worlds$anchorInClientFrame(anchor);
     }
 
     @ModifyExpressionValue(method = "updateCutoff", at = @At(value = "INVOKE", target = COUPLE_GET_SECOND))
-    private Object toroidal$trailingAnchorInLeadingFrame(Object trailing, @Local(ordinal = 0) Vec3 leading) {
+    private Object exotic_worlds$trailingAnchorInLeadingFrame(Object trailing, @Local(ordinal = 0) Vec3 leading) {
         if (!(trailing instanceof Vec3 trailingAnchor)) {
             return trailing;
         }
 
-        return toroidal$inCutoffFrame(leading, trailingAnchor);
+        return exotic_worlds$inCutoffFrame(leading, trailingAnchor);
     }
 
     @ModifyExpressionValue(method = "updateCutoff",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_ADD_SCALARS))
-    private Vec3 toroidal$pivotInLeadingAnchorFrame(Vec3 pivotLoc, @Local(ordinal = 0) Vec3 leading) {
-        return toroidal$inCutoffFrame(leading, pivotLoc);
+    private Vec3 exotic_worlds$pivotInLeadingAnchorFrame(Vec3 pivotLoc, @Local(ordinal = 0) Vec3 leading) {
+        return exotic_worlds$inCutoffFrame(leading, pivotLoc);
     }
 
     @Override
-    public @Nullable Level toroidal$carriageLevel() {
-        Entity carriageEntity = toroidal$entity();
+    public @Nullable Level exotic_worlds$carriageLevel() {
+        Entity carriageEntity = exotic_worlds$entity();
         return carriageEntity == null ? null : carriageEntity.level();
     }
 
     @Override
-    public @Nullable ResourceKey<Level> toroidal$carriageDimension() {
-        return this.toroidal$dimension;
+    public @Nullable ResourceKey<Level> exotic_worlds$carriageDimension() {
+        return this.exotic_worlds$dimension;
     }
 
     @Override
-    public void toroidal$bindCarriageDimension(ResourceKey<Level> dimension) {
-        this.toroidal$dimension = dimension;
+    public void exotic_worlds$bindCarriageDimension(ResourceKey<Level> dimension) {
+        this.exotic_worlds$dimension = dimension;
     }
 
     @Unique
-    private Vec3 toroidal$inCutoffFrame(Vec3 anchor, Vec3 target) {
-        return CreateSeamFold.nearestCopy(toroidal$carriageLevel(),
+    private Vec3 exotic_worlds$inCutoffFrame(Vec3 anchor, Vec3 target) {
+        return CreateSeamFold.nearestCopy(exotic_worlds$carriageLevel(),
                 this.pivot == null ? null : this.pivot.getDimension(), anchor, target);
     }
 
     @Unique
-    private void toroidal$carryAboard(Entity carriage, Vec3 written) {
+    private void exotic_worlds$carryAboard(Entity carriage, Vec3 written) {
         DeckTransformation lap = CreateSeamFold.nearestCopyTransformation(carriage.level(), written,
                 carriage.position());
         if (lap.isIdentity()) {
@@ -155,7 +155,7 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
         }
 
         if (carriage instanceof ContraptionColliderAccessor colliders) {
-            for (Entity aboard : colliders.toroidal$collidingEntities().keySet()) {
+            for (Entity aboard : colliders.exotic_worlds$collidingEntities().keySet()) {
                 if (aboard.isPassenger() || aboard instanceof Player) {
                     continue;
                 }
@@ -166,8 +166,8 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
     }
 
     @Unique
-    private @Nullable Vec3 toroidal$anchorInClientFrame(@Nullable Vec3 anchor) {
-        Entity carriageEntity = toroidal$entity();
+    private @Nullable Vec3 exotic_worlds$anchorInClientFrame(@Nullable Vec3 anchor) {
+        Entity carriageEntity = exotic_worlds$entity();
         if (anchor == null || carriageEntity == null || !carriageEntity.level().isClientSide()) {
             return anchor;
         }
@@ -176,7 +176,7 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
     }
 
     @Unique
-    private @Nullable Entity toroidal$entity() {
+    private @Nullable Entity exotic_worlds$entity() {
         return this.entity.get() instanceof Entity carriageEntity ? carriageEntity : null;
     }
 }

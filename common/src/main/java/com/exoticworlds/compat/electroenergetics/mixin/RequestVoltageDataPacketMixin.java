@@ -16,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(value = RequestVoltageDataPacket.class, remap = false)
 public abstract class RequestVoltageDataPacketMixin {
     @WrapOperation(method = "handle", at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO_SQR))
-    private double toroidal$playerBesideNode(Vec3 node, Vec3 player, Operation<Double> original,
+    private double exotic_worlds$playerBesideNode(Vec3 node, Vec3 player, Operation<Double> original,
             @Local(argsOnly = true) ServerPlayer requester) {
         return original.call(node, WireSpan.seat(requester.level(), node, player));
     }

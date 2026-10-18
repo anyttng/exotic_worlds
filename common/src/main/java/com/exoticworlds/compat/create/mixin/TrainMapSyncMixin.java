@@ -12,7 +12,7 @@ import com.exoticworlds.compat.create.TrainMapSyncFold;
 @Mixin(value = TrainMapSync.class, remap = false)
 public abstract class TrainMapSyncMixin {
     @Inject(method = "createEntry", at = @At("RETURN"))
-    private static void toroidal$writeOneFrame(
+    private static void exotic_worlds$writeOneFrame(
             CallbackInfoReturnable<TrainMapSync.TrainMapSyncEntry> cir) {
         TrainMapSync.TrainMapSyncEntry entry = cir.getReturnValue();
         if (entry == null) {

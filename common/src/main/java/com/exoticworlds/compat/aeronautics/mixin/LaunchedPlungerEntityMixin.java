@@ -25,7 +25,7 @@ public class LaunchedPlungerEntityMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_SUBTRACT),
             require = 1,
             expect = 1)
-    private Vec3 toroidal$pullTowardTheNearestCopy(Vec3 other, Vec3 own, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$pullTowardTheNearestCopy(Vec3 other, Vec3 own, Operation<Vec3> original) {
         return original.call(PlungerSeamFrame.seatOther(((Entity) (Object) this).level(), own, other), own);
     }
 
@@ -34,7 +34,7 @@ public class LaunchedPlungerEntityMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_SUBTRACT),
             require = 1,
             expect = 1)
-    private static Vec3 toroidal$deflectTowardTheNearestCopy(Vec3 target, Vec3 own, Operation<Vec3> original,
+    private static Vec3 exotic_worlds$deflectTowardTheNearestCopy(Vec3 target, Vec3 own, Operation<Vec3> original,
             @Local(argsOnly = true) Entity plunger) {
         return original.call(PlungerSeamFrame.seatOther(plunger.level(), own, target), own);
     }

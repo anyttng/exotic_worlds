@@ -28,10 +28,10 @@ public abstract class SingleContinentGeneratorMixin {
     private static final float ORIGIN = 0.0F;
 
     @Unique
-    private volatile @Nullable LappedCenter toroidal$lappedCenter;
+    private volatile @Nullable LappedCenter exotic_worlds$lappedCenter;
 
     @ModifyExpressionValue(method = "apply", at = @At(value = "FIELD", target = CENTER, opcode = Opcodes.GETFIELD))
-    private NoiseUtil.Vec2i toroidal$canonicalCenter(NoiseUtil.Vec2i center) {
+    private NoiseUtil.Vec2i exotic_worlds$canonicalCenter(NoiseUtil.Vec2i center) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
             return center;
@@ -40,14 +40,14 @@ public abstract class SingleContinentGeneratorMixin {
         double xLap = frame.lap(Direction.Axis.X);
         double zLap = frame.lap(Direction.Axis.Z);
         double skew = frame.skew();
-        LappedCenter held = this.toroidal$lappedCenter;
+        LappedCenter held = this.exotic_worlds$lappedCenter;
         if (held != null && held.xLap() == xLap && held.zLap() == zLap && held.skew() == skew) {
             return held.center();
         }
 
         long packed = ((SimpleContinent) (Object) this).getNearestCenter(ORIGIN, ORIGIN);
         NoiseUtil.Vec2i lapped = new NoiseUtil.Vec2i(PosUtil.unpackLeft(packed), PosUtil.unpackRight(packed));
-        this.toroidal$lappedCenter = new LappedCenter(xLap, zLap, skew, lapped);
+        this.exotic_worlds$lappedCenter = new LappedCenter(xLap, zLap, skew, lapped);
         return lapped;
     }
 }

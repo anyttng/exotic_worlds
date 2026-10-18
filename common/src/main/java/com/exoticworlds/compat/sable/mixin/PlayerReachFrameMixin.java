@@ -13,12 +13,12 @@ import net.minecraft.world.phys.AABB;
 @Mixin(Player.class)
 public abstract class PlayerReachFrameMixin {
     @WrapMethod(method = "canInteractWithBlock")
-    private boolean toroidal$frameOnBlockReach(BlockPos pos, double buffer, Operation<Boolean> original) {
+    private boolean exotic_worlds$frameOnBlockReach(BlockPos pos, double buffer, Operation<Boolean> original) {
         return SableReachFrame.blockReach((Player) (Object) this, pos, buffer, original);
     }
 
     @WrapMethod(method = "canInteractWithEntity(Lnet/minecraft/world/phys/AABB;D)Z")
-    private boolean toroidal$frameOnEntityReach(AABB box, double buffer, Operation<Boolean> original) {
+    private boolean exotic_worlds$frameOnEntityReach(AABB box, double buffer, Operation<Boolean> original) {
         return SableReachFrame.entityReach((Player) (Object) this, box, buffer, original);
     }
 }

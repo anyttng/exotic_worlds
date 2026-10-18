@@ -38,29 +38,29 @@ public class IndexedCuboidMapMixin implements RadiationIndexFrame {
     private Map<Object, Object> valueMap;
 
     @Unique
-    private WorldFold toroidal$fold = WorldFolds.NOOP;
+    private WorldFold exotic_worlds$fold = WorldFolds.NOOP;
 
     @Override
-    public WorldFold toroidal$fold() {
-        return this.toroidal$fold;
+    public WorldFold exotic_worlds$fold() {
+        return this.exotic_worlds$fold;
     }
 
     @Override
-    public void toroidal$bind(WorldFold fold) {
-        if (fold == this.toroidal$fold) {
+    public void exotic_worlds$bind(WorldFold fold) {
+        if (fold == this.exotic_worlds$fold) {
             return;
         }
 
-        this.toroidal$fold = fold;
+        this.exotic_worlds$fold = fold;
         this.chunkIndex.clear();
         for (Object box : this.valueMap.keySet()) {
             RadiationBoxFrame frame = (RadiationBoxFrame) box;
-            frame.toroidal$setFold(fold);
+            frame.exotic_worlds$setFold(fold);
             long[] keys = ChunkUtils.rangeClosed(
-                    SectionPos.blockToSectionCoord(frame.toroidal$minX()),
-                    SectionPos.blockToSectionCoord(frame.toroidal$minZ()),
-                    SectionPos.blockToSectionCoord(frame.toroidal$maxX()),
-                    SectionPos.blockToSectionCoord(frame.toroidal$maxZ()));
+                    SectionPos.blockToSectionCoord(frame.exotic_worlds$minX()),
+                    SectionPos.blockToSectionCoord(frame.exotic_worlds$minZ()),
+                    SectionPos.blockToSectionCoord(frame.exotic_worlds$maxX()),
+                    SectionPos.blockToSectionCoord(frame.exotic_worlds$maxZ()));
             for (long key : keys) {
                 this.chunkIndex.put(fold.foldChunkKey(key), box);
             }
@@ -69,28 +69,28 @@ public class IndexedCuboidMapMixin implements RadiationIndexFrame {
 
     @WrapOperation(method = TRACK_BOX,
             at = @At(value = "INVOKE", target = InjectionTargets.MAP_PUT))
-    private Object toroidal$bindBoxFold(Map<Object, Object> values, Object box, Object value,
+    private Object exotic_worlds$bindBoxFold(Map<Object, Object> values, Object box, Object value,
             Operation<Object> original) {
-        ((RadiationBoxFrame) box).toroidal$setFold(this.toroidal$fold);
+        ((RadiationBoxFrame) box).exotic_worlds$setFold(this.exotic_worlds$fold);
         return original.call(values, box, value);
     }
 
     @WrapOperation(method = TRACK_BOX,
             at = @At(value = "INVOKE",
                     target = "Lmekanism/common/lib/collection/BiLongMultimap;put(JLjava/lang/Object;)Z"))
-    private boolean toroidal$fileUnderFoldedChunk(BiLongMultimap<Object> index, long key, Object box,
+    private boolean exotic_worlds$fileUnderFoldedChunk(BiLongMultimap<Object> index, long key, Object box,
             Operation<Boolean> original) {
-        return original.call(index, this.toroidal$fold.foldChunkKey(key), box);
+        return original.call(index, this.exotic_worlds$fold.foldChunkKey(key), box);
     }
 
     @WrapOperation(method = TRACK_BOX,
             at = @At(value = "INVOKE",
                     target = "Lmekanism/common/lib/collection/BiLongMultimap;putAll([JLjava/lang/Object;)Z"))
-    private boolean toroidal$fileUnderFoldedChunks(BiLongMultimap<Object> index, long[] keys, Object box,
+    private boolean exotic_worlds$fileUnderFoldedChunks(BiLongMultimap<Object> index, long[] keys, Object box,
             Operation<Boolean> original) {
         long[] folded = new long[keys.length];
         for (int i = 0; i < keys.length; i++) {
-            folded[i] = this.toroidal$fold.foldChunkKey(keys[i]);
+            folded[i] = this.exotic_worlds$fold.foldChunkKey(keys[i]);
         }
 
         return original.call(index, folded, box);
@@ -100,14 +100,14 @@ public class IndexedCuboidMapMixin implements RadiationIndexFrame {
             at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_POS_AS_LONG_BLOCK),
             require = 2,
             expect = 2)
-    private long toroidal$lookUpFoldedChunk(BlockPos pos, Operation<Long> original) {
-        return this.toroidal$fold.foldChunkKey(original.call(pos));
+    private long exotic_worlds$lookUpFoldedChunk(BlockPos pos, Operation<Long> original) {
+        return this.exotic_worlds$fold.foldChunkKey(original.call(pos));
     }
 
     @ModifyArg(method = "allCenteredInChunk(J)Ljava/util/Iterator;",
             at = @At(value = "INVOKE",
                     target = "Lmekanism/common/lib/collection/BiLongMultimap;getValues(J)Ljava/util/Set;"))
-    private long toroidal$readFoldedChunk(long chunkKey) {
-        return this.toroidal$fold.foldChunkKey(chunkKey);
+    private long exotic_worlds$readFoldedChunk(long chunkKey) {
+        return this.exotic_worlds$fold.foldChunkKey(chunkKey);
     }
 }

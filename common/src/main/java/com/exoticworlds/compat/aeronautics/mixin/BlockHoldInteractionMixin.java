@@ -20,7 +20,7 @@ public class BlockHoldInteractionMixin {
                     "inInteractionRange(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/core/Position;D)Z",
                     "inInteractionRange(Lnet/minecraft/world/entity/player/Player;Lorg/joml/Vector3dc;D)Z"},
             at = @At(value = "INVOKE", target = "Lorg/joml/Vector3d;distanceSquared(DDD)D"))
-    private static double toroidal$eyeDistanceThroughSeam(Vector3d target, double eyeX, double eyeY, double eyeZ,
+    private static double exotic_worlds$eyeDistanceThroughSeam(Vector3d target, double eyeX, double eyeY, double eyeZ,
             Operation<Double> original, @Local(argsOnly = true) Player player) {
         return SableSeamDistance.sqr(player.level(), target, eyeX, eyeY, eyeZ, original);
     }

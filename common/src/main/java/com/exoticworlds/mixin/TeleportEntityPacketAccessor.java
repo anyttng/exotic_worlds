@@ -9,10 +9,10 @@ import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 @Mixin(ClientboundTeleportEntityPacket.class)
 public interface TeleportEntityPacketAccessor {
     @Invoker("write")
-    void toroidal$write(FriendlyByteBuf output);
+    void exotic_worlds$write(FriendlyByteBuf output);
 
     @Invoker("<init>")
-    static ClientboundTeleportEntityPacket toroidal$create(FriendlyByteBuf input) {
+    static ClientboundTeleportEntityPacket exotic_worlds$create(FriendlyByteBuf input) {
         throw new AssertionError();
     }
 }

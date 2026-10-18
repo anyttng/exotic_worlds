@@ -22,34 +22,34 @@ import net.minecraft.server.level.ServerLevel;
 @Mixin(value = PoweredShaftBlockEntity.class, remap = false)
 public abstract class PoweredShaftBlockEntityMixin implements SeamKeyedBlockEntity {
     @WrapOperation(method = "update", at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_SUBTRACT))
-    private BlockPos toroidal$foldStoredKey(BlockPos worldPosition, Vec3i sourcePos, Operation<BlockPos> original) {
-        return toroidal$fold(worldPosition, sourcePos, original.call(worldPosition, sourcePos));
+    private BlockPos exotic_worlds$foldStoredKey(BlockPos worldPosition, Vec3i sourcePos, Operation<BlockPos> original) {
+        return exotic_worlds$fold(worldPosition, sourcePos, original.call(worldPosition, sourcePos));
     }
 
     @WrapOperation(method = "isPoweredBy", at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_SUBTRACT))
-    private BlockPos toroidal$foldComparedKey(BlockPos worldPosition, Vec3i globalPos, Operation<BlockPos> original) {
-        return toroidal$fold(worldPosition, globalPos, original.call(worldPosition, globalPos));
+    private BlockPos exotic_worlds$foldComparedKey(BlockPos worldPosition, Vec3i globalPos, Operation<BlockPos> original) {
+        return exotic_worlds$fold(worldPosition, globalPos, original.call(worldPosition, globalPos));
     }
 
     @Inject(method = "read", at = @At("RETURN"))
-    private void toroidal$normalizeOnRead(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket,
+    private void exotic_worlds$normalizeOnRead(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket,
             CallbackInfo ci) {
-        toroidal$normalizeWithLevel();
+        exotic_worlds$normalizeWithLevel();
     }
 
     @Override
-    public void toroidal$rekey() {
-        toroidal$normalizeWithLevel();
+    public void exotic_worlds$rekey() {
+        exotic_worlds$normalizeWithLevel();
     }
 
     @Unique
-    private BlockPos toroidal$fold(BlockPos owner, Vec3i partner, BlockPos rawKey) {
+    private BlockPos exotic_worlds$fold(BlockPos owner, Vec3i partner, BlockPos rawKey) {
         PoweredShaftBlockEntity self = (PoweredShaftBlockEntity) (Object) this;
         return RelativeKeyFold.shortWay(self.getLevel(), owner, partner, rawKey);
     }
 
     @Unique
-    private void toroidal$normalizeWithLevel() {
+    private void exotic_worlds$normalizeWithLevel() {
         PoweredShaftBlockEntity self = (PoweredShaftBlockEntity) (Object) this;
         BlockPos storedKey = self.enginePos;
         if (storedKey == null || !(self.getLevel() instanceof ServerLevel serverLevel)) {

@@ -17,7 +17,7 @@ import mekanism.common.tile.prefab.TileEntityStructuralMultiblock;
 @Mixin(value = TileEntityStructuralMultiblock.class, remap = false)
 public class TileEntityStructuralMultiblockMixin {
     @WrapOperation(method = "onNeighborChange", at = @At(value = "INVOKE", target = InjectionTargets.SET_CONTAINS))
-    private boolean toroidal$internalInFrame(Set<?> internalLocations, Object neighborPos, Operation<Boolean> original,
+    private boolean exotic_worlds$internalInFrame(Set<?> internalLocations, Object neighborPos, Operation<Boolean> original,
             @Local MultiblockData multiblock) {
         return original.call(internalLocations, MultiblockFrames.seatOnto((Object) multiblock, neighborPos));
     }

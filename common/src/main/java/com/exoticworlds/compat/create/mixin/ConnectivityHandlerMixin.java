@@ -31,13 +31,13 @@ public class ConnectivityHandlerMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/block/entity/BlockEntity;getBlockPos()Lnet/minecraft/core/BlockPos;",
                     ordinal = 1))
-    private static BlockPos toroidal$foldControllerIntoScanFrame(BlockPos conPos,
+    private static BlockPos exotic_worlds$foldControllerIntoScanFrame(BlockPos conPos,
             @Local(argsOnly = true) BlockEntity be) {
         return CreateSeamFold.nearestCopy(be.getLevel(), be.getBlockPos(), conPos);
     }
 
     @ModifyVariable(method = FORM_MULTI, at = @At("STORE"), ordinal = 0)
-    private static Set<BlockPos> toroidal$canonicalWalkVisited(Set<BlockPos> visited,
+    private static Set<BlockPos> exotic_worlds$canonicalWalkVisited(Set<BlockPos> visited,
             @Local(argsOnly = true) BlockGetter level) {
         return CanonicalPositionKeys.set(level);
     }
@@ -46,7 +46,7 @@ public class ConnectivityHandlerMixin {
             method = FORM_MULTI,
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_RELATIVE))
-    private static BlockPos toroidal$foldFrontierStepIntoBoundFrame(BlockPos next,
+    private static BlockPos exotic_worlds$foldFrontierStepIntoBoundFrame(BlockPos next,
             @Local(argsOnly = true) BlockGetter level, @Local(ordinal = 0) int minX, @Local(ordinal = 2) int minZ) {
         if (minX == Integer.MIN_VALUE || minZ == Integer.MIN_VALUE || !(level instanceof Level blockLevel)) {
             return next;

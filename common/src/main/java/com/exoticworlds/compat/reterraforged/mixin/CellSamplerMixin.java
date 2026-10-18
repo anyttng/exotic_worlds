@@ -17,13 +17,13 @@ import raccoonman.reterraforged.world.worldgen.densityfunction.CellSampler;
 public abstract class CellSamplerMixin {
     @WrapOperation(method = {ReTerraForgedInjectionTargets.COMPUTE, ReTerraForgedInjectionTargets.COMPUTE_INTERMEDIARY},
             at = @At(value = "INVOKE", target = InjectionTargets.FUNCTION_CONTEXT_BLOCK_X))
-    private int toroidal$foldX(DensityFunction.FunctionContext context, Operation<Integer> original) {
+    private int exotic_worlds$foldX(DensityFunction.FunctionContext context, Operation<Integer> original) {
         return RtfEntry.foldX(RtfEntry.lapFold(), original.call(context), context.blockZ());
     }
 
     @WrapOperation(method = {ReTerraForgedInjectionTargets.COMPUTE, ReTerraForgedInjectionTargets.COMPUTE_INTERMEDIARY},
             at = @At(value = "INVOKE", target = InjectionTargets.FUNCTION_CONTEXT_BLOCK_Z))
-    private int toroidal$foldZ(DensityFunction.FunctionContext context, Operation<Integer> original) {
+    private int exotic_worlds$foldZ(DensityFunction.FunctionContext context, Operation<Integer> original) {
         return RtfEntry.foldZ(RtfEntry.lapFold(), original.call(context));
     }
 }

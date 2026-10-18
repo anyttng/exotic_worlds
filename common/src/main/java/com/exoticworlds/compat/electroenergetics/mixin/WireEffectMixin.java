@@ -19,16 +19,16 @@ import net.minecraft.world.level.LevelAccessor;
 @Mixin(value = WireEffect.class, remap = false)
 public abstract class WireEffectMixin implements WireCopyHolder {
     @Unique
-    private int toroidal$end = WireCopies.FIRST_END;
+    private int exotic_worlds$end = WireCopies.FIRST_END;
 
     @Override
-    public int toroidal$end() {
-        return this.toroidal$end;
+    public int exotic_worlds$end() {
+        return this.exotic_worlds$end;
     }
 
     @Override
-    public void toroidal$setEnd(int end) {
-        this.toroidal$end = end;
+    public void exotic_worlds$setEnd(int end) {
+        this.exotic_worlds$end = end;
     }
 
     @Shadow
@@ -39,14 +39,14 @@ public abstract class WireEffectMixin implements WireCopyHolder {
                     + "visualization/VisualizationContext;Lcom/george_vi/electroenergetics/content/"
                     + "railway_electrification/catenary/CatenaryConnection;Lcom/george_vi/electroenergetics/simulation/"
                     + "WireType;)V"))
-    private CatenaryConnection toroidal$catenaryFromItsEnd(CatenaryConnection line) {
-        return CatenaryCopies.from(this.level(), line, this.toroidal$end);
+    private CatenaryConnection exotic_worlds$catenaryFromItsEnd(CatenaryConnection line) {
+        return CatenaryCopies.from(this.level(), line, this.exotic_worlds$end);
     }
 
     @ModifyReturnValue(method = "visualize", at = @At("RETURN"))
-    private EffectVisual<?> toroidal$visualFromItsEnd(EffectVisual<?> visual) {
+    private EffectVisual<?> exotic_worlds$visualFromItsEnd(EffectVisual<?> visual) {
         if (visual instanceof WireCopyHolder holder) {
-            holder.toroidal$setEnd(this.toroidal$end);
+            holder.exotic_worlds$setEnd(this.exotic_worlds$end);
         }
 
         return visual;

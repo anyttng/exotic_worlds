@@ -20,17 +20,17 @@ public abstract class CatenaryModuleMixin {
     ServerLevel level;
 
     @ModifyVariable(method = "buildCircuit", at = @At("STORE"), name = "coupledVec")
-    private Vec3 toroidal$trailingAnchorBesideLeading(Vec3 coupledVec, @Local(name = "positionVec") Vec3 positionVec) {
+    private Vec3 exotic_worlds$trailingAnchorBesideLeading(Vec3 coupledVec, @Local(name = "positionVec") Vec3 positionVec) {
         return WireSpan.seatIfPresent(this.level, positionVec, coupledVec);
     }
 
     @ModifyVariable(method = "buildCircuit", at = @At("STORE"), name = "start")
-    private Vec3 toroidal$wireStartBesideCollector(Vec3 start, @Local(name = "pantographPos") Vec3 collector) {
+    private Vec3 exotic_worlds$wireStartBesideCollector(Vec3 start, @Local(name = "pantographPos") Vec3 collector) {
         return WireSpan.seat(this.level, collector, start);
     }
 
     @ModifyVariable(method = "buildCircuit", at = @At("STORE"), name = "end")
-    private Vec3 toroidal$wireEndBesideStart(Vec3 end, @Local(name = "start") Vec3 start) {
+    private Vec3 exotic_worlds$wireEndBesideStart(Vec3 end, @Local(name = "start") Vec3 start) {
         return WireSpan.seat(this.level, start, end);
     }
 }

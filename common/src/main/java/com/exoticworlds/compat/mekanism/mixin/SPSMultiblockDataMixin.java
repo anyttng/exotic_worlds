@@ -15,7 +15,7 @@ import net.minecraft.core.BlockPos;
 @Mixin(value = SPSMultiblockData.class, remap = false)
 public class SPSMultiblockDataMixin {
     @WrapOperation(method = "handlesSound", at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_EQUALS))
-    private boolean toroidal$casingInFrame(BlockPos casing, Object soundPos, Operation<Boolean> original) {
+    private boolean exotic_worlds$casingInFrame(BlockPos casing, Object soundPos, Operation<Boolean> original) {
         return original.call(MultiblockFrames.seatOnto((Object) this, casing), soundPos);
     }
 }

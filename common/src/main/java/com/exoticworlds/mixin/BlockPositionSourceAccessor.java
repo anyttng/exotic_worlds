@@ -9,5 +9,5 @@ import net.minecraft.world.level.gameevent.BlockPositionSource;
 @Mixin(BlockPositionSource.class)
 public interface BlockPositionSourceAccessor {
     @Accessor("pos")
-    BlockPos toroidal$getPos();
+    BlockPos exotic_worlds$getPos();
 }

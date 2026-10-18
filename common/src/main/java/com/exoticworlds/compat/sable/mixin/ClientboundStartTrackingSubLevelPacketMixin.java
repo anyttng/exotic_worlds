@@ -24,7 +24,7 @@ public class ClientboundStartTrackingSubLevelPacketMixin {
     private Pose3d pose;
 
     @Inject(method = "handle", at = @At("HEAD"))
-    private void toroidal$reseatReceivedPoses(CallbackInfo ci) {
+    private void exotic_worlds$reseatReceivedPoses(CallbackInfo ci) {
         SableClientFrame.reseat(this.lastPose);
         SableClientFrame.reseat(this.pose);
     }

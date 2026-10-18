@@ -39,35 +39,35 @@ public abstract class SubLevelInclusiveLevelEntityGetterMixin<T extends EntityAc
     private Level level;
 
     @WrapMethod(method = BOX_QUERY)
-    private void toroidal$frameOnBoxQuery(AABB box, Consumer<T> consumer, Operation<Void> original) {
+    private void exotic_worlds$frameOnBoxQuery(AABB box, Consumer<T> consumer, Operation<Void> original) {
         SeamFrame.with(this.level, box, AABB::getCenter, original, box, consumer);
     }
 
     @WrapMethod(method = TYPED_BOX_QUERY)
-    private <U extends T> void toroidal$frameOnTypedBoxQuery(EntityTypeTest<T, U> typeTest, AABB box,
+    private <U extends T> void exotic_worlds$frameOnTypedBoxQuery(EntityTypeTest<T, U> typeTest, AABB box,
             AbortableIterationConsumer<U> consumer, Operation<Void> original) {
         SeamFrame.with(this.level, box, AABB::getCenter, original, typeTest, box, consumer);
     }
 
     @WrapOperation(method = BOX_QUERY, at = @At(value = "INVOKE", target = InjectionTargets.LEVEL_ENTITY_GETTER_GET))
-    private void toroidal$delegateThroughSeam(LevelEntityGetter<T> delegate, AABB box, Consumer<T> consumer,
+    private void exotic_worlds$delegateThroughSeam(LevelEntityGetter<T> delegate, AABB box, Consumer<T> consumer,
             Operation<Void> original) {
-        SeamEntitySearch.forEach(toroidal$fold(), box, consumer,
+        SeamEntitySearch.forEach(exotic_worlds$fold(), box, consumer,
                 (piece, sink) -> original.call(delegate, piece, sink));
     }
 
     @WrapOperation(
             method = TYPED_BOX_QUERY,
             at = @At(value = "INVOKE", target = InjectionTargets.LEVEL_ENTITY_GETTER_GET_TYPED))
-    private <U extends T> void toroidal$typedDelegateThroughSeam(LevelEntityGetter<T> delegate,
+    private <U extends T> void exotic_worlds$typedDelegateThroughSeam(LevelEntityGetter<T> delegate,
             EntityTypeTest<T, U> typeTest, AABB box, AbortableIterationConsumer<U> consumer,
             Operation<Void> original) {
-        SeamEntitySearch.forEachUntilAborted(toroidal$fold(), box, consumer,
+        SeamEntitySearch.forEachUntilAborted(exotic_worlds$fold(), box, consumer,
                 (piece, sink) -> original.call(delegate, typeTest, piece, sink));
     }
 
     @Unique
-    private WorldFold toroidal$fold() {
+    private WorldFold exotic_worlds$fold() {
         return WorldLoopAttachments.transformerOf(this.level);
     }
 }

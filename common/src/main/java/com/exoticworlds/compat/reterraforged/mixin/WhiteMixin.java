@@ -17,7 +17,7 @@ public abstract class WhiteMixin {
     private float frequency;
 
     @WrapMethod(method = "compute")
-    private float toroidal$closeOnLap(float x, float z, int seed, Operation<Float> original) {
+    private float exotic_worlds$closeOnLap(float x, float z, int seed, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
             return original.call(x, z, seed);

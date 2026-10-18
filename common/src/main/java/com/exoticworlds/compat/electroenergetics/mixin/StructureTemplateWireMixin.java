@@ -38,7 +38,7 @@ public class StructureTemplateWireMixin {
     @TargetHandler(
             mixin = STRUCTURE_TEMPLATE_MIXIN,
             name = CAPTURE_HANDLER)
-    private Stream<InWorldNode> toroidal$testNodesInCaptureBox(Stream<InWorldNode> nodes,
+    private Stream<InWorldNode> exotic_worlds$testNodesInCaptureBox(Stream<InWorldNode> nodes,
             Predicate<InWorldNode> inBox, Operation<Stream<InWorldNode>> original,
             @Local(argsOnly = true) Level level, @Local(argsOnly = true) BlockPos origin,
             @Local(argsOnly = true) Vec3i size) {
@@ -54,7 +54,7 @@ public class StructureTemplateWireMixin {
     @TargetHandler(
             mixin = STRUCTURE_TEMPLATE_MIXIN,
             name = CAPTURE_HANDLER)
-    private boolean toroidal$testInCaptureBox(Vec3i pos, Vec3i origin, Vec3i size, Operation<Boolean> original,
+    private boolean exotic_worlds$testInCaptureBox(Vec3i pos, Vec3i origin, Vec3i size, Operation<Boolean> original,
             @Local(argsOnly = true) Level level) {
         return original.call(WireTemplates.inCaptureBox(level, origin, size, pos), origin, size);
     }
@@ -65,7 +65,7 @@ public class StructureTemplateWireMixin {
     @TargetHandler(
             mixin = STRUCTURE_TEMPLATE_MIXIN,
             name = CAPTURE_HANDLER)
-    private BlockPos toroidal$relativeInCaptureBox(BlockPos pos, Vec3i origin, Operation<BlockPos> original,
+    private BlockPos exotic_worlds$relativeInCaptureBox(BlockPos pos, Vec3i origin, Operation<BlockPos> original,
             @Local(argsOnly = true) Level level, @Local(argsOnly = true) Vec3i size) {
         return original.call(WireTemplates.inCaptureBox(level, origin, size, pos), origin);
     }
@@ -77,7 +77,7 @@ public class StructureTemplateWireMixin {
     @TargetHandler(
             mixin = STRUCTURE_TEMPLATE_MIXIN,
             name = PLACE_HANDLER)
-    private BlockPos toroidal$placeCanonical(BlockPos placed, @Local(argsOnly = true) ServerLevelAccessor accessor) {
+    private BlockPos exotic_worlds$placeCanonical(BlockPos placed, @Local(argsOnly = true) ServerLevelAccessor accessor) {
         return WireTemplates.placed(accessor, placed);
     }
 }

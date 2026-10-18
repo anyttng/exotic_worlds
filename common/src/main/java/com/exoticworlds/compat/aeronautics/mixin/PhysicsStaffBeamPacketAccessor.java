@@ -11,11 +11,11 @@ import dev.simulated_team.simulated.network.packets.physics_staff.PhysicsStaffBe
 @Mixin(value = PhysicsStaffBeamPacket.class, remap = false)
 public interface PhysicsStaffBeamPacketAccessor {
     @Accessor("uuid")
-    UUID toroidal$uuid();
+    UUID exotic_worlds$uuid();
 
     @Accessor("start")
-    Vector3d toroidal$start();
+    Vector3d exotic_worlds$start();
 
     @Accessor("end")
-    Vector3d toroidal$end();
+    Vector3d exotic_worlds$end();
 }

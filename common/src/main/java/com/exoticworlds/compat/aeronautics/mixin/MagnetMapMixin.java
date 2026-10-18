@@ -23,16 +23,16 @@ import net.minecraft.world.level.LevelAccessor;
 @Mixin(value = MagnetMap.class, remap = false)
 public class MagnetMapMixin {
     @Unique
-    private static final String SEARCH_FOLD = "toroidal$searchFold";
+    private static final String SEARCH_FOLD = "exotic_worlds$searchFold";
 
     @WrapMethod(method = "addMagnet")
-    private void toroidal$addAtPhysicalSection(LevelAccessor level, SectionPos sectionPos, BlockPos pos,
+    private void exotic_worlds$addAtPhysicalSection(LevelAccessor level, SectionPos sectionPos, BlockPos pos,
             Operation<Void> original) {
         original.call(level, MagnetSectionKeys.physical(level, sectionPos), pos);
     }
 
     @WrapMethod(method = "removeMagnet")
-    private void toroidal$removeAtPhysicalSection(LevelAccessor level, SectionPos sectionPos, BlockPos pos,
+    private void exotic_worlds$removeAtPhysicalSection(LevelAccessor level, SectionPos sectionPos, BlockPos pos,
             Operation<Void> original) {
         original.call(level, MagnetSectionKeys.physical(level, sectionPos), pos);
     }
@@ -41,7 +41,7 @@ public class MagnetMapMixin {
             method = "findNearby",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/core/SectionPos;of(III)Lnet/minecraft/core/SectionPos;"))
-    private SectionPos toroidal$buildPhysicalSection(int x, int y, int z, Operation<SectionPos> original,
+    private SectionPos exotic_worlds$buildPhysicalSection(int x, int y, int z, Operation<SectionPos> original,
             @Local(argsOnly = true) SimMovementContext context, @Share(SEARCH_FOLD) LocalRef<WorldFold> fold) {
         return MagnetSectionKeys.physical(context.level(), fold, original.call(x, y, z));
     }

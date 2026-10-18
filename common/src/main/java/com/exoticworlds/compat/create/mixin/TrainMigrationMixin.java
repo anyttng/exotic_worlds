@@ -26,7 +26,7 @@ public abstract class TrainMigrationMixin {
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.TRACK_NODE_LOCATION_GET_LOCATION,
                     ordinal = 0))
-    private Vec3 toroidal$foldOldEdgeEnd(TrackNodeLocation end, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$foldOldEdgeEnd(TrackNodeLocation end, Operation<Vec3> original) {
         Vec3 start = this.locations.getFirst().getLocation();
         return CreateSeamFold.nearestCopy(end.getDimension(), start, original.call(end));
     }
@@ -35,7 +35,7 @@ public abstract class TrainMigrationMixin {
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.TRACK_NODE_LOCATION_GET_LOCATION,
                     ordinal = 2))
-    private Vec3 toroidal$foldCandidateNode(TrackNodeLocation candidate, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$foldCandidateNode(TrackNodeLocation candidate, Operation<Vec3> original) {
         return CreateSeamFold.nearestCopy(candidate.getDimension(), this.fallback, original.call(candidate));
     }
 }

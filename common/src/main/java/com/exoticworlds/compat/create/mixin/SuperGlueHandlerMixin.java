@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 @Mixin(value = SuperGlueHandler.class, remap = false)
 public class SuperGlueHandlerMixin {
     @ModifyVariable(method = "glueInOffHandAppliesOnBlockPlace", at = @At("HEAD"), argsOnly = true, ordinal = 0)
-    private static BlockPos toroidal$canonicalizeThePlacedBlock(BlockPos placed,
+    private static BlockPos exotic_worlds$canonicalizeThePlacedBlock(BlockPos placed,
             @Local(argsOnly = true) Player placer) {
         return CreateSeamFold.canonicalOnServer(placer.level(), placed);
     }
@@ -30,7 +30,7 @@ public class SuperGlueHandlerMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/createmod/catnip/levelWrappers/RayTraceLevel;<init>(Lnet/minecraft/world/level/LevelAccessor;Ljava/util/function/BiFunction;)V"),
             index = 1)
-    private static BiFunction<BlockPos, BlockState, BlockState> toroidal$traceAgainstTheCanonicalBlock(
+    private static BiFunction<BlockPos, BlockState, BlockState> exotic_worlds$traceAgainstTheCanonicalBlock(
             BiFunction<BlockPos, BlockState, BlockState> stateGetter, @Local(argsOnly = true) Player placer) {
         return (tracePos, state) -> stateGetter.apply(CreateSeamFold.canonicalOnServer(placer.level(), tracePos),
                 state);
@@ -38,7 +38,7 @@ public class SuperGlueHandlerMixin {
 
     @WrapOperation(method = "glueInOffHandAppliesOnBlockPlace",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_EQUALS))
-    private static boolean toroidal$namesThePlacedBlock(BlockPos hitNeighbour, Object placed,
+    private static boolean exotic_worlds$namesThePlacedBlock(BlockPos hitNeighbour, Object placed,
             Operation<Boolean> original, @Local(argsOnly = true) Player placer) {
         return original.call(CreateSeamFold.canonicalOnServer(placer.level(), hitNeighbour), placed);
     }

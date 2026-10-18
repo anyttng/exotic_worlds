@@ -15,7 +15,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(value = SpawnRegion.class, remap = false)
 public abstract class SpawnRegionMixin {
     @WrapMethod(method = "intersectsCircle")
-    private boolean toroidal$seatCircle(float x, float z, float radius, Operation<Boolean> original) {
+    private boolean exotic_worlds$seatCircle(float x, float z, float radius, Operation<Boolean> original) {
         CloudShape shape = SimpleCloudsShapes.current();
         if (shape == null) {
             return original.call(x, z, radius);
@@ -27,7 +27,7 @@ public abstract class SpawnRegionMixin {
     }
 
     @WrapMethod(method = "includesPoint")
-    private boolean toroidal$seatPoint(int x, int z, Operation<Boolean> original) {
+    private boolean exotic_worlds$seatPoint(int x, int z, Operation<Boolean> original) {
         CloudShape shape = SimpleCloudsShapes.current();
         if (shape == null) {
             return original.call(x, z);

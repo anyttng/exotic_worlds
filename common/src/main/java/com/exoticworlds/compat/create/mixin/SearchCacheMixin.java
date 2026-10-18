@@ -17,14 +17,14 @@ public class SearchCacheMixin {
             method = "getOrCache(Lnet/minecraft/world/level/block/entity/BlockEntityType;"
                     + "Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Ljava/util/Optional;",
             at = @At("HEAD"), argsOnly = true, ordinal = 0)
-    private BlockPos toroidal$canonicalLookupKey(BlockPos pos, @Local(argsOnly = true) BlockGetter level) {
+    private BlockPos exotic_worlds$canonicalLookupKey(BlockPos pos, @Local(argsOnly = true) BlockGetter level) {
         return CreateSeamFold.canonicalOnServer(level, pos);
     }
 
     @ModifyVariable(
             method = "put(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/entity/BlockEntity;)V",
             at = @At("HEAD"), argsOnly = true, ordinal = 0)
-    private BlockPos toroidal$canonicalStoreKey(BlockPos pos, @Local(argsOnly = true) BlockEntity target) {
+    private BlockPos exotic_worlds$canonicalStoreKey(BlockPos pos, @Local(argsOnly = true) BlockEntity target) {
         return CreateSeamFold.canonicalOnServer(target.getLevel(), pos);
     }
 }

@@ -17,7 +17,7 @@ import net.minecraft.world.level.ChunkPos;
 @Mixin(value = PhysicsChunkTicketManager.class, remap = false)
 public class PhysicsChunkTicketManagerMixin {
     @WrapMethod(method = "inhabitChunk")
-    private void toroidal$inhabitPhysicalChunk(ServerLevel level, DistanceManager distanceManager, UUID subLevelId, long gameTime,
+    private void exotic_worlds$inhabitPhysicalChunk(ServerLevel level, DistanceManager distanceManager, UUID subLevelId, long gameTime,
             long chunkLong, int x, int z, Operation<Void> original) {
         long physical = SableChunkKeys.physical(level, ChunkPos.asLong(x, z));
         original.call(level, distanceManager, subLevelId, gameTime, physical, ChunkPos.getX(physical), ChunkPos.getZ(physical));

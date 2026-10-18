@@ -21,7 +21,7 @@ public abstract class XaeroTrainMapMixin {
     @WrapOperation(method = "onRender",
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.TRAIN_MAP_MANAGER_RENDER_AND_PICK))
-    private static List<FormattedText> toroidal$onTheWorldMapSurface(GuiGraphics graphics, int mouseX, int mouseY,
+    private static List<FormattedText> exotic_worlds$onTheWorldMapSurface(GuiGraphics graphics, int mouseX, int mouseY,
             boolean linearFiltering, Rect2i bounds, Operation<List<FormattedText>> original) {
         return TrainMapSurface.showing(
                 XaeroWorldMapFold.worldMapCopies(bounds.getX(), bounds.getX() + bounds.getWidth(),

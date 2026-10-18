@@ -7,10 +7,10 @@ import net.minecraft.world.level.Level;
 
 public interface CarriageEntityFrame {
     @Nullable
-    Level toroidal$carriageLevel();
+    Level exotic_worlds$carriageLevel();
 
     @Nullable
-    ResourceKey<Level> toroidal$carriageDimension();
+    ResourceKey<Level> exotic_worlds$carriageDimension();
 
-    void toroidal$bindCarriageDimension(ResourceKey<Level> dimension);
+    void exotic_worlds$bindCarriageDimension(ResourceKey<Level> dimension);
 }

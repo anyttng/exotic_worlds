@@ -41,7 +41,7 @@ public abstract class TrainMapManagerMixin {
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/trains/graph/TrackNodeLocation;getX()I",
                     ordinal = 1))
-    private static int toroidal$foldSecondNodeX(TrackNodeLocation other, Operation<Integer> original,
+    private static int exotic_worlds$foldSecondNodeX(TrackNodeLocation other, Operation<Integer> original,
             @Local(name = "nodeLocation") TrackNodeLocation anchor,
             @Share("otherNodeKey") LocalRef<NearestNodeKey> memo) {
         NearestNodeKey folded = TrainMapViewFold.nearestNodeKey(anchor, other, memo);
@@ -52,7 +52,7 @@ public abstract class TrainMapManagerMixin {
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/trains/graph/TrackNodeLocation;getZ()I",
                     ordinal = 1))
-    private static int toroidal$foldSecondNodeZ(TrackNodeLocation other, Operation<Integer> original,
+    private static int exotic_worlds$foldSecondNodeZ(TrackNodeLocation other, Operation<Integer> original,
             @Local(name = "nodeLocation") TrackNodeLocation anchor,
             @Share("otherNodeKey") LocalRef<NearestNodeKey> memo) {
         NearestNodeKey folded = TrainMapViewFold.nearestNodeKey(anchor, other, memo);
@@ -62,7 +62,7 @@ public abstract class TrainMapManagerMixin {
     @WrapOperation(method = "drawPoints",
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.TRACK_EDGE_GET_POSITION))
-    private static Vec3 toroidal$canonicaliseStation(TrackEdge edge, TrackGraph graph, double t,
+    private static Vec3 exotic_worlds$canonicaliseStation(TrackEdge edge, TrackGraph graph, double t,
             Operation<Vec3> original) {
         return TrainMapViewFold.canonical(original.call(edge, graph, t));
     }
@@ -71,26 +71,26 @@ public abstract class TrainMapManagerMixin {
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/compat/trainmap/TrainMapSync$TrainMapSyncEntry;getPosition"
                             + "(IZD)Lnet/minecraft/world/phys/Vec3;"))
-    private static Vec3 toroidal$canonicaliseCarriage(TrainMapSync.TrainMapSyncEntry entry, int carriageIndex,
+    private static Vec3 exotic_worlds$canonicaliseCarriage(TrainMapSync.TrainMapSyncEntry entry, int carriageIndex,
             boolean firstBogey, double time, Operation<Vec3> original,
             @Share("carriageFrame") LocalRef<CarriageBogeyFrame> frameRef) {
         return CarriageBogeyFrame.inOneFrame(entry, carriageIndex, firstBogey, time, original, frameRef);
     }
 
     @WrapMethod(method = "redrawAll")
-    private static void toroidal$bindRedrawFrame(ResourceKey<Level> dimension, Operation<Void> original) {
+    private static void exotic_worlds$bindRedrawFrame(ResourceKey<Level> dimension, Operation<Void> original) {
         TrainMapFrame.during(dimension, () -> original.call(dimension));
     }
 
     @WrapMethod(method = "renderAndPick")
-    private static List<FormattedText> toroidal$pickAcrossCopies(GuiGraphics graphics, int mouseX, int mouseY,
+    private static List<FormattedText> exotic_worlds$pickAcrossCopies(GuiGraphics graphics, int mouseX, int mouseY,
             boolean linearFiltering, Rect2i bounds, Operation<List<FormattedText>> original) {
         return TrainMapFrame.during(TrainMapRenderer.INSTANCE.trackingDim,
-                () -> toroidal$pickOnEachCopy(graphics, mouseX, mouseY, linearFiltering, bounds, original));
+                () -> exotic_worlds$pickOnEachCopy(graphics, mouseX, mouseY, linearFiltering, bounds, original));
     }
 
     @Unique
-    private static List<FormattedText> toroidal$pickOnEachCopy(GuiGraphics graphics, int mouseX, int mouseY,
+    private static List<FormattedText> exotic_worlds$pickOnEachCopy(GuiGraphics graphics, int mouseX, int mouseY,
             boolean linearFiltering, Rect2i bounds, Operation<List<FormattedText>> original) {
         PoseStack pose = graphics.pose();
         List<FormattedText> hovered = null;

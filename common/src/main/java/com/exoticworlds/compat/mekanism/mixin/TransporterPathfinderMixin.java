@@ -28,7 +28,7 @@ public class TransporterPathfinderMixin {
 
     @WrapOperation(method = "getNewRRPath",
             at = @At(value = "INVOKE", target = MekanismInjectionTargets.WORLD_UTILS_SIDE_DIFFERENCE_PACKED))
-    private static Direction toroidal$sideOfDestination(long pos, long other, Operation<Direction> original,
+    private static Direction exotic_worlds$sideOfDestination(long pos, long other, Operation<Direction> original,
             @Local(argsOnly = true) LogisticalTransporterBase start) {
         return original.call(MekanismSeam.nearestCopy(start.getLevel(), other, pos), other);
     }
@@ -38,7 +38,7 @@ public class TransporterPathfinderMixin {
                     + "setRoundRobinTarget(Lmekanism/common/content/transporter/TransporterPathfinder$Destination;)V"),
             require = 4,
             expect = 4)
-    private static void toroidal$roundRobinSideOfDestination(IAdvancedTransportEjector outputter,
+    private static void exotic_worlds$roundRobinSideOfDestination(IAdvancedTransportEjector outputter,
             TransporterPathfinder.Destination destination, Operation<Void> original,
             @Local(argsOnly = true) LogisticalTransporterBase start) {
         LongList path = destination.getPath();

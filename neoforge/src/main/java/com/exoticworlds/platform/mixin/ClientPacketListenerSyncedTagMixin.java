@@ -23,13 +23,13 @@ public class ClientPacketListenerSyncedTagMixin {
                     + "Lnet/minecraft/network/Connection;"
                     + "Lnet/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket;"
                     + "Lnet/minecraft/core/HolderLookup$Provider;)V"))
-    private void toroidal$seatSyncedPositions(BlockEntity blockEntity, Connection connection,
+    private void exotic_worlds$seatSyncedPositions(BlockEntity blockEntity, Connection connection,
             ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries, Operation<Void> original) {
         CompoundTag tag = packet.getTag();
         CompoundTag seated = SyncedTagFold.inFrameOf(blockEntity, tag);
         ClientboundBlockEntityDataPacket delivered = seated == tag
                 ? packet
-                : BlockEntityDataPacketAccessor.toroidal$create(packet.getPos(), packet.getType(), seated);
+                : BlockEntityDataPacketAccessor.exotic_worlds$create(packet.getPos(), packet.getType(), seated);
         original.call(blockEntity, connection, delivered, registries);
     }
 }

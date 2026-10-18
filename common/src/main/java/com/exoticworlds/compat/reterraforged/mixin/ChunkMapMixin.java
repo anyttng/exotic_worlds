@@ -27,7 +27,7 @@ public abstract class ChunkMapMixin {
     private RandomState randomState;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void toroidal$carryFoldToReTerraForged(CallbackInfo callback,
+    private void exotic_worlds$carryFoldToReTerraForged(CallbackInfo callback,
             @Local(argsOnly = true) ChunkGenerator generator) {
         WorldFold fold = ShapedChunkGenerator.wrappedTransformerOf(generator);
         Object state = this.randomState;

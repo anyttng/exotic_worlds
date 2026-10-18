@@ -20,21 +20,21 @@ import net.minecraft.world.phys.Vec3;
         remap = false)
 public abstract class AttachmentInteractionMixin {
     @WrapOperation(method = "interactWire", at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO))
-    private double toroidal$attachmentSpan(Vec3 from, Vec3 to, Operation<Double> original,
+    private double exotic_worlds$attachmentSpan(Vec3 from, Vec3 to, Operation<Double> original,
             @Local(argsOnly = true) Level level) {
         return original.call(from, WireSpan.seat(level, from, to));
     }
 
     @WrapOperation(method = "interactWire",
             at = @At(value = "INVOKE", target = ElectroEnergeticsInjectionTargets.CONNECTION_POINT_POS_AT))
-    private Vec3 toroidal$soundOnShortSpan(NodeConnectionPoint point, Vec3 from, Vec3 to, float dip,
+    private Vec3 exotic_worlds$soundOnShortSpan(NodeConnectionPoint point, Vec3 from, Vec3 to, float dip,
             Operation<Vec3> original, @Local(argsOnly = true) Level level) {
         return original.call(point, from, WireSpan.seat(level, from, to), dip);
     }
 
     @WrapOperation(method = "interactWire",
             at = @At(value = "INVOKE", target = ElectroEnergeticsInjectionTargets.WIRE_POS_AT))
-    private Vec3 toroidal$dropOnShortSpan(Vec3 from, Vec3 to, float point, float dip, Operation<Vec3> original,
+    private Vec3 exotic_worlds$dropOnShortSpan(Vec3 from, Vec3 to, float point, float dip, Operation<Vec3> original,
             @Local(argsOnly = true) Level level) {
         return original.call(from, WireSpan.seat(level, from, to), point, dip);
     }

@@ -51,7 +51,7 @@ public abstract class ErosionNoiseMixin {
     }
 
     @WrapMethod(method = "getErosionValue")
-    private float toroidal$closeOnLap(float x, float y, float[] cache, Operation<Float> original) {
+    private float exotic_worlds$closeOnLap(float x, float y, float[] cache, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
             return original.call(x, y, cache);
@@ -84,7 +84,7 @@ public abstract class ErosionNoiseMixin {
     @WrapOperation(method = "getSingleErosionValue", at = @At(value = "INVOKE",
             target = "Lraccoonman/reterraforged/world/worldgen/noise/module/Erosion;getNoiseValue(IIFF"
                     + "Lraccoonman/reterraforged/world/worldgen/noise/module/Noise;[F)F"))
-    private float toroidal$canonicalCandidate(int dx, int dy, float px, float py, Noise module, float[] cache,
+    private float exotic_worlds$canonicalCandidate(int dx, int dy, float px, float py, Noise module, float[] cache,
             Operation<Float> original, @Local(argsOnly = true, ordinal = GRID_SIZE_ORDINAL) float cellSize) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {

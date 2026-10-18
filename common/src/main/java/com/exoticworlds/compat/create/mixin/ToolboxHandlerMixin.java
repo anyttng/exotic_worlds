@@ -19,7 +19,7 @@ public class ToolboxHandlerMixin {
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/equipment/toolbox/ToolboxHandler;"
                             + "distance(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/core/BlockPos;)D"))
-    private static double toroidal$foldToolboxRange(Vec3 location, BlockPos toolboxPos, Operation<Double> original,
+    private static double exotic_worlds$foldToolboxRange(Vec3 location, BlockPos toolboxPos, Operation<Double> original,
             Player player, ToolboxBlockEntity box) {
         BlockPos folded = CreateSeamFold.nearestCopy(player.level(), BlockPos.containing(location), toolboxPos);
         return original.call(location, folded);

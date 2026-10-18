@@ -17,7 +17,7 @@ import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 public abstract class NoiseFunctionMixin {
     @WrapOperation(method = {ReTerraForgedInjectionTargets.COMPUTE, ReTerraForgedInjectionTargets.COMPUTE_INTERMEDIARY},
             at = @At(value = "INVOKE", target = ReTerraForgedInjectionTargets.NOISE_COMPUTE, remap = false))
-    private float toroidal$bindLap(Noise noise, float x, float z, int seed, Operation<Float> original) {
+    private float exotic_worlds$bindLap(Noise noise, float x, float z, int seed, Operation<Float> original) {
         WorldFold fold = RtfEntry.generationFold();
         if (fold == null) {
             return original.call(noise, x, z, seed);

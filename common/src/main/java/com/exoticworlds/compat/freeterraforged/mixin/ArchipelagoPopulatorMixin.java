@@ -35,25 +35,25 @@ public abstract class ArchipelagoPopulatorMixin {
 
     @WrapOperation(method = "apply",
             at = @At(value = "INVOKE", target = FreeTerraForgedInjectionTargets.NOISE_COMPUTE, ordinal = COASTAL_MODULATION))
-    private float toroidal$coastalModulationLap(Noise noise, float x, float z, int seed, Operation<Float> original) {
-        return toroidal$computeScaled(noise, x, z, seed, COASTAL_MODULATION_FACTOR, original);
+    private float exotic_worlds$coastalModulationLap(Noise noise, float x, float z, int seed, Operation<Float> original) {
+        return exotic_worlds$computeScaled(noise, x, z, seed, COASTAL_MODULATION_FACTOR, original);
     }
 
     // The angle added to the position is read off the island shape, which already closes on the lap.
     @WrapOperation(method = "apply",
             at = @At(value = "INVOKE", target = FreeTerraForgedInjectionTargets.NOISE_COMPUTE, ordinal = ANGULAR_COAST))
-    private float toroidal$angularCoastLap(Noise noise, float x, float z, int seed, Operation<Float> original) {
-        return toroidal$computeScaled(noise, x, z, seed, ANGULAR_COAST_FACTOR, original);
+    private float exotic_worlds$angularCoastLap(Noise noise, float x, float z, int seed, Operation<Float> original) {
+        return exotic_worlds$computeScaled(noise, x, z, seed, ANGULAR_COAST_FACTOR, original);
     }
 
     @WrapOperation(method = "apply",
             at = @At(value = "INVOKE", target = FreeTerraForgedInjectionTargets.NOISE_COMPUTE, ordinal = SHELF_DETAIL))
-    private float toroidal$shelfDetailLap(Noise noise, float x, float z, int seed, Operation<Float> original) {
-        return toroidal$computeScaled(noise, x, z, seed, SHELF_DETAIL_FACTOR, original);
+    private float exotic_worlds$shelfDetailLap(Noise noise, float x, float z, int seed, Operation<Float> original) {
+        return exotic_worlds$computeScaled(noise, x, z, seed, SHELF_DETAIL_FACTOR, original);
     }
 
     @Unique
-    private static float toroidal$computeScaled(Noise noise, float x, float z, int seed, float factor,
+    private static float exotic_worlds$computeScaled(Noise noise, float x, float z, int seed, float factor,
             Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {

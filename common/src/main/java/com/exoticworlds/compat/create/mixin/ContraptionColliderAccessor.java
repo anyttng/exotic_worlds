@@ -10,5 +10,5 @@ import net.minecraft.world.entity.Entity;
 @Mixin(targets = "com.simibubi.create.content.contraptions.AbstractContraptionEntity", remap = false)
 public interface ContraptionColliderAccessor {
     @Accessor("collidingEntities")
-    Map<Entity, ?> toroidal$collidingEntities();
+    Map<Entity, ?> exotic_worlds$collidingEntities();
 }

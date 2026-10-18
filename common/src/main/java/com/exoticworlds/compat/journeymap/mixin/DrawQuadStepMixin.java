@@ -17,10 +17,10 @@ public abstract class DrawQuadStepMixin {
             at = @At(value = "INVOKE",
                     target = "Ljourneymap/client/render/draw/DrawUtil;drawQuad(Lnet/minecraft/client/gui/GuiGraphics;"
                             + "Lcom/mojang/blaze3d/vertex/VertexConsumer;IFDDDDDDDDDZ)V"))
-    private void toroidal$quadOnEveryCopy(GuiGraphics graphics, VertexConsumer vertices, int color, float alpha,
+    private void exotic_worlds$quadOnEveryCopy(GuiGraphics graphics, VertexConsumer vertices, int color, float alpha,
             double x, double y, double width, double height, double minU, double minV, double maxU, double maxV,
             double rotation, boolean flip, Operation<Void> original) {
-        for (double[] copy : ((OverlayCopies) (Object) this).toroidal$copies()) {
+        for (double[] copy : ((OverlayCopies) (Object) this).exotic_worlds$copies()) {
             original.call(graphics, vertices, color, alpha, x + copy[0], y + copy[1], width, height, minU, minV,
                     maxU, maxV, rotation, flip);
         }

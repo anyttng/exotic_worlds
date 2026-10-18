@@ -18,7 +18,7 @@ public abstract class SteamEngineBlockEntityMixin {
             method = "tick",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_SUBTRACT))
-    private BlockPos toroidal$foldGateKey(BlockPos shaftPos, Vec3i enginePos, Operation<BlockPos> original) {
+    private BlockPos exotic_worlds$foldGateKey(BlockPos shaftPos, Vec3i enginePos, Operation<BlockPos> original) {
         SteamEngineBlockEntity self = (SteamEngineBlockEntity) (Object) this;
         return RelativeKeyFold.shortWay(self.getLevel(), shaftPos, enginePos, original.call(shaftPos, enginePos));
     }

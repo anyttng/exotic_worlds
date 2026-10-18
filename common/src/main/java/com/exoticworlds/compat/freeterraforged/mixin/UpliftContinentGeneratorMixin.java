@@ -36,7 +36,7 @@ public abstract class UpliftContinentGeneratorMixin {
     protected float frequency;
 
     @WrapMethod(method = "apply")
-    private void toroidal$closeApply(Cell cell, float x, float y, Operation<Void> original) {
+    private void exotic_worlds$closeApply(Cell cell, float x, float y, Operation<Void> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
             original.call(cell, x, y);
@@ -50,7 +50,7 @@ public abstract class UpliftContinentGeneratorMixin {
 
     // The coast is shaped at the lattice position, so the lap the cliff and bay noises see is the lattice's.
     @WrapMethod(method = "getCoastalDistanceValue")
-    private float toroidal$latticeLap(float x, float y, float distance, Operation<Float> original) {
+    private float exotic_worlds$latticeLap(float x, float y, float distance, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
             return original.call(x, y, distance);
@@ -64,19 +64,19 @@ public abstract class UpliftContinentGeneratorMixin {
 
     @ModifyExpressionValue(method = {"apply", "getSmoothVoronoiGradient"},
             at = @At(value = "FIELD", target = FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = X_READ))
-    private float toroidal$snapX(float frequency) {
+    private float exotic_worlds$snapX(float frequency) {
         return RtfLap.snapped(Direction.Axis.X, frequency);
     }
 
     @ModifyExpressionValue(method = {"apply", "getSmoothVoronoiGradient"},
             at = @At(value = "FIELD", target = FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = Z_READ))
-    private float toroidal$snapZ(float frequency) {
+    private float exotic_worlds$snapZ(float frequency) {
         return RtfLap.snapped(Direction.Axis.Z, frequency);
     }
 
     @WrapOperation(method = "apply", at = @At(value = "FIELD",
             target = FreeTerraForgedInjectionTargets.CELL_CONTINENT_X, opcode = Opcodes.PUTFIELD))
-    private void toroidal$canonicalCenterX(Cell cell, int value, Operation<Void> original,
+    private void exotic_worlds$canonicalCenterX(Cell cell, int value, Operation<Void> original,
             @Local(name = "cellX") int cellX, @Local(name = "cellY") int cellY) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
@@ -86,12 +86,12 @@ public abstract class UpliftContinentGeneratorMixin {
 
         AbstractContinentAccessor continent = (AbstractContinentAccessor) (Object) this;
         original.call(cell, Math.round(CellCenters.blockX(frame, CellCenters.Center.CENTROID,
-                continent.toroidal$seed(), cellX, cellY, continent.toroidal$jitter(), this.frequency)));
+                continent.exotic_worlds$seed(), cellX, cellY, continent.exotic_worlds$jitter(), this.frequency)));
     }
 
     @WrapOperation(method = "apply", at = @At(value = "FIELD",
             target = FreeTerraForgedInjectionTargets.CELL_CONTINENT_Z, opcode = Opcodes.PUTFIELD))
-    private void toroidal$canonicalCenterZ(Cell cell, int value, Operation<Void> original,
+    private void exotic_worlds$canonicalCenterZ(Cell cell, int value, Operation<Void> original,
             @Local(name = "cellX") int cellX, @Local(name = "cellY") int cellY) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
@@ -101,6 +101,6 @@ public abstract class UpliftContinentGeneratorMixin {
 
         AbstractContinentAccessor continent = (AbstractContinentAccessor) (Object) this;
         original.call(cell, Math.round(CellCenters.blockZ(frame, CellCenters.Center.CENTROID,
-                continent.toroidal$seed(), cellX, cellY, continent.toroidal$jitter(), this.frequency)));
+                continent.exotic_worlds$seed(), cellX, cellY, continent.exotic_worlds$jitter(), this.frequency)));
     }
 }

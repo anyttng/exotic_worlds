@@ -13,7 +13,7 @@ import raccoonman.reterraforged.world.worldgen.feature.placement.poisson.FastPoi
 @Mixin(value = FastPoisson.class, remap = false)
 public abstract class FastPoissonMixin {
     @WrapMethod(method = "getPoint")
-    private static long toroidal$closeOnLap(int seed, float x, float z, FastPoissonContext context,
+    private static long exotic_worlds$closeOnLap(int seed, float x, float z, FastPoissonContext context,
             Operation<Long> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {

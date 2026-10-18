@@ -33,37 +33,37 @@ public abstract class ChunkCuboidEntryMixin implements TransformerHolder, WireBo
     public int maxZ;
 
     @Unique
-    private WorldFold toroidal$transformer = WorldFolds.NOOP;
+    private WorldFold exotic_worlds$transformer = WorldFolds.NOOP;
 
     @Override
-    public WorldFold toroidal$transformer() {
-        return this.toroidal$transformer;
+    public WorldFold exotic_worlds$transformer() {
+        return this.exotic_worlds$transformer;
     }
 
     @Override
-    public void toroidal$setTransformer(WorldFold transformer) {
-        this.toroidal$transformer = transformer;
+    public void exotic_worlds$setTransformer(WorldFold transformer) {
+        this.exotic_worlds$transformer = transformer;
     }
 
     @Override
-    public ChunkPos toroidal$centre() {
+    public ChunkPos exotic_worlds$centre() {
         return new ChunkPos(Math.floorDiv(this.minX + this.maxX - 1, 2), Math.floorDiv(this.minZ + this.maxZ - 1, 2));
     }
 
     @Override
-    public int toroidal$radius() {
+    public int exotic_worlds$radius() {
         return (this.maxX - this.minX - 1) / 2;
     }
 
     @WrapMethod(method = "includes(II)Z")
-    private boolean toroidal$includesNearestCopy(int x, int z, Operation<Boolean> original) {
-        ChunkPos seated = BoxCopies.seat(this.toroidal$transformer, this.toroidal$centre(), this.toroidal$radius(),
+    private boolean exotic_worlds$includesNearestCopy(int x, int z, Operation<Boolean> original) {
+        ChunkPos seated = BoxCopies.seat(this.exotic_worlds$transformer, this.exotic_worlds$centre(), this.exotic_worlds$radius(),
                 new ChunkPos(x, z));
         return original.call(seated.x, seated.z);
     }
 
     @ModifyReturnValue(method = "iterator()Lit/unimi/dsi/fastutil/longs/LongIterator;", at = @At("RETURN"))
-    private LongIterator toroidal$foldedChunks(LongIterator raw) {
-        return WireChunkKeys.of(raw, this.toroidal$transformer);
+    private LongIterator exotic_worlds$foldedChunks(LongIterator raw) {
+        return WireChunkKeys.of(raw, this.exotic_worlds$transformer);
     }
 }

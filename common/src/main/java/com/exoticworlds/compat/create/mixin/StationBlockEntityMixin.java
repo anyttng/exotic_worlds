@@ -21,7 +21,7 @@ public class StationBlockEntityMixin {
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/trains/station/StationBlockEntity;refreshAssemblyInfo()V",
                     shift = At.Shift.AFTER))
-    private BlockPos toroidal$clickedInAssemblyFrame(BlockPos clicked) {
+    private BlockPos exotic_worlds$clickedInAssemblyFrame(BlockPos clicked) {
         StationBlockEntity station = (StationBlockEntity) (Object) this;
         Level level = station.getLevel();
         BoundingBox area = level == null
@@ -33,7 +33,7 @@ public class StationBlockEntityMixin {
     @WrapOperation(method = "assemble",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_SUBTRACT))
-    private Vec3 toroidal$trackEndInTheAssemblingFrame(Vec3 end, Vec3 center, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$trackEndInTheAssemblingFrame(Vec3 end, Vec3 center, Operation<Vec3> original) {
         Level level = ((StationBlockEntity) (Object) this).getLevel();
         return original.call(end, CreateSeamFold.nearestCopy(level, end, center));
     }

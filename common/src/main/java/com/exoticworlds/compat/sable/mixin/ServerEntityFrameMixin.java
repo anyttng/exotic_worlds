@@ -23,7 +23,7 @@ public abstract class ServerEntityFrameMixin {
     private Entity entity;
 
     @WrapMethod(method = "sendChanges")
-    private void toroidal$frameOnTracking(Operation<Void> original) {
+    private void exotic_worlds$frameOnTracking(Operation<Void> original) {
         SeamFrame.with(this.level, this.entity, Entity::position, original);
     }
 }

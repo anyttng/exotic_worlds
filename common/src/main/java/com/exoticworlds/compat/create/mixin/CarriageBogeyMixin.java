@@ -26,27 +26,27 @@ public abstract class CarriageBogeyMixin {
     @WrapOperation(method = "getAnchorPosition(Z)Lnet/minecraft/world/phys/Vec3;",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_ADD))
-    private Vec3 toroidal$foldAnchorMidpoint(Vec3 leading, Vec3 trailing, Operation<Vec3> original) {
-        return original.call(leading, toroidal$nearest(leading, trailing));
+    private Vec3 exotic_worlds$foldAnchorMidpoint(Vec3 leading, Vec3 trailing, Operation<Vec3> original) {
+        return original.call(leading, exotic_worlds$nearest(leading, trailing));
     }
 
     @ModifyExpressionValue(method = "updateAngles",
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.TRAVELLING_POINT_GET_POSITION,
                     ordinal = 1))
-    private Vec3 toroidal$foldCoupledAngle(Vec3 trailing, @Local(ordinal = 0) Vec3 leading) {
-        return toroidal$nearest(leading, trailing);
+    private Vec3 exotic_worlds$foldCoupledAngle(Vec3 trailing, @Local(ordinal = 0) Vec3 leading) {
+        return exotic_worlds$nearest(leading, trailing);
     }
 
     @WrapOperation(method = "getStress",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_DISTANCE_TO))
-    private double toroidal$foldStressSpan(Vec3 leading, Vec3 trailing, Operation<Double> original) {
-        return original.call(leading, toroidal$nearest(leading, trailing));
+    private double exotic_worlds$foldStressSpan(Vec3 leading, Vec3 trailing, Operation<Double> original) {
+        return original.call(leading, exotic_worlds$nearest(leading, trailing));
     }
 
     @Unique
-    private Vec3 toroidal$nearest(Vec3 leading, Vec3 trailing) {
+    private Vec3 exotic_worlds$nearest(Vec3 leading, Vec3 trailing) {
         return CreateSeamFold.nearestCopy(getDimension(), leading, trailing);
     }
 }

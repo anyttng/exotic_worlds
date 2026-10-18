@@ -27,7 +27,7 @@ public abstract class TrackNodeLocationMixin extends Vec3i implements TrackNodeK
     }
 
     @Override
-    public void toroidal$foldNodeKey(@Nullable Level level) {
+    public void exotic_worlds$foldNodeKey(@Nullable Level level) {
         WorldFold transformer = CreateSeamFold.transformerOf(level, this.dimension);
         if (transformer == null) {
             return;
@@ -44,13 +44,13 @@ public abstract class TrackNodeLocationMixin extends Vec3i implements TrackNodeK
 
     @Inject(method = "in(Lnet/minecraft/resources/ResourceKey;)Lcom/simibubi/create/content/trains/graph/TrackNodeLocation;",
             at = @At("RETURN"))
-    private void toroidal$foldKeyInDimension(ResourceKey<Level> dimension,
+    private void exotic_worlds$foldKeyInDimension(ResourceKey<Level> dimension,
             CallbackInfoReturnable<TrackNodeLocation> cir) {
-        toroidal$foldNodeKey(null);
+        exotic_worlds$foldNodeKey(null);
     }
 
     @Inject(method = "read", at = @At("RETURN"))
-    private static void toroidal$foldKeyOnRead(CallbackInfoReturnable<TrackNodeLocation> cir) {
-        ((TrackNodeKeyFold) cir.getReturnValue()).toroidal$foldNodeKey(null);
+    private static void exotic_worlds$foldKeyOnRead(CallbackInfoReturnable<TrackNodeLocation> cir) {
+        ((TrackNodeKeyFold) cir.getReturnValue()).exotic_worlds$foldNodeKey(null);
     }
 }

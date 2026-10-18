@@ -21,7 +21,7 @@ public class ContraptionColliderMixin {
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/contraptions/ContraptionCollider;worldToLocalPos(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;Lcom/simibubi/create/foundation/collision/Matrix3d;F)Lnet/minecraft/world/phys/Vec3;"),
             index = 0)
-    private static Vec3 toroidal$entityInTheAnchorFrame(Vec3 position, @Local(argsOnly = true) Entity entity,
+    private static Vec3 exotic_worlds$entityInTheAnchorFrame(Vec3 position, @Local(argsOnly = true) Entity entity,
             @Local(argsOnly = true) Vec3 anchorVec) {
         return CreateSeamFold.nearestCopy(entity.level(), anchorVec, position);
     }
@@ -29,7 +29,7 @@ public class ContraptionColliderMixin {
     @ModifyExpressionValue(method = "collideBlocks",
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/contraptions/ControlledContraptionEntity;getBoundingBox()Lnet/minecraft/world/phys/AABB;"))
-    private static AABB toroidal$otherContraptionBoxInThisFrame(AABB otherBounds, @Local(name = "world") Level level,
+    private static AABB exotic_worlds$otherContraptionBoxInThisFrame(AABB otherBounds, @Local(name = "world") Level level,
             @Local(name = "position") Vec3 position) {
         return FoldedBoxQuery.toward(WorldLoopAttachments.wrappedTransformerOfReader(level), position, otherBounds);
     }
@@ -37,7 +37,7 @@ public class ContraptionColliderMixin {
     @ModifyExpressionValue(method = "collideBlocks",
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/contraptions/ControlledContraptionEntity;position()Lnet/minecraft/world/phys/Vec3;"))
-    private static Vec3 toroidal$otherContraptionPositionInThisFrame(Vec3 otherPosition,
+    private static Vec3 exotic_worlds$otherContraptionPositionInThisFrame(Vec3 otherPosition,
             @Local(name = "world") Level level, @Local(name = "position") Vec3 position) {
         return CreateSeamFold.nearestCopy(level, position, otherPosition);
     }

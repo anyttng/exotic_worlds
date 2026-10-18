@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 @Mixin(value = InventoryIdentifier.class, remap = false)
 public interface InventoryIdentifierMixin {
     @ModifyReturnValue(method = "get", at = @At("RETURN"))
-    private static @Nullable InventoryIdentifier toroidal$foldIntoTheCanonicalFrame(
+    private static @Nullable InventoryIdentifier exotic_worlds$foldIntoTheCanonicalFrame(
             @Nullable InventoryIdentifier identifier, @Local(argsOnly = true) Level level) {
         return CreateInventoryFold.fold(level, identifier);
     }

@@ -20,20 +20,20 @@ public abstract class MultiRegionCloudMeshGeneratorMixin {
     private CloudGetter cloudGetter;
 
     @ModifyReturnValue(method = "lambda$uploadCloudRegionData$4", at = @At("RETURN"))
-    private float[] toroidal$appendLattice(float[] region) {
+    private float[] exotic_worlds$appendLattice(float[] region) {
         return CloudRegionShaderSource.withLattice(region, SimpleCloudsShapes.of(
-                this.cloudGetter instanceof CloudManagerAccessor manager ? manager.toroidal$level() : null));
+                this.cloudGetter instanceof CloudManagerAccessor manager ? manager.exotic_worlds$level() : null));
     }
 
     @ModifyConstant(method = "uploadCloudRegionData",
             constant = @Constant(intValue = CloudRegionShaderSource.REGION_BYTES))
-    private int toroidal$foldedRegionBytes(int bytes) {
+    private int exotic_worlds$foldedRegionBytes(int bytes) {
         return CloudRegionShaderSource.rewritten() ? CloudRegionShaderSource.FOLDED_REGION_BYTES : bytes;
     }
 
     @ModifyConstant(method = {"initExtra", "onOffGen"},
             constant = @Constant(intValue = CloudRegionShaderSource.REGION_BUFFER_BYTES))
-    private int toroidal$foldedRegionBuffer(int bytes) {
+    private int exotic_worlds$foldedRegionBuffer(int bytes) {
         return CloudRegionShaderSource.FOLDED_REGION_BUFFER_BYTES;
     }
 }

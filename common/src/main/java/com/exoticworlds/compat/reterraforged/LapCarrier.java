@@ -8,13 +8,13 @@ import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 
 public interface LapCarrier {
     static void carry(GeneratorContext context, WorldFold fold) {
-        ((LapCarrier) (Object) context.generator.getHeightmap()).toroidal$carryFold(fold);
+        ((LapCarrier) (Object) context.generator.getHeightmap()).exotic_worlds$carryFold(fold);
         RtfLap.activate();
     }
 
-    @Nullable WorldFold toroidal$fold();
+    @Nullable WorldFold exotic_worlds$fold();
 
-    void toroidal$carryFold(WorldFold fold);
+    void exotic_worlds$carryFold(WorldFold fold);
 
-    double toroidal$climateCompression();
+    double exotic_worlds$climateCompression();
 }

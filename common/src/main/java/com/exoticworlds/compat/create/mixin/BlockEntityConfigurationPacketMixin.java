@@ -22,7 +22,7 @@ public class BlockEntityConfigurationPacketMixin {
     protected BlockPos pos;
 
     @Inject(method = "handle", at = @At("HEAD"))
-    private void toroidal$canonicalisePacketPos(ServerPlayer player, CallbackInfo ci) {
+    private void exotic_worlds$canonicalisePacketPos(ServerPlayer player, CallbackInfo ci) {
         if (player != null) {
             this.pos = CreateSeamFold.canonical(player.serverLevel(), this.pos);
         }

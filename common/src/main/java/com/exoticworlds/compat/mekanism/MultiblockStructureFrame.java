@@ -7,8 +7,8 @@ import net.minecraft.world.level.Level;
 
 public interface MultiblockStructureFrame {
     @Nullable
-    BlockPos toroidal$anchor();
+    BlockPos exotic_worlds$anchor();
 
     @Nullable
-    Level toroidal$level();
+    Level exotic_worlds$level();
 }

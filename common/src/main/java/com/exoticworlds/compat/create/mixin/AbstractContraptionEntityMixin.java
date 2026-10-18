@@ -28,40 +28,40 @@ public abstract class AbstractContraptionEntityMixin {
 
     @ModifyVariable(method = "toLocalVector(Lnet/minecraft/world/phys/Vec3;FZ)Lnet/minecraft/world/phys/Vec3;",
             at = @At("HEAD"), argsOnly = true, ordinal = 0)
-    private Vec3 toroidal$globalVecInTheAnchorFrame(Vec3 globalVec, @Local(argsOnly = true) boolean prevAnchor) {
+    private Vec3 exotic_worlds$globalVecInTheAnchorFrame(Vec3 globalVec, @Local(argsOnly = true) boolean prevAnchor) {
         Vec3 anchor = prevAnchor ? getPrevAnchorVec() : getAnchorVec();
-        return CreateSeamFold.nearestCopy(toroidal$self().level(), anchor, globalVec);
+        return CreateSeamFold.nearestCopy(exotic_worlds$self().level(), anchor, globalVec);
     }
 
     @ModifyVariable(method = "getContactPointMotion", at = @At("HEAD"), argsOnly = true, ordinal = 0)
-    private Vec3 toroidal$contactPointInTheAnchorFrame(Vec3 globalContactPoint) {
-        return CreateSeamFold.nearestCopy(toroidal$self().level(), getPrevAnchorVec(), globalContactPoint);
+    private Vec3 exotic_worlds$contactPointInTheAnchorFrame(Vec3 globalContactPoint) {
+        return CreateSeamFold.nearestCopy(exotic_worlds$self().level(), getPrevAnchorVec(), globalContactPoint);
     }
 
     @ModifyExpressionValue(method = "shouldActorTrigger",
             at = @At(value = "FIELD", opcode = Opcodes.GETFIELD,
                     target = "Lcom/simibubi/create/content/contraptions/behaviour/MovementContext;position:Lnet/minecraft/world/phys/Vec3;"))
-    private @Nullable Vec3 toroidal$previousActorPositionInTheCurrentFrame(@Nullable Vec3 previousPosition,
+    private @Nullable Vec3 exotic_worlds$previousActorPositionInTheCurrentFrame(@Nullable Vec3 previousPosition,
             @Local(argsOnly = true) Vec3 actorPosition) {
         if (previousPosition == null) {
             return null;
         }
 
-        return CreateSeamFold.nearestCopy(toroidal$self().level(), actorPosition, previousPosition);
+        return CreateSeamFold.nearestCopy(exotic_worlds$self().level(), actorPosition, previousPosition);
     }
 
     @WrapOperation(method = "moveCollidedEntitiesOnDisassembly",
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/contraptions/StructureTransform;"
                             + "apply(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;"))
-    private Vec3 toroidal$disassemblyLandingInTheAnchorFrame(StructureTransform transform, Vec3 localVec,
+    private Vec3 exotic_worlds$disassemblyLandingInTheAnchorFrame(StructureTransform transform, Vec3 localVec,
             Operation<Vec3> original) {
-        return CreateSeamFold.nearestCopy(toroidal$self().level(), getAnchorVec(),
+        return CreateSeamFold.nearestCopy(exotic_worlds$self().level(), getAnchorVec(),
                 original.call(transform, localVec));
     }
 
     @Unique
-    private Entity toroidal$self() {
+    private Entity exotic_worlds$self() {
         return (Entity) (Object) this;
     }
 }

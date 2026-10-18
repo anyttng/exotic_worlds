@@ -27,7 +27,7 @@ public class TransporterManagerMixin {
             at = @At(value = "INVOKE",
                     target = "Lmekanism/common/content/transporter/TransporterStack;getSideOfDest()"
                             + "Lnet/minecraft/core/Direction;"))
-    private static Direction toroidal$sideOfDestination(TransporterStack stack, Operation<Direction> original,
+    private static Direction exotic_worlds$sideOfDestination(TransporterStack stack, Operation<Direction> original,
             @Local(argsOnly = true) GlobalPos position) {
         MinecraftServer server = CurrentServer.get();
         if (server == null || !stack.hasPath()) {

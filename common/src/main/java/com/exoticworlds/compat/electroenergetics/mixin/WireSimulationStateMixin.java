@@ -26,25 +26,25 @@ public abstract class WireSimulationStateMixin {
 
     @ModifyVariable(method = {"addConnection", "addCatenaryConnection", "relocateConnection"},
             at = @At("STORE"), name = "pos2")
-    private Vec3 toroidal$secondEndBesideFirst(Vec3 pos2, @Local(name = "pos1") Vec3 pos1) {
+    private Vec3 exotic_worlds$secondEndBesideFirst(Vec3 pos2, @Local(name = "pos1") Vec3 pos1) {
         return WireSpan.seat(this.level, pos1, pos2);
     }
 
     @WrapOperation(method = {"addConnection", "removeConnection", "addCatenaryConnection", "relocateConnection"},
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/core/SectionPos;of(Lnet/minecraft/core/Position;)Lnet/minecraft/core/SectionPos;"))
-    private SectionPos toroidal$canonicalSection(Position point, Operation<SectionPos> original) {
+    private SectionPos exotic_worlds$canonicalSection(Position point, Operation<SectionPos> original) {
         return WireSpan.section(this.level, original.call(point));
     }
 
     @ModifyExpressionValue(method = "relocateConnection",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/core/SectionPos;asLong(III)J"))
-    private long toroidal$canonicalSectionKey(long section) {
+    private long exotic_worlds$canonicalSectionKey(long section) {
         return WireSpan.sectionKey(this.level, section);
     }
 
     @ModifyVariable(method = "getConnectionsInSection", at = @At("HEAD"), argsOnly = true)
-    private long toroidal$canonicalLookup(long section) {
+    private long exotic_worlds$canonicalLookup(long section) {
         return WireSpan.sectionKey(this.level, section);
     }
 }

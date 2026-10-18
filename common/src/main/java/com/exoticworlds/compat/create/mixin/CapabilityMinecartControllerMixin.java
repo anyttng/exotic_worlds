@@ -18,7 +18,7 @@ public class CapabilityMinecartControllerMixin {
     @WrapOperation(method = "handleKilledMinecart",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_ADD))
-    private static Vec3 toroidal$dropBetweenTheNearCopies(Vec3 position, Vec3 removedPosition,
+    private static Vec3 exotic_worlds$dropBetweenTheNearCopies(Vec3 position, Vec3 removedPosition,
             Operation<Vec3> original, @Local(argsOnly = true) Level world) {
         return original.call(position, CreateSeamFold.nearestCopy(world, position, removedPosition));
     }

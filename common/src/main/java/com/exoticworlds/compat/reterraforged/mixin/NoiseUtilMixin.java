@@ -20,13 +20,13 @@ public class NoiseUtilMixin {
 
     @ModifyVariable(method = {"coord2D", "coord2D_24", "valCoord2D", "hash2D"}, at = @At("HEAD"), argsOnly = true,
             ordinal = X_ORDINAL)
-    private static int toroidal$wrapLatticeX(int x, @Local(argsOnly = true, ordinal = Z_ORDINAL) int z) {
+    private static int exotic_worlds$wrapLatticeX(int x, @Local(argsOnly = true, ordinal = Z_ORDINAL) int z) {
         return RtfLap.wrapLatticeX(x, z);
     }
 
     @ModifyVariable(method = {"coord2D", "coord2D_24", "valCoord2D", "hash2D"}, at = @At("HEAD"), argsOnly = true,
             ordinal = Z_ORDINAL)
-    private static int toroidal$wrapLatticeZ(int z) {
+    private static int exotic_worlds$wrapLatticeZ(int z) {
         return RtfLap.wrapLatticeZ(z);
     }
 }

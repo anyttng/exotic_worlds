@@ -23,7 +23,7 @@ public abstract class GameEventDispatcherFrameMixin {
     private ServerLevel level;
 
     @WrapMethod(method = "post")
-    private void toroidal$frameOnGameEvent(Holder<GameEvent> event, Vec3 source, GameEvent.Context context, Operation<Void> original) {
+    private void exotic_worlds$frameOnGameEvent(Holder<GameEvent> event, Vec3 source, GameEvent.Context context, Operation<Void> original) {
         SeamFrame.with(this.level, source, Function.identity(), original, event, source, context);
     }
 }

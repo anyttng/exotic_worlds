@@ -17,13 +17,13 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(value = AbstractDrawnEntity.class, remap = false)
 public abstract class AbstractDrawnEntityMixin {
     @WrapMethod(method = "getRelativeTargetVec")
-    private Vec3 toroidal$pullDeltaThroughSeam(float delta, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$pullDeltaThroughSeam(float delta, Operation<Vec3> original) {
         return SeamAim.foldDelta((Entity) (Object) this, original.call(delta));
     }
 
     @ModifyExpressionValue(method = "shouldRemovePulling",
             at = @At(value = "NEW", target = InjectionTargets.VEC3_NEW, ordinal = 1))
-    private Vec3 toroidal$pullerSightThroughSeam(Vec3 puller) {
+    private Vec3 exotic_worlds$pullerSightThroughSeam(Vec3 puller) {
         return SeamSteering.nearestCopy((Entity) (Object) this, puller);
     }
 }

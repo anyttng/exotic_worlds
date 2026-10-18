@@ -23,7 +23,7 @@ public class SuperGlueEntityMixin {
             method = "contains",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_AT_CENTER_OF))
-    private Vec3 toroidal$foldBlockIntoTheBondFrame(Vec3 blockCenter) {
+    private Vec3 exotic_worlds$foldBlockIntoTheBondFrame(Vec3 blockCenter) {
         Entity glue = (Entity) (Object) this;
         return CreateSeamFold.foldPointToBox(glue.level(), glue.getBoundingBox(), blockCenter);
     }
@@ -33,7 +33,7 @@ public class SuperGlueEntityMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/phys/AABB;intersect(Lnet/minecraft/world/phys/AABB;)"
                             + "Lnet/minecraft/world/phys/AABB;"))
-    private static AABB toroidal$cropGlueInScanFrame(AABB scanBox, AABB glueBox, Operation<AABB> original,
+    private static AABB exotic_worlds$cropGlueInScanFrame(AABB scanBox, AABB glueBox, Operation<AABB> original,
             @Local(argsOnly = true) Level level) {
         return original.call(scanBox, CreateSchematicFold.glueInScanFrame(level, scanBox, glueBox));
     }

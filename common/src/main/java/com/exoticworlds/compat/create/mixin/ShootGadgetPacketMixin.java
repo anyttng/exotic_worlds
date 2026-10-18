@@ -20,7 +20,7 @@ public abstract class ShootGadgetPacketMixin {
     protected Vec3 location;
 
     @Inject(method = "handle", at = @At("HEAD"))
-    private void toroidal$muzzleInTheViewerFrame(LocalPlayer player, CallbackInfo callback) {
+    private void exotic_worlds$muzzleInTheViewerFrame(LocalPlayer player, CallbackInfo callback) {
         location = ClientFrame.nearestToCamera(location);
     }
 }

@@ -3,7 +3,7 @@ package com.exoticworlds.compat.sable;
 import org.jspecify.annotations.Nullable;
 
 public interface SableMotorGoalHolder {
-    @Nullable SableMotorGoal toroidal$motorGoal();
+    @Nullable SableMotorGoal exotic_worlds$motorGoal();
 
-    void toroidal$motorGoal(@Nullable SableMotorGoal goal);
+    void exotic_worlds$motorGoal(@Nullable SableMotorGoal goal);
 }

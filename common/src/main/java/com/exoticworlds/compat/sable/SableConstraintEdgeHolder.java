@@ -3,5 +3,5 @@ package com.exoticworlds.compat.sable;
 import org.jspecify.annotations.Nullable;
 
 public interface SableConstraintEdgeHolder {
-    void toroidal$constraintEdge(@Nullable SableConstraintEdge edge);
+    void exotic_worlds$constraintEdge(@Nullable SableConstraintEdge edge);
 }

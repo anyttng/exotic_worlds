@@ -19,13 +19,13 @@ public class ClickToLinkBlockItemClientMixin {
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/redstone/displayLink/ClickToLinkBlockItem$ClickToLinkData;"
                             + "selectedPos()Lnet/minecraft/core/BlockPos;"))
-    private static BlockPos toroidal$foldOutlineToClientFrame(BlockPos selected) {
+    private static BlockPos exotic_worlds$foldOutlineToClientFrame(BlockPos selected) {
         return CreateClientFrame.inViewerFrame(selected);
     }
 
     @Inject(method = "clientTick", cancellable = true,
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_EQUALS))
-    private static void toroidal$skipOutlineWhileCopyUnheld(CallbackInfo callback, @Local BlockPos selected) {
+    private static void exotic_worlds$skipOutlineWhileCopyUnheld(CallbackInfo callback, @Local BlockPos selected) {
         if (CreateClientFrame.heldInViewerFrame(selected) == null) {
             callback.cancel();
         }

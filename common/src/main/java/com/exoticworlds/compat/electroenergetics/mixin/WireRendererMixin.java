@@ -51,13 +51,13 @@ public abstract class WireRendererMixin {
     private static final ResourceLocation STANDARD_WIRE =
             ResourceLocation.fromNamespaceAndPath("electroenergetics", "standard");
     @Unique
-    private static final Map<InWorldNodeConnection, WireEffect> toroidal$secondEndEffects = new HashMap<>();
+    private static final Map<InWorldNodeConnection, WireEffect> exotic_worlds$secondEndEffects = new HashMap<>();
     @Unique
-    private static final Map<CatenaryConnection, WireEffect> toroidal$secondEndCatenaryEffects = new HashMap<>();
+    private static final Map<CatenaryConnection, WireEffect> exotic_worlds$secondEndCatenaryEffects = new HashMap<>();
 
     @ModifyExpressionValue(method = "render", at = @At(value = "FIELD",
             target = ElectroEnergeticsInjectionTargets.CATENARY_LINES, opcode = Opcodes.GETSTATIC))
-    private static List<CatenaryConnection> toroidal$catenaryFromEachEnd(List<CatenaryConnection> lines,
+    private static List<CatenaryConnection> exotic_worlds$catenaryFromEachEnd(List<CatenaryConnection> lines,
             @Local(name = "level") ClientLevel level) {
         return CatenaryCopies.fromEachEnd(level, lines);
     }
@@ -65,36 +65,36 @@ public abstract class WireRendererMixin {
     @Inject(method = "addCatenary", at = @At(value = "INVOKE",
             target = InjectionTargets.MAP_PUT,
             shift = At.Shift.AFTER))
-    private static void toroidal$addSecondEndCatenaryEffect(CatenaryConnection line, CallbackInfo ci) {
-        toroidal$queueSecondEndCatenary(line);
+    private static void exotic_worlds$addSecondEndCatenaryEffect(CatenaryConnection line, CallbackInfo ci) {
+        exotic_worlds$queueSecondEndCatenary(line);
     }
 
     @Inject(method = "removeCatenary", at = @At("RETURN"))
-    private static void toroidal$removeSecondEndCatenaryEffect(CatenaryConnection line, CallbackInfo ci) {
-        WireEffect effect = toroidal$secondEndCatenaryEffects.remove(line);
+    private static void exotic_worlds$removeSecondEndCatenaryEffect(CatenaryConnection line, CallbackInfo ci) {
+        WireEffect effect = exotic_worlds$secondEndCatenaryEffects.remove(line);
         if (effect != null) {
             VisualizationHelper.queueRemove(effect);
         }
     }
 
     @Inject(method = "clearAllCatenaryConnections", at = @At("RETURN"))
-    private static void toroidal$clearSecondEndCatenaryEffects(CallbackInfo ci) {
-        toroidal$dropSecondEndCatenaryEffects();
+    private static void exotic_worlds$clearSecondEndCatenaryEffects(CallbackInfo ci) {
+        exotic_worlds$dropSecondEndCatenaryEffects();
     }
 
     @Inject(method = "recreateVisuals", at = @At("RETURN"))
-    private static void toroidal$recreateSecondEndCatenaryEffects(CallbackInfo ci) {
-        toroidal$dropSecondEndCatenaryEffects();
+    private static void exotic_worlds$recreateSecondEndCatenaryEffects(CallbackInfo ci) {
+        exotic_worlds$dropSecondEndCatenaryEffects();
         if (!CEEConfigs.client().disableFlywheelWireRendering.get()) {
             for (CatenaryConnection line : WireRenderer.CATENARY) {
-                toroidal$queueSecondEndCatenary(line);
+                exotic_worlds$queueSecondEndCatenary(line);
             }
         }
     }
 
     @WrapOperation(method = "render",
             at = @At(value = "INVOKE", target = ElectroEnergeticsInjectionTargets.ALL_WIRE_CONNECTIONS))
-    private static List<Pair<InWorldNodeConnection, WireData>> toroidal$passPerEnd(
+    private static List<Pair<InWorldNodeConnection, WireData>> exotic_worlds$passPerEnd(
             Operation<List<Pair<InWorldNodeConnection, WireData>>> original,
             @Local(name = "level") ClientLevel level) {
         return SecondEndWire.withSecondEnds(level, original.call());
@@ -103,7 +103,7 @@ public abstract class WireRendererMixin {
     @Inject(method = "render", at = @At(value = "INVOKE_STRING",
             target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V",
             args = "ldc=renderBirds"))
-    private static void toroidal$seatPass(LevelRenderer levelRenderer, PoseStack pose, Camera camera,
+    private static void exotic_worlds$seatPass(LevelRenderer levelRenderer, PoseStack pose, Camera camera,
             CallbackInfo ci, @Local(name = "level") ClientLevel level, @Local(name = "wire") Pair<?, ?> wire,
             @Local(name = "pos1") LocalRef<Vec3> pos1, @Local(name = "pos2") LocalRef<Vec3> pos2,
             @Local(name = "distance") LocalDoubleRef distance,
@@ -125,41 +125,41 @@ public abstract class WireRendererMixin {
     }
 
     @Inject(method = "addConnection", at = @At("RETURN"))
-    private static void toroidal$addSecondEndEffect(InWorldNodeConnection connection, WireData data,
+    private static void exotic_worlds$addSecondEndEffect(InWorldNodeConnection connection, WireData data,
             CallbackInfo ci) {
         if (!CEEConfigs.client().disableFlywheelWireRendering.get()) {
-            toroidal$queueSecondEnd(connection, data);
+            exotic_worlds$queueSecondEnd(connection, data);
         }
     }
 
     @Inject(method = "removeConnections", at = @At("RETURN"))
-    private static void toroidal$removeSecondEndEffect(InWorldNodeConnection connection, CallbackInfo ci) {
-        WireEffect effect = toroidal$secondEndEffects.remove(connection);
+    private static void exotic_worlds$removeSecondEndEffect(InWorldNodeConnection connection, CallbackInfo ci) {
+        WireEffect effect = exotic_worlds$secondEndEffects.remove(connection);
         if (effect != null) {
             VisualizationHelper.queueRemove(effect);
         }
     }
 
     @Inject(method = "clearAllWireConnections", at = @At("RETURN"))
-    private static void toroidal$clearSecondEndEffects(CallbackInfo ci) {
-        toroidal$dropSecondEndEffects();
+    private static void exotic_worlds$clearSecondEndEffects(CallbackInfo ci) {
+        exotic_worlds$dropSecondEndEffects();
     }
 
     @Inject(method = "recreateVisuals", at = @At("RETURN"))
-    private static void toroidal$recreateSecondEndEffects(CallbackInfo ci) {
-        toroidal$dropSecondEndEffects();
+    private static void exotic_worlds$recreateSecondEndEffects(CallbackInfo ci) {
+        exotic_worlds$dropSecondEndEffects();
         if (!CEEConfigs.client().disableFlywheelWireRendering.get()) {
             for (Pair<InWorldNodeConnection, WireData> wire : WireRenderer.WIRE_CONNECTIONS) {
-                toroidal$queueSecondEnd(wire.getFirst(), wire.getSecond());
+                exotic_worlds$queueSecondEnd(wire.getFirst(), wire.getSecond());
             }
         }
     }
 
     @Unique
-    private static void toroidal$queueSecondEnd(InWorldNodeConnection connection, WireData data) {
+    private static void exotic_worlds$queueSecondEnd(InWorldNodeConnection connection, WireData data) {
         WireEffect effect = new WireEffect(Minecraft.getInstance().level, connection, data.wireType(), data);
-        ((WireCopyHolder) (Object) effect).toroidal$setEnd(WireCopies.SECOND_END);
-        WireEffect replaced = toroidal$secondEndEffects.put(connection, effect);
+        ((WireCopyHolder) (Object) effect).exotic_worlds$setEnd(WireCopies.SECOND_END);
+        WireEffect replaced = exotic_worlds$secondEndEffects.put(connection, effect);
         if (replaced != null) {
             VisualizationHelper.queueRemove(replaced);
         }
@@ -168,7 +168,7 @@ public abstract class WireRendererMixin {
     }
 
     @Unique
-    private static void toroidal$queueSecondEndCatenary(CatenaryConnection line) {
+    private static void exotic_worlds$queueSecondEndCatenary(CatenaryConnection line) {
         ClientLevel level = Minecraft.getInstance().level;
         if (!CatenaryCopies.parted(level, line)) {
             return;
@@ -177,8 +177,8 @@ public abstract class WireRendererMixin {
         WireType standard = CEERegistries.WIRE_TYPE.get(STANDARD_WIRE);
         WireEffect effect = new WireEffect(level, line, standard,
                 new WireData(standard, 0.0F, Collections.emptyList(), 0.0));
-        ((WireCopyHolder) (Object) effect).toroidal$setEnd(WireCopies.SECOND_END);
-        WireEffect replaced = toroidal$secondEndCatenaryEffects.put(line, effect);
+        ((WireCopyHolder) (Object) effect).exotic_worlds$setEnd(WireCopies.SECOND_END);
+        WireEffect replaced = exotic_worlds$secondEndCatenaryEffects.put(line, effect);
         if (replaced != null) {
             VisualizationHelper.queueRemove(replaced);
         }
@@ -187,20 +187,20 @@ public abstract class WireRendererMixin {
     }
 
     @Unique
-    private static void toroidal$dropSecondEndCatenaryEffects() {
-        for (WireEffect effect : toroidal$secondEndCatenaryEffects.values()) {
+    private static void exotic_worlds$dropSecondEndCatenaryEffects() {
+        for (WireEffect effect : exotic_worlds$secondEndCatenaryEffects.values()) {
             VisualizationHelper.queueRemove(effect);
         }
 
-        toroidal$secondEndCatenaryEffects.clear();
+        exotic_worlds$secondEndCatenaryEffects.clear();
     }
 
     @Unique
-    private static void toroidal$dropSecondEndEffects() {
-        for (WireEffect effect : toroidal$secondEndEffects.values()) {
+    private static void exotic_worlds$dropSecondEndEffects() {
+        for (WireEffect effect : exotic_worlds$secondEndEffects.values()) {
             VisualizationHelper.queueRemove(effect);
         }
 
-        toroidal$secondEndEffects.clear();
+        exotic_worlds$secondEndEffects.clear();
     }
 }

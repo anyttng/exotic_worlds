@@ -17,7 +17,7 @@ import net.minecraft.core.BlockPos;
 @Mixin(value = IValveHandler.class, remap = false)
 public interface IValveHandlerMixin {
     @WrapOperation(method = "triggerValveTransfer", at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_EQUALS))
-    private static boolean toroidal$valveInFrame(BlockPos pos, Object location, Operation<Boolean> original,
+    private static boolean exotic_worlds$valveInFrame(BlockPos pos, Object location, Operation<Boolean> original,
             @Local(argsOnly = true) IMultiblock<?> multiblock) {
         return original.call(location instanceof BlockPos valve
                 ? MekanismSeam.nearestCopy(multiblock.getLevel(), valve, pos)

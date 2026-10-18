@@ -20,7 +20,7 @@ public abstract class BrassTunnelBlockEntityMixin {
     @WrapOperation(method = { "grabAllStacksOfGroup", "gatherValidOutputs" },
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/logistics/tunnel/BrassTunnelBlockEntity;getAdjacent(Z)Lcom/simibubi/create/content/logistics/tunnel/BrassTunnelBlockEntity;"))
-    private @Nullable BrassTunnelBlockEntity toroidal$closeTheGroupChain(BrassTunnelBlockEntity walker,
+    private @Nullable BrassTunnelBlockEntity exotic_worlds$closeTheGroupChain(BrassTunnelBlockEntity walker,
             boolean leftSide, Operation<BrassTunnelBlockEntity> original,
             @Share("visitedTunnels") LocalRef<Set<BrassTunnelBlockEntity>> visitedRef,
             @Share("visitedTunnelsResolved") LocalBooleanRef resolved) {

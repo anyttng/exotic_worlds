@@ -22,15 +22,15 @@ public class TrainDistanceMixin {
     private static final String RANKED_METHOD = "distanceToLocationSqr";
 
     @WrapOperation(method = RANKED_METHOD, at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO_SQR))
-    private double toroidal$rankAnchorTheShortWayRound(Vec3 anchor, Vec3 location, Operation<Double> original,
+    private double exotic_worlds$rankAnchorTheShortWayRound(Vec3 anchor, Vec3 location, Operation<Double> original,
             @Local(argsOnly = true) Level level) {
         return original.call(CreateSeamFold.nearestCopy(level, location, anchor), location);
     }
 
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO_SQR))
-    private double toroidal$spanCarriagesTheShortWayRound(Vec3 leading, Vec3 trailing, Operation<Double> original,
+    private double exotic_worlds$spanCarriagesTheShortWayRound(Vec3 leading, Vec3 trailing, Operation<Double> original,
             @Local(ordinal = 0) Carriage.DimensionalCarriageEntity dimensional) {
         return original.call(leading, CreateSeamFold.nearestCopy(
-                ((CarriageEntityFrame) dimensional).toroidal$carriageDimension(), leading, trailing));
+                ((CarriageEntityFrame) dimensional).exotic_worlds$carriageDimension(), leading, trailing));
     }
 }

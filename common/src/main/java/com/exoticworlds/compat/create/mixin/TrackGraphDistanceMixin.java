@@ -20,7 +20,7 @@ public class TrackGraphDistanceMixin {
     private static final String RANKED_METHOD = "distanceToLocationSqr";
 
     @WrapOperation(method = RANKED_METHOD, at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO_SQR))
-    private double toroidal$rankNodeTheShortWayRound(Vec3 node, Vec3 location, Operation<Double> original,
+    private double exotic_worlds$rankNodeTheShortWayRound(Vec3 node, Vec3 location, Operation<Double> original,
             @Local(argsOnly = true) Level level) {
         return original.call(CreateSeamFold.nearestCopy(level, location, node), location);
     }

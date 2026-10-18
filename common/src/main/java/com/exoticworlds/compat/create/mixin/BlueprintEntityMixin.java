@@ -28,7 +28,7 @@ public class BlueprintEntityMixin {
             at = @At(value = "INVOKE", ordinal = 0,
                     target = "Lnet/minecraft/network/RegistryFriendlyByteBuf;"
                             + "readNbt()Lnet/minecraft/nbt/CompoundTag;"))
-    private CompoundTag toroidal$attachmentInTheBlueprintFrame(CompoundTag spawnData) {
+    private CompoundTag exotic_worlds$attachmentInTheBlueprintFrame(CompoundTag spawnData) {
         if (spawnData == null || !spawnData.contains(TILE_X_KEY)) {
             return spawnData;
         }
@@ -48,7 +48,7 @@ public class BlueprintEntityMixin {
     }
 
     @ModifyVariable(method = "skipAttackInteraction", at = @At("STORE"), ordinal = 0)
-    private Vec3 toroidal$foldAttackRay(Vec3 eyePos, Entity source) {
+    private Vec3 exotic_worlds$foldAttackRay(Vec3 eyePos, Entity source) {
         Entity blueprint = (Entity) (Object) this;
         return CreateSeamFold.nearestCopy(blueprint.level(), blueprint.position(), eyePos);
     }

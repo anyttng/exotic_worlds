@@ -15,7 +15,7 @@ import net.minecraft.world.level.Level;
 @Mixin(value = DeployerMovementBehaviour.class, remap = false)
 public class DeployerSchematicPrinterMixin {
     @ModifyVariable(method = "activateAsSchematicPrinter", argsOnly = true, at = @At("HEAD"))
-    private BlockPos toroidal$visitInSchematicFrame(BlockPos visited, @Local(argsOnly = true) Level level,
+    private BlockPos exotic_worlds$visitInSchematicFrame(BlockPos visited, @Local(argsOnly = true) Level level,
             @Local(argsOnly = true) ItemStack filter) {
         return CreateSchematicFold.visitedInSchematicFrame(level, filter, visited);
     }

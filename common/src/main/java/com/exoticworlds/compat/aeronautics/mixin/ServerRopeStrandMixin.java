@@ -22,7 +22,7 @@ public class ServerRopeStrandMixin {
                             + "Lnet/minecraft/core/Position;)Lorg/joml/Vector3d;"),
             require = 1,
             allow = 1)
-    private Vector3d toroidal$seatAttachmentPin(Vector3d attachmentPoint,
+    private Vector3d exotic_worlds$seatAttachmentPin(Vector3d attachmentPoint,
             @Local(argsOnly = true) RopeAttachment attachment, @Local(argsOnly = true) ServerLevel level) {
         return RopeSeamFrame.seatAttachment((ServerRopeStrand) (Object) this, attachment, level, attachmentPoint);
     }

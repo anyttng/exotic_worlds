@@ -11,7 +11,7 @@ import com.exoticworlds.core.WorldFold;
 @Mixin(targets = "raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule$Source", remap = false)
 public abstract class StrataRuleSourceMixin {
     @WrapMethod(method = "initBuffer")
-    private void toroidal$bindLap(int x, int z, Operation<Void> original) {
+    private void exotic_worlds$bindLap(int x, int z, Operation<Void> original) {
         WorldFold fold = RtfEntry.generationFold();
         if (fold == null) {
             original.call(x, z);

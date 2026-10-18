@@ -20,7 +20,7 @@ public class AutoRequestDataMixin {
     @WrapOperation(method = "readFromItem",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_SUBTRACT))
-    private static BlockPos toroidal$foldKeeperDelta(BlockPos target, Vec3i placed, Operation<BlockPos> original,
+    private static BlockPos exotic_worlds$foldKeeperDelta(BlockPos target, Vec3i placed, Operation<BlockPos> original,
             Level level, Player player, BlockPos position, ItemStack itemStack) {
         return CreateSeamFold.foldDelta(level, placed, target, original.call(target, placed));
     }

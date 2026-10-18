@@ -3,7 +3,7 @@ package com.exoticworlds.compat.mekanism;
 import com.exoticworlds.core.WorldFold;
 
 public interface RadiationIndexFrame {
-    WorldFold toroidal$fold();
+    WorldFold exotic_worlds$fold();
 
-    void toroidal$bind(WorldFold fold);
+    void exotic_worlds$bind(WorldFold fold);
 }

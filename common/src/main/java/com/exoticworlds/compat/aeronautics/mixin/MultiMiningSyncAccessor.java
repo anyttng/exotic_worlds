@@ -8,5 +8,5 @@ import dev.ryanhcode.offroad.network.borehead_bearing.ClientboundMultiMiningSync
 @Mixin(value = ClientboundMultiMiningSync.class, remap = false)
 public interface MultiMiningSyncAccessor {
     @Accessor("breakingID")
-    int toroidal$breakingId();
+    int exotic_worlds$breakingId();
 }

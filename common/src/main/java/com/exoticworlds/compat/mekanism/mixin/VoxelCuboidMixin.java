@@ -17,16 +17,16 @@ import net.minecraft.core.BlockPos;
 @Mixin(value = VoxelCuboid.class, remap = false)
 public class VoxelCuboidMixin implements MultiblockBoundsFrame {
     @Unique
-    private WorldFold toroidal$fold = WorldFolds.NOOP;
+    private WorldFold exotic_worlds$fold = WorldFolds.NOOP;
 
     @Override
-    public WorldFold toroidal$fold() {
-        return this.toroidal$fold;
+    public WorldFold exotic_worlds$fold() {
+        return this.exotic_worlds$fold;
     }
 
     @Override
-    public void toroidal$setFold(WorldFold fold) {
-        this.toroidal$fold = fold;
+    public void exotic_worlds$setFold(WorldFold fold) {
+        this.exotic_worlds$fold = fold;
     }
 
     @ModifyVariable(
@@ -38,7 +38,7 @@ public class VoxelCuboidMixin implements MultiblockBoundsFrame {
             at = @At("HEAD"),
             argsOnly = true,
             require = 3)
-    private BlockPos toroidal$seatOntoFrame(BlockPos pos) {
+    private BlockPos exotic_worlds$seatOntoFrame(BlockPos pos) {
         return MultiblockFrames.seatOnto((VoxelCuboid) (Object) this, pos);
     }
 }

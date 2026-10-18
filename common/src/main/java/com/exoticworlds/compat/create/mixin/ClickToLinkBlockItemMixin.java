@@ -18,7 +18,7 @@ public class ClickToLinkBlockItemMixin {
     @WrapOperation(method = "useOn",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
-    private boolean toroidal$foldSelectionReach(BlockPos selected, Vec3i placed, double maxDistance,
+    private boolean exotic_worlds$foldSelectionReach(BlockPos selected, Vec3i placed, double maxDistance,
             Operation<Boolean> original, UseOnContext context) {
         BlockPos folded = CreateSeamFold.nearestCopy(context.getLevel(), placed, selected);
         return original.call(folded, placed, maxDistance);
@@ -27,7 +27,7 @@ public class ClickToLinkBlockItemMixin {
     @WrapOperation(method = "useOn",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_SUBTRACT))
-    private BlockPos toroidal$foldSelectionOffset(BlockPos selected, Vec3i placed, Operation<BlockPos> original,
+    private BlockPos exotic_worlds$foldSelectionOffset(BlockPos selected, Vec3i placed, Operation<BlockPos> original,
             UseOnContext context) {
         return CreateSeamFold.foldDelta(context.getLevel(), placed, selected, original.call(selected, placed));
     }

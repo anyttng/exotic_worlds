@@ -18,7 +18,7 @@ public class NozzleBlockEntityMixin {
             method = {"tick", "lazyTick", "canSee"},
             at = @At(value = "INVOKE",
                     target = InjectionTargets.ENTITY_POSITION))
-    private Vec3 toroidal$foldEntityPosition(Entity entity, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$foldEntityPosition(Entity entity, Operation<Vec3> original) {
         Vec3 raw = original.call(entity);
         NozzleBlockEntity self = (NozzleBlockEntity) (Object) this;
         Vec3 center = Vec3.atCenterOf(self.getBlockPos());

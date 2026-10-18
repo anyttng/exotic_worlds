@@ -23,13 +23,13 @@ public abstract class WireLifetimeModuleMixin {
 
     @WrapOperation(method = "finishSimulation",
             at = @At(value = "INVOKE", target = CatnipInjectionTargets.VEC_HELPER_LERP))
-    private Vec3 toroidal$centreOnShortSpan(float point, Vec3 from, Vec3 to, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$centreOnShortSpan(float point, Vec3 from, Vec3 to, Operation<Vec3> original) {
         return original.call(point, from, WireSpan.seat(this.level, from, to));
     }
 
     @WrapOperation(method = "finishSimulation",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO))
-    private double toroidal$shortSpan(Vec3 from, Vec3 to, Operation<Double> original) {
+    private double exotic_worlds$shortSpan(Vec3 from, Vec3 to, Operation<Double> original) {
         return original.call(from, WireSpan.seat(this.level, from, to));
     }
 }

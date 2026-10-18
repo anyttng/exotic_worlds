@@ -23,13 +23,13 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 public final class MultiblockFrames {
     public static void moveOntoAnchor(Structure absorbing, Structure absorbed) {
         MultiblockStructureFrame frame = (MultiblockStructureFrame) absorbing;
-        BlockPos anchor = frame.toroidal$anchor();
-        BlockPos absorbedAnchor = ((MultiblockStructureFrame) absorbed).toroidal$anchor();
+        BlockPos anchor = frame.exotic_worlds$anchor();
+        BlockPos absorbedAnchor = ((MultiblockStructureFrame) absorbed).exotic_worlds$anchor();
         if (anchor == null || absorbedAnchor == null) {
             return;
         }
 
-        DeckTransformation move = WorldLoopAttachments.transformerOfReader(frame.toroidal$level())
+        DeckTransformation move = WorldLoopAttachments.transformerOfReader(frame.exotic_worlds$level())
                 .nearestCopyTransformation(anchor, absorbedAnchor);
         if (move.isIdentity()) {
             return;
@@ -46,8 +46,8 @@ public final class MultiblockFrames {
             return null;
         }
 
-        WorldFold fold = WorldLoopAttachments.transformerOfReader(((MultiblockStructureFrame) structure).toroidal$level());
-        ((MultiblockBoundsFrame) cuboid).toroidal$setFold(fold);
+        WorldFold fold = WorldLoopAttachments.transformerOfReader(((MultiblockStructureFrame) structure).exotic_worlds$level());
+        ((MultiblockBoundsFrame) cuboid).exotic_worlds$setFold(fold);
         BlockPos min = cuboid.getMinPos();
         DeckTransformation move = fold.nearestCopyTransformation(fold.fold(min), min);
         if (move.isIdentity()) {
@@ -61,17 +61,17 @@ public final class MultiblockFrames {
     }
 
     public static BlockPos seatOnto(VoxelCuboid bounds, BlockPos pos) {
-        BlockPos copy = ((MultiblockBoundsFrame) bounds).toroidal$fold().nearestCopy(bounds.getMinPos(), pos);
+        BlockPos copy = ((MultiblockBoundsFrame) bounds).exotic_worlds$fold().nearestCopy(bounds.getMinPos(), pos);
         return copy.equals(pos) ? pos : copy;
     }
 
     public static Object seatOnto(Object data, Object pos) {
-        return pos instanceof BlockPos blockPos ? seatOnto(((MultiblockDataFrame) data).toroidal$bounds(), blockPos)
+        return pos instanceof BlockPos blockPos ? seatOnto(((MultiblockDataFrame) data).exotic_worlds$bounds(), blockPos)
                 : pos;
     }
 
     public static BlockPos fold(Structure structure, BlockPos pos) {
-        return WorldLoopAttachments.transformerOfReader(((MultiblockStructureFrame) structure).toroidal$level())
+        return WorldLoopAttachments.transformerOfReader(((MultiblockStructureFrame) structure).exotic_worlds$level())
                 .fold(pos);
     }
 
@@ -93,10 +93,10 @@ public final class MultiblockFrames {
 
     private static int movePlane(Structure.Axis axis, int key, VoxelPlane plane, DeckTransformation move) {
         VoxelPlaneAccessor access = (VoxelPlaneAccessor) plane;
-        List<BlockPos> outside = new ArrayList<>(access.toroidal$outsideSet());
-        access.toroidal$outsideSet().clear();
+        List<BlockPos> outside = new ArrayList<>(access.exotic_worlds$outsideSet());
+        access.exotic_worlds$outsideSet().clear();
         for (BlockPos pos : outside) {
-            access.toroidal$outsideSet().add(move.apply(pos));
+            access.exotic_worlds$outsideSet().add(move.apply(pos));
         }
 
         BlockPos low = move.apply(at(axis, key, plane.getMinCol(), plane.getMinRow()));
@@ -104,10 +104,10 @@ public final class MultiblockFrames {
             BlockPos high = move.apply(at(axis, key, plane.getMaxCol(), plane.getMaxRow()));
             Structure.Axis horizontal = axis.horizontal();
             Structure.Axis vertical = axis.vertical();
-            access.toroidal$setMinCol(Math.min(horizontal.getCoord(low), horizontal.getCoord(high)));
-            access.toroidal$setMaxCol(Math.max(horizontal.getCoord(low), horizontal.getCoord(high)));
-            access.toroidal$setMinRow(Math.min(vertical.getCoord(low), vertical.getCoord(high)));
-            access.toroidal$setMaxRow(Math.max(vertical.getCoord(low), vertical.getCoord(high)));
+            access.exotic_worlds$setMinCol(Math.min(horizontal.getCoord(low), horizontal.getCoord(high)));
+            access.exotic_worlds$setMaxCol(Math.max(horizontal.getCoord(low), horizontal.getCoord(high)));
+            access.exotic_worlds$setMinRow(Math.min(vertical.getCoord(low), vertical.getCoord(high)));
+            access.exotic_worlds$setMaxRow(Math.max(vertical.getCoord(low), vertical.getCoord(high)));
         }
 
         return axis.getCoord(low);

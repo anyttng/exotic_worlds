@@ -14,13 +14,13 @@ import net.minecraft.core.BlockPos;
 public class ToolboxHandlerClientMixin {
     @ModifyExpressionValue(method = "onKeyInput",
             at = @At(value = "INVOKE", target = CatnipInjectionTargets.NBT_HELPER_READ_BLOCK_POS))
-    private static BlockPos toroidal$foldMenuToolbox(BlockPos canonical) {
+    private static BlockPos exotic_worlds$foldMenuToolbox(BlockPos canonical) {
         return CreateClientFrame.inViewerFrame(canonical);
     }
 
     @ModifyExpressionValue(method = "renderOverlay",
             at = @At(value = "INVOKE", target = CatnipInjectionTargets.NBT_HELPER_READ_BLOCK_POS))
-    private static BlockPos toroidal$foldHudToolbox(BlockPos canonical) {
+    private static BlockPos exotic_worlds$foldHudToolbox(BlockPos canonical) {
         return CreateClientFrame.inViewerFrame(canonical);
     }
 }

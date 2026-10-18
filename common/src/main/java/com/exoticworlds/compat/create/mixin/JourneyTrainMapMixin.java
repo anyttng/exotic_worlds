@@ -21,7 +21,7 @@ public abstract class JourneyTrainMapMixin {
     @WrapOperation(method = "onRender",
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.TRAIN_MAP_MANAGER_RENDER_AND_PICK))
-    private static List<FormattedText> toroidal$onTheFullscreenSurface(GuiGraphics graphics, int mouseX, int mouseY,
+    private static List<FormattedText> exotic_worlds$onTheFullscreenSurface(GuiGraphics graphics, int mouseX, int mouseY,
             boolean linearFiltering, Rect2i bounds, Operation<List<FormattedText>> original) {
         return TrainMapSurface.showing(JourneyMapFold.fullscreenCopies(),
                 () -> original.call(graphics, mouseX, mouseY, linearFiltering, bounds));

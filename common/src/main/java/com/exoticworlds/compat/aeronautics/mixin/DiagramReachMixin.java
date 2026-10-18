@@ -15,7 +15,7 @@ import net.minecraft.world.phys.AABB;
 @Mixin(value = DiagramEntity.class, remap = false)
 public class DiagramReachMixin {
     @ModifyVariable(method = "canPlayerUse", at = @At("STORE"), ordinal = 0)
-    private AABB toroidal$foldDiagramBox(AABB box, Player player) {
+    private AABB exotic_worlds$foldDiagramBox(AABB box, Player player) {
         return FoldedBoxQuery.toward(
                 WorldLoopAttachments.wrappedTransformerOfReader(player.level()), player.position(), box);
     }

@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 @Mixin(value = MergingGlueBlockEntity.class, remap = false)
 public class MergingGlueBlockEntityMixin {
     @WrapMethod(method = "startControlling")
-    private void toroidal$controlInTheSeamFrame(MergingGlueBlockEntity partner, Operation<Void> original) {
+    private void exotic_worlds$controlInTheSeamFrame(MergingGlueBlockEntity partner, Operation<Void> original) {
         MergingGlueSeamFrame.control((BlockEntity) (Object) this, partner, () -> original.call(partner));
     }
 }

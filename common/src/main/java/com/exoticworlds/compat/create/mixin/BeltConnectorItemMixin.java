@@ -17,7 +17,7 @@ public class BeltConnectorItemMixin {
             method = "useOn",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.ITEM_STACK_GET))
-    private Object toroidal$foldStoredPulley(Object stored, UseOnContext context) {
+    private Object exotic_worlds$foldStoredPulley(Object stored, UseOnContext context) {
         if (!(stored instanceof BlockPos storedPulley)) {
             return stored;
         }

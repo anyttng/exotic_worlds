@@ -19,7 +19,7 @@ public class TrackBlockMixin {
     @WrapOperation(method = "useItemOn",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BOUNDING_BOX_IS_INSIDE))
-    private boolean toroidal$clickInAssemblyFrame(BoundingBox area, Vec3i clicked, Operation<Boolean> original,
+    private boolean exotic_worlds$clickInAssemblyFrame(BoundingBox area, Vec3i clicked, Operation<Boolean> original,
             @Local(argsOnly = true) Level level) {
         return original.call(area, CreateSeamFold.foldPositionToBox(level, area, clicked));
     }

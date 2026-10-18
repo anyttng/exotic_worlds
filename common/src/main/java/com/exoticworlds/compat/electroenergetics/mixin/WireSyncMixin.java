@@ -40,30 +40,30 @@ public abstract class WireSyncMixin {
     public abstract void unloadForPlayer(ServerPlayer player);
 
     @Inject(method = "handlePlayerEnterNewSection", at = @At("HEAD"))
-    private void toroidal$resendAfterAJump(ServerPlayer player, long newPos, CallbackInfo ci) {
+    private void exotic_worlds$resendAfterAJump(ServerPlayer player, long newPos, CallbackInfo ci) {
         if (loadedChunks.get(player.getUUID()) instanceof WireBox box
-                && WireBoxJump.mayReseat(WorldLoopAttachments.transformerOf(this.level), box.toroidal$centre(),
-                        box.toroidal$radius(), new ChunkPos(newPos), toroidal$boxRadius(WireSync.getViewDistance()))) {
+                && WireBoxJump.mayReseat(WorldLoopAttachments.transformerOf(this.level), box.exotic_worlds$centre(),
+                        box.exotic_worlds$radius(), new ChunkPos(newPos), exotic_worlds$boxRadius(WireSync.getViewDistance()))) {
             this.unloadForPlayer(player);
         }
     }
 
     @ModifyExpressionValue(method = "handlePlayerEnterNewSection", at = @At(value = "INVOKE",
             target = "Lcom/george_vi/electroenergetics/content/wire/WireSync;getViewDistance()I"))
-    private int toroidal$boxWithinHalfTheWorld(int viewDistance) {
-        return toroidal$boxRadius(viewDistance);
+    private int exotic_worlds$boxWithinHalfTheWorld(int viewDistance) {
+        return exotic_worlds$boxRadius(viewDistance);
     }
 
     @Unique
-    private int toroidal$boxRadius(int viewDistance) {
+    private int exotic_worlds$boxRadius(int viewDistance) {
         return WorldLoopAttachments.transformerOf(this.level).limitViewDistance(viewDistance);
     }
 
     @WrapOperation(method = "handlePlayerEnterNewSection",
             at = @At(value = "INVOKE", target = InjectionTargets.MAP_PUT))
-    private Object toroidal$bindBoxFold(Map<Object, Object> boxes, Object player, Object box,
+    private Object exotic_worlds$bindBoxFold(Map<Object, Object> boxes, Object player, Object box,
             Operation<Object> original) {
-        ((TransformerHolder) box).toroidal$setTransformer(WorldLoopAttachments.transformerOf(this.level));
+        ((TransformerHolder) box).exotic_worlds$setTransformer(WorldLoopAttachments.transformerOf(this.level));
         return original.call(boxes, player, box);
     }
 
@@ -71,7 +71,7 @@ public abstract class WireSyncMixin {
             method = {"handleWireRemoved", "handleWireAdded", "handleNodeLabelRename", "handleNodeCreate",
                     "handleNodeRemove"},
             at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_POS_AS_LONG))
-    private long toroidal$canonicalChunk(long chunk) {
+    private long exotic_worlds$canonicalChunk(long chunk) {
         return WireSpan.chunkKey(this.level, chunk);
     }
 
@@ -79,7 +79,7 @@ public abstract class WireSyncMixin {
             method = {"handleCatenaryRemoved", "handleCatenaryAdded", "handleWireRepositioned", "handleNodeMoved",
                     "lambda$handlePlayerEnterNewSection$4"},
             at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_POS_AS_LONG_BLOCK))
-    private long toroidal$canonicalBlockChunk(long chunk) {
+    private long exotic_worlds$canonicalBlockChunk(long chunk) {
         return WireSpan.chunkKey(this.level, chunk);
     }
 }

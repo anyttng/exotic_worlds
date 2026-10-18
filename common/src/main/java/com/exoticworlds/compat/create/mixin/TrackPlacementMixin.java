@@ -20,7 +20,7 @@ public class TrackPlacementMixin {
             method = "tryConnect",
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/trains/track/TrackPlacement$ConnectingFrom;pos()Lnet/minecraft/core/BlockPos;"))
-    private static BlockPos toroidal$foldStoredBlock(BlockPos storedPos, Level level, Player player, BlockPos clickedPos,
+    private static BlockPos exotic_worlds$foldStoredBlock(BlockPos storedPos, Level level, Player player, BlockPos clickedPos,
             BlockState clickedState, ItemStack stack, boolean girder, boolean maximiseTurn) {
         return CreateSeamFold.nearestCopy(level, clickedPos, storedPos);
     }
@@ -29,7 +29,7 @@ public class TrackPlacementMixin {
             method = "tryConnect",
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/trains/track/TrackPlacement$ConnectingFrom;end()Lnet/minecraft/world/phys/Vec3;"))
-    private static Vec3 toroidal$foldStoredEnd(Vec3 storedEnd, Level level, Player player, BlockPos clickedPos,
+    private static Vec3 exotic_worlds$foldStoredEnd(Vec3 storedEnd, Level level, Player player, BlockPos clickedPos,
             BlockState clickedState, ItemStack stack, boolean girder, boolean maximiseTurn) {
         return CreateSeamFold.nearestCopy(level, Vec3.atCenterOf(clickedPos), storedEnd);
     }

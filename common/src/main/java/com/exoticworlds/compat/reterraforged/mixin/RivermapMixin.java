@@ -21,7 +21,7 @@ public abstract class RivermapMixin {
     private int z;
 
     @WrapMethod(method = "apply")
-    private void toroidal$seatOnCenter(Cell cell, float x, float z, Operation<Void> original) {
+    private void exotic_worlds$seatOnCenter(Cell cell, float x, float z, Operation<Void> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
             original.call(cell, x, z);

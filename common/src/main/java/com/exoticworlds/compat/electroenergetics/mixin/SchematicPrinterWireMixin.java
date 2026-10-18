@@ -38,7 +38,7 @@ public abstract class SchematicPrinterWireMixin {
     @TargetHandler(
             mixin = SCHEMATIC_PRINTER_MIXIN,
             name = PRINT_ADVANCE_HANDLER)
-    private Vec3 toroidal$wireTargetInSchematicFrame(Vec3 end1, Vec3 end2, float t, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$wireTargetInSchematicFrame(Vec3 end1, Vec3 end2, float t, Operation<Vec3> original) {
         Vec3 point = original.call(end1, WireTemplates.besideInSchematic(this.blockReader, end1, end2), t);
         return WireTemplates.inSchematicFrame(this.blockReader, this.schematicAnchor, point);
     }
@@ -51,7 +51,7 @@ public abstract class SchematicPrinterWireMixin {
     @TargetHandler(
             mixin = SCHEMATIC_PRINTER_MIXIN,
             name = PRINT_TARGET_HANDLER)
-    private BlockPos toroidal$canonicalLabelTarget(BlockPos target) {
+    private BlockPos exotic_worlds$canonicalLabelTarget(BlockPos target) {
         return WireTemplates.canonical(this.blockReader, target);
     }
 }

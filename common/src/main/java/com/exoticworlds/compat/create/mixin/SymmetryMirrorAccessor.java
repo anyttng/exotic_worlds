@@ -10,7 +10,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(value = SymmetryMirror.class, remap = false)
 public interface SymmetryMirrorAccessor {
     @Invoker("create")
-    static SymmetryMirror toroidal$create(Integer orientationIndex, Vec3 position, String type, Boolean enable) {
+    static SymmetryMirror exotic_worlds$create(Integer orientationIndex, Vec3 position, String type, Boolean enable) {
         throw new AssertionError();
     }
 }

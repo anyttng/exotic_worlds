@@ -24,7 +24,7 @@ public class SubLevelTrackingSystemMixin {
     private ServerLevel level;
 
     @WrapMethod(method = "shouldLoad")
-    private boolean toroidal$trackTheShortWayRound(Player player, Vector3dc entityPosition, Operation<Boolean> original) {
+    private boolean exotic_worlds$trackTheShortWayRound(Player player, Vector3dc entityPosition, Operation<Boolean> original) {
         Vec3 raw = JomlVectors.read(entityPosition);
         Vec3 nearest = WorldLoopAttachments.transformerOf(this.level).nearestCopy(player.position(), raw);
         return original.call(player, nearest == raw ? entityPosition : JomlVectors.write(nearest, new Vector3d()));

@@ -22,7 +22,7 @@ public class DockingConnectorPairMixin {
     private static final int PROJECTED_TIP_2 = 3;
 
     @ModifyReturnValue(method = "getAverageTipPosition", at = @At("RETURN"))
-    private static Vector3d toroidal$foldTipMidpoint(Vector3d average, DockingConnectorBlockEntity dock1,
+    private static Vector3d exotic_worlds$foldTipMidpoint(Vector3d average, DockingConnectorBlockEntity dock1,
             @Local(ordinal = PROJECTED_TIP_1) Vec3 tip1, @Local(ordinal = PROJECTED_TIP_2) Vec3 tip2) {
         return MagnetSeamFrame.midpoint(dock1.getLevel(), tip1, tip2, average);
     }

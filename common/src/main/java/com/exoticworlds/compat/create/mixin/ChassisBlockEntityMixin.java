@@ -22,12 +22,12 @@ public class ChassisBlockEntityMixin {
             at = @At(value = "FIELD", opcode = Opcodes.GETFIELD,
                     target = "Lcom/simibubi/create/content/contraptions/chassis/ChassisBlockEntity;"
                             + "worldPosition:Lnet/minecraft/core/BlockPos;"))
-    private BlockPos toroidal$walkFromTheCallersFrame(BlockPos worldPosition) {
+    private BlockPos exotic_worlds$walkFromTheCallersFrame(BlockPos worldPosition) {
         return ChassisWalkFrame.fold(worldPosition);
     }
 
     @WrapMethod(method = "collectChassisGroup")
-    private List<ChassisBlockEntity> toroidal$collectInTheGroupOriginsFrame(
+    private List<ChassisBlockEntity> exotic_worlds$collectInTheGroupOriginsFrame(
             Operation<List<ChassisBlockEntity>> original) {
         BlockEntity self = (BlockEntity) (Object) this;
         return ChassisWalkFrame.withAnchor(self.getLevel(), self.getBlockPos(), original::call);

@@ -20,7 +20,7 @@ public class SchematicannonPrinterMixin {
             method = "initializePrinter",
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.SCHEMATIC_PRINTER_LOAD_SCHEMATIC))
-    private void toroidal$anchorPrinterOnCannon(SchematicPrinter printer, ItemStack blueprint, Level level,
+    private void exotic_worlds$anchorPrinterOnCannon(SchematicPrinter printer, ItemStack blueprint, Level level,
             boolean processNBT, Operation<Void> original) {
         BlockEntity cannon = (BlockEntity) (Object) this;
         original.call(printer, CreateSchematicFold.anchoredNear(level, cannon.getBlockPos(), blueprint), level,

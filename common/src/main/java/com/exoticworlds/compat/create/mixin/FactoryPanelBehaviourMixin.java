@@ -21,7 +21,7 @@ public abstract class FactoryPanelBehaviourMixin {
 
     @WrapOperation(method = "moveTo",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
-    private boolean toroidal$foldRelocationRange(BlockPos stored, Vec3i destination, double range,
+    private boolean exotic_worlds$foldRelocationRange(BlockPos stored, Vec3i destination, double range,
             Operation<Boolean> original) {
         return original.call(CreateSeamFold.nearestCopy(panelBE().getLevel(), destination, stored), destination,
                 range);

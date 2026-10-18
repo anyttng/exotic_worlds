@@ -24,13 +24,13 @@ public abstract class CloudManagerMixin {
     protected Level level;
 
     @WrapMethod(method = "getPrecipitationAt")
-    private Pair<?, ?> toroidal$bindPrecipitationTransformer(BlockPos pos, Operation<Pair<?, ?>> original) {
+    private Pair<?, ?> exotic_worlds$bindPrecipitationTransformer(BlockPos pos, Operation<Pair<?, ?>> original) {
         return GenerationTransformerContext.withTransformer(
                 WorldLoopAttachments.noiseTransformerOf(this.level), () -> original.call(pos));
     }
 
     @WrapMethod(method = "getCloudTypeAtPosition")
-    private Pair<CloudType, Float> toroidal$bindCloudShape(float x, float z,
+    private Pair<CloudType, Float> exotic_worlds$bindCloudShape(float x, float z,
             Operation<Pair<CloudType, Float>> original) {
         return SimpleCloudsShapes.bound(this.level, () -> original.call(x, z));
     }

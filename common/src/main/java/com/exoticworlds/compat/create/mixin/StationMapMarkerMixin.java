@@ -34,7 +34,7 @@ public class StationMapMarkerMixin {
     public ResourceKey<Level> dimension;
 
     @ModifyVariable(method = "addStationMarker", at = @At("HEAD"), argsOnly = true, remap = false)
-    private StationMarker toroidal$canonicalStationMarker(StationMarker marker) {
+    private StationMarker exotic_worlds$canonicalStationMarker(StationMarker marker) {
         BlockPos saved = marker.getTarget();
         BlockPos canonical = CreateStationMapFold.canonicalTarget(this.dimension, saved);
         return canonical.equals(saved) ? marker : new StationMarker(marker.getSource(), canonical, marker.getName());
@@ -46,13 +46,13 @@ public class StationMapMarkerMixin {
                             + "getTarget()Lnet/minecraft/core/BlockPos;",
                     remap = false),
             remap = false)
-    private BlockPos toroidal$markerTargetInMapFrame(StationMarker marker, Operation<BlockPos> original) {
+    private BlockPos exotic_worlds$markerTargetInMapFrame(StationMarker marker, Operation<BlockPos> original) {
         return CreateStationMapFold.targetInMapFrame(this.dimension, this.centerX, this.centerZ,
                 original.call(marker));
     }
 
     @ModifyVariable(method = "toggleStation", at = @At("STORE"), ordinal = 1, remap = false)
-    private double toroidal$toggledStationInMapFrame(double zCenter, @Local(name = "xCenter") LocalDoubleRef xCenter) {
+    private double exotic_worlds$toggledStationInMapFrame(double zCenter, @Local(name = "xCenter") LocalDoubleRef xCenter) {
         Vec3 centre = CreateStationMapFold.centreInMapFrame(this.dimension, this.centerX, this.centerZ,
                 xCenter.get(), zCenter);
         xCenter.set(centre.x);

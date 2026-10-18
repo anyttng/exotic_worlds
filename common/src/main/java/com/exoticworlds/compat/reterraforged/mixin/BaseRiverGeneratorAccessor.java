@@ -8,5 +8,5 @@ import raccoonman.reterraforged.world.worldgen.cell.rivermap.river.BaseRiverGene
 @Mixin(value = BaseRiverGenerator.class, remap = false)
 public interface BaseRiverGeneratorAccessor {
     @Accessor("continentScale")
-    int toroidal$continentScale();
+    int exotic_worlds$continentScale();
 }

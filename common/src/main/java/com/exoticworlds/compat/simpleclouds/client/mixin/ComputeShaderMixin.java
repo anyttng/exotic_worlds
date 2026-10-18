@@ -13,7 +13,7 @@ import dev.nonamecrackers2.simpleclouds.client.shader.compute.ComputeShader;
 public abstract class ComputeShaderMixin {
     @ModifyExpressionValue(method = "compileShader", at = @At(value = "INVOKE",
             target = "Lorg/apache/commons/io/IOUtils;toString(Ljava/io/InputStream;Ljava/nio/charset/Charset;)Ljava/lang/String;"))
-    private static String toroidal$seatRegionField(String source, @Local(argsOnly = true, ordinal = 0) String loc) {
+    private static String exotic_worlds$seatRegionField(String source, @Local(argsOnly = true, ordinal = 0) String loc) {
         return source != null && CloudRegionShaderSource.SHADER_ID.equals(loc)
                 ? CloudRegionShaderSource.rewrite(source)
                 : source;

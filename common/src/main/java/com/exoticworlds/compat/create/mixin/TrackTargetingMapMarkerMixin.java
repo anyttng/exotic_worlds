@@ -12,7 +12,7 @@ import net.minecraft.core.BlockPos;
 @Mixin(targets = "com.simibubi.create.content.trains.track.TrackTargetingBehaviour", remap = false)
 public class TrackTargetingMapMarkerMixin {
     @ModifyReturnValue(method = "getPositionForMapMarker", at = @At("RETURN"))
-    private BlockPos toroidal$canonicalMapMarkerTarget(BlockPos target) {
+    private BlockPos exotic_worlds$canonicalMapMarkerTarget(BlockPos target) {
         return CreateSeamFold.canonicalOnServer(((BlockEntityBehaviour) (Object) this).getWorld(), target);
     }
 }

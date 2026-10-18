@@ -24,7 +24,7 @@ public class TeleporterFrequencyMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR),
             require = 2,
             expect = 2)
-    private double toroidal$distanceTheShortWayRound(BlockPos from, Vec3i to, Operation<Double> original,
+    private double exotic_worlds$distanceTheShortWayRound(BlockPos from, Vec3i to, Operation<Double> original,
             @Local(argsOnly = true) GlobalPos source, @Local(name = "iterCoord") GlobalPos candidate) {
         MinecraftServer server = CurrentServer.get();
         if (server == null || source.dimension() != candidate.dimension()) {

@@ -17,19 +17,19 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(targets = "net.mehvahdjukaar.supplementaries.common.misc.map_data.WeatheredHandler$WeatheredMapData")
 public class AntiqueMapHolderSeatMixin {
     @WrapOperation(method = "onItemUpdate", at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_X))
-    private double toroidal$holderNearestCenterX(Entity holder, Operation<Double> original,
+    private double exotic_worlds$holderNearestCenterX(Entity holder, Operation<Double> original,
             @Local(argsOnly = true) MapItemSavedData data) {
-        return toroidal$seated(data, holder, original.call(holder), holder.getZ()).x;
+        return exotic_worlds$seated(data, holder, original.call(holder), holder.getZ()).x;
     }
 
     @WrapOperation(method = "onItemUpdate", at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_Z))
-    private double toroidal$holderNearestCenterZ(Entity holder, Operation<Double> original,
+    private double exotic_worlds$holderNearestCenterZ(Entity holder, Operation<Double> original,
             @Local(argsOnly = true) MapItemSavedData data) {
-        return toroidal$seated(data, holder, holder.getX(), original.call(holder)).z;
+        return exotic_worlds$seated(data, holder, holder.getX(), original.call(holder)).z;
     }
 
     @Unique
-    private static Vec3 toroidal$seated(MapItemSavedData data, Entity holder, double x, double z) {
+    private static Vec3 exotic_worlds$seated(MapItemSavedData data, Entity holder, double x, double z) {
         return WorldLoopAttachments.transformerOf(holder.level())
                 .nearestCopy(new Vec3(data.centerX, 0.0, data.centerZ), new Vec3(x, holder.getY(), z));
     }

@@ -1,7 +1,7 @@
 package com.exoticworlds.compat.journeymap;
 
 public interface SingleCopyOverlay {
-    void toroidal$drawOnce();
+    void exotic_worlds$drawOnce();
 
-    boolean toroidal$drawsOnce();
+    boolean exotic_worlds$drawsOnce();
 }

@@ -10,5 +10,5 @@ import net.minecraft.world.level.Level;
 @Mixin(value = CloudManager.class, remap = false)
 public interface CloudManagerAccessor {
     @Accessor("level")
-    Level toroidal$level();
+    Level exotic_worlds$level();
 }

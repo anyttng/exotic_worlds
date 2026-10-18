@@ -14,8 +14,8 @@ import net.minecraft.world.level.Level;
 @Mixin(value = TrackBlockEntity.class, remap = false)
 public class TrackBlockEntityMixin {
     @Inject(method = "addConnection", at = @At("HEAD"))
-    private void toroidal$foldAddedCurve(BezierConnection connection, CallbackInfo ci) {
+    private void exotic_worlds$foldAddedCurve(BezierConnection connection, CallbackInfo ci) {
         Level level = ((TrackBlockEntity) (Object) this).getLevel();
-        ((BezierCurveFold) connection).toroidal$foldCurve(level, level == null ? null : level.dimension());
+        ((BezierCurveFold) connection).exotic_worlds$foldCurve(level, level == null ? null : level.dimension());
     }
 }

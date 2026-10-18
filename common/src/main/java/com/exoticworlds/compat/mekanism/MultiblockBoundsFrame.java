@@ -3,7 +3,7 @@ package com.exoticworlds.compat.mekanism;
 import com.exoticworlds.core.WorldFold;
 
 public interface MultiblockBoundsFrame {
-    WorldFold toroidal$fold();
+    WorldFold exotic_worlds$fold();
 
-    void toroidal$setFold(WorldFold fold);
+    void exotic_worlds$setFold(WorldFold fold);
 }

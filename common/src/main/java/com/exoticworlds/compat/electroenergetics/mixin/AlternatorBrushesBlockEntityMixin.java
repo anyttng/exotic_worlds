@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 public abstract class AlternatorBrushesBlockEntityMixin {
     @ModifyExpressionValue(method = "getRotors",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_RELATIVE_BY))
-    private BlockPos toroidal$canonicalAlongRotor(BlockPos along) {
+    private BlockPos exotic_worlds$canonicalAlongRotor(BlockPos along) {
         return WireSpan.block(((BlockEntity) (Object) this).getLevel(), along);
     }
 }

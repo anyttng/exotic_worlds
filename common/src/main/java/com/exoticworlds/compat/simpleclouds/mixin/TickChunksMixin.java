@@ -13,7 +13,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 @Mixin(targets = "dev.nonamecrackers2.simpleclouds.common.event.TickChunks", remap = false)
 public class TickChunksMixin {
     @WrapMethod(method = "rainAndSnowVanillaCompatibility")
-    private static void toroidal$bindPrecipitationTransformer(ServerLevel level, ChunkAccess chunk,
+    private static void exotic_worlds$bindPrecipitationTransformer(ServerLevel level, ChunkAccess chunk,
             Operation<Void> original) {
         GenerationTransformerContext.runWithTransformer(
                 WorldLoopAttachments.noiseTransformerOf(level), () -> original.call(level, chunk));

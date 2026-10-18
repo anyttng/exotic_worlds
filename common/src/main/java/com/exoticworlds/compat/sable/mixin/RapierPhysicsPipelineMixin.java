@@ -33,15 +33,15 @@ public class RapierPhysicsPipelineMixin implements SableConstraintGraphHolder {
     private ServerLevel level;
 
     @Unique
-    private final SableConstraintGraph toroidal$constraintGraph = new SableConstraintGraph();
+    private final SableConstraintGraph exotic_worlds$constraintGraph = new SableConstraintGraph();
 
     @Override
-    public SableConstraintGraph toroidal$constraintGraph() {
-        return this.toroidal$constraintGraph;
+    public SableConstraintGraph exotic_worlds$constraintGraph() {
+        return this.exotic_worlds$constraintGraph;
     }
 
     @ModifyVariable(method = "addConstraint", at = @At("HEAD"), argsOnly = true)
-    private PhysicsConstraintConfiguration<?> toroidal$seatBeforeConstraint(
+    private PhysicsConstraintConfiguration<?> exotic_worlds$seatBeforeConstraint(
             PhysicsConstraintConfiguration<?> configuration,
             @Local(argsOnly = true, ordinal = 0) PhysicsPipelineBody bodyA,
             @Local(argsOnly = true, ordinal = 1) PhysicsPipelineBody bodyB) {
@@ -49,7 +49,7 @@ public class RapierPhysicsPipelineMixin implements SableConstraintGraphHolder {
     }
 
     @Inject(method = "addConstraint", at = @At("RETURN"))
-    private void toroidal$recordConstraint(PhysicsPipelineBody bodyA, PhysicsPipelineBody bodyB,
+    private void exotic_worlds$recordConstraint(PhysicsPipelineBody bodyA, PhysicsPipelineBody bodyB,
             PhysicsConstraintConfiguration<?> configuration, CallbackInfoReturnable<PhysicsConstraintHandle> cir) {
         PhysicsConstraintHandle handle = cir.getReturnValue();
         WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(this.level);
@@ -59,14 +59,14 @@ public class RapierPhysicsPipelineMixin implements SableConstraintGraphHolder {
 
         if (bodyA != null && bodyB != null) {
             if (handle instanceof SableConstraintEdgeHolder holder) {
-                holder.toroidal$constraintEdge(this.toroidal$constraintGraph.record(bodyA, bodyB));
+                holder.exotic_worlds$constraintEdge(this.exotic_worlds$constraintGraph.record(bodyA, bodyB));
             }
 
             return;
         }
 
         if (bodyA == null && bodyB != null && handle instanceof SableMotorGoalHolder holder) {
-            holder.toroidal$motorGoal(SableMotorGoal.of(fold, bodyB, configuration));
+            holder.exotic_worlds$motorGoal(SableMotorGoal.of(fold, bodyB, configuration));
         }
     }
 }

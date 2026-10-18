@@ -26,7 +26,7 @@ public abstract class SendWireParticlesPacketMixin {
     @WrapOperation(method = "handle", at = @At(value = "INVOKE",
             target = "Lcom/george_vi/electroenergetics/foundation/QuadraticWireHelper;cablePoints"
                     + "(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;F)Ljava/util/List;"))
-    private List<Vec3> toroidal$wireInOnePiece(Vec3 from, Vec3 to, float sag, Operation<List<Vec3>> original,
+    private List<Vec3> exotic_worlds$wireInOnePiece(Vec3 from, Vec3 to, float sag, Operation<List<Vec3>> original,
             @Local(argsOnly = true) LocalPlayer player, @Local(name = "pos2") LocalRef<Vec3> pos2) {
         Vec3 seated = WireCopies.from(WorldLoopAttachments.transformerOfReader(player.level()), from, to,
                 WireCopies.FIRST_END).pos2();
@@ -35,12 +35,12 @@ public abstract class SendWireParticlesPacketMixin {
     }
 
     @WrapOperation(method = "handle", at = @At(value = "INVOKE", target = LIST_GET, ordinal = 0))
-    private Object toroidal$sparkNearestThePlayer(List<Vec3> points, int index, Operation<Object> original) {
+    private Object exotic_worlds$sparkNearestThePlayer(List<Vec3> points, int index, Operation<Object> original) {
         return ClientFrame.nearestToPlayer((Vec3) original.call(points, index));
     }
 
     @WrapOperation(method = "handle", at = @At(value = "INVOKE", target = LIST_GET, ordinal = 1))
-    private Object toroidal$nextPointBesideIt(List<Vec3> points, int index, Operation<Object> original,
+    private Object exotic_worlds$nextPointBesideIt(List<Vec3> points, int index, Operation<Object> original,
             @Local(name = "point") Vec3 point) {
         return ClientFrame.nearestCopy(point, (Vec3) original.call(points, index));
     }

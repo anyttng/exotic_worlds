@@ -47,7 +47,7 @@ class RtfPreviewFoldTest {
         WorldFold fold = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-CHUNKS, CHUNKS, -CHUNKS, CHUNKS)));
         GeneratorContext context = GenerationTransformerContext.withRouterBuild(fold, RtfPreviewFoldTest::preview);
 
-        assertSame(fold, ((LapCarrier) (Object) context.generator.getHeightmap()).toroidal$fold());
+        assertSame(fold, ((LapCarrier) (Object) context.generator.getHeightmap()).exotic_worlds$fold());
     }
 
     @Test
@@ -69,7 +69,7 @@ class RtfPreviewFoldTest {
     void aPreviewBuiltWithNoShapeCarriesNoFold() {
         GeneratorContext context = GenerationTransformerContext.withRouterBuild(null, RtfPreviewFoldTest::preview);
 
-        assertNull(((LapCarrier) (Object) context.generator.getHeightmap()).toroidal$fold());
+        assertNull(((LapCarrier) (Object) context.generator.getHeightmap()).exotic_worlds$fold());
     }
 
     private static GeneratorContext preview() {

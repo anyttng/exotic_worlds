@@ -21,7 +21,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(value = {ClampMeterItem.class, LinemansStickItem.class}, remap = false)
 public abstract class WireMeterMixin {
     @WrapOperation(method = "setMetering", at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO))
-    private double toroidal$dotsOnTheAimedCopy(Vec3 from, Vec3 to, Operation<Double> original,
+    private double exotic_worlds$dotsOnTheAimedCopy(Vec3 from, Vec3 to, Operation<Double> original,
             @Local(name = "point") NodeConnectionPoint point, @Local(name = "level") Level level,
             @Local(name = "pos1") LocalRef<Vec3> pos1, @Local(name = "pos2") LocalRef<Vec3> pos2) {
         WireCopies.Span span = WireCopies.around(WorldLoopAttachments.transformerOfReader(level), from, to,

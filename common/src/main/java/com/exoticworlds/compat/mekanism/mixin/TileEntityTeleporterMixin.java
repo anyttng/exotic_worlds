@@ -23,7 +23,7 @@ public class TileEntityTeleporterMixin {
             method = "calculateEnergyCost(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/level/Level;"
                     + "Lnet/minecraft/core/GlobalPos;)J",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;length(DDD)D"))
-    private static double toroidal$crossDimensionDistanceTheShortWayRound(
+    private static double exotic_worlds$crossDimensionDistanceTheShortWayRound(
             double xDifference,
             double yDifference,
             double zDifference,

@@ -24,37 +24,37 @@ public abstract class ServerGamePacketListenerImplFrameMixin {
     public ServerPlayer player;
 
     @WrapMethod(method = "handleMovePlayer")
-    private void toroidal$frameOnMove(ServerboundMovePlayerPacket packet, Operation<Void> original) {
-        toroidal$framed(original, packet);
+    private void exotic_worlds$frameOnMove(ServerboundMovePlayerPacket packet, Operation<Void> original) {
+        exotic_worlds$framed(original, packet);
     }
 
     @WrapMethod(method = "handleMoveVehicle")
-    private void toroidal$frameOnVehicleMove(ServerboundMoveVehiclePacket packet, Operation<Void> original) {
-        toroidal$framed(original, packet);
+    private void exotic_worlds$frameOnVehicleMove(ServerboundMoveVehiclePacket packet, Operation<Void> original) {
+        exotic_worlds$framed(original, packet);
     }
 
     @WrapMethod(method = "handlePlayerAction")
-    private void toroidal$frameOnPlayerAction(ServerboundPlayerActionPacket packet, Operation<Void> original) {
-        toroidal$framed(original, packet);
+    private void exotic_worlds$frameOnPlayerAction(ServerboundPlayerActionPacket packet, Operation<Void> original) {
+        exotic_worlds$framed(original, packet);
     }
 
     @WrapMethod(method = "handleUseItemOn")
-    private void toroidal$frameOnUseItemOn(ServerboundUseItemOnPacket packet, Operation<Void> original) {
-        toroidal$framed(original, packet);
+    private void exotic_worlds$frameOnUseItemOn(ServerboundUseItemOnPacket packet, Operation<Void> original) {
+        exotic_worlds$framed(original, packet);
     }
 
     @WrapMethod(method = "handleUseItem")
-    private void toroidal$frameOnUseItem(ServerboundUseItemPacket packet, Operation<Void> original) {
-        toroidal$framed(original, packet);
+    private void exotic_worlds$frameOnUseItem(ServerboundUseItemPacket packet, Operation<Void> original) {
+        exotic_worlds$framed(original, packet);
     }
 
     @WrapMethod(method = "handleInteract")
-    private void toroidal$frameOnInteract(ServerboundInteractPacket packet, Operation<Void> original) {
-        toroidal$framed(original, packet);
+    private void exotic_worlds$frameOnInteract(ServerboundInteractPacket packet, Operation<Void> original) {
+        exotic_worlds$framed(original, packet);
     }
 
     @Unique
-    private void toroidal$framed(Operation<Void> original, Object packet) {
+    private void exotic_worlds$framed(Operation<Void> original, Object packet) {
         SeamFrame.with(this.player.serverLevel(), this.player, Entity::position, original, packet);
     }
 }

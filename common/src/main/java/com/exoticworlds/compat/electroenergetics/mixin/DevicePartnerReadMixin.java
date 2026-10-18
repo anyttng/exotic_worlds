@@ -18,7 +18,7 @@ import net.minecraft.core.BlockPos;
 public abstract class DevicePartnerReadMixin {
     @ModifyExpressionValue(method = "read",
             at = @At(value = "INVOKE", target = CatnipInjectionTargets.NBT_HELPER_READ_BLOCK_POS))
-    private BlockPos toroidal$canonicalPartner(BlockPos partner) {
+    private BlockPos exotic_worlds$canonicalPartner(BlockPos partner) {
         return WireSpan.block(((SimulatedDevice) (Object) this).level, partner);
     }
 }

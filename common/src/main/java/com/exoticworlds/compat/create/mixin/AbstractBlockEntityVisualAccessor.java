@@ -11,5 +11,5 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 @Mixin(value = AbstractBlockEntityVisual.class, remap = false)
 public interface AbstractBlockEntityVisualAccessor {
     @Accessor("blockEntity")
-    BlockEntity toroidal$blockEntity();
+    BlockEntity exotic_worlds$blockEntity();
 }

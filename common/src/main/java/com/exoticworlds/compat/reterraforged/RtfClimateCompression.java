@@ -60,11 +60,11 @@ public final class RtfClimateCompression {
 
     static double halfBlocks(Direction.Axis axis, RtfClimateScales scales) {
         double moisture = (axis == Direction.Axis.X ? MOISTURE_HALF_X : MOISTURE_HALF_Z)
-                * scales.toroidal$moistureScale();
+                * scales.exotic_worlds$moistureScale();
         double coarsest = axis == Direction.Axis.X
                 ? moisture
-                : Math.max(moisture, TEMPERATURE_HALF_Z * scales.toroidal$temperatureScale());
-        return coarsest / scales.toroidal$biomeFrequency();
+                : Math.max(moisture, TEMPERATURE_HALF_Z * scales.exotic_worlds$temperatureScale());
+        return coarsest / scales.exotic_worlds$biomeFrequency();
     }
 
     private RtfClimateCompression() {

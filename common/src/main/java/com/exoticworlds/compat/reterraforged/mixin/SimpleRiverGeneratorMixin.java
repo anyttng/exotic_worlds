@@ -33,19 +33,19 @@ public abstract class SimpleRiverGeneratorMixin {
 
     @ModifyExpressionValue(method = "generateRoots",
             at = @At(value = "FIELD", target = COUNT, opcode = Opcodes.GETFIELD))
-    private int toroidal$rootsForTheCell(int count) {
+    private int exotic_worlds$rootsForTheCell(int count) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
             return count;
         }
 
         return RiverReach.rootCount(frame, count,
-                ((BaseRiverGeneratorAccessor) (Object) this).toroidal$continentScale());
+                ((BaseRiverGeneratorAccessor) (Object) this).exotic_worlds$continentScale());
     }
 
     // A world too narrow for a root to run past its own start carries no rivers.
     @WrapMethod(method = "generateRoots")
-    private List<Network.Builder> toroidal$rootsThatFit(int x, int z, Random random, GenWarp warp,
+    private List<Network.Builder> exotic_worlds$rootsThatFit(int x, int z, Random random, GenWarp warp,
             Operation<List<Network.Builder>> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null || RiverReach.fits(frame)) {
@@ -56,7 +56,7 @@ public abstract class SimpleRiverGeneratorMixin {
     }
 
     @WrapOperation(method = "generateRoots", at = @At(value = "INVOKE", target = DISTANCE_TO_OCEAN))
-    private float toroidal$fitInsideHalfLap(SimpleContinent continent, int x, int z, float dx, float dz,
+    private float exotic_worlds$fitInsideHalfLap(SimpleContinent continent, int x, int z, float dx, float dz,
             Operation<Float> original) {
         float length = original.call(continent, x, z, dx, dz);
         RtfLap.Frame frame = RtfLap.boundFrame();

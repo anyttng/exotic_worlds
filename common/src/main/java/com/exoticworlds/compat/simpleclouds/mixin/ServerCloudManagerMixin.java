@@ -11,7 +11,7 @@ import dev.nonamecrackers2.simpleclouds.common.world.ServerCloudManager;
 @Mixin(value = ServerCloudManager.class, remap = false)
 public abstract class ServerCloudManagerMixin {
     @WrapMethod(method = "attemptToSpawnLightning")
-    private void toroidal$bindCloudShape(Operation<Void> original) {
-        SimpleCloudsShapes.bound(((CloudManagerAccessor) this).toroidal$level(), () -> original.call());
+    private void exotic_worlds$bindCloudShape(Operation<Void> original) {
+        SimpleCloudsShapes.bound(((CloudManagerAccessor) this).exotic_worlds$level(), () -> original.call());
     }
 }

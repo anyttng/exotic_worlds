@@ -20,7 +20,7 @@ public abstract class GantryContraptionEntityClientMixin {
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/contraptions/gantry/GantryContraptionUpdatePacket;"
                             + "coord()D"))
-    private static double toroidal$syncedCoordInTheGantryFrame(double canonicalCoord,
+    private static double exotic_worlds$syncedCoordInTheGantryFrame(double canonicalCoord,
             @Local GantryContraptionEntityClientMixin gantry) {
         Entity entity = (Entity) (Object) gantry;
         return CreateContraptionFold.axisInFrameOf(entity, gantry.movementAxis.getAxis(), canonicalCoord);

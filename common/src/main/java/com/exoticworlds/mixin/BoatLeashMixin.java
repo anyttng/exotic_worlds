@@ -15,7 +15,7 @@ public class BoatLeashMixin {
     @ModifyExpressionValue(
             method = "elasticRangeLeashBehaviour",
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_POSITION))
-    private Vec3 toroidal$holderPositionThroughSeam(Vec3 holderPosition) {
+    private Vec3 exotic_worlds$holderPositionThroughSeam(Vec3 holderPosition) {
         Boat boat = (Boat) (Object) this;
         return SeamSteering.nearestCopy(boat, holderPosition);
     }

@@ -19,7 +19,7 @@ public interface ITrackBlockClientMixin {
     @WrapOperation(method = "walkConnectedTracks",
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/trains/graph/TrackNodeLocation;allAdjacent()Ljava/util/Collection;"))
-    private static Collection<BlockPos> toroidal$walkInClientFrame(TrackNodeLocation location,
+    private static Collection<BlockPos> exotic_worlds$walkInClientFrame(TrackNodeLocation location,
             Operation<Collection<BlockPos>> original, BlockGetter worldIn, TrackNodeLocation walkedFrom,
             boolean linear) {
         return CreateClientFrame.nearestCopies(worldIn, original.call(location));

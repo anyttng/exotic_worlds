@@ -27,7 +27,7 @@ public abstract class ServerboundPunchSubLevelPacketMixin {
                     @At(value = "INVOKE", target = PLAYER_INVERSE, ordinal = 1),
                     @At(value = "INVOKE", target = PLAYER_INVERSE, ordinal = 2)
             })
-    private Vector3d toroidal$frameOnPunch(Pose3d pose, Vector3d global, Operation<Vector3d> original, @Local Player player) {
+    private Vector3d exotic_worlds$frameOnPunch(Pose3d pose, Vector3d global, Operation<Vector3d> original, @Local Player player) {
         return SeamFrame.with(player.level(), player, Entity::position, original, pose, global);
     }
 }

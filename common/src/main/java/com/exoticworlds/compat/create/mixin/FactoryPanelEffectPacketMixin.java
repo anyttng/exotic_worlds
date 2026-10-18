@@ -18,7 +18,7 @@ public abstract class FactoryPanelEffectPacketMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/multiplayer/ClientLevel;getBlockState"
                             + "(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"))
-    private BlockPos toroidal$sourceBlockInTheViewerFrame(BlockPos canonical) {
+    private BlockPos exotic_worlds$sourceBlockInTheViewerFrame(BlockPos canonical) {
         return CreateClientFrame.inViewerFrame(canonical);
     }
 
@@ -26,7 +26,7 @@ public abstract class FactoryPanelEffectPacketMixin {
             at = @At(value = "FIELD", opcode = Opcodes.GETFIELD,
                     target = "Lcom/simibubi/create/content/logistics/factoryBoard/FactoryPanelEffectPacket;"
                             + "toPos:Lcom/simibubi/create/content/logistics/factoryBoard/FactoryPanelPosition;"))
-    private FactoryPanelPosition toroidal$targetPanelInTheViewerFrame(FactoryPanelPosition canonical) {
+    private FactoryPanelPosition exotic_worlds$targetPanelInTheViewerFrame(FactoryPanelPosition canonical) {
         BlockPos folded = CreateClientFrame.inViewerFrame(canonical.pos());
         return folded == canonical.pos() ? canonical : new FactoryPanelPosition(folded, canonical.slot());
     }

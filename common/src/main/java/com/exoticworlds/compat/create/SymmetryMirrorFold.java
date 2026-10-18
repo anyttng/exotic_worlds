@@ -18,7 +18,7 @@ public final class SymmetryMirrorFold {
         }
 
         // A copy, since the stack hands back its stored mirror and moving it would move the player's own.
-        return SymmetryMirrorAccessor.toroidal$create(
+        return SymmetryMirrorAccessor.exotic_worlds$create(
                 mirror.getOrientationIndex(), nearest, mirror.typeName(), mirror.enable);
     }
 

@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 @Mixin(value = SmartBlockEntity.class, remap = false)
 public class SmartBlockEntitySyncedTagMixin {
     @ModifyVariable(method = { "loadAdditional", "readClient" }, at = @At("HEAD"), argsOnly = true)
-    private CompoundTag toroidal$foldSyncedPositionsIntoOwnFrame(CompoundTag tag) {
+    private CompoundTag exotic_worlds$foldSyncedPositionsIntoOwnFrame(CompoundTag tag) {
         return SyncedTagFold.inFrameOf((BlockEntity) (Object) this, tag);
     }
 }

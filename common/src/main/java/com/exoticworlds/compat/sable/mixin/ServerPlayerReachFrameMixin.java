@@ -12,7 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerReachFrameMixin {
     @WrapMethod(method = "isReachableBedBlock")
-    private boolean toroidal$frameOnBedReach(BlockPos pos, Operation<Boolean> original) {
+    private boolean exotic_worlds$frameOnBedReach(BlockPos pos, Operation<Boolean> original) {
         return SableReachFrame.bedReach((ServerPlayer) (Object) this, pos, original);
     }
 }

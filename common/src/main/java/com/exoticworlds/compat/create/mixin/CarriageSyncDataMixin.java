@@ -16,7 +16,7 @@ public class CarriageSyncDataMixin {
     @WrapOperation(method = "approachVector",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_SUBTRACT))
-    private Vec3 toroidal$approachTheShortWayRound(Vec3 target, Vec3 snapshot, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$approachTheShortWayRound(Vec3 target, Vec3 snapshot, Operation<Vec3> original) {
         return original.call(CreateClientFrame.nearestCopy(snapshot, target), snapshot);
     }
 }

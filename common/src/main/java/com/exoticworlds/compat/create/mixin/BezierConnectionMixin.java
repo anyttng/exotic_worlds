@@ -31,21 +31,21 @@ public abstract class BezierConnectionMixin implements BezierCurveFold {
     public Couple<Vec3> starts;
 
     @Unique
-    private @Nullable ResourceKey<Level> toroidal$dimension;
+    private @Nullable ResourceKey<Level> exotic_worlds$dimension;
 
     @Override
-    public void toroidal$foldCurve(@Nullable Level level, @Nullable ResourceKey<Level> dimension) {
+    public void exotic_worlds$foldCurve(@Nullable Level level, @Nullable ResourceKey<Level> dimension) {
         if (dimension != null) {
-            this.toroidal$dimension = dimension;
+            this.exotic_worlds$dimension = dimension;
         }
 
-        WorldFold transformer = CreateSeamFold.transformerOf(level, this.toroidal$dimension);
+        WorldFold transformer = CreateSeamFold.transformerOf(level, this.exotic_worlds$dimension);
         if (transformer == null) {
             return;
         }
 
-        toroidal$canonicaliseEnd(transformer, true);
-        toroidal$canonicaliseEnd(transformer, false);
+        exotic_worlds$canonicaliseEnd(transformer, true);
+        exotic_worlds$canonicaliseEnd(transformer, false);
 
         Vec3 ownerCentre = Vec3.atCenterOf(this.bePositions.getFirst());
         Vec3 rawNearEnd = this.starts.getFirst();
@@ -62,7 +62,7 @@ public abstract class BezierConnectionMixin implements BezierCurveFold {
     }
 
     @Unique
-    private void toroidal$canonicaliseEnd(WorldFold transformer, boolean first) {
+    private void exotic_worlds$canonicaliseEnd(WorldFold transformer, boolean first) {
         BlockPos rawEnd = this.bePositions.get(first);
         BlockPos end = transformer.fold(rawEnd);
         if (end != rawEnd) {
@@ -71,12 +71,12 @@ public abstract class BezierConnectionMixin implements BezierCurveFold {
     }
 
     @Inject(method = "secondary", at = @At("RETURN"))
-    private void toroidal$foldSwappedCopy(CallbackInfoReturnable<BezierConnection> cir) {
-        ((BezierCurveFold) cir.getReturnValue()).toroidal$foldCurve(null, this.toroidal$dimension);
+    private void exotic_worlds$foldSwappedCopy(CallbackInfoReturnable<BezierConnection> cir) {
+        ((BezierCurveFold) cir.getReturnValue()).exotic_worlds$foldCurve(null, this.exotic_worlds$dimension);
     }
 
     @Inject(method = "clone()Lcom/simibubi/create/content/trains/track/BezierConnection;", at = @At("RETURN"))
-    private void toroidal$carryDimensionToCopy(CallbackInfoReturnable<BezierConnection> cir) {
-        ((BezierCurveFold) cir.getReturnValue()).toroidal$foldCurve(null, this.toroidal$dimension);
+    private void exotic_worlds$carryDimensionToCopy(CallbackInfoReturnable<BezierConnection> cir) {
+        ((BezierCurveFold) cir.getReturnValue()).exotic_worlds$foldCurve(null, this.exotic_worlds$dimension);
     }
 }

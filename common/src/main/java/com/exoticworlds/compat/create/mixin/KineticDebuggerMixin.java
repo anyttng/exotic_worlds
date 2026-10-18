@@ -19,7 +19,7 @@ public abstract class KineticDebuggerMixin {
             at = @At(value = "FIELD", opcode = Opcodes.GETFIELD,
                     target = "Lcom/simibubi/create/content/kinetics/base/KineticBlockEntity;"
                             + "source:Lnet/minecraft/core/BlockPos;"))
-    private static @Nullable BlockPos toroidal$sourceInTheBlockEntityFrame(@Nullable BlockPos canonical,
+    private static @Nullable BlockPos exotic_worlds$sourceInTheBlockEntityFrame(@Nullable BlockPos canonical,
             @Local KineticBlockEntity blockEntity) {
         if (canonical == null) {
             return null;

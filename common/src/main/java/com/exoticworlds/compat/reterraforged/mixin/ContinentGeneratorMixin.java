@@ -51,7 +51,7 @@ public abstract class ContinentGeneratorMixin {
     private WorldSettings.ControlPoints controlPoints;
 
     @WrapMethod(method = "apply")
-    private void toroidal$closeApply(Cell cell, float x, float y, Operation<Void> original) {
+    private void exotic_worlds$closeApply(Cell cell, float x, float y, Operation<Void> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
             original.call(cell, x, y);
@@ -64,7 +64,7 @@ public abstract class ContinentGeneratorMixin {
     }
 
     @WrapMethod(method = "getEdgeValue")
-    private float toroidal$closeEdge(float x, float y, Operation<Float> original) {
+    private float exotic_worlds$closeEdge(float x, float y, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
             return original.call(x, y);
@@ -76,7 +76,7 @@ public abstract class ContinentGeneratorMixin {
     }
 
     @WrapMethod(method = "getNearestCenter")
-    private long toroidal$closeCenter(float x, float z, Operation<Long> original) {
+    private long exotic_worlds$closeCenter(float x, float z, Operation<Long> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
             return original.call(x, z);
@@ -88,7 +88,7 @@ public abstract class ContinentGeneratorMixin {
     }
 
     @WrapMethod(method = "getDistanceToOcean")
-    private float toroidal$firstCoast(int x, int z, float dx, float dz, Operation<Float> original) {
+    private float exotic_worlds$firstCoast(int x, int z, float dx, float dz, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         float reach = frame == null ? RiverReach.UNBOUNDED : RiverReach.reach(frame, dx, dz);
         if (reach == RiverReach.UNBOUNDED) {
@@ -101,35 +101,35 @@ public abstract class ContinentGeneratorMixin {
 
     @ModifyExpressionValue(method = {"apply", "getEdgeValue", "getNearestCenter"},
             at = @At(value = "FIELD", target = FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = X_READ))
-    private float toroidal$snapX(float frequency) {
+    private float exotic_worlds$snapX(float frequency) {
         return RtfLap.snapped(Direction.Axis.X, frequency);
     }
 
     @ModifyExpressionValue(method = {"apply", "getEdgeValue", "getNearestCenter"},
             at = @At(value = "FIELD", target = FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = Z_READ))
-    private float toroidal$snapZ(float frequency) {
+    private float exotic_worlds$snapZ(float frequency) {
         return RtfLap.snapped(Direction.Axis.Z, frequency);
     }
 
     @WrapOperation(method = "apply", at = @At(value = "FIELD", target = ReTerraForgedInjectionTargets.CELL_CONTINENT_X,
             opcode = Opcodes.PUTFIELD))
-    private void toroidal$canonicalCenterX(Cell cell, int value, Operation<Void> original,
+    private void exotic_worlds$canonicalCenterX(Cell cell, int value, Operation<Void> original,
             @Local(name = "cellX") int cellX, @Local(name = "cellY") int cellY) {
         RtfLap.Frame frame = RtfLap.boundFrame();
-        original.call(cell, frame == null ? value : toroidal$centerX(frame, cellX, cellY));
+        original.call(cell, frame == null ? value : exotic_worlds$centerX(frame, cellX, cellY));
     }
 
     @WrapOperation(method = "apply", at = @At(value = "FIELD", target = ReTerraForgedInjectionTargets.CELL_CONTINENT_Z,
             opcode = Opcodes.PUTFIELD))
-    private void toroidal$canonicalCenterZ(Cell cell, int value, Operation<Void> original,
+    private void exotic_worlds$canonicalCenterZ(Cell cell, int value, Operation<Void> original,
             @Local(name = "cellX") int cellX, @Local(name = "cellY") int cellY) {
         RtfLap.Frame frame = RtfLap.boundFrame();
-        original.call(cell, frame == null ? value : toroidal$centerZ(frame, cellX, cellY));
+        original.call(cell, frame == null ? value : exotic_worlds$centerZ(frame, cellX, cellY));
     }
 
     // The winning cell's jittered point lies well inside the cell, so flooring it gives the cell back.
     @WrapOperation(method = "getNearestCenter", at = @At(value = "INVOKE", target = POS_PACK))
-    private long toroidal$canonicalNearest(int conX, int conZ, Operation<Long> original,
+    private long exotic_worlds$canonicalNearest(int conX, int conZ, Operation<Long> original,
             @Local(name = "centerX") float centerX, @Local(name = "centerY") float centerY) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
@@ -138,17 +138,17 @@ public abstract class ContinentGeneratorMixin {
 
         int cellX = (int) Math.floor(centerX);
         int cellY = (int) Math.floor(centerY);
-        return PosUtil.pack(toroidal$centerX(frame, cellX, cellY), toroidal$centerZ(frame, cellX, cellY));
+        return PosUtil.pack(exotic_worlds$centerX(frame, cellX, cellY), exotic_worlds$centerZ(frame, cellX, cellY));
     }
 
     @Unique
-    private int toroidal$centerX(RtfLap.Frame frame, int cellX, int cellY) {
+    private int exotic_worlds$centerX(RtfLap.Frame frame, int cellX, int cellY) {
         return (int) CellCenters.blockX(frame, CellCenters.Center.JITTERED, this.seed, cellX, cellY, this.offsetAlpha,
                 this.frequency);
     }
 
     @Unique
-    private int toroidal$centerZ(RtfLap.Frame frame, int cellX, int cellY) {
+    private int exotic_worlds$centerZ(RtfLap.Frame frame, int cellX, int cellY) {
         return (int) CellCenters.blockZ(frame, CellCenters.Center.JITTERED, this.seed, cellX, cellY, this.offsetAlpha,
                 this.frequency);
     }

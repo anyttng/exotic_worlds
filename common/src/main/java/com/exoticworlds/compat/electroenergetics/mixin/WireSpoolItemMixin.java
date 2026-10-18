@@ -18,14 +18,14 @@ import net.minecraft.world.level.Level;
 @Mixin(value = WireSpoolItem.class, remap = false)
 public abstract class WireSpoolItemMixin {
     @WrapOperation(method = "useOn", at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
-    private double toroidal$placedSpan(BlockPos from, Vec3i to, Operation<Double> original,
+    private double exotic_worlds$placedSpan(BlockPos from, Vec3i to, Operation<Double> original,
             @Local(argsOnly = true) UseOnContext context) {
         return original.call(from, WireSpan.seat(context.getLevel(), from, to));
     }
 
     @WrapOperation(method = "interactDetachedNode",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
-    private double toroidal$hungSpan(BlockPos from, Vec3i to, Operation<Double> original,
+    private double exotic_worlds$hungSpan(BlockPos from, Vec3i to, Operation<Double> original,
             @Local(argsOnly = true) Level level) {
         return original.call(from, WireSpan.seat(level, from, to));
     }

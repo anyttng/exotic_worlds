@@ -37,7 +37,7 @@ public class SubLevelHoldingChunkMapMixin {
     private SubLevelStorage storage;
 
     @Unique
-    private final LongSet toroidal$absentRegions = new LongOpenHashSet();
+    private final LongSet exotic_worlds$absentRegions = new LongOpenHashSet();
 
     @Shadow
     private SubLevelHoldingChunk getOrLoadHoldingChunk(ChunkPos chunkPos, boolean create) {
@@ -45,26 +45,26 @@ public class SubLevelHoldingChunkMapMixin {
     }
 
     @ModifyVariable(method = "moveToUnloaded", at = @At("HEAD"), argsOnly = true)
-    private ChunkPos toroidal$holdInPhysicalChunk(ChunkPos pos) {
+    private ChunkPos exotic_worlds$holdInPhysicalChunk(ChunkPos pos) {
         return SableChunkKeys.physical(this.level, pos);
     }
 
     @ModifyExpressionValue(
             method = "saveAll",
             at = @At(value = "NEW", target = "(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/ChunkPos;", remap = true))
-    private ChunkPos toroidal$saveInPhysicalChunk(ChunkPos pos) {
+    private ChunkPos exotic_worlds$saveInPhysicalChunk(ChunkPos pos) {
         return SableChunkKeys.physical(this.level, pos);
     }
 
     @Inject(method = "processLoad", at = @At("RETURN"))
-    private void toroidal$loadRawAliases(ChunkPos pos, CallbackInfo ci) {
+    private void exotic_worlds$loadRawAliases(ChunkPos pos, CallbackInfo ci) {
         WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(this.level);
         if (fold == null) {
             return;
         }
 
         for (ChunkPos alias : SableChunkKeys.rawAliases(fold, pos)) {
-            if (!toroidal$regionStored(alias)) {
+            if (!exotic_worlds$regionStored(alias)) {
                 continue;
             }
 
@@ -76,9 +76,9 @@ public class SubLevelHoldingChunkMapMixin {
     }
 
     @Unique
-    private boolean toroidal$regionStored(ChunkPos chunk) {
+    private boolean exotic_worlds$regionStored(ChunkPos chunk) {
         long region = ChunkPos.asLong(chunk.getRegionX(), chunk.getRegionZ());
-        if (this.toroidal$absentRegions.contains(region)) {
+        if (this.exotic_worlds$absentRegions.contains(region)) {
             return false;
         }
 
@@ -86,7 +86,7 @@ public class SubLevelHoldingChunkMapMixin {
             return true;
         }
 
-        this.toroidal$absentRegions.add(region);
+        this.exotic_worlds$absentRegions.add(region);
         return false;
     }
 }

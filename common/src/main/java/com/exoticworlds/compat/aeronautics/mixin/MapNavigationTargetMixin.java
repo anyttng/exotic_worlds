@@ -22,7 +22,7 @@ public class MapNavigationTargetMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO_SQR_XYZ),
             require = 2,
             expect = 2)
-    private static double toroidal$distanceTheShortWayRound(Vec3 from, double x, double y, double z,
+    private static double exotic_worlds$distanceTheShortWayRound(Vec3 from, double x, double y, double z,
             Operation<Double> original, @Local(argsOnly = true) @Nullable Level level) {
         return SableSeamDistance.sqr(level, from, x, y, z, original);
     }

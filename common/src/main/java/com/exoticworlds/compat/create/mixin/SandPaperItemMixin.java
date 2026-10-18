@@ -19,7 +19,7 @@ public class SandPaperItemMixin {
     @WrapOperation(method = "use",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_DISTANCE_TO))
-    private double toroidal$foldPickUpReach(Vec3 item, Vec3 player, Operation<Double> original,
+    private double exotic_worlds$foldPickUpReach(Vec3 item, Vec3 player, Operation<Double> original,
             Level worldIn, Player playerIn, InteractionHand handIn) {
         return original.call(CreateSeamFold.nearestCopy(worldIn, player, item), player);
     }

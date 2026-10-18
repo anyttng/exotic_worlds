@@ -34,7 +34,7 @@ public abstract class UndergroundBiomeBandingMixin {
     private static final int HORIZONTAL_SIZE = 3;
 
     @ModifyVariable(method = SAMPLE, at = @At("STORE"), name = "x")
-    private static double toroidal$latticeX(double x, @Local(argsOnly = true, ordinal = BLOCK_X) int blockX,
+    private static double exotic_worlds$latticeX(double x, @Local(argsOnly = true, ordinal = BLOCK_X) int blockX,
             @Local(argsOnly = true, ordinal = BLOCK_Z) int blockZ,
             @Local(argsOnly = true, ordinal = HORIZONTAL_SIZE) int horizontalSize) {
         RtfLap.Frame frame = RtfLap.boundFrame();
@@ -45,7 +45,7 @@ public abstract class UndergroundBiomeBandingMixin {
     }
 
     @ModifyVariable(method = SAMPLE, at = @At("STORE"), name = "z")
-    private static double toroidal$latticeZ(double z, @Local(argsOnly = true, ordinal = BLOCK_Z) int blockZ,
+    private static double exotic_worlds$latticeZ(double z, @Local(argsOnly = true, ordinal = BLOCK_Z) int blockZ,
             @Local(argsOnly = true, ordinal = HORIZONTAL_SIZE) int horizontalSize) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         return frame == null
@@ -54,7 +54,7 @@ public abstract class UndergroundBiomeBandingMixin {
     }
 
     @WrapOperation(method = SAMPLE, at = @At(value = "INVOKE", target = CELL_HASH))
-    private static long toroidal$foldedCell(long seed, int x, int y, int z, long salt, Operation<Long> original,
+    private static long exotic_worlds$foldedCell(long seed, int x, int y, int z, long salt, Operation<Long> original,
             @Local(argsOnly = true, ordinal = HORIZONTAL_SIZE) int horizontalSize) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {

@@ -16,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(value = PackagePortPlacementPacket.class, remap = false)
 public class PackagePortPlacementPacketMixin {
     @WrapOperation(method = "handle", at = @At(value = "INVOKE", target = InjectionTargets.VEC3_CLOSER_THAN))
-    private boolean toroidal$foldPortRange(Vec3 target, Position port, double range, Operation<Boolean> original,
+    private boolean exotic_worlds$foldPortRange(Vec3 target, Position port, double range, Operation<Boolean> original,
             ServerPlayer player) {
         if (player == null || !(port instanceof Vec3 anchor)) {
             return original.call(target, port, range);

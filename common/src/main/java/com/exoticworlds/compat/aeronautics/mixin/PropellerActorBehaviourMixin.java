@@ -36,13 +36,13 @@ public abstract class PropellerActorBehaviourMixin {
             "Lnet/minecraft/world/level/Level;clip(Lnet/minecraft/world/level/ClipContext;)Lnet/minecraft/world/phys/BlockHitResult;";
 
     @WrapOperation(method = "pushEntities", at = @At(value = "INVOKE", target = PROPELLER_CENTRE))
-    private Vector3d toroidal$centreInTheEntityFrame(Pose3d pose, Vector3d centre, Operation<Vector3d> original,
+    private Vector3d exotic_worlds$centreInTheEntityFrame(Pose3d pose, Vector3d centre, Operation<Vector3d> original,
             @Local Entity entity) {
         return SeamFrame.with(entity.level(), entity, Entity::position, original, pose, centre);
     }
 
     @WrapOperation(method = "pushEntities", at = @At(value = "INVOKE", target = InjectionTargets.VECTOR3D_SUB))
-    private Vector3d toroidal$offsetFromTheNearestCentre(Vector3d entityCentre, Vector3dc centre,
+    private Vector3d exotic_worlds$offsetFromTheNearestCentre(Vector3d entityCentre, Vector3dc centre,
             Operation<Vector3d> original, @Local Entity entity, @Local @Nullable SubLevel subLevel) {
         if (subLevel != null) {
             return original.call(entityCentre, centre);
@@ -56,7 +56,7 @@ public abstract class PropellerActorBehaviourMixin {
     }
 
     @WrapOperation(method = "pushEntities", at = @At(value = "INVOKE", target = AIRFLOW_RAY))
-    private BlockHitResult toroidal$rayInTheEntityFrame(Level level, ClipContext context,
+    private BlockHitResult exotic_worlds$rayInTheEntityFrame(Level level, ClipContext context,
             Operation<BlockHitResult> original, @Local Entity entity) {
         return SeamFrame.with(level, entity, Entity::position, original, level, context);
     }

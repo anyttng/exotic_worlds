@@ -17,7 +17,7 @@ public class CouplingHandlerMixin {
     @WrapOperation(method = "tryToCoupleCarts",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_DISTANCE_TO))
-    private static double toroidal$couplingSpanBetweenTheNearCopies(Vec3 position, Vec3 otherPosition,
+    private static double exotic_worlds$couplingSpanBetweenTheNearCopies(Vec3 position, Vec3 otherPosition,
             Operation<Double> original, @Local(argsOnly = true) Level world) {
         return original.call(position, CreateSeamFold.nearestCopy(world, position, otherPosition));
     }

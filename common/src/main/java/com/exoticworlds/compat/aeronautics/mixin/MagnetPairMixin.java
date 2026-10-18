@@ -19,7 +19,7 @@ public class MagnetPairMixin {
                     + "Ldev/simulated_team/simulated/content/blocks/redstone_magnet/SimMagnet;"
                     + "Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;Lorg/joml/Vector3d;)Lorg/joml/Vector3d;",
             at = @At("RETURN"))
-    private static Vector3d toroidal$foldPairDelta(Vector3d relative, SimMagnet magnet1, SimMagnet magnet2,
+    private static Vector3d exotic_worlds$foldPairDelta(Vector3d relative, SimMagnet magnet1, SimMagnet magnet2,
             Vec3 plotPos1, Vec3 plotPos2, Vector3d dest) {
         return MagnetSeamDelta.fold(magnet1, relative);
     }

@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 @Mixin(value = TileEntityMultiblock.class, remap = false)
 public class TileEntityMultiblockMixin {
     @WrapOperation(method = "onNeighborChange", at = @At(value = "INVOKE", target = InjectionTargets.SET_CONTAINS))
-    private boolean toroidal$internalInFrame(Set<?> internalLocations, Object neighborPos, Operation<Boolean> original,
+    private boolean exotic_worlds$internalInFrame(Set<?> internalLocations, Object neighborPos, Operation<Boolean> original,
             @Local MultiblockData multiblock) {
         return original.call(internalLocations, MultiblockFrames.seatOnto((Object) multiblock, neighborPos));
     }
@@ -33,7 +33,7 @@ public class TileEntityMultiblockMixin {
                     target = "Lmekanism/common/lib/multiblock/MultiblockData;readUpdateTag"
                             + "(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;)V"),
             index = 0)
-    private CompoundTag toroidal$seatOntoTileCopy(CompoundTag tag) {
+    private CompoundTag exotic_worlds$seatOntoTileCopy(CompoundTag tag) {
         BlockEntity tile = (BlockEntity) (Object) this;
         return MultiblockSyncedTag.seat(WorldLoopAttachments.transformerOfReader(tile.getLevel()),
                 tile.getBlockPos(), tag);

@@ -16,7 +16,7 @@ public abstract class DetachedNodeEntityMixin {
     @ModifyExpressionValue(method = "tick", at = @At(value = "INVOKE",
             target = "Lcom/george_vi/electroenergetics/simulation/infrastructure/InWorldNodeData;getGlobalPos()"
                     + "Lnet/minecraft/world/phys/Vec3;"))
-    private Vec3 toroidal$neighbourBesideNode(Vec3 neighbour, @Local(name = "targetPos") Vec3 targetPos) {
+    private Vec3 exotic_worlds$neighbourBesideNode(Vec3 neighbour, @Local(name = "targetPos") Vec3 targetPos) {
         return WireSpan.seat(((Entity) (Object) this).level(), targetPos, neighbour);
     }
 }

@@ -24,12 +24,12 @@ public abstract class WireElectrocutionModuleMixin {
     ServerLevel level;
 
     @ModifyVariable(method = "computeForWires", at = @At("STORE"), name = "bb2")
-    private AABB toroidal$wireBoxBesideEntity(AABB bb2, @Local(name = "bb1") AABB entityBox) {
+    private AABB exotic_worlds$wireBoxBesideEntity(AABB bb2, @Local(name = "bb1") AABB entityBox) {
         return WireSpan.apply(WireSpan.wireToward(this.level, entityBox.getCenter(), bb2), bb2);
     }
 
     @ModifyVariable(method = "computeForWires", at = @At("STORE"), name = "points")
-    private List<Vec3> toroidal$wirePointsBesideEntity(List<Vec3> points, @Local(name = "bb1") AABB entityBox,
+    private List<Vec3> exotic_worlds$wirePointsBesideEntity(List<Vec3> points, @Local(name = "bb1") AABB entityBox,
             @Local(name = "connectionEntry") ConnectionEntry wire) {
         return WireSpan.apply(WireSpan.wireToward(this.level, entityBox.getCenter(), wire.dangerousBB), points);
     }

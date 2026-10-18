@@ -29,7 +29,7 @@ import net.minecraft.world.level.Level;
 @Mixin(value = ConnectedInputHandler.class, remap = false)
 public abstract class ConnectedInputHandlerMixin {
     @WrapMethod(method = "toggleConnection")
-    private static void toroidal$toggleInOneFrame(Level world, BlockPos pos, BlockPos pos2,
+    private static void exotic_worlds$toggleInOneFrame(Level world, BlockPos pos, BlockPos pos2,
             Operation<Void> original) {
         original.call(world, CreateSeamFold.canonicalOnServer(world, pos),
                 CreateSeamFold.canonicalOnServer(world, pos2));
@@ -38,7 +38,7 @@ public abstract class ConnectedInputHandlerMixin {
     @WrapOperation(method = "toggleConnection",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_OFFSET))
-    private static BlockPos toroidal$controllerInCanonicalFrame(BlockPos position, Vec3i delta,
+    private static BlockPos exotic_worlds$controllerInCanonicalFrame(BlockPos position, Vec3i delta,
             Operation<BlockPos> original, @Local(argsOnly = true) Level world) {
         return CreateSeamFold.canonicalOnServer(world, original.call(position, delta));
     }
@@ -47,7 +47,7 @@ public abstract class ConnectedInputHandlerMixin {
     @WrapOperation(method = "toggleConnection",
             at = @At(value = "INVOKE",
                     target = "Ljava/util/stream/Stream;collect(Ljava/util/stream/Collector;)Ljava/lang/Object;"))
-    private static Object toroidal$membersInCanonicalFrame(Stream<?> stream, Collector<?, ?, ?> collector,
+    private static Object exotic_worlds$membersInCanonicalFrame(Stream<?> stream, Collector<?, ?, ?> collector,
             Operation<Object> original, @Local(argsOnly = true) Level world) {
         Object collected = original.call(stream, collector);
         if (!(collected instanceof Set<?> members)) {
@@ -60,13 +60,13 @@ public abstract class ConnectedInputHandlerMixin {
     @WrapOperation(method = "toggleConnection",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_RELATIVE))
-    private static BlockPos toroidal$floodStepInCanonicalFrame(BlockPos current, Direction direction,
+    private static BlockPos exotic_worlds$floodStepInCanonicalFrame(BlockPos current, Direction direction,
             Operation<BlockPos> original, @Local(argsOnly = true) Level world) {
         return CreateSeamFold.canonicalOnServer(world, original.call(current, direction));
     }
 
     @Inject(method = "initAndAddAll", at = @At("RETURN"))
-    private static void toroidal$normalizeAfterInitAndAddAll(Level world, MechanicalCrafterBlockEntity crafter,
+    private static void exotic_worlds$normalizeAfterInitAndAddAll(Level world, MechanicalCrafterBlockEntity crafter,
             Collection<BlockPos> positions, CallbackInfo ci) {
         if (world instanceof ServerLevel serverLevel) {
             CrafterGroupFold.normalizeGroup(serverLevel, crafter);
@@ -74,7 +74,7 @@ public abstract class ConnectedInputHandlerMixin {
     }
 
     @Inject(method = "connectControllers", at = @At("RETURN"))
-    private static void toroidal$normalizeAfterConnectControllers(Level world, MechanicalCrafterBlockEntity crafter1,
+    private static void exotic_worlds$normalizeAfterConnectControllers(Level world, MechanicalCrafterBlockEntity crafter1,
             MechanicalCrafterBlockEntity crafter2, CallbackInfo ci) {
         if (world instanceof ServerLevel serverLevel) {
             CrafterGroupFold.normalizeGroup(serverLevel, crafter1);

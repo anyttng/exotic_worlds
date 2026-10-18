@@ -26,7 +26,7 @@ public class SchematicAndQuillHandlerMixin {
             at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD,
                     target = "Lcom/simibubi/create/content/schematics/client/SchematicAndQuillHandler;"
                             + "secondPos:Lnet/minecraft/core/BlockPos;"))
-    private void toroidal$refuseOversizedSelection(int button, boolean pressed,
+    private void exotic_worlds$refuseOversizedSelection(int button, boolean pressed,
             CallbackInfoReturnable<Boolean> callback) {
         if (CreateSchematicSelection.refuseOversizedCorner(firstPos, selectedPos)) {
             callback.setReturnValue(true);
@@ -37,7 +37,7 @@ public class SchematicAndQuillHandlerMixin {
             at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD,
                     target = "Lcom/simibubi/create/content/schematics/client/SchematicAndQuillHandler;"
                             + "firstPos:Lnet/minecraft/core/BlockPos;"))
-    private void toroidal$refuseOversizedGrowth(double delta, CallbackInfoReturnable<Boolean> callback,
+    private void exotic_worlds$refuseOversizedGrowth(double delta, CallbackInfoReturnable<Boolean> callback,
             @Local(name = "bb") AABB grown) {
         if (CreateSchematicSelection.refuseOversizedGrowth(
                 BlockPos.containing(grown.minX, grown.minY, grown.minZ),

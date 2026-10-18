@@ -8,15 +8,15 @@ import com.exoticworlds.compat.journeymap.SingleCopyOverlay;
 @Mixin(targets = "journeymap.api.v2.client.display.Displayable", remap = false)
 public abstract class DisplayableMixin implements SingleCopyOverlay {
     @Unique
-    private boolean toroidal$drawsOnce;
+    private boolean exotic_worlds$drawsOnce;
 
     @Override
-    public void toroidal$drawOnce() {
-        toroidal$drawsOnce = true;
+    public void exotic_worlds$drawOnce() {
+        exotic_worlds$drawsOnce = true;
     }
 
     @Override
-    public boolean toroidal$drawsOnce() {
-        return toroidal$drawsOnce;
+    public boolean exotic_worlds$drawsOnce() {
+        return exotic_worlds$drawsOnce;
     }
 }

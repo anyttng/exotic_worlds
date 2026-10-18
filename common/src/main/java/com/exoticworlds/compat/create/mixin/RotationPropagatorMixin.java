@@ -19,7 +19,7 @@ public class RotationPropagatorMixin {
             method = "getRotationSpeedModifier",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_SUBTRACT))
-    private static BlockPos toroidal$foldNeighbourDelta(BlockPos targetPos, Vec3i anchorPos,
+    private static BlockPos exotic_worlds$foldNeighbourDelta(BlockPos targetPos, Vec3i anchorPos,
             Operation<BlockPos> original, KineticBlockEntity from, KineticBlockEntity to) {
         return CreateSeamFold.foldDelta(from.getLevel(), from.getBlockPos(), targetPos,
                 original.call(targetPos, anchorPos));

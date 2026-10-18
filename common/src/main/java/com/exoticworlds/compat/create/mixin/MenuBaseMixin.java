@@ -17,7 +17,7 @@ public class MenuBaseMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lcom/simibubi/create/foundation/gui/menu/MenuBase;createOnClient(Lnet/minecraft/network/RegistryFriendlyByteBuf;)Ljava/lang/Object;"))
-    private Object toroidal$readPayloadInClientFrame(MenuBase<?> menu, RegistryFriendlyByteBuf extraData,
+    private Object exotic_worlds$readPayloadInClientFrame(MenuBase<?> menu, RegistryFriendlyByteBuf extraData,
             Operation<Object> original) {
         return CreateMenuFrame.readingPayload(() -> original.call(menu, extraData));
     }

@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 public class PistonCooperatorEventSeatMixin {
     @ModifyArg(method = "checkExtendTogether", index = 0, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/Level;blockEvent(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;II)V"))
-    private static BlockPos toroidal$canonicalCooperatorEvent(BlockPos cooperator,
+    private static BlockPos exotic_worlds$canonicalCooperatorEvent(BlockPos cooperator,
             @Local(argsOnly = true) Level level) {
         return WorldLoopAttachments.transformerOf(level).fold(cooperator);
     }

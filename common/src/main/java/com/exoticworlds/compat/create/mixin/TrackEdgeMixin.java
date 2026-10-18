@@ -33,20 +33,20 @@ public abstract class TrackEdgeMixin {
     private static final String BEZIER_CONNECTION_GET_BOUNDS =
             "Lcom/simibubi/create/content/trains/track/BezierConnection;getBounds()Lnet/minecraft/world/phys/AABB;";
     @Unique
-    private static final String FIRST_NODE_ANCHOR = "toroidal$firstNodeAnchor";
+    private static final String FIRST_NODE_ANCHOR = "exotic_worlds$firstNodeAnchor";
     @Unique
-    private static final String OTHER_NEAR_END = "toroidal$otherNearEnd";
+    private static final String OTHER_NEAR_END = "exotic_worlds$otherNearEnd";
     @Unique
-    private static final String OTHER_SEAT = "toroidal$otherSeat";
+    private static final String OTHER_SEAT = "exotic_worlds$otherSeat";
 
     @Shadow
     public TrackNode node1;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$foldEdgeCurve(TrackNode node1, TrackNode node2, BezierConnection turn,
+    private void exotic_worlds$foldEdgeCurve(TrackNode node1, TrackNode node2, BezierConnection turn,
             TrackMaterial trackMaterial, CallbackInfo ci) {
         if (turn != null) {
-            ((BezierCurveFold) turn).toroidal$foldCurve(null, node1.getLocation().getDimension());
+            ((BezierCurveFold) turn).exotic_worlds$foldCurve(null, node1.getLocation().getDimension());
         }
     }
 
@@ -54,22 +54,22 @@ public abstract class TrackEdgeMixin {
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.TRACK_NODE_LOCATION_GET_LOCATION,
                     ordinal = 1))
-    private Vec3 toroidal$foldLengthTarget(TrackNodeLocation target, Operation<Vec3> original) {
-        return toroidal$nearestToFirstNode(target, original.call(target));
+    private Vec3 exotic_worlds$foldLengthTarget(TrackNodeLocation target, Operation<Vec3> original) {
+        return exotic_worlds$nearestToFirstNode(target, original.call(target));
     }
 
     @WrapOperation(method = "getPosition",
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.TRACK_NODE_LOCATION_GET_LOCATION,
                     ordinal = 1))
-    private Vec3 toroidal$foldPositionTarget(TrackNodeLocation target, Operation<Vec3> original) {
-        return toroidal$nearestToFirstNode(target, original.call(target));
+    private Vec3 exotic_worlds$foldPositionTarget(TrackNodeLocation target, Operation<Vec3> original) {
+        return exotic_worlds$nearestToFirstNode(target, original.call(target));
     }
 
     @WrapOperation(method = "getPositionSmoothed",
             at = @At(value = "INVOKE",
                     target = CatnipInjectionTargets.VEC_HELPER_LERP))
-    private Vec3 toroidal$foldSmoothedEnds(float t, Vec3 fromNode1, Vec3 fromNode2, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$foldSmoothedEnds(float t, Vec3 fromNode1, Vec3 fromNode2, Operation<Vec3> original) {
         TrackNodeLocation location = this.node1.getLocation();
         Vec3 anchor = location.getLocation();
         Vec3 nearEnd = CreateSeamFold.nearestCopy(location.getDimension(), anchor, fromNode1);
@@ -81,17 +81,17 @@ public abstract class TrackEdgeMixin {
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.TRACK_NODE_LOCATION_GET_LOCATION,
                     ordinal = 1))
-    private Vec3 toroidal$foldIntersectionSecondEnd(TrackNodeLocation target, Operation<Vec3> original, TrackNode node1,
+    private Vec3 exotic_worlds$foldIntersectionSecondEnd(TrackNodeLocation target, Operation<Vec3> original, TrackNode node1,
             TrackNode node2, TrackEdge other, TrackNode other1, TrackNode other2,
             @Share(FIRST_NODE_ANCHOR) LocalRef<Vec3> anchorRef) {
-        return toroidal$folded(target, toroidal$anchorOf(node1, anchorRef), original.call(target));
+        return exotic_worlds$folded(target, exotic_worlds$anchorOf(node1, anchorRef), original.call(target));
     }
 
     @WrapOperation(method = "getIntersection",
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.TRACK_NODE_LOCATION_GET_LOCATION,
                     ordinal = 2))
-    private Vec3 toroidal$foldIntersectionOtherNearEnd(TrackNodeLocation target, Operation<Vec3> original,
+    private Vec3 exotic_worlds$foldIntersectionOtherNearEnd(TrackNodeLocation target, Operation<Vec3> original,
             TrackNode node1, TrackNode node2, TrackEdge other, TrackNode other1, TrackNode other2,
             @Share(FIRST_NODE_ANCHOR) LocalRef<Vec3> anchorRef,
             @Share(OTHER_NEAR_END) LocalRef<Vec3> otherNearEndRef,
@@ -104,7 +104,7 @@ public abstract class TrackEdgeMixin {
         }
 
         CreateFrameSeat seat =
-                CreateFrameSeat.of(transformer, toroidal$anchorOf(node1, anchorRef), rawNearEnd);
+                CreateFrameSeat.of(transformer, exotic_worlds$anchorOf(node1, anchorRef), rawNearEnd);
         seatRef.set(seat);
         Vec3 folded = seat.seated().value();
         otherNearEndRef.set(folded);
@@ -115,7 +115,7 @@ public abstract class TrackEdgeMixin {
             at = @At(value = "INVOKE",
                     target = BEZIER_CONNECTION_GET_BOUNDS,
                     ordinal = 1))
-    private AABB toroidal$foldIntersectionOtherBounds(BezierConnection turn, Operation<AABB> original,
+    private AABB exotic_worlds$foldIntersectionOtherBounds(BezierConnection turn, Operation<AABB> original,
             @Share(OTHER_SEAT) LocalRef<CreateFrameSeat> seatRef) {
         AABB bounds = original.call(turn);
         CreateFrameSeat seat = seatRef.get();
@@ -126,7 +126,7 @@ public abstract class TrackEdgeMixin {
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.TRACK_EDGE_GET_POSITION,
                     ordinal = 2))
-    private Vec3 toroidal$foldIntersectionOtherCurve(TrackEdge target, TrackGraph graph, double t,
+    private Vec3 exotic_worlds$foldIntersectionOtherCurve(TrackEdge target, TrackGraph graph, double t,
             Operation<Vec3> original, @Share(OTHER_SEAT) LocalRef<CreateFrameSeat> seatRef) {
         Vec3 position = original.call(target, graph, t);
         CreateFrameSeat seat = seatRef.get();
@@ -137,21 +137,21 @@ public abstract class TrackEdgeMixin {
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.TRACK_NODE_LOCATION_GET_LOCATION,
                     ordinal = 3))
-    private Vec3 toroidal$foldIntersectionOtherFarEnd(TrackNodeLocation target, Operation<Vec3> original,
+    private Vec3 exotic_worlds$foldIntersectionOtherFarEnd(TrackNodeLocation target, Operation<Vec3> original,
             TrackNode node1, TrackNode node2, TrackEdge other, TrackNode other1, TrackNode other2,
             @Share(FIRST_NODE_ANCHOR) LocalRef<Vec3> anchorRef,
             @Share(OTHER_NEAR_END) LocalRef<Vec3> otherNearEndRef) {
         Vec3 otherNearEnd = otherNearEndRef.get();
         if (otherNearEnd == null) {
-            otherNearEnd = toroidal$folded(other1.getLocation(), toroidal$anchorOf(node1, anchorRef),
+            otherNearEnd = exotic_worlds$folded(other1.getLocation(), exotic_worlds$anchorOf(node1, anchorRef),
                     other1.getLocation().getLocation());
         }
 
-        return toroidal$folded(target, otherNearEnd, original.call(target));
+        return exotic_worlds$folded(target, otherNearEnd, original.call(target));
     }
 
     @Unique
-    private Vec3 toroidal$anchorOf(TrackNode node, LocalRef<Vec3> anchorRef) {
+    private Vec3 exotic_worlds$anchorOf(TrackNode node, LocalRef<Vec3> anchorRef) {
         Vec3 anchor = anchorRef.get();
         if (anchor == null) {
             anchor = node.getLocation().getLocation();
@@ -162,12 +162,12 @@ public abstract class TrackEdgeMixin {
     }
 
     @Unique
-    private Vec3 toroidal$nearestToFirstNode(TrackNodeLocation target, Vec3 rawTarget) {
-        return toroidal$folded(target, this.node1.getLocation().getLocation(), rawTarget);
+    private Vec3 exotic_worlds$nearestToFirstNode(TrackNodeLocation target, Vec3 rawTarget) {
+        return exotic_worlds$folded(target, this.node1.getLocation().getLocation(), rawTarget);
     }
 
     @Unique
-    private Vec3 toroidal$folded(TrackNodeLocation target, Vec3 anchor, Vec3 rawTarget) {
+    private Vec3 exotic_worlds$folded(TrackNodeLocation target, Vec3 anchor, Vec3 rawTarget) {
         return CreateSeamFold.nearestCopy(target.getDimension(), anchor, rawTarget);
     }
 }

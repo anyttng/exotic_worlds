@@ -15,7 +15,7 @@ public abstract class LinearActuatorBlockEntityMixin {
     @WrapOperation(method = "resetContraptionToOffset",
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/contraptions/AbstractContraptionEntity;setPos(DDD)V"))
-    private void toroidal$reAnchorInTheContraptionFrame(AbstractContraptionEntity moved, double x, double y, double z,
+    private void exotic_worlds$reAnchorInTheContraptionFrame(AbstractContraptionEntity moved, double x, double y, double z,
             Operation<Void> original) {
         Vec3 folded = CreateContraptionFold.inFrameOf(moved, new Vec3(x, y, z));
         original.call(moved, folded.x, folded.y, folded.z);

@@ -23,14 +23,14 @@ public class RopeStrandHolderBehaviorMixin {
     @ModifyExpressionValue(
             method = "createRope",
             at = @At(value = "INVOKE", ordinal = 0, target = PROJECT_OUT_OF_SUB_LEVEL))
-    private Vec3 toroidal$seatRopeStart(Vec3 start, @Local(argsOnly = true) RopeStrandHolderBehavior target) {
+    private Vec3 exotic_worlds$seatRopeStart(Vec3 start, @Local(argsOnly = true) RopeStrandHolderBehavior target) {
         return RopeSeamFrame.seat((RopeStrandHolderBehavior) (Object) this, target, start);
     }
 
     @ModifyExpressionValue(
             method = "createRope",
             at = @At(value = "INVOKE", ordinal = 1, target = PROJECT_OUT_OF_SUB_LEVEL))
-    private Vec3 toroidal$seatRopeTarget(Vec3 point, @Local(argsOnly = true) RopeStrandHolderBehavior target) {
+    private Vec3 exotic_worlds$seatRopeTarget(Vec3 point, @Local(argsOnly = true) RopeStrandHolderBehavior target) {
         return RopeSeamFrame.seat((RopeStrandHolderBehavior) (Object) this, target, point);
     }
 }

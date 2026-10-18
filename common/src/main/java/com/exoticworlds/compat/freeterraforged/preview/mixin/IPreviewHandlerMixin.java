@@ -20,7 +20,7 @@ import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
 public interface IPreviewHandlerMixin {
     @WrapOperation(method = "executeRegenerate",
             at = @At(value = "INVOKE", target = InjectionTargets.COMPLETABLE_FUTURE_SUPPLY_ASYNC))
-    private static CompletableFuture<?> toroidal$buildUnderTheChosenShape(Supplier<?> build, Executor executor,
+    private static CompletableFuture<?> exotic_worlds$buildUnderTheChosenShape(Supplier<?> build, Executor executor,
             Operation<CompletableFuture<?>> original, @Local WorldCreationContext settings) {
         return original.call(CreationShape.underRouterBuild(settings, build), executor);
     }

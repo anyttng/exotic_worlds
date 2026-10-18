@@ -17,7 +17,7 @@ import net.minecraft.world.phys.Vec3;
 public class BellowsGapSeatMixin {
     @ModifyArg(method = "pushEntities", index = 0, at = @At(value = "INVOKE",
             target = "Lnet/mehvahdjukaar/supplementaries/common/block/tiles/BellowsBlockTile;gapInFront(Lnet/minecraft/world/phys/AABB;Lnet/minecraft/core/Direction;)D"))
-    private AABB toroidal$boxNearestBellows(AABB box, @Local(argsOnly = true) Level level) {
+    private AABB exotic_worlds$boxNearestBellows(AABB box, @Local(argsOnly = true) Level level) {
         Vec3 bellows = Vec3.atCenterOf(((BlockEntity) (Object) this).getBlockPos());
         return FoldedBoxQuery.toward(WorldLoopAttachments.transformerOf(level), bellows, box);
     }

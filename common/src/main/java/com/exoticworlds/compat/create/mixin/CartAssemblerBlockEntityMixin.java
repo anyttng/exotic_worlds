@@ -17,7 +17,7 @@ public class CartAssemblerBlockEntityMixin {
     @WrapOperation(method = "assemble",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_SUBTRACT))
-    private Vec3 toroidal$coupledCartInTheAssemblingFrame(Vec3 coupledPosition, Vec3 position,
+    private Vec3 exotic_worlds$coupledCartInTheAssemblingFrame(Vec3 coupledPosition, Vec3 position,
             Operation<Vec3> original, @Local(argsOnly = true) Level world) {
         return original.call(CreateSeamFold.nearestCopy(world, position, coupledPosition), position);
     }

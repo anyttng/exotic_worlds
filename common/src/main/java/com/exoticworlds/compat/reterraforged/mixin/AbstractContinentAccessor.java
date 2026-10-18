@@ -8,8 +8,8 @@ import raccoonman.reterraforged.world.worldgen.cell.continent.advanced.AbstractC
 @Mixin(value = AbstractContinent.class, remap = false)
 public interface AbstractContinentAccessor {
     @Accessor("seed")
-    int toroidal$seed();
+    int exotic_worlds$seed();
 
     @Accessor("jitter")
-    float toroidal$jitter();
+    float exotic_worlds$jitter();
 }

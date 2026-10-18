@@ -19,7 +19,7 @@ public abstract class CarriageContraptionEntityRendererMixin {
             at = @At(value = "INVOKE",
                     target = "Lcom/simibubi/create/content/trains/entity/CarriageBogey;"
                             + "getAnchorPosition()Lnet/minecraft/world/phys/Vec3;"))
-    private static @Nullable Vec3 toroidal$anchorInEntityFrame(@Nullable Vec3 anchor,
+    private static @Nullable Vec3 exotic_worlds$anchorInEntityFrame(@Nullable Vec3 anchor,
             CarriageContraptionEntity entity, CarriageBogey bogey, float partialTicks) {
         if (anchor == null) {
             return null;

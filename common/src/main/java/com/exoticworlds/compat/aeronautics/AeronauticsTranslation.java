@@ -72,7 +72,7 @@ public final class AeronauticsTranslation {
 
     private static ClientboundMultiMiningSync seatedMining(ClientboundMultiMiningSync payload, TranslationContext context) {
         ClientboundMultiMiningSync seated = ClientboundMultiMiningSync.serverOutboundData(
-                ((MultiMiningSyncAccessor) (Object) payload).toroidal$breakingId());
+                ((MultiMiningSyncAccessor) (Object) payload).exotic_worlds$breakingId());
         for (Map.Entry<BlockPos, MultiMiningServerManager.BlockBreakingData> entry : payload.inData.entrySet()) {
             seated.inData.put(seat(context, entry.getKey()), entry.getValue());
         }
@@ -92,8 +92,8 @@ public final class AeronauticsTranslation {
         // Not a record, so the record fold cannot rebuild it.
         PacketTranslator.registerClientboundPayloadRewriter(PhysicsStaffBeamPacket.class, (payload, context) -> {
             PhysicsStaffBeamPacketAccessor beam = (PhysicsStaffBeamPacketAccessor) payload;
-            return new PhysicsStaffBeamPacket(beam.toroidal$uuid(), seat(context, beam.toroidal$start()),
-                    seat(context, beam.toroidal$end()));
+            return new PhysicsStaffBeamPacket(beam.exotic_worlds$uuid(), seat(context, beam.exotic_worlds$start()),
+                    seat(context, beam.exotic_worlds$end()));
         });
 
         PacketTranslator.registerEntityDataRewriter(SimEntityDataSerializers.VEC3,

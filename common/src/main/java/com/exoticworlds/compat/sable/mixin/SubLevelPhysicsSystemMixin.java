@@ -30,16 +30,16 @@ public class SubLevelPhysicsSystemMixin {
             method = "updatePose",
             at = @At(value = "INVOKE",
                     target = "Ldev/ryanhcode/sable/api/physics/PhysicsPipeline;readPose(Ldev/ryanhcode/sable/sublevel/ServerSubLevel;Ldev/ryanhcode/sable/companion/math/Pose3d;)Ldev/ryanhcode/sable/companion/math/Pose3d;"))
-    private Pose3d toroidal$reseatReadback(PhysicsPipeline pipeline, ServerSubLevel subLevel, Pose3d dest, Operation<Pose3d> original) {
+    private Pose3d exotic_worlds$reseatReadback(PhysicsPipeline pipeline, ServerSubLevel subLevel, Pose3d dest, Operation<Pose3d> original) {
         Pose3d readback = original.call(pipeline, subLevel, dest);
         SablePoseFold.reseat((SubLevelPhysicsSystem) (Object) this, subLevel, readback);
         return readback;
     }
 
     @Inject(method = "onSubLevelRemoved", at = @At("HEAD"))
-    private void toroidal$dropConstraintEdges(SubLevel subLevel, SubLevelRemovalReason reason, CallbackInfo callback) {
+    private void exotic_worlds$dropConstraintEdges(SubLevel subLevel, SubLevelRemovalReason reason, CallbackInfo callback) {
         if (subLevel instanceof PhysicsPipelineBody body && this.pipeline instanceof SableConstraintGraphHolder holder) {
-            holder.toroidal$constraintGraph().dropBody(body);
+            holder.exotic_worlds$constraintGraph().dropBody(body);
         }
     }
 }

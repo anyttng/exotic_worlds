@@ -25,19 +25,19 @@ public abstract class TrainRelocatorMixin {
             at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z"),
             require = 2,
             allow = 2)
-    private static Object toroidal$previewPointInTheViewerFrame(Object point) {
+    private static Object exotic_worlds$previewPointInTheViewerFrame(Object point) {
         if (!(point instanceof Vec3 raw)) {
             return point;
         }
 
         Vec3 anchor = toVisualise == null || toVisualise.isEmpty()
-                ? toroidal$viewer()
+                ? exotic_worlds$viewer()
                 : toVisualise.get(toVisualise.size() - 1);
         return anchor == null ? point : CreateClientFrame.nearestCopy(anchor, raw);
     }
 
     @Unique
-    private static @Nullable Vec3 toroidal$viewer() {
+    private static @Nullable Vec3 exotic_worlds$viewer() {
         LocalPlayer player = Minecraft.getInstance().player;
         return player == null ? null : player.position();
     }

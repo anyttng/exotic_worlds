@@ -18,7 +18,7 @@ public abstract class DynamicNetworkMixin {
 
     @ModifyVariable(method = "getTransmitter(J)Lmekanism/common/content/network/transmitter/Transmitter;",
             at = @At("HEAD"), argsOnly = true)
-    private long toroidal$foldTransmitterKey(long pos) {
+    private long exotic_worlds$foldTransmitterKey(long pos) {
         return MekanismSeam.fold(this.world, pos);
     }
 }

@@ -22,7 +22,7 @@ public class TransporterStackMixin {
             at = @At(value = "INVOKE", target = MekanismInjectionTargets.WORLD_UTILS_SIDE_DIFFERENCE_PACKED),
             require = 2,
             expect = 2)
-    private Direction toroidal$sideTheShortWayRound(long pos, long other, Operation<Direction> original,
+    private Direction exotic_worlds$sideTheShortWayRound(long pos, long other, Operation<Direction> original,
             @Local(argsOnly = true) LogisticalTransporterBase transporter) {
         return original.call(pos, MekanismSeam.nearestCopy(transporter.getLevel(), pos, other));
     }

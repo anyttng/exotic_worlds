@@ -19,12 +19,12 @@ public class PortableStorageInterfaceMovementMixin {
             "Lnet/createmod/catnip/math/VecHelper;getCenterOf(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/world/phys/Vec3;";
 
     @ModifyExpressionValue(method = "tick", at = @At(value = "INVOKE", target = VEC_HELPER_GET_CENTER_OF))
-    private Vec3 toroidal$workingTargetInTheActorFrame(Vec3 target, @Local(argsOnly = true) MovementContext context) {
+    private Vec3 exotic_worlds$workingTargetInTheActorFrame(Vec3 target, @Local(argsOnly = true) MovementContext context) {
         return CreateSeamFold.nearestCopy(context.world, context.position, target);
     }
 
     @ModifyExpressionValue(method = "findInterface", at = @At(value = "INVOKE", target = VEC_HELPER_GET_CENTER_OF))
-    private Vec3 toroidal$interfaceCenterInTheActorFrame(Vec3 center,
+    private Vec3 exotic_worlds$interfaceCenterInTheActorFrame(Vec3 center,
             @Local(argsOnly = true) MovementContext context) {
         return CreateSeamFold.nearestCopy(context.world, context.position, center);
     }

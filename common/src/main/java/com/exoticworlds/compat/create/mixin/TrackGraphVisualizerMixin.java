@@ -30,21 +30,21 @@ public class TrackGraphVisualizerMixin {
     @WrapOperation(method = {"visualiseSignalEdgeGroups", "debugViewGraph"},
             at = @At(value = "INVOKE",
                     target = InjectionTargets.AABB_INTERSECTS))
-    private static boolean toroidal$foldGraphBounds(AABB graphBounds, AABB viewerBox, Operation<Boolean> original) {
+    private static boolean exotic_worlds$foldGraphBounds(AABB graphBounds, AABB viewerBox, Operation<Boolean> original) {
         return original.call(CreateClientFrame.foldBoxToward(viewerBox.getCenter(), graphBounds), viewerBox);
     }
 
     @WrapOperation(method = {"visualiseSignalEdgeGroups", "debugViewGraph"},
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_DISTANCE_TO))
-    private static double toroidal$foldNodeAgainstCamera(Vec3 node, Vec3 camera, Operation<Double> original) {
+    private static double exotic_worlds$foldNodeAgainstCamera(Vec3 node, Vec3 camera, Operation<Double> original) {
         return original.call(CreateClientFrame.nearestCopy(camera, node), camera);
     }
 
     @WrapOperation(method = {"visualiseSignalEdgeGroups", "debugViewGraph"},
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.TRACK_EDGE_GET_POSITION))
-    private static Vec3 toroidal$drawInClientFrame(TrackEdge edge, TrackGraph graph, double t,
+    private static Vec3 exotic_worlds$drawInClientFrame(TrackEdge edge, TrackGraph graph, double t,
             Operation<Vec3> original) {
         Vec3 anchor = edge.node1.getLocation().getLocation();
         return CreateClientFrame.inFrameOf(anchor, original.call(edge, graph, t));
@@ -55,7 +55,7 @@ public class TrackGraphVisualizerMixin {
                 @At(value = "INVOKE", target = SHOW_LINE, ordinal = 0),
                 @At(value = "INVOKE", target = SHOW_LINE, ordinal = 1)
             })
-    private static Outline.OutlineParams toroidal$seatNodeMarker(Outliner outliner, Object slot, Vec3 start,
+    private static Outline.OutlineParams exotic_worlds$seatNodeMarker(Outliner outliner, Object slot, Vec3 start,
             Vec3 end, Operation<Outline.OutlineParams> original) {
         return original.call(outliner, slot, CreateClientFrame.inFrameOf(start, start),
                 CreateClientFrame.inFrameOf(start, end));

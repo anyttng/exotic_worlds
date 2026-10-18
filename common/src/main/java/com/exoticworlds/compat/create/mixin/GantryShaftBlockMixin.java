@@ -21,7 +21,7 @@ public abstract class GantryShaftBlockMixin {
     @WrapOperation(method = "neighborChanged", at = @At(value = "INVOKE",
             target = InjectionTargets.LEVEL_GET_BLOCK_STATE,
             ordinal = 0))
-    private BlockState toroidal$closeTheRing(Level world, BlockPos pos, Operation<BlockState> original,
+    private BlockState exotic_worlds$closeTheRing(Level world, BlockPos pos, Operation<BlockState> original,
             @Share("walkClosure") LocalRef<CreateWalkClosure> closureRef,
             @Share("walkClosureResolved") LocalBooleanRef resolved) {
         return CreateWalkClosure.read(world, pos, original, closureRef, resolved);

@@ -21,7 +21,7 @@ public abstract class FTBChunksTrainMapMixin {
     @WrapOperation(method = "renderGui",
             at = @At(value = "INVOKE",
                     target = CreateInjectionTargets.TRAIN_MAP_MANAGER_RENDER_AND_PICK))
-    private static List<FormattedText> toroidal$onTheLargeMapSurface(GuiGraphics graphics, int mouseX, int mouseY,
+    private static List<FormattedText> exotic_worlds$onTheLargeMapSurface(GuiGraphics graphics, int mouseX, int mouseY,
             boolean linearFiltering, Rect2i bounds, Operation<List<FormattedText>> original) {
         return TrainMapSurface.showing(FtbChunksFold.largeMapCopies(),
                 () -> original.call(graphics, mouseX, mouseY, linearFiltering, bounds));

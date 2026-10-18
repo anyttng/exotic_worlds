@@ -30,7 +30,7 @@ public class MTLayerMixin {
     private NoiseBasedChunkGenerator generator;
 
     @WrapMethod(method = "doCreateBiomes", order = BinderOrder.FOLD)
-    private void toroidal$bindWhileCreatingBiomes(
+    private void exotic_worlds$bindWhileCreatingBiomes(
             Blender blender,
             RandomState randomState,
             StructureManager structureManager,
@@ -46,7 +46,7 @@ public class MTLayerMixin {
                     value = "INVOKE",
                     target = "Ljava/util/stream/IntStream;forEach(Ljava/util/function/IntConsumer;)V"),
             order = BinderOrder.FOLD)
-    private void toroidal$bindEachSlice(IntStream slices, IntConsumer slice, Operation<Void> original) {
+    private void exotic_worlds$bindEachSlice(IntStream slices, IntConsumer slice, Operation<Void> original) {
         WorldFold fold = ShapedChunkGenerator.transformerOf(this.generator);
         original.call(slices, (IntConsumer) index -> GenerationTransformerContext.runWithTransformer(fold,
                 () -> slice.accept(index)));

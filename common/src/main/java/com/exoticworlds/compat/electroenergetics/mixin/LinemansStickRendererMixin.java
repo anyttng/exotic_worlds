@@ -18,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 public abstract class LinemansStickRendererMixin {
     @WrapOperation(method = "renderFirstPerson",
             at = @At(value = "INVOKE", target = ElectroEnergeticsInjectionTargets.NODE_GET_POSITION, ordinal = 1))
-    private static Vec3 toroidal$secondEndBesideFirst(InWorldNode node, Level level, Operation<Vec3> original,
+    private static Vec3 exotic_worlds$secondEndBesideFirst(InWorldNode node, Level level, Operation<Vec3> original,
             @Local(name = "pos1") Vec3 pos1) {
         return ClientFrame.nearestCopy(pos1, original.call(node, level));
     }

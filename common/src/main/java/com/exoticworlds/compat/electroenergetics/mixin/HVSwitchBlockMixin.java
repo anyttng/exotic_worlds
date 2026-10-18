@@ -15,7 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 @Mixin(value = HVSwitchBlock.class, remap = false)
 public abstract class HVSwitchBlockMixin {
     @ModifyExpressionValue(method = "tick", at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_RELATIVE_BY))
-    private BlockPos toroidal$canonicalTarget(BlockPos target, @Local(argsOnly = true) ServerLevel level) {
+    private BlockPos exotic_worlds$canonicalTarget(BlockPos target, @Local(argsOnly = true) ServerLevel level) {
         return WireSpan.block(level, target);
     }
 }

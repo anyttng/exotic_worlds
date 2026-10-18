@@ -109,17 +109,17 @@ class RtfClimateCompressionTest {
 
     private record Scales(float biomeFrequency, int temperatureScale, int moistureScale) implements RtfClimateScales {
         @Override
-        public float toroidal$biomeFrequency() {
+        public float exotic_worlds$biomeFrequency() {
             return this.biomeFrequency;
         }
 
         @Override
-        public int toroidal$temperatureScale() {
+        public int exotic_worlds$temperatureScale() {
             return this.temperatureScale;
         }
 
         @Override
-        public int toroidal$moistureScale() {
+        public int exotic_worlds$moistureScale() {
             return this.moistureScale;
         }
     }
@@ -170,11 +170,11 @@ class RtfClimateCompressionTest {
             Noise temperatureNoise = noise(module, "temperature");
             Noise moistureNoise = noise(module, "moisture");
             temperature += halfLag((x, z) -> temperatureNoise.compute((float) x, (float) z, 0), false,
-                    CELL_LAG_STEP, CELL_MAX_LAG) / scales.toroidal$temperatureScale();
+                    CELL_LAG_STEP, CELL_MAX_LAG) / scales.exotic_worlds$temperatureScale();
             moistureX += halfLag((x, z) -> moistureNoise.compute((float) x, (float) z, 0), true,
-                    CELL_LAG_STEP, CELL_MAX_LAG) / scales.toroidal$moistureScale();
+                    CELL_LAG_STEP, CELL_MAX_LAG) / scales.exotic_worlds$moistureScale();
             moistureZ += halfLag((x, z) -> moistureNoise.compute((float) x, (float) z, 0), false,
-                    CELL_LAG_STEP, CELL_MAX_LAG) / scales.toroidal$moistureScale();
+                    CELL_LAG_STEP, CELL_MAX_LAG) / scales.exotic_worlds$moistureScale();
         }
 
         String measured = "lattice " + lattice / SEEDS + ", temperature z " + temperature / SEEDS + ", moisture x "
@@ -189,9 +189,9 @@ class RtfClimateCompressionTest {
     void theScalesAreReadFromTheModule() {
         ClimateSettings settings = Presets.makeRTFDefault().climate();
         RtfClimateScales scales = DEFAULT_SCALES;
-        assertEquals(1.0F / settings.biomeShape.biomeSize, scales.toroidal$biomeFrequency());
-        assertTrue(scales.toroidal$temperatureScale() > 0, "the temperature scale was kept");
-        assertTrue(scales.toroidal$moistureScale() > scales.toroidal$temperatureScale(),
+        assertEquals(1.0F / settings.biomeShape.biomeSize, scales.exotic_worlds$biomeFrequency());
+        assertTrue(scales.exotic_worlds$temperatureScale() > 0, "the temperature scale was kept");
+        assertTrue(scales.exotic_worlds$moistureScale() > scales.exotic_worlds$temperatureScale(),
                 "the moisture scale, 2.5 times the temperature's in the preset, was kept apart from it");
     }
 
@@ -227,8 +227,8 @@ class RtfClimateCompressionTest {
     @Test
     void theTemperatureDecidesAlongZAlone() {
         WorldFold[] narrow = shapes(NARROW_CHUNKS, ClimateScale.AUTO);
-        RtfClimateScales wideTemperature = new Scales(DEFAULT_SCALES.toroidal$biomeFrequency(),
-                2 * DEFAULT_SCALES.toroidal$temperatureScale(), DEFAULT_SCALES.toroidal$moistureScale());
+        RtfClimateScales wideTemperature = new Scales(DEFAULT_SCALES.exotic_worlds$biomeFrequency(),
+                2 * DEFAULT_SCALES.exotic_worlds$temperatureScale(), DEFAULT_SCALES.exotic_worlds$moistureScale());
         assertEquals(RtfClimateCompression.factor(narrow[1], DEFAULT_SCALES),
                 RtfClimateCompression.factor(narrow[1], wideTemperature), EXACT);
         assertTrue(RtfClimateCompression.factor(narrow[2], wideTemperature)

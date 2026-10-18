@@ -15,13 +15,13 @@ import dev.ftb.mods.ftblibrary.math.XZ;
 public abstract class ZoneInfoComponentMixin {
     @WrapOperation(method = "shouldRender",
             at = @At(value = "INVOKE", target = FtbChunksInjectionTargets.XZ_REGION_FROM_CHUNK))
-    private XZ toroidal$foldRegionKey(int chunkX, int chunkZ, Operation<XZ> original) {
+    private XZ exotic_worlds$foldRegionKey(int chunkX, int chunkZ, Operation<XZ> original) {
         return FtbChunksFold.regionOfChunk(chunkX, chunkZ);
     }
 
     @WrapOperation(method = "shouldRender",
             at = @At(value = "INVOKE", target = FtbChunksInjectionTargets.XZ_OF))
-    private XZ toroidal$foldChunkKey(int chunkX, int chunkZ, Operation<XZ> original) {
+    private XZ exotic_worlds$foldChunkKey(int chunkX, int chunkZ, Operation<XZ> original) {
         return FtbChunksFold.chunkOf(chunkX, chunkZ);
     }
 }

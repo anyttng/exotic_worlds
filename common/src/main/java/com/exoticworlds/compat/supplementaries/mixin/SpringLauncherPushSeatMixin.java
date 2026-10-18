@@ -16,7 +16,7 @@ import net.minecraft.world.phys.AABB;
 public class SpringLauncherPushSeatMixin {
     @ModifyExpressionValue(method = "moveCollidedEntity",
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_BOUNDING_BOX))
-    private AABB toroidal$boxNearestArm(AABB box, @Local(argsOnly = true) Entity entity,
+    private AABB exotic_worlds$boxNearestArm(AABB box, @Local(argsOnly = true) Entity entity,
             @Local(argsOnly = true) AABB arm) {
         return FoldedBoxQuery.toward(WorldLoopAttachments.transformerOf(entity.level()), arm.getCenter(), box);
     }

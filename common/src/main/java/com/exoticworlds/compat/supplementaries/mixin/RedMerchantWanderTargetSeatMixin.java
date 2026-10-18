@@ -23,7 +23,7 @@ public class RedMerchantWanderTargetSeatMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/mehvahdjukaar/supplementaries/common/entities/RedMerchantEntity;"
                             + "getWanderTarget()Lnet/minecraft/core/BlockPos;"))
-    private @Nullable BlockPos toroidal$wanderTargetNearestTrader(@Nullable BlockPos wanderTarget) {
+    private @Nullable BlockPos exotic_worlds$wanderTargetNearestTrader(@Nullable BlockPos wanderTarget) {
         return wanderTarget == null ? null : SeamSteering.nearestCopy(this.trader, wanderTarget);
     }
 }

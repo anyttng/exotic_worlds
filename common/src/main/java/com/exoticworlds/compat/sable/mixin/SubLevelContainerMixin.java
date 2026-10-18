@@ -30,7 +30,7 @@ public abstract class SubLevelContainerMixin {
     private Level level;
 
     @ModifyReturnValue(method = "queryIntersecting", at = @At("RETURN"))
-    private Iterable<SubLevel> toroidal$intersectAcrossSeam(Iterable<SubLevel> original, BoundingBox3dc bounds) {
+    private Iterable<SubLevel> exotic_worlds$intersectAcrossSeam(Iterable<SubLevel> original, BoundingBox3dc bounds) {
         WorldFold fold = WorldLoopAttachments.wrappedTransformerOfReader(this.level);
         if (fold == null) {
             return original;

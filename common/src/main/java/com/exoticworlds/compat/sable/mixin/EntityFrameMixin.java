@@ -17,7 +17,7 @@ public abstract class EntityFrameMixin {
     public abstract Level level();
 
     @WrapMethod(method = "getOnPos(F)Lnet/minecraft/core/BlockPos;")
-    private BlockPos toroidal$frameOnFootQuery(float distance, Operation<BlockPos> original) {
+    private BlockPos exotic_worlds$frameOnFootQuery(float distance, Operation<BlockPos> original) {
         return SeamFrame.with(this.level(), (Entity) (Object) this, Entity::position, original, distance);
     }
 }

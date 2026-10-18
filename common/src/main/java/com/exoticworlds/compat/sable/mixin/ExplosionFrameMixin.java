@@ -18,7 +18,7 @@ public abstract class ExplosionFrameMixin {
     private Level level;
 
     @WrapMethod(method = "explode")
-    private void toroidal$frameOnExplosion(Operation<Void> original) {
+    private void exotic_worlds$frameOnExplosion(Operation<Void> original) {
         SeamFrame.with(this.level, (Explosion) (Object) this, Explosion::center, original);
     }
 }

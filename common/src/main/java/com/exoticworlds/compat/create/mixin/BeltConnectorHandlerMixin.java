@@ -16,7 +16,7 @@ public class BeltConnectorHandlerMixin {
             method = "tick",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.ITEM_STACK_GET))
-    private static Object toroidal$foldStoredPulley(Object stored) {
+    private static Object exotic_worlds$foldStoredPulley(Object stored) {
         if (!(stored instanceof BlockPos storedPulley)) {
             return stored;
         }
