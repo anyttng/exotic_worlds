@@ -5,7 +5,8 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.exoticworlds.compat.supplementaries.SupplementariesMixinPlugin",
   "mixins": [
-    "AntiqueMapHolderSeatMixin"
+    "AntiqueMapHolderSeatMixin",
+    "SignPostCompassTargetSeatMixin"
   ],
   "injectors": {
     "defaultRequire": 1
