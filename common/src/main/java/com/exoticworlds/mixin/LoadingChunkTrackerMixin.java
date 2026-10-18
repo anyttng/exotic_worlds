@@ -14,8 +14,8 @@ import net.minecraft.world.level.TicketStorage;
 @Mixin(targets = "net.minecraft.server.level.LoadingChunkTracker")
 public class LoadingChunkTrackerMixin {
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$registerForBind(DistanceManager distanceManager, TicketStorage ticketStorage,
+    private void exotic_worlds$registerForBind(DistanceManager distanceManager, TicketStorage ticketStorage,
             CallbackInfo ci) {
-        ((LevelBindRegistry) ticketStorage).toroidal$registerBindable((LevelBindable) (Object) this);
+        ((LevelBindRegistry) ticketStorage).exotic_worlds$registerBindable((LevelBindable) (Object) this);
     }
 }

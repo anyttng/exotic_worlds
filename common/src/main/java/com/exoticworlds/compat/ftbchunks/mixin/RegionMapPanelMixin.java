@@ -57,10 +57,10 @@ public abstract class RegionMapPanelMixin {
     int blockX;
 
     @Unique
-    private @Nullable SeamView toroidal$seamView;
+    private @Nullable SeamView exotic_worlds$seamView;
 
     @Inject(method = "draw", at = @At("HEAD"))
-    private void toroidal$stopScrollAtTheEdge(GuiGraphicsExtractor graphics, Theme theme, int x, int y, int w, int h,
+    private void exotic_worlds$stopScrollAtTheEdge(GuiGraphicsExtractor graphics, Theme theme, int x, int y, int w, int h,
             CallbackInfo ci) {
         if (MapCopies.current() != MapCopies.SINGLE) {
             return;
@@ -80,12 +80,12 @@ public abstract class RegionMapPanelMixin {
                     target = "Ldev/ftb/mods/ftblibrary/client/gui/widget/Panel;draw("
                             + "Lnet/minecraft/client/gui/GuiGraphicsExtractor;"
                             + "Ldev/ftb/mods/ftblibrary/client/gui/theme/Theme;IIII)V"))
-    private void toroidal$drawWrappedCopies(RegionMapPanel panel, GuiGraphicsExtractor graphics, Theme theme, int x,
+    private void exotic_worlds$drawWrappedCopies(RegionMapPanel panel, GuiGraphicsExtractor graphics, Theme theme, int x,
             int y, int w, int h, Operation<Void> original) {
         ResourceKey<Level> dimension = this.largeMapScreen.currentDimension();
         int loopedAxes = FtbChunksFold.loopedAxes(dimension);
         if (loopedAxes == 0) {
-            toroidal$seamView = null;
+            exotic_worlds$seamView = null;
             original.call(panel, graphics, theme, x, y, w, h);
             return;
         }
@@ -111,7 +111,7 @@ public abstract class RegionMapPanelMixin {
                 continue;
             }
 
-            toroidal$blitCopy(panel, graphics, x, y, w, h,
+            exotic_worlds$blitCopy(panel, graphics, x, y, w, h,
                     (int) Math.round(copy.dx() * pixelsPerBlock), (int) Math.round(copy.dz() * pixelsPerBlock));
         }
 
@@ -121,7 +121,7 @@ public abstract class RegionMapPanelMixin {
 
         panel.setOffset(false);
 
-        toroidal$seamView = !mapCopies.drawsSeamLines()
+        exotic_worlds$seamView = !mapCopies.drawsSeamLines()
                 ? null
                 : new SeamView(originX, originY, tilePixels, x, y, w, h);
         original.call(panel, graphics, theme, x, y, w, h);
@@ -129,7 +129,7 @@ public abstract class RegionMapPanelMixin {
 
     // Not @Unique: it overrides Panel.drawOffsetBackground, drawn between the BACKGROUND tiles and FOREGROUND icons.
     public void drawOffsetBackground(GuiGraphicsExtractor graphics, Theme theme, int x, int y, int w, int h) {
-        SeamView view = toroidal$seamView;
+        SeamView view = exotic_worlds$seamView;
         if (view == null) {
             return;
         }
@@ -140,7 +140,7 @@ public abstract class RegionMapPanelMixin {
     }
 
     @Unique
-    private static void toroidal$blitCopy(Panel panel, GuiGraphicsExtractor graphics, int viewX, int viewY,
+    private static void exotic_worlds$blitCopy(Panel panel, GuiGraphicsExtractor graphics, int viewX, int viewY,
             int viewWidth, int viewHeight, int offsetX, int offsetY) {
         for (Widget widget : panel.getWidgets()) {
             if (!(widget instanceof MapTileWidget tile)) {
@@ -168,7 +168,7 @@ public abstract class RegionMapPanelMixin {
 
     @ModifyExpressionValue(method = "draw",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 1))
-    private int toroidal$foldPick(int blockZ) {
+    private int exotic_worlds$foldPick(int blockZ) {
         BlockPos folded = FtbChunksFold.foldBlock(this.largeMapScreen.currentDimension(), this.blockX, blockZ);
         this.blockX = folded.getX();
         return folded.getZ();

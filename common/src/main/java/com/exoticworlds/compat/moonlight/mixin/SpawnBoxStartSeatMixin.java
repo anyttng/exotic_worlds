@@ -30,10 +30,10 @@ public interface SpawnBoxStartSeatMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/StructureManager;fillStartsForStructure(Lnet/minecraft/world/level/levelgen/structure/Structure;Lit/unimi/dsi/fastutil/longs/LongSet;Ljava/util/function/Consumer;)V"))
-    private void toroidal$startsFramedTowardSpawn(StructureManager manager, Structure structure,
+    private void exotic_worlds$startsFramedTowardSpawn(StructureManager manager, Structure structure,
             LongSet references, Consumer<StructureStart> consumer, Operation<Void> original,
             @Local(argsOnly = true) BlockPos pos) {
-        LevelAccessor level = ((StructureManagerAccessor) manager).toroidal$level();
+        LevelAccessor level = ((StructureManagerAccessor) manager).exotic_worlds$level();
         WorldFold fold = WorldLoopAttachments.transformerOfReader(level);
         if (!fold.isWrapped() || !(level instanceof WorldGenLevel genLevel)) {
             original.call(manager, structure, references, consumer);
@@ -47,7 +47,7 @@ public interface SpawnBoxStartSeatMixin {
                 return;
             }
 
-            StructureStart framed = ((FramedStructureStart) (Object) start).toroidal$framedBy(genLevel, move);
+            StructureStart framed = ((FramedStructureStart) (Object) start).exotic_worlds$framedBy(genLevel, move);
             consumer.accept(framed != null ? framed : start);
         };
         original.call(manager, structure, references, framing);

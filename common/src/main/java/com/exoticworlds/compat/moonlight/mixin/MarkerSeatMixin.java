@@ -21,7 +21,7 @@ public class MarkerSeatMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/mehvahdjukaar/moonlight/api/map/decoration/MLMapMarker;getPos()Lnet/minecraft/core/BlockPos;"))
-    private @Nullable BlockPos toroidal$seatOnMap(MLMapMarker<?> marker, Operation<BlockPos> original,
+    private @Nullable BlockPos exotic_worlds$seatOnMap(MLMapMarker<?> marker, Operation<BlockPos> original,
             @Local(argsOnly = true) MapItemSavedData data) {
         BlockPos pos = original.call(marker);
         if (pos == null) {

@@ -28,7 +28,7 @@ public abstract class MapTileWidgetMixin {
                     target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit("
                             + "Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;"
                             + "IIFFIIIIIII)V"))
-    private void toroidal$blitWorldPartOnly(GuiGraphicsExtractor graphics, RenderPipeline pipeline, Identifier texture,
+    private void exotic_worlds$blitWorldPartOnly(GuiGraphicsExtractor graphics, RenderPipeline pipeline, Identifier texture,
             int x, int y, float u, float v, int width, int height, int srcWidth, int srcHeight, int textureWidth,
             int textureHeight, int color, Operation<Void> original) {
         TileBlit blit = FtbChunksFold.worldPartOf(this.region.dimension.dimension, this.region.pos.x(),

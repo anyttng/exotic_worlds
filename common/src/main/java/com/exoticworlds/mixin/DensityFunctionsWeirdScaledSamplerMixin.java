@@ -18,7 +18,7 @@ public class DensityFunctionsWeirdScaledSamplerMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/levelgen/DensityFunction$NoiseHolder;getValue(DDD)D"))
-    private double toroidal$periodicRaritySample(
+    private double exotic_worlds$periodicRaritySample(
             DensityFunction.NoiseHolder noiseHolder,
             double scaledX,
             double scaledY,

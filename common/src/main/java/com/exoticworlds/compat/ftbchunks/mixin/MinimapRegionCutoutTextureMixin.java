@@ -27,32 +27,32 @@ public abstract class MinimapRegionCutoutTextureMixin {
             "Ldev/ftb/mods/ftbchunks/client/minimap/MinimapRegionCutoutTexture;regionSplits(I)[I";
 
     @WrapOperation(method = UPDATE, at = @At(value = "INVOKE", target = REGION_SPLITS, ordinal = 0))
-    private int[] toroidal$splitMinimapAlongX(int centreChunk, Operation<int[]> original,
+    private int[] exotic_worlds$splitMinimapAlongX(int centreChunk, Operation<int[]> original,
             @Local(argsOnly = true) XZ chunkPos) {
         return FtbChunksFold.minimapSplits(Direction.Axis.X, chunkPos, original.call(centreChunk));
     }
 
     @WrapOperation(method = UPDATE, at = @At(value = "INVOKE", target = REGION_SPLITS, ordinal = 1))
-    private int[] toroidal$splitMinimapAlongZ(int centreChunk, Operation<int[]> original,
+    private int[] exotic_worlds$splitMinimapAlongZ(int centreChunk, Operation<int[]> original,
             @Local(argsOnly = true) XZ chunkPos) {
         return FtbChunksFold.minimapSplits(Direction.Axis.Z, chunkPos, original.call(centreChunk));
     }
 
     @WrapOperation(method = UPDATE,
             at = @At(value = "INVOKE", target = FtbChunksInjectionTargets.XZ_REGION_FROM_CHUNK))
-    private XZ toroidal$foldMinimapPieceRegion(int chunkX, int chunkZ, Operation<XZ> original) {
+    private XZ exotic_worlds$foldMinimapPieceRegion(int chunkX, int chunkZ, Operation<XZ> original) {
         return FtbChunksFold.regionOfChunk(chunkX, chunkZ);
     }
 
     // ox and oz stay raw: a ModifyVariable writes back into its local, and ox outlives the loop over oz.
     @ModifyVariable(method = UPDATE, at = @At("STORE"), name = "srcX")
-    private int toroidal$foldMinimapSourceX(int sourceX, @Local(name = "ox") int chunkX, @Local(name = "oz") int chunkZ,
+    private int exotic_worlds$foldMinimapSourceX(int sourceX, @Local(name = "ox") int chunkX, @Local(name = "oz") int chunkZ,
             @Local(name = "chunksPerRegion") int chunksPerRegion) {
         return FtbChunksFold.regionImagePixel(FtbChunksFold.chunkOf(chunkX, chunkZ).x(), chunksPerRegion);
     }
 
     @ModifyVariable(method = UPDATE, at = @At("STORE"), name = "srcZ")
-    private int toroidal$foldMinimapSourceZ(int sourceZ, @Local(name = "ox") int chunkX, @Local(name = "oz") int chunkZ,
+    private int exotic_worlds$foldMinimapSourceZ(int sourceZ, @Local(name = "ox") int chunkX, @Local(name = "oz") int chunkZ,
             @Local(name = "chunksPerRegion") int chunksPerRegion) {
         return FtbChunksFold.regionImagePixel(FtbChunksFold.chunkOf(chunkX, chunkZ).z(), chunksPerRegion);
     }

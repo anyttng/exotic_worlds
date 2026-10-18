@@ -22,7 +22,7 @@ public final class BetterEndSurfaceNoise {
     }
 
     private static double lap(OpenSimplexNoise noise, double x, double z, double scale, Operation<Double> original) {
-        return LapNoise.boundEval(((StandInHolder) (Object) noise).toroidal$standIn(), x, z, scale, scale,
+        return LapNoise.boundEval(((StandInHolder) (Object) noise).exotic_worlds$standIn(), x, z, scale, scale,
                 () -> original.call(noise, x, z));
     }
 

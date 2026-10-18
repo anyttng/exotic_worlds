@@ -20,9 +20,9 @@ public interface OneUserReachMixin {
     @WrapOperation(
             method = "isCloseEnoughToUse",
             at = @At(value = "INVOKE", target = InjectionTargets.AABB_DISTANCE_TO_SQR))
-    private double toroidal$userReachAcrossSeam(AABB block, Vec3 eye, Operation<Double> original,
+    private double exotic_worlds$userReachAcrossSeam(AABB block, Vec3 eye, Operation<Double> original,
             @Local(argsOnly = true) Entity user) {
-        WorldFold transformer = ((TransformerSource) user).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) user).exotic_worlds$wrappedTransformer();
         if (transformer == null) {
             return original.call(block, eye);
         }

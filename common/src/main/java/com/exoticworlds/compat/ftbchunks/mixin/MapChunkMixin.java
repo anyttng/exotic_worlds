@@ -21,7 +21,7 @@ public abstract class MapChunkMixin {
     @ModifyExpressionValue(method = "offsetBlocking",
             at = @At(value = "INVOKE",
                     target = "Ldev/ftb/mods/ftblibrary/math/XZ;offset(II)Ldev/ftb/mods/ftblibrary/math/XZ;"))
-    private XZ toroidal$foldNeighbour(XZ neighbour) {
+    private XZ exotic_worlds$foldNeighbour(XZ neighbour) {
         return FtbChunksFold.chunkOf(this.region.dimension.dimension, neighbour);
     }
 }

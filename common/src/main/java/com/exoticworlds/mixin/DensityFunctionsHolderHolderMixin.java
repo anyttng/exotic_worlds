@@ -20,7 +20,7 @@ public class DensityFunctionsHolderHolderMixin {
 
     @WrapMethod(method = "mapAll(Lnet/minecraft/world/level/levelgen/DensityFunction$Visitor;)"
             + "Lnet/minecraft/world/level/levelgen/DensityFunction;")
-    private DensityFunction toroidal$rewriteKeyed(DensityFunction.Visitor visitor,
+    private DensityFunction exotic_worlds$rewriteKeyed(DensityFunction.Visitor visitor,
             Operation<DensityFunction> original) {
         DensityFunction rewritten = DensityRewrites.rewriteKeyed(visitor, this.function);
         return rewritten != null ? rewritten : original.call(visitor);

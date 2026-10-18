@@ -18,7 +18,7 @@ import dev.ftb.mods.ftblibrary.math.XZ;
 public abstract class ChunkButtonMixin {
     @WrapOperation(method = "<init>",
             at = @At(value = "INVOKE", target = FtbChunksInjectionTargets.XZ_REGION_FROM_CHUNK))
-    private XZ toroidal$foldRegionKey(int chunkX, int chunkZ, Operation<XZ> original) {
+    private XZ exotic_worlds$foldRegionKey(int chunkX, int chunkZ, Operation<XZ> original) {
         return FtbChunksFold.regionOfChunk(chunkX, chunkZ);
     }
 
@@ -26,7 +26,7 @@ public abstract class ChunkButtonMixin {
             at = @At(value = "INVOKE",
                     target = "Ldev/ftb/mods/ftbchunks/client/map/MapRegionData;getChunk(Ldev/ftb/mods/ftblibrary/math/XZ;)"
                             + "Ldev/ftb/mods/ftbchunks/client/map/MapChunk;"))
-    private MapChunk toroidal$foldChunkKey(MapRegionData data, XZ chunk, Operation<MapChunk> original) {
+    private MapChunk exotic_worlds$foldChunkKey(MapRegionData data, XZ chunk, Operation<MapChunk> original) {
         return original.call(data, FtbChunksFold.chunkOf(chunk));
     }
 
@@ -34,7 +34,7 @@ public abstract class ChunkButtonMixin {
             at = @At(value = "FIELD", opcode = Opcodes.GETFIELD,
                     target = "Ldev/ftb/mods/ftbchunks/client/gui/map/ChunkScreenPanel$ChunkButton;chunkPos:"
                             + "Ldev/ftb/mods/ftblibrary/math/XZ;"))
-    private XZ toroidal$foldExpiryKey(XZ original) {
+    private XZ exotic_worlds$foldExpiryKey(XZ original) {
         return FtbChunksFold.chunkOf(original);
     }
 }

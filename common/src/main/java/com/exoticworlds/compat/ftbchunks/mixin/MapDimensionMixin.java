@@ -21,7 +21,7 @@ public abstract class MapDimensionMixin {
     public ResourceKey<Level> dimension;
 
     @ModifyVariable(method = "getOwningTeam", at = @At("HEAD"), argsOnly = true)
-    private ChunkPos toroidal$foldOwnerKey(ChunkPos pos) {
+    private ChunkPos exotic_worlds$foldOwnerKey(ChunkPos pos) {
         return FtbChunksFold.foldedChunkPos(this.dimension, pos);
     }
 }

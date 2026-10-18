@@ -18,7 +18,7 @@ public abstract class LargeMapScreenMixin {
     @ModifyExpressionValue(method = {"addZoom", "drawForeground"},
             at = @At(value = "FIELD", opcode = Opcodes.GETFIELD,
                     target = "Ldev/ftb/mods/ftbchunks/client/gui/map/LargeMapScreen;minZoom:I"))
-    private int toroidal$floorZoomToWorld(int original) {
+    private int exotic_worlds$floorZoomToWorld(int original) {
         Window window = Minecraft.getInstance().getWindow();
         return Math.max(original, FtbChunksFold.zoomFloor(((LargeMapScreen) (Object) this).currentDimension(),
                 window.getGuiScaledWidth(), window.getGuiScaledHeight()));
@@ -26,7 +26,7 @@ public abstract class LargeMapScreenMixin {
 
     // The zoom the screen opens at, or keeps across a dimension switch, never meets the floor.
     @ModifyReturnValue(method = "getRegionTileSize", at = @At("RETURN"))
-    private int toroidal$floorTileToWorld(int original) {
+    private int exotic_worlds$floorTileToWorld(int original) {
         Window window = Minecraft.getInstance().getWindow();
         return Math.max(original, FtbChunksFold.tileFloor(((LargeMapScreen) (Object) this).currentDimension(),
                 window.getGuiScaledWidth(), window.getGuiScaledHeight()));
