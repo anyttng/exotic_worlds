@@ -11,11 +11,13 @@
     "PignataRopeHoldSeatMixin",
     "PistonCooperatorEventSeatMixin",
     "PistonCooperatorSeatMixin",
+    "PlundererCannonAimSeatMixin",
     "PulleyCooperatorSeatMixin",
     "RedMerchantWanderTargetSeatMixin",
     "SignPostCompassTargetSeatMixin",
     "SpringLauncherPushSeatMixin",
-    "TurnTableOffsetSeatMixin"
+    "TurnTableOffsetSeatMixin",
+    "UseCannonGoalSeatMixin"
   ],
   "injectors": {
     "defaultRequire": 1
