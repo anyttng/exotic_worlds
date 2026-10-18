@@ -319,6 +319,7 @@ dependencies {
     compileOnly "maven.modrinth:mekanism:${mekanism_version}"
     compileOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
     compileOnly "maven.modrinth:moonlight:${moonlight_version}"
+    compileOnly "maven.modrinth:supplementaries:${supplementaries_version}"
     // Non-transitive: the FTB poms ask for Architectury, whose types no map fold names — pulling its maven in would
     // put a whole mod on the compile classpath to satisfy a reference nothing makes.
     compileOnly("dev.ftb.mods:ftb-chunks-neoforge:${ftbchunks_version}") { transitive = false }
