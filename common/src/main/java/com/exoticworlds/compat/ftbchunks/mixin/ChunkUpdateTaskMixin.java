@@ -33,38 +33,38 @@ public abstract class ChunkUpdateTaskMixin {
     private Level level;
 
     @Unique
-    private int toroidal$rawChunkX;
+    private int exotic_worlds$rawChunkX;
 
     @Unique
-    private int toroidal$rawChunkZ;
+    private int exotic_worlds$rawChunkZ;
 
     @Unique
-    private XZ toroidal$regionKey;
+    private XZ exotic_worlds$regionKey;
 
     @WrapOperation(method = "runMapTask",
             at = @At(value = "INVOKE",
                     target = XZ_TYPE + "regionFromChunk(Lnet/minecraft/world/level/ChunkPos;)" + XZ_TYPE))
-    private XZ toroidal$foldRegionKey(ChunkPos pos, Operation<XZ> original) {
-        toroidal$rawChunkX = pos.x;
-        toroidal$rawChunkZ = pos.z;
-        toroidal$regionKey = FtbChunksFold.regionOfChunk(this.level.dimension(), pos);
-        return toroidal$regionKey;
+    private XZ exotic_worlds$foldRegionKey(ChunkPos pos, Operation<XZ> original) {
+        exotic_worlds$rawChunkX = pos.x;
+        exotic_worlds$rawChunkZ = pos.z;
+        exotic_worlds$regionKey = FtbChunksFold.regionOfChunk(this.level.dimension(), pos);
+        return exotic_worlds$regionKey;
     }
 
     @WrapOperation(method = "runMapTask",
             at = @At(value = "INVOKE",
                     target = XZ_TYPE + "of(Lnet/minecraft/world/level/ChunkPos;)" + XZ_TYPE))
-    private XZ toroidal$foldChunkKey(ChunkPos pos, Operation<XZ> original) {
+    private XZ exotic_worlds$foldChunkKey(ChunkPos pos, Operation<XZ> original) {
         return FtbChunksFold.chunkOf(this.level.dimension(), pos);
     }
 
     @Inject(method = "runMapTask", at = @At("TAIL"))
-    private void toroidal$mirrorSeamEdges(CallbackInfo ci) {
-        if (this.manager == null || this.manager.isInvalid() || toroidal$regionKey == null) {
+    private void exotic_worlds$mirrorSeamEdges(CallbackInfo ci) {
+        if (this.manager == null || this.manager.isInvalid() || exotic_worlds$regionKey == null) {
             return;
         }
 
-        XZ folded = FtbChunksFold.chunkOf(this.level.dimension(), toroidal$rawChunkX, toroidal$rawChunkZ);
+        XZ folded = FtbChunksFold.chunkOf(this.level.dimension(), exotic_worlds$rawChunkX, exotic_worlds$rawChunkZ);
         FtbChunksFold.mirrorSeamEdges(this.manager.getDimension(this.level.dimension()), folded.x(), folded.z());
     }
 }

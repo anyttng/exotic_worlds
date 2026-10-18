@@ -23,7 +23,7 @@ public abstract class MapIconWidgetMixin {
     @ModifyExpressionValue(method = "updatePosition",
             at = @At(value = "INVOKE",
                     target = "Ldev/ftb/mods/ftbchunks/api/client/icon/MapIcon;getPos(F)Lnet/minecraft/world/phys/Vec3;"))
-    private Vec3 toroidal$foldIconPosition(Vec3 position) {
+    private Vec3 exotic_worlds$foldIconPosition(Vec3 position) {
         return FtbChunksFold.foldPosition(((LargeMapScreen) this.regionMapPanel.getGui()).currentDimension(), position);
     }
 }

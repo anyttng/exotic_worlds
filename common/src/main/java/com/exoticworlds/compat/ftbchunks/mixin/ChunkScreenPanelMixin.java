@@ -19,7 +19,7 @@ public abstract class ChunkScreenPanelMixin {
                             + "Ldev/ftb/mods/ftbchunks/net/RequestChunkChangePacket$ChunkChangeOp;"
                             + "Ljava/util/Set;ZLjava/util/Optional;)V"),
             index = 1)
-    private Set<XZ> toroidal$foldRequestedChunks(Set<XZ> chunks) {
+    private Set<XZ> exotic_worlds$foldRequestedChunks(Set<XZ> chunks) {
         return FtbChunksFold.foldedChunks(chunks);
     }
 }

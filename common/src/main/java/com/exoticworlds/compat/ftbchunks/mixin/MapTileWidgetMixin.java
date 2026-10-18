@@ -28,7 +28,7 @@ public abstract class MapTileWidgetMixin {
 
     // Tiles go under the seam lines RegionMapPanel draws between Panel's two layers; the icons stay above both.
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$drawUnderTheSeamLines(RegionMapPanel panel, MapRegion region, CallbackInfo ci) {
+    private void exotic_worlds$drawUnderTheSeamLines(RegionMapPanel panel, MapRegion region, CallbackInfo ci) {
         ((Widget) (Object) this).setDrawLayer(Widget.DrawLayer.BACKGROUND);
     }
 
@@ -36,7 +36,7 @@ public abstract class MapTileWidgetMixin {
             at = @At(value = "INVOKE",
                     target = "Ldev/ftb/mods/ftblibrary/ui/GuiHelper;drawTexturedRect(Lnet/minecraft/client/gui/GuiGraphics;"
                             + "IIIILdev/ftb/mods/ftblibrary/icon/Color4I;FFFF)V"))
-    private void toroidal$blitWorldPartOnly(GuiGraphics graphics, int x, int y, int w, int h, Color4I color,
+    private void exotic_worlds$blitWorldPartOnly(GuiGraphics graphics, int x, int y, int w, int h, Color4I color,
             float u0, float v0, float u1, float v1, Operation<Void> original) {
         TileBlit blit = FtbChunksFold.worldPartOf(this.region.dimension.dimension, this.region.pos.x(),
                 this.region.pos.z(), x, y, w, h);

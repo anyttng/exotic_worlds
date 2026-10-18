@@ -20,19 +20,19 @@ public class MarkerToggleWindowMixin {
     private static final String TOGGLE = "ml$toggleCustomDecoration";
 
     @ModifyVariable(method = TOGGLE, at = @At("STORE"), ordinal = 0)
-    private double toroidal$seatToggleX(double x, @Local(argsOnly = true) LevelAccessor level,
+    private double exotic_worlds$seatToggleX(double x, @Local(argsOnly = true) LevelAccessor level,
             @Local(argsOnly = true) BlockPos pos) {
-        return toroidal$seated(level, pos, Direction.Axis.X);
+        return exotic_worlds$seated(level, pos, Direction.Axis.X);
     }
 
     @ModifyVariable(method = TOGGLE, at = @At("STORE"), ordinal = 1)
-    private double toroidal$seatToggleZ(double z, @Local(argsOnly = true) LevelAccessor level,
+    private double exotic_worlds$seatToggleZ(double z, @Local(argsOnly = true) LevelAccessor level,
             @Local(argsOnly = true) BlockPos pos) {
-        return toroidal$seated(level, pos, Direction.Axis.Z);
+        return exotic_worlds$seated(level, pos, Direction.Axis.Z);
     }
 
     @Unique
-    private double toroidal$seated(LevelAccessor level, BlockPos pos, Direction.Axis axis) {
+    private double exotic_worlds$seated(LevelAccessor level, BlockPos pos, Direction.Axis axis) {
         MapItemSavedData data = (MapItemSavedData) (Object) this;
         return NearestCopy.toward(MoonlightMapFold.of(level, data), axis, new Vec3(data.centerX, 0.0, data.centerZ),
                 Vec3.atBottomCenterOf(pos));

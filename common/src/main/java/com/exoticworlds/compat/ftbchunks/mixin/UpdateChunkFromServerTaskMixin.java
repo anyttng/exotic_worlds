@@ -22,13 +22,13 @@ public abstract class UpdateChunkFromServerTaskMixin {
 
     @WrapOperation(method = "runMapTask",
             at = @At(value = "INVOKE", target = FtbChunksInjectionTargets.XZ_REGION_FROM_CHUNK))
-    private XZ toroidal$foldRegionKey(int chunkX, int chunkZ, Operation<XZ> original) {
+    private XZ exotic_worlds$foldRegionKey(int chunkX, int chunkZ, Operation<XZ> original) {
         return FtbChunksFold.regionOfChunk(this.dimension.dimension, chunkX, chunkZ);
     }
 
     @WrapOperation(method = "runMapTask",
             at = @At(value = "INVOKE", target = FtbChunksInjectionTargets.XZ_OF))
-    private XZ toroidal$foldChunkKey(int chunkX, int chunkZ, Operation<XZ> original) {
+    private XZ exotic_worlds$foldChunkKey(int chunkX, int chunkZ, Operation<XZ> original) {
         return FtbChunksFold.chunkOf(this.dimension.dimension, chunkX, chunkZ);
     }
 }

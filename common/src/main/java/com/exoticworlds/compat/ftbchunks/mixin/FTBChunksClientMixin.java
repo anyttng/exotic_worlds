@@ -54,14 +54,14 @@ public abstract class FTBChunksClientMixin {
                     + "Ldev/ftb/mods/ftbchunks/client/map/MapDimension;)V";
 
     @WrapOperation(method = UPDATE_MINIMAP, at = @At(value = "INVOKE", target = REGION_SPLITS, ordinal = 0))
-    private int[] toroidal$splitMinimapAlongX(int centreChunk, Operation<int[]> original,
+    private int[] exotic_worlds$splitMinimapAlongX(int centreChunk, Operation<int[]> original,
             @Local(argsOnly = true, ordinal = 1) int centreChunkZ) {
         return FtbChunksFold.minimapSplits(Direction.Axis.X, XZ.of(centreChunk, centreChunkZ),
                 original.call(centreChunk));
     }
 
     @WrapOperation(method = UPDATE_MINIMAP, at = @At(value = "INVOKE", target = REGION_SPLITS, ordinal = 1))
-    private int[] toroidal$splitMinimapAlongZ(int centreChunk, Operation<int[]> original,
+    private int[] exotic_worlds$splitMinimapAlongZ(int centreChunk, Operation<int[]> original,
             @Local(argsOnly = true, ordinal = 0) int centreChunkX) {
         return FtbChunksFold.minimapSplits(Direction.Axis.Z, XZ.of(centreChunkX, centreChunk),
                 original.call(centreChunk));
@@ -69,27 +69,27 @@ public abstract class FTBChunksClientMixin {
 
     @WrapOperation(method = UPDATE_MINIMAP,
             at = @At(value = "INVOKE", target = FtbChunksInjectionTargets.XZ_REGION_FROM_CHUNK))
-    private XZ toroidal$regionOfFoldedPiece(int chunkX, int chunkZ, Operation<XZ> original) {
+    private XZ exotic_worlds$regionOfFoldedPiece(int chunkX, int chunkZ, Operation<XZ> original) {
         ChunkPos folded = FtbChunksFold.foldedChunkPos(new ChunkPos(chunkX, chunkZ));
         return original.call(folded.x, folded.z);
     }
 
     @ModifyArg(method = UPDATE_MINIMAP, index = SOURCE_X_ARG,
             at = @At(value = "INVOKE", target = IMAGE_UPLOAD, remap = true))
-    private int toroidal$foldedPieceSourceX(int sourceX, @Local(name = "ox") int chunkX,
+    private int exotic_worlds$foldedPieceSourceX(int sourceX, @Local(name = "ox") int chunkX,
             @Local(name = "oz") int chunkZ) {
         return (FtbChunksFold.foldedChunkPos(new ChunkPos(chunkX, chunkZ)).x & REGION_CHUNK_MASK) * CHUNK_PIXELS;
     }
 
     @ModifyArg(method = UPDATE_MINIMAP, index = SOURCE_Z_ARG,
             at = @At(value = "INVOKE", target = IMAGE_UPLOAD, remap = true))
-    private int toroidal$foldedPieceSourceZ(int sourceZ, @Local(name = "ox") int chunkX,
+    private int exotic_worlds$foldedPieceSourceZ(int sourceZ, @Local(name = "ox") int chunkX,
             @Local(name = "oz") int chunkZ) {
         return (FtbChunksFold.foldedChunkPos(new ChunkPos(chunkX, chunkZ)).z & REGION_CHUNK_MASK) * CHUNK_PIXELS;
     }
 
     @ModifyVariable(method = MAP_ICON_ENTITY, at = @At("STORE"), name = "z")
-    private static int toroidal$foldIconBlock(int z, @Local(name = "x") LocalIntRef x) {
+    private static int exotic_worlds$foldIconBlock(int z, @Local(name = "x") LocalIntRef x) {
         BlockPos folded = FtbChunksFold.foldBlock(x.get(), z);
         x.set(folded.getX());
         return folded.getZ();
