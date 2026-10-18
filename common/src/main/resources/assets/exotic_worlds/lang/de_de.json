@@ -22,7 +22,7 @@
   "gui.exotic_worlds.toroidal_settings.preset.huge": "Riesig",
   "gui.exotic_worlds.toroidal_settings.consequence.structures_scarce": "Kleiner als das Dorfraster, Bauwerke werden also rar sein.",
   "gui.exotic_worlds.toroidal_settings.consequence.structures_villages": "Platz für Dörfer; Waldanwesen werden selten sein.",
-  "gui.exotic_worlds.toroidal_settings.consequence.structures_common": "Platz für alle üblichen Bauwerke; Festungen liegen näher als gewohnt.",
+  "gui.exotic_worlds.toroidal_settings.consequence.structures_common": "Platz für alle üblichen Bauwerke; Endportale liegen näher als gewohnt.",
   "gui.exotic_worlds.toroidal_settings.consequence.structures_all": "Platz für jedes Bauwerk in gewohnter Entfernung.",
   "gui.exotic_worlds.toroidal_settings.size": "Weltgröße in Chunks (%s-%s)",
   "gui.exotic_worlds.toroidal_settings.size_x": "Weltgröße entlang X in Chunks (%s-%s)",
