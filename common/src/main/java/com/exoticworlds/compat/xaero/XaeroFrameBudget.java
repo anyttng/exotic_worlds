@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.ClassReader;
@@ -40,7 +41,7 @@ public final class XaeroFrameBudget {
             Verdict verdict = measure(loader, read(loader, GUI_MAP_RESOURCE), RENDER_METHODS, BUDGET, true);
             LOGGER.info("[ew/xaero-compat] gate xaero_worldmap_frames budget_exceeded={} asm_limit_present={} class_found={}"
                     + " stripped={} budget={} ms={}", verdict.exceeded(), verdict.limitPresent(), verdict.classFound(),
-                    verdict.stripped(), BUDGET, (System.nanoTime() - started) / 1_000_000L);
+                    verdict.stripped(), BUDGET, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started));
             exceeded = verdict.exceeded();
         }
 

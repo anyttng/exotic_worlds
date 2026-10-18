@@ -296,8 +296,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             return original.call(chunkPos, player);
         }
 
-        double chunkCenterX = SectionPos.sectionToBlockCoord(chunkPos.x, 8);
-        double chunkCenterZ = SectionPos.sectionToBlockCoord(chunkPos.z, 8);
-        return transformer.sqrDistance(player.getX(), 0.0, player.getZ(), chunkCenterX, 0.0, chunkCenterZ);
+        return transformer.sqrDistance(player.getX(), 0.0, player.getZ(), chunkPos.getMiddleBlockX(), 0.0,
+                chunkPos.getMiddleBlockZ());
     }
 }
