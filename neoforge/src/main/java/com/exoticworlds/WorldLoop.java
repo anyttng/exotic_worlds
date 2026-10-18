@@ -8,6 +8,7 @@ import com.exoticworlds.compat.aeronautics.AeronauticsMod;
 import com.exoticworlds.compat.moonlight.MoonlightParticles;
 import com.exoticworlds.compat.northbound.NorthboundLatitude;
 import com.exoticworlds.compat.sable.SableMod;
+import com.exoticworlds.compat.supplementaries.SupplementariesPackets;
 import com.exoticworlds.engine.gen.LoopedChunkGenerator;
 import com.exoticworlds.engine.gen.LoopedFlatChunkGenerator;
 import com.exoticworlds.engine.gen.WorldLoopGenerators;
@@ -49,6 +50,7 @@ public final class WorldLoop {
         GenerationHookSetup.registerAll();
         NorthboundLatitude.register();
         MoonlightParticles.register();
+        SupplementariesPackets.register();
 
         CHUNK_GENERATORS.register(WorldLoopGenerators.TOROIDAL_ID, () -> LoopedChunkGenerator.CODEC);
         CHUNK_GENERATORS.register(WorldLoopGenerators.TOROIDAL_FLAT_ID, () -> LoopedFlatChunkGenerator.CODEC);
