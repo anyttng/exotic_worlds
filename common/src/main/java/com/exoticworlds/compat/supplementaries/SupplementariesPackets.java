@@ -9,6 +9,7 @@ public final class SupplementariesPackets {
     public static void register() {
         if (ModPresence.probe(COOPERATORS_PACKET_CLASS)) {
             CooperationPacketRewriters.register();
+            ParticlePacketRewriter.register();
         }
     }
 
