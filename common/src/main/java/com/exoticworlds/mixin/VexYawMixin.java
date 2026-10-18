@@ -27,6 +27,6 @@ public class VexYawMixin {
         Vec3 delta = SeamAim.deltaTo(vex, target.position());
         double deltaX = delta.x;
         double deltaZ = delta.z;
-        original.call(vex, -((float) Mth.atan2(deltaX, deltaZ)) * (180.0F / (float) Math.PI));
+        original.call(vex, -((float) Mth.atan2(deltaX, deltaZ)) * Mth.RAD_TO_DEG);
     }
 }
