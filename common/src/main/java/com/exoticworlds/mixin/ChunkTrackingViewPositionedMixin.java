@@ -1,13 +1,11 @@
 package com.exoticworlds.mixin;
 
-import java.util.function.Consumer;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.TransformerHolder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -37,10 +35,6 @@ public abstract class ChunkTrackingViewPositionedMixin implements TransformerHol
             return original;
         }
 
-        if (this.exotic_worlds$transformer.isOver(new ChunkPos(chunkX, chunkZ))) {
-            return false;
-        }
-
         ChunkPos center = ((ChunkTrackingView.Positioned) (Object) this).center();
         int viewDistance = ((ChunkTrackingView.Positioned) (Object) this).viewDistance();
 
@@ -50,25 +44,8 @@ public abstract class ChunkTrackingViewPositionedMixin implements TransformerHol
                 center.x, center.z, viewDistance, unwrapped.x, unwrapped.z, includeNeighbors);
     }
 
-    @Inject(method = "forEach", at = @At("HEAD"), cancellable = true)
-    private void exotic_worlds$forEachWrapped(Consumer<ChunkPos> consumer, CallbackInfo ci) {
-        if (!this.exotic_worlds$transformer.isWrapped()) {
-            return;
-        }
-
-        ci.cancel();
-
-        ChunkTrackingView.Positioned view = (ChunkTrackingView.Positioned) (Object) this;
-        ChunkPos center = view.center();
-        int viewDistance = view.viewDistance();
-        int radius = viewDistance + 1;
-
-        for (int x = center.x - radius; x <= center.x + radius; x++) {
-            for (int z = center.z - radius; z <= center.z + radius; z++) {
-                if (ChunkTrackingView.isWithinDistance(center.x, center.z, viewDistance, x, z, true)) {
-                    consumer.accept(this.exotic_worlds$transformer.fold(new ChunkPos(x, z)));
-                }
-            }
-        }
+    @ModifyArg(method = "forEach", at = @At(value = "INVOKE", target = InjectionTargets.CONSUMER_ACCEPT))
+    private Object exotic_worlds$foldVisited(Object pos) {
+        return this.exotic_worlds$transformer.fold((ChunkPos) pos);
     }
 }

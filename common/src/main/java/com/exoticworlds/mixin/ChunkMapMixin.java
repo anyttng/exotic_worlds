@@ -280,6 +280,18 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
         return view;
     }
 
+    @WrapMethod(method = "isChunkTracked")
+    private boolean exotic_worlds$trackPhysicalChunk(ServerPlayer player, int chunkX, int chunkZ,
+            Operation<Boolean> original) {
+        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
+        if (transformer == null) {
+            return original.call(player, chunkX, chunkZ);
+        }
+
+        long folded = transformer.foldChunkKey(ChunkPos.asLong(chunkX, chunkZ));
+        return original.call(player, ChunkPos.getX(folded), ChunkPos.getZ(folded));
+    }
+
     @WrapMethod(method = "getPlayerViewDistance")
     private int exotic_worlds$clampLoopedViewDistance(ServerPlayer player, Operation<Integer> original) {
         int vanilla = original.call(player);
