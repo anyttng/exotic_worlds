@@ -8,13 +8,14 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.AlignedPeriod;
+import com.exoticworlds.engine.ThreadScope;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 
 public final class DhRowCopies {
-    private static final ThreadLocal<ChunkPos> PENDING_COPY = new ThreadLocal<>();
+    private static final ThreadScope<ChunkPos> PENDING_COPY = new ThreadScope<>();
 
     public static List<ChunkPos> copiesOf(DhLattice lattice, int chunkX, int chunkZ) {
         ToroidalShape shape = lattice.shape();
@@ -45,16 +46,11 @@ public final class DhRowCopies {
     }
 
     public static <T> T buildAt(ChunkPos copy, Supplier<T> build) {
-        PENDING_COPY.set(copy);
-        try {
-            return build.get();
-        } finally {
-            PENDING_COPY.remove();
-        }
+        return PENDING_COPY.with(copy, build);
     }
 
     public static @Nullable ChunkPos pendingCopy() {
-        return PENDING_COPY.get();
+        return PENDING_COPY.current();
     }
 
     private DhRowCopies() {
