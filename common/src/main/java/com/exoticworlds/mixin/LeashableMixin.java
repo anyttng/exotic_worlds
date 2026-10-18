@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(Leashable.class)
 public interface LeashableMixin {
     @WrapMethod(method = "leashDistanceTo")
-    private double toroidal$leashDistanceThroughSeam(Entity entity, Operation<Double> original) {
+    private double exotic_worlds$leashDistanceThroughSeam(Entity entity, Operation<Double> original) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(entity.level());
         if (transformer == null) {
             return original.call(entity);
@@ -37,7 +37,7 @@ public interface LeashableMixin {
                     value = "INVOKE",
                     target = InjectionTargets.ENTITY_POSITION,
                     ordinal = 1))
-    private static Vec3 toroidal$holderPositionThroughSeam(Entity leashHolder, Operation<Vec3> original,
+    private static Vec3 exotic_worlds$holderPositionThroughSeam(Entity leashHolder, Operation<Vec3> original,
             @Local(argsOnly = true, ordinal = 0) Entity entity) {
         return SeamSteering.nearestCopy(entity, original.call(leashHolder));
     }

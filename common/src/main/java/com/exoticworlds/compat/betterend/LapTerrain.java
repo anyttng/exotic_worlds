@@ -85,7 +85,7 @@ public final class LapTerrain {
             return false;
         }
 
-        ReentrantLock locker = TerrainGeneratorAccessor.toroidal$locker();
+        ReentrantLock locker = TerrainGeneratorAccessor.exotic_worlds$locker();
         locker.lock();
         try {
             GenerationTransformerContext.runWithTransformer(lap.fold(), () -> fillFolded(lap, layers, buffer,
@@ -107,7 +107,7 @@ public final class LapTerrain {
         long folded = FoldedQuart.fold(lap.fold(), quartX, 0, quartZ);
         int x = FoldedQuart.x(folded);
         int z = FoldedQuart.z(folded);
-        ReentrantLock locker = TerrainGeneratorAccessor.toroidal$locker();
+        ReentrantLock locker = TerrainGeneratorAccessor.exotic_worlds$locker();
         locker.lock();
         try {
             TerrainBoolCache section = section(x, z);
@@ -133,18 +133,18 @@ public final class LapTerrain {
         Warp warp = Warp.of(lap, scaleXZ);
         double px = (double) x * scaleXZ + warp.x(x, z);
         double pz = (double) z * scaleXZ + warp.z(x, z);
-        float height = TerrainGeneratorAccessor.toroidal$averageDepth(x << 1, z << 1) * DEPTH_SHARE;
+        float height = TerrainGeneratorAccessor.exotic_worlds$averageDepth(x << 1, z << 1) * DEPTH_SHARE;
         for (LapIslands layer : layers) {
-            layer.toroidal$updatePositionsOnLap(lap, px, pz, maxHeight);
+            layer.exotic_worlds$updatePositionsOnLap(lap, px, pz, maxHeight);
         }
 
         double xPeriod = lap.period(Direction.Axis.X, 1.0);
         double zPeriod = lap.period(Direction.Axis.Z, 1.0);
         for (int y = 0; y < buffer.length; y++) {
             double py = (double) y * scaleY;
-            float dist = layers[0].toroidal$densityOnLap(px, py, pz, height);
+            float dist = layers[0].exotic_worlds$densityOnLap(px, py, pz, height);
             for (int layer = 1; layer < layers.length; layer++) {
-                dist = dist > SOLID ? dist : Math.max(dist, layers[layer].toroidal$densityOnLap(px, py, pz, height));
+                dist = dist > SOLID ? dist : Math.max(dist, layers[layer].exotic_worlds$densityOnLap(px, py, pz, height));
             }
 
             if (dist > DETAIL_ABOVE) {
@@ -169,16 +169,16 @@ public final class LapTerrain {
         double px = cellX * LAND_CELL_BLOCKS + warp.x(cellX, cellZ);
         double pz = cellZ * LAND_CELL_BLOCKS + warp.z(cellX, cellZ);
         for (LapIslands layer : layers) {
-            layer.toroidal$updatePositionsOnLap(lap, px, pz, maxHeight);
+            layer.exotic_worlds$updatePositionsOnLap(lap, px, pz, maxHeight);
         }
 
         double xPeriod = lap.period(Direction.Axis.X, 1.0);
         double zPeriod = lap.period(Direction.Axis.Z, 1.0);
         for (int y = 0; y < stepY; y++) {
             double py = y * LAND_CELL_HEIGHT;
-            float dist = layers[0].toroidal$densityOnLap(px, py, pz);
+            float dist = layers[0].exotic_worlds$densityOnLap(px, py, pz);
             for (int layer = 1; layer < layers.length; layer++) {
-                dist = dist > SOLID ? dist : Math.max(dist, layers[layer].toroidal$densityOnLap(px, py, pz));
+                dist = dist > SOLID ? dist : Math.max(dist, layers[layer].exotic_worlds$densityOnLap(px, py, pz));
             }
 
             if (dist > DETAIL_ABOVE) {
@@ -208,8 +208,8 @@ public final class LapTerrain {
     }
 
     private static TerrainBoolCache section(int x, int z) {
-        Map<Point, TerrainBoolCache> cache = TerrainGeneratorAccessor.toroidal$boolCache();
-        Point pos = TerrainGeneratorAccessor.toroidal$pos();
+        Map<Point, TerrainBoolCache> cache = TerrainGeneratorAccessor.exotic_worlds$boolCache();
+        Point pos = TerrainGeneratorAccessor.exotic_worlds$pos();
         pos.setLocation(TerrainBoolCache.scaleCoordinate(x), TerrainBoolCache.scaleCoordinate(z));
         TerrainBoolCache section = cache.get(pos);
         if (section == null) {
@@ -225,15 +225,15 @@ public final class LapTerrain {
     }
 
     private static void clearCaches() {
-        TerrainGeneratorAccessor.toroidal$largeIslands().clearCache();
-        TerrainGeneratorAccessor.toroidal$mediumIslands().clearCache();
-        TerrainGeneratorAccessor.toroidal$smallIslands().clearCache();
+        TerrainGeneratorAccessor.exotic_worlds$largeIslands().clearCache();
+        TerrainGeneratorAccessor.exotic_worlds$mediumIslands().clearCache();
+        TerrainGeneratorAccessor.exotic_worlds$smallIslands().clearCache();
     }
 
     private static LapIslands @Nullable [] layers() {
-        IslandLayer large = TerrainGeneratorAccessor.toroidal$largeIslands();
-        IslandLayer medium = TerrainGeneratorAccessor.toroidal$mediumIslands();
-        IslandLayer small = TerrainGeneratorAccessor.toroidal$smallIslands();
+        IslandLayer large = TerrainGeneratorAccessor.exotic_worlds$largeIslands();
+        IslandLayer medium = TerrainGeneratorAccessor.exotic_worlds$mediumIslands();
+        IslandLayer small = TerrainGeneratorAccessor.exotic_worlds$smallIslands();
         if (large == null || medium == null || small == null) {
             return null;
         }

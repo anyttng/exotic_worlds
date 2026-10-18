@@ -16,7 +16,7 @@ public class ChunkGeneratorCodecMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lcom/mojang/serialization/Codec;dispatchStable(Ljava/util/function/Function;Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;"))
-    private static Codec<ChunkGenerator> toroidal$carryTheStampedShape(Codec<ChunkGenerator> original) {
+    private static Codec<ChunkGenerator> exotic_worlds$carryTheStampedShape(Codec<ChunkGenerator> original) {
         return StampedGeneratorCodec.over(original);
     }
 }

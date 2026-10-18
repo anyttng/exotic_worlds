@@ -12,7 +12,7 @@ import com.ishland.c2me.opts.dfc.common.gen.dot.DotGenRegistry;
 @Mixin(DotGenRegistry.class)
 public class DotGenRegistryMixin {
     @Inject(method = "<clinit>", at = @At("TAIL"))
-    private static void toroidal$registerFoldedNoise(CallbackInfo ci) {
+    private static void exotic_worlds$registerFoldedNoise(CallbackInfo ci) {
         DotGenRegistry.REGISTRY.registerExactMatch(C2meFoldedNoiseNode.class, C2meFoldedNoiseDotEmitter.INSTANCE);
     }
 }

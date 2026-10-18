@@ -61,19 +61,19 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
     private double panY;
 
     @Unique
-    private @Nullable AtlasView toroidal$view;
+    private @Nullable AtlasView exotic_worlds$view;
 
     @Unique
-    private float toroidal$tileBeforeHold;
+    private float exotic_worlds$tileBeforeHold;
 
     @Unique
-    private float toroidal$heldOriginX;
+    private float exotic_worlds$heldOriginX;
 
     @Unique
-    private float toroidal$originBeforeHoldX;
+    private float exotic_worlds$originBeforeHoldX;
 
     @Unique
-    private @Nullable AtlasView toroidal$singleWorld;
+    private @Nullable AtlasView exotic_worlds$singleWorld;
 
     @Shadow
     private String getSelectedDimension() {
@@ -91,25 +91,25 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
     }
 
     @Override
-    public @Nullable AtlasView toroidal$view() {
-        return this.toroidal$view;
+    public @Nullable AtlasView exotic_worlds$view() {
+        return this.exotic_worlds$view;
     }
 
     @Override
-    public @Nullable AtlasView toroidal$singleWorld() {
-        return this.toroidal$singleWorld;
+    public @Nullable AtlasView exotic_worlds$singleWorld() {
+        return this.exotic_worlds$singleWorld;
     }
 
     @Coerce
     @WrapOperation(method = BUILD_CONTEXT, at = @At(value = "INVOKE", target = GET_ATLAS_VIEWPORT))
-    private Object toroidal$holdSingleZoom(AtlasScreen screen, Operation<Object> original) {
+    private Object exotic_worlds$holdSingleZoom(AtlasScreen screen, Operation<Object> original) {
         Object viewport = original.call(screen);
         AtlasViewportAccessor content = (AtlasViewportAccessor) viewport;
-        AtlasView view = new AtlasView(content.toroidal$contentX(), content.toroidal$contentY(),
-                content.toroidal$contentWidth(), content.toroidal$contentHeight());
-        this.toroidal$view = view;
-        this.toroidal$singleWorld = null;
-        this.toroidal$tileBeforeHold = 0.0F;
+        AtlasView view = new AtlasView(content.exotic_worlds$contentX(), content.exotic_worlds$contentY(),
+                content.exotic_worlds$contentWidth(), content.exotic_worlds$contentHeight());
+        this.exotic_worlds$view = view;
+        this.exotic_worlds$singleWorld = null;
+        this.exotic_worlds$tileBeforeHold = 0.0F;
         if (MapCopies.current() != MapCopies.SINGLE) {
             return viewport;
         }
@@ -122,20 +122,20 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
             return viewport;
         }
 
-        this.toroidal$tileBeforeHold = TILE_SIZE * this.zoom;
+        this.exotic_worlds$tileBeforeHold = TILE_SIZE * this.zoom;
         this.zoom = Math.max(this.zoom, FullscreenZoomFloor.simpleAtlasCoverZoom(shape, view.contentWidth(),
                 view.contentHeight(), blocksPerTile, TILE_SIZE));
         return viewport;
     }
 
     @WrapOperation(method = BUILD_CONTEXT, at = @At(value = "INVOKE", target = GET_MAP_ORIGIN_X))
-    private float toroidal$readOriginX(AtlasScreen screen, @Coerce Object viewport, float scaledTileSize,
+    private float exotic_worlds$readOriginX(AtlasScreen screen, @Coerce Object viewport, float scaledTileSize,
             String dimension, Operation<Float> original) {
         float origin = original.call(screen, viewport, scaledTileSize, dimension);
-        float tileBefore = this.toroidal$tileBeforeHold;
+        float tileBefore = this.exotic_worlds$tileBeforeHold;
         if (tileBefore != 0.0F) {
-            this.toroidal$heldOriginX = origin;
-            this.toroidal$originBeforeHoldX = tileBefore == scaledTileSize
+            this.exotic_worlds$heldOriginX = origin;
+            this.exotic_worlds$originBeforeHoldX = tileBefore == scaledTileSize
                     ? origin
                     : original.call(screen, viewport, tileBefore, dimension);
         }
@@ -144,23 +144,23 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
     }
 
     @WrapOperation(method = BUILD_CONTEXT, at = @At(value = "INVOKE", target = GET_MAP_ORIGIN_Y))
-    private float toroidal$holdSinglePan(AtlasScreen screen, @Coerce Object viewport, float scaledTileSize,
+    private float exotic_worlds$holdSinglePan(AtlasScreen screen, @Coerce Object viewport, float scaledTileSize,
             String dimension, Operation<Float> original) {
         float origin = original.call(screen, viewport, scaledTileSize, dimension);
-        float tileBefore = this.toroidal$tileBeforeHold;
+        float tileBefore = this.exotic_worlds$tileBeforeHold;
         if (tileBefore != 0.0F) {
             float originBefore = tileBefore == scaledTileSize
                     ? origin
                     : original.call(screen, viewport, tileBefore, dimension);
-            toroidal$holdSinglePan(dimension, scaledTileSize, origin, originBefore);
+            exotic_worlds$holdSinglePan(dimension, scaledTileSize, origin, originBefore);
         }
 
         return origin;
     }
 
     @Unique
-    private void toroidal$holdSinglePan(String dimension, float tile, float originY, float originBeforeY) {
-        AtlasView view = this.toroidal$view;
+    private void exotic_worlds$holdSinglePan(String dimension, float tile, float originY, float originBeforeY) {
+        AtlasView view = this.exotic_worlds$view;
         ToroidalShape shape = AtlasTileFold.shapeOf(dimension);
         AtlasTilePayload first = AtlasTileFold.firstOf(this.tiles, dimension);
         int blocksPerTile = AtlasTileFold.blocksPerTile(Minecraft.getInstance().level, first);
@@ -168,11 +168,11 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
             return;
         }
 
-        float originX = this.toroidal$heldOriginX;
-        float tileBefore = this.toroidal$tileBeforeHold;
+        float originX = this.exotic_worlds$heldOriginX;
+        float tileBefore = this.exotic_worlds$tileBeforeHold;
         if (tileBefore != tile) {
             this.panX = AtlasView.panKeepingCentre(this.panX, view.contentX() + view.contentWidth() / 2.0F,
-                    this.toroidal$originBeforeHoldX, tileBefore, originX, tile);
+                    this.exotic_worlds$originBeforeHoldX, tileBefore, originX, tile);
             this.panY = AtlasView.panKeepingCentre(this.panY, view.contentY() + view.contentHeight() / 2.0F,
                     originBeforeY, tileBefore, originY, tile);
         }
@@ -182,7 +182,7 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
         float worldWidth = view.contentWidth();
         if (shape.loops(Direction.Axis.X)) {
             worldWidth = shape.widthBlocks(Direction.Axis.X) * pixelsPerBlock;
-            float start = toroidal$worldStart(originX + (float) this.panX, this.localTileX(dimension, first),
+            float start = exotic_worlds$worldStart(originX + (float) this.panX, this.localTileX(dimension, first),
                     first.centerX(), shape.minBlock(Direction.Axis.X), tile, blocksPerTile);
             float shift = AtlasView.panInside(AxisCopies.of(shape, Direction.Axis.X), start, view.contentX(),
                     view.contentWidth(), pixelsPerBlock);
@@ -194,7 +194,7 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
         float worldHeight = view.contentHeight();
         if (shape.loops(Direction.Axis.Z)) {
             worldHeight = shape.widthBlocks(Direction.Axis.Z) * pixelsPerBlock;
-            float start = toroidal$worldStart(originY + (float) this.panY, this.localTileY(dimension, first),
+            float start = exotic_worlds$worldStart(originY + (float) this.panY, this.localTileY(dimension, first),
                     first.centerZ(), shape.minBlock(Direction.Axis.Z), tile, blocksPerTile);
             float shift = AtlasView.panInside(AxisCopies.of(shape, Direction.Axis.Z), start, view.contentY(),
                     view.contentHeight(), pixelsPerBlock);
@@ -202,11 +202,11 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
             worldY = start + shift;
         }
 
-        this.toroidal$singleWorld = new AtlasView(worldX, worldY, worldWidth, worldHeight);
+        this.exotic_worlds$singleWorld = new AtlasView(worldX, worldY, worldWidth, worldHeight);
     }
 
     @Unique
-    private static float toroidal$worldStart(float mapOrigin, int localTile, int tileCentre, int minBlock, float tile,
+    private static float exotic_worlds$worldStart(float mapOrigin, int localTile, int tileCentre, int minBlock, float tile,
             int blocksPerTile) {
         return mapOrigin + localTile * tile + (minBlock - (tileCentre - blocksPerTile / 2)) * tile / blocksPerTile;
     }

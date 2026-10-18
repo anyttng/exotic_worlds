@@ -30,7 +30,7 @@ import net.minecraft.world.level.levelgen.blending.Blender;
 @Mixin(NoiseBasedChunkGenerator.class)
 public class NoiseBasedChunkGeneratorMixin {
     @WrapMethod(method = "doFill", order = BinderOrder.FOLD)
-    private ChunkAccess toroidal$bindWhileFilling(
+    private ChunkAccess exotic_worlds$bindWhileFilling(
             Blender blender,
             StructureManager structureManager,
             RandomState randomState,
@@ -44,7 +44,7 @@ public class NoiseBasedChunkGeneratorMixin {
     }
 
     @WrapMethod(method = "doCreateBiomes", order = BinderOrder.FOLD)
-    private void toroidal$bindWhileCreatingBiomes(
+    private void exotic_worlds$bindWhileCreatingBiomes(
             Blender blender,
             RandomState randomState,
             StructureManager structureManager,
@@ -62,7 +62,7 @@ public class NoiseBasedChunkGeneratorMixin {
                     + "Lnet/minecraft/world/level/biome/BiomeManager;Lnet/minecraft/world/level/levelgen/blending/Blender;"
                     + "Ljava/util/Set;)V",
             order = BinderOrder.FOLD)
-    private void toroidal$bindWhileBuildingSurface(
+    private void exotic_worlds$bindWhileBuildingSurface(
             ChunkAccess protoChunk,
             WorldGenerationContext context,
             RandomState randomState,
@@ -78,7 +78,7 @@ public class NoiseBasedChunkGeneratorMixin {
     }
 
     @WrapMethod(method = "iterateNoiseColumn", order = BinderOrder.FOLD)
-    private OptionalInt toroidal$bindWhileReadingColumn(
+    private OptionalInt exotic_worlds$bindWhileReadingColumn(
             LevelHeightAccessor heightAccessor,
             RandomState randomState,
             int blockX,

@@ -23,13 +23,13 @@ public class VibrationSystemListenerMixin {
     @WrapOperation(
             method = "scheduleVibration",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO))
-    private double toroidal$travelDistThroughSeam(Vec3 origin, Vec3 dest, Operation<Double> original,
+    private double exotic_worlds$travelDistThroughSeam(Vec3 origin, Vec3 dest, Operation<Double> original,
             @Local(argsOnly = true) ServerLevel level) {
         return Math.sqrt(SeamRange.sqr(level, origin, dest));
     }
 
     @ModifyVariable(method = "isOccluded", at = @At("HEAD"), argsOnly = true, ordinal = 1)
-    private static Vec3 toroidal$unwrapOcclusionTarget(Vec3 dest, @Local(argsOnly = true, ordinal = 0) Vec3 origin,
+    private static Vec3 exotic_worlds$unwrapOcclusionTarget(Vec3 dest, @Local(argsOnly = true, ordinal = 0) Vec3 origin,
             @Local(argsOnly = true) Level level) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
         return NearestCopy.toward(transformer, origin, dest);

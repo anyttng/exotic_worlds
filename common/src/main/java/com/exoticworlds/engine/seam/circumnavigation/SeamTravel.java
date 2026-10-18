@@ -63,7 +63,7 @@ public final class SeamTravel {
     }
 
     public static SeamTravel of(ServerPlayer player) {
-        return ((SeamTravelHolder) player).toroidal$travel();
+        return ((SeamTravelHolder) player).exotic_worlds$travel();
     }
 
     public Lap in(ResourceKey<Level> space) {

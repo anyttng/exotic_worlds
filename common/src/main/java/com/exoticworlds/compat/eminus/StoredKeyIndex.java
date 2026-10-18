@@ -5,5 +5,5 @@ import java.util.List;
 import com.eminus.render.tree.TreeNode;
 
 public interface StoredKeyIndex {
-    List<TreeNode> toroidal$nodesAt(long storedKey);
+    List<TreeNode> exotic_worlds$nodesAt(long storedKey);
 }

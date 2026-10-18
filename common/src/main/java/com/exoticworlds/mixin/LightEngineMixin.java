@@ -24,20 +24,20 @@ public abstract class LightEngineMixin implements TransformerHolder {
     protected LightChunkGetter chunkSource;
 
     @Unique
-    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
+    private final BoundLevelFold exotic_worlds$bound = new BoundLevelFold();
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$bindLevel(CallbackInfo ci) {
-        this.toroidal$bound.bind(this.chunkSource.getLevel());
+    private void exotic_worlds$bindLevel(CallbackInfo ci) {
+        this.exotic_worlds$bound.bind(this.chunkSource.getLevel());
     }
 
     @ModifyVariable(method = "getLightValue(Lnet/minecraft/core/BlockPos;)I", at = @At("HEAD"), argsOnly = true)
-    private BlockPos toroidal$wrapLightValuePos(BlockPos pos) {
-        return toroidal$transformer().fold(pos);
+    private BlockPos exotic_worlds$wrapLightValuePos(BlockPos pos) {
+        return exotic_worlds$transformer().fold(pos);
     }
 
     @Override
-    public WorldFold toroidal$transformer() {
-        return this.toroidal$bound.fold();
+    public WorldFold exotic_worlds$transformer() {
+        return this.exotic_worlds$bound.fold();
     }
 }

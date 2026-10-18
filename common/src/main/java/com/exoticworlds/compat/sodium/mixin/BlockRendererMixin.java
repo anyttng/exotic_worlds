@@ -19,7 +19,7 @@ public abstract class BlockRendererMixin extends AbstractBlockRenderContext {
     @WrapOperation(
             method = "renderModel",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_STATE_GET_OFFSET))
-    private Vec3 toroidal$seedModelOffset(BlockState state, BlockPos pos, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$seedModelOffset(BlockState state, BlockPos pos, Operation<Vec3> original) {
         try (BlockOffsetSeed _ = BlockOffsetSeed.seededBy(this.level)) {
             return original.call(state, pos);
         }

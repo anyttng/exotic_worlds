@@ -18,32 +18,32 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 @Mixin(targets = "journeymap.client.render.draw.BaseOverlayDrawStep", remap = false)
 public abstract class BaseOverlayDrawStepMixin implements OverlayCopies {
     @Unique
-    private static final double[][] TOROIDAL$NONE = new double[0][];
+    private static final double[][] EXOTIC_WORLDS$NONE = new double[0][];
 
     @Unique
-    private static final double[][] TOROIDAL$BASE_ONLY = {{0.0, 0.0}};
+    private static final double[][] EXOTIC_WORLDS$BASE_ONLY = {{0.0, 0.0}};
 
     @Unique
-    private double[][] toroidal$copies = TOROIDAL$NONE;
+    private double[][] exotic_worlds$copies = EXOTIC_WORLDS$NONE;
 
     @Override
-    public double[][] toroidal$copies() {
-        return toroidal$copies;
+    public double[][] exotic_worlds$copies() {
+        return exotic_worlds$copies;
     }
 
     @WrapOperation(method = "isOnScreen(DDLjourneymap/client/render/map/Renderer;D)Z",
             at = @At(value = "INVOKE",
                     target = "Ljourneymap/client/render/map/Renderer;isOnScreen(Ljava/awt/geom/Rectangle2D$Double;)Z"))
-    private boolean toroidal$onScreenOnAnyCopy(Renderer renderer, Rectangle2D.Double bounds, Operation<Boolean> original) {
-        Rectangle2D.Double screen = renderer instanceof MapRendererAccessor canvas ? canvas.toroidal$screenBounds() : null;
+    private boolean exotic_worlds$onScreenOnAnyCopy(Renderer renderer, Rectangle2D.Double bounds, Operation<Boolean> original) {
+        Rectangle2D.Double screen = renderer instanceof MapRendererAccessor canvas ? canvas.exotic_worlds$screenBounds() : null;
         if (screen == null || !JourneyMapFold.active()) {
             boolean onScreen = original.call(renderer, bounds);
-            toroidal$copies = onScreen ? TOROIDAL$BASE_ONLY : TOROIDAL$NONE;
+            exotic_worlds$copies = onScreen ? EXOTIC_WORLDS$BASE_ONLY : EXOTIC_WORLDS$NONE;
             return onScreen;
         }
 
-        toroidal$copies = JourneyMapFold.copyOffsets(renderer.getContext(), renderer.getZoom(), bounds, screen);
-        return toroidal$copies.length > 0;
+        exotic_worlds$copies = JourneyMapFold.copyOffsets(renderer.getContext(), renderer.getZoom(), bounds, screen);
+        return exotic_worlds$copies.length > 0;
     }
 
     @WrapOperation(method = "drawText",
@@ -52,10 +52,10 @@ public abstract class BaseOverlayDrawStepMixin implements OverlayCopies {
                             + "[Ljava/lang/String;DDLjourneymap/client/render/draw/DrawUtil$HAlign;"
                             + "Ljourneymap/client/render/draw/DrawUtil$VAlign;Ljava/lang/Integer;FLjava/lang/Integer;FDZD)V",
                     ordinal = 0))
-    private void toroidal$labelOnEveryCopy(GuiGraphicsExtractor graphics, String[] lines, double x, double y,
+    private void exotic_worlds$labelOnEveryCopy(GuiGraphicsExtractor graphics, String[] lines, double x, double y,
             DrawUtil.HAlign hAlign, DrawUtil.VAlign vAlign, Integer background, float backgroundOpacity, Integer color,
             float opacity, double scale, boolean shadow, double rotation, Operation<Void> original) {
-        for (double[] copy : toroidal$copies) {
+        for (double[] copy : exotic_worlds$copies) {
             original.call(graphics, lines, x + copy[0], y + copy[1], hAlign, vAlign, background, backgroundOpacity,
                     color, opacity, scale, shadow, rotation);
         }

@@ -17,13 +17,13 @@ import journeymap.client.render.draw.OverlayDrawStep;
 public abstract class ModOverlayLayerMixin {
     @WrapOperation(method = "updateOverlayState",
             at = @At(value = "INVOKE", target = "Ljava/awt/geom/Rectangle2D$Double;contains(Ljava/awt/geom/Point2D;)Z"))
-    private boolean toroidal$touchedOnAnyCopy(Rectangle2D.Double bounds, Point2D mouse, Operation<Boolean> original,
+    private boolean exotic_worlds$touchedOnAnyCopy(Rectangle2D.Double bounds, Point2D mouse, Operation<Boolean> original,
             @Local OverlayDrawStep step) {
         if (!(step instanceof OverlayCopies copies)) {
             return original.call(bounds, mouse);
         }
 
-        for (double[] copy : copies.toroidal$copies()) {
+        for (double[] copy : copies.exotic_worlds$copies()) {
             if (bounds.contains(mouse.getX() - copy[0], mouse.getY() - copy[1])) {
                 return true;
             }

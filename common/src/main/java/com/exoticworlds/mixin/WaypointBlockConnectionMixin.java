@@ -23,13 +23,13 @@ public class WaypointBlockConnectionMixin {
     private ServerPlayer receiver;
 
     @Unique
-    private final WaypointLapGate toroidal$lapGate = new WaypointLapGate();
+    private final WaypointLapGate exotic_worlds$lapGate = new WaypointLapGate();
 
     @WrapOperation(
             method = "update",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_DIST_MANHATTAN))
-    private int toroidal$resendWhenTheReceiverLaps(BlockPos currentPosition, Vec3i lastPosition, Operation<Integer> original) {
-        return this.toroidal$lapGate.widen(original.call(currentPosition, lastPosition), this.receiver, currentPosition);
+    private int exotic_worlds$resendWhenTheReceiverLaps(BlockPos currentPosition, Vec3i lastPosition, Operation<Integer> original) {
+        return this.exotic_worlds$lapGate.widen(original.call(currentPosition, lastPosition), this.receiver, currentPosition);
     }
 }

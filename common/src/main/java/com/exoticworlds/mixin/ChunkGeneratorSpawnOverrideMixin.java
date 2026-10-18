@@ -20,7 +20,7 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 @Mixin(ChunkGenerator.class)
 public class ChunkGeneratorSpawnOverrideMixin {
     @ModifyVariable(method = "getMobsAt", at = @At("STORE"))
-    private Predicate<StructureStart> toroidal$fullBoxThroughSeam(Predicate<StructureStart> check,
+    private Predicate<StructureStart> exotic_worlds$fullBoxThroughSeam(Predicate<StructureStart> check,
             @Local StructureSpawnOverride override, @Local(argsOnly = true) StructureManager structureManager,
             @Local(argsOnly = true) BlockPos pos) {
         if (override.boundingBox() == StructureSpawnOverride.BoundingBoxType.PIECE) {
@@ -28,7 +28,7 @@ public class ChunkGeneratorSpawnOverrideMixin {
         }
 
         WorldFold fold = WorldLoopAttachments.transformerOfReader(
-                ((StructureManagerAccessor) structureManager).toroidal$level());
+                ((StructureManagerAccessor) structureManager).exotic_worlds$level());
         if (!fold.isWrapped()) {
             return check;
         }

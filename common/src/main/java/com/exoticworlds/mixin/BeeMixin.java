@@ -17,14 +17,14 @@ import net.minecraft.world.entity.animal.bee.Bee;
 @Mixin(Bee.class)
 public class BeeMixin {
     @ModifyVariable(method = "closerThan(Lnet/minecraft/core/BlockPos;I)Z", at = @At("HEAD"), argsOnly = true)
-    private BlockPos toroidal$rememberedPosThroughSeam(BlockPos targetPos) {
+    private BlockPos exotic_worlds$rememberedPosThroughSeam(BlockPos targetPos) {
         return SeamSteering.nearestCopy((Bee) (Object) this, targetPos);
     }
 
     @WrapOperation(
             method = "pathfindRandomlyTowards",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_MANHATTAN))
-    private int toroidal$stepDistanceThroughSeam(BlockPos beePos, Vec3i targetPos, Operation<Integer> original) {
+    private int exotic_worlds$stepDistanceThroughSeam(BlockPos beePos, Vec3i targetPos, Operation<Integer> original) {
         return SeamRange.manhattan((Bee) (Object) this, beePos, targetPos);
     }
 }

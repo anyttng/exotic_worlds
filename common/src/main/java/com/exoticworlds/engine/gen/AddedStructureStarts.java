@@ -51,16 +51,16 @@ public final class AddedStructureStarts {
     public static AddedStructureStarts of(ChunkGeneratorStructureState state, StructureCheck check,
             CarriedShape carried) {
         AddedStartsHolder holder = (AddedStartsHolder) (Object) state;
-        AddedStructureStarts known = holder.toroidal$addedStarts();
+        AddedStructureStarts known = holder.exotic_worlds$addedStarts();
         if (known != null) {
             return known;
         }
 
         synchronized (holder) {
-            known = holder.toroidal$addedStarts();
+            known = holder.exotic_worlds$addedStarts();
             if (known == null) {
                 known = GenerationMoments.hasStructureStartHooks() ? compute(state, check, carried) : NONE;
-                holder.toroidal$addedStarts(known);
+                holder.exotic_worlds$addedStarts(known);
             }
 
             return known;
@@ -144,7 +144,7 @@ public final class AddedStructureStarts {
 
         @Override
         public boolean canStart(Holder<Structure> structure, ChunkPos chunk) {
-            return ((StructureCheckAccessor) this.check).toroidal$canCreateStructure(chunk, structure.value());
+            return ((StructureCheckAccessor) this.check).exotic_worlds$canCreateStructure(chunk, structure.value());
         }
 
         private List<Pick> enumeratePicks() {

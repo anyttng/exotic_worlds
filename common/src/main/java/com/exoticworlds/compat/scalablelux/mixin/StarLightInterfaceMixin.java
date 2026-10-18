@@ -38,28 +38,28 @@ public class StarLightInterfaceMixin implements TransformerSource {
     private int instanceId;
 
     @Unique
-    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
+    private final BoundLevelFold exotic_worlds$bound = new BoundLevelFold();
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$registerLockOwner(CallbackInfo ci) {
-        this.toroidal$bound.bind(this.world);
+    private void exotic_worlds$registerLockOwner(CallbackInfo ci) {
+        this.exotic_worlds$bound.bind(this.world);
         if (!this.isClientSide) {
             LightLockFolds.register(this.instanceId, this.lightEngine, this);
         }
     }
 
     @ModifyVariable(method = "getAnyChunkNow", at = @At("HEAD"), argsOnly = true, index = 1)
-    private int toroidal$wrapChunkX(int chunkX, @Local(argsOnly = true, ordinal = 1) int chunkZ) {
-        return this.toroidal$bound.fold().chunkLattice().foldX(chunkX, chunkZ);
+    private int exotic_worlds$wrapChunkX(int chunkX, @Local(argsOnly = true, ordinal = 1) int chunkZ) {
+        return this.exotic_worlds$bound.fold().chunkLattice().foldX(chunkX, chunkZ);
     }
 
     @ModifyVariable(method = "getAnyChunkNow", at = @At("HEAD"), argsOnly = true, index = 2)
-    private int toroidal$wrapChunkZ(int chunkZ) {
-        return this.toroidal$bound.fold().chunkLattice().foldZ(chunkZ);
+    private int exotic_worlds$wrapChunkZ(int chunkZ) {
+        return this.exotic_worlds$bound.fold().chunkLattice().foldZ(chunkZ);
     }
 
     @Override
-    public @Nullable WorldFold toroidal$wrappedTransformer() {
-        return this.toroidal$bound.wrapped();
+    public @Nullable WorldFold exotic_worlds$wrappedTransformer() {
+        return this.exotic_worlds$bound.wrapped();
     }
 }

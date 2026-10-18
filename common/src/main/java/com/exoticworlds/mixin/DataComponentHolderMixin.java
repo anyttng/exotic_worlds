@@ -13,13 +13,13 @@ import net.minecraft.core.component.DataComponentType;
 @Mixin(DataComponentHolder.class)
 public interface DataComponentHolderMixin {
     @ModifyReturnValue(method = "get", at = @At("RETURN"))
-    private Object toroidal$seatNamedPosition(Object stored,
+    private Object exotic_worlds$seatNamedPosition(Object stored,
             @Local(argsOnly = true) DataComponentType<?> type) {
         return ComponentReadFold.seated(type, stored);
     }
 
     @ModifyReturnValue(method = "getOrDefault", at = @At("RETURN"))
-    private Object toroidal$seatNamedPositionOrDefault(Object stored,
+    private Object exotic_worlds$seatNamedPositionOrDefault(Object stored,
             @Local(argsOnly = true) DataComponentType<?> type) {
         return ComponentReadFold.seated(type, stored);
     }

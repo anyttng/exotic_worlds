@@ -40,21 +40,21 @@ public abstract class RegionTileMixin {
     private int zoom;
 
     @Unique
-    private static boolean toroidal$drawingCopies;
+    private static boolean exotic_worlds$drawingCopies;
 
     @WrapOperation(method = "setPosition",
             at = @At(value = "INVOKE", target = "Ljava/awt/geom/Rectangle2D$Double;contains(DD)Z"))
-    private boolean toroidal$showTilesWhoseCopyMeetsTheGrid(Rectangle2D.Double regionBounds, double regionX,
+    private boolean exotic_worlds$showTilesWhoseCopyMeetsTheGrid(Rectangle2D.Double regionBounds, double regionX,
             double regionZ, Operation<Boolean> original) {
         return original.call(regionBounds, regionX, regionZ)
                 || JourneyMapFold.active() && JourneyMapFold.regionInView(regionBounds, (int) regionX, (int) regionZ);
     }
 
     @Inject(method = "render", at = @At("TAIL"))
-    private void toroidal$renderWrappedCopies(GuiGraphicsExtractor graphics, Matrix3x2fStack pose, UI context,
+    private void exotic_worlds$renderWrappedCopies(GuiGraphicsExtractor graphics, Matrix3x2fStack pose, UI context,
             double pixelOffsetX, double pixelOffsetZ, float alpha, MapType mapType, RenderPipeline pipeline,
             CallbackInfo ci) {
-        if (toroidal$drawingCopies || context == UI.Webmap) {
+        if (exotic_worlds$drawingCopies || context == UI.Webmap) {
             return;
         }
 
@@ -64,8 +64,8 @@ public abstract class RegionTileMixin {
         }
 
         Window window = Minecraft.getInstance().getWindow();
-        int viewportX = toroidal$viewportPixels(context, window.getWidth());
-        int viewportZ = toroidal$viewportPixels(context, window.getHeight());
+        int viewportX = exotic_worlds$viewportPixels(context, window.getWidth());
+        int viewportZ = exotic_worlds$viewportPixels(context, window.getHeight());
         int[] spanX = JourneyMapFold.viewSpan(view.centerX(), viewportX, this.zoom);
         int[] spanZ = JourneyMapFold.viewSpan(view.centerZ(), viewportZ, this.zoom);
         List<WorldCopies.Copy> drawn = JourneyMapFold.drawnCopies(view.tiles(), spanX, spanZ,
@@ -77,19 +77,19 @@ public abstract class RegionTileMixin {
                 region.regionZ * FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS,
                 FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS, spanX, spanZ);
         double pixelsPerBlock = JourneyMapFold.pixelsPerBlock(this.zoom);
-        toroidal$drawingCopies = true;
+        exotic_worlds$drawingCopies = true;
         try {
             for (WorldCopies.Copy copy : copies) {
                 this.render(graphics, pose, context, pixelOffsetX + copy.dx() * pixelsPerBlock,
                         pixelOffsetZ + copy.dz() * pixelsPerBlock, alpha, mapType, pipeline);
             }
         } finally {
-            toroidal$drawingCopies = false;
+            exotic_worlds$drawingCopies = false;
         }
     }
 
     @Unique
-    private static int toroidal$viewportPixels(UI context, int windowPixels) {
+    private static int exotic_worlds$viewportPixels(UI context, int windowPixels) {
         if (context != UI.Minimap) {
             return windowPixels;
         }

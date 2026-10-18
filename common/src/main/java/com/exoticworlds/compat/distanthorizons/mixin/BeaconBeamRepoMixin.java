@@ -18,18 +18,18 @@ import com.seibel.distanthorizons.core.sql.repo.BeaconBeamRepo;
 @Mixin(BeaconBeamRepo.class)
 public class BeaconBeamRepoMixin {
     @WrapMethod(method = "setPreparedStatementWhereClause(Ljava/sql/PreparedStatement;ILcom/seibel/distanthorizons/core/pos/blockPos/DhBlockPos;)I")
-    private int toroidal$foldWhereKey(PreparedStatement statement, int index, DhBlockPos pos,
+    private int exotic_worlds$foldWhereKey(PreparedStatement statement, int index, DhBlockPos pos,
             Operation<Integer> original) {
         return original.call(statement, index, DhKeys.foldBlock(DhRepoLevel.latticeOf(this), pos));
     }
 
     @WrapMethod(method = "createUpsertStatement(Lcom/seibel/distanthorizons/core/sql/dto/BeaconBeamDTO;)Ljava/sql/PreparedStatement;")
-    private PreparedStatement toroidal$foldUpsert(BeaconBeamDTO dto, Operation<PreparedStatement> original) {
+    private PreparedStatement exotic_worlds$foldUpsert(BeaconBeamDTO dto, Operation<PreparedStatement> original) {
         return DhKeys.withFoldedKey(DhRepoLevel.latticeOf(this), dto, () -> original.call(dto));
     }
 
     @WrapMethod(method = "getAllBeamsInBlockPosRange")
-    private ArrayList<BeaconBeamDTO> toroidal$foldRange(int minBlockX, int maxBlockX, int minBlockZ, int maxBlockZ,
+    private ArrayList<BeaconBeamDTO> exotic_worlds$foldRange(int minBlockX, int maxBlockX, int minBlockZ, int maxBlockZ,
             Operation<ArrayList<BeaconBeamDTO>> original) {
         DhLattice lattice = DhRepoLevel.latticeOf(this);
         if (lattice == null) {

@@ -20,7 +20,7 @@ public class EntitySectionCallbackMixin {
     @ModifyExpressionValue(
             method = "onMove",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/core/SectionPos;asLong(Lnet/minecraft/core/BlockPos;)J"))
-    private long toroidal$fileInPhysicalSection(long sectionKey) {
+    private long exotic_worlds$fileInPhysicalSection(long sectionKey) {
         if (!(this.entity instanceof Entity actualEntity)) {
             return sectionKey;
         }

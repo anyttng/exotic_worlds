@@ -33,7 +33,7 @@ public class DebugEntryPositionMixin {
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/components/debug/DebugScreenDisplayer;addToGroup(Lnet/minecraft/resources/Identifier;Ljava/util/Collection;)V"),
             index = 1)
-    private Collection<String> toroidal$wrapPositionLines(Collection<String> lines) {
+    private Collection<String> exotic_worlds$wrapPositionLines(Collection<String> lines) {
         Minecraft minecraft = Minecraft.getInstance();
         Level level = minecraft.level;
         if (level == null || lines.size() < POSITION_LINES) {

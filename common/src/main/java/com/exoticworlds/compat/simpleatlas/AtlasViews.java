@@ -3,7 +3,7 @@ package com.exoticworlds.compat.simpleatlas;
 import org.jspecify.annotations.Nullable;
 
 public interface AtlasViews {
-    @Nullable AtlasView toroidal$view();
+    @Nullable AtlasView exotic_worlds$view();
 
-    @Nullable AtlasView toroidal$singleWorld();
+    @Nullable AtlasView exotic_worlds$singleWorld();
 }

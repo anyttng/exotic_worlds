@@ -17,11 +17,11 @@ import org.joml.Matrix3x2fStack;
 @Mixin(targets = "journeymap.client.render.map.PolygonGeometryDrawPass", remap = false)
 public abstract class PolygonGeometryDrawPassMixin {
     @Inject(method = "draw", at = @At("HEAD"))
-    private void toroidal$drawSeamLines(GuiGraphicsExtractor graphics, Matrix3x2fStack pose,
+    private void exotic_worlds$drawSeamLines(GuiGraphicsExtractor graphics, Matrix3x2fStack pose,
             List<? extends DrawPolygonStep> polygonSteps, double xOffset, double yOffset, Renderer renderer,
             double fontScale, double rotation, CallbackInfo ci) {
         if (renderer instanceof JourneyMapSeamPass seamPass) {
-            seamPass.toroidal$drawSeams(graphics, pose, xOffset, yOffset);
+            seamPass.exotic_worlds$drawSeams(graphics, pose, xOffset, yOffset);
         }
     }
 }

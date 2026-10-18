@@ -18,7 +18,7 @@ public abstract class BlockStateInsideMixin {
             method = "entityInside(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/InsideBlockEffectApplier;Z)V",
             at = @At("HEAD"),
             argsOnly = true)
-    private BlockPos toroidal$canonicalInsidePos(BlockPos pos, @Local(argsOnly = true) Level level) {
+    private BlockPos exotic_worlds$canonicalInsidePos(BlockPos pos, @Local(argsOnly = true) Level level) {
         return WorldLoopAttachments.transformerOf(level).fold(pos);
     }
 
@@ -26,7 +26,7 @@ public abstract class BlockStateInsideMixin {
             method = "getEntityInsideCollisionShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/phys/shapes/VoxelShape;",
             at = @At("HEAD"),
             argsOnly = true)
-    private BlockPos toroidal$canonicalShapePos(BlockPos pos, @Local(argsOnly = true) BlockGetter getter) {
+    private BlockPos exotic_worlds$canonicalShapePos(BlockPos pos, @Local(argsOnly = true) BlockGetter getter) {
         return WorldLoopAttachments.transformerIfLevel(getter).fold(pos);
     }
 }

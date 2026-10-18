@@ -18,7 +18,7 @@ public class GoAndGiveItemsToTargetMixin {
     @WrapOperation(
             method = "tick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LivingEntity;J)V",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO))
-    private double toroidal$depositDistanceThroughSeam(Vec3 depositPosition, Vec3 eyePosition,
+    private double exotic_worlds$depositDistanceThroughSeam(Vec3 depositPosition, Vec3 eyePosition,
             Operation<Double> original, @Local(argsOnly = true) LivingEntity body) {
         return Math.sqrt(SeamRange.sqr(body, depositPosition, eyePosition));
     }

@@ -12,7 +12,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(Breeze.class)
 public class BreezeMixin {
     @ModifyVariable(method = "withinInnerCircleRange", at = @At("HEAD"), argsOnly = true)
-    private Vec3 toroidal$innerRingTargetThroughSeam(Vec3 target) {
+    private Vec3 exotic_worlds$innerRingTargetThroughSeam(Vec3 target) {
         return SeamSteering.nearestCopy((Breeze) (Object) this, target);
     }
 }

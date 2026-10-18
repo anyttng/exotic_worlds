@@ -21,7 +21,7 @@ public class AtlasWaypointDecorationsMixin {
             method = "toDecoration",
             at = @At(value = "FIELD", target = InjectionTargets.MAP_ITEM_SAVED_DATA_CENTER_X,
                     opcode = Opcodes.GETFIELD))
-    private static int toroidal$centerXNearWaypoint(int centerX, @Local(argsOnly = true) MapItemSavedData data,
+    private static int exotic_worlds$centerXNearWaypoint(int centerX, @Local(argsOnly = true) MapItemSavedData data,
             @Local(argsOnly = true) AtlasContents.WaypointData waypoint) {
         return MapCentreSeat.towardWaypoint(Direction.Axis.X, waypoint, data);
     }
@@ -30,7 +30,7 @@ public class AtlasWaypointDecorationsMixin {
             method = "toDecoration",
             at = @At(value = "FIELD", target = InjectionTargets.MAP_ITEM_SAVED_DATA_CENTER_Z,
                     opcode = Opcodes.GETFIELD))
-    private static int toroidal$centerZNearWaypoint(int centerZ, @Local(argsOnly = true) MapItemSavedData data,
+    private static int exotic_worlds$centerZNearWaypoint(int centerZ, @Local(argsOnly = true) MapItemSavedData data,
             @Local(argsOnly = true) AtlasContents.WaypointData waypoint) {
         return MapCentreSeat.towardWaypoint(Direction.Axis.Z, waypoint, data);
     }

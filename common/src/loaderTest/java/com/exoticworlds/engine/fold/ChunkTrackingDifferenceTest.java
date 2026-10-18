@@ -63,9 +63,9 @@ class ChunkTrackingDifferenceTest {
     private static ChunkTrackingView.Positioned view(WorldFold fold, int centerX, int centerZ) {
         ChunkTrackingView.Positioned view =
                 (ChunkTrackingView.Positioned) ChunkTrackingView.of(new ChunkPos(centerX, centerZ), VIEW_DISTANCE);
-        ((TransformerHolder) (Object) view).toroidal$setTransformer(fold);
+        ((TransformerHolder) (Object) view).exotic_worlds$setTransformer(fold);
 
-        assertSame(fold, ((TransformerHolder) (Object) view).toroidal$transformer(), "the view kept no transformer");
+        assertSame(fold, ((TransformerHolder) (Object) view).exotic_worlds$transformer(), "the view kept no transformer");
         return view;
     }
 

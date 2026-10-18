@@ -11,7 +11,7 @@ import net.minecraft.core.BlockPos;
 @Mixin(targets = "xaero.hud.minimap.world.state.MinimapWorldStateUpdater", remap = false)
 public abstract class MinimapWorldStateUpdaterMixin {
     @ModifyReturnValue(method = "getAutoWorldNodeBase", at = @At("RETURN"))
-    private Object toroidal$foldSpawnNodeBase(Object original) {
+    private Object exotic_worlds$foldSpawnNodeBase(Object original) {
         return original instanceof BlockPos spawn ? XaeroFold.foldWorldNodeSpawn(spawn) : original;
     }
 }

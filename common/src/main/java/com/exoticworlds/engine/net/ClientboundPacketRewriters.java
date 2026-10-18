@@ -95,10 +95,10 @@ final class ClientboundPacketRewriters {
     static Packet<?> chunkPosition(Packet<?> packet, int x, int z, TranslationContext context) {
         ChunkPos clientPos = context.toClient(new ChunkPos(x, z));
 
-        Packet<?> copy = ((ChunkPacketCopy) packet).toroidal$copy();
+        Packet<?> copy = ((ChunkPacketCopy) packet).exotic_worlds$copy();
         ChunkPacketPosition accessor = (ChunkPacketPosition) copy;
-        accessor.toroidal$setX(clientPos.x());
-        accessor.toroidal$setZ(clientPos.z());
+        accessor.exotic_worlds$setX(clientPos.x());
+        accessor.exotic_worlds$setZ(clientPos.z());
         return copy;
     }
 
@@ -200,14 +200,14 @@ final class ClientboundPacketRewriters {
 
     static ClientboundSectionBlocksUpdatePacket sectionBlocksUpdate(ClientboundSectionBlocksUpdatePacket packet, TranslationContext context) {
         return rewritePosition(
-                (sectionPacket, output) -> ((SectionBlocksUpdatePacketAccessor) sectionPacket).toroidal$write(output),
-                SectionBlocksUpdatePacketAccessor::toroidal$create,
+                (sectionPacket, output) -> ((SectionBlocksUpdatePacketAccessor) sectionPacket).exotic_worlds$write(output),
+                SectionBlocksUpdatePacketAccessor::exotic_worlds$create,
                 SectionPos.STREAM_CODEC, packet, context,
                 section -> SectionPos.of(context.toClient(section.chunk()), section.y()));
     }
 
     static ClientboundBlockEntityDataPacket blockEntityData(ClientboundBlockEntityDataPacket packet, TranslationContext context) {
-        return BlockEntityDataPacketAccessor.toroidal$create(
+        return BlockEntityDataPacketAccessor.exotic_worlds$create(
                 context.toClient(packet.getPos()), packet.getType(), packet.getTag());
     }
 
@@ -347,9 +347,9 @@ final class ClientboundPacketRewriters {
 
     static ClientboundTrackedWaypointPacket trackedWaypoint(ClientboundTrackedWaypointPacket packet, TranslationContext context) {
         if (packet.waypoint() instanceof Vec3iWaypointAccessor waypoint) {
-            waypoint.toroidal$setVector(context.nearestCopy(new BlockPos(waypoint.toroidal$getVector())));
+            waypoint.exotic_worlds$setVector(context.nearestCopy(new BlockPos(waypoint.exotic_worlds$getVector())));
         } else if (packet.waypoint() instanceof ChunkWaypointAccessor waypoint) {
-            waypoint.toroidal$setChunkPos(context.nearestCopy(waypoint.toroidal$getChunkPos()));
+            waypoint.exotic_worlds$setChunkPos(context.nearestCopy(waypoint.exotic_worlds$getChunkPos()));
         }
 
         return packet;
@@ -394,9 +394,9 @@ final class ClientboundPacketRewriters {
 
     static ClientboundPlayerLookAtPacket playerLookAt(ClientboundPlayerLookAtPacket packet, TranslationContext context) {
         PlayerLookAtPacketAccessor accessor = (PlayerLookAtPacketAccessor) packet;
-        Vec3 near = context.nearestCopy(new Vec3(accessor.toroidal$getX(), 0.0, accessor.toroidal$getZ()));
-        accessor.toroidal$setX(near.x);
-        accessor.toroidal$setZ(near.z);
+        Vec3 near = context.nearestCopy(new Vec3(accessor.exotic_worlds$getX(), 0.0, accessor.exotic_worlds$getZ()));
+        accessor.exotic_worlds$setX(near.x);
+        accessor.exotic_worlds$setZ(near.z);
         return packet;
     }
 

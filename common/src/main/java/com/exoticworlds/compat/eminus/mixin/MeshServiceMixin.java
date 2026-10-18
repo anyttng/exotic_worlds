@@ -32,15 +32,15 @@ public class MeshServiceMixin implements MeshServiceCopies {
     private ColumnCoverage coverage;
 
     @Unique
-    private final CopyBuilds<CellHandle> toroidal$copies = new CopyBuilds<>();
+    private final CopyBuilds<CellHandle> exotic_worlds$copies = new CopyBuilds<>();
 
     @Override
-    public CopyBuilds<CellHandle> toroidal$copies() {
-        return toroidal$copies;
+    public CopyBuilds<CellHandle> exotic_worlds$copies() {
+        return exotic_worlds$copies;
     }
 
     @Inject(method = "request(JLcom/eminus/cell/cache/CellHandle;IJF)V", at = @At("HEAD"), cancellable = true)
-    private void toroidal$joinAWaitingCopy(long key, @Nullable CellHandle held, int references, long request,
+    private void exotic_worlds$joinAWaitingCopy(long key, @Nullable CellHandle held, int references, long request,
             float priority, CallbackInfo ci) {
         CellFold fold = CellFoldHolder.foldOf(coverage);
         if (!fold.repeats()) {
@@ -48,43 +48,43 @@ public class MeshServiceMixin implements MeshServiceCopies {
         }
 
         CopyBuilds.Member<CellHandle> member = new CopyBuilds.Member<>(key, request, priority, held, references);
-        if (toroidal$copies.offer(fold.foldKey(key), member) == CopyBuilds.Offer.JOINED) {
-            toroidal$release(held, references);
+        if (exotic_worlds$copies.offer(fold.foldKey(key), member) == CopyBuilds.Offer.JOINED) {
+            exotic_worlds$release(held, references);
             ci.cancel();
         }
     }
 
     @WrapOperation(method = "take", at = @At(value = "INVOKE", target = EminusInjectionTargets.MESH_QUEUE_POLL))
-    private @Nullable MeshTask toroidal$skipAbsorbedCopies(MeshQueue queue, Operation<@Nullable MeshTask> original) {
+    private @Nullable MeshTask exotic_worlds$skipAbsorbedCopies(MeshQueue queue, Operation<@Nullable MeshTask> original) {
         MeshTask task = original.call(queue);
-        while (task != null && toroidal$copies.skip(task.request())) {
-            toroidal$release(task.held(), task.references());
+        while (task != null && exotic_worlds$copies.skip(task.request())) {
+            exotic_worlds$release(task.held(), task.references());
             task = original.call(queue);
         }
 
         if (task != null) {
-            toroidal$copies.taken(task.request());
+            exotic_worlds$copies.taken(task.request());
         }
 
         return task;
     }
 
     @WrapOperation(method = "build", at = @At(value = "INVOKE", target = EminusInjectionTargets.MESH_LISTENER_MESHED))
-    private void toroidal$meshEveryCopy(MeshListener listener, CellMesh mesh, long request,
+    private void exotic_worlds$meshEveryCopy(MeshListener listener, CellMesh mesh, long request,
             Operation<Void> original) {
         original.call(listener, mesh, request);
-        for (CopyBuilds.Member<CellHandle> copy : toroidal$copies.delivered(request)) {
+        for (CopyBuilds.Member<CellHandle> copy : exotic_worlds$copies.delivered(request)) {
             listener.meshed(MeshKeys.withKey(mesh, copy.key()), copy.request());
         }
     }
 
     @Inject(method = "drop", at = @At("HEAD"))
-    private void toroidal$forgetCopies(CallbackInfo ci) {
-        toroidal$copies.clear();
+    private void exotic_worlds$forgetCopies(CallbackInfo ci) {
+        exotic_worlds$copies.clear();
     }
 
     @Unique
-    private void toroidal$release(@Nullable CellHandle held, int references) {
+    private void exotic_worlds$release(@Nullable CellHandle held, int references) {
         if (held != null && references > 0) {
             ((MeshService) (Object) this).release(held, references);
         }

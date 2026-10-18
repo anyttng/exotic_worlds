@@ -9,5 +9,5 @@ import net.minecraft.world.level.block.SculkSpreader;
 @Mixin(SculkSpreader.ChargeCursor.class)
 public interface ChargeCursorAccessor {
     @Accessor("pos")
-    void toroidal$setPos(BlockPos pos);
+    void exotic_worlds$setPos(BlockPos pos);
 }

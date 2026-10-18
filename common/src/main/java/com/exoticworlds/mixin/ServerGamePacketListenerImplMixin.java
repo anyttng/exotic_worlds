@@ -50,15 +50,15 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
 
     // Keep this the last field with an initialiser: mixin splices declaration initialisers by line-number range.
     @Unique
-    private final ClientPosition toroidal$clientPosition = new ClientPosition();
+    private final ClientPosition exotic_worlds$clientPosition = new ClientPosition();
 
     @Override
-    public ClientPosition toroidal$clientPosition() {
-        return this.toroidal$clientPosition;
+    public ClientPosition exotic_worlds$clientPosition() {
+        return this.exotic_worlds$clientPosition;
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void toroidal$seedMirror(MinecraftServer server, Connection connection, ServerPlayer player,
+    private void exotic_worlds$seedMirror(MinecraftServer server, Connection connection, ServerPlayer player,
             CommonListenerCookie cookie, CallbackInfo ci) {
         ClientPosition.rebase(player);
     }
@@ -67,7 +67,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
             method = "teleport(Lnet/minecraft/world/entity/PositionMoveRotation;Ljava/util/Set;)V",
             at = @At("HEAD"),
             argsOnly = true)
-    private PositionMoveRotation toroidal$wrapTeleportDestination(PositionMoveRotation destination,
+    private PositionMoveRotation exotic_worlds$wrapTeleportDestination(PositionMoveRotation destination,
             @Local(argsOnly = true) Set<Relative> relatives) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
         if (transformer == null) {
@@ -85,10 +85,10 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
     }
 
     @Inject(method = "teleport(Lnet/minecraft/world/entity/PositionMoveRotation;Ljava/util/Set;)V", at = @At("HEAD"))
-    private void toroidal$dropChunksBeforeTeleport(PositionMoveRotation destination, Set<Relative> relatives, CallbackInfo ci,
+    private void exotic_worlds$dropChunksBeforeTeleport(PositionMoveRotation destination, Set<Relative> relatives, CallbackInfo ci,
             @Share("stormWholeView") LocalBooleanRef stormWholeView,
             @Share("flippedChunks") LocalRef<List<ChunkPos>> flippedChunks) {
-        ChunkResender resender = toroidal$chunkResender();
+        ChunkResender resender = exotic_worlds$chunkResender();
         if (resender == null) {
             return;
         }
@@ -96,47 +96,47 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
         ClientPosition mirror = ClientPosition.of(this.player);
         if (!mirror.describes(this.player.level().dimension())) {
             stormWholeView.set(true);
-            resender.toroidal$dropTrackedChunks(this.player);
+            resender.exotic_worlds$dropTrackedChunks(this.player);
             return;
         }
 
-        List<ChunkPos> flipped = toroidal$flippedChunks(destination, relatives, mirror);
+        List<ChunkPos> flipped = exotic_worlds$flippedChunks(destination, relatives, mirror);
         flippedChunks.set(flipped);
         if (!flipped.isEmpty()) {
-            resender.toroidal$dropChunks(this.player, flipped);
+            resender.exotic_worlds$dropChunks(this.player, flipped);
         }
     }
 
     @Inject(method = "teleport(Lnet/minecraft/world/entity/PositionMoveRotation;Ljava/util/Set;)V", at = @At("TAIL"))
-    private void toroidal$resendChunksAfterTeleport(PositionMoveRotation destination, Set<Relative> relatives, CallbackInfo ci,
+    private void exotic_worlds$resendChunksAfterTeleport(PositionMoveRotation destination, Set<Relative> relatives, CallbackInfo ci,
             @Share("stormWholeView") LocalBooleanRef stormWholeView,
             @Share("flippedChunks") LocalRef<List<ChunkPos>> flippedChunks) {
-        ChunkResender resender = toroidal$chunkResender();
+        ChunkResender resender = exotic_worlds$chunkResender();
         if (resender == null) {
             return;
         }
 
         if (stormWholeView.get()) {
-            resender.toroidal$resendTrackedChunks(this.player);
+            resender.exotic_worlds$resendTrackedChunks(this.player);
         } else {
             List<ChunkPos> flipped = flippedChunks.get();
             if (flipped != null && !flipped.isEmpty()) {
-                resender.toroidal$resendChunks(this.player, flipped);
+                resender.exotic_worlds$resendChunks(this.player, flipped);
             }
         }
 
-        toroidal$refreshTrackedEntities();
+        exotic_worlds$refreshTrackedEntities();
     }
 
     @Unique
-    private void toroidal$refreshTrackedEntities() {
+    private void exotic_worlds$refreshTrackedEntities() {
         TrackedEntityRefresher refresher =
                 (TrackedEntityRefresher) (Object) this.player.level().getChunkSource().chunkMap;
-        refresher.toroidal$refreshTrackedEntities(this.player);
+        refresher.exotic_worlds$refreshTrackedEntities(this.player);
     }
 
     @Unique
-    private List<ChunkPos> toroidal$flippedChunks(PositionMoveRotation destination, Set<Relative> relatives, ClientPosition mirror) {
+    private List<ChunkPos> exotic_worlds$flippedChunks(PositionMoveRotation destination, Set<Relative> relatives, ClientPosition mirror) {
         WorldFold transformer = WorldLoopAttachments.transformerOf(this.player.level());
         Vec3 clientDestination = mirror.destinationOf(transformer, destination.position(), relatives);
 
@@ -156,7 +156,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
     }
 
     @Unique
-    private @Nullable ChunkResender toroidal$chunkResender() {
+    private @Nullable ChunkResender exotic_worlds$chunkResender() {
         if (WorldLoopAttachments.wrappedTransformerOf(this.player.level()) == null) {
             return null;
         }
@@ -165,7 +165,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
     }
 
     @Unique
-    private boolean toroidal$ridesUncontrolled() {
+    private boolean exotic_worlds$ridesUncontrolled() {
         return this.player.getRootVehicle().getControllingPassenger() != this.player;
     }
 
@@ -199,7 +199,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;clampHorizontal(D)D",
                     ordinal = 0))
-    private double toroidal$continuousX(double requestedX, Operation<Double> original,
+    private double exotic_worlds$continuousX(double requestedX, Operation<Double> original,
             @Local(argsOnly = true) ServerboundMovePlayerPacket packet,
             @Share("continuous") LocalRef<Vec3> continuous) {
         double clampedX = original.call(requestedX);
@@ -208,7 +208,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
             return clampedX;
         }
 
-        Vec3 seated = toroidal$seatPlayerMove(transformer, clampedX,
+        Vec3 seated = exotic_worlds$seatPlayerMove(transformer, clampedX,
                 original.call(packet.getZ(this.player.getZ())));
         continuous.set(seated);
         return seated.x;
@@ -220,7 +220,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;clampHorizontal(D)D",
                     ordinal = 1))
-    private double toroidal$continuousZ(double requestedZ, Operation<Double> original,
+    private double exotic_worlds$continuousZ(double requestedZ, Operation<Double> original,
             @Share("continuous") LocalRef<Vec3> continuous) {
         double clampedZ = original.call(requestedZ);
         Vec3 seated = continuous.get();
@@ -228,11 +228,11 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
     }
 
     @Unique
-    private Vec3 toroidal$seatPlayerMove(WorldFold transformer, double clampedX, double clampedZ) {
+    private Vec3 exotic_worlds$seatPlayerMove(WorldFold transformer, double clampedX, double clampedZ) {
         Vec3 clamped = new Vec3(clampedX, this.player.getY(), clampedZ);
-        ClientPosition mirror = this.toroidal$clientPosition;
+        ClientPosition mirror = this.exotic_worlds$clientPosition;
         if (this.player.isPassenger()) {
-            if (toroidal$ridesUncontrolled()) {
+            if (exotic_worlds$ridesUncontrolled()) {
                 mirror.set(this.player.getX(), this.player.getZ(), MirrorWriter.PASSENGER);
             }
             return clamped;
@@ -251,7 +251,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
     }
 
     @Inject(method = "handleMovePlayer", at = @At("RETURN"))
-    private void toroidal$wrapIntoBounds(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
+    private void exotic_worlds$wrapIntoBounds(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
         if (!SeamSnap.intoBounds(this.player)) {
             return;
         }
@@ -268,7 +268,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;clampHorizontal(D)D",
                     ordinal = 0))
-    private double toroidal$vehicleContinuousX(double clientX, Operation<Double> original,
+    private double exotic_worlds$vehicleContinuousX(double clientX, Operation<Double> original,
             @Local(argsOnly = true) ServerboundMoveVehiclePacket packet,
             @Share("vehicleContinuous") LocalRef<Vec3> continuous) {
         double clampedX = original.call(clientX);
@@ -278,7 +278,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
         }
 
         double clampedZ = original.call(packet.position().z());
-        this.toroidal$clientPosition.set(clampedX, clampedZ, MirrorWriter.VEHICLE_MOVE);
+        this.exotic_worlds$clientPosition.set(clampedX, clampedZ, MirrorWriter.VEHICLE_MOVE);
         Entity vehicle = this.player.getRootVehicle();
         Vec3 seated = transformer.nearestCopy(vehicle.position(), new Vec3(clampedX, vehicle.getY(), clampedZ));
         continuous.set(seated);
@@ -291,7 +291,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;clampHorizontal(D)D",
                     ordinal = 1))
-    private double toroidal$vehicleContinuousZ(double clientZ, Operation<Double> original,
+    private double exotic_worlds$vehicleContinuousZ(double clientZ, Operation<Double> original,
             @Share("vehicleContinuous") LocalRef<Vec3> continuous) {
         double clampedZ = original.call(clientZ);
         Vec3 seated = continuous.get();
@@ -299,7 +299,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder {
     }
 
     @Inject(method = "handleMoveVehicle", at = @At("RETURN"))
-    private void toroidal$wrapVehicleIntoBounds(ServerboundMoveVehiclePacket packet, CallbackInfo ci) {
+    private void exotic_worlds$wrapVehicleIntoBounds(ServerboundMoveVehiclePacket packet, CallbackInfo ci) {
         Entity vehicle = this.player.getRootVehicle();
         if (vehicle == this.player || !SeamSnap.intoBounds(vehicle)) {
             return;

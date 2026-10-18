@@ -15,13 +15,13 @@ import com.seibel.distanthorizons.core.sql.repo.ChunkHashRepo;
 @Mixin(ChunkHashRepo.class)
 public class ChunkHashRepoMixin {
     @WrapMethod(method = "setPreparedStatementWhereClause(Ljava/sql/PreparedStatement;ILcom/seibel/distanthorizons/core/pos/DhChunkPos;)I")
-    private int toroidal$foldWhereKey(PreparedStatement statement, int index, DhChunkPos pos,
+    private int exotic_worlds$foldWhereKey(PreparedStatement statement, int index, DhChunkPos pos,
             Operation<Integer> original) {
         return original.call(statement, index, DhKeys.foldChunk(DhRepoLevel.latticeOf(this), pos));
     }
 
     @WrapMethod(method = "createUpsertStatement(Lcom/seibel/distanthorizons/core/sql/dto/ChunkHashDTO;)Ljava/sql/PreparedStatement;")
-    private PreparedStatement toroidal$foldUpsert(ChunkHashDTO dto, Operation<PreparedStatement> original) {
+    private PreparedStatement exotic_worlds$foldUpsert(ChunkHashDTO dto, Operation<PreparedStatement> original) {
         return DhKeys.withFoldedKey(DhRepoLevel.latticeOf(this), dto, () -> original.call(dto));
     }
 }

@@ -9,16 +9,16 @@ import net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket;
 @Mixin(ClientboundPlayerLookAtPacket.class)
 public interface PlayerLookAtPacketAccessor {
     @Accessor("x")
-    double toroidal$getX();
+    double exotic_worlds$getX();
 
     @Mutable
     @Accessor("x")
-    void toroidal$setX(double x);
+    void exotic_worlds$setX(double x);
 
     @Accessor("z")
-    double toroidal$getZ();
+    double exotic_worlds$getZ();
 
     @Mutable
     @Accessor("z")
-    void toroidal$setZ(double z);
+    void exotic_worlds$setZ(double z);
 }

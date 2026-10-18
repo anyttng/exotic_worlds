@@ -30,7 +30,7 @@ public class NoiseBasedCountPlacementMixin {
     private int noiseToCountRatio;
 
     @WrapMethod(method = "count(Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;)I")
-    private int toroidal$foldedCount(RandomSource random, BlockPos origin, Operation<Integer> original) {
+    private int exotic_worlds$foldedCount(RandomSource random, BlockPos origin, Operation<Integer> original) {
         Context generation = GenerationTransformerContext.context();
         WorldFold transformer = generation.wrappedTransformer();
         if (transformer == null) {

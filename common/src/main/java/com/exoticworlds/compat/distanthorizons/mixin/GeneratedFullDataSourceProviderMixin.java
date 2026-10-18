@@ -15,7 +15,7 @@ import com.seibel.distanthorizons.core.generation.tasks.DataSourceRetrievalResul
 @Mixin(GeneratedFullDataSourceProvider.class)
 public class GeneratedFullDataSourceProviderMixin {
     @WrapMethod(method = "queuePositionForRetrieval")
-    private CompletableFuture<DataSourceRetrievalResult> toroidal$retrieveTheOneSection(Long genPos,
+    private CompletableFuture<DataSourceRetrievalResult> exotic_worlds$retrieveTheOneSection(Long genPos,
             Operation<CompletableFuture<DataSourceRetrievalResult>> original) {
         return original.call(DhKeys.foldSection(
                 DhRepoLevel.latticeOf(((FullDataSourceProviderV2) (Object) this).repo), genPos));

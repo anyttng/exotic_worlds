@@ -21,7 +21,7 @@ public class DensityFunctionsShiftBMixin {
     private DensityFunction.NoiseHolder offsetNoise;
 
     @WrapMethod(method = "compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D")
-    private double toroidal$periodicCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
+    private double exotic_worlds$periodicCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
         Context generation = GenerationTransformerContext.context();
         WorldFold transformer = generation.wrappedTransformer();
         if (transformer == null) {

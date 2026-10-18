@@ -33,7 +33,7 @@ public class ChunkGeneratorReferencesMixin {
     @WrapOperation(
             method = "createReferences",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getAllStarts()Ljava/util/Map;"))
-    private Map<Structure, StructureStart> toroidal$startsOfNearestCopy(ChunkAccess sourceChunk,
+    private Map<Structure, StructureStart> exotic_worlds$startsOfNearestCopy(ChunkAccess sourceChunk,
             Operation<Map<Structure, StructureStart>> original, @Local(argsOnly = true) ChunkAccess centerChunk,
             @Local(name = "sourceX") int sourceX, @Local(name = "sourceZ") int sourceZ,
             @Share(SOURCE_POS) LocalRef<@Nullable ChunkPos> sourcePos) {
@@ -56,7 +56,7 @@ public class ChunkGeneratorReferencesMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/levelgen/structure/BoundingBox;intersects(IIII)Z"))
-    private boolean toroidal$intersectsInSourceFrame(BoundingBox box, int minX, int minZ, int maxX, int maxZ,
+    private boolean exotic_worlds$intersectsInSourceFrame(BoundingBox box, int minX, int minZ, int maxX, int maxZ,
             Operation<Boolean> original, @Local(argsOnly = true) ChunkAccess centerChunk,
             @Local(name = "sourceX") int sourceX, @Local(name = "sourceZ") int sourceZ,
             @Share(SOURCE_POS) LocalRef<@Nullable ChunkPos> sourcePos) {
@@ -79,7 +79,7 @@ public class ChunkGeneratorReferencesMixin {
                     target = "Lnet/minecraft/world/level/StructureManager;addReferenceForStructure("
                             + "Lnet/minecraft/core/SectionPos;Lnet/minecraft/world/level/levelgen/structure/Structure;J"
                             + "Lnet/minecraft/world/level/chunk/StructureAccess;)V"))
-    private void toroidal$referencePhysicalSource(StructureManager structureManager, SectionPos centerSection,
+    private void exotic_worlds$referencePhysicalSource(StructureManager structureManager, SectionPos centerSection,
             Structure structure, long reference, StructureAccess centerChunk, Operation<Void> original,
             @Share(SOURCE_POS) LocalRef<@Nullable ChunkPos> sourcePos) {
         ChunkPos physical = sourcePos.get();

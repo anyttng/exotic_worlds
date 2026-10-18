@@ -19,13 +19,13 @@ import net.minecraft.world.level.ChunkPos;
 @Mixin(ChunkTrackingView.class)
 public interface ChunkTrackingViewMixin {
     @Inject(method = "difference", at = @At("HEAD"), cancellable = true)
-    private static void toroidal$differenceWrapped(ChunkTrackingView from, ChunkTrackingView to,
+    private static void exotic_worlds$differenceWrapped(ChunkTrackingView from, ChunkTrackingView to,
             Consumer<ChunkPos> onEnter, Consumer<ChunkPos> onLeave, CallbackInfo ci) {
         if (!(from instanceof ChunkTrackingView.Positioned previous) || !(to instanceof ChunkTrackingView.Positioned next)) {
             return;
         }
 
-        WorldFold transformer = ((TransformerHolder) (Object) next).toroidal$transformer();
+        WorldFold transformer = ((TransformerHolder) (Object) next).exotic_worlds$transformer();
         if (!transformer.isWrapped()) {
             return;
         }

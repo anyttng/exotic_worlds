@@ -22,8 +22,8 @@ public class PlayerMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/phys/AABB;distanceToSqr(Lnet/minecraft/world/phys/Vec3;)D"))
-    private double toroidal$wrappedBlockReach(AABB block, Vec3 eye, Operation<Double> original) {
-        WorldFold transformer = ((TransformerSource) this).toroidal$wrappedTransformer();
+    private double exotic_worlds$wrappedBlockReach(AABB block, Vec3 eye, Operation<Double> original) {
+        WorldFold transformer = ((TransformerSource) this).exotic_worlds$wrappedTransformer();
         if (transformer == null) {
             return original.call(block, eye);
         }
@@ -32,16 +32,16 @@ public class PlayerMixin {
     }
 
     @WrapMethod(method = "isWithinEntityInteractionRange(Lnet/minecraft/world/phys/AABB;D)Z")
-    private boolean toroidal$wrappedEntityReach(AABB aabb, double buffer, Operation<Boolean> original) {
+    private boolean exotic_worlds$wrappedEntityReach(AABB aabb, double buffer, Operation<Boolean> original) {
         Player player = (Player) (Object) this;
-        WorldFold transformer = ((TransformerSource) player).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) player).exotic_worlds$wrappedTransformer();
         return original.call(FoldedBoxQuery.toward(transformer, player.getEyePosition(), aabb), buffer);
     }
 
     @WrapMethod(method = "isWithinAttackRange(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/phys/AABB;D)Z")
-    private boolean toroidal$wrappedAttackReach(ItemStack weapon, AABB aabb, double buffer, Operation<Boolean> original) {
+    private boolean exotic_worlds$wrappedAttackReach(ItemStack weapon, AABB aabb, double buffer, Operation<Boolean> original) {
         Player player = (Player) (Object) this;
-        WorldFold transformer = ((TransformerSource) player).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) player).exotic_worlds$wrappedTransformer();
         return original.call(weapon, FoldedBoxQuery.toward(transformer, player.getEyePosition(), aabb), buffer);
     }
 }

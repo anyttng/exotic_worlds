@@ -24,8 +24,8 @@ public class PhantomSweepAttackGoalMixin {
     @WrapOperation(
             method = "tick",
             at = @At(value = "INVOKE", target = InjectionTargets.AABB_INTERSECTS))
-    private boolean toroidal$touchThroughSeam(AABB reach, AABB targetBox, Operation<Boolean> original) {
-        WorldFold transformer = ((TransformerSource) this.phantom).toroidal$wrappedTransformer();
+    private boolean exotic_worlds$touchThroughSeam(AABB reach, AABB targetBox, Operation<Boolean> original) {
+        WorldFold transformer = ((TransformerSource) this.phantom).exotic_worlds$wrappedTransformer();
         AABB folded = FoldedBoxQuery.toward(transformer, this.phantom.position(), targetBox);
         return original.call(reach, folded);
     }

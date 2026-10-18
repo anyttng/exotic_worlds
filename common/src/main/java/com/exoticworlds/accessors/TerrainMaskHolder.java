@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.engine.gen.TerrainMask;
 
 public interface TerrainMaskHolder {
-    @Nullable TerrainMask toroidal$terrainMask();
+    @Nullable TerrainMask exotic_worlds$terrainMask();
 
-    void toroidal$terrainMask(TerrainMask mask);
+    void exotic_worlds$terrainMask(TerrainMask mask);
 }

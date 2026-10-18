@@ -25,9 +25,9 @@ public class PathMixin implements NavigationShifter {
     private BlockPos target;
 
     @Override
-    public void toroidal$shiftBy(int shiftX, int shiftZ) {
+    public void exotic_worlds$shiftBy(int shiftX, int shiftZ) {
         for (Node node : this.nodes) {
-            ((NavigationShifter) node).toroidal$shiftBy(shiftX, shiftZ);
+            ((NavigationShifter) node).exotic_worlds$shiftBy(shiftX, shiftZ);
         }
 
         this.target = this.target.offset(shiftX, 0, shiftZ);

@@ -10,7 +10,7 @@ import journeymap.client.render.map.RegionTile;
 @Mixin(targets = "journeymap.client.render.map.RegionTile", remap = false)
 public interface RegionTileAccessor {
     @Invoker("<init>")
-    static RegionTile toroidal$create(RegionCoord regionCoord, MapState state, Runnable onTextureReady) {
+    static RegionTile exotic_worlds$create(RegionCoord regionCoord, MapState state, Runnable onTextureReady) {
         throw new AssertionError();
     }
 }

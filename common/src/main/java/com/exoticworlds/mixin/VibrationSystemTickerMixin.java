@@ -27,7 +27,7 @@ public interface VibrationSystemTickerMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/gameevent/vibrations/VibrationSystem$Listener;distanceBetweenInBlocks(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;)F"))
-    private static float toroidal$receiveDistThroughSeam(BlockPos origin, BlockPos dest, Operation<Float> original,
+    private static float exotic_worlds$receiveDistThroughSeam(BlockPos origin, BlockPos dest, Operation<Float> original,
             @Local(argsOnly = true) ServerLevel level) {
         return (float) Math.sqrt(SeamRange.sqr(level, origin, dest));
     }
@@ -37,7 +37,7 @@ public interface VibrationSystemTickerMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/gameevent/PositionSource;getPosition(Lnet/minecraft/world/level/Level;)Ljava/util/Optional;"))
-    private static Optional<Vec3> toroidal$reloadDestThroughSeam(PositionSource positionSource, Level level,
+    private static Optional<Vec3> exotic_worlds$reloadDestThroughSeam(PositionSource positionSource, Level level,
             Operation<Optional<Vec3>> original, @Local(ordinal = 0) Vec3 origin) {
         Optional<Vec3> destination = original.call(positionSource, level);
         if (destination.isEmpty()) {

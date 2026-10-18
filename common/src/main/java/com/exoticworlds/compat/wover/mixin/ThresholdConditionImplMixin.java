@@ -43,20 +43,20 @@ public class ThresholdConditionImplMixin {
     private double scaleZ;
 
     @Unique
-    private long toroidal$seed;
+    private long exotic_worlds$seed;
 
     @Unique
-    private OpenSimplexStandIn toroidal$standIn;
+    private OpenSimplexStandIn exotic_worlds$standIn;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$buildStandIn(long noiseSeed, double threshold, FloatProvider roughness, double scaleX,
+    private void exotic_worlds$buildStandIn(long noiseSeed, double threshold, FloatProvider roughness, double scaleX,
             double scaleZ, CallbackInfo ci) {
-        this.toroidal$seed = noiseSeed;
-        this.toroidal$standIn = new OpenSimplexStandIn(noiseSeed);
+        this.exotic_worlds$seed = noiseSeed;
+        this.exotic_worlds$standIn = new OpenSimplexStandIn(noiseSeed);
     }
 
     @WrapMethod(method = "test")
-    private boolean toroidal$lapTest(SurfaceRulesContext context, Operation<Boolean> original) {
+    private boolean exotic_worlds$lapTest(SurfaceRulesContext context, Operation<Boolean> original) {
         WorldFold fold = GenerationTransformerContext.context().wrappedTransformer();
         if (fold == null) {
             return original.call(context);
@@ -64,10 +64,10 @@ public class ThresholdConditionImplMixin {
 
         int x = context.getBlockX();
         int z = context.getBlockZ();
-        double noise = LapNoise.eval(this.toroidal$standIn, fold, x * this.scaleX, z * this.scaleZ, this.scaleX,
+        double noise = LapNoise.eval(this.exotic_worlds$standIn, fold, x * this.scaleX, z * this.scaleZ, this.scaleX,
                 this.scaleZ);
         RandomSource random = RandomSource.create(
-                MathHelper.getSeed(Long.hashCode(this.toroidal$seed), x, ROUGHNESS_Y, z));
+                MathHelper.getSeed(Long.hashCode(this.exotic_worlds$seed), x, ROUGHNESS_Y, z));
         return noise + this.roughness.sample(random) > this.threshold;
     }
 }

@@ -15,47 +15,47 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(TerrainGenerator.class)
 public interface TerrainGeneratorAccessor {
     @Accessor("LOCKER")
-    static ReentrantLock toroidal$locker() {
+    static ReentrantLock exotic_worlds$locker() {
         throw new AssertionError();
     }
 
     @Accessor("largeIslands")
-    static IslandLayer toroidal$largeIslands() {
+    static IslandLayer exotic_worlds$largeIslands() {
         throw new AssertionError();
     }
 
     @Accessor("mediumIslands")
-    static IslandLayer toroidal$mediumIslands() {
+    static IslandLayer exotic_worlds$mediumIslands() {
         throw new AssertionError();
     }
 
     @Accessor("smallIslands")
-    static IslandLayer toroidal$smallIslands() {
+    static IslandLayer exotic_worlds$smallIslands() {
         throw new AssertionError();
     }
 
     @Accessor("noise1")
-    static OpenSimplexNoise toroidal$noise1() {
+    static OpenSimplexNoise exotic_worlds$noise1() {
         throw new AssertionError();
     }
 
     @Accessor("noise2")
-    static OpenSimplexNoise toroidal$noise2() {
+    static OpenSimplexNoise exotic_worlds$noise2() {
         throw new AssertionError();
     }
 
     @Accessor("TERRAIN_BOOL_CACHE_MAP")
-    static Map<Point, TerrainBoolCache> toroidal$boolCache() {
+    static Map<Point, TerrainBoolCache> exotic_worlds$boolCache() {
         throw new AssertionError();
     }
 
     @Accessor("POS")
-    static Point toroidal$pos() {
+    static Point exotic_worlds$pos() {
         throw new AssertionError();
     }
 
     @Invoker("getAverageDepth")
-    static float toroidal$averageDepth(int x, int z) {
+    static float exotic_worlds$averageDepth(int x, int z) {
         throw new AssertionError();
     }
 }

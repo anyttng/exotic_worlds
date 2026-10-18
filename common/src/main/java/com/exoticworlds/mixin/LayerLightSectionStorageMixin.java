@@ -23,18 +23,18 @@ public abstract class LayerLightSectionStorageMixin {
     protected LightChunkGetter chunkSource;
 
     @Unique
-    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
+    private final BoundLevelFold exotic_worlds$bound = new BoundLevelFold();
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$bindLevel(CallbackInfo ci) {
-        this.toroidal$bound.bind(this.chunkSource.getLevel());
+    private void exotic_worlds$bindLevel(CallbackInfo ci) {
+        this.exotic_worlds$bound.bind(this.chunkSource.getLevel());
     }
 
     @WrapOperation(
             method = "updateSectionStatus",
             at = @At(value = "INVOKE", target = InjectionTargets.SECTION_POS_OFFSET))
-    private long toroidal$foldNeighborSection(long sectionNode, int stepX, int stepY, int stepZ,
+    private long exotic_worlds$foldNeighborSection(long sectionNode, int stepX, int stepY, int stepZ,
             Operation<Long> original) {
-        return this.toroidal$bound.fold().foldSectionNode(original.call(sectionNode, stepX, stepY, stepZ));
+        return this.exotic_worlds$bound.fold().foldSectionNode(original.call(sectionNode, stepX, stepY, stepZ));
     }
 }

@@ -9,5 +9,5 @@ import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
 @Mixin(CreateWorldScreen.class)
 public interface CreateWorldScreenAccessor {
     @Accessor("uiState")
-    WorldCreationUiState toroidal$uiState();
+    WorldCreationUiState exotic_worlds$uiState();
 }

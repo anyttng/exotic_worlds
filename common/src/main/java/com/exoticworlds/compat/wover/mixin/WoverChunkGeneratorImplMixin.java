@@ -17,7 +17,7 @@ import net.minecraft.world.level.dimension.LevelStem;
 @Mixin(WoverChunkGeneratorImpl.class)
 public class WoverChunkGeneratorImplMixin {
     @ModifyVariable(method = "replaceGenerator", at = @At("HEAD"), argsOnly = true)
-    private static ChunkGenerator toroidal$keepReplacedShape(ChunkGenerator generator,
+    private static ChunkGenerator exotic_worlds$keepReplacedShape(ChunkGenerator generator,
             @Local(argsOnly = true, ordinal = 0) ResourceKey<LevelStem> dimensionKey,
             @Local(argsOnly = true) WoverChunkGeneratorImpl.StemGetter getter) {
         LevelStem replaced = getter.get(dimensionKey);

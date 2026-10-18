@@ -21,7 +21,7 @@ import net.minecraft.world.level.levelgen.DensityFunction;
 @Mixin(targets = "net.minecraft.world.level.levelgen.DensityFunctions$ShiftedNoise")
 public class DensityFunctionsShiftedNoiseMixin {
     @Unique
-    private @Nullable Divisor toroidal$warpDivisor;
+    private @Nullable Divisor exotic_worlds$warpDivisor;
 
     @Shadow
     @Final
@@ -48,7 +48,7 @@ public class DensityFunctionsShiftedNoiseMixin {
     private DensityFunction.NoiseHolder noise;
 
     @WrapMethod(method = "compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D")
-    private double toroidal$periodicCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
+    private double exotic_worlds$periodicCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
         Context generation = GenerationTransformerContext.context();
         WorldFold transformer = generation.wrappedTransformer();
         if (transformer == null) {
@@ -65,16 +65,16 @@ public class DensityFunctionsShiftedNoiseMixin {
 
         return ContextScaledNoise.sampleWarped(generation, this.noise, context.blockX(), y, context.blockZ(),
                 this.shiftX.compute(context), this.shiftZ.compute(context),
-                this.toroidal$warpDivisor(transformer, xzScale), xzScale, this.xzScale, verticalShare);
+                this.exotic_worlds$warpDivisor(transformer, xzScale), xzScale, this.xzScale, verticalShare);
     }
 
     @Unique
-    private double toroidal$warpDivisor(WorldFold transformer, double xzScale) {
-        Divisor divisor = this.toroidal$warpDivisor;
+    private double exotic_worlds$warpDivisor(WorldFold transformer, double xzScale) {
+        Divisor divisor = this.exotic_worlds$warpDivisor;
         if (divisor == null || divisor.fold() != transformer) {
             divisor = new Divisor(transformer, ClimateCompression.warpDivisor(this.noise, transformer,
                     xzScale, GenerationTransformerContext.verticalShare(xzScale, this.yScale)));
-            this.toroidal$warpDivisor = divisor;
+            this.exotic_worlds$warpDivisor = divisor;
         }
 
         return divisor.value();

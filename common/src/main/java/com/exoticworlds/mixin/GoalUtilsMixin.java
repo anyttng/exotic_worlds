@@ -18,7 +18,7 @@ public class GoalUtilsMixin {
             method = "mobRestricted",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.PATHFINDER_MOB_GET_HOME_POSITION))
-    private static BlockPos toroidal$homeFilterThroughSeam(BlockPos home, @Local(argsOnly = true) PathfinderMob mob) {
+    private static BlockPos exotic_worlds$homeFilterThroughSeam(BlockPos home, @Local(argsOnly = true) PathfinderMob mob) {
         return SeamSteering.nearestCopy(mob, home);
     }
 }

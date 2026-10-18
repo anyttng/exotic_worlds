@@ -12,8 +12,8 @@ import net.minecraft.world.level.chunk.storage.SectionStorage;
 @Mixin(SectionStorage.class)
 public interface SectionStorageAccessor {
     @Accessor("levelHeightAccessor")
-    LevelHeightAccessor toroidal$getLevelHeightAccessor();
+    LevelHeightAccessor exotic_worlds$getLevelHeightAccessor();
 
     @Invoker("getOrLoad")
-    Optional<?> toroidal$getOrLoad(long sectionPos);
+    Optional<?> exotic_worlds$getOrLoad(long sectionPos);
 }

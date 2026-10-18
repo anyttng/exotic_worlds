@@ -22,7 +22,7 @@ public class AtlasMapSelectorMixin {
             method = {"findCurrentMapRawId", "mapContainsPosition"},
             at = @At(value = "FIELD", target = InjectionTargets.MAP_ITEM_SAVED_DATA_CENTER_X,
                     opcode = Opcodes.GETFIELD))
-    private static int toroidal$centerXNearPosition(int centerX, @Local(argsOnly = true) Level level,
+    private static int exotic_worlds$centerXNearPosition(int centerX, @Local(argsOnly = true) Level level,
             @Local(argsOnly = true, ordinal = 0) double x, @Local(argsOnly = true, ordinal = 1) double z,
             @Local(name = "mapData") MapItemSavedData mapData) {
         return MapCentreSeat.toward(WorldLoopAttachments.wrappedTransformerOf(level), Direction.Axis.X, x, z, mapData);
@@ -32,7 +32,7 @@ public class AtlasMapSelectorMixin {
             method = {"findCurrentMapRawId", "mapContainsPosition"},
             at = @At(value = "FIELD", target = InjectionTargets.MAP_ITEM_SAVED_DATA_CENTER_Z,
                     opcode = Opcodes.GETFIELD))
-    private static int toroidal$centerZNearPosition(int centerZ, @Local(argsOnly = true) Level level,
+    private static int exotic_worlds$centerZNearPosition(int centerZ, @Local(argsOnly = true) Level level,
             @Local(argsOnly = true, ordinal = 0) double x, @Local(argsOnly = true, ordinal = 1) double z,
             @Local(name = "mapData") MapItemSavedData mapData) {
         return MapCentreSeat.toward(WorldLoopAttachments.wrappedTransformerOf(level), Direction.Axis.Z, x, z, mapData);

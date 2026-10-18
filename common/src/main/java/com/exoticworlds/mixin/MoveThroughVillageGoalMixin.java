@@ -29,7 +29,7 @@ public class MoveThroughVillageGoalMixin {
             method = {"canContinueToUse", "stop"},
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean toroidal$poiArrivalThroughSeam(BlockPos poiPos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$poiArrivalThroughSeam(BlockPos poiPos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
         return SeamRange.closerToCenterThan(this.mob, poiPos, bodyPosition, distance);
     }
@@ -38,7 +38,7 @@ public class MoveThroughVillageGoalMixin {
             method = "lambda$canUse$0",
             at = @At(value = "INVOKE",
                     target = "Ljava/util/Optional;map(Ljava/util/function/Function;)Ljava/util/Optional;"))
-    private Optional<Double> toroidal$poiScoreThroughSeam(Optional<BlockPos> poiPos,
+    private Optional<Double> exotic_worlds$poiScoreThroughSeam(Optional<BlockPos> poiPos,
             Function<BlockPos, Double> score, Operation<Optional<Double>> original,
             @Local(argsOnly = true, ordinal = 0) BlockPos bodyPos) {
         Function<BlockPos, Double> scoreThroughSeam = poi -> -SeamRange.sqr(this.mob, poi, bodyPos);

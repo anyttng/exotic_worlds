@@ -22,22 +22,22 @@ public abstract class AtlasIconMixin {
             method = "resolveAnchor",
             at = @At(value = "INVOKE",
                     target = "Lrubbertoe/simple_atlas/client/screen/icon/AtlasIcon$WorldPoint;x()D"))
-    private double toroidal$pointXNearTile(@Coerce Object point, Operation<Double> original,
+    private double exotic_worlds$pointXNearTile(@Coerce Object point, Operation<Double> original,
             @Local(name = "tile") AtlasTilePayload tile) {
-        return toroidal$seat(tile, original.call(point), ((AtlasIconPointAccessor) point).toroidal$z()).x;
+        return exotic_worlds$seat(tile, original.call(point), ((AtlasIconPointAccessor) point).exotic_worlds$z()).x;
     }
 
     @WrapOperation(
             method = "resolveAnchor",
             at = @At(value = "INVOKE",
                     target = "Lrubbertoe/simple_atlas/client/screen/icon/AtlasIcon$WorldPoint;z()D"))
-    private double toroidal$pointZNearTile(@Coerce Object point, Operation<Double> original,
+    private double exotic_worlds$pointZNearTile(@Coerce Object point, Operation<Double> original,
             @Local(name = "tile") AtlasTilePayload tile) {
-        return toroidal$seat(tile, ((AtlasIconPointAccessor) point).toroidal$x(), original.call(point)).z;
+        return exotic_worlds$seat(tile, ((AtlasIconPointAccessor) point).exotic_worlds$x(), original.call(point)).z;
     }
 
     @Unique
-    private static Vec3 toroidal$seat(AtlasTilePayload tile, double x, double z) {
+    private static Vec3 exotic_worlds$seat(AtlasTilePayload tile, double x, double z) {
         return MapCopies.current() == MapCopies.SINGLE
                 ? AtlasTileFold.foldOnTile(tile, x, z)
                 : AtlasTileFold.nearestToTile(tile, x, z);

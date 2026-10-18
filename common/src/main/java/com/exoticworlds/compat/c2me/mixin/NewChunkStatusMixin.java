@@ -19,13 +19,13 @@ public class NewChunkStatusMixin {
     @WrapOperation(
             method = "relativeToAbsoluteDependencies",
             at = @At(value = "NEW", target = "(II)Lnet/minecraft/world/level/ChunkPos;"))
-    private static ChunkPos toroidal$canonicalDependencyKey(
+    private static ChunkPos exotic_worlds$canonicalDependencyKey(
             int chunkX,
             int chunkZ,
             Operation<ChunkPos> original,
             @Local(argsOnly = true) ItemHolder<?, ?, ?, ?> holder) {
         WorldFold transformer = holder.getUserData().get() instanceof TransformerSource source
-                ? source.toroidal$wrappedTransformer()
+                ? source.exotic_worlds$wrappedTransformer()
                 : null;
         if (transformer == null) {
             return original.call(chunkX, chunkZ);

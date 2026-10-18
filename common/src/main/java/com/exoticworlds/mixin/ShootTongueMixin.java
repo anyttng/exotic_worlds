@@ -18,7 +18,7 @@ public class ShootTongueMixin {
             method = "tick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/animal/frog/Frog;J)V",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/phys/Vec3;vectorTo(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;"))
-    private Vec3 toroidal$tonguePullThroughSeam(Vec3 from, Vec3 to, Operation<Vec3> original,
+    private Vec3 exotic_worlds$tonguePullThroughSeam(Vec3 from, Vec3 to, Operation<Vec3> original,
             @Local(argsOnly = true) Frog body) {
         return SeamAim.foldDelta(body, original.call(from, to));
     }

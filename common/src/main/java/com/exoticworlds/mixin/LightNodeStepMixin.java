@@ -18,7 +18,7 @@ public abstract class LightNodeStepMixin {
             method = {"propagateIncrease", "propagateDecrease"},
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_OFFSET_PACKED),
             expect = 2)
-    private long toroidal$wrapToNode(long node, Direction direction, Operation<Long> original) {
-        return ((TransformerHolder) (Object) this).toroidal$transformer().foldBlockNode(original.call(node, direction));
+    private long exotic_worlds$wrapToNode(long node, Direction direction, Operation<Long> original) {
+        return ((TransformerHolder) (Object) this).exotic_worlds$transformer().foldBlockNode(original.call(node, direction));
     }
 }

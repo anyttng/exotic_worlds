@@ -24,7 +24,7 @@ public class TransportItemsBetweenContainersMixin {
             method = "getTransportTarget",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/block/entity/ChestBlockEntity;getBlockPos()Lnet/minecraft/core/BlockPos;"))
-    private BlockPos toroidal$candidateChestThroughSeam(BlockPos chestPos, @Local(argsOnly = true) PathfinderMob body) {
+    private BlockPos exotic_worlds$candidateChestThroughSeam(BlockPos chestPos, @Local(argsOnly = true) PathfinderMob body) {
         return SeamSteering.nearestCopy(body, chestPos);
     }
 
@@ -32,22 +32,22 @@ public class TransportItemsBetweenContainersMixin {
             method = "isTargetValidToPick",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/block/entity/BlockEntity;getBlockPos()Lnet/minecraft/core/BlockPos;"))
-    private BlockPos toroidal$searchAreaPosThroughSeam(BlockPos chestPos, @Local(argsOnly = true) PathfinderMob body) {
+    private BlockPos exotic_worlds$searchAreaPosThroughSeam(BlockPos chestPos, @Local(argsOnly = true) PathfinderMob body) {
         return SeamSteering.nearestCopy(body, chestPos);
     }
 
     @ModifyExpressionValue(
             method = "isWithinTargetDistance",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/AABB;move(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/AABB;"))
-    private AABB toroidal$reachBoxThroughSeam(AABB targetBox, @Local(argsOnly = true) PathfinderMob body,
+    private AABB exotic_worlds$reachBoxThroughSeam(AABB targetBox, @Local(argsOnly = true) PathfinderMob body,
             @Local(argsOnly = true) Vec3 fromPos) {
-        return FoldedBoxQuery.toward(((TransformerSource) body).toroidal$wrappedTransformer(), fromPos, targetBox);
+        return FoldedBoxQuery.toward(((TransformerSource) body).exotic_worlds$wrappedTransformer(), fromPos, targetBox);
     }
 
     @ModifyExpressionValue(
             method = "canSeeAnyTargetSide",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_AT_CENTER_OF))
-    private Vec3 toroidal$sightCenterThroughSeam(Vec3 center, @Local(argsOnly = true) PathfinderMob body) {
+    private Vec3 exotic_worlds$sightCenterThroughSeam(Vec3 center, @Local(argsOnly = true) PathfinderMob body) {
         return SeamSteering.nearestCopy(body, center);
     }
 
@@ -55,9 +55,9 @@ public class TransportItemsBetweenContainersMixin {
             method = "lambda$canSeeAnyTargetSide$1",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/Level;clip(Lnet/minecraft/world/level/ClipContext;)Lnet/minecraft/world/phys/BlockHitResult;"))
-    private static BlockHitResult toroidal$sightHitThroughSeam(BlockHitResult hit,
+    private static BlockHitResult exotic_worlds$sightHitThroughSeam(BlockHitResult hit,
             @Local(argsOnly = true) PathfinderMob body) {
-        WorldFold transformer = ((TransformerSource) body).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) body).exotic_worlds$wrappedTransformer();
         if (transformer == null) {
             return hit;
         }

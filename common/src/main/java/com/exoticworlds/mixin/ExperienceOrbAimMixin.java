@@ -12,7 +12,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(ExperienceOrb.class)
 public class ExperienceOrbAimMixin {
     @ModifyVariable(method = "followNearbyPlayer", at = @At("STORE"))
-    private Vec3 toroidal$followDeltaThroughSeam(Vec3 delta) {
+    private Vec3 exotic_worlds$followDeltaThroughSeam(Vec3 delta) {
         return SeamAim.foldDelta((ExperienceOrb) (Object) this, delta);
     }
 }

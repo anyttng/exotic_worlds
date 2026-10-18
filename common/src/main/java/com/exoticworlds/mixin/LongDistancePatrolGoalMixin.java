@@ -25,7 +25,7 @@ public class LongDistancePatrolGoalMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/monster/PatrollingMonster;"
                             + "getPatrolTarget()Lnet/minecraft/core/BlockPos;"))
-    private BlockPos toroidal$patrolTargetThroughSeam(BlockPos patrolTarget) {
+    private BlockPos exotic_worlds$patrolTargetThroughSeam(BlockPos patrolTarget) {
         return SeamSteering.nearestCopy(this.mob, patrolTarget);
     }
 
@@ -34,7 +34,7 @@ public class LongDistancePatrolGoalMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/monster/PatrollingMonster;"
                             + "setPatrolTarget(Lnet/minecraft/core/BlockPos;)V"))
-    private void toroidal$companionTargetInBounds(PatrollingMonster companion, BlockPos legEnd,
+    private void exotic_worlds$companionTargetInBounds(PatrollingMonster companion, BlockPos legEnd,
             Operation<Void> original) {
         original.call(companion, WorldLoopAttachments.transformerOf(this.mob.level()).fold(legEnd));
     }

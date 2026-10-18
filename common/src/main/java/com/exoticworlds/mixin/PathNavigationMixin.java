@@ -55,8 +55,8 @@ public class PathNavigationMixin implements NavigationShifter {
     @ModifyVariable(
             method = "createPath(Ljava/util/Set;IZIF)Lnet/minecraft/world/level/pathfinder/Path;",
             at = @At("HEAD"), argsOnly = true)
-    private Set<BlockPos> toroidal$targetsThroughSeam(Set<BlockPos> targets) {
-        WorldFold transformer = toroidal$wrappedTransformer();
+    private Set<BlockPos> exotic_worlds$targetsThroughSeam(Set<BlockPos> targets) {
+        WorldFold transformer = exotic_worlds$wrappedTransformer();
         if (transformer == null || targets.isEmpty()) {
             return targets;
         }
@@ -66,9 +66,9 @@ public class PathNavigationMixin implements NavigationShifter {
     }
 
     @WrapOperation(method = "followThePath", at = @At(value = "INVOKE", target = MATH_ABS, ordinal = 0))
-    private double toroidal$nodeDistanceX(double delta, Operation<Double> original, @Local Vec3i node,
+    private double exotic_worlds$nodeDistanceX(double delta, Operation<Double> original, @Local Vec3i node,
             @Share("lapZ") LocalDoubleRef lapZ) {
-        WorldFold transformer = toroidal$wrappedTransformer();
+        WorldFold transformer = exotic_worlds$wrappedTransformer();
         if (transformer == null) {
             return original.call(delta);
         }
@@ -81,7 +81,7 @@ public class PathNavigationMixin implements NavigationShifter {
     }
 
     @WrapOperation(method = "followThePath", at = @At(value = "INVOKE", target = MATH_ABS, ordinal = 2))
-    private double toroidal$nodeDistanceZ(double delta, Operation<Double> original,
+    private double exotic_worlds$nodeDistanceZ(double delta, Operation<Double> original,
             @Share("lapZ") LocalDoubleRef lapZ) {
         return original.call(delta + lapZ.get());
     }
@@ -90,13 +90,13 @@ public class PathNavigationMixin implements NavigationShifter {
             method = "shouldRecomputePath",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean toroidal$replanRangeThroughSeam(BlockPos changedPos, Position middlePos, double distance,
+    private boolean exotic_worlds$replanRangeThroughSeam(BlockPos changedPos, Position middlePos, double distance,
             Operation<Boolean> original) {
         return SeamRange.closerToCenterThan(this.mob, changedPos, middlePos, distance);
     }
 
     @Override
-    public void toroidal$shiftBy(int shiftX, int shiftZ) {
+    public void exotic_worlds$shiftBy(int shiftX, int shiftZ) {
         if (this.targetPos != null) {
             this.targetPos = this.targetPos.offset(shiftX, 0, shiftZ);
         }
@@ -107,12 +107,12 @@ public class PathNavigationMixin implements NavigationShifter {
         }
 
         if (this.path != null && !this.path.isDone()) {
-            ((NavigationShifter) (Object) this.path).toroidal$shiftBy(shiftX, shiftZ);
+            ((NavigationShifter) (Object) this.path).exotic_worlds$shiftBy(shiftX, shiftZ);
         }
     }
 
     @Unique
-    private @Nullable WorldFold toroidal$wrappedTransformer() {
-        return ((TransformerSource) this.mob).toroidal$wrappedTransformer();
+    private @Nullable WorldFold exotic_worlds$wrappedTransformer() {
+        return ((TransformerSource) this.mob).exotic_worlds$wrappedTransformer();
     }
 }

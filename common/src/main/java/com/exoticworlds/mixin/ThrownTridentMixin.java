@@ -17,7 +17,7 @@ public class ThrownTridentMixin {
             at = @At(
                     value = "INVOKE",
                     target = InjectionTargets.ENTITY_GET_EYE_POSITION))
-    private Vec3 toroidal$ownerEyeThroughSeam(Vec3 ownerEye) {
+    private Vec3 exotic_worlds$ownerEyeThroughSeam(Vec3 ownerEye) {
         return SeamSteering.nearestCopy((ThrownTrident) (Object) this, ownerEye);
     }
 }

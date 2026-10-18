@@ -26,22 +26,22 @@ public class AbstractDhLevelMixin implements DhLevelLattice {
     public BeaconBeamRepo beaconBeamRepo;
 
     @Unique
-    private final DhLatticeMemo toroidal$lattices = new DhLatticeMemo();
+    private final DhLatticeMemo exotic_worlds$lattices = new DhLatticeMemo();
 
     @Override
-    public DhLatticeMemo toroidal$lattices() {
-        return this.toroidal$lattices;
+    public DhLatticeMemo exotic_worlds$lattices() {
+        return this.exotic_worlds$lattices;
     }
 
     @Inject(method = "createAndSetSupportingRepos", at = @At("RETURN"))
-    private void toroidal$bindRepoLevels(File databaseFile, CallbackInfo ci) {
+    private void exotic_worlds$bindRepoLevels(File databaseFile, CallbackInfo ci) {
         IDhLevel level = (IDhLevel) (Object) this;
         if (this.chunkHashRepo != null) {
-            ((DhRepoLevel) this.chunkHashRepo).toroidal$bindLevel(level);
+            ((DhRepoLevel) this.chunkHashRepo).exotic_worlds$bindLevel(level);
         }
 
         if (this.beaconBeamRepo != null) {
-            ((DhRepoLevel) this.beaconBeamRepo).toroidal$bindLevel(level);
+            ((DhRepoLevel) this.beaconBeamRepo).exotic_worlds$bindLevel(level);
         }
     }
 }

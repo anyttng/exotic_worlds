@@ -10,12 +10,12 @@ import net.minecraft.world.phys.Vec3;
 
 public final class SeamSteering {
     public static Vec3 nearestCopy(Entity body, Vec3 target) {
-        WorldFold transformer = ((TransformerSource) body).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) body).exotic_worlds$wrappedTransformer();
         return NearestCopy.toward(transformer, body.position(), target);
     }
 
     public static BlockPos nearestCopy(Entity body, BlockPos target) {
-        WorldFold transformer = ((TransformerSource) body).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) body).exotic_worlds$wrappedTransformer();
         return NearestCopy.toward(transformer, body.blockPosition(), target);
     }
 

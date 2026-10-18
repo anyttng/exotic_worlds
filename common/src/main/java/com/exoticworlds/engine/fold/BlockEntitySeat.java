@@ -14,7 +14,7 @@ public final class BlockEntitySeat {
 
         BlockPos pos = blockEntity.getBlockPos();
         if (fold.isOver(pos)) {
-            ((RelocatableBlockEntity) blockEntity).toroidal$relocate(fold.fold(pos));
+            ((RelocatableBlockEntity) blockEntity).exotic_worlds$relocate(fold.fold(pos));
         }
     }
 

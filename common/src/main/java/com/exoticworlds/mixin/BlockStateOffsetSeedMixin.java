@@ -31,59 +31,59 @@ public abstract class BlockStateOffsetSeedMixin {
             method = "getOffset",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/block/state/BlockBehaviour$OffsetFunction;evaluate(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/Vec3;"))
-    private Vec3 toroidal$seedFromCanonical(BlockBehaviour.OffsetFunction function, BlockState state, BlockPos pos,
+    private Vec3 exotic_worlds$seedFromCanonical(BlockBehaviour.OffsetFunction function, BlockState state, BlockPos pos,
             Operation<Vec3> original) {
         return original.call(function, state, BlockOffsetSeed.seedPosition(pos));
     }
 
     @WrapMethod(method = "getShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;")
-    private VoxelShape toroidal$seedShape(BlockGetter level, BlockPos pos, CollisionContext context,
+    private VoxelShape exotic_worlds$seedShape(BlockGetter level, BlockPos pos, CollisionContext context,
             Operation<VoxelShape> original) {
         return this.hasOffsetFunction()
-                ? toroidal$seeded(level, () -> original.call(level, pos, context))
+                ? exotic_worlds$seeded(level, () -> original.call(level, pos, context))
                 : original.call(level, pos, context);
     }
 
     @WrapMethod(method = InjectionTargets.BLOCK_STATE_BASE_GET_COLLISION_SHAPE)
-    private VoxelShape toroidal$seedCollisionShape(BlockGetter level, BlockPos pos, CollisionContext context,
+    private VoxelShape exotic_worlds$seedCollisionShape(BlockGetter level, BlockPos pos, CollisionContext context,
             Operation<VoxelShape> original) {
         return this.hasOffsetFunction()
-                ? toroidal$seeded(level, () -> original.call(level, pos, context))
+                ? exotic_worlds$seeded(level, () -> original.call(level, pos, context))
                 : original.call(level, pos, context);
     }
 
     @WrapMethod(method = "getEntityInsideCollisionShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/phys/shapes/VoxelShape;")
-    private VoxelShape toroidal$seedEntityInsideShape(BlockGetter level, BlockPos pos, Entity entity,
+    private VoxelShape exotic_worlds$seedEntityInsideShape(BlockGetter level, BlockPos pos, Entity entity,
             Operation<VoxelShape> original) {
         return this.hasOffsetFunction()
-                ? toroidal$seeded(level, () -> original.call(level, pos, entity))
+                ? exotic_worlds$seeded(level, () -> original.call(level, pos, entity))
                 : original.call(level, pos, entity);
     }
 
     @WrapMethod(method = "getBlockSupportShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/shapes/VoxelShape;")
-    private VoxelShape toroidal$seedSupportShape(BlockGetter level, BlockPos pos, Operation<VoxelShape> original) {
+    private VoxelShape exotic_worlds$seedSupportShape(BlockGetter level, BlockPos pos, Operation<VoxelShape> original) {
         return this.hasOffsetFunction()
-                ? toroidal$seeded(level, () -> original.call(level, pos))
+                ? exotic_worlds$seeded(level, () -> original.call(level, pos))
                 : original.call(level, pos);
     }
 
     @WrapMethod(method = "getVisualShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;")
-    private VoxelShape toroidal$seedVisualShape(BlockGetter level, BlockPos pos, CollisionContext context,
+    private VoxelShape exotic_worlds$seedVisualShape(BlockGetter level, BlockPos pos, CollisionContext context,
             Operation<VoxelShape> original) {
         return this.hasOffsetFunction()
-                ? toroidal$seeded(level, () -> original.call(level, pos, context))
+                ? exotic_worlds$seeded(level, () -> original.call(level, pos, context))
                 : original.call(level, pos, context);
     }
 
     @WrapMethod(method = "getInteractionShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/shapes/VoxelShape;")
-    private VoxelShape toroidal$seedInteractionShape(BlockGetter level, BlockPos pos, Operation<VoxelShape> original) {
+    private VoxelShape exotic_worlds$seedInteractionShape(BlockGetter level, BlockPos pos, Operation<VoxelShape> original) {
         return this.hasOffsetFunction()
-                ? toroidal$seeded(level, () -> original.call(level, pos))
+                ? exotic_worlds$seeded(level, () -> original.call(level, pos))
                 : original.call(level, pos);
     }
 
     @Unique
-    private static VoxelShape toroidal$seeded(BlockGetter level, Supplier<VoxelShape> shape) {
+    private static VoxelShape exotic_worlds$seeded(BlockGetter level, Supplier<VoxelShape> shape) {
         try (BlockOffsetSeed _ = BlockOffsetSeed.seededBy(level)) {
             return shape.get();
         }

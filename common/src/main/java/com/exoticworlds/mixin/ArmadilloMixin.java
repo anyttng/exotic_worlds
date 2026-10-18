@@ -16,9 +16,9 @@ import net.minecraft.world.phys.AABB;
 @Mixin(Armadillo.class)
 public class ArmadilloMixin {
     @WrapOperation(method = "isScaredBy", at = @At(value = "INVOKE", target = InjectionTargets.AABB_INTERSECTS))
-    private boolean toroidal$scareReachThroughSeam(AABB reach, AABB threatBox, Operation<Boolean> original) {
+    private boolean exotic_worlds$scareReachThroughSeam(AABB reach, AABB threatBox, Operation<Boolean> original) {
         Armadillo armadillo = (Armadillo) (Object) this;
-        WorldFold transformer = ((TransformerSource) armadillo).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) armadillo).exotic_worlds$wrappedTransformer();
         AABB folded = FoldedBoxQuery.toward(transformer, armadillo.position(), threatBox);
         return original.call(reach, folded);
     }

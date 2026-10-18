@@ -16,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(WorldBorderCommand.class)
 public class WorldBorderCommandMixin {
     @ModifyVariable(method = "setCenter", at = @At("HEAD"), argsOnly = true)
-    private static Vec2 toroidal$storeCenterInsideBounds(Vec2 center,
+    private static Vec2 exotic_worlds$storeCenterInsideBounds(Vec2 center,
             @Local(argsOnly = true) CommandSourceStack source) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(source.getLevel());
         if (transformer == null) {

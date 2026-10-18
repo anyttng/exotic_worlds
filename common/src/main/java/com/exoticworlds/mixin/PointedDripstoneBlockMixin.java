@@ -20,7 +20,7 @@ public class PointedDripstoneBlockMixin {
     @WrapOperation(
             method = "spawnDripParticle(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/material/Fluid;Lnet/minecraft/core/BlockPos;)V",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_STATE_GET_OFFSET))
-    private static Vec3 toroidal$seedDripOffset(BlockState state, BlockPos pos, Operation<Vec3> original,
+    private static Vec3 exotic_worlds$seedDripOffset(BlockState state, BlockPos pos, Operation<Vec3> original,
             @Local(argsOnly = true) Level level) {
         try (BlockOffsetSeed _ = BlockOffsetSeed.seededBy(level)) {
             return original.call(state, pos);

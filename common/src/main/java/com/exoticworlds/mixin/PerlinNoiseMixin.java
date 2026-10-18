@@ -25,10 +25,10 @@ import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 @Mixin(PerlinNoise.class)
 public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMark, IndexableNoise, PerlinBaseScale {
     @Unique
-    private @Nullable Resolved toroidal$climateCompression;
+    private @Nullable Resolved exotic_worlds$climateCompression;
 
     @Unique
-    private volatile boolean toroidal$climateField;
+    private volatile boolean exotic_worlds$climateField;
 
     @Shadow
     @Final
@@ -47,47 +47,47 @@ public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMa
     private double lowestFreqInputFactor;
 
     @WrapMethod(method = "getValue(DDDDD)D")
-    private double toroidal$periodicValue(double x, double y, double z, double yScale, double yFudge, Operation<Double> original) {
+    private double exotic_worlds$periodicValue(double x, double y, double z, double yScale, double yFudge, Operation<Double> original) {
         Context generation = GenerationTransformerContext.context();
         if (!generation.transformer().isWrapped()) {
             return original.call(x, y, z, yScale, yFudge);
         }
 
-        return PeriodicOctaveSampler.sample(generation, this.toroidal$baseScale(generation), this.noiseLevels,
+        return PeriodicOctaveSampler.sample(generation, this.exotic_worlds$baseScale(generation), this.noiseLevels,
                 this.amplitudes, this.lowestFreqInputFactor, this.lowestFreqValueFactor, x, y, z, yScale, yFudge);
     }
 
     @Override
-    public boolean toroidal$indexable(Context context) {
+    public boolean exotic_worlds$indexable(Context context) {
         return context.wrappedTransformer() == null || PeriodicOctaveSampler.indexable(context,
-                this.toroidal$baseScale(context), this.noiseLevels, this.lowestFreqInputFactor);
+                this.exotic_worlds$baseScale(context), this.noiseLevels, this.lowestFreqInputFactor);
     }
 
     @Override
-    public double toroidal$baseScale(Context generation) {
+    public double exotic_worlds$baseScale(Context generation) {
         double declaredScale = generation.horizontalScale();
         return declaredScale * ClimateCompression.resolve(this, generation.transformer(),
-                this.toroidal$climateField, this.amplitudes, this.lowestFreqInputFactor, declaredScale,
+                this.exotic_worlds$climateField, this.amplitudes, this.lowestFreqInputFactor, declaredScale,
                 generation.verticalShare());
     }
 
     @Override
-    public boolean toroidal$climateField() {
-        return this.toroidal$climateField;
+    public boolean exotic_worlds$climateField() {
+        return this.exotic_worlds$climateField;
     }
 
     @Override
-    public void toroidal$markClimateField() {
-        this.toroidal$climateField = true;
+    public void exotic_worlds$markClimateField() {
+        this.exotic_worlds$climateField = true;
     }
 
     @Override
-    public @Nullable Resolved toroidal$climateCompression() {
-        return this.toroidal$climateCompression;
+    public @Nullable Resolved exotic_worlds$climateCompression() {
+        return this.exotic_worlds$climateCompression;
     }
 
     @Override
-    public void toroidal$climateCompression(Resolved resolved) {
-        this.toroidal$climateCompression = resolved;
+    public void exotic_worlds$climateCompression(Resolved resolved) {
+        this.exotic_worlds$climateCompression = resolved;
     }
 }
