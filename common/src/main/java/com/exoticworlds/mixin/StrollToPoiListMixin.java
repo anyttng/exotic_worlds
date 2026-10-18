@@ -21,7 +21,7 @@ public class StrollToPoiListMixin {
             require = 1,
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private static boolean toroidal$anchorTetherThroughSeam(BlockPos anchorPos, Position bodyPosition, double distance,
+    private static boolean exotic_worlds$anchorTetherThroughSeam(BlockPos anchorPos, Position bodyPosition, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) Villager body) {
         return SeamRange.closerToCenterThan(body, anchorPos, bodyPosition, distance);
     }

@@ -29,7 +29,7 @@ public class PerlinSimplexNoiseMixin {
     private double highestFreqInputFactor;
 
     @WrapMethod(method = "getValue(DDZ)D")
-    private double toroidal$periodicValue(double x, double z, boolean useNoiseStart, Operation<Double> original) {
+    private double exotic_worlds$periodicValue(double x, double z, boolean useNoiseStart, Operation<Double> original) {
         Context generation = GenerationTransformerContext.context();
         WorldFold transformer = generation.wrappedTransformer();
         if (transformer == null) {
@@ -44,7 +44,7 @@ public class PerlinSimplexNoiseMixin {
         for (SimplexNoise noiseLevel : this.noiseLevels) {
             if (noiseLevel != null) {
                 value += PeriodicSimplexSampler.sample(
-                        ((SimplexNoiseAccessor) (Object) noiseLevel).toroidal$permutations(),
+                        ((SimplexNoiseAccessor) (Object) noiseLevel).exotic_worlds$permutations(),
                         useNoiseStart ? noiseLevel.xo : 0.0,
                         useNoiseStart ? noiseLevel.yo : 0.0,
                         transformer,

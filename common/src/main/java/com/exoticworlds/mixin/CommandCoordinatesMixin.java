@@ -29,7 +29,7 @@ public class CommandCoordinatesMixin {
     private WorldCoordinate z;
 
     @Inject(method = "getPosition", at = @At("HEAD"))
-    private void toroidal$refuseCoordinateOutsideWorld(CommandSourceStack source, CallbackInfoReturnable<Vec3> cir)
+    private void exotic_worlds$refuseCoordinateOutsideWorld(CommandSourceStack source, CallbackInfoReturnable<Vec3> cir)
             throws CommandSyntaxException {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(source.getLevel());
         if (transformer == null) {

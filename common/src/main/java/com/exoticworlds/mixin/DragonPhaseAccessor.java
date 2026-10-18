@@ -9,5 +9,5 @@ import net.minecraft.world.entity.boss.enderdragon.phases.AbstractDragonPhaseIns
 @Mixin(AbstractDragonPhaseInstance.class)
 public interface DragonPhaseAccessor {
     @Accessor("dragon")
-    EnderDragon toroidal$dragon();
+    EnderDragon exotic_worlds$dragon();
 }

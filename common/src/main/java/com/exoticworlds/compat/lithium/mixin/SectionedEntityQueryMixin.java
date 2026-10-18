@@ -21,9 +21,9 @@ public class SectionedEntityQueryMixin {
     @WrapOperation(
             method = "getEntities(Lnet/minecraft/world/phys/AABB;)Ljava/util/List;",
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_BOUNDING_BOX))
-    private AABB toroidal$entityBoxTowardQuery(Entity entity, Operation<AABB> original,
+    private AABB exotic_worlds$entityBoxTowardQuery(Entity entity, Operation<AABB> original,
             @Local(argsOnly = true) AABB query) {
-        return FoldedBoxQuery.toward(((TransformerSource) entity).toroidal$wrappedTransformer(), query.getCenter(),
+        return FoldedBoxQuery.toward(((TransformerSource) entity).exotic_worlds$wrappedTransformer(), query.getCenter(),
                 original.call(entity));
     }
 }

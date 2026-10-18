@@ -87,7 +87,7 @@ final class BakeStampFixture {
     }
 
     static ChunkGenerator stamped(ChunkGenerator generator, FlatShape shape, GenerationOptions generationOptions) {
-        ((ShapeStamp) generator).toroidal$stamp(new CarriedShape(shape, generationOptions));
+        ((ShapeStamp) generator).exotic_worlds$stamp(new CarriedShape(shape, generationOptions));
         return generator;
     }
 

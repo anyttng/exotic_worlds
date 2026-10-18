@@ -36,7 +36,7 @@ public class BlendedNoiseMixin {
     private static final int MAX_INDEXABLE = 4;
 
     @Unique
-    private final ContextKeyedCache<Integer> toroidal$indexability = new ContextKeyedCache<>();
+    private final ContextKeyedCache<Integer> exotic_worlds$indexability = new ContextKeyedCache<>();
 
     @Shadow
     @Final
@@ -72,7 +72,7 @@ public class BlendedNoiseMixin {
 
     @SuppressWarnings("deprecation")
     @WrapMethod(method = "compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D")
-    private double toroidal$periodicCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
+    private double exotic_worlds$periodicCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
         Context generation = GenerationTransformerContext.context();
         if (!generation.transformer().isWrapped()) {
             return original.call(context);
@@ -90,7 +90,7 @@ public class BlendedNoiseMixin {
         double limitZ = lattice.foldZ(context.blockZ()) * this.xzMultiplier;
         double mainX = limitX / this.xzFactor;
         double mainZ = limitZ / this.xzFactor;
-        int indexableStacks = toroidal$indexableStacks(generation, mainScale);
+        int indexableStacks = exotic_worlds$indexableStacks(generation, mainScale);
         boolean mainIndexable = (indexableStacks & MAIN_INDEXABLE) != 0;
         boolean minIndexable = (indexableStacks & MIN_INDEXABLE) != 0;
         boolean maxIndexable = (indexableStacks & MAX_INDEXABLE) != 0;
@@ -107,7 +107,7 @@ public class BlendedNoiseMixin {
                     double wy = PerlinNoise.wrap(mainY * pow);
                     mainNoiseValue += (mainIndexable
                             ? noise.noise(blockX, wy, blockZ, mainSmear * pow, mainY * pow)
-                            : toroidal$vanilla(generation, noise, PerlinNoise.wrap(mainX * pow), wy,
+                            : exotic_worlds$vanilla(generation, noise, PerlinNoise.wrap(mainX * pow), wy,
                                     PerlinNoise.wrap(mainZ * pow), mainSmear * pow, mainY * pow)) / pow;
                 }
 
@@ -130,7 +130,7 @@ public class BlendedNoiseMixin {
                     if (minNoise != null) {
                         blendMin += (minIndexable
                                 ? minNoise.noise(blockX, wy, blockZ, yScalePow, limitY * pow)
-                                : toroidal$vanilla(generation, minNoise, wx, wy, wz, yScalePow, limitY * pow)) / pow;
+                                : exotic_worlds$vanilla(generation, minNoise, wx, wy, wz, yScalePow, limitY * pow)) / pow;
                     }
                 }
 
@@ -139,34 +139,34 @@ public class BlendedNoiseMixin {
                     if (maxNoise != null) {
                         blendMax += (maxIndexable
                                 ? maxNoise.noise(blockX, wy, blockZ, yScalePow, limitY * pow)
-                                : toroidal$vanilla(generation, maxNoise, wx, wy, wz, yScalePow, limitY * pow)) / pow;
+                                : exotic_worlds$vanilla(generation, maxNoise, wx, wy, wz, yScalePow, limitY * pow)) / pow;
                     }
                 }
 
                 pow /= 2.0;
             }
 
-            return toroidal$blendLimits(factor, blendMin / 512.0, blendMax / 512.0) / 128.0;
+            return exotic_worlds$blendLimits(factor, blendMin / 512.0, blendMax / 512.0) / 128.0;
         }
     }
 
     @Unique
-    private int toroidal$indexableStacks(Context generation, double mainScale) {
-        Integer cached = this.toroidal$indexability.find(generation.transformer(), generation);
+    private int exotic_worlds$indexableStacks(Context generation, double mainScale) {
+        Integer cached = this.exotic_worlds$indexability.find(generation.transformer(), generation);
         if (cached != null) {
             return cached;
         }
 
-        int decided = (toroidal$indexable(generation, this.mainNoise, MAIN_OCTAVES, mainScale) ? MAIN_INDEXABLE : 0)
-                | (toroidal$indexable(generation, this.minLimitNoise, LIMIT_OCTAVES, this.xzMultiplier)
+        int decided = (exotic_worlds$indexable(generation, this.mainNoise, MAIN_OCTAVES, mainScale) ? MAIN_INDEXABLE : 0)
+                | (exotic_worlds$indexable(generation, this.minLimitNoise, LIMIT_OCTAVES, this.xzMultiplier)
                         ? MIN_INDEXABLE : 0)
-                | (toroidal$indexable(generation, this.maxLimitNoise, LIMIT_OCTAVES, this.xzMultiplier)
+                | (exotic_worlds$indexable(generation, this.maxLimitNoise, LIMIT_OCTAVES, this.xzMultiplier)
                         ? MAX_INDEXABLE : 0);
-        return this.toroidal$indexability.put(generation.transformer(), generation, decided);
+        return this.exotic_worlds$indexability.put(generation.transformer(), generation, decided);
     }
 
     @Unique
-    private static double toroidal$blendLimits(double factor, double min, double max) {
+    private static double exotic_worlds$blendLimits(double factor, double min, double max) {
         if (factor < 0.0) {
             return min;
         }
@@ -176,14 +176,14 @@ public class BlendedNoiseMixin {
 
     // The highest-frequency octave comes first here, and the period grows with the scale.
     @Unique
-    private static boolean toroidal$indexable(Context generation, PerlinNoise stack, int octaves, double scale) {
+    private static boolean exotic_worlds$indexable(Context generation, PerlinNoise stack, int octaves, double scale) {
         double pow = 1.0;
         for (int i = 0; i < octaves; i++) {
             ImprovedNoise noise = stack.getOctaveNoise(i);
             if (noise != null) {
                 try (Context.ScaleScope scope = generation.openScale()) {
                     scope.rescale(scale * pow);
-                    return ((IndexableNoise) (Object) noise).toroidal$indexable(generation);
+                    return ((IndexableNoise) (Object) noise).exotic_worlds$indexable(generation);
                 }
             }
 
@@ -195,7 +195,7 @@ public class BlendedNoiseMixin {
 
     @Unique
     @SuppressWarnings("deprecation")
-    private static double toroidal$vanilla(Context generation, ImprovedNoise noise, double x, double y, double z,
+    private static double exotic_worlds$vanilla(Context generation, ImprovedNoise noise, double x, double y, double z,
             double yScale, double yFudge) {
         try (Context.BindingScope bindingScope = generation.unbound()) {
             return noise.noise(x, y, z, yScale, yFudge);

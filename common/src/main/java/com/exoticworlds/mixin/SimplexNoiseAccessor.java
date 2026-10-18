@@ -8,5 +8,5 @@ import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 @Mixin(SimplexNoise.class)
 public interface SimplexNoiseAccessor {
     @Accessor("p")
-    int[] toroidal$permutations();
+    int[] exotic_worlds$permutations();
 }

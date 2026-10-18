@@ -98,7 +98,7 @@ public final class ContextScaledNoise {
     }
 
     private static boolean indexable(Context context, DensityFunction.NoiseHolder noise) {
-        return !(noise.noise() instanceof IndexableNoise indexable) || indexable.toroidal$indexable(context);
+        return !(noise.noise() instanceof IndexableNoise indexable) || indexable.exotic_worlds$indexable(context);
     }
 
     private static double vanillaAt(Context context, DensityFunction.NoiseHolder noise, double x, double y,
@@ -108,7 +108,7 @@ public final class ContextScaledNoise {
             value = noise.getValue(x, y, z);
         }
 
-        return noise.noise() instanceof CoastLiftCache coast ? value + coast.toroidal$coastLift() : value;
+        return noise.noise() instanceof CoastLiftCache coast ? value + coast.exotic_worlds$coastLift() : value;
     }
 
     private static double worldCoord(SlotAxes axes, SlotAxis axis, double x, double y, double z) {

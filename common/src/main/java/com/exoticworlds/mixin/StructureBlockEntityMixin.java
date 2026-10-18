@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.entity.StructureBlockEntity;
 @Mixin(StructureBlockEntity.class)
 public class StructureBlockEntityMixin {
     @ModifyReturnValue(method = "getRelatedCorners", at = @At("RETURN"))
-    private Stream<BlockPos> toroidal$cornersInOwnFrame(Stream<BlockPos> corners) {
+    private Stream<BlockPos> exotic_worlds$cornersInOwnFrame(Stream<BlockPos> corners) {
         BlockEntity self = (BlockEntity) (Object) this;
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(self.getLevel());
         if (transformer == null) {

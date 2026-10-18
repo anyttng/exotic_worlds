@@ -29,20 +29,20 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(EntitySelector.class)
 public class EntitySelectorMixin {
     @WrapMethod(method = "getPredicate")
-    private Predicate<Entity> toroidal$boxThroughSeam(Vec3 pos, @Nullable AABB absoluteAabb,
+    private Predicate<Entity> exotic_worlds$boxThroughSeam(Vec3 pos, @Nullable AABB absoluteAabb,
             @Nullable FeatureFlagSet enabledFeatures, Operation<Predicate<Entity>> original) {
         if (absoluteAabb == null) {
             return original.call(pos, absoluteAabb, enabledFeatures);
         }
 
         Predicate<Entity> withoutBox = original.call(pos, null, enabledFeatures);
-        return entity -> withoutBox.test(entity) && toroidal$insideThroughSeam(entity, absoluteAabb);
+        return entity -> withoutBox.test(entity) && exotic_worlds$insideThroughSeam(entity, absoluteAabb);
     }
 
     @WrapOperation(
             method = {"findEntities", "findPlayers"},
             at = @At(value = "INVOKE", target = "Ljava/util/function/Function;apply(Ljava/lang/Object;)Ljava/lang/Object;"))
-    private Object toroidal$refuseCenterOutsideWorld(Function<Object, Object> position, Object senderPosition,
+    private Object exotic_worlds$refuseCenterOutsideWorld(Function<Object, Object> position, Object senderPosition,
             Operation<Object> original, @Local(argsOnly = true) CommandSourceStack sender)
             throws CommandSyntaxException {
         Object resolved = original.call(position, senderPosition);
@@ -63,7 +63,7 @@ public class EntitySelectorMixin {
     }
 
     @Unique
-    private static boolean toroidal$insideThroughSeam(Entity entity, AABB absoluteAabb) {
+    private static boolean exotic_worlds$insideThroughSeam(Entity entity, AABB absoluteAabb) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(entity.level());
         AABB box = FoldedBoxQuery.toward(transformer, entity.position(), absoluteAabb);
         return box.intersects(entity.getBoundingBox());

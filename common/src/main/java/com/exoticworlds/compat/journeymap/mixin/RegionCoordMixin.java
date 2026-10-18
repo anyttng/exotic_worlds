@@ -15,7 +15,7 @@ import net.minecraft.world.level.ChunkPos;
 @Mixin(targets = "journeymap.client.model.region.RegionCoord", remap = false)
 public class RegionCoordMixin {
     @WrapMethod(method = "fromChunkPos")
-    private static RegionCoord toroidal$foldChunk(File worldDir, MapType mapType, int chunkX, int chunkZ,
+    private static RegionCoord exotic_worlds$foldChunk(File worldDir, MapType mapType, int chunkX, int chunkZ,
             Operation<RegionCoord> original) {
         ChunkPos folded = JourneyMapFold.foldRegionChunk(new ChunkPos(chunkX, chunkZ));
         return original.call(worldDir, mapType, folded.x, folded.z);

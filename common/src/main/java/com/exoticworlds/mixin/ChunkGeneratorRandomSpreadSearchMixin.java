@@ -37,7 +37,7 @@ public class ChunkGeneratorRandomSpreadSearchMixin {
             "Lnet/minecraft/world/level/chunk/ChunkGenerator;getNearestGeneratedStructure(Ljava/util/Set;Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/world/level/StructureManager;IIIZJLnet/minecraft/world/level/levelgen/structure/placement/RandomSpreadStructurePlacement;)Lcom/mojang/datafixers/util/Pair;";
 
     @WrapOperation(method = "findNearestMapStructure", at = @At(value = "INVOKE", target = NEAREST_GENERATED_STRUCTURE))
-    private @Nullable Pair<BlockPos, Holder<Structure>> toroidal$ringsThroughTheSeam(
+    private @Nullable Pair<BlockPos, Holder<Structure>> exotic_worlds$ringsThroughTheSeam(
             Set<Holder<Structure>> structures,
             LevelReader level,
             StructureManager structureManager,
@@ -56,13 +56,13 @@ public class ChunkGeneratorRandomSpreadSearchMixin {
         }
 
         AddedStructureStarts added = AddedStructureStarts.of(serverLevel.getChunkSource().getGeneratorState(),
-                ((StructureManagerAccessor) structureManager).toroidal$structureCheck(), carried);
+                ((StructureManagerAccessor) structureManager).exotic_worlds$structureCheck(), carried);
         return SpreadRingScan.of(carried.fold(), added, placement, seed, new ChunkPos(chunkOriginX, chunkOriginZ))
                 .ring(radius,
-                        candidate -> ChunkGeneratorAccessor.toroidal$structureGeneratingAt(
+                        candidate -> ChunkGeneratorAccessor.exotic_worlds$structureGeneratingAt(
                                 structures, level, structureManager, createReference, placement, candidate),
                         start -> structures.contains(start.structure())
-                                ? ChunkGeneratorAccessor.toroidal$structureGeneratingAt(Set.of(start.structure()),
+                                ? ChunkGeneratorAccessor.exotic_worlds$structureGeneratingAt(Set.of(start.structure()),
                                         level, structureManager, createReference, placement, start.chunk())
                                 : null);
     }
@@ -70,7 +70,7 @@ public class ChunkGeneratorRandomSpreadSearchMixin {
     @WrapOperation(
             method = "findNearestMapStructure",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
-    private double toroidal$rankThroughTheSeam(BlockPos origin, Vec3i candidate, Operation<Double> original) {
+    private double exotic_worlds$rankThroughTheSeam(BlockPos origin, Vec3i candidate, Operation<Double> original) {
         WorldFold transformer = ShapedChunkGenerator.wrappedTransformerOf((ChunkGenerator) (Object) this);
         if (transformer == null) {
             return original.call(origin, candidate);

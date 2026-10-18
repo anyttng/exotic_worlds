@@ -17,7 +17,7 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 @Mixin(ClientPacketListener.class)
 public class ClientPacketListenerMixin {
     @Inject(method = "clearLevel", at = @At("RETURN"))
-    private void toroidal$forgetWhatTheServerPublished(CallbackInfo ci) {
+    private void exotic_worlds$forgetWhatTheServerPublished(CallbackInfo ci) {
         PublishedShapes.clear();
         SyncedTagFold.declare(Map.of());
         ComponentPositions.declare(Set.of());

@@ -19,16 +19,16 @@ public class DragonHoldingPatternPhaseMixin {
             method = "findNewTarget",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_DIST_TO_CENTER_SQR))
-    private double toroidal$eggDistanceThroughSeam(BlockPos eggPos, Position playerPosition,
+    private double exotic_worlds$eggDistanceThroughSeam(BlockPos eggPos, Position playerPosition,
             Operation<Double> original) {
-        return SeamRange.sqr(((DragonPhaseAccessor) this).toroidal$dragon(), Vec3.atCenterOf(eggPos), playerPosition);
+        return SeamRange.sqr(((DragonPhaseAccessor) this).exotic_worlds$dragon(), Vec3.atCenterOf(eggPos), playerPosition);
     }
 
     @WrapOperation(
             method = "doServerTick",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO_SQR_XYZ))
-    private double toroidal$targetWindowThroughSeam(Vec3 target, double x, double y, double z,
+    private double exotic_worlds$targetWindowThroughSeam(Vec3 target, double x, double y, double z,
             Operation<Double> original) {
-        return SeamRange.sqr(((DragonPhaseAccessor) this).toroidal$dragon(), target, x, y, z);
+        return SeamRange.sqr(((DragonPhaseAccessor) this).exotic_worlds$dragon(), target, x, y, z);
     }
 }

@@ -12,7 +12,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(FireworkRocketEntity.class)
 public class FireworkRocketEntityMixin {
     @ModifyVariable(method = "dealExplosionDamage", at = @At("STORE"), ordinal = 1)
-    private Vec3 toroidal$sightTargetThroughSeam(Vec3 to) {
+    private Vec3 exotic_worlds$sightTargetThroughSeam(Vec3 to) {
         return SeamSteering.nearestCopy((FireworkRocketEntity) (Object) this, to);
     }
 }

@@ -42,14 +42,14 @@ public class ServerEntityMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/network/protocol/game/ClientboundBundlePacket;<init>(Ljava/lang/Iterable;)V"))
-    private Iterable<Packet<? super ClientGamePacketListener>> toroidal$dropPrematureVehiclePassengers(
+    private Iterable<Packet<? super ClientGamePacketListener>> exotic_worlds$dropPrematureVehiclePassengers(
             Iterable<Packet<? super ClientGamePacketListener>> pairing, @Local(argsOnly = true) ServerPlayer player) {
         if (WorldLoopAttachments.wrappedTransformerOf(this.level) == null) {
             return pairing;
         }
 
         Entity vehicle = this.entity.getVehicle();
-        if (vehicle == null || toroidal$isWatching(player, vehicle)) {
+        if (vehicle == null || exotic_worlds$isWatching(player, vehicle)) {
             return pairing;
         }
 
@@ -65,7 +65,7 @@ public class ServerEntityMixin {
     }
 
     @Unique
-    private boolean toroidal$isWatching(ServerPlayer player, Entity watched) {
+    private boolean exotic_worlds$isWatching(ServerPlayer player, Entity watched) {
         ChunkMap.TrackedEntity tracked = this.level.getChunkSource().chunkMap.entityMap.get(watched.getId());
         if (tracked == null) {
             return false;

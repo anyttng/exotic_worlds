@@ -16,24 +16,24 @@ import net.minecraft.world.entity.vehicle.MinecartFurnace;
 @Mixin(MinecartFurnace.class)
 public class MinecartFurnaceFuelMixin {
     @Unique
-    private static final String toroidal$INTERACT =
+    private static final String exotic_worlds$INTERACT =
             "interact(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;)"
                     + "Lnet/minecraft/world/InteractionResult;";
 
     @WrapOperation(
-            method = toroidal$INTERACT,
+            method = exotic_worlds$INTERACT,
             at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD,
                     target = "Lnet/minecraft/world/entity/vehicle/MinecartFurnace;xPush:D"))
-    private void toroidal$driveAwayXThroughSeam(MinecartFurnace furnace, double pushX, Operation<Void> original,
+    private void exotic_worlds$driveAwayXThroughSeam(MinecartFurnace furnace, double pushX, Operation<Void> original,
             @Local(argsOnly = true) Player player) {
         original.call(furnace, SeamAim.foldDelta(furnace, pushX, furnace.getZ() - player.getZ()).x);
     }
 
     @WrapOperation(
-            method = toroidal$INTERACT,
+            method = exotic_worlds$INTERACT,
             at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD,
                     target = "Lnet/minecraft/world/entity/vehicle/MinecartFurnace;zPush:D"))
-    private void toroidal$driveAwayZThroughSeam(MinecartFurnace furnace, double pushZ, Operation<Void> original,
+    private void exotic_worlds$driveAwayZThroughSeam(MinecartFurnace furnace, double pushZ, Operation<Void> original,
             @Local(argsOnly = true) Player player) {
         original.call(furnace, SeamAim.foldDelta(furnace, furnace.getX() - player.getX(), pushZ).z);
     }

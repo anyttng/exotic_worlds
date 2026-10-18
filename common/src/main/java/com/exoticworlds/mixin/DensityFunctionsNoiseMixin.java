@@ -28,7 +28,7 @@ public class DensityFunctionsNoiseMixin {
     private double yScale;
 
     @WrapMethod(method = "compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D")
-    private double toroidal$periodicCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
+    private double exotic_worlds$periodicCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
         Context generation = GenerationTransformerContext.context();
         if (!generation.transformer().isWrapped()) {
             return original.call(context);

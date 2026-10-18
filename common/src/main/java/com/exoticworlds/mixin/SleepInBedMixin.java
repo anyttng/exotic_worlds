@@ -20,7 +20,7 @@ public class SleepInBedMixin {
             method = { "checkExtraStartConditions", "canStillUse" },
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean toroidal$bedReachThroughSeam(BlockPos bedPos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$bedReachThroughSeam(BlockPos bedPos, Position bodyPosition, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) LivingEntity body) {
         return SeamRange.closerToCenterThan(body, bedPos, bodyPosition, distance);
     }

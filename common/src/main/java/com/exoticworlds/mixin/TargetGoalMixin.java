@@ -26,21 +26,21 @@ public class TargetGoalMixin {
     @WrapOperation(
             method = "canReach",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getBlockX()I"))
-    private int toroidal$reachTargetNearX(LivingEntity target, Operation<Integer> original, @Local Node last) {
-        return toroidal$targetNear(last, new BlockPos(original.call(target), target.getBlockY(), target.getBlockZ()))
+    private int exotic_worlds$reachTargetNearX(LivingEntity target, Operation<Integer> original, @Local Node last) {
+        return exotic_worlds$targetNear(last, new BlockPos(original.call(target), target.getBlockY(), target.getBlockZ()))
                 .getX();
     }
 
     @WrapOperation(
             method = "canReach",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getBlockZ()I"))
-    private int toroidal$reachTargetNearZ(LivingEntity target, Operation<Integer> original, @Local Node last) {
-        return toroidal$targetNear(last, new BlockPos(target.getBlockX(), target.getBlockY(), original.call(target)))
+    private int exotic_worlds$reachTargetNearZ(LivingEntity target, Operation<Integer> original, @Local Node last) {
+        return exotic_worlds$targetNear(last, new BlockPos(target.getBlockX(), target.getBlockY(), original.call(target)))
                 .getZ();
     }
 
     @Unique
-    private BlockPos toroidal$targetNear(Node last, BlockPos target) {
+    private BlockPos exotic_worlds$targetNear(Node last, BlockPos target) {
         return WorldLoopAttachments.transformerOf(this.mob.level()).nearestCopy(last.asBlockPos(), target);
     }
 }

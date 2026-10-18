@@ -22,8 +22,8 @@ public class VexChargeAttackGoalMixin {
     private Vex vex;
 
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = InjectionTargets.AABB_INTERSECTS))
-    private boolean toroidal$touchThroughSeam(AABB vexBox, AABB targetBox, Operation<Boolean> original) {
-        WorldFold transformer = ((TransformerSource) this.vex).toroidal$wrappedTransformer();
+    private boolean exotic_worlds$touchThroughSeam(AABB vexBox, AABB targetBox, Operation<Boolean> original) {
+        WorldFold transformer = ((TransformerSource) this.vex).exotic_worlds$wrappedTransformer();
         AABB folded = FoldedBoxQuery.toward(transformer, this.vex.position(), targetBox);
         return original.call(vexBox, folded);
     }

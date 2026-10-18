@@ -20,70 +20,70 @@ import net.minecraft.resources.ResourceLocation;
 public class MappedRegistryMixin<T> {
     @ModifyReturnValue(method = "getHolder(Lnet/minecraft/resources/ResourceLocation;)Ljava/util/Optional;",
             at = @At("RETURN"))
-    private Optional<Holder.Reference<T>> toroidal$getTwinById(Optional<Holder.Reference<T>> found,
+    private Optional<Holder.Reference<T>> exotic_worlds$getTwinById(Optional<Holder.Reference<T>> found,
             @Local(argsOnly = true) ResourceLocation id) {
         if (found.isPresent()) {
             return found;
         }
 
         ResourceLocation twin = FormerNamespace.twinOf(id);
-        return twin == null ? found : this.toroidal$registry().getHolder(twin);
+        return twin == null ? found : this.exotic_worlds$registry().getHolder(twin);
     }
 
     @ModifyReturnValue(method = "getHolder(Lnet/minecraft/resources/ResourceKey;)Ljava/util/Optional;", at = @At("RETURN"))
-    private Optional<Holder.Reference<T>> toroidal$getTwinByKey(Optional<Holder.Reference<T>> found,
+    private Optional<Holder.Reference<T>> exotic_worlds$getTwinByKey(Optional<Holder.Reference<T>> found,
             @Local(argsOnly = true) ResourceKey<T> key) {
         if (found.isPresent()) {
             return found;
         }
 
         ResourceKey<T> twin = FormerNamespace.twinOf(key);
-        return twin == null ? found : this.toroidal$registry().getHolder(twin);
+        return twin == null ? found : this.exotic_worlds$registry().getHolder(twin);
     }
 
     @ModifyReturnValue(method = "get(Lnet/minecraft/resources/ResourceLocation;)Ljava/lang/Object;", at = @At("RETURN"))
-    private @Nullable T toroidal$getTwinValueById(@Nullable T found, @Local(argsOnly = true) ResourceLocation id) {
+    private @Nullable T exotic_worlds$getTwinValueById(@Nullable T found, @Local(argsOnly = true) ResourceLocation id) {
         if (found != null) {
             return found;
         }
 
         ResourceLocation twin = FormerNamespace.twinOf(id);
-        return twin == null ? found : this.toroidal$registry().get(twin);
+        return twin == null ? found : this.exotic_worlds$registry().get(twin);
     }
 
     @ModifyReturnValue(method = "get(Lnet/minecraft/resources/ResourceKey;)Ljava/lang/Object;", at = @At("RETURN"))
-    private @Nullable T toroidal$getTwinValueByKey(@Nullable T found, @Local(argsOnly = true) ResourceKey<T> key) {
+    private @Nullable T exotic_worlds$getTwinValueByKey(@Nullable T found, @Local(argsOnly = true) ResourceKey<T> key) {
         if (found != null) {
             return found;
         }
 
         ResourceKey<T> twin = FormerNamespace.twinOf(key);
-        return twin == null ? found : this.toroidal$registry().get(twin);
+        return twin == null ? found : this.exotic_worlds$registry().get(twin);
     }
 
     @ModifyReturnValue(method = "containsKey(Lnet/minecraft/resources/ResourceLocation;)Z", at = @At("RETURN"))
-    private boolean toroidal$containsTwinById(boolean found, @Local(argsOnly = true) ResourceLocation id) {
+    private boolean exotic_worlds$containsTwinById(boolean found, @Local(argsOnly = true) ResourceLocation id) {
         if (found) {
             return true;
         }
 
         ResourceLocation twin = FormerNamespace.twinOf(id);
-        return twin != null && this.toroidal$registry().containsKey(twin);
+        return twin != null && this.exotic_worlds$registry().containsKey(twin);
     }
 
     @ModifyReturnValue(method = "containsKey(Lnet/minecraft/resources/ResourceKey;)Z", at = @At("RETURN"))
-    private boolean toroidal$containsTwinByKey(boolean found, @Local(argsOnly = true) ResourceKey<T> key) {
+    private boolean exotic_worlds$containsTwinByKey(boolean found, @Local(argsOnly = true) ResourceKey<T> key) {
         if (found) {
             return true;
         }
 
         ResourceKey<T> twin = FormerNamespace.twinOf(key);
-        return twin != null && this.toroidal$registry().containsKey(twin);
+        return twin != null && this.exotic_worlds$registry().containsKey(twin);
     }
 
     @Unique
     @SuppressWarnings("unchecked")
-    private MappedRegistry<T> toroidal$registry() {
+    private MappedRegistry<T> exotic_worlds$registry() {
         return (MappedRegistry<T>) (Object) this;
     }
 }

@@ -47,9 +47,9 @@ public final class SeamSnap {
         if (entity instanceof Mob mob) {
             int shiftX = (int) Math.round(to.x - from.x);
             int shiftZ = (int) Math.round(to.z - from.z);
-            ((NavigationShifter) mob.getNavigation()).toroidal$shiftBy(shiftX, shiftZ);
-            ((NavigationShifter) mob.getMoveControl()).toroidal$shiftBy(shiftX, shiftZ);
-            ((NavigationShifter) mob.getLookControl()).toroidal$shiftBy(shiftX, shiftZ);
+            ((NavigationShifter) mob.getNavigation()).exotic_worlds$shiftBy(shiftX, shiftZ);
+            ((NavigationShifter) mob.getMoveControl()).exotic_worlds$shiftBy(shiftX, shiftZ);
+            ((NavigationShifter) mob.getLookControl()).exotic_worlds$shiftBy(shiftX, shiftZ);
         }
 
         if (entity instanceof ServerPlayer rider) {

@@ -34,7 +34,7 @@ public class FillBiomeCommandMixin {
                     target = "Lnet/minecraft/world/level/levelgen/structure/BoundingBox;getXSpan()I",
                     ordinal = 0),
             cancellable = true)
-    private static void toroidal$refuseRegionAcrossSeam(
+    private static void exotic_worlds$refuseRegionAcrossSeam(
             CallbackInfoReturnable<Either<Integer, CommandSyntaxException>> cir,
             @Local(argsOnly = true) ServerLevel level,
             @Local BoundingBox region) {
@@ -52,7 +52,7 @@ public class FillBiomeCommandMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/ChunkAccess;fillBiomesFromNoise(Lnet/minecraft/world/level/biome/BiomeResolver;Lnet/minecraft/world/level/biome/Climate$Sampler;)V"))
-    private static void toroidal$fillInTheRegionsFrame(ChunkAccess chunk, BiomeResolver resolver,
+    private static void exotic_worlds$fillInTheRegionsFrame(ChunkAccess chunk, BiomeResolver resolver,
             Climate.Sampler sampler, Operation<Void> original,
             @Local(argsOnly = true) ServerLevel level, @Local BoundingBox region) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
@@ -61,8 +61,8 @@ public class FillBiomeCommandMixin {
             return;
         }
 
-        boolean foldX = toroidal$leavesTheWorld(transformer.bounds().x(), region.minX(), region.maxX());
-        boolean foldZ = toroidal$leavesTheWorld(transformer.bounds().z(), region.minZ(), region.maxZ());
+        boolean foldX = exotic_worlds$leavesTheWorld(transformer.bounds().x(), region.minX(), region.maxX());
+        boolean foldZ = exotic_worlds$leavesTheWorld(transformer.bounds().z(), region.minZ(), region.maxZ());
         if (!foldX && !foldZ) {
             original.call(chunk, resolver, sampler);
             return;
@@ -87,7 +87,7 @@ public class FillBiomeCommandMixin {
     }
 
     @Unique
-    private static boolean toroidal$leavesTheWorld(AxisBounds axis, int minCoord, int maxCoord) {
+    private static boolean exotic_worlds$leavesTheWorld(AxisBounds axis, int minCoord, int maxCoord) {
         return axis.isOver(minCoord) || axis.isOver(maxCoord);
     }
 

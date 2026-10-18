@@ -26,18 +26,18 @@ import net.minecraft.world.entity.raid.Raids;
 @Mixin(Raids.class)
 public class RaidsMixin implements LevelBindable {
     @Unique
-    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
+    private final BoundLevelFold exotic_worlds$bound = new BoundLevelFold();
 
     @Override
-    public void toroidal$bindLevel(ServerLevel level) {
-        this.toroidal$bound.bind(level);
+    public void exotic_worlds$bindLevel(ServerLevel level) {
+        this.exotic_worlds$bound.bind(level);
     }
 
     @WrapOperation(
             method = "getNearbyRaid",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
-    private double toroidal$raidDistanceThroughSeam(BlockPos raidCenter, Vec3i pos, Operation<Double> original) {
-        WorldFold transformer = this.toroidal$bound.wrapped();
+    private double exotic_worlds$raidDistanceThroughSeam(BlockPos raidCenter, Vec3i pos, Operation<Double> original) {
+        WorldFold transformer = this.exotic_worlds$bound.wrapped();
         return transformer == null ? original.call(raidCenter, pos) : SeamRange.sqr(transformer, raidCenter, pos);
     }
 
@@ -46,7 +46,7 @@ public class RaidsMixin implements LevelBindable {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/ai/village/poi/PoiRecord;getPos()Lnet/minecraft/core/BlockPos;"))
-    private BlockPos toroidal$poiInPlayerFrame(PoiRecord record, Operation<BlockPos> original,
+    private BlockPos exotic_worlds$poiInPlayerFrame(PoiRecord record, Operation<BlockPos> original,
             @Local(argsOnly = true) ServerPlayer player, @Local(argsOnly = true) BlockPos raidPosition) {
         BlockPos pos = original.call(record);
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(player.level());
@@ -58,7 +58,7 @@ public class RaidsMixin implements LevelBindable {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/core/BlockPos;containing(Lnet/minecraft/core/Position;)Lnet/minecraft/core/BlockPos;"))
-    private BlockPos toroidal$centerIntoBounds(Position mean, Operation<BlockPos> original,
+    private BlockPos exotic_worlds$centerIntoBounds(Position mean, Operation<BlockPos> original,
             @Local(argsOnly = true) ServerPlayer player) {
         return WorldLoopAttachments.transformerOf(player.level()).fold(original.call(mean));
     }

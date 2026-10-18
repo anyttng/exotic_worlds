@@ -48,7 +48,7 @@ public class PlayerListMixin {
     private List<ServerPlayer> players;
 
     @WrapMethod(method = "broadcast")
-    private void toroidal$broadcastThroughSeam(@Nullable Player except, double x, double y, double z, double range,
+    private void exotic_worlds$broadcastThroughSeam(@Nullable Player except, double x, double y, double z, double range,
             ResourceKey<Level> dimension, Packet<?> packet, Operation<Void> original) {
         WorldFold transformer = null;
         for (ServerPlayer player : this.players) {
@@ -74,7 +74,7 @@ public class PlayerListMixin {
     }
 
     @Inject(method = "placeNewPlayer", at = @At("TAIL"))
-    private void toroidal$sendBoundsOnLogin(Connection connection, ServerPlayer player, CommonListenerCookie cookie,
+    private void exotic_worlds$sendBoundsOnLogin(Connection connection, ServerPlayer player, CommonListenerCookie cookie,
             CallbackInfo ci) {
         WorldShapeSync.sendAllTo(player);
     }
@@ -82,7 +82,7 @@ public class PlayerListMixin {
     @Inject(method = "respawn",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;moveTo(DDDFF)V",
                     shift = At.Shift.AFTER))
-    private void toroidal$rebaseMirrorOnRespawn(ServerPlayer player, boolean keepEverything,
+    private void exotic_worlds$rebaseMirrorOnRespawn(ServerPlayer player, boolean keepEverything,
             Entity.RemovalReason reason, CallbackInfoReturnable<ServerPlayer> cir,
             @Local(ordinal = 1) ServerPlayer respawned) {
         ClientPosition.rebase(respawned);
@@ -92,7 +92,7 @@ public class PlayerListMixin {
             method = "placeNewPlayer",
             at = @At(value = "FIELD", target = "Lnet/minecraft/server/players/PlayerList;viewDistance:I",
                     opcode = Opcodes.GETFIELD))
-    private int toroidal$loginViewDistance(PlayerList playerList, Operation<Integer> original,
+    private int exotic_worlds$loginViewDistance(PlayerList playerList, Operation<Integer> original,
             @Local(argsOnly = true) ServerPlayer player) {
         return WorldShapeSync.distanceFor(player, original.call(playerList));
     }
@@ -101,24 +101,24 @@ public class PlayerListMixin {
             method = "placeNewPlayer",
             at = @At(value = "FIELD", target = "Lnet/minecraft/server/players/PlayerList;simulationDistance:I",
                     opcode = Opcodes.GETFIELD))
-    private int toroidal$loginSimulationDistance(PlayerList playerList, Operation<Integer> original,
+    private int exotic_worlds$loginSimulationDistance(PlayerList playerList, Operation<Integer> original,
             @Local(argsOnly = true) ServerPlayer player) {
         return WorldShapeSync.distanceFor(player, original.call(playerList));
     }
 
     @Inject(method = "respawn", at = @At("TAIL"))
-    private void toroidal$sendBoundsOnRespawn(ServerPlayer player, boolean keepAllPlayerData,
+    private void exotic_worlds$sendBoundsOnRespawn(ServerPlayer player, boolean keepAllPlayerData,
             Entity.RemovalReason removalReason, CallbackInfoReturnable<ServerPlayer> cir) {
         WorldShapeSync.sendTo(cir.getReturnValue());
     }
 
     @WrapOperation(method = "setViewDistance", at = @At(value = "INVOKE", target = BROADCAST_ALL))
-    private void toroidal$sendViewDistancePerLevel(PlayerList playerList, Packet<?> packet, Operation<Void> original) {
+    private void exotic_worlds$sendViewDistancePerLevel(PlayerList playerList, Packet<?> packet, Operation<Void> original) {
         playerList.getPlayers().forEach(WorldShapeSync::sendViewDistance);
     }
 
     @WrapOperation(method = "setSimulationDistance", at = @At(value = "INVOKE", target = BROADCAST_ALL))
-    private void toroidal$sendSimulationDistancePerLevel(PlayerList playerList, Packet<?> packet,
+    private void exotic_worlds$sendSimulationDistancePerLevel(PlayerList playerList, Packet<?> packet,
             Operation<Void> original) {
         playerList.getPlayers().forEach(WorldShapeSync::sendSimulationDistance);
     }
@@ -126,7 +126,7 @@ public class PlayerListMixin {
     @WrapOperation(
             method = "setViewDistance",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;setViewDistance(I)V"))
-    private void toroidal$limitViewDistance(ServerChunkCache chunkSource, int viewDistance, Operation<Void> original,
+    private void exotic_worlds$limitViewDistance(ServerChunkCache chunkSource, int viewDistance, Operation<Void> original,
             @Local ServerLevel level) {
         original.call(chunkSource, WorldLoopAttachments.transformerOf(level).limitViewDistance(viewDistance));
     }
@@ -134,7 +134,7 @@ public class PlayerListMixin {
     @WrapOperation(
             method = "setSimulationDistance",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;setSimulationDistance(I)V"))
-    private void toroidal$limitSimulationDistance(ServerChunkCache chunkSource, int simulationDistance, Operation<Void> original,
+    private void exotic_worlds$limitSimulationDistance(ServerChunkCache chunkSource, int simulationDistance, Operation<Void> original,
             @Local ServerLevel level) {
         original.call(chunkSource, WorldLoopAttachments.transformerOf(level).limitViewDistance(simulationDistance));
     }

@@ -14,14 +14,14 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(LandRandomPos.class)
 public class LandRandomPosMixin {
     @ModifyVariable(method = "getPosTowards", at = @At("HEAD"), argsOnly = true)
-    private static Vec3 toroidal$towardsThroughSeam(Vec3 towardsPos, @Local(argsOnly = true) PathfinderMob mob) {
+    private static Vec3 exotic_worlds$towardsThroughSeam(Vec3 towardsPos, @Local(argsOnly = true) PathfinderMob mob) {
         return SeamSteering.nearestCopy(mob, towardsPos);
     }
 
     @ModifyVariable(
             method = "getPosAway(Lnet/minecraft/world/entity/PathfinderMob;IILnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;",
             at = @At("HEAD"), argsOnly = true)
-    private static Vec3 toroidal$awayThroughSeam(Vec3 avoidPos, @Local(argsOnly = true) PathfinderMob mob) {
+    private static Vec3 exotic_worlds$awayThroughSeam(Vec3 avoidPos, @Local(argsOnly = true) PathfinderMob mob) {
         return SeamSteering.nearestCopy(mob, avoidPos);
     }
 }

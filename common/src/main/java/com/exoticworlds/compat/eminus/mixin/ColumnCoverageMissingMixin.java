@@ -14,7 +14,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 @Mixin(targets = "com.eminus.cell.ColumnCoverage", remap = false)
 public class ColumnCoverageMissingMixin {
     @WrapOperation(method = "missingColumns", at = @At(value = "INVOKE", target = EminusInjectionTargets.COVERAGE_PACK))
-    private long toroidal$packFoldedMissingChunk(int chunkX, int chunkZ, Operation<Long> original) {
+    private long exotic_worlds$packFoldedMissingChunk(int chunkX, int chunkZ, Operation<Long> original) {
         CellFold fold = CellFoldHolder.foldOf((Object) this);
         return original.call(fold.foldChunkX(chunkX, chunkZ), fold.foldChunkZ(chunkZ));
     }

@@ -9,5 +9,5 @@ import net.acenia.seedviewer.client.worldgen.BiomeSampler;
 @Mixin(WorldCreationPreviewContext.class)
 public interface WorldCreationPreviewContextAccessor {
     @Accessor("biomeSampler")
-    BiomeSampler toroidal$biomeSampler();
+    BiomeSampler exotic_worlds$biomeSampler();
 }

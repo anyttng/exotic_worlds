@@ -18,7 +18,7 @@ import net.minecraft.world.entity.monster.hoglin.HoglinAi;
 public class HoglinAiMixin {
     @WrapOperation(method = "isPosNearNearestRepellent",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
-    private static boolean toroidal$repellentReachThroughSeam(BlockPos repellent, Vec3i candidate, double distance,
+    private static boolean exotic_worlds$repellentReachThroughSeam(BlockPos repellent, Vec3i candidate, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) Hoglin body) {
         return SeamRange.closerThan(body, repellent, candidate, distance);
     }

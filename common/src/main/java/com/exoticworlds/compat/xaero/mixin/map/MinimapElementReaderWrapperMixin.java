@@ -18,12 +18,12 @@ public abstract class MinimapElementReaderWrapperMixin {
     private MinimapElementReader<Object, Object> reader;
 
     @ModifyReturnValue(method = "getRenderX", at = @At("RETURN"))
-    private double toroidal$foldRenderX(double original, Object element, Object context, float partialTicks) {
+    private double exotic_worlds$foldRenderX(double original, Object element, Object context, float partialTicks) {
         return XaeroWorldMapFold.foldPoint(original, this.reader.getRenderZ(element, context, partialTicks)).x;
     }
 
     @ModifyReturnValue(method = "getRenderZ", at = @At("RETURN"))
-    private double toroidal$foldRenderZ(double original, Object element, Object context, float partialTicks) {
+    private double exotic_worlds$foldRenderZ(double original, Object element, Object context, float partialTicks) {
         return XaeroWorldMapFold.foldPoint(this.reader.getRenderX(element, context, partialTicks), original).z;
     }
 }

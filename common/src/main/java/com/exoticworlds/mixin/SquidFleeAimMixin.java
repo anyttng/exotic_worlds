@@ -18,7 +18,7 @@ public class SquidFleeAimMixin {
     private Squid squid;
 
     @ModifyVariable(method = "tick", at = @At(value = "STORE", ordinal = 0))
-    private Vec3 toroidal$fleeDeltaThroughSeam(Vec3 delta) {
+    private Vec3 exotic_worlds$fleeDeltaThroughSeam(Vec3 delta) {
         return SeamAim.foldDelta(this.squid, delta);
     }
 }

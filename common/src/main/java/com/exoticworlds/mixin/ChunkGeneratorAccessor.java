@@ -26,7 +26,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 @Mixin(ChunkGenerator.class)
 public interface ChunkGeneratorAccessor {
     @Invoker("getStructureGeneratingAt")
-    static @Nullable Pair<BlockPos, Holder<Structure>> toroidal$structureGeneratingAt(
+    static @Nullable Pair<BlockPos, Holder<Structure>> exotic_worlds$structureGeneratingAt(
             Set<Holder<Structure>> structures,
             LevelReader level,
             StructureManager structureManager,
@@ -37,7 +37,7 @@ public interface ChunkGeneratorAccessor {
     }
 
     @Invoker("tryGenerateStructure")
-    boolean toroidal$tryGenerateStructure(
+    boolean exotic_worlds$tryGenerateStructure(
             StructureSet.StructureSelectionEntry selected,
             StructureManager structureManager,
             RegistryAccess registryAccess,

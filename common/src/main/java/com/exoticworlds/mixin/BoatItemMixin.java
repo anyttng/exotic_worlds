@@ -22,10 +22,10 @@ public class BoatItemMixin {
             method = "use(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;"
                     + "Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/InteractionResultHolder;",
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_BOUNDING_BOX))
-    private AABB toroidal$candidateBoxThroughSeam(Entity candidate, Operation<AABB> original,
+    private AABB exotic_worlds$candidateBoxThroughSeam(Entity candidate, Operation<AABB> original,
             @Local(argsOnly = true) Player player) {
         AABB box = original.call(candidate);
-        WorldFold transformer = ((TransformerSource) candidate).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) candidate).exotic_worlds$wrappedTransformer();
         return FoldedBoxQuery.toward(transformer, player.getEyePosition(), box);
     }
 }

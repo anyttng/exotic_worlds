@@ -101,16 +101,16 @@ public abstract class MapRendererMixin {
     public abstract UIState getUIState();
 
     @Unique
-    private static boolean toroidal$anchorPass;
+    private static boolean exotic_worlds$anchorPass;
 
     @Unique
-    private ResourceKey<Level> toroidal$lastLevelDimension;
+    private ResourceKey<Level> exotic_worlds$lastLevelDimension;
 
     @Unique
-    private File toroidal$lastWorldDir;
+    private File exotic_worlds$lastWorldDir;
 
     @Inject(method = CENTER, at = @At("HEAD"))
-    private void toroidal$dropTilesOnWorldChange(File worldDir, MapType mapType, double blockX, double blockZ,
+    private void exotic_worlds$dropTilesOnWorldChange(File worldDir, MapType mapType, double blockX, double blockZ,
             int zoom, CallbackInfoReturnable<Boolean> cir) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) {
@@ -118,25 +118,25 @@ public abstract class MapRendererMixin {
         }
 
         ResourceKey<Level> dimension = level.dimension();
-        String reason = JourneyMapFold.staleGridReason(toroidal$lastLevelDimension, dimension,
-                toroidal$lastWorldDir, worldDir);
+        String reason = JourneyMapFold.staleGridReason(exotic_worlds$lastLevelDimension, dimension,
+                exotic_worlds$lastWorldDir, worldDir);
         if (reason != null) {
             boolean byWorld = JourneyMapFold.WORLD_CHANGED.equals(reason);
             JourneyMapFold.gridDropped(reason,
-                    byWorld ? toroidal$lastWorldDir.getName() : toroidal$lastLevelDimension.location().toString(),
+                    byWorld ? exotic_worlds$lastWorldDir.getName() : exotic_worlds$lastLevelDimension.location().toString(),
                     byWorld ? worldDir.getName() : dimension.location().toString(),
                     this.regions.size());
             this.clear();
         }
 
-        toroidal$lastLevelDimension = dimension;
+        exotic_worlds$lastLevelDimension = dimension;
         if (worldDir != null) {
-            toroidal$lastWorldDir = worldDir;
+            exotic_worlds$lastWorldDir = worldDir;
         }
     }
 
     @Inject(method = RENDER, at = @At("HEAD"))
-    private void toroidal$recordView(CallbackInfo ci) {
+    private void exotic_worlds$recordView(CallbackInfo ci) {
         JourneyMapFold.recordView(this.contextUi, this.centerBlockX, this.centerBlockZ, this.regions.size());
     }
 
@@ -144,7 +144,7 @@ public abstract class MapRendererMixin {
             method = "loadInMemoryRegions",
             at = @At(value = "INVOKE",
                     target = "Ljourneymap/client/model/region/RegionImageCache;getRegionImageSets()Ljava/util/Collection;"))
-    private Collection<RegionImageSet> toroidal$onlyThisWorldsRegions(RegionImageCache cache,
+    private Collection<RegionImageSet> exotic_worlds$onlyThisWorldsRegions(RegionImageCache cache,
             Operation<Collection<RegionImageSet>> original) {
         Collection<RegionImageSet> sets = original.call(cache);
         File dir = this.worldDir;
@@ -156,7 +156,7 @@ public abstract class MapRendererMixin {
     }
 
     @WrapMethod(method = CENTER)
-    private boolean toroidal$foldCenter(File worldDir, MapType mapType, double blockX, double blockZ, int zoom,
+    private boolean exotic_worlds$foldCenter(File worldDir, MapType mapType, double blockX, double blockZ, int zoom,
             Operation<Boolean> original) {
         Vec3 center = JourneyMapFold.foldCenter(blockX, blockZ);
         if (JourneyMapFold.copiesOf(this.getUIState().ui) != MapCopies.SINGLE || !JourneyMapFold.active()) {
@@ -172,18 +172,18 @@ public abstract class MapRendererMixin {
     }
 
     @Inject(method = BLOCK_PIXEL_IN_GRID, at = @At("HEAD"))
-    private void toroidal$beginAnchorPass(CallbackInfoReturnable<Point2D.Double> cir) {
-        toroidal$anchorPass = true;
+    private void exotic_worlds$beginAnchorPass(CallbackInfoReturnable<Point2D.Double> cir) {
+        exotic_worlds$anchorPass = true;
     }
 
     @Inject(method = BLOCK_PIXEL_IN_GRID, at = @At("RETURN"))
-    private void toroidal$endAnchorPass(CallbackInfoReturnable<Point2D.Double> cir) {
-        toroidal$anchorPass = false;
+    private void exotic_worlds$endAnchorPass(CallbackInfoReturnable<Point2D.Double> cir) {
+        exotic_worlds$anchorPass = false;
     }
 
     @WrapMethod(method = BLOCK_COORD_PIXEL_IN_GRID)
-    private Point2D.Double toroidal$seatPixel(double blockX, double blockZ, Operation<Point2D.Double> original) {
-        if (toroidal$anchorPass) {
+    private Point2D.Double exotic_worlds$seatPixel(double blockX, double blockZ, Operation<Point2D.Double> original) {
+        if (exotic_worlds$anchorPass) {
             return original.call(blockX, blockZ);
         }
 
@@ -193,7 +193,7 @@ public abstract class MapRendererMixin {
     }
 
     @ModifyVariable(method = MOVE, at = @At("HEAD"), ordinal = 0, argsOnly = true)
-    private double toroidal$stopMoveXAtTheEdge(double deltaBlockX) {
+    private double exotic_worlds$stopMoveXAtTheEdge(double deltaBlockX) {
         return JourneyMapFold.copiesOf(this.getUIState().ui) == MapCopies.SINGLE
                 ? JourneyMapFold.clampedMove(Direction.Axis.X, this.centerBlockX, deltaBlockX, this.zoom,
                         Minecraft.getInstance().getWindow().getWidth())
@@ -201,7 +201,7 @@ public abstract class MapRendererMixin {
     }
 
     @ModifyVariable(method = MOVE, at = @At("HEAD"), ordinal = 1, argsOnly = true)
-    private double toroidal$stopMoveZAtTheEdge(double deltaBlockZ) {
+    private double exotic_worlds$stopMoveZAtTheEdge(double deltaBlockZ) {
         return JourneyMapFold.copiesOf(this.getUIState().ui) == MapCopies.SINGLE
                 ? JourneyMapFold.clampedMove(Direction.Axis.Z, this.centerBlockZ, deltaBlockZ, this.zoom,
                         Minecraft.getInstance().getWindow().getHeight())
@@ -209,7 +209,7 @@ public abstract class MapRendererMixin {
     }
 
     @Inject(method = "updateGrid", at = @At(value = "FIELD", target = LAST_GRID_TOKEN, opcode = Opcodes.PUTFIELD))
-    private void toroidal$addTheSeamsFarSide(RegionCoord centerRegion, int gridSize, long token, CallbackInfo ci,
+    private void exotic_worlds$addTheSeamsFarSide(RegionCoord centerRegion, int gridSize, long token, CallbackInfo ci,
             @Local Set<String> imageFiles) {
         if (imageFiles == null || !JourneyMapFold.active()) {
             return;
@@ -226,13 +226,13 @@ public abstract class MapRendererMixin {
             boolean walkedByJourneyMap = x >= minX && x <= maxX && z >= minZ && z <= maxZ;
             if (!walkedByJourneyMap && imageFiles.contains(x + "," + z + ".png")) {
                 RegionCoord coord = RegionCoord.fromRegionPos(this.worldDir, x, z, this.state.getDimension());
-                this.regions.putIfAbsent(token, coord, () -> RegionTileAccessor.toroidal$create(coord, this.state));
+                this.regions.putIfAbsent(token, coord, () -> RegionTileAccessor.exotic_worlds$create(coord, this.state));
             }
         }
     }
 
     @ModifyVariable(method = "setZoom(D)Z", at = @At("HEAD"), argsOnly = true)
-    private double toroidal$floorFullscreenZoom(double zoom) {
+    private double exotic_worlds$floorFullscreenZoom(double zoom) {
         if (!Context.UI.Fullscreen.equals(this.getUIState().ui)) {
             return zoom;
         }
@@ -246,7 +246,7 @@ public abstract class MapRendererMixin {
                     value = "INVOKE",
                     target = "Ljourneymap/client/render/map/RegionTile;render(Lnet/minecraft/client/gui/GuiGraphics;"
                             + "Lnet/minecraft/client/renderer/MultiBufferSource;DDFLjourneymap/client/model/map/MapType;I)V"))
-    private void toroidal$renderWrappedCopies(@Coerce Object tile, GuiGraphics graphics, MultiBufferSource buffers,
+    private void exotic_worlds$renderWrappedCopies(@Coerce Object tile, GuiGraphics graphics, MultiBufferSource buffers,
             double pixelOffsetX, double pixelOffsetZ, float alpha, @Coerce Object mapType, int shaderIndex,
             Operation<Void> original) {
         original.call(tile, graphics, buffers, pixelOffsetX, pixelOffsetZ, alpha, mapType, shaderIndex);
@@ -260,8 +260,8 @@ public abstract class MapRendererMixin {
         }
 
         Window window = Minecraft.getInstance().getWindow();
-        int viewportX = toroidal$viewportPixels(this.contextUi, window.getWidth());
-        int viewportZ = toroidal$viewportPixels(this.contextUi, window.getHeight());
+        int viewportX = exotic_worlds$viewportPixels(this.contextUi, window.getWidth());
+        int viewportZ = exotic_worlds$viewportPixels(this.contextUi, window.getHeight());
         int[] spanX = JourneyMapFold.viewSpan(view.centerX(), viewportX, this.zoom);
         int[] spanZ = JourneyMapFold.viewSpan(view.centerZ(), viewportZ, this.zoom);
         List<WorldCopies.Copy> drawn = JourneyMapFold.drawnCopies(view.tiles(), spanX, spanZ,
@@ -280,7 +280,7 @@ public abstract class MapRendererMixin {
     }
 
     @Unique
-    private static int toroidal$viewportPixels(Context.UI context, int windowPixels) {
+    private static int exotic_worlds$viewportPixels(Context.UI context, int windowPixels) {
         if (context != Context.UI.Minimap) {
             return windowPixels;
         }

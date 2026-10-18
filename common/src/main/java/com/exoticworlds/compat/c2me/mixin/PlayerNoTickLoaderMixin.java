@@ -34,7 +34,7 @@ public class PlayerNoTickLoaderMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lcom/ishland/c2me/rewrites/chunksystem/common/TheChunkSystem;addTicket(Ljava/lang/Object;Lcom/ishland/flowsched/scheduler/ItemTicket$TicketType;Ljava/lang/Object;Lcom/ishland/flowsched/scheduler/ItemStatus;Ljava/lang/Runnable;)Lcom/ishland/flowsched/scheduler/ItemHolder;"))
-    private ItemHolder<?, ?, ?, ?> toroidal$ticketCanonicalChunk(
+    private ItemHolder<?, ?, ?, ?> exotic_worlds$ticketCanonicalChunk(
             TheChunkSystem chunkSystem,
             Object key,
             ItemTicket.TicketType type,
@@ -43,7 +43,7 @@ public class PlayerNoTickLoaderMixin {
             Runnable callback,
             Operation<ItemHolder<?, ?, ?, ?>> original) {
         return original.call(
-                chunkSystem, this.toroidal$canonical(chunkSystem, key), type, source, status, callback);
+                chunkSystem, this.exotic_worlds$canonical(chunkSystem, key), type, source, status, callback);
     }
 
     @WrapOperation(
@@ -51,19 +51,19 @@ public class PlayerNoTickLoaderMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lcom/ishland/c2me/rewrites/chunksystem/common/TheChunkSystem;removeTicket(Ljava/lang/Object;Lcom/ishland/flowsched/scheduler/ItemTicket$TicketType;Ljava/lang/Object;Lcom/ishland/flowsched/scheduler/ItemStatus;)V"))
-    private void toroidal$untickedCanonicalChunk(
+    private void exotic_worlds$untickedCanonicalChunk(
             TheChunkSystem chunkSystem,
             Object key,
             ItemTicket.TicketType type,
             Object source,
             ItemStatus<?, ?, ?> status,
             Operation<Void> original) {
-        original.call(chunkSystem, this.toroidal$canonical(chunkSystem, key), type, source, status);
+        original.call(chunkSystem, this.exotic_worlds$canonical(chunkSystem, key), type, source, status);
     }
 
     @Unique
-    private Object toroidal$canonical(TheChunkSystem chunkSystem, Object key) {
-        WorldFold transformer = ((TransformerSource) chunkSystem).toroidal$wrappedTransformer();
+    private Object exotic_worlds$canonical(TheChunkSystem chunkSystem, Object key) {
+        WorldFold transformer = ((TransformerSource) chunkSystem).exotic_worlds$wrappedTransformer();
         if (transformer == null || !(key instanceof ChunkPos pos)) {
             return key;
         }
@@ -72,9 +72,9 @@ public class PlayerNoTickLoaderMixin {
     }
 
     @ModifyVariable(method = "setViewDistance", at = @At("HEAD"), argsOnly = true)
-    private int toroidal$clampNoTickViewDistance(int viewDistance) {
+    private int exotic_worlds$clampNoTickViewDistance(int viewDistance) {
         WorldFold transformer =
-                WorldLoopAttachments.wrappedTransformerOf(((LevelHolder) (Object) this.tacs).toroidal$level());
+                WorldLoopAttachments.wrappedTransformerOf(((LevelHolder) (Object) this.tacs).exotic_worlds$level());
         return transformer == null ? viewDistance : transformer.limitViewDistance(viewDistance);
     }
 }

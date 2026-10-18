@@ -15,7 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 public class DedicatedServerMixin {
     @ModifyExpressionValue(method = "isUnderSpawnProtection", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/level/ServerLevel;getSharedSpawnPos()Lnet/minecraft/core/BlockPos;"))
-    private BlockPos toroidal$nearestSpawnCopy(BlockPos spawnPos,
+    private BlockPos exotic_worlds$nearestSpawnCopy(BlockPos spawnPos,
             @Local(argsOnly = true) ServerLevel level, @Local(argsOnly = true) BlockPos pos) {
         return WorldLoopAttachments.transformerOf(level).nearestCopy(pos, spawnPos);
     }

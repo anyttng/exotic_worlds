@@ -23,14 +23,14 @@ public class BlockEntityMixin implements RelocatableBlockEntity {
     protected BlockPos worldPosition;
 
     @Override
-    public void toroidal$relocate(BlockPos pos) {
+    public void exotic_worlds$relocate(BlockPos pos) {
         this.worldPosition = pos.immutable();
     }
 
     @Inject(method = "setLevel", at = @At("TAIL"))
-    private void toroidal$rekeyStoredPositions(Level level, CallbackInfo ci) {
+    private void exotic_worlds$rekeyStoredPositions(Level level, CallbackInfo ci) {
         if (this instanceof SeamKeyedBlockEntity keyed) {
-            keyed.toroidal$rekey();
+            keyed.exotic_worlds$rekey();
         }
     }
 }

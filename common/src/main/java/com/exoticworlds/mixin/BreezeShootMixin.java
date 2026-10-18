@@ -25,7 +25,7 @@ public class BreezeShootMixin {
     @WrapOperation(
             method = "isTargetWithinRange",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO_SQR))
-    private static double toroidal$shootRangeThroughSeam(Vec3 from, Vec3 to, Operation<Double> original,
+    private static double exotic_worlds$shootRangeThroughSeam(Vec3 from, Vec3 to, Operation<Double> original,
             @Local(argsOnly = true) Breeze body) {
         return SeamRange.sqr(body, from, to);
     }
@@ -33,7 +33,7 @@ public class BreezeShootMixin {
     @WrapOperation(
             method = "isFacingTarget",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_SUBTRACT))
-    private static Vec3 toroidal$facingTargetThroughSeam(Vec3 targetPos, Vec3 breezePos, Operation<Vec3> original,
+    private static Vec3 exotic_worlds$facingTargetThroughSeam(Vec3 targetPos, Vec3 breezePos, Operation<Vec3> original,
             @Local(argsOnly = true) Breeze breeze) {
         return original.call(SeamSteering.nearestCopy(breeze, targetPos), breezePos);
     }
@@ -41,7 +41,7 @@ public class BreezeShootMixin {
     @WrapOperation(
             method = SHOOT_TICK,
             at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_X))
-    private double toroidal$aimTargetX(LivingEntity target, Operation<Double> original,
+    private double exotic_worlds$aimTargetX(LivingEntity target, Operation<Double> original,
             @Local(argsOnly = true) Breeze breeze) {
         return SeamAim.nearestCoord(breeze, target, Direction.Axis.X, original.call(target));
     }
@@ -49,7 +49,7 @@ public class BreezeShootMixin {
     @WrapOperation(
             method = SHOOT_TICK,
             at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_Z))
-    private double toroidal$aimTargetZ(LivingEntity target, Operation<Double> original,
+    private double exotic_worlds$aimTargetZ(LivingEntity target, Operation<Double> original,
             @Local(argsOnly = true) Breeze breeze) {
         return SeamAim.nearestCoord(breeze, target, Direction.Axis.Z, original.call(target));
     }

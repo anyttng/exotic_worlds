@@ -44,7 +44,7 @@ public final class StampedGeneratorCodec {
         public <T> DataResult<T> encode(ChunkGenerator input, DynamicOps<T> ops, T prefix) {
             DataResult<T> encoded = this.dispatch.encode(input, ops, prefix);
             ShapeStamp stamp = stampOf(input);
-            CarriedShape carried = stamp == null ? null : stamp.toroidal$carriedShape();
+            CarriedShape carried = stamp == null ? null : stamp.exotic_worlds$carriedShape();
             if (carried == null) {
                 return encoded;
             }
@@ -67,7 +67,7 @@ public final class StampedGeneratorCodec {
             }
 
             return codec.decode(ops, map).map(carried -> {
-                stamp.toroidal$stamp(carried);
+                stamp.exotic_worlds$stamp(carried);
                 return decoded;
             });
         }

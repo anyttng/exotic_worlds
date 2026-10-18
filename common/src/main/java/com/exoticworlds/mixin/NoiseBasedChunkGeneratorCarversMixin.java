@@ -19,7 +19,7 @@ public class NoiseBasedChunkGeneratorCarversMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/levelgen/WorldgenRandom;setLargeFeatureSeed(JII)V"))
-    private void toroidal$seedCarverFromCanonicalSource(
+    private void exotic_worlds$seedCarverFromCanonicalSource(
             WorldgenRandom random, long seed, int sourceChunkX, int sourceChunkZ, Operation<Void> original) {
         WorldFold transformer =
                 ShapedChunkGenerator.wrappedTransformerOf((NoiseBasedChunkGenerator) (Object) this);

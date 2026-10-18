@@ -17,7 +17,7 @@ public class SchedulingUtilLockMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lca/spottedleaf/starlight/common/util/CoordinateUtils;getChunkKey(II)J"))
-    private static long toroidal$foldLockKey(
+    private static long exotic_worlds$foldLockKey(
             int chunkX,
             int chunkZ,
             Operation<Long> original,

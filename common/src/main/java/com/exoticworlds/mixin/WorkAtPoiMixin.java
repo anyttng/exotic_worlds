@@ -24,7 +24,7 @@ public class WorkAtPoiMixin {
                             + "Lnet/minecraft/world/entity/npc/Villager;J)Z" },
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean toroidal$workstationReachThroughSeam(BlockPos jobSitePos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$workstationReachThroughSeam(BlockPos jobSitePos, Position bodyPosition, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) Villager body) {
         return SeamRange.closerToCenterThan(body, jobSitePos, bodyPosition, distance);
     }

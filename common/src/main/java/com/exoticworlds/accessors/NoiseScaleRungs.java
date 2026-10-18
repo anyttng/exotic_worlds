@@ -3,7 +3,7 @@ package com.exoticworlds.accessors;
 import java.util.Map;
 
 public interface NoiseScaleRungs {
-    Map<Double, Double> toroidal$scaleRungs();
+    Map<Double, Double> exotic_worlds$scaleRungs();
 
-    void toroidal$scaleRungs(Map<Double, Double> rungs);
+    void exotic_worlds$scaleRungs(Map<Double, Double> rungs);
 }

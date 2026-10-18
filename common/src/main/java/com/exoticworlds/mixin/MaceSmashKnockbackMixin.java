@@ -22,7 +22,7 @@ public class MaceSmashKnockbackMixin {
             at = @At(
                     value = "INVOKE",
                     target = InjectionTargets.VEC3_SUBTRACT))
-    private static Vec3 toroidal$smashPushThroughSeam(Vec3 direction, @Local(argsOnly = true) LivingEntity nearby) {
+    private static Vec3 exotic_worlds$smashPushThroughSeam(Vec3 direction, @Local(argsOnly = true) LivingEntity nearby) {
         return SeamAim.foldDelta(nearby, direction);
     }
 }

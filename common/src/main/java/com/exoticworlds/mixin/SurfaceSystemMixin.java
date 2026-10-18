@@ -36,8 +36,8 @@ public class SurfaceSystemMixin {
     @WrapOperation(
             method = {"erodedBadlandsExtension", "frozenOceanExtension"},
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/synth/NormalNoise;getValue(DDD)D"))
-    private double toroidal$rawCoordinateNoise(NormalNoise noise, double x, double y, double z, Operation<Double> original) {
-        double scale = toroidal$scaleOf(noise);
+    private double exotic_worlds$rawCoordinateNoise(NormalNoise noise, double x, double y, double z, Operation<Double> original) {
+        double scale = exotic_worlds$scaleOf(noise);
         Context generation = GenerationTransformerContext.context();
         if (scale == NoiseConstants.UNSCALED || !generation.transformer().isWrapped()) {
             return original.call(noise, x, y, z);
@@ -49,7 +49,7 @@ public class SurfaceSystemMixin {
     }
 
     @Unique
-    private double toroidal$scaleOf(NormalNoise noise) {
+    private double exotic_worlds$scaleOf(NormalNoise noise) {
         if (noise == this.badlandsPillarNoise) {
             return NoiseConstants.BADLANDS_PILLAR_SCALE;
         }

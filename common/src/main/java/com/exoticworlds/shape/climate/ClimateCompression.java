@@ -24,11 +24,11 @@ public final class ClimateCompression {
 
     public static double resolve(ClimateCompressionCache cache, WorldFold fold, boolean climateField,
             DoubleList amplitudes, double lowestFreqInputFactor, double baseScale, double verticalShare) {
-        Resolved resolved = cache.toroidal$climateCompression();
+        Resolved resolved = cache.exotic_worlds$climateCompression();
         if (resolved == null || !resolved.covers(fold, baseScale, verticalShare)) {
             resolved = new Resolved(fold, baseScale, verticalShare,
                     factor(fold, climateField, amplitudes, lowestFreqInputFactor, baseScale, verticalShare));
-            cache.toroidal$climateCompression(resolved);
+            cache.exotic_worlds$climateCompression(resolved);
         }
 
         return resolved.factor();

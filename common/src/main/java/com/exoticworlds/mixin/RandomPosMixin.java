@@ -21,7 +21,7 @@ public class RandomPosMixin {
             method = "generateRandomPosTowardDirection",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.PATHFINDER_MOB_GET_RESTRICT_CENTER))
-    private static BlockPos toroidal$homeBiasThroughSeam(BlockPos center, @Local(argsOnly = true) PathfinderMob mob) {
+    private static BlockPos exotic_worlds$homeBiasThroughSeam(BlockPos center, @Local(argsOnly = true) PathfinderMob mob) {
         return SeamSteering.nearestCopy(mob, center);
     }
 }

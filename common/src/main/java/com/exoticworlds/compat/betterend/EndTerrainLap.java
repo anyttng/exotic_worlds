@@ -31,14 +31,14 @@ public final class EndTerrainLap {
         this.fold = fold;
         this.lattice = fold.blockLattice();
         this.frame = new LapFrame(this.lattice);
-        this.first = first.toroidal$standIn();
-        this.second = second.toroidal$standIn();
+        this.first = first.exotic_worlds$standIn();
+        this.second = second.exotic_worlds$standIn();
     }
 
     public static void capture(ServerLevel level) {
         WorldFold fold = ShapedChunkGenerator.wrappedTransformerOf(level.getChunkSource().getGenerator());
-        OpenSimplexNoise first = TerrainGeneratorAccessor.toroidal$noise1();
-        OpenSimplexNoise second = TerrainGeneratorAccessor.toroidal$noise2();
+        OpenSimplexNoise first = TerrainGeneratorAccessor.exotic_worlds$noise1();
+        OpenSimplexNoise second = TerrainGeneratorAccessor.exotic_worlds$noise2();
         current = fold == null || first == null || second == null
                 ? null
                 : new EndTerrainLap(fold, (StandInHolder) (Object) first, (StandInHolder) (Object) second);

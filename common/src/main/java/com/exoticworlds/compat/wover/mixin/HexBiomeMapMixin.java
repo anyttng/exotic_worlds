@@ -35,33 +35,33 @@ public class HexBiomeMapMixin implements LapMapHolder<WoverBiomePicker.PickableB
     private int seed;
 
     @Unique
-    private volatile @Nullable HexLapMap<WoverBiomePicker.PickableBiome> toroidal$lapMap;
+    private volatile @Nullable HexLapMap<WoverBiomePicker.PickableBiome> exotic_worlds$lapMap;
 
     @Inject(method = "getBiome", at = @At("HEAD"), cancellable = true)
-    private void toroidal$lapBiomeWithEdge(double x, double y, double z,
+    private void exotic_worlds$lapBiomeWithEdge(double x, double y, double z,
             CallbackInfoReturnable<WoverBiomePicker.PickableBiome> cir) {
         WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
         if (transformer != null) {
-            cir.setReturnValue(EdgeBiomes.hex(toroidal$lapMap(transformer), x, z));
+            cir.setReturnValue(EdgeBiomes.hex(exotic_worlds$lapMap(transformer), x, z));
         }
     }
 
     @Inject(method = "getRawBiome", at = @At("HEAD"), cancellable = true)
-    private void toroidal$lapBiome(double x, double z,
+    private void exotic_worlds$lapBiome(double x, double z,
             CallbackInfoReturnable<WoverBiomePicker.PickableBiome> cir) {
         WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
         if (transformer != null) {
-            cir.setReturnValue(toroidal$lapMap(transformer).biomeAt(x, z));
+            cir.setReturnValue(exotic_worlds$lapMap(transformer).biomeAt(x, z));
         }
     }
 
     @Override
-    public LapMap<WoverBiomePicker.PickableBiome> toroidal$lapMap(WorldFold fold) {
-        HexLapMap<WoverBiomePicker.PickableBiome> lapMap = this.toroidal$lapMap;
+    public LapMap<WoverBiomePicker.PickableBiome> exotic_worlds$lapMap(WorldFold fold) {
+        HexLapMap<WoverBiomePicker.PickableBiome> lapMap = this.exotic_worlds$lapMap;
         if (lapMap == null || !lapMap.covers(fold)) {
             lapMap = new HexLapMap<>(fold, this.scale, FoldCompression.of(fold), this.seed,
                     new LapPicker<>(this.picker::getBiome, WoverBiomePicker.PickableBiome::getSubBiome));
-            this.toroidal$lapMap = lapMap;
+            this.exotic_worlds$lapMap = lapMap;
         }
 
         return lapMap;

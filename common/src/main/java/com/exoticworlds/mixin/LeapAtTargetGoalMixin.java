@@ -23,7 +23,7 @@ public class LeapAtTargetGoalMixin {
     @WrapOperation(
             method = "start",
             at = @At(value = "NEW", target = InjectionTargets.VEC3_NEW))
-    private Vec3 toroidal$leapDeltaThroughSeam(double x, double y, double z, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$leapDeltaThroughSeam(double x, double y, double z, Operation<Vec3> original) {
         return SeamAim.foldDelta(this.mob, original.call(x, y, z));
     }
 }

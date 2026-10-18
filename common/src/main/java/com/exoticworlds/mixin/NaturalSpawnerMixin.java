@@ -19,7 +19,7 @@ public class NaturalSpawnerMixin {
     @WrapOperation(
             method = "isRightDistanceToPlayerAndSpawnPoint",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private static boolean toroidal$spawnRadiusThroughSeam(BlockPos spawnPos, Position candidate, double distance,
+    private static boolean exotic_worlds$spawnRadiusThroughSeam(BlockPos spawnPos, Position candidate, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) ServerLevel level) {
         return SeamRange.closerToCenterThan(level, spawnPos, candidate, distance);
     }

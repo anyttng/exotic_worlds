@@ -17,11 +17,11 @@ import net.minecraft.world.level.pathfinder.PathTypeCache;
 @Mixin(PathTypeCache.class)
 public class PathTypeCacheMixin implements LevelBindable {
     @Unique
-    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
+    private final BoundLevelFold exotic_worlds$bound = new BoundLevelFold();
 
     @Override
-    public void toroidal$bindLevel(ServerLevel level) {
-        this.toroidal$bound.bind(level);
+    public void exotic_worlds$bindLevel(ServerLevel level) {
+        this.exotic_worlds$bound.bind(level);
     }
 
     @WrapOperation(
@@ -30,7 +30,7 @@ public class PathTypeCacheMixin implements LevelBindable {
                     "invalidate(Lnet/minecraft/core/BlockPos;)V" },
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_AS_LONG),
             require = 2)
-    private long toroidal$keyThePhysicalBlock(BlockPos pos, Operation<Long> original) {
-        return this.toroidal$bound.fold().foldBlockNode(original.call(pos));
+    private long exotic_worlds$keyThePhysicalBlock(BlockPos pos, Operation<Long> original) {
+        return this.exotic_worlds$bound.fold().foldBlockNode(original.call(pos));
     }
 }

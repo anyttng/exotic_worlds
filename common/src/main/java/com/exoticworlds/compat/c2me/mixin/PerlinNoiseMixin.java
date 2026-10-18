@@ -35,13 +35,13 @@ public class PerlinNoiseMixin {
     private double lowestFreqInputFactor;
 
     @WrapMethod(method = "getValue(DDD)D")
-    private double toroidal$periodicValue(double x, double y, double z, Operation<Double> original) {
+    private double exotic_worlds$periodicValue(double x, double y, double z, Operation<Double> original) {
         Context generation = GenerationTransformerContext.context();
         if (!generation.transformer().isWrapped()) {
             return original.call(x, y, z);
         }
 
-        double baseScale = ((PerlinBaseScale) (Object) this).toroidal$baseScale(generation);
+        double baseScale = ((PerlinBaseScale) (Object) this).exotic_worlds$baseScale(generation);
         // The zeros are what C2ME's loop passes every octave, kept so the two walks differ in nothing but the fold.
         return PeriodicOctaveSampler.sample(generation, baseScale, this.noiseLevels, this.amplitudes,
                 this.lowestFreqInputFactor, this.lowestFreqValueFactor, x, y, z, 0.0, 0.0, false);

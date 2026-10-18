@@ -16,15 +16,15 @@ import net.minecraft.world.entity.vehicle.AbstractMinecart;
 @Mixin(AbstractMinecart.class)
 public class MinecartPushMixin {
     @Unique
-    private static final String toroidal$PUSH = "push(Lnet/minecraft/world/entity/Entity;)V";
+    private static final String exotic_worlds$PUSH = "push(Lnet/minecraft/world/entity/Entity;)V";
 
-    @WrapOperation(method = toroidal$PUSH, at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_X))
-    private double toroidal$shoverNearX(Entity other, Operation<Double> original) {
+    @WrapOperation(method = exotic_worlds$PUSH, at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_X))
+    private double exotic_worlds$shoverNearX(Entity other, Operation<Double> original) {
         return SeamAim.nearestCoord((Entity) (Object) this, other, Direction.Axis.X, original.call(other));
     }
 
-    @WrapOperation(method = toroidal$PUSH, at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_Z))
-    private double toroidal$shoverNearZ(Entity other, Operation<Double> original) {
+    @WrapOperation(method = exotic_worlds$PUSH, at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_Z))
+    private double exotic_worlds$shoverNearZ(Entity other, Operation<Double> original) {
         return SeamAim.nearestCoord((Entity) (Object) this, other, Direction.Axis.Z, original.call(other));
     }
 }

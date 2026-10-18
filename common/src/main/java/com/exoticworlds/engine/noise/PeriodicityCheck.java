@@ -32,7 +32,7 @@ public final class PeriodicityCheck {
     private static final int SAMPLE_Y = 64;
 
     public static void runOnce(ServerLevel level, WorldFold transformer) {
-        if (!((PeriodicityMark) level).toroidal$claimPeriodicityCheck()) {
+        if (!((PeriodicityMark) level).exotic_worlds$claimPeriodicityCheck()) {
             return;
         }
 

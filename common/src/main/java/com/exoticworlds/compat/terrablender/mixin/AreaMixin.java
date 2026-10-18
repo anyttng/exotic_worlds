@@ -17,38 +17,38 @@ import terrablender.worldgen.noise.Area;
 @Mixin(value = Area.class, remap = false)
 public class AreaMixin implements LayeredArea {
     @Unique
-    private @Nullable RegionLayerStack toroidal$stack;
+    private @Nullable RegionLayerStack exotic_worlds$stack;
 
     @Unique
-    private int toroidal$depth;
+    private int exotic_worlds$depth;
 
     @Override
-    public void toroidal$register(RegionLayerStack stack, int depth) {
-        this.toroidal$stack = stack;
-        this.toroidal$depth = depth;
+    public void exotic_worlds$register(RegionLayerStack stack, int depth) {
+        this.exotic_worlds$stack = stack;
+        this.exotic_worlds$depth = depth;
         stack.raise(depth);
     }
 
     @Override
-    public @Nullable RegionLayerStack toroidal$stack() {
-        return this.toroidal$stack;
+    public @Nullable RegionLayerStack exotic_worlds$stack() {
+        return this.exotic_worlds$stack;
     }
 
     @Override
-    public int toroidal$depth() {
-        return this.toroidal$depth;
+    public int exotic_worlds$depth() {
+        return this.exotic_worlds$depth;
     }
 
     @ModifyVariable(method = "get", at = @At("HEAD"), argsOnly = true, ordinal = 0)
-    private int toroidal$foldCoordinates(int x, @Local(argsOnly = true, ordinal = 1) LocalIntRef z) {
-        RegionLayerStack stack = this.toroidal$stack;
+    private int exotic_worlds$foldCoordinates(int x, @Local(argsOnly = true, ordinal = 1) LocalIntRef z) {
+        RegionLayerStack stack = this.exotic_worlds$stack;
         RegionLayerFold fold = stack == null ? null : stack.resolved();
         if (fold == null) {
             return x;
         }
 
         int rawZ = z.get();
-        z.set(fold.foldZ(this.toroidal$depth, rawZ));
-        return fold.foldX(this.toroidal$depth, x, rawZ);
+        z.set(fold.foldZ(this.exotic_worlds$depth, rawZ));
+        return fold.foldX(this.exotic_worlds$depth, x, rawZ);
     }
 }

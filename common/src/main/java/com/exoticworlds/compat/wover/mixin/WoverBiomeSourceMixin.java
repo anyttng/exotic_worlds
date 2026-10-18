@@ -18,7 +18,7 @@ import net.minecraft.world.level.biome.Climate;
 @Mixin({WoverNetherBiomeSource.class, WoverEndBiomeSource.class})
 public class WoverBiomeSourceMixin {
     @WrapMethod(method = InjectionTargets.BIOME_SOURCE_GET_NOISE_BIOME)
-    private Holder<Biome> toroidal$foldedNoiseBiome(int quartX, int quartY, int quartZ, Climate.Sampler sampler,
+    private Holder<Biome> exotic_worlds$foldedNoiseBiome(int quartX, int quartY, int quartZ, Climate.Sampler sampler,
             Operation<Holder<Biome>> original) {
         WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
         if (transformer == null) {

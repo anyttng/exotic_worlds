@@ -15,12 +15,12 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(TheEndGatewayBlockEntity.class)
 public class TheEndGatewayBlockEntityMixin {
     @WrapMethod(method = "findExitPortalXZPosTentative(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/Vec3;")
-    private static Vec3 toroidal$foldTentativeTarget(ServerLevel level, BlockPos endGatewayPos, Operation<Vec3> original) {
+    private static Vec3 exotic_worlds$foldTentativeTarget(ServerLevel level, BlockPos endGatewayPos, Operation<Vec3> original) {
         return WorldLoopAttachments.transformerOf(level).fold(original.call(level, endGatewayPos));
     }
 
     @WrapMethod(method = "setExitPosition(Lnet/minecraft/core/BlockPos;Z)V")
-    private void toroidal$foldExitPosition(BlockPos exactPosition, boolean exact, Operation<Void> original) {
+    private void exotic_worlds$foldExitPosition(BlockPos exactPosition, boolean exact, Operation<Void> original) {
         original.call(WorldLoopAttachments.transformerIfLevel(((BlockEntity) (Object) this).getLevel())
                 .fold(exactPosition), exact);
     }

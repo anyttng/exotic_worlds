@@ -99,10 +99,10 @@ final class ClientboundPacketRewriters {
             TranslationContext context) {
         ChunkPos clientPos = context.toClient(new ChunkPos(x, z), traffic);
 
-        Packet<?> copy = ((ChunkPacketCopy) packet).toroidal$copy();
+        Packet<?> copy = ((ChunkPacketCopy) packet).exotic_worlds$copy();
         ChunkPacketPosition accessor = (ChunkPacketPosition) copy;
-        accessor.toroidal$setX(clientPos.x);
-        accessor.toroidal$setZ(clientPos.z);
+        accessor.exotic_worlds$setX(clientPos.x);
+        accessor.exotic_worlds$setZ(clientPos.z);
         return copy;
     }
 
@@ -176,8 +176,8 @@ final class ClientboundPacketRewriters {
 
         PacketReach reach = context.trackedReach();
         return PacketTranslator.rewritePosition(
-                (teleportPacket, output) -> ((TeleportEntityPacketAccessor) teleportPacket).toroidal$write(output),
-                TeleportEntityPacketAccessor::toroidal$create,
+                (teleportPacket, output) -> ((TeleportEntityPacketAccessor) teleportPacket).exotic_worlds$write(output),
+                TeleportEntityPacketAccessor::exotic_worlds$create,
                 ByteBufCodecs.VAR_INT, POSITION_CODEC,
                 packet, context, (entityId, position) -> context.toClient(position, reach));
     }
@@ -185,8 +185,8 @@ final class ClientboundPacketRewriters {
     static Packet<?> moveVehicle(ClientboundMoveVehiclePacket packet, TranslationContext context) {
         PacketReach reach = context.trackedReach();
         return PacketTranslator.rewritePosition(
-                (vehiclePacket, output) -> ((MoveVehiclePacketAccessor) vehiclePacket).toroidal$write(output),
-                MoveVehiclePacketAccessor::toroidal$create,
+                (vehiclePacket, output) -> ((MoveVehiclePacketAccessor) vehiclePacket).exotic_worlds$write(output),
+                MoveVehiclePacketAccessor::exotic_worlds$create,
                 POSITION_CODEC, packet, context,
                 position -> context.toClient(position, reach));
     }
@@ -198,14 +198,14 @@ final class ClientboundPacketRewriters {
 
     static ClientboundSectionBlocksUpdatePacket sectionBlocksUpdate(ClientboundSectionBlocksUpdatePacket packet, TranslationContext context) {
         return PacketTranslator.rewritePosition(
-                (sectionPacket, output) -> ((SectionBlocksUpdatePacketAccessor) sectionPacket).toroidal$write(output),
-                SectionBlocksUpdatePacketAccessor::toroidal$create,
+                (sectionPacket, output) -> ((SectionBlocksUpdatePacketAccessor) sectionPacket).exotic_worlds$write(output),
+                SectionBlocksUpdatePacketAccessor::exotic_worlds$create,
                 SECTION_POS_CODEC, packet, context,
                 section -> SectionPos.of(context.toClient(section.chunk(), ChunkTraffic.SECTION_BLOCKS), section.y()));
     }
 
     static ClientboundBlockEntityDataPacket blockEntityData(ClientboundBlockEntityDataPacket packet, TranslationContext context) {
-        return BlockEntityDataPacketAccessor.toroidal$create(
+        return BlockEntityDataPacketAccessor.exotic_worlds$create(
                 toClientBlock(context, packet.getPos(), ChunkTraffic.BLOCK_ENTITY), packet.getType(), packet.getTag());
     }
 
@@ -371,7 +371,7 @@ final class ClientboundPacketRewriters {
                     yield particle;
                 }
 
-                BlockPos serverDestination = ((BlockPositionSourceAccessor) destination).toroidal$getPos();
+                BlockPos serverDestination = ((BlockPositionSourceAccessor) destination).exotic_worlds$getPos();
                 BlockPos clientDestination = FoldedValue.nearestCopy(context, clientOrigin, serverDestination);
                 yield new VibrationParticleOption(
                         new BlockPositionSource(clientDestination), vibration.getArrivalInTicks());
@@ -419,9 +419,9 @@ final class ClientboundPacketRewriters {
 
     static ClientboundPlayerLookAtPacket playerLookAt(ClientboundPlayerLookAtPacket packet, TranslationContext context) {
         PlayerLookAtPacketAccessor accessor = (PlayerLookAtPacketAccessor) packet;
-        Vec3 near = context.nearestCopy(new Vec3(accessor.toroidal$getX(), 0.0, accessor.toroidal$getZ()));
-        accessor.toroidal$setX(near.x);
-        accessor.toroidal$setZ(near.z);
+        Vec3 near = context.nearestCopy(new Vec3(accessor.exotic_worlds$getX(), 0.0, accessor.exotic_worlds$getZ()));
+        accessor.exotic_worlds$setX(near.x);
+        accessor.exotic_worlds$setZ(near.z);
         return packet;
     }
 

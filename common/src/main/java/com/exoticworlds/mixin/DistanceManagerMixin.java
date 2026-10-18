@@ -33,39 +33,39 @@ public class DistanceManagerMixin implements LevelBindable {
     private DistanceManager.PlayerTicketTracker playerTicketManager;
 
     @Unique
-    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
+    private final BoundLevelFold exotic_worlds$bound = new BoundLevelFold();
 
     @Override
-    public void toroidal$bindLevel(ServerLevel level) {
-        this.toroidal$bound.bind(level);
-        ((LevelBindable) this.ticketTracker).toroidal$bindLevel(level);
-        ((LevelBindable) this.tickingTicketsTracker).toroidal$bindLevel(level);
-        ((LevelBindable) this.naturalSpawnChunkCounter).toroidal$bindLevel(level);
-        ((LevelBindable) this.playerTicketManager).toroidal$bindLevel(level);
+    public void exotic_worlds$bindLevel(ServerLevel level) {
+        this.exotic_worlds$bound.bind(level);
+        ((LevelBindable) this.ticketTracker).exotic_worlds$bindLevel(level);
+        ((LevelBindable) this.tickingTicketsTracker).exotic_worlds$bindLevel(level);
+        ((LevelBindable) this.naturalSpawnChunkCounter).exotic_worlds$bindLevel(level);
+        ((LevelBindable) this.playerTicketManager).exotic_worlds$bindLevel(level);
     }
 
     @ModifyVariable(method = "addTicket(JLnet/minecraft/server/level/Ticket;)V", at = @At("HEAD"), argsOnly = true)
-    private long toroidal$foldAddedTicketKey(long key) {
-        return this.toroidal$foldKey(key);
+    private long exotic_worlds$foldAddedTicketKey(long key) {
+        return this.exotic_worlds$foldKey(key);
     }
 
     @ModifyVariable(method = "removeTicket(JLnet/minecraft/server/level/Ticket;)V", at = @At("HEAD"), argsOnly = true)
-    private long toroidal$foldRemovedTicketKey(long key) {
-        return this.toroidal$foldKey(key);
+    private long exotic_worlds$foldRemovedTicketKey(long key) {
+        return this.exotic_worlds$foldKey(key);
     }
 
     @ModifyVariable(method = "inEntityTickingRange", at = @At("HEAD"), argsOnly = true)
-    private long toroidal$entityTickingOnPhysicalChunk(long chunkKey) {
-        return this.toroidal$foldKey(chunkKey);
+    private long exotic_worlds$entityTickingOnPhysicalChunk(long chunkKey) {
+        return this.exotic_worlds$foldKey(chunkKey);
     }
 
     @ModifyVariable(method = "inBlockTickingRange", at = @At("HEAD"), argsOnly = true)
-    private long toroidal$blockTickingOnPhysicalChunk(long chunkKey) {
-        return this.toroidal$foldKey(chunkKey);
+    private long exotic_worlds$blockTickingOnPhysicalChunk(long chunkKey) {
+        return this.exotic_worlds$foldKey(chunkKey);
     }
 
     @Unique
-    private long toroidal$foldKey(long key) {
-        return this.toroidal$bound.fold().foldChunkKey(key);
+    private long exotic_worlds$foldKey(long key) {
+        return this.exotic_worlds$bound.fold().foldChunkKey(key);
     }
 }

@@ -19,7 +19,7 @@ public class AcquirePoiMixin {
             method = "*",
             require = 1,
             at = @At(value = "INVOKE", target = InjectionTargets.PATH_GET_TARGET))
-    private static @Nullable BlockPos toroidal$wrapClaimedPoi(@Nullable BlockPos target,
+    private static @Nullable BlockPos exotic_worlds$wrapClaimedPoi(@Nullable BlockPos target,
             @Local(argsOnly = true) ServerLevel level) {
         if (target == null) {
             return null;

@@ -19,9 +19,9 @@ public interface ServerEntityGetterMixin {
     @WrapOperation(
             method = "getNearbyPlayers",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/AABB;contains(DDD)Z"))
-    private static boolean toroidal$nearbyPlayerThroughSeam(AABB box, double x, double y, double z,
+    private static boolean exotic_worlds$nearbyPlayerThroughSeam(AABB box, double x, double y, double z,
             Operation<Boolean> original, @Local Player player) {
-        return original.call(FoldedBoxQuery.toward(((TransformerSource) player).toroidal$wrappedTransformer(),
+        return original.call(FoldedBoxQuery.toward(((TransformerSource) player).exotic_worlds$wrappedTransformer(),
                 new Vec3(x, y, z), box), x, y, z);
     }
 }

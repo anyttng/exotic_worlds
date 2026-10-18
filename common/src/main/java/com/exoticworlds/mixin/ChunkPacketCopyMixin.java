@@ -11,7 +11,7 @@ import net.minecraft.network.protocol.game.ClientboundLightUpdatePacket;
 @Mixin({ClientboundLevelChunkWithLightPacket.class, ClientboundLightUpdatePacket.class})
 public class ChunkPacketCopyMixin implements Cloneable, ChunkPacketCopy {
     @Override
-    public Packet<?> toroidal$copy() {
+    public Packet<?> exotic_worlds$copy() {
         try {
             return (Packet<?>) super.clone();
         } catch (CloneNotSupportedException e) {

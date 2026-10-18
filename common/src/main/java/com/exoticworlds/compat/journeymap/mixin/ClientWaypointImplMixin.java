@@ -11,7 +11,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(targets = "journeymap.client.waypoint.ClientWaypointImpl", remap = false)
 public abstract class ClientWaypointImplMixin {
     @ModifyReturnValue(method = "getPosition", at = @At("RETURN"))
-    private Vec3 toroidal$foldPosition(Vec3 original) {
+    private Vec3 exotic_worlds$foldPosition(Vec3 original) {
         return JourneyMapFold.nearestToPlayer(original);
     }
 }

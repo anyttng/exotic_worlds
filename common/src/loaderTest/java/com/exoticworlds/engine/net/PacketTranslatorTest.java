@@ -516,8 +516,8 @@ class PacketTranslatorTest {
                     context());
 
             PlayerLookAtPacketAccessor accessor = (PlayerLookAtPacketAccessor) translated;
-            assertEquals(CLIENT_X, accessor.toroidal$getX());
-            assertEquals(CLIENT_Z, accessor.toroidal$getZ());
+            assertEquals(CLIENT_X, accessor.exotic_worlds$getX());
+            assertEquals(CLIENT_Z, accessor.exotic_worlds$getZ());
             assertSame(EntityAnchorArgument.Anchor.EYES, translated.getFromAnchor());
         }
 
@@ -556,7 +556,7 @@ class PacketTranslatorTest {
 
             VibrationParticleOption vibration = (VibrationParticleOption) translated.getParticle();
             BlockPositionSource destination = (BlockPositionSource) vibration.getDestination();
-            assertEquals(CLIENT_BLOCK, ((BlockPositionSourceAccessor) destination).toroidal$getPos());
+            assertEquals(CLIENT_BLOCK, ((BlockPositionSourceAccessor) destination).exotic_worlds$getPos());
             assertEquals(12, vibration.getArrivalInTicks());
             assertEquals(CLIENT_X, translated.getX());
             assertEquals(CLIENT_Z, translated.getZ());

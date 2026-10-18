@@ -22,19 +22,19 @@ public class BeeEnterHiveGoalMixin {
     // there is nothing to remap it to, and the shadow resolves to nothing at apply time. The constructor argument is
     // an ordinary parameter of an ordinary method, which every mapping set does carry.
     @Unique
-    private Bee toroidal$bee;
+    private Bee exotic_worlds$bee;
 
     @Inject(method = "<init>(Lnet/minecraft/world/entity/animal/Bee;)V", at = @At("TAIL"))
-    private void toroidal$captureBee(Bee bee, CallbackInfo ci) {
-        this.toroidal$bee = bee;
+    private void exotic_worlds$captureBee(Bee bee, CallbackInfo ci) {
+        this.exotic_worlds$bee = bee;
     }
 
     @WrapOperation(
             method = "canBeeUse",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean toroidal$hiveEntranceThroughSeam(BlockPos hivePos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$hiveEntranceThroughSeam(BlockPos hivePos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan(this.toroidal$bee, hivePos, bodyPosition, distance);
+        return SeamRange.closerToCenterThan(this.exotic_worlds$bee, hivePos, bodyPosition, distance);
     }
 }

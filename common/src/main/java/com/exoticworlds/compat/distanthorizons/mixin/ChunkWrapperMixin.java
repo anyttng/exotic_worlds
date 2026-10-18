@@ -29,7 +29,7 @@ public class ChunkWrapperMixin {
     private ILevelWrapper wrappedLevel;
 
     @Unique
-    private ChunkPos toroidal$foldedPos;
+    private ChunkPos exotic_worlds$foldedPos;
 
     @WrapOperation(
             method = {
@@ -40,14 +40,14 @@ public class ChunkWrapperMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getPos()Lnet/minecraft/world/level/ChunkPos;"))
-    private ChunkPos toroidal$foldedChunkPos(ChunkAccess chunk, Operation<ChunkPos> original) {
-        ChunkPos folded = this.toroidal$foldedPos;
+    private ChunkPos exotic_worlds$foldedChunkPos(ChunkAccess chunk, Operation<ChunkPos> original) {
+        ChunkPos folded = this.exotic_worlds$foldedPos;
         if (folded == null) {
             ChunkPos copy = DhRowCopies.pendingCopy();
             folded = copy != null
                     ? copy
                     : DhKeys.foldChunk(DhShapes.clientFrame(this.wrappedLevel), original.call(chunk));
-            this.toroidal$foldedPos = folded;
+            this.exotic_worlds$foldedPos = folded;
         }
 
         return folded;

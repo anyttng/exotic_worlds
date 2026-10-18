@@ -26,13 +26,13 @@ public interface PlayerDetectorMixin {
             method = "*",
             require = 2,
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
-    private static boolean toroidal$detectionRangeThroughSeam(BlockPos playerPos, Vec3i spawnerPos, double range,
+    private static boolean exotic_worlds$detectionRangeThroughSeam(BlockPos playerPos, Vec3i spawnerPos, double range,
             Operation<Boolean> original, @Local(argsOnly = true) Player player) {
         return SeamRange.closerThan(player.level(), playerPos, spawnerPos, range);
     }
 
     @WrapMethod(method = "inLineOfSight")
-    private static boolean toroidal$sightLineThroughSeam(Level level, Vec3 origin, Vec3 dest, Operation<Boolean> original) {
+    private static boolean exotic_worlds$sightLineThroughSeam(Level level, Vec3 origin, Vec3 dest, Operation<Boolean> original) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
         return original.call(level, origin, NearestCopy.toward(transformer, origin, dest));
     }

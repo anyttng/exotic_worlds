@@ -20,11 +20,11 @@ public class PhantomMoveTargetGoalMixin {
     // any mapping set's, so a remapping loader has nothing to resolve it to. The class is abstract, so the constructor
     // runs from whichever concrete goal the phantom was given.
     @Unique
-    private Phantom toroidal$phantom;
+    private Phantom exotic_worlds$phantom;
 
     @Inject(method = "<init>(Lnet/minecraft/world/entity/monster/Phantom;)V", at = @At("TAIL"))
-    private void toroidal$capturePhantom(Phantom phantom, CallbackInfo ci) {
-        this.toroidal$phantom = phantom;
+    private void exotic_worlds$capturePhantom(Phantom phantom, CallbackInfo ci) {
+        this.exotic_worlds$phantom = phantom;
     }
 
     @ModifyExpressionValue(
@@ -32,7 +32,7 @@ public class PhantomMoveTargetGoalMixin {
             at = @At(value = "FIELD",
                     target = InjectionTargets.PHANTOM_MOVE_TARGET_POINT,
                     opcode = Opcodes.GETFIELD))
-    private Vec3 toroidal$arrivalPointThroughSeam(Vec3 moveTargetPoint) {
-        return SeamSteering.nearestCopy(this.toroidal$phantom, moveTargetPoint);
+    private Vec3 exotic_worlds$arrivalPointThroughSeam(Vec3 moveTargetPoint) {
+        return SeamSteering.nearestCopy(this.exotic_worlds$phantom, moveTargetPoint);
     }
 }

@@ -17,7 +17,7 @@ public class EvokerFangsAimMixin {
     @WrapOperation(
             method = "performSpellCasting",
             at = @At(value = "INVOKE", target = InjectionTargets.MTH_ATAN2))
-    private double toroidal$fangAngleThroughSeam(double deltaZ, double deltaX, Operation<Double> original,
+    private double exotic_worlds$fangAngleThroughSeam(double deltaZ, double deltaX, Operation<Double> original,
             @Local LivingEntity target) {
         Vec3 delta = SeamAim.foldDelta(target, deltaX, deltaZ);
         return original.call(delta.z, delta.x);

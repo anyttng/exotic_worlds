@@ -49,29 +49,29 @@ public class ServerLevelMixin {
     private PersistentEntitySectionManager<Entity> entityManager;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void toroidal$bindLevelToTickContainers(CallbackInfo ci) {
+    private void exotic_worlds$bindLevelToTickContainers(CallbackInfo ci) {
         ServerLevel level = (ServerLevel) (Object) this;
-        ((LevelBindable) level.getBlockTicks()).toroidal$bindLevel(level);
-        ((LevelBindable) level.getFluidTicks()).toroidal$bindLevel(level);
-        ((LevelBindable) level.getRaids()).toroidal$bindLevel(level);
-        ((LevelBindable) this.entityManager).toroidal$bindLevel(level);
-        ((LevelBindable) level.getPathTypeCache()).toroidal$bindLevel(level);
+        ((LevelBindable) level.getBlockTicks()).exotic_worlds$bindLevel(level);
+        ((LevelBindable) level.getFluidTicks()).exotic_worlds$bindLevel(level);
+        ((LevelBindable) level.getRaids()).exotic_worlds$bindLevel(level);
+        ((LevelBindable) this.entityManager).exotic_worlds$bindLevel(level);
+        ((LevelBindable) level.getPathTypeCache()).exotic_worlds$bindLevel(level);
     }
 
     @Inject(method = "tickNonPassenger", at = @At("TAIL"))
-    private void toroidal$wrapEntityIntoBounds(Entity entity, CallbackInfo ci) {
+    private void exotic_worlds$wrapEntityIntoBounds(Entity entity, CallbackInfo ci) {
         if (!(entity instanceof Player)) {
             SeamSnap.intoBounds(entity);
         }
     }
 
     @ModifyVariable(method = "setDefaultSpawnPos(Lnet/minecraft/core/BlockPos;F)V", at = @At("HEAD"), argsOnly = true)
-    private BlockPos toroidal$storeWorldSpawnInsideBounds(BlockPos spawnPos) {
+    private BlockPos exotic_worlds$storeWorldSpawnInsideBounds(BlockPos spawnPos) {
         return SeamRespawnData.insideBounds((ServerLevel) (Object) this, spawnPos);
     }
 
     @WrapMethod(method = "sendParticles(Lnet/minecraft/server/level/ServerPlayer;ZDDDLnet/minecraft/network/protocol/Packet;)Z")
-    private boolean toroidal$particlesThroughSeam(ServerPlayer player, boolean overrideLimiter, double x, double y, double z,
+    private boolean exotic_worlds$particlesThroughSeam(ServerPlayer player, boolean overrideLimiter, double x, double y, double z,
             Packet<?> packet, Operation<Boolean> original) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf((ServerLevel) (Object) this);
         if (transformer == null) {
@@ -91,7 +91,7 @@ public class ServerLevelMixin {
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;"
                             + "send(Lnet/minecraft/network/protocol/Packet;)V"))
-    private void toroidal$measureExplosionReach(ServerGamePacketListenerImpl connection, Packet<?> packet,
+    private void exotic_worlds$measureExplosionReach(ServerGamePacketListenerImpl connection, Packet<?> packet,
             Operation<Void> original) {
         try (MeasuredReach ignored = MeasuredReach.measuring(EXPLOSION_RANGE)) {
             original.call(connection, packet);
@@ -99,7 +99,7 @@ public class ServerLevelMixin {
     }
 
     @WrapMethod(method = "destroyBlockProgress")
-    private void toroidal$blockCracksThroughSeam(int id, BlockPos blockPos, int progress, Operation<Void> original) {
+    private void exotic_worlds$blockCracksThroughSeam(int id, BlockPos blockPos, int progress, Operation<Void> original) {
         ServerLevel level = (ServerLevel) (Object) this;
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
         if (transformer == null) {
@@ -115,7 +115,7 @@ public class ServerLevelMixin {
     }
 
     @WrapMethod(method = "tickPrecipitation")
-    private void toroidal$bindPrecipitationTransformer(BlockPos pos, Operation<Void> original) {
+    private void exotic_worlds$bindPrecipitationTransformer(BlockPos pos, Operation<Void> original) {
         ServerLevel level = (ServerLevel) (Object) this;
         GenerationTransformerContext.runWithTransformer(
                 WorldLoopAttachments.transformerOf(level), () -> original.call(pos));

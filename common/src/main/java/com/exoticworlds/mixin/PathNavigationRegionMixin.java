@@ -25,7 +25,7 @@ public class PathNavigationRegionMixin implements RegionLevelSource {
     protected Level level;
 
     @Override
-    public Level toroidal$regionLevel() {
+    public Level exotic_worlds$regionLevel() {
         return this.level;
     }
 
@@ -33,7 +33,7 @@ public class PathNavigationRegionMixin implements RegionLevelSource {
             method = "<init>",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/ChunkSource;getChunkNow(II)Lnet/minecraft/world/level/chunk/LevelChunk;"))
-    private @Nullable LevelChunk toroidal$foldSnapshotChunk(ChunkSource chunkSource, int chunkX, int chunkZ,
+    private @Nullable LevelChunk exotic_worlds$foldSnapshotChunk(ChunkSource chunkSource, int chunkX, int chunkZ,
             Operation<@Nullable LevelChunk> original) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
         if (transformer == null) {

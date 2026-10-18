@@ -25,7 +25,7 @@ public class DistanceBoundsMixin {
             method = "matches*",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.DISTANCE_PREDICATE_MATCHES))
-    private boolean toroidal$boundThroughSeam(DistancePredicate bounds,
+    private boolean exotic_worlds$boundThroughSeam(DistancePredicate bounds,
             double referenceX, double referenceY, double referenceZ,
             double measuredX, double measuredY, double measuredZ,
             Operation<Boolean> original, @Local(argsOnly = true) ServerLevel level) {

@@ -29,7 +29,7 @@ public class TreeChangesMixin {
     private NodeTable nodes;
 
     @Unique
-    private boolean toroidal$coveringCopies;
+    private boolean exotic_worlds$coveringCopies;
 
     @Shadow
     private void requestBuild(TreeNode node, @Nullable CameraFrame camera) {
@@ -42,7 +42,7 @@ public class TreeChangesMixin {
     @WrapOperation(
             method = {"changed", "covered", "requestNeighbours", "requestAcrossEdges"},
             at = @At(value = "INVOKE", target = EminusInjectionTargets.NODE_TABLE_GET))
-    private @Nullable TreeNode toroidal$everyNodeOfTheStoredKey(NodeTable table, long key,
+    private @Nullable TreeNode exotic_worlds$everyNodeOfTheStoredKey(NodeTable table, long key,
             Operation<@Nullable TreeNode> original, @Local(argsOnly = true) @Nullable CameraFrame camera) {
         CellFold fold = CellFoldHolder.foldOf(nodes);
         if (!fold.repeats()) {
@@ -53,17 +53,17 @@ public class TreeChangesMixin {
     }
 
     @Inject(method = "covered", at = @At("HEAD"))
-    private void toroidal$coverEveryLapCopy(int chunkX, int chunkZ, @Nullable CameraFrame camera, CallbackInfo ci) {
-        if (toroidal$coveringCopies) {
+    private void exotic_worlds$coverEveryLapCopy(int chunkX, int chunkZ, @Nullable CameraFrame camera, CallbackInfo ci) {
+        if (exotic_worlds$coveringCopies) {
             return;
         }
 
-        toroidal$coveringCopies = true;
+        exotic_worlds$coveringCopies = true;
         try {
             StoredKeyRebuilds.coverLapCopies(CellFoldHolder.foldOf(nodes), chunkX, chunkZ,
                     (copyX, copyZ) -> covered(copyX, copyZ, camera));
         } finally {
-            toroidal$coveringCopies = false;
+            exotic_worlds$coveringCopies = false;
         }
     }
 }

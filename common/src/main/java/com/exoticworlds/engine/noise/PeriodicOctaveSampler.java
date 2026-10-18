@@ -61,7 +61,7 @@ public final class PeriodicOctaveSampler {
 
         try (Context.ScaleScope scope = generation.openScale()) {
             scope.rescale(baseScale * Math.scalb(lowestFreqInputFactor, finest));
-            return ((IndexableNoise) (Object) noiseLevels[finest]).toroidal$indexable(generation);
+            return ((IndexableNoise) (Object) noiseLevels[finest]).exotic_worlds$indexable(generation);
         }
     }
 

@@ -18,19 +18,19 @@ public class LevelPartEntityMixin {
     @WrapOperation(
             method = "getEntities(Lnet/minecraft/world/level/entity/EntityTypeTest;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;Ljava/util/List;I)V",
             at = @At(value = "INVOKE", target = InjectionTargets.AABB_INTERSECTS))
-    private boolean toroidal$typedPartBoxTowardQuery(AABB part, AABB query, Operation<Boolean> original) {
-        return original.call(toroidal$seatTowardQuery(part, query), query);
+    private boolean exotic_worlds$typedPartBoxTowardQuery(AABB part, AABB query, Operation<Boolean> original) {
+        return original.call(exotic_worlds$seatTowardQuery(part, query), query);
     }
 
     @WrapOperation(
             method = "getEntities(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;",
             at = @At(value = "INVOKE", target = InjectionTargets.AABB_INTERSECTS))
-    private boolean toroidal$partBoxTowardQuery(AABB part, AABB query, Operation<Boolean> original) {
-        return original.call(toroidal$seatTowardQuery(part, query), query);
+    private boolean exotic_worlds$partBoxTowardQuery(AABB part, AABB query, Operation<Boolean> original) {
+        return original.call(exotic_worlds$seatTowardQuery(part, query), query);
     }
 
     @Unique
-    private AABB toroidal$seatTowardQuery(AABB part, AABB query) {
+    private AABB exotic_worlds$seatTowardQuery(AABB part, AABB query) {
         return FoldedBoxQuery.toward(WorldLoopAttachments.transformerOf((Level) (Object) this), query.getCenter(), part);
     }
 }

@@ -29,7 +29,7 @@ public class StrollThroughVillageGoalMixin {
             method = "tick",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean toroidal$strollGateThroughSeam(BlockPos wantedPos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$strollGateThroughSeam(BlockPos wantedPos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
         return SeamRange.closerToCenterThan(this.mob, wantedPos, bodyPosition, distance);
     }
@@ -37,7 +37,7 @@ public class StrollThroughVillageGoalMixin {
     @ModifyExpressionValue(
             method = "tick",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_AT_BOTTOM_CENTER_OF))
-    private Vec3 toroidal$strollTargetThroughSeam(Vec3 strollTarget) {
+    private Vec3 exotic_worlds$strollTargetThroughSeam(Vec3 strollTarget) {
         return SeamSteering.nearestCopy(this.mob, strollTarget);
     }
 
@@ -47,7 +47,7 @@ public class StrollThroughVillageGoalMixin {
                     target = "Lnet/minecraft/world/entity/ai/goal/StrollThroughVillageGoal;"
                             + "wantedPos:Lnet/minecraft/core/BlockPos;",
                     opcode = Opcodes.GETFIELD, ordinal = 1))
-    private BlockPos toroidal$strollIdentityThroughSeam(BlockPos wantedPos) {
+    private BlockPos exotic_worlds$strollIdentityThroughSeam(BlockPos wantedPos) {
         return SeamSteering.nearestCopy(this.mob, wantedPos);
     }
 }

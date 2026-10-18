@@ -20,7 +20,7 @@ public class AquiferSeamMixin {
             at = @At(
                     value = "INVOKE",
                     target = InjectionTargets.POSITIONAL_RANDOM_FACTORY_AT))
-    private RandomSource toroidal$seedAquiferCellFromCanonical(
+    private RandomSource exotic_worlds$seedAquiferCellFromCanonical(
             PositionalRandomFactory factory, int gridX, int gridY, int gridZ, Operation<RandomSource> original) {
         WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
         if (transformer == null) {

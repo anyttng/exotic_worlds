@@ -37,7 +37,7 @@ public class PortalForcerMixin {
     protected ServerLevel level;
 
     @WrapMethod(method = "findClosestPortalPosition")
-    private Optional<BlockPos> toroidal$nearestThroughSeam(
+    private Optional<BlockPos> exotic_worlds$nearestThroughSeam(
             BlockPos approximateExitPos,
             boolean toNether,
             WorldBorder worldBorder,

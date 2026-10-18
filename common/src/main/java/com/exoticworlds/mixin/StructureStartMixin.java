@@ -30,22 +30,22 @@ import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
 @Mixin(StructureStart.class)
 public class StructureStartMixin implements FramedStructureStart {
     @Unique
-    private volatile @Nullable Map<DeckTransformation, StructureStart> toroidal$framed;
+    private volatile @Nullable Map<DeckTransformation, StructureStart> exotic_worlds$framed;
 
     @Override
-    public @Nullable StructureStart toroidal$framedBy(WorldGenLevel level, DeckTransformation move) {
+    public @Nullable StructureStart exotic_worlds$framedBy(WorldGenLevel level, DeckTransformation move) {
         StructureStart self = (StructureStart) (Object) this;
         if (move.isIdentity()) {
             return self;
         }
 
-        Map<DeckTransformation, StructureStart> framed = this.toroidal$cache();
+        Map<DeckTransformation, StructureStart> framed = this.exotic_worlds$cache();
         StructureStart known = framed.get(move);
         if (known != null) {
             return known;
         }
 
-        StructureStart made = toroidal$movedCopy(self, level, move);
+        StructureStart made = exotic_worlds$movedCopy(self, level, move);
         if (made == null) {
             return null;
         }
@@ -55,7 +55,7 @@ public class StructureStartMixin implements FramedStructureStart {
     }
 
     @WrapMethod(method = "placeInChunk")
-    private void toroidal$placeInTheStartsFrame(WorldGenLevel level, StructureManager structureManager,
+    private void exotic_worlds$placeInTheStartsFrame(WorldGenLevel level, StructureManager structureManager,
             ChunkGenerator generator, RandomSource random, BoundingBox chunkBB, ChunkPos chunkPos,
             Operation<Void> original) {
         List<StructurePiece> pieces = ((StructureStart) (Object) this).getPieces();
@@ -77,17 +77,17 @@ public class StructureStartMixin implements FramedStructureStart {
     }
 
     @Unique
-    private Map<DeckTransformation, StructureStart> toroidal$cache() {
-        Map<DeckTransformation, StructureStart> framed = this.toroidal$framed;
+    private Map<DeckTransformation, StructureStart> exotic_worlds$cache() {
+        Map<DeckTransformation, StructureStart> framed = this.exotic_worlds$framed;
         if (framed != null) {
             return framed;
         }
 
         synchronized (this) {
-            framed = this.toroidal$framed;
+            framed = this.exotic_worlds$framed;
             if (framed == null) {
                 framed = new ConcurrentHashMap<>(2);
-                this.toroidal$framed = framed;
+                this.exotic_worlds$framed = framed;
             }
 
             return framed;
@@ -95,7 +95,7 @@ public class StructureStartMixin implements FramedStructureStart {
     }
 
     @Unique
-    private static @Nullable StructureStart toroidal$movedCopy(
+    private static @Nullable StructureStart exotic_worlds$movedCopy(
             StructureStart start, WorldGenLevel level, DeckTransformation move) {
         StructurePieceSerializationContext context = StructurePieceSerializationContext.fromLevel(level.getLevel());
         StructureStart copy = StructureStart.loadStaticStart(

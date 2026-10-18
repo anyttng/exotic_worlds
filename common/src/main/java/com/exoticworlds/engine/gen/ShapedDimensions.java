@@ -64,7 +64,7 @@ public final class ShapedDimensions {
         for (Map.Entry<ResourceKey<LevelStem>, LevelStem> entry : dimensions.dimensions().entrySet()) {
             LevelStem stem = entry.getValue();
             if (stem.generator() instanceof ShapeStamp stamp) {
-                stamp.toroidal$clearStamp();
+                stamp.exotic_worlds$clearStamp();
             }
 
             if (!(stem.generator() instanceof ShapedChunkGenerator shaped)) {
@@ -165,7 +165,7 @@ public final class ShapedDimensions {
 
             FlatShape derived = derivedShape(worldShape, overworldScale, stem.type().value().coordinateScale());
             if (derived != null) {
-                stamp.toroidal$stamp(carried.withShape(derived));
+                stamp.exotic_worlds$stamp(carried.withShape(derived));
             }
         });
     }
@@ -236,13 +236,13 @@ public final class ShapedDimensions {
             return null;
         }
 
-        stamp.toroidal$stamp(carried);
+        stamp.exotic_worlds$stamp(carried);
         return base;
     }
 
     private static boolean carriesShape(ChunkGenerator generator) {
         return generator instanceof ShapedChunkGenerator
-                || (generator instanceof ShapeStamp stamp && stamp.toroidal$carriedShape() != null);
+                || (generator instanceof ShapeStamp stamp && stamp.exotic_worlds$carriedShape() != null);
     }
 
     private static ChunkGenerator baseOf(ChunkGenerator generator) {

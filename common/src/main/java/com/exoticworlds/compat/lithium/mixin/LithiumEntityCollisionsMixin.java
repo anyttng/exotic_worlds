@@ -18,9 +18,9 @@ public class LithiumEntityCollisionsMixin {
     @WrapOperation(
             method = "appendEntityCollisions",
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_BOUNDING_BOX))
-    private static AABB toroidal$collisionBoxTowardMover(Entity other, Operation<AABB> original,
+    private static AABB exotic_worlds$collisionBoxTowardMover(Entity other, Operation<AABB> original,
             @Local(argsOnly = true) AABB box) {
-        return FoldedBoxQuery.toward(((TransformerSource) other).toroidal$wrappedTransformer(), box.getCenter(),
+        return FoldedBoxQuery.toward(((TransformerSource) other).exotic_worlds$wrappedTransformer(), box.getCenter(),
                 original.call(other));
     }
 }

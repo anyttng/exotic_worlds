@@ -13,7 +13,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(Leashable.class)
 public interface LeashableMixin {
     @WrapMethod(method = "elasticRangeLeashBehaviour")
-    private void toroidal$elasticPullThroughSeam(Entity leashHolder, float leashDistance, Operation<Void> original) {
+    private void exotic_worlds$elasticPullThroughSeam(Entity leashHolder, float leashDistance, Operation<Void> original) {
         Entity leashed = (Entity) this;
         Vec3 holder = SeamSteering.nearestCopy(leashed, leashHolder.position());
         if (holder.x == leashHolder.getX() && holder.z == leashHolder.getZ()) {

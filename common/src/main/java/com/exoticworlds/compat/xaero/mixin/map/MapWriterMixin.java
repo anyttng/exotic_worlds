@@ -65,107 +65,107 @@ public abstract class MapWriterMixin {
     private static final int TILE_CHUNK_LOCAL_Z_INDEX = 19;
 
     @Unique
-    private @Nullable ToroidalShape toroidal$shape;
+    private @Nullable ToroidalShape exotic_worlds$shape;
     @Unique
-    private AxisCopies toroidal$chunkCopiesX = AxisCopies.UNBOUNDED;
+    private AxisCopies exotic_worlds$chunkCopiesX = AxisCopies.UNBOUNDED;
     @Unique
-    private AxisCopies toroidal$chunkCopiesZ = AxisCopies.UNBOUNDED;
+    private AxisCopies exotic_worlds$chunkCopiesZ = AxisCopies.UNBOUNDED;
     @Unique
-    private @Nullable ChunkPos toroidal$foldedTile;
+    private @Nullable ChunkPos exotic_worlds$foldedTile;
     @Unique
-    private int toroidal$foldedTileChunkX;
+    private int exotic_worlds$foldedTileChunkX;
     @Unique
-    private int toroidal$foldedTileChunkZ;
+    private int exotic_worlds$foldedTileChunkZ;
     @Unique
-    private long @Nullable [] toroidal$visitRegions;
+    private long @Nullable [] exotic_worlds$visitRegions;
     @Unique
-    private boolean toroidal$foldedPosition;
+    private boolean exotic_worlds$foldedPosition;
     @Unique
-    private int toroidal$insideX;
+    private int exotic_worlds$insideX;
     @Unique
-    private int toroidal$insideZ;
+    private int exotic_worlds$insideZ;
     @Unique
-    private int toroidal$lastInsideX;
+    private int exotic_worlds$lastInsideX;
     @Unique
-    private int toroidal$lastInsideZ;
+    private int exotic_worlds$lastInsideZ;
 
     @Inject(method = "onRender", at = @At("HEAD"))
-    private void toroidal$resolveRenderShape(CallbackInfo ci) {
-        this.toroidal$shape = XaeroWorldMapFold.browsedShape();
-        this.toroidal$chunkCopiesX = AxisCopies.ofChunks(this.toroidal$shape, Direction.Axis.X);
-        this.toroidal$chunkCopiesZ = AxisCopies.ofChunks(this.toroidal$shape, Direction.Axis.Z);
-        this.toroidal$foldedTile = null;
+    private void exotic_worlds$resolveRenderShape(CallbackInfo ci) {
+        this.exotic_worlds$shape = XaeroWorldMapFold.browsedShape();
+        this.exotic_worlds$chunkCopiesX = AxisCopies.ofChunks(this.exotic_worlds$shape, Direction.Axis.X);
+        this.exotic_worlds$chunkCopiesZ = AxisCopies.ofChunks(this.exotic_worlds$shape, Direction.Axis.Z);
+        this.exotic_worlds$foldedTile = null;
     }
 
     @ModifyArg(method = "writeMap", at = @At(value = "INVOKE", target = WRITE_CHUNK), index = TILE_CHUNK_X_INDEX)
-    private int toroidal$foldTileChunkX(int tileChunkX, @Local(name = "chunkX") int chunkX,
+    private int exotic_worlds$foldTileChunkX(int tileChunkX, @Local(name = "chunkX") int chunkX,
             @Local(name = "chunkZ") int chunkZ) {
-        return this.toroidal$shape == null ? tileChunkX : toroidal$foldedTile(chunkX, chunkZ).x;
+        return this.exotic_worlds$shape == null ? tileChunkX : exotic_worlds$foldedTile(chunkX, chunkZ).x;
     }
 
     @ModifyArg(method = "writeMap", at = @At(value = "INVOKE", target = WRITE_CHUNK), index = TILE_CHUNK_Z_INDEX)
-    private int toroidal$foldTileChunkZ(int tileChunkZ, @Local(name = "chunkX") int chunkX,
+    private int exotic_worlds$foldTileChunkZ(int tileChunkZ, @Local(name = "chunkX") int chunkX,
             @Local(name = "chunkZ") int chunkZ) {
-        return this.toroidal$shape == null ? tileChunkZ : toroidal$foldedTile(chunkX, chunkZ).z;
+        return this.exotic_worlds$shape == null ? tileChunkZ : exotic_worlds$foldedTile(chunkX, chunkZ).z;
     }
 
     @ModifyArg(method = "writeMap", at = @At(value = "INVOKE", target = WRITE_CHUNK), index = TILE_CHUNK_LOCAL_X_INDEX)
-    private int toroidal$foldTileChunkLocalX(int tileChunkLocalX, @Local(name = "chunkX") int chunkX,
+    private int exotic_worlds$foldTileChunkLocalX(int tileChunkLocalX, @Local(name = "chunkX") int chunkX,
             @Local(name = "chunkZ") int chunkZ) {
-        return this.toroidal$shape == null
-                ? tileChunkLocalX : XaeroWorldMapFold.tileChunkInRegion(toroidal$foldedTile(chunkX, chunkZ).x);
+        return this.exotic_worlds$shape == null
+                ? tileChunkLocalX : XaeroWorldMapFold.tileChunkInRegion(exotic_worlds$foldedTile(chunkX, chunkZ).x);
     }
 
     @ModifyArg(method = "writeMap", at = @At(value = "INVOKE", target = WRITE_CHUNK), index = TILE_CHUNK_LOCAL_Z_INDEX)
-    private int toroidal$foldTileChunkLocalZ(int tileChunkLocalZ, @Local(name = "chunkX") int chunkX,
+    private int exotic_worlds$foldTileChunkLocalZ(int tileChunkLocalZ, @Local(name = "chunkX") int chunkX,
             @Local(name = "chunkZ") int chunkZ) {
-        return this.toroidal$shape == null
-                ? tileChunkLocalZ : XaeroWorldMapFold.tileChunkInRegion(toroidal$foldedTile(chunkX, chunkZ).z);
+        return this.exotic_worlds$shape == null
+                ? tileChunkLocalZ : XaeroWorldMapFold.tileChunkInRegion(exotic_worlds$foldedTile(chunkX, chunkZ).z);
     }
 
     @Unique
-    private ChunkPos toroidal$foldedTile(int chunkX, int chunkZ) {
-        ChunkPos folded = this.toroidal$foldedTile;
-        if (folded == null || chunkX != this.toroidal$foldedTileChunkX || chunkZ != this.toroidal$foldedTileChunkZ) {
-            folded = XaeroWorldMapFold.tileOfChunk(this.toroidal$shape, chunkX, chunkZ);
-            this.toroidal$foldedTile = folded;
-            this.toroidal$foldedTileChunkX = chunkX;
-            this.toroidal$foldedTileChunkZ = chunkZ;
+    private ChunkPos exotic_worlds$foldedTile(int chunkX, int chunkZ) {
+        ChunkPos folded = this.exotic_worlds$foldedTile;
+        if (folded == null || chunkX != this.exotic_worlds$foldedTileChunkX || chunkZ != this.exotic_worlds$foldedTileChunkZ) {
+            folded = XaeroWorldMapFold.tileOfChunk(this.exotic_worlds$shape, chunkX, chunkZ);
+            this.exotic_worlds$foldedTile = folded;
+            this.exotic_worlds$foldedTileChunkX = chunkX;
+            this.exotic_worlds$foldedTileChunkZ = chunkZ;
         }
 
         return folded;
     }
 
     @Inject(method = "writeChunk", at = @At("HEAD"))
-    private void toroidal$foldTilePosition(CallbackInfoReturnable<Boolean> cir,
+    private void exotic_worlds$foldTilePosition(CallbackInfoReturnable<Boolean> cir,
             @Local(argsOnly = true, ordinal = CHUNK_X_ARG) int chunkX,
             @Local(argsOnly = true, ordinal = CHUNK_Z_ARG) int chunkZ) {
-        this.toroidal$foldedPosition = this.toroidal$shape != null;
-        if (!this.toroidal$foldedPosition) {
+        this.exotic_worlds$foldedPosition = this.exotic_worlds$shape != null;
+        if (!this.exotic_worlds$foldedPosition) {
             return;
         }
 
-        ChunkPos canonical = XaeroWorldMapFold.canonicalChunk(this.toroidal$shape, chunkX, chunkZ);
-        this.toroidal$insideX = XaeroWorldMapFold.insideTile(canonical.x);
-        this.toroidal$insideZ = XaeroWorldMapFold.insideTile(canonical.z);
-        this.toroidal$lastInsideX = XaeroWorldMapFold.lastInsideTile(this.toroidal$chunkCopiesX, canonical.x);
-        this.toroidal$lastInsideZ = XaeroWorldMapFold.lastInsideTile(this.toroidal$chunkCopiesZ, canonical.z);
+        ChunkPos canonical = XaeroWorldMapFold.canonicalChunk(this.exotic_worlds$shape, chunkX, chunkZ);
+        this.exotic_worlds$insideX = XaeroWorldMapFold.insideTile(canonical.x);
+        this.exotic_worlds$insideZ = XaeroWorldMapFold.insideTile(canonical.z);
+        this.exotic_worlds$lastInsideX = XaeroWorldMapFold.lastInsideTile(this.exotic_worlds$chunkCopiesX, canonical.x);
+        this.exotic_worlds$lastInsideZ = XaeroWorldMapFold.lastInsideTile(this.exotic_worlds$chunkCopiesZ, canonical.z);
     }
 
     @ModifyExpressionValue(
             method = "writeChunk",
             at = @At(value = "FIELD", target = INSIDE_X, opcode = Opcodes.GETFIELD),
             slice = @Slice(to = @At(value = "INVOKE", target = SET_TILE)))
-    private int toroidal$tileInsideX(int raw) {
-        return this.toroidal$foldedPosition ? this.toroidal$insideX : raw;
+    private int exotic_worlds$tileInsideX(int raw) {
+        return this.exotic_worlds$foldedPosition ? this.exotic_worlds$insideX : raw;
     }
 
     @ModifyExpressionValue(
             method = "writeChunk",
             at = @At(value = "FIELD", target = INSIDE_Z, opcode = Opcodes.GETFIELD),
             slice = @Slice(to = @At(value = "INVOKE", target = SET_TILE)))
-    private int toroidal$tileInsideZ(int raw) {
-        return this.toroidal$foldedPosition ? this.toroidal$insideZ : raw;
+    private int exotic_worlds$tileInsideZ(int raw) {
+        return this.exotic_worlds$foldedPosition ? this.exotic_worlds$insideZ : raw;
     }
 
     @ModifyExpressionValue(
@@ -174,8 +174,8 @@ public abstract class MapWriterMixin {
             slice = @Slice(
                     from = @At(value = "INVOKE", target = SET_TILE),
                     to = @At(value = "FIELD", target = INSIDE_X, opcode = Opcodes.PUTFIELD, ordinal = 0)))
-    private int toroidal$bufferTriggerX(int raw) {
-        return this.toroidal$foldedPosition ? this.toroidal$lastInsideX : raw;
+    private int exotic_worlds$bufferTriggerX(int raw) {
+        return this.exotic_worlds$foldedPosition ? this.exotic_worlds$lastInsideX : raw;
     }
 
     @ModifyExpressionValue(
@@ -184,22 +184,22 @@ public abstract class MapWriterMixin {
             slice = @Slice(
                     from = @At(value = "INVOKE", target = SET_TILE),
                     to = @At(value = "FIELD", target = INSIDE_X, opcode = Opcodes.PUTFIELD, ordinal = 0)))
-    private int toroidal$bufferTriggerZ(int raw) {
-        return this.toroidal$foldedPosition ? this.toroidal$lastInsideZ : raw;
+    private int exotic_worlds$bufferTriggerZ(int raw) {
+        return this.exotic_worlds$foldedPosition ? this.exotic_worlds$lastInsideZ : raw;
     }
 
     @ModifyExpressionValue(
             method = "updateBottomRightTile",
             at = @At(value = "FIELD", target = INSIDE_X, opcode = Opcodes.GETFIELD))
-    private int toroidal$slopeInsideX(int raw) {
-        return this.toroidal$foldedPosition ? this.toroidal$insideX : raw;
+    private int exotic_worlds$slopeInsideX(int raw) {
+        return this.exotic_worlds$foldedPosition ? this.exotic_worlds$insideX : raw;
     }
 
     @ModifyExpressionValue(
             method = "updateBottomRightTile",
             at = @At(value = "FIELD", target = INSIDE_Z, opcode = Opcodes.GETFIELD))
-    private int toroidal$slopeInsideZ(int raw) {
-        return this.toroidal$foldedPosition ? this.toroidal$insideZ : raw;
+    private int exotic_worlds$slopeInsideZ(int raw) {
+        return this.exotic_worlds$foldedPosition ? this.exotic_worlds$insideZ : raw;
     }
 
     @WrapOperation(
@@ -207,34 +207,34 @@ public abstract class MapWriterMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lxaero/map/pool/MapTilePool;get(Ljava/lang/String;II)Lxaero/map/region/MapTile;"))
-    private MapTile toroidal$canonicalTileChunk(MapTilePool pool, String dimension, int chunkX, int chunkZ,
+    private MapTile exotic_worlds$canonicalTileChunk(MapTilePool pool, String dimension, int chunkX, int chunkZ,
             Operation<MapTile> original) {
-        ChunkPos canonical = XaeroWorldMapFold.canonicalChunk(this.toroidal$shape, chunkX, chunkZ);
+        ChunkPos canonical = XaeroWorldMapFold.canonicalChunk(this.exotic_worlds$shape, chunkX, chunkZ);
         return original.call(pool, dimension, canonical.x, canonical.z);
     }
 
     @ModifyVariable(method = "onRender", at = @At("STORE"), name = "startRegionX")
-    private int toroidal$visitFromRegionX(int startRegionX) {
-        this.toroidal$visitRegions = this.toroidal$shape != null
-                ? XaeroWorldMapFold.canonicalRegions(this.toroidal$shape, this.startTileChunkX, this.startTileChunkZ,
+    private int exotic_worlds$visitFromRegionX(int startRegionX) {
+        this.exotic_worlds$visitRegions = this.exotic_worlds$shape != null
+                ? XaeroWorldMapFold.canonicalRegions(this.exotic_worlds$shape, this.startTileChunkX, this.startTileChunkZ,
                         this.endTileChunkX, this.endTileChunkZ)
                 : null;
-        return this.toroidal$visitRegions == null ? startRegionX : 0;
+        return this.exotic_worlds$visitRegions == null ? startRegionX : 0;
     }
 
     @ModifyVariable(method = "onRender", at = @At("STORE"), name = "startRegionZ")
-    private int toroidal$visitFromRegionZ(int startRegionZ) {
-        return this.toroidal$visitRegions == null ? startRegionZ : 0;
+    private int exotic_worlds$visitFromRegionZ(int startRegionZ) {
+        return this.exotic_worlds$visitRegions == null ? startRegionZ : 0;
     }
 
     @ModifyVariable(method = "onRender", at = @At("STORE"), name = "endRegionX")
-    private int toroidal$visitToRegionX(int endRegionX) {
-        return this.toroidal$visitRegions == null ? endRegionX : 0;
+    private int exotic_worlds$visitToRegionX(int endRegionX) {
+        return this.exotic_worlds$visitRegions == null ? endRegionX : 0;
     }
 
     @ModifyVariable(method = "onRender", at = @At("STORE"), name = "endRegionZ")
-    private int toroidal$visitToRegionZ(int endRegionZ) {
-        return this.toroidal$visitRegions == null ? endRegionZ : this.toroidal$visitRegions.length - 1;
+    private int exotic_worlds$visitToRegionZ(int endRegionZ) {
+        return this.exotic_worlds$visitRegions == null ? endRegionZ : this.exotic_worlds$visitRegions.length - 1;
     }
 
     @WrapOperation(
@@ -242,13 +242,13 @@ public abstract class MapWriterMixin {
             at = @At(
                     value = "INVOKE",
                     target = XaeroInjectionTargets.MAP_PROCESSOR_GET_LEAF_MAP_REGION))
-    private MapRegion toroidal$visitCanonicalRegion(MapProcessor processor, int caveLayer, int regionX, int regionZ,
+    private MapRegion exotic_worlds$visitCanonicalRegion(MapProcessor processor, int caveLayer, int regionX, int regionZ,
             boolean create, Operation<MapRegion> original) {
-        if (this.toroidal$visitRegions == null) {
+        if (this.exotic_worlds$visitRegions == null) {
             return original.call(processor, caveLayer, regionX, regionZ, create);
         }
 
-        long region = this.toroidal$visitRegions[regionZ];
+        long region = this.exotic_worlds$visitRegions[regionZ];
         return original.call(processor, caveLayer, ChunkPos.getX(region), ChunkPos.getZ(region), create);
     }
 
@@ -257,13 +257,13 @@ public abstract class MapWriterMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lxaero/map/region/LeveledRegion;setComparison(IIIII)V"))
-    private void toroidal$foldComparison(int x, int z, int level, int leafX, int leafZ, Operation<Void> original) {
-        if (this.toroidal$shape == null) {
+    private void exotic_worlds$foldComparison(int x, int z, int level, int leafX, int leafZ, Operation<Void> original) {
+        if (this.exotic_worlds$shape == null) {
             original.call(x, z, level, leafX, leafZ);
             return;
         }
 
-        ChunkPos canonical = XaeroWorldMapFold.foldComparison(this.toroidal$shape, x, z);
+        ChunkPos canonical = XaeroWorldMapFold.foldComparison(this.exotic_worlds$shape, x, z);
         original.call(canonical.x, canonical.z, level, canonical.x, canonical.z);
     }
 }

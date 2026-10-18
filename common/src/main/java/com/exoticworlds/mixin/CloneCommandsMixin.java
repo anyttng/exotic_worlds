@@ -22,7 +22,7 @@ public class CloneCommandsMixin {
     @Inject(
             method = "clone",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/commands/CloneCommands$Mode;canOverlap()Z"))
-    private static void toroidal$refuseSourceAcrossSeam(CallbackInfoReturnable<Integer> cir,
+    private static void exotic_worlds$refuseSourceAcrossSeam(CallbackInfoReturnable<Integer> cir,
             @Local(ordinal = 0) BoundingBox from,
             @Local(ordinal = 0) ServerLevel fromDimension) throws CommandSyntaxException {
         SeamCommandErrors.requireUnambiguousRegion(
@@ -34,7 +34,7 @@ public class CloneCommandsMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/levelgen/structure/BoundingBox;intersects(Lnet/minecraft/world/level/levelgen/structure/BoundingBox;)Z"))
-    private static boolean toroidal$measureOverlapThroughSeam(BoundingBox destination, BoundingBox from,
+    private static boolean exotic_worlds$measureOverlapThroughSeam(BoundingBox destination, BoundingBox from,
             Operation<Boolean> original, @Local(ordinal = 0) ServerLevel fromDimension) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(fromDimension);
         return transformer == null

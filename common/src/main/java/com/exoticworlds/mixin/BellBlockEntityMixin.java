@@ -21,7 +21,7 @@ public class BellBlockEntityMixin {
             require = 4,
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private static boolean toroidal$bellRangeThroughSeam(BlockPos bellPos, Position bodyPosition, double distance,
+    private static boolean exotic_worlds$bellRangeThroughSeam(BlockPos bellPos, Position bodyPosition, double distance,
             Operation<Boolean> original, @Local LivingEntity body) {
         return SeamRange.closerToCenterThan(body, bellPos, bodyPosition, distance);
     }

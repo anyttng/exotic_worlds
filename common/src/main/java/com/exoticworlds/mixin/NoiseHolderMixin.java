@@ -16,11 +16,11 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 public class NoiseHolderMixin {
     @Inject(method = "<init>(Lnet/minecraft/core/Holder;Lnet/minecraft/world/level/levelgen/synth/NormalNoise;)V",
             at = @At("RETURN"))
-    private void toroidal$markClimateField(Holder<NormalNoise.NoiseParameters> noiseData, NormalNoise noise,
+    private void exotic_worlds$markClimateField(Holder<NormalNoise.NoiseParameters> noiseData, NormalNoise noise,
             CallbackInfo callback) {
         if (noise instanceof ClimateFieldMark mark
                 && noiseData.unwrapKey().filter(ClimateFields::isClimate).isPresent()) {
-            mark.toroidal$markClimateField();
+            mark.exotic_worlds$markClimateField();
         }
     }
 }

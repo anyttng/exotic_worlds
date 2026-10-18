@@ -20,7 +20,7 @@ public final class WorldLoopClientNetwork {
         PublishedShapes.publish(dimension, fold);
         ClientLevel level = Minecraft.getInstance().level;
         if (level != null && level.dimension() == dimension) {
-            ((ClientBoundsHolder) level).toroidal$setClientBounds(WorldFolds.of(shape, ForeignFrames.of(level)));
+            ((ClientBoundsHolder) level).exotic_worlds$setClientBounds(WorldFolds.of(shape, ForeignFrames.of(level)));
             CurrentClientLevel.publish(() -> Minecraft.getInstance().level);
         }
     }

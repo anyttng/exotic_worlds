@@ -19,18 +19,18 @@ public class SculkSpreaderMixin {
             method = "updateCursors",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/block/SculkSpreader$ChargeCursor;update(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/block/SculkSpreader;Z)V"))
-    private void toroidal$seatAfterUpdate(SculkSpreader.ChargeCursor cursor, LevelAccessor level, BlockPos originPos,
+    private void exotic_worlds$seatAfterUpdate(SculkSpreader.ChargeCursor cursor, LevelAccessor level, BlockPos originPos,
             RandomSource random, SculkSpreader spreader, boolean spreadVeins, Operation<Void> original) {
         original.call(cursor, level, originPos, random, spreader, spreadVeins);
-        toroidal$seat(level, cursor, originPos);
+        exotic_worlds$seat(level, cursor, originPos);
     }
 
     @Unique
-    private static void toroidal$seat(LevelAccessor level, SculkSpreader.ChargeCursor cursor, BlockPos originPos) {
+    private static void exotic_worlds$seat(LevelAccessor level, SculkSpreader.ChargeCursor cursor, BlockPos originPos) {
         BlockPos raw = cursor.getPos();
         BlockPos seated = WorldLoopAttachments.transformerOfReader(level).nearestCopy(originPos, raw);
         if (seated != raw) {
-            ((ChargeCursorAccessor) cursor).toroidal$setPos(seated);
+            ((ChargeCursorAccessor) cursor).exotic_worlds$setPos(seated);
         }
     }
 }

@@ -26,12 +26,12 @@ public class EyeOfEnderMixin {
     private double tz;
 
     @WrapMethod(method = "signalTo")
-    private void toroidal$signalThroughSeam(BlockPos target, Operation<Void> original) {
+    private void exotic_worlds$signalThroughSeam(BlockPos target, Operation<Void> original) {
         original.call(SeamSteering.nearestCopy((EyeOfEnder) (Object) this, target));
     }
 
     @Inject(method = "tick()V", at = @At("HEAD"))
-    private void toroidal$steerThroughSeam(CallbackInfo ci) {
+    private void exotic_worlds$steerThroughSeam(CallbackInfo ci) {
         EyeOfEnder self = (EyeOfEnder) (Object) this;
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(self.level());
         Vec3 nearest = NearestCopy.toward(transformer, self.position(), new Vec3(this.tx, self.getY(), this.tz));

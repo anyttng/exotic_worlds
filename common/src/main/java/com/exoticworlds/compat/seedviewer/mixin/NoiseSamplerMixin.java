@@ -24,35 +24,35 @@ import net.minecraft.server.level.ServerLevel;
 @Mixin(NoiseSampler.class)
 public class NoiseSamplerMixin implements FoldedNoiseSampler {
     @Unique
-    private WorldFold toroidal$fold = WorldFolds.NOOP;
+    private WorldFold exotic_worlds$fold = WorldFolds.NOOP;
 
     @Unique
-    private Map<NoiseMapType, FoldedSampleCache<Float>> toroidal$caches = Map.of();
+    private Map<NoiseMapType, FoldedSampleCache<Float>> exotic_worlds$caches = Map.of();
 
     @Inject(method = SeedViewerInjectionTargets.CONSTRUCTOR + SeedViewerInjectionTargets.FROM_RANDOM_STATE,
             at = @At("RETURN"))
-    private void toroidal$takeTheRouterBuildsFold(CallbackInfo callback) {
-        toroidal$bind(CreationShape.routerBuildFold());
+    private void exotic_worlds$takeTheRouterBuildsFold(CallbackInfo callback) {
+        exotic_worlds$bind(CreationShape.routerBuildFold());
     }
 
     @Inject(method = SeedViewerInjectionTargets.CONSTRUCTOR + SeedViewerInjectionTargets.FROM_LEVEL,
             at = @At("RETURN"))
-    private void toroidal$takeTheLevelsFold(ServerLevel level, CallbackInfo callback) {
-        toroidal$bind(WorldLoopAttachments.transformerOf(level));
+    private void exotic_worlds$takeTheLevelsFold(ServerLevel level, CallbackInfo callback) {
+        exotic_worlds$bind(WorldLoopAttachments.transformerOf(level));
     }
 
     @Override
-    public WorldFold toroidal$fold() {
-        return this.toroidal$fold;
+    public WorldFold exotic_worlds$fold() {
+        return this.exotic_worlds$fold;
     }
 
     @Override
-    public FoldedSampleCache<Float> toroidal$cache(NoiseMapType type) {
-        return this.toroidal$caches.get(type);
+    public FoldedSampleCache<Float> exotic_worlds$cache(NoiseMapType type) {
+        return this.exotic_worlds$caches.get(type);
     }
 
     @Unique
-    private void toroidal$bind(WorldFold fold) {
+    private void exotic_worlds$bind(WorldFold fold) {
         Map<NoiseMapType, FoldedSampleCache<Float>> caches = new EnumMap<>(NoiseMapType.class);
         if (fold.isWrapped()) {
             for (NoiseMapType type : NoiseMapType.values()) {
@@ -60,7 +60,7 @@ public class NoiseSamplerMixin implements FoldedNoiseSampler {
             }
         }
 
-        this.toroidal$fold = fold;
-        this.toroidal$caches = caches;
+        this.exotic_worlds$fold = fold;
+        this.exotic_worlds$caches = caches;
     }
 }

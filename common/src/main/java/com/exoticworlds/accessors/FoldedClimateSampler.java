@@ -3,7 +3,7 @@ package com.exoticworlds.accessors;
 import com.exoticworlds.core.WorldFold;
 
 public interface FoldedClimateSampler {
-    WorldFold toroidal$fold();
+    WorldFold exotic_worlds$fold();
 
-    void toroidal$fold(WorldFold fold);
+    void exotic_worlds$fold(WorldFold fold);
 }

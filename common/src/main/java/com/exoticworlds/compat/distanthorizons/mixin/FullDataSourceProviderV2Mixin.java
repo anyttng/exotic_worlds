@@ -25,9 +25,9 @@ public class FullDataSourceProviderV2Mixin {
             method = "<init>(Lcom/seibel/distanthorizons/core/level/IDhLevel;"
                     + "Lcom/seibel/distanthorizons/core/file/structure/ISaveStructure;Ljava/io/File;)V",
             at = @At("RETURN"))
-    private void toroidal$bindRepoLevel(IDhLevel level, ISaveStructure saveStructure, File saveDirOverride,
+    private void exotic_worlds$bindRepoLevel(IDhLevel level, ISaveStructure saveStructure, File saveDirOverride,
             CallbackInfo ci) {
-        ((DhRepoLevel) this.repo).toroidal$bindLevel(level);
+        ((DhRepoLevel) this.repo).exotic_worlds$bindLevel(level);
     }
 
 }

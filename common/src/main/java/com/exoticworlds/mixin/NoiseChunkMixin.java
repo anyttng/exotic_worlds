@@ -13,8 +13,8 @@ import net.minecraft.world.level.levelgen.NoiseChunk;
 @Mixin(NoiseChunk.class)
 public class NoiseChunkMixin {
     @ModifyReturnValue(method = "cachedClimateSampler", at = @At("RETURN"))
-    private Climate.Sampler toroidal$stampTheFold(Climate.Sampler sampler) {
-        ((FoldedClimateSampler) (Object) sampler).toroidal$fold(GenerationTransformerContext.context().transformer());
+    private Climate.Sampler exotic_worlds$stampTheFold(Climate.Sampler sampler) {
+        ((FoldedClimateSampler) (Object) sampler).exotic_worlds$fold(GenerationTransformerContext.context().transformer());
         return sampler;
     }
 }

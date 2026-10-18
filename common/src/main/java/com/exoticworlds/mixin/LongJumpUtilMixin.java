@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(LongJumpUtil.class)
 public class LongJumpUtilMixin {
     @ModifyVariable(method = "calculateJumpVectorForAngle", at = @At("HEAD"), argsOnly = true)
-    private static Vec3 toroidal$jumpTargetThroughSeam(Vec3 targetPos, @Local(argsOnly = true) Mob body) {
+    private static Vec3 exotic_worlds$jumpTargetThroughSeam(Vec3 targetPos, @Local(argsOnly = true) Mob body) {
         return SeamSteering.nearestCopy(body, targetPos);
     }
 }

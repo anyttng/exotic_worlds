@@ -17,7 +17,7 @@ public abstract class BlockStateCollisionMixin {
             method = "getCollisionShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;",
             at = @At("HEAD"),
             argsOnly = true)
-    private BlockPos toroidal$canonicalCollisionPos(BlockPos pos, @Local(argsOnly = true) BlockGetter getter) {
+    private BlockPos exotic_worlds$canonicalCollisionPos(BlockPos pos, @Local(argsOnly = true) BlockGetter getter) {
         return WorldLoopAttachments.transformerIfLevel(getter).fold(pos);
     }
 }

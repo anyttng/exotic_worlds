@@ -26,7 +26,7 @@ public class RenderBufferHandlerMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lcom/seibel/distanthorizons/core/render/QuadTree/LodRenderSection;getRenderingEnabled()Z"))
-    private boolean toroidal$drawOnlyTheNearestCopy(LodRenderSection section, Operation<Boolean> original) {
+    private boolean exotic_worlds$drawOnlyTheNearestCopy(LodRenderSection section, Operation<Boolean> original) {
         if (!original.call(section)) {
             return false;
         }

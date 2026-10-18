@@ -4,10 +4,10 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 
 public interface TransformerHolder {
-    default WorldFold toroidal$transformer() {
+    default WorldFold exotic_worlds$transformer() {
         return WorldFolds.NOOP;
     }
 
-    default void toroidal$setTransformer(WorldFold transformer) {
+    default void exotic_worlds$setTransformer(WorldFold transformer) {
     }
 }

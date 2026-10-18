@@ -18,7 +18,7 @@ public class BatMixin {
             at = @At(value = "FIELD",
                     target = "Lnet/minecraft/world/entity/ambient/Bat;targetPosition:Lnet/minecraft/core/BlockPos;",
                     opcode = Opcodes.GETFIELD))
-    private @Nullable BlockPos toroidal$targetPositionThroughSeam(@Nullable BlockPos targetPosition) {
+    private @Nullable BlockPos exotic_worlds$targetPositionThroughSeam(@Nullable BlockPos targetPosition) {
         return targetPosition == null ? null : SeamSteering.nearestCopy((Bat) (Object) this, targetPosition);
     }
 }

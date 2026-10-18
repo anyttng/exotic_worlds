@@ -56,18 +56,18 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
     private ChunkStep generatingStep;
 
     @Unique
-    private @Nullable LevelTickAccess<Block> toroidal$blockTicks;
+    private @Nullable LevelTickAccess<Block> exotic_worlds$blockTicks;
 
     @Unique
-    private @Nullable LevelTickAccess<Fluid> toroidal$fluidTicks;
+    private @Nullable LevelTickAccess<Fluid> exotic_worlds$fluidTicks;
 
     @Override
-    public ServerLevel toroidal$level() {
+    public ServerLevel exotic_worlds$level() {
         return this.level;
     }
 
     @Unique
-    private @Nullable ChunkPos toroidal$nearestPastTheReach(int chunkX, int chunkZ) {
+    private @Nullable ChunkPos exotic_worlds$nearestPastTheReach(int chunkX, int chunkZ) {
         ChunkPos center = this.center.getPos();
         if (center.getChessboardDistance(chunkX, chunkZ) < this.generatingStep.directDependencies().size()) {
             return null;
@@ -80,19 +80,19 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @WrapMethod(
             method = "getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;")
-    private @Nullable ChunkAccess toroidal$chunkNearestTheGeneratingChunk(int chunkX, int chunkZ,
+    private @Nullable ChunkAccess exotic_worlds$chunkNearestTheGeneratingChunk(int chunkX, int chunkZ,
             ChunkStatus targetStatus, boolean loadOrGenerate, Operation<@Nullable ChunkAccess> original) {
-        ChunkPos nearest = this.toroidal$nearestPastTheReach(chunkX, chunkZ);
+        ChunkPos nearest = this.exotic_worlds$nearestPastTheReach(chunkX, chunkZ);
         return nearest == null
                 ? original.call(chunkX, chunkZ, targetStatus, loadOrGenerate)
                 : original.call(nearest.x, nearest.z, targetStatus, loadOrGenerate);
     }
 
     @WrapMethod(method = "ensureCanWrite")
-    private boolean toroidal$writeZoneThroughTheSeam(BlockPos pos, Operation<Boolean> original) {
+    private boolean exotic_worlds$writeZoneThroughTheSeam(BlockPos pos, Operation<Boolean> original) {
         int chunkX = SectionPos.blockToSectionCoord(pos.getX());
         int chunkZ = SectionPos.blockToSectionCoord(pos.getZ());
-        ChunkPos nearest = this.toroidal$nearestPastTheReach(chunkX, chunkZ);
+        ChunkPos nearest = this.exotic_worlds$nearestPastTheReach(chunkX, chunkZ);
         return nearest == null
                 ? original.call(pos)
                 : original.call(pos.offset(SectionPos.sectionToBlockCoord(nearest.x - chunkX), 0,
@@ -100,16 +100,16 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
     }
 
     @WrapMethod(method = "hasChunk")
-    private boolean toroidal$holdsTheChunkNearestTheGeneratingChunk(int chunkX, int chunkZ,
+    private boolean exotic_worlds$holdsTheChunkNearestTheGeneratingChunk(int chunkX, int chunkZ,
             Operation<Boolean> original) {
-        ChunkPos nearest = this.toroidal$nearestPastTheReach(chunkX, chunkZ);
+        ChunkPos nearest = this.exotic_worlds$nearestPastTheReach(chunkX, chunkZ);
         return nearest == null
                 ? original.call(chunkX, chunkZ)
                 : original.call(nearest.x, nearest.z);
     }
 
     @Unique
-    private BlockPos toroidal$keyIn(ChunkAccess chunk, BlockPos pos) {
+    private BlockPos exotic_worlds$keyIn(ChunkAccess chunk, BlockPos pos) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
         return transformer == null ? pos : transformer.reseat(pos, chunk.getPos());
     }
@@ -117,9 +117,9 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
     @WrapOperation(
             method = "setBlock",
             at = @At(value = "INVOKE", target = NEW_BLOCK_ENTITY))
-    private @Nullable BlockEntity toroidal$createBlockEntityInChunkFrame(
+    private @Nullable BlockEntity exotic_worlds$createBlockEntityInChunkFrame(
             EntityBlock block, BlockPos pos, BlockState state, Operation<BlockEntity> original, @Local ChunkAccess chunk) {
-        return original.call(block, this.toroidal$keyIn(chunk, pos), state);
+        return original.call(block, this.exotic_worlds$keyIn(chunk, pos), state);
     }
 
     @WrapOperation(
@@ -127,8 +127,8 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/ChunkAccess;removeBlockEntity(Lnet/minecraft/core/BlockPos;)V"))
-    private void toroidal$removeBlockEntityInChunkFrame(ChunkAccess chunk, BlockPos pos, Operation<Void> original) {
-        original.call(chunk, this.toroidal$keyIn(chunk, pos));
+    private void exotic_worlds$removeBlockEntityInChunkFrame(ChunkAccess chunk, BlockPos pos, Operation<Void> original) {
+        original.call(chunk, this.exotic_worlds$keyIn(chunk, pos));
     }
 
     @WrapOperation(
@@ -136,8 +136,8 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/ChunkAccess;setBlockEntityNbt(Lnet/minecraft/nbt/CompoundTag;)V"))
-    private void toroidal$storeNbtInChunkFrame(ChunkAccess chunk, CompoundTag tag, Operation<Void> original, @Local BlockPos pos) {
-        BlockPos key = this.toroidal$keyIn(chunk, pos);
+    private void exotic_worlds$storeNbtInChunkFrame(ChunkAccess chunk, CompoundTag tag, Operation<Void> original, @Local BlockPos pos) {
+        BlockPos key = this.exotic_worlds$keyIn(chunk, pos);
         tag.putInt("x", key.getX());
         tag.putInt("z", key.getZ());
         original.call(chunk, tag);
@@ -148,9 +148,9 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/level/ServerLevel;onBlockStateChange(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;)V"))
-    private void toroidal$updatePoiInChunkFrame(
+    private void exotic_worlds$updatePoiInChunkFrame(
             ServerLevel level, BlockPos pos, BlockState oldState, BlockState newState, Operation<Void> original, @Local ChunkAccess chunk) {
-        original.call(level, this.toroidal$keyIn(chunk, pos), oldState, newState);
+        original.call(level, this.exotic_worlds$keyIn(chunk, pos), oldState, newState);
     }
 
     @WrapOperation(
@@ -158,9 +158,9 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;"))
-    private @Nullable BlockEntity toroidal$readBlockEntityInChunkFrame(
+    private @Nullable BlockEntity exotic_worlds$readBlockEntityInChunkFrame(
             ChunkAccess chunk, BlockPos pos, Operation<BlockEntity> original) {
-        return original.call(chunk, this.toroidal$keyIn(chunk, pos));
+        return original.call(chunk, this.exotic_worlds$keyIn(chunk, pos));
     }
 
     @WrapOperation(
@@ -168,17 +168,17 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getBlockEntityNbt(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/nbt/CompoundTag;"))
-    private @Nullable CompoundTag toroidal$readBlockEntityNbtInChunkFrame(
+    private @Nullable CompoundTag exotic_worlds$readBlockEntityNbtInChunkFrame(
             ChunkAccess chunk, BlockPos pos, Operation<CompoundTag> original) {
-        return original.call(chunk, this.toroidal$keyIn(chunk, pos));
+        return original.call(chunk, this.exotic_worlds$keyIn(chunk, pos));
     }
 
     @WrapOperation(
             method = "getBlockEntity",
             at = @At(value = "INVOKE", target = NEW_BLOCK_ENTITY))
-    private @Nullable BlockEntity toroidal$rebuildBlockEntityInChunkFrame(
+    private @Nullable BlockEntity exotic_worlds$rebuildBlockEntityInChunkFrame(
             EntityBlock block, BlockPos pos, BlockState state, Operation<BlockEntity> original, @Local ChunkAccess chunk) {
-        return original.call(block, this.toroidal$keyIn(chunk, pos), state);
+        return original.call(block, this.exotic_worlds$keyIn(chunk, pos), state);
     }
 
     @WrapOperation(
@@ -186,42 +186,42 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/block/entity/BlockEntity;loadStatic(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/core/HolderLookup$Provider;)Lnet/minecraft/world/level/block/entity/BlockEntity;"))
-    private @Nullable BlockEntity toroidal$loadBlockEntityInChunkFrame(
+    private @Nullable BlockEntity exotic_worlds$loadBlockEntityInChunkFrame(
             BlockPos pos,
             BlockState state,
             CompoundTag tag,
             HolderLookup.Provider registries,
             Operation<BlockEntity> original,
             @Local ChunkAccess chunk) {
-        return original.call(this.toroidal$keyIn(chunk, pos), state, tag, registries);
+        return original.call(this.exotic_worlds$keyIn(chunk, pos), state, tag, registries);
     }
 
     @ModifyReturnValue(method = "getBlockTicks", at = @At("RETURN"))
-    private LevelTickAccess<Block> toroidal$blockTicksInChunkFrame(LevelTickAccess<Block> ticks) {
-        if (this.toroidal$blockTicks == null) {
-            this.toroidal$blockTicks = this.toroidal$ticksInChunkFrame(ticks);
+    private LevelTickAccess<Block> exotic_worlds$blockTicksInChunkFrame(LevelTickAccess<Block> ticks) {
+        if (this.exotic_worlds$blockTicks == null) {
+            this.exotic_worlds$blockTicks = this.exotic_worlds$ticksInChunkFrame(ticks);
         }
 
-        return this.toroidal$blockTicks;
+        return this.exotic_worlds$blockTicks;
     }
 
     @ModifyReturnValue(method = "getFluidTicks", at = @At("RETURN"))
-    private LevelTickAccess<Fluid> toroidal$fluidTicksInChunkFrame(LevelTickAccess<Fluid> ticks) {
-        if (this.toroidal$fluidTicks == null) {
-            this.toroidal$fluidTicks = this.toroidal$ticksInChunkFrame(ticks);
+    private LevelTickAccess<Fluid> exotic_worlds$fluidTicksInChunkFrame(LevelTickAccess<Fluid> ticks) {
+        if (this.exotic_worlds$fluidTicks == null) {
+            this.exotic_worlds$fluidTicks = this.exotic_worlds$ticksInChunkFrame(ticks);
         }
 
-        return this.toroidal$fluidTicks;
+        return this.exotic_worlds$fluidTicks;
     }
 
     @Unique
-    private <T> LevelTickAccess<T> toroidal$ticksInChunkFrame(LevelTickAccess<T> ticks) {
+    private <T> LevelTickAccess<T> exotic_worlds$ticksInChunkFrame(LevelTickAccess<T> ticks) {
         if (WorldLoopAttachments.wrappedTransformerOf(this.level) == null) {
             return ticks;
         }
 
         WorldGenRegion region = (WorldGenRegion) (Object) this;
-        return new ChunkFrameTicks<>(ticks, pos -> this.toroidal$keyIn(region.getChunk(pos), pos));
+        return new ChunkFrameTicks<>(ticks, pos -> this.exotic_worlds$keyIn(region.getChunk(pos), pos));
     }
 
     @WrapOperation(
@@ -229,7 +229,7 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/ChunkAccess;addEntity(Lnet/minecraft/world/entity/Entity;)V"))
-    private void toroidal$addEntityInChunkFrame(ChunkAccess chunk, Entity entity, Operation<Void> original) {
+    private void exotic_worlds$addEntityInChunkFrame(ChunkAccess chunk, Entity entity, Operation<Void> original) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
         if (transformer != null && transformer.isOver(entity.position())) {
             entity.setPos(transformer.fold(entity.position()));

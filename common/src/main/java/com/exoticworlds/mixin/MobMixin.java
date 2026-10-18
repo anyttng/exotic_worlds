@@ -22,20 +22,20 @@ import net.minecraft.world.phys.AABB;
 @Mixin(Mob.class)
 public class MobMixin {
     @ModifyVariable(method = "lookAt(Lnet/minecraft/world/entity/Entity;FF)V", at = @At("STORE"), ordinal = 0)
-    private double toroidal$lookDeltaX(double deltaX, @Local(argsOnly = true) Entity target) {
+    private double exotic_worlds$lookDeltaX(double deltaX, @Local(argsOnly = true) Entity target) {
         return SeamAim.deltaTo((Mob) (Object) this, target.position()).x;
     }
 
     @ModifyVariable(method = "lookAt(Lnet/minecraft/world/entity/Entity;FF)V", at = @At("STORE"), ordinal = 1)
-    private double toroidal$lookDeltaZ(double deltaZ, @Local(argsOnly = true) Entity target) {
+    private double exotic_worlds$lookDeltaZ(double deltaZ, @Local(argsOnly = true) Entity target) {
         return SeamAim.deltaTo((Mob) (Object) this, target.position()).z;
     }
 
     @ModifyExpressionValue(
             method = "isWithinMeleeAttackRange",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getHitbox()Lnet/minecraft/world/phys/AABB;"))
-    private AABB toroidal$meleeHitboxThroughSeam(AABB hitbox) {
-        WorldFold transformer = ((TransformerSource) this).toroidal$wrappedTransformer();
+    private AABB exotic_worlds$meleeHitboxThroughSeam(AABB hitbox) {
+        WorldFold transformer = ((TransformerSource) this).exotic_worlds$wrappedTransformer();
         return FoldedBoxQuery.toward(transformer, ((Mob) (Object) this).position(), hitbox);
     }
 
@@ -44,13 +44,13 @@ public class MobMixin {
             at = @At(value = "FIELD",
                     target = "Lnet/minecraft/world/entity/Mob;restrictCenter:Lnet/minecraft/core/BlockPos;",
                     opcode = Opcodes.GETFIELD))
-    private BlockPos toroidal$homeThroughSeam(BlockPos home, @Local(argsOnly = true) BlockPos pos) {
-        return toroidal$nearestHome(home, pos);
+    private BlockPos exotic_worlds$homeThroughSeam(BlockPos home, @Local(argsOnly = true) BlockPos pos) {
+        return exotic_worlds$nearestHome(home, pos);
     }
 
     @Unique
-    private BlockPos toroidal$nearestHome(BlockPos home, BlockPos anchor) {
-        WorldFold transformer = ((TransformerSource) this).toroidal$wrappedTransformer();
+    private BlockPos exotic_worlds$nearestHome(BlockPos home, BlockPos anchor) {
+        WorldFold transformer = ((TransformerSource) this).exotic_worlds$wrappedTransformer();
         return NearestCopy.toward(transformer, anchor, home);
     }
 }

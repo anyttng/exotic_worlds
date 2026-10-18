@@ -18,9 +18,9 @@ public class DragonTakeoffPhaseMixin {
             method = "doServerTick",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean toroidal$takeoffClearanceThroughSeam(BlockPos eggPos, Position dragonPosition, double distance,
+    private boolean exotic_worlds$takeoffClearanceThroughSeam(BlockPos eggPos, Position dragonPosition, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan(((DragonPhaseAccessor) this).toroidal$dragon(), eggPos, dragonPosition,
+        return SeamRange.closerToCenterThan(((DragonPhaseAccessor) this).exotic_worlds$dragon(), eggPos, dragonPosition,
                 distance);
     }
 }

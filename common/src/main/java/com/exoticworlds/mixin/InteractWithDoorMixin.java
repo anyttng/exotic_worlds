@@ -31,7 +31,7 @@ public class InteractWithDoorMixin {
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN),
             expect = 2)
-    private static boolean toroidal$doorReachThroughSeam(BlockPos doorPos, Position bodyPosition, double distance,
+    private static boolean exotic_worlds$doorReachThroughSeam(BlockPos doorPos, Position bodyPosition, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) LivingEntity body) {
         return SeamRange.closerToCenterThan(body, doorPos, bodyPosition, distance);
     }
@@ -40,9 +40,9 @@ public class InteractWithDoorMixin {
             method = "closeDoorsThatIHaveOpenedOrPassedThrough",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/pathfinder/Node;asBlockPos()Lnet/minecraft/core/BlockPos;"))
-    private static BlockPos toroidal$standingInDoorwayThroughSeam(BlockPos nodePos,
+    private static BlockPos exotic_worlds$standingInDoorwayThroughSeam(BlockPos nodePos,
             @Local(argsOnly = true) LivingEntity body, @Local BlockPos doorPos) {
-        WorldFold transformer = ((TransformerSource) body).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) body).exotic_worlds$wrappedTransformer();
         return NearestCopy.toward(transformer, doorPos, nodePos);
     }
 
@@ -52,14 +52,14 @@ public class InteractWithDoorMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/ai/behavior/InteractWithDoor;"
                             + "isMobComingThroughDoor(Lnet/minecraft/world/entity/ai/Brain;Lnet/minecraft/core/BlockPos;)Z"))
-    private static boolean toroidal$otherMobsDoorwayThroughSeam(Brain<?> otherBrain, BlockPos doorPos,
+    private static boolean exotic_worlds$otherMobsDoorwayThroughSeam(Brain<?> otherBrain, BlockPos doorPos,
             Operation<Boolean> original, @Local(argsOnly = true) LivingEntity otherMob) {
         BlockPos nearest = SeamSteering.nearestCopy(otherMob, doorPos);
         return original.call(otherBrain, nearest);
     }
 
     @ModifyVariable(method = "rememberDoorToClose", at = @At("HEAD"), argsOnly = true)
-    private static BlockPos toroidal$rememberedDoorCanonical(BlockPos doorPos,
+    private static BlockPos exotic_worlds$rememberedDoorCanonical(BlockPos doorPos,
             @Local(argsOnly = true) ServerLevel level) {
         return WorldLoopAttachments.transformerOf(level).fold(doorPos);
     }

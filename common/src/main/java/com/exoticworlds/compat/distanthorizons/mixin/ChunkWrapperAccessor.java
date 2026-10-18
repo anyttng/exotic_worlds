@@ -9,14 +9,14 @@ import com.seibel.distanthorizons.core.wrapperInterfaces.chunk.ChunkLightStorage
 @Mixin(targets = {DhInjectionTargets.CHUNK_WRAPPER_NEOFORGE, DhInjectionTargets.CHUNK_WRAPPER}, remap = false)
 public interface ChunkWrapperAccessor {
     @Accessor("blockLightStorage")
-    ChunkLightStorage toroidal$blockLightStorage();
+    ChunkLightStorage exotic_worlds$blockLightStorage();
 
     @Accessor("blockLightStorage")
-    void toroidal$setBlockLightStorage(ChunkLightStorage storage);
+    void exotic_worlds$setBlockLightStorage(ChunkLightStorage storage);
 
     @Accessor("skyLightStorage")
-    ChunkLightStorage toroidal$skyLightStorage();
+    ChunkLightStorage exotic_worlds$skyLightStorage();
 
     @Accessor("skyLightStorage")
-    void toroidal$setSkyLightStorage(ChunkLightStorage storage);
+    void exotic_worlds$setSkyLightStorage(ChunkLightStorage storage);
 }

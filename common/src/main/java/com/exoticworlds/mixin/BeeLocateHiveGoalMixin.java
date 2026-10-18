@@ -21,11 +21,11 @@ public class BeeLocateHiveGoalMixin {
     // From the constructor, not shadowed off this$0 — see BeeEnterHiveGoalMixin: the outer reference is javac's, not
     // any mapping set's, so a remapping loader has nothing to resolve it to.
     @Unique
-    private Bee toroidal$bee;
+    private Bee exotic_worlds$bee;
 
     @Inject(method = "<init>(Lnet/minecraft/world/entity/animal/Bee;)V", at = @At("TAIL"))
-    private void toroidal$captureBee(Bee bee, CallbackInfo ci) {
-        this.toroidal$bee = bee;
+    private void exotic_worlds$captureBee(Bee bee, CallbackInfo ci) {
+        this.exotic_worlds$bee = bee;
     }
 
     @ModifyArg(
@@ -33,9 +33,9 @@ public class BeeLocateHiveGoalMixin {
             at = @At(value = "INVOKE",
                     target = "Ljava/util/Comparator;comparingDouble(Ljava/util/function/ToDoubleFunction;)Ljava/util/Comparator;"),
             index = 0)
-    private ToDoubleFunction<BlockPos> toroidal$rankHivesThroughSeam(ToDoubleFunction<BlockPos> byRawDistance,
+    private ToDoubleFunction<BlockPos> exotic_worlds$rankHivesThroughSeam(ToDoubleFunction<BlockPos> byRawDistance,
             @Local BlockPos beePos) {
-        WorldFold transformer = ((TransformerSource) this.toroidal$bee).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) this.exotic_worlds$bee).exotic_worlds$wrappedTransformer();
         if (transformer == null) {
             return byRawDistance;
         }

@@ -15,7 +15,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 
 public final class WorldLoopAttachments {
     public static WorldFold transformerOf(Level level) {
-        return ((TransformerCache) level).toroidal$transformer();
+        return ((TransformerCache) level).exotic_worlds$transformer();
     }
 
     public static WorldFold transformerIfLevel(@Nullable LevelHeightAccessor accessor) {
@@ -37,7 +37,7 @@ public final class WorldLoopAttachments {
     }
 
     private static WorldFold clientBoundsTransformerOf(Level level) {
-        return level instanceof ClientBoundsHolder holder ? holder.toroidal$clientBounds() : WorldFolds.NOOP;
+        return level instanceof ClientBoundsHolder holder ? holder.exotic_worlds$clientBounds() : WorldFolds.NOOP;
     }
 
     public static @Nullable WorldFold wrappedClientBoundsTransformerOf(@Nullable Level level) {

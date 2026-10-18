@@ -17,21 +17,21 @@ import net.minecraft.world.level.levelgen.DensityFunction;
 @Mixin(targets = "net.minecraft.world.level.levelgen.Aquifer$NoiseBasedAquifer")
 public class AquiferFluidLevelSeamMixin {
     @Unique
-    private @Nullable CanonicalCellSampler toroidal$levelSampler;
+    private @Nullable CanonicalCellSampler exotic_worlds$levelSampler;
 
     @WrapOperation(
             method = "computeRandomizedFluidSurfaceLevel",
             at = @At(
                     value = "INVOKE",
                     target = InjectionTargets.DENSITY_FUNCTION_COMPUTE))
-    private double toroidal$fluidLevelFromCanonicalCell(
+    private double exotic_worlds$fluidLevelFromCanonicalCell(
             DensityFunction noise, DensityFunction.FunctionContext cell, Operation<Double> original,
             @Local(argsOnly = true, ordinal = 0) int blockX,
             @Local(argsOnly = true, ordinal = 2) int blockZ) {
-        if (this.toroidal$levelSampler == null) {
-            this.toroidal$levelSampler = new CanonicalCellSampler(NoiseConstants.AQUIFER_FLUID_LEVEL_CELL_WIDTH);
+        if (this.exotic_worlds$levelSampler == null) {
+            this.exotic_worlds$levelSampler = new CanonicalCellSampler(NoiseConstants.AQUIFER_FLUID_LEVEL_CELL_WIDTH);
         }
 
-        return this.toroidal$levelSampler.sample(cell, blockX, blockZ, folded -> original.call(noise, folded));
+        return this.exotic_worlds$levelSampler.sample(cell, blockX, blockZ, folded -> original.call(noise, folded));
     }
 }

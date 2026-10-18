@@ -26,7 +26,7 @@ public class DebugEntryChunkGenerationMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/ChunkGenerator;addDebugScreenInfo(Ljava/util/List;Lnet/minecraft/world/level/levelgen/RandomState;Lnet/minecraft/core/BlockPos;)V"))
-    private void toroidal$sampleThisWorldsNoise(ChunkGenerator generator, List<String> result,
+    private void exotic_worlds$sampleThisWorldsNoise(ChunkGenerator generator, List<String> result,
             RandomState randomState, BlockPos feetPos, Operation<Void> original,
             @Local ServerLevel serverLevel) {
         GenerationTransformerContext.runWithTransformer(WorldLoopAttachments.transformerOf(serverLevel),
@@ -38,7 +38,7 @@ public class DebugEntryChunkGenerationMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/biome/BiomeSource;addDebugInfo(Ljava/util/List;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/biome/Climate$Sampler;)V"))
-    private void toroidal$sampleThisWorldsClimate(BiomeSource biomeSource, List<String> result,
+    private void exotic_worlds$sampleThisWorldsClimate(BiomeSource biomeSource, List<String> result,
             BlockPos feetPos, Climate.Sampler sampler, Operation<Void> original,
             @Local ServerLevel serverLevel) {
         GenerationTransformerContext.runWithTransformer(WorldLoopAttachments.transformerOf(serverLevel),

@@ -33,30 +33,30 @@ public class SeedPreviewWidgetMixin {
     private WorldCreationPreviewContext previewContext;
 
     @Inject(method = SeedViewerInjectionTargets.CONSTRUCTOR, at = @At("RETURN"))
-    private void toroidal$startTheScreensFingerprints(CallbackInfo callback) {
+    private void exotic_worlds$startTheScreensFingerprints(CallbackInfo callback) {
         CreationShape.forgetFingerprints();
     }
 
     @Inject(method = "seedviewer$onSelected", at = @At("RETURN"))
-    private void toroidal$keepTheShapeForTheSession(CallbackInfo callback) {
+    private void exotic_worlds$keepTheShapeForTheSession(CallbackInfo callback) {
         CreationShape.openSession();
     }
 
     @Inject(method = "seedviewer$onDeselected", at = @At("HEAD"))
-    private void toroidal$dropTheSessionsShape(CallbackInfo callback) {
+    private void exotic_worlds$dropTheSessionsShape(CallbackInfo callback) {
         CreationShape.closeSession();
     }
 
     @ModifyReturnValue(method = "settingsFingerprint", at = @At("RETURN"))
-    private String toroidal$fingerprintTheChosenShape(String fingerprint, @Local WorldCreationContext settings) {
+    private String exotic_worlds$fingerprintTheChosenShape(String fingerprint, @Local WorldCreationContext settings) {
         return fingerprint + CreationShape.fingerprint(settings);
     }
 
     @Inject(method = SeedViewerInjectionTargets.DRAW_TILES,
             at = @At(value = "INVOKE", target = SeedViewerInjectionTargets.DISABLE_SCISSOR))
-    private void toroidal$drawTheSeams(GuiGraphics graphics, CallbackInfo callback) {
+    private void exotic_worlds$drawTheSeams(GuiGraphics graphics, CallbackInfo callback) {
         SeamLines.draw(graphics,
-                ((WorldCreationPreviewContextAccessor) (Object) this.previewContext).toroidal$biomeSampler(),
+                ((WorldCreationPreviewContextAccessor) (Object) this.previewContext).exotic_worlds$biomeSampler(),
                 this.camera, this.viewport);
     }
 }

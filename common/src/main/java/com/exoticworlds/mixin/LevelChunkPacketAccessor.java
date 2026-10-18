@@ -12,9 +12,9 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 public interface LevelChunkPacketAccessor extends ChunkPacketPosition {
     @Mutable
     @Accessor("x")
-    void toroidal$setX(int x);
+    void exotic_worlds$setX(int x);
 
     @Mutable
     @Accessor("z")
-    void toroidal$setZ(int z);
+    void exotic_worlds$setZ(int z);
 }

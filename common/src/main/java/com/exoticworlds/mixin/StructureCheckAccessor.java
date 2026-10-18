@@ -10,5 +10,5 @@ import net.minecraft.world.level.levelgen.structure.StructureCheck;
 @Mixin(StructureCheck.class)
 public interface StructureCheckAccessor {
     @Invoker("canCreateStructure")
-    boolean toroidal$canCreateStructure(ChunkPos pos, Structure structure);
+    boolean exotic_worlds$canCreateStructure(ChunkPos pos, Structure structure);
 }

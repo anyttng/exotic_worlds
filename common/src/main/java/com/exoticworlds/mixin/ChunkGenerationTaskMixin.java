@@ -30,7 +30,7 @@ public class ChunkGenerationTaskMixin {
             at = @At(
                     value = "INVOKE",
                     target = InjectionTargets.STATIC_CACHE_2D_CREATE))
-    private static StaticCache2D<GenerationChunkHolder> toroidal$foldSeamSlots(
+    private static StaticCache2D<GenerationChunkHolder> exotic_worlds$foldSeamSlots(
             int centerX,
             int centerZ,
             int range,
@@ -41,23 +41,23 @@ public class ChunkGenerationTaskMixin {
             return original.call(centerX, centerZ, range, initializer);
         }
 
-        ServerLevel level = ((LevelHolder) (Object) map).toroidal$level();
+        ServerLevel level = ((LevelHolder) (Object) map).exotic_worlds$level();
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
         if (transformer == null) {
             return original.call(centerX, centerZ, range, initializer);
         }
 
         String levelName = level.dimension().location().toString();
-        StaticCache2D.Initializer<GenerationChunkHolder> folding = (slotX, slotZ) -> toroidal$slotFor(
+        StaticCache2D.Initializer<GenerationChunkHolder> folding = (slotX, slotZ) -> exotic_worlds$slotFor(
                 map, transformer, levelName, initializer, centerX, centerZ, slotX, slotZ);
         return original.call(centerX, centerZ, range, folding);
     }
 
     @Unique
-    private static final Logger toroidal$LOGGER = LogUtils.getLogger();
+    private static final Logger exotic_worlds$LOGGER = LogUtils.getLogger();
 
     @Unique
-    private static GenerationChunkHolder toroidal$slotFor(
+    private static GenerationChunkHolder exotic_worlds$slotFor(
             ChunkMap map,
             WorldFold transformer,
             String levelName,
@@ -80,7 +80,7 @@ public class ChunkGenerationTaskMixin {
         int wrappedZ = wrapped.z;
 
         if (map.getUpdatingChunkIfPresent(ChunkPos.asLong(wrappedX, wrappedZ)) == null) {
-            toroidal$LOGGER.warn(
+            exotic_worlds$LOGGER.warn(
                     "missing_folded_holder level={} slot_x={} slot_z={} wrapped_x={} wrapped_z={} center_x={} center_z={}",
                     levelName, slotX, slotZ, wrappedX, wrappedZ, centerX, centerZ);
             return initializer.get(slotX, slotZ);

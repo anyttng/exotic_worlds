@@ -23,7 +23,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 @Mixin(ForceLoadCommand.class)
 public class ForceLoadCommandMixin {
     @WrapMethod(method = "changeForceLoad")
-    private static int toroidal$foldRequestedRange(CommandSourceStack source, ColumnPos from, ColumnPos to,
+    private static int exotic_worlds$foldRequestedRange(CommandSourceStack source, ColumnPos from, ColumnPos to,
             boolean add, Operation<Integer> original) throws CommandSyntaxException {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(source.getLevel());
         if (transformer == null) {
@@ -43,7 +43,7 @@ public class ForceLoadCommandMixin {
     @WrapOperation(
             method = "changeForceLoad",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setChunkForced(IIZ)Z"))
-    private static boolean toroidal$reserveThePhysicalChunk(ServerLevel level, int chunkX, int chunkZ, boolean forced,
+    private static boolean exotic_worlds$reserveThePhysicalChunk(ServerLevel level, int chunkX, int chunkZ, boolean forced,
             Operation<Boolean> original) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
         if (transformer == null) {
@@ -57,7 +57,7 @@ public class ForceLoadCommandMixin {
     @ModifyExpressionValue(
             method = "changeForceLoad",
             at = @At(value = "NEW", target = "net/minecraft/world/level/ChunkPos"))
-    private static ChunkPos toroidal$reportThePhysicalChunk(ChunkPos chunkPos,
+    private static ChunkPos exotic_worlds$reportThePhysicalChunk(ChunkPos chunkPos,
             @Local(argsOnly = true) CommandSourceStack source) {
         return WorldLoopAttachments.transformerOf(source.getLevel()).fold(chunkPos);
     }
@@ -65,7 +65,7 @@ public class ForceLoadCommandMixin {
     @ModifyExpressionValue(
             method = "queryForceLoad",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ColumnPos;toChunkPos()Lnet/minecraft/world/level/ChunkPos;"))
-    private static ChunkPos toroidal$queryThePhysicalChunk(ChunkPos chunkPos,
+    private static ChunkPos exotic_worlds$queryThePhysicalChunk(ChunkPos chunkPos,
             @Local(argsOnly = true) CommandSourceStack source) {
         return WorldLoopAttachments.transformerOf(source.getLevel()).fold(chunkPos);
     }

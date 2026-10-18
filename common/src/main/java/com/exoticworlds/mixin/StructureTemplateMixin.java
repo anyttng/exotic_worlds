@@ -20,7 +20,7 @@ public class StructureTemplateMixin {
     @ModifyExpressionValue(
             method = "fillEntityList",
             at = @At(value = "NEW", target = InjectionTargets.VEC3_NEW))
-    private Vec3 toroidal$entityOffsetInScanFrame(Vec3 offset, @Local(argsOnly = true) Level level) {
+    private Vec3 exotic_worlds$entityOffsetInScanFrame(Vec3 offset, @Local(argsOnly = true) Level level) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
         if (transformer == null) {
             return offset;
@@ -34,7 +34,7 @@ public class StructureTemplateMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/core/BlockPos;subtract(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/BlockPos;"))
-    private BlockPos toroidal$paintingOffsetInScanFrame(BlockPos offset, @Local(argsOnly = true) Level level) {
+    private BlockPos exotic_worlds$paintingOffsetInScanFrame(BlockPos offset, @Local(argsOnly = true) Level level) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
         if (transformer == null) {
             return offset;

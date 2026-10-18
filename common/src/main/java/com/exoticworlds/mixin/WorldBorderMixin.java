@@ -26,13 +26,13 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 @Mixin(WorldBorder.class)
 public class WorldBorderMixin implements TransformerHolder {
     @Unique
-    private WorldFold toroidal$transformer = WorldFolds.NOOP;
+    private WorldFold exotic_worlds$transformer = WorldFolds.NOOP;
 
     @Unique
-    private double @Nullable [] toroidal$wallBounds;
+    private double @Nullable [] exotic_worlds$wallBounds;
 
     @Unique
-    private @Nullable VoxelShape toroidal$wall;
+    private @Nullable VoxelShape exotic_worlds$wall;
 
     @Shadow
     public double getMinX() {
@@ -55,42 +55,42 @@ public class WorldBorderMixin implements TransformerHolder {
     }
 
     @Override
-    public WorldFold toroidal$transformer() {
-        return this.toroidal$transformer;
+    public WorldFold exotic_worlds$transformer() {
+        return this.exotic_worlds$transformer;
     }
 
     @Override
-    public void toroidal$setTransformer(WorldFold transformer) {
-        this.toroidal$transformer = transformer;
+    public void exotic_worlds$setTransformer(WorldFold transformer) {
+        this.exotic_worlds$transformer = transformer;
     }
 
     @ModifyReturnValue(method = "isWithinBounds(DDD)Z", at = @At("RETURN"))
-    private boolean toroidal$boundsThroughSeam(boolean original, double x, double z, double margin) {
-        WorldFold transformer = this.toroidal$transformer;
-        return transformer.isWrapped() && !toroidal$isForeign(transformer, x, z)
-                ? toroidal$border(transformer).inside(x, z, margin)
+    private boolean exotic_worlds$boundsThroughSeam(boolean original, double x, double z, double margin) {
+        WorldFold transformer = this.exotic_worlds$transformer;
+        return transformer.isWrapped() && !exotic_worlds$isForeign(transformer, x, z)
+                ? exotic_worlds$border(transformer).inside(x, z, margin)
                 : original;
     }
 
     @ModifyReturnValue(method = "getDistanceToBorder(DD)D", at = @At("RETURN"))
-    private double toroidal$distanceThroughSeam(double original, double x, double z) {
-        WorldFold transformer = this.toroidal$transformer;
-        return transformer.isWrapped() && !toroidal$isForeign(transformer, x, z)
-                ? toroidal$border(transformer).distanceToEdge(x, z)
+    private double exotic_worlds$distanceThroughSeam(double original, double x, double z) {
+        WorldFold transformer = this.exotic_worlds$transformer;
+        return transformer.isWrapped() && !exotic_worlds$isForeign(transformer, x, z)
+                ? exotic_worlds$border(transformer).distanceToEdge(x, z)
                 : original;
     }
 
     @ModifyReturnValue(method = "clampToBounds(DDD)Lnet/minecraft/core/BlockPos;", at = @At("RETURN"))
-    private BlockPos toroidal$clampThroughSeam(BlockPos original, double x, double y, double z) {
-        WorldFold transformer = this.toroidal$transformer;
-        return transformer.isWrapped() && !toroidal$isForeign(transformer, x, z)
-                ? BlockPos.containing(transformer.fold(toroidal$border(transformer).clamped(x, y, z)))
+    private BlockPos exotic_worlds$clampThroughSeam(BlockPos original, double x, double y, double z) {
+        WorldFold transformer = this.exotic_worlds$transformer;
+        return transformer.isWrapped() && !exotic_worlds$isForeign(transformer, x, z)
+                ? BlockPos.containing(transformer.fold(exotic_worlds$border(transformer).clamped(x, y, z)))
                 : original;
     }
 
     @WrapMethod(method = "getCollisionShape")
-    private VoxelShape toroidal$wallThroughSeam(Operation<VoxelShape> original) {
-        WorldFold transformer = this.toroidal$transformer;
+    private VoxelShape exotic_worlds$wallThroughSeam(Operation<VoxelShape> original) {
+        WorldFold transformer = this.exotic_worlds$transformer;
         if (!transformer.isWrapped()) {
             return original.call();
         }
@@ -100,31 +100,31 @@ public class WorldBorderMixin implements TransformerHolder {
         double minZ = getMinZ();
         double maxZ = getMaxZ();
 
-        double[] bounds = this.toroidal$wallBounds;
-        VoxelShape wall = this.toroidal$wall;
+        double[] bounds = this.exotic_worlds$wallBounds;
+        VoxelShape wall = this.exotic_worlds$wall;
         if (wall == null || bounds == null
                 || bounds[0] != minX || bounds[1] != maxX || bounds[2] != minZ || bounds[3] != maxZ) {
-            wall = toroidal$buildWall(toroidal$border(transformer));
-            this.toroidal$wall = wall;
-            this.toroidal$wallBounds = new double[] {minX, maxX, minZ, maxZ};
+            wall = exotic_worlds$buildWall(exotic_worlds$border(transformer));
+            this.exotic_worlds$wall = wall;
+            this.exotic_worlds$wallBounds = new double[] {minX, maxX, minZ, maxZ};
         }
 
         return wall;
     }
 
     @Unique
-    private static boolean toroidal$isForeign(WorldFold transformer, double x, double z) {
+    private static boolean exotic_worlds$isForeign(WorldFold transformer, double x, double z) {
         TranslationLattice lattice = transformer.blockLattice();
         return lattice.x().isForeign(x) || lattice.z().isForeign(z);
     }
 
     @Unique
-    private SeamBorder toroidal$border(WorldFold transformer) {
+    private SeamBorder exotic_worlds$border(WorldFold transformer) {
         return new SeamBorder(transformer.blockLattice(), getMinX(), getMaxX(), getMinZ(), getMaxZ());
     }
 
     @Unique
-    private static VoxelShape toroidal$buildWall(SeamBorder border) {
+    private static VoxelShape exotic_worlds$buildWall(SeamBorder border) {
         VoxelShape wall = Shapes.INFINITY;
         for (Vec3 shift : border.wallShifts()) {
             wall = Shapes.join(wall, Shapes.box(

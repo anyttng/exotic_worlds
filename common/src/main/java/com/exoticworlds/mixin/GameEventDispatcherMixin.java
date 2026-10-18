@@ -28,18 +28,18 @@ public class GameEventDispatcherMixin {
     @WrapOperation(
             method = "handleGameEventMessagesInQueue",
             at = @At(value = "INVOKE", target = "Ljava/util/Collections;sort(Ljava/util/List;)V"))
-    private void toroidal$orderThroughSeam(List<GameEvent.ListenerInfo> listenerInfos, Operation<Void> original) {
+    private void exotic_worlds$orderThroughSeam(List<GameEvent.ListenerInfo> listenerInfos, Operation<Void> original) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
         if (transformer != null) {
-            listenerInfos.replaceAll(info -> toroidal$nearestCopy(info, transformer));
+            listenerInfos.replaceAll(info -> exotic_worlds$nearestCopy(info, transformer));
         }
 
         original.call(listenerInfos);
     }
 
     @Unique
-    private static GameEvent.ListenerInfo toroidal$nearestCopy(GameEvent.ListenerInfo info, WorldFold transformer) {
-        Vec3 recipientPos = ((RecipientPositionHolder) (Object) info).toroidal$recipientPos();
+    private static GameEvent.ListenerInfo exotic_worlds$nearestCopy(GameEvent.ListenerInfo info, WorldFold transformer) {
+        Vec3 recipientPos = ((RecipientPositionHolder) (Object) info).exotic_worlds$recipientPos();
         Vec3 nearest = transformer.nearestCopy(info.source(), recipientPos);
         return nearest == recipientPos
                 ? info

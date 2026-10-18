@@ -13,22 +13,22 @@ import com.exoticworlds.compat.StandInHolder;
 @Mixin(OpenSimplexNoise.class)
 public class OpenSimplexNoiseMixin implements StandInHolder {
     @Unique
-    private long toroidal$seed;
+    private long exotic_worlds$seed;
 
     @Unique
-    private OpenSimplexStandIn toroidal$standIn;
+    private OpenSimplexStandIn exotic_worlds$standIn;
 
     @Inject(method = "<init>(J)V", at = @At("RETURN"))
-    private void toroidal$keepSeed(long seed, CallbackInfo ci) {
-        this.toroidal$seed = seed;
+    private void exotic_worlds$keepSeed(long seed, CallbackInfo ci) {
+        this.exotic_worlds$seed = seed;
     }
 
     @Override
-    public OpenSimplexStandIn toroidal$standIn() {
-        OpenSimplexStandIn standIn = this.toroidal$standIn;
+    public OpenSimplexStandIn exotic_worlds$standIn() {
+        OpenSimplexStandIn standIn = this.exotic_worlds$standIn;
         if (standIn == null) {
-            standIn = new OpenSimplexStandIn(this.toroidal$seed);
-            this.toroidal$standIn = standIn;
+            standIn = new OpenSimplexStandIn(this.exotic_worlds$seed);
+            this.exotic_worlds$standIn = standIn;
         }
 
         return standIn;

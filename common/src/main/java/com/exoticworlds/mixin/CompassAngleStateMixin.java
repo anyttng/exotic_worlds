@@ -27,7 +27,7 @@ public class CompassAngleStateMixin {
                     + "Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/core/GlobalPos;";
 
     @WrapOperation(method = "getCompassRotation", at = @At(value = "INVOKE", target = COMPASS_TARGET_GET))
-    private @Nullable GlobalPos toroidal$needleTargetNearestCopy(
+    private @Nullable GlobalPos exotic_worlds$needleTargetNearestCopy(
             CompassItemPropertyFunction.CompassTarget compassTarget,
             ClientLevel level, ItemStack itemStack, Entity owner, Operation<GlobalPos> original) {
         GlobalPos target = original.call(compassTarget, level, itemStack, owner);

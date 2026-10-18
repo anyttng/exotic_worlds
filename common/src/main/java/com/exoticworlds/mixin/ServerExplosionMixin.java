@@ -29,21 +29,21 @@ public class ServerExplosionMixin {
     @ModifyVariable(
             method = "getSeenPercent(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/entity/Entity;)F",
             at = @At("HEAD"), argsOnly = true)
-    private static Vec3 toroidal$exposureCenterThroughSeam(Vec3 center, @Local(argsOnly = true) Entity entity) {
+    private static Vec3 exotic_worlds$exposureCenterThroughSeam(Vec3 center, @Local(argsOnly = true) Entity entity) {
         return SeamSteering.nearestCopy(entity, center);
     }
 
     @ModifyExpressionValue(
             method = "explode",
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_X))
-    private double toroidal$knockbackOriginX(double entityX, @Local Entity entity) {
+    private double exotic_worlds$knockbackOriginX(double entityX, @Local Entity entity) {
         return this.x + SeamAim.foldDelta(entity, entityX - this.x, entity.getZ() - this.z).x;
     }
 
     @ModifyExpressionValue(
             method = "explode",
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_Z))
-    private double toroidal$knockbackOriginZ(double entityZ, @Local Entity entity) {
+    private double exotic_worlds$knockbackOriginZ(double entityZ, @Local Entity entity) {
         return this.z + SeamAim.foldDelta(entity, entity.getX() - this.x, entityZ - this.z).z;
     }
 }

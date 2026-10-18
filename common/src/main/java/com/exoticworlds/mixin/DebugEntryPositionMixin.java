@@ -32,7 +32,7 @@ public class DebugEntryPositionMixin {
     private static final String CHUNK_PREFIX = "Chunk: ";
 
     @ModifyReturnValue(method = "getGameInformation", at = @At("RETURN"))
-    private List<String> toroidal$wrapPositionLines(List<String> lines) {
+    private List<String> exotic_worlds$wrapPositionLines(List<String> lines) {
         Minecraft minecraft = Minecraft.getInstance();
         Level level = minecraft.level;
         Entity entity = minecraft.getCameraEntity();
@@ -45,9 +45,9 @@ public class DebugEntryPositionMixin {
             return lines;
         }
 
-        int xyzLine = toroidal$lineStartingWith(lines, XYZ_PREFIX);
-        int blockLine = toroidal$lineStartingWith(lines, BLOCK_PREFIX);
-        int chunkLine = toroidal$lineStartingWith(lines, CHUNK_PREFIX);
+        int xyzLine = exotic_worlds$lineStartingWith(lines, XYZ_PREFIX);
+        int blockLine = exotic_worlds$lineStartingWith(lines, BLOCK_PREFIX);
+        int chunkLine = exotic_worlds$lineStartingWith(lines, CHUNK_PREFIX);
         if (xyzLine < 0 || blockLine < 0 || chunkLine < 0) {
             return lines;
         }
@@ -79,7 +79,7 @@ public class DebugEntryPositionMixin {
     }
 
     @Unique
-    private static int toroidal$lineStartingWith(List<String> lines, String prefix) {
+    private static int exotic_worlds$lineStartingWith(List<String> lines, String prefix) {
         for (int index = 0; index < lines.size(); index++) {
             if (lines.get(index).startsWith(prefix)) {
                 return index;

@@ -13,7 +13,7 @@ import com.ishland.c2me.opts.dfc.common.gen.jvm.BytecodeGenRegistry;
 @Mixin(BytecodeGenRegistry.class)
 public class BytecodeGenRegistryMixin {
     @Inject(method = "<clinit>", at = @At("TAIL"))
-    private static void toroidal$registerFoldedNoise(CallbackInfo ci) {
+    private static void exotic_worlds$registerFoldedNoise(CallbackInfo ci) {
         BytecodeGenRegistry.REGISTRY.registerExactMatch(C2meFoldedNoiseNode.class, C2meFoldedNoiseEmitter.INSTANCE);
     }
 }

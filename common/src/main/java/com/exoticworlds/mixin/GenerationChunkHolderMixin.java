@@ -26,7 +26,7 @@ public abstract class GenerationChunkHolderMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/level/GenerationChunkHolder;acquireStatusBump(Lnet/minecraft/world/level/chunk/status/ChunkStatus;)Z"))
-    private boolean toroidal$neverStepAcrossFrames(
+    private boolean exotic_worlds$neverStepAcrossFrames(
             GenerationChunkHolder holder,
             ChunkStatus status,
             Operation<Boolean> original,
@@ -38,7 +38,7 @@ public abstract class GenerationChunkHolderMixin {
         }
 
         if (chunkMap instanceof ChunkMap map) {
-            ((SeamDriveScheduler) (Object) map).toroidal$requestDrive(holder, status);
+            ((SeamDriveScheduler) (Object) map).exotic_worlds$requestDrive(holder, status);
         }
 
         return false;

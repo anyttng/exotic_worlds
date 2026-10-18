@@ -26,9 +26,9 @@ public class PlayerChunkSenderMixin {
                     value = "INVOKE",
                     target = "Lcom/google/common/collect/Comparators;least(ILjava/util/Comparator;)Ljava/util/stream/Collector;"),
             index = 1)
-    private Comparator<Long> toroidal$nearestPendingThroughSeam(Comparator<Long> original,
+    private Comparator<Long> exotic_worlds$nearestPendingThroughSeam(Comparator<Long> original,
             @Local(argsOnly = true) ChunkMap chunkMap, @Local(argsOnly = true) ChunkPos playerPos) {
-        WorldFold transformer = toroidal$transformer(chunkMap);
+        WorldFold transformer = exotic_worlds$transformer(chunkMap);
         if (!transformer.isWrapped()) {
             return original;
         }
@@ -42,9 +42,9 @@ public class PlayerChunkSenderMixin {
                     value = "INVOKE",
                     target = InjectionTargets.STREAM_SORTED),
             index = 0)
-    private Comparator<LevelChunk> toroidal$nearestLoadedThroughSeam(Comparator<LevelChunk> original,
+    private Comparator<LevelChunk> exotic_worlds$nearestLoadedThroughSeam(Comparator<LevelChunk> original,
             @Local(argsOnly = true) ChunkMap chunkMap, @Local(argsOnly = true) ChunkPos playerPos) {
-        WorldFold transformer = toroidal$transformer(chunkMap);
+        WorldFold transformer = exotic_worlds$transformer(chunkMap);
         if (!transformer.isWrapped()) {
             return original;
         }
@@ -53,7 +53,7 @@ public class PlayerChunkSenderMixin {
     }
 
     @Unique
-    private static WorldFold toroidal$transformer(ChunkMap chunkMap) {
-        return WorldLoopAttachments.transformerOf(((LevelHolder) chunkMap).toroidal$level());
+    private static WorldFold exotic_worlds$transformer(ChunkMap chunkMap) {
+        return WorldLoopAttachments.transformerOf(((LevelHolder) chunkMap).exotic_worlds$level());
     }
 }

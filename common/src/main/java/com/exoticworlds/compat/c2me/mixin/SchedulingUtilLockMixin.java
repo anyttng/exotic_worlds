@@ -16,7 +16,7 @@ public class SchedulingUtilLockMixin {
     @WrapOperation(
             method = "scheduleTask",
             at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_POS_AS_LONG))
-    private static long toroidal$foldLockKey(
+    private static long exotic_worlds$foldLockKey(
             int chunkX,
             int chunkZ,
             Operation<Long> original,

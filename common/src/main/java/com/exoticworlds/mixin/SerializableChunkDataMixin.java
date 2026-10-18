@@ -40,32 +40,32 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 @Mixin(ChunkSerializer.class)
 public class SerializableChunkDataMixin {
     @Unique
-    private static final Logger toroidal$LOGGER = LogUtils.getLogger();
+    private static final Logger exotic_worlds$LOGGER = LogUtils.getLogger();
 
     // Vanilla's own literal, restated because the code it lives in is not reachable from here.
     @Unique
-    private static final int toroidal$MAX_REFERENCE_DISTANCE = 8;
+    private static final int exotic_worlds$MAX_REFERENCE_DISTANCE = 8;
 
     @Unique
-    private static final String toroidal$REFERENCES_KEY = "References";
+    private static final String exotic_worlds$REFERENCES_KEY = "References";
 
     @Unique
-    private static final String toroidal$TERRAIN_MASK_KEY = ExoticWorlds.MODID + ":terrain_mask";
+    private static final String exotic_worlds$TERRAIN_MASK_KEY = ExoticWorlds.MODID + ":terrain_mask";
 
     @Inject(method = "write", at = @At("RETURN"))
-    private static void toroidal$writeTerrainMask(ServerLevel level, ChunkAccess chunk,
+    private static void exotic_worlds$writeTerrainMask(ServerLevel level, ChunkAccess chunk,
             CallbackInfoReturnable<CompoundTag> callback) {
         CompoundTag mask = FloatingCrumbs.savedMask(level, chunk.getPos());
         if (mask != null) {
-            callback.getReturnValue().put(toroidal$TERRAIN_MASK_KEY, mask);
+            callback.getReturnValue().put(exotic_worlds$TERRAIN_MASK_KEY, mask);
         }
     }
 
     @Inject(method = "read", at = @At("RETURN"))
-    private static void toroidal$restoreTerrainMask(ServerLevel level, PoiManager poiManager,
+    private static void exotic_worlds$restoreTerrainMask(ServerLevel level, PoiManager poiManager,
             RegionStorageInfo regionInfo, ChunkPos pos, CompoundTag chunkData,
             CallbackInfoReturnable<ProtoChunk> callback) {
-        FormerNamespace.compound(chunkData, toroidal$TERRAIN_MASK_KEY)
+        FormerNamespace.compound(chunkData, exotic_worlds$TERRAIN_MASK_KEY)
                 .ifPresent(mask -> FloatingCrumbs.restoreMask(level, callback.getReturnValue(), mask));
     }
 
@@ -75,7 +75,7 @@ public class SerializableChunkDataMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/storage/ChunkSerializer;unpackStructureReferences(Lnet/minecraft/core/RegistryAccess;Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/nbt/CompoundTag;)Ljava/util/Map;"))
-    private static Map<Structure, LongSet> toroidal$keepReferencesAcrossTheSeam(
+    private static Map<Structure, LongSet> exotic_worlds$keepReferencesAcrossTheSeam(
             RegistryAccess registryAccess,
             ChunkPos pos,
             CompoundTag tag,
@@ -88,12 +88,12 @@ public class SerializableChunkDataMixin {
 
         Map<Structure, LongSet> references = Maps.newHashMap();
         Registry<Structure> structures = registryAccess.registryOrThrow(Registries.STRUCTURE);
-        CompoundTag stored = tag.getCompound(toroidal$REFERENCES_KEY);
+        CompoundTag stored = tag.getCompound(exotic_worlds$REFERENCES_KEY);
         for (String key : stored.getAllKeys()) {
             ResourceLocation structureId = ResourceLocation.tryParse(key);
             Structure structure = structures.get(structureId);
             if (structure == null) {
-                toroidal$LOGGER.warn("Found reference to unknown structure '{}' in chunk {}, discarding", structureId, pos);
+                exotic_worlds$LOGGER.warn("Found reference to unknown structure '{}' in chunk {}, discarding", structureId, pos);
                 continue;
             }
 
@@ -105,8 +105,8 @@ public class SerializableChunkDataMixin {
             LongSet kept = new LongOpenHashSet();
             for (long referenceKey : referenceKeys) {
                 ChunkPos referencePos = new ChunkPos(referenceKey);
-                if (pos.getChessboardDistance(transformer.nearestCopy(pos, referencePos)) > toroidal$MAX_REFERENCE_DISTANCE) {
-                    toroidal$LOGGER.warn(
+                if (pos.getChessboardDistance(transformer.nearestCopy(pos, referencePos)) > exotic_worlds$MAX_REFERENCE_DISTANCE) {
+                    exotic_worlds$LOGGER.warn(
                             "Found invalid structure reference [ {} @ {} ] for chunk {}.", structureId, referencePos, pos);
                     continue;
                 }

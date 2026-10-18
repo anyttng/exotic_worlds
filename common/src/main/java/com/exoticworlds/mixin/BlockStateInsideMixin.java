@@ -17,7 +17,7 @@ public abstract class BlockStateInsideMixin {
             method = "entityInside(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;)V",
             at = @At("HEAD"),
             argsOnly = true)
-    private BlockPos toroidal$canonicalInsidePos(BlockPos pos, @Local(argsOnly = true) Level level) {
+    private BlockPos exotic_worlds$canonicalInsidePos(BlockPos pos, @Local(argsOnly = true) Level level) {
         return WorldLoopAttachments.transformerOf(level).fold(pos);
     }
 }

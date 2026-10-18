@@ -19,7 +19,7 @@ public abstract class BlockStateOffsetSeedMixin {
             method = "getOffset",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/block/state/BlockBehaviour$OffsetFunction;evaluate(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/Vec3;"))
-    private Vec3 toroidal$seedFromCanonical(BlockBehaviour.OffsetFunction function, BlockState state, BlockGetter getter,
+    private Vec3 exotic_worlds$seedFromCanonical(BlockBehaviour.OffsetFunction function, BlockState state, BlockGetter getter,
             BlockPos pos, Operation<Vec3> original) {
         return original.call(function, state, getter, BlockOffsetSeed.seedPosition(getter, pos));
     }

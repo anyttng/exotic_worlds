@@ -30,53 +30,53 @@ public class TreeTraversalMixin implements LapTest {
     private NodeTable nodes;
 
     @Unique
-    private double toroidal$eyeX;
+    private double exotic_worlds$eyeX;
 
     @Unique
-    private double toroidal$eyeZ;
+    private double exotic_worlds$eyeZ;
 
     @Inject(method = "walk", at = @At("HEAD"))
-    private void toroidal$holdTheEye(CallbackInfo ci, @Local(argsOnly = true) CameraFrame camera) {
-        toroidal$hold(camera);
+    private void exotic_worlds$holdTheEye(CallbackInfo ci, @Local(argsOnly = true) CameraFrame camera) {
+        exotic_worlds$hold(camera);
     }
 
     @Inject(method = "list", at = @At("HEAD"))
-    private void toroidal$holdTheListEye(CallbackInfoReturnable<RenderList> cir,
+    private void exotic_worlds$holdTheListEye(CallbackInfoReturnable<RenderList> cir,
             @Local(argsOnly = true) CameraFrame camera) {
-        toroidal$hold(camera);
+        exotic_worlds$hold(camera);
     }
 
     @Unique
-    private void toroidal$hold(CameraFrame camera) {
-        toroidal$eyeX = camera.eyeX();
-        toroidal$eyeZ = camera.eyeZ();
+    private void exotic_worlds$hold(CameraFrame camera) {
+        exotic_worlds$eyeX = camera.eyeX();
+        exotic_worlds$eyeZ = camera.eyeZ();
     }
 
     @Inject(method = {"visit", "collectOutOfView"}, at = @At("HEAD"), cancellable = true)
-    private void toroidal$refineThroughTheMargin(CallbackInfo ci, @Local(argsOnly = true) TreeNode node) {
-        if (!toroidal$meets(node.key(), TreeRing.MOVE_BLOCKS)) {
+    private void exotic_worlds$refineThroughTheMargin(CallbackInfo ci, @Local(argsOnly = true) TreeNode node) {
+        if (!exotic_worlds$meets(node.key(), TreeRing.MOVE_BLOCKS)) {
             ci.cancel();
         }
     }
 
     @Inject(method = {"listOutOfView", "draw"}, at = @At("HEAD"), cancellable = true)
-    private void toroidal$drawOneLap(CallbackInfo ci, @Local(argsOnly = true) TreeNode node) {
-        if (!toroidal$meets(node.key(), NO_MARGIN)) {
+    private void exotic_worlds$drawOneLap(CallbackInfo ci, @Local(argsOnly = true) TreeNode node) {
+        if (!exotic_worlds$meets(node.key(), NO_MARGIN)) {
             ci.cancel();
         }
     }
 
     @WrapMethod(method = "descended")
-    private boolean toroidal$descendedInsideTheLap(long key, Operation<Boolean> original) {
-        return original.call(key) && toroidal$meets(key, NO_MARGIN);
+    private boolean exotic_worlds$descendedInsideTheLap(long key, Operation<Boolean> original) {
+        return original.call(key) && exotic_worlds$meets(key, NO_MARGIN);
     }
 
     @Override
-    public boolean toroidal$meets(long key, double margin) {
+    public boolean exotic_worlds$meets(long key, double margin) {
         int minX = CellFrame.originXOf(key);
         int minZ = CellFrame.originZOf(key);
         int side = DetailLevel.blocksPerCell(CellKey.level(key));
-        return CellFoldHolder.foldOf(nodes).meetsLap(minX, minZ, minX + side, minZ + side, toroidal$eyeX,
-                toroidal$eyeZ, margin);
+        return CellFoldHolder.foldOf(nodes).meetsLap(minX, minZ, minX + side, minZ + side, exotic_worlds$eyeX,
+                exotic_worlds$eyeZ, margin);
     }
 }

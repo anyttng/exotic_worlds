@@ -33,7 +33,7 @@ public class WorldCreationPreviewContextMixin {
     private static final int WORLDGEN_IDENTITY = 3;
 
     @WrapMethod(method = BUILD, order = BinderOrder.FOLD)
-    private static WorldCreationPreviewContext toroidal$buildForTheChosenShape(CreateWorldScreen screen,
+    private static WorldCreationPreviewContext exotic_worlds$buildForTheChosenShape(CreateWorldScreen screen,
             WorldCreationUiState uiState, WorldgenEditorState editorState, boolean applyEditorEdits,
             Operation<WorldCreationPreviewContext> original) {
         return GenerationTransformerContext.withRouterBuild(CreationShape.fold(uiState.getSettings()),
@@ -46,7 +46,7 @@ public class WorldCreationPreviewContextMixin {
                     value = "INVOKE",
                     target = PREVIEW_CONTEXT + SeedViewerInjectionTargets.CONSTRUCTOR + SeedViewerInjectionTargets.CONTEXT_DESCRIPTOR),
             index = WORLDGEN_IDENTITY)
-    private static String toroidal$identifyTheChosenShape(String worldgenIdentity,
+    private static String exotic_worlds$identifyTheChosenShape(String worldgenIdentity,
             @Local(argsOnly = true) WorldCreationUiState uiState) {
         return worldgenIdentity + CreationShape.fingerprint(uiState.getSettings());
     }

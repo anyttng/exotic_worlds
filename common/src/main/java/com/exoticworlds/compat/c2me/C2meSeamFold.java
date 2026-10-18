@@ -18,7 +18,7 @@ public final class C2meSeamFold {
             int centerX,
             int centerZ,
             StaticCache2D.Initializer<T> initializer) {
-        WorldFold transformer = ((TransformerSource) context.theChunkSystem()).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) context.theChunkSystem()).exotic_worlds$wrappedTransformer();
         return foldingInitializer(transformer, centerX, centerZ, initializer);
     }
 
@@ -51,7 +51,7 @@ public final class C2meSeamFold {
     }
 
     public static long lockKey(SchedulingManager schedulingManager, long chunkKey) {
-        WorldFold transformer = ((TransformerSource) schedulingManager).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) schedulingManager).exotic_worlds$wrappedTransformer();
         if (transformer == null) {
             return chunkKey;
         }
@@ -60,7 +60,7 @@ public final class C2meSeamFold {
     }
 
     public static LockToken[] lockTokens(SchedulingManager schedulingManager, LockToken[] tokens) {
-        if (((TransformerSource) schedulingManager).toroidal$wrappedTransformer() == null) {
+        if (((TransformerSource) schedulingManager).exotic_worlds$wrappedTransformer() == null) {
             return tokens;
         }
 

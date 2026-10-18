@@ -21,13 +21,13 @@ public class PhantomMoveControlMixin {
     // any mapping set's, so a remapping loader has nothing to resolve it to. The second argument is the mob the control
     // steers, which vanilla hands to MoveControl and this fold has no use for.
     @Unique
-    private Phantom toroidal$phantom;
+    private Phantom exotic_worlds$phantom;
 
     @Inject(
             method = "<init>(Lnet/minecraft/world/entity/monster/Phantom;Lnet/minecraft/world/entity/Mob;)V",
             at = @At("TAIL"))
-    private void toroidal$capturePhantom(Phantom phantom, Mob mob, CallbackInfo ci) {
-        this.toroidal$phantom = phantom;
+    private void exotic_worlds$capturePhantom(Phantom phantom, Mob mob, CallbackInfo ci) {
+        this.exotic_worlds$phantom = phantom;
     }
 
     @ModifyExpressionValue(
@@ -35,7 +35,7 @@ public class PhantomMoveControlMixin {
             at = @At(value = "FIELD",
                     target = InjectionTargets.PHANTOM_MOVE_TARGET_POINT,
                     opcode = Opcodes.GETFIELD))
-    private Vec3 toroidal$moveTargetThroughSeam(Vec3 moveTargetPoint) {
-        return SeamSteering.nearestCopy(this.toroidal$phantom, moveTargetPoint);
+    private Vec3 exotic_worlds$moveTargetThroughSeam(Vec3 moveTargetPoint) {
+        return SeamSteering.nearestCopy(this.exotic_worlds$phantom, moveTargetPoint);
     }
 }

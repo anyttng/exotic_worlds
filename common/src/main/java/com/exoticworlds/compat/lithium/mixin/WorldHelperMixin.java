@@ -21,7 +21,7 @@ import net.minecraft.world.phys.AABB;
 public class WorldHelperMixin {
     // This line's group walk takes no level, so the fold wraps the two walks that hold one.
     @WrapMethod(method = "getEntitiesForCollision")
-    private static List<Entity> toroidal$collisionGroupThroughSeam(EntityGetter view, AABB box,
+    private static List<Entity> exotic_worlds$collisionGroupThroughSeam(EntityGetter view, AABB box,
             Entity collidingEntity, Operation<List<Entity>> original) {
         return view instanceof Level level
                 ? SeamEntitySearch.collect(WorldLoopAttachments.transformerOf(level), box,
@@ -30,7 +30,7 @@ public class WorldHelperMixin {
     }
 
     @WrapMethod(method = "getOtherEntitiesForCollision")
-    private static List<Entity> toroidal$otherGroupThroughSeam(EntityGetter view, AABB box, Entity collidingEntity,
+    private static List<Entity> exotic_worlds$otherGroupThroughSeam(EntityGetter view, AABB box, Entity collidingEntity,
             Predicate<? super Entity> entityFilter, Operation<List<Entity>> original) {
         return view instanceof Level level
                 ? SeamEntitySearch.collect(WorldLoopAttachments.transformerOf(level), box,
@@ -39,7 +39,7 @@ public class WorldHelperMixin {
     }
 
     @WrapMethod(method = "getPushableEntities")
-    private static List<Entity> toroidal$pushableThroughSeam(Level level, EntitySectionStorage<Entity> cache,
+    private static List<Entity> exotic_worlds$pushableThroughSeam(Level level, EntitySectionStorage<Entity> cache,
             Entity except, AABB box, @Coerce Object pushablePredicate, Operation<List<Entity>> original) {
         return SeamEntitySearch.collect(WorldLoopAttachments.transformerOf(level), box,
                 piece -> original.call(level, cache, except, piece, pushablePredicate));

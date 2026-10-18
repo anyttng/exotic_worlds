@@ -25,7 +25,7 @@ public class DolphinSwimToTreasureGoalMixin {
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN),
             expect = 2)
-    private boolean toroidal$treasureReachThroughSeam(BlockPos treasurePos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$treasureReachThroughSeam(BlockPos treasurePos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
         return SeamRange.closerToCenterThan(this.dolphin, treasurePos, bodyPosition, distance);
     }

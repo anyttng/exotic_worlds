@@ -23,7 +23,7 @@ public class StructureCheckMixin {
     private ChunkGenerator chunkGenerator;
 
     @WrapMethod(method = "checkStart")
-    private StructureCheckResult toroidal$noStartPastTheBounds(ChunkPos pos, Structure structure,
+    private StructureCheckResult exotic_worlds$noStartPastTheBounds(ChunkPos pos, Structure structure,
             StructurePlacement placement, boolean requireUnreferenced, Operation<StructureCheckResult> original) {
         return ShapedChunkGenerator.transformerOf(this.chunkGenerator).isOver(pos)
                 ? StructureCheckResult.START_NOT_PRESENT
@@ -31,7 +31,7 @@ public class StructureCheckMixin {
     }
 
     @WrapMethod(method = "canCreateStructure")
-    private boolean toroidal$validateAgainstThisWorldsBiomes(ChunkPos pos, Structure structure,
+    private boolean exotic_worlds$validateAgainstThisWorldsBiomes(ChunkPos pos, Structure structure,
             Operation<Boolean> original) {
         return GenerationTransformerContext.withTransformer(
                 ShapedChunkGenerator.transformerOf(this.chunkGenerator), () -> original.call(pos, structure));

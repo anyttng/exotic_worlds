@@ -50,7 +50,7 @@ public final class NoiseScaleLadder {
     }
 
     public static double installedScale(DensityFunction.NoiseHolder holder, double xzScale) {
-        return holder.noise() instanceof NoiseScaleRungs rungs ? rungOf(rungs.toroidal$scaleRungs(), xzScale) : xzScale;
+        return holder.noise() instanceof NoiseScaleRungs rungs ? rungOf(rungs.exotic_worlds$scaleRungs(), xzScale) : xzScale;
     }
 
     public double separated(NormalNoise noise, double xzScale) {
@@ -58,7 +58,7 @@ public final class NoiseScaleLadder {
     }
 
     public void install() {
-        this.separated.forEach((noise, rungs) -> ((NoiseScaleRungs) noise).toroidal$scaleRungs(rungs));
+        this.separated.forEach((noise, rungs) -> ((NoiseScaleRungs) noise).exotic_worlds$scaleRungs(rungs));
     }
 
     private static double rungOf(Map<Double, Double> rungs, double xzScale) {

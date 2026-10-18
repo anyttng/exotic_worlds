@@ -24,20 +24,20 @@ public class TreeRingMixin implements CellFoldHolder {
     private double anchorZ;
 
     @Unique
-    private CellFold toroidal$fold = CellFold.NONE;
+    private CellFold exotic_worlds$fold = CellFold.NONE;
 
     @Override
-    public CellFold toroidal$fold() {
-        return toroidal$fold;
+    public CellFold exotic_worlds$fold() {
+        return exotic_worlds$fold;
     }
 
     @Override
-    public void toroidal$setFold(CellFold fold) {
-        toroidal$fold = fold;
+    public void exotic_worlds$setFold(CellFold fold) {
+        exotic_worlds$fold = fold;
     }
 
     @WrapMethod(method = "inDisc")
-    private boolean toroidal$withinOneLap(int cellX, int cellZ, Operation<Boolean> original) {
+    private boolean exotic_worlds$withinOneLap(int cellX, int cellZ, Operation<Boolean> original) {
         if (!original.call(cellX, cellZ)) {
             return false;
         }
@@ -45,6 +45,6 @@ public class TreeRingMixin implements CellFoldHolder {
         int minX = CellFrame.originBlockX(cellX, DetailLevel.MAX);
         int minZ = CellFrame.originBlockZ(cellZ, DetailLevel.MAX);
         int side = DetailLevel.blocksPerCell(DetailLevel.MAX);
-        return toroidal$fold.meetsLap(minX, minZ, minX + side, minZ + side, anchorX, anchorZ, MARGIN_BLOCKS);
+        return exotic_worlds$fold.meetsLap(minX, minZ, minX + side, minZ + side, anchorX, anchorZ, MARGIN_BLOCKS);
     }
 }

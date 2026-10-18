@@ -17,7 +17,7 @@ public class VexYawMixin {
     @WrapOperation(
             method = "tick",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/monster/Vex;setYRot(F)V", ordinal = 1))
-    private void toroidal$bodyYawThroughSeam(Vex vex, float yRot, Operation<Void> original) {
+    private void exotic_worlds$bodyYawThroughSeam(Vex vex, float yRot, Operation<Void> original) {
         LivingEntity target = vex.getTarget();
         if (target == null) {
             original.call(vex, yRot);

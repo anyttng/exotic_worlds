@@ -5,10 +5,10 @@ import org.jspecify.annotations.Nullable;
 import net.minecraft.server.level.ServerLevel;
 
 public interface LevelBindable {
-    default void toroidal$bindLevel(ServerLevel level) {
+    default void exotic_worlds$bindLevel(ServerLevel level) {
     }
 
-    default @Nullable ServerLevel toroidal$boundLevel() {
+    default @Nullable ServerLevel exotic_worlds$boundLevel() {
         return null;
     }
 }
