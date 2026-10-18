@@ -19,40 +19,40 @@ import net.minecraft.world.level.ChunkPos;
 @Mixin(ChunkTrackingView.Positioned.class)
 public abstract class ChunkTrackingViewPositionedMixin implements TransformerHolder {
     @Unique
-    private WorldFold toroidal$transformer = WorldFolds.NOOP;
+    private WorldFold exotic_worlds$transformer = WorldFolds.NOOP;
 
     @Override
-    public WorldFold toroidal$transformer() {
-        return this.toroidal$transformer;
+    public WorldFold exotic_worlds$transformer() {
+        return this.exotic_worlds$transformer;
     }
 
     @Override
-    public void toroidal$setTransformer(WorldFold transformer) {
-        this.toroidal$transformer = transformer;
+    public void exotic_worlds$setTransformer(WorldFold transformer) {
+        this.exotic_worlds$transformer = transformer;
     }
 
     @ModifyReturnValue(method = "contains(IIZ)Z", at = @At("RETURN"))
-    private boolean toroidal$containsWrapped(boolean original, int chunkX, int chunkZ, boolean includeNeighbors) {
-        if (!this.toroidal$transformer.isWrapped()) {
+    private boolean exotic_worlds$containsWrapped(boolean original, int chunkX, int chunkZ, boolean includeNeighbors) {
+        if (!this.exotic_worlds$transformer.isWrapped()) {
             return original;
         }
 
-        if (this.toroidal$transformer.isOver(new ChunkPos(chunkX, chunkZ))) {
+        if (this.exotic_worlds$transformer.isOver(new ChunkPos(chunkX, chunkZ))) {
             return false;
         }
 
         ChunkPos center = ((ChunkTrackingView.Positioned) (Object) this).center();
         int viewDistance = ((ChunkTrackingView.Positioned) (Object) this).viewDistance();
 
-        ChunkPos unwrapped = this.toroidal$transformer.nearestCopy(center, new ChunkPos(chunkX, chunkZ));
+        ChunkPos unwrapped = this.exotic_worlds$transformer.nearestCopy(center, new ChunkPos(chunkX, chunkZ));
 
         return ChunkTrackingView.isWithinDistance(
                 center.x(), center.z(), viewDistance, unwrapped.x(), unwrapped.z(), includeNeighbors);
     }
 
     @Inject(method = "forEach", at = @At("HEAD"), cancellable = true)
-    private void toroidal$forEachWrapped(Consumer<ChunkPos> consumer, CallbackInfo ci) {
-        if (!this.toroidal$transformer.isWrapped()) {
+    private void exotic_worlds$forEachWrapped(Consumer<ChunkPos> consumer, CallbackInfo ci) {
+        if (!this.exotic_worlds$transformer.isWrapped()) {
             return;
         }
 
@@ -66,7 +66,7 @@ public abstract class ChunkTrackingViewPositionedMixin implements TransformerHol
         for (int x = center.x() - radius; x <= center.x() + radius; x++) {
             for (int z = center.z() - radius; z <= center.z() + radius; z++) {
                 if (ChunkTrackingView.isWithinDistance(center.x(), center.z(), viewDistance, x, z, true)) {
-                    consumer.accept(this.toroidal$transformer.fold(new ChunkPos(x, z)));
+                    consumer.accept(this.exotic_worlds$transformer.fold(new ChunkPos(x, z)));
                 }
             }
         }

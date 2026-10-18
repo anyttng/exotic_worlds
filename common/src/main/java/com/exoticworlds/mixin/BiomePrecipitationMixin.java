@@ -15,7 +15,7 @@ import net.minecraft.world.level.biome.Biome;
 @Mixin(Biome.class)
 public class BiomePrecipitationMixin {
     @WrapMethod(method = "getPrecipitationAt")
-    private Biome.Precipitation toroidal$foldForLevellessCaller(
+    private Biome.Precipitation exotic_worlds$foldForLevellessCaller(
             BlockPos pos, int seaLevel, Operation<Biome.Precipitation> original) {
         Minecraft minecraft = Minecraft.getInstance();
         if (!minecraft.isSameThread()) {

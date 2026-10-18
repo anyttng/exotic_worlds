@@ -14,7 +14,7 @@ import net.minecraft.world.level.biome.Biome;
 @Mixin(ServerLevel.class)
 public class ServerLevelUncachedBiomeMixin {
     @WrapMethod(method = "getUncachedNoiseBiome")
-    private Holder<Biome> toroidal$sampleThisWorldsBiomeField(int quartX, int quartY, int quartZ,
+    private Holder<Biome> exotic_worlds$sampleThisWorldsBiomeField(int quartX, int quartY, int quartZ,
             Operation<Holder<Biome>> original) {
         return GenerationTransformerContext.withTransformer(
                 WorldLoopAttachments.transformerOf((ServerLevel) (Object) this),

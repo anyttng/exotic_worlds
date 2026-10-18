@@ -19,7 +19,7 @@ public final class SeamLines {
 
     public static void draw(GuiGraphicsExtractor graphics, BiomeSampler sampler, MapCamera camera,
             MapViewport viewport) {
-        WorldFold fold = ((FoldedBiomeSampler) (Object) sampler).toroidal$fold();
+        WorldFold fold = ((FoldedBiomeSampler) (Object) sampler).exotic_worlds$fold();
         if (!fold.isWrapped()) {
             return;
         }

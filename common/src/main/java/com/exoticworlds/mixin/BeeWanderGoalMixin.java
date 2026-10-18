@@ -22,7 +22,7 @@ public class BeeWanderGoalMixin {
             method = "findPos",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_AT_CENTER_OF))
-    private Vec3 toroidal$hiveBiasThroughSeam(Vec3 hiveCenter) {
+    private Vec3 exotic_worlds$hiveBiasThroughSeam(Vec3 hiveCenter) {
         return SeamSteering.nearestCopy(this.bee, hiveCenter);
     }
 }

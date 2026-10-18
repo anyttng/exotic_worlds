@@ -21,7 +21,7 @@ import net.minecraft.world.level.biome.Biome;
 @Mixin(ServerLevel.class)
 public class ServerLevelBiomeSearchMixin {
     @WrapMethod(method = "findClosestBiome3d")
-    private @Nullable Pair<BlockPos, Holder<Biome>> toroidal$biomeSearchThroughSeam(
+    private @Nullable Pair<BlockPos, Holder<Biome>> exotic_worlds$biomeSearchThroughSeam(
             Predicate<Holder<Biome>> biomeTest,
             BlockPos origin,
             int maxSearchRadius,
@@ -35,7 +35,7 @@ public class ServerLevelBiomeSearchMixin {
                     sampleResolutionVertical);
         }
 
-        int searchRadius = toroidal$radiusToCoverTheWorld(transformer, maxSearchRadius, sampleResolutionHorizontal);
+        int searchRadius = exotic_worlds$radiusToCoverTheWorld(transformer, maxSearchRadius, sampleResolutionHorizontal);
         Pair<BlockPos, Holder<Biome>> found = GenerationTransformerContext.withTransformer(transformer,
                 () -> original.call(biomeTest, origin, searchRadius, sampleResolutionHorizontal,
                         sampleResolutionVertical));
@@ -44,7 +44,7 @@ public class ServerLevelBiomeSearchMixin {
     }
 
     @Unique
-    private static int toroidal$radiusToCoverTheWorld(WorldFold transformer, int maxSearchRadius,
+    private static int exotic_worlds$radiusToCoverTheWorld(WorldFold transformer, int maxSearchRadius,
             int sampleResolutionHorizontal) {
         int steps = Math.max(
                 transformer.blockLattice().x().stepsToCoverTheWorld(sampleResolutionHorizontal),

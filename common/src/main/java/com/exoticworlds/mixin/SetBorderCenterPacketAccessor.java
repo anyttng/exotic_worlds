@@ -9,10 +9,10 @@ import net.minecraft.network.protocol.game.ClientboundSetBorderCenterPacket;
 @Mixin(ClientboundSetBorderCenterPacket.class)
 public interface SetBorderCenterPacketAccessor {
     @Invoker("write")
-    void toroidal$write(FriendlyByteBuf output);
+    void exotic_worlds$write(FriendlyByteBuf output);
 
     @Invoker("<init>")
-    static ClientboundSetBorderCenterPacket toroidal$create(FriendlyByteBuf input) {
+    static ClientboundSetBorderCenterPacket exotic_worlds$create(FriendlyByteBuf input) {
         throw new AssertionError();
     }
 }

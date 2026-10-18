@@ -24,24 +24,24 @@ public abstract class OverworldBiomePlacementMixin extends DimensionBiomePlaceme
     private static final double TOROIDAL_SUM_DIVISOR = 1.21875;
 
     @Unique
-    private final ReplacementNoiseFold toroidal$fold = new ReplacementNoiseFold(TOROIDAL_OCTAVE_WEIGHTS);
+    private final ReplacementNoiseFold exotic_worlds$fold = new ReplacementNoiseFold(TOROIDAL_OCTAVE_WEIGHTS);
 
     @Unique
-    private final LevelTemperature toroidal$temperature = new LevelTemperature();
+    private final LevelTemperature exotic_worlds$temperature = new LevelTemperature();
 
     @Shadow
     private double[] scale;
 
     @Inject(method = "getLocalNoise", at = @At("HEAD"), cancellable = true)
-    private void toroidal$foldedLocalNoise(int x, int y, int z, CallbackInfoReturnable<Double> cir) {
+    private void exotic_worlds$foldedLocalNoise(int x, int y, int z, CallbackInfoReturnable<Double> cir) {
         OpenSimplexNoise2 noise = this.replacementNoise;
         WorldFold fold = GenerationTransformerContext.context().wrappedTransformer();
         if (noise == null || fold == null) {
             return;
         }
 
-        double sum = this.toroidal$fold.sum(fold, noise.getSeed(), this.scale, x, z,
-                this.toroidal$temperature.of(this.world));
+        double sum = this.exotic_worlds$fold.sum(fold, noise.getSeed(), this.scale, x, z,
+                this.exotic_worlds$temperature.of(this.world));
         cir.setReturnValue(this.normalize(sum / TOROIDAL_SUM_DIVISOR));
     }
 }

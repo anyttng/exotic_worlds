@@ -32,7 +32,7 @@ public class SeedViewerScreenMixin {
 
     @Inject(method = SeedViewerInjectionTargets.DRAW_TILES,
             at = @At(value = "INVOKE", target = SeedViewerInjectionTargets.DISABLE_SCISSOR))
-    private void toroidal$drawTheSeams(GuiGraphicsExtractor graphics, CallbackInfo callback) {
+    private void exotic_worlds$drawTheSeams(GuiGraphicsExtractor graphics, CallbackInfo callback) {
         if (this.biomeSampler != null) {
             SeamLines.draw(graphics, this.biomeSampler, this.camera, this.viewport);
         }

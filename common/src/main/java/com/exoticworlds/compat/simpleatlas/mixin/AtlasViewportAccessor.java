@@ -6,14 +6,14 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(targets = "rubbertoe.simple_atlas.client.screen.AtlasScreen$AtlasViewport")
 public interface AtlasViewportAccessor {
     @Accessor("contentX")
-    float toroidal$contentX();
+    float exotic_worlds$contentX();
 
     @Accessor("contentY")
-    float toroidal$contentY();
+    float exotic_worlds$contentY();
 
     @Accessor("contentWidth")
-    float toroidal$contentWidth();
+    float exotic_worlds$contentWidth();
 
     @Accessor("contentHeight")
-    float toroidal$contentHeight();
+    float exotic_worlds$contentHeight();
 }

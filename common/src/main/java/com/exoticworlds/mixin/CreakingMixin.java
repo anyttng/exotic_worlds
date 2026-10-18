@@ -16,7 +16,7 @@ public class CreakingMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/player/Player;getEyePosition()Lnet/minecraft/world/phys/Vec3;"))
-    private Vec3 toroidal$stuckEyeThroughSeam(Vec3 eyePosition) {
+    private Vec3 exotic_worlds$stuckEyeThroughSeam(Vec3 eyePosition) {
         return SeamSteering.nearestCopy((Creaking) (Object) this, eyePosition);
     }
 }

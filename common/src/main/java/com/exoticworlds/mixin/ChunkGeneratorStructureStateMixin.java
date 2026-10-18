@@ -28,32 +28,32 @@ import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 public abstract class ChunkGeneratorStructureStateMixin implements TransformerHolder, AddedStartsHolder {
     // Vanilla searches a radius of 112 blocks, so the answer lies in [center*16 - 104, center*16 + 120].
     @Unique
-    private static final int toroidal$BIOME_SEARCH_REACH_CHUNKS = 7;
+    private static final int exotic_worlds$BIOME_SEARCH_REACH_CHUNKS = 7;
 
     @Unique
-    private WorldFold toroidal$transformer = WorldFolds.NOOP;
+    private WorldFold exotic_worlds$transformer = WorldFolds.NOOP;
 
     @Unique
-    private volatile @Nullable AddedStructureStarts toroidal$addedStarts;
+    private volatile @Nullable AddedStructureStarts exotic_worlds$addedStarts;
 
     @Override
-    public @Nullable AddedStructureStarts toroidal$addedStarts() {
-        return this.toroidal$addedStarts;
+    public @Nullable AddedStructureStarts exotic_worlds$addedStarts() {
+        return this.exotic_worlds$addedStarts;
     }
 
     @Override
-    public void toroidal$addedStarts(AddedStructureStarts starts) {
-        this.toroidal$addedStarts = starts;
+    public void exotic_worlds$addedStarts(AddedStructureStarts starts) {
+        this.exotic_worlds$addedStarts = starts;
     }
 
     @Override
-    public WorldFold toroidal$transformer() {
-        return this.toroidal$transformer;
+    public WorldFold exotic_worlds$transformer() {
+        return this.exotic_worlds$transformer;
     }
 
     @Override
-    public void toroidal$setTransformer(WorldFold transformer) {
-        this.toroidal$transformer = transformer;
+    public void exotic_worlds$setTransformer(WorldFold transformer) {
+        this.exotic_worlds$transformer = transformer;
     }
 
     @ModifyArg(
@@ -62,13 +62,13 @@ public abstract class ChunkGeneratorStructureStateMixin implements TransformerHo
                     value = "INVOKE",
                     target = "Ljava/util/concurrent/CompletableFuture;supplyAsync(Ljava/util/function/Supplier;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;"),
             index = 0)
-    private Supplier<ChunkPos> toroidal$searchOnThisWorldsNoise(Supplier<ChunkPos> search,
+    private Supplier<ChunkPos> exotic_worlds$searchOnThisWorldsNoise(Supplier<ChunkPos> search,
             @Local(name = "i") int ringIndex,
             @Local(name = "initialX") int ringChunkX,
             @Local(name = "initialZ") int ringChunkZ) {
-        WorldFold transformer = this.toroidal$transformer;
+        WorldFold transformer = this.exotic_worlds$transformer;
         if (ringIndex > 0
-                && transformer.chunkOvershoot(new ChunkPos(ringChunkX, ringChunkZ)) > toroidal$BIOME_SEARCH_REACH_CHUNKS) {
+                && transformer.chunkOvershoot(new ChunkPos(ringChunkX, ringChunkZ)) > exotic_worlds$BIOME_SEARCH_REACH_CHUNKS) {
             ChunkPos beyondTheWorld = new ChunkPos(ringChunkX, ringChunkZ);
             return () -> beyondTheWorld;
         }
@@ -77,18 +77,18 @@ public abstract class ChunkGeneratorStructureStateMixin implements TransformerHo
     }
 
     @ModifyReturnValue(method = "generateRingPositions", at = @At("RETURN"))
-    private CompletableFuture<List<ChunkPos>> toroidal$ringsWithinTheWorld(
+    private CompletableFuture<List<ChunkPos>> exotic_worlds$ringsWithinTheWorld(
             CompletableFuture<List<ChunkPos>> original) {
-        WorldFold transformer = this.toroidal$transformer;
+        WorldFold transformer = this.exotic_worlds$transformer;
         if (!transformer.isWrapped()) {
             return original;
         }
 
-        return original.thenApply(positions -> toroidal$theWorldsShare(transformer, positions));
+        return original.thenApply(positions -> exotic_worlds$theWorldsShare(transformer, positions));
     }
 
     @Unique
-    private static List<ChunkPos> toroidal$theWorldsShare(WorldFold transformer, List<ChunkPos> positions) {
+    private static List<ChunkPos> exotic_worlds$theWorldsShare(WorldFold transformer, List<ChunkPos> positions) {
         List<ChunkPos> inBounds = new ArrayList<>(positions.size());
         for (ChunkPos position : positions) {
             if (!transformer.isOver(position)) {

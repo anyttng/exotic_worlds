@@ -14,23 +14,23 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 @Mixin(ColumnCoverage.class)
 public class ColumnCoverageMixin implements CellFoldHolder {
     @Unique
-    private volatile CellFold toroidal$fold = CellFold.NONE;
+    private volatile CellFold exotic_worlds$fold = CellFold.NONE;
 
     @Override
-    public CellFold toroidal$fold() {
-        return toroidal$fold;
+    public CellFold exotic_worlds$fold() {
+        return exotic_worlds$fold;
     }
 
     @Override
-    public void toroidal$setFold(CellFold fold) {
-        toroidal$fold = fold;
+    public void exotic_worlds$setFold(CellFold fold) {
+        exotic_worlds$fold = fold;
     }
 
     @WrapOperation(
             method = {"cover", "covers", "persist", "fill"},
             at = @At(value = "INVOKE", target = EminusInjectionTargets.COVERAGE_PACK))
-    private long toroidal$packFoldedChunk(int chunkX, int chunkZ, Operation<Long> original) {
-        CellFold fold = toroidal$fold;
+    private long exotic_worlds$packFoldedChunk(int chunkX, int chunkZ, Operation<Long> original) {
+        CellFold fold = exotic_worlds$fold;
         return original.call(fold.foldChunkX(chunkX, chunkZ), fold.foldChunkZ(chunkZ));
     }
 }

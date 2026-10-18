@@ -38,8 +38,8 @@ public class LevelChunkMixin {
             method = "setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)"
                     + "Lnet/minecraft/world/level/block/state/BlockState;",
             at = @At("HEAD"), argsOnly = true)
-    private BlockPos toroidal$wrapWrittenPos(BlockPos pos) {
-        return toroidal$wrap(pos);
+    private BlockPos exotic_worlds$wrapWrittenPos(BlockPos pos) {
+        return exotic_worlds$wrap(pos);
     }
 
     @ModifyVariable(
@@ -47,35 +47,35 @@ public class LevelChunkMixin {
                     + "Lnet/minecraft/world/level/chunk/LevelChunk$EntityCreationType;)"
                     + "Lnet/minecraft/world/level/block/entity/BlockEntity;",
             at = @At("HEAD"), argsOnly = true)
-    private BlockPos toroidal$wrapQueriedPos(BlockPos pos) {
-        return toroidal$wrap(pos);
+    private BlockPos exotic_worlds$wrapQueriedPos(BlockPos pos) {
+        return exotic_worlds$wrap(pos);
     }
 
     @ModifyVariable(method = "removeBlockEntity", at = @At("HEAD"), argsOnly = true)
-    private BlockPos toroidal$wrapRemovedPos(BlockPos pos) {
-        return toroidal$wrap(pos);
+    private BlockPos exotic_worlds$wrapRemovedPos(BlockPos pos) {
+        return exotic_worlds$wrap(pos);
     }
 
     @ModifyVariable(method = "getBlockEntityNbtForSaving", at = @At("HEAD"), argsOnly = true)
-    private BlockPos toroidal$wrapSavedPos(BlockPos pos) {
-        return toroidal$wrap(pos);
+    private BlockPos exotic_worlds$wrapSavedPos(BlockPos pos) {
+        return exotic_worlds$wrap(pos);
     }
 
     @Inject(method = "setBlockEntity", at = @At("HEAD"))
-    private void toroidal$wrapBlockEntityIdentity(BlockEntity blockEntity, CallbackInfo ci) {
+    private void exotic_worlds$wrapBlockEntityIdentity(BlockEntity blockEntity, CallbackInfo ci) {
         BlockEntitySeat.intoBounds(WorldLoopAttachments.transformerOf(this.level), blockEntity);
     }
 
     @WrapOperation(
             method = "lambda$replaceWithPacketData$0",
             at = @At(value = "INVOKE", target = InjectionTargets.TAG_VALUE_INPUT_CREATE))
-    private ValueInput toroidal$seatSyncedPositions(ProblemReporter reporter, HolderLookup.Provider registries,
+    private ValueInput exotic_worlds$seatSyncedPositions(ProblemReporter reporter, HolderLookup.Provider registries,
             CompoundTag tag, Operation<ValueInput> original, @Local BlockEntity blockEntity) {
         return original.call(reporter, registries, SyncedTagFold.inFrameOf(blockEntity, tag));
     }
 
     @Unique
-    private BlockPos toroidal$wrap(BlockPos pos) {
+    private BlockPos exotic_worlds$wrap(BlockPos pos) {
         WorldFold transformer = WorldLoopAttachments.transformerOf(this.level);
         if (transformer.isWrapped()) {
             return transformer.fold(pos);

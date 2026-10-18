@@ -17,7 +17,7 @@ public class NewChunkHolderVanillaInterfaceMixin implements TransformerSource {
     private TheChunkSystem chunkSystem;
 
     @Override
-    public @Nullable WorldFold toroidal$wrappedTransformer() {
-        return ((TransformerSource) this.chunkSystem).toroidal$wrappedTransformer();
+    public @Nullable WorldFold exotic_worlds$wrappedTransformer() {
+        return ((TransformerSource) this.chunkSystem).exotic_worlds$wrappedTransformer();
     }
 }

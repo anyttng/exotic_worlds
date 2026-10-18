@@ -75,7 +75,7 @@ public final class CoastFieldLift {
 
     private static void apply(List<CoastLiftCache> coasts, double lift) {
         for (CoastLiftCache coast : coasts) {
-            coast.toroidal$coastLift(lift);
+            coast.exotic_worlds$coastLift(lift);
         }
     }
 

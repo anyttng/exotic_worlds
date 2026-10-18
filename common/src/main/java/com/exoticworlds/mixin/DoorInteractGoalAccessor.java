@@ -9,5 +9,5 @@ import net.minecraft.world.entity.ai.goal.DoorInteractGoal;
 @Mixin(DoorInteractGoal.class)
 public interface DoorInteractGoalAccessor {
     @Accessor("mob")
-    Mob toroidal$mob();
+    Mob exotic_worlds$mob();
 }

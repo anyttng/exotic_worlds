@@ -20,7 +20,7 @@ public class ConduitBlockEntityMixin {
     @WrapOperation(
             method = "applyEffects",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
-    private static boolean toroidal$effectRangeThroughSeam(BlockPos conduitPos, Vec3i playerPosition, double range,
+    private static boolean exotic_worlds$effectRangeThroughSeam(BlockPos conduitPos, Vec3i playerPosition, double range,
             Operation<Boolean> original, @Local Player player) {
         return SeamRange.closerThan(player, conduitPos, playerPosition, range);
     }
@@ -28,7 +28,7 @@ public class ConduitBlockEntityMixin {
     @WrapOperation(
             method = "updateDestroyTarget",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
-    private static boolean toroidal$attackLeashThroughSeam(BlockPos conduitPos, Vec3i targetPosition, double range,
+    private static boolean exotic_worlds$attackLeashThroughSeam(BlockPos conduitPos, Vec3i targetPosition, double range,
             Operation<Boolean> original, @Local LivingEntity targetEntity) {
         return SeamRange.closerThan(targetEntity, conduitPos, targetPosition, range);
     }

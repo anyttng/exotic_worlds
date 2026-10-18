@@ -19,7 +19,7 @@ public class SetClosestHomeAsWalkTargetMixin {
     @WrapOperation(
             method = "lambda$create$2",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
-    private static double toroidal$homeDistanceThroughSeam(BlockPos homePos, Vec3i bodyPos, Operation<Double> original,
+    private static double exotic_worlds$homeDistanceThroughSeam(BlockPos homePos, Vec3i bodyPos, Operation<Double> original,
             @Local(argsOnly = true) PathfinderMob body) {
         return SeamRange.sqr(body, homePos, bodyPos);
     }

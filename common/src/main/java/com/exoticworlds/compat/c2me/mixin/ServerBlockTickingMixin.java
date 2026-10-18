@@ -21,7 +21,7 @@ public class ServerBlockTickingMixin {
             at = @At(
                     value = "INVOKE",
                     target = InjectionTargets.STATIC_CACHE_2D_CREATE))
-    private static StaticCache2D<GenerationChunkHolder> toroidal$foldRegionSlots(
+    private static StaticCache2D<GenerationChunkHolder> exotic_worlds$foldRegionSlots(
             int centerX,
             int centerZ,
             int range,

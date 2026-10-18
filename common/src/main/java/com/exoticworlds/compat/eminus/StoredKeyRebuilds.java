@@ -17,7 +17,7 @@ public final class StoredKeyRebuilds {
 
     public static @Nullable TreeNode firstNodeRebuildingTheRest(CellFold fold, NodeTable table, long key,
             Consumer<TreeNode> rebuild) {
-        List<TreeNode> folded = ((StoredKeyIndex) (Object) table).toroidal$nodesAt(fold.foldKey(key));
+        List<TreeNode> folded = ((StoredKeyIndex) (Object) table).exotic_worlds$nodesAt(fold.foldKey(key));
         for (int index = 1; index < folded.size(); index++) {
             rebuild.accept(folded.get(index));
         }

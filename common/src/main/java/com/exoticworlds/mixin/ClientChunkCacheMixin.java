@@ -29,7 +29,7 @@ public class ClientChunkCacheMixin {
     @WrapMethod(
             method = "getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)"
                     + "Lnet/minecraft/world/level/chunk/LevelChunk;")
-    private @Nullable LevelChunk toroidal$heldChunk(int chunkX, int chunkZ, ChunkStatus status, boolean loadOrGenerate,
+    private @Nullable LevelChunk exotic_worlds$heldChunk(int chunkX, int chunkZ, ChunkStatus status, boolean loadOrGenerate,
             Operation<@Nullable LevelChunk> original) {
         LevelChunk chunk = original.call(chunkX, chunkZ, status, loadOrGenerate);
         if (chunk != null && chunk != this.emptyChunk) {

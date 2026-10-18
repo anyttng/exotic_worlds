@@ -21,7 +21,7 @@ import net.minecraft.world.phys.AABB;
 })
 public class EnderDragonPartsMixin {
     @WrapOperation(method = "addEnderDragonParts", at = @At(value = "INVOKE", target = InjectionTargets.AABB_INTERSECTS))
-    private boolean toroidal$partBoxTowardQuery(AABB query, AABB part, Operation<Boolean> original,
+    private boolean exotic_worlds$partBoxTowardQuery(AABB query, AABB part, Operation<Boolean> original,
             @Local(argsOnly = true) Level level) {
         return original.call(query,
                 FoldedBoxQuery.toward(WorldLoopAttachments.wrappedTransformerOf(level), query.getCenter(), part));

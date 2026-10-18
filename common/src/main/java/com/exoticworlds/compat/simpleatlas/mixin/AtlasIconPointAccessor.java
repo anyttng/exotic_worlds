@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(targets = "rubbertoe.simple_atlas.client.screen.icon.AtlasIcon$WorldPoint")
 public interface AtlasIconPointAccessor {
     @Accessor("x")
-    double toroidal$x();
+    double exotic_worlds$x();
 
     @Accessor("z")
-    double toroidal$z();
+    double exotic_worlds$z();
 }

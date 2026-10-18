@@ -3,5 +3,5 @@ package com.exoticworlds.accessors;
 import com.exoticworlds.core.WorldFold;
 
 public interface TransformerCache {
-    WorldFold toroidal$transformer();
+    WorldFold exotic_worlds$transformer();
 }

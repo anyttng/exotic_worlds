@@ -37,78 +37,78 @@ public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, Noise
     private double valueFactor;
 
     @Unique
-    private volatile double toroidal$coastLift;
+    private volatile double exotic_worlds$coastLift;
 
     @Unique
-    private volatile Map<Double, Double> toroidal$scaleRungs = Map.of();
+    private volatile Map<Double, Double> exotic_worlds$scaleRungs = Map.of();
 
     @Unique
-    private final ContextKeyedCache<Boolean> toroidal$indexability = new ContextKeyedCache<>();
+    private final ContextKeyedCache<Boolean> exotic_worlds$indexability = new ContextKeyedCache<>();
 
     @Override
-    public void toroidal$markClimateField() {
-        ((ClimateFieldMark) (Object) this.first).toroidal$markClimateField();
-        ((ClimateFieldMark) (Object) this.second).toroidal$markClimateField();
+    public void exotic_worlds$markClimateField() {
+        ((ClimateFieldMark) (Object) this.first).exotic_worlds$markClimateField();
+        ((ClimateFieldMark) (Object) this.second).exotic_worlds$markClimateField();
     }
 
     @Override
-    public double toroidal$coastLift() {
-        return this.toroidal$coastLift;
+    public double exotic_worlds$coastLift() {
+        return this.exotic_worlds$coastLift;
     }
 
     @Override
-    public void toroidal$coastLift(double lift) {
-        this.toroidal$coastLift = lift;
+    public void exotic_worlds$coastLift(double lift) {
+        this.exotic_worlds$coastLift = lift;
     }
 
     @Override
-    public Map<Double, Double> toroidal$scaleRungs() {
-        return this.toroidal$scaleRungs;
+    public Map<Double, Double> exotic_worlds$scaleRungs() {
+        return this.exotic_worlds$scaleRungs;
     }
 
     @Override
-    public void toroidal$scaleRungs(Map<Double, Double> rungs) {
-        this.toroidal$scaleRungs = rungs;
+    public void exotic_worlds$scaleRungs(Map<Double, Double> rungs) {
+        this.exotic_worlds$scaleRungs = rungs;
     }
 
     @WrapMethod(method = "getValue(DDD)D")
-    private double toroidal$periodicValue(double x, double y, double z, Operation<Double> original) {
+    private double exotic_worlds$periodicValue(double x, double y, double z, Operation<Double> original) {
         Context generation = GenerationTransformerContext.context();
         if (!generation.transformer().isWrapped()) {
             return original.call(x, y, z);
         }
 
-        double value = this.toroidal$indexable(generation)
-                ? this.toroidal$foldedValue(generation, x, y, z)
+        double value = this.exotic_worlds$indexable(generation)
+                ? this.exotic_worlds$foldedValue(generation, x, y, z)
                 : ContextScaledNoise.vanillaAtFoldedSlots(generation, (NormalNoise) (Object) this, x, y, z);
-        return value + this.toroidal$coastLift;
+        return value + this.exotic_worlds$coastLift;
     }
 
     @Override
-    public boolean toroidal$indexable(Context context) {
-        Boolean cached = this.toroidal$indexability.find(context.transformer(), context);
+    public boolean exotic_worlds$indexable(Context context) {
+        Boolean cached = this.exotic_worlds$indexability.find(context.transformer(), context);
         if (cached != null) {
             return cached;
         }
 
-        return this.toroidal$indexability.put(context.transformer(), context, toroidal$decideIndexable(context));
+        return this.exotic_worlds$indexability.put(context.transformer(), context, exotic_worlds$decideIndexable(context));
     }
 
     @Unique
-    private boolean toroidal$decideIndexable(Context context) {
-        if (!((IndexableNoise) (Object) this.first).toroidal$indexable(context)) {
+    private boolean exotic_worlds$decideIndexable(Context context) {
+        if (!((IndexableNoise) (Object) this.first).exotic_worlds$indexable(context)) {
             return false;
         }
 
-        try (Context.ScaleScope _ = toroidal$detuned(context)) {
-            return ((IndexableNoise) (Object) this.second).toroidal$indexable(context);
+        try (Context.ScaleScope _ = exotic_worlds$detuned(context)) {
+            return ((IndexableNoise) (Object) this.second).exotic_worlds$indexable(context);
         }
     }
 
     @Unique
-    private double toroidal$foldedValue(Context generation, double x, double y, double z) {
+    private double exotic_worlds$foldedValue(Context generation, double x, double y, double z) {
         double firstValue = this.first.getValue(x, y, z);
-        try (Context.ScaleScope _ = toroidal$detuned(generation)) {
+        try (Context.ScaleScope _ = exotic_worlds$detuned(generation)) {
             double detunedY = generation.slotAxes().y().carriesWorldAxis()
                     ? y
                     : y * NoiseConstants.SECOND_LAYER_DETUNE;
@@ -117,7 +117,7 @@ public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, Noise
     }
 
     @Unique
-    private static Context.ScaleScope toroidal$detuned(Context generation) {
+    private static Context.ScaleScope exotic_worlds$detuned(Context generation) {
         return generation.withScales(generation.horizontalScale() * NoiseConstants.SECOND_LAYER_DETUNE,
                 generation.vanillaScale() * NoiseConstants.SECOND_LAYER_DETUNE);
     }

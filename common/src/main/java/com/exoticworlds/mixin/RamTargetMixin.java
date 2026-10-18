@@ -18,7 +18,7 @@ public class RamTargetMixin {
     @WrapOperation(
             method = "start(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/animal/goat/Goat;J)V",
             at = @At(value = "NEW", target = InjectionTargets.VEC3_NEW))
-    private Vec3 toroidal$ramDirectionThroughSeam(double x, double y, double z, Operation<Vec3> original,
+    private Vec3 exotic_worlds$ramDirectionThroughSeam(double x, double y, double z, Operation<Vec3> original,
             @Local(argsOnly = true) Goat body) {
         return SeamAim.foldDelta(body, original.call(x, y, z));
     }

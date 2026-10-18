@@ -31,35 +31,35 @@ public class BiomeMixin {
     private static PerlinSimplexNoise FROZEN_TEMPERATURE_NOISE;
 
     @Unique
-    private final ThreadLocal<FoldedTemperatureCache> toroidal$foldedTemperatureCache =
+    private final ThreadLocal<FoldedTemperatureCache> exotic_worlds$foldedTemperatureCache =
             ThreadLocal.withInitial(FoldedTemperatureCache::new);
 
     @WrapOperation(
             method = "getTemperature(Lnet/minecraft/core/BlockPos;I)F",
             at = @At(value = "INVOKE", target = "Ljava/lang/ThreadLocal;get()Ljava/lang/Object;"),
             require = 0)
-    private Object toroidal$temperatureCacheOfBoundFold(ThreadLocal<?> cache, Operation<Object> original) {
+    private Object exotic_worlds$temperatureCacheOfBoundFold(ThreadLocal<?> cache, Operation<Object> original) {
         WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
         if (transformer == null) {
             return original.call(cache);
         }
 
-        return this.toroidal$foldedTemperatureCache.get().temperaturesUnder(transformer);
+        return this.exotic_worlds$foldedTemperatureCache.get().temperaturesUnder(transformer);
     }
 
     @WrapMethod(method = "shouldFreeze(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Z)Z")
-    private boolean toroidal$freezeThroughSeam(
+    private boolean exotic_worlds$freezeThroughSeam(
             LevelReader level, BlockPos pos, boolean checkNeighbors, Operation<Boolean> original) {
-        return toroidal$boundToLevel(level, () -> original.call(level, pos, checkNeighbors));
+        return exotic_worlds$boundToLevel(level, () -> original.call(level, pos, checkNeighbors));
     }
 
     @WrapMethod(method = "shouldSnow(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;)Z")
-    private boolean toroidal$snowThroughSeam(LevelReader level, BlockPos pos, Operation<Boolean> original) {
-        return toroidal$boundToLevel(level, () -> original.call(level, pos));
+    private boolean exotic_worlds$snowThroughSeam(LevelReader level, BlockPos pos, Operation<Boolean> original) {
+        return exotic_worlds$boundToLevel(level, () -> original.call(level, pos));
     }
 
     @Unique
-    private <T> T toroidal$boundToLevel(LevelReader level, Supplier<T> action) {
+    private <T> T exotic_worlds$boundToLevel(LevelReader level, Supplier<T> action) {
         WorldFold transformer = WorldLoopAttachments.noiseTransformerOfReader(level);
         if (transformer == null) {
             return action.get();
@@ -73,7 +73,7 @@ public class BiomeMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/biome/Biome$TemperatureModifier;modifyTemperature(Lnet/minecraft/core/BlockPos;F)F"))
-    private float toroidal$periodicTemperatureModifier(
+    private float exotic_worlds$periodicTemperatureModifier(
             Biome.TemperatureModifier modifier, BlockPos pos, float baseTemperature, Operation<Float> original) {
         if (modifier != Biome.TemperatureModifier.FROZEN) {
             return original.call(modifier, pos, baseTemperature);
@@ -84,12 +84,12 @@ public class BiomeMixin {
             return original.call(modifier, pos, baseTemperature);
         }
 
-        return toroidal$frozenPatchTemperature(generation, pos, baseTemperature);
+        return exotic_worlds$frozenPatchTemperature(generation, pos, baseTemperature);
     }
 
     @SuppressWarnings("removal")
     @Unique
-    private float toroidal$frozenPatchTemperature(Context generation, BlockPos pos, float baseTemperature) {
+    private float exotic_worlds$frozenPatchTemperature(Context generation, BlockPos pos, float baseTemperature) {
         double groundValueLargeVariation;
         try (Context.ScaleScope _ = generation.withScale(NoiseConstants.FROZEN_TEMPERATURE_SCALE)) {
             groundValueLargeVariation = FROZEN_TEMPERATURE_NOISE.getValue(pos.getX(), pos.getZ(), false) * 7.0;
@@ -119,7 +119,7 @@ public class BiomeMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/levelgen/synth/PerlinSimplexNoise;getValue(DDZ)D"))
-    private double toroidal$rawCoordinateHeightNoise(
+    private double exotic_worlds$rawCoordinateHeightNoise(
             PerlinSimplexNoise noise,
             double x,
             double z,

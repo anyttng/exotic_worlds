@@ -18,7 +18,7 @@ public class SignFacingMixin {
     @WrapOperation(
             method = "isFacingFrontText",
             at = @At(value = "INVOKE", target = InjectionTargets.MTH_ATAN2))
-    private double toroidal$facingAngleThroughSeam(double deltaZ, double deltaX, Operation<Double> original,
+    private double exotic_worlds$facingAngleThroughSeam(double deltaZ, double deltaX, Operation<Double> original,
             @Local(argsOnly = true) Player player) {
         Vec3 delta = SeamAim.foldDelta(player, deltaX, deltaZ);
         return original.call(delta.z, delta.x);

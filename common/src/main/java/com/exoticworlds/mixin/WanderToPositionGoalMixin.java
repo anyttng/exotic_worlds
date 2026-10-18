@@ -23,7 +23,7 @@ public class WanderToPositionGoalMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/npc/wanderingtrader/WanderingTrader;"
                             + "getWanderTarget()Lnet/minecraft/core/BlockPos;"))
-    private @Nullable BlockPos toroidal$wanderTargetThroughSeam(@Nullable BlockPos wanderTarget) {
+    private @Nullable BlockPos exotic_worlds$wanderTargetThroughSeam(@Nullable BlockPos wanderTarget) {
         return wanderTarget == null ? null : SeamSteering.nearestCopy(this.trader, wanderTarget);
     }
 }

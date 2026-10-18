@@ -6,13 +6,13 @@ import com.seibel.distanthorizons.core.level.IDhLevel;
 
 public interface DhRepoLevel {
     static @Nullable DhLattice latticeOf(Object repo) {
-        return ((DhRepoLevel) repo).toroidal$lattice();
+        return ((DhRepoLevel) repo).exotic_worlds$lattice();
     }
 
-    default void toroidal$bindLevel(IDhLevel level) {
+    default void exotic_worlds$bindLevel(IDhLevel level) {
     }
 
-    default @Nullable DhLattice toroidal$lattice() {
+    default @Nullable DhLattice exotic_worlds$lattice() {
         return null;
     }
 }

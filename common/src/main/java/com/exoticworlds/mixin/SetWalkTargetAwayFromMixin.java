@@ -20,7 +20,7 @@ public class SetWalkTargetAwayFromMixin {
     @WrapOperation(
             method = "lambda$create$2",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_CLOSER_THAN))
-    private static boolean toroidal$avoidReachThroughSeam(Vec3 bodyPosition, Position avoidPosition, double distance,
+    private static boolean exotic_worlds$avoidReachThroughSeam(Vec3 bodyPosition, Position avoidPosition, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) PathfinderMob body) {
         return SeamRange.closerThan(body, bodyPosition, avoidPosition, distance);
     }
@@ -28,7 +28,7 @@ public class SetWalkTargetAwayFromMixin {
     @WrapOperation(
             method = "lambda$create$2",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_SUBTRACT))
-    private static Vec3 toroidal$avoidHeadingThroughSeam(Vec3 from, Vec3 to, Operation<Vec3> original,
+    private static Vec3 exotic_worlds$avoidHeadingThroughSeam(Vec3 from, Vec3 to, Operation<Vec3> original,
             @Local(argsOnly = true) PathfinderMob body) {
         return SeamAim.foldDelta(body, original.call(from, to));
     }

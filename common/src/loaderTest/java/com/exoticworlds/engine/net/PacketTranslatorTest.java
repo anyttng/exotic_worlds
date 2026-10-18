@@ -424,7 +424,7 @@ class PacketTranslatorTest {
                     ClientboundTrackedWaypointPacket.addWaypointPosition(new UUID(1L, 2L), new Waypoint.Icon(), SERVER_BLOCK),
                     context());
 
-            assertEquals(CLIENT_BLOCK, new BlockPos(((Vec3iWaypointAccessor) translated.waypoint()).toroidal$getVector()));
+            assertEquals(CLIENT_BLOCK, new BlockPos(((Vec3iWaypointAccessor) translated.waypoint()).exotic_worlds$getVector()));
         }
 
         @Test
@@ -433,7 +433,7 @@ class PacketTranslatorTest {
                     ClientboundTrackedWaypointPacket.addWaypointChunk(new UUID(1L, 2L), new Waypoint.Icon(), SERVER_CHUNK),
                     context());
 
-            assertEquals(CLIENT_CHUNK, ((ChunkWaypointAccessor) translated.waypoint()).toroidal$getChunkPos());
+            assertEquals(CLIENT_CHUNK, ((ChunkWaypointAccessor) translated.waypoint()).exotic_worlds$getChunkPos());
         }
 
         @Test
@@ -554,8 +554,8 @@ class PacketTranslatorTest {
                     context());
 
             PlayerLookAtPacketAccessor accessor = (PlayerLookAtPacketAccessor) translated;
-            assertEquals(CLIENT_X, accessor.toroidal$getX());
-            assertEquals(CLIENT_Z, accessor.toroidal$getZ());
+            assertEquals(CLIENT_X, accessor.exotic_worlds$getX());
+            assertEquals(CLIENT_Z, accessor.exotic_worlds$getZ());
             assertSame(EntityAnchorArgument.Anchor.EYES, translated.getFromAnchor());
         }
 

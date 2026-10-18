@@ -21,13 +21,13 @@ public class WaypointChunkConnectionMixin {
     private ServerPlayer receiver;
 
     @Unique
-    private final WaypointLapGate toroidal$lapGate = new WaypointLapGate();
+    private final WaypointLapGate exotic_worlds$lapGate = new WaypointLapGate();
 
     @WrapOperation(
             method = "update",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/ChunkPos;getChessboardDistance(Lnet/minecraft/world/level/ChunkPos;)I"))
-    private int toroidal$resendWhenTheReceiverLaps(ChunkPos currentPosition, ChunkPos lastPosition, Operation<Integer> original) {
-        return this.toroidal$lapGate.widen(original.call(currentPosition, lastPosition), this.receiver, currentPosition);
+    private int exotic_worlds$resendWhenTheReceiverLaps(ChunkPos currentPosition, ChunkPos lastPosition, Operation<Integer> original) {
+        return this.exotic_worlds$lapGate.widen(original.call(currentPosition, lastPosition), this.receiver, currentPosition);
     }
 }

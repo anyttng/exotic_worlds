@@ -19,7 +19,7 @@ public class StayCloseToTargetMixin {
     @WrapOperation(
             method = "lambda$create$2",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_CLOSER_THAN))
-    private static boolean toroidal$followReachThroughSeam(Vec3 bodyPosition, Position targetPosition, double distance,
+    private static boolean exotic_worlds$followReachThroughSeam(Vec3 bodyPosition, Position targetPosition, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) LivingEntity body) {
         return SeamRange.closerThan(body, bodyPosition, targetPosition, distance);
     }

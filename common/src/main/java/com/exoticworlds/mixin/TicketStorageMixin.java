@@ -18,36 +18,36 @@ import net.minecraft.world.level.TicketStorage;
 @Mixin(TicketStorage.class)
 public class TicketStorageMixin implements LevelBindable, LevelBindRegistry {
     @Unique
-    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
+    private final BoundLevelFold exotic_worlds$bound = new BoundLevelFold();
 
     @Unique
-    private final List<LevelBindable> toroidal$registeredBindables = new ArrayList<>();
+    private final List<LevelBindable> exotic_worlds$registeredBindables = new ArrayList<>();
 
     @Override
-    public void toroidal$registerBindable(LevelBindable bindable) {
-        this.toroidal$registeredBindables.add(bindable);
+    public void exotic_worlds$registerBindable(LevelBindable bindable) {
+        this.exotic_worlds$registeredBindables.add(bindable);
     }
 
     @Override
-    public void toroidal$bindLevel(ServerLevel level) {
-        this.toroidal$bound.bind(level);
-        for (LevelBindable bindable : this.toroidal$registeredBindables) {
-            bindable.toroidal$bindLevel(level);
+    public void exotic_worlds$bindLevel(ServerLevel level) {
+        this.exotic_worlds$bound.bind(level);
+        for (LevelBindable bindable : this.exotic_worlds$registeredBindables) {
+            bindable.exotic_worlds$bindLevel(level);
         }
     }
 
     @ModifyVariable(method = "addTicket(JLnet/minecraft/server/level/Ticket;)Z", at = @At("HEAD"), argsOnly = true)
-    private long toroidal$foldAddedTicketKey(long key) {
-        return this.toroidal$foldKey(key);
+    private long exotic_worlds$foldAddedTicketKey(long key) {
+        return this.exotic_worlds$foldKey(key);
     }
 
     @ModifyVariable(method = "removeTicket(JLnet/minecraft/server/level/Ticket;)Z", at = @At("HEAD"), argsOnly = true)
-    private long toroidal$foldRemovedTicketKey(long key) {
-        return this.toroidal$foldKey(key);
+    private long exotic_worlds$foldRemovedTicketKey(long key) {
+        return this.exotic_worlds$foldKey(key);
     }
 
     @Unique
-    private long toroidal$foldKey(long key) {
-        return this.toroidal$bound.fold().foldChunkKey(key);
+    private long exotic_worlds$foldKey(long key) {
+        return this.exotic_worlds$bound.fold().foldChunkKey(key);
     }
 }

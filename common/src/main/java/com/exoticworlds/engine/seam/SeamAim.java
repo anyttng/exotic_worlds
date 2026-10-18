@@ -14,21 +14,21 @@ public final class SeamAim {
     }
 
     public static Vec3 deltaTo(Entity viewer, Vec3 point) {
-        WorldFold transformer = ((TransformerSource) viewer).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) viewer).exotic_worlds$wrappedTransformer();
         return transformer == null
                 ? point.subtract(viewer.position())
                 : transformer.foldDelta(viewer.position(), point);
     }
 
     public static Vec3 foldDelta(Entity levelSource, double deltaX, double deltaZ) {
-        WorldFold transformer = ((TransformerSource) levelSource).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) levelSource).exotic_worlds$wrappedTransformer();
         return transformer == null
                 ? new Vec3(deltaX, 0.0, deltaZ)
                 : SeamDelta.fold(transformer, deltaX, deltaZ);
     }
 
     public static Vec3 foldDelta(Entity levelSource, Vec3 delta) {
-        WorldFold transformer = ((TransformerSource) levelSource).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) levelSource).exotic_worlds$wrappedTransformer();
         if (transformer == null) {
             return delta;
         }

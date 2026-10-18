@@ -27,27 +27,27 @@ public class PistonMovingBlockEntityMixin {
     @WrapOperation(
             method = {"moveCollidedEntities", "fixEntityWithinPistonBase"},
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_BOUNDING_BOX))
-    private static AABB toroidal$entityBoxTowardPiston(Entity entity, Operation<AABB> original,
+    private static AABB exotic_worlds$entityBoxTowardPiston(Entity entity, Operation<AABB> original,
             @Local(argsOnly = true) BlockPos pos) {
-        return FoldedBoxQuery.toward(((TransformerSource) entity).toroidal$wrappedTransformer(),
+        return FoldedBoxQuery.toward(((TransformerSource) entity).exotic_worlds$wrappedTransformer(),
                 Vec3.atCenterOf(pos), original.call(entity));
     }
 
     @WrapOperation(
             method = MATCHES_STICKY_CRITERIA,
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_X))
-    private static double toroidal$riderXTowardHoney(Entity entity, Operation<Double> original,
+    private static double exotic_worlds$riderXTowardHoney(Entity entity, Operation<Double> original,
             @Local(argsOnly = true) AABB honey) {
-        return NearestCopy.toward(((TransformerSource) entity).toroidal$wrappedTransformer(), Direction.Axis.X,
+        return NearestCopy.toward(((TransformerSource) entity).exotic_worlds$wrappedTransformer(), Direction.Axis.X,
                 honey.getCenter(), entity.position().with(Direction.Axis.X, original.call(entity)));
     }
 
     @WrapOperation(
             method = MATCHES_STICKY_CRITERIA,
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_Z))
-    private static double toroidal$riderZTowardHoney(Entity entity, Operation<Double> original,
+    private static double exotic_worlds$riderZTowardHoney(Entity entity, Operation<Double> original,
             @Local(argsOnly = true) AABB honey) {
-        return NearestCopy.toward(((TransformerSource) entity).toroidal$wrappedTransformer(), Direction.Axis.Z,
+        return NearestCopy.toward(((TransformerSource) entity).exotic_worlds$wrappedTransformer(), Direction.Axis.Z,
                 honey.getCenter(), entity.position().with(Direction.Axis.Z, original.call(entity)));
     }
 }

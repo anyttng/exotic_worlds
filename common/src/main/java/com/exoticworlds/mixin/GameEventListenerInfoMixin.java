@@ -16,16 +16,16 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(targets = "net.minecraft.world.level.gameevent.GameEvent$ListenerInfo")
 public class GameEventListenerInfoMixin implements RecipientPositionHolder {
     @Unique
-    private Vec3 toroidal$recipientPos;
+    private Vec3 exotic_worlds$recipientPos;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$keepRecipientPos(Holder<GameEvent> gameEvent, Vec3 source, GameEvent.Context context,
+    private void exotic_worlds$keepRecipientPos(Holder<GameEvent> gameEvent, Vec3 source, GameEvent.Context context,
             GameEventListener recipient, Vec3 recipientPos, CallbackInfo ci) {
-        this.toroidal$recipientPos = recipientPos;
+        this.exotic_worlds$recipientPos = recipientPos;
     }
 
     @Override
-    public Vec3 toroidal$recipientPos() {
-        return this.toroidal$recipientPos;
+    public Vec3 exotic_worlds$recipientPos() {
+        return this.exotic_worlds$recipientPos;
     }
 }

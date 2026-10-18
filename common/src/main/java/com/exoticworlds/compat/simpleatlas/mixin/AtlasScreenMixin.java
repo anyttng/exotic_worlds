@@ -59,31 +59,31 @@ public abstract class AtlasScreenMixin {
     private Map<String, Object> dimensionTileBounds;
 
     @Unique
-    private @Nullable List<AtlasCopies.Offset> toroidal$copies;
+    private @Nullable List<AtlasCopies.Offset> exotic_worlds$copies;
 
     @Unique
-    private AtlasCopies.@Nullable Layout toroidal$copiesLayout;
+    private AtlasCopies.@Nullable Layout exotic_worlds$copiesLayout;
 
     @Unique
-    private @Nullable MapCopies toroidal$copiesMode;
+    private @Nullable MapCopies exotic_worlds$copiesMode;
 
     @Unique
-    private @Nullable String toroidal$copiesDimension;
+    private @Nullable String exotic_worlds$copiesDimension;
 
     @Unique
-    private @Nullable AtlasView toroidal$copiesArea;
+    private @Nullable AtlasView exotic_worlds$copiesArea;
 
     @Unique
-    private float toroidal$copiesOriginX;
+    private float exotic_worlds$copiesOriginX;
 
     @Unique
-    private float toroidal$copiesOriginY;
+    private float exotic_worlds$copiesOriginY;
 
     @Unique
-    private float toroidal$copiesTileSize;
+    private float exotic_worlds$copiesTileSize;
 
     @Unique
-    private boolean toroidal$seamLines;
+    private boolean exotic_worlds$seamLines;
 
     @Shadow
     private static Map<String, Object> buildDimensionTileBounds(List<AtlasTilePayload> tiles) {
@@ -106,7 +106,7 @@ public abstract class AtlasScreenMixin {
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$relayTiles(CallbackInfo ci) {
+    private void exotic_worlds$relayTiles(CallbackInfo ci) {
         Minecraft minecraft = Minecraft.getInstance();
         MapItemSavedData first = this.tiles.isEmpty() || minecraft.level == null
                 ? null
@@ -124,29 +124,29 @@ public abstract class AtlasScreenMixin {
     }
 
     @Inject(method = "extractRenderState", at = @At("HEAD"))
-    private void toroidal$readSeamLines(CallbackInfo ci) {
-        this.toroidal$seamLines = MapCopies.current().drawsSeamLines();
+    private void exotic_worlds$readSeamLines(CallbackInfo ci) {
+        this.exotic_worlds$seamLines = MapCopies.current().drawsSeamLines();
     }
 
     @ModifyArg(method = "screenToWorldPoint", at = @At(value = "INVOKE", target = WORLD_POINT_INIT), index = 0)
-    private double toroidal$foldClickX(double x, @Local(name = "tile") AtlasTilePayload tile,
+    private double exotic_worlds$foldClickX(double x, @Local(name = "tile") AtlasTilePayload tile,
             @Local(name = "worldZ") double z) {
         return AtlasTileFold.foldOnTile(tile, x, z).x;
     }
 
     @ModifyArg(method = "screenToWorldPoint", at = @At(value = "INVOKE", target = WORLD_POINT_INIT), index = 1)
-    private double toroidal$foldClickZ(double z, @Local(name = "tile") AtlasTilePayload tile,
+    private double exotic_worlds$foldClickZ(double z, @Local(name = "tile") AtlasTilePayload tile,
             @Local(name = "worldX") double x) {
         return AtlasTileFold.foldOnTile(tile, x, z).z;
     }
 
     @Inject(method = {"screenToWorldPoint", "findMapIdAtScreenPoint"}, at = @At("HEAD"))
-    private void toroidal$pointerOntoBase(CallbackInfoReturnable<?> cir,
+    private void exotic_worlds$pointerOntoBase(CallbackInfoReturnable<?> cir,
             @Local(argsOnly = true, ordinal = 0) LocalDoubleRef mouseX,
             @Local(argsOnly = true, ordinal = 1) LocalDoubleRef mouseY,
             @Local(argsOnly = true, ordinal = 0) float mapOriginX, @Local(argsOnly = true, ordinal = 1) float mapOriginY,
             @Local(argsOnly = true, ordinal = 2) float scaledTileSize) {
-        AtlasCopies.Offset under = toroidal$copyUnder(mouseX.get(), mouseY.get(), mapOriginX, mapOriginY,
+        AtlasCopies.Offset under = exotic_worlds$copyUnder(mouseX.get(), mouseY.get(), mapOriginX, mapOriginY,
                 scaledTileSize);
         mouseX.set(mouseX.get() - under.x());
         mouseY.set(mouseY.get() - under.y());
@@ -156,17 +156,17 @@ public abstract class AtlasScreenMixin {
             method = "extractRenderState",
             at = @At(value = "INVOKE",
                     target = "Lrubbertoe/simple_atlas/client/screen/AtlasScreen;renderMapTile(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IFFF)V"))
-    private void toroidal$drawTileCopies(AtlasScreen screen, GuiGraphicsExtractor graphics, int mapId, float x,
+    private void exotic_worlds$drawTileCopies(AtlasScreen screen, GuiGraphicsExtractor graphics, int mapId, float x,
             float y, float scale, Operation<Void> original, @Local(name = "tile") AtlasTilePayload tile,
             @Local(name = "mapOriginX") float mapOriginX, @Local(name = "mapOriginY") float mapOriginY,
             @Local(name = "scaledTileSize") float scaledTileSize) {
-        AtlasView singleWorld = toroidal$views().toroidal$singleWorld();
-        List<SeamLine> lines = this.toroidal$seamLines ? toroidal$seamLinesOf(tile) : List.of();
-        for (AtlasCopies.Offset offset : toroidal$tileCopies(mapOriginX, mapOriginY, scaledTileSize)) {
+        AtlasView singleWorld = exotic_worlds$views().exotic_worlds$singleWorld();
+        List<SeamLine> lines = this.exotic_worlds$seamLines ? exotic_worlds$seamLinesOf(tile) : List.of();
+        for (AtlasCopies.Offset offset : exotic_worlds$tileCopies(mapOriginX, mapOriginY, scaledTileSize)) {
             float copyX = x + offset.x();
             float copyY = y + offset.y();
             if (singleWorld != null) {
-                toroidal$scissorTo(graphics, singleWorld);
+                exotic_worlds$scissorTo(graphics, singleWorld);
                 original.call(screen, graphics, mapId, copyX, copyY, scale);
                 graphics.disableScissor();
             } else {
@@ -177,12 +177,12 @@ public abstract class AtlasScreenMixin {
     }
 
     @ModifyVariable(method = "extractRenderState", at = @At("STORE"), name = "hovered")
-    private boolean toroidal$hoverTileCopy(boolean hovered, @Local(name = "x") float x, @Local(name = "y") float y,
+    private boolean exotic_worlds$hoverTileCopy(boolean hovered, @Local(name = "x") float x, @Local(name = "y") float y,
             @Local(name = "mapOriginX") float mapOriginX, @Local(name = "mapOriginY") float mapOriginY,
             @Local(name = "scaledTileSize") float scaledTileSize,
             @Local(name = "mouseWithinAtlasContent") boolean mouseWithinAtlasContent,
             @Local(argsOnly = true, ordinal = 0) int mouseX, @Local(argsOnly = true, ordinal = 1) int mouseY) {
-        AtlasCopies.Offset under = toroidal$copyUnder(mouseX, mouseY, mapOriginX, mapOriginY, scaledTileSize);
+        AtlasCopies.Offset under = exotic_worlds$copyUnder(mouseX, mouseY, mapOriginX, mapOriginY, scaledTileSize);
         double baseX = mouseX - under.x();
         double baseY = mouseY - under.y();
         return mouseWithinAtlasContent && baseX >= x && baseX < x + scaledTileSize && baseY >= y
@@ -193,14 +193,14 @@ public abstract class AtlasScreenMixin {
             method = "extractRenderState",
             at = @At(value = "INVOKE",
                     target = "Lrubbertoe/simple_atlas/client/screen/AtlasScreen;renderHoveredTileHighlight(Lnet/minecraft/client/gui/GuiGraphicsExtractor;FFF)V"))
-    private void toroidal$highlightCopyUnder(AtlasScreen screen, GuiGraphicsExtractor graphics, float x, float y,
+    private void exotic_worlds$highlightCopyUnder(AtlasScreen screen, GuiGraphicsExtractor graphics, float x, float y,
             float scaledTileSize, Operation<Void> original, @Local(name = "mapOriginX") float mapOriginX,
             @Local(name = "mapOriginY") float mapOriginY, @Local(argsOnly = true, ordinal = 0) int mouseX,
             @Local(argsOnly = true, ordinal = 1) int mouseY) {
-        AtlasCopies.Offset under = toroidal$copyUnder(mouseX, mouseY, mapOriginX, mapOriginY, scaledTileSize);
-        AtlasView singleWorld = toroidal$views().toroidal$singleWorld();
+        AtlasCopies.Offset under = exotic_worlds$copyUnder(mouseX, mouseY, mapOriginX, mapOriginY, scaledTileSize);
+        AtlasView singleWorld = exotic_worlds$views().exotic_worlds$singleWorld();
         if (singleWorld != null) {
-            toroidal$scissorTo(graphics, singleWorld);
+            exotic_worlds$scissorTo(graphics, singleWorld);
         }
 
         original.call(screen, graphics, x + under.x(), y + under.y(), scaledTileSize);
@@ -213,10 +213,10 @@ public abstract class AtlasScreenMixin {
             method = "extractRenderState",
             at = @At(value = "INVOKE",
                     target = "Lrubbertoe/simple_atlas/client/screen/icon/AtlasIcon;render" + ICON_RENDER_ARGS))
-    private void toroidal$drawIconCopies(AtlasIcon icon, GuiGraphicsExtractor graphics, Minecraft minecraft,
+    private void exotic_worlds$drawIconCopies(AtlasIcon icon, GuiGraphicsExtractor graphics, Minecraft minecraft,
             List<AtlasTilePayload> visibleTiles, float mapOriginX, float mapOriginY, float scaledTileSize,
             Operation<Void> original) {
-        for (AtlasCopies.Offset offset : toroidal$iconCopies(mapOriginX, mapOriginY, scaledTileSize)) {
+        for (AtlasCopies.Offset offset : exotic_worlds$iconCopies(mapOriginX, mapOriginY, scaledTileSize)) {
             original.call(icon, graphics, minecraft, visibleTiles, mapOriginX + offset.x(), mapOriginY + offset.y(),
                     scaledTileSize);
         }
@@ -226,10 +226,10 @@ public abstract class AtlasScreenMixin {
             method = "extractRenderState",
             at = @At(value = "INVOKE",
                     target = "Lrubbertoe/simple_atlas/client/screen/icon/PlayerAtlasIcon;render" + ICON_RENDER_ARGS))
-    private void toroidal$drawPlayerCopies(PlayerAtlasIcon icon, GuiGraphicsExtractor graphics, Minecraft minecraft,
+    private void exotic_worlds$drawPlayerCopies(PlayerAtlasIcon icon, GuiGraphicsExtractor graphics, Minecraft minecraft,
             List<AtlasTilePayload> visibleTiles, float mapOriginX, float mapOriginY, float scaledTileSize,
             Operation<Void> original) {
-        for (AtlasCopies.Offset offset : toroidal$iconCopies(mapOriginX, mapOriginY, scaledTileSize)) {
+        for (AtlasCopies.Offset offset : exotic_worlds$iconCopies(mapOriginX, mapOriginY, scaledTileSize)) {
             original.call(icon, graphics, minecraft, visibleTiles, mapOriginX + offset.x(), mapOriginY + offset.y(),
                     scaledTileSize);
         }
@@ -239,9 +239,9 @@ public abstract class AtlasScreenMixin {
             method = "extractRenderState",
             at = @At(value = "INVOKE",
                     target = "Lrubbertoe/simple_atlas/client/screen/AtlasScreen;renderPinnedWaypointMarkers(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/Minecraft;FFF)V"))
-    private void toroidal$drawPinnedCopies(AtlasScreen screen, GuiGraphicsExtractor graphics, Minecraft minecraft,
+    private void exotic_worlds$drawPinnedCopies(AtlasScreen screen, GuiGraphicsExtractor graphics, Minecraft minecraft,
             float mapOriginX, float mapOriginY, float scaledTileSize, Operation<Void> original) {
-        for (AtlasCopies.Offset offset : toroidal$iconCopies(mapOriginX, mapOriginY, scaledTileSize)) {
+        for (AtlasCopies.Offset offset : exotic_worlds$iconCopies(mapOriginX, mapOriginY, scaledTileSize)) {
             original.call(screen, graphics, minecraft, mapOriginX + offset.x(), mapOriginY + offset.y(),
                     scaledTileSize);
         }
@@ -251,10 +251,10 @@ public abstract class AtlasScreenMixin {
             method = {"findHoveredIcon", "findHoveredWaypointIndex"},
             at = @At(value = "INVOKE",
                     target = "Lrubbertoe/simple_atlas/client/screen/AtlasScreen;resolveHoveredAnchor(Lrubbertoe/simple_atlas/client/screen/icon/AtlasIcon;Lnet/minecraft/client/Minecraft;Ljava/util/List;FFFII)Lrubbertoe/simple_atlas/client/screen/icon/AtlasIcon$Anchor;"))
-    private AtlasIcon.@Nullable Anchor toroidal$hoverAnyCopy(AtlasScreen screen, AtlasIcon icon, Minecraft minecraft,
+    private AtlasIcon.@Nullable Anchor exotic_worlds$hoverAnyCopy(AtlasScreen screen, AtlasIcon icon, Minecraft minecraft,
             List<AtlasTilePayload> visibleTiles, float mapOriginX, float mapOriginY, float scaledTileSize, int mouseX,
             int mouseY, Operation<AtlasIcon.Anchor> original) {
-        for (AtlasCopies.Offset offset : toroidal$iconCopies(mapOriginX, mapOriginY, scaledTileSize)) {
+        for (AtlasCopies.Offset offset : exotic_worlds$iconCopies(mapOriginX, mapOriginY, scaledTileSize)) {
             AtlasIcon.Anchor anchor = original.call(screen, icon, minecraft, visibleTiles, mapOriginX + offset.x(),
                     mapOriginY + offset.y(), scaledTileSize, mouseX, mouseY);
             if (anchor != null) {
@@ -266,35 +266,35 @@ public abstract class AtlasScreenMixin {
     }
 
     @Unique
-    private List<AtlasCopies.Offset> toroidal$iconCopies(float mapOriginX, float mapOriginY, float scaledTileSize) {
+    private List<AtlasCopies.Offset> exotic_worlds$iconCopies(float mapOriginX, float mapOriginY, float scaledTileSize) {
         return MapCopies.current() == MapCopies.SINGLE
                 ? AtlasCopies.BASE_ONLY
-                : toroidal$tileCopies(mapOriginX, mapOriginY, scaledTileSize);
+                : exotic_worlds$tileCopies(mapOriginX, mapOriginY, scaledTileSize);
     }
 
     @Unique
-    private AtlasCopies.Offset toroidal$copyUnder(double mouseX, double mouseY, float mapOriginX, float mapOriginY,
+    private AtlasCopies.Offset exotic_worlds$copyUnder(double mouseX, double mouseY, float mapOriginX, float mapOriginY,
             float scaledTileSize) {
-        List<AtlasCopies.Offset> copies = toroidal$tileCopies(mapOriginX, mapOriginY, scaledTileSize);
-        AtlasCopies.Layout layout = this.toroidal$copiesLayout;
+        List<AtlasCopies.Offset> copies = exotic_worlds$tileCopies(mapOriginX, mapOriginY, scaledTileSize);
+        AtlasCopies.Layout layout = this.exotic_worlds$copiesLayout;
         return layout == null ? AtlasCopies.BASE : AtlasCopies.under(mouseX, mouseY, copies, layout);
     }
 
     @Unique
-    private List<AtlasCopies.Offset> toroidal$tileCopies(float mapOriginX, float mapOriginY, float scaledTileSize) {
+    private List<AtlasCopies.Offset> exotic_worlds$tileCopies(float mapOriginX, float mapOriginY, float scaledTileSize) {
         MapCopies mode = MapCopies.current();
-        AtlasViews views = toroidal$views();
-        AtlasView area = mode == MapCopies.SINGLE ? views.toroidal$singleWorld() : views.toroidal$view();
+        AtlasViews views = exotic_worlds$views();
+        AtlasView area = mode == MapCopies.SINGLE ? views.exotic_worlds$singleWorld() : views.exotic_worlds$view();
         if (area == null) {
             return AtlasCopies.BASE_ONLY;
         }
 
         String dimension = this.getSelectedDimension();
-        if (this.toroidal$copies != null && mode == this.toroidal$copiesMode
-                && dimension.equals(this.toroidal$copiesDimension) && area.equals(this.toroidal$copiesArea)
-                && mapOriginX == this.toroidal$copiesOriginX && mapOriginY == this.toroidal$copiesOriginY
-                && scaledTileSize == this.toroidal$copiesTileSize) {
-            return this.toroidal$copies;
+        if (this.exotic_worlds$copies != null && mode == this.exotic_worlds$copiesMode
+                && dimension.equals(this.exotic_worlds$copiesDimension) && area.equals(this.exotic_worlds$copiesArea)
+                && mapOriginX == this.exotic_worlds$copiesOriginX && mapOriginY == this.exotic_worlds$copiesOriginY
+                && scaledTileSize == this.exotic_worlds$copiesTileSize) {
+            return this.exotic_worlds$copies;
         }
 
         AtlasTilePayload first = AtlasTileFold.firstOf(this.tiles, dimension);
@@ -302,8 +302,8 @@ public abstract class AtlasScreenMixin {
         AtlasCopies.Layout layout = first == null || blocksPerTile == 0
                 ? null
                 : new AtlasCopies.Layout(mapOriginX, mapOriginY,
-                        toroidal$span(dimension, Direction.Axis.X) * scaledTileSize,
-                        toroidal$span(dimension, Direction.Axis.Z) * scaledTileSize,
+                        exotic_worlds$span(dimension, Direction.Axis.X) * scaledTileSize,
+                        exotic_worlds$span(dimension, Direction.Axis.Z) * scaledTileSize,
                         first.centerX() - blocksPerTile / 2 - this.localTileX(dimension, first) * blocksPerTile,
                         first.centerZ() - blocksPerTile / 2 - this.localTileY(dimension, first) * blocksPerTile,
                         scaledTileSize / blocksPerTile);
@@ -311,19 +311,19 @@ public abstract class AtlasScreenMixin {
                 ? AtlasCopies.BASE_ONLY
                 : AtlasCopies.visible(AtlasTileFold.shapeOf(dimension), layout, area,
                         mode == MapCopies.SINGLE ? AtlasCopies.ANY_MOVE : blocksPerTile);
-        this.toroidal$copies = copies;
-        this.toroidal$copiesLayout = layout;
-        this.toroidal$copiesMode = mode;
-        this.toroidal$copiesDimension = dimension;
-        this.toroidal$copiesArea = area;
-        this.toroidal$copiesOriginX = mapOriginX;
-        this.toroidal$copiesOriginY = mapOriginY;
-        this.toroidal$copiesTileSize = scaledTileSize;
+        this.exotic_worlds$copies = copies;
+        this.exotic_worlds$copiesLayout = layout;
+        this.exotic_worlds$copiesMode = mode;
+        this.exotic_worlds$copiesDimension = dimension;
+        this.exotic_worlds$copiesArea = area;
+        this.exotic_worlds$copiesOriginX = mapOriginX;
+        this.exotic_worlds$copiesOriginY = mapOriginY;
+        this.exotic_worlds$copiesTileSize = scaledTileSize;
         return copies;
     }
 
     @Unique
-    private int toroidal$span(String dimension, Direction.Axis axis) {
+    private int exotic_worlds$span(String dimension, Direction.Axis axis) {
         int span = 0;
         for (AtlasTilePayload tile : this.tiles) {
             if (tile.dimension().equals(dimension)) {
@@ -338,18 +338,18 @@ public abstract class AtlasScreenMixin {
     }
 
     @Unique
-    private AtlasViews toroidal$views() {
+    private AtlasViews exotic_worlds$views() {
         return (AtlasViews) (Object) this;
     }
 
     @Unique
-    private static void toroidal$scissorTo(GuiGraphicsExtractor graphics, AtlasView area) {
+    private static void exotic_worlds$scissorTo(GuiGraphicsExtractor graphics, AtlasView area) {
         graphics.enableScissor(Mth.floor(area.contentX()), Mth.floor(area.contentY()),
                 Mth.ceil(area.contentX() + area.contentWidth()), Mth.ceil(area.contentY() + area.contentHeight()));
     }
 
     @Unique
-    private static List<SeamLine> toroidal$seamLinesOf(AtlasTilePayload tile) {
+    private static List<SeamLine> exotic_worlds$seamLinesOf(AtlasTilePayload tile) {
         int blocksPerTile = AtlasTileFold.blocksPerTile(Minecraft.getInstance().level, tile);
         return blocksPerTile == 0 ? List.of() : AtlasTileFold.seamLines(tile, blocksPerTile);
     }

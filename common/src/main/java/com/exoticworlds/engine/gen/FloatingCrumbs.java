@@ -77,20 +77,20 @@ public final class FloatingCrumbs {
     }
 
     private static boolean sweepsCrumbs(ServerLevel level) {
-        return ((CrumbSweepCache) level).toroidal$sweepsCrumbs();
+        return ((CrumbSweepCache) level).exotic_worlds$sweepsCrumbs();
     }
 
     private static TerrainMasks terrainMasksOf(ServerLevel level) {
-        return ((TerrainMaskCache) level).toroidal$terrainMasks();
+        return ((TerrainMaskCache) level).exotic_worlds$terrainMasks();
     }
 
     private static @Nullable TerrainMask terrainMaskOf(ChunkAccess chunk) {
-        return chunk instanceof TerrainMaskHolder holder ? holder.toroidal$terrainMask() : null;
+        return chunk instanceof TerrainMaskHolder holder ? holder.exotic_worlds$terrainMask() : null;
     }
 
     private static void attachTerrainMask(ChunkAccess chunk, TerrainMask mask) {
         if (chunk instanceof TerrainMaskHolder holder) {
-            holder.toroidal$terrainMask(mask);
+            holder.exotic_worlds$terrainMask(mask);
         }
     }
 

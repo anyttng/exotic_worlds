@@ -20,14 +20,14 @@ public abstract class MapProcessorMixin {
     public ClientLevel mainWorld;
 
     @ModifyReturnValue(method = "getAutoIdBase", at = @At("RETURN"))
-    private Object toroidal$foldIdSpawn(Object original, ClientLevel world) {
+    private Object exotic_worlds$foldIdSpawn(Object original, ClientLevel world) {
         return original instanceof BlockPos spawn ? XaeroWorldMapFold.foldIdSpawn(world, spawn) : original;
     }
 
     @ModifyArg(
             method = "updateFootprints",
             at = @At(value = "INVOKE", target = "Ljava/util/ArrayList;add(Ljava/lang/Object;)Z"))
-    private Object toroidal$foldFootprint(Object footprint) {
+    private Object exotic_worlds$foldFootprint(Object footprint) {
         if (!(footprint instanceof Double[] coords) || coords.length != 2) {
             return footprint;
         }

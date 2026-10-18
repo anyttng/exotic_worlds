@@ -50,41 +50,41 @@ public class MapStackMixin {
     private int maxIndex;
 
     @Unique
-    private long toroidal$seed;
+    private long exotic_worlds$seed;
 
     @Unique
-    private volatile @Nullable LapMapStack<WoverBiomePicker.PickableBiome> toroidal$lapStack;
+    private volatile @Nullable LapMapStack<WoverBiomePicker.PickableBiome> exotic_worlds$lapStack;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$keepSeed(long seed, int size, WoverBiomePicker picker, int mapHeight, int worldHeight,
+    private void exotic_worlds$keepSeed(long seed, int size, WoverBiomePicker picker, int mapHeight, int worldHeight,
             MapBuilderFunction mapConstructor, CallbackInfo ci) {
-        this.toroidal$seed = seed;
+        this.exotic_worlds$seed = seed;
     }
 
     @Inject(method = "getBiome", at = @At("HEAD"), cancellable = true)
-    private void toroidal$lapLayer(double x, double y, double z,
+    private void exotic_worlds$lapLayer(double x, double y, double z,
             CallbackInfoReturnable<WoverBiomePicker.PickableBiome> cir) {
         WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
         if (transformer != null) {
-            cir.setReturnValue(this.maps[toroidal$lapStack(transformer).layer(x, y, z)].getBiome(x, y, z));
+            cir.setReturnValue(this.maps[exotic_worlds$lapStack(transformer).layer(x, y, z)].getBiome(x, y, z));
         }
     }
 
     @Unique
-    private LapMapStack<WoverBiomePicker.PickableBiome> toroidal$lapStack(WorldFold fold) {
-        LapMapStack<WoverBiomePicker.PickableBiome> stack = this.toroidal$lapStack;
+    private LapMapStack<WoverBiomePicker.PickableBiome> exotic_worlds$lapStack(WorldFold fold) {
+        LapMapStack<WoverBiomePicker.PickableBiome> stack = this.exotic_worlds$lapStack;
         if (stack != null && stack.covers(fold)) {
             return stack;
         }
 
         synchronized (this) {
-            stack = this.toroidal$lapStack;
+            stack = this.exotic_worlds$lapStack;
             if (stack == null || !stack.covers(fold)) {
-                stack = new LapMapStack<>(fold, toroidal$layers(fold), biome -> biome.isVertical,
+                stack = new LapMapStack<>(fold, exotic_worlds$layers(fold), biome -> biome.isVertical,
                         new LapMapStack.Layering(this.minValue, this.maxValue, this.maxIndex, this.worldHeight,
                                 this.layerDistortion),
-                        this.toroidal$seed);
-                this.toroidal$lapStack = stack;
+                        this.exotic_worlds$seed);
+                this.exotic_worlds$lapStack = stack;
             }
 
             return stack;
@@ -93,14 +93,14 @@ public class MapStackMixin {
 
     @Unique
     @SuppressWarnings("unchecked")
-    private List<LapMap<WoverBiomePicker.PickableBiome>> toroidal$layers(WorldFold fold) {
+    private List<LapMap<WoverBiomePicker.PickableBiome>> exotic_worlds$layers(WorldFold fold) {
         List<LapMap<WoverBiomePicker.PickableBiome>> layers = new ArrayList<>(this.maps.length);
         for (BiomeMap map : this.maps) {
             if (!(map instanceof LapMapHolder<?> holder)) {
                 return List.of();
             }
 
-            layers.add(((LapMapHolder<WoverBiomePicker.PickableBiome>) holder).toroidal$lapMap(fold));
+            layers.add(((LapMapHolder<WoverBiomePicker.PickableBiome>) holder).exotic_worlds$lapMap(fold));
         }
 
         return layers;

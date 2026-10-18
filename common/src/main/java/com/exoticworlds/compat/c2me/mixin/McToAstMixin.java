@@ -14,7 +14,7 @@ import net.minecraft.world.level.levelgen.DensityFunction;
 public class McToAstMixin {
     @WrapMethod(method = "toAst(Lnet/minecraft/world/level/levelgen/DensityFunction;)"
             + "Lcom/ishland/c2me/opts/dfc/common/ast/AstNode;")
-    private static AstNode toroidal$foldNoiseNodes(DensityFunction densityFunction, Operation<AstNode> original) {
+    private static AstNode exotic_worlds$foldNoiseNodes(DensityFunction densityFunction, Operation<AstNode> original) {
         return C2meDfcAst.fold(densityFunction, original.call(densityFunction));
     }
 }

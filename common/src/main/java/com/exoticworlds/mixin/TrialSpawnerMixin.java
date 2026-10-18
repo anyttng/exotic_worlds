@@ -19,7 +19,7 @@ public class TrialSpawnerMixin {
     @WrapOperation(
             method = "shouldMobBeUntracked",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
-    private static double toroidal$mobLeashThroughSeam(BlockPos mobPos, Vec3i spawnerPos, Operation<Double> original,
+    private static double exotic_worlds$mobLeashThroughSeam(BlockPos mobPos, Vec3i spawnerPos, Operation<Double> original,
             @Local(argsOnly = true) ServerLevel level) {
         return SeamRange.sqr(level, mobPos, spawnerPos);
     }

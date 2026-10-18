@@ -26,7 +26,7 @@ public class LocateCommandMixin {
     @WrapOperation(
             method = SHOW_LOCATE_RESULT,
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
-    private static double toroidal$distSqrThroughSeam(BlockPos sourcePos, Vec3i foundPos, Operation<Double> original,
+    private static double exotic_worlds$distSqrThroughSeam(BlockPos sourcePos, Vec3i foundPos, Operation<Double> original,
             @Local(argsOnly = true) CommandSourceStack source) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(source.getLevel());
         if (transformer == null) {
@@ -39,7 +39,7 @@ public class LocateCommandMixin {
     @WrapOperation(
             method = SHOW_LOCATE_RESULT,
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/commands/LocateCommand;dist(IIII)F"))
-    private static float toroidal$flatDistThroughSeam(int fromX, int fromZ, int toX, int toZ,
+    private static float exotic_worlds$flatDistThroughSeam(int fromX, int fromZ, int toX, int toZ,
             Operation<Float> original, @Local(argsOnly = true) CommandSourceStack source) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(source.getLevel());
         if (transformer == null) {

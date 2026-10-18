@@ -21,7 +21,7 @@ public class BeeGoToHiveGoalMixin {
     @ModifyExpressionValue(
             method = "hasReachedTarget",
             at = @At(value = "INVOKE", target = InjectionTargets.PATH_GET_TARGET))
-    private BlockPos toroidal$pathTargetCanonical(BlockPos target) {
+    private BlockPos exotic_worlds$pathTargetCanonical(BlockPos target) {
         return WorldLoopAttachments.transformerOf(this.bee.level()).fold(target);
     }
 }

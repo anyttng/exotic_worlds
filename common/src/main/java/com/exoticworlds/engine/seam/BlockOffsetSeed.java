@@ -35,7 +35,7 @@ public final class BlockOffsetSeed implements AutoCloseable {
         }
 
         if (getter instanceof RegionLevelSource region) {
-            return WorldLoopAttachments.transformerOfReader(region.toroidal$regionLevel());
+            return WorldLoopAttachments.transformerOfReader(region.exotic_worlds$regionLevel());
         }
 
         return WorldFolds.NOOP;

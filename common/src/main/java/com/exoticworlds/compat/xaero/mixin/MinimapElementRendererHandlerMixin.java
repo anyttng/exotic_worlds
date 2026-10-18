@@ -22,36 +22,36 @@ public abstract class MinimapElementRendererHandlerMixin {
     private static final int ELEMENT_Z_INDEX = 3;
 
     @Unique
-    private boolean toroidal$seatPending;
+    private boolean exotic_worlds$seatPending;
     @Unique
-    private Vec3 toroidal$seated = Vec3.ZERO;
+    private Vec3 exotic_worlds$seated = Vec3.ZERO;
 
     @ModifyArg(
             method = TRANSFORM_AND_RENDER,
             at = @At(value = "INVOKE", target = TRANSFORM_AND_RENDER_AT, ordinal = 0),
             index = ELEMENT_X_INDEX)
-    private double toroidal$seatElementX(double elementX, @Local(name = "elementZ") double elementZ) {
-        return toroidal$seat(elementX, elementZ).x;
+    private double exotic_worlds$seatElementX(double elementX, @Local(name = "elementZ") double elementZ) {
+        return exotic_worlds$seat(elementX, elementZ).x;
     }
 
     @ModifyArg(
             method = TRANSFORM_AND_RENDER,
             at = @At(value = "INVOKE", target = TRANSFORM_AND_RENDER_AT, ordinal = 0),
             index = ELEMENT_Z_INDEX)
-    private double toroidal$seatElementZ(double elementZ, @Local(name = "elementX") double elementX) {
-        return toroidal$seat(elementX, elementZ).z;
+    private double exotic_worlds$seatElementZ(double elementZ, @Local(name = "elementX") double elementX) {
+        return exotic_worlds$seat(elementX, elementZ).z;
     }
 
     // The first of the two handlers on a call seats the element, the second takes that seat, in either order.
     @Unique
-    private Vec3 toroidal$seat(double elementX, double elementZ) {
-        if (this.toroidal$seatPending) {
-            this.toroidal$seatPending = false;
-            return this.toroidal$seated;
+    private Vec3 exotic_worlds$seat(double elementX, double elementZ) {
+        if (this.exotic_worlds$seatPending) {
+            this.exotic_worlds$seatPending = false;
+            return this.exotic_worlds$seated;
         }
 
-        this.toroidal$seated = XaeroFold.nearestToCamera(elementX, elementZ);
-        this.toroidal$seatPending = true;
-        return this.toroidal$seated;
+        this.exotic_worlds$seated = XaeroFold.nearestToCamera(elementX, elementZ);
+        this.exotic_worlds$seatPending = true;
+        return this.exotic_worlds$seated;
     }
 }

@@ -19,7 +19,7 @@ public interface DensityFunctionsShiftNoiseMixin {
     DensityFunction.NoiseHolder offsetNoise();
 
     @WrapMethod(method = "compute(DDD)D")
-    default double toroidal$periodicCompute(double localX, double localY, double localZ, Operation<Double> original) {
+    default double exotic_worlds$periodicCompute(double localX, double localY, double localZ, Operation<Double> original) {
         Context generation = GenerationTransformerContext.context();
         if (!generation.transformer().isWrapped()) {
             return original.call(localX, localY, localZ);

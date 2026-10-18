@@ -50,7 +50,7 @@ public final class ClientPosition {
     }
 
     public static ClientPosition of(ServerPlayer player) {
-        return ((ClientPositionHolder) player.connection).toroidal$clientPosition();
+        return ((ClientPositionHolder) player.connection).exotic_worlds$clientPosition();
     }
 
     public double x() {

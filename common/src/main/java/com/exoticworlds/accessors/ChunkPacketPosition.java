@@ -1,7 +1,7 @@
 package com.exoticworlds.accessors;
 
 public interface ChunkPacketPosition {
-    void toroidal$setX(int x);
+    void exotic_worlds$setX(int x);
 
-    void toroidal$setZ(int z);
+    void exotic_worlds$setZ(int z);
 }

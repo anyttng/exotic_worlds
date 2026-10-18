@@ -102,13 +102,13 @@ public final class PacketTranslator {
             Map.entry(ClientboundInitializeBorderPacket.class, rewriter(
                     (ClientboundInitializeBorderPacket packet, TranslationContext context) ->
                             ClientboundPacketRewriters.borderCenter(packet, context,
-                                    (borderPacket, output) -> ((InitializeBorderPacketAccessor) borderPacket).toroidal$write(output),
-                                    InitializeBorderPacketAccessor::toroidal$create))),
+                                    (borderPacket, output) -> ((InitializeBorderPacketAccessor) borderPacket).exotic_worlds$write(output),
+                                    InitializeBorderPacketAccessor::exotic_worlds$create))),
             Map.entry(ClientboundSetBorderCenterPacket.class, rewriter(
                     (ClientboundSetBorderCenterPacket packet, TranslationContext context) ->
                             ClientboundPacketRewriters.borderCenter(packet, context,
-                                    (borderPacket, output) -> ((SetBorderCenterPacketAccessor) borderPacket).toroidal$write(output),
-                                    SetBorderCenterPacketAccessor::toroidal$create))),
+                                    (borderPacket, output) -> ((SetBorderCenterPacketAccessor) borderPacket).exotic_worlds$write(output),
+                                    SetBorderCenterPacketAccessor::exotic_worlds$create))),
             Map.entry(ClientboundPlayerLookAtPacket.class, rewriter(ClientboundPacketRewriters::playerLookAt)),
             Map.entry(ClientboundDamageEventPacket.class, rewriter(ClientboundPacketRewriters::damageEvent)),
             Map.entry(ClientboundMoveMinecartPacket.class, rewriter(ClientboundPacketRewriters::moveMinecart)),

@@ -18,7 +18,7 @@ public class ChargeAttackMixin {
     @WrapOperation(
             method = "canStillUse(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/animal/Animal;J)Z",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_SUBTRACT))
-    private Vec3 toroidal$chargeGuardThroughSeam(Vec3 from, Vec3 to, Operation<Vec3> original,
+    private Vec3 exotic_worlds$chargeGuardThroughSeam(Vec3 from, Vec3 to, Operation<Vec3> original,
             @Local(argsOnly = true) Animal body) {
         return SeamAim.foldDelta(body, original.call(from, to));
     }
@@ -26,7 +26,7 @@ public class ChargeAttackMixin {
     @WrapOperation(
             method = "start(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/animal/Animal;J)V",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_SUBTRACT))
-    private Vec3 toroidal$chargeHeadingThroughSeam(Vec3 from, Vec3 to, Operation<Vec3> original,
+    private Vec3 exotic_worlds$chargeHeadingThroughSeam(Vec3 from, Vec3 to, Operation<Vec3> original,
             @Local(argsOnly = true) Animal body) {
         return SeamAim.foldDelta(body, original.call(from, to));
     }

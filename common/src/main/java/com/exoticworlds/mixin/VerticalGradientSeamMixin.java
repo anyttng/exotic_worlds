@@ -20,7 +20,7 @@ public class VerticalGradientSeamMixin {
                     target = "Lnet/minecraft/world/level/levelgen/RandomState;getOrCreateRandomFactory("
                             + "Lnet/minecraft/resources/Identifier;)"
                             + "Lnet/minecraft/world/level/levelgen/PositionalRandomFactory;"))
-    private PositionalRandomFactory toroidal$seedGradientFromCanonical(PositionalRandomFactory factory) {
+    private PositionalRandomFactory exotic_worlds$seedGradientFromCanonical(PositionalRandomFactory factory) {
         WorldFold fold = GenerationTransformerContext.context().wrappedTransformer();
         return fold == null ? factory : new CanonicalRandomFactory(factory, fold);
     }

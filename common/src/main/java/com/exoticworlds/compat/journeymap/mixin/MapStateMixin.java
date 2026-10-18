@@ -17,12 +17,12 @@ import net.minecraft.world.entity.player.Player;
 @Mixin(targets = "journeymap.client.model.map.MapState", remap = false)
 public abstract class MapStateMixin {
     @WrapMethod(method = "setZoom(I)Z")
-    private boolean toroidal$refuseBelowZoomFloor(int zoom, Operation<Boolean> original) {
+    private boolean exotic_worlds$refuseBelowZoomFloor(int zoom, Operation<Boolean> original) {
         return zoom >= JourneyMapFold.zoomFloor() && original.call(zoom);
     }
 
     @Inject(method = "refresh", at = @At("HEAD"))
-    private void toroidal$seatStoredZoomOnTheFloor(Minecraft minecraft, Player player, InGameMapProperties mapProperties,
+    private void exotic_worlds$seatStoredZoomOnTheFloor(Minecraft minecraft, Player player, InGameMapProperties mapProperties,
             CallbackInfo ci) {
         if (!(mapProperties instanceof FullMapProperties)) {
             return;

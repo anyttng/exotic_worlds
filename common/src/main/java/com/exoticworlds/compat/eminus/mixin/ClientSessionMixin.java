@@ -28,7 +28,7 @@ public class ClientSessionMixin {
     }
 
     @Inject(method = {"tick", "submitChunk"}, at = @At("HEAD"))
-    private static void toroidal$reopenUnderPublishedShape(CallbackInfo ci) {
+    private static void exotic_worlds$reopenUnderPublishedShape(CallbackInfo ci) {
         DimensionRuntime current = runtime;
         if (current == null) {
             return;

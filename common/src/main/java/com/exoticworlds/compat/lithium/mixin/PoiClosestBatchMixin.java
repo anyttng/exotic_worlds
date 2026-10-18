@@ -20,7 +20,7 @@ import net.minecraft.world.entity.ai.village.poi.PoiType;
 @Mixin(value = PoiManager.class, priority = 1100)
 public class PoiClosestBatchMixin {
     @WrapMethod(method = LithiumInjectionTargets.CLOSEST_BATCH)
-    private Collection<Pair<Holder<PoiType>, BlockPos>> toroidal$batchThroughSeam(
+    private Collection<Pair<Holder<PoiType>, BlockPos>> exotic_worlds$batchThroughSeam(
             Predicate<Holder<PoiType>> typeFilter,
             Predicate<BlockPos> posFilter,
             BlockPos center,
@@ -28,7 +28,7 @@ public class PoiClosestBatchMixin {
             PoiManager.Occupancy status,
             long count,
             Operation<Collection<Pair<Holder<PoiType>, BlockPos>>> original) {
-        if (!WorldLoopAttachments.transformerIfLevel(((SectionStorageAccessor) this).toroidal$getLevelHeightAccessor())
+        if (!WorldLoopAttachments.transformerIfLevel(((SectionStorageAccessor) this).exotic_worlds$getLevelHeightAccessor())
                 .isWrapped()) {
             return original.call(typeFilter, posFilter, center, radius, status, count);
         }

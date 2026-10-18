@@ -21,15 +21,15 @@ public class PointSamplerMixin {
     NoiseSampler this$0;
 
     @WrapMethod(method = "sample", order = BinderOrder.FOLD)
-    private float toroidal$sampleTheFoldedField(NoiseMapType type, int blockX, int blockY, int blockZ,
+    private float exotic_worlds$sampleTheFoldedField(NoiseMapType type, int blockX, int blockY, int blockZ,
             Operation<Float> original) {
         FoldedNoiseSampler sampler = (FoldedNoiseSampler) (Object) this.this$0;
-        WorldFold fold = sampler.toroidal$fold();
+        WorldFold fold = sampler.exotic_worlds$fold();
         if (!fold.isWrapped()) {
             return original.call(type, blockX, blockY, blockZ);
         }
 
-        return sampler.toroidal$cache(type).get(blockX, blockY, blockZ, () -> GenerationTransformerContext.withTransformer(
+        return sampler.exotic_worlds$cache(type).get(blockX, blockY, blockZ, () -> GenerationTransformerContext.withTransformer(
                 fold, () -> original.call(type, blockX, blockY, blockZ)));
     }
 }

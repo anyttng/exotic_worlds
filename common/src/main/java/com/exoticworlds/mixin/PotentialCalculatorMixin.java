@@ -16,24 +16,24 @@ import net.minecraft.world.level.PotentialCalculator;
 @Mixin(PotentialCalculator.class)
 public class PotentialCalculatorMixin implements TransformerHolder {
     @Unique
-    private WorldFold toroidal$transformer = WorldFolds.NOOP;
+    private WorldFold exotic_worlds$transformer = WorldFolds.NOOP;
 
     @Override
-    public WorldFold toroidal$transformer() {
-        return this.toroidal$transformer;
+    public WorldFold exotic_worlds$transformer() {
+        return this.exotic_worlds$transformer;
     }
 
     @Override
-    public void toroidal$setTransformer(WorldFold transformer) {
-        this.toroidal$transformer = transformer;
+    public void exotic_worlds$setTransformer(WorldFold transformer) {
+        this.exotic_worlds$transformer = transformer;
     }
 
     @WrapOperation(
             method = "getPotentialEnergyChange",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/PotentialCalculator$PointCharge;getPotentialChange(Lnet/minecraft/core/BlockPos;)D"))
-    private double toroidal$measureChargeThroughSeam(PotentialCalculator.PointCharge charge, BlockPos candidate,
+    private double exotic_worlds$measureChargeThroughSeam(PotentialCalculator.PointCharge charge, BlockPos candidate,
             Operation<Double> original) {
-        return original.call(charge, this.toroidal$transformer.nearestCopy(charge.pos, candidate));
+        return original.call(charge, this.exotic_worlds$transformer.nearestCopy(charge.pos, candidate));
     }
 }

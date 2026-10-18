@@ -46,20 +46,20 @@ public abstract class DrawPolygonStepMixin {
             "Ljourneymap/client/render/draw/DrawUtil;drawPolygon(Lcom/mojang/blaze3d/vertex/PoseStack;" + POLYGON_TAIL;
 
     @WrapOperation(method = GUI_GEOMETRY, at = @At(value = "INVOKE", target = GUI_POLYGON))
-    private void toroidal$polygonOnEveryCopy(Matrix3x2fStack pose, MultiBufferSource.BufferSource buffers,
+    private void exotic_worlds$polygonOnEveryCopy(Matrix3x2fStack pose, MultiBufferSource.BufferSource buffers,
             double xOffset, double yOffset, List<?> fillPoints, List<?> strokePoints, List<?> texturePoints,
             AbstractTexture texture, Identifier textureId, ShapeProperties properties, Operation<Void> original) {
-        for (double[] copy : ((OverlayCopies) (Object) this).toroidal$copies()) {
+        for (double[] copy : ((OverlayCopies) (Object) this).exotic_worlds$copies()) {
             original.call(pose, buffers, xOffset + copy[0], yOffset + copy[1], fillPoints, strokePoints,
                     texturePoints, texture, textureId, properties);
         }
     }
 
     @WrapOperation(method = POSE_GEOMETRY, at = @At(value = "INVOKE", target = POSE_POLYGON))
-    private void toroidal$posePolygonOnEveryCopy(PoseStack pose, MultiBufferSource.BufferSource buffers,
+    private void exotic_worlds$posePolygonOnEveryCopy(PoseStack pose, MultiBufferSource.BufferSource buffers,
             double xOffset, double yOffset, List<?> fillPoints, List<?> strokePoints, List<?> texturePoints,
             AbstractTexture texture, Identifier textureId, ShapeProperties properties, Operation<Void> original) {
-        for (double[] copy : ((OverlayCopies) (Object) this).toroidal$copies()) {
+        for (double[] copy : ((OverlayCopies) (Object) this).exotic_worlds$copies()) {
             original.call(pose, buffers, xOffset + copy[0], yOffset + copy[1], fillPoints, strokePoints,
                     texturePoints, texture, textureId, properties);
         }

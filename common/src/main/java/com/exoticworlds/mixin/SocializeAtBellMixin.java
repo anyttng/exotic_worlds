@@ -20,7 +20,7 @@ public class SocializeAtBellMixin {
             method = "lambda$create$2",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private static boolean toroidal$meetingPointReachThroughSeam(BlockPos meetingPos, Position bodyPosition,
+    private static boolean exotic_worlds$meetingPointReachThroughSeam(BlockPos meetingPos, Position bodyPosition,
             double distance, Operation<Boolean> original, @Local(argsOnly = true) LivingEntity body) {
         return SeamRange.closerToCenterThan(body, meetingPos, bodyPosition, distance);
     }

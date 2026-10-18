@@ -18,7 +18,7 @@ public abstract class BlockStateCollisionMixin {
             method = InjectionTargets.BLOCK_STATE_BASE_GET_COLLISION_SHAPE,
             at = @At("HEAD"),
             argsOnly = true)
-    private BlockPos toroidal$canonicalCollisionPos(BlockPos pos, @Local(argsOnly = true) BlockGetter getter) {
+    private BlockPos exotic_worlds$canonicalCollisionPos(BlockPos pos, @Local(argsOnly = true) BlockGetter getter) {
         return WorldLoopAttachments.transformerIfLevel(getter).fold(pos);
     }
 }

@@ -21,16 +21,16 @@ import net.minecraft.world.ticks.ScheduledTick;
 @Mixin(LevelTicks.class)
 public class LevelTicksMixin<T> implements LevelBindable {
     @Unique
-    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
+    private final BoundLevelFold exotic_worlds$bound = new BoundLevelFold();
 
     @Override
-    public void toroidal$bindLevel(ServerLevel level) {
-        this.toroidal$bound.bind(level);
+    public void exotic_worlds$bindLevel(ServerLevel level) {
+        this.exotic_worlds$bound.bind(level);
     }
 
     @ModifyVariable(method = "schedule", at = @At("HEAD"), argsOnly = true)
-    private ScheduledTick<T> toroidal$fileTickAtPhysicalPos(ScheduledTick<T> tick) {
-        WorldFold transformer = this.toroidal$bound.wrapped();
+    private ScheduledTick<T> exotic_worlds$fileTickAtPhysicalPos(ScheduledTick<T> tick) {
+        WorldFold transformer = this.exotic_worlds$bound.wrapped();
         if (transformer == null) {
             return tick;
         }
@@ -45,23 +45,23 @@ public class LevelTicksMixin<T> implements LevelBindable {
     }
 
     @ModifyVariable(method = "hasScheduledTick", at = @At("HEAD"), argsOnly = true)
-    private BlockPos toroidal$queryScheduledAtPhysicalPos(BlockPos pos) {
-        return toroidal$foldQueried(pos);
+    private BlockPos exotic_worlds$queryScheduledAtPhysicalPos(BlockPos pos) {
+        return exotic_worlds$foldQueried(pos);
     }
 
     @ModifyVariable(method = "willTickThisTick", at = @At("HEAD"), argsOnly = true)
-    private BlockPos toroidal$queryThisTickAtPhysicalPos(BlockPos pos) {
-        return toroidal$foldQueried(pos);
+    private BlockPos exotic_worlds$queryThisTickAtPhysicalPos(BlockPos pos) {
+        return exotic_worlds$foldQueried(pos);
     }
 
     @Unique
-    private BlockPos toroidal$foldQueried(BlockPos pos) {
-        return this.toroidal$bound.fold().fold(pos);
+    private BlockPos exotic_worlds$foldQueried(BlockPos pos) {
+        return this.exotic_worlds$bound.fold().fold(pos);
     }
 
     @Inject(method = "clearArea", at = @At("HEAD"), cancellable = true)
-    private void toroidal$clearEachCopyOfTheArea(BoundingBox area, CallbackInfo ci) {
-        WorldFold transformer = this.toroidal$bound.wrapped();
+    private void exotic_worlds$clearEachCopyOfTheArea(BoundingBox area, CallbackInfo ci) {
+        WorldFold transformer = this.exotic_worlds$bound.wrapped();
         if (transformer == null || !transformer.crossesBounds(area)) {
             return;
         }

@@ -26,14 +26,14 @@ public class LookControlMixin implements NavigationShifter {
     protected double wantedZ;
 
     @WrapMethod(method = "setLookAt(DDDFF)V")
-    private void toroidal$lookThroughSeam(double x, double y, double z, float yMaxRotSpeed, float xMaxRotAngle,
+    private void exotic_worlds$lookThroughSeam(double x, double y, double z, float yMaxRotSpeed, float xMaxRotAngle,
             Operation<Void> original) {
         Vec3 nearest = SeamSteering.nearestCopy(this.mob, new Vec3(x, y, z));
         original.call(nearest.x, y, nearest.z, yMaxRotSpeed, xMaxRotAngle);
     }
 
     @Override
-    public void toroidal$shiftBy(int shiftX, int shiftZ) {
+    public void exotic_worlds$shiftBy(int shiftX, int shiftZ) {
         this.wantedX += shiftX;
         this.wantedZ += shiftZ;
     }

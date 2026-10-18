@@ -17,7 +17,7 @@ import net.minecraft.world.level.biome.TheEndBiomeSource;
 @Mixin(TheEndBiomeSource.class)
 public class TheEndBiomeSourceMixin {
     @WrapMethod(method = InjectionTargets.BIOME_SOURCE_GET_NOISE_BIOME)
-    private Holder<Biome> toroidal$loopedNoiseBiome(int quartX, int quartY, int quartZ, Climate.Sampler sampler,
+    private Holder<Biome> exotic_worlds$loopedNoiseBiome(int quartX, int quartY, int quartZ, Climate.Sampler sampler,
             Operation<Holder<Biome>> original) {
         WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
         if (transformer == null) {

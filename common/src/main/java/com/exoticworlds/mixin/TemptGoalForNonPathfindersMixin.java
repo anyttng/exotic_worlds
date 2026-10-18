@@ -19,7 +19,7 @@ public class TemptGoalForNonPathfindersMixin {
             method = "navigateTowards",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_SUBTRACT))
-    private Vec3 toroidal$temptDeltaThroughSeam(Vec3 eyePosition, Vec3 bodyPosition, Operation<Vec3> original,
+    private Vec3 exotic_worlds$temptDeltaThroughSeam(Vec3 eyePosition, Vec3 bodyPosition, Operation<Vec3> original,
             @Local(argsOnly = true) Player player) {
         return SeamAim.foldDelta(player, original.call(eyePosition, bodyPosition));
     }

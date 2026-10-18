@@ -12,15 +12,15 @@ import net.minecraft.client.multiplayer.ClientLevel;
 @Mixin(ClientLevel.class)
 public class ClientLevelMixin implements ClientBoundsHolder {
     @Unique
-    private WorldFold toroidal$clientBounds = WorldFolds.NOOP;
+    private WorldFold exotic_worlds$clientBounds = WorldFolds.NOOP;
 
     @Override
-    public WorldFold toroidal$clientBounds() {
-        return this.toroidal$clientBounds;
+    public WorldFold exotic_worlds$clientBounds() {
+        return this.exotic_worlds$clientBounds;
     }
 
     @Override
-    public void toroidal$setClientBounds(WorldFold transformer) {
-        this.toroidal$clientBounds = transformer;
+    public void exotic_worlds$setClientBounds(WorldFold transformer) {
+        this.exotic_worlds$clientBounds = transformer;
     }
 }

@@ -13,22 +13,22 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 @Mixin(CellMerger.class)
 public class CellMergerMixin implements CellFoldHolder {
     @Unique
-    private volatile CellFold toroidal$fold = CellFold.NONE;
+    private volatile CellFold exotic_worlds$fold = CellFold.NONE;
 
     @Override
-    public CellFold toroidal$fold() {
-        return toroidal$fold;
+    public CellFold exotic_worlds$fold() {
+        return exotic_worlds$fold;
     }
 
     @Override
-    public void toroidal$setFold(CellFold fold) {
-        toroidal$fold = fold;
+    public void exotic_worlds$setFold(CellFold fold) {
+        exotic_worlds$fold = fold;
     }
 
     @WrapMethod(method = "mergeLevel")
-    private boolean toroidal$mergeEveryLapCopy(SectionPyramid pyramid, int level, int blockX, int blockY, int blockZ,
+    private boolean exotic_worlds$mergeEveryLapCopy(SectionPyramid pyramid, int level, int blockX, int blockY, int blockZ,
             Operation<Boolean> original) {
-        CellFold fold = toroidal$fold;
+        CellFold fold = exotic_worlds$fold;
         boolean changed = original.call(pyramid, level, blockX, blockY, blockZ);
         for (int copy = 1; copy < fold.copies(level); copy++) {
             changed |= original.call(pyramid, level, blockX + fold.copyOffsetX(level, copy), blockY,

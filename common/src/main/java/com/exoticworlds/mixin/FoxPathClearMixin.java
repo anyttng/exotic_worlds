@@ -18,7 +18,7 @@ public class FoxPathClearMixin {
     @WrapOperation(
             method = "isPathClear",
             at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_X))
-    private static double toroidal$pathTargetX(LivingEntity target, Operation<Double> original,
+    private static double exotic_worlds$pathTargetX(LivingEntity target, Operation<Double> original,
             @Local(argsOnly = true) Fox fox) {
         return SeamAim.nearestCoord(fox, target, Direction.Axis.X, original.call(target));
     }
@@ -26,7 +26,7 @@ public class FoxPathClearMixin {
     @WrapOperation(
             method = "isPathClear",
             at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_Z))
-    private static double toroidal$pathTargetZ(LivingEntity target, Operation<Double> original,
+    private static double exotic_worlds$pathTargetZ(LivingEntity target, Operation<Double> original,
             @Local(argsOnly = true) Fox fox) {
         return SeamAim.nearestCoord(fox, target, Direction.Axis.Z, original.call(target));
     }

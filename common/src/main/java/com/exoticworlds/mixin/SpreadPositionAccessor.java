@@ -9,19 +9,19 @@ import net.minecraft.server.commands.SpreadPlayersCommand;
 @Mixin(SpreadPlayersCommand.Position.class)
 public interface SpreadPositionAccessor {
     @Accessor("x")
-    double toroidal$x();
+    double exotic_worlds$x();
 
     @Accessor("x")
-    void toroidal$setX(double x);
+    void exotic_worlds$setX(double x);
 
     @Accessor("z")
-    double toroidal$z();
+    double exotic_worlds$z();
 
     @Accessor("z")
-    void toroidal$setZ(double z);
+    void exotic_worlds$setZ(double z);
 
     @Invoker("<init>")
-    static SpreadPlayersCommand.Position toroidal$create() {
+    static SpreadPlayersCommand.Position exotic_worlds$create() {
         throw new AssertionError();
     }
 }

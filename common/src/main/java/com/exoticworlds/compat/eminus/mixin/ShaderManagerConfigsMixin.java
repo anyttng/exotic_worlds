@@ -14,7 +14,7 @@ import net.minecraft.resources.Identifier;
 @Mixin(targets = "net.minecraft.client.renderer.ShaderManager$CompilationCache")
 public class ShaderManagerConfigsMixin {
     @ModifyReturnValue(method = "getShaderSource", at = @At("RETURN"))
-    private @Nullable String toroidal$clipEminusToTheLap(@Nullable String source,
+    private @Nullable String exotic_worlds$clipEminusToTheLap(@Nullable String source,
             @Local(argsOnly = true) Identifier id, @Local(argsOnly = true) ShaderType type) {
         return type == ShaderType.FRAGMENT ? LapClip.rewrite(id.getNamespace(), id.getPath(), source) : source;
     }

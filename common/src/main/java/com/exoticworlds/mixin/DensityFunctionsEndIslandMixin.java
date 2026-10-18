@@ -21,7 +21,7 @@ public class DensityFunctionsEndIslandMixin {
     private SimplexNoise islandNoise;
 
     @WrapMethod(method = "compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D")
-    private double toroidal$loopedCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
+    private double exotic_worlds$loopedCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
         WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
         if (transformer == null) {
             return original.call(context);

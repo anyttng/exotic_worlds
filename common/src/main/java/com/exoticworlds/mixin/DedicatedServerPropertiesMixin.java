@@ -14,9 +14,9 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
 @Mixin(DedicatedServerProperties.class)
 public class DedicatedServerPropertiesMixin {
     @ModifyReturnValue(method = "createDimensions", at = @At("RETURN"))
-    private WorldDimensions toroidal$keepChosenShape(WorldDimensions created,
+    private WorldDimensions exotic_worlds$keepChosenShape(WorldDimensions created,
             @Local(argsOnly = true) HolderLookup.Provider registries) {
-        return ServerLevelType.keepChosenShape(created, ((SettingsAccessor) (Object) this).toroidal$getProperties(),
+        return ServerLevelType.keepChosenShape(created, ((SettingsAccessor) (Object) this).exotic_worlds$getProperties(),
                 registries);
     }
 }

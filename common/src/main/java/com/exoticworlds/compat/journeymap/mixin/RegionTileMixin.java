@@ -36,14 +36,14 @@ public abstract class RegionTileMixin {
 
     @WrapOperation(method = "setPosition",
             at = @At(value = "INVOKE", target = "Ljava/awt/geom/Rectangle2D$Double;contains(DD)Z"))
-    private boolean toroidal$showTilesWhoseCopyMeetsTheGrid(Rectangle2D.Double regionBounds, double regionX,
+    private boolean exotic_worlds$showTilesWhoseCopyMeetsTheGrid(Rectangle2D.Double regionBounds, double regionX,
             double regionZ, Operation<Boolean> original) {
         return original.call(regionBounds, regionX, regionZ)
                 || JourneyMapFold.active() && JourneyMapFold.regionInView(regionBounds, (int) regionX, (int) regionZ);
     }
 
     @WrapMethod(method = "render")
-    private void toroidal$renderWrappedCopies(GuiGraphicsExtractor graphics, @Coerce Object quads,
+    private void exotic_worlds$renderWrappedCopies(GuiGraphicsExtractor graphics, @Coerce Object quads,
             Matrix3x2fStack pose, UI context, double pixelOffsetX, double pixelOffsetZ, float alpha, MapType mapType,
             int shaderIndex, Operation<Void> original) {
         original.call(graphics, quads, pose, context, pixelOffsetX, pixelOffsetZ, alpha, mapType, shaderIndex);
@@ -57,8 +57,8 @@ public abstract class RegionTileMixin {
         }
 
         Window window = Minecraft.getInstance().getWindow();
-        int viewportX = toroidal$viewportPixels(context, window.getWidth());
-        int viewportZ = toroidal$viewportPixels(context, window.getHeight());
+        int viewportX = exotic_worlds$viewportPixels(context, window.getWidth());
+        int viewportZ = exotic_worlds$viewportPixels(context, window.getHeight());
         int[] spanX = JourneyMapFold.viewSpan(view.centerX(), viewportX, this.zoom);
         int[] spanZ = JourneyMapFold.viewSpan(view.centerZ(), viewportZ, this.zoom);
         List<WorldCopies.Copy> drawn = JourneyMapFold.drawnCopies(view.tiles(), spanX, spanZ,
@@ -77,7 +77,7 @@ public abstract class RegionTileMixin {
     }
 
     @Unique
-    private static int toroidal$viewportPixels(UI context, int windowPixels) {
+    private static int exotic_worlds$viewportPixels(UI context, int windowPixels) {
         if (context != UI.Minimap) {
             return windowPixels;
         }

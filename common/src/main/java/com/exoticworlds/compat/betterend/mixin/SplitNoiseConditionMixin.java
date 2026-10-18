@@ -16,7 +16,7 @@ public class SplitNoiseConditionMixin {
     @WrapOperation(
             method = WoverInjectionTargets.GET_NUMBER,
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_2D))
-    private double toroidal$lapNoise(OpenSimplexNoise noise, double x, double z, Operation<Double> original) {
+    private double exotic_worlds$lapNoise(OpenSimplexNoise noise, double x, double z, Operation<Double> original) {
         return BetterEndSurfaceNoise.split(noise, x, z, original);
     }
 }

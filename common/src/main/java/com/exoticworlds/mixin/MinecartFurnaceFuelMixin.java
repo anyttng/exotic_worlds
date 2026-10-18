@@ -16,7 +16,7 @@ public class MinecartFurnaceFuelMixin {
     @ModifyExpressionValue(
             method = "addFuel(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/item/ItemStack;)Z",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_SUBTRACT))
-    private Vec3 toroidal$driveAwayThroughSeam(Vec3 delta) {
+    private Vec3 exotic_worlds$driveAwayThroughSeam(Vec3 delta) {
         return SeamAim.foldDelta((Entity) (Object) this, delta);
     }
 }

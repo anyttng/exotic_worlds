@@ -8,8 +8,8 @@ import net.minecraft.world.level.ChunkPos;
 @Mixin(targets = "net.minecraft.world.waypoints.TrackedWaypoint$ChunkWaypoint")
 public interface ChunkWaypointAccessor {
     @Accessor("chunkPos")
-    ChunkPos toroidal$getChunkPos();
+    ChunkPos exotic_worlds$getChunkPos();
 
     @Accessor("chunkPos")
-    void toroidal$setChunkPos(ChunkPos chunkPos);
+    void exotic_worlds$setChunkPos(ChunkPos chunkPos);
 }

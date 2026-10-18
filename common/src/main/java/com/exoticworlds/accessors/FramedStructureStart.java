@@ -10,9 +10,9 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 
 public interface FramedStructureStart {
-    @Nullable StructureStart toroidal$framedBy(WorldGenLevel level, DeckTransformation move);
+    @Nullable StructureStart exotic_worlds$framedBy(WorldGenLevel level, DeckTransformation move);
 
-    default @Nullable StructureStart toroidal$framedToward(WorldGenLevel level, WorldFold fold, ChunkPos center) {
+    default @Nullable StructureStart exotic_worlds$framedToward(WorldGenLevel level, WorldFold fold, ChunkPos center) {
         StructureStart self = (StructureStart) (Object) this;
         if (!self.isValid()) {
             return self;
@@ -20,6 +20,6 @@ public interface FramedStructureStart {
 
         ChunkPos startPos = self.getChunkPos();
         ChunkPos nearest = fold.nearestCopy(center, startPos);
-        return toroidal$framedBy(level, fold.deckTransformation(startPos, nearest));
+        return exotic_worlds$framedBy(level, fold.deckTransformation(startPos, nearest));
     }
 }

@@ -9,5 +9,5 @@ import net.minecraft.world.entity.ai.navigation.PathNavigation;
 @Mixin(PathNavigation.class)
 public interface PathNavigationAccessor {
     @Accessor("mob")
-    Mob toroidal$mob();
+    Mob exotic_worlds$mob();
 }

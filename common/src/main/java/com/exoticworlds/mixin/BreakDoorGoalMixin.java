@@ -18,9 +18,9 @@ public class BreakDoorGoalMixin {
             method = "canContinueToUse",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean toroidal$doorRangeThroughSeam(BlockPos doorPos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$doorRangeThroughSeam(BlockPos doorPos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan(((DoorInteractGoalAccessor) this).toroidal$mob(), doorPos,
+        return SeamRange.closerToCenterThan(((DoorInteractGoalAccessor) this).exotic_worlds$mob(), doorPos,
                 bodyPosition, distance);
     }
 }

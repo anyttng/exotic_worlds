@@ -34,24 +34,24 @@ public class ImprovedNoiseMixin implements IndexableNoise {
     public double zo;
 
     @Unique
-    private final PeriodicLattices toroidal$lattices = new PeriodicLattices();
+    private final PeriodicLattices exotic_worlds$lattices = new PeriodicLattices();
 
     @WrapMethod(method = "noise(DDDDD)D")
-    private double toroidal$periodicNoise(double x, double y, double z, double yScale, double yFudge, Operation<Double> original) {
+    private double exotic_worlds$periodicNoise(double x, double y, double z, double yScale, double yFudge, Operation<Double> original) {
         Context context = GenerationTransformerContext.context();
         WorldFold transformer = context.wrappedTransformer();
         if (transformer == null) {
             return original.call(x, y, z, yScale, yFudge);
         }
 
-        return this.toroidal$lattices.sample(this.p, this.xo, this.yo, this.zo, transformer,
+        return this.exotic_worlds$lattices.sample(this.p, this.xo, this.yo, this.zo, transformer,
                 context, x, y, z, yScale, yFudge);
     }
 
     @Override
-    public boolean toroidal$indexable(Context context) {
+    public boolean exotic_worlds$indexable(Context context) {
         WorldFold transformer = context.wrappedTransformer();
         return transformer == null
-                || this.toroidal$lattices.indexable(this.p, this.xo, this.yo, this.zo, transformer, context);
+                || this.exotic_worlds$lattices.indexable(this.p, this.xo, this.yo, this.zo, transformer, context);
     }
 }

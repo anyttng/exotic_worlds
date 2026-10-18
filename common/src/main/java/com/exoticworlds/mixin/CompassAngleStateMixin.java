@@ -25,7 +25,7 @@ public class CompassAngleStateMixin {
                     target = "Lnet/minecraft/client/renderer/item/properties/numeric/CompassAngleState$CompassTarget;"
                             + "get(Lnet/minecraft/client/multiplayer/ClientLevel;Lnet/minecraft/world/item/ItemStack;"
                             + "Lnet/minecraft/world/entity/ItemOwner;)Lnet/minecraft/core/GlobalPos;"))
-    private @Nullable GlobalPos toroidal$needleTargetNearestCopy(CompassAngleState.CompassTarget compassTarget,
+    private @Nullable GlobalPos exotic_worlds$needleTargetNearestCopy(CompassAngleState.CompassTarget compassTarget,
             ClientLevel level, ItemStack itemStack, ItemOwner owner, Operation<GlobalPos> original) {
         GlobalPos target = original.call(compassTarget, level, itemStack, owner);
         if (target == null) {

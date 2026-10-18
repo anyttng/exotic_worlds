@@ -27,7 +27,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 @Mixin(Structure.class)
 public class StructureGenerateBindingMixin {
     @WrapMethod(method = "generate", order = BinderOrder.FOLD)
-    private StructureStart toroidal$generateOnThisWorldsNoise(
+    private StructureStart exotic_worlds$generateOnThisWorldsNoise(
             Holder<Structure> selected,
             ResourceKey<Level> dimension,
             RegistryAccess registryAccess,
