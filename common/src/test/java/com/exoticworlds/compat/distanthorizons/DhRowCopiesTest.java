@@ -104,4 +104,17 @@ class DhRowCopiesTest {
         assertSame(copy, DhRowCopies.buildAt(copy, DhRowCopies::pendingCopy));
         assertNull(DhRowCopies.pendingCopy());
     }
+
+    @Test
+    void aNestedBuildRestoresTheOuterCopy() {
+        ChunkPos outer = new ChunkPos(6, 19);
+        ChunkPos inner = new ChunkPos(3, 69);
+        ChunkPos seen = DhRowCopies.buildAt(outer, () -> {
+            assertSame(inner, DhRowCopies.buildAt(inner, DhRowCopies::pendingCopy));
+            return DhRowCopies.pendingCopy();
+        });
+
+        assertSame(outer, seen);
+        assertNull(DhRowCopies.pendingCopy());
+    }
 }
