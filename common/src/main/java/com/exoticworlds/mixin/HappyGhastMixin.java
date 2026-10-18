@@ -20,14 +20,14 @@ public class HappyGhastMixin {
     @ModifyExpressionValue(
             method = "scanPlayerAboveGhast",
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_POSITION))
-    private Vec3 toroidal$riderPositionThroughSeam(Vec3 position) {
+    private Vec3 exotic_worlds$riderPositionThroughSeam(Vec3 position) {
         return SeamSteering.nearestCopy((HappyGhast) (Object) this, position);
     }
 
     @WrapOperation(
             method = "checkRestriction",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
-    private boolean toroidal$homeRestrictionThroughSeam(BlockPos home, Vec3i pos, double distance,
+    private boolean exotic_worlds$homeRestrictionThroughSeam(BlockPos home, Vec3i pos, double distance,
             Operation<Boolean> original) {
         return SeamRange.closerThan((HappyGhast) (Object) this, home, pos, distance);
     }

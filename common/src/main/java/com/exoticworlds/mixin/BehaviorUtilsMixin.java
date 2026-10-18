@@ -18,7 +18,7 @@ public class BehaviorUtilsMixin {
     @WrapOperation(
             method = "throwItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;F)V",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_SUBTRACT))
-    private static Vec3 toroidal$throwDirectionThroughSeam(Vec3 targetPos, Vec3 throwerPos, Operation<Vec3> original,
+    private static Vec3 exotic_worlds$throwDirectionThroughSeam(Vec3 targetPos, Vec3 throwerPos, Operation<Vec3> original,
             @Local(argsOnly = true) LivingEntity thrower) {
         return original.call(SeamSteering.nearestCopy(thrower, targetPos), throwerPos);
     }

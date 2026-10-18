@@ -22,19 +22,19 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(MapItem.class)
 public class MapItemMixin {
     @WrapOperation(method = "update", at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_X))
-    private double toroidal$holderNearestCenterX(Entity holder, Operation<Double> original,
+    private double exotic_worlds$holderNearestCenterX(Entity holder, Operation<Double> original,
             @Local(argsOnly = true) MapItemSavedData data) {
         double x = original.call(holder);
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(holder.level());
-        return transformer == null ? x : toroidal$nearestHolder(transformer, data, holder).x;
+        return transformer == null ? x : exotic_worlds$nearestHolder(transformer, data, holder).x;
     }
 
     @WrapOperation(method = "update", at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_Z))
-    private double toroidal$holderNearestCenterZ(Entity holder, Operation<Double> original,
+    private double exotic_worlds$holderNearestCenterZ(Entity holder, Operation<Double> original,
             @Local(argsOnly = true) MapItemSavedData data) {
         double z = original.call(holder);
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(holder.level());
-        return transformer == null ? z : toroidal$nearestHolder(transformer, data, holder).z;
+        return transformer == null ? z : exotic_worlds$nearestHolder(transformer, data, holder).z;
     }
 
     @WrapOperation(
@@ -42,7 +42,7 @@ public class MapItemMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/saveddata/maps/MapItemSavedData;checkBanners(Lnet/minecraft/world/level/BlockGetter;II)V"))
-    private void toroidal$checkBannersInWorld(MapItemSavedData data, BlockGetter blockGetter, int x, int z,
+    private void exotic_worlds$checkBannersInWorld(MapItemSavedData data, BlockGetter blockGetter, int x, int z,
             Operation<Void> original, @Local(argsOnly = true) Level level) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
         if (transformer == null) {
@@ -55,7 +55,7 @@ public class MapItemMixin {
     }
 
     @Unique
-    private static Vec3 toroidal$nearestHolder(WorldFold transformer, MapItemSavedData data, Entity holder) {
+    private static Vec3 exotic_worlds$nearestHolder(WorldFold transformer, MapItemSavedData data, Entity holder) {
         return transformer.nearestCopy(new Vec3(data.centerX, 0.0, data.centerZ), holder.position());
     }
 }

@@ -17,14 +17,14 @@ import net.minecraft.world.level.dimension.LevelStem;
 @Mixin(TerrainGenerator.class)
 public class TerrainGeneratorMixin {
     @Inject(method = "onServerLevelInit", at = @At("RETURN"))
-    private static void toroidal$captureLap(ServerLevel level, LevelStem levelStem, long seed, CallbackInfo ci) {
+    private static void exotic_worlds$captureLap(ServerLevel level, LevelStem levelStem, long seed, CallbackInfo ci) {
         if (level.dimension() == Level.END) {
             EndTerrainLap.capture(level);
         }
     }
 
     @Inject(method = "fillTerrainDensity", at = @At("HEAD"), cancellable = true)
-    private static void toroidal$fillOnLap(double[] buffer, int posX, int posZ, int scaleXZ, int scaleY,
+    private static void exotic_worlds$fillOnLap(double[] buffer, int posX, int posZ, int scaleXZ, int scaleY,
             int maxHeight, CallbackInfo ci) {
         if (LapTerrain.fill(buffer, posX, posZ, scaleXZ, scaleY, maxHeight)) {
             ci.cancel();
@@ -32,7 +32,7 @@ public class TerrainGeneratorMixin {
     }
 
     @Inject(method = "isLand", at = @At("HEAD"), cancellable = true)
-    private static void toroidal$landOnLap(int x, int z, int maxHeight, CallbackInfoReturnable<Boolean> cir) {
+    private static void exotic_worlds$landOnLap(int x, int z, int maxHeight, CallbackInfoReturnable<Boolean> cir) {
         Boolean land = LapTerrain.isLand(x, z, maxHeight);
         if (land != null) {
             cir.setReturnValue(land);

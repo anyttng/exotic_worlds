@@ -25,7 +25,7 @@ public class ServerAccessibleChunkSendingMixin {
     @TargetHandler(
             mixin = "com.ishland.c2me.notickvd.mixin.MixinServerAccessibleChunkSending",
             name = "upgradeToThis")
-    private StaticCache2D<GenerationChunkHolder> toroidal$foldRegionSlots(
+    private StaticCache2D<GenerationChunkHolder> exotic_worlds$foldRegionSlots(
             int centerX,
             int centerZ,
             int range,

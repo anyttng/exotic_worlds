@@ -16,8 +16,8 @@ public class DragonChargePlayerPhaseMixin {
     @WrapOperation(
             method = "doServerTick",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO_SQR_XYZ))
-    private double toroidal$targetWindowThroughSeam(Vec3 target, double x, double y, double z,
+    private double exotic_worlds$targetWindowThroughSeam(Vec3 target, double x, double y, double z,
             Operation<Double> original) {
-        return SeamRange.sqr(((DragonPhaseAccessor) this).toroidal$dragon(), target, x, y, z);
+        return SeamRange.sqr(((DragonPhaseAccessor) this).exotic_worlds$dragon(), target, x, y, z);
     }
 }

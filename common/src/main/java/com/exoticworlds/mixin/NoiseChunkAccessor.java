@@ -9,5 +9,5 @@ import net.minecraft.world.level.levelgen.RandomState;
 @Mixin(NoiseChunk.class)
 public interface NoiseChunkAccessor {
     @Accessor("randomState")
-    RandomState toroidal$randomState();
+    RandomState exotic_worlds$randomState();
 }

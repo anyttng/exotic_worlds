@@ -29,8 +29,8 @@ public class TrackedEntityMixin {
             at = @At(
                     value = "INVOKE",
                     target = InjectionTargets.VEC3_SUBTRACT))
-    private Vec3 toroidal$deltaThroughSeam(Vec3 playerPosition, Vec3 entityPosition, Operation<Vec3> original) {
-        WorldFold transformer = ((TransformerSource) this.entity).toroidal$wrappedTransformer();
+    private Vec3 exotic_worlds$deltaThroughSeam(Vec3 playerPosition, Vec3 entityPosition, Operation<Vec3> original) {
+        WorldFold transformer = ((TransformerSource) this.entity).exotic_worlds$wrappedTransformer();
         return original.call(NearestCopy.toward(transformer, entityPosition, playerPosition), entityPosition);
     }
 
@@ -39,9 +39,9 @@ public class TrackedEntityMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/level/ChunkMap;isChunkTracked(Lnet/minecraft/server/level/ServerPlayer;II)Z"))
-    private boolean toroidal$trackPhysicalChunk(ChunkMap chunkMap, ServerPlayer player, int chunkX, int chunkZ,
+    private boolean exotic_worlds$trackPhysicalChunk(ChunkMap chunkMap, ServerPlayer player, int chunkX, int chunkZ,
             Operation<Boolean> original) {
-        WorldFold transformer = ((TransformerSource) this.entity).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) this.entity).exotic_worlds$wrappedTransformer();
         if (transformer == null) {
             return original.call(chunkMap, player, chunkX, chunkZ);
         }

@@ -20,7 +20,7 @@ public class SchedulingUtilTokensMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Ljava/util/ArrayList;toArray(Ljava/util/function/IntFunction;)[Ljava/lang/Object;"))
-    private static Object[] toroidal$dropDuplicateTokens(
+    private static Object[] exotic_worlds$dropDuplicateTokens(
             ArrayList<Object> tokens,
             IntFunction<Object[]> generator,
             Operation<Object[]> original) {

@@ -17,12 +17,12 @@ public abstract class WaypointWrapperMixin {
     private double dimDiv;
 
     @ModifyReturnValue(method = "getX", at = @At("RETURN"))
-    private int toroidal$foldX(int x) {
+    private int exotic_worlds$foldX(int x) {
         return this.dimDiv == 1.0 ? XaeroWorldMapFold.foldBlock(x, ((Waypoint) this.original).getZ()).getX() : x;
     }
 
     @ModifyReturnValue(method = "getZ", at = @At("RETURN"))
-    private int toroidal$foldZ(int z) {
+    private int exotic_worlds$foldZ(int z) {
         return this.dimDiv == 1.0 ? XaeroWorldMapFold.foldBlock(((Waypoint) this.original).getX(), z).getZ() : z;
     }
 }

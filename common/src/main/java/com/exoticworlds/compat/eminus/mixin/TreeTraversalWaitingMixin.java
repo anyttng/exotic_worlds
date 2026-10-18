@@ -13,8 +13,8 @@ import com.llamalad7.mixinextras.sugar.Local;
 @Mixin(targets = "com.eminus.render.tree.TreeTraversal", remap = false)
 public class TreeTraversalWaitingMixin {
     @Inject(method = "waiting", at = @At("HEAD"), cancellable = true)
-    private void toroidal$waitOnlyInsideTheLap(CallbackInfo ci, @Local(argsOnly = true) long key) {
-        if (!((LapTest) (Object) this).toroidal$meets(key, LapTest.NO_MARGIN)) {
+    private void exotic_worlds$waitOnlyInsideTheLap(CallbackInfo ci, @Local(argsOnly = true) long key) {
+        if (!((LapTest) (Object) this).exotic_worlds$meets(key, LapTest.NO_MARGIN)) {
             ci.cancel();
         }
     }

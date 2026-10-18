@@ -37,14 +37,14 @@ public class RaidMixin {
             at = @At(
                     value = "INVOKE",
                     target = InjectionTargets.VEC3_AT_CENTER_OF))
-    private Vec3 toroidal$raidHornThroughSeam(Vec3 raidLoc, @Local ServerPlayer listener) {
+    private Vec3 exotic_worlds$raidHornThroughSeam(Vec3 raidLoc, @Local ServerPlayer listener) {
         return SeamSteering.nearestCopy(listener, raidLoc);
     }
 
     @WrapOperation(
             method = "updateRaiders",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
-    private double toroidal$raiderDistanceThroughSeam(BlockPos raidCenter, Vec3i raiderPos, Operation<Double> original,
+    private double exotic_worlds$raiderDistanceThroughSeam(BlockPos raidCenter, Vec3i raiderPos, Operation<Double> original,
             @Local(argsOnly = true) ServerLevel level) {
         return SeamRange.sqr(level, raidCenter, raiderPos);
     }
@@ -54,7 +54,7 @@ public class RaidMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/core/SectionPos;cube(Lnet/minecraft/core/SectionPos;I)Ljava/util/stream/Stream;"))
-    private Stream<SectionPos> toroidal$villageSectionsThroughSeam(SectionPos cubeCenter, int radius,
+    private Stream<SectionPos> exotic_worlds$villageSectionsThroughSeam(SectionPos cubeCenter, int radius,
             Operation<Stream<SectionPos>> original, @Local(argsOnly = true) ServerLevel level) {
         Stream<SectionPos> sections = original.call(cubeCenter, radius);
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
@@ -69,7 +69,7 @@ public class RaidMixin {
             method = "moveRaidCenterToNearbyVillageSection",
             at = @At(value = "INVOKE", target = InjectionTargets.STREAM_MIN),
             index = 0)
-    private Comparator<BlockPos> toroidal$nearestVillageSectionThroughSeam(Comparator<BlockPos> original,
+    private Comparator<BlockPos> exotic_worlds$nearestVillageSectionThroughSeam(Comparator<BlockPos> original,
             @Local(argsOnly = true) ServerLevel level) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
         if (transformer == null) {

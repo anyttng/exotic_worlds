@@ -15,7 +15,7 @@ import net.minecraft.world.level.levelgen.densityfunction.generator.ShiftNoiseFu
 @Mixin({ShiftNoiseFunction.Shift.class, ShiftNoiseFunction.ShiftA.class, ShiftNoiseFunction.ShiftB.class})
 public class ShiftNoiseFunctionCompileMixin {
     @WrapMethod(method = InjectionTargets.DENSITY_FUNCTION_COMPILE_SAMPLER)
-    private DensitySampler toroidal$compileFolded(DensityFunction.CompileContext context,
+    private DensitySampler exotic_worlds$compileFolded(DensityFunction.CompileContext context,
             Operation<DensitySampler> original) {
         if (!(context instanceof FoldedCompileContext folded)) {
             return original.call(context);

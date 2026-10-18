@@ -25,7 +25,7 @@ public class VanillaWorldGenerationDelegateMixin {
             at = @At(
                     value = "INVOKE",
                     target = InjectionTargets.STATIC_CACHE_2D_CREATE))
-    private StaticCache2D<GenerationChunkHolder> toroidal$foldSeamSlots(
+    private StaticCache2D<GenerationChunkHolder> exotic_worlds$foldSeamSlots(
             int centerX,
             int centerZ,
             int range,
@@ -39,7 +39,7 @@ public class VanillaWorldGenerationDelegateMixin {
     @WrapOperation(
             method = "runTaskWithLockArea",
             at = @At(value = "NEW", target = "com/ishland/c2me/base/common/scheduler/LockTokenImpl"))
-    private static LockTokenImpl toroidal$foldLockToken(
+    private static LockTokenImpl exotic_worlds$foldLockToken(
             int ownerTag,
             long chunkKey,
             LockTokenImpl.Usage usage,
@@ -54,7 +54,7 @@ public class VanillaWorldGenerationDelegateMixin {
                     value = "INVOKE",
                     target = "Lcom/ishland/c2me/base/common/scheduler/ScheduledTask;<init>(JLjava/util/function/Supplier;[Lcom/ishland/flowsched/executor/LockToken;)V"),
             index = 2)
-    private static LockToken[] toroidal$dropRepeatedLockTokens(
+    private static LockToken[] exotic_worlds$dropRepeatedLockTokens(
             LockToken[] tokens,
             @Local(argsOnly = true) SchedulingManager schedulingManager) {
         return C2meSeamFold.lockTokens(schedulingManager, tokens);

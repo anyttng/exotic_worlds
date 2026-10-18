@@ -19,8 +19,8 @@ public class ProjectileMixin {
             method = "isOutsideOwnerCollisionRange",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/phys/AABB;inflate(D)Lnet/minecraft/world/phys/AABB;"))
-    private AABB toroidal$ownerRangeThroughSeam(AABB sweep, @Local Entity owner) {
-        WorldFold transformer = ((TransformerSource) this).toroidal$wrappedTransformer();
+    private AABB exotic_worlds$ownerRangeThroughSeam(AABB sweep, @Local Entity owner) {
+        WorldFold transformer = ((TransformerSource) this).exotic_worlds$wrappedTransformer();
         return FoldedBoxQuery.toward(transformer, owner.position(), sweep);
     }
 }

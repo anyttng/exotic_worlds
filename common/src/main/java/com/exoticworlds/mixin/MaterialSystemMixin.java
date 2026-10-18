@@ -29,7 +29,7 @@ import net.minecraft.world.level.levelgen.synth.Noise;
 @Mixin(MaterialSystem.class)
 public class MaterialSystemMixin implements TransformerSource {
     @Unique
-    private @Nullable TransformerSource toroidal$randomState;
+    private @Nullable TransformerSource exotic_worlds$randomState;
 
     @Shadow
     @Final
@@ -48,22 +48,22 @@ public class MaterialSystemMixin implements TransformerSource {
     private Noise icebergPillarRoofNoise;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$keepRandomState(RandomState randomState, BlockState defaultBlock, int seaLevel,
+    private void exotic_worlds$keepRandomState(RandomState randomState, BlockState defaultBlock, int seaLevel,
             DensityFunction preliminarySurfaceFunction, PositionalRandomFactory noiseRandom, CallbackInfo callback) {
-        this.toroidal$randomState = (TransformerSource) (Object) randomState;
+        this.exotic_worlds$randomState = (TransformerSource) (Object) randomState;
     }
 
     @Override
-    public @Nullable WorldFold toroidal$wrappedTransformer() {
-        TransformerSource randomState = this.toroidal$randomState;
-        return randomState != null ? randomState.toroidal$wrappedTransformer() : null;
+    public @Nullable WorldFold exotic_worlds$wrappedTransformer() {
+        TransformerSource randomState = this.exotic_worlds$randomState;
+        return randomState != null ? randomState.exotic_worlds$wrappedTransformer() : null;
     }
 
     @WrapOperation(
             method = {"getSurfaceDepth", "getSurfaceSecondary", "getBand"},
             at = @At(value = "INVOKE", target = InjectionTargets.NOISE_GET))
-    private float toroidal$blockPositionNoise(Noise noise, double x, double y, double z, Operation<Float> original) {
-        WorldFold transformer = GenerationTransformerContext.carriedOrBound(this.toroidal$wrappedTransformer());
+    private float exotic_worlds$blockPositionNoise(Noise noise, double x, double y, double z, Operation<Float> original) {
+        WorldFold transformer = GenerationTransformerContext.carriedOrBound(this.exotic_worlds$wrappedTransformer());
         if (transformer == null) {
             return original.call(noise, x, y, z);
         }
@@ -72,30 +72,30 @@ public class MaterialSystemMixin implements TransformerSource {
     }
 
     @WrapOperation(method = "erodedBadlandsExtension", at = @At(value = "INVOKE", target = InjectionTargets.NOISE_GET))
-    private float toroidal$rawBadlandsNoise(Noise noise, double x, double y, double z, Operation<Float> original,
+    private float exotic_worlds$rawBadlandsNoise(Noise noise, double x, double y, double z, Operation<Float> original,
             @Local(argsOnly = true, ordinal = 0) int blockX, @Local(argsOnly = true, ordinal = 1) int blockZ) {
-        return this.toroidal$rawCoordinateNoise(noise, x, y, z, blockX, blockZ, original);
+        return this.exotic_worlds$rawCoordinateNoise(noise, x, y, z, blockX, blockZ, original);
     }
 
     @WrapOperation(method = "frozenOceanExtension", at = @At(value = "INVOKE", target = InjectionTargets.NOISE_GET))
-    private float toroidal$rawIcebergNoise(Noise noise, double x, double y, double z, Operation<Float> original,
+    private float exotic_worlds$rawIcebergNoise(Noise noise, double x, double y, double z, Operation<Float> original,
             @Local(argsOnly = true, ordinal = 1) int blockX, @Local(argsOnly = true, ordinal = 2) int blockZ) {
-        return this.toroidal$rawCoordinateNoise(noise, x, y, z, blockX, blockZ, original);
+        return this.exotic_worlds$rawCoordinateNoise(noise, x, y, z, blockX, blockZ, original);
     }
 
     @Unique
-    private float toroidal$rawCoordinateNoise(Noise noise, double x, double y, double z, int blockX, int blockZ,
+    private float exotic_worlds$rawCoordinateNoise(Noise noise, double x, double y, double z, int blockX, int blockZ,
             Operation<Float> original) {
-        WorldFold transformer = GenerationTransformerContext.carriedOrBound(this.toroidal$wrappedTransformer());
+        WorldFold transformer = GenerationTransformerContext.carriedOrBound(this.exotic_worlds$wrappedTransformer());
         if (transformer == null) {
             return original.call(noise, x, y, z);
         }
 
-        return ContextScaledNoise.sample(transformer, noise, this.toroidal$scaleOf(noise), blockX, y, blockZ);
+        return ContextScaledNoise.sample(transformer, noise, this.exotic_worlds$scaleOf(noise), blockX, y, blockZ);
     }
 
     @Unique
-    private double toroidal$scaleOf(Noise noise) {
+    private double exotic_worlds$scaleOf(Noise noise) {
         if (noise == this.badlandsPillarNoise) {
             return NoiseConstants.BADLANDS_PILLAR_SCALE;
         }

@@ -36,9 +36,9 @@ public class BeePollinateGoalMixin {
                     target = "Lnet/minecraft/world/level/blockscan/OrderedBlockMatcher;findFirst"
                             + "(Ljava/util/function/BiPredicate;)Ljava/util/Optional;"),
             index = 0)
-    private BiPredicate<BlockPos, BlockState> toroidal$flowerCandidatesThroughSeam(
+    private BiPredicate<BlockPos, BlockState> exotic_worlds$flowerCandidatesThroughSeam(
             BiPredicate<BlockPos, BlockState> byRawPos) {
-        WorldFold transformer = ((TransformerSource) this.bee).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) this.bee).exotic_worlds$wrappedTransformer();
         if (transformer == null) {
             return byRawPos;
         }
@@ -47,21 +47,21 @@ public class BeePollinateGoalMixin {
     }
 
     @ModifyReturnValue(method = "findNearbyFlower", at = @At("RETURN"))
-    private Optional<BlockPos> toroidal$foundFlowerCanonical(Optional<BlockPos> found) {
+    private Optional<BlockPos> exotic_worlds$foundFlowerCanonical(Optional<BlockPos> found) {
         return found.map(WorldLoopAttachments.transformerOf(this.bee.level())::fold);
     }
 
     @ModifyExpressionValue(
             method = "tick",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_AT_BOTTOM_CENTER_OF))
-    private Vec3 toroidal$flowerThroughSeam(Vec3 flowerPos) {
+    private Vec3 exotic_worlds$flowerThroughSeam(Vec3 flowerPos) {
         return SeamSteering.nearestCopy(this.bee, flowerPos);
     }
 
     @WrapOperation(
             method = "tick",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO, ordinal = 1))
-    private double toroidal$hoverArrivalThroughSeam(Vec3 beePos, Vec3 hoverPos, Operation<Double> original) {
+    private double exotic_worlds$hoverArrivalThroughSeam(Vec3 beePos, Vec3 hoverPos, Operation<Double> original) {
         return original.call(beePos, SeamSteering.nearestCopy(this.bee, hoverPos));
     }
 }

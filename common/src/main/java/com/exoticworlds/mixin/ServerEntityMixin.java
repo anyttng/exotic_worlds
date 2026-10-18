@@ -33,7 +33,7 @@ public class ServerEntityMixin {
     @WrapWithCondition(
             method = "sendPairingData",
             at = @At(value = "INVOKE", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V"))
-    private boolean toroidal$suppressPrematureVehiclePassengers(Consumer<?> broadcast, Object packet,
+    private boolean exotic_worlds$suppressPrematureVehiclePassengers(Consumer<?> broadcast, Object packet,
             @Local(argsOnly = true) ServerPlayer player) {
         if (!(packet instanceof ClientboundSetPassengersPacket passengers)
                 || passengers.getVehicle() == this.entity.getId()) {
@@ -45,11 +45,11 @@ public class ServerEntityMixin {
         }
 
         Entity vehicle = this.entity.getVehicle();
-        return vehicle == null || toroidal$isWatching(player, vehicle);
+        return vehicle == null || exotic_worlds$isWatching(player, vehicle);
     }
 
     @Unique
-    private boolean toroidal$isWatching(ServerPlayer player, Entity watched) {
+    private boolean exotic_worlds$isWatching(ServerPlayer player, Entity watched) {
         ChunkMap.TrackedEntity tracked = this.level.getChunkSource().chunkMap.entityMap.get(watched.getId());
         if (tracked == null) {
             return false;

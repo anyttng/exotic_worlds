@@ -12,20 +12,20 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 @Mixin(ChunkGenerator.class)
 public class ChunkGeneratorMixin implements ShapeStamp {
     @Unique
-    private volatile @Nullable CarriedShape toroidal$carriedShape;
+    private volatile @Nullable CarriedShape exotic_worlds$carriedShape;
 
     @Override
-    public @Nullable CarriedShape toroidal$carriedShape() {
-        return this.toroidal$carriedShape;
+    public @Nullable CarriedShape exotic_worlds$carriedShape() {
+        return this.exotic_worlds$carriedShape;
     }
 
     @Override
-    public void toroidal$stamp(CarriedShape carried) {
-        this.toroidal$carriedShape = carried;
+    public void exotic_worlds$stamp(CarriedShape carried) {
+        this.exotic_worlds$carriedShape = carried;
     }
 
     @Override
-    public void toroidal$clearStamp() {
-        this.toroidal$carriedShape = null;
+    public void exotic_worlds$clearStamp() {
+        this.exotic_worlds$carriedShape = null;
     }
 }

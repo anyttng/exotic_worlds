@@ -8,8 +8,8 @@ import net.minecraft.core.Vec3i;
 @Mixin(targets = "net.minecraft.world.waypoints.TrackedWaypoint$Vec3iWaypoint")
 public interface Vec3iWaypointAccessor {
     @Accessor("vector")
-    Vec3i toroidal$getVector();
+    Vec3i exotic_worlds$getVector();
 
     @Accessor("vector")
-    void toroidal$setVector(Vec3i vector);
+    void exotic_worlds$setVector(Vec3i vector);
 }

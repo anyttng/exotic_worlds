@@ -33,7 +33,7 @@ public class LodQuadTreeMixin {
     private IDhClientLevel level;
 
     @WrapMethod(method = "queuePosToReload")
-    private void toroidal$reloadTheNearestCopy(long pos, Operation<Void> original) {
+    private void exotic_worlds$reloadTheNearestCopy(long pos, Operation<Void> original) {
         DhLattice lattice = DhShapes.of(this.level);
         if (lattice == null) {
             original.call(pos);
@@ -45,7 +45,7 @@ public class LodQuadTreeMixin {
     }
 
     @ModifyReturnValue(method = "calcExpectedDetailLevel*", at = @At("RETURN"))
-    private byte toroidal$capDetailAtTheWorld(byte expected) {
+    private byte exotic_worlds$capDetailAtTheWorld(byte expected) {
         DhLattice lattice = DhShapes.of(this.level);
         if (lattice == null) {
             return expected;
@@ -56,7 +56,7 @@ public class LodQuadTreeMixin {
     }
 
     @WrapMethod(method = "calcExpectedDetailLevel(Lcom/seibel/distanthorizons/core/pos/blockPos/DhBlockPos2D;J)B")
-    private byte toroidal$splitAStraddler(DhBlockPos2D playerPos, long sectionPos, Operation<Byte> original) {
+    private byte exotic_worlds$splitAStraddler(DhBlockPos2D playerPos, long sectionPos, Operation<Byte> original) {
         byte expected = original.call(playerPos, sectionPos);
         DhLattice lattice = DhShapes.of(this.level);
         if (lattice == null) {
@@ -83,7 +83,7 @@ public class LodQuadTreeMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lcom/seibel/distanthorizons/core/render/QuadTree/LodRenderSection;canRender()Z"))
-    private boolean toroidal$refuseAnIncompleteSection(LodRenderSection section, Operation<Boolean> original) {
+    private boolean exotic_worlds$refuseAnIncompleteSection(LodRenderSection section, Operation<Boolean> original) {
         boolean canRender = original.call(section);
         DhLattice lattice = DhShapes.of(this.level);
         if (lattice == null) {
@@ -105,7 +105,7 @@ public class LodQuadTreeMixin {
                     value = "INVOKE",
                     target = "Lcom/seibel/distanthorizons/core/render/QuadTree/QuadTreeTickNodeHolder;"
                             + "addLoadSection(Lcom/seibel/distanthorizons/core/render/QuadTree/LodRenderSection;)V"))
-    private void toroidal$loadOnlyTheNearestCopy(QuadTreeTickNodeHolder holder, LodRenderSection section,
+    private void exotic_worlds$loadOnlyTheNearestCopy(QuadTreeTickNodeHolder holder, LodRenderSection section,
             Operation<Void> original) {
         DhLattice lattice = DhShapes.of(this.level);
         if (lattice == null) {
@@ -124,7 +124,7 @@ public class LodQuadTreeMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lcom/seibel/distanthorizons/core/pos/DhSectionPos;contains(JJ)Z"))
-    private static boolean toroidal$cancelByACopyOfTheSection(long sectionPos, long genPos,
+    private static boolean exotic_worlds$cancelByACopyOfTheSection(long sectionPos, long genPos,
             Operation<Boolean> original) {
         DhLattice lattice = DhClientShapes.current();
         return lattice == null
@@ -138,7 +138,7 @@ public class LodQuadTreeMixin {
                     value = "INVOKE",
                     target = "Lcom/seibel/distanthorizons/core/sql/repo/BeaconBeamRepo;"
                             + "getAllBeamsInBlockPosRange(IIII)Ljava/util/ArrayList;"))
-    private ArrayList<BeaconBeamDTO> toroidal$drawOnlyTheNearestBeams(BeaconBeamRepo repo, int minBlockX,
+    private ArrayList<BeaconBeamDTO> exotic_worlds$drawOnlyTheNearestBeams(BeaconBeamRepo repo, int minBlockX,
             int maxBlockX, int minBlockZ, int maxBlockZ, Operation<ArrayList<BeaconBeamDTO>> original) {
         ArrayList<BeaconBeamDTO> beams = original.call(repo, minBlockX, maxBlockX, minBlockZ, maxBlockZ);
         DhLattice lattice = DhShapes.of(this.level);

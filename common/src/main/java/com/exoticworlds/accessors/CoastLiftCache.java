@@ -1,7 +1,7 @@
 package com.exoticworlds.accessors;
 
 public interface CoastLiftCache {
-    double toroidal$coastLift();
+    double exotic_worlds$coastLift();
 
-    void toroidal$coastLift(double lift);
+    void exotic_worlds$coastLift(double lift);
 }

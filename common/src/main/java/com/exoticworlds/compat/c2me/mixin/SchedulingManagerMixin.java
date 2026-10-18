@@ -13,16 +13,16 @@ import com.ishland.c2me.base.common.scheduler.SchedulingManager;
 public class SchedulingManagerMixin implements TransformerSource, TransformerSourceBindable {
     // Written once on the thread that builds the chunk system, read on every worker that takes a lock.
     @Unique
-    private volatile @Nullable TransformerSource toroidal$source;
+    private volatile @Nullable TransformerSource exotic_worlds$source;
 
     @Override
-    public void toroidal$bindTransformerSource(TransformerSource source) {
-        this.toroidal$source = source;
+    public void exotic_worlds$bindTransformerSource(TransformerSource source) {
+        this.exotic_worlds$source = source;
     }
 
     @Override
-    public @Nullable WorldFold toroidal$wrappedTransformer() {
-        TransformerSource source = this.toroidal$source;
-        return source != null ? source.toroidal$wrappedTransformer() : null;
+    public @Nullable WorldFold exotic_worlds$wrappedTransformer() {
+        TransformerSource source = this.exotic_worlds$source;
+        return source != null ? source.exotic_worlds$wrappedTransformer() : null;
     }
 }

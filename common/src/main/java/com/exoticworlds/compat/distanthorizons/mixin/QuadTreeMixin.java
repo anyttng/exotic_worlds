@@ -17,13 +17,13 @@ import net.minecraft.core.Direction;
 @Mixin(QuadTree.class)
 public class QuadTreeMixin {
     @WrapMethod(method = "isSectionPosInBounds(J)Z")
-    private boolean toroidal$holdOneLapAroundTheCenter(long pos, Operation<Boolean> original) {
+    private boolean exotic_worlds$holdOneLapAroundTheCenter(long pos, Operation<Boolean> original) {
         boolean inSquare = original.call(pos);
         if (!inSquare || !((Object) this instanceof LodQuadTree tree)) {
             return inSquare;
         }
 
-        DhLattice lattice = DhShapes.of(((LodQuadTreeAccessor) tree).toroidal$level());
+        DhLattice lattice = DhShapes.of(((LodQuadTreeAccessor) tree).exotic_worlds$level());
         if (lattice == null) {
             return true;
         }

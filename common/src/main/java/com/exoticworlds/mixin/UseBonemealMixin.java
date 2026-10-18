@@ -21,7 +21,7 @@ public class UseBonemealMixin {
                     + "Lnet/minecraft/world/entity/npc/villager/Villager;J)V",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean toroidal$cropReachThroughSeam(BlockPos cropPos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$cropReachThroughSeam(BlockPos cropPos, Position bodyPosition, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) Villager body) {
         return SeamRange.closerToCenterThan(body, cropPos, bodyPosition, distance);
     }

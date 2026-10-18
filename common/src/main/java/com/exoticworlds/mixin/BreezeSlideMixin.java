@@ -17,7 +17,7 @@ public class BreezeSlideMixin {
     @ModifyExpressionValue(
             method = "randomPointInMiddleCircle",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_SUBTRACT))
-    private static Vec3 toroidal$middleCircleHeadingThroughSeam(Vec3 direction, @Local(argsOnly = true) Breeze breeze) {
+    private static Vec3 exotic_worlds$middleCircleHeadingThroughSeam(Vec3 direction, @Local(argsOnly = true) Breeze breeze) {
         return SeamAim.foldDelta(breeze, direction);
     }
 }

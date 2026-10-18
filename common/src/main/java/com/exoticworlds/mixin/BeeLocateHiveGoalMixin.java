@@ -26,9 +26,9 @@ public class BeeLocateHiveGoalMixin {
             at = @At(value = "INVOKE",
                     target = "Ljava/util/Comparator;comparingDouble(Ljava/util/function/ToDoubleFunction;)Ljava/util/Comparator;"),
             index = 0)
-    private ToDoubleFunction<BlockPos> toroidal$rankHivesThroughSeam(ToDoubleFunction<BlockPos> byRawDistance,
+    private ToDoubleFunction<BlockPos> exotic_worlds$rankHivesThroughSeam(ToDoubleFunction<BlockPos> byRawDistance,
             @Local BlockPos beePos) {
-        WorldFold transformer = ((TransformerSource) this.bee).toroidal$wrappedTransformer();
+        WorldFold transformer = ((TransformerSource) this.bee).exotic_worlds$wrappedTransformer();
         if (transformer == null) {
             return byRawDistance;
         }

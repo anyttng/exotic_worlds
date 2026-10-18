@@ -19,8 +19,8 @@ public class ThrownSplashPotionMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/phys/AABB;distanceToSqr(Lnet/minecraft/world/phys/AABB;)D"))
-    private double toroidal$splashReachThroughSeam(AABB burst, AABB victim, Operation<Double> original) {
-        WorldFold transformer = ((TransformerSource) this).toroidal$wrappedTransformer();
+    private double exotic_worlds$splashReachThroughSeam(AABB burst, AABB victim, Operation<Double> original) {
+        WorldFold transformer = ((TransformerSource) this).exotic_worlds$wrappedTransformer();
         return original.call(burst, FoldedBoxQuery.toward(transformer, burst.getCenter(), victim));
     }
 }

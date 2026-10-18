@@ -23,7 +23,7 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 public class NoiseFunctionCompileMixin {
     @SuppressWarnings("deprecation")
     @WrapMethod(method = InjectionTargets.DENSITY_FUNCTION_COMPILE_SAMPLER)
-    private DensitySampler toroidal$compileFolded(DensityFunction.CompileContext context,
+    private DensitySampler exotic_worlds$compileFolded(DensityFunction.CompileContext context,
             Operation<DensitySampler> original) {
         if (!(context instanceof FoldedCompileContext folded)) {
             return original.call(context);

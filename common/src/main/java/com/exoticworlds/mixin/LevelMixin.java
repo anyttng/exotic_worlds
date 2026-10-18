@@ -48,29 +48,29 @@ import net.minecraft.world.phys.AABB;
 @Mixin(Level.class)
 public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMaskCache, PeriodicityMark {
     @Unique
-    private static final String toroidal$GET_ENTITIES =
+    private static final String exotic_worlds$GET_ENTITIES =
             "getEntities(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;";
 
     @Unique
-    private WorldFold toroidal$transformer;
+    private WorldFold exotic_worlds$transformer;
 
     @Unique
-    private @Nullable Boolean toroidal$sweepsCrumbs;
+    private @Nullable Boolean exotic_worlds$sweepsCrumbs;
 
     @Unique
-    private final TerrainMasks toroidal$terrainMasks = new TerrainMasks();
+    private final TerrainMasks exotic_worlds$terrainMasks = new TerrainMasks();
 
     @Unique
-    private final AtomicBoolean toroidal$periodicityClaimed = new AtomicBoolean();
+    private final AtomicBoolean exotic_worlds$periodicityClaimed = new AtomicBoolean();
 
     @WrapOperation(
             method = "getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/ChunkSource;getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
-    private @Nullable ChunkAccess toroidal$wrapChunkAccess(ChunkSource chunkSource, int chunkX, int chunkZ,
+    private @Nullable ChunkAccess exotic_worlds$wrapChunkAccess(ChunkSource chunkSource, int chunkX, int chunkZ,
             ChunkStatus status, boolean loadOrGenerate, Operation<@Nullable ChunkAccess> original) {
-        WorldFold transformer = toroidal$transformer();
+        WorldFold transformer = exotic_worlds$transformer();
         if (!transformer.isWrapped()) {
             return original.call(chunkSource, chunkX, chunkZ, status, loadOrGenerate);
         }
@@ -81,42 +81,42 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
     }
 
     @ModifyVariable(method = "getBlockEntity", at = @At("HEAD"), argsOnly = true)
-    private BlockPos toroidal$wrapBlockEntityPos(BlockPos pos) {
-        return toroidal$wrap(pos);
+    private BlockPos exotic_worlds$wrapBlockEntityPos(BlockPos pos) {
+        return exotic_worlds$wrap(pos);
     }
 
     @ModifyVariable(method = "removeBlockEntity", at = @At("HEAD"), argsOnly = true)
-    private BlockPos toroidal$wrapRemovedBlockEntityPos(BlockPos pos) {
-        return toroidal$wrap(pos);
+    private BlockPos exotic_worlds$wrapRemovedBlockEntityPos(BlockPos pos) {
+        return exotic_worlds$wrap(pos);
     }
 
     @ModifyVariable(method = "setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)Z",
             at = @At("HEAD"), argsOnly = true)
-    private BlockPos toroidal$wrapPlacedBlockPos(BlockPos pos) {
-        return toroidal$wrap(pos);
+    private BlockPos exotic_worlds$wrapPlacedBlockPos(BlockPos pos) {
+        return exotic_worlds$wrap(pos);
     }
 
     @Inject(method = "setBlockEntity", at = @At("HEAD"))
-    private void toroidal$wrapBlockEntityIdentity(BlockEntity blockEntity, CallbackInfo ci) {
-        BlockEntitySeat.intoBounds(toroidal$transformer(), blockEntity);
+    private void exotic_worlds$wrapBlockEntityIdentity(BlockEntity blockEntity, CallbackInfo ci) {
+        BlockEntitySeat.intoBounds(exotic_worlds$transformer(), blockEntity);
     }
 
     @WrapOperation(
-            method = toroidal$GET_ENTITIES,
+            method = exotic_worlds$GET_ENTITIES,
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/entity/LevelEntityGetter;get(Lnet/minecraft/world/phys/AABB;Ljava/util/function/Consumer;)V"))
-    private void toroidal$entitiesThroughSeam(LevelEntityGetter<Entity> entities, AABB box, Consumer<Entity> output,
+    private void exotic_worlds$entitiesThroughSeam(LevelEntityGetter<Entity> entities, AABB box, Consumer<Entity> output,
             Operation<Void> original) {
-        SeamEntitySearch.forEach(toroidal$transformer(), box, output,
+        SeamEntitySearch.forEach(exotic_worlds$transformer(), box, output,
                 (piece, sink) -> original.call(entities, piece, sink));
     }
 
     @WrapOperation(
-            method = toroidal$GET_ENTITIES,
+            method = exotic_worlds$GET_ENTITIES,
             at = @At(value = "INVOKE", target = InjectionTargets.AABB_INTERSECTS))
-    private boolean toroidal$partBoxTowardQuery(AABB query, AABB part, Operation<Boolean> original) {
-        return original.call(query, FoldedBoxQuery.toward(toroidal$transformer(), query.getCenter(), part));
+    private boolean exotic_worlds$partBoxTowardQuery(AABB query, AABB part, Operation<Boolean> original) {
+        return original.call(query, FoldedBoxQuery.toward(exotic_worlds$transformer(), query.getCenter(), part));
     }
 
     @WrapOperation(
@@ -127,15 +127,15 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/entity/LevelEntityGetter;get(Lnet/minecraft/world/level/entity/EntityTypeTest;Lnet/minecraft/world/phys/AABB;Lnet/minecraft/util/AbortableIterationConsumer;)V"))
-    private <U extends Entity> void toroidal$typedEntitiesThroughSeam(LevelEntityGetter<Entity> entities,
+    private <U extends Entity> void exotic_worlds$typedEntitiesThroughSeam(LevelEntityGetter<Entity> entities,
             EntityTypeTest<Entity, U> type, AABB box, AbortableIterationConsumer<U> output, Operation<Void> original) {
-        SeamEntitySearch.forEachUntilAborted(toroidal$transformer(), box, output,
+        SeamEntitySearch.forEachUntilAborted(exotic_worlds$transformer(), box, output,
                 (piece, sink) -> original.call(entities, type, piece, sink));
     }
 
     @Unique
-    private BlockPos toroidal$wrap(BlockPos pos) {
-        WorldFold transformer = toroidal$transformer();
+    private BlockPos exotic_worlds$wrap(BlockPos pos) {
+        WorldFold transformer = exotic_worlds$transformer();
         if (!transformer.isWrapped()) {
             return pos;
         }
@@ -144,36 +144,36 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
     }
 
     @Override
-    public WorldFold toroidal$transformer() {
-        if (this.toroidal$transformer == null) {
-            this.toroidal$transformer = toroidal$resolveTransformer();
+    public WorldFold exotic_worlds$transformer() {
+        if (this.exotic_worlds$transformer == null) {
+            this.exotic_worlds$transformer = exotic_worlds$resolveTransformer();
         }
 
-        return this.toroidal$transformer;
+        return this.exotic_worlds$transformer;
     }
 
     @Override
-    public boolean toroidal$sweepsCrumbs() {
-        if (this.toroidal$sweepsCrumbs == null) {
+    public boolean exotic_worlds$sweepsCrumbs() {
+        if (this.exotic_worlds$sweepsCrumbs == null) {
             ServerLevel level = WorldLoopAttachments.serverLevelOf((Level) (Object) this);
-            this.toroidal$sweepsCrumbs = level == (Object) this && FloatingCrumbs.installedOn(level);
+            this.exotic_worlds$sweepsCrumbs = level == (Object) this && FloatingCrumbs.installedOn(level);
         }
 
-        return this.toroidal$sweepsCrumbs;
+        return this.exotic_worlds$sweepsCrumbs;
     }
 
     @Override
-    public TerrainMasks toroidal$terrainMasks() {
-        return this.toroidal$terrainMasks;
+    public TerrainMasks exotic_worlds$terrainMasks() {
+        return this.exotic_worlds$terrainMasks;
     }
 
     @Override
-    public boolean toroidal$claimPeriodicityCheck() {
-        return this.toroidal$periodicityClaimed.compareAndSet(false, true);
+    public boolean exotic_worlds$claimPeriodicityCheck() {
+        return this.exotic_worlds$periodicityClaimed.compareAndSet(false, true);
     }
 
     @Unique
-    private WorldFold toroidal$resolveTransformer() {
+    private WorldFold exotic_worlds$resolveTransformer() {
         ServerLevel level = WorldLoopAttachments.serverLevelOf((Level) (Object) this);
         if (level == null) {
             return WorldFolds.NOOP;
@@ -185,7 +185,7 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
     }
 
     @WrapMethod(method = "precipitationAt")
-    private Biome.Precipitation toroidal$bindPrecipitationTransformer(
+    private Biome.Precipitation exotic_worlds$bindPrecipitationTransformer(
             BlockPos pos, Operation<Biome.Precipitation> original) {
         return GenerationTransformerContext.withTransformer(
                 WorldLoopAttachments.noiseTransformerOf((Level) (Object) this), () -> original.call(pos));

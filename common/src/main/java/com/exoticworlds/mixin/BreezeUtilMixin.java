@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(BreezeUtil.class)
 public class BreezeUtilMixin {
     @ModifyVariable(method = "hasLineOfSight", at = @At("HEAD"), argsOnly = true)
-    private static Vec3 toroidal$sightTargetThroughSeam(Vec3 target, @Local(argsOnly = true) Breeze breeze) {
+    private static Vec3 exotic_worlds$sightTargetThroughSeam(Vec3 target, @Local(argsOnly = true) Breeze breeze) {
         return SeamSteering.nearestCopy(breeze, target);
     }
 }

@@ -26,15 +26,15 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 @Mixin(BlockCollisions.class)
 public abstract class BlockCollisionsMixin {
     @Unique
-    private @Nullable WorldFold toroidal$transformer;
+    private @Nullable WorldFold exotic_worlds$transformer;
 
     @Inject(
             method = "<init>(Lnet/minecraft/world/level/CollisionGetter;Lnet/minecraft/world/phys/shapes/CollisionContext;Lnet/minecraft/world/phys/AABB;ZLjava/util/function/BiFunction;)V",
             at = @At("RETURN"))
-    private void toroidal$resolveTransformer(CollisionGetter collisionGetter, CollisionContext context, AABB box,
+    private void exotic_worlds$resolveTransformer(CollisionGetter collisionGetter, CollisionContext context, AABB box,
             boolean onlySuffocatingBlocks, BiFunction<BlockPos.MutableBlockPos, VoxelShape, ?> resultProvider,
             CallbackInfo ci) {
-        this.toroidal$transformer = collisionGetter instanceof Level level
+        this.exotic_worlds$transformer = collisionGetter instanceof Level level
                 ? WorldLoopAttachments.wrappedTransformerOf(level)
                 : null;
     }
@@ -43,8 +43,8 @@ public abstract class BlockCollisionsMixin {
             method = "computeNext",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/BlockCollisions;getChunk(II)Lnet/minecraft/world/level/BlockGetter;"))
-    private BlockGetter toroidal$chunkThroughSeam(BlockCollisions<?> self, int x, int z, Operation<BlockGetter> original) {
-        WorldFold transformer = this.toroidal$transformer;
+    private BlockGetter exotic_worlds$chunkThroughSeam(BlockCollisions<?> self, int x, int z, Operation<BlockGetter> original) {
+        WorldFold transformer = this.exotic_worlds$transformer;
         if (transformer == null) {
             return original.call(self, x, z);
         }

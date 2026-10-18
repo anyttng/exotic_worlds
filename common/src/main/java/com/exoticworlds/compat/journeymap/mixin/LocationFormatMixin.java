@@ -11,7 +11,7 @@ import net.minecraft.core.BlockPos;
 @Mixin(targets = "journeymap.client.ui.option.LocationFormat$LocationFormatKeys", remap = false)
 public class LocationFormatMixin {
     @WrapMethod(method = "format")
-    private String toroidal$foldLocation(boolean verbose, int x, int z, int y, int vslice,
+    private String exotic_worlds$foldLocation(boolean verbose, int x, int z, int y, int vslice,
             Operation<String> original) {
         BlockPos folded = JourneyMapFold.foldUiBlock(new BlockPos(x, y, z));
         return original.call(verbose, folded.getX(), folded.getZ(), y, vslice);

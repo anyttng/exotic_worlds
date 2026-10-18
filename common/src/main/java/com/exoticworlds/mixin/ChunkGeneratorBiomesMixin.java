@@ -16,7 +16,7 @@ import net.minecraft.world.level.levelgen.blending.Blender;
 @Mixin(ChunkGenerator.class)
 public class ChunkGeneratorBiomesMixin {
     @WrapMethod(method = "doCreateBiomes", order = BinderOrder.FOLD)
-    private void toroidal$bindWhileCreatingBiomes(Blender blender, RandomState randomState, ChunkAccess protoChunk,
+    private void exotic_worlds$bindWhileCreatingBiomes(Blender blender, RandomState randomState, ChunkAccess protoChunk,
             Operation<Void> original) {
         GenerationTransformerContext.runWithTransformer(
                 ShapedChunkGenerator.transformerOf((ChunkGenerator) (Object) this),

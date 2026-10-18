@@ -19,7 +19,7 @@ public class ServerExplosionMixin {
     @ModifyVariable(
             method = "getSeenPercent(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/entity/Entity;)F",
             at = @At("HEAD"), argsOnly = true)
-    private static Vec3 toroidal$exposureCenterThroughSeam(Vec3 center, @Local(argsOnly = true) Entity entity) {
+    private static Vec3 exotic_worlds$exposureCenterThroughSeam(Vec3 center, @Local(argsOnly = true) Entity entity) {
         return SeamSteering.nearestCopy(entity, center);
     }
 
@@ -28,7 +28,7 @@ public class ServerExplosionMixin {
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_SUBTRACT),
             require = 1)
-    private Vec3 toroidal$knockbackDirectionThroughSeam(Vec3 delta, @Local Entity entity) {
+    private Vec3 exotic_worlds$knockbackDirectionThroughSeam(Vec3 delta, @Local Entity entity) {
         return SeamAim.foldDelta(entity, delta);
     }
 }

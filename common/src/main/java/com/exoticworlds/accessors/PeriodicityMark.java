@@ -1,5 +1,5 @@
 package com.exoticworlds.accessors;
 
 public interface PeriodicityMark {
-    boolean toroidal$claimPeriodicityCheck();
+    boolean exotic_worlds$claimPeriodicityCheck();
 }

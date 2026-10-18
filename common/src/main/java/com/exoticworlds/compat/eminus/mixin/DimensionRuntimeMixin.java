@@ -39,33 +39,33 @@ public class DimensionRuntimeMixin implements CellFoldHolder {
     private CellMerger merger;
 
     @Unique
-    private volatile CellFold toroidal$fold = CellFold.NONE;
+    private volatile CellFold exotic_worlds$fold = CellFold.NONE;
 
     @Override
-    public CellFold toroidal$fold() {
-        return toroidal$fold;
+    public CellFold exotic_worlds$fold() {
+        return exotic_worlds$fold;
     }
 
     @Override
-    public void toroidal$setFold(CellFold fold) {
-        toroidal$fold = fold;
+    public void exotic_worlds$setFold(CellFold fold) {
+        exotic_worlds$fold = fold;
     }
 
     @Inject(method = "openStore", at = @At("HEAD"))
-    private void toroidal$openUnderPublishedShape(CallbackInfo ci) {
-        toroidal$fold = EminusShapes.publishedFold(identity.dimension());
-        EminusShapes.matchStore(folder, toroidal$fold);
+    private void exotic_worlds$openUnderPublishedShape(CallbackInfo ci) {
+        exotic_worlds$fold = EminusShapes.publishedFold(identity.dimension());
+        EminusShapes.matchStore(folder, exotic_worlds$fold);
     }
 
     @Inject(method = "closeStore", at = @At("RETURN"))
-    private void toroidal$stampClosedStore(CallbackInfo ci) {
-        EminusShapes.stampStore(folder, toroidal$fold);
+    private void exotic_worlds$stampClosedStore(CallbackInfo ci) {
+        EminusShapes.stampStore(folder, exotic_worlds$fold);
     }
 
     @Inject(method = "openCells", at = @At("RETURN"))
-    private void toroidal$foldCells(CallbackInfo ci) {
-        CellFoldHolder.setFold(cells, toroidal$fold);
-        CellFoldHolder.setFold(coverage, toroidal$fold);
-        CellFoldHolder.setFold(merger, toroidal$fold);
+    private void exotic_worlds$foldCells(CallbackInfo ci) {
+        CellFoldHolder.setFold(cells, exotic_worlds$fold);
+        CellFoldHolder.setFold(coverage, exotic_worlds$fold);
+        CellFoldHolder.setFold(merger, exotic_worlds$fold);
     }
 }

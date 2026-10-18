@@ -24,10 +24,10 @@ public class AcquirePoiRetryMixin {
     @TargetHandler(
             mixin = LithiumInjectionTargets.TASKS_ACQUIRE_POI_MIXIN,
             name = LithiumInjectionTargets.RETRY_MARKER_LAMBDA)
-    private static long toroidal$retryDistanceThroughSeam(BlockPos poiPos, BlockPos center, Operation<Long> original,
+    private static long exotic_worlds$retryDistanceThroughSeam(BlockPos poiPos, BlockPos center, Operation<Long> original,
             @Local(argsOnly = true) PoiManager poiManager) {
         WorldFold fold = WorldLoopAttachments.transformerIfLevel(
-                ((SectionStorageAccessor) poiManager).toroidal$getLevelHeightAccessor());
+                ((SectionStorageAccessor) poiManager).exotic_worlds$getLevelHeightAccessor());
         return original.call(fold.nearestCopy(center, poiPos), center);
     }
 }

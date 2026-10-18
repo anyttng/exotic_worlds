@@ -77,12 +77,12 @@ class PeriodicEndIslandsTest {
 
     private static final CoastLiftCache NO_LIFT = new CoastLiftCache() {
         @Override
-        public double toroidal$coastLift() {
+        public double exotic_worlds$coastLift() {
             return 0.0;
         }
 
         @Override
-        public void toroidal$coastLift(double lift) {
+        public void exotic_worlds$coastLift(double lift) {
         }
     };
 

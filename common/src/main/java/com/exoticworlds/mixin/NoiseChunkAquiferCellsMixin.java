@@ -29,20 +29,20 @@ public class NoiseChunkAquiferCellsMixin {
     private Aquifer aquifer;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$aquiferCellsOnTheTilingGrid(CallbackInfo callback,
+    private void exotic_worlds$aquiferCellsOnTheTilingGrid(CallbackInfo callback,
             @Local(argsOnly = true) NoiseGeneratorSettings settings) {
         FoldedRandomState state = (FoldedRandomState) (Object) this.randomState;
-        FoldedCompileContext context = state.toroidal$compileContext();
+        FoldedCompileContext context = state.exotic_worlds$compileContext();
         if (context == null || !(this.aquifer instanceof AquiferCellsHolder holder) || settings.aquifers().isEmpty()) {
             return;
         }
 
-        AquiferCells cells = state.toroidal$aquiferCells();
+        AquiferCells cells = state.exotic_worlds$aquiferCells();
         if (cells == null) {
             cells = AquiferCells.compile(context, settings.aquifers().get());
-            state.toroidal$aquiferCells(cells);
+            state.exotic_worlds$aquiferCells(cells);
         }
 
-        holder.toroidal$aquiferCells(cells);
+        holder.exotic_worlds$aquiferCells(cells);
     }
 }

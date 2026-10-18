@@ -16,14 +16,14 @@ import journeymap.client.model.region.RegionCoord;
 public abstract class RegionImageSetMixin {
     @WrapOperation(method = {"getChunkImage", "setChunkImage"},
             at = @At(value = "INVOKE", target = JourneyMapInjectionTargets.REGION_COORD_GET_X_OFFSET))
-    private int toroidal$xOffsetOfFoldedChunk(RegionCoord region, int chunkX, Operation<Integer> original,
+    private int exotic_worlds$xOffsetOfFoldedChunk(RegionCoord region, int chunkX, Operation<Integer> original,
             @Local(argsOnly = true) ChunkMD chunkMd) {
         return original.call(region, JourneyMapFold.foldRegionChunk(chunkMd.getCoord()).x());
     }
 
     @WrapOperation(method = {"getChunkImage", "setChunkImage"},
             at = @At(value = "INVOKE", target = JourneyMapInjectionTargets.REGION_COORD_GET_Z_OFFSET))
-    private int toroidal$zOffsetOfFoldedChunk(RegionCoord region, int chunkZ, Operation<Integer> original,
+    private int exotic_worlds$zOffsetOfFoldedChunk(RegionCoord region, int chunkZ, Operation<Integer> original,
             @Local(argsOnly = true) ChunkMD chunkMd) {
         return original.call(region, JourneyMapFold.foldRegionChunk(chunkMd.getCoord()).z());
     }

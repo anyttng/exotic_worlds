@@ -23,7 +23,7 @@ public class LlamaFollowCaravanGoalMixin {
     @WrapOperation(
             method = "tick",
             at = @At(value = "NEW", target = InjectionTargets.VEC3_NEW))
-    private Vec3 toroidal$caravanDeltaThroughSeam(double x, double y, double z, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$caravanDeltaThroughSeam(double x, double y, double z, Operation<Vec3> original) {
         return SeamAim.foldDelta(this.llama, original.call(x, y, z));
     }
 }

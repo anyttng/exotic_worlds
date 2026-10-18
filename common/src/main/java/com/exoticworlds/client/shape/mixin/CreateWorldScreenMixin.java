@@ -17,7 +17,7 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
 @Mixin(CreateWorldScreen.class)
 public class CreateWorldScreenMixin {
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void toroidal$resetCreationOptions(CallbackInfo ci, @Local(argsOnly = true) WorldCreationContext settings) {
+    private void exotic_worlds$resetCreationOptions(CallbackInfo ci, @Local(argsOnly = true) WorldCreationContext settings) {
         WorldShapes.resetToDefault();
         WorldShapes.restoreFromExisting(settings.worldgenLoadContext(), settings.selectedDimensions());
     }
@@ -27,7 +27,7 @@ public class CreateWorldScreenMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/screens/worldselection/WorldCreationContext;selectedDimensions()Lnet/minecraft/world/level/levelgen/WorldDimensions;"))
-    private WorldDimensions toroidal$shapeDimensions(WorldCreationContext context, Operation<WorldDimensions> original) {
+    private WorldDimensions exotic_worlds$shapeDimensions(WorldCreationContext context, Operation<WorldDimensions> original) {
         return WorldShapes.applyAtCreation(context.worldgenLoadContext(), original.call(context));
     }
 }

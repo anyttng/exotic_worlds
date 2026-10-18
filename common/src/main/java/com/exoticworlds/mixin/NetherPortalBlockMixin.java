@@ -24,7 +24,7 @@ public class NetherPortalBlockMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/block/NetherPortalBlock;getExitPortal(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;ZLnet/minecraft/world/level/border/WorldBorder;)Lnet/minecraft/world/level/portal/TeleportTransition;"))
-    private TeleportTransition toroidal$wrappedExitPosition(
+    private TeleportTransition exotic_worlds$wrappedExitPosition(
             NetherPortalBlock self,
             ServerLevel newLevel,
             Entity entity,

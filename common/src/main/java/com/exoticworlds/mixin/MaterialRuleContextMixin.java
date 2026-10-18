@@ -22,13 +22,13 @@ public class MaterialRuleContextMixin implements TransformerSource {
     private RandomState randomState;
 
     @ModifyReturnValue(method = "getOrCreateRandomFactory", at = @At("RETURN"))
-    private PositionalRandomFactory toroidal$seedFromCanonicalPosition(PositionalRandomFactory factory) {
-        WorldFold fold = this.toroidal$wrappedTransformer();
+    private PositionalRandomFactory exotic_worlds$seedFromCanonicalPosition(PositionalRandomFactory factory) {
+        WorldFold fold = this.exotic_worlds$wrappedTransformer();
         return fold == null ? factory : new CanonicalRandomFactory(factory, fold);
     }
 
     @Override
-    public @Nullable WorldFold toroidal$wrappedTransformer() {
-        return ((TransformerSource) (Object) this.randomState).toroidal$wrappedTransformer();
+    public @Nullable WorldFold exotic_worlds$wrappedTransformer() {
+        return ((TransformerSource) (Object) this.randomState).exotic_worlds$wrappedTransformer();
     }
 }

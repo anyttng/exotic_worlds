@@ -27,65 +27,65 @@ public class LevelLightEngineMixin {
     protected LevelHeightAccessor levelHeightAccessor;
 
     @Unique
-    private final BoundLevelFold toroidal$bound = new BoundLevelFold();
+    private final BoundLevelFold exotic_worlds$bound = new BoundLevelFold();
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$bindLevel(CallbackInfo ci) {
-        this.toroidal$bound.bind(this.levelHeightAccessor);
+    private void exotic_worlds$bindLevel(CallbackInfo ci) {
+        this.exotic_worlds$bound.bind(this.levelHeightAccessor);
     }
 
     @Inject(method = "checkBlock", at = @At("HEAD"), cancellable = true)
-    private void toroidal$skipPhantomBlock(BlockPos pos, CallbackInfo ci) {
-        if (toroidal$isPhantom(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()))) {
+    private void exotic_worlds$skipPhantomBlock(BlockPos pos, CallbackInfo ci) {
+        if (exotic_worlds$isPhantom(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()))) {
             ci.cancel();
         }
     }
 
     @Inject(method = "propagateLightSources", at = @At("HEAD"), cancellable = true)
-    private void toroidal$skipPhantomSources(ChunkPos pos, CallbackInfo ci) {
-        if (toroidal$isPhantom(pos)) {
+    private void exotic_worlds$skipPhantomSources(ChunkPos pos, CallbackInfo ci) {
+        if (exotic_worlds$isPhantom(pos)) {
             ci.cancel();
         }
     }
 
     @Inject(method = "setLightEnabled", at = @At("HEAD"), cancellable = true)
-    private void toroidal$skipPhantomEnable(ChunkPos pos, boolean enable, CallbackInfo ci) {
-        if (toroidal$isPhantom(pos)) {
+    private void exotic_worlds$skipPhantomEnable(ChunkPos pos, boolean enable, CallbackInfo ci) {
+        if (exotic_worlds$isPhantom(pos)) {
             ci.cancel();
         }
     }
 
     @Inject(method = "retainData", at = @At("HEAD"), cancellable = true)
-    private void toroidal$skipPhantomRetain(ChunkPos pos, boolean retain, CallbackInfo ci) {
-        if (toroidal$isPhantom(pos)) {
+    private void exotic_worlds$skipPhantomRetain(ChunkPos pos, boolean retain, CallbackInfo ci) {
+        if (exotic_worlds$isPhantom(pos)) {
             ci.cancel();
         }
     }
 
     @Inject(method = "updateSectionStatus", at = @At("HEAD"), cancellable = true)
-    private void toroidal$skipPhantomSection(SectionPos pos, boolean sectionEmpty, CallbackInfo ci) {
-        if (toroidal$isPhantom(pos.x(), pos.z())) {
+    private void exotic_worlds$skipPhantomSection(SectionPos pos, boolean sectionEmpty, CallbackInfo ci) {
+        if (exotic_worlds$isPhantom(pos.x(), pos.z())) {
             ci.cancel();
         }
     }
 
     @Inject(method = "queueSectionData", at = @At("HEAD"), cancellable = true)
-    private void toroidal$skipPhantomSectionData(LightLayer layer, SectionPos pos, @Nullable DataLayer data,
+    private void exotic_worlds$skipPhantomSectionData(LightLayer layer, SectionPos pos, @Nullable DataLayer data,
             CallbackInfo ci) {
-        if (toroidal$isPhantom(pos.x(), pos.z())) {
+        if (exotic_worlds$isPhantom(pos.x(), pos.z())) {
             ci.cancel();
         }
     }
 
     @Unique
-    private boolean toroidal$isPhantom(ChunkPos pos) {
-        WorldFold transformer = this.toroidal$bound.fold();
+    private boolean exotic_worlds$isPhantom(ChunkPos pos) {
+        WorldFold transformer = this.exotic_worlds$bound.fold();
         return transformer.isWrapped() && transformer.isOver(pos);
     }
 
     @Unique
-    private boolean toroidal$isPhantom(int chunkX, int chunkZ) {
-        WorldFold transformer = this.toroidal$bound.fold();
+    private boolean exotic_worlds$isPhantom(int chunkX, int chunkZ) {
+        WorldFold transformer = this.exotic_worlds$bound.fold();
         return transformer.isWrapped() && transformer.isOver(new ChunkPos(chunkX, chunkZ));
     }
 }

@@ -15,7 +15,7 @@ import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 @Mixin(BlendedNoise.class)
 public class BlendedNoiseCompileMixin {
     @WrapMethod(method = InjectionTargets.DENSITY_FUNCTION_COMPILE_SAMPLER)
-    private DensitySampler toroidal$compileFolded(DensityFunction.CompileContext context,
+    private DensitySampler exotic_worlds$compileFolded(DensityFunction.CompileContext context,
             Operation<DensitySampler> original) {
         return context instanceof FoldedCompileContext folded
                 ? FoldedSamplers.blended(folded, (BlendedNoise) (Object) this)

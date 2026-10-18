@@ -25,7 +25,7 @@ public class TreeManagerMixin {
     private TreeRing ring;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void toroidal$foldOfTheRuntime(CallbackInfo ci) {
+    private void exotic_worlds$foldOfTheRuntime(CallbackInfo ci) {
         CellFold fold = CellFoldHolder.foldOf(ClientSession.runtime());
         CellFoldHolder.setFold(nodes, fold);
         CellFoldHolder.setFold(ring, fold);

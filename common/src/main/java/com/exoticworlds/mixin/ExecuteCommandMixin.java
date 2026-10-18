@@ -20,7 +20,7 @@ public class ExecuteCommandMixin {
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/levelgen/structure/BoundingBox;fromCorners(Lnet/minecraft/core/Vec3i;Lnet/minecraft/core/Vec3i;)Lnet/minecraft/world/level/levelgen/structure/BoundingBox;",
                     ordinal = 0))
-    private static BoundingBox toroidal$foldComparedRegion(BoundingBox region,
+    private static BoundingBox exotic_worlds$foldComparedRegion(BoundingBox region,
             @Local(argsOnly = true) ServerLevel level) {
         return SeamSpans.foldAcrossSeam(WorldLoopAttachments.transformerOf(level), region);
     }

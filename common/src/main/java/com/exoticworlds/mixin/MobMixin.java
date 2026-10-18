@@ -26,40 +26,40 @@ public class MobMixin {
     private static final String HOME_POSITION = "Lnet/minecraft/world/entity/Mob;homePosition:Lnet/minecraft/core/BlockPos;";
 
     @ModifyVariable(method = "lookAt(Lnet/minecraft/world/entity/Entity;FF)V", at = @At("STORE"), ordinal = 0)
-    private double toroidal$lookDeltaX(double deltaX, @Local(argsOnly = true) Entity target) {
+    private double exotic_worlds$lookDeltaX(double deltaX, @Local(argsOnly = true) Entity target) {
         return SeamAim.deltaTo((Mob) (Object) this, target.position()).x;
     }
 
     @ModifyVariable(method = "lookAt(Lnet/minecraft/world/entity/Entity;FF)V", at = @At("STORE"), ordinal = 1)
-    private double toroidal$lookDeltaZ(double deltaZ, @Local(argsOnly = true) Entity target) {
+    private double exotic_worlds$lookDeltaZ(double deltaZ, @Local(argsOnly = true) Entity target) {
         return SeamAim.deltaTo((Mob) (Object) this, target.position()).z;
     }
 
     @ModifyExpressionValue(
             method = "isWithinMeleeAttackRange",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getHitbox()Lnet/minecraft/world/phys/AABB;"))
-    private AABB toroidal$meleeHitboxThroughSeam(AABB hitbox) {
-        WorldFold transformer = ((TransformerSource) this).toroidal$wrappedTransformer();
+    private AABB exotic_worlds$meleeHitboxThroughSeam(AABB hitbox) {
+        WorldFold transformer = ((TransformerSource) this).exotic_worlds$wrappedTransformer();
         return FoldedBoxQuery.toward(transformer, ((Mob) (Object) this).position(), hitbox);
     }
 
     @ModifyExpressionValue(
             method = "isWithinHome(Lnet/minecraft/core/BlockPos;)Z",
             at = @At(value = "FIELD", target = HOME_POSITION, opcode = Opcodes.GETFIELD))
-    private BlockPos toroidal$homeThroughSeam(BlockPos home, @Local(argsOnly = true) BlockPos pos) {
-        return toroidal$nearestHome(home, pos);
+    private BlockPos exotic_worlds$homeThroughSeam(BlockPos home, @Local(argsOnly = true) BlockPos pos) {
+        return exotic_worlds$nearestHome(home, pos);
     }
 
     @ModifyExpressionValue(
             method = "isWithinHome(Lnet/minecraft/world/phys/Vec3;)Z",
             at = @At(value = "FIELD", target = HOME_POSITION, opcode = Opcodes.GETFIELD))
-    private BlockPos toroidal$homeVecThroughSeam(BlockPos home, @Local(argsOnly = true) Vec3 pos) {
-        return toroidal$nearestHome(home, BlockPos.containing(pos));
+    private BlockPos exotic_worlds$homeVecThroughSeam(BlockPos home, @Local(argsOnly = true) Vec3 pos) {
+        return exotic_worlds$nearestHome(home, BlockPos.containing(pos));
     }
 
     @Unique
-    private BlockPos toroidal$nearestHome(BlockPos home, BlockPos anchor) {
-        WorldFold transformer = ((TransformerSource) this).toroidal$wrappedTransformer();
+    private BlockPos exotic_worlds$nearestHome(BlockPos home, BlockPos anchor) {
+        WorldFold transformer = ((TransformerSource) this).exotic_worlds$wrappedTransformer();
         return NearestCopy.toward(transformer, anchor, home);
     }
 }

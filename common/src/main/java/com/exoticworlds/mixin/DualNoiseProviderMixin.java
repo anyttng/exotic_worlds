@@ -25,7 +25,7 @@ public class DualNoiseProviderMixin {
     private float slowScale;
 
     @WrapMethod(method = "getSlowNoiseValue(Lnet/minecraft/core/BlockPos;)F")
-    private float toroidal$rawCoordinateNoise(BlockPos pos, Operation<Float> original) {
+    private float exotic_worlds$rawCoordinateNoise(BlockPos pos, Operation<Float> original) {
         WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
         if (transformer == null) {
             return original.call(pos);

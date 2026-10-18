@@ -25,7 +25,7 @@ public class ChunkGeneratorNearestRingMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/core/BlockPos$MutableBlockPos;distSqr(Lnet/minecraft/core/Vec3i;)D"))
-    private double toroidal$ringDistThroughSeam(BlockPos.MutableBlockPos candidate, Vec3i origin,
+    private double exotic_worlds$ringDistThroughSeam(BlockPos.MutableBlockPos candidate, Vec3i origin,
             Operation<Double> original) {
         WorldFold transformer = ShapedChunkGenerator.wrappedTransformerOf((ChunkGenerator) (Object) this);
         if (transformer == null) {

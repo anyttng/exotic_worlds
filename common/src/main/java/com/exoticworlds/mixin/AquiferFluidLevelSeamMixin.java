@@ -17,26 +17,26 @@ import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;
 @Mixin(targets = "net.minecraft.world.level.levelgen.Aquifer$NoiseBasedAquifer")
 public class AquiferFluidLevelSeamMixin implements AquiferCellsHolder {
     @Unique
-    private @Nullable AquiferCells toroidal$aquiferCells;
+    private @Nullable AquiferCells exotic_worlds$aquiferCells;
 
     @WrapOperation(
             method = "computeRandomizedFluidSurfaceLevel",
             at = @At(value = "INVOKE", target = InjectionTargets.DENSITY_SAMPLER_BOUND_SAMPLE_VALUE))
-    private float toroidal$fluidLevelFromTilingCell(DensitySampler.Bound noise, int cellX, int cellY, int cellZ,
+    private float exotic_worlds$fluidLevelFromTilingCell(DensitySampler.Bound noise, int cellX, int cellY, int cellZ,
             Operation<Float> original,
             @Local(argsOnly = true, ordinal = 0) int blockX,
             @Local(argsOnly = true, ordinal = 2) int blockZ) {
-        AquiferCells cells = this.toroidal$aquiferCells;
+        AquiferCells cells = this.exotic_worlds$aquiferCells;
         return cells == null ? original.call(noise, cellX, cellY, cellZ) : cells.level(blockX, cellY, blockZ);
     }
 
     @Override
-    public @Nullable AquiferCells toroidal$aquiferCells() {
-        return this.toroidal$aquiferCells;
+    public @Nullable AquiferCells exotic_worlds$aquiferCells() {
+        return this.exotic_worlds$aquiferCells;
     }
 
     @Override
-    public void toroidal$aquiferCells(AquiferCells cells) {
-        this.toroidal$aquiferCells = cells;
+    public void exotic_worlds$aquiferCells(AquiferCells cells) {
+        this.exotic_worlds$aquiferCells = cells;
     }
 }

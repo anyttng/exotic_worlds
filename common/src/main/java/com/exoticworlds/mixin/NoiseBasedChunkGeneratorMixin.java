@@ -42,23 +42,23 @@ public class NoiseBasedChunkGeneratorMixin {
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/levelgen/NoiseRouter;finalDensity()"
                             + "Lnet/minecraft/world/level/levelgen/densityfunction/DensityFunction;"))
-    private DensityFunction toroidal$fillUnderTheCeiling(DensityFunction finalDensity, @Local NoiseChunk noiseChunk) {
+    private DensityFunction exotic_worlds$fillUnderTheCeiling(DensityFunction finalDensity, @Local NoiseChunk noiseChunk) {
         if (ShapedChunkGenerator.wrappedTransformerOf((NoiseBasedChunkGenerator) (Object) this) == null) {
             return finalDensity;
         }
 
-        return ((NoiseChunkAccessor) noiseChunk).toroidal$randomState().router.finalDensity();
+        return ((NoiseChunkAccessor) noiseChunk).exotic_worlds$randomState().router.finalDensity();
     }
 
     @WrapMethod(method = "doFill", order = BinderOrder.FOLD)
-    private void toroidal$bindWhileFilling(NoiseChunk noiseChunk, ChunkAccess chunk, Operation<Void> original) {
+    private void exotic_worlds$bindWhileFilling(NoiseChunk noiseChunk, ChunkAccess chunk, Operation<Void> original) {
         GenerationTransformerContext.runWithTransformer(
                 ShapedChunkGenerator.transformerOf((NoiseBasedChunkGenerator) (Object) this),
                 () -> original.call(noiseChunk, chunk));
     }
 
     @WrapMethod(method = "buildSurface", order = BinderOrder.FOLD)
-    private void toroidal$bindWhileBuildingSurface(ChunkAccess chunk, NoiseChunk noiseChunk, RandomState randomState,
+    private void exotic_worlds$bindWhileBuildingSurface(ChunkAccess chunk, NoiseChunk noiseChunk, RandomState randomState,
             BiomeManager biomeManager, Set<Holder<Biome>> possibleBiomes, MaterialRule materialRule,
             Operation<Void> original) {
         GenerationTransformerContext.runWithTransformer(
@@ -67,7 +67,7 @@ public class NoiseBasedChunkGeneratorMixin {
     }
 
     @WrapMethod(method = "generateCarvers", order = BinderOrder.FOLD)
-    private void toroidal$bindWhileCarving(ChunkAccess chunk, Blender blender, NoiseChunk noiseChunk,
+    private void exotic_worlds$bindWhileCarving(ChunkAccess chunk, Blender blender, NoiseChunk noiseChunk,
             RandomState randomState, BiomeManager biomeManager, WorldGenRegion carverBiomeRegion,
             MaterialRule materialRule, Operation<Void> original) {
         GenerationTransformerContext.runWithTransformer(
@@ -77,7 +77,7 @@ public class NoiseBasedChunkGeneratorMixin {
     }
 
     @WrapMethod(method = "iterateNoiseColumn", order = BinderOrder.FOLD)
-    private OptionalInt toroidal$bindWhileReadingColumn(LevelHeightAccessor heightAccessor, RandomState randomState,
+    private OptionalInt exotic_worlds$bindWhileReadingColumn(LevelHeightAccessor heightAccessor, RandomState randomState,
             int blockX, int blockZ, @Nullable MutableObject<NoiseColumn> columnReference,
             @Nullable Predicate<BlockState> tester, Operation<OptionalInt> original) {
         return GenerationTransformerContext.withTransformer(
@@ -86,7 +86,7 @@ public class NoiseBasedChunkGeneratorMixin {
     }
 
     @ModifyReturnValue(method = "getOrigin", at = @At("RETURN"))
-    private ChunkPos toroidal$originInsideBounds(ChunkPos origin) {
+    private ChunkPos exotic_worlds$originInsideBounds(ChunkPos origin) {
         return ShapedChunkGenerator.transformerOf((NoiseBasedChunkGenerator) (Object) this).fold(origin);
     }
 }

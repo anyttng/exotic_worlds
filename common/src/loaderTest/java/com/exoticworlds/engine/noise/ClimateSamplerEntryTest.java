@@ -109,7 +109,7 @@ class ClimateSamplerEntryTest {
     private static BlockPos receivedAt(WorldFold fold, BlockPos asked) {
         Recorder recorder = new Recorder();
         Climate.Sampler sampler = recordingSampler(recorder);
-        ((FoldedClimateSampler) (Object) sampler).toroidal$fold(fold);
+        ((FoldedClimateSampler) (Object) sampler).exotic_worlds$fold(fold);
 
         sampler.sample(QuartPos.fromBlock(asked.getX()), QuartPos.fromBlock(asked.getY()),
                 QuartPos.fromBlock(asked.getZ()));
@@ -122,6 +122,6 @@ class ClimateSamplerEntryTest {
     }
 
     private static WorldFold foldOf(Climate.Sampler sampler) {
-        return ((FoldedClimateSampler) (Object) sampler).toroidal$fold();
+        return ((FoldedClimateSampler) (Object) sampler).exotic_worlds$fold();
     }
 }

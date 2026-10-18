@@ -12,15 +12,15 @@ import net.minecraft.world.level.levelgen.synth.NoiseStack;
 @Mixin(NoiseStack.class)
 public class NoiseStackMixin implements ContextOctavesHolder {
     @Unique
-    private volatile @Nullable ContextOctaves toroidal$contextOctaves;
+    private volatile @Nullable ContextOctaves exotic_worlds$contextOctaves;
 
     @Override
-    public @Nullable ContextOctaves toroidal$contextOctaves() {
-        return this.toroidal$contextOctaves;
+    public @Nullable ContextOctaves exotic_worlds$contextOctaves() {
+        return this.exotic_worlds$contextOctaves;
     }
 
     @Override
-    public void toroidal$contextOctaves(ContextOctaves octaves) {
-        this.toroidal$contextOctaves = octaves;
+    public void exotic_worlds$contextOctaves(ContextOctaves octaves) {
+        this.exotic_worlds$contextOctaves = octaves;
     }
 }

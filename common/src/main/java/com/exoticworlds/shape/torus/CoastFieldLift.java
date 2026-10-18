@@ -60,14 +60,14 @@ public final class CoastFieldLift {
         int skewCells = (int) Math.round((double) fold.blockLattice().skew() / stride);
 
         for (double candidate : CANDIDATES) {
-            lift.toroidal$coastLift(candidate);
+            lift.exotic_worlds$coastLift(candidate);
             long patch = largestPatch(density, seaLevel, stride, xGrid, zGrid, skewCells) * cellBlocks;
             if (patch >= LAND_FLOOR_BLOCKS) {
                 return;
             }
         }
 
-        lift.toroidal$coastLift(CANDIDATES[CANDIDATES.length - 1]);
+        lift.exotic_worlds$coastLift(CANDIDATES[CANDIDATES.length - 1]);
     }
 
     private static int largestPatch(DensitySampler density, int seaLevel, int stride, int xGrid, int zGrid,

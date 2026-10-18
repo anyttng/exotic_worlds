@@ -6,5 +6,5 @@ import com.exoticworlds.core.WorldFold;
 
 public interface TransformerSource {
     @Nullable
-    WorldFold toroidal$wrappedTransformer();
+    WorldFold exotic_worlds$wrappedTransformer();
 }

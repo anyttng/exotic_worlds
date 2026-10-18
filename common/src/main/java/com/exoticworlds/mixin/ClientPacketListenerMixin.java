@@ -26,7 +26,7 @@ import net.minecraft.world.level.storage.ValueInput;
 @Mixin(ClientPacketListener.class)
 public class ClientPacketListenerMixin {
     @Inject(method = "clearLevel", at = @At("RETURN"))
-    private void toroidal$forgetWhatTheServerPublished(CallbackInfo ci) {
+    private void exotic_worlds$forgetWhatTheServerPublished(CallbackInfo ci) {
         PublishedShapes.clear();
         SyncedTagFold.declare(Map.of());
         ComponentPositions.declare(Set.of());
@@ -35,7 +35,7 @@ public class ClientPacketListenerMixin {
     @WrapOperation(
             method = "lambda$handleBlockEntityData$0",
             at = @At(value = "INVOKE", target = InjectionTargets.TAG_VALUE_INPUT_CREATE))
-    private ValueInput toroidal$seatSyncedPositions(ProblemReporter reporter, HolderLookup.Provider registries,
+    private ValueInput exotic_worlds$seatSyncedPositions(ProblemReporter reporter, HolderLookup.Provider registries,
             CompoundTag tag, Operation<ValueInput> original, @Local(argsOnly = true) BlockEntity blockEntity) {
         return original.call(reporter, registries, SyncedTagFold.inFrameOf(blockEntity, tag));
     }

@@ -18,7 +18,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 @Mixin(Level.class)
 public class LevelHeldBlockEntityMixin {
     @ModifyReturnValue(method = "getBlockEntity", at = @At("RETURN"))
-    private @Nullable BlockEntity toroidal$heldBlockEntity(@Nullable BlockEntity found,
+    private @Nullable BlockEntity exotic_worlds$heldBlockEntity(@Nullable BlockEntity found,
             @Local(argsOnly = true) BlockPos pos) {
         if (found != null) {
             return found;

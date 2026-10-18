@@ -16,41 +16,41 @@ import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
 @Mixin(AbstractMinecart.class)
 public class MinecartPushMixin {
     @Unique
-    private static final String toroidal$PUSH = "push(Lnet/minecraft/world/entity/Entity;)V";
+    private static final String exotic_worlds$PUSH = "push(Lnet/minecraft/world/entity/Entity;)V";
 
     @Unique
-    private static final String toroidal$PUSH_OTHER_MINECART =
+    private static final String exotic_worlds$PUSH_OTHER_MINECART =
             "pushOtherMinecart(Lnet/minecraft/world/entity/vehicle/minecart/AbstractMinecart;DD)V";
 
     @Unique
-    private static final String toroidal$MINECART_GET_X =
+    private static final String exotic_worlds$MINECART_GET_X =
             "Lnet/minecraft/world/entity/vehicle/minecart/AbstractMinecart;getX()D";
 
     @Unique
-    private static final String toroidal$MINECART_GET_Z =
+    private static final String exotic_worlds$MINECART_GET_Z =
             "Lnet/minecraft/world/entity/vehicle/minecart/AbstractMinecart;getZ()D";
 
-    @WrapOperation(method = toroidal$PUSH, at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_X, ordinal = 0))
-    private double toroidal$shoverNearX(Entity other, Operation<Double> original) {
+    @WrapOperation(method = exotic_worlds$PUSH, at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_X, ordinal = 0))
+    private double exotic_worlds$shoverNearX(Entity other, Operation<Double> original) {
         return SeamAim.nearestCoord((Entity) (Object) this, other, Direction.Axis.X, original.call(other));
     }
 
-    @WrapOperation(method = toroidal$PUSH, at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_Z, ordinal = 0))
-    private double toroidal$shoverNearZ(Entity other, Operation<Double> original) {
+    @WrapOperation(method = exotic_worlds$PUSH, at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_Z, ordinal = 0))
+    private double exotic_worlds$shoverNearZ(Entity other, Operation<Double> original) {
         return SeamAim.nearestCoord((Entity) (Object) this, other, Direction.Axis.Z, original.call(other));
     }
 
     @WrapOperation(
-            method = toroidal$PUSH_OTHER_MINECART,
-            at = @At(value = "INVOKE", target = toroidal$MINECART_GET_X, ordinal = 0))
-    private double toroidal$otherCartNearX(AbstractMinecart other, Operation<Double> original) {
+            method = exotic_worlds$PUSH_OTHER_MINECART,
+            at = @At(value = "INVOKE", target = exotic_worlds$MINECART_GET_X, ordinal = 0))
+    private double exotic_worlds$otherCartNearX(AbstractMinecart other, Operation<Double> original) {
         return SeamAim.nearestCoord((Entity) (Object) this, other, Direction.Axis.X, original.call(other));
     }
 
     @WrapOperation(
-            method = toroidal$PUSH_OTHER_MINECART,
-            at = @At(value = "INVOKE", target = toroidal$MINECART_GET_Z, ordinal = 0))
-    private double toroidal$otherCartNearZ(AbstractMinecart other, Operation<Double> original) {
+            method = exotic_worlds$PUSH_OTHER_MINECART,
+            at = @At(value = "INVOKE", target = exotic_worlds$MINECART_GET_Z, ordinal = 0))
+    private double exotic_worlds$otherCartNearZ(AbstractMinecart other, Operation<Double> original) {
         return SeamAim.nearestCoord((Entity) (Object) this, other, Direction.Axis.Z, original.call(other));
     }
 }

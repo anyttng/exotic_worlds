@@ -21,7 +21,7 @@ public class NoiseBasedStateProviderMixin {
     protected Noise noise;
 
     @WrapMethod(method = "getNoiseValue(Lnet/minecraft/core/BlockPos;D)F")
-    private float toroidal$rawCoordinateNoise(BlockPos pos, double scale, Operation<Float> original) {
+    private float exotic_worlds$rawCoordinateNoise(BlockPos pos, double scale, Operation<Float> original) {
         WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
         if (transformer == null) {
             return original.call(pos, scale);

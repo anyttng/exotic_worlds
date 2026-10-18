@@ -35,27 +35,27 @@ public class TheChunkSystemMixin implements TransformerSource {
     private SchedulingManager schedulingManager;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void toroidal$bindLockFoldSource(ChunkMap tacs, CallbackInfo ci) {
-        ((TransformerSourceBindable) this.schedulingManager).toroidal$bindTransformerSource(this);
+    private void exotic_worlds$bindLockFoldSource(ChunkMap tacs, CallbackInfo ci) {
+        ((TransformerSourceBindable) this.schedulingManager).exotic_worlds$bindTransformerSource(this);
     }
 
     @Override
-    public @Nullable WorldFold toroidal$wrappedTransformer() {
-        return WorldLoopAttachments.wrappedTransformerOf(((LevelHolder) (Object) this.tacs).toroidal$level());
+    public @Nullable WorldFold exotic_worlds$wrappedTransformer() {
+        return WorldLoopAttachments.wrappedTransformerOf(((LevelHolder) (Object) this.tacs).exotic_worlds$level());
     }
 
     @Unique
-    private static final Logger toroidal$LOGGER = LogUtils.getLogger();
+    private static final Logger exotic_worlds$LOGGER = LogUtils.getLogger();
 
     // C2ME passes the throwable as a third slf4j argument, so the stack is swallowed; this prints it.
     @Inject(method = "handleTransactionException", at = @At("HEAD"))
-    private void toroidal$logTransactionFailure(
+    private void exotic_worlds$logTransactionFailure(
             ItemHolder<?, ?, ?, ?> holder,
             ItemStatus<?, ?, ?> nextStatus,
             boolean isUpgrade,
             Throwable throwable,
             CallbackInfoReturnable<?> cir) {
-        toroidal$LOGGER.warn("[ew/c2me-compat] chunk_transaction_failed chunk={} status={} upgrade={}",
+        exotic_worlds$LOGGER.warn("[ew/c2me-compat] chunk_transaction_failed chunk={} status={} upgrade={}",
                 holder.getKey(), nextStatus, isUpgrade, throwable);
     }
 }

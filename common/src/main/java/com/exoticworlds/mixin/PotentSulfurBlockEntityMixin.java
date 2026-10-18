@@ -16,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(PotentSulfurBlockEntity.class)
 public class PotentSulfurBlockEntityMixin {
     @WrapMethod(method = "canBeReachedByNoxiousGas")
-    private static boolean toroidal$gasReachThroughSeam(Level level, BlockPos sourceBlock, Vec3 pos,
+    private static boolean exotic_worlds$gasReachThroughSeam(Level level, BlockPos sourceBlock, Vec3 pos,
             Operation<Boolean> original) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
         return original.call(level, sourceBlock, NearestCopy.toward(transformer, Vec3.atCenterOf(sourceBlock), pos));

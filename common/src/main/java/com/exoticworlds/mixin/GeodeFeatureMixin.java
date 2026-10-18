@@ -17,7 +17,7 @@ import net.minecraft.world.level.levelgen.synth.Noise;
 @Mixin(GeodeFeature.class)
 public class GeodeFeatureMixin {
     @WrapOperation(method = "place", at = @At(value = "INVOKE", target = InjectionTargets.NOISE_GET))
-    private float toroidal$blockPositionNoise(Noise noise, double x, double y, double z, Operation<Float> original) {
+    private float exotic_worlds$blockPositionNoise(Noise noise, double x, double y, double z, Operation<Float> original) {
         WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
         if (transformer == null) {
             return original.call(noise, x, y, z);

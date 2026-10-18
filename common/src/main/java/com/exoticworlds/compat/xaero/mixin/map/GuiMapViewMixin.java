@@ -65,30 +65,30 @@ public abstract class GuiMapViewMixin {
     private static final String MAP_TILE_SELECTION_SET_END = "Lxaero/map/gui/MapTileSelection;setEnd(II)V";
 
     @Unique
-    private MapCopies toroidal$mapCopies = MapCopies.REPEATED;
+    private MapCopies exotic_worlds$mapCopies = MapCopies.REPEATED;
     @Unique
-    private int toroidal$cursorLapX;
+    private int exotic_worlds$cursorLapX;
     @Unique
-    private int toroidal$cursorLapZ;
+    private int exotic_worlds$cursorLapZ;
     @Unique
-    private int toroidal$selectionLapX;
+    private int exotic_worlds$selectionLapX;
     @Unique
-    private int toroidal$selectionLapZ;
+    private int exotic_worlds$selectionLapZ;
     @Unique
-    private MapTileSelection toroidal$trackedSelection;
+    private MapTileSelection exotic_worlds$trackedSelection;
     @Unique
-    private int toroidal$selectionEndX;
+    private int exotic_worlds$selectionEndX;
     @Unique
-    private int toroidal$selectionEndZ;
+    private int exotic_worlds$selectionEndZ;
     @Unique
-    private boolean toroidal$selectionEndPending;
+    private boolean exotic_worlds$selectionEndPending;
     @Unique
-    private ChunkPos toroidal$selectionEnd = ChunkPos.ZERO;
+    private ChunkPos exotic_worlds$selectionEnd = ChunkPos.ZERO;
 
     @Inject(method = "extractRenderState", at = @At("HEAD"))
-    private void toroidal$beginFrame(CallbackInfo ci) {
-        this.toroidal$mapCopies = MapCopies.current();
-        double floor = toroidal$zoomFloor();
+    private void exotic_worlds$beginFrame(CallbackInfo ci) {
+        this.exotic_worlds$mapCopies = MapCopies.current();
+        double floor = exotic_worlds$zoomFloor();
         if (floor > 0.0) {
             if (destScale < floor) {
                 destScale = floor;
@@ -101,18 +101,18 @@ public abstract class GuiMapViewMixin {
     }
 
     @Inject(method = "applyZoomLimits", at = @At("TAIL"))
-    private void toroidal$floorZoomOut(CallbackInfo ci) {
-        double floor = toroidal$zoomFloor();
+    private void exotic_worlds$floorZoomOut(CallbackInfo ci) {
+        double floor = exotic_worlds$zoomFloor();
         if (floor > 0.0 && destScale < floor) {
             destScale = floor;
         }
     }
 
     @Unique
-    private double toroidal$zoomFloor() {
+    private double exotic_worlds$zoomFloor() {
         Window window = Minecraft.getInstance().getWindow();
         return XaeroWorldMapFold.zoomFloorScale(this.getScaleMultiplier(Math.min(window.getWidth(), window.getHeight())),
-                this.toroidal$mapCopies, window.getWidth(), window.getHeight());
+                this.exotic_worlds$mapCopies, window.getWidth(), window.getHeight());
     }
 
     @ModifyExpressionValue(
@@ -120,7 +120,7 @@ public abstract class GuiMapViewMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lxaero/map/entity/util/EntityUtil;getEntityX(Lnet/minecraft/world/entity/Entity;F)D"))
-    private double toroidal$foldCameraX(double x, @Local(name = "partialTicks") float partialTicks) {
+    private double exotic_worlds$foldCameraX(double x, @Local(name = "partialTicks") float partialTicks) {
         return XaeroWorldMapFold.foldPoint(x, EntityUtil.getEntityZ(this.player, partialTicks)).x;
     }
 
@@ -129,7 +129,7 @@ public abstract class GuiMapViewMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lxaero/map/entity/util/EntityUtil;getEntityZ(Lnet/minecraft/world/entity/Entity;F)D"))
-    private double toroidal$foldCameraZ(double z, @Local(name = "partialTicks") float partialTicks) {
+    private double exotic_worlds$foldCameraZ(double z, @Local(name = "partialTicks") float partialTicks) {
         return XaeroWorldMapFold.foldPoint(EntityUtil.getEntityX(this.player, partialTicks), z).z;
     }
 
@@ -138,8 +138,8 @@ public abstract class GuiMapViewMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lxaero/map/WorldMapClientOnly;getMapScreenPoseStack()Lcom/mojang/blaze3d/vertex/PoseStack;"))
-    private void toroidal$stopCameraAtTheEdge(CallbackInfo ci) {
-        if (this.toroidal$mapCopies != MapCopies.SINGLE || !XaeroWorldMapFold.active()) {
+    private void exotic_worlds$stopCameraAtTheEdge(CallbackInfo ci) {
+        if (this.exotic_worlds$mapCopies != MapCopies.SINGLE || !XaeroWorldMapFold.active()) {
             return;
         }
 
@@ -158,76 +158,76 @@ public abstract class GuiMapViewMixin {
                     opcode = Opcodes.PUTFIELD,
                     ordinal = 1,
                     shift = At.Shift.AFTER))
-    private void toroidal$foldCursorBlockPos(CallbackInfo ci) {
+    private void exotic_worlds$foldCursorBlockPos(CallbackInfo ci) {
         int rawX = this.mouseBlockPosX;
         int rawZ = this.mouseBlockPosZ;
         BlockPos folded = XaeroWorldMapFold.foldBlock(rawX, rawZ);
         this.mouseBlockPosX = folded.getX();
         this.mouseBlockPosZ = folded.getZ();
-        this.toroidal$cursorLapX = rawX - this.mouseBlockPosX;
-        this.toroidal$cursorLapZ = rawZ - this.mouseBlockPosZ;
+        this.exotic_worlds$cursorLapX = rawX - this.mouseBlockPosX;
+        this.exotic_worlds$cursorLapZ = rawZ - this.mouseBlockPosZ;
     }
 
     @ModifyArg(method = "extractRenderState", at = @At(value = "INVOKE", target = MAP_TILE_SELECTION_SET_END), index = 0)
-    private int toroidal$unwrapSelectionEndX(int endX) {
-        return toroidal$unwrappedSelectionEnd().x();
+    private int exotic_worlds$unwrapSelectionEndX(int endX) {
+        return exotic_worlds$unwrappedSelectionEnd().x();
     }
 
     @ModifyArg(method = "extractRenderState", at = @At(value = "INVOKE", target = MAP_TILE_SELECTION_SET_END), index = 1)
-    private int toroidal$unwrapSelectionEndZ(int endZ) {
-        return toroidal$unwrappedSelectionEnd().z();
+    private int exotic_worlds$unwrapSelectionEndZ(int endZ) {
+        return exotic_worlds$unwrappedSelectionEnd().z();
     }
 
     @Unique
-    private ChunkPos toroidal$unwrappedSelectionEnd() {
-        if (this.toroidal$selectionEndPending) {
-            this.toroidal$selectionEndPending = false;
-            return this.toroidal$selectionEnd;
+    private ChunkPos exotic_worlds$unwrappedSelectionEnd() {
+        if (this.exotic_worlds$selectionEndPending) {
+            this.exotic_worlds$selectionEndPending = false;
+            return this.exotic_worlds$selectionEnd;
         }
 
         MapTileSelection selection = this.mapTileSelection;
         int endX = SectionPos.blockToSectionCoord(this.mouseBlockPosX);
         int endZ = SectionPos.blockToSectionCoord(this.mouseBlockPosZ);
-        boolean fresh = selection != this.toroidal$trackedSelection;
-        this.toroidal$trackedSelection = selection;
+        boolean fresh = selection != this.exotic_worlds$trackedSelection;
+        this.exotic_worlds$trackedSelection = selection;
         AxisCopies copiesX = XaeroWorldMapFold.chunkCopies(Direction.Axis.X);
         AxisCopies copiesZ = XaeroWorldMapFold.chunkCopies(Direction.Axis.Z);
         int startX = selection.getStartX();
         int startZ = selection.getStartZ();
         ChunkPos reference = fresh
                 ? new ChunkPos(startX, startZ)
-                : new ChunkPos(this.toroidal$selectionEndX, this.toroidal$selectionEndZ);
+                : new ChunkPos(this.exotic_worlds$selectionEndX, this.exotic_worlds$selectionEndZ);
         ChunkPos unwrapped = XaeroWorldMapFold.nearestChunk(reference, endX, endZ);
         int unwrappedX = unwrapped.x();
         int unwrappedZ = unwrapped.z();
-        this.toroidal$selectionEndX = unwrappedX;
-        this.toroidal$selectionEndZ = unwrappedZ;
-        this.toroidal$selectionLapX = this.toroidal$cursorLapX - SectionPos.sectionToBlockCoord(unwrappedX - endX);
-        this.toroidal$selectionLapZ = this.toroidal$cursorLapZ - SectionPos.sectionToBlockCoord(unwrappedZ - endZ);
-        this.toroidal$selectionEnd = new ChunkPos(copiesX.withinOneLap(startX, unwrappedX),
+        this.exotic_worlds$selectionEndX = unwrappedX;
+        this.exotic_worlds$selectionEndZ = unwrappedZ;
+        this.exotic_worlds$selectionLapX = this.exotic_worlds$cursorLapX - SectionPos.sectionToBlockCoord(unwrappedX - endX);
+        this.exotic_worlds$selectionLapZ = this.exotic_worlds$cursorLapZ - SectionPos.sectionToBlockCoord(unwrappedZ - endZ);
+        this.exotic_worlds$selectionEnd = new ChunkPos(copiesX.withinOneLap(startX, unwrappedX),
                 copiesZ.withinOneLap(startZ, unwrappedZ));
-        this.toroidal$selectionEndPending = true;
-        return this.toroidal$selectionEnd;
+        this.exotic_worlds$selectionEndPending = true;
+        return this.exotic_worlds$selectionEnd;
     }
 
     @ModifyVariable(method = "extractRenderState", at = @At("STORE"), name = "chunkHighlightLeftX")
-    private int toroidal$seatHighlightLeft(int leftX) {
-        return leftX + this.toroidal$cursorLapX;
+    private int exotic_worlds$seatHighlightLeft(int leftX) {
+        return leftX + this.exotic_worlds$cursorLapX;
     }
 
     @ModifyVariable(method = "extractRenderState", at = @At("STORE"), name = "chunkHighlightRightX")
-    private int toroidal$seatHighlightRight(int rightX) {
-        return rightX + this.toroidal$cursorLapX;
+    private int exotic_worlds$seatHighlightRight(int rightX) {
+        return rightX + this.exotic_worlds$cursorLapX;
     }
 
     @ModifyVariable(method = "extractRenderState", at = @At("STORE"), name = "chunkHighlightTopZ")
-    private int toroidal$seatHighlightTop(int topZ) {
-        return topZ + this.toroidal$cursorLapZ;
+    private int exotic_worlds$seatHighlightTop(int topZ) {
+        return topZ + this.exotic_worlds$cursorLapZ;
     }
 
     @ModifyVariable(method = "extractRenderState", at = @At("STORE"), name = "chunkHighlightBottomZ")
-    private int toroidal$seatHighlightBottom(int bottomZ) {
-        return bottomZ + this.toroidal$cursorLapZ;
+    private int exotic_worlds$seatHighlightBottom(int bottomZ) {
+        return bottomZ + this.exotic_worlds$cursorLapZ;
     }
 
     @Inject(
@@ -238,10 +238,10 @@ public abstract class GuiMapViewMixin {
                             + "Lcom/mojang/blaze3d/vertex/VertexConsumer;IIIIIIFFFFFFFF)V",
                     ordinal = 0,
                     shift = At.Shift.AFTER))
-    private void toroidal$drawSeamGrid(CallbackInfo ci, @Local(name = "matrixStack") PoseStack matrixStack,
+    private void exotic_worlds$drawSeamGrid(CallbackInfo ci, @Local(name = "matrixStack") PoseStack matrixStack,
             @Local(name = "overlayBuffer") VertexConsumer overlayBuffer,
             @Local(name = "flooredCameraX") int flooredCameraX, @Local(name = "flooredCameraZ") int flooredCameraZ) {
-        if (!this.toroidal$mapCopies.drawsSeamLines() || !XaeroWorldMapFold.active()) {
+        if (!this.exotic_worlds$mapCopies.drawsSeamLines() || !XaeroWorldMapFold.active()) {
             return;
         }
 
@@ -263,28 +263,28 @@ public abstract class GuiMapViewMixin {
     @ModifyExpressionValue(
             method = "extractRenderState",
             at = @At(value = "INVOKE", target = "Lxaero/map/gui/MapTileSelection;getLeft()I"))
-    private int toroidal$seatSelectionLeft(int left) {
-        return left + SectionPos.blockToSectionCoord(this.toroidal$selectionLapX);
+    private int exotic_worlds$seatSelectionLeft(int left) {
+        return left + SectionPos.blockToSectionCoord(this.exotic_worlds$selectionLapX);
     }
 
     @ModifyExpressionValue(
             method = "extractRenderState",
             at = @At(value = "INVOKE", target = "Lxaero/map/gui/MapTileSelection;getRight()I"))
-    private int toroidal$seatSelectionRight(int right) {
-        return right + SectionPos.blockToSectionCoord(this.toroidal$selectionLapX);
+    private int exotic_worlds$seatSelectionRight(int right) {
+        return right + SectionPos.blockToSectionCoord(this.exotic_worlds$selectionLapX);
     }
 
     @ModifyExpressionValue(
             method = "extractRenderState",
             at = @At(value = "INVOKE", target = "Lxaero/map/gui/MapTileSelection;getTop()I"))
-    private int toroidal$seatSelectionTop(int top) {
-        return top + SectionPos.blockToSectionCoord(this.toroidal$selectionLapZ);
+    private int exotic_worlds$seatSelectionTop(int top) {
+        return top + SectionPos.blockToSectionCoord(this.exotic_worlds$selectionLapZ);
     }
 
     @ModifyExpressionValue(
             method = "extractRenderState",
             at = @At(value = "INVOKE", target = "Lxaero/map/gui/MapTileSelection;getBottom()I"))
-    private int toroidal$seatSelectionBottom(int bottom) {
-        return bottom + SectionPos.blockToSectionCoord(this.toroidal$selectionLapZ);
+    private int exotic_worlds$seatSelectionBottom(int bottom) {
+        return bottom + SectionPos.blockToSectionCoord(this.exotic_worlds$selectionLapZ);
     }
 }

@@ -20,14 +20,14 @@ public class ShulkerBulletMixin {
     @WrapOperation(
             method = "selectNextMoveDirection",
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_X))
-    private double toroidal$homeOnTargetX(Entity target, Operation<Double> original) {
+    private double exotic_worlds$homeOnTargetX(Entity target, Operation<Double> original) {
         return SeamAim.nearestCoord((ShulkerBullet) (Object) this, target, Direction.Axis.X, original.call(target));
     }
 
     @WrapOperation(
             method = "selectNextMoveDirection",
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_Z))
-    private double toroidal$homeOnTargetZ(Entity target, Operation<Double> original) {
+    private double exotic_worlds$homeOnTargetZ(Entity target, Operation<Double> original) {
         return SeamAim.nearestCoord((ShulkerBullet) (Object) this, target, Direction.Axis.Z, original.call(target));
     }
 
@@ -36,7 +36,7 @@ public class ShulkerBulletMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/Entity;blockPosition()Lnet/minecraft/core/BlockPos;"))
-    private BlockPos toroidal$targetBlockThroughSeam(BlockPos targetBlock) {
+    private BlockPos exotic_worlds$targetBlockThroughSeam(BlockPos targetBlock) {
         return SeamSteering.nearestCopy((ShulkerBullet) (Object) this, targetBlock);
     }
 }

@@ -25,7 +25,7 @@ public class SulfurCubeMixin {
     private static final String PLAYER_PUSH = "playerPush(Lnet/minecraft/world/entity/player/Player;)V";
 
     @WrapMethod(method = KNOCKBACK)
-    private void toroidal$knockbackThroughSeam(double power, double xd, double zd, DamageSource source, float damage,
+    private void exotic_worlds$knockbackThroughSeam(double power, double xd, double zd, DamageSource source, float damage,
             boolean comesFromEffect, Operation<Void> original) {
         Vec3 direction = SeamAim.foldDelta((Entity) (Object) this, xd, zd);
         original.call(power, direction.x, direction.z, source, damage, comesFromEffect);
@@ -34,17 +34,17 @@ public class SulfurCubeMixin {
     @ModifyExpressionValue(
             method = KNOCKBACK,
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_EYE_POSITION))
-    private Vec3 toroidal$attackerEyeThroughSeam(Vec3 attackerEye) {
+    private Vec3 exotic_worlds$attackerEyeThroughSeam(Vec3 attackerEye) {
         return SeamSteering.nearestCopy((Entity) (Object) this, attackerEye);
     }
 
     @ModifyExpressionValue(method = KNOCKBACK, at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_POSITION))
-    private Vec3 toroidal$attackerFeetThroughSeam(Vec3 attackerFeet) {
+    private Vec3 exotic_worlds$attackerFeetThroughSeam(Vec3 attackerFeet) {
         return SeamSteering.nearestCopy((Entity) (Object) this, attackerFeet);
     }
 
     @ModifyExpressionValue(method = PLAYER_PUSH, at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_POSITION))
-    private Vec3 toroidal$pusherFeetThroughSeam(Vec3 pusherFeet) {
+    private Vec3 exotic_worlds$pusherFeetThroughSeam(Vec3 pusherFeet) {
         return SeamSteering.nearestCopy((Entity) (Object) this, pusherFeet);
     }
 }

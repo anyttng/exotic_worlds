@@ -38,12 +38,12 @@ public final class FoldedSamplers {
 
     private static final CoastLiftCache NO_LIFT = new CoastLiftCache() {
         @Override
-        public double toroidal$coastLift() {
+        public double exotic_worlds$coastLift() {
             return 0.0;
         }
 
         @Override
-        public void toroidal$coastLift(double lift) {
+        public void exotic_worlds$coastLift(double lift) {
             throw new UnsupportedOperationException("A field outside the coast carries no lift");
         }
     };
@@ -171,7 +171,7 @@ public final class FoldedSamplers {
         @Override
         public float sampleValue(SamplerContext context, int blockX, int blockY, int blockZ) {
             return this.octaves.sample(blockX, blockY * this.yScale, blockZ)
-                    + (float) this.coastLift.toroidal$coastLift();
+                    + (float) this.coastLift.exotic_worlds$coastLift();
         }
     }
 
@@ -194,14 +194,14 @@ public final class FoldedSamplers {
                 double shiftZ = this.shiftZ.sampleValue(context, blockX, blockY, blockZ);
                 if (!DomainWarp.carries(lattice, blockX, blockZ, shiftX, shiftZ, this.vanillaXzScale)) {
                     return vanillaAtFold(lattice, this.noise, this.vanillaXzScale, blockX, y, blockZ, shiftX, shiftZ)
-                            + (float) this.coastLift.toroidal$coastLift();
+                            + (float) this.coastLift.exotic_worlds$coastLift();
                 }
 
                 x = DomainWarp.applyX(lattice, blockX, blockZ, shiftX, this.warpDivisor);
                 z = DomainWarp.applyZ(lattice, blockZ, shiftZ, this.warpDivisor);
             }
 
-            return this.octaves.sample(x, y, z) + (float) this.coastLift.toroidal$coastLift();
+            return this.octaves.sample(x, y, z) + (float) this.coastLift.exotic_worlds$coastLift();
         }
     }
 
@@ -219,7 +219,7 @@ public final class FoldedSamplers {
             return vanillaAtFold(this.fold.blockLattice(), this.noise, this.xzScale, blockX, y, blockZ,
                     this.shiftX.sampleValue(context, blockX, blockY, blockZ),
                     this.shiftZ.sampleValue(context, blockX, blockY, blockZ))
-                    + (float) this.coastLift.toroidal$coastLift();
+                    + (float) this.coastLift.exotic_worlds$coastLift();
         }
     }
 

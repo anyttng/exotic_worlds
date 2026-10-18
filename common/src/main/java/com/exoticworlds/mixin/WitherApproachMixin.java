@@ -15,12 +15,12 @@ import net.minecraft.world.entity.boss.wither.WitherBoss;
 @Mixin(WitherBoss.class)
 public class WitherApproachMixin {
     @WrapOperation(method = "aiStep", at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_X))
-    private double toroidal$targetX(Entity target, Operation<Double> original) {
+    private double exotic_worlds$targetX(Entity target, Operation<Double> original) {
         return SeamAim.nearestCoord((Entity) (Object) this, target, Direction.Axis.X, original.call(target));
     }
 
     @WrapOperation(method = "aiStep", at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_Z))
-    private double toroidal$targetZ(Entity target, Operation<Double> original) {
+    private double exotic_worlds$targetZ(Entity target, Operation<Double> original) {
         return SeamAim.nearestCoord((Entity) (Object) this, target, Direction.Axis.Z, original.call(target));
     }
 }

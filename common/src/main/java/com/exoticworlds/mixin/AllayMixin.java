@@ -18,7 +18,7 @@ public class AllayMixin {
             method = "shouldStopDancing",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean toroidal$jukeboxRangeThroughSeam(BlockPos jukeboxPos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$jukeboxRangeThroughSeam(BlockPos jukeboxPos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
         return SeamRange.closerToCenterThan((Allay) (Object) this, jukeboxPos, bodyPosition, distance);
     }

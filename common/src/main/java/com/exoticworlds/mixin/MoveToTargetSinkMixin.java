@@ -19,7 +19,7 @@ public class MoveToTargetSinkMixin {
     @WrapOperation(
             method = "reachedTarget",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_MANHATTAN))
-    private int toroidal$arrivalDistanceThroughSeam(BlockPos targetPos, Vec3i bodyPos, Operation<Integer> original,
+    private int exotic_worlds$arrivalDistanceThroughSeam(BlockPos targetPos, Vec3i bodyPos, Operation<Integer> original,
             @Local(argsOnly = true) Mob body) {
         return SeamRange.manhattan(body, targetPos, bodyPos);
     }
@@ -27,7 +27,7 @@ public class MoveToTargetSinkMixin {
     @WrapOperation(
             method = "tick",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
-    private double toroidal$retargetDistanceThroughSeam(BlockPos targetPos, Vec3i lastTargetPos,
+    private double exotic_worlds$retargetDistanceThroughSeam(BlockPos targetPos, Vec3i lastTargetPos,
             Operation<Double> original, @Local(argsOnly = true) Mob body) {
         return SeamRange.sqr(body, targetPos, lastTargetPos);
     }

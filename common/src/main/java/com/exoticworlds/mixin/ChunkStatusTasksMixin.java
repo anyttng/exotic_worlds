@@ -36,7 +36,7 @@ public class ChunkStatusTasksMixin {
                     "light"
             },
             order = BinderOrder.FOLD)
-    private static CompletableFuture<ChunkAccess> toroidal$bindTransformer(
+    private static CompletableFuture<ChunkAccess> exotic_worlds$bindTransformer(
             WorldGenContext context,
             ChunkStep step,
             StaticCache2D<GenerationChunkHolder> chunks,
@@ -52,7 +52,7 @@ public class ChunkStatusTasksMixin {
     }
 
     @ModifyReturnValue(method = "buildTerrain", at = @At("RETURN"))
-    private static CompletableFuture<ChunkAccess> toroidal$sweepFloatingCrumbs(
+    private static CompletableFuture<ChunkAccess> exotic_worlds$sweepFloatingCrumbs(
             CompletableFuture<ChunkAccess> original,
             WorldGenContext context,
             ChunkStep step,
@@ -66,7 +66,7 @@ public class ChunkStatusTasksMixin {
     }
 
     @ModifyReturnValue(method = "light", at = @At("RETURN"))
-    private static CompletableFuture<ChunkAccess> toroidal$sweepBorderCrumbs(
+    private static CompletableFuture<ChunkAccess> exotic_worlds$sweepBorderCrumbs(
             CompletableFuture<ChunkAccess> original,
             WorldGenContext context,
             ChunkStep step,

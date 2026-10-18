@@ -16,7 +16,7 @@ public class TurtleMoveControlMixin {
             method = "updateSpeed",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/animal/turtle/Turtle;getHomePos()Lnet/minecraft/core/BlockPos;"))
-    private BlockPos toroidal$homeThroughSeam(Turtle turtle, Operation<BlockPos> original) {
+    private BlockPos exotic_worlds$homeThroughSeam(Turtle turtle, Operation<BlockPos> original) {
         return SeamSteering.nearestCopy(turtle, original.call(turtle));
     }
 }

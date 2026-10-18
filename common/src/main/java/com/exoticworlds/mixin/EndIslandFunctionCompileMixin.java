@@ -15,7 +15,7 @@ import net.minecraft.world.level.levelgen.densityfunction.generator.EndIslandFun
 @Mixin(EndIslandFunction.class)
 public class EndIslandFunctionCompileMixin {
     @WrapMethod(method = InjectionTargets.DENSITY_FUNCTION_COMPILE_SAMPLER)
-    private DensitySampler toroidal$compileFolded(DensityFunction.CompileContext context,
+    private DensitySampler exotic_worlds$compileFolded(DensityFunction.CompileContext context,
             Operation<DensitySampler> original) {
         return context instanceof FoldedCompileContext folded
                 ? FoldedSamplers.endIslands(folded)

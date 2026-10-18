@@ -16,7 +16,7 @@ public class FarQuadsMixin {
             method = "pipeline(Lcom/eminus/gpu/Location;Lcom/eminus/gpu/Location;FLcom/eminus/gpu/Capabilities;"
                     + "Lcom/eminus/model/port/VariantDraw;)Lcom/eminus/gpu/pipeline/PipelineSpec$Builder;",
             at = @At("RETURN"))
-    private static PipelineSpec.Builder toroidal$clipToTheLap(PipelineSpec.Builder builder) {
+    private static PipelineSpec.Builder exotic_worlds$clipToTheLap(PipelineSpec.Builder builder) {
         CellFold fold = CellFoldHolder.foldOf(ClientSession.runtime());
         if (!fold.repeats()) {
             return builder;

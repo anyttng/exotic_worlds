@@ -11,7 +11,7 @@ import net.minecraft.core.BlockPos;
 @Mixin(targets = "journeymap.client.ui.fullscreen.layer.LayerDelegate", remap = false)
 public class LayerDelegateMixin {
     @ModifyReturnValue(method = "getBlockPos", at = @At("RETURN"))
-    private BlockPos toroidal$foldMouseBlock(BlockPos original) {
+    private BlockPos exotic_worlds$foldMouseBlock(BlockPos original) {
         return JourneyMapFold.foldUiBlock(original);
     }
 }

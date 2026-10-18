@@ -18,32 +18,32 @@ import com.seibel.distanthorizons.core.sql.repo.AbstractDhRepo;
 @Mixin(AbstractDhRepo.class)
 public class AbstractDhRepoMixin implements DhRepoLevel {
     @Unique
-    private IDhLevel toroidal$level;
+    private IDhLevel exotic_worlds$level;
 
     @Unique
-    private Boolean toroidal$shapeSeen;
+    private Boolean exotic_worlds$shapeSeen;
 
     @Override
-    public void toroidal$bindLevel(IDhLevel level) {
-        this.toroidal$level = level;
+    public void exotic_worlds$bindLevel(IDhLevel level) {
+        this.exotic_worlds$level = level;
     }
 
     @Override
-    public @Nullable DhLattice toroidal$lattice() {
-        DhLattice lattice = DhShapes.of(this.toroidal$level);
+    public @Nullable DhLattice exotic_worlds$lattice() {
+        DhLattice lattice = DhShapes.of(this.exotic_worlds$level);
         boolean present = lattice != null;
-        if (this.toroidal$shapeSeen == null || this.toroidal$shapeSeen != present) {
-            this.toroidal$shapeSeen = present;
-            DhProbes.repoShape(this, this.toroidal$level, present);
+        if (this.exotic_worlds$shapeSeen == null || this.exotic_worlds$shapeSeen != present) {
+            this.exotic_worlds$shapeSeen = present;
+            DhProbes.repoShape(this, this.exotic_worlds$level, present);
         }
 
         return lattice;
     }
 
     @WrapMethod(method = "getByKey(Ljava/lang/Object;)Lcom/seibel/distanthorizons/core/sql/dto/IBaseDTO;")
-    private @Nullable IBaseDTO<?> toroidal$answerTheAskedKey(Object key, Operation<@Nullable IBaseDTO<?>> original) {
+    private @Nullable IBaseDTO<?> exotic_worlds$answerTheAskedKey(Object key, Operation<@Nullable IBaseDTO<?>> original) {
         IBaseDTO<?> dto = original.call(key);
-        if (dto != null && this.toroidal$lattice() != null) {
+        if (dto != null && this.exotic_worlds$lattice() != null) {
             DhKeys.reseat(dto, key);
         }
 

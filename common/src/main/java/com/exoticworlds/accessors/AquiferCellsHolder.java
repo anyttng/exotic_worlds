@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.engine.noise.AquiferCells;
 
 public interface AquiferCellsHolder {
-    @Nullable AquiferCells toroidal$aquiferCells();
+    @Nullable AquiferCells exotic_worlds$aquiferCells();
 
-    void toroidal$aquiferCells(AquiferCells cells);
+    void exotic_worlds$aquiferCells(AquiferCells cells);
 }

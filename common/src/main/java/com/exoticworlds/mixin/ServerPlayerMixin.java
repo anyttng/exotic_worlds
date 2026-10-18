@@ -46,30 +46,30 @@ public class ServerPlayerMixin implements SeamTravelHolder {
     private static final String PLAYER_TICK = "Lnet/minecraft/world/entity/player/Player;tick()V";
 
     @Unique
-    private final SeamTravel toroidal$travel = new SeamTravel();
+    private final SeamTravel exotic_worlds$travel = new SeamTravel();
 
     @Override
-    public SeamTravel toroidal$travel() {
-        return this.toroidal$travel;
+    public SeamTravel exotic_worlds$travel() {
+        return this.exotic_worlds$travel;
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
-    private void toroidal$readTravel(ValueInput input, CallbackInfo ci) {
-        input.read(TRAVEL_KEY, SeamTravel.CODEC).ifPresent(this.toroidal$travel::copyFrom);
+    private void exotic_worlds$readTravel(ValueInput input, CallbackInfo ci) {
+        input.read(TRAVEL_KEY, SeamTravel.CODEC).ifPresent(this.exotic_worlds$travel::copyFrom);
     }
 
     @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
-    private void toroidal$writeTravel(ValueOutput output, CallbackInfo ci) {
-        output.store(TRAVEL_KEY, SeamTravel.CODEC, this.toroidal$travel);
+    private void exotic_worlds$writeTravel(ValueOutput output, CallbackInfo ci) {
+        output.store(TRAVEL_KEY, SeamTravel.CODEC, this.exotic_worlds$travel);
     }
 
     @Inject(method = "restoreFrom", at = @At("TAIL"))
-    private void toroidal$carryTravelThroughRespawn(ServerPlayer oldPlayer, boolean restoreAll, CallbackInfo ci) {
-        this.toroidal$travel.copyFrom(((SeamTravelHolder) oldPlayer).toroidal$travel());
+    private void exotic_worlds$carryTravelThroughRespawn(ServerPlayer oldPlayer, boolean restoreAll, CallbackInfo ci) {
+        this.exotic_worlds$travel.copyFrom(((SeamTravelHolder) oldPlayer).exotic_worlds$travel());
     }
 
     @ModifyVariable(method = "setRespawnPosition", at = @At("HEAD"), argsOnly = true)
-    private ServerPlayer.@Nullable RespawnConfig toroidal$storeRespawnInsideBounds(
+    private ServerPlayer.@Nullable RespawnConfig exotic_worlds$storeRespawnInsideBounds(
             ServerPlayer.@Nullable RespawnConfig respawnConfig) {
         if (respawnConfig == null) {
             return null;
@@ -83,36 +83,36 @@ public class ServerPlayerMixin implements SeamTravelHolder {
     }
 
     @WrapMethod(method = "indicateDamage")
-    private void toroidal$hurtDirThroughSeam(double xd, double zd, Operation<Void> original) {
+    private void exotic_worlds$hurtDirThroughSeam(double xd, double zd, Operation<Void> original) {
         Vec3 direction = SeamAim.foldDelta((ServerPlayer) (Object) this, xd, zd);
         original.call(direction.x, direction.z);
     }
 
     @Inject(method = "teleport(Lnet/minecraft/world/level/portal/TeleportTransition;)Lnet/minecraft/server/level/ServerPlayer;",
             at = @At("TAIL"))
-    private void toroidal$sendBoundsOnDimensionChange(TeleportTransition transition,
+    private void exotic_worlds$sendBoundsOnDimensionChange(TeleportTransition transition,
             CallbackInfoReturnable<@Nullable ServerPlayer> cir) {
         WorldShapeSync.sendTo((ServerPlayer) (Object) this);
     }
 
     @Inject(method = "doTick", at = @At(value = "INVOKE", target = PLAYER_TICK, shift = At.Shift.AFTER))
-    private void toroidal$refreshClientAnchors(CallbackInfo ci) {
+    private void exotic_worlds$refreshClientAnchors(CallbackInfo ci) {
         ClientAnchorSync.refresh((ServerPlayer) (Object) this);
     }
 
     @Inject(method = "doTick", at = @At(value = "INVOKE", target = PLAYER_TICK, shift = At.Shift.AFTER))
-    private void toroidal$sampleTravel(CallbackInfo ci) {
+    private void exotic_worlds$sampleTravel(CallbackInfo ci) {
         CircumnavigationTracker.sample((ServerPlayer) (Object) this);
     }
 
     @Inject(method = "updateOptions", at = @At("HEAD"))
-    private void toroidal$captureRequestedViewDistance(ClientInformation information, CallbackInfo ci,
+    private void exotic_worlds$captureRequestedViewDistance(ClientInformation information, CallbackInfo ci,
             @Share("oldViewDistance") LocalIntRef oldViewDistance) {
         oldViewDistance.set(((ServerPlayer) (Object) this).requestedViewDistance());
     }
 
     @Inject(method = "updateOptions", at = @At("TAIL"))
-    private void toroidal$refreshTrackingOnViewChange(ClientInformation information, CallbackInfo ci,
+    private void exotic_worlds$refreshTrackingOnViewChange(ClientInformation information, CallbackInfo ci,
             @Share("oldViewDistance") LocalIntRef oldViewDistance) {
         ServerPlayer player = (ServerPlayer) (Object) this;
         if (player.connection == null || oldViewDistance.get() == player.requestedViewDistance()) {
@@ -126,13 +126,13 @@ public class ServerPlayerMixin implements SeamTravelHolder {
 
         TrackedEntityRefresher refresher =
                 (TrackedEntityRefresher) (Object) player.level().getChunkSource().chunkMap;
-        refresher.toroidal$refreshTrackedEntities(player);
+        refresher.exotic_worlds$refreshTrackedEntities(player);
     }
 
     @WrapOperation(
             method = "isReachableBedBlock",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_AT_BOTTOM_CENTER_OF))
-    private Vec3 toroidal$bedTowardSleeper(Vec3i bedBlockPos, Operation<Vec3> original) {
+    private Vec3 exotic_worlds$bedTowardSleeper(Vec3i bedBlockPos, Operation<Vec3> original) {
         return SeamSteering.nearestCopy((ServerPlayer) (Object) this, original.call(bedBlockPos));
     }
 }

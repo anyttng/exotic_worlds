@@ -27,7 +27,7 @@ public interface ShapedChunkGenerator {
     }
 
     default ChunkGeneratorStructureState stampTransformer(ChunkGeneratorStructureState state) {
-        ((TransformerHolder) (Object) state).toroidal$setTransformer(transformer());
+        ((TransformerHolder) (Object) state).exotic_worlds$setTransformer(transformer());
         return state;
     }
 
@@ -36,7 +36,7 @@ public interface ShapedChunkGenerator {
             return wrapped(shaped.carriedShape());
         }
 
-        return generator instanceof ShapeStamp stamp ? wrapped(stamp.toroidal$carriedShape()) : null;
+        return generator instanceof ShapeStamp stamp ? wrapped(stamp.exotic_worlds$carriedShape()) : null;
     }
 
     static boolean tilesAtSeam(ChunkGenerator generator) {

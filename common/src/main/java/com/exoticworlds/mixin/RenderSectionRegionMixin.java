@@ -17,7 +17,7 @@ public class RenderSectionRegionMixin implements RegionLevelSource {
     private ClientLevel level;
 
     @Override
-    public Level toroidal$regionLevel() {
+    public Level exotic_worlds$regionLevel() {
         return this.level;
     }
 }

@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 @Mixin(ClientboundBlockEntityDataPacket.class)
 public interface BlockEntityDataPacketAccessor {
     @Invoker("<init>")
-    static ClientboundBlockEntityDataPacket toroidal$create(BlockPos pos, BlockEntityType<?> type, CompoundTag tag) {
+    static ClientboundBlockEntityDataPacket exotic_worlds$create(BlockPos pos, BlockEntityType<?> type, CompoundTag tag) {
         throw new AssertionError();
     }
 }

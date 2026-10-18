@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(AirRandomPos.class)
 public class AirRandomPosMixin {
     @ModifyVariable(method = "getPosTowards", at = @At("HEAD"), argsOnly = true)
-    private static Vec3 toroidal$towardsThroughSeam(Vec3 towardsPos, @Local(argsOnly = true) PathfinderMob mob) {
+    private static Vec3 exotic_worlds$towardsThroughSeam(Vec3 towardsPos, @Local(argsOnly = true) PathfinderMob mob) {
         return SeamSteering.nearestCopy(mob, towardsPos);
     }
 }

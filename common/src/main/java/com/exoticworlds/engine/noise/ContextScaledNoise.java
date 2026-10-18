@@ -19,14 +19,14 @@ public final class ContextScaledNoise {
     private static ContextOctaves octavesFor(WorldFold fold, Noise noise, double scale) {
         NoiseStack stack = FoldedSamplers.stackOf(noise);
         ContextOctavesHolder holder = (ContextOctavesHolder) (Object) stack;
-        ContextOctaves held = holder.toroidal$contextOctaves();
+        ContextOctaves held = holder.exotic_worlds$contextOctaves();
         if (held != null && held.compiledFor(fold, scale)) {
             return held;
         }
 
         ContextOctaves built = new ContextOctaves(fold, scale,
                 PeriodicOctaveSampler.compile(fold, NoiseFrame.UNDECLARED, scale, null, stack));
-        holder.toroidal$contextOctaves(built);
+        holder.exotic_worlds$contextOctaves(built);
         return built;
     }
 

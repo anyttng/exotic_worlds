@@ -17,7 +17,7 @@ public abstract class PathfinderMobMixin {
     @WrapOperation(
             method = "closeRangeLeashBehaviour",
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_X))
-    private double toroidal$holderXThroughSeam(Entity leashHolder, Operation<Double> original) {
+    private double exotic_worlds$holderXThroughSeam(Entity leashHolder, Operation<Double> original) {
         return SeamAim.nearestCoord((PathfinderMob) (Object) this, leashHolder, Direction.Axis.X,
                 original.call(leashHolder));
     }
@@ -25,7 +25,7 @@ public abstract class PathfinderMobMixin {
     @WrapOperation(
             method = "closeRangeLeashBehaviour",
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_Z))
-    private double toroidal$holderZThroughSeam(Entity leashHolder, Operation<Double> original) {
+    private double exotic_worlds$holderZThroughSeam(Entity leashHolder, Operation<Double> original) {
         return SeamAim.nearestCoord((PathfinderMob) (Object) this, leashHolder, Direction.Axis.Z,
                 original.call(leashHolder));
     }

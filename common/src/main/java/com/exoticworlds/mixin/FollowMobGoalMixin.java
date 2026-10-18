@@ -24,7 +24,7 @@ public class FollowMobGoalMixin {
     @WrapOperation(
             method = "tick",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Mob;getX()D"))
-    private double toroidal$followedXThroughSeam(Mob read, Operation<Double> original) {
+    private double exotic_worlds$followedXThroughSeam(Mob read, Operation<Double> original) {
         double x = original.call(read);
         return read == this.mob ? x : SeamSteering.nearestCopy(this.mob, read.position()).x;
     }
@@ -32,7 +32,7 @@ public class FollowMobGoalMixin {
     @WrapOperation(
             method = "tick",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Mob;getZ()D"))
-    private double toroidal$followedZThroughSeam(Mob read, Operation<Double> original) {
+    private double exotic_worlds$followedZThroughSeam(Mob read, Operation<Double> original) {
         double z = original.call(read);
         return read == this.mob ? z : SeamSteering.nearestCopy(this.mob, read.position()).z;
     }
@@ -41,20 +41,20 @@ public class FollowMobGoalMixin {
             method = "tick",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/ai/control/LookControl;getWantedX()D"))
-    private double toroidal$wantedLookXThroughSeam(LookControl lookControl, Operation<Double> original) {
-        return toroidal$wantedNearTheMob(original.call(lookControl), lookControl.getWantedZ()).x;
+    private double exotic_worlds$wantedLookXThroughSeam(LookControl lookControl, Operation<Double> original) {
+        return exotic_worlds$wantedNearTheMob(original.call(lookControl), lookControl.getWantedZ()).x;
     }
 
     @WrapOperation(
             method = "tick",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/ai/control/LookControl;getWantedZ()D"))
-    private double toroidal$wantedLookZThroughSeam(LookControl lookControl, Operation<Double> original) {
-        return toroidal$wantedNearTheMob(lookControl.getWantedX(), original.call(lookControl)).z;
+    private double exotic_worlds$wantedLookZThroughSeam(LookControl lookControl, Operation<Double> original) {
+        return exotic_worlds$wantedNearTheMob(lookControl.getWantedX(), original.call(lookControl)).z;
     }
 
     @Unique
-    private Vec3 toroidal$wantedNearTheMob(double wantedX, double wantedZ) {
+    private Vec3 exotic_worlds$wantedNearTheMob(double wantedX, double wantedZ) {
         return SeamSteering.nearestCopy(this.mob, new Vec3(wantedX, this.mob.getY(), wantedZ));
     }
 }

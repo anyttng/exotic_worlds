@@ -19,7 +19,7 @@ public class SetHiddenStateMixin {
     @WrapOperation(
             method = "lambda$create$2",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
-    private static boolean toroidal$hidingReachThroughSeam(BlockPos hidePos, Vec3i bodyPos, double distance,
+    private static boolean exotic_worlds$hidingReachThroughSeam(BlockPos hidePos, Vec3i bodyPos, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) LivingEntity body) {
         return SeamRange.closerThan(body, hidePos, bodyPos, distance);
     }

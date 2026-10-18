@@ -24,8 +24,8 @@ public class LandOnOwnersShoulderGoalMixin {
     @WrapOperation(
             method = "tick",
             at = @At(value = "INVOKE", target = InjectionTargets.AABB_INTERSECTS))
-    private boolean toroidal$touchOwnerThroughSeam(AABB riderBox, AABB ownerBox, Operation<Boolean> original) {
-        AABB folded = FoldedBoxQuery.toward(((TransformerSource) this.entity).toroidal$wrappedTransformer(),
+    private boolean exotic_worlds$touchOwnerThroughSeam(AABB riderBox, AABB ownerBox, Operation<Boolean> original) {
+        AABB folded = FoldedBoxQuery.toward(((TransformerSource) this.entity).exotic_worlds$wrappedTransformer(),
                 this.entity.position(), ownerBox);
         return original.call(riderBox, folded);
     }

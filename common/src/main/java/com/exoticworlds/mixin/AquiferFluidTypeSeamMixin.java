@@ -18,11 +18,11 @@ public class AquiferFluidTypeSeamMixin {
     @WrapOperation(
             method = "computeFluidType",
             at = @At(value = "INVOKE", target = InjectionTargets.DENSITY_SAMPLER_BOUND_SAMPLE_VALUE))
-    private float toroidal$fluidTypeFromTilingCell(DensitySampler.Bound noise, int cellX, int cellY, int cellZ,
+    private float exotic_worlds$fluidTypeFromTilingCell(DensitySampler.Bound noise, int cellX, int cellY, int cellZ,
             Operation<Float> original,
             @Local(argsOnly = true, ordinal = 0) int blockX,
             @Local(argsOnly = true, ordinal = 2) int blockZ) {
-        AquiferCells cells = ((AquiferCellsHolder) this).toroidal$aquiferCells();
+        AquiferCells cells = ((AquiferCellsHolder) this).exotic_worlds$aquiferCells();
         return cells == null ? original.call(noise, cellX, cellY, cellZ) : cells.type(blockX, cellY, blockZ);
     }
 }
