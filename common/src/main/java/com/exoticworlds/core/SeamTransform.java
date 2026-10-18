@@ -44,11 +44,11 @@ public record SeamTransform(int xSign, int zSign, int xShift, int zShift) {
     }
 
     public int applyCellX(int x) {
-        return this.xSign * x + this.xShift + (this.xSign < 0 ? -1 : 0);
+        return cellOf(this.xSign, this.xShift, x);
     }
 
     public int applyCellZ(int z) {
-        return this.zSign * z + this.zShift + (this.zSign < 0 ? -1 : 0);
+        return cellOf(this.zSign, this.zShift, z);
     }
 
     public Vec3 apply(Vec3 pos) {
@@ -114,15 +114,47 @@ public record SeamTransform(int xSign, int zSign, int xShift, int zShift) {
             return IDENTITY;
         }
 
-        if (exponent < 0) {
-            return power(-exponent).inverse();
-        }
-
         return new SeamTransform(
                 signPower(this.xSign, exponent),
                 signPower(this.zSign, exponent),
                 shiftPower(this.xSign, this.xShift, exponent),
                 shiftPower(this.zSign, this.zShift, exponent));
+    }
+
+    double powerApplyX(int exponent, double x) {
+        return signPower(this.xSign, exponent) * x + shiftPower(this.xSign, this.xShift, exponent);
+    }
+
+    double powerApplyZ(int exponent, double z) {
+        return signPower(this.zSign, exponent) * z + shiftPower(this.zSign, this.zShift, exponent);
+    }
+
+    int powerApplyCellX(int exponent, int x) {
+        return cellOf(signPower(this.xSign, exponent), shiftPower(this.xSign, this.xShift, exponent), x);
+    }
+
+    int powerApplyCellZ(int exponent, int z) {
+        return cellOf(signPower(this.zSign, exponent), shiftPower(this.zSign, this.zShift, exponent), z);
+    }
+
+    int powerSignX(int exponent) {
+        return signPower(this.xSign, exponent);
+    }
+
+    int powerSignZ(int exponent) {
+        return signPower(this.zSign, exponent);
+    }
+
+    int powerShiftX(int exponent) {
+        return shiftPower(this.xSign, this.xShift, exponent);
+    }
+
+    int powerShiftZ(int exponent) {
+        return shiftPower(this.zSign, this.zShift, exponent);
+    }
+
+    static int cellOf(int sign, int shift, int cell) {
+        return sign * cell + shift + (sign < 0 ? -1 : 0);
     }
 
     private static int signPower(int sign, int exponent) {
