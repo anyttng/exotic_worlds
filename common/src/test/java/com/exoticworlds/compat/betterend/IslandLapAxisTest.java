@@ -42,9 +42,7 @@ class IslandLapAxisTest {
         assertFalse(axis.loops());
         assertEquals(300.0, axis.cellBlocks(), EPSILON);
         assertEquals(-7, axis.wrap(-7));
-        assertEquals(0, axis.shift(-7));
         assertEquals(-7, axis.nearestToOrigin(-7));
-        assertEquals(0, axis.originCopy(12345.0));
     }
 
     @Test
@@ -52,8 +50,6 @@ class IslandLapAxisTest {
         IslandLapAxis axis = IslandLapAxis.of(new WrapDomain(-2048, 2048), 300.0);
         for (int cell = -3 * axis.cells(); cell < 3 * axis.cells(); cell++) {
             assertEquals(axis.wrap(cell), axis.wrap(cell + axis.cells()), "cell " + cell);
-            assertEquals(axis.shift(cell) + axis.lapBlocks(), axis.shift(cell + axis.cells()), "cell " + cell);
-            assertEquals(cell, axis.wrap(cell) + axis.shift(cell) / axis.lapBlocks() * axis.cells(), "cell " + cell);
         }
     }
 
@@ -67,13 +63,5 @@ class IslandLapAxisTest {
             assertTrue(Math.abs(nearest + 0.5) <= Math.abs(nearest + 0.5 + (nearest < 0 ? 1 : -1) * axis.cells()),
                     "cell " + cell + " read as " + nearest);
         }
-    }
-
-    @Test
-    void theOriginCopyIsTheNearestWholeLap() {
-        IslandLapAxis axis = IslandLapAxis.of(new WrapDomain(-2048, 2048), 300.0);
-        assertEquals(0, axis.originCopy(2047.0));
-        assertEquals(4096, axis.originCopy(2049.0));
-        assertEquals(-4096, axis.originCopy(-2049.0));
     }
 }

@@ -721,6 +721,24 @@ class PacketTranslatorTest {
             assertEquals(MIRROR_X - 24.0, mirror.x());
             assertEquals(-524.0, mirror.z());
         }
+
+        @Test
+        void absoluteXAndRelativeZReachOneDestination() {
+            ClientPosition mirror = new ClientPosition();
+            mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, null, TRANSFORMER);
+            TranslationContext context = new TranslationContext(TRANSFORMER, mirror, BUFFERS,
+                    Level.OVERWORLD, VIEW_DISTANCE, VIEW_DISTANCE, entityId -> false, entityId -> null, entityId -> null, () -> {}, REWRITERS);
+
+            ClientboundPlayerPositionPacket translated = (ClientboundPlayerPositionPacket) PacketTranslator.toClient(
+                    new ClientboundPlayerPositionPacket(-500.0, 0.0, 1000.0, 0.0F, 0.0F,
+                            Set.of(RelativeMovement.Z), 1),
+                    context);
+
+            assertEquals(524.0, translated.getX());
+            assertEquals(-24.0, translated.getZ());
+            assertEquals(524.0, mirror.x());
+            assertEquals(MIRROR_Z - 24.0, mirror.z());
+        }
     }
 
     @Nested

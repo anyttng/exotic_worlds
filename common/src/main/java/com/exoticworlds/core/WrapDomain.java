@@ -10,8 +10,6 @@ public class WrapDomain {
     private final int seamRadius;
     private final int maxShiftLaps;
 
-    private final double halfLength;
-
     private final List<ForeignSpan> foreignSpans;
 
     public WrapDomain(int lowerBound, int upperBound) {
@@ -24,7 +22,6 @@ public class WrapDomain {
         this.domainLength = Math.abs(upperBound - lowerBound);
         this.seamRadius = this.domainLength / 2;
         this.maxShiftLaps = Integer.MAX_VALUE / Math.max(this.domainLength, 1);
-        this.halfLength = this.domainLength / 2.0;
         this.foreignSpans = List.copyOf(foreignSpans);
     }
 
@@ -220,22 +217,6 @@ public class WrapDomain {
         return (halfWorld + step - 1) / step;
     }
 
-    public boolean spansSeam(double fromCoord, double toCoord) {
-        if (isForeign(fromCoord) || isForeign(toCoord)) {
-            return false;
-        }
-
-        return !fitsInHalf(Math.abs(toCoord - fromCoord));
-    }
-
-    public boolean spansSeam(int fromCoord, int toCoord) {
-        if (isForeign(fromCoord) || isForeign(toCoord)) {
-            return false;
-        }
-
-        return Math.abs((long) toCoord - fromCoord) > seamRadius;
-    }
-
     public boolean overlaps(int aMin, int aMax, int bMin, int bMax) {
         if (isForeign(aMin) || isForeign(aMax) || isForeign(bMin) || isForeign(bMax)) {
             return aMin <= bMax && bMin <= aMax;
@@ -258,30 +239,6 @@ public class WrapDomain {
         return new int[] {
                 Math.toIntExact(Math.ceilDiv((long) regionMin - spanMax, domainLength)),
                 Math.toIntExact(Math.floorDiv((long) regionMax - spanMin, domainLength))};
-    }
-
-    public double foldDelta(double delta) {
-        if (delta > halfLength) {
-            return delta - domainLength;
-        }
-
-        if (delta < -halfLength) {
-            return delta + domainLength;
-        }
-
-        return delta;
-    }
-
-    public int foldDelta(int delta) {
-        if (delta > seamRadius) {
-            return delta - domainLength;
-        }
-
-        if (delta < -seamRadius) {
-            return delta + domainLength;
-        }
-
-        return delta;
     }
 
     public double scaleFrom(WrapDomain source, double declaredScale) {
@@ -392,11 +349,6 @@ public class WrapDomain {
         }
 
         @Override
-        public boolean spansSeam(int fromCoord, int toCoord) {
-            return false;
-        }
-
-        @Override
         public boolean containsSpan(double min, double max) {
             return true;
         }
@@ -444,16 +396,6 @@ public class WrapDomain {
         @Override
         public int[] lapsBetween(int spanMin, int spanMax, int regionMin, int regionMax) {
             return spanMin <= regionMax && regionMin <= spanMax ? new int[] {0, 0} : new int[] {0, -1};
-        }
-
-        @Override
-        public double foldDelta(double delta) {
-            return delta;
-        }
-
-        @Override
-        public int foldDelta(int delta) {
-            return delta;
         }
 
         @Override
