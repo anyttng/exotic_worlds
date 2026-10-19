@@ -1,5 +1,7 @@
 package com.exoticworlds.compat.wover;
 
+import org.jspecify.annotations.Nullable;
+
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 
@@ -168,7 +170,7 @@ final class HexLapChunk<T> implements LapChunk<T> {
         }
     }
 
-    private void circle(Object[] buffer, int x, int z, Object biome, Object mask) {
+    private void circle(Object[] buffer, int x, int z, Object biome, @Nullable Object mask) {
         int center = index(x, z);
         if (buffer[center] == mask) {
             buffer[center] = biome;

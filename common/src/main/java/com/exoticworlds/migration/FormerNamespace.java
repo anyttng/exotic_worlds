@@ -32,7 +32,11 @@ public final class FormerNamespace {
     }
 
     public static <T> @Nullable ResourceKey<T> twinOf(@Nullable ResourceKey<T> key) {
-        ResourceLocation twin = key == null ? null : twinOf(key.location());
+        if (key == null) {
+            return null;
+        }
+
+        ResourceLocation twin = twinOf(key.location());
         return twin == null ? null : ResourceKey.create(key.registryKey(), twin);
     }
 

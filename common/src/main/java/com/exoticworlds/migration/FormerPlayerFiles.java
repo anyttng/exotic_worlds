@@ -54,7 +54,7 @@ public final class FormerPlayerFiles {
             Tag value = tag.get(key);
             tag.remove(key);
             String twin = FormerNamespace.twinKeyOf(key);
-            if (!tag.contains(twin)) {
+            if (value != null && twin != null && !tag.contains(twin)) {
                 tag.put(twin, value);
             }
         }

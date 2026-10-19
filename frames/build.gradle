@@ -20,6 +20,7 @@ dependencies {
     compileOnly("cpw.mods:modlauncher:${modlauncher_version}") { transitive = false }
     compileOnly "org.ow2.asm:asm-tree:${asm_version}"
     compileOnly "org.slf4j:slf4j-api:${slf4j_version}"
+    compileOnly "org.jspecify:jspecify:${jspecify_version}"
 }
 
 base {

@@ -2,6 +2,7 @@ package com.exoticworlds.frames;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -43,7 +44,7 @@ public final class XaeroFramesValve {
         return false;
     }
 
-    private static String refusal(ClassNode node, MethodNode method) {
+    private static @Nullable String refusal(ClassNode node, MethodNode method) {
         ClassNode one = new ClassNode();
         node.accept(one);
         one.methods.removeIf(candidate -> !(candidate.name.equals(method.name) && candidate.desc.equals(method.desc)));

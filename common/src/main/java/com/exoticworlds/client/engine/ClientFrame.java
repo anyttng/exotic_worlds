@@ -1,5 +1,6 @@
 package com.exoticworlds.client.engine;
 
+import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.DeckTransformation;
@@ -45,16 +46,19 @@ public final class ClientFrame {
         return NearestCopy.toward(fold(), anchor, target);
     }
 
+    @Contract("!null -> !null")
     public static @Nullable BlockPos nearestToPlayer(@Nullable BlockPos target) {
         LocalPlayer player = Minecraft.getInstance().player;
         return nearestCopy(player == null ? null : player.blockPosition(), target);
     }
 
+    @Contract("!null -> !null")
     public static @Nullable Vec3 nearestToPlayer(@Nullable Vec3 target) {
         LocalPlayer player = Minecraft.getInstance().player;
         return nearestCopy(player == null ? null : player.position(), target);
     }
 
+    @Contract("!null -> !null")
     public static @Nullable ChunkPos nearestToPlayer(@Nullable ChunkPos target) {
         LocalPlayer player = Minecraft.getInstance().player;
         return nearestCopy(player == null ? null : player.chunkPosition(), target);
@@ -70,6 +74,7 @@ public final class ClientFrame {
         return NearestCopy.transformationToward(fold(), player.blockPosition(), target);
     }
 
+    @Contract("!null -> !null")
     public static @Nullable Vec3 nearestToCamera(@Nullable Vec3 target) {
         Entity camera = Minecraft.getInstance().getCameraEntity();
         return nearestCopy(camera == null ? null : camera.position(), target);

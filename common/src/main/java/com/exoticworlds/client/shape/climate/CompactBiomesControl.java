@@ -1,9 +1,12 @@
 package com.exoticworlds.client.shape.climate;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.OptionalDouble;
 
 import org.jspecify.annotations.Nullable;
+
+import com.uber.nullaway.annotations.Initializer;
 
 import com.exoticworlds.api.v1.client.WorldOptionContext;
 import com.exoticworlds.api.v1.client.WorldOptionControl;
@@ -16,7 +19,6 @@ import com.exoticworlds.shape.climate.CompactBiomes;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.CycleButton;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.CommonLayouts;
 import net.minecraft.client.gui.layouts.LinearLayout;
@@ -55,6 +57,7 @@ public final class CompactBiomesControl implements WorldOptionControl {
     }
 
     @Override
+    @Initializer
     public void addWidgets(Font font, LinearLayout contents) {
         contents.addChild(CycleButton.builder(CompactBiomesControl::modeLabel)
                 .withValues(ClimateScale.Mode.values())
@@ -63,7 +66,8 @@ public final class CompactBiomesControl implements WorldOptionControl {
                 .create(0, 0, LoopSizeControls.FIELD_WIDTH, LoopSizeControls.FIELD_HEIGHT, LABEL,
                         (button, mode) -> this.chooseMode(mode)));
 
-        contents.addChild(CommonLayouts.labeledElement(font, this.factorField(font), FACTOR_LABEL));
+        this.factorEdit = this.factorField(font);
+        contents.addChild(CommonLayouts.labeledElement(font, this.factorEdit, FACTOR_LABEL));
     }
 
     @Override
@@ -81,30 +85,30 @@ public final class CompactBiomesControl implements WorldOptionControl {
     @Override
     public GenerationOptions commit(GenerationOptions options) {
         ClimateScale chosen = this.climateScale.mode() == ClimateScale.Mode.CUSTOM
-                ? ClimateScale.custom(this.effectiveFactor)
+                ? ClimateScale.custom(Objects.requireNonNull(this.effectiveFactor, "Done waits for isComplete"))
                 : this.climateScale;
         return options.with(CompactBiomes.OPTION, chosen);
     }
 
-    private EditBox factorField(Font font) {
+    private DigitsEditBox factorField(Font font) {
         boolean custom = this.climateScale.mode() == ClimateScale.Mode.CUSTOM;
-        this.factorEdit = new DigitsEditBox(font, LoopSizeControls.FIELD_WIDTH,
+        DigitsEditBox edit = new DigitsEditBox(font, LoopSizeControls.FIELD_WIDTH,
                 LoopSizeControls.FIELD_HEIGHT, FACTOR_LABEL);
-        this.factorEdit.setMaxLength(FACTOR_MAX_LENGTH);
-        this.factorEdit.setTooltip(Tooltip.create(FACTOR_HINT));
-        this.factorEdit.setEditable(custom);
-        this.factorEdit.setValue(custom ? this.factorText : this.previewedFactor());
+        edit.setMaxLength(FACTOR_MAX_LENGTH);
+        edit.setTooltip(Tooltip.create(FACTOR_HINT));
+        edit.setEditable(custom);
+        edit.setValue(custom ? this.factorText : this.previewedFactor());
         if (custom) {
-            this.factorEdit.setResponder(value -> {
+            edit.setResponder(value -> {
                 this.factorText = value;
-                Integer factor = this.factorEdit.number();
+                Integer factor = edit.number();
                 this.effectiveFactor = factor != null
                         && factor >= ClimateScale.CUSTOM_MIN && factor <= ClimateScale.CUSTOM_MAX ? factor : null;
                 this.context.onChanged();
             });
         }
 
-        return this.factorEdit;
+        return edit;
     }
 
     private String previewedFactor() {

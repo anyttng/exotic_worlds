@@ -14,6 +14,7 @@ subprojects {
 
         dependencies {
             errorprone "com.google.errorprone:error_prone_core:${errorprone_version}"
+            errorprone "com.uber.nullaway:nullaway:${nullaway_version}"
         }
 
         tasks.withType(JavaCompile).configureEach {
@@ -24,6 +25,12 @@ subprojects {
             // Identity is the contract wherever == is written (an unchanged fold returns the same instance); format
             // strings are constants by the workspace's own rule.
             options.errorprone.disable('ReferenceEquality', 'InlineFormatString')
+            if (name == 'compileJava') {
+                options.errorprone.error('NullAway')
+                options.errorprone.option('NullAway:AnnotatedPackages', 'com.exoticworlds')
+            } else {
+                options.errorprone.disable('NullAway')
+            }
         }
     }
 }

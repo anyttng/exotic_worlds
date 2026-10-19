@@ -77,7 +77,7 @@ final class DeckGroupLattice {
         };
     }
 
-    private static Step[] orderSteps(Step xStep, Step zStep, boolean mirrorsZ) {
+    private static Step[] orderSteps(@Nullable Step xStep, @Nullable Step zStep, boolean mirrorsZ) {
         if (xStep == null && zStep == null) {
             return new Step[0];
         }
@@ -135,43 +135,43 @@ final class DeckGroupLattice {
     }
 
     private int candidateOffsetX(int index, long first, long second) {
-        return this.translations == null ? this.candidates[index].xShift() : candidateShiftX(index, first, second);
+        return this.translations == null ? this.candidates[index].xShift() : candidateShiftX(this.translations, index, first, second);
     }
 
     private int candidateOffsetZ(int index, long first, long second) {
-        return this.translations == null ? this.candidates[index].zShift() : candidateShiftZ(index, first, second);
+        return this.translations == null ? this.candidates[index].zShift() : candidateShiftZ(this.translations, index, first, second);
     }
 
-    private int candidateShiftX(int index, long first, long second) {
-        return Math.toIntExact(-this.translations.nearShiftX(first, second, index));
+    private static int candidateShiftX(TranslationLattice translations, int index, long first, long second) {
+        return Math.toIntExact(-translations.nearShiftX(first, second, index));
     }
 
-    private int candidateShiftZ(int index, long first, long second) {
-        return Math.toIntExact(-this.translations.nearShiftZ(first, second, index));
+    private static int candidateShiftZ(TranslationLattice translations, int index, long first, long second) {
+        return Math.toIntExact(-translations.nearShiftZ(first, second, index));
     }
 
     private int candidateCellX(int index, long first, long second, int x) {
         return this.translations == null
                 ? this.candidates[index].applyCellX(x)
-                : x + candidateShiftX(index, first, second);
+                : x + candidateShiftX(this.translations, index, first, second);
     }
 
     private int candidateCellZ(int index, long first, long second, int z) {
         return this.translations == null
                 ? this.candidates[index].applyCellZ(z)
-                : z + candidateShiftZ(index, first, second);
+                : z + candidateShiftZ(this.translations, index, first, second);
     }
 
     private double candidateX(int index, long first, long second, double x) {
         return this.translations == null
                 ? this.candidates[index].applyX(x)
-                : x + candidateShiftX(index, first, second);
+                : x + candidateShiftX(this.translations, index, first, second);
     }
 
     private double candidateZ(int index, long first, long second, double z) {
         return this.translations == null
                 ? this.candidates[index].applyZ(z)
-                : z + candidateShiftZ(index, first, second);
+                : z + candidateShiftZ(this.translations, index, first, second);
     }
 
     SeamTransform foldCells(int cellX, int cellZ) {

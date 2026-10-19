@@ -6,6 +6,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import org.jetbrains.annotations.Contract;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
 import org.jspecify.annotations.Nullable;
@@ -85,7 +86,8 @@ public final class FoldedValue {
         return context.transformer().nearestCopy(BlockPos.containing(anchor), pos);
     }
 
-    private static Object walk(ResourceKey<Level> dimension, Leaves leaves, Object value,
+    @Contract("_, _, !null, _ -> !null")
+    private static @Nullable Object walk(ResourceKey<Level> dimension, Leaves leaves, @Nullable Object value,
             UnaryOperator<Object> fallback) {
         return switch (value) {
             case null -> null;

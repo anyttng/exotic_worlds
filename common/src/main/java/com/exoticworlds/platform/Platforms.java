@@ -1,7 +1,9 @@
 package com.exoticworlds.platform;
 
+import org.jspecify.annotations.Nullable;
+
 public final class Platforms {
-    private static Platform platform;
+    private static @Nullable Platform platform;
 
     public static void set(Platform chosen) {
         platform = chosen;

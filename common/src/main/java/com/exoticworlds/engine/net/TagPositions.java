@@ -127,7 +127,7 @@ public final class TagPositions {
         COMPOUND {
             @Override
             @Nullable CompoundTag seated(Seat seat, CompoundTag tag, TagPosition position) {
-                String container = position.container();
+                String container = position.nestedContainer();
                 CompoundTag stored = tag.getCompound(container);
                 CompoundTag moved = position.shape().seated(seat, stored, position.keys());
                 return moved == null ? null : fragment(container, merged(stored, moved));
@@ -136,7 +136,7 @@ public final class TagPositions {
         EACH_OF_LIST {
             @Override
             @Nullable CompoundTag seated(Seat seat, CompoundTag tag, TagPosition position) {
-                String container = position.container();
+                String container = position.nestedContainer();
                 ListTag stored = tag.getList(container, Tag.TAG_COMPOUND);
                 ListTag seated = null;
                 for (int index = 0; index < stored.size(); index++) {
@@ -184,6 +184,10 @@ public final class TagPositions {
             if ((container == null) != (nesting == Nesting.TOP)) {
                 throw new IllegalArgumentException(nesting + " names a container, and " + container + " was given");
             }
+        }
+
+        String nestedContainer() {
+            return Objects.requireNonNull(container, "a TOP position has no container");
         }
 
         boolean sharesAddressWith(TagPosition other) {

@@ -2,6 +2,7 @@ package com.exoticworlds.engine.gen;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.exoticworlds.core.CarriedShape;
@@ -68,7 +69,7 @@ public class LoopedChunkGenerator extends NoiseBasedChunkGenerator implements Sh
     public int getBaseHeight(int x, int z, Heightmap.Types type, LevelHeightAccessor heightAccessor,
             RandomState randomState) {
         long folded = transformer().foldBlockNode(BlockPos.asLong(x, 0, z));
-        Map<Long, Integer> cache = this.baseHeightCache.get(type);
+        Map<Long, Integer> cache = Objects.requireNonNull(this.baseHeightCache.get(type), "filled for every type");
 
         Integer cached = cache.get(folded);
         if (cached != null) {

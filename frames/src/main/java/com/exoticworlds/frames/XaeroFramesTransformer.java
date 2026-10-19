@@ -2,6 +2,7 @@ package com.exoticworlds.frames;
 
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.slf4j.Logger;
@@ -14,9 +15,9 @@ import cpw.mods.modlauncher.api.TransformerVoteResult;
 
 public final class XaeroFramesTransformer implements ITransformer<MethodNode> {
     private static final Logger LOGGER = LoggerFactory.getLogger(XaeroFramesTransformer.class);
-    private static volatile MethodNode strippedRender;
+    private static volatile @Nullable MethodNode strippedRender;
 
-    static MethodNode strippedRender() {
+    static @Nullable MethodNode strippedRender() {
         return strippedRender;
     }
 

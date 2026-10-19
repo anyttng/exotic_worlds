@@ -45,9 +45,9 @@ public class CylinderSettingsScreen extends LoopSettingsScreen<CylinderSettings>
     @Override
     protected CylinderSettings build() {
         return new CylinderSettings(
-                LoopSpans.ofWidth(this.axis, this.controls.effectiveSize(this.axis)),
+                LoopSpans.ofWidth(this.axis, this.controls.completeSize(this.axis)),
                 this.controls.netherScale(),
-                LoopSpans.ofWidth(this.axis, this.controls.effectiveEndSize()),
+                LoopSpans.ofWidth(this.axis, this.controls.completeEndSize()),
                 this.committedOptions());
     }
 

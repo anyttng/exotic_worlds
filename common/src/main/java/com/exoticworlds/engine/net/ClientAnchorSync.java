@@ -1,5 +1,7 @@
 package com.exoticworlds.engine.net;
 
+import java.util.Objects;
+
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.seam.ClientPosition;
@@ -43,7 +45,7 @@ public final class ClientAnchorSync {
         BlockPos held = clientPosition.heldSpawn();
         BlockPos spawnPos = level.getSharedSpawnPos();
         BlockPos want = TranslationContext.nearestCopy(transformer, clientPosition, spawnPos);
-        if (want.equals(held)) {
+        if (Objects.equals(want, held)) {
             return;
         }
 
