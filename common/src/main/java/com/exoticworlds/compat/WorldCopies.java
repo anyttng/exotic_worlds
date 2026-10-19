@@ -41,55 +41,8 @@ public final class WorldCopies {
         return copies;
     }
 
-    public static List<Copy> meeting(@Nullable ToroidalShape shape, List<Copy> copies, int minX, int minZ, int maxX,
-            int maxZ) {
-        List<Copy> meeting = new ArrayList<>(copies.size());
-        for (Piece piece : pieces(shape, copies, minX, minZ, maxX, maxZ)) {
-            meeting.add(piece.copy());
-        }
-
-        return meeting;
-    }
-
     public static List<Piece> pieces(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ) {
-        return pieces(shape, meeting(shape, minX, minZ, maxX, maxZ), minX, minZ, maxX, maxZ);
-    }
-
-    public static List<Piece> pieces(@Nullable ToroidalShape shape, List<Copy> copies, int minX, int minZ, int maxX,
-            int maxZ) {
-        AxisCopies x = AxisCopies.of(shape, Direction.Axis.X);
-        AxisCopies z = AxisCopies.of(shape, Direction.Axis.Z);
-        List<Piece> pieces = new ArrayList<>();
-        for (Copy copy : copies) {
-            int pieceMinX = x.clipMin(minX - copy.dx());
-            int pieceMaxX = x.clipMax(maxX - copy.dx());
-            int pieceMinZ = z.clipMin(minZ - copy.dz());
-            int pieceMaxZ = z.clipMax(maxZ - copy.dz());
-            if (pieceMinX < pieceMaxX && pieceMinZ < pieceMaxZ) {
-                pieces.add(new Piece(copy, pieceMinX, pieceMinZ, pieceMaxX, pieceMaxZ));
-            }
-        }
-
-        return pieces;
-    }
-
-    public static long[] canonicalCells(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ,
-            int cellBlocks) {
-        return canonicalCells(shape, meeting(shape, minX, minZ, maxX, maxZ), minX, minZ, maxX, maxZ, cellBlocks);
-    }
-
-    public static long[] canonicalCells(@Nullable ToroidalShape shape, List<Copy> copies, int minX, int minZ, int maxX,
-            int maxZ, int cellBlocks) {
-        LongLinkedOpenHashSet cells = new LongLinkedOpenHashSet();
-        for (Piece piece : pieces(shape, copies, minX, minZ, maxX, maxZ)) {
-            for (int x = Math.floorDiv(piece.minX(), cellBlocks); x <= Math.floorDiv(piece.maxX() - 1, cellBlocks); x++) {
-                for (int z = Math.floorDiv(piece.minZ(), cellBlocks); z <= Math.floorDiv(piece.maxZ() - 1, cellBlocks); z++) {
-                    cells.add(ChunkPos.asLong(x, z));
-                }
-            }
-        }
-
-        return cells.toLongArray();
+        return Window.of(shape, minX, minZ, maxX, maxZ).pieces();
     }
 
     public static List<Edge> seams(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ) {
@@ -142,8 +95,47 @@ public final class WorldCopies {
             return WorldCopies.meeting(this.shape, minX, minZ, maxX, maxZ);
         }
 
-        public List<Copy> meeting(int minX, int minZ, int maxX, int maxZ) {
-            return WorldCopies.meeting(this.shape, copiesFor(minX, minZ, maxX, maxZ), minX, minZ, maxX, maxZ);
+        public Window within(int minX, int minZ, int maxX, int maxZ) {
+            return new Window(this.shape, minX, minZ, maxX, maxZ, copiesFor(minX, minZ, maxX, maxZ));
+        }
+
+        public List<Piece> pieces() {
+            AxisCopies x = AxisCopies.of(this.shape, Direction.Axis.X);
+            AxisCopies z = AxisCopies.of(this.shape, Direction.Axis.Z);
+            List<Piece> pieces = new ArrayList<>();
+            for (Copy copy : this.copies) {
+                int pieceMinX = x.clipMin(this.minX - copy.dx());
+                int pieceMaxX = x.clipMax(this.maxX - copy.dx());
+                int pieceMinZ = z.clipMin(this.minZ - copy.dz());
+                int pieceMaxZ = z.clipMax(this.maxZ - copy.dz());
+                if (pieceMinX < pieceMaxX && pieceMinZ < pieceMaxZ) {
+                    pieces.add(new Piece(copy, pieceMinX, pieceMinZ, pieceMaxX, pieceMaxZ));
+                }
+            }
+
+            return pieces;
+        }
+
+        public List<Copy> meeting() {
+            List<Copy> meeting = new ArrayList<>(this.copies.size());
+            for (Piece piece : pieces()) {
+                meeting.add(piece.copy());
+            }
+
+            return meeting;
+        }
+
+        public long[] canonicalCells(int cellBlocks) {
+            LongLinkedOpenHashSet cells = new LongLinkedOpenHashSet();
+            for (Piece piece : pieces()) {
+                for (int x = Math.floorDiv(piece.minX(), cellBlocks); x <= Math.floorDiv(piece.maxX() - 1, cellBlocks); x++) {
+                    for (int z = Math.floorDiv(piece.minZ(), cellBlocks); z <= Math.floorDiv(piece.maxZ() - 1, cellBlocks); z++) {
+                        cells.add(ChunkPos.asLong(x, z));
+                    }
+                }
+            }
+
+            return cells.toLongArray();
         }
     }
 

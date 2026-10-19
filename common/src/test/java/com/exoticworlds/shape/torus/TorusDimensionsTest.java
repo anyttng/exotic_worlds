@@ -91,8 +91,8 @@ class TorusDimensionsTest {
                 TorusSettings.DEFAULT.generationOptions());
         TorusSettings read = TorusDimensions.read(TorusDimensions.apply(vanillaDimensions(), chosen));
 
-        assertEquals(-4, read.skewChunks());
-        assertEquals(60, Math.floorMod(read.skewChunks(), read.chunkWidth(Direction.Axis.X)));
+        assertEquals(-4, read.overworld().skewChunks());
+        assertEquals(60, Math.floorMod(read.overworld().skewChunks(), read.overworld().chunkWidth(Direction.Axis.X)));
     }
 
     @Test

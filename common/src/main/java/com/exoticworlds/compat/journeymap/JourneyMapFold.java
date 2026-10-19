@@ -198,13 +198,15 @@ public final class JourneyMapFold {
         return copies;
     }
 
-    public static boolean regionInView(Rectangle2D.Double regionBounds, int regionX, int regionZ) {
-        return regionInView(ClientShapes.current(), regionX, regionZ,
-                regionBounds.getMinX(), regionBounds.getMinY(), regionBounds.getMaxX(), regionBounds.getMaxY());
+    public static boolean regionInView(Rectangle2D regionBounds, int regionX, int regionZ) {
+        return regionInView(ClientShapes.current(), regionBounds, regionX, regionZ);
     }
 
-    static boolean regionInView(@Nullable ToroidalShape shape, int regionX, int regionZ, double boundsMinX,
-            double boundsMinZ, double boundsMaxX, double boundsMaxZ) {
+    static boolean regionInView(@Nullable ToroidalShape shape, Rectangle2D regionBounds, int regionX, int regionZ) {
+        double boundsMinX = regionBounds.getMinX();
+        double boundsMinZ = regionBounds.getMinY();
+        double boundsMaxX = regionBounds.getMaxX();
+        double boundsMaxZ = regionBounds.getMaxY();
         AxisCopies x = AxisCopies.of(shape, Direction.Axis.X);
         AxisCopies z = AxisCopies.of(shape, Direction.Axis.Z);
         List<WorldCopies.Copy> copies = WorldCopies.meeting(shape, spanMin(boundsMinX), spanMin(boundsMinZ),
@@ -242,8 +244,9 @@ public final class JourneyMapFold {
 
     static long[] gridRegions(@Nullable ToroidalShape shape, int firstRegionX, int firstRegionZ, int lastRegionX,
             int lastRegionZ) {
-        return WorldCopies.canonicalCells(shape, regionBlock(firstRegionX), regionBlock(firstRegionZ),
-                regionBlock(lastRegionX + 1), regionBlock(lastRegionZ + 1), FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS);
+        return WorldCopies.Window.of(shape, regionBlock(firstRegionX), regionBlock(firstRegionZ),
+                regionBlock(lastRegionX + 1), regionBlock(lastRegionZ + 1))
+                .canonicalCells(FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS);
     }
 
     private static int regionBlock(int region) {

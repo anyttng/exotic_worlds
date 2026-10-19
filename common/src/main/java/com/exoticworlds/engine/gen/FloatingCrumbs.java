@@ -68,6 +68,20 @@ public final class FloatingCrumbs {
         }
     }
 
+    private static final class CrumbSearch {
+        private final TerrainMask[] window;
+        private final BitSet taken;
+        private final BitSet rejected;
+        private final int[] pending;
+
+        private CrumbSearch(TerrainMask[] window, BitSet taken, BitSet rejected, int[] pending) {
+            this.window = window;
+            this.taken = taken;
+            this.rejected = rejected;
+            this.pending = pending;
+        }
+    }
+
     public static boolean installedOn(ServerLevel level) {
         ChunkGenerator generator = level.getChunkSource().getGenerator();
         return ShapedChunkGenerator.wrappedTransformerOf(generator) != null
@@ -252,6 +266,7 @@ public final class FloatingCrumbs {
         BitSet rejected = new BitSet(grid.cells());
         int[] pending = new int[CrumbFlood.CRUMB_CEILING_BLOCKS];
         Cleared cleared = new Cleared(grid, lowestY);
+        CrumbSearch search = new CrumbSearch(window, taken, rejected, pending);
 
         for (int y = center.lowestY(); y <= center.highestY(); y++) {
             for (int localZ = 0; localZ < CHUNK_COLUMNS; localZ++) {
@@ -262,7 +277,7 @@ public final class FloatingCrumbs {
 
                     int start = grid.cell(CHUNK_COLUMNS + localX, y - lowestY, CHUNK_COLUMNS + localZ);
                     if (!taken.get(start)) {
-                        takeCrumb(window, taken, rejected, pending, cleared, start);
+                        takeCrumb(search, cleared, start);
                     }
                 }
             }
@@ -279,8 +294,11 @@ public final class FloatingCrumbs {
         return window.localZ(cell) - CHUNK_COLUMNS;
     }
 
-    private static void takeCrumb(TerrainMask[] window, BitSet taken, BitSet rejected, int[] pending,
-            Cleared cleared, int start) {
+    private static void takeCrumb(CrumbSearch search, Cleared cleared, int start) {
+        TerrainMask[] window = search.window;
+        BitSet taken = search.taken;
+        BitSet rejected = search.rejected;
+        int[] pending = search.pending;
         CellGrid grid = cleared.grid;
         taken.set(start);
         pending[0] = start;

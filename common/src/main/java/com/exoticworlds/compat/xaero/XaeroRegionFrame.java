@@ -41,13 +41,8 @@ public final class XaeroRegionFrame {
     private int drawnCopiesLevel = NO_LEVEL;
     private List<WorldCopies.Copy> drawnCopies = List.of();
     private final LongOpenHashSet drawnCanonicalSlots = new LongOpenHashSet();
-    private int viewCaveLayer;
-    private int viewLeveledRegX;
-    private int viewLeveledRegZ;
-    private int viewLevel;
-    private double viewCameraX;
-    private double viewCameraZ;
-    private double viewScale;
+    private XaeroRegionKey viewRegion = new XaeroRegionKey(0, 0, 0, 0);
+    private XaeroCamera viewCamera = new XaeroCamera(0.0, 0.0, 0.0);
     private @Nullable LeveledRegion<?> leveledCandidate;
     private boolean slotFolded;
     private int slotViewBlockX;
@@ -79,13 +74,13 @@ public final class XaeroRegionFrame {
     }
 
     private List<WorldCopies.Copy> drawnCopies() {
-        if (this.viewLevel != this.drawnCopiesLevel) {
+        if (this.viewRegion.level() != this.drawnCopiesLevel) {
             Window screen = Minecraft.getInstance().getWindow();
-            int[] spanX = drawnSpan(this.viewCameraX, screen.getWidth());
-            int[] spanZ = drawnSpan(this.viewCameraZ, screen.getHeight());
-            this.drawnCopiesLevel = this.viewLevel;
-            this.drawnCopies = XaeroWorldMapFold.drawnCopies(window().meeting(spanX[0], spanZ[0], spanX[1], spanZ[1]),
-                    this.mapCopies);
+            int[] spanX = drawnSpan(this.viewCamera.x(), screen.getWidth());
+            int[] spanZ = drawnSpan(this.viewCamera.z(), screen.getHeight());
+            this.drawnCopiesLevel = this.viewRegion.level();
+            this.drawnCopies = XaeroWorldMapFold.drawnCopies(
+                    window().within(spanX[0], spanZ[0], spanX[1], spanZ[1]).meeting(), this.mapCopies);
         }
 
         return this.drawnCopies;
@@ -93,68 +88,62 @@ public final class XaeroRegionFrame {
 
     private WorldCopies.Window window() {
         WorldCopies.Window resolved = this.window;
-        if (resolved == null || this.viewLevel != this.windowLevel) {
+        if (resolved == null || this.viewRegion.level() != this.windowLevel) {
             Window screen = Minecraft.getInstance().getWindow();
-            int[] drawnX = drawnSpan(this.viewCameraX, screen.getWidth());
-            int[] drawnZ = drawnSpan(this.viewCameraZ, screen.getHeight());
-            int[] regionsX = regionSpan(this.viewCameraX, screen.getWidth());
-            int[] regionsZ = regionSpan(this.viewCameraZ, screen.getHeight());
+            int[] drawnX = drawnSpan(this.viewCamera.x(), screen.getWidth());
+            int[] drawnZ = drawnSpan(this.viewCamera.z(), screen.getHeight());
+            int[] regionsX = regionSpan(this.viewCamera.x(), screen.getWidth());
+            int[] regionsZ = regionSpan(this.viewCamera.z(), screen.getHeight());
             resolved = WorldCopies.Window.of(this.shape, Math.min(drawnX[0], regionsX[0]),
                     Math.min(drawnZ[0], regionsZ[0]), Math.max(drawnX[1], regionsX[1]),
                     Math.max(drawnZ[1], regionsZ[1]));
             this.window = resolved;
-            this.windowLevel = this.viewLevel;
+            this.windowLevel = this.viewRegion.level();
         }
 
         return resolved;
     }
 
     private int[] drawnSpan(double camera, int windowPixels) {
-        return MapViewSpan.of(camera, windowPixels, this.viewScale, slotSize());
+        return MapViewSpan.of(camera, windowPixels, this.viewCamera.scale(), slotSize());
     }
 
     private int[] regionSpan(double camera, int windowPixels) {
-        int side = XaeroWorldMapFold.REGION_BLOCKS << this.viewLevel;
-        double low = camera - Math.floorDiv(windowPixels, 2) / this.viewScale;
-        double high = low + windowPixels / this.viewScale;
+        int side = XaeroWorldMapFold.REGION_BLOCKS << this.viewRegion.level();
+        double low = camera - Math.floorDiv(windowPixels, 2) / this.viewCamera.scale();
+        double high = low + windowPixels / this.viewCamera.scale();
         return new int[] {Math.floorDiv((int) Math.floor(low), side) * side,
                 (Math.floorDiv((int) Math.floor(high), side) + 1) * side};
     }
 
     public long[] fannedRegions(int leveledRegX, int leveledRegZ) {
-        return XaeroWorldMapFold.fannedRegions(window(), leveledRegX, leveledRegZ, this.viewLevel);
+        return XaeroWorldMapFold.fannedRegions(window(), leveledRegX, leveledRegZ, this.viewRegion.level());
     }
 
     public long[] fannedLeaves(int leveledRegX, int leveledRegZ) {
-        return XaeroWorldMapFold.fannedLeaves(window(), leveledRegX, leveledRegZ, this.viewLevel);
+        return XaeroWorldMapFold.fannedLeaves(window(), leveledRegX, leveledRegZ, this.viewRegion.level());
     }
 
     private boolean drawnOnce(long canonicalSlotOrigin) {
         return this.drawnCanonicalSlots.add(canonicalSlotOrigin);
     }
 
-    public void beginView(int caveLayer, int leveledRegX, int leveledRegZ, int level, double cameraX, double cameraZ,
-            double scale) {
-        this.viewCaveLayer = caveLayer;
-        this.viewLeveledRegX = leveledRegX;
-        this.viewLeveledRegZ = leveledRegZ;
-        this.viewLevel = level;
-        this.viewCameraX = cameraX;
-        this.viewCameraZ = cameraZ;
-        this.viewScale = scale;
+    public void beginView(XaeroRegionKey region, XaeroCamera camera) {
+        this.viewRegion = region;
+        this.viewCamera = camera;
         this.leveledCandidate = null;
     }
 
     public int viewCaveLayer() {
-        return this.viewCaveLayer;
+        return this.viewRegion.caveLayer();
     }
 
     public int viewLevel() {
-        return this.viewLevel;
+        return this.viewRegion.level();
     }
 
     private int slotSize() {
-        return XaeroWorldMapFold.SLOT_BLOCKS << this.viewLevel;
+        return XaeroWorldMapFold.SLOT_BLOCKS << this.viewRegion.level();
     }
 
     public void candidate(@Nullable LeveledRegion<?> candidate) {
@@ -166,10 +155,10 @@ public final class XaeroRegionFrame {
     }
 
     private void beginSlot(int slotX, int slotZ) {
-        int side = XaeroWorldMapFold.REGION_BLOCKS << this.viewLevel;
+        int side = XaeroWorldMapFold.REGION_BLOCKS << this.viewRegion.level();
         int slotSize = slotSize();
-        this.slotViewBlockX = this.viewLeveledRegX * side + slotX * slotSize;
-        this.slotViewBlockZ = this.viewLeveledRegZ * side + slotZ * slotSize;
+        this.slotViewBlockX = this.viewRegion.regX() * side + slotX * slotSize;
+        this.slotViewBlockZ = this.viewRegion.regZ() * side + slotZ * slotSize;
         this.slotOrigins = null;
         this.slotFolded = false;
     }
@@ -269,11 +258,11 @@ public final class XaeroRegionFrame {
 
     private @Nullable RegionTexture<?> canonicalRegionTexture(MapProcessor processor, int canonicalBlockX,
             int canonicalBlockZ) {
-        int side = XaeroWorldMapFold.REGION_BLOCKS << this.viewLevel;
+        int side = XaeroWorldMapFold.REGION_BLOCKS << this.viewRegion.level();
         int canonicalRegX = Math.floorDiv(canonicalBlockX, side);
         int canonicalRegZ = Math.floorDiv(canonicalBlockZ, side);
-        LeveledRegion<?> canonical = processor.getLeveledRegion(this.viewCaveLayer, canonicalRegX, canonicalRegZ,
-                this.viewLevel);
+        LeveledRegion<?> canonical = processor.getLeveledRegion(this.viewRegion.caveLayer(), canonicalRegX,
+                canonicalRegZ, this.viewRegion.level());
         if (canonical == null || !canonical.hasTextures()) {
             return null;
         }

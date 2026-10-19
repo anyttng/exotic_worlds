@@ -17,10 +17,8 @@ public class TorusSettingsScreen extends LoopSettingsScreen<TorusSettings> {
     private static final Component TITLE = Component.translatable("gui.exotic_worlds.toroidal_settings.title");
 
     public TorusSettingsScreen(Screen parent, TorusSettings current, Consumer<TorusSettings> onDone) {
-        super(TITLE, parent, onChange -> LoopSizeControls.perAxis(current.chunkWidth(Direction.Axis.X),
-                current.chunkWidth(Direction.Axis.Z),
-                Math.floorMod(current.skewChunks(), current.chunkWidth(Direction.Axis.X)),
-                current.netherScale(), current.endChunkWidth(), onChange),
+        super(TITLE, parent, onChange -> LoopSizeControls.perAxis(current.overworld(), current.netherScale(),
+                current.endChunkWidth(), onChange),
                 current.generationOptions(), TorusSettings.OFFERED_OPTIONS, onDone);
     }
 
