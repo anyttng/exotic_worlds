@@ -100,11 +100,11 @@ public final class JourneyMapFold {
         return ClientShapes.current() != null;
     }
 
-    public static BlockPos foldUiBlock(BlockPos pos) {
+    public static @Nullable BlockPos foldUiBlock(@Nullable BlockPos pos) {
         return foldUiBlock(ClientShapes.current(), pos);
     }
 
-    static BlockPos foldUiBlock(@Nullable ToroidalShape shape, BlockPos pos) {
+    static @Nullable BlockPos foldUiBlock(@Nullable ToroidalShape shape, @Nullable BlockPos pos) {
         return pos == null ? null : ClientShapes.fold(shape, pos);
     }
 

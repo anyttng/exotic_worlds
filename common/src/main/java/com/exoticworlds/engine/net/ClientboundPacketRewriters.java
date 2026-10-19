@@ -8,6 +8,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import org.jspecify.annotations.Nullable;
+
 import com.exoticworlds.accessors.ChunkPacketCopy;
 import com.exoticworlds.accessors.ChunkPacketPosition;
 import com.exoticworlds.api.v1.net.ParticleRewriter;
@@ -161,7 +163,7 @@ final class ClientboundPacketRewriters {
                 packet.getMovement(), packet.getYHeadRot());
     }
 
-    static Packet<?> teleportEntity(ClientboundTeleportEntityPacket packet, TranslationContext context) {
+    static @Nullable Packet<?> teleportEntity(ClientboundTeleportEntityPacket packet, TranslationContext context) {
         if (context.ownVehicle().test(packet.id())) {
             return null;
         }
@@ -171,7 +173,7 @@ final class ClientboundPacketRewriters {
                 packet.onGround());
     }
 
-    static Packet<?> entityPositionSync(ClientboundEntityPositionSyncPacket packet, TranslationContext context) {
+    static @Nullable Packet<?> entityPositionSync(ClientboundEntityPositionSyncPacket packet, TranslationContext context) {
         if (context.ownVehicle().test(packet.id())) {
             return null;
         }

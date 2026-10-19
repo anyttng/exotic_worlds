@@ -2,6 +2,7 @@ package com.exoticworlds.compat.xaero;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
@@ -50,7 +51,7 @@ public final class XaeroExportAssembly {
     }
 
     public int lastWalkedRegion() {
-        return this.regions.length - 1;
+        return Objects.requireNonNull(this.regions, "read only while walking").length - 1;
     }
 
     public void enterRegion(int regionX, int regionZ) {
