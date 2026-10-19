@@ -11,8 +11,10 @@
     "EntityTraceMixin",
     "FleeDistanceMixin",
     "InteractionRangeMixin",
+    "PastureTetherMixin",
     "RiderEyeSeatMixin",
-    "SendOutPositionMixin"
+    "SendOutPositionMixin",
+    "TetherBoxMixin"
   ],
   "injectors": {
     "defaultRequire": 1
