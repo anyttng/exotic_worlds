@@ -124,4 +124,7 @@ config="exotic_worlds.compat.eminus.mixins.json"
 config="exotic_worlds.compat.moonlight.mixins.json"
 
 [[mixins]]
+config="exotic_worlds.compat.mapfrontiers.mixins.json"
+
+[[mixins]]
 config="exotic_worlds.neoforge.mixins.json"
