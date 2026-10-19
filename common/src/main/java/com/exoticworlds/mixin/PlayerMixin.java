@@ -33,14 +33,12 @@ public class PlayerMixin {
     @WrapMethod(method = "isWithinEntityInteractionRange(Lnet/minecraft/world/phys/AABB;D)Z")
     private boolean exotic_worlds$wrappedEntityReach(AABB aabb, double buffer, Operation<Boolean> original) {
         Player player = (Player) (Object) this;
-        WorldFold transformer = ((TransformerSource) player).exotic_worlds$wrappedTransformer();
-        return original.call(FoldedBoxQuery.toward(transformer, player.getEyePosition(), aabb), buffer);
+        return original.call(FoldedBoxQuery.toward(player, player.getEyePosition(), aabb), buffer);
     }
 
     @WrapMethod(method = "isWithinAttackRange(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/phys/AABB;D)Z")
     private boolean exotic_worlds$wrappedAttackReach(ItemStack weapon, AABB aabb, double buffer, Operation<Boolean> original) {
         Player player = (Player) (Object) this;
-        WorldFold transformer = ((TransformerSource) player).exotic_worlds$wrappedTransformer();
-        return original.call(weapon, FoldedBoxQuery.toward(transformer, player.getEyePosition(), aabb), buffer);
+        return original.call(weapon, FoldedBoxQuery.toward(player, player.getEyePosition(), aabb), buffer);
     }
 }

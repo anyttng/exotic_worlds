@@ -41,7 +41,7 @@ class FoldedBoxQueryTest {
 
     @Test
     void towardANullFoldHandsTheArgumentBoxBack() {
-        assertSame(NEAR_PIECE, FoldedBoxQuery.toward(null, ANCHOR_ACROSS_THE_SEAM, NEAR_PIECE));
+        assertSame(NEAR_PIECE, FoldedBoxQuery.toward((WorldFold) null, ANCHOR_ACROSS_THE_SEAM, NEAR_PIECE));
     }
 
     @Test
