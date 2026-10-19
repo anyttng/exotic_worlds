@@ -19,9 +19,11 @@ import com.eminus.render.tree.TreeNode;
 import com.eminus.render.tree.TreeRing;
 import com.exoticworlds.compat.eminus.CellFoldHolder;
 import com.exoticworlds.compat.eminus.LapTest;
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 @Mixin(targets = "com.eminus.render.tree.TreeTraversal")
 public class TreeTraversalMixin implements LapTest {
@@ -66,9 +68,11 @@ public class TreeTraversalMixin implements LapTest {
         }
     }
 
-    @WrapMethod(method = "descended")
-    private boolean exotic_worlds$descendedInsideTheLap(long key, Operation<Boolean> original) {
-        return original.call(key) && exotic_worlds$meets(key, NO_MARGIN);
+    @WrapOperation(method = "visit", at = @At(value = "INVOKE",
+            target = "Lit/unimi/dsi/fastutil/longs/LongOpenHashSet;add(J)Z"))
+    private boolean exotic_worlds$descendInsideTheLap(LongOpenHashSet descendedKeys, long key,
+            Operation<Boolean> original) {
+        return exotic_worlds$meets(key, NO_MARGIN) && original.call(descendedKeys, key);
     }
 
     @Override
