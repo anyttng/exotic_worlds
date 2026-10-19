@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.awt.geom.Rectangle2D;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -60,30 +61,36 @@ class JourneyMapFoldGridRegionsTest {
 
     @Test
     void anUnboundedAxisShowsOnlyTheRegionsInsideTheBounds() {
-        assertTrue(JourneyMapFold.regionInView(null, 3, 0, 0.0, 0.0, 4.0, 1.0));
-        assertFalse(JourneyMapFold.regionInView(null, 4, 0, 0.0, 0.0, 4.0, 1.0), "the bounds' max is exclusive");
+        assertTrue(JourneyMapFold.regionInView(null, bounds(0.0, 0.0, 4.0, 1.0), 3, 0));
+        assertFalse(JourneyMapFold.regionInView(null, bounds(0.0, 0.0, 4.0, 1.0), 4, 0), "the bounds' max is exclusive");
     }
 
     @Test
     void aTileWhoseCopyMeetsTheBoundsIsShown() {
-        assertTrue(JourneyMapFold.regionInView(OFF_GRID, -30, 0, 25.0, -1.0, 36.0, 1.0),
+        assertTrue(JourneyMapFold.regionInView(OFF_GRID, bounds(25.0, -1.0, 36.0, 1.0), -30, 0),
                 "region -30 is blocks -15360..-14849, its copy one world over 14640..15151 lies inside 12800..18431");
-        assertTrue(JourneyMapFold.regionInView(OFF_GRID, 26, 0, 25.0, -1.0, 36.0, 1.0));
+        assertTrue(JourneyMapFold.regionInView(OFF_GRID, bounds(25.0, -1.0, 36.0, 1.0), 26, 0));
     }
 
     @Test
     void aTileNoCopyOfWhichMeetsTheBoundsIsHidden() {
-        assertFalse(JourneyMapFold.regionInView(OFF_GRID, 0, 0, 25.0, -1.0, 36.0, 1.0),
+        assertFalse(JourneyMapFold.regionInView(OFF_GRID, bounds(25.0, -1.0, 36.0, 1.0), 0, 0),
                 "region 0's copies sit at 0 and at 30000 blocks, both outside 12800..18431");
     }
 
     @Test
     void aLatticeTileIsShownWhereTheSkewedRowPutsIt() {
         ToroidalShape lattice = MapShapes.latticeTorus(-64, 64, 32);
-        assertTrue(JourneyMapFold.regionInView(lattice, -1, -2, 0.0, 2.0, 1.0, 3.0),
+        assertTrue(JourneyMapFold.regionInView(lattice, bounds(0.0, 2.0, 1.0, 3.0), -1, -2),
                 "region (-1, -2) one Z lap up and 512 blocks over sits on raw region (0, 2)");
-        assertFalse(JourneyMapFold.regionInView(lattice, 0, -2, 0.0, 2.0, 1.0, 3.0),
+        assertFalse(JourneyMapFold.regionInView(lattice, bounds(0.0, 2.0, 1.0, 3.0), 0, -2),
                 "region (0, -2) was shown where only an unskewed copy would put it");
+    }
+
+    private static Rectangle2D bounds(double minX, double minZ, double maxX, double maxZ) {
+        Rectangle2D bounds = new Rectangle2D.Double();
+        bounds.setFrameFromDiagonal(minX, minZ, maxX, maxZ);
+        return bounds;
     }
 
     private static Set<Long> regions(long[] packed) {

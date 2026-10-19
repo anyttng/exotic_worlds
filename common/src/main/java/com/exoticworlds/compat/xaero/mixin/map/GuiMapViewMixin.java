@@ -14,6 +14,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.exoticworlds.compat.xaero.XaeroCamera;
 import com.exoticworlds.compat.xaero.XaeroCursorLap;
 import com.exoticworlds.compat.xaero.XaeroMapView;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
@@ -154,7 +155,7 @@ public abstract class GuiMapViewMixin {
             @Local(name = "overlayBuffer") VertexConsumer overlayBuffer,
             @Local(name = "flooredCameraX") int flooredCameraX, @Local(name = "flooredCameraZ") int flooredCameraZ) {
         this.exotic_worlds$view.drawSeamGrid(matrixStack.last().pose(), overlayBuffer, flooredCameraX, flooredCameraZ,
-                this.cameraX, this.cameraZ, this.scale);
+                new XaeroCamera(this.cameraX, this.cameraZ, this.scale));
     }
 
     @ModifyExpressionValue(
