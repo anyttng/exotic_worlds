@@ -10,6 +10,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.ForeignFrames;
 import com.exoticworlds.core.JomlVectors;
+import com.exoticworlds.core.ThreadScope;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -19,7 +20,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.phys.Vec3;
 
 public final class SeamFrame {
-    private static final ThreadLocal<@Nullable Binding<?>> BOUND = new ThreadLocal<>();
+    private static final ThreadScope<Binding<?>> BOUND = new ThreadScope<>();
 
     private static final class Binding<A> {
         private final WorldFold fold;
@@ -108,17 +109,11 @@ public final class SeamFrame {
     public static <A, R> R with(@Nullable WorldFold fold, @Nullable Level level, A subject,
             Function<? super A, Vec3> anchor, Operation<R> original, Object... args) {
         Binding<?> binding = fold == null ? null : new Binding<>(fold, level, subject, anchor);
-        Binding<?> previous = BOUND.get();
-        if (binding == null && previous == null) {
+        if (binding == null && BOUND.current() == null) {
             return original.call(args);
         }
 
-        rebind(binding);
-        try {
-            return original.call(args);
-        } finally {
-            rebind(previous);
-        }
+        return BOUND.with(binding, () -> original.call(args));
     }
 
     public static <R> R unbound(Supplier<R> body) {
@@ -126,11 +121,11 @@ public final class SeamFrame {
     }
 
     public static boolean isBound() {
-        return BOUND.get() != null;
+        return BOUND.current() != null;
     }
 
     public static Vector3dc seatPose(Vector3dc position) {
-        Binding<?> binding = BOUND.get();
+        Binding<?> binding = BOUND.current();
         if (binding == null || binding.seating) {
             return position;
         }
@@ -139,25 +134,11 @@ public final class SeamFrame {
     }
 
     private static <R> R scoped(@Nullable Binding<?> binding, Supplier<R> body) {
-        Binding<?> previous = BOUND.get();
-        if (binding == null && previous == null) {
+        if (binding == null && BOUND.current() == null) {
             return body.get();
         }
 
-        rebind(binding);
-        try {
-            return body.get();
-        } finally {
-            rebind(previous);
-        }
-    }
-
-    private static void rebind(@Nullable Binding<?> binding) {
-        if (binding == null) {
-            BOUND.remove();
-        } else {
-            BOUND.set(binding);
-        }
+        return BOUND.with(binding, body);
     }
 
     private SeamFrame() {
