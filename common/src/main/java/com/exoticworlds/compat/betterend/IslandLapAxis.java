@@ -34,10 +34,6 @@ public record IslandLapAxis(int lapBlocks, int cells, double cellBlocks) {
         return loops() ? Math.floorDiv(cell, this.cells) : 0;
     }
 
-    public int shift(int cell) {
-        return laps(cell) * this.lapBlocks;
-    }
-
     public int nearestToOrigin(int canonicalCell) {
         return loops() && 2 * canonicalCell + 1 > this.cells ? canonicalCell - this.cells : canonicalCell;
     }
@@ -48,9 +44,5 @@ public record IslandLapAxis(int lapBlocks, int cells, double cellBlocks) {
 
     public int originLaps(double block) {
         return loops() ? (int) Math.round(block / this.lapBlocks) : 0;
-    }
-
-    public int originCopy(double block) {
-        return originLaps(block) * this.lapBlocks;
     }
 }

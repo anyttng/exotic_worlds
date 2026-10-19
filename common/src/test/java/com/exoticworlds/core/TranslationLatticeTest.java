@@ -102,10 +102,23 @@ class TranslationLatticeTest {
         for (int x = -WIDTH_X + 1; x < WIDTH_X; x += STEP) {
             for (int z = -WIDTH_Z + 1; z < WIDTH_Z; z += STEP) {
                 int laps = plain.nearestZLaps(x, z);
-                assertEquals(xDomain.foldDelta(x), plain.nearestDeltaX(x, laps));
-                assertEquals(zDomain.foldDelta(z), plain.nearestDeltaZ(z, laps));
+                assertEquals(shortWayRound(xDomain, x), plain.nearestDeltaX(x, laps));
+                assertEquals(shortWayRound(zDomain, z), plain.nearestDeltaZ(z, laps));
             }
         }
+    }
+
+    private static int shortWayRound(WrapDomain domain, int delta) {
+        int half = domain.domainLength / 2;
+        if (delta > half) {
+            return delta - domain.domainLength;
+        }
+
+        if (delta < -half) {
+            return delta + domain.domainLength;
+        }
+
+        return delta;
     }
 
     @Test
