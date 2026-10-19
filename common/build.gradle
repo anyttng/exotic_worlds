@@ -162,6 +162,7 @@ dependencies {
     compileOnly files(fabricEnvTypeClass)
     compileOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
     compileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
+    compileOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
     compileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"
     compileOnly "com.uber.nullaway:nullaway-annotations:${nullaway_version}"
 }
@@ -187,6 +188,8 @@ dependencies {
     testRuntimeOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
     testCompileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     testRuntimeOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
+    testCompileOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
+    testRuntimeOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
     // The compat jars on the test runtime alone: every compat gate reads its mixins' targets from these class files,
     // and a config plugin cannot even load without IMixinConfigPlugin.
     testRuntimeOnly "maven.modrinth:journeymap:${journeymap_version}"
