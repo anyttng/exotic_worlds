@@ -11,6 +11,8 @@
     "EntityTraceMixin",
     "FleeDistanceMixin",
     "InteractionRangeMixin",
+    "PCLinkRangeMixin",
+    "PastureLinkRangeMixin",
     "PastureTetherMixin",
     "RiderEyeSeatMixin",
     "SendOutPositionMixin",
