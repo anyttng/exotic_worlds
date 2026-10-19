@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.mapfrontiers.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.mapfrontiers.MapFrontiersMixinPlugin",
+  "mixins": [
+    "GeometryQueriesMixin",
+    "PlatformHelperMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
