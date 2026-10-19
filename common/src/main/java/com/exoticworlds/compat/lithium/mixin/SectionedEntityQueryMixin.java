@@ -4,7 +4,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -23,7 +22,6 @@ public class SectionedEntityQueryMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_BOUNDING_BOX))
     private AABB exotic_worlds$entityBoxTowardQuery(Entity entity, Operation<AABB> original,
             @Local(argsOnly = true) AABB query) {
-        return FoldedBoxQuery.toward(((TransformerSource) entity).exotic_worlds$wrappedTransformer(), query.getCenter(),
-                original.call(entity));
+        return FoldedBoxQuery.toward(entity, query.getCenter(), original.call(entity));
     }
 }

@@ -41,7 +41,7 @@ public class TransportItemsBetweenContainersMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/AABB;move(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/AABB;"))
     private AABB exotic_worlds$reachBoxThroughSeam(AABB targetBox, @Local(argsOnly = true) PathfinderMob body,
             @Local(argsOnly = true) Vec3 fromPos) {
-        return FoldedBoxQuery.toward(((TransformerSource) body).exotic_worlds$wrappedTransformer(), fromPos, targetBox);
+        return FoldedBoxQuery.toward(body, fromPos, targetBox);
     }
 
     @ModifyExpressionValue(
