@@ -16,6 +16,7 @@ import org.betterx.wover.util.RandomizedWeightedList;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -198,27 +199,29 @@ class HexLapMapTest {
 
     @Test
     void aTorusNarrowerThanOneBlockReadsTheSameBiomeOneLapAwayOnBothAxes() {
-        assertPeriodic(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-8, 8, -8, 8))), DEFAULT_SCALE);
+        assertPeriodic(WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-8, 8, -8, 8))), DEFAULT_SCALE);
     }
 
     @Test
     void aTorusOfSeveralBlocksReadsTheSameBiomeOneLapAwayOnBothAxes() {
-        assertPeriodic(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-128, 128, -128, 128))), DEFAULT_SCALE);
+        assertPeriodic(WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-128, 128, -128, 128))),
+                DEFAULT_SCALE);
     }
 
     @Test
     void aTorusWhoseLapSplitsIntoUnevenBlocksStillRepeats() {
-        assertPeriodic(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-75, 75, -41, 41))), DEFAULT_SCALE);
+        assertPeriodic(WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-75, 75, -41, 41))), DEFAULT_SCALE);
     }
 
     @Test
     void aSkewedNetherRepeatsAlongBothLatticeVectors() {
-        assertPeriodic(WorldFolds.of(FlatShape.latticeTorus(new WorldLoopBounds(-75, 75, -41, 41), 23)), DEFAULT_SCALE);
+        assertPeriodic(WorldFolds.of(FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-75, 75, -41, 41), 23)),
+                DEFAULT_SCALE);
     }
 
     @Test
     void aCylinderRepeatsOnItsLoopedAxisAndKeepsTheOtherOpen() {
-        WorldFold cylinder = WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 256)));
+        WorldFold cylinder = WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 256)));
         HexLapMap<Integer> map = map(cylinder, DEFAULT_SCALE);
         int lap = cylinder.blockDomain(Direction.Axis.X).domainLength;
         for (int z = -4096; z < 4096; z += 37) {
@@ -235,7 +238,7 @@ class HexLapMapTest {
         int[] chunkWidths = {1, 3, 16, 41, 75, 128, 256, 1875};
         float[] scales = {DEFAULT_SCALE, 4.0F, 128.0F};
         for (int width : chunkWidths) {
-            WorldFold fold = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(width)));
+            WorldFold fold = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(width)));
             for (float scale : scales) {
                 HexLapMap<Integer> map = map(fold, scale);
                 assertCell(map.axis(Direction.Axis.X), scale / HexLapMap.RAD_INNER, 1);
@@ -247,14 +250,14 @@ class HexLapMapTest {
     @Test
     void theCompactBiomesFactorShrinksTheCellOnBothAxes() {
         double[] factors = {2.0, 4.0, 1.56};
-        WorldFold torus = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(256)));
+        WorldFold torus = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(256)));
         for (double factor : factors) {
             HexLapMap<Integer> map = map(torus, DEFAULT_SCALE, factor);
             assertCell(map.axis(Direction.Axis.X), DEFAULT_SCALE / factor / HexLapMap.RAD_INNER, 1);
             assertCell(map.axis(Direction.Axis.Z), DEFAULT_SCALE / factor, 2);
         }
 
-        WorldFold cylinder = WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 256)));
+        WorldFold cylinder = WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 256)));
         HexLapMap<Integer> compact = map(cylinder, DEFAULT_SCALE, FACTOR);
         assertEquals(DEFAULT_SCALE / FACTOR, compact.axis(Direction.Axis.Z).cellBlocks(), 1.0E-9,
                 "the cylinder's open axis kept WorldWeaver's cell");
@@ -273,7 +276,7 @@ class HexLapMapTest {
 
     @Test
     void theSameFoldAndSeedLayTheSameMap() {
-        WorldFold fold = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-40, 40, -40, 40)));
+        WorldFold fold = WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-40, 40, -40, 40)));
         HexLapMap<Integer> first = map(fold, DEFAULT_SCALE);
         HexLapMap<Integer> second = map(fold, DEFAULT_SCALE);
         Set<Integer> seen = new HashSet<>();
@@ -294,7 +297,7 @@ class HexLapMapTest {
         HexBiomeMap own = new HexBiomeMap(SEED, BIOME_SIZE, palette);
         LapPicker<WoverBiomePicker.PickableBiome> picker = new LapPicker<>(palette::getBiome,
                 (biome, random) -> biome);
-        WorldFold torus = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(WIDE_LAP_CHUNKS)));
+        WorldFold torus = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDE_LAP_CHUNKS)));
         HexLapMap<WoverBiomePicker.PickableBiome> onTorus = new HexLapMap<>(torus, DEFAULT_SCALE,
                 ClimateScaleCompression.NO_COMPRESSION, SEED, picker);
         HexLapMap<WoverBiomePicker.PickableBiome> unbounded = new HexLapMap<>(WorldFolds.NOOP, DEFAULT_SCALE,
@@ -313,7 +316,7 @@ class HexLapMapTest {
         HexBiomeMap own = new HexBiomeMap(SEED, BIOME_SIZE, palette);
         LapPicker<WoverBiomePicker.PickableBiome> picker = new LapPicker<>(palette::getBiome,
                 WoverBiomePicker.PickableBiome::getSubBiome);
-        WorldFold torus = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(WIDE_LAP_CHUNKS)));
+        WorldFold torus = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDE_LAP_CHUNKS)));
         HexLapMap<WoverBiomePicker.PickableBiome> onTorus = new HexLapMap<>(torus, DEFAULT_SCALE,
                 ClimateScaleCompression.NO_COMPRESSION, SEED, picker);
         Regions ownMap = Regions.of((x, z) -> own.getBiome(x, 0.0, z));

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -27,8 +28,9 @@ import net.minecraft.world.level.Level;
 class ClientPositionTest {
     private static final int WIDTH_CHUNKS = 32;
     private static final double WIDTH_BLOCKS = 512.0;
-    private static final WorldFold TORUS = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(WIDTH_CHUNKS)));
-    private static final WorldFold CYLINDER_X = WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, WIDTH_CHUNKS)));
+    private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH_CHUNKS)));
+    private static final WorldFold CYLINDER_X = WorldFolds.of(
+            ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, WIDTH_CHUNKS)));
     private static final int SKEW_CHUNKS = 16;
     private static final double SKEW_BLOCKS = SKEW_CHUNKS * 16.0;
     private static final WorldFold SKEWED =

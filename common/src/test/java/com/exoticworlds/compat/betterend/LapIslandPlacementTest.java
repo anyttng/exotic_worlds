@@ -13,9 +13,9 @@ import org.betterx.betterend.world.generator.LayerOptions;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WrapDomain;
 
 import net.minecraft.core.BlockPos;
@@ -40,7 +40,7 @@ class LapIslandPlacementTest {
     private static final int SKEW_CHUNKS = 96;
 
     private static final TranslationLattice SKEWED_LATTICE = WorldFolds.of(FlatShape.latticeTorus(
-            new WorldLoopBounds(-LAP_CHUNKS / 2, LAP_CHUNKS / 2, -LAP_CHUNKS / 2, LAP_CHUNKS / 2), SKEW_CHUNKS))
+            ShapeFixtures.loopedBounds(-LAP_CHUNKS / 2, LAP_CHUNKS / 2, -LAP_CHUNKS / 2, LAP_CHUNKS / 2), SKEW_CHUNKS))
             .blockLattice();
 
     private static final LapIslandPlacement.Grid SKEWED = new LapIslandPlacement.Grid(

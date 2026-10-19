@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -23,14 +25,14 @@ class DomainWarpTest {
 
     private static final double[] FACTORS = {1.0, 2.0, 6.24};
 
-    private static final WorldFold FOLD = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(CHUNK_WIDTH)));
+    private static final WorldFold FOLD = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(CHUNK_WIDTH)));
 
     private static final TranslationLattice LATTICE = FOLD.blockLattice();
 
     private static final WrapDomain DOMAIN = LATTICE.x();
 
-    private static final WorldFold SKEWED = new DeckGroupFold(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(CHUNK_WIDTH),
-            7));
+    private static final WorldFold SKEWED = new DeckGroupFold(
+            FlatShape.latticeTorus(WorldLoopBounds.ofWidth(CHUNK_WIDTH), 7), GenerationOptions.DEFAULT);
 
     @Test
     void warpDisplacementIsTheSameCellCountAtEveryCompressionFactor() {

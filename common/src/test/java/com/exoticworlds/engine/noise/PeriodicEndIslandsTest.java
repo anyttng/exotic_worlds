@@ -9,8 +9,10 @@ import java.util.Random;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -35,8 +37,9 @@ class PeriodicEndIslandsTest {
     private static final int UNBOUNDED_SPAN = 4096;
     private static final float NO_ISLAND_HEIGHT = -100.0F;
 
-    private static final WorldFold TORUS = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-128, 128, -96, 96)));
-    private static final WorldFold CYLINDER = WorldFolds.of(FlatShape.cylinder(
+    private static final WorldFold TORUS = WorldFolds.of(
+            ShapeFixtures.torus(ShapeFixtures.loopedBounds(-128, 128, -96, 96)));
+    private static final WorldFold CYLINDER = WorldFolds.of(ShapeFixtures.cylinder(
             new WorldLoopBounds(new AxisBounds.Looped(-128, 128), AxisBounds.Unbounded.INSTANCE)));
 
     private static final List<WorldFold> WRAPPED_X = List.of(TORUS, CYLINDER);
@@ -120,7 +123,7 @@ class PeriodicEndIslandsTest {
     @Nested
     class SkewedLattice {
         private static final WorldFold SKEWED = new DeckGroupFold(
-                FlatShape.latticeTorus(new WorldLoopBounds(-128, 128, -96, 96), 37));
+                FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-128, 128, -96, 96), 37), GenerationOptions.DEFAULT);
 
         private static final TranslationLattice LATTICE = SKEWED.blockLattice();
 

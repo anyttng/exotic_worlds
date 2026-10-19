@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopSizes;
 import com.exoticworlds.shape.WorldLoopPresets;
@@ -82,7 +83,8 @@ class WorldShapeReportTest {
                 FlatShape.latticeTorus(square(OVERWORLD_CHUNK_WIDTH), 16),
                 FlatShape.latticeTorus(square(DIVIDING_NETHER_CHUNK_WIDTH), 2)));
         assertEquals(WorldShapeReport.Note.NONE, WorldShapeReport.netherSkewNote(
-                FlatShape.torus(square(OVERWORLD_CHUNK_WIDTH)), FlatShape.torus(square(DIVIDING_NETHER_CHUNK_WIDTH))));
+                ShapeFixtures.torus(square(OVERWORLD_CHUNK_WIDTH)), ShapeFixtures.torus(
+                        square(DIVIDING_NETHER_CHUNK_WIDTH))));
     }
 
     @Test
@@ -100,7 +102,7 @@ class WorldShapeReportTest {
     void anOverworldSkewTheScaleDoesNotDivideIsNamedAsBroken() {
         WorldShapeReport.Note note = WorldShapeReport.netherSkewNote(
                 FlatShape.latticeTorus(square(OVERWORLD_CHUNK_WIDTH), 5),
-                FlatShape.torus(square(DIVIDING_NETHER_CHUNK_WIDTH)));
+                ShapeFixtures.torus(square(DIVIDING_NETHER_CHUNK_WIDTH)));
 
         assertTrue(note.broken(), note.text());
         assertTrue(note.text().contains("1:8"), note.text());

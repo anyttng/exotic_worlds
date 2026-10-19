@@ -31,10 +31,6 @@ public final class DeckGroupFold implements WorldFold {
 
     private final GenerationOptions generationOptions;
 
-    public DeckGroupFold(FlatShape shape) {
-        this(shape, GenerationOptions.DEFAULT);
-    }
-
     public DeckGroupFold(FlatShape shape, GenerationOptions generationOptions) {
         this.shape = shape;
         boolean xLooped = shape.bounds().x() instanceof AxisBounds.Looped;
@@ -298,11 +294,6 @@ public final class DeckGroupFold implements WorldFold {
     @Override
     public Vec3 foldDelta(Vec3 from, Vec3 to) {
         return nearestCopy(from, to).subtract(from);
-    }
-
-    @Override
-    public double sqrDistance(Vec3 from, Vec3 to) {
-        return sqrDistance(from.x, from.y, from.z, to.x, to.y, to.z);
     }
 
     @Override

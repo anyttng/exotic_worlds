@@ -7,10 +7,9 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WrapDomain;
 
 import net.minecraft.core.Direction;
@@ -24,8 +23,8 @@ class BlendedNoiseOverflowTest {
 
     private static final int HALF_CHUNK_SPAN = 1 << 20;
 
-    private static final WorldFold WIDE = WorldFolds.of(FlatShape.torus(
-            new WorldLoopBounds(-HALF_CHUNK_SPAN, HALF_CHUNK_SPAN, -HALF_CHUNK_SPAN, HALF_CHUNK_SPAN)));
+    private static final WorldFold WIDE = WorldFolds.of(ShapeFixtures.torus(
+            ShapeFixtures.loopedBounds(-HALF_CHUNK_SPAN, HALF_CHUNK_SPAN, -HALF_CHUNK_SPAN, HALF_CHUNK_SPAN)));
 
     @Test
     void vanillaBlendedNoiseOnAWideWorldStaysInRangeAndRepeatsOneLapAway() {

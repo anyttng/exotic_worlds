@@ -2,8 +2,8 @@ package com.exoticworlds.engine.noise;
 
 import java.util.List;
 
-import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -72,30 +72,30 @@ public final class ClimateScanFixture {
 
     public static WorldFold torusOfWidth(int widthBlocks) {
         return WorldFolds.of(
-                FlatShape.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)));
+                ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)));
     }
 
     public static WorldFold strongTorusOfWidth(int widthBlocks) {
-        return WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)),
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)),
                 GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.STRONG));
     }
 
     public static WorldFold guaranteedTorusOfWidth(int widthBlocks) {
-        return WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)),
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)),
                 GenerationOptions.DEFAULT.with(GuaranteedLand.OPTION, true));
     }
 
     public static WorldFold uncompressedTorusOfWidth(int widthBlocks) {
-        return WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)),
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)),
                 GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
     }
 
     public static WorldFold cylinderOfWidth(int widthBlocks) {
-        return WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, widthBlocks / 16)));
+        return WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, widthBlocks / 16)));
     }
 
     public static WorldFold uncompressedCylinderOfWidth(int widthBlocks) {
-        return WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, widthBlocks / 16)),
+        return WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, widthBlocks / 16)),
                 GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
     }
 

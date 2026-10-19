@@ -24,6 +24,7 @@ import com.eminus.cell.DetailLevel;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.AlignedPeriod;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -46,7 +47,7 @@ class CellFoldTest {
     private static final int SKEW_CHUNKS = 5;
 
     private static WorldFold torus(int widthChunks) {
-        return WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidths(widthChunks, widthChunks)));
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidths(widthChunks, widthChunks)));
     }
 
     private static WorldFold skewed(int widthChunks, int skewChunks) {
@@ -55,7 +56,7 @@ class CellFoldTest {
 
     private static WorldFold cylinder(int widthChunks) {
         AxisBounds.Looped looped = new AxisBounds.Looped(-widthChunks / 2, widthChunks - widthChunks / 2);
-        return WorldFolds.of(FlatShape.torus(new WorldLoopBounds(looped, AxisBounds.Unbounded.INSTANCE)));
+        return WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(looped, AxisBounds.Unbounded.INSTANCE)));
     }
 
     static Stream<Arguments> shapes() {

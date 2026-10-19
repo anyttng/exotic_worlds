@@ -33,17 +33,17 @@ class WorldFoldsTest {
     private static List<FlatShape> decomposable() {
         return List.of(
                 FlatShape.rectangle(),
-                FlatShape.cylinder(X_ONLY),
-                FlatShape.cylinder(Z_ONLY),
-                FlatShape.torus(SQUARE));
+                ShapeFixtures.cylinder(X_ONLY),
+                ShapeFixtures.cylinder(Z_ONLY),
+                ShapeFixtures.torus(SQUARE));
     }
 
     private static final FlatShape SKEWED = FlatShape.latticeTorus(SQUARE, 5);
 
     private static List<FlatShape> mirrored() {
         return List.of(
-                FlatShape.mirrored(Z_ONLY, Direction.Axis.X, 3),
-                FlatShape.mirrored(SQUARE, Direction.Axis.Z, -7));
+                ShapeFixtures.mirrored(Z_ONLY, Direction.Axis.X, 3),
+                ShapeFixtures.mirrored(SQUARE, Direction.Axis.Z, -7));
     }
 
     private static List<FlatShape> coupled() {
@@ -52,15 +52,15 @@ class WorldFoldsTest {
 
     @Test
     void aWorldTooNarrowToGenerateIsRefused() {
-        assertTrue(WorldFolds.verifyGeneratable(FlatShape.torus(WorldLoopBounds.ofWidth(8))).isError());
-        assertTrue(WorldFolds.verifyGeneratable(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 8)))
+        assertTrue(WorldFolds.verifyGeneratable(ShapeFixtures.torus(WorldLoopBounds.ofWidth(8))).isError());
+        assertTrue(WorldFolds.verifyGeneratable(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 8)))
                 .isError());
     }
 
     @Test
     void aWorldAtTheGenerationFloorAndAnEndlessAxisAreAccepted() {
         assertTrue(WorldFolds.verifyGeneratable(
-                FlatShape.torus(WorldLoopBounds.ofWidth(WorldLoopSizes.MIN_CHUNK_WIDTH)))
+                ShapeFixtures.torus(WorldLoopBounds.ofWidth(WorldLoopSizes.MIN_CHUNK_WIDTH)))
                 .result().isPresent());
         assertTrue(WorldFolds.verifyGeneratable(FlatShape.rectangle()).result().isPresent());
     }
@@ -71,7 +71,7 @@ class WorldFoldsTest {
             for (int chunkWidth : new int[] {preset.chunkWidth(), preset.endChunkWidth(),
                     preset.chunkWidth() / preset.netherScale()}) {
                 assertTrue(WorldFolds.verifyGeneratable(
-                        FlatShape.torus(WorldLoopBounds.ofWidth(chunkWidth))).result().isPresent(),
+                        ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth))).result().isPresent(),
                         preset.id());
             }
         }
@@ -79,7 +79,7 @@ class WorldFoldsTest {
 
     @Test
     void theFoldContractIsNotHeldToTheGenerationFloor() {
-        assertTrue(WorldFolds.verifyFoldable(FlatShape.torus(WorldLoopBounds.ofWidth(8)))
+        assertTrue(WorldFolds.verifyFoldable(ShapeFixtures.torus(WorldLoopBounds.ofWidth(8)))
                 .result().isPresent(),
                 "narrow worlds are the arithmetic fixtures of half this suite; a width floor here breaks them");
     }
@@ -94,12 +94,12 @@ class WorldFoldsTest {
     @Test
     void anUnboundedShapeStillGetsAFoldThatKnowsItDoesNotWrap() {
         assertFalse(WorldFolds.of(FlatShape.rectangle()).isWrapped());
-        assertTrue(WorldFolds.of(FlatShape.cylinder(X_ONLY)).isWrapped());
+        assertTrue(WorldFolds.of(ShapeFixtures.cylinder(X_ONLY)).isWrapped());
     }
 
     @Test
     void aShapeLoopingOneAxisCarriesTheOptionsItWasBuiltWith() {
-        FlatShape cylinder = FlatShape.cylinder(X_ONLY);
+        FlatShape cylinder = ShapeFixtures.cylinder(X_ONLY);
         GenerationOptions chosen = GenerationOptions.DEFAULT.with(OPTION, true);
 
         assertTrue(WorldFolds.of(cylinder, chosen).generationOptions().get(OPTION));

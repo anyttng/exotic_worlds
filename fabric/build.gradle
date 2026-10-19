@@ -149,6 +149,7 @@ tasks.named('assemble') {
 // The loader-bound tests shared with the neoforge module, run here under Fabric Loader's JUnit launcher so the
 // mixins this jar ships are exercised by the loader that applies them.
 sourceSets.test.java.srcDir '../common/src/loaderTest/java'
+sourceSets.test.java.srcDir '../common/src/testFixtures/java'
 
 // The scans are measurements over the same folded router, run by the scan tool rather than by the gate.
 sourceSets.test.java.srcDir '../common/src/scan/java'

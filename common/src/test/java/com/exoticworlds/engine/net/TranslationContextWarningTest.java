@@ -15,7 +15,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -28,7 +28,7 @@ import net.minecraft.world.phys.Vec3;
 class TranslationContextWarningTest {
     private static final int WIDTH_IN_CHUNKS = 32;
     private static final int VIEW_DISTANCE = 8;
-    private static final WorldFold TORUS = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(WIDTH_IN_CHUNKS)));
+    private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH_IN_CHUNKS)));
 
     private static final ChunkPos CHUNK_PAST_THE_VIEW = new ChunkPos(12, 0);
     private static final double COORD_PAST_THE_REACH = 100.0;

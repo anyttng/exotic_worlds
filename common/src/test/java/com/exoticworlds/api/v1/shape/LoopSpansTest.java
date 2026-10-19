@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldLoopBounds;
 
 import net.minecraft.core.Direction;
@@ -52,6 +53,6 @@ class LoopSpansTest {
     void theFlatShapeOfSpansCarriesTheSkew() {
         assertEquals(FlatShape.latticeTorus(WorldLoopBounds.ofWidths(64, 128), 8),
                 FlatShape.of(LoopSpans.ofWidths(64, 128).withSkew(8)));
-        assertEquals(FlatShape.torus(WorldLoopBounds.ofWidths(64, 128)), FlatShape.of(LoopSpans.ofWidths(64, 128)));
+        assertEquals(ShapeFixtures.torus(WorldLoopBounds.ofWidths(64, 128)), FlatShape.of(LoopSpans.ofWidths(64, 128)));
     }
 }

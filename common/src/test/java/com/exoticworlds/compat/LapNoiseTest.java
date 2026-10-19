@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -32,17 +33,17 @@ class LapNoiseTest {
 
     @Test
     void aConditionReadRepeatsOneLapOnOnATinyTorus() {
-        assertRepeatsOnLoopingAxes(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-16, 16, -16, 16))));
+        assertRepeatsOnLoopingAxes(WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-16, 16, -16, 16))));
     }
 
     @Test
     void aConditionReadRepeatsOneLapOnOnUnevenAxes() {
-        assertRepeatsOnLoopingAxes(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-75, 75, -41, 41))));
+        assertRepeatsOnLoopingAxes(WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-75, 75, -41, 41))));
     }
 
     @Test
     void aCylinderClosesTheLoopingAxisAndLeavesTheOtherOpen() {
-        WorldFold cylinder = WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X,
+        WorldFold cylinder = WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X,
                 CYLINDER_WIDTH)));
         assertRepeatsOnLoopingAxes(cylinder);
         for (double scale : CONDITION_SCALES) {
@@ -52,7 +53,8 @@ class LapNoiseTest {
 
     @Test
     void onASkewedNetherAConditionReadRepeatsAlongBothLatticeVectors() {
-        WorldFold fold = WorldFolds.of(FlatShape.latticeTorus(new WorldLoopBounds(-40, 40, -24, 24), SKEW_CHUNKS));
+        WorldFold fold = WorldFolds.of(
+                FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-40, 40, -24, 24), SKEW_CHUNKS));
         TranslationLattice lattice = fold.blockLattice();
         OpenSimplexStandIn noise = new OpenSimplexStandIn(SEED);
         int widthX = lattice.x().domainLength;

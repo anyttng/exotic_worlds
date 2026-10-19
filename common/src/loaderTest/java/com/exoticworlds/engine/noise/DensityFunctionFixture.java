@@ -3,10 +3,9 @@ package com.exoticworlds.engine.noise;
 import java.util.List;
 import java.util.Random;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WrapDomain;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
@@ -45,10 +44,10 @@ public final class DensityFunctionFixture {
             CLIMATE_NOISE_DATA, NormalNoise.create(new LegacyRandomSource(SEED), CLIMATE_PARAMETERS));
 
     public static final WorldFold SQUARE =
-            WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-16, 16, -16, 16)));
+            WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-16, 16, -16, 16)));
 
     public static final WorldFold RECTANGULAR =
-            WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-16, 16, -8, 8)));
+            WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-16, 16, -8, 8)));
 
     public static final List<WorldFold> WORLDS = List.of(SQUARE, RECTANGULAR);
 

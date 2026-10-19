@@ -18,6 +18,7 @@ public final class FoldedCopies {
         return fold(source, fold, LinkedHashSet::new);
     }
 
+    // mc/1.21: Create's client frame folds its canonical positions through it.
     public static <T> Collection<T> of(Collection<T> source, UnaryOperator<T> fold) {
         return fold(source, fold, ArrayList::new);
     }
