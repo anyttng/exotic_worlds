@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.eminus.store.SqliteCellStore;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 
@@ -79,6 +79,6 @@ class EminusShapesTest {
     }
 
     private static CellFold torus(int widthChunks) {
-        return CellFold.of(WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidths(widthChunks, widthChunks))));
+        return CellFold.of(WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidths(widthChunks, widthChunks))));
     }
 }

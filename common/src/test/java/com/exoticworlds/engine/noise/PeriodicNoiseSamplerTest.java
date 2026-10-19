@@ -1,7 +1,9 @@
 package com.exoticworlds.engine.noise;
 
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -48,13 +50,13 @@ class PeriodicNoiseSamplerTest {
     private static final WorldFold EVEN = torus(SQUARE);
     private static final WorldFold ODD = torus(ODD_BOUNDS);
     private static final WorldFold UNEVEN = torus(UNEVEN_BOUNDS);
-    private static final WorldFold X_ONLY = WorldFolds.of(FlatShape.cylinder(X_ONLY_BOUNDS));
+    private static final WorldFold X_ONLY = WorldFolds.of(ShapeFixtures.cylinder(X_ONLY_BOUNDS));
 
     private static final List<WorldFold> BOTH_AXES = List.of(EVEN, ODD, UNEVEN);
     private static final List<WorldFold> WRAPPED_X = List.of(EVEN, ODD, UNEVEN, X_ONLY);
 
     private static WorldFold torus(WorldLoopBounds bounds) {
-        return WorldFolds.of(FlatShape.torus(bounds));
+        return WorldFolds.of(ShapeFixtures.torus(bounds));
     }
 
     @SuppressWarnings("ArrayRecordComponent")
@@ -313,9 +315,9 @@ class PeriodicNoiseSamplerTest {
     @Nested
     class SkewedLattice {
         private static final List<DeckGroupFold> SKEWED = List.of(
-                new DeckGroupFold(FlatShape.latticeTorus(SQUARE, 5)),
-                new DeckGroupFold(FlatShape.latticeTorus(ODD_BOUNDS, 2)),
-                new DeckGroupFold(FlatShape.latticeTorus(UNEVEN_BOUNDS, -11)));
+                new DeckGroupFold(FlatShape.latticeTorus(SQUARE, 5), GenerationOptions.DEFAULT),
+                new DeckGroupFold(FlatShape.latticeTorus(ODD_BOUNDS, 2), GenerationOptions.DEFAULT),
+                new DeckGroupFold(FlatShape.latticeTorus(UNEVEN_BOUNDS, -11), GenerationOptions.DEFAULT));
 
         private static final double[] SKEWED_SCALES = {0.25, 1.0, 100.0, 1.17, 1.0 / 2048.0};
 
@@ -454,7 +456,7 @@ class PeriodicNoiseSamplerTest {
         @Test
         void aSkewRoundingToNoWholeCellStillTiltsTheField() {
             WorldFold torus = torus(SQUARE);
-            WorldFold skewed = new DeckGroupFold(FlatShape.latticeTorus(SQUARE, 5));
+            WorldFold skewed = new DeckGroupFold(FlatShape.latticeTorus(SQUARE, 5), GenerationOptions.DEFAULT);
             double starved = 1.0 / 2048.0;
             NoiseInstance noise = NoiseInstance.of(SEED);
             double z = skewed.blockLattice().z().upperBound - 1.0;

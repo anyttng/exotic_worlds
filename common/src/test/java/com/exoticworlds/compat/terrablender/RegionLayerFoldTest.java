@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.terrablender.RegionLayerFold.LayerAxis;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -49,7 +50,7 @@ class RegionLayerFoldTest {
     private static final int SEAM_STRIP_QUARTS = 64;
 
     private static WorldFold torus(int chunkWidth) {
-        return WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(chunkWidth)));
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)));
     }
 
     private static WorldFold latticeTorus(int chunkWidth, int skewChunks) {
@@ -199,7 +200,7 @@ class RegionLayerFoldTest {
 
     @Test
     void unboundedAxisIsNeverFolded() {
-        WorldFold cylinder = WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 64)));
+        WorldFold cylinder = WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 64)));
         RegionLayerFold fold = RegionLayerFold.of(cylinder, topDepth(DEFAULT_REGION_SIZE), NO_COMPRESSION);
         for (int depth = 0; depth <= topDepth(DEFAULT_REGION_SIZE); depth++) {
             for (int coord = -5000; coord < 5000; coord += 37) {
@@ -266,7 +267,7 @@ class RegionLayerFoldTest {
     void unboundedAxisIsScaledAtTheTopLayerAlone() {
         double factor = 2.5;
         int topDepth = topDepth(DEFAULT_REGION_SIZE);
-        WorldFold cylinder = WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 64)));
+        WorldFold cylinder = WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 64)));
         RegionLayerFold fold = RegionLayerFold.of(cylinder, topDepth, factor);
         for (int coord = -5000; coord < 5000; coord += 37) {
             assertEquals((int) Math.floor(coord * factor), fold.foldZ(topDepth, coord));

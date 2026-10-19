@@ -1,5 +1,6 @@
 package com.exoticworlds.core;
 
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 import com.exoticworlds.engine.fold.DimensionMapping;
 import com.exoticworlds.engine.fold.SeamSpans;
@@ -51,10 +52,11 @@ class IdentityFastPathTest {
     private static final int WIDE_REGION_LAPS = 3;
 
     private static final List<WorldFold> DECK_GROUP = List.of(
-            new DeckGroupFold(FlatShape.torus(SQUARE)),
-            new DeckGroupFold(FlatShape.latticeTorus(SQUARE, SKEW_CHUNKS)),
-            new DeckGroupFold(FlatShape.mirrored(X_ONLY_BOUNDS, Direction.Axis.Z, 0)),
-            new DeckGroupFold(FlatShape.mirrored(SQUARE, Direction.Axis.Z, MIRROR_LINE_CHUNK)));
+            new DeckGroupFold(ShapeFixtures.torus(SQUARE), GenerationOptions.DEFAULT),
+            new DeckGroupFold(FlatShape.latticeTorus(SQUARE, SKEW_CHUNKS), GenerationOptions.DEFAULT),
+            new DeckGroupFold(ShapeFixtures.mirrored(X_ONLY_BOUNDS, Direction.Axis.Z, 0), GenerationOptions.DEFAULT),
+            new DeckGroupFold(ShapeFixtures.mirrored(SQUARE, Direction.Axis.Z, MIRROR_LINE_CHUNK),
+                    GenerationOptions.DEFAULT));
 
     private static final List<WorldFold> FOLDS = Stream.concat(PER_AXIS.stream(), DECK_GROUP.stream()).toList();
 

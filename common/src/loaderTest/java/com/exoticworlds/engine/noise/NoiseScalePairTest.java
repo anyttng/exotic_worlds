@@ -11,10 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -89,6 +88,7 @@ class NoiseScalePairTest {
     }
 
     private static WorldFold torus(int halfChunks) {
-        return WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-halfChunks, halfChunks, -halfChunks, halfChunks)));
+        return WorldFolds.of(
+                ShapeFixtures.torus(ShapeFixtures.loopedBounds(-halfChunks, halfChunks, -halfChunks, halfChunks)));
     }
 }

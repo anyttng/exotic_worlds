@@ -325,7 +325,7 @@ class OpenSimplexStandInTest {
     void aClosedPeriodNeverWidensTheFeature() {
         double[] periods = {0.5, 1.0, 2.5, 8.0, 110.0};
         for (double period : periods) {
-            long cells = OpenSimplexStandIn.cells(period);
+            long cells = OpenSimplexStandIn.cells(period, OpenSimplexStandIn.RATE);
             assertTrue(cells >= period * OpenSimplexStandIn.RATE - PERIOD_TOLERANCE,
                     cells + " lattice cells over a period of " + period);
         }

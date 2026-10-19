@@ -15,6 +15,7 @@ import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldLoopBounds;
 
@@ -69,7 +70,7 @@ final class BakeStampFixture {
     private static final String UNUSED_IN_THIS_HARNESS = "The bake fixture never generates";
 
     static FlatShape squareTorus(int chunkWidth) {
-        return FlatShape.torus(WorldLoopBounds.ofWidth(chunkWidth));
+        return ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth));
     }
 
     static ResourceKey<LevelStem> stemKey(String path) {
@@ -226,7 +227,7 @@ final class BakeStampFixture {
         private final CarriedShape carriedShape;
 
         private ShapedForeignChunkGenerator(FlatShape shape) {
-            this.carriedShape = new CarriedShape(shape);
+            this.carriedShape = new CarriedShape(shape, GenerationOptions.DEFAULT);
         }
 
         @Override

@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.api.v1.net.PacketRewriters;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -304,7 +304,7 @@ class PacketTranslatorTest {
 
         @Test
         void unboundedAxisNeverSplitsHoweverFarTheForget() {
-            WorldFold singleAxis = WorldFolds.of(FlatShape.cylinder(new WorldLoopBounds(
+            WorldFold singleAxis = WorldFolds.of(ShapeFixtures.cylinder(new WorldLoopBounds(
                     new AxisBounds.Looped(-32, 32), AxisBounds.Unbounded.INSTANCE)));
             ClientPosition mirror = new ClientPosition();
             mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, singleAxis);

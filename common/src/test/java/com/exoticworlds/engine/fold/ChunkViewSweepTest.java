@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -19,9 +19,9 @@ class ChunkViewSweepTest {
 
     private static final WorldLoopBounds LOOPS_ON_X =
             new WorldLoopBounds(new AxisBounds.Looped(MIN_CHUNK, MAX_CHUNK + 1), AxisBounds.Unbounded.INSTANCE);
-    private static final WorldFold CYLINDER = WorldFolds.of(FlatShape.cylinder(LOOPS_ON_X));
+    private static final WorldFold CYLINDER = WorldFolds.of(ShapeFixtures.cylinder(LOOPS_ON_X));
     private static final WorldFold TORUS =
-            WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(MAX_CHUNK - MIN_CHUNK + 1)));
+            WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(MAX_CHUNK - MIN_CHUNK + 1)));
 
     private static final int VIEW_DISTANCE = 8;
     private static final int VIEW_SPAN = 2 * (VIEW_DISTANCE + 1) + 1;

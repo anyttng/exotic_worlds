@@ -9,7 +9,7 @@ import java.util.Random;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -53,14 +53,15 @@ class FoldedPlacementCountsTest {
     private static final WorldFold DEFAULT = torus(-16, 16, -16, 16);
     private static final WorldFold SMALL = torus(-8, 8, -8, 8);
     private static final WorldFold UNEVEN = torus(-32, 32, 0, 16);
-    private static final WorldFold X_ONLY = WorldFolds.of(FlatShape.cylinder(
+    private static final WorldFold X_ONLY = WorldFolds.of(ShapeFixtures.cylinder(
             new WorldLoopBounds(new AxisBounds.Looped(-16, 16), AxisBounds.Unbounded.INSTANCE)));
 
     private static final List<WorldFold> BOTH_AXES = List.of(DEFAULT, SMALL, UNEVEN);
     private static final List<WorldFold> WRAPPED_X = List.of(DEFAULT, SMALL, UNEVEN, X_ONLY);
 
     private static WorldFold torus(int xChunkMin, int xChunkMax, int zChunkMin, int zChunkMax) {
-        return WorldFolds.of(FlatShape.torus(new WorldLoopBounds(xChunkMin, xChunkMax, zChunkMin, zChunkMax)));
+        return WorldFolds.of(
+                ShapeFixtures.torus(ShapeFixtures.loopedBounds(xChunkMin, xChunkMax, zChunkMin, zChunkMax)));
     }
 
     private static int blockInDomain(Random random, WrapDomain domain) {

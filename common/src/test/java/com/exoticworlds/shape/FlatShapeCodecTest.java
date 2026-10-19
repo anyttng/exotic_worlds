@@ -15,6 +15,7 @@ import com.mojang.serialization.JsonOps;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.FlatShape.Identification;
 import com.exoticworlds.core.FlatShape.Mirror;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
@@ -33,11 +34,11 @@ class FlatShapeCodecTest {
     private static List<FlatShape> everyIdentification() {
         return List.of(
                 FlatShape.rectangle(),
-                FlatShape.cylinder(X_ONLY),
-                FlatShape.torus(SQUARE),
+                ShapeFixtures.cylinder(X_ONLY),
+                ShapeFixtures.torus(SQUARE),
                 FlatShape.latticeTorus(SQUARE, 5),
-                FlatShape.mirrored(Z_ONLY, Direction.Axis.X, 3),
-                FlatShape.mirrored(SQUARE, Direction.Axis.Z, -7));
+                ShapeFixtures.mirrored(Z_ONLY, Direction.Axis.X, 3),
+                ShapeFixtures.mirrored(SQUARE, Direction.Axis.Z, -7));
     }
 
     @Test
@@ -74,7 +75,7 @@ class FlatShapeCodecTest {
         assertEquals(
                 JsonParser.parseString("{\"x\":{},\"z\":{\"min_chunk\":-16,\"max_chunk\":16},"
                         + "\"mirror\":{\"axis\":\"x\",\"line_chunk\":3}}"),
-                write(FlatShape.mirrored(Z_ONLY, Direction.Axis.X, 3)));
+                write(ShapeFixtures.mirrored(Z_ONLY, Direction.Axis.X, 3)));
     }
 
     @Test
@@ -140,7 +141,7 @@ class FlatShapeCodecTest {
     @Test
     void theWireRefusesAnUnknownMirrorAxisId() {
         ByteBuf buffer = Unpooled.buffer();
-        FlatShape.STREAM_CODEC.encode(buffer, FlatShape.mirrored(Z_ONLY, Direction.Axis.X, 3));
+        FlatShape.STREAM_CODEC.encode(buffer, ShapeFixtures.mirrored(Z_ONLY, Direction.Axis.X, 3));
         int mirrorAxisIndex = buffer.readableBytes() - 2;
         buffer.setByte(mirrorAxisIndex, 7);
 

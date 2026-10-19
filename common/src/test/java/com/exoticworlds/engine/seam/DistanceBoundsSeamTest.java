@@ -7,10 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 
 import net.minecraft.advancements.predicates.DistancePredicate;
 import net.minecraft.advancements.predicates.MinMaxBounds;
@@ -18,7 +17,7 @@ import net.minecraft.world.phys.Vec3;
 
 class DistanceBoundsSeamTest {
     private static final WorldFold WORLD =
-            WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-16, 16, -16, 16)));
+            WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-16, 16, -16, 16)));
 
     private static final Vec3 PLAYER = new Vec3(253.5, 64.0, 0.0);
     private static final Vec3 ACROSS_THE_SEAM = new Vec3(-253.5, 64.0, 0.0);

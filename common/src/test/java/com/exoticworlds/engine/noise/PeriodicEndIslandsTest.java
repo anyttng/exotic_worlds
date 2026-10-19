@@ -10,8 +10,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.accessors.CoastLiftCache;
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -48,8 +50,9 @@ class PeriodicEndIslandsTest {
     private static final float MAX_HEIGHT_VALUE = 80.0F;
     private static final String ONLY_THE_END_ISLAND_RANDOM = "the End islands draw only the End island random";
 
-    private static final WorldFold TORUS = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-128, 128, -96, 96)));
-    private static final WorldFold CYLINDER = WorldFolds.of(FlatShape.cylinder(
+    private static final WorldFold TORUS = WorldFolds.of(
+            ShapeFixtures.torus(ShapeFixtures.loopedBounds(-128, 128, -96, 96)));
+    private static final WorldFold CYLINDER = WorldFolds.of(ShapeFixtures.cylinder(
             new WorldLoopBounds(new AxisBounds.Looped(-128, 128), AxisBounds.Unbounded.INSTANCE)));
 
     private static final List<WorldFold> WRAPPED_X = List.of(TORUS, CYLINDER);
@@ -162,7 +165,7 @@ class PeriodicEndIslandsTest {
     @Nested
     class SkewedLattice {
         private static final WorldFold SKEWED = new DeckGroupFold(
-                FlatShape.latticeTorus(new WorldLoopBounds(-128, 128, -96, 96), 37));
+                FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-128, 128, -96, 96), 37), GenerationOptions.DEFAULT);
 
         private static final TranslationLattice LATTICE = SKEWED.blockLattice();
 
@@ -193,7 +196,8 @@ class PeriodicEndIslandsTest {
 
         @Test
         void theMainIslandIsTheSameAtEveryDeckCopy() {
-            DensitySampler distance = FoldedSamplers.distanceToPoint(new FoldedCompileContext(SEEDED, SKEWED, NO_LIFT),
+            DensitySampler distance = FoldedSamplers.distanceToPoint(
+                    new FoldedCompileContext(SEEDED, SKEWED, NO_LIFT, NoiseScaleLadder.NONE),
                     Vec3i.ZERO, DistanceMetric.EUCLIDEAN);
             Random random = new Random(SEED);
             for (int i = 0; i < SAMPLES; i++) {
@@ -254,7 +258,8 @@ class PeriodicEndIslandsTest {
     }
 
     private static float mainIslandHeight(WorldFold fold, Direction.Axis axis, int along, int across) {
-        DensitySampler distance = FoldedSamplers.distanceToPoint(new FoldedCompileContext(SEEDED, fold, NO_LIFT),
+        DensitySampler distance = FoldedSamplers.distanceToPoint(
+                new FoldedCompileContext(SEEDED, fold, NO_LIFT, NoiseScaleLadder.NONE),
                 Vec3i.ZERO, DistanceMetric.EUCLIDEAN);
         float blocks = axis == Direction.Axis.X
                 ? distance.sampleValue(SamplerContext.EMPTY_UNCACHED, along, 0, across)

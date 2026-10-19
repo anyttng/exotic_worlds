@@ -14,7 +14,7 @@ import java.util.Random;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -84,16 +84,16 @@ class NetherColumnProbeTest {
     private record Lap(String name, int xChunks, int zChunks) {
         WorldFold fold() {
             if (this.zChunks == UNBOUNDED_CHUNKS) {
-                return WorldFolds.of(FlatShape.cylinder(
+                return WorldFolds.of(ShapeFixtures.cylinder(
                         WorldLoopBounds.ofWidth(Direction.Axis.X, this.xChunks)));
             }
 
             if (this.xChunks == UNBOUNDED_CHUNKS) {
-                return WorldFolds.of(FlatShape.cylinder(
+                return WorldFolds.of(ShapeFixtures.cylinder(
                         WorldLoopBounds.ofWidth(Direction.Axis.Z, this.zChunks)));
             }
 
-            return WorldFolds.of(FlatShape.torus(new WorldLoopBounds(
+            return WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(
                     -(this.xChunks / 2), this.xChunks - this.xChunks / 2,
                     -(this.zChunks / 2), this.zChunks - this.zChunks / 2)));
         }
