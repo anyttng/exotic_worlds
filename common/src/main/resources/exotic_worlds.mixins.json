@@ -23,6 +23,7 @@
     "BeehiveBlockEntityMixin",
     "BehaviorUtilsMixin",
     "BellBlockEntityMixin",
+    "BiomeManagerMixin",
     "BiomeMixin",
     "BlazeAimMixin",
     "BlendedNoiseMixin",

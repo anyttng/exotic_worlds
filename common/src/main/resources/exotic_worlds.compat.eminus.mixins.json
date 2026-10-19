@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.exoticworlds.compat.eminus.EminusMixinPlugin",
   "client": [
+    "BiomeWindowAccessor",
     "CellCacheMixin",
     "CellMergerMixin",
     "ClientSessionMixin",
@@ -15,6 +16,7 @@
     "FarQuadsMixin",
     "FarRendererMixin",
     "GameHandlesMixin",
+    "IngestServiceBiomeMixin",
     "MeshServiceFailuresMixin",
     "MeshServiceMixin",
     "NodeTableMixin",
