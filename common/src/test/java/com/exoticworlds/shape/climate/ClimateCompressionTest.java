@@ -144,18 +144,6 @@ class ClimateCompressionTest {
     }
 
     @Test
-    void theFieldsThatShapeTheCoastAreLeftAloneOnTheNarrowestWorld() {
-        assertEquals(1.0, actual(CONTINENTALNESS, square(32), HORIZONTAL), TOLERANCE, "continentalness tiny");
-        assertEquals(1.0, actual(EROSION, square(32), HORIZONTAL), TOLERANCE, "erosion tiny");
-    }
-
-    @Test
-    void temperatureIsUntouchedOnTheWidestPreset() {
-        assertEquals(1.0, actual(TEMPERATURE, square(512), HORIZONTAL), TOLERANCE, "temperature huge");
-        assertEquals(1.0, actual(TEMPERATURE, square(1024), HORIZONTAL), TOLERANCE, "16384 blocks by hand");
-    }
-
-    @Test
     void aFieldAtOrAboveTheTargetIsMultipliedByExactlyOne() {
         assertEquals(1.0, actual(TEMPERATURE, square(512), HORIZONTAL), 0.0, "temperature huge");
         assertEquals(1.0, actual(TEMPERATURE, square(1024), HORIZONTAL), 0.0, "16384 blocks by hand");

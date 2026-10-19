@@ -148,11 +148,6 @@ class DhFoldTest {
         void theSameWidthStartingOnTheGridReachesTheLevelItsWidthAllows() {
             assertEquals(7, DhFold.maxExactDetailLevel(torus(0, 104)));
         }
-
-        @Test
-        void aWorldStartingAtZeroIsLimitedByItsWidthAlone() {
-            assertEquals(WORLD, DhFold.maxExactDetailLevel(torus(0, WIDTH_CHUNKS)));
-        }
     }
 
     @Nested

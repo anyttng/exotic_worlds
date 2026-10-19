@@ -3,6 +3,7 @@ plugins {
     id 'maven-publish'
     id 'net.neoforged.moddev'
     id 'idea'
+    id 'jacoco'
 }
 
 version = exotic_worlds_version
@@ -242,6 +243,27 @@ test {
     systemProperty 'toroidal.reports', layout.buildDirectory.dir('reports').get().asFile.absolutePath
     // The datapack templates under docs/ are not on the classpath, so the test that gates them is given the repo root.
     systemProperty 'toroidal.repoRoot', rootDir.absolutePath
+    jacoco {
+        enabled = project.hasProperty('coverage')
+        includes = ['com.exoticworlds.*']
+    }
+    if (project.hasProperty('coverage')) {
+        finalizedBy 'jacocoTestReport'
+    }
+}
+
+jacoco {
+    toolVersion = jacoco_version
+}
+
+tasks.named('jacocoTestReport', JacocoReport) {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    classDirectories.setFrom(sourceSets.main.output.classesDirs.collect {
+        fileTree(it) { exclude '**/mixin/**' }
+    })
 }
 
 tasks.withType(JavaCompile).configureEach {

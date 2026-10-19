@@ -103,7 +103,7 @@ public final class CoastFieldLift {
         return largestComponent(land, xGrid, zGrid, skewCells);
     }
 
-    private static int largestComponent(boolean[] land, int xGrid, int zGrid, int skewCells) {
+    static int largestComponent(boolean[] land, int xGrid, int zGrid, int skewCells) {
         boolean[] seen = new boolean[land.length];
         int[] queue = new int[land.length];
         int largest = 0;
