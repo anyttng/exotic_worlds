@@ -136,6 +136,7 @@ dependencies {
 // The loader-bound tests are shared with the fabric module: written once next to the code they cover, run under
 // each loader's own JUnit launcher.
 sourceSets.test.java.srcDir '../common/src/loaderTest/java'
+sourceSets.test.java.srcDir '../common/src/testFixtures/java'
 
 // The scans are measurements over the same folded router, run by the scan tool rather than by the gate.
 sourceSets.test.java.srcDir '../common/src/scan/java'

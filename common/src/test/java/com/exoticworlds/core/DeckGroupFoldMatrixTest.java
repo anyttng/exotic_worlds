@@ -16,6 +16,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.WorldFold.Folded;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
@@ -122,40 +123,40 @@ class DeckGroupFoldMatrixTest {
 
     private record Case(String name, FlatShape shape, Group group) {
         DeckGroupFold fold() {
-            return new DeckGroupFold(this.shape);
+            return new DeckGroupFold(this.shape, GenerationOptions.DEFAULT);
         }
     }
 
     private static final Case RECTANGLE = new Case("rectangle",
             FlatShape.rectangle(), new Group(false, false, 0, false, false, 0));
 
-    private static final Case CYLINDER = new Case("cylinder",
-            FlatShape.cylinder(X_ONLY), new Group(true, false, 0, false, false, 0));
+    private static final Case CYLINDER = new Case("cylinder", ShapeFixtures.cylinder(X_ONLY),
+            new Group(true, false, 0, false, false, 0));
 
-    private static final Case TORUS = new Case("torus",
-            FlatShape.torus(BOTH), new Group(true, true, 0, false, false, 0));
+    private static final Case TORUS = new Case("torus", ShapeFixtures.torus(BOTH),
+            new Group(true, true, 0, false, false, 0));
 
     private static final Case LATTICE_TORUS = new Case("lattice torus",
             FlatShape.latticeTorus(BOTH, SKEW_CHUNKS), new Group(true, true, SKEW, false, false, 0));
 
     private static final Case MOBIUS = new Case("mobius (mirror on Z)",
-            FlatShape.mirrored(X_ONLY, Direction.Axis.Z, 0), new Group(true, false, 0, true, false, 0));
+            ShapeFixtures.mirrored(X_ONLY, Direction.Axis.Z, 0), new Group(true, false, 0, true, false, 0));
 
     private static final Case MOBIUS_X = new Case("mobius (mirror on X)",
-            FlatShape.mirrored(Z_ONLY, Direction.Axis.X, 0), new Group(false, true, 0, false, true, 0));
+            ShapeFixtures.mirrored(Z_ONLY, Direction.Axis.X, 0), new Group(false, true, 0, false, true, 0));
 
     private static final Case KLEIN_CENTERED = new Case("klein (mirror on Z, on the world center)",
-            FlatShape.mirrored(BOTH, Direction.Axis.Z, 0), new Group(true, true, 0, true, false, 0));
+            ShapeFixtures.mirrored(BOTH, Direction.Axis.Z, 0), new Group(true, true, 0, true, false, 0));
 
     private static final Case KLEIN_OFFSET = new Case("klein (mirror on Z, off center)",
-            FlatShape.mirrored(BOTH, Direction.Axis.Z, OFFSET_MIRROR_CHUNK),
+            ShapeFixtures.mirrored(BOTH, Direction.Axis.Z, OFFSET_MIRROR_CHUNK),
             new Group(true, true, 0, true, false, OFFSET_MIRROR_LINE));
 
     private static final Case KLEIN_X_CENTERED = new Case("klein (mirror on X, on the world center)",
-            FlatShape.mirrored(BOTH, Direction.Axis.X, 0), new Group(true, true, 0, false, true, 0));
+            ShapeFixtures.mirrored(BOTH, Direction.Axis.X, 0), new Group(true, true, 0, false, true, 0));
 
     private static final Case KLEIN_X_OFFSET = new Case("klein (mirror on X, off center)",
-            FlatShape.mirrored(BOTH, Direction.Axis.X, OFFSET_MIRROR_CHUNK),
+            ShapeFixtures.mirrored(BOTH, Direction.Axis.X, OFFSET_MIRROR_CHUNK),
             new Group(true, true, 0, false, true, OFFSET_MIRROR_LINE));
 
     private static List<Case> cases() {
@@ -254,8 +255,9 @@ class DeckGroupFoldMatrixTest {
         }
 
         for (Case testCase : decomposableCases()) {
-            built.add(new Subject(testCase.name() + ", per-axis",
-                    new WorldLoopTransformer(testCase.shape().bounds())));
+            built.add(
+                    new Subject(testCase.name() + ", per-axis",
+                            new WorldLoopTransformer(testCase.shape().bounds(), GenerationOptions.DEFAULT)));
         }
 
         return built;
@@ -437,7 +439,7 @@ class DeckGroupFoldMatrixTest {
                     Vec3 delta = fold.foldDelta(from, to);
                     assertEquals(fold.nearestCopy(from, to).subtract(from), delta,
                             testCase.name() + ": foldDelta is not nearestCopy minus the reference");
-                    assertEquals(fold.sqrDistance(from, to),
+                    assertEquals(fold.sqrDistance(from.x, from.y, from.z, to.x, to.y, to.z),
                             delta.x * delta.x + delta.y * delta.y + delta.z * delta.z,
                             testCase.name() + ": sqrDistance disagrees with foldDelta");
                 }
@@ -460,9 +462,10 @@ class DeckGroupFoldMatrixTest {
 
         @Test
         void theTieDoesNotDependOnWhereTheBoundsAreDrawn() {
-            DeckGroupFold centered = new DeckGroupFold(FlatShape.torus(BOTH));
-            DeckGroupFold shifted = new DeckGroupFold(FlatShape.torus(
-                    new WorldLoopBounds(new AxisBounds.Looped(-5, 11), new AxisBounds.Looped(-5, 11))));
+            DeckGroupFold centered = new DeckGroupFold(ShapeFixtures.torus(BOTH), GenerationOptions.DEFAULT);
+            DeckGroupFold shifted = new DeckGroupFold(ShapeFixtures.torus(
+                    new WorldLoopBounds(new AxisBounds.Looped(-5, 11),
+                            new AxisBounds.Looped(-5, 11))), GenerationOptions.DEFAULT);
             BlockPos ref = new BlockPos(0, 64, 0);
             BlockPos target = new BlockPos(WIDTH / 2, 64, WIDTH / 2);
             BlockPos fromCentered = centered.nearestCopy(ref, target);
@@ -1070,27 +1073,30 @@ class DeckGroupFoldMatrixTest {
 
         @Test
         void aSkewOneWorldWiderIsTheSameLattice() {
-            DeckGroupFold plain = new DeckGroupFold(FlatShape.latticeTorus(BOTH, SKEW_CHUNKS));
+            DeckGroupFold plain = new DeckGroupFold(FlatShape.latticeTorus(BOTH, SKEW_CHUNKS),
+                    GenerationOptions.DEFAULT);
             DeckGroupFold wider = new DeckGroupFold(
-                    FlatShape.latticeTorus(BOTH, SKEW_CHUNKS + (MAX_CHUNK - MIN_CHUNK)));
+                    FlatShape.latticeTorus(BOTH, SKEW_CHUNKS + (MAX_CHUNK - MIN_CHUNK)), GenerationOptions.DEFAULT);
             assertSameFold(plain, wider, "a skew one world wider is a different lattice");
         }
 
         @Test
         void aMirrorLineHalfAWorldFurtherIsTheSameBottle() {
             DeckGroupFold plain = new DeckGroupFold(
-                    FlatShape.mirrored(BOTH, Direction.Axis.Z, OFFSET_MIRROR_CHUNK));
-            DeckGroupFold further = new DeckGroupFold(FlatShape.mirrored(
-                    BOTH, Direction.Axis.Z, OFFSET_MIRROR_CHUNK + (MAX_CHUNK - MIN_CHUNK) / 2));
+                    ShapeFixtures.mirrored(BOTH, Direction.Axis.Z, OFFSET_MIRROR_CHUNK), GenerationOptions.DEFAULT);
+            DeckGroupFold further = new DeckGroupFold(ShapeFixtures.mirrored(
+                    BOTH, Direction.Axis.Z, OFFSET_MIRROR_CHUNK + (
+                            MAX_CHUNK - MIN_CHUNK) / 2), GenerationOptions.DEFAULT);
             assertSameFold(plain, further, "a mirror line half a world further is a different bottle");
         }
 
         @Test
         void aMirrorLineOnXHalfAWorldFurtherIsTheSameBottle() {
             DeckGroupFold plain = new DeckGroupFold(
-                    FlatShape.mirrored(BOTH, Direction.Axis.X, OFFSET_MIRROR_CHUNK));
-            DeckGroupFold further = new DeckGroupFold(FlatShape.mirrored(
-                    BOTH, Direction.Axis.X, OFFSET_MIRROR_CHUNK + (MAX_CHUNK - MIN_CHUNK) / 2));
+                    ShapeFixtures.mirrored(BOTH, Direction.Axis.X, OFFSET_MIRROR_CHUNK), GenerationOptions.DEFAULT);
+            DeckGroupFold further = new DeckGroupFold(ShapeFixtures.mirrored(
+                    BOTH, Direction.Axis.X, OFFSET_MIRROR_CHUNK + (
+                            MAX_CHUNK - MIN_CHUNK) / 2), GenerationOptions.DEFAULT);
             assertSameFold(plain, further, "a mirror line on X half a world further is a different bottle");
         }
 
@@ -1173,7 +1179,7 @@ class DeckGroupFoldMatrixTest {
         void theDecomposableShapesAgreeWithThePerAxisTransformerOnBoundsQueries() {
             for (Case testCase : decomposableCases()) {
                 DeckGroupFold generic = testCase.fold();
-                WorldFold perAxis = new WorldLoopTransformer(testCase.shape().bounds());
+                WorldFold perAxis = new WorldLoopTransformer(testCase.shape().bounds(), GenerationOptions.DEFAULT);
                 Random random = new Random(SEED + 18);
                 for (int sample = 0; sample < SAMPLES; sample++) {
                     BlockPos block = new BlockPos(sample(random), 64, sample(random));
@@ -1195,7 +1201,7 @@ class DeckGroupFoldMatrixTest {
         void theDecomposableShapesAgreeWithThePerAxisTransformer() {
             for (Case testCase : decomposableCases()) {
                 DeckGroupFold generic = testCase.fold();
-                WorldFold perAxis = new WorldLoopTransformer(testCase.shape().bounds());
+                WorldFold perAxis = new WorldLoopTransformer(testCase.shape().bounds(), GenerationOptions.DEFAULT);
                 Random random = new Random(SEED + 14);
                 for (int sample = 0; sample < SAMPLES; sample++) {
                     BlockPos ref = new BlockPos(sample(random), 64, sample(random));
@@ -1220,8 +1226,12 @@ class DeckGroupFoldMatrixTest {
                             generic.nearestCopy(refChunk, targetChunk), testCase.name() + ": chunk nearestCopy");
                     assertEquals(perAxis.nearestCopy(refVector, targetVector),
                             generic.nearestCopy(refVector, targetVector), testCase.name() + ": vector nearestCopy");
-                    assertEquals(perAxis.sqrDistance(refVector, targetVector),
-                            generic.sqrDistance(refVector, targetVector), testCase.name() + ": sqrDistance");
+                    assertEquals(
+                            perAxis.sqrDistance(refVector.x, refVector.y, refVector.z, targetVector.x, targetVector.y,
+                                    targetVector.z),
+                            generic.sqrDistance(refVector.x, refVector.y, refVector.z, targetVector.x, targetVector.y,
+                                    targetVector.z),
+                            testCase.name() + ": sqrDistance");
                     assertEquals(perAxis.sqrChunkDistance(refChunk, targetChunk),
                             generic.sqrChunkDistance(refChunk, targetChunk), testCase.name() + ": chunk distance");
                 }
@@ -1232,7 +1242,7 @@ class DeckGroupFoldMatrixTest {
         void theDecomposableShapesAgreeWithThePerAxisTransformerOnTheReseat() {
             for (Case testCase : decomposableCases()) {
                 DeckGroupFold generic = testCase.fold();
-                WorldFold perAxis = new WorldLoopTransformer(testCase.shape().bounds());
+                WorldFold perAxis = new WorldLoopTransformer(testCase.shape().bounds(), GenerationOptions.DEFAULT);
                 Random random = new Random(SEED + 21);
                 for (int sample = 0; sample < SAMPLES; sample++) {
                     int x = sample(random);

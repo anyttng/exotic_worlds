@@ -102,8 +102,8 @@ class WorldLoopBoundsTest {
     @Test
     void maxViewDistanceIsHalfTheNarrowerLoopedWidthMinusThreeAndNeverBelowOne() {
         assertEquals(64 / 2 - 3, WorldLoopBounds.ofWidth(64).maxViewDistance());
-        assertEquals(16 / 2 - 3, new WorldLoopBounds(-48, 16, 0, 16).maxViewDistance());
-        assertEquals(1, new WorldLoopBounds(-2, 3, -2, 3).maxViewDistance());
+        assertEquals(16 / 2 - 3, ShapeFixtures.loopedBounds(-48, 16, 0, 16).maxViewDistance());
+        assertEquals(1, ShapeFixtures.loopedBounds(-2, 3, -2, 3).maxViewDistance());
         assertEquals(64 / 2 - 3, new WorldLoopBounds(
                 new AxisBounds.Looped(-32, 32), AxisBounds.Unbounded.INSTANCE).maxViewDistance());
         assertEquals(Integer.MAX_VALUE, WorldLoopBounds.UNBOUNDED.maxViewDistance());
@@ -137,7 +137,7 @@ class WorldLoopBoundsTest {
                 WorldLoopBounds.ofWidth(5),
                 WorldLoopBounds.UNBOUNDED,
                 new WorldLoopBounds(AxisBounds.Unbounded.INSTANCE, new AxisBounds.Looped(-16, 16)),
-                new WorldLoopBounds(-16, 16, -32, 32));
+                ShapeFixtures.loopedBounds(-16, 16, -32, 32));
         for (WorldLoopBounds bounds : shapes) {
             JsonElement written = WorldLoopBounds.CODEC.encodeStart(JsonOps.INSTANCE, bounds).getOrThrow();
             assertEquals(bounds, WorldLoopBounds.CODEC.parse(JsonOps.INSTANCE, written).getOrThrow(),
@@ -166,7 +166,7 @@ class WorldLoopBoundsTest {
 
     @Test
     void equalWidthsPlacedDifferentlyPerAxisAreStillSquare() {
-        assertTrue(new WorldLoopBounds(-48, 16, 0, 64).isSquare());
+        assertTrue(ShapeFixtures.loopedBounds(-48, 16, 0, 64).isSquare());
     }
 
     @Test
@@ -178,20 +178,20 @@ class WorldLoopBoundsTest {
 
     @Test
     void aRectangularWorldIsNotSquare() {
-        assertFalse(new WorldLoopBounds(-16, 16, -32, 32).isSquare());
+        assertFalse(ShapeFixtures.loopedBounds(-16, 16, -32, 32).isSquare());
     }
 
     @Test
     void aDegenerateSpanIsNotSquare() {
-        assertFalse(new WorldLoopBounds(5, 5, 5, 5).isSquare());
-        assertFalse(new WorldLoopBounds(10, -10, 10, -10).isSquare());
+        assertFalse(ShapeFixtures.loopedBounds(5, 5, 5, 5).isSquare());
+        assertFalse(ShapeFixtures.loopedBounds(10, -10, 10, -10).isSquare());
     }
 
     @Test
     void ofWidthsCentersEachAxisOnItsOwnWidthAndTheNarrowerAxisBoundsTheView() {
         WorldLoopBounds rectangle = WorldLoopBounds.ofWidths(64, 128);
 
-        assertEquals(new WorldLoopBounds(-32, 32, -64, 64), rectangle);
+        assertEquals(ShapeFixtures.loopedBounds(-32, 32, -64, 64), rectangle);
         assertFalse(rectangle.isSquare());
         assertEquals(WorldLoopBounds.ofWidth(32), WorldLoopBounds.ofWidths(32, 32));
         assertEquals(WorldLoopBounds.ofWidth(64).maxViewDistance(), rectangle.maxViewDistance());
@@ -219,7 +219,7 @@ class WorldLoopBoundsTest {
         assertThrows(IllegalStateException.class, () -> xOnly.chunkWidth(Direction.Axis.Z));
         assertThrows(IllegalArgumentException.class, () -> xOnly.axis(Direction.Axis.Y));
 
-        WorldLoopBounds rectangle = new WorldLoopBounds(-16, 16, -32, 32);
+        WorldLoopBounds rectangle = ShapeFixtures.loopedBounds(-16, 16, -32, 32);
         assertEquals(32, rectangle.chunkWidth(Direction.Axis.X));
         assertEquals(64, rectangle.chunkWidth(Direction.Axis.Z));
     }
@@ -227,10 +227,11 @@ class WorldLoopBoundsTest {
     @Test
     void scaledDownDividesEveryLoopedWidthRecenteredAndLeavesAnUnboundedAxisAlone() {
         assertEquals(WorldLoopBounds.ofWidth(16), WorldLoopBounds.ofWidth(32).scaledDown(2));
-        assertEquals(WorldLoopBounds.ofWidth(32), new WorldLoopBounds(-48, 16, 0, 64).scaledDown(2));
+        assertEquals(WorldLoopBounds.ofWidth(32), ShapeFixtures.loopedBounds(-48, 16, 0, 64).scaledDown(2));
         assertEquals(WorldLoopBounds.ofWidth(Direction.Axis.Z, 16),
                 WorldLoopBounds.ofWidth(Direction.Axis.Z, 128).scaledDown(8));
-        assertEquals(new WorldLoopBounds(-8, 8, -32, 32), new WorldLoopBounds(-16, 16, -64, 64).scaledDown(2));
+        assertEquals(ShapeFixtures.loopedBounds(-8, 8, -32, 32),
+                ShapeFixtures.loopedBounds(-16, 16, -64, 64).scaledDown(2));
         assertEquals(WorldLoopBounds.UNBOUNDED, WorldLoopBounds.UNBOUNDED.scaledDown(8));
         assertEquals(WorldLoopBounds.ofWidth(32), WorldLoopBounds.ofWidth(32).scaledDown(1));
     }

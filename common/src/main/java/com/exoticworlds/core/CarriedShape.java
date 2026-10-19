@@ -18,10 +18,6 @@ public final class CarriedShape {
     private final GenerationOptions generationOptions;
     private final WorldFold fold;
 
-    public CarriedShape(FlatShape shape) {
-        this(shape, GenerationOptions.DEFAULT);
-    }
-
     public CarriedShape(FlatShape shape, GenerationOptions generationOptions) {
         this.shape = shape;
         this.generationOptions = generationOptions;

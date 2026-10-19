@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.shape.LoopSpans;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.engine.gen.ShapedDimensions;
 import com.exoticworlds.shape.climate.ClimateScale;
@@ -48,11 +48,11 @@ class CylinderDimensionsTest {
     void anXCylinderRoundTripsThroughItsThreeGenerators() {
         WorldDimensions created = CylinderDimensions.apply(vanillaDimensions(), X_32);
 
-        assertEquals(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 32)),
+        assertEquals(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 32)),
                 ShapedDimensions.shapeOf(created, LevelStem.OVERWORLD));
-        assertEquals(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 16)),
+        assertEquals(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 16)),
                 ShapedDimensions.shapeOf(created, LevelStem.NETHER));
-        assertEquals(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 256)),
+        assertEquals(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 256)),
                 ShapedDimensions.shapeOf(created, LevelStem.END));
         assertEquals(X_32, CylinderDimensions.read(created));
     }
@@ -61,11 +61,11 @@ class CylinderDimensionsTest {
     void aZCylinderRoundTripsThroughItsThreeGenerators() {
         WorldDimensions created = CylinderDimensions.apply(vanillaDimensions(), Z_64);
 
-        assertEquals(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.Z, 64)),
+        assertEquals(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.Z, 64)),
                 ShapedDimensions.shapeOf(created, LevelStem.OVERWORLD));
-        assertEquals(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.Z, 16)),
+        assertEquals(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.Z, 16)),
                 ShapedDimensions.shapeOf(created, LevelStem.NETHER));
-        assertEquals(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.Z, 320)),
+        assertEquals(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.Z, 320)),
                 ShapedDimensions.shapeOf(created, LevelStem.END));
         assertEquals(Z_64, CylinderDimensions.read(created));
     }
@@ -74,7 +74,7 @@ class CylinderDimensionsTest {
     void theDefaultNetherScaleFallsToWhatTheWidthAdmits() {
         WorldDimensions created = CylinderDimensions.apply(vanillaDimensions(), CylinderSettings.DEFAULT);
 
-        assertEquals(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 16)),
+        assertEquals(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 16)),
                 ShapedDimensions.shapeOf(created, LevelStem.NETHER));
         assertEquals(2, CylinderDimensions.read(created).netherScale());
     }

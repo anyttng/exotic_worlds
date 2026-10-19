@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
@@ -49,13 +50,13 @@ class DhSeamSqlTest {
 
     private static DhLattice torus() {
         AxisBounds.Looped looped = new AxisBounds.Looped(-HALF_CHUNKS, HALF_CHUNKS);
-        return DhLattice.of(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(looped, looped))));
+        return DhLattice.of(WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(looped, looped))));
     }
 
     private static DhLattice cylinder() {
         AxisBounds.Looped looped = new AxisBounds.Looped(-HALF_CHUNKS, HALF_CHUNKS);
         return DhLattice.of(WorldFolds.of(
-                FlatShape.torus(new WorldLoopBounds(looped, AxisBounds.Unbounded.INSTANCE))));
+                ShapeFixtures.torus(new WorldLoopBounds(looped, AxisBounds.Unbounded.INSTANCE))));
     }
 
     private static DhLattice lattice() {

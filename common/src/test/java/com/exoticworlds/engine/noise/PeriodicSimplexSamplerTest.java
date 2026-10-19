@@ -9,8 +9,10 @@ import java.util.Random;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -38,7 +40,7 @@ class PeriodicSimplexSamplerTest {
     private static final WorldFold DEFAULT = transformer(-16, 16, -16, 16);
     private static final WorldFold SMALL = transformer(-8, 8, -8, 8);
     private static final WorldFold UNEVEN = transformer(-32, 32, 0, 16);
-    private static final WorldFold X_ONLY = WorldFolds.of(FlatShape.cylinder(
+    private static final WorldFold X_ONLY = WorldFolds.of(ShapeFixtures.cylinder(
             new WorldLoopBounds(new AxisBounds.Looped(-16, 16), AxisBounds.Unbounded.INSTANCE)));
 
     private static final List<WorldFold> BOTH_AXES = List.of(DEFAULT, SMALL, UNEVEN);
@@ -53,7 +55,8 @@ class PeriodicSimplexSamplerTest {
     private static final double VANILLA_KERNEL_RADIUS_SQR = 0.5;
 
     private static WorldFold transformer(int xChunkMin, int xChunkMax, int zChunkMin, int zChunkMax) {
-        return WorldFolds.of(FlatShape.torus(new WorldLoopBounds(xChunkMin, xChunkMax, zChunkMin, zChunkMax)));
+        return WorldFolds.of(
+                ShapeFixtures.torus(ShapeFixtures.loopedBounds(xChunkMin, xChunkMax, zChunkMin, zChunkMax)));
     }
 
     @SuppressWarnings("ArrayRecordComponent")
@@ -353,9 +356,12 @@ class PeriodicSimplexSamplerTest {
     @Nested
     class SkewedLattice {
         private static final List<DeckGroupFold> SKEWED = List.of(
-                new DeckGroupFold(FlatShape.latticeTorus(new WorldLoopBounds(-16, 16, -16, 16), 5)),
-                new DeckGroupFold(FlatShape.latticeTorus(new WorldLoopBounds(-8, 8, -8, 8), -3)),
-                new DeckGroupFold(FlatShape.latticeTorus(new WorldLoopBounds(-32, 32, 0, 16), 13)));
+                new DeckGroupFold(FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-16, 16, -16, 16), 5),
+                        GenerationOptions.DEFAULT),
+                new DeckGroupFold(FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-8, 8, -8, 8), -3),
+                        GenerationOptions.DEFAULT),
+                new DeckGroupFold(FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-32, 32, 0, 16), 13),
+                        GenerationOptions.DEFAULT));
 
         @Test
         void agreesAtEveryCopyUnderBothDeckGenerators() {

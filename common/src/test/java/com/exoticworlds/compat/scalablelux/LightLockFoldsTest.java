@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -23,7 +23,7 @@ class LightLockFoldsTest {
 
     private static WorldFold torus(int widthChunks) {
         AxisBounds.Looped looped = new AxisBounds.Looped(0, widthChunks);
-        return WorldFolds.of(FlatShape.torus(new WorldLoopBounds(looped, looped)));
+        return WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(looped, looped)));
     }
 
     @SuppressWarnings("NonApiType")

@@ -14,15 +14,17 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.engine.noise.BlendedNoiseFixture.Octave;
 
 class SkewedFieldDistributionTest {
-    private static final WorldLoopBounds BOUNDS = new WorldLoopBounds(-16, 16, -16, 16);
+    private static final WorldLoopBounds BOUNDS = ShapeFixtures.loopedBounds(-16, 16, -16, 16);
     private static final int WORLD_BLOCKS = 512;
     private static final double HALF_WORLD = 256.0;
     private static final int[] SKEW_CHUNKS = {5, 16};
@@ -51,9 +53,11 @@ class SkewedFieldDistributionTest {
     @Test
     void aDampedOctaveKeepsTheVanillaWindowOnASkewedLattice() {
         List<Reading> readings = new ArrayList<>();
-        readings.addAll(measure("torus", WorldFolds.of(FlatShape.torus(BOUNDS))));
+        readings.addAll(measure("torus", WorldFolds.of(ShapeFixtures.torus(BOUNDS))));
         for (int skewChunks : SKEW_CHUNKS) {
-            readings.addAll(measure("skew " + skewChunks, new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, skewChunks))));
+            readings.addAll(
+                    measure("skew " + skewChunks,
+                            new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, skewChunks), GenerationOptions.DEFAULT)));
         }
 
         StringBuilder report = new StringBuilder("Damped-octave gates, 512-block lap, ")

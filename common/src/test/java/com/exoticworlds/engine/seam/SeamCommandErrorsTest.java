@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -23,9 +24,10 @@ class SeamCommandErrorsTest {
     private static final int MAX_BLOCK = 511;
     private static final double FAR_OUTSIDE = 20481032.0;
 
-    private static final WorldFold TORUS = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-32, 32, -32, 32)));
+    private static final WorldFold TORUS = WorldFolds.of(
+            ShapeFixtures.torus(ShapeFixtures.loopedBounds(-32, 32, -32, 32)));
 
-    private static final WorldFold X_ONLY = WorldFolds.of(FlatShape.cylinder(
+    private static final WorldFold X_ONLY = WorldFolds.of(ShapeFixtures.cylinder(
             new WorldLoopBounds(new AxisBounds.Looped(-32, 32), AxisBounds.Unbounded.INSTANCE)));
 
     @Test
@@ -55,7 +57,7 @@ class SeamCommandErrorsTest {
 
     @Test
     void aSkewedWorldRefusesOnItsOwnRectangleOnBothAxes() {
-        WorldFold skewed = WorldFolds.of(FlatShape.latticeTorus(new WorldLoopBounds(-32, 32, -32, 32), 5));
+        WorldFold skewed = WorldFolds.of(FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-32, 32, -32, 32), 5));
 
         CommandSyntaxException refusal = assertThrows(CommandSyntaxException.class,
                 () -> SeamCommandErrors.requireInsideWorld(skewed, Direction.Axis.X, 600.5));

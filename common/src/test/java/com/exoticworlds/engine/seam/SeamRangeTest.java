@@ -4,17 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
 class SeamRangeTest {
     private static final WorldFold WORLD =
-            WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-16, 16, -16, 16)));
+            WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-16, 16, -16, 16)));
     private static final WorldFold NO_FOLD = null;
 
     private static final BlockPos EAST_BLOCK = new BlockPos(250, 70, 0);

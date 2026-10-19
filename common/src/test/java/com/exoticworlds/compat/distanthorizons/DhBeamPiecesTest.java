@@ -7,7 +7,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.WorldCopies;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
@@ -22,7 +22,7 @@ class DhBeamPiecesTest {
 
     private static DhLattice torus() {
         AxisBounds.Looped looped = new AxisBounds.Looped(-HALF_WIDTH_CHUNKS, HALF_WIDTH_CHUNKS);
-        return DhLattice.of(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(looped, looped))));
+        return DhLattice.of(WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(looped, looped))));
     }
 
     @Test
