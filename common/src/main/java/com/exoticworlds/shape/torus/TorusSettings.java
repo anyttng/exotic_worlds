@@ -27,14 +27,6 @@ public record TorusSettings(LoopSpans overworld, int netherScale, LoopSpans end,
             LoopSpans.ofWidth(WorldLoopSizes.END_DEFAULT_CHUNK_WIDTH),
             DEFAULT_GENERATION_OPTIONS);
 
-    public int chunkWidth(Direction.Axis axis) {
-        return overworld.chunkWidth(axis);
-    }
-
-    public int skewChunks() {
-        return overworld.skewChunks();
-    }
-
     public int endChunkWidth() {
         return end.chunkWidth(Direction.Axis.X);
     }

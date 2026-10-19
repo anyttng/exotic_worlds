@@ -9,6 +9,7 @@ import java.util.function.IntPredicate;
 import org.jspecify.annotations.Nullable;
 
 import com.uber.nullaway.annotations.Initializer;
+import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
@@ -101,8 +102,11 @@ public final class LoopSizeControls {
                 FlatShape.NO_SKEW, netherScale, endChunkWidth, onChange);
     }
 
-    public static LoopSizeControls perAxis(int xChunkWidth, int zChunkWidth, int skewChunks, int netherScale,
-            int endChunkWidth, Runnable onChange) {
+    public static LoopSizeControls perAxis(LoopSpans overworld, int netherScale, int endChunkWidth,
+            Runnable onChange) {
+        int xChunkWidth = overworld.chunkWidth(Direction.Axis.X);
+        int zChunkWidth = overworld.chunkWidth(Direction.Axis.Z);
+        int skewChunks = Math.floorMod(overworld.skewChunks(), xChunkWidth);
         return new LoopSizeControls(worldSizeField(SIZE_X_LABEL_KEY, xChunkWidth),
                 worldSizeField(SIZE_Z_LABEL_KEY, zChunkWidth), new SkewField(skewChunks), xChunkWidth, zChunkWidth,
                 skewChunks, netherScale, endChunkWidth, onChange);

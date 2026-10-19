@@ -48,28 +48,28 @@ public final class XaeroMapView {
 
     public double clampCameraX(double cameraX, double scale) {
         return clampCamera(XaeroWorldMapFold.browsedShape(), this.mapCopies, Direction.Axis.X, cameraX,
-                Minecraft.getInstance().getWindow().getWidth(), scale);
+                MapViewSpan.halfBlocks(Minecraft.getInstance().getWindow().getWidth(), scale));
     }
 
     public double clampCameraZ(double cameraZ, double scale) {
         return clampCamera(XaeroWorldMapFold.browsedShape(), this.mapCopies, Direction.Axis.Z, cameraZ,
-                Minecraft.getInstance().getWindow().getHeight(), scale);
+                MapViewSpan.halfBlocks(Minecraft.getInstance().getWindow().getHeight(), scale));
     }
 
     static double clampCamera(@Nullable ToroidalShape shape, MapCopies mapCopies, Direction.Axis axis, double camera,
-            int windowPixels, double scale) {
+            double halfSpan) {
         if (mapCopies != MapCopies.SINGLE || shape == null) {
             return camera;
         }
 
-        return AxisCopies.of(shape, axis).clampView(camera, MapViewSpan.halfBlocks(windowPixels, scale));
+        return AxisCopies.of(shape, axis).clampView(camera, halfSpan);
     }
 
     public void drawSeamGrid(Matrix4f matrix, VertexConsumer buffer, int flooredCameraX, int flooredCameraZ,
-            double cameraX, double cameraZ, double scale) {
+            XaeroCamera camera) {
         Window window = Minecraft.getInstance().getWindow();
-        for (SeamFill fill : seamFills(XaeroWorldMapFold.browsedShape(), this.mapCopies.drawsSeamLines(), cameraX,
-                cameraZ, window.getWidth(), window.getHeight(), scale)) {
+        for (SeamFill fill : seamFills(XaeroWorldMapFold.browsedShape(), this.mapCopies.drawsSeamLines(), camera,
+                window.getWidth(), window.getHeight())) {
             MapRenderHelper.fillIntoExistingBuffer(matrix, buffer, fill.minX() - flooredCameraX,
                     fill.minZ() - flooredCameraZ, fill.maxX() - flooredCameraX, fill.maxZ() - flooredCameraZ,
                     ARGB.redFloat(SeamLine.LINE_ARGB), ARGB.greenFloat(SeamLine.LINE_ARGB),
@@ -77,15 +77,16 @@ public final class XaeroMapView {
         }
     }
 
-    static List<SeamFill> seamFills(@Nullable ToroidalShape shape, boolean drawsSeamLines, double cameraX,
-            double cameraZ, int windowWidth, int windowHeight, double scale) {
+    static List<SeamFill> seamFills(@Nullable ToroidalShape shape, boolean drawsSeamLines, XaeroCamera camera,
+            int windowWidth, int windowHeight) {
         if (!drawsSeamLines || shape == null) {
             return List.of();
         }
 
+        double scale = camera.scale();
         int thickness = Math.max(1, (int) Math.ceil(1.0 / scale));
-        int[] spanX = MapViewSpan.of(cameraX, windowWidth, scale, thickness);
-        int[] spanZ = MapViewSpan.of(cameraZ, windowHeight, scale, thickness);
+        int[] spanX = MapViewSpan.of(camera.x(), windowWidth, scale, thickness);
+        int[] spanZ = MapViewSpan.of(camera.z(), windowHeight, scale, thickness);
         List<SeamFill> fills = new ArrayList<>();
         for (WorldCopies.Edge seam : WorldCopies.seams(shape, spanX[0], spanZ[0], spanX[1], spanZ[1])) {
             fills.add(new SeamFill(seam.fromX(), seam.fromZ(), Math.max(seam.toX(), seam.fromX() + thickness),
