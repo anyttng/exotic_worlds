@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.exoticworlds.accessors.LevelHolder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.gen.ChunkFrameTicks;
+import com.exoticworlds.engine.gen.RegionReach;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -68,14 +68,8 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @Unique
     private @Nullable ChunkPos exotic_worlds$nearestPastTheReach(int chunkX, int chunkZ) {
-        ChunkPos center = this.center.getPos();
-        if (center.getChessboardDistance(chunkX, chunkZ) < this.generatingStep.directDependencies().size()) {
-            return null;
-        }
-
-        ChunkPos nearest = NearestCopy.toward(WorldLoopAttachments.wrappedTransformerOf(this.level), center,
-                new ChunkPos(chunkX, chunkZ));
-        return nearest.x() == chunkX && nearest.z() == chunkZ ? null : nearest;
+        return RegionReach.nearestPastTheReach(WorldLoopAttachments.wrappedTransformerOf(this.level),
+                this.center.getPos(), this.generatingStep.directDependencies().size(), chunkX, chunkZ);
     }
 
     @WrapMethod(
@@ -90,13 +84,11 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @WrapMethod(method = "ensureCanWrite")
     private boolean exotic_worlds$writeZoneThroughTheSeam(BlockPos pos, Operation<Boolean> original) {
-        int chunkX = SectionPos.blockToSectionCoord(pos.getX());
-        int chunkZ = SectionPos.blockToSectionCoord(pos.getZ());
-        ChunkPos nearest = this.exotic_worlds$nearestPastTheReach(chunkX, chunkZ);
+        ChunkPos nearest = this.exotic_worlds$nearestPastTheReach(
+                SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
         return nearest == null
                 ? original.call(pos)
-                : original.call(pos.offset(SectionPos.sectionToBlockCoord(nearest.x() - chunkX), 0,
-                        SectionPos.sectionToBlockCoord(nearest.z() - chunkZ)));
+                : original.call(WorldLoopAttachments.transformerOf(this.level).reseat(pos, nearest));
     }
 
     @WrapMethod(method = "hasChunk")
@@ -110,8 +102,7 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @Unique
     private BlockPos exotic_worlds$keyIn(ChunkAccess chunk, BlockPos pos) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
-        return transformer == null ? pos : transformer.reseat(pos, chunk.getPos());
+        return WorldLoopAttachments.transformerOf(this.level).reseat(pos, chunk.getPos());
     }
 
     @WrapOperation(

@@ -231,7 +231,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             @Local(argsOnly = true) ChunkGenerator generator,
             @Local(argsOnly = true) ServerLevel level) {
         WorldFold fold = ShapedChunkGenerator.wrappedTransformerOf(generator);
-        NoiseGeneratorSettings shaped = fold != null ? TerrainCeiling.withCeiling(settings) : settings;
+        NoiseGeneratorSettings shaped = TerrainCeiling.shaped(fold, settings);
         return GenerationTransformerContext.withRouterBuild(fold,
                 () -> original.call(shaped, noiseParameters, seed));
     }
