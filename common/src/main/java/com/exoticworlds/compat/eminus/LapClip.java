@@ -6,6 +6,8 @@ import java.util.Map;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
+import com.eminus.client.session.ClientSession;
+import com.eminus.gpu.pipeline.PipelineSpec;
 import com.mojang.logging.LogUtils;
 
 public final class LapClip {
@@ -60,6 +62,18 @@ public final class LapClip {
                 "}",
                 "#endif",
                 "");
+    }
+
+    public static PipelineSpec.Builder clipped(PipelineSpec.Builder builder) {
+        CellFold fold = CellFoldHolder.foldOf(ClientSession.runtime());
+        if (!fold.repeats()) {
+            return builder;
+        }
+
+        return builder.withDefine(DEFINE)
+                .withDefine(DEFINE_X, fold.lapXBlocks())
+                .withDefine(DEFINE_Z, fold.lapZBlocks())
+                .withDefine(DEFINE_SKEW, fold.skewBlocks());
     }
 
     public static @Nullable String fragmentShader(String resourcePath) {
