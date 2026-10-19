@@ -22,13 +22,13 @@ import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.FoldedOrder;
 import com.exoticworlds.engine.level.BoundLevelFold;
+import com.exoticworlds.engine.seam.PoiSeamSearch;
 import com.exoticworlds.engine.seam.SeamRange;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.datafixers.util.Pair;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -81,14 +81,9 @@ public class PoiManagerMixin {
         PoiManager self = (PoiManager) (Object) this;
         int chunkRadius = Math.floorDiv(radius, CoordinateConstants.CHUNK_WIDTH) + 1;
 
-        return exotic_worlds$chunksAround(ChunkPos.containing(center), chunkRadius, transformer)
+        return PoiSeamSearch.chunksAround(transformer, ChunkPos.containing(center), chunkRadius)
                 .flatMap(chunkPos -> self.getInChunk(predicate, chunkPos, occupancy))
-                .filter(record -> {
-                    BlockPos pos = record.getPos();
-                    BlockPos nearest = transformer.nearestCopy(center, pos);
-                    return Math.abs(nearest.getX() - center.getX()) <= radius
-                            && Math.abs(nearest.getZ() - center.getZ()) <= radius;
-                });
+                .filter(record -> PoiSeamSearch.withinSquare(transformer, center, radius, record.getPos()));
     }
 
     @WrapMethod(method = "getInRange")
@@ -122,7 +117,7 @@ public class PoiManagerMixin {
 
         return ((PoiManager) (Object) this).getInRange(predicate, center, radius, occupancy)
                 .map(PoiRecord::getPos)
-                .min(exotic_worlds$byDistance(transformer, center));
+                .min(PoiSeamSearch.byDistance(transformer, center));
     }
 
     @WrapMethod(method = FIND_CLOSEST_FILTERED)
@@ -141,7 +136,7 @@ public class PoiManagerMixin {
         return ((PoiManager) (Object) this).getInRange(predicate, center, radius, occupancy)
                 .map(PoiRecord::getPos)
                 .filter(filter)
-                .min(exotic_worlds$byDistance(transformer, center));
+                .min(PoiSeamSearch.byDistance(transformer, center));
     }
 
     @WrapMethod(method = "findClosestWithType")
@@ -237,7 +232,7 @@ public class PoiManagerMixin {
         SectionStorageAccessor storage = (SectionStorageAccessor) this;
         LevelHeightAccessor height = storage.exotic_worlds$getLevelHeightAccessor();
         int chunkRadius = Math.floorDiv(radius, CoordinateConstants.CHUNK_WIDTH);
-        exotic_worlds$chunksAround(ChunkPos.containing(center), chunkRadius, transformer)
+        PoiSeamSearch.chunksAround(transformer, ChunkPos.containing(center), chunkRadius)
                 .filter(chunk -> IntStream.rangeClosed(height.getMinSectionY(), height.getMaxSectionY())
                         .anyMatch(sectionY -> !storage.exotic_worlds$getOrLoad(SectionPos.of(chunk, sectionY).asLong())
                                 .map(section -> ((PoiSection) section).isValid())
@@ -264,29 +259,4 @@ public class PoiManagerMixin {
     private BlockPos exotic_worlds$positionThroughSeam(BlockPos pos) {
         return this.exotic_worlds$bound.fold().fold(pos);
     }
-
-    @Unique
-    private static Stream<ChunkPos> exotic_worlds$chunksAround(ChunkPos center, int chunkRadius, WorldFold transformer) {
-        Stream<ChunkPos> wrapped = ChunkPos.rangeClosed(center, chunkRadius)
-                .map(pos -> transformer.isOver(pos) ? transformer.fold(pos) : pos);
-
-        if (!exotic_worlds$foldsOntoItself(chunkRadius, transformer)) {
-            return wrapped;
-        }
-
-        LongSet seen = new LongOpenHashSet();
-        return wrapped.filter(chunkPos -> seen.add(chunkPos.pack()));
-    }
-
-    @Unique
-    private static Comparator<BlockPos> exotic_worlds$byDistance(WorldFold transformer, BlockPos center) {
-        return Comparator.comparingDouble(pos -> SeamRange.sqr(transformer, center, pos));
-    }
-
-    @Unique
-    private static boolean exotic_worlds$foldsOntoItself(int chunkRadius, WorldFold transformer) {
-        int span = chunkRadius * 2 + 1;
-        return transformer.bounds().x().foldsOntoItself(span) || transformer.bounds().z().foldsOntoItself(span);
-    }
-
 }

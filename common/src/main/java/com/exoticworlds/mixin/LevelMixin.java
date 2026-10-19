@@ -135,12 +135,7 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
 
     @Unique
     private BlockPos exotic_worlds$wrap(BlockPos pos) {
-        WorldFold transformer = exotic_worlds$transformer();
-        if (!transformer.isWrapped()) {
-            return pos;
-        }
-
-        return transformer.fold(pos);
+        return exotic_worlds$transformer().fold(pos);
     }
 
     @Override
