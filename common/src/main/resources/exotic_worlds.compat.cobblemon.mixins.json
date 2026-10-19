@@ -15,6 +15,7 @@
     "PastureLinkRangeMixin",
     "PastureTetherMixin",
     "RiderEyeSeatMixin",
+    "SendAroundRangeMixin",
     "SendOutPositionMixin",
     "TetherBoxMixin"
   ],
