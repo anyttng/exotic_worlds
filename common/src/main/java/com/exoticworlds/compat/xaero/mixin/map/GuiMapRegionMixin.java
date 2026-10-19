@@ -20,8 +20,10 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.exoticworlds.compat.xaero.XaeroCamera;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
 import com.exoticworlds.compat.xaero.XaeroRegionFrame;
+import com.exoticworlds.compat.xaero.XaeroRegionKey;
 import com.exoticworlds.compat.xaero.XaeroRegionLoads;
 
 import xaero.lib.client.graphics.GpuTextureAndView;
@@ -79,8 +81,8 @@ public abstract class GuiMapRegionMixin {
     private @Nullable LeveledRegion<?> exotic_worlds$fetchHoverLeveledRegion(@Nullable LeveledRegion<?> existing,
             @Local(name = "renderedCaveLayer") int caveLayer, @Local(name = "mouseRegX") int regX,
             @Local(name = "mouseRegZ") int regZ, @Local(name = "textureLevel") int level) {
-        return this.exotic_worlds$loads.leveledOrFold(this.mapProcessor, existing, caveLayer, regX, regZ, level,
-                this.cameraX, this.cameraZ, this.scale);
+        return this.exotic_worlds$loads.leveledOrFold(this.mapProcessor, existing,
+                new XaeroRegionKey(caveLayer, regX, regZ, level), new XaeroCamera(this.cameraX, this.cameraZ, this.scale));
     }
 
     @ModifyExpressionValue(
@@ -91,8 +93,8 @@ public abstract class GuiMapRegionMixin {
     private @Nullable LeveledRegion<?> exotic_worlds$fetchViewLeveledRegion(@Nullable LeveledRegion<?> existing,
             @Local(name = "renderedCaveLayer") int caveLayer, @Local(name = "leveledRegX") int regX,
             @Local(name = "leveledRegZ") int regZ, @Local(name = "textureLevel") int level) {
-        return this.exotic_worlds$loads.leveledOrFold(this.mapProcessor, existing, caveLayer, regX, regZ, level,
-                this.cameraX, this.cameraZ, this.scale);
+        return this.exotic_worlds$loads.leveledOrFold(this.mapProcessor, existing,
+                new XaeroRegionKey(caveLayer, regX, regZ, level), new XaeroCamera(this.cameraX, this.cameraZ, this.scale));
     }
 
     @Inject(

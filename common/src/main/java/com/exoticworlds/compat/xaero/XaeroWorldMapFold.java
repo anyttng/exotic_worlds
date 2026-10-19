@@ -56,8 +56,7 @@ public final class XaeroWorldMapFold {
         int maxX = chunkBlock(firstChunkX + TILE_CHUNK_CHUNKS);
         int maxZ = chunkBlock(firstChunkZ + TILE_CHUNK_CHUNKS);
         List<TileArea> areas = new ArrayList<>();
-        for (WorldCopies.Piece piece : WorldCopies.pieces(window.shape(), window.copiesFor(minX, minZ, maxX, maxZ),
-                minX, minZ, maxX, maxZ)) {
+        for (WorldCopies.Piece piece : window.within(minX, minZ, maxX, maxZ).pieces()) {
             List<TilePiece> piecesX = axisPieces(SectionPos.blockToSectionCoord(piece.minX()),
                     SectionPos.blockToSectionCoord(piece.maxX()),
                     SectionPos.blockToSectionCoord(piece.copy().dx()) - firstChunkX);
@@ -178,10 +177,10 @@ public final class XaeroWorldMapFold {
 
     public static long[] canonicalRegions(@Nullable ToroidalShape shape, int startTileChunkX, int startTileChunkZ,
             int endTileChunkX, int endTileChunkZ) {
-        return WorldCopies.canonicalCells(shape,
+        return WorldCopies.Window.of(shape,
                 chunkBlock(startTileChunkX * TILE_CHUNK_CHUNKS), chunkBlock(startTileChunkZ * TILE_CHUNK_CHUNKS),
-                chunkBlock((endTileChunkX + 1) * TILE_CHUNK_CHUNKS), chunkBlock((endTileChunkZ + 1) * TILE_CHUNK_CHUNKS),
-                REGION_BLOCKS);
+                chunkBlock((endTileChunkX + 1) * TILE_CHUNK_CHUNKS), chunkBlock((endTileChunkZ + 1) * TILE_CHUNK_CHUNKS))
+                .canonicalCells(REGION_BLOCKS);
     }
 
     public static long[] canonicalSlotOrigins(WorldCopies.Window window, int viewBlockX, int viewBlockZ, int slotSize) {
@@ -196,8 +195,7 @@ public final class XaeroWorldMapFold {
     private static long[] slotCells(WorldCopies.Window window, int viewBlockX, int viewBlockZ, int slotSize) {
         int maxX = viewBlockX + slotSize;
         int maxZ = viewBlockZ + slotSize;
-        return WorldCopies.canonicalCells(window.shape(), window.copiesFor(viewBlockX, viewBlockZ, maxX, maxZ),
-                viewBlockX, viewBlockZ, maxX, maxZ, slotSize);
+        return window.within(viewBlockX, viewBlockZ, maxX, maxZ).canonicalCells(slotSize);
     }
 
     public static long @Nullable [] frameRegions(int minTileChunkX, int minTileChunkZ, int maxTileChunkX,
