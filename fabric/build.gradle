@@ -310,6 +310,7 @@ dependencies {
     // Biolith rides modCompileOnly as the FABRIC flavor, as the Xaero jars do: the placement class the mixin extends
     // names game types, and only the remapped jar spells them the way this workspace does.
     modCompileOnly "maven.modrinth:biolith:${biolith_fabric_version}"
+    modCompileOnly "maven.modrinth:cobblemon:${cobblemon_fabric_version}"
     modCompileOnly "curse.maven:reterraforged-unofficial-1607000:${reterraforged_fabric_version}"
     modCompileOnly "maven.modrinth:freeterraforged:${freeterraforged_fabric_version}"
     // WorldWeaver: plain compileOnly on the neoforge flavor; the one game-named override its fold wraps is listed in

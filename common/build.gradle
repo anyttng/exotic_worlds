@@ -15,6 +15,8 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 // loader-free. The AT in src/main/resources/META-INF is auto-detected and applied to the vanilla artifact.
 neoForge {
     neoFormVersion = project.neoform_version
+    // The second file is Cobblemon's own widening its spawn payload tests need; kept out of resources so no jar ships it.
+    accessTransformers.from('src/main/resources/META-INF/accesstransformer.cfg', 'src/test/cobblemon-access.cfg')
 }
 
 sourceSets.main.resources {
@@ -328,6 +330,7 @@ dependencies {
     compileOnly "maven.modrinth:astikorcarts-redux:${astikorcarts_version}"
     compileOnly "maven.modrinth:create-electro-energetics:${electroenergetics_version}"
     compileOnly "maven.modrinth:biolith:${biolith_version}"
+    compileOnly "maven.modrinth:cobblemon:${cobblemon_version}"
     compileOnly "curse.maven:reterraforged-unofficial-1607000:${reterraforged_version}"
     compileOnly "maven.modrinth:freeterraforged:${freeterraforged_version}"
     compileOnly "curse.maven:mt-chunk-generation-1120044:${mtchunkgeneration_version}"
@@ -380,6 +383,9 @@ dependencies {
     testRuntimeOnly "maven.modrinth:terrablender:${terrablender_version}"
     testCompileOnly "maven.modrinth:biolith:${biolith_version}"
     testRuntimeOnly "maven.modrinth:biolith:${biolith_version}"
+    testCompileOnly "maven.modrinth:cobblemon:${cobblemon_version}"
+    testRuntimeOnly "maven.modrinth:cobblemon:${cobblemon_version}"
+    testRuntimeOnly "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_stdlib_version}"
     testCompileOnly "curse.maven:reterraforged-unofficial-1607000:${reterraforged_version}"
     testRuntimeOnly "curse.maven:reterraforged-unofficial-1607000:${reterraforged_version}"
     testCompileOnly "maven.modrinth:freeterraforged:${freeterraforged_version}"

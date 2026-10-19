@@ -1,6 +1,7 @@
 package com.exoticworlds;
 
 import com.exoticworlds.compat.aeronautics.AeronauticsTranslation;
+import com.exoticworlds.compat.cobblemon.CobblemonPackets;
 import com.exoticworlds.compat.create.CreateTranslation;
 import com.exoticworlds.compat.aeronautics.AeronauticsMod;
 import com.exoticworlds.compat.moonlight.MoonlightParticles;
@@ -46,6 +47,7 @@ public class ExoticWorldsFabric implements ModInitializer {
         NorthboundLatitude.register();
         MoonlightParticles.register();
         SupplementariesPackets.register();
+        CobblemonPackets.register();
 
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR,
                 ResourceLocation.fromNamespaceAndPath(ExoticWorlds.MODID, WorldLoopGenerators.TOROIDAL_ID),

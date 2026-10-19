@@ -165,7 +165,7 @@ public final class PacketTranslator {
         return dispatch(TO_CLIENT, packet, player, transformer);
     }
 
-    static <T extends net.minecraft.network.PacketListener> Packet<T> toClient(Packet<T> packet, TranslationContext context) {
+    public static <T extends net.minecraft.network.PacketListener> Packet<T> toClient(Packet<T> packet, TranslationContext context) {
         return castPacket(rewrite(TO_CLIENT, packet, context));
     }
 
