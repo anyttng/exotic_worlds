@@ -5,19 +5,29 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.exoticworlds.compat.cobblemon.CobblemonMixinPlugin",
   "mixins": [
+    "BerryBushHarvestMixin",
+    "BerryBushWalkMixin",
+    "BlockDistanceMixin",
     "CanSeeAimMixin",
     "ChallengeProximityMixin",
     "EnderPearlLookMixin",
     "EntityTraceMixin",
     "FleeDistanceMixin",
+    "FlowerPathMixin",
+    "FollowWalkTargetMixin",
+    "HiveSideOrderMixin",
+    "HoneyHoverMixin",
     "InteractionRangeMixin",
+    "NpcMeleeMixin",
     "PCLinkRangeMixin",
     "PastureLinkRangeMixin",
     "PastureTetherMixin",
+    "PollinateHoverMixin",
     "RiderEyeSeatMixin",
     "SendAroundRangeMixin",
     "SendOutPositionMixin",
-    "TetherBoxMixin"
+    "TetherBoxMixin",
+    "WanderCenterMixin"
   ],
   "injectors": {
     "defaultRequire": 1
