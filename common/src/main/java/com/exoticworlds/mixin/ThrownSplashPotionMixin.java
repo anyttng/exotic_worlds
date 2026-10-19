@@ -3,8 +3,6 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.accessors.TransformerSource;
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -20,7 +18,6 @@ public class ThrownSplashPotionMixin {
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/phys/AABB;distanceToSqr(Lnet/minecraft/world/phys/AABB;)D"))
     private double exotic_worlds$splashReachThroughSeam(AABB burst, AABB victim, Operation<Double> original) {
-        WorldFold transformer = ((TransformerSource) this).exotic_worlds$wrappedTransformer();
-        return original.call(burst, FoldedBoxQuery.toward(transformer, burst.getCenter(), victim));
+        return original.call(burst, FoldedBoxQuery.toward((ThrownSplashPotion) (Object) this, burst.getCenter(), victim));
     }
 }

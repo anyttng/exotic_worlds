@@ -6,7 +6,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -23,8 +22,7 @@ public class OfferFlowerGoalMixin {
 
     @WrapOperation(method = "stop", at = @At(value = "INVOKE", target = InjectionTargets.AABB_INTERSECTS))
     private boolean exotic_worlds$giftTouchThroughSeam(AABB reach, AABB recipientBox, Operation<Boolean> original) {
-        AABB folded = FoldedBoxQuery.toward(((TransformerSource) this.golem).exotic_worlds$wrappedTransformer(),
-                this.golem.position(), recipientBox);
+        AABB folded = FoldedBoxQuery.toward(this.golem, this.golem.position(), recipientBox);
         return original.call(reach, folded);
     }
 }
