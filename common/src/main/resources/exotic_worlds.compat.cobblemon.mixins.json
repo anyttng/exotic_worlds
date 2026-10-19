@@ -1,0 +1,17 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.cobblemon.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.cobblemon.CobblemonMixinPlugin",
+  "mixins": [
+    "CanSeeAimMixin",
+    "EnderPearlLookMixin",
+    "EntityTraceMixin",
+    "InteractionRangeMixin",
+    "RiderEyeSeatMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

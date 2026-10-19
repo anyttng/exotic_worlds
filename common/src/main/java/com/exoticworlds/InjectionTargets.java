@@ -1,6 +1,9 @@
 package com.exoticworlds;
 
 public final class InjectionTargets {
+    public static final String AABB_CONTAINS =
+            "Lnet/minecraft/world/phys/AABB;contains(Lnet/minecraft/world/phys/Vec3;)Z";
+
     public static final String AABB_DISTANCE_TO_SQR =
             "Lnet/minecraft/world/phys/AABB;distanceToSqr(Lnet/minecraft/world/phys/Vec3;)D";
 
