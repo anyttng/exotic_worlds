@@ -11,6 +11,7 @@
     "ColumnCoverageMissingMixin",
     "ColumnCoverageMixin",
     "DimensionRuntimeMixin",
+    "FarQuadsEveryPipelineMixin",
     "FarQuadsMixin",
     "FarRendererMixin",
     "GameHandlesMixin",
