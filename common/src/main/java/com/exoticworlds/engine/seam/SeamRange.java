@@ -80,6 +80,10 @@ public final class SeamRange {
         return sqr(levelSource, from, to) < Mth.square(distance);
     }
 
+    public static boolean closerThan(Level levelSource, Vec3 from, Position to, double distance) {
+        return sqr(levelSource, from, to) < Mth.square(distance);
+    }
+
     public static boolean closerToCenterThan(Entity levelSource, Vec3i from, Position to, double distance) {
         return closerThan(levelSource, Vec3.atCenterOf(from), to, distance);
     }

@@ -16,7 +16,9 @@ public class CobblemonMixinPlugin extends ModPresenceGatePlugin {
     private static final String POLLINATE_MIXIN = "PollinateHoverMixin";
     private static final String HONEY_MIXIN = "HoneyHoverMixin";
     private static final String HIVE_SIDE_MIXIN = "HiveSideOrderMixin";
-    private static final Set<String> OWN_GATES = Set.of(CAN_SEE_MIXIN, POLLINATE_MIXIN, HONEY_MIXIN, HIVE_SIDE_MIXIN);
+    private static final String HABITAT_MIXIN = "HabitatRangeMixin";
+    private static final Set<String> OWN_GATES =
+            Set.of(CAN_SEE_MIXIN, POLLINATE_MIXIN, HONEY_MIXIN, HIVE_SIDE_MIXIN, HABITAT_MIXIN);
 
     private static final ModPresence COBBLEMON = ModPresence.gate(LOGGER, "[ew/cobblemon-compat] gate cobblemon_present")
             .probing("com/cobblemon/mod/common/util/PlayerExtensionsKt.class")
@@ -45,7 +47,13 @@ public class CobblemonMixinPlugin extends ModPresenceGatePlugin {
             .checking(CONFIG, HIVE_SIDE_MIXIN::equals)
             .build();
 
+    private static final ModPresence HABITAT = ModPresence.gate(LOGGER, "[ew/cobblemon-compat] gate habitat_present")
+            .probing("com/cobblemon/mod/common/api/spawning/influence/detector/"
+                    + "HabitatBlockDetector$detectFromInput$3$1.class")
+            .checking(CONFIG, HABITAT_MIXIN::equals)
+            .build();
+
     public CobblemonMixinPlugin() {
-        super(COBBLEMON, CAN_SEE, POLLINATE, HONEY, HIVE_SIDE);
+        super(COBBLEMON, CAN_SEE, POLLINATE, HONEY, HIVE_SIDE, HABITAT);
     }
 }

@@ -15,6 +15,7 @@
     "FleeDistanceMixin",
     "FlowerPathMixin",
     "FollowWalkTargetMixin",
+    "HabitatRangeMixin",
     "HiveSideOrderMixin",
     "HoneyHoverMixin",
     "InteractionRangeMixin",
@@ -26,6 +27,7 @@
     "RiderEyeSeatMixin",
     "SendAroundRangeMixin",
     "SendOutPositionMixin",
+    "SpawnSpacingMixin",
     "TetherBoxMixin",
     "WanderCenterMixin"
   ],
