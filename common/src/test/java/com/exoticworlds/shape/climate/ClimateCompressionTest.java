@@ -11,8 +11,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.JsonOps;
-import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -99,21 +99,21 @@ class ClimateCompressionTest {
     }
 
     private static WorldFold square(int chunkWidth) {
-        return WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(chunkWidth)));
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)));
     }
 
     private static WorldFold uncompressedSquare(int chunkWidth) {
-        return WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(chunkWidth)),
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)),
                 GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
     }
 
     private static WorldFold strongSquare(int chunkWidth) {
-        return WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(chunkWidth)),
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)),
                 GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.STRONG));
     }
 
     private static WorldFold customSquare(int chunkWidth, int factor) {
-        return WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(chunkWidth)),
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)),
                 GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.custom(factor)));
     }
 
@@ -168,7 +168,7 @@ class ClimateCompressionTest {
     @Test
     void theShorterLapDrivesARectangularWorld() {
         WorldFold rectangular = WorldFolds.of(
-                FlatShape.torus(new WorldLoopBounds(-16, 16, -8, 8)));
+                ShapeFixtures.torus(ShapeFixtures.loopedBounds(-16, 16, -8, 8)));
 
         assertEquals(expected(TEMPERATURE, 256.0), actual(TEMPERATURE, rectangular, HORIZONTAL), TOLERANCE,
                 "256 blocks on Z against 512 on X");
@@ -223,8 +223,8 @@ class ClimateCompressionTest {
                         ClimateScale.custom(6))) {
                     GenerationOptions options = GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, scale);
                     WorldFold cylinder = WorldFolds.of(
-                            FlatShape.cylinder(WorldLoopBounds.ofWidth(axis, chunkWidth)), options);
-                    WorldFold torus = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(chunkWidth)), options);
+                            ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(axis, chunkWidth)), options);
+                    WorldFold torus = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)), options);
                     String where = axis + " cylinder of " + chunkWidth * 16 + " blocks under " + scale.mode();
 
                     for (Field field : List.of(TEMPERATURE, TEMPERATURE_LARGE, VEGETATION, CONTINENTALNESS)) {
@@ -239,7 +239,7 @@ class ClimateCompressionTest {
     @Test
     void aCylinderThatDeclinedCompressionIsMultipliedByExactlyOne() {
         for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
-            WorldFold cylinder = WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(axis, 32)),
+            WorldFold cylinder = WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(axis, 32)),
                     GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
 
             assertEquals(1.0, actual(TEMPERATURE, cylinder, HORIZONTAL), 0.0, "temperature on an " + axis + " cylinder");

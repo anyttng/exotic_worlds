@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.OpenSimplexStandIn;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -19,7 +20,7 @@ class EndTerrainLapTest {
 
     private static final long SECOND_SEED = 0x1041L;
 
-    private static final WorldLoopBounds BOUNDS = new WorldLoopBounds(-40, 40, -24, 24);
+    private static final WorldLoopBounds BOUNDS = ShapeFixtures.loopedBounds(-40, 40, -24, 24);
 
     private static final int SKEW_CHUNKS = 13;
 
@@ -37,7 +38,7 @@ class EndTerrainLapTest {
     void theLapReadsTheStandInsOfBetterEndsNoiseObjects() {
         OpenSimplexStandIn first = new OpenSimplexStandIn(FIRST_SEED);
         OpenSimplexStandIn second = new OpenSimplexStandIn(SECOND_SEED);
-        EndTerrainLap lap = new EndTerrainLap(WorldFolds.of(FlatShape.torus(BOUNDS)), () -> first, () -> second);
+        EndTerrainLap lap = new EndTerrainLap(WorldFolds.of(ShapeFixtures.torus(BOUNDS)), () -> first, () -> second);
         assertSame(first, lap.first());
         assertSame(second, lap.second());
     }
@@ -97,8 +98,8 @@ class EndTerrainLapTest {
 
     @Test
     void anUnskewedEndKeepsTheFrameAndTheFoldPerAxis() {
-        EndTerrainLap lap = lapOn(WorldFolds.of(FlatShape.torus(BOUNDS)));
-        TranslationLattice lattice = WorldFolds.of(FlatShape.torus(BOUNDS)).blockLattice();
+        EndTerrainLap lap = lapOn(WorldFolds.of(ShapeFixtures.torus(BOUNDS)));
+        TranslationLattice lattice = WorldFolds.of(ShapeFixtures.torus(BOUNDS)).blockLattice();
         for (int x = 3 * lattice.x().lowerBound; x < 3 * lattice.x().upperBound; x += STEP) {
             for (int z = 3 * lattice.z().lowerBound; z < 3 * lattice.z().upperBound; z += STEP) {
                 assertEquals(x, lap.frameX(x, z), x + ", " + z);
@@ -111,7 +112,7 @@ class EndTerrainLapTest {
     @Test
     void aCylinderEndLeavesTheOpenAxisUnbounded() {
         EndTerrainLap lap = lapOn(
-                WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, CYLINDER_CHUNKS))));
+                WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, CYLINDER_CHUNKS))));
         assertEquals(OpenSimplexStandIn.UNBOUNDED, lap.period(Direction.Axis.Z, 1.0));
     }
 

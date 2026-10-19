@@ -3,7 +3,6 @@ package com.exoticworlds.client.engine;
 import java.util.List;
 import java.util.Map;
 
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.net.TagPositions;
 
 import net.minecraft.core.BlockPos;
@@ -56,25 +55,6 @@ public final class SyncedTagFold {
         TagPositions.Subject subject = new TagPositions.Subject(blockEntity.getClass(),
                 BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity.getType()));
         return TABLE.seatedIn(VIEWER_SEAT, subject, tag);
-    }
-
-    static CompoundTag seatedIn(TagPositions.Table table, WorldFold fold, BlockPos anchor,
-            TagPositions.Subject blockEntity, CompoundTag tag) {
-        return table.seatedIn(around(fold, anchor), blockEntity, tag);
-    }
-
-    private static TagPositions.Seat around(WorldFold fold, BlockPos anchor) {
-        return new TagPositions.Seat() {
-            @Override
-            public BlockPos seat(BlockPos stored) {
-                return fold.nearestCopy(anchor, stored);
-            }
-
-            @Override
-            public Vec3 seat(Vec3 stored) {
-                return fold.nearestCopy(Vec3.atCenterOf(anchor), stored);
-            }
-        };
     }
 
     private SyncedTagFold() {

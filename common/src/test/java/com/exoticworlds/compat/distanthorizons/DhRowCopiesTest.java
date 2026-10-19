@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.AlignedPeriod;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
@@ -31,7 +32,7 @@ class DhRowCopiesTest {
     private static DhLattice cylinder(int widthChunks) {
         AxisBounds.Looped looped = new AxisBounds.Looped(0, widthChunks);
         return DhLattice.of(WorldFolds.of(
-                FlatShape.torus(new WorldLoopBounds(looped, AxisBounds.Unbounded.INSTANCE))));
+                ShapeFixtures.torus(new WorldLoopBounds(looped, AxisBounds.Unbounded.INSTANCE))));
     }
 
     private static ChunkPos key(DhLattice lattice, ChunkPos chunk) {

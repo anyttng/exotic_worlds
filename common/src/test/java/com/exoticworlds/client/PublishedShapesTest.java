@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.client.engine.PublishedShapes;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -18,8 +19,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
 class PublishedShapesTest {
-    private static final WorldFold WIDE = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(64)));
-    private static final WorldFold NARROW = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(16)));
+    private static final WorldFold WIDE = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(64)));
+    private static final WorldFold NARROW = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(16)));
     private static final ResourceKey<Level> DATAPACK_DIMENSION =
             ResourceKey.create(Registries.DIMENSION, ResourceLocation.fromNamespaceAndPath("cject", "hollow"));
 

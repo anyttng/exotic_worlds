@@ -438,6 +438,8 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    // UnreachedMembersTest reads every module's compiled classes, so they are current before it runs.
+    dependsOn ':frames:classes', ':neoforge:testClasses', ':fabric:testClasses'
     filter {
         // A --tests pattern that names nothing in this module is a zero-test run, not a failed one.
         failOnNoMatchingTests = false

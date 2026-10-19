@@ -6,8 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -35,7 +37,7 @@ class TilingCellGridTest {
     }
 
     private static WorldFold torus(int chunkWidth) {
-        return WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(chunkWidth)));
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)));
     }
 
     @Nested
@@ -72,7 +74,7 @@ class TilingCellGridTest {
 
         @Test
         void anUnboundedAxisKeepsTheVanillaCellWidth() {
-            WorldFold transformer = WorldFolds.of(FlatShape.cylinder(
+            WorldFold transformer = WorldFolds.of(ShapeFixtures.cylinder(
                     new WorldLoopBounds(new AxisBounds.Looped(-9, 9), AxisBounds.Unbounded.INSTANCE)));
             TilingCellGrid grid = TilingCellGrid.of(transformer, TYPE_CELL_WIDTH);
 
@@ -109,7 +111,7 @@ class TilingCellGridTest {
 
         @Test
         void eachAxisTakesItsOwnWidth() {
-            WorldFold transformer = WorldFolds.of(FlatShape.torus(
+            WorldFold transformer = WorldFolds.of(ShapeFixtures.torus(
                     new WorldLoopBounds(new AxisBounds.Looped(-9, 9), new AxisBounds.Looped(-16, 16))));
             TilingCellGrid grid = TilingCellGrid.of(transformer, TYPE_CELL_WIDTH);
 
@@ -208,7 +210,8 @@ class TilingCellGridTest {
         }
 
         private WorldFold skewed(int skewChunks) {
-            return new DeckGroupFold(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(32), skewChunks));
+            return new DeckGroupFold(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(32), skewChunks),
+                    GenerationOptions.DEFAULT);
         }
     }
 }

@@ -15,6 +15,7 @@ import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ForeignFrame;
 import com.exoticworlds.core.ForeignSpan;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -41,12 +42,12 @@ class SeamCommandErrorsTest {
     private static final int WIDE_REGION = 1023;
     private static final int REGION_TOP = 63;
 
-    private static final WorldFold TORUS = WorldFolds.of(FlatShape.torus(SQUARE));
+    private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(SQUARE));
 
     private static final WorldFold FRAMED = WorldFolds.of(
-            FlatShape.torus(SQUARE), List.of(new ForeignFrame(PLOT_CHUNKS, PLOT_CHUNKS)));
+            ShapeFixtures.torus(SQUARE), List.of(new ForeignFrame(PLOT_CHUNKS, PLOT_CHUNKS)));
 
-    private static final WorldFold X_ONLY = WorldFolds.of(FlatShape.cylinder(
+    private static final WorldFold X_ONLY = WorldFolds.of(ShapeFixtures.cylinder(
             new WorldLoopBounds(new AxisBounds.Looped(-32, 32), AxisBounds.Unbounded.INSTANCE)));
 
     @Test
@@ -76,7 +77,7 @@ class SeamCommandErrorsTest {
 
     @Test
     void aSkewedWorldRefusesOnItsOwnRectangleOnBothAxes() {
-        WorldFold skewed = WorldFolds.of(FlatShape.latticeTorus(new WorldLoopBounds(-32, 32, -32, 32), 5));
+        WorldFold skewed = WorldFolds.of(FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-32, 32, -32, 32), 5));
 
         CommandSyntaxException refusal = assertThrows(CommandSyntaxException.class,
                 () -> SeamCommandErrors.requireInsideWorld(skewed, Direction.Axis.X, 600.5));

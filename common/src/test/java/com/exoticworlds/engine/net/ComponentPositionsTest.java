@@ -10,7 +10,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -31,7 +31,7 @@ class ComponentPositionsTest {
     private static final int WIDTH_IN_CHUNKS = 32;
     private static final int WIDTH = WIDTH_IN_CHUNKS * 16;
 
-    private static final WorldFold TORUS = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(WIDTH_IN_CHUNKS)));
+    private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH_IN_CHUNKS)));
 
     private static final Vec3 ANCHOR = new Vec3(-250.0, 64.0, 0.0);
     private static final BlockPos STORED = new BlockPos(240, 64, 10);

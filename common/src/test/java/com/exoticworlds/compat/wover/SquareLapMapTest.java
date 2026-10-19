@@ -10,6 +10,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -37,31 +38,31 @@ class SquareLapMapTest {
 
     @Test
     void aTorusHeldInOneBlockReadsTheSameBiomeOneLapAwayOnBothAxes() {
-        WorldFold fold = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-64, 64, -64, 64)));
+        WorldFold fold = WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-64, 64, -64, 64)));
         HexLapMapTest.assertPeriodic(map(fold, DEFAULT_SIZE), fold);
     }
 
     @Test
     void aTorusOfSeveralBlocksReadsTheSameBiomeOneLapAwayOnBothAxes() {
-        WorldFold fold = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-256, 256, -256, 256)));
+        WorldFold fold = WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-256, 256, -256, 256)));
         HexLapMapTest.assertPeriodic(map(fold, DEFAULT_SIZE), fold);
     }
 
     @Test
     void aTorusWhoseLapSplitsIntoUnevenBlocksStillRepeats() {
-        WorldFold fold = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-150, 150, -82, 82)));
+        WorldFold fold = WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-150, 150, -82, 82)));
         HexLapMapTest.assertPeriodic(map(fold, 64), fold);
     }
 
     @Test
     void aSkewedNetherRepeatsAlongBothLatticeVectors() {
-        WorldFold fold = WorldFolds.of(FlatShape.latticeTorus(new WorldLoopBounds(-150, 150, -82, 82), 37));
+        WorldFold fold = WorldFolds.of(FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-150, 150, -82, 82), 37));
         HexLapMapTest.assertPeriodic(map(fold, 64), fold);
     }
 
     @Test
     void aCylinderRepeatsOnItsLoopedAxisAndKeepsTheOtherOpen() {
-        WorldFold cylinder = WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 256)));
+        WorldFold cylinder = WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 256)));
         SquareLapMap<Integer> map = map(cylinder, DEFAULT_SIZE);
         int lap = cylinder.blockDomain(Direction.Axis.X).domainLength;
         Set<Integer> seen = new HashSet<>();
@@ -82,7 +83,7 @@ class SquareLapMapTest {
         int[] chunkWidths = {1, 3, 16, 41, 75, 128, 256, 1875};
         int[] sizes = {DEFAULT_SIZE, 64, 1024};
         for (int width : chunkWidths) {
-            WorldFold fold = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(width)));
+            WorldFold fold = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(width)));
             for (int size : sizes) {
                 SquareLapMap<Integer> map = map(fold, size);
                 HexLapMapTest.assertCell(map.axis(Direction.Axis.X), size, 1);
@@ -94,14 +95,14 @@ class SquareLapMapTest {
     @Test
     void theCompactBiomesFactorShrinksTheCellOnBothAxes() {
         double[] factors = {2.0, 4.0, 1.56};
-        WorldFold torus = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(256)));
+        WorldFold torus = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(256)));
         for (double factor : factors) {
             SquareLapMap<Integer> map = map(torus, DEFAULT_SIZE, factor);
             HexLapMapTest.assertCell(map.axis(Direction.Axis.X), DEFAULT_SIZE / factor, 1);
             HexLapMapTest.assertCell(map.axis(Direction.Axis.Z), DEFAULT_SIZE / factor, 1);
         }
 
-        WorldFold cylinder = WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 256)));
+        WorldFold cylinder = WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 256)));
         SquareLapMap<Integer> compact = map(cylinder, DEFAULT_SIZE, 4.0);
         assertEquals(DEFAULT_SIZE / 4.0, compact.axis(Direction.Axis.Z).cellBlocks(), 1.0E-9,
                 "the cylinder's open axis kept WorldWeaver's cell");
@@ -109,7 +110,7 @@ class SquareLapMapTest {
 
     @Test
     void theSameFoldAndSeedLayTheSameMap() {
-        WorldFold fold = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-80, 80, -80, 80)));
+        WorldFold fold = WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-80, 80, -80, 80)));
         SquareLapMap<Integer> first = map(fold, DEFAULT_SIZE);
         SquareLapMap<Integer> second = map(fold, DEFAULT_SIZE);
         for (int x = -1280; x < 1280; x += 23) {

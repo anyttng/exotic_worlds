@@ -10,10 +10,10 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 
@@ -39,12 +39,12 @@ class LapMapStackTest {
 
     @Test
     void theLayerPickRepeatsOnTheLapAndReachesBothLayers() {
-        assertLayerPickRepeats(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-64, 64, -48, 48))));
+        assertLayerPickRepeats(WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-64, 64, -48, 48))));
     }
 
     @Test
     void onASkewedNetherTheLayerPickRepeatsAlongBothLatticeVectors() {
-        assertLayerPickRepeats(WorldFolds.of(FlatShape.latticeTorus(new WorldLoopBounds(-64, 64, -48, 48), 19)));
+        assertLayerPickRepeats(WorldFolds.of(FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-64, 64, -48, 48), 19)));
     }
 
     private static void assertLayerPickRepeats(WorldFold fold) {
@@ -86,7 +86,7 @@ class LapMapStackTest {
 
     @Test
     void layersSharingAStackCarryEveryVerticalCellThroughAllOfThem() {
-        WorldFold fold = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-64, 64, -64, 64)));
+        WorldFold fold = WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-64, 64, -64, 64)));
         List<LapMap<Integer>> layers = List.of(
                 new HexLapMap<>(fold, 32.0F, ClimateScaleCompression.NO_COMPRESSION, 1, PICKER),
                 new HexLapMap<>(fold, 32.0F, ClimateScaleCompression.NO_COMPRESSION, 2, PICKER));

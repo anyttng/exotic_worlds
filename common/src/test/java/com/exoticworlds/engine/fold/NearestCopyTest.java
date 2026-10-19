@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -32,7 +32,7 @@ class NearestCopyTest {
     private static final WorldLoopBounds LOOPS_ON_X =
             new WorldLoopBounds(new AxisBounds.Looped(MIN_CHUNK, MAX_CHUNK), AxisBounds.Unbounded.INSTANCE);
 
-    private static final WorldFold CYLINDER = WorldFolds.of(FlatShape.cylinder(LOOPS_ON_X));
+    private static final WorldFold CYLINDER = WorldFolds.of(ShapeFixtures.cylinder(LOOPS_ON_X));
 
     private static final Vec3 TARGET = new Vec3(UPPER - BEFORE_SEAM, HEIGHT, DEPTH);
     private static final Vec3 ANCHOR_BESIDE_THE_TARGET = new Vec3(UPPER - BEFORE_SEAM / 2.0, HEIGHT, DEPTH);

@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -32,7 +32,7 @@ class FoldedBoxQueryTest {
     private static final WorldLoopBounds LOOPS_ON_X =
             new WorldLoopBounds(new AxisBounds.Looped(MIN_CHUNK, MAX_CHUNK), AxisBounds.Unbounded.INSTANCE);
 
-    private static final WorldFold CYLINDER = WorldFolds.of(FlatShape.cylinder(LOOPS_ON_X));
+    private static final WorldFold CYLINDER = WorldFolds.of(ShapeFixtures.cylinder(LOOPS_ON_X));
 
     private static final AABB NEAR_PIECE = new AABB(UPPER - BEFORE_SEAM, MIN_Y, MIN_Z, UPPER, MAX_Y, MAX_Z);
 

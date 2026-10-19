@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
@@ -45,13 +46,13 @@ class WrappingSettingsPayloadTest {
     void everyShapeTheEpicPlansRoundTripsInEveryDimensionAndDrainsTheBuffer() {
         List<FlatShape> shapes = List.of(
                 FlatShape.rectangle(),
-                FlatShape.cylinder(X_ONLY),
-                FlatShape.cylinder(Z_ONLY),
-                FlatShape.torus(SQUARE),
+                ShapeFixtures.cylinder(X_ONLY),
+                ShapeFixtures.cylinder(Z_ONLY),
+                ShapeFixtures.torus(SQUARE),
                 FlatShape.latticeTorus(SQUARE, 5),
-                FlatShape.torus(new WorldLoopBounds(-4096, 4096, -4096, 4096)),
-                FlatShape.mirrored(Z_ONLY, Direction.Axis.X, 3),
-                FlatShape.mirrored(SQUARE, Direction.Axis.Z, -7));
+                ShapeFixtures.torus(ShapeFixtures.loopedBounds(-4096, 4096, -4096, 4096)),
+                ShapeFixtures.mirrored(Z_ONLY, Direction.Axis.X, 3),
+                ShapeFixtures.mirrored(SQUARE, Direction.Axis.Z, -7));
         for (ResourceKey<Level> dimension : DIMENSIONS) {
             for (FlatShape shape : shapes) {
                 RegistryFriendlyByteBuf buffer = buffer();
@@ -68,7 +69,7 @@ class WrappingSettingsPayloadTest {
 
     @Test
     void anUnmirroredShapeLaysDownItsDimensionThenItsExactBytes() {
-        assertWire(Level.OVERWORLD, FlatShape.cylinder(X_ONLY), new byte[] {
+        assertWire(Level.OVERWORLD, ShapeFixtures.cylinder(X_ONLY), new byte[] {
                 0x01, (byte) 0xF0, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x0F, 0x10,
                 0x00,
                 0x00,
@@ -77,7 +78,7 @@ class WrappingSettingsPayloadTest {
 
     @Test
     void aMirroredShapeLaysDownItsDimensionThenItsExactBytes() {
-        assertWire(Level.NETHER, FlatShape.mirrored(Z_ONLY, Direction.Axis.X, 3), new byte[] {
+        assertWire(Level.NETHER, ShapeFixtures.mirrored(Z_ONLY, Direction.Axis.X, 3), new byte[] {
                 0x00,
                 0x01, (byte) 0xF0, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x0F, 0x10,
                 0x00,

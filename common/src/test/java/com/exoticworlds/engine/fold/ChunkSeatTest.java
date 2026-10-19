@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -18,7 +18,7 @@ class ChunkSeatTest {
     private static final int WIDTH_IN_CHUNKS = 64;
     private static final int WIDTH = WIDTH_IN_CHUNKS * CoordinateConstants.CHUNK_WIDTH;
 
-    private static final WorldFold TORUS = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(WIDTH_IN_CHUNKS)));
+    private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH_IN_CHUNKS)));
     private static final ChunkPos OWN = new ChunkPos(0, 0);
 
     private static final BlockPos INSIDE = new BlockPos(5, 64, 5);

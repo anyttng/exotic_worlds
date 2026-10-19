@@ -1,6 +1,7 @@
 package com.exoticworlds.engine.fold;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -30,14 +31,14 @@ class SeamSpansTest {
     private static final WorldFold EVEN = torus(SQUARE);
     private static final WorldFold ODD = torus(ODD_BOUNDS);
     private static final WorldFold UNEVEN = torus(UNEVEN_BOUNDS);
-    private static final WorldFold X_ONLY = WorldFolds.of(FlatShape.cylinder(X_ONLY_BOUNDS));
+    private static final WorldFold X_ONLY = WorldFolds.of(ShapeFixtures.cylinder(X_ONLY_BOUNDS));
 
     private static final List<WorldFold> FOLDS = List.of(EVEN, ODD, UNEVEN, X_ONLY, WorldFolds.NOOP);
 
     private static final WorldFold SKEWED = WorldFolds.of(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(64), 5));
 
     private static WorldFold torus(WorldLoopBounds bounds) {
-        return WorldFolds.of(FlatShape.torus(bounds));
+        return WorldFolds.of(ShapeFixtures.torus(bounds));
     }
 
     private record Axis(boolean looped, int lower, int width) {
@@ -194,7 +195,8 @@ class SeamSpansTest {
 
     @Test
     void whereBothDiagonalsFoldTheShorterRegionIsTaken() {
-        WorldFold longSkewed = WorldFolds.of(FlatShape.latticeTorus(new WorldLoopBounds(-256, 256, -96, 96), 200));
+        WorldFold longSkewed = WorldFolds.of(
+                FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-256, 256, -96, 96), 200));
         BoundingBox region = new BoundingBox(-2032, 0, -1520, 2944, 0, 1520);
 
         assertTrue(SeamSpans.crossesSeam(longSkewed, region));

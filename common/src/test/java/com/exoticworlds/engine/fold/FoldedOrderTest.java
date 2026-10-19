@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -21,8 +21,8 @@ import net.minecraft.world.level.ChunkPos;
 
 class FoldedOrderTest {
     private static final WorldFold SQUARE =
-            WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-16, 16, -16, 16)));
-    private static final WorldFold X_ONLY = WorldFolds.of(FlatShape.cylinder(
+            WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-16, 16, -16, 16)));
+    private static final WorldFold X_ONLY = WorldFolds.of(ShapeFixtures.cylinder(
             new WorldLoopBounds(new AxisBounds.Looped(-16, 16), AxisBounds.Unbounded.INSTANCE)));
 
     private static final BlockPos ANCHOR = new BlockPos(250, 64, 250);

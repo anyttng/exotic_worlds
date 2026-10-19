@@ -98,8 +98,6 @@ public interface WorldFold {
 
     Vec3 foldDelta(Vec3 from, Vec3 to);
 
-    double sqrDistance(Vec3 from, Vec3 to);
-
     double sqrDistance(double xFrom, double yFrom, double zFrom, double xTo, double yTo, double zTo);
 
     int sqrChunkDistance(ChunkPos from, ChunkPos to);

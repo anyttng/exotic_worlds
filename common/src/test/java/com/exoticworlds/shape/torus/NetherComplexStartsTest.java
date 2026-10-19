@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.TestShapes;
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 
@@ -23,7 +23,7 @@ class NetherComplexStartsTest {
     private static final int WIDTH = 16;
     private static final int SEPARATION = 4;
     private static final ToroidalShape SMALLEST_NETHER =
-            TestShapes.of(WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(WIDTH))));
+            TestShapes.of(WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH))));
 
     @Test
     void takesTheOriginWhenNothingStandsNearIt() {

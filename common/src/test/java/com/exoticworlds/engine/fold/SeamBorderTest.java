@@ -9,6 +9,7 @@ import java.util.Random;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -25,7 +26,7 @@ class SeamBorderTest {
     private static final long LONG_SEED = 20261009L;
     private static final int LONG_SAMPLES = 4000;
 
-    private static final SeamBorder TORUS = border(FlatShape.torus(BOUNDS));
+    private static final SeamBorder TORUS = border(ShapeFixtures.torus(BOUNDS));
     private static final SeamBorder SKEWED = border(FlatShape.latticeTorus(BOUNDS, 5));
 
     private static SeamBorder border(FlatShape shape) {
@@ -69,7 +70,7 @@ class SeamBorderTest {
     @Test
     void onALongSkewedWorldTheEdgeIsMeasuredOnTheBestCopy() {
         TranslationLattice lattice = WorldFolds.of(
-                FlatShape.latticeTorus(new WorldLoopBounds(-512, 512, -8, 8), LONG_SKEW_CHUNKS)).blockLattice();
+                FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-512, 512, -8, 8), LONG_SKEW_CHUNKS)).blockLattice();
         SeamBorder border = new SeamBorder(lattice, LONG_CENTER - HALF, LONG_CENTER + HALF, -HALF, HALF);
         Random random = new Random(LONG_SEED);
         for (int sample = 0; sample < LONG_SAMPLES; sample++) {

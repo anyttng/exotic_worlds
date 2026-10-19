@@ -10,7 +10,7 @@ import org.betterx.wover.generator.api.biomesource.WoverBiomePicker;
 import org.betterx.wover.generator.api.biomesource.WoverBiomePicker.PickableBiome;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -107,7 +107,7 @@ class EdgeBiomesTest {
 
     private static void assertEdgeShareKept(MapMaker maker, EdgeReader reader) {
         Palette palette = Palette.create();
-        WorldFold torus = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(LAP_CHUNKS)));
+        WorldFold torus = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(LAP_CHUNKS)));
         double full = edgeShare(maker.make(torus, NO_COMPRESSION, palette.picker()), reader, palette,
                 NO_COMPRESSION);
         double compact = edgeShare(maker.make(torus, FACTOR, palette.picker()), reader, palette, FACTOR);

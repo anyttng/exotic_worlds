@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -21,7 +21,7 @@ class DhLatticeMemoTest {
 
     private static WorldFold torus(int halfChunks) {
         AxisBounds.Looped looped = new AxisBounds.Looped(-halfChunks, halfChunks);
-        return WorldFolds.of(FlatShape.torus(new WorldLoopBounds(looped, looped)));
+        return WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(looped, looped)));
     }
 
     @Test

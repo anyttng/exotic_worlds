@@ -12,6 +12,7 @@ import java.util.Locale;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -42,8 +43,8 @@ class LatticeHotPathScan {
             "path=%s world=%s fold=%s case=%s bytes_per_call=%.1f ns_per_call=%.1f checksum=%d";
 
     private static final List<World> WORLDS = List.of(
-            new World("square_skew4", new WorldLoopBounds(-16, 16, -16, 16), 4),
-            new World("uneven_skew5", new WorldLoopBounds(-24, 8, -10, 6), 5));
+            new World("square_skew4", ShapeFixtures.loopedBounds(-16, 16, -16, 16), 4),
+            new World("uneven_skew5", ShapeFixtures.loopedBounds(-24, 8, -10, 6), 5));
 
     @Test
     void measureTheHotPaths() {
@@ -51,7 +52,7 @@ class LatticeHotPathScan {
         List<String> rows = new ArrayList<>();
         for (World world : WORLDS) {
             List<Named> folds = List.of(
-                    new Named("per_axis", WorldFolds.of(FlatShape.torus(world.bounds()))),
+                    new Named("per_axis", WorldFolds.of(ShapeFixtures.torus(world.bounds()))),
                     new Named("skewed", WorldFolds.of(FlatShape.latticeTorus(world.bounds(), world.skewChunks()))));
             for (Inputs inputs : List.of(Inputs.sameHalf(world), Inputs.acrossTheSeam(world))) {
                 for (Named named : folds) {
@@ -73,8 +74,10 @@ class LatticeHotPathScan {
                 index -> (int) fold.nearestCopy(in.refs[index], in.targets[index]).x));
         rows.add(row(threads, "nearest_copy_block", world, named, in,
                 index -> fold.nearestCopy(in.refBlocks[index], in.targetBlocks[index]).getX()));
-        rows.add(row(threads, "sqr_distance", world, named, in,
-                index -> (int) fold.sqrDistance(in.refs[index], in.targets[index])));
+        rows.add(
+                row(threads, "sqr_distance", world, named, in,
+                        index -> (int) fold.sqrDistance(in.refs[index].x, in.refs[index].y, in.refs[index].z,
+                                in.targets[index].x, in.targets[index].y, in.targets[index].z)));
         rows.add(row(threads, "sqr_chunk_distance", world, named, in,
                 index -> fold.sqrChunkDistance(in.refChunks[index], in.targetChunks[index])));
         rows.add(row(threads, "sqr_distance_to_box", world, named, in,

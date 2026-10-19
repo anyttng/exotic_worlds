@@ -2,7 +2,7 @@ package com.exoticworlds.engine.noise;
 
 import java.util.Random;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -17,9 +17,10 @@ public final class EndIslandFixture {
     private static final int UNBOUNDED_SPAN = 4096;
     private static final float NO_ISLAND_HEIGHT = -100.0F;
 
-    public static final WorldFold TORUS = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-128, 128, -96, 96)));
+    public static final WorldFold TORUS = WorldFolds.of(
+            ShapeFixtures.torus(ShapeFixtures.loopedBounds(-128, 128, -96, 96)));
 
-    public static final WorldFold CYLINDER = WorldFolds.of(FlatShape.cylinder(
+    public static final WorldFold CYLINDER = WorldFolds.of(ShapeFixtures.cylinder(
             new WorldLoopBounds(new AxisBounds.Looped(-128, 128), AxisBounds.Unbounded.INSTANCE)));
 
     public static final DensityFunction END_ISLANDS = DensityFunctions.endIslands(DensityFunctionFixture.SEED);

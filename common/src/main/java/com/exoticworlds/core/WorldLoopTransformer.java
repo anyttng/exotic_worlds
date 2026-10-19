@@ -31,12 +31,8 @@ final class WorldLoopTransformer implements WorldFold {
 
     private final int maxViewDistance;
 
-    WorldLoopTransformer(WorldLoopBounds bounds) {
-        this(bounds, List.of());
-    }
-
-    WorldLoopTransformer(WorldLoopBounds bounds, List<ForeignFrame> foreignFrames) {
-        this(bounds, foreignFrames, GenerationOptions.DEFAULT);
+    WorldLoopTransformer(WorldLoopBounds bounds, GenerationOptions generationOptions) {
+        this(bounds, List.of(), generationOptions);
     }
 
     WorldLoopTransformer(WorldLoopBounds bounds, List<ForeignFrame> foreignFrames,
@@ -526,11 +522,6 @@ final class WorldLoopTransformer implements WorldFold {
     @Override
     public Vec3 foldDelta(Vec3 from, Vec3 to) {
         return vectors.nearestCopy(from, to).subtract(from);
-    }
-
-    @Override
-    public double sqrDistance(Vec3 from, Vec3 to) {
-        return sqrDistance(from.x, from.y, from.z, to.x, to.y, to.z);
     }
 
     @Override

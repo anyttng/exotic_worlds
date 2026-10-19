@@ -18,10 +18,12 @@ import org.junit.jupiter.api.Test;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 import com.exoticworlds.ExoticWorlds;
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.shape.ShapeModule;
 import com.exoticworlds.api.v1.client.ShapeCustomizers;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -64,10 +66,10 @@ class ShapeRegistrationBoundaryTest {
 
     private static final ResourceLocation FOREIGN_ID = ResourceLocation.fromNamespaceAndPath("boundary_test_mod", "band");
 
-    private static final FlatShape CYLINDER = FlatShape.cylinder(
+    private static final FlatShape CYLINDER = ShapeFixtures.cylinder(
             new WorldLoopBounds(new AxisBounds.Looped(-16, 16), AxisBounds.Unbounded.INSTANCE));
 
-    private static final FlatShape WIDER_CYLINDER = FlatShape.cylinder(
+    private static final FlatShape WIDER_CYLINDER = ShapeFixtures.cylinder(
             new WorldLoopBounds(new AxisBounds.Looped(-64, 64), AxisBounds.Unbounded.INSTANCE));
 
     private static WorldShape cylinder;
@@ -76,7 +78,8 @@ class ShapeRegistrationBoundaryTest {
             MODULE_ID,
             CYLINDER,
             (dimensions, shape) ->
-                    ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD, new CarriedShape(shape)),
+                    ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
+                            new CarriedShape(shape, GenerationOptions.DEFAULT)),
             dimensions -> {
                 FlatShape shape = ShapedDimensions.shapeOf(dimensions, LevelStem.OVERWORLD);
                 return WIDER_CYLINDER.equals(shape) ? shape : null;
@@ -90,7 +93,8 @@ class ShapeRegistrationBoundaryTest {
                 CYLINDER_ID,
                 Component.literal("Boundary test cylinder"),
                 Component.literal("A cylinder registered by the boundary test"),
-                (registries, dimensions) -> ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD, new CarriedShape(CYLINDER)),
+                (registries, dimensions) -> ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
+                        new CarriedShape(CYLINDER, GenerationOptions.DEFAULT)),
                 () -> settingsWereReset = true,
                 (registries, dimensions) ->
                         CYLINDER.equals(ShapedDimensions.shapeOf(dimensions, LevelStem.OVERWORLD)));
@@ -191,8 +195,9 @@ class ShapeRegistrationBoundaryTest {
     @Test
     void reCreatingIntoAShapeLeavesNoStemTheNewShapeDoesNotWrite() {
         WorldDimensions inherited = ShapedDimensions.withShape(
-                ShapedDimensions.withShape(vanillaOverworldAndNether(), LevelStem.OVERWORLD, new CarriedShape(CYLINDER)),
-                LevelStem.NETHER, new CarriedShape(CYLINDER));
+                ShapedDimensions.withShape(vanillaOverworldAndNether(), LevelStem.OVERWORLD,
+                        new CarriedShape(CYLINDER, GenerationOptions.DEFAULT)),
+                LevelStem.NETHER, new CarriedShape(CYLINDER, GenerationOptions.DEFAULT));
 
         WorldShapes.select(cylinder);
         WorldDimensions created = WorldShapes.applyAtCreation(REGISTRIES, inherited);
@@ -204,7 +209,8 @@ class ShapeRegistrationBoundaryTest {
     @Test
     void reCreatingFromOneShapeIntoAnotherTakesTheNewGeometry() {
         WorldDimensions inherited =
-                ShapedDimensions.withShape(vanillaOverworld(), LevelStem.OVERWORLD, new CarriedShape(WIDER_CYLINDER));
+                ShapedDimensions.withShape(vanillaOverworld(), LevelStem.OVERWORLD,
+                        new CarriedShape(WIDER_CYLINDER, GenerationOptions.DEFAULT));
 
         WorldShapes.select(cylinder);
         WorldDimensions created = WorldShapes.applyAtCreation(REGISTRIES, inherited);
@@ -232,7 +238,7 @@ class ShapeRegistrationBoundaryTest {
     void aModuleAdoptsTheWorldItRecognisesAndResetsBackToItsOwnDefault() {
         WorldShape registered = registeredModuleShape();
         WorldDimensions wider = ShapedDimensions.withShape(
-                vanillaOverworld(), LevelStem.OVERWORLD, new CarriedShape(WIDER_CYLINDER));
+                vanillaOverworld(), LevelStem.OVERWORLD, new CarriedShape(WIDER_CYLINDER, GenerationOptions.DEFAULT));
 
         WorldShapes.restoreFromExisting(REGISTRIES, wider);
 

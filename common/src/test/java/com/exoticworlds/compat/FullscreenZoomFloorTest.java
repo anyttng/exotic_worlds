@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.api.v1.TestShapes;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
@@ -133,7 +133,7 @@ class FullscreenZoomFloorTest {
     }
 
     private static ToroidalShape shape(AxisBounds x, AxisBounds z) {
-        return TestShapes.of(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(x, z))));
+        return TestShapes.of(WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(x, z))));
     }
 
     private static AxisBounds looped(int widthBlocks) {

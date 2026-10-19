@@ -17,8 +17,10 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.ToroidalShape.Orientation;
 import com.exoticworlds.api.v1.ToroidalShape.Oriented;
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
@@ -41,21 +43,22 @@ class ToroidalShapeContractTest {
     private static final WorldLoopBounds X_ONLY = new WorldLoopBounds(LOOPED, AxisBounds.Unbounded.INSTANCE);
 
     private static ToroidalShape torus() {
-        return TestShapes.of(WorldFolds.of(FlatShape.torus(BOTH)));
+        return TestShapes.of(WorldFolds.of(ShapeFixtures.torus(BOTH)));
     }
 
     private static ToroidalShape mobius() {
         return TestShapes.of(
-                new DeckGroupFold(FlatShape.mirrored(X_ONLY, Direction.Axis.Z, 0)));
+                new DeckGroupFold(ShapeFixtures.mirrored(X_ONLY, Direction.Axis.Z, 0), GenerationOptions.DEFAULT));
     }
 
     private static ToroidalShape klein() {
         return TestShapes.of(
-                new DeckGroupFold(FlatShape.mirrored(BOTH, Direction.Axis.Z, 3)));
+                new DeckGroupFold(ShapeFixtures.mirrored(BOTH, Direction.Axis.Z, 3), GenerationOptions.DEFAULT));
     }
 
     private static ToroidalShape latticeTorus() {
-        return TestShapes.of(new DeckGroupFold(FlatShape.latticeTorus(BOTH, LATTICE_SKEW_CHUNKS)));
+        return TestShapes.of(
+                new DeckGroupFold(FlatShape.latticeTorus(BOTH, LATTICE_SKEW_CHUNKS), GenerationOptions.DEFAULT));
     }
 
     @Nested
@@ -312,7 +315,7 @@ class ToroidalShapeContractTest {
         private static final AABB ONE_WORLD_PAST_THE_EDGE = new AABB(LOWER, 0, LOWER, UPPER + WIDTH, 0, UPPER);
 
         private static ToroidalShape cylinder() {
-            return TestShapes.of(WorldFolds.of(FlatShape.cylinder(X_ONLY)));
+            return TestShapes.of(WorldFolds.of(ShapeFixtures.cylinder(X_ONLY)));
         }
 
         @Test
