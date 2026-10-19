@@ -9,6 +9,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import org.jspecify.annotations.Nullable;
+
 import com.exoticworlds.accessors.ChunkPacketCopy;
 import com.exoticworlds.accessors.ChunkPacketPosition;
 import com.exoticworlds.engine.fold.SeamDelta;
@@ -228,10 +230,13 @@ final class ClientboundPacketRewriters {
         Supplier<Vec3> anchor = Suppliers.memoize(() -> resolveEntityAnchor(packet.id(), context));
         FoldedValue.Leaves leaves = FoldedValue.towardLeaves(context, anchor);
         UnaryOperator<Object> fallback = particleFold(context, anchor);
+        TagPositions.Subject subject = context.entity().apply(packet.id());
+        Class<?> entityType = subject == null ? null : subject.type();
         List<SynchedEntityData.DataValue<?>> translated = new ArrayList<>(items.size());
         boolean changed = false;
         for (SynchedEntityData.DataValue<?> item : items) {
-            SynchedEntityData.DataValue<?> clientItem = toClientData(item, anchor, leaves, fallback, context);
+            SynchedEntityData.DataValue<?> clientItem =
+                    toClientData(item, entityType, anchor, leaves, fallback, context);
             changed |= clientItem != item;
             translated.add(clientItem);
         }
@@ -250,9 +255,9 @@ final class ClientboundPacketRewriters {
     }
 
     private static SynchedEntityData.DataValue<?> toClientData(SynchedEntityData.DataValue<?> item,
-            Supplier<Vec3> anchor, FoldedValue.Leaves leaves, UnaryOperator<Object> fallback,
-            TranslationContext context) {
-        PacketRewriters.EntityDataRewriter<Object> dataRewriter = context.rewriters().entityDataFor(item);
+            @Nullable Class<?> entityType, Supplier<Vec3> anchor, FoldedValue.Leaves leaves,
+            UnaryOperator<Object> fallback, TranslationContext context) {
+        PacketRewriters.EntityDataRewriter<Object> dataRewriter = context.rewriters().entityDataFor(entityType, item);
         if (dataRewriter != null) {
             Object rewritten = dataRewriter.rewrite(item.value(), context, anchor.get());
             return rewritten == item.value() ? item : withValue(item, rewritten);

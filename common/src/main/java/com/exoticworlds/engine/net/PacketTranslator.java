@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import org.jspecify.annotations.Nullable;
@@ -59,9 +60,11 @@ import net.minecraft.network.protocol.game.ServerboundSetJigsawBlockPacket;
 import net.minecraft.network.protocol.game.ServerboundSetStructureBlockPacket;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
+import net.minecraft.world.entity.Entity;
 
 public final class PacketTranslator {
     private static final StreamCodec<FriendlyByteBuf, Unit> NO_PREFIX_CODEC = StreamCodec.unit(Unit.INSTANCE);
@@ -135,6 +138,11 @@ public final class PacketTranslator {
     public static <T> void registerEntityDataRewriter(EntityDataSerializer<T> serializer,
             PacketRewriters.EntityDataRewriter<T> dataRewriter) {
         PRODUCTION.registerEntityData(serializer, dataRewriter);
+    }
+
+    public static <T> void registerEntityDataRewriter(Class<? extends Entity> owner,
+            Supplier<EntityDataAccessor<T>> accessor, PacketRewriters.EntityDataRewriter<T> dataRewriter) {
+        PRODUCTION.registerEntityData(owner, accessor, dataRewriter);
     }
 
     private static final Map<Class<?>, BiFunction<Packet<?>, TranslationContext, Packet<?>>> TO_SERVER = Map.ofEntries(
