@@ -35,8 +35,8 @@ public class MobMixin {
             method = "isWithinMeleeAttackRange",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getHitbox()Lnet/minecraft/world/phys/AABB;"))
     private AABB exotic_worlds$meleeHitboxThroughSeam(AABB hitbox) {
-        WorldFold transformer = ((TransformerSource) this).exotic_worlds$wrappedTransformer();
-        return FoldedBoxQuery.toward(transformer, ((Mob) (Object) this).position(), hitbox);
+        Mob mob = (Mob) (Object) this;
+        return FoldedBoxQuery.toward(mob, mob.position(), hitbox);
     }
 
     @ModifyExpressionValue(

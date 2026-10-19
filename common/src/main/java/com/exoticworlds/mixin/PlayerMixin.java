@@ -28,7 +28,6 @@ public class PlayerMixin {
     @WrapMethod(method = "canInteractWithEntity(Lnet/minecraft/world/phys/AABB;D)Z")
     private boolean exotic_worlds$wrappedEntityReach(AABB aabb, double buffer, Operation<Boolean> original) {
         Player player = (Player) (Object) this;
-        WorldFold transformer = ((TransformerSource) player).exotic_worlds$wrappedTransformer();
-        return original.call(FoldedBoxQuery.toward(transformer, player.getEyePosition(), aabb), buffer);
+        return original.call(FoldedBoxQuery.toward(player, player.getEyePosition(), aabb), buffer);
     }
 }

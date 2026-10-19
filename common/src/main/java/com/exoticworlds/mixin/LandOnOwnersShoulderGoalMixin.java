@@ -6,7 +6,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -25,8 +24,7 @@ public class LandOnOwnersShoulderGoalMixin {
             method = "tick",
             at = @At(value = "INVOKE", target = InjectionTargets.AABB_INTERSECTS))
     private boolean exotic_worlds$touchOwnerThroughSeam(AABB riderBox, AABB ownerBox, Operation<Boolean> original) {
-        AABB folded = FoldedBoxQuery.toward(((TransformerSource) this.entity).exotic_worlds$wrappedTransformer(),
-                this.entity.position(), ownerBox);
+        AABB folded = FoldedBoxQuery.toward(this.entity, this.entity.position(), ownerBox);
         return original.call(riderBox, folded);
     }
 }

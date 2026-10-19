@@ -3,7 +3,6 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -21,7 +20,6 @@ public interface ServerEntityGetterMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/AABB;contains(DDD)Z"))
     private static boolean exotic_worlds$nearbyPlayerThroughSeam(AABB box, double x, double y, double z,
             Operation<Boolean> original, @Local Player player) {
-        return original.call(FoldedBoxQuery.toward(((TransformerSource) player).exotic_worlds$wrappedTransformer(),
-                new Vec3(x, y, z), box), x, y, z);
+        return original.call(FoldedBoxQuery.toward(player, new Vec3(x, y, z), box), x, y, z);
     }
 }

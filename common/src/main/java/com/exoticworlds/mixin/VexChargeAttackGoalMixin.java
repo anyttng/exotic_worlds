@@ -6,8 +6,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -23,8 +21,7 @@ public class VexChargeAttackGoalMixin {
 
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = InjectionTargets.AABB_INTERSECTS))
     private boolean exotic_worlds$touchThroughSeam(AABB vexBox, AABB targetBox, Operation<Boolean> original) {
-        WorldFold transformer = ((TransformerSource) this.vex).exotic_worlds$wrappedTransformer();
-        AABB folded = FoldedBoxQuery.toward(transformer, this.vex.position(), targetBox);
+        AABB folded = FoldedBoxQuery.toward(this.vex, this.vex.position(), targetBox);
         return original.call(vexBox, folded);
     }
 }

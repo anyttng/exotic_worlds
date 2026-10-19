@@ -6,8 +6,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -27,8 +25,7 @@ public class PhantomSweepAttackGoalMixin {
             method = "tick",
             at = @At(value = "INVOKE", target = InjectionTargets.AABB_INTERSECTS))
     private boolean exotic_worlds$touchThroughSeam(AABB reach, AABB targetBox, Operation<Boolean> original) {
-        WorldFold transformer = ((TransformerSource) this.phantom).exotic_worlds$wrappedTransformer();
-        AABB folded = FoldedBoxQuery.toward(transformer, this.phantom.position(), targetBox);
+        AABB folded = FoldedBoxQuery.toward(this.phantom, this.phantom.position(), targetBox);
         return original.call(reach, folded);
     }
 }

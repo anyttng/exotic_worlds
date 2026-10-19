@@ -4,7 +4,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -23,8 +22,7 @@ public interface EntityGetterMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_BOUNDING_BOX))
     private static AABB exotic_worlds$collisionBoxThroughSeam(Entity found, Operation<AABB> original,
             @Local(argsOnly = true) AABB testArea) {
-        return FoldedBoxQuery.toward(((TransformerSource) found).exotic_worlds$wrappedTransformer(), testArea.getCenter(),
-                original.call(found));
+        return FoldedBoxQuery.toward(found, testArea.getCenter(), original.call(found));
     }
 
     @WrapOperation(
@@ -32,7 +30,6 @@ public interface EntityGetterMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_BOUNDING_BOX))
     private static AABB exotic_worlds$obstructionBoxThroughSeam(Entity found, Operation<AABB> original,
             @Local(argsOnly = true) VoxelShape shape) {
-        return FoldedBoxQuery.toward(((TransformerSource) found).exotic_worlds$wrappedTransformer(),
-                shape.bounds().getCenter(), original.call(found));
+        return FoldedBoxQuery.toward(found, shape.bounds().getCenter(), original.call(found));
     }
 }

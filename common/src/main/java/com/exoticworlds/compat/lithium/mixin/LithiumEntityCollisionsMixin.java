@@ -4,7 +4,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -20,7 +19,6 @@ public class LithiumEntityCollisionsMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_BOUNDING_BOX))
     private static AABB exotic_worlds$collisionBoxTowardMover(Entity other, Operation<AABB> original,
             @Local(argsOnly = true) AABB box) {
-        return FoldedBoxQuery.toward(((TransformerSource) other).exotic_worlds$wrappedTransformer(), box.getCenter(),
-                original.call(other));
+        return FoldedBoxQuery.toward(other, box.getCenter(), original.call(other));
     }
 }
