@@ -6,10 +6,13 @@
   "plugin": "com.exoticworlds.compat.cobblemon.CobblemonMixinPlugin",
   "mixins": [
     "CanSeeAimMixin",
+    "ChallengeProximityMixin",
     "EnderPearlLookMixin",
     "EntityTraceMixin",
+    "FleeDistanceMixin",
     "InteractionRangeMixin",
-    "RiderEyeSeatMixin"
+    "RiderEyeSeatMixin",
+    "SendOutPositionMixin"
   ],
   "injectors": {
     "defaultRequire": 1
