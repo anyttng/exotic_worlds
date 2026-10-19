@@ -18,7 +18,7 @@ public final class ClientShapes {
         return of(Minecraft.getInstance().level);
     }
 
-    public static @Nullable ToroidalShape of(Level level) {
+    public static @Nullable ToroidalShape of(@Nullable Level level) {
         return level instanceof ClientLevel client ? ExoticWorldsClientApi.shapeOf(client).orElse(null) : null;
     }
 

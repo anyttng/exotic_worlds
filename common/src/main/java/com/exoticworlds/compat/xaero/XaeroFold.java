@@ -1,5 +1,6 @@
 package com.exoticworlds.compat.xaero;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import com.exoticworlds.api.v1.ToroidalShape;
@@ -13,9 +14,9 @@ import net.minecraft.world.phys.Vec3;
 public final class XaeroFold {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static volatile Object[] coordReadoutDisplays;
+    private static volatile Object @Nullable [] coordReadoutDisplays;
 
-    public static BlockPos foldWorldNodeSpawn(BlockPos spawn) {
+    public static @Nullable BlockPos foldWorldNodeSpawn(@Nullable BlockPos spawn) {
         return spawn == null ? null : ClientShapes.fold(ClientShapes.current(), spawn);
     }
 

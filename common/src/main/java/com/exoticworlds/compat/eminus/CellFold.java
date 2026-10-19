@@ -67,8 +67,8 @@ public final class CellFold {
         int level = CellKey.level(key);
         int side = DetailLevel.blocksPerCell(level);
         long blockZ = (long) CellKey.z(key) * side;
-        long x = foldX(cells[level], (long) CellKey.x(key) * side, blockZ);
-        long z = foldZ(cells[level], blockZ);
+        long x = foldX(shape, cells[level], (long) CellKey.x(key) * side, blockZ);
+        long z = foldZ(shape, cells[level], blockZ);
         return CellKey.pack(level, (int) Math.floorDiv(x, side), CellKey.y(key), (int) Math.floorDiv(z, side));
     }
 
@@ -77,8 +77,8 @@ public final class CellFold {
             return chunkX;
         }
 
-        return (int) (foldX(chunks, SectionPos.sectionToBlockCoord(chunkX), SectionPos.sectionToBlockCoord(chunkZ))
-                >> SectionPos.SECTION_BITS);
+        return (int) (foldX(shape, chunks, SectionPos.sectionToBlockCoord(chunkX),
+                SectionPos.sectionToBlockCoord(chunkZ)) >> SectionPos.SECTION_BITS);
     }
 
     public int foldChunkZ(int chunkZ) {
@@ -86,7 +86,7 @@ public final class CellFold {
             return chunkZ;
         }
 
-        return (int) (foldZ(chunks, SectionPos.sectionToBlockCoord(chunkZ)) >> SectionPos.SECTION_BITS);
+        return (int) (foldZ(shape, chunks, SectionPos.sectionToBlockCoord(chunkZ)) >> SectionPos.SECTION_BITS);
     }
 
     public int lapXBlocks() {
@@ -147,7 +147,7 @@ public final class CellFold {
         return highX - lowShift > -half && lowX - highShift < half;
     }
 
-    private long foldX(AlignedPeriod period, long blockX, long blockZ) {
+    private static long foldX(ToroidalShape shape, AlignedPeriod period, long blockX, long blockZ) {
         long x = blockX;
         if (period.xShiftBlocks() != 0L) {
             x -= Math.floorDiv(blockZ - shape.minBlock(Direction.Axis.Z), period.zBlocks()) * period.xShiftBlocks();
@@ -160,7 +160,7 @@ public final class CellFold {
         return x;
     }
 
-    private long foldZ(AlignedPeriod period, long blockZ) {
+    private static long foldZ(ToroidalShape shape, AlignedPeriod period, long blockZ) {
         if (!shape.loops(Direction.Axis.Z)) {
             return blockZ;
         }

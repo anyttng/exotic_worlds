@@ -164,6 +164,7 @@ dependencies {
     compileOnly "maven.modrinth:simple-atlas:${simple_atlas_version}"
     compileOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
     compileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"
+    compileOnly "com.uber.nullaway:nullaway-annotations:${nullaway_version}"
 }
 
 // Plain JUnit on the NeoForm vanilla classpath: NeoForm mode has no FML, hence no junit run-type and no applied

@@ -1,6 +1,8 @@
 package com.exoticworlds.compat;
 
-record MemberRef(String owner, String name, String descriptor) {
+import org.jspecify.annotations.Nullable;
+
+record MemberRef(@Nullable String owner, String name, @Nullable String descriptor) {
     private static final String ANY_QUANTIFIER = "*";
     private static final String PLUS_QUANTIFIER = "+";
     private static final char QUANTIFIER_OPEN = '{';

@@ -2,12 +2,14 @@ package com.exoticworlds.settings;
 
 import java.nio.file.Path;
 
+import org.jspecify.annotations.Nullable;
+
 import com.exoticworlds.ExoticWorlds;
 
 public final class SettingsService {
     public static final String FILE_NAME = ExoticWorlds.MODID + ".json";
 
-    private static SettingsService service;
+    private static @Nullable SettingsService service;
 
     private final Path file;
 
