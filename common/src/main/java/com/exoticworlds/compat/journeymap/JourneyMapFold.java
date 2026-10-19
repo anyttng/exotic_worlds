@@ -299,6 +299,7 @@ public final class JourneyMapFold {
         return offsets.toArray(double[][]::new);
     }
 
+    // mc/1.21: places an overlay that draws once on its copy nearest the screen center.
     public static double[][] nearestCopyOffset(double[][] offsets, Rectangle2D.Double bounds, Rectangle2D.Double screen) {
         if (offsets.length <= 1) {
             return offsets;
