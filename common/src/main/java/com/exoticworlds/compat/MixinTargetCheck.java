@@ -22,6 +22,8 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
+import org.jspecify.annotations.Nullable;
+
 public final class MixinTargetCheck {
     public enum Reason {
         MISSING_MIXIN,
@@ -42,7 +44,7 @@ public final class MixinTargetCheck {
     public record Refusal(String mixin, String member, Reason reason) {
     }
 
-    private record Loaded(boolean present, ClassModel model) {
+    private record Loaded(boolean present, @Nullable ClassModel model) {
     }
 
     private record Selection(String owner, List<MethodModel> bodies, List<String> selfTargets) {
@@ -395,7 +397,7 @@ public final class MixinTargetCheck {
         return !methods(owner, names::contains, descriptor).isEmpty();
     }
 
-    private static boolean hasField(ClassModel owner, List<String> names, String descriptor) {
+    private static boolean hasField(ClassModel owner, List<String> names, @Nullable String descriptor) {
         for (FieldModel field : owner.fields()) {
             if (names.contains(field.fieldName().stringValue())
                     && (descriptor == null || field.fieldType().equalsString(descriptor))) {

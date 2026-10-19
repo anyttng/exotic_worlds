@@ -48,7 +48,7 @@ public final class XaeroWorldMapFold {
         return browsedShape() != null;
     }
 
-    public static BlockPos foldIdSpawn(ClientLevel level, BlockPos spawn) {
+    public static @Nullable BlockPos foldIdSpawn(ClientLevel level, @Nullable BlockPos spawn) {
         return spawn == null ? null : ClientShapes.fold(ClientShapes.of(level), spawn);
     }
 

@@ -161,7 +161,8 @@ public final class PacketTranslator {
                             packet.payload(), SERVERBOUND_PAYLOAD_REWRITERS, RecordPayloadFold::toServer,
                             ServerboundCustomPayloadPacket::new, context))));
 
-    public static <T extends net.minecraft.network.PacketListener> Packet<T> toClient(Packet<T> packet, ServerPlayer player) {
+    public static <T extends net.minecraft.network.PacketListener> @Nullable Packet<T> toClient(Packet<T> packet,
+            ServerPlayer player) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(player.level());
         if (transformer == null) {
             return packet;
@@ -174,7 +175,8 @@ public final class PacketTranslator {
         return dispatch(TO_CLIENT, packet, player, transformer);
     }
 
-    static <T extends net.minecraft.network.PacketListener> Packet<T> toClient(Packet<T> packet, TranslationContext context) {
+    static <T extends net.minecraft.network.PacketListener> @Nullable Packet<T> toClient(Packet<T> packet,
+            TranslationContext context) {
         return castPacket(rewrite(TO_CLIENT, packet, context));
     }
 

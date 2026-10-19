@@ -2,6 +2,9 @@ package com.exoticworlds.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.DeckGroupLattice.Step;
 
@@ -107,7 +110,7 @@ final class DeckGroupRegions {
                 continue;
             }
 
-            int[] worldAlong = alongX ? worldX : worldZ;
+            int[] worldAlong = Objects.requireNonNull(alongX ? worldX : worldZ, "a step's axis loops");
             int[] laps = (alongX ? this.x : this.z).lapsBetween(
                     worldAlong[0], worldAlong[1], alongX ? minX : minZ, alongX ? maxX : maxZ);
             int lowestLap = Math.max(laps[0], -reach);
@@ -156,13 +159,13 @@ final class DeckGroupRegions {
         return false;
     }
 
-    private static int[] worldImage(WrapDomain domain, int firstCell, int secondCell) {
+    private static int @Nullable [] worldImage(WrapDomain domain, int firstCell, int secondCell) {
         return domain instanceof WrapDomain.Noop
                 ? null
                 : new int[] {Math.min(firstCell, secondCell), Math.max(firstCell, secondCell)};
     }
 
-    private static boolean meets(int[] span, int min, int max) {
+    private static boolean meets(int @Nullable [] span, int min, int max) {
         return span == null || meets(span[0], span[1], min, max);
     }
 

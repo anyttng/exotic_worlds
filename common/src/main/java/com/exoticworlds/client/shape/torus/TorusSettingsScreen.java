@@ -27,10 +27,10 @@ public class TorusSettingsScreen extends LoopSettingsScreen<TorusSettings> {
     @Override
     protected TorusSettings build() {
         return new TorusSettings(
-                LoopSpans.ofWidths(this.controls.effectiveSize(Direction.Axis.X),
-                        this.controls.effectiveSize(Direction.Axis.Z)).withSkew(this.controls.effectiveSkew()),
+                LoopSpans.ofWidths(this.controls.completeSize(Direction.Axis.X),
+                        this.controls.completeSize(Direction.Axis.Z)).withSkew(this.controls.completeSkew()),
                 this.controls.netherScale(),
-                LoopSpans.ofWidth(this.controls.effectiveEndSize()),
+                LoopSpans.ofWidth(this.controls.completeEndSize()),
                 this.committedOptions());
     }
 

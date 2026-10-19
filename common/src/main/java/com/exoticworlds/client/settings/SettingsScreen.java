@@ -2,6 +2,7 @@ package com.exoticworlds.client.settings;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import com.mojang.serialization.Codec;
 import com.exoticworlds.compat.MapCopies;
@@ -11,6 +12,7 @@ import com.exoticworlds.settings.SettingsService;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.OptionsList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.options.OptionsSubScreen;
 import net.minecraft.network.chat.Component;
@@ -47,8 +49,9 @@ public class SettingsScreen extends OptionsSubScreen {
 
     @Override
     protected void addOptions() {
-        this.list.addBig(this.mapCopies);
-        this.list.addBig(this.seamLines);
+        OptionsList list = Objects.requireNonNull(this.list, "OptionsSubScreen.init builds the list first");
+        list.addBig(this.mapCopies);
+        list.addBig(this.seamLines);
         this.offerSeamLinesFor(this.mapCopies.get());
     }
 

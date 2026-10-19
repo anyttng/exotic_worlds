@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
 
+import com.uber.nullaway.annotations.Initializer;
 import com.exoticworlds.api.v1.client.WorldOptionContext;
 import com.exoticworlds.api.v1.client.WorldOptionControl;
 import com.exoticworlds.api.v1.client.WorldOptionControls;
@@ -97,6 +98,7 @@ public abstract class LoopSettingsScreen<S> extends Screen {
     }
 
     @Override
+    @Initializer
     protected void init() {
         this.layout = new HeaderAndFooterLayout(this);
         this.layout.addTitleHeader(this.title, this.font);
