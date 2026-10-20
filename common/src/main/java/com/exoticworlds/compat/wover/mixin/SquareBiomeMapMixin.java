@@ -2,7 +2,6 @@ package com.exoticworlds.compat.wover.mixin;
 
 import org.betterx.wover.generator.api.biomesource.WoverBiomePicker;
 import org.betterx.wover.generator.impl.map.square.SquareBiomeMap;
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,6 +15,7 @@ import com.exoticworlds.compat.FoldCompression;
 import com.exoticworlds.compat.wover.EdgeBiomes;
 import com.exoticworlds.compat.wover.LapMap;
 import com.exoticworlds.compat.wover.LapMapHolder;
+import com.exoticworlds.compat.wover.LapMapMemo;
 import com.exoticworlds.compat.wover.LapPicker;
 import com.exoticworlds.compat.wover.SquareLapMap;
 import com.exoticworlds.core.WorldFold;
@@ -35,7 +35,7 @@ public class SquareBiomeMapMixin implements LapMapHolder<WoverBiomePicker.Pickab
     private long exotic_worlds$seed;
 
     @Unique
-    private volatile @Nullable SquareLapMap<WoverBiomePicker.PickableBiome> exotic_worlds$lapMap;
+    private final LapMapMemo<WoverBiomePicker.PickableBiome> exotic_worlds$lapMaps = new LapMapMemo<>();
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void exotic_worlds$keepSeed(long seed, int size, WoverBiomePicker picker, CallbackInfo ci) {
@@ -62,13 +62,8 @@ public class SquareBiomeMapMixin implements LapMapHolder<WoverBiomePicker.Pickab
 
     @Override
     public LapMap<WoverBiomePicker.PickableBiome> exotic_worlds$lapMap(WorldFold fold) {
-        SquareLapMap<WoverBiomePicker.PickableBiome> lapMap = this.exotic_worlds$lapMap;
-        if (lapMap == null || !lapMap.covers(fold)) {
-            lapMap = new SquareLapMap<>(fold, this.sizeXZ, FoldCompression.of(fold), this.exotic_worlds$seed,
-                    new LapPicker<>(this.picker::getBiome, WoverBiomePicker.PickableBiome::getSubBiome));
-            this.exotic_worlds$lapMap = lapMap;
-        }
-
-        return lapMap;
+        LapMap<WoverBiomePicker.PickableBiome> lapMap = this.exotic_worlds$lapMaps.covering(fold);
+        return lapMap != null ? lapMap : this.exotic_worlds$lapMaps.keep(new SquareLapMap<>(fold, this.sizeXZ,
+                FoldCompression.of(fold), this.exotic_worlds$seed, LapPicker.of(this.picker)));
     }
 }

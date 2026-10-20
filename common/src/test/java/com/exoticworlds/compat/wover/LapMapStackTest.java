@@ -114,26 +114,13 @@ class LapMapStackTest {
     }
 
     private static LapChunk<Integer> chunk(int[][] cells) {
-        return new LapChunk<>() {
-            @Override
-            public int sideX() {
-                return cells.length;
+        LapChunk<Integer> chunk = new LapChunk<>(cells.length, cells[0].length);
+        for (int x = 0; x < cells.length; x++) {
+            for (int z = 0; z < cells[0].length; z++) {
+                chunk.set(x, z, cells[x][z]);
             }
+        }
 
-            @Override
-            public int sideZ() {
-                return cells[0].length;
-            }
-
-            @Override
-            public Integer get(int x, int z) {
-                return cells[x][z];
-            }
-
-            @Override
-            public void set(int x, int z, Integer biome) {
-                cells[x][z] = biome;
-            }
-        };
+        return chunk;
     }
 }
