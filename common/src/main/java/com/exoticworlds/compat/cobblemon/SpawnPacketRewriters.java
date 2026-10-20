@@ -1,5 +1,6 @@
 package com.exoticworlds.compat.cobblemon;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 import com.cobblemon.mod.common.net.messages.client.spawn.SpawnExtraDataEntityPacket;
@@ -33,7 +34,8 @@ final class SpawnPacketRewriters {
     static <P extends SpawnExtraDataEntityPacket<?, ?>> CustomPacketPayload seated(P payload,
             TranslationContext context, Function<RegistryFriendlyByteBuf, P> decoder) {
         ClientboundAddEntityPacket spawn = payload.getVanillaSpawnPacket();
-        ClientboundAddEntityPacket moved = (ClientboundAddEntityPacket) PacketTranslator.toClient(spawn, context);
+        ClientboundAddEntityPacket moved = (ClientboundAddEntityPacket) Objects.requireNonNull(
+                PacketTranslator.toClient(spawn, context), "an entity spawn is never dropped");
         if (moved.getX() == spawn.getX() && moved.getZ() == spawn.getZ()) {
             return payload;
         }

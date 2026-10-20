@@ -2,6 +2,7 @@ package com.exoticworlds.compat.journeymap;
 
 import org.slf4j.Logger;
 
+import com.uber.nullaway.annotations.Initializer;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.ClientShapes;
 import com.exoticworlds.ExoticWorlds;
@@ -30,6 +31,7 @@ public class ToroidalJourneyMapPlugin implements IClientPlugin {
     }
 
     @Override
+    @Initializer
     public void initialize(IClientAPI api) {
         this.api = api;
         ClientEventRegistry.MAPPING_EVENT.subscribe(ExoticWorlds.MODID, this::onMapping);

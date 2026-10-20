@@ -1,6 +1,7 @@
 package com.exoticworlds.compat.create.client;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 
@@ -41,7 +42,7 @@ public final class CreateClientFrame {
     }
 
     public static Vec3 nearestCopy(@Nullable Vec3 anchor, Vec3 target) {
-        return ClientFrame.nearestCopy(anchor, target);
+        return Objects.requireNonNull(ClientFrame.nearestCopy(anchor, target), "a target has a nearest copy");
     }
 
     public static Vec3 inFrameOf(@Nullable Vec3 anchor, Vec3 point) {

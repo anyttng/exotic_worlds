@@ -98,7 +98,7 @@ public final class SablePoseFold {
             pipeline.addLinearAndAngularVelocity(body, linearLost, angularLost);
         }
 
-        if (body == self) {
+        if (body == self && readback != null) {
             readback.position().set(target);
         }
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
@@ -98,7 +99,8 @@ public final class SableConstraintGraph {
             List<PhysicsPipelineBody> group = new ArrayList<>();
             group.add(start);
             for (int index = 0; index < group.size(); index++) {
-                for (PhysicsPipelineBody other : neighbors.get(group.get(index))) {
+                for (PhysicsPipelineBody other : Objects.requireNonNull(neighbors.get(group.get(index)),
+                        "every edge end is a key")) {
                     if (seen.add(other)) {
                         group.add(other);
                     }
