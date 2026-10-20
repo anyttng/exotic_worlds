@@ -3,6 +3,7 @@ package com.exoticworlds.compat.journeymap.mixin;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.objectweb.asm.Opcodes;
@@ -20,8 +21,6 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.blaze3d.platform.Window;
-import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.compat.journeymap.JourneyMapFold;
 import com.exoticworlds.compat.journeymap.JourneyMapSeamPass;
@@ -44,9 +43,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.state.gui.ColoredRectangleRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix3x2fStack;
@@ -111,7 +108,7 @@ public abstract class MapRendererMixin implements JourneyMapSeamPass {
     private static boolean exotic_worlds$anchorPass;
 
     @Unique
-    private ResourceKey<Level> exotic_worlds$lastLevelDimension;
+    private String exotic_worlds$lastLevelDimension;
 
     @Unique
     private File exotic_worlds$lastWorldDir;
@@ -124,15 +121,9 @@ public abstract class MapRendererMixin implements JourneyMapSeamPass {
             return;
         }
 
-        ResourceKey<Level> dimension = level.dimension();
-        String reason = JourneyMapFold.staleGridReason(exotic_worlds$lastLevelDimension, dimension,
-                exotic_worlds$lastWorldDir, worldDir);
-        if (reason != null) {
-            boolean byWorld = JourneyMapFold.WORLD_CHANGED.equals(reason);
-            JourneyMapFold.gridDropped(reason,
-                    byWorld ? exotic_worlds$lastWorldDir.getName() : exotic_worlds$lastLevelDimension.identifier().toString(),
-                    byWorld ? worldDir.getName() : dimension.identifier().toString(),
-                    this.regions.size());
+        String dimension = level.dimension().identifier().toString();
+        if (JourneyMapFold.dropsGrid(exotic_worlds$lastLevelDimension, dimension, exotic_worlds$lastWorldDir, worldDir,
+                this.regions.size())) {
             this.clear();
         }
 
@@ -167,17 +158,8 @@ public abstract class MapRendererMixin implements JourneyMapSeamPass {
     @WrapMethod(method = CENTER)
     private boolean exotic_worlds$foldCenter(File worldDir, MapType mapType, double blockX, double blockZ, int zoom,
             Operation<Boolean> original) {
-        Vec3 center = JourneyMapFold.foldCenter(blockX, blockZ);
-        if (JourneyMapFold.copiesOf(this.getUIState().ui) != MapCopies.SINGLE || !JourneyMapFold.active()) {
-            return original.call(worldDir, mapType, center.x, center.z, zoom);
-        }
-
-        Window window = Minecraft.getInstance().getWindow();
-        int flooredZoom = Math.max(zoom, JourneyMapFold.fullscreenZoomFloor());
-        return original.call(worldDir, mapType,
-                JourneyMapFold.clampSingleCenter(Direction.Axis.X, center.x, flooredZoom, window.getWidth()),
-                JourneyMapFold.clampSingleCenter(Direction.Axis.Z, center.z, flooredZoom, window.getHeight()),
-                flooredZoom);
+        JourneyMapFold.Center center = JourneyMapFold.centerView(this.getUIState().ui, blockX, blockZ, zoom);
+        return original.call(worldDir, mapType, center.x(), center.z(), center.zoom());
     }
 
     @Inject(method = BLOCK_PIXEL_IN_GRID, at = @At("HEAD"))
@@ -203,77 +185,51 @@ public abstract class MapRendererMixin implements JourneyMapSeamPass {
 
     @ModifyVariable(method = MOVE, at = @At("HEAD"), ordinal = 0, argsOnly = true)
     private double exotic_worlds$stopMoveXAtTheEdge(double deltaBlockX) {
-        return JourneyMapFold.copiesOf(this.getUIState().ui) == MapCopies.SINGLE
-                ? JourneyMapFold.clampedMove(Direction.Axis.X, this.centerBlockX, deltaBlockX, this.zoom,
-                        Minecraft.getInstance().getWindow().getWidth())
-                : deltaBlockX;
+        return JourneyMapFold.moveDelta(this.getUIState().ui, Direction.Axis.X, this.centerBlockX, deltaBlockX, this.zoom);
     }
 
     @ModifyVariable(method = MOVE, at = @At("HEAD"), ordinal = 1, argsOnly = true)
     private double exotic_worlds$stopMoveZAtTheEdge(double deltaBlockZ) {
-        return JourneyMapFold.copiesOf(this.getUIState().ui) == MapCopies.SINGLE
-                ? JourneyMapFold.clampedMove(Direction.Axis.Z, this.centerBlockZ, deltaBlockZ, this.zoom,
-                        Minecraft.getInstance().getWindow().getHeight())
-                : deltaBlockZ;
+        return JourneyMapFold.moveDelta(this.getUIState().ui, Direction.Axis.Z, this.centerBlockZ, deltaBlockZ, this.zoom);
     }
 
     @Inject(method = "updateGrid", at = @At(value = "FIELD", target = LAST_GRID_TOKEN, opcode = Opcodes.PUTFIELD))
     private void exotic_worlds$addTheSeamsFarSide(RegionCoord centerRegion, int gridSize, long token, CallbackInfo ci,
             @Local Set<String> imageFiles) {
-        if (imageFiles == null || !JourneyMapFold.active()) {
+        if (imageFiles == null) {
             return;
         }
 
-        int regionCount = gridSize / 2;
-        int minX = centerRegion.regionX - regionCount;
-        int maxX = centerRegion.regionX + regionCount;
-        int minZ = centerRegion.regionZ - regionCount;
-        int maxZ = centerRegion.regionZ + regionCount;
-        for (long region : JourneyMapFold.gridRegions(minX, minZ, maxX, maxZ)) {
-            int x = ChunkPos.getX(region);
-            int z = ChunkPos.getZ(region);
-            boolean walkedByJourneyMap = x >= minX && x <= maxX && z >= minZ && z <= maxZ;
-            if (!walkedByJourneyMap && imageFiles.contains(x + "," + z + ".png")) {
-                RegionCoord coord = RegionCoord.fromRegionPos(this.worldDir, x, z, this.state.getDimension());
-                this.regions.putIfAbsent(token, coord, () -> RegionTileAccessor.exotic_worlds$create(coord, this.state, this::markSurfaceDirty));
-            }
+        for (long region : JourneyMapFold.farSideRegions(imageFiles, centerRegion.regionX, centerRegion.regionZ, gridSize)) {
+            RegionCoord coord = RegionCoord.fromRegionPos(this.worldDir, ChunkPos.getX(region), ChunkPos.getZ(region),
+                    this.state.getDimension());
+            this.regions.putIfAbsent(token, coord, () -> RegionTileAccessor.exotic_worlds$create(coord, this.state, this::markSurfaceDirty));
         }
     }
 
     @ModifyVariable(method = "setZoom(D)Z", at = @At("HEAD"), argsOnly = true)
     private double exotic_worlds$floorFullscreenZoom(double zoom) {
-        if (!Context.UI.Fullscreen.equals(this.getUIState().ui)) {
-            return zoom;
-        }
-
-        return Math.max(zoom, JourneyMapFold.fullscreenZoomFloor());
+        return JourneyMapFold.flooredZoom(this.getUIState().ui, zoom);
     }
 
     @Override
     public void exotic_worlds$drawSeams(GuiGraphicsExtractor graphics, Matrix3x2fStack pose, double offsetX, double offsetZ) {
-        if (!Context.UI.Fullscreen.equals(this.getUIState().ui) || JourneyMapFold.loopedAxes() == 0
-                || !JourneyMapFold.copiesOf(Context.UI.Fullscreen).drawsSeamLines()) {
+        List<WorldCopies.Edge> seams = JourneyMapFold.fullscreenSeams(this.getUIState().ui, this.centerBlockX,
+                this.centerBlockZ, this.zoom);
+        if (seams.isEmpty()) {
             return;
         }
 
-        Window window = Minecraft.getInstance().getWindow();
-        int[] spanX = JourneyMapFold.viewSpan(this.centerBlockX, window.getWidth(), this.zoom);
-        int[] spanZ = JourneyMapFold.viewSpan(this.centerBlockZ, window.getHeight(), this.zoom);
         Matrix3x2f poseSnapshot = new Matrix3x2f(pose);
-        for (WorldCopies.Edge seam : JourneyMapFold.seams(spanX, spanZ)) {
+        for (WorldCopies.Edge seam : seams) {
             Point2D.Double from = this.getBlockPixelInGrid(new BlockPos(seam.fromX(), 0, seam.fromZ()));
             Point2D.Double to = this.getBlockPixelInGrid(new BlockPos(seam.toX(), 0, seam.toZ()));
             int x0 = (int) (from.x + offsetX);
             int y0 = (int) (from.y + offsetZ);
-            int x1 = (int) (to.x + offsetX);
-            int y1 = (int) (to.y + offsetZ);
-            exotic_worlds$fillSeam(graphics, poseSnapshot, x0, y0, Math.max(x1, x0 + 1), Math.max(y1, y0 + 1));
+            int x1 = Math.max((int) (to.x + offsetX), x0 + 1);
+            int y1 = Math.max((int) (to.y + offsetZ), y0 + 1);
+            JmRenderRouter.addGuiElement(graphics, new ColoredRectangleRenderState(
+                    RenderPipelines.GUI, TextureSetup.noTexture(), poseSnapshot, x0, y0, x1, y1, SEAM_ARGB, SEAM_ARGB, null));
         }
-    }
-
-    @Unique
-    private static void exotic_worlds$fillSeam(GuiGraphicsExtractor graphics, Matrix3x2f pose, int x0, int y0, int x1, int y1) {
-        JmRenderRouter.addGuiElement(graphics, new ColoredRectangleRenderState(
-                RenderPipelines.GUI, TextureSetup.noTexture(), pose, x0, y0, x1, y1, SEAM_ARGB, SEAM_ARGB, null));
     }
 }
