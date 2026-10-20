@@ -7,13 +7,14 @@ import com.exoticworlds.api.v1.option.WorldOption;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.shape.StemSettings;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
 
 import net.minecraft.core.Direction;
 
 public record CylinderSettings(LoopSpans overworld, int netherScale, LoopSpans end,
-        GenerationOptions generationOptions) {
+        GenerationOptions generationOptions) implements StemSettings {
     private static final Direction.Axis DEFAULT_AXIS = Direction.Axis.X;
 
     public static final List<WorldOption<?>> OFFERED_OPTIONS = List.of(CompactBiomes.OPTION);
