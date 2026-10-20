@@ -87,6 +87,25 @@ class JourneyMapFoldGridRegionsTest {
                 "region (0, -2) was shown where only an unskewed copy would put it");
     }
 
+    @Test
+    void aGridPastTheSeamAddsOnlyTheFarSideRegionsJourneyMapHasOnDisk() {
+        Set<String> files = Set.of("-2,0.png", "-2,1.png", "0,0.png", "-2,5.png");
+        assertEquals(Set.of(ChunkPos.asLong(-2, 0), ChunkPos.asLong(-2, 1)),
+                regions(JourneyMapFold.farSideRegions(ON_GRID, files, 1, 0, 3)),
+                "raw region 2 folds onto -2, the one column JourneyMap's own walk misses; region 0 it walked");
+    }
+
+    @Test
+    void aGridInsideTheWorldAddsNothing() {
+        Set<String> files = Set.of("-1,0.png", "0,0.png", "1,1.png");
+        assertEquals(0, JourneyMapFold.farSideRegions(ON_GRID, files, 0, 0, 3).length);
+    }
+
+    @Test
+    void anUnshapedWorldAddsNothing() {
+        assertEquals(0, JourneyMapFold.farSideRegions(null, Set.of("-2,0.png"), 1, 0, 3).length);
+    }
+
     private static Rectangle2D bounds(double minX, double minZ, double maxX, double maxZ) {
         Rectangle2D bounds = new Rectangle2D.Double();
         bounds.setFrameFromDiagonal(minX, minZ, maxX, maxZ);

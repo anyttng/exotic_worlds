@@ -44,9 +44,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 @Mixin(targets = "journeymap.client.render.map.MapRenderer", remap = false)
@@ -104,7 +102,7 @@ public abstract class MapRendererMixin {
     private static boolean exotic_worlds$anchorPass;
 
     @Unique
-    private ResourceKey<Level> exotic_worlds$lastLevelDimension;
+    private String exotic_worlds$lastLevelDimension;
 
     @Unique
     private File exotic_worlds$lastWorldDir;
@@ -117,15 +115,9 @@ public abstract class MapRendererMixin {
             return;
         }
 
-        ResourceKey<Level> dimension = level.dimension();
-        String reason = JourneyMapFold.staleGridReason(exotic_worlds$lastLevelDimension, dimension,
-                exotic_worlds$lastWorldDir, worldDir);
-        if (reason != null) {
-            boolean byWorld = JourneyMapFold.WORLD_CHANGED.equals(reason);
-            JourneyMapFold.gridDropped(reason,
-                    byWorld ? exotic_worlds$lastWorldDir.getName() : exotic_worlds$lastLevelDimension.location().toString(),
-                    byWorld ? worldDir.getName() : dimension.location().toString(),
-                    this.regions.size());
+        String dimension = level.dimension().location().toString();
+        if (JourneyMapFold.dropsGrid(exotic_worlds$lastLevelDimension, dimension, exotic_worlds$lastWorldDir, worldDir,
+                this.regions.size())) {
             this.clear();
         }
 
@@ -158,17 +150,8 @@ public abstract class MapRendererMixin {
     @WrapMethod(method = CENTER)
     private boolean exotic_worlds$foldCenter(File worldDir, MapType mapType, double blockX, double blockZ, int zoom,
             Operation<Boolean> original) {
-        Vec3 center = JourneyMapFold.foldCenter(blockX, blockZ);
-        if (JourneyMapFold.copiesOf(this.getUIState().ui) != MapCopies.SINGLE || !JourneyMapFold.active()) {
-            return original.call(worldDir, mapType, center.x, center.z, zoom);
-        }
-
-        Window window = Minecraft.getInstance().getWindow();
-        int flooredZoom = Math.max(zoom, JourneyMapFold.fullscreenZoomFloor());
-        return original.call(worldDir, mapType,
-                JourneyMapFold.clampSingleCenter(Direction.Axis.X, center.x, flooredZoom, window.getWidth()),
-                JourneyMapFold.clampSingleCenter(Direction.Axis.Z, center.z, flooredZoom, window.getHeight()),
-                flooredZoom);
+        JourneyMapFold.Center center = JourneyMapFold.centerView(this.getUIState().ui, blockX, blockZ, zoom);
+        return original.call(worldDir, mapType, center.x(), center.z(), center.zoom());
     }
 
     @Inject(method = BLOCK_PIXEL_IN_GRID, at = @At("HEAD"))
@@ -194,50 +177,31 @@ public abstract class MapRendererMixin {
 
     @ModifyVariable(method = MOVE, at = @At("HEAD"), ordinal = 0, argsOnly = true)
     private double exotic_worlds$stopMoveXAtTheEdge(double deltaBlockX) {
-        return JourneyMapFold.copiesOf(this.getUIState().ui) == MapCopies.SINGLE
-                ? JourneyMapFold.clampedMove(Direction.Axis.X, this.centerBlockX, deltaBlockX, this.zoom,
-                        Minecraft.getInstance().getWindow().getWidth())
-                : deltaBlockX;
+        return JourneyMapFold.moveDelta(this.getUIState().ui, Direction.Axis.X, this.centerBlockX, deltaBlockX, this.zoom);
     }
 
     @ModifyVariable(method = MOVE, at = @At("HEAD"), ordinal = 1, argsOnly = true)
     private double exotic_worlds$stopMoveZAtTheEdge(double deltaBlockZ) {
-        return JourneyMapFold.copiesOf(this.getUIState().ui) == MapCopies.SINGLE
-                ? JourneyMapFold.clampedMove(Direction.Axis.Z, this.centerBlockZ, deltaBlockZ, this.zoom,
-                        Minecraft.getInstance().getWindow().getHeight())
-                : deltaBlockZ;
+        return JourneyMapFold.moveDelta(this.getUIState().ui, Direction.Axis.Z, this.centerBlockZ, deltaBlockZ, this.zoom);
     }
 
     @Inject(method = "updateGrid", at = @At(value = "FIELD", target = LAST_GRID_TOKEN, opcode = Opcodes.PUTFIELD))
     private void exotic_worlds$addTheSeamsFarSide(RegionCoord centerRegion, int gridSize, long token, CallbackInfo ci,
             @Local Set<String> imageFiles) {
-        if (imageFiles == null || !JourneyMapFold.active()) {
+        if (imageFiles == null) {
             return;
         }
 
-        int regionCount = gridSize / 2;
-        int minX = centerRegion.regionX - regionCount;
-        int maxX = centerRegion.regionX + regionCount;
-        int minZ = centerRegion.regionZ - regionCount;
-        int maxZ = centerRegion.regionZ + regionCount;
-        for (long region : JourneyMapFold.gridRegions(minX, minZ, maxX, maxZ)) {
-            int x = ChunkPos.getX(region);
-            int z = ChunkPos.getZ(region);
-            boolean walkedByJourneyMap = x >= minX && x <= maxX && z >= minZ && z <= maxZ;
-            if (!walkedByJourneyMap && imageFiles.contains(x + "," + z + ".png")) {
-                RegionCoord coord = RegionCoord.fromRegionPos(this.worldDir, x, z, this.state.getDimension());
-                this.regions.putIfAbsent(token, coord, () -> RegionTileAccessor.exotic_worlds$create(coord, this.state));
-            }
+        for (long region : JourneyMapFold.farSideRegions(imageFiles, centerRegion.regionX, centerRegion.regionZ, gridSize)) {
+            RegionCoord coord = RegionCoord.fromRegionPos(this.worldDir, ChunkPos.getX(region), ChunkPos.getZ(region),
+                    this.state.getDimension());
+            this.regions.putIfAbsent(token, coord, () -> RegionTileAccessor.exotic_worlds$create(coord, this.state));
         }
     }
 
     @ModifyVariable(method = "setZoom(D)Z", at = @At("HEAD"), argsOnly = true)
     private double exotic_worlds$floorFullscreenZoom(double zoom) {
-        if (!Context.UI.Fullscreen.equals(this.getUIState().ui)) {
-            return zoom;
-        }
-
-        return Math.max(zoom, JourneyMapFold.fullscreenZoomFloor());
+        return JourneyMapFold.flooredZoom(this.getUIState().ui, zoom);
     }
 
     @WrapOperation(
