@@ -4,8 +4,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -26,8 +24,6 @@ public class ProjectileUtilMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_BOUNDING_BOX))
     private static AABB exotic_worlds$candidateBoxThroughSeam(Entity candidate, Operation<AABB> original,
             @Local(argsOnly = true, ordinal = 0) Vec3 from) {
-        AABB box = original.call(candidate);
-        WorldFold transformer = ((TransformerSource) candidate).exotic_worlds$wrappedTransformer();
-        return FoldedBoxQuery.toward(transformer, from, box);
+        return FoldedBoxQuery.toward(candidate, from, original.call(candidate));
     }
 }

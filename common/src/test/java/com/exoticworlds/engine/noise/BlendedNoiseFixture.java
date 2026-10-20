@@ -77,7 +77,8 @@ final class BlendedNoiseFixture {
     static double folded(Replica replica, Params params, WorldFold fold,
             double blockX, double blockY, double blockZ) {
         return replica.samplers().computeIfAbsent(new FoldedKey(params, fold), key -> FoldedSamplers.blended(
-                        new FoldedCompileContext(contextOf(replica), fold, NO_LIFT), params.noise()))
+                        new FoldedCompileContext(contextOf(replica), fold, NO_LIFT,
+                                NoiseScaleLadder.NONE), params.noise()))
                 .sampleValue(SamplerContext.EMPTY_UNCACHED, Mth.floor(blockX), Mth.floor(blockY), Mth.floor(blockZ));
     }
 

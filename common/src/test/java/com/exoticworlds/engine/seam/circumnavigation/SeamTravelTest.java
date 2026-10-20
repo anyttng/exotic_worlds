@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import com.mojang.serialization.Codec;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -26,9 +27,9 @@ class SeamTravelTest {
     private static final double MIN_BLOCK = -256.0;
     private static final double TOLERANCE = 1.0E-9;
     private static final WorldFold TORUS =
-            WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(WIDTH_CHUNKS)));
+            WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH_CHUNKS)));
     private static final WorldFold CYLINDER_X =
-            WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, WIDTH_CHUNKS)));
+            WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, WIDTH_CHUNKS)));
 
     @Test
     void pacingBackAndForthNeverClosesALap() {

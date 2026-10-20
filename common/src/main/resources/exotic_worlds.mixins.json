@@ -24,6 +24,7 @@
     "BeehiveBlockEntityMixin",
     "BehaviorUtilsMixin",
     "BellBlockEntityMixin",
+    "BiomeManagerMixin",
     "BiomeMixin",
     "BlazeAimMixin",
     "BlendedNoiseCompileMixin",
@@ -294,6 +295,7 @@
   ],
   "client": [
     "BiomePrecipitationMixin",
+    "ClientboundAddEntityPacketMixin",
     "ClientChunkCacheMixin",
     "ClientLevelMixin",
     "ClientPacketListenerMixin",

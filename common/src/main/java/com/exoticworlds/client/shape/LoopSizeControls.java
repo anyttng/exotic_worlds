@@ -3,10 +3,13 @@ package com.exoticworlds.client.shape;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.IntPredicate;
 
 import org.jspecify.annotations.Nullable;
 
+import com.uber.nullaway.annotations.Initializer;
+import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
@@ -58,6 +61,7 @@ public final class LoopSizeControls {
 
     private static final int FIELD_MAX_LENGTH = 7;
     private static final int PRESET_SPACING = 5;
+    private static final String INCOMPLETE = "Done waits for isComplete";
 
     private static final int PRESET_WIDTH =
             (FIELD_WIDTH - PRESET_SPACING * (WorldLoopPresets.values().length - 1)) / WorldLoopPresets.values().length;
@@ -98,8 +102,11 @@ public final class LoopSizeControls {
                 FlatShape.NO_SKEW, netherScale, endChunkWidth, onChange);
     }
 
-    public static LoopSizeControls perAxis(int xChunkWidth, int zChunkWidth, int skewChunks, int netherScale,
-            int endChunkWidth, Runnable onChange) {
+    public static LoopSizeControls perAxis(LoopSpans overworld, int netherScale, int endChunkWidth,
+            Runnable onChange) {
+        int xChunkWidth = overworld.chunkWidth(Direction.Axis.X);
+        int zChunkWidth = overworld.chunkWidth(Direction.Axis.Z);
+        int skewChunks = Math.floorMod(overworld.skewChunks(), xChunkWidth);
         return new LoopSizeControls(worldSizeField(SIZE_X_LABEL_KEY, xChunkWidth),
                 worldSizeField(SIZE_Z_LABEL_KEY, zChunkWidth), new SkewField(skewChunks), xChunkWidth, zChunkWidth,
                 skewChunks, netherScale, endChunkWidth, onChange);
@@ -123,6 +130,7 @@ public final class LoopSizeControls {
         }
     }
 
+    @Initializer
     public void addFields(Font font, LinearLayout contents) {
         this.size.add(font, contents, this::onSizeChanged);
         if (this.zSize != null) {
@@ -159,6 +167,18 @@ public final class LoopSizeControls {
 
     public @Nullable Integer effectiveEndSize() {
         return this.endSize.effective();
+    }
+
+    public int completeSize(Direction.Axis axis) {
+        return Objects.requireNonNull(this.effectiveSize(axis), INCOMPLETE);
+    }
+
+    public int completeSkew() {
+        return Objects.requireNonNull(this.effectiveSkew(), INCOMPLETE);
+    }
+
+    public int completeEndSize() {
+        return Objects.requireNonNull(this.effectiveEndSize(), INCOMPLETE);
     }
 
     public boolean isComplete() {
@@ -211,11 +231,13 @@ public final class LoopSizeControls {
             this.skew.update(this.effectiveSize(Direction.Axis.X));
         }
 
-        if (this.effectiveSize(Direction.Axis.X) == null || this.effectiveSize(Direction.Axis.Z) == null
-                || this.effectiveSkew() == null) {
+        Integer xSizeChunks = this.effectiveSize(Direction.Axis.X);
+        Integer zSizeChunks = this.effectiveSize(Direction.Axis.Z);
+        Integer skewChunks = this.effectiveSkew();
+        if (xSizeChunks == null || zSizeChunks == null || skewChunks == null) {
             this.netherScaleButton.active = false;
         } else {
-            this.refreshNetherScale();
+            this.refreshNetherScale(xSizeChunks, zSizeChunks, skewChunks);
         }
 
         this.changed();
@@ -226,10 +248,7 @@ public final class LoopSizeControls {
         this.changed();
     }
 
-    private void refreshNetherScale() {
-        int xSizeChunks = this.effectiveSize(Direction.Axis.X);
-        int zSizeChunks = this.effectiveSize(Direction.Axis.Z);
-        int skewChunks = this.effectiveSkew();
+    private void refreshNetherScale(int xSizeChunks, int zSizeChunks, int skewChunks) {
         List<Integer> allowed = NetherScales.allowedFor(xSizeChunks, zSizeChunks, skewChunks);
         boolean sizeChanged = xSizeChunks != this.scalePickedForXSize || zSizeChunks != this.scalePickedForZSize
                 || skewChunks != this.scalePickedForSkew;
@@ -268,7 +287,7 @@ public final class LoopSizeControls {
 
         this.netherScale = NetherScales.next(this.netherScale, effectiveXSize, effectiveZSize, effectiveSkew);
         this.wantedNetherScale = this.netherScale;
-        this.refreshNetherScale();
+        this.refreshNetherScale(effectiveXSize, effectiveZSize, effectiveSkew);
         this.changed();
     }
 
@@ -322,6 +341,7 @@ public final class LoopSizeControls {
             this.text = String.valueOf(chunkWidth);
         }
 
+        @Initializer
         private void add(Font font, LinearLayout contents, Runnable onEdited) {
             this.edit = new DigitsEditBox(font, FIELD_WIDTH, FIELD_HEIGHT, this.label());
             this.edit.setMaxLength(FIELD_MAX_LENGTH);
@@ -379,6 +399,7 @@ public final class LoopSizeControls {
             this.text = String.valueOf(skewChunks);
         }
 
+        @Initializer
         private void add(Font font, LinearLayout contents, Runnable onEdited) {
             this.edit = new DigitsEditBox(font, FIELD_WIDTH, FIELD_HEIGHT, SKEW_LABEL);
             this.edit.setMaxLength(FIELD_MAX_LENGTH);

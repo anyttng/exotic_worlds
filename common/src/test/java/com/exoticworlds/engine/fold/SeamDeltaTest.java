@@ -9,6 +9,7 @@ import java.util.Random;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -26,7 +27,7 @@ class SeamDeltaTest {
     private static final int WIDTH = 64 * 16;
     private static final int SKEW = 5 * 16;
 
-    private static final WorldFold TORUS = WorldFolds.of(FlatShape.torus(BOUNDS));
+    private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(BOUNDS));
     private static final WorldFold SKEWED = WorldFolds.of(FlatShape.latticeTorus(BOUNDS, 5));
 
     @Test

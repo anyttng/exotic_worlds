@@ -3,8 +3,10 @@ package com.exoticworlds.compat.journeymap;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -79,8 +81,38 @@ public final class JourneyMapFold {
         return copies(axis).clampView(center + delta, halfViewBlocks(zoom, windowPixels)) - center;
     }
 
-    public static double clampSingleCenter(Direction.Axis axis, double foldedCoord, int zoom, int windowPixels) {
-        return clampSingleCenter(ClientShapes.current(), axis, foldedCoord, zoom, windowPixels);
+    public static double moveDelta(Context.UI ui, Direction.Axis axis, double center, double delta, int zoom) {
+        if (copiesOf(ui) != MapCopies.SINGLE) {
+            return delta;
+        }
+
+        Window window = Minecraft.getInstance().getWindow();
+        return clampedMove(axis, center, delta, zoom,
+                axis == Direction.Axis.X ? window.getWidth() : window.getHeight());
+    }
+
+    public static double flooredZoom(Context.UI ui, double zoom) {
+        return ui == Context.UI.Fullscreen ? Math.max(zoom, fullscreenZoomFloor()) : zoom;
+    }
+
+    public static Center centerView(Context.UI ui, double blockX, double blockZ, int zoom) {
+        Vec3 folded = foldCenter(blockX, blockZ);
+        if (copiesOf(ui) != MapCopies.SINGLE || !active()) {
+            return new Center(folded.x, folded.z, zoom);
+        }
+
+        Window window = Minecraft.getInstance().getWindow();
+        return singleCenter(ClientShapes.current(), folded, Math.max(zoom, fullscreenZoomFloor()), window.getWidth(),
+                window.getHeight());
+    }
+
+    static Center singleCenter(@Nullable ToroidalShape shape, Vec3 folded, int flooredZoom, int windowWidth,
+            int windowHeight) {
+        return new Center(clampSingleCenter(shape, Direction.Axis.X, folded.x, flooredZoom, windowWidth),
+                clampSingleCenter(shape, Direction.Axis.Z, folded.z, flooredZoom, windowHeight), flooredZoom);
+    }
+
+    public record Center(double x, double z, int zoom) {
     }
 
     static double clampSingleCenter(@Nullable ToroidalShape shape, Direction.Axis axis, double foldedCoord, int zoom,
@@ -100,11 +132,11 @@ public final class JourneyMapFold {
         return ClientShapes.current() != null;
     }
 
-    public static BlockPos foldUiBlock(BlockPos pos) {
+    public static @Nullable BlockPos foldUiBlock(@Nullable BlockPos pos) {
         return foldUiBlock(ClientShapes.current(), pos);
     }
 
-    static BlockPos foldUiBlock(@Nullable ToroidalShape shape, BlockPos pos) {
+    static @Nullable BlockPos foldUiBlock(@Nullable ToroidalShape shape, @Nullable BlockPos pos) {
         return pos == null ? null : ClientShapes.fold(shape, pos);
     }
 
@@ -198,13 +230,15 @@ public final class JourneyMapFold {
         return copies;
     }
 
-    public static boolean regionInView(Rectangle2D.Double regionBounds, int regionX, int regionZ) {
-        return regionInView(ClientShapes.current(), regionX, regionZ,
-                regionBounds.getMinX(), regionBounds.getMinY(), regionBounds.getMaxX(), regionBounds.getMaxY());
+    public static boolean regionInView(Rectangle2D regionBounds, int regionX, int regionZ) {
+        return regionInView(ClientShapes.current(), regionBounds, regionX, regionZ);
     }
 
-    static boolean regionInView(@Nullable ToroidalShape shape, int regionX, int regionZ, double boundsMinX,
-            double boundsMinZ, double boundsMaxX, double boundsMaxZ) {
+    static boolean regionInView(@Nullable ToroidalShape shape, Rectangle2D regionBounds, int regionX, int regionZ) {
+        double boundsMinX = regionBounds.getMinX();
+        double boundsMinZ = regionBounds.getMinY();
+        double boundsMaxX = regionBounds.getMaxX();
+        double boundsMaxZ = regionBounds.getMaxY();
         AxisCopies x = AxisCopies.of(shape, Direction.Axis.X);
         AxisCopies z = AxisCopies.of(shape, Direction.Axis.Z);
         List<WorldCopies.Copy> copies = WorldCopies.meeting(shape, spanMin(boundsMinX), spanMin(boundsMinZ),
@@ -242,12 +276,45 @@ public final class JourneyMapFold {
 
     static long[] gridRegions(@Nullable ToroidalShape shape, int firstRegionX, int firstRegionZ, int lastRegionX,
             int lastRegionZ) {
-        return WorldCopies.canonicalCells(shape, regionBlock(firstRegionX), regionBlock(firstRegionZ),
-                regionBlock(lastRegionX + 1), regionBlock(lastRegionZ + 1), FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS);
+        return WorldCopies.Window.of(shape, regionBlock(firstRegionX), regionBlock(firstRegionZ),
+                regionBlock(lastRegionX + 1), regionBlock(lastRegionZ + 1))
+                .canonicalCells(FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS);
+    }
+
+    public static long[] farSideRegions(Set<String> imageFiles, int centerRegionX, int centerRegionZ, int gridSize) {
+        return farSideRegions(ClientShapes.current(), imageFiles, centerRegionX, centerRegionZ, gridSize);
+    }
+
+    static long[] farSideRegions(@Nullable ToroidalShape shape, Set<String> imageFiles, int centerRegionX,
+            int centerRegionZ, int gridSize) {
+        if (shape == null) {
+            return new long[0];
+        }
+
+        int regionCount = gridSize / 2;
+        int minX = centerRegionX - regionCount;
+        int maxX = centerRegionX + regionCount;
+        int minZ = centerRegionZ - regionCount;
+        int maxZ = centerRegionZ + regionCount;
+        return Arrays.stream(gridRegions(shape, minX, minZ, maxX, maxZ)).filter(region -> {
+            int x = ChunkPos.getX(region);
+            int z = ChunkPos.getZ(region);
+            boolean walkedByJourneyMap = x >= minX && x <= maxX && z >= minZ && z <= maxZ;
+            return !walkedByJourneyMap && imageFiles.contains(x + "," + z + ".png");
+        }).toArray();
     }
 
     private static int regionBlock(int region) {
         return region * FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS;
+    }
+
+    public static List<WorldCopies.Edge> fullscreenSeams(Context.UI ui, double centerX, double centerZ, int zoom) {
+        if (ui != Context.UI.Fullscreen || loopedAxes() == 0 || !copiesOf(Context.UI.Fullscreen).drawsSeamLines()) {
+            return List.of();
+        }
+
+        Window window = Minecraft.getInstance().getWindow();
+        return seams(viewSpan(centerX, window.getWidth(), zoom), viewSpan(centerZ, window.getHeight(), zoom));
     }
 
     public static List<WorldCopies.Edge> seams(int[] spanX, int[] spanZ) {
@@ -299,6 +366,7 @@ public final class JourneyMapFold {
         return offsets.toArray(double[][]::new);
     }
 
+    // mc/1.21: places an overlay that draws once on its copy nearest the screen center.
     public static double[][] nearestCopyOffset(double[][] offsets, Rectangle2D.Double bounds, Rectangle2D.Double screen) {
         if (offsets.length <= 1) {
             return offsets;
@@ -332,7 +400,23 @@ public final class JourneyMapFold {
         return null;
     }
 
-    public static void gridDropped(String reason, String from, String to, int tilesDropped) {
+    public static boolean dropsGrid(@Nullable String lastDimension, String dimension, @Nullable File lastWorldDir,
+            @Nullable File worldDir, int tiles) {
+        String reason = staleGridReason(lastDimension, dimension, lastWorldDir, worldDir);
+        if (WORLD_CHANGED.equals(reason) && lastWorldDir != null && worldDir != null) {
+            gridDropped(WORLD_CHANGED, lastWorldDir.getName(), worldDir.getName(), tiles);
+            return true;
+        }
+
+        if (DIMENSION_CHANGED.equals(reason) && lastDimension != null) {
+            gridDropped(DIMENSION_CHANGED, lastDimension, dimension, tiles);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static void gridDropped(String reason, String from, String to, int tilesDropped) {
         LOGGER.info("[ew/jm-compat] grid_dropped reason={} from={} to={} tiles_dropped={}",
                 reason, from.replace(' ', '_'), to.replace(' ', '_'), tilesDropped);
     }

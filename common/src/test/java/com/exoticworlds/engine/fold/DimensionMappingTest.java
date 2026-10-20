@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -17,7 +18,7 @@ class DimensionMappingTest {
     private static final double DECLARED = 0.125;
 
     private static WorldFold xOnly(int minChunk, int maxChunk) {
-        return WorldFolds.of(FlatShape.cylinder(
+        return WorldFolds.of(ShapeFixtures.cylinder(
                 new WorldLoopBounds(new AxisBounds.Looped(minChunk, maxChunk), AxisBounds.Unbounded.INSTANCE)));
     }
 

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.engine.gen.ShapedDimensions;
 
@@ -38,11 +39,11 @@ class TorusDimensionsTest {
     void aRectangleRoundTripsThroughItsThreeGenerators() {
         WorldDimensions created = TorusDimensions.apply(vanillaDimensions(), RECTANGLE_64_BY_128);
 
-        assertEquals(FlatShape.torus(WorldLoopBounds.ofWidths(64, 128)),
+        assertEquals(ShapeFixtures.torus(WorldLoopBounds.ofWidths(64, 128)),
                 ShapedDimensions.shapeOf(created, LevelStem.OVERWORLD));
-        assertEquals(FlatShape.torus(WorldLoopBounds.ofWidths(16, 32)),
+        assertEquals(ShapeFixtures.torus(WorldLoopBounds.ofWidths(16, 32)),
                 ShapedDimensions.shapeOf(created, LevelStem.NETHER));
-        assertEquals(FlatShape.torus(WorldLoopBounds.ofWidth(320)),
+        assertEquals(ShapeFixtures.torus(WorldLoopBounds.ofWidth(320)),
                 ShapedDimensions.shapeOf(created, LevelStem.END));
         assertEquals(RECTANGLE_64_BY_128, TorusDimensions.read(created));
     }
@@ -53,7 +54,7 @@ class TorusDimensionsTest {
                 TorusSettings.DEFAULT.generationOptions());
         WorldDimensions created = TorusDimensions.apply(vanillaDimensions(), chosen);
 
-        assertEquals(FlatShape.torus(WorldLoopBounds.ofWidths(128, 24)),
+        assertEquals(ShapeFixtures.torus(WorldLoopBounds.ofWidths(128, 24)),
                 ShapedDimensions.shapeOf(created, LevelStem.NETHER));
         assertEquals(2, TorusDimensions.read(created).netherScale());
     }
@@ -68,7 +69,7 @@ class TorusDimensionsTest {
                 ShapedDimensions.shapeOf(created, LevelStem.OVERWORLD));
         assertEquals(FlatShape.latticeTorus(WorldLoopBounds.ofWidths(16, 32), 2),
                 ShapedDimensions.shapeOf(created, LevelStem.NETHER));
-        assertEquals(FlatShape.torus(WorldLoopBounds.ofWidth(320)),
+        assertEquals(ShapeFixtures.torus(WorldLoopBounds.ofWidth(320)),
                 ShapedDimensions.shapeOf(created, LevelStem.END));
         assertEquals(chosen, TorusDimensions.read(created));
     }
@@ -90,8 +91,8 @@ class TorusDimensionsTest {
                 TorusSettings.DEFAULT.generationOptions());
         TorusSettings read = TorusDimensions.read(TorusDimensions.apply(vanillaDimensions(), chosen));
 
-        assertEquals(-4, read.skewChunks());
-        assertEquals(60, Math.floorMod(read.skewChunks(), read.chunkWidth(Direction.Axis.X)));
+        assertEquals(-4, read.overworld().skewChunks());
+        assertEquals(60, Math.floorMod(read.overworld().skewChunks(), read.overworld().chunkWidth(Direction.Axis.X)));
     }
 
     @Test

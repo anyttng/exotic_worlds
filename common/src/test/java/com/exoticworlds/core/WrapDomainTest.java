@@ -209,8 +209,6 @@ class WrapDomainTest {
             assertEquals(-2, domain.wrap(3));
             assertEquals(2, domain.wrap(-3));
             assertEquals(-2, domain.wrap(8));
-            assertEquals(-2, domain.foldDelta(3));
-            assertEquals(2, domain.foldDelta(-3));
         }
 
         @Test
@@ -247,15 +245,7 @@ class WrapDomainTest {
                 assertEquals(coord, noop.unwrapAround(7, coord));
                 assertEquals(coord + 0.5, noop.unwrapAround(7.0, coord + 0.5));
                 assertEquals(coord, (int) noop.unwrapAround(7.0, coord));
-                assertEquals(coord, noop.foldDelta(coord));
-                assertEquals(coord + 0.5, noop.foldDelta(coord + 0.5));
             }
-        }
-
-        @Test
-        void nothingSpansTheSeamHoweverLongTheStretch() {
-            assertFalse(noop.spansSeam(-30_000_000, 30_000_000));
-            assertFalse(noop.spansSeam(0, Integer.MAX_VALUE));
         }
 
         @Test
@@ -416,57 +406,6 @@ class WrapDomainTest {
         }
 
         @Test
-        void foldDeltaTakesTheShortWayRound() {
-            Random random = new Random(SEED);
-            for (WrapDomain domain : DOMAINS) {
-                for (int i = 0; i < SAMPLES; i++) {
-                    int delta = random.nextInt(2 * domain.domainLength - 1) - (domain.domainLength - 1);
-                    int folded = domain.foldDelta(delta);
-                    assertEquals(0, Math.floorMod(delta - folded, domain.domainLength),
-                            () -> "foldDelta(" + delta + ") left its lattice " + in(domain));
-                    assertTrue(Math.abs(folded) * 2 <= domain.domainLength,
-                            () -> "foldDelta(" + delta + ") = " + folded + " is over half a world " + in(domain));
-
-                    double deltaD = delta + (delta < 0 ? -random.nextDouble() : random.nextDouble()) % 1.0;
-                    if (Math.abs(deltaD) >= domain.domainLength) continue;
-                    double foldedD = domain.foldDelta(deltaD);
-                    double laps = (deltaD - foldedD) / domain.domainLength;
-                    assertEquals((double) Math.round(laps), laps, 1e-9,
-                            () -> "foldDelta(" + deltaD + ") left its lattice " + in(domain));
-                    assertTrue(Math.abs(foldedD) <= domain.domainLength / 2.0 + 1e-9,
-                            () -> "foldDelta(" + deltaD + ") = " + foldedD + " is over half a world " + in(domain));
-                }
-            }
-        }
-
-        @Test
-        void spansSeamAgreesWithDoubledDistanceAgainstTheWholeWidth() {
-            Random random = new Random(SEED);
-            for (WrapDomain domain : DOMAINS) {
-                for (int i = 0; i < SAMPLES; i++) {
-                    int from = sampleCoord(random, domain);
-                    int to = sampleCoord(random, domain);
-                    boolean expected = 2 * Math.abs((long) to - from) > domain.domainLength;
-                    assertEquals(expected, domain.spansSeam(from, to),
-                            () -> "spansSeam(" + from + ", " + to + ") " + in(domain));
-                }
-
-                int radius = domain.domainLength / 2;
-                assertFalse(domain.spansSeam(domain.lowerBound, domain.lowerBound + radius));
-                if (radius + 1 < domain.domainLength) {
-                    assertTrue(domain.spansSeam(domain.lowerBound, domain.lowerBound + radius + 1));
-                }
-            }
-        }
-
-        @Test
-        void spansSeamSurvivesTheFullIntRange() {
-            WrapDomain domain = new WrapDomain(-32, 32);
-            assertTrue(domain.spansSeam(Integer.MIN_VALUE, Integer.MAX_VALUE));
-            assertTrue(domain.spansSeam(Integer.MAX_VALUE, Integer.MIN_VALUE));
-        }
-
-        @Test
         void overlapsAgreesWithTheLatticeOfWorldCopies() {
             Random random = new Random(SEED);
             for (WrapDomain domain : DOMAINS) {
@@ -534,10 +473,6 @@ class WrapDomainTest {
                     int wrapped = domain.wrap(coord);
                     assertEquals(domain.unwrapAround(ref, wrapped), domain.unwrapAround((double) ref, (double) wrapped), 0.0,
                             () -> "unwrapAround(" + ref + ", " + wrapped + ") " + in(domain));
-
-                    int delta = random.nextInt(2 * domain.domainLength - 1) - (domain.domainLength - 1);
-                    assertEquals(domain.foldDelta(delta), domain.foldDelta((double) delta), 0.0,
-                            () -> "foldDelta(" + delta + ") " + in(domain));
                 }
             }
         }

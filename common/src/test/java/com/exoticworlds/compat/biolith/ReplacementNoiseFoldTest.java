@@ -12,10 +12,9 @@ import org.junit.jupiter.api.Test;
 
 import com.terraformersmc.biolith.impl.noise.OpenSimplexNoise2;
 import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.shape.climate.ClimateCompression;
 import com.exoticworlds.shape.climate.ClimateScale;
@@ -120,7 +119,8 @@ class ReplacementNoiseFoldTest {
     }
 
     private static WorldFold torus(int chunkMin, int chunkMax, GenerationOptions options) {
-        return WorldFolds.of(FlatShape.torus(new WorldLoopBounds(chunkMin, chunkMax, chunkMin, chunkMax)), options);
+        return WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(chunkMin, chunkMax, chunkMin, chunkMax)),
+                options);
     }
 
     private static WorldFold compressed(int chunkMin, int chunkMax, ClimateScale scale) {
@@ -349,7 +349,8 @@ class ReplacementNoiseFoldTest {
 
     @Nested
     class Periodicity {
-        private static final WorldFold CYLINDER = WorldFolds.of(FlatShape.cylinder(new WorldLoopBounds(-16, 16, -16, 16)));
+        private static final WorldFold CYLINDER = WorldFolds.of(
+                ShapeFixtures.cylinder(ShapeFixtures.loopedBounds(-16, 16, -16, 16)));
 
         @Test
         void repeatsOneLapAway() {

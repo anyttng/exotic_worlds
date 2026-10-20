@@ -4,10 +4,9 @@ import java.util.List;
 import java.util.Random;
 
 import com.exoticworlds.accessors.CoastLiftCache;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WrapDomain;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
@@ -44,10 +43,10 @@ public final class DensityFunctionFixture {
             Holder.direct(NormalNoise.createParity(CLIMATE_FIRST_OCTAVE, CLIMATE_AMPLITUDES));
 
     public static final WorldFold SQUARE =
-            WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-16, 16, -16, 16)));
+            WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-16, 16, -16, 16)));
 
     public static final WorldFold RECTANGULAR =
-            WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-16, 16, -8, 8)));
+            WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-16, 16, -8, 8)));
 
     public static final List<WorldFold> WORLDS = List.of(SQUARE, RECTANGULAR);
 
@@ -82,7 +81,8 @@ public final class DensityFunctionFixture {
     };
 
     public static DensitySampler compile(DensityFunction function, WorldFold fold) {
-        return new DensityFunctionCompiler(new FoldedCompileContext(SEEDED, fold, NO_LIFT)).getSampler(function);
+        return new DensityFunctionCompiler(
+                new FoldedCompileContext(SEEDED, fold, NO_LIFT, NoiseScaleLadder.NONE)).getSampler(function);
     }
 
     public static DensitySampler compileVanilla(DensityFunction function) {

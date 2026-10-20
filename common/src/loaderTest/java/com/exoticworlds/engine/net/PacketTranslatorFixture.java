@@ -3,8 +3,9 @@ package com.exoticworlds.engine.net;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
 
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -23,10 +24,10 @@ import net.minecraft.world.phys.Vec3;
 
 final class PacketTranslatorFixture {
     static final WorldFold TRANSFORMER =
-            WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-32, 32, -32, 32)));
-    static final WorldFold MIRRORED_TRANSFORMER = new DeckGroupFold(FlatShape.mirrored(
+            WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-32, 32, -32, 32)));
+    static final WorldFold MIRRORED_TRANSFORMER = new DeckGroupFold(ShapeFixtures.mirrored(
             new WorldLoopBounds(new AxisBounds.Looped(-32, 32), AxisBounds.Unbounded.INSTANCE),
-            Direction.Axis.Z, 0));
+            Direction.Axis.Z, 0), GenerationOptions.DEFAULT);
     static final RegistryAccess.Frozen REGISTRIES =
             RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 

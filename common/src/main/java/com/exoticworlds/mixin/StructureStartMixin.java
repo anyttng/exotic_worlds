@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.Unique;
 import com.exoticworlds.accessors.FramedStructureStart;
 import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.gen.MovedStructureStart;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -20,12 +21,9 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
-import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
-import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
 
 @Mixin(StructureStart.class)
 public class StructureStartMixin implements FramedStructureStart {
@@ -45,7 +43,7 @@ public class StructureStartMixin implements FramedStructureStart {
             return known;
         }
 
-        StructureStart made = exotic_worlds$movedCopy(self, level, move);
+        StructureStart made = MovedStructureStart.copy(self, level, move);
         if (made == null) {
             return null;
         }
@@ -92,36 +90,5 @@ public class StructureStartMixin implements FramedStructureStart {
 
             return framed;
         }
-    }
-
-    @Unique
-    private static @Nullable StructureStart exotic_worlds$movedCopy(
-            StructureStart start, WorldGenLevel level, DeckTransformation move) {
-        StructurePieceSerializationContext context = StructurePieceSerializationContext.fromLevel(level.getLevel());
-        StructureStart copy = StructureStart.loadStaticStart(
-                context, start.createTag(context, start.getChunkPos()), level.getSeed());
-        if (copy == null || !copy.isValid()) {
-            return null;
-        }
-
-        copy.getPieces().forEach(piece -> {
-            BoundingBox box = piece.getBoundingBox();
-            BoundingBox moved = move.apply(box);
-            piece.move(moved.minX() - box.minX(), 0, moved.minZ() - box.minZ());
-
-            if (piece instanceof PoolElementStructurePiece poolPiece) {
-                poolPiece.getJunctions().replaceAll(junction -> {
-                    BlockPos source = move.apply(new BlockPos(
-                            junction.getSourceX(), junction.getSourceGroundY(), junction.getSourceZ()));
-                    return new JigsawJunction(
-                            source.getX(),
-                            junction.getSourceGroundY(),
-                            source.getZ(),
-                            junction.getDeltaY(),
-                            junction.getDestProjection());
-                });
-            }
-        });
-        return copy;
     }
 }

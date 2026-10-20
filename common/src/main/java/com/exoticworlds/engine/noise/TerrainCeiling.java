@@ -5,6 +5,7 @@ import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.DensityFunctionNodes;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -49,6 +50,10 @@ public final class TerrainCeiling {
                         settings.aquifers(),
                         settings.useLegacyRandomSource(),
                         settings.debugFunctions());
+    }
+
+    public static NoiseGeneratorSettings shaped(@Nullable WorldFold fold, NoiseGeneratorSettings settings) {
+        return fold != null ? withCeiling(settings) : settings;
     }
 
     public static @Nullable DensityFunction ceiling(NoiseGeneratorSettings settings) {

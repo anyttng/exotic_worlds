@@ -5,6 +5,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.jspecify.annotations.Nullable;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -74,7 +76,7 @@ public final class SettingsFile {
                 .toString();
     }
 
-    private static JsonObject read(Path file) {
+    private static @Nullable JsonObject read(Path file) {
         try {
             JsonElement parsed = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8));
             if (parsed.isJsonObject()) {

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.AlignedPeriod;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
@@ -31,7 +32,7 @@ class DhRowCopiesTest {
     private static DhLattice cylinder(int widthChunks) {
         AxisBounds.Looped looped = new AxisBounds.Looped(0, widthChunks);
         return DhLattice.of(WorldFolds.of(
-                FlatShape.torus(new WorldLoopBounds(looped, AxisBounds.Unbounded.INSTANCE))));
+                ShapeFixtures.torus(new WorldLoopBounds(looped, AxisBounds.Unbounded.INSTANCE))));
     }
 
     private static ChunkPos key(DhLattice lattice, ChunkPos chunk) {
@@ -102,6 +103,19 @@ class DhRowCopiesTest {
     void theCopyPositionIsBoundOnlyWhileTheCopyIsBuilt() {
         ChunkPos copy = new ChunkPos(6, 19);
         assertSame(copy, DhRowCopies.buildAt(copy, DhRowCopies::pendingCopy));
+        assertNull(DhRowCopies.pendingCopy());
+    }
+
+    @Test
+    void aNestedBuildRestoresTheOuterCopy() {
+        ChunkPos outer = new ChunkPos(6, 19);
+        ChunkPos inner = new ChunkPos(3, 69);
+        ChunkPos seen = DhRowCopies.buildAt(outer, () -> {
+            assertSame(inner, DhRowCopies.buildAt(inner, DhRowCopies::pendingCopy));
+            return DhRowCopies.pendingCopy();
+        });
+
+        assertSame(outer, seen);
         assertNull(DhRowCopies.pendingCopy());
     }
 }

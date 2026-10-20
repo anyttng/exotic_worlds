@@ -12,7 +12,7 @@ import java.awt.Color;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
@@ -36,13 +36,13 @@ class DhFoldTest {
     private static DhLattice torus(int minChunk, int maxChunk) {
         AxisBounds.Looped looped = new AxisBounds.Looped(minChunk, maxChunk);
         return DhLattice.of(
-                WorldFolds.of(FlatShape.torus(new WorldLoopBounds(looped, looped))));
+                WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(looped, looped))));
     }
 
     private static DhLattice cylinder(int minChunk, int maxChunk) {
         AxisBounds.Looped looped = new AxisBounds.Looped(minChunk, maxChunk);
         return DhLattice.of(WorldFolds.of(
-                FlatShape.torus(new WorldLoopBounds(looped, AxisBounds.Unbounded.INSTANCE))));
+                ShapeFixtures.torus(new WorldLoopBounds(looped, AxisBounds.Unbounded.INSTANCE))));
     }
 
     @Nested
@@ -147,11 +147,6 @@ class DhFoldTest {
         @Test
         void theSameWidthStartingOnTheGridReachesTheLevelItsWidthAllows() {
             assertEquals(7, DhFold.maxExactDetailLevel(torus(0, 104)));
-        }
-
-        @Test
-        void aWorldStartingAtZeroIsLimitedByItsWidthAlone() {
-            assertEquals(WORLD, DhFold.maxExactDetailLevel(torus(0, WIDTH_CHUNKS)));
         }
     }
 

@@ -1,20 +1,21 @@
 package com.exoticworlds.engine.seam;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
 class SeamRangeTest {
     private static final WorldFold WORLD =
-            WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-16, 16, -16, 16)));
+            WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-16, 16, -16, 16)));
     private static final WorldFold NO_FOLD = null;
 
     private static final BlockPos EAST_BLOCK = new BlockPos(250, 70, 0);
@@ -39,6 +40,23 @@ class SeamRangeTest {
     void aPairStraddlingTheSeamMeasuresTheShortWay() {
         assertEquals(12.0 * 12.0 + 6.0 * 6.0 + 8.0 * 8.0, SeamRange.sqr(WORLD, EAST_BLOCK, WEST_BLOCK));
         assertEquals(11.0 * 11.0 + 6.0 * 6.0 + 8.0 * 8.0, SeamRange.sqr(WORLD, EAST_POINT, WEST_POINT));
+    }
+
+    @Test
+    void aPairStraddlingTheSeamIsCloseTheShortWayOnTheGround() {
+        assertTrue(SeamRange.closerThan(WORLD, EAST_POINT, WEST_POINT, 14.0, 7.0));
+        assertFalse(SeamRange.closerThan(WorldFolds.NOOP, EAST_POINT, WEST_POINT, 14.0, 7.0));
+    }
+
+    @Test
+    void aGroundLimitUnderTheShortWayRefuses() {
+        assertFalse(SeamRange.closerThan(WORLD, EAST_POINT, WEST_POINT, 13.0, 7.0));
+    }
+
+    @Test
+    void theHeightLimitStandsApartFromTheGround() {
+        assertFalse(SeamRange.closerThan(WORLD, EAST_POINT, WEST_POINT, 14.0, 6.0));
+        assertTrue(SeamRange.closerThan(WORLD, EAST_POINT, WEST_POINT, 14.0, 6.5));
     }
 
     @Test

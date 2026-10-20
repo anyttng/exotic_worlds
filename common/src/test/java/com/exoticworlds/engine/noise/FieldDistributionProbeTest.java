@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.noise;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -76,7 +76,7 @@ class FieldDistributionProbeTest {
             Path.of(System.getProperty("toroidal.reports", "build/reports")).resolve("field-distribution-probe.txt");
 
     private static final WorldFold WORLD = WorldFolds.of(
-            FlatShape.torus(new WorldLoopBounds(-16, 16, -16, 16)));
+            ShapeFixtures.torus(ShapeFixtures.loopedBounds(-16, 16, -16, 16)));
 
     private static final long[] WORLD_SEEDS = {
             0x0153EL, 0xC0FFEEL, -1234567890123456789L, 42L, 8180061971476006269L, -8011452369450108867L,
@@ -441,7 +441,8 @@ class FieldDistributionProbeTest {
                 double zBlocks = zChunks * 16.0;
                 double scale = fx / WORLD_BLOCKS;
                 double fz = zBlocks * scale;
-                WorldFold world = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-16, 16, -zChunks / 2, zChunks / 2)));
+                WorldFold world = WorldFolds.of(
+                        ShapeFixtures.torus(ShapeFixtures.loopedBounds(-16, 16, -zChunks / 2, zChunks / 2)));
                 double vanillaSum = 0.0;
                 double wrappedSum = 0.0;
                 for (int s = 0; s < seeds; s++) {
@@ -481,7 +482,7 @@ class FieldDistributionProbeTest {
         int gridX = 16;
         int gridZ = 256;
         double zSpan = 8192.0;
-        WorldFold cylinder = WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 32)));
+        WorldFold cylinder = WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 32)));
         LapFloor[] floors = {LapFloor.FOUR_CELLS, LapFloor.of(cylinder)};
         java.util.Random windows = new java.util.Random(0x0153E);
         report.append("cylinder calibration (X lap 512 blocks, Z unbounded, window ").append((int) zSpan)

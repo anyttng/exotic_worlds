@@ -44,7 +44,7 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | [Simple Atlas](https://modrinth.com/mod/simple-atlas) | 26.2, 26.1.2 | Fabric | Supported | Where the world's width is not a whole number of maps, maps across the world's edge overlap and no copies are drawn |
 | [Seed Viewer](https://modrinth.com/mod/seed-viewer) | 26.2, 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | |
 | [Moonlight Lib](https://modrinth.com/mod/moonlight) | 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | |
-| MapFrontiers | All | NeoForge, Fabric | No edge support | |
+| [MapFrontiers](https://modrinth.com/mod/mapfrontiers) | All | NeoForge, Fabric | Supported | |
 
 ## Machines and vehicles
 
@@ -63,6 +63,8 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | Mod | Minecraft | Loaders | Status | Notes |
 | --- | --- | --- | --- | --- |
 | [Polymer](https://modrinth.com/mod/polymer)-based mods, such as [Lootr](https://modrinth.com/mod/lootr) | 26.2, 26.1.2, 1.21.1 | NeoForge, Fabric | No patch needed | |
+| [Supplementaries](https://modrinth.com/mod/supplementaries) | 1.21.1 | NeoForge, Fabric | Supported | |
+| [Cobblemon](https://modrinth.com/mod/cobblemon) | 1.21.1 | NeoForge, Fabric | Supported | |
 | Immersive Portals | 1.21.1 | NeoForge, Fabric | Partially supported | What lies past the world's edge does not show next to you |
 
 ## World generation

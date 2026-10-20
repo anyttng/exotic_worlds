@@ -187,10 +187,6 @@ public record WorldLoopBounds(AxisBounds x, AxisBounds z) {
     public static final WorldLoopBounds UNBOUNDED =
             new WorldLoopBounds(AxisBounds.Unbounded.INSTANCE, AxisBounds.Unbounded.INSTANCE);
 
-    public WorldLoopBounds(int xMinChunk, int xMaxChunk, int zMinChunk, int zMaxChunk) {
-        this(new AxisBounds.Looped(xMinChunk, xMaxChunk), new AxisBounds.Looped(zMinChunk, zMaxChunk));
-    }
-
     public static WorldLoopBounds ofWidth(int chunkWidth) {
         AxisBounds.Looped looped = AxisBounds.Looped.ofWidth(chunkWidth);
         return new WorldLoopBounds(looped, looped);

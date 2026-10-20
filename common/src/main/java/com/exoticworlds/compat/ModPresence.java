@@ -9,9 +9,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import com.google.gson.JsonArray;
@@ -27,14 +29,13 @@ public final class ModPresence {
     private final ClassLoader classLoader;
     private final String gateLabel;
     private final List<String> resources;
-    private final String config;
+    private final @Nullable String config;
     private final Predicate<String> covering;
     private final Map<String, String> bodySources;
     private final Map<String, BooleanSupplier> withheld;
     private final List<ModPresence> required;
 
-    private String mixinPackage;
-    private List<String> configMixins;
+    private @Nullable MixinConfig mixinConfig;
     private boolean probed;
     private boolean present;
 
@@ -140,24 +141,28 @@ public final class ModPresence {
         return covered;
     }
 
-    private synchronized String mixinPackage() {
-        readConfig();
-        return this.mixinPackage;
+    private String mixinPackage() {
+        return mixinConfig().mixinPackage();
     }
 
-    private synchronized List<String> configMixins() {
-        readConfig();
-        return this.configMixins;
+    private List<String> configMixins() {
+        return mixinConfig().mixins();
     }
 
-    private void readConfig() {
-        if (this.configMixins != null) {
-            return;
+    private synchronized MixinConfig mixinConfig() {
+        MixinConfig read = this.mixinConfig;
+        if (read == null) {
+            read = readConfig(Objects.requireNonNull(this.config, "a gate without a mixin config covers no mixin"));
+            this.mixinConfig = read;
         }
 
-        try (InputStream stream = this.classLoader.getResourceAsStream(this.config)) {
+        return read;
+    }
+
+    private MixinConfig readConfig(String config) {
+        try (InputStream stream = this.classLoader.getResourceAsStream(config)) {
             if (stream == null) {
-                throw new IllegalStateException("mixin config " + this.config + " is not on the classpath");
+                throw new IllegalStateException("mixin config " + config + " is not on the classpath");
             }
 
             try (Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
@@ -171,12 +176,14 @@ public final class ModPresence {
                     }
                 }
 
-                this.mixinPackage = json.get(PACKAGE_KEY).getAsString();
-                this.configMixins = List.copyOf(mixins);
+                return new MixinConfig(json.get(PACKAGE_KEY).getAsString(), List.copyOf(mixins));
             }
         } catch (IOException unreadable) {
-            throw new IllegalStateException("mixin config " + this.config + " cannot be read", unreadable);
+            throw new IllegalStateException("mixin config " + config + " cannot be read", unreadable);
         }
+    }
+
+    private record MixinConfig(String mixinPackage, List<String> mixins) {
     }
 
     public static final class Builder {
@@ -187,7 +194,7 @@ public final class ModPresence {
         private final Map<String, BooleanSupplier> withheld = new HashMap<>();
         private final List<ModPresence> required = new ArrayList<>();
 
-        private String config;
+        private @Nullable String config;
         private Predicate<String> covering = mixin -> true;
 
         private Builder(Logger logger, String gateLabel) {

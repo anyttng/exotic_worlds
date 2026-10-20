@@ -3,6 +3,7 @@ plugins {
     id 'maven-publish'
     id 'net.neoforged.moddev'
     id 'idea'
+    id 'jacoco'
 }
 
 version = exotic_worlds_version
@@ -161,13 +162,16 @@ dependencies {
     compileOnly files(fabricEnvTypeClass)
     compileOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
     compileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
+    compileOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
     compileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"
+    compileOnly "com.uber.nullaway:nullaway-annotations:${nullaway_version}"
 }
 
 // Plain JUnit on the NeoForm vanilla classpath: NeoForm mode has no FML, hence no junit run-type and no applied
 // mixins — a test that needs a mixin at runtime belongs to a loader module. The registries are filled by the
 // launcher-session listener under src/test, ahead of any test class initialisation.
 neoForge.addModdingDependenciesTo(sourceSets.test)
+sourceSets.test.java.srcDir 'src/testFixtures/java'
 
 dependencies {
     testCompileOnly files(c2meModuleJars).asFileTree.matching { include '*.jar' }
@@ -184,6 +188,8 @@ dependencies {
     testRuntimeOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
     testCompileOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
     testRuntimeOnly "maven.modrinth:bclib-neoforge:${bclib_version}"
+    testCompileOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
+    testRuntimeOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
     // The compat jars on the test runtime alone: every compat gate reads its mixins' targets from these class files,
     // and a config plugin cannot even load without IMixinConfigPlugin.
     testRuntimeOnly "maven.modrinth:journeymap:${journeymap_version}"
@@ -210,6 +216,8 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    // UnreachedMembersTest reads every module's compiled classes, so they are current before it runs.
+    dependsOn ':frames:classes', ':neoforge:testClasses', ':fabric:testClasses'
     filter {
         // A --tests pattern that names nothing in this module is a zero-test run, not a failed one.
         failOnNoMatchingTests = false
@@ -235,6 +243,27 @@ test {
     systemProperty 'toroidal.reports', layout.buildDirectory.dir('reports').get().asFile.absolutePath
     // The datapack templates under docs/ are not on the classpath, so the test that gates them is given the repo root.
     systemProperty 'toroidal.repoRoot', rootDir.absolutePath
+    jacoco {
+        enabled = project.hasProperty('coverage')
+        includes = ['com.exoticworlds.*']
+    }
+    if (project.hasProperty('coverage')) {
+        finalizedBy 'jacocoTestReport'
+    }
+}
+
+jacoco {
+    toolVersion = jacoco_version
+}
+
+tasks.named('jacocoTestReport', JacocoReport) {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    classDirectories.setFrom(sourceSets.main.output.classesDirs.collect {
+        fileTree(it) { exclude '**/mixin/**' }
+    })
 }
 
 tasks.withType(JavaCompile).configureEach {

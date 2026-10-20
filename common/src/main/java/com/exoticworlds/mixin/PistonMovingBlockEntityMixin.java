@@ -29,8 +29,7 @@ public class PistonMovingBlockEntityMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_BOUNDING_BOX))
     private static AABB exotic_worlds$entityBoxTowardPiston(Entity entity, Operation<AABB> original,
             @Local(argsOnly = true) BlockPos pos) {
-        return FoldedBoxQuery.toward(((TransformerSource) entity).exotic_worlds$wrappedTransformer(),
-                Vec3.atCenterOf(pos), original.call(entity));
+        return FoldedBoxQuery.toward(entity, Vec3.atCenterOf(pos), original.call(entity));
     }
 
     @WrapOperation(

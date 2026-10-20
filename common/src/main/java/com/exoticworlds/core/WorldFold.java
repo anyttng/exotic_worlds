@@ -98,8 +98,6 @@ public interface WorldFold {
 
     Vec3 foldDelta(Vec3 from, Vec3 to);
 
-    double sqrDistance(Vec3 from, Vec3 to);
-
     double sqrDistance(double xFrom, double yFrom, double zFrom, double xTo, double yTo, double zTo);
 
     int sqrChunkDistance(ChunkPos from, ChunkPos to);
@@ -138,6 +136,7 @@ public interface WorldFold {
         return copiesTouching(region, Integer.MAX_VALUE);
     }
 
+    // mc/1.21: refuses a Create schematic wider than the world.
     boolean foldsOntoItself(BoundingBox region);
 
     Folded<AABB> foldBox(Vec3 ref, AABB box);

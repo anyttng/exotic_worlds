@@ -8,8 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
@@ -25,12 +27,14 @@ class SeamHitTest {
     private static final AxisBounds UNBOUNDED = AxisBounds.Unbounded.INSTANCE;
 
     private static final WorldFold MIRRORS_Z = new DeckGroupFold(
-            FlatShape.mirrored(new WorldLoopBounds(LOOPED, UNBOUNDED), Direction.Axis.Z, 0));
+            ShapeFixtures.mirrored(new WorldLoopBounds(LOOPED, UNBOUNDED), Direction.Axis.Z,
+                    0), GenerationOptions.DEFAULT);
     private static final WorldFold MIRRORS_X = new DeckGroupFold(
-            FlatShape.mirrored(new WorldLoopBounds(UNBOUNDED, LOOPED), Direction.Axis.X, 0));
+            ShapeFixtures.mirrored(new WorldLoopBounds(UNBOUNDED, LOOPED), Direction.Axis.X,
+                    0), GenerationOptions.DEFAULT);
     private static final WorldFold TORUS = new DeckGroupFold(
-            FlatShape.torus(new WorldLoopBounds(LOOPED, LOOPED)));
-    private static final WorldFold RECTANGLE = new DeckGroupFold(FlatShape.rectangle());
+            ShapeFixtures.torus(new WorldLoopBounds(LOOPED, LOOPED)), GenerationOptions.DEFAULT);
+    private static final WorldFold RECTANGLE = new DeckGroupFold(FlatShape.rectangle(), GenerationOptions.DEFAULT);
 
     private static final BlockPos OVER_X = new BlockPos(130, 64, 40);
     private static final BlockPos OVER_Z = new BlockPos(40, 64, 130);

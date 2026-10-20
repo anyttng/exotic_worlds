@@ -2,6 +2,7 @@ package com.exoticworlds.frames;
 
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.slf4j.Logger;
@@ -15,9 +16,9 @@ public final class XaeroFramesProcessor implements ClassProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(XaeroFramesProcessor.class);
     private static final ProcessorName NAME = new ProcessorName("exotic_worlds", "xaero_frames");
     private static final String AUDIT = "stripped the debug labels of extractRenderState";
-    private static volatile MethodNode strippedRenderState;
+    private static volatile @Nullable MethodNode strippedRenderState;
 
-    static MethodNode strippedRenderState() {
+    static @Nullable MethodNode strippedRenderState() {
         return strippedRenderState;
     }
 

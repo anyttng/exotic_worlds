@@ -40,7 +40,7 @@ public class TreeChangesMixin {
     }
 
     @WrapOperation(
-            method = {"changed", "covered", "requestNeighbours", "requestAcrossEdges"},
+            method = {"changed", "covered", "requestNeighbors", "requestAcrossEdges"},
             at = @At(value = "INVOKE", target = EminusInjectionTargets.NODE_TABLE_GET))
     private @Nullable TreeNode exotic_worlds$everyNodeOfTheStoredKey(NodeTable table, long key,
             Operation<@Nullable TreeNode> original, @Local(argsOnly = true) @Nullable CameraFrame camera) {

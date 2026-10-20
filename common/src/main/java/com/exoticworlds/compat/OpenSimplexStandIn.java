@@ -47,10 +47,6 @@ public final class OpenSimplexStandIn {
                 lattice(z, zPeriod, zCells, RATE_3D) + this.noise.offsetZ, xCells, zCells);
     }
 
-    static long cells(double period) {
-        return cells(period, RATE);
-    }
-
     static long cells(double period, double rate) {
         return period == UNBOUNDED
                 ? PeriodicNoiseSampler.UNBOUNDED_PERIOD

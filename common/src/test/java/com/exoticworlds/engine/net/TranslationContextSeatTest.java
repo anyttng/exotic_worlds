@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -20,7 +20,7 @@ class TranslationContextSeatTest {
     private static final int WIDTH = WIDTH_IN_CHUNKS * 16;
     private static final int VIEW_DISTANCE = 12;
 
-    private static final WorldFold TORUS = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(WIDTH_IN_CHUNKS)));
+    private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH_IN_CHUNKS)));
 
     private static final Vec3 TARGET = new Vec3(240.5, 64.0, 10.5);
     private static final double ANCHOR_BESIDE_THE_TARGET = 240.0;

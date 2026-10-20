@@ -28,7 +28,7 @@ class CarriedShapeTest {
 
     @Test
     void everyPrefixCarriesTheShapeAndTheChosenOptionsBackUnchanged() {
-        CarriedShape carried = new CarriedShape(FlatShape.torus(SQUARE),
+        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE),
                 GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
 
         for (String prefix : PREFIXES) {
@@ -43,7 +43,7 @@ class CarriedShapeTest {
 
     @Test
     void anOptionLeftAtItsDefaultIsNeverWrittenAndComesBackAsTheDefault() {
-        CarriedShape carried = new CarriedShape(FlatShape.torus(SQUARE));
+        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE), GenerationOptions.DEFAULT);
 
         for (String prefix : PREFIXES) {
             MapCodec<CarriedShape> codec = CarriedShape.mapCodec(prefix);
@@ -56,7 +56,7 @@ class CarriedShapeTest {
 
     @Test
     void theFoldIsBuiltOnceAndHandedBackAsTheSameReference() {
-        CarriedShape carried = new CarriedShape(FlatShape.torus(SQUARE));
+        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE), GenerationOptions.DEFAULT);
 
         assertSame(carried.fold(), carried.fold());
         assertTrue(carried.fold().isWrapped());
@@ -64,12 +64,12 @@ class CarriedShapeTest {
 
     @Test
     void aDerivedShapeKeepsTheOptionsItWasCarriedWith() {
-        CarriedShape carried = new CarriedShape(FlatShape.torus(SQUARE),
+        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE),
                 GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
 
-        CarriedShape derived = carried.withShape(FlatShape.torus(NARROWER));
+        CarriedShape derived = carried.withShape(ShapeFixtures.torus(NARROWER));
 
-        assertEquals(FlatShape.torus(NARROWER), derived.shape());
+        assertEquals(ShapeFixtures.torus(NARROWER), derived.shape());
         assertEquals(carried.generationOptions(), derived.generationOptions());
     }
 }

@@ -8,14 +8,17 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.api.v1.option.GenerationOptions;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 
 class TranslationLatticeTest {
-    private static final WorldLoopBounds BOUNDS = new WorldLoopBounds(-16, 16, -12, 12);
+    private static final WorldLoopBounds BOUNDS = ShapeFixtures.loopedBounds(-16, 16, -12, 12);
     private static final int SKEW_CHUNKS = 5;
-    private static final DeckGroupFold SKEWED = new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS));
+    private static final DeckGroupFold SKEWED = new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS),
+            GenerationOptions.DEFAULT);
     private static final TranslationLattice LATTICE = SKEWED.blockLattice();
 
     private static final int WIDTH_X = 512;
@@ -96,16 +99,29 @@ class TranslationLatticeTest {
 
     @Test
     void anUnskewedNearestDeltaIsTheAxisFold() {
-        TranslationLattice plain = WorldFolds.of(FlatShape.torus(BOUNDS)).blockLattice();
+        TranslationLattice plain = WorldFolds.of(ShapeFixtures.torus(BOUNDS)).blockLattice();
         WrapDomain xDomain = plain.x();
         WrapDomain zDomain = plain.z();
         for (int x = -WIDTH_X + 1; x < WIDTH_X; x += STEP) {
             for (int z = -WIDTH_Z + 1; z < WIDTH_Z; z += STEP) {
                 int laps = plain.nearestZLaps(x, z);
-                assertEquals(xDomain.foldDelta(x), plain.nearestDeltaX(x, laps));
-                assertEquals(zDomain.foldDelta(z), plain.nearestDeltaZ(z, laps));
+                assertEquals(shortWayRound(xDomain, x), plain.nearestDeltaX(x, laps));
+                assertEquals(shortWayRound(zDomain, z), plain.nearestDeltaZ(z, laps));
             }
         }
+    }
+
+    private static int shortWayRound(WrapDomain domain, int delta) {
+        int half = domain.domainLength / 2;
+        if (delta > half) {
+            return delta - domain.domainLength;
+        }
+
+        if (delta < -half) {
+            return delta + domain.domainLength;
+        }
+
+        return delta;
     }
 
     @Test
@@ -149,7 +165,9 @@ class TranslationLatticeTest {
     static DeckGroupFold longFold(int[] shape) {
         int halfX = shape[0] / 2;
         int halfZ = shape[1] / 2;
-        return new DeckGroupFold(FlatShape.latticeTorus(new WorldLoopBounds(-halfX, halfX, -halfZ, halfZ), shape[2]));
+        return new DeckGroupFold(
+                FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-halfX, halfX, -halfZ, halfZ),
+                        shape[2]), GenerationOptions.DEFAULT);
     }
 
     static double shortestSquared(TranslationLattice lattice, double deltaX, double deltaZ) {
@@ -171,7 +189,8 @@ class TranslationLatticeTest {
 
     @Test
     void aMirrorIsNoTranslationLattice() {
-        DeckGroupFold mirrored = new DeckGroupFold(FlatShape.mirrored(BOUNDS, Direction.Axis.Z, 0));
+        DeckGroupFold mirrored = new DeckGroupFold(ShapeFixtures.mirrored(BOUNDS, Direction.Axis.Z, 0),
+                GenerationOptions.DEFAULT);
         assertThrows(IllegalStateException.class, mirrored::blockLattice);
         assertThrows(IllegalStateException.class, mirrored::chunkLattice);
     }
