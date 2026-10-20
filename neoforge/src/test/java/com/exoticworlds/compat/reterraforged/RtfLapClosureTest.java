@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -271,15 +272,15 @@ class RtfLapClosureTest {
     }
 
     private static WorldFold skewed(int chunks) {
-        return WorldFolds.of(new FlatShape(new WorldLoopBounds(-chunks, chunks, -chunks, chunks), SKEW_CHUNKS, null));
+        return WorldFolds.of(new FlatShape(ShapeFixtures.loopedBounds(-chunks, chunks, -chunks, chunks), SKEW_CHUNKS, null));
     }
 
     private static WorldFold torus(int chunks) {
-        return WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-chunks, chunks, -chunks, chunks)));
+        return WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-chunks, chunks, -chunks, chunks)));
     }
 
     private static WorldFold cylinder(int chunks) {
-        return WorldFolds.of(FlatShape.cylinder(new WorldLoopBounds(new AxisBounds.Looped(-chunks, chunks),
+        return WorldFolds.of(ShapeFixtures.cylinder(new WorldLoopBounds(new AxisBounds.Looped(-chunks, chunks),
                 AxisBounds.Unbounded.INSTANCE)));
     }
 }

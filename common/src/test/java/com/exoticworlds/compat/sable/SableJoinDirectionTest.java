@@ -8,20 +8,20 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.SeamTransform;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
-import com.exoticworlds.core.FlatShape;
 
 import net.minecraft.world.phys.Vec3;
 
 class SableJoinDirectionTest {
     private static final int HALF_WIDTH_CHUNKS = 16;
     private static final int WIDTH_BLOCKS = HALF_WIDTH_CHUNKS * 2 * 16;
-    private static final WorldFold TORUS = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(
+    private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(
             -HALF_WIDTH_CHUNKS, HALF_WIDTH_CHUNKS, -HALF_WIDTH_CHUNKS, HALF_WIDTH_CHUNKS)));
-    private static final WorldFold CYLINDER = WorldFolds.of(FlatShape.cylinder(new WorldLoopBounds(
+    private static final WorldFold CYLINDER = WorldFolds.of(ShapeFixtures.cylinder(new WorldLoopBounds(
             new AxisBounds.Looped(-HALF_WIDTH_CHUNKS, HALF_WIDTH_CHUNKS), AxisBounds.Unbounded.INSTANCE)));
 
     private static final Vec3 NEAR_UPPER = new Vec3(250.0, 64.0, 0.0);

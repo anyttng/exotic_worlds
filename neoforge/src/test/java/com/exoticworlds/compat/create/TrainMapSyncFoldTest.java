@@ -15,11 +15,12 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.FlatShape;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
@@ -38,13 +39,13 @@ class TrainMapSyncFoldTest {
     private static final List<WorldFold> TRANSLATING = List.of(PER_AXIS, DECK_TORUS, SKEWED);
 
     private static final WorldLoopBounds NETHER_BOUNDS =
-            new WorldLoopBounds(-NETHER_CHUNKS, NETHER_CHUNKS, -NETHER_CHUNKS, NETHER_CHUNKS);
+            ShapeFixtures.loopedBounds(-NETHER_CHUNKS, NETHER_CHUNKS, -NETHER_CHUNKS, NETHER_CHUNKS);
 
     private static final WorldFold NETHER_PER_AXIS =
-            WorldFolds.of(FlatShape.torus(NETHER_BOUNDS));
+            WorldFolds.of(ShapeFixtures.torus(NETHER_BOUNDS));
 
     private static final WorldFold NETHER_DECK_TORUS =
-            new DeckGroupFold(FlatShape.torus(NETHER_BOUNDS));
+            new DeckGroupFold(ShapeFixtures.torus(NETHER_BOUNDS), GenerationOptions.DEFAULT);
 
     private static final List<TwoWorlds> WIDE_AND_NARROW =
             List.of(new TwoWorlds(PER_AXIS, NETHER_PER_AXIS), new TwoWorlds(DECK_TORUS, NETHER_DECK_TORUS));

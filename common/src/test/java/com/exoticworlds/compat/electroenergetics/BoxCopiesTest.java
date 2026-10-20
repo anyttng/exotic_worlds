@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -19,7 +20,7 @@ class BoxCopiesTest {
             WorldFolds.of(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(70), 37));
     private static final WorldFold CAPTURE_LATTICE =
             WorldFolds.of(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(16), 7));
-    private static final WorldFold CAPTURE_TORUS = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(16)));
+    private static final WorldFold CAPTURE_TORUS = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(16)));
     private static final ChunkPos CENTER = new ChunkPos(0, 0);
     private static final int RADIUS = 32;
     private static final BlockPos CAPTURE_ORIGIN = new BlockPos(-120, 0, -120);

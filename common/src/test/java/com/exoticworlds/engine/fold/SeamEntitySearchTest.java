@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -40,7 +40,7 @@ class SeamEntitySearchTest {
     private static final double PAST_THE_BOUND = 0.1;
     private static final double INSIDE_THE_REACH = 1.0;
 
-    private static final WorldFold CYLINDER = WorldFolds.of(FlatShape.cylinder(
+    private static final WorldFold CYLINDER = WorldFolds.of(ShapeFixtures.cylinder(
             new WorldLoopBounds(new AxisBounds.Looped(MIN_CHUNK, MAX_CHUNK), AxisBounds.Unbounded.INSTANCE)));
 
     private static final AABB SHORT_OF_THE_UPPER_BOUND = new AABB(UPPER - QUERY_SIDE, MIN_Y, MIN_Z,

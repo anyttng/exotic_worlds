@@ -9,8 +9,8 @@ import java.util.List;
 import org.joml.Vector3d;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.FlatShape;
 
 import net.minecraft.world.phys.Vec3;
 
@@ -27,9 +27,9 @@ class JomlVectorsTest {
     private static final double Y = 70.0;
     private static final double Z = 4.0;
 
-    private static final WorldLoopBounds SQUARE = new WorldLoopBounds(MIN_CHUNK, MAX_CHUNK, MIN_CHUNK, MAX_CHUNK);
+    private static final WorldLoopBounds SQUARE = ShapeFixtures.loopedBounds(MIN_CHUNK, MAX_CHUNK, MIN_CHUNK, MAX_CHUNK);
     private static final List<WorldFold> FOLDS =
-            List.of(WorldFolds.of(FlatShape.torus(SQUARE)), new DeckGroupFold(FlatShape.torus(SQUARE)));
+            List.of(WorldFolds.of(ShapeFixtures.torus(SQUARE)), new DeckGroupFold(ShapeFixtures.torus(SQUARE), GenerationOptions.DEFAULT));
 
     private static Vec3 anchor() {
         return new Vec3(ANCHOR_X, Y, Z);

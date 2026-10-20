@@ -35,7 +35,7 @@ class ForeignFrameFoldTest {
     private static final int PLOT_BLOCK = PLOT_CHUNK * CoordinateConstants.CHUNK_WIDTH;
     private static final int SEA_LEVEL = 64;
 
-    private static final FlatShape SHAPE = FlatShape.torus(WorldLoopBounds.ofWidth(WORLD_CHUNKS));
+    private static final FlatShape SHAPE = ShapeFixtures.torus(WorldLoopBounds.ofWidth(WORLD_CHUNKS));
     private static final ForeignSpan PLOT_CHUNKS = new ForeignSpan(PLOT_MIN_CHUNK, PLOT_MAX_CHUNK);
     private static final WorldFold FRAMED = WorldFolds.of(SHAPE, List.of(new ForeignFrame(PLOT_CHUNKS, PLOT_CHUNKS)));
     private static final WorldFold BARE = WorldFolds.of(SHAPE);
@@ -114,8 +114,8 @@ class ForeignFrameFoldTest {
         assertEquals(PLOT_VEC.subtract(WORLD_VEC), delta);
 
         double raw = WORLD_VEC.distanceToSqr(PLOT_VEC);
-        assertEquals(raw, FRAMED.sqrDistance(WORLD_VEC, PLOT_VEC), 0.0);
-        assertEquals(raw, FRAMED.sqrDistance(PLOT_VEC, WORLD_VEC), 0.0);
+        assertEquals(raw, FRAMED.sqrDistance(WORLD_VEC.x, WORLD_VEC.y, WORLD_VEC.z, PLOT_VEC.x, PLOT_VEC.y, PLOT_VEC.z), 0.0);
+        assertEquals(raw, FRAMED.sqrDistance(PLOT_VEC.x, PLOT_VEC.y, PLOT_VEC.z, WORLD_VEC.x, WORLD_VEC.y, WORLD_VEC.z), 0.0);
     }
 
     @Test
@@ -234,8 +234,8 @@ class ForeignFrameFoldTest {
         assertEquals(PLOT_VEC.subtract(WORLD_VEC), LATTICE.foldDelta(WORLD_VEC, PLOT_VEC));
 
         double raw = WORLD_VEC.distanceToSqr(PLOT_VEC);
-        assertEquals(raw, LATTICE.sqrDistance(WORLD_VEC, PLOT_VEC), 0.0);
-        assertEquals(raw, LATTICE.sqrDistance(PLOT_VEC, WORLD_VEC), 0.0);
+        assertEquals(raw, LATTICE.sqrDistance(WORLD_VEC.x, WORLD_VEC.y, WORLD_VEC.z, PLOT_VEC.x, PLOT_VEC.y, PLOT_VEC.z), 0.0);
+        assertEquals(raw, LATTICE.sqrDistance(PLOT_VEC.x, PLOT_VEC.y, PLOT_VEC.z, WORLD_VEC.x, WORLD_VEC.y, WORLD_VEC.z), 0.0);
 
         AABB plotBox = new AABB(PLOT_BLOCK_POS).inflate(3.0);
         assertEquals(plotBox.distanceToSqr(WORLD_VEC), LATTICE.sqrDistanceToBox(plotBox, WORLD_VEC), 0.0);

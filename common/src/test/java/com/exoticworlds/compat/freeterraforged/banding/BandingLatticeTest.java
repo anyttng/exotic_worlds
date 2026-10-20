@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.freeterraforged.RtfLap;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -50,7 +51,7 @@ class BandingLatticeTest {
     @Test
     void aBlockAndItsCopyOneSkewedLapOnReadOneRegion() {
         WorldFold fold = WorldFolds.of(new FlatShape(
-                new WorldLoopBounds(-NARROW_CHUNKS, NARROW_CHUNKS, -NARROW_CHUNKS, NARROW_CHUNKS), SKEW_CHUNKS, null));
+                ShapeFixtures.loopedBounds(-NARROW_CHUNKS, NARROW_CHUNKS, -NARROW_CHUNKS, NARROW_CHUNKS), SKEW_CHUNKS, null));
         int lap = fold.blockLattice().z().domainLength;
         int skew = fold.blockLattice().skew();
         try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(fold)) {
@@ -108,7 +109,7 @@ class BandingLatticeTest {
 
     @Test
     void anOpenAxisKeepsFreeTerraForgedsRegion() {
-        WorldFold fold = WorldFolds.of(FlatShape.cylinder(new WorldLoopBounds(
+        WorldFold fold = WorldFolds.of(ShapeFixtures.cylinder(new WorldLoopBounds(
                 new AxisBounds.Looped(-NARROW_CHUNKS, NARROW_CHUNKS), AxisBounds.Unbounded.INSTANCE)));
         try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(fold)) {
             for (int z : BLOCKS) {
@@ -119,7 +120,7 @@ class BandingLatticeTest {
     }
 
     private static WorldFold torus() {
-        return WorldFolds.of(FlatShape.torus(
-                new WorldLoopBounds(-NARROW_CHUNKS, NARROW_CHUNKS, -NARROW_CHUNKS, NARROW_CHUNKS)));
+        return WorldFolds.of(ShapeFixtures.torus(
+                ShapeFixtures.loopedBounds(-NARROW_CHUNKS, NARROW_CHUNKS, -NARROW_CHUNKS, NARROW_CHUNKS)));
     }
 }

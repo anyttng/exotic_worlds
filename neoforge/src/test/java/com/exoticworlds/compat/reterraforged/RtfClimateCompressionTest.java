@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -332,7 +333,7 @@ class RtfClimateCompressionTest {
 
     @Test
     void aSkewedLatticeFitsItsClimateAsTheTorusOfItsLaps() {
-        WorldFold torus = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(NARROW_CHUNKS)),
+        WorldFold torus = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(NARROW_CHUNKS)),
                 GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.AUTO));
         assertEquals(RtfClimateCompression.factor(torus, DEFAULT_SCALES),
                 RtfClimateCompression.factor(skewed(NARROW_CHUNKS, ClimateScale.AUTO), DEFAULT_SCALES), EXACT);
@@ -480,9 +481,9 @@ class RtfClimateCompressionTest {
     private static WorldFold[] shapes(int chunks, ClimateScale scale) {
         GenerationOptions options = GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, scale);
         return new WorldFold[] {
-                WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(chunks)), options),
-                WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, chunks)), options),
-                WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.Z, chunks)), options)};
+                WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunks)), options),
+                WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, chunks)), options),
+                WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.Z, chunks)), options)};
     }
 
     private static WorldFold skewed(int chunks, ClimateScale scale) {

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -14,9 +15,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
 
 class WireBoxJumpTest {
-    private static final WorldFold TINY_TORUS = WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(32)));
+    private static final WorldFold TINY_TORUS = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(32)));
     private static final WorldFold TINY_CYLINDER =
-            WorldFolds.of(FlatShape.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 32)));
+            WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 32)));
     private static final int CAPPED_RADIUS = 13;
     private static final ChunkPos START = new ChunkPos(2, 3);
     private static final WorldFold LATTICE = WorldFolds.of(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(70), 37));

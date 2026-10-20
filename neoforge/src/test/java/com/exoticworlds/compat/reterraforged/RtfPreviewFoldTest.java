@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -44,7 +44,7 @@ class RtfPreviewFoldTest {
 
     @Test
     void aPreviewBuiltUnderTheChosenShapeCarriesItsFold() {
-        WorldFold fold = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-CHUNKS, CHUNKS, -CHUNKS, CHUNKS)));
+        WorldFold fold = WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-CHUNKS, CHUNKS, -CHUNKS, CHUNKS)));
         GeneratorContext context = GenerationTransformerContext.withRouterBuild(fold, RtfPreviewFoldTest::preview);
 
         assertSame(fold, ((LapCarrier) (Object) context.generator.getHeightmap()).exotic_worlds$fold());
@@ -52,7 +52,7 @@ class RtfPreviewFoldTest {
 
     @Test
     void aPreviewOfTheChosenShapeRepeatsAtTheLap() {
-        WorldFold fold = WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-CHUNKS, CHUNKS, -CHUNKS, CHUNKS)));
+        WorldFold fold = WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-CHUNKS, CHUNKS, -CHUNKS, CHUNKS)));
         Heightmap heightmap = GenerationTransformerContext.withRouterBuild(fold, RtfPreviewFoldTest::preview)
                 .generator.getHeightmap();
         int xLap = fold.blockLattice().x().domainLength;
