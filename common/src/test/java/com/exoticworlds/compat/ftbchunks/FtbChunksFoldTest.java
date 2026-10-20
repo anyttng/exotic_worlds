@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.TestShapes;
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.client.engine.PublishedShapes;
 import com.exoticworlds.compat.AxisCopies;
 import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.compat.MapShapes;
@@ -25,6 +24,7 @@ import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.engine.level.PublishedShapes;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;

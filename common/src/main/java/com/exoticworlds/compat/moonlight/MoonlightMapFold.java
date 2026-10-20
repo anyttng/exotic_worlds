@@ -2,8 +2,8 @@ package com.exoticworlds.compat.moonlight;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.client.engine.PublishedShapes;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.level.PublishedShapes;
 import com.exoticworlds.engine.seam.MapSeamFold;
 
 import net.minecraft.world.level.LevelAccessor;
