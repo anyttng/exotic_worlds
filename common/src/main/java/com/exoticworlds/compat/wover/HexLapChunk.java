@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 
-final class HexLapChunk<T> implements LapChunk<T> {
+final class HexLapChunk<T> extends LapChunk<T> {
     private static final int SEED_SPACING = 8;
 
     private static final int CELLS_PER_SEED = SEED_SPACING * SEED_SPACING;
@@ -20,51 +20,23 @@ final class HexLapChunk<T> implements LapChunk<T> {
 
     private static final int[][] ODD_ROW_NEIGHBORS = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {-1, 1}, {-1, -1}};
 
-    private final int sideX;
-
-    private final int sideZ;
-
     private final boolean wrapX;
 
     private final boolean wrapZ;
 
     private final int zOrigin;
 
-    private final Object[] cells;
-
     HexLapChunk(int sideX, int sideZ, boolean wrapX, boolean wrapZ, int zOrigin, WorldgenRandom random,
             LapPicker<T> picker) {
-        this.sideX = sideX;
-        this.sideZ = sideZ;
+        super(sideX, sideZ);
         this.wrapX = wrapX;
         this.wrapZ = wrapZ;
         this.zOrigin = zOrigin;
-        this.cells = fill(random, picker);
+        fill(random, picker);
     }
 
-    @Override
-    public int sideX() {
-        return this.sideX;
-    }
-
-    @Override
-    public int sideZ() {
-        return this.sideZ;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public T get(int x, int z) {
-        return (T) this.cells[index(x, z)];
-    }
-
-    @Override
-    public void set(int x, int z, T biome) {
-        this.cells[index(x, z)] = biome;
-    }
-
-    private Object[] fill(WorldgenRandom random, LapPicker<T> picker) {
-        Object[][] buffers = {new Object[this.cells()], new Object[this.cells()]};
+    private void fill(WorldgenRandom random, LapPicker<T> picker) {
+        Object[][] buffers = {this.cells, new Object[this.cells.length]};
         seed(buffers[0], random, picker);
 
         int bufferIndex = 0;
@@ -74,8 +46,8 @@ final class HexLapChunk<T> implements LapChunk<T> {
             bufferIndex ^= 1;
             Object[] out = buffers[bufferIndex];
             hasEmptyCells = false;
-            for (int x = interiorStart(this.wrapX); x < interiorEnd(this.sideX, this.wrapX); x++) {
-                for (int z = interiorStart(this.wrapZ); z < interiorEnd(this.sideZ, this.wrapZ); z++) {
+            for (int x = interiorStart(this.wrapX); x < interiorEnd(sideX(), this.wrapX); x++) {
+                for (int z = interiorStart(this.wrapZ); z < interiorEnd(sideZ(), this.wrapZ); z++) {
                     int index = index(x, z);
                     if (in[index] == null) {
                         hasEmptyCells = true;
@@ -92,10 +64,14 @@ final class HexLapChunk<T> implements LapChunk<T> {
             }
         }
 
-        Object[] out = buffers[bufferIndex];
+        if (buffers[bufferIndex] != this.cells) {
+            System.arraycopy(buffers[bufferIndex], 0, this.cells, 0, this.cells.length);
+        }
+
+        Object[] out = this.cells;
         copyBorders(out);
-        for (int x = 0; x < this.sideX; x++) {
-            for (int z = 0; z < this.sideZ; z++) {
+        for (int x = 0; x < sideX(); x++) {
+            for (int z = 0; z < sideZ(); z++) {
                 int index = index(x, z);
                 if (out[index] == null) {
                     out[index] = picker.pick().apply(random);
@@ -106,14 +82,12 @@ final class HexLapChunk<T> implements LapChunk<T> {
                 }
             }
         }
-
-        return out;
     }
 
     private void seed(Object[] buffer, WorldgenRandom random, LapPicker<T> picker) {
-        int columns = seedLines(this.sideX, this.wrapX);
-        int rows = seedLines(this.sideZ, this.wrapZ);
-        int seeds = seedCount(this.sideX, this.sideZ, this.wrapX, this.wrapZ);
+        int columns = seedLines(sideX(), this.wrapX);
+        int rows = seedLines(sideZ(), this.wrapZ);
+        int seeds = seedCount(sideX(), sideZ(), this.wrapX, this.wrapZ);
         IntArrayList slots = new IntArrayList(columns * rows);
         for (int slot = 0; slot < columns * rows; slot++) {
             slots.add(slot);
@@ -124,13 +98,13 @@ final class HexLapChunk<T> implements LapChunk<T> {
         }
 
         for (int slot : slots) {
-            int x = seedCoordinate(this.sideX, columns, slot / rows, random);
-            int z = seedCoordinate(this.sideZ, rows, slot % rows, random);
+            int x = seedCoordinate(sideX(), columns, slot / rows, random);
+            int z = seedCoordinate(sideZ(), rows, slot % rows, random);
             circle(buffer, x, z, picker.pick().apply(random), null);
         }
 
         for (int extra = slots.size(); extra < seeds; extra++) {
-            circle(buffer, random.nextInt(this.sideX), random.nextInt(this.sideZ), picker.pick().apply(random), null);
+            circle(buffer, random.nextInt(sideX()), random.nextInt(sideZ()), picker.pick().apply(random), null);
         }
     }
 
@@ -156,16 +130,16 @@ final class HexLapChunk<T> implements LapChunk<T> {
 
     private void copyBorders(Object[] buffer) {
         if (!this.wrapZ) {
-            for (int x = 0; x < this.sideX; x++) {
+            for (int x = 0; x < sideX(); x++) {
                 buffer[index(x, 0)] = buffer[index(x, BORDER_SOURCE_STEP)];
-                buffer[index(x, this.sideZ - 1)] = buffer[index(x, this.sideZ - 1 - BORDER_SOURCE_STEP)];
+                buffer[index(x, sideZ() - 1)] = buffer[index(x, sideZ() - 1 - BORDER_SOURCE_STEP)];
             }
         }
 
         if (!this.wrapX) {
-            for (int z = 0; z < this.sideZ; z++) {
+            for (int z = 0; z < sideZ(); z++) {
                 buffer[index(0, z)] = buffer[index(BORDER_SOURCE_STEP, z)];
-                buffer[index(this.sideX - 1, z)] = buffer[index(this.sideX - 1 - BORDER_SOURCE_STEP, z)];
+                buffer[index(sideX() - 1, z)] = buffer[index(sideX() - 1 - BORDER_SOURCE_STEP, z)];
             }
         }
     }
@@ -192,14 +166,14 @@ final class HexLapChunk<T> implements LapChunk<T> {
         int nx = x + step[0];
         int nz = z + step[1];
         if (this.wrapX) {
-            nx = Math.floorMod(nx, this.sideX);
-        } else if (nx < 0 || nx >= this.sideX) {
+            nx = Math.floorMod(nx, sideX());
+        } else if (nx < 0 || nx >= sideX()) {
             return -1;
         }
 
         if (this.wrapZ) {
-            nz = Math.floorMod(nz, this.sideZ);
-        } else if (nz < 0 || nz >= this.sideZ) {
+            nz = Math.floorMod(nz, sideZ());
+        } else if (nz < 0 || nz >= sideZ()) {
             return -1;
         }
 
@@ -212,13 +186,5 @@ final class HexLapChunk<T> implements LapChunk<T> {
 
     private static int interiorEnd(int side, boolean wraps) {
         return wraps ? side : side - 1;
-    }
-
-    private int cells() {
-        return this.sideX * this.sideZ;
-    }
-
-    private int index(int x, int z) {
-        return x * this.sideZ + z;
     }
 }
