@@ -295,6 +295,7 @@
   ],
   "client": [
     "BiomePrecipitationMixin",
+    "ClientboundAddEntityPacketMixin",
     "ClientChunkCacheMixin",
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
