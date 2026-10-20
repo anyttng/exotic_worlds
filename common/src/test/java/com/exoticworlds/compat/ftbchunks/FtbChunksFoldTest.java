@@ -329,8 +329,6 @@ class FtbChunksFoldTest {
                     "chunk 10 is canonical in a 64-chunk Overworld and was folded by the 8-chunk Nether");
             assertEquals(XZ.of(0, 0), FtbChunksFold.regionOfChunk(Level.OVERWORLD, new ChunkPos(10, 0)),
                     "the Overworld region key was taken from a chunk folded by the Nether");
-            assertEquals(new ChunkPos(10, 0), FtbChunksFold.foldedChunkPos(Level.OVERWORLD, new ChunkPos(10, 0)),
-                    "the Overworld owner key was folded by the Nether");
             assertEquals(XZ.of(2, 0), FtbChunksFold.chunkOf(Level.NETHER, XZ.of(10, 0)),
                     "the Nether's own key does not fold by its 8-chunk shape");
             assertEquals(XZ.of(40, 0), FtbChunksFold.chunkOf(Level.END, 40, 0),

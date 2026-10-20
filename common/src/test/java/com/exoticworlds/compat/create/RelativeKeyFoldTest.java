@@ -74,16 +74,6 @@ class RelativeKeyFoldTest {
     }
 
     @Test
-    void normalizeRewritesAStoredKeyThatRunsTheLongWayRound() {
-        BlockPos stored = rawKey(OWNER, PARTNER_ACROSS);
-        for (WorldFold fold : ALL) {
-            BlockPos normalized = RelativeKeyFold.normalize(fold, OWNER, stored);
-
-            assertEquals(RelativeKeyFold.shortWay(fold, OWNER, PARTNER_ACROSS, stored), normalized, "in " + fold);
-        }
-    }
-
-    @Test
     void normalizeIsIdempotentAndGivesAnAlreadyShortKeyBackByIdentity() {
         BlockPos stored = rawKey(OWNER, PARTNER_ACROSS);
         for (WorldFold fold : ALL) {

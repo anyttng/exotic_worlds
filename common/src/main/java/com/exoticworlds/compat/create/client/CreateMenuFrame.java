@@ -4,9 +4,9 @@ import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.ThreadScope;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.ThreadScope;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;

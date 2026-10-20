@@ -67,11 +67,25 @@ class UnreachedMembersTest {
             "compat.wover.LapAxis.latticeBlocks",
             "shape.WorldLoopPresets.blockWidth",
             "engine.net.PacketTranslator.toServer",
-            "accessors.FoldedClimateSampler.exotic_worlds$fold");
+            "accessors.FoldedClimateSampler.exotic_worlds$fold",
+            "compat.reterraforged.LapCarrier.exotic_worlds$fold",
+            "compat.reterraforged.RtfLap.skewCells",
+            "compat.reterraforged.RtfLap.xPeriod",
+            "compat.reterraforged.RtfLap.zPeriod",
+            "compat.freeterraforged.RtfLap.skewCells",
+            "compat.freeterraforged.RtfLap.xPeriod",
+            "compat.freeterraforged.RtfLap.zPeriod");
+    private static final Set<String> MAIN_FORM_FOR_SHARED_TESTS = Set.of(
+            "core.DeckGroupFold.<init>",
+            "core.WorldLoopTransformer.<init>",
+            "engine.net.TranslationContext.toClientRelative",
+            "engine.seam.SeamRange.closerThan");
     private static final Set<String> READ_BY_HARNESS = Set.of(
             "compat.distanthorizons.DhFold.periodSections",
             "compat.ModPresenceGatePlugin.gates",
-            "core.TranslationLattice.nearestZLaps");
+            "core.TranslationLattice.nearestZLaps",
+            "compat.sable.SableConstraintGraph.size",
+            "compat.sable.SeamFrame.isBound");
     private static final Set<String> CALLED_BY_EMITTED_CODE = Set.of(
             "engine.noise.ContextScaledNoise.sampleWrapped");
 
@@ -109,6 +123,7 @@ class UnreachedMembersTest {
                 || hierarchy.overridesOutsideContract(owner, method)
                 || markers.covers(member, hierarchy.supertypes(member.owner()))
                 || READ_BY_TESTS.contains(listed)
+                || MAIN_FORM_FOR_SHARED_TESTS.contains(listed)
                 || READ_BY_HARNESS.contains(listed)
                 || CALLED_BY_EMITTED_CODE.contains(listed);
     }

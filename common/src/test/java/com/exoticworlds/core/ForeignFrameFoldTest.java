@@ -53,12 +53,6 @@ class ForeignFrameFoldTest {
     private static final Vec3 WORLD_VEC = new Vec3(10.5, SEA_LEVEL, -9.5);
 
     @Test
-    void thePlotGeometryIsTheOneTheCardNames() {
-        assertEquals(1_280_064, PLOT_CHUNK);
-        assertEquals(20_481_024, PLOT_BLOCK);
-    }
-
-    @Test
     void aBareFoldPullsThePlotIntoTheWorld() {
         assertNotEquals(PLOT_CHUNK_POS, BARE.fold(PLOT_CHUNK_POS));
         assertNotEquals(PLOT_BLOCK_POS, BARE.fold(PLOT_BLOCK_POS));

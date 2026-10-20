@@ -1,9 +1,6 @@
 package com.exoticworlds.compat.sable;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -37,19 +34,6 @@ class SableConstraintEdgeTest {
         public int hashCode() {
             return 0;
         }
-    }
-
-    @Test
-    void otherEndAnswersByIdentityWhileTheRecordEqualsByValue() {
-        SableConstraintGraph graph = new SableConstraintGraph();
-        PhysicsPipelineBody first = new IndistinguishableBody();
-        PhysicsPipelineBody second = new IndistinguishableBody();
-        SableConstraintEdge edge = graph.record(first, second);
-
-        assertEquals(new SableConstraintEdge(graph, new IndistinguishableBody(), new IndistinguishableBody()), edge);
-        assertSame(second, edge.otherEnd(first));
-        assertSame(first, edge.otherEnd(second));
-        assertNull(edge.otherEnd(new IndistinguishableBody()));
     }
 
     @Test

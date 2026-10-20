@@ -72,10 +72,6 @@ public final class FtbChunksFold {
         return ClientShapes.fold(ClientShapes.current(), pos);
     }
 
-    public static ChunkPos foldedChunkPos(ResourceKey<Level> dimension, ChunkPos pos) {
-        return foldedChunk(ClientShapes.of(dimension), pos.x, pos.z);
-    }
-
     public static Set<XZ> foldedChunks(Set<XZ> chunks) {
         return foldedChunks(ClientShapes.current(), chunks);
     }

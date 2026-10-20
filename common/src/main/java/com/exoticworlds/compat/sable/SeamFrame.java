@@ -10,9 +10,9 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.ForeignFrames;
 import com.exoticworlds.core.JomlVectors;
-import com.exoticworlds.core.ThreadScope;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.ThreadScope;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
 import net.minecraft.world.level.Level;

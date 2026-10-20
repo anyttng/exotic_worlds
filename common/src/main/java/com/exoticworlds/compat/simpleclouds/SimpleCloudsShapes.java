@@ -5,9 +5,9 @@ import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.core.ThreadScope;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.ThreadScope;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;

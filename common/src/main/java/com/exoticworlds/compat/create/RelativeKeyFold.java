@@ -29,7 +29,11 @@ public final class RelativeKeyFold {
     }
 
     public static BlockPos normalize(@Nullable Level level, BlockPos owner, BlockPos storedKey) {
-        return shortWay(level, owner, owner.subtract(storedKey), storedKey);
+        if (level == null) {
+            return storedKey;
+        }
+
+        return normalize(WorldLoopAttachments.wrappedTransformerOfReader(level), owner, storedKey);
     }
 
     static BlockPos normalize(@Nullable WorldFold transformer, BlockPos owner, BlockPos storedKey) {
