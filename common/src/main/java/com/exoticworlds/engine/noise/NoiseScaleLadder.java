@@ -53,10 +53,6 @@ public final class NoiseScaleLadder {
         return holder.noise() instanceof NoiseScaleRungs rungs ? rungOf(rungs.exotic_worlds$scaleRungs(), xzScale) : xzScale;
     }
 
-    public double separated(NormalNoise noise, double xzScale) {
-        return rungOf(this.separated.getOrDefault(noise, Map.of()), xzScale);
-    }
-
     public void install() {
         this.separated.forEach((noise, rungs) -> ((NoiseScaleRungs) noise).exotic_worlds$scaleRungs(rungs));
     }
