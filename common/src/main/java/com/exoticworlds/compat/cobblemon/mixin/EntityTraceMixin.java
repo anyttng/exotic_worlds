@@ -6,7 +6,6 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.cobblemon.mod.common.util.PlayerExtensionsKt;
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -37,6 +36,6 @@ public class EntityTraceMixin {
 
     @Unique
     private static AABB exotic_worlds$seated(Entity tracer, Vec3 location, AABB box) {
-        return FoldedBoxQuery.toward(((TransformerSource) tracer).exotic_worlds$wrappedTransformer(), location, box);
+        return FoldedBoxQuery.toward(tracer, location, box);
     }
 }

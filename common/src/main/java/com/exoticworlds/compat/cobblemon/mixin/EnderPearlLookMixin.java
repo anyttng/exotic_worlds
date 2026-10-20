@@ -4,7 +4,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -22,8 +21,7 @@ public class EnderPearlLookMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.AABB_CONTAINS))
     private boolean exotic_worlds$lookThroughSeam(AABB box, Vec3 location, Operation<Boolean> original,
             @Local(argsOnly = true) Player player) {
-        AABB seated = FoldedBoxQuery.toward(((TransformerSource) player).exotic_worlds$wrappedTransformer(), location,
-                box);
+        AABB seated = FoldedBoxQuery.toward(player, location, box);
         return original.call(seated, location);
     }
 }

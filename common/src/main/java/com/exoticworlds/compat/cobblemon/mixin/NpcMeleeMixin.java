@@ -5,7 +5,6 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.cobblemon.mod.common.entity.npc.ai.MeleeAttackTask;
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -19,7 +18,6 @@ public class NpcMeleeMixin {
     @WrapOperation(method = "*", at = @At(value = "INVOKE", target = InjectionTargets.AABB_INTERSECTS))
     private static boolean exotic_worlds$reachThroughSeam(AABB reach, AABB target, Operation<Boolean> original,
             @Local(argsOnly = true) LivingEntity entity) {
-        return original.call(reach, FoldedBoxQuery.toward(
-                ((TransformerSource) entity).exotic_worlds$wrappedTransformer(), entity.position(), target));
+        return original.call(reach, FoldedBoxQuery.toward(entity, entity.position(), target));
     }
 }

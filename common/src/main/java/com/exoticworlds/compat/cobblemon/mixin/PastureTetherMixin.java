@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.cobblemon.mod.common.block.entity.PokemonPastureBlockEntity;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.exoticworlds.accessors.LevelBindable;
-import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -36,8 +35,7 @@ public class PastureTetherMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/AABB;contains(DDD)Z"))
     private boolean exotic_worlds$tetherThroughSeam(AABB box, double x, double y, double z,
             Operation<Boolean> original) {
-        AABB seated = FoldedBoxQuery.toward(((TransformerSource) this).exotic_worlds$wrappedTransformer(),
-                new Vec3(x, y, z), box);
+        AABB seated = FoldedBoxQuery.toward((PokemonEntity) (Object) this, new Vec3(x, y, z), box);
         return original.call(seated, x, y, z);
     }
 }
