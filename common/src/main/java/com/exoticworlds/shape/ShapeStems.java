@@ -21,7 +21,15 @@ public final class ShapeStems {
         return spans != null && ownGeometry.test(spans) ? spans : null;
     }
 
-    public static LoopSpans netherSpans(LoopSpans overworld, int netherScale) {
+    public static WorldDimensions withSpans(WorldDimensions dimensions, StemSettings settings) {
+        return ShapeDimensions.withSpans(dimensions,
+                settings.overworld(),
+                netherSpans(settings.overworld(), settings.netherScale()),
+                settings.end(),
+                settings.generationOptions());
+    }
+
+    private static LoopSpans netherSpans(LoopSpans overworld, int netherScale) {
         return overworld.scaledDown(normalizeNetherScale(netherScale, overworld));
     }
 
