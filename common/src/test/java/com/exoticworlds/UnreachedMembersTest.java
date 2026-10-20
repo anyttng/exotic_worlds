@@ -70,7 +70,10 @@ class UnreachedMembersTest {
             "accessors.FoldedClimateSampler.exotic_worlds$fold");
     private static final Set<String> READ_BY_HARNESS = Set.of(
             "compat.distanthorizons.DhFold.periodSections",
-            "compat.ModPresenceGatePlugin.gates");
+            "compat.ModPresenceGatePlugin.gates",
+            "core.TranslationLattice.nearestZLaps");
+    private static final Set<String> CALLED_BY_EMITTED_CODE = Set.of(
+            "engine.noise.ContextScaledNoise.sampleWrapped");
 
     @Test
     void noMainMemberIsCalledByTestsAlone() throws IOException {
@@ -106,7 +109,8 @@ class UnreachedMembersTest {
                 || hierarchy.overridesOutsideContract(owner, method)
                 || markers.covers(member, hierarchy.supertypes(member.owner()))
                 || READ_BY_TESTS.contains(listed)
-                || READ_BY_HARNESS.contains(listed);
+                || READ_BY_HARNESS.contains(listed)
+                || CALLED_BY_EMITTED_CODE.contains(listed);
     }
 
     private static boolean isChecked(ClassNode owner, MethodNode method) {

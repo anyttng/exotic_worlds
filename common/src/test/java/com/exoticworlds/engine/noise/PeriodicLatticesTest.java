@@ -130,8 +130,9 @@ class PeriodicLatticesTest {
             double z = (random.nextDouble() * 2.0 - 1.0) * REACH_BLOCKS;
             double cached = key.under(() -> table.sample(noise.permutations(), noise.xo(), noise.yo(), noise.zo(),
                     key.fold(), GenerationTransformerContext.context(), x, y, z, yParams[0], yParams[1]));
-            double perCall = key.under(() -> PeriodicNoiseSampler.sample(noise.permutations(), noise.xo(),
-                    noise.yo(), noise.zo(), key.fold(), GenerationTransformerContext.context(), x, y, z, yParams[0],
+            double perCall = key.under(() -> PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(
+                    noise.permutations(), noise.xo(), noise.yo(), noise.zo(), key.fold(),
+                    GenerationTransformerContext.context(), LapFloor.of(key.fold())), x, y, z, yParams[0],
                     yParams[1]));
             assertEquals(perCall, cached, () -> "sample(" + x + ", " + y + ", " + z + ") under " + key);
         }

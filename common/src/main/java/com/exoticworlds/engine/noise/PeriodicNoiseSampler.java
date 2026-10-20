@@ -41,20 +41,6 @@ public final class PeriodicNoiseSampler {
     private static final int Z_SLOT = 2;
     private static final int NO_SLOT = -1;
 
-    public static double sample(byte[] permutations, double xOffset, double yOffset, double zOffset,
-            WorldFold transformer, Context context,
-            double x, double y, double z, double yScale, double yFudge) {
-        return sample(permutations, xOffset, yOffset, zOffset, transformer, context, x, y, z, yScale, yFudge,
-                LapFloor.of(transformer));
-    }
-
-    static double sample(byte[] permutations, double xOffset, double yOffset, double zOffset,
-            WorldFold transformer, Context context,
-            double x, double y, double z, double yScale, double yFudge, LapFloor floor) {
-        return sample(lattice(permutations, xOffset, yOffset, zOffset, transformer, context, floor),
-                x, y, z, yScale, yFudge);
-    }
-
     static PeriodicLattice lattice(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold transformer, Context context, LapFloor floor) {
         TranslationLattice translations = transformer.blockLattice();
