@@ -120,7 +120,6 @@ public final class ClientFrame {
         return world != null && world == Minecraft.getInstance().level;
     }
 
-    // mc/1.21: hands the fold out to compat/.
     public static @Nullable WorldFold fold() {
         return WorldLoopAttachments.wrappedClientBoundsTransformerOf(Minecraft.getInstance().level);
     }
