@@ -6,6 +6,7 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.engine.level.CurrentClientLevel;
+import com.exoticworlds.engine.level.PublishedShapes;
 import com.exoticworlds.engine.net.ComponentPositions;
 import com.exoticworlds.engine.net.PositionRowsPayload;
 

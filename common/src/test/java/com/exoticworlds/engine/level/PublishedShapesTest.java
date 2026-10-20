@@ -1,4 +1,4 @@
-package com.exoticworlds.client;
+package com.exoticworlds.engine.level;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.client.engine.PublishedShapes;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
