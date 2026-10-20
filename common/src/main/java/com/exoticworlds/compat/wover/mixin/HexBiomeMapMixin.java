@@ -2,7 +2,6 @@ package com.exoticworlds.compat.wover.mixin;
 
 import org.betterx.wover.generator.api.biomesource.WoverBiomePicker;
 import org.betterx.wover.generator.impl.map.hex.HexBiomeMap;
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,6 +15,7 @@ import com.exoticworlds.compat.wover.EdgeBiomes;
 import com.exoticworlds.compat.wover.HexLapMap;
 import com.exoticworlds.compat.wover.LapMap;
 import com.exoticworlds.compat.wover.LapMapHolder;
+import com.exoticworlds.compat.wover.LapMapMemo;
 import com.exoticworlds.compat.wover.LapPicker;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
@@ -35,7 +35,7 @@ public class HexBiomeMapMixin implements LapMapHolder<WoverBiomePicker.PickableB
     private int seed;
 
     @Unique
-    private volatile @Nullable HexLapMap<WoverBiomePicker.PickableBiome> exotic_worlds$lapMap;
+    private final LapMapMemo<WoverBiomePicker.PickableBiome> exotic_worlds$lapMaps = new LapMapMemo<>();
 
     @Inject(method = "getBiome", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$lapBiomeWithEdge(double x, double y, double z,
@@ -57,13 +57,8 @@ public class HexBiomeMapMixin implements LapMapHolder<WoverBiomePicker.PickableB
 
     @Override
     public LapMap<WoverBiomePicker.PickableBiome> exotic_worlds$lapMap(WorldFold fold) {
-        HexLapMap<WoverBiomePicker.PickableBiome> lapMap = this.exotic_worlds$lapMap;
-        if (lapMap == null || !lapMap.covers(fold)) {
-            lapMap = new HexLapMap<>(fold, this.scale, FoldCompression.of(fold), this.seed,
-                    new LapPicker<>(this.picker::getBiome, WoverBiomePicker.PickableBiome::getSubBiome));
-            this.exotic_worlds$lapMap = lapMap;
-        }
-
-        return lapMap;
+        LapMap<WoverBiomePicker.PickableBiome> lapMap = this.exotic_worlds$lapMaps.covering(fold);
+        return lapMap != null ? lapMap : this.exotic_worlds$lapMaps.keep(
+                new HexLapMap<>(fold, this.scale, FoldCompression.of(fold), this.seed, LapPicker.of(this.picker)));
     }
 }
