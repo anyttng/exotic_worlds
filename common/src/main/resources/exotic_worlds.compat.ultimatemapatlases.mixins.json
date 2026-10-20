@@ -1,0 +1,20 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.ultimatemapatlases.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "com.exoticworlds.compat.ultimatemapatlases.UltimateMapAtlasesMixinPlugin",
+  "mixins": [
+    "MapAtlasesServerEventsMixin",
+    "MapCollectionMixin"
+  ],
+  "client": [
+    "AbstractAtlasWidgetAccessor",
+    "AbstractAtlasWidgetMixin",
+    "MapAtlasesHUDMixin",
+    "MapWidgetMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

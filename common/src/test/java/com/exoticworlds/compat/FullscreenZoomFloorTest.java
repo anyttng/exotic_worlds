@@ -124,6 +124,30 @@ class FullscreenZoomFloorTest {
                 "an unbounded axis asks for no floor");
     }
 
+    @Test
+    void ultimateMapAtlasesKeepsTheWorldAtLeast64PixelsWide() {
+        assertEquals(16.0F, FullscreenZoomFloor.ultimateMapAtlasesZoom(512, 256.0F, 128),
+                "512 blocks of 128-block maps over 256 px stay 64 px wide at 16 maps across");
+        assertEquals(8.0F, FullscreenZoomFloor.ultimateMapAtlasesZoom(512, 256.0F, 256),
+                "maps twice as wide halve the ceiling");
+        assertEquals(16.0F, FullscreenZoomFloor.ultimateMapAtlasesZoom(torus(1024, 512), 256.0F, 128),
+                "the 512-block axis sets the ceiling");
+        assertEquals(32.0F, FullscreenZoomFloor.ultimateMapAtlasesZoom(cylinder(1024), 256.0F, 128),
+                "an unbounded axis asks for no ceiling");
+    }
+
+    @Test
+    void ultimateMapAtlasesCoversTheView() {
+        assertEquals(4.0F, FullscreenZoomFloor.ultimateMapAtlasesCoverZoom(512, 256.0F, 256.0F, 128),
+                "a 256 px wide view spans 4 maps of 128 blocks at most over 512 blocks");
+        assertEquals(8.0F, FullscreenZoomFloor.ultimateMapAtlasesCoverZoom(512, 256.0F, 128.0F, 128),
+                "the 128 px side spans half as many blocks per map across, so 8 maps across still cover it");
+        assertEquals(4.0F, FullscreenZoomFloor.ultimateMapAtlasesCoverZoom(torus(512, 512), 256.0F, 128.0F, 128),
+                "X over the view width holds tighter than Z over its height");
+        assertEquals(16.0F, FullscreenZoomFloor.ultimateMapAtlasesCoverZoom(cylinder(1024), 256.0F, 128.0F, 128),
+                "a cylinder reads its Z width against the view height alone: 1024 * 256 / (128 * 128)");
+    }
+
     private static ToroidalShape torus(int widthBlocksX, int widthBlocksZ) {
         return shape(looped(widthBlocksX), looped(widthBlocksZ));
     }
