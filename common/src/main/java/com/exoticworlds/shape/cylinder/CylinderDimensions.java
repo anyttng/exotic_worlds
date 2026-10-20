@@ -14,11 +14,7 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
 public final class CylinderDimensions {
 
     public static WorldDimensions apply(WorldDimensions dimensions, CylinderSettings settings) {
-        return ShapeDimensions.withSpans(dimensions,
-                settings.overworld(),
-                ShapeStems.netherSpans(settings.overworld(), settings.netherScale()),
-                settings.end(),
-                settings.generationOptions());
+        return ShapeStems.withSpans(dimensions, settings);
     }
 
     public static @Nullable CylinderSettings read(WorldDimensions dimensions) {

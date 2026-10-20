@@ -8,13 +8,14 @@ import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.shape.StemSettings;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
 
 import net.minecraft.core.Direction;
 
 public record TorusSettings(LoopSpans overworld, int netherScale, LoopSpans end,
-        GenerationOptions generationOptions) {
+        GenerationOptions generationOptions) implements StemSettings {
     public static final List<WorldOption<?>> OFFERED_OPTIONS =
             List.of(CompactBiomes.OPTION, GuaranteedLand.OPTION, GuaranteedNetherComplexes.OPTION);
 
