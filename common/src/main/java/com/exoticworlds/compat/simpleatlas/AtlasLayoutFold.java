@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
@@ -58,7 +59,9 @@ public final class AtlasLayoutFold {
             return center;
         }
 
-        return shape.nearestCopy(center(firstOfDimension.get(tile.dimension())), center);
+        AtlasTilePayload first = Objects.requireNonNull(firstOfDimension.get(tile.dimension()),
+                "filled for every tile's dimension");
+        return shape.nearestCopy(center(first), center);
     }
 
     private static int cell(int delta, int blocksPerTile) {
