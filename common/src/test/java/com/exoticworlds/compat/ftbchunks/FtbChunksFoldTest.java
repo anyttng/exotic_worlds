@@ -21,7 +21,7 @@ import com.exoticworlds.compat.MapShapes;
 import com.exoticworlds.compat.SeamLine;
 import com.exoticworlds.compat.WorldCopies;
 import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
@@ -249,8 +249,8 @@ class FtbChunksFoldTest {
 
     @Test
     void anOverworldKeyFoldsByTheOverworldWhateverElseIsPublished() {
-        PublishedShapes.publish(Level.OVERWORLD, WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(64))));
-        PublishedShapes.publish(Level.NETHER, WorldFolds.of(FlatShape.torus(WorldLoopBounds.ofWidth(8))));
+        PublishedShapes.publish(Level.OVERWORLD, WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(64))));
+        PublishedShapes.publish(Level.NETHER, WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(8))));
         try {
             assertEquals(XZ.of(10, 0), FtbChunksFold.chunkOf(Level.OVERWORLD, 10, 0),
                     "chunk 10 is canonical in a 64-chunk Overworld and was folded by the 8-chunk Nether");
@@ -324,7 +324,7 @@ class FtbChunksFoldTest {
     }
 
     private static ToroidalShape shape(AxisBounds x, AxisBounds z) {
-        return TestShapes.of(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(x, z))));
+        return TestShapes.of(WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(x, z))));
     }
 
     private static AxisBounds looped(int widthBlocks) {
