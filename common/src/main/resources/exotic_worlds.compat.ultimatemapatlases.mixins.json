@@ -5,8 +5,10 @@
   "compatibilityLevel": "JAVA_25",
   "plugin": "com.exoticworlds.compat.ultimatemapatlases.UltimateMapAtlasesMixinPlugin",
   "mixins": [
+    "C2SRemoveMarkerPacketMixin",
     "MapAtlasesServerEventsMixin",
-    "MapCollectionMixin"
+    "MapCollectionMixin",
+    "MapDataHolderMixin"
   ],
   "client": [
     "AbstractAtlasWidgetAccessor",
