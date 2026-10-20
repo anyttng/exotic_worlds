@@ -11,7 +11,7 @@ import com.exoticworlds.api.v1.TestShapes;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.compat.MapShapes;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
@@ -25,10 +25,10 @@ class AtlasLayoutFoldTest {
 
     private static final AxisBounds.Looped TINY = new AxisBounds.Looped(-16, 16);
 
-    private static final ToroidalShape TORUS = TestShapes.of(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(TINY,
+    private static final ToroidalShape TORUS = TestShapes.of(WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(TINY,
             TINY))));
 
-    private static final ToroidalShape CYLINDER = TestShapes.of(WorldFolds.of(FlatShape.torus(new WorldLoopBounds(
+    private static final ToroidalShape CYLINDER = TestShapes.of(WorldFolds.of(ShapeFixtures.cylinder(new WorldLoopBounds(
             TINY, AxisBounds.Unbounded.INSTANCE))));
 
     private static final ToroidalShape LATTICE = MapShapes.latticeTorus(-8, 8, 8);

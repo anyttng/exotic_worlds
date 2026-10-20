@@ -122,7 +122,7 @@ class ShapedDimensionsTest {
     void aVanillaReplacementTakesTheStoredShapeOnItsOwnBiomesAndSettings() {
         BiomeSource biomes = plainsBiomeSource();
         Holder<NoiseGeneratorSettings> settings = overworldNoiseSettings();
-        CarriedShape carried = new CarriedShape(CYLINDER);
+        CarriedShape carried = new CarriedShape(CYLINDER, GenerationOptions.DEFAULT);
 
         ChunkGenerator shaped = ShapedDimensions.withStoredShape(new NoiseBasedChunkGenerator(biomes, settings),
                 carried);
@@ -137,7 +137,7 @@ class ShapedDimensionsTest {
     void aReplacementWhoseTerrainIsNotNoiseIsRefusedTheStoredShape() {
         ChunkGenerator debug = new DebugLevelSource(WORLDGEN.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS));
 
-        assertNull(ShapedDimensions.withStoredShape(debug, new CarriedShape(TORUS)));
+        assertNull(ShapedDimensions.withStoredShape(debug, new CarriedShape(TORUS, GenerationOptions.DEFAULT)));
     }
 
     @Test
