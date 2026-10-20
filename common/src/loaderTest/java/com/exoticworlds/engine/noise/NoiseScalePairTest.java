@@ -31,8 +31,7 @@ class NoiseScalePairTest {
 
     private static final Holder<NormalNoise.NoiseParameters> NOISE_DATA = Holder.direct(PARAMETERS);
 
-    private static final DensityFunction.NoiseHolder NOISE = new DensityFunction.NoiseHolder(
-            NOISE_DATA, NormalNoise.create(new LegacyRandomSource(SEED), PARAMETERS));
+    private static final DensityFunction.NoiseHolder NOISE = holder();
 
     private static final double NEAR_SCALE = 0.75;
 
@@ -86,14 +85,23 @@ class NoiseScalePairTest {
     @Test
     void scalesThatAlreadyKeepApartAreLeftAsTheyAre() {
         WorldFold fold = torus(HUGE_HALF_CHUNKS);
-        DensityFunction pair = DensityFunctions.add(noise(WIDE_SCALE), noise(NARROW_SCALE));
-        NoiseScaleLadder ladder = ladderOf(pair, fold);
+        DensityFunction.NoiseHolder own = holder();
+        DensityFunction pair = DensityFunctions.add(noise(own, WIDE_SCALE), noise(own, NARROW_SCALE));
+        ladderOf(pair, fold).install();
 
-        assertEquals(WIDE_SCALE, ladder.separated(NOISE.noise(), WIDE_SCALE));
-        assertEquals(NARROW_SCALE, ladder.separated(NOISE.noise(), NARROW_SCALE));
+        assertEquals(WIDE_SCALE, NoiseScaleLadder.installedScale(own, WIDE_SCALE));
+        assertEquals(NARROW_SCALE, NoiseScaleLadder.installedScale(own, NARROW_SCALE));
+    }
+
+    private static DensityFunction.NoiseHolder holder() {
+        return new DensityFunction.NoiseHolder(NOISE_DATA, NormalNoise.create(new LegacyRandomSource(SEED), PARAMETERS));
     }
 
     private static DensityFunction noise(double xzScale) {
+        return noise(NOISE, xzScale);
+    }
+
+    private static DensityFunction noise(DensityFunction.NoiseHolder holder, double xzScale) {
         return DensityFunctions.noise(NOISE_DATA, xzScale, FLAT).mapAll(new DensityFunction.Visitor() {
             @Override
             public DensityFunction apply(DensityFunction input) {
@@ -102,7 +110,7 @@ class NoiseScalePairTest {
 
             @Override
             public DensityFunction.NoiseHolder visitNoise(DensityFunction.NoiseHolder noise) {
-                return NOISE;
+                return holder;
             }
         });
     }

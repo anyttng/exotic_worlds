@@ -201,8 +201,8 @@ final class BlendedNoiseFixture {
         GenerationTransformerContext.Context context = GenerationTransformerContext.context();
 
         try (GenerationTransformerContext.Context.ScaleScope scope = context.withScale(scale, verticalShare)) {
-            return PeriodicNoiseSampler.sample(permutations, xOffset, yOffset, zOffset, fold, context,
-                    x, y, z, yScale, yFudge, floor);
+            return PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(permutations, xOffset, yOffset, zOffset,
+                    fold, context, floor), x, y, z, yScale, yFudge);
         }
     }
 

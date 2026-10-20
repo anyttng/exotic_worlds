@@ -91,8 +91,8 @@ class PeriodicNoiseSamplerTest {
 
             try (GenerationTransformerContext.Context.BindingScope bindingScope = context.bind(transformer, axes, scale,
                     GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE)) {
-                return PeriodicNoiseSampler.sample(permutations, xo, yo, zo, transformer, context,
-                        x, y, z, yScale, yFudge);
+                return PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(permutations, xo, yo, zo, transformer,
+                        context, LapFloor.of(transformer)), x, y, z, yScale, yFudge);
             }
         }
     }
@@ -488,8 +488,8 @@ class PeriodicNoiseSamplerTest {
                     SlotAxes.DEFAULT, scale, GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE);
                     GenerationTransformerContext.Context.DivisorScope divisorScope = context.withDivisors(X_DIVISOR,
                             Z_DIVISOR)) {
-                return PeriodicNoiseSampler.sample(noise.permutations(), noise.xo(), noise.yo(), noise.zo(),
-                        transformer, context, x, y, z, 0.0, 0.0);
+                return PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(noise.permutations(), noise.xo(),
+                        noise.yo(), noise.zo(), transformer, context, LapFloor.of(transformer)), x, y, z, 0.0, 0.0);
             }
         }
     }
