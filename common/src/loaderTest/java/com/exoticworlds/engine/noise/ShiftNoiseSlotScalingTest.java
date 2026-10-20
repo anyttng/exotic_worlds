@@ -6,10 +6,9 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
@@ -33,7 +32,7 @@ class ShiftNoiseSlotScalingTest {
             NOISE_DATA, NormalNoise.create(new LegacyRandomSource(SEED), PARAMETERS));
 
     private static final WorldFold SQUARE =
-            WorldFolds.of(FlatShape.torus(new WorldLoopBounds(-16, 16, -16, 16)));
+            WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-16, 16, -16, 16)));
 
     private static final SlotAxes NONE_X = new SlotAxes(SlotAxis.NONE, SlotAxis.X, SlotAxis.Z);
 
