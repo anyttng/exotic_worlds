@@ -1,6 +1,8 @@
 package com.exoticworlds.engine.seam;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -38,6 +40,23 @@ class SeamRangeTest {
     void aPairStraddlingTheSeamMeasuresTheShortWay() {
         assertEquals(12.0 * 12.0 + 6.0 * 6.0 + 8.0 * 8.0, SeamRange.sqr(WORLD, EAST_BLOCK, WEST_BLOCK));
         assertEquals(11.0 * 11.0 + 6.0 * 6.0 + 8.0 * 8.0, SeamRange.sqr(WORLD, EAST_POINT, WEST_POINT));
+    }
+
+    @Test
+    void aPairStraddlingTheSeamIsCloseTheShortWayOnTheGround() {
+        assertTrue(SeamRange.closerThan(WORLD, EAST_POINT, WEST_POINT, 14.0, 7.0));
+        assertFalse(SeamRange.closerThan(WorldFolds.NOOP, EAST_POINT, WEST_POINT, 14.0, 7.0));
+    }
+
+    @Test
+    void aGroundLimitUnderTheShortWayRefuses() {
+        assertFalse(SeamRange.closerThan(WORLD, EAST_POINT, WEST_POINT, 13.0, 7.0));
+    }
+
+    @Test
+    void theHeightLimitStandsApartFromTheGround() {
+        assertFalse(SeamRange.closerThan(WORLD, EAST_POINT, WEST_POINT, 14.0, 6.0));
+        assertTrue(SeamRange.closerThan(WORLD, EAST_POINT, WEST_POINT, 14.0, 6.5));
     }
 
     @Test
