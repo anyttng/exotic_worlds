@@ -9,7 +9,7 @@ import java.util.List;
 import org.slf4j.Logger;
 
 import com.eminus.store.SqliteCellStore;
-import com.exoticworlds.client.engine.PublishedShapes;
+import com.exoticworlds.engine.level.PublishedShapes;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.registries.Registries;

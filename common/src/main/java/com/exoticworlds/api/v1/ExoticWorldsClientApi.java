@@ -2,10 +2,10 @@ package com.exoticworlds.api.v1;
 
 import java.util.Optional;
 
-import com.exoticworlds.client.engine.PublishedShapes;
 import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.level.PublishedShapes;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceKey;
