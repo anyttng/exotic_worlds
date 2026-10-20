@@ -62,6 +62,14 @@ class JourneyMapFoldSeatTest {
     }
 
     @Test
+    void aSingleMapCenterIsHeldInsideOnBothAxesAtTheFlooredZoom() {
+        JourneyMapFold.Center center = JourneyMapFold.singleCenter(TORUS, new Vec3(-250, 0, 250), ZOOM, WINDOW_PIXELS,
+                WINDOW_PIXELS);
+        assertEquals(new JourneyMapFold.Center(-192.0, 192.0, ZOOM), center,
+                "a window 64 blocks either side stops 64 blocks inside each edge of the 512 block world");
+    }
+
+    @Test
     void anUnshapedWorldPassesEveryPositionThrough() {
         ChunkPos chunk = new ChunkPos(0, 20);
         BlockPos block = new BlockPos(100, 64, 262);

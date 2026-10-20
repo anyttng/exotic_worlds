@@ -88,6 +88,10 @@ public final class DhKeys {
     }
 
     public static long nearestSection(DhLattice lattice, int refBlockX, int refBlockZ, long pos) {
+        if (lattice == null) {
+            return pos;
+        }
+
         byte detail = DhSectionPos.getDetailLevel(pos);
         int rawX = DhSectionPos.getX(pos);
         int rawZ = DhSectionPos.getZ(pos);
@@ -101,6 +105,10 @@ public final class DhKeys {
     }
 
     public static boolean isNearestCopy(DhLattice lattice, int refBlockX, int refBlockZ, long pos) {
+        if (lattice == null) {
+            return true;
+        }
+
         byte snap = snapLevel(lattice);
         byte detail = DhSectionPos.getDetailLevel(pos);
         return DhFold.isNearestSection(lattice, Direction.Axis.X, snap, detail, refBlockX, DhSectionPos.getX(pos))
@@ -111,6 +119,45 @@ public final class DhKeys {
         int width = DhFold.sectionWidthBlocks(LEAF);
         long leaf = DhSectionPos.encode(LEAF, Math.floorDiv(beam.getX(), width), Math.floorDiv(beam.getZ(), width));
         return isNearestCopy(lattice, refBlockX, refBlockZ, leaf);
+    }
+
+    public static void keepNearestBeams(DhLattice lattice, int refBlockX, int refBlockZ, List<BeaconBeamDTO> beams) {
+        if (lattice != null && beams != null) {
+            beams.removeIf(beam -> !isNearestBeam(lattice, refBlockX, refBlockZ, beam.blockPos));
+        }
+    }
+
+    public static boolean drawsSection(DhLattice lattice, int refBlockX, int refBlockZ, long pos) {
+        if (lattice == null) {
+            return true;
+        }
+
+        return DhFold.isCompleteSection(lattice, LEAF, DhSectionPos.getDetailLevel(pos), DhSectionPos.getX(pos),
+                DhSectionPos.getZ(pos)) && isNearestCopy(lattice, refBlockX, refBlockZ, pos);
+    }
+
+    public static byte cappedDetail(DhLattice lattice, byte expected) {
+        return lattice == null ? expected : atMost(expected, DhFold.maxExpectedDetailLevel(lattice, LEAF));
+    }
+
+    public static byte straddlerDetail(DhLattice lattice, int refBlockX, int refBlockZ, long pos, byte expected) {
+        if (lattice == null) {
+            return expected;
+        }
+
+        if (straddlesNearestCopy(lattice, refBlockX, refBlockZ, pos)) {
+            return atMost(expected, (byte) (snapLevel(lattice) - LEAF));
+        }
+
+        if (straddlesNearestCopy(lattice, refBlockX, refBlockZ, DhSectionPos.getParentPos(pos))) {
+            return atMost(expected, (byte) (DhSectionPos.getDetailLevel(pos) + 1 - LEAF));
+        }
+
+        return expected;
+    }
+
+    private static byte atMost(byte expected, byte cap) {
+        return expected <= cap ? expected : cap;
     }
 
     public static List<WorldCopies.Piece> beamPieces(DhLattice lattice, int minX, int maxX, int minZ, int maxZ) {

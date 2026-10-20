@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.compat.distanthorizons.DhClientShapes;
-import com.exoticworlds.compat.distanthorizons.DhFold;
 import com.exoticworlds.compat.distanthorizons.DhKeys;
 import com.exoticworlds.compat.distanthorizons.DhLattice;
 import com.exoticworlds.compat.distanthorizons.DhShapes;
@@ -17,7 +17,6 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.seibel.distanthorizons.core.level.IDhClientLevel;
-import com.seibel.distanthorizons.core.pos.DhSectionPos;
 import com.seibel.distanthorizons.core.pos.blockPos.DhBlockPos2D;
 import com.seibel.distanthorizons.core.render.QuadTree.LodQuadTree;
 import com.seibel.distanthorizons.core.render.QuadTree.LodRenderSection;
@@ -34,48 +33,20 @@ public class LodQuadTreeMixin {
 
     @WrapMethod(method = "queuePosToReload")
     private void exotic_worlds$reloadTheNearestCopy(long pos, Operation<Void> original) {
-        DhLattice lattice = DhShapes.of(this.level);
-        if (lattice == null) {
-            original.call(pos);
-            return;
-        }
-
-        DhBlockPos2D center = ((QuadTree<?>) (Object) this).getCenterBlockPos();
-        original.call(DhKeys.nearestSection(lattice, center.x, center.z, pos));
+        DhBlockPos2D center = exotic_worlds$center();
+        original.call(DhKeys.nearestSection(DhShapes.of(this.level), center.x, center.z, pos));
     }
 
     @ModifyReturnValue(method = "calcExpectedDetailLevel*", at = @At("RETURN"))
     private byte exotic_worlds$capDetailAtTheWorld(byte expected) {
-        DhLattice lattice = DhShapes.of(this.level);
-        if (lattice == null) {
-            return expected;
-        }
-
-        byte cap = DhFold.maxExpectedDetailLevel(lattice, DhSectionPos.SECTION_MINIMUM_DETAIL_LEVEL);
-        return expected <= cap ? expected : cap;
+        return DhKeys.cappedDetail(DhShapes.of(this.level), expected);
     }
 
     @WrapMethod(method = "calcExpectedDetailLevel(Lcom/seibel/distanthorizons/core/pos/blockPos/DhBlockPos2D;J)B")
     private byte exotic_worlds$splitAStraddler(DhBlockPos2D playerPos, long sectionPos, Operation<Byte> original) {
         byte expected = original.call(playerPos, sectionPos);
-        DhLattice lattice = DhShapes.of(this.level);
-        if (lattice == null) {
-            return expected;
-        }
-
-        DhBlockPos2D center = ((QuadTree<?>) (Object) this).getCenterBlockPos();
-        byte leaf = DhSectionPos.SECTION_MINIMUM_DETAIL_LEVEL;
-        if (DhKeys.straddlesNearestCopy(lattice, center.x, center.z, sectionPos)) {
-            byte cap = (byte) (DhKeys.snapLevel(lattice) - leaf);
-            return expected <= cap ? expected : cap;
-        }
-
-        if (DhKeys.straddlesNearestCopy(lattice, center.x, center.z, DhSectionPos.getParentPos(sectionPos))) {
-            byte cap = (byte) (DhSectionPos.getDetailLevel(sectionPos) + 1 - leaf);
-            return expected <= cap ? expected : cap;
-        }
-
-        return expected;
+        DhBlockPos2D center = exotic_worlds$center();
+        return DhKeys.straddlerDetail(DhShapes.of(this.level), center.x, center.z, sectionPos, expected);
     }
 
     @WrapOperation(
@@ -84,19 +55,9 @@ public class LodQuadTreeMixin {
                     value = "INVOKE",
                     target = "Lcom/seibel/distanthorizons/core/render/QuadTree/LodRenderSection;canRender()Z"))
     private boolean exotic_worlds$refuseAnIncompleteSection(LodRenderSection section, Operation<Boolean> original) {
-        boolean canRender = original.call(section);
-        DhLattice lattice = DhShapes.of(this.level);
-        if (lattice == null) {
-            return canRender;
-        }
-
-        byte detailLevel = DhSectionPos.getDetailLevel(section.pos);
-        int sectionX = DhSectionPos.getX(section.pos);
-        int sectionZ = DhSectionPos.getZ(section.pos);
-        DhBlockPos2D center = ((QuadTree<?>) (Object) this).getCenterBlockPos();
-        return canRender
-                && DhFold.isCompleteSection(lattice, DhKeys.LEAF, detailLevel, sectionX, sectionZ)
-                && DhKeys.isNearestCopy(lattice, center.x, center.z, section.pos);
+        DhBlockPos2D center = exotic_worlds$center();
+        return original.call(section)
+                && DhKeys.drawsSection(DhShapes.of(this.level), center.x, center.z, section.pos);
     }
 
     @WrapOperation(
@@ -107,14 +68,8 @@ public class LodQuadTreeMixin {
                             + "addLoadSection(Lcom/seibel/distanthorizons/core/render/QuadTree/LodRenderSection;)V"))
     private void exotic_worlds$loadOnlyTheNearestCopy(QuadTreeTickNodeHolder holder, LodRenderSection section,
             Operation<Void> original) {
-        DhLattice lattice = DhShapes.of(this.level);
-        if (lattice == null) {
-            original.call(holder, section);
-            return;
-        }
-
-        DhBlockPos2D center = ((QuadTree<?>) (Object) this).getCenterBlockPos();
-        if (DhKeys.isNearestCopy(lattice, center.x, center.z, section.pos)) {
+        DhBlockPos2D center = exotic_worlds$center();
+        if (DhKeys.isNearestCopy(DhShapes.of(this.level), center.x, center.z, section.pos)) {
             original.call(holder, section);
         }
     }
@@ -141,13 +96,13 @@ public class LodQuadTreeMixin {
     private ArrayList<BeaconBeamDTO> exotic_worlds$drawOnlyTheNearestBeams(BeaconBeamRepo repo, int minBlockX,
             int maxBlockX, int minBlockZ, int maxBlockZ, Operation<ArrayList<BeaconBeamDTO>> original) {
         ArrayList<BeaconBeamDTO> beams = original.call(repo, minBlockX, maxBlockX, minBlockZ, maxBlockZ);
-        DhLattice lattice = DhShapes.of(this.level);
-        if (lattice == null || beams == null) {
-            return beams;
-        }
-
-        DhBlockPos2D center = ((QuadTree<?>) (Object) this).getCenterBlockPos();
-        beams.removeIf(beam -> !DhKeys.isNearestBeam(lattice, center.x, center.z, beam.blockPos));
+        DhBlockPos2D center = exotic_worlds$center();
+        DhKeys.keepNearestBeams(DhShapes.of(this.level), center.x, center.z, beams);
         return beams;
+    }
+
+    @Unique
+    private DhBlockPos2D exotic_worlds$center() {
+        return ((QuadTree<?>) (Object) this).getCenterBlockPos();
     }
 }
