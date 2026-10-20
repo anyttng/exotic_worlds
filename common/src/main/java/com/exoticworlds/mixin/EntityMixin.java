@@ -19,6 +19,7 @@ import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.seam.ClientPosition;
 import com.exoticworlds.engine.seam.SeamAim;
+import com.exoticworlds.engine.seam.SeamRange;
 import com.exoticworlds.engine.seam.SeamSteering;
 import com.exoticworlds.engine.seam.VehicleDismountResync;
 import com.exoticworlds.engine.seam.circumnavigation.CircumnavigationTracker;
@@ -32,7 +33,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.BlockUtil;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.entity.Relative;
@@ -52,7 +52,7 @@ public class EntityMixin implements TransformerSource {
             return original.call(other);
         }
 
-        return (float) Math.sqrt(exotic_worlds$sqrTo(transformer, other.getX(), other.getY(), other.getZ()));
+        return (float) Math.sqrt(SeamRange.sqr(transformer, ((Entity) (Object) this).position(), other.position()));
     }
 
     @WrapMethod(method = "distanceToSqr(DDD)D")
@@ -62,7 +62,8 @@ public class EntityMixin implements TransformerSource {
             return original.call(x, y, z);
         }
 
-        return exotic_worlds$sqrTo(transformer, x, y, z);
+        Entity self = (Entity) (Object) this;
+        return SeamRange.sqr(self, self.position(), x, y, z);
     }
 
     @WrapMethod(method = "distanceToSqr(Lnet/minecraft/world/phys/Vec3;)D")
@@ -72,7 +73,7 @@ public class EntityMixin implements TransformerSource {
             return original.call(pos);
         }
 
-        return exotic_worlds$sqrTo(transformer, pos.x, pos.y, pos.z);
+        return SeamRange.sqr(transformer, ((Entity) (Object) this).position(), pos);
     }
 
     @WrapMethod(method = "closerThan(Lnet/minecraft/world/entity/Entity;D)Z")
@@ -82,7 +83,8 @@ public class EntityMixin implements TransformerSource {
             return original.call(other, distance);
         }
 
-        return exotic_worlds$sqrTo(transformer, other.getX(), other.getY(), other.getZ()) < Mth.square(distance);
+        Entity self = (Entity) (Object) this;
+        return SeamRange.closerThan(self, self.position(), other.position(), distance);
     }
 
     @WrapMethod(method = "closerThan(Lnet/minecraft/world/entity/Entity;DD)Z")
@@ -93,10 +95,8 @@ public class EntityMixin implements TransformerSource {
             return original.call(other, distanceXZ, distanceY);
         }
 
-        Entity self = (Entity) (Object) this;
-        Vec3 delta = transformer.foldDelta(self.position(), other.position());
-        return Mth.lengthSquared(delta.x, delta.z) < Mth.square(distanceXZ)
-                && Mth.square(delta.y) < Mth.square(distanceY);
+        return SeamRange.closerThan(transformer, ((Entity) (Object) this).position(), other.position(), distanceXZ,
+                distanceY);
     }
 
     @ModifyVariable(method = "lookAt(Lnet/minecraft/commands/arguments/EntityAnchorArgument$Anchor;Lnet/minecraft/world/phys/Vec3;)V",
@@ -200,11 +200,5 @@ public class EntityMixin implements TransformerSource {
 
         WorldFold transformer = this.exotic_worlds$transformer;
         return transformer.isWrapped() ? transformer : null;
-    }
-
-    @Unique
-    private double exotic_worlds$sqrTo(WorldFold transformer, double x, double y, double z) {
-        Entity self = (Entity) (Object) this;
-        return transformer.sqrDistance(self.getX(), self.getY(), self.getZ(), x, y, z);
     }
 }
