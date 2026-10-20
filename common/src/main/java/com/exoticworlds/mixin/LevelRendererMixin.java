@@ -20,8 +20,6 @@ public class LevelRendererMixin {
             method = "submitBlockDestroyAnimation",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_STATE_GET_OFFSET))
     private Vec3 exotic_worlds$seedDestroyOffset(BlockState state, BlockPos pos, Operation<Vec3> original) {
-        try (BlockOffsetSeed _ = BlockOffsetSeed.seededBy(Minecraft.getInstance().level)) {
-            return original.call(state, pos);
-        }
+        return BlockOffsetSeed.seeded(Minecraft.getInstance().level, state, () -> original.call(state, pos));
     }
 }

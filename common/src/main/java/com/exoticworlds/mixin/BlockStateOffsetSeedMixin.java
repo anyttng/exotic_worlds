@@ -1,10 +1,7 @@
 package com.exoticworlds.mixin;
 
-import java.util.function.Supplier;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
@@ -25,7 +22,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 @Mixin(BlockBehaviour.BlockStateBase.class)
 public abstract class BlockStateOffsetSeedMixin {
     @Shadow
-    public abstract boolean hasOffsetFunction();
+    protected abstract BlockState asState();
 
     @WrapOperation(
             method = "getOffset",
@@ -39,53 +36,34 @@ public abstract class BlockStateOffsetSeedMixin {
     @WrapMethod(method = "getShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;")
     private VoxelShape exotic_worlds$seedShape(BlockGetter level, BlockPos pos, CollisionContext context,
             Operation<VoxelShape> original) {
-        return this.hasOffsetFunction()
-                ? exotic_worlds$seeded(level, () -> original.call(level, pos, context))
-                : original.call(level, pos, context);
+        return BlockOffsetSeed.seeded(level, this.asState(), () -> original.call(level, pos, context));
     }
 
     @WrapMethod(method = InjectionTargets.BLOCK_STATE_BASE_GET_COLLISION_SHAPE)
     private VoxelShape exotic_worlds$seedCollisionShape(BlockGetter level, BlockPos pos, CollisionContext context,
             Operation<VoxelShape> original) {
-        return this.hasOffsetFunction()
-                ? exotic_worlds$seeded(level, () -> original.call(level, pos, context))
-                : original.call(level, pos, context);
+        return BlockOffsetSeed.seeded(level, this.asState(), () -> original.call(level, pos, context));
     }
 
     @WrapMethod(method = "getEntityInsideCollisionShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/phys/shapes/VoxelShape;")
     private VoxelShape exotic_worlds$seedEntityInsideShape(BlockGetter level, BlockPos pos, Entity entity,
             Operation<VoxelShape> original) {
-        return this.hasOffsetFunction()
-                ? exotic_worlds$seeded(level, () -> original.call(level, pos, entity))
-                : original.call(level, pos, entity);
+        return BlockOffsetSeed.seeded(level, this.asState(), () -> original.call(level, pos, entity));
     }
 
     @WrapMethod(method = "getBlockSupportShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/shapes/VoxelShape;")
     private VoxelShape exotic_worlds$seedSupportShape(BlockGetter level, BlockPos pos, Operation<VoxelShape> original) {
-        return this.hasOffsetFunction()
-                ? exotic_worlds$seeded(level, () -> original.call(level, pos))
-                : original.call(level, pos);
+        return BlockOffsetSeed.seeded(level, this.asState(), () -> original.call(level, pos));
     }
 
     @WrapMethod(method = "getVisualShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;")
     private VoxelShape exotic_worlds$seedVisualShape(BlockGetter level, BlockPos pos, CollisionContext context,
             Operation<VoxelShape> original) {
-        return this.hasOffsetFunction()
-                ? exotic_worlds$seeded(level, () -> original.call(level, pos, context))
-                : original.call(level, pos, context);
+        return BlockOffsetSeed.seeded(level, this.asState(), () -> original.call(level, pos, context));
     }
 
     @WrapMethod(method = "getInteractionShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/shapes/VoxelShape;")
     private VoxelShape exotic_worlds$seedInteractionShape(BlockGetter level, BlockPos pos, Operation<VoxelShape> original) {
-        return this.hasOffsetFunction()
-                ? exotic_worlds$seeded(level, () -> original.call(level, pos))
-                : original.call(level, pos);
-    }
-
-    @Unique
-    private static VoxelShape exotic_worlds$seeded(BlockGetter level, Supplier<VoxelShape> shape) {
-        try (BlockOffsetSeed _ = BlockOffsetSeed.seededBy(level)) {
-            return shape.get();
-        }
+        return BlockOffsetSeed.seeded(level, this.asState(), () -> original.call(level, pos));
     }
 }

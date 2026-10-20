@@ -1,5 +1,7 @@
 package com.exoticworlds.engine.seam;
 
+import java.util.function.Supplier;
+
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.RegionLevelSource;
@@ -11,8 +13,9 @@ import com.exoticworlds.engine.ObjectStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockState;
 
-public final class BlockOffsetSeed implements AutoCloseable {
+public final class BlockOffsetSeed {
     private static final ThreadLocal<BlockOffsetSeed> CURRENT = ThreadLocal.withInitial(BlockOffsetSeed::new);
 
     private WorldFold fold = WorldFolds.NOOP;
@@ -23,10 +26,18 @@ public final class BlockOffsetSeed implements AutoCloseable {
         return CURRENT.get().fold.fold(pos);
     }
 
-    public static BlockOffsetSeed seededBy(@Nullable BlockGetter getter) {
+    public static <T> T seeded(@Nullable BlockGetter getter, BlockState state, Supplier<T> call) {
+        if (!state.hasOffsetFunction()) {
+            return call.get();
+        }
+
         BlockOffsetSeed scope = CURRENT.get();
         scope.push(foldOf(getter));
-        return scope;
+        try {
+            return call.get();
+        } finally {
+            scope.pop();
+        }
     }
 
     private static WorldFold foldOf(@Nullable BlockGetter getter) {
@@ -46,8 +57,7 @@ public final class BlockOffsetSeed implements AutoCloseable {
         this.fold = bound;
     }
 
-    @Override
-    public void close() {
+    private void pop() {
         this.fold = this.previous.pop();
     }
 
