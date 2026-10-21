@@ -185,6 +185,7 @@ dependencies {
     compileOnly "maven.modrinth:moonlight:${moonlight_version}"
     compileOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
     compileOnly "maven.modrinth:ultimate_map_atlases:${ultimate_map_atlases_version}"
+    compileOnly "maven.modrinth:immersive-overlays:${immersive_overlays_version}"
     compileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"
     // Non-transitive: the FTB poms pull in FTB Teams, FTB Backups and a JSON5 library, whose types no map fold names.
     compileOnly("dev.ftb.mods:ftb-chunks-neoforge:${ftbchunks_version}") { transitive = false }
@@ -224,6 +225,7 @@ dependencies {
     testCompileOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
     testRuntimeOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
     testRuntimeOnly "maven.modrinth:ultimate_map_atlases:${ultimate_map_atlases_version}"
+    testRuntimeOnly "maven.modrinth:immersive-overlays:${immersive_overlays_version}"
     // The compat jars on the test runtime alone: every compat gate reads its mixins' targets from these class files,
     // and a config plugin cannot even load without IMixinConfigPlugin.
     testRuntimeOnly "maven.modrinth:journeymap:${journeymap_version}"
