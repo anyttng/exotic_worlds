@@ -8,7 +8,6 @@ public final class CobblemonPackets {
 
     public static void register() {
         if (ModPresence.probe(SPAWN_PACKET_CLASS)) {
-            SpawnPacketRewriters.register();
             EffectPacketRewriters.register();
         }
     }

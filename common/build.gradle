@@ -16,8 +16,6 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 // loader-free. The AT in src/main/resources/META-INF is auto-detected and applied to the vanilla artifact.
 neoForge {
     neoFormVersion = project.neoform_version
-    // The second file is Cobblemon's own widening its spawn payload tests need; kept out of resources so no jar ships it.
-    accessTransformers.from('src/main/resources/META-INF/accesstransformer.cfg', 'src/test/cobblemon-access.cfg')
 }
 
 sourceSets.main.resources {
