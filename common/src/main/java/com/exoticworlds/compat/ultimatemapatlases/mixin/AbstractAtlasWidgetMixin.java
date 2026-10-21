@@ -61,15 +61,8 @@ public abstract class AbstractAtlasWidgetMixin {
             Operation<MapDataHolder> original) {
         this.exotic_worlds$requestX = centerX;
         this.exotic_worlds$requestZ = centerZ;
-        for (AtlasTileCopies.TileCenter center : AtlasTileCopies.of(this.exotic_worlds$copyShape, centerX, centerZ,
-                this.mapBlocksSize)) {
-            MapDataHolder found = original.call(widget, center.x(), center.z());
-            if (found != null) {
-                return found;
-            }
-        }
-
-        return null;
+        return AtlasTileCopies.first(this.exotic_worlds$copyShape, centerX, centerZ, this.mapBlocksSize,
+                (x, z) -> original.call(widget, x, z));
     }
 
     @Inject(

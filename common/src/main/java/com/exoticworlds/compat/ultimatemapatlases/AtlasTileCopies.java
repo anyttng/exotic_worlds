@@ -17,6 +17,21 @@ public final class AtlasTileCopies {
     public record TileCenter(int x, int z) {
     }
 
+    public interface TileLookup<T> {
+        @Nullable T at(int centerX, int centerZ);
+    }
+
+    public static <T> @Nullable T first(@Nullable ToroidalShape shape, int x, int z, int mapBlocks,
+            TileLookup<T> lookup) {
+        return firstOf(of(shape, x, z, mapBlocks), lookup);
+    }
+
+    public static <T> @Nullable T acrossEdge(@Nullable ToroidalShape shape, int x, int z, int mapBlocks,
+            TileLookup<T> lookup) {
+        List<TileCenter> centers = of(shape, x, z, mapBlocks);
+        return firstOf(centers.subList(1, centers.size()), lookup);
+    }
+
     public static List<TileCenter> of(@Nullable ToroidalShape shape, int x, int z, int mapBlocks) {
         TileCenter request = new TileCenter(x, z);
         if (shape == null) {
@@ -41,6 +56,17 @@ public final class AtlasTileCopies {
         }
 
         return centers;
+    }
+
+    private static <T> @Nullable T firstOf(List<TileCenter> centers, TileLookup<T> lookup) {
+        for (TileCenter center : centers) {
+            T found = lookup.at(center.x(), center.z());
+            if (found != null) {
+                return found;
+            }
+        }
+
+        return null;
     }
 
     private static int lower(ToroidalShape shape, Direction.Axis axis, int coord) {

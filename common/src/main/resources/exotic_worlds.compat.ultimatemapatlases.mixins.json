@@ -6,9 +6,12 @@
   "plugin": "com.exoticworlds.compat.ultimatemapatlases.UltimateMapAtlasesMixinPlugin",
   "mixins": [
     "C2SRemoveMarkerPacketMixin",
+    "MapAtlasItemMixin",
+    "MapAtlasesAddRecipeMixin",
     "MapAtlasesServerEventsMixin",
     "MapCollectionMixin",
-    "MapDataHolderMixin"
+    "MapDataHolderMixin",
+    "MapUpdateTicketMixin"
   ],
   "client": [
     "AbstractAtlasWidgetAccessor",
