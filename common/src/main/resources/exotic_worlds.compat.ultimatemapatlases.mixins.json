@@ -16,6 +16,10 @@
   "client": [
     "AbstractAtlasWidgetAccessor",
     "AbstractAtlasWidgetMixin",
+    "AtlasOverviewScreenMixin",
+    "ClientMarkersMixin",
+    "ClientMarkersRendererMixin",
+    "EntityRadarMixin",
     "MapAtlasesHUDMixin",
     "MapWidgetMixin"
   ],
