@@ -177,7 +177,6 @@ public final class PacketTranslator {
         return dispatch(TO_CLIENT, packet, player, transformer);
     }
 
-    // mc/1.21: Cobblemon's spawn rewriter moves the entity packet it wraps through it.
     static <T extends net.minecraft.network.PacketListener> @Nullable Packet<T> toClient(Packet<T> packet,
             TranslationContext context) {
         return castPacket(rewrite(TO_CLIENT, packet, context));
