@@ -1,5 +1,6 @@
 package com.exoticworlds;
 
+import com.exoticworlds.compat.ultimatemapatlases.AtlasLecternTranslation;
 import com.exoticworlds.engine.gen.LoopedChunkGenerator;
 import com.exoticworlds.engine.gen.LoopedFlatChunkGenerator;
 import com.exoticworlds.engine.gen.WorldLoopGenerators;
@@ -55,5 +56,6 @@ public class ExoticWorldsFabric implements ModInitializer {
         ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> PositionRowsSync.sendTo(player));
 
         OpenMenuTranslation.register();
+        AtlasLecternTranslation.register();
     }
 }

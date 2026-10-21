@@ -66,6 +66,7 @@ class UnreachedMembersTest {
             "engine.fold.ChunkViewSweep.positions",
             "compat.wover.LapAxis.latticeBlocks",
             "shape.WorldLoopPresets.blockWidth",
+            "engine.net.PacketTranslator.toClient",
             "engine.net.PacketTranslator.toServer",
             "accessors.FoldedClimateSampler.exotic_worlds$fold");
     private static final Set<String> READ_BY_HARNESS = Set.of(
