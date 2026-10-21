@@ -1,5 +1,7 @@
 package com.exoticworlds.compat.ultimatemapatlases.mixin;
 
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -36,6 +38,13 @@ public class MapAtlasesServerEventsMixin {
     private static @Nullable MapDataHolder exotic_worlds$activeAtAnyCopy(IMapCollection maps, MapKey key,
             Operation<MapDataHolder> original, @Local(argsOnly = true) Player player) {
         return AtlasCopyLookup.atAnyCopy(player.level(), maps, key, original);
+    }
+
+    @Inject(method = "onPlayerTick",
+            at = @At(value = "INVOKE", target = UltimateMapAtlasesInjectionTargets.SELECT_KEY, ordinal = 0))
+    private static void exotic_worlds$shiftedNeighbors(CallbackInfo ci, @Local(argsOnly = true) Player player,
+            @Local IMapCollection maps, @Local MapKey activeKey, @Local List<MapDataHolder> nearbyExistentMaps) {
+        AtlasCopyLookup.addShiftedNeighbors(player.level(), maps, activeKey, nearbyExistentMaps);
     }
 
     @WrapOperation(method = "sendSlicesAboveAndBelow", at = @At(value = "INVOKE", target = SELECT_AT))
