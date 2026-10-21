@@ -166,6 +166,7 @@ dependencies {
     compileOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
     compileOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
     compileOnly "maven.modrinth:ultimate_map_atlases:${ultimate_map_atlases_version}"
+    compileOnly "maven.modrinth:immersive-overlays:${immersive_overlays_version}"
     compileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"
     compileOnly "com.uber.nullaway:nullaway-annotations:${nullaway_version}"
 }
@@ -198,6 +199,7 @@ dependencies {
     testCompileOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
     testRuntimeOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
     testRuntimeOnly "maven.modrinth:ultimate_map_atlases:${ultimate_map_atlases_version}"
+    testRuntimeOnly "maven.modrinth:immersive-overlays:${immersive_overlays_version}"
     // The compat jars on the test runtime alone: every compat gate reads its mixins' targets from these class files,
     // and a config plugin cannot even load without IMixinConfigPlugin.
     testRuntimeOnly "maven.modrinth:journeymap:${journeymap_version}"
