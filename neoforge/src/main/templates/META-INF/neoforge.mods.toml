@@ -195,4 +195,7 @@ config="exotic_worlds.compat.cobblemon.mixins.json"
 config="exotic_worlds.compat.mapfrontiers.mixins.json"
 
 [[mixins]]
+config="exotic_worlds.compat.immersiveoverlays.mixins.json"
+
+[[mixins]]
 config="exotic_worlds.neoforge.mixins.json"

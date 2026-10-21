@@ -322,6 +322,7 @@ dependencies {
     compileOnly "maven.modrinth:moonlight:${moonlight_version}"
     compileOnly "maven.modrinth:supplementaries:${supplementaries_version}"
     compileOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
+    compileOnly "maven.modrinth:immersive-overlays:${immersive_overlays_version}"
     // Non-transitive: the FTB poms ask for Architectury, whose types no map fold names — pulling its maven in would
     // put a whole mod on the compile classpath to satisfy a reference nothing makes.
     compileOnly("dev.ftb.mods:ftb-chunks-neoforge:${ftbchunks_version}") { transitive = false }
@@ -404,6 +405,7 @@ dependencies {
     testRuntimeOnly "maven.modrinth:seed-viewer:${seed_viewer_version}"
     testCompileOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
     testRuntimeOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
+    testRuntimeOnly "maven.modrinth:immersive-overlays:${immersive_overlays_version}"
     // The compat jars on the test runtime alone: every compat gate reads its mixins' targets from these class files,
     // and a config plugin cannot even load without IMixinConfigPlugin.
     testRuntimeOnly "maven.modrinth:journeymap:${journeymap_version}"

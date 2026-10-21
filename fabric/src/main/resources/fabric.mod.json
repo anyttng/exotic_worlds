@@ -56,7 +56,8 @@
     "exotic_worlds.compat.moonlight.mixins.json",
     "exotic_worlds.compat.supplementaries.mixins.json",
     "exotic_worlds.compat.cobblemon.mixins.json",
-    "exotic_worlds.compat.mapfrontiers.mixins.json"
+    "exotic_worlds.compat.mapfrontiers.mixins.json",
+    "exotic_worlds.compat.immersiveoverlays.mixins.json"
   ],
   "accessWidener": "exotic_worlds.accesswidener",
   "depends": {

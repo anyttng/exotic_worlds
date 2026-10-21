@@ -330,6 +330,7 @@ dependencies {
     modCompileOnly "maven.modrinth:moonlight:${moonlight_fabric_version}"
     modCompileOnly "maven.modrinth:supplementaries:${supplementaries_fabric_version}"
     modCompileOnly "maven.modrinth:mapfrontiers:${mapfrontiers_fabric_version}"
+    modCompileOnly "maven.modrinth:immersive-overlays:${immersive_overlays_fabric_version}"
 
     // The 'modmenu' entrypoint class is only ever asked for by ModMenu itself, so it never loads without it.
     // modCompileOnly: its screen-factory API names the game's Screen, which only the remapped jar spells in this

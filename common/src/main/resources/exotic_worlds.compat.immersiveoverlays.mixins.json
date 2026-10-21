@@ -1,0 +1,13 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.immersiveoverlays.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.immersiveoverlays.ImmersiveOverlaysMixinPlugin",
+  "client": [
+    "CompassOverlayMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
