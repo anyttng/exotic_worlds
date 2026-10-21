@@ -14,10 +14,13 @@ import com.exoticworlds.compat.ClientShapes;
 import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasWorldView;
 import com.exoticworlds.compat.ultimatemapatlases.BrowsedDimension;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ColumnPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -73,6 +76,13 @@ public abstract class MapWidgetMixin implements BrowsedDimension {
     @Inject(method = "mouseDragged", at = @At("RETURN"))
     private void exotic_worlds$holdAfterDrag(CallbackInfoReturnable<Boolean> cir) {
         this.exotic_worlds$hold(false);
+    }
+
+    @ModifyReturnValue(method = "getHoveredPos", at = @At("RETURN"))
+    private ColumnPos exotic_worlds$foldedHover(ColumnPos hovered) {
+        BlockPos raw = new BlockPos(hovered.x(), 0, hovered.z());
+        BlockPos folded = ClientShapes.fold(ClientShapes.of(this.exotic_worlds$browsedDimension()), raw);
+        return folded.equals(raw) ? hovered : new ColumnPos(folded.getX(), folded.getZ());
     }
 
     @WrapOperation(
