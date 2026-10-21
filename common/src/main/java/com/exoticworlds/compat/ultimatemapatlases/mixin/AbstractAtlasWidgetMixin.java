@@ -11,22 +11,33 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.ClientShapes;
 import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.ultimatemapatlases.AtlasPointSeat;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasSeamLines;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasTileCopies;
 import com.exoticworlds.compat.ultimatemapatlases.BrowsedDimension;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.nanaky.ultimate_map_atlases.client.AbstractAtlasWidget;
 import net.nanaky.ultimate_map_atlases.utils.MapDataHolder;
+import net.nanaky.ultimate_map_atlases.utils.PriorityMarkerInfo;
+import net.nanaky.ultimate_map_atlases.utils.Slice;
 
 @Mixin(AbstractAtlasWidget.class)
 public abstract class AbstractAtlasWidgetMixin {
     @Shadow
     protected int mapBlocksSize;
+
+    @Shadow
+    protected double currentXCenter;
+
+    @Shadow
+    protected double currentZCenter;
 
     @Unique
     private @Nullable ToroidalShape exotic_worlds$copyShape;
@@ -75,5 +86,27 @@ public abstract class AbstractAtlasWidgetMixin {
             AtlasSeamLines.draw(graphics, AtlasSeamLines.of(this.exotic_worlds$seamShape, this.exotic_worlds$requestX,
                     this.exotic_worlds$requestZ, this.mapBlocksSize));
         }
+    }
+
+    @ModifyExpressionValue(
+            method = "renderPriorityMarkers",
+            at = @At(value = "INVOKE", target = "Lnet/nanaky/ultimate_map_atlases/utils/PriorityMarkerInfo;worldX()D"))
+    private double exotic_worlds$markerXNearView(double worldX, @Local PriorityMarkerInfo marker,
+            @Local(argsOnly = true) Slice slice) {
+        return this.exotic_worlds$markerNearView(marker, slice).x;
+    }
+
+    @ModifyExpressionValue(
+            method = "renderPriorityMarkers",
+            at = @At(value = "INVOKE", target = "Lnet/nanaky/ultimate_map_atlases/utils/PriorityMarkerInfo;worldZ()D"))
+    private double exotic_worlds$markerZNearView(double worldZ, @Local PriorityMarkerInfo marker,
+            @Local(argsOnly = true) Slice slice) {
+        return this.exotic_worlds$markerNearView(marker, slice).z;
+    }
+
+    @Unique
+    private Vec3 exotic_worlds$markerNearView(PriorityMarkerInfo marker, Slice slice) {
+        return AtlasPointSeat.toward(slice.dimension(), new Vec3(this.currentXCenter, 0.0, this.currentZCenter),
+                marker.worldX(), marker.worldZ());
     }
 }
