@@ -45,6 +45,8 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | [Seed Viewer](https://modrinth.com/mod/seed-viewer) | 26.2, 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | |
 | [Moonlight Lib](https://modrinth.com/mod/moonlight) | 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | |
 | [MapFrontiers](https://modrinth.com/mod/mapfrontiers) | All | NeoForge, Fabric | Supported | |
+| [Immersive Overlays](https://modrinth.com/mod/immersive-overlays) | All | NeoForge, Fabric | Supported | |
+| [Ultimate Map Atlases](https://modrinth.com/mod/ultimate_map_atlases) | 26.3, 26.2, 26.1.2 | Fabric | Supported | |
 
 ## Machines and vehicles
 
