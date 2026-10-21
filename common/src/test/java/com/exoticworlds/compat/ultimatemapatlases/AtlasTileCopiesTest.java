@@ -115,6 +115,86 @@ class AtlasTileCopiesTest {
     }
 
     @Test
+    void aWorldNotWholeMapsWideDrawsTheMapsPastItsEdgeShifted() {
+        ToroidalShape shape = MapShapes.torus(-18, 18);
+        assertEquals(List.of(new TileCenter(384, 0)), AtlasTileCopies.of(shape, 384, 0, MAP_BLOCKS),
+                "one 576-block lap is four and a half maps, so the grid finds no map past the edge");
+        List<AtlasTileCopies.Placed<TileCenter>> placed = AtlasTileCopies.shifted(shape, new TileCenter(384, 0), 0,
+                MAP_BLOCKS, holdingGrid(-256, 256));
+        assertEquals(List.of(new AtlasTileCopies.Placed<>(new TileCenter(-256, 0), new TileCenter(320, 0)),
+                new AtlasTileCopies.Placed<>(new TileCenter(-128, 0), new TileCenter(448, 0))), placed,
+                "the two maps on the far side cover the tile, each a lap along X off the grid");
+    }
+
+    @Test
+    void theRowPastASkewedSeamIsDrawnMovedSidewaysOffTheGrid() {
+        ToroidalShape shape = MapShapes.latticeTorus(-16, 16, 4);
+        int skew = shape.fold(new BlockPos(0, 0, 512)).getX();
+        assertEquals(64, Math.abs(skew), "a lap in Z moves X by the 64-block skew");
+        assertEquals(List.of(new TileCenter(0, 384)), AtlasTileCopies.of(shape, 0, 384, MAP_BLOCKS),
+                "half a map sideways is no whole move, so the grid finds no map past the Z edge");
+        List<AtlasTileCopies.Placed<TileCenter>> placed = AtlasTileCopies.shifted(shape, new TileCenter(0, 384), 0,
+                MAP_BLOCKS, holdingGrid(-256, 256));
+        assertTrue(placed.contains(new AtlasTileCopies.Placed<>(new TileCenter(skew - 64, -128),
+                new TileCenter(-64, 384))), "the map behind the left half arrives moved sideways by the skew");
+        assertTrue(placed.contains(new AtlasTileCopies.Placed<>(new TileCenter(skew + 64, -128),
+                new TileCenter(64, 384))), "and so does the map behind the right half");
+    }
+
+    @Test
+    void aCylinderShiftsTheLoopedAxisAlone() {
+        List<AtlasTileCopies.Placed<TileCenter>> placed = AtlasTileCopies.shifted(MapShapes.cylinder(-18, 18),
+                new TileCenter(384, 5120), 0, MAP_BLOCKS, holding(new TileCenter(-256, 5120), new TileCenter(-128, 5120)));
+        assertEquals(List.of(new AtlasTileCopies.Placed<>(new TileCenter(-256, 5120), new TileCenter(320, 5120)),
+                new AtlasTileCopies.Placed<>(new TileCenter(-128, 5120), new TileCenter(448, 5120))), placed,
+                "X shifts a lap and the unbounded Z stays where the map is");
+    }
+
+    @Test
+    void wholeMovesAreLeftToTheGrid() {
+        assertEquals(List.of(), AtlasTileCopies.shifted(MapShapes.torus(-16, 16), new TileCenter(384, 0), 2,
+                MAP_BLOCKS, holdingGrid(-256, 256)), "every lap of a 512-block world is whole maps");
+        assertEquals(List.of(), AtlasTileCopies.shifted(null, new TileCenter(384, 0), 2, MAP_BLOCKS,
+                holdingGrid(-256, 256)), "an unwrapped level and a single view shift nothing");
+    }
+
+    @Test
+    void aTilePastTheEdgeIsCoveredOnlyWhereBothHalvesAreHeld() {
+        ToroidalShape shape = MapShapes.torus(-18, 18);
+        assertTrue(AtlasTileCopies.coveredByShifted(shape, new TileCenter(384, 0), MAP_BLOCKS,
+                holding(new TileCenter(-256, 0), new TileCenter(-128, 0))),
+                "blocks 320 to 448 are the ground of the maps at -256 and -128, a lap of 576 blocks back");
+        assertFalse(AtlasTileCopies.coveredByShifted(shape, new TileCenter(384, 0), MAP_BLOCKS,
+                holding(new TileCenter(-256, 0))), "the map at -256 holds only the half from 320 to 384");
+    }
+
+    @Test
+    void aTileInsideTheWorldIsNeverCoveredByACopyReachingIntoIt() {
+        ToroidalShape shape = MapShapes.torus(-18, 18);
+        AtlasTileCopies.TileLookup<TileCenter> held = holding(new TileCenter(-256, 0));
+        assertEquals(1, AtlasTileCopies.shifted(shape, new TileCenter(256, 0), 0, MAP_BLOCKS, held).size(),
+                "the copy of the map at -256 lands at 320 and reaches into the tile");
+        assertFalse(AtlasTileCopies.coveredByShifted(shape, new TileCenter(256, 0), MAP_BLOCKS, held),
+                "but only the 64 blocks of it past the edge");
+    }
+
+    @Test
+    void aSkewedRowPastTheZEdgeIsCoveredByTheMapsMovedSideways() {
+        ToroidalShape shape = MapShapes.latticeTorus(-16, 16, 4);
+        int skew = shape.fold(new BlockPos(0, 0, 512)).getX();
+        assertTrue(AtlasTileCopies.coveredByShifted(shape, new TileCenter(0, 384), MAP_BLOCKS,
+                holding(new TileCenter(skew - 64, -128), new TileCenter(skew + 64, -128))),
+                "the two maps a row back, moved by the skew, meet in the middle of the tile");
+        assertFalse(AtlasTileCopies.coveredByShifted(shape, new TileCenter(0, 384), MAP_BLOCKS,
+                holding(new TileCenter(skew - 64, -128))), "one of them leaves half the tile");
+    }
+
+    private static AtlasTileCopies.TileLookup<TileCenter> holdingGrid(int from, int to) {
+        return (x, z) -> x >= from && x <= to && z >= from && z <= to && x % MAP_BLOCKS == 0 && z % MAP_BLOCKS == 0
+                ? new TileCenter(x, z) : null;
+    }
+
+    @Test
     void aCylinderMovesTheLoopedAxisAlone() {
         List<TileCenter> centers = AtlasTileCopies.of(MapShapes.cylinder(-16, 16), 768, 5000, MAP_BLOCKS);
         assertTrue(centers.contains(new TileCenter(256, 5000)), "X folds a lap back");

@@ -1,5 +1,7 @@
 package com.exoticworlds.compat.ultimatemapatlases;
 
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ExoticWorldsApi;
@@ -26,8 +28,22 @@ public final class AtlasCopyLookup {
     }
 
     public static boolean heldAcrossEdge(Level level, IMapCollection maps, MapKey key) {
-        return AtlasTileCopies.acrossEdge(shapeOf(level), key.mapX(), key.mapZ(), mapBlocks(maps),
-                (x, z) -> maps.select(new MapKey(x, z, key.slice()))) != null;
+        ToroidalShape shape = shapeOf(level);
+        AtlasTileCopies.TileLookup<MapDataHolder> held = (x, z) -> maps.select(new MapKey(x, z, key.slice()));
+        return AtlasTileCopies.acrossEdge(shape, key.mapX(), key.mapZ(), mapBlocks(maps), held) != null
+                || AtlasTileCopies.coveredByShifted(shape, new AtlasTileCopies.TileCenter(key.mapX(), key.mapZ()),
+                        mapBlocks(maps), held);
+    }
+
+    public static void addShiftedNeighbors(Level level, IMapCollection maps, MapKey active,
+            List<MapDataHolder> nearby) {
+        for (AtlasTileCopies.Placed<MapDataHolder> copy : AtlasTileCopies.shifted(shapeOf(level),
+                new AtlasTileCopies.TileCenter(active.mapX(), active.mapZ()), 1, mapBlocks(maps),
+                (x, z) -> maps.select(new MapKey(x, z, active.slice())))) {
+            if (!nearby.contains(copy.map())) {
+                nearby.add(copy.map());
+            }
+        }
     }
 
     private static @Nullable ToroidalShape shapeOf(Level level) {
