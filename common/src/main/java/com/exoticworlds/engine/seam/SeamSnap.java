@@ -5,7 +5,6 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.accessors.NavigationShifter;
 import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.SeamTransform;
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.mixin.EntityAccessor;
 
@@ -17,12 +16,7 @@ import net.minecraft.world.phys.Vec3;
 
 public final class SeamSnap {
     public static boolean intoBounds(Entity entity) {
-        WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(entity.level());
-        if (fold == null) {
-            return false;
-        }
-
-        DeckTransformation lap = fold.foldTransformation(entity.position());
+        DeckTransformation lap = WorldLoopAttachments.transformerOf(entity.level()).foldTransformation(entity.position());
         if (lap.isIdentity()) {
             return false;
         }

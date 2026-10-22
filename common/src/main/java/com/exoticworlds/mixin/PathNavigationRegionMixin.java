@@ -7,7 +7,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.accessors.RegionLevelSource;
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -35,12 +34,7 @@ public class PathNavigationRegionMixin implements RegionLevelSource {
                     target = "Lnet/minecraft/world/level/chunk/ChunkSource;getChunkNow(II)Lnet/minecraft/world/level/chunk/LevelChunk;"))
     private @Nullable LevelChunk exotic_worlds$foldSnapshotChunk(ChunkSource chunkSource, int chunkX, int chunkZ,
             Operation<@Nullable LevelChunk> original) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
-        if (transformer == null) {
-            return original.call(chunkSource, chunkX, chunkZ);
-        }
-
-        long folded = transformer.foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
+        long folded = WorldLoopAttachments.transformerOf(this.level).foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
         return original.call(chunkSource, ChunkPos.getX(folded), ChunkPos.getZ(folded));
     }
 }
