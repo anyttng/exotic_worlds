@@ -2,6 +2,7 @@ package com.exoticworlds.compat.eminus;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.jspecify.annotations.Nullable;
 
@@ -23,6 +24,19 @@ public final class StoredKeyRebuilds {
         }
 
         return folded.isEmpty() ? null : folded.getFirst();
+    }
+
+    public static boolean changeLapCopies(CellFold fold, NodeTable table, long key, Predicate<TreeNode> change) {
+        return changeAllButFirst(((StoredKeyIndex) (Object) table).exotic_worlds$nodesAt(fold.foldKey(key)), change);
+    }
+
+    static <N> boolean changeAllButFirst(List<N> folded, Predicate<N> change) {
+        boolean walkDue = false;
+        for (int index = 1; index < folded.size(); index++) {
+            walkDue |= change.test(folded.get(index));
+        }
+
+        return walkDue;
     }
 
     public static void coverLapCopies(CellFold fold, int chunkX, int chunkZ, ChunkCover cover) {
