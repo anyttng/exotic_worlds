@@ -5,11 +5,13 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.exoticworlds.compat.arsnouveau.ArsNouveauMixinPlugin",
   "mixins": [
+    "AdvancedPathNavigateMixin",
     "BlockUtilMixin",
     "BonemealGoalMixin",
     "DistanceRestrictedGoalMixin",
     "GoBackHomeGoalMixin",
-    "InspectPlantGoalMixin"
+    "InspectPlantGoalMixin",
+    "PathingStuckHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

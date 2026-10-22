@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.NavigationShifter;
+import com.exoticworlds.accessors.NavigationStateShifter;
 import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.FoldedCopies;
@@ -108,6 +109,10 @@ public class PathNavigationMixin implements NavigationShifter {
 
         if (this.path != null && !this.path.isDone()) {
             ((NavigationShifter) (Object) this.path).exotic_worlds$shiftBy(shiftX, shiftZ);
+        }
+
+        if ((Object) this instanceof NavigationStateShifter subclassState) {
+            subclassState.exotic_worlds$shiftOwnState(shiftX, shiftZ);
         }
     }
 
