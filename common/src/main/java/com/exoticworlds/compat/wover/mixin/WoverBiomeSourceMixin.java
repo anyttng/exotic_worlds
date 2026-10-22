@@ -5,7 +5,6 @@ import org.betterx.wover.generator.impl.biomesource.nether.WoverNetherBiomeSourc
 import org.spongepowered.asm.mixin.Mixin;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.FoldedQuart;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -20,12 +19,7 @@ public class WoverBiomeSourceMixin {
     @WrapMethod(method = InjectionTargets.BIOME_SOURCE_GET_NOISE_BIOME)
     private Holder<Biome> exotic_worlds$foldedNoiseBiome(int quartX, int quartY, int quartZ, Climate.Sampler sampler,
             Operation<Holder<Biome>> original) {
-        WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
-        if (transformer == null) {
-            return original.call(quartX, quartY, quartZ, sampler);
-        }
-
-        long folded = FoldedQuart.fold(transformer, quartX, quartY, quartZ);
+        long folded = FoldedQuart.fold(GenerationTransformerContext.context().transformer(), quartX, quartY, quartZ);
         return original.call(FoldedQuart.x(folded), quartY, FoldedQuart.z(folded), sampler);
     }
 }

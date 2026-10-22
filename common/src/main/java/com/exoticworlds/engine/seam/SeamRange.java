@@ -2,7 +2,6 @@ package com.exoticworlds.engine.seam;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 
@@ -16,13 +15,8 @@ import net.minecraft.world.phys.Vec3;
 
 public final class SeamRange {
     public static int manhattan(Entity levelSource, Vec3i from, Vec3i to) {
-        WorldFold transformer = transformerOf(levelSource);
-        if (transformer == null) {
-            return from.distManhattan(to);
-        }
-
         BlockPos anchor = new BlockPos(from);
-        return anchor.distManhattan(transformer.nearestCopy(anchor, new BlockPos(to)));
+        return anchor.distManhattan(transformerOf(levelSource).nearestCopy(anchor, new BlockPos(to)));
     }
 
     public static int chessboard(@Nullable WorldFold fold, BlockPos from, Vec3i to) {
@@ -64,12 +58,7 @@ public final class SeamRange {
     }
 
     public static double sqr(Entity levelSource, Vec3 from, double toX, double toY, double toZ) {
-        WorldFold fold = transformerOf(levelSource);
-        if (fold == null) {
-            return from.distanceToSqr(toX, toY, toZ);
-        }
-
-        return fold.sqrDistance(from.x, from.y, from.z, toX, toY, toZ);
+        return transformerOf(levelSource).sqrDistance(from.x, from.y, from.z, toX, toY, toZ);
     }
 
     public static double sqr(Level levelSource, Vec3 from, Position to) {
@@ -102,8 +91,8 @@ public final class SeamRange {
         return sqr(levelSource, Vec3.atCenterOf(from), to) < Mth.square(distance);
     }
 
-    private static @Nullable WorldFold transformerOf(Entity levelSource) {
-        return ((TransformerSource) levelSource).exotic_worlds$wrappedTransformer();
+    private static WorldFold transformerOf(Entity levelSource) {
+        return WorldLoopAttachments.transformerOf(levelSource.level());
     }
 
     private SeamRange() {

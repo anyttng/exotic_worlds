@@ -4,8 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.exoticworlds.engine.seam.SeamSteering;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -57,13 +56,8 @@ public class TransportItemsBetweenContainersMixin {
                     target = "Lnet/minecraft/world/level/Level;clip(Lnet/minecraft/world/level/ClipContext;)Lnet/minecraft/world/phys/BlockHitResult;"))
     private static BlockHitResult exotic_worlds$sightHitThroughSeam(BlockHitResult hit,
             @Local(argsOnly = true) PathfinderMob body) {
-        WorldFold transformer = ((TransformerSource) body).exotic_worlds$wrappedTransformer();
-        if (transformer == null) {
-            return hit;
-        }
-
         BlockPos hitPos = hit.getBlockPos();
-        BlockPos wrapped = transformer.fold(hitPos);
+        BlockPos wrapped = WorldLoopAttachments.transformerOf(body.level()).fold(hitPos);
         return wrapped == hitPos ? hit : hit.withPosition(wrapped);
     }
 }

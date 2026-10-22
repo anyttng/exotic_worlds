@@ -1,7 +1,6 @@
 package com.exoticworlds.engine.seam;
 
-import com.exoticworlds.accessors.TransformerSource;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.SeamDelta;
 
 import net.minecraft.core.Direction;
@@ -14,26 +13,15 @@ public final class SeamAim {
     }
 
     public static Vec3 deltaTo(Entity viewer, Vec3 point) {
-        WorldFold transformer = ((TransformerSource) viewer).exotic_worlds$wrappedTransformer();
-        return transformer == null
-                ? point.subtract(viewer.position())
-                : transformer.foldDelta(viewer.position(), point);
+        return WorldLoopAttachments.transformerOf(viewer.level()).foldDelta(viewer.position(), point);
     }
 
     public static Vec3 foldDelta(Entity levelSource, double deltaX, double deltaZ) {
-        WorldFold transformer = ((TransformerSource) levelSource).exotic_worlds$wrappedTransformer();
-        return transformer == null
-                ? new Vec3(deltaX, 0.0, deltaZ)
-                : SeamDelta.fold(transformer, deltaX, deltaZ);
+        return SeamDelta.fold(WorldLoopAttachments.transformerOf(levelSource.level()), deltaX, deltaZ);
     }
 
     public static Vec3 foldDelta(Entity levelSource, Vec3 delta) {
-        WorldFold transformer = ((TransformerSource) levelSource).exotic_worlds$wrappedTransformer();
-        if (transformer == null) {
-            return delta;
-        }
-
-        return SeamDelta.fold(transformer, delta);
+        return SeamDelta.fold(WorldLoopAttachments.transformerOf(levelSource.level()), delta);
     }
 
     private SeamAim() {

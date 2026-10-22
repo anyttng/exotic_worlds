@@ -81,11 +81,7 @@ public class LevelChunkMixin {
             return transformer.fold(pos);
         }
 
-        WorldFold clientBounds = WorldLoopAttachments.wrappedClientBoundsTransformerOf(this.level);
-        if (clientBounds == null) {
-            return pos;
-        }
-
-        return ChunkSeat.onto(clientBounds, ((LevelChunk) (Object) this).getPos(), pos);
+        return ChunkSeat.onto(WorldLoopAttachments.clientBoundsTransformerOf(this.level),
+                ((LevelChunk) (Object) this).getPos(), pos);
     }
 }
