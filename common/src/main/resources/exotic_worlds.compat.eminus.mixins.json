@@ -23,6 +23,7 @@
     "TreeChangesMixin",
     "TreeManagerChangesMixin",
     "TreeManagerMixin",
+    "TreeNodeAccessor",
     "TreeRingMixin",
     "TreeTraversalMixin",
     "TreeTraversalWaitingMixin"

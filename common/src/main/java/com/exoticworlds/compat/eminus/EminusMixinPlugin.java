@@ -15,6 +15,7 @@ public class EminusMixinPlugin extends ModPresenceGatePlugin {
     private static final String FAR_QUADS_EVERY_PIPELINE_MIXIN = "FarQuadsEveryPipelineMixin";
     private static final String TREE_MANAGER_CHANGES_MIXIN = "TreeManagerChangesMixin";
     private static final String TREE_CHANGES_MIXIN = "TreeChangesMixin";
+    private static final String TREE_NODE_ACCESSOR = "TreeNodeAccessor";
     private static final String MESH_FAILURES_MIXIN = "MeshServiceFailuresMixin";
     private static final String MISSING_COLUMNS_MIXIN = "ColumnCoverageMissingMixin";
     private static final String WAITING_MIXIN = "TreeTraversalWaitingMixin";
@@ -24,6 +25,7 @@ public class EminusMixinPlugin extends ModPresenceGatePlugin {
             .checking("exotic_worlds.compat.eminus.mixins.json")
             .withholding(TREE_MANAGER_CHANGES_MIXIN, EminusMixinPlugin::changesLiveInTreeChanges)
             .withholding(TREE_CHANGES_MIXIN, () -> !changesLiveInTreeChanges())
+            .withholding(TREE_NODE_ACCESSOR, () -> !changesLiveInTreeChanges())
             .withholding(MESH_FAILURES_MIXIN, () -> !changesLiveInTreeChanges())
             .withholding(MISSING_COLUMNS_MIXIN, () -> !changesLiveInTreeChanges())
             .withholding(WAITING_MIXIN, () -> !changesLiveInTreeChanges())
