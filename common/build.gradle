@@ -329,6 +329,7 @@ dependencies {
     compileOnly("dev.ftb.mods:ftb-library-neoforge:${ftblibrary_version}") { transitive = false }
     compileOnly "maven.modrinth:terrablender:${terrablender_version}"
     compileOnly "maven.modrinth:astikorcarts-redux:${astikorcarts_version}"
+    compileOnly "maven.modrinth:ars-nouveau:${ars_nouveau_version}"
     compileOnly "maven.modrinth:create-electro-energetics:${electroenergetics_version}"
     compileOnly "maven.modrinth:biolith:${biolith_version}"
     compileOnly "maven.modrinth:cobblemon:${cobblemon_version}"
@@ -419,6 +420,7 @@ dependencies {
     testRuntimeOnly files(simpleCloudsApiJars).asFileTree.matching { include '*.jar' }
     testRuntimeOnly("dev.ftb.mods:ftb-chunks-neoforge:${ftbchunks_version}") { transitive = false }
     testRuntimeOnly "maven.modrinth:astikorcarts-redux:${astikorcarts_version}"
+    testRuntimeOnly "maven.modrinth:ars-nouveau:${ars_nouveau_version}"
     testRuntimeOnly "maven.modrinth:create-electro-energetics:${electroenergetics_version}"
     testRuntimeOnly "curse.maven:mt-chunk-generation-1120044:${mtchunkgeneration_version}"
     testRuntimeOnly "maven.modrinth:journeymap-integration:${jmi_version}"

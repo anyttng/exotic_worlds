@@ -153,6 +153,9 @@ config="exotic_worlds.compat.freeterraforged.preview.mixins.json"
 config="exotic_worlds.compat.astikorcarts.mixins.json"
 
 [[mixins]]
+config="exotic_worlds.compat.arsnouveau.mixins.json"
+
+[[mixins]]
 config="exotic_worlds.compat.electroenergetics.mixins.json"
 
 [[mixins]]
