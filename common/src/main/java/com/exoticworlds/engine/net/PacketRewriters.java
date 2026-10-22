@@ -10,6 +10,7 @@ import com.exoticworlds.core.StartupRegistry;
 import com.google.common.base.Suppliers;
 
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializer;
@@ -31,6 +32,12 @@ public final class PacketRewriters {
 
     private final StartupRegistry<Class<?>, BiFunction<CustomPacketPayload, TranslationContext, CustomPacketPayload>>
             serverboundPayloads = new StartupRegistry<>("Serverbound payload rewriters");
+
+    private final StartupRegistry<Class<?>, BiFunction<Packet<?>, TranslationContext, Packet<?>>> clientboundPackets =
+            new StartupRegistry<>("Clientbound packet rewriters");
+
+    private final StartupRegistry<Class<?>, BiFunction<Packet<?>, TranslationContext, Packet<?>>> serverboundPackets =
+            new StartupRegistry<>("Serverbound packet rewriters");
 
     private final StartupRegistry<Class<?>, ParticleRewriter<ParticleOptions>> particles =
             new StartupRegistry<>("Particle rewriters");
@@ -57,6 +64,16 @@ public final class PacketRewriters {
     <P extends CustomPacketPayload> void registerServerboundPayload(Class<P> payloadType,
             BiFunction<P, TranslationContext, CustomPacketPayload> payloadRewriter) {
         serverboundPayloads.register(payloadType, castingRewriter(payloadType, payloadRewriter));
+    }
+
+    <P extends Packet<?>> void registerClientboundPacket(Class<P> packetType,
+            BiFunction<P, TranslationContext, Packet<?>> packetRewriter) {
+        clientboundPackets.register(packetType, castingPacketRewriter(packetType, packetRewriter));
+    }
+
+    <P extends Packet<?>> void registerServerboundPacket(Class<P> packetType,
+            BiFunction<P, TranslationContext, Packet<?>> packetRewriter) {
+        serverboundPackets.register(packetType, castingPacketRewriter(packetType, packetRewriter));
     }
 
     <P extends ParticleOptions> void registerParticle(Class<P> particleType, ParticleRewriter<P> particleRewriter) {
@@ -87,6 +104,14 @@ public final class PacketRewriters {
         return serverboundPayloads.entries().get(payload.getClass());
     }
 
+    @Nullable BiFunction<Packet<?>, TranslationContext, Packet<?>> clientboundPacketFor(Packet<?> packet) {
+        return clientboundPackets.entries().get(packet.getClass());
+    }
+
+    @Nullable BiFunction<Packet<?>, TranslationContext, Packet<?>> serverboundPacketFor(Packet<?> packet) {
+        return serverboundPackets.entries().get(packet.getClass());
+    }
+
     @Nullable ParticleRewriter<ParticleOptions> particleFor(ParticleOptions particle) {
         return particles.entries().get(particle.getClass());
     }
@@ -107,5 +132,10 @@ public final class PacketRewriters {
     private static <P extends CustomPacketPayload> BiFunction<CustomPacketPayload, TranslationContext, CustomPacketPayload>
             castingRewriter(Class<P> payloadType, BiFunction<P, TranslationContext, CustomPacketPayload> payloadRewriter) {
         return (payload, context) -> payloadRewriter.apply(payloadType.cast(payload), context);
+    }
+
+    private static <P extends Packet<?>> BiFunction<Packet<?>, TranslationContext, Packet<?>>
+            castingPacketRewriter(Class<P> packetType, BiFunction<P, TranslationContext, Packet<?>> packetRewriter) {
+        return (packet, context) -> packetRewriter.apply(packetType.cast(packet), context);
     }
 }

@@ -31,6 +31,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.SectionPos;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceKey;
@@ -66,33 +67,41 @@ public final class RecordPayloadFold {
     }
 
     static CustomPacketPayload toClient(CustomPacketPayload payload, TranslationContext context) {
-        return folded(payload, context, FoldedValue::toClient);
+        return folded(payload, payload.type().id(), context, FoldedValue::toClient);
     }
 
     static CustomPacketPayload toServer(CustomPacketPayload payload, TranslationContext context) {
-        return folded(payload, context, FoldedValue::toServer);
+        return folded(payload, payload.type().id(), context, FoldedValue::toServer);
+    }
+
+    static Packet<?> toClient(Packet<?> packet, TranslationContext context) {
+        return folded(packet, packet.type().id(), context, FoldedValue::toClient);
+    }
+
+    static Packet<?> toServer(Packet<?> packet, TranslationContext context) {
+        return folded(packet, packet.type().id(), context, FoldedValue::toServer);
     }
 
     static Form formOf(Class<?> payloadType) {
         return FORMS.get(payloadType);
     }
 
-    private static CustomPacketPayload folded(CustomPacketPayload payload, TranslationContext context,
+    private static <T> T folded(T record, ResourceLocation typeId, TranslationContext context,
             Function<TranslationContext, FoldedValue.Leaves> leavesOf) {
-        Form form = FORMS.get(payload.getClass());
+        Form form = FORMS.get(record.getClass());
         Rows current = rows;
-        if (!form.carriesPositions() || current.deny().contains(payload.type().id())) {
-            return payload;
+        if (!form.carriesPositions() || current.deny().contains(typeId)) {
+            return record;
         }
 
         FoldedValue.Leaves leaves = leavesOf.apply(context);
         UnaryOperator<Object> fold = value -> FoldedValue.walk(context, leaves, value);
-        Role @Nullable [] roles = current.rolesOf(payload, form);
+        Role @Nullable [] roles = current.rolesOf(typeId, record.getClass(), form);
         if (roles == null) {
-            return form.rebuilt(payload, fold);
+            return form.rebuilt(record, fold);
         }
 
-        return form.rebuiltFrom(payload, values -> foldByRoles(values, roles, fold, context.dimension(), leaves));
+        return form.rebuiltFrom(record, values -> foldByRoles(values, roles, fold, context.dimension(), leaves));
     }
 
     private static void foldByRoles(@Nullable Object[] values, Role[] roles, UnaryOperator<Object> fold,
@@ -165,14 +174,13 @@ public final class RecordPayloadFold {
             this(deny, payloads, new ConcurrentHashMap<>());
         }
 
-        Role @Nullable [] rolesOf(CustomPacketPayload payload, Form form) {
-            ResourceLocation payloadId = payload.type().id();
-            Map<String, Role> row = payloads.get(payloadId);
+        Role @Nullable [] rolesOf(ResourceLocation typeId, Class<?> type, Form form) {
+            Map<String, Role> row = payloads.get(typeId);
             if (row == null) {
                 return null;
             }
 
-            return resolved.computeIfAbsent(payloadId, id -> form.rolesOf(row, id, payload.getClass()));
+            return resolved.computeIfAbsent(typeId, id -> form.rolesOf(row, id, type));
         }
     }
 

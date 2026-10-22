@@ -5,16 +5,19 @@ import java.util.function.BiFunction;
 import com.exoticworlds.engine.net.PacketTranslator;
 
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ServerGamePacketListener;
 
 /**
  * Where a mod says how its own packets cross the seam. Every vanilla packet carrying a world position is already
- * rewritten between the server's frame and the client's; a payload or a particle type this mod never heard of is
- * not, because nothing but its author knows which of its fields is a position.
+ * rewritten between the server's frame and the client's; a payload, a game packet or a particle type this mod never
+ * heard of is not, because nothing but its author knows which of its fields is a position.
  *
  * <p>Register from the mod's initialiser. The table closes at {@code MinecraftServer.runServer}, before the levels
  * load, and a later registration throws rather than being silently half-effective. A registered rewriter runs for
- * every payload of that exact class, on a folding level and nowhere else.</p>
+ * every payload or packet of that exact class, on a folding level and nowhere else.</p>
  *
  * <p>A rewriter is handed a {@link SeamContext} for the connection the packet is on, and returns the value to
  * send — or the argument itself where nothing moved, which costs nothing.</p>
@@ -37,6 +40,22 @@ public final class PacketRewriters {
     public static <P extends CustomPacketPayload> void registerServerboundPayload(Class<P> payloadType,
             BiFunction<P, SeamContext, CustomPacketPayload> rewriter) {
         PacketTranslator.registerServerboundPayloadRewriter(payloadType, rewriter::apply);
+    }
+
+    /**
+     * How a game packet of this mod's own is rewritten on its way to a client: a packet the mod adds to the game
+     * protocol itself rather than sending as a payload. A record packet outside the {@code minecraft} namespace is
+     * already moved by the declared types of its components; register only where that moves the wrong ones.
+     */
+    public static <P extends Packet<ClientGamePacketListener>> void registerClientboundPacket(Class<P> packetType,
+            BiFunction<P, SeamContext, Packet<ClientGamePacketListener>> rewriter) {
+        PacketTranslator.registerClientboundPacketRewriter(packetType, rewriter::apply);
+    }
+
+    /** How a game packet of this mod's own is folded back on its way in from a client. */
+    public static <P extends Packet<ServerGamePacketListener>> void registerServerboundPacket(Class<P> packetType,
+            BiFunction<P, SeamContext, Packet<ServerGamePacketListener>> rewriter) {
+        PacketTranslator.registerServerboundPacketRewriter(packetType, rewriter::apply);
     }
 
     /** How a particle type of this mod's own is rewritten on its way to a client. */
