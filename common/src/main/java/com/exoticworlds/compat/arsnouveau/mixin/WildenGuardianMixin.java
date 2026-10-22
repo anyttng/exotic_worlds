@@ -1,0 +1,27 @@
+package com.exoticworlds.compat.arsnouveau.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.engine.seam.SeamAim;
+import com.hollingsworth.arsnouveau.common.entity.WildenGuardian;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+
+@Mixin(value = WildenGuardian.class, remap = false)
+public abstract class WildenGuardianMixin {
+    @WrapOperation(method = "explodeSpikes", at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_X))
+    private double exotic_worlds$aimTargetX(LivingEntity target, Operation<Double> original) {
+        return SeamAim.nearestCoord((Entity) (Object) this, target, Direction.Axis.X, original.call(target));
+    }
+
+    @WrapOperation(method = "explodeSpikes", at = @At(value = "INVOKE", target = InjectionTargets.LIVING_ENTITY_GET_Z))
+    private double exotic_worlds$aimTargetZ(LivingEntity target, Operation<Double> original) {
+        return SeamAim.nearestCoord((Entity) (Object) this, target, Direction.Axis.Z, original.call(target));
+    }
+}
