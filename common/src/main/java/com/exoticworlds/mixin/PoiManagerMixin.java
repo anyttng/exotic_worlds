@@ -243,12 +243,7 @@ public class PoiManagerMixin {
 
     @WrapMethod(method = "sectionsToVillage")
     private int exotic_worlds$villageDistanceThroughSeam(SectionPos sectionPos, Operation<Integer> original) {
-        WorldFold transformer = this.exotic_worlds$bound.wrapped();
-        if (transformer == null) {
-            return original.call(sectionPos);
-        }
-
-        return original.call(transformer.fold(sectionPos));
+        return original.call(this.exotic_worlds$bound.fold().fold(sectionPos));
     }
 
     @ModifyVariable(

@@ -4,7 +4,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.llamalad7.mixinextras.sugar.Local;
 
@@ -18,12 +17,7 @@ public class WorldBorderCommandMixin {
     @ModifyVariable(method = "setCenter", at = @At("HEAD"), argsOnly = true)
     private static Vec2 exotic_worlds$storeCenterInsideBounds(Vec2 center,
             @Local(argsOnly = true) CommandSourceStack source) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(source.getLevel());
-        if (transformer == null) {
-            return center;
-        }
-
-        Vec3 folded = transformer.fold(new Vec3(center.x, 0.0, center.y));
+        Vec3 folded = WorldLoopAttachments.transformerOf(source.getLevel()).fold(new Vec3(center.x, 0.0, center.y));
         return new Vec2((float) folded.x, (float) folded.z);
     }
 }

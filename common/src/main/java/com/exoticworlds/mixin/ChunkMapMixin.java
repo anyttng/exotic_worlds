@@ -171,12 +171,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             method = "getChunkRangeFuture",
             at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_POS_PACK))
     private long exotic_worlds$rangeOverPhysicalChunks(int chunkX, int chunkZ, Operation<Long> original) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
-        if (transformer == null) {
-            return original.call(chunkX, chunkZ);
-        }
-
-        long folded = transformer.foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
+        long folded = WorldLoopAttachments.transformerOf(this.level).foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
         return original.call(ChunkPos.getX(folded), ChunkPos.getZ(folded));
     }
 
@@ -295,12 +290,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
     @WrapMethod(method = "isChunkTracked")
     private boolean exotic_worlds$trackPhysicalChunk(ServerPlayer player, int chunkX, int chunkZ,
             Operation<Boolean> original) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
-        if (transformer == null) {
-            return original.call(player, chunkX, chunkZ);
-        }
-
-        long folded = transformer.foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
+        long folded = WorldLoopAttachments.transformerOf(this.level).foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
         return original.call(player, ChunkPos.getX(folded), ChunkPos.getZ(folded));
     }
 
