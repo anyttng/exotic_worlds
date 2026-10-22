@@ -45,12 +45,7 @@ public class ForceLoadCommandMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setChunkForced(IIZ)Z"))
     private static boolean exotic_worlds$reserveThePhysicalChunk(ServerLevel level, int chunkX, int chunkZ, boolean forced,
             Operation<Boolean> original) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
-        if (transformer == null) {
-            return original.call(level, chunkX, chunkZ, forced);
-        }
-
-        long folded = transformer.foldChunkKey(ChunkPos.asLong(chunkX, chunkZ));
+        long folded = WorldLoopAttachments.transformerOf(level).foldChunkKey(ChunkPos.asLong(chunkX, chunkZ));
         return original.call(level, ChunkPos.getX(folded), ChunkPos.getZ(folded), forced);
     }
 

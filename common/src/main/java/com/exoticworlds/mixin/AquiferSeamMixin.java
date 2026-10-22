@@ -4,7 +4,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -22,12 +21,7 @@ public class AquiferSeamMixin {
                     target = InjectionTargets.POSITIONAL_RANDOM_FACTORY_AT))
     private RandomSource exotic_worlds$seedAquiferCellFromCanonical(
             PositionalRandomFactory factory, int gridX, int gridY, int gridZ, Operation<RandomSource> original) {
-        WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
-        if (transformer == null) {
-            return original.call(factory, gridX, gridY, gridZ);
-        }
-
-        long canonical = transformer.foldChunkKey(ChunkPos.asLong(gridX, gridZ));
+        long canonical = GenerationTransformerContext.context().transformer().foldChunkKey(ChunkPos.asLong(gridX, gridZ));
         return original.call(factory, ChunkPos.getX(canonical), gridY, ChunkPos.getZ(canonical));
     }
 }

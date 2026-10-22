@@ -36,7 +36,7 @@ public final class WorldLoopAttachments {
         return server != null ? wrappedTransformerOf(server.getLevel(dimension)) : null;
     }
 
-    private static WorldFold clientBoundsTransformerOf(Level level) {
+    public static WorldFold clientBoundsTransformerOf(Level level) {
         return level instanceof ClientBoundsHolder holder ? holder.exotic_worlds$clientBounds() : WorldFolds.NOOP;
     }
 
