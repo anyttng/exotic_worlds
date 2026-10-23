@@ -7,6 +7,7 @@
   "mixins": [
     "ANExplosionMixin",
     "AdvancedPathNavigateMixin",
+    "BasicSpellTurretTileMixin",
     "BlockUtilMixin",
     "BonemealGoalMixin",
     "BreezeEventMixin",
@@ -40,6 +41,7 @@
     "PacketTimedEventAccessor",
     "PacketWarpPositionAccessor",
     "PathingStuckHandlerMixin",
+    "RotatingTurretTileMixin",
     "ScryerCameraMixin",
     "TickEmitterPacketAccessor",
     "WildenChimeraMixin",
