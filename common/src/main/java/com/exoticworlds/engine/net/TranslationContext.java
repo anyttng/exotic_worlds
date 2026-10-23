@@ -60,9 +60,11 @@ public record TranslationContext(
 
     public static TranslationContext of(ServerPlayer player, WorldFold transformer) {
         int trackedViewDistance = trackedViewDistanceOf(player, transformer);
+        ClientPosition clientPosition = ClientPosition.of(player);
+        clientPosition.followCamera(player);
         return new TranslationContext(
                 transformer,
-                ClientPosition.of(player),
+                clientPosition,
                 Platforms.get().packetBuffers(player),
                 player.level().dimension(),
                 trackedViewDistance,
@@ -144,7 +146,7 @@ public record TranslationContext(
 
     private ChunkPos chunkAnchor() {
         ChunkPos heldCacheCenter = clientPosition.heldCacheCenter();
-        return heldCacheCenter == null ? clientPosition.chunk() : heldCacheCenter;
+        return heldCacheCenter == null ? clientPosition.anchorChunk() : heldCacheCenter;
     }
 
     public ChunkPos toClientCacheCenter(ChunkPos chunkPos) {
@@ -162,7 +164,7 @@ public record TranslationContext(
     }
 
     public static ChunkPos nearestCopy(WorldFold transformer, ClientPosition clientPosition, ChunkPos chunkPos) {
-        return transformer.nearestCopy(clientPosition.chunk(), chunkPos);
+        return transformer.nearestCopy(clientPosition.anchorChunk(), chunkPos);
     }
 
     public static BlockPos nearestCopy(WorldFold transformer, ClientPosition clientPosition, BlockPos pos) {
@@ -170,7 +172,7 @@ public record TranslationContext(
     }
 
     public List<ChunkPos> forgetCandidates(ChunkPos chunkPos) {
-        ChunkPos anchor = clientPosition.chunk();
+        ChunkPos anchor = clientPosition.anchorChunk();
         ChunkPos nearest = transformer.nearestCopy(anchor, chunkPos);
         TranslationLattice lattice = transformer.chunkLattice();
         int ambiguityReach = copyAmbiguityReach();
@@ -206,7 +208,7 @@ public record TranslationContext(
     }
 
     public Vec3 toClientRelative(Vec3 position, boolean relativeX, boolean relativeZ, PacketReach reach) {
-        Vec3 anchor = new Vec3(clientPosition.x(), position.y, clientPosition.z());
+        Vec3 anchor = clientPosition.anchor(position.y);
         Vec3 clientPos = RelativePosition.moved(position, relativeX, relativeZ, anchor,
                 held -> transformer.nearestCopy(anchor, held));
         if (!relativeX) {
@@ -300,19 +302,19 @@ public record TranslationContext(
     }
 
     public Vec3 toClient(Vec3 position, PacketReach reach) {
-        Vec3 clientPos = nearestCopy(position);
-        guardReach(reach, Direction.Axis.X, position.x, clientPos.x, clientPosition.x());
-        guardReach(reach, Direction.Axis.Z, position.z, clientPos.z, clientPosition.z());
+        Vec3 anchor = clientPosition.anchor(position.y);
+        Vec3 clientPos = transformer.nearestCopy(anchor, position);
+        guardReach(reach, Direction.Axis.X, position.x, clientPos.x, anchor.x);
+        guardReach(reach, Direction.Axis.Z, position.z, clientPos.z, anchor.z);
         return clientPos;
     }
 
     public Vec3 nearestCopy(Vec3 position) {
-        return transformer.nearestCopy(new Vec3(clientPosition.x(), position.y, clientPosition.z()), position);
+        return transformer.nearestCopy(clientPosition.anchor(position.y), position);
     }
 
     public DeckTransformation nearestCopyTransformation(Vec3 position) {
-        return transformer.nearestCopyTransformation(
-                new Vec3(clientPosition.x(), position.y, clientPosition.z()), position);
+        return transformer.nearestCopyTransformation(clientPosition.anchor(position.y), position);
     }
 
     @Override

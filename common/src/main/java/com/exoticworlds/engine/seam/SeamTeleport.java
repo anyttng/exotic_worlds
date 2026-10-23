@@ -46,7 +46,7 @@ public final class SeamTeleport {
         ChunkPos toAnchor = new ChunkPos(
                 SectionPos.blockToSectionCoord(clientDestination.x),
                 SectionPos.blockToSectionCoord(clientDestination.z));
-        List<ChunkPos> flipped = flipped(fold, mirror.chunk(), toAnchor, player.getChunkTrackingView());
+        List<ChunkPos> flipped = flipped(fold, mirror.seatChunk(), toAnchor, player.getChunkTrackingView());
         if (!flipped.isEmpty()) {
             resender.exotic_worlds$dropChunks(player, flipped);
         }

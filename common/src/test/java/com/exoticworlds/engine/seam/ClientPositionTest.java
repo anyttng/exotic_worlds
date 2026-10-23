@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LogEvent;
@@ -58,6 +59,8 @@ class ClientPositionTest {
     private static final double MIRROR_X = 100.5;
     private static final double MIRROR_Z = -20.25;
     private static final String HALF_WORLD_WARNING = "Half-world step invariant violated";
+    private static final double CAMERA_STEP_BLOCKS = 150.0;
+    private static final int CAMERA_STEPS = 4;
 
     static {
         ForeignFrames.register(new PlotFrameSource());
@@ -187,6 +190,53 @@ class ClientPositionTest {
     }
 
     @Test
+    void aCameraThatTravelsPastHalfALapKeepsTheCopyItSteppedTo() {
+        ClientPosition mirror = seeded(TORUS);
+
+        double cameraX = travel(mirror, CAMERA_STEPS);
+
+        assertEquals(cameraX, mirror.anchor(0.0).x);
+        assertEquals(MIRROR_Z, mirror.anchor(0.0).z);
+        assertEquals(MIRROR_X, mirror.x());
+    }
+
+    @Test
+    void theAnchorIsTheMirrorAgainOnceTheCameraIsThePlayer() {
+        ClientPosition mirror = seeded(TORUS);
+        travel(mirror, CAMERA_STEPS);
+
+        mirror.followCamera(null, Level.OVERWORLD);
+        assertEquals(MIRROR_X, mirror.anchor(0.0).x);
+
+        mirror.dropLeftCamera();
+        assertEquals(MIRROR_X, mirror.destinationOf(TORUS, new Vec3(MIRROR_X, 0.0, MIRROR_Z), Set.of()).x);
+    }
+
+    @Test
+    void leavingTheCameraSeatsTheTeleportOnTheCamerasCopyWithoutWarning() {
+        ClientPosition mirror = seeded(TORUS);
+        double cameraX = travel(mirror, CAMERA_STEPS);
+        mirror.followCamera(null, Level.OVERWORLD);
+
+        Vec3 destination = mirror.destinationOf(TORUS, TORUS.fold(new Vec3(cameraX, 0.0, MIRROR_Z)), Set.of());
+        mirror.set(destination, MirrorWriter.POSITION_PACKET);
+
+        assertEquals(cameraX, destination.x);
+        assertEquals(cameraX, mirror.x());
+        assertEquals(cameraX, mirror.anchor(0.0).x);
+        assertEquals(List.of(), warnings);
+    }
+
+    @Test
+    void aCameraInAnotherDimensionLeavesTheAnchorOnTheMirror() {
+        ClientPosition mirror = seeded(TORUS);
+
+        mirror.followCamera(new Vec3(MIRROR_X + CAMERA_STEP_BLOCKS, 0.0, MIRROR_Z), Level.NETHER);
+
+        assertEquals(MIRROR_X, mirror.anchor(0.0).x);
+    }
+
+    @Test
     void anUnseededMirrorAcceptsAClientAuthoredWrite() {
         ClientPosition mirror = new ClientPosition();
 
@@ -291,6 +341,16 @@ class ClientPositionTest {
         assertDoesNotThrow(() ->
                 mirror.set(new Vec3(WIDTH_BLOCKS, PLOT_Y, WIDTH_BLOCKS), MirrorWriter.POSITION_PACKET));
         assertEquals(List.of(), warnings);
+    }
+
+    private static double travel(ClientPosition mirror, int steps) {
+        double cameraX = MIRROR_X;
+        for (int step = 1; step <= steps; step++) {
+            cameraX += CAMERA_STEP_BLOCKS;
+            mirror.followCamera(TORUS.fold(new Vec3(cameraX, 0.0, MIRROR_Z)), Level.OVERWORLD);
+        }
+
+        return cameraX;
     }
 
     private static ClientPosition seeded(WorldFold fold) {
