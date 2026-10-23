@@ -49,7 +49,7 @@ public final class FoldedSamplers {
     };
 
     public static NoiseStack stack(FoldedCompileContext context, Holder<NormalNoise> noise) {
-        return stackOf(context.createNoiseSampler(noise));
+        return stackOf(context.vanilla().createNoiseSampler(noise));
     }
 
     public static DensitySampler noise(FoldedCompileContext context, NoiseStack stack, double xzScale,
@@ -65,7 +65,7 @@ public final class FoldedSamplers {
             return new NoiseSampler(octaves, yScale, coastLift);
         }
 
-        DensitySampler zero = DensityFunctions.zero().compileSampler(context);
+        DensitySampler zero = DensityFunctions.zero().compileSampler(context.vanilla());
         return new VanillaAtFoldSampler(context.fold(), stack, vanillaXzScale, yScale, coastLift, zero, zero, zero);
     }
 
@@ -74,9 +74,9 @@ public final class FoldedSamplers {
             DensityFunction shiftX, DensityFunction shiftY, DensityFunction shiftZ) {
         PeriodicOctaves octaves = PeriodicOctaveSampler.compile(context.fold(), frameOf(context, xzScale, yScale),
                 xzScale, layerFactors, stack);
-        DensitySampler shiftXSampler = shiftX.compileSampler(context);
-        DensitySampler shiftYSampler = shiftY.compileSampler(context);
-        DensitySampler shiftZSampler = shiftZ.compileSampler(context);
+        DensitySampler shiftXSampler = shiftX.compileSampler(context.vanilla());
+        DensitySampler shiftYSampler = shiftY.compileSampler(context.vanilla());
+        DensitySampler shiftZSampler = shiftZ.compileSampler(context.vanilla());
         if (!octaves.indexable()) {
             return new VanillaAtFoldSampler(context.fold(), stack, vanillaXzScale, yScale, liftOf(context, coast),
                     shiftXSampler, shiftYSampler, shiftZSampler);
@@ -112,7 +112,7 @@ public final class FoldedSamplers {
 
     private static DensitySampler shiftSampler(FoldedCompileContext context, Holder<NormalNoise> noise,
             SlotAxes axes, double yScale, boolean transposed) {
-        NoiseStack stack = stackOf(context.createNoiseSampler(noise));
+        NoiseStack stack = stackOf(context.vanilla().createNoiseSampler(noise));
         PeriodicOctaves octaves = PeriodicOctaveSampler.compile(context.fold(),
                 frameOf(context, axes, GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE),
                 NoiseConstants.SHIFT_SCALE, null, stack);
@@ -122,7 +122,7 @@ public final class FoldedSamplers {
     }
 
     public static DensitySampler blended(FoldedCompileContext context, BlendedNoise blended) {
-        BlendedNoise.FbmSet fbms = blended.createFbmSet(context.createRandom(BlendedNoise.NOISE_SEED));
+        BlendedNoise.FbmSet fbms = blended.createFbmSet(context.vanilla().createRandom(BlendedNoise.NOISE_SEED));
         double xzMultiplier = blended.xzMultiplier();
         double yMultiplier = blended.yMultiplier();
         double mainXzScale = xzMultiplier / blended.xzFactor();
@@ -144,7 +144,7 @@ public final class FoldedSamplers {
 
     @SuppressWarnings("deprecation")
     public static DensitySampler endIslands(FoldedCompileContext context) {
-        RandomSource islandRandom = context.createEndIslandRandom();
+        RandomSource islandRandom = context.vanilla().createEndIslandRandom();
         islandRandom.consumeCount(END_ISLAND_RANDOM_SKIP);
         return new EndIslandSampler(context.fold(), new SimplexNoise(islandRandom, true));
     }

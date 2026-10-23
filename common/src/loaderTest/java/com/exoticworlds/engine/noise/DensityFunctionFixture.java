@@ -3,7 +3,10 @@ package com.exoticworlds.engine.noise;
 import java.util.List;
 import java.util.Random;
 
+import org.jspecify.annotations.Nullable;
+
 import com.exoticworlds.accessors.CoastLiftCache;
+import com.exoticworlds.accessors.FoldedCompileSource;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -81,8 +84,7 @@ public final class DensityFunctionFixture {
     };
 
     public static DensitySampler compile(DensityFunction function, WorldFold fold) {
-        return new DensityFunctionCompiler(
-                new FoldedCompileContext(SEEDED, fold, NO_LIFT, NoiseScaleLadder.NONE)).getSampler(function);
+        return compileFolded(function, fold, NoiseScaleLadder.NONE);
     }
 
     public static DensitySampler compileVanilla(DensityFunction function) {
@@ -90,8 +92,13 @@ public final class DensityFunctionFixture {
     }
 
     public static DensitySampler compileSeparated(DensityFunction function, WorldFold fold) {
-        return new DensityFunctionCompiler(new FoldedCompileContext(SEEDED, fold, NO_LIFT, ladderOf(function, fold)))
-                .getSampler(function);
+        return compileFolded(function, fold, ladderOf(function, fold));
+    }
+
+    private static DensitySampler compileFolded(DensityFunction function, WorldFold fold, NoiseScaleLadder ladder) {
+        FoldedSeeded context = new FoldedSeeded();
+        context.exotic_worlds$foldedCompile(new FoldedCompileContext(context, fold, NO_LIFT, ladder));
+        return new DensityFunctionCompiler(context).getSampler(function);
     }
 
     public static NoiseScaleLadder ladderOf(DensityFunction function, WorldFold fold) {
@@ -108,6 +115,37 @@ public final class DensityFunctionFixture {
 
     public static int blockY(Random random) {
         return LOWEST_Y + random.nextInt(WORLD_HEIGHT);
+    }
+
+    private static final class FoldedSeeded implements DensityFunction.CompileContext, FoldedCompileSource {
+        private @Nullable FoldedCompileContext folded;
+
+        @Override
+        public Noise createNoiseSampler(Holder<NormalNoise> parameters) {
+            return SEEDED.createNoiseSampler(parameters);
+        }
+
+        @Override
+        public RandomSource createRandom(Identifier seed) {
+            return SEEDED.createRandom(seed);
+        }
+
+        @Override
+        @Deprecated
+        @SuppressWarnings({"InlineMeSuggester", "deprecation"})
+        public RandomSource createEndIslandRandom() {
+            return SEEDED.createEndIslandRandom();
+        }
+
+        @Override
+        public @Nullable FoldedCompileContext exotic_worlds$foldedCompile() {
+            return this.folded;
+        }
+
+        @Override
+        public void exotic_worlds$foldedCompile(FoldedCompileContext context) {
+            this.folded = context;
+        }
     }
 
     private DensityFunctionFixture() {

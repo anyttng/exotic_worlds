@@ -1,40 +1,34 @@
 package com.exoticworlds.engine.noise;
 
+import org.jspecify.annotations.Nullable;
+
 import com.exoticworlds.accessors.CoastLiftCache;
+import com.exoticworlds.accessors.FoldedCompileSource;
 import com.exoticworlds.core.WorldFold;
 
-import net.minecraft.core.Holder;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
-import net.minecraft.world.level.levelgen.synth.Noise;
-import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public record FoldedCompileContext(DensityFunction.CompileContext vanilla, WorldFold fold, CoastLiftCache coastLift,
-        NoiseScaleLadder ladder, double xDivisor, double zDivisor) implements DensityFunction.CompileContext {
+        NoiseScaleLadder ladder, double xDivisor, double zDivisor) {
     public FoldedCompileContext(DensityFunction.CompileContext vanilla, WorldFold fold, CoastLiftCache coastLift,
             NoiseScaleLadder ladder) {
         this(vanilla, fold, coastLift, ladder, NoiseConstants.UNDIVIDED, NoiseConstants.UNDIVIDED);
     }
 
-    public FoldedCompileContext withDivisors(double xCellWidth, double zCellWidth) {
-        return new FoldedCompileContext(this.vanilla, this.fold, this.coastLift, this.ladder, xCellWidth, zCellWidth);
-    }
+    public static @Nullable FoldedCompileContext of(DensityFunction.CompileContext context) {
+        if (!(context instanceof FoldedCompileSource source)) {
+            return null;
+        }
 
-    @Override
-    public Noise createNoiseSampler(Holder<NormalNoise> parameters) {
-        return this.vanilla.createNoiseSampler(parameters);
-    }
+        FoldedCompileContext folded = source.exotic_worlds$foldedCompile();
+        if (folded == null) {
+            return null;
+        }
 
-    @Override
-    public RandomSource createRandom(Identifier seed) {
-        return this.vanilla.createRandom(seed);
-    }
-
-    @Override
-    @Deprecated
-    @SuppressWarnings("deprecation")
-    public RandomSource createEndIslandRandom() {
-        return this.vanilla.createEndIslandRandom();
+        GenerationTransformerContext.Context scope = GenerationTransformerContext.context();
+        return scope.xDivisor() == folded.xDivisor && scope.zDivisor() == folded.zDivisor
+                ? folded
+                : new FoldedCompileContext(folded.vanilla, folded.fold, folded.coastLift, folded.ladder,
+                        scope.xDivisor(), scope.zDivisor());
     }
 }
