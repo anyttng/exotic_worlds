@@ -37,6 +37,9 @@ public record AquiferCells(TilingCellGrid levelGrid, DensitySampler level, Tilin
 
     private static DensitySampler compileOnGrid(FoldedCompileContext context, TilingCellGrid grid,
             DensityFunction function) {
-        return UNCACHED.rewrite(function).compileSampler(context.withDivisors(grid.xCellWidth(), grid.zCellWidth()));
+        try (GenerationTransformerContext.Context.DivisorScope _ = GenerationTransformerContext.context()
+                .withDivisors(grid.xCellWidth(), grid.zCellWidth())) {
+            return UNCACHED.rewrite(function).compileSampler(context.vanilla());
+        }
     }
 }

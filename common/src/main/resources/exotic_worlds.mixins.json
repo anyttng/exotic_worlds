@@ -209,6 +209,7 @@
     "RaidsMixin",
     "RamTargetMixin",
     "RandomPosMixin",
+    "RandomStateCompileContextMixin",
     "RandomStateMixin",
     "RangedAttackAimMixin",
     "RavagerKnockbackMixin",

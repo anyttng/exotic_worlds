@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.CoastLiftCache;
 import com.exoticworlds.accessors.FoldedClimateSampler;
+import com.exoticworlds.accessors.FoldedCompileSource;
 import com.exoticworlds.accessors.FoldedRandomState;
 import com.exoticworlds.accessors.TransformerSource;
 import com.exoticworlds.core.GenerationMoments;
@@ -82,7 +83,8 @@ public class RandomStateMixin implements CoastLiftCache, TransformerSource, Fold
 
         this.exotic_worlds$compileContext = new FoldedCompileContext(context, fold, this,
                 NoiseScaleLadder.of(fold, exotic_worlds$roots(router), context));
-        return this.exotic_worlds$compileContext;
+        ((FoldedCompileSource) context).exotic_worlds$foldedCompile(this.exotic_worlds$compileContext);
+        return context;
     }
 
     @Inject(method = exotic_worlds$CONSTRUCTOR, at = @At("RETURN"))

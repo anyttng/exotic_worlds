@@ -17,7 +17,8 @@ public class BlendedNoiseCompileMixin {
     @WrapMethod(method = InjectionTargets.DENSITY_FUNCTION_COMPILE_SAMPLER)
     private DensitySampler exotic_worlds$compileFolded(DensityFunction.CompileContext context,
             Operation<DensitySampler> original) {
-        return context instanceof FoldedCompileContext folded
+        FoldedCompileContext folded = FoldedCompileContext.of(context);
+        return folded != null
                 ? FoldedSamplers.blended(folded, (BlendedNoise) (Object) this)
                 : original.call(context);
     }

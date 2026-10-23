@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 
@@ -63,6 +64,7 @@ import net.minecraft.network.protocol.game.ServerboundSetTestBlockPacket;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import net.minecraft.network.protocol.game.ServerboundTestInstanceBlockActionPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
 public final class PacketTranslator {
@@ -161,6 +163,22 @@ public final class PacketTranslator {
                     (ServerboundCustomPayloadPacket packet, TranslationContext context) ->
                             SERVERBOUND_PAYLOADS.rewrite(packet, packet.payload(), context))));
 
+    private static final PacketRoute CLIENTBOUND = new PacketRoute(TO_CLIENT,
+            new StartupRegistry<>("Clientbound packet rewriters"), RecordPayloadFold::toClient);
+
+    private static final PacketRoute SERVERBOUND = new PacketRoute(TO_SERVER,
+            new StartupRegistry<>("Serverbound packet rewriters"), RecordPayloadFold::toServer);
+
+    public static <P extends Packet<?>> void registerClientboundPacketRewriter(Class<P> packetType,
+            BiFunction<P, TranslationContext, Packet<?>> packetRewriter) {
+        CLIENTBOUND.rewriters().register(packetType, rewriter(packetRewriter));
+    }
+
+    public static <P extends Packet<?>> void registerServerboundPacketRewriter(Class<P> packetType,
+            BiFunction<P, TranslationContext, Packet<?>> packetRewriter) {
+        SERVERBOUND.rewriters().register(packetType, rewriter(packetRewriter));
+    }
+
     public static <T extends net.minecraft.network.PacketListener> @Nullable Packet<T> toClient(Packet<T> packet,
             ServerPlayer player) {
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(player.level());
@@ -169,31 +187,35 @@ public final class PacketTranslator {
         }
 
         if (packet instanceof ClientboundBundlePacket bundle) {
-            return castPacket(toClientBundle(bundle, player, transformer));
+            return castPacket(toClientBundle(bundle, () -> TranslationContext.of(player, transformer)));
         }
 
-        return dispatch(TO_CLIENT, packet, player, transformer);
+        return dispatch(CLIENTBOUND, packet, player, transformer);
     }
 
     static <T extends net.minecraft.network.PacketListener> @Nullable Packet<T> toClient(Packet<T> packet,
             TranslationContext context) {
-        return castPacket(rewrite(TO_CLIENT, packet, context));
+        if (packet instanceof ClientboundBundlePacket bundle) {
+            return castPacket(toClientBundle(bundle, () -> context));
+        }
+
+        return castPacket(rewrite(CLIENTBOUND, packet, context));
     }
 
     @SuppressWarnings("unchecked")
-    private static Packet<?> toClientBundle(ClientboundBundlePacket bundle, ServerPlayer player, WorldFold transformer) {
+    private static Packet<?> toClientBundle(ClientboundBundlePacket bundle, Supplier<TranslationContext> contextOf) {
         TranslationContext context = null;
         List<Packet<? super ClientGamePacketListener>> translated = new ArrayList<>();
         boolean changed = false;
         for (Packet<? super ClientGamePacketListener> sub : bundle.subPackets()) {
-            BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = TO_CLIENT.get(sub.getClass());
+            BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = CLIENTBOUND.rewriterOf(sub);
             if (rewriter == null) {
                 translated.add(sub);
                 continue;
             }
 
             if (context == null) {
-                context = TranslationContext.of(player, transformer);
+                context = contextOf.get();
             }
 
             Packet<? super ClientGamePacketListener> translatedSub =
@@ -213,24 +235,22 @@ public final class PacketTranslator {
             return packet;
         }
 
-        return dispatch(TO_SERVER, packet, player, transformer);
+        return dispatch(SERVERBOUND, packet, player, transformer);
     }
 
     static <T extends net.minecraft.network.PacketListener> Packet<T> toServer(Packet<T> packet, TranslationContext context) {
-        return castPacket(rewrite(TO_SERVER, packet, context));
+        return castPacket(rewrite(SERVERBOUND, packet, context));
     }
 
-    private static <T extends net.minecraft.network.PacketListener> Packet<T> dispatch(
-            Map<Class<?>, BiFunction<Packet<?>, TranslationContext, Packet<?>>> rewriters,
+    private static <T extends net.minecraft.network.PacketListener> Packet<T> dispatch(PacketRoute route,
             Packet<T> packet, ServerPlayer player, WorldFold transformer) {
-        BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = rewriters.get(packet.getClass());
+        BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = route.rewriterOf(packet);
         return rewriter == null ? packet
                 : castPacket(rewriter.apply(packet, TranslationContext.of(player, transformer)));
     }
 
-    private static Packet<?> rewrite(Map<Class<?>, BiFunction<Packet<?>, TranslationContext, Packet<?>>> rewriters,
-            Packet<?> packet, TranslationContext context) {
-        BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = rewriters.get(packet.getClass());
+    private static Packet<?> rewrite(PacketRoute route, Packet<?> packet, TranslationContext context) {
+        BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = route.rewriterOf(packet);
         return rewriter == null ? packet : rewriter.apply(packet, context);
     }
 
@@ -242,6 +262,28 @@ public final class PacketTranslator {
     @SuppressWarnings("unchecked")
     private static <P extends Packet<?>> BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter(BiFunction<P, TranslationContext, Packet<?>> typed) {
         return (packet, player) -> typed.apply((P) packet, player);
+    }
+
+    private record PacketRoute(Map<Class<?>, BiFunction<Packet<?>, TranslationContext, Packet<?>>> table,
+            StartupRegistry<Class<?>, BiFunction<Packet<?>, TranslationContext, Packet<?>>> rewriters,
+            BiFunction<Packet<?>, TranslationContext, Packet<?>> recordFold) {
+        @Nullable BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriterOf(Packet<?> packet) {
+            BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = this.table.get(packet.getClass());
+            if (rewriter == null) {
+                rewriter = this.rewriters.entries().get(packet.getClass());
+            }
+
+            if (rewriter == null && isModPacket(packet)
+                    && RecordPayloadFold.formOf(packet.getClass()).carriesPositions()) {
+                rewriter = this.recordFold;
+            }
+
+            return rewriter;
+        }
+
+        private static boolean isModPacket(Packet<?> packet) {
+            return !packet.type().id().getNamespace().equals(Identifier.DEFAULT_NAMESPACE);
+        }
     }
 
     private record PayloadRoute<P extends Packet<?>>(
