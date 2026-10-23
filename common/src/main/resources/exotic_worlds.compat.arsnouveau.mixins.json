@@ -10,6 +10,7 @@
     "BlockUtilMixin",
     "BonemealGoalMixin",
     "BreezeEventMixin",
+    "CameraTrackedEntityMixin",
     "ChangeBiomePacketAccessor",
     "ChimeraLeapRamGoalMixin",
     "ChimeraMoveControllerMixin",
@@ -39,6 +40,7 @@
     "PacketTimedEventAccessor",
     "PacketWarpPositionAccessor",
     "PathingStuckHandlerMixin",
+    "ScryerCameraMixin",
     "TickEmitterPacketAccessor",
     "WildenChimeraMixin",
     "WildenGuardianMixin"

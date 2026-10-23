@@ -19,7 +19,7 @@ public final class ListenerCopies {
                 continue;
             }
 
-            Vec3 copy = transformer.nearestCopy(player.position(), source);
+            Vec3 copy = transformer.nearestCopy(player.getCamera().position(), source);
             if (!copies.contains(copy)) {
                 copies.add(copy);
             }

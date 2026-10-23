@@ -273,7 +273,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
 
     @WrapOperation(
             method = "updateChunkTracking",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkTrackingView;of(Lnet/minecraft/world/level/ChunkPos;I)Lnet/minecraft/server/level/ChunkTrackingView;"))
+            at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_TRACKING_VIEW_OF))
     private ChunkTrackingView exotic_worlds$trackWrapped(ChunkPos center, int viewDistance, Operation<ChunkTrackingView> original) {
         ChunkTrackingView view = original.call(center, viewDistance);
         ((TransformerHolder) (Object) view).exotic_worlds$setTransformer(WorldLoopAttachments.transformerOf(this.level));
