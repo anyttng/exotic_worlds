@@ -13,6 +13,7 @@ import com.hollingsworth.arsnouveau.api.event.ChimeraSummonEvent;
 import com.hollingsworth.arsnouveau.api.registry.ParticleColorRegistry;
 import com.hollingsworth.arsnouveau.api.util.NBTUtil;
 import com.hollingsworth.arsnouveau.client.particle.ColorPos;
+import com.hollingsworth.arsnouveau.common.entity.EntityOrbitProjectile;
 import com.hollingsworth.arsnouveau.common.network.HighlightAreaPacket;
 import com.hollingsworth.arsnouveau.common.network.PacketANEffect;
 import com.hollingsworth.arsnouveau.common.network.PacketAddFadingLight;
@@ -37,6 +38,8 @@ final class EffectPacketRewriters {
                 EffectPacketRewriters::delayedSpell);
         PacketTranslator.registerClientboundPayloadRewriter(HighlightAreaPacket.class, EffectPacketRewriters::highlight);
         PacketTranslator.registerClientboundPayloadRewriter(PacketTimedEvent.class, EffectPacketRewriters::timedEvent);
+        PacketTranslator.registerEntityDataRewriter(EntityOrbitProjectile.class, () -> EntityOrbitProjectile.LAST_POS,
+                (center, context, projectile) -> context.transformer().nearestCopy(projectile, center));
     }
 
     static CustomPacketPayload effect(PacketANEffect packet, TranslationContext context) {
