@@ -31,6 +31,8 @@ public final class ClientAnchorSync {
             return;
         }
 
+        clientPosition.followCamera(player);
+        clientPosition.dropLeftCamera();
         refreshSpawn(player, level, transformer, clientPosition);
         refreshBorderCenter(player, level, transformer, clientPosition);
         refreshCacheCenter(player, transformer, clientPosition);
