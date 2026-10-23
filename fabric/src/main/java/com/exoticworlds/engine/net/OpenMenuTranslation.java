@@ -4,7 +4,6 @@ import java.util.function.Supplier;
 
 import com.mojang.logging.LogUtils;
 import com.exoticworlds.compat.ModPresence;
-import com.exoticworlds.engine.seam.ClientPosition;
 
 import net.fabricmc.fabric.impl.menu.Networking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -42,10 +41,7 @@ public final class OpenMenuTranslation {
         }
 
         private static Supplier<Vec3> mirrorAnchor(TranslationContext context) {
-            return () -> {
-                ClientPosition mirror = context.clientPosition();
-                return new Vec3(mirror.x(), 0.0, mirror.z());
-            };
+            return () -> context.clientPosition().anchor(0.0);
         }
 
         private Rewriter() {

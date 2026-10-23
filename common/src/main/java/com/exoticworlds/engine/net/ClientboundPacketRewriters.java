@@ -242,8 +242,7 @@ final class ClientboundPacketRewriters {
     private static Vec3 resolveEntityAnchor(int entityId, TranslationContext context) {
         Vec3 serverPosition = context.entityPosition().apply(entityId);
         if (serverPosition == null) {
-            ClientPosition mirror = context.clientPosition();
-            return new Vec3(mirror.x(), 0.0, mirror.z());
+            return context.clientPosition().anchor(0.0);
         }
 
         return context.toClient(serverPosition, context.trackedReach());
@@ -389,8 +388,7 @@ final class ClientboundPacketRewriters {
 
     static BorderCenter nearestCopyCenter(WorldFold transformer, ClientPosition clientPosition,
             BorderCenter center) {
-        Vec3 nearest = transformer.nearestCopy(
-                new Vec3(clientPosition.x(), 0.0, clientPosition.z()), new Vec3(center.x(), 0.0, center.z()));
+        Vec3 nearest = transformer.nearestCopy(clientPosition.anchor(0.0), new Vec3(center.x(), 0.0, center.z()));
         return new BorderCenter(nearest.x, nearest.z);
     }
 

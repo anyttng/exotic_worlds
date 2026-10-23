@@ -31,7 +31,7 @@ public final class WaypointLapGate {
             return distance;
         }
 
-        ChunkPos projection = transformer.nearestCopy(mirror.chunk(), serverChunk);
+        ChunkPos projection = transformer.nearestCopy(mirror.anchorChunk(), serverChunk);
         ChunkPos previous = this.lastClientChunk;
         this.lastClientChunk = projection;
         if (distance > 0 || previous == null || previous.equals(projection)) {

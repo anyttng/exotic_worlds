@@ -18,6 +18,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Relative;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -30,10 +31,15 @@ public final class ClientPosition {
     private record Mirror(double x, double z, @Nullable ResourceKey<Level> space, WorldFold transformer) {
     }
 
+    private record CameraCopy(double x, double z, boolean left) {
+    }
+
     public record BorderCenter(double x, double z) {
     }
 
     private volatile Mirror mirror = new Mirror(0.0, 0.0, null, WorldFolds.NOOP);
+
+    private volatile @Nullable CameraCopy cameraCopy;
 
     private volatile @Nullable BlockPos heldSpawn;
 
@@ -72,8 +78,72 @@ public final class ClientPosition {
     public void set(double x, double z, MirrorWriter writer) {
         Mirror currMirror = this.mirror;
         Vec3 seated = clientCopy(writer, currMirror, new Vec3(x, 0.0, z));
-        checkStep(writer, currMirror, seated);
+        checkStep(writer, stepOrigin(writer, currMirror), seated);
         this.mirror = new Mirror(seated.x, seated.z, currMirror.space(), currMirror.transformer());
+        if (writer == MirrorWriter.POSITION_PACKET) {
+            this.cameraCopy = null;
+        }
+    }
+
+    private Mirror stepOrigin(MirrorWriter writer, Mirror currMirror) {
+        CameraCopy copy = this.cameraCopy;
+        return writer == MirrorWriter.POSITION_PACKET && copy != null
+                ? new Mirror(copy.x(), copy.z(), currMirror.space(), currMirror.transformer())
+                : currMirror;
+    }
+
+    public void followCamera(ServerPlayer player) {
+        Entity camera = player.getCamera();
+        followCamera(camera == player ? null : camera.position(), camera.level().dimension());
+    }
+
+    public void followCamera(@Nullable Vec3 camera, ResourceKey<Level> dimension) {
+        CameraCopy copy = this.cameraCopy;
+        if (camera == null) {
+            if (copy != null && !copy.left()) {
+                this.cameraCopy = new CameraCopy(copy.x(), copy.z(), true);
+            }
+            return;
+        }
+
+        Mirror currMirror = this.mirror;
+        if (!dimension.equals(currMirror.space())) {
+            return;
+        }
+
+        Vec3 seated = currMirror.transformer().nearestCopy(anchor(currMirror, copy, 0.0),
+                new Vec3(camera.x, 0.0, camera.z));
+        this.cameraCopy = new CameraCopy(seated.x, seated.z, false);
+    }
+
+    public void dropLeftCamera() {
+        CameraCopy copy = this.cameraCopy;
+        if (copy != null && copy.left()) {
+            this.cameraCopy = null;
+        }
+    }
+
+    public Vec3 anchor(double y) {
+        return anchor(seededMirror(), this.cameraCopy, y);
+    }
+
+    public ChunkPos anchorChunk() {
+        return chunkOf(anchor(0.0));
+    }
+
+    public ChunkPos seatChunk() {
+        return chunkOf(seat(seededMirror(), 0.0));
+    }
+
+    private static Vec3 anchor(Mirror currMirror, @Nullable CameraCopy copy, double y) {
+        return copy == null || copy.left()
+                ? new Vec3(currMirror.x(), y, currMirror.z())
+                : new Vec3(copy.x(), y, copy.z());
+    }
+
+    private Vec3 seat(Mirror currMirror, double y) {
+        CameraCopy copy = this.cameraCopy;
+        return copy == null ? new Vec3(currMirror.x(), y, currMirror.z()) : new Vec3(copy.x(), y, copy.z());
     }
 
     public boolean describes(ResourceKey<Level> dimension) {
@@ -92,6 +162,7 @@ public final class ClientPosition {
 
     public void rebase(double x, double z, ResourceKey<Level> dimension, WorldFold transformer) {
         this.mirror = new Mirror(x, z, dimension, transformer);
+        this.cameraCopy = null;
         this.heldSpawn = null;
         this.heldBorderCenter = null;
         this.heldCacheCenter = null;
@@ -123,9 +194,11 @@ public final class ClientPosition {
 
     public ChunkPos chunk() {
         Mirror currMirror = seededMirror();
-        return new ChunkPos(
-                SectionPos.blockToSectionCoord(currMirror.x()),
-                SectionPos.blockToSectionCoord(currMirror.z()));
+        return chunkOf(new Vec3(currMirror.x(), 0.0, currMirror.z()));
+    }
+
+    private static ChunkPos chunkOf(Vec3 position) {
+        return new ChunkPos(SectionPos.blockToSectionCoord(position.x), SectionPos.blockToSectionCoord(position.z));
     }
 
     public Vec3 destinationOf(WorldFold fold, Vec3 position, Set<Relative> relatives) {
@@ -141,7 +214,10 @@ public final class ClientPosition {
                 relativeX ? currMirror.x() + position.x : position.x,
                 position.y,
                 relativeZ ? currMirror.z() + position.z : position.z);
-        return fold.nearestCopy(new Vec3(currMirror.x(), position.y, currMirror.z()), reported);
+        Vec3 seat = relativeX || relativeZ
+                ? new Vec3(currMirror.x(), position.y, currMirror.z())
+                : seat(currMirror, position.y);
+        return fold.nearestCopy(seat, reported);
     }
 
     private static Vec3 clientCopy(MirrorWriter writer, Mirror currMirror, Vec3 reported) {
