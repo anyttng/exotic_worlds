@@ -60,6 +60,13 @@ public final class CreationShape {
         return () -> GenerationTransformerContext.withRouterBuild(fold, build);
     }
 
+    public static Runnable underRouterBuild(@Nullable WorldFold fold, Runnable task) {
+        return () -> GenerationTransformerContext.withRouterBuild(fold, () -> {
+            task.run();
+            return null;
+        });
+    }
+
     public static WorldFold routerBuildFold() {
         WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
         return fold != null ? fold : WorldFolds.NOOP;
@@ -72,7 +79,7 @@ public final class CreationShape {
             return last;
         }
 
-        CarriedShape carried = overworld(settings);
+        CarriedShape carried = carried(settings);
         Chosen chosen = new Chosen(settings, shape, carried, carried == null
                 ? UNSHAPED
                 : FINGERPRINTS.computeIfAbsent(carried, key -> FINGERPRINT_PREFIX + FINGERPRINTS.size()));
@@ -82,7 +89,7 @@ public final class CreationShape {
         return chosen;
     }
 
-    private static @Nullable CarriedShape overworld(WorldCreationContext settings) {
+    public static @Nullable CarriedShape carried(WorldCreationContext settings) {
         return WorldShapes.applyAtCreation(settings.worldgenLoadContext(), settings.selectedDimensions())
                 .get(LevelStem.OVERWORLD)
                 .map(stem -> ShapedChunkGenerator.carriedShapeOf(stem.generator()))
