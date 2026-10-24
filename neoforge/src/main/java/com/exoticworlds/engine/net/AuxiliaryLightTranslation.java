@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.payload.AuxiliaryLightDataPayload;
 
 public final class AuxiliaryLightTranslation {
     public static void register() {
-        PacketTranslator.registerClientboundPayloadRewriter(AuxiliaryLightDataPayload.class,
+        PacketTranslator.registerClientboundChunkPayloadRewriter(AuxiliaryLightDataPayload.class,
                 AuxiliaryLightTranslation::seated);
     }
 

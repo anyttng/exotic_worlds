@@ -31,6 +31,9 @@ public final class PacketRewriters {
             clientboundPayloads = new StartupRegistry<>("Clientbound payload rewriters");
 
     private final StartupRegistry<Class<?>, BiFunction<CustomPacketPayload, TranslationContext, CustomPacketPayload>>
+            clientboundChunkPayloads = new StartupRegistry<>("Clientbound chunk payload rewriters");
+
+    private final StartupRegistry<Class<?>, BiFunction<CustomPacketPayload, TranslationContext, CustomPacketPayload>>
             serverboundPayloads = new StartupRegistry<>("Serverbound payload rewriters");
 
     private final StartupRegistry<Class<?>, BiFunction<Packet<?>, TranslationContext, Packet<?>>> clientboundPackets =
@@ -59,6 +62,11 @@ public final class PacketRewriters {
     <P extends CustomPacketPayload> void registerClientboundPayload(Class<P> payloadType,
             BiFunction<P, TranslationContext, CustomPacketPayload> payloadRewriter) {
         clientboundPayloads.register(payloadType, castingRewriter(payloadType, payloadRewriter));
+    }
+
+    <P extends CustomPacketPayload> void registerClientboundChunkPayload(Class<P> payloadType,
+            BiFunction<P, TranslationContext, CustomPacketPayload> payloadRewriter) {
+        clientboundChunkPayloads.register(payloadType, castingRewriter(payloadType, payloadRewriter));
     }
 
     <P extends CustomPacketPayload> void registerServerboundPayload(Class<P> payloadType,
@@ -97,6 +105,11 @@ public final class PacketRewriters {
     @Nullable BiFunction<CustomPacketPayload, TranslationContext, CustomPacketPayload> clientboundPayloadFor(
             CustomPacketPayload payload) {
         return clientboundPayloads.entries().get(payload.getClass());
+    }
+
+    @Nullable BiFunction<CustomPacketPayload, TranslationContext, CustomPacketPayload> clientboundChunkPayloadFor(
+            CustomPacketPayload payload) {
+        return clientboundChunkPayloads.entries().get(payload.getClass());
     }
 
     @Nullable BiFunction<CustomPacketPayload, TranslationContext, CustomPacketPayload> serverboundPayloadFor(
