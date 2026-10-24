@@ -63,19 +63,33 @@ public record SiteLattice(double xLap, double zLap, double skew, float spacing, 
     }
 
     // A window row past the Z seam is the canonical row moved by the skew, so its columns are counted from the moved point.
+    public int copyX(int cellX, int cellZ, int pointCellX, float x) {
+        int laps = zLaps(cellZ);
+        return laps == 0 ? cellX : (int) Math.floor((x - laps * this.skew) / this.xSpacing) + cellX - pointCellX;
+    }
+
+    public int canonicalX(int copyX) {
+        return foldX(copyX);
+    }
+
+    public int canonicalZ(int copyZ) {
+        return this.zCells == RtfLap.NO_PERIOD ? copyZ : Math.floorMod(copyZ, this.zCells);
+    }
+
+    public float copySkew(int copyZ) {
+        return (float) (zLaps(copyZ) * this.skew);
+    }
+
     public Seat seat(int cellX, int cellZ, int pointCellX, int pointCellZ, float x, float z) {
         double seatedX = x;
         double seatedZ = z;
-        int column = cellX;
+        int column = copyX(cellX, cellZ, pointCellX, x);
         int row = cellZ;
-        if (this.zCells != RtfLap.NO_PERIOD) {
-            int laps = Math.floorDiv(cellZ, this.zCells);
-            if (laps != 0) {
-                seatedX -= laps * this.skew;
-                seatedZ -= laps * this.zLap;
-                row -= laps * this.zCells;
-                column = (int) Math.floor(seatedX / this.xSpacing) + cellX - pointCellX;
-            }
+        int zLaps = zLaps(cellZ);
+        if (zLaps != 0) {
+            seatedX -= zLaps * this.skew;
+            seatedZ -= zLaps * this.zLap;
+            row -= zLaps * this.zCells;
         }
 
         if (this.xCells != RtfLap.NO_PERIOD) {
@@ -94,7 +108,7 @@ public record SiteLattice(double xLap, double zLap, double skew, float spacing, 
     }
 
     private float row(float x, int row, Corner corner) {
-        int laps = this.zCells == RtfLap.NO_PERIOD ? 0 : Math.floorDiv(row, this.zCells);
+        int laps = zLaps(row);
         float cellX = (float) ((x - laps * this.skew) / this.xSpacing);
         int column = (int) Math.floor(cellX);
         int canonicalRow = row - laps * this.zCells;
@@ -104,6 +118,10 @@ public record SiteLattice(double xLap, double zLap, double skew, float spacing, 
 
     private int foldX(int column) {
         return this.xCells == RtfLap.NO_PERIOD ? column : Math.floorMod(column, this.xCells);
+    }
+
+    private int zLaps(int cellZ) {
+        return this.zCells == RtfLap.NO_PERIOD ? 0 : Math.floorDiv(cellZ, this.zCells);
     }
 
     private static float lerp(float from, float to, float t) {
