@@ -70,6 +70,41 @@ class SiteLatticeTest {
     }
 
     @Test
+    void aCopyCellOneXLapOnHashesTheCanonicalCellAndSitsOneLapOn() {
+        SiteLattice lattice = SiteLattice.over(LAP, NARROW_LAP, RtfLap.NO_SKEW, SPACINGS[4]);
+        for (int cell = -2; cell <= 2; cell++) {
+            int copy = cell + lattice.xCells();
+            assertEquals(lattice.canonicalX(cell), lattice.canonicalX(copy));
+            assertEquals(cell * (double) lattice.xSpacing() + LAP, copy * (double) lattice.xSpacing(), CLOSE);
+            assertEquals(cell, lattice.copyX(cell, 0, 0, 5.0F), "a canonical row is its own copy");
+        }
+    }
+
+    @Test
+    void aCopyCellOneZLapOnHashesTheCanonicalCellAndSitsOneSkewedLapOn() {
+        SiteLattice lattice = SiteLattice.over(LAP, LAP, SKEW, SPACINGS[2]);
+        for (int row = -2; row <= 2; row++) {
+            int copy = row + lattice.zCells();
+            assertEquals(lattice.canonicalZ(row), lattice.canonicalZ(copy));
+            assertEquals(SKEW, lattice.copySkew(copy) - lattice.copySkew(row), CLOSE);
+            assertEquals(row * (double) lattice.zSpacing() + LAP, copy * (double) lattice.zSpacing(), CLOSE);
+        }
+    }
+
+    @Test
+    void aChunkAndItsCopyOneZLapOnNameTheSameCopyCell() {
+        SiteLattice lattice = SiteLattice.over(LAP, LAP, SKEW, SPACINGS[2]);
+        float x = 1000.0F;
+        int pointX = lattice.cellX(x);
+        int movedPointX = lattice.cellX((float) (x + SKEW));
+        for (int cell = pointX - 1; cell <= pointX + 1; cell++) {
+            int copy = lattice.copyX(cell, -1, pointX, x);
+            assertEquals(cell + movedPointX - pointX, copy, "cell " + cell);
+            assertEquals(lattice.seat(cell, -1, pointX, 0, x, 3.0F).cellX(), lattice.canonicalX(copy));
+        }
+    }
+
+    @Test
     void anInterpolatedGridJoinsAcrossTheXSeam() {
         SiteLattice lattice = SiteLattice.over(LAP, NARROW_LAP, RtfLap.NO_SKEW, SPACINGS[3]);
         SiteLattice.Corner corner = SiteLatticeTest::corner;
