@@ -329,6 +329,13 @@ class PacketTranslatorTest {
         private static final BlockPos DISPUTED_BLOCK = new BlockPos(5, 64, -700);
         private static final BlockPos MIRROR_ANCHORED_BLOCK = new BlockPos(1029, 64, -700);
 
+        private static final Vec3 CAMERA = new Vec3(1040.0, 64.0, -700.0);
+        private static final ChunkPos CAMERA_SIDE_CHUNK = new ChunkPos(7, -44);
+        private static final ChunkPos CAMERA_SIDE_CLIENT_CHUNK = new ChunkPos(71, -44);
+        private static final BlockPos CAMERA_SIDE_BLOCK = new BlockPos(117, 64, -700);
+        private static final BlockPos CAMERA_SIDE_CLIENT_BLOCK = new BlockPos(1141, 64, -700);
+        private static final ChunkPos BODY_SIDE_CHUNK = new ChunkPos(21, -44);
+
         private static TranslationContext contextWith(ChunkPos heldCacheCenter) {
             return contextWith(heldCacheCenter, entityId -> null);
         }
@@ -405,6 +412,39 @@ class PacketTranslatorTest {
             mirror.rebase(MIRROR_X, MIRROR_Z, Level.NETHER, null, TRANSFORMER);
 
             assertNull(mirror.heldCacheCenter());
+        }
+
+        @Test
+        void aChunkPastTheHeldViewSeatsBesideALiveCamera() {
+            assertEquals(CAMERA_SIDE_CLIENT_CHUNK, contextWithCamera(CAMERA).toClient(CAMERA_SIDE_CHUNK));
+        }
+
+        @Test
+        void aBlockPastTheHeldViewSeatsBesideALiveCamera() {
+            ClientboundBlockUpdatePacket translated = (ClientboundBlockUpdatePacket) PacketTranslator.toClient(
+                    new ClientboundBlockUpdatePacket(CAMERA_SIDE_BLOCK, Blocks.STONE.defaultBlockState()),
+                    contextWithCamera(CAMERA));
+
+            assertEquals(CAMERA_SIDE_CLIENT_BLOCK, translated.getPos());
+        }
+
+        @Test
+        void aChunkInsideTheHeldViewKeepsTheHeldCenterBesideALiveCamera() {
+            assertEquals(BODY_SIDE_CHUNK, contextWithCamera(CAMERA).toClient(BODY_SIDE_CHUNK));
+        }
+
+        @Test
+        void aLeftCameraSeatsNoChunk() {
+            TranslationContext context = contextWithCamera(CAMERA);
+            context.clientPosition().followCamera(null, Level.OVERWORLD);
+
+            assertEquals(CAMERA_SIDE_CHUNK, context.toClient(CAMERA_SIDE_CHUNK));
+        }
+
+        private static TranslationContext contextWithCamera(Vec3 camera) {
+            TranslationContext context = contextWith(MIRROR_CHUNK);
+            context.clientPosition().followCamera(camera, Level.OVERWORLD);
+            return context;
         }
     }
 

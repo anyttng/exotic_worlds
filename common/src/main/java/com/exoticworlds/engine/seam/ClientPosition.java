@@ -141,6 +141,11 @@ public final class ClientPosition {
         return chunkOf(anchor(0.0));
     }
 
+    public @Nullable ChunkPos cameraChunk() {
+        CameraCopy copy = this.cameraCopy;
+        return copy == null || copy.left() ? null : chunkOf(new Vec3(copy.x(), 0.0, copy.z()));
+    }
+
     public ChunkPos seatChunk() {
         return chunkOf(seat(seededMirror(), 0.0));
     }
