@@ -157,6 +157,7 @@ dependencies {
     compileOnly "maven.modrinth:biolith:${biolith_version}"
     compileOnly "maven.modrinth:sodium:${sodium_version}"
     compileOnly "curse.maven:eminus-${eminus_cf_project}:${eminus_cf_file}"
+    compileOnly "curse.maven:ultraterraforged-${ultraterraforged_cf_project}:${ultraterraforged_cf_file}"
     compileOnly files(xaeroLibJars).asFileTree.matching { include '*.jar' }
     compileOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
     compileOnly files(fabricEnvTypeClass)
@@ -186,6 +187,8 @@ dependencies {
     testRuntimeOnly "maven.modrinth:terrablender:${terrablender_version}"
     testCompileOnly "maven.modrinth:biolith:${biolith_version}"
     testRuntimeOnly "maven.modrinth:biolith:${biolith_version}"
+    testCompileOnly "curse.maven:ultraterraforged-${ultraterraforged_cf_project}:${ultraterraforged_cf_file}"
+    testRuntimeOnly "curse.maven:ultraterraforged-${ultraterraforged_cf_project}:${ultraterraforged_cf_file}"
     testCompileOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
     testRuntimeOnly files(woverModuleJars).asFileTree.matching { include '*.jar' }
     testCompileOnly "maven.modrinth:betterend-neoforge:${betterend_version}"
