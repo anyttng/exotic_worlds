@@ -39,6 +39,7 @@
     "DeployerSchematicPrinterMixin",
     "DirectionalShaftHalvesBlockEntityMixin",
     "FactoryPanelBehaviourMixin",
+    "FactoryPanelBlockMixin",
     "FactoryPanelBlockEntityMixin",
     "FactoryPanelConnectionPacketMixin",
     "FluidNetworkMixin",
