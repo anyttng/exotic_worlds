@@ -21,7 +21,13 @@ public final class ClimateScaleCompression {
 
     public static double fitted(WorldFold fold, DoubleList amplitudes, double lowestFreqInputFactor,
             double baseScale) {
-        return fittedFactor(amplitudes, lapBlocks(fold) * baseScale * lowestFreqInputFactor);
+        return fittedToCells(weightedCellsPerLap(amplitudes, lapBlocks(fold) * baseScale * lowestFreqInputFactor));
+    }
+
+    public static double fittedToCells(double cellsPerLap) {
+        return cellsPerLap <= 0.0 || cellsPerLap >= CELLS_PER_LAP
+                ? NO_COMPRESSION
+                : CELLS_PER_LAP / cellsPerLap;
     }
 
     static int lapBlocks(WorldFold fold) {
@@ -37,13 +43,6 @@ public final class ClimateScaleCompression {
         }
 
         return zDomain.loops() ? zDomain.domainLength : UNBOUNDED_LAP;
-    }
-
-    private static double fittedFactor(DoubleList amplitudes, double lowestOctaveCells) {
-        double cellsPerLap = weightedCellsPerLap(amplitudes, lowestOctaveCells);
-        return cellsPerLap <= 0.0 || cellsPerLap >= CELLS_PER_LAP
-                ? NO_COMPRESSION
-                : CELLS_PER_LAP / cellsPerLap;
     }
 
     private static double weightedCellsPerLap(DoubleList amplitudes, double lowestOctaveCells) {
