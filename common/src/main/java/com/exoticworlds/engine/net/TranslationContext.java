@@ -118,6 +118,12 @@ public record TranslationContext(
         ChunkPos anchor = chunkAnchor();
         ChunkPos clientPos = transformer.nearestCopy(anchor, chunkPos);
         int viewReach = viewReach();
+        ChunkPos cameraChunk = clientPosition.cameraChunk();
+        if (cameraChunk != null && (Math.abs(clientPos.x() - anchor.x()) > viewReach
+                || Math.abs(clientPos.z() - anchor.z()) > viewReach)) {
+            return transformer.nearestCopy(cameraChunk, chunkPos);
+        }
+
         if (chunkOutOfView(Direction.Axis.X, clientPos.x() - anchor.x(), viewReach)
                 || chunkOutOfView(Direction.Axis.Z, clientPos.z() - anchor.z(), viewReach)) {
             warnChunkFarFromAnchor(chunkPos, clientPos, anchor, viewReach);
