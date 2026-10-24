@@ -1,0 +1,102 @@
+package com.exoticworlds.compat.ultraterraforged.mixin;
+
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import com.exoticworlds.compat.terraforged.RtfLap;
+
+import com.pandaismyname1.ultraterraforged.world.worldgen.noise.NoiseUtil;
+import com.pandaismyname1.ultraterraforged.world.worldgen.noise.module.Erosion;
+import com.pandaismyname1.ultraterraforged.world.worldgen.noise.module.Noise;
+
+@Mixin(value = Erosion.class, remap = false)
+public abstract class ErosionNoiseMixin {
+    @Unique
+    private static final int GRID_SIZE_ORDINAL = 2;
+
+    @Shadow
+    @Final
+    private int seed;
+
+    @Shadow
+    @Final
+    private int octaves;
+
+    @Shadow
+    @Final
+    private float gridSize;
+
+    @Shadow
+    @Final
+    private float amplitude;
+
+    @Shadow
+    @Final
+    private float lacunarity;
+
+    @Shadow
+    @Final
+    private float distanceFallOff;
+
+    @Shadow
+    private float getSingleErosionValue(float x, float y, float gridSize, float[] cache) {
+        throw new AssertionError();
+    }
+
+    @WrapMethod(method = "getErosionValue")
+    private float exotic_worlds$closeOnLap(float x, float y, float[] cache, Operation<Float> original) {
+        RtfLap.Frame frame = RtfLap.boundFrame();
+        if (frame == null) {
+            return original.call(x, y, cache);
+        }
+
+        float sum = 0.0F;
+        float max = 0.0F;
+        float gain = 1.0F;
+        float distance = this.gridSize;
+        double octaveScale = 1.0;
+        for (int octave = 0; octave < this.octaves; octave++) {
+            float value;
+            try (RtfLap.Frame.Scope lattice = frame.octave(octaveScale / distance)) {
+                value = getSingleErosionValue(frame.latticeU(x, y) * distance, frame.latticeV(y) * distance, distance,
+                        cache);
+            }
+
+            sum += value * gain;
+            max += gain;
+            gain *= this.amplitude;
+            distance *= this.distanceFallOff;
+            octaveScale *= this.lacunarity;
+        }
+
+        return sum / max;
+    }
+
+    // A candidate is a cell's jittered point, well inside the cell, so flooring it recovers the cell's index.
+    @WrapOperation(method = "getSingleErosionValue", at = @At(value = "INVOKE",
+            target = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/module/Erosion;getNoiseValue(IIFF"
+                    + "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/module/Noise;[F)F"))
+    private float exotic_worlds$canonicalCandidate(int dx, int dy, float px, float py, Noise module, float[] cache,
+            Operation<Float> original, @Local(argsOnly = true, ordinal = GRID_SIZE_ORDINAL) float cellSize) {
+        RtfLap.Frame frame = RtfLap.boundFrame();
+        if (frame == null) {
+            return original.call(dx, dy, px, py, module, cache);
+        }
+
+        int rowY = NoiseUtil.floor(py / cellSize);
+        int cellX = frame.foldX(NoiseUtil.floor(px / cellSize), rowY);
+        int cellY = frame.foldZ(rowY);
+        NoiseUtil.Vec2f vector = NoiseUtil.cell(this.seed, cellX, cellY);
+        try (RtfLap.Frame.Scope open = frame.open()) {
+            return original.call(dx, dy, (cellX + vector.x()) * cellSize, (cellY + vector.y()) * cellSize, module,
+                    cache);
+        }
+    }
+}
