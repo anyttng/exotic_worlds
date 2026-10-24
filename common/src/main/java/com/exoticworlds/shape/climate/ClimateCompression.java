@@ -2,6 +2,7 @@ package com.exoticworlds.shape.climate;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.DoubleSupplier;
 
 import org.jspecify.annotations.Nullable;
 
@@ -47,6 +48,11 @@ public final class ClimateCompression {
 
     public static double factor(WorldFold fold, boolean climateField, DoubleList amplitudes,
             double lowestFreqInputFactor, double baseScale, double verticalShare) {
+        return factor(fold, climateField, verticalShare,
+                () -> ClimateScaleCompression.fitted(fold, amplitudes, lowestFreqInputFactor, baseScale));
+    }
+
+    public static double factor(WorldFold fold, boolean climateField, double verticalShare, DoubleSupplier fitted) {
         ClimateScale scale = fold.generationOptions().get(CompactBiomes.OPTION);
         if (scale.mode() == ClimateScale.Mode.OFF
                 || !ClimateScaleCompression.compressible(fold, verticalShare)) {
@@ -61,10 +67,10 @@ public final class ClimateCompression {
             return scale.factor();
         }
 
-        double fitted = ClimateScaleCompression.fitted(fold, amplitudes, lowestFreqInputFactor, baseScale);
+        double fit = fitted.getAsDouble();
         return scale.mode() == ClimateScale.Mode.STRONG
-                ? Math.max(fitted, ClimateScale.STRONG_FACTOR)
-                : fitted;
+                ? Math.max(fit, ClimateScale.STRONG_FACTOR)
+                : fit;
     }
 
     public static @Nullable NoiseFunction climateNoiseOf(DensityFunction function) {
