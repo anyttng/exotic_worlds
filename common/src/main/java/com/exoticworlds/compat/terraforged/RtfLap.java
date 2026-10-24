@@ -89,6 +89,10 @@ public final class RtfLap {
             return this.skew;
         }
 
+        public double entrySkew() {
+            return this.entrySkew;
+        }
+
         public Scope bind(WorldFold fold) {
             push();
             seat(fold);
@@ -159,6 +163,14 @@ public final class RtfLap {
             this.zLap = OPEN;
             this.skew = NO_SKEW;
             this.entrySkew = NO_SKEW;
+            this.xPeriod = NO_PERIOD;
+            this.zPeriod = NO_PERIOD;
+            this.skewCells = NO_SKEW_CELLS;
+            return this.scope;
+        }
+
+        public Scope unperiodic() {
+            push();
             this.xPeriod = NO_PERIOD;
             this.zPeriod = NO_PERIOD;
             this.skewCells = NO_SKEW_CELLS;
@@ -333,6 +345,10 @@ public final class RtfLap {
 
     public static int wrapLatticeZ(int z) {
         return active ? FRAME.get().foldZ(z) : z;
+    }
+
+    static int cellsOver(double lap, double frequency, boolean torus) {
+        return cellsOver(lap, frequency, torus ? TORUS_FLOOR_CELLS : CYLINDER_FLOOR_CELLS);
     }
 
     static int cellsOver(double lap, double frequency, int floorCells) {
