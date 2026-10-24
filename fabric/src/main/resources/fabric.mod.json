@@ -35,6 +35,7 @@
     "exotic_worlds.compat.biolith.mixins.json",
     "exotic_worlds.compat.wover.mixins.json",
     "exotic_worlds.compat.ultraterraforged.mixins.json",
+    "exotic_worlds.compat.ultraterraforged.preview.mixins.json",
     "exotic_worlds.compat.betterend.mixins.json",
     "exotic_worlds.compat.sodium.mixins.json",
     "exotic_worlds.compat.simpleatlas.mixins.json",

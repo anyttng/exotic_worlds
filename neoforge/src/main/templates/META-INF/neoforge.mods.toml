@@ -95,6 +95,9 @@ config="exotic_worlds.compat.wover.mixins.json"
 config="exotic_worlds.compat.ultraterraforged.mixins.json"
 
 [[mixins]]
+config="exotic_worlds.compat.ultraterraforged.preview.mixins.json"
+
+[[mixins]]
 config="exotic_worlds.compat.betterend.mixins.json"
 
 [[mixins]]
