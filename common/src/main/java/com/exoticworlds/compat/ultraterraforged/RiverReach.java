@@ -16,8 +16,6 @@ public final class RiverReach {
 
     private static final float COAST_STEP = 8.0F;
 
-    private static final float COAST_PRECISION = 10.0F;
-
     public static final float UNBOUNDED = Float.MAX_VALUE;
 
     private static final int CONTINENT_CELL_PER_SCALE = 4;
@@ -37,29 +35,26 @@ public final class RiverReach {
     public static float distanceToOcean(SimpleContinent continent, float shallowOcean, int x, int z, float dx,
             float dz, float reach) {
         float land = 0.0F;
+        float landEdge = continent.getEdgeValue(x, z);
         for (float sea = COAST_STEP; sea < reach; sea += COAST_STEP) {
-            if (continent.getEdgeValue(x + dx * sea, z + dz * sea) <= shallowOcean) {
-                return coastBetween(continent, shallowOcean, x, z, dx, dz, land, sea);
+            float seaEdge = continent.getEdgeValue(x + dx * sea, z + dz * sea);
+            if (seaEdge <= shallowOcean) {
+                return coastBetween(shallowOcean, land, landEdge, sea, seaEdge);
             }
 
             land = sea;
+            landEdge = seaEdge;
         }
 
         return reach;
     }
 
-    private static float coastBetween(SimpleContinent continent, float shallowOcean, int x, int z, float dx, float dz,
-            float land, float sea) {
-        while (sea - land >= COAST_PRECISION) {
-            float mid = (land + sea) * HALF;
-            if (continent.getEdgeValue(x + dx * mid, z + dz * mid) > shallowOcean) {
-                land = mid;
-            } else {
-                sea = mid;
-            }
+    private static float coastBetween(float shallowOcean, float land, float landEdge, float sea, float seaEdge) {
+        if (landEdge <= shallowOcean) {
+            return sea;
         }
 
-        return sea;
+        return land + (sea - land) * (landEdge - shallowOcean) / (landEdge - seaEdge);
     }
 
     public static int rootCount(RtfLap.Frame frame, int count, int continentScale) {
