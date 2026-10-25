@@ -22,6 +22,7 @@
     "ServerGamePacketListenerImplFrameMixin",
     "ServerLevelFrameMixin",
     "ServerPlayerReachFrameMixin",
+    "ServerPlayerTickFrameMixin",
     "SignFacingFrameMixin",
     "SubLevelAccessor",
     "SubLevelContainerMixin",
