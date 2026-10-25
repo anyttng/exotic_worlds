@@ -23,6 +23,7 @@
     "ErosionNoiseMixin",
     "FastPoissonMixin",
     "FrequencyMixin",
+    "FrozenFallsMixin",
     "GiantCavernsMixin",
     "GlacialValleysMixin",
     "GlacierCavesMixin",
