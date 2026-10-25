@@ -67,6 +67,7 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | [Polymer](https://modrinth.com/mod/polymer)-based mods, such as [Lootr](https://modrinth.com/mod/lootr) | 26.2, 26.1.2, 1.21.1 | NeoForge, Fabric | No patch needed | |
 | [Supplementaries](https://modrinth.com/mod/supplementaries) | 1.21.1 | NeoForge, Fabric | Supported | |
 | [Cobblemon](https://modrinth.com/mod/cobblemon) | 1.21.1 | NeoForge, Fabric | Supported | |
+| [Ars Nouveau](https://modrinth.com/mod/ars-nouveau) | 1.21.1 | NeoForge | Supported | |
 | Immersive Portals | 1.21.1 | NeoForge, Fabric | Partially supported | What lies past the world's edge does not show next to you |
 
 ## World generation
@@ -85,5 +86,8 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | Northbound | 26.2, 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | A toroidal world is cold at its north and south edges and warm in the middle |
 | [ReTerraForged](https://www.curseforge.com/minecraft/mc-mods/reterraforged-unofficial) | 1.21.1 | NeoForge, Fabric | Partially supported | Small worlds get shorter rivers or none |
 | [FreeTerraForged](https://modrinth.com/mod/freeterraforged) | 1.21.1 | NeoForge, Fabric | Partially supported | Small worlds get shorter rivers or none |
-| UltraTerraForged | All | NeoForge, Fabric | No edge support | |
+| [UltraTerraForged](https://www.curseforge.com/minecraft/mc-mods/ultraterraforged) | All | NeoForge, Fabric | Partially supported | Dunes, sand waves, drumlins and river deltas can end in a straight cut |
+| [ReTerraForged: From the Ashes](https://www.curseforge.com/minecraft/mc-mods/reterraforged-from-the-ashes) | All | NeoForge, Fabric | No edge support | |
+| NeoTerraForged | 1.21.1 | NeoForge | No edge support | |
+| [TerraForged Reimagined](https://www.curseforge.com/minecraft/mc-mods/terraforged-reimagined) | — | — | Not tested | |
 | One Dimension | — | — | Not tested | |
