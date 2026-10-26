@@ -25,6 +25,7 @@ import com.exoticworlds.engine.gen.FloatingCrumbs;
 import com.exoticworlds.engine.gen.SeamDriveRequest;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.engine.noise.TerrainCeiling;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -50,6 +51,7 @@ import net.minecraft.world.level.TicketStorage;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.RandomState;
@@ -256,6 +258,20 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             @Local(argsOnly = true) ChunkGenerator generator) {
         return GenerationTransformerContext.withRouterBuild(ShapedChunkGenerator.wrappedTransformerOf(generator),
                 () -> original.call(noises, seed, useLegacyRandom, defaultBlock, seaLevel, router));
+    }
+
+    @ModifyExpressionValue(
+            method = "<init>",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/chunk/ChunkGenerator;createState("
+                            + "Lnet/minecraft/core/HolderLookup;"
+                            + "Lnet/minecraft/world/level/levelgen/RandomState;J)"
+                            + "Lnet/minecraft/world/level/chunk/ChunkGeneratorStructureState;"))
+    private ChunkGeneratorStructureState exotic_worlds$stampStructureStateFold(ChunkGeneratorStructureState state,
+            @Local(argsOnly = true) ChunkGenerator generator) {
+        ((TransformerHolder) (Object) state).exotic_worlds$setTransformer(ShapedChunkGenerator.transformerOf(generator));
+        return state;
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
