@@ -42,6 +42,7 @@
     "PerlinMixin",
     "PerlinRidgeMixin",
     "RegionModuleMixin",
+    "RiverRoutesMixin",
     "RivermapMixin",
     "SaltFlatsMixin",
     "SampleGridMixin",
