@@ -139,6 +139,12 @@ final class WorldLoopTransformer implements WorldFold {
             return new ChunkPos(unwrappedX, unwrappedZ);
         }
 
+        private long unwrapKey(long anchorKey, long chunkKey) {
+            return ChunkPos.asLong(
+                    x.unwrapAround(ChunkPos.getX(anchorKey), ChunkPos.getX(chunkKey)),
+                    z.unwrapAround(ChunkPos.getZ(anchorKey), ChunkPos.getZ(chunkKey)));
+        }
+
         private boolean isOver(ChunkPos chunkPos) {
             return x.isOver(chunkPos.x) || z.isOver(chunkPos.z);
         }
@@ -443,6 +449,11 @@ final class WorldLoopTransformer implements WorldFold {
     @Override
     public ChunkPos nearestCopy(ChunkPos ref, ChunkPos target) {
         return chunks.unwrap(ref, target);
+    }
+
+    @Override
+    public long nearestCopyChunkKey(long refKey, long chunkKey) {
+        return chunks.unwrapKey(refKey, chunkKey);
     }
 
     @Override
