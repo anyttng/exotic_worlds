@@ -12,16 +12,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
-import net.minecraft.world.level.levelgen.structure.StructureSet;
 
 public class LoopedChunkGenerator extends NoiseBasedChunkGenerator implements ShapedChunkGenerator {
     private static final String BIOME_SOURCE_KEY = "biome_source";
@@ -57,12 +54,6 @@ public class LoopedChunkGenerator extends NoiseBasedChunkGenerator implements Sh
     @Override
     public ChunkGenerator unshaped() {
         return new NoiseBasedChunkGenerator(getBiomeSource(), generatorSettings());
-    }
-
-    @Override
-    public ChunkGeneratorStructureState createState(HolderLookup<StructureSet> structureSets, RandomState randomState,
-            long legacyLevelSeed) {
-        return stampTransformer(super.createState(structureSets, randomState, legacyLevelSeed));
     }
 
     @Override
