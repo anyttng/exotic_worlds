@@ -44,7 +44,8 @@ public record TranslationContext(
         IntPredicate ownVehicle,
         IntFunction<@Nullable Vec3> entityPosition,
         IntFunction<TagPositions.@Nullable Subject> entity,
-        Runnable rebase) implements SeamContext {
+        Runnable rebase,
+        CameraSide cameraSide) implements SeamContext {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -56,6 +57,14 @@ public record TranslationContext(
 
     private static final double REACH_MARGIN_BLOCKS =
             (double) CoordinateConstants.VIEW_DISTANCE_MARGIN * CoordinateConstants.CHUNK_WIDTH;
+
+    public TranslationContext(WorldFold transformer, ClientPosition clientPosition,
+            IntFunction<RegistryFriendlyByteBuf> bufferFactory, ResourceKey<Level> dimension, int trackedViewDistance,
+            int heldViewDistance, IntPredicate ownVehicle, IntFunction<@Nullable Vec3> entityPosition,
+            IntFunction<TagPositions.@Nullable Subject> entity, Runnable rebase) {
+        this(transformer, clientPosition, bufferFactory, dimension, trackedViewDistance, heldViewDistance, ownVehicle,
+                entityPosition, entity, rebase, new CameraSide());
+    }
 
     public static TranslationContext of(ServerPlayer player, WorldFold transformer) {
         int trackedViewDistance = trackedViewDistanceOf(player, transformer);
@@ -118,11 +127,30 @@ public record TranslationContext(
         ChunkPos anchor = chunkAnchor();
         ChunkPos clientPos = transformer.nearestCopy(anchor, chunkPos);
         int viewReach = viewReach();
+        ChunkPos cameraChunk = clientPosition.cameraChunk();
+        if (cameraChunk != null) {
+            if (!withinView(clientPos, anchor, viewReach)) {
+                return transformer.nearestCopy(cameraChunk, chunkPos);
+            }
+
+            ChunkPos cameraPos = transformer.nearestCopy(cameraChunk, chunkPos);
+            if (!cameraPos.equals(clientPos) && withinView(cameraPos, cameraChunk, viewReach)) {
+                if (cameraSide.answersCamera()) {
+                    return cameraPos;
+                }
+                cameraSide.markSecondCopy();
+            }
+        }
+
         if (chunkOutOfView(Direction.Axis.X, clientPos.x() - anchor.x(), viewReach)
                 || chunkOutOfView(Direction.Axis.Z, clientPos.z() - anchor.z(), viewReach)) {
             warnChunkFarFromAnchor(chunkPos, clientPos, anchor, viewReach);
         }
         return clientPos;
+    }
+
+    private static boolean withinView(ChunkPos pos, ChunkPos center, int viewReach) {
+        return Math.abs(pos.x() - center.x()) <= viewReach && Math.abs(pos.z() - center.z()) <= viewReach;
     }
 
     private ChunkPos chunkAnchor() {
@@ -166,6 +194,13 @@ public record TranslationContext(
                 candidates.add(new ChunkPos(
                         nearest.x() + xLap * lattice.x().domainLength + zLap * lattice.skew(),
                         nearest.z() + zLap * lattice.z().domainLength));
+            }
+        }
+
+        if (clientPosition.cameraChunk() != null) {
+            ChunkPos held = transformer.nearestCopy(chunkAnchor(), chunkPos);
+            if (!candidates.contains(held)) {
+                candidates.add(held);
             }
         }
 

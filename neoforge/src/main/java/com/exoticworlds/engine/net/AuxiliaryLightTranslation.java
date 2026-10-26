@@ -3,7 +3,6 @@ package com.exoticworlds.engine.net;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.exoticworlds.api.v1.net.PacketRewriters;
 import com.exoticworlds.api.v1.net.SeamContext;
 
 import net.minecraft.core.BlockPos;
@@ -13,7 +12,8 @@ import net.neoforged.neoforge.network.payload.AuxiliaryLightDataPayload;
 
 public final class AuxiliaryLightTranslation {
     public static void register() {
-        PacketRewriters.registerClientboundPayload(AuxiliaryLightDataPayload.class, AuxiliaryLightTranslation::seated);
+        PacketTranslator.registerClientboundChunkPayloadRewriter(AuxiliaryLightDataPayload.class,
+                AuxiliaryLightTranslation::seated);
     }
 
     static CustomPacketPayload seated(AuxiliaryLightDataPayload payload, SeamContext context) {

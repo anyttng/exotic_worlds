@@ -54,6 +54,8 @@ Runs on **NeoForge** and **Fabric**.
 
 Every mod we have checked against a shaped world, with the game versions and loaders it applies to, is in the [supported mods list](https://github.com/anyttng/exotic_worlds/blob/main/docs/supported-mods.md).
 
+**A mod that is not on the list** may not work correctly on a shaped world.
+
 ## Bug reports
 
 Found something broken, especially near the world's edge? Report it on the [issue tracker](https://github.com/anyttng/exotic_worlds/issues).
