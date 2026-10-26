@@ -4,10 +4,11 @@ import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.client.engine.ClientFrame;
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientChunkCache;
@@ -26,12 +27,13 @@ public class ClientChunkCacheMixin {
     @Final
     private LevelChunk emptyChunk;
 
-    @WrapMethod(
+    @ModifyReturnValue(
             method = "getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)"
-                    + "Lnet/minecraft/world/level/chunk/LevelChunk;")
-    private @Nullable LevelChunk exotic_worlds$heldChunk(int chunkX, int chunkZ, ChunkStatus status, boolean loadOrGenerate,
-            Operation<@Nullable LevelChunk> original) {
-        LevelChunk chunk = original.call(chunkX, chunkZ, status, loadOrGenerate);
+                    + "Lnet/minecraft/world/level/chunk/LevelChunk;",
+            at = @At("RETURN"))
+    private @Nullable LevelChunk exotic_worlds$heldChunk(@Nullable LevelChunk chunk,
+            @Local(argsOnly = true, ordinal = 0) int chunkX, @Local(argsOnly = true, ordinal = 1) int chunkZ,
+            @Local(argsOnly = true) ChunkStatus status, @Local(argsOnly = true) boolean loadOrGenerate) {
         if (chunk != null && chunk != this.emptyChunk) {
             return chunk;
         }
@@ -40,12 +42,12 @@ public class ClientChunkCacheMixin {
             return chunk;
         }
 
-        ChunkPos raw = new ChunkPos(chunkX, chunkZ);
-        ChunkPos held = ClientFrame.heldCopy(raw, pos -> original.call(pos.x(), pos.z(), status, false) != null);
-        if (held == null || held.equals(raw)) {
+        long copy = ClientFrame.nearestChunkKey(chunkX, chunkZ);
+        if (copy == ChunkPos.pack(chunkX, chunkZ)) {
             return chunk;
         }
 
-        return original.call(held.x(), held.z(), status, loadOrGenerate);
+        return ((ClientChunkCache) (Object) this).getChunk(ChunkPos.getX(copy), ChunkPos.getZ(copy), status,
+                loadOrGenerate);
     }
 }
