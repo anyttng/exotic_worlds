@@ -171,11 +171,8 @@ final class ClientboundPacketRewriters {
     // An entity teleport carries no relative flags on this version — it is always an absolute position — so there is no
     // axis to leave alone. The packet also offers no constructor to rebuild from values, so the position is swapped on
     // the wire, behind the entity id that opens it.
-    static @Nullable Packet<?> teleportEntity(ClientboundTeleportEntityPacket packet, TranslationContext context) {
-        if (context.ownVehicle().test(packet.getId())) {
-            return null;
-        }
-
+    static ClientboundTeleportEntityPacket teleportEntity(ClientboundTeleportEntityPacket packet,
+            TranslationContext context) {
         PacketReach reach = context.trackedReach();
         return PacketTranslator.rewritePosition(
                 (teleportPacket, output) -> ((TeleportEntityPacketAccessor) teleportPacket).exotic_worlds$write(output),

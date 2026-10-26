@@ -2,7 +2,6 @@ package com.exoticworlds.engine.net;
 
 import static com.exoticworlds.engine.net.PacketTranslatorFixture.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -73,10 +72,13 @@ class PacketTranslatorEntityTest {
     }
 
     @Test
-    void teleportOfTheOwnControlledVehicleIsDropped() {
-        ClientboundTeleportEntityPacket packet = teleportPacket(42, SERVER_X, SERVER_Z, false);
+    void teleportOfTheOwnControlledVehicleReachesTheClientOnItsCopy() {
+        ClientboundTeleportEntityPacket translated = (ClientboundTeleportEntityPacket) PacketTranslator.toClient(
+                teleportPacket(42, SERVER_X, SERVER_Z, false), context(entityId -> entityId == 42, entityId -> null));
 
-        assertNull(PacketTranslator.toClient(packet, context(entityId -> entityId == 42, entityId -> null)));
+        assertEquals(42, translated.getId());
+        assertEquals(CLIENT_X, translated.getX());
+        assertEquals(CLIENT_Z, translated.getZ());
     }
 
     @Test
