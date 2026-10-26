@@ -3,12 +3,10 @@ package com.exoticworlds.core;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.ShapeStamp;
-import com.exoticworlds.accessors.TransformerHolder;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 
@@ -24,11 +22,6 @@ public interface ShapedChunkGenerator {
 
     default WorldFold transformer() {
         return carriedShape().fold();
-    }
-
-    default ChunkGeneratorStructureState stampTransformer(ChunkGeneratorStructureState state) {
-        ((TransformerHolder) (Object) state).exotic_worlds$setTransformer(transformer());
-        return state;
     }
 
     static @Nullable CarriedShape carriedShapeOf(ChunkGenerator generator) {

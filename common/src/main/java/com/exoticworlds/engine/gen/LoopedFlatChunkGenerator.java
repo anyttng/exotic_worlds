@@ -5,13 +5,9 @@ import com.exoticworlds.core.ShapedChunkGenerator;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.core.HolderLookup;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
-import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
-import net.minecraft.world.level.levelgen.structure.StructureSet;
 
 public class LoopedFlatChunkGenerator extends FlatLevelSource implements ShapedChunkGenerator {
     public static final MapCodec<LoopedFlatChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(
@@ -35,12 +31,6 @@ public class LoopedFlatChunkGenerator extends FlatLevelSource implements ShapedC
     @Override
     public ChunkGenerator unshaped() {
         return new FlatLevelSource(settings());
-    }
-
-    @Override
-    public ChunkGeneratorStructureState createState(HolderLookup<StructureSet> structureSets, RandomState randomState,
-            long legacyLevelSeed) {
-        return stampTransformer(super.createState(structureSets, randomState, legacyLevelSeed));
     }
 
     @Override
