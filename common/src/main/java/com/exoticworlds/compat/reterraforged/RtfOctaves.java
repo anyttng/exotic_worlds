@@ -1,5 +1,6 @@
 package com.exoticworlds.compat.reterraforged;
 
+import com.exoticworlds.compat.terraforged.RtfLap;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.noise.function.Interpolation;
 

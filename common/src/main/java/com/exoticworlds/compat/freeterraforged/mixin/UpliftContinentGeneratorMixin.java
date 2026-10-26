@@ -13,7 +13,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.compat.freeterraforged.CellCenters;
 import com.exoticworlds.compat.freeterraforged.FreeTerraForgedInjectionTargets;
-import com.exoticworlds.compat.freeterraforged.RtfLap;
+import com.exoticworlds.compat.terraforged.RtfLap;
 
 import net.minecraft.core.Direction;
 import etcodehome.freeterraforged.world.worldgen.cell.Cell;

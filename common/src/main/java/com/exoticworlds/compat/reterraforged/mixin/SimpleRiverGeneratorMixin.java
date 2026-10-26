@@ -14,7 +14,7 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.exoticworlds.compat.reterraforged.RiverReach;
-import com.exoticworlds.compat.reterraforged.RtfLap;
+import com.exoticworlds.compat.terraforged.RtfLap;
 
 import raccoonman.reterraforged.world.worldgen.cell.continent.SimpleContinent;
 import raccoonman.reterraforged.world.worldgen.cell.continent.simple.SimpleRiverGenerator;

@@ -1,6 +1,6 @@
 package com.exoticworlds.compat.freeterraforged.banding;
 
-import com.exoticworlds.compat.freeterraforged.RtfLap;
+import com.exoticworlds.compat.terraforged.RtfLap;
 
 // The underground regions are cells of a lattice of their own, read straight off the block position: on the lap it
 // closes at a whole number of regions per lap, never larger than FreeTerraForged's, and shrinks with the climate under

@@ -69,13 +69,7 @@ class UnreachedMembersTest {
             "engine.net.PacketTranslator.toClient",
             "engine.net.PacketTranslator.toServer",
             "accessors.FoldedClimateSampler.exotic_worlds$fold",
-            "compat.reterraforged.LapCarrier.exotic_worlds$fold",
-            "compat.reterraforged.RtfLap.skewCells",
-            "compat.reterraforged.RtfLap.xPeriod",
-            "compat.reterraforged.RtfLap.zPeriod",
-            "compat.freeterraforged.RtfLap.skewCells",
-            "compat.freeterraforged.RtfLap.xPeriod",
-            "compat.freeterraforged.RtfLap.zPeriod");
+            "compat.reterraforged.LapCarrier.exotic_worlds$fold");
     private static final Set<String> MAIN_FORM_FOR_SHARED_TESTS = Set.of(
             "core.DeckGroupFold.<init>",
             "core.WorldLoopTransformer.<init>",

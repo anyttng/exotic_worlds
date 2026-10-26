@@ -2,6 +2,7 @@ package com.exoticworlds.compat.reterraforged;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.compat.terraforged.RtfLap;
 import com.exoticworlds.core.WorldFold;
 
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;

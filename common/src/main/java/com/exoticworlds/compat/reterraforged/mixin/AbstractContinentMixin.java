@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.exoticworlds.compat.reterraforged.RiverReach;
-import com.exoticworlds.compat.reterraforged.RtfLap;
+import com.exoticworlds.compat.terraforged.RtfLap;
 
 import raccoonman.reterraforged.data.worldgen.preset.settings.WorldSettings;
 import raccoonman.reterraforged.world.worldgen.cell.continent.SimpleContinent;

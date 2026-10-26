@@ -4,8 +4,8 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.exoticworlds.compat.reterraforged.RtfEntry;
-import com.exoticworlds.compat.reterraforged.RtfLap;
+import com.exoticworlds.compat.terraforged.RtfEntry;
+import com.exoticworlds.compat.terraforged.RtfLap;
 import com.exoticworlds.core.WorldFold;
 
 @Mixin(targets = "raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule$Source", remap = false)

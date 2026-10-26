@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.exoticworlds.compat.reterraforged.ReTerraForgedInjectionTargets;
-import com.exoticworlds.compat.reterraforged.RtfEntry;
-import com.exoticworlds.compat.reterraforged.RtfLap;
+import com.exoticworlds.compat.terraforged.RtfEntry;
+import com.exoticworlds.compat.terraforged.RtfLap;
 import com.exoticworlds.core.WorldFold;
 
 import raccoonman.reterraforged.world.worldgen.densityfunction.NoiseFunction;

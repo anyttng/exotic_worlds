@@ -1,6 +1,7 @@
 package com.exoticworlds.compat.reterraforged;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
@@ -8,13 +9,14 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.compat.terraforged.RtfLap;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WrapDomain;
 
 import net.minecraft.core.Direction;
@@ -163,7 +165,7 @@ class RtfLapClosureTest {
     void aLatticeCellOneLapOnHashesAsTheCellItCopies() {
         try (RtfLap.Frame.Scope lap = RtfLap.frame().bind(torus(NARROW_CHUNKS));
                 RtfLap.Frame.Scope lattice = RtfLap.frame().octave(1.0 / CELL_SCALE)) {
-            int cells = RtfLap.frame().xPeriod();
+            int cells = RtfLap.frame().cells(Direction.Axis.X, 1.0 / CELL_SCALE);
             assertTrue(cells > 0, "the lattice has a period on the lap");
             assertEquals(NoiseUtil.valCoord2D(SEED, CELLS_PAST_LAP, CELL_ROW),
                     NoiseUtil.valCoord2D(SEED, cells + CELLS_PAST_LAP, CELL_ROW));
@@ -177,9 +179,9 @@ class RtfLapClosureTest {
         try (RtfLap.Frame.Scope lap = RtfLap.frame().bind(skewed(NARROW_CHUNKS));
                 RtfLap.Frame.Scope lattice = RtfLap.frame().octave(1.0 / SKEW_CELL_SCALE)) {
             RtfLap.Frame frame = RtfLap.frame();
-            int skewCells = frame.skewCells();
-            int rows = frame.zPeriod();
-            assertTrue(Math.floorMod(skewCells, frame.xPeriod()) != 0, "the skew moves the lattice by whole cells");
+            int skewCells = (int) Math.round(frame.skew() * frame.xScale());
+            int rows = frame.cells(Direction.Axis.Z, 1.0 / SKEW_CELL_SCALE);
+            assertTrue(Math.floorMod(skewCells, frame.cells(Direction.Axis.X, 1.0 / SKEW_CELL_SCALE)) != 0, "the skew moves the lattice by whole cells");
             assertEquals(NoiseUtil.valCoord2D(SEED, CELLS_PAST_LAP, CELL_ROW),
                     NoiseUtil.valCoord2D(SEED, CELLS_PAST_LAP + skewCells, CELL_ROW + rows));
             assertEquals(NoiseUtil.cell(SEED, CELLS_PAST_LAP, CELL_ROW),
@@ -209,7 +211,7 @@ class RtfLapClosureTest {
         }
 
         assertEquals(RtfLap.OPEN, frame.lap(Direction.Axis.X));
-        assertEquals(RtfLap.NO_PERIOD, frame.xPeriod());
+        assertFalse(frame.bound());
     }
 
     private static void assertJoined(WorldFold fold) {

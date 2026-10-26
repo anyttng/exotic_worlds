@@ -8,9 +8,9 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.exoticworlds.compat.freeterraforged.RtfClimateCompression;
-import com.exoticworlds.compat.freeterraforged.RtfEntry;
-import com.exoticworlds.compat.freeterraforged.RtfLap;
+import com.exoticworlds.compat.terraforged.RtfClimateCompression;
+import com.exoticworlds.compat.terraforged.RtfEntry;
+import com.exoticworlds.compat.terraforged.RtfLap;
 import com.exoticworlds.compat.freeterraforged.banding.BandingLattice;
 
 import etcodehome.freeterraforged.world.worldgen.biome.UndergroundBiomeBanding;

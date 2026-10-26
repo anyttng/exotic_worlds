@@ -1,5 +1,6 @@
 package com.exoticworlds.compat.reterraforged;
 
+import com.exoticworlds.compat.terraforged.RtfLap;
 import net.minecraft.core.Direction;
 import raccoonman.reterraforged.world.worldgen.cell.continent.SimpleContinent;
 

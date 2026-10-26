@@ -11,9 +11,9 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.exoticworlds.compat.reterraforged.LapCarrier;
-import com.exoticworlds.compat.reterraforged.RtfClimateCompression;
-import com.exoticworlds.compat.reterraforged.RtfClimateScales;
-import com.exoticworlds.compat.reterraforged.RtfLap;
+import com.exoticworlds.compat.terraforged.RtfClimateCompression;
+import com.exoticworlds.compat.terraforged.RtfClimateScales;
+import com.exoticworlds.compat.terraforged.RtfLap;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 

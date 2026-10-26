@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.exoticworlds.compat.reterraforged.RtfLap;
+import com.exoticworlds.compat.terraforged.RtfLap;
 
 @Mixin(targets = "raccoonman.reterraforged.world.worldgen.noise.module.Warp", remap = false)
 public abstract class WarpMixin {

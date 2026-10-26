@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.exoticworlds.compat.reterraforged.PoissonLattice;
-import com.exoticworlds.compat.reterraforged.RtfLap;
+import com.exoticworlds.compat.terraforged.RtfLap;
 
 import raccoonman.reterraforged.world.worldgen.feature.placement.poisson.FastPoisson;
 import raccoonman.reterraforged.world.worldgen.feature.placement.poisson.FastPoissonContext;

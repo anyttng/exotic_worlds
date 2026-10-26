@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.exoticworlds.compat.reterraforged.RtfLap;
+import com.exoticworlds.compat.terraforged.RtfLap;
 
 import net.minecraft.core.Direction;
 import raccoonman.reterraforged.world.worldgen.noise.module.LegacyTemperature;

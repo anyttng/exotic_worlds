@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Unique;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.exoticworlds.compat.reterraforged.RtfLap;
+import com.exoticworlds.compat.terraforged.RtfLap;
 import com.exoticworlds.compat.reterraforged.RtfOctaves;
 
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;

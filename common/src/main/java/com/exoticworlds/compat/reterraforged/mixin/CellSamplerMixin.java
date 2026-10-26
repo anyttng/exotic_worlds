@@ -7,7 +7,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.compat.reterraforged.ReTerraForgedInjectionTargets;
-import com.exoticworlds.compat.reterraforged.RtfEntry;
+import com.exoticworlds.compat.terraforged.RtfEntry;
 
 import net.minecraft.world.level.levelgen.DensityFunction;
 import raccoonman.reterraforged.world.worldgen.densityfunction.CellSampler;

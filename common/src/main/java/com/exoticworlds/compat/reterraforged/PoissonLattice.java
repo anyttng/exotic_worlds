@@ -1,5 +1,6 @@
 package com.exoticworlds.compat.reterraforged;
 
+import com.exoticworlds.compat.terraforged.RtfLap;
 import raccoonman.reterraforged.world.worldgen.feature.placement.poisson.FastPoissonContext;
 import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 import raccoonman.reterraforged.world.worldgen.util.PosUtil;

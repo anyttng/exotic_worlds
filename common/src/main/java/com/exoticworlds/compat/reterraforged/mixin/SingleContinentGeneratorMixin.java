@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.exoticworlds.compat.reterraforged.LappedCenter;
-import com.exoticworlds.compat.reterraforged.RtfLap;
+import com.exoticworlds.compat.terraforged.RtfLap;
 
 import net.minecraft.core.Direction;
 import raccoonman.reterraforged.world.worldgen.cell.continent.SimpleContinent;

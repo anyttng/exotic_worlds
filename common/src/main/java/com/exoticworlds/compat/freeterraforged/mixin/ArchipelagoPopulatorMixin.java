@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.exoticworlds.compat.freeterraforged.FreeTerraForgedInjectionTargets;
-import com.exoticworlds.compat.freeterraforged.RtfLap;
+import com.exoticworlds.compat.terraforged.RtfLap;
 
 import etcodehome.freeterraforged.world.worldgen.cell.terrain.populator.ArchipelagoPopulator;
 import etcodehome.freeterraforged.world.worldgen.noise.module.Noise;

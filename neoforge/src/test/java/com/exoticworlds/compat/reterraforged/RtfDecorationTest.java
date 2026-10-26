@@ -11,11 +11,12 @@ import java.util.Random;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.compat.terraforged.RtfLap;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 
 import it.unimi.dsi.fastutil.longs.LongArrayList;

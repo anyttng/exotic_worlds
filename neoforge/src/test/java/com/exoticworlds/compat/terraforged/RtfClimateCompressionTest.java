@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.reterraforged;
+package com.exoticworlds.compat.terraforged;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
