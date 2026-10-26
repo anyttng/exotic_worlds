@@ -21,7 +21,6 @@ import com.exoticworlds.engine.seam.ClientPosition;
 import com.exoticworlds.engine.seam.SeamAim;
 import com.exoticworlds.engine.seam.SeamRange;
 import com.exoticworlds.engine.seam.SeamSteering;
-import com.exoticworlds.engine.seam.VehicleDismountResync;
 import com.exoticworlds.engine.seam.circumnavigation.CircumnavigationTracker;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -177,11 +176,6 @@ public class EntityMixin implements TransformerSource {
         if ((Object) this instanceof ServerPlayer player) {
             CircumnavigationTracker.sample(player);
         }
-    }
-
-    @Inject(method = "removeVehicle", at = @At("HEAD"))
-    private void exotic_worlds$resyncVehicleOnDismount(CallbackInfo ci) {
-        VehicleDismountResync.resyncAfterDismount((Entity) (Object) this);
     }
 
     @Unique

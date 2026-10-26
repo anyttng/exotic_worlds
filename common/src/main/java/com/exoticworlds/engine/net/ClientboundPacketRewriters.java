@@ -173,11 +173,8 @@ final class ClientboundPacketRewriters {
                 packet.onGround());
     }
 
-    static @Nullable Packet<?> entityPositionSync(ClientboundEntityPositionSyncPacket packet, TranslationContext context) {
-        if (context.ownVehicle().test(packet.id())) {
-            return null;
-        }
-
+    static ClientboundEntityPositionSyncPacket entityPositionSync(ClientboundEntityPositionSyncPacket packet,
+            TranslationContext context) {
         return new ClientboundEntityPositionSyncPacket(
                 packet.id(), toClientChange(context, packet.values(), Set.of()), packet.onGround());
     }
