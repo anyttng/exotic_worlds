@@ -136,7 +136,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder, 
             @Share("continuous") LocalRef<Vec3> continuous) {
         double clampedX = original.call(requestedX);
         WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
-        if (transformer == null || !packet.hasPosition()) {
+        if (transformer == null) {
             return clampedX;
         }
 
