@@ -74,7 +74,7 @@ class TranslationLatticeTest {
 
     @Test
     void scaledDownLatticeKeepsTheLapsInTheCoarserUnit() {
-        TranslationLattice quarts = LATTICE.scaledDown(QUART_BITS);
+        TranslationLattice quarts = LATTICE.scaledDownByBits(QUART_BITS);
         assertEquals(LATTICE.x().lowerBound >> QUART_BITS, quarts.x().lowerBound);
         assertEquals(WIDTH_X >> QUART_BITS, quarts.x().domainLength);
         assertEquals(LATTICE.z().lowerBound >> QUART_BITS, quarts.z().lowerBound);

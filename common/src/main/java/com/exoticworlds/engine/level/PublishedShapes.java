@@ -19,7 +19,7 @@ public final class PublishedShapes {
         folds = Map.copyOf(next);
     }
 
-    public static @Nullable WorldFold foldOf(ResourceKey<Level> dimension) {
+    public static @Nullable WorldFold wrappedFoldOf(ResourceKey<Level> dimension) {
         WorldFold fold = folds.get(dimension);
         return fold != null && fold.isWrapped() ? fold : null;
     }

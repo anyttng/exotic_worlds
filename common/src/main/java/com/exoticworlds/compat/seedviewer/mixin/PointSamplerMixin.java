@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import com.exoticworlds.BinderOrder;
 import com.exoticworlds.compat.seedviewer.FoldedNoiseSampler;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -29,7 +29,7 @@ public class PointSamplerMixin {
             return original.call(type, blockX, blockY, blockZ);
         }
 
-        return sampler.exotic_worlds$cache(type).get(blockX, blockY, blockZ, () -> GenerationTransformerContext.withTransformer(
+        return sampler.exotic_worlds$cache(type).get(blockX, blockY, blockZ, () -> GenerationFoldContext.withFold(
                 fold, () -> original.call(type, blockX, blockY, blockZ)));
     }
 }

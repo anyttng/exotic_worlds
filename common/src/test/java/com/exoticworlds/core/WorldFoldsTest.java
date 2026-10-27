@@ -136,7 +136,7 @@ class WorldFoldsTest {
     @Test
     void aDecomposableShapeKeepsThePerAxisFold() {
         for (FlatShape shape : decomposable()) {
-            assertTrue(WorldFolds.of(shape) instanceof WorldLoopTransformer, shape.toString());
+            assertTrue(WorldFolds.of(shape) instanceof WorldLoopFold, shape.toString());
         }
     }
 

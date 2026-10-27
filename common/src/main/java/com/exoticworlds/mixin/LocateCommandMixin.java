@@ -28,12 +28,12 @@ public class LocateCommandMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
     private static double exotic_worlds$distSqrThroughSeam(BlockPos sourcePos, Vec3i foundPos, Operation<Double> original,
             @Local(argsOnly = true) CommandSourceStack source) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(source.getLevel());
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(source.getLevel());
+        if (fold == null) {
             return original.call(sourcePos, foundPos);
         }
 
-        return SeamRange.sqr(transformer, sourcePos, foundPos);
+        return SeamRange.sqr(fold, sourcePos, foundPos);
     }
 
     @WrapOperation(
@@ -41,11 +41,11 @@ public class LocateCommandMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/commands/LocateCommand;dist(IIII)F"))
     private static float exotic_worlds$flatDistThroughSeam(int fromX, int fromZ, int toX, int toZ,
             Operation<Float> original, @Local(argsOnly = true) CommandSourceStack source) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(source.getLevel());
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(source.getLevel());
+        if (fold == null) {
             return original.call(fromX, fromZ, toX, toZ);
         }
 
-        return (float) Math.sqrt(transformer.sqrDistance(fromX, 0.0, fromZ, toX, 0.0, toZ));
+        return (float) Math.sqrt(fold.sqrDistance(fromX, 0.0, fromZ, toX, 0.0, toZ));
     }
 }

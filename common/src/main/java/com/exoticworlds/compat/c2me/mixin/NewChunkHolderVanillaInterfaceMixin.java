@@ -5,19 +5,19 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.WorldFold;
 import com.ishland.c2me.rewrites.chunksystem.common.NewChunkHolderVanillaInterface;
 import com.ishland.c2me.rewrites.chunksystem.common.TheChunkSystem;
 
 @Mixin(NewChunkHolderVanillaInterface.class)
-public class NewChunkHolderVanillaInterfaceMixin implements TransformerSource {
+public class NewChunkHolderVanillaInterfaceMixin implements FoldSource {
     @Shadow
     @Final
     private TheChunkSystem chunkSystem;
 
     @Override
-    public @Nullable WorldFold exotic_worlds$wrappedTransformer() {
-        return ((TransformerSource) this.chunkSystem).exotic_worlds$wrappedTransformer();
+    public @Nullable WorldFold exotic_worlds$wrappedFold() {
+        return ((FoldSource) this.chunkSystem).exotic_worlds$wrappedFold();
     }
 }

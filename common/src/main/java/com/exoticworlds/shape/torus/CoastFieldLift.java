@@ -8,7 +8,7 @@ import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.gen.GenerationHooks;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.noise.DensityNoises;
 
 import net.minecraft.core.Direction;
@@ -41,19 +41,23 @@ public final class CoastFieldLift {
             return;
         }
 
-        WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
+        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
         if (fold == null) {
             return;
         }
-
-        int xLength = shape.widthBlocks(Direction.Axis.X);
-        int zLength = shape.widthBlocks(Direction.Axis.Z);
 
         List<CoastLiftCache> coasts = coastNoises(randomState.router());
         if (coasts.isEmpty()) {
             return;
         }
 
+        searchLift(randomState, coasts, fold, shape, seaLevel);
+    }
+
+    private static void searchLift(RandomState randomState, List<CoastLiftCache> coasts, WorldFold fold,
+            ToroidalShape shape, int seaLevel) {
+        int xLength = shape.widthBlocks(Direction.Axis.X);
+        int zLength = shape.widthBlocks(Direction.Axis.Z);
         DensityFunction density = randomState.router().finalDensity();
         int stride = Math.max(STRIDE_BLOCKS, Math.max(xLength, zLength) / GRID_CAP);
         int xGrid = Math.max(1, xLength / stride);
@@ -63,7 +67,7 @@ public final class CoastFieldLift {
 
         for (double candidate : CANDIDATES) {
             apply(coasts, candidate);
-            long patch = GenerationTransformerContext.withTransformer(fold,
+            long patch = GenerationFoldContext.withFold(fold,
                     () -> largestPatch(density, seaLevel, stride, xGrid, zGrid, skewCells)) * cellBlocks;
             if (patch >= LAND_FLOOR_BLOCKS) {
                 return;

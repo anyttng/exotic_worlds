@@ -63,6 +63,6 @@ class EndIslandDensityPeriodicityTest {
                 ? new DensityFunction.SinglePointContext(along, y, across)
                 : new DensityFunction.SinglePointContext(across, y, along);
 
-        return GenerationTransformerContext.withTransformer(fold, () -> END_ISLANDS.compute(at));
+        return GenerationFoldContext.withFold(fold, () -> END_ISLANDS.compute(at));
     }
 }

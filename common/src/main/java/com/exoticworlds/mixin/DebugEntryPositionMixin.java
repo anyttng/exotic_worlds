@@ -40,20 +40,20 @@ public class DebugEntryPositionMixin {
             return lines;
         }
 
-        WorldFold transformer = WorldLoopAttachments.wrappedClientBoundsTransformerOf(level);
+        WorldFold fold = WorldLoopAttachments.wrappedClientBoundsFoldOf(level);
         Entity entity = minecraft.getCameraEntity();
-        if (transformer == null || entity == null) {
+        if (fold == null || entity == null) {
             return lines;
         }
 
         double rawX = entity.getX();
         double rawZ = entity.getZ();
         BlockPos feet = entity.blockPosition();
-        BlockPos wrappedFeet = transformer.fold(feet);
+        BlockPos wrappedFeet = fold.fold(feet);
         ChunkPos rawChunk = ChunkPos.containing(feet);
-        ChunkPos wrappedChunk = transformer.fold(rawChunk);
+        ChunkPos wrappedChunk = fold.fold(rawChunk);
 
-        Vec3 wrappedPos = transformer.fold(new Vec3(rawX, entity.getY(), rawZ));
+        Vec3 wrappedPos = fold.fold(new Vec3(rawX, entity.getY(), rawZ));
         List<String> wrapped = new ArrayList<>(lines);
         wrapped.set(0, String.format(Locale.ROOT, "XYZ: %.3f / %.5f / %.3f",
                 wrappedPos.x, entity.getY(), wrappedPos.z));

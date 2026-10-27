@@ -20,7 +20,7 @@ public class ClientLevelMixin implements ClientBoundsHolder {
     }
 
     @Override
-    public void exotic_worlds$setClientBounds(WorldFold transformer) {
-        this.exotic_worlds$clientBounds = transformer;
+    public void exotic_worlds$setClientBounds(WorldFold fold) {
+        this.exotic_worlds$clientBounds = fold;
     }
 }

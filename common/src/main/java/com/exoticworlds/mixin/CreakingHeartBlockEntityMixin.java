@@ -34,7 +34,7 @@ public class CreakingHeartBlockEntityMixin {
     @Unique
     private static Vec3 exotic_worlds$nearestToHeart(CreakingHeartBlockEntity heart, Vec3 center) {
         BlockPos heartPos = heart.getBlockPos();
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(heart.getLevel());
-        return NearestCopy.toward(transformer, Vec3.atCenterOf(heartPos), center);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(heart.getLevel());
+        return NearestCopy.toward(fold, Vec3.atCenterOf(heartPos), center);
     }
 }

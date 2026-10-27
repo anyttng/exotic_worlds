@@ -21,14 +21,14 @@ import net.minecraft.world.phys.Vec3;
 public interface LeashableMixin {
     @WrapMethod(method = "leashDistanceTo")
     private double exotic_worlds$leashDistanceThroughSeam(Entity entity, Operation<Double> original) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(entity.level());
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(entity.level());
+        if (fold == null) {
             return original.call(entity);
         }
 
         Vec3 from = ((Entity) this).getBoundingBox().getCenter();
         Vec3 to = entity.getBoundingBox().getCenter();
-        return Math.sqrt(SeamRange.sqr(transformer, from, to));
+        return Math.sqrt(SeamRange.sqr(fold, from, to));
     }
 
     @WrapOperation(

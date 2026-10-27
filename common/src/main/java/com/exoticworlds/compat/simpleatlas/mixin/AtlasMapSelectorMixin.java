@@ -25,7 +25,7 @@ public class AtlasMapSelectorMixin {
     private static int exotic_worlds$centerXNearPosition(int centerX, @Local(argsOnly = true) Level level,
             @Local(argsOnly = true, ordinal = 0) double x, @Local(argsOnly = true, ordinal = 1) double z,
             @Local(name = "mapData") MapItemSavedData mapData) {
-        return MapCentreSeat.toward(WorldLoopAttachments.wrappedTransformerOf(level), Direction.Axis.X, x, z, mapData);
+        return MapCentreSeat.toward(WorldLoopAttachments.wrappedFoldOf(level), Direction.Axis.X, x, z, mapData);
     }
 
     @ModifyExpressionValue(
@@ -35,6 +35,6 @@ public class AtlasMapSelectorMixin {
     private static int exotic_worlds$centerZNearPosition(int centerZ, @Local(argsOnly = true) Level level,
             @Local(argsOnly = true, ordinal = 0) double x, @Local(argsOnly = true, ordinal = 1) double z,
             @Local(name = "mapData") MapItemSavedData mapData) {
-        return MapCentreSeat.toward(WorldLoopAttachments.wrappedTransformerOf(level), Direction.Axis.Z, x, z, mapData);
+        return MapCentreSeat.toward(WorldLoopAttachments.wrappedFoldOf(level), Direction.Axis.Z, x, z, mapData);
     }
 }

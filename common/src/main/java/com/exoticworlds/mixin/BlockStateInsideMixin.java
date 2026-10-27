@@ -19,7 +19,7 @@ public abstract class BlockStateInsideMixin {
             at = @At("HEAD"),
             argsOnly = true)
     private BlockPos exotic_worlds$canonicalInsidePos(BlockPos pos, @Local(argsOnly = true) Level level) {
-        return WorldLoopAttachments.transformerOf(level).fold(pos);
+        return WorldLoopAttachments.foldOf(level).fold(pos);
     }
 
     @ModifyVariable(
@@ -27,6 +27,6 @@ public abstract class BlockStateInsideMixin {
             at = @At("HEAD"),
             argsOnly = true)
     private BlockPos exotic_worlds$canonicalShapePos(BlockPos pos, @Local(argsOnly = true) BlockGetter getter) {
-        return WorldLoopAttachments.transformerIfLevel(getter).fold(pos);
+        return WorldLoopAttachments.foldIfLevel(getter).fold(pos);
     }
 }

@@ -175,7 +175,7 @@ public final class ToroidalShapeView implements ToroidalShape {
 
     @Override
     public AABB nearestCopy(Vec3 ref, AABB box) {
-        return this.fold.foldBox(ref, box).value();
+        return this.fold.nearestCopyOriented(ref, box).value();
     }
 
     @Override
@@ -200,7 +200,7 @@ public final class ToroidalShapeView implements ToroidalShape {
 
     @Override
     public Oriented<AABB> nearestCopyOriented(Vec3 ref, AABB box) {
-        return oriented(this.fold.foldBox(ref, box));
+        return oriented(this.fold.nearestCopyOriented(ref, box));
     }
 
     private static <T> Oriented<T> oriented(WorldFold.Folded<T> folded) {

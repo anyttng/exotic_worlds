@@ -13,11 +13,11 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.AddedStartsHolder;
-import com.exoticworlds.accessors.TransformerHolder;
+import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.engine.gen.AddedStructureStarts;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 
@@ -25,13 +25,13 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 
 @Mixin(ChunkGeneratorStructureState.class)
-public abstract class ChunkGeneratorStructureStateMixin implements TransformerHolder, AddedStartsHolder {
+public abstract class ChunkGeneratorStructureStateMixin implements FoldHolder, AddedStartsHolder {
     // Vanilla searches a radius of 112 blocks, so the answer lies in [center*16 - 104, center*16 + 120].
     @Unique
     private static final int exotic_worlds$BIOME_SEARCH_REACH_CHUNKS = 7;
 
     @Unique
-    private WorldFold exotic_worlds$transformer = WorldFolds.NOOP;
+    private WorldFold exotic_worlds$fold = WorldFolds.NOOP;
 
     @Unique
     private volatile @Nullable AddedStructureStarts exotic_worlds$addedStarts;
@@ -47,13 +47,13 @@ public abstract class ChunkGeneratorStructureStateMixin implements TransformerHo
     }
 
     @Override
-    public WorldFold exotic_worlds$transformer() {
-        return this.exotic_worlds$transformer;
+    public WorldFold exotic_worlds$fold() {
+        return this.exotic_worlds$fold;
     }
 
     @Override
-    public void exotic_worlds$setTransformer(WorldFold transformer) {
-        this.exotic_worlds$transformer = transformer;
+    public void exotic_worlds$setFold(WorldFold fold) {
+        this.exotic_worlds$fold = fold;
     }
 
     @ModifyArg(
@@ -66,32 +66,32 @@ public abstract class ChunkGeneratorStructureStateMixin implements TransformerHo
             @Local(name = "i") int ringIndex,
             @Local(name = "initialX") int ringChunkX,
             @Local(name = "initialZ") int ringChunkZ) {
-        WorldFold transformer = this.exotic_worlds$transformer;
+        WorldFold fold = this.exotic_worlds$fold;
         if (ringIndex > 0
-                && transformer.chunkOvershoot(new ChunkPos(ringChunkX, ringChunkZ)) > exotic_worlds$BIOME_SEARCH_REACH_CHUNKS) {
+                && fold.chunkOvershoot(new ChunkPos(ringChunkX, ringChunkZ)) > exotic_worlds$BIOME_SEARCH_REACH_CHUNKS) {
             ChunkPos beyondTheWorld = new ChunkPos(ringChunkX, ringChunkZ);
             return () -> beyondTheWorld;
         }
 
-        return () -> GenerationTransformerContext.withTransformer(transformer, search);
+        return () -> GenerationFoldContext.withFold(fold, search);
     }
 
     @ModifyReturnValue(method = "generateRingPositions", at = @At("RETURN"))
     private CompletableFuture<List<ChunkPos>> exotic_worlds$ringsWithinTheWorld(
             CompletableFuture<List<ChunkPos>> original) {
-        WorldFold transformer = this.exotic_worlds$transformer;
-        if (!transformer.isWrapped()) {
+        WorldFold fold = this.exotic_worlds$fold;
+        if (!fold.isWrapped()) {
             return original;
         }
 
-        return original.thenApply(positions -> exotic_worlds$theWorldsShare(transformer, positions));
+        return original.thenApply(positions -> exotic_worlds$theWorldsShare(fold, positions));
     }
 
     @Unique
-    private static List<ChunkPos> exotic_worlds$theWorldsShare(WorldFold transformer, List<ChunkPos> positions) {
+    private static List<ChunkPos> exotic_worlds$theWorldsShare(WorldFold fold, List<ChunkPos> positions) {
         List<ChunkPos> inBounds = new ArrayList<>(positions.size());
         for (ChunkPos position : positions) {
-            if (!transformer.isOver(position)) {
+            if (!fold.isOver(position)) {
                 inBounds.add(position);
             }
         }
@@ -104,6 +104,6 @@ public abstract class ChunkGeneratorStructureStateMixin implements TransformerHo
             return List.copyOf(inBounds);
         }
 
-        return List.of(transformer.fold(positions.getFirst()));
+        return List.of(fold.fold(positions.getFirst()));
     }
 }

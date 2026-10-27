@@ -35,13 +35,13 @@ class ImportRulesTest {
                     "ExoticWorldsFabricClient", "VanillaBootstrapListener");
     private static final Set<String> EXCEPTIONS = Set.of(
             "shape.climate.ClimateCompression -> engine.noise.ClimateScaleCompression",
-            "shape.torus.CoastFieldLift -> engine.noise.GenerationTransformerContext",
+            "shape.torus.CoastFieldLift -> engine.noise.GenerationFoldContext",
             "api.v1.shape.ShapeDimensions -> engine.gen.ShapedDimensions",
             "api.v1.net.PacketRewriters -> engine.net.PacketTranslator",
             "api.v1.ExoticWorldsApi -> engine.seam.circumnavigation.SeamTravel",
             "api.v1.ExoticWorldsClientApi -> engine.level.PublishedShapes",
             "api.v1.gen.GenerationProbe -> engine.gen.FloatingCrumbs",
-            "api.v1.gen.GenerationProbe -> engine.noise.GenerationTransformerContext",
+            "api.v1.gen.GenerationProbe -> engine.noise.GenerationFoldContext",
             "api.v1.gen.GenerationProbe -> engine.noise.TerrainCeiling",
             "shape.WorldShapes -> engine.gen.ShapedDimensions");
 
@@ -50,7 +50,7 @@ class ImportRulesTest {
         List<String> violations = new ArrayList<>();
         for (Path source : sourceFiles()) {
             String type = typeOf(source);
-            for (String imported : toroidalImports(source)) {
+            for (String imported : ownImports(source)) {
                 String edge = type + " -> " + imported;
                 String broken = brokenRule(type, imported);
                 if (broken != null && !EXCEPTIONS.contains(edge)) {
@@ -110,7 +110,7 @@ class ImportRulesTest {
         return type.substring(type.lastIndexOf('.') + 1);
     }
 
-    private static List<String> toroidalImports(Path source) throws IOException {
+    private static List<String> ownImports(Path source) throws IOException {
         List<String> imported = new ArrayList<>();
         for (String line : Files.readAllLines(source, StandardCharsets.UTF_8)) {
             String statement = line.strip();

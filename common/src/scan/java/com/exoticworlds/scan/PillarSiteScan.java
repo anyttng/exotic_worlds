@@ -2,7 +2,7 @@ package com.exoticworlds.scan;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.TerrainCeiling;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.randomState;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.settingsOf;
@@ -63,7 +63,7 @@ class PillarSiteScan {
         report.add("window " + WINDOW + " blocks around x=" + site.blockX() + " z=" + site.blockZ());
         report.add("");
 
-        GenerationTransformerContext.runWithTransformer(fold, () -> {
+        GenerationFoldContext.runWithFold(fold, () -> {
             report.add("at x=" + site.blockX() + " z=" + site.blockZ() + ": preliminary surface y="
                     + round(at(surface, site.blockX(), site.blockZ())) + ", ceiling y="
                     + round(at(ceiling, site.blockX(), site.blockZ())));

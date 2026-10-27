@@ -83,7 +83,7 @@ class FormerPlayerFilesTest {
             assertEquals(SELECTED_SLOT, player.getIntOr(VANILLA_KEY, -1), file);
             SeamTravel travel = TagValueInput.create(ProblemReporter.DISCARDING, registries, player)
                     .read(TRAVEL_KEY, SeamTravel.CODEC).orElseThrow();
-            assertEquals(new SeamTravel.Lap(TRAVELLED_X, TRAVELLED_Z), travel.in(Level.OVERWORLD), file);
+            assertEquals(new SeamTravel.LapProgress(TRAVELLED_X, TRAVELLED_Z), travel.in(Level.OVERWORLD), file);
         }
 
         String written = Files.readString(advancements.resolve(ADVANCEMENTS), StandardCharsets.UTF_8);

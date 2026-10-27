@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.compat.OpenSimplexStandIn;
 import com.exoticworlds.compat.betterend.mixin.TerrainGeneratorAccessor;
 import com.exoticworlds.engine.fold.FoldedQuart;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -88,7 +88,7 @@ public final class LapTerrain {
         ReentrantLock locker = TerrainGeneratorAccessor.exotic_worlds$locker();
         locker.lock();
         try {
-            GenerationTransformerContext.runWithTransformer(lap.fold(), () -> fillFolded(lap, layers, buffer,
+            GenerationFoldContext.runWithFold(lap.fold(), () -> fillFolded(lap, layers, buffer,
                     lap.foldX(posX, posZ), lap.foldZ(posZ), scaleXZ, scaleY, maxHeight));
         } finally {
             locker.unlock();

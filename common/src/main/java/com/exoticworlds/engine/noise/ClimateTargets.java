@@ -4,7 +4,7 @@ import net.minecraft.core.QuartPos;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.levelgen.DensityFunction;
 
-public final class ClimateFields {
+public final class ClimateTargets {
     public static Climate.TargetPoint at(Climate.Sampler sampler, int quartX, int quartY, int quartZ) {
         DensityFunction.SinglePointContext context = new DensityFunction.SinglePointContext(
                 QuartPos.toBlock(quartX), QuartPos.toBlock(quartY), QuartPos.toBlock(quartZ));
@@ -17,6 +17,6 @@ public final class ClimateFields {
                 (float) sampler.weirdness().compute(context));
     }
 
-    private ClimateFields() {
+    private ClimateTargets() {
     }
 }

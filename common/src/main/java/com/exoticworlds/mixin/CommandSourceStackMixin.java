@@ -40,8 +40,8 @@ public class CommandSourceStackMixin {
             at = @At(value = "NEW", target = InjectionTargets.VEC3_NEW))
     private Vec3 exotic_worlds$mapByWidthRatio(double x, double y, double z, Operation<Vec3> original,
             @Local(argsOnly = true) ServerLevel newLevel) {
-        WorldFold destination = WorldLoopAttachments.wrappedTransformerOf(newLevel);
-        WorldFold source = WorldLoopAttachments.wrappedTransformerOf(this.level);
+        WorldFold destination = WorldLoopAttachments.wrappedFoldOf(newLevel);
+        WorldFold source = WorldLoopAttachments.wrappedFoldOf(this.level);
         if (destination == null || source == null) {
             return original.call(x, y, z);
         }
@@ -57,8 +57,8 @@ public class CommandSourceStackMixin {
             at = @At("HEAD"),
             argsOnly = true)
     private Vec3 exotic_worlds$faceNearestCopy(Vec3 pos) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.level);
         Vec3 from = this.anchor.apply((CommandSourceStack) (Object) this);
-        return NearestCopy.toward(transformer, from, pos);
+        return NearestCopy.toward(fold, from, pos);
     }
 }

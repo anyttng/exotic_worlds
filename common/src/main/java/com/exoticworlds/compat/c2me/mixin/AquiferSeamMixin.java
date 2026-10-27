@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.bawnorton.mixinsquared.TargetHandler;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -30,13 +30,13 @@ public class AquiferSeamMixin {
             int gridY,
             int gridZ,
             Operation<Void> original) {
-        WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
-        if (transformer == null) {
+        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        if (fold == null) {
             original.call(factory, random, gridX, gridY, gridZ);
             return;
         }
 
-        long canonical = transformer.foldChunkKey(ChunkPos.pack(gridX, gridZ));
+        long canonical = fold.foldChunkKey(ChunkPos.pack(gridX, gridZ));
         original.call(factory, random, ChunkPos.getX(canonical), gridY, ChunkPos.getZ(canonical));
     }
 }

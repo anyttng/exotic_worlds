@@ -28,7 +28,7 @@ public final class ClientPosition {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     // Written on the server thread and read on the network thread, so the four values change together or not at all.
-    private record Mirror(double x, double z, @Nullable ResourceKey<Level> space, WorldFold transformer) {
+    private record Mirror(double x, double z, @Nullable ResourceKey<Level> space, WorldFold fold) {
     }
 
     private record CameraCopy(double x, double z, boolean left) {
@@ -79,7 +79,7 @@ public final class ClientPosition {
         Mirror currMirror = this.mirror;
         Vec3 seated = clientCopy(writer, currMirror, new Vec3(x, 0.0, z));
         checkStep(writer, stepOrigin(writer, currMirror), seated);
-        this.mirror = new Mirror(seated.x, seated.z, currMirror.space(), currMirror.transformer());
+        this.mirror = new Mirror(seated.x, seated.z, currMirror.space(), currMirror.fold());
         if (writer == MirrorWriter.POSITION_PACKET) {
             this.cameraCopy = null;
         }
@@ -88,7 +88,7 @@ public final class ClientPosition {
     private Mirror stepOrigin(MirrorWriter writer, Mirror currMirror) {
         CameraCopy copy = this.cameraCopy;
         return writer == MirrorWriter.POSITION_PACKET && copy != null
-                ? new Mirror(copy.x(), copy.z(), currMirror.space(), currMirror.transformer())
+                ? new Mirror(copy.x(), copy.z(), currMirror.space(), currMirror.fold())
                 : currMirror;
     }
 
@@ -111,7 +111,7 @@ public final class ClientPosition {
             return;
         }
 
-        Vec3 seated = currMirror.transformer().nearestCopy(anchor(currMirror, copy, 0.0),
+        Vec3 seated = currMirror.fold().nearestCopy(anchor(currMirror, copy, 0.0),
                 new Vec3(camera.x, 0.0, camera.z));
         this.cameraCopy = new CameraCopy(seated.x, seated.z, false);
     }
@@ -160,13 +160,13 @@ public final class ClientPosition {
             return;
         }
 
-        WorldFold transformer = WorldLoopAttachments.transformerOf(player.level());
-        Vec3 folded = transformer.fold(player.position());
-        of(player).rebase(folded.x, folded.z, player.level().dimension(), transformer);
+        WorldFold fold = WorldLoopAttachments.foldOf(player.level());
+        Vec3 folded = fold.fold(player.position());
+        of(player).rebase(folded.x, folded.z, player.level().dimension(), fold);
     }
 
-    public void rebase(double x, double z, ResourceKey<Level> dimension, WorldFold transformer) {
-        this.mirror = new Mirror(x, z, dimension, transformer);
+    public void rebase(double x, double z, ResourceKey<Level> dimension, WorldFold fold) {
+        this.mirror = new Mirror(x, z, dimension, fold);
         this.cameraCopy = null;
         this.heldSpawn = null;
         this.heldBorderCenter = null;
@@ -227,13 +227,13 @@ public final class ClientPosition {
 
     private static Vec3 clientCopy(MirrorWriter writer, Mirror currMirror, Vec3 reported) {
         return writer.needsSeating()
-                ? currMirror.transformer().nearestCopy(new Vec3(currMirror.x(), 0.0, currMirror.z()), reported)
+                ? currMirror.fold().nearestCopy(new Vec3(currMirror.x(), 0.0, currMirror.z()), reported)
                 : reported;
     }
 
     private void checkStep(MirrorWriter writer, Mirror from, Vec3 to) {
         Vec3 step = new Vec3(to.x - from.x(), 0.0, to.z - from.z());
-        if (SeamDelta.fold(from.transformer(), step).equals(step) || !warnGate.tryPass()) {
+        if (SeamDelta.fold(from.fold(), step).equals(step) || !warnGate.tryPass()) {
             return;
         }
 

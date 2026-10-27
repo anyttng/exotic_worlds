@@ -28,7 +28,7 @@ public class PoiClosestBatchMixin {
             PoiManager.Occupancy status,
             long count,
             Operation<Collection<Pair<Holder<PoiType>, BlockPos>>> original) {
-        if (!WorldLoopAttachments.transformerIfLevel(((SectionStorageAccessor) this).exotic_worlds$getLevelHeightAccessor())
+        if (!WorldLoopAttachments.foldIfLevel(((SectionStorageAccessor) this).exotic_worlds$getLevelHeightAccessor())
                 .isWrapped()) {
             return original.call(typeFilter, posFilter, center, radius, status, count);
         }

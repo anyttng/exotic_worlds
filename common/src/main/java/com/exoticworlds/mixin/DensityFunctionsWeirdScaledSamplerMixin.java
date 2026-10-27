@@ -3,8 +3,8 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -26,8 +26,8 @@ public class DensityFunctionsWeirdScaledSamplerMixin {
             Operation<Double> original,
             @Local(argsOnly = true) DensityFunction.FunctionContext context,
             @Local(ordinal = 1) double rarity) {
-        Context generation = GenerationTransformerContext.context();
-        if (!generation.transformer().isWrapped()) {
+        Context generation = GenerationFoldContext.context();
+        if (!generation.fold().isWrapped()) {
             return original.call(noiseHolder, scaledX, scaledY, scaledZ);
         }
 

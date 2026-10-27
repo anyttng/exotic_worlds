@@ -17,7 +17,7 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.climate.ClimateCompressionCacheFixture.Storing;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
@@ -161,7 +161,7 @@ class ClimateCompressionTest {
     @Test
     void aVerticallyLiveFieldIsNeverCompressed() {
         assertEquals(1.0, actual(TEMPERATURE, square(32), 0.5), TOLERANCE, "declared vertical share");
-        assertEquals(1.0, actual(TEMPERATURE, square(32), GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE),
+        assertEquals(1.0, actual(TEMPERATURE, square(32), GenerationFoldContext.UNDECLARED_VERTICAL_SHARE),
                 TOLERANCE, "undeclared vertical share");
     }
 
@@ -180,7 +180,7 @@ class ClimateCompressionTest {
                 TEMPERATURE_NETHER)) {
             for (int chunkWidth : new int[] {16, 32, 64, 128, 256, 512}) {
                 for (double share : new double[] {HORIZONTAL, 0.5,
-                        GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE}) {
+                        GenerationFoldContext.UNDECLARED_VERTICAL_SHARE}) {
                     WorldFold fold = square(chunkWidth);
                     Storing cache = new Storing();
                     String where = field.name() + " on " + chunkWidth * 16 + " blocks, share " + share;

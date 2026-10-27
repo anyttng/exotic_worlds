@@ -29,7 +29,7 @@ public class DistanceBoundsMixin {
             double referenceX, double referenceY, double referenceZ,
             double measuredX, double measuredY, double measuredZ,
             Operation<Boolean> original, @Local(argsOnly = true) ServerLevel level) {
-        Vec3 folded = WorldLoopAttachments.transformerOf(level).nearestCopy(
+        Vec3 folded = WorldLoopAttachments.foldOf(level).nearestCopy(
                 new Vec3(referenceX, referenceY, referenceZ),
                 new Vec3(measuredX, measuredY, measuredZ));
         return original.call(bounds, referenceX, referenceY, referenceZ, folded.x, folded.y, folded.z);

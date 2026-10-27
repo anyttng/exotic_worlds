@@ -51,7 +51,7 @@ class BlendedNoiseVanillaAtFoldTest {
                 double expected = EVERY_STACK_PAST_THE_INDEX.compute(new DensityFunction.SinglePointContext(
                         lattice.foldX(block[0], block[1]), y, lattice.foldZ(block[1])));
                 DensityFunction.FunctionContext at = new DensityFunction.SinglePointContext(block[0], y, block[1]);
-                double folded = GenerationTransformerContext.withTransformer(WIDE,
+                double folded = GenerationFoldContext.withFold(WIDE,
                         () -> EVERY_STACK_PAST_THE_INDEX.compute(at));
                 assertEquals(expected, folded,
                         "vanilla at the folded block at (" + block[0] + ", " + y + ", " + block[1] + ")");

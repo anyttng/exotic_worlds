@@ -73,7 +73,7 @@ class NoiseScalePairTest {
             for (int j = 0; j < GRID_STEPS; j++) {
                 DensityFunction.FunctionContext at =
                         new DensityFunction.SinglePointContext(lower + i * step, SAMPLE_Y, lower + j * step);
-                double value = GenerationTransformerContext.withTransformer(fold, () -> gap.compute(at));
+                double value = GenerationFoldContext.withFold(fold, () -> gap.compute(at));
                 widest = Math.max(widest, Math.abs(value));
             }
         }

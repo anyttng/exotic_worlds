@@ -11,7 +11,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
@@ -31,7 +31,7 @@ public class LivingEntityMixin {
 
     @ModifyVariable(method = "startSleeping", at = @At("HEAD"), argsOnly = true)
     private BlockPos exotic_worlds$wrapBedPosition(BlockPos bedPosition) {
-        return WorldLoopAttachments.transformerOf(((LivingEntity) (Object) this).level()).fold(bedPosition);
+        return WorldLoopAttachments.foldOf(((LivingEntity) (Object) this).level()).fold(bedPosition);
     }
 
     @WrapMethod(method = "knockback(DDD)V")
@@ -76,14 +76,14 @@ public class LivingEntityMixin {
             method = CHECK_FALL_DAMAGE,
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;blockPosition()Lnet/minecraft/core/BlockPos;"))
     private BlockPos exotic_worlds$landingBlockNearBlock(BlockPos entityPos, @Local(argsOnly = true) BlockPos pos) {
-        WorldFold transformer = ((TransformerSource) this).exotic_worlds$wrappedTransformer();
-        return NearestCopy.toward(transformer, pos, entityPos);
+        WorldFold fold = ((FoldSource) this).exotic_worlds$wrappedFold();
+        return NearestCopy.toward(fold, pos, entityPos);
     }
 
     @Unique
     private double exotic_worlds$nearestLandingCoordinate(Direction.Axis axis, double coordinate, BlockPos landingBlock) {
-        WorldFold transformer = ((TransformerSource) this).exotic_worlds$wrappedTransformer();
+        WorldFold fold = ((FoldSource) this).exotic_worlds$wrappedFold();
         Vec3 position = ((LivingEntity) (Object) this).position().with(axis, coordinate);
-        return NearestCopy.toward(transformer, axis, Vec3.atCenterOf(landingBlock), position);
+        return NearestCopy.toward(fold, axis, Vec3.atCenterOf(landingBlock), position);
     }
 }

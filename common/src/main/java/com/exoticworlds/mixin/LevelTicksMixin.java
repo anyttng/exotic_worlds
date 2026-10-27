@@ -30,17 +30,17 @@ public class LevelTicksMixin<T> implements LevelBindable {
 
     @ModifyVariable(method = "schedule", at = @At("HEAD"), argsOnly = true)
     private ScheduledTick<T> exotic_worlds$fileTickAtPhysicalPos(ScheduledTick<T> tick) {
-        WorldFold transformer = this.exotic_worlds$bound.wrapped();
-        if (transformer == null) {
+        WorldFold fold = this.exotic_worlds$bound.wrapped();
+        if (fold == null) {
             return tick;
         }
 
         BlockPos pos = tick.pos();
-        if (!transformer.isOver(pos)) {
+        if (!fold.isOver(pos)) {
             return tick;
         }
 
-        return new ScheduledTick<>(tick.type(), transformer.fold(pos), tick.triggerTick(), tick.priority(),
+        return new ScheduledTick<>(tick.type(), fold.fold(pos), tick.triggerTick(), tick.priority(),
                 tick.subTickOrder());
     }
 
@@ -61,8 +61,8 @@ public class LevelTicksMixin<T> implements LevelBindable {
 
     @Inject(method = "clearArea", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$clearEachCopyOfTheArea(BoundingBox area, CallbackInfo ci) {
-        WorldFold transformer = this.exotic_worlds$bound.wrapped();
-        if (transformer == null || !transformer.crossesBounds(area)) {
+        WorldFold fold = this.exotic_worlds$bound.wrapped();
+        if (fold == null || !fold.crossesBounds(area)) {
             return;
         }
 
@@ -70,7 +70,7 @@ public class LevelTicksMixin<T> implements LevelBindable {
 
         @SuppressWarnings("unchecked")
         LevelTicks<T> ticks = (LevelTicks<T>) (Object) this;
-        for (Folded<BoundingBox> piece : transformer.split(area)) {
+        for (Folded<BoundingBox> piece : fold.split(area)) {
             ticks.clearArea(piece.value());
         }
     }

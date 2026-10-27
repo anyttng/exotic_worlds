@@ -2,7 +2,7 @@ package com.exoticworlds.engine.noise;
 
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WrapDomain;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 
 public enum SlotAxis {
     X,

@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -22,12 +22,12 @@ public class PlayerMixin {
             method = "isWithinBlockInteractionRange",
             at = @At(value = "INVOKE", target = InjectionTargets.AABB_DISTANCE_TO_SQR))
     private double exotic_worlds$wrappedBlockReach(AABB block, Vec3 eye, Operation<Double> original) {
-        WorldFold transformer = ((TransformerSource) this).exotic_worlds$wrappedTransformer();
-        if (transformer == null) {
+        WorldFold fold = ((FoldSource) this).exotic_worlds$wrappedFold();
+        if (fold == null) {
             return original.call(block, eye);
         }
 
-        return transformer.sqrDistanceToBox(block, eye);
+        return fold.sqrDistanceToBox(block, eye);
     }
 
     @WrapMethod(method = "isWithinEntityInteractionRange(Lnet/minecraft/world/phys/AABB;D)Z")

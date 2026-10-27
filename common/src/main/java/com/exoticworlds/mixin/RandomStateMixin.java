@@ -18,7 +18,7 @@ import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.gen.CanonicalRandomFactory;
 import com.exoticworlds.engine.noise.DensityRewrites;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
 
 import net.minecraft.core.HolderGetter;
@@ -37,7 +37,7 @@ public class RandomStateMixin {
     @ModifyExpressionValue(method = CONSTRUCTOR, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;noiseRouter()Lnet/minecraft/world/level/levelgen/NoiseRouter;"))
     private NoiseRouter exotic_worlds$rewriteKeyedDensities(NoiseRouter router) {
-        WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
+        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
         return fold != null ? DensityRewrites.apply(router, fold) : router;
     }
 
@@ -75,7 +75,7 @@ public class RandomStateMixin {
             opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
     private void exotic_worlds$separateCloseNoiseScales(NoiseGeneratorSettings settings,
             HolderGetter<NormalNoise.NoiseParameters> noises, long seed, CallbackInfo callback) {
-        WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
+        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
         if (fold != null) {
             NoiseScaleLadder.of(fold, exotic_worlds$roots(((RandomState) (Object) this).router())).install();
         }
@@ -84,7 +84,7 @@ public class RandomStateMixin {
     @Inject(method = CONSTRUCTOR, at = @At("RETURN"))
     private void exotic_worlds$runGenerationHooks(NoiseGeneratorSettings settings,
             HolderGetter<NormalNoise.NoiseParameters> noises, long seed, CallbackInfo callback) {
-        WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
+        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
         if (fold != null) {
             ((FoldedClimateSampler) (Object) ((RandomState) (Object) this).sampler()).exotic_worlds$fold(fold);
             GenerationMoments.runAtRandomState((RandomState) (Object) this, new ToroidalShapeView(fold),
@@ -94,7 +94,7 @@ public class RandomStateMixin {
 
     @Unique
     private static PositionalRandomFactory exotic_worlds$canonical(PositionalRandomFactory factory) {
-        WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
+        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
         return fold == null ? factory : new CanonicalRandomFactory(factory, fold);
     }
 

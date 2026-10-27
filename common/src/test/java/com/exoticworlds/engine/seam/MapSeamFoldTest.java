@@ -26,18 +26,18 @@ class MapSeamFoldTest {
     void withNoLevelAndNoServerTheMapTakesItsDimensionsPublishedFold() {
         PublishedShapes.publish(Level.OVERWORLD, PUBLISHED);
 
-        assertSame(PUBLISHED, MapSeamFold.transformerFor(null, Level.OVERWORLD));
+        assertSame(PUBLISHED, MapSeamFold.foldFor(null, Level.OVERWORLD));
     }
 
     @Test
     void withNothingPublishedTheMapIsUnfolded() {
-        assertNull(MapSeamFold.transformerFor(null, Level.OVERWORLD));
+        assertNull(MapSeamFold.foldFor(null, Level.OVERWORLD));
     }
 
     @Test
     void anotherDimensionsPublishedFoldIsNotTheMapsFold() {
         PublishedShapes.publish(Level.NETHER, PUBLISHED);
 
-        assertNull(MapSeamFold.transformerFor(null, Level.OVERWORLD));
+        assertNull(MapSeamFold.foldFor(null, Level.OVERWORLD));
     }
 }

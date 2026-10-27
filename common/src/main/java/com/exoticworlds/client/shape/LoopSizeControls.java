@@ -118,16 +118,19 @@ public final class LoopSizeControls {
             Button presetButton = presetRow.addChild(Button.builder(presetLabel(preset), button -> this.apply(preset))
                     .width(PRESET_WIDTH)
                     .build());
-            presetButton.setTooltip(Tooltip.create(
-                    this.size.effectiveLine(preset.chunkWidth()).copy()
-                            .append(CommonComponents.NEW_LINE)
-                            .append(netherScaleLine(preset.netherScale()))
-                            .append(CommonComponents.NEW_LINE)
-                            .append(this.endSize.effectiveLine(preset.endChunkWidth()))
-                            .append(CommonComponents.NEW_LINE)
-                            .append(Component.translatable(structureRoomKey(preset.chunkWidth())))));
+            presetButton.setTooltip(this.presetTooltip(preset));
             this.presetButtons.put(preset, presetButton);
         }
+    }
+
+    private Tooltip presetTooltip(WorldLoopPresets preset) {
+        return Tooltip.create(this.size.effectiveLine(preset.chunkWidth()).copy()
+                .append(CommonComponents.NEW_LINE)
+                .append(netherScaleLine(preset.netherScale()))
+                .append(CommonComponents.NEW_LINE)
+                .append(this.endSize.effectiveLine(preset.endChunkWidth()))
+                .append(CommonComponents.NEW_LINE)
+                .append(Component.translatable(structureRoomKey(preset.chunkWidth()))));
     }
 
     @Initializer
@@ -256,8 +259,11 @@ public final class LoopSizeControls {
         this.scalePickedForXSize = xSizeChunks;
         this.scalePickedForZSize = zSizeChunks;
         this.scalePickedForSkew = skewChunks;
-        this.netherScaleButton.active = allowed.size() > 1;
+        this.showNetherScale(xSizeChunks, zSizeChunks, allowed);
+    }
 
+    private void showNetherScale(int xSizeChunks, int zSizeChunks, List<Integer> allowed) {
+        this.netherScaleButton.active = allowed.size() > 1;
         this.netherScaleButton.setMessage(netherScaleLine(this.netherScale));
         this.netherScaleButton.setTooltip(Tooltip.create(
                 this.netherEffectiveLine(xSizeChunks, zSizeChunks).copy()

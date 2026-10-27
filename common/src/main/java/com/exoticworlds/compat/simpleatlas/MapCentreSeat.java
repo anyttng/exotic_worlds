@@ -18,7 +18,7 @@ public final class MapCentreSeat {
     }
 
     public static int towardWaypoint(Direction.Axis axis, AtlasContents.WaypointData waypoint, MapItemSavedData data) {
-        return toward(MapSeamFold.transformerFor(null, data.dimension), axis, waypoint.worldX(), waypoint.worldZ(),
+        return toward(MapSeamFold.foldFor(null, data.dimension), axis, waypoint.worldX(), waypoint.worldZ(),
                 data);
     }
 

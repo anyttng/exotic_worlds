@@ -4,7 +4,7 @@ import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -18,7 +18,7 @@ public class DebugEntryChunkGenerationMixin {
     @WrapMethod(method = "update")
     private void exotic_worlds$sampleThisWorldsField(@Nullable LevelChunk serverChunk, BlockPos feetPos,
             ServerLevel serverLevel, Operation<Void> original) {
-        GenerationTransformerContext.runWithTransformer(WorldLoopAttachments.transformerOf(serverLevel),
+        GenerationFoldContext.runWithFold(WorldLoopAttachments.foldOf(serverLevel),
                 () -> original.call(serverChunk, feetPos, serverLevel));
     }
 }

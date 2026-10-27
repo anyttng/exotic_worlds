@@ -208,71 +208,71 @@ public final class DeckGroupFold implements WorldFold {
 
     @Override
     public Folded<Vec3> foldOriented(Vec3 pos) {
-        SeamTransform applied = this.blocks.foldCoords(pos.x, pos.z);
+        SeamTransform applied = this.blocks.foldMoveOfCoord(pos.x, pos.z);
         return new Folded<>(applied.apply(pos), applied.orientation());
     }
 
     @Override
     public Folded<BlockPos> foldOriented(BlockPos pos) {
-        SeamTransform applied = this.blocks.foldCells(pos.getX(), pos.getZ());
+        SeamTransform applied = this.blocks.foldMoveOfCell(pos.getX(), pos.getZ());
         return new Folded<>(applied.apply(pos), applied.orientation());
     }
 
     @Override
     public Folded<ChunkPos> foldOriented(ChunkPos pos) {
-        SeamTransform applied = this.chunks.foldCells(pos.x(), pos.z());
+        SeamTransform applied = this.chunks.foldMoveOfCell(pos.x(), pos.z());
         return new Folded<>(applied.apply(pos), applied.orientation());
     }
 
     @Override
     public Vec3 nearestCopy(Vec3 ref, Vec3 target) {
-        return this.blocks.nearestCoords(ref.x, ref.z, target.x, target.z).apply(target);
+        return this.blocks.nearestMoveOfCoord(ref.x, ref.z, target.x, target.z).apply(target);
     }
 
     @Override
     public BlockPos nearestCopy(BlockPos ref, BlockPos target) {
-        return this.blocks.nearestCells(ref.getX(), ref.getZ(), target.getX(), target.getZ()).apply(target);
+        return this.blocks.nearestMoveOfCell(ref.getX(), ref.getZ(), target.getX(), target.getZ()).apply(target);
     }
 
     @Override
     public ChunkPos nearestCopy(ChunkPos ref, ChunkPos target) {
-        return this.chunks.nearestCells(ref.x(), ref.z(), target.x(), target.z()).apply(target);
+        return this.chunks.nearestMoveOfCell(ref.x(), ref.z(), target.x(), target.z()).apply(target);
     }
 
     @Override
     public long nearestCopyChunkKey(long refKey, long chunkKey) {
         int x = ChunkPos.getX(chunkKey);
         int z = ChunkPos.getZ(chunkKey);
-        SeamTransform move = this.chunks.nearestCells(ChunkPos.getX(refKey), ChunkPos.getZ(refKey), x, z);
+        SeamTransform move = this.chunks.nearestMoveOfCell(ChunkPos.getX(refKey), ChunkPos.getZ(refKey), x, z);
         return move.isIdentity() ? chunkKey : ChunkPos.pack(move.applyCellX(x), move.applyCellZ(z));
     }
 
     @Override
     public Folded<Vec3> nearestCopyOriented(Vec3 ref, Vec3 target) {
-        SeamTransform move = this.blocks.nearestCoords(ref.x, ref.z, target.x, target.z);
+        SeamTransform move = this.blocks.nearestMoveOfCoord(ref.x, ref.z, target.x, target.z);
         return new Folded<>(move.apply(target), move.orientation());
     }
 
     @Override
     public Folded<BlockPos> nearestCopyOriented(BlockPos ref, BlockPos target) {
-        SeamTransform move = this.blocks.nearestCells(ref.getX(), ref.getZ(), target.getX(), target.getZ());
+        SeamTransform move = this.blocks.nearestMoveOfCell(ref.getX(), ref.getZ(), target.getX(), target.getZ());
         return new Folded<>(move.apply(target), move.orientation());
     }
 
     @Override
     public DeckTransformation foldTransformation(Vec3 pos) {
-        SeamTransform applied = this.blocks.foldCoords(pos.x, pos.z);
+        SeamTransform applied = this.blocks.foldMoveOfCoord(pos.x, pos.z);
         return applied.isIdentity() ? DeckTransformation.IDENTITY : new DeckTransformation(applied);
     }
 
     @Override
     public DeckTransformation nearestCopyTransformation(Vec3 ref, Vec3 target) {
-        return carried(this.blocks.nearestCoords(ref.x, ref.z, target.x, target.z));
+        return carried(this.blocks.nearestMoveOfCoord(ref.x, ref.z, target.x, target.z));
     }
 
     @Override
     public DeckTransformation nearestCopyTransformation(BlockPos ref, BlockPos target) {
-        return carried(this.blocks.nearestCells(ref.getX(), ref.getZ(), target.getX(), target.getZ()));
+        return carried(this.blocks.nearestMoveOfCell(ref.getX(), ref.getZ(), target.getX(), target.getZ()));
     }
 
     private static DeckTransformation carried(SeamTransform move) {
@@ -317,7 +317,7 @@ public final class DeckGroupFold implements WorldFold {
 
     @Override
     public double sqrDistanceToBox(AABB box, Vec3 point) {
-        return this.blocks.nearestBoxGap(point.x, point.z, box) + SeamBoxes.sqrYGap(box, point);
+        return this.blocks.nearestBoxSqrGap(point.x, point.z, box) + SeamBoxes.sqrYGap(box, point);
     }
 
     @Override
@@ -392,8 +392,8 @@ public final class DeckGroupFold implements WorldFold {
     }
 
     @Override
-    public Folded<AABB> foldBox(Vec3 ref, AABB box) {
-        SeamTransform move = this.blocks.nearestCoords(ref.x, ref.z,
+    public Folded<AABB> nearestCopyOriented(Vec3 ref, AABB box) {
+        SeamTransform move = this.blocks.nearestMoveOfCoord(ref.x, ref.z,
                 SeamBoxes.center(box.minX, box.maxX), SeamBoxes.center(box.minZ, box.maxZ));
         return move.isIdentity() ? Folded.of(box) : new Folded<>(move.apply(box), move.orientation());
     }

@@ -7,7 +7,7 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.DoubleStack;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 import net.minecraft.core.Direction;
 
@@ -104,7 +104,7 @@ public final class RtfLap {
                 return;
             }
 
-            WorldFold fold = GenerationTransformerContext.context().wrappedTransformer();
+            WorldFold fold = GenerationFoldContext.context().wrappedFold();
             if (fold != this.followed) {
                 this.followed = fold;
                 seat(fold);

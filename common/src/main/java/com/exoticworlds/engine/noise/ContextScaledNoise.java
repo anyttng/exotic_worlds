@@ -5,7 +5,7 @@ import com.exoticworlds.accessors.IndexableNoise;
 import com.exoticworlds.accessors.WrappedNormalNoise;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
@@ -56,28 +56,28 @@ public final class ContextScaledNoise {
     }
 
     // Bound rather than read: a sample on a thread nothing bound would otherwise write vanilla terrain to disk.
-    public static double sampleWrapped(WorldFold transformer, SlotAxes axes,
+    public static double sampleWrapped(WorldFold fold, SlotAxes axes,
             DensityFunction.NoiseHolder noise,
             double x, double y, double z, double horizontalScale, double vanillaScale, double verticalShare) {
-        Context context = GenerationTransformerContext.context();
+        Context context = GenerationFoldContext.context();
 
-        try (Context.BindingScope _ = context.bind(transformer, axes, horizontalScale, vanillaScale,
+        try (Context.BindingScope _ = context.bind(fold, axes, horizontalScale, vanillaScale,
                 verticalShare)) {
             return wrappedValue(context, noise, x, y, z);
         }
     }
 
-    public static double sampleWrappedWarped(WorldFold transformer, DensityFunction.NoiseHolder noise,
+    public static double sampleWrappedWarped(WorldFold fold, DensityFunction.NoiseHolder noise,
             int blockX, double y, int blockZ, double shiftX, double shiftZ, double warpDivisor,
             double horizontalScale, double vanillaScale, double verticalShare) {
-        return sampleWrappedWarped(GenerationTransformerContext.context(), transformer, noise, blockX, y, blockZ,
+        return sampleWrappedWarped(GenerationFoldContext.context(), fold, noise, blockX, y, blockZ,
                 shiftX, shiftZ, warpDivisor, horizontalScale, vanillaScale, verticalShare);
     }
 
-    public static double sampleWrappedWarped(Context context, WorldFold transformer,
+    public static double sampleWrappedWarped(Context context, WorldFold fold,
             DensityFunction.NoiseHolder noise, int blockX, double y, int blockZ, double shiftX, double shiftZ,
             double warpDivisor, double horizontalScale, double vanillaScale, double verticalShare) {
-        try (Context.BindingScope _ = context.bind(transformer, SlotAxes.DEFAULT, horizontalScale, vanillaScale,
+        try (Context.BindingScope _ = context.bind(fold, SlotAxes.DEFAULT, horizontalScale, vanillaScale,
                 verticalShare)) {
             return warped(context, noise, blockX, y, blockZ, shiftX, shiftZ, warpDivisor);
         }
@@ -85,7 +85,7 @@ public final class ContextScaledNoise {
 
     public static double vanillaAtFoldedSlots(Context context, NormalNoise noise, double x, double y, double z) {
         SlotAxes axes = context.slotAxes();
-        TranslationLattice lattice = context.transformer().blockLattice();
+        TranslationLattice lattice = context.fold().blockLattice();
         double worldZ = worldCoord(axes, SlotAxis.Z, x, y, z);
         double foldedX = lattice.foldX(worldCoord(axes, SlotAxis.X, x, y, z), worldZ);
         double foldedZ = lattice.foldZ(worldZ);
@@ -100,7 +100,7 @@ public final class ContextScaledNoise {
 
     private static double warped(Context context, DensityFunction.NoiseHolder noise,
             int blockX, double y, int blockZ, double shiftX, double shiftZ, double warpDivisor) {
-        TranslationLattice lattice = context.transformer().blockLattice();
+        TranslationLattice lattice = context.fold().blockLattice();
         double vanillaScale = context.vanillaScale();
         if (!indexable(context, noise) || !DomainWarp.carries(lattice, blockX, blockZ, shiftX, shiftZ, vanillaScale)) {
             return vanillaAt(context, noise, lattice.foldX(blockX, blockZ) * vanillaScale + shiftX, y,

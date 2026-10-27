@@ -42,8 +42,8 @@ public class PortalForcerMixin {
             boolean toNether,
             WorldBorder worldBorder,
             Operation<Optional<BlockPos>> original) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.level);
+        if (fold == null) {
             return original.call(approximateExitPos, toNether, worldBorder);
         }
 
@@ -57,6 +57,6 @@ public class PortalForcerMixin {
                 .map(PoiRecord::getPos)
                 .filter(worldBorder::isWithinBounds)
                 .filter(pos -> this.level.getBlockState(pos).hasProperty(BlockStateProperties.HORIZONTAL_AXIS))
-                .min(FoldedOrder.around(byDistance, transformer, approximateExitPos));
+                .min(FoldedOrder.around(byDistance, fold, approximateExitPos));
     }
 }

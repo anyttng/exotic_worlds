@@ -16,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 
 public final class SeamSnap {
     public static boolean intoBounds(Entity entity) {
-        DeckTransformation lap = WorldLoopAttachments.transformerOf(entity.level()).foldTransformation(entity.position());
+        DeckTransformation lap = WorldLoopAttachments.foldOf(entity.level()).foldTransformation(entity.position());
         if (lap.isIdentity()) {
             return false;
         }
@@ -27,31 +27,12 @@ public final class SeamSnap {
 
     // mc/1.21: Create's carriage moves its riders by the carriage's own lap.
     public static void withPassengers(Entity entity, DeckTransformation lap) {
-        SeamTransform applied = lap.blocks();
         Vec3 from = entity.position();
         Vec3 to = lap.apply(from);
-        if (entity instanceof BlockAttachedEntity attached) {
-            attached.setPos(Vec3.atCenterOf(lap.apply(attached.getPos())));
-        } else {
-            entity.setPos(to.x, to.y, to.z);
-        }
-
-        entity.xo = applied.applyX(entity.xo);
-        entity.zo = applied.applyZ(entity.zo);
-        entity.xOld = applied.applyX(entity.xOld);
-        entity.zOld = applied.applyZ(entity.zOld);
-        EntityAccessor stored = (EntityAccessor) entity;
-        @Nullable Vec3 known = stored.exotic_worlds$lastKnownPosition();
-        if (known != null) {
-            stored.exotic_worlds$setLastKnownPosition(lap.apply(known));
-        }
-
+        moveBody(entity, lap, to);
+        moveHistory(entity, lap);
         if (entity instanceof Mob mob) {
-            int shiftX = (int) Math.round(to.x - from.x);
-            int shiftZ = (int) Math.round(to.z - from.z);
-            ((NavigationShifter) mob.getNavigation()).exotic_worlds$shiftBy(shiftX, shiftZ);
-            ((NavigationShifter) mob.getMoveControl()).exotic_worlds$shiftBy(shiftX, shiftZ);
-            ((NavigationShifter) mob.getLookControl()).exotic_worlds$shiftBy(shiftX, shiftZ);
+            shiftNavigation(mob, (int) Math.round(to.x - from.x), (int) Math.round(to.z - from.z));
         }
 
         if (entity instanceof ServerPlayer rider) {
@@ -61,6 +42,33 @@ public final class SeamSnap {
         for (Entity passenger : entity.getPassengers()) {
             withPassengers(passenger, lap);
         }
+    }
+
+    private static void moveBody(Entity entity, DeckTransformation lap, Vec3 to) {
+        if (entity instanceof BlockAttachedEntity attached) {
+            attached.setPos(Vec3.atCenterOf(lap.apply(attached.getPos())));
+        } else {
+            entity.setPos(to.x, to.y, to.z);
+        }
+    }
+
+    private static void moveHistory(Entity entity, DeckTransformation lap) {
+        SeamTransform applied = lap.blockTransform();
+        entity.xo = applied.applyX(entity.xo);
+        entity.zo = applied.applyZ(entity.zo);
+        entity.xOld = applied.applyX(entity.xOld);
+        entity.zOld = applied.applyZ(entity.zOld);
+        EntityAccessor stored = (EntityAccessor) entity;
+        @Nullable Vec3 known = stored.exotic_worlds$lastKnownPosition();
+        if (known != null) {
+            stored.exotic_worlds$setLastKnownPosition(lap.apply(known));
+        }
+    }
+
+    private static void shiftNavigation(Mob mob, int shiftX, int shiftZ) {
+        ((NavigationShifter) mob.getNavigation()).exotic_worlds$shiftBy(shiftX, shiftZ);
+        ((NavigationShifter) mob.getMoveControl()).exotic_worlds$shiftBy(shiftX, shiftZ);
+        ((NavigationShifter) mob.getLookControl()).exotic_worlds$shiftBy(shiftX, shiftZ);
     }
 
     private SeamSnap() {

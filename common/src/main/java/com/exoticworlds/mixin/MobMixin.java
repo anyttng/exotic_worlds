@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.exoticworlds.engine.fold.NearestCopy;
@@ -59,7 +59,7 @@ public class MobMixin {
 
     @Unique
     private BlockPos exotic_worlds$nearestHome(BlockPos home, BlockPos anchor) {
-        WorldFold transformer = ((TransformerSource) this).exotic_worlds$wrappedTransformer();
-        return NearestCopy.toward(transformer, anchor, home);
+        WorldFold fold = ((FoldSource) this).exotic_worlds$wrappedFold();
+        return NearestCopy.toward(fold, anchor, home);
     }
 }

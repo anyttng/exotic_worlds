@@ -25,6 +25,22 @@ public final class XaeroFrames {
             return 0;
         }
 
+        Set<LabelNode> kept = keptLabels(method);
+        int removed = 0;
+        for (AbstractInsnNode insn = method.instructions.getFirst(); insn != null;) {
+            AbstractInsnNode next = insn.getNext();
+            if (insn instanceof LineNumberNode || (insn instanceof LabelNode label && !kept.contains(label))) {
+                method.instructions.remove(insn);
+                removed++;
+            }
+
+            insn = next;
+        }
+
+        return removed;
+    }
+
+    private static Set<LabelNode> keptLabels(MethodNode method) {
         Set<LabelNode> kept = new HashSet<>();
         for (AbstractInsnNode insn : method.instructions) {
             switch (insn) {
@@ -58,19 +74,7 @@ public final class XaeroFrames {
 
         keepAnnotationLabels(method.visibleLocalVariableAnnotations, kept);
         keepAnnotationLabels(method.invisibleLocalVariableAnnotations, kept);
-
-        int removed = 0;
-        for (AbstractInsnNode insn = method.instructions.getFirst(); insn != null;) {
-            AbstractInsnNode next = insn.getNext();
-            if (insn instanceof LineNumberNode || (insn instanceof LabelNode label && !kept.contains(label))) {
-                method.instructions.remove(insn);
-                removed++;
-            }
-
-            insn = next;
-        }
-
-        return removed;
+        return kept;
     }
 
     private static void keepLabelBefore(AbstractInsnNode insn, Set<LabelNode> kept) {

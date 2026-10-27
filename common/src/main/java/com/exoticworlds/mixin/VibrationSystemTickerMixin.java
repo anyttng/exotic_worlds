@@ -44,8 +44,8 @@ public interface VibrationSystemTickerMixin {
             return destination;
         }
 
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
-        Vec3 folded = NearestCopy.toward(transformer, origin, destination.get());
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        Vec3 folded = NearestCopy.toward(fold, origin, destination.get());
         return folded == destination.get() ? destination : Optional.of(folded);
     }
 }

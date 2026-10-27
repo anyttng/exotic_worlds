@@ -37,8 +37,8 @@ public class RaidsMixin implements LevelBindable {
             method = "getNearbyRaid",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
     private double exotic_worlds$raidDistanceThroughSeam(BlockPos raidCenter, Vec3i pos, Operation<Double> original) {
-        WorldFold transformer = this.exotic_worlds$bound.wrapped();
-        return transformer == null ? original.call(raidCenter, pos) : SeamRange.sqr(transformer, raidCenter, pos);
+        WorldFold fold = this.exotic_worlds$bound.wrapped();
+        return fold == null ? original.call(raidCenter, pos) : SeamRange.sqr(fold, raidCenter, pos);
     }
 
     @WrapOperation(
@@ -49,8 +49,8 @@ public class RaidsMixin implements LevelBindable {
     private BlockPos exotic_worlds$poiInPlayerFrame(PoiRecord record, Operation<BlockPos> original,
             @Local(argsOnly = true) ServerPlayer player, @Local(argsOnly = true) BlockPos raidPosition) {
         BlockPos pos = original.call(record);
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(player.level());
-        return NearestCopy.toward(transformer, raidPosition, pos);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(player.level());
+        return NearestCopy.toward(fold, raidPosition, pos);
     }
 
     @WrapOperation(
@@ -60,6 +60,6 @@ public class RaidsMixin implements LevelBindable {
                     target = "Lnet/minecraft/core/BlockPos;containing(Lnet/minecraft/core/Position;)Lnet/minecraft/core/BlockPos;"))
     private BlockPos exotic_worlds$centerIntoBounds(Position mean, Operation<BlockPos> original,
             @Local(argsOnly = true) ServerPlayer player) {
-        return WorldLoopAttachments.transformerOf(player.level()).fold(original.call(mean));
+        return WorldLoopAttachments.foldOf(player.level()).fold(original.call(mean));
     }
 }

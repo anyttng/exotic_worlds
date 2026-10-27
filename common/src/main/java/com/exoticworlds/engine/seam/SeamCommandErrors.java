@@ -46,17 +46,17 @@ public final class SeamCommandErrors {
     }
 
     public static @Nullable CommandSyntaxException refusalForAmbiguousRegion(
-            @Nullable WorldFold transformer, BoundingBox region) {
-        if (transformer == null || !SeamSpans.crossesSeam(transformer, region)) {
+            @Nullable WorldFold fold, BoundingBox region) {
+        if (fold == null || !SeamSpans.crossesSeam(fold, region)) {
             return null;
         }
 
         return REGION_ACROSS_SEAM.create();
     }
 
-    public static void requireUnambiguousRegion(@Nullable WorldFold transformer, BoundingBox region)
+    public static void requireUnambiguousRegion(@Nullable WorldFold fold, BoundingBox region)
             throws CommandSyntaxException {
-        CommandSyntaxException refusal = refusalForAmbiguousRegion(transformer, region);
+        CommandSyntaxException refusal = refusalForAmbiguousRegion(fold, region);
         if (refusal != null) {
             throw refusal;
         }
