@@ -52,7 +52,7 @@ public class RapierPhysicsPipelineMixin implements SableConstraintGraphHolder {
     private void exotic_worlds$recordConstraint(PhysicsPipelineBody bodyA, PhysicsPipelineBody bodyB,
             PhysicsConstraintConfiguration<?> configuration, CallbackInfoReturnable<PhysicsConstraintHandle> cir) {
         PhysicsConstraintHandle handle = cir.getReturnValue();
-        WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(this.level);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.level);
         if (handle == null || fold == null) {
             return;
         }

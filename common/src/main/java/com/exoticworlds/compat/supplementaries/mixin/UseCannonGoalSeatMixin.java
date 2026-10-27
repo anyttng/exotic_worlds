@@ -17,6 +17,6 @@ public class UseCannonGoalSeatMixin {
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = InjectionTargets.VEC3_SUBTRACT))
     private Vec3 exotic_worlds$deltaFromCannonThroughSeam(Vec3 position, Vec3 cannon, Operation<Vec3> original,
             @Local Level level) {
-        return original.call(WorldLoopAttachments.transformerOf(level).nearestCopy(cannon, position), cannon);
+        return original.call(WorldLoopAttachments.foldOf(level).nearestCopy(cannon, position), cannon);
     }
 }

@@ -31,7 +31,7 @@ final class EffectPacketRewriters {
                         context, SaccharineLogBlockParticlesPacket::new));
         PacketTranslator.registerEntityDataRewriter(EmptyPokeBallEntity.class,
                 () -> EmptyPokeBallEntity.Companion.getHIT_TARGET_POSITION(),
-                (target, context, anchor) -> context.transformer().nearestCopy(anchor, target));
+                (target, context, anchor) -> context.fold().nearestCopy(anchor, target));
     }
 
     static CustomPacketPayload seatedSound(UnvalidatedPlaySoundS2CPacket payload, TranslationContext context) {

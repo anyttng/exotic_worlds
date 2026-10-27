@@ -12,7 +12,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-class AxisShapeTest {
+class WrapDomainQueriesTest {
     private static final List<WrapDomain> LOOPED = List.of(
             new WrapDomain(-32, 32),
             new WrapDomain(-2, 3),

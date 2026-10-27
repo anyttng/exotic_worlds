@@ -21,7 +21,7 @@ public final class WireTemplates {
             return block;
         }
 
-        return BoxCopies.seat(WorldLoopAttachments.transformerOfReader(level), new BlockPos(origin), size, block);
+        return BoxCopies.seat(WorldLoopAttachments.foldOfReader(level), new BlockPos(origin), size, block);
     }
 
     public static InWorldNode inCaptureBox(Level level, Vec3i origin, Vec3i size, InWorldNode node) {

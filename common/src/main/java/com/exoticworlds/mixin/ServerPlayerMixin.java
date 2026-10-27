@@ -134,8 +134,8 @@ public class ServerPlayerMixin implements SeamTravelHolder {
             return;
         }
 
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(player.level());
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(player.level());
+        if (fold == null) {
             return;
         }
 
@@ -147,11 +147,11 @@ public class ServerPlayerMixin implements SeamTravelHolder {
     @WrapMethod(method = "isReachableBedBlock")
     private boolean exotic_worlds$bedReachThroughSeam(BlockPos bedBlockPos, Operation<Boolean> original) {
         ServerPlayer player = (ServerPlayer) (Object) this;
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(player.level());
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(player.level());
+        if (fold == null) {
             return original.call(bedBlockPos);
         }
 
-        return original.call(transformer.nearestCopy(player.blockPosition(), bedBlockPos));
+        return original.call(fold.nearestCopy(player.blockPosition(), bedBlockPos));
     }
 }

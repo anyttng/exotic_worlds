@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -29,7 +29,7 @@ public class DebugEntryChunkGenerationMixin {
     private void exotic_worlds$sampleThisWorldsNoise(ChunkGenerator generator, List<String> result,
             RandomState randomState, BlockPos feetPos, Operation<Void> original,
             @Local ServerLevel serverLevel) {
-        GenerationTransformerContext.runWithTransformer(WorldLoopAttachments.transformerOf(serverLevel),
+        GenerationFoldContext.runWithFold(WorldLoopAttachments.foldOf(serverLevel),
                 () -> original.call(generator, result, randomState, feetPos));
     }
 
@@ -41,7 +41,7 @@ public class DebugEntryChunkGenerationMixin {
     private void exotic_worlds$sampleThisWorldsClimate(BiomeSource biomeSource, List<String> result,
             BlockPos feetPos, Climate.Sampler sampler, Operation<Void> original,
             @Local ServerLevel serverLevel) {
-        GenerationTransformerContext.runWithTransformer(WorldLoopAttachments.transformerOf(serverLevel),
+        GenerationFoldContext.runWithFold(WorldLoopAttachments.foldOf(serverLevel),
                 () -> original.call(biomeSource, result, feetPos, sampler));
     }
 }

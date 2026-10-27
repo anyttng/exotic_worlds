@@ -19,6 +19,6 @@ public class BellowsGapSeatMixin {
             target = "Lnet/mehvahdjukaar/supplementaries/common/block/tiles/BellowsBlockTile;gapInFront(Lnet/minecraft/world/phys/AABB;Lnet/minecraft/core/Direction;)D"))
     private AABB exotic_worlds$boxNearestBellows(AABB box, @Local(argsOnly = true) Level level) {
         Vec3 bellows = Vec3.atCenterOf(((BlockEntity) (Object) this).getBlockPos());
-        return FoldedBoxQuery.toward(WorldLoopAttachments.transformerOf(level), bellows, box);
+        return FoldedBoxQuery.toward(WorldLoopAttachments.foldOf(level), bellows, box);
     }
 }

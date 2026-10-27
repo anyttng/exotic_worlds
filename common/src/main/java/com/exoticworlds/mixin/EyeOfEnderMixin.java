@@ -33,8 +33,8 @@ public class EyeOfEnderMixin {
     @Inject(method = "tick()V", at = @At("HEAD"))
     private void exotic_worlds$steerThroughSeam(CallbackInfo ci) {
         EyeOfEnder self = (EyeOfEnder) (Object) this;
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(self.level());
-        Vec3 nearest = NearestCopy.toward(transformer, self.position(), new Vec3(this.tx, self.getY(), this.tz));
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(self.level());
+        Vec3 nearest = NearestCopy.toward(fold, self.position(), new Vec3(this.tx, self.getY(), this.tz));
         this.tx = nearest.x;
         this.tz = nearest.z;
     }

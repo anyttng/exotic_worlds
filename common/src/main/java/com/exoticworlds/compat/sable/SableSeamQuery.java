@@ -34,7 +34,7 @@ public final class SableSeamQuery {
 
         AABB subLevelAabb = new AABB(subLevelBox.minX(), subLevelBox.minY(), subLevelBox.minZ(),
                 subLevelBox.maxX(), subLevelBox.maxY(), subLevelBox.maxZ());
-        AABB nearest = fold.foldBox(queryCenter, subLevelAabb).value();
+        AABB nearest = fold.nearestCopyOriented(queryCenter, subLevelAabb).value();
         return nearest != subLevelAabb && query.intersects(nearest);
     }
 

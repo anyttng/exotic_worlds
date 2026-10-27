@@ -32,8 +32,8 @@ class PublishedShapesTest {
     void aDimensionTheServerNeverPublishedAnswersNull() {
         PublishedShapes.publish(Level.OVERWORLD, WIDE);
 
-        assertNull(PublishedShapes.foldOf(Level.NETHER));
-        assertNull(PublishedShapes.foldOf(DATAPACK_DIMENSION));
+        assertNull(PublishedShapes.wrappedFoldOf(Level.NETHER));
+        assertNull(PublishedShapes.wrappedFoldOf(DATAPACK_DIMENSION));
     }
 
     @Test
@@ -42,16 +42,16 @@ class PublishedShapesTest {
         PublishedShapes.publish(Level.NETHER, NARROW);
         PublishedShapes.publish(DATAPACK_DIMENSION, WIDE);
 
-        assertSame(WIDE, PublishedShapes.foldOf(Level.OVERWORLD));
-        assertSame(NARROW, PublishedShapes.foldOf(Level.NETHER));
-        assertSame(WIDE, PublishedShapes.foldOf(DATAPACK_DIMENSION));
+        assertSame(WIDE, PublishedShapes.wrappedFoldOf(Level.OVERWORLD));
+        assertSame(NARROW, PublishedShapes.wrappedFoldOf(Level.NETHER));
+        assertSame(WIDE, PublishedShapes.wrappedFoldOf(DATAPACK_DIMENSION));
     }
 
     @Test
     void aRectangleAnswersNullLikeAnUnloopedLevel() {
         PublishedShapes.publish(Level.END, WorldFolds.of(FlatShape.rectangle()));
 
-        assertNull(PublishedShapes.foldOf(Level.END));
+        assertNull(PublishedShapes.wrappedFoldOf(Level.END));
     }
 
     @Test
@@ -59,7 +59,7 @@ class PublishedShapesTest {
         PublishedShapes.publish(Level.NETHER, WIDE);
         PublishedShapes.publish(Level.NETHER, NARROW);
 
-        assertSame(NARROW, PublishedShapes.foldOf(Level.NETHER));
+        assertSame(NARROW, PublishedShapes.wrappedFoldOf(Level.NETHER));
     }
 
     @Test
@@ -69,7 +69,7 @@ class PublishedShapesTest {
 
         PublishedShapes.clear();
 
-        assertNull(PublishedShapes.foldOf(Level.OVERWORLD));
-        assertNull(PublishedShapes.foldOf(Level.NETHER));
+        assertNull(PublishedShapes.wrappedFoldOf(Level.OVERWORLD));
+        assertNull(PublishedShapes.wrappedFoldOf(Level.NETHER));
     }
 }

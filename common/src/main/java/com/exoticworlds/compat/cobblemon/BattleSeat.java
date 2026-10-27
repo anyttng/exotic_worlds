@@ -21,7 +21,7 @@ public final class BattleSeat {
         LivingEntity anchor = anchorOf(pokemon);
         return sendOut == null || anchor == null
                 ? sendOut
-                : WorldLoopAttachments.transformerOf(anchor.level()).fold(sendOut);
+                : WorldLoopAttachments.foldOf(anchor.level()).fold(sendOut);
     }
 
     private static @Nullable LivingEntity anchorOf(ActiveBattlePokemon pokemon) {

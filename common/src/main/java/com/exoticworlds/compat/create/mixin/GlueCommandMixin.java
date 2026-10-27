@@ -31,7 +31,7 @@ public class GlueCommandMixin {
             BlockPos from = BlockPosArgument.getLoadedBlockPos(context, FROM_ARGUMENT);
             BlockPos to = BlockPosArgument.getLoadedBlockPos(context, TO_ARGUMENT);
             SeamCommandErrors.requireUnambiguousRegion(
-                    WorldLoopAttachments.wrappedTransformerOf(context.getSource().getLevel()),
+                    WorldLoopAttachments.wrappedFoldOf(context.getSource().getLevel()),
                     BoundingBox.fromCorners(from, to));
             return glue.run(context);
         };

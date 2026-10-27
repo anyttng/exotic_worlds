@@ -34,7 +34,7 @@ public final class SableConstraintJoin {
     public static PhysicsConstraintConfiguration<?> seat(ServerLevel level, PhysicsPipeline pipeline,
             @Nullable PhysicsPipelineBody bodyA, @Nullable PhysicsPipelineBody bodyB,
             PhysicsConstraintConfiguration<?> configuration) {
-        WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(level);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
         if (fold == null || bodyA == bodyB) {
             return configuration;
         }

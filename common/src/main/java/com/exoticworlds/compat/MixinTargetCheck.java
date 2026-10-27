@@ -120,9 +120,19 @@ public final class MixinTargetCheck {
         }
 
         boolean pseudo = MixinAnnotations.find(classAnnotations, PSEUDO).isPresent();
-        List<String> targets = targetsOf(mixin.get());
-        List<String> present = new ArrayList<>();
         List<Refusal> refusals = new ArrayList<>();
+        for (String target : presentTargets(mixinClassName, targetsOf(mixin.get()), pseudo, refusals)) {
+            if (!isOtherLoaders(target)) {
+                checkMembers(mixinClassName, ownModel, target, refusals);
+            }
+        }
+
+        return refusals;
+    }
+
+    private List<String> presentTargets(String mixinClassName, List<String> targets, boolean pseudo,
+            List<Refusal> refusals) {
+        List<String> present = new ArrayList<>();
         for (String target : targets) {
             if (isGame(target) || load(target).present()) {
                 present.add(target);
@@ -135,18 +145,17 @@ public final class MixinTargetCheck {
             refusals.add(new Refusal(mixinClassName, targets.get(0), Reason.MISSING_CLASS));
         }
 
-        for (String target : present) {
-            if (!isOtherLoaders(target)) {
-                checkMembers(mixinClassName, ownModel, target, refusals);
-            }
-        }
-
-        return refusals;
+        return present;
     }
 
     private void checkMembers(String mixinClassName, ClassNode mixin, String target, List<Refusal> refusals) {
         ClassNode targetModel = isGame(target) ? null : load(target).model();
+        checkShadowFields(mixinClassName, mixin, target, targetModel, refusals);
+        checkMethods(mixinClassName, mixin, target, targetModel, refusals);
+    }
 
+    private static void checkShadowFields(String mixinClassName, ClassNode mixin, String target,
+            @Nullable ClassNode targetModel, List<Refusal> refusals) {
         for (FieldNode field : mixin.fields) {
             Optional<AnnotationNode> shadow = MixinAnnotations.find(MixinAnnotations.of(field),
                     SHADOW);
@@ -155,7 +164,10 @@ public final class MixinTargetCheck {
                 refusals.add(new Refusal(mixinClassName, target + "#" + field.name, Reason.MISSING_FIELD));
             }
         }
+    }
 
+    private void checkMethods(String mixinClassName, ClassNode mixin, String target,
+            @Nullable ClassNode targetModel, List<Refusal> refusals) {
         for (MethodNode method : mixin.methods) {
             List<AnnotationNode> annotations = MixinAnnotations.of(method);
             String name = method.name;
@@ -196,6 +208,25 @@ public final class MixinTargetCheck {
 
     private void checkInjector(String mixinClassName, AnnotationNode injector, List<AnnotationNode> siblings,
             String handlerDescriptor, String target, List<Refusal> refusals) {
+        List<Selection> selections = selectionsOf(mixinClassName, injector, siblings, target, refusals);
+        if (selections == null) {
+            return;
+        }
+
+        if (injector.desc.equals(INJECT)) {
+            checkCallback(mixinClassName, handlerDescriptor, selections, refusals);
+        }
+
+        List<AnnotationNode> points = pointsOf(injector);
+        for (Selection selection : selections) {
+            for (AnnotationNode at : points) {
+                checkAt(mixinClassName, selection, at, refusals);
+            }
+        }
+    }
+
+    private @Nullable List<Selection> selectionsOf(String mixinClassName, AnnotationNode injector,
+            List<AnnotationNode> siblings, String target, List<Refusal> refusals) {
         List<Selection> selections = new ArrayList<>();
         List<String> selectors = MixinAnnotations.strings(injector, METHOD_KEY);
         for (String selector : selectors) {
@@ -210,18 +241,18 @@ public final class MixinTargetCheck {
                 Loaded owner = load(bodyOwner);
                 if (!owner.present()) {
                     refusals.add(new Refusal(mixinClassName, bodyOwner, Reason.MISSING_CLASS));
-                    return;
+                    return null;
                 }
 
                 ClassNode ownerModel = owner.model();
                 if (ownerModel == null) {
-                    return;
+                    return null;
                 }
 
                 List<MethodNode> found = methods(ownerModel, handlerName::equals, any -> true);
                 if (found.isEmpty()) {
                     refusals.add(new Refusal(mixinClassName, bodyOwner + "#" + handlerName, Reason.MISSING_METHOD));
-                    return;
+                    return null;
                 }
 
                 List<String> selfTargets = MixinAnnotations.find(MixinAnnotations.of(ownerModel), MIXIN)
@@ -233,12 +264,12 @@ public final class MixinTargetCheck {
 
             String bodyOwner = bodyOwnerOf(mixinClassName, target);
             if (isGame(bodyOwner)) {
-                return;
+                return null;
             }
 
             ClassNode owner = load(bodyOwner).model();
             if (owner == null) {
-                return;
+                return null;
             }
 
             List<MethodNode> found = selected(owner, selector);
@@ -249,27 +280,23 @@ public final class MixinTargetCheck {
                 }
 
                 refusals.add(new Refusal(mixinClassName, bodyOwner + "#" + selector, Reason.MISSING_METHOD));
-                return;
+                return null;
             }
 
             selections.add(new Selection(bodyOwner, found, List.of()));
         }
 
-        if (injector.desc.equals(INJECT)) {
-            checkCallback(mixinClassName, handlerDescriptor, selections, refusals);
-        }
+        return selections;
+    }
 
+    private static List<AnnotationNode> pointsOf(AnnotationNode injector) {
         List<AnnotationNode> points = new ArrayList<>(MixinAnnotations.nested(injector, AT_KEY));
         for (AnnotationNode slice : MixinAnnotations.nested(injector, SLICE_KEY)) {
             points.addAll(MixinAnnotations.nested(slice, SLICE_FROM_KEY));
             points.addAll(MixinAnnotations.nested(slice, SLICE_TO_KEY));
         }
 
-        for (Selection selection : selections) {
-            for (AnnotationNode at : points) {
-                checkAt(mixinClassName, selection, at, refusals);
-            }
-        }
+        return points;
     }
 
     private static List<MethodNode> selected(ClassNode owner, String selector) {

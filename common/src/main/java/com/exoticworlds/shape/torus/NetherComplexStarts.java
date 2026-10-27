@@ -50,6 +50,12 @@ public final class NetherComplexStarts {
             pick.structure().ifPresent(present::add);
         }
 
+        return placeMissing(set, structures, spread, taken, present);
+    }
+
+    private static List<StructureStarts.Added> placeMissing(StructureStarts set, StructureSet structures,
+            RandomSpreadStructurePlacement spread, List<ChunkPos> taken, Set<Holder<Structure>> present) {
+        ToroidalShape shape = set.shape();
         List<StructureStarts.Added> added = new ArrayList<>();
         for (StructureSet.StructureSelectionEntry entry : structures.structures()) {
             Holder<Structure> structure = entry.structure();

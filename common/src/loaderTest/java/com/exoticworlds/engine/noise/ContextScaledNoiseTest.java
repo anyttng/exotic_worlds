@@ -42,8 +42,8 @@ class ContextScaledNoiseTest {
                     for (int[] block : new int[][] {{x, z}, {x + xWidth, z}, {x, z + zWidth}}) {
                         double expected = UNINDEXABLE.getValue(lattice.foldX(block[0], block[1]) * scale, y,
                                 lattice.foldZ(block[1]) * scale);
-                        double folded = GenerationTransformerContext.withTransformer(fold,
-                                () -> ContextScaledNoise.sample(GenerationTransformerContext.context(), UNINDEXABLE,
+                        double folded = GenerationFoldContext.withFold(fold,
+                                () -> ContextScaledNoise.sample(GenerationFoldContext.context(), UNINDEXABLE,
                                         block[0], y, block[1], scale));
                         assertEquals(expected, folded, "vanilla at the folded block in " + fold + " at scale "
                                 + scale + " at (" + block[0] + ", " + y + ", " + block[1] + ")");

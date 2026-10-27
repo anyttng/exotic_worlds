@@ -20,6 +20,6 @@ public class SignPostCompassTargetSeatMixin {
     private @Nullable BlockPos exotic_worlds$targetNearestSign(ServerLevel level, ItemStack compass,
             Operation<BlockPos> original, @Local(argsOnly = true) BlockPos signPos) {
         BlockPos target = original.call(level, compass);
-        return target == null ? null : WorldLoopAttachments.transformerOf(level).nearestCopy(signPos, target);
+        return target == null ? null : WorldLoopAttachments.foldOf(level).nearestCopy(signPos, target);
     }
 }

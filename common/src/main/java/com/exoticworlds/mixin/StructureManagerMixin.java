@@ -45,12 +45,12 @@ public class StructureManagerMixin {
             return starts;
         }
 
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(((LevelHolder) region).exotic_worlds$level());
-        if (transformer != null && !starts.isEmpty()) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(((LevelHolder) region).exotic_worlds$level());
+        if (fold != null && !starts.isEmpty()) {
             List<StructureStart> framed = new ArrayList<>(starts.size());
             for (StructureStart start : starts) {
                 StructureStart inFrame = ((FramedStructureStart) (Object) start)
-                        .exotic_worlds$framedToward(region, transformer, pos);
+                        .exotic_worlds$framedToward(region, fold, pos);
                 if (inFrame != null) {
                     framed.add(inFrame);
                 }
@@ -68,7 +68,7 @@ public class StructureManagerMixin {
                     target = InjectionTargets.BOUNDING_BOX_IS_INSIDE))
     private boolean exotic_worlds$startBoxThroughSeam(BoundingBox box, Vec3i pos, Operation<Boolean> original,
             @Local(argsOnly = true) BlockPos blockPos) {
-        return original.call(box, NearestCopy.toward(WorldLoopAttachments.transformerOfReader(this.level), box, blockPos));
+        return original.call(box, NearestCopy.toward(WorldLoopAttachments.foldOfReader(this.level), box, blockPos));
     }
 
     @WrapMethod(method = "structureHasPieceAt(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/structure/StructureStart;)Z")
@@ -77,7 +77,7 @@ public class StructureManagerMixin {
             return original.call(pos, start);
         }
 
-        BlockPos seated = NearestCopy.toward(WorldLoopAttachments.transformerOfReader(this.level),
+        BlockPos seated = NearestCopy.toward(WorldLoopAttachments.foldOfReader(this.level),
                 start.getBoundingBox(), pos);
         return original.call(new BlockPos(seated.getX(), pos.getY(), seated.getZ()), start);
     }

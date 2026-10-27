@@ -58,7 +58,7 @@ public class SubLevelHoldingChunkMapMixin {
 
     @Inject(method = "processLoad", at = @At("RETURN"))
     private void exotic_worlds$loadRawAliases(ChunkPos pos, CallbackInfo ci) {
-        WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(this.level);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.level);
         if (fold == null) {
             return;
         }

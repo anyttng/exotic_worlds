@@ -16,6 +16,6 @@ public class PistonCooperatorEventSeatMixin {
             target = "Lnet/minecraft/world/level/Level;blockEvent(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;II)V"))
     private static BlockPos exotic_worlds$canonicalCooperatorEvent(BlockPos cooperator,
             @Local(argsOnly = true) Level level) {
-        return WorldLoopAttachments.transformerOf(level).fold(cooperator);
+        return WorldLoopAttachments.foldOf(level).fold(cooperator);
     }
 }

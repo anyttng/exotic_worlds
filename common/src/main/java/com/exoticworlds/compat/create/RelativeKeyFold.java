@@ -18,9 +18,9 @@ public final class RelativeKeyFold {
         return shortWay(WorldLoopAttachments.wrappedTransformerOfReader(level), owner, partner, rawKey);
     }
 
-    static BlockPos shortWay(@Nullable WorldFold transformer, BlockPos owner, Vec3i partner, BlockPos rawKey) {
+    static BlockPos shortWay(@Nullable WorldFold fold, BlockPos owner, Vec3i partner, BlockPos rawKey) {
         BlockPos partnerPos = new BlockPos(partner);
-        BlockPos nearest = CreateSeamFold.nearest(transformer, owner, partnerPos);
+        BlockPos nearest = CreateSeamFold.nearest(fold, owner, partnerPos);
         if (nearest.equals(partnerPos)) {
             return rawKey;
         }
@@ -36,8 +36,8 @@ public final class RelativeKeyFold {
         return normalize(WorldLoopAttachments.wrappedTransformerOfReader(level), owner, storedKey);
     }
 
-    static BlockPos normalize(@Nullable WorldFold transformer, BlockPos owner, BlockPos storedKey) {
-        return shortWay(transformer, owner, owner.subtract(storedKey), storedKey);
+    static BlockPos normalize(@Nullable WorldFold fold, BlockPos owner, BlockPos storedKey) {
+        return shortWay(fold, owner, owner.subtract(storedKey), storedKey);
     }
 
     private RelativeKeyFold() {

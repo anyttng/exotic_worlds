@@ -45,11 +45,16 @@ public final class FormerPlayerFiles {
 
     static boolean rewritePlayerData(Path source, Path target) throws IOException {
         CompoundTag tag = NbtIo.readCompressed(source, NbtAccounter.unlimitedHeap());
-        List<String> former = tag.getAllKeys().stream().filter(key -> FormerNamespace.twinKeyOf(key) != null).toList();
-        if (former.isEmpty()) {
+        if (!moveToTwins(tag)) {
             return false;
         }
 
+        NbtIo.writeCompressed(tag, target);
+        return true;
+    }
+
+    private static boolean moveToTwins(CompoundTag tag) {
+        List<String> former = tag.getAllKeys().stream().filter(key -> FormerNamespace.twinKeyOf(key) != null).toList();
         for (String key : former) {
             Tag value = tag.get(key);
             tag.remove(key);
@@ -59,8 +64,7 @@ public final class FormerPlayerFiles {
             }
         }
 
-        NbtIo.writeCompressed(tag, target);
-        return true;
+        return !former.isEmpty();
     }
 
     static boolean rewriteAdvancements(Path source, Path target) throws IOException {
@@ -70,17 +74,21 @@ public final class FormerPlayerFiles {
             json = Streams.parse(reader);
         }
 
-        if (!(json instanceof JsonObject advancements)) {
+        if (!(json instanceof JsonObject advancements) || !moveToTwins(advancements)) {
             return false;
         }
 
+        try (Writer writer = Files.newBufferedWriter(target, StandardCharsets.UTF_8)) {
+            GSON.toJson(advancements, GSON.newJsonWriter(writer));
+        }
+
+        return true;
+    }
+
+    private static boolean moveToTwins(JsonObject advancements) {
         List<String> former = advancements.keySet().stream()
                 .filter(key -> FormerNamespace.twinKeyOf(key) != null)
                 .toList();
-        if (former.isEmpty()) {
-            return false;
-        }
-
         for (String key : former) {
             JsonElement value = advancements.remove(key);
             String twin = FormerNamespace.twinKeyOf(key);
@@ -89,11 +97,7 @@ public final class FormerPlayerFiles {
             }
         }
 
-        try (Writer writer = Files.newBufferedWriter(target, StandardCharsets.UTF_8)) {
-            GSON.toJson(advancements, GSON.newJsonWriter(writer));
-        }
-
-        return true;
+        return !former.isEmpty();
     }
 
     private static void rewriteAll(Path directory, Predicate<Path> wanted, Rewrite rewrite) {

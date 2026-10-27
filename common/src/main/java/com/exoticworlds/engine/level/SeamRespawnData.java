@@ -7,7 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 
 public final class SeamRespawnData {
     public static BlockPos insideBounds(ServerLevel level, BlockPos pos) {
-        return WorldLoopAttachments.transformerOf(level).fold(pos);
+        return WorldLoopAttachments.foldOf(level).fold(pos);
     }
 
     private SeamRespawnData() {

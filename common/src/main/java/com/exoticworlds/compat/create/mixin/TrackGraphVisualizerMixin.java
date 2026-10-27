@@ -31,7 +31,7 @@ public class TrackGraphVisualizerMixin {
             at = @At(value = "INVOKE",
                     target = InjectionTargets.AABB_INTERSECTS))
     private static boolean exotic_worlds$foldGraphBounds(AABB graphBounds, AABB viewerBox, Operation<Boolean> original) {
-        return original.call(CreateClientFrame.foldBoxToward(viewerBox.getCenter(), graphBounds), viewerBox);
+        return original.call(CreateClientFrame.nearestCopyOrientedToward(viewerBox.getCenter(), graphBounds), viewerBox);
     }
 
     @WrapOperation(method = {"visualiseSignalEdgeGroups", "debugViewGraph"},

@@ -10,8 +10,8 @@ import com.exoticworlds.accessors.ClimateCompressionCache;
 import com.exoticworlds.accessors.ClimateFieldMark;
 import com.exoticworlds.accessors.IndexableNoise;
 import com.exoticworlds.accessors.WrappedPerlinNoise;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.PeriodicOctaveSampler;
 import com.exoticworlds.shape.climate.ClimateCompression;
 import com.exoticworlds.shape.climate.ClimateCompression.Resolved;
@@ -50,7 +50,7 @@ public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMa
     @WrapMethod(method = "getValue(DDDDDZ)D")
     private double exotic_worlds$periodicValue(double x, double y, double z, double yScale, double yFudge,
             boolean useNoiseOrigin, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.wrappedContext();
+        Context generation = GenerationFoldContext.wrappedContext();
         if (generation == null) {
             return original.call(x, y, z, yScale, yFudge, useNoiseOrigin);
         }
@@ -74,14 +74,14 @@ public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMa
 
     @Override
     public boolean exotic_worlds$indexable(Context context) {
-        return context.wrappedTransformer() == null || PeriodicOctaveSampler.indexable(context,
+        return context.wrappedFold() == null || PeriodicOctaveSampler.indexable(context,
                 this.exotic_worlds$baseScale(context), this.noiseLevels, this.lowestFreqInputFactor);
     }
 
     @Unique
     private double exotic_worlds$baseScale(Context generation) {
         double declaredScale = generation.horizontalScale();
-        return declaredScale * ClimateCompression.resolve(this, generation.transformer(),
+        return declaredScale * ClimateCompression.resolve(this, generation.fold(),
                 this.exotic_worlds$climateField, this.amplitudes, this.lowestFreqInputFactor, declaredScale,
                 generation.verticalShare());
     }

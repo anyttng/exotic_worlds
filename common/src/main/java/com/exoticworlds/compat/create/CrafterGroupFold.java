@@ -21,8 +21,8 @@ public final class CrafterGroupFold {
         return foldStoredDelta(WorldLoopAttachments.wrappedTransformerOfReader(level), owner, rawDelta);
     }
 
-    static BlockPos foldStoredDelta(@Nullable WorldFold transformer, BlockPos owner, BlockPos rawDelta) {
-        return CreateSeamFold.delta(transformer, owner, owner.offset(rawDelta), rawDelta);
+    static BlockPos foldStoredDelta(@Nullable WorldFold fold, BlockPos owner, BlockPos rawDelta) {
+        return CreateSeamFold.delta(fold, owner, owner.offset(rawDelta), rawDelta);
     }
 
     public static void normalizeGroup(ServerLevel level, MechanicalCrafterBlockEntity controller) {

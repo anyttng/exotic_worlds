@@ -13,7 +13,7 @@ enum LapFloor {
         this.period = period;
     }
 
-    static LapFloor of(WorldFold transformer) {
-        return transformer.blockLattice().bothLoop() ? TWO_CELLS : HELD;
+    static LapFloor of(WorldFold fold) {
+        return fold.blockLattice().bothLoop() ? TWO_CELLS : HELD;
     }
 }

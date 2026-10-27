@@ -19,6 +19,6 @@ public class OrphanPathFinderMixin {
 
     @ModifyVariable(method = "iterate", at = @At("HEAD"), argsOnly = true)
     private BlockPos exotic_worlds$foldWalkStep(BlockPos from) {
-        return WorldLoopAttachments.transformerOf(this.world).fold(from);
+        return WorldLoopAttachments.foldOf(this.world).fold(from);
     }
 }

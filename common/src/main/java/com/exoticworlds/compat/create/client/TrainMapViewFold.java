@@ -22,15 +22,15 @@ public final class TrainMapViewFold {
     public record NearestNodeKey(Vec3i anchor, Vec3i raw, Vec3i nearest) {
     }
 
-    public static WorldFold transformer() {
+    public static WorldFold fold() {
         return TrainMapFrame.current();
     }
 
     public static NearestNodeKey nearestNodeKey(Vec3i anchor, Vec3i key, LocalRef<NearestNodeKey> memo) {
-        return nearestNodeKey(transformer(), anchor, key, memo);
+        return nearestNodeKey(fold(), anchor, key, memo);
     }
 
-    public static NearestNodeKey nearestNodeKey(WorldFold transformer, Vec3i anchor, Vec3i key,
+    public static NearestNodeKey nearestNodeKey(WorldFold fold, Vec3i anchor, Vec3i key,
             LocalRef<NearestNodeKey> memo) {
         NearestNodeKey known = memo.get();
         if (known != null && known.anchor() == anchor && known.raw() == key) {
@@ -38,39 +38,39 @@ public final class TrainMapViewFold {
         }
 
         NearestNodeKey folded =
-                new NearestNodeKey(anchor, key, CreateTrackFold.nearestNodeKey(transformer, anchor, key));
+                new NearestNodeKey(anchor, key, CreateTrackFold.nearestNodeKey(fold, anchor, key));
         memo.set(folded);
         return folded;
     }
 
     public static long foldPixelNode(int x, int z) {
-        return foldPixelNode(transformer(), x, z);
+        return foldPixelNode(fold(), x, z);
     }
 
-    public static long foldPixelNode(WorldFold transformer, int x, int z) {
-        return transformer.foldBlockNode(BlockPos.asLong(x, 0, z));
+    public static long foldPixelNode(WorldFold fold, int x, int z) {
+        return fold.foldBlockNode(BlockPos.asLong(x, 0, z));
     }
 
     public static Vec3 canonical(Vec3 position) {
-        return transformer().fold(position);
+        return fold().fold(position);
     }
 
     public static List<DeckTransformation> copiesDrawnFor(Rect2i bounds) {
-        WorldFold transformer = transformer();
-        if (!transformer.isWrapped()) {
+        WorldFold fold = fold();
+        if (!fold.isWrapped()) {
             return List.of(DeckTransformation.IDENTITY);
         }
 
-        return copiesDrawnFor(transformer, MapSurfaceCopies.current(), bounds);
+        return copiesDrawnFor(fold, MapSurfaceCopies.current(), bounds);
     }
 
-    public static List<DeckTransformation> copiesDrawnFor(WorldFold transformer, Copies surface, Rect2i bounds) {
+    public static List<DeckTransformation> copiesDrawnFor(WorldFold fold, Copies surface, Rect2i bounds) {
         Rect2i drawn = new Rect2i(bounds.getX() - OFF_SCREEN_MARGIN, bounds.getY() - OFF_SCREEN_MARGIN,
                 bounds.getWidth() + 2 * OFF_SCREEN_MARGIN, bounds.getHeight() + 2 * OFF_SCREEN_MARGIN);
-        return copies(transformer, surface, drawn);
+        return copies(fold, surface, drawn);
     }
 
-    public static List<DeckTransformation> copies(WorldFold transformer, Copies surface, Rect2i view) {
+    public static List<DeckTransformation> copies(WorldFold fold, Copies surface, Rect2i view) {
         BoundingBox painted = surface.painted();
         int minX = Math.max(view.getX(), painted.minX());
         int maxX = Math.min(view.getX() + view.getWidth() - 1, painted.maxX());
@@ -80,7 +80,7 @@ public final class TrainMapViewFold {
             return List.of();
         }
 
-        return transformer.copiesTouching(new BoundingBox(minX, 0, minZ, maxX, 0, maxZ), surface.reach());
+        return fold.copiesTouching(new BoundingBox(minX, 0, minZ, maxX, 0, maxZ), surface.reach());
     }
 
     public static Rect2i canonicalView(DeckTransformation copy, Rect2i view) {

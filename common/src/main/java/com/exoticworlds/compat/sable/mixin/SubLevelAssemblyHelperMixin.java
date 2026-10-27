@@ -39,7 +39,7 @@ public abstract class SubLevelAssemblyHelperMixin {
     @Unique
     private static DeckTransformation exotic_worlds$seatBesideGathered(ServerLevel level, BoundingBox3ic bounds,
             Entity entity) {
-        return WorldLoopAttachments.transformerOf(level)
+        return WorldLoopAttachments.foldOf(level)
                 .nearestCopyTransformation(bounds.toAABB().getCenter(), entity.position());
     }
 }

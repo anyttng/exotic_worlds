@@ -16,11 +16,11 @@ public final class MekanismSeam {
     private static final long NO_POSITION = Long.MAX_VALUE;
 
     public static long fold(@Nullable Level level, long pos) {
-        return pos == NO_POSITION ? pos : WorldLoopAttachments.transformerOfReader(level).foldBlockNode(pos);
+        return pos == NO_POSITION ? pos : WorldLoopAttachments.foldOfReader(level).foldBlockNode(pos);
     }
 
     public static BlockPos fold(@Nullable Level level, BlockPos pos) {
-        return WorldLoopAttachments.transformerOfReader(level).fold(pos);
+        return WorldLoopAttachments.foldOfReader(level).fold(pos);
     }
 
     public static long nearestCopy(@Nullable Level level, long anchor, long target) {
@@ -28,23 +28,23 @@ public final class MekanismSeam {
             return target;
         }
 
-        return WorldLoopAttachments.transformerOfReader(level).nearestCopyBlockNode(anchor, target);
+        return WorldLoopAttachments.foldOfReader(level).nearestCopyBlockNode(anchor, target);
     }
 
     public static BlockPos nearestCopy(@Nullable Level level, BlockPos anchor, BlockPos target) {
-        return WorldLoopAttachments.transformerOfReader(level).nearestCopy(anchor, target);
+        return WorldLoopAttachments.foldOfReader(level).nearestCopy(anchor, target);
     }
 
     public static Vec3 nearestCopy(@Nullable Level level, Vec3 anchor, Vec3 target) {
-        return WorldLoopAttachments.transformerOfReader(level).nearestCopy(anchor, target);
+        return WorldLoopAttachments.foldOfReader(level).nearestCopy(anchor, target);
     }
 
     public static AABB nearestCopy(@Nullable Level level, Vec3 anchor, AABB box) {
-        return WorldLoopAttachments.transformerOfReader(level).foldBox(anchor, box).value();
+        return WorldLoopAttachments.foldOfReader(level).nearestCopyOriented(anchor, box).value();
     }
 
     public static Vec3 stopOnAxis(@Nullable Level level, Vec3 origin, Direction.Axis axis, Vec3 entity) {
-        return stopOnAxis(WorldLoopAttachments.transformerOfReader(level), origin, axis, entity);
+        return stopOnAxis(WorldLoopAttachments.foldOfReader(level), origin, axis, entity);
     }
 
     static Vec3 stopOnAxis(WorldFold fold, Vec3 origin, Direction.Axis axis, Vec3 entity) {

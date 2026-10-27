@@ -20,14 +20,14 @@ public final class CreateSchematicFold {
                 AllDataComponents.SCHEMATIC_ANCHOR, reference, blueprint);
     }
 
-    static ItemStack anchoredNear(@Nullable WorldFold transformer, DataComponentType<BlockPos> anchorComponent,
+    static ItemStack anchoredNear(@Nullable WorldFold fold, DataComponentType<BlockPos> anchorComponent,
             BlockPos reference, ItemStack blueprint) {
         BlockPos anchor = blueprint.get(anchorComponent);
         if (anchor == null) {
             return blueprint;
         }
 
-        BlockPos folded = CreateSeamFold.nearest(transformer, reference, anchor);
+        BlockPos folded = CreateSeamFold.nearest(fold, reference, anchor);
         if (folded.equals(anchor)) {
             return blueprint;
         }
@@ -42,14 +42,14 @@ public final class CreateSchematicFold {
                 AllDataComponents.SCHEMATIC_ANCHOR, blueprint, visited);
     }
 
-    static BlockPos visitedInSchematicFrame(@Nullable WorldFold transformer,
+    static BlockPos visitedInSchematicFrame(@Nullable WorldFold fold,
             DataComponentType<BlockPos> anchorComponent, ItemStack blueprint, BlockPos visited) {
         BlockPos anchor = blueprint.get(anchorComponent);
         if (anchor == null) {
             return visited;
         }
 
-        return CreateSeamFold.nearest(transformer, anchor, visited);
+        return CreateSeamFold.nearest(fold, anchor, visited);
     }
 
     public static AABB glueInScanFrame(@Nullable Level level, AABB scanBox, AABB glueBox) {
@@ -65,12 +65,12 @@ public final class CreateSchematicFold {
         return regionExceedsWorld(WorldLoopAttachments.wrappedTransformerOfReader(level), first, second);
     }
 
-    static boolean regionExceedsWorld(@Nullable WorldFold transformer, BlockPos first, BlockPos second) {
-        if (transformer == null) {
+    static boolean regionExceedsWorld(@Nullable WorldFold fold, BlockPos first, BlockPos second) {
+        if (fold == null) {
             return false;
         }
 
-        return transformer.foldsOntoItself(BoundingBox.fromCorners(first, second));
+        return fold.foldsOntoItself(BoundingBox.fromCorners(first, second));
     }
 
     private CreateSchematicFold() {

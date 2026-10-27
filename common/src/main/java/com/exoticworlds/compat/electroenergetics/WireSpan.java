@@ -18,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 
 public final class WireSpan {
     public static Vec3 seat(Level level, Vec3 anchor, Vec3 end) {
-        return WorldLoopAttachments.transformerOf(level).nearestCopy(anchor, end);
+        return WorldLoopAttachments.foldOf(level).nearestCopy(anchor, end);
     }
 
     public static @Nullable Vec3 seatIfPresent(Level level, @Nullable Vec3 anchor, @Nullable Vec3 end) {
@@ -28,32 +28,32 @@ public final class WireSpan {
     public static @Nullable Vec3 seatOnClientIfPresent(Level level, @Nullable Vec3 anchor, @Nullable Vec3 end) {
         return anchor == null || end == null
                 ? end
-                : WorldLoopAttachments.transformerOfReader(level).nearestCopy(anchor, end);
+                : WorldLoopAttachments.foldOfReader(level).nearestCopy(anchor, end);
     }
 
     public static BlockPos seat(Level level, BlockPos anchor, Vec3i end) {
-        return WorldLoopAttachments.transformerOf(level)
+        return WorldLoopAttachments.foldOf(level)
                 .nearestCopy(anchor, end instanceof BlockPos pos ? pos : new BlockPos(end));
     }
 
     public static BlockPos block(Level level, BlockPos pos) {
-        return WorldLoopAttachments.transformerOf(level).fold(pos);
+        return WorldLoopAttachments.foldOf(level).fold(pos);
     }
 
     public static SectionPos section(Level level, SectionPos section) {
-        return WorldLoopAttachments.transformerOf(level).fold(section);
+        return WorldLoopAttachments.foldOf(level).fold(section);
     }
 
     public static long sectionKey(Level level, long section) {
-        return WorldLoopAttachments.transformerOf(level).foldSectionNode(section);
+        return WorldLoopAttachments.foldOf(level).foldSectionNode(section);
     }
 
     public static long chunkKey(Level level, long chunk) {
-        return WorldLoopAttachments.transformerOf(level).foldChunkKey(chunk);
+        return WorldLoopAttachments.foldOf(level).foldChunkKey(chunk);
     }
 
     public static DeckTransformation wireToward(Level level, Vec3 anchor, AABB wireBox) {
-        WorldFold fold = WorldLoopAttachments.transformerOf(level);
+        WorldFold fold = WorldLoopAttachments.foldOf(level);
         return fold.nearestCopyTransformation(anchor, wireBox.getCenter());
     }
 

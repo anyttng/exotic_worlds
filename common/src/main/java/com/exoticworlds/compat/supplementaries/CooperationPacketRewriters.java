@@ -26,7 +26,7 @@ final class CooperationPacketRewriters {
             return packet;
         }
 
-        DeckTransformation move = context.transformer().nearestCopyTransformation(seated, packet.pos);
+        DeckTransformation move = context.fold().nearestCopyTransformation(seated, packet.pos);
         Set<BlockPos> cooperators = FoldedCopies.of(packet.cooperators, move::apply);
         return new ClientBoundPistonCooperatorsPacket(seated, cooperators);
     }

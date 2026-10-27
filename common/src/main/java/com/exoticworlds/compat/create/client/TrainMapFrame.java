@@ -36,13 +36,13 @@ public final class TrainMapFrame {
         return bound ? frame : resolve(TrainMapRenderer.INSTANCE.trackingDim);
     }
 
-    public static @Nullable WorldFold transformerOf(ResourceKey<Level> dimension) {
+    public static @Nullable WorldFold wrappedFoldOf(ResourceKey<Level> dimension) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null || dimension != level.dimension()) {
             return null;
         }
 
-        return CreateSeamFold.transformerOf(level, null);
+        return CreateSeamFold.wrappedFoldOf(level, null);
     }
 
     private static WorldFold resolve(@Nullable ResourceKey<Level> drawnDimension) {

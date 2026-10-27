@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
 import com.exoticworlds.engine.noise.ClimateScanFixture.WorldType;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.TerrainCeiling;
 
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -204,7 +204,7 @@ class TerrainCeilingScan {
             DensityFunction ceiling = router.barrierNoise();
             DensityFunction density = router.finalDensity();
             DensityFunction surface = parkedSurface(randomState);
-            GenerationTransformerContext.runWithTransformer(fold, () -> {
+            GenerationFoldContext.runWithFold(fold, () -> {
                 for (int ix = 0; ix < GRID; ix++) {
                     for (int iz = 0; iz < GRID; iz++) {
                         int blockX = (int) Math.round(ix * step);
@@ -287,7 +287,7 @@ class TerrainCeilingScan {
         List<Double> insides = new ArrayList<>();
         List<Double> ceilingsAtCut = new ArrayList<>();
         List<Double> topsAtCut = new ArrayList<>();
-        GenerationTransformerContext.runWithTransformer(fold, () -> {
+        GenerationFoldContext.runWithFold(fold, () -> {
             for (int dx = -SuspendedLand.WINDOW_BLOCKS / 2; dx <= SuspendedLand.WINDOW_BLOCKS / 2;
                     dx += SuspendedLand.STRIDE_BLOCKS) {
                 for (int dz = -SuspendedLand.WINDOW_BLOCKS / 2; dz <= SuspendedLand.WINDOW_BLOCKS / 2;

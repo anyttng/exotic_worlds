@@ -63,6 +63,14 @@ public record SeamBorder(TranslationLattice lattice, double minX, double maxX, d
     }
 
     public Vec3 clamped(double x, double y, double z) {
+        Vec3 box = nearestBoxCenter(x, z);
+        return new Vec3(
+                clampToBox(this.lattice.x(), spanX(), box.x, halfX(), x),
+                y,
+                clampToBox(this.lattice.z(), spanZ(), box.z, halfZ(), z));
+    }
+
+    private Vec3 nearestBoxCenter(double x, double z) {
         WrapDomain xDomain = this.lattice.x();
         WrapDomain zDomain = this.lattice.z();
         double boxX = centerX();
@@ -82,10 +90,7 @@ public record SeamBorder(TranslationLattice lattice, double minX, double maxX, d
             }
         }
 
-        return new Vec3(
-                clampToBox(xDomain, spanX(), boxX, halfX(), x),
-                y,
-                clampToBox(zDomain, spanZ(), boxZ, halfZ(), z));
+        return new Vec3(boxX, 0.0, boxZ);
     }
 
     public List<Vec3> wallShifts() {

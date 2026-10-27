@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
@@ -34,19 +34,19 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 @Mixin(Entity.class)
-public class EntityMixin implements TransformerSource {
+public class EntityMixin implements FoldSource {
     @Unique
     private static final String PUSH = "push(Lnet/minecraft/world/entity/Entity;)V";
 
     @WrapMethod(method = "distanceTo")
     private float exotic_worlds$distanceThroughSeam(Entity other, Operation<Float> original) {
-        WorldFold transformer = exotic_worlds$wrappedTransformer();
-        if (transformer == null) {
+        WorldFold fold = exotic_worlds$wrappedFold();
+        if (fold == null) {
             return original.call(other);
         }
 
         Vec3 otherPos = other.position();
-        Vec3 nearest = exotic_worlds$nearestCopy(transformer, otherPos);
+        Vec3 nearest = exotic_worlds$nearestCopy(fold, otherPos);
         if (nearest == otherPos) {
             return original.call(other);
         }
@@ -56,34 +56,34 @@ public class EntityMixin implements TransformerSource {
 
     @WrapMethod(method = "distanceToSqr(DDD)D")
     private double exotic_worlds$distanceToSqrThroughSeam(double x, double y, double z, Operation<Double> original) {
-        WorldFold transformer = exotic_worlds$wrappedTransformer();
-        if (transformer == null) {
+        WorldFold fold = exotic_worlds$wrappedFold();
+        if (fold == null) {
             return original.call(x, y, z);
         }
 
-        Vec3 nearest = exotic_worlds$nearestCopy(transformer, new Vec3(x, y, z));
+        Vec3 nearest = exotic_worlds$nearestCopy(fold, new Vec3(x, y, z));
         return original.call(nearest.x, nearest.y, nearest.z);
     }
 
     @WrapMethod(method = "distanceToSqr(Lnet/minecraft/world/phys/Vec3;)D")
     private double exotic_worlds$distanceToSqrVecThroughSeam(Vec3 pos, Operation<Double> original) {
-        WorldFold transformer = exotic_worlds$wrappedTransformer();
-        if (transformer == null) {
+        WorldFold fold = exotic_worlds$wrappedFold();
+        if (fold == null) {
             return original.call(pos);
         }
 
-        return original.call(exotic_worlds$nearestCopy(transformer, pos));
+        return original.call(exotic_worlds$nearestCopy(fold, pos));
     }
 
     @WrapMethod(method = "closerThan(Lnet/minecraft/world/entity/Entity;D)Z")
     private boolean exotic_worlds$closerThanThroughSeam(Entity other, double distance, Operation<Boolean> original) {
-        WorldFold transformer = exotic_worlds$wrappedTransformer();
-        if (transformer == null) {
+        WorldFold fold = exotic_worlds$wrappedFold();
+        if (fold == null) {
             return original.call(other, distance);
         }
 
         Vec3 otherPos = other.position();
-        Vec3 nearest = exotic_worlds$nearestCopy(transformer, otherPos);
+        Vec3 nearest = exotic_worlds$nearestCopy(fold, otherPos);
         if (nearest == otherPos) {
             return original.call(other, distance);
         }
@@ -94,13 +94,13 @@ public class EntityMixin implements TransformerSource {
     @WrapMethod(method = "closerThan(Lnet/minecraft/world/entity/Entity;DD)Z")
     private boolean exotic_worlds$closerThanXZThroughSeam(Entity other, double distanceXZ, double distanceY,
             Operation<Boolean> original) {
-        WorldFold transformer = exotic_worlds$wrappedTransformer();
-        if (transformer == null) {
+        WorldFold fold = exotic_worlds$wrappedFold();
+        if (fold == null) {
             return original.call(other, distanceXZ, distanceY);
         }
 
         Vec3 otherPos = other.position();
-        Vec3 nearest = exotic_worlds$nearestCopy(transformer, otherPos);
+        Vec3 nearest = exotic_worlds$nearestCopy(fold, otherPos);
         if (nearest == otherPos) {
             return original.call(other, distanceXZ, distanceY);
         }
@@ -139,13 +139,13 @@ public class EntityMixin implements TransformerSource {
         }
 
         BlockPos raw = found.get();
-        BlockPos folded = WorldLoopAttachments.transformerOf(level).fold(raw);
+        BlockPos folded = WorldLoopAttachments.foldOf(level).fold(raw);
         return folded == raw ? found : Optional.of(folded);
     }
 
     @ModifyReturnValue(method = "getOnPos(F)Lnet/minecraft/core/BlockPos;", at = @At("RETURN"))
     private BlockPos exotic_worlds$canonicalOnPos(BlockPos raw) {
-        return WorldLoopAttachments.transformerOf(((Entity) (Object) this).level()).fold(raw);
+        return WorldLoopAttachments.foldOf(((Entity) (Object) this).level()).fold(raw);
     }
 
     @Inject(method = "moveTo(DDDFF)V", at = @At("TAIL"))
@@ -163,25 +163,25 @@ public class EntityMixin implements TransformerSource {
     }
 
     @Unique
-    private @Nullable Level exotic_worlds$transformerLevel;
+    private @Nullable Level exotic_worlds$foldLevel;
 
     @Unique
-    private WorldFold exotic_worlds$transformer;
+    private WorldFold exotic_worlds$fold;
 
     @Override
-    public @Nullable WorldFold exotic_worlds$wrappedTransformer() {
+    public @Nullable WorldFold exotic_worlds$wrappedFold() {
         Level level = ((Entity) (Object) this).level();
-        if (level != this.exotic_worlds$transformerLevel) {
-            this.exotic_worlds$transformer = WorldLoopAttachments.transformerOf(level);
-            this.exotic_worlds$transformerLevel = level;
+        if (level != this.exotic_worlds$foldLevel) {
+            this.exotic_worlds$fold = WorldLoopAttachments.foldOf(level);
+            this.exotic_worlds$foldLevel = level;
         }
 
-        WorldFold transformer = this.exotic_worlds$transformer;
-        return transformer.isWrapped() ? transformer : null;
+        WorldFold fold = this.exotic_worlds$fold;
+        return fold.isWrapped() ? fold : null;
     }
 
     @Unique
-    private Vec3 exotic_worlds$nearestCopy(WorldFold transformer, Vec3 target) {
-        return transformer.nearestCopy(((Entity) (Object) this).position(), target);
+    private Vec3 exotic_worlds$nearestCopy(WorldFold fold, Vec3 target) {
+        return fold.nearestCopy(((Entity) (Object) this).position(), target);
     }
 }

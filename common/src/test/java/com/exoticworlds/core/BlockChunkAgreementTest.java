@@ -23,7 +23,7 @@ class BlockChunkAgreementTest {
 
     private static final int[] HEIGHTS = {-64, -1, 0, 319};
 
-    private static final List<WorldFold> TRANSFORMERS = List.of(EVEN, ODD, UNEVEN, UNIT, X_ONLY, WorldFolds.NOOP);
+    private static final List<WorldFold> FOLDS = List.of(EVEN, ODD, UNEVEN, UNIT, X_ONLY, WorldFolds.NOOP);
 
     private static int sampleBlock(Random random, WrapDomain blockDomain) {
         int reach = 3 * (blockDomain instanceof WrapDomain.Noop ? 16_000 : Math.min(blockDomain.domainLength, 16_000));
@@ -34,12 +34,12 @@ class BlockChunkAgreementTest {
         return random.nextInt(384) - 64;
     }
 
-    private static String on(String axis, WorldFold transformer) {
-        return "on " + axis + " in " + transformer;
+    private static String on(String axis, WorldFold fold) {
+        return "on " + axis + " in " + fold;
     }
 
-    private static String in(WorldFold transformer) {
-        return "in " + transformer;
+    private static String in(WorldFold fold) {
+        return "in " + fold;
     }
 
     private static WrapDomain blockX(WorldFold fold) {
@@ -61,24 +61,24 @@ class BlockChunkAgreementTest {
     @Test
     void wrapThenConvertEqualsConvertThenWrap() {
         Random random = new Random(SEED);
-        for (WorldFold transformer : TRANSFORMERS) {
+        for (WorldFold fold : FOLDS) {
             for (int i = 0; i < SAMPLES; i++) {
-                checkAgreement(blockX(transformer), chunkX(transformer),
-                        sampleBlock(random, blockX(transformer)), "X", transformer);
-                checkAgreement(blockZ(transformer), chunkZ(transformer),
-                        sampleBlock(random, blockZ(transformer)), "Z", transformer);
+                checkAgreement(blockX(fold), chunkX(fold),
+                        sampleBlock(random, blockX(fold)), "X", fold);
+                checkAgreement(blockZ(fold), chunkZ(fold),
+                        sampleBlock(random, blockZ(fold)), "Z", fold);
             }
         }
     }
 
     @Test
     void theBoundsAndWholeWidthsOutAgreeLikeAnyOtherCoordinate() {
-        for (WorldFold transformer : TRANSFORMERS) {
-            for (int edge : edges(blockX(transformer))) {
-                checkAgreement(blockX(transformer), chunkX(transformer), edge, "X", transformer);
+        for (WorldFold fold : FOLDS) {
+            for (int edge : edges(blockX(fold))) {
+                checkAgreement(blockX(fold), chunkX(fold), edge, "X", fold);
             }
-            for (int edge : edges(blockZ(transformer))) {
-                checkAgreement(blockZ(transformer), chunkZ(transformer), edge, "Z", transformer);
+            for (int edge : edges(blockZ(fold))) {
+                checkAgreement(blockZ(fold), chunkZ(fold), edge, "Z", fold);
             }
         }
     }
@@ -92,35 +92,35 @@ class BlockChunkAgreementTest {
     }
 
     private static void checkAgreement(WrapDomain blockDomain, WrapDomain chunkDomain, int blockCoord,
-            String axis, WorldFold transformer) {
+            String axis, WorldFold fold) {
         int wrappedBlock = blockDomain.wrap(blockCoord);
         assertEquals(chunkDomain.wrap(SectionPos.blockToSectionCoord(blockCoord)),
                 SectionPos.blockToSectionCoord(wrappedBlock),
-                () -> "wrap(" + blockCoord + ") landed in the wrong chunk " + on(axis, transformer));
+                () -> "wrap(" + blockCoord + ") landed in the wrong chunk " + on(axis, fold));
         assertEquals(Math.floorMod(blockCoord, 16), Math.floorMod(wrappedBlock, 16),
-                () -> "wrap(" + blockCoord + ") moved inside its chunk " + on(axis, transformer));
+                () -> "wrap(" + blockCoord + ") moved inside its chunk " + on(axis, fold));
     }
 
     @Test
     void aFoldedPositionKeysOntoASectionTheWorldHas() {
         Random random = new Random(SEED);
-        for (WorldFold transformer : TRANSFORMERS) {
+        for (WorldFold fold : FOLDS) {
             for (int i = 0; i < SAMPLES; i++) {
                 checkKey(new BlockPos(
-                        sampleBlock(random, blockX(transformer)),
+                        sampleBlock(random, blockX(fold)),
                         sampleHeight(random),
-                        sampleBlock(random, blockZ(transformer))), transformer);
+                        sampleBlock(random, blockZ(fold))), fold);
             }
         }
     }
 
     @Test
     void theBoundsAndWholeWidthsOutKeyLikeAnyOtherPosition() {
-        for (WorldFold transformer : TRANSFORMERS) {
-            for (int x : edges(blockX(transformer))) {
-                for (int z : edges(blockZ(transformer))) {
+        for (WorldFold fold : FOLDS) {
+            for (int x : edges(blockX(fold))) {
+                for (int z : edges(blockZ(fold))) {
                     for (int y : HEIGHTS) {
-                        checkKey(new BlockPos(x, y, z), transformer);
+                        checkKey(new BlockPos(x, y, z), fold);
                     }
                 }
             }
@@ -130,29 +130,29 @@ class BlockChunkAgreementTest {
     @Test
     void thePackedNearestCopyAgreesWithThePositionForm() {
         Random random = new Random(SEED);
-        for (WorldFold transformer : TRANSFORMERS) {
+        for (WorldFold fold : FOLDS) {
             for (int i = 0; i < SAMPLES; i++) {
-                BlockPos ref = new BlockPos(sampleBlock(random, blockX(transformer)), sampleHeight(random),
-                        sampleBlock(random, blockZ(transformer)));
-                BlockPos target = new BlockPos(sampleBlock(random, blockX(transformer)), sampleHeight(random),
-                        sampleBlock(random, blockZ(transformer)));
-                assertEquals(transformer.nearestCopy(ref, target).asLong(),
-                        transformer.nearestCopyBlockNode(ref.asLong(), target.asLong()),
+                BlockPos ref = new BlockPos(sampleBlock(random, blockX(fold)), sampleHeight(random),
+                        sampleBlock(random, blockZ(fold)));
+                BlockPos target = new BlockPos(sampleBlock(random, blockX(fold)), sampleHeight(random),
+                        sampleBlock(random, blockZ(fold)));
+                assertEquals(fold.nearestCopy(ref, target).asLong(),
+                        fold.nearestCopyBlockNode(ref.asLong(), target.asLong()),
                         () -> "the packed nearest copy of " + target + " around " + ref + " disagrees "
-                                + in(transformer));
+                                + in(fold));
             }
         }
     }
 
-    private static void checkKey(BlockPos pos, WorldFold transformer) {
-        BlockPos folded = transformer.fold(pos);
+    private static void checkKey(BlockPos pos, WorldFold fold) {
+        BlockPos folded = fold.fold(pos);
         long section = SectionPos.asLong(folded);
 
-        assertFalse(chunkX(transformer).isOver(SectionPos.x(section)),
-                () -> "wrap(" + pos + ") named a section past the X bounds " + in(transformer));
-        assertFalse(chunkZ(transformer).isOver(SectionPos.z(section)),
-                () -> "wrap(" + pos + ") named a section past the Z bounds " + in(transformer));
+        assertFalse(chunkX(fold).isOver(SectionPos.x(section)),
+                () -> "wrap(" + pos + ") named a section past the X bounds " + in(fold));
+        assertFalse(chunkZ(fold).isOver(SectionPos.z(section)),
+                () -> "wrap(" + pos + ") named a section past the Z bounds " + in(fold));
         assertEquals(SectionPos.sectionRelativePos(pos), SectionPos.sectionRelativePos(folded),
-                () -> "wrap(" + pos + ") moved inside its section " + in(transformer));
+                () -> "wrap(" + pos + ") moved inside its section " + in(fold));
     }
 }

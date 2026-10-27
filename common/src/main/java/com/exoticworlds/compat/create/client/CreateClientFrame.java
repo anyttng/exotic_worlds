@@ -55,7 +55,7 @@ public final class CreateClientFrame {
         return CreateSeamFold.inFrameOf(fold, camera.getEyePosition(), anchor, point);
     }
 
-    public static AABB foldBoxToward(@Nullable Vec3 anchor, AABB box) {
+    public static AABB nearestCopyOrientedToward(@Nullable Vec3 anchor, AABB box) {
         return anchor == null ? box : FoldedBoxQuery.toward(ClientFrame.fold(), anchor, box);
     }
 

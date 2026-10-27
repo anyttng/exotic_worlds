@@ -13,7 +13,7 @@ import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.gen.WorldShapeReport;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.engine.level.SeamRespawnData;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -60,13 +60,13 @@ public class MinecraftServerMixin {
                     target = "Lnet/minecraft/world/level/biome/Climate$Sampler;findSpawnPosition()Lnet/minecraft/core/BlockPos;"))
     private static BlockPos exotic_worlds$spawnSearchInBounds(Climate.Sampler sampler, Operation<BlockPos> original,
             @Local(argsOnly = true) ServerLevel level) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        if (fold == null) {
             return original.call(sampler);
         }
 
-        BlockPos found = GenerationTransformerContext.withTransformer(transformer, () -> original.call(sampler));
-        return transformer.fold(found);
+        BlockPos found = GenerationFoldContext.withFold(fold, () -> original.call(sampler));
+        return fold.fold(found);
     }
 
     @WrapOperation(
@@ -76,7 +76,7 @@ public class MinecraftServerMixin {
                     target = "Lnet/minecraft/server/level/PlayerRespawnLogic;getSpawnPosInChunk(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/core/BlockPos;"))
     private static @Nullable BlockPos exotic_worlds$searchWrappedChunk(ServerLevel level, ChunkPos chunkPos,
             Operation<@Nullable BlockPos> original) {
-        return original.call(level, WorldLoopAttachments.transformerOf(level).fold(chunkPos));
+        return original.call(level, WorldLoopAttachments.foldOf(level).fold(chunkPos));
     }
 
     @WrapOperation(

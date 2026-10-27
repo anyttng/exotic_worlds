@@ -3,8 +3,8 @@ package com.exoticworlds.compat.c2me.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 
 import com.exoticworlds.accessors.WrappedPerlinNoise;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -15,7 +15,7 @@ import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 public class PerlinNoiseMixin {
     @WrapMethod(method = "getValue(DDD)D")
     private double exotic_worlds$periodicValue(double x, double y, double z, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.wrappedContext();
+        Context generation = GenerationFoldContext.wrappedContext();
         if (generation == null) {
             return original.call(x, y, z);
         }

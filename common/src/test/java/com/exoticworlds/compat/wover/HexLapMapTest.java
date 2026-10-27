@@ -341,39 +341,47 @@ class HexLapMapTest {
     }
 
     private static void assertCellBordersMatch(Palette palette, LapPicker<WoverBiomePicker.PickableBiome> picker) {
-        long ownBorders = 0;
-        long ownPairs = 0;
+        double ownShare = ownBorderShare(palette);
+        for (int side : TORUS_CHUNK_SIDES) {
+            double lapShare = lapBorderShare(side, picker);
+            assertEquals(1.0, lapShare / ownShare, REGION_TOLERANCE, "neighboring cells reading two biomes: the lap "
+                    + "chunk " + side + " cells wide " + lapShare + " against WorldWeaver's " + ownShare);
+        }
+    }
+
+    private static double ownBorderShare(Palette palette) {
+        long borders = 0;
+        long pairs = 0;
         for (int chunk = 0; chunk < CHUNK_SAMPLES; chunk++) {
             HexBiomeChunk own = new HexBiomeChunk(new WorldgenRandom(RandomSource.create(SEED + chunk)), palette);
             for (int x = 0; x < HexLapMap.CHUNK_SIDE - 1; x++) {
                 for (int z = 0; z < HexLapMap.CHUNK_SIDE - 1; z++) {
-                    ownPairs += 2;
-                    ownBorders += own.getBiome(x, z).equals(own.getBiome(x + 1, z)) ? 0 : 1;
-                    ownBorders += own.getBiome(x, z).equals(own.getBiome(x, z + 1)) ? 0 : 1;
+                    pairs += 2;
+                    borders += own.getBiome(x, z).equals(own.getBiome(x + 1, z)) ? 0 : 1;
+                    borders += own.getBiome(x, z).equals(own.getBiome(x, z + 1)) ? 0 : 1;
                 }
             }
         }
 
-        double ownShare = (double) ownBorders / ownPairs;
-        for (int side : TORUS_CHUNK_SIDES) {
-            long lapBorders = 0;
-            long lapPairs = 0;
-            for (int chunk = 0; chunk < CHUNK_SAMPLES; chunk++) {
-                HexLapChunk<WoverBiomePicker.PickableBiome> lap = new HexLapChunk<>(side, HexLapMap.CHUNK_SIDE,
-                        false, false, 0, new WorldgenRandom(RandomSource.create(SEED + chunk)), picker);
-                for (int x = 0; x < side - 1; x++) {
-                    for (int z = 0; z < HexLapMap.CHUNK_SIDE - 1; z++) {
-                        lapPairs += 2;
-                        lapBorders += lap.get(x, z).equals(lap.get(x + 1, z)) ? 0 : 1;
-                        lapBorders += lap.get(x, z).equals(lap.get(x, z + 1)) ? 0 : 1;
-                    }
+        return (double) borders / pairs;
+    }
+
+    private static double lapBorderShare(int side, LapPicker<WoverBiomePicker.PickableBiome> picker) {
+        long borders = 0;
+        long pairs = 0;
+        for (int chunk = 0; chunk < CHUNK_SAMPLES; chunk++) {
+            HexLapChunk<WoverBiomePicker.PickableBiome> lap = new HexLapChunk<>(side, HexLapMap.CHUNK_SIDE,
+                    false, false, 0, new WorldgenRandom(RandomSource.create(SEED + chunk)), picker);
+            for (int x = 0; x < side - 1; x++) {
+                for (int z = 0; z < HexLapMap.CHUNK_SIDE - 1; z++) {
+                    pairs += 2;
+                    borders += lap.get(x, z).equals(lap.get(x + 1, z)) ? 0 : 1;
+                    borders += lap.get(x, z).equals(lap.get(x, z + 1)) ? 0 : 1;
                 }
             }
-
-            double lapShare = (double) lapBorders / lapPairs;
-            assertEquals(1.0, lapShare / ownShare, REGION_TOLERANCE, "neighboring cells reading two biomes: the lap "
-                    + "chunk " + side + " cells wide " + lapShare + " against WorldWeaver's " + ownShare);
         }
+
+        return (double) borders / pairs;
     }
 
     @Test

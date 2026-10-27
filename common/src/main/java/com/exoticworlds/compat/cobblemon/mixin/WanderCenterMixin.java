@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.cobblemon.mod.common.api.ai.CobblemonWanderControl;
 import com.cobblemon.mod.common.api.ai.config.task.WanderTaskConfig;
 import com.cobblemon.mod.common.api.ai.config.task.WaterWanderTaskConfig;
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -30,6 +30,6 @@ public class WanderCenterMixin {
 
         BlockPos anchor = new BlockPos(center.getX().intValue(), center.getY().intValue(), center.getZ().intValue());
         return original.call(control, NearestCopy.toward(
-                ((TransformerSource) entity).exotic_worlds$wrappedTransformer(), anchor, candidate));
+                ((FoldSource) entity).exotic_worlds$wrappedFold(), anchor, candidate));
     }
 }

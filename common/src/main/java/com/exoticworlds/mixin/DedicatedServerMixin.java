@@ -17,6 +17,6 @@ public class DedicatedServerMixin {
             target = "Lnet/minecraft/server/level/ServerLevel;getSharedSpawnPos()Lnet/minecraft/core/BlockPos;"))
     private BlockPos exotic_worlds$nearestSpawnCopy(BlockPos spawnPos,
             @Local(argsOnly = true) ServerLevel level, @Local(argsOnly = true) BlockPos pos) {
-        return WorldLoopAttachments.transformerOf(level).nearestCopy(pos, spawnPos);
+        return WorldLoopAttachments.foldOf(level).nearestCopy(pos, spawnPos);
     }
 }

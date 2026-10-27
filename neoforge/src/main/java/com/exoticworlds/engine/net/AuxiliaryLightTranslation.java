@@ -21,7 +21,7 @@ public final class AuxiliaryLightTranslation {
         }
 
         Map<BlockPos, Byte> entries = new HashMap<>(payload.entries().size());
-        payload.entries().forEach((pos, light) -> entries.put(context.transformer().reseat(pos, clientChunk), light));
+        payload.entries().forEach((pos, light) -> entries.put(context.fold().reseat(pos, clientChunk), light));
         return new AuxiliaryLightDataPayload(clientChunk, entries);
     }
 

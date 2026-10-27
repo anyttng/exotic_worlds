@@ -18,11 +18,11 @@ public final class BlockOffsetSeed {
 
     private static WorldFold foldOf(@Nullable BlockGetter getter) {
         if (getter instanceof LevelReader reader) {
-            return WorldLoopAttachments.transformerOfReader(reader);
+            return WorldLoopAttachments.foldOfReader(reader);
         }
 
         if (getter instanceof RegionLevelSource region) {
-            return WorldLoopAttachments.transformerOfReader(region.exotic_worlds$regionLevel());
+            return WorldLoopAttachments.foldOfReader(region.exotic_worlds$regionLevel());
         }
 
         return WorldFolds.NOOP;

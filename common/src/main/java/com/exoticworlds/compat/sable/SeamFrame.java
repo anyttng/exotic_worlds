@@ -139,7 +139,7 @@ public final class SeamFrame {
     }
 
     private static @Nullable WorldFold serverFoldOf(LevelReader reader) {
-        return WorldLoopAttachments.wrappedTransformerOf(WorldLoopAttachments.serverLevelOf(reader));
+        return WorldLoopAttachments.wrappedFoldOf(WorldLoopAttachments.serverLevelOf(reader));
     }
 
     private static <R> R scoped(@Nullable Binding<?> binding, Supplier<R> body) {

@@ -17,7 +17,7 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import net.minecraft.core.Direction;
@@ -72,7 +72,7 @@ class RtfDecorationTest {
     @Test
     void aNoiseReadOutsideEveryScopeJoinsOnTheGenerationLap() {
         for (WorldFold fold : new WorldFold[] {torus(NARROW_CHUNKS), torus(WIDE_CHUNKS), cylinder(NARROW_CHUNKS)}) {
-            GenerationTransformerContext.runWithTransformer(fold,
+            GenerationFoldContext.runWithFold(fold,
                     () -> assertEquals(0, jumps(fold, (x, z) -> VARIANCE.compute((float) x, (float) z, 0))));
         }
     }
@@ -82,7 +82,7 @@ class RtfDecorationTest {
         WorldFold fold = torus(WIDE_CHUNKS);
         int min = fold.blockDomain(Direction.Axis.X).lowerBound;
         int lap = fold.blockDomain(Direction.Axis.X).domainLength;
-        GenerationTransformerContext.runWithTransformer(fold, () -> {
+        GenerationFoldContext.runWithFold(fold, () -> {
             for (int x = min; x < min + lap; x += lap / WARP_SAMPLES) {
                 assertEquals(WARPED.compute(x, min, 0), WARPED.compute(x + lap, min, 0), "at " + x);
             }
@@ -91,7 +91,7 @@ class RtfDecorationTest {
 
     @Test
     void anOpenedScopeKeepsItsLatticeOpen() {
-        GenerationTransformerContext.runWithTransformer(torus(NARROW_CHUNKS), () -> {
+        GenerationFoldContext.runWithFold(torus(NARROW_CHUNKS), () -> {
             try (RtfLap.Frame.Scope open = RtfLap.frame().open()) {
                 assertNull(RtfLap.boundFrame());
             }
@@ -102,7 +102,7 @@ class RtfDecorationTest {
 
     @Test
     void theLapLeavesWithTheGenerationStep() {
-        GenerationTransformerContext.runWithTransformer(torus(NARROW_CHUNKS), () -> assertNotNull(RtfLap.boundFrame()));
+        GenerationFoldContext.runWithFold(torus(NARROW_CHUNKS), () -> assertNotNull(RtfLap.boundFrame()));
         assertNull(RtfLap.boundFrame());
     }
 
@@ -110,7 +110,7 @@ class RtfDecorationTest {
     void poissonPointsOneLapOnAreThePointsShifted() {
         WorldFold fold = torus(NARROW_CHUNKS);
         int lapChunks = 2 * NARROW_CHUNKS;
-        GenerationTransformerContext.runWithTransformer(fold, () -> {
+        GenerationFoldContext.runWithFold(fold, () -> {
             for (int chunk : new int[] {-NARROW_CHUNKS, NARROW_CHUNKS - 1}) {
                 LongArrayList here = poisson(chunk);
                 assertTrue(!here.isEmpty(), "chunk " + chunk + " holds a point");

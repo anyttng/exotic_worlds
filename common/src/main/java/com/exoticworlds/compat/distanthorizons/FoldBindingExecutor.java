@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 public final class FoldBindingExecutor extends AbstractExecutorService {
     private final ExecutorService delegate;
@@ -20,7 +20,7 @@ public final class FoldBindingExecutor extends AbstractExecutorService {
 
     @Override
     public void execute(Runnable command) {
-        this.delegate.execute(() -> GenerationTransformerContext.runWithTransformer(this.fold, command));
+        this.delegate.execute(() -> GenerationFoldContext.runWithFold(this.fold, command));
     }
 
     @Override

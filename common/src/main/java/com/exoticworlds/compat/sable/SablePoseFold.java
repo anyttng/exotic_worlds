@@ -32,7 +32,7 @@ public final class SablePoseFold {
 
     public static void reseat(SubLevelPhysicsSystem system, ServerSubLevel subLevel, Pose3d readback) {
         ServerLevel level = system.getLevel();
-        WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(level);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
         if (fold == null) {
             return;
         }

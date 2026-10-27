@@ -64,12 +64,12 @@ public class RaidMixin {
     private Stream<SectionPos> exotic_worlds$villageSectionsThroughSeam(SectionPos cubeCenter, int radius,
             Operation<Stream<SectionPos>> original) {
         Stream<SectionPos> sections = original.call(cubeCenter, radius);
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.level);
+        if (fold == null) {
             return sections;
         }
 
-        return sections.map(section -> transformer.fold(section)).distinct();
+        return sections.map(section -> fold.fold(section)).distinct();
     }
 
     @ModifyArg(
@@ -77,11 +77,11 @@ public class RaidMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.STREAM_MIN),
             index = 0)
     private Comparator<BlockPos> exotic_worlds$nearestVillageSectionThroughSeam(Comparator<BlockPos> original) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.level);
+        if (fold == null) {
             return original;
         }
 
-        return FoldedOrder.around(original, transformer, this.center);
+        return FoldedOrder.around(original, fold, this.center);
     }
 }

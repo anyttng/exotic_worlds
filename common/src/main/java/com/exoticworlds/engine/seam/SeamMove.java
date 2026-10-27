@@ -19,10 +19,14 @@ public final class SeamMove {
 
         mirror.set(clamped, MirrorWriter.PLAYER_MOVE);
         Vec3 unwrapped = fold.nearestCopy(player.position(), clamped);
+        reseatCheckpoints(checkpoints, fold, unwrapped);
+        return unwrapped;
+    }
+
+    private static void reseatCheckpoints(MoveCheckpoints checkpoints, WorldFold fold, Vec3 unwrapped) {
         checkpoints.exotic_worlds$setGood(
                 fold.nearestCopy(unwrapped, checkpoints.exotic_worlds$firstGood(unwrapped.y)),
                 fold.nearestCopy(unwrapped, checkpoints.exotic_worlds$lastGood(unwrapped.y)));
-        return unwrapped;
     }
 
     public static Vec3 vehicle(ServerPlayer player, WorldFold fold, double clampedX, double reportedY,

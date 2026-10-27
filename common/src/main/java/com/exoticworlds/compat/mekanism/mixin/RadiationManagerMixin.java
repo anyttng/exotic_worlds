@@ -26,7 +26,7 @@ public class RadiationManagerMixin {
     private static @Nullable RadiationLevelData exotic_worlds$bindLevelFold(@Nullable RadiationLevelData data,
             @Local(argsOnly = true) Level level) {
         if (data != null) {
-            ((RadiationLevelFrame) (Object) data).exotic_worlds$bind(WorldLoopAttachments.transformerOf(level));
+            ((RadiationLevelFrame) (Object) data).exotic_worlds$bind(WorldLoopAttachments.foldOf(level));
         }
 
         return data;

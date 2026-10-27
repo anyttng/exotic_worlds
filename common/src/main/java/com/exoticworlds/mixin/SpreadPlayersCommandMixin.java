@@ -35,9 +35,9 @@ public class SpreadPlayersCommandMixin {
             RandomSource random, double minX, double minZ, double maxX, double maxZ, int maxHeight,
             SpreadPlayersCommand.Position[] positions, boolean respectTeams, CallbackInfo ci,
             @Share(SPREAD_FOLD) LocalRef<@Nullable WorldFold> spreadFold) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
-        if (transformer != null && !SpreadArea.fitsInHalfTheWorld(transformer, maxX - minX, maxZ - minZ)) {
-            spreadFold.set(transformer);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        if (fold != null && !SpreadArea.fitsInHalfTheWorld(fold, maxX - minX, maxZ - minZ)) {
+            spreadFold.set(fold);
         }
     }
 
@@ -46,15 +46,15 @@ public class SpreadPlayersCommandMixin {
     private static SpreadPlayersCommand.Position exotic_worlds$neighborThroughSeam(
             SpreadPlayersCommand.Position neighbor, @Local(ordinal = 0) SpreadPlayersCommand.Position position,
             @Share(SPREAD_FOLD) LocalRef<@Nullable WorldFold> spreadFold) {
-        WorldFold transformer = spreadFold.get();
-        if (transformer == null) {
+        WorldFold fold = spreadFold.get();
+        if (fold == null) {
             return neighbor;
         }
 
         SpreadPositionAccessor from = (SpreadPositionAccessor) position;
         SpreadPositionAccessor to = (SpreadPositionAccessor) neighbor;
         Vec3 raw = new Vec3(to.exotic_worlds$x(), 0.0, to.exotic_worlds$z());
-        Vec3 nearest = transformer.nearestCopy(new Vec3(from.exotic_worlds$x(), 0.0, from.exotic_worlds$z()), raw);
+        Vec3 nearest = fold.nearestCopy(new Vec3(from.exotic_worlds$x(), 0.0, from.exotic_worlds$z()), raw);
         if (nearest == raw) {
             return neighbor;
         }
@@ -73,13 +73,13 @@ public class SpreadPlayersCommandMixin {
     private static boolean exotic_worlds$confineAcrossSeam(SpreadPlayersCommand.Position position, double minX,
             double minZ, double maxX, double maxZ, Operation<Boolean> original,
             @Share(SPREAD_FOLD) LocalRef<@Nullable WorldFold> spreadFold) {
-        WorldFold transformer = spreadFold.get();
-        if (transformer == null) {
+        WorldFold fold = spreadFold.get();
+        if (fold == null) {
             return original.call(position, minX, minZ, maxX, maxZ);
         }
 
         SpreadPositionAccessor accessor = (SpreadPositionAccessor) position;
-        SpreadArea.Confined confined = SpreadArea.confine(transformer, accessor.exotic_worlds$x(),
+        SpreadArea.Confined confined = SpreadArea.confine(fold, accessor.exotic_worlds$x(),
                 accessor.exotic_worlds$z(), minX, minZ, maxX, maxZ);
         accessor.exotic_worlds$setX(confined.x());
         accessor.exotic_worlds$setZ(confined.z());
@@ -95,14 +95,14 @@ public class SpreadPlayersCommandMixin {
     private static void exotic_worlds$randomizeAcrossSeam(SpreadPlayersCommand.Position position, RandomSource random,
             double minX, double minZ, double maxX, double maxZ, Operation<Void> original,
             @Share(SPREAD_FOLD) LocalRef<@Nullable WorldFold> spreadFold) {
-        WorldFold transformer = spreadFold.get();
-        if (transformer == null) {
+        WorldFold fold = spreadFold.get();
+        if (fold == null) {
             original.call(position, random, minX, minZ, maxX, maxZ);
             return;
         }
 
-        AxisBounds xAxis = transformer.bounds().x();
-        AxisBounds zAxis = transformer.bounds().z();
+        AxisBounds xAxis = fold.bounds().x();
+        AxisBounds zAxis = fold.bounds().z();
         original.call(position, random,
                 SpreadArea.randomMin(xAxis, minX, maxX), SpreadArea.randomMin(zAxis, minZ, maxZ),
                 SpreadArea.randomMax(xAxis, minX, maxX), SpreadArea.randomMax(zAxis, minZ, maxZ));
@@ -116,14 +116,14 @@ public class SpreadPlayersCommandMixin {
     private static double exotic_worlds$distThroughSeam(SpreadPlayersCommand.Position position,
             SpreadPlayersCommand.Position target, Operation<Double> original,
             @Local(argsOnly = true) ServerLevel level) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        if (fold == null) {
             return original.call(position, target);
         }
 
         SpreadPositionAccessor from = (SpreadPositionAccessor) position;
         SpreadPositionAccessor to = (SpreadPositionAccessor) target;
-        return Math.sqrt(SeamRange.sqr(transformer,
+        return Math.sqrt(SeamRange.sqr(fold,
                 new Vec3(from.exotic_worlds$x(), 0.0, from.exotic_worlds$z()),
                 new Vec3(to.exotic_worlds$x(), 0.0, to.exotic_worlds$z())));
     }

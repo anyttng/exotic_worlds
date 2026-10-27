@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
@@ -42,18 +42,28 @@ public final class PeriodicNoiseSampler {
     private static final int NO_SLOT = -1;
 
     static PeriodicLattice lattice(byte[] permutations, double xOffset, double yOffset, double zOffset,
-            WorldFold transformer, Context context, LapFloor floor) {
-        TranslationLattice translations = transformer.blockLattice();
+            WorldFold fold, Context context, LapFloor floor) {
+        TranslationLattice translations = fold.blockLattice();
         SlotAxes axes = context.slotAxes();
         double scale = context.horizontalScale();
-        if (axes != SlotAxes.DEFAULT || context.xDivisor() != 1.0 || context.zDivisor() != 1.0) {
-            PeriodicLattice.Axis xAxis = slotAxis(axes.x(), translations, context, scale, floor);
-            PeriodicLattice.Axis yAxis = slotAxis(axes.y(), translations, context, scale, floor);
-            PeriodicLattice.Axis zAxis = slotAxis(axes.z(), translations, context, scale, floor);
-            return new PeriodicLattice(permutations, xOffset, yOffset, zOffset, xAxis, yAxis, zAxis, 1.0, 0.0,
-                    slotShear(translations, axes, xAxis, yAxis, zAxis));
-        }
+        boolean slotted = axes != SlotAxes.DEFAULT || context.xDivisor() != 1.0 || context.zDivisor() != 1.0;
+        return slotted
+                ? slottedLattice(permutations, xOffset, yOffset, zOffset, translations, axes, context, scale, floor)
+                : worldLattice(permutations, xOffset, yOffset, zOffset, translations, context, scale, floor);
+    }
 
+    private static PeriodicLattice slottedLattice(byte[] permutations, double xOffset, double yOffset,
+            double zOffset, TranslationLattice translations, SlotAxes axes, Context context, double scale,
+            LapFloor floor) {
+        PeriodicLattice.Axis xAxis = slotAxis(axes.x(), translations, context, scale, floor);
+        PeriodicLattice.Axis yAxis = slotAxis(axes.y(), translations, context, scale, floor);
+        PeriodicLattice.Axis zAxis = slotAxis(axes.z(), translations, context, scale, floor);
+        return new PeriodicLattice(permutations, xOffset, yOffset, zOffset, xAxis, yAxis, zAxis, 1.0, 0.0,
+                slotShear(translations, axes, xAxis, yAxis, zAxis));
+    }
+
+    private static PeriodicLattice worldLattice(byte[] permutations, double xOffset, double yOffset,
+            double zOffset, TranslationLattice translations, Context context, double scale, LapFloor floor) {
         WrapDomain xDomain = translations.x();
         WrapDomain zDomain = translations.z();
         long xPeriod = period(xDomain, scale, floor);

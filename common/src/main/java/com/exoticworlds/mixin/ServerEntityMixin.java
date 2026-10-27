@@ -44,7 +44,7 @@ public class ServerEntityMixin {
                     target = "Lnet/minecraft/network/protocol/game/ClientboundBundlePacket;<init>(Ljava/lang/Iterable;)V"))
     private Iterable<Packet<? super ClientGamePacketListener>> exotic_worlds$dropPrematureVehiclePassengers(
             Iterable<Packet<? super ClientGamePacketListener>> pairing, @Local(argsOnly = true) ServerPlayer player) {
-        if (WorldLoopAttachments.wrappedTransformerOf(this.level) == null) {
+        if (WorldLoopAttachments.wrappedFoldOf(this.level) == null) {
             return pairing;
         }
 

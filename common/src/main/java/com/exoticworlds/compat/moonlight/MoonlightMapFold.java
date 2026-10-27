@@ -11,8 +11,8 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
 public final class MoonlightMapFold {
     public static @Nullable WorldFold of(@Nullable LevelAccessor level, MapItemSavedData data) {
-        WorldFold fold = MapSeamFold.transformerFor(level, data.dimension);
-        return fold != null ? fold : PublishedShapes.foldOf(data.dimension);
+        WorldFold fold = MapSeamFold.foldFor(level, data.dimension);
+        return fold != null ? fold : PublishedShapes.wrappedFoldOf(data.dimension);
     }
 
     private MoonlightMapFold() {

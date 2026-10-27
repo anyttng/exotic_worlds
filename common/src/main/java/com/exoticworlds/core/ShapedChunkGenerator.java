@@ -20,7 +20,7 @@ public interface ShapedChunkGenerator {
 
     ChunkGenerator unshaped();
 
-    default WorldFold transformer() {
+    default WorldFold fold() {
         return carriedShape().fold();
     }
 
@@ -42,14 +42,14 @@ public interface ShapedChunkGenerator {
         return carriedShapeOf(level.getChunkSource().getGenerator());
     }
 
-    static @Nullable WorldFold wrappedTransformerOf(ChunkGenerator generator) {
+    static @Nullable WorldFold wrappedFoldOf(ChunkGenerator generator) {
         CarriedShape carried = carriedShapeOf(generator);
         return carried == null ? null : carried.fold();
     }
 
-    static WorldFold transformerOf(ChunkGenerator generator) {
-        WorldFold transformer = wrappedTransformerOf(generator);
-        return transformer != null ? transformer : WorldFolds.NOOP;
+    static WorldFold foldOf(ChunkGenerator generator) {
+        WorldFold fold = wrappedFoldOf(generator);
+        return fold != null ? fold : WorldFolds.NOOP;
     }
 
     private static @Nullable CarriedShape wrapped(@Nullable CarriedShape carried) {

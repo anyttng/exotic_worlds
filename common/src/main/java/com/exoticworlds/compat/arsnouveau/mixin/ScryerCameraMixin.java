@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerHolder;
+import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.hollingsworth.arsnouveau.common.entity.ScryerCamera;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -19,8 +19,8 @@ public abstract class ScryerCameraMixin {
     private ChunkTrackingView exotic_worlds$viewThroughSeam(ChunkPos center, int viewDistance,
             Operation<ChunkTrackingView> original) {
         ChunkTrackingView view = original.call(center, viewDistance);
-        ((TransformerHolder) (Object) view).exotic_worlds$setTransformer(
-                WorldLoopAttachments.transformerOf(((ScryerCamera) (Object) this).level()));
+        ((FoldHolder) (Object) view).exotic_worlds$setFold(
+                WorldLoopAttachments.foldOf(((ScryerCamera) (Object) this).level()));
         return view;
     }
 }

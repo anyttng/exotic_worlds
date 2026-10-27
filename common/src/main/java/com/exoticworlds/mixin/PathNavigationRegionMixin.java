@@ -34,7 +34,7 @@ public class PathNavigationRegionMixin implements RegionLevelSource {
                     target = "Lnet/minecraft/world/level/chunk/ChunkSource;getChunkNow(II)Lnet/minecraft/world/level/chunk/LevelChunk;"))
     private @Nullable LevelChunk exotic_worlds$foldSnapshotChunk(ChunkSource chunkSource, int chunkX, int chunkZ,
             Operation<@Nullable LevelChunk> original) {
-        long folded = WorldLoopAttachments.transformerOf(this.level).foldChunkKey(ChunkPos.asLong(chunkX, chunkZ));
+        long folded = WorldLoopAttachments.foldOf(this.level).foldChunkKey(ChunkPos.asLong(chunkX, chunkZ));
         return original.call(chunkSource, ChunkPos.getX(folded), ChunkPos.getZ(folded));
     }
 }

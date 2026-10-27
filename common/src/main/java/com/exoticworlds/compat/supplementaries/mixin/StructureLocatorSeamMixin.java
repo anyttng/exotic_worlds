@@ -80,7 +80,7 @@ public class StructureLocatorSeamMixin {
         Pair<BlockPos, Holder<Structure>> found = original.call(generator, structures, level, structureManager,
                 searchCenter, skipKnown, placement);
         return found == null ? null : Pair.of(
-                WorldLoopAttachments.transformerOf(level).nearestCopy(searchCenter, found.getFirst()),
+                WorldLoopAttachments.foldOf(level).nearestCopy(searchCenter, found.getFirst()),
                 found.getSecond());
     }
 
@@ -88,7 +88,7 @@ public class StructureLocatorSeamMixin {
     private static boolean exotic_worlds$seatResult(List<Object> found, Object result, Operation<Boolean> original,
             @Local(argsOnly = true) ServerLevel level, @Local(argsOnly = true) BlockPos searchCenter) {
         LocatedStructure located = (LocatedStructure) result;
-        BlockPos seated = WorldLoopAttachments.transformerOf(level).nearestCopy(searchCenter, located.position());
+        BlockPos seated = WorldLoopAttachments.foldOf(level).nearestCopy(searchCenter, located.position());
         LocatedStructure seatedResult = new LocatedStructure(seated, located.structure(), located.start(),
                 searchCenter.distSqr(seated));
         return !found.contains(seatedResult) && original.call(found, seatedResult);

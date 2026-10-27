@@ -1,7 +1,7 @@
 package com.exoticworlds.compat.c2me;
 
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.CLIMATE_NOISE_DATA;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.CLIMATE_XZ_SCALE;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.NOISE_DATA;
@@ -67,7 +67,7 @@ final class C2meCompiledFunctions {
     }
 
     static DensityFunction compileFolded(String name, DensityFunction source, WorldFold fold) {
-        DensityFunction compiled = GenerationTransformerContext.withRouterBuild(fold, () -> {
+        DensityFunction compiled = GenerationFoldContext.withRouterBuild(fold, () -> {
             BytecodeGen.Context context = BytecodeGen.initContext();
             DensityFunction function = context.compileDelayed(name, source);
             BytecodeGen.finalizeCompilation(context);

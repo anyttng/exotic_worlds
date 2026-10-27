@@ -2,7 +2,7 @@ package com.exoticworlds.engine.noise;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 
 import net.minecraft.world.level.levelgen.DensityFunction;
 
@@ -20,12 +20,12 @@ public final class CanonicalCellSampler {
     }
 
     public double sample(DensityFunction.FunctionContext cell, int blockX, int blockZ, Sample sample) {
-        Context generation = GenerationTransformerContext.wrappedContext();
+        Context generation = GenerationFoldContext.wrappedContext();
         if (generation == null) {
             return sample.at(cell);
         }
 
-        TilingCellGrid grid = TilingCellGrid.resolve(this.grid, generation.transformer(), this.vanillaCellWidth);
+        TilingCellGrid grid = TilingCellGrid.resolve(this.grid, generation.fold(), this.vanillaCellWidth);
         this.grid = grid;
 
         try (Context.DivisorScope divisorScope = generation.withDivisors(grid.xCellWidth(), grid.zCellWidth())) {

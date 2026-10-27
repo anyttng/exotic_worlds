@@ -18,7 +18,7 @@ public class EndermanSkullWatchSeatMixin {
             target = "Lnet/minecraft/world/entity/player/Player;pick(DFZ)Lnet/minecraft/world/phys/HitResult;"))
     private static HitResult exotic_worlds$hitOnCanonicalSkull(HitResult hit, @Local(argsOnly = true) Level level) {
         return hit instanceof BlockHitResult block
-                ? SeamHit.reseat(block, WorldLoopAttachments.transformerOf(level).foldOriented(block.getBlockPos()))
+                ? SeamHit.reseat(block, WorldLoopAttachments.foldOf(level).foldOriented(block.getBlockPos()))
                 : hit;
     }
 }

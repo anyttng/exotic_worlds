@@ -20,29 +20,29 @@ import net.minecraft.world.level.LevelReader;
 
 public final class CanonicalPositionKeys {
     public static Set<BlockPos> set(@Nullable BlockGetter reader) {
-        WorldFold transformer = transformerOf(reader);
-        return transformer == null ? new HashSet<>() : new CanonicalSet(transformer);
+        WorldFold fold = wrappedFoldOf(reader);
+        return fold == null ? new HashSet<>() : new CanonicalSet(fold);
     }
 
     public static <V> Map<BlockPos, V> map(@Nullable BlockGetter reader) {
-        WorldFold transformer = transformerOf(reader);
-        return transformer == null ? new HashMap<>() : new CanonicalMap<>(transformer);
+        WorldFold fold = wrappedFoldOf(reader);
+        return fold == null ? new HashMap<>() : new CanonicalMap<>(fold);
     }
 
-    static @Nullable WorldFold transformerOf(@Nullable BlockGetter reader) {
+    static @Nullable WorldFold wrappedFoldOf(@Nullable BlockGetter reader) {
         return reader instanceof LevelReader levelReader ? WorldLoopAttachments.wrappedTransformerOfReader(levelReader) : null;
     }
 
-    private static Object key(WorldFold transformer, Object candidate) {
-        return candidate instanceof BlockPos pos ? transformer.fold(pos) : candidate;
+    private static Object key(WorldFold fold, Object candidate) {
+        return candidate instanceof BlockPos pos ? fold.fold(pos) : candidate;
     }
 
     abstract static class FoldedSet<E> extends AbstractSet<E> {
-        final WorldFold transformer;
+        final WorldFold fold;
         final Set<E> delegate;
 
-        FoldedSet(WorldFold transformer, Set<E> delegate) {
-            this.transformer = transformer;
+        FoldedSet(WorldFold fold, Set<E> delegate) {
+            this.fold = fold;
             this.delegate = delegate;
         }
 
@@ -106,29 +106,29 @@ public final class CanonicalPositionKeys {
     }
 
     static final class CanonicalSet extends FoldedSet<BlockPos> {
-        CanonicalSet(WorldFold transformer) {
-            this(transformer, new HashSet<>());
+        CanonicalSet(WorldFold fold) {
+            this(fold, new HashSet<>());
         }
 
-        private CanonicalSet(WorldFold transformer, Set<BlockPos> keys) {
-            super(transformer, keys);
+        private CanonicalSet(WorldFold fold, Set<BlockPos> keys) {
+            super(fold, keys);
         }
 
         @Override
         Object canonical(Object candidate) {
-            return key(transformer, candidate);
+            return key(fold, candidate);
         }
 
         @Override
         public boolean add(BlockPos pos) {
-            return delegate.add(transformer.fold(pos));
+            return delegate.add(fold.fold(pos));
         }
 
         @Override
         public boolean addAll(Collection<? extends BlockPos> positions) {
             boolean changed = false;
             for (BlockPos pos : positions) {
-                changed |= delegate.add(transformer.fold(pos));
+                changed |= delegate.add(fold.fold(pos));
             }
 
             return changed;
@@ -136,14 +136,14 @@ public final class CanonicalPositionKeys {
     }
 
     private static final class CanonicalEntrySet<V> extends FoldedSet<Map.Entry<BlockPos, V>> {
-        private CanonicalEntrySet(WorldFold transformer, Set<Map.Entry<BlockPos, V>> entries) {
-            super(transformer, entries);
+        private CanonicalEntrySet(WorldFold fold, Set<Map.Entry<BlockPos, V>> entries) {
+            super(fold, entries);
         }
 
         @Override
         Object canonical(Object candidate) {
             if (candidate instanceof Map.Entry<?, ?> entry && entry.getKey() instanceof BlockPos pos) {
-                return new AbstractMap.SimpleEntry<>(transformer.fold(pos), entry.getValue());
+                return new AbstractMap.SimpleEntry<>(fold.fold(pos), entry.getValue());
             }
 
             return candidate;
@@ -151,35 +151,35 @@ public final class CanonicalPositionKeys {
     }
 
     static final class CanonicalMap<V> extends AbstractMap<BlockPos, V> {
-        private final WorldFold transformer;
+        private final WorldFold fold;
         private final Map<BlockPos, V> entries = new HashMap<>();
         private final Set<BlockPos> keys;
         private final Set<Entry<BlockPos, V>> foldedEntries;
 
-        CanonicalMap(WorldFold transformer) {
-            this.transformer = transformer;
-            this.keys = new CanonicalSet(transformer, entries.keySet());
-            this.foldedEntries = new CanonicalEntrySet<>(transformer, entries.entrySet());
+        CanonicalMap(WorldFold fold) {
+            this.fold = fold;
+            this.keys = new CanonicalSet(fold, entries.keySet());
+            this.foldedEntries = new CanonicalEntrySet<>(fold, entries.entrySet());
         }
 
         @Override
         public @Nullable V put(BlockPos pos, V value) {
-            return entries.put(transformer.fold(pos), value);
+            return entries.put(fold.fold(pos), value);
         }
 
         @Override
         public @Nullable V get(Object candidate) {
-            return entries.get(key(transformer, candidate));
+            return entries.get(key(fold, candidate));
         }
 
         @Override
         public boolean containsKey(Object candidate) {
-            return entries.containsKey(key(transformer, candidate));
+            return entries.containsKey(key(fold, candidate));
         }
 
         @Override
         public @Nullable V remove(Object candidate) {
-            return entries.remove(key(transformer, candidate));
+            return entries.remove(key(fold, candidate));
         }
 
         @Override

@@ -53,13 +53,13 @@ public class ChunkGeneratorReferencesMixin {
             Operation<Map<Structure, StructureStart>> original, @Local(argsOnly = true) ChunkAccess centerChunk,
             @Share(SOURCE) LocalRef<@Nullable ChunkPos> source,
             @Share(SOURCE_POS) LocalRef<@Nullable ChunkPos> sourcePos) {
-        WorldFold transformer = ShapedChunkGenerator.wrappedTransformerOf((ChunkGenerator) (Object) this);
+        WorldFold fold = ShapedChunkGenerator.wrappedFoldOf((ChunkGenerator) (Object) this);
         ChunkPos requested = source.get();
-        if (transformer == null || requested == null) {
+        if (fold == null || requested == null) {
             return original.call(sourceChunk);
         }
 
-        if (!transformer.nearestCopy(centerChunk.getPos(), transformer.fold(requested)).equals(requested)) {
+        if (!fold.nearestCopy(centerChunk.getPos(), fold.fold(requested)).equals(requested)) {
             return Map.of();
         }
 
@@ -76,14 +76,14 @@ public class ChunkGeneratorReferencesMixin {
             Operation<Boolean> original, @Local(argsOnly = true) ChunkAccess centerChunk,
             @Share(SOURCE) LocalRef<@Nullable ChunkPos> source,
             @Share(SOURCE_POS) LocalRef<@Nullable ChunkPos> sourcePos) {
-        WorldFold transformer = ShapedChunkGenerator.wrappedTransformerOf((ChunkGenerator) (Object) this);
+        WorldFold fold = ShapedChunkGenerator.wrappedFoldOf((ChunkGenerator) (Object) this);
         ChunkPos requested = source.get();
         ChunkPos physical = sourcePos.get();
-        if (transformer == null || requested == null || physical == null) {
+        if (fold == null || requested == null || physical == null) {
             return original.call(box, minX, minZ, maxX, maxZ);
         }
 
-        ChunkPos foldedCenter = transformer.deckTransformation(requested, physical).apply(centerChunk.getPos());
+        ChunkPos foldedCenter = fold.deckTransformation(requested, physical).apply(centerChunk.getPos());
         return original.call(box, foldedCenter.getMinBlockX(), foldedCenter.getMinBlockZ(),
                 foldedCenter.getMaxBlockX(), foldedCenter.getMaxBlockZ());
     }

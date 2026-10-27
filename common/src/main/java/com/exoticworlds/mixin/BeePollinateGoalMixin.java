@@ -34,7 +34,7 @@ public class BeePollinateGoalMixin {
 
     @ModifyReturnValue(method = "findNearbyFlower", at = @At("RETURN"))
     private Optional<BlockPos> exotic_worlds$foundFlowerCanonical(Optional<BlockPos> found) {
-        return found.map(WorldLoopAttachments.transformerOf(this.exotic_worlds$bee.level())::fold);
+        return found.map(WorldLoopAttachments.foldOf(this.exotic_worlds$bee.level())::fold);
     }
 
     @ModifyExpressionValue(

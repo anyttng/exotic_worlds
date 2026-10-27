@@ -35,7 +35,7 @@ public abstract class WireInteractionHandlerMixin {
     private static double exotic_worlds$seatPickedPass(Vec3 from, Vec3 to, Operation<Double> original,
             @Local(name = "mc") Minecraft mc, @Local(name = "wire") Pair<?, ?> wire,
             @Local(name = "pos1") LocalRef<Vec3> pos1, @Local(name = "pos2") LocalRef<Vec3> pos2) {
-        WireCopies.Span span = WireCopies.from(WorldLoopAttachments.transformerOfReader(mc.level), from, to,
+        WireCopies.Span span = WireCopies.from(WorldLoopAttachments.foldOfReader(mc.level), from, to,
                 SecondEndWire.end(wire));
         pos1.set(span.pos1());
         pos2.set(span.pos2());
@@ -47,7 +47,7 @@ public abstract class WireInteractionHandlerMixin {
     private static Vec3 exotic_worlds$highlightOnTheAimedCopy(Vec3 from, Vec3 to, float point, float sag,
             Operation<Vec3> original, @Local(name = "mc") Minecraft mc,
             @Local(name = "pos1") LocalRef<Vec3> pos1, @Local(name = "pos2") LocalRef<Vec3> pos2) {
-        WireCopies.Span span = WireCopies.around(WorldLoopAttachments.transformerOfReader(mc.level), from, to,
+        WireCopies.Span span = WireCopies.around(WorldLoopAttachments.foldOfReader(mc.level), from, to,
                 point, mc.player.position());
         pos1.set(span.pos1());
         pos2.set(span.pos2());

@@ -2,7 +2,7 @@ package com.exoticworlds.compat.c2me;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.climate.ClimateCompression;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.CLIMATE_AMPLITUDES;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.CLIMATE_FIRST_OCTAVE;
@@ -125,7 +125,7 @@ class C2meDfcAstTest {
         DensityFunction source = withClimateNoise(DensityFunctions.shiftedNoise2d(
                 DensityFunctions.constant(SHIFT_X), DensityFunctions.constant(SHIFT_Z),
                 CLIMATE_XZ_SCALE, CLIMATE_NOISE_DATA));
-        AstNode folded = GenerationTransformerContext.withRouterBuild(SQUARE, () -> McToAst.toAst(source));
+        AstNode folded = GenerationFoldContext.withRouterBuild(SQUARE, () -> McToAst.toAst(source));
         Random random = new Random(SEED);
         int xWidth = SQUARE.blockDomain(Direction.Axis.X).domainLength;
         int zWidth = SQUARE.blockDomain(Direction.Axis.Z).domainLength;
@@ -172,20 +172,20 @@ class C2meDfcAstTest {
                 withLiveNoise(DensityFunctions.shift(NOISE_DATA)),
                 withLiveNoise(DensityFunctions.shiftA(NOISE_DATA)),
                 withLiveNoise(DensityFunctions.shiftB(NOISE_DATA)))) {
-            for (WorldFold transformer : WORLDS) {
-                AstNode folded = GenerationTransformerContext.withRouterBuild(transformer, () -> McToAst.toAst(source));
-                int xWidth = transformer.blockDomain(Direction.Axis.X).domainLength;
-                int zWidth = transformer.blockDomain(Direction.Axis.Z).domainLength;
+            for (WorldFold worldFold : WORLDS) {
+                AstNode folded = GenerationFoldContext.withRouterBuild(worldFold, () -> McToAst.toAst(source));
+                int xWidth = worldFold.blockDomain(Direction.Axis.X).domainLength;
+                int zWidth = worldFold.blockDomain(Direction.Axis.Z).domainLength;
 
                 for (int i = 0; i < PERIODICITY_SAMPLES; i++) {
-                    int x = blockIn(random, transformer.blockDomain(Direction.Axis.X));
+                    int x = blockIn(random, worldFold.blockDomain(Direction.Axis.X));
                     int y = blockY(random);
-                    int z = blockIn(random, transformer.blockDomain(Direction.Axis.Z));
+                    int z = blockIn(random, worldFold.blockDomain(Direction.Axis.Z));
 
                     assertEquals(sampleFolded(folded, x, y, z), sampleFolded(folded, x + xWidth, y, z),
-                            "x lap of " + source + " in " + transformer + " at (" + x + ", " + y + ", " + z + ")");
+                            "x lap of " + source + " in " + worldFold + " at (" + x + ", " + y + ", " + z + ")");
                     assertEquals(sampleFolded(folded, x, y, z), sampleFolded(folded, x, y, z + zWidth),
-                            "z lap of " + source + " in " + transformer + " at (" + x + ", " + y + ", " + z + ")");
+                            "z lap of " + source + " in " + worldFold + " at (" + x + ", " + y + ", " + z + ")");
                 }
             }
         }
@@ -209,7 +209,7 @@ class C2meDfcAstTest {
     void unexpectedNodeShapeFailsTheCompile() {
         DensityFunction source = withLiveNoise(DensityFunctions.noise(NOISE_DATA, XZ_SCALE, Y_SCALE));
 
-        assertThrows(IllegalStateException.class, () -> GenerationTransformerContext.withRouterBuild(SQUARE,
+        assertThrows(IllegalStateException.class, () -> GenerationFoldContext.withRouterBuild(SQUARE,
                 () -> C2meDfcAst.fold(source, new ConstantNode(0.0))));
     }
 
@@ -232,7 +232,7 @@ class C2meDfcAstTest {
     @Test
     void caveSamplerOnAWrappedRouterDelegatesToTheFoldedBody() {
         assertInstanceOf(DelegateNode.class,
-                GenerationTransformerContext.withRouterBuild(SQUARE, () -> McToAst.toAst(caveSampler())),
+                GenerationFoldContext.withRouterBuild(SQUARE, () -> McToAst.toAst(caveSampler())),
                 "a compiled sampler on a wrapped router skips the rarity fold of the vanilla body");
     }
 
@@ -241,7 +241,7 @@ class C2meDfcAstTest {
         DensityFunction source = DensityFunctions.blendDensity(
                 withLiveNoise(DensityFunctions.noise(NOISE_DATA, XZ_SCALE, Y_SCALE)));
 
-        AstNode produced = GenerationTransformerContext.withRouterBuild(SQUARE, () -> McToAst.toAst(source));
+        AstNode produced = GenerationFoldContext.withRouterBuild(SQUARE, () -> McToAst.toAst(source));
 
         assertInstanceOf(C2meFoldedNoiseNode.class, produced,
                 "blend_density hands its input's node straight back, so the fixture proves nothing otherwise");
@@ -297,7 +297,7 @@ class C2meDfcAstTest {
     }
 
     private static void assertFoldMatchesVanillaOverGrid(DensityFunction source, WorldFold fold) {
-        AstNode folded = GenerationTransformerContext.withRouterBuild(fold, () -> McToAst.toAst(source));
+        AstNode folded = GenerationFoldContext.withRouterBuild(fold, () -> McToAst.toAst(source));
         Random random = new Random(SEED);
 
         for (int i = 0; i < GRID_SAMPLES; i++) {
@@ -306,8 +306,8 @@ class C2meDfcAstTest {
             int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
             DensityFunction.FunctionContext at = new DensityFunction.SinglePointContext(x, y, z);
 
-            double vanilla = GenerationTransformerContext.withTransformer(fold, () -> source.compute(at));
-            double compiled = GenerationTransformerContext.withTransformer(fold,
+            double vanilla = GenerationFoldContext.withFold(fold, () -> source.compute(at));
+            double compiled = GenerationFoldContext.withFold(fold,
                     () -> sampleFolded(folded, x, y, z));
 
             assertEquals(vanilla, compiled, "at (" + x + ", " + y + ", " + z + ") in " + fold);
@@ -315,11 +315,11 @@ class C2meDfcAstTest {
     }
 
     private static void assertFoldMatchesVanilla(DensityFunction source) {
-        AstNode folded = GenerationTransformerContext.withRouterBuild(SQUARE, () -> McToAst.toAst(source));
+        AstNode folded = GenerationFoldContext.withRouterBuild(SQUARE, () -> McToAst.toAst(source));
         DensityFunction.FunctionContext at = new DensityFunction.SinglePointContext(SAMPLE_X, SAMPLE_Y, SAMPLE_Z);
 
-        double vanilla = GenerationTransformerContext.withTransformer(SQUARE, () -> source.compute(at));
-        double compiled = GenerationTransformerContext.withTransformer(SQUARE,
+        double vanilla = GenerationFoldContext.withFold(SQUARE, () -> source.compute(at));
+        double compiled = GenerationFoldContext.withFold(SQUARE,
                 () -> sampleFolded(folded, SAMPLE_X, SAMPLE_Y, SAMPLE_Z));
 
         assertEquals(vanilla, compiled);
@@ -338,9 +338,9 @@ class C2meDfcAstTest {
         double slotY = evaluate(fold.slotY, x, y, z);
         double slotZ = evaluate(fold.slotZ, x, y, z);
         double sample = fold.warped()
-                ? ContextScaledNoise.sampleWrappedWarped(fold.transformer, fold.noise, x, slotY, z, slotX, slotZ,
+                ? ContextScaledNoise.sampleWrappedWarped(fold.worldFold, fold.noise, x, slotY, z, slotX, slotZ,
                         fold.warpDivisor, fold.horizontalScale, fold.vanillaScale, fold.verticalShare)
-                : ContextScaledNoise.sampleWrapped(fold.transformer, fold.slotAxes, fold.noise, slotX, slotY, slotZ,
+                : ContextScaledNoise.sampleWrapped(fold.worldFold, fold.slotAxes, fold.noise, slotX, slotY, slotZ,
                         fold.horizontalScale, fold.vanillaScale, fold.verticalShare);
 
         return sample * amplitude;

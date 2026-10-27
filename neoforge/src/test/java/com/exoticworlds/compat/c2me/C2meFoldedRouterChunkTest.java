@@ -1,6 +1,6 @@
 package com.exoticworlds.compat.c2me;
 
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.GenerationHookSetup;
 import com.exoticworlds.shape.WorldOptionSetup;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.SQUARE;
@@ -106,7 +106,7 @@ class C2meFoldedRouterChunkTest {
                 PROBE_CHUNK_X * CHUNK_BLOCKS, PROBE_BLOCK_Y, PROBE_CHUNK_Z * CHUNK_BLOCKS);
 
         RandomState folded = foldedState();
-        double wrapped = GenerationTransformerContext.withTransformer(SQUARE,
+        double wrapped = GenerationFoldContext.withFold(SQUARE,
                 () -> folded.router().finalDensity().compute(at));
         double plain = unfoldedState().router().finalDensity().compute(at);
 
@@ -117,7 +117,7 @@ class C2meFoldedRouterChunkTest {
     @Test
     void aWholeChunkOfNoiseComesOutDifferentOnAWrappedLevel() {
         RandomState folded = foldedState();
-        Terrain wrapped = GenerationTransformerContext.withTransformer(SQUARE, () -> fillOneChunk(folded));
+        Terrain wrapped = GenerationFoldContext.withFold(SQUARE, () -> fillOneChunk(folded));
         Terrain plain = fillOneChunk(unfoldedState());
 
         assertTrue(wrapped.placed() > 0, "the wrapped chunk came out empty, so no folded sample reached a block");
@@ -127,11 +127,11 @@ class C2meFoldedRouterChunkTest {
     }
 
     private static RandomState foldedState() {
-        return GenerationTransformerContext.withRouterBuild(SQUARE, () -> RandomState.create(overworld, noises, SEED));
+        return GenerationFoldContext.withRouterBuild(SQUARE, () -> RandomState.create(overworld, noises, SEED));
     }
 
     private static RandomState unfoldedState() {
-        return GenerationTransformerContext.withRouterBuild(null, () -> RandomState.create(overworld, noises, SEED));
+        return GenerationFoldContext.withRouterBuild(null, () -> RandomState.create(overworld, noises, SEED));
     }
 
     private static Terrain fillOneChunk(RandomState state) {

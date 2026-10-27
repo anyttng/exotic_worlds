@@ -18,7 +18,7 @@ import com.exoticworlds.compat.wover.LapMapHolder;
 import com.exoticworlds.compat.wover.LapMapMemo;
 import com.exoticworlds.compat.wover.LapPicker;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 @Mixin(HexBiomeMap.class)
 public class HexBiomeMapMixin implements LapMapHolder<WoverBiomePicker.PickableBiome> {
@@ -40,18 +40,18 @@ public class HexBiomeMapMixin implements LapMapHolder<WoverBiomePicker.PickableB
     @Inject(method = "getBiome", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$lapBiomeWithEdge(double x, double y, double z,
             CallbackInfoReturnable<WoverBiomePicker.PickableBiome> cir) {
-        WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
-        if (transformer != null) {
-            cir.setReturnValue(EdgeBiomes.hex(exotic_worlds$lapMap(transformer), x, z));
+        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        if (fold != null) {
+            cir.setReturnValue(EdgeBiomes.hex(exotic_worlds$lapMap(fold), x, z));
         }
     }
 
     @Inject(method = "getRawBiome", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$lapBiome(double x, double z,
             CallbackInfoReturnable<WoverBiomePicker.PickableBiome> cir) {
-        WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
-        if (transformer != null) {
-            cir.setReturnValue(exotic_worlds$lapMap(transformer).biomeAt(x, z));
+        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        if (fold != null) {
+            cir.setReturnValue(exotic_worlds$lapMap(fold).biomeAt(x, z));
         }
     }
 

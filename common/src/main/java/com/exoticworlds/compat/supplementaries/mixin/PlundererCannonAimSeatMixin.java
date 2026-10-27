@@ -17,6 +17,6 @@ public class PlundererCannonAimSeatMixin {
             target = "Lnet/minecraft/world/entity/LivingEntity;position()Lnet/minecraft/world/phys/Vec3;"))
     private static Vec3 exotic_worlds$targetNearestCannon(LivingEntity target, Operation<Vec3> original,
             @Local(ordinal = 0) Vec3 cannon) {
-        return WorldLoopAttachments.transformerOf(target.level()).nearestCopy(cannon, original.call(target));
+        return WorldLoopAttachments.foldOf(target.level()).nearestCopy(cannon, original.call(target));
     }
 }

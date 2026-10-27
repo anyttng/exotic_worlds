@@ -34,7 +34,7 @@ public abstract class WireEffectsMixin {
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO, ordinal = 0))
     private static double exotic_worlds$wireInOnePiece(Vec3 from, Vec3 to, Operation<Double> original,
             @Local(name = "mc") Minecraft mc, @Local(name = "pos2") LocalRef<Vec3> pos2) {
-        Vec3 seated = WireCopies.from(WorldLoopAttachments.transformerOfReader(mc.level), from, to,
+        Vec3 seated = WireCopies.from(WorldLoopAttachments.foldOfReader(mc.level), from, to,
                 WireCopies.FIRST_END).pos2();
         pos2.set(seated);
         return original.call(from, seated);

@@ -26,29 +26,29 @@ public final class CarriageBogeyFrame {
             frameRef.set(frame);
         }
 
-        WorldFold transformer = TrainMapViewFold.transformer();
+        WorldFold fold = TrainMapViewFold.fold();
         Vec3 raw = original.call(entry, carriageIndex, firstBogey, time);
         return firstBogey
-                ? frame.lead(transformer, entry, carriageIndex, raw)
-                : frame.trail(transformer, entry, carriageIndex, raw,
+                ? frame.lead(fold, entry, carriageIndex, raw)
+                : frame.trail(fold, entry, carriageIndex, raw,
                         () -> original.call(entry, carriageIndex, true, time));
     }
 
-    public Vec3 lead(WorldFold transformer, Object leadingTrain, int leadingCarriage, Vec3 raw) {
-        Vec3 canonical = transformer.fold(raw);
+    public Vec3 lead(WorldFold fold, Object leadingTrain, int leadingCarriage, Vec3 raw) {
+        Vec3 canonical = fold.fold(raw);
         this.train = leadingTrain;
         this.carriageIndex = leadingCarriage;
         this.leading = canonical;
         return canonical;
     }
 
-    public Vec3 trail(WorldFold transformer, Object trailingTrain, int trailingCarriage, Vec3 raw,
+    public Vec3 trail(WorldFold fold, Object trailingTrain, int trailingCarriage, Vec3 raw,
             Supplier<Vec3> leadingBogey) {
         Vec3 known = this.leading;
         if (known == null || this.train != trailingTrain || this.carriageIndex != trailingCarriage) {
-            known = transformer.fold(leadingBogey.get());
+            known = fold.fold(leadingBogey.get());
         }
 
-        return transformer.nearestCopy(known, raw);
+        return fold.nearestCopy(known, raw);
     }
 }

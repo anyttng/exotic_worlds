@@ -68,6 +68,6 @@ public abstract class SubLevelInclusiveLevelEntityGetterMixin<T extends EntityAc
 
     @Unique
     private WorldFold exotic_worlds$fold() {
-        return WorldLoopAttachments.transformerOf(this.level);
+        return WorldLoopAttachments.foldOf(this.level);
     }
 }

@@ -38,7 +38,7 @@ public abstract class WireVisualMixin implements WireCopyHolder {
     private boolean exotic_worlds$secondEndOnlyWhenParted(boolean loaded, @Local(argsOnly = true) ClientLevel level,
             @Local(name = "pos1") Vec3 pos1, @Local(name = "pos2") Vec3 pos2) {
         return loaded && (this.exotic_worlds$end == WireCopies.FIRST_END
-                || WireCopies.parted(WorldLoopAttachments.transformerOfReader(level), pos1, pos2));
+                || WireCopies.parted(WorldLoopAttachments.foldOfReader(level), pos1, pos2));
     }
 
     @Inject(method = "recreateInstances", at = @At(value = "INVOKE",
@@ -46,7 +46,7 @@ public abstract class WireVisualMixin implements WireCopyHolder {
                     + "Lnet/minecraft/core/Vec3i;"))
     private void exotic_worlds$seatOnItsEnd(ClientLevel level, float partialTick, boolean light, CallbackInfo ci,
             @Local(name = "pos1") LocalRef<Vec3> pos1, @Local(name = "pos2") LocalRef<Vec3> pos2) {
-        WireCopies.Span span = WireCopies.from(WorldLoopAttachments.transformerOfReader(level), pos1.get(),
+        WireCopies.Span span = WireCopies.from(WorldLoopAttachments.foldOfReader(level), pos1.get(),
                 pos2.get(), this.exotic_worlds$end);
         pos1.set(span.pos1());
         pos2.set(span.pos2());

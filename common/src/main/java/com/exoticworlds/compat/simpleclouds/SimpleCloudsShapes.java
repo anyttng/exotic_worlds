@@ -24,8 +24,8 @@ public final class SimpleCloudsShapes {
 
     public static @Nullable CloudShape of(@Nullable Level level) {
         WorldFold fold = level != null && level.isClientSide()
-                ? WorldLoopAttachments.wrappedClientBoundsTransformerOf(level)
-                : WorldLoopAttachments.wrappedTransformerOf(level);
+                ? WorldLoopAttachments.wrappedClientBoundsFoldOf(level)
+                : WorldLoopAttachments.wrappedFoldOf(level);
         if (fold == null) {
             return null;
         }

@@ -18,6 +18,6 @@ public class FleeDistanceMixin {
     @WrapOperation(method = "checkFlee()V", at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO))
     private double exotic_worlds$fleeDistanceThroughSeam(Vec3 wild, Vec3 player, Operation<Double> original,
             @Local ServerLevel world) {
-        return original.call(wild, WorldLoopAttachments.transformerOf(world).nearestCopy(wild, player));
+        return original.call(wild, WorldLoopAttachments.foldOf(world).nearestCopy(wild, player));
     }
 }

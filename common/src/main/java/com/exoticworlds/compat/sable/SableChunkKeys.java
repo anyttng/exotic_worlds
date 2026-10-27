@@ -18,7 +18,7 @@ public final class SableChunkKeys {
     private static final String REGION_FILE_SEPARATOR = ".";
 
     public static ChunkPos physical(ServerLevel level, ChunkPos raw) {
-        return physical(WorldLoopAttachments.transformerOf(level), raw);
+        return physical(WorldLoopAttachments.foldOf(level), raw);
     }
 
     public static ChunkPos physical(WorldFold fold, ChunkPos raw) {
@@ -26,7 +26,7 @@ public final class SableChunkKeys {
     }
 
     public static long physical(ServerLevel level, long rawKey) {
-        return physical(WorldLoopAttachments.transformerOf(level), rawKey);
+        return physical(WorldLoopAttachments.foldOf(level), rawKey);
     }
 
     public static long physical(WorldFold fold, long rawKey) {

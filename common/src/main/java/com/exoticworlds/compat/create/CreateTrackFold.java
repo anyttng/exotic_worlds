@@ -9,18 +9,18 @@ public final class CreateTrackFold {
     // Mirrors the Math.round(coord * 2) key TrackNodeLocation stores.
     private static final int NODE_KEY_UNITS_PER_BLOCK = 2;
 
-    public static Vec3i canonicalNodeKey(WorldFold transformer, Vec3i key) {
+    public static Vec3i canonicalNodeKey(WorldFold fold, Vec3i key) {
         Vec3 location = nodeKeyLocation(key);
-        if (!transformer.isOver(location)) {
+        if (!fold.isOver(location)) {
             return key;
         }
 
-        return nodeKeyAt(transformer.fold(location), key.getY());
+        return nodeKeyAt(fold.fold(location), key.getY());
     }
 
-    public static Vec3i nearestNodeKey(WorldFold transformer, Vec3i anchor, Vec3i key) {
+    public static Vec3i nearestNodeKey(WorldFold fold, Vec3i anchor, Vec3i key) {
         Vec3 location = nodeKeyLocation(key);
-        Vec3 nearest = transformer.nearestCopy(nodeKeyLocation(anchor), location);
+        Vec3 nearest = fold.nearestCopy(nodeKeyLocation(anchor), location);
         return nearest == location ? key : nodeKeyAt(nearest, key.getY());
     }
 

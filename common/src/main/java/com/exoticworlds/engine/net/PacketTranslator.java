@@ -195,16 +195,16 @@ public final class PacketTranslator {
 
     public static <T extends net.minecraft.network.PacketListener> @Nullable Packet<T> toClient(Packet<T> packet,
             ServerPlayer player) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(player.level());
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(player.level());
+        if (fold == null) {
             return packet;
         }
 
         if (packet instanceof ClientboundBundlePacket bundle) {
-            return castPacket(toClientBundle(bundle, PRODUCTION, () -> TranslationContext.of(player, transformer)));
+            return castPacket(toClientBundle(bundle, PRODUCTION, () -> TranslationContext.of(player, fold)));
         }
 
-        return dispatch(CLIENTBOUND, packet, player, transformer);
+        return dispatch(CLIENTBOUND, packet, player, fold);
     }
 
     static <T extends net.minecraft.network.PacketListener> @Nullable Packet<T> toClient(Packet<T> packet,
@@ -247,12 +247,12 @@ public final class PacketTranslator {
     }
 
     public static <T extends net.minecraft.network.PacketListener> Packet<T> toServer(Packet<T> packet, ServerPlayer player) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(player.level());
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(player.level());
+        if (fold == null) {
             return packet;
         }
 
-        return dispatch(SERVERBOUND, packet, player, transformer);
+        return dispatch(SERVERBOUND, packet, player, fold);
     }
 
     static <T extends net.minecraft.network.PacketListener> Packet<T> toServer(Packet<T> packet, TranslationContext context) {
@@ -260,10 +260,10 @@ public final class PacketTranslator {
     }
 
     private static <T extends net.minecraft.network.PacketListener> Packet<T> dispatch(PacketRoute route,
-            Packet<T> packet, ServerPlayer player, WorldFold transformer) {
+            Packet<T> packet, ServerPlayer player, WorldFold fold) {
         BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = route.rewriterOf(packet, PRODUCTION);
         return rewriter == null ? packet
-                : castPacket(rewriter.apply(packet, TranslationContext.of(player, transformer)));
+                : castPacket(rewriter.apply(packet, TranslationContext.of(player, fold)));
     }
 
     private static Packet<?> rewrite(PacketRoute route, Packet<?> packet, TranslationContext context) {

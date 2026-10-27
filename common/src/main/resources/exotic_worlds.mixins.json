@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "com.exoticworlds.mixin",
   "compatibilityLevel": "JAVA_21",
-  "plugin": "com.exoticworlds.ToroidalMixinPlugin",
+  "plugin": "com.exoticworlds.ExoticWorldsMixinPlugin",
   "mixins": [
     "AcquirePoiMixin",
     "AirRandomPosMixin",

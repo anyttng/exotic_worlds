@@ -27,7 +27,7 @@ final class EmitterPacketRewriters {
         Vec3 position = emitter.getAdjustedPosition();
         Vec3 previous = previousOf(emitter, position);
         Vec3 seated = context.nearestCopy(position);
-        Vec3 seatedPrevious = context.transformer().nearestCopy(seated, previous);
+        Vec3 seatedPrevious = context.fold().nearestCopy(seated, previous);
         if (seated.equals(position) && seatedPrevious.equals(previous)) {
             return packet;
         }

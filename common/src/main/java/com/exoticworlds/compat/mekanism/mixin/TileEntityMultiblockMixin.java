@@ -35,7 +35,7 @@ public class TileEntityMultiblockMixin {
             index = 0)
     private CompoundTag exotic_worlds$seatOntoTileCopy(CompoundTag tag) {
         BlockEntity tile = (BlockEntity) (Object) this;
-        return MultiblockSyncedTag.seat(WorldLoopAttachments.transformerOfReader(tile.getLevel()),
+        return MultiblockSyncedTag.seat(WorldLoopAttachments.foldOfReader(tile.getLevel()),
                 tile.getBlockPos(), tag);
     }
 }

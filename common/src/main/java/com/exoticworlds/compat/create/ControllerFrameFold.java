@@ -18,7 +18,7 @@ public final class ControllerFrameFold {
             return CreateClientFrame.nearestCopy(level, controller);
         }
 
-        return WorldLoopAttachments.transformerOf(level).fold(controller);
+        return WorldLoopAttachments.foldOf(level).fold(controller);
     }
 
     private ControllerFrameFold() {

@@ -61,7 +61,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder, 
                     value = "INVOKE",
                     target = "Lnet/minecraft/core/BlockPos;relative(Lnet/minecraft/core/Direction;)Lnet/minecraft/core/BlockPos;"))
     private BlockPos exotic_worlds$wrapAckedNeighbor(BlockPos neighbor) {
-        return WorldLoopAttachments.transformerOf(this.player.level()).fold(neighbor);
+        return WorldLoopAttachments.foldOf(this.player.level()).fold(neighbor);
     }
 
     @WrapMethod(method = "teleport(DDDFFLjava/util/Set;)V")
@@ -145,12 +145,12 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder, 
             @Local(argsOnly = true) ServerboundMovePlayerPacket packet,
             @Share("continuous") LocalRef<Vec3> continuous) {
         double clampedX = original.call(requestedX);
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.player.level());
+        if (fold == null) {
             return clampedX;
         }
 
-        Vec3 seated = SeamMove.player(this.player, this, transformer, new Vec3(clampedX,
+        Vec3 seated = SeamMove.player(this.player, this, fold, new Vec3(clampedX,
                 packet.getY(this.player.getY()), original.call(packet.getZ(this.player.getZ()))));
         continuous.set(seated);
         return seated.x;
@@ -184,12 +184,12 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder, 
             @Local(argsOnly = true) ServerboundMoveVehiclePacket packet,
             @Share("vehicleContinuous") LocalRef<Vec3> continuous) {
         double clampedX = original.call(clientX);
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.player.level());
+        if (fold == null) {
             return clampedX;
         }
 
-        Vec3 seated = SeamMove.vehicle(this.player, transformer, clampedX, packet.getY(),
+        Vec3 seated = SeamMove.vehicle(this.player, fold, clampedX, packet.getY(),
                 original.call(packet.getZ()));
         continuous.set(seated);
         return seated.x;

@@ -15,7 +15,7 @@ import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.climate.ClimateCompression;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
@@ -139,9 +139,9 @@ class ReplacementNoiseFoldTest {
                     .temperature();
         }
 
-        static double temperatureFactor(WorldFold transformer,
+        static double temperatureFactor(WorldFold worldFold,
                 ResourceKey<NormalNoise.NoiseParameters> temperature) {
-            return ClimateCompression.factor(transformer,
+            return ClimateCompression.factor(worldFold,
                     new DensityFunction.NoiseHolder(LOOKUP.lookupOrThrow(Registries.NOISE).getOrThrow(temperature)),
                     CLIMATE_XZ_SCALE, HORIZONTAL_SHARE);
         }
@@ -150,9 +150,9 @@ class ReplacementNoiseFoldTest {
     private static void assertTakesTheTemperatureFactor(ResourceKey<NoiseGeneratorSettings> settings,
             ResourceKey<NormalNoise.NoiseParameters> temperature) {
         for (ClimateScale scale : COMPRESSING_SCALES) {
-            WorldFold transformer = compressed(TINY_CHUNK_MIN, TINY_CHUNK_MAX, scale);
-            assertEquals(VanillaWorldgen.temperatureFactor(transformer, temperature),
-                    fold().compression(transformer, VanillaWorldgen.temperatureOf(settings)), FACTOR_TOLERANCE,
+            WorldFold worldFold = compressed(TINY_CHUNK_MIN, TINY_CHUNK_MAX, scale);
+            assertEquals(VanillaWorldgen.temperatureFactor(worldFold, temperature),
+                    fold().compression(worldFold, VanillaWorldgen.temperatureOf(settings)), FACTOR_TOLERANCE,
                     settings.location() + " " + scale.mode().getSerializedName() + " on a tiny world");
         }
     }
@@ -161,10 +161,10 @@ class ReplacementNoiseFoldTest {
         return new ReplacementNoiseFold(OVERWORLD_WEIGHTS);
     }
 
-    private static double folded(ReplacementNoiseFold fold, WorldFold transformer, int quartX, int quartZ) {
+    private static double folded(ReplacementNoiseFold fold, WorldFold worldFold, int quartX, int quartZ) {
         double[] sum = new double[1];
-        GenerationTransformerContext.withTransformer(transformer,
-                () -> sum[0] = fold.sum(transformer, WORLD_SEED, OVERWORLD_SCALE_QUARTS, quartX, quartZ,
+        GenerationFoldContext.withFold(worldFold,
+                () -> sum[0] = fold.sum(worldFold, WORLD_SEED, OVERWORLD_SCALE_QUARTS, quartX, quartZ,
                         VanillaWorldgen.OVERWORLD_TEMPERATURE));
         return sum[0];
     }
@@ -177,11 +177,11 @@ class ReplacementNoiseFoldTest {
         return new ReplacementNoiseFold(NETHER_WEIGHTS, NETHER_HORIZONTAL_SCALE_SLOTS, NETHER_VERTICAL_SCALE_SLOTS);
     }
 
-    private static double foldedNether(ReplacementNoiseFold fold, WorldFold transformer, int quartX, int quartY,
+    private static double foldedNether(ReplacementNoiseFold fold, WorldFold worldFold, int quartX, int quartY,
             int quartZ) {
         double[] sum = new double[1];
-        GenerationTransformerContext.withTransformer(transformer,
-                () -> sum[0] = fold.sum(transformer, WORLD_SEED, NETHER_SCALE_QUARTS, quartX, quartY, quartZ,
+        GenerationFoldContext.withFold(worldFold,
+                () -> sum[0] = fold.sum(worldFold, WORLD_SEED, NETHER_SCALE_QUARTS, quartX, quartY, quartZ,
                         VanillaWorldgen.NETHER_TEMPERATURE));
         return sum[0];
     }
@@ -241,9 +241,9 @@ class ReplacementNoiseFoldTest {
         double at(int quartX, int quartY, int quartZ, int offset);
     }
 
-    private static Field foldedField(WorldFold transformer) {
+    private static Field foldedField(WorldFold worldFold) {
         ReplacementNoiseFold fold = fold();
-        return (quartX, quartZ) -> normalize(folded(fold, transformer, quartX, quartZ));
+        return (quartX, quartZ) -> normalize(folded(fold, worldFold, quartX, quartZ));
     }
 
     private static Field biolithField() {
@@ -251,10 +251,10 @@ class ReplacementNoiseFoldTest {
         return (quartX, quartZ) -> normalize(biolithSum(noise, quartX, quartZ));
     }
 
-    private static Field netherField(WorldFold transformer) {
+    private static Field netherField(WorldFold worldFold) {
         ReplacementNoiseFold fold = netherFold();
         return (quartX, quartZ) -> normalizeNether(
-                foldedNether(fold, transformer, quartX, NETHER_SAMPLE_QUART_Y, quartZ));
+                foldedNether(fold, worldFold, quartX, NETHER_SAMPLE_QUART_Y, quartZ));
     }
 
     private static Field biolithNetherField() {
@@ -263,15 +263,15 @@ class ReplacementNoiseFoldTest {
                 biolithNetherSum(noise, quartX, NETHER_SAMPLE_QUART_Y, quartZ));
     }
 
-    private static Column netherColumn(WorldFold transformer) {
+    private static Column netherColumn(WorldFold worldFold) {
         ReplacementNoiseFold fold = netherFold();
-        return (quartX, quartY, quartZ) -> foldedNether(fold, transformer, quartX, quartY, quartZ);
+        return (quartX, quartY, quartZ) -> foldedNether(fold, worldFold, quartX, quartY, quartZ);
     }
 
-    private static Spread spread(WorldFold transformer, Field field) {
+    private static Spread spread(WorldFold worldFold, Field field) {
         double[] values = new double[SAMPLES_PER_AXIS * SAMPLES_PER_AXIS];
-        int lapQuarts = transformer.blockDomain(Direction.Axis.X).domainLength / 4;
-        int minQuart = transformer.blockDomain(Direction.Axis.X).lowerBound / 4;
+        int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
+        int minQuart = worldFold.blockDomain(Direction.Axis.X).lowerBound / 4;
         int index = 0;
         for (int xStep = 0; xStep < SAMPLES_PER_AXIS; xStep++) {
             for (int zStep = 0; zStep < SAMPLES_PER_AXIS; zStep++) {
@@ -283,9 +283,9 @@ class ReplacementNoiseFoldTest {
         return Spread.of(values);
     }
 
-    private static double belowMedian(WorldFold transformer, Field field) {
-        int lapQuarts = transformer.blockDomain(Direction.Axis.X).domainLength / 4;
-        int minQuart = transformer.blockDomain(Direction.Axis.X).lowerBound / 4;
+    private static double belowMedian(WorldFold worldFold, Field field) {
+        int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
+        int minQuart = worldFold.blockDomain(Direction.Axis.X).lowerBound / 4;
         int below = 0;
         for (int xStep = 0; xStep < SAMPLES_PER_AXIS; xStep++) {
             for (int zStep = 0; zStep < SAMPLES_PER_AXIS; zStep++) {
@@ -299,9 +299,9 @@ class ReplacementNoiseFoldTest {
         return (double) below / (SAMPLES_PER_AXIS * SAMPLES_PER_AXIS);
     }
 
-    private static double crossingsPerQuart(WorldFold transformer, Line line, int samples, int strideQuarts) {
-        int lapQuarts = transformer.blockDomain(Direction.Axis.X).domainLength / 4;
-        int minQuart = transformer.blockDomain(Direction.Axis.X).lowerBound / 4;
+    private static double crossingsPerQuart(WorldFold worldFold, Line line, int samples, int strideQuarts) {
+        int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
+        int minQuart = worldFold.blockDomain(Direction.Axis.X).lowerBound / 4;
         Random random = new Random(WORLD_SEED);
         long crossed = 0L;
         for (int index = 0; index < REGION_LINES; index++) {
@@ -327,9 +327,9 @@ class ReplacementNoiseFoldTest {
                 "crossings per quart ours=" + ours + ", biolith=" + biolith + ", ratio=" + ratio);
     }
 
-    private static double[] columnDeviations(WorldFold transformer, Column column) {
-        int lapQuarts = transformer.blockDomain(Direction.Axis.X).domainLength / 4;
-        int minQuart = transformer.blockDomain(Direction.Axis.X).lowerBound / 4;
+    private static double[] columnDeviations(WorldFold worldFold, Column column) {
+        int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
+        int minQuart = worldFold.blockDomain(Direction.Axis.X).lowerBound / 4;
         double[] deviations = new double[COLUMNS_PER_AXIS * COLUMNS_PER_AXIS];
         double[] values = new double[NETHER_QUART_HEIGHT];
         int index = 0;
@@ -355,20 +355,20 @@ class ReplacementNoiseFoldTest {
 
         @Test
         void repeatsOneLapAway() {
-            for (WorldFold transformer : new WorldFold[] {TINY, HUGE, CYLINDER}) {
+            for (WorldFold worldFold : new WorldFold[] {TINY, HUGE, CYLINDER}) {
                 ReplacementNoiseFold fold = fold();
-                int lapQuarts = transformer.blockDomain(Direction.Axis.X).domainLength / 4;
+                int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
                 Random random = new Random(WORLD_SEED);
                 for (int sample = 0; sample < PERIODICITY_SAMPLES; sample++) {
                     int quartX = random.nextInt(-lapQuarts, lapQuarts);
                     int quartZ = random.nextInt(-lapQuarts, lapQuarts);
-                    assertEquals(folded(fold, transformer, quartX, quartZ),
-                            folded(fold, transformer, quartX + lapQuarts, quartZ),
+                    assertEquals(folded(fold, worldFold, quartX, quartZ),
+                            folded(fold, worldFold, quartX + lapQuarts, quartZ),
                             "X lap at quart " + quartX + ", " + quartZ);
 
-                    if (transformer.blockDomain(Direction.Axis.Z).loops()) {
-                        assertEquals(folded(fold, transformer, quartX, quartZ),
-                                folded(fold, transformer, quartX, quartZ + lapQuarts),
+                    if (worldFold.blockDomain(Direction.Axis.Z).loops()) {
+                        assertEquals(folded(fold, worldFold, quartX, quartZ),
+                                folded(fold, worldFold, quartX, quartZ + lapQuarts),
                                 "Z lap at quart " + quartX + ", " + quartZ);
                     }
                 }
@@ -432,8 +432,8 @@ class ReplacementNoiseFoldTest {
             assertSplitHolds(TINY);
         }
 
-        private void assertSplitHolds(WorldFold transformer) {
-            double below = belowMedian(transformer, foldedField(transformer));
+        private void assertSplitHolds(WorldFold worldFold) {
+            double below = belowMedian(worldFold, foldedField(worldFold));
             assertTrue(Math.abs(below - HALF) <= SPLIT_TOLERANCE,
                     "a rate of one half covers " + below + " of the world");
         }
@@ -459,9 +459,9 @@ class ReplacementNoiseFoldTest {
         @Test
         void aRouterWithoutAClimateNoiseIsNotCompressed() {
             for (ClimateScale scale : COMPRESSING_SCALES) {
-                WorldFold transformer = compressed(TINY_CHUNK_MIN, TINY_CHUNK_MAX, scale);
+                WorldFold worldFold = compressed(TINY_CHUNK_MIN, TINY_CHUNK_MAX, scale);
                 assertEquals(NO_COMPRESSION,
-                        fold().compression(transformer, VanillaWorldgen.temperatureOf(NoiseGeneratorSettings.END)),
+                        fold().compression(worldFold, VanillaWorldgen.temperatureOf(NoiseGeneratorSettings.END)),
                         FACTOR_TOLERANCE, "the end " + scale.mode().getSerializedName() + " on a tiny world");
             }
         }
@@ -471,19 +471,19 @@ class ReplacementNoiseFoldTest {
     class Nether {
         @Test
         void repeatsOneLapAway() {
-            for (WorldFold transformer : new WorldFold[] {NETHER_SCALED, HUGE}) {
+            for (WorldFold worldFold : new WorldFold[] {NETHER_SCALED, HUGE}) {
                 ReplacementNoiseFold fold = netherFold();
-                int lapQuarts = transformer.blockDomain(Direction.Axis.X).domainLength / 4;
+                int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
                 Random random = new Random(WORLD_SEED);
                 for (int sample = 0; sample < PERIODICITY_SAMPLES; sample++) {
                     int quartX = random.nextInt(-lapQuarts, lapQuarts);
                     int quartZ = random.nextInt(-lapQuarts, lapQuarts);
                     int quartY = random.nextInt(0, NETHER_QUART_HEIGHT);
-                    assertEquals(foldedNether(fold, transformer, quartX, quartY, quartZ),
-                            foldedNether(fold, transformer, quartX + lapQuarts, quartY, quartZ),
+                    assertEquals(foldedNether(fold, worldFold, quartX, quartY, quartZ),
+                            foldedNether(fold, worldFold, quartX + lapQuarts, quartY, quartZ),
                             "X lap at quart " + quartX + ", " + quartY + ", " + quartZ);
-                    assertEquals(foldedNether(fold, transformer, quartX, quartY, quartZ),
-                            foldedNether(fold, transformer, quartX, quartY, quartZ + lapQuarts),
+                    assertEquals(foldedNether(fold, worldFold, quartX, quartY, quartZ),
+                            foldedNether(fold, worldFold, quartX, quartY, quartZ + lapQuarts),
                             "Z lap at quart " + quartX + ", " + quartY + ", " + quartZ);
                 }
             }

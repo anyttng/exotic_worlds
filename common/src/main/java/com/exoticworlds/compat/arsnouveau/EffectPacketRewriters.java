@@ -39,7 +39,7 @@ final class EffectPacketRewriters {
         PacketTranslator.registerClientboundPayloadRewriter(HighlightAreaPacket.class, EffectPacketRewriters::highlight);
         PacketTranslator.registerClientboundPayloadRewriter(PacketTimedEvent.class, EffectPacketRewriters::timedEvent);
         PacketTranslator.registerEntityDataRewriter(EntityOrbitProjectile.class, () -> EntityOrbitProjectile.LAST_POS,
-                (center, context, projectile) -> context.transformer().nearestCopy(projectile, center));
+                (center, context, projectile) -> context.fold().nearestCopy(projectile, center));
     }
 
     static CustomPacketPayload effect(PacketANEffect packet, TranslationContext context) {
@@ -70,7 +70,7 @@ final class EffectPacketRewriters {
             return packet;
         }
 
-        DeckTransformation move = context.transformer().nearestCopyTransformation(seated, hit.getBlockPos());
+        DeckTransformation move = context.fold().nearestCopyTransformation(seated, hit.getBlockPos());
         BlockHitResult seatedHit = new BlockHitResult(move.apply(hit.getLocation()), hit.getDirection(), seated,
                 hit.isInside());
         PacketClientDelayEffect copy =

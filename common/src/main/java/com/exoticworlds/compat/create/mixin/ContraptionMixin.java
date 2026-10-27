@@ -106,13 +106,13 @@ public class ContraptionMixin {
             require = 1,
             allow = 1)
     private void exotic_worlds$foldGlueIntoTheLocalFrame(Level world, BlockPos offset, CallbackInfo ci) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(world);
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(world);
+        if (fold == null) {
             return;
         }
 
         Vec3 center = bounds == null ? Vec3.ZERO : bounds.getCenter();
-        superglue.replaceAll(box -> transformer.foldBox(center, box).value());
+        superglue.replaceAll(box -> fold.nearestCopyOriented(center, box).value());
     }
 
     @ModifyExpressionValue(method = "addBlocksToWorld",

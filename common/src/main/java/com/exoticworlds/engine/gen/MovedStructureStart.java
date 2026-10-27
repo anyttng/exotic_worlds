@@ -21,7 +21,12 @@ public final class MovedStructureStart {
             return null;
         }
 
-        copy.getPieces().forEach(piece -> {
+        movePieces(copy, move);
+        return copy;
+    }
+
+    private static void movePieces(StructureStart start, DeckTransformation move) {
+        start.getPieces().forEach(piece -> {
             BoundingBox box = piece.getBoundingBox();
             BoundingBox moved = move.apply(box);
             piece.move(moved.minX() - box.minX(), 0, moved.minZ() - box.minZ());
@@ -30,7 +35,6 @@ public final class MovedStructureStart {
                 poolPiece.getJunctions().replaceAll(junction -> movedJunction(junction, move));
             }
         });
-        return copy;
     }
 
     public static JigsawJunction movedJunction(JigsawJunction junction, DeckTransformation move) {

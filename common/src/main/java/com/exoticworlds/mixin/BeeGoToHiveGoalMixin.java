@@ -29,6 +29,6 @@ public class BeeGoToHiveGoalMixin {
             method = "hasReachedTarget",
             at = @At(value = "INVOKE", target = InjectionTargets.PATH_GET_TARGET))
     private BlockPos exotic_worlds$pathTargetCanonical(BlockPos target) {
-        return WorldLoopAttachments.transformerOf(this.exotic_worlds$bee.level()).fold(target);
+        return WorldLoopAttachments.foldOf(this.exotic_worlds$bee.level()).fold(target);
     }
 }

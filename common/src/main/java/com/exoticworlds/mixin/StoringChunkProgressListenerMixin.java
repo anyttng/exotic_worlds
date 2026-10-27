@@ -18,8 +18,8 @@ public class StoringChunkProgressListenerMixin {
     @ModifyVariable(method = "onStatusChange", at = @At("HEAD"), argsOnly = true)
     private ChunkPos exotic_worlds$foldStoredChunk(ChunkPos chunk) {
         MinecraftServer server = CurrentServer.get();
-        WorldFold transformer =
-                WorldLoopAttachments.transformerIfLevel(server == null ? null : server.getLevel(Level.OVERWORLD));
-        return new ChunkPos(transformer.foldChunkKey(chunk.toLong()));
+        WorldFold fold =
+                WorldLoopAttachments.foldIfLevel(server == null ? null : server.getLevel(Level.OVERWORLD));
+        return new ChunkPos(fold.foldChunkKey(chunk.toLong()));
     }
 }

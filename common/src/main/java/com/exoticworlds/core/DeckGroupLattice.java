@@ -30,33 +30,46 @@ final class DeckGroupLattice {
     final DeckGroupLaps laps;
 
     DeckGroupLattice(FlatShape shape, List<ForeignSpan> xSpans, List<ForeignSpan> zSpans, int unit) {
-        AxisBounds xBounds = shape.bounds().x();
-        AxisBounds zBounds = shape.bounds().z();
-        this.x = domainOf(xBounds, xSpans, unit);
-        this.z = domainOf(zBounds, zSpans, unit);
+        this.x = domainOf(shape.bounds().x(), xSpans, unit);
+        this.z = domainOf(shape.bounds().z(), zSpans, unit);
 
-        FlatShape.Mirror mirror = shape.mirror();
-        boolean mirrorsZ = mirror != null && mirror.axis() == Direction.Axis.Z;
-        boolean mirrorsX = mirror != null && mirror.axis() == Direction.Axis.X;
-        int mirrorLine = mirror == null ? 0 : mirror.lineChunk() * unit;
         int skew = shape.skewChunks() * unit;
-
-        Step xStep = xBounds instanceof AxisBounds.Looped
-                ? new Step(mirrorsZ
-                        ? SeamTransform.glideX(this.x.domainLength, mirrorShift(mirrorLine, this.z))
-                        : SeamTransform.translation(this.x.domainLength, 0), true)
-                : null;
-        Step zStep = zBounds instanceof AxisBounds.Looped
-                ? new Step(mirrorsX
-                        ? SeamTransform.glideZ(mirrorShift(mirrorLine, this.x), this.z.domainLength)
-                        : SeamTransform.translation(skew, this.z.domainLength), false)
-                : null;
-
-        this.steps = orderSteps(xStep, zStep, mirrorsZ);
+        this.steps = orderSteps(stepAlongX(shape, unit), stepAlongZ(shape, unit, skew),
+                mirrors(shape.mirror(), Direction.Axis.Z));
         this.candidates = buildCandidates(this.steps);
         this.laps = new DeckGroupLaps(this.x, this.z, this.steps);
-        this.translations = mirror == null ? new TranslationLattice(this.x, this.z, skew) : null;
+        this.translations = shape.mirror() == null ? new TranslationLattice(this.x, this.z, skew) : null;
         this.regions = new DeckGroupRegions(this.x, this.z, this.steps);
+    }
+
+    private @Nullable Step stepAlongX(FlatShape shape, int unit) {
+        if (!(shape.bounds().x() instanceof AxisBounds.Looped)) {
+            return null;
+        }
+
+        SeamTransform generator = mirrors(shape.mirror(), Direction.Axis.Z)
+                ? SeamTransform.glideX(this.x.domainLength, mirrorShift(mirrorLine(shape.mirror(), unit), this.z))
+                : SeamTransform.translation(this.x.domainLength, 0);
+        return new Step(generator, true);
+    }
+
+    private @Nullable Step stepAlongZ(FlatShape shape, int unit, int skew) {
+        if (!(shape.bounds().z() instanceof AxisBounds.Looped)) {
+            return null;
+        }
+
+        SeamTransform generator = mirrors(shape.mirror(), Direction.Axis.X)
+                ? SeamTransform.glideZ(mirrorShift(mirrorLine(shape.mirror(), unit), this.x), this.z.domainLength)
+                : SeamTransform.translation(skew, this.z.domainLength);
+        return new Step(generator, false);
+    }
+
+    private static boolean mirrors(FlatShape.@Nullable Mirror mirror, Direction.Axis axis) {
+        return mirror != null && mirror.axis() == axis;
+    }
+
+    private static int mirrorLine(FlatShape.@Nullable Mirror mirror, int unit) {
+        return mirror == null ? 0 : mirror.lineChunk() * unit;
     }
 
     private static int mirrorShift(int mirrorLine, WrapDomain mirrored) {
@@ -174,11 +187,11 @@ final class DeckGroupLattice {
                 : z + candidateShiftZ(this.translations, index, first, second);
     }
 
-    SeamTransform foldCells(int cellX, int cellZ) {
+    SeamTransform foldMoveOfCell(int cellX, int cellZ) {
         return this.laps.transformOf(this.laps.ofCells(cellX, cellZ));
     }
 
-    SeamTransform foldCoords(double coordX, double coordZ) {
+    SeamTransform foldMoveOfCoord(double coordX, double coordZ) {
         return this.laps.transformOf(this.laps.ofCoords(coordX, coordZ));
     }
 
@@ -195,10 +208,10 @@ final class DeckGroupLattice {
     }
 
     SeamTransform between(int fromX, int fromZ, int toX, int toZ) {
-        return foldCells(fromX, fromZ).then(foldCells(toX, toZ).inverse());
+        return foldMoveOfCell(fromX, fromZ).then(foldMoveOfCell(toX, toZ).inverse());
     }
 
-    SeamTransform nearestCells(int refX, int refZ, int targetX, int targetZ) {
+    SeamTransform nearestMoveOfCell(int refX, int refZ, int targetX, int targetZ) {
         long toRef = this.laps.ofCells(refX, refZ);
         long toTarget = this.laps.ofCells(targetX, targetZ);
         int foldedTargetX = this.laps.foldCellX(toTarget, targetX);
@@ -262,7 +275,7 @@ final class DeckGroupLattice {
         return bestIndex;
     }
 
-    SeamTransform nearestCoords(double refX, double refZ, double targetX, double targetZ) {
+    SeamTransform nearestMoveOfCoord(double refX, double refZ, double targetX, double targetZ) {
         long toRef = this.laps.ofCoords(refX, refZ);
         long toTarget = this.laps.ofCoords(targetX, targetZ);
         double foldedTargetX = this.laps.foldX(toTarget, targetX);
@@ -326,7 +339,7 @@ final class DeckGroupLattice {
         return bestIndex;
     }
 
-    double nearestBoxGap(double pointX, double pointZ, AABB box) {
+    double nearestBoxSqrGap(double pointX, double pointZ, AABB box) {
         double centerX = SeamBoxes.center(box.minX, box.maxX);
         double centerZ = SeamBoxes.center(box.minZ, box.maxZ);
         long toBox = this.laps.ofCoords(centerX, centerZ);

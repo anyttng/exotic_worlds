@@ -16,13 +16,13 @@ import com.exoticworlds.accessors.LevelBindable;
 import com.exoticworlds.accessors.LevelHolder;
 import com.exoticworlds.accessors.SeamDriveScheduler;
 import com.exoticworlds.accessors.TrackedEntityRefresher;
-import com.exoticworlds.accessors.TransformerHolder;
+import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.gen.FloatingCrumbs;
 import com.exoticworlds.engine.gen.SeamDriveRequest;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.TerrainCeiling;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -125,7 +125,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
 
     @Override
     public void exotic_worlds$refreshTrackedEntities(ServerPlayer player) {
-        if (WorldLoopAttachments.wrappedTransformerOf(this.level) == null) {
+        if (WorldLoopAttachments.wrappedFoldOf(this.level) == null) {
             return;
         }
 
@@ -160,7 +160,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             int chunkZ,
             Operation<Object> original,
             @Local(argsOnly = true) GenerationChunkHolder chunkHolder) {
-        if (WorldLoopAttachments.wrappedTransformerOf(this.level) == null) {
+        if (WorldLoopAttachments.wrappedFoldOf(this.level) == null) {
             return original.call(cache, chunkX, chunkZ);
         }
 
@@ -171,7 +171,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             method = "getChunkRangeFuture",
             at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_POS_AS_LONG))
     private long exotic_worlds$rangeOverPhysicalChunks(int chunkX, int chunkZ, Operation<Long> original) {
-        long folded = WorldLoopAttachments.transformerOf(this.level).foldChunkKey(ChunkPos.asLong(chunkX, chunkZ));
+        long folded = WorldLoopAttachments.foldOf(this.level).foldChunkKey(ChunkPos.asLong(chunkX, chunkZ));
         return original.call(ChunkPos.getX(folded), ChunkPos.getZ(folded));
     }
 
@@ -180,7 +180,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
 
     @Override
     public void exotic_worlds$requestDrive(GenerationChunkHolder holder, ChunkStatus status) {
-        if (WorldLoopAttachments.wrappedTransformerOf(this.level) == null) {
+        if (WorldLoopAttachments.wrappedFoldOf(this.level) == null) {
             return;
         }
 
@@ -216,9 +216,9 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             Operation<RandomState> original,
             @Local(argsOnly = true) ChunkGenerator generator,
             @Local(argsOnly = true) ServerLevel level) {
-        WorldFold fold = ShapedChunkGenerator.wrappedTransformerOf(generator);
+        WorldFold fold = ShapedChunkGenerator.wrappedFoldOf(generator);
         NoiseGeneratorSettings shaped = TerrainCeiling.shaped(fold, settings);
-        return GenerationTransformerContext.withRouterBuild(fold,
+        return GenerationFoldContext.withRouterBuild(fold,
                 () -> original.call(shaped, noiseParameters, seed));
     }
 
@@ -232,7 +232,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
                             + "Lnet/minecraft/world/level/chunk/ChunkGeneratorStructureState;"))
     private ChunkGeneratorStructureState exotic_worlds$stampStructureStateFold(ChunkGeneratorStructureState state,
             @Local(argsOnly = true) ChunkGenerator generator) {
-        ((TransformerHolder) (Object) state).exotic_worlds$setTransformer(ShapedChunkGenerator.transformerOf(generator));
+        ((FoldHolder) (Object) state).exotic_worlds$setFold(ShapedChunkGenerator.foldOf(generator));
         return state;
     }
 
@@ -270,7 +270,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
 
     @Unique
     private SectionPos exotic_worlds$canonical(SectionPos section) {
-        return WorldLoopAttachments.transformerOf(this.level).fold(section);
+        return WorldLoopAttachments.foldOf(this.level).fold(section);
     }
 
     @WrapOperation(
@@ -279,7 +279,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/level/ServerPlayer;chunkPosition()Lnet/minecraft/world/level/ChunkPos;"))
     private ChunkPos exotic_worlds$canonicalViewCenter(ServerPlayer player, Operation<ChunkPos> original) {
-        return WorldLoopAttachments.transformerOf(this.level).fold(original.call(player));
+        return WorldLoopAttachments.foldOf(this.level).fold(original.call(player));
     }
 
     @WrapOperation(
@@ -287,34 +287,34 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_TRACKING_VIEW_OF))
     private ChunkTrackingView exotic_worlds$trackWrapped(ChunkPos center, int viewDistance, Operation<ChunkTrackingView> original) {
         ChunkTrackingView view = original.call(center, viewDistance);
-        ((TransformerHolder) (Object) view).exotic_worlds$setTransformer(WorldLoopAttachments.transformerOf(this.level));
+        ((FoldHolder) (Object) view).exotic_worlds$setFold(WorldLoopAttachments.foldOf(this.level));
         return view;
     }
 
     @WrapMethod(method = "isChunkTracked")
     private boolean exotic_worlds$trackPhysicalChunk(ServerPlayer player, int chunkX, int chunkZ,
             Operation<Boolean> original) {
-        long folded = WorldLoopAttachments.transformerOf(this.level).foldChunkKey(ChunkPos.asLong(chunkX, chunkZ));
+        long folded = WorldLoopAttachments.foldOf(this.level).foldChunkKey(ChunkPos.asLong(chunkX, chunkZ));
         return original.call(player, ChunkPos.getX(folded), ChunkPos.getZ(folded));
     }
 
     @WrapMethod(method = "getPlayerViewDistance")
     private int exotic_worlds$clampLoopedViewDistance(ServerPlayer player, Operation<Integer> original) {
         int vanilla = original.call(player);
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
-        return transformer == null ? vanilla : transformer.limitViewDistance(vanilla);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.level);
+        return fold == null ? vanilla : fold.limitViewDistance(vanilla);
     }
 
     @WrapOperation(
             method = "playerIsCloseEnoughForSpawning",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ChunkMap;euclideanDistanceSquared(Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/world/entity/Entity;)D"))
     private double exotic_worlds$wrappedSpawnDistance(ChunkPos chunkPos, Entity player, Operation<Double> original) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.level);
+        if (fold == null) {
             return original.call(chunkPos, player);
         }
 
-        return transformer.sqrDistance(player.getX(), 0.0, player.getZ(), chunkPos.getMiddleBlockX(), 0.0,
+        return fold.sqrDistance(player.getX(), 0.0, player.getZ(), chunkPos.getMiddleBlockX(), 0.0,
                 chunkPos.getMiddleBlockZ());
     }
 }

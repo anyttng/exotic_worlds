@@ -27,8 +27,8 @@ public final class ExoticWorldsClientApi {
      * bounds have not arrived yet — they are synced on login and dimension change, before the first chunk).
      */
     public static Optional<ToroidalShape> shapeOf(ClientLevel level) {
-        WorldFold transformer = WorldLoopAttachments.wrappedClientBoundsTransformerOf(level);
-        return transformer == null ? Optional.empty() : Optional.of(new ToroidalShapeView(transformer));
+        WorldFold fold = WorldLoopAttachments.wrappedClientBoundsFoldOf(level);
+        return fold == null ? Optional.empty() : Optional.of(new ToroidalShapeView(fold));
     }
 
     /**
@@ -37,7 +37,7 @@ public final class ExoticWorldsClientApi {
      * the server never published it: every looping level arrives on login, before the first chunk.
      */
     public static Optional<ToroidalShape> shapeOf(ResourceKey<Level> dimension) {
-        WorldFold fold = PublishedShapes.foldOf(dimension);
+        WorldFold fold = PublishedShapes.wrappedFoldOf(dimension);
         return fold == null ? Optional.empty() : Optional.of(new ToroidalShapeView(fold));
     }
 

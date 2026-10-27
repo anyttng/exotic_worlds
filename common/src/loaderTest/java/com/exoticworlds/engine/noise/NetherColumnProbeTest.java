@@ -57,7 +57,7 @@ class NetherColumnProbeTest {
     private static LevelHeightAccessor heightAccessor;
     private static BlockState defaultBlock;
 
-    private record Gate(String lap, String path, double control, double folded) {
+    private record Gate(String size, String path, double control, double folded) {
     }
 
     private final List<Gate> gates = new ArrayList<>();
@@ -80,7 +80,7 @@ class NetherColumnProbeTest {
         defaultBlock = netherSettings.defaultBlock();
     }
 
-    private record Lap(String name, int xChunks, int zChunks) {
+    private record WorldSize(String name, int xChunks, int zChunks) {
         WorldFold fold() {
             if (this.zChunks == UNBOUNDED_CHUNKS) {
                 return WorldFolds.of(ShapeFixtures.cylinder(
@@ -110,15 +110,15 @@ class NetherColumnProbeTest {
         }
     }
 
-    private static final List<Lap> LAPS = List.of(
-            new Lap("square 16x16 chunks (256x256 blocks)", 16, 16),
-            new Lap("square 32x32 chunks (512x512 blocks)", 32, 32),
-            new Lap("square 64x64 chunks (1024x1024 blocks)", 64, 64),
-            new Lap("square 128x128 chunks (2048x2048 blocks)", 128, 128),
-            new Lap("rect 16x64 chunks (256x1024 blocks)", 16, 64),
-            new Lap("rect 64x16 chunks (1024x256 blocks)", 64, 16),
-            new Lap("cylinder x=16 chunks (256 blocks), z unbounded", 16, UNBOUNDED_CHUNKS),
-            new Lap("cylinder z=32 chunks (512 blocks), x unbounded", UNBOUNDED_CHUNKS, 32));
+    private static final List<WorldSize> SIZES = List.of(
+            new WorldSize("square 16x16 chunks (256x256 blocks)", 16, 16),
+            new WorldSize("square 32x32 chunks (512x512 blocks)", 32, 32),
+            new WorldSize("square 64x64 chunks (1024x1024 blocks)", 64, 64),
+            new WorldSize("square 128x128 chunks (2048x2048 blocks)", 128, 128),
+            new WorldSize("rect 16x64 chunks (256x1024 blocks)", 16, 64),
+            new WorldSize("rect 64x16 chunks (1024x256 blocks)", 64, 16),
+            new WorldSize("cylinder x=16 chunks (256 blocks), z unbounded", 16, UNBOUNDED_CHUNKS),
+            new WorldSize("cylinder z=32 chunks (512 blocks), x unbounded", UNBOUNDED_CHUNKS, 32));
 
     @Test
     void measuresNetherColumnsThroughTheRealChain() {
@@ -130,12 +130,12 @@ class NetherColumnProbeTest {
                 .append("chain = getBaseColumn, solid is the default block; density = router finalDensity > 0, no cells and no aquifer.\n")
                 .append("Folded and control runs are the same code — the control binds WorldFolds.NOOP.\n\n");
 
-        for (Lap lap : LAPS) {
-            WorldFold fold = lap.fold();
-            double stepX = lap.spanX() / (double) GRID;
-            double stepZ = lap.spanZ() / (double) GRID;
+        for (WorldSize size : SIZES) {
+            WorldFold fold = size.fold();
+            double stepX = size.spanX() / (double) GRID;
+            double stepZ = size.spanZ() / (double) GRID;
             Random windows = new Random(SEED_BASE);
-            report.append("  ").append(lap.name())
+            report.append("  ").append(size.name())
                     .append(String.format(" stride %.0fx%.0f blocks%n", stepX, stepZ));
             double vanillaTop1Sum = 0.0;
             double foldedTop1Sum = 0.0;
@@ -148,8 +148,8 @@ class NetherColumnProbeTest {
                 int windowX = (int) (windows.nextDouble() * VANILLA_WINDOW_SPAN);
                 int windowZ = (int) (windows.nextDouble() * VANILLA_WINDOW_SPAN);
 
-                int foldedX = -lap.spanX() / 2;
-                int foldedZ = -lap.spanZ() / 2;
+                int foldedX = -size.spanX() / 2;
+                int foldedZ = -size.spanZ() / 2;
                 Relief control = measureRelief(randomState, WorldFolds.NOOP, windowX, windowZ,
                         stepX, stepZ, this::chainColumn);
                 Relief folded = measureRelief(randomState, fold, foldedX, foldedZ,
@@ -171,8 +171,8 @@ class NetherColumnProbeTest {
                     vanillaTop1Sum / SEEDS, foldedTop1Sum / SEEDS));
             report.append(String.format("    mean floor_top1 density: control %.3f | folded %.3f%n",
                     densityControlTop1Sum / SEEDS, densityFoldedTop1Sum / SEEDS));
-            this.gates.add(new Gate(lap.name(), "chain", vanillaTop1Sum / SEEDS, foldedTop1Sum / SEEDS));
-            this.gates.add(new Gate(lap.name(), "density",
+            this.gates.add(new Gate(size.name(), "chain", vanillaTop1Sum / SEEDS, foldedTop1Sum / SEEDS));
+            this.gates.add(new Gate(size.name(), "density",
                     densityControlTop1Sum / SEEDS, densityFoldedTop1Sum / SEEDS));
         }
 
@@ -188,7 +188,7 @@ class NetherColumnProbeTest {
             double drift = Math.abs(gate.folded() - gate.control());
             assertTrue(drift <= MAX_FOLDED_DRIFT, String.format(
                     "%s (%s): folded floor_top1 %.3f drifted %.3f off the unfolded control %.3f",
-                    gate.lap(), gate.path(), gate.folded(), drift, gate.control()));
+                    gate.size(), gate.path(), gate.folded(), drift, gate.control()));
         }
     }
 
@@ -219,7 +219,7 @@ class NetherColumnProbeTest {
             int blockX = originX + (int) Math.round(i * stepX);
             for (int j = 0; j < GRID; j++) {
                 int blockZ = originZ + (int) Math.round(j * stepZ);
-                boolean[] solid = GenerationTransformerContext.withTransformer(fold,
+                boolean[] solid = GenerationFoldContext.withFold(fold,
                         () -> sampler.sample(randomState, blockX, blockZ));
 
                 int floor = minY - 1;

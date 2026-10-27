@@ -110,6 +110,16 @@ public final class XaeroMinimapTiles {
         MapProcessor processor = session.getMapProcessor();
         this.processor = processor;
         List<TileArea> areas = XaeroWorldMapFold.tilePieces(window, mirrorTileX, mirrorTileZ);
+        MapTileChunk shown = this.fetchShown(processor, region, areas, original);
+        if (areas.size() > 1) {
+            this.areas = areas;
+        }
+
+        return shown;
+    }
+
+    private @Nullable MapTileChunk fetchShown(MapProcessor processor, @Nullable MapRegion region,
+            List<TileArea> areas, ChunkFetch original) {
         MapTileChunk shown = null;
         for (TileArea area : areas) {
             int canonicalTileX = area.x().canonicalTile();
@@ -129,10 +139,6 @@ public final class XaeroMinimapTiles {
                 shown = chunk;
                 this.foldedRegion = canonicalRegion;
             }
-        }
-
-        if (areas.size() > 1) {
-            this.areas = areas;
         }
 
         return shown;

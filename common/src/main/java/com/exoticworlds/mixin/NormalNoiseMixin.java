@@ -15,8 +15,8 @@ import com.exoticworlds.accessors.WrappedNormalNoise;
 import com.exoticworlds.accessors.WrappedPerlinNoise;
 import com.exoticworlds.engine.noise.ContextKeyedCache;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.NoiseConstants;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -76,7 +76,7 @@ public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, Noise
 
     @WrapMethod(method = "getValue(DDD)D")
     private double exotic_worlds$periodicValue(double x, double y, double z, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.wrappedContext();
+        Context generation = GenerationFoldContext.wrappedContext();
         if (generation == null) {
             return original.call(x, y, z);
         }
@@ -94,12 +94,12 @@ public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, Noise
 
     @Override
     public boolean exotic_worlds$indexable(Context context) {
-        Boolean cached = this.exotic_worlds$indexability.find(context.transformer(), context);
+        Boolean cached = this.exotic_worlds$indexability.find(context.fold(), context);
         if (cached != null) {
             return cached;
         }
 
-        return this.exotic_worlds$indexability.put(context.transformer(), context, exotic_worlds$decideIndexable(context));
+        return this.exotic_worlds$indexability.put(context.fold(), context, exotic_worlds$decideIndexable(context));
     }
 
     @Unique

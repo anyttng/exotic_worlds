@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -27,7 +27,7 @@ public class TrackedEntityMixin {
                     value = "INVOKE",
                     target = InjectionTargets.VEC3_SUBTRACT))
     private Vec3 exotic_worlds$deltaThroughSeam(Vec3 playerPosition, Vec3 entityPosition, Operation<Vec3> original) {
-        WorldFold transformer = ((TransformerSource) this.entity).exotic_worlds$wrappedTransformer();
-        return original.call(NearestCopy.toward(transformer, entityPosition, playerPosition), entityPosition);
+        WorldFold fold = ((FoldSource) this.entity).exotic_worlds$wrappedFold();
+        return original.call(NearestCopy.toward(fold, entityPosition, playerPosition), entityPosition);
     }
 }

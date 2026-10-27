@@ -18,19 +18,19 @@ public final class PeriodicSimplexSampler {
 
     private static final long MAX_LAP_PERIOD = 1L << 29;
 
-    public static boolean carries(WorldFold transformer, double scale) {
-        TranslationLattice lattice = transformer.blockLattice();
-        LapFloor floor = LapFloor.of(transformer);
+    public static boolean carries(WorldFold fold, double scale) {
+        TranslationLattice lattice = fold.blockLattice();
+        LapFloor floor = LapFloor.of(fold);
         return PeriodicNoiseSampler.period(lattice.x(), scale, floor) <= MAX_LAP_PERIOD
                 && PeriodicNoiseSampler.period(lattice.z(), scale, floor) <= MAX_LAP_PERIOD;
     }
 
     public static double sample(int[] permutations, double xOffset, double zOffset,
-            WorldFold transformer, double scale, double x, double z) {
-        TranslationLattice lattice = transformer.blockLattice();
+            WorldFold fold, double scale, double x, double z) {
+        TranslationLattice lattice = fold.blockLattice();
         WrapDomain xDomain = lattice.x();
         WrapDomain zDomain = lattice.z();
-        LapFloor floor = LapFloor.of(transformer);
+        LapFloor floor = LapFloor.of(fold);
         long xPeriod = PeriodicNoiseSampler.period(xDomain, scale, floor);
         long zPeriod = PeriodicNoiseSampler.period(zDomain, scale, floor);
         if (lattice.isSkewed()) {
@@ -39,9 +39,9 @@ public final class PeriodicSimplexSampler {
 
         double xs = PeriodicNoiseSampler.foldAndScaleSimplex(xDomain, xPeriod, scale, x) + xOffset;
         double zs = PeriodicNoiseSampler.foldAndScaleSimplex(zDomain, zPeriod, scale, z) + zOffset;
-        long xLattice = lattice(xPeriod);
-        long zLattice = lattice(zPeriod);
-        long denominator = skewDenominator(xLattice, zLattice);
+        long xClosed = closedPeriod(xPeriod);
+        long zClosed = closedPeriod(zPeriod);
+        long denominator = skewDenominator(xClosed, zClosed);
         long numerator = skewNumerator(denominator);
 
         double skew;
@@ -54,10 +54,10 @@ public final class PeriodicSimplexSampler {
             unskew = skew / (1.0 + 2.0 * skew);
         }
 
-        long xLapV = denominator == PeriodicNoiseSampler.UNBOUNDED_PERIOD ? 0L : numerator * (xLattice / denominator);
-        long zLapU = denominator == PeriodicNoiseSampler.UNBOUNDED_PERIOD ? 0L : numerator * (zLattice / denominator);
-        long xLapU = xLattice + xLapV;
-        long zLapV = zLattice + zLapU;
+        long xLapV = denominator == PeriodicNoiseSampler.UNBOUNDED_PERIOD ? 0L : numerator * (xClosed / denominator);
+        long zLapU = denominator == PeriodicNoiseSampler.UNBOUNDED_PERIOD ? 0L : numerator * (zClosed / denominator);
+        long xLapU = xClosed + xLapV;
+        long zLapV = zClosed + zLapU;
         return kernel(permutations, xs, zs, skew, unskew, xLapU, xLapV, zLapU, zLapV);
     }
 
@@ -146,7 +146,7 @@ public final class PeriodicSimplexSampler {
         return larger;
     }
 
-    private static long lattice(long period) {
+    private static long closedPeriod(long period) {
         return PeriodicNoiseSampler.closes(period) ? period : PeriodicNoiseSampler.UNBOUNDED_PERIOD;
     }
 

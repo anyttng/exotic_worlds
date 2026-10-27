@@ -136,25 +136,29 @@ final class ClientboundPacketRewriters {
         }
 
         Set<RelativeMovement> relatives = packet.getRelativeArguments();
-        boolean relativeX = relatives.contains(RelativeMovement.X);
-        boolean relativeZ = relatives.contains(RelativeMovement.Z);
-        double mirrorX = clientPosition.x();
-        double mirrorZ = clientPosition.z();
+        Vec3 mirror = new Vec3(clientPosition.x(), 0.0, clientPosition.z());
         Vec3 position = new Vec3(packet.getX(), packet.getY(), packet.getZ());
-        Vec3 clientDestination = clientPosition.destinationOf(context.transformer(), position, relatives);
+        Vec3 clientDestination = clientPosition.destinationOf(context.fold(), position, relatives);
         clientPosition.set(clientDestination, MirrorWriter.POSITION_PACKET);
 
-        Vec3 sentPosition = relativeX && relativeZ
-                ? SeamDelta.fold(context.transformer(), position)
-                : new Vec3(
-                        relativeX ? clientDestination.x - mirrorX : clientDestination.x,
-                        position.y,
-                        relativeZ ? clientDestination.z - mirrorZ : clientDestination.z);
+        Vec3 sentPosition = sentPosition(context.fold(), position, relatives, clientDestination, mirror);
         return new ClientboundPlayerPositionPacket(
                 sentPosition.x,
                 packet.getY(),
                 sentPosition.z,
                 packet.getYRot(), packet.getXRot(), relatives, packet.getId());
+    }
+
+    private static Vec3 sentPosition(WorldFold fold, Vec3 position, Set<RelativeMovement> relatives,
+            Vec3 clientDestination, Vec3 mirror) {
+        boolean relativeX = relatives.contains(RelativeMovement.X);
+        boolean relativeZ = relatives.contains(RelativeMovement.Z);
+        return relativeX && relativeZ
+                ? SeamDelta.fold(fold, position)
+                : new Vec3(
+                        relativeX ? clientDestination.x - mirror.x : clientDestination.x,
+                        position.y,
+                        relativeZ ? clientDestination.z - mirror.z : clientDestination.z);
     }
 
     static ClientboundAddEntityPacket addEntity(ClientboundAddEntityPacket packet, TranslationContext context) {
@@ -406,14 +410,14 @@ final class ClientboundPacketRewriters {
 
     private static BorderCenter toClientBorderCenter(TranslationContext context, BorderCenter center) {
         ClientPosition clientPosition = context.clientPosition();
-        BorderCenter clientCenter = nearestCopyCenter(context.transformer(), clientPosition, center);
+        BorderCenter clientCenter = nearestCopyCenter(context.fold(), clientPosition, center);
         clientPosition.setHeldBorderCenter(clientCenter);
         return clientCenter;
     }
 
-    static BorderCenter nearestCopyCenter(WorldFold transformer, ClientPosition clientPosition,
+    static BorderCenter nearestCopyCenter(WorldFold fold, ClientPosition clientPosition,
             BorderCenter center) {
-        Vec3 nearest = transformer.nearestCopy(clientPosition.anchor(0.0), new Vec3(center.x(), 0.0, center.z()));
+        Vec3 nearest = fold.nearestCopy(clientPosition.anchor(0.0), new Vec3(center.x(), 0.0, center.z()));
         return new BorderCenter(nearest.x, nearest.z);
     }
 
@@ -444,7 +448,7 @@ final class ClientboundPacketRewriters {
     }
 
     static BlockPos toClientBlock(TranslationContext context, BlockPos pos, ChunkTraffic traffic) {
-        return context.transformer().reseat(pos, context.toClient(new ChunkPos(pos), traffic));
+        return context.fold().reseat(pos, context.toClient(new ChunkPos(pos), traffic));
     }
 
     private ClientboundPacketRewriters() {

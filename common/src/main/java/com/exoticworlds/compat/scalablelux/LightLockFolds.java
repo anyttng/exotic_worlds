@@ -7,13 +7,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.WorldFold;
 
 public final class LightLockFolds {
     private static final Map<Integer, Owner> OWNERS = new ConcurrentHashMap<>();
 
-    public static void register(int ownerTag, Object lightEngine, TransformerSource source) {
+    public static void register(int ownerTag, Object lightEngine, FoldSource source) {
         OWNERS.put(ownerTag, new Owner(lightEngine, source));
     }
 
@@ -23,7 +23,7 @@ public final class LightLockFolds {
 
     public static long foldKey(int ownerTag, long chunkKey) {
         Owner owner = OWNERS.get(ownerTag);
-        return foldKey(owner != null ? owner.source().exotic_worlds$wrappedTransformer() : null, chunkKey);
+        return foldKey(owner != null ? owner.source().exotic_worlds$wrappedFold() : null, chunkKey);
     }
 
     static long foldKey(@Nullable WorldFold fold, long chunkKey) {
@@ -36,7 +36,7 @@ public final class LightLockFolds {
         return unique.size() == tokens.size() ? tokens : new ArrayList<>(unique);
     }
 
-    private record Owner(Object lightEngine, TransformerSource source) {
+    private record Owner(Object lightEngine, FoldSource source) {
     }
 
     private LightLockFolds() {

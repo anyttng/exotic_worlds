@@ -76,7 +76,7 @@ class FormerPlayerFilesTest {
             assertFalse(player.toString().contains(FormerNamespace.NAMESPACE), file + ": " + player);
             assertEquals(SELECTED_SLOT, player.getInt(VANILLA_KEY), file);
             SeamTravel travel = SeamTravel.CODEC.parse(NbtOps.INSTANCE, player.get(TRAVEL_KEY)).getOrThrow();
-            assertEquals(new SeamTravel.Lap(TRAVELLED_X, TRAVELLED_Z), travel.in(Level.OVERWORLD), file);
+            assertEquals(new SeamTravel.LapProgress(TRAVELLED_X, TRAVELLED_Z), travel.in(Level.OVERWORLD), file);
         }
 
         String written = Files.readString(advancements.resolve(ADVANCEMENTS), StandardCharsets.UTF_8);

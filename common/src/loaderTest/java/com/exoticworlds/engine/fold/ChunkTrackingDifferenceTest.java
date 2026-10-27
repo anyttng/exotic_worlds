@@ -13,7 +13,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import com.exoticworlds.accessors.TransformerHolder;
+import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -85,9 +85,9 @@ class ChunkTrackingDifferenceTest {
     private static ChunkTrackingView.Positioned view(WorldFold fold, int centerX, int centerZ) {
         ChunkTrackingView.Positioned view =
                 (ChunkTrackingView.Positioned) ChunkTrackingView.of(new ChunkPos(centerX, centerZ), VIEW_DISTANCE);
-        ((TransformerHolder) (Object) view).exotic_worlds$setTransformer(fold);
+        ((FoldHolder) (Object) view).exotic_worlds$setFold(fold);
 
-        assertSame(fold, ((TransformerHolder) (Object) view).exotic_worlds$transformer(), "the view kept no transformer");
+        assertSame(fold, ((FoldHolder) (Object) view).exotic_worlds$fold(), "the view kept no fold");
         return view;
     }
 

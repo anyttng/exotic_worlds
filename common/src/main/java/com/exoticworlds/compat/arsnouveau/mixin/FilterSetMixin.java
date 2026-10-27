@@ -25,7 +25,7 @@ public abstract class FilterSetMixin {
             return original.call(attachedTo, pos);
         }
 
-        WorldFold fold = WorldLoopAttachments.transformerOfReader(level);
+        WorldFold fold = WorldLoopAttachments.foldOfReader(level);
         return original.call(fold.fold(attachedTo), fold.fold(block));
     }
 }

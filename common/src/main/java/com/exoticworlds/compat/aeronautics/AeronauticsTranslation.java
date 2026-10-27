@@ -97,7 +97,7 @@ public final class AeronauticsTranslation {
         });
 
         PacketTranslator.registerEntityDataRewriter(SimEntityDataSerializers.VEC3,
-                (position, context, anchor) -> context.transformer().nearestCopy(anchor, position));
+                (position, context, anchor) -> context.fold().nearestCopy(anchor, position));
     }
 
     private static void registerSimulatedSyncedTags() {

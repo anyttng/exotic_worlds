@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.LevelBindable;
-import com.exoticworlds.accessors.TransformerCache;
+import com.exoticworlds.accessors.FoldCache;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.level.BoundLevelFold;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -17,7 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 
 @Mixin(ChunkTracker.class)
-public class ChunkTrackerMixin implements LevelBindable, TransformerCache {
+public class ChunkTrackerMixin implements LevelBindable, FoldCache {
     @Unique
     private final BoundLevelFold exotic_worlds$bound = new BoundLevelFold();
 
@@ -36,7 +36,7 @@ public class ChunkTrackerMixin implements LevelBindable, TransformerCache {
     }
 
     @Override
-    public WorldFold exotic_worlds$transformer() {
+    public WorldFold exotic_worlds$fold() {
         return this.exotic_worlds$bound.fold();
     }
 }

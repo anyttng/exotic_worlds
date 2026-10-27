@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import com.exoticworlds.compat.simpleclouds.SimpleCloudsShapes;
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -24,9 +24,9 @@ public abstract class CloudManagerMixin {
     protected Level level;
 
     @WrapMethod(method = "getPrecipitationAt")
-    private Pair<?, ?> exotic_worlds$bindPrecipitationTransformer(BlockPos pos, Operation<Pair<?, ?>> original) {
-        return GenerationTransformerContext.withTransformer(
-                WorldLoopAttachments.noiseTransformerOf(this.level), () -> original.call(pos));
+    private Pair<?, ?> exotic_worlds$bindPrecipitationFold(BlockPos pos, Operation<Pair<?, ?>> original) {
+        return GenerationFoldContext.withFold(
+                WorldLoopAttachments.noiseFoldOf(this.level), () -> original.call(pos));
     }
 
     @WrapMethod(method = "getCloudTypeAtPosition")

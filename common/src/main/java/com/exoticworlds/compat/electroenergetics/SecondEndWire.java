@@ -23,7 +23,7 @@ public final class SecondEndWire extends Pair<InWorldNodeConnection, WireData> {
 
     public static List<Pair<InWorldNodeConnection, WireData>> withSecondEnds(Level level,
             List<Pair<InWorldNodeConnection, WireData>> wires) {
-        WorldFold fold = WorldLoopAttachments.transformerOfReader(level);
+        WorldFold fold = WorldLoopAttachments.foldOfReader(level);
         List<Pair<InWorldNodeConnection, WireData>> passes = null;
         for (Pair<InWorldNodeConnection, WireData> wire : wires) {
             if (parted(fold, level, wire.getFirst())) {

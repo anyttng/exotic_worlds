@@ -27,7 +27,7 @@ public abstract class PhysicsChunkTicketInhabitedMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;getPlayers(Ljava/util/function/Predicate;)Ljava/util/List;"))
     private List<ServerPlayer> exotic_worlds$inhabitedAcrossSeam(ServerLevel level, Predicate<? super ServerPlayer> inhabits,
             Operation<List<ServerPlayer>> original, @Local(ordinal = 0) BoundingBox3d bounds) {
-        WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(level);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
         if (fold == null) {
             return original.call(level, inhabits);
         }

@@ -29,11 +29,11 @@ public final class C2meFoldedNoiseNode extends GenericShiftedNoiseNode {
 
     public final double warpDivisor;
 
-    public final WorldFold transformer;
+    public final WorldFold worldFold;
 
     public C2meFoldedNoiseNode(AstNode inputX, AstNode inputY, AstNode inputZ, DensityFunction.NoiseHolder noise,
             AstNode slotX, AstNode slotY, AstNode slotZ, SlotAxes slotAxes, double horizontalScale,
-            double vanillaScale, double verticalShare, double warpDivisor, WorldFold transformer) {
+            double vanillaScale, double verticalShare, double warpDivisor, WorldFold worldFold) {
         super(inputX, inputY, inputZ, noise);
         this.slotX = Objects.requireNonNull(slotX);
         this.slotY = Objects.requireNonNull(slotY);
@@ -43,7 +43,7 @@ public final class C2meFoldedNoiseNode extends GenericShiftedNoiseNode {
         this.vanillaScale = vanillaScale;
         this.verticalShare = verticalShare;
         this.warpDivisor = warpDivisor;
-        this.transformer = Objects.requireNonNull(transformer);
+        this.worldFold = Objects.requireNonNull(worldFold);
     }
 
     public boolean warped() {
@@ -56,13 +56,13 @@ public final class C2meFoldedNoiseNode extends GenericShiftedNoiseNode {
     }
 
     @Override
-    public AstNode transform(AstTransformer transformer) {
-        AstNode transformedInputX = this.inputX.transform(transformer);
-        AstNode transformedInputY = this.inputY.transform(transformer);
-        AstNode transformedInputZ = this.inputZ.transform(transformer);
-        AstNode transformedSlotX = this.slotX.transform(transformer);
-        AstNode transformedSlotY = this.slotY.transform(transformer);
-        AstNode transformedSlotZ = this.slotZ.transform(transformer);
+    public AstNode transform(AstTransformer fold) {
+        AstNode transformedInputX = this.inputX.transform(fold);
+        AstNode transformedInputY = this.inputY.transform(fold);
+        AstNode transformedInputZ = this.inputZ.transform(fold);
+        AstNode transformedSlotX = this.slotX.transform(fold);
+        AstNode transformedSlotY = this.slotY.transform(fold);
+        AstNode transformedSlotZ = this.slotZ.transform(fold);
         boolean unchanged = transformedInputX == this.inputX
                 && transformedInputY == this.inputY
                 && transformedInputZ == this.inputZ
@@ -70,11 +70,11 @@ public final class C2meFoldedNoiseNode extends GenericShiftedNoiseNode {
                 && transformedSlotY == this.slotY
                 && transformedSlotZ == this.slotZ;
 
-        return transformer.transform(unchanged
+        return fold.transform(unchanged
                 ? this
                 : new C2meFoldedNoiseNode(transformedInputX, transformedInputY, transformedInputZ, this.noise,
                         transformedSlotX, transformedSlotY, transformedSlotZ, this.slotAxes, this.horizontalScale,
-                        this.vanillaScale, this.verticalShare, this.warpDivisor, this.transformer));
+                        this.vanillaScale, this.verticalShare, this.warpDivisor, this.worldFold));
     }
 
     @Override
@@ -126,7 +126,7 @@ public final class C2meFoldedNoiseNode extends GenericShiftedNoiseNode {
                 && Double.compare(this.vanillaScale, that.vanillaScale) == 0
                 && Double.compare(this.verticalShare, that.verticalShare) == 0
                 && Double.compare(this.warpDivisor, that.warpDivisor) == 0
-                && this.transformer == that.transformer
+                && this.worldFold == that.worldFold
                 && this.slotAxes.equals(that.slotAxes);
     }
 
@@ -136,6 +136,6 @@ public final class C2meFoldedNoiseNode extends GenericShiftedNoiseNode {
         result = 31 * result + Double.hashCode(this.vanillaScale);
         result = 31 * result + Double.hashCode(this.verticalShare);
         result = 31 * result + Double.hashCode(this.warpDivisor);
-        return 31 * result + System.identityHashCode(this.transformer);
+        return 31 * result + System.identityHashCode(this.worldFold);
     }
 }

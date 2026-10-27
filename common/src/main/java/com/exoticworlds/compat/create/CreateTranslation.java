@@ -56,7 +56,7 @@ public final class CreateTranslation {
         PacketTranslator.registerClientboundPayloadRewriter(SymmetryEffectPacket.class, (payload, context) -> {
             BlockPos mirror = seat(context, payload.mirror());
             List<BlockPos> positions = FoldedCopies.of(payload.positions(),
-                    placed -> context.transformer().nearestCopy(mirror, placed));
+                    placed -> context.fold().nearestCopy(mirror, placed));
             return mirror == payload.mirror() && positions == payload.positions()
                     ? payload
                     : new SymmetryEffectPacket(mirror, positions);

@@ -16,6 +16,6 @@ public class PistonCooperatorSeatMixin {
             at = @At(value = "INVOKE", target = "Ljava/util/Map$Entry;getKey()Ljava/lang/Object;"))
     private static Object exotic_worlds$candidateNearestPiston(Object candidate, @Local(argsOnly = true) ServerLevel level,
             @Local(argsOnly = true) BlockPos pistonPos) {
-        return WorldLoopAttachments.transformerOf(level).nearestCopy(pistonPos, (BlockPos) candidate);
+        return WorldLoopAttachments.foldOf(level).nearestCopy(pistonPos, (BlockPos) candidate);
     }
 }

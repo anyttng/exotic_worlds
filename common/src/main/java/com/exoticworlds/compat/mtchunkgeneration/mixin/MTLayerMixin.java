@@ -14,7 +14,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.exoticworlds.BinderOrder;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 import dev.theagameplayer.mtchunkgeneration.world.level.levelgen.MTLayer;
 import net.minecraft.world.level.StructureManager;
@@ -36,7 +36,7 @@ public class MTLayerMixin {
             StructureManager structureManager,
             ChunkAccess chunk,
             Operation<Void> original) {
-        GenerationTransformerContext.runWithTransformer(ShapedChunkGenerator.transformerOf(this.generator),
+        GenerationFoldContext.runWithFold(ShapedChunkGenerator.foldOf(this.generator),
                 () -> original.call(blender, randomState, structureManager, chunk));
     }
 
@@ -47,8 +47,8 @@ public class MTLayerMixin {
                     target = "Ljava/util/stream/IntStream;forEach(Ljava/util/function/IntConsumer;)V"),
             order = BinderOrder.FOLD)
     private void exotic_worlds$bindEachSlice(IntStream slices, IntConsumer slice, Operation<Void> original) {
-        WorldFold fold = ShapedChunkGenerator.transformerOf(this.generator);
-        original.call(slices, (IntConsumer) index -> GenerationTransformerContext.runWithTransformer(fold,
+        WorldFold fold = ShapedChunkGenerator.foldOf(this.generator);
+        original.call(slices, (IntConsumer) index -> GenerationFoldContext.runWithFold(fold,
                 () -> slice.accept(index)));
     }
 }

@@ -35,57 +35,57 @@ public class LevelLightEngineMixin {
     }
 
     @Inject(method = "checkBlock", at = @At("HEAD"), cancellable = true)
-    private void exotic_worlds$skipPhantomBlock(BlockPos pos, CallbackInfo ci) {
-        if (exotic_worlds$isPhantom(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()))) {
+    private void exotic_worlds$skipBlockPastBounds(BlockPos pos, CallbackInfo ci) {
+        if (exotic_worlds$pastBounds(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()))) {
             ci.cancel();
         }
     }
 
     @Inject(method = "propagateLightSources", at = @At("HEAD"), cancellable = true)
-    private void exotic_worlds$skipPhantomSources(ChunkPos pos, CallbackInfo ci) {
-        if (exotic_worlds$isPhantom(pos)) {
+    private void exotic_worlds$skipSourcesPastBounds(ChunkPos pos, CallbackInfo ci) {
+        if (exotic_worlds$pastBounds(pos)) {
             ci.cancel();
         }
     }
 
     @Inject(method = "setLightEnabled", at = @At("HEAD"), cancellable = true)
-    private void exotic_worlds$skipPhantomEnable(ChunkPos pos, boolean enable, CallbackInfo ci) {
-        if (exotic_worlds$isPhantom(pos)) {
+    private void exotic_worlds$skipEnablePastBounds(ChunkPos pos, boolean enable, CallbackInfo ci) {
+        if (exotic_worlds$pastBounds(pos)) {
             ci.cancel();
         }
     }
 
     @Inject(method = "retainData", at = @At("HEAD"), cancellable = true)
-    private void exotic_worlds$skipPhantomRetain(ChunkPos pos, boolean retain, CallbackInfo ci) {
-        if (exotic_worlds$isPhantom(pos)) {
+    private void exotic_worlds$skipRetainPastBounds(ChunkPos pos, boolean retain, CallbackInfo ci) {
+        if (exotic_worlds$pastBounds(pos)) {
             ci.cancel();
         }
     }
 
     @Inject(method = "updateSectionStatus", at = @At("HEAD"), cancellable = true)
-    private void exotic_worlds$skipPhantomSection(SectionPos pos, boolean sectionEmpty, CallbackInfo ci) {
-        if (exotic_worlds$isPhantom(pos.x(), pos.z())) {
+    private void exotic_worlds$skipSectionPastBounds(SectionPos pos, boolean sectionEmpty, CallbackInfo ci) {
+        if (exotic_worlds$pastBounds(pos.x(), pos.z())) {
             ci.cancel();
         }
     }
 
     @Inject(method = "queueSectionData", at = @At("HEAD"), cancellable = true)
-    private void exotic_worlds$skipPhantomSectionData(LightLayer layer, SectionPos pos, @Nullable DataLayer data,
+    private void exotic_worlds$skipSectionDataPastBounds(LightLayer layer, SectionPos pos, @Nullable DataLayer data,
             CallbackInfo ci) {
-        if (exotic_worlds$isPhantom(pos.x(), pos.z())) {
+        if (exotic_worlds$pastBounds(pos.x(), pos.z())) {
             ci.cancel();
         }
     }
 
     @Unique
-    private boolean exotic_worlds$isPhantom(ChunkPos pos) {
-        WorldFold transformer = this.exotic_worlds$bound.fold();
-        return transformer.isWrapped() && transformer.isOver(pos);
+    private boolean exotic_worlds$pastBounds(ChunkPos pos) {
+        WorldFold fold = this.exotic_worlds$bound.fold();
+        return fold.isWrapped() && fold.isOver(pos);
     }
 
     @Unique
-    private boolean exotic_worlds$isPhantom(int chunkX, int chunkZ) {
-        WorldFold transformer = this.exotic_worlds$bound.fold();
-        return transformer.isWrapped() && transformer.isOver(new ChunkPos(chunkX, chunkZ));
+    private boolean exotic_worlds$pastBounds(int chunkX, int chunkZ) {
+        WorldFold fold = this.exotic_worlds$bound.fold();
+        return fold.isWrapped() && fold.isOver(new ChunkPos(chunkX, chunkZ));
     }
 }

@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.NoiseConstants;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -38,8 +38,8 @@ public class SurfaceSystemMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/synth/NormalNoise;getValue(DDD)D"))
     private double exotic_worlds$rawCoordinateNoise(NormalNoise noise, double x, double y, double z, Operation<Double> original) {
         double scale = exotic_worlds$scaleOf(noise);
-        Context generation = GenerationTransformerContext.context();
-        if (scale == NoiseConstants.UNSCALED || !generation.transformer().isWrapped()) {
+        Context generation = GenerationFoldContext.context();
+        if (scale == NoiseConstants.UNSCALED || !generation.fold().isWrapped()) {
             return original.call(noise, x, y, z);
         }
 

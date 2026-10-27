@@ -98,7 +98,7 @@ public abstract class TrainMapManagerMixin {
             // Create grows whatever rect it is handed, so a copy drawing the already grown one gets a doubled margin.
             Rect2i view = TrainMapViewFold.canonicalView(copy, bounds);
             BlockPos mouse = TrainMapViewFold.canonicalPixel(copy, mouseX, mouseY);
-            SeamTransform blocks = copy.blocks();
+            SeamTransform blocks = copy.blockTransform();
             // Mirrored quads wind backwards, and with the GUI's backface culling left on the copy draws nothing.
             boolean mirrored = !copy.orientation().preservesHandedness();
             pose.pushPose();

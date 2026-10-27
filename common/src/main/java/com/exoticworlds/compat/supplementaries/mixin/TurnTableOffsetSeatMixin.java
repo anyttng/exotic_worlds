@@ -16,6 +16,6 @@ public class TurnTableOffsetSeatMixin {
     @ModifyExpressionValue(method = "stepOn", at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_POSITION))
     private Vec3 exotic_worlds$positionNearestTable(Vec3 position, @Local(argsOnly = true) Level level,
             @Local(ordinal = 0) Vec3 origin) {
-        return WorldLoopAttachments.transformerOf(level).nearestCopy(origin, position);
+        return WorldLoopAttachments.foldOf(level).nearestCopy(origin, position);
     }
 }

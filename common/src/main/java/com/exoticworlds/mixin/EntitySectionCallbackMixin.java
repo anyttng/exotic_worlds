@@ -25,6 +25,6 @@ public class EntitySectionCallbackMixin {
             return sectionKey;
         }
 
-        return WorldLoopAttachments.transformerOf(actualEntity.level()).foldSectionNode(sectionKey);
+        return WorldLoopAttachments.foldOf(actualEntity.level()).foldSectionNode(sectionKey);
     }
 }

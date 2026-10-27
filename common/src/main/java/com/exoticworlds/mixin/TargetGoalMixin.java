@@ -41,6 +41,6 @@ public class TargetGoalMixin {
 
     @Unique
     private BlockPos exotic_worlds$targetNear(Node last, BlockPos target) {
-        return WorldLoopAttachments.transformerOf(this.mob.level()).nearestCopy(last.asBlockPos(), target);
+        return WorldLoopAttachments.foldOf(this.mob.level()).nearestCopy(last.asBlockPos(), target);
     }
 }

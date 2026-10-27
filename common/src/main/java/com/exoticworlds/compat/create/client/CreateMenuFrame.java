@@ -17,7 +17,7 @@ import net.minecraft.world.level.Level;
 public final class CreateMenuFrame {
     private static final ThreadScope<Frame> PAYLOAD_FRAME = new ThreadScope<>();
 
-    private record Frame(WorldFold transformer, BlockPos anchor) {
+    private record Frame(WorldFold fold, BlockPos anchor) {
     }
 
     public static <T> T readingPayload(Supplier<T> read) {
@@ -30,7 +30,7 @@ public final class CreateMenuFrame {
             return canonical;
         }
 
-        return frame.transformer().nearestCopy(frame.anchor(), canonical);
+        return frame.fold().nearestCopy(frame.anchor(), canonical);
     }
 
     private static @Nullable Frame resolve() {
@@ -41,8 +41,8 @@ public final class CreateMenuFrame {
             return null;
         }
 
-        WorldFold transformer = WorldLoopAttachments.wrappedClientBoundsTransformerOf(level);
-        return transformer == null ? null : new Frame(transformer, player.blockPosition());
+        WorldFold fold = WorldLoopAttachments.wrappedClientBoundsFoldOf(level);
+        return fold == null ? null : new Frame(fold, player.blockPosition());
     }
 
     private CreateMenuFrame() {

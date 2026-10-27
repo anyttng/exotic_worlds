@@ -66,10 +66,10 @@ public class TunelCaveFeatureMixin {
                 : LapNoise.eval(exotic_worlds$standIn(noise), fold, x, y, z, DISTORTION_SCALE, DISTORTION_SCALE);
     }
 
-    // The columns run on ForkJoin threads, where GenerationTransformerContext holds no fold.
+    // The columns run on ForkJoin threads, where GenerationFoldContext holds no fold.
     @Unique
     private static @Nullable WorldFold exotic_worlds$fold(WorldGenLevel world) {
-        return WorldLoopAttachments.wrappedTransformerOf(world.getLevel());
+        return WorldLoopAttachments.wrappedFoldOf(world.getLevel());
     }
 
     @Unique

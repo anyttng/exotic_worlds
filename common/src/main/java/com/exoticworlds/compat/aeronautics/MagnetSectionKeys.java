@@ -11,14 +11,14 @@ import net.minecraft.world.level.LevelAccessor;
 
 public final class MagnetSectionKeys {
     public static @Nullable SectionPos physical(LevelAccessor level, @Nullable SectionPos raw) {
-        return fold(WorldLoopAttachments.transformerOfReader(level), raw);
+        return fold(WorldLoopAttachments.foldOfReader(level), raw);
     }
 
     public static @Nullable SectionPos physical(LevelAccessor level, LocalRef<WorldFold> memo,
             @Nullable SectionPos raw) {
         WorldFold fold = memo.get();
         if (fold == null) {
-            fold = WorldLoopAttachments.transformerOfReader(level);
+            fold = WorldLoopAttachments.foldOfReader(level);
             memo.set(fold);
         }
 

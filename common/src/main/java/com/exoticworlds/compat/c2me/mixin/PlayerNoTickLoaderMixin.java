@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.accessors.LevelHolder;
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.compat.c2me.C2meSeamFold;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
@@ -63,18 +63,18 @@ public class PlayerNoTickLoaderMixin {
 
     @Unique
     private Object exotic_worlds$canonical(TheChunkSystem chunkSystem, Object key) {
-        WorldFold transformer = ((TransformerSource) chunkSystem).exotic_worlds$wrappedTransformer();
-        if (transformer == null || !(key instanceof ChunkPos pos)) {
+        WorldFold fold = ((FoldSource) chunkSystem).exotic_worlds$wrappedFold();
+        if (fold == null || !(key instanceof ChunkPos pos)) {
             return key;
         }
 
-        return C2meSeamFold.canonical(transformer, pos.x, pos.z);
+        return C2meSeamFold.canonical(fold, pos.x, pos.z);
     }
 
     @ModifyVariable(method = "setViewDistance", at = @At("HEAD"), argsOnly = true)
     private int exotic_worlds$clampNoTickViewDistance(int viewDistance) {
-        WorldFold transformer =
-                WorldLoopAttachments.wrappedTransformerOf(((LevelHolder) (Object) this.tacs).exotic_worlds$level());
-        return transformer == null ? viewDistance : transformer.limitViewDistance(viewDistance);
+        WorldFold fold =
+                WorldLoopAttachments.wrappedFoldOf(((LevelHolder) (Object) this.tacs).exotic_worlds$level());
+        return fold == null ? viewDistance : fold.limitViewDistance(viewDistance);
     }
 }

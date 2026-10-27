@@ -9,8 +9,8 @@ import com.exoticworlds.accessors.IndexableNoise;
 import com.exoticworlds.accessors.WrappedImprovedNoise;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.engine.noise.ContextKeyedCache;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -73,7 +73,7 @@ public class BlendedNoiseMixin {
 
     @WrapMethod(method = "compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D")
     private double exotic_worlds$periodicCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.wrappedContext();
+        Context generation = GenerationFoldContext.wrappedContext();
         if (generation == null) {
             return original.call(context);
         }
@@ -85,7 +85,7 @@ public class BlendedNoiseMixin {
         double mainScale = this.xzMultiplier / this.xzFactor;
         double limitSmear = this.yMultiplier * this.smearScaleMultiplier;
         double mainSmear = limitSmear / this.yFactor;
-        TranslationLattice lattice = generation.transformer().blockLattice();
+        TranslationLattice lattice = generation.fold().blockLattice();
         double limitX = lattice.foldX(context.blockX(), context.blockZ()) * this.xzMultiplier;
         double limitZ = lattice.foldZ(context.blockZ()) * this.xzMultiplier;
         double mainX = limitX / this.xzFactor;
@@ -152,7 +152,7 @@ public class BlendedNoiseMixin {
 
     @Unique
     private int exotic_worlds$indexableStacks(Context generation, double mainScale) {
-        Integer cached = this.exotic_worlds$indexability.find(generation.transformer(), generation);
+        Integer cached = this.exotic_worlds$indexability.find(generation.fold(), generation);
         if (cached != null) {
             return cached;
         }
@@ -162,7 +162,7 @@ public class BlendedNoiseMixin {
                         ? MIN_INDEXABLE : 0)
                 | (exotic_worlds$indexable(generation, this.maxLimitNoise, LIMIT_OCTAVES, this.xzMultiplier)
                         ? MAX_INDEXABLE : 0);
-        return this.exotic_worlds$indexability.put(generation.transformer(), generation, decided);
+        return this.exotic_worlds$indexability.put(generation.fold(), generation, decided);
     }
 
     @Unique

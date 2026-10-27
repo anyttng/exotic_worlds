@@ -204,9 +204,9 @@ public final class TagPositions {
         private volatile Map<ResourceLocation, List<TagPosition>> declared = Map.of();
         private volatile Map<Subject, List<TagPosition>> resolved = new ConcurrentHashMap<>();
 
-        public Table(String subject) {
-            this.label = subject;
-            this.registered = new StartupRegistry<>(subject);
+        public Table(String label) {
+            this.label = label;
+            this.registered = new StartupRegistry<>(label);
         }
 
         public void register(Class<?> subjectType, PositionShape shape, String... keys) {
@@ -258,14 +258,8 @@ public final class TagPositions {
         }
 
         private List<TagPosition> resolve(Subject carrier) {
-            List<TagPosition> positions = new ArrayList<>();
-            registered.entries().forEach((registeredType, registeredPositions) -> {
-                if (registeredType.isAssignableFrom(carrier.type())) {
-                    positions.addAll(registeredPositions);
-                }
-            });
-
-            List<TagPosition> registeredOnly = List.copyOf(positions);
+            List<TagPosition> registeredOnly = registeredFor(carrier);
+            List<TagPosition> positions = new ArrayList<>(registeredOnly);
             List<TagPosition> rows = carrier.id() == null ? List.of() : declared.getOrDefault(carrier.id(), List.of());
             for (TagPosition row : rows) {
                 if (registeredOnly.stream().anyMatch(row::sharesAddressWith)) {
@@ -275,6 +269,17 @@ public final class TagPositions {
                     positions.add(row);
                 }
             }
+
+            return List.copyOf(positions);
+        }
+
+        private List<TagPosition> registeredFor(Subject carrier) {
+            List<TagPosition> positions = new ArrayList<>();
+            registered.entries().forEach((registeredType, registeredPositions) -> {
+                if (registeredType.isAssignableFrom(carrier.type())) {
+                    positions.addAll(registeredPositions);
+                }
+            });
 
             return List.copyOf(positions);
         }

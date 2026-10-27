@@ -7,22 +7,22 @@ import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
 
-public record TilingCellGrid(WorldFold transformer, int xCellWidth, int zCellWidth, int skew, int rowsPerLap) {
+public record TilingCellGrid(WorldFold fold, int xCellWidth, int zCellWidth, int skew, int rowsPerLap) {
     private static final int SMALLEST_CELL_COUNT = 1;
 
-    public static TilingCellGrid of(WorldFold transformer, int vanillaCellWidth) {
-        TranslationLattice lattice = transformer.blockLattice();
+    public static TilingCellGrid of(WorldFold fold, int vanillaCellWidth) {
+        TranslationLattice lattice = fold.blockLattice();
         int xCellWidth = tilingWidth(lattice.x(), vanillaCellWidth);
         int zCellWidth = tilingWidth(lattice.z(), vanillaCellWidth);
         int rowsPerLap = lattice.isSkewed() ? lattice.z().domainLength / zCellWidth : SMALLEST_CELL_COUNT;
-        return new TilingCellGrid(transformer, xCellWidth, zCellWidth, lattice.skew(), rowsPerLap);
+        return new TilingCellGrid(fold, xCellWidth, zCellWidth, lattice.skew(), rowsPerLap);
     }
 
     public static TilingCellGrid resolve(@Nullable TilingCellGrid cached,
-            WorldFold transformer, int vanillaCellWidth) {
-        return cached != null && cached.transformer == transformer
+            WorldFold fold, int vanillaCellWidth) {
+        return cached != null && cached.fold == fold
                 ? cached
-                : of(transformer, vanillaCellWidth);
+                : of(fold, vanillaCellWidth);
     }
 
     public int cellOriginX(int blockX, int blockZ) {

@@ -31,7 +31,7 @@ public final class ClientPosition {
 
     // Written on the server thread and read on the network thread, so the five values change together or not at all.
     private record Mirror(double x, double z, @Nullable ResourceKey<Level> space, @Nullable Level level,
-            WorldFold transformer) {
+            WorldFold fold) {
     }
 
     private record CameraCopy(double x, double z, boolean left) {
@@ -81,15 +81,15 @@ public final class ClientPosition {
 
     public void set(Vec3 reported, MirrorWriter writer) {
         Mirror currMirror = this.mirror;
-        boolean foreign = isForeign(currMirror.transformer(), reported);
+        boolean foreign = isForeign(currMirror.fold(), reported);
         Vec3 world = foreign ? ForeignFrames.seatInWorld(currMirror.level(), reported) : reported;
-        if (foreign && isForeign(currMirror.transformer(), world)) {
+        if (foreign && isForeign(currMirror.fold(), world)) {
             return;
         }
 
         Vec3 seated = clientCopy(writer, foreign, currMirror, world);
         checkStep(writer, stepOrigin(writer, currMirror), seated);
-        this.mirror = new Mirror(seated.x, seated.z, currMirror.space(), currMirror.level(), currMirror.transformer());
+        this.mirror = new Mirror(seated.x, seated.z, currMirror.space(), currMirror.level(), currMirror.fold());
         if (writer == MirrorWriter.POSITION_PACKET) {
             this.cameraCopy = null;
         }
@@ -98,7 +98,7 @@ public final class ClientPosition {
     private Mirror stepOrigin(MirrorWriter writer, Mirror currMirror) {
         CameraCopy copy = this.cameraCopy;
         return writer == MirrorWriter.POSITION_PACKET && copy != null
-                ? new Mirror(copy.x(), copy.z(), currMirror.space(), currMirror.level(), currMirror.transformer())
+                ? new Mirror(copy.x(), copy.z(), currMirror.space(), currMirror.level(), currMirror.fold())
                 : currMirror;
     }
 
@@ -121,7 +121,7 @@ public final class ClientPosition {
             return;
         }
 
-        Vec3 seated = currMirror.transformer().nearestCopy(anchor(currMirror, copy, 0.0),
+        Vec3 seated = currMirror.fold().nearestCopy(anchor(currMirror, copy, 0.0),
                 new Vec3(camera.x, 0.0, camera.z));
         this.cameraCopy = new CameraCopy(seated.x, seated.z, false);
     }
@@ -170,16 +170,16 @@ public final class ClientPosition {
             return;
         }
 
-        WorldFold transformer = WorldLoopAttachments.transformerOf(player.level());
+        WorldFold fold = WorldLoopAttachments.foldOf(player.level());
         Vec3 position = player.position();
-        Vec3 world = isForeign(transformer, position) ? ForeignFrames.seatInWorld(player.level(), position) : position;
-        Vec3 folded = transformer.fold(world);
-        of(player).rebase(folded.x, folded.z, player.level().dimension(), player.level(), transformer);
+        Vec3 world = isForeign(fold, position) ? ForeignFrames.seatInWorld(player.level(), position) : position;
+        Vec3 folded = fold.fold(world);
+        of(player).rebase(folded.x, folded.z, player.level().dimension(), player.level(), fold);
     }
 
     public void rebase(double x, double z, ResourceKey<Level> dimension, @Nullable Level level,
-            WorldFold transformer) {
-        this.mirror = new Mirror(x, z, dimension, level, transformer);
+            WorldFold fold) {
+        this.mirror = new Mirror(x, z, dimension, level, fold);
         this.cameraCopy = null;
         this.heldSpawn = null;
         this.heldBorderCenter = null;
@@ -239,21 +239,21 @@ public final class ClientPosition {
     }
 
     // The sub-level pose carries a rotation, so the world X of a foreign value depends on all three of its axes.
-    private static boolean isForeign(WorldFold transformer, Vec3 position) {
-        TranslationLattice lattice = transformer.blockLattice();
+    private static boolean isForeign(WorldFold fold, Vec3 position) {
+        TranslationLattice lattice = fold.blockLattice();
         return lattice.x().isForeign(position.x) || lattice.z().isForeign(position.z);
     }
 
     // destinationOf unwraps a server value already, but it bails on a foreign one, so a seated value arrives raw.
     private static Vec3 clientCopy(MirrorWriter writer, boolean seated, Mirror currMirror, Vec3 reported) {
         return writer.needsSeating() || seated
-                ? currMirror.transformer().nearestCopy(new Vec3(currMirror.x(), reported.y, currMirror.z()), reported)
+                ? currMirror.fold().nearestCopy(new Vec3(currMirror.x(), reported.y, currMirror.z()), reported)
                 : reported;
     }
 
     private void checkStep(MirrorWriter writer, Mirror from, Vec3 to) {
         Vec3 step = new Vec3(to.x - from.x(), 0.0, to.z - from.z());
-        if (SeamDelta.fold(from.transformer(), step).equals(step) || !warnGate.tryPass()) {
+        if (SeamDelta.fold(from.fold(), step).equals(step) || !warnGate.tryPass()) {
             return;
         }
 

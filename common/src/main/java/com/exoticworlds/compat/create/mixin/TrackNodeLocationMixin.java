@@ -28,12 +28,12 @@ public abstract class TrackNodeLocationMixin extends Vec3i implements TrackNodeK
 
     @Override
     public void exotic_worlds$foldNodeKey(@Nullable Level level) {
-        WorldFold transformer = CreateSeamFold.transformerOf(level, this.dimension);
-        if (transformer == null) {
+        WorldFold fold = CreateSeamFold.wrappedFoldOf(level, this.dimension);
+        if (fold == null) {
             return;
         }
 
-        Vec3i canonical = CreateTrackFold.canonicalNodeKey(transformer, this);
+        Vec3i canonical = CreateTrackFold.canonicalNodeKey(fold, this);
         if (canonical == this) {
             return;
         }

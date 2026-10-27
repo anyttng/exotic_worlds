@@ -18,6 +18,6 @@ public class SpringLauncherPushSeatMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_BOUNDING_BOX))
     private AABB exotic_worlds$boxNearestArm(AABB box, @Local(argsOnly = true) Entity entity,
             @Local(argsOnly = true) AABB arm) {
-        return FoldedBoxQuery.toward(WorldLoopAttachments.transformerOf(entity.level()), arm.getCenter(), box);
+        return FoldedBoxQuery.toward(WorldLoopAttachments.foldOf(entity.level()), arm.getCenter(), box);
     }
 }

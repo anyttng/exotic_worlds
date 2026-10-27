@@ -84,19 +84,19 @@ class ShiftedNoisePeriodicityTest {
 
     private static void assertVanillaAtFoldedBlock(DensityFunction function) {
         Random random = new Random(SEED);
-        for (WorldFold transformer : WORLDS) {
-            TranslationLattice lattice = transformer.blockLattice();
-            int xWidth = transformer.blockDomain(Direction.Axis.X).domainLength;
-            int zWidth = transformer.blockDomain(Direction.Axis.Z).domainLength;
+        for (WorldFold fold : WORLDS) {
+            TranslationLattice lattice = fold.blockLattice();
+            int xWidth = fold.blockDomain(Direction.Axis.X).domainLength;
+            int zWidth = fold.blockDomain(Direction.Axis.Z).domainLength;
             for (int i = 0; i < SAMPLES; i++) {
-                int x = blockIn(random, transformer.blockDomain(Direction.Axis.X));
+                int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
                 int y = blockY(random);
-                int z = blockIn(random, transformer.blockDomain(Direction.Axis.Z));
+                int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
                 for (int[] block : new int[][] {{x, z}, {x + xWidth, z}, {x, z + zWidth}}) {
                     double expected = function.compute(new DensityFunction.SinglePointContext(
                             lattice.foldX(block[0], block[1]), y, lattice.foldZ(block[1])));
-                    assertEquals(expected, sample(function, transformer, block[0], y, block[1]),
-                            "vanilla at the folded block in " + transformer + " at (" + block[0] + ", " + y + ", "
+                    assertEquals(expected, sample(function, fold, block[0], y, block[1]),
+                            "vanilla at the folded block in " + fold + " at (" + block[0] + ", " + y + ", "
                                     + block[1] + ")");
                 }
             }
@@ -106,14 +106,14 @@ class ShiftedNoisePeriodicityTest {
     @Test
     void warpedNoiseAgreesOneWorldWidthApartInX() {
         Random random = new Random(SEED);
-        for (WorldFold transformer : WORLDS) {
-            int width = transformer.blockDomain(Direction.Axis.X).domainLength;
+        for (WorldFold fold : WORLDS) {
+            int width = fold.blockDomain(Direction.Axis.X).domainLength;
             for (int i = 0; i < SAMPLES; i++) {
-                int x = blockIn(random, transformer.blockDomain(Direction.Axis.X));
+                int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
                 int y = blockY(random);
-                int z = blockIn(random, transformer.blockDomain(Direction.Axis.Z));
-                assertEquals(sample(WARPED, transformer, x, y, z), sample(WARPED, transformer, x + width, y, z),
-                        at(transformer, "x", x, x + width, y, z));
+                int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
+                assertEquals(sample(WARPED, fold, x, y, z), sample(WARPED, fold, x + width, y, z),
+                        at(fold, "x", x, x + width, y, z));
             }
         }
     }
@@ -121,14 +121,14 @@ class ShiftedNoisePeriodicityTest {
     @Test
     void warpedNoiseAgreesOneWorldWidthApartInZ() {
         Random random = new Random(SEED);
-        for (WorldFold transformer : WORLDS) {
-            int width = transformer.blockDomain(Direction.Axis.Z).domainLength;
+        for (WorldFold fold : WORLDS) {
+            int width = fold.blockDomain(Direction.Axis.Z).domainLength;
             for (int i = 0; i < SAMPLES; i++) {
-                int x = blockIn(random, transformer.blockDomain(Direction.Axis.X));
+                int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
                 int y = blockY(random);
-                int z = blockIn(random, transformer.blockDomain(Direction.Axis.Z));
-                assertEquals(sample(WARPED, transformer, x, y, z), sample(WARPED, transformer, x, y, z + width),
-                        at(transformer, "z", z, z + width, x, y));
+                int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
+                assertEquals(sample(WARPED, fold, x, y, z), sample(WARPED, fold, x, y, z + width),
+                        at(fold, "z", z, z + width, x, y));
             }
         }
     }
@@ -150,14 +150,14 @@ class ShiftedNoisePeriodicityTest {
                 "the horizontal shift moved only " + moved + " of " + SAMPLES + " samples");
     }
 
-    private static double sample(DensityFunction function, WorldFold transformer, int x, int y, int z) {
+    private static double sample(DensityFunction function, WorldFold fold, int x, int y, int z) {
         DensityFunction.FunctionContext at = new DensityFunction.SinglePointContext(x, y, z);
 
-        return GenerationTransformerContext.withTransformer(transformer, () -> function.compute(at));
+        return GenerationFoldContext.withFold(fold, () -> function.compute(at));
     }
 
-    private static String at(WorldFold transformer, String axis, int from, int to, int firstOther, int secondOther) {
-        return "shifted_noise in " + transformer + " at " + axis + "=" + from + " vs " + axis + "=" + to
+    private static String at(WorldFold fold, String axis, int from, int to, int firstOther, int secondOther) {
+        return "shifted_noise in " + fold + " at " + axis + "=" + from + " vs " + axis + "=" + to
                 + " (" + firstOther + ", " + secondOther + ")";
     }
 }

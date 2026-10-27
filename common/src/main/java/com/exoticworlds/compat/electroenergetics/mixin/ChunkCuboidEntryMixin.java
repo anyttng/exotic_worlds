@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.exoticworlds.accessors.TransformerHolder;
+import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.compat.electroenergetics.BoxCopies;
 import com.exoticworlds.compat.electroenergetics.WireBox;
 import com.exoticworlds.compat.electroenergetics.WireChunkKeys;
@@ -19,7 +19,7 @@ import it.unimi.dsi.fastutil.longs.LongIterator;
 import net.minecraft.world.level.ChunkPos;
 
 @Mixin(targets = "com.george_vi.electroenergetics.content.wire.WireSync$ChunkCuboidEntry", remap = false)
-public abstract class ChunkCuboidEntryMixin implements TransformerHolder, WireBox {
+public abstract class ChunkCuboidEntryMixin implements FoldHolder, WireBox {
     @Shadow
     public int minX;
 
@@ -33,16 +33,16 @@ public abstract class ChunkCuboidEntryMixin implements TransformerHolder, WireBo
     public int maxZ;
 
     @Unique
-    private WorldFold exotic_worlds$transformer = WorldFolds.NOOP;
+    private WorldFold exotic_worlds$fold = WorldFolds.NOOP;
 
     @Override
-    public WorldFold exotic_worlds$transformer() {
-        return this.exotic_worlds$transformer;
+    public WorldFold exotic_worlds$fold() {
+        return this.exotic_worlds$fold;
     }
 
     @Override
-    public void exotic_worlds$setTransformer(WorldFold transformer) {
-        this.exotic_worlds$transformer = transformer;
+    public void exotic_worlds$setFold(WorldFold fold) {
+        this.exotic_worlds$fold = fold;
     }
 
     @Override
@@ -57,13 +57,13 @@ public abstract class ChunkCuboidEntryMixin implements TransformerHolder, WireBo
 
     @WrapMethod(method = "includes(II)Z")
     private boolean exotic_worlds$includesNearestCopy(int x, int z, Operation<Boolean> original) {
-        ChunkPos seated = BoxCopies.seat(this.exotic_worlds$transformer, this.exotic_worlds$center(), this.exotic_worlds$radius(),
+        ChunkPos seated = BoxCopies.seat(this.exotic_worlds$fold, this.exotic_worlds$center(), this.exotic_worlds$radius(),
                 new ChunkPos(x, z));
         return original.call(seated.x, seated.z);
     }
 
     @ModifyReturnValue(method = "iterator()Lit/unimi/dsi/fastutil/longs/LongIterator;", at = @At("RETURN"))
     private LongIterator exotic_worlds$foldedChunks(LongIterator raw) {
-        return WireChunkKeys.of(raw, this.exotic_worlds$transformer);
+        return WireChunkKeys.of(raw, this.exotic_worlds$fold);
     }
 }

@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.datafixers.util.Pair;
@@ -28,27 +28,27 @@ public class ServerLevelBiomeSearchMixin {
             int sampleResolutionHorizontal,
             int sampleResolutionVertical,
             Operation<@Nullable Pair<BlockPos, Holder<Biome>>> original) {
-        WorldFold transformer =
-                WorldLoopAttachments.wrappedTransformerOf((ServerLevel) (Object) this);
-        if (transformer == null) {
+        WorldFold fold =
+                WorldLoopAttachments.wrappedFoldOf((ServerLevel) (Object) this);
+        if (fold == null) {
             return original.call(biomeTest, origin, maxSearchRadius, sampleResolutionHorizontal,
                     sampleResolutionVertical);
         }
 
-        int searchRadius = exotic_worlds$radiusToCoverTheWorld(transformer, maxSearchRadius, sampleResolutionHorizontal);
-        Pair<BlockPos, Holder<Biome>> found = GenerationTransformerContext.withTransformer(transformer,
+        int searchRadius = exotic_worlds$radiusToCoverTheWorld(fold, maxSearchRadius, sampleResolutionHorizontal);
+        Pair<BlockPos, Holder<Biome>> found = GenerationFoldContext.withFold(fold,
                 () -> original.call(biomeTest, origin, searchRadius, sampleResolutionHorizontal,
                         sampleResolutionVertical));
 
-        return found == null ? null : Pair.of(transformer.fold(found.getFirst()), found.getSecond());
+        return found == null ? null : Pair.of(fold.fold(found.getFirst()), found.getSecond());
     }
 
     @Unique
-    private static int exotic_worlds$radiusToCoverTheWorld(WorldFold transformer, int maxSearchRadius,
+    private static int exotic_worlds$radiusToCoverTheWorld(WorldFold fold, int maxSearchRadius,
             int sampleResolutionHorizontal) {
         int steps = Math.max(
-                transformer.blockLattice().x().stepsToCoverTheWorld(sampleResolutionHorizontal),
-                transformer.blockLattice().z().stepsToCoverTheWorld(sampleResolutionHorizontal));
+                fold.blockLattice().x().stepsToCoverTheWorld(sampleResolutionHorizontal),
+                fold.blockLattice().z().stepsToCoverTheWorld(sampleResolutionHorizontal));
         return (int) Math.min(maxSearchRadius, (long) steps * sampleResolutionHorizontal);
     }
 }

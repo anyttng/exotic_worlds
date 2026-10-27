@@ -19,8 +19,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 
 class CreateWalkClosureTest {
-    private static CreateWalkClosure closure(WorldFold transformer) {
-        return new CreateWalkClosure(transformer);
+    private static CreateWalkClosure closure(WorldFold fold) {
+        return new CreateWalkClosure(fold);
     }
 
     private static int walk(CreateWalkClosure closure, BlockPos from, Direction direction, int queries) {

@@ -10,7 +10,7 @@ import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.RegistryAccess;
@@ -45,7 +45,7 @@ class RtfPreviewFoldTest {
     @Test
     void aPreviewBuiltUnderTheChosenShapeCarriesItsFold() {
         WorldFold fold = WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-CHUNKS, CHUNKS, -CHUNKS, CHUNKS)));
-        GeneratorContext context = GenerationTransformerContext.withRouterBuild(fold, RtfPreviewFoldTest::preview);
+        GeneratorContext context = GenerationFoldContext.withRouterBuild(fold, RtfPreviewFoldTest::preview);
 
         assertSame(fold, ((LapCarrier) (Object) context.generator.getHeightmap()).exotic_worlds$fold());
     }
@@ -53,7 +53,7 @@ class RtfPreviewFoldTest {
     @Test
     void aPreviewOfTheChosenShapeRepeatsAtTheLap() {
         WorldFold fold = WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-CHUNKS, CHUNKS, -CHUNKS, CHUNKS)));
-        Heightmap heightmap = GenerationTransformerContext.withRouterBuild(fold, RtfPreviewFoldTest::preview)
+        Heightmap heightmap = GenerationFoldContext.withRouterBuild(fold, RtfPreviewFoldTest::preview)
                 .generator.getHeightmap();
         int xLap = fold.blockLattice().x().domainLength;
         int zLap = fold.blockLattice().z().domainLength;
@@ -67,7 +67,7 @@ class RtfPreviewFoldTest {
 
     @Test
     void aPreviewBuiltWithNoShapeCarriesNoFold() {
-        GeneratorContext context = GenerationTransformerContext.withRouterBuild(null, RtfPreviewFoldTest::preview);
+        GeneratorContext context = GenerationFoldContext.withRouterBuild(null, RtfPreviewFoldTest::preview);
 
         assertNull(((LapCarrier) (Object) context.generator.getHeightmap()).exotic_worlds$fold());
     }

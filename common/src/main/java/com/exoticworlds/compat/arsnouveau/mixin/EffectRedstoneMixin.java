@@ -19,6 +19,6 @@ public abstract class EffectRedstoneMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/core/BlockPos;immutable()Lnet/minecraft/core/BlockPos;"))
     private BlockPos exotic_worlds$canonicalSignalKey(BlockPos pos, Operation<BlockPos> original,
             @Local(argsOnly = true) Level level) {
-        return WorldLoopAttachments.transformerOf(level).fold(original.call(pos));
+        return WorldLoopAttachments.foldOf(level).fold(original.call(pos));
     }
 }

@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 public final class CreateWalkClosure {
-    private final WorldFold transformer;
+    private final WorldFold fold;
 
     private @Nullable BlockPos legStart;
     private @Nullable BlockPos lastQuery;
@@ -23,8 +23,8 @@ public final class CreateWalkClosure {
     private @Nullable BlockPos origin;
 
     public static @Nullable CreateWalkClosure of(LevelAccessor world) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOfReader(world);
-        return transformer == null ? null : new CreateWalkClosure(transformer);
+        WorldFold fold = WorldLoopAttachments.wrappedTransformerOfReader(world);
+        return fold == null ? null : new CreateWalkClosure(fold);
     }
 
     public static BlockState read(LevelAccessor world, BlockPos pos, Operation<BlockState> original,
@@ -42,8 +42,8 @@ public final class CreateWalkClosure {
         return Blocks.AIR.defaultBlockState();
     }
 
-    CreateWalkClosure(WorldFold transformer) {
-        this.transformer = transformer;
+    CreateWalkClosure(WorldFold fold) {
+        this.fold = fold;
     }
 
     public boolean closes(BlockPos query) {
@@ -51,7 +51,7 @@ public final class CreateWalkClosure {
             lastQuery = query;
             BlockPos legOrigin = origin;
             return legOrigin != null && !query.equals(legOrigin)
-                    && transformer.fold(query).equals(transformer.fold(legOrigin));
+                    && fold.fold(query).equals(fold.fold(legOrigin));
         }
 
         openLeg(query);

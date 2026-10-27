@@ -47,12 +47,25 @@ class ApiSurfaceTest {
         check(owner, type.getGenericSuperclass(), violations);
         checkAll(owner, type.getGenericInterfaces(), violations);
         checkAll(owner, type.getTypeParameters(), violations);
+        collectFields(type, owner, violations);
+        collectConstructors(type, owner, violations);
+        collectMethods(type, owner, violations);
+        for (Class<?> nested : type.getDeclaredClasses()) {
+            if (isSurface(nested.getModifiers())) {
+                collect(nested, violations);
+            }
+        }
+    }
 
+    private static void collectFields(Class<?> type, String owner, List<String> violations) {
         for (Field field : type.getDeclaredFields()) {
             if (isSurface(field.getModifiers()) && !field.isSynthetic()) {
                 check(owner + "." + field.getName(), field.getGenericType(), violations);
             }
         }
+    }
+
+    private static void collectConstructors(Class<?> type, String owner, List<String> violations) {
         for (Constructor<?> constructor : type.getDeclaredConstructors()) {
             if (isSurface(constructor.getModifiers()) && !constructor.isSynthetic()) {
                 String where = owner + ".<init>";
@@ -60,6 +73,9 @@ class ApiSurfaceTest {
                 checkAll(where, constructor.getGenericExceptionTypes(), violations);
             }
         }
+    }
+
+    private static void collectMethods(Class<?> type, String owner, List<String> violations) {
         for (Method method : type.getDeclaredMethods()) {
             if (isSurface(method.getModifiers()) && !method.isSynthetic() && !method.isBridge()) {
                 String where = owner + "." + method.getName();
@@ -67,11 +83,6 @@ class ApiSurfaceTest {
                 checkAll(where, method.getGenericParameterTypes(), violations);
                 checkAll(where, method.getGenericExceptionTypes(), violations);
                 checkAll(where, method.getTypeParameters(), violations);
-            }
-        }
-        for (Class<?> nested : type.getDeclaredClasses()) {
-            if (isSurface(nested.getModifiers())) {
-                collect(nested, violations);
             }
         }
     }

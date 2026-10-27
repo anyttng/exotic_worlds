@@ -63,7 +63,7 @@ public class StructureStartMixin implements FramedStructureStart {
         }
 
         BlockPos reference = pieces.getFirst().getBoundingBox().getCenter();
-        DeckTransformation move = WorldLoopAttachments.transformerOf(level.getLevel())
+        DeckTransformation move = WorldLoopAttachments.foldOf(level.getLevel())
                 .nearestCopyTransformation(reference, chunkPos.getMiddleBlockPosition(reference.getY()));
         if (move.isIdentity()) {
             original.call(level, structureManager, generator, random, chunkBB, chunkPos);

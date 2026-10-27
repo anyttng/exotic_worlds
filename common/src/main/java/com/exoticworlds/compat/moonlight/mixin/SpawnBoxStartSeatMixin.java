@@ -34,7 +34,7 @@ public interface SpawnBoxStartSeatMixin {
             LongSet references, Consumer<StructureStart> consumer, Operation<Void> original,
             @Local(argsOnly = true) BlockPos pos) {
         LevelAccessor level = ((StructureManagerAccessor) manager).exotic_worlds$level();
-        WorldFold fold = WorldLoopAttachments.transformerOfReader(level);
+        WorldFold fold = WorldLoopAttachments.foldOfReader(level);
         if (!fold.isWrapped() || !(level instanceof WorldGenLevel genLevel)) {
             original.call(manager, structure, references, consumer);
             return;

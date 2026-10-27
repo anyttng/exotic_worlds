@@ -50,7 +50,7 @@ public class SubLevelPhysicsSystemMixin {
     private void exotic_worlds$changeHeldColliderCopies(SectionPos sectionPos, LevelChunkSection section, int localX, int localY,
             int localZ, BlockState oldState, BlockState newState, Operation<Void> original) {
         original.call(sectionPos, section, localX, localY, localZ, oldState, newState);
-        WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(this.level);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.level);
         if (fold == null) {
             return;
         }

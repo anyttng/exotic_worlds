@@ -40,8 +40,8 @@ public class DebugEntryPositionMixin {
             return lines;
         }
 
-        WorldFold transformer = WorldLoopAttachments.wrappedClientBoundsTransformerOf(level);
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedClientBoundsFoldOf(level);
+        if (fold == null) {
             return lines;
         }
 
@@ -55,11 +55,11 @@ public class DebugEntryPositionMixin {
         double rawX = entity.getX();
         double rawZ = entity.getZ();
         BlockPos feet = entity.blockPosition();
-        BlockPos wrappedFeet = transformer.fold(feet);
+        BlockPos wrappedFeet = fold.fold(feet);
         ChunkPos rawChunk = new ChunkPos(feet);
-        ChunkPos wrappedChunk = transformer.fold(rawChunk);
+        ChunkPos wrappedChunk = fold.fold(rawChunk);
 
-        Vec3 wrappedPos = transformer.fold(new Vec3(rawX, entity.getY(), rawZ));
+        Vec3 wrappedPos = fold.fold(new Vec3(rawX, entity.getY(), rawZ));
         lines.set(xyzLine, String.format(Locale.ROOT, "XYZ: %.3f / %.5f / %.3f",
                 wrappedPos.x, entity.getY(), wrappedPos.z));
         lines.set(blockLine, String.format(Locale.ROOT, "Block: %d %d %d [%d %d %d]",

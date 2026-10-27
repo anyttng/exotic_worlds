@@ -14,7 +14,7 @@ final class SableRigidShift {
 
     static Vector3d translationOf(DeckTransformation seat) {
         requireTranslation(seat);
-        return new Vector3d(seat.blocks().xShift(), 0.0, seat.blocks().zShift());
+        return new Vector3d(seat.blockTransform().xShift(), 0.0, seat.blockTransform().zShift());
     }
 
     private SableRigidShift() {

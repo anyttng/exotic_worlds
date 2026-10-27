@@ -38,20 +38,20 @@ public final class FoldedValue {
         return walk(context, towardLeaves(context, anchor), value, fallback);
     }
 
-    public static Object toward(WorldFold transformer, ResourceKey<Level> dimension, Vec3 anchor, Object value) {
-        return walk(dimension, towardLeaves(transformer, () -> anchor), value, UnaryOperator.identity());
+    public static Object toward(WorldFold fold, ResourceKey<Level> dimension, Vec3 anchor, Object value) {
+        return walk(dimension, towardLeaves(fold, () -> anchor), value, UnaryOperator.identity());
     }
 
     static Leaves towardLeaves(TranslationContext context, Supplier<Vec3> anchor) {
-        return towardLeaves(context.transformer(), anchor);
+        return towardLeaves(context.fold(), anchor);
     }
 
-    private static Leaves towardLeaves(WorldFold transformer, Supplier<Vec3> anchor) {
+    private static Leaves towardLeaves(WorldFold fold, Supplier<Vec3> anchor) {
         return new Leaves(
-                pos -> transformer.nearestCopy(BlockPos.containing(anchor.get()), pos),
-                position -> transformer.nearestCopy(anchor.get(), position),
-                chunkPos -> transformer.nearestCopy(new ChunkPos(BlockPos.containing(anchor.get())), chunkPos),
-                center -> transformer.nearestCopyTransformation(anchor.get(), center));
+                pos -> fold.nearestCopy(BlockPos.containing(anchor.get()), pos),
+                position -> fold.nearestCopy(anchor.get(), position),
+                chunkPos -> fold.nearestCopy(new ChunkPos(BlockPos.containing(anchor.get())), chunkPos),
+                center -> fold.nearestCopyTransformation(anchor.get(), center));
     }
 
     static Leaves toClient(TranslationContext context) {
@@ -59,8 +59,8 @@ public final class FoldedValue {
     }
 
     static Leaves toServer(TranslationContext context) {
-        WorldFold transformer = context.transformer();
-        return new Leaves(transformer::fold, transformer::fold, transformer::fold, transformer::foldTransformation);
+        WorldFold fold = context.fold();
+        return new Leaves(fold::fold, fold::fold, fold::fold, fold::foldTransformation);
     }
 
     static Object walk(TranslationContext context, Leaves leaves, Object value) {
@@ -83,7 +83,7 @@ public final class FoldedValue {
     }
 
     static BlockPos nearestCopy(TranslationContext context, Vec3 anchor, BlockPos pos) {
-        return context.transformer().nearestCopy(BlockPos.containing(anchor), pos);
+        return context.fold().nearestCopy(BlockPos.containing(anchor), pos);
     }
 
     @Contract("_, _, !null, _ -> !null")

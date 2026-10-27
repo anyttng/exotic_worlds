@@ -28,7 +28,7 @@ public abstract class SendWireParticlesPacketMixin {
                     + "(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;F)Ljava/util/List;"))
     private List<Vec3> exotic_worlds$wireInOnePiece(Vec3 from, Vec3 to, float sag, Operation<List<Vec3>> original,
             @Local(argsOnly = true) LocalPlayer player, @Local(name = "pos2") LocalRef<Vec3> pos2) {
-        Vec3 seated = WireCopies.from(WorldLoopAttachments.transformerOfReader(player.level()), from, to,
+        Vec3 seated = WireCopies.from(WorldLoopAttachments.foldOfReader(player.level()), from, to,
                 WireCopies.FIRST_END).pos2();
         pos2.set(seated);
         return original.call(from, seated, sag);

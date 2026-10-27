@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 
 class PeriodicLatticesTest {
     private static final long SEED = 0x978L;
@@ -36,7 +36,7 @@ class PeriodicLatticesTest {
 
     private static final double[][] Y_PARAMS = {{0.0, 0.0}, {1.0, 2.0}, {0.25, -1.0}};
 
-    private static final double UNDECLARED = GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE;
+    private static final double UNDECLARED = GenerationFoldContext.UNDECLARED_VERTICAL_SHARE;
 
     private static final double UNDIVIDED = NoiseConstants.UNDIVIDED;
 
@@ -53,7 +53,7 @@ class PeriodicLatticesTest {
 
     private record Key(WorldFold fold, SlotAxes axes, double scale, double verticalShare, double divisor) {
         <T> T under(Supplier<T> action) {
-            Context context = GenerationTransformerContext.context();
+            Context context = GenerationFoldContext.context();
             try (Context.BindingScope bindingScope = context.bind(this.fold, this.axes, this.scale, this.verticalShare);
                     Context.DivisorScope divisorScope = context.withDivisors(this.divisor, this.divisor)) {
                 return action.get();
@@ -86,7 +86,7 @@ class PeriodicLatticesTest {
 
         PeriodicLattice latticeIn(PeriodicLattices table, Key key) {
             return key.under(() -> table.latticeFor(this.permutations, this.xo, this.yo, this.zo, key.fold(),
-                    GenerationTransformerContext.context()));
+                    GenerationFoldContext.context()));
         }
     }
 
@@ -129,10 +129,10 @@ class PeriodicLatticesTest {
             double y = random.nextInt(384) - 64 + random.nextDouble();
             double z = (random.nextDouble() * 2.0 - 1.0) * REACH_BLOCKS;
             double cached = key.under(() -> table.sample(noise.permutations(), noise.xo(), noise.yo(), noise.zo(),
-                    key.fold(), GenerationTransformerContext.context(), x, y, z, yParams[0], yParams[1]));
+                    key.fold(), GenerationFoldContext.context(), x, y, z, yParams[0], yParams[1]));
             double perCall = key.under(() -> PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(
                     noise.permutations(), noise.xo(), noise.yo(), noise.zo(), key.fold(),
-                    GenerationTransformerContext.context(), LapFloor.of(key.fold())), x, y, z, yParams[0],
+                    GenerationFoldContext.context(), LapFloor.of(key.fold())), x, y, z, yParams[0],
                     yParams[1]));
             assertEquals(perCall, cached, () -> "sample(" + x + ", " + y + ", " + z + ") under " + key);
         }

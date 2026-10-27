@@ -31,7 +31,7 @@ public final class WorldFolds {
         verifyFoldable(shape).getOrThrow(IllegalArgumentException::new);
 
         return shape.decomposesPerAxis()
-                ? new WorldLoopTransformer(shape.bounds(), foreignFrames, generationOptions)
+                ? new WorldLoopFold(shape.bounds(), foreignFrames, generationOptions)
                 : new DeckGroupFold(shape, foreignFrames, generationOptions);
     }
 

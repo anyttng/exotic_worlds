@@ -31,7 +31,7 @@ public class TeleporterFrequencyMixin {
             return original.call(from, to);
         }
 
-        return WorldLoopAttachments.transformerOfReader(server.getLevel(source.dimension()))
+        return WorldLoopAttachments.foldOfReader(server.getLevel(source.dimension()))
                 .sqrDistance(from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ());
     }
 }

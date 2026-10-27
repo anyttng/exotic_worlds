@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import com.exoticworlds.engine.noise.ContextScaledNoise;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -29,7 +29,7 @@ public class DensityFunctionsNoiseMixin {
 
     @WrapMethod(method = "compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D")
     private double exotic_worlds$periodicCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.wrappedContext();
+        Context generation = GenerationFoldContext.wrappedContext();
         if (generation == null) {
             return original.call(context);
         }
@@ -37,6 +37,6 @@ public class DensityFunctionsNoiseMixin {
         double xzScale = NoiseScaleLadder.installedScale(this.noise, this.xzScale);
         return ContextScaledNoise.sample(generation, this.noise,
                 context.blockX(), context.blockY() * this.yScale, context.blockZ(), xzScale, this.xzScale,
-                GenerationTransformerContext.verticalShare(xzScale, this.yScale));
+                GenerationFoldContext.verticalShare(xzScale, this.yScale));
     }
 }

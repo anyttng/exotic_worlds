@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.compat.reterraforged.LapCarrier;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 
@@ -15,7 +15,7 @@ import raccoonman.reterraforged.world.worldgen.GeneratorContext;
 public abstract class GeneratorContextMixin {
     @Inject(method = "<init>", at = @At("RETURN"))
     private void exotic_worlds$carryRouterBuildFold(CallbackInfo callback) {
-        WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
+        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
         if (fold != null && fold.isWrapped()) {
             LapCarrier.carry((GeneratorContext) (Object) this, fold);
         }

@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.cobblemon.mod.common.api.net.NetworkPacket;
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -22,7 +22,7 @@ public interface SendAroundRangeMixin {
     private double exotic_worlds$playerXThroughSeam(ServerPlayer player, Operation<Double> original,
             @Local(argsOnly = true, ordinal = 0) double x, @Local(argsOnly = true, ordinal = 1) double y,
             @Local(argsOnly = true, ordinal = 2) double z) {
-        return NearestCopy.toward(((TransformerSource) player).exotic_worlds$wrappedTransformer(), Direction.Axis.X,
+        return NearestCopy.toward(((FoldSource) player).exotic_worlds$wrappedFold(), Direction.Axis.X,
                 new Vec3(x, y, z), player.position());
     }
 
@@ -32,7 +32,7 @@ public interface SendAroundRangeMixin {
     private double exotic_worlds$playerYThroughSeam(ServerPlayer player, Operation<Double> original,
             @Local(argsOnly = true, ordinal = 0) double x, @Local(argsOnly = true, ordinal = 1) double y,
             @Local(argsOnly = true, ordinal = 2) double z) {
-        return NearestCopy.toward(((TransformerSource) player).exotic_worlds$wrappedTransformer(), Direction.Axis.Y,
+        return NearestCopy.toward(((FoldSource) player).exotic_worlds$wrappedFold(), Direction.Axis.Y,
                 new Vec3(x, y, z), player.position());
     }
 
@@ -42,7 +42,7 @@ public interface SendAroundRangeMixin {
     private double exotic_worlds$playerZThroughSeam(ServerPlayer player, Operation<Double> original,
             @Local(argsOnly = true, ordinal = 0) double x, @Local(argsOnly = true, ordinal = 1) double y,
             @Local(argsOnly = true, ordinal = 2) double z) {
-        return NearestCopy.toward(((TransformerSource) player).exotic_worlds$wrappedTransformer(), Direction.Axis.Z,
+        return NearestCopy.toward(((FoldSource) player).exotic_worlds$wrappedFold(), Direction.Axis.Z,
                 new Vec3(x, y, z), player.position());
     }
 }

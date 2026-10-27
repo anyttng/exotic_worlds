@@ -18,7 +18,7 @@ public abstract class RotatingTurretTileMixin {
             method = "aim(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;)V",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_AT_CENTER_OF, ordinal = 1))
     private Vec3 exotic_worlds$aimThroughSeam(Vec3 target, @Local(ordinal = 0) Vec3 turret) {
-        return WorldLoopAttachments.transformerIfLevel(((BlockEntity) (Object) this).getLevel())
+        return WorldLoopAttachments.foldIfLevel(((BlockEntity) (Object) this).getLevel())
                 .nearestCopy(turret, target);
     }
 }

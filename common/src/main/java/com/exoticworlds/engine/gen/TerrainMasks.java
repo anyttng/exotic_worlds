@@ -31,7 +31,7 @@ public final class TerrainMasks {
         return found != null ? found.mask() : null;
     }
 
-    boolean consumed(long key) {
+    boolean consume(long key) {
         Held found = this.held.get(key);
         if (found == null) {
             return false;

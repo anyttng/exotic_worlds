@@ -115,7 +115,7 @@ class ForeignFrameFoldTest {
     @Test
     void aPlotBoxIsNeitherMovedNorSplit() {
         AABB plotBox = new AABB(PLOT_BLOCK_POS).inflate(3.0);
-        WorldFold.Folded<AABB> folded = FRAMED.foldBox(WORLD_VEC, plotBox);
+        WorldFold.Folded<AABB> folded = FRAMED.nearestCopyOriented(WORLD_VEC, plotBox);
         assertSame(plotBox, folded.value());
 
         assertFalse(FRAMED.crossesBounds(plotBox));
@@ -238,7 +238,7 @@ class ForeignFrameFoldTest {
     @Test
     void aPlotBoxIsNeitherMovedNorSplitOnTheLattice() {
         AABB plotBox = new AABB(PLOT_BLOCK_POS).inflate(3.0);
-        assertSame(plotBox, LATTICE.foldBox(WORLD_VEC, plotBox).value());
+        assertSame(plotBox, LATTICE.nearestCopyOriented(WORLD_VEC, plotBox).value());
         assertFalse(LATTICE.crossesBounds(plotBox));
         List<WorldFold.Folded<AABB>> pieces = LATTICE.split(plotBox);
         assertEquals(1, pieces.size());

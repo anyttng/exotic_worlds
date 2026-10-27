@@ -34,8 +34,8 @@ public class TileEntityTeleporterMixin {
         Level entityWorld = entity.level();
         DimensionType entityType = entityWorld.dimensionType();
         DimensionType targetType = targetWorld.dimensionType();
-        WorldFold entityFold = WorldLoopAttachments.transformerOf(entityWorld);
-        WorldFold targetFold = WorldLoopAttachments.transformerOf(targetWorld);
+        WorldFold entityFold = WorldLoopAttachments.foldOf(entityWorld);
+        WorldFold targetFold = WorldLoopAttachments.foldOf(targetWorld);
         Vec3 target = Vec3.atLowerCornerOf(coords.pos());
 
         WorldFold frame;

@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.PeriodicSimplexSampler;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -30,12 +30,12 @@ public class PerlinSimplexNoiseMixin {
 
     @WrapMethod(method = "getValue(DDZ)D")
     private double exotic_worlds$periodicValue(double x, double z, boolean useNoiseStart, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.wrappedContext();
+        Context generation = GenerationFoldContext.wrappedContext();
         if (generation == null) {
             return original.call(x, z, useNoiseStart);
         }
 
-        WorldFold transformer = generation.transformer();
+        WorldFold fold = generation.fold();
         double baseScale = generation.horizontalScale();
         double value = 0.0;
         double factor = this.highestFreqInputFactor;
@@ -47,7 +47,7 @@ public class PerlinSimplexNoiseMixin {
                         ((SimplexNoiseAccessor) (Object) noiseLevel).exotic_worlds$permutations(),
                         useNoiseStart ? noiseLevel.xo : 0.0,
                         useNoiseStart ? noiseLevel.yo : 0.0,
-                        transformer,
+                        fold,
                         baseScale * factor,
                         x,
                         z) * valueFactor;

@@ -18,11 +18,11 @@ import net.minecraft.server.level.ServerLevel;
 
 public final class CreateFactoryPanelFold {
     public static FactoryPanelPosition canonical(@Nullable ServerLevel level, FactoryPanelPosition position) {
-        return canonical(WorldLoopAttachments.transformerOfReader(level), position);
+        return canonical(WorldLoopAttachments.foldOfReader(level), position);
     }
 
-    static FactoryPanelPosition canonical(WorldFold transformer, FactoryPanelPosition position) {
-        BlockPos canonical = transformer.fold(position.pos());
+    static FactoryPanelPosition canonical(WorldFold fold, FactoryPanelPosition position) {
+        BlockPos canonical = fold.fold(position.pos());
         return canonical.equals(position.pos()) ? position : new FactoryPanelPosition(canonical, position.slot());
     }
 

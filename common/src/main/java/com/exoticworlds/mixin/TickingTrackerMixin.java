@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import com.exoticworlds.accessors.TransformerCache;
+import com.exoticworlds.accessors.FoldCache;
 
 import net.minecraft.server.level.TickingTracker;
 
@@ -23,6 +23,6 @@ public class TickingTrackerMixin {
 
     @Unique
     private long exotic_worlds$foldTicketKey(long key) {
-        return ((TransformerCache) (Object) this).exotic_worlds$transformer().foldChunkKey(key);
+        return ((FoldCache) (Object) this).exotic_worlds$fold().foldChunkKey(key);
     }
 }

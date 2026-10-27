@@ -9,8 +9,8 @@ import org.spongepowered.asm.mixin.Unique;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.DomainWarp.Divisor;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
 import com.exoticworlds.shape.climate.ClimateCompression;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -49,14 +49,14 @@ public class DensityFunctionsShiftedNoiseMixin {
 
     @WrapMethod(method = "compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D")
     private double exotic_worlds$periodicCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.wrappedContext();
+        Context generation = GenerationFoldContext.wrappedContext();
         if (generation == null) {
             return original.call(context);
         }
 
-        WorldFold transformer = generation.transformer();
+        WorldFold fold = generation.fold();
         double xzScale = NoiseScaleLadder.installedScale(this.noise, this.xzScale);
-        double verticalShare = GenerationTransformerContext.verticalShare(xzScale, this.yScale);
+        double verticalShare = GenerationFoldContext.verticalShare(xzScale, this.yScale);
         double y = context.blockY() * this.yScale + this.shiftY.compute(context);
         if (xzScale == 0.0) {
             return ContextScaledNoise.sample(generation, this.noise, context.blockX(), y, context.blockZ(), xzScale,
@@ -65,15 +65,15 @@ public class DensityFunctionsShiftedNoiseMixin {
 
         return ContextScaledNoise.sampleWarped(generation, this.noise, context.blockX(), y, context.blockZ(),
                 this.shiftX.compute(context), this.shiftZ.compute(context),
-                this.exotic_worlds$warpDivisor(transformer, xzScale), xzScale, this.xzScale, verticalShare);
+                this.exotic_worlds$warpDivisor(fold, xzScale), xzScale, this.xzScale, verticalShare);
     }
 
     @Unique
-    private double exotic_worlds$warpDivisor(WorldFold transformer, double xzScale) {
+    private double exotic_worlds$warpDivisor(WorldFold fold, double xzScale) {
         Divisor divisor = this.exotic_worlds$warpDivisor;
-        if (divisor == null || divisor.fold() != transformer) {
-            divisor = new Divisor(transformer, ClimateCompression.warpDivisor(this.noise, transformer,
-                    xzScale, GenerationTransformerContext.verticalShare(xzScale, this.yScale)));
+        if (divisor == null || divisor.fold() != fold) {
+            divisor = new Divisor(fold, ClimateCompression.warpDivisor(this.noise, fold,
+                    xzScale, GenerationFoldContext.verticalShare(xzScale, this.yScale)));
             this.exotic_worlds$warpDivisor = divisor;
         }
 

@@ -5,7 +5,7 @@ import static com.exoticworlds.engine.net.PacketTranslatorFixture.MIRROR_X;
 import static com.exoticworlds.engine.net.PacketTranslatorFixture.MIRROR_Z;
 import static com.exoticworlds.engine.net.PacketTranslatorFixture.REGISTRIES;
 import static com.exoticworlds.engine.net.PacketTranslatorFixture.REWRITERS;
-import static com.exoticworlds.engine.net.PacketTranslatorFixture.TRANSFORMER;
+import static com.exoticworlds.engine.net.PacketTranslatorFixture.FOLD;
 import static com.exoticworlds.engine.net.PacketTranslatorFixture.VIEW_DISTANCE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -49,10 +49,10 @@ class CameraCopiesTest {
 
     private static TranslationContext contextWithCamera(Vec3 camera) {
         ClientPosition mirror = new ClientPosition();
-        mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, null, TRANSFORMER);
+        mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, null, FOLD);
         mirror.setHeldCacheCenter(HELD_CENTER);
         mirror.followCamera(camera, Level.OVERWORLD);
-        return new TranslationContext(TRANSFORMER, mirror, BUFFERS, Level.OVERWORLD,
+        return new TranslationContext(FOLD, mirror, BUFFERS, Level.OVERWORLD,
                 VIEW_DISTANCE, VIEW_DISTANCE, entityId -> false, entityId -> null, entityId -> null, () -> {},
                 REWRITERS);
     }

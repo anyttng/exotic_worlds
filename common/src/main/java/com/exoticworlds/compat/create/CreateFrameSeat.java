@@ -6,8 +6,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public record CreateFrameSeat(Vec3 anchor, WorldFold.Folded<Vec3> seated) {
-    public static CreateFrameSeat of(WorldFold transformer, Vec3 viewer, Vec3 anchor) {
-        return new CreateFrameSeat(anchor, transformer.nearestCopyOriented(viewer, anchor));
+    public static CreateFrameSeat of(WorldFold fold, Vec3 viewer, Vec3 anchor) {
+        return new CreateFrameSeat(anchor, fold.nearestCopyOriented(viewer, anchor));
     }
 
     public boolean isIdentity() {

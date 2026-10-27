@@ -24,7 +24,7 @@ final class ParticlePacketRewriter {
         }
 
         Vec3 dir = packet.type == ClientBoundParticlePacket.Kind.PEARL_TELEPORT && packet.dir != null
-                ? context.transformer().nearestCopy(seated, packet.dir)
+                ? context.fold().nearestCopy(seated, packet.dir)
                 : packet.dir;
         int[] extraData = packet.getExtraData().stream().mapToInt(Integer::intValue).toArray();
         return new ClientBoundParticlePacket(seated, packet.type, dir, extraData);

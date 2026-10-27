@@ -97,14 +97,14 @@ public abstract class TrackEdgeMixin {
             @Share(OTHER_NEAR_END) LocalRef<Vec3> otherNearEndRef,
             @Share(OTHER_SEAT) LocalRef<CreateFrameSeat> seatRef) {
         Vec3 rawNearEnd = original.call(target);
-        WorldFold transformer = CreateSeamFold.transformerOf(null, target.getDimension());
-        if (transformer == null) {
+        WorldFold fold = CreateSeamFold.wrappedFoldOf(null, target.getDimension());
+        if (fold == null) {
             otherNearEndRef.set(rawNearEnd);
             return rawNearEnd;
         }
 
         CreateFrameSeat seat =
-                CreateFrameSeat.of(transformer, exotic_worlds$anchorOf(node1, anchorRef), rawNearEnd);
+                CreateFrameSeat.of(fold, exotic_worlds$anchorOf(node1, anchorRef), rawNearEnd);
         seatRef.set(seat);
         Vec3 folded = seat.seated().value();
         otherNearEndRef.set(folded);

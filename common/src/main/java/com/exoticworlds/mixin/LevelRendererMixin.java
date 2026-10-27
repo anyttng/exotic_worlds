@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -20,7 +20,7 @@ import net.minecraft.client.renderer.LightTexture;
 // temperature field the server places ice from. On 1.21.1 the two weather doors — the falling curtain and the rain
 // particles — each ask the biome inline, so each method is bound whole. Left unbound they would read the unfolded
 // field and draw a straight line of rain against snow along the seam — and disagree with the server about the same
-// block. The bounds come from the client bounds store rather than from the level's own transformer, which stays NOOP
+// block. The bounds come from the client bounds store rather than from the level's own fold, which stays NOOP
 // on the client by design; the sampler folds whatever coordinate it is given, however many laps out client space has
 // run.
 @Mixin(LevelRenderer.class)
@@ -37,7 +37,7 @@ public class LevelRendererMixin {
             return;
         }
 
-        GenerationTransformerContext.runWithTransformer(bounds,
+        GenerationFoldContext.runWithFold(bounds,
                 () -> original.call(lightTexture, partialTick, cameraX, cameraY, cameraZ));
     }
 
@@ -49,11 +49,11 @@ public class LevelRendererMixin {
             return;
         }
 
-        GenerationTransformerContext.runWithTransformer(bounds, () -> original.call(camera));
+        GenerationFoldContext.runWithFold(bounds, () -> original.call(camera));
     }
 
     @Unique
     private @Nullable WorldFold exotic_worlds$clientBounds() {
-        return this.level == null ? null : WorldLoopAttachments.wrappedClientBoundsTransformerOf(this.level);
+        return this.level == null ? null : WorldLoopAttachments.wrappedClientBoundsFoldOf(this.level);
     }
 }

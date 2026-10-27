@@ -14,7 +14,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-final class WorldLoopTransformer implements WorldFold {
+final class WorldLoopFold implements WorldFold {
     private final CoordOps coords;
     private final ChunkOps chunks;
     private final VectorOps vectors;
@@ -31,11 +31,11 @@ final class WorldLoopTransformer implements WorldFold {
 
     private final int maxViewDistance;
 
-    WorldLoopTransformer(WorldLoopBounds bounds, GenerationOptions generationOptions) {
+    WorldLoopFold(WorldLoopBounds bounds, GenerationOptions generationOptions) {
         this(bounds, List.of(), generationOptions);
     }
 
-    WorldLoopTransformer(WorldLoopBounds bounds, List<ForeignFrame> foreignFrames,
+    WorldLoopFold(WorldLoopBounds bounds, List<ForeignFrame> foreignFrames,
             GenerationOptions generationOptions) {
         this.bounds = bounds;
         boolean xLooped = bounds.x() instanceof AxisBounds.Looped;
@@ -254,7 +254,7 @@ final class WorldLoopTransformer implements WorldFold {
         return pieces;
     }
 
-    private static double seamGap(WrapDomain domain, double min, double max, double coord) {
+    private static double nearestSpanGap(WrapDomain domain, double min, double max, double coord) {
         double center = SeamBoxes.center(min, max);
         double nearestCenter = domain.unwrapAround(coord, center);
         return Math.max(Math.abs(nearestCenter - coord) - (max - min) / 2.0, 0.0);
@@ -336,7 +336,7 @@ final class WorldLoopTransformer implements WorldFold {
 
     @Override
     public String toString() {
-        return "WorldLoopTransformer[x=" + bounds.x().spanText() + ", z=" + bounds.z().spanText() + "]";
+        return "WorldLoopFold[x=" + bounds.x().spanText() + ", z=" + bounds.z().spanText() + "]";
     }
 
     @Override
@@ -569,8 +569,8 @@ final class WorldLoopTransformer implements WorldFold {
 
     @Override
     public double sqrDistanceToBox(AABB box, Vec3 point) {
-        double xGap = seamGap(coords.x, box.minX, box.maxX, point.x);
-        double zGap = seamGap(coords.z, box.minZ, box.maxZ, point.z);
+        double xGap = nearestSpanGap(coords.x, box.minX, box.maxX, point.x);
+        double zGap = nearestSpanGap(coords.z, box.minZ, box.maxZ, point.z);
         return xGap * xGap + SeamBoxes.sqrYGap(box, point) + zGap * zGap;
     }
 
@@ -594,7 +594,7 @@ final class WorldLoopTransformer implements WorldFold {
     }
 
     @Override
-    public Folded<AABB> foldBox(Vec3 ref, AABB box) {
+    public Folded<AABB> nearestCopyOriented(Vec3 ref, AABB box) {
         double centerX = SeamBoxes.center(box.minX, box.maxX);
         double centerZ = SeamBoxes.center(box.minZ, box.maxZ);
         double shiftX = coords.x.unwrapAround(ref.x, centerX) - centerX;

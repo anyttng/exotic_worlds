@@ -19,7 +19,7 @@ public abstract class BasicSpellTurretTileMixin {
             method = "onLastConnection(Lnet/minecraft/core/GlobalPos;Lnet/minecraft/core/Direction;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/player/Player;)Lcom/hollingsworth/arsnouveau/api/item/IWandable$Result;",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_SUBTRACT))
     private BlockPos exotic_worlds$linkDeltaThroughSeam(BlockPos turret, Vec3i stored, Operation<BlockPos> original) {
-        BlockPos nearest = WorldLoopAttachments.transformerIfLevel(((BlockEntity) (Object) this).getLevel())
+        BlockPos nearest = WorldLoopAttachments.foldIfLevel(((BlockEntity) (Object) this).getLevel())
                 .nearestCopy(turret, new BlockPos(stored));
         return original.call(turret, nearest);
     }

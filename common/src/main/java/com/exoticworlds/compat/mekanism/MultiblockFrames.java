@@ -29,7 +29,7 @@ public final class MultiblockFrames {
             return;
         }
 
-        DeckTransformation move = WorldLoopAttachments.transformerOfReader(frame.exotic_worlds$level())
+        DeckTransformation move = WorldLoopAttachments.foldOfReader(frame.exotic_worlds$level())
                 .nearestCopyTransformation(anchor, absorbedAnchor);
         if (move.isIdentity()) {
             return;
@@ -46,7 +46,7 @@ public final class MultiblockFrames {
             return null;
         }
 
-        WorldFold fold = WorldLoopAttachments.transformerOfReader(((MultiblockStructureFrame) structure).exotic_worlds$level());
+        WorldFold fold = WorldLoopAttachments.foldOfReader(((MultiblockStructureFrame) structure).exotic_worlds$level());
         ((MultiblockBoundsFrame) cuboid).exotic_worlds$setFold(fold);
         BlockPos min = cuboid.getMinPos();
         DeckTransformation move = fold.nearestCopyTransformation(fold.fold(min), min);
@@ -71,7 +71,7 @@ public final class MultiblockFrames {
     }
 
     public static BlockPos fold(Structure structure, BlockPos pos) {
-        return WorldLoopAttachments.transformerOfReader(((MultiblockStructureFrame) structure).exotic_worlds$level())
+        return WorldLoopAttachments.foldOfReader(((MultiblockStructureFrame) structure).exotic_worlds$level())
                 .fold(pos);
     }
 

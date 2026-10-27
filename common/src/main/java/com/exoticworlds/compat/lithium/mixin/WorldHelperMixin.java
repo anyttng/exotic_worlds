@@ -24,7 +24,7 @@ public class WorldHelperMixin {
     private static List<Entity> exotic_worlds$collisionGroupThroughSeam(EntityGetter view, AABB box,
             Entity collidingEntity, Operation<List<Entity>> original) {
         return view instanceof Level level
-                ? SeamEntitySearch.collect(WorldLoopAttachments.transformerOf(level), box,
+                ? SeamEntitySearch.collect(WorldLoopAttachments.foldOf(level), box,
                         piece -> original.call(view, piece, collidingEntity))
                 : original.call(view, box, collidingEntity);
     }
@@ -33,7 +33,7 @@ public class WorldHelperMixin {
     private static List<Entity> exotic_worlds$otherGroupThroughSeam(EntityGetter view, AABB box, Entity collidingEntity,
             Predicate<? super Entity> entityFilter, Operation<List<Entity>> original) {
         return view instanceof Level level
-                ? SeamEntitySearch.collect(WorldLoopAttachments.transformerOf(level), box,
+                ? SeamEntitySearch.collect(WorldLoopAttachments.foldOf(level), box,
                         piece -> original.call(view, piece, collidingEntity, entityFilter))
                 : original.call(view, box, collidingEntity, entityFilter);
     }
@@ -41,7 +41,7 @@ public class WorldHelperMixin {
     @WrapMethod(method = "getPushableEntities")
     private static List<Entity> exotic_worlds$pushableThroughSeam(Level level, EntitySectionStorage<Entity> cache,
             Entity except, AABB box, @Coerce Object pushablePredicate, Operation<List<Entity>> original) {
-        return SeamEntitySearch.collect(WorldLoopAttachments.transformerOf(level), box,
+        return SeamEntitySearch.collect(WorldLoopAttachments.foldOf(level), box,
                 piece -> original.call(level, cache, except, piece, pushablePredicate));
     }
 }

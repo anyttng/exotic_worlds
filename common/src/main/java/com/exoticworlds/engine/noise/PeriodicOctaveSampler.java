@@ -2,7 +2,7 @@ package com.exoticworlds.engine.noise;
 
 import com.exoticworlds.accessors.IndexableNoise;
 import com.exoticworlds.accessors.WrappedImprovedNoise;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 import net.minecraft.world.level.levelgen.synth.ImprovedNoise;

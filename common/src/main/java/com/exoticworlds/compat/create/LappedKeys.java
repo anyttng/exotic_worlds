@@ -24,8 +24,8 @@ public final class LappedKeys extends AbstractSet<BlockPos> {
     }
 
     public static Set<BlockPos> set(@Nullable BlockGetter reader) {
-        WorldFold transformer = CanonicalPositionKeys.transformerOf(reader);
-        return transformer == null ? new HashSet<>() : new LappedKeys(transformer);
+        WorldFold fold = CanonicalPositionKeys.wrappedFoldOf(reader);
+        return fold == null ? new HashSet<>() : new LappedKeys(fold);
     }
 
     LappedKeys(WorldFold fold) {

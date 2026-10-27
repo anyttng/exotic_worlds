@@ -24,7 +24,7 @@ public abstract class WireMeterMixin {
     private double exotic_worlds$dotsOnTheAimedCopy(Vec3 from, Vec3 to, Operation<Double> original,
             @Local(name = "point") NodeConnectionPoint point, @Local(name = "level") Level level,
             @Local(name = "pos1") LocalRef<Vec3> pos1, @Local(name = "pos2") LocalRef<Vec3> pos2) {
-        WireCopies.Span span = WireCopies.around(WorldLoopAttachments.transformerOfReader(level), from, to,
+        WireCopies.Span span = WireCopies.around(WorldLoopAttachments.foldOfReader(level), from, to,
                 point.point(), Minecraft.getInstance().player.position());
         pos1.set(span.pos1());
         pos2.set(span.pos2());

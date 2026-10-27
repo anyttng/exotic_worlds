@@ -81,8 +81,8 @@ public class SerializableChunkDataMixin {
             CompoundTag tag,
             Operation<Map<Structure, LongSet>> original,
             @Local(argsOnly = true) ServerLevel level) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        if (fold == null) {
             return original.call(registryAccess, pos, tag);
         }
 
@@ -102,21 +102,27 @@ public class SerializableChunkDataMixin {
                 continue;
             }
 
-            LongSet kept = new LongOpenHashSet();
-            for (long referenceKey : referenceKeys) {
-                ChunkPos referencePos = new ChunkPos(referenceKey);
-                if (pos.getChessboardDistance(transformer.nearestCopy(pos, referencePos)) > exotic_worlds$MAX_REFERENCE_DISTANCE) {
-                    exotic_worlds$LOGGER.warn(
-                            "Found invalid structure reference [ {} @ {} ] for chunk {}.", structureId, referencePos, pos);
-                    continue;
-                }
-
-                kept.add(referenceKey);
-            }
-
-            references.put(structure, kept);
+            references.put(structure, exotic_worlds$keptReferences(fold, pos, structureId, referenceKeys));
         }
 
         return references;
+    }
+
+    @Unique
+    private static LongSet exotic_worlds$keptReferences(WorldFold fold, ChunkPos pos, ResourceLocation structureId,
+            long[] stored) {
+        LongSet kept = new LongOpenHashSet();
+        for (long referenceKey : stored) {
+            ChunkPos referencePos = new ChunkPos(referenceKey);
+            if (pos.getChessboardDistance(fold.nearestCopy(pos, referencePos)) > exotic_worlds$MAX_REFERENCE_DISTANCE) {
+                exotic_worlds$LOGGER.warn(
+                        "Found invalid structure reference [ {} @ {} ] for chunk {}.", structureId, referencePos, pos);
+                continue;
+            }
+
+            kept.add(referenceKey);
+        }
+
+        return kept;
     }
 }

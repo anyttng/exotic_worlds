@@ -23,7 +23,7 @@ public abstract class SignFacingFrameMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.VECTOR3D_SUB))
     private Vector3d exotic_worlds$playerDeltaThroughSeam(Vector3d playerPosition, Vector3dc center,
             Operation<Vector3d> original) {
-        WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(((BlockEntity) (Object) this).getLevel());
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(((BlockEntity) (Object) this).getLevel());
         if (fold == null) {
             return original.call(playerPosition, center);
         }

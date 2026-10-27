@@ -100,6 +100,13 @@ public record FlatShape(WorldLoopBounds bounds, int skewChunks, @Nullable Mirror
     }
 
     public FlatShape {
+        requireIdentifiable(bounds, skewChunks, mirror);
+        if (skewChunks != 0) {
+            skewChunks = normalizeSkew(skewChunks, ((AxisBounds.Looped) bounds.x()).chunkWidth());
+        }
+    }
+
+    private static void requireIdentifiable(WorldLoopBounds bounds, int skewChunks, @Nullable Mirror mirror) {
         boolean xLooped = bounds.x() instanceof AxisBounds.Looped;
         boolean zLooped = bounds.z() instanceof AxisBounds.Looped;
 
@@ -117,10 +124,6 @@ public record FlatShape(WorldLoopBounds bounds, int skewChunks, @Nullable Mirror
                 throw new IllegalArgumentException("A mirror on " + mirror.axis()
                         + " needs the axis it glides along to loop, got " + bounds);
             }
-        }
-
-        if (skewChunks != 0) {
-            skewChunks = normalizeSkew(skewChunks, ((AxisBounds.Looped) bounds.x()).chunkWidth());
         }
     }
 

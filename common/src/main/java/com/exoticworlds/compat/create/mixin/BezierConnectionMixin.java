@@ -39,32 +39,32 @@ public abstract class BezierConnectionMixin implements BezierCurveFold {
             this.exotic_worlds$dimension = dimension;
         }
 
-        WorldFold transformer = CreateSeamFold.transformerOf(level, this.exotic_worlds$dimension);
-        if (transformer == null) {
+        WorldFold fold = CreateSeamFold.wrappedFoldOf(level, this.exotic_worlds$dimension);
+        if (fold == null) {
             return;
         }
 
-        exotic_worlds$canonicaliseEnd(transformer, true);
-        exotic_worlds$canonicaliseEnd(transformer, false);
+        exotic_worlds$canonicaliseEnd(fold, true);
+        exotic_worlds$canonicaliseEnd(fold, false);
 
         Vec3 ownerCenter = Vec3.atCenterOf(this.bePositions.getFirst());
         Vec3 rawNearEnd = this.starts.getFirst();
-        Vec3 nearEnd = transformer.nearestCopy(ownerCenter, rawNearEnd);
+        Vec3 nearEnd = fold.nearestCopy(ownerCenter, rawNearEnd);
         if (nearEnd != rawNearEnd) {
             this.starts.setFirst(nearEnd);
         }
 
         Vec3 rawFarEnd = this.starts.getSecond();
-        Vec3 farEnd = transformer.nearestCopy(nearEnd, rawFarEnd);
+        Vec3 farEnd = fold.nearestCopy(nearEnd, rawFarEnd);
         if (farEnd != rawFarEnd) {
             this.starts.setSecond(farEnd);
         }
     }
 
     @Unique
-    private void exotic_worlds$canonicaliseEnd(WorldFold transformer, boolean first) {
+    private void exotic_worlds$canonicaliseEnd(WorldFold fold, boolean first) {
         BlockPos rawEnd = this.bePositions.get(first);
-        BlockPos end = transformer.fold(rawEnd);
+        BlockPos end = fold.fold(rawEnd);
         if (end != rawEnd) {
             this.bePositions.set(first, end);
         }

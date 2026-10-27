@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.exoticworlds.accessors.TransformerHolder;
+import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.engine.level.BoundLevelFold;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -88,7 +88,7 @@ public class ServerChunkCacheMixin {
             method = "tickChunks()V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/NaturalSpawner;createState(ILjava/lang/Iterable;Lnet/minecraft/world/level/NaturalSpawner$ChunkGetter;Lnet/minecraft/world/level/LocalMobCapCalculator;)Lnet/minecraft/world/level/NaturalSpawner$SpawnState;"))
     private NaturalSpawner.SpawnState exotic_worlds$bindSpawnPotentialToLevel(NaturalSpawner.SpawnState spawnState) {
-        ((TransformerHolder) spawnState.spawnPotential).exotic_worlds$setTransformer(this.exotic_worlds$bound.fold());
+        ((FoldHolder) spawnState.spawnPotential).exotic_worlds$setFold(this.exotic_worlds$bound.fold());
         return spawnState;
     }
 }

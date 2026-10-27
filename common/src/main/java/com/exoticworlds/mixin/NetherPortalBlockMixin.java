@@ -33,8 +33,8 @@ public class NetherPortalBlockMixin {
             boolean toNether,
             WorldBorder worldBorder,
             Operation<DimensionTransition> original) {
-        WorldFold destination = WorldLoopAttachments.wrappedTransformerOf(newLevel);
-        WorldFold source = WorldLoopAttachments.wrappedTransformerOf(entity.level());
+        WorldFold destination = WorldLoopAttachments.wrappedFoldOf(newLevel);
+        WorldFold source = WorldLoopAttachments.wrappedFoldOf(entity.level());
         if (destination == null || source == null) {
             return original.call(self, newLevel, entity, portalEntryPos, approximateExitPos, toNether, worldBorder);
         }

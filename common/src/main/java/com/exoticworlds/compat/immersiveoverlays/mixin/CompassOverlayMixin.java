@@ -19,7 +19,7 @@ public class CompassOverlayMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/player/LocalPlayer;blockPosition()Lnet/minecraft/core/BlockPos;"))
     private static BlockPos exotic_worlds$showFoldedPosition(BlockPos player) {
-        return CompassOverlayFold.shown(WorldLoopAttachments.transformerOfReader(Minecraft.getInstance().level), player);
+        return CompassOverlayFold.shown(WorldLoopAttachments.foldOfReader(Minecraft.getInstance().level), player);
     }
 
     @ModifyExpressionValue(
@@ -32,7 +32,7 @@ public class CompassOverlayMixin {
             return anchor;
         }
 
-        return CompassOverlayFold.anchor(WorldLoopAttachments.transformerOfReader(minecraft.level),
+        return CompassOverlayFold.anchor(WorldLoopAttachments.foldOfReader(minecraft.level),
                 player.blockPosition(), anchor);
     }
 }

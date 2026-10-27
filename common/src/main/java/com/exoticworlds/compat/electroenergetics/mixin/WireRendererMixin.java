@@ -110,7 +110,7 @@ public abstract class WireRendererMixin {
             @Local(name = "isBlock1Outer") LocalBooleanRef outer1,
             @Local(name = "isBlock2Outer") LocalBooleanRef outer2) {
         int end = SecondEndWire.end(wire);
-        WireCopies.Span span = WireCopies.from(WorldLoopAttachments.transformerOfReader(level), pos1.get(),
+        WireCopies.Span span = WireCopies.from(WorldLoopAttachments.foldOfReader(level), pos1.get(),
                 pos2.get(), end);
         // A moved end's insulator and jumpers belong to the pass from that end, or they join across the world.
         if (end == WireCopies.SECOND_END) {

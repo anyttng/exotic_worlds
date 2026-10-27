@@ -50,7 +50,7 @@ public abstract class PropellerActorBehaviourMixin {
 
         Level level = entity.level();
         Vec3 raw = JomlVectors.read(center);
-        Vec3 seated = WorldLoopAttachments.transformerOfReader(level)
+        Vec3 seated = WorldLoopAttachments.foldOfReader(level)
                 .nearestCopy(ForeignFrames.seatInWorld(level, entity.position()), raw);
         return original.call(entityCenter, seated == raw ? center : JomlVectors.write(seated, new Vector3d()));
     }

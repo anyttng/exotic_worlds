@@ -19,7 +19,7 @@ final class BlendedNoiseFixture {
     private static final double DENSITY_DIVISOR = 128.0;
     private static final double PERMUTATION_SPAN = 256.0;
     private static final int PERMUTATION_SIZE = 256;
-    private static final double UNDECLARED_SHARE = GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE;
+    private static final double UNDECLARED_SHARE = GenerationFoldContext.UNDECLARED_VERTICAL_SHARE;
     private static final long OCTAVE_SEED_STEP = 0x9E3779B97F4A7C15L;
     private static final long MIN_LIMIT_SALT = 1L;
     private static final long MAX_LIMIT_SALT = 101L;
@@ -198,9 +198,9 @@ final class BlendedNoiseFixture {
     static double sample(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold fold, double scale,
             double x, double y, double z, double yScale, double yFudge, double verticalShare, LapFloor floor) {
-        GenerationTransformerContext.Context context = GenerationTransformerContext.context();
+        GenerationFoldContext.Context context = GenerationFoldContext.context();
 
-        try (GenerationTransformerContext.Context.ScaleScope scope = context.withScale(scale, verticalShare)) {
+        try (GenerationFoldContext.Context.ScaleScope scope = context.withScale(scale, verticalShare)) {
             return PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(permutations, xOffset, yOffset, zOffset,
                     fold, context, floor), x, y, z, yScale, yFudge);
         }

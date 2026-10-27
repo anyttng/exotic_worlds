@@ -35,9 +35,9 @@ public class CompassAngleStateMixin {
             return null;
         }
 
-        WorldFold transformer = WorldLoopAttachments.wrappedClientBoundsTransformerOf(owner.level());
+        WorldFold fold = WorldLoopAttachments.wrappedClientBoundsFoldOf(owner.level());
         BlockPos stored = target.pos();
-        BlockPos nearest = NearestCopy.toward(transformer, BlockPos.containing(owner.position()), stored);
+        BlockPos nearest = NearestCopy.toward(fold, BlockPos.containing(owner.position()), stored);
         return nearest == stored ? target : GlobalPos.of(target.dimension(), nearest);
     }
 }

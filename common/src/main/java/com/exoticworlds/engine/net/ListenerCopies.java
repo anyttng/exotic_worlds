@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 
 public final class ListenerCopies {
-    public static List<Vec3> nearestTo(WorldFold transformer, Iterable<ServerPlayer> players, Predicate<ServerPlayer> listening,
+    public static List<Vec3> nearestTo(WorldFold fold, Iterable<ServerPlayer> players, Predicate<ServerPlayer> listening,
             Vec3 source) {
         List<Vec3> copies = new ArrayList<>(1);
         for (ServerPlayer player : players) {
@@ -19,7 +19,7 @@ public final class ListenerCopies {
                 continue;
             }
 
-            Vec3 copy = transformer.nearestCopy(player.getCamera().position(), source);
+            Vec3 copy = fold.nearestCopy(player.getCamera().position(), source);
             if (!copies.contains(copy)) {
                 copies.add(copy);
             }
@@ -28,7 +28,7 @@ public final class ListenerCopies {
         return copies.isEmpty() ? List.of(source) : copies;
     }
 
-    public static List<BlockPos> nearestTo(WorldFold transformer, Iterable<ServerPlayer> players, Predicate<ServerPlayer> listening,
+    public static List<BlockPos> nearestTo(WorldFold fold, Iterable<ServerPlayer> players, Predicate<ServerPlayer> listening,
             BlockPos source) {
         List<BlockPos> copies = new ArrayList<>(1);
         for (ServerPlayer player : players) {
@@ -36,7 +36,7 @@ public final class ListenerCopies {
                 continue;
             }
 
-            BlockPos copy = transformer.nearestCopy(player.blockPosition(), source);
+            BlockPos copy = fold.nearestCopy(player.blockPosition(), source);
             if (!copies.contains(copy)) {
                 copies.add(copy);
             }

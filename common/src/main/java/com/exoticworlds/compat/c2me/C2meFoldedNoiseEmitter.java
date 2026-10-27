@@ -17,7 +17,7 @@ public final class C2meFoldedNoiseEmitter implements BytecodeEmitter<C2meFoldedN
     public static final C2meFoldedNoiseEmitter INSTANCE = new C2meFoldedNoiseEmitter();
 
     private static final String SAMPLE_CLASS = Type.getInternalName(ContextScaledNoise.class);
-    private static final String TRANSFORMER_DESC = Type.getDescriptor(WorldFold.class);
+    private static final String FOLD_DESC = Type.getDescriptor(WorldFold.class);
     private static final String SLOT_AXES_DESC = Type.getDescriptor(SlotAxes.class);
     private static final String NOISE_HOLDER_DESC = Type.getDescriptor(NoiseHolder.class);
 
@@ -102,13 +102,13 @@ public final class C2meFoldedNoiseEmitter implements BytecodeEmitter<C2meFoldedN
     public void doBytecodeGenSingle(C2meFoldedNoiseNode node, BytecodeGen.Context context, InstructionAdapter m,
             BytecodeGen.Context.LocalVarConsumer localVarConsumer) {
         String noiseField = context.newField(NoiseHolder.class, node.noise);
-        String transformerField = context.newField(WorldFold.class, node.transformer);
+        String foldField = context.newField(WorldFold.class, node.worldFold);
         ValuesMethodDefF64 slotXMethod = context.newSingleMethodF64(node.slotX);
         ValuesMethodDefF64 slotYMethod = context.newSingleMethodF64(node.slotY);
         ValuesMethodDefF64 slotZMethod = context.newSingleMethodF64(node.slotZ);
 
         m.load(0, InstructionAdapter.OBJECT_TYPE);
-        m.getfield(context.className, transformerField, TRANSFORMER_DESC);
+        m.getfield(context.className, foldField, FOLD_DESC);
         if (node.warped()) {
             m.load(0, InstructionAdapter.OBJECT_TYPE);
             m.getfield(context.className, noiseField, NOISE_HOLDER_DESC);
@@ -140,7 +140,7 @@ public final class C2meFoldedNoiseEmitter implements BytecodeEmitter<C2meFoldedN
     public void doBytecodeGenMulti(C2meFoldedNoiseNode node, BytecodeGen.Context context, InstructionAdapter m,
             BytecodeGen.Context.LocalVarConsumer localVarConsumer) {
         String noiseField = context.newField(NoiseHolder.class, node.noise);
-        String transformerField = context.newField(WorldFold.class, node.transformer);
+        String foldField = context.newField(WorldFold.class, node.worldFold);
 
         ValuesMethodDefF64 slotXMethod = context.newMultiMethodF64(node.slotX);
         ValuesMethodDefF64 slotYMethod = context.newMultiMethodF64(node.slotY);
@@ -183,7 +183,7 @@ public final class C2meFoldedNoiseEmitter implements BytecodeEmitter<C2meFoldedN
         }
 
         m.load(0, InstructionAdapter.OBJECT_TYPE);
-        m.getfield(context.className, transformerField, TRANSFORMER_DESC);
+        m.getfield(context.className, foldField, FOLD_DESC);
         if (!node.warped()) {
             String slotAxesField = context.newField(SlotAxes.class, node.slotAxes);
             m.load(0, InstructionAdapter.OBJECT_TYPE);

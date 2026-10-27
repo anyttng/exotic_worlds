@@ -15,7 +15,7 @@ import com.exoticworlds.accessors.LevelBindable;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.net.ListenerCopies;
 import com.exoticworlds.engine.net.MeasuredReach;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.seam.SeamSnap;
 import com.exoticworlds.engine.level.SeamRespawnData;
 import com.exoticworlds.core.WorldLoopAttachments;
@@ -73,13 +73,13 @@ public class ServerLevelMixin {
     @WrapMethod(method = "sendParticles(Lnet/minecraft/server/level/ServerPlayer;ZDDDLnet/minecraft/network/protocol/Packet;)Z")
     private boolean exotic_worlds$particlesThroughSeam(ServerPlayer player, boolean overrideLimiter, double x, double y, double z,
             Packet<?> packet, Operation<Boolean> original) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf((ServerLevel) (Object) this);
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf((ServerLevel) (Object) this);
+        if (fold == null) {
             return original.call(player, overrideLimiter, x, y, z, packet);
         }
 
         double range = overrideLimiter ? OVERRIDDEN_PARTICLE_RANGE : PARTICLE_RANGE;
-        Vec3 nearest = transformer.nearestCopy(player.position(), new Vec3(x, y, z));
+        Vec3 nearest = fold.nearestCopy(player.position(), new Vec3(x, y, z));
         try (MeasuredReach ignored = MeasuredReach.measuring(range)) {
             return original.call(player, overrideLimiter, nearest.x, nearest.y, nearest.z, packet);
         }
@@ -101,13 +101,13 @@ public class ServerLevelMixin {
     @WrapMethod(method = "destroyBlockProgress")
     private void exotic_worlds$blockCracksThroughSeam(int id, BlockPos blockPos, int progress, Operation<Void> original) {
         ServerLevel level = (ServerLevel) (Object) this;
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        if (fold == null) {
             original.call(id, blockPos, progress);
             return;
         }
 
-        List<BlockPos> copies = ListenerCopies.nearestTo(transformer, level.getServer().getPlayerList().getPlayers(),
+        List<BlockPos> copies = ListenerCopies.nearestTo(fold, level.getServer().getPlayerList().getPlayers(),
                 player -> player.level() == level && player.getId() != id, blockPos);
         for (BlockPos copy : copies) {
             original.call(id, copy, progress);
@@ -115,9 +115,9 @@ public class ServerLevelMixin {
     }
 
     @WrapMethod(method = "tickPrecipitation")
-    private void exotic_worlds$bindPrecipitationTransformer(BlockPos pos, Operation<Void> original) {
+    private void exotic_worlds$bindPrecipitationFold(BlockPos pos, Operation<Void> original) {
         ServerLevel level = (ServerLevel) (Object) this;
-        GenerationTransformerContext.runWithTransformer(
-                WorldLoopAttachments.transformerOf(level), () -> original.call(pos));
+        GenerationFoldContext.runWithFold(
+                WorldLoopAttachments.foldOf(level), () -> original.call(pos));
     }
 }

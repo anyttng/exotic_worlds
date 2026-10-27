@@ -20,6 +20,6 @@ public abstract class TrainMapSyncMixin {
         }
 
         TrainMapSyncFold.coherent(entry.positions, entry.dimensions,
-                dimension -> CreateSeamFold.transformerOf(null, dimension));
+                dimension -> CreateSeamFold.wrappedFoldOf(null, dimension));
     }
 }

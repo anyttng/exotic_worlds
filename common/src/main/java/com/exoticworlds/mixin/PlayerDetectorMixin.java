@@ -33,7 +33,7 @@ public interface PlayerDetectorMixin {
 
     @WrapMethod(method = "inLineOfSight")
     private static boolean exotic_worlds$sightLineThroughSeam(Level level, Vec3 origin, Vec3 dest, Operation<Boolean> original) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
-        return original.call(level, origin, NearestCopy.toward(transformer, origin, dest));
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        return original.call(level, origin, NearestCopy.toward(fold, origin, dest));
     }
 }

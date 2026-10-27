@@ -16,7 +16,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerHolder;
+import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.compat.electroenergetics.WireBox;
 import com.exoticworlds.compat.electroenergetics.WireBoxJump;
 import com.exoticworlds.compat.electroenergetics.WireSpan;
@@ -42,7 +42,7 @@ public abstract class WireSyncMixin {
     @Inject(method = "handlePlayerEnterNewSection", at = @At("HEAD"))
     private void exotic_worlds$resendAfterAJump(ServerPlayer player, long newPos, CallbackInfo ci) {
         if (loadedChunks.get(player.getUUID()) instanceof WireBox box
-                && WireBoxJump.mayReseat(WorldLoopAttachments.transformerOf(this.level), box.exotic_worlds$center(),
+                && WireBoxJump.mayReseat(WorldLoopAttachments.foldOf(this.level), box.exotic_worlds$center(),
                         box.exotic_worlds$radius(), new ChunkPos(newPos), exotic_worlds$boxRadius(WireSync.getViewDistance()))) {
             this.unloadForPlayer(player);
         }
@@ -56,14 +56,14 @@ public abstract class WireSyncMixin {
 
     @Unique
     private int exotic_worlds$boxRadius(int viewDistance) {
-        return WorldLoopAttachments.transformerOf(this.level).limitViewDistance(viewDistance);
+        return WorldLoopAttachments.foldOf(this.level).limitViewDistance(viewDistance);
     }
 
     @WrapOperation(method = "handlePlayerEnterNewSection",
             at = @At(value = "INVOKE", target = InjectionTargets.MAP_PUT))
     private Object exotic_worlds$bindBoxFold(Map<Object, Object> boxes, Object player, Object box,
             Operation<Object> original) {
-        ((TransformerHolder) box).exotic_worlds$setTransformer(WorldLoopAttachments.transformerOf(this.level));
+        ((FoldHolder) box).exotic_worlds$setFold(WorldLoopAttachments.foldOf(this.level));
         return original.call(boxes, player, box);
     }
 

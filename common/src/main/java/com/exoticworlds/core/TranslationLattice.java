@@ -49,7 +49,7 @@ public final class TranslationLattice {
         return new TranslationLattice(x, z, NO_SKEW);
     }
 
-    public TranslationLattice scaledDown(int bits) {
+    public TranslationLattice scaledDownByBits(int bits) {
         return new TranslationLattice(scaledDomain(this.x, bits), scaledDomain(this.z, bits), this.skew >> bits);
     }
 

@@ -14,7 +14,7 @@ public final class CreateContraptionFold {
     }
 
     public static double axisInFrameOf(Entity entity, Direction.Axis axis, double canonicalCoord) {
-        return axisInFrameOf(WorldLoopAttachments.transformerOfReader(entity.level()), entity.position(), axis,
+        return axisInFrameOf(WorldLoopAttachments.foldOfReader(entity.level()), entity.position(), axis,
                 canonicalCoord);
     }
 

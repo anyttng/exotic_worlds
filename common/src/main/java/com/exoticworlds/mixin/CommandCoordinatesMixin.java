@@ -31,12 +31,12 @@ public class CommandCoordinatesMixin {
     @Inject(method = "getPosition", at = @At("HEAD"))
     private void exotic_worlds$refuseCoordinateOutsideWorld(CommandSourceStack source, CallbackInfoReturnable<Vec3> cir)
             throws CommandSyntaxException {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(source.getLevel());
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(source.getLevel());
+        if (fold == null) {
             return;
         }
 
-        SeamCommandErrors.requireInsideWorld(transformer, Direction.Axis.X, this.x);
-        SeamCommandErrors.requireInsideWorld(transformer, Direction.Axis.Z, this.z);
+        SeamCommandErrors.requireInsideWorld(fold, Direction.Axis.X, this.x);
+        SeamCommandErrors.requireInsideWorld(fold, Direction.Axis.Z, this.z);
     }
 }

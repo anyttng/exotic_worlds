@@ -30,7 +30,7 @@ public class AntiqueMapHolderSeatMixin {
 
     @Unique
     private static Vec3 exotic_worlds$seated(MapItemSavedData data, Entity holder, double x, double z) {
-        return WorldLoopAttachments.transformerOf(holder.level())
+        return WorldLoopAttachments.foldOf(holder.level())
                 .nearestCopy(new Vec3(data.centerX, 0.0, data.centerZ), new Vec3(x, holder.getY(), z));
     }
 }

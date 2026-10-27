@@ -6,7 +6,7 @@ import com.exoticworlds.compat.c2me.C2meAquifer;
 import com.exoticworlds.compat.immersiveportals.ImmersivePortalsMod;
 import com.exoticworlds.compat.sable.SableMod;
 
-public class ToroidalMixinPlugin extends MixinGatePlugin {
+public class ExoticWorldsMixinPlugin extends MixinGatePlugin {
     private static final String AQUIFER_SEAM_MIXIN = "com.exoticworlds.mixin.AquiferSeamMixin";
 
     private static final String PARROT_MIXIN = "com.exoticworlds.mixin.ParrotMixin";

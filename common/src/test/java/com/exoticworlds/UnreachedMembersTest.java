@@ -72,7 +72,7 @@ class UnreachedMembersTest {
             "compat.reterraforged.LapCarrier.exotic_worlds$fold");
     private static final Set<String> MAIN_FORM_FOR_SHARED_TESTS = Set.of(
             "core.DeckGroupFold.<init>",
-            "core.WorldLoopTransformer.<init>",
+            "core.WorldLoopFold.<init>",
             "engine.net.TranslationContext.toClientRelative",
             "engine.seam.SeamRange.closerThan");
     private static final Set<String> READ_BY_HARNESS = Set.of(

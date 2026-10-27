@@ -30,7 +30,7 @@ public final class BoundLevelFold {
             return WorldFolds.NOOP;
         }
 
-        fold = WorldLoopAttachments.transformerOf(level);
+        fold = WorldLoopAttachments.foldOf(level);
         this.fold = fold;
         return fold;
     }

@@ -193,16 +193,16 @@ public final class RecordPayloadFold {
 
         private final String[] names;
 
-        private final boolean[] positions;
+        private final boolean[] positional;
 
         private final AtomicBoolean refusalLogged = new AtomicBoolean();
 
         private Form(@Nullable MethodHandle constructor, MethodHandle[] accessors, String[] names,
-                boolean[] positions) {
+                boolean[] positional) {
             this.constructor = constructor;
             this.accessors = accessors;
             this.names = names;
-            this.positions = positions;
+            this.positional = positional;
         }
 
         boolean carriesPositions() {
@@ -213,7 +213,7 @@ public final class RecordPayloadFold {
             Role[] roles = new Role[names.length];
             List<String> declared = List.of(names);
             for (int index = 0; index < names.length; index++) {
-                roles[index] = positions[index] ? Role.WORLD : Role.UNTOUCHED;
+                roles[index] = positional[index] ? Role.WORLD : Role.UNTOUCHED;
             }
 
             List<String> missing = new ArrayList<>();
@@ -240,17 +240,22 @@ public final class RecordPayloadFold {
             }
 
             RecordComponent[] components = type.getRecordComponents();
-            boolean[] positions = new boolean[components.length];
+            boolean[] positional = positionalOf(components);
+            return positional == null ? POSITIONLESS : reachable(type, components, positional);
+        }
+
+        private static boolean @Nullable [] positionalOf(RecordComponent[] components) {
+            boolean[] positional = new boolean[components.length];
             boolean carries = false;
             for (int index = 0; index < components.length; index++) {
-                positions[index] = carriesPosition(components[index].getGenericType(), new HashSet<>());
-                carries |= positions[index];
+                positional[index] = carriesPosition(components[index].getGenericType(), new HashSet<>());
+                carries |= positional[index];
             }
 
-            if (!carries) {
-                return POSITIONLESS;
-            }
+            return carries ? positional : null;
+        }
 
+        private static Form reachable(Class<?> type, RecordComponent[] components, boolean[] positional) {
             try {
                 MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(type, MethodHandles.lookup());
                 MethodHandle[] accessors = new MethodHandle[components.length];
@@ -265,7 +270,7 @@ public final class RecordPayloadFold {
                 MethodHandle constructor = lookup.findConstructor(type, MethodType.methodType(void.class, parameterTypes))
                         .asSpreader(Object[].class, components.length)
                         .asType(CONSTRUCTOR_TYPE);
-                return new Form(constructor, accessors, names, positions);
+                return new Form(constructor, accessors, names, positional);
             } catch (IllegalAccessException | NoSuchMethodException e) {
                 LOGGER.warn("Record payload {} carries a world position, but its components cannot be reached ({});"
                         + " its positions cross the seam unfolded", type.getName(), e.toString());
@@ -277,7 +282,7 @@ public final class RecordPayloadFold {
             return rebuiltFrom(instance, values -> {
                 for (int index = 0; index < values.length; index++) {
                     Object value = values[index];
-                    if (positions[index] && value != null) {
+                    if (positional[index] && value != null) {
                         values[index] = fold.apply(value);
                     }
                 }
@@ -292,19 +297,10 @@ public final class RecordPayloadFold {
             }
 
             try {
-                Object[] values = new Object[accessors.length];
-                for (int index = 0; index < accessors.length; index++) {
-                    values[index] = (Object) accessors[index].invokeExact((Object) instance);
-                }
-
+                Object[] values = valuesOf(instance);
                 Object[] foldedValues = values.clone();
                 fold.accept(foldedValues);
-                boolean changed = false;
-                for (int index = 0; index < values.length; index++) {
-                    changed |= foldedValues[index] != values[index];
-                }
-
-                if (!changed) {
+                if (!anyChanged(values, foldedValues)) {
                     return instance;
                 }
 
@@ -320,6 +316,25 @@ public final class RecordPayloadFold {
 
                 return instance;
             }
+        }
+
+        private Object[] valuesOf(Object instance) throws Throwable {
+            Object[] values = new Object[accessors.length];
+            for (int index = 0; index < accessors.length; index++) {
+                values[index] = (Object) accessors[index].invokeExact(instance);
+            }
+
+            return values;
+        }
+
+        private static boolean anyChanged(Object[] values, Object[] foldedValues) {
+            for (int index = 0; index < values.length; index++) {
+                if (foldedValues[index] != values[index]) {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 

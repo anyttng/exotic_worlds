@@ -30,6 +30,6 @@ public abstract class TrainMapSyncEntryMixin {
     private void exotic_worlds$carryPreviousAcrossSeam(TrainMapSync.TrainMapSyncEntry other, boolean light,
             CallbackInfo ci) {
         TrainMapSyncFold.rebaseOnto(this.prevPositions, this.positions, this.dimensions,
-                TrainMapFrame::transformerOf);
+                TrainMapFrame::wrappedFoldOf);
     }
 }

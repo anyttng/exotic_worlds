@@ -24,7 +24,7 @@ public class LevitationBoundsMixin {
             double referenceX, double referenceY, double referenceZ,
             double measuredX, double measuredY, double measuredZ,
             Operation<Boolean> original, @Local(argsOnly = true) ServerPlayer player) {
-        Vec3 folded = WorldLoopAttachments.transformerOf(player.level()).nearestCopy(
+        Vec3 folded = WorldLoopAttachments.foldOf(player.level()).nearestCopy(
                 new Vec3(referenceX, referenceY, referenceZ),
                 new Vec3(measuredX, measuredY, measuredZ));
         return original.call(bounds, referenceX, referenceY, referenceZ, folded.x, folded.y, folded.z);

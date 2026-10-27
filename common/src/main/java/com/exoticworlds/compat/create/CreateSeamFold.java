@@ -25,7 +25,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public final class CreateSeamFold {
-    public static @Nullable WorldFold transformerOf(@Nullable Level level,
+    public static @Nullable WorldFold wrappedFoldOf(@Nullable Level level,
             @Nullable ResourceKey<Level> dimension) {
         WorldFold fold = foldOf(level, dimension);
         return fold.isWrapped() ? fold : null;
@@ -33,7 +33,7 @@ public final class CreateSeamFold {
 
     public static WorldFold foldOf(@Nullable Level level, @Nullable ResourceKey<Level> dimension) {
         if (level != null) {
-            return WorldLoopAttachments.transformerOfReader(level);
+            return WorldLoopAttachments.foldOfReader(level);
         }
 
         if (dimension == null) {
@@ -45,7 +45,7 @@ public final class CreateSeamFold {
             return clientFoldOf(dimension);
         }
 
-        return WorldLoopAttachments.transformerIfLevel(server.getLevel(dimension));
+        return WorldLoopAttachments.foldIfLevel(server.getLevel(dimension));
     }
 
     private static WorldFold clientFoldOf(ResourceKey<Level> dimension) {
@@ -54,7 +54,7 @@ public final class CreateSeamFold {
             return WorldFolds.NOOP;
         }
 
-        return WorldLoopAttachments.transformerOfReader(clientLevel);
+        return WorldLoopAttachments.foldOfReader(clientLevel);
     }
 
     public static BlockPos foldDelta(@Nullable Level level, Vec3i anchor, BlockPos target, BlockPos rawDelta) {
@@ -70,7 +70,7 @@ public final class CreateSeamFold {
             return rawFarEnd;
         }
 
-        return farEndDelta(WorldLoopAttachments.transformerOfReader(level), anchor, delta, rawFarEnd);
+        return farEndDelta(WorldLoopAttachments.foldOfReader(level), anchor, delta, rawFarEnd);
     }
 
     public static BlockPos worldSeat(@Nullable Level level, BlockPos stored) {
@@ -83,28 +83,28 @@ public final class CreateSeamFold {
     }
 
     public static BlockPos nearestCopy(@Nullable Level level, Vec3i anchor, BlockPos target) {
-        return nearest(transformerOf(level, null), asBlockPos(anchor), target);
+        return nearest(wrappedFoldOf(level, null), asBlockPos(anchor), target);
     }
 
     public static Vec3 nearestCopy(@Nullable Level level, Vec3 anchor, Vec3 target) {
-        return nearestCopy(transformerOf(level, null), anchor, target);
+        return nearestCopy(wrappedFoldOf(level, null), anchor, target);
     }
 
     public static Vec3 nearestCopy(@Nullable ResourceKey<Level> dimension, Vec3 anchor, Vec3 target) {
-        return nearestCopy(transformerOf(null, dimension), anchor, target);
+        return nearestCopy(wrappedFoldOf(null, dimension), anchor, target);
     }
 
     public static Vec3 nearestCopy(@Nullable Level level, @Nullable ResourceKey<Level> dimension, Vec3 anchor,
             Vec3 target) {
-        return nearestCopy(transformerOf(level, dimension), anchor, target);
+        return nearestCopy(wrappedFoldOf(level, dimension), anchor, target);
     }
 
-    private static Vec3 nearestCopy(@Nullable WorldFold transformer, Vec3 anchor, Vec3 target) {
-        return NearestCopy.toward(transformer, anchor, target);
+    private static Vec3 nearestCopy(@Nullable WorldFold fold, Vec3 anchor, Vec3 target) {
+        return NearestCopy.toward(fold, anchor, target);
     }
 
     public static DeckTransformation nearestCopyTransformation(@Nullable Level level, Vec3 anchor, Vec3 target) {
-        return NearestCopy.transformationToward(transformerOf(level, null), anchor, target);
+        return NearestCopy.transformationToward(wrappedFoldOf(level, null), anchor, target);
     }
 
     public static BlockPos foldPositionToBox(@Nullable Level level, BoundingBox box, Vec3i position) {
@@ -116,16 +116,16 @@ public final class CreateSeamFold {
         return foldPositionToBox(WorldLoopAttachments.wrappedTransformerOfReader(level), box, block);
     }
 
-    static BlockPos foldPositionToBox(@Nullable WorldFold transformer, BoundingBox box, BlockPos position) {
-        return nearest(transformer, box.getCenter(), position);
+    static BlockPos foldPositionToBox(@Nullable WorldFold fold, BoundingBox box, BlockPos position) {
+        return nearest(fold, box.getCenter(), position);
     }
 
     public static Vec3 foldPointToBox(@Nullable Level level, AABB box, Vec3 point) {
         return NearestCopy.toward(WorldLoopAttachments.wrappedTransformerOfReader(level), box.getCenter(), point);
     }
 
-    public static Vec3 inFrameOf(WorldFold transformer, Vec3 viewer, Vec3 anchor, Vec3 point) {
-        return CreateFrameSeat.of(transformer, viewer, anchor).apply(point);
+    public static Vec3 inFrameOf(WorldFold fold, Vec3 viewer, Vec3 anchor, Vec3 point) {
+        return CreateFrameSeat.of(fold, viewer, anchor).apply(point);
     }
 
     public static BlockHitResult canonical(@Nullable ServerLevel level, BlockHitResult hit) {
@@ -133,12 +133,12 @@ public final class CreateSeamFold {
             return hit;
         }
 
-        return canonical(WorldLoopAttachments.transformerOf(level), hit);
+        return canonical(WorldLoopAttachments.foldOf(level), hit);
     }
 
-    static BlockHitResult canonical(WorldFold transformer, BlockHitResult hit) {
+    static BlockHitResult canonical(WorldFold fold, BlockHitResult hit) {
         BlockPos raw = hit.getBlockPos();
-        BlockPos wrapped = transformer.fold(raw);
+        BlockPos wrapped = fold.fold(raw);
         if (wrapped.equals(raw)) {
             return hit;
         }
@@ -155,11 +155,11 @@ public final class CreateSeamFold {
     }
 
     public static BlockPos canonical(@Nullable ServerLevel level, BlockPos position) {
-        return WorldLoopAttachments.transformerOfReader(level).fold(position);
+        return WorldLoopAttachments.foldOfReader(level).fold(position);
     }
 
     public static Vec3 canonical(@Nullable ServerLevel level, Vec3 position) {
-        return WorldLoopAttachments.transformerOfReader(level).fold(position);
+        return WorldLoopAttachments.foldOfReader(level).fold(position);
     }
 
     public static BlockPos canonicalOnServer(@Nullable BlockGetter level, BlockPos position) {
@@ -184,9 +184,9 @@ public final class CreateSeamFold {
         return foldOf(null, dimension).fold(position);
     }
 
-    static BlockPos delta(@Nullable WorldFold transformer, BlockPos anchor, BlockPos target,
+    static BlockPos delta(@Nullable WorldFold fold, BlockPos anchor, BlockPos target,
             BlockPos rawDelta) {
-        BlockPos nearest = nearest(transformer, anchor, target);
+        BlockPos nearest = nearest(fold, anchor, target);
         if (nearest.equals(target)) {
             return rawDelta;
         }
@@ -194,10 +194,10 @@ public final class CreateSeamFold {
         return nearest.subtract(anchor);
     }
 
-    static BlockPos farEndDelta(WorldFold transformer, BlockPos anchor, BlockPos delta,
+    static BlockPos farEndDelta(WorldFold fold, BlockPos anchor, BlockPos delta,
             BlockPos rawFarEnd) {
-        BlockPos farEnd = transformer.fold(anchor.offset(delta));
-        BlockPos nearestAnchor = nearest(transformer, farEnd, anchor);
+        BlockPos farEnd = fold.fold(anchor.offset(delta));
+        BlockPos nearestAnchor = nearest(fold, farEnd, anchor);
         if (nearestAnchor.equals(anchor)) {
             return rawFarEnd;
         }
@@ -205,8 +205,8 @@ public final class CreateSeamFold {
         return nearestAnchor.subtract(farEnd);
     }
 
-    static BlockPos nearest(@Nullable WorldFold transformer, BlockPos anchor, BlockPos target) {
-        return NearestCopy.toward(transformer, anchor, target);
+    static BlockPos nearest(@Nullable WorldFold fold, BlockPos anchor, BlockPos target) {
+        return NearestCopy.toward(fold, anchor, target);
     }
 
     public static BlockPos asBlockPos(Vec3i position) {

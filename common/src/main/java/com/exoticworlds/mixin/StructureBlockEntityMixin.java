@@ -18,12 +18,12 @@ public class StructureBlockEntityMixin {
     @ModifyReturnValue(method = "getRelatedCorners", at = @At("RETURN"))
     private Stream<BlockPos> exotic_worlds$cornersInOwnFrame(Stream<BlockPos> corners) {
         BlockEntity self = (BlockEntity) (Object) this;
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(self.getLevel());
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(self.getLevel());
+        if (fold == null) {
             return corners;
         }
 
         BlockPos anchor = self.getBlockPos();
-        return corners.map(corner -> transformer.nearestCopy(anchor, corner));
+        return corners.map(corner -> fold.nearestCopy(anchor, corner));
     }
 }

@@ -39,6 +39,6 @@ public abstract class RedstoneUtilMixin {
 
     @Unique
     private static Object exotic_worlds$canonical(ServerLevel level, Object pos) {
-        return pos instanceof BlockPos block ? WorldLoopAttachments.transformerOf(level).fold(block) : pos;
+        return pos instanceof BlockPos block ? WorldLoopAttachments.foldOf(level).fold(block) : pos;
     }
 }

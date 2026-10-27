@@ -2,7 +2,7 @@ package com.exoticworlds.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -17,12 +17,12 @@ public class PlayerMixin {
     @WrapMethod(method = "canInteractWithBlock")
     private boolean exotic_worlds$wrappedBlockReach(BlockPos pos, double buffer, Operation<Boolean> original) {
         Player player = (Player) (Object) this;
-        WorldFold transformer = ((TransformerSource) player).exotic_worlds$wrappedTransformer();
-        if (transformer == null) {
+        WorldFold fold = ((FoldSource) player).exotic_worlds$wrappedFold();
+        if (fold == null) {
             return original.call(pos, buffer);
         }
 
-        return original.call(transformer.nearestCopy(player.blockPosition(), pos), buffer);
+        return original.call(fold.nearestCopy(player.blockPosition(), pos), buffer);
     }
 
     @WrapMethod(method = "canInteractWithEntity(Lnet/minecraft/world/phys/AABB;D)Z")

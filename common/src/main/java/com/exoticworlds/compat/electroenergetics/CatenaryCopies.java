@@ -11,16 +11,16 @@ import net.minecraft.world.level.LevelReader;
 
 public final class CatenaryCopies {
     public static boolean parted(LevelReader level, CatenaryConnection line) {
-        return WireCopies.parted(WorldLoopAttachments.transformerOfReader(level), line.pos1(), line.pos2());
+        return WireCopies.parted(WorldLoopAttachments.foldOfReader(level), line.pos1(), line.pos2());
     }
 
     public static CatenaryConnection from(LevelReader level, CatenaryConnection line, int end) {
-        WorldFold fold = WorldLoopAttachments.transformerOfReader(level);
+        WorldFold fold = WorldLoopAttachments.foldOfReader(level);
         return WireCopies.parted(fold, line.pos1(), line.pos2()) ? seated(fold, line, end) : line;
     }
 
     public static List<CatenaryConnection> fromEachEnd(LevelReader level, List<CatenaryConnection> lines) {
-        WorldFold fold = WorldLoopAttachments.transformerOfReader(level);
+        WorldFold fold = WorldLoopAttachments.foldOfReader(level);
         List<CatenaryConnection> copies = null;
         for (int i = 0; i < lines.size(); i++) {
             CatenaryConnection line = lines.get(i);
@@ -35,7 +35,7 @@ public final class CatenaryCopies {
     }
 
     public static List<CatenaryConnection> inOnePiece(LevelReader level, List<CatenaryConnection> lines) {
-        WorldFold fold = WorldLoopAttachments.transformerOfReader(level);
+        WorldFold fold = WorldLoopAttachments.foldOfReader(level);
         List<CatenaryConnection> pieces = null;
         for (int i = 0; i < lines.size(); i++) {
             CatenaryConnection line = lines.get(i);

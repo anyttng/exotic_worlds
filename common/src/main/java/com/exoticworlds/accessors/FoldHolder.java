@@ -3,11 +3,11 @@ package com.exoticworlds.accessors;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 
-public interface TransformerHolder {
-    default WorldFold exotic_worlds$transformer() {
+public interface FoldHolder {
+    default WorldFold exotic_worlds$fold() {
         return WorldFolds.NOOP;
     }
 
-    default void exotic_worlds$setTransformer(WorldFold transformer) {
+    default void exotic_worlds$setFold(WorldFold fold) {
     }
 }

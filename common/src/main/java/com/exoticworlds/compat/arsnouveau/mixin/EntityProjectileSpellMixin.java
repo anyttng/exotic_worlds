@@ -28,6 +28,6 @@ public abstract class EntityProjectileSpellMixin {
 
     @Unique
     private BlockPos exotic_worlds$canonical(Object hitBlock) {
-        return WorldLoopAttachments.transformerOf(((Entity) (Object) this).level()).fold((BlockPos) hitBlock);
+        return WorldLoopAttachments.foldOf(((Entity) (Object) this).level()).fold((BlockPos) hitBlock);
     }
 }

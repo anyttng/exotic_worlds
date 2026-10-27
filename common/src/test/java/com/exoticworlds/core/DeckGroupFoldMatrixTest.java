@@ -257,7 +257,7 @@ class DeckGroupFoldMatrixTest {
         for (Case testCase : decomposableCases()) {
             built.add(
                     new Subject(testCase.name() + ", per-axis",
-                            new WorldLoopTransformer(testCase.shape().bounds(), GenerationOptions.DEFAULT)));
+                            new WorldLoopFold(testCase.shape().bounds(), GenerationOptions.DEFAULT)));
         }
 
         return built;
@@ -1192,10 +1192,10 @@ class DeckGroupFoldMatrixTest {
     @Nested
     class PerAxisAgreement {
         @Test
-        void theDecomposableShapesAgreeWithThePerAxisTransformerOnBoundsQueries() {
+        void theDecomposableShapesAgreeWithThePerAxisFoldOnBoundsQueries() {
             for (Case testCase : decomposableCases()) {
                 DeckGroupFold generic = testCase.fold();
-                WorldFold perAxis = new WorldLoopTransformer(testCase.shape().bounds(), GenerationOptions.DEFAULT);
+                WorldFold perAxis = new WorldLoopFold(testCase.shape().bounds(), GenerationOptions.DEFAULT);
                 Random random = new Random(SEED + 18);
                 for (int sample = 0; sample < SAMPLES; sample++) {
                     BlockPos block = new BlockPos(sample(random), 64, sample(random));
@@ -1214,10 +1214,10 @@ class DeckGroupFoldMatrixTest {
         }
 
         @Test
-        void theDecomposableShapesAgreeWithThePerAxisTransformer() {
+        void theDecomposableShapesAgreeWithThePerAxisFold() {
             for (Case testCase : decomposableCases()) {
                 DeckGroupFold generic = testCase.fold();
-                WorldFold perAxis = new WorldLoopTransformer(testCase.shape().bounds(), GenerationOptions.DEFAULT);
+                WorldFold perAxis = new WorldLoopFold(testCase.shape().bounds(), GenerationOptions.DEFAULT);
                 Random random = new Random(SEED + 14);
                 for (int sample = 0; sample < SAMPLES; sample++) {
                     BlockPos ref = new BlockPos(sample(random), 64, sample(random));
@@ -1255,10 +1255,10 @@ class DeckGroupFoldMatrixTest {
         }
 
         @Test
-        void theDecomposableShapesAgreeWithThePerAxisTransformerOnTheReseat() {
+        void theDecomposableShapesAgreeWithThePerAxisFoldOnTheReseat() {
             for (Case testCase : decomposableCases()) {
                 DeckGroupFold generic = testCase.fold();
-                WorldFold perAxis = new WorldLoopTransformer(testCase.shape().bounds(), GenerationOptions.DEFAULT);
+                WorldFold perAxis = new WorldLoopFold(testCase.shape().bounds(), GenerationOptions.DEFAULT);
                 Random random = new Random(SEED + 21);
                 for (int sample = 0; sample < SAMPLES; sample++) {
                     int x = sample(random);
@@ -1278,7 +1278,7 @@ class DeckGroupFoldMatrixTest {
                 ChunkPos chunk = new ChunkPos(MIN_CHUNK, MIN_CHUNK);
                 ChunkPos neighbor = new ChunkPos(MIN_CHUNK + 1, MIN_CHUNK);
                 assertThrows(IllegalArgumentException.class, () -> perAxis.deckTransformation(chunk, neighbor),
-                        testCase.name() + ": the per-axis transformer accepted a neighboring chunk as a copy");
+                        testCase.name() + ": the per-axis fold accepted a neighboring chunk as a copy");
             }
         }
 

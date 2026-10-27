@@ -36,7 +36,7 @@ public final class EndTerrainLap {
     }
 
     public static void capture(ServerLevel level) {
-        WorldFold fold = ShapedChunkGenerator.wrappedTransformerOf(level.getChunkSource().getGenerator());
+        WorldFold fold = ShapedChunkGenerator.wrappedFoldOf(level.getChunkSource().getGenerator());
         OpenSimplexNoise first = TerrainGeneratorAccessor.exotic_worlds$noise1();
         OpenSimplexNoise second = TerrainGeneratorAccessor.exotic_worlds$noise2();
         current = fold == null || first == null || second == null

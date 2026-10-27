@@ -12,34 +12,34 @@ import net.minecraft.world.phys.Vec3;
 
 public final class CreateStationMapFold {
     public static BlockPos canonicalTarget(ResourceKey<Level> dimension, BlockPos target) {
-        WorldFold transformer = transformerFor(dimension);
-        return transformer == null ? target : canonicalTarget(transformer, target);
+        WorldFold fold = foldFor(dimension);
+        return fold == null ? target : canonicalTarget(fold, target);
     }
 
-    public static BlockPos canonicalTarget(WorldFold transformer, BlockPos target) {
-        return transformer.fold(target);
+    public static BlockPos canonicalTarget(WorldFold fold, BlockPos target) {
+        return fold.fold(target);
     }
 
     public static BlockPos targetInMapFrame(ResourceKey<Level> dimension, int centerX, int centerZ, BlockPos target) {
-        return targetInMapFrame(transformerFor(dimension), centerX, centerZ, target);
+        return targetInMapFrame(foldFor(dimension), centerX, centerZ, target);
     }
 
-    public static BlockPos targetInMapFrame(@Nullable WorldFold transformer, int centerX, int centerZ,
+    public static BlockPos targetInMapFrame(@Nullable WorldFold fold, int centerX, int centerZ,
             BlockPos target) {
-        return NearestCopy.toward(transformer, new BlockPos(centerX, target.getY(), centerZ), target);
+        return NearestCopy.toward(fold, new BlockPos(centerX, target.getY(), centerZ), target);
     }
 
     public static Vec3 centerInMapFrame(ResourceKey<Level> dimension, int centerX, int centerZ, double x, double z) {
-        return centerInMapFrame(transformerFor(dimension), centerX, centerZ, x, z);
+        return centerInMapFrame(foldFor(dimension), centerX, centerZ, x, z);
     }
 
-    public static Vec3 centerInMapFrame(@Nullable WorldFold transformer, int centerX, int centerZ, double x,
+    public static Vec3 centerInMapFrame(@Nullable WorldFold fold, int centerX, int centerZ, double x,
             double z) {
-        return NearestCopy.toward(transformer, new Vec3(centerX, 0.0, centerZ), new Vec3(x, 0.0, z));
+        return NearestCopy.toward(fold, new Vec3(centerX, 0.0, centerZ), new Vec3(x, 0.0, z));
     }
 
-    private static @Nullable WorldFold transformerFor(ResourceKey<Level> dimension) {
-        return CreateSeamFold.transformerOf(null, dimension);
+    private static @Nullable WorldFold foldFor(ResourceKey<Level> dimension) {
+        return CreateSeamFold.wrappedFoldOf(null, dimension);
     }
 
     private CreateStationMapFold() {

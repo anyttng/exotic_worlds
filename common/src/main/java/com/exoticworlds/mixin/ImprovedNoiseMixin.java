@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.Unique;
 import com.exoticworlds.accessors.IndexableNoise;
 import com.exoticworlds.accessors.WrappedImprovedNoise;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.PeriodicLattices;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -39,7 +39,7 @@ public class ImprovedNoiseMixin implements IndexableNoise, WrappedImprovedNoise 
 
     @WrapMethod(method = "noise(DDDDD)D")
     private double exotic_worlds$periodicNoise(double x, double y, double z, double yScale, double yFudge, Operation<Double> original) {
-        Context context = GenerationTransformerContext.wrappedContext();
+        Context context = GenerationFoldContext.wrappedContext();
         if (context == null) {
             return original.call(x, y, z, yScale, yFudge);
         }
@@ -50,14 +50,14 @@ public class ImprovedNoiseMixin implements IndexableNoise, WrappedImprovedNoise 
     @Override
     public double exotic_worlds$sampleWrapped(Context context, double x, double y, double z, double yScale,
             double yFudge) {
-        return this.exotic_worlds$lattices.sample(this.p, this.xo, this.yo, this.zo, context.transformer(),
+        return this.exotic_worlds$lattices.sample(this.p, this.xo, this.yo, this.zo, context.fold(),
                 context, x, y, z, yScale, yFudge);
     }
 
     @Override
     public boolean exotic_worlds$indexable(Context context) {
-        WorldFold transformer = context.wrappedTransformer();
-        return transformer == null
-                || this.exotic_worlds$lattices.indexable(this.p, this.xo, this.yo, this.zo, transformer, context);
+        WorldFold fold = context.wrappedFold();
+        return fold == null
+                || this.exotic_worlds$lattices.indexable(this.p, this.xo, this.yo, this.zo, fold, context);
     }
 }
