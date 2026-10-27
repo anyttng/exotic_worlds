@@ -24,22 +24,15 @@ class ChunkViewSweepTest {
             WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(MAX_CHUNK - MIN_CHUNK + 1)));
 
     private static final int VIEW_DISTANCE = 8;
-    private static final int VIEW_SPAN = 2 * (VIEW_DISTANCE + 1) + 1;
 
     @Test
-    void aPairTheFoldCannotRelateSweepsTheSameAtAnyDistance() {
-        long near = sweepAlongTheUnboundedAxis(1_250_000).positions();
-        long far = sweepAlongTheUnboundedAxis(2_500_000).positions();
+    void aPairTheFoldCannotRelateSweepsEachViewAloneAtAnyDistance() {
+        for (int chunksAway : new int[] {1_250_000, 2_500_000}) {
+            ChunkViewSweep sweep = sweepAlongTheUnboundedAxis(chunksAway);
 
-        assertEquals(near, far, () -> "swept " + near + " positions at one distance and " + far + " at twice it");
-    }
-
-    @Test
-    void aPairTheFoldCannotRelateStaysInsideViewDistance() {
-        long swept = sweepAlongTheUnboundedAxis(1_250_000).positions();
-        long bound = 2L * VIEW_SPAN * VIEW_SPAN;
-
-        assertTrue(swept <= bound, () -> "swept " + swept + " positions where " + bound + " covers both views");
+            assertTrue(sweep instanceof ChunkViewSweep.EachAlone,
+                    () -> "planned " + sweep + " for a pair " + chunksAway + " chunks apart");
+        }
     }
 
     @Test
