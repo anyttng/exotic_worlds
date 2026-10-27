@@ -3,7 +3,7 @@ package com.exoticworlds.core;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.ClientBoundsHolder;
-import com.exoticworlds.accessors.TransformerCache;
+import com.exoticworlds.accessors.FoldCache;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
@@ -14,39 +14,39 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 
 public final class WorldLoopAttachments {
-    public static WorldFold transformerOf(Level level) {
-        return ((TransformerCache) level).exotic_worlds$transformer();
+    public static WorldFold foldOf(Level level) {
+        return ((FoldCache) level).exotic_worlds$fold();
     }
 
-    public static WorldFold transformerIfLevel(@Nullable LevelHeightAccessor accessor) {
-        return accessor instanceof Level level ? transformerOf(level) : WorldFolds.NOOP;
+    public static WorldFold foldIfLevel(@Nullable LevelHeightAccessor accessor) {
+        return accessor instanceof Level level ? foldOf(level) : WorldFolds.NOOP;
     }
 
-    public static @Nullable WorldFold wrappedTransformerOf(@Nullable Level level) {
+    public static @Nullable WorldFold wrappedFoldOf(@Nullable Level level) {
         if (level == null) {
             return null;
         }
 
-        WorldFold transformer = transformerOf(level);
-        return transformer.isWrapped() ? transformer : null;
+        WorldFold fold = foldOf(level);
+        return fold.isWrapped() ? fold : null;
     }
 
-    public static @Nullable WorldFold wrappedTransformerOf(
+    public static @Nullable WorldFold wrappedFoldOf(
             @Nullable MinecraftServer server, ResourceKey<Level> dimension) {
-        return server != null ? wrappedTransformerOf(server.getLevel(dimension)) : null;
+        return server != null ? wrappedFoldOf(server.getLevel(dimension)) : null;
     }
 
-    public static WorldFold clientBoundsTransformerOf(Level level) {
+    public static WorldFold clientBoundsFoldOf(Level level) {
         return level instanceof ClientBoundsHolder holder ? holder.exotic_worlds$clientBounds() : WorldFolds.NOOP;
     }
 
-    public static @Nullable WorldFold wrappedClientBoundsTransformerOf(@Nullable Level level) {
+    public static @Nullable WorldFold wrappedClientBoundsFoldOf(@Nullable Level level) {
         if (level == null) {
             return null;
         }
 
-        WorldFold transformer = clientBoundsTransformerOf(level);
-        return transformer.isWrapped() ? transformer : null;
+        WorldFold fold = clientBoundsFoldOf(level);
+        return fold.isWrapped() ? fold : null;
     }
 
     private static @Nullable Level levelOf(@Nullable LevelReader reader) {
@@ -57,23 +57,23 @@ public final class WorldLoopAttachments {
         return reader != null ? serverLevelOf(reader) : null;
     }
 
-    public static WorldFold transformerOfReader(@Nullable LevelReader reader) {
+    public static WorldFold foldOfReader(@Nullable LevelReader reader) {
         Level level = levelOf(reader);
         if (level == null) {
             return WorldFolds.NOOP;
         }
 
-        WorldFold clientBounds = wrappedClientBoundsTransformerOf(level);
-        return clientBounds != null ? clientBounds : transformerOf(level);
+        WorldFold clientBounds = wrappedClientBoundsFoldOf(level);
+        return clientBounds != null ? clientBounds : foldOf(level);
     }
 
-    public static WorldFold noiseTransformerOf(Level level) {
-        return transformerOfReader(level);
+    public static WorldFold noiseFoldOf(Level level) {
+        return foldOfReader(level);
     }
 
-    public static @Nullable WorldFold noiseTransformerOfReader(LevelReader reader) {
+    public static @Nullable WorldFold noiseFoldOfReader(LevelReader reader) {
         Level level = levelOf(reader);
-        return level != null ? transformerOfReader(level) : null;
+        return level != null ? foldOfReader(level) : null;
     }
 
     public static @Nullable ServerLevel serverLevelOf(LevelReader reader) {

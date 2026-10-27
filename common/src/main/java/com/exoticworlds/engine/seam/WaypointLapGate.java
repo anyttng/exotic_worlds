@@ -13,7 +13,7 @@ public final class WaypointLapGate {
     private @Nullable ChunkPos lastClientChunk;
 
     public int widen(int distance, ServerPlayer receiver, BlockPos serverBlock) {
-        if (WorldLoopAttachments.wrappedTransformerOf(receiver.level()) == null) {
+        if (WorldLoopAttachments.wrappedFoldOf(receiver.level()) == null) {
             return distance;
         }
 
@@ -21,8 +21,8 @@ public final class WaypointLapGate {
     }
 
     public int widen(int distance, ServerPlayer receiver, ChunkPos serverChunk) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(receiver.level());
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(receiver.level());
+        if (fold == null) {
             return distance;
         }
 
@@ -31,7 +31,7 @@ public final class WaypointLapGate {
             return distance;
         }
 
-        ChunkPos projection = transformer.nearestCopy(mirror.anchorChunk(), serverChunk);
+        ChunkPos projection = fold.nearestCopy(mirror.anchorChunk(), serverChunk);
         ChunkPos previous = this.lastClientChunk;
         this.lastClientChunk = projection;
         if (distance > 0 || previous == null || previous.equals(projection)) {

@@ -4,7 +4,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 public final class RtfEntry {
     public static @Nullable WorldFold generationFold() {
@@ -13,7 +13,7 @@ public final class RtfEntry {
     }
 
     public static WorldFold lapFold() {
-        return RtfLap.active() ? GenerationTransformerContext.context().transformer() : WorldFolds.NOOP;
+        return RtfLap.active() ? GenerationFoldContext.context().fold() : WorldFolds.NOOP;
     }
 
     public static int foldX(WorldFold fold, int x, int z) {

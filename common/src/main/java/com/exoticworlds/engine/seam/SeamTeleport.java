@@ -26,7 +26,7 @@ public final class SeamTeleport {
 
     public static PositionMoveRotation destination(ServerPlayer player, PositionMoveRotation destination,
             Set<Relative> relatives) {
-        WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(player.level());
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(player.level());
         return fold == null ? destination : destination(fold, player.position(), destination, relatives);
     }
 
@@ -55,7 +55,7 @@ public final class SeamTeleport {
             return new Dropped(true, List.of());
         }
 
-        WorldFold fold = WorldLoopAttachments.transformerOf(player.level());
+        WorldFold fold = WorldLoopAttachments.foldOf(player.level());
         Vec3 clientDestination = mirror.destinationOf(fold, destination.position(), relatives);
         ChunkPos toAnchor = new ChunkPos(
                 SectionPos.blockToSectionCoord(clientDestination.x),
@@ -95,7 +95,7 @@ public final class SeamTeleport {
     }
 
     private static @Nullable ChunkResender chunkResender(ServerPlayer player) {
-        if (WorldLoopAttachments.wrappedTransformerOf(player.level()) == null) {
+        if (WorldLoopAttachments.wrappedFoldOf(player.level()) == null) {
             return null;
         }
 

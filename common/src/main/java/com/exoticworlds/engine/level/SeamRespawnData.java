@@ -13,10 +13,10 @@ import net.minecraft.world.level.storage.LevelData;
 public final class SeamRespawnData {
     public static LevelData.RespawnData insideBounds(
             @Nullable MinecraftServer server, LevelData.RespawnData respawnData) {
-        WorldFold transformer = WorldLoopAttachments.transformerIfLevel(
+        WorldFold fold = WorldLoopAttachments.foldIfLevel(
                 server == null ? null : server.getLevel(respawnData.dimension()));
         BlockPos pos = respawnData.pos();
-        BlockPos folded = transformer.fold(pos);
+        BlockPos folded = fold.fold(pos);
         if (folded == pos) {
             return respawnData;
         }

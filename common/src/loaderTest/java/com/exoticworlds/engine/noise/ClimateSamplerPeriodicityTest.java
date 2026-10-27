@@ -43,14 +43,14 @@ class ClimateSamplerPeriodicityTest {
         int quartY = QuartPos.fromBlock(SCAN_Y_BLOCKS);
         Map<String, Integer> broken = new HashMap<>();
 
-        GenerationTransformerContext.runWithTransformer(fold, () -> {
+        GenerationFoldContext.runWithFold(fold, () -> {
             for (int i = 0; i < SAMPLES; i++) {
                 int x = i * (width / SAMPLES);
                 int z = (i * 37) % width;
                 Climate.TargetPoint here =
-                        ClimateFields.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z));
+                        ClimateTargets.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z));
                 Climate.TargetPoint lapAway =
-                        ClimateFields.at(sampler, QuartPos.fromBlock(x + width), quartY, QuartPos.fromBlock(z));
+                        ClimateTargets.at(sampler, QuartPos.fromBlock(x + width), quartY, QuartPos.fromBlock(z));
                 collect(broken, "temperature", here.temperature(), lapAway.temperature());
                 collect(broken, "humidity", here.humidity(), lapAway.humidity());
                 collect(broken, "continentalness", here.continentalness(), lapAway.continentalness());
@@ -75,16 +75,16 @@ class ClimateSamplerPeriodicityTest {
         Map<String, Integer> broken = new HashMap<>();
         Map<String, Integer> varyingAcross = new HashMap<>();
 
-        GenerationTransformerContext.runWithTransformer(fold, () -> {
+        GenerationFoldContext.runWithFold(fold, () -> {
             for (int i = 0; i < SAMPLES; i++) {
                 int x = i * (width / SAMPLES);
                 int z = (i * 37) % width;
                 Climate.TargetPoint here =
-                        ClimateFields.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z));
+                        ClimateTargets.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z));
                 Climate.TargetPoint alongX =
-                        ClimateFields.at(sampler, QuartPos.fromBlock(x + width), quartY, QuartPos.fromBlock(z));
+                        ClimateTargets.at(sampler, QuartPos.fromBlock(x + width), quartY, QuartPos.fromBlock(z));
                 Climate.TargetPoint alongZ =
-                        ClimateFields.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z + width));
+                        ClimateTargets.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z + width));
                 collect(broken, "temperature", here.temperature(), alongX.temperature());
                 collect(broken, "humidity", here.humidity(), alongX.humidity());
                 collect(broken, "continentalness", here.continentalness(), alongX.continentalness());

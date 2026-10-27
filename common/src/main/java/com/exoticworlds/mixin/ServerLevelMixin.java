@@ -13,13 +13,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.LevelBindable;
-import com.exoticworlds.accessors.TransformerHolder;
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldHolder;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.net.MeasuredReach;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.seam.SeamRange;
 import com.exoticworlds.engine.seam.SeamSnap;
 import com.exoticworlds.engine.seam.SeamSteering;
@@ -74,10 +74,10 @@ public class ServerLevelMixin {
 
     @Inject(method = "getWorldBorder", at = @At("RETURN"))
     private void exotic_worlds$bindBorderToLevelShape(CallbackInfoReturnable<WorldBorder> cir) {
-        WorldFold transformer = WorldLoopAttachments.transformerOf((ServerLevel) (Object) this);
-        TransformerHolder border = (TransformerHolder) cir.getReturnValue();
-        if (border.exotic_worlds$transformer() != transformer) {
-            border.exotic_worlds$setTransformer(transformer);
+        WorldFold fold = WorldLoopAttachments.foldOf((ServerLevel) (Object) this);
+        FoldHolder border = (FoldHolder) cir.getReturnValue();
+        if (border.exotic_worlds$fold() != fold) {
+            border.exotic_worlds$setFold(fold);
         }
     }
 
@@ -97,12 +97,12 @@ public class ServerLevelMixin {
             ChunkPos center, int radius, Operation<Stream<ChunkPos>> original) {
         Stream<ChunkPos> square = original.call(center, radius);
         ServerLevel level = (ServerLevel) (Object) this;
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        if (fold == null) {
             return square;
         }
 
-        return square.map(chunkPos -> transformer.fold(chunkPos)).distinct();
+        return square.map(chunkPos -> fold.fold(chunkPos)).distinct();
     }
 
     @WrapOperation(
@@ -110,12 +110,12 @@ public class ServerLevelMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$particleRangeThroughSeam(BlockPos listener, Position particle, double range,
             Operation<Boolean> original) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf((ServerLevel) (Object) this);
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf((ServerLevel) (Object) this);
+        if (fold == null) {
             return original.call(listener, particle, range);
         }
 
-        return SeamRange.sqr(transformer, Vec3.atCenterOf(listener), particle) < range * range;
+        return SeamRange.sqr(fold, Vec3.atCenterOf(listener), particle) < range * range;
     }
 
     @WrapOperation(
@@ -166,16 +166,16 @@ public class ServerLevelMixin {
     @Unique
     private static double exotic_worlds$listenerCoord(ServerPlayer player, Direction.Axis axis, BlockPos blockPos,
             Operation<Double> original) {
-        WorldFold transformer = ((TransformerSource) player).exotic_worlds$wrappedTransformer();
-        return transformer == null
+        WorldFold fold = ((FoldSource) player).exotic_worlds$wrappedFold();
+        return fold == null
                 ? original.call(player)
-                : NearestCopy.toward(transformer, axis, Vec3.atLowerCornerOf(blockPos), player.position());
+                : NearestCopy.toward(fold, axis, Vec3.atLowerCornerOf(blockPos), player.position());
     }
 
     @WrapMethod(method = "tickPrecipitation")
-    private void exotic_worlds$bindPrecipitationTransformer(BlockPos pos, Operation<Void> original) {
+    private void exotic_worlds$bindPrecipitationFold(BlockPos pos, Operation<Void> original) {
         ServerLevel level = (ServerLevel) (Object) this;
-        GenerationTransformerContext.runWithTransformer(
-                WorldLoopAttachments.transformerOf(level), () -> original.call(pos));
+        GenerationFoldContext.runWithFold(
+                WorldLoopAttachments.foldOf(level), () -> original.call(pos));
     }
 }

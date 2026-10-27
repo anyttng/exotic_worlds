@@ -8,6 +8,6 @@ public interface ClientBoundsHolder {
         return WorldFolds.NOOP;
     }
 
-    default void exotic_worlds$setClientBounds(WorldFold transformer) {
+    default void exotic_worlds$setClientBounds(WorldFold fold) {
     }
 }

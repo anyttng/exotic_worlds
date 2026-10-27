@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.accessors.TransformerHolder;
+import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.engine.fold.SeamBorder;
@@ -22,9 +22,9 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 @Mixin(WorldBorder.class)
-public class WorldBorderMixin implements TransformerHolder {
+public class WorldBorderMixin implements FoldHolder {
     @Unique
-    private WorldFold exotic_worlds$transformer = WorldFolds.NOOP;
+    private WorldFold exotic_worlds$fold = WorldFolds.NOOP;
 
     @Unique
     private double @Nullable [] exotic_worlds$wallBounds;
@@ -53,37 +53,37 @@ public class WorldBorderMixin implements TransformerHolder {
     }
 
     @Override
-    public WorldFold exotic_worlds$transformer() {
-        return this.exotic_worlds$transformer;
+    public WorldFold exotic_worlds$fold() {
+        return this.exotic_worlds$fold;
     }
 
     @Override
-    public void exotic_worlds$setTransformer(WorldFold transformer) {
-        this.exotic_worlds$transformer = transformer;
+    public void exotic_worlds$setFold(WorldFold fold) {
+        this.exotic_worlds$fold = fold;
     }
 
     @ModifyReturnValue(method = "isWithinBounds(DDD)Z", at = @At("RETURN"))
     private boolean exotic_worlds$boundsThroughSeam(boolean original, double x, double z, double margin) {
-        WorldFold transformer = this.exotic_worlds$transformer;
-        return transformer.isWrapped() ? exotic_worlds$border(transformer).inside(x, z, margin) : original;
+        WorldFold fold = this.exotic_worlds$fold;
+        return fold.isWrapped() ? exotic_worlds$border(fold).inside(x, z, margin) : original;
     }
 
     @ModifyReturnValue(method = "getDistanceToBorder(DD)D", at = @At("RETURN"))
     private double exotic_worlds$distanceThroughSeam(double original, double x, double z) {
-        WorldFold transformer = this.exotic_worlds$transformer;
-        return transformer.isWrapped() ? exotic_worlds$border(transformer).distanceToEdge(x, z) : original;
+        WorldFold fold = this.exotic_worlds$fold;
+        return fold.isWrapped() ? exotic_worlds$border(fold).distanceToEdge(x, z) : original;
     }
 
     @ModifyReturnValue(method = "clampVec3ToBound(DDD)Lnet/minecraft/world/phys/Vec3;", at = @At("RETURN"))
     private Vec3 exotic_worlds$clampThroughSeam(Vec3 original, double x, double y, double z) {
-        WorldFold transformer = this.exotic_worlds$transformer;
-        return transformer.isWrapped() ? transformer.fold(exotic_worlds$border(transformer).clamped(x, y, z)) : original;
+        WorldFold fold = this.exotic_worlds$fold;
+        return fold.isWrapped() ? fold.fold(exotic_worlds$border(fold).clamped(x, y, z)) : original;
     }
 
     @WrapMethod(method = "getCollisionShape")
     private VoxelShape exotic_worlds$wallThroughSeam(Operation<VoxelShape> original) {
-        WorldFold transformer = this.exotic_worlds$transformer;
-        if (!transformer.isWrapped()) {
+        WorldFold fold = this.exotic_worlds$fold;
+        if (!fold.isWrapped()) {
             return original.call();
         }
 
@@ -96,7 +96,7 @@ public class WorldBorderMixin implements TransformerHolder {
         VoxelShape wall = this.exotic_worlds$wall;
         if (wall == null || bounds == null
                 || bounds[0] != minX || bounds[1] != maxX || bounds[2] != minZ || bounds[3] != maxZ) {
-            wall = exotic_worlds$buildWall(exotic_worlds$border(transformer));
+            wall = exotic_worlds$buildWall(exotic_worlds$border(fold));
             this.exotic_worlds$wall = wall;
             this.exotic_worlds$wallBounds = new double[] {minX, maxX, minZ, maxZ};
         }
@@ -105,8 +105,8 @@ public class WorldBorderMixin implements TransformerHolder {
     }
 
     @Unique
-    private SeamBorder exotic_worlds$border(WorldFold transformer) {
-        return new SeamBorder(transformer.blockLattice(), getMinX(), getMaxX(), getMinZ(), getMaxZ());
+    private SeamBorder exotic_worlds$border(WorldFold fold) {
+        return new SeamBorder(fold.blockLattice(), getMinX(), getMaxX(), getMinZ(), getMaxZ());
     }
 
     @Unique

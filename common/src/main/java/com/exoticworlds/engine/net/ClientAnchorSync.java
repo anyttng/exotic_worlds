@@ -21,8 +21,8 @@ import net.minecraft.world.level.storage.LevelData;
 public final class ClientAnchorSync {
     public static void refresh(ServerPlayer player) {
         ServerLevel level = player.level();
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        if (fold == null) {
             return;
         }
 
@@ -33,12 +33,12 @@ public final class ClientAnchorSync {
 
         clientPosition.followCamera(player);
         clientPosition.dropLeftCamera();
-        refreshSpawn(player, level, transformer, clientPosition);
-        refreshBorderCenter(player, level, transformer, clientPosition);
-        refreshCacheCenter(player, transformer, clientPosition);
+        refreshSpawn(player, level, fold, clientPosition);
+        refreshBorderCenter(player, level, fold, clientPosition);
+        refreshCacheCenter(player, fold, clientPosition);
     }
 
-    private static void refreshSpawn(ServerPlayer player, ServerLevel level, WorldFold transformer,
+    private static void refreshSpawn(ServerPlayer player, ServerLevel level, WorldFold fold,
             ClientPosition clientPosition) {
         LevelData.RespawnData respawnData = level.getRespawnData();
         if (!respawnData.dimension().equals(level.dimension())) {
@@ -47,7 +47,7 @@ public final class ClientAnchorSync {
 
         BlockPos held = clientPosition.heldSpawn();
         BlockPos spawnPos = respawnData.pos();
-        BlockPos want = TranslationContext.nearestCopy(transformer, clientPosition, spawnPos);
+        BlockPos want = TranslationContext.nearestCopy(fold, clientPosition, spawnPos);
         if (Objects.equals(want, held)) {
             return;
         }
@@ -55,11 +55,11 @@ public final class ClientAnchorSync {
         player.connection.send(new ClientboundSetDefaultSpawnPositionPacket(respawnData));
     }
 
-    private static void refreshBorderCenter(ServerPlayer player, ServerLevel level, WorldFold transformer,
+    private static void refreshBorderCenter(ServerPlayer player, ServerLevel level, WorldFold fold,
             ClientPosition clientPosition) {
         WorldBorder border = level.getWorldBorder();
         BorderCenter held = clientPosition.heldBorderCenter();
-        BorderCenter want = ClientboundPacketRewriters.nearestCopyCenter(transformer, clientPosition,
+        BorderCenter want = ClientboundPacketRewriters.nearestCopyCenter(fold, clientPosition,
                 new BorderCenter(border.getCenterX(), border.getCenterZ()));
         if (want.equals(held)) {
             return;
@@ -68,13 +68,13 @@ public final class ClientAnchorSync {
         player.connection.send(new ClientboundSetBorderCenterPacket(border));
     }
 
-    private static void refreshCacheCenter(ServerPlayer player, WorldFold transformer, ClientPosition clientPosition) {
+    private static void refreshCacheCenter(ServerPlayer player, WorldFold fold, ClientPosition clientPosition) {
         ChunkPos held = clientPosition.heldCacheCenter();
         if (held == null || !(player.getChunkTrackingView() instanceof ChunkTrackingView.Positioned view)) {
             return;
         }
 
-        ChunkPos want = TranslationContext.nearestCopy(transformer, clientPosition, view.center());
+        ChunkPos want = TranslationContext.nearestCopy(fold, clientPosition, view.center());
         if (want.equals(held)) {
             return;
         }

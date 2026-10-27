@@ -45,17 +45,29 @@ public final class PeriodicNoiseSampler {
     private static final float FUDGE_EPSILON = 1.0E-7F;
 
     public static PeriodicLattice lattice(byte[] permutations, double xOffset, double yOffset, double zOffset,
-            double fudgeYScale, WorldFold transformer, NoiseFrame frame, double scale, LapFloor floor) {
-        TranslationLattice translations = transformer.blockLattice();
-        if (!frame.isDefault()) {
-            SlotAxes axes = frame.axes();
-            PeriodicLattice.Axis xAxis = slotAxis(axes.x(), translations, frame, scale, floor);
-            PeriodicLattice.Axis yAxis = slotAxis(axes.y(), translations, frame, scale, floor);
-            PeriodicLattice.Axis zAxis = slotAxis(axes.z(), translations, frame, scale, floor);
-            return new PeriodicLattice(permutations, xOffset, yOffset, zOffset, fudgeYScale, xAxis, yAxis, zAxis,
-                    1.0, 0.0, slotShear(translations, axes, xAxis, yAxis, zAxis));
-        }
+            double fudgeYScale, WorldFold fold, NoiseFrame frame, double scale, LapFloor floor) {
+        TranslationLattice translations = fold.blockLattice();
+        return frame.isDefault()
+                ? worldLattice(permutations, xOffset, yOffset, zOffset, fudgeYScale, translations, frame, scale,
+                        floor)
+                : slottedLattice(permutations, xOffset, yOffset, zOffset, fudgeYScale, translations, frame, scale,
+                        floor);
+    }
 
+    private static PeriodicLattice slottedLattice(byte[] permutations, double xOffset, double yOffset,
+            double zOffset, double fudgeYScale, TranslationLattice translations, NoiseFrame frame, double scale,
+            LapFloor floor) {
+        SlotAxes axes = frame.axes();
+        PeriodicLattice.Axis xAxis = slotAxis(axes.x(), translations, frame, scale, floor);
+        PeriodicLattice.Axis yAxis = slotAxis(axes.y(), translations, frame, scale, floor);
+        PeriodicLattice.Axis zAxis = slotAxis(axes.z(), translations, frame, scale, floor);
+        return new PeriodicLattice(permutations, xOffset, yOffset, zOffset, fudgeYScale, xAxis, yAxis, zAxis,
+                1.0, 0.0, slotShear(translations, axes, xAxis, yAxis, zAxis));
+    }
+
+    private static PeriodicLattice worldLattice(byte[] permutations, double xOffset, double yOffset,
+            double zOffset, double fudgeYScale, TranslationLattice translations, NoiseFrame frame, double scale,
+            LapFloor floor) {
         WrapDomain xDomain = translations.x();
         WrapDomain zDomain = translations.z();
         long xPeriod = period(xDomain, scale, floor);

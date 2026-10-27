@@ -14,14 +14,14 @@ import com.exoticworlds.accessors.CoastLiftCache;
 import com.exoticworlds.accessors.FoldedClimateSampler;
 import com.exoticworlds.accessors.FoldedCompileSource;
 import com.exoticworlds.accessors.FoldedRandomState;
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.GenerationMoments;
 import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.gen.CanonicalRandomFactory;
 import com.exoticworlds.engine.noise.AquiferCells;
 import com.exoticworlds.engine.noise.FoldedCompileContext;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -36,7 +36,7 @@ import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 @Mixin(RandomState.class)
-public class RandomStateMixin implements CoastLiftCache, TransformerSource, FoldedRandomState {
+public class RandomStateMixin implements CoastLiftCache, FoldSource, FoldedRandomState {
     @Unique
     private static final String exotic_worlds$CONSTRUCTOR = "<init>(Lnet/minecraft/core/HolderGetter;JZ"
             + "Lnet/minecraft/world/level/block/state/BlockState;ILnet/minecraft/world/level/levelgen/NoiseRouter;)V";
@@ -64,7 +64,7 @@ public class RandomStateMixin implements CoastLiftCache, TransformerSource, Fold
                             + "Lnet/minecraft/world/level/levelgen/PositionalRandomFactory;)V"),
             index = 4)
     private PositionalRandomFactory exotic_worlds$materialRandomFromCanonical(PositionalRandomFactory noiseRandom) {
-        WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
+        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
         return fold == null ? noiseRandom : new CanonicalRandomFactory(noiseRandom, fold);
     }
 
@@ -76,7 +76,7 @@ public class RandomStateMixin implements CoastLiftCache, TransformerSource, Fold
                             + "Lnet/minecraft/world/level/levelgen/densityfunction/DensityFunction$CompileContext;)V"))
     private DensityFunction.CompileContext exotic_worlds$compileWithTheFold(DensityFunction.CompileContext context,
             @Local(argsOnly = true) NoiseRouter router) {
-        WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
+        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
         if (fold == null) {
             return context;
         }
@@ -90,7 +90,7 @@ public class RandomStateMixin implements CoastLiftCache, TransformerSource, Fold
     @Inject(method = exotic_worlds$CONSTRUCTOR, at = @At("RETURN"))
     private void exotic_worlds$runGenerationHooks(HolderGetter<NormalNoise> noises, long seed, boolean useLegacyRandom,
             BlockState defaultBlock, int seaLevel, NoiseRouter router, CallbackInfo callback) {
-        WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
+        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
         this.exotic_worlds$fold = fold;
         if (fold != null) {
             GenerationMoments.runAtRandomState((RandomState) (Object) this, new ToroidalShapeView(fold),
@@ -128,7 +128,7 @@ public class RandomStateMixin implements CoastLiftCache, TransformerSource, Fold
     }
 
     @Override
-    public @Nullable WorldFold exotic_worlds$wrappedTransformer() {
+    public @Nullable WorldFold exotic_worlds$wrappedFold() {
         return this.exotic_worlds$fold;
     }
 

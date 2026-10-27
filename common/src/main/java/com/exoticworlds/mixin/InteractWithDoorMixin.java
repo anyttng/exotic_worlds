@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
@@ -41,8 +41,8 @@ public class InteractWithDoorMixin {
                     target = "Lnet/minecraft/world/level/pathfinder/Node;asBlockPos()Lnet/minecraft/core/BlockPos;"))
     private static BlockPos exotic_worlds$standingInDoorwayThroughSeam(BlockPos nodePos,
             @Local(argsOnly = true) LivingEntity body, @Local BlockPos doorPos) {
-        WorldFold transformer = ((TransformerSource) body).exotic_worlds$wrappedTransformer();
-        return NearestCopy.toward(transformer, doorPos, nodePos);
+        WorldFold fold = ((FoldSource) body).exotic_worlds$wrappedFold();
+        return NearestCopy.toward(fold, doorPos, nodePos);
     }
 
     @WrapOperation(
@@ -58,6 +58,6 @@ public class InteractWithDoorMixin {
     @ModifyVariable(method = "rememberDoorToClose", at = @At("HEAD"), argsOnly = true)
     private static BlockPos exotic_worlds$rememberedDoorCanonical(BlockPos doorPos,
             @Local(argsOnly = true) ServerLevel level) {
-        return WorldLoopAttachments.transformerOf(level).fold(doorPos);
+        return WorldLoopAttachments.foldOf(level).fold(doorPos);
     }
 }

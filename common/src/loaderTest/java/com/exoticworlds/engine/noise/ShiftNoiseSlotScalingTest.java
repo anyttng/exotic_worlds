@@ -55,7 +55,7 @@ class ShiftNoiseSlotScalingTest {
 
     private static float reference(SlotAxes axes, double first, double second, double third) {
         NoiseFrame frame = new NoiseFrame(axes, NoiseConstants.UNDIVIDED, NoiseConstants.UNDIVIDED,
-                GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE);
+                GenerationFoldContext.UNDECLARED_VERTICAL_SHARE);
         float value = PeriodicOctaveSampler.compile(SQUARE, frame, NoiseConstants.SHIFT_SCALE, null, STACK)
                 .sample(first, second, third);
         return value * (float) NoiseConstants.SHIFT_AMPLITUDE;

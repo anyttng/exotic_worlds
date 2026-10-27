@@ -3,7 +3,7 @@ package com.exoticworlds.scan;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
 import com.exoticworlds.engine.noise.ClimateScanFixture.WorldType;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.TerrainCeiling;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.SEED_BASE;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.randomState;
@@ -159,7 +159,7 @@ final class SuspendedLand {
                 DensitySampler ceiling = state.getSampler(rawCeiling);
                 DensitySampler density = state.getSampler(state.router.finalDensity());
                 Sweep[] result = new Sweep[1];
-                GenerationTransformerContext.runWithTransformer(fold,
+                GenerationFoldContext.runWithFold(fold,
                         () -> result[0] = sweep(type, seed, ceiling, density, vanilla.seaLevel()));
                 site = result[0].site();
                 Hit reach = result[0].highest();

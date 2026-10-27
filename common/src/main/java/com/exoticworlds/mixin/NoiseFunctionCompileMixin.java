@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.engine.noise.FoldedCompileContext;
 import com.exoticworlds.engine.noise.FoldedSamplers;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.climate.ClimateCompression;
 import com.exoticworlds.shape.torus.CoastFields;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -34,7 +34,7 @@ public class NoiseFunctionCompileMixin {
         Holder<NormalNoise> noise = self.noise();
         double xzScale = folded.ladder().separated(noise, self.xzScale());
         double yScale = self.yScale();
-        double verticalShare = GenerationTransformerContext.verticalShare(xzScale, yScale);
+        double verticalShare = GenerationFoldContext.verticalShare(xzScale, yScale);
         NoiseStack stack = FoldedSamplers.stack(folded, noise);
         double[] layerFactors = ClimateCompression.layerFactors(folded.fold(), noise, stack, xzScale, verticalShare);
         boolean coast = noise.unwrapKey().filter(CoastFields::isCoast).isPresent();

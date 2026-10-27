@@ -88,6 +88,8 @@ public interface WorldFold {
 
     Folded<BlockPos> nearestCopyOriented(BlockPos ref, BlockPos target);
 
+    Folded<AABB> nearestCopyOriented(Vec3 ref, AABB box);
+
     DeckTransformation foldTransformation(Vec3 pos);
 
     DeckTransformation deckTransformation(ChunkPos chunk, ChunkPos copy);
@@ -140,6 +142,4 @@ public interface WorldFold {
 
     // mc/1.21: refuses a Create schematic wider than the world.
     boolean foldsOntoItself(BoundingBox region);
-
-    Folded<AABB> foldBox(Vec3 ref, AABB box);
 }

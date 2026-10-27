@@ -17,7 +17,7 @@ public class WorldBorderCommandMixin {
     @ModifyVariable(method = "setCenter", at = @At("HEAD"), argsOnly = true)
     private static Vec2 exotic_worlds$storeCenterInsideBounds(Vec2 center,
             @Local(argsOnly = true) CommandSourceStack source) {
-        Vec3 folded = WorldLoopAttachments.transformerOf(source.getLevel()).fold(new Vec3(center.x, 0.0, center.y));
+        Vec3 folded = WorldLoopAttachments.foldOf(source.getLevel()).fold(new Vec3(center.x, 0.0, center.y));
         return new Vec2((float) folded.x, (float) folded.z);
     }
 }

@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.BinderOrder;
 import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -43,7 +43,7 @@ public class NoiseBasedChunkGeneratorMixin {
                     target = "Lnet/minecraft/world/level/levelgen/NoiseRouter;finalDensity()"
                             + "Lnet/minecraft/world/level/levelgen/densityfunction/DensityFunction;"))
     private DensityFunction exotic_worlds$fillUnderTheCeiling(DensityFunction finalDensity, @Local NoiseChunk noiseChunk) {
-        if (ShapedChunkGenerator.wrappedTransformerOf((NoiseBasedChunkGenerator) (Object) this) == null) {
+        if (ShapedChunkGenerator.wrappedFoldOf((NoiseBasedChunkGenerator) (Object) this) == null) {
             return finalDensity;
         }
 
@@ -52,8 +52,8 @@ public class NoiseBasedChunkGeneratorMixin {
 
     @WrapMethod(method = "doFill", order = BinderOrder.FOLD)
     private void exotic_worlds$bindWhileFilling(NoiseChunk noiseChunk, ChunkAccess chunk, Operation<Void> original) {
-        GenerationTransformerContext.runWithTransformer(
-                ShapedChunkGenerator.transformerOf((NoiseBasedChunkGenerator) (Object) this),
+        GenerationFoldContext.runWithFold(
+                ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this),
                 () -> original.call(noiseChunk, chunk));
     }
 
@@ -61,8 +61,8 @@ public class NoiseBasedChunkGeneratorMixin {
     private void exotic_worlds$bindWhileBuildingSurface(ChunkAccess chunk, NoiseChunk noiseChunk, RandomState randomState,
             BiomeManager biomeManager, Set<Holder<Biome>> possibleBiomes, MaterialRule materialRule,
             Operation<Void> original) {
-        GenerationTransformerContext.runWithTransformer(
-                ShapedChunkGenerator.transformerOf((NoiseBasedChunkGenerator) (Object) this),
+        GenerationFoldContext.runWithFold(
+                ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this),
                 () -> original.call(chunk, noiseChunk, randomState, biomeManager, possibleBiomes, materialRule));
     }
 
@@ -70,8 +70,8 @@ public class NoiseBasedChunkGeneratorMixin {
     private void exotic_worlds$bindWhileCarving(ChunkAccess chunk, Blender blender, NoiseChunk noiseChunk,
             RandomState randomState, BiomeManager biomeManager, WorldGenRegion carverBiomeRegion,
             MaterialRule materialRule, Operation<Void> original) {
-        GenerationTransformerContext.runWithTransformer(
-                ShapedChunkGenerator.transformerOf((NoiseBasedChunkGenerator) (Object) this),
+        GenerationFoldContext.runWithFold(
+                ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this),
                 () -> original.call(chunk, blender, noiseChunk, randomState, biomeManager, carverBiomeRegion,
                         materialRule));
     }
@@ -80,13 +80,13 @@ public class NoiseBasedChunkGeneratorMixin {
     private OptionalInt exotic_worlds$bindWhileReadingColumn(LevelHeightAccessor heightAccessor, RandomState randomState,
             int blockX, int blockZ, @Nullable MutableObject<NoiseColumn> columnReference,
             @Nullable Predicate<BlockState> tester, Operation<OptionalInt> original) {
-        return GenerationTransformerContext.withTransformer(
-                ShapedChunkGenerator.transformerOf((NoiseBasedChunkGenerator) (Object) this),
+        return GenerationFoldContext.withFold(
+                ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this),
                 () -> original.call(heightAccessor, randomState, blockX, blockZ, columnReference, tester));
     }
 
     @ModifyReturnValue(method = "getOrigin", at = @At("RETURN"))
     private ChunkPos exotic_worlds$originInsideBounds(ChunkPos origin) {
-        return ShapedChunkGenerator.transformerOf((NoiseBasedChunkGenerator) (Object) this).fold(origin);
+        return ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this).fold(origin);
     }
 }

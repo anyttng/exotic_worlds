@@ -2,6 +2,6 @@ package com.exoticworlds.accessors;
 
 import com.exoticworlds.core.WorldFold;
 
-public interface TransformerCache {
-    WorldFold exotic_worlds$transformer();
+public interface FoldCache {
+    WorldFold exotic_worlds$fold();
 }

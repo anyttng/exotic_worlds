@@ -8,7 +8,7 @@ import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopSizes;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
 import com.exoticworlds.engine.noise.ClimateScanFixture.WorldType;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.WorldLoopPresets;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.SCAN_Y_BLOCKS;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.SEED_BASE;
@@ -348,7 +348,7 @@ class ClimateScan {
         double step = widthBlocks / (double) grid;
         int[] land = new int[1];
 
-        GenerationTransformerContext.runWithTransformer(fold, () -> {
+        GenerationFoldContext.runWithFold(fold, () -> {
             for (int ix = 0; ix < grid; ix++) {
                 for (int iz = 0; iz < grid; iz++) {
                     if (isLand(density, (int) Math.round(ix * step), seaLevel, (int) Math.round(iz * step))) {
@@ -486,7 +486,7 @@ class ClimateScan {
         boolean[] land = new boolean[grid * grid];
         double[] field = new double[grid * grid];
 
-        GenerationTransformerContext.runWithTransformer(fold, () -> {
+        GenerationFoldContext.runWithFold(fold, () -> {
             for (int ix = 0; ix < grid; ix++) {
                 for (int iz = 0; iz < grid; iz++) {
                     int blockX = ix * stride;
@@ -648,7 +648,7 @@ class ClimateScan {
         double zStep = UNBOUNDED_SPAN_BLOCKS / (double) GRID;
         double[] totals = new double[2];
 
-        GenerationTransformerContext.runWithTransformer(fold, () -> {
+        GenerationFoldContext.runWithFold(fold, () -> {
             double[] temperatures = new double[GRID];
 
             for (int ix = 0; ix < GRID; ix++) {
@@ -701,7 +701,7 @@ class ClimateScan {
         double[] temperatures = new double[GRID * GRID];
         int[] land = new int[1];
 
-        GenerationTransformerContext.runWithTransformer(fold, () -> {
+        GenerationFoldContext.runWithFold(fold, () -> {
             for (int ix = 0; ix < GRID; ix++) {
                 for (int iz = 0; iz < GRID; iz++) {
                     int blockX = (int) Math.round(ix * step);

@@ -20,13 +20,13 @@ public class CommandCoordinatesMixin {
     @Inject(method = "getPosition", at = @At("HEAD"))
     private void exotic_worlds$refuseCoordinateOutsideWorld(CommandSourceStack source, CallbackInfoReturnable<Vec3> cir)
             throws CommandSyntaxException {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(source.getLevel());
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(source.getLevel());
+        if (fold == null) {
             return;
         }
 
         WorldCoordinates self = (WorldCoordinates) (Object) this;
-        SeamCommandErrors.requireInsideWorld(transformer, Direction.Axis.X, self.x());
-        SeamCommandErrors.requireInsideWorld(transformer, Direction.Axis.Z, self.z());
+        SeamCommandErrors.requireInsideWorld(fold, Direction.Axis.X, self.x());
+        SeamCommandErrors.requireInsideWorld(fold, Direction.Axis.Z, self.z());
     }
 }

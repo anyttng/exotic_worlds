@@ -91,6 +91,10 @@ public final class ModPresence {
     }
 
     private boolean resolve() {
+        return probed() && requiredPresent() && mixinsAdmitted();
+    }
+
+    private boolean probed() {
         for (String resource : this.resources) {
             if (!probe(this.classLoader, resource)) {
                 this.logger.info("{}=false", this.gateLabel);
@@ -98,6 +102,10 @@ public final class ModPresence {
             }
         }
 
+        return true;
+    }
+
+    private boolean requiredPresent() {
         for (ModPresence gate : this.required) {
             if (!gate.present()) {
                 this.logger.warn("{}=true admitted=false requires={}", this.gateLabel, gate.gateLabel);
@@ -105,6 +113,10 @@ public final class ModPresence {
             }
         }
 
+        return true;
+    }
+
+    private boolean mixinsAdmitted() {
         List<String> covered = coveredMixins();
         Map<String, String> bodySourcesByClass = new HashMap<>();
         this.bodySources.forEach((mixin, owner) -> bodySourcesByClass.put(mixinPackage() + "." + mixin, owner));

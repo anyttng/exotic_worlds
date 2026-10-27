@@ -13,11 +13,11 @@ public final class WorldFoldFixture {
     public static final WorldLoopBounds X_ONLY_BOUNDS =
             new WorldLoopBounds(new AxisBounds.Looped(-32, 32), AxisBounds.Unbounded.INSTANCE);
 
-    public static final WorldFold EVEN = new WorldLoopTransformer(SQUARE, GenerationOptions.DEFAULT);
-    public static final WorldFold ODD = new WorldLoopTransformer(ODD_BOUNDS, GenerationOptions.DEFAULT);
-    public static final WorldFold UNEVEN = new WorldLoopTransformer(UNEVEN_BOUNDS, GenerationOptions.DEFAULT);
-    public static final WorldFold UNIT = new WorldLoopTransformer(UNIT_BOUNDS, GenerationOptions.DEFAULT);
-    public static final WorldFold X_ONLY = new WorldLoopTransformer(X_ONLY_BOUNDS, GenerationOptions.DEFAULT);
+    public static final WorldFold EVEN = new WorldLoopFold(SQUARE, GenerationOptions.DEFAULT);
+    public static final WorldFold ODD = new WorldLoopFold(ODD_BOUNDS, GenerationOptions.DEFAULT);
+    public static final WorldFold UNEVEN = new WorldLoopFold(UNEVEN_BOUNDS, GenerationOptions.DEFAULT);
+    public static final WorldFold UNIT = new WorldLoopFold(UNIT_BOUNDS, GenerationOptions.DEFAULT);
+    public static final WorldFold X_ONLY = new WorldLoopFold(X_ONLY_BOUNDS, GenerationOptions.DEFAULT);
 
     public static final List<WorldFold> PER_AXIS = List.of(EVEN, ODD, UNEVEN, X_ONLY, WorldFolds.NOOP);
 

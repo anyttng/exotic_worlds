@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "com.exoticworlds.mixin",
   "compatibilityLevel": "JAVA_25",
-  "plugin": "com.exoticworlds.ToroidalMixinPlugin",
+  "plugin": "com.exoticworlds.ExoticWorldsMixinPlugin",
   "mixins": [
     "AbstractNautilusMixin",
     "AcquirePoiMixin",

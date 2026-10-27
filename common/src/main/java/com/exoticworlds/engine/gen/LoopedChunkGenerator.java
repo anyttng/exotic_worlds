@@ -59,7 +59,7 @@ public class LoopedChunkGenerator extends NoiseBasedChunkGenerator implements Sh
     @Override
     public int getBaseHeight(int x, int z, Heightmap.Types type, LevelHeightAccessor heightAccessor,
             RandomState randomState) {
-        long folded = transformer().foldBlockNode(BlockPos.asLong(x, 0, z));
+        long folded = fold().foldBlockNode(BlockPos.asLong(x, 0, z));
         Map<Long, Integer> cache = Objects.requireNonNull(this.baseHeightCache.get(type), "filled for every type");
 
         Integer cached = cache.get(folded);

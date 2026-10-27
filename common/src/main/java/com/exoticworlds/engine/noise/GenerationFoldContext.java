@@ -9,7 +9,7 @@ import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.engine.DoubleStack;
 import com.exoticworlds.engine.ObjectStack;
 
-public final class GenerationTransformerContext {
+public final class GenerationFoldContext {
     public static final double UNDECLARED_VERTICAL_SHARE = -1.0;
 
     public static double verticalShare(double xzScale, double yScale) {
@@ -17,7 +17,7 @@ public final class GenerationTransformerContext {
     }
 
     public static final class Context {
-        private WorldFold transformer = WorldFolds.NOOP;
+        private WorldFold fold = WorldFolds.NOOP;
         private @Nullable WorldFold routerBuild;
         private double horizontalScale = NoiseConstants.UNSCALED;
         private double verticalShare = UNDECLARED_VERTICAL_SHARE;
@@ -28,15 +28,15 @@ public final class GenerationTransformerContext {
         private final DivisorScope divisorScope = new DivisorScope();
         private final BindingScope bindingScope = new BindingScope();
 
-        public WorldFold transformer() {
-            return this.transformer;
+        public WorldFold fold() {
+            return this.fold;
         }
 
-        public @Nullable WorldFold wrappedTransformer() {
-            return this.transformer.isWrapped() ? this.transformer : null;
+        public @Nullable WorldFold wrappedFold() {
+            return this.fold.isWrapped() ? this.fold : null;
         }
 
-        public @Nullable WorldFold routerBuildTransformer() {
+        public @Nullable WorldFold routerBuildFold() {
             return this.routerBuild;
         }
 
@@ -85,10 +85,10 @@ public final class GenerationTransformerContext {
             return this.scaleScope;
         }
 
-        public BindingScope bind(WorldFold boundTransformer, SlotAxes boundAxes, double boundScale,
+        public BindingScope bind(WorldFold boundFold, SlotAxes boundAxes, double boundScale,
                 double boundVerticalShare) {
             this.bindingScope.push();
-            this.transformer = boundTransformer;
+            this.fold = boundFold;
             this.slotAxes = boundAxes;
             this.horizontalScale = boundScale;
             this.verticalShare = boundVerticalShare;
@@ -96,7 +96,7 @@ public final class GenerationTransformerContext {
         }
 
         public final class BindingScope implements AutoCloseable {
-            private final ObjectStack<WorldFold> previousTransformers = new ObjectStack<>();
+            private final ObjectStack<WorldFold> previousFolds = new ObjectStack<>();
             private final ObjectStack<SlotAxes> previousAxes = new ObjectStack<>();
             private final DoubleStack previousScales = new DoubleStack();
             private final DoubleStack previousShares = new DoubleStack();
@@ -105,7 +105,7 @@ public final class GenerationTransformerContext {
             }
 
             private void push() {
-                this.previousTransformers.push(transformer);
+                this.previousFolds.push(fold);
                 this.previousAxes.push(slotAxes);
                 this.previousScales.push(horizontalScale);
                 this.previousShares.push(verticalShare);
@@ -113,7 +113,7 @@ public final class GenerationTransformerContext {
 
             @Override
             public void close() {
-                transformer = this.previousTransformers.pop();
+                fold = this.previousFolds.pop();
                 slotAxes = this.previousAxes.pop();
                 horizontalScale = this.previousScales.pop();
                 verticalShare = this.previousShares.pop();
@@ -174,32 +174,32 @@ public final class GenerationTransformerContext {
     }
 
     public static @Nullable WorldFold carriedOrBound(@Nullable WorldFold carried) {
-        return carried != null ? carried : CONTEXT.get().wrappedTransformer();
+        return carried != null ? carried : CONTEXT.get().wrappedFold();
     }
 
-    public static <T> T withTransformer(WorldFold transformer, Supplier<T> action) {
+    public static <T> T withFold(WorldFold fold, Supplier<T> action) {
         Context context = CONTEXT.get();
-        WorldFold previous = context.transformer;
-        context.transformer = transformer;
+        WorldFold previous = context.fold;
+        context.fold = fold;
 
         try {
             return action.get();
         } finally {
-            context.transformer = previous;
+            context.fold = previous;
         }
     }
 
-    public static void runWithTransformer(WorldFold transformer, Runnable action) {
-        withTransformer(transformer, () -> {
+    public static void runWithFold(WorldFold fold, Runnable action) {
+        withFold(fold, () -> {
             action.run();
             return null;
         });
     }
 
-    public static <T> T withRouterBuild(@Nullable WorldFold transformer, Supplier<T> action) {
+    public static <T> T withRouterBuild(@Nullable WorldFold fold, Supplier<T> action) {
         Context context = CONTEXT.get();
         WorldFold previous = context.routerBuild;
-        context.routerBuild = transformer;
+        context.routerBuild = fold;
 
         try {
             return action.get();
@@ -208,6 +208,6 @@ public final class GenerationTransformerContext {
         }
     }
 
-    private GenerationTransformerContext() {
+    private GenerationFoldContext() {
     }
 }

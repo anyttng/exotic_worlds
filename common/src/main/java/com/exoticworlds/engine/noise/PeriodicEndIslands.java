@@ -27,14 +27,14 @@ public final class PeriodicEndIslands {
     private static final float ZERO_DENSITY_HEIGHT_VALUE = 8.0F;
     private static final float HEIGHT_VALUE_PER_DENSITY = 128.0F;
 
-    public static float outerHeightValue(SimplexNoise islandNoise, WorldFold transformer, int blockX, int blockZ) {
+    public static float outerHeightValue(SimplexNoise islandNoise, WorldFold fold, int blockX, int blockZ) {
         float height = MIN_HEIGHT_VALUE;
 
         int chunkX = Math.floorDiv(blockX, CoordinateConstants.CHUNK_WIDTH);
         int chunkZ = Math.floorDiv(blockZ, CoordinateConstants.CHUNK_WIDTH);
         int subSectionX = Math.floorMod(Math.floorDiv(blockX, SECTION_WIDTH), SECTIONS_PER_CHUNK);
         int subSectionZ = Math.floorMod(Math.floorDiv(blockZ, SECTION_WIDTH), SECTIONS_PER_CHUNK);
-        TranslationLattice lattice = transformer.chunkLattice();
+        TranslationLattice lattice = fold.chunkLattice();
 
         for (int xo = -ISLAND_SEARCH_CHUNK_REACH; xo <= ISLAND_SEARCH_CHUNK_REACH; xo++) {
             for (int zo = -ISLAND_SEARCH_CHUNK_REACH; zo <= ISLAND_SEARCH_CHUNK_REACH; zo++) {

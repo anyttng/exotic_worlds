@@ -31,7 +31,7 @@ public class ColorBlockPlacementMixin {
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_3D))
     private double exotic_worlds$lapColorNoise(OpenSimplexNoise noise, double x, double y, double z,
             Operation<Double> original, @Local(argsOnly = true) BlockPlaceContext context) {
-        WorldFold fold = WorldLoopAttachments.transformerOfReader(context.getLevel());
+        WorldFold fold = WorldLoopAttachments.foldOfReader(context.getLevel());
         return fold.isWrapped()
                 ? LapNoise.eval(((StandInHolder) (Object) noise).exotic_worlds$standIn(), fold, x, y, z, SCALE, SCALE)
                 : original.call(noise, x, y, z);

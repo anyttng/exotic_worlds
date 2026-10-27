@@ -3,7 +3,7 @@ package com.exoticworlds.engine.noise;
 import net.minecraft.core.QuartPos;
 import net.minecraft.world.level.biome.Climate;
 
-public final class ClimateFields {
+public final class ClimateTargets {
     public static Climate.TargetPoint at(Climate.Sampler sampler, int quartX, int quartY, int quartZ) {
         int blockX = QuartPos.toBlock(quartX);
         int blockY = QuartPos.toBlock(quartY);
@@ -17,6 +17,6 @@ public final class ClimateFields {
                 sampler.weirdness().sampleValue(blockX, blockY, blockZ));
     }
 
-    private ClimateFields() {
+    private ClimateTargets() {
     }
 }

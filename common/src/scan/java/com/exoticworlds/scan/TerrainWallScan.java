@@ -5,7 +5,7 @@ import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
 import com.exoticworlds.engine.noise.ClimateScanFixture.WorldType;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.OctaveVarianceCorrection;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.climate.ClimateCompression;
@@ -427,7 +427,7 @@ class TerrainWallScan {
         RandomState state = randomState(type, fold, seed);
         Needles[] total = {new Needles(0, 0, 0)};
 
-        GenerationTransformerContext.runWithTransformer(fold, () -> {
+        GenerationFoldContext.runWithFold(fold, () -> {
             for (int quadrantX = 0; quadrantX < 2; quadrantX++) {
                 for (int quadrantZ = 0; quadrantZ < 2; quadrantZ++) {
                     total[0] = total[0].plus(window(state, noiseSettings,
@@ -589,7 +589,7 @@ class TerrainWallScan {
         double[] land = new double[1];
         int[] perLevel = new int[LEVELS_BELOW_SEA + LEVELS_ABOVE_SEA + 1];
 
-        GenerationTransformerContext.runWithTransformer(fold, () -> {
+        GenerationFoldContext.runWithFold(fold, () -> {
             double[] sea = grid(randomState, router.finalDensity(), corners, seaLevel);
             fields.add(field("final density", sea, corners));
             fields.add(field("continents", grid(randomState, router.continents(), corners, seaLevel), corners));

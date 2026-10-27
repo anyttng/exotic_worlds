@@ -3,7 +3,7 @@ package com.exoticworlds.compat.c2me.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.compat.c2me.C2meSeamFold;
 import com.exoticworlds.core.WorldFold;
 import com.ishland.c2me.rewrites.chunksystem.common.NewChunkStatus;
@@ -24,13 +24,13 @@ public class NewChunkStatusMixin {
             int chunkZ,
             Operation<ChunkPos> original,
             @Local(argsOnly = true) ItemHolder<?, ?, ?, ?> holder) {
-        WorldFold transformer = holder.getUserData().get() instanceof TransformerSource source
-                ? source.exotic_worlds$wrappedTransformer()
+        WorldFold fold = holder.getUserData().get() instanceof FoldSource source
+                ? source.exotic_worlds$wrappedFold()
                 : null;
-        if (transformer == null) {
+        if (fold == null) {
             return original.call(chunkX, chunkZ);
         }
 
-        return C2meSeamFold.canonical(transformer, chunkX, chunkZ);
+        return C2meSeamFold.canonical(fold, chunkX, chunkZ);
     }
 }

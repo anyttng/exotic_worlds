@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.gen.FloatingCrumbs;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.TerrainCeiling;
 
 import net.minecraft.core.registries.Registries;
@@ -48,10 +48,10 @@ public final class GenerationProbe {
                     "The level's generator is not noise based: " + generator.getClass().getName());
         }
 
-        @Nullable WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(level);
+        @Nullable WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
         NoiseGeneratorSettings settings = noise.generatorSettings().value();
         NoiseGeneratorSettings shaped = fold != null ? TerrainCeiling.withCeiling(settings) : settings;
-        return GenerationTransformerContext.withRouterBuild(fold,
+        return GenerationFoldContext.withRouterBuild(fold,
                 () -> RandomState.create(level.registryAccess().lookupOrThrow(Registries.NOISE), seed, shaped));
     }
 
@@ -62,7 +62,7 @@ public final class GenerationProbe {
      * {@link #randomState} built is folded either way. The binding is per thread and lasts only for the call.
      */
     public static void withFold(ServerLevel level, Runnable body) {
-        GenerationTransformerContext.runWithTransformer(WorldLoopAttachments.transformerOf(level), body);
+        GenerationFoldContext.runWithFold(WorldLoopAttachments.foldOf(level), body);
     }
 
     /**

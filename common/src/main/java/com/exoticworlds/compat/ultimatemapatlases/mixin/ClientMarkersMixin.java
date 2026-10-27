@@ -66,7 +66,7 @@ public class ClientMarkersMixin {
     private static BlockPos exotic_worlds$nearPlayer(BlockPos marker) {
         LocalPlayer player = Minecraft.getInstance().player;
         return player == null ? marker
-                : NearestCopy.toward(MapSeamFold.transformerFor(null, player.level().dimension()),
+                : NearestCopy.toward(MapSeamFold.foldFor(null, player.level().dimension()),
                         player.blockPosition(), marker);
     }
 }

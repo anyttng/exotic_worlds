@@ -349,12 +349,12 @@ class IdentityFastPathTest {
     }
 
     @Test
-    void foldBoxKeepsItsValueAndReturnsABoxWhoseCenterNeedsNoShiftUntouched() {
+    void nearestCopyOrientedBoxKeepsItsValueAndReturnsABoxWhoseCenterNeedsNoShiftUntouched() {
         forEach(FOLDS, (fold, random) -> {
             AABB box = sampleBox(random, fold);
             boolean anchoredAtTheCenter = random.nextBoolean();
             Vec3 ref = anchoredAtTheCenter ? box.getCenter() : sampleVec(random, fold);
-            AABB folded = fold.foldBox(ref, box).value();
+            AABB folded = fold.nearestCopyOriented(ref, box).value();
 
             if (fold.decomposesPerAxis()) {
                 double centerX = (box.minX + box.maxX) / 2.0;
@@ -362,7 +362,7 @@ class IdentityFastPathTest {
                 double shiftX = nearestCopy(blockX(fold), ref.x, centerX) - centerX;
                 double shiftZ = nearestCopy(blockZ(fold), ref.z, centerZ) - centerZ;
                 assertBoxEquals(box.move(shiftX, 0.0, shiftZ), folded,
-                        () -> "foldBox(" + ref + ", " + box + ") " + in(fold));
+                        () -> "nearestCopyOriented(" + ref + ", " + box + ") " + in(fold));
             }
 
             assertUntouched(box, folded, anchoredAtTheCenter, fold);

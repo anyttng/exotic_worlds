@@ -16,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 public final class SeamRange {
     public static int manhattan(Entity levelSource, Vec3i from, Vec3i to) {
         BlockPos anchor = BlockPos.ZERO.offset(from);
-        return anchor.distManhattan(transformerOf(levelSource).nearestCopy(anchor, BlockPos.ZERO.offset(to)));
+        return anchor.distManhattan(foldOf(levelSource).nearestCopy(anchor, BlockPos.ZERO.offset(to)));
     }
 
     public static int chessboard(@Nullable WorldFold fold, BlockPos from, Vec3i to) {
@@ -46,23 +46,23 @@ public final class SeamRange {
     }
 
     public static double sqr(Entity levelSource, Vec3i from, Vec3i to) {
-        return sqr(transformerOf(levelSource), from, to);
+        return sqr(foldOf(levelSource), from, to);
     }
 
     public static double sqr(Level levelSource, Vec3i from, Vec3i to) {
-        return sqr(WorldLoopAttachments.wrappedTransformerOf(levelSource), from, to);
+        return sqr(WorldLoopAttachments.wrappedFoldOf(levelSource), from, to);
     }
 
     public static double sqr(Entity levelSource, Vec3 from, Position to) {
-        return sqr(transformerOf(levelSource), from, to);
+        return sqr(foldOf(levelSource), from, to);
     }
 
     public static double sqr(Entity levelSource, Vec3 from, double toX, double toY, double toZ) {
-        return transformerOf(levelSource).sqrDistance(from.x, from.y, from.z, toX, toY, toZ);
+        return foldOf(levelSource).sqrDistance(from.x, from.y, from.z, toX, toY, toZ);
     }
 
     public static double sqr(Level levelSource, Vec3 from, Position to) {
-        return sqr(WorldLoopAttachments.wrappedTransformerOf(levelSource), from, to);
+        return sqr(WorldLoopAttachments.wrappedFoldOf(levelSource), from, to);
     }
 
     public static boolean closerThan(Entity levelSource, Vec3i from, Vec3i to, double distance) {
@@ -91,8 +91,8 @@ public final class SeamRange {
         return sqr(levelSource, Vec3.atCenterOf(from), to) < Mth.square(distance);
     }
 
-    private static WorldFold transformerOf(Entity levelSource) {
-        return WorldLoopAttachments.transformerOf(levelSource.level());
+    private static WorldFold foldOf(Entity levelSource) {
+        return WorldLoopAttachments.foldOf(levelSource.level());
     }
 
     private SeamRange() {

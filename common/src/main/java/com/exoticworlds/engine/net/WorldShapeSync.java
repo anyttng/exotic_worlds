@@ -18,7 +18,7 @@ public final class WorldShapeSync {
     }
 
     public static int distanceFor(ServerPlayer player, int distance) {
-        return WorldLoopAttachments.transformerOf(player.level()).limitViewDistance(distance);
+        return WorldLoopAttachments.foldOf(player.level()).limitViewDistance(distance);
     }
 
     public static void sendViewDistance(ServerPlayer player) {

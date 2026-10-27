@@ -5,18 +5,18 @@ import java.util.function.DoubleSupplier;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 public final class LapNoise {
     public static double boundEval(OpenSimplexStandIn noise, double x, double z, double xScale, double zScale,
             DoubleSupplier original) {
-        WorldFold fold = GenerationTransformerContext.context().wrappedTransformer();
+        WorldFold fold = GenerationFoldContext.context().wrappedFold();
         return fold == null ? original.getAsDouble() : eval(noise, fold, x, z, xScale, zScale);
     }
 
     public static double boundEval(OpenSimplexStandIn noise, double x, double y, double z, double xScale,
             double zScale, DoubleSupplier original) {
-        WorldFold fold = GenerationTransformerContext.context().wrappedTransformer();
+        WorldFold fold = GenerationFoldContext.context().wrappedFold();
         return fold == null ? original.getAsDouble() : eval(noise, fold, x, y, z, xScale, zScale);
     }
 

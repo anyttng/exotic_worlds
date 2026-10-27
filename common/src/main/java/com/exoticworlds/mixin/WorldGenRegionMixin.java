@@ -68,7 +68,7 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @Unique
     private @Nullable ChunkPos exotic_worlds$nearestPastTheReach(int chunkX, int chunkZ) {
-        return RegionReach.nearestPastTheReach(WorldLoopAttachments.wrappedTransformerOf(this.level),
+        return RegionReach.nearestPastTheReach(WorldLoopAttachments.wrappedFoldOf(this.level),
                 this.center.getPos(), this.generatingStep.directDependencies().size(), chunkX, chunkZ);
     }
 
@@ -96,7 +96,7 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
                 SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
         return nearest == null
                 ? original.call(pos)
-                : original.call(WorldLoopAttachments.transformerOf(this.level).reseat(pos, nearest));
+                : original.call(WorldLoopAttachments.foldOf(this.level).reseat(pos, nearest));
     }
 
     @WrapMethod(method = "hasChunk")
@@ -110,7 +110,7 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @Unique
     private BlockPos exotic_worlds$keyIn(ChunkAccess chunk, BlockPos pos) {
-        return WorldLoopAttachments.transformerOf(this.level).reseat(pos, chunk.getPos());
+        return WorldLoopAttachments.foldOf(this.level).reseat(pos, chunk.getPos());
     }
 
     @WrapOperation(
@@ -215,7 +215,7 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @Unique
     private <T> LevelTickAccess<T> exotic_worlds$ticksInChunkFrame(LevelTickAccess<T> ticks) {
-        if (WorldLoopAttachments.wrappedTransformerOf(this.level) == null) {
+        if (WorldLoopAttachments.wrappedFoldOf(this.level) == null) {
             return ticks;
         }
 
@@ -229,9 +229,9 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/level/chunk/ChunkAccess;addEntity(Lnet/minecraft/world/entity/Entity;)V"))
     private void exotic_worlds$addEntityInChunkFrame(ChunkAccess chunk, Entity entity, Operation<Void> original) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.level);
-        if (transformer != null && transformer.isOver(entity.position())) {
-            entity.setPos(transformer.fold(entity.position()));
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.level);
+        if (fold != null && fold.isOver(entity.position())) {
+            entity.setPos(fold.fold(entity.position()));
         }
 
         original.call(chunk, entity);

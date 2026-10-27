@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
@@ -63,10 +63,10 @@ public class PlayerListMixin {
     @Unique
     private static double exotic_worlds$listenerCoord(ServerPlayer player, Direction.Axis axis, Vec3 event,
             Operation<Double> original) {
-        WorldFold transformer = ((TransformerSource) player).exotic_worlds$wrappedTransformer();
-        return transformer == null
+        WorldFold fold = ((FoldSource) player).exotic_worlds$wrappedFold();
+        return fold == null
                 ? original.call(player)
-                : NearestCopy.toward(transformer, axis, event, player.position());
+                : NearestCopy.toward(fold, axis, event, player.position());
     }
 
     @Inject(method = "placeNewPlayer", at = @At("TAIL"))
@@ -113,7 +113,7 @@ public class PlayerListMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;setViewDistance(I)V"))
     private void exotic_worlds$limitViewDistance(ServerChunkCache chunkSource, int viewDistance, Operation<Void> original,
             @Local ServerLevel level) {
-        original.call(chunkSource, WorldLoopAttachments.transformerOf(level).limitViewDistance(viewDistance));
+        original.call(chunkSource, WorldLoopAttachments.foldOf(level).limitViewDistance(viewDistance));
     }
 
     @WrapOperation(
@@ -121,6 +121,6 @@ public class PlayerListMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;setSimulationDistance(I)V"))
     private void exotic_worlds$limitSimulationDistance(ServerChunkCache chunkSource, int simulationDistance, Operation<Void> original,
             @Local ServerLevel level) {
-        original.call(chunkSource, WorldLoopAttachments.transformerOf(level).limitViewDistance(simulationDistance));
+        original.call(chunkSource, WorldLoopAttachments.foldOf(level).limitViewDistance(simulationDistance));
     }
 }

@@ -23,9 +23,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 final class PacketTranslatorFixture {
-    static final WorldFold TRANSFORMER =
+    static final WorldFold FOLD =
             WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-32, 32, -32, 32)));
-    static final WorldFold MIRRORED_TRANSFORMER = new DeckGroupFold(ShapeFixtures.mirrored(
+    static final WorldFold MIRRORED_FOLD = new DeckGroupFold(ShapeFixtures.mirrored(
             new WorldLoopBounds(new AxisBounds.Looped(-32, 32), AxisBounds.Unbounded.INSTANCE),
             Direction.Axis.Z, 0), GenerationOptions.DEFAULT);
     static final RegistryAccess.Frozen REGISTRIES =
@@ -59,8 +59,8 @@ final class PacketTranslatorFixture {
 
     static TranslationContext mirroredContext() {
         ClientPosition mirror = new ClientPosition();
-        mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, MIRRORED_TRANSFORMER);
-        return new TranslationContext(MIRRORED_TRANSFORMER, mirror, BUFFERS, Level.OVERWORLD,
+        mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, MIRRORED_FOLD);
+        return new TranslationContext(MIRRORED_FOLD, mirror, BUFFERS, Level.OVERWORLD,
                 VIEW_DISTANCE, VIEW_DISTANCE, entityId -> false, entityId -> null, entityId -> null, () -> {});
     }
 
@@ -71,8 +71,8 @@ final class PacketTranslatorFixture {
     static TranslationContext context(IntPredicate ownVehicle, IntFunction<Vec3> entityPosition,
             IntFunction<TagPositions.Subject> entity) {
         ClientPosition mirror = new ClientPosition();
-        mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, TRANSFORMER);
-        return new TranslationContext(TRANSFORMER, mirror, BUFFERS, Level.OVERWORLD,
+        mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, FOLD);
+        return new TranslationContext(FOLD, mirror, BUFFERS, Level.OVERWORLD,
                 VIEW_DISTANCE, VIEW_DISTANCE, ownVehicle, entityPosition, entity, () -> {});
     }
 
