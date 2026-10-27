@@ -20,6 +20,11 @@ public abstract class BlockRendererMixin extends AbstractBlockRenderContext {
             method = "renderModel",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_STATE_GET_OFFSET))
     private Vec3 exotic_worlds$seedModelOffset(BlockState state, BlockPos pos, Operation<Vec3> original) {
-        return BlockOffsetSeed.seeded(this.level, state, () -> original.call(state, pos));
+        BlockOffsetSeed scope = BlockOffsetSeed.enter(this.level, state);
+        try {
+            return original.call(state, pos);
+        } finally {
+            BlockOffsetSeed.exit(scope);
+        }
     }
 }
