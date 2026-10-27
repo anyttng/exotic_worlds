@@ -1,7 +1,5 @@
 package com.exoticworlds.engine.seam;
 
-import java.util.function.Supplier;
-
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.RegionLevelSource;
@@ -26,16 +24,18 @@ public final class BlockOffsetSeed {
         return CURRENT.get().fold.fold(pos);
     }
 
-    public static <T> T seeded(@Nullable BlockGetter getter, BlockState state, Supplier<T> call) {
+    public static @Nullable BlockOffsetSeed enter(@Nullable BlockGetter getter, BlockState state) {
         if (!state.hasOffsetFunction()) {
-            return call.get();
+            return null;
         }
 
         BlockOffsetSeed scope = CURRENT.get();
         scope.push(foldOf(getter));
-        try {
-            return call.get();
-        } finally {
+        return scope;
+    }
+
+    public static void exit(@Nullable BlockOffsetSeed scope) {
+        if (scope != null) {
             scope.pop();
         }
     }

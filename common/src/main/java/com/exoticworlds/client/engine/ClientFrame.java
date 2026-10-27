@@ -116,6 +116,21 @@ public final class ClientFrame {
         return holds.test(nearest) ? nearest : null;
     }
 
+    public static long nearestChunkKey(int chunkX, int chunkZ) {
+        WorldFold fold = fold();
+        LocalPlayer player = Minecraft.getInstance().player;
+        return nearestChunkKey(fold, player == null ? null : player.chunkPosition(), chunkX, chunkZ);
+    }
+
+    public static long nearestChunkKey(@Nullable WorldFold fold, @Nullable ChunkPos anchor, int chunkX, int chunkZ) {
+        long chunkKey = ChunkPos.pack(chunkX, chunkZ);
+        if (fold == null || anchor == null) {
+            return chunkKey;
+        }
+
+        return fold.nearestCopyChunkKey(anchor.pack(), chunkKey);
+    }
+
     public static boolean isClientLevel(Level level) {
         return level == Minecraft.getInstance().level;
     }
