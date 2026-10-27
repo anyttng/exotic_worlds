@@ -22,6 +22,11 @@ public class PointedDripstoneBlockMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_STATE_GET_OFFSET))
     private static Vec3 exotic_worlds$seedDripOffset(BlockState state, BlockPos pos, Operation<Vec3> original,
             @Local(argsOnly = true) Level level) {
-        return BlockOffsetSeed.seeded(level, state, () -> original.call(state, pos));
+        BlockOffsetSeed scope = BlockOffsetSeed.enter(level, state);
+        try {
+            return original.call(state, pos);
+        } finally {
+            BlockOffsetSeed.exit(scope);
+        }
     }
 }
