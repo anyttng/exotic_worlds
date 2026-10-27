@@ -4,7 +4,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.WorldFold;
 
-public interface TransformerSource {
+public interface FoldSource {
     @Nullable
-    WorldFold exotic_worlds$wrappedTransformer();
+    WorldFold exotic_worlds$wrappedFold();
 }

@@ -117,8 +117,8 @@ class CrumbFloodTest {
     void aComponentAtTheCeilingStandsAndOneBelowItGoes() {
         Grid grid = new Grid();
         int placed = 0;
-        for (int x = 4; x < 12 && placed < CrumbFlood.CRUMB_CEILING_BLOCKS; x++) {
-            for (int z = 4; z < 12 && placed < CrumbFlood.CRUMB_CEILING_BLOCKS; z++) {
+        for (int x = 4; x < 12 && placed < CrumbFlood.SMALLEST_KEPT_BLOCKS; x++) {
+            for (int z = 4; z < 12 && placed < CrumbFlood.SMALLEST_KEPT_BLOCKS; z++) {
                 grid.set(x, z, 4);
                 placed++;
             }
@@ -126,7 +126,7 @@ class CrumbFloodTest {
 
         List<Integer> cleared = grid.sweep();
 
-        assertEquals(CrumbFlood.CRUMB_CEILING_BLOCKS, placed);
+        assertEquals(CrumbFlood.SMALLEST_KEPT_BLOCKS, placed);
         assertTrue(cleared.isEmpty(), "swept a component of exactly the ceiling");
         assertEquals(new CrumbFlood.Sweep(1, 0, 0), grid.result);
     }
@@ -135,8 +135,8 @@ class CrumbFloodTest {
     void oneBlockUnderTheCeilingGoes() {
         Grid grid = new Grid();
         int placed = 0;
-        for (int x = 4; x < 12 && placed < CrumbFlood.CRUMB_CEILING_BLOCKS - 1; x++) {
-            for (int z = 4; z < 12 && placed < CrumbFlood.CRUMB_CEILING_BLOCKS - 1; z++) {
+        for (int x = 4; x < 12 && placed < CrumbFlood.SMALLEST_KEPT_BLOCKS - 1; x++) {
+            for (int z = 4; z < 12 && placed < CrumbFlood.SMALLEST_KEPT_BLOCKS - 1; z++) {
                 grid.set(x, z, 4);
                 placed++;
             }
@@ -144,8 +144,8 @@ class CrumbFloodTest {
 
         List<Integer> cleared = grid.sweep();
 
-        assertEquals(CrumbFlood.CRUMB_CEILING_BLOCKS - 1, cleared.size());
-        assertEquals(new CrumbFlood.Sweep(1, 1, CrumbFlood.CRUMB_CEILING_BLOCKS - 1), grid.result);
+        assertEquals(CrumbFlood.SMALLEST_KEPT_BLOCKS - 1, cleared.size());
+        assertEquals(new CrumbFlood.Sweep(1, 1, CrumbFlood.SMALLEST_KEPT_BLOCKS - 1), grid.result);
     }
 
     @Test

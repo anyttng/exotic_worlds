@@ -26,7 +26,7 @@ public class AcquirePoiRetryMixin {
             name = LithiumInjectionTargets.RETRY_MARKER_LAMBDA)
     private static long exotic_worlds$retryDistanceThroughSeam(BlockPos poiPos, BlockPos center, Operation<Long> original,
             @Local(argsOnly = true) PoiManager poiManager) {
-        WorldFold fold = WorldLoopAttachments.transformerIfLevel(
+        WorldFold fold = WorldLoopAttachments.foldIfLevel(
                 ((SectionStorageAccessor) poiManager).exotic_worlds$getLevelHeightAccessor());
         return original.call(fold.nearestCopy(center, poiPos), center);
     }

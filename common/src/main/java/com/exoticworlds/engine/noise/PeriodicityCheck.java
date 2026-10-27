@@ -31,7 +31,11 @@ public final class PeriodicityCheck {
 
     private static final int SAMPLE_Y = 64;
 
-    public static void runOnce(ServerLevel level, WorldFold transformer) {
+    private record Probe(ServerLevel level, ChunkGenerator generator, RandomState randomState,
+            Climate.Sampler sampler, WorldFold fold, Direction.Axis lapAxis, int widthBlocks) {
+    }
+
+    public static void runOnce(ServerLevel level, WorldFold fold) {
         if (!((PeriodicityMark) level).exotic_worlds$claimPeriodicityCheck()) {
             return;
         }
@@ -45,51 +49,65 @@ public final class PeriodicityCheck {
             return;
         }
 
-        RandomState randomState = level.getChunkSource().randomState();
-        Climate.Sampler sampler = randomState.sampler();
-        Direction.Axis lapAxis = transformer.bounds().loops(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
-        TranslationLattice lattice = transformer.blockLattice();
-        int widthBlocks = (lapAxis == Direction.Axis.X ? lattice.x() : lattice.z()).domainLength;
-        String axisName = lapAxis.getName().toUpperCase(Locale.ROOT);
-
+        Probe probe = probeOf(level, generator, fold);
         Set<String> brokenFields = new LinkedHashSet<>();
         int brokenSamples = 0;
-
         for (int z : SAMPLE_Z) {
             for (int x : SAMPLE_X) {
-                int xLapAway = lapAxis == Direction.Axis.X ? x + widthBlocks : x;
-                int zLapAway = lapAxis == Direction.Axis.Z ? z + widthBlocks : z;
-                NoiseColumn columnHere = generator.getBaseColumn(x, z, level, randomState);
-                NoiseColumn columnLapAway = generator.getBaseColumn(xLapAway, zLapAway, level, randomState);
-                boolean broken = collectColumn(brokenFields, level, columnHere, columnLapAway);
-
-                int quartX = QuartPos.fromBlock(x);
-                int quartZ = QuartPos.fromBlock(z);
-                int quartY = QuartPos.fromBlock(SAMPLE_Y);
-                int lapAwayQuartX = QuartPos.fromBlock(xLapAway);
-                int lapAwayQuartZ = QuartPos.fromBlock(zLapAway);
-
-                Climate.TargetPoint climateHere = GenerationTransformerContext.withTransformer(transformer,
-                        () -> ClimateFields.at(sampler, quartX, quartY, quartZ));
-                Climate.TargetPoint climateLapAway = GenerationTransformerContext.withTransformer(transformer,
-                        () -> ClimateFields.at(sampler, lapAwayQuartX, quartY, lapAwayQuartZ));
-                broken |= collectClimate(brokenFields, climateHere, climateLapAway);
-
-                Holder<Biome> biomeHere = GenerationTransformerContext.withTransformer(transformer,
-                        () -> generator.getBiomeSource().getNoiseBiome(quartX, quartY, quartZ, sampler));
-                Holder<Biome> biomeLapAway = GenerationTransformerContext.withTransformer(transformer,
-                        () -> generator.getBiomeSource().getNoiseBiome(lapAwayQuartX, quartY, lapAwayQuartZ, sampler));
-                if (!biomeHere.equals(biomeLapAway)) {
-                    brokenFields.add("biome");
-                    broken = true;
-                }
-
-                if (broken) {
+                if (sampleBroken(probe, x, z, brokenFields)) {
                     brokenSamples++;
                 }
             }
         }
 
+        report(levelName, probe, brokenFields, brokenSamples);
+    }
+
+    private static Probe probeOf(ServerLevel level, ChunkGenerator generator, WorldFold fold) {
+        RandomState randomState = level.getChunkSource().randomState();
+        Climate.Sampler sampler = randomState.sampler();
+        Direction.Axis lapAxis = fold.bounds().loops(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
+        TranslationLattice lattice = fold.blockLattice();
+        int widthBlocks = (lapAxis == Direction.Axis.X ? lattice.x() : lattice.z()).domainLength;
+        return new Probe(level, generator, randomState, sampler, fold, lapAxis, widthBlocks);
+    }
+
+    private static boolean sampleBroken(Probe probe, int x, int z, Set<String> brokenFields) {
+        int xLapAway = probe.lapAxis() == Direction.Axis.X ? x + probe.widthBlocks() : x;
+        int zLapAway = probe.lapAxis() == Direction.Axis.Z ? z + probe.widthBlocks() : z;
+        NoiseColumn columnHere = probe.generator().getBaseColumn(x, z, probe.level(), probe.randomState());
+        NoiseColumn columnLapAway = probe.generator()
+                .getBaseColumn(xLapAway, zLapAway, probe.level(), probe.randomState());
+        boolean broken = collectColumn(brokenFields, probe.level(), columnHere, columnLapAway);
+
+        int quartX = QuartPos.fromBlock(x);
+        int quartZ = QuartPos.fromBlock(z);
+        int quartY = QuartPos.fromBlock(SAMPLE_Y);
+        int lapAwayQuartX = QuartPos.fromBlock(xLapAway);
+        int lapAwayQuartZ = QuartPos.fromBlock(zLapAway);
+
+        Climate.TargetPoint climateHere = GenerationFoldContext.withFold(probe.fold(),
+                () -> ClimateTargets.at(probe.sampler(), quartX, quartY, quartZ));
+        Climate.TargetPoint climateLapAway = GenerationFoldContext.withFold(probe.fold(),
+                () -> ClimateTargets.at(probe.sampler(), lapAwayQuartX, quartY, lapAwayQuartZ));
+        broken |= collectClimate(brokenFields, climateHere, climateLapAway);
+
+        Holder<Biome> biomeHere = GenerationFoldContext.withFold(probe.fold(),
+                () -> probe.generator().getBiomeSource().getNoiseBiome(quartX, quartY, quartZ, probe.sampler()));
+        Holder<Biome> biomeLapAway = GenerationFoldContext.withFold(probe.fold(),
+                () -> probe.generator().getBiomeSource()
+                        .getNoiseBiome(lapAwayQuartX, quartY, lapAwayQuartZ, probe.sampler()));
+        if (!biomeHere.equals(biomeLapAway)) {
+            brokenFields.add("biome");
+            broken = true;
+        }
+
+        return broken;
+    }
+
+    private static void report(String levelName, Probe probe, Set<String> brokenFields, int brokenSamples) {
+        String axisName = probe.lapAxis().getName().toUpperCase(Locale.ROOT);
+        int widthBlocks = probe.widthBlocks();
         int samples = SAMPLE_X.length * SAMPLE_Z.length;
         if (brokenFields.isEmpty()) {
             LOGGER.info("[ew/world-loop] periodicity_ok level={} axis={} width_blocks={} samples={}",

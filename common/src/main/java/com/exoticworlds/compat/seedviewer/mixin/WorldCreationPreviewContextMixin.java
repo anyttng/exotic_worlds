@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import com.exoticworlds.BinderOrder;
 import com.exoticworlds.compat.seedviewer.CreationShape;
 import com.exoticworlds.compat.seedviewer.SeedViewerInjectionTargets;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -36,7 +36,7 @@ public class WorldCreationPreviewContextMixin {
     private static WorldCreationPreviewContext exotic_worlds$buildForTheChosenShape(CreateWorldScreen screen,
             WorldCreationUiState uiState, WorldgenEditorState editorState, boolean applyEditorEdits,
             Operation<WorldCreationPreviewContext> original) {
-        return GenerationTransformerContext.withRouterBuild(CreationShape.fold(uiState.getSettings()),
+        return GenerationFoldContext.withRouterBuild(CreationShape.fold(uiState.getSettings()),
                 () -> original.call(screen, uiState, editorState, applyEditorEdits));
     }
 

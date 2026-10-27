@@ -24,6 +24,6 @@ public class ServerLevelCapabilityMixin {
 
     @Unique
     private BlockPos exotic_worlds$canonicalKey(BlockPos pos) {
-        return WorldLoopAttachments.transformerOf((ServerLevel) (Object) this).fold(pos);
+        return WorldLoopAttachments.foldOf((ServerLevel) (Object) this).fold(pos);
     }
 }

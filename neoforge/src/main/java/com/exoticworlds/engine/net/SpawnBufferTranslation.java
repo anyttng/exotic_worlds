@@ -52,13 +52,18 @@ public final class SpawnBufferTranslation {
             return payload;
         }
 
-        FriendlyByteBuf rewritten = new FriendlyByteBuf(Unpooled.buffer(payload.customPayload().length));
+        return new AdvancedAddEntityPayload(payload.entityId(),
+                rewrittenBuffer(seated, buffer, payload.customPayload().length));
+    }
+
+    private static byte[] rewrittenBuffer(CompoundTag seated, FriendlyByteBuf rest, int length) {
+        FriendlyByteBuf rewritten = new FriendlyByteBuf(Unpooled.buffer(length));
         rewritten.writeNbt(seated);
-        rewritten.writeBytes(buffer);
+        rewritten.writeBytes(rest);
 
         byte[] bytes = new byte[rewritten.readableBytes()];
         rewritten.readBytes(bytes);
-        return new AdvancedAddEntityPayload(payload.entityId(), bytes);
+        return bytes;
     }
 
     private static TagPositions.Seat seatIn(TranslationContext context) {

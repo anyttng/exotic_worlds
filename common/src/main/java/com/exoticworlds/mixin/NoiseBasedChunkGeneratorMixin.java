@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import com.exoticworlds.BinderOrder;
 import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -38,8 +38,8 @@ public class NoiseBasedChunkGeneratorMixin {
             int cellYMin,
             int cellCountY,
             Operation<ChunkAccess> original) {
-        return GenerationTransformerContext.withTransformer(
-                ShapedChunkGenerator.transformerOf((NoiseBasedChunkGenerator) (Object) this),
+        return GenerationFoldContext.withFold(
+                ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this),
                 () -> original.call(blender, structureManager, randomState, centerChunk, cellYMin, cellCountY));
     }
 
@@ -50,8 +50,8 @@ public class NoiseBasedChunkGeneratorMixin {
             StructureManager structureManager,
             ChunkAccess protoChunk,
             Operation<Void> original) {
-        GenerationTransformerContext.runWithTransformer(
-                ShapedChunkGenerator.transformerOf((NoiseBasedChunkGenerator) (Object) this),
+        GenerationFoldContext.runWithFold(
+                ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this),
                 () -> original.call(blender, randomState, structureManager, protoChunk));
     }
 
@@ -71,8 +71,8 @@ public class NoiseBasedChunkGeneratorMixin {
             Blender blender,
             @Nullable Set<Holder<Biome>> possibleBiomes,
             Operation<Void> original) {
-        GenerationTransformerContext.runWithTransformer(
-                ShapedChunkGenerator.transformerOf((NoiseBasedChunkGenerator) (Object) this),
+        GenerationFoldContext.runWithFold(
+                ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this),
                 () -> original.call(protoChunk, context, randomState, structureManager, biomeManager, blender,
                         possibleBiomes));
     }
@@ -86,8 +86,8 @@ public class NoiseBasedChunkGeneratorMixin {
             @Nullable MutableObject<NoiseColumn> columnReference,
             @Nullable Predicate<BlockState> tester,
             Operation<OptionalInt> original) {
-        return GenerationTransformerContext.withTransformer(
-                ShapedChunkGenerator.transformerOf((NoiseBasedChunkGenerator) (Object) this),
+        return GenerationFoldContext.withFold(
+                ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this),
                 () -> original.call(heightAccessor, randomState, blockX, blockZ, columnReference, tester));
     }
 }

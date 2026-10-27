@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.DensityFunctionSlotAxes;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.NoiseConstants;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
 import com.exoticworlds.engine.noise.SlotAxes;
@@ -32,17 +32,17 @@ public final class C2meDfcAst {
     private static @Nullable WorldFold reportedMissesFor;
 
     public static AstNode fold(DensityFunction source, AstNode produced) {
-        WorldFold transformer = GenerationTransformerContext.context().routerBuildTransformer();
+        WorldFold worldFold = GenerationFoldContext.context().routerBuildFold();
         Fold fold = foldOf(source);
         if (fold == null) {
-            if (reportsMiss(source, produced, transformer)) {
+            if (reportsMiss(source, produced, worldFold)) {
                 LOGGER.warn("[ew/c2me-compat] dfc_ast noise_not_folded type={}", source.getClass().getName());
             }
 
             return produced;
         }
 
-        if (transformer == null) {
+        if (worldFold == null) {
             return produced;
         }
 
@@ -51,14 +51,14 @@ public final class C2meDfcAst {
                 throw brokenShape(source, produced);
             }
 
-            return new MulNode(foldNoise(source, noise, fold, transformer), amplified.right);
+            return new MulNode(foldNoise(source, noise, fold, worldFold), amplified.right);
         }
 
         if (!(produced instanceof GenericShiftedNoiseNode noise)) {
             throw brokenShape(source, produced);
         }
 
-        return foldNoise(source, noise, fold, transformer);
+        return foldNoise(source, noise, fold, worldFold);
     }
 
     private static @Nullable Fold foldOf(DensityFunction source) {
@@ -67,9 +67,9 @@ public final class C2meDfcAst {
             case DensityFunctions.ShiftedNoise shifted -> shiftedNoiseFold(shifted);
             case DensityFunctions.Shift _, DensityFunctions.ShiftA _ -> new Fold(SlotAxes.DEFAULT,
                     NoiseConstants.SHIFT_SCALE, NoiseConstants.SHIFT_SCALE,
-                    GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE, true, false);
+                    GenerationFoldContext.UNDECLARED_VERTICAL_SHARE, true, false);
             case DensityFunctions.ShiftB _ -> new Fold(DensityFunctionSlotAxes.SHIFT_B, NoiseConstants.SHIFT_SCALE,
-                    NoiseConstants.SHIFT_SCALE, GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE, true, false);
+                    NoiseConstants.SHIFT_SCALE, GenerationFoldContext.UNDECLARED_VERTICAL_SHARE, true, false);
             default -> null;
         };
     }
@@ -78,21 +78,21 @@ public final class C2meDfcAst {
         return source instanceof DensityFunctions.HolderHolder;
     }
 
-    static boolean reportsMiss(DensityFunction source, AstNode produced, @Nullable WorldFold transformer) {
-        if (transformer == null
+    static boolean reportsMiss(DensityFunction source, AstNode produced, @Nullable WorldFold worldFold) {
+        if (worldFold == null
                 || !(produced instanceof GenericShiftedNoiseNode)
                 || produced instanceof C2meFoldedNoiseNode
                 || delegatesToItsInput(source)) {
             return false;
         }
 
-        return firstMissOf(transformer, source.getClass().getName());
+        return firstMissOf(worldFold, source.getClass().getName());
     }
 
-    private static synchronized boolean firstMissOf(WorldFold transformer, String type) {
-        if (transformer != reportedMissesFor) {
+    private static synchronized boolean firstMissOf(WorldFold worldFold, String type) {
+        if (worldFold != reportedMissesFor) {
             REPORTED_MISSES.clear();
-            reportedMissesFor = transformer;
+            reportedMissesFor = worldFold;
         }
 
         return REPORTED_MISSES.add(type);
@@ -102,17 +102,17 @@ public final class C2meDfcAst {
     private static Fold noiseFold(DensityFunctions.Noise noise) {
         double xzScale = NoiseScaleLadder.installedScale(noise.noise(), noise.xzScale());
         return new Fold(SlotAxes.DEFAULT, xzScale, noise.xzScale(),
-                GenerationTransformerContext.verticalShare(xzScale, noise.yScale()), false, false);
+                GenerationFoldContext.verticalShare(xzScale, noise.yScale()), false, false);
     }
 
     private static Fold shiftedNoiseFold(DensityFunctions.ShiftedNoise shifted) {
         double xzScale = NoiseScaleLadder.installedScale(shifted.noise(), shifted.xzScale());
         return new Fold(SlotAxes.DEFAULT, xzScale, shifted.xzScale(),
-                GenerationTransformerContext.verticalShare(xzScale, shifted.yScale()), false, xzScale != 0.0);
+                GenerationFoldContext.verticalShare(xzScale, shifted.yScale()), false, xzScale != 0.0);
     }
 
     private static AstNode foldNoise(DensityFunction source, GenericShiftedNoiseNode noise, Fold fold,
-            WorldFold transformer) {
+            WorldFold worldFold) {
         SlotAxes axes = fold.axes();
         AstNode slotY = slotNode(axes.y(), noise.inputY);
         if (fold.warped()) {
@@ -120,13 +120,13 @@ public final class C2meDfcAst {
                     shiftOf(source, CoordinateNode.Axis.X, noise.inputX), slotY,
                     shiftOf(source, CoordinateNode.Axis.Z, noise.inputZ), axes, fold.horizontalScale(),
                     fold.vanillaScale(), fold.verticalShare(), ClimateCompression.warpDivisor(noise.noise,
-                            transformer, fold.horizontalScale(), fold.verticalShare()), transformer);
+                            worldFold, fold.horizontalScale(), fold.verticalShare()), worldFold);
         }
 
         return new C2meFoldedNoiseNode(noise.inputX, noise.inputY, noise.inputZ, noise.noise,
                 slotNode(axes.x(), noise.inputX), slotY, slotNode(axes.z(), noise.inputZ), axes,
                 fold.horizontalScale(), fold.vanillaScale(), fold.verticalShare(), C2meFoldedNoiseNode.UNWARPED,
-                transformer);
+                worldFold);
     }
 
     private static AstNode slotNode(SlotAxis axis, AstNode ownInput) {

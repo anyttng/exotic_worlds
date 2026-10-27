@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.exoticworlds.accessors.TransformerHolder;
+import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.level.BoundLevelFold;
 
@@ -18,7 +18,7 @@ import net.minecraft.world.level.chunk.LightChunkGetter;
 import net.minecraft.world.level.lighting.LightEngine;
 
 @Mixin(LightEngine.class)
-public abstract class LightEngineMixin implements TransformerHolder {
+public abstract class LightEngineMixin implements FoldHolder {
     @Shadow
     @Final
     protected LightChunkGetter chunkSource;
@@ -33,11 +33,11 @@ public abstract class LightEngineMixin implements TransformerHolder {
 
     @ModifyVariable(method = "getLightValue(Lnet/minecraft/core/BlockPos;)I", at = @At("HEAD"), argsOnly = true)
     private BlockPos exotic_worlds$wrapLightValuePos(BlockPos pos) {
-        return exotic_worlds$transformer().fold(pos);
+        return exotic_worlds$fold().fold(pos);
     }
 
     @Override
-    public WorldFold exotic_worlds$transformer() {
+    public WorldFold exotic_worlds$fold() {
         return this.exotic_worlds$bound.fold();
     }
 }

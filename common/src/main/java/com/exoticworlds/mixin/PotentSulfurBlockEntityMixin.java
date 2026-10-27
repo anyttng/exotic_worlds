@@ -18,7 +18,7 @@ public class PotentSulfurBlockEntityMixin {
     @WrapMethod(method = "canBeReachedByNoxiousGas")
     private static boolean exotic_worlds$gasReachThroughSeam(Level level, BlockPos sourceBlock, Vec3 pos,
             Operation<Boolean> original) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
-        return original.call(level, sourceBlock, NearestCopy.toward(transformer, Vec3.atCenterOf(sourceBlock), pos));
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        return original.call(level, sourceBlock, NearestCopy.toward(fold, Vec3.atCenterOf(sourceBlock), pos));
     }
 }

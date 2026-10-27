@@ -28,8 +28,8 @@ public final class PeriodicEndIslands {
     private static final double ZERO_DENSITY_HEIGHT_VALUE = 8.0;
     private static final double HEIGHT_VALUE_PER_DENSITY = 128.0;
 
-    public static float heightValue(SimplexNoise islandNoise, WorldFold transformer, int blockX, int blockZ) {
-        TranslationLattice blockLattice = transformer.blockLattice();
+    public static float heightValue(SimplexNoise islandNoise, WorldFold fold, int blockX, int blockZ) {
+        TranslationLattice blockLattice = fold.blockLattice();
         int sectionX = blockLattice.foldX(blockX, blockZ) / SECTION_WIDTH;
         int sectionZ = blockLattice.foldZ(blockZ) / SECTION_WIDTH;
         float height = Mth.clamp(
@@ -40,7 +40,7 @@ public final class PeriodicEndIslands {
         int chunkZ = Math.floorDiv(blockZ, CoordinateConstants.CHUNK_WIDTH);
         int subSectionX = Math.floorMod(Math.floorDiv(blockX, SECTION_WIDTH), SECTIONS_PER_CHUNK);
         int subSectionZ = Math.floorMod(Math.floorDiv(blockZ, SECTION_WIDTH), SECTIONS_PER_CHUNK);
-        TranslationLattice lattice = transformer.chunkLattice();
+        TranslationLattice lattice = fold.chunkLattice();
 
         for (int xo = -ISLAND_SEARCH_CHUNK_REACH; xo <= ISLAND_SEARCH_CHUNK_REACH; xo++) {
             for (int zo = -ISLAND_SEARCH_CHUNK_REACH; zo <= ISLAND_SEARCH_CHUNK_REACH; zo++) {

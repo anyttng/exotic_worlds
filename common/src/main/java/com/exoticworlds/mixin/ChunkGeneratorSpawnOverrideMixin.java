@@ -27,7 +27,7 @@ public class ChunkGeneratorSpawnOverrideMixin {
             return check;
         }
 
-        WorldFold fold = WorldLoopAttachments.transformerOfReader(
+        WorldFold fold = WorldLoopAttachments.foldOfReader(
                 ((StructureManagerAccessor) structureManager).exotic_worlds$level());
         if (!fold.isWrapped()) {
             return check;

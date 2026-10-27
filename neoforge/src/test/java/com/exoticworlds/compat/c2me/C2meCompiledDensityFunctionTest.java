@@ -1,7 +1,7 @@
 package com.exoticworlds.compat.c2me;
 
 import com.exoticworlds.core.WrapDomain;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.SEED;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.SQUARE;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.blockIn;
@@ -34,8 +34,8 @@ class C2meCompiledDensityFunctionTest {
 
         for (int i = 0; i < SAMPLES; i++) {
             DensityFunction.FunctionContext at = points.forIndex(i);
-            double vanilla = GenerationTransformerContext.withTransformer(SQUARE, () -> source.compute(at));
-            double emitted = GenerationTransformerContext.withTransformer(SQUARE, () -> compiled.compute(at));
+            double vanilla = GenerationFoldContext.withFold(SQUARE, () -> source.compute(at));
+            double emitted = GenerationFoldContext.withFold(SQUARE, () -> compiled.compute(at));
 
             assertEquals(vanilla, emitted, "at (" + at.blockX() + ", " + at.blockY() + ", " + at.blockZ() + ")");
         }
@@ -49,8 +49,8 @@ class C2meCompiledDensityFunctionTest {
         double[] vanilla = new double[SAMPLES];
         double[] emitted = new double[SAMPLES];
 
-        GenerationTransformerContext.runWithTransformer(SQUARE, () -> source.fillArray(vanilla, points));
-        GenerationTransformerContext.runWithTransformer(SQUARE, () -> compiled.fillArray(emitted, points));
+        GenerationFoldContext.runWithFold(SQUARE, () -> source.fillArray(vanilla, points));
+        GenerationFoldContext.runWithFold(SQUARE, () -> compiled.fillArray(emitted, points));
 
         assertArrayEquals(vanilla, emitted);
     }
@@ -63,8 +63,8 @@ class C2meCompiledDensityFunctionTest {
 
         for (int i = 0; i < SAMPLES; i++) {
             DensityFunction.FunctionContext at = points.forIndex(i);
-            double vanilla = GenerationTransformerContext.withTransformer(SQUARE, () -> source.compute(at));
-            double emitted = GenerationTransformerContext.withTransformer(SQUARE, () -> compiled.compute(at));
+            double vanilla = GenerationFoldContext.withFold(SQUARE, () -> source.compute(at));
+            double emitted = GenerationFoldContext.withFold(SQUARE, () -> compiled.compute(at));
 
             assertEquals(vanilla, emitted, "at (" + at.blockX() + ", " + at.blockY() + ", " + at.blockZ() + ")");
         }
@@ -78,8 +78,8 @@ class C2meCompiledDensityFunctionTest {
         double[] vanilla = new double[SAMPLES];
         double[] emitted = new double[SAMPLES];
 
-        GenerationTransformerContext.runWithTransformer(SQUARE, () -> source.fillArray(vanilla, points));
-        GenerationTransformerContext.runWithTransformer(SQUARE, () -> compiled.fillArray(emitted, points));
+        GenerationFoldContext.runWithFold(SQUARE, () -> source.fillArray(vanilla, points));
+        GenerationFoldContext.runWithFold(SQUARE, () -> compiled.fillArray(emitted, points));
 
         assertArrayEquals(vanilla, emitted);
     }
@@ -97,9 +97,9 @@ class C2meCompiledDensityFunctionTest {
             int z = blockIn(random, TORUS.blockDomain(Direction.Axis.Z));
             DensityFunction.FunctionContext at = new DensityFunction.SinglePointContext(x, y, z);
             DensityFunction.FunctionContext lap = new DensityFunction.SinglePointContext(x + xDomain.domainLength, y, z);
-            double vanilla = GenerationTransformerContext.withTransformer(TORUS, () -> END_ISLANDS.compute(at));
-            double emitted = GenerationTransformerContext.withTransformer(TORUS, () -> compiled.compute(at));
-            double emittedLap = GenerationTransformerContext.withTransformer(TORUS, () -> compiled.compute(lap));
+            double vanilla = GenerationFoldContext.withFold(TORUS, () -> END_ISLANDS.compute(at));
+            double emitted = GenerationFoldContext.withFold(TORUS, () -> compiled.compute(at));
+            double emittedLap = GenerationFoldContext.withFold(TORUS, () -> compiled.compute(lap));
 
             assertEquals(vanilla, emitted, "at (" + x + ", " + y + ", " + z + ")");
             assertEquals(emitted, emittedLap, "at x=" + x + " vs x=" + (x + xDomain.domainLength) + ", z=" + z);

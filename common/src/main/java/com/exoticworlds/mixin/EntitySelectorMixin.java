@@ -46,17 +46,17 @@ public class EntitySelectorMixin {
             Operation<Object> original, @Local(argsOnly = true) CommandSourceStack sender)
             throws CommandSyntaxException {
         Object resolved = original.call(position, senderPosition);
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(sender.getLevel());
-        if (transformer == null || !(resolved instanceof Vec3 pos) || !(senderPosition instanceof Vec3 senderPos)) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(sender.getLevel());
+        if (fold == null || !(resolved instanceof Vec3 pos) || !(senderPosition instanceof Vec3 senderPos)) {
             return resolved;
         }
 
         if (pos.x != senderPos.x) {
-            SeamCommandErrors.requireInsideWorld(transformer, Direction.Axis.X, pos.x);
+            SeamCommandErrors.requireInsideWorld(fold, Direction.Axis.X, pos.x);
         }
 
         if (pos.z != senderPos.z) {
-            SeamCommandErrors.requireInsideWorld(transformer, Direction.Axis.Z, pos.z);
+            SeamCommandErrors.requireInsideWorld(fold, Direction.Axis.Z, pos.z);
         }
 
         return resolved;
@@ -64,8 +64,8 @@ public class EntitySelectorMixin {
 
     @Unique
     private static boolean exotic_worlds$insideThroughSeam(Entity entity, AABB absoluteAabb) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(entity.level());
-        AABB box = FoldedBoxQuery.toward(transformer, entity.position(), absoluteAabb);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(entity.level());
+        AABB box = FoldedBoxQuery.toward(fold, entity.position(), absoluteAabb);
         return box.intersects(entity.getBoundingBox());
     }
 }

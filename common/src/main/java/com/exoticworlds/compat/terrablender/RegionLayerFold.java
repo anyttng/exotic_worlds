@@ -9,20 +9,20 @@ import com.exoticworlds.core.WrapDomain;
 
 import net.minecraft.core.QuartPos;
 
-public record RegionLayerFold(WorldFold transformer, int topDepth, double factor, LayerAxis x, LayerAxis z,
+public record RegionLayerFold(WorldFold fold, int topDepth, double factor, LayerAxis x, LayerAxis z,
         TranslationLattice quarts) {
-    public static RegionLayerFold of(WorldFold transformer, int topDepth, double factor) {
-        TranslationLattice lattice = transformer.blockLattice();
-        return new RegionLayerFold(transformer, topDepth, factor,
+    public static RegionLayerFold of(WorldFold fold, int topDepth, double factor) {
+        TranslationLattice lattice = fold.blockLattice();
+        return new RegionLayerFold(fold, topDepth, factor,
                 LayerAxis.of(lattice.x(), topDepth, factor),
                 LayerAxis.of(lattice.z(), topDepth, factor),
-                lattice.scaledDown(QuartPos.BITS));
+                lattice.scaledDownByBits(QuartPos.BITS));
     }
 
-    static RegionLayerFold resolve(@Nullable RegionLayerFold cached, WorldFold transformer, int topDepth) {
-        return cached != null && cached.transformer == transformer && cached.topDepth == topDepth
+    static RegionLayerFold resolve(@Nullable RegionLayerFold cached, WorldFold fold, int topDepth) {
+        return cached != null && cached.fold == fold && cached.topDepth == topDepth
                 ? cached
-                : of(transformer, topDepth, FoldCompression.of(transformer));
+                : of(fold, topDepth, FoldCompression.of(fold));
     }
 
     public int foldX(int depth, int coordX, int coordZ) {

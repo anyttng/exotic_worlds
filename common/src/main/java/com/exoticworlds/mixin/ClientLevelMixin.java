@@ -7,7 +7,7 @@ import com.exoticworlds.accessors.ClientBoundsHolder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -27,14 +27,14 @@ public class ClientLevelMixin implements ClientBoundsHolder {
     }
 
     @Override
-    public void exotic_worlds$setClientBounds(WorldFold transformer) {
-        this.exotic_worlds$clientBounds = transformer;
+    public void exotic_worlds$setClientBounds(WorldFold fold) {
+        this.exotic_worlds$clientBounds = fold;
     }
 
     @WrapMethod(method = "getPrecipitationAt")
-    private Biome.Precipitation exotic_worlds$bindPrecipitationTransformer(
+    private Biome.Precipitation exotic_worlds$bindPrecipitationFold(
             BlockPos pos, Operation<Biome.Precipitation> original) {
-        return GenerationTransformerContext.withTransformer(
-                WorldLoopAttachments.noiseTransformerOf((Level) (Object) this), () -> original.call(pos));
+        return GenerationFoldContext.withFold(
+                WorldLoopAttachments.noiseFoldOf((Level) (Object) this), () -> original.call(pos));
     }
 }

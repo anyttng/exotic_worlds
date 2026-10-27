@@ -9,7 +9,7 @@ import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.WorldShape;
 import com.exoticworlds.shape.WorldShapes;
 
@@ -55,7 +55,7 @@ public final class CreationShape {
     }
 
     public static WorldFold routerBuildFold() {
-        WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
+        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
         return fold != null ? fold : WorldFolds.NOOP;
     }
 

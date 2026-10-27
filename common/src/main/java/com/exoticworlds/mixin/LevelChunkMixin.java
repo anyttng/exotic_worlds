@@ -63,7 +63,7 @@ public class LevelChunkMixin {
 
     @Inject(method = "setBlockEntity", at = @At("HEAD"))
     private void exotic_worlds$wrapBlockEntityIdentity(BlockEntity blockEntity, CallbackInfo ci) {
-        BlockEntitySeat.intoBounds(WorldLoopAttachments.transformerOf(this.level), blockEntity);
+        BlockEntitySeat.intoBounds(WorldLoopAttachments.foldOf(this.level), blockEntity);
     }
 
     @WrapOperation(
@@ -76,12 +76,12 @@ public class LevelChunkMixin {
 
     @Unique
     private BlockPos exotic_worlds$wrap(BlockPos pos) {
-        WorldFold transformer = WorldLoopAttachments.transformerOf(this.level);
-        if (transformer.isWrapped()) {
-            return transformer.fold(pos);
+        WorldFold fold = WorldLoopAttachments.foldOf(this.level);
+        if (fold.isWrapped()) {
+            return fold.fold(pos);
         }
 
-        return ChunkSeat.onto(WorldLoopAttachments.clientBoundsTransformerOf(this.level),
+        return ChunkSeat.onto(WorldLoopAttachments.clientBoundsFoldOf(this.level),
                 ((LevelChunk) (Object) this).getPos(), pos);
     }
 }

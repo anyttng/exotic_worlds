@@ -6,7 +6,7 @@ import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.WorldShapes;
 
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
@@ -21,14 +21,14 @@ public final class CreationShape {
     }
 
     public static Runnable underRouterBuild(@Nullable WorldFold fold, Runnable task) {
-        return () -> GenerationTransformerContext.withRouterBuild(fold, () -> {
+        return () -> GenerationFoldContext.withRouterBuild(fold, () -> {
             task.run();
             return null;
         });
     }
 
     public static WorldFold routerBuildFold() {
-        WorldFold fold = GenerationTransformerContext.context().routerBuildTransformer();
+        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
         return fold != null ? fold : WorldFolds.NOOP;
     }
 

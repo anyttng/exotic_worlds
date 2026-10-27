@@ -22,6 +22,6 @@ public class ExecuteCommandMixin {
                     ordinal = 0))
     private static BoundingBox exotic_worlds$foldComparedRegion(BoundingBox region,
             @Local(argsOnly = true) ServerLevel level) {
-        return SeamSpans.foldAcrossSeam(WorldLoopAttachments.transformerOf(level), region);
+        return SeamSpans.foldAcrossSeam(WorldLoopAttachments.foldOf(level), region);
     }
 }

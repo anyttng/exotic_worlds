@@ -9,7 +9,7 @@ import com.exoticworlds.BinderOrder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.gen.FloatingCrumbs;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.PeriodicityCheck;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -38,18 +38,18 @@ public class ChunkStatusTasksMixin {
                     "light"
             },
             order = BinderOrder.FOLD)
-    private static CompletableFuture<ChunkAccess> exotic_worlds$bindTransformer(
+    private static CompletableFuture<ChunkAccess> exotic_worlds$bindFold(
             WorldGenContext context,
             ChunkStep step,
             StaticCache2D<GenerationChunkHolder> chunks,
             ChunkAccess chunk,
             Operation<CompletableFuture<ChunkAccess>> original) {
-        WorldFold transformer = WorldLoopAttachments.transformerOf(context.level());
-        if (transformer.isWrapped()) {
-            PeriodicityCheck.runOnce(context.level(), transformer);
+        WorldFold fold = WorldLoopAttachments.foldOf(context.level());
+        if (fold.isWrapped()) {
+            PeriodicityCheck.runOnce(context.level(), fold);
         }
 
-        return GenerationTransformerContext.withTransformer(transformer,
+        return GenerationFoldContext.withFold(fold,
                 () -> original.call(context, step, chunks, chunk));
     }
 

@@ -20,7 +20,7 @@ public class StructureTemplateMixin {
             method = "fillEntityList",
             at = @At(value = "NEW", target = InjectionTargets.VEC3_NEW))
     private Vec3 exotic_worlds$entityOffsetInScanFrame(Vec3 offset, @Local(argsOnly = true) Level level) {
-        return SeamDelta.fold(WorldLoopAttachments.transformerOf(level), offset);
+        return SeamDelta.fold(WorldLoopAttachments.foldOf(level), offset);
     }
 
     @ModifyExpressionValue(
@@ -29,6 +29,6 @@ public class StructureTemplateMixin {
                     value = "INVOKE",
                     target = "Lnet/minecraft/core/BlockPos;subtract(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/BlockPos;"))
     private BlockPos exotic_worlds$paintingOffsetInScanFrame(BlockPos offset, @Local(argsOnly = true) Level level) {
-        return SeamDelta.fold(WorldLoopAttachments.transformerOf(level), offset);
+        return SeamDelta.fold(WorldLoopAttachments.foldOf(level), offset);
     }
 }

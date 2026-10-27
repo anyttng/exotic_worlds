@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import com.exoticworlds.engine.noise.ContextScaledNoise;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -26,8 +26,8 @@ public class DualNoiseProviderMixin {
 
     @WrapMethod(method = "getSlowNoiseValue(Lnet/minecraft/core/BlockPos;)D")
     private double exotic_worlds$rawCoordinateNoise(BlockPos pos, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.context();
-        if (!generation.transformer().isWrapped()) {
+        Context generation = GenerationFoldContext.context();
+        if (!generation.fold().isWrapped()) {
             return original.call(pos);
         }
 

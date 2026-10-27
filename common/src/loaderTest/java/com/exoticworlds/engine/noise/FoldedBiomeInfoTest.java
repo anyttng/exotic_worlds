@@ -35,8 +35,8 @@ class FoldedBiomeInfoTest {
                     double expected = Biome.BIOME_INFO_NOISE.getValue(
                             lattice.foldX(block[0], block[1]) / UNCARRIED_FACTOR,
                             lattice.foldZ(block[1]) / UNCARRIED_FACTOR, false);
-                    double folded = GenerationTransformerContext.withTransformer(fold,
-                            () -> FoldedBiomeInfo.sample(GenerationTransformerContext.context(), fold,
+                    double folded = GenerationFoldContext.withFold(fold,
+                            () -> FoldedBiomeInfo.sample(GenerationFoldContext.context(), fold,
                                     UNCARRIED_FACTOR, block[0], block[1]));
                     assertEquals(expected, folded,
                             "biome info at the folded block in " + fold + " at (" + block[0] + ", " + block[1] + ")");

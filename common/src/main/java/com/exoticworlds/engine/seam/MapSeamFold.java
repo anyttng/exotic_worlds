@@ -12,13 +12,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 
 public final class MapSeamFold {
-    public static @Nullable WorldFold transformerFor(@Nullable LevelAccessor level, ResourceKey<Level> dimension) {
+    public static @Nullable WorldFold foldFor(@Nullable LevelAccessor level, ResourceKey<Level> dimension) {
         if (level instanceof Level actualLevel && !actualLevel.isClientSide()) {
-            return WorldLoopAttachments.wrappedTransformerOf(actualLevel);
+            return WorldLoopAttachments.wrappedFoldOf(actualLevel);
         }
 
-        WorldFold serverFold = WorldLoopAttachments.wrappedTransformerOf(CurrentServer.get(), dimension);
-        return serverFold != null ? serverFold : PublishedShapes.foldOf(dimension);
+        WorldFold serverFold = WorldLoopAttachments.wrappedFoldOf(CurrentServer.get(), dimension);
+        return serverFold != null ? serverFold : PublishedShapes.wrappedFoldOf(dimension);
     }
 
     private MapSeamFold() {

@@ -11,7 +11,7 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
 public final class AtlasBannerSeat {
     public static BlockPos toward(MapItemSavedData data, int x, int z, BlockPos banner) {
-        return toward(MapSeamFold.transformerFor(null, data.dimension), x, z, banner);
+        return toward(MapSeamFold.foldFor(null, data.dimension), x, z, banner);
     }
 
     static BlockPos toward(@Nullable WorldFold fold, int x, int z, BlockPos banner) {

@@ -16,6 +16,6 @@ public class SetWorldSpawnCommandMixin {
     @ModifyVariable(method = "setSpawn", at = @At("HEAD"), argsOnly = true)
     private static BlockPos exotic_worlds$worldSpawnInsideBounds(BlockPos pos,
             @Local(argsOnly = true) CommandSourceStack source) {
-        return WorldLoopAttachments.transformerOf(source.getLevel()).fold(pos);
+        return WorldLoopAttachments.foldOf(source.getLevel()).fold(pos);
     }
 }

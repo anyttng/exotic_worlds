@@ -36,7 +36,6 @@ public final class XaeroRegionLoads {
         frame.beginView(region, camera);
         int regX = region.regX();
         int regZ = region.regZ();
-        int level = region.level();
         this.sweep.seen(regX, regZ);
         ToroidalShape shape = frame.shape();
         if (shape == null) {
@@ -48,18 +47,24 @@ public final class XaeroRegionLoads {
             return existing;
         }
 
-        LeveledRegion<?> candidate = null;
-        for (long corner : XaeroWorldMapFold.canonicalRegionCorners(shape, regX, regZ, level)) {
-            candidate = texturedRegion(processor, region.caveLayer(), ChunkPos.getX(corner), ChunkPos.getZ(corner),
-                    level);
+        LeveledRegion<?> candidate = this.canonicalCandidate(processor, shape, region);
+        frame.candidate(candidate);
+        return candidate;
+    }
+
+    private @Nullable LeveledRegion<?> canonicalCandidate(MapProcessor processor, ToroidalShape shape,
+            XaeroRegionKey region) {
+        int level = region.level();
+        for (long corner : XaeroWorldMapFold.canonicalRegionCorners(shape, region.regX(), region.regZ(), level)) {
+            LeveledRegion<?> candidate = texturedRegion(processor, region.caveLayer(), ChunkPos.getX(corner),
+                    ChunkPos.getZ(corner), level);
             if (candidate != null) {
                 this.sweep.seen(ChunkPos.getX(corner), ChunkPos.getZ(corner));
-                break;
+                return candidate;
             }
         }
 
-        frame.candidate(candidate);
-        return candidate;
+        return null;
     }
 
     private static @Nullable LeveledRegion<?> texturedRegion(MapProcessor processor, int caveLayer, int regX, int regZ,

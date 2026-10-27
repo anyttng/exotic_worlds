@@ -41,7 +41,7 @@ public class ServerEntityMixin {
             return true;
         }
 
-        if (WorldLoopAttachments.wrappedTransformerOf(this.level) == null) {
+        if (WorldLoopAttachments.wrappedFoldOf(this.level) == null) {
             return true;
         }
 

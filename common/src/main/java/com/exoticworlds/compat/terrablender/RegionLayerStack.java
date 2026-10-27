@@ -3,7 +3,7 @@ package com.exoticworlds.compat.terrablender;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 public final class RegionLayerStack {
     private volatile int topDepth;
@@ -17,13 +17,13 @@ public final class RegionLayerStack {
     }
 
     public @Nullable RegionLayerFold resolved() {
-        WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
-        if (transformer == null) {
+        WorldFold worldFold = GenerationFoldContext.context().wrappedFold();
+        if (worldFold == null) {
             return null;
         }
 
         RegionLayerFold cached = this.fold;
-        RegionLayerFold resolved = RegionLayerFold.resolve(cached, transformer, this.topDepth);
+        RegionLayerFold resolved = RegionLayerFold.resolve(cached, worldFold, this.topDepth);
         if (resolved != cached) {
             this.fold = resolved;
         }

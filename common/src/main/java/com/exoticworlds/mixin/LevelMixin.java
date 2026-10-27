@@ -12,7 +12,7 @@ import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.CrumbSweepCache;
 import com.exoticworlds.accessors.PeriodicityMark;
 import com.exoticworlds.accessors.TerrainMaskCache;
-import com.exoticworlds.accessors.TransformerCache;
+import com.exoticworlds.accessors.FoldCache;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -22,7 +22,7 @@ import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.exoticworlds.engine.fold.SeamEntitySearch;
 import com.exoticworlds.engine.gen.FloatingCrumbs;
 import com.exoticworlds.engine.gen.TerrainMasks;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -46,9 +46,9 @@ import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.phys.AABB;
 
 @Mixin(Level.class)
-public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMaskCache, PeriodicityMark {
+public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache, PeriodicityMark {
     @Unique
-    private WorldFold exotic_worlds$transformer;
+    private WorldFold exotic_worlds$fold;
 
     @Unique
     private @Nullable Boolean exotic_worlds$sweepsCrumbs;
@@ -66,12 +66,12 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
                     target = "Lnet/minecraft/world/level/chunk/ChunkSource;getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
     private @Nullable ChunkAccess exotic_worlds$wrapChunkAccess(ChunkSource chunkSource, int chunkX, int chunkZ,
             ChunkStatus status, boolean loadOrGenerate, Operation<@Nullable ChunkAccess> original) {
-        WorldFold transformer = exotic_worlds$transformer();
-        if (!transformer.isWrapped()) {
+        WorldFold fold = exotic_worlds$fold();
+        if (!fold.isWrapped()) {
             return original.call(chunkSource, chunkX, chunkZ, status, loadOrGenerate);
         }
 
-        long folded = transformer.foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
+        long folded = fold.foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
         return original.call(chunkSource, ChunkPos.getX(folded), ChunkPos.getZ(folded),
                 status, loadOrGenerate);
     }
@@ -94,7 +94,7 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
 
     @Inject(method = "setBlockEntity", at = @At("HEAD"))
     private void exotic_worlds$wrapBlockEntityIdentity(BlockEntity blockEntity, CallbackInfo ci) {
-        BlockEntitySeat.intoBounds(exotic_worlds$transformer(), blockEntity);
+        BlockEntitySeat.intoBounds(exotic_worlds$fold(), blockEntity);
     }
 
     @WrapOperation(
@@ -104,7 +104,7 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
                     target = "Lnet/minecraft/world/level/entity/LevelEntityGetter;get(Lnet/minecraft/world/phys/AABB;Ljava/util/function/Consumer;)V"))
     private void exotic_worlds$entitiesThroughSeam(LevelEntityGetter<Entity> entities, AABB box, Consumer<Entity> output,
             Operation<Void> original) {
-        SeamEntitySearch.forEach(exotic_worlds$transformer(), box, output,
+        SeamEntitySearch.forEach(exotic_worlds$fold(), box, output,
                 (piece, sink) -> original.call(entities, piece, sink));
     }
 
@@ -112,7 +112,7 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
             method = "getEntities(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;",
             at = @At(value = "INVOKE", target = InjectionTargets.AABB_INTERSECTS))
     private boolean exotic_worlds$partBoxTowardQuery(AABB query, AABB part, Operation<Boolean> original) {
-        return original.call(query, FoldedBoxQuery.toward(exotic_worlds$transformer(), query.getCenter(), part));
+        return original.call(query, FoldedBoxQuery.toward(exotic_worlds$fold(), query.getCenter(), part));
     }
 
     @WrapOperation(
@@ -125,22 +125,22 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
                     target = "Lnet/minecraft/world/level/entity/LevelEntityGetter;get(Lnet/minecraft/world/level/entity/EntityTypeTest;Lnet/minecraft/world/phys/AABB;Lnet/minecraft/util/AbortableIterationConsumer;)V"))
     private <U extends Entity> void exotic_worlds$typedEntitiesThroughSeam(LevelEntityGetter<Entity> entities,
             EntityTypeTest<Entity, U> type, AABB box, AbortableIterationConsumer<U> output, Operation<Void> original) {
-        SeamEntitySearch.forEachUntilAborted(exotic_worlds$transformer(), box, output,
+        SeamEntitySearch.forEachUntilAborted(exotic_worlds$fold(), box, output,
                 (piece, sink) -> original.call(entities, type, piece, sink));
     }
 
     @Unique
     private BlockPos exotic_worlds$wrap(BlockPos pos) {
-        return exotic_worlds$transformer().fold(pos);
+        return exotic_worlds$fold().fold(pos);
     }
 
     @Override
-    public WorldFold exotic_worlds$transformer() {
-        if (this.exotic_worlds$transformer == null) {
-            this.exotic_worlds$transformer = exotic_worlds$resolveTransformer();
+    public WorldFold exotic_worlds$fold() {
+        if (this.exotic_worlds$fold == null) {
+            this.exotic_worlds$fold = exotic_worlds$resolveFold();
         }
 
-        return this.exotic_worlds$transformer;
+        return this.exotic_worlds$fold;
     }
 
     @Override
@@ -164,21 +164,21 @@ public class LevelMixin implements TransformerCache, CrumbSweepCache, TerrainMas
     }
 
     @Unique
-    private WorldFold exotic_worlds$resolveTransformer() {
+    private WorldFold exotic_worlds$resolveFold() {
         ServerLevel level = WorldLoopAttachments.serverLevelOf((Level) (Object) this);
         if (level == null) {
             return WorldFolds.NOOP;
         }
 
         return level == (Object) this
-                ? ShapedChunkGenerator.transformerOf(level.getChunkSource().getGenerator())
-                : WorldLoopAttachments.transformerOf(level);
+                ? ShapedChunkGenerator.foldOf(level.getChunkSource().getGenerator())
+                : WorldLoopAttachments.foldOf(level);
     }
 
     @WrapMethod(method = "precipitationAt")
-    private Biome.Precipitation exotic_worlds$bindPrecipitationTransformer(
+    private Biome.Precipitation exotic_worlds$bindPrecipitationFold(
             BlockPos pos, Operation<Biome.Precipitation> original) {
-        return GenerationTransformerContext.withTransformer(
-                WorldLoopAttachments.noiseTransformerOf((Level) (Object) this), () -> original.call(pos));
+        return GenerationFoldContext.withFold(
+                WorldLoopAttachments.noiseFoldOf((Level) (Object) this), () -> original.call(pos));
     }
 }

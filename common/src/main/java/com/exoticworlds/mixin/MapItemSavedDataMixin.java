@@ -42,7 +42,7 @@ public class MapItemSavedDataMixin {
     @WrapMethod(method = "addDecoration")
     private void exotic_worlds$seatDecoration(Holder<MapDecorationType> type, @Nullable LevelAccessor level, String key,
             double xPos, double zPos, double yRot, @Nullable Component name, Operation<Void> original) {
-        Vec3 seated = NearestCopy.toward(MapSeamFold.transformerFor(level, this.dimension), exotic_worlds$center(),
+        Vec3 seated = NearestCopy.toward(MapSeamFold.foldFor(level, this.dimension), exotic_worlds$center(),
                 new Vec3(xPos, 0.0, zPos));
         original.call(type, level, key, seated.x, seated.z, yRot, name);
     }
@@ -50,14 +50,14 @@ public class MapItemSavedDataMixin {
     @ModifyVariable(method = "toggleBanner", at = @At("STORE"), ordinal = 0)
     private double exotic_worlds$foldBannerX(double xPos, @Local(argsOnly = true) LevelAccessor level,
             @Local(argsOnly = true) BlockPos pos) {
-        return NearestCopy.toward(MapSeamFold.transformerFor(level, this.dimension), Direction.Axis.X,
+        return NearestCopy.toward(MapSeamFold.foldFor(level, this.dimension), Direction.Axis.X,
                 exotic_worlds$center(), Vec3.atBottomCenterOf(pos));
     }
 
     @ModifyVariable(method = "toggleBanner", at = @At("STORE"), ordinal = 1)
     private double exotic_worlds$foldBannerZ(double zPos, @Local(argsOnly = true) LevelAccessor level,
             @Local(argsOnly = true) BlockPos pos) {
-        return NearestCopy.toward(MapSeamFold.transformerFor(level, this.dimension), Direction.Axis.Z,
+        return NearestCopy.toward(MapSeamFold.foldFor(level, this.dimension), Direction.Axis.Z,
                 exotic_worlds$center(), Vec3.atBottomCenterOf(pos));
     }
 

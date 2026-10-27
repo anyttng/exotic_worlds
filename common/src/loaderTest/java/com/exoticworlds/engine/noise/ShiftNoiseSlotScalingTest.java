@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import net.minecraft.core.Holder;
@@ -79,19 +79,19 @@ class ShiftNoiseSlotScalingTest {
     }
 
     private static double folded(SlotAxes axes, double x, double y, double z) {
-        Context generation = GenerationTransformerContext.context();
+        Context generation = GenerationFoldContext.context();
 
         try (Context.BindingScope _ = generation.bind(SQUARE, axes, generation.horizontalScale(),
-                GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE)) {
+                GenerationFoldContext.UNDECLARED_VERTICAL_SHARE)) {
             return SHIFT_NOISE.compute(x, y, z);
         }
     }
 
     private static double reference(SlotAxes axes, double x, double y, double z) {
-        Context generation = GenerationTransformerContext.context();
+        Context generation = GenerationFoldContext.context();
 
         try (Context.BindingScope _ = generation.bind(SQUARE, axes, generation.horizontalScale(),
-                GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE)) {
+                GenerationFoldContext.UNDECLARED_VERTICAL_SHARE)) {
             return ContextScaledNoise.sample(generation, NOISE, x, y, z, NoiseConstants.SHIFT_SCALE)
                     * NoiseConstants.SHIFT_AMPLITUDE;
         }

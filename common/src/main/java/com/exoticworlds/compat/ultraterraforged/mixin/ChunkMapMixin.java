@@ -29,7 +29,7 @@ public abstract class ChunkMapMixin {
     @Inject(method = "<init>", at = @At("TAIL"))
     private void exotic_worlds$carryFoldToUltraTerraForged(CallbackInfo callback,
             @Local(argsOnly = true) ChunkGenerator generator) {
-        WorldFold fold = ShapedChunkGenerator.wrappedTransformerOf(generator);
+        WorldFold fold = ShapedChunkGenerator.wrappedFoldOf(generator);
         Object state = this.randomState;
         if (fold == null || !(state instanceof UTFRandomState ultraterraforged)) {
             return;

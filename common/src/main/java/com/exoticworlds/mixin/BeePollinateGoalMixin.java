@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.seam.SeamSteering;
@@ -34,19 +34,19 @@ public class BeePollinateGoalMixin {
                     target = "Lnet/minecraft/core/BlockPos;withinManhattan"
                             + "(Lnet/minecraft/core/BlockPos;III)Ljava/lang/Iterable;"))
     private Iterable<BlockPos> exotic_worlds$flowerCandidatesThroughSeam(Iterable<BlockPos> candidates) {
-        WorldFold transformer = ((TransformerSource) this.bee).exotic_worlds$wrappedTransformer();
-        if (transformer == null) {
+        WorldFold fold = ((FoldSource) this.bee).exotic_worlds$wrappedFold();
+        if (fold == null) {
             return candidates;
         }
 
         return () -> StreamSupport.stream(candidates.spliterator(), false)
-                .map(transformer::fold)
+                .map(fold::fold)
                 .iterator();
     }
 
     @ModifyReturnValue(method = "findNearbyFlower", at = @At("RETURN"))
     private Optional<BlockPos> exotic_worlds$foundFlowerCanonical(Optional<BlockPos> found) {
-        return found.map(WorldLoopAttachments.transformerOf(this.bee.level())::fold);
+        return found.map(WorldLoopAttachments.foldOf(this.bee.level())::fold);
     }
 
     @ModifyExpressionValue(

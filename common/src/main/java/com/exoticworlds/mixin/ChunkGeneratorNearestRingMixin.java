@@ -27,11 +27,11 @@ public class ChunkGeneratorNearestRingMixin {
                     target = "Lnet/minecraft/core/BlockPos$MutableBlockPos;distSqr(Lnet/minecraft/core/Vec3i;)D"))
     private double exotic_worlds$ringDistThroughSeam(BlockPos.MutableBlockPos candidate, Vec3i origin,
             Operation<Double> original) {
-        WorldFold transformer = ShapedChunkGenerator.wrappedTransformerOf((ChunkGenerator) (Object) this);
-        if (transformer == null) {
+        WorldFold fold = ShapedChunkGenerator.wrappedFoldOf((ChunkGenerator) (Object) this);
+        if (fold == null) {
             return original.call(candidate, origin);
         }
 
-        return SeamRange.sqr(transformer, origin, candidate);
+        return SeamRange.sqr(fold, origin, candidate);
     }
 }

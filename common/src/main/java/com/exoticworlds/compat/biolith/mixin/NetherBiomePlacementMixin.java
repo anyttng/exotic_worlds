@@ -13,25 +13,25 @@ import com.terraformersmc.biolith.impl.noise.OpenSimplexNoise2;
 import com.exoticworlds.compat.LevelTemperature;
 import com.exoticworlds.compat.biolith.ReplacementNoiseFold;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 @Mixin(NetherBiomePlacement.class)
 public abstract class NetherBiomePlacementMixin extends DimensionBiomePlacement {
     @Unique
-    private static final double[] TOROIDAL_OCTAVE_WEIGHTS = {1.0, 1.0 / 16.0, 1.0 / 32.0};
+    private static final double[] FOLDED_OCTAVE_WEIGHTS = {1.0, 1.0 / 16.0, 1.0 / 32.0};
 
     @Unique
-    private static final int[] TOROIDAL_HORIZONTAL_SCALE_SLOTS = {0, 2, 3};
+    private static final int[] FOLDED_HORIZONTAL_SCALE_SLOTS = {0, 2, 3};
 
     @Unique
-    private static final int[] TOROIDAL_VERTICAL_SCALE_SLOTS = {1, 3, 4};
+    private static final int[] FOLDED_VERTICAL_SCALE_SLOTS = {1, 3, 4};
 
     @Unique
-    private static final double TOROIDAL_SUM_DIVISOR = 1.09375;
+    private static final double FOLDED_SUM_DIVISOR = 1.09375;
 
     @Unique
-    private final ReplacementNoiseFold exotic_worlds$fold = new ReplacementNoiseFold(TOROIDAL_OCTAVE_WEIGHTS,
-            TOROIDAL_HORIZONTAL_SCALE_SLOTS, TOROIDAL_VERTICAL_SCALE_SLOTS);
+    private final ReplacementNoiseFold exotic_worlds$fold = new ReplacementNoiseFold(FOLDED_OCTAVE_WEIGHTS,
+            FOLDED_HORIZONTAL_SCALE_SLOTS, FOLDED_VERTICAL_SCALE_SLOTS);
 
     @Unique
     private final LevelTemperature exotic_worlds$temperature = new LevelTemperature();
@@ -42,13 +42,13 @@ public abstract class NetherBiomePlacementMixin extends DimensionBiomePlacement 
     @Inject(method = "getLocalNoise", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$foldedLocalNoise(int x, int y, int z, CallbackInfoReturnable<Double> cir) {
         OpenSimplexNoise2 noise = this.replacementNoise;
-        WorldFold fold = GenerationTransformerContext.context().wrappedTransformer();
+        WorldFold fold = GenerationFoldContext.context().wrappedFold();
         if (noise == null || fold == null) {
             return;
         }
 
         double sum = this.exotic_worlds$fold.sum(fold, noise.getSeed(), this.scale, x, y, z,
                 this.exotic_worlds$temperature.of(this.world));
-        cir.setReturnValue(this.normalize(sum / TOROIDAL_SUM_DIVISOR));
+        cir.setReturnValue(this.normalize(sum / FOLDED_SUM_DIVISOR));
     }
 }

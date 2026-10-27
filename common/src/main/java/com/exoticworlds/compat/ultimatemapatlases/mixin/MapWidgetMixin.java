@@ -113,7 +113,14 @@ public abstract class MapWidgetMixin implements BrowsedDimension {
         AbstractAtlasWidgetAccessor widget = (AbstractAtlasWidgetAccessor) (Object) this;
         MapCopies copies = MapCopies.current();
         int mapBlocks = widget.exotic_worlds$mapBlocksSize();
-        float ceiling = AtlasWorldView.zoomCeiling(shape, copies, this.width, this.height, mapBlocks);
+        exotic_worlds$capZoom(widget, AtlasWorldView.zoomCeiling(shape, copies, this.width, this.height, mapBlocks));
+        if (copies == MapCopies.SINGLE) {
+            exotic_worlds$holdCenters(widget, shape, mapBlocks, fold);
+        }
+    }
+
+    @Unique
+    private void exotic_worlds$capZoom(AbstractAtlasWidgetAccessor widget, float ceiling) {
         if (this.targetZoomLevel > ceiling) {
             this.targetZoomLevel = ceiling;
             this.cumulativeZoomValue = AtlasWorldView.discreteZoomSteps(ceiling);
@@ -122,11 +129,11 @@ public abstract class MapWidgetMixin implements BrowsedDimension {
         if (widget.exotic_worlds$zoomLevel() > ceiling) {
             widget.exotic_worlds$setZoomLevel(ceiling);
         }
+    }
 
-        if (copies != MapCopies.SINGLE) {
-            return;
-        }
-
+    @Unique
+    private void exotic_worlds$holdCenters(AbstractAtlasWidgetAccessor widget, ToroidalShape shape, int mapBlocks,
+            boolean fold) {
         Vec3 current = AtlasWorldView.held(shape,
                 new Vec3(widget.exotic_worlds$currentXCenter(), 0.0, widget.exotic_worlds$currentZCenter()),
                 widget.exotic_worlds$zoomLevel(), this.width, this.height, mapBlocks, fold);

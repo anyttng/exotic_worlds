@@ -18,6 +18,6 @@ public abstract class FluidStateInsideMixin {
             at = @At("HEAD"),
             argsOnly = true)
     private BlockPos exotic_worlds$canonicalInsidePos(BlockPos pos, @Local(argsOnly = true) Level level) {
-        return WorldLoopAttachments.transformerOf(level).fold(pos);
+        return WorldLoopAttachments.foldOf(level).fold(pos);
     }
 }

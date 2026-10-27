@@ -78,6 +78,11 @@ public final class SpreadRingScan {
             }
         }
 
+        return addedInCell(probeX, probeZ, addedStart);
+    }
+
+    private <T> @Nullable T addedInCell(int probeX, int probeZ,
+            Function<StructureStarts.Added, @Nullable T> addedStart) {
         int spacing = this.placement.spacing();
         for (StructureStarts.Added start : this.added) {
             if (Math.floorDiv(start.chunk().x(), spacing) != Math.floorDiv(probeX, spacing)

@@ -4,8 +4,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import com.exoticworlds.engine.noise.ContextScaledNoise;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.NoiseConstants;
 import com.exoticworlds.engine.noise.SlotAxes;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -20,7 +20,7 @@ public interface DensityFunctionsShiftNoiseMixin {
 
     @WrapMethod(method = "compute(DDD)D")
     default double exotic_worlds$periodicCompute(double localX, double localY, double localZ, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.wrappedContext();
+        Context generation = GenerationFoldContext.wrappedContext();
         if (generation == null) {
             return original.call(localX, localY, localZ);
         }

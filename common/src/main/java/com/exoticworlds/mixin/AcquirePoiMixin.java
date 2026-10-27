@@ -24,6 +24,6 @@ public class AcquirePoiMixin {
             return null;
         }
 
-        return WorldLoopAttachments.transformerOf(level).fold(target);
+        return WorldLoopAttachments.foldOf(level).fold(target);
     }
 }

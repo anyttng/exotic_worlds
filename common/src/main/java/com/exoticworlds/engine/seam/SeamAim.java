@@ -13,15 +13,15 @@ public final class SeamAim {
     }
 
     public static Vec3 deltaTo(Entity viewer, Vec3 point) {
-        return WorldLoopAttachments.transformerOf(viewer.level()).foldDelta(viewer.position(), point);
+        return WorldLoopAttachments.foldOf(viewer.level()).foldDelta(viewer.position(), point);
     }
 
     public static Vec3 foldDelta(Entity levelSource, double deltaX, double deltaZ) {
-        return SeamDelta.fold(WorldLoopAttachments.transformerOf(levelSource.level()), deltaX, deltaZ);
+        return SeamDelta.fold(WorldLoopAttachments.foldOf(levelSource.level()), deltaX, deltaZ);
     }
 
     public static Vec3 foldDelta(Entity levelSource, Vec3 delta) {
-        return SeamDelta.fold(WorldLoopAttachments.transformerOf(levelSource.level()), delta);
+        return SeamDelta.fold(WorldLoopAttachments.foldOf(levelSource.level()), delta);
     }
 
     private SeamAim() {

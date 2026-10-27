@@ -21,6 +21,6 @@ public class FillCommandMixin {
             @Local(argsOnly = true) CommandSourceStack source,
             @Local(argsOnly = true) BoundingBox region) throws CommandSyntaxException {
         SeamCommandErrors.requireUnambiguousRegion(
-                WorldLoopAttachments.wrappedTransformerOf(source.getLevel()), region);
+                WorldLoopAttachments.wrappedFoldOf(source.getLevel()), region);
     }
 }

@@ -80,19 +80,19 @@ class PeriodicNoiseSamplerTest {
             return new NoiseInstance(vanilla, permutations, xo, yo, zo);
         }
 
-        double sample(WorldFold transformer, double scale,
+        double sample(WorldFold fold, double scale,
                 double x, double y, double z, double yScale, double yFudge) {
-            return sample(transformer, SlotAxes.DEFAULT, scale, x, y, z, yScale, yFudge);
+            return sample(fold, SlotAxes.DEFAULT, scale, x, y, z, yScale, yFudge);
         }
 
-        double sample(WorldFold transformer, SlotAxes axes, double scale,
+        double sample(WorldFold fold, SlotAxes axes, double scale,
                 double x, double y, double z, double yScale, double yFudge) {
-            GenerationTransformerContext.Context context = GenerationTransformerContext.context();
+            GenerationFoldContext.Context context = GenerationFoldContext.context();
 
-            try (GenerationTransformerContext.Context.BindingScope _ = context.bind(transformer, axes, scale,
-                    GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE)) {
-                return PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(permutations, xo, yo, zo, transformer,
-                        context, LapFloor.of(transformer)), x, y, z, yScale, yFudge);
+            try (GenerationFoldContext.Context.BindingScope _ = context.bind(fold, axes, scale,
+                    GenerationFoldContext.UNDECLARED_VERTICAL_SHARE)) {
+                return PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(permutations, xo, yo, zo, fold,
+                        context, LapFloor.of(fold)), x, y, z, yScale, yFudge);
             }
         }
     }
@@ -117,8 +117,8 @@ class PeriodicNoiseSamplerTest {
         return random.nextInt(384) - 64 + random.nextDouble();
     }
 
-    private static String at(WorldFold transformer, long worldSeed, double scale) {
-        return "in " + transformer + " with seed " + worldSeed + " and scale " + scale;
+    private static String at(WorldFold fold, long worldSeed, double scale) {
+        return "in " + fold + " with seed " + worldSeed + " and scale " + scale;
     }
 
     @Nested
@@ -154,22 +154,22 @@ class PeriodicNoiseSamplerTest {
         @Test
         void agreesOneWorldWidthApartAlongTheWholeSeamLine() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : WRAPPED_X) {
-                double period = transformer.blockDomain(Direction.Axis.X).domainLength;
+            for (WorldFold fold : WRAPPED_X) {
+                double period = fold.blockDomain(Direction.Axis.X).domainLength;
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SCALES) {
                         for (double[] yParams : Y_PARAMS) {
                             for (int i = 0; i < LINE_SAMPLES; i++) {
-                                double x = blockInDomain(random, transformer.blockDomain(Direction.Axis.X));
+                                double x = blockInDomain(random, fold.blockDomain(Direction.Axis.X));
                                 double y = sampleY(random);
-                                double z = lineCoord(random, transformer.blockDomain(Direction.Axis.Z), i);
+                                double z = lineCoord(random, fold.blockDomain(Direction.Axis.Z), i);
 
-                                double base = noise.sample(transformer, scale, x, y, z, yParams[0], yParams[1]);
-                                double lap = noise.sample(transformer, scale, x + period, y, z, yParams[0], yParams[1]);
+                                double base = noise.sample(fold, scale, x, y, z, yParams[0], yParams[1]);
+                                double lap = noise.sample(fold, scale, x + period, y, z, yParams[0], yParams[1]);
                                 assertEquals(base, lap,
                                         () -> "sample(" + x + ", " + y + ", " + z + ") vs one X lap "
-                                                + at(transformer, worldSeed, scale));
+                                                + at(fold, worldSeed, scale));
                             }
                         }
                     }
@@ -183,22 +183,22 @@ class PeriodicNoiseSamplerTest {
         @Test
         void agreesOneWorldWidthApartAlongTheWholeSeamLine() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : BOTH_AXES) {
-                double period = transformer.blockDomain(Direction.Axis.Z).domainLength;
+            for (WorldFold fold : BOTH_AXES) {
+                double period = fold.blockDomain(Direction.Axis.Z).domainLength;
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SCALES) {
                         for (double[] yParams : Y_PARAMS) {
                             for (int i = 0; i < LINE_SAMPLES; i++) {
-                                double x = lineCoord(random, transformer.blockDomain(Direction.Axis.X), i);
+                                double x = lineCoord(random, fold.blockDomain(Direction.Axis.X), i);
                                 double y = sampleY(random);
-                                double z = blockInDomain(random, transformer.blockDomain(Direction.Axis.Z));
+                                double z = blockInDomain(random, fold.blockDomain(Direction.Axis.Z));
 
-                                double base = noise.sample(transformer, scale, x, y, z, yParams[0], yParams[1]);
-                                double lap = noise.sample(transformer, scale, x, y, z + period, yParams[0], yParams[1]);
+                                double base = noise.sample(fold, scale, x, y, z, yParams[0], yParams[1]);
+                                double lap = noise.sample(fold, scale, x, y, z + period, yParams[0], yParams[1]);
                                 assertEquals(base, lap,
                                         () -> "sample(" + x + ", " + y + ", " + z + ") vs one Z lap "
-                                                + at(transformer, worldSeed, scale));
+                                                + at(fold, worldSeed, scale));
                             }
                         }
                     }
@@ -212,24 +212,24 @@ class PeriodicNoiseSamplerTest {
         @Test
         void agreesWhenBothAxesWrapAtOnce() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : BOTH_AXES) {
-                double xPeriod = transformer.blockDomain(Direction.Axis.X).domainLength;
-                double zPeriod = transformer.blockDomain(Direction.Axis.Z).domainLength;
+            for (WorldFold fold : BOTH_AXES) {
+                double xPeriod = fold.blockDomain(Direction.Axis.X).domainLength;
+                double zPeriod = fold.blockDomain(Direction.Axis.Z).domainLength;
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SCALES) {
                         for (double[] yParams : Y_PARAMS) {
                             for (int i = 0; i < LINE_SAMPLES; i++) {
-                                double x = blockInDomain(random, transformer.blockDomain(Direction.Axis.X));
+                                double x = blockInDomain(random, fold.blockDomain(Direction.Axis.X));
                                 double y = sampleY(random);
-                                double z = blockInDomain(random, transformer.blockDomain(Direction.Axis.Z));
+                                double z = blockInDomain(random, fold.blockDomain(Direction.Axis.Z));
 
-                                double base = noise.sample(transformer, scale, x, y, z, yParams[0], yParams[1]);
-                                double corner = noise.sample(transformer, scale,
+                                double base = noise.sample(fold, scale, x, y, z, yParams[0], yParams[1]);
+                                double corner = noise.sample(fold, scale,
                                         x + xPeriod, y, z + zPeriod, yParams[0], yParams[1]);
                                 assertEquals(base, corner,
                                         () -> "sample(" + x + ", " + y + ", " + z + ") vs the corner lap "
-                                                + at(transformer, worldSeed, scale));
+                                                + at(fold, worldSeed, scale));
                             }
                         }
                     }
@@ -244,21 +244,21 @@ class PeriodicNoiseSamplerTest {
         @SuppressWarnings("deprecation")
         void reproducesVanillaBitForBitWhenThePeriodIsAMultipleOf256() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : List.of(EVEN, X_ONLY)) {
+            for (WorldFold fold : List.of(EVEN, X_ONLY)) {
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : PARITY_SCALES) {
                         for (double[] yParams : Y_PARAMS) {
                             for (int i = 0; i < LINE_SAMPLES; i++) {
-                                double x = blockInDomain(random, transformer.blockDomain(Direction.Axis.X));
+                                double x = blockInDomain(random, fold.blockDomain(Direction.Axis.X));
                                 double y = sampleY(random);
-                                double z = lineCoord(random, transformer.blockDomain(Direction.Axis.Z), i);
+                                double z = lineCoord(random, fold.blockDomain(Direction.Axis.Z), i);
 
-                                double periodic = noise.sample(transformer, scale, x, y, z, yParams[0], yParams[1]);
+                                double periodic = noise.sample(fold, scale, x, y, z, yParams[0], yParams[1]);
                                 double vanilla = noise.vanilla().noise(x * scale, y, z * scale, yParams[0], yParams[1]);
                                 assertEquals(vanilla, periodic,
                                         () -> "sample(" + x + ", " + y + ", " + z + ") vs vanilla "
-                                                + at(transformer, worldSeed, scale));
+                                                + at(fold, worldSeed, scale));
                             }
                         }
                     }
@@ -352,8 +352,8 @@ class PeriodicNoiseSamplerTest {
         @Test
         void agreesAtEveryCopyUnderBothDeckGenerators() {
             Random random = new Random(SEED);
-            for (DeckGroupFold transformer : SKEWED) {
-                TranslationLattice lattice = transformer.blockLattice();
+            for (DeckGroupFold fold : SKEWED) {
+                TranslationLattice lattice = fold.blockLattice();
                 double width = lattice.x().domainLength;
                 double height = lattice.z().domainLength;
                 double skew = lattice.skew();
@@ -366,13 +366,13 @@ class PeriodicNoiseSamplerTest {
                                 double x = blockInDomain(random, lattice.x());
                                 double y = sampleY(random);
                                 double z = blockInDomain(random, lattice.z());
-                                double base = noise.sample(transformer, scale, x, y, z, yParams[0], yParams[1]);
+                                double base = noise.sample(fold, scale, x, y, z, yParams[0], yParams[1]);
                                 for (double[] copy : copies) {
-                                    double moved = noise.sample(transformer, scale, x + copy[0], y, z + copy[1],
+                                    double moved = noise.sample(fold, scale, x + copy[0], y, z + copy[1],
                                             yParams[0], yParams[1]);
                                     assertEquals(base, moved, () -> "sample(" + x + ", " + y + ", " + z
                                             + ") vs its copy " + copy[0] + ", " + copy[1]
-                                            + " " + at(transformer, worldSeed, scale));
+                                            + " " + at(fold, worldSeed, scale));
                                 }
                             }
                         }
@@ -384,8 +384,8 @@ class PeriodicNoiseSamplerTest {
         @Test
         void slotFramesAgreeAtEveryCopy() {
             Random random = new Random(SEED);
-            for (DeckGroupFold transformer : SKEWED) {
-                TranslationLattice lattice = transformer.blockLattice();
+            for (DeckGroupFold fold : SKEWED) {
+                TranslationLattice lattice = fold.blockLattice();
                 double skew = lattice.skew();
                 double height = lattice.z().domainLength;
                 double width = lattice.x().domainLength;
@@ -396,12 +396,12 @@ class PeriodicNoiseSamplerTest {
                             double x = blockInDomain(random, lattice.x());
                             double z = blockInDomain(random, lattice.z());
                             double y = sampleY(random);
-                            assertEquals(shiftB(noise, transformer, scale, x, z),
-                                    shiftB(noise, transformer, scale, x + skew, z + height),
-                                    () -> "shift_b frame at " + x + ", " + z + " " + at(transformer, worldSeed, scale));
-                            assertEquals(divided(noise, transformer, scale, x, y, z),
-                                    divided(noise, transformer, scale, x + skew - width, y, z + height),
-                                    () -> "divided frame at " + x + ", " + z + " " + at(transformer, worldSeed, scale));
+                            assertEquals(shiftB(noise, fold, scale, x, z),
+                                    shiftB(noise, fold, scale, x + skew, z + height),
+                                    () -> "shift_b frame at " + x + ", " + z + " " + at(fold, worldSeed, scale));
+                            assertEquals(divided(noise, fold, scale, x, y, z),
+                                    divided(noise, fold, scale, x + skew - width, y, z + height),
+                                    () -> "divided frame at " + x + ", " + z + " " + at(fold, worldSeed, scale));
                         }
                     }
                 }
@@ -411,8 +411,8 @@ class PeriodicNoiseSamplerTest {
         @Test
         void neverJumpsAcrossTheFoldBoundary() {
             Random random = new Random(SEED);
-            for (DeckGroupFold transformer : SKEWED) {
-                TranslationLattice lattice = transformer.blockLattice();
+            for (DeckGroupFold fold : SKEWED) {
+                TranslationLattice lattice = fold.blockLattice();
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SEAM_SCALES) {
@@ -423,17 +423,17 @@ class PeriodicNoiseSamplerTest {
                             double y = sampleY(random);
                             double x = lineCoord(random, lattice.x(), i);
                             double seamZ = lattice.z().upperBound;
-                            double acrossZ = Math.abs(noise.sample(transformer, scale, x, y, seamZ - SEAM_STEP, 0.0, 0.0)
-                                    - noise.sample(transformer, scale, x, y, seamZ + SEAM_STEP, 0.0, 0.0));
+                            double acrossZ = Math.abs(noise.sample(fold, scale, x, y, seamZ - SEAM_STEP, 0.0, 0.0)
+                                    - noise.sample(fold, scale, x, y, seamZ + SEAM_STEP, 0.0, 0.0));
                             assertTrue(acrossZ <= bound, () -> "jump " + acrossZ + " across the Z seam at x=" + x
-                                    + " " + at(transformer, worldSeed, scale));
+                                    + " " + at(fold, worldSeed, scale));
 
                             double z = lineCoord(random, lattice.z(), i);
                             double seamX = lattice.x().upperBound;
-                            double acrossX = Math.abs(noise.sample(transformer, scale, seamX - SEAM_STEP, y, z, 0.0, 0.0)
-                                    - noise.sample(transformer, scale, seamX + SEAM_STEP, y, z, 0.0, 0.0));
+                            double acrossX = Math.abs(noise.sample(fold, scale, seamX - SEAM_STEP, y, z, 0.0, 0.0)
+                                    - noise.sample(fold, scale, seamX + SEAM_STEP, y, z, 0.0, 0.0));
                             assertTrue(acrossX <= bound, () -> "jump " + acrossX + " across the X seam at z=" + z
-                                    + " " + at(transformer, worldSeed, scale));
+                                    + " " + at(fold, worldSeed, scale));
                         }
                     }
                 }
@@ -443,8 +443,8 @@ class PeriodicNoiseSamplerTest {
         @Test
         void outputVariesAroundTheWorld() {
             Random random = new Random(SEED);
-            for (DeckGroupFold transformer : SKEWED) {
-                TranslationLattice lattice = transformer.blockLattice();
+            for (DeckGroupFold fold : SKEWED) {
+                TranslationLattice lattice = fold.blockLattice();
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SCALES) {
@@ -452,7 +452,7 @@ class PeriodicNoiseSamplerTest {
                         double max = -Double.MAX_VALUE;
                         double y = sampleY(random);
                         for (int i = 0; i < LINE_SAMPLES; i++) {
-                            double value = noise.sample(transformer, scale, lineCoord(random, lattice.x(), i), y,
+                            double value = noise.sample(fold, scale, lineCoord(random, lattice.x(), i), y,
                                     lineCoord(random, lattice.z(), i), 0.0, 0.0);
                             min = Math.min(min, value);
                             max = Math.max(max, value);
@@ -460,7 +460,7 @@ class PeriodicNoiseSamplerTest {
 
                         double spread = max - min;
                         assertTrue(spread >= MIN_SPREAD, () -> "spread around the world is " + spread + " "
-                                + at(transformer, worldSeed, scale));
+                                + at(fold, worldSeed, scale));
                     }
                 }
             }
@@ -477,18 +477,18 @@ class PeriodicNoiseSamplerTest {
                     != noise.sample(skewed, starved, 0.0, 0.0, z, 0.0, 0.0));
         }
 
-        private static double shiftB(NoiseInstance noise, WorldFold transformer, double scale, double x, double z) {
-            return noise.sample(transformer, DensityFunctionSlotAxes.SHIFT_B, scale, z, x, 0.0, 0.0, 0.0);
+        private static double shiftB(NoiseInstance noise, WorldFold fold, double scale, double x, double z) {
+            return noise.sample(fold, DensityFunctionSlotAxes.SHIFT_B, scale, z, x, 0.0, 0.0, 0.0);
         }
 
-        private static double divided(NoiseInstance noise, WorldFold transformer, double scale, double x, double y,
+        private static double divided(NoiseInstance noise, WorldFold fold, double scale, double x, double y,
                 double z) {
-            GenerationTransformerContext.Context context = GenerationTransformerContext.context();
-            try (GenerationTransformerContext.Context.BindingScope _ = context.bind(transformer, SlotAxes.DEFAULT,
-                    scale, GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE);
-                    GenerationTransformerContext.Context.DivisorScope _ = context.withDivisors(X_DIVISOR, Z_DIVISOR)) {
+            GenerationFoldContext.Context context = GenerationFoldContext.context();
+            try (GenerationFoldContext.Context.BindingScope _ = context.bind(fold, SlotAxes.DEFAULT,
+                    scale, GenerationFoldContext.UNDECLARED_VERTICAL_SHARE);
+                    GenerationFoldContext.Context.DivisorScope _ = context.withDivisors(X_DIVISOR, Z_DIVISOR)) {
                 return PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(noise.permutations(), noise.xo(),
-                        noise.yo(), noise.zo(), transformer, context, LapFloor.of(transformer)), x, y, z, 0.0, 0.0);
+                        noise.yo(), noise.zo(), fold, context, LapFloor.of(fold)), x, y, z, 0.0, 0.0);
             }
         }
     }
@@ -498,34 +498,34 @@ class PeriodicNoiseSamplerTest {
         @Test
         void outputVariesAlongTheSeamLineAndAroundTheWorld() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : WRAPPED_X) {
+            for (WorldFold fold : WRAPPED_X) {
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SCALES) {
-                        double alongSeam = spread(random, noise, transformer, scale, true);
+                        double alongSeam = spread(random, noise, fold, scale, true);
                         assertTrue(alongSeam >= MIN_SPREAD,
                                 () -> "spread along the seam line is " + alongSeam + " "
-                                        + at(transformer, worldSeed, scale));
+                                        + at(fold, worldSeed, scale));
 
-                        double aroundWorld = spread(random, noise, transformer, scale, false);
+                        double aroundWorld = spread(random, noise, fold, scale, false);
                         assertTrue(aroundWorld >= MIN_SPREAD,
                                 () -> "spread around the world is " + aroundWorld + " "
-                                        + at(transformer, worldSeed, scale));
+                                        + at(fold, worldSeed, scale));
                     }
                 }
             }
         }
 
-        private double spread(Random random, NoiseInstance noise, WorldFold transformer, double scale,
+        private double spread(Random random, NoiseInstance noise, WorldFold fold, double scale,
                 boolean alongSeam) {
             double min = Double.MAX_VALUE;
             double max = -Double.MAX_VALUE;
             double y = sampleY(random);
             for (int i = 0; i < LINE_SAMPLES; i++) {
-                WrapDomain xDomain = transformer.blockDomain(Direction.Axis.X);
+                WrapDomain xDomain = fold.blockDomain(Direction.Axis.X);
                 double x = alongSeam ? xDomain.lowerBound : lineCoord(random, xDomain, i);
-                double z = alongSeam ? lineCoord(random, transformer.blockDomain(Direction.Axis.Z), i) : 5.0;
-                double value = noise.sample(transformer, scale, x, y, z, 0.0, 0.0);
+                double z = alongSeam ? lineCoord(random, fold.blockDomain(Direction.Axis.Z), i) : 5.0;
+                double value = noise.sample(fold, scale, x, y, z, 0.0, 0.0);
                 min = Math.min(min, value);
                 max = Math.max(max, value);
             }

@@ -29,7 +29,7 @@ public class EyeOfEnderMixin {
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = UPDATE_DELTA_MOVEMENT))
     private Vec3 exotic_worlds$steerThroughSeam(Vec3 movement, Vec3 position, Vec3 target, Operation<Vec3> original) {
         EyeOfEnder self = (EyeOfEnder) (Object) this;
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(self.level());
-        return original.call(movement, position, NearestCopy.toward(transformer, position, target));
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(self.level());
+        return original.call(movement, position, NearestCopy.toward(fold, position, target));
     }
 }

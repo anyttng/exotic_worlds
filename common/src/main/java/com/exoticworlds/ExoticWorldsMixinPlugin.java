@@ -2,7 +2,7 @@ package com.exoticworlds;
 
 import com.exoticworlds.compat.c2me.C2meAquifer;
 
-public class ToroidalMixinPlugin extends MixinGatePlugin {
+public class ExoticWorldsMixinPlugin extends MixinGatePlugin {
     private static final String AQUIFER_SEAM_MIXIN = "com.exoticworlds.mixin.AquiferSeamMixin";
 
     @Override

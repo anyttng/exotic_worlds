@@ -26,7 +26,7 @@ public class CloneCommandsMixin {
             @Local(ordinal = 0) BoundingBox from,
             @Local(ordinal = 0) ServerLevel fromDimension) throws CommandSyntaxException {
         SeamCommandErrors.requireUnambiguousRegion(
-                WorldLoopAttachments.wrappedTransformerOf(fromDimension), from);
+                WorldLoopAttachments.wrappedFoldOf(fromDimension), from);
     }
 
     @WrapOperation(
@@ -36,9 +36,9 @@ public class CloneCommandsMixin {
                     target = "Lnet/minecraft/world/level/levelgen/structure/BoundingBox;intersects(Lnet/minecraft/world/level/levelgen/structure/BoundingBox;)Z"))
     private static boolean exotic_worlds$measureOverlapThroughSeam(BoundingBox destination, BoundingBox from,
             Operation<Boolean> original, @Local(ordinal = 0) ServerLevel fromDimension) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(fromDimension);
-        return transformer == null
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(fromDimension);
+        return fold == null
                 ? original.call(destination, from)
-                : transformer.regionsOverlap(destination, from);
+                : fold.regionsOverlap(destination, from);
     }
 }

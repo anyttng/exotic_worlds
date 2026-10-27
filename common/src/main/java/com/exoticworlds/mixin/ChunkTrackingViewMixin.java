@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.exoticworlds.accessors.TransformerHolder;
+import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.ChunkViewSweep;
 
@@ -25,8 +25,8 @@ public interface ChunkTrackingViewMixin {
             return;
         }
 
-        WorldFold transformer = ((TransformerHolder) (Object) next).exotic_worlds$transformer();
-        if (!transformer.isWrapped()) {
+        WorldFold fold = ((FoldHolder) (Object) next).exotic_worlds$fold();
+        if (!fold.isWrapped()) {
             return;
         }
 
@@ -37,7 +37,7 @@ public interface ChunkTrackingViewMixin {
         }
 
         ChunkViewSweep sweep = ChunkViewSweep.between(
-                transformer, previous.center(), previous.viewDistance(), next.center(), next.viewDistance());
+                fold, previous.center(), previous.viewDistance(), next.center(), next.viewDistance());
 
         if (!(sweep instanceof ChunkViewSweep.OverBoth box)) {
             previous.forEach(onLeave);
@@ -49,7 +49,7 @@ public interface ChunkTrackingViewMixin {
 
         for (int x = box.minX(); x <= box.maxX(); x++) {
             for (int z = box.minZ(); z <= box.maxZ(); z++) {
-                ChunkPos pos = transformer.fold(new ChunkPos(x, z));
+                ChunkPos pos = fold.fold(new ChunkPos(x, z));
                 if (!visited.add(pos.pack())) {
                     continue;
                 }

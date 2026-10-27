@@ -11,17 +11,17 @@ final class CellGrid {
 
     static final int AXIS_Y = 2;
 
-    private final int columns;
+    private final int width;
 
     private final int layers;
 
-    CellGrid(int columns, int layers) {
-        this.columns = columns;
+    CellGrid(int width, int layers) {
+        this.width = width;
         this.layers = layers;
     }
 
-    int columns() {
-        return this.columns;
+    int width() {
+        return this.width;
     }
 
     int layers() {
@@ -29,29 +29,29 @@ final class CellGrid {
     }
 
     int cells() {
-        return this.columns * this.columns * this.layers;
+        return this.width * this.width * this.layers;
     }
 
     int cell(int localX, int layer, int localZ) {
-        return localX + localZ * this.columns + layer * this.columns * this.columns;
+        return localX + localZ * this.width + layer * this.width * this.width;
     }
 
     int localX(int cell) {
-        return cell % this.columns;
+        return cell % this.width;
     }
 
     int localZ(int cell) {
-        return cell / this.columns % this.columns;
+        return cell / this.width % this.width;
     }
 
     int layer(int cell) {
-        return cell / (this.columns * this.columns);
+        return cell / (this.width * this.width);
     }
 
     boolean onSide(int cell) {
         int localX = this.localX(cell);
         int localZ = this.localZ(cell);
-        return localX == 0 || localZ == 0 || localX == this.columns - 1 || localZ == this.columns - 1;
+        return localX == 0 || localZ == 0 || localX == this.width - 1 || localZ == this.width - 1;
     }
 
     int neighbor(int cell, int axis, int step) {
@@ -62,7 +62,7 @@ final class CellGrid {
         int nextZ = axis == AXIS_Z ? localZ + step : localZ;
         int nextLayer = axis == AXIS_Y ? layer + step : layer;
         if (nextX < 0 || nextZ < 0 || nextLayer < 0
-                || nextX >= this.columns || nextZ >= this.columns || nextLayer >= this.layers) {
+                || nextX >= this.width || nextZ >= this.width || nextLayer >= this.layers) {
             return NO_CELL;
         }
 

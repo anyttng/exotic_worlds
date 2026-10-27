@@ -6,8 +6,8 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.compat.LevelClimateCompression;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
-import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.PeriodicLattices;
 
 import net.minecraft.core.QuartPos;
@@ -77,7 +77,7 @@ public final class ReplacementNoiseFold {
 
     private double sum(WorldFold fold, long seed, double[] scaleQuarts, int quartX, int quartY, int quartZ,
             double amplitude, DensityFunction temperature) {
-        Context context = GenerationTransformerContext.context();
+        Context context = GenerationFoldContext.context();
         double factor = compression(fold, temperature);
         Lattices resolved = latticesFor(seed);
         double x = QuartPos.toBlock(quartX);

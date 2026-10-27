@@ -50,19 +50,19 @@ class ShiftFunctionPeriodicityTest {
     void aShiftWhosePeriodOverflowsTheCellIndexSamplesVanillaAtTheFoldedBlock() {
         Random random = new Random(SEED);
         for (ShiftFunction shift : UNINDEXABLE_SHIFTS) {
-            for (WorldFold transformer : WORLDS) {
-                TranslationLattice lattice = transformer.blockLattice();
-                int xWidth = transformer.blockDomain(Direction.Axis.X).domainLength;
-                int zWidth = transformer.blockDomain(Direction.Axis.Z).domainLength;
+            for (WorldFold fold : WORLDS) {
+                TranslationLattice lattice = fold.blockLattice();
+                int xWidth = fold.blockDomain(Direction.Axis.X).domainLength;
+                int zWidth = fold.blockDomain(Direction.Axis.Z).domainLength;
                 for (int i = 0; i < SAMPLES; i++) {
-                    int x = blockIn(random, transformer.blockDomain(Direction.Axis.X));
+                    int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
                     int y = blockY(random);
-                    int z = blockIn(random, transformer.blockDomain(Direction.Axis.Z));
+                    int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
                     for (int[] block : new int[][] {{x, z}, {x + xWidth, z}, {x, z + zWidth}}) {
                         double expected = shift.function().compute(new DensityFunction.SinglePointContext(
                                 lattice.foldX(block[0], block[1]), y, lattice.foldZ(block[1])));
-                        assertEquals(expected, sample(shift, transformer, block[0], y, block[1]),
-                                shift.name() + " at the folded block in " + transformer + " at (" + block[0] + ", "
+                        assertEquals(expected, sample(shift, fold, block[0], y, block[1]),
+                                shift.name() + " at the folded block in " + fold + " at (" + block[0] + ", "
                                         + y + ", " + block[1] + ")");
                     }
                 }
@@ -73,16 +73,16 @@ class ShiftFunctionPeriodicityTest {
     @Test
     void everyShiftFunctionAgreesOneWorldWidthApartInX() {
         Random random = new Random(SEED);
-        for (WorldFold transformer : WORLDS) {
-            int width = transformer.blockDomain(Direction.Axis.X).domainLength;
+        for (WorldFold fold : WORLDS) {
+            int width = fold.blockDomain(Direction.Axis.X).domainLength;
             for (ShiftFunction shift : SHIFTS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    int x = blockIn(random, transformer.blockDomain(Direction.Axis.X));
+                    int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
                     int y = blockY(random);
-                    int z = blockIn(random, transformer.blockDomain(Direction.Axis.Z));
-                    assertEquals(sample(shift, transformer, x, y, z),
-                            sample(shift, transformer, x + width, y, z),
-                            at(shift, transformer, "x", x, x + width, y, z));
+                    int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
+                    assertEquals(sample(shift, fold, x, y, z),
+                            sample(shift, fold, x + width, y, z),
+                            at(shift, fold, "x", x, x + width, y, z));
                 }
             }
         }
@@ -91,16 +91,16 @@ class ShiftFunctionPeriodicityTest {
     @Test
     void everyShiftFunctionAgreesOneWorldWidthApartInZ() {
         Random random = new Random(SEED);
-        for (WorldFold transformer : WORLDS) {
-            int width = transformer.blockDomain(Direction.Axis.Z).domainLength;
+        for (WorldFold fold : WORLDS) {
+            int width = fold.blockDomain(Direction.Axis.Z).domainLength;
             for (ShiftFunction shift : SHIFTS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    int x = blockIn(random, transformer.blockDomain(Direction.Axis.X));
+                    int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
                     int y = blockY(random);
-                    int z = blockIn(random, transformer.blockDomain(Direction.Axis.Z));
-                    assertEquals(sample(shift, transformer, x, y, z),
-                            sample(shift, transformer, x, y, z + width),
-                            at(shift, transformer, "z", z, z + width, x, y));
+                    int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
+                    assertEquals(sample(shift, fold, x, y, z),
+                            sample(shift, fold, x, y, z + width),
+                            at(shift, fold, "z", z, z + width, x, y));
                 }
             }
         }
@@ -125,15 +125,15 @@ class ShiftFunctionPeriodicityTest {
         }
     }
 
-    private static double sample(ShiftFunction shift, WorldFold transformer, int x, int y, int z) {
+    private static double sample(ShiftFunction shift, WorldFold fold, int x, int y, int z) {
         DensityFunction.FunctionContext at = new DensityFunction.SinglePointContext(x, y, z);
 
-        return GenerationTransformerContext.withTransformer(transformer, () -> shift.function().compute(at));
+        return GenerationFoldContext.withFold(fold, () -> shift.function().compute(at));
     }
 
-    private static String at(ShiftFunction shift, WorldFold transformer,
+    private static String at(ShiftFunction shift, WorldFold fold,
             String axis, int from, int to, int firstOther, int secondOther) {
-        return shift.name() + " in " + transformer + " at " + axis + "=" + from + " vs " + axis + "=" + to
+        return shift.name() + " in " + fold + " at " + axis + "=" + from + " vs " + axis + "=" + to
                 + " (" + firstOther + ", " + secondOther + ")";
     }
 }

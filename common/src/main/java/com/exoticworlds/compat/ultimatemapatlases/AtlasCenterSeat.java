@@ -12,7 +12,7 @@ import net.minecraft.world.phys.Vec3;
 
 public final class AtlasCenterSeat {
     public static int toward(Direction.Axis axis, MapItemSavedData data, double x, double z) {
-        return toward(MapSeamFold.transformerFor(null, data.dimension), axis, data.centerX, data.centerZ, x, z);
+        return toward(MapSeamFold.foldFor(null, data.dimension), axis, data.centerX, data.centerZ, x, z);
     }
 
     static int toward(@Nullable WorldFold fold, Direction.Axis axis, int centerX, int centerZ, double x, double z) {
