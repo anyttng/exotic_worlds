@@ -36,34 +36,64 @@ public abstract class BlockStateOffsetSeedMixin {
     @WrapMethod(method = "getShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;")
     private VoxelShape exotic_worlds$seedShape(BlockGetter level, BlockPos pos, CollisionContext context,
             Operation<VoxelShape> original) {
-        return BlockOffsetSeed.seeded(level, this.asState(), () -> original.call(level, pos, context));
+        BlockOffsetSeed scope = BlockOffsetSeed.enter(level, this.asState());
+        try {
+            return original.call(level, pos, context);
+        } finally {
+            BlockOffsetSeed.exit(scope);
+        }
     }
 
     @WrapMethod(method = InjectionTargets.BLOCK_STATE_BASE_GET_COLLISION_SHAPE)
     private VoxelShape exotic_worlds$seedCollisionShape(BlockGetter level, BlockPos pos, CollisionContext context,
             Operation<VoxelShape> original) {
-        return BlockOffsetSeed.seeded(level, this.asState(), () -> original.call(level, pos, context));
+        BlockOffsetSeed scope = BlockOffsetSeed.enter(level, this.asState());
+        try {
+            return original.call(level, pos, context);
+        } finally {
+            BlockOffsetSeed.exit(scope);
+        }
     }
 
     @WrapMethod(method = "getEntityInsideCollisionShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/phys/shapes/VoxelShape;")
     private VoxelShape exotic_worlds$seedEntityInsideShape(BlockGetter level, BlockPos pos, Entity entity,
             Operation<VoxelShape> original) {
-        return BlockOffsetSeed.seeded(level, this.asState(), () -> original.call(level, pos, entity));
+        BlockOffsetSeed scope = BlockOffsetSeed.enter(level, this.asState());
+        try {
+            return original.call(level, pos, entity);
+        } finally {
+            BlockOffsetSeed.exit(scope);
+        }
     }
 
     @WrapMethod(method = "getBlockSupportShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/shapes/VoxelShape;")
     private VoxelShape exotic_worlds$seedSupportShape(BlockGetter level, BlockPos pos, Operation<VoxelShape> original) {
-        return BlockOffsetSeed.seeded(level, this.asState(), () -> original.call(level, pos));
+        BlockOffsetSeed scope = BlockOffsetSeed.enter(level, this.asState());
+        try {
+            return original.call(level, pos);
+        } finally {
+            BlockOffsetSeed.exit(scope);
+        }
     }
 
     @WrapMethod(method = "getVisualShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;")
     private VoxelShape exotic_worlds$seedVisualShape(BlockGetter level, BlockPos pos, CollisionContext context,
             Operation<VoxelShape> original) {
-        return BlockOffsetSeed.seeded(level, this.asState(), () -> original.call(level, pos, context));
+        BlockOffsetSeed scope = BlockOffsetSeed.enter(level, this.asState());
+        try {
+            return original.call(level, pos, context);
+        } finally {
+            BlockOffsetSeed.exit(scope);
+        }
     }
 
     @WrapMethod(method = "getInteractionShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/shapes/VoxelShape;")
     private VoxelShape exotic_worlds$seedInteractionShape(BlockGetter level, BlockPos pos, Operation<VoxelShape> original) {
-        return BlockOffsetSeed.seeded(level, this.asState(), () -> original.call(level, pos));
+        BlockOffsetSeed scope = BlockOffsetSeed.enter(level, this.asState());
+        try {
+            return original.call(level, pos);
+        } finally {
+            BlockOffsetSeed.exit(scope);
+        }
     }
 }
