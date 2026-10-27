@@ -30,6 +30,7 @@
     "BlockCollisionsMixin",
     "BlockEntityDataPacketAccessor",
     "BlockEntityMixin",
+    "BlockGetterMixin",
     "BlockPositionSourceAccessor",
     "BlockStateCollisionMixin",
     "BlockStateInsideMixin",

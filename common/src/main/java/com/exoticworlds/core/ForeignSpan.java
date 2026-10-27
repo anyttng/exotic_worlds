@@ -15,6 +15,10 @@ public record ForeignSpan(int min, int max) {
         return coord >= this.min && coord < this.max;
     }
 
+    public boolean meets(double from, double to) {
+        return from < this.max && to >= this.min;
+    }
+
     public ForeignSpan scaled(int unit) {
         return new ForeignSpan(Math.multiplyExact(this.min, unit), Math.multiplyExact(this.max, unit));
     }

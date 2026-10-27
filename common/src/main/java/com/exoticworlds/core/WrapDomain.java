@@ -45,6 +45,16 @@ public class WrapDomain {
         return false;
     }
 
+    public boolean meetsForeign(double from, double to) {
+        for (ForeignSpan span : foreignSpans) {
+            if (span.meets(from, to)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public int lapsOver(double coord) {
         if (!isOver(coord)) {
             return 0;
