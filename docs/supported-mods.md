@@ -84,6 +84,7 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | MTChunkGeneration | 1.21.1 | NeoForge | Supported | |
 | BetterEnd and BetterNether | All | NeoForge, Fabric | Supported | |
 | Northbound | 26.2, 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | A toroidal world is cold at its north and south edges and warm in the middle |
+| [Natural Temperature](https://modrinth.com/mod/natural-temperature) | 26.3 | Fabric | Supported | A toroidal world is cold at its north and south edges and warm in the middle |
 | [ReTerraForged](https://www.curseforge.com/minecraft/mc-mods/reterraforged-unofficial) | 1.21.1 | NeoForge, Fabric | Partially supported | Small worlds get shorter rivers or none |
 | [FreeTerraForged](https://modrinth.com/mod/freeterraforged) | 1.21.1 | NeoForge, Fabric | Partially supported | Small worlds get shorter rivers or none |
 | [UltraTerraForged](https://www.curseforge.com/minecraft/mc-mods/ultraterraforged) | All | NeoForge, Fabric | Partially supported | Small worlds get shorter rivers or none, and a sea cave can end in a straight cut |
