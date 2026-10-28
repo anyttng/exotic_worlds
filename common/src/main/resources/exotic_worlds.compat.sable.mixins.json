@@ -11,6 +11,7 @@
     "ExplosionFrameMixin",
     "GameEventDispatcherFrameMixin",
     "PhysicsChunkTicketInhabitedMixin",
+    "PhysicsChunkTicketManagerAccessor",
     "PhysicsChunkTicketManagerMixin",
     "PlayerReachFrameMixin",
     "Pose3dcMixin",
@@ -33,7 +34,8 @@
   ],
   "client": [
     "ClientboundSableSnapshotDualPacketMixin",
-    "ClientboundStartTrackingSubLevelPacketMixin"
+    "ClientboundStartTrackingSubLevelPacketMixin",
+    "ClientSubLevelMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -7,6 +7,8 @@ import com.exoticworlds.core.JomlVectors;
 
 import dev.ryanhcode.sable.companion.math.Pose3d;
 import dev.ryanhcode.sable.companion.math.Pose3dc;
+import dev.ryanhcode.sable.network.client.SubLevelSnapshotInterpolator;
+import dev.ryanhcode.sable.sublevel.ClientSubLevel;
 
 import net.minecraft.world.phys.Vec3;
 
@@ -24,6 +26,25 @@ public final class SableClientFrame {
         }
 
         JomlVectors.write(seated, position);
+    }
+
+    public static void reseatHeld(ClientSubLevel subLevel) {
+        Pose3d logical = subLevel.logicalPose();
+        Vec3 raw = JomlVectors.read(logical.position());
+        if (ClientFrame.nearestToPlayer(raw) == raw) {
+            return;
+        }
+
+        reseat(logical);
+        SubLevelSnapshotInterpolator interpolator = subLevel.getInterpolator();
+        reseat(interpolator.getInterpolatedPose());
+        synchronized (interpolator.buffer) {
+            for (SubLevelSnapshotInterpolator.Snapshot snapshot : interpolator.buffer) {
+                reseat(snapshot.pose());
+            }
+        }
+
+        subLevel.forceUpdateBounds();
     }
 
     private SableClientFrame() {
