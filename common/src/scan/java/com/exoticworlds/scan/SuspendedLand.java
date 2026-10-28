@@ -65,6 +65,9 @@ final class SuspendedLand {
     private record Hit(int blockX, int blockZ, int overshoot) {
     }
 
+    private record Cluster(Hit center, int columns) {
+    }
+
     private record Sweep(@Nullable Site site, @Nullable Hit highest) {
     }
 
@@ -149,41 +152,77 @@ final class SuspendedLand {
             }
 
             types.add(type.name());
-            WorldFold fold = torusOfWidth(WIDTH_BLOCKS);
-            Site site = null;
-            Hit highest = null;
-            String highestAt = "";
-            for (int index = 0; index < SEEDS && site == null; index++) {
-                long seed = seed(index);
-                RandomState state = randomState(vanilla, fold, seed);
-                DensitySampler ceiling = state.getSampler(rawCeiling);
-                DensitySampler density = state.getSampler(state.router.finalDensity());
-                Sweep[] result = new Sweep[1];
-                GenerationFoldContext.runWithFold(fold,
-                        () -> result[0] = sweep(type, seed, ceiling, density, vanilla.seaLevel()));
-                site = result[0].site();
-                Hit reach = result[0].highest();
-                ScanReports.note(SCAN, "suspended", "type=" + type.name() + " width=" + WIDTH_BLOCKS
-                        + " seed=" + seed + " site=" + (site != null));
-                if (reach != null && (highest == null || reach.overshoot() > highest.overshoot())) {
-                    highest = reach;
-                    highestAt = "seed " + seed + " x=" + reach.blockX() + " z=" + reach.blockZ();
-                }
-            }
-
-            OUTCOMES.add(new Outcome(type.name(), site, highest == null
-                    ? "no column stands above the ceiling at all"
-                    : "the highest column the sweep found stood " + highest.overshoot()
-                            + " blocks above it, at " + highestAt));
+            OUTCOMES.add(searchType(type, vanilla, rawCeiling));
         }
 
         swept = SEEDS + " seeds of " + String.join(" and ", types) + ", one column every "
                 + SWEEP_STEP_BLOCKS + " blocks over a " + WIDTH_BLOCKS + "-block lap";
     }
 
+    private static Outcome searchType(WorldType type, NoiseGeneratorSettings vanilla, DensityFunction rawCeiling) {
+        WorldFold fold = torusOfWidth(WIDTH_BLOCKS);
+        List<Sweep> sweeps = ScanSeeds.untilFirst(SEEDS, index -> {
+            long seed = seed(index);
+            Sweep result = sweepSeed(type, vanilla, rawCeiling, fold, seed);
+            ScanReports.note(SCAN, "suspended", "type=" + type.name() + " width=" + WIDTH_BLOCKS
+                    + " seed=" + seed + " site=" + (result.site() != null));
+            return result;
+        }, result -> result.site() != null);
+
+        Site site = null;
+        Hit highest = null;
+        String highestAt = "";
+        for (int index = 0; index < sweeps.size(); index++) {
+            site = sweeps.get(index).site();
+            Hit reach = sweeps.get(index).highest();
+            if (reach != null && (highest == null || reach.overshoot() > highest.overshoot())) {
+                highest = reach;
+                highestAt = "seed " + seed(index) + " x=" + reach.blockX() + " z=" + reach.blockZ();
+            }
+        }
+
+        return new Outcome(type.name(), site, highest == null
+                ? "no column stands above the ceiling at all"
+                : "the highest column the sweep found stood " + highest.overshoot()
+                        + " blocks above it, at " + highestAt);
+    }
+
+    private static Sweep sweepSeed(WorldType type, NoiseGeneratorSettings vanilla, DensityFunction rawCeiling,
+            WorldFold fold, long seed) {
+        RandomState state = randomState(vanilla, fold, seed);
+        DensitySampler ceiling = state.getSampler(rawCeiling);
+        DensitySampler density = state.getSampler(state.router.finalDensity());
+        Sweep[] result = new Sweep[1];
+        GenerationFoldContext.runWithFold(fold,
+                () -> result[0] = sweep(type, seed, ceiling, density, vanilla.seaLevel()));
+        return result[0];
+    }
+
     private static Sweep sweep(WorldType type, long seed, DensitySampler ceiling, DensitySampler density,
             int seaLevel) {
         List<Hit> hits = new ArrayList<>();
+        Hit reach = walkLap(ceiling, density, hits);
+        Cluster cluster = settle(ceiling, density, seaLevel, hits);
+        return new Sweep(cluster == null ? null
+                : new Site(type, seed, cluster.center().blockX(), cluster.center().blockZ(), cluster.columns()),
+                reach);
+    }
+
+    private static @Nullable Cluster settle(DensitySampler ceiling, DensitySampler density, int seaLevel, List<Hit> hits) {
+        for (int cluster = 0; cluster < CLUSTERS && !hits.isEmpty(); cluster++) {
+            Hit center = densest(hits);
+            int columns = suspendedColumns(ceiling, density, center, seaLevel);
+            if (columns >= SITE_COLUMNS) {
+                return new Cluster(center, columns);
+            }
+
+            hits.removeIf(hit -> within(center, hit));
+        }
+
+        return null;
+    }
+
+    private static @Nullable Hit walkLap(DensitySampler ceiling, DensitySampler density, List<Hit> hits) {
         Hit reach = null;
         for (int blockX = -WIDTH_BLOCKS / 2; blockX < WIDTH_BLOCKS / 2; blockX += SWEEP_STEP_BLOCKS) {
             for (int blockZ = -WIDTH_BLOCKS / 2; blockZ < WIDTH_BLOCKS / 2; blockZ += SWEEP_STEP_BLOCKS) {
@@ -203,17 +242,7 @@ final class SuspendedLand {
             }
         }
 
-        for (int cluster = 0; cluster < CLUSTERS && !hits.isEmpty(); cluster++) {
-            Hit center = densest(hits);
-            int columns = suspendedColumns(ceiling, density, center, seaLevel);
-            if (columns >= SITE_COLUMNS) {
-                return new Sweep(new Site(type, seed, center.blockX(), center.blockZ(), columns), reach);
-            }
-
-            hits.removeIf(hit -> within(center, hit));
-        }
-
-        return new Sweep(null, reach);
+        return reach;
     }
 
     private static int overshoot(DensitySampler ceiling, DensitySampler density, int blockX, int blockZ) {

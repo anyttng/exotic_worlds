@@ -208,7 +208,17 @@ class NetherColumnProbeTest {
         boolean[] sample(RandomState randomState, int blockX, int blockZ);
     }
 
+    @SuppressWarnings("ArrayRecordComponent")
+    private record Columns(int[][] floors, int[][] ceilings, long solidBlocks) {
+    }
+
     private Relief measureRelief(RandomState randomState, WorldFold fold, int originX, int originZ,
+            double stepX, double stepZ, ColumnSampler sampler) {
+        Columns columns = sampleColumns(randomState, fold, originX, originZ, stepX, stepZ, sampler);
+        return relief(columns, meanNeighborDelta(columns.floors()));
+    }
+
+    private Columns sampleColumns(RandomState randomState, WorldFold fold, int originX, int originZ,
             double stepX, double stepZ, ColumnSampler sampler) {
         int minY = heightAccessor.getMinY();
         int height = heightAccessor.getHeight();
@@ -244,6 +254,10 @@ class NetherColumnProbeTest {
             }
         }
 
+        return new Columns(floors, ceilings, solidBlocks);
+    }
+
+    private static double meanNeighborDelta(int[][] floors) {
         double neighborSum = 0.0;
         int neighborCount = 0;
         for (int i = 0; i < GRID; i++) {
@@ -260,12 +274,18 @@ class NetherColumnProbeTest {
             }
         }
 
-        Histogram floorHistogram = Histogram.of(floors, minY, height);
-        Histogram ceilingHistogram = Histogram.of(ceilings, minY, height);
+        return neighborSum / neighborCount;
+    }
+
+    private Relief relief(Columns columns, double meanNeighborDelta) {
+        int minY = heightAccessor.getMinY();
+        int height = heightAccessor.getHeight();
+        Histogram floorHistogram = Histogram.of(columns.floors(), minY, height);
+        Histogram ceilingHistogram = Histogram.of(columns.ceilings(), minY, height);
         return new Relief(floorHistogram.topShare(1), floorHistogram.topShare(TOP_LEVELS),
-                floorHistogram.distinct(), neighborSum / neighborCount,
+                floorHistogram.distinct(), meanNeighborDelta,
                 ceilingHistogram.topShare(1), ceilingHistogram.distinct(),
-                solidBlocks / (double) (GRID * GRID * height));
+                columns.solidBlocks() / (double) (GRID * GRID * height));
     }
 
     private boolean[] chainColumn(RandomState randomState, int blockX, int blockZ) {
