@@ -26,6 +26,7 @@
     "ServerPlayerTickFrameMixin",
     "SignFacingFrameMixin",
     "SubLevelAccessor",
+    "SubLevelAssemblyHelperMixin",
     "SubLevelContainerMixin",
     "SubLevelHoldingChunkMapMixin",
     "SubLevelInclusiveLevelEntityGetterMixin",
