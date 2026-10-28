@@ -76,6 +76,10 @@ class TerrainCeilingScan {
     private record Bucket(String name, int columns, double overshootShare, double overshootP99, double maxOvershoot) {
     }
 
+    private record SiteCut(int read, int below, int above, List<Double> drops, List<Double> aboves,
+            List<Double> insides, List<Double> ceilingsAtCut, List<Double> topsAtCut) {
+    }
+
     @BeforeAll
     static void bootstrap() {
         ClimateScanFixture.bootstrapVanilla();
@@ -194,43 +198,54 @@ class TerrainCeilingScan {
         DensityFunction rawCeiling = TerrainCeiling.ceiling(settings);
         assertTrue(rawCeiling != null, "no jaggedness node in the " + type.name() + " router — nothing to measure");
 
-        NoiseGeneratorSettings probe = withProbesParked(settings, rawCeiling);
-        double step = WIDTH_BLOCKS / (double) GRID;
-
-        for (int s = 0; s < SEEDS; s++) {
-            int before = columns.size();
-            RandomState randomState = randomState(probe, fold, SuspendedLand.seed(s));
-            NoiseRouter router = randomState.router();
-            DensityFunction ceiling = router.barrierNoise();
-            DensityFunction density = router.finalDensity();
-            DensityFunction surface = parkedSurface(randomState);
-            GenerationFoldContext.runWithFold(fold, () -> {
-                for (int ix = 0; ix < GRID; ix++) {
-                    for (int iz = 0; iz < GRID; iz++) {
-                        int blockX = (int) Math.round(ix * step);
-                        int blockZ = (int) Math.round(iz * step);
-                        int top = topSolid(density, blockX, blockZ, settings.seaLevel());
-                        if (top == Integer.MIN_VALUE) {
-                            continue;
-                        }
-
-                        double ceilingY = at(ceiling, blockX, blockZ);
-                        int probeY = (int) Math.min(TOP_Y, Math.round(ceilingY + RAMP_BLOCKS));
-                        columns.add(new Column(top, at(surface, blockX, blockZ), ceilingY,
-                                density.compute(new DensityFunction.SinglePointContext(blockX, probeY, blockZ))));
-                        if (Math.abs(top - ceilingY) <= RAMP_BLOCKS) {
-                            nearCeiling.add(new QuartStep(
-                                    Math.abs(at(ceiling, blockX + QUART_BLOCKS, blockZ) - ceilingY),
-                                    Math.abs(at(ceiling, blockX, blockZ + QUART_BLOCKS) - ceilingY)));
-                        }
-                    }
-                }
-            });
+        List<Sample> seeds = ScanSeeds.inOrder(SEEDS, s -> {
+            Sample seed = sampleSeed(settings, rawCeiling, fold, SuspendedLand.seed(s));
             ScanReports.note(SCAN, "ceiling", "type=" + type.name() + " width=" + WIDTH_BLOCKS
-                    + " seed=" + SuspendedLand.seed(s) + " columns=" + (columns.size() - before));
+                    + " seed=" + SuspendedLand.seed(s) + " columns=" + seed.columns().size());
+            return seed;
+        });
+
+        for (Sample seed : seeds) {
+            columns.addAll(seed.columns());
+            nearCeiling.addAll(seed.nearCeiling());
         }
 
         return new Sample(columns, nearCeiling);
+    }
+
+    private static Sample sampleSeed(NoiseGeneratorSettings settings, DensityFunction rawCeiling, WorldFold fold,
+            long seed) {
+        Sample into = new Sample(new ArrayList<>(), new ArrayList<>());
+        RandomState randomState = randomState(withProbesParked(settings, rawCeiling), fold, seed);
+        NoiseRouter router = randomState.router();
+        DensityFunction ceiling = router.barrierNoise();
+        DensityFunction density = router.finalDensity();
+        DensityFunction surface = parkedSurface(randomState);
+        double step = WIDTH_BLOCKS / (double) GRID;
+        GenerationFoldContext.runWithFold(fold, () -> {
+            for (int ix = 0; ix < GRID; ix++) {
+                for (int iz = 0; iz < GRID; iz++) {
+                    int blockX = (int) Math.round(ix * step);
+                    int blockZ = (int) Math.round(iz * step);
+                    int top = topSolid(density, blockX, blockZ, settings.seaLevel());
+                    if (top == Integer.MIN_VALUE) {
+                        continue;
+                    }
+
+                    double ceilingY = at(ceiling, blockX, blockZ);
+                    int probeY = (int) Math.min(TOP_Y, Math.round(ceilingY + RAMP_BLOCKS));
+                    into.columns().add(new Column(top, at(surface, blockX, blockZ), ceilingY,
+                            density.compute(new DensityFunction.SinglePointContext(blockX, probeY, blockZ))));
+                    if (Math.abs(top - ceilingY) <= RAMP_BLOCKS) {
+                        into.nearCeiling().add(new QuartStep(
+                                Math.abs(at(ceiling, blockX + QUART_BLOCKS, blockZ) - ceilingY),
+                                Math.abs(at(ceiling, blockX, blockZ + QUART_BLOCKS) - ceilingY)));
+                    }
+                }
+            }
+        });
+
+        return into;
     }
 
     private static String round(double value) {
@@ -265,6 +280,13 @@ class TerrainCeilingScan {
     }
 
     private static long readSite(SuspendedLand.Site site, List<String> report) {
+        report.add("Suspended island the sweep settled on — " + site.describe());
+        report.add("window " + SuspendedLand.WINDOW_BLOCKS + " blocks around x=" + site.blockX()
+                + " z=" + site.blockZ() + ", one column every " + SuspendedLand.STRIDE_BLOCKS + " blocks");
+        return reportCut(cutSite(site), report);
+    }
+
+    private static SiteCut cutSite(SuspendedLand.Site site) {
         WorldFold fold = torusOfWidth(WIDTH_BLOCKS);
         NoiseGeneratorSettings vanilla = settingsOf(site.type());
         DensityFunction rawCeiling = TerrainCeiling.ceiling(vanilla);
@@ -276,10 +298,6 @@ class TerrainCeilingScan {
         DensityFunction vanillaDensity = probeState.router().finalDensity();
         DensityFunction cutDensity = cutState.router().finalDensity();
         int seaLevel = vanilla.seaLevel();
-
-        report.add("Suspended island the sweep settled on — " + site.describe());
-        report.add("window " + SuspendedLand.WINDOW_BLOCKS + " blocks around x=" + site.blockX()
-                + " z=" + site.blockZ() + ", one column every " + SuspendedLand.STRIDE_BLOCKS + " blocks");
 
         int[] counts = new int[3];
         List<Double> drops = new ArrayList<>();
@@ -317,21 +335,24 @@ class TerrainCeilingScan {
                     ceilingsAtCut.add(ceilingY);
                     topsAtCut.add((double) cutTop);
                     int midY = (int) Math.round((ceilingY + vanillaTop) / 2.0);
-                    insides.add(vanillaDensity.compute(
-                            new DensityFunction.SinglePointContext(blockX, midY, blockZ)));
+                    insides.add(vanillaDensity.compute(new DensityFunction.SinglePointContext(blockX, midY, blockZ)));
                 }
             }
         });
 
-        double[] sorted = drops.stream().mapToDouble(Double::doubleValue).sorted().toArray();
-        double[] above = aboves.stream().mapToDouble(Double::doubleValue).sorted().toArray();
+        return new SiteCut(counts[0], counts[1], counts[2], drops, aboves, insides, ceilingsAtCut, topsAtCut);
+    }
+
+    private static long reportCut(SiteCut cut, List<String> report) {
+        double[] sorted = cut.drops().stream().mapToDouble(Double::doubleValue).sorted().toArray();
+        double[] above = cut.aboves().stream().mapToDouble(Double::doubleValue).sorted().toArray();
         long grazing = Arrays.stream(above).filter(over -> over <= GRAZING_BLOCKS).count();
         long unmoved = Arrays.stream(sorted).filter(drop -> drop == 0.0).count();
-        double[] inside = insides.stream().mapToDouble(Double::doubleValue).sorted().toArray();
+        double[] inside = cut.insides().stream().mapToDouble(Double::doubleValue).sorted().toArray();
         long deep = Arrays.stream(sorted).filter(drop -> drop >= SuspendedLand.SUSPENDED_BLOCKS).count();
-        report.add("  columns read: " + counts[0]);
-        report.add("  columns standing below the ceiling, untouched: " + counts[1]);
-        report.add("  columns standing above the ceiling: " + counts[2]);
+        report.add("  columns read: " + cut.read());
+        report.add("  columns standing below the ceiling, untouched: " + cut.below());
+        report.add("  columns standing above the ceiling: " + cut.above());
         report.add("  of those, cut by at least " + SuspendedLand.SUSPENDED_BLOCKS + " blocks: " + deep);
         report.add("  of those, standing no more than " + GRAZING_BLOCKS + " blocks over the ceiling: " + grazing);
         report.add("  of those, the ceiling took nothing at all: " + unmoved
@@ -354,8 +375,8 @@ class TerrainCeilingScan {
                     + " blocks");
         }
 
-        double[] ceilingHeights = ceilingsAtCut.stream().mapToDouble(Double::doubleValue).sorted().toArray();
-        double[] cutHeights = topsAtCut.stream().mapToDouble(Double::doubleValue).sorted().toArray();
+        double[] ceilingHeights = cut.ceilingsAtCut().stream().mapToDouble(Double::doubleValue).sorted().toArray();
+        double[] cutHeights = cut.topsAtCut().stream().mapToDouble(Double::doubleValue).sorted().toArray();
         if (cutHeights.length > 0) {
             report.add("  the ceiling itself, where it bit: min " + round(ceilingHeights[0]) + ", p50 "
                     + round(percentile(ceilingHeights, 0.50)) + ", max "
