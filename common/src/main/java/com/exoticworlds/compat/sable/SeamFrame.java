@@ -22,6 +22,8 @@ import net.minecraft.world.phys.Vec3;
 public final class SeamFrame {
     private static final ThreadScope<Binding<?>> BOUND = new ThreadScope<>();
 
+    private static boolean everBound;
+
     private static final class Binding<A> {
         private final WorldFold fold;
         private final @Nullable Level level;
@@ -109,11 +111,11 @@ public final class SeamFrame {
     public static <A, R> R with(@Nullable WorldFold fold, @Nullable Level level, A subject,
             Function<? super A, Vec3> anchor, Operation<R> original, Object... args) {
         Binding<?> binding = fold == null ? null : new Binding<>(fold, level, subject, anchor);
-        if (binding == null && BOUND.current() == null) {
+        if (binding == null && !isBound()) {
             return original.call(args);
         }
 
-        return BOUND.with(binding, () -> original.call(args));
+        return scoped(binding, () -> original.call(args));
     }
 
     public static <R> R unbound(Supplier<R> body) {
@@ -121,10 +123,14 @@ public final class SeamFrame {
     }
 
     public static boolean isBound() {
-        return BOUND.current() != null;
+        return everBound && BOUND.current() != null;
     }
 
     public static Vector3dc seatPose(Vector3dc position) {
+        if (!everBound) {
+            return position;
+        }
+
         Binding<?> binding = BOUND.current();
         if (binding == null || binding.seating) {
             return position;
@@ -134,7 +140,9 @@ public final class SeamFrame {
     }
 
     private static <R> R scoped(@Nullable Binding<?> binding, Supplier<R> body) {
-        if (binding == null && BOUND.current() == null) {
+        if (binding != null) {
+            everBound = true;
+        } else if (!isBound()) {
             return body.get();
         }
 
