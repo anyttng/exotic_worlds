@@ -93,8 +93,7 @@ public final class SeamFrame {
     }
 
     public static <R> R with(LevelReader reader, Supplier<Vec3> anchor, Supplier<R> body) {
-        return with(WorldLoopAttachments.wrappedTransformerOfReader(reader),
-                reader instanceof Level level ? level : null, anchor, body);
+        return with(serverFoldOf(reader), reader instanceof Level level ? level : null, anchor, body);
     }
 
     public static <R> R with(@Nullable WorldFold fold, @Nullable Level level, Supplier<Vec3> anchor,
@@ -104,8 +103,8 @@ public final class SeamFrame {
 
     public static <A, R> R with(LevelReader reader, A subject, Function<? super A, Vec3> anchor,
             Operation<R> original, Object... args) {
-        return with(WorldLoopAttachments.wrappedTransformerOfReader(reader),
-                reader instanceof Level level ? level : null, subject, anchor, original, args);
+        return with(serverFoldOf(reader), reader instanceof Level level ? level : null, subject, anchor, original,
+                args);
     }
 
     public static <A, R> R with(@Nullable WorldFold fold, @Nullable Level level, A subject,
@@ -137,6 +136,10 @@ public final class SeamFrame {
         }
 
         return binding.seatPose(position);
+    }
+
+    private static @Nullable WorldFold serverFoldOf(LevelReader reader) {
+        return WorldLoopAttachments.wrappedTransformerOf(WorldLoopAttachments.serverLevelOf(reader));
     }
 
     private static <R> R scoped(@Nullable Binding<?> binding, Supplier<R> body) {
