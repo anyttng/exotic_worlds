@@ -84,6 +84,8 @@ public interface WorldFold {
 
     long nearestCopyChunkKey(long refKey, long chunkKey);
 
+    long nearestCopyBlockNode(long refNode, long blockNode);
+
     Folded<Vec3> nearestCopyOriented(Vec3 ref, Vec3 target);
 
     Folded<BlockPos> nearestCopyOriented(BlockPos ref, BlockPos target);

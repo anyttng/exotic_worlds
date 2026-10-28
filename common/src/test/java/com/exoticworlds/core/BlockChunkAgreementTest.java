@@ -127,6 +127,23 @@ class BlockChunkAgreementTest {
         }
     }
 
+    @Test
+    void thePackedNearestCopyAgreesWithThePositionForm() {
+        Random random = new Random(SEED);
+        for (WorldFold transformer : TRANSFORMERS) {
+            for (int i = 0; i < SAMPLES; i++) {
+                BlockPos ref = new BlockPos(sampleBlock(random, blockX(transformer)), sampleHeight(random),
+                        sampleBlock(random, blockZ(transformer)));
+                BlockPos target = new BlockPos(sampleBlock(random, blockX(transformer)), sampleHeight(random),
+                        sampleBlock(random, blockZ(transformer)));
+                assertEquals(transformer.nearestCopy(ref, target).asLong(),
+                        transformer.nearestCopyBlockNode(ref.asLong(), target.asLong()),
+                        () -> "the packed nearest copy of " + target + " around " + ref + " disagrees "
+                                + in(transformer));
+            }
+        }
+    }
+
     private static void checkKey(BlockPos pos, WorldFold transformer) {
         BlockPos folded = transformer.fold(pos);
         long section = SectionPos.asLong(folded);

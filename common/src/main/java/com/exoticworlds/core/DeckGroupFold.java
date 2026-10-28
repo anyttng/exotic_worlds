@@ -302,6 +302,16 @@ public final class DeckGroupFold implements WorldFold {
     }
 
     @Override
+    public long nearestCopyBlockNode(long refNode, long blockNode) {
+        int x = BlockPos.getX(blockNode);
+        int z = BlockPos.getZ(blockNode);
+        SeamTransform move = nearestCells(this.blocks, BlockPos.getX(refNode), BlockPos.getZ(refNode), x, z);
+        return move.isIdentity()
+                ? blockNode
+                : BlockPos.asLong(move.applyCellX(x), BlockPos.getY(blockNode), move.applyCellZ(z));
+    }
+
+    @Override
     public Folded<Vec3> nearestCopyOriented(Vec3 ref, Vec3 target) {
         SeamTransform move = nearestCoords(this.blocks, ref.x, ref.z, target.x, target.z);
         return new Folded<>(move.apply(target), move.orientation());

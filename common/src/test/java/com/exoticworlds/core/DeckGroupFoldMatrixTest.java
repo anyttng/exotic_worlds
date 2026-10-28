@@ -378,6 +378,22 @@ class DeckGroupFoldMatrixTest {
     @Nested
     class NearestCopy {
         @Test
+        void thePackedNearestCopyAgreesWithThePositionForm() {
+            for (Case testCase : cases()) {
+                DeckGroupFold fold = testCase.fold();
+                Random random = new Random(SEED + 36);
+                for (int sample = 0; sample < SAMPLES; sample++) {
+                    BlockPos ref = new BlockPos(sample(random), 64, sample(random));
+                    BlockPos target = new BlockPos(sample(random), 64, sample(random));
+                    assertEquals(fold.nearestCopy(ref, target).asLong(),
+                            fold.nearestCopyBlockNode(ref.asLong(), target.asLong()),
+                            testCase.name() + ": the packed nearest copy of " + target + " around " + ref
+                                    + " disagrees");
+                }
+            }
+        }
+
+        @Test
         void minimisesOverTheWholeOrbitOnTheBlockGrid() {
             for (Case testCase : cases()) {
                 DeckGroupFold fold = testCase.fold();

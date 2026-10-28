@@ -196,6 +196,18 @@ final class WorldLoopTransformer implements WorldFold {
 
             return new BlockPos(nearestX, target.getY(), nearestZ);
         }
+
+        private long nearestCopyNode(long refNode, long blockNode) {
+            int targetX = BlockPos.getX(blockNode);
+            int targetZ = BlockPos.getZ(blockNode);
+            int nearestX = coords.x.unwrapAround(BlockPos.getX(refNode), targetX);
+            int nearestZ = coords.z.unwrapAround(BlockPos.getZ(refNode), targetZ);
+            if (nearestX == targetX && nearestZ == targetZ) {
+                return blockNode;
+            }
+
+            return BlockPos.asLong(nearestX, BlockPos.getY(blockNode), nearestZ);
+        }
     }
 
     @Override
@@ -454,6 +466,11 @@ final class WorldLoopTransformer implements WorldFold {
     @Override
     public long nearestCopyChunkKey(long refKey, long chunkKey) {
         return chunks.unwrapKey(refKey, chunkKey);
+    }
+
+    @Override
+    public long nearestCopyBlockNode(long refNode, long blockNode) {
+        return blocks.nearestCopyNode(refNode, blockNode);
     }
 
     @Override

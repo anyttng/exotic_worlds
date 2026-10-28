@@ -16,7 +16,7 @@ public final class MekanismSeam {
     private static final long NO_POSITION = Long.MAX_VALUE;
 
     public static long fold(@Nullable Level level, long pos) {
-        return pos == NO_POSITION ? pos : fold(level, BlockPos.of(pos)).asLong();
+        return pos == NO_POSITION ? pos : WorldLoopAttachments.transformerOfReader(level).foldBlockNode(pos);
     }
 
     public static BlockPos fold(@Nullable Level level, BlockPos pos) {
@@ -28,7 +28,7 @@ public final class MekanismSeam {
             return target;
         }
 
-        return nearestCopy(level, BlockPos.of(anchor), BlockPos.of(target)).asLong();
+        return WorldLoopAttachments.transformerOfReader(level).nearestCopyBlockNode(anchor, target);
     }
 
     public static BlockPos nearestCopy(@Nullable Level level, BlockPos anchor, BlockPos target) {
