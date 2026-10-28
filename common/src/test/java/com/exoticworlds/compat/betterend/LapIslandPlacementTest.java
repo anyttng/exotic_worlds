@@ -12,6 +12,7 @@ import org.betterx.betterend.noise.OpenSimplexNoise;
 import org.betterx.betterend.world.generator.LayerOptions;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.compat.LapFrame;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;

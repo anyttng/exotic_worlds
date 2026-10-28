@@ -273,8 +273,19 @@ dependencies {
 var fabricEnvTypeClass = tasks.register('unpackFabricEnvType', Sync) {
     from(zipTree(configurations.fabricEnvType.singleFile)) {
         include 'net/fabricmc/api/EnvType.class'
+        include 'net/fabricmc/api/ModInitializer.class'
     }
     into layout.buildDirectory.dir('fabric-envtype')
+}
+
+configurations {
+    naturalTemperatureFabric {
+        transitive = false
+    }
+}
+
+dependencies {
+    naturalTemperatureFabric "maven.modrinth:natural-temperature:${natural_temperature_fabric_version}"
 }
 
 // The NeoForge compat jars annotate their subscribers with the event bus's EventPriority, absent from this NeoForm
@@ -324,6 +335,8 @@ dependencies {
     compileOnly "maven.modrinth:supplementaries:${supplementaries_version}"
     compileOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
     compileOnly "maven.modrinth:immersive-overlays:${immersive_overlays_version}"
+    compileOnly "maven.modrinth:natural-temperature:${natural_temperature_version}"
+    compileOnly files(configurations.naturalTemperatureFabric)
     // Non-transitive: the FTB poms ask for Architectury, whose types no map fold names — pulling its maven in would
     // put a whole mod on the compile classpath to satisfy a reference nothing makes.
     compileOnly("dev.ftb.mods:ftb-chunks-neoforge:${ftbchunks_version}") { transitive = false }
@@ -410,6 +423,7 @@ dependencies {
     testCompileOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
     testRuntimeOnly "maven.modrinth:mapfrontiers:${mapfrontiers_version}"
     testRuntimeOnly "maven.modrinth:immersive-overlays:${immersive_overlays_version}"
+    testRuntimeOnly "maven.modrinth:natural-temperature:${natural_temperature_version}"
     // The compat jars on the test runtime alone: every compat gate reads its mixins' targets from these class files,
     // and a config plugin cannot even load without IMixinConfigPlugin.
     testRuntimeOnly "maven.modrinth:journeymap:${journeymap_version}"

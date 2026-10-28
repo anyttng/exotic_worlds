@@ -3,6 +3,7 @@ package com.exoticworlds.compat.betterend;
 import org.betterx.betterend.noise.OpenSimplexNoise;
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.compat.LapFrame;
 import com.exoticworlds.compat.OpenSimplexStandIn;
 import com.exoticworlds.compat.StandInHolder;
 import com.exoticworlds.compat.betterend.mixin.TerrainGeneratorAccessor;

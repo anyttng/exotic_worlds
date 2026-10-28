@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.betterend;
+package com.exoticworlds.compat;
 
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WrapDomain;

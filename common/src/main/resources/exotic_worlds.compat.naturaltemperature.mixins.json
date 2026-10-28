@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.naturaltemperature.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.naturaltemperature.NaturalTemperatureMixinPlugin",
+  "mixins": [
+    "PaintedFieldMixin",
+    "WorldPainterMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

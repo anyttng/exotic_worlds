@@ -29,8 +29,8 @@ class CompatGatesTest {
     private static final String PLUGIN_KEY = "plugin";
     private static final String PACKAGE_KEY = "package";
     private static final List<String> MIXIN_LIST_KEYS = List.of("mixins", "client", "server");
-    // A mod published for Fabric alone ships intermediary bodies, which this Mojmap runtime cannot match by name.
-    private static final Set<String> FABRIC_ONLY_CONFIGS = Set.of("exotic_worlds.compat.ftbxaerocompat.mixins.json");
+    private static final Set<String> FABRIC_ONLY_CONFIGS = Set.of("exotic_worlds.compat.ftbxaerocompat.mixins.json",
+            "exotic_worlds.compat.naturaltemperature.mixins.json");
     // No ScalableLux build for 1.21.1 carries the light engine interface the lock-release mixin names.
     private static final Set<String> SHUT_ON_THIS_LINE = Set.of("exotic_worlds.compat.scalablelux.mixins.json");
 
