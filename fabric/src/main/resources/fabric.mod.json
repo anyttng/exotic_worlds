@@ -47,7 +47,8 @@
     "exotic_worlds.compat.moonlight.mixins.json",
     "exotic_worlds.compat.mapfrontiers.mixins.json",
     "exotic_worlds.compat.ultimatemapatlases.mixins.json",
-    "exotic_worlds.compat.immersiveoverlays.mixins.json"
+    "exotic_worlds.compat.immersiveoverlays.mixins.json",
+    "exotic_worlds.compat.naturaltemperature.mixins.json"
   ],
   "accessWidener": "exotic_worlds.accesswidener",
   "depends": {
