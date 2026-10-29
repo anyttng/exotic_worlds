@@ -11,9 +11,9 @@ import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import net.minecraft.world.level.levelgen.synth.SmearedPerlinNoise;
 
 public final class PeriodicOctaveSampler {
-    static PeriodicOctaves compile(WorldFold transformer, NoiseFrame frame, double scale,
+    static PeriodicOctaves compile(WorldFold fold, NoiseFrame frame, double scale,
             double @Nullable [] layerFactors, NoiseStack stack) {
-        LapFloor floor = LapFloor.of(transformer);
+        LapFloor floor = LapFloor.of(fold);
         NoiseStack.Layer[] layers = stack.layers;
         PeriodicLattice[] lattices = new PeriodicLattice[layers.length];
         double[] frequencies = new double[layers.length];
@@ -21,7 +21,7 @@ public final class PeriodicOctaveSampler {
         for (int i = 0; i < layers.length; i++) {
             NoiseStack.Layer layer = layers[i];
             double frequency = layer.frequency();
-            lattices[i] = lattice(transformer, frame, layerScale(scale, layerFactors, i, frequency), floor,
+            lattices[i] = lattice(fold, frame, layerScale(scale, layerFactors, i, frequency), floor,
                     layer.noise());
             frequencies[i] = frequency;
             amplitudes[i] = layer.amplitude();
@@ -40,18 +40,18 @@ public final class PeriodicOctaveSampler {
     }
 
     @SuppressWarnings("deprecation")
-    private static PeriodicLattice lattice(WorldFold transformer, NoiseFrame frame, double layerScale, LapFloor floor,
+    private static PeriodicLattice lattice(WorldFold fold, NoiseFrame frame, double layerScale, LapFloor floor,
             Noise leaf) {
         if (leaf.getClass() == PerlinNoise.class) {
             PerlinNoise perlin = (PerlinNoise) leaf;
             return PeriodicNoiseSampler.lattice(perlin.perms, perlin.offsetX, perlin.offsetY, perlin.offsetZ,
-                    PeriodicNoiseSampler.NO_FUDGE, transformer, frame, layerScale, floor);
+                    PeriodicNoiseSampler.NO_FUDGE, fold, frame, layerScale, floor);
         }
 
         if (leaf.getClass() == SmearedPerlinNoise.class) {
             SmearedPerlinNoise smeared = (SmearedPerlinNoise) leaf;
             return PeriodicNoiseSampler.lattice(smeared.perms, smeared.offsetX, smeared.offsetY, smeared.offsetZ,
-                    smeared.fudgeYScale, transformer, frame, layerScale, floor);
+                    smeared.fudgeYScale, fold, frame, layerScale, floor);
         }
 
         throw new IllegalArgumentException("Periodic octaves sample Perlin leaves only, got "

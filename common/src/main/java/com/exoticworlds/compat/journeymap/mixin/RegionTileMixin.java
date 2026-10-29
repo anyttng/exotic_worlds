@@ -3,6 +3,7 @@ package com.exoticworlds.compat.journeymap.mixin;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -58,9 +59,28 @@ public abstract class RegionTileMixin {
             return;
         }
 
+        List<WorldCopies.Copy> copies = exotic_worlds$copiesToDraw(context);
+        if (copies == null) {
+            return;
+        }
+
+        double pixelsPerBlock = JourneyMapFold.pixelsPerBlock(this.zoom);
+        exotic_worlds$drawingCopies = true;
+        try {
+            for (WorldCopies.Copy copy : copies) {
+                this.render(graphics, pose, context, pixelOffsetX + copy.dx() * pixelsPerBlock,
+                        pixelOffsetZ + copy.dz() * pixelsPerBlock, alpha, mapType, pipeline);
+            }
+        } finally {
+            exotic_worlds$drawingCopies = false;
+        }
+    }
+
+    @Unique
+    private @Nullable List<WorldCopies.Copy> exotic_worlds$copiesToDraw(UI context) {
         JourneyMapFold.View view = JourneyMapFold.viewOf(context);
         if (JourneyMapFold.loopedAxes() == 0 || view == null) {
-            return;
+            return null;
         }
 
         Window window = Minecraft.getInstance().getWindow();
@@ -72,20 +92,10 @@ public abstract class RegionTileMixin {
                 JourneyMapFold.copiesOf(context));
         JourneyMapFold.recordCopies(context, drawn);
         RegionCoord region = this.getRegionCoord();
-        List<WorldCopies.Copy> copies = JourneyMapFold.tileCopies(drawn,
+        return JourneyMapFold.tileCopies(drawn,
                 region.regionX * FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS,
                 region.regionZ * FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS,
                 FullscreenZoomFloor.JOURNEYMAP_REGION_BLOCKS, spanX, spanZ);
-        double pixelsPerBlock = JourneyMapFold.pixelsPerBlock(this.zoom);
-        exotic_worlds$drawingCopies = true;
-        try {
-            for (WorldCopies.Copy copy : copies) {
-                this.render(graphics, pose, context, pixelOffsetX + copy.dx() * pixelsPerBlock,
-                        pixelOffsetZ + copy.dz() * pixelsPerBlock, alpha, mapType, pipeline);
-            }
-        } finally {
-            exotic_worlds$drawingCopies = false;
-        }
     }
 
     @Unique

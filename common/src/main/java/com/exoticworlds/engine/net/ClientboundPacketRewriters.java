@@ -139,23 +139,27 @@ final class ClientboundPacketRewriters {
         PositionMoveRotation change = packet.change();
         Vec3 position = change.position();
 
-        boolean relativeX = packet.relatives().contains(Relative.X);
-        boolean relativeZ = packet.relatives().contains(Relative.Z);
-        double mirrorX = clientPosition.x();
-        double mirrorZ = clientPosition.z();
-        Vec3 clientDestination = clientPosition.destinationOf(context.transformer(), position, packet.relatives());
+        Vec3 mirror = new Vec3(clientPosition.x(), 0.0, clientPosition.z());
+        Vec3 clientDestination = clientPosition.destinationOf(context.fold(), position, packet.relatives());
         clientPosition.set(clientDestination.x, clientDestination.z, MirrorWriter.POSITION_PACKET);
 
-        Vec3 sentPosition = relativeX && relativeZ
-                ? SeamDelta.fold(context.transformer(), position)
-                : new Vec3(
-                        relativeX ? clientDestination.x - mirrorX : clientDestination.x,
-                        position.y,
-                        relativeZ ? clientDestination.z - mirrorZ : clientDestination.z);
+        Vec3 sentPosition = sentPosition(context.fold(), position, packet.relatives(), clientDestination, mirror);
         return new ClientboundPlayerPositionPacket(
                 packet.id(),
                 new PositionMoveRotation(sentPosition, change.deltaMovement(), change.yRot(), change.xRot()),
                 packet.relatives());
+    }
+
+    private static Vec3 sentPosition(WorldFold fold, Vec3 position, Set<Relative> relatives, Vec3 clientDestination,
+            Vec3 mirror) {
+        boolean relativeX = relatives.contains(Relative.X);
+        boolean relativeZ = relatives.contains(Relative.Z);
+        return relativeX && relativeZ
+                ? SeamDelta.fold(fold, position)
+                : new Vec3(
+                        relativeX ? clientDestination.x - mirror.x : clientDestination.x,
+                        position.y,
+                        relativeZ ? clientDestination.z - mirror.z : clientDestination.z);
     }
 
     static ClientboundAddEntityPacket addEntity(ClientboundAddEntityPacket packet, TranslationContext context) {
@@ -333,7 +337,7 @@ final class ClientboundPacketRewriters {
             Vec3 clientOrigin) {
         return switch (particle) {
             case TrailParticleOption trail -> new TrailParticleOption(
-                    context.transformer().nearestCopy(clientOrigin, trail.target()),
+                    context.fold().nearestCopy(clientOrigin, trail.target()),
                     trail.color(), trail.duration());
             case VibrationParticleOption vibration -> {
                 if (!(vibration.getDestination() instanceof BlockPositionSource destination)) {
@@ -402,14 +406,14 @@ final class ClientboundPacketRewriters {
 
     private static BorderCenter toClientBorderCenter(TranslationContext context, BorderCenter center) {
         ClientPosition clientPosition = context.clientPosition();
-        BorderCenter clientCenter = nearestCopyCenter(context.transformer(), clientPosition, center);
+        BorderCenter clientCenter = nearestCopyCenter(context.fold(), clientPosition, center);
         clientPosition.setHeldBorderCenter(clientCenter);
         return clientCenter;
     }
 
-    static BorderCenter nearestCopyCenter(WorldFold transformer, ClientPosition clientPosition,
+    static BorderCenter nearestCopyCenter(WorldFold fold, ClientPosition clientPosition,
             BorderCenter center) {
-        Vec3 nearest = transformer.nearestCopy(clientPosition.anchor(0.0), new Vec3(center.x(), 0.0, center.z()));
+        Vec3 nearest = fold.nearestCopy(clientPosition.anchor(0.0), new Vec3(center.x(), 0.0, center.z()));
         return new BorderCenter(nearest.x, nearest.z);
     }
 

@@ -9,7 +9,7 @@ public final class CircumnavigationTracker {
     public static void sample(ServerPlayer player) {
         Level level = player.level();
         SeamTravel.Step step = SeamTravel.of(player)
-                .advance(WorldLoopAttachments.wrappedTransformerOf(level), level.dimension(), player.position());
+                .advance(WorldLoopAttachments.wrappedFoldOf(level), level.dimension(), player.position());
         if (!step.closed().isEmpty()) {
             WorldLoopCriteria.CIRCUMNAVIGATE.trigger(player);
         }

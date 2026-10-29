@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.exoticworlds.accessors.LevelHolder;
-import com.exoticworlds.accessors.TransformerSource;
-import com.exoticworlds.compat.c2me.TransformerSourceBindable;
+import com.exoticworlds.accessors.FoldSource;
+import com.exoticworlds.compat.c2me.FoldSourceBindable;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.ishland.c2me.base.common.scheduler.SchedulingManager;
@@ -25,7 +25,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.server.level.ChunkMap;
 
 @Mixin(TheChunkSystem.class)
-public class TheChunkSystemMixin implements TransformerSource {
+public class TheChunkSystemMixin implements FoldSource {
     @Shadow
     @Final
     private ChunkMap tacs;
@@ -36,12 +36,12 @@ public class TheChunkSystemMixin implements TransformerSource {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void exotic_worlds$bindLockFoldSource(ChunkMap tacs, CallbackInfo ci) {
-        ((TransformerSourceBindable) this.schedulingManager).exotic_worlds$bindTransformerSource(this);
+        ((FoldSourceBindable) this.schedulingManager).exotic_worlds$bindFoldSource(this);
     }
 
     @Override
-    public @Nullable WorldFold exotic_worlds$wrappedTransformer() {
-        return WorldLoopAttachments.wrappedTransformerOf(((LevelHolder) (Object) this.tacs).exotic_worlds$level());
+    public @Nullable WorldFold exotic_worlds$wrappedFold() {
+        return WorldLoopAttachments.wrappedFoldOf(((LevelHolder) (Object) this.tacs).exotic_worlds$level());
     }
 
     @Unique

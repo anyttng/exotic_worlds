@@ -21,7 +21,7 @@ import com.exoticworlds.compat.wover.LapMap;
 import com.exoticworlds.compat.wover.LapMapHolder;
 import com.exoticworlds.compat.wover.LapMapStack;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 @Mixin(MapStack.class)
 public class MapStackMixin {
@@ -64,9 +64,9 @@ public class MapStackMixin {
     @Inject(method = "getBiome", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$lapLayer(double x, double y, double z,
             CallbackInfoReturnable<WoverBiomePicker.PickableBiome> cir) {
-        WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
-        if (transformer != null) {
-            cir.setReturnValue(this.maps[exotic_worlds$lapStack(transformer).layer(x, y, z)].getBiome(x, y, z));
+        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        if (fold != null) {
+            cir.setReturnValue(this.maps[exotic_worlds$lapStack(fold).layer(x, y, z)].getBiome(x, y, z));
         }
     }
 

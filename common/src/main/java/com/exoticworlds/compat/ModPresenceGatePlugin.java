@@ -17,7 +17,7 @@ public abstract class ModPresenceGatePlugin extends MixinGatePlugin {
 
     @Override
     public void onLoad(String mixinPackage) {
-        this.gates.forEach(ModPresence::present);
+        this.gates.forEach(ModPresence::admitted);
     }
 
     @Override

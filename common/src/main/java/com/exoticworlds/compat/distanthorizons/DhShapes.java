@@ -21,7 +21,7 @@ public final class DhShapes {
 
     public static @Nullable WorldFold serverFoldOf(IDhLevel level) {
         Level mcLevel = mcLevel(level.getLevelWrapper());
-        return mcLevel != null && !mcLevel.isClientSide() ? WorldLoopAttachments.wrappedTransformerOf(mcLevel) : null;
+        return mcLevel != null && !mcLevel.isClientSide() ? WorldLoopAttachments.wrappedFoldOf(mcLevel) : null;
     }
 
     public static @Nullable DhLattice clientFrame(ILevelWrapper wrapper) {
@@ -43,8 +43,8 @@ public final class DhShapes {
         }
 
         return mcLevel.isClientSide()
-                ? WorldLoopAttachments.wrappedClientBoundsTransformerOf(mcLevel)
-                : WorldLoopAttachments.wrappedTransformerOf(mcLevel);
+                ? WorldLoopAttachments.wrappedClientBoundsFoldOf(mcLevel)
+                : WorldLoopAttachments.wrappedFoldOf(mcLevel);
     }
 
     private DhShapes() {

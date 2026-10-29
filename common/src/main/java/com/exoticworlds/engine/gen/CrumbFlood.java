@@ -17,13 +17,11 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.FlowingFluid;
 
 final class CrumbFlood {
-    static final int CRUMB_CEILING_BLOCKS = 32;
+    static final int SMALLEST_KEPT_BLOCKS = 32;
 
     static final byte NO_FLUID = 0;
 
     static final BlockState AIR = Blocks.AIR.defaultBlockState();
-
-    private static final int CHUNK_COLUMNS = CoordinateConstants.CHUNK_WIDTH;
 
     private static final int SECTION_BLOCKS = 16;
 
@@ -42,52 +40,65 @@ final class CrumbFlood {
                 continue;
             }
 
-            taken[start] = true;
-            pending[0] = start;
-            int head = 0;
-            int tail = 1;
-            boolean againstSide = false;
-
-            while (head < tail) {
-                int cell = pending[head++];
-                if (grid.onSide(cell)) {
-                    againstSide = true;
-                }
-
-                for (int axis = 0; axis < CellGrid.AXES; axis++) {
-                    for (int step = -1; step <= 1; step += 2) {
-                        int neighbor = grid.neighbor(cell, axis, step);
-                        if (neighbor != CellGrid.NO_CELL && solid[neighbor] && !taken[neighbor]) {
-                            taken[neighbor] = true;
-                            pending[tail++] = neighbor;
-                        }
-                    }
-                }
-            }
-
-            if (againstSide) {
+            int size = collect(grid, solid, taken, pending, start);
+            if (touchesSide(grid, pending, size)) {
                 continue;
             }
 
             detached++;
-            if (tail >= CRUMB_CEILING_BLOCKS) {
+            if (size >= SMALLEST_KEPT_BLOCKS) {
                 continue;
             }
 
             swept++;
-            blocks += tail;
-            for (int i = 0; i < tail; i++) {
-                solid[pending[i]] = false;
-            }
-
-            Arrays.sort(pending, 0, tail);
-            floodCleared(grid, fluid, pending, tail);
-            for (int i = 0; i < tail; i++) {
-                cleared.accept(pending[i]);
-            }
+            blocks += size;
+            sweep(grid, solid, fluid, Arrays.copyOf(pending, size), cleared);
         }
 
         return new Sweep(detached, swept, blocks);
+    }
+
+    private static int collect(CellGrid grid, boolean[] solid, boolean[] taken, int[] pending, int start) {
+        taken[start] = true;
+        pending[0] = start;
+        int head = 0;
+        int tail = 1;
+        while (head < tail) {
+            int cell = pending[head++];
+            for (int axis = 0; axis < CellGrid.AXES; axis++) {
+                for (int step = -1; step <= 1; step += 2) {
+                    int neighbor = grid.neighbor(cell, axis, step);
+                    if (neighbor != CellGrid.NO_CELL && solid[neighbor] && !taken[neighbor]) {
+                        taken[neighbor] = true;
+                        pending[tail++] = neighbor;
+                    }
+                }
+            }
+        }
+
+        return tail;
+    }
+
+    private static boolean touchesSide(CellGrid grid, int[] cells, int count) {
+        for (int i = 0; i < count; i++) {
+            if (grid.onSide(cells[i])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static void sweep(CellGrid grid, boolean[] solid, byte[] fluid, int[] crumb, IntConsumer cleared) {
+        for (int cell : crumb) {
+            solid[cell] = false;
+        }
+
+        Arrays.sort(crumb);
+        floodCleared(grid, fluid, crumb, crumb.length);
+        for (int cell : crumb) {
+            cleared.accept(cell);
+        }
     }
 
     static void floodCleared(CellGrid grid, byte[] fluid, int[] cells, int count) {
@@ -138,8 +149,8 @@ final class CrumbFlood {
 
             int sectionMinY = SectionPos.sectionToBlockCoord(chunk.getSectionYFromSectionIndex(index));
             for (int y = 0; y < SECTION_BLOCKS; y++) {
-                for (int z = 0; z < CHUNK_COLUMNS; z++) {
-                    for (int x = 0; x < CHUNK_COLUMNS; x++) {
+                for (int z = 0; z < CoordinateConstants.CHUNK_WIDTH; z++) {
+                    for (int x = 0; x < CoordinateConstants.CHUNK_WIDTH; x++) {
                         BlockState state = section.getBlockState(x, y, z);
                         int cell = grid.cell(x, sectionMinY + y - minY, z);
                         FluidState carried = state.getFluidState();

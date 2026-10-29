@@ -29,7 +29,7 @@ public final class EminusShapes {
         Identifier id = Identifier.tryParse(dimension);
         return id == null
                 ? CellFold.NONE
-                : CellFold.of(PublishedShapes.foldOf(ResourceKey.create(Registries.DIMENSION, id)));
+                : CellFold.of(PublishedShapes.wrappedFoldOf(ResourceKey.create(Registries.DIMENSION, id)));
     }
 
     public static void matchStore(Path folder, CellFold fold) {

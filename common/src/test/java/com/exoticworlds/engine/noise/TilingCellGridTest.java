@@ -74,9 +74,9 @@ class TilingCellGridTest {
 
         @Test
         void anUnboundedAxisKeepsTheVanillaCellWidth() {
-            WorldFold transformer = WorldFolds.of(ShapeFixtures.cylinder(
+            WorldFold fold = WorldFolds.of(ShapeFixtures.cylinder(
                     new WorldLoopBounds(new AxisBounds.Looped(-9, 9), AxisBounds.Unbounded.INSTANCE)));
-            TilingCellGrid grid = TilingCellGrid.of(transformer, TYPE_CELL_WIDTH);
+            TilingCellGrid grid = TilingCellGrid.of(fold, TYPE_CELL_WIDTH);
 
             assertEquals(72, grid.xCellWidth());
             assertEquals(TYPE_CELL_WIDTH, grid.zCellWidth());
@@ -111,9 +111,9 @@ class TilingCellGridTest {
 
         @Test
         void eachAxisTakesItsOwnWidth() {
-            WorldFold transformer = WorldFolds.of(ShapeFixtures.torus(
+            WorldFold fold = WorldFolds.of(ShapeFixtures.torus(
                     new WorldLoopBounds(new AxisBounds.Looped(-9, 9), new AxisBounds.Looped(-16, 16))));
-            TilingCellGrid grid = TilingCellGrid.of(transformer, TYPE_CELL_WIDTH);
+            TilingCellGrid grid = TilingCellGrid.of(fold, TYPE_CELL_WIDTH);
 
             assertEquals(72, grid.xCellWidth());
             assertEquals(TYPE_CELL_WIDTH, grid.zCellWidth());
@@ -132,8 +132,8 @@ class TilingCellGridTest {
 
         @Test
         void theVanillaCellWidthIsNotPeriodicOnEighteenChunks() {
-            WorldFold transformer = torus(18);
-            WrapDomain domain = transformer.blockDomain(Direction.Axis.X);
+            WorldFold fold = torus(18);
+            WrapDomain domain = fold.blockDomain(Direction.Axis.X);
             int width = domain.domainLength;
             boolean differs = false;
 
@@ -145,9 +145,9 @@ class TilingCellGridTest {
         }
 
         private void assertPeriodic(int chunkWidth, int vanillaCellWidth) {
-            WorldFold transformer = torus(chunkWidth);
-            TilingCellGrid grid = TilingCellGrid.of(transformer, vanillaCellWidth);
-            WrapDomain domain = transformer.blockDomain(Direction.Axis.X);
+            WorldFold fold = torus(chunkWidth);
+            TilingCellGrid grid = TilingCellGrid.of(fold, vanillaCellWidth);
+            WrapDomain domain = fold.blockDomain(Direction.Axis.X);
             int width = domain.domainLength;
 
             for (int x = domain.lowerBound - width; x < domain.upperBound + width; x += PERIODICITY_STEP) {
@@ -170,22 +170,22 @@ class TilingCellGridTest {
         @Test
         void anOddChunkSkewKeepsBothVanillaCellWidths() {
             for (int skewChunks : SKEW_CHUNKS) {
-                WorldFold transformer = skewed(skewChunks);
-                assertEquals(TYPE_CELL_WIDTH, TilingCellGrid.of(transformer, TYPE_CELL_WIDTH).xCellWidth());
-                assertEquals(LEVEL_CELL_WIDTH, TilingCellGrid.of(transformer, LEVEL_CELL_WIDTH).xCellWidth());
+                WorldFold fold = skewed(skewChunks);
+                assertEquals(TYPE_CELL_WIDTH, TilingCellGrid.of(fold, TYPE_CELL_WIDTH).xCellWidth());
+                assertEquals(LEVEL_CELL_WIDTH, TilingCellGrid.of(fold, LEVEL_CELL_WIDTH).xCellWidth());
             }
         }
 
         @Test
         void aCellAndItsDeckCopyFoldOntoOneOrigin() {
             for (int skewChunks : SKEW_CHUNKS) {
-                WorldFold transformer = skewed(skewChunks);
-                TranslationLattice lattice = transformer.blockLattice();
+                WorldFold fold = skewed(skewChunks);
+                TranslationLattice lattice = fold.blockLattice();
                 int width = lattice.x().domainLength;
                 int height = lattice.z().domainLength;
                 int skew = lattice.skew();
                 for (int vanillaCellWidth : new int[] {TYPE_CELL_WIDTH, LEVEL_CELL_WIDTH}) {
-                    TilingCellGrid grid = TilingCellGrid.of(transformer, vanillaCellWidth);
+                    TilingCellGrid grid = TilingCellGrid.of(fold, vanillaCellWidth);
                     for (int x = lattice.x().lowerBound - width; x < lattice.x().upperBound; x += PERIODICITY_STEP) {
                         for (int z = lattice.z().lowerBound - height; z < lattice.z().upperBound;
                                 z += PERIODICITY_STEP * 5) {

@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerHolder;
+import com.exoticworlds.accessors.FoldHolder;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -19,6 +19,6 @@ public abstract class LightNodeStepMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_OFFSET_PACKED),
             expect = 2)
     private long exotic_worlds$wrapToNode(long node, Direction direction, Operation<Long> original) {
-        return ((TransformerHolder) (Object) this).exotic_worlds$transformer().foldBlockNode(original.call(node, direction));
+        return ((FoldHolder) (Object) this).exotic_worlds$fold().foldBlockNode(original.call(node, direction));
     }
 }

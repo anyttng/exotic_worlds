@@ -3,6 +3,7 @@ package com.exoticworlds.compat.betterend;
 import org.betterx.betterend.noise.OpenSimplexNoise;
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.compat.LapFrame;
 import com.exoticworlds.compat.OpenSimplexStandIn;
 import com.exoticworlds.compat.StandInHolder;
 import com.exoticworlds.compat.betterend.mixin.TerrainGeneratorAccessor;
@@ -36,7 +37,7 @@ public final class EndTerrainLap {
     }
 
     public static void capture(ServerLevel level) {
-        WorldFold fold = ShapedChunkGenerator.wrappedTransformerOf(level.getChunkSource().getGenerator());
+        WorldFold fold = ShapedChunkGenerator.wrappedFoldOf(level.getChunkSource().getGenerator());
         OpenSimplexNoise first = TerrainGeneratorAccessor.exotic_worlds$noise1();
         OpenSimplexNoise second = TerrainGeneratorAccessor.exotic_worlds$noise2();
         current = fold == null || first == null || second == null

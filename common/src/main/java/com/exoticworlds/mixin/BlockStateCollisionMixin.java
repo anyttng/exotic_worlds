@@ -19,6 +19,6 @@ public abstract class BlockStateCollisionMixin {
             at = @At("HEAD"),
             argsOnly = true)
     private BlockPos exotic_worlds$canonicalCollisionPos(BlockPos pos, @Local(argsOnly = true) BlockGetter getter) {
-        return WorldLoopAttachments.transformerIfLevel(getter).fold(pos);
+        return WorldLoopAttachments.foldIfLevel(getter).fold(pos);
     }
 }

@@ -145,12 +145,12 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder, 
             @Local(argsOnly = true, ordinal = 2) double requestedZ,
             @Share("continuous") LocalRef<Vec3> continuous) {
         double clampedX = original.call(requestedX);
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.player.level());
+        if (fold == null) {
             return clampedX;
         }
 
-        Vec3 seated = SeamMove.player(this.player, this, transformer, clampedX, original.call(requestedZ));
+        Vec3 seated = SeamMove.player(this.player, this, fold, clampedX, original.call(requestedZ));
         continuous.set(seated);
         return seated.x;
     }
@@ -183,12 +183,12 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder, 
             @Local(argsOnly = true) ServerboundMoveVehiclePacket packet,
             @Share("vehicleContinuous") LocalRef<Vec3> continuous) {
         double clampedX = original.call(clientX);
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(this.player.level());
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.player.level());
+        if (fold == null) {
             return clampedX;
         }
 
-        Vec3 seated = SeamMove.vehicle(this.player, transformer, clampedX,
+        Vec3 seated = SeamMove.vehicle(this.player, fold, clampedX,
                 original.call(packet.movingTo().position().z()));
         continuous.set(seated);
         return seated.x;

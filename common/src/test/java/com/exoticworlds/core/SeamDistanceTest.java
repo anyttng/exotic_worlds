@@ -23,7 +23,7 @@ class SeamDistanceTest {
     private static final int SAMPLES = 1500;
     private static final int LAPS = 5;
 
-    private static final List<WorldFold> TRANSFORMERS = PER_AXIS;
+    private static final List<WorldFold> FOLDS = PER_AXIS;
 
     private static int sampleChunk(Random random, WrapDomain domain) {
         int reach = 3 * (domain instanceof WrapDomain.Noop ? 1_000 : Math.min(domain.domainLength, 1_000));
@@ -47,24 +47,24 @@ class SeamDistanceTest {
         return random.nextInt(384) - 64;
     }
 
-    private static double coordSqrRef(WorldFold transformer, double dx, double dy, double dz) {
+    private static double coordSqrRef(WorldFold fold, double dx, double dy, double dz) {
         double best = Double.MAX_VALUE;
         for (int xLaps = -LAPS; xLaps <= LAPS; xLaps++) {
             for (int zLaps = -LAPS; zLaps <= LAPS; zLaps++) {
-                double shiftedX = dx + xLaps * (double) blockX(transformer).domainLength;
-                double shiftedZ = dz + zLaps * (double) blockZ(transformer).domainLength;
+                double shiftedX = dx + xLaps * (double) blockX(fold).domainLength;
+                double shiftedZ = dz + zLaps * (double) blockZ(fold).domainLength;
                 best = Math.min(best, shiftedX * shiftedX + dy * dy + shiftedZ * shiftedZ);
             }
         }
         return best;
     }
 
-    private static long chunkSqrRef(WorldFold transformer, int dx, int dz) {
+    private static long chunkSqrRef(WorldFold fold, int dx, int dz) {
         long best = Long.MAX_VALUE;
         for (int xLaps = -LAPS; xLaps <= LAPS; xLaps++) {
             for (int zLaps = -LAPS; zLaps <= LAPS; zLaps++) {
-                long shiftedX = dx + (long) xLaps * chunkX(transformer).domainLength;
-                long shiftedZ = dz + (long) zLaps * chunkZ(transformer).domainLength;
+                long shiftedX = dx + (long) xLaps * chunkX(fold).domainLength;
+                long shiftedZ = dz + (long) zLaps * chunkZ(fold).domainLength;
                 best = Math.min(best, shiftedX * shiftedX + shiftedZ * shiftedZ);
             }
         }
@@ -78,22 +78,22 @@ class SeamDistanceTest {
         return xGap * xGap + yGap * yGap + zGap * zGap;
     }
 
-    private static double boxSqrRef(WorldFold transformer, AABB box, Vec3 point) {
+    private static double boxSqrRef(WorldFold fold, AABB box, Vec3 point) {
         double best = Double.MAX_VALUE;
         for (int xLaps = -LAPS; xLaps <= LAPS; xLaps++) {
             for (int zLaps = -LAPS; zLaps <= LAPS; zLaps++) {
                 AABB copy = box.move(
-                        xLaps * (double) blockX(transformer).domainLength,
+                        xLaps * (double) blockX(fold).domainLength,
                         0.0,
-                        zLaps * (double) blockZ(transformer).domainLength);
+                        zLaps * (double) blockZ(fold).domainLength);
                 best = Math.min(best, flatBoxSqr(copy, point));
             }
         }
         return best;
     }
 
-    private static String in(WorldFold transformer) {
-        return "in " + transformer;
+    private static String in(WorldFold fold) {
+        return "in " + fold;
     }
 
     private static WrapDomain blockX(WorldFold fold) {
@@ -117,18 +117,18 @@ class SeamDistanceTest {
         @Test
         void coordSqrDistIsTheMinimumOverWorldCopies() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    double xFrom = blockX(transformer).wrap(sampleBlock(random, blockX(transformer)));
+                    double xFrom = blockX(fold).wrap(sampleBlock(random, blockX(fold)));
                     double yFrom = sampleY(random);
-                    double zFrom = blockZ(transformer).wrap(sampleBlock(random, blockZ(transformer)));
-                    double xTo = blockX(transformer).wrap(sampleBlock(random, blockX(transformer)));
+                    double zFrom = blockZ(fold).wrap(sampleBlock(random, blockZ(fold)));
+                    double xTo = blockX(fold).wrap(sampleBlock(random, blockX(fold)));
                     double yTo = sampleY(random);
-                    double zTo = blockZ(transformer).wrap(sampleBlock(random, blockZ(transformer)));
+                    double zTo = blockZ(fold).wrap(sampleBlock(random, blockZ(fold)));
 
-                    double expected = coordSqrRef(transformer, xTo - xFrom, yTo - yFrom, zTo - zFrom);
-                    double actual = transformer.sqrDistance(xFrom, yFrom, zFrom, xTo, yTo, zTo);
-                    assertEquals(expected, actual, 1e-3, () -> "Coord.sqrDistToBounds " + in(transformer));
+                    double expected = coordSqrRef(fold, xTo - xFrom, yTo - yFrom, zTo - zFrom);
+                    double actual = fold.sqrDistance(xFrom, yFrom, zFrom, xTo, yTo, zTo);
+                    assertEquals(expected, actual, 1e-3, () -> "Coord.sqrDistToBounds " + in(fold));
                 }
             }
         }
@@ -136,16 +136,16 @@ class SeamDistanceTest {
         @Test
         void chunkSqrDistMatchesTheLattice() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    int xFrom = chunkX(transformer).wrap(sampleChunk(random, chunkX(transformer)));
-                    int zFrom = chunkZ(transformer).wrap(sampleChunk(random, chunkZ(transformer)));
-                    int xTo = chunkX(transformer).wrap(sampleChunk(random, chunkX(transformer)));
-                    int zTo = chunkZ(transformer).wrap(sampleChunk(random, chunkZ(transformer)));
+                    int xFrom = chunkX(fold).wrap(sampleChunk(random, chunkX(fold)));
+                    int zFrom = chunkZ(fold).wrap(sampleChunk(random, chunkZ(fold)));
+                    int xTo = chunkX(fold).wrap(sampleChunk(random, chunkX(fold)));
+                    int zTo = chunkZ(fold).wrap(sampleChunk(random, chunkZ(fold)));
 
-                    long expected = chunkSqrRef(transformer, xTo - xFrom, zTo - zFrom);
-                    int actual = transformer.sqrChunkDistance(new ChunkPos(xFrom, zFrom), new ChunkPos(xTo, zTo));
-                    assertEquals(expected, actual, () -> "sqrChunkDistance " + in(transformer));
+                    long expected = chunkSqrRef(fold, xTo - xFrom, zTo - zFrom);
+                    int actual = fold.sqrChunkDistance(new ChunkPos(xFrom, zFrom), new ChunkPos(xTo, zTo));
+                    assertEquals(expected, actual, () -> "sqrChunkDistance " + in(fold));
                 }
             }
         }
@@ -153,30 +153,30 @@ class SeamDistanceTest {
         @Test
         void chessboardDistanceIsTheMinimumOverWorldCopiesHoweverFarOutTheTarget() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
                     ChunkPos from = new ChunkPos(
-                            chunkX(transformer).wrap(sampleChunk(random, chunkX(transformer))),
-                            chunkZ(transformer).wrap(sampleChunk(random, chunkZ(transformer))));
+                            chunkX(fold).wrap(sampleChunk(random, chunkX(fold))),
+                            chunkZ(fold).wrap(sampleChunk(random, chunkZ(fold))));
                     ChunkPos to = new ChunkPos(
-                            sampleChunk(random, chunkX(transformer)),
-                            sampleChunk(random, chunkZ(transformer)));
+                            sampleChunk(random, chunkX(fold)),
+                            sampleChunk(random, chunkZ(fold)));
 
-                    int wrappedX = chunkX(transformer).wrap(to.x());
-                    int wrappedZ = chunkZ(transformer).wrap(to.z());
+                    int wrappedX = chunkX(fold).wrap(to.x());
+                    int wrappedZ = chunkZ(fold).wrap(to.z());
                     int expected = Integer.MAX_VALUE;
                     for (int xLaps = -1; xLaps <= 1; xLaps++) {
                         for (int zLaps = -1; zLaps <= 1; zLaps++) {
-                            int dx = Math.abs(wrappedX + xLaps * chunkX(transformer).domainLength - from.x());
-                            int dz = Math.abs(wrappedZ + zLaps * chunkZ(transformer).domainLength - from.z());
+                            int dx = Math.abs(wrappedX + xLaps * chunkX(fold).domainLength - from.x());
+                            int dz = Math.abs(wrappedZ + zLaps * chunkZ(fold).domainLength - from.z());
                             expected = Math.min(expected, Math.max(dx, dz));
                         }
                     }
 
                     int finalExpected = expected;
-                    assertEquals(expected, from.getChessboardDistance(transformer.nearestCopy(from, to)),
+                    assertEquals(expected, from.getChessboardDistance(fold.nearestCopy(from, to)),
                             () -> "chessboardDistance(" + from + ", " + to + ") should be " + finalExpected + " "
-                                    + in(transformer));
+                                    + in(fold));
                 }
             }
         }
@@ -192,27 +192,27 @@ class SeamDistanceTest {
         @Test
         void overshootIsTheChessboardDistanceToTheNearestChunkStillInside() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    int x = sampleChunk(random, chunkX(transformer));
-                    int z = sampleChunk(random, chunkZ(transformer));
+                    int x = sampleChunk(random, chunkX(fold));
+                    int z = sampleChunk(random, chunkZ(fold));
                     int expected = Math.max(
-                            Math.abs(x - refClamp(chunkX(transformer), x)),
-                            Math.abs(z - refClamp(chunkZ(transformer), z)));
+                            Math.abs(x - refClamp(chunkX(fold), x)),
+                            Math.abs(z - refClamp(chunkZ(fold), z)));
 
-                    assertEquals(expected, transformer.chunkOvershoot(new ChunkPos(x, z)),
-                            () -> "overshoot(" + x + ", " + z + ") " + in(transformer));
+                    assertEquals(expected, fold.chunkOvershoot(new ChunkPos(x, z)),
+                            () -> "overshoot(" + x + ", " + z + ") " + in(fold));
                 }
             }
         }
 
         @Test
         void insideTheWorldOvershootIsZero() {
-            for (WorldFold transformer : TRANSFORMERS) {
-                assertEquals(0, transformer.chunkOvershoot(new ChunkPos(0, 0)), () -> in(transformer));
-                assertEquals(0, transformer.chunkOvershoot(new ChunkPos(
-                        chunkX(transformer).lowerBound,
-                        chunkZ(transformer).upperBound - 1)), () -> in(transformer));
+            for (WorldFold fold : FOLDS) {
+                assertEquals(0, fold.chunkOvershoot(new ChunkPos(0, 0)), () -> in(fold));
+                assertEquals(0, fold.chunkOvershoot(new ChunkPos(
+                        chunkX(fold).lowerBound,
+                        chunkZ(fold).upperBound - 1)), () -> in(fold));
             }
         }
     }
@@ -222,40 +222,40 @@ class SeamDistanceTest {
         @Test
         void landsOnTheSamePositionNoFurtherThanAnyOtherCopyAndWithinHalfAWorld() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
                     Vec3 ref = new Vec3(
-                            sampleBlock(random, blockX(transformer)),
+                            sampleBlock(random, blockX(fold)),
                             sampleY(random),
-                            sampleBlock(random, blockZ(transformer)));
+                            sampleBlock(random, blockZ(fold)));
                     Vec3 target = new Vec3(
-                            sampleBlock(random, blockX(transformer)),
+                            sampleBlock(random, blockX(fold)),
                             sampleY(random),
-                            sampleBlock(random, blockZ(transformer)));
+                            sampleBlock(random, blockZ(fold)));
 
-                    Vec3 nearest = transformer.nearestCopy(ref, target);
+                    Vec3 nearest = fold.nearestCopy(ref, target);
 
-                    assertEquals(target.y, nearest.y, 0.0, () -> "Y is seamless " + in(transformer));
-                    assertEquals(blockX(transformer).wrap(target.x), blockX(transformer).wrap(nearest.x), 1e-6,
-                            () -> "nearestCopy moved the X position " + in(transformer));
-                    assertEquals(blockZ(transformer).wrap(target.z), blockZ(transformer).wrap(nearest.z), 1e-6,
-                            () -> "nearestCopy moved the Z position " + in(transformer));
+                    assertEquals(target.y, nearest.y, 0.0, () -> "Y is seamless " + in(fold));
+                    assertEquals(blockX(fold).wrap(target.x), blockX(fold).wrap(nearest.x), 1e-6,
+                            () -> "nearestCopy moved the X position " + in(fold));
+                    assertEquals(blockZ(fold).wrap(target.z), blockZ(fold).wrap(nearest.z), 1e-6,
+                            () -> "nearestCopy moved the Z position " + in(fold));
 
-                    double expected = coordSqrRef(transformer,
-                            blockX(transformer).wrap(target.x) - ref.x, 0.0,
-                            blockZ(transformer).wrap(target.z) - ref.z);
+                    double expected = coordSqrRef(fold,
+                            blockX(fold).wrap(target.x) - ref.x, 0.0,
+                            blockZ(fold).wrap(target.z) - ref.z);
                     double actual = (nearest.x - ref.x) * (nearest.x - ref.x)
                             + (nearest.z - ref.z) * (nearest.z - ref.z);
                     assertEquals(expected, actual, 1e-3,
-                            () -> "nearestCopy(" + ref + ", " + target + ") is not the nearest copy " + in(transformer));
+                            () -> "nearestCopy(" + ref + ", " + target + ") is not the nearest copy " + in(fold));
 
-                    if (!(blockX(transformer) instanceof WrapDomain.Noop)) {
-                        assertTrue(Math.abs(nearest.x - ref.x) <= blockX(transformer).domainLength / 2.0 + 1e-9,
-                                () -> "nearestCopy is over half a world away on X " + in(transformer));
+                    if (!(blockX(fold) instanceof WrapDomain.Noop)) {
+                        assertTrue(Math.abs(nearest.x - ref.x) <= blockX(fold).domainLength / 2.0 + 1e-9,
+                                () -> "nearestCopy is over half a world away on X " + in(fold));
                     }
-                    if (!(blockZ(transformer) instanceof WrapDomain.Noop)) {
-                        assertTrue(Math.abs(nearest.z - ref.z) <= blockZ(transformer).domainLength / 2.0 + 1e-9,
-                                () -> "nearestCopy is over half a world away on Z " + in(transformer));
+                    if (!(blockZ(fold) instanceof WrapDomain.Noop)) {
+                        assertTrue(Math.abs(nearest.z - ref.z) <= blockZ(fold).domainLength / 2.0 + 1e-9,
+                                () -> "nearestCopy is over half a world away on Z " + in(fold));
                     }
                 }
             }
@@ -264,40 +264,40 @@ class SeamDistanceTest {
         @Test
         void blocksLandOnTheSameBlockNoFurtherThanAnyOtherCopyAndWithinHalfAWorld() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
                     BlockPos ref = new BlockPos(
-                            sampleBlockCoord(random, blockX(transformer)),
+                            sampleBlockCoord(random, blockX(fold)),
                             sampleYBlock(random),
-                            sampleBlockCoord(random, blockZ(transformer)));
+                            sampleBlockCoord(random, blockZ(fold)));
                     BlockPos target = new BlockPos(
-                            sampleBlockCoord(random, blockX(transformer)),
+                            sampleBlockCoord(random, blockX(fold)),
                             sampleYBlock(random),
-                            sampleBlockCoord(random, blockZ(transformer)));
+                            sampleBlockCoord(random, blockZ(fold)));
 
-                    BlockPos nearest = transformer.nearestCopy(ref, target);
+                    BlockPos nearest = fold.nearestCopy(ref, target);
 
-                    assertEquals(target.getY(), nearest.getY(), () -> "Y is seamless " + in(transformer));
-                    assertEquals(blockX(transformer).wrap(target.getX()), blockX(transformer).wrap(nearest.getX()),
-                            () -> "nearestCopy moved the X block " + in(transformer));
-                    assertEquals(blockZ(transformer).wrap(target.getZ()), blockZ(transformer).wrap(nearest.getZ()),
-                            () -> "nearestCopy moved the Z block " + in(transformer));
+                    assertEquals(target.getY(), nearest.getY(), () -> "Y is seamless " + in(fold));
+                    assertEquals(blockX(fold).wrap(target.getX()), blockX(fold).wrap(nearest.getX()),
+                            () -> "nearestCopy moved the X block " + in(fold));
+                    assertEquals(blockZ(fold).wrap(target.getZ()), blockZ(fold).wrap(nearest.getZ()),
+                            () -> "nearestCopy moved the Z block " + in(fold));
 
-                    double expected = coordSqrRef(transformer,
-                            blockX(transformer).wrap(target.getX()) - (double) ref.getX(), 0.0,
-                            blockZ(transformer).wrap(target.getZ()) - (double) ref.getZ());
+                    double expected = coordSqrRef(fold,
+                            blockX(fold).wrap(target.getX()) - (double) ref.getX(), 0.0,
+                            blockZ(fold).wrap(target.getZ()) - (double) ref.getZ());
                     double dx = nearest.getX() - (double) ref.getX();
                     double dz = nearest.getZ() - (double) ref.getZ();
                     assertEquals(expected, dx * dx + dz * dz, 1e-3,
-                            () -> "nearestCopy(" + ref + ", " + target + ") is not the nearest copy " + in(transformer));
+                            () -> "nearestCopy(" + ref + ", " + target + ") is not the nearest copy " + in(fold));
 
-                    if (!(blockX(transformer) instanceof WrapDomain.Noop)) {
-                        assertTrue(Math.abs(dx) <= blockX(transformer).domainLength / 2.0,
-                                () -> "nearestCopy is over half a world away on X " + in(transformer));
+                    if (!(blockX(fold) instanceof WrapDomain.Noop)) {
+                        assertTrue(Math.abs(dx) <= blockX(fold).domainLength / 2.0,
+                                () -> "nearestCopy is over half a world away on X " + in(fold));
                     }
-                    if (!(blockZ(transformer) instanceof WrapDomain.Noop)) {
-                        assertTrue(Math.abs(dz) <= blockZ(transformer).domainLength / 2.0,
-                                () -> "nearestCopy is over half a world away on Z " + in(transformer));
+                    if (!(blockZ(fold) instanceof WrapDomain.Noop)) {
+                        assertTrue(Math.abs(dz) <= blockZ(fold).domainLength / 2.0,
+                                () -> "nearestCopy is over half a world away on Z " + in(fold));
                     }
                 }
             }
@@ -309,21 +309,21 @@ class SeamDistanceTest {
         @Test
         void distanceToSqrWrappedCoordMatchesTheNearestBoxCopy() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    double minX = blockX(transformer).wrap(sampleBlock(random, blockX(transformer)));
+                    double minX = blockX(fold).wrap(sampleBlock(random, blockX(fold)));
                     double minY = sampleY(random);
-                    double minZ = blockZ(transformer).wrap(sampleBlock(random, blockZ(transformer)));
+                    double minZ = blockZ(fold).wrap(sampleBlock(random, blockZ(fold)));
                     AABB box = new AABB(minX, minY, minZ,
                             minX + random.nextDouble() * 8, minY + random.nextDouble() * 8, minZ + random.nextDouble() * 8);
                     Vec3 point = new Vec3(
-                            blockX(transformer).wrap(sampleBlock(random, blockX(transformer))),
+                            blockX(fold).wrap(sampleBlock(random, blockX(fold))),
                             sampleY(random),
-                            blockZ(transformer).wrap(sampleBlock(random, blockZ(transformer))));
+                            blockZ(fold).wrap(sampleBlock(random, blockZ(fold))));
 
-                    assertEquals(boxSqrRef(transformer, box, point),
-                            transformer.sqrDistanceToBox(box, point), 1e-3,
-                            () -> "distanceToSqrWrappedCoord(" + box + ", " + point + ") " + in(transformer));
+                    assertEquals(boxSqrRef(fold, box, point),
+                            fold.sqrDistanceToBox(box, point), 1e-3,
+                            () -> "distanceToSqrWrappedCoord(" + box + ", " + point + ") " + in(fold));
                 }
             }
         }
@@ -338,74 +338,74 @@ class SeamDistanceTest {
         @Test
         void aPointInsideTheBoxIsAtDistanceZero() {
             AABB box = new AABB(-5, 0, -5, 5, 10, 5);
-            for (WorldFold transformer : TRANSFORMERS) {
-                assertEquals(0.0, transformer.sqrDistanceToBox(box, new Vec3(0, 5, 0)), 0.0,
-                        () -> in(transformer));
+            for (WorldFold fold : FOLDS) {
+                assertEquals(0.0, fold.sqrDistanceToBox(box, new Vec3(0, 5, 0)), 0.0,
+                        () -> in(fold));
             }
         }
     }
 
     @Nested
-    class FoldBox {
+    class NearestCopyOrientedBox {
         @Test
         void movesByWholeWorldWidthsToTheCopyNearestTheReference() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    double minX = sampleBlock(random, blockX(transformer));
+                    double minX = sampleBlock(random, blockX(fold));
                     double minY = sampleY(random);
-                    double minZ = sampleBlock(random, blockZ(transformer));
+                    double minZ = sampleBlock(random, blockZ(fold));
                     AABB box = new AABB(minX, minY, minZ,
                             minX + random.nextDouble() * 8, minY + 1, minZ + random.nextDouble() * 8);
                     Vec3 ref = new Vec3(
-                            blockX(transformer).wrap(sampleBlock(random, blockX(transformer))),
+                            blockX(fold).wrap(sampleBlock(random, blockX(fold))),
                             sampleY(random),
-                            blockZ(transformer).wrap(sampleBlock(random, blockZ(transformer))));
+                            blockZ(fold).wrap(sampleBlock(random, blockZ(fold))));
 
-                    AABB folded = transformer.foldBox(ref, box).value();
+                    AABB folded = fold.nearestCopyOriented(ref, box).value();
 
-                    assertEquals(box.maxX - box.minX, folded.maxX - folded.minX, 1e-9, () -> "X size " + in(transformer));
-                    assertEquals(box.maxZ - box.minZ, folded.maxZ - folded.minZ, 1e-9, () -> "Z size " + in(transformer));
-                    assertEquals(box.minY, folded.minY, 0.0, () -> "Y floor " + in(transformer));
-                    assertEquals(box.maxY, folded.maxY, 0.0, () -> "Y ceiling " + in(transformer));
+                    assertEquals(box.maxX - box.minX, folded.maxX - folded.minX, 1e-9, () -> "X size " + in(fold));
+                    assertEquals(box.maxZ - box.minZ, folded.maxZ - folded.minZ, 1e-9, () -> "Z size " + in(fold));
+                    assertEquals(box.minY, folded.minY, 0.0, () -> "Y floor " + in(fold));
+                    assertEquals(box.maxY, folded.maxY, 0.0, () -> "Y ceiling " + in(fold));
 
-                    checkShiftOnLattice(blockX(transformer), box.minX, folded.minX, "X", transformer);
-                    checkShiftOnLattice(blockZ(transformer), box.minZ, folded.minZ, "Z", transformer);
+                    checkShiftOnLattice(blockX(fold), box.minX, folded.minX, "X", fold);
+                    checkShiftOnLattice(blockZ(fold), box.minZ, folded.minZ, "Z", fold);
 
                     double centerX = (box.minX + box.maxX) / 2.0;
                     double centerZ = (box.minZ + box.maxZ) / 2.0;
                     double foldedCenterX = (folded.minX + folded.maxX) / 2.0;
                     double foldedCenterZ = (folded.minZ + folded.maxZ) / 2.0;
-                    double expected = coordSqrRef(transformer,
-                            blockX(transformer).wrap(centerX) - ref.x, 0.0,
-                            blockZ(transformer).wrap(centerZ) - ref.z);
+                    double expected = coordSqrRef(fold,
+                            blockX(fold).wrap(centerX) - ref.x, 0.0,
+                            blockZ(fold).wrap(centerZ) - ref.z);
                     double actual = (foldedCenterX - ref.x) * (foldedCenterX - ref.x)
                             + (foldedCenterZ - ref.z) * (foldedCenterZ - ref.z);
                     assertEquals(expected, actual, 1e-3,
-                            () -> "foldBoxToward did not pick the nearest copy " + in(transformer));
+                            () -> "nearestCopyOrientedToward did not pick the nearest copy " + in(fold));
                 }
             }
         }
 
         private void checkShiftOnLattice(WrapDomain domain, double boxMin, double foldedMin,
-                String axis, WorldFold transformer) {
+                String axis, WorldFold fold) {
             if (domain instanceof WrapDomain.Noop) {
                 assertEquals(boxMin, foldedMin, 0.0,
-                        () -> axis + " shift moved an unbounded axis " + in(transformer));
+                        () -> axis + " shift moved an unbounded axis " + in(fold));
                 return;
             }
 
             double shiftLaps = (foldedMin - boxMin) / domain.domainLength;
             assertEquals((double) Math.round(shiftLaps), shiftLaps, 1e-9,
-                    () -> axis + " shift left its lattice " + in(transformer));
+                    () -> axis + " shift left its lattice " + in(fold));
         }
 
         @Test
         void aBoxAlreadyNearestComesBackAsTheSameInstance() {
             AABB box = new AABB(3, 0, 3, 6, 2, 6);
             Vec3 ref = new Vec3(0, 1, 0);
-            for (WorldFold transformer : TRANSFORMERS) {
-                assertSame(box, transformer.foldBox(ref, box).value(), () -> in(transformer));
+            for (WorldFold fold : FOLDS) {
+                assertSame(box, fold.nearestCopyOriented(ref, box).value(), () -> in(fold));
             }
         }
     }
@@ -437,7 +437,7 @@ class SeamDistanceTest {
 
                 AABB box = new AABB(dx, dy, dz, dx + 3, dy + 3, dz + 3);
                 assertEquals(flatBoxSqr(box, ref), disabled.sqrDistanceToBox(box, ref), 1e-9);
-                assertSame(box, disabled.foldBox(ref, box).value());
+                assertSame(box, disabled.nearestCopyOriented(ref, box).value());
             }
         }
     }

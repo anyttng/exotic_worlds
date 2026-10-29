@@ -16,6 +16,16 @@ class SiteLatticeTest {
 
     private static final float[] SPACINGS = {20.0F, 24.0F, 44.0F, 96.0F, 176.0F, 520.0F, 1400.0F, 3600.0F};
 
+    private static final float SEA_CAVE_GRID = 40.0F;
+
+    private static final float GIANT_CAVERN_GRID = 900.0F;
+
+    private static final float SITE_X = 366.8927F;
+
+    private static final float SITE_Z = 465.5268F;
+
+    private static final int SITE_BLOCK = 401;
+
     private static final double CLOSE = 1.0E-3;
 
     private static final float STEP = 0.25F;
@@ -86,9 +96,44 @@ class SiteLatticeTest {
         for (int row = -2; row <= 2; row++) {
             int copy = row + lattice.zCells();
             assertEquals(lattice.canonicalZ(row), lattice.canonicalZ(copy));
-            assertEquals(SKEW, lattice.copySkew(copy) - lattice.copySkew(row), CLOSE);
+            float x = lattice.seatX(SITE_X, 0, row);
+            assertEquals((float) SKEW, lattice.seatX(SITE_X, 0, copy) - x, "row " + row);
+            assertEquals((float) LAP, lattice.seatZ(SITE_Z, copy) - lattice.seatZ(SITE_Z, row), "row " + row);
             assertEquals(row * (double) lattice.zSpacing() + LAP, copy * (double) lattice.zSpacing(), CLOSE);
         }
+    }
+
+    @Test
+    void aSiteSeatedALapOnLeavesEveryBlockOffsetUnrounded() {
+        for (double skew : new double[] {RtfLap.NO_SKEW, SKEW}) {
+            SiteLattice lattice = SiteLattice.over(LAP, LAP, skew, GIANT_CAVERN_GRID);
+            for (int cell = -1; cell <= lattice.xCells(); cell++) {
+                float here = lattice.seatX(SITE_X, cell, 0);
+                float there = lattice.seatX(SITE_X, cell + lattice.xCells(), 0);
+                assertEquals((float) LAP, there - here, "cell " + cell);
+                assertEquals(SITE_BLOCK - here, SITE_BLOCK + (float) LAP - there, "cell " + cell);
+            }
+        }
+    }
+
+    @Test
+    void aChunkStartingOnACellLineSitsInThatCell() {
+        SiteLattice lattice = SiteLattice.over(LAP, LAP, RtfLap.NO_SKEW, SEA_CAVE_GRID);
+        for (int cell = -lattice.xCells(); cell <= 2 * lattice.xCells(); cell++) {
+            double line = cell * LAP / lattice.xCells();
+            if (line == Math.rint(line)) {
+                assertEquals(cell, lattice.cellX((float) line), "x " + line);
+                assertEquals(cell, lattice.cellZ((float) line), "z " + line);
+            }
+        }
+    }
+
+    @Test
+    void aPointMovedByTheSkewOntoACellLineCountsFromThatCell() {
+        SiteLattice lattice = SiteLattice.over(LAP, LAP, SKEW, SEA_CAVE_GRID);
+        float x = (float) (LAP / 4 - SKEW);
+        int pointX = lattice.cellX(x);
+        assertEquals(lattice.xCells() / 4, lattice.copyX(pointX, -1, pointX, x));
     }
 
     @Test

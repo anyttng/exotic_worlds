@@ -27,7 +27,7 @@ public class ChunkGeneratorSpawnOverrideMixin {
             return check;
         }
 
-        WorldFold fold = WorldLoopAttachments.wrappedTransformerOf(level);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
         if (fold == null) {
             return check;
         }

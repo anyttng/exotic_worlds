@@ -3,7 +3,7 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 
 import com.exoticworlds.engine.fold.FoldedQuart;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -17,7 +17,7 @@ public class TheEndBiomeSourceMixin {
     @WrapMethod(method = "getNoiseBiome(IIILnet/minecraft/world/level/biome/Climate$Sampler;)Lnet/minecraft/core/Holder;")
     private Holder<Biome> exotic_worlds$loopedNoiseBiome(int quartX, int quartY, int quartZ, Climate.Sampler sampler,
             Operation<Holder<Biome>> original) {
-        long folded = FoldedQuart.fold(GenerationTransformerContext.context().transformer(), quartX, quartY, quartZ);
+        long folded = FoldedQuart.fold(GenerationFoldContext.context().fold(), quartX, quartY, quartZ);
         return original.call(FoldedQuart.x(folded), quartY, FoldedQuart.z(folded), sampler);
     }
 }

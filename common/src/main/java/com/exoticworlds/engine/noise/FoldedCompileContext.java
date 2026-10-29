@@ -25,7 +25,7 @@ public record FoldedCompileContext(DensityFunction.CompileContext vanilla, World
             return null;
         }
 
-        GenerationTransformerContext.Context scope = GenerationTransformerContext.context();
+        GenerationFoldContext.Context scope = GenerationFoldContext.context();
         return scope.xDivisor() == folded.xDivisor && scope.zDivisor() == folded.zDivisor
                 ? folded
                 : new FoldedCompileContext(folded.vanilla, folded.fold, folded.coastLift, folded.ladder,

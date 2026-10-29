@@ -17,12 +17,12 @@ public final class SeamSpans {
             return antiDiagonal;
         }
 
-        return antiDiagonal.equals(region) || horizontalSpan(diagonal) <= horizontalSpan(antiDiagonal)
+        return antiDiagonal.equals(region) || sqrHorizontalSpan(diagonal) <= sqrHorizontalSpan(antiDiagonal)
                 ? diagonal
                 : antiDiagonal;
     }
 
-    private static long horizontalSpan(BoundingBox region) {
+    private static long sqrHorizontalSpan(BoundingBox region) {
         long x = region.getXSpan();
         long z = region.getZSpan();
         return x * x + z * z;

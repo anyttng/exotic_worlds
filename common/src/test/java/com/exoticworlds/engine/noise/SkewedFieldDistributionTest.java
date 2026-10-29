@@ -84,44 +84,57 @@ class SkewedFieldDistributionTest {
         }
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("ArrayRecordComponent")
+    private record Grids(double[] vanilla, double[] corrected) {
+    }
+
     private static List<Reading> measure(String world, WorldFold fold) {
         List<Reading> readings = new ArrayList<>();
         for (double fraction : FRACTIONS) {
-            double scale = fraction / WORLD_BLOCKS;
-            Random windows = new Random(WINDOW_SEED);
-            double vanillaVariance = 0.0;
-            double correctedVariance = 0.0;
-            double[] vanillaMeans = new double[SEEDS];
-            double[] correctedMeans = new double[SEEDS];
-            for (int s = 0; s < SEEDS; s++) {
-                Octave octave = Octave.of(mix(OCTAVE_SEED + s * OCTAVE_SEED_STEP));
-                double windowX = windows.nextDouble() * WINDOW_SPAN;
-                double windowZ = windows.nextDouble() * WINDOW_SPAN;
-                double[] vanillaGrid = new double[GRID * GRID];
-                double[] correctedGrid = new double[GRID * GRID];
-                int k = 0;
-                for (int i = 0; i < GRID; i++) {
-                    double x = i * (WORLD_BLOCKS / (double) GRID);
-                    for (int j = 0; j < GRID; j++) {
-                        double z = j * (WORLD_BLOCKS / (double) GRID);
-                        vanillaGrid[k] = octave.vanilla().get((windowX + x) * scale, 0.0, (windowZ + z) * scale);
-                        correctedGrid[k] = sample(octave.permutations(), octave.xo(), octave.yo(), octave.zo(), fold,
-                                scale, x - HALF_WORLD, 0.0, z - HALF_WORLD, HORIZONTAL_SHARE);
-                        k++;
-                    }
-                }
-                vanillaVariance += variance(vanillaGrid);
-                correctedVariance += variance(correctedGrid);
-                vanillaMeans[s] = mean(vanillaGrid);
-                correctedMeans[s] = mean(correctedGrid);
-            }
-
-            readings.add(new Reading(world, fraction, Math.sqrt(correctedVariance / vanillaVariance),
-                    Math.sqrt(variance(correctedMeans) / variance(vanillaMeans))));
+            readings.add(reading(world, fold, fraction));
         }
 
         return readings;
+    }
+
+    private static Reading reading(String world, WorldFold fold, double fraction) {
+        double scale = fraction / WORLD_BLOCKS;
+        Random windows = new Random(WINDOW_SEED);
+        double vanillaVariance = 0.0;
+        double correctedVariance = 0.0;
+        double[] vanillaMeans = new double[SEEDS];
+        double[] correctedMeans = new double[SEEDS];
+        for (int s = 0; s < SEEDS; s++) {
+            Octave octave = Octave.of(mix(OCTAVE_SEED + s * OCTAVE_SEED_STEP));
+            double windowX = windows.nextDouble() * WINDOW_SPAN;
+            double windowZ = windows.nextDouble() * WINDOW_SPAN;
+            Grids grids = grids(octave, windowX, windowZ, fold, scale);
+            vanillaVariance += variance(grids.vanilla());
+            correctedVariance += variance(grids.corrected());
+            vanillaMeans[s] = mean(grids.vanilla());
+            correctedMeans[s] = mean(grids.corrected());
+        }
+
+        return new Reading(world, fraction, Math.sqrt(correctedVariance / vanillaVariance),
+                Math.sqrt(variance(correctedMeans) / variance(vanillaMeans)));
+    }
+
+    private static Grids grids(Octave octave, double windowX, double windowZ, WorldFold fold, double scale) {
+        double[] vanillaGrid = new double[GRID * GRID];
+        double[] correctedGrid = new double[GRID * GRID];
+        int k = 0;
+        for (int i = 0; i < GRID; i++) {
+            double x = i * (WORLD_BLOCKS / (double) GRID);
+            for (int j = 0; j < GRID; j++) {
+                double z = j * (WORLD_BLOCKS / (double) GRID);
+                vanillaGrid[k] = octave.vanilla().get((windowX + x) * scale, 0.0, (windowZ + z) * scale);
+                correctedGrid[k] = sample(octave.permutations(), octave.xo(), octave.yo(), octave.zo(), fold,
+                        scale, x - HALF_WORLD, 0.0, z - HALF_WORLD, HORIZONTAL_SHARE);
+                k++;
+            }
+        }
+
+        return new Grids(vanillaGrid, correctedGrid);
     }
 
     private static double mean(double[] values) {

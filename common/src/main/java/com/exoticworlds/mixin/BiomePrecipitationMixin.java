@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -22,15 +22,15 @@ public class BiomePrecipitationMixin {
             return original.call(pos, seaLevel);
         }
 
-        if (GenerationTransformerContext.context().wrappedTransformer() != null) {
+        if (GenerationFoldContext.context().wrappedFold() != null) {
             return original.call(pos, seaLevel);
         }
 
-        WorldFold bounds = WorldLoopAttachments.wrappedClientBoundsTransformerOf(minecraft.level);
+        WorldFold bounds = WorldLoopAttachments.wrappedClientBoundsFoldOf(minecraft.level);
         if (bounds == null) {
             return original.call(pos, seaLevel);
         }
 
-        return GenerationTransformerContext.withTransformer(bounds, () -> original.call(pos, seaLevel));
+        return GenerationFoldContext.withFold(bounds, () -> original.call(pos, seaLevel));
     }
 }

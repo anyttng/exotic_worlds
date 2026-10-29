@@ -59,7 +59,7 @@ public class MinecraftServerMixin {
                     target = "Lnet/minecraft/server/level/PlayerSpawnFinder;getSpawnPosInChunk(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/core/BlockPos;"))
     private static @Nullable BlockPos exotic_worlds$searchWrappedChunk(ServerLevel level, ChunkPos chunkPos,
             Operation<@Nullable BlockPos> original) {
-        return original.call(level, WorldLoopAttachments.transformerOf(level).fold(chunkPos));
+        return original.call(level, WorldLoopAttachments.foldOf(level).fold(chunkPos));
     }
 
     @WrapOperation(

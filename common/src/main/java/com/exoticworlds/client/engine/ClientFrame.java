@@ -136,7 +136,7 @@ public final class ClientFrame {
     }
 
     public static @Nullable WorldFold fold() {
-        return WorldLoopAttachments.wrappedClientBoundsTransformerOf(Minecraft.getInstance().level);
+        return WorldLoopAttachments.wrappedClientBoundsFoldOf(Minecraft.getInstance().level);
     }
 
     private static boolean holds(ClientLevel level, BlockPos pos) {

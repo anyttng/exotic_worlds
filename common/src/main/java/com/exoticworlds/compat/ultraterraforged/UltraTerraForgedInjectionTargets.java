@@ -16,6 +16,12 @@ public final class UltraTerraForgedInjectionTargets {
     public static final String CAVE_RANDOM =
             "Lcom/pandaismyname1/ultraterraforged/world/worldgen/cave/CaveFeatures;random(IIII)F";
 
+    public static final String CAVE_CARVING_MIN_X =
+            "Lcom/pandaismyname1/ultraterraforged/world/worldgen/cave/CaveCarving;minX:I";
+
+    public static final String CAVE_CARVING_MIN_Z =
+            "Lcom/pandaismyname1/ultraterraforged/world/worldgen/cave/CaveCarving;minZ:I";
+
     public static final String NOISE_COMPUTE =
             "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/module/Noise;compute(FFI)F";
 

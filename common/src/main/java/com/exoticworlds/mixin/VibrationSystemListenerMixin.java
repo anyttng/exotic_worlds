@@ -31,7 +31,7 @@ public class VibrationSystemListenerMixin {
     @ModifyVariable(method = "isOccluded", at = @At("HEAD"), argsOnly = true, ordinal = 1)
     private static Vec3 exotic_worlds$unwrapOcclusionTarget(Vec3 dest, @Local(argsOnly = true, ordinal = 0) Vec3 origin,
             @Local(argsOnly = true) Level level) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
-        return NearestCopy.toward(transformer, origin, dest);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        return NearestCopy.toward(fold, origin, dest);
     }
 }

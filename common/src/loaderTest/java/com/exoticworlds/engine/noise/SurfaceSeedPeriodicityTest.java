@@ -90,7 +90,7 @@ class SurfaceSeedPeriodicityTest {
     }
 
     private static int depth(MaterialSystem surface, WorldFold fold, int blockX, int blockZ) {
-        return GenerationTransformerContext.withTransformer(fold, () -> depthAt(surface, blockX, blockZ));
+        return GenerationFoldContext.withFold(fold, () -> depthAt(surface, blockX, blockZ));
     }
 
     private static int depthAt(MaterialSystem surface, int blockX, int blockZ) {

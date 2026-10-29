@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedOrder;
@@ -30,12 +30,12 @@ public class PrepareRamNearestTargetMixin {
             index = 0)
     private Comparator<BlockPos> exotic_worlds$ramStartOrderThroughSeam(Comparator<BlockPos> original,
             @Local(argsOnly = true) PathfinderMob body) {
-        WorldFold transformer = ((TransformerSource) body).exotic_worlds$wrappedTransformer();
-        if (transformer == null) {
+        WorldFold fold = ((FoldSource) body).exotic_worlds$wrappedFold();
+        if (fold == null) {
             return original;
         }
 
-        return FoldedOrder.around(original, transformer, body.blockPosition());
+        return FoldedOrder.around(original, fold, body.blockPosition());
     }
 
     @ModifyExpressionValue(
@@ -43,7 +43,7 @@ public class PrepareRamNearestTargetMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/ai/behavior/PrepareRamNearestTarget$RamCandidate;getStartPosition()Lnet/minecraft/core/BlockPos;"))
     private BlockPos exotic_worlds$ramStartThroughSeam(BlockPos startPos, @Local(argsOnly = true) PathfinderMob body) {
-        return WorldLoopAttachments.transformerOf(body.level()).fold(startPos);
+        return WorldLoopAttachments.foldOf(body.level()).fold(startPos);
     }
 
     @WrapOperation(
@@ -52,7 +52,7 @@ public class PrepareRamNearestTargetMixin {
                     target = "Lnet/minecraft/world/entity/ai/behavior/PrepareRamNearestTarget;getEdgeOfBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/Vec3;"))
     private Vec3 exotic_worlds$ramEdgeThroughSeam(PrepareRamNearestTarget<?> self, BlockPos startRamPos, BlockPos targetPos,
             Operation<Vec3> original, @Local(argsOnly = true) PathfinderMob body) {
-        WorldFold transformer = ((TransformerSource) body).exotic_worlds$wrappedTransformer();
-        return original.call(self, NearestCopy.toward(transformer, targetPos, startRamPos), targetPos);
+        WorldFold fold = ((FoldSource) body).exotic_worlds$wrappedFold();
+        return original.call(self, NearestCopy.toward(fold, targetPos, startRamPos), targetPos);
     }
 }

@@ -39,7 +39,7 @@ public class SculkSpreaderMixin {
     @Unique
     private static void exotic_worlds$seat(LevelAccessor level, SculkSpreader.ChargeCursor cursor, BlockPos originPos) {
         BlockPos raw = cursor.getPos();
-        BlockPos seated = WorldLoopAttachments.transformerOfReader(level).nearestCopy(originPos, raw);
+        BlockPos seated = WorldLoopAttachments.foldOfReader(level).nearestCopy(originPos, raw);
         if (seated != raw) {
             ((ChargeCursorAccessor) cursor).exotic_worlds$setPos(seated);
         }

@@ -180,6 +180,16 @@ class MixinTargetFrameCostScan {
 
     private static List<String> targetsOf(ClassNode mixin) {
         List<String> targets = new ArrayList<>();
+        for (AnnotationNode annotation : annotationsOf(mixin)) {
+            if (MIXIN_ANNOTATION.equals(annotation.desc) && annotation.values != null) {
+                targets.addAll(targetsIn(annotation));
+            }
+        }
+
+        return targets;
+    }
+
+    private static List<AnnotationNode> annotationsOf(ClassNode mixin) {
         List<AnnotationNode> annotations = new ArrayList<>();
         if (mixin.visibleAnnotations != null) {
             annotations.addAll(mixin.visibleAnnotations);
@@ -189,21 +199,20 @@ class MixinTargetFrameCostScan {
             annotations.addAll(mixin.invisibleAnnotations);
         }
 
-        for (AnnotationNode annotation : annotations) {
-            if (!MIXIN_ANNOTATION.equals(annotation.desc) || annotation.values == null) {
-                continue;
-            }
+        return annotations;
+    }
 
-            for (int index = 0; index < annotation.values.size(); index += 2) {
-                Object values = annotation.values.get(index + 1);
-                if (VALUE_KEY.equals(annotation.values.get(index)) && values instanceof List<?> classes) {
-                    for (Object clazz : classes) {
-                        targets.add(((Type) clazz).getInternalName());
-                    }
-                } else if (TARGETS_KEY.equals(annotation.values.get(index)) && values instanceof List<?> names) {
-                    for (Object name : names) {
-                        targets.add(((String) name).replace('.', '/'));
-                    }
+    private static List<String> targetsIn(AnnotationNode mixinAnnotation) {
+        List<String> targets = new ArrayList<>();
+        for (int index = 0; index < mixinAnnotation.values.size(); index += 2) {
+            Object values = mixinAnnotation.values.get(index + 1);
+            if (VALUE_KEY.equals(mixinAnnotation.values.get(index)) && values instanceof List<?> classes) {
+                for (Object clazz : classes) {
+                    targets.add(((Type) clazz).getInternalName());
+                }
+            } else if (TARGETS_KEY.equals(mixinAnnotation.values.get(index)) && values instanceof List<?> names) {
+                for (Object name : names) {
+                    targets.add(((String) name).replace('.', '/'));
                 }
             }
         }

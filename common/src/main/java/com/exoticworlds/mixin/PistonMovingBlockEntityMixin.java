@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -37,7 +37,7 @@ public class PistonMovingBlockEntityMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_X))
     private static double exotic_worlds$riderXTowardHoney(Entity entity, Operation<Double> original,
             @Local(argsOnly = true) AABB honey) {
-        return NearestCopy.toward(((TransformerSource) entity).exotic_worlds$wrappedTransformer(), Direction.Axis.X,
+        return NearestCopy.toward(((FoldSource) entity).exotic_worlds$wrappedFold(), Direction.Axis.X,
                 honey.getCenter(), entity.position().with(Direction.Axis.X, original.call(entity)));
     }
 
@@ -46,7 +46,7 @@ public class PistonMovingBlockEntityMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.ENTITY_GET_Z))
     private static double exotic_worlds$riderZTowardHoney(Entity entity, Operation<Double> original,
             @Local(argsOnly = true) AABB honey) {
-        return NearestCopy.toward(((TransformerSource) entity).exotic_worlds$wrappedTransformer(), Direction.Axis.Z,
+        return NearestCopy.toward(((FoldSource) entity).exotic_worlds$wrappedFold(), Direction.Axis.Z,
                 honey.getCenter(), entity.position().with(Direction.Axis.Z, original.call(entity)));
     }
 }

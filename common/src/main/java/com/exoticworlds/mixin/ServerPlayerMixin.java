@@ -119,8 +119,8 @@ public class ServerPlayerMixin implements SeamTravelHolder {
             return;
         }
 
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(player.level());
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(player.level());
+        if (fold == null) {
             return;
         }
 

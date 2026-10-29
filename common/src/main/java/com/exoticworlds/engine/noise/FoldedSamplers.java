@@ -87,7 +87,7 @@ public final class FoldedSamplers {
     }
 
     private static NoiseFrame frameOf(FoldedCompileContext context, double xzScale, double yScale) {
-        return frameOf(context, SlotAxes.DEFAULT, GenerationTransformerContext.verticalShare(xzScale, yScale));
+        return frameOf(context, SlotAxes.DEFAULT, GenerationFoldContext.verticalShare(xzScale, yScale));
     }
 
     private static NoiseFrame frameOf(FoldedCompileContext context, SlotAxes axes, double verticalShare) {
@@ -114,7 +114,7 @@ public final class FoldedSamplers {
             SlotAxes axes, double yScale, boolean transposed) {
         NoiseStack stack = stackOf(context.vanilla().createNoiseSampler(noise));
         PeriodicOctaves octaves = PeriodicOctaveSampler.compile(context.fold(),
-                frameOf(context, axes, GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE),
+                frameOf(context, axes, GenerationFoldContext.UNDECLARED_VERTICAL_SHARE),
                 NoiseConstants.SHIFT_SCALE, null, stack);
         return octaves.indexable()
                 ? new ShiftSampler(octaves, yScale, transposed)
@@ -127,7 +127,7 @@ public final class FoldedSamplers {
         double yMultiplier = blended.yMultiplier();
         double mainXzScale = xzMultiplier / blended.xzFactor();
         WorldFold fold = context.fold();
-        NoiseFrame frame = frameOf(context, SlotAxes.DEFAULT, GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE);
+        NoiseFrame frame = frameOf(context, SlotAxes.DEFAULT, GenerationFoldContext.UNDECLARED_VERTICAL_SHARE);
         DensitySampler minLimit = octavesOrVanilla(context,
                 PeriodicOctaveSampler.compile(fold, frame, xzMultiplier, null, fbms.minLimitNoise()),
                 fbms.minLimitNoise(), xzMultiplier, yMultiplier, NO_LIFT);

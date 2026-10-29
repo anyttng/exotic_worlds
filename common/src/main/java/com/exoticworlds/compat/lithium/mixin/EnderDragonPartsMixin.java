@@ -24,6 +24,6 @@ public class EnderDragonPartsMixin {
     private boolean exotic_worlds$partBoxTowardQuery(AABB query, AABB part, Operation<Boolean> original,
             @Local(argsOnly = true) Level level) {
         return original.call(query,
-                FoldedBoxQuery.toward(WorldLoopAttachments.wrappedTransformerOf(level), query.getCenter(), part));
+                FoldedBoxQuery.toward(WorldLoopAttachments.wrappedFoldOf(level), query.getCenter(), part));
     }
 }

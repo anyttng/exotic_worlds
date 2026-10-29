@@ -2,7 +2,7 @@ package com.exoticworlds.scan;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.TerrainCeiling;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.randomState;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.settingsOf;
@@ -64,7 +64,7 @@ class PillarSiteScan {
         report.add("window " + WINDOW + " blocks around x=" + site.blockX() + " z=" + site.blockZ());
         report.add("");
 
-        GenerationTransformerContext.runWithTransformer(fold, () -> {
+        GenerationFoldContext.runWithFold(fold, () -> {
             report.add("at x=" + site.blockX() + " z=" + site.blockZ() + ": preliminary surface y="
                     + round(at(surface, site.blockX(), site.blockZ())) + ", ceiling y="
                     + round(at(ceiling, site.blockX(), site.blockZ())));
@@ -78,9 +78,26 @@ class PillarSiteScan {
                 "one named site, taken from the suspended-land search rather than from a sample"), report);
     }
 
+    private record Component(int blocks, int lowest, int highest, boolean side) {
+    }
+
+    private record Masses(int grounded, int againstSide, List<Mass> detached) {
+    }
+
     private static List<String> masses(String label, DensitySampler density, SuspendedLand.Site site) {
-        boolean[] solid = new boolean[WINDOW * WINDOW * HEIGHT];
+        boolean[] solid = solidGrid(density, site);
         int solidBlocks = 0;
+        for (boolean block : solid) {
+            if (block) {
+                solidBlocks++;
+            }
+        }
+
+        return lines(label, solidBlocks, massesOf(solid, solidBlocks));
+    }
+
+    private static boolean[] solidGrid(DensitySampler density, SuspendedLand.Site site) {
+        boolean[] solid = new boolean[WINDOW * WINDOW * HEIGHT];
         for (int dx = 0; dx < WINDOW; dx++) {
             for (int dz = 0; dz < WINDOW; dz++) {
                 int blockX = site.blockX() - WINDOW / 2 + dx;
@@ -88,12 +105,15 @@ class PillarSiteScan {
                 for (int y = 0; y < HEIGHT; y++) {
                     if (density.sampleValue(SamplerContext.EMPTY_UNCACHED, blockX, MIN_Y + y, blockZ) > 0.0F) {
                         solid[index(dx, dz, y)] = true;
-                        solidBlocks++;
                     }
                 }
             }
         }
 
+        return solid;
+    }
+
+    private static Masses massesOf(boolean[] solid, int solidBlocks) {
         List<Mass> detached = new ArrayList<>();
         boolean[] taken = new boolean[solid.length];
         int[] pending = new int[Math.max(1, solidBlocks)];
@@ -105,58 +125,69 @@ class PillarSiteScan {
                 continue;
             }
 
-            taken[start] = true;
-            pending[0] = start;
-            int head = 0;
-            int tail = 1;
-            int blocks = 0;
-            int lowest = Integer.MAX_VALUE;
-            int highest = Integer.MIN_VALUE;
-            boolean side = false;
-
-            while (head < tail) {
-                int cell = pending[head++];
-                blocks++;
-                int dx = cell % WINDOW;
-                int dz = cell / WINDOW % WINDOW;
-                int y = cell / (WINDOW * WINDOW);
-                lowest = Math.min(lowest, y);
-                highest = Math.max(highest, y);
-                if (dx == 0 || dz == 0 || dx == WINDOW - 1 || dz == WINDOW - 1) {
-                    side = true;
-                }
-
-                for (int axis = 0; axis < 3; axis++) {
-                    for (int step = -1; step <= 1; step += 2) {
-                        int nx = axis == 0 ? dx + step : dx;
-                        int nz = axis == 1 ? dz + step : dz;
-                        int ny = axis == 2 ? y + step : y;
-                        if (nx < 0 || nz < 0 || ny < 0 || nx >= WINDOW || nz >= WINDOW || ny >= HEIGHT) {
-                            continue;
-                        }
-
-                        int neighbor = index(nx, nz, ny);
-                        if (solid[neighbor] && !taken[neighbor]) {
-                            taken[neighbor] = true;
-                            pending[tail++] = neighbor;
-                        }
-                    }
-                }
-            }
-
-            if (lowest == 0) {
-                grounded += blocks;
-            } else if (side) {
+            Component component = flood(solid, start, taken, pending);
+            if (component.lowest() == 0) {
+                grounded += component.blocks();
+            } else if (component.side()) {
                 againstSide++;
             } else {
-                detached.add(new Mass(blocks, MIN_Y + lowest, MIN_Y + highest));
+                detached.add(new Mass(component.blocks(), MIN_Y + component.lowest(), MIN_Y + component.highest()));
             }
         }
 
+        return new Masses(grounded, againstSide, detached);
+    }
+
+    private static Component flood(boolean[] solid, int start, boolean[] taken, int[] pending) {
+        taken[start] = true;
+        pending[0] = start;
+        int head = 0;
+        int tail = 1;
+        int blocks = 0;
+        int lowest = Integer.MAX_VALUE;
+        int highest = Integer.MIN_VALUE;
+        boolean side = false;
+
+        while (head < tail) {
+            int cell = pending[head++];
+            blocks++;
+            int dx = cell % WINDOW;
+            int dz = cell / WINDOW % WINDOW;
+            int y = cell / (WINDOW * WINDOW);
+            lowest = Math.min(lowest, y);
+            highest = Math.max(highest, y);
+            if (dx == 0 || dz == 0 || dx == WINDOW - 1 || dz == WINDOW - 1) {
+                side = true;
+            }
+
+            for (int axis = 0; axis < 3; axis++) {
+                for (int step = -1; step <= 1; step += 2) {
+                    int nx = axis == 0 ? dx + step : dx;
+                    int nz = axis == 1 ? dz + step : dz;
+                    int ny = axis == 2 ? y + step : y;
+                    if (nx < 0 || nz < 0 || ny < 0 || nx >= WINDOW || nz >= WINDOW || ny >= HEIGHT) {
+                        continue;
+                    }
+
+                    int neighbor = index(nx, nz, ny);
+                    if (solid[neighbor] && !taken[neighbor]) {
+                        taken[neighbor] = true;
+                        pending[tail++] = neighbor;
+                    }
+                }
+            }
+        }
+
+        return new Component(blocks, lowest, highest, side);
+    }
+
+    private static List<String> lines(String label, int solidBlocks, Masses masses) {
         List<String> lines = new ArrayList<>();
-        lines.add(label + ": " + solidBlocks + " solid blocks, " + grounded + " of them connected to the floor");
-        lines.add("  detached masses: " + detached.size() + ", against a window side: " + againstSide);
-        detached.stream()
+        lines.add(label + ": " + solidBlocks + " solid blocks, " + masses.grounded()
+                + " of them connected to the floor");
+        lines.add("  detached masses: " + masses.detached().size() + ", against a window side: "
+                + masses.againstSide());
+        masses.detached().stream()
                 .sorted((left, right) -> right.blocks() - left.blocks())
                 .limit(LISTED_MASSES)
                 .forEach(mass -> lines.add("  mass: " + mass.blocks() + " blocks, y=" + mass.baseY()

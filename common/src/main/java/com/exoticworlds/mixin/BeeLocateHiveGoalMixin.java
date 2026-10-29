@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.WorldFold;
 import com.llamalad7.mixinextras.sugar.Local;
 
@@ -28,11 +28,11 @@ public class BeeLocateHiveGoalMixin {
             index = 0)
     private ToDoubleFunction<BlockPos> exotic_worlds$rankHivesThroughSeam(ToDoubleFunction<BlockPos> byRawDistance,
             @Local BlockPos beePos) {
-        WorldFold transformer = ((TransformerSource) this.bee).exotic_worlds$wrappedTransformer();
-        if (transformer == null) {
+        WorldFold fold = ((FoldSource) this.bee).exotic_worlds$wrappedFold();
+        if (fold == null) {
             return byRawDistance;
         }
 
-        return hivePos -> byRawDistance.applyAsDouble(transformer.nearestCopy(beePos, hivePos));
+        return hivePos -> byRawDistance.applyAsDouble(fold.nearestCopy(beePos, hivePos));
     }
 }

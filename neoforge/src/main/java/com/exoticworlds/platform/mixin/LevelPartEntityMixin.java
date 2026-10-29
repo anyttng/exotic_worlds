@@ -31,6 +31,6 @@ public class LevelPartEntityMixin {
 
     @Unique
     private AABB exotic_worlds$seatTowardQuery(AABB part, AABB query) {
-        return FoldedBoxQuery.toward(WorldLoopAttachments.transformerOf((Level) (Object) this), query.getCenter(), part);
+        return FoldedBoxQuery.toward(WorldLoopAttachments.foldOf((Level) (Object) this), query.getCenter(), part);
     }
 }

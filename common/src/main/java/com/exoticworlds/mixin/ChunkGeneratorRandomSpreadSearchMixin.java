@@ -71,11 +71,11 @@ public class ChunkGeneratorRandomSpreadSearchMixin {
             method = "findNearestMapStructure",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
     private double exotic_worlds$rankThroughTheSeam(BlockPos origin, Vec3i candidate, Operation<Double> original) {
-        WorldFold transformer = ShapedChunkGenerator.wrappedTransformerOf((ChunkGenerator) (Object) this);
-        if (transformer == null) {
+        WorldFold fold = ShapedChunkGenerator.wrappedFoldOf((ChunkGenerator) (Object) this);
+        if (fold == null) {
             return original.call(origin, candidate);
         }
 
-        return SeamRange.sqr(transformer, origin, candidate);
+        return SeamRange.sqr(fold, origin, candidate);
     }
 }

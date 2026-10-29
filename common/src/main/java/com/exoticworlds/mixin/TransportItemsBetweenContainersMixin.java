@@ -57,7 +57,7 @@ public class TransportItemsBetweenContainersMixin {
     private static BlockHitResult exotic_worlds$sightHitThroughSeam(BlockHitResult hit,
             @Local(argsOnly = true) PathfinderMob body) {
         BlockPos hitPos = hit.getBlockPos();
-        BlockPos wrapped = WorldLoopAttachments.transformerOf(body.level()).fold(hitPos);
+        BlockPos wrapped = WorldLoopAttachments.foldOf(body.level()).fold(hitPos);
         return wrapped == hitPos ? hit : hit.withPosition(wrapped);
     }
 }

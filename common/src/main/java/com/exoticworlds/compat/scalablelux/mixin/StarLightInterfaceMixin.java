@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.exoticworlds.accessors.TransformerSource;
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.compat.scalablelux.LightLockFolds;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.level.BoundLevelFold;
@@ -20,7 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 
 @Mixin(targets = "ca.spottedleaf.starlight.common.light.StarLightInterface", remap = false)
-public class StarLightInterfaceMixin implements TransformerSource {
+public class StarLightInterfaceMixin implements FoldSource {
     @Shadow
     @Final
     protected @Nullable Level world;
@@ -59,7 +59,7 @@ public class StarLightInterfaceMixin implements TransformerSource {
     }
 
     @Override
-    public @Nullable WorldFold exotic_worlds$wrappedTransformer() {
+    public @Nullable WorldFold exotic_worlds$wrappedFold() {
         return this.exotic_worlds$bound.wrapped();
     }
 }

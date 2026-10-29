@@ -24,8 +24,8 @@ public final class ExoticWorldsApi {
      * cheap; callers may hold it for as long as the level lives.
      */
     public static Optional<ToroidalShape> shapeOf(Level level) {
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
-        return transformer == null ? Optional.empty() : Optional.of(new ToroidalShapeView(transformer));
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        return fold == null ? Optional.empty() : Optional.of(new ToroidalShapeView(fold));
     }
 
     /**
@@ -41,8 +41,8 @@ public final class ExoticWorldsApi {
             return OptionalDouble.empty();
         }
 
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(player.level());
-        if (transformer == null || !transformer.bounds().loops(axis)) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(player.level());
+        if (fold == null || !fold.bounds().loops(axis)) {
             return OptionalDouble.empty();
         }
 

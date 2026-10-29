@@ -21,7 +21,7 @@ public final class FoldCompression {
         Registry<LevelStem> stems = server.registryAccess().lookupOrThrow(Registries.LEVEL_STEM);
         for (LevelStem stem : stems) {
             ChunkGenerator generator = stem.generator();
-            if (ShapedChunkGenerator.transformerOf(generator) == fold) {
+            if (ShapedChunkGenerator.foldOf(generator) == fold) {
                 LevelStem overworld = stems.getValue(LevelStem.OVERWORLD);
                 return LevelClimateCompression.factor(fold, LevelClimateCompression.temperatureOf(generator,
                         overworld != null ? overworld.generator() : null));

@@ -24,6 +24,6 @@ public class GlobalPosMixin {
     private int exotic_worlds$chessboardThroughSeam(BlockPos stored, Vec3i asked, Operation<Integer> original,
             ResourceKey<Level> dimension) {
         return SeamRange.chessboard(
-                WorldLoopAttachments.wrappedTransformerOf(CurrentServer.get(), dimension), stored, asked);
+                WorldLoopAttachments.wrappedFoldOf(CurrentServer.get(), dimension), stored, asked);
     }
 }

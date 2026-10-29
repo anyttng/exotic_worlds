@@ -28,6 +28,6 @@ public class GameEventDispatchKeyMixin {
             mixin = LithiumInjectionTargets.GAME_EVENT_DISPATCHER_MIXIN,
             name = LithiumInjectionTargets.NULL_DISPATCHER_HANDLER)
     private long exotic_worlds$foldStoreKey(int chunkX, int chunkZ, Operation<Long> original) {
-        return WorldLoopAttachments.transformerOf(this.level).foldChunkKey(original.call(chunkX, chunkZ));
+        return WorldLoopAttachments.foldOf(this.level).foldChunkKey(original.call(chunkX, chunkZ));
     }
 }

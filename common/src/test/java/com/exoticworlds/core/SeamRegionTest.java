@@ -25,7 +25,7 @@ class SeamRegionTest {
     private static final int SAMPLES = 800;
     private static final int LAPS = 16;
 
-    private static final List<WorldFold> TRANSFORMERS = PER_AXIS;
+    private static final List<WorldFold> FOLDS = PER_AXIS;
 
     private static int reachCap(WrapDomain domain, int cap) {
         return domain instanceof WrapDomain.Noop ? cap : Math.min(domain.domainLength, cap);
@@ -65,8 +65,8 @@ class SeamRegionTest {
         return false;
     }
 
-    private static String in(WorldFold transformer) {
-        return "in " + transformer;
+    private static String in(WorldFold fold) {
+        return "in " + fold;
     }
 
     private static WrapDomain blockX(WorldFold fold) {
@@ -85,22 +85,22 @@ class SeamRegionTest {
         return fold.chunkDomain(Direction.Axis.Z);
     }
 
-    private static List<AABB> splitAcrossBounds(WorldFold transformer, AABB box) {
-        return transformer.split(box).stream().map(WorldFold.Folded::value).toList();
+    private static List<AABB> splitAcrossBounds(WorldFold fold, AABB box) {
+        return fold.split(box).stream().map(WorldFold.Folded::value).toList();
     }
 
-    private static List<BoundingBox> splitAcrossBounds(WorldFold transformer, BoundingBox region) {
-        return transformer.split(region).stream().map(WorldFold.Folded::value).toList();
+    private static List<BoundingBox> splitAcrossBounds(WorldFold fold, BoundingBox region) {
+        return fold.split(region).stream().map(WorldFold.Folded::value).toList();
     }
 
     @Nested
     class SplitAcrossBounds {
-        private AABB sampleBox(Random random, WorldFold transformer) {
-            double minX = sampleBlock(random, blockX(transformer));
+        private AABB sampleBox(Random random, WorldFold fold) {
+            double minX = sampleBlock(random, blockX(fold));
             double minY = sampleY(random);
-            double minZ = sampleBlock(random, blockZ(transformer));
-            double sizeX = random.nextDouble() * 2.2 * reachCap(blockX(transformer), 16_000);
-            double sizeZ = random.nextDouble() * 2.2 * reachCap(blockZ(transformer), 16_000);
+            double minZ = sampleBlock(random, blockZ(fold));
+            double sizeX = random.nextDouble() * 2.2 * reachCap(blockX(fold), 16_000);
+            double sizeZ = random.nextDouble() * 2.2 * reachCap(blockZ(fold), 16_000);
             return new AABB(minX, minY, minZ, minX + sizeX, minY + random.nextDouble() * 16, minZ + sizeZ);
         }
 
@@ -111,20 +111,20 @@ class SeamRegionTest {
         @Test
         void partsCoverTheBoxVolumeCappedAtOneWorldPerAxis() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    AABB box = sampleBox(random, transformer);
-                    List<AABB> parts = splitAcrossBounds(transformer, box);
+                    AABB box = sampleBox(random, fold);
+                    List<AABB> parts = splitAcrossBounds(fold, box);
 
-                    double expected = coveredSize(blockX(transformer), box.maxX - box.minX)
+                    double expected = coveredSize(blockX(fold), box.maxX - box.minX)
                             * (box.maxY - box.minY)
-                            * coveredSize(blockZ(transformer), box.maxZ - box.minZ);
+                            * coveredSize(blockZ(fold), box.maxZ - box.minZ);
                     double total = 0;
                     for (AABB part : parts) {
                         total += (part.maxX - part.minX) * (part.maxY - part.minY) * (part.maxZ - part.minZ);
                     }
                     assertEquals(expected, total, 0.5,
-                            () -> "splitAcrossBounds(" + box + ") volumes " + in(transformer));
+                            () -> "splitAcrossBounds(" + box + ") volumes " + in(fold));
                 }
             }
         }
@@ -132,22 +132,22 @@ class SeamRegionTest {
         @Test
         void everyPartLiesInsideTheBoundsAndKeepsTheBoxHeight() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    AABB box = sampleBox(random, transformer);
-                    for (AABB part : splitAcrossBounds(transformer, box)) {
-                        if (!(blockX(transformer) instanceof WrapDomain.Noop)) {
-                            assertTrue(part.minX >= blockX(transformer).lowerBound - 1e-9
-                                            && part.maxX <= blockX(transformer).upperBound + 1e-9,
-                                    () -> "part " + part + " of " + box + " leaves the X bounds " + in(transformer));
+                    AABB box = sampleBox(random, fold);
+                    for (AABB part : splitAcrossBounds(fold, box)) {
+                        if (!(blockX(fold) instanceof WrapDomain.Noop)) {
+                            assertTrue(part.minX >= blockX(fold).lowerBound - 1e-9
+                                            && part.maxX <= blockX(fold).upperBound + 1e-9,
+                                    () -> "part " + part + " of " + box + " leaves the X bounds " + in(fold));
                         }
-                        if (!(blockZ(transformer) instanceof WrapDomain.Noop)) {
-                            assertTrue(part.minZ >= blockZ(transformer).lowerBound - 1e-9
-                                            && part.maxZ <= blockZ(transformer).upperBound + 1e-9,
-                                    () -> "part " + part + " of " + box + " leaves the Z bounds " + in(transformer));
+                        if (!(blockZ(fold) instanceof WrapDomain.Noop)) {
+                            assertTrue(part.minZ >= blockZ(fold).lowerBound - 1e-9
+                                            && part.maxZ <= blockZ(fold).upperBound + 1e-9,
+                                    () -> "part " + part + " of " + box + " leaves the Z bounds " + in(fold));
                         }
-                        assertEquals(box.minY, part.minY, 0.0, () -> in(transformer));
-                        assertEquals(box.maxY, part.maxY, 0.0, () -> in(transformer));
+                        assertEquals(box.minY, part.minY, 0.0, () -> in(fold));
+                        assertEquals(box.maxY, part.maxY, 0.0, () -> in(fold));
                     }
                 }
             }
@@ -156,18 +156,18 @@ class SeamRegionTest {
         @Test
         void containmentAgreesWithTheLatticeOfBoxCopies() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    AABB box = sampleBox(random, transformer);
-                    List<AABB> parts = splitAcrossBounds(transformer, box);
+                    AABB box = sampleBox(random, fold);
+                    List<AABB> parts = splitAcrossBounds(fold, box);
                     for (int p = 0; p < 4; p++) {
-                        double x = sampleBlock(random, blockX(transformer));
-                        double z = sampleBlock(random, blockZ(transformer));
-                        boolean expected = containsOnLattice(blockX(transformer), box.minX, box.maxX, x)
-                                && containsOnLattice(blockZ(transformer), box.minZ, box.maxZ, z);
+                        double x = sampleBlock(random, blockX(fold));
+                        double z = sampleBlock(random, blockZ(fold));
+                        boolean expected = containsOnLattice(blockX(fold), box.minX, box.maxX, x)
+                                && containsOnLattice(blockZ(fold), box.minZ, box.maxZ, z);
 
-                        double wrappedX = blockX(transformer).wrap(x);
-                        double wrappedZ = blockZ(transformer).wrap(z);
+                        double wrappedX = blockX(fold).wrap(x);
+                        double wrappedZ = blockZ(fold).wrap(z);
                         boolean actual = parts.stream().anyMatch(part -> wrappedX >= part.minX - 1e-9
                                 && wrappedX <= part.maxX + 1e-9
                                 && wrappedZ >= part.minZ - 1e-9
@@ -176,7 +176,7 @@ class SeamRegionTest {
                         boolean finalExpected = expected;
                         assertEquals(expected, actual,
                                 () -> "(" + x + ", " + z + ") in splitAcrossBounds(" + box + ") should be "
-                                        + finalExpected + " " + in(transformer));
+                                        + finalExpected + " " + in(fold));
                     }
                 }
             }
@@ -185,10 +185,10 @@ class SeamRegionTest {
         @Test
         void aBoxInsideTheWorldComesBackAsTheSameInstance() {
             AABB box = new AABB(1, 0, 1, 5, 10, 5);
-            for (WorldFold transformer : TRANSFORMERS) {
-                List<AABB> parts = splitAcrossBounds(transformer, box);
-                assertEquals(1, parts.size(), () -> in(transformer));
-                assertSame(box, parts.getFirst(), () -> in(transformer));
+            for (WorldFold fold : FOLDS) {
+                List<AABB> parts = splitAcrossBounds(fold, box);
+                assertEquals(1, parts.size(), () -> in(fold));
+                assertSame(box, parts.getFirst(), () -> in(fold));
             }
         }
 
@@ -205,15 +205,15 @@ class SeamRegionTest {
 
     @Nested
     class SplitRegionAcrossBounds {
-        private BoundingBox sampleRegion(Random random, WorldFold transformer) {
-            int minX = sampleBlockInt(random, blockX(transformer));
+        private BoundingBox sampleRegion(Random random, WorldFold fold) {
+            int minX = sampleBlockInt(random, blockX(fold));
             int minY = random.nextInt(320) - 64;
-            int minZ = sampleBlockInt(random, blockZ(transformer));
+            int minZ = sampleBlockInt(random, blockZ(fold));
             return new BoundingBox(
                     minX, minY, minZ,
-                    minX + random.nextInt(2 * reachCap(blockX(transformer), 16_000) + 1),
+                    minX + random.nextInt(2 * reachCap(blockX(fold), 16_000) + 1),
                     minY + random.nextInt(32),
-                    minZ + random.nextInt(2 * reachCap(blockZ(transformer), 16_000) + 1));
+                    minZ + random.nextInt(2 * reachCap(blockZ(fold), 16_000) + 1));
         }
 
         private long coveredCells(WrapDomain domain, int min, int max) {
@@ -228,36 +228,36 @@ class SeamRegionTest {
         }
 
         private void assertLiesOnACopyInsideTheWorld(WrapDomain domain, int coord, int copy,
-                WorldFold transformer) {
+                WorldFold fold) {
             if (domain instanceof WrapDomain.Noop) {
-                assertEquals(coord, copy, () -> in(transformer));
+                assertEquals(coord, copy, () -> in(fold));
                 return;
             }
 
             assertEquals(0, ((long) copy - coord) % domain.domainLength,
-                    () -> copy + " is not a copy of " + coord + " " + in(transformer));
-            assertFalse(domain.isOver(copy), () -> copy + " lies outside the world " + in(transformer));
+                    () -> copy + " is not a copy of " + coord + " " + in(fold));
+            assertFalse(domain.isOver(copy), () -> copy + " lies outside the world " + in(fold));
         }
 
         @Test
         void partsCoverTheRegionCellsCappedAtOneWorldPerAxis() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    BoundingBox region = sampleRegion(random, transformer);
-                    long expected = coveredCells(blockX(transformer), region.minX(), region.maxX())
+                    BoundingBox region = sampleRegion(random, fold);
+                    long expected = coveredCells(blockX(fold), region.minX(), region.maxX())
                             * (region.maxY() - region.minY() + 1)
-                            * coveredCells(blockZ(transformer), region.minZ(), region.maxZ());
+                            * coveredCells(blockZ(fold), region.minZ(), region.maxZ());
 
                     long total = 0;
-                    for (BoundingBox part : splitAcrossBounds(transformer, region)) {
+                    for (BoundingBox part : splitAcrossBounds(fold, region)) {
                         total += cellCount(part);
                     }
 
                     long covered = total;
                     assertEquals(expected, total,
                             () -> "splitAcrossBounds(" + region + ") covers " + covered + " cells instead of "
-                                    + expected + " " + in(transformer));
+                                    + expected + " " + in(fold));
                 }
             }
         }
@@ -265,16 +265,16 @@ class SeamRegionTest {
         @Test
         void everyPartLiesInsideTheBoundsAndKeepsTheRegionHeight() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    BoundingBox region = sampleRegion(random, transformer);
-                    for (BoundingBox part : splitAcrossBounds(transformer, region)) {
-                        assertFalse(blockX(transformer).isOver(part.minX()) || blockX(transformer).isOver(part.maxX()),
-                                () -> "part " + part + " of " + region + " leaves the X bounds " + in(transformer));
-                        assertFalse(blockZ(transformer).isOver(part.minZ()) || blockZ(transformer).isOver(part.maxZ()),
-                                () -> "part " + part + " of " + region + " leaves the Z bounds " + in(transformer));
-                        assertEquals(region.minY(), part.minY(), () -> in(transformer));
-                        assertEquals(region.maxY(), part.maxY(), () -> in(transformer));
+                    BoundingBox region = sampleRegion(random, fold);
+                    for (BoundingBox part : splitAcrossBounds(fold, region)) {
+                        assertFalse(blockX(fold).isOver(part.minX()) || blockX(fold).isOver(part.maxX()),
+                                () -> "part " + part + " of " + region + " leaves the X bounds " + in(fold));
+                        assertFalse(blockZ(fold).isOver(part.minZ()) || blockZ(fold).isOver(part.maxZ()),
+                                () -> "part " + part + " of " + region + " leaves the Z bounds " + in(fold));
+                        assertEquals(region.minY(), part.minY(), () -> in(fold));
+                        assertEquals(region.maxY(), part.maxY(), () -> in(fold));
                     }
                 }
             }
@@ -283,24 +283,24 @@ class SeamRegionTest {
         @Test
         void containmentAgreesWithTheLatticeOfRegionCopies() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    BoundingBox region = sampleRegion(random, transformer);
-                    List<BoundingBox> parts = splitAcrossBounds(transformer, region);
+                    BoundingBox region = sampleRegion(random, fold);
+                    List<BoundingBox> parts = splitAcrossBounds(fold, region);
                     for (int p = 0; p < 4; p++) {
-                        int x = sampleBlockInt(random, blockX(transformer));
-                        int z = sampleBlockInt(random, blockZ(transformer));
-                        boolean expected = containsOnLattice(blockX(transformer), region.minX(), region.maxX(), x)
-                                && containsOnLattice(blockZ(transformer), region.minZ(), region.maxZ(), z);
+                        int x = sampleBlockInt(random, blockX(fold));
+                        int z = sampleBlockInt(random, blockZ(fold));
+                        boolean expected = containsOnLattice(blockX(fold), region.minX(), region.maxX(), x)
+                                && containsOnLattice(blockZ(fold), region.minZ(), region.maxZ(), z);
 
-                        int wrappedX = blockX(transformer).wrap(x);
-                        int wrappedZ = blockZ(transformer).wrap(z);
+                        int wrappedX = blockX(fold).wrap(x);
+                        int wrappedZ = blockZ(fold).wrap(z);
                         boolean actual = parts.stream()
                                 .anyMatch(part -> part.isInside(wrappedX, region.minY(), wrappedZ));
 
                         assertEquals(expected, actual,
                                 () -> "(" + x + ", " + z + ") in splitAcrossBounds(" + region + ") should be "
-                                        + expected + " " + in(transformer));
+                                        + expected + " " + in(fold));
                     }
                 }
             }
@@ -309,21 +309,21 @@ class SeamRegionTest {
         @Test
         void aSingleBlockNamesTheSamePhysicalBlockFromEveryCopy() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    int x = sampleBlockInt(random, blockX(transformer));
+                    int x = sampleBlockInt(random, blockX(fold));
                     int y = random.nextInt(320) - 64;
-                    int z = sampleBlockInt(random, blockZ(transformer));
+                    int z = sampleBlockInt(random, blockZ(fold));
                     BoundingBox region = new BoundingBox(x, y, z, x, y, z);
 
-                    List<BoundingBox> parts = splitAcrossBounds(transformer, region);
-                    assertEquals(1, parts.size(), () -> "single block " + region + " " + in(transformer));
+                    List<BoundingBox> parts = splitAcrossBounds(fold, region);
+                    assertEquals(1, parts.size(), () -> "single block " + region + " " + in(fold));
 
                     BoundingBox part = parts.getFirst();
-                    assertEquals(1, cellCount(part), () -> "single block " + region + " " + in(transformer));
-                    assertEquals(y, part.minY(), () -> in(transformer));
-                    assertLiesOnACopyInsideTheWorld(blockX(transformer), x, part.minX(), transformer);
-                    assertLiesOnACopyInsideTheWorld(blockZ(transformer), z, part.minZ(), transformer);
+                    assertEquals(1, cellCount(part), () -> "single block " + region + " " + in(fold));
+                    assertEquals(y, part.minY(), () -> in(fold));
+                    assertLiesOnACopyInsideTheWorld(blockX(fold), x, part.minX(), fold);
+                    assertLiesOnACopyInsideTheWorld(blockZ(fold), z, part.minZ(), fold);
                 }
             }
         }
@@ -331,10 +331,10 @@ class SeamRegionTest {
         @Test
         void aRegionInsideTheWorldComesBackAsTheSameInstance() {
             BoundingBox region = new BoundingBox(1, 0, 1, 5, 10, 5);
-            for (WorldFold transformer : TRANSFORMERS) {
-                List<BoundingBox> parts = splitAcrossBounds(transformer, region);
-                assertEquals(1, parts.size(), () -> in(transformer));
-                assertSame(region, parts.getFirst(), () -> in(transformer));
+            for (WorldFold fold : FOLDS) {
+                List<BoundingBox> parts = splitAcrossBounds(fold, region);
+                assertEquals(1, parts.size(), () -> in(fold));
+                assertSame(region, parts.getFirst(), () -> in(fold));
             }
         }
 
@@ -357,21 +357,21 @@ class SeamRegionTest {
 
     @Nested
     class RegionFolding {
-        private BoundingBox sampleRegion(Random random, WorldFold transformer) {
-            int minX = sampleBlockInt(random, blockX(transformer));
-            int minZ = sampleBlockInt(random, blockZ(transformer));
+        private BoundingBox sampleRegion(Random random, WorldFold fold) {
+            int minX = sampleBlockInt(random, blockX(fold));
+            int minZ = sampleBlockInt(random, blockZ(fold));
             int minY = random.nextInt(320) - 64;
             return new BoundingBox(
                     minX, minY, minZ,
-                    minX + random.nextInt(2 * reachCap(blockX(transformer), 16_000) + 1),
+                    minX + random.nextInt(2 * reachCap(blockX(fold), 16_000) + 1),
                     minY + random.nextInt(32),
-                    minZ + random.nextInt(2 * reachCap(blockZ(transformer), 16_000) + 1));
+                    minZ + random.nextInt(2 * reachCap(blockZ(fold), 16_000) + 1));
         }
 
-        private boolean overlapNaive(WorldFold transformer, BoundingBox first, BoundingBox second) {
+        private boolean overlapNaive(WorldFold fold, BoundingBox first, BoundingBox second) {
             if (first.minY() > second.maxY() || second.minY() > first.maxY()) return false;
-            return axisOverlapOnLattice(blockX(transformer), first.minX(), first.maxX(), second.minX(), second.maxX())
-                    && axisOverlapOnLattice(blockZ(transformer), first.minZ(), first.maxZ(), second.minZ(), second.maxZ());
+            return axisOverlapOnLattice(blockX(fold), first.minX(), first.maxX(), second.minX(), second.maxX())
+                    && axisOverlapOnLattice(blockZ(fold), first.minZ(), first.maxZ(), second.minZ(), second.maxZ());
         }
 
         private boolean axisOverlapOnLattice(WrapDomain domain, int aMin, int aMax, int bMin, int bMax) {
@@ -385,14 +385,14 @@ class SeamRegionTest {
         @Test
         void regionsOverlapAgreesWithTheLatticeOfWorldCopies() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    BoundingBox first = sampleRegion(random, transformer);
-                    BoundingBox second = sampleRegion(random, transformer);
-                    boolean expected = overlapNaive(transformer, first, second);
-                    assertEquals(expected, transformer.regionsOverlap(first, second),
+                    BoundingBox first = sampleRegion(random, fold);
+                    BoundingBox second = sampleRegion(random, fold);
+                    boolean expected = overlapNaive(fold, first, second);
+                    assertEquals(expected, fold.regionsOverlap(first, second),
                             () -> "regionsOverlap(" + first + ", " + second + ") should be " + expected + " "
-                                    + in(transformer));
+                                    + in(fold));
                 }
             }
         }
@@ -405,25 +405,25 @@ class SeamRegionTest {
             assertFalse(WorldFolds.NOOP.regionsOverlap(pastTheTop, atTheBottom));
         }
 
-        private AABB sampleBox(Random random, WorldFold transformer) {
-            double minX = sampleBlock(random, blockX(transformer));
-            double minZ = sampleBlock(random, blockZ(transformer));
+        private AABB sampleBox(Random random, WorldFold fold) {
+            double minX = sampleBlock(random, blockX(fold));
+            double minZ = sampleBlock(random, blockZ(fold));
             double minY = sampleY(random);
             return new AABB(
                     minX, minY, minZ,
-                    minX + random.nextDouble() * sampleBoxSpan(random, blockX(transformer)),
+                    minX + random.nextDouble() * sampleBoxSpan(random, blockX(fold)),
                     minY + random.nextDouble() * 32,
-                    minZ + random.nextDouble() * sampleBoxSpan(random, blockZ(transformer)));
+                    minZ + random.nextDouble() * sampleBoxSpan(random, blockZ(fold)));
         }
 
         private double sampleBoxSpan(Random random, WrapDomain domain) {
             return random.nextBoolean() ? 4.0 : 2 * reachCap(domain, 16_000);
         }
 
-        private boolean boxOverlapNaive(WorldFold transformer, AABB first, AABB second) {
+        private boolean boxOverlapNaive(WorldFold fold, AABB first, AABB second) {
             if (first.minY >= second.maxY || second.minY >= first.maxY) return false;
-            return axisBoxOverlapOnLattice(blockX(transformer), first.minX, first.maxX, second.minX, second.maxX)
-                    && axisBoxOverlapOnLattice(blockZ(transformer), first.minZ, first.maxZ, second.minZ, second.maxZ);
+            return axisBoxOverlapOnLattice(blockX(fold), first.minX, first.maxX, second.minX, second.maxX)
+                    && axisBoxOverlapOnLattice(blockZ(fold), first.minZ, first.maxZ, second.minZ, second.maxZ);
         }
 
         private boolean axisBoxOverlapOnLattice(WrapDomain domain, double aMin, double aMax, double bMin, double bMax) {
@@ -437,14 +437,14 @@ class SeamRegionTest {
         @Test
         void boxesOverlapAgreesWithTheLatticeOfWorldCopies() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    AABB first = sampleBox(random, transformer);
-                    AABB second = sampleBox(random, transformer);
-                    boolean expected = boxOverlapNaive(transformer, first, second);
-                    assertEquals(expected, transformer.boxesOverlap(first, second),
+                    AABB first = sampleBox(random, fold);
+                    AABB second = sampleBox(random, fold);
+                    boolean expected = boxOverlapNaive(fold, first, second);
+                    assertEquals(expected, fold.boxesOverlap(first, second),
                             () -> "boxesOverlap(" + first + ", " + second + ") should be " + expected + " "
-                                    + in(transformer));
+                                    + in(fold));
                 }
             }
         }
@@ -464,40 +464,40 @@ class SeamRegionTest {
     @Nested
     class UnwrapPairing {
         private void checkUnwrappedAxis(WrapDomain domain, int ref, int wrapped, int unwrapped,
-                String axis, WorldFold transformer) {
+                String axis, WorldFold fold) {
             assertEquals(wrapped, domain.wrap(unwrapped),
-                    () -> axis + ": wrap(unwrap(" + ref + ", " + wrapped + ")) changed the position " + in(transformer));
+                    () -> axis + ": wrap(unwrap(" + ref + ", " + wrapped + ")) changed the position " + in(fold));
 
             long best = Long.MAX_VALUE;
             for (int laps = -LAPS; laps <= LAPS; laps++) {
                 best = Math.min(best, Math.abs(wrapped + (long) laps * domain.domainLength - ref));
             }
             assertEquals(best, Math.abs((long) unwrapped - ref),
-                    () -> axis + ": unwrap(" + ref + ", " + wrapped + ") is not the nearest copy " + in(transformer));
+                    () -> axis + ": unwrap(" + ref + ", " + wrapped + ") is not the nearest copy " + in(fold));
             if (!(domain instanceof WrapDomain.Noop)) {
                 assertTrue(2L * Math.abs((long) unwrapped - ref) <= domain.domainLength,
-                        () -> axis + ": unwrap(" + ref + ", " + wrapped + ") is over half a world away " + in(transformer));
+                        () -> axis + ": unwrap(" + ref + ", " + wrapped + ") is over half a world away " + in(fold));
             }
         }
 
         @Test
         void chunkUnwrapPairsWithWrapAndLandsOnTheNearestCopy() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
                     ChunkPos ref = new ChunkPos(
-                            sampleChunk(random, chunkX(transformer)),
-                            sampleChunk(random, chunkZ(transformer)));
-                    ChunkPos wrapped = transformer.fold(new ChunkPos(
-                            sampleChunk(random, chunkX(transformer)),
-                            sampleChunk(random, chunkZ(transformer))));
+                            sampleChunk(random, chunkX(fold)),
+                            sampleChunk(random, chunkZ(fold)));
+                    ChunkPos wrapped = fold.fold(new ChunkPos(
+                            sampleChunk(random, chunkX(fold)),
+                            sampleChunk(random, chunkZ(fold))));
 
-                    ChunkPos unwrapped = transformer.nearestCopy(ref, wrapped);
+                    ChunkPos unwrapped = fold.nearestCopy(ref, wrapped);
 
-                    assertEquals(wrapped, transformer.fold(unwrapped),
-                            () -> "Chunk.wrap(unwrap(" + ref + ", " + wrapped + ")) " + in(transformer));
-                    checkUnwrappedAxis(chunkX(transformer), ref.x(), wrapped.x(), unwrapped.x(), "chunk X", transformer);
-                    checkUnwrappedAxis(chunkZ(transformer), ref.z(), wrapped.z(), unwrapped.z(), "chunk Z", transformer);
+                    assertEquals(wrapped, fold.fold(unwrapped),
+                            () -> "Chunk.wrap(unwrap(" + ref + ", " + wrapped + ")) " + in(fold));
+                    checkUnwrappedAxis(chunkX(fold), ref.x(), wrapped.x(), unwrapped.x(), "chunk X", fold);
+                    checkUnwrappedAxis(chunkZ(fold), ref.z(), wrapped.z(), unwrapped.z(), "chunk Z", fold);
                 }
             }
         }
@@ -505,27 +505,27 @@ class SeamRegionTest {
         @Test
         void blockUnwrapPairsWithWrapKeepsYAndLandsOnTheNearestCopy() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
                     BlockPos ref = new BlockPos(
-                            sampleBlockInt(random, blockX(transformer)),
+                            sampleBlockInt(random, blockX(fold)),
                             random.nextInt(384) - 64,
-                            sampleBlockInt(random, blockZ(transformer)));
-                    BlockPos wrapped = transformer.fold(new BlockPos(
-                            sampleBlockInt(random, blockX(transformer)),
+                            sampleBlockInt(random, blockZ(fold)));
+                    BlockPos wrapped = fold.fold(new BlockPos(
+                            sampleBlockInt(random, blockX(fold)),
                             random.nextInt(384) - 64,
-                            sampleBlockInt(random, blockZ(transformer))));
+                            sampleBlockInt(random, blockZ(fold))));
 
-                    BlockPos unwrapped = transformer.nearestCopy(ref, wrapped);
+                    BlockPos unwrapped = fold.nearestCopy(ref, wrapped);
 
                     assertEquals(wrapped.getY(), unwrapped.getY(),
-                            () -> "Block.unwrap moved Y " + in(transformer));
-                    assertEquals(wrapped, transformer.fold(unwrapped),
-                            () -> "Block.wrap(unwrap(" + ref + ", " + wrapped + ")) " + in(transformer));
-                    checkUnwrappedAxis(blockX(transformer), ref.getX(), wrapped.getX(), unwrapped.getX(),
-                            "block X", transformer);
-                    checkUnwrappedAxis(blockZ(transformer), ref.getZ(), wrapped.getZ(), unwrapped.getZ(),
-                            "block Z", transformer);
+                            () -> "Block.unwrap moved Y " + in(fold));
+                    assertEquals(wrapped, fold.fold(unwrapped),
+                            () -> "Block.wrap(unwrap(" + ref + ", " + wrapped + ")) " + in(fold));
+                    checkUnwrappedAxis(blockX(fold), ref.getX(), wrapped.getX(), unwrapped.getX(),
+                            "block X", fold);
+                    checkUnwrappedAxis(blockZ(fold), ref.getZ(), wrapped.getZ(), unwrapped.getZ(),
+                            "block Z", fold);
                 }
             }
         }
@@ -536,20 +536,20 @@ class SeamRegionTest {
         @Test
         void wrapBlockNodeWrapsTheHorizontalsAndKeepsY() {
             Random random = new Random(SEED);
-            for (WorldFold transformer : TRANSFORMERS) {
+            for (WorldFold fold : FOLDS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    int x = sampleBlockInt(random, blockX(transformer));
+                    int x = sampleBlockInt(random, blockX(fold));
                     int y = random.nextInt(384) - 64;
-                    int z = sampleBlockInt(random, blockZ(transformer));
+                    int z = sampleBlockInt(random, blockZ(fold));
 
-                    long wrapped = transformer.foldBlockNode(BlockPos.asLong(x, y, z));
+                    long wrapped = fold.foldBlockNode(BlockPos.asLong(x, y, z));
 
-                    assertEquals(blockX(transformer).wrap(x), BlockPos.getX(wrapped),
-                            () -> "wrapBlockNode X of (" + x + ", " + y + ", " + z + ") " + in(transformer));
+                    assertEquals(blockX(fold).wrap(x), BlockPos.getX(wrapped),
+                            () -> "wrapBlockNode X of (" + x + ", " + y + ", " + z + ") " + in(fold));
                     assertEquals(y, BlockPos.getY(wrapped),
-                            () -> "wrapBlockNode moved Y of (" + x + ", " + y + ", " + z + ") " + in(transformer));
-                    assertEquals(blockZ(transformer).wrap(z), BlockPos.getZ(wrapped),
-                            () -> "wrapBlockNode Z of (" + x + ", " + y + ", " + z + ") " + in(transformer));
+                            () -> "wrapBlockNode moved Y of (" + x + ", " + y + ", " + z + ") " + in(fold));
+                    assertEquals(blockZ(fold).wrap(z), BlockPos.getZ(wrapped),
+                            () -> "wrapBlockNode Z of (" + x + ", " + y + ", " + z + ") " + in(fold));
                 }
             }
         }
@@ -557,8 +557,8 @@ class SeamRegionTest {
         @Test
         void anInBoundsNodeComesBackUnchanged() {
             long node = BlockPos.asLong(5, 70, 7);
-            for (WorldFold transformer : TRANSFORMERS) {
-                assertEquals(node, transformer.foldBlockNode(node), () -> in(transformer));
+            for (WorldFold fold : FOLDS) {
+                assertEquals(node, fold.foldBlockNode(node), () -> in(fold));
             }
         }
 

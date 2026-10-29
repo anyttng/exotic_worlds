@@ -75,7 +75,7 @@ public class BiomeManagerMixin implements BiomeZoomOwner {
 
     @WrapMethod(method = "getBiome(III)Lnet/minecraft/core/Holder;")
     private Holder<Biome> exotic_worlds$zoomOnFoldedCorners(int x, int y, int z, Operation<Holder<Biome>> original) {
-        WorldFold fold = WorldLoopAttachments.transformerOfReader(this.exotic_worlds$owner);
+        WorldFold fold = WorldLoopAttachments.foldOfReader(this.exotic_worlds$owner);
         if (!fold.isWrapped()) {
             return original.call(x, y, z);
         }

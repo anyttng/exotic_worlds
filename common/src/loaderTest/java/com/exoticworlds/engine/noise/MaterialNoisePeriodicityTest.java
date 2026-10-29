@@ -121,7 +121,7 @@ class MaterialNoisePeriodicityTest {
     }
 
     private static Object bound(WorldFold fold, Supplier<Object> read) {
-        return GenerationTransformerContext.withTransformer(fold, read);
+        return GenerationFoldContext.withFold(fold, read);
     }
 
     private static double ruleNoise(MaterialSystem surface, RandomState state, ResourceKey<NormalNoise> noise,

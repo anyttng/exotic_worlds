@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import com.exoticworlds.BinderOrder;
 import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -18,8 +18,8 @@ public class ChunkGeneratorBiomesMixin {
     @WrapMethod(method = "doCreateBiomes", order = BinderOrder.FOLD)
     private void exotic_worlds$bindWhileCreatingBiomes(Blender blender, RandomState randomState, ChunkAccess protoChunk,
             Operation<Void> original) {
-        GenerationTransformerContext.runWithTransformer(
-                ShapedChunkGenerator.transformerOf((ChunkGenerator) (Object) this),
+        GenerationFoldContext.runWithFold(
+                ShapedChunkGenerator.foldOf((ChunkGenerator) (Object) this),
                 () -> original.call(blender, randomState, protoChunk));
     }
 }

@@ -49,7 +49,7 @@ class UnfoldedRandomStateTest {
     }
 
     @Test
-    void aBoundTransformerLeavesThePointReadVanilla() {
+    void aBoundFoldLeavesThePointReadVanilla() {
         List<String> broken = new ArrayList<>();
         for (ResourceKey<NoiseGeneratorSettings> key : SETTINGS) {
             NoiseGeneratorSettings settings = settingsOf(key);
@@ -63,7 +63,7 @@ class UnfoldedRandomStateTest {
                     int y = settings.noiseSettings().minY() + random.nextInt(settings.noiseSettings().height());
                     int z = random.nextInt(WIDTH_BLOCKS * 4) - WIDTH_BLOCKS * 2;
                     float vanilla = sampler.sampleValue(SamplerContext.EMPTY_UNCACHED, x, y, z);
-                    float bound = GenerationTransformerContext.withTransformer(BOUND,
+                    float bound = GenerationFoldContext.withFold(BOUND,
                             () -> sampler.sampleValue(SamplerContext.EMPTY_UNCACHED, x, y, z));
                     mismatches += Float.floatToIntBits(vanilla) == Float.floatToIntBits(bound) ? 0 : 1;
                 }
@@ -72,11 +72,11 @@ class UnfoldedRandomStateTest {
             }
         }
 
-        assertTrue(broken.isEmpty(), "unfolded samplers that change under a bound transformer: " + broken);
+        assertTrue(broken.isEmpty(), "unfolded samplers that change under a bound fold: " + broken);
     }
 
     @Test
-    void aBoundTransformerLeavesTheVolumeReadVanilla() {
+    void aBoundFoldLeavesTheVolumeReadVanilla() {
         List<String> broken = new ArrayList<>();
         for (ResourceKey<NoiseGeneratorSettings> key : SETTINGS) {
             NoiseGeneratorSettings settings = settingsOf(key);
@@ -92,7 +92,7 @@ class UnfoldedRandomStateTest {
                                     settings.noiseSettings().height() - VOLUME_CELLS_Y * CELL_HEIGHT, CELL_HEIGHT),
                             cellAligned(random, WIDTH_BLOCKS * 4, CELL_WIDTH) - WIDTH_BLOCKS * 2);
                     float[] vanilla = volume(sampler, volume);
-                    float[] bound = GenerationTransformerContext.withTransformer(BOUND, () -> volume(sampler, volume));
+                    float[] bound = GenerationFoldContext.withFold(BOUND, () -> volume(sampler, volume));
                     mismatches += mismatchesBetween(vanilla, bound);
                 }
 
@@ -100,7 +100,7 @@ class UnfoldedRandomStateTest {
             }
         }
 
-        assertTrue(broken.isEmpty(), "unfolded samplers that change under a bound transformer: " + broken);
+        assertTrue(broken.isEmpty(), "unfolded samplers that change under a bound fold: " + broken);
     }
 
     private static Map<String, DensityFunction> fieldsOf(RandomState state) {

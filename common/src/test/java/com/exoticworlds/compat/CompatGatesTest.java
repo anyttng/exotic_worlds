@@ -56,7 +56,7 @@ class CompatGatesTest {
     @MethodSource("configs")
     void everyGateAdmitsTheModBuildTheSuiteCarries(Path config) throws Exception {
         for (ModPresence gate : pluginOf(read(config)).gates()) {
-            assertTrue(gate.present(), config.getFileName() + ": a gate refuses the build this suite runs against; "
+            assertTrue(gate.admitted(), config.getFileName() + ": a gate refuses the build this suite runs against; "
                     + "the refusal line in the test log names the mixin and the member");
         }
     }

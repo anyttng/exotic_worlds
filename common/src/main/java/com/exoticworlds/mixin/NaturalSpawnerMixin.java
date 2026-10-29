@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.TransformerHolder;
+import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.seam.SeamRange;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -33,7 +33,7 @@ public class NaturalSpawnerMixin {
             at = @At(value = "NEW", target = "net/minecraft/world/level/PotentialCalculator"))
     private static PotentialCalculator exotic_worlds$bindSpawnPotentialToLevel(PotentialCalculator spawnPotential,
             @Local(argsOnly = true) ServerLevel level) {
-        ((TransformerHolder) spawnPotential).exotic_worlds$setTransformer(WorldLoopAttachments.transformerOf(level));
+        ((FoldHolder) spawnPotential).exotic_worlds$setFold(WorldLoopAttachments.foldOf(level));
         return spawnPotential;
     }
 }

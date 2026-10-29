@@ -42,14 +42,14 @@ public class ChunkGenerationTaskMixin {
         }
 
         ServerLevel level = ((LevelHolder) (Object) map).exotic_worlds$level();
-        WorldFold transformer = WorldLoopAttachments.wrappedTransformerOf(level);
-        if (transformer == null) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        if (fold == null) {
             return original.call(centerX, centerZ, range, initializer);
         }
 
         String levelName = level.dimension().identifier().toString();
         StaticCache2D.Initializer<GenerationChunkHolder> folding = (slotX, slotZ) -> exotic_worlds$slotFor(
-                map, transformer, levelName, initializer, centerX, centerZ, slotX, slotZ);
+                map, fold, levelName, initializer, centerX, centerZ, slotX, slotZ);
         return original.call(centerX, centerZ, range, folding);
     }
 
@@ -59,7 +59,7 @@ public class ChunkGenerationTaskMixin {
     @Unique
     private static GenerationChunkHolder exotic_worlds$slotFor(
             ChunkMap map,
-            WorldFold transformer,
+            WorldFold fold,
             String levelName,
             StaticCache2D.Initializer<GenerationChunkHolder> initializer,
             int centerX,
@@ -71,11 +71,11 @@ public class ChunkGenerationTaskMixin {
         }
 
         ChunkPos slot = new ChunkPos(slotX, slotZ);
-        if (!transformer.isOver(slot)) {
+        if (!fold.isOver(slot)) {
             return initializer.get(slotX, slotZ);
         }
 
-        ChunkPos wrapped = transformer.fold(slot);
+        ChunkPos wrapped = fold.fold(slot);
         int wrappedX = wrapped.x();
         int wrappedZ = wrapped.z();
 

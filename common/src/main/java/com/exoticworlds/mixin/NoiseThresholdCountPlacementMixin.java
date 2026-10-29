@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.FoldedPlacementCounts;
-import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -30,12 +30,12 @@ public class NoiseThresholdCountPlacementMixin {
 
     @WrapMethod(method = "count(Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;)I")
     private int exotic_worlds$foldedCount(RandomSource random, BlockPos origin, Operation<Integer> original) {
-        WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
-        if (transformer == null) {
+        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        if (fold == null) {
             return original.call(random, origin);
         }
 
-        return FoldedPlacementCounts.noiseThreshold(transformer, origin.getX(), origin.getZ(),
+        return FoldedPlacementCounts.noiseThreshold(fold, origin.getX(), origin.getZ(),
                 this.noiseLevel, this.belowNoise, this.aboveNoise);
     }
 }
