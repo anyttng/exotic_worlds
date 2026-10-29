@@ -7,6 +7,16 @@ import com.pandaismyname1.ultraterraforged.world.worldgen.cave.CaveCarving;
 import com.pandaismyname1.ultraterraforged.world.worldgen.landform.SiteCache;
 
 public final class CaveCells {
+    public static int pointX(float spacing, int minX, int pointX) {
+        SiteLattice lattice = SiteLattice.bound(spacing);
+        return lattice == null ? pointX : lattice.cellX(minX);
+    }
+
+    public static int pointZ(float spacing, int minZ, int pointZ) {
+        SiteLattice lattice = SiteLattice.bound(spacing);
+        return lattice == null ? pointZ : lattice.cellZ(minZ);
+    }
+
     public static float gate(float spacing, Operation<Float> original, int seed, int cellX, int cellZ, int purpose,
             CaveCarving carving, int pointX) {
         SiteLattice lattice = SiteLattice.bound(spacing);

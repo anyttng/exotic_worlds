@@ -29,12 +29,6 @@ public abstract class KarstCavesMixin {
             + "Lcom/pandaismyname1/ultraterraforged/world/worldgen/cave/KarstCaves$Chamber;";
 
     @Unique
-    private static final int X_READ = 0;
-
-    @Unique
-    private static final int Z_READ = 1;
-
-    @Unique
     private static final int ORIGIN_X_READ = 0;
 
     @Unique
@@ -58,14 +52,14 @@ public abstract class KarstCavesMixin {
     @Unique
     private static final int Z_ARGUMENT = 1;
 
-    @ModifyConstant(method = "carve", constant = @Constant(floatValue = GRID, ordinal = X_READ))
-    private float exotic_worlds$cellX(float spacing) {
-        return SiteLattice.spacingOn(spacing, Direction.Axis.X);
+    @ModifyVariable(method = "carve", at = @At("STORE"), name = "gridX")
+    private int exotic_worlds$pointX(int pointX, @Local(argsOnly = true) CaveCarving carving) {
+        return CaveCells.pointX(GRID, carving.minX, pointX);
     }
 
-    @ModifyConstant(method = "carve", constant = @Constant(floatValue = GRID, ordinal = Z_READ))
-    private float exotic_worlds$cellZ(float spacing) {
-        return SiteLattice.spacingOn(spacing, Direction.Axis.Z);
+    @ModifyVariable(method = "carve", at = @At("STORE"), name = "gridZ")
+    private int exotic_worlds$pointZ(int pointZ, @Local(argsOnly = true) CaveCarving carving) {
+        return CaveCells.pointZ(GRID, carving.minZ, pointZ);
     }
 
     @ModifyArg(method = "carve", at = @At(value = "INVOKE", target = CHAMBER, ordinal = BASE_CHAMBER), index = CELL_X)

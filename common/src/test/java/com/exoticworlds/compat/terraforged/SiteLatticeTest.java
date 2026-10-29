@@ -16,6 +16,8 @@ class SiteLatticeTest {
 
     private static final float[] SPACINGS = {20.0F, 24.0F, 44.0F, 96.0F, 176.0F, 520.0F, 1400.0F, 3600.0F};
 
+    private static final float SEA_CAVE_GRID = 40.0F;
+
     private static final double CLOSE = 1.0E-3;
 
     private static final float STEP = 0.25F;
@@ -89,6 +91,26 @@ class SiteLatticeTest {
             assertEquals(SKEW, lattice.copySkew(copy) - lattice.copySkew(row), CLOSE);
             assertEquals(row * (double) lattice.zSpacing() + LAP, copy * (double) lattice.zSpacing(), CLOSE);
         }
+    }
+
+    @Test
+    void aChunkStartingOnACellLineSitsInThatCell() {
+        SiteLattice lattice = SiteLattice.over(LAP, LAP, RtfLap.NO_SKEW, SEA_CAVE_GRID);
+        for (int cell = -lattice.xCells(); cell <= 2 * lattice.xCells(); cell++) {
+            double line = cell * LAP / lattice.xCells();
+            if (line == Math.rint(line)) {
+                assertEquals(cell, lattice.cellX((float) line), "x " + line);
+                assertEquals(cell, lattice.cellZ((float) line), "z " + line);
+            }
+        }
+    }
+
+    @Test
+    void aPointMovedByTheSkewOntoACellLineCountsFromThatCell() {
+        SiteLattice lattice = SiteLattice.over(LAP, LAP, SKEW, SEA_CAVE_GRID);
+        float x = (float) (LAP / 4 - SKEW);
+        int pointX = lattice.cellX(x);
+        assertEquals(lattice.xCells() / 4, lattice.copyX(pointX, -1, pointX, x));
     }
 
     @Test
