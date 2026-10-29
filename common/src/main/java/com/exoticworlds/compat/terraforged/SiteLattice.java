@@ -55,17 +55,25 @@ public record SiteLattice(double xLap, double zLap, double skew, float spacing, 
     }
 
     public int cellX(float x) {
-        return (int) Math.floor(x / this.xSpacing);
+        return this.xCells == RtfLap.NO_PERIOD ? (int) Math.floor(x / this.xSpacing) : lapCell(x, this.xCells, this.xLap);
     }
 
     public int cellZ(float z) {
-        return (int) Math.floor(z / this.zSpacing);
+        return this.zCells == RtfLap.NO_PERIOD ? (int) Math.floor(z / this.zSpacing) : lapCell(z, this.zCells, this.zLap);
     }
 
     // A window row past the Z seam is the canonical row moved by the skew, so its columns are counted from the moved point.
     public int copyX(int cellX, int cellZ, int pointCellX, float x) {
         int laps = zLaps(cellZ);
-        return laps == 0 ? cellX : (int) Math.floor((x - laps * this.skew) / this.xSpacing) + cellX - pointCellX;
+        if (laps == 0) {
+            return cellX;
+        }
+
+        double moved = x - laps * this.skew;
+        int column = this.xCells == RtfLap.NO_PERIOD
+                ? (int) Math.floor(moved / this.xSpacing)
+                : lapCell(moved, this.xCells, this.xLap);
+        return column + cellX - pointCellX;
     }
 
     public int canonicalX(int copyX) {
@@ -126,6 +134,10 @@ public record SiteLattice(double xLap, double zLap, double skew, float spacing, 
 
     private static float lerp(float from, float to, float t) {
         return from + t * (to - from);
+    }
+
+    private static int lapCell(double coordinate, int cells, double lap) {
+        return (int) Math.floor(coordinate * cells / lap);
     }
 
     private static float snapped(double lap, int cells, float spacing) {
