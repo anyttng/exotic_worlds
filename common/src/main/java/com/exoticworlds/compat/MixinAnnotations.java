@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 final class MixinAnnotations {
+    static final String VALUE_KEY = "value";
+
     private MixinAnnotations() {
     }
 

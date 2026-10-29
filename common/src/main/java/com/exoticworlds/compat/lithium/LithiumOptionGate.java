@@ -28,7 +28,7 @@ final class LithiumOptionGate {
     }
 
     boolean read(ClassLoader classLoader) {
-        if (!this.gate.present()) {
+        if (!this.gate.admitted()) {
             return false;
         }
 
