@@ -6,6 +6,8 @@ import net.minecraft.core.Direction;
 
 public record SiteLattice(double xLap, double zLap, double skew, float spacing, int xCells, int zCells, float xSpacing,
         float zSpacing) {
+    private static final double SEAT_REACH = 4.0;
+
     public interface Corner {
         float at(int cellX, int cellZ);
     }
@@ -84,8 +86,17 @@ public record SiteLattice(double xLap, double zLap, double skew, float spacing, 
         return this.zCells == RtfLap.NO_PERIOD ? copyZ : Math.floorMod(copyZ, this.zCells);
     }
 
-    public float copySkew(int copyZ) {
-        return (float) (zLaps(copyZ) * this.skew);
+    public float seatX(float x, int copyX, int copyZ) {
+        if (this.xCells == RtfLap.NO_PERIOD && this.skew == RtfLap.NO_SKEW) {
+            return x;
+        }
+
+        int xLaps = this.xCells == RtfLap.NO_PERIOD ? 0 : Math.floorDiv(copyX, this.xCells);
+        return (float) (onSeatStep(x) + xLaps * this.xLap + zLaps(copyZ) * this.skew);
+    }
+
+    public float seatZ(float z, int copyZ) {
+        return this.zCells == RtfLap.NO_PERIOD ? z : (float) (onSeatStep(z) + zLaps(copyZ) * this.zLap);
     }
 
     public Seat seat(int cellX, int cellZ, int pointCellX, int pointCellZ, float x, float z) {
@@ -134,6 +145,11 @@ public record SiteLattice(double xLap, double zLap, double skew, float spacing, 
 
     private static float lerp(float from, float to, float t) {
         return from + t * (to - from);
+    }
+
+    private double onSeatStep(float coordinate) {
+        double step = Math.ulp((float) (SEAT_REACH * (this.xLap + this.zLap + Math.abs(this.skew))));
+        return Math.rint(coordinate / step) * step;
     }
 
     private static int lapCell(double coordinate, int cells, double lap) {
