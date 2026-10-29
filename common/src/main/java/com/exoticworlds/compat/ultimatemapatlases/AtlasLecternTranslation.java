@@ -29,7 +29,7 @@ public final class AtlasLecternTranslation {
             .build();
 
     public static void register() {
-        if (GATE.present()) {
+        if (GATE.admitted()) {
             Rewriter.register();
         }
     }
