@@ -1,13 +1,16 @@
 package com.exoticworlds.compat.ultraterraforged.mixin;
 
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -36,16 +39,6 @@ public abstract class GiantCavernsMixin {
     @Unique
     private static final int FREE_Z_READ = 3;
 
-    @Unique
-    private static final String CAVERN = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/cave/GiantCaverns$Cavern;"
-            + "<init>(FFFFFF)V";
-
-    @Unique
-    private static final int CAVERN_X = 0;
-
-    @Unique
-    private static final int CAVERN_Z = 2;
-
     @ModifyVariable(method = "carve", at = @At("STORE"), name = "gridX")
     private int exotic_worlds$pointX(int pointX, @Local(argsOnly = true) CaveCarving carving) {
         return CaveCells.pointX(GRID, carving.minX, pointX);
@@ -65,8 +58,28 @@ public abstract class GiantCavernsMixin {
     @WrapOperation(method = "carve", at = @At(value = "INVOKE", target = UltraTerraForgedInjectionTargets.SITE_CACHE_GET))
     private Object exotic_worlds$site(SiteCache<?> cache, int cellX, int cellZ, SiteCache.Finder<?> finder,
             Operation<Object> original, @Local(argsOnly = true) CaveCarving carving, @Local(name = "gridX") int pointX) {
-        return original.call(cache, CaveCells.copyX(GRID, cellX, cellZ, carving, pointX), cellZ,
-                CaveCells.seated(GRID, finder));
+        int copyX = CaveCells.copyX(GRID, cellX, cellZ, carving, pointX);
+        CaveCells.leave(carving);
+        Object site = original.call(cache, copyX, cellZ, CaveCells.canonical(GRID, finder));
+        CaveCells.enter(GRID, carving, copyX, cellZ);
+        return site;
+    }
+
+    @Inject(method = "carve", at = @At("RETURN"))
+    private void exotic_worlds$leave(CaveCarving carving, CallbackInfo ci) {
+        CaveCells.leave(carving);
+    }
+
+    @ModifyExpressionValue(method = "hollow", at = @At(value = "FIELD",
+            target = UltraTerraForgedInjectionTargets.CAVE_CARVING_MIN_X, opcode = Opcodes.GETFIELD))
+    private int exotic_worlds$frameMinX(int minX, @Local(argsOnly = true) CaveCarving carving) {
+        return CaveCells.frameX(carving, minX);
+    }
+
+    @ModifyExpressionValue(method = "hollow", at = @At(value = "FIELD",
+            target = UltraTerraForgedInjectionTargets.CAVE_CARVING_MIN_Z, opcode = Opcodes.GETFIELD))
+    private int exotic_worlds$frameMinZ(int minZ, @Local(argsOnly = true) CaveCarving carving) {
+        return CaveCells.frameZ(carving, minZ);
     }
 
     @ModifyConstant(method = "find", constant = @Constant(floatValue = GRID, ordinal = ORIGIN_X_READ))
@@ -102,15 +115,5 @@ public abstract class GiantCavernsMixin {
     @ModifyVariable(method = "find", at = @At("STORE"), name = "radiusZ")
     private float exotic_worlds$radiusZ(float radius) {
         return SiteLattice.scaledOn(radius, GRID);
-    }
-
-    @ModifyArg(method = "find", at = @At(value = "INVOKE", target = CAVERN), index = CAVERN_X)
-    private float exotic_worlds$seatX(float x) {
-        return CaveCells.seatX(x);
-    }
-
-    @ModifyArg(method = "find", at = @At(value = "INVOKE", target = CAVERN), index = CAVERN_Z)
-    private float exotic_worlds$seatZ(float z) {
-        return CaveCells.seatZ(z);
     }
 }
