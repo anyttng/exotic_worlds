@@ -105,6 +105,7 @@ public final class GenerationTransformerContext {
 
         public BindingScope bind(WorldFold boundTransformer, SlotAxes boundAxes, double boundScale,
                 double boundVanillaScale, double boundVerticalShare) {
+            markBound(boundTransformer);
             this.bindingScope.push();
             this.transformer = boundTransformer;
             this.slotAxes = boundAxes;
@@ -198,11 +199,29 @@ public final class GenerationTransformerContext {
 
     private static final ThreadLocal<Context> CONTEXT = ThreadLocal.withInitial(Context::new);
 
+    private static volatile boolean wrappedEverBound;
+
     public static Context context() {
         return CONTEXT.get();
     }
 
+    public static @Nullable Context wrappedContext() {
+        if (!wrappedEverBound) {
+            return null;
+        }
+
+        Context context = CONTEXT.get();
+        return context.transformer.isWrapped() ? context : null;
+    }
+
+    private static void markBound(WorldFold transformer) {
+        if (!wrappedEverBound && transformer.isWrapped()) {
+            wrappedEverBound = true;
+        }
+    }
+
     public static <T> T withTransformer(WorldFold transformer, Supplier<T> action) {
+        markBound(transformer);
         Context context = CONTEXT.get();
         WorldFold previous = context.transformer;
         context.transformer = transformer;

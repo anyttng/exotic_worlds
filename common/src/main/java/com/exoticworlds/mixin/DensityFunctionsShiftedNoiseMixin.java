@@ -49,12 +49,12 @@ public class DensityFunctionsShiftedNoiseMixin {
 
     @WrapMethod(method = "compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D")
     private double exotic_worlds$periodicCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.context();
-        WorldFold transformer = generation.wrappedTransformer();
-        if (transformer == null) {
+        Context generation = GenerationTransformerContext.wrappedContext();
+        if (generation == null) {
             return original.call(context);
         }
 
+        WorldFold transformer = generation.transformer();
         double xzScale = NoiseScaleLadder.installedScale(this.noise, this.xzScale);
         double verticalShare = GenerationTransformerContext.verticalShare(xzScale, this.yScale);
         double y = context.blockY() * this.yScale + this.shiftY.compute(context);

@@ -2,6 +2,7 @@ package com.exoticworlds.engine.noise;
 
 import com.exoticworlds.accessors.CoastLiftCache;
 import com.exoticworlds.accessors.IndexableNoise;
+import com.exoticworlds.accessors.WrappedNormalNoise;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
@@ -13,29 +14,37 @@ public final class ContextScaledNoise {
     public static double sample(Context context, DensityFunction.NoiseHolder noise,
             double x, double y, double z, double horizontalScale) {
         try (Context.ScaleScope scope = context.withScale(horizontalScale)) {
-            return noise.getValue(x, y, z);
+            return wrappedValue(context, noise, x, y, z);
         }
     }
 
     public static double sample(Context context, DensityFunction.NoiseHolder noise,
             double x, double y, double z, double horizontalScale, double verticalShare) {
         try (Context.ScaleScope scope = context.withScale(horizontalScale, verticalShare)) {
-            return noise.getValue(x, y, z);
+            return wrappedValue(context, noise, x, y, z);
         }
     }
 
     public static double sample(Context context, DensityFunction.NoiseHolder noise,
             double x, double y, double z, double horizontalScale, double vanillaScale, double verticalShare) {
         try (Context.ScaleScope scope = context.withScales(horizontalScale, vanillaScale, verticalShare)) {
-            return noise.getValue(x, y, z);
+            return wrappedValue(context, noise, x, y, z);
         }
     }
 
     public static double sample(Context context, NormalNoise noise,
             double x, double y, double z, double horizontalScale) {
         try (Context.ScaleScope scope = context.withScale(horizontalScale)) {
-            return noise.getValue(x, y, z);
+            return ((WrappedNormalNoise) (Object) noise).exotic_worlds$sampleWrapped(context, x, y, z);
         }
+    }
+
+    public static double wrappedValue(Context context, DensityFunction.NoiseHolder noise, double x, double y,
+            double z) {
+        NormalNoise normal = noise.noise();
+        return normal == null
+                ? 0.0
+                : ((WrappedNormalNoise) (Object) normal).exotic_worlds$sampleWrapped(context, x, y, z);
     }
 
     public static double sampleWarped(Context context, DensityFunction.NoiseHolder noise,
@@ -54,15 +63,20 @@ public final class ContextScaledNoise {
 
         try (Context.BindingScope bindingScope = context.bind(transformer, axes, horizontalScale, vanillaScale,
                 verticalShare)) {
-            return noise.getValue(x, y, z);
+            return wrappedValue(context, noise, x, y, z);
         }
     }
 
     public static double sampleWrappedWarped(WorldFold transformer, DensityFunction.NoiseHolder noise,
             int blockX, double y, int blockZ, double shiftX, double shiftZ, double warpDivisor,
             double horizontalScale, double vanillaScale, double verticalShare) {
-        Context context = GenerationTransformerContext.context();
+        return sampleWrappedWarped(GenerationTransformerContext.context(), transformer, noise, blockX, y, blockZ,
+                shiftX, shiftZ, warpDivisor, horizontalScale, vanillaScale, verticalShare);
+    }
 
+    public static double sampleWrappedWarped(Context context, WorldFold transformer,
+            DensityFunction.NoiseHolder noise, int blockX, double y, int blockZ, double shiftX, double shiftZ,
+            double warpDivisor, double horizontalScale, double vanillaScale, double verticalShare) {
         try (Context.BindingScope bindingScope = context.bind(transformer, SlotAxes.DEFAULT, horizontalScale, vanillaScale,
                 verticalShare)) {
             return warped(context, noise, blockX, y, blockZ, shiftX, shiftZ, warpDivisor);
@@ -93,7 +107,7 @@ public final class ContextScaledNoise {
                     lattice.foldZ(blockZ) * vanillaScale + shiftZ);
         }
 
-        return noise.getValue(DomainWarp.applyX(lattice, blockX, blockZ, shiftX, warpDivisor), y,
+        return wrappedValue(context, noise, DomainWarp.applyX(lattice, blockX, blockZ, shiftX, warpDivisor), y,
                 DomainWarp.applyZ(lattice, blockZ, shiftZ, warpDivisor));
     }
 

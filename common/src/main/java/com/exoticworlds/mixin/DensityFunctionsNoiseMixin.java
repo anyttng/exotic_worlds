@@ -29,8 +29,8 @@ public class DensityFunctionsNoiseMixin {
 
     @WrapMethod(method = "compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D")
     private double exotic_worlds$periodicCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.context();
-        if (!generation.transformer().isWrapped()) {
+        Context generation = GenerationTransformerContext.wrappedContext();
+        if (generation == null) {
             return original.call(context);
         }
 

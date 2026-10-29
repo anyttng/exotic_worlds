@@ -1,6 +1,7 @@
 package com.exoticworlds.engine.noise;
 
 import com.exoticworlds.accessors.IndexableNoise;
+import com.exoticworlds.accessors.WrappedImprovedNoise;
 import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
 
 import it.unimi.dsi.fastutil.doubles.DoubleList;
@@ -8,7 +9,6 @@ import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
 public final class PeriodicOctaveSampler {
-    @SuppressWarnings("deprecation")
     public static double sample(
             Context generation,
             double baseScale,
@@ -35,7 +35,8 @@ public final class PeriodicOctaveSampler {
                     double slotY = useNoiseOrigin
                             ? -noise.yo
                             : yCarriesWorldAxis ? y : PerlinNoise.wrap(y * factor);
-                    double noiseValue = noise.noise(x, slotY, z, yScale * factor, yFudge * factor);
+                    double noiseValue = ((WrappedImprovedNoise) (Object) noise).exotic_worlds$sampleWrapped(
+                            generation, x, slotY, z, yScale * factor, yFudge * factor);
                     value += amplitudes.getDouble(i) * noiseValue * valueFactor;
                 }
 

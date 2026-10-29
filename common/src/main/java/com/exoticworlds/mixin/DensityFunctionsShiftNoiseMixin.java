@@ -20,8 +20,8 @@ public interface DensityFunctionsShiftNoiseMixin {
 
     @WrapMethod(method = "compute(DDD)D")
     default double exotic_worlds$periodicCompute(double localX, double localY, double localZ, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.context();
-        if (!generation.transformer().isWrapped()) {
+        Context generation = GenerationTransformerContext.wrappedContext();
+        if (generation == null) {
             return original.call(localX, localY, localZ);
         }
 

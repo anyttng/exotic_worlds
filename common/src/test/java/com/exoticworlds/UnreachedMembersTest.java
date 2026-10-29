@@ -82,7 +82,8 @@ class UnreachedMembersTest {
             "compat.sable.SableConstraintGraph.size",
             "compat.sable.SeamFrame.isBound");
     private static final Set<String> CALLED_BY_EMITTED_CODE = Set.of(
-            "engine.noise.ContextScaledNoise.sampleWrapped");
+            "engine.noise.ContextScaledNoise.sampleWrapped",
+            "engine.noise.ContextScaledNoise.sampleWrappedWarped");
 
     @Test
     void noMainMemberIsCalledByTestsAlone() throws IOException {
