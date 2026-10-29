@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.accessors.IndexableNoise;
+import com.exoticworlds.accessors.WrappedImprovedNoise;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
@@ -16,7 +17,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
 
 @Mixin(ImprovedNoise.class)
-public class ImprovedNoiseMixin implements IndexableNoise {
+public class ImprovedNoiseMixin implements IndexableNoise, WrappedImprovedNoise {
     @Shadow
     @Final
     private byte[] p;
@@ -38,13 +39,18 @@ public class ImprovedNoiseMixin implements IndexableNoise {
 
     @WrapMethod(method = "noise(DDDDD)D")
     private double exotic_worlds$periodicNoise(double x, double y, double z, double yScale, double yFudge, Operation<Double> original) {
-        Context context = GenerationTransformerContext.context();
-        WorldFold transformer = context.wrappedTransformer();
-        if (transformer == null) {
+        Context context = GenerationTransformerContext.wrappedContext();
+        if (context == null) {
             return original.call(x, y, z, yScale, yFudge);
         }
 
-        return this.exotic_worlds$lattices.sample(this.p, this.xo, this.yo, this.zo, transformer,
+        return exotic_worlds$sampleWrapped(context, x, y, z, yScale, yFudge);
+    }
+
+    @Override
+    public double exotic_worlds$sampleWrapped(Context context, double x, double y, double z, double yScale,
+            double yFudge) {
+        return this.exotic_worlds$lattices.sample(this.p, this.xo, this.yo, this.zo, context.transformer(),
                 context, x, y, z, yScale, yFudge);
     }
 

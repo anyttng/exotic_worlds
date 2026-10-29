@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.accessors.IndexableNoise;
+import com.exoticworlds.accessors.WrappedImprovedNoise;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.engine.noise.ContextKeyedCache;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
@@ -71,11 +72,10 @@ public class BlendedNoiseMixin {
     @Final
     private double smearScaleMultiplier;
 
-    @SuppressWarnings("deprecation")
     @WrapMethod(method = "compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D")
     private double exotic_worlds$periodicCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.context();
-        if (!generation.transformer().isWrapped()) {
+        Context generation = GenerationTransformerContext.wrappedContext();
+        if (generation == null) {
             return original.call(context);
         }
 
@@ -107,7 +107,7 @@ public class BlendedNoiseMixin {
                     scope.rescale(mainScale * pow);
                     double wy = PerlinNoise.wrap(mainY * pow);
                     mainNoiseValue += (mainIndexable
-                            ? noise.noise(blockX, wy, blockZ, mainSmear * pow, mainY * pow)
+                            ? exotic_worlds$wrapped(generation, noise, blockX, wy, blockZ, mainSmear * pow, mainY * pow)
                             : exotic_worlds$vanilla(generation, noise, PerlinNoise.wrap(mainX * pow), wy,
                                     PerlinNoise.wrap(mainZ * pow), mainSmear * pow, mainY * pow)) / pow;
                 }
@@ -130,7 +130,7 @@ public class BlendedNoiseMixin {
                     ImprovedNoise minNoise = this.minLimitNoise.getOctaveNoise(i);
                     if (minNoise != null) {
                         blendMin += (minIndexable
-                                ? minNoise.noise(blockX, wy, blockZ, yScalePow, limitY * pow)
+                                ? exotic_worlds$wrapped(generation, minNoise, blockX, wy, blockZ, yScalePow, limitY * pow)
                                 : exotic_worlds$vanilla(generation, minNoise, wx, wy, wz, yScalePow, limitY * pow)) / pow;
                     }
                 }
@@ -139,7 +139,7 @@ public class BlendedNoiseMixin {
                     ImprovedNoise maxNoise = this.maxLimitNoise.getOctaveNoise(i);
                     if (maxNoise != null) {
                         blendMax += (maxIndexable
-                                ? maxNoise.noise(blockX, wy, blockZ, yScalePow, limitY * pow)
+                                ? exotic_worlds$wrapped(generation, maxNoise, blockX, wy, blockZ, yScalePow, limitY * pow)
                                 : exotic_worlds$vanilla(generation, maxNoise, wx, wy, wz, yScalePow, limitY * pow)) / pow;
                     }
                 }
@@ -183,6 +183,12 @@ public class BlendedNoiseMixin {
         }
 
         return true;
+    }
+
+    @Unique
+    private static double exotic_worlds$wrapped(Context generation, ImprovedNoise noise, double x, double y, double z,
+            double yScale, double yFudge) {
+        return ((WrappedImprovedNoise) (Object) noise).exotic_worlds$sampleWrapped(generation, x, y, z, yScale, yFudge);
     }
 
     @Unique

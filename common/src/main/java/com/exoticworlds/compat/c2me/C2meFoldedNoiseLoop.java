@@ -24,7 +24,7 @@ public final class C2meFoldedNoiseLoop {
                 double x = xs != null ? xs[i] : xConst;
                 double y = ys != null ? ys[i] : yConst;
                 double z = zs != null ? zs[i] : zConst;
-                res[i] = noise.getValue(x, y, z);
+                res[i] = ContextScaledNoise.wrappedValue(context, noise, x, y, z);
             }
         }
     }
@@ -33,12 +33,13 @@ public final class C2meFoldedNoiseLoop {
             int[] blockXs, int[] blockZs, double @Nullable [] shiftXs, double shiftXConst,
             double @Nullable [] ys, double yConst, double @Nullable [] shiftZs, double shiftZConst,
             double warpDivisor, double horizontalScale, double vanillaScale, double verticalShare) {
+        Context context = GenerationTransformerContext.context();
         for (int i = 0; i < res.length; i++) {
             double shiftX = shiftXs != null ? shiftXs[i] : shiftXConst;
             double y = ys != null ? ys[i] : yConst;
             double shiftZ = shiftZs != null ? shiftZs[i] : shiftZConst;
-            res[i] = ContextScaledNoise.sampleWrappedWarped(transformer, noise, blockXs[i], y, blockZs[i], shiftX,
-                    shiftZ, warpDivisor, horizontalScale, vanillaScale, verticalShare);
+            res[i] = ContextScaledNoise.sampleWrappedWarped(context, transformer, noise, blockXs[i], y, blockZs[i],
+                    shiftX, shiftZ, warpDivisor, horizontalScale, vanillaScale, verticalShare);
         }
     }
 

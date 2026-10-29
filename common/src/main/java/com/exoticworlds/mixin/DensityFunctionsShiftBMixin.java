@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.DensityFunctionSlotAxes;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
@@ -22,16 +22,15 @@ public class DensityFunctionsShiftBMixin {
 
     @WrapMethod(method = "compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D")
     private double exotic_worlds$periodicCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.context();
-        WorldFold transformer = generation.wrappedTransformer();
-        if (transformer == null) {
+        Context generation = GenerationTransformerContext.wrappedContext();
+        if (generation == null) {
             return original.call(context);
         }
 
-        try (Context.BindingScope _ = generation.bind(transformer, DensityFunctionSlotAxes.SHIFT_B,
+        try (Context.BindingScope _ = generation.bind(generation.transformer(), DensityFunctionSlotAxes.SHIFT_B,
                 NoiseConstants.SHIFT_SCALE, GenerationTransformerContext.UNDECLARED_VERTICAL_SHARE)) {
-            return this.offsetNoise.getValue(context.blockZ(), context.blockX(), 0.0)
-                    * NoiseConstants.SHIFT_AMPLITUDE;
+            return ContextScaledNoise.wrappedValue(generation, this.offsetNoise, context.blockZ(), context.blockX(),
+                    0.0) * NoiseConstants.SHIFT_AMPLITUDE;
         }
     }
 }

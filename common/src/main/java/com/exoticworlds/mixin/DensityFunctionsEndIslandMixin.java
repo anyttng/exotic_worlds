@@ -4,8 +4,8 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
+import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
 import com.exoticworlds.engine.noise.PeriodicEndIslands;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -22,12 +22,12 @@ public class DensityFunctionsEndIslandMixin {
 
     @WrapMethod(method = "compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D")
     private double exotic_worlds$loopedCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
-        WorldFold transformer = GenerationTransformerContext.context().wrappedTransformer();
-        if (transformer == null) {
+        Context generation = GenerationTransformerContext.wrappedContext();
+        if (generation == null) {
             return original.call(context);
         }
 
-        return PeriodicEndIslands.density(
-                PeriodicEndIslands.heightValue(this.islandNoise, transformer, context.blockX(), context.blockZ()));
+        return PeriodicEndIslands.density(PeriodicEndIslands.heightValue(this.islandNoise, generation.transformer(),
+                context.blockX(), context.blockZ()));
     }
 }

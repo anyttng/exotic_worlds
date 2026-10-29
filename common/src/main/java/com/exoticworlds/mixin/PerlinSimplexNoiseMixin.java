@@ -30,12 +30,12 @@ public class PerlinSimplexNoiseMixin {
 
     @WrapMethod(method = "getValue(DDZ)D")
     private double exotic_worlds$periodicValue(double x, double z, boolean useNoiseStart, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.context();
-        WorldFold transformer = generation.wrappedTransformer();
-        if (transformer == null) {
+        Context generation = GenerationTransformerContext.wrappedContext();
+        if (generation == null) {
             return original.call(x, z, useNoiseStart);
         }
 
+        WorldFold transformer = generation.transformer();
         double baseScale = generation.horizontalScale();
         double value = 0.0;
         double factor = this.highestFreqInputFactor;
