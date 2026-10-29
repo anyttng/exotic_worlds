@@ -1,5 +1,7 @@
 package com.exoticworlds.compat.ultraterraforged;
 
+import org.jspecify.annotations.Nullable;
+
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.exoticworlds.compat.terraforged.SiteLattice;
 
@@ -7,6 +9,11 @@ import com.pandaismyname1.ultraterraforged.world.worldgen.cave.CaveCarving;
 import com.pandaismyname1.ultraterraforged.world.worldgen.landform.SiteCache;
 
 public final class CaveCells {
+    private static final ThreadLocal<@Nullable CopyCell> SEATED = new ThreadLocal<>();
+
+    private record CopyCell(SiteLattice lattice, int cellX, int cellZ) {
+    }
+
     public static int pointX(float spacing, int minX, int pointX) {
         SiteLattice lattice = SiteLattice.bound(spacing);
         return lattice == null ? pointX : lattice.cellX(minX);
@@ -28,26 +35,50 @@ public final class CaveCells {
         return original.call(seed, lattice.canonicalX(copyX), lattice.canonicalZ(cellZ), purpose);
     }
 
-    public static Object site(float spacing, Operation<Object> original, SiteCache<?> cache, int cellX, int cellZ,
-            SiteCache.Finder<?> finder, CaveCarving carving, int pointX) {
-        return original.call(cache, copyX(spacing, cellX, cellZ, carving, pointX), cellZ, finder);
-    }
-
     public static int copyX(float spacing, int cellX, int cellZ, CaveCarving carving, int pointX) {
         SiteLattice lattice = SiteLattice.bound(spacing);
         return lattice == null ? cellX : lattice.copyX(cellX, cellZ, pointX, carving.minX);
     }
 
-    public static float hash(float spacing, Operation<Float> original, int seed, int copyX, int copyZ, int purpose) {
+    public static SiteCache.Finder<?> seated(float spacing, SiteCache.Finder<?> finder) {
         SiteLattice lattice = SiteLattice.bound(spacing);
-        return lattice == null
-                ? original.call(seed, copyX, copyZ, purpose)
-                : original.call(seed, lattice.canonicalX(copyX), lattice.canonicalZ(copyZ), purpose);
+        return lattice == null ? finder : (copyX, copyZ) -> find(lattice, finder, copyX, copyZ);
     }
 
-    public static float originX(float spacing, float x, int copyZ) {
-        SiteLattice lattice = SiteLattice.bound(spacing);
-        return lattice == null ? x : x + lattice.copySkew(copyZ);
+    public static float seatX(float x) {
+        CopyCell copy = SEATED.get();
+        return copy == null ? x : copy.lattice().seatX(x, copy.cellX(), copy.cellZ());
+    }
+
+    public static float seatZ(float z) {
+        CopyCell copy = SEATED.get();
+        return copy == null ? z : copy.lattice().seatZ(z, copy.cellZ());
+    }
+
+    public static float[] seatXs(float[] xs) {
+        for (int i = 0; i < xs.length; i++) {
+            xs[i] = seatX(xs[i]);
+        }
+
+        return xs;
+    }
+
+    public static float[] seatZs(float[] zs) {
+        for (int i = 0; i < zs.length; i++) {
+            zs[i] = seatZ(zs[i]);
+        }
+
+        return zs;
+    }
+
+    private static Object find(SiteLattice lattice, SiteCache.Finder<?> finder, int copyX, int copyZ) {
+        CopyCell outer = SEATED.get();
+        SEATED.set(new CopyCell(lattice, copyX, copyZ));
+        try {
+            return finder.find(lattice.canonicalX(copyX), lattice.canonicalZ(copyZ));
+        } finally {
+            SEATED.set(outer);
+        }
     }
 
     private CaveCells() {
