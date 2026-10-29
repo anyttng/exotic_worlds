@@ -15,6 +15,7 @@
     "BiomeNoiseMixin",
     "BlueHolesMixin",
     "ButtesMixin",
+    "CaveCarvingMixin",
     "ChunkMapMixin",
     "ClimateGridMixin",
     "CoastShaperMixin",

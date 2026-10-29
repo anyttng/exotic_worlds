@@ -95,6 +95,15 @@ public record SiteLattice(double xLap, double zLap, double skew, float spacing, 
         return (float) (onSeatStep(x) + xLaps * this.xLap + zLaps(copyZ) * this.skew);
     }
 
+    public int shiftX(int copyX, int copyZ) {
+        int xLaps = this.xCells == RtfLap.NO_PERIOD ? 0 : Math.floorDiv(copyX, this.xCells);
+        return (int) Math.rint(xLaps * this.xLap + zLaps(copyZ) * this.skew);
+    }
+
+    public int shiftZ(int copyZ) {
+        return (int) Math.rint(zLaps(copyZ) * this.zLap);
+    }
+
     public float seatZ(float z, int copyZ) {
         return this.zCells == RtfLap.NO_PERIOD ? z : (float) (onSeatStep(z) + zLaps(copyZ) * this.zLap);
     }
