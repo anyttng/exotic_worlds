@@ -12,8 +12,8 @@ public final class ElectroEnergeticsMod {
             .checking(ElectroEnergeticsMixinPlugin.CONFIG, mixin -> !mixin.equals(SPAWN_GUARD_MIXIN))
             .build();
 
-    public static boolean present() {
-        return GATE.present();
+    public static boolean admitted() {
+        return GATE.admitted();
     }
 
     private ElectroEnergeticsMod() {

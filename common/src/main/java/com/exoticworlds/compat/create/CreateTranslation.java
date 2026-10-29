@@ -29,7 +29,7 @@ public final class CreateTranslation {
             ResourceLocation.fromNamespaceAndPath("create", "track_targeting_item_selected_pos");
 
     public static void register() {
-        if (!CreateMod.present()) {
+        if (!CreateMod.admitted()) {
             return;
         }
 

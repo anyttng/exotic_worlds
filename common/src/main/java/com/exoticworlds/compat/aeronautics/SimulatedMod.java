@@ -10,8 +10,8 @@ public final class SimulatedMod {
                     && !AeronauticsMixinPlugin.OFFROAD_MIXINS.contains(mixin))
             .build();
 
-    public static boolean present() {
-        return GATE.present();
+    public static boolean admitted() {
+        return GATE.admitted();
     }
 
     private SimulatedMod() {

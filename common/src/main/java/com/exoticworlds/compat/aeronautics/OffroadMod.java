@@ -9,8 +9,8 @@ public final class OffroadMod {
             .checking(AeronauticsMixinPlugin.CONFIG, AeronauticsMixinPlugin.OFFROAD_MIXINS::contains)
             .build();
 
-    public static boolean present() {
-        return GATE.present();
+    public static boolean admitted() {
+        return GATE.admitted();
     }
 
     private OffroadMod() {

@@ -48,11 +48,11 @@ public final class AeronauticsTranslation {
             ResourceLocation.fromNamespaceAndPath("simulated", "rope_first_connection");
 
     public static void register() {
-        if (SimulatedMod.present()) {
+        if (SimulatedMod.admitted()) {
             registerSimulated();
         }
 
-        if (OffroadMod.present()) {
+        if (OffroadMod.admitted()) {
             registerOffroad();
         }
     }

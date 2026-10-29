@@ -49,7 +49,7 @@ public final class ElectroEnergeticsTranslation {
     };
 
     public static void register() {
-        if (!ElectroEnergeticsMod.present()) {
+        if (!ElectroEnergeticsMod.admitted()) {
             return;
         }
 

@@ -12,8 +12,8 @@ public final class SableMod {
             .checking("exotic_worlds.compat.sable.mixins.json")
             .build();
 
-    public static boolean present() {
-        return GATE.present();
+    public static boolean admitted() {
+        return GATE.admitted();
     }
 
     // Sable's own mixins merge into the methods ours would wrap whether or not our Sable gate admits.
@@ -22,7 +22,7 @@ public final class SableMod {
     }
 
     public static void register() {
-        if (present()) {
+        if (admitted()) {
             ForeignFrames.register(new SableFrames());
         }
     }

@@ -9,8 +9,8 @@ final class ArsNouveauMod {
             .checking("exotic_worlds.compat.arsnouveau.mixins.json")
             .build();
 
-    static boolean present() {
-        return GATE.present();
+    static boolean admitted() {
+        return GATE.admitted();
     }
 
     private ArsNouveauMod() {

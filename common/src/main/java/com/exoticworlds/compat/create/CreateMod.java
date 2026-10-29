@@ -14,8 +14,8 @@ public final class CreateMod {
             .withholding(BLUEPRINT_REACH_MIXIN, SableMod::installed)
             .build();
 
-    public static boolean present() {
-        return GATE.present();
+    public static boolean admitted() {
+        return GATE.admitted();
     }
 
     private CreateMod() {

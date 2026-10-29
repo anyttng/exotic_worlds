@@ -11,6 +11,8 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
 final class MixinAnnotations {
+    static final String VALUE_KEY = "value";
+
     private static final int NAME_VALUE_PAIR = 2;
 
     private MixinAnnotations() {

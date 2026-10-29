@@ -37,7 +37,7 @@ public final class ModPresence {
 
     private @Nullable MixinConfig mixinConfig;
     private boolean probed;
-    private boolean present;
+    private boolean admitted;
 
     public static Builder gate(Logger logger, String gateLabel) {
         return new Builder(logger, gateLabel);
@@ -73,7 +73,7 @@ public final class ModPresence {
     }
 
     public boolean admits(String mixinClassName) {
-        return present() && !withheld(mixinClassName.substring(mixinPackage().length() + 1));
+        return admitted() && !withheld(mixinClassName.substring(mixinPackage().length() + 1));
     }
 
     private boolean withheld(String mixin) {
@@ -81,20 +81,16 @@ public final class ModPresence {
         return condition != null && condition.getAsBoolean();
     }
 
-    public synchronized boolean present() {
+    public synchronized boolean admitted() {
         if (!this.probed) {
-            this.present = resolve();
+            this.admitted = resolve();
             this.probed = true;
         }
 
-        return this.present;
+        return this.admitted;
     }
 
     private boolean resolve() {
-        return probed() && requiredPresent() && mixinsAdmitted();
-    }
-
-    private boolean probed() {
         for (String resource : this.resources) {
             if (!probe(this.classLoader, resource)) {
                 this.logger.info("{}=false", this.gateLabel);
@@ -102,12 +98,12 @@ public final class ModPresence {
             }
         }
 
-        return true;
+        return requiredAdmitted() && admits(coveredMixins());
     }
 
-    private boolean requiredPresent() {
+    private boolean requiredAdmitted() {
         for (ModPresence gate : this.required) {
-            if (!gate.present()) {
+            if (!gate.admitted()) {
                 this.logger.warn("{}=true admitted=false requires={}", this.gateLabel, gate.gateLabel);
                 return false;
             }
@@ -116,8 +112,7 @@ public final class ModPresence {
         return true;
     }
 
-    private boolean mixinsAdmitted() {
-        List<String> covered = coveredMixins();
+    private boolean admits(List<String> covered) {
         Map<String, String> bodySourcesByClass = new HashMap<>();
         this.bodySources.forEach((mixin, owner) -> bodySourcesByClass.put(mixinPackage() + "." + mixin, owner));
         MixinTargetCheck check = new MixinTargetCheck(this.classLoader, bodySourcesByClass);

@@ -31,7 +31,7 @@ public final class C2meAquifer {
             }
 
             LOGGER.info("[ew/c2me-compat] gate c2me_present=true optimize_aquifer=true");
-            return C2meMixinPlugin.AQUIFER_GATE.present();
+            return C2meMixinPlugin.AQUIFER_GATE.admitted();
         } catch (ClassNotFoundException absent) {
             return false;
         } catch (ReflectiveOperationException | LinkageError changed) {

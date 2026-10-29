@@ -72,13 +72,13 @@ class CompatGatesTest {
         assumeFalse(FABRIC_ONLY_CONFIGS.contains(config.getFileName().toString()),
                 config.getFileName() + ": the mod has no Mojmap build for this runtime to read");
         if (SHUT_ON_THIS_LINE.contains(config.getFileName().toString())) {
-            assertTrue(pluginOf(read(config)).gates().stream().noneMatch(ModPresence::present),
+            assertTrue(pluginOf(read(config)).gates().stream().noneMatch(ModPresence::admitted),
                     config.getFileName() + ": a gate shut on this line admits now; drop it from SHUT_ON_THIS_LINE");
             return;
         }
 
         for (ModPresence gate : pluginOf(read(config)).gates()) {
-            assertTrue(gate.present(), config.getFileName() + ": a gate refuses the build this suite runs against; "
+            assertTrue(gate.admitted(), config.getFileName() + ": a gate refuses the build this suite runs against; "
                     + "the refusal line in the test log names the mixin and the member");
         }
     }

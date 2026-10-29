@@ -3,6 +3,9 @@ package com.exoticworlds.compat;
 import org.jspecify.annotations.Nullable;
 
 record MemberRef(@Nullable String owner, String name, @Nullable String descriptor) {
+    static final String CONSTRUCTOR = "<init>";
+    static final String VOID_RETURN = "V";
+
     private static final String ANY_QUANTIFIER = "*";
     private static final String PLUS_QUANTIFIER = "+";
     private static final char QUANTIFIER_OPEN = '{';
@@ -34,6 +37,14 @@ record MemberRef(@Nullable String owner, String name, @Nullable String descripto
         return this.name.equals(name)
                 && (this.owner == null || this.owner.equals(owner))
                 && (this.descriptor == null || this.descriptor.equals(descriptor));
+    }
+
+    static String parametersOf(String descriptor) {
+        return descriptor.substring(0, descriptor.indexOf(')') + 1);
+    }
+
+    static String unwrapDescriptor(String type) {
+        return type.startsWith("L") && type.endsWith(";") ? type.substring(1, type.length() - 1) : type;
     }
 
     private static String withoutQuantifier(String name) {

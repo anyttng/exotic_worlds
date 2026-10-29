@@ -11,12 +11,12 @@ public final class AeronauticsMod {
             .checking(AeronauticsMixinPlugin.CONFIG, AeronauticsMixinPlugin.AERONAUTICS_MIXINS::contains)
             .build();
 
-    public static boolean present() {
-        return GATE.present();
+    public static boolean admitted() {
+        return GATE.admitted();
     }
 
     public static void register() {
-        if (SimulatedMod.present() && SableMod.present()) {
+        if (SimulatedMod.admitted() && SableMod.admitted()) {
             SableBodyShift.register(RopeSeamFrame::onGroupShifted);
         }
     }
