@@ -40,6 +40,39 @@ public final class CaveCells {
         return lattice == null ? cellX : lattice.copyX(cellX, cellZ, pointX, carving.minX);
     }
 
+    public static SiteCache.Finder<?> canonical(float spacing, SiteCache.Finder<?> finder) {
+        SiteLattice lattice = SiteLattice.bound(spacing);
+        return lattice == null ? finder
+                : (copyX, copyZ) -> finder.find(lattice.canonicalX(copyX), lattice.canonicalZ(copyZ));
+    }
+
+    public static void enter(float spacing, CaveCarving carving, int copyX, int copyZ) {
+        SiteLattice lattice = SiteLattice.bound(spacing);
+        if (lattice != null) {
+            ((CaveFrame) (Object) carving).exotic_worlds$shift(lattice.shiftX(copyX, copyZ), lattice.shiftZ(copyZ));
+        }
+    }
+
+    public static void leave(CaveCarving carving) {
+        ((CaveFrame) (Object) carving).exotic_worlds$shift(0, 0);
+    }
+
+    public static int frameX(CaveCarving carving, int x) {
+        return x - ((CaveFrame) (Object) carving).exotic_worlds$shiftX();
+    }
+
+    public static int frameZ(CaveCarving carving, int z) {
+        return z - ((CaveFrame) (Object) carving).exotic_worlds$shiftZ();
+    }
+
+    public static float frameX(CaveCarving carving, float x) {
+        return x - ((CaveFrame) (Object) carving).exotic_worlds$shiftX();
+    }
+
+    public static float frameZ(CaveCarving carving, float z) {
+        return z - ((CaveFrame) (Object) carving).exotic_worlds$shiftZ();
+    }
+
     public static SiteCache.Finder<?> seated(float spacing, SiteCache.Finder<?> finder) {
         SiteLattice lattice = SiteLattice.bound(spacing);
         return lattice == null ? finder : (copyX, copyZ) -> find(lattice, finder, copyX, copyZ);
@@ -53,22 +86,6 @@ public final class CaveCells {
     public static float seatZ(float z) {
         CopyCell copy = SEATED.get();
         return copy == null ? z : copy.lattice().seatZ(z, copy.cellZ());
-    }
-
-    public static float[] seatXs(float[] xs) {
-        for (int i = 0; i < xs.length; i++) {
-            xs[i] = seatX(xs[i]);
-        }
-
-        return xs;
-    }
-
-    public static float[] seatZs(float[] zs) {
-        for (int i = 0; i < zs.length; i++) {
-            zs[i] = seatZ(zs[i]);
-        }
-
-        return zs;
     }
 
     private static Object find(SiteLattice lattice, SiteCache.Finder<?> finder, int copyX, int copyZ) {

@@ -4,9 +4,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -30,28 +31,6 @@ public abstract class GlacierCavesMixin {
     @Unique
     private static final int Z_READ = 1;
 
-    @Unique
-    private static final String CAVE = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/cave/GlacierCaves$Cave;"
-            + "<init>([F[F[FFFFF)V";
-
-    @Unique
-    private static final int CAVE_XS = 0;
-
-    @Unique
-    private static final int CAVE_ZS = 2;
-
-    @Unique
-    private static final int CAVE_MIN_X = 3;
-
-    @Unique
-    private static final int CAVE_MIN_Z = 4;
-
-    @Unique
-    private static final int CAVE_MAX_X = 5;
-
-    @Unique
-    private static final int CAVE_MAX_Z = 6;
-
     @ModifyVariable(method = "carve", at = @At("STORE"), name = "gridX")
     private int exotic_worlds$pointX(int pointX, @Local(argsOnly = true) CaveCarving carving) {
         return CaveCells.pointX(GRID, carving.minX, pointX);
@@ -71,8 +50,16 @@ public abstract class GlacierCavesMixin {
     @WrapOperation(method = "carve", at = @At(value = "INVOKE", target = UltraTerraForgedInjectionTargets.SITE_CACHE_GET))
     private Object exotic_worlds$site(SiteCache<?> cache, int cellX, int cellZ, SiteCache.Finder<?> finder,
             Operation<Object> original, @Local(argsOnly = true) CaveCarving carving, @Local(name = "gridX") int pointX) {
-        return original.call(cache, CaveCells.copyX(GRID, cellX, cellZ, carving, pointX), cellZ,
-                CaveCells.seated(GRID, finder));
+        int copyX = CaveCells.copyX(GRID, cellX, cellZ, carving, pointX);
+        CaveCells.leave(carving);
+        Object site = original.call(cache, copyX, cellZ, CaveCells.canonical(GRID, finder));
+        CaveCells.enter(GRID, carving, copyX, cellZ);
+        return site;
+    }
+
+    @Inject(method = "carve", at = @At("RETURN"))
+    private void exotic_worlds$leave(CaveCarving carving, CallbackInfo ci) {
+        CaveCells.leave(carving);
     }
 
     @ModifyConstant(method = "find", constant = @Constant(floatValue = GRID, ordinal = X_READ))
@@ -88,35 +75,5 @@ public abstract class GlacierCavesMixin {
     @ModifyVariable(method = "find", at = @At("STORE"), name = "length")
     private float exotic_worlds$length(float length) {
         return SiteLattice.scaledOn(length, GRID);
-    }
-
-    @ModifyArg(method = "find", at = @At(value = "INVOKE", target = CAVE), index = CAVE_XS)
-    private float[] exotic_worlds$seatXs(float[] xs) {
-        return CaveCells.seatXs(xs);
-    }
-
-    @ModifyArg(method = "find", at = @At(value = "INVOKE", target = CAVE), index = CAVE_ZS)
-    private float[] exotic_worlds$seatZs(float[] zs) {
-        return CaveCells.seatZs(zs);
-    }
-
-    @ModifyArg(method = "find", at = @At(value = "INVOKE", target = CAVE), index = CAVE_MIN_X)
-    private float exotic_worlds$seatMinX(float minX) {
-        return CaveCells.seatX(minX);
-    }
-
-    @ModifyArg(method = "find", at = @At(value = "INVOKE", target = CAVE), index = CAVE_MIN_Z)
-    private float exotic_worlds$seatMinZ(float minZ) {
-        return CaveCells.seatZ(minZ);
-    }
-
-    @ModifyArg(method = "find", at = @At(value = "INVOKE", target = CAVE), index = CAVE_MAX_X)
-    private float exotic_worlds$seatMaxX(float maxX) {
-        return CaveCells.seatX(maxX);
-    }
-
-    @ModifyArg(method = "find", at = @At(value = "INVOKE", target = CAVE), index = CAVE_MAX_Z)
-    private float exotic_worlds$seatMaxZ(float maxZ) {
-        return CaveCells.seatZ(maxZ);
     }
 }
