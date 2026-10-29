@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Unique;
 import com.exoticworlds.accessors.ClimateCompressionCache;
 import com.exoticworlds.accessors.ClimateFieldMark;
 import com.exoticworlds.accessors.IndexableNoise;
-import com.exoticworlds.accessors.PerlinBaseScale;
+import com.exoticworlds.accessors.WrappedPerlinNoise;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
 import com.exoticworlds.engine.noise.GenerationTransformerContext.Context;
 import com.exoticworlds.engine.noise.PeriodicOctaveSampler;
@@ -23,7 +23,8 @@ import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
 @Mixin(PerlinNoise.class)
-public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMark, IndexableNoise, PerlinBaseScale {
+public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMark, IndexableNoise,
+        WrappedPerlinNoise {
     @Unique
     private @Nullable Resolved exotic_worlds$climateCompression;
 
@@ -48,11 +49,17 @@ public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMa
 
     @WrapMethod(method = "getValue(DDDDD)D")
     private double exotic_worlds$periodicValue(double x, double y, double z, double yScale, double yFudge, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.context();
-        if (!generation.transformer().isWrapped()) {
+        Context generation = GenerationTransformerContext.wrappedContext();
+        if (generation == null) {
             return original.call(x, y, z, yScale, yFudge);
         }
 
+        return exotic_worlds$sampleWrapped(generation, x, y, z, yScale, yFudge);
+    }
+
+    @Override
+    public double exotic_worlds$sampleWrapped(Context generation, double x, double y, double z, double yScale,
+            double yFudge) {
         return PeriodicOctaveSampler.sample(generation, this.exotic_worlds$baseScale(generation), this.noiseLevels,
                 this.amplitudes, this.lowestFreqInputFactor, this.lowestFreqValueFactor, x, y, z, yScale, yFudge);
     }
@@ -63,8 +70,8 @@ public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMa
                 this.exotic_worlds$baseScale(context), this.noiseLevels, this.lowestFreqInputFactor);
     }
 
-    @Override
-    public double exotic_worlds$baseScale(Context generation) {
+    @Unique
+    private double exotic_worlds$baseScale(Context generation) {
         double declaredScale = generation.horizontalScale();
         return declaredScale * ClimateCompression.resolve(this, generation.transformer(),
                 this.exotic_worlds$climateField, this.amplitudes, this.lowestFreqInputFactor, declaredScale,

@@ -11,6 +11,8 @@ import com.exoticworlds.accessors.ClimateFieldMark;
 import com.exoticworlds.accessors.CoastLiftCache;
 import com.exoticworlds.accessors.IndexableNoise;
 import com.exoticworlds.accessors.NoiseScaleRungs;
+import com.exoticworlds.accessors.WrappedNormalNoise;
+import com.exoticworlds.accessors.WrappedPerlinNoise;
 import com.exoticworlds.engine.noise.ContextKeyedCache;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.GenerationTransformerContext;
@@ -23,7 +25,8 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
 @Mixin(NormalNoise.class)
-public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, NoiseScaleRungs, IndexableNoise {
+public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, NoiseScaleRungs, IndexableNoise,
+        WrappedNormalNoise {
     @Shadow
     @Final
     private PerlinNoise first;
@@ -73,11 +76,16 @@ public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, Noise
 
     @WrapMethod(method = "getValue(DDD)D")
     private double exotic_worlds$periodicValue(double x, double y, double z, Operation<Double> original) {
-        Context generation = GenerationTransformerContext.context();
-        if (!generation.transformer().isWrapped()) {
+        Context generation = GenerationTransformerContext.wrappedContext();
+        if (generation == null) {
             return original.call(x, y, z);
         }
 
+        return exotic_worlds$sampleWrapped(generation, x, y, z);
+    }
+
+    @Override
+    public double exotic_worlds$sampleWrapped(Context generation, double x, double y, double z) {
         double value = this.exotic_worlds$indexable(generation)
                 ? this.exotic_worlds$foldedValue(generation, x, y, z)
                 : ContextScaledNoise.vanillaAtFoldedSlots(generation, (NormalNoise) (Object) this, x, y, z);
@@ -107,12 +115,15 @@ public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, Noise
 
     @Unique
     private double exotic_worlds$foldedValue(Context generation, double x, double y, double z) {
-        double firstValue = this.first.getValue(x, y, z);
+        double firstValue = ((WrappedPerlinNoise) (Object) this.first).exotic_worlds$sampleWrapped(generation, x, y, z,
+                0.0, 0.0);
         try (Context.ScaleScope _ = exotic_worlds$detuned(generation)) {
             double detunedY = generation.slotAxes().y().carriesWorldAxis()
                     ? y
                     : y * NoiseConstants.SECOND_LAYER_DETUNE;
-            return (firstValue + this.second.getValue(x, detunedY, z)) * this.valueFactor;
+            double secondValue = ((WrappedPerlinNoise) (Object) this.second).exotic_worlds$sampleWrapped(generation,
+                    x, detunedY, z, 0.0, 0.0);
+            return (firstValue + secondValue) * this.valueFactor;
         }
     }
 
