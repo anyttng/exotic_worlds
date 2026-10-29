@@ -17,6 +17,7 @@ import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedInjectionTargets
 
 import net.minecraft.core.Direction;
 import com.pandaismyname1.ultraterraforged.world.worldgen.cave.CaveCarving;
+import com.pandaismyname1.ultraterraforged.world.worldgen.landform.SiteCache;
 
 @Mixin(targets = "com.pandaismyname1.ultraterraforged.world.worldgen.cave.KarstCaves", remap = false)
 public abstract class KarstCavesMixin {
@@ -50,7 +51,14 @@ public abstract class KarstCavesMixin {
     private static final int CELL_X = 0;
 
     @Unique
-    private static final int Z_ARGUMENT = 1;
+    private static final String SITE = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/cave/KarstCaves$Chamber;"
+            + "<init>(FFFFFIZZ)V";
+
+    @Unique
+    private static final int SITE_X = 0;
+
+    @Unique
+    private static final int SITE_Z = 2;
 
     @ModifyVariable(method = "carve", at = @At("STORE"), name = "gridX")
     private int exotic_worlds$pointX(int pointX, @Local(argsOnly = true) CaveCarving carving) {
@@ -74,6 +82,12 @@ public abstract class KarstCavesMixin {
         return CaveCells.copyX(GRID, cellX, cellZ, carving, pointX) + nextX - cellX;
     }
 
+    @WrapOperation(method = "chamber", at = @At(value = "INVOKE", target = UltraTerraForgedInjectionTargets.SITE_CACHE_GET))
+    private Object exotic_worlds$site(SiteCache<?> cache, int copyX, int copyZ, SiteCache.Finder<?> finder,
+            Operation<Object> original) {
+        return original.call(cache, copyX, copyZ, CaveCells.seated(GRID, finder));
+    }
+
     @ModifyConstant(method = "find", constant = @Constant(floatValue = GRID, ordinal = ORIGIN_X_READ))
     private float exotic_worlds$originX(float spacing) {
         return SiteLattice.spacingOn(spacing, Direction.Axis.X);
@@ -94,18 +108,18 @@ public abstract class KarstCavesMixin {
         return SiteLattice.sharedOn(spacing);
     }
 
-    @WrapOperation(method = "find", at = @At(value = "INVOKE", target = UltraTerraForgedInjectionTargets.CAVE_RANDOM))
-    private float exotic_worlds$hash(int seed, int copyX, int copyZ, int purpose, Operation<Float> original) {
-        return CaveCells.hash(GRID, original, seed, copyX, copyZ, purpose);
-    }
-
-    @ModifyVariable(method = "find", at = @At("STORE"), name = "x")
-    private float exotic_worlds$skewOrigin(float x, @Local(argsOnly = true, ordinal = Z_ARGUMENT) int copyZ) {
-        return CaveCells.originX(GRID, x, copyZ);
-    }
-
     @ModifyVariable(method = "find", at = @At("STORE"), name = "radius")
     private float exotic_worlds$radius(float radius) {
         return SiteLattice.scaledOn(radius, GRID);
+    }
+
+    @ModifyArg(method = "find", at = @At(value = "INVOKE", target = SITE), index = SITE_X)
+    private float exotic_worlds$seatX(float x) {
+        return CaveCells.seatX(x);
+    }
+
+    @ModifyArg(method = "find", at = @At(value = "INVOKE", target = SITE), index = SITE_Z)
+    private float exotic_worlds$seatZ(float z) {
+        return CaveCells.seatZ(z);
     }
 }

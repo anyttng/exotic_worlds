@@ -4,6 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
@@ -33,10 +34,26 @@ public abstract class UndergroundRiversMixin {
     private static final int Z_READ = 1;
 
     @Unique
-    private static final int Z_ARGUMENT = 1;
+    private static final String PATH = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/cave/UndergroundRivers$Path;"
+            + "<init>([F[F[FIFFFFF)V";
 
     @Unique
-    private static final int FIRST_STORE = 0;
+    private static final int PATH_XS = 0;
+
+    @Unique
+    private static final int PATH_ZS = 2;
+
+    @Unique
+    private static final int PATH_MIN_X = 5;
+
+    @Unique
+    private static final int PATH_MIN_Z = 6;
+
+    @Unique
+    private static final int PATH_MAX_X = 7;
+
+    @Unique
+    private static final int PATH_MAX_Z = 8;
 
     @ModifyVariable(method = "carve", at = @At("STORE"), name = "gridX")
     private int exotic_worlds$pointX(int pointX, @Local(argsOnly = true) CaveCarving carving) {
@@ -57,7 +74,8 @@ public abstract class UndergroundRiversMixin {
     @WrapOperation(method = "carve", at = @At(value = "INVOKE", target = UltraTerraForgedInjectionTargets.SITE_CACHE_GET))
     private Object exotic_worlds$site(SiteCache<?> cache, int cellX, int cellZ, SiteCache.Finder<?> finder,
             Operation<Object> original, @Local(argsOnly = true) CaveCarving carving, @Local(name = "gridX") int pointX) {
-        return CaveCells.site(GRID, original, cache, cellX, cellZ, finder, carving, pointX);
+        return original.call(cache, CaveCells.copyX(GRID, cellX, cellZ, carving, pointX), cellZ,
+                CaveCells.seated(GRID, finder));
     }
 
     @ModifyConstant(method = "find", constant = @Constant(floatValue = GRID, ordinal = X_READ))
@@ -70,18 +88,38 @@ public abstract class UndergroundRiversMixin {
         return SiteLattice.spacingOn(spacing, Direction.Axis.Z);
     }
 
-    @WrapOperation(method = "find", at = @At(value = "INVOKE", target = UltraTerraForgedInjectionTargets.CAVE_RANDOM))
-    private float exotic_worlds$hash(int seed, int copyX, int copyZ, int purpose, Operation<Float> original) {
-        return CaveCells.hash(GRID, original, seed, copyX, copyZ, purpose);
-    }
-
-    @ModifyVariable(method = "find", at = @At(value = "STORE", ordinal = FIRST_STORE), name = "x")
-    private float exotic_worlds$skewOrigin(float x, @Local(argsOnly = true, ordinal = Z_ARGUMENT) int copyZ) {
-        return CaveCells.originX(GRID, x, copyZ);
-    }
-
     @ModifyConstant(method = "find", constant = @Constant(floatValue = STEP))
     private float exotic_worlds$step(float step) {
         return SiteLattice.scaledOn(step, GRID);
+    }
+
+    @ModifyArg(method = "find", at = @At(value = "INVOKE", target = PATH), index = PATH_XS)
+    private float[] exotic_worlds$seatXs(float[] xs) {
+        return CaveCells.seatXs(xs);
+    }
+
+    @ModifyArg(method = "find", at = @At(value = "INVOKE", target = PATH), index = PATH_ZS)
+    private float[] exotic_worlds$seatZs(float[] zs) {
+        return CaveCells.seatZs(zs);
+    }
+
+    @ModifyArg(method = "find", at = @At(value = "INVOKE", target = PATH), index = PATH_MIN_X)
+    private float exotic_worlds$seatMinX(float minX) {
+        return CaveCells.seatX(minX);
+    }
+
+    @ModifyArg(method = "find", at = @At(value = "INVOKE", target = PATH), index = PATH_MIN_Z)
+    private float exotic_worlds$seatMinZ(float minZ) {
+        return CaveCells.seatZ(minZ);
+    }
+
+    @ModifyArg(method = "find", at = @At(value = "INVOKE", target = PATH), index = PATH_MAX_X)
+    private float exotic_worlds$seatMaxX(float maxX) {
+        return CaveCells.seatX(maxX);
+    }
+
+    @ModifyArg(method = "find", at = @At(value = "INVOKE", target = PATH), index = PATH_MAX_Z)
+    private float exotic_worlds$seatMaxZ(float maxZ) {
+        return CaveCells.seatZ(maxZ);
     }
 }
