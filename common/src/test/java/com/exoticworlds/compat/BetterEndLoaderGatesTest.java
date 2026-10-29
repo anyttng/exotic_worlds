@@ -69,7 +69,7 @@ class BetterEndLoaderGatesTest {
                     .probing(TERRAIN_GENERATOR)
                     .checking(config)
                     .build(build)
-                    .present();
+                    .admitted();
         }
     }
 
