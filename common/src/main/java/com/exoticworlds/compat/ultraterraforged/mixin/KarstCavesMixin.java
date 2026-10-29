@@ -4,10 +4,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -28,6 +31,14 @@ public abstract class KarstCavesMixin {
     private static final String CHAMBER = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/cave/KarstCaves;"
             + "chamber(IILcom/pandaismyname1/ultraterraforged/world/worldgen/cave/CaveCarving;)"
             + "Lcom/pandaismyname1/ultraterraforged/world/worldgen/cave/KarstCaves$Chamber;";
+
+    @Unique
+    private static final String CHAMBER_X =
+            "Lcom/pandaismyname1/ultraterraforged/world/worldgen/cave/KarstCaves$Chamber;x()F";
+
+    @Unique
+    private static final String CHAMBER_Z =
+            "Lcom/pandaismyname1/ultraterraforged/world/worldgen/cave/KarstCaves$Chamber;z()F";
 
     @Unique
     private static final int ORIGIN_X_READ = 0;
@@ -73,7 +84,24 @@ public abstract class KarstCavesMixin {
     @ModifyArg(method = "carve", at = @At(value = "INVOKE", target = CHAMBER, ordinal = BASE_CHAMBER), index = CELL_X)
     private int exotic_worlds$baseCopy(int cellX, @Local(name = "gz") int cellZ,
             @Local(argsOnly = true) CaveCarving carving, @Local(name = "gridX") int pointX) {
-        return CaveCells.copyX(GRID, cellX, cellZ, carving, pointX);
+        int copyX = CaveCells.copyX(GRID, cellX, cellZ, carving, pointX);
+        CaveCells.enter(GRID, carving, copyX, cellZ);
+        return copyX;
+    }
+
+    @ModifyExpressionValue(method = "carve", at = @At(value = "INVOKE", target = CHAMBER_X))
+    private float exotic_worlds$frameX(float x, @Local(argsOnly = true) CaveCarving carving) {
+        return CaveCells.frameX(carving, x);
+    }
+
+    @ModifyExpressionValue(method = "carve", at = @At(value = "INVOKE", target = CHAMBER_Z))
+    private float exotic_worlds$frameZ(float z, @Local(argsOnly = true) CaveCarving carving) {
+        return CaveCells.frameZ(carving, z);
+    }
+
+    @Inject(method = "carve", at = @At("RETURN"))
+    private void exotic_worlds$leave(CaveCarving carving, CallbackInfo ci) {
+        CaveCells.leave(carving);
     }
 
     @ModifyArg(method = "carve", at = @At(value = "INVOKE", target = CHAMBER, ordinal = NEXT_CHAMBER), index = CELL_X)
