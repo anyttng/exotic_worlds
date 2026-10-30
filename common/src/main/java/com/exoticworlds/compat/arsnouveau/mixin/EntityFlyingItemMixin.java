@@ -27,7 +27,7 @@ public abstract class EntityFlyingItemMixin {
     @Unique
     private Vec3 exotic_worlds$nearItem(Vec3 point) {
         Entity item = (Entity) (Object) this;
-        return NearestCopy.toward(WorldLoopAttachments.wrappedTransformerOfReader(item.level()), item.position(),
+        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(item.level()), item.position(),
                 point);
     }
 }

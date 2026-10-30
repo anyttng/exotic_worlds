@@ -9,7 +9,7 @@ import net.minecraft.world.phys.Vec3;
 
 public final class NavTableSeamFrame {
     public static Vec3 seatTarget(NavTableBlockEntity navTable, Vec3 target) {
-        return NearestCopy.toward(WorldLoopAttachments.wrappedTransformerOfReader(navTable.getLevel()),
+        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(navTable.getLevel()),
                 navTable.getProjectedSelfPos(), target);
     }
 

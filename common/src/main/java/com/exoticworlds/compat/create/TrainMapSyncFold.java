@@ -19,7 +19,7 @@ public final class TrainMapSyncFold {
     private static final int Z_OFFSET = 2;
 
     public static void coherent(Float @Nullable [] positions, @Nullable List<ResourceKey<Level>> dimensions,
-            Function<ResourceKey<Level>, @Nullable WorldFold> transformers) {
+            Function<ResourceKey<Level>, @Nullable WorldFold> folds) {
         if (positions == null || dimensions == null || positions.length < FLOATS_PER_CARRIAGE) {
             return;
         }
@@ -28,7 +28,7 @@ public final class TrainMapSyncFold {
         ResourceKey<Level> anchorDimension = null;
         for (int carriage = 0; carriage * FLOATS_PER_CARRIAGE + FLOATS_PER_CARRIAGE <= positions.length; carriage++) {
             ResourceKey<Level> dimension = carriage < dimensions.size() ? dimensions.get(carriage) : null;
-            WorldFold fold = dimension == null ? null : transformers.apply(dimension);
+            WorldFold fold = dimension == null ? null : folds.apply(dimension);
             if (fold == null) {
                 continue;
             }
@@ -49,7 +49,7 @@ public final class TrainMapSyncFold {
 
     public static void rebaseOnto(Float @Nullable [] stale, Float @Nullable [] current,
             @Nullable List<ResourceKey<Level>> dimensions,
-            Function<ResourceKey<Level>, @Nullable WorldFold> transformers) {
+            Function<ResourceKey<Level>, @Nullable WorldFold> folds) {
         if (stale == null || current == null || dimensions == null) {
             return;
         }
@@ -57,7 +57,7 @@ public final class TrainMapSyncFold {
         int shared = Math.min(stale.length, current.length);
         for (int carriage = 0; carriage * FLOATS_PER_CARRIAGE + FLOATS_PER_CARRIAGE <= shared; carriage++) {
             ResourceKey<Level> dimension = carriage < dimensions.size() ? dimensions.get(carriage) : null;
-            WorldFold fold = dimension == null ? null : transformers.apply(dimension);
+            WorldFold fold = dimension == null ? null : folds.apply(dimension);
             if (fold == null) {
                 continue;
             }

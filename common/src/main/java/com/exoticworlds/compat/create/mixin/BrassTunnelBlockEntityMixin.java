@@ -30,7 +30,7 @@ public abstract class BrassTunnelBlockEntityMixin {
         }
 
         if (!resolved.get()) {
-            if (WorldLoopAttachments.wrappedTransformerOfReader(walker.getLevel()) != null) {
+            if (WorldLoopAttachments.wrappedFoldOfReader(walker.getLevel()) != null) {
                 Set<BrassTunnelBlockEntity> visited = new HashSet<>();
                 visited.add(walker);
                 visitedRef.set(visited);

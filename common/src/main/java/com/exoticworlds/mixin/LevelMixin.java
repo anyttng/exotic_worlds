@@ -176,12 +176,12 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
         }
 
         return level == (Object) this
-                ? exotic_worlds$generatorTransformer(level)
+                ? exotic_worlds$generatorFold(level)
                 : WorldLoopAttachments.foldOf(level);
     }
 
     @Unique
-    private static WorldFold exotic_worlds$generatorTransformer(ServerLevel level) {
+    private static WorldFold exotic_worlds$generatorFold(ServerLevel level) {
         CarriedShape carried = ShapedChunkGenerator.carriedShapeOf(level.getChunkSource().getGenerator());
         if (carried == null) {
             return WorldFolds.NOOP;

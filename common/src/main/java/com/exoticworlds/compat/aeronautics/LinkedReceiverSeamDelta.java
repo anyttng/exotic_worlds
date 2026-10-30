@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 public final class LinkedReceiverSeamDelta {
     public static Vector3d fold(BlockEntity receiver, Vector3d target, Vector3dc current,
             Operation<Vector3d> original) {
-        WorldFold fold = WorldLoopAttachments.wrappedTransformerOfReader(receiver.getLevel());
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOfReader(receiver.getLevel());
         if (fold == null) {
             return original.call(target, current);
         }

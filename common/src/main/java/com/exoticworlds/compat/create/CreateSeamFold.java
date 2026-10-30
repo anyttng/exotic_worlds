@@ -62,7 +62,7 @@ public final class CreateSeamFold {
             return rawDelta;
         }
 
-        return delta(WorldLoopAttachments.wrappedTransformerOfReader(level), asBlockPos(anchor), target, rawDelta);
+        return delta(WorldLoopAttachments.wrappedFoldOfReader(level), asBlockPos(anchor), target, rawDelta);
     }
 
     public static BlockPos farEndDelta(@Nullable Level level, BlockPos anchor, BlockPos delta, BlockPos rawFarEnd) {
@@ -113,7 +113,7 @@ public final class CreateSeamFold {
             return block;
         }
 
-        return foldPositionToBox(WorldLoopAttachments.wrappedTransformerOfReader(level), box, block);
+        return foldPositionToBox(WorldLoopAttachments.wrappedFoldOfReader(level), box, block);
     }
 
     static BlockPos foldPositionToBox(@Nullable WorldFold fold, BoundingBox box, BlockPos position) {
@@ -121,7 +121,7 @@ public final class CreateSeamFold {
     }
 
     public static Vec3 foldPointToBox(@Nullable Level level, AABB box, Vec3 point) {
-        return NearestCopy.toward(WorldLoopAttachments.wrappedTransformerOfReader(level), box.getCenter(), point);
+        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(level), box.getCenter(), point);
     }
 
     public static Vec3 inFrameOf(WorldFold fold, Vec3 viewer, Vec3 anchor, Vec3 point) {

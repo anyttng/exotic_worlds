@@ -21,7 +21,7 @@ public abstract class BlockUtilMixin {
             return original.call(level, start, end);
         }
 
-        return Math.sqrt(SeamRange.sqr(WorldLoopAttachments.wrappedTransformerOfReader(level), start, end));
+        return Math.sqrt(SeamRange.sqr(WorldLoopAttachments.wrappedFoldOfReader(level), start, end));
     }
 
     @WrapMethod(method = "distanceFrom(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/core/BlockPos;)D")
@@ -31,13 +31,13 @@ public abstract class BlockUtilMixin {
             return original.call(level, start, end);
         }
 
-        return Math.sqrt(SeamRange.sqr(WorldLoopAttachments.wrappedTransformerOfReader(level), start,
+        return Math.sqrt(SeamRange.sqr(WorldLoopAttachments.wrappedFoldOfReader(level), start,
                 Vec3.atLowerCornerOf(end)));
     }
 
     @WrapMethod(method = "distanceFrom(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;)D")
     private static double exotic_worlds$pointDistanceThroughSeam(Level level, Vec3 start, Vec3 end,
             Operation<Double> original) {
-        return Math.sqrt(SeamRange.sqr(WorldLoopAttachments.wrappedTransformerOfReader(level), start, end));
+        return Math.sqrt(SeamRange.sqr(WorldLoopAttachments.wrappedFoldOfReader(level), start, end));
     }
 }

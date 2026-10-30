@@ -16,6 +16,6 @@ public class BlueprintReachMixin {
     @ModifyVariable(method = "canPlayerUse", at = @At("STORE"), ordinal = 0)
     private AABB exotic_worlds$foldBlueprintBox(AABB box, Player player) {
         return FoldedBoxQuery.toward(
-                WorldLoopAttachments.wrappedTransformerOfReader(player.level()), player.position(), box);
+                WorldLoopAttachments.wrappedFoldOfReader(player.level()), player.position(), box);
     }
 }

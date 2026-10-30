@@ -15,7 +15,7 @@ public final class RelativeKeyFold {
             return rawKey;
         }
 
-        return shortWay(WorldLoopAttachments.wrappedTransformerOfReader(level), owner, partner, rawKey);
+        return shortWay(WorldLoopAttachments.wrappedFoldOfReader(level), owner, partner, rawKey);
     }
 
     static BlockPos shortWay(@Nullable WorldFold fold, BlockPos owner, Vec3i partner, BlockPos rawKey) {
@@ -33,7 +33,7 @@ public final class RelativeKeyFold {
             return storedKey;
         }
 
-        return normalize(WorldLoopAttachments.wrappedTransformerOfReader(level), owner, storedKey);
+        return normalize(WorldLoopAttachments.wrappedFoldOfReader(level), owner, storedKey);
     }
 
     static BlockPos normalize(@Nullable WorldFold fold, BlockPos owner, BlockPos storedKey) {

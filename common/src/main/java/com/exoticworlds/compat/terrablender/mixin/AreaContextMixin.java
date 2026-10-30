@@ -15,24 +15,24 @@ import terrablender.worldgen.noise.PixelTransformer;
 @Mixin(value = AreaContext.class, remap = false)
 public class AreaContextMixin {
     @Unique
-    private static final String FOLD = "Lterrablender/worldgen/noise/PixelTransformer;";
+    private static final String TRANSFORMER = "Lterrablender/worldgen/noise/PixelTransformer;";
     @Unique
     private static final String AREA = "Lterrablender/worldgen/noise/Area;";
 
-    @ModifyReturnValue(method = "createResult(" + FOLD + ")" + AREA, at = @At("RETURN"))
+    @ModifyReturnValue(method = "createResult(" + TRANSFORMER + ")" + AREA, at = @At("RETURN"))
     private Area exotic_worlds$registerInitialLayer(Area area) {
         ((LayeredArea) (Object) area).exotic_worlds$register(new RegionLayerStack(), 0);
         return area;
     }
 
-    @ModifyReturnValue(method = "createResult(" + FOLD + AREA + ")" + AREA, at = @At("RETURN"))
-    private Area exotic_worlds$registerZoomLayer(Area area, PixelTransformer fold, Area parent) {
+    @ModifyReturnValue(method = "createResult(" + TRANSFORMER + AREA + ")" + AREA, at = @At("RETURN"))
+    private Area exotic_worlds$registerZoomLayer(Area area, PixelTransformer transformer, Area parent) {
         exotic_worlds$registerAbove(area, (LayeredArea) (Object) parent);
         return area;
     }
 
-    @ModifyReturnValue(method = "createResult(" + FOLD + AREA + AREA + ")" + AREA, at = @At("RETURN"))
-    private Area exotic_worlds$registerMergeLayer(Area area, PixelTransformer fold, Area first, Area second) {
+    @ModifyReturnValue(method = "createResult(" + TRANSFORMER + AREA + AREA + ")" + AREA, at = @At("RETURN"))
+    private Area exotic_worlds$registerMergeLayer(Area area, PixelTransformer transformer, Area first, Area second) {
         LayeredArea firstLayer = (LayeredArea) (Object) first;
         LayeredArea secondLayer = (LayeredArea) (Object) second;
         exotic_worlds$registerAbove(area, firstLayer.exotic_worlds$depth() >= secondLayer.exotic_worlds$depth() ? firstLayer : secondLayer);

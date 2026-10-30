@@ -16,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 public abstract class EntityFollowProjectileMixin {
     @ModifyExpressionValue(method = "tick()V", at = @At(value = "NEW", target = InjectionTargets.VEC3_NEW))
     private Vec3 exotic_worlds$targetDeltaThroughSeam(Vec3 delta) {
-        return NearestCopy.toward(WorldLoopAttachments.wrappedTransformerOfReader(((Entity) (Object) this).level()),
+        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(((Entity) (Object) this).level()),
                 Vec3.ZERO, delta);
     }
 }

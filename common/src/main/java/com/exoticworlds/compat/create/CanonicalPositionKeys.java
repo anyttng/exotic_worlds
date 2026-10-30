@@ -30,7 +30,7 @@ public final class CanonicalPositionKeys {
     }
 
     static @Nullable WorldFold wrappedFoldOf(@Nullable BlockGetter reader) {
-        return reader instanceof LevelReader levelReader ? WorldLoopAttachments.wrappedTransformerOfReader(levelReader) : null;
+        return reader instanceof LevelReader levelReader ? WorldLoopAttachments.wrappedFoldOfReader(levelReader) : null;
     }
 
     private static Object key(WorldFold fold, Object candidate) {

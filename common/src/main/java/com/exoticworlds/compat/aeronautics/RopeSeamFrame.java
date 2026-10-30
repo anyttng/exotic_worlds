@@ -33,7 +33,7 @@ import net.minecraft.world.phys.Vec3;
 public final class RopeSeamFrame {
     public static Vec3 seat(RopeStrandHolderBehavior owner, RopeStrandHolderBehavior target, Vec3 point) {
         Level level = owner.blockEntity.getLevel();
-        WorldFold fold = WorldLoopAttachments.wrappedTransformerOfReader(level);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOfReader(level);
         if (fold == null) {
             return point;
         }
@@ -48,7 +48,7 @@ public final class RopeSeamFrame {
 
     public static Vector3d seatAttachment(ServerRopeStrand strand, RopeAttachment attachment, ServerLevel level,
             Vector3d point) {
-        return seatAttachment(WorldLoopAttachments.wrappedTransformerOfReader(level), strand.getPoints(),
+        return seatAttachment(WorldLoopAttachments.wrappedFoldOfReader(level), strand.getPoints(),
                 attachment, point);
     }
 
@@ -95,7 +95,7 @@ public final class RopeSeamFrame {
             return;
         }
 
-        WorldFold fold = WorldLoopAttachments.wrappedTransformerOfReader(level);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOfReader(level);
         if (reseat(fold, strand.getPoints(), attachment, anchor) && strand.isActive() && system != null) {
             system.removeObject(strand);
             system.addObject(strand);

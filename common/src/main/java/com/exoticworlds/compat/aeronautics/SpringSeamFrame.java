@@ -12,7 +12,7 @@ import net.minecraft.world.level.Level;
 public final class SpringSeamFrame {
 
     public static Vector3d seat(@Nullable Level level, Vector3dc own, Vector3d partner) {
-        return seat(WorldLoopAttachments.wrappedTransformerOfReader(level), own, partner);
+        return seat(WorldLoopAttachments.wrappedFoldOfReader(level), own, partner);
     }
 
     static Vector3d seat(@Nullable WorldFold fold, Vector3dc own, Vector3d partner) {

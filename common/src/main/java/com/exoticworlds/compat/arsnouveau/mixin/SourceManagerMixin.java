@@ -28,7 +28,7 @@ public abstract class SourceManagerMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
     private boolean exotic_worlds$providerRangeThroughSeam(BlockPos provider, Vec3i asked, double range,
             Operation<Boolean> original, @Local(argsOnly = true) Level level) {
-        return SeamRange.sqr(WorldLoopAttachments.wrappedTransformerOfReader(level), provider, asked)
+        return SeamRange.sqr(WorldLoopAttachments.wrappedFoldOfReader(level), provider, asked)
                 < Mth.square(range);
     }
 }

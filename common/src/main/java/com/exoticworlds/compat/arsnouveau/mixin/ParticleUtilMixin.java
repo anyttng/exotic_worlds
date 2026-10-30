@@ -16,6 +16,6 @@ public abstract class ParticleUtilMixin {
     @WrapMethod(method = "beam(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/Level;)V")
     private static void exotic_worlds$beamEndNearStart(BlockPos to, BlockPos from, Level level,
             Operation<Void> original) {
-        original.call(NearestCopy.toward(WorldLoopAttachments.wrappedTransformerOfReader(level), from, to), from, level);
+        original.call(NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(level), from, to), from, level);
     }
 }

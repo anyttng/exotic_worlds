@@ -16,7 +16,7 @@ import net.minecraft.world.phys.AABB;
 
 public final class CreateSchematicFold {
     public static ItemStack anchoredNear(@Nullable Level level, BlockPos reference, ItemStack blueprint) {
-        return anchoredNear(WorldLoopAttachments.wrappedTransformerOfReader(level),
+        return anchoredNear(WorldLoopAttachments.wrappedFoldOfReader(level),
                 AllDataComponents.SCHEMATIC_ANCHOR, reference, blueprint);
     }
 
@@ -38,7 +38,7 @@ public final class CreateSchematicFold {
     }
 
     public static BlockPos visitedInSchematicFrame(@Nullable Level level, ItemStack blueprint, BlockPos visited) {
-        return visitedInSchematicFrame(WorldLoopAttachments.wrappedTransformerOfReader(level),
+        return visitedInSchematicFrame(WorldLoopAttachments.wrappedFoldOfReader(level),
                 AllDataComponents.SCHEMATIC_ANCHOR, blueprint, visited);
     }
 
@@ -53,7 +53,7 @@ public final class CreateSchematicFold {
     }
 
     public static AABB glueInScanFrame(@Nullable Level level, AABB scanBox, AABB glueBox) {
-        return FoldedBoxQuery.toward(WorldLoopAttachments.wrappedTransformerOfReader(level), scanBox.getCenter(),
+        return FoldedBoxQuery.toward(WorldLoopAttachments.wrappedFoldOfReader(level), scanBox.getCenter(),
                 glueBox);
     }
 
@@ -62,7 +62,7 @@ public final class CreateSchematicFold {
     }
 
     public static boolean regionExceedsWorld(@Nullable Level level, BlockPos first, BlockPos second) {
-        return regionExceedsWorld(WorldLoopAttachments.wrappedTransformerOfReader(level), first, second);
+        return regionExceedsWorld(WorldLoopAttachments.wrappedFoldOfReader(level), first, second);
     }
 
     static boolean regionExceedsWorld(@Nullable WorldFold fold, BlockPos first, BlockPos second) {

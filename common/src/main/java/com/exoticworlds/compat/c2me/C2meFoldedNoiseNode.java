@@ -56,13 +56,13 @@ public final class C2meFoldedNoiseNode extends GenericShiftedNoiseNode {
     }
 
     @Override
-    public AstNode transform(AstTransformer fold) {
-        AstNode transformedInputX = this.inputX.transform(fold);
-        AstNode transformedInputY = this.inputY.transform(fold);
-        AstNode transformedInputZ = this.inputZ.transform(fold);
-        AstNode transformedSlotX = this.slotX.transform(fold);
-        AstNode transformedSlotY = this.slotY.transform(fold);
-        AstNode transformedSlotZ = this.slotZ.transform(fold);
+    public AstNode transform(AstTransformer transformer) {
+        AstNode transformedInputX = this.inputX.transform(transformer);
+        AstNode transformedInputY = this.inputY.transform(transformer);
+        AstNode transformedInputZ = this.inputZ.transform(transformer);
+        AstNode transformedSlotX = this.slotX.transform(transformer);
+        AstNode transformedSlotY = this.slotY.transform(transformer);
+        AstNode transformedSlotZ = this.slotZ.transform(transformer);
         boolean unchanged = transformedInputX == this.inputX
                 && transformedInputY == this.inputY
                 && transformedInputZ == this.inputZ
@@ -70,7 +70,7 @@ public final class C2meFoldedNoiseNode extends GenericShiftedNoiseNode {
                 && transformedSlotY == this.slotY
                 && transformedSlotZ == this.slotZ;
 
-        return fold.transform(unchanged
+        return transformer.transform(unchanged
                 ? this
                 : new C2meFoldedNoiseNode(transformedInputX, transformedInputY, transformedInputZ, this.noise,
                         transformedSlotX, transformedSlotY, transformedSlotZ, this.slotAxes, this.horizontalScale,

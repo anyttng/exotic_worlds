@@ -18,7 +18,7 @@ import net.minecraft.world.level.Level;
 
 public final class CrafterGroupFold {
     public static BlockPos foldStoredDelta(Level level, BlockPos owner, BlockPos rawDelta) {
-        return foldStoredDelta(WorldLoopAttachments.wrappedTransformerOfReader(level), owner, rawDelta);
+        return foldStoredDelta(WorldLoopAttachments.wrappedFoldOfReader(level), owner, rawDelta);
     }
 
     static BlockPos foldStoredDelta(@Nullable WorldFold fold, BlockPos owner, BlockPos rawDelta) {

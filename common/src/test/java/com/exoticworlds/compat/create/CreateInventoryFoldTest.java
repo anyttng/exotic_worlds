@@ -104,7 +104,7 @@ class CreateInventoryFoldTest {
     }
 
     @Test
-    void twoIdentitiesOfOneBlockAreEqualWhicheverTransformerFoldedThem() {
+    void twoIdentitiesOfOneBlockAreEqualWhicheverFoldMadeThem() {
         InventoryIdentifier single = new InventoryIdentifier.Single(PAST_THE_BOUNDS);
         InventoryIdentifier folded = CreateInventoryFold.fold(PER_AXIS, single);
         InventoryIdentifier alsoFolded = CreateInventoryFold.fold(DECK_TORUS, single);
@@ -132,7 +132,7 @@ class CreateInventoryFoldTest {
     }
 
     @Test
-    void aLevelCarryingNoTransformerGivesTheIdentifierBackByIdentity() {
+    void aLevelCarryingNoFoldGivesTheIdentifierBackByIdentity() {
         InventoryIdentifier single = new InventoryIdentifier.Single(PAST_THE_BOUNDS);
 
         assertSame(single, CreateInventoryFold.fold((WorldFold) null, single));

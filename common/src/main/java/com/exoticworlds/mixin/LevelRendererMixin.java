@@ -29,7 +29,7 @@ public class LevelRendererMixin {
     private ClientLevel level;
 
     @WrapMethod(method = "renderSnowAndRain")
-    private void exotic_worlds$bindWeatherCurtainTransformer(LightTexture lightTexture, float partialTick,
+    private void exotic_worlds$bindWeatherCurtainFold(LightTexture lightTexture, float partialTick,
             double cameraX, double cameraY, double cameraZ, Operation<Void> original) {
         @Nullable WorldFold bounds = exotic_worlds$clientBounds();
         if (bounds == null) {
@@ -42,7 +42,7 @@ public class LevelRendererMixin {
     }
 
     @WrapMethod(method = "tickRain")
-    private void exotic_worlds$bindRainParticleTransformer(Camera camera, Operation<Void> original) {
+    private void exotic_worlds$bindRainParticleFold(Camera camera, Operation<Void> original) {
         @Nullable WorldFold bounds = exotic_worlds$clientBounds();
         if (bounds == null) {
             original.call(camera);

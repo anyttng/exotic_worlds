@@ -31,7 +31,7 @@ public class ContraptionColliderMixin {
                     target = "Lcom/simibubi/create/content/contraptions/ControlledContraptionEntity;getBoundingBox()Lnet/minecraft/world/phys/AABB;"))
     private static AABB exotic_worlds$otherContraptionBoxInThisFrame(AABB otherBounds, @Local(name = "world") Level level,
             @Local(name = "position") Vec3 position) {
-        return FoldedBoxQuery.toward(WorldLoopAttachments.wrappedTransformerOfReader(level), position, otherBounds);
+        return FoldedBoxQuery.toward(WorldLoopAttachments.wrappedFoldOfReader(level), position, otherBounds);
     }
 
     @ModifyExpressionValue(method = "collideBlocks",

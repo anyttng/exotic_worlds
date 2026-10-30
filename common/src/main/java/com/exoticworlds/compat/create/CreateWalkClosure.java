@@ -23,7 +23,7 @@ public final class CreateWalkClosure {
     private @Nullable BlockPos origin;
 
     public static @Nullable CreateWalkClosure of(LevelAccessor world) {
-        WorldFold fold = WorldLoopAttachments.wrappedTransformerOfReader(world);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOfReader(world);
         return fold == null ? null : new CreateWalkClosure(fold);
     }
 

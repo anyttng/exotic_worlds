@@ -16,7 +16,7 @@ public final class MergingGlueSeamFrame {
 
     public static void control(BlockEntity controller, BlockEntity partner, Runnable original) {
         Level level = controller.getLevel();
-        WorldFold fold = WorldLoopAttachments.wrappedTransformerOfReader(level);
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOfReader(level);
         SubLevel own = Sable.HELPER.getContaining(controller);
         SubLevel other = Sable.HELPER.getContaining(partner);
         if (fold == null || own == null || other == null) {
