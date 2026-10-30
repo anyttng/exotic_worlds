@@ -59,9 +59,17 @@ def shellMetadata = tasks.register('shellMetadata') {
     def outputDir = layout.buildDirectory.dir('shell')
     def neoforgePath = "META-INF/jarjar/${neoforgeJarName}"
     def fabricPath = "META-INF/jars/${fabricJarName}"
+    def neoforgeRange = "[${neo_version},)"
+    def minecraftRange = minecraft_version_range
+    def fabricLoaderRange = ">=${fabric_loader_version}"
+    def minecraftVersion = minecraft_version
     inputs.property('version', shellVersion)
     inputs.property('neoforgePath', neoforgePath)
     inputs.property('fabricPath', fabricPath)
+    inputs.property('neoforgeRange', neoforgeRange)
+    inputs.property('minecraftRange', minecraftRange)
+    inputs.property('fabricLoaderRange', fabricLoaderRange)
+    inputs.property('minecraftVersion', minecraftVersion)
     outputs.dir(outputDir)
 
     doLast {
@@ -79,6 +87,20 @@ modId="${shellId}"
 version="${shellVersion}"
 displayName="Exotic Worlds (NeoForge and Fabric)"
 description='''Carries the NeoForge and Fabric builds of Exotic Worlds; each loader loads its own.'''
+
+[[dependencies.${shellId}]]
+    modId="neoforge"
+    type="required"
+    versionRange="${neoforgeRange}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${shellId}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraftRange}"
+    ordering="NONE"
+    side="BOTH"
 """
 
         new File(root, 'META-INF/jarjar').mkdirs()
@@ -97,6 +119,7 @@ description='''Carries the NeoForge and Fabric builds of Exotic Worlds; each loa
                 description  : 'Carries the NeoForge and Fabric builds of Exotic Worlds; each loader loads its own.',
                 license      : modLicense,
                 environment  : '*',
+                depends      : [fabricloader: fabricLoaderRange, minecraft: minecraftVersion],
                 jars         : [[file: fabricPath]]]))
     }
 }
