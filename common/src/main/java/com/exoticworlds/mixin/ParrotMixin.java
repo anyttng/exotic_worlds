@@ -20,6 +20,7 @@ public class ParrotMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$jukeboxRangeThroughSeam(BlockPos jukeboxPos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan((Parrot) (Object) this, jukeboxPos, bodyPosition, distance);
+        return original.call(jukeboxPos, SeamRange.towardCenterOf((Parrot) (Object) this, jukeboxPos, bodyPosition),
+                distance);
     }
 }

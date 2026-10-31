@@ -21,6 +21,6 @@ public class EuclideanGameEventListenerRegistryMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
     private static double exotic_worlds$rangeThroughSeam(BlockPos listenerPos, Vec3i sourcePos, Operation<Double> original,
             @Local(argsOnly = true) ServerLevel level) {
-        return SeamRange.sqr(level, listenerPos, sourcePos);
+        return original.call(listenerPos, SeamRange.toward(level, listenerPos, sourcePos));
     }
 }

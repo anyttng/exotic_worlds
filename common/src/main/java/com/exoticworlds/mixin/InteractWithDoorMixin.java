@@ -32,7 +32,7 @@ public class InteractWithDoorMixin {
             expect = 2)
     private static boolean exotic_worlds$doorReachThroughSeam(BlockPos doorPos, Position bodyPosition, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) LivingEntity body) {
-        return SeamRange.closerToCenterThan(body, doorPos, bodyPosition, distance);
+        return original.call(doorPos, SeamRange.towardCenterOf(body, doorPos, bodyPosition), distance);
     }
 
     @ModifyExpressionValue(

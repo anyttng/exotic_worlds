@@ -4,8 +4,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.level.CurrentServer;
-import com.exoticworlds.engine.seam.SeamRange;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -23,7 +23,7 @@ public class GlobalPosMixin {
                     target = "Lnet/minecraft/core/BlockPos;distChessboard(Lnet/minecraft/core/Vec3i;)I"))
     private int exotic_worlds$chessboardThroughSeam(BlockPos stored, Vec3i asked, Operation<Integer> original,
             ResourceKey<Level> dimension) {
-        return SeamRange.chessboard(
-                WorldLoopAttachments.wrappedFoldOf(CurrentServer.get(), dimension), stored, asked);
+        return original.call(stored,
+                NearestCopy.toward(WorldLoopAttachments.wrappedFoldOf(CurrentServer.get(), dimension), stored, asked));
     }
 }

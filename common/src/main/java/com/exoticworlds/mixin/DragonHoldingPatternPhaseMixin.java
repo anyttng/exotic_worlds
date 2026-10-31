@@ -21,7 +21,8 @@ public class DragonHoldingPatternPhaseMixin {
                     target = InjectionTargets.BLOCK_POS_DIST_TO_CENTER_SQR))
     private double exotic_worlds$eggDistanceThroughSeam(BlockPos eggPos, Position playerPosition,
             Operation<Double> original) {
-        return SeamRange.sqr(((DragonPhaseAccessor) this).exotic_worlds$dragon(), Vec3.atCenterOf(eggPos), playerPosition);
+        return original.call(eggPos,
+                SeamRange.towardCenterOf(((DragonPhaseAccessor) this).exotic_worlds$dragon(), eggPos, playerPosition));
     }
 
     @WrapOperation(
@@ -29,6 +30,7 @@ public class DragonHoldingPatternPhaseMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO_SQR_XYZ))
     private double exotic_worlds$targetWindowThroughSeam(Vec3 target, double x, double y, double z,
             Operation<Double> original) {
-        return SeamRange.sqr(((DragonPhaseAccessor) this).exotic_worlds$dragon(), target, x, y, z);
+        Vec3 near = SeamRange.toward(((DragonPhaseAccessor) this).exotic_worlds$dragon(), target, new Vec3(x, y, z));
+        return original.call(target, near.x, near.y, near.z);
     }
 }

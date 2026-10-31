@@ -19,6 +19,6 @@ public class AbstractNautilusMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
     private boolean exotic_worlds$homeRestrictionThroughSeam(BlockPos home, Vec3i pos, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerThan((AbstractNautilus) (Object) this, home, pos, distance);
+        return original.call(home, SeamRange.toward((AbstractNautilus) (Object) this, home, pos), distance);
     }
 }

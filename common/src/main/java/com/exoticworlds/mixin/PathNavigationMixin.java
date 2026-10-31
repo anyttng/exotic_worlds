@@ -92,7 +92,7 @@ public class PathNavigationMixin implements NavigationShifter {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$replanRangeThroughSeam(BlockPos changedPos, Position middlePos, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan(this.mob, changedPos, middlePos, distance);
+        return original.call(changedPos, SeamRange.towardCenterOf(this.mob, changedPos, middlePos), distance);
     }
 
     @Override

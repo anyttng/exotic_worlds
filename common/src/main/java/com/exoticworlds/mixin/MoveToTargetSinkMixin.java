@@ -21,7 +21,7 @@ public class MoveToTargetSinkMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_MANHATTAN))
     private int exotic_worlds$arrivalDistanceThroughSeam(BlockPos targetPos, Vec3i bodyPos, Operation<Integer> original,
             @Local(argsOnly = true) Mob body) {
-        return SeamRange.manhattan(body, targetPos, bodyPos);
+        return original.call(targetPos, SeamRange.toward(body, targetPos, bodyPos));
     }
 
     @WrapOperation(
@@ -29,6 +29,6 @@ public class MoveToTargetSinkMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
     private double exotic_worlds$retargetDistanceThroughSeam(BlockPos targetPos, Vec3i lastTargetPos,
             Operation<Double> original, @Local(argsOnly = true) Mob body) {
-        return SeamRange.sqr(body, targetPos, lastTargetPos);
+        return original.call(targetPos, SeamRange.toward(body, targetPos, lastTargetPos));
     }
 }

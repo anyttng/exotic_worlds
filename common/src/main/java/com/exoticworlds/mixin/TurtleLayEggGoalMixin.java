@@ -26,6 +26,6 @@ public class TurtleLayEggGoalMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$nestingRangeThroughSeam(BlockPos homePos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan(this.turtle, homePos, bodyPosition, distance);
+        return original.call(homePos, SeamRange.towardCenterOf(this.turtle, homePos, bodyPosition), distance);
     }
 }

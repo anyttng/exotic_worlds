@@ -27,7 +27,7 @@ public interface PlayerDetectorMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
     private static boolean exotic_worlds$detectionRangeThroughSeam(BlockPos playerPos, Vec3i spawnerPos, double range,
             Operation<Boolean> original, @Local(argsOnly = true) Player player) {
-        return SeamRange.closerThan(player.level(), playerPos, spawnerPos, range);
+        return original.call(playerPos, SeamRange.toward(player, playerPos, spawnerPos), range);
     }
 
     @WrapMethod(method = "inLineOfSight")

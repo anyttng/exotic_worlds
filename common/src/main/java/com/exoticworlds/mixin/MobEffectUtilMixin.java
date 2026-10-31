@@ -22,6 +22,6 @@ public class MobEffectUtilMixin {
                     target = InjectionTargets.VEC3_CLOSER_THAN))
     private static boolean exotic_worlds$effectRadiusThroughSeam(Vec3 origin, Position playerPosition, double radius,
             Operation<Boolean> original, @Local(argsOnly = true) ServerPlayer player) {
-        return SeamRange.closerThan(player, origin, playerPosition, radius);
+        return original.call(origin, SeamRange.toward(player, origin, playerPosition), radius);
     }
 }

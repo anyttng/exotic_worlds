@@ -22,6 +22,6 @@ public class WardenSpawnTrackerMixin {
                     target = InjectionTargets.VEC3_CLOSER_THAN))
     private static boolean exotic_worlds$warningRangeThroughSeam(Vec3 playerPosition, Position shriekerOrigin,
             double distance, Operation<Boolean> original, @Local(argsOnly = true) ServerPlayer player) {
-        return SeamRange.closerThan(player, playerPosition, shriekerOrigin, distance);
+        return original.call(playerPosition, SeamRange.toward(player, playerPosition, shriekerOrigin), distance);
     }
 }
