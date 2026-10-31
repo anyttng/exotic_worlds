@@ -69,6 +69,9 @@
   "gui.exotic_worlds.custom_settings.overworld": "Oberwelt",
   "gui.exotic_worlds.custom_settings.nether": "Nether",
   "gui.exotic_worlds.custom_settings.end": "Das Ende",
+  "gui.exotic_worlds.custom_settings.mod_dimensions": "Mod-Dimensionen",
+  "gui.exotic_worlds.custom_settings.from_overworld": "Wie Oberwelt",
+  "gui.exotic_worlds.custom_settings.from_overworld.hint": "Übernimmt die Form der Oberwelt, skaliert mit dem Koordinatenmaßstab dieser Dimension; bleibt Normal, wo dabei keine ganze Breite herauskommt.",
 
   "gui.exotic_worlds.settings.title": "Einstellungen von Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Weltkopien auf der Vollbildkarte",

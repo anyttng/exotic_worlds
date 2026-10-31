@@ -69,6 +69,9 @@
   "gui.exotic_worlds.custom_settings.overworld": "Верхній світ",
   "gui.exotic_worlds.custom_settings.nether": "Незер",
   "gui.exotic_worlds.custom_settings.end": "Енд",
+  "gui.exotic_worlds.custom_settings.mod_dimensions": "Виміри модів",
+  "gui.exotic_worlds.custom_settings.from_overworld": "Від Верхнього світу",
+  "gui.exotic_worlds.custom_settings.from_overworld.hint": "Бере форму Верхнього світу в масштабі координат цього виміру; лишається Звичайною, якщо ширина тоді не виходить цілою.",
 
   "gui.exotic_worlds.settings.title": "Налаштування Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Копії світу на повноекранній мапі",

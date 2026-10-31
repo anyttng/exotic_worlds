@@ -9,6 +9,7 @@ import com.exoticworlds.client.shape.LoopSizeControls;
 import com.exoticworlds.client.shape.SizeControls;
 import com.exoticworlds.client.shape.SizeField;
 import com.exoticworlds.client.shape.cylinder.CylinderSettingsScreen;
+import com.exoticworlds.shape.custom.CustomStem;
 import com.exoticworlds.shape.custom.StemKind;
 import com.exoticworlds.shape.custom.VanillaDimension;
 
@@ -23,7 +24,7 @@ public final class DimensionSizeControls implements SizeControls {
     private static final String SIZE_Z_LABEL_KEY = "gui.exotic_worlds.toroidal_settings.size_z";
     private static final String INCOMPLETE = "Done waits for isComplete";
 
-    private final VanillaDimension dimension;
+    private final CustomStem dimension;
     private final StemKind kind;
     private final Runnable onChange;
 
@@ -31,7 +32,7 @@ public final class DimensionSizeControls implements SizeControls {
     private final @Nullable SizeField second;
     private Direction.Axis axis;
 
-    public DimensionSizeControls(VanillaDimension dimension, LoopSpans current, Runnable onChange) {
+    public DimensionSizeControls(CustomStem dimension, LoopSpans current, Runnable onChange) {
         this.dimension = dimension;
         this.kind = Objects.requireNonNull(StemKind.of(current), "A custom dimension holds a stated kind");
         this.onChange = onChange;

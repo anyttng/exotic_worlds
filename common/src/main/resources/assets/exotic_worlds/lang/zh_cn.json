@@ -69,6 +69,9 @@
   "gui.exotic_worlds.custom_settings.overworld": "主世界",
   "gui.exotic_worlds.custom_settings.nether": "下界",
   "gui.exotic_worlds.custom_settings.end": "末地",
+  "gui.exotic_worlds.custom_settings.mod_dimensions": "模组维度",
+  "gui.exotic_worlds.custom_settings.from_overworld": "跟随主世界",
+  "gui.exotic_worlds.custom_settings.from_overworld.hint": "按此维度的坐标缩放比例沿用主世界的形状；若得不到整数宽度，则保持普通。",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds 设置",
   "gui.exotic_worlds.settings.map_copies": "全屏地图上的世界副本",

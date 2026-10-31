@@ -69,6 +69,9 @@
   "gui.exotic_worlds.custom_settings.overworld": "Overworld",
   "gui.exotic_worlds.custom_settings.nether": "Nether",
   "gui.exotic_worlds.custom_settings.end": "End",
+  "gui.exotic_worlds.custom_settings.mod_dimensions": "Mod dimensions",
+  "gui.exotic_worlds.custom_settings.from_overworld": "From Overworld",
+  "gui.exotic_worlds.custom_settings.from_overworld.hint": "Takes the Overworld's shape, scaled by this dimension's coordinate scale; stays Normal where that gives no whole width.",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds Settings",
   "gui.exotic_worlds.settings.map_copies": "Fullscreen map copies",
