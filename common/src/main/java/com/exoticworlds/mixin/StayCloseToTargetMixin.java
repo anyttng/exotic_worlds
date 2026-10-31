@@ -21,6 +21,6 @@ public class StayCloseToTargetMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_CLOSER_THAN))
     private static boolean exotic_worlds$followReachThroughSeam(Vec3 bodyPosition, Position targetPosition, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) LivingEntity body) {
-        return SeamRange.closerThan(body, bodyPosition, targetPosition, distance);
+        return original.call(bodyPosition, SeamRange.toward(body, bodyPosition, targetPosition), distance);
     }
 }

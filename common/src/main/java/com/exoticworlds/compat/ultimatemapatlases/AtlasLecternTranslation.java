@@ -26,6 +26,7 @@ public final class AtlasLecternTranslation {
                     "[ew/ultimatemapatlases-compat] gate lectern_open_present")
             .probing("net/nanaky/moonlight/api/platform/network/ChannelHandler$PacketPayload.class",
                     "net/nanaky/ultimate_map_atlases/networking/C2S2COpenAtlasScreenPacket.class")
+            .requiring(UltimateMapAtlasesMixinPlugin.ULTIMATE_MAP_ATLASES)
             .build();
 
     public static void register() {

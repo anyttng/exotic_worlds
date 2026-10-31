@@ -5,10 +5,18 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URL;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
+import com.exoticworlds.compat.fixture.scan.FixtureCaller;
+import com.exoticworlds.compat.fixture.scan.FixtureScanPlugin;
+import com.exoticworlds.compat.fixture.shared.FixtureSharedFirst;
+import com.exoticworlds.compat.fixture.shared.FixtureSharedPlugin;
+import com.exoticworlds.compat.fixture.shared.FixtureSharedSecond;
+import com.exoticworlds.compat.fixture.shared.mixin.FixtureSharedFirstMixin;
+import com.exoticworlds.compat.fixture.shared.mixin.FixtureSharedSecondMixin;
 import com.mojang.logging.LogUtils;
 
 class ModPresenceTest {
@@ -142,6 +150,104 @@ class ModPresenceTest {
 
         assertEquals(1, loader.lookups, "the second admitted() answers from the value the first one probed");
         assertEquals(SHIPPED_CLASS, loader.asked, "the probe asks for the resource its gate names");
+    }
+
+    @Test
+    void aGateWhoseCompatClassesReachOnlyWhatTheModHasOpens() {
+        assertTrue(scanGate(ScanFixtures.SCAN_CONFIG).build(ScanFixtures.current()).admitted(),
+                "every class of the gate's package reaches only members the mod has");
+    }
+
+    @Test
+    void aCompatClassReachingAMemberTheModLacksClosesTheGate() {
+        assertFalse(scanGate(ScanFixtures.SCAN_CONFIG).build(ScanFixtures.older()).admitted(),
+                "a class outside the mixins calls a method the older mod lacks");
+    }
+
+    @Test
+    void aDeclaredOptionalHolderAndANestedGatesPackageAreNotRead() {
+        ModPresence gate = scanGate(ScanFixtures.SCAN_CONFIG).optional(ScanFixtures.OPTIONAL_HOLDER)
+                .build(ScanFixtures.withoutLater());
+
+        assertTrue(gate.admitted(), "only the optional holder and the nested gate's class name the missing class");
+        assertEquals(List.of(FixtureScanPlugin.class.getName(), FixtureCaller.class.getName()),
+                gate.scannedClasses(), "the gate reads its own package and leaves the nested one to its gate");
+    }
+
+    @Test
+    void anUndeclaredHolderOfAMissingClassClosesTheGate() {
+        assertFalse(scanGate(ScanFixtures.SCAN_CONFIG).build(ScanFixtures.withoutLater()).admitted(),
+                "the holder is read like every other class of the package");
+    }
+
+    @Test
+    void aNestedGateReadsItsOwnPackage() {
+        assertFalse(scanGate(ScanFixtures.NESTED_CONFIG).build(ScanFixtures.withoutLater()).admitted(),
+                "the nested gate's caller names the class the mod lacks");
+    }
+
+    @Test
+    void aGateCheckingTheModsPackagesClosesWithoutTheClassIndex() {
+        assertFalse(scanGate(ScanFixtures.SCAN_CONFIG).build(ScanFixtures.withoutIndex()).admitted(),
+                "a build without the index cannot say which classes the gate stands for");
+    }
+
+    @Test
+    void gatesSharingAConfigEachReadTheClassesTheyScanAndTheMixinsTheyCover() {
+        ModPresence first = firstSharedGate().build(ScanFixtures.withoutLater());
+        ModPresence second = secondSharedGate().build(ScanFixtures.withoutLater());
+
+        assertFalse(first.admitted(), "the first gate's class and mixin create the class the mod lacks");
+        assertTrue(second.admitted(), "the second gate reads neither of them");
+        assertEquals(List.of(FixtureSharedFirst.class.getName(), FixtureSharedFirstMixin.class.getName()),
+                first.scannedClasses(), "the class its scanning set takes and the mixin it covers");
+        assertEquals(List.of(FixtureSharedPlugin.class.getName(), FixtureSharedSecond.class.getName(),
+                        FixtureSharedSecondMixin.class.getName()), second.scannedClasses(),
+                "every other class of the root and the mixin it covers");
+    }
+
+    @Test
+    void aWithheldMixinIsNotRead() {
+        ModPresence gate = sharedGate(ScanFixtures.SHARED_FIRST_MIXIN)
+                .scanning(name -> false)
+                .withholding(ScanFixtures.SHARED_FIRST_MIXIN, () -> true)
+                .build(ScanFixtures.withoutLater());
+
+        assertTrue(gate.admitted(), "the withheld mixin is the gate's only class naming the class the mod lacks");
+        assertEquals(List.of(), gate.scannedClasses(), "a mixin never applied never runs its body");
+    }
+
+    @Test
+    void aGateWithoutAScanningSetOwnsItsWholeRoot() {
+        ModPresence gate = sharedGate(ScanFixtures.SHARED_FIRST_MIXIN).build(ScanFixtures.current());
+
+        assertEquals(List.of(FixtureSharedPlugin.class.getName(), FixtureSharedFirst.class.getName(),
+                        FixtureSharedSecond.class.getName(), FixtureSharedFirstMixin.class.getName(),
+                        FixtureSharedSecondMixin.class.getName()), gate.ownedClasses(),
+                "beside a sibling gate every class of the root then has two owners");
+    }
+
+    private static ModPresence.Builder firstSharedGate() {
+        return sharedGate(ScanFixtures.SHARED_FIRST_MIXIN).scanning(ScanFixtures.SHARED_FIRST::equals);
+    }
+
+    private static ModPresence.Builder secondSharedGate() {
+        return sharedGate(ScanFixtures.SHARED_SECOND_MIXIN)
+                .scanning(name -> !name.equals(ScanFixtures.SHARED_FIRST));
+    }
+
+    private static ModPresence.Builder sharedGate(String mixin) {
+        return ModPresence.gate(LOGGER, "[test-compat] gate shared_present")
+                .probing(SHIPPED_CLASS)
+                .checking(ScanFixtures.SHARED_CONFIG, mixin::equals)
+                .modPackages(ScanFixtures.MOD_PACKAGE);
+    }
+
+    private static ModPresence.Builder scanGate(String config) {
+        return ModPresence.gate(LOGGER, "[test-compat] gate scan_present")
+                .probing(SHIPPED_CLASS)
+                .checking(config)
+                .modPackages(ScanFixtures.MOD_PACKAGE);
     }
 
     private static final class CountingLoader extends ClassLoader {

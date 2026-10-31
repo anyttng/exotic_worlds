@@ -8,10 +8,12 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 
 public class JourneyMapMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final String JOURNEYMAP_PACKAGE = "journeymap/";
 
     private static final ModPresence JOURNEYMAP = ModPresence.gate(LOGGER, "[ew/jm-compat] gate jm_present")
             .probing("journeymap/client/JourneymapClient.class")
             .checking("exotic_worlds.compat.journeymap.mixins.json")
+            .modPackages(JOURNEYMAP_PACKAGE)
             .build();
 
     public JourneyMapMixinPlugin() {

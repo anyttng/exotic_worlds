@@ -8,11 +8,13 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 
 public class TerraBlenderMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final String TERRABLENDER_PACKAGE = "terrablender/";
 
     private static final ModPresence TERRABLENDER = ModPresence.gate(LOGGER,
                     "[ew/terrablender-compat] gate terrablender_present")
             .probing("terrablender/worldgen/noise/Area.class")
             .checking("exotic_worlds.compat.terrablender.mixins.json")
+            .modPackages(TERRABLENDER_PACKAGE)
             .build();
 
     public TerraBlenderMixinPlugin() {

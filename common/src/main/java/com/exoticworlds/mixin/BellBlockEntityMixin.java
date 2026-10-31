@@ -22,7 +22,7 @@ public class BellBlockEntityMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$hearingRangeThroughSeam(BlockPos bellPos, Position bodyPosition, double distance,
             Operation<Boolean> original, @Local LivingEntity body) {
-        return SeamRange.closerToCenterThan(body, bellPos, bodyPosition, distance);
+        return original.call(bellPos, SeamRange.towardCenterOf(body, bellPos, bodyPosition), distance);
     }
 
     @WrapOperation(
@@ -32,6 +32,6 @@ public class BellBlockEntityMixin {
             expect = 3)
     private static boolean exotic_worlds$raiderRangeThroughSeam(BlockPos bellPos, Position bodyPosition, double distance,
             Operation<Boolean> original, @Local LivingEntity body) {
-        return SeamRange.closerToCenterThan(body, bellPos, bodyPosition, distance);
+        return original.call(bellPos, SeamRange.towardCenterOf(body, bellPos, bodyPosition), distance);
     }
 }

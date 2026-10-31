@@ -25,6 +25,6 @@ public class BeeMixin {
             method = "pathfindRandomlyTowards",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_MANHATTAN))
     private int exotic_worlds$stepDistanceThroughSeam(BlockPos beePos, Vec3i targetPos, Operation<Integer> original) {
-        return SeamRange.manhattan((Bee) (Object) this, beePos, targetPos);
+        return original.call(beePos, SeamRange.toward((Bee) (Object) this, beePos, targetPos));
     }
 }

@@ -102,6 +102,23 @@ var xaeroLibJars = tasks.register('unpackXaeroLib', Sync) {
     into layout.buildDirectory.dir('xaerolib')
 }
 
+configurations {
+    journeymapApi
+}
+
+dependencies {
+    journeymapApi "maven.modrinth:journeymap:${journeymap_version}"
+}
+
+var journeymapApiJars = tasks.register('unpackJourneyMapApi', Sync) {
+    from(zipTree(configurations.journeymapApi.singleFile)) {
+        include 'META-INF/jarjar/journeymap-api-*.jar'
+        eachFile { it.relativePath = new RelativePath(true, it.name) }
+    }
+    includeEmptyDirs = false
+    into layout.buildDirectory.dir('journeymap-api')
+}
+
 // WorldWeaver's Fabric jar carries its modules as jar-in-jars; the biome-map fold mixins name its generator and math
 // types. Unpacked the same way, compile and test classpath alone.
 configurations {
@@ -203,6 +220,7 @@ dependencies {
     // The compat jars on the test runtime alone: every compat gate reads its mixins' targets from these class files,
     // and a config plugin cannot even load without IMixinConfigPlugin.
     testRuntimeOnly "maven.modrinth:journeymap:${journeymap_version}"
+    testRuntimeOnly files(journeymapApiJars).asFileTree.matching { include '*.jar' }
     testRuntimeOnly "maven.modrinth:xaeros-minimap:${xaero_minimap_version}"
     testRuntimeOnly "maven.modrinth:xaeros-world-map:${xaero_worldmap_version}"
     testRuntimeOnly files(xaeroLibJars).asFileTree.matching { include '*.jar' }
@@ -223,6 +241,39 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.junit.platform:junit-platform-launcher'
 }
+
+def compatIndexDir = layout.buildDirectory.dir('generated/compat-index')
+def compatIndex = tasks.register('compatIndex') {
+    def classesDir = sourceSets.main.java.classesDirectory
+    def compatConfigs = fileTree('src/main/resources') { include 'exotic_worlds.compat.*.mixins.json' }
+    def outputDir = compatIndexDir
+    inputs.dir(classesDir)
+    inputs.files(compatConfigs)
+    outputs.dir(outputDir)
+    doLast {
+        def root = classesDir.get().asFile.toPath()
+        def names = new TreeSet<String>()
+        compatConfigs.files.each { config ->
+            def plugin = new groovy.json.JsonSlurper().parse(config).plugin
+            if (plugin == null) {
+                return
+            }
+            def pluginPackage = root.resolve(plugin.substring(0, plugin.lastIndexOf('.')).replace('.', '/'))
+            if (java.nio.file.Files.isDirectory(pluginPackage)) {
+                java.nio.file.Files.walk(pluginPackage).withCloseable { files ->
+                    files.filter { it.toString().endsWith('.class') }.forEach { file ->
+                        def relative = root.relativize(file).toString().replace('\\', '/')
+                        names << relative.substring(0, relative.length() - '.class'.length())
+                    }
+                }
+            }
+        }
+        def index = outputDir.get().file('exotic_worlds.compat.classes.txt').asFile.toPath()
+        java.nio.file.Files.createDirectories(index.parent)
+        java.nio.file.Files.writeString(index, names.collect { it + '\n' }.join(''))
+    }
+}
+sourceSets.main.output.dir(compatIndexDir.get().asFile, builtBy: compatIndex)
 
 test {
     useJUnitPlatform()

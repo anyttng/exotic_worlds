@@ -22,7 +22,7 @@ public class SetWalkTargetAwayFromMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_CLOSER_THAN))
     private static boolean exotic_worlds$avoidReachThroughSeam(Vec3 bodyPosition, Position avoidPosition, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) PathfinderMob body) {
-        return SeamRange.closerThan(body, bodyPosition, avoidPosition, distance);
+        return original.call(bodyPosition, SeamRange.toward(body, bodyPosition, avoidPosition), distance);
     }
 
     @WrapOperation(
