@@ -8,10 +8,12 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 
 public class ReTerraForgedMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final String RETERRAFORGED_PACKAGE = "raccoonman/reterraforged/";
 
     private static final ModPresence RETERRAFORGED = ModPresence.gate(LOGGER, "[ew/reterraforged-compat] gate reterraforged_present")
             .probing("raccoonman/reterraforged/world/worldgen/cell/heightmap/Heightmap.class")
             .checking("exotic_worlds.compat.reterraforged.mixins.json")
+            .modPackages(RETERRAFORGED_PACKAGE)
             .build();
 
     public ReTerraForgedMixinPlugin() {

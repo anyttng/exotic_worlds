@@ -11,6 +11,8 @@ public class ElectroEnergeticsMixinPlugin extends ModPresenceGatePlugin {
                     "[ew/electroenergetics-compat] gate spawn_guard_present")
             .probing("com/george_vi/electroenergetics/foundation/device/SpawnPreventingDevice.class")
             .checking(CONFIG, ElectroEnergeticsMod.SPAWN_GUARD_MIXIN::equals)
+            .modPackages(ElectroEnergeticsMod.ELECTROENERGETICS_PACKAGE)
+            .scanning(name -> false)
             .build();
 
     public ElectroEnergeticsMixinPlugin() {

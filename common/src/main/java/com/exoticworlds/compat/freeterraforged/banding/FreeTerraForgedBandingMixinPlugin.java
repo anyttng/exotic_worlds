@@ -8,11 +8,13 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 
 public class FreeTerraForgedBandingMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final String FREETERRAFORGED_PACKAGE = "etcodehome/freeterraforged/";
 
     private static final ModPresence BANDING = ModPresence.gate(LOGGER,
                     "[ew/freeterraforged-compat] gate freeterraforged_banding_present")
             .probing("etcodehome/freeterraforged/world/worldgen/biome/UndergroundBiomeBanding.class")
             .checking("exotic_worlds.compat.freeterraforged.banding.mixins.json")
+            .modPackages(FREETERRAFORGED_PACKAGE)
             .build();
 
     public FreeTerraForgedBandingMixinPlugin() {

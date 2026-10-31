@@ -8,11 +8,13 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 
 public class FreeTerraForgedPreviewMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final String FREETERRAFORGED_PACKAGE = "etcodehome/freeterraforged/";
 
     private static final ModPresence PREVIEW = ModPresence.gate(LOGGER,
                     "[ew/freeterraforged-compat] gate freeterraforged_preview_present")
             .probing("etcodehome/freeterraforged/client/gui/screen/presetconfig/IPreviewHandler.class")
             .checking("exotic_worlds.compat.freeterraforged.preview.mixins.json")
+            .modPackages(FREETERRAFORGED_PACKAGE)
             .build();
 
     public FreeTerraForgedPreviewMixinPlugin() {
