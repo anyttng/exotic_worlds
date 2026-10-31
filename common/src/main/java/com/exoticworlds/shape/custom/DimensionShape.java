@@ -19,7 +19,7 @@ public record DimensionShape(@Nullable LoopSpans spans, GenerationOptions option
         return Objects.requireNonNull(StemKind.of(this.spans), "A stem kind was checked in the constructor");
     }
 
-    public DimensionShape withKind(StemKind kind, VanillaDimension dimension) {
+    public DimensionShape withKind(StemKind kind, CustomStem dimension) {
         return new DimensionShape(kind.respan(this.spans, dimension.defaultChunkWidth()), this.options);
     }
 }

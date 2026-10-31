@@ -19,6 +19,7 @@ public final class TorusDimensions {
     public static @Nullable TorusSettings read(WorldDimensions dimensions) {
         LoopSpans overworld = ShapeStems.spansOf(dimensions, LevelStem.OVERWORLD, TorusSettings::isTorus);
         if (overworld == null
+                || ShapeStems.carriesDimensionTable(dimensions)
                 || !ShapeStems.isOwnOrAbsent(dimensions, LevelStem.NETHER, TorusSettings::isTorus)
                 || !ShapeStems.isOwnOrAbsent(dimensions, LevelStem.END, TorusSettings::isTorus)) {
             return null;

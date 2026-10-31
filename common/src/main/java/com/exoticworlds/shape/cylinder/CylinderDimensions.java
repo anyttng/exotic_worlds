@@ -21,7 +21,7 @@ public final class CylinderDimensions {
 
     public static @Nullable CylinderSettings read(WorldDimensions dimensions) {
         LoopSpans overworld = ShapeStems.spansOf(dimensions, LevelStem.OVERWORLD, CylinderSettings::isCylinder);
-        if (overworld == null) {
+        if (overworld == null || ShapeStems.carriesDimensionTable(dimensions)) {
             return null;
         }
 
