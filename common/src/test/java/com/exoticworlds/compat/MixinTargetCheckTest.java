@@ -109,7 +109,7 @@ class MixinTargetCheckTest {
 
     @Test
     void aMixinClassThatIsNotThereIsRefused() {
-        List<Refusal> refusals = new MixinTargetCheck(LOADER, Map.of())
+        List<Refusal> refusals = new MixinTargetCheck(new ClassFiles(LOADER), Map.of())
                 .check("com.exoticworlds.compat.fixture.NoSuchMixin");
 
         assertEquals(1, refusals.size());
@@ -123,6 +123,6 @@ class MixinTargetCheckTest {
     }
 
     private static List<Refusal> check(Class<?> fixture, Map<String, String> bodySources) {
-        return new MixinTargetCheck(LOADER, bodySources).check(fixture.getName());
+        return new MixinTargetCheck(new ClassFiles(LOADER), bodySources).check(fixture.getName());
     }
 }

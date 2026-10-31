@@ -8,10 +8,12 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 
 public class DhMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final String DH_PACKAGE = "com/seibel/distanthorizons/";
 
     private static final ModPresence DH = ModPresence.gate(LOGGER, "[ew/dh-compat] gate distanthorizons_present")
             .probing("com/seibel/distanthorizons/core/api/internal/ClientApi.class")
             .checking("exotic_worlds.compat.distanthorizons.mixins.json")
+            .modPackages(DH_PACKAGE)
             .build();
 
     public DhMixinPlugin() {
