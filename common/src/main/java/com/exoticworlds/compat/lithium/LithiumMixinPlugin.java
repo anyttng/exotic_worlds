@@ -14,6 +14,7 @@ public class LithiumMixinPlugin extends ModPresenceGatePlugin {
 
     private static final String CONFIG = "exotic_worlds.compat.lithium.mixins.json";
     private static final String CLASS_SUFFIX = ".class";
+    private static final String LITHIUM_PACKAGE = "net/caffeinemc/mods/lithium/";
 
     private static final String STORE_KEY_MIXIN = "GameEventDispatchKeyMixin";
     private static final String CLOSEST_BATCH_MIXIN = "PoiClosestBatchMixin";
@@ -23,6 +24,8 @@ public class LithiumMixinPlugin extends ModPresenceGatePlugin {
     private static final ModPresence LITHIUM = ModPresence.gate(LOGGER, "[ew/lithium-compat] gate lithium_present")
             .probing("net/caffeinemc/mods/lithium/common/tracking/entity/SectionedEntityMovementTracker.class")
             .checking(CONFIG, mixin -> !OPTION_MIXINS.contains(mixin))
+            .modPackages(LITHIUM_PACKAGE)
+            .scanning(name -> true)
             .build();
 
     static final ModPresence STORE_KEY_GATE = optionGate("[ew/lithium-compat] gate game_events_dispatch_present",
@@ -65,6 +68,8 @@ public class LithiumMixinPlugin extends ModPresenceGatePlugin {
                 .probing(lithiumMixinClass + CLASS_SUFFIX)
                 .checking(CONFIG, mixin::equals)
                 .bodyFrom(mixin, lithiumMixinClass)
+                .modPackages(LITHIUM_PACKAGE)
+                .scanning(name -> false)
                 .build();
     }
 }
