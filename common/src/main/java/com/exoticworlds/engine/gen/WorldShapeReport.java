@@ -40,21 +40,19 @@ public final class WorldShapeReport {
 
     public static List<Line> lines(MinecraftServer server) {
         FlatShape overworldShape = shapeOf(server.overworld());
-        if (overworldShape == null) {
-            return List.of();
-        }
-
         List<Line> lines = new ArrayList<>();
+        boolean anyWrapped = false;
         for (ServerLevel level : server.getAllLevels()) {
             FlatShape shape = shapeOf(level);
             if (shape != null) {
+                anyWrapped = true;
                 lines.add(wrappedLine(server, level, shape));
             } else {
                 lines.add(new Line(false, unwrappedLine(server, level, overworldShape)));
             }
         }
 
-        return lines;
+        return anyWrapped ? lines : List.of();
     }
 
     private static Line wrappedLine(MinecraftServer server, ServerLevel level, FlatShape shape) {
@@ -77,18 +75,22 @@ public final class WorldShapeReport {
                 + tail());
     }
 
-    private static String unwrappedLine(MinecraftServer server, ServerLevel level, FlatShape overworldShape) {
+    private static String unwrappedLine(MinecraftServer server, ServerLevel level, @Nullable FlatShape overworldShape) {
+        return "World shape: " + level.dimension().location() + " not wrapped"
+                + " generator=" + generatorId(level.getChunkSource().getGenerator())
+                + ", " + (overworldShape == null ? "neither it nor the overworld carries a shape"
+                        : underivedReason(server, level, overworldShape))
+                + tail();
+    }
+
+    private static String underivedReason(MinecraftServer server, ServerLevel level, FlatShape overworldShape) {
         double overworldScale = server.overworld().dimensionType().coordinateScale();
         double scale = level.dimensionType().coordinateScale();
         FlatShape derived = ShapedDimensions.derivedShape(overworldShape, overworldScale, scale);
-        String reason = derived == null
+        return derived == null
                 ? "coordinate scale " + scale + " derives no whole-chunk width in range or whole-chunk skew from the"
                         + " overworld's " + widths(overworldShape.bounds()) + skew(overworldShape)
                 : "a derivable " + widths(derived.bounds()) + " never reached the generator";
-        return "World shape: " + level.dimension().location() + " not wrapped"
-                + " generator=" + generatorId(level.getChunkSource().getGenerator())
-                + ", " + reason
-                + tail();
     }
 
     private static String seamTerrain(ChunkGenerator generator) {

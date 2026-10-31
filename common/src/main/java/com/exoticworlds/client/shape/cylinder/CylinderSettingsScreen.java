@@ -18,10 +18,11 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 
-public class CylinderSettingsScreen extends LoopSettingsScreen<CylinderSettings> {
+public class CylinderSettingsScreen extends LoopSettingsScreen<CylinderSettings, LoopSizeControls> {
     private static final Component TITLE = Component.translatable("gui.exotic_worlds.cylinder_settings.title");
-    private static final Component AXIS_LABEL = Component.translatable("gui.exotic_worlds.cylinder_settings.axis");
-    private static final Component AXIS_HINT = Component.translatable("gui.exotic_worlds.cylinder_settings.axis_hint");
+    public static final Component AXIS_LABEL = Component.translatable("gui.exotic_worlds.cylinder_settings.axis");
+    public static final Component AXIS_HINT =
+            Component.translatable("gui.exotic_worlds.cylinder_settings.axis_hint");
 
     private Direction.Axis axis;
 
@@ -61,7 +62,7 @@ public class CylinderSettingsScreen extends LoopSettingsScreen<CylinderSettings>
         this.onControlsChanged();
     }
 
-    private static Component axisName(Direction.Axis axis) {
+    public static Component axisName(Direction.Axis axis) {
         return Component.literal(axis.getName().toUpperCase(Locale.ROOT));
     }
 

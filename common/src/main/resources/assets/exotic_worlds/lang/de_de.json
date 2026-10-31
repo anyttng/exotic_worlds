@@ -15,6 +15,8 @@
   "gui.exotic_worlds.world_shape.toroidal.hint": "Schließt sich von Ost nach West und von Nord nach Süd. Wer weit genug in eine Richtung geht, kommt am Ausgangspunkt wieder an.",
   "gui.exotic_worlds.world_shape.cylinder": "Zylindrisch",
   "gui.exotic_worlds.world_shape.cylinder.hint": "Eine horizontale Achse schließt sich, die andere geht wie in Vanilla endlos weiter.",
+  "gui.exotic_worlds.world_shape.custom": "Benutzerdefiniert",
+  "gui.exotic_worlds.world_shape.custom.hint": "Wähle für Oberwelt, Nether und Ende jeweils eine eigene Form.",
   "gui.exotic_worlds.world_shape.seam_warning": "Dieser Welttyp bringt einen eigenen Weltgenerator mit: Eine Weltform begrenzt die Welt und schließt sie zur Schleife, aber das Gelände passt am Weltrand nicht zusammen.",
 
   "gui.exotic_worlds.toroidal_settings.title": "Einstellungen der toroidalen Welt",
@@ -64,6 +66,12 @@
   "gui.exotic_worlds.cylinder_settings.title": "Einstellungen der zylindrischen Welt",
   "gui.exotic_worlds.cylinder_settings.axis": "Schleifenachse",
   "gui.exotic_worlds.cylinder_settings.axis_hint": "Die Welt schließt sich entlang dieser Achse und geht entlang der anderen endlos weiter.",
+
+  "gui.exotic_worlds.custom_settings.title": "Benutzerdefinierte Welteinstellungen",
+  "gui.exotic_worlds.custom_settings.vanilla_dimensions": "Vanilla-Dimensionen",
+  "gui.exotic_worlds.custom_settings.overworld": "Oberwelt",
+  "gui.exotic_worlds.custom_settings.nether": "Nether",
+  "gui.exotic_worlds.custom_settings.end": "Das Ende",
 
   "gui.exotic_worlds.settings.title": "Einstellungen von Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Weltkopien auf der Vollbildkarte",

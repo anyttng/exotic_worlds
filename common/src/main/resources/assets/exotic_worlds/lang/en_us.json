@@ -15,6 +15,8 @@
   "gui.exotic_worlds.world_shape.toroidal.hint": "Loops east to west and north to south. Walk far enough in any direction and you return to where you started.",
   "gui.exotic_worlds.world_shape.cylinder": "Cylinder",
   "gui.exotic_worlds.world_shape.cylinder.hint": "One horizontal axis loops, the other goes on forever like vanilla.",
+  "gui.exotic_worlds.world_shape.custom": "Custom",
+  "gui.exotic_worlds.world_shape.custom.hint": "Pick a shape for the Overworld, the Nether and the End one by one.",
   "gui.exotic_worlds.world_shape.seam_warning": "This world type brings a world generator of its own: a World Shape still bounds and loops the world, but the terrain will not line up at the world's edge.",
 
   "gui.exotic_worlds.toroidal_settings.title": "Toroidal World Settings",
@@ -64,6 +66,12 @@
   "gui.exotic_worlds.cylinder_settings.title": "Cylinder World Settings",
   "gui.exotic_worlds.cylinder_settings.axis": "Looping axis",
   "gui.exotic_worlds.cylinder_settings.axis_hint": "The world loops along this axis and goes on forever along the other.",
+
+  "gui.exotic_worlds.custom_settings.title": "Custom World Settings",
+  "gui.exotic_worlds.custom_settings.vanilla_dimensions": "Vanilla dimensions",
+  "gui.exotic_worlds.custom_settings.overworld": "Overworld",
+  "gui.exotic_worlds.custom_settings.nether": "Nether",
+  "gui.exotic_worlds.custom_settings.end": "End",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds Settings",
   "gui.exotic_worlds.settings.map_copies": "Fullscreen map copies",

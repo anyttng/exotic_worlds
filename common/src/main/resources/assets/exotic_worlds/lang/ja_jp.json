@@ -15,6 +15,8 @@
   "gui.exotic_worlds.world_shape.toroidal.hint": "東西にも南北にもループします。どの方向でも十分に進めば出発地点に戻ってきます。",
   "gui.exotic_worlds.world_shape.cylinder": "円筒形",
   "gui.exotic_worlds.world_shape.cylinder.hint": "水平な軸の一方がループし、もう一方は通常のワールドと同じく無限に続きます。",
+  "gui.exotic_worlds.world_shape.custom": "カスタム",
+  "gui.exotic_worlds.world_shape.custom.hint": "オーバーワールド、ネザー、エンドの形状をそれぞれ選べます。",
   "gui.exotic_worlds.world_shape.seam_warning": "このワールドタイプは独自のワールドジェネレーターを使います。ワールドの形状でワールドの範囲とループは適用されますが、ワールドの端で地形はつながりません。",
 
   "gui.exotic_worlds.toroidal_settings.title": "トロイダルワールド設定",
@@ -64,6 +66,12 @@
   "gui.exotic_worlds.cylinder_settings.title": "円筒形ワールド設定",
   "gui.exotic_worlds.cylinder_settings.axis": "ループする軸",
   "gui.exotic_worlds.cylinder_settings.axis_hint": "ワールドはこの軸に沿ってループし、もう一方の軸に沿っては無限に続きます。",
+
+  "gui.exotic_worlds.custom_settings.title": "カスタムワールド設定",
+  "gui.exotic_worlds.custom_settings.vanilla_dimensions": "標準のディメンション",
+  "gui.exotic_worlds.custom_settings.overworld": "オーバーワールド",
+  "gui.exotic_worlds.custom_settings.nether": "ネザー",
+  "gui.exotic_worlds.custom_settings.end": "ジ・エンド",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds 設定",
   "gui.exotic_worlds.settings.map_copies": "全画面マップのワールドのコピー",

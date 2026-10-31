@@ -15,6 +15,8 @@
   "gui.exotic_worlds.world_shape.toroidal.hint": "东西方向和南北方向都循环。朝任意方向走得足够远，就会回到出发的地方。",
   "gui.exotic_worlds.world_shape.cylinder": "圆柱面",
   "gui.exotic_worlds.world_shape.cylinder.hint": "一条水平轴循环，另一条像普通世界一样无限延伸。",
+  "gui.exotic_worlds.world_shape.custom": "自定义",
+  "gui.exotic_worlds.world_shape.custom.hint": "分别为主世界、下界和末地选择形状。",
   "gui.exotic_worlds.world_shape.seam_warning": "此世界类型使用自己的世界生成器：世界形状仍会限定世界范围并使其循环，但地形在世界边缘处不会衔接。",
 
   "gui.exotic_worlds.toroidal_settings.title": "环面世界设置",
@@ -64,6 +66,12 @@
   "gui.exotic_worlds.cylinder_settings.title": "圆柱面世界设置",
   "gui.exotic_worlds.cylinder_settings.axis": "循环轴",
   "gui.exotic_worlds.cylinder_settings.axis_hint": "世界沿此轴循环，沿另一轴则无限延伸。",
+
+  "gui.exotic_worlds.custom_settings.title": "自定义世界设置",
+  "gui.exotic_worlds.custom_settings.vanilla_dimensions": "原版维度",
+  "gui.exotic_worlds.custom_settings.overworld": "主世界",
+  "gui.exotic_worlds.custom_settings.nether": "下界",
+  "gui.exotic_worlds.custom_settings.end": "末地",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds 设置",
   "gui.exotic_worlds.settings.map_copies": "全屏地图上的世界副本",
