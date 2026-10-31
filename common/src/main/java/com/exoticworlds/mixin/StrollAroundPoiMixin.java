@@ -22,6 +22,6 @@ public class StrollAroundPoiMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private static boolean exotic_worlds$poiTetherThroughSeam(BlockPos poiPos, Position bodyPosition, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) PathfinderMob body) {
-        return SeamRange.closerToCenterThan(body, poiPos, bodyPosition, distance);
+        return original.call(poiPos, SeamRange.towardCenterOf(body, poiPos, bodyPosition), distance);
     }
 }

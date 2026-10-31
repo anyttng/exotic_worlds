@@ -21,6 +21,6 @@ public class SetWalkTargetFromBlockMemoryMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_MANHATTAN))
     private static int exotic_worlds$memoryDistanceThroughSeam(BlockPos from, Vec3i to, Operation<Integer> original,
             @Local(argsOnly = true) Villager body) {
-        return SeamRange.manhattan(body, from, to);
+        return original.call(from, SeamRange.toward(body, from, to));
     }
 }

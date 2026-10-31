@@ -22,6 +22,6 @@ public class AssignProfessionFromJobSiteMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private static boolean exotic_worlds$jobSiteReachThroughSeam(BlockPos jobSitePos, Position bodyPosition, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) Villager body) {
-        return SeamRange.closerToCenterThan(body, jobSitePos, bodyPosition, distance);
+        return original.call(jobSitePos, SeamRange.towardCenterOf(body, jobSitePos, bodyPosition), distance);
     }
 }

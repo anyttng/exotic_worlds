@@ -20,6 +20,6 @@ public class GoAndGiveItemsToTargetMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO))
     private double exotic_worlds$depositDistanceThroughSeam(Vec3 depositPosition, Vec3 eyePosition,
             Operation<Double> original, @Local(argsOnly = true) LivingEntity body) {
-        return Math.sqrt(SeamRange.sqr(body, depositPosition, eyePosition));
+        return original.call(depositPosition, SeamRange.toward(body, depositPosition, eyePosition));
     }
 }

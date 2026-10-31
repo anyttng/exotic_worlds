@@ -12,7 +12,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Position;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.Vec3;
 import net.nanaky.ultimate_map_atlases.utils.MapDataHolder;
 
 @Mixin(MapDataHolder.class)
@@ -22,6 +21,6 @@ public class MapDataHolderMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_TO_CENTER_SQR))
     private double exotic_worlds$markerToPlayerAcrossSeam(BlockPos marker, Position position,
             Operation<Double> original, @Local(argsOnly = true) Player player) {
-        return SeamRange.sqr(player, Vec3.atCenterOf(marker), position);
+        return original.call(marker, SeamRange.towardCenterOf(player, marker, position));
     }
 }
