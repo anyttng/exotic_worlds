@@ -8,10 +8,12 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 
 public class BetterEndMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final String BETTERX_PACKAGE = "org/betterx/";
 
     private static final ModPresence BETTER_END = ModPresence.gate(LOGGER, "[ew/betterend-compat] gate betterend_present")
             .probing("org/betterx/betterend/world/generator/TerrainGenerator.class")
             .checking("exotic_worlds.compat.betterend.mixins.json")
+            .modPackages(BETTERX_PACKAGE)
             .build();
 
     public BetterEndMixinPlugin() {

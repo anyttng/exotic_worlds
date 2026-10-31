@@ -9,11 +9,15 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 
 public class C2meMixinPlugin extends ModPresenceGatePlugin {
     static final String CONFIG = "exotic_worlds.compat.c2me.mixins.json";
+    static final String C2ME_PACKAGE = "com/ishland/c2me/";
+    static final String FLOWSCHED_PACKAGE = "com/ishland/flowsched/";
 
     static final ModPresence AQUIFER_GATE = ModPresence.gate(LogUtils.getLogger(),
                     "[ew/c2me-compat] gate aquifer_handler_present")
             .probing("com/ishland/c2me/opts/worldgen/vanilla/mixin/aquifer/MixinAquiferSamplerImpl.class")
             .checking(CONFIG, C2meAquifer.MIXIN::equals)
+            .modPackages(C2ME_PACKAGE, FLOWSCHED_PACKAGE)
+            .scanning(C2meAquifer.class.getSimpleName()::equals)
             .build();
 
     public C2meMixinPlugin() {

@@ -458,6 +458,41 @@ dependencies {
     testImplementation 'org.junit.platform:junit-platform-launcher'
 }
 
+def compatIndexDir = layout.buildDirectory.dir('generated/compat-index')
+def compatIndex = tasks.register('compatIndex') {
+    def classesDir = sourceSets.main.java.classesDirectory
+    def compatConfigs = sourceSets.main.resources.sourceDirectories.asFileTree.matching {
+        include 'exotic_worlds.compat.*.mixins.json'
+    }
+    def outputDir = compatIndexDir
+    inputs.dir(classesDir)
+    inputs.files(compatConfigs)
+    outputs.dir(outputDir)
+    doLast {
+        def root = classesDir.get().asFile.toPath()
+        def names = new TreeSet<String>()
+        compatConfigs.files.each { config ->
+            def plugin = new groovy.json.JsonSlurper().parse(config).plugin
+            if (plugin == null) {
+                return
+            }
+            def pluginPackage = root.resolve(plugin.substring(0, plugin.lastIndexOf('.')).replace('.', '/'))
+            if (java.nio.file.Files.isDirectory(pluginPackage)) {
+                java.nio.file.Files.walk(pluginPackage).withCloseable { files ->
+                    files.filter { it.toString().endsWith('.class') }.forEach { file ->
+                        def relative = root.relativize(file).toString().replace('\\', '/')
+                        names << relative.substring(0, relative.length() - '.class'.length())
+                    }
+                }
+            }
+        }
+        def index = outputDir.get().file('exotic_worlds.compat.classes.txt').asFile.toPath()
+        java.nio.file.Files.createDirectories(index.parent)
+        java.nio.file.Files.writeString(index, names.collect { it + '\n' }.join(''))
+    }
+}
+sourceSets.main.output.dir(compatIndexDir.get().asFile, builtBy: compatIndex)
+
 test {
     useJUnitPlatform()
     // UnreachedMembersTest reads every module's compiled classes, so they are current before it runs.

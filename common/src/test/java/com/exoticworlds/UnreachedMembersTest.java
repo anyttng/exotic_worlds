@@ -69,7 +69,10 @@ class UnreachedMembersTest {
             "engine.net.PacketTranslator.toClient",
             "engine.net.PacketTranslator.toServer",
             "accessors.FoldedClimateSampler.exotic_worlds$fold",
-            "compat.reterraforged.LapCarrier.exotic_worlds$fold");
+            "compat.reterraforged.LapCarrier.exotic_worlds$fold",
+            "compat.ModPresence.ownedClasses",
+            "compat.ModPresence.scannedClasses",
+            "compat.ModPresence.optional");
     private static final Set<String> MAIN_FORM_FOR_SHARED_TESTS = Set.of(
             "core.DeckGroupFold.<init>",
             "core.WorldLoopFold.<init>",

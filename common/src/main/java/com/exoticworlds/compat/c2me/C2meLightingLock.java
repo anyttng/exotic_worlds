@@ -15,6 +15,8 @@ public final class C2meLightingLock {
             .probing(OVERWRITE_RESOURCE, "ca/spottedleaf/starlight/common/thread/SchedulingUtil.class")
             .checking(C2meMixinPlugin.CONFIG, MIXIN::equals)
             .bodyFrom(MIXIN, OVERWRITE_CLASS)
+            .modPackages(C2meMixinPlugin.C2ME_PACKAGE, C2meMixinPlugin.FLOWSCHED_PACKAGE)
+            .scanning(C2meLightingLock.class.getSimpleName()::equals)
             .build();
 
     private C2meLightingLock() {

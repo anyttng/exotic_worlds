@@ -1,0 +1,8 @@
+{
+  "package": "com.exoticworlds.compat.fixture.shared.mixin",
+  "plugin": "com.exoticworlds.compat.fixture.shared.FixtureSharedPlugin",
+  "mixins": [
+    "FixtureSharedFirstMixin",
+    "FixtureSharedSecondMixin"
+  ]
+}

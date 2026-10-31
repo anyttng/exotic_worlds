@@ -8,10 +8,12 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 
 public class SodiumMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final String SODIUM_PACKAGE = "net/caffeinemc/mods/sodium/";
 
     private static final ModPresence SODIUM = ModPresence.gate(LOGGER, "[ew/sodium-compat] gate sodium_present")
             .probing("net/caffeinemc/mods/sodium/client/render/chunk/compile/pipeline/BlockRenderer.class")
             .checking("exotic_worlds.compat.sodium.mixins.json")
+            .modPackages(SODIUM_PACKAGE)
             .build();
 
     public SodiumMixinPlugin() {

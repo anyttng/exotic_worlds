@@ -8,10 +8,12 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 
 public class BiolithMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final String BIOLITH_PACKAGE = "com/terraformersmc/biolith/";
 
     private static final ModPresence BIOLITH = ModPresence.gate(LOGGER, "[ew/biolith-compat] gate biolith_present")
             .probing("com/terraformersmc/biolith/impl/biome/OverworldBiomePlacement.class")
             .checking("exotic_worlds.compat.biolith.mixins.json")
+            .modPackages(BIOLITH_PACKAGE)
             .build();
 
     public BiolithMixinPlugin() {

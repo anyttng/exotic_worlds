@@ -1,0 +1,5 @@
+{
+  "package": "com.exoticworlds.compat.fixture.scan.nested.mixin",
+  "plugin": "com.exoticworlds.compat.fixture.scan.nested.FixtureNestedPlugin",
+  "client": []
+}

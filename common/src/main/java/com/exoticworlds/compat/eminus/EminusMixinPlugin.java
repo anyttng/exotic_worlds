@@ -8,6 +8,7 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 
 public class EminusMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final String EMINUS_PACKAGE = "com/eminus/";
 
     private static final String TREE_CHANGES_CLASS = "com/eminus/render/tree/TreeChanges.class";
     private static final String NEAR_BOX_CLASS = "com/eminus/handoff/NearBox.class";
@@ -23,6 +24,7 @@ public class EminusMixinPlugin extends ModPresenceGatePlugin {
     private static final ModPresence EMINUS = ModPresence.gate(LOGGER, "[ew/eminus-compat] gate eminus_present")
             .probing("com/eminus/cell/cache/CellCache.class")
             .checking("exotic_worlds.compat.eminus.mixins.json")
+            .modPackages(EMINUS_PACKAGE)
             .withholding(TREE_MANAGER_CHANGES_MIXIN, EminusMixinPlugin::changesLiveInTreeChanges)
             .withholding(TREE_CHANGES_MIXIN, () -> !changesLiveInTreeChanges())
             .withholding(TREE_NODE_ACCESSOR, () -> !changesLiveInTreeChanges())

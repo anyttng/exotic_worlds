@@ -118,7 +118,7 @@ class MixinTargetCheckTest {
             }
         };
 
-        assertEquals(List.of(), new MixinTargetCheck(loader, Map.of()).check(MixinFixtures.OtherLoaderTarget.class.getName()),
+        assertEquals(List.of(), new MixinTargetCheck(new ClassFiles(loader), Map.of()).check(MixinFixtures.OtherLoaderTarget.class.getName()),
                 "an intermediary build of the target on a Mojmap runtime is the other loader's, not this one's");
     }
 
@@ -133,7 +133,7 @@ class MixinTargetCheckTest {
 
     @Test
     void aMixinClassThatIsNotThereIsRefused() {
-        List<Refusal> refusals = new MixinTargetCheck(LOADER, Map.of())
+        List<Refusal> refusals = new MixinTargetCheck(new ClassFiles(LOADER), Map.of())
                 .check("com.exoticworlds.compat.fixture.NoSuchMixin");
 
         assertEquals(1, refusals.size());
@@ -147,6 +147,6 @@ class MixinTargetCheckTest {
     }
 
     private static List<Refusal> check(Class<?> fixture, Map<String, String> bodySources) {
-        return new MixinTargetCheck(LOADER, bodySources).check(fixture.getName());
+        return new MixinTargetCheck(new ClassFiles(LOADER), bodySources).check(fixture.getName());
     }
 }

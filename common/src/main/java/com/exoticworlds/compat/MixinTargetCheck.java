@@ -1,9 +1,6 @@
 package com.exoticworlds.compat;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -11,13 +8,13 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.jspecify.annotations.Nullable;
-import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import com.exoticworlds.compat.ClassFiles.Loaded;
 import com.exoticworlds.compat.InjectionPoints.Selection;
 
 public final class MixinTargetCheck {
@@ -29,6 +26,7 @@ public final class MixinTargetCheck {
         MISSING_INVOKE,
         MISSING_FIELD_ACCESS,
         MISSING_NEW,
+        MISSING_INDEX,
         WRONG_CALLBACK;
 
         @Override
@@ -40,10 +38,6 @@ public final class MixinTargetCheck {
     public record Refusal(String mixin, String member, Reason reason) {
     }
 
-    private record Loaded(boolean present, @Nullable ClassNode model) {
-    }
-
-    private static final String CLASS_SUFFIX = ".class";
     private static final List<String> GAME_PACKAGES = List.of("net/minecraft/", "com/mojang/");
 
     private static final String MIXIN = "Lorg/spongepowered/asm/mixin/Mixin;";
@@ -73,13 +67,12 @@ public final class MixinTargetCheck {
     private static final List<String> ACCESSOR_PREFIXES = List.of("get", "set", "is");
     private static final List<String> INVOKER_PREFIXES = List.of("call", "invoke");
 
-    private final ClassLoader classLoader;
+    private final ClassFiles classFiles;
     private final Map<String, String> bodySources;
-    private final Map<String, Loaded> loaded = new HashMap<>();
     private LoaderSpellings.@Nullable Namespace runtime;
 
-    public MixinTargetCheck(ClassLoader classLoader, Map<String, String> bodySources) {
-        this.classLoader = classLoader;
+    MixinTargetCheck(ClassFiles classFiles, Map<String, String> bodySources) {
+        this.classFiles = classFiles;
         this.bodySources = bodySources;
     }
 
@@ -342,7 +335,7 @@ public final class MixinTargetCheck {
 
     private LoaderSpellings.Namespace runtime() {
         if (this.runtime == null) {
-            this.runtime = LoaderSpellings.runtimeOf(this.classLoader);
+            this.runtime = LoaderSpellings.runtimeOf(this.classFiles.classLoader());
         }
 
         return this.runtime;
@@ -434,20 +427,6 @@ public final class MixinTargetCheck {
     }
 
     private Loaded load(String internalName) {
-        return this.loaded.computeIfAbsent(internalName, this::read);
-    }
-
-    private Loaded read(String internalName) {
-        try (InputStream classFile = this.classLoader.getResourceAsStream(internalName + CLASS_SUFFIX)) {
-            if (classFile == null) {
-                return new Loaded(false, null);
-            }
-
-            ClassNode model = new ClassNode();
-            new ClassReader(classFile.readAllBytes()).accept(model, ClassReader.SKIP_FRAMES);
-            return new Loaded(true, model);
-        } catch (IOException | RuntimeException unreadable) {
-            return new Loaded(true, null);
-        }
+        return this.classFiles.load(internalName);
     }
 }

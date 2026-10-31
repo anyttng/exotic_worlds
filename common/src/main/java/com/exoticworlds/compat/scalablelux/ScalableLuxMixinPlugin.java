@@ -9,6 +9,7 @@ import com.exoticworlds.compat.c2me.C2meLightingLock;
 
 public class ScalableLuxMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final String STARLIGHT_PACKAGE = "ca/spottedleaf/starlight/";
 
     private static final String SCHEDULING_LOCK_MIXIN = "SchedulingUtilLockMixin";
     private static final String SCHEDULING_TOKENS_MIXIN = "SchedulingUtilTokensMixin";
@@ -17,6 +18,7 @@ public class ScalableLuxMixinPlugin extends ModPresenceGatePlugin {
                     "[ew/scalablelux-compat] gate scalablelux_present")
             .probing("ca/spottedleaf/starlight/common/light/StarLightInterface.class")
             .checking("exotic_worlds.compat.scalablelux.mixins.json")
+            .modPackages(STARLIGHT_PACKAGE)
             .withholding(SCHEDULING_LOCK_MIXIN, ScalableLuxMixinPlugin::c2meOwnsTheLock)
             .bodyFrom(SCHEDULING_TOKENS_MIXIN, C2meLightingLock.OVERWRITE_CLASS)
             .build();
