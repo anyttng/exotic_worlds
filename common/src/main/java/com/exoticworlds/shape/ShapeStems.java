@@ -21,6 +21,16 @@ public final class ShapeStems {
         return spans != null && ownGeometry.test(spans) ? spans : null;
     }
 
+    public static boolean isOwnOrAbsent(WorldDimensions dimensions, ResourceKey<LevelStem> key,
+            Predicate<LoopSpans> ownGeometry) {
+        if (dimensions.get(key).isEmpty()) {
+            return true;
+        }
+
+        LoopSpans spans = ShapeDimensions.spansOf(dimensions, key);
+        return spans != null && ownGeometry.test(spans);
+    }
+
     public static WorldDimensions withSpans(WorldDimensions dimensions, StemSettings settings) {
         return ShapeDimensions.withSpans(dimensions,
                 settings.overworld(),

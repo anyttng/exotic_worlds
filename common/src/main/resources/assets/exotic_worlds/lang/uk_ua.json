@@ -12,6 +12,8 @@
   "gui.exotic_worlds.world_shape.toroidal.hint": "Зациклений зі сходу на захід і з півночі на південь. Пройди достатньо в будь-який бік і повернешся туди, звідки вийшов.",
   "gui.exotic_worlds.world_shape.cylinder": "Циліндрична",
   "gui.exotic_worlds.world_shape.cylinder.hint": "Одна горизонтальна вісь зациклена, інша триває нескінченно, як у звичайному світі.",
+  "gui.exotic_worlds.world_shape.custom": "Власна",
+  "gui.exotic_worlds.world_shape.custom.hint": "Обери форму окремо для Верхнього світу, Незеру й Енду.",
   "gui.exotic_worlds.world_shape.seam_warning": "Цей тип світу має власний генератор світу: Форма світу все одно обмежить і зациклить світ, але рельєф на краю світу не зійдеться.",
 
   "gui.exotic_worlds.toroidal_settings.title": "Налаштування тороїдального світу",
@@ -61,6 +63,12 @@
   "gui.exotic_worlds.cylinder_settings.title": "Налаштування циліндричного світу",
   "gui.exotic_worlds.cylinder_settings.axis": "Вісь зациклення",
   "gui.exotic_worlds.cylinder_settings.axis_hint": "Світ зациклюється вздовж цієї осі, а вздовж іншої триває нескінченно.",
+
+  "gui.exotic_worlds.custom_settings.title": "Власні налаштування світу",
+  "gui.exotic_worlds.custom_settings.vanilla_dimensions": "Стандартні виміри",
+  "gui.exotic_worlds.custom_settings.overworld": "Верхній світ",
+  "gui.exotic_worlds.custom_settings.nether": "Незер",
+  "gui.exotic_worlds.custom_settings.end": "Енд",
 
   "gui.exotic_worlds.settings.title": "Налаштування Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Копії світу на повноекранній мапі",
