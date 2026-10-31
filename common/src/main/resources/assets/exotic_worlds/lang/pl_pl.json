@@ -12,6 +12,8 @@
   "gui.exotic_worlds.world_shape.toroidal.hint": "Zapętla się ze wschodu na zachód i z północy na południe. Idź dostatecznie daleko w dowolną stronę, a wrócisz do punktu wyjścia.",
   "gui.exotic_worlds.world_shape.cylinder": "Cylindryczny",
   "gui.exotic_worlds.world_shape.cylinder.hint": "Jedna oś pozioma się zapętla, druga ciągnie się bez końca jak w zwykłym świecie.",
+  "gui.exotic_worlds.world_shape.custom": "Własny",
+  "gui.exotic_worlds.world_shape.custom.hint": "Wybierz kształt osobno dla Nadziemia, Netheru i Endu.",
   "gui.exotic_worlds.world_shape.seam_warning": "Ten typ świata ma własny generator świata: Kształt świata nadal ograniczy świat i zapętli go, ale teren nie połączy się na krawędzi świata.",
 
   "gui.exotic_worlds.toroidal_settings.title": "Ustawienia świata toroidalnego",
@@ -61,6 +63,12 @@
   "gui.exotic_worlds.cylinder_settings.title": "Ustawienia świata cylindrycznego",
   "gui.exotic_worlds.cylinder_settings.axis": "Oś zapętlenia",
   "gui.exotic_worlds.cylinder_settings.axis_hint": "Świat zapętla się wzdłuż tej osi, a wzdłuż drugiej ciągnie się bez końca.",
+
+  "gui.exotic_worlds.custom_settings.title": "Ustawienia własnego świata",
+  "gui.exotic_worlds.custom_settings.vanilla_dimensions": "Podstawowe wymiary",
+  "gui.exotic_worlds.custom_settings.overworld": "Nadziemie",
+  "gui.exotic_worlds.custom_settings.nether": "Nether",
+  "gui.exotic_worlds.custom_settings.end": "End",
 
   "gui.exotic_worlds.settings.title": "Ustawienia Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Kopie świata na mapie pełnoekranowej",

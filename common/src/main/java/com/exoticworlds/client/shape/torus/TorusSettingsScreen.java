@@ -13,7 +13,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 
-public class TorusSettingsScreen extends LoopSettingsScreen<TorusSettings> {
+public class TorusSettingsScreen extends LoopSettingsScreen<TorusSettings, LoopSizeControls> {
     private static final Component TITLE = Component.translatable("gui.exotic_worlds.toroidal_settings.title");
 
     public TorusSettingsScreen(Screen parent, TorusSettings current, Consumer<TorusSettings> onDone) {

@@ -1,5 +1,7 @@
 package com.exoticworlds.shape.cylinder;
 
+import java.util.function.Predicate;
+
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.shape.LoopSpans;
@@ -24,6 +26,12 @@ public final class CylinderDimensions {
         }
 
         Direction.Axis axis = CylinderSettings.loopedAxis(overworld);
+        Predicate<LoopSpans> sameCylinder = spans -> CylinderSettings.isCylinder(spans) && spans.loops(axis);
+        if (!ShapeStems.isOwnOrAbsent(dimensions, LevelStem.NETHER, sameCylinder)
+                || !ShapeStems.isOwnOrAbsent(dimensions, LevelStem.END, sameCylinder)) {
+            return null;
+        }
+
         return new CylinderSettings(
                 overworld,
                 ShapeStems.readNetherScale(dimensions, CylinderSettings::isCylinder, overworld, axis),
