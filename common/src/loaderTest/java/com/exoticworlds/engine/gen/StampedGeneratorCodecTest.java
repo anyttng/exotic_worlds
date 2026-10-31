@@ -1,8 +1,12 @@
 package com.exoticworlds.engine.gen;
 
 import com.exoticworlds.ExoticWorlds;
+import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.migration.FormerNamespace;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.ShapedChunkGenerator;
@@ -19,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Map;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -34,6 +40,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.dimension.LevelStem;
 
 @Timeout(60)
 class StampedGeneratorCodecTest {
@@ -48,6 +55,13 @@ class StampedGeneratorCodecTest {
     private static final int STAMPED_CHUNK_WIDTH = 64;
 
     private static final String UNREADABLE_SHAPE = "not a shape at all";
+
+    private static final String TABLE_KEY = KEY_PREFIX + DimensionTable.KEY;
+
+    private static final DimensionTable TABLE = DimensionTable.of(Map.of(
+            BakeStampFixture.stemKey("wrapped"), new DimensionTable.Entry(new CarriedShape(
+                    ShapeFixtures.torus(WorldLoopBounds.ofWidths(48, 32)), UNCOMPRESSED)),
+            BakeStampFixture.stemKey("unwrapped"), DimensionTable.Entry.UNWRAPPED));
 
     private static HolderLookup.Provider worldgen;
 
@@ -110,6 +124,27 @@ class StampedGeneratorCodecTest {
 
         assertFalse(encoded.contains(SHAPE_KEY));
         assertNull(ShapedChunkGenerator.carriedShapeOf(decode(encoded).getOrThrow()));
+    }
+
+    @Test
+    void aDimensionTableOnAVanillaGeneratorSurvivesTheRoundTrip() {
+        ChunkGenerator generator = noiseGenerator(worldgen);
+        ((ShapeStamp) generator).exotic_worlds$stampDimensionTable(TABLE);
+        CompoundTag encoded = encode(generator);
+
+        assertTrue(encoded.contains(TABLE_KEY), "the table never reached the encoded generator");
+        assertFalse(encoded.contains(SHAPE_KEY), "a table alone wrote a shape");
+        assertEquals(TABLE, ShapedDimensions.dimensionTableOf(decode(encoded).getOrThrow()));
+    }
+
+    @Test
+    void aDimensionTableNamingAVanillaDimensionRefusesTheGenerator() {
+        CompoundTag encoded = encode(noiseGenerator(worldgen));
+        CompoundTag table = new CompoundTag();
+        table.put(LevelStem.NETHER.location().toString(), new CompoundTag());
+        encoded.put(TABLE_KEY, table);
+
+        assertTrue(decode(encoded).isError(), "a table naming the nether loaded");
     }
 
     @Test

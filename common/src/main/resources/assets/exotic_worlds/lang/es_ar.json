@@ -72,6 +72,9 @@
   "gui.exotic_worlds.custom_settings.overworld": "Superficie",
   "gui.exotic_worlds.custom_settings.nether": "Nether",
   "gui.exotic_worlds.custom_settings.end": "El End",
+  "gui.exotic_worlds.custom_settings.mod_dimensions": "Dimensiones de mods",
+  "gui.exotic_worlds.custom_settings.from_overworld": "Como la Superficie",
+  "gui.exotic_worlds.custom_settings.from_overworld.hint": "Toma la forma de la Superficie, escalada según la escala de coordenadas de esta dimensión; se queda en Normal si así no sale un ancho entero.",
 
   "gui.exotic_worlds.settings.title": "Ajustes de Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Copias del mundo en el mapa a pantalla completa",

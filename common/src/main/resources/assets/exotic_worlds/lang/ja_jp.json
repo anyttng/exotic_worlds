@@ -72,6 +72,9 @@
   "gui.exotic_worlds.custom_settings.overworld": "オーバーワールド",
   "gui.exotic_worlds.custom_settings.nether": "ネザー",
   "gui.exotic_worlds.custom_settings.end": "ジ・エンド",
+  "gui.exotic_worlds.custom_settings.mod_dimensions": "Modのディメンション",
+  "gui.exotic_worlds.custom_settings.from_overworld": "オーバーワールドに合わせる",
+  "gui.exotic_worlds.custom_settings.from_overworld.hint": "このディメンションの座標スケールに合わせて、オーバーワールドの形を縮尺して使います。幅が整数にならない場合は通常のままです。",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds 設定",
   "gui.exotic_worlds.settings.map_copies": "全画面マップのワールドのコピー",

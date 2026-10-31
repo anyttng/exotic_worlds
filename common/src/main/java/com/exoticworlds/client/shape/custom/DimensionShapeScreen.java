@@ -8,8 +8,8 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.client.shape.LoopSettingsScreen;
 import com.exoticworlds.shape.custom.CustomSettings;
+import com.exoticworlds.shape.custom.CustomStem;
 import com.exoticworlds.shape.custom.DimensionShape;
-import com.exoticworlds.shape.custom.VanillaDimension;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
@@ -17,7 +17,7 @@ import net.minecraft.network.chat.CommonComponents;
 
 public class DimensionShapeScreen extends LoopSettingsScreen<DimensionShape, DimensionSizeControls> {
 
-    public DimensionShapeScreen(Screen parent, VanillaDimension dimension, DimensionShape current,
+    public DimensionShapeScreen(Screen parent, CustomStem dimension, DimensionShape current,
             Consumer<DimensionShape> onDone) {
         super(CommonComponents.optionNameValue(ShapeLabels.dimension(dimension), ShapeLabels.kind(current.kind())),
                 parent,

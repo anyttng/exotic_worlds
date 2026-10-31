@@ -72,6 +72,9 @@
   "gui.exotic_worlds.custom_settings.overworld": "Nadziemie",
   "gui.exotic_worlds.custom_settings.nether": "Nether",
   "gui.exotic_worlds.custom_settings.end": "End",
+  "gui.exotic_worlds.custom_settings.mod_dimensions": "Wymiary modów",
+  "gui.exotic_worlds.custom_settings.from_overworld": "Jak Nadziemie",
+  "gui.exotic_worlds.custom_settings.from_overworld.hint": "Przejmuje kształt Nadziemia przeskalowany według skali współrzędnych tego wymiaru; zostaje Zwykły, gdy szerokość nie wychodzi całkowita.",
 
   "gui.exotic_worlds.settings.title": "Ustawienia Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Kopie świata na mapie pełnoekranowej",
