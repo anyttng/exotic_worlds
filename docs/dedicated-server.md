@@ -168,6 +168,27 @@ Next to `wrapping`, the generator takes the options the world-creation screen of
 
 **`guaranteed_nether_complexes`** (toroidal only) keeps a small Nether from coming out without a nether fortress or a bastion remnant. With `true`, each one the world did not place on its own is placed in the chunk nearest the world's center whose biome allows it. A dimension that places neither is left alone. Where no biome in the Nether allows one, it stays missing and the server log names it. It defaults to `false`.
 
+## Dimensions other mods add
+
+A dimension another mod or a datapack adds takes the overworld's shape by default, its width scaled by that dimension's coordinate scale. Where no whole number of chunks comes out, it stays an ordinary infinite world.
+
+To choose its shape yourself, list it under `exotic_worlds:dimensions` on the overworld's generator. An entry with `wrapping` gives that dimension its own shape and options, in the same form as on a dimension's own generator. An empty entry keeps it an ordinary infinite world:
+
+```json
+"exotic_worlds:dimensions": {
+  "my_mod:sky": {
+    "wrapping": {
+      "x": { "min_chunk": -24, "max_chunk": 24 },
+      "z": { "min_chunk": -16, "max_chunk": 16 }
+    },
+    "climate_compression": false
+  },
+  "my_mod:mines": {}
+}
+```
+
+The list works on any overworld generator, `minecraft:noise` included, so an ordinary overworld can sit beside toroidal mod dimensions. A dimension the list leaves out keeps the default above. The Overworld, the Nether and the End cannot be listed, because each one takes its shape from the `wrapping` on its own generator. The `World shape:` line of a listed dimension reports `shape=table`.
+
 ## A datapack that redefines a dimension
 
 A datapack that declares `minecraft:overworld`, `minecraft:the_nether` or `minecraft:the_end` cannot take the shape away. Such a dimension entry normally replaces the world's own generator for that dimension; here it is rebuilt on the shape the world was created with, so the pack's terrain choice applies and the world keeps looping. The `World shape:` line logged at startup reports `shape=restored` and names the pack's generator. `shape=stamp` means that generator kept its own class and the shape was stamped onto it; `shape=stored` means it could take no shape at all and the world's own was kept.
