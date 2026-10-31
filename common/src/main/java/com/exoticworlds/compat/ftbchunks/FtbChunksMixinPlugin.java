@@ -8,10 +8,13 @@ import com.exoticworlds.compat.ModPresenceGatePlugin;
 
 public class FtbChunksMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final String FTBCHUNKS_PACKAGE = "dev/ftb/mods/ftbchunks/";
+    private static final String FTBLIBRARY_PACKAGE = "dev/ftb/mods/ftblibrary/";
 
     private static final ModPresence FTBCHUNKS = ModPresence.gate(LOGGER, "[ew/ftbc-compat] gate ftbchunks_present")
             .probing("dev/ftb/mods/ftbchunks/FTBChunks.class")
             .checking("exotic_worlds.compat.ftbchunks.mixins.json")
+            .modPackages(FTBCHUNKS_PACKAGE, FTBLIBRARY_PACKAGE)
             .build();
 
     public FtbChunksMixinPlugin() {
