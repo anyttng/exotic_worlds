@@ -12,6 +12,8 @@ public final class C2meNoTickVd {
             .probing("com/ishland/c2me/notickvd/common/PlayerNoTickLoader.class")
             .checking(C2meMixinPlugin.CONFIG, mixin -> MIXINS.contains(mixin))
             .requiring(C2meChunkSystem.GATE)
+            .modPackages(C2meMixinPlugin.C2ME_PACKAGE, C2meMixinPlugin.FLOWSCHED_PACKAGE)
+            .scanning(C2meNoTickVd.class.getSimpleName()::equals)
             .build();
 
     private C2meNoTickVd() {
