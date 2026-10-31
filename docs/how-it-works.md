@@ -12,7 +12,7 @@ Vanilla terrain comes from noise sampled on a grid of cells that runs on forever
 
 One lap of a small world is short, so a full spread of climates may not fit into it and everything comes out one biome. The **Compact biomes** option shrinks the biome noise until a full climate range fits into one lap, while coastlines and terrain keep their usual size.
 
-A world type from another mod may bring a terrain generator of its own. The world-creation screen warns about it, and a shape can still be chosen. The world gets its fixed width, and distances, crossings and everything else on this page work as usual. Only the terrain does not repeat, because the mod has no hold on noise it does not recognize, so the ground stops short in a cliff at the world's edge. A dimension another mod adds with a generator of its own takes its shape from the overworld and ends up the same way.
+A world type from another mod may bring a terrain generator of its own. The world-creation screen warns about it, and a shape can still be chosen. The world gets its fixed width, and distances, crossings and everything else on this page work as usual. Only the terrain does not repeat, because the mod has no hold on noise it does not recognize, so the ground stops short in a cliff at the world's edge. A dimension another mod adds with a generator of its own takes the overworld's shape, or the one chosen for it under Custom, and ends up the same way.
 
 ## Distances are measured to the nearest copy
 
