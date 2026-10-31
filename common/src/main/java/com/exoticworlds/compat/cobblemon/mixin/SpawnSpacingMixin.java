@@ -19,6 +19,6 @@ public interface SpawnSpacingMixin {
     @WrapOperation(method = "resolve", at = @At(value = "INVOKE", target = InjectionTargets.VEC3_CLOSER_THAN))
     private boolean exotic_worlds$entitySpacingThroughSeam(Vec3 entityPosition, Position spawnPosition,
             double distance, Operation<Boolean> original, @Local(argsOnly = true) SpawningZone zone) {
-        return SeamRange.closerThan(zone.getWorld(), entityPosition, spawnPosition, distance);
+        return original.call(entityPosition, SeamRange.toward(zone.getWorld(), entityPosition, spawnPosition), distance);
     }
 }

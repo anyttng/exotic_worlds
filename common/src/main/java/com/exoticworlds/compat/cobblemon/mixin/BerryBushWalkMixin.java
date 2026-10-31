@@ -22,6 +22,6 @@ public class BerryBushWalkMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private static boolean exotic_worlds$bushRangeThroughSeam(BlockPos bush, Position body, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) LivingEntity entity) {
-        return SeamRange.closerToCenterThan(entity, bush, body, distance);
+        return original.call(bush, SeamRange.towardCenterOf(entity, bush, body), distance);
     }
 }

@@ -20,6 +20,6 @@ public class HoneyHoverMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO))
     private double exotic_worlds$leavesDistanceThroughSeam(Vec3 from, Vec3 to, Operation<Double> original,
             @Local(argsOnly = true) LivingEntity owner) {
-        return Math.sqrt(SeamRange.sqr(owner, from, to));
+        return original.call(from, SeamRange.toward(owner, from, to));
     }
 }

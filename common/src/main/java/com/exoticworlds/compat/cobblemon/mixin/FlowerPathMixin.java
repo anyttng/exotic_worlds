@@ -18,6 +18,7 @@ public class FlowerPathMixin {
     @WrapOperation(method = "*", at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO_SQR_XYZ))
     private static double exotic_worlds$flowerDistanceThroughSeam(Vec3 flower, double x, double y, double z,
             Operation<Double> original, @Local(argsOnly = true) LivingEntity entity) {
-        return SeamRange.sqr(entity, flower, x, y, z);
+        Vec3 near = SeamRange.toward(entity, flower, new Vec3(x, y, z));
+        return original.call(flower, near.x, near.y, near.z);
     }
 }

@@ -21,6 +21,6 @@ public class PastureLinkRangeMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private static boolean exotic_worlds$linkRangeThroughSeam(BlockPos pasturePos, Position playerPosition,
             double distance, Operation<Boolean> original, @Local(argsOnly = true) ServerPlayer player) {
-        return SeamRange.closerToCenterThan(player, pasturePos, playerPosition, distance);
+        return original.call(pasturePos, SeamRange.towardCenterOf(player, pasturePos, playerPosition), distance);
     }
 }

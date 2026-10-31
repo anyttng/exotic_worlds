@@ -20,6 +20,6 @@ public class InteractionRangeMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO_SQR))
     private double exotic_worlds$rangeThroughSeam(Vec3 target, Vec3 requester, Operation<Double> original,
             @Local(argsOnly = true) ServerPlayer player) {
-        return SeamRange.sqr(player, target, requester);
+        return original.call(target, SeamRange.toward(player, target, requester));
     }
 }

@@ -18,6 +18,6 @@ public abstract class DenySpawnRitualMixin {
             method = "denySiege(Lnet/neoforged/neoforge/event/village/VillageSiegeEvent;)Z",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO_SQR))
     private double exotic_worlds$siegeDistanceThroughSeam(Vec3 siege, Vec3 brazier, Operation<Double> original) {
-        return SeamRange.sqr(((AbstractRitual) (Object) this).getWorld(), siege, brazier);
+        return original.call(siege, SeamRange.toward(((AbstractRitual) (Object) this).getWorld(), siege, brazier));
     }
 }

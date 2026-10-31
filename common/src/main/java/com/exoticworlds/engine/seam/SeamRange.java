@@ -15,11 +15,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public final class SeamRange {
-    public static int manhattan(Entity levelSource, Vec3i from, Vec3i to) {
-        BlockPos anchor = new BlockPos(from);
-        return anchor.distManhattan(foldOf(levelSource).nearestCopy(anchor, new BlockPos(to)));
-    }
-
     public static BlockPos toward(Entity levelSource, BlockPos anchor, BlockPos target) {
         return NearestCopy.toward(wrappedFoldOf(levelSource), anchor, target);
     }
@@ -48,6 +43,10 @@ public final class SeamRange {
         return NearestCopy.toward(wrappedFoldOf(levelSource), anchor, target);
     }
 
+    public static Position toward(Level levelSource, Vec3 anchor, Position target) {
+        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOf(levelSource), anchor, target);
+    }
+
     public static Position towardCenterOf(Entity levelSource, BlockPos block, Position target) {
         return NearestCopy.towardCenterOf(wrappedFoldOf(levelSource), block, target);
     }
@@ -74,14 +73,6 @@ public final class SeamRange {
         return fold.sqrDistance(from.x, from.y, from.z, to.x(), to.y(), to.z());
     }
 
-    public static double sqr(Entity levelSource, Vec3i from, Vec3i to) {
-        return sqr(foldOf(levelSource), from, to);
-    }
-
-    public static double sqr(Level levelSource, Vec3i from, Vec3i to) {
-        return sqr(WorldLoopAttachments.wrappedFoldOf(levelSource), from, to);
-    }
-
     public static double sqr(Entity levelSource, Vec3 from, Position to) {
         return sqr(foldOf(levelSource), from, to);
     }
@@ -90,20 +81,8 @@ public final class SeamRange {
         return foldOf(levelSource).sqrDistance(from.x, from.y, from.z, toX, toY, toZ);
     }
 
-    public static double sqr(Level levelSource, Vec3 from, Position to) {
-        return sqr(WorldLoopAttachments.wrappedFoldOf(levelSource), from, to);
-    }
-
     public static boolean closerThan(Entity levelSource, Vec3 from, Position to, double distance) {
         return sqr(levelSource, from, to) < Mth.square(distance);
-    }
-
-    public static boolean closerThan(Level levelSource, Vec3 from, Position to, double distance) {
-        return sqr(levelSource, from, to) < Mth.square(distance);
-    }
-
-    public static boolean closerToCenterThan(Entity levelSource, Vec3i from, Position to, double distance) {
-        return closerThan(levelSource, Vec3.atCenterOf(from), to, distance);
     }
 
     public static boolean closerThan(WorldFold fold, Vec3 from, Vec3 to, double distanceXZ, double distanceY) {

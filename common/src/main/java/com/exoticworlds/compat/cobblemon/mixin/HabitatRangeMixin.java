@@ -18,6 +18,6 @@ public class HabitatRangeMixin {
     @WrapOperation(method = "appliesTo", at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
     private double exotic_worlds$habitatDistanceThroughSeam(BlockPos spawnPosition, Vec3i habitat,
             Operation<Double> original, @Local(argsOnly = true) SpawnablePosition spawnablePosition) {
-        return SeamRange.sqr(spawnablePosition.getWorld(), spawnPosition, habitat);
+        return original.call(spawnPosition, SeamRange.toward(spawnablePosition.getWorld(), spawnPosition, habitat));
     }
 }

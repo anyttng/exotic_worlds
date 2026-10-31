@@ -23,6 +23,6 @@ public class HiveSideOrderMixin {
     @WrapOperation(method = "compare", require = 2,
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
     private double exotic_worlds$sideDistanceThroughSeam(BlockPos side, Vec3i body, Operation<Double> original) {
-        return SeamRange.sqr(this.$entity$inlined, side, body);
+        return original.call(side, SeamRange.toward(this.$entity$inlined, side, body));
     }
 }

@@ -21,6 +21,6 @@ public class PCLinkRangeMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_CLOSER_THAN))
     private boolean exotic_worlds$linkRangeThroughSeam(Vec3 playerPosition, Position pcCorner, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) ServerPlayer player) {
-        return SeamRange.closerThan(player, playerPosition, pcCorner, distance);
+        return original.call(playerPosition, SeamRange.toward(player, playerPosition, pcCorner), distance);
     }
 }
