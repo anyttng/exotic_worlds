@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -140,21 +141,9 @@ public final class ShapedDimensions {
 
     public static void stampDerived(Registry<LevelStem> dimensions) {
         LevelStem overworld = dimensions.getOptional(LevelStem.OVERWORLD).orElse(null);
-        if (overworld == null) {
-            return;
-        }
-
-        CarriedShape carried = ShapedChunkGenerator.carriedShapeOf(overworld.generator());
-        if (carried == null) {
-            return;
-        }
-
-        FlatShape worldShape = carried.shape();
-        if (worldShape.mirror() != null) {
-            return;
-        }
-
-        double overworldScale = overworld.type().value().coordinateScale();
+        CarriedShape carried = overworld == null ? null : ShapedChunkGenerator.carriedShapeOf(overworld.generator());
+        DimensionTable table = overworld == null ? DimensionTable.EMPTY : dimensionTableOf(overworld.generator());
+        double overworldScale = overworld == null ? 0.0 : overworld.type().value().coordinateScale();
         dimensions.listElements().forEach(entry -> {
             LevelStem stem = entry.value();
             if (entry.key() == LevelStem.OVERWORLD
@@ -163,11 +152,39 @@ public final class ShapedDimensions {
                 return;
             }
 
-            FlatShape derived = derivedShape(worldShape, overworldScale, stem.type().value().coordinateScale());
-            if (derived != null) {
-                stamp.exotic_worlds$stamp(carried.withShape(derived));
-            }
+            DimensionTable.Entry chosen = table.entry(entry.key());
+            stamp.exotic_worlds$stampBaked(chosen != null
+                    ? chosen.carried()
+                    : derivedCarried(carried, overworldScale, stem.type().value().coordinateScale()));
         });
+    }
+
+    private static @Nullable CarriedShape derivedCarried(@Nullable CarriedShape overworld, double overworldScale,
+            double scale) {
+        if (overworld == null || overworld.shape().mirror() != null) {
+            return null;
+        }
+
+        FlatShape derived = derivedShape(overworld.shape(), overworldScale, scale);
+        return derived == null ? null : overworld.withShape(derived);
+    }
+
+    public static WorldDimensions withDimensionTable(WorldDimensions dimensions, DimensionTable table) {
+        LevelStem overworld = dimensions.get(LevelStem.OVERWORLD).orElse(null);
+        if (overworld != null && overworld.generator() instanceof ShapeStamp stamp) {
+            stamp.exotic_worlds$stampDimensionTable(table);
+        }
+
+        return dimensions;
+    }
+
+    public static DimensionTable dimensionTableOf(WorldDimensions dimensions) {
+        LevelStem overworld = dimensions.get(LevelStem.OVERWORLD).orElse(null);
+        return overworld == null ? DimensionTable.EMPTY : dimensionTableOf(overworld.generator());
+    }
+
+    public static DimensionTable dimensionTableOf(ChunkGenerator generator) {
+        return generator instanceof ShapeStamp stamp ? stamp.exotic_worlds$dimensionTable() : DimensionTable.EMPTY;
     }
 
     public static WorldDimensions keepChosenShape(WorldDimensions created, WorldDimensions chosen) {
@@ -175,7 +192,7 @@ public final class ShapedDimensions {
     }
 
     private static boolean isShaped(WorldDimensions dimensions) {
-        return dimensions.dimensions().values().stream()
+        return !dimensionTableOf(dimensions).isEmpty() || dimensions.dimensions().values().stream()
                 .anyMatch(stem -> ShapedChunkGenerator.carriedShapeOf(stem.generator()) != null);
     }
 

@@ -29,7 +29,12 @@ public interface ShapedChunkGenerator {
             return wrapped(shaped.carriedShape());
         }
 
-        return generator instanceof ShapeStamp stamp ? wrapped(stamp.exotic_worlds$carriedShape()) : null;
+        return generator instanceof ShapeStamp stamp ? wrapped(stampedShapeOf(stamp)) : null;
+    }
+
+    private static @Nullable CarriedShape stampedShapeOf(ShapeStamp stamp) {
+        CarriedShape own = stamp.exotic_worlds$carriedShape();
+        return own != null ? own : stamp.exotic_worlds$bakedShape();
     }
 
     static boolean tilesAtSeam(ChunkGenerator generator) {

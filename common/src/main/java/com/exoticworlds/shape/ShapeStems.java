@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.api.v1.shape.ShapeDimensions;
 import com.exoticworlds.core.NetherScales;
+import com.exoticworlds.engine.gen.ShapedDimensions;
 
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
@@ -19,6 +20,10 @@ public final class ShapeStems {
             Predicate<LoopSpans> ownGeometry) {
         LoopSpans spans = ShapeDimensions.spansOf(dimensions, key);
         return spans != null && ownGeometry.test(spans) ? spans : null;
+    }
+
+    public static boolean carriesDimensionTable(WorldDimensions dimensions) {
+        return !ShapedDimensions.dimensionTableOf(dimensions).isEmpty();
     }
 
     public static boolean isOwnOrAbsent(WorldDimensions dimensions, ResourceKey<LevelStem> key,

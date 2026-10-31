@@ -69,6 +69,9 @@
   "gui.exotic_worlds.custom_settings.overworld": "오버월드",
   "gui.exotic_worlds.custom_settings.nether": "네더",
   "gui.exotic_worlds.custom_settings.end": "엔드",
+  "gui.exotic_worlds.custom_settings.mod_dimensions": "모드 차원",
+  "gui.exotic_worlds.custom_settings.from_overworld": "오버월드 따라가기",
+  "gui.exotic_worlds.custom_settings.from_overworld.hint": "이 차원의 좌표 배율에 맞춰 오버월드의 형태를 조정해 사용합니다. 너비가 정수로 나오지 않으면 일반으로 남습니다.",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds 설정",
   "gui.exotic_worlds.settings.map_copies": "전체 화면 지도의 세계 복사본",
