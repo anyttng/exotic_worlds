@@ -53,7 +53,7 @@ public class RaidMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
     private double exotic_worlds$raiderDistanceThroughSeam(BlockPos raidCenter, Vec3i raiderPos,
             Operation<Double> original) {
-        return SeamRange.sqr(this.level, raidCenter, raiderPos);
+        return original.call(raidCenter, SeamRange.toward(this.level, raidCenter, raiderPos));
     }
 
     @WrapOperation(

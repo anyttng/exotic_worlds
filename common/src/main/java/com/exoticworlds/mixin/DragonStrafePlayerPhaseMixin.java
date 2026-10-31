@@ -37,6 +37,7 @@ public class DragonStrafePlayerPhaseMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO_SQR_XYZ))
     private double exotic_worlds$targetWindowThroughSeam(Vec3 target, double x, double y, double z,
             Operation<Double> original) {
-        return SeamRange.sqr(((DragonPhaseAccessor) this).exotic_worlds$dragon(), target, x, y, z);
+        Vec3 near = SeamRange.toward(((DragonPhaseAccessor) this).exotic_worlds$dragon(), target, new Vec3(x, y, z));
+        return original.call(target, near.x, near.y, near.z);
     }
 }

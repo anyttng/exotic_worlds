@@ -26,6 +26,6 @@ public class RaiderMoveThroughVillageGoalMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$houseReachThroughSeam(BlockPos housePos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan(this.raider, housePos, bodyPosition, distance);
+        return original.call(housePos, SeamRange.towardCenterOf(this.raider, housePos, bodyPosition), distance);
     }
 }

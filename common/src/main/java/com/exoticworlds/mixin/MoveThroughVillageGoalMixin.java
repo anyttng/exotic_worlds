@@ -31,7 +31,7 @@ public class MoveThroughVillageGoalMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$poiArrivalThroughSeam(BlockPos poiPos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan(this.mob, poiPos, bodyPosition, distance);
+        return original.call(poiPos, SeamRange.towardCenterOf(this.mob, poiPos, bodyPosition), distance);
     }
 
     @WrapOperation(
@@ -41,7 +41,11 @@ public class MoveThroughVillageGoalMixin {
     private Optional<Double> exotic_worlds$poiScoreThroughSeam(Optional<BlockPos> poiPos,
             Function<BlockPos, Double> score, Operation<Optional<Double>> original,
             @Local(argsOnly = true, ordinal = 0) BlockPos bodyPos) {
-        Function<BlockPos, Double> scoreThroughSeam = poi -> -SeamRange.sqr(this.mob, poi, bodyPos);
-        return original.call(poiPos, scoreThroughSeam);
+        if (poiPos.isEmpty()) {
+            return original.call(poiPos, score);
+        }
+
+        BlockPos nearPoi = SeamRange.toward(this.mob, bodyPos, poiPos.get());
+        return original.call(nearPoi == poiPos.get() ? poiPos : Optional.of(nearPoi), score);
     }
 }

@@ -20,6 +20,7 @@ public class AllayMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$jukeboxRangeThroughSeam(BlockPos jukeboxPos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan((Allay) (Object) this, jukeboxPos, bodyPosition, distance);
+        return original.call(jukeboxPos, SeamRange.towardCenterOf((Allay) (Object) this, jukeboxPos, bodyPosition),
+                distance);
     }
 }

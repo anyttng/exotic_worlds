@@ -38,7 +38,7 @@ public class EnderDragonMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_TO_CENTER_SQR))
     private double exotic_worlds$eggDistanceThroughSeam(BlockPos eggPos, Position dragonPosition,
             Operation<Double> original) {
-        return SeamRange.sqr((EnderDragon) (Object) this, Vec3.atCenterOf(eggPos), dragonPosition);
+        return original.call(eggPos, SeamRange.towardCenterOf((EnderDragon) (Object) this, eggPos, dragonPosition));
     }
 
     @WrapOperation(
@@ -46,7 +46,9 @@ public class EnderDragonMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/pathfinder/Node;distanceToSqr(Lnet/minecraft/world/level/pathfinder/Node;)F"))
     private float exotic_worlds$nodeDistanceThroughSeam(Node node, Node point, Operation<Float> original) {
-        return (float) SeamRange.sqr((EnderDragon) (Object) this, node.asBlockPos(), point.asBlockPos());
+        BlockPos pointPos = point.asBlockPos();
+        BlockPos near = SeamRange.toward((EnderDragon) (Object) this, node.asBlockPos(), pointPos);
+        return original.call(node, near == pointPos ? point : point.cloneAndMove(near.getX(), near.getY(), near.getZ()));
     }
 
     @WrapOperation(

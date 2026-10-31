@@ -21,6 +21,6 @@ public class TrialSpawnerMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
     private static double exotic_worlds$mobLeashThroughSeam(BlockPos mobPos, Vec3i spawnerPos, Operation<Double> original,
             @Local(argsOnly = true) ServerLevel level) {
-        return SeamRange.sqr(level, mobPos, spawnerPos);
+        return original.call(mobPos, SeamRange.toward(level, mobPos, spawnerPos));
     }
 }

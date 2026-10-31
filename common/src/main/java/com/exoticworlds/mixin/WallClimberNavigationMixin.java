@@ -20,7 +20,8 @@ public class WallClimberNavigationMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$climbTargetReachThroughSeam(BlockPos climbPos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan(((PathNavigationAccessor) this).exotic_worlds$mob(), climbPos, bodyPosition,
+        return original.call(climbPos,
+                SeamRange.towardCenterOf(((PathNavigationAccessor) this).exotic_worlds$mob(), climbPos, bodyPosition),
                 distance);
     }
 }

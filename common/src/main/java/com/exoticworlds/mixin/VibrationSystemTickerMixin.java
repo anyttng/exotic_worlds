@@ -29,7 +29,7 @@ public interface VibrationSystemTickerMixin {
                     target = "Lnet/minecraft/world/level/gameevent/vibrations/VibrationSystem$Listener;distanceBetweenInBlocks(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;)F"))
     private static float exotic_worlds$receiveDistThroughSeam(BlockPos origin, BlockPos dest, Operation<Float> original,
             @Local(argsOnly = true) ServerLevel level) {
-        return (float) Math.sqrt(SeamRange.sqr(level, origin, dest));
+        return original.call(origin, SeamRange.toward(level, origin, dest));
     }
 
     @WrapOperation(

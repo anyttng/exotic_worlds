@@ -31,7 +31,7 @@ public class StrollThroughVillageGoalMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$strollGateThroughSeam(BlockPos wantedPos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan(this.mob, wantedPos, bodyPosition, distance);
+        return original.call(wantedPos, SeamRange.towardCenterOf(this.mob, wantedPos, bodyPosition), distance);
     }
 
     @ModifyExpressionValue(

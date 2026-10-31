@@ -27,6 +27,6 @@ public class DolphinSwimToTreasureGoalMixin {
             expect = 2)
     private boolean exotic_worlds$treasureReachThroughSeam(BlockPos treasurePos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan(this.dolphin, treasurePos, bodyPosition, distance);
+        return original.call(treasurePos, SeamRange.towardCenterOf(this.dolphin, treasurePos, bodyPosition), distance);
     }
 }

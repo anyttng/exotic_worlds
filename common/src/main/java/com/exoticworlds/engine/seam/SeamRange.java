@@ -4,6 +4,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.NearestCopy;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Position;
@@ -17,6 +18,42 @@ public final class SeamRange {
     public static int manhattan(Entity levelSource, Vec3i from, Vec3i to) {
         BlockPos anchor = new BlockPos(from);
         return anchor.distManhattan(foldOf(levelSource).nearestCopy(anchor, new BlockPos(to)));
+    }
+
+    public static BlockPos toward(Entity levelSource, BlockPos anchor, BlockPos target) {
+        return NearestCopy.toward(wrappedFoldOf(levelSource), anchor, target);
+    }
+
+    public static BlockPos toward(Level levelSource, BlockPos anchor, BlockPos target) {
+        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOf(levelSource), anchor, target);
+    }
+
+    public static Vec3i toward(Entity levelSource, BlockPos anchor, Vec3i target) {
+        return NearestCopy.toward(wrappedFoldOf(levelSource), anchor, target);
+    }
+
+    public static Vec3i toward(Level levelSource, BlockPos anchor, Vec3i target) {
+        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOf(levelSource), anchor, target);
+    }
+
+    public static Vec3 toward(Entity levelSource, Vec3 anchor, Vec3 target) {
+        return NearestCopy.toward(wrappedFoldOf(levelSource), anchor, target);
+    }
+
+    public static Vec3 toward(Level levelSource, Vec3 anchor, Vec3 target) {
+        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOf(levelSource), anchor, target);
+    }
+
+    public static Position toward(Entity levelSource, Vec3 anchor, Position target) {
+        return NearestCopy.toward(wrappedFoldOf(levelSource), anchor, target);
+    }
+
+    public static Position towardCenterOf(Entity levelSource, BlockPos block, Position target) {
+        return NearestCopy.towardCenterOf(wrappedFoldOf(levelSource), block, target);
+    }
+
+    public static Position towardCenterOf(Level levelSource, BlockPos block, Position target) {
+        return NearestCopy.towardCenterOf(WorldLoopAttachments.wrappedFoldOf(levelSource), block, target);
     }
 
     public static double sqr(@Nullable WorldFold fold, Vec3i from, Vec3i to) {
@@ -57,20 +94,16 @@ public final class SeamRange {
         return sqr(WorldLoopAttachments.wrappedFoldOf(levelSource), from, to);
     }
 
-    public static boolean closerThan(Entity levelSource, Vec3i from, Vec3i to, double distance) {
-        return sqr(levelSource, from, to) < Mth.square(distance);
-    }
-
     public static boolean closerThan(Entity levelSource, Vec3 from, Position to, double distance) {
-        return sqr(levelSource, from, to) < Mth.square(distance);
-    }
-
-    public static boolean closerThan(Level levelSource, Vec3i from, Vec3i to, double distance) {
         return sqr(levelSource, from, to) < Mth.square(distance);
     }
 
     public static boolean closerThan(Level levelSource, Vec3 from, Position to, double distance) {
         return sqr(levelSource, from, to) < Mth.square(distance);
+    }
+
+    public static boolean closerToCenterThan(Entity levelSource, Vec3i from, Position to, double distance) {
+        return closerThan(levelSource, Vec3.atCenterOf(from), to, distance);
     }
 
     public static boolean closerThan(WorldFold fold, Vec3 from, Vec3 to, double distanceXZ, double distanceY) {
@@ -79,16 +112,12 @@ public final class SeamRange {
                 && Mth.square(delta.y) < Mth.square(distanceY);
     }
 
-    public static boolean closerToCenterThan(Entity levelSource, Vec3i from, Position to, double distance) {
-        return closerThan(levelSource, Vec3.atCenterOf(from), to, distance);
-    }
-
-    public static boolean closerToCenterThan(Level levelSource, Vec3i from, Position to, double distance) {
-        return sqr(levelSource, Vec3.atCenterOf(from), to) < Mth.square(distance);
-    }
-
     private static WorldFold foldOf(Entity levelSource) {
         return WorldLoopAttachments.foldOf(levelSource.level());
+    }
+
+    private static @Nullable WorldFold wrappedFoldOf(Entity levelSource) {
+        return WorldLoopAttachments.wrappedFoldOf(levelSource.level());
     }
 
     private SeamRange() {

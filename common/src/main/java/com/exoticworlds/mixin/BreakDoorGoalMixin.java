@@ -20,7 +20,8 @@ public class BreakDoorGoalMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$doorRangeThroughSeam(BlockPos doorPos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan(((DoorInteractGoalAccessor) this).exotic_worlds$mob(), doorPos,
-                bodyPosition, distance);
+        return original.call(doorPos,
+                SeamRange.towardCenterOf(((DoorInteractGoalAccessor) this).exotic_worlds$mob(), doorPos, bodyPosition),
+                distance);
     }
 }

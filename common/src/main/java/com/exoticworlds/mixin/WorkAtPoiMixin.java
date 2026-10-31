@@ -26,6 +26,6 @@ public class WorkAtPoiMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$workstationReachThroughSeam(BlockPos jobSitePos, Position bodyPosition, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) Villager body) {
-        return SeamRange.closerToCenterThan(body, jobSitePos, bodyPosition, distance);
+        return original.call(jobSitePos, SeamRange.towardCenterOf(body, jobSitePos, bodyPosition), distance);
     }
 }

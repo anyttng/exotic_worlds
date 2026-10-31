@@ -25,7 +25,7 @@ public class VibrationSystemListenerMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO))
     private double exotic_worlds$travelDistThroughSeam(Vec3 origin, Vec3 dest, Operation<Double> original,
             @Local(argsOnly = true) ServerLevel level) {
-        return Math.sqrt(SeamRange.sqr(level, origin, dest));
+        return original.call(origin, SeamRange.toward(level, origin, dest));
     }
 
     @ModifyVariable(method = "isOccluded", at = @At("HEAD"), argsOnly = true, ordinal = 1)

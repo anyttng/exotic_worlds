@@ -20,7 +20,8 @@ public class DragonTakeoffPhaseMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$takeoffClearanceThroughSeam(BlockPos eggPos, Position dragonPosition, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan(((DragonPhaseAccessor) this).exotic_worlds$dragon(), eggPos, dragonPosition,
+        return original.call(eggPos,
+                SeamRange.towardCenterOf(((DragonPhaseAccessor) this).exotic_worlds$dragon(), eggPos, dragonPosition),
                 distance);
     }
 }

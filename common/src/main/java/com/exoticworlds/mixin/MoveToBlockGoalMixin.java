@@ -27,6 +27,6 @@ public class MoveToBlockGoalMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$arrivalThroughSeam(BlockPos moveToTarget, Position bodyPosition, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan(this.mob, moveToTarget, bodyPosition, distance);
+        return original.call(moveToTarget, SeamRange.towardCenterOf(this.mob, moveToTarget, bodyPosition), distance);
     }
 }

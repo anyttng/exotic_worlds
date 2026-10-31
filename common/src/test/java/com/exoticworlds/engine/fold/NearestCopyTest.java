@@ -3,10 +3,14 @@ package com.exoticworlds.engine.fold;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import java.util.List;
+import java.util.Random;
+
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -15,6 +19,9 @@ import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Position;
+import net.minecraft.core.Vec3i;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
 
@@ -41,6 +48,17 @@ class NearestCopyTest {
     private static final BlockPos TARGET_BLOCK = BlockPos.containing(TARGET);
     private static final BlockPos ANCHOR_BLOCK_BESIDE_THE_TARGET = BlockPos.containing(ANCHOR_BESIDE_THE_TARGET);
     private static final BlockPos ANCHOR_BLOCK_ACROSS_THE_SEAM = BlockPos.containing(ANCHOR_ACROSS_THE_SEAM);
+
+    private static final WorldLoopBounds TORUS_BOUNDS =
+            ShapeFixtures.loopedBounds(MIN_CHUNK, MAX_CHUNK, MIN_CHUNK, MAX_CHUNK);
+    private static final int SKEW_CHUNKS = 3;
+    private static final List<WorldFold> TORI = List.of(
+            WorldFolds.of(ShapeFixtures.torus(TORUS_BOUNDS)),
+            WorldFolds.of(FlatShape.latticeTorus(TORUS_BOUNDS, SKEW_CHUNKS)));
+    private static final double TORUS_SPAN = 3.0 * WIDTH;
+    private static final long SEED = 0x1352L;
+    private static final int SAMPLES = 2000;
+    private static final int ROUNDING_ULPS = 2;
 
     private static final ChunkPos TARGET_CHUNK = new ChunkPos(MAX_CHUNK - 1, 0);
     private static final ChunkPos ANCHOR_CHUNK_BESIDE_THE_TARGET = new ChunkPos(MAX_CHUNK - 2, 0);
@@ -125,5 +143,55 @@ class NearestCopyTest {
     void towardAnAnchorAcrossTheSeamSeatsTheCoordinateInTheLappedCopy() {
         assertEquals(TARGET.x - WIDTH,
                 NearestCopy.toward(CYLINDER, Direction.Axis.X, ANCHOR_ACROSS_THE_SEAM, TARGET));
+    }
+
+    @Test
+    void theOperandFormsTowardANullFoldHandTheArgumentBack() {
+        Vec3i target = new Vec3i(TARGET_BLOCK.getX(), TARGET_BLOCK.getY(), TARGET_BLOCK.getZ());
+        Position position = TARGET;
+        assertSame(target, NearestCopy.toward(null, ANCHOR_BLOCK_ACROSS_THE_SEAM, target));
+        assertSame(position, NearestCopy.toward(null, ANCHOR_ACROSS_THE_SEAM, position));
+        assertSame(position, NearestCopy.towardCenterOf(null, ANCHOR_BLOCK_ACROSS_THE_SEAM, position));
+    }
+
+    @Test
+    void theOperandFormsTowardAnAnchorBesideTheTargetHandTheArgumentBack() {
+        Vec3i target = TARGET_BLOCK;
+        Position position = TARGET;
+        assertSame(target, NearestCopy.toward(CYLINDER, ANCHOR_BLOCK_BESIDE_THE_TARGET, target));
+        assertSame(position, NearestCopy.toward(CYLINDER, ANCHOR_BESIDE_THE_TARGET, position));
+        assertSame(position, NearestCopy.towardCenterOf(CYLINDER, ANCHOR_BLOCK_BESIDE_THE_TARGET, position));
+    }
+
+    @Test
+    void vanillaDistanceOnTheSeatedOperandIsTheDistanceThroughTheSeam() {
+        Random random = new Random(SEED);
+        for (WorldFold fold : TORI) {
+            for (int sample = 0; sample < SAMPLES; sample++) {
+                Vec3 from = randomPoint(random);
+                Vec3 to = randomPoint(random);
+                BlockPos fromBlock = BlockPos.containing(from);
+                Vec3i toBlock = new Vec3i(Mth.floor(to.x), Mth.floor(to.y), Mth.floor(to.z));
+                Vec3 center = Vec3.atCenterOf(fromBlock);
+
+                assertSameDistance(fold.sqrDistance(fromBlock.getX(), fromBlock.getY(), fromBlock.getZ(),
+                                toBlock.getX(), toBlock.getY(), toBlock.getZ()),
+                        fromBlock.distSqr(NearestCopy.toward(fold, fromBlock, toBlock)));
+                assertSameDistance(fold.sqrDistance(center.x, center.y, center.z, to.x, to.y, to.z),
+                        fromBlock.distToCenterSqr(NearestCopy.towardCenterOf(fold, fromBlock, (Position) to)));
+                Position seated = NearestCopy.toward(fold, from, (Position) to);
+                assertSameDistance(fold.sqrDistance(from.x, from.y, from.z, to.x, to.y, to.z),
+                        from.distanceToSqr(seated.x(), seated.y(), seated.z()));
+            }
+        }
+    }
+
+    private static void assertSameDistance(double expected, double actual) {
+        assertEquals(expected, actual, ROUNDING_ULPS * Math.ulp(expected));
+    }
+
+    private static Vec3 randomPoint(Random random) {
+        return new Vec3(TORUS_SPAN * (random.nextDouble() - 0.5), HEIGHT * random.nextDouble(),
+                TORUS_SPAN * (random.nextDouble() - 0.5));
     }
 }

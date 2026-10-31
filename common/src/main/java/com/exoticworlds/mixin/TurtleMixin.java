@@ -20,7 +20,6 @@ public class TurtleMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$homeApproachThroughSeam(BlockPos homePos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
-        Turtle turtle = (Turtle) (Object) this;
-        return SeamRange.closerToCenterThan(turtle, homePos, bodyPosition, distance);
+        return original.call(homePos, SeamRange.towardCenterOf((Turtle) (Object) this, homePos, bodyPosition), distance);
     }
 }

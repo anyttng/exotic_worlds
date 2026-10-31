@@ -23,6 +23,6 @@ public class HarvestFarmlandMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$farmlandReachThroughSeam(BlockPos farmlandPos, Position bodyPosition, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) Villager body) {
-        return SeamRange.closerToCenterThan(body, farmlandPos, bodyPosition, distance);
+        return original.call(farmlandPos, SeamRange.towardCenterOf(body, farmlandPos, bodyPosition), distance);
     }
 }
