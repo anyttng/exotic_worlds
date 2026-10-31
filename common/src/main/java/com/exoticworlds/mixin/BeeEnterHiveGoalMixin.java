@@ -26,6 +26,6 @@ public class BeeEnterHiveGoalMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$hiveEntranceThroughSeam(BlockPos hivePos, Position bodyPosition, double distance,
             Operation<Boolean> original) {
-        return SeamRange.closerToCenterThan(this.bee, hivePos, bodyPosition, distance);
+        return original.call(hivePos, SeamRange.towardCenterOf(this.bee, hivePos, bodyPosition), distance);
     }
 }

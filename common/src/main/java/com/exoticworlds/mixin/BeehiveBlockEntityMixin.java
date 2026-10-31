@@ -20,6 +20,6 @@ public class BeehiveBlockEntityMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO_SQR))
     private double exotic_worlds$releaseGateThroughSeam(Vec3 harvesterPosition, Vec3 releasedPosition,
             Operation<Double> original, @Local(argsOnly = true) Player harvester) {
-        return SeamRange.sqr(harvester, harvesterPosition, releasedPosition);
+        return original.call(harvesterPosition, SeamRange.toward(harvester, harvesterPosition, releasedPosition));
     }
 }

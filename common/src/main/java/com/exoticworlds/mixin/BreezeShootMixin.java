@@ -23,7 +23,7 @@ public class BreezeShootMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO_SQR))
     private static double exotic_worlds$shootRangeThroughSeam(Vec3 from, Vec3 to, Operation<Double> original,
             @Local(argsOnly = true) Breeze body) {
-        return SeamRange.sqr(body, from, to);
+        return original.call(from, SeamRange.toward(body, from, to));
     }
 
     @WrapOperation(

@@ -23,6 +23,6 @@ public class UseBonemealMixin {
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
     private boolean exotic_worlds$cropReachThroughSeam(BlockPos cropPos, Position bodyPosition, double distance,
             Operation<Boolean> original, @Local(argsOnly = true) Villager body) {
-        return SeamRange.closerToCenterThan(body, cropPos, bodyPosition, distance);
+        return original.call(cropPos, SeamRange.towardCenterOf(body, cropPos, bodyPosition), distance);
     }
 }
