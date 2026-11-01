@@ -21,7 +21,7 @@ public class CobblemonMixinPlugin extends ModPresenceGatePlugin {
     private static final Set<String> OWN_GATES =
             Set.of(CAN_SEE_MIXIN, POLLINATE_MIXIN, HONEY_MIXIN, HIVE_SIDE_MIXIN, HABITAT_MIXIN);
 
-    private static final ModPresence COBBLEMON = ModPresence.gate(LOGGER, "[ew/cobblemon-compat] gate cobblemon_present")
+    static final ModPresence COBBLEMON =ModPresence.gate(LOGGER, "[ew/cobblemon-compat] gate cobblemon_present")
             .probing("com/cobblemon/mod/common/util/PlayerExtensionsKt.class")
             .checking(CONFIG, mixin -> !OWN_GATES.contains(mixin))
             .bodyFrom("EnderPearlLookMixin", "com/cobblemon/mod/common/mixin/EnderPearlItemMixin")

@@ -11,7 +11,7 @@ public class SupplementariesMixinPlugin extends ModPresenceGatePlugin {
     private static final String SUPPLEMENTARIES_PACKAGE = "net/mehvahdjukaar/supplementaries/";
     private static final String MOONLIGHT_PACKAGE = "net/mehvahdjukaar/moonlight/";
 
-    private static final ModPresence SUPPLEMENTARIES = ModPresence.gate(LOGGER,
+    static final ModPresence SUPPLEMENTARIES =ModPresence.gate(LOGGER,
                     "[ew/supplementaries-compat] gate supplementaries_present")
             .probing("net/mehvahdjukaar/supplementaries/common/misc/map_data/WeatheredHandler$WeatheredMapData.class")
             .checking("exotic_worlds.compat.supplementaries.mixins.json")
