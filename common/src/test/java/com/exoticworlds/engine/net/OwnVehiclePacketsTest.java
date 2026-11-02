@@ -2,6 +2,8 @@ package com.exoticworlds.engine.net;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Set;
+
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.ShapeFixtures;
@@ -11,11 +13,12 @@ import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.engine.seam.ClientPosition;
 
 import net.minecraft.network.protocol.game.ClientboundEntityPositionSyncPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-class OwnVehiclePositionSyncTest {
+class OwnVehiclePacketsTest {
     private static final int WIDTH_IN_CHUNKS = 32;
     private static final int WIDTH = WIDTH_IN_CHUNKS * 16;
     private static final int VIEW_DISTANCE = 12;
@@ -38,7 +41,6 @@ class OwnVehiclePositionSyncTest {
                 Level.OVERWORLD,
                 VIEW_DISTANCE,
                 VIEW_DISTANCE,
-                entityId -> entityId == VEHICLE_ID,
                 entityId -> null,
                 entityId -> null,
                 () -> {
@@ -54,5 +56,16 @@ class OwnVehiclePositionSyncTest {
 
         assertEquals(VEHICLE_ID, sync.id());
         assertEquals(VEHICLE.subtract(WIDTH, 0.0, 0.0), sync.values().position());
+    }
+
+    @Test
+    void theOwnVehiclesTeleportReachesTheClientSeatedInItsLappedCopy() {
+        ClientboundTeleportEntityPacket teleport = ClientboundPacketRewriters.teleportEntity(
+                new ClientboundTeleportEntityPacket(VEHICLE_ID,
+                        new PositionMoveRotation(VEHICLE, Vec3.ZERO, 0.0F, 0.0F), Set.of(), true),
+                contextRidingTheVehicle());
+
+        assertEquals(VEHICLE_ID, teleport.id());
+        assertEquals(VEHICLE.subtract(WIDTH, 0.0, 0.0), teleport.change().position());
     }
 }

@@ -196,7 +196,7 @@ public final class PacketTranslator {
         SERVERBOUND.rewriters().register(packetType, rewriter(packetRewriter));
     }
 
-    public static <T extends net.minecraft.network.PacketListener> @Nullable Packet<T> toClient(Packet<T> packet,
+    public static <T extends net.minecraft.network.PacketListener> Packet<T> toClient(Packet<T> packet,
             ServerPlayer player) {
         WorldFold fold = WorldLoopAttachments.wrappedFoldOf(player.level());
         if (fold == null) {
@@ -210,7 +210,7 @@ public final class PacketTranslator {
         return dispatch(CLIENTBOUND, packet, player, fold);
     }
 
-    static <T extends net.minecraft.network.PacketListener> @Nullable Packet<T> toClient(Packet<T> packet,
+    static <T extends net.minecraft.network.PacketListener> Packet<T> toClient(Packet<T> packet,
             TranslationContext context) {
         if (packet instanceof ClientboundBundlePacket bundle) {
             return castPacket(toClientBundle(bundle, () -> context));
@@ -240,7 +240,7 @@ public final class PacketTranslator {
             changed |= translatedSub != sub;
             if (translatedSub instanceof ClientboundBundlePacket copies) {
                 copies.subPackets().forEach(translated::add);
-            } else if (translatedSub != null) {
+            } else {
                 translated.add(translatedSub);
             }
         }
