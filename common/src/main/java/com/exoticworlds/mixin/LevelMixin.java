@@ -182,7 +182,9 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
     @WrapMethod(method = "precipitationAt")
     private Biome.Precipitation exotic_worlds$bindPrecipitationFold(
             BlockPos pos, Operation<Biome.Precipitation> original) {
-        return GenerationFoldContext.withFold(
-                WorldLoopAttachments.noiseFoldOf((Level) (Object) this), () -> original.call(pos));
+        WorldFold fold = WorldLoopAttachments.noiseFoldOf((Level) (Object) this);
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+            return original.call(pos);
+        }
     }
 }

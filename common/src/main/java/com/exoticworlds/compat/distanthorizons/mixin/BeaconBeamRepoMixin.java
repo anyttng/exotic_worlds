@@ -25,7 +25,12 @@ public class BeaconBeamRepoMixin {
 
     @WrapMethod(method = "createUpsertStatement(Lcom/seibel/distanthorizons/core/sql/dto/BeaconBeamDTO;)Ljava/sql/PreparedStatement;")
     private PreparedStatement exotic_worlds$foldUpsert(BeaconBeamDTO dto, Operation<PreparedStatement> original) {
-        return DhKeys.withFoldedKey(DhRepoLevel.latticeOf(this), dto, () -> original.call(dto));
+        Object raw = DhKeys.seatFolded(DhRepoLevel.latticeOf(this), dto);
+        try {
+            return original.call(dto);
+        } finally {
+            DhKeys.reseat(dto, raw);
+        }
     }
 
     @WrapMethod(method = "getAllBeamsInBlockPosRange")

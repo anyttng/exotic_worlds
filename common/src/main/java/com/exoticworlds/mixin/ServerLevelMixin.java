@@ -169,8 +169,9 @@ public class ServerLevelMixin {
 
     @WrapMethod(method = "tickPrecipitation")
     private void exotic_worlds$bindPrecipitationFold(BlockPos pos, Operation<Void> original) {
-        ServerLevel level = (ServerLevel) (Object) this;
-        GenerationFoldContext.runWithFold(
-                WorldLoopAttachments.foldOf(level), () -> original.call(pos));
+        WorldFold fold = WorldLoopAttachments.foldOf((ServerLevel) (Object) this);
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+            original.call(pos);
+        }
     }
 }

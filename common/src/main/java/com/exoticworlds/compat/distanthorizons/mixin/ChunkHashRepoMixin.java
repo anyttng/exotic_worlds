@@ -22,6 +22,11 @@ public class ChunkHashRepoMixin {
 
     @WrapMethod(method = "createUpsertStatement(Lcom/seibel/distanthorizons/core/sql/dto/ChunkHashDTO;)Ljava/sql/PreparedStatement;")
     private PreparedStatement exotic_worlds$foldUpsert(ChunkHashDTO dto, Operation<PreparedStatement> original) {
-        return DhKeys.withFoldedKey(DhRepoLevel.latticeOf(this), dto, () -> original.call(dto));
+        Object raw = DhKeys.seatFolded(DhRepoLevel.latticeOf(this), dto);
+        try {
+            return original.call(dto);
+        } finally {
+            DhKeys.reseat(dto, raw);
+        }
     }
 }
