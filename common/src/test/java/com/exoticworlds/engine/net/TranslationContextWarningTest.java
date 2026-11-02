@@ -155,7 +155,6 @@ class TranslationContextWarningTest {
                 Level.OVERWORLD,
                 VIEW_DISTANCE,
                 VIEW_DISTANCE,
-                entityId -> false,
                 entityId -> null,
                 entityId -> null,
                 () -> {

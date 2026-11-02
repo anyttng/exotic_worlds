@@ -3,7 +3,6 @@ package com.exoticworlds.engine.net;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntFunction;
-import java.util.function.IntPredicate;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -41,7 +40,6 @@ public record TranslationContext(
         ResourceKey<Level> dimension,
         int trackedViewDistance,
         int heldViewDistance,
-        IntPredicate ownVehicle,
         IntFunction<@Nullable Vec3> entityPosition,
         IntFunction<TagPositions.@Nullable Subject> entity,
         Runnable rebase,
@@ -60,10 +58,10 @@ public record TranslationContext(
 
     public TranslationContext(WorldFold fold, ClientPosition clientPosition,
             IntFunction<RegistryFriendlyByteBuf> bufferFactory, ResourceKey<Level> dimension, int trackedViewDistance,
-            int heldViewDistance, IntPredicate ownVehicle, IntFunction<@Nullable Vec3> entityPosition,
+            int heldViewDistance, IntFunction<@Nullable Vec3> entityPosition,
             IntFunction<TagPositions.@Nullable Subject> entity, Runnable rebase) {
-        this(fold, clientPosition, bufferFactory, dimension, trackedViewDistance, heldViewDistance, ownVehicle,
-                entityPosition, entity, rebase, new CameraSide());
+        this(fold, clientPosition, bufferFactory, dimension, trackedViewDistance, heldViewDistance, entityPosition,
+                entity, rebase, new CameraSide());
     }
 
     public static TranslationContext of(ServerPlayer player, WorldFold fold) {
@@ -77,7 +75,6 @@ public record TranslationContext(
                 player.level().dimension(),
                 trackedViewDistance,
                 heldViewDistanceOf(player, trackedViewDistance),
-                entityId -> isControlledVehicle(player, entityId),
                 entityId -> positionOf(player, entityId),
                 entityId -> subjectOf(player, entityId),
                 () -> ClientPosition.rebase(player));
@@ -93,11 +90,6 @@ public record TranslationContext(
         return player.getChunkTrackingView() instanceof ChunkTrackingView.Positioned view
                 ? view.viewDistance()
                 : trackedViewDistance;
-    }
-
-    private static boolean isControlledVehicle(ServerPlayer player, int entityId) {
-        Entity vehicle = player.getControlledVehicle();
-        return vehicle != null && vehicle.getId() == entityId;
     }
 
     private static @Nullable Vec3 positionOf(ServerPlayer player, int entityId) {
