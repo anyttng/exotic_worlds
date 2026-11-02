@@ -105,8 +105,8 @@ public class ServerPlayerMixin implements SeamTravelHolder {
     @Inject(method = "changeDimension(Lnet/minecraft/world/level/portal/DimensionTransition;)Lnet/minecraft/world/entity/Entity;",
             at = @At("TAIL"))
     private void exotic_worlds$sendBoundsOnDimensionChange(DimensionTransition transition,
-            CallbackInfoReturnable<@Nullable Entity> cir) {
-        WorldShapeSync.sendTo((ServerPlayer) (Object) this);
+            CallbackInfoReturnable<@Nullable Entity> cir, @Local(ordinal = 1) ServerLevel oldLevel) {
+        WorldShapeSync.sendOnLevelChange((ServerPlayer) (Object) this, oldLevel);
     }
 
     @Inject(method = "doTick", at = @At(value = "INVOKE", target = PLAYER_TICK, shift = At.Shift.AFTER))

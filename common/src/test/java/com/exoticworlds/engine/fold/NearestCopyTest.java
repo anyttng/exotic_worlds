@@ -23,6 +23,7 @@ import net.minecraft.core.Position;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.Vec3;
 
 class NearestCopyTest {
@@ -48,6 +49,10 @@ class NearestCopyTest {
     private static final BlockPos TARGET_BLOCK = BlockPos.containing(TARGET);
     private static final BlockPos ANCHOR_BLOCK_BESIDE_THE_TARGET = BlockPos.containing(ANCHOR_BESIDE_THE_TARGET);
     private static final BlockPos ANCHOR_BLOCK_ACROSS_THE_SEAM = BlockPos.containing(ANCHOR_ACROSS_THE_SEAM);
+    private static final BoundingBox BOX_BESIDE_THE_TARGET =
+            BoundingBox.fromCorners(ANCHOR_BLOCK_BESIDE_THE_TARGET, ANCHOR_BLOCK_BESIDE_THE_TARGET);
+    private static final BoundingBox BOX_ACROSS_THE_SEAM =
+            BoundingBox.fromCorners(ANCHOR_BLOCK_ACROSS_THE_SEAM, ANCHOR_BLOCK_ACROSS_THE_SEAM);
 
     private static final WorldLoopBounds TORUS_BOUNDS =
             ShapeFixtures.loopedBounds(MIN_CHUNK, MAX_CHUNK, MIN_CHUNK, MAX_CHUNK);
@@ -91,6 +96,8 @@ class NearestCopyTest {
                 NearestCopy.toward(CYLINDER, ANCHOR_ACROSS_THE_SEAM, TARGET));
         assertEquals(TARGET_BLOCK.offset(-WIDTH, 0, 0),
                 NearestCopy.toward(CYLINDER, ANCHOR_BLOCK_ACROSS_THE_SEAM, TARGET_BLOCK));
+        assertEquals(TARGET_BLOCK.offset(-WIDTH, 0, 0),
+                NearestCopy.toward(CYLINDER, BOX_ACROSS_THE_SEAM, (Vec3i) TARGET_BLOCK));
         assertEquals(new ChunkPos(TARGET_CHUNK.x - WIDTH_IN_CHUNKS, TARGET_CHUNK.z),
                 NearestCopy.toward(CYLINDER, ANCHOR_CHUNK_ACROSS_THE_SEAM, TARGET_CHUNK));
     }
@@ -150,6 +157,7 @@ class NearestCopyTest {
         Vec3i target = new Vec3i(TARGET_BLOCK.getX(), TARGET_BLOCK.getY(), TARGET_BLOCK.getZ());
         Position position = TARGET;
         assertSame(target, NearestCopy.toward(null, ANCHOR_BLOCK_ACROSS_THE_SEAM, target));
+        assertSame(target, NearestCopy.toward(null, BOX_ACROSS_THE_SEAM, target));
         assertSame(position, NearestCopy.toward(null, ANCHOR_ACROSS_THE_SEAM, position));
         assertSame(position, NearestCopy.towardCenterOf(null, ANCHOR_BLOCK_ACROSS_THE_SEAM, position));
     }
@@ -159,6 +167,7 @@ class NearestCopyTest {
         Vec3i target = TARGET_BLOCK;
         Position position = TARGET;
         assertSame(target, NearestCopy.toward(CYLINDER, ANCHOR_BLOCK_BESIDE_THE_TARGET, target));
+        assertSame(target, NearestCopy.toward(CYLINDER, BOX_BESIDE_THE_TARGET, target));
         assertSame(position, NearestCopy.toward(CYLINDER, ANCHOR_BESIDE_THE_TARGET, position));
         assertSame(position, NearestCopy.towardCenterOf(CYLINDER, ANCHOR_BLOCK_BESIDE_THE_TARGET, position));
     }

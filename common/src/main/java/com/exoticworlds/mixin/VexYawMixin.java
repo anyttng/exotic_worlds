@@ -3,6 +3,7 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.engine.seam.SeamAim;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -19,7 +20,7 @@ public class VexYawMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/monster/Vex;setYRot(F)V", ordinal = 1))
     private void exotic_worlds$bodyYawThroughSeam(Vex vex, float yRot, Operation<Void> original) {
         LivingEntity target = vex.getTarget();
-        if (target == null) {
+        if (target == null || ((FoldSource) vex).exotic_worlds$wrappedFold() == null) {
             original.call(vex, yRot);
             return;
         }

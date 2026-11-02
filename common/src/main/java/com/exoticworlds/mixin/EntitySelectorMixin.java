@@ -12,7 +12,6 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.exoticworlds.engine.seam.SeamCommandErrors;
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -28,14 +27,18 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(EntitySelector.class)
 public class EntitySelectorMixin {
-    @WrapMethod(method = "getPredicate")
-    private Predicate<Entity> exotic_worlds$boxThroughSeam(Vec3 pos, @Nullable AABB absoluteAabb,
-            @Nullable FeatureFlagSet enabledFeatures, Operation<Predicate<Entity>> original) {
-        if (absoluteAabb == null) {
-            return original.call(pos, absoluteAabb, enabledFeatures);
+    @WrapOperation(
+            method = {"findEntities", "findPlayers"},
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/commands/arguments/selector/EntitySelector;getPredicate(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/AABB;Lnet/minecraft/world/flag/FeatureFlagSet;)Ljava/util/function/Predicate;"))
+    private Predicate<Entity> exotic_worlds$boxThroughSeam(EntitySelector selector, Vec3 pos, @Nullable AABB absoluteAabb,
+            @Nullable FeatureFlagSet enabledFeatures, Operation<Predicate<Entity>> original,
+            @Local(argsOnly = true) CommandSourceStack sender) {
+        if (absoluteAabb == null || !exotic_worlds$searchesAWrappedLevel(sender)) {
+            return original.call(selector, pos, absoluteAabb, enabledFeatures);
         }
 
-        Predicate<Entity> withoutBox = original.call(pos, null, enabledFeatures);
+        Predicate<Entity> withoutBox = original.call(selector, pos, null, enabledFeatures);
         return entity -> withoutBox.test(entity) && exotic_worlds$insideThroughSeam(entity, absoluteAabb);
     }
 
@@ -60,6 +63,13 @@ public class EntitySelectorMixin {
         }
 
         return resolved;
+    }
+
+    @Unique
+    private static boolean exotic_worlds$searchesAWrappedLevel(CommandSourceStack sender) {
+        Entity entity = sender.getEntity();
+        return WorldLoopAttachments.wrappedFoldOf(sender.getLevel()) != null
+                || entity != null && WorldLoopAttachments.wrappedFoldOf(entity.level()) != null;
     }
 
     @Unique

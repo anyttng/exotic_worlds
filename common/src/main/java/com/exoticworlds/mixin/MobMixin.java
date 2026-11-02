@@ -23,12 +23,16 @@ import net.minecraft.world.phys.AABB;
 public class MobMixin {
     @ModifyVariable(method = "lookAt(Lnet/minecraft/world/entity/Entity;FF)V", at = @At("STORE"), ordinal = 0)
     private double exotic_worlds$lookDeltaX(double deltaX, @Local(argsOnly = true) Entity target) {
-        return SeamAim.deltaTo((Mob) (Object) this, target.position()).x;
+        return ((FoldSource) this).exotic_worlds$wrappedFold() == null
+                ? deltaX
+                : SeamAim.deltaTo((Mob) (Object) this, target.position()).x;
     }
 
     @ModifyVariable(method = "lookAt(Lnet/minecraft/world/entity/Entity;FF)V", at = @At("STORE"), ordinal = 1)
     private double exotic_worlds$lookDeltaZ(double deltaZ, @Local(argsOnly = true) Entity target) {
-        return SeamAim.deltaTo((Mob) (Object) this, target.position()).z;
+        return ((FoldSource) this).exotic_worlds$wrappedFold() == null
+                ? deltaZ
+                : SeamAim.deltaTo((Mob) (Object) this, target.position()).z;
     }
 
     @ModifyExpressionValue(

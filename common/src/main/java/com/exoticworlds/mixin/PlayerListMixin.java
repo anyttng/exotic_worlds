@@ -109,18 +109,26 @@ public class PlayerListMixin {
     @Inject(method = "respawn", at = @At("TAIL"))
     private void exotic_worlds$sendBoundsOnRespawn(ServerPlayer player, boolean keepAllPlayerData,
             Entity.RemovalReason removalReason, CallbackInfoReturnable<ServerPlayer> cir) {
-        WorldShapeSync.sendTo(cir.getReturnValue());
+        WorldShapeSync.sendOnLevelChange(cir.getReturnValue(), player.serverLevel());
     }
 
     @WrapOperation(method = "setViewDistance", at = @At(value = "INVOKE", target = BROADCAST_ALL))
     private void exotic_worlds$sendViewDistancePerLevel(PlayerList playerList, Packet<?> packet, Operation<Void> original) {
-        playerList.getPlayers().forEach(WorldShapeSync::sendViewDistance);
+        if (WorldShapeSync.limitsAnyPlayer(playerList, playerList.getViewDistance())) {
+            playerList.getPlayers().forEach(WorldShapeSync::sendViewDistance);
+        } else {
+            original.call(playerList, packet);
+        }
     }
 
     @WrapOperation(method = "setSimulationDistance", at = @At(value = "INVOKE", target = BROADCAST_ALL))
     private void exotic_worlds$sendSimulationDistancePerLevel(PlayerList playerList, Packet<?> packet,
             Operation<Void> original) {
-        playerList.getPlayers().forEach(WorldShapeSync::sendSimulationDistance);
+        if (WorldShapeSync.limitsAnyPlayer(playerList, playerList.getSimulationDistance())) {
+            playerList.getPlayers().forEach(WorldShapeSync::sendSimulationDistance);
+        } else {
+            original.call(playerList, packet);
+        }
     }
 
     @WrapOperation(

@@ -9,16 +9,33 @@ import net.minecraft.network.protocol.game.ClientboundSetChunkCacheRadiusPacket;
 import net.minecraft.network.protocol.game.ClientboundSetSimulationDistancePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
 
 public final class WorldShapeSync {
-    public static void sendTo(ServerPlayer player) {
+    public static void sendOnLevelChange(ServerPlayer player, ServerLevel from) {
         send(player, player.serverLevel());
-        sendViewDistance(player);
-        sendSimulationDistance(player);
+        PlayerList players = player.serverLevel().getServer().getPlayerList();
+        if (limitIn(from, players.getViewDistance()) != distanceFor(player, players.getViewDistance())) {
+            sendViewDistance(player);
+        }
+
+        if (limitIn(from, players.getSimulationDistance()) != distanceFor(player, players.getSimulationDistance())) {
+            sendSimulationDistance(player);
+        }
     }
 
     public static int distanceFor(ServerPlayer player, int distance) {
-        return WorldLoopAttachments.foldOf(player.serverLevel()).limitViewDistance(distance);
+        return limitIn(player.serverLevel(), distance);
+    }
+
+    public static boolean limitsAnyPlayer(PlayerList players, int distance) {
+        for (ServerPlayer player : players.getPlayers()) {
+            if (distanceFor(player, distance) != distance) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static void sendViewDistance(ServerPlayer player) {
@@ -35,6 +52,10 @@ public final class WorldShapeSync {
         for (ServerLevel level : player.serverLevel().getServer().getAllLevels()) {
             send(player, level);
         }
+    }
+
+    private static int limitIn(ServerLevel level, int distance) {
+        return WorldLoopAttachments.foldOf(level).limitViewDistance(distance);
     }
 
     private static void send(ServerPlayer player, ServerLevel level) {
