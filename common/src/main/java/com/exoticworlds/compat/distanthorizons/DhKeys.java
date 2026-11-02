@@ -2,7 +2,6 @@ package com.exoticworlds.compat.distanthorizons;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 import com.exoticworlds.compat.WorldCopies;
 import com.seibel.distanthorizons.core.pos.DhChunkPos;
@@ -196,14 +195,10 @@ public final class DhKeys {
         return key;
     }
 
-    public static <T> T withFoldedKey(DhLattice lattice, IBaseDTO<?> dto, Supplier<T> statement) {
+    public static Object seatFolded(DhLattice lattice, IBaseDTO<?> dto) {
         Object raw = dto.getKey();
         reseat(dto, foldKey(lattice, raw));
-        try {
-            return statement.get();
-        } finally {
-            reseat(dto, raw);
-        }
+        return raw;
     }
 
     public static void reseat(IBaseDTO<?> dto, Object key) {

@@ -8,6 +8,8 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.compat.betterend.BetterEndInjectionTargets;
 import com.exoticworlds.compat.betterend.BetterEndSurfaceNoise;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -21,7 +23,10 @@ public class UmbraSurfaceNoiseConditionMixin {
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_2D, ordinal = 0))
     private static double exotic_worlds$lapBroadNoise(OpenSimplexNoise noise, double x, double z,
             Operation<Double> original) {
-        return BetterEndSurfaceNoise.umbra(noise, x, z, BetterEndSurfaceNoise.UMBRA_BROAD_SCALE, original);
+        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        return fold == null
+                ? original.call(noise, x, z)
+                : BetterEndSurfaceNoise.umbra(noise, fold, x, z, BetterEndSurfaceNoise.UMBRA_BROAD_SCALE);
     }
 
     @WrapOperation(
@@ -29,6 +34,9 @@ public class UmbraSurfaceNoiseConditionMixin {
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_2D, ordinal = 1))
     private static double exotic_worlds$lapFineNoise(OpenSimplexNoise noise, double x, double z,
             Operation<Double> original) {
-        return BetterEndSurfaceNoise.umbra(noise, x, z, BetterEndSurfaceNoise.UMBRA_FINE_SCALE, original);
+        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        return fold == null
+                ? original.call(noise, x, z)
+                : BetterEndSurfaceNoise.umbra(noise, fold, x, z, BetterEndSurfaceNoise.UMBRA_FINE_SCALE);
     }
 }

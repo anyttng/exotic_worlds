@@ -4,7 +4,7 @@ import org.betterx.betterend.noise.OpenSimplexNoise;
 
 import com.exoticworlds.compat.LapNoise;
 import com.exoticworlds.compat.StandInHolder;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.exoticworlds.core.WorldFold;
 
 public final class BetterEndSurfaceNoise {
     public static final double UMBRA_BROAD_SCALE = 0.03;
@@ -13,17 +13,16 @@ public final class BetterEndSurfaceNoise {
 
     private static final double SPLIT_SCALE = 0.1;
 
-    public static double split(OpenSimplexNoise noise, double x, double z, Operation<Double> original) {
-        return lap(noise, x, z, SPLIT_SCALE, original);
+    public static double split(OpenSimplexNoise noise, WorldFold fold, double x, double z) {
+        return lap(noise, fold, x, z, SPLIT_SCALE);
     }
 
-    public static double umbra(OpenSimplexNoise noise, double x, double z, double scale, Operation<Double> original) {
-        return lap(noise, x, z, scale, original);
+    public static double umbra(OpenSimplexNoise noise, WorldFold fold, double x, double z, double scale) {
+        return lap(noise, fold, x, z, scale);
     }
 
-    private static double lap(OpenSimplexNoise noise, double x, double z, double scale, Operation<Double> original) {
-        return LapNoise.boundEval(((StandInHolder) (Object) noise).exotic_worlds$standIn(), x, z, scale, scale,
-                () -> original.call(noise, x, z));
+    private static double lap(OpenSimplexNoise noise, WorldFold fold, double x, double z, double scale) {
+        return LapNoise.eval(((StandInHolder) (Object) noise).exotic_worlds$standIn(), fold, x, z, scale, scale);
     }
 
     private BetterEndSurfaceNoise() {
