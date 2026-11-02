@@ -5,7 +5,6 @@ import com.exoticworlds.compat.ultimatemapatlases.AtlasLecternTranslation;
 import com.exoticworlds.engine.gen.LoopedChunkGenerator;
 import com.exoticworlds.engine.gen.LoopedFlatChunkGenerator;
 import com.exoticworlds.engine.gen.WorldLoopGenerators;
-import com.exoticworlds.engine.gen.WorldLoopTicketTypes;
 import com.exoticworlds.engine.net.OpenMenuTranslation;
 import com.exoticworlds.engine.net.PositionRowsPayload;
 import com.exoticworlds.engine.net.PositionRowsReloadListener;
@@ -43,9 +42,6 @@ public class ExoticWorldsFabric implements ModInitializer {
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR,
                 Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, WorldLoopGenerators.TOROIDAL_FLAT_ID),
                 LoopedFlatChunkGenerator.CODEC);
-        Registry.register(BuiltInRegistries.TICKET_TYPE,
-                Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, WorldLoopTicketTypes.SEAM_GENERATION_ID),
-                WorldLoopTicketTypes.SEAM_GENERATION);
         Registry.register(BuiltInRegistries.TRIGGER_TYPES,
                 Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, WorldLoopCriteria.CIRCUMNAVIGATE_ID),
                 WorldLoopCriteria.CIRCUMNAVIGATE);
