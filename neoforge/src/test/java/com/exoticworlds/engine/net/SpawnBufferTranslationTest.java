@@ -44,7 +44,7 @@ class SpawnBufferTranslationTest {
     private static final TagPositions.Subject UNREGISTERED_TYPE = new TagPositions.Subject(Boat.class, OAK_BOAT_ID);
 
     private static TranslationContext contextHolding(TagPositions.Subject entity) {
-        return context(entityId -> false, entityId -> null,
+        return context(entityId -> null,
                 entityId -> entityId == ENTITY_ID ? entity : null);
     }
 

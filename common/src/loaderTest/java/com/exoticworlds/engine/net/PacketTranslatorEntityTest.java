@@ -74,7 +74,7 @@ class PacketTranslatorEntityTest {
     @Test
     void teleportOfTheOwnControlledVehicleReachesTheClientOnItsCopy() {
         ClientboundTeleportEntityPacket translated = (ClientboundTeleportEntityPacket) PacketTranslator.toClient(
-                teleportPacket(42, SERVER_X, SERVER_Z, false), context(entityId -> entityId == 42, entityId -> null));
+                teleportPacket(42, SERVER_X, SERVER_Z, false), context(entityId -> null));
 
         assertEquals(42, translated.getId());
         assertEquals(CLIENT_X, translated.getX());
@@ -116,7 +116,7 @@ class PacketTranslatorEntityTest {
                 new SynchedEntityData.DataValue<>(3, EntityDataSerializers.BLOCK_POS, SERVER_CARRIED_BLOCK)));
 
         ClientboundSetEntityDataPacket translated = (ClientboundSetEntityDataPacket) PacketTranslator.toClient(
-                packet, context(entityId -> false, entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
+                packet, context(entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
 
         assertEquals(Optional.of(CLIENT_CARRIED_BLOCK), translated.packedItems().get(0).value());
         assertEquals((byte) 6, translated.packedItems().get(1).value());
@@ -136,7 +136,7 @@ class PacketTranslatorEntityTest {
 
         List<SynchedEntityData.DataValue<?>> translated = ((ClientboundSetEntityDataPacket) PacketTranslator.toClient(
                 new ClientboundSetEntityDataPacket(3, items),
-                context(entityId -> false, entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)))).packedItems();
+                context(entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)))).packedItems();
 
         for (int index = 0; index < items.size() - 1; index++) {
             assertSame(items.get(index), translated.get(index));
@@ -183,7 +183,7 @@ class PacketTranslatorEntityTest {
                 new SynchedEntityData.DataValue<>(1, EntityDataSerializers.OPTIONAL_GLOBAL_POS, Optional.of(elsewhere))));
 
         ClientboundSetEntityDataPacket translated = (ClientboundSetEntityDataPacket) PacketTranslator.toClient(
-                packet, context(entityId -> false, entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
+                packet, context(entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
 
         assertEquals(Optional.of(GlobalPos.of(Level.OVERWORLD, CLIENT_CARRIED_BLOCK)),
                 translated.packedItems().get(0).value());
@@ -198,7 +198,7 @@ class PacketTranslatorEntityTest {
                 new SynchedEntityData.DataValue<>(0, EntityDataSerializers.PARTICLE, particle)));
 
         ClientboundSetEntityDataPacket translated = (ClientboundSetEntityDataPacket) PacketTranslator.toClient(
-                packet, context(entityId -> false, entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
+                packet, context(entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
 
         VibrationParticleOption vibration =
                 (VibrationParticleOption) translated.packedItems().getFirst().value();
@@ -216,7 +216,7 @@ class PacketTranslatorEntityTest {
                         List.<ParticleOptions>of(ParticleTypes.FLAME, particle))));
 
         ClientboundSetEntityDataPacket translated = (ClientboundSetEntityDataPacket) PacketTranslator.toClient(
-                packet, context(entityId -> false, entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
+                packet, context(entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
 
         List<?> particles = (List<?>) translated.packedItems().getFirst().value();
         assertSame(ParticleTypes.FLAME, particles.get(0));
@@ -255,7 +255,7 @@ class PacketTranslatorEntityTest {
                 new SynchedEntityData.DataValue<>(0, EntityDataSerializers.PARTICLE, ParticleTypes.FLAME)));
 
         ClientboundSetEntityDataPacket translated = (ClientboundSetEntityDataPacket) PacketTranslator.toClient(
-                packet, context(entityId -> false, entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
+                packet, context(entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
 
         assertSame(ParticleTypes.FLAME, translated.packedItems().getFirst().value());
     }
@@ -277,7 +277,7 @@ class PacketTranslatorEntityTest {
                 new SynchedEntityData.DataValue<>(0, FOLDED_POSITION_SERIALIZER, SERVER_CARRIED_POSITION)));
 
         ClientboundSetEntityDataPacket translated = (ClientboundSetEntityDataPacket) PacketTranslator.toClient(
-                packet, context(entityId -> false, entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
+                packet, context(entityId -> new Vec3(SERVER_X, 70.0, SERVER_Z)));
 
         assertEquals(CLIENT_CARRIED_POSITION, translated.packedItems().getFirst().value());
     }

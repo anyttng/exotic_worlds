@@ -34,10 +34,7 @@ public class ConnectionMixin {
             return;
         }
 
-        Packet<?> translated = PacketTranslator.toClient(packet, player);
-        if (translated != null) {
-            original.call(translated, listener, flush);
-        }
+        original.call(PacketTranslator.toClient(packet, player), listener, flush);
     }
 
     @ModifyVariable(method = "channelRead0", at = @At("HEAD"), argsOnly = true)

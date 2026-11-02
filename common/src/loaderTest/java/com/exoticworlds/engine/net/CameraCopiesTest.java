@@ -53,7 +53,7 @@ class CameraCopiesTest {
         mirror.setHeldCacheCenter(HELD_CENTER);
         mirror.followCamera(camera, Level.OVERWORLD);
         return new TranslationContext(FOLD, mirror, BUFFERS, Level.OVERWORLD,
-                VIEW_DISTANCE, VIEW_DISTANCE, entityId -> false, entityId -> null, entityId -> null, () -> {},
+                VIEW_DISTANCE, VIEW_DISTANCE, entityId -> null, entityId -> null, () -> {},
                 REWRITERS);
     }
 
