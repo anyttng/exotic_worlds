@@ -51,14 +51,14 @@ public class MapItemSavedDataMixin {
     private double exotic_worlds$foldBannerX(double xPos, @Local(argsOnly = true) LevelAccessor level,
             @Local(argsOnly = true) BlockPos pos) {
         return NearestCopy.toward(MapSeamFold.foldFor(level, this.dimension), Direction.Axis.X,
-                exotic_worlds$center(), Vec3.atBottomCenterOf(pos));
+                exotic_worlds$center(), Vec3.atBottomCenterOf(pos).with(Direction.Axis.X, xPos));
     }
 
     @ModifyVariable(method = "toggleBanner", at = @At("STORE"), ordinal = 1)
     private double exotic_worlds$foldBannerZ(double zPos, @Local(argsOnly = true) LevelAccessor level,
             @Local(argsOnly = true) BlockPos pos) {
         return NearestCopy.toward(MapSeamFold.foldFor(level, this.dimension), Direction.Axis.Z,
-                exotic_worlds$center(), Vec3.atBottomCenterOf(pos));
+                exotic_worlds$center(), Vec3.atBottomCenterOf(pos).with(Direction.Axis.Z, zPos));
     }
 
     @Unique
