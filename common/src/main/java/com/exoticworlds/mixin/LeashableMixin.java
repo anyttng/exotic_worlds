@@ -6,7 +6,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.seam.SeamRange;
 import com.exoticworlds.engine.seam.SeamSteering;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -28,7 +27,8 @@ public interface LeashableMixin {
 
         Vec3 from = ((Entity) this).getBoundingBox().getCenter();
         Vec3 to = entity.getBoundingBox().getCenter();
-        return Math.sqrt(SeamRange.sqr(fold, from, to));
+        Vec3 nearest = fold.nearestCopy(from, to);
+        return nearest == to ? original.call(entity) : nearest.distanceTo(from);
     }
 
     @WrapOperation(

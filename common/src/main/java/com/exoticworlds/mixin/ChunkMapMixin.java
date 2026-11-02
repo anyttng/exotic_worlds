@@ -21,6 +21,7 @@ import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.gen.FloatingCrumbs;
 import com.exoticworlds.engine.gen.SeamDriveRequest;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
@@ -326,18 +327,15 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             return original.call(chunkPos, pos);
         }
 
-        return fold.sqrDistance(pos.x, 0.0, pos.z, chunkPos.getMiddleBlockX(), 0.0, chunkPos.getMiddleBlockZ());
+        Vec3 chunkMiddle = new Vec3(chunkPos.getMiddleBlockX(), pos.y, chunkPos.getMiddleBlockZ());
+        return original.call(chunkPos, fold.nearestCopy(chunkMiddle, pos));
     }
 
     @WrapOperation(
             method = "playerIsCloseEnoughTo",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO))
     private double exotic_worlds$wrappedPlayerDistance(Vec3 playerPos, Vec3 pos, Operation<Double> original) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.level);
-        if (fold == null) {
-            return original.call(playerPos, pos);
-        }
-
-        return Math.sqrt(fold.sqrDistance(playerPos.x, playerPos.y, playerPos.z, pos.x, pos.y, pos.z));
+        return original.call(playerPos,
+                NearestCopy.toward(WorldLoopAttachments.wrappedFoldOf(this.level), playerPos, pos));
     }
 }
