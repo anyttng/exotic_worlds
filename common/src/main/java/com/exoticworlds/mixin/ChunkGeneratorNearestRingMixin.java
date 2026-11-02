@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.seam.SeamRange;
+import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -28,10 +28,6 @@ public class ChunkGeneratorNearestRingMixin {
     private double exotic_worlds$ringDistThroughSeam(BlockPos.MutableBlockPos candidate, Vec3i origin,
             Operation<Double> original) {
         WorldFold fold = ShapedChunkGenerator.wrappedFoldOf((ChunkGenerator) (Object) this);
-        if (fold == null) {
-            return original.call(candidate, origin);
-        }
-
-        return SeamRange.sqr(fold, origin, candidate);
+        return original.call(candidate, NearestCopy.toward(fold, candidate, origin));
     }
 }

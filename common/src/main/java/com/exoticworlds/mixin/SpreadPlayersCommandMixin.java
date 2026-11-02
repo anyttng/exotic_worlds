@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
-import com.exoticworlds.engine.seam.SeamRange;
 import com.exoticworlds.engine.seam.SpreadArea;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -46,22 +45,7 @@ public class SpreadPlayersCommandMixin {
             SpreadPlayersCommand.Position neighbor, @Local(name = "position") SpreadPlayersCommand.Position position,
             @Share(SPREAD_FOLD) LocalRef<@Nullable WorldFold> spreadFold) {
         WorldFold fold = spreadFold.get();
-        if (fold == null) {
-            return neighbor;
-        }
-
-        SpreadPositionAccessor from = (SpreadPositionAccessor) position;
-        SpreadPositionAccessor to = (SpreadPositionAccessor) neighbor;
-        Vec3 raw = new Vec3(to.exotic_worlds$x(), 0.0, to.exotic_worlds$z());
-        Vec3 nearest = fold.nearestCopy(new Vec3(from.exotic_worlds$x(), 0.0, from.exotic_worlds$z()), raw);
-        if (nearest == raw) {
-            return neighbor;
-        }
-
-        SpreadPlayersCommand.Position copy = SpreadPositionAccessor.exotic_worlds$create();
-        ((SpreadPositionAccessor) copy).exotic_worlds$setX(nearest.x);
-        ((SpreadPositionAccessor) copy).exotic_worlds$setZ(nearest.z);
-        return copy;
+        return fold == null ? neighbor : exotic_worlds$nearestCopy(fold, position, neighbor);
     }
 
     @WrapOperation(
@@ -116,14 +100,23 @@ public class SpreadPlayersCommandMixin {
             SpreadPlayersCommand.Position target, Operation<Double> original,
             @Local(argsOnly = true) ServerLevel level) {
         WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
-        if (fold == null) {
-            return original.call(position, target);
+        return original.call(position, fold == null ? target : exotic_worlds$nearestCopy(fold, position, target));
+    }
+
+    @Unique
+    private static SpreadPlayersCommand.Position exotic_worlds$nearestCopy(WorldFold fold,
+            SpreadPlayersCommand.Position anchor, SpreadPlayersCommand.Position target) {
+        SpreadPositionAccessor from = (SpreadPositionAccessor) anchor;
+        SpreadPositionAccessor to = (SpreadPositionAccessor) target;
+        Vec3 raw = new Vec3(to.exotic_worlds$x(), 0.0, to.exotic_worlds$z());
+        Vec3 nearest = fold.nearestCopy(new Vec3(from.exotic_worlds$x(), 0.0, from.exotic_worlds$z()), raw);
+        if (nearest == raw) {
+            return target;
         }
 
-        SpreadPositionAccessor from = (SpreadPositionAccessor) position;
-        SpreadPositionAccessor to = (SpreadPositionAccessor) target;
-        return Math.sqrt(SeamRange.sqr(fold,
-                new Vec3(from.exotic_worlds$x(), 0.0, from.exotic_worlds$z()),
-                new Vec3(to.exotic_worlds$x(), 0.0, to.exotic_worlds$z())));
+        SpreadPlayersCommand.Position copy = SpreadPositionAccessor.exotic_worlds$create();
+        ((SpreadPositionAccessor) copy).exotic_worlds$setX(nearest.x);
+        ((SpreadPositionAccessor) copy).exotic_worlds$setZ(nearest.z);
+        return copy;
     }
 }
