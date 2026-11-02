@@ -49,8 +49,9 @@ public class ChunkStatusTasksMixin {
             PeriodicityCheck.runOnce(context.level(), fold);
         }
 
-        return GenerationFoldContext.withFold(fold,
-                () -> original.call(context, step, chunks, chunk));
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+            return original.call(context, step, chunks, chunk);
+        }
     }
 
     @ModifyReturnValue(method = "generateCarvers", at = @At("RETURN"))

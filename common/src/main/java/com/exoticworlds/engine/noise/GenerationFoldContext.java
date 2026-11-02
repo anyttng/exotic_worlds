@@ -28,6 +28,7 @@ public final class GenerationFoldContext {
         private final ScaleScope scaleScope = new ScaleScope();
         private final DivisorScope divisorScope = new DivisorScope();
         private final BindingScope bindingScope = new BindingScope();
+        private final FoldScope foldScope = new FoldScope();
 
         public WorldFold fold() {
             return this.fold;
@@ -63,6 +64,13 @@ public final class GenerationFoldContext {
 
         public SlotAxes slotAxes() {
             return this.slotAxes;
+        }
+
+        public FoldScope withFold(WorldFold boundFold) {
+            markBound(boundFold);
+            this.foldScope.push();
+            this.fold = boundFold;
+            return this.foldScope;
         }
 
         public ScaleScope withScale(double scale) {
@@ -147,6 +155,22 @@ public final class GenerationFoldContext {
             }
         }
 
+        public final class FoldScope implements AutoCloseable {
+            private final ObjectStack<WorldFold> previousFolds = new ObjectStack<>();
+
+            private FoldScope() {
+            }
+
+            private void push() {
+                this.previousFolds.push(fold);
+            }
+
+            @Override
+            public void close() {
+                fold = this.previousFolds.pop();
+            }
+        }
+
         public final class ScaleScope implements AutoCloseable {
             private final DoubleStack previousScales = new DoubleStack();
             private final DoubleStack previousVanillaScales = new DoubleStack();
@@ -221,23 +245,15 @@ public final class GenerationFoldContext {
     }
 
     public static <T> T withFold(WorldFold fold, Supplier<T> action) {
-        markBound(fold);
-        Context context = CONTEXT.get();
-        WorldFold previous = context.fold;
-        context.fold = fold;
-
-        try {
+        try (Context.FoldScope _ = CONTEXT.get().withFold(fold)) {
             return action.get();
-        } finally {
-            context.fold = previous;
         }
     }
 
     public static void runWithFold(WorldFold fold, Runnable action) {
-        withFold(fold, () -> {
+        try (Context.FoldScope _ = CONTEXT.get().withFold(fold)) {
             action.run();
-            return null;
-        });
+        }
     }
 
     public static <T> T withRouterBuild(@Nullable WorldFold fold, Supplier<T> action) {

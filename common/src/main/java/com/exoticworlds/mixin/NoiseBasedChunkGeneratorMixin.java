@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import com.exoticworlds.BinderOrder;
 import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -38,9 +39,10 @@ public class NoiseBasedChunkGeneratorMixin {
             int cellYMin,
             int cellCountY,
             Operation<ChunkAccess> original) {
-        return GenerationFoldContext.withFold(
-                ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this),
-                () -> original.call(blender, structureManager, randomState, centerChunk, cellYMin, cellCountY));
+        WorldFold fold = ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this);
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+            return original.call(blender, structureManager, randomState, centerChunk, cellYMin, cellCountY);
+        }
     }
 
     @WrapMethod(method = "doCreateBiomes", order = BinderOrder.FOLD)
@@ -50,9 +52,10 @@ public class NoiseBasedChunkGeneratorMixin {
             StructureManager structureManager,
             ChunkAccess protoChunk,
             Operation<Void> original) {
-        GenerationFoldContext.runWithFold(
-                ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this),
-                () -> original.call(blender, randomState, structureManager, protoChunk));
+        WorldFold fold = ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this);
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+            original.call(blender, randomState, structureManager, protoChunk);
+        }
     }
 
     @WrapMethod(
@@ -71,10 +74,10 @@ public class NoiseBasedChunkGeneratorMixin {
             Blender blender,
             @Nullable Set<Holder<Biome>> possibleBiomes,
             Operation<Void> original) {
-        GenerationFoldContext.runWithFold(
-                ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this),
-                () -> original.call(protoChunk, context, randomState, structureManager, biomeManager, blender,
-                        possibleBiomes));
+        WorldFold fold = ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this);
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+            original.call(protoChunk, context, randomState, structureManager, biomeManager, blender, possibleBiomes);
+        }
     }
 
     @WrapMethod(method = "iterateNoiseColumn", order = BinderOrder.FOLD)
@@ -86,8 +89,9 @@ public class NoiseBasedChunkGeneratorMixin {
             @Nullable MutableObject<NoiseColumn> columnReference,
             @Nullable Predicate<BlockState> tester,
             Operation<OptionalInt> original) {
-        return GenerationFoldContext.withFold(
-                ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this),
-                () -> original.call(heightAccessor, randomState, blockX, blockZ, columnReference, tester));
+        WorldFold fold = ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this);
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+            return original.call(heightAccessor, randomState, blockX, blockZ, columnReference, tester);
+        }
     }
 }
