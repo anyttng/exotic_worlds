@@ -8,8 +8,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-import org.jspecify.annotations.Nullable;
-
 import com.exoticworlds.api.v1.net.ParticleRewriter;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.SeamDelta;
@@ -172,11 +170,8 @@ final class ClientboundPacketRewriters {
                 packet.getMovement(), packet.getYHeadRot());
     }
 
-    static @Nullable Packet<?> teleportEntity(ClientboundTeleportEntityPacket packet, TranslationContext context) {
-        if (context.ownVehicle().test(packet.id())) {
-            return null;
-        }
-
+    static ClientboundTeleportEntityPacket teleportEntity(ClientboundTeleportEntityPacket packet,
+            TranslationContext context) {
         return new ClientboundTeleportEntityPacket(
                 packet.id(), toClientChange(context, packet.change(), packet.relatives()), packet.relatives(),
                 packet.onGround());
