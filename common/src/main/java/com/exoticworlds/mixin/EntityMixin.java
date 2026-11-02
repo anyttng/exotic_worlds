@@ -19,7 +19,6 @@ import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.seam.ClientPosition;
 import com.exoticworlds.engine.seam.SeamAim;
-import com.exoticworlds.engine.seam.SeamRange;
 import com.exoticworlds.engine.seam.SeamSteering;
 import com.exoticworlds.engine.seam.circumnavigation.CircumnavigationTracker;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -32,6 +31,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.BlockUtil;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.entity.Relative;
@@ -46,12 +46,10 @@ public class EntityMixin implements FoldSource {
 
     @WrapMethod(method = "distanceTo")
     private float exotic_worlds$distanceThroughSeam(Entity other, Operation<Float> original) {
-        WorldFold fold = exotic_worlds$wrappedFold();
-        if (fold == null) {
-            return original.call(other);
-        }
-
-        return (float) Math.sqrt(SeamRange.sqr(fold, ((Entity) (Object) this).position(), other.position()));
+        Entity self = (Entity) (Object) this;
+        Vec3 there = other.position();
+        Vec3 nearest = NearestCopy.toward(exotic_worlds$wrappedFold(), self.position(), there);
+        return nearest == there ? original.call(other) : (float) Math.sqrt(self.distanceToSqr(nearest));
     }
 
     @WrapMethod(method = "distanceToSqr(DDD)D")
@@ -61,41 +59,37 @@ public class EntityMixin implements FoldSource {
             return original.call(x, y, z);
         }
 
-        Entity self = (Entity) (Object) this;
-        return SeamRange.sqr(self, self.position(), x, y, z);
+        Vec3 nearest = fold.nearestCopy(((Entity) (Object) this).position(), new Vec3(x, y, z));
+        return original.call(nearest.x, nearest.y, nearest.z);
     }
 
     @WrapMethod(method = "distanceToSqr(Lnet/minecraft/world/phys/Vec3;)D")
     private double exotic_worlds$distanceToSqrVecThroughSeam(Vec3 pos, Operation<Double> original) {
-        WorldFold fold = exotic_worlds$wrappedFold();
-        if (fold == null) {
-            return original.call(pos);
-        }
-
-        return SeamRange.sqr(fold, ((Entity) (Object) this).position(), pos);
+        return original.call(NearestCopy.toward(exotic_worlds$wrappedFold(), ((Entity) (Object) this).position(), pos));
     }
 
     @WrapMethod(method = "closerThan(Lnet/minecraft/world/entity/Entity;D)Z")
     private boolean exotic_worlds$closerThanThroughSeam(Entity other, double distance, Operation<Boolean> original) {
-        WorldFold fold = exotic_worlds$wrappedFold();
-        if (fold == null) {
-            return original.call(other, distance);
-        }
-
-        Entity self = (Entity) (Object) this;
-        return SeamRange.closerThan(self, self.position(), other.position(), distance);
+        Vec3 here = ((Entity) (Object) this).position();
+        Vec3 there = other.position();
+        Vec3 nearest = NearestCopy.toward(exotic_worlds$wrappedFold(), here, there);
+        return nearest == there ? original.call(other, distance) : here.closerThan(nearest, distance);
     }
 
     @WrapMethod(method = "closerThan(Lnet/minecraft/world/entity/Entity;DD)Z")
     private boolean exotic_worlds$closerThanXZThroughSeam(Entity other, double distanceXZ, double distanceY,
             Operation<Boolean> original) {
-        WorldFold fold = exotic_worlds$wrappedFold();
-        if (fold == null) {
+        Vec3 here = ((Entity) (Object) this).position();
+        Vec3 there = other.position();
+        Vec3 nearest = NearestCopy.toward(exotic_worlds$wrappedFold(), here, there);
+        if (nearest == there) {
             return original.call(other, distanceXZ, distanceY);
         }
 
-        return SeamRange.closerThan(fold, ((Entity) (Object) this).position(), other.position(), distanceXZ,
-                distanceY);
+        double dx = nearest.x - here.x;
+        double dy = nearest.y - here.y;
+        double dz = nearest.z - here.z;
+        return Mth.lengthSquared(dx, dz) < Mth.square(distanceXZ) && Mth.square(dy) < Mth.square(distanceY);
     }
 
     @ModifyVariable(method = "lookAt(Lnet/minecraft/commands/arguments/EntityAnchorArgument$Anchor;Lnet/minecraft/world/phys/Vec3;)V",

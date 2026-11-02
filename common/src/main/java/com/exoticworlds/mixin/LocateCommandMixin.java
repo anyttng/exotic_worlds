@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.seam.SeamRange;
+import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -29,11 +29,7 @@ public class LocateCommandMixin {
     private static double exotic_worlds$distSqrThroughSeam(BlockPos sourcePos, Vec3i foundPos, Operation<Double> original,
             @Local(argsOnly = true) CommandSourceStack source) {
         WorldFold fold = WorldLoopAttachments.wrappedFoldOf(source.getLevel());
-        if (fold == null) {
-            return original.call(sourcePos, foundPos);
-        }
-
-        return SeamRange.sqr(fold, sourcePos, foundPos);
+        return original.call(sourcePos, NearestCopy.toward(fold, sourcePos, foundPos));
     }
 
     @WrapOperation(
@@ -46,6 +42,7 @@ public class LocateCommandMixin {
             return original.call(fromX, fromZ, toX, toZ);
         }
 
-        return (float) Math.sqrt(fold.sqrDistance(fromX, 0.0, fromZ, toX, 0.0, toZ));
+        BlockPos nearest = fold.nearestCopy(new BlockPos(fromX, 0, fromZ), new BlockPos(toX, 0, toZ));
+        return original.call(fromX, fromZ, nearest.getX(), nearest.getZ());
     }
 }

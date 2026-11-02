@@ -10,7 +10,6 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.level.BoundLevelFold;
-import com.exoticworlds.engine.seam.SeamRange;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -37,8 +36,7 @@ public class RaidsMixin implements LevelBindable {
             method = "getNearbyRaid",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
     private double exotic_worlds$raidDistanceThroughSeam(BlockPos raidCenter, Vec3i pos, Operation<Double> original) {
-        WorldFold fold = this.exotic_worlds$bound.wrapped();
-        return fold == null ? original.call(raidCenter, pos) : SeamRange.sqr(fold, raidCenter, pos);
+        return original.call(raidCenter, NearestCopy.toward(this.exotic_worlds$bound.wrapped(), raidCenter, pos));
     }
 
     @WrapOperation(
