@@ -9,7 +9,6 @@ import com.exoticworlds.engine.fold.NearestCopy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Position;
 import net.minecraft.core.Vec3i;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -71,28 +70,6 @@ public final class SeamRange {
         }
 
         return fold.sqrDistance(from.x, from.y, from.z, to.x(), to.y(), to.z());
-    }
-
-    public static double sqr(Entity levelSource, Vec3 from, Position to) {
-        return sqr(foldOf(levelSource), from, to);
-    }
-
-    public static double sqr(Entity levelSource, Vec3 from, double toX, double toY, double toZ) {
-        return foldOf(levelSource).sqrDistance(from.x, from.y, from.z, toX, toY, toZ);
-    }
-
-    public static boolean closerThan(Entity levelSource, Vec3 from, Position to, double distance) {
-        return sqr(levelSource, from, to) < Mth.square(distance);
-    }
-
-    public static boolean closerThan(WorldFold fold, Vec3 from, Vec3 to, double distanceXZ, double distanceY) {
-        Vec3 delta = fold.foldDelta(from, to);
-        return Mth.lengthSquared(delta.x, delta.z) < Mth.square(distanceXZ)
-                && Mth.square(delta.y) < Mth.square(distanceY);
-    }
-
-    private static WorldFold foldOf(Entity levelSource) {
-        return WorldLoopAttachments.foldOf(levelSource.level());
     }
 
     private static @Nullable WorldFold wrappedFoldOf(Entity levelSource) {

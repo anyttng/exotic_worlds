@@ -11,9 +11,9 @@ import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.gen.AddedStructureStarts;
 import com.exoticworlds.engine.gen.SpreadRingScan;
-import com.exoticworlds.engine.seam.SeamRange;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -72,10 +72,6 @@ public class ChunkGeneratorRandomSpreadSearchMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
     private double exotic_worlds$rankThroughTheSeam(BlockPos origin, Vec3i candidate, Operation<Double> original) {
         WorldFold fold = ShapedChunkGenerator.wrappedFoldOf((ChunkGenerator) (Object) this);
-        if (fold == null) {
-            return original.call(origin, candidate);
-        }
-
-        return SeamRange.sqr(fold, origin, candidate);
+        return original.call(origin, NearestCopy.toward(fold, origin, candidate));
     }
 }

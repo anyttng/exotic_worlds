@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ChunkHolder;
@@ -55,6 +56,7 @@ import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.entity.EntityAccess;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(ChunkMap.class)
 public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveScheduler, TrackedEntityRefresher {
@@ -314,7 +316,8 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             return original.call(chunkPos, player);
         }
 
-        return fold.sqrDistance(player.getX(), 0.0, player.getZ(), chunkPos.getMiddleBlockX(), 0.0,
-                chunkPos.getMiddleBlockZ());
+        Vec3 chunkMiddle = new Vec3(chunkPos.getMiddleBlockX(), player.getY(), chunkPos.getMiddleBlockZ());
+        return original.call(new ChunkPos(BlockPos.containing(fold.nearestCopy(player.position(), chunkMiddle))),
+                player);
     }
 }
