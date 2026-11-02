@@ -200,7 +200,9 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
     // design, and a bound NOOP shields the call from a leftover binding on the same thread.
     @WrapMethod(method = "isRainingAt")
     private boolean exotic_worlds$bindPrecipitationFold(BlockPos pos, Operation<Boolean> original) {
-        return GenerationFoldContext.withFold(
-                WorldLoopAttachments.noiseFoldOf((Level) (Object) this), () -> original.call(pos));
+        WorldFold fold = WorldLoopAttachments.noiseFoldOf((Level) (Object) this);
+        try (GenerationFoldContext.Context.FoldScope scope = GenerationFoldContext.context().withFold(fold)) {
+            return original.call(pos);
+        }
     }
 }

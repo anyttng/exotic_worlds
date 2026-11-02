@@ -10,6 +10,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.exoticworlds.compat.LapNoise;
 import com.exoticworlds.compat.StandInHolder;
 import com.exoticworlds.compat.wover.WoverInjectionTargets;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -20,8 +22,13 @@ public class NetherNoiseConditionMixin {
             at = @At(value = "INVOKE", target = WoverInjectionTargets.NOISE_EVAL_3D))
     private double exotic_worlds$lapNoise(OpenSimplexNoise noise, double x, double y, double z,
             Operation<Double> original) {
+        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        if (fold == null) {
+            return original.call(noise, x, y, z);
+        }
+
         VolumeThresholdCondition volume = Conditions.NETHER_VOLUME_NOISE;
-        return LapNoise.boundEval(((StandInHolder) volume).exotic_worlds$standIn(), x, y, z, volume.getScaleX(),
-                volume.getScaleZ(), () -> original.call(noise, x, y, z));
+        return LapNoise.eval(((StandInHolder) volume).exotic_worlds$standIn(), fold, x, y, z, volume.getScaleX(),
+                volume.getScaleZ());
     }
 }

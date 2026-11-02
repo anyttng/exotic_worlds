@@ -14,6 +14,8 @@ import com.exoticworlds.compat.LapNoise;
 import com.exoticworlds.compat.OpenSimplexStandIn;
 import com.exoticworlds.compat.StandInHolder;
 import com.exoticworlds.compat.wover.WoverInjectionTargets;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -41,8 +43,10 @@ public class VolumeThresholdConditionImplMixin implements StandInHolder {
     @WrapOperation(method = "getValue(III)D", at = @At(value = "INVOKE", target = WoverInjectionTargets.NOISE_EVAL_3D))
     private double exotic_worlds$lapNoise(OpenSimplexNoise noise, double x, double y, double z,
             Operation<Double> original) {
-        return LapNoise.boundEval(this.exotic_worlds$standIn, x, y, z, this.scaleX, this.scaleZ,
-                () -> original.call(noise, x, y, z));
+        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        return fold == null
+                ? original.call(noise, x, y, z)
+                : LapNoise.eval(this.exotic_worlds$standIn, fold, x, y, z, this.scaleX, this.scaleZ);
     }
 
     @Override

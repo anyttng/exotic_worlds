@@ -5,6 +5,7 @@ import java.util.List;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -29,8 +30,10 @@ public class DebugEntryChunkGenerationMixin {
     private void exotic_worlds$sampleThisWorldsNoise(ChunkGenerator generator, List<String> result,
             RandomState randomState, BlockPos feetPos, Operation<Void> original,
             @Local ServerLevel serverLevel) {
-        GenerationFoldContext.runWithFold(WorldLoopAttachments.foldOf(serverLevel),
-                () -> original.call(generator, result, randomState, feetPos));
+        WorldFold fold = WorldLoopAttachments.foldOf(serverLevel);
+        try (GenerationFoldContext.Context.FoldScope scope = GenerationFoldContext.context().withFold(fold)) {
+            original.call(generator, result, randomState, feetPos);
+        }
     }
 
     @WrapOperation(
@@ -41,7 +44,9 @@ public class DebugEntryChunkGenerationMixin {
     private void exotic_worlds$sampleThisWorldsClimate(BiomeSource biomeSource, List<String> result,
             BlockPos feetPos, Climate.Sampler sampler, Operation<Void> original,
             @Local ServerLevel serverLevel) {
-        GenerationFoldContext.runWithFold(WorldLoopAttachments.foldOf(serverLevel),
-                () -> original.call(biomeSource, result, feetPos, sampler));
+        WorldFold fold = WorldLoopAttachments.foldOf(serverLevel);
+        try (GenerationFoldContext.Context.FoldScope scope = GenerationFoldContext.context().withFold(fold)) {
+            original.call(biomeSource, result, feetPos, sampler);
+        }
     }
 }

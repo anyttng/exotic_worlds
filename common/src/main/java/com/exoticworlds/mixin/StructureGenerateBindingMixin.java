@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import com.exoticworlds.BinderOrder;
 import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -37,9 +38,10 @@ public class StructureGenerateBindingMixin {
             LevelHeightAccessor heightAccessor,
             Predicate<Holder<Biome>> validBiome,
             Operation<StructureStart> original) {
-        return GenerationFoldContext.withFold(
-                ShapedChunkGenerator.foldOf(chunkGenerator),
-                () -> original.call(registryAccess, chunkGenerator, biomeSource, randomState,
-                        structureTemplateManager, seed, sourceChunkPos, references, heightAccessor, validBiome));
+        WorldFold fold = ShapedChunkGenerator.foldOf(chunkGenerator);
+        try (GenerationFoldContext.Context.FoldScope scope = GenerationFoldContext.context().withFold(fold)) {
+            return original.call(registryAccess, chunkGenerator, biomeSource, randomState,
+                    structureTemplateManager, seed, sourceChunkPos, references, heightAccessor, validBiome);
+        }
     }
 }

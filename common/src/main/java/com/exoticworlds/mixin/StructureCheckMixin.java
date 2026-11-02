@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -33,7 +34,9 @@ public class StructureCheckMixin {
     @WrapMethod(method = "canCreateStructure")
     private boolean exotic_worlds$validateAgainstThisWorldsBiomes(ChunkPos pos, Structure structure,
             Operation<Boolean> original) {
-        return GenerationFoldContext.withFold(
-                ShapedChunkGenerator.foldOf(this.chunkGenerator), () -> original.call(pos, structure));
+        WorldFold fold = ShapedChunkGenerator.foldOf(this.chunkGenerator);
+        try (GenerationFoldContext.Context.FoldScope scope = GenerationFoldContext.context().withFold(fold)) {
+            return original.call(pos, structure);
+        }
     }
 }

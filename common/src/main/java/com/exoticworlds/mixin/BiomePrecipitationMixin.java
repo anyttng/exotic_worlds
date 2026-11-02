@@ -31,6 +31,8 @@ public class BiomePrecipitationMixin {
             return original.call(pos);
         }
 
-        return GenerationFoldContext.withFold(bounds, () -> original.call(pos));
+        try (GenerationFoldContext.Context.FoldScope scope = GenerationFoldContext.context().withFold(bounds)) {
+            return original.call(pos);
+        }
     }
 }

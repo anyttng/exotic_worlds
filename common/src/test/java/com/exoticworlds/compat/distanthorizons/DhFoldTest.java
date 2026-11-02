@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.Color;
@@ -676,41 +675,36 @@ class DhFoldTest {
     }
 
     @Nested
-    class TheStatementSeesTheFoldedKeyAndTheDtoKeepsItsOwn {
+    class TheDtoIsSeatedUnderTheFoldedKeyAndGetsItsOwnBack {
         private final DhLattice lattice = torus(0, WIDTH_CHUNKS);
 
         @Test
         void aChunkHashRowIsWrittenUnderTheFoldedKey() {
-            ChunkHashDTO dto = new ChunkHashDTO(new DhChunkPos(WIDTH_CHUNKS, 1), 7);
-            DhChunkPos seen = DhKeys.withFoldedKey(lattice, dto, () -> dto.pos);
-            assertEquals(0, seen.getX());
-            assertEquals(1, seen.getZ());
-            assertEquals(WIDTH_CHUNKS, dto.pos.getX());
+            DhChunkPos raw = new DhChunkPos(WIDTH_CHUNKS, 1);
+            ChunkHashDTO dto = new ChunkHashDTO(raw, 7);
+            assertSame(raw, DhKeys.seatFolded(lattice, dto));
+            assertEquals(0, dto.pos.getX());
+            assertEquals(1, dto.pos.getZ());
+            DhKeys.reseat(dto, raw);
+            assertSame(raw, dto.pos);
         }
 
         @Test
         void aBeaconBeamRowIsWrittenUnderTheFoldedKey() {
-            BeaconBeamDTO dto = new BeaconBeamDTO(new DhBlockPos(WIDTH_BLOCKS, 64, 1), Color.WHITE);
-            DhBlockPos seen = DhKeys.withFoldedKey(lattice, dto, () -> dto.blockPos);
-            assertEquals(0, seen.getX());
-            assertEquals(1, seen.getZ());
-            assertEquals(WIDTH_BLOCKS, dto.blockPos.getX());
-        }
-
-        @Test
-        void aThrownStatementStillGivesTheDtoItsKeyBack() {
-            ChunkHashDTO dto = new ChunkHashDTO(new DhChunkPos(WIDTH_CHUNKS, 1), 7);
-            assertThrows(IllegalStateException.class, () -> DhKeys.withFoldedKey(lattice, dto, () -> {
-                throw new IllegalStateException();
-            }));
-            assertEquals(WIDTH_CHUNKS, dto.pos.getX());
+            DhBlockPos raw = new DhBlockPos(WIDTH_BLOCKS, 64, 1);
+            BeaconBeamDTO dto = new BeaconBeamDTO(raw, Color.WHITE);
+            assertSame(raw, DhKeys.seatFolded(lattice, dto));
+            assertEquals(0, dto.blockPos.getX());
+            assertEquals(1, dto.blockPos.getZ());
+            DhKeys.reseat(dto, raw);
+            assertSame(raw, dto.blockPos);
         }
 
         @Test
         void anUnwrappedLevelLeavesTheKeyAloneThroughout() {
             DhChunkPos raw = new DhChunkPos(WIDTH_CHUNKS, 1);
             ChunkHashDTO dto = new ChunkHashDTO(raw, 7);
-            assertSame(raw, DhKeys.withFoldedKey(null, dto, () -> dto.pos));
+            assertSame(raw, DhKeys.seatFolded(null, dto));
             assertSame(raw, dto.pos);
         }
     }
