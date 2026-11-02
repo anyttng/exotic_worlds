@@ -17,7 +17,6 @@ import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -65,9 +64,8 @@ public class StructureManagerMixin {
             method = "getStructureAt(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/structure/Structure;)Lnet/minecraft/world/level/levelgen/structure/StructureStart;",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/levelgen/structure/BoundingBox;isInside(Lnet/minecraft/core/Vec3i;)Z"))
-    private boolean exotic_worlds$startBoxThroughSeam(BoundingBox box, Vec3i pos, Operation<Boolean> original,
-            @Local(argsOnly = true) BlockPos blockPos) {
-        return original.call(box, NearestCopy.toward(WorldLoopAttachments.foldOfReader(this.level), box, blockPos));
+    private boolean exotic_worlds$startBoxThroughSeam(BoundingBox box, Vec3i pos, Operation<Boolean> original) {
+        return original.call(box, NearestCopy.toward(WorldLoopAttachments.foldOfReader(this.level), box, pos));
     }
 
     @WrapMethod(method = "structureHasPieceAt(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/structure/StructureStart;)Z")

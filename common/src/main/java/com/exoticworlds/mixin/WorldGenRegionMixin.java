@@ -197,6 +197,10 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @ModifyReturnValue(method = "getBlockTicks", at = @At("RETURN"))
     private LevelTickAccess<Block> exotic_worlds$blockTicksInChunkFrame(LevelTickAccess<Block> ticks) {
+        if (WorldLoopAttachments.wrappedFoldOf(this.level) == null) {
+            return ticks;
+        }
+
         if (this.exotic_worlds$blockTicks == null) {
             this.exotic_worlds$blockTicks = this.exotic_worlds$ticksInChunkFrame(ticks);
         }
@@ -206,6 +210,10 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @ModifyReturnValue(method = "getFluidTicks", at = @At("RETURN"))
     private LevelTickAccess<Fluid> exotic_worlds$fluidTicksInChunkFrame(LevelTickAccess<Fluid> ticks) {
+        if (WorldLoopAttachments.wrappedFoldOf(this.level) == null) {
+            return ticks;
+        }
+
         if (this.exotic_worlds$fluidTicks == null) {
             this.exotic_worlds$fluidTicks = this.exotic_worlds$ticksInChunkFrame(ticks);
         }
@@ -215,10 +223,6 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
 
     @Unique
     private <T> LevelTickAccess<T> exotic_worlds$ticksInChunkFrame(LevelTickAccess<T> ticks) {
-        if (WorldLoopAttachments.wrappedFoldOf(this.level) == null) {
-            return ticks;
-        }
-
         WorldGenRegion region = (WorldGenRegion) (Object) this;
         return new ChunkFrameTicks<>(ticks, pos -> this.exotic_worlds$keyIn(region.getChunk(pos), pos));
     }
