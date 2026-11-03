@@ -64,9 +64,6 @@ public abstract class CoastShaperMixin {
     private static final int ANCHOR_Z_PURPOSE = 2;
 
     @Unique
-    private static final String FLOOR = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/NoiseUtil;floor(F)I";
-
-    @Unique
     private static final String ARM = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/continent/CoastShaper;"
             + "arm(Lcom/pandaismyname1/ultraterraforged/world/worldgen/continent/CoastShaper$Arm;FFF)F";
 
@@ -137,7 +134,8 @@ public abstract class CoastShaperMixin {
         }
     }
 
-    @WrapOperation(method = "arms", at = @At(value = "INVOKE", target = FLOOR, ordinal = X_READ))
+    @WrapOperation(method = "arms",
+            at = @At(value = "INVOKE", target = UltraTerraForgedInjectionTargets.NOISE_FLOOR, ordinal = X_READ))
     private int exotic_worlds$armCellX(float cell, Operation<Integer> original,
             @Local(argsOnly = true, ordinal = X_ARGUMENT) float x, @Local(argsOnly = true, ordinal = ARM_GRID_ARGUMENT)
             float grid) {
@@ -145,7 +143,8 @@ public abstract class CoastShaperMixin {
         return lattice == null ? original.call(cell) : lattice.cellX(x);
     }
 
-    @WrapOperation(method = "arms", at = @At(value = "INVOKE", target = FLOOR, ordinal = Z_READ))
+    @WrapOperation(method = "arms",
+            at = @At(value = "INVOKE", target = UltraTerraForgedInjectionTargets.NOISE_FLOOR, ordinal = Z_READ))
     private int exotic_worlds$armCellZ(float cell, Operation<Integer> original,
             @Local(argsOnly = true, ordinal = Z_ARGUMENT) float z, @Local(argsOnly = true, ordinal = ARM_GRID_ARGUMENT)
             float grid) {

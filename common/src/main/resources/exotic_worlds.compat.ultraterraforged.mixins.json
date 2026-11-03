@@ -5,7 +5,6 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.exoticworlds.compat.ultraterraforged.UltraTerraForgedMixinPlugin",
   "mixins": [
-    "AbstractContinentAccessor",
     "AbstractContinentMixin",
     "AdvancedContinentGeneratorMixin",
     "AlluvialFansMixin",
@@ -71,5 +70,8 @@
   ],
   "injectors": {
     "defaultRequire": 1
+  },
+  "mixinextras": {
+    "minVersion": "0.5.0"
   }
 }
