@@ -60,6 +60,6 @@ public abstract class SimpleRiverGeneratorMixin {
             Operation<Float> original) {
         float length = original.call(continent, x, z, dx, dz);
         RtfLap.Frame frame = RtfLap.boundFrame();
-        return frame == null ? length : RiverReach.clamp(frame, length, dx, dz);
+        return frame == null ? length : RiverReach.clamp(frame, length);
     }
 }

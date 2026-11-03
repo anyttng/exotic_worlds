@@ -36,19 +36,44 @@ class RiverReachTest {
 
     private static final float COAST_TOLERANCE = 0.01F;
 
+    private static final float CARVE_BLOCKS = 443.0F;
+
+    private static final float ROOT_START = 400.0F;
+
+    private static final int HALF_NARROW_CHUNKS = 128;
+
     @Test
-    void aRiverNetworkFitsInsideHalfALap() {
-        WorldFold fold = torus(NARROW_CHUNKS);
-        int lap = fold.blockDomain(Direction.Axis.X).domainLength;
+    void aRootStopsItsCarveWidthShortOfHalfTheNarrowestLap() {
+        WorldFold fold = WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-NARROW_CHUNKS, NARROW_CHUNKS,
+                -HALF_NARROW_CHUNKS, HALF_NARROW_CHUNKS)));
+        int lapZ = fold.blockDomain(Direction.Axis.Z).domainLength;
         try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(fold)) {
-            RtfLap.Frame frame = RtfLap.frame();
-            float length = RiverReach.clamp(frame, Float.MAX_VALUE, 1.0F, 0.0F);
-            assertTrue(length * 1.64F + 1024.0F <= lap / 2.0F + 1.0F, "a network of " + length + " leaves half a lap");
-            assertTrue(RiverReach.fits(frame));
+            assertEquals(lapZ / 2.0F - CARVE_BLOCKS, RiverReach.clamp(RtfLap.frame(), Float.MAX_VALUE),
+                    "the narrower lap caps a root on every direction");
         }
 
-        try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(torus(32))) {
-            assertFalse(RiverReach.fits(RtfLap.frame()), "a 1024-block world carries no rivers");
+        WorldFold cylinder = cylinder(NARROW_CHUNKS);
+        int lapX = cylinder.blockDomain(Direction.Axis.X).domainLength;
+        try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(cylinder)) {
+            assertEquals(lapX / 2.0F - CARVE_BLOCKS, RiverReach.clamp(RtfLap.frame(), Float.MAX_VALUE),
+                    "a cylinder caps a root by its looping lap alone");
+        }
+    }
+
+    @Test
+    void aNetworkFitsWhereARootReachesPastItsStart() {
+        assertTrue(fits(torus(64)), "a 2048-block torus carries rivers");
+        assertTrue(fits(torus(53)), "a 1696-block torus carries rivers");
+        assertFalse(fits(torus(52)), "a 1664-block torus carries no rivers");
+        assertFalse(fits(torus(32)), "a 1024-block torus carries no rivers");
+    }
+
+    private static boolean fits(WorldFold fold) {
+        int lap = fold.blockDomain(Direction.Axis.X).domainLength;
+        try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(fold)) {
+            boolean fits = RiverReach.fits(RtfLap.frame());
+            assertEquals(lap / 2.0F - CARVE_BLOCKS >= ROOT_START, fits, "a lap of " + lap + " blocks");
+            return fits;
         }
     }
 
