@@ -15,10 +15,8 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalDoubleRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import com.exoticworlds.compat.terraforged.CellCenters;
 import com.exoticworlds.compat.terraforged.LapOctaves;
 import com.exoticworlds.compat.terraforged.RtfLap;
-import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedNoise;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.noise.NoiseUtil;
 import com.pandaismyname1.ultraterraforged.world.worldgen.noise.module.Erosion;
@@ -35,9 +33,6 @@ public abstract class ErosionNoiseMixin {
 
     @Unique
     private static final double FIRST_OCTAVE_SCALE = 1.0;
-
-    @Unique
-    private static final float WHOLE_JITTER = 1.0F;
 
     @Shadow
     @Final
@@ -87,10 +82,11 @@ public abstract class ErosionNoiseMixin {
 
         int cellX = NoiseUtil.floor(px / cellSize);
         int cellY = NoiseUtil.floor(py / cellSize);
-        float candidateX = CellCenters.jitteredX(UltraTerraForgedNoise.INSTANCE, frame, this.seed, cellX, cellY,
-                WHOLE_JITTER) * cellSize;
-        float candidateY = CellCenters.jitteredZ(UltraTerraForgedNoise.INSTANCE, frame, this.seed, cellX, cellY,
-                WHOLE_JITTER) * cellSize;
+        int canonicalX = frame.foldX(cellX, cellY);
+        int canonicalY = frame.foldZ(cellY);
+        NoiseUtil.Vec2f jitter = NoiseUtil.cell(this.seed, canonicalX, canonicalY);
+        float candidateX = (canonicalX + jitter.x()) * cellSize;
+        float candidateY = (canonicalY + jitter.y()) * cellSize;
         try (RtfLap.Frame.Scope _ = frame.open()) {
             return original.call(dx, dy, candidateX, candidateY, module, cache);
         }

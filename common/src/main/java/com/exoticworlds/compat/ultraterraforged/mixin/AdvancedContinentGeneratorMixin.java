@@ -6,17 +6,21 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.exoticworlds.compat.terraforged.CellCenters;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.exoticworlds.compat.terraforged.RtfLap;
+import com.exoticworlds.compat.ultraterraforged.CenterAxis;
 import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedInjectionTargets;
-import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedNoise;
 
 import net.minecraft.core.Direction;
+import com.pandaismyname1.ultraterraforged.concurrent.Resource;
 import com.pandaismyname1.ultraterraforged.world.worldgen.cell.Cell;
 import com.pandaismyname1.ultraterraforged.world.worldgen.continent.advanced.AdvancedContinentGenerator;
 import com.pandaismyname1.ultraterraforged.world.worldgen.noise.module.Noise;
@@ -28,16 +32,33 @@ public abstract class AdvancedContinentGeneratorMixin {
             + "AdvancedContinentGenerator;frequency:F";
 
     @Unique
+    private static final String CORRECTED_CENTER = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/continent/"
+            + "advanced/AdvancedContinentGenerator;getCorrectedContinentCenter(FF)I";
+
+    @Unique
+    private static final String WINNER_X = "continentWinnerX";
+
+    @Unique
+    private static final String WINNER_Z = "continentWinnerZ";
+
+    @Unique
     private static final int X_READ = 0;
 
     @Unique
     private static final int Z_READ = 1;
 
+    @Unique
+    private static final int X_CENTER = 0;
+
+    @Unique
+    private static final int Z_CENTER = 1;
+
     @Shadow
     protected float frequency;
 
     @WrapMethod(method = "apply")
-    private void exotic_worlds$closeApply(Cell cell, float x, float y, Operation<Void> original) {
+    private void exotic_worlds$closeApply(Cell cell, float x, float y, Operation<Void> original,
+            @Share(WINNER_X) LocalIntRef winnerX, @Share(WINNER_Z) LocalIntRef winnerZ) {
         RtfLap.Frame frame = RtfLap.boundFrame();
         if (frame == null) {
             original.call(cell, x, y);
@@ -45,7 +66,29 @@ public abstract class AdvancedContinentGeneratorMixin {
         }
 
         try (RtfLap.Frame.Scope _ = frame.octave(this.frequency)) {
-            original.call(cell, frame.latticeX(x, y), frame.shiftZ(y));
+            float xScale = frame.xScale();
+            float zScale = frame.zScale();
+            float latticeX = frame.latticeX(x, y);
+            float latticeZ = frame.shiftZ(y);
+            original.call(cell, latticeX, latticeZ);
+            int cellX = winnerX.get();
+            int cellZ = winnerZ.get();
+            int canonicalX = frame.foldX(cellX, cellZ);
+            int canonicalZ = frame.foldZ(cellZ);
+            if (canonicalX != cellX || canonicalZ != cellZ) {
+                try (Resource<Cell> resource = Cell.getResource()) {
+                    Cell canonical = resource.get();
+                    original.call(canonical, latticeX + (canonicalX - cellX) / xScale,
+                            latticeZ + (canonicalZ - cellZ) / zScale);
+                    cell.continentX = canonical.continentX;
+                    cell.continentZ = canonical.continentZ;
+                }
+            }
+
+            if (frame.sheared()) {
+                CenterAxis axis = CenterAxis.current();
+                cell.continentX = (int) frame.outerX(axis.xQuotient(), axis.zQuotient());
+            }
         }
     }
 
@@ -75,35 +118,35 @@ public abstract class AdvancedContinentGeneratorMixin {
         return RtfLap.snapped(Direction.Axis.Z, frequency);
     }
 
-    @WrapOperation(method = "apply", at = @At(value = "FIELD", target = UltraTerraForgedInjectionTargets.CELL_CONTINENT_X,
-            opcode = Opcodes.PUTFIELD))
-    private void exotic_worlds$canonicalCenterX(Cell cell, int value, Operation<Void> original,
-            @Local(name = "cellX") int cellX, @Local(name = "cellY") int cellY) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
-        if (frame == null) {
-            original.call(cell, value);
-            return;
+    @WrapOperation(method = "apply", at = @At(value = "INVOKE", target = CORRECTED_CENTER, ordinal = X_CENTER))
+    private int exotic_worlds$centerX(AdvancedContinentGenerator generator, float point, float average,
+            Operation<Integer> original, @Local(name = "cellX") int cellX, @Local(name = "cellY") int cellY,
+            @Share(WINNER_X) LocalIntRef winnerX, @Share(WINNER_Z) LocalIntRef winnerZ) {
+        winnerX.set(cellX);
+        winnerZ.set(cellY);
+        try (CenterAxis _ = CenterAxis.current().along(Direction.Axis.X)) {
+            return original.call(generator, point, average);
         }
-
-        AbstractContinentAccessor continent = (AbstractContinentAccessor) (Object) this;
-        original.call(cell, (int) CellCenters.blockX(UltraTerraForgedNoise.INSTANCE, frame,
-                CellCenters.Center.CORRECTED, continent.exotic_worlds$seed(), cellX, cellY,
-                continent.exotic_worlds$jitter(), this.frequency));
     }
 
-    @WrapOperation(method = "apply", at = @At(value = "FIELD", target = UltraTerraForgedInjectionTargets.CELL_CONTINENT_Z,
-            opcode = Opcodes.PUTFIELD))
-    private void exotic_worlds$canonicalCenterZ(Cell cell, int value, Operation<Void> original,
-            @Local(name = "cellX") int cellX, @Local(name = "cellY") int cellY) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
-        if (frame == null) {
-            original.call(cell, value);
-            return;
+    @WrapOperation(method = "apply", at = @At(value = "INVOKE", target = CORRECTED_CENTER, ordinal = Z_CENTER))
+    private int exotic_worlds$centerZ(AdvancedContinentGenerator generator, float point, float average,
+            Operation<Integer> original) {
+        try (CenterAxis _ = CenterAxis.current().along(Direction.Axis.Z)) {
+            return original.call(generator, point, average);
         }
+    }
 
-        AbstractContinentAccessor continent = (AbstractContinentAccessor) (Object) this;
-        original.call(cell, (int) CellCenters.blockZ(UltraTerraForgedNoise.INSTANCE, frame,
-                CellCenters.Center.CORRECTED, continent.exotic_worlds$seed(), cellX, cellY,
-                continent.exotic_worlds$jitter(), this.frequency));
+    @ModifyExpressionValue(method = "getCorrectedContinentCenter",
+            at = @At(value = "FIELD", target = FREQUENCY, opcode = Opcodes.GETFIELD))
+    private float exotic_worlds$snapAlongAxis(float frequency) {
+        return CenterAxis.current().snapped(frequency);
+    }
+
+    @Definition(id = "frequency", field = FREQUENCY)
+    @Expression("? / this.frequency")
+    @ModifyExpressionValue(method = "getCorrectedContinentCenter", at = @At(value = "MIXINEXTRAS:EXPRESSION"))
+    private float exotic_worlds$keepQuotient(float quotient) {
+        return CenterAxis.current().keep(quotient);
     }
 }
