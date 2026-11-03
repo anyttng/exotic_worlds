@@ -1,5 +1,6 @@
 package com.exoticworlds.compat.ultraterraforged.mixin;
 
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -10,7 +11,14 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalDoubleRef;
+import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import com.exoticworlds.compat.terraforged.CellCenters;
+import com.exoticworlds.compat.terraforged.LapOctaves;
 import com.exoticworlds.compat.terraforged.RtfLap;
+import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedNoise;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.noise.NoiseUtil;
 import com.pandaismyname1.ultraterraforged.world.worldgen.noise.module.Erosion;
@@ -21,62 +29,49 @@ public abstract class ErosionNoiseMixin {
     @Unique
     private static final int GRID_SIZE_ORDINAL = 2;
 
+    @Unique
+    private static final String SINGLE_EROSION_VALUE =
+            "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/module/Erosion;getSingleErosionValue(FFF[F)F";
+
+    @Unique
+    private static final double FIRST_OCTAVE_SCALE = 1.0;
+
+    @Unique
+    private static final float WHOLE_JITTER = 1.0F;
+
     @Shadow
     @Final
     private int seed;
 
     @Shadow
     @Final
-    private int octaves;
-
-    @Shadow
-    @Final
-    private float gridSize;
-
-    @Shadow
-    @Final
-    private float amplitude;
-
-    @Shadow
-    @Final
     private float lacunarity;
 
-    @Shadow
-    @Final
-    private float distanceFallOff;
-
-    @Shadow
-    private float getSingleErosionValue(float x, float y, float gridSize, float[] cache) {
-        throw new AssertionError();
+    @WrapMethod(method = "getErosionValue")
+    private float exotic_worlds$closeOnLap(float x, float y, float[] cache, Operation<Float> original,
+            @Share(LapOctaves.FRAME) LocalRef<RtfLap.@Nullable Frame> frame,
+            @Share(LapOctaves.BLOCK_X) LocalFloatRef blockX, @Share(LapOctaves.BLOCK_Z) LocalFloatRef blockZ,
+            @Share(LapOctaves.FREQUENCY) LocalDoubleRef octaveScale) {
+        LapOctaves.open(frame, blockX, blockZ, octaveScale, x, y, FIRST_OCTAVE_SCALE);
+        return original.call(x, y, cache);
     }
 
-    @WrapMethod(method = "getErosionValue")
-    private float exotic_worlds$closeOnLap(float x, float y, float[] cache, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
-        if (frame == null) {
-            return original.call(x, y, cache);
+    @WrapOperation(method = "getErosionValue", at = @At(value = "INVOKE", target = SINGLE_EROSION_VALUE))
+    private float exotic_worlds$octaveOnLap(Erosion erosion, float x, float y, float distance, float[] cache,
+            Operation<Float> original, @Share(LapOctaves.FRAME) LocalRef<RtfLap.@Nullable Frame> frame,
+            @Share(LapOctaves.BLOCK_X) LocalFloatRef blockX, @Share(LapOctaves.BLOCK_Z) LocalFloatRef blockZ,
+            @Share(LapOctaves.FREQUENCY) LocalDoubleRef octaveScale) {
+        RtfLap.Frame lap = frame.get();
+        if (lap == null) {
+            return original.call(erosion, x, y, distance, cache);
         }
 
-        float sum = 0.0F;
-        float max = 0.0F;
-        float gain = 1.0F;
-        float distance = this.gridSize;
-        double octaveScale = 1.0;
-        for (int octave = 0; octave < this.octaves; octave++) {
-            float value;
-            try (RtfLap.Frame.Scope _ = frame.octave(octaveScale / distance)) {
-                value = getSingleErosionValue(frame.latticeU(x, y) * distance, frame.latticeV(y) * distance, distance,
-                        cache);
-            }
-
-            sum += value * gain;
-            max += gain;
-            gain *= this.amplitude;
-            distance *= this.distanceFallOff;
-            octaveScale *= this.lacunarity;
+        double scale = octaveScale.get();
+        octaveScale.set(scale * this.lacunarity);
+        try (RtfLap.Frame.Scope _ = lap.octave(scale / distance)) {
+            return original.call(erosion, lap.latticeU(blockX.get(), blockZ.get()) * distance,
+                    lap.latticeV(blockZ.get()) * distance, distance, cache);
         }
-
-        return sum / max;
     }
 
     // A candidate is a cell's jittered point, well inside the cell, so flooring it recovers the cell's index.
@@ -90,13 +85,14 @@ public abstract class ErosionNoiseMixin {
             return original.call(dx, dy, px, py, module, cache);
         }
 
-        int rowY = NoiseUtil.floor(py / cellSize);
-        int cellX = frame.foldX(NoiseUtil.floor(px / cellSize), rowY);
-        int cellY = frame.foldZ(rowY);
-        NoiseUtil.Vec2f vector = NoiseUtil.cell(this.seed, cellX, cellY);
+        int cellX = NoiseUtil.floor(px / cellSize);
+        int cellY = NoiseUtil.floor(py / cellSize);
+        float candidateX = CellCenters.jitteredX(UltraTerraForgedNoise.INSTANCE, frame, this.seed, cellX, cellY,
+                WHOLE_JITTER) * cellSize;
+        float candidateY = CellCenters.jitteredZ(UltraTerraForgedNoise.INSTANCE, frame, this.seed, cellX, cellY,
+                WHOLE_JITTER) * cellSize;
         try (RtfLap.Frame.Scope _ = frame.open()) {
-            return original.call(dx, dy, (cellX + vector.x()) * cellSize, (cellY + vector.y()) * cellSize, module,
-                    cache);
+            return original.call(dx, dy, candidateX, candidateY, module, cache);
         }
     }
 }

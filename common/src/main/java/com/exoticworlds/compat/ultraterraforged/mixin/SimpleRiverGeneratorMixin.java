@@ -13,7 +13,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.exoticworlds.compat.ultraterraforged.RiverReach;
+import com.exoticworlds.compat.terraforged.RiverReach;
 import com.exoticworlds.compat.terraforged.RtfLap;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.continent.SimpleContinent;

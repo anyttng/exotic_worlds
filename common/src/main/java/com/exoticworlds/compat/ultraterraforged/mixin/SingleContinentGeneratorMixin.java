@@ -7,10 +7,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.exoticworlds.compat.ultraterraforged.LappedCenter;
+import com.exoticworlds.compat.terraforged.LappedCenter;
 import com.exoticworlds.compat.terraforged.RtfLap;
 
-import net.minecraft.core.Direction;
 import com.pandaismyname1.ultraterraforged.world.worldgen.continent.SimpleContinent;
 import com.pandaismyname1.ultraterraforged.world.worldgen.continent.simple.SingleContinentGenerator;
 import com.pandaismyname1.ultraterraforged.world.worldgen.noise.NoiseUtil;
@@ -27,7 +26,7 @@ public abstract class SingleContinentGeneratorMixin {
     private static final float ORIGIN = 0.0F;
 
     @Unique
-    private volatile @Nullable LappedCenter exotic_worlds$lappedCenter;
+    private volatile @Nullable LappedCenter<NoiseUtil.Vec2i> exotic_worlds$lappedCenter;
 
     @ModifyExpressionValue(method = "apply", at = @At(value = "FIELD", target = CENTER, opcode = Opcodes.GETFIELD))
     private NoiseUtil.Vec2i exotic_worlds$canonicalCenter(NoiseUtil.Vec2i center) {
@@ -36,17 +35,14 @@ public abstract class SingleContinentGeneratorMixin {
             return center;
         }
 
-        double xLap = frame.lap(Direction.Axis.X);
-        double zLap = frame.lap(Direction.Axis.Z);
-        double skew = frame.skew();
-        LappedCenter held = this.exotic_worlds$lappedCenter;
-        if (held != null && held.xLap() == xLap && held.zLap() == zLap && held.skew() == skew) {
+        LappedCenter<NoiseUtil.Vec2i> held = this.exotic_worlds$lappedCenter;
+        if (held != null && held.holds(frame)) {
             return held.center();
         }
 
         long packed = ((SimpleContinent) (Object) this).getNearestCenter(ORIGIN, ORIGIN);
         NoiseUtil.Vec2i lapped = new NoiseUtil.Vec2i(PosUtil.unpackLeft(packed), PosUtil.unpackRight(packed));
-        this.exotic_worlds$lappedCenter = new LappedCenter(xLap, zLap, skew, lapped);
+        this.exotic_worlds$lappedCenter = LappedCenter.on(frame, lapped);
         return lapped;
     }
 }
