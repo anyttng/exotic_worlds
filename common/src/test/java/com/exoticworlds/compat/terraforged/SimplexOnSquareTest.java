@@ -1,10 +1,12 @@
-package com.exoticworlds.compat.ultraterraforged;
+package com.exoticworlds.compat.terraforged;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Random;
 
 import org.junit.jupiter.api.Test;
+
+import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedNoise;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.noise.module.Simplex;
 import com.pandaismyname1.ultraterraforged.world.worldgen.noise.module.Simplex2;
@@ -36,7 +38,8 @@ class SimplexOnSquareTest {
 
     private static final Field SIMPLEX2 = (x, z) -> Simplex2.sample(x, z, NOISE_SEED);
 
-    private static final Field SQUARE = (x, z) -> SimplexOnSquare.sample(x, z, NOISE_SEED, 1.0F);
+    private static final Field SQUARE = (x, z) -> SimplexOnSquare.sample(UltraTerraForgedNoise.INSTANCE, x, z, NOISE_SEED,
+            1.0F);
 
     @Test
     void theSquareLatticeMatchesSimplexInAmplitudeAndFeatureSize() {

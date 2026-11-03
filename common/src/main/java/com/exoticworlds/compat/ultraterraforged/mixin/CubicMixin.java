@@ -1,23 +1,29 @@
 package com.exoticworlds.compat.ultraterraforged.mixin;
 
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalDoubleRef;
+import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import com.exoticworlds.compat.terraforged.LapOctaves;
 import com.exoticworlds.compat.terraforged.RtfLap;
-import com.exoticworlds.compat.ultraterraforged.RtfOctaves;
 
-import com.pandaismyname1.ultraterraforged.world.worldgen.noise.NoiseUtil;
-import com.pandaismyname1.ultraterraforged.world.worldgen.noise.function.Interpolation;
 import com.pandaismyname1.ultraterraforged.world.worldgen.noise.module.Cubic;
 
 @Mixin(value = Cubic.class, remap = false)
 public abstract class CubicMixin {
     @Unique
-    private static final Interpolation UNUSED_INTERPOLATION = Interpolation.LINEAR;
+    private static final String SAMPLE = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/module/Cubic;"
+            + "sample(FFI)F";
 
     @Shadow
     @Final
@@ -25,33 +31,29 @@ public abstract class CubicMixin {
 
     @Shadow
     @Final
-    private int octaves;
-
-    @Shadow
-    @Final
     private float lacunarity;
 
-    @Shadow
-    @Final
-    private float gain;
-
-    @Shadow
-    @Final
-    private float minValue;
-
-    @Shadow
-    @Final
-    private float maxValue;
-
     @WrapMethod(method = "compute")
-    private float exotic_worlds$closeOnLap(float x, float z, int seed, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
-        if (frame == null) {
+    private float exotic_worlds$closeOnLap(float x, float z, int seed, Operation<Float> original,
+            @Share(LapOctaves.FRAME) LocalRef<RtfLap.@Nullable Frame> frame,
+            @Share(LapOctaves.BLOCK_X) LocalFloatRef blockX, @Share(LapOctaves.BLOCK_Z) LocalFloatRef blockZ,
+            @Share(LapOctaves.FREQUENCY) LocalDoubleRef frequency) {
+        LapOctaves.open(frame, blockX, blockZ, frequency, x, z, this.frequency);
+        return original.call(x, z, seed);
+    }
+
+    @WrapOperation(method = "compute", at = @At(value = "INVOKE", target = SAMPLE))
+    private float exotic_worlds$octaveOnLap(float x, float z, int seed, Operation<Float> original,
+            @Share(LapOctaves.FRAME) LocalRef<RtfLap.@Nullable Frame> frame,
+            @Share(LapOctaves.BLOCK_X) LocalFloatRef blockX, @Share(LapOctaves.BLOCK_Z) LocalFloatRef blockZ,
+            @Share(LapOctaves.FREQUENCY) LocalDoubleRef frequency) {
+        RtfLap.Frame lap = frame.get();
+        if (lap == null) {
             return original.call(x, z, seed);
         }
 
-        float sum = RtfOctaves.sum(frame, (px, pz, octaveSeed, unused) -> Cubic.sample(px, pz, octaveSeed),
-                UNUSED_INTERPOLATION, x, z, seed, this.octaves, this.frequency, this.lacunarity, this.gain, 1.0F);
-        return NoiseUtil.map(sum, this.minValue, this.maxValue, this.maxValue - this.minValue);
+        try (RtfLap.Frame.Scope _ = LapOctaves.next(lap, frequency, this.lacunarity)) {
+            return original.call(lap.latticeU(blockX.get(), blockZ.get()), lap.latticeV(blockZ.get()), seed);
+        }
     }
 }

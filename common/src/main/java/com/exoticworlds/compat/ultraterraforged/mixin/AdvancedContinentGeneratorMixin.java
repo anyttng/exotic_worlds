@@ -11,9 +11,10 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.exoticworlds.compat.ultraterraforged.CellCenters;
-import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedInjectionTargets;
+import com.exoticworlds.compat.terraforged.CellCenters;
 import com.exoticworlds.compat.terraforged.RtfLap;
+import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedInjectionTargets;
+import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedNoise;
 
 import net.minecraft.core.Direction;
 import com.pandaismyname1.ultraterraforged.world.worldgen.cell.Cell;
@@ -85,8 +86,9 @@ public abstract class AdvancedContinentGeneratorMixin {
         }
 
         AbstractContinentAccessor continent = (AbstractContinentAccessor) (Object) this;
-        original.call(cell, (int) CellCenters.blockX(frame, CellCenters.Center.CORRECTED, continent.exotic_worlds$seed(),
-                cellX, cellY, continent.exotic_worlds$jitter(), this.frequency));
+        original.call(cell, (int) CellCenters.blockX(UltraTerraForgedNoise.INSTANCE, frame,
+                CellCenters.Center.CORRECTED, continent.exotic_worlds$seed(), cellX, cellY,
+                continent.exotic_worlds$jitter(), this.frequency));
     }
 
     @WrapOperation(method = "apply", at = @At(value = "FIELD", target = UltraTerraForgedInjectionTargets.CELL_CONTINENT_Z,
@@ -100,7 +102,8 @@ public abstract class AdvancedContinentGeneratorMixin {
         }
 
         AbstractContinentAccessor continent = (AbstractContinentAccessor) (Object) this;
-        original.call(cell, (int) CellCenters.blockZ(frame, CellCenters.Center.CORRECTED, continent.exotic_worlds$seed(),
-                cellX, cellY, continent.exotic_worlds$jitter(), this.frequency));
+        original.call(cell, (int) CellCenters.blockZ(UltraTerraForgedNoise.INSTANCE, frame,
+                CellCenters.Center.CORRECTED, continent.exotic_worlds$seed(), cellX, cellY,
+                continent.exotic_worlds$jitter(), this.frequency));
     }
 }

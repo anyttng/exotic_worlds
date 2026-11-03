@@ -25,6 +25,12 @@ public final class UltraTerraForgedInjectionTargets {
     public static final String NOISE_COMPUTE =
             "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/module/Noise;compute(FFI)F";
 
+    public static final String PERLIN_SAMPLE = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/module/Perlin;"
+            + "sample(FFILcom/pandaismyname1/ultraterraforged/world/worldgen/noise/function/Interpolation;)F";
+
+    public static final String SIMPLEX2_SAMPLE =
+            "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/module/Simplex2;sample(FFI)F";
+
     private UltraTerraForgedInjectionTargets() {
     }
 }

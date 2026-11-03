@@ -34,8 +34,10 @@ public final class RtfClimateCompression {
         return ClimateCompression.factor(fold, CLIMATE_FIELD, HORIZONTAL_SHARE, () -> fitted(fold, scales));
     }
 
-    public static void remember(WorldFold fold, double factor) {
+    public static double carry(WorldFold fold, RtfClimateScales scales) {
+        double factor = factor(fold, scales);
         BY_FOLD.put(fold, factor);
+        return factor;
     }
 
     public static double of(@Nullable WorldFold fold) {
