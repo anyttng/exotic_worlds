@@ -1,7 +1,4 @@
-package com.exoticworlds.compat.ultraterraforged;
-
-import com.exoticworlds.compat.terraforged.RtfLap;
-import com.pandaismyname1.ultraterraforged.world.worldgen.continent.SimpleContinent;
+package com.exoticworlds.compat.terraforged;
 
 import net.minecraft.core.Direction;
 
@@ -30,12 +27,17 @@ public final class RiverReach {
         return Math.min(axisReach(frame, Direction.Axis.X), axisReach(frame, Direction.Axis.Z));
     }
 
-    public static float distanceToOcean(SimpleContinent continent, float shallowOcean, int x, int z, float dx,
-            float dz, float reach) {
+    @FunctionalInterface
+    public interface EdgeField {
+        float at(float x, float z);
+    }
+
+    public static float distanceToOcean(EdgeField continent, float shallowOcean, int x, int z, float dx, float dz,
+            float reach) {
         float land = 0.0F;
-        float landEdge = continent.getEdgeValue(x, z);
+        float landEdge = continent.at(x, z);
         for (float sea = COAST_STEP; sea < reach; sea += COAST_STEP) {
-            float seaEdge = continent.getEdgeValue(x + dx * sea, z + dz * sea);
+            float seaEdge = continent.at(x + dx * sea, z + dz * sea);
             if (seaEdge <= shallowOcean) {
                 return coastBetween(shallowOcean, land, landEdge, sea, seaEdge);
             }
