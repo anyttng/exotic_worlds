@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.ultraterraforged;
+package com.exoticworlds.compat.terraforged;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -6,16 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.compat.terraforged.RtfLap;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
-
-import com.pandaismyname1.ultraterraforged.world.worldgen.cell.Cell;
-import com.pandaismyname1.ultraterraforged.world.worldgen.continent.SimpleContinent;
-import com.pandaismyname1.ultraterraforged.world.worldgen.rivermap.Rivermap;
 
 import net.minecraft.core.Direction;
 
@@ -87,8 +82,8 @@ class RiverReachTest {
 
     @Test
     void theCoastLiesBetweenTheSteps() {
-        float coast = RiverReach.distanceToOcean(new SlopedContinent(), SHALLOW_OCEAN, 0, 0, 1.0F, 0.0F,
-                RiverReach.UNBOUNDED);
+        RiverReach.EdgeField sloped = (x, z) -> SHALLOW_OCEAN + (COAST_BLOCKS - x) / EDGE_FALL_BLOCKS;
+        float coast = RiverReach.distanceToOcean(sloped, SHALLOW_OCEAN, 0, 0, 1.0F, 0.0F, RiverReach.UNBOUNDED);
         assertEquals(COAST_BLOCKS, coast, COAST_TOLERANCE,
                 "a coast at 396.5 blocks never rounds to the 400-block step a root starts on");
     }
@@ -106,26 +101,5 @@ class RiverReachTest {
     private static WorldFold cylinder(int chunks) {
         return WorldFolds.of(ShapeFixtures.cylinder(new WorldLoopBounds(new AxisBounds.Looped(-chunks, chunks),
                 AxisBounds.Unbounded.INSTANCE)));
-    }
-
-    private static final class SlopedContinent implements SimpleContinent {
-        @Override
-        public float getEdgeValue(float x, float z) {
-            return SHALLOW_OCEAN + (COAST_BLOCKS - x) / EDGE_FALL_BLOCKS;
-        }
-
-        @Override
-        public long getNearestCenter(float x, float z) {
-            return 0L;
-        }
-
-        @Override
-        public Rivermap getRivermap(int x, int z) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void apply(Cell cell, float x, float z) {
-        }
     }
 }

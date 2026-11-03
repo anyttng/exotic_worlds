@@ -11,10 +11,11 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.exoticworlds.compat.ultraterraforged.CellCenters;
-import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedInjectionTargets;
-import com.exoticworlds.compat.ultraterraforged.RiverReach;
+import com.exoticworlds.compat.terraforged.CellCenters;
+import com.exoticworlds.compat.terraforged.RiverReach;
 import com.exoticworlds.compat.terraforged.RtfLap;
+import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedInjectionTargets;
+import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedNoise;
 
 import net.minecraft.core.Direction;
 import com.pandaismyname1.ultraterraforged.data.preset.settings.WorldSettings;
@@ -95,8 +96,8 @@ public abstract class ContinentGeneratorMixin {
             return original.call(x, z, dx, dz);
         }
 
-        return RiverReach.distanceToOcean((SimpleContinent) (Object) this, this.controlPoints.shallowOcean, x, z, dx,
-                dz, reach);
+        return RiverReach.distanceToOcean(((SimpleContinent) (Object) this)::getEdgeValue,
+                this.controlPoints.shallowOcean, x, z, dx, dz, reach);
     }
 
     @ModifyExpressionValue(method = {"apply", "getEdgeValue", "getNearestCenter"},
@@ -143,13 +144,13 @@ public abstract class ContinentGeneratorMixin {
 
     @Unique
     private int exotic_worlds$centerX(RtfLap.Frame frame, int cellX, int cellY) {
-        return (int) CellCenters.blockX(frame, CellCenters.Center.JITTERED, this.seed, cellX, cellY, this.offsetAlpha,
-                this.frequency);
+        return (int) CellCenters.blockX(UltraTerraForgedNoise.INSTANCE, frame, CellCenters.Center.JITTERED, this.seed,
+                cellX, cellY, this.offsetAlpha, this.frequency);
     }
 
     @Unique
     private int exotic_worlds$centerZ(RtfLap.Frame frame, int cellX, int cellY) {
-        return (int) CellCenters.blockZ(frame, CellCenters.Center.JITTERED, this.seed, cellX, cellY, this.offsetAlpha,
-                this.frequency);
+        return (int) CellCenters.blockZ(UltraTerraForgedNoise.INSTANCE, frame, CellCenters.Center.JITTERED, this.seed,
+                cellX, cellY, this.offsetAlpha, this.frequency);
     }
 }

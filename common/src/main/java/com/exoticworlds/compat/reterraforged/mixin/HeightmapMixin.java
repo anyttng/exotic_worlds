@@ -51,8 +51,7 @@ public abstract class HeightmapMixin implements LapCarrier {
     @Override
     public void exotic_worlds$carryFold(WorldFold fold) {
         this.exotic_worlds$climateCompression =
-                RtfClimateCompression.factor(fold, (RtfClimateScales) (Object) this.climate.biomeNoise());
-        RtfClimateCompression.remember(fold, this.exotic_worlds$climateCompression);
+                RtfClimateCompression.carry(fold, (RtfClimateScales) (Object) this.climate.biomeNoise());
         this.exotic_worlds$fold = fold;
     }
 
