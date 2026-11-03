@@ -7,12 +7,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.LevelBindable;
 import com.exoticworlds.engine.level.BoundLevelFold;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
 import net.minecraft.server.level.ChunkTracker;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.ChunkPos;
 
 @Mixin(ChunkTracker.class)
 public class ChunkTrackerMixin implements LevelBindable {
@@ -24,12 +22,11 @@ public class ChunkTrackerMixin implements LevelBindable {
         this.exotic_worlds$bound.bind(level);
     }
 
-    @WrapOperation(
+    @ModifyExpressionValue(
             method = {"checkNeighborsAfterUpdate", "getComputedLevel"},
             at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_POS_PACK),
             expect = 2)
-    private long exotic_worlds$physicalNeighborKey(int chunkX, int chunkZ, Operation<Long> original) {
-        long folded = this.exotic_worlds$bound.fold().foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
-        return original.call(ChunkPos.getX(folded), ChunkPos.getZ(folded));
+    private long exotic_worlds$physicalNeighborKey(long key) {
+        return this.exotic_worlds$bound.fold().foldChunkKey(key);
     }
 }
