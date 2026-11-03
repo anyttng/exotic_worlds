@@ -1,7 +1,6 @@
 package com.exoticworlds.engine.net;
 
 import java.util.function.IntFunction;
-import java.util.function.IntPredicate;
 
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
@@ -54,26 +53,25 @@ final class PacketTranslatorFixture {
             capacity -> new RegistryFriendlyByteBuf(Unpooled.buffer(capacity), REGISTRIES);
 
     static TranslationContext context() {
-        return context(entityId -> false, entityId -> null);
+        return context(entityId -> null);
     }
 
     static TranslationContext mirroredContext() {
         ClientPosition mirror = new ClientPosition();
         mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, MIRRORED_FOLD);
         return new TranslationContext(MIRRORED_FOLD, mirror, BUFFERS, Level.OVERWORLD,
-                VIEW_DISTANCE, VIEW_DISTANCE, entityId -> false, entityId -> null, entityId -> null, () -> {});
+                VIEW_DISTANCE, VIEW_DISTANCE, entityId -> null, entityId -> null, () -> {});
     }
 
-    static TranslationContext context(IntPredicate ownVehicle, IntFunction<Vec3> entityPosition) {
-        return context(ownVehicle, entityPosition, entityId -> null);
+    static TranslationContext context(IntFunction<Vec3> entityPosition) {
+        return context(entityPosition, entityId -> null);
     }
 
-    static TranslationContext context(IntPredicate ownVehicle, IntFunction<Vec3> entityPosition,
-            IntFunction<TagPositions.Subject> entity) {
+    static TranslationContext context(IntFunction<Vec3> entityPosition, IntFunction<TagPositions.Subject> entity) {
         ClientPosition mirror = new ClientPosition();
         mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, FOLD);
         return new TranslationContext(FOLD, mirror, BUFFERS, Level.OVERWORLD,
-                VIEW_DISTANCE, VIEW_DISTANCE, ownVehicle, entityPosition, entity, () -> {});
+                VIEW_DISTANCE, VIEW_DISTANCE, entityPosition, entity, () -> {});
     }
 
     private PacketTranslatorFixture() {

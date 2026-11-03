@@ -12,6 +12,8 @@
   "gui.exotic_worlds.world_shape.toroidal.hint": "Se referme d'est en ouest et du nord au sud : marchez assez loin dans n'importe quelle direction et vous revenez à votre point de départ.",
   "gui.exotic_worlds.world_shape.cylinder": "Cylindrique",
   "gui.exotic_worlds.world_shape.cylinder.hint": "Un axe horizontal se referme sur lui-même, l'autre continue à l'infini comme dans le monde classique.",
+  "gui.exotic_worlds.world_shape.custom": "Personnalisée",
+  "gui.exotic_worlds.world_shape.custom.hint": "Choisissez une forme pour la Surface, le Nether et l'End séparément.",
   "gui.exotic_worlds.world_shape.seam_warning": "Ce type de monde apporte son propre générateur de monde : une Forme du monde limite toujours le monde et le referme en boucle, mais le terrain ne se raccordera pas au bord du monde.",
 
   "gui.exotic_worlds.toroidal_settings.title": "Réglages du monde toroïdal",
@@ -61,6 +63,15 @@
   "gui.exotic_worlds.cylinder_settings.title": "Réglages du monde cylindrique",
   "gui.exotic_worlds.cylinder_settings.axis": "Axe de bouclage",
   "gui.exotic_worlds.cylinder_settings.axis_hint": "Le monde se referme sur lui-même le long de cet axe et continue à l'infini le long de l'autre.",
+
+  "gui.exotic_worlds.custom_settings.title": "Réglages du monde personnalisé",
+  "gui.exotic_worlds.custom_settings.vanilla_dimensions": "Dimensions de base",
+  "gui.exotic_worlds.custom_settings.overworld": "Surface",
+  "gui.exotic_worlds.custom_settings.nether": "Nether",
+  "gui.exotic_worlds.custom_settings.end": "L'End",
+  "gui.exotic_worlds.custom_settings.mod_dimensions": "Dimensions des mods",
+  "gui.exotic_worlds.custom_settings.from_overworld": "Comme la Surface",
+  "gui.exotic_worlds.custom_settings.from_overworld.hint": "Reprend la forme de la Surface, mise à l'échelle des coordonnées de cette dimension ; reste Normale quand cela ne donne pas une largeur entière.",
 
   "gui.exotic_worlds.settings.title": "Réglages d'Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Copies du monde sur la carte plein écran",

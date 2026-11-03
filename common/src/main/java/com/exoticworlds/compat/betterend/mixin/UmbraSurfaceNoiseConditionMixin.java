@@ -9,6 +9,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.exoticworlds.compat.LapNoise;
 import com.exoticworlds.compat.StandInHolder;
 import com.exoticworlds.compat.betterend.BetterEndInjectionTargets;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -28,8 +30,11 @@ public class UmbraSurfaceNoiseConditionMixin {
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_2D, ordinal = 0))
     private static double exotic_worlds$lapBroadNoise(OpenSimplexNoise noise, double x, double z,
             Operation<Double> original) {
-        return LapNoise.boundEval(((StandInHolder) (Object) noise).exotic_worlds$standIn(), x, z, BROAD_SCALE, BROAD_SCALE,
-                () -> original.call(noise, x, z));
+        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        return fold == null
+                ? original.call(noise, x, z)
+                : LapNoise.eval(((StandInHolder) (Object) noise).exotic_worlds$standIn(), fold, x, z, BROAD_SCALE,
+                        BROAD_SCALE);
     }
 
     @WrapOperation(
@@ -37,7 +42,10 @@ public class UmbraSurfaceNoiseConditionMixin {
             at = @At(value = "INVOKE", target = BetterEndInjectionTargets.NOISE_EVAL_2D, ordinal = 1))
     private static double exotic_worlds$lapFineNoise(OpenSimplexNoise noise, double x, double z,
             Operation<Double> original) {
-        return LapNoise.boundEval(((StandInHolder) (Object) noise).exotic_worlds$standIn(), x, z, FINE_SCALE, FINE_SCALE,
-                () -> original.call(noise, x, z));
+        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        return fold == null
+                ? original.call(noise, x, z)
+                : LapNoise.eval(((StandInHolder) (Object) noise).exotic_worlds$standIn(), fold, x, z, FINE_SCALE,
+                        FINE_SCALE);
     }
 }

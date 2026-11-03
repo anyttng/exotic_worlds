@@ -20,7 +20,6 @@ import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.net.MeasuredReach;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.engine.seam.SeamRange;
 import com.exoticworlds.engine.seam.SeamSnap;
 import com.exoticworlds.engine.seam.SeamSteering;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -111,11 +110,7 @@ public class ServerLevelMixin {
     private boolean exotic_worlds$particleRangeThroughSeam(BlockPos listener, Position particle, double range,
             Operation<Boolean> original) {
         WorldFold fold = WorldLoopAttachments.wrappedFoldOf((ServerLevel) (Object) this);
-        if (fold == null) {
-            return original.call(listener, particle, range);
-        }
-
-        return SeamRange.sqr(fold, Vec3.atCenterOf(listener), particle) < range * range;
+        return original.call(listener, NearestCopy.towardCenterOf(fold, listener, particle), range);
     }
 
     @WrapOperation(
@@ -174,8 +169,9 @@ public class ServerLevelMixin {
 
     @WrapMethod(method = "tickPrecipitation")
     private void exotic_worlds$bindPrecipitationFold(BlockPos pos, Operation<Void> original) {
-        ServerLevel level = (ServerLevel) (Object) this;
-        GenerationFoldContext.runWithFold(
-                WorldLoopAttachments.foldOf(level), () -> original.call(pos));
+        WorldFold fold = WorldLoopAttachments.foldOf((ServerLevel) (Object) this);
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+            original.call(pos);
+        }
     }
 }

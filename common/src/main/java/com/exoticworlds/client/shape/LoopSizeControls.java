@@ -4,7 +4,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.IntPredicate;
 
 import org.jspecify.annotations.Nullable;
 
@@ -13,7 +12,6 @@ import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
-import com.exoticworlds.core.WorldLoopSizes;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.google.common.math.IntMath;
 
@@ -27,24 +25,16 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 
-public final class LoopSizeControls {
-    private static final Component HINT = Component.translatable("gui.exotic_worlds.toroidal_settings.hint");
-    private static final String SIZE_LABEL_KEY = "gui.exotic_worlds.toroidal_settings.size";
+public final class LoopSizeControls implements SizeControls {
     private static final String SIZE_X_LABEL_KEY = "gui.exotic_worlds.toroidal_settings.size_x";
     private static final String SIZE_Z_LABEL_KEY = "gui.exotic_worlds.toroidal_settings.size_z";
     private static final Component SKEW_LABEL = Component.translatable("gui.exotic_worlds.toroidal_settings.skew");
     private static final String SKEW_LAPS_KEY = "gui.exotic_worlds.toroidal_settings.skew_laps";
     private static final Component SKEW_HINT = Component.translatable("gui.exotic_worlds.toroidal_settings.skew_hint");
-    private static final String EFFECTIVE_KEY = "gui.exotic_worlds.toroidal_settings.effective";
-    private static final String TOO_SMALL_KEY = "gui.exotic_worlds.toroidal_settings.too_small";
-    private static final String TOO_LARGE_KEY = "gui.exotic_worlds.toroidal_settings.too_large";
     private static final String NETHER_SCALE_KEY = "gui.exotic_worlds.toroidal_settings.nether_scale";
     private static final String NETHER_EFFECTIVE_KEY = "gui.exotic_worlds.toroidal_settings.nether_effective";
     private static final String NETHER_EFFECTIVE_XZ_KEY = "gui.exotic_worlds.toroidal_settings.nether_effective_xz";
     private static final Component NETHER_HINT = Component.translatable("gui.exotic_worlds.toroidal_settings.nether_hint");
-    private static final String END_SIZE_LABEL_KEY = "gui.exotic_worlds.toroidal_settings.end_size";
-    private static final String END_EFFECTIVE_KEY = "gui.exotic_worlds.toroidal_settings.end_effective";
-    private static final Component END_HINT = Component.translatable("gui.exotic_worlds.toroidal_settings.end_hint");
 
     private static final String PRESET_KEY_PREFIX = "gui.exotic_worlds.toroidal_settings.preset.";
     private static final String STRUCTURES_SCARCE_KEY = "gui.exotic_worlds.toroidal_settings.consequence.structures_scarce";
@@ -59,7 +49,6 @@ public final class LoopSizeControls {
     public static final int FIELD_WIDTH = 310;
     public static final int FIELD_HEIGHT = 20;
 
-    private static final int FIELD_MAX_LENGTH = 7;
     private static final int PRESET_SPACING = 5;
     private static final String INCOMPLETE = "Done waits for isComplete";
 
@@ -88,8 +77,7 @@ public final class LoopSizeControls {
         this.size = size;
         this.zSize = zSize;
         this.skew = skew;
-        this.endSize = new SizeField(END_SIZE_LABEL_KEY, END_EFFECTIVE_KEY, END_HINT,
-                WorldLoopSizes.END_MIN_CHUNK_WIDTH, WorldLoopSizes::isEndInRange, endChunkWidth);
+        this.endSize = SizeField.end(endChunkWidth);
         this.netherScale = netherScale;
         this.wantedNetherScale = netherScale;
         this.scalePickedForXSize = xChunkWidth;
@@ -98,7 +86,7 @@ public final class LoopSizeControls {
     }
 
     public static LoopSizeControls single(int chunkWidth, int netherScale, int endChunkWidth, Runnable onChange) {
-        return new LoopSizeControls(worldSizeField(SIZE_LABEL_KEY, chunkWidth), null, null, chunkWidth, chunkWidth,
+        return new LoopSizeControls(SizeField.world(chunkWidth), null, null, chunkWidth, chunkWidth,
                 FlatShape.NO_SKEW, netherScale, endChunkWidth, onChange);
     }
 
@@ -107,11 +95,12 @@ public final class LoopSizeControls {
         int xChunkWidth = overworld.chunkWidth(Direction.Axis.X);
         int zChunkWidth = overworld.chunkWidth(Direction.Axis.Z);
         int skewChunks = Math.floorMod(overworld.skewChunks(), xChunkWidth);
-        return new LoopSizeControls(worldSizeField(SIZE_X_LABEL_KEY, xChunkWidth),
-                worldSizeField(SIZE_Z_LABEL_KEY, zChunkWidth), new SkewField(skewChunks), xChunkWidth, zChunkWidth,
+        return new LoopSizeControls(SizeField.world(SIZE_X_LABEL_KEY, xChunkWidth),
+                SizeField.world(SIZE_Z_LABEL_KEY, zChunkWidth), new SkewField(skewChunks), xChunkWidth, zChunkWidth,
                 skewChunks, netherScale, endChunkWidth, onChange);
     }
 
+    @Override
     public void addPresets(LinearLayout contents) {
         LinearLayout presetRow = contents.addChild(LinearLayout.horizontal().spacing(PRESET_SPACING));
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
@@ -133,6 +122,7 @@ public final class LoopSizeControls {
                 .append(Component.translatable(structureRoomKey(preset.chunkWidth()))));
     }
 
+    @Override
     @Initializer
     public void addFields(Font font, LinearLayout contents) {
         this.size.add(font, contents, this::onSizeChanged);
@@ -151,6 +141,7 @@ public final class LoopSizeControls {
         this.endSize.add(font, contents, this::onEndSizeChanged);
     }
 
+    @Override
     public void refresh() {
         this.onSizeChanged();
         this.onEndSizeChanged();
@@ -184,6 +175,7 @@ public final class LoopSizeControls {
         return Objects.requireNonNull(this.effectiveEndSize(), INCOMPLETE);
     }
 
+    @Override
     public boolean isComplete() {
         return this.effectiveSize(Direction.Axis.X) != null && this.effectiveSize(Direction.Axis.Z) != null
                 && this.effectiveSkew() != null && this.endSize.effective() != null;
@@ -297,11 +289,6 @@ public final class LoopSizeControls {
         this.changed();
     }
 
-    private static SizeField worldSizeField(String labelKey, int chunkWidth) {
-        return new SizeField(labelKey, EFFECTIVE_KEY, HINT,
-                WorldLoopSizes.MIN_CHUNK_WIDTH, WorldLoopSizes::isInRange, chunkWidth);
-    }
-
     private static Component presetLabel(WorldLoopPresets preset) {
         return Component.translatable(PRESET_KEY_PREFIX + preset.id());
     }
@@ -326,75 +313,6 @@ public final class LoopSizeControls {
         return Component.translatable(NETHER_SCALE_KEY, scale);
     }
 
-    private static final class SizeField {
-        private final String labelKey;
-        private final String effectiveKey;
-        private final Component hint;
-        private final int minChunks;
-        private final IntPredicate inRange;
-
-        private String text;
-        private @Nullable Integer effective;
-        private DigitsEditBox edit;
-
-        private SizeField(String labelKey, String effectiveKey, Component hint, int minChunks, IntPredicate inRange,
-                int chunkWidth) {
-            this.labelKey = labelKey;
-            this.effectiveKey = effectiveKey;
-            this.hint = hint;
-            this.minChunks = minChunks;
-            this.inRange = inRange;
-            this.text = String.valueOf(chunkWidth);
-        }
-
-        @Initializer
-        private void add(Font font, LinearLayout contents, Runnable onEdited) {
-            this.edit = new DigitsEditBox(font, FIELD_WIDTH, FIELD_HEIGHT, this.label());
-            this.edit.setMaxLength(FIELD_MAX_LENGTH);
-            this.edit.setValue(this.text);
-            this.edit.setResponder(value -> {
-                this.text = value;
-                onEdited.run();
-            });
-            contents.addChild(CommonLayouts.labeledElement(font, this.edit, this.label()));
-        }
-
-        private void update() {
-            Integer sizeChunks = this.edit.number();
-            this.effective = sizeChunks != null && this.inRange.test(sizeChunks) ? sizeChunks : null;
-            this.edit.setTooltip(Tooltip.create(this.effective != null
-                    ? this.effectiveLine(this.effective).copy().append(CommonComponents.NEW_LINE).append(this.hint)
-                    : this.boundHint(sizeChunks)));
-        }
-
-        private void setValue(int chunkWidth) {
-            this.edit.setValue(String.valueOf(chunkWidth));
-        }
-
-        private @Nullable Integer effective() {
-            return this.effective;
-        }
-
-        private Component effectiveLine(int chunkWidth) {
-            return Component.translatable(this.effectiveKey, chunkWidth, chunkWidth * CoordinateConstants.CHUNK_WIDTH);
-        }
-
-        private Component label() {
-            return Component.translatable(this.labelKey, this.minChunks, WorldLoopSizes.MAX_CHUNK_WIDTH);
-        }
-
-        private Component boundHint(@Nullable Integer sizeChunks) {
-            if (sizeChunks == null) {
-                return this.hint;
-            }
-
-            Component bound = sizeChunks < this.minChunks
-                    ? Component.translatable(TOO_SMALL_KEY, this.minChunks)
-                    : Component.translatable(TOO_LARGE_KEY, WorldLoopSizes.MAX_CHUNK_WIDTH);
-            return bound.copy().append(CommonComponents.NEW_LINE).append(this.hint);
-        }
-    }
-
     private static final class SkewField {
         private String text;
         private @Nullable Integer effective;
@@ -408,7 +326,7 @@ public final class LoopSizeControls {
         @Initializer
         private void add(Font font, LinearLayout contents, Runnable onEdited) {
             this.edit = new DigitsEditBox(font, FIELD_WIDTH, FIELD_HEIGHT, SKEW_LABEL);
-            this.edit.setMaxLength(FIELD_MAX_LENGTH);
+            this.edit.setMaxLength(SizeField.FIELD_MAX_LENGTH);
             this.edit.setValue(this.text);
             this.edit.setResponder(value -> {
                 this.text = value;
@@ -430,7 +348,7 @@ public final class LoopSizeControls {
             if (skewChunks >= xChunkWidth) {
                 this.effective = null;
                 this.laps.setMessage(Component.empty());
-                this.edit.setTooltip(Tooltip.create(Component.translatable(TOO_LARGE_KEY, xChunkWidth - 1).copy()
+                this.edit.setTooltip(Tooltip.create(Component.translatable(SizeField.TOO_LARGE_KEY, xChunkWidth - 1).copy()
                         .append(CommonComponents.NEW_LINE)
                         .append(SKEW_HINT)));
                 return;

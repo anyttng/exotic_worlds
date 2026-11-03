@@ -12,6 +12,8 @@
   "gui.exotic_worlds.world_shape.toroidal.hint": "Se cierra de este a oeste y de norte a sur: camina lo suficiente en cualquier dirección y volverás al punto de partida.",
   "gui.exotic_worlds.world_shape.cylinder": "Cilíndrica",
   "gui.exotic_worlds.world_shape.cylinder.hint": "Un eje horizontal se cierra sobre sí mismo; el otro sigue sin fin, como en el mundo normal.",
+  "gui.exotic_worlds.world_shape.custom": "Personalizada",
+  "gui.exotic_worlds.world_shape.custom.hint": "Elige una forma para la Superficie, el Nether y el End por separado.",
   "gui.exotic_worlds.world_shape.seam_warning": "Este tipo de mundo trae su propio generador de mundo: una Forma del mundo igual limita el mundo y lo cierra en un bucle, pero el terreno no va a coincidir en el borde del mundo.",
 
   "gui.exotic_worlds.toroidal_settings.title": "Ajustes del mundo toroidal",
@@ -61,6 +63,15 @@
   "gui.exotic_worlds.cylinder_settings.title": "Ajustes del mundo cilíndrico",
   "gui.exotic_worlds.cylinder_settings.axis": "Eje de bucle",
   "gui.exotic_worlds.cylinder_settings.axis_hint": "El mundo se cierra sobre sí mismo a lo largo de este eje y sigue sin fin a lo largo del otro.",
+
+  "gui.exotic_worlds.custom_settings.title": "Ajustes del mundo personalizado",
+  "gui.exotic_worlds.custom_settings.vanilla_dimensions": "Dimensiones básicas",
+  "gui.exotic_worlds.custom_settings.overworld": "Superficie",
+  "gui.exotic_worlds.custom_settings.nether": "Nether",
+  "gui.exotic_worlds.custom_settings.end": "El End",
+  "gui.exotic_worlds.custom_settings.mod_dimensions": "Dimensiones de mods",
+  "gui.exotic_worlds.custom_settings.from_overworld": "Como la Superficie",
+  "gui.exotic_worlds.custom_settings.from_overworld.hint": "Toma la forma de la Superficie, escalada según la escala de coordenadas de esta dimensión; se queda en Normal si así no sale un ancho entero.",
 
   "gui.exotic_worlds.settings.title": "Ajustes de Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Copias del mundo en el mapa a pantalla completa",

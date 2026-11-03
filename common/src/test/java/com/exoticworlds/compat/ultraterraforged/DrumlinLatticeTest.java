@@ -31,6 +31,10 @@ class DrumlinLatticeTest {
 
     private static final float CLOSE = 1.0E-3F;
 
+    private static final float OFFSET_CLOSE = 1.0E-2F;
+
+    private static final int NEIGHBORS = 1;
+
     private static final LapWave[] LAPS = {
         new LapWave(LAP, NARROW_LAP, RtfLap.NO_SKEW),
         new LapWave(LAP, LAP, SKEW),
@@ -38,6 +42,9 @@ class DrumlinLatticeTest {
         new LapWave(LAP, RtfLap.OPEN, RtfLap.NO_SKEW),
         new LapWave(RtfLap.OPEN, NARROW_LAP, RtfLap.NO_SKEW)
     };
+
+    private record Seat(int column, int row, float alongOffset, float acrossOffset) {
+    }
 
     @Test
     void aCellOnTheLapIsNeverLargerThanTheModsOwn() {
@@ -54,7 +61,7 @@ class DrumlinLatticeTest {
     }
 
     @Test
-    void aDrumlinFieldRepeatsAlongEveryLoopingLapVector() {
+    void aCopyOneLapAwaySitsInTheSameFoldedCellsAtTheSameOffset() {
         Random random = new Random(SEED);
         for (LapWave lap : LAPS) {
             for (int i = 0; i < DIRECTIONS; i++) {
@@ -63,32 +70,50 @@ class DrumlinLatticeTest {
                 for (int point = 0; point < POINTS; point++) {
                     float x = (random.nextFloat() - 0.5F) * SPAN;
                     float z = (random.nextFloat() - 0.5F) * SPAN;
-                    float here = lattice.drumlin(SEED, x, z);
+                    Seat here = seat(lattice, x, z);
+                    if (onABorder(lattice, here)) {
+                        continue;
+                    }
+
+                    String where = lap + " at " + angle + ", " + x + " " + z;
                     if (lap.loops(Direction.Axis.X)) {
-                        assertEquals(here, lattice.drumlin(SEED, x + (float) lap.xLap(), z), CLOSE,
-                                lap + " at " + angle + ", " + x + " " + z);
+                        assertSameCells(lattice, here, seat(lattice, x + (float) lap.xLap(), z), where);
                     }
 
                     if (lap.loops(Direction.Axis.Z)) {
-                        assertEquals(here, lattice.drumlin(SEED, x + (float) lap.skew(), z + (float) lap.zLap()),
-                                CLOSE, lap + " at " + angle + ", " + x + " " + z);
+                        assertSameCells(lattice, here, seat(lattice, x + (float) lap.skew(), z + (float) lap.zLap()),
+                                where);
                     }
                 }
             }
         }
     }
 
-    @Test
-    void theFieldIsNotEmpty() {
-        DrumlinLattice lattice = DrumlinLattice.over(LAPS[1], 0.6F, 0.8F);
-        Random random = new Random(SEED);
-        int raised = 0;
-        for (int point = 0; point < POINTS; point++) {
-            if (lattice.drumlin(SEED, random.nextFloat() * SPAN, random.nextFloat() * SPAN) > 0.0F) {
-                raised++;
+    private static Seat seat(DrumlinLattice lattice, float x, float z) {
+        float along = lattice.along(x, z);
+        float across = lattice.across(x, z);
+        int row = (int) Math.floor(across / lattice.rowWidth());
+        float shifted = along - row * lattice.rowShift();
+        int column = (int) Math.floor(shifted / lattice.cellLength());
+        return new Seat(column, row, shifted - column * lattice.cellLength(), across - row * lattice.rowWidth());
+    }
+
+    private static boolean onABorder(DrumlinLattice lattice, Seat seat) {
+        return seat.alongOffset() < OFFSET_CLOSE || seat.alongOffset() > lattice.cellLength() - OFFSET_CLOSE
+                || seat.acrossOffset() < OFFSET_CLOSE || seat.acrossOffset() > lattice.rowWidth() - OFFSET_CLOSE;
+    }
+
+    private static void assertSameCells(DrumlinLattice lattice, Seat here, Seat copy, String where) {
+        assertEquals(here.alongOffset(), copy.alongOffset(), OFFSET_CLOSE, where);
+        assertEquals(here.acrossOffset(), copy.acrossOffset(), OFFSET_CLOSE, where);
+        for (int row = -NEIGHBORS; row <= NEIGHBORS; row++) {
+            for (int column = -NEIGHBORS; column <= NEIGHBORS; column++) {
+                int hereRow = here.row() + row;
+                int copyRow = copy.row() + row;
+                assertEquals(lattice.foldRow(hereRow), lattice.foldRow(copyRow), where);
+                assertEquals(lattice.foldColumn(here.column() + column, hereRow),
+                        lattice.foldColumn(copy.column() + column, copyRow), where);
             }
         }
-
-        assertTrue(raised > POINTS / 10, raised + " of " + POINTS + " points under a drumlin");
     }
 }

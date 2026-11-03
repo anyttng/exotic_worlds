@@ -33,7 +33,12 @@ public class FullDataSourceV2RepoMixin {
 
     @WrapMethod(method = "createUpsertStatement(Lcom/seibel/distanthorizons/core/sql/dto/FullDataSourceV2DTO;)Ljava/sql/PreparedStatement;")
     private PreparedStatement exotic_worlds$foldUpsert(FullDataSourceV2DTO dto, Operation<PreparedStatement> original) {
-        return DhKeys.withFoldedKey(DhRepoLevel.latticeOf(this), dto, () -> original.call(dto));
+        Object raw = DhKeys.seatFolded(DhRepoLevel.latticeOf(this), dto);
+        try {
+            return original.call(dto);
+        } finally {
+            DhKeys.reseat(dto, raw);
+        }
     }
 
     @WrapMethod(method = "getAdjByPosAndDirection")

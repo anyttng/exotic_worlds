@@ -25,11 +25,13 @@ import com.exoticworlds.engine.seam.circumnavigation.SeamTravel;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ClientInformation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.level.storage.LevelData;
@@ -91,8 +93,8 @@ public class ServerPlayerMixin implements SeamTravelHolder {
     @Inject(method = "teleport(Lnet/minecraft/world/level/portal/TeleportTransition;)Lnet/minecraft/server/level/ServerPlayer;",
             at = @At("TAIL"))
     private void exotic_worlds$sendBoundsOnDimensionChange(TeleportTransition transition,
-            CallbackInfoReturnable<@Nullable ServerPlayer> cir) {
-        WorldShapeSync.sendTo((ServerPlayer) (Object) this);
+            CallbackInfoReturnable<@Nullable ServerPlayer> cir, @Local(ordinal = 1) ServerLevel oldLevel) {
+        WorldShapeSync.sendOnLevelChange((ServerPlayer) (Object) this, oldLevel);
     }
 
     @Inject(method = "doTick", at = @At(value = "INVOKE", target = PLAYER_TICK, shift = At.Shift.AFTER))

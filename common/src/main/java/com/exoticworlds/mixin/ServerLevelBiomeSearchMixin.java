@@ -36,9 +36,11 @@ public class ServerLevelBiomeSearchMixin {
         }
 
         int searchRadius = exotic_worlds$radiusToCoverTheWorld(fold, maxSearchRadius, sampleResolutionHorizontal);
-        Pair<BlockPos, Holder<Biome>> found = GenerationFoldContext.withFold(fold,
-                () -> original.call(biomeTest, origin, searchRadius, sampleResolutionHorizontal,
-                        sampleResolutionVertical));
+        Pair<BlockPos, Holder<Biome>> found;
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+            found = original.call(biomeTest, origin, searchRadius, sampleResolutionHorizontal,
+                    sampleResolutionVertical);
+        }
 
         return found == null ? null : Pair.of(fold.fold(found.getFirst()), found.getSecond());
     }

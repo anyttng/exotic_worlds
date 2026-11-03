@@ -3,8 +3,6 @@ package com.exoticworlds.compat.ultraterraforged;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.compat.terraforged.LapWave;
-import com.pandaismyname1.ultraterraforged.world.worldgen.landform.Landform;
-import com.pandaismyname1.ultraterraforged.world.worldgen.noise.NoiseUtil;
 
 import net.minecraft.core.Direction;
 
@@ -17,36 +15,6 @@ public record DrumlinLattice(float alongX, float alongZ, float cellLength, float
     public static final float ROW_SHIFT = 45.0F;
 
     public static final int UNFOLDED = 0;
-
-    private static final float DRUMLIN_CHANCE = 0.75F;
-
-    private static final float JITTER = 0.3F;
-
-    private static final float CENTER = 0.5F;
-
-    private static final float LENGTH_MIN = 0.3F;
-
-    private static final float LENGTH_MAX = 0.5F;
-
-    private static final float WIDTH_MIN = 0.25F;
-
-    private static final float WIDTH_MAX = 0.4F;
-
-    private static final float UPSTREAM = 0.65F;
-
-    private static final float SIZE_MIN = 0.55F;
-
-    private static final int PRESENCE = 10;
-
-    private static final int OFFSET_ALONG = 11;
-
-    private static final int OFFSET_ACROSS = 12;
-
-    private static final int LENGTH = 13;
-
-    private static final int WIDTH = 14;
-
-    private static final int SIZE = 15;
 
     private static final ThreadLocal<Remembered> REMEMBERED = ThreadLocal.withInitial(Remembered::new);
 
@@ -75,42 +43,12 @@ public record DrumlinLattice(float alongX, float alongZ, float cellLength, float
         return lattice.folded(lap, along, across);
     }
 
-    public float drumlin(int seed, float x, float z) {
-        float u = x * this.alongX + z * this.alongZ;
-        float v = z * this.alongX - x * this.alongZ;
-        int row = NoiseUtil.floor(v / this.rowWidth);
-        float best = 0.0F;
-        for (int r = row - 1; r <= row + 1; r++) {
-            float shift = r * this.rowShift;
-            int column = NoiseUtil.floor((u - shift) / this.cellLength);
-            for (int c = column - 1; c <= column + 1; c++) {
-                int cellColumn = foldColumn(c, r);
-                int cellRow = foldRow(r);
-                if (Landform.random(seed, cellColumn, cellRow, PRESENCE) >= DRUMLIN_CHANCE) {
-                    continue;
-                }
+    public float along(float x, float z) {
+        return x * this.alongX + z * this.alongZ;
+    }
 
-                float offsetAlong = Landform.random(seed, cellColumn, cellRow, OFFSET_ALONG) - CENTER;
-                float offsetAcross = Landform.random(seed, cellColumn, cellRow, OFFSET_ACROSS) - CENTER;
-                float centerU = shift + (c + CENTER) * this.cellLength + offsetAlong * this.cellLength * JITTER;
-                float centerV = (r + CENTER) * this.rowWidth + offsetAcross * this.rowWidth * JITTER;
-                float lengthShare = Landform.random(seed, cellColumn, cellRow, LENGTH);
-                float widthShare = Landform.random(seed, cellColumn, cellRow, WIDTH);
-                float length = NoiseUtil.lerp(LENGTH_MIN, LENGTH_MAX, lengthShare) * this.cellLength;
-                float width = NoiseUtil.lerp(WIDTH_MIN, WIDTH_MAX, widthShare) * this.rowWidth;
-                float du = u - centerU;
-                float alongFlow = du / (du < 0.0F ? length * UPSTREAM : length);
-                float acrossFlow = (v - centerV) / width;
-                float distance = alongFlow * alongFlow + acrossFlow * acrossFlow;
-                if (distance < 1.0F) {
-                    float size = NoiseUtil.lerp(SIZE_MIN, 1.0F, Landform.random(seed, cellColumn, cellRow, SIZE));
-                    float t = 1.0F - distance;
-                    best = Math.max(best, size * t * t * (3.0F - 2.0F * t));
-                }
-            }
-        }
-
-        return best;
+    public float across(float x, float z) {
+        return z * this.alongX - x * this.alongZ;
     }
 
     public int foldColumn(int column, int row) {

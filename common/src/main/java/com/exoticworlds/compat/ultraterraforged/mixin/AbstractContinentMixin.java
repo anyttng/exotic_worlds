@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.exoticworlds.compat.ultraterraforged.RiverReach;
+import com.exoticworlds.compat.terraforged.RiverReach;
 import com.exoticworlds.compat.terraforged.RtfLap;
 
 import com.pandaismyname1.ultraterraforged.data.preset.settings.WorldSettings;
@@ -31,12 +31,12 @@ public abstract class AbstractContinentMixin {
     @WrapMethod(method = "getDistanceToOcean")
     private float exotic_worlds$firstCoast(int x, int z, float dx, float dz, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
-        float reach = frame == null ? RiverReach.UNBOUNDED : RiverReach.reach(frame, dx, dz);
+        float reach = frame == null ? RiverReach.UNBOUNDED : RiverReach.reach(frame);
         if (reach == RiverReach.UNBOUNDED) {
             return original.call(x, z, dx, dz);
         }
 
-        return RiverReach.distanceToOcean((SimpleContinent) (Object) this, this.controlPoints.shallowOcean, x, z, dx, dz,
-                reach);
+        return RiverReach.distanceToOcean(((SimpleContinent) (Object) this)::getEdgeValue,
+                this.controlPoints.shallowOcean, x, z, dx, dz, reach);
     }
 }

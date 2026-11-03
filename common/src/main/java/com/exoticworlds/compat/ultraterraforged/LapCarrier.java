@@ -15,9 +15,8 @@ import com.pandaismyname1.ultraterraforged.world.worldgen.heightmap.Levels;
 public interface LapCarrier {
     @SuppressWarnings("deprecation")
     static void carry(GeneratorContext context, WorldFold fold) {
-        double compression = RtfClimateCompression.factor(fold,
+        double compression = RtfClimateCompression.carry(fold,
                 (RtfClimateScales) (Object) context.localHeightmap.get().climate().biomeNoise());
-        RtfClimateCompression.remember(fold, compression);
         ((LapCarrier) (Object) context.levels).exotic_worlds$carryFold(fold, compression);
         RtfLap.activate();
     }

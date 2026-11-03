@@ -27,14 +27,14 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
-public abstract class LoopSettingsScreen<S> extends Screen {
+public abstract class LoopSettingsScreen<S, C extends SizeControls> extends Screen {
     private static final int FOOTER_SPACING = 8;
     private static final int CONTENTS_SPACING = 8;
     private static final Component ADDITIONAL_SECTION =
             Component.translatable("gui.exotic_worlds.toroidal_settings.section.additional")
                     .withStyle(ChatFormatting.BOLD);
 
-    protected final LoopSizeControls controls;
+    protected final C controls;
 
     private final Screen parent;
     private final Consumer<S> onDone;
@@ -47,7 +47,7 @@ public abstract class LoopSettingsScreen<S> extends Screen {
     private Button doneButton;
 
     @SuppressWarnings("this-escape")
-    protected LoopSettingsScreen(Component title, Screen parent, Function<Runnable, LoopSizeControls> controls,
+    protected LoopSettingsScreen(Component title, Screen parent, Function<Runnable, C> controls,
             GenerationOptions generationOptions, Collection<? extends WorldOption<?>> offeredOptions,
             Consumer<S> onDone) {
         super(title);

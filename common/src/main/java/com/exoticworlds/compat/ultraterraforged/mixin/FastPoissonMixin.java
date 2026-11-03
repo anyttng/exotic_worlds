@@ -4,8 +4,9 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.exoticworlds.compat.ultraterraforged.PoissonLattice;
+import com.exoticworlds.compat.terraforged.PoissonLattice;
 import com.exoticworlds.compat.terraforged.RtfLap;
+import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedNoise;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.feature.placement.poisson.FastPoisson;
 import com.pandaismyname1.ultraterraforged.world.worldgen.feature.placement.poisson.FastPoissonContext;
@@ -20,6 +21,7 @@ public abstract class FastPoissonMixin {
             return original.call(seed, x, z, context);
         }
 
-        return PoissonLattice.point(frame, seed, x, z, context);
+        return PoissonLattice.point(UltraTerraForgedNoise.INSTANCE, frame, seed, x, z, context.frequency(),
+                context.pad(), context.jitter());
     }
 }

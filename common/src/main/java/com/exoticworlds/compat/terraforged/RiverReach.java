@@ -1,16 +1,11 @@
-package com.exoticworlds.compat.ultraterraforged;
-
-import com.exoticworlds.compat.terraforged.RtfLap;
-import com.pandaismyname1.ultraterraforged.world.worldgen.continent.SimpleContinent;
+package com.exoticworlds.compat.terraforged;
 
 import net.minecraft.core.Direction;
 
 public final class RiverReach {
-    private static final float NETWORK_REACH = 1.64F;
+    private static final float CARVE_MARGIN = 443.0F;
 
-    private static final float CARVE_MARGIN = 1024.0F;
-
-    private static final float MIN_ROOT_LENGTH = 800.0F;
+    private static final float ROOT_START = 400.0F;
 
     private static final float HALF = 0.5F;
 
@@ -24,20 +19,25 @@ public final class RiverReach {
 
     private static final int MIN_ROOTS = 1;
 
-    public static float clamp(RtfLap.Frame frame, float length, float dx, float dz) {
-        return Math.min(length, reach(frame, dx, dz));
+    public static float clamp(RtfLap.Frame frame, float length) {
+        return Math.min(length, reach(frame));
     }
 
-    public static float reach(RtfLap.Frame frame, float dx, float dz) {
-        return Math.min(axisReach(frame, Direction.Axis.X, dx), axisReach(frame, Direction.Axis.Z, dz));
+    public static float reach(RtfLap.Frame frame) {
+        return Math.min(axisReach(frame, Direction.Axis.X), axisReach(frame, Direction.Axis.Z));
     }
 
-    public static float distanceToOcean(SimpleContinent continent, float shallowOcean, int x, int z, float dx,
-            float dz, float reach) {
+    @FunctionalInterface
+    public interface EdgeField {
+        float at(float x, float z);
+    }
+
+    public static float distanceToOcean(EdgeField continent, float shallowOcean, int x, int z, float dx, float dz,
+            float reach) {
         float land = 0.0F;
-        float landEdge = continent.getEdgeValue(x, z);
+        float landEdge = continent.at(x, z);
         for (float sea = COAST_STEP; sea < reach; sea += COAST_STEP) {
-            float seaEdge = continent.getEdgeValue(x + dx * sea, z + dz * sea);
+            float seaEdge = continent.at(x + dx * sea, z + dz * sea);
             if (seaEdge <= shallowOcean) {
                 return coastBetween(shallowOcean, land, landEdge, sea, seaEdge);
             }
@@ -74,17 +74,16 @@ public final class RiverReach {
     }
 
     public static boolean fits(RtfLap.Frame frame) {
-        return axisReach(frame, Direction.Axis.X, 1.0F) >= MIN_ROOT_LENGTH
-                && axisReach(frame, Direction.Axis.Z, 1.0F) >= MIN_ROOT_LENGTH;
+        return reach(frame) >= ROOT_START;
     }
 
-    private static float axisReach(RtfLap.Frame frame, Direction.Axis axis, float direction) {
+    private static float axisReach(RtfLap.Frame frame, Direction.Axis axis) {
         double lap = frame.lap(axis);
-        if (lap == RtfLap.OPEN || direction == 0.0F) {
+        if (lap == RtfLap.OPEN) {
             return UNBOUNDED;
         }
 
-        return (float) ((lap * HALF - CARVE_MARGIN) / (Math.abs(direction) * NETWORK_REACH));
+        return (float) (lap * HALF - CARVE_MARGIN);
     }
 
     private RiverReach() {

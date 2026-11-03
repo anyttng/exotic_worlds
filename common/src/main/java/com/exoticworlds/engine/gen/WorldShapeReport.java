@@ -6,8 +6,10 @@ import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.ExoticWorlds;
+import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.CoordinateConstants;
+import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -29,6 +31,7 @@ public final class WorldShapeReport {
     private static final String STAMP_SOURCE = "stamp";
     private static final String RESTORED_SOURCE = "restored";
     private static final String STORED_SOURCE = "stored";
+    private static final String TABLE_SOURCE = "table";
     private static final String NOT_PERIODIC_NOTE = ", stamped, terrain not periodic";
 
     public record Line(boolean broken, String text) {
@@ -40,21 +43,19 @@ public final class WorldShapeReport {
 
     public static List<Line> lines(MinecraftServer server) {
         FlatShape overworldShape = shapeOf(server.overworld());
-        if (overworldShape == null) {
-            return List.of();
-        }
-
         List<Line> lines = new ArrayList<>();
+        boolean anyWrapped = false;
         for (ServerLevel level : server.getAllLevels()) {
             FlatShape shape = shapeOf(level);
             if (shape != null) {
+                anyWrapped = true;
                 lines.add(wrappedLine(server, level, shape));
             } else {
                 lines.add(new Line(false, unwrappedLine(server, level, overworldShape)));
             }
         }
 
-        return lines;
+        return anyWrapped ? lines : List.of();
     }
 
     private static Line wrappedLine(MinecraftServer server, ServerLevel level, FlatShape shape) {
@@ -65,7 +66,7 @@ public final class WorldShapeReport {
         Note endWidth = endWidth(level, bounds);
         return new Line(netherScale.broken() || endWidth.broken(), "World shape: " + level.dimension().identifier()
                 + " generator=" + generatorId(generator)
-                + " shape=" + shapeSource(level, override)
+                + " shape=" + shapeSource(server, level, override)
                 + " identification=" + shape.identification()
                 + " x=" + bounds.x().spanText() + " z=" + bounds.z().spanText() + " chunks"
                 + ", " + widths(bounds)
@@ -77,25 +78,42 @@ public final class WorldShapeReport {
                 + tail());
     }
 
-    private static String unwrappedLine(MinecraftServer server, ServerLevel level, FlatShape overworldShape) {
+    private static String unwrappedLine(MinecraftServer server, ServerLevel level, @Nullable FlatShape overworldShape) {
+        return "World shape: " + level.dimension().identifier() + " not wrapped"
+                + " generator=" + generatorId(level.getChunkSource().getGenerator())
+                + ", " + unwrappedReason(server, level, overworldShape)
+                + tail();
+    }
+
+    private static String unwrappedReason(MinecraftServer server, ServerLevel level, @Nullable FlatShape overworldShape) {
+        if (tableEntryOf(server, level) != null) {
+            return "the overworld's dimension table leaves it unwrapped";
+        }
+
+        return overworldShape == null ? "neither it nor the overworld carries a shape"
+                : underivedReason(server, level, overworldShape);
+    }
+
+    private static DimensionTable.@Nullable Entry tableEntryOf(MinecraftServer server, ServerLevel level) {
+        return ShapedDimensions.dimensionTableOf(server.overworld().getChunkSource().getGenerator())
+                .entry(Registries.levelToLevelStem(level.dimension()));
+    }
+
+    private static String underivedReason(MinecraftServer server, ServerLevel level, FlatShape overworldShape) {
         double overworldScale = server.overworld().dimensionType().coordinateScale();
         double scale = level.dimensionType().coordinateScale();
         FlatShape derived = ShapedDimensions.derivedShape(overworldShape, overworldScale, scale);
-        String reason = derived == null
+        return derived == null
                 ? "coordinate scale " + scale + " derives no whole-chunk width in range or whole-chunk skew from the"
                         + " overworld's " + widths(overworldShape.bounds()) + skew(overworldShape)
                 : "a derivable " + widths(derived.bounds()) + " never reached the generator";
-        return "World shape: " + level.dimension().identifier() + " not wrapped"
-                + " generator=" + generatorId(level.getChunkSource().getGenerator())
-                + ", " + reason
-                + tail();
     }
 
     private static String seamTerrain(ChunkGenerator generator) {
         return ShapedChunkGenerator.tilesAtSeam(generator) ? "" : NOT_PERIODIC_NOTE;
     }
 
-    private static String shapeSource(ServerLevel level, @Nullable StemOverride override) {
+    private static String shapeSource(MinecraftServer server, ServerLevel level, @Nullable StemOverride override) {
         if (override != null) {
             return switch (override.outcome()) {
                 case RESHAPED -> RESTORED_SOURCE;
@@ -104,7 +122,13 @@ public final class WorldShapeReport {
             };
         }
 
-        return level.getChunkSource().getGenerator() instanceof ShapedChunkGenerator ? CODEC_SOURCE : STAMP_SOURCE;
+        ChunkGenerator generator = level.getChunkSource().getGenerator();
+        if (generator instanceof ShapedChunkGenerator) {
+            return CODEC_SOURCE;
+        }
+
+        boolean ownStamp = generator instanceof ShapeStamp stamp && stamp.exotic_worlds$carriedShape() != null;
+        return !ownStamp && tableEntryOf(server, level) != null ? TABLE_SOURCE : STAMP_SOURCE;
     }
 
     private static @Nullable StemOverride overrideOf(ServerLevel level) {

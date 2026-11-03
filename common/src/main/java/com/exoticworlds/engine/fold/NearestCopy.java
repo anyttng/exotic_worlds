@@ -38,6 +38,10 @@ public final class NearestCopy {
         return fold == null ? target : fold.nearestCopy(box.getCenter(), target);
     }
 
+    public static Vec3i toward(@Nullable WorldFold fold, BoundingBox box, Vec3i target) {
+        return fold == null ? target : fold.nearestCopy(box.getCenter(), asBlockPos(target));
+    }
+
     public static ChunkPos toward(@Nullable WorldFold fold, ChunkPos anchor, ChunkPos target) {
         return fold == null ? target : fold.nearestCopy(anchor, target);
     }
