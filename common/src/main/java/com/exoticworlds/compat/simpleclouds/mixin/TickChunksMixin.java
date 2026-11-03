@@ -2,6 +2,7 @@ package com.exoticworlds.compat.simpleclouds.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -15,7 +16,9 @@ public class TickChunksMixin {
     @WrapMethod(method = "rainAndSnowVanillaCompatibility")
     private static void exotic_worlds$bindPrecipitationFold(ServerLevel level, ChunkAccess chunk,
             Operation<Void> original) {
-        GenerationFoldContext.runWithFold(
-                WorldLoopAttachments.noiseFoldOf(level), () -> original.call(level, chunk));
+        WorldFold fold = WorldLoopAttachments.noiseFoldOf(level);
+        try (GenerationFoldContext.Context.FoldScope scope = GenerationFoldContext.context().withFold(fold)) {
+            original.call(level, chunk);
+        }
     }
 }

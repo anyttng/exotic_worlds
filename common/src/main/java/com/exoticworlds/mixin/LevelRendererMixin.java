@@ -37,8 +37,9 @@ public class LevelRendererMixin {
             return;
         }
 
-        GenerationFoldContext.runWithFold(bounds,
-                () -> original.call(lightTexture, partialTick, cameraX, cameraY, cameraZ));
+        try (GenerationFoldContext.Context.FoldScope scope = GenerationFoldContext.context().withFold(bounds)) {
+            original.call(lightTexture, partialTick, cameraX, cameraY, cameraZ);
+        }
     }
 
     @WrapMethod(method = "tickRain")
@@ -49,7 +50,9 @@ public class LevelRendererMixin {
             return;
         }
 
-        GenerationFoldContext.runWithFold(bounds, () -> original.call(camera));
+        try (GenerationFoldContext.Context.FoldScope scope = GenerationFoldContext.context().withFold(bounds)) {
+            original.call(camera);
+        }
     }
 
     @Unique

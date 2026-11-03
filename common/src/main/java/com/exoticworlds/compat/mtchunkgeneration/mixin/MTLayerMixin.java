@@ -36,8 +36,10 @@ public class MTLayerMixin {
             StructureManager structureManager,
             ChunkAccess chunk,
             Operation<Void> original) {
-        GenerationFoldContext.runWithFold(ShapedChunkGenerator.foldOf(this.generator),
-                () -> original.call(blender, randomState, structureManager, chunk));
+        WorldFold fold = ShapedChunkGenerator.foldOf(this.generator);
+        try (GenerationFoldContext.Context.FoldScope scope = GenerationFoldContext.context().withFold(fold)) {
+            original.call(blender, randomState, structureManager, chunk);
+        }
     }
 
     @WrapOperation(
