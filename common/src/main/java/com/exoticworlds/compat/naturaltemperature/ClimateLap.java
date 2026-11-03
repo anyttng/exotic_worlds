@@ -43,15 +43,26 @@ public final class ClimateLap {
                 : BY_FOLD.computeIfAbsent(fold, key -> new ClimateLap(key.blockLattice(), FoldCompression.of(key)));
     }
 
-    public int x(int blockX, int blockZ) {
+    public int x(int blockX, int blockZ, int mode, double equatorialDistance) {
+        double scale = xScale(mode, equatorialDistance);
         WrapDomain x = this.lattice.x();
         if (!x.loops()) {
-            return compressed(blockX);
+            return (int) Math.round(blockX * scale);
         }
 
         WrapDomain z = this.lattice.z();
         double fromZCenter = z.loops() ? blockZ - center(z) : blockZ;
-        return (int) Math.round(mirrored(this.frame.frameX(blockX, fromZCenter), x) * this.compression);
+        return (int) Math.round(mirrored(this.frame.frameX(blockX, fromZCenter), x) * scale);
+    }
+
+    double xScale(int mode, double equatorialDistance) {
+        WrapDomain z = this.lattice.z();
+        if (!z.loops() || radial(mode) || equatorialDistance <= 0.0) {
+            return this.compression;
+        }
+
+        double halfTurn = z.domainLength / (2.0 * bands(equatorialDistance));
+        return POLE_TO_EQUATOR_SPANS * equatorialDistance / halfTurn;
     }
 
     public int z(int blockZ, int mode, double equatorialDistance, double equatorOffset) {

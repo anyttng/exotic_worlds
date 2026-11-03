@@ -32,7 +32,7 @@ public class NeoForgeWorldPainterMixin {
 
         DensityFunction.@Nullable FunctionContext previous = PinnedSample.enter(x, y, z);
         try {
-            return original.call(sampler, lap.x(x, z), y,
+            return original.call(sampler, lap.x(x, z, Config.generation_mode, Config.equatorial_distance), y,
                     lap.z(z, Config.generation_mode, Config.equatorial_distance, Config.equator_offset));
         } finally {
             PinnedSample.exit(previous);
@@ -52,7 +52,7 @@ public class NeoForgeWorldPainterMixin {
 
         DensityFunction.@Nullable FunctionContext previous = PinnedSample.enter(x, y, z);
         try {
-            return original.call(sampler, lap.x(x, z), y,
+            return original.call(sampler, lap.x(x, z, Config.generation_mode, Config.equatorial_distance), y,
                     lap.z(z, Config.generation_mode, Config.equatorial_distance, Config.equator_offset));
         } finally {
             PinnedSample.exit(previous);

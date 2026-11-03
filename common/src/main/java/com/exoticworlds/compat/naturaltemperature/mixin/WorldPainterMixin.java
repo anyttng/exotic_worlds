@@ -35,7 +35,7 @@ public class WorldPainterMixin {
         ModConfig config = NaturalTemperature.CONFIG;
         DensityFunction.@Nullable FunctionContext previous = PinnedSample.enter(x, y, z);
         try {
-            return original.call(sampler, lap.x(x, z), y,
+            return original.call(sampler, lap.x(x, z, config.generation_mode, config.equatorial_distance), y,
                     lap.z(z, config.generation_mode, config.equatorial_distance, config.equator_offset));
         } finally {
             PinnedSample.exit(previous);
@@ -56,7 +56,7 @@ public class WorldPainterMixin {
         ModConfig config = NaturalTemperature.CONFIG;
         DensityFunction.@Nullable FunctionContext previous = PinnedSample.enter(x, y, z);
         try {
-            return original.call(sampler, lap.x(x, z), y,
+            return original.call(sampler, lap.x(x, z, config.generation_mode, config.equatorial_distance), y,
                     lap.z(z, config.generation_mode, config.equatorial_distance, config.equator_offset));
         } finally {
             PinnedSample.exit(previous);
