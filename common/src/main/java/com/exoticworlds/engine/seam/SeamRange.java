@@ -64,14 +64,6 @@ public final class SeamRange {
                 to.getX(), to.getY(), to.getZ());
     }
 
-    public static double sqr(@Nullable WorldFold fold, Vec3 from, Position to) {
-        if (fold == null) {
-            return from.distanceToSqr(to.x(), to.y(), to.z());
-        }
-
-        return fold.sqrDistance(from.x, from.y, from.z, to.x(), to.y(), to.z());
-    }
-
     private static @Nullable WorldFold wrappedFoldOf(Entity levelSource) {
         return WorldLoopAttachments.wrappedFoldOf(levelSource.level());
     }

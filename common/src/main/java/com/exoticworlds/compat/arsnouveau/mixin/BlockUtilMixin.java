@@ -3,7 +3,7 @@ package com.exoticworlds.compat.arsnouveau.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.seam.SeamRange;
+import com.exoticworlds.engine.fold.NearestCopy;
 import com.hollingsworth.arsnouveau.api.util.BlockUtil;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -21,7 +21,8 @@ public abstract class BlockUtilMixin {
             return original.call(level, start, end);
         }
 
-        return Math.sqrt(SeamRange.sqr(WorldLoopAttachments.wrappedFoldOfReader(level), start, end));
+        return original.call(level, start,
+                NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(level), start, end));
     }
 
     @WrapMethod(method = "distanceFrom(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/core/BlockPos;)D")
@@ -31,13 +32,15 @@ public abstract class BlockUtilMixin {
             return original.call(level, start, end);
         }
 
-        return Math.sqrt(SeamRange.sqr(WorldLoopAttachments.wrappedFoldOfReader(level), start,
-                Vec3.atLowerCornerOf(end)));
+        Vec3 nearest = NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(level), start,
+                Vec3.atLowerCornerOf(end));
+        return original.call(level, start, BlockPos.containing(nearest));
     }
 
     @WrapMethod(method = "distanceFrom(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;)D")
     private static double exotic_worlds$pointDistanceThroughSeam(Level level, Vec3 start, Vec3 end,
             Operation<Double> original) {
-        return Math.sqrt(SeamRange.sqr(WorldLoopAttachments.wrappedFoldOfReader(level), start, end));
+        return original.call(level, start,
+                NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(level), start, end));
     }
 }

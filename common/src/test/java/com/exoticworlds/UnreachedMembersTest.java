@@ -76,8 +76,7 @@ class UnreachedMembersTest {
     private static final Set<String> MAIN_FORM_FOR_SHARED_TESTS = Set.of(
             "core.DeckGroupFold.<init>",
             "core.WorldLoopFold.<init>",
-            "engine.net.TranslationContext.toClientRelative",
-            "engine.seam.SeamRange.closerThan");
+            "engine.net.TranslationContext.toClientRelative");
     private static final Set<String> READ_BY_HARNESS = Set.of(
             "compat.distanthorizons.DhFold.periodSections",
             "compat.ModPresenceGatePlugin.gates",

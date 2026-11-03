@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.accessors.LevelBindable;
+import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.level.BoundLevelFold;
-import com.exoticworlds.engine.seam.SeamRange;
 import com.hollingsworth.arsnouveau.common.entity.goal.DistanceRestrictedGoal;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -31,6 +31,6 @@ public abstract class DistanceRestrictedGoalMixin implements LevelBindable {
             return original.call(start, end);
         }
 
-        return Math.sqrt(SeamRange.sqr(this.exotic_worlds$bound.wrapped(), start, end));
+        return original.call(start, NearestCopy.toward(this.exotic_worlds$bound.wrapped(), start, end));
     }
 }
