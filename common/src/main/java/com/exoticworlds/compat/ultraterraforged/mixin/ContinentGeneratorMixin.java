@@ -90,7 +90,7 @@ public abstract class ContinentGeneratorMixin {
     @WrapMethod(method = "getDistanceToOcean")
     private float exotic_worlds$firstCoast(int x, int z, float dx, float dz, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
-        float reach = frame == null ? RiverReach.UNBOUNDED : RiverReach.reach(frame, dx, dz);
+        float reach = frame == null ? RiverReach.UNBOUNDED : RiverReach.reach(frame);
         if (reach == RiverReach.UNBOUNDED) {
             return original.call(x, z, dx, dz);
         }
