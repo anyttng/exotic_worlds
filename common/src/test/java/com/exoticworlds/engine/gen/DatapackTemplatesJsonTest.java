@@ -69,15 +69,12 @@ class DatapackTemplatesJsonTest {
         assertEquals(VANILLA_DIMENSIONS, dimensions.size(),
                 template + ": expected exactly the three vanilla dimensions");
 
-        WorldLoopBounds overworld = assertDimension(template, dimensions, "minecraft:overworld", "minecraft:overworld",
-                identification, statesOptions);
-        WorldLoopBounds nether = assertDimension(template, dimensions, "minecraft:the_nether", "minecraft:nether",
-                identification, statesOptions);
+        assertDimension(template, dimensions, "minecraft:overworld", "minecraft:overworld", identification,
+                statesOptions);
+        assertDimension(template, dimensions, "minecraft:the_nether", "minecraft:nether", identification,
+                statesOptions);
         WorldLoopBounds end = assertDimension(template, dimensions, "minecraft:the_end", "minecraft:end",
                 identification, statesOptions);
-
-        WorldShapeReport.Note scale = WorldShapeReport.netherScaleNote(overworld, nether);
-        assertFalse(scale.broken(), template + scale.text());
 
         WorldShapeReport.Note width = WorldShapeReport.endWidthNote(end);
         assertFalse(width.broken(), template + width.text());

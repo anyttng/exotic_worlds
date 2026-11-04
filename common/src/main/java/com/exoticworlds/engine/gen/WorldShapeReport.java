@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
+import com.google.common.math.IntMath;
+import com.google.common.math.LongMath;
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.CarriedShape;
@@ -197,13 +199,8 @@ public final class WorldShapeReport {
             return Note.NONE;
         }
 
-        Note widths = netherScaleNote(overworldShape.bounds(), shape.bounds());
-        if (widths.broken()) {
-            return widths;
-        }
-
         Note skew = netherSkewNote(overworldShape, shape);
-        return skew.broken() ? skew : widths;
+        return skew.broken() ? skew : new Note(false, netherScaleText(overworldShape.bounds(), shape.bounds()));
     }
 
     static Note netherSkewNote(FlatShape overworld, FlatShape nether) {
@@ -211,42 +208,38 @@ public final class WorldShapeReport {
             return Note.NONE;
         }
 
-        int overworldWidth = overworld.bounds().chunkWidth(Direction.Axis.X);
-        int netherWidth = nether.bounds().chunkWidth(Direction.Axis.X);
-        if (overworldWidth % netherWidth != 0) {
+        long overworldWidth = overworld.bounds().chunkWidth(Direction.Axis.X);
+        long netherWidth = nether.bounds().chunkWidth(Direction.Axis.X);
+        long overworldSkew = overworld.skewChunks();
+        long netherSkew = nether.skewChunks();
+        if (Math.floorMod(overworldSkew * netherWidth - netherSkew * overworldWidth, overworldWidth * netherWidth)
+                == 0) {
             return Note.NONE;
         }
 
-        int scale = overworldWidth / netherWidth;
-        int overworldSkew = overworld.skewChunks();
-        int netherSkew = nether.skewChunks();
-        if (overworldSkew % scale == 0 && Math.floorMod(overworldSkew - netherSkew * scale, overworldWidth) == 0) {
-            return Note.NONE;
-        }
-
-        return new Note(true, ", BROKEN nether skew: an overworld skewed by " + overworldSkew + " chunks at scale 1:"
-                + scale + " does not match a nether skewed by " + netherSkew
-                + " chunks, so portals will not line up across the Z seam");
+        return new Note(true, ", BROKEN nether skew: an overworld of " + overworldWidth + " chunks skewed by "
+                + overworldSkew + " chunks needs a nether of " + netherWidth + " chunks skewed by "
+                + fraction(overworldSkew * netherWidth, overworldWidth) + " chunks, not " + netherSkew
+                + ", so portals will not line up across the Z seam");
     }
 
-    static Note netherScaleNote(WorldLoopBounds overworld, WorldLoopBounds nether) {
-        for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (sharedLoop(overworld, nether, axis)
-                    && overworld.chunkWidth(axis) % nether.chunkWidth(axis) != 0) {
-                return new Note(true, ", BROKEN portal scale on the " + axis.getName() + " axis: an overworld of "
-                        + WorldLoopSizes.describe(overworld.chunkWidth(axis)) + " does not divide by a nether of "
-                        + WorldLoopSizes.describe(nether.chunkWidth(axis))
-                        + ", so portals will not line up across the seam");
-            }
-        }
-
+    static String netherScaleText(WorldLoopBounds overworld, WorldLoopBounds nether) {
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
             if (sharedLoop(overworld, nether, axis)) {
-                return new Note(false, ", scale 1:" + overworld.chunkWidth(axis) / nether.chunkWidth(axis));
+                int netherWidth = nether.chunkWidth(axis);
+                int overworldWidth = overworld.chunkWidth(axis);
+                int common = IntMath.gcd(netherWidth, overworldWidth);
+                return ", scale " + netherWidth / common + ":" + overworldWidth / common;
             }
         }
 
-        return Note.NONE;
+        return "";
+    }
+
+    private static String fraction(long numerator, long denominator) {
+        long common = LongMath.gcd(Math.abs(numerator), denominator);
+        return denominator == common ? Long.toString(numerator / common)
+                : numerator / common + "/" + denominator / common;
     }
 
     private static Note endWidth(ServerLevel level, WorldLoopBounds bounds) {
