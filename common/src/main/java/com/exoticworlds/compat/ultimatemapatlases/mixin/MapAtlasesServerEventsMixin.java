@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.compat.ultimatemapatlases.AtlasCopyLookup;
+import com.exoticworlds.compat.ultimatemapatlases.AtlasTileCopies;
 import com.exoticworlds.compat.ultimatemapatlases.UltimateMapAtlasesInjectionTargets;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -30,14 +31,29 @@ public class MapAtlasesServerEventsMixin {
     @WrapOperation(method = "onPlayerTick", at = @At(value = "INVOKE", target = SELECT_AT))
     private static @Nullable MapDataHolder exotic_worlds$neighborAtAnyCopy(IMapCollection maps, int centerX,
             int centerZ, Slice slice, Operation<MapDataHolder> original, @Local(argsOnly = true) Player player) {
-        return AtlasCopyLookup.atAnyCopy(player.level(), maps, centerX, centerZ, slice, original);
+        for (AtlasTileCopies.TileCenter copy : AtlasCopyLookup.copies(player.level(), maps, centerX, centerZ)) {
+            @Nullable MapDataHolder map = original.call(maps, copy.x(), copy.z(), slice);
+            if (map != null) {
+                return map;
+            }
+        }
+
+        return null;
     }
 
     @WrapOperation(method = "onPlayerTick",
             at = @At(value = "INVOKE", target = UltimateMapAtlasesInjectionTargets.SELECT_KEY))
     private static @Nullable MapDataHolder exotic_worlds$activeAtAnyCopy(IMapCollection maps, MapKey key,
             Operation<MapDataHolder> original, @Local(argsOnly = true) Player player) {
-        return AtlasCopyLookup.atAnyCopy(player.level(), maps, key, original);
+        for (AtlasTileCopies.TileCenter copy : AtlasCopyLookup.copies(player.level(), maps, key.mapX(),
+                key.mapZ())) {
+            @Nullable MapDataHolder map = original.call(maps, new MapKey(copy.x(), copy.z(), key.slice()));
+            if (map != null) {
+                return map;
+            }
+        }
+
+        return null;
     }
 
     @Inject(method = "onPlayerTick",
@@ -51,14 +67,29 @@ public class MapAtlasesServerEventsMixin {
     private static @Nullable MapDataHolder exotic_worlds$sliceAtAnyCopy(IMapCollection maps, int centerX,
             int centerZ, Slice slice, Operation<MapDataHolder> original,
             @Local(argsOnly = true) ServerPlayer player) {
-        return AtlasCopyLookup.atAnyCopy(player.level(), maps, centerX, centerZ, slice, original);
+        for (AtlasTileCopies.TileCenter copy : AtlasCopyLookup.copies(player.level(), maps, centerX, centerZ)) {
+            @Nullable MapDataHolder map = original.call(maps, copy.x(), copy.z(), slice);
+            if (map != null) {
+                return map;
+            }
+        }
+
+        return null;
     }
 
     @WrapOperation(method = "onPlayerJoin",
             at = @At(value = "INVOKE", target = UltimateMapAtlasesInjectionTargets.SELECT_KEY))
     private static @Nullable MapDataHolder exotic_worlds$joinAtAnyCopy(IMapCollection maps, MapKey key,
             Operation<MapDataHolder> original, @Local(argsOnly = true) ServerPlayer player) {
-        return AtlasCopyLookup.atAnyCopy(player.level(), maps, key, original);
+        for (AtlasTileCopies.TileCenter copy : AtlasCopyLookup.copies(player.level(), maps, key.mapX(),
+                key.mapZ())) {
+            @Nullable MapDataHolder map = original.call(maps, new MapKey(copy.x(), copy.z(), key.slice()));
+            if (map != null) {
+                return map;
+            }
+        }
+
+        return null;
     }
 
     @Inject(method = "maybeCreateNewMapEntry", at = @At("HEAD"), cancellable = true)

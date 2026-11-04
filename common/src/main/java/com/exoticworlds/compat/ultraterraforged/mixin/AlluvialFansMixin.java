@@ -79,7 +79,10 @@ public abstract class AlluvialFansMixin {
     private float exotic_worlds$hash(int seed, int cellX, int cellZ, int purpose, Operation<Float> original,
             @Local(argsOnly = true, ordinal = X_ARGUMENT) float x, @Local(argsOnly = true, ordinal = Z_ARGUMENT) float z,
             @Local(name = "gridX") int pointX, @Local(name = "gridZ") int pointZ) {
-        return SiteSeats.hash(GRID, original, seed, cellX, cellZ, purpose, x, z, pointX, pointZ);
+        SiteLattice.Seat seat = SiteSeats.seat(GRID, cellX, cellZ, x, z, pointX, pointZ);
+        return seat == null
+                ? original.call(seed, cellX, cellZ, purpose)
+                : original.call(seed, seat.cellX(), seat.cellZ(), purpose);
     }
 
     @WrapOperation(method = "apply", at = @At(value = "INVOKE", target = UltraTerraForgedInjectionTargets.SITE_CACHE_GET))
@@ -87,7 +90,10 @@ public abstract class AlluvialFansMixin {
             Operation<Object> original, @Local(argsOnly = true, ordinal = X_ARGUMENT) float x,
             @Local(argsOnly = true, ordinal = Z_ARGUMENT) float z, @Local(name = "gridX") int pointX,
             @Local(name = "gridZ") int pointZ) {
-        return SiteSeats.site(GRID, original, cache, cellX, cellZ, finder, x, z, pointX, pointZ);
+        SiteLattice.Seat seat = SiteSeats.seat(GRID, cellX, cellZ, x, z, pointX, pointZ);
+        return seat == null
+                ? original.call(cache, cellX, cellZ, finder)
+                : original.call(cache, seat.cellX(), seat.cellZ(), finder);
     }
 
     @ModifyArg(method = "apply", at = @At(value = "INVOKE", target = DEPOSIT), index = DEPOSIT_X)

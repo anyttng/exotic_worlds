@@ -80,7 +80,10 @@ public abstract class SkerriesMixin {
     private float exotic_worlds$hash(int seed, int cellX, int cellZ, int purpose, Operation<Float> original,
             @Local(argsOnly = true, ordinal = X_ARGUMENT) float x, @Local(argsOnly = true, ordinal = Z_ARGUMENT) float z,
             @Local(name = "gridX") int pointX, @Local(name = "gridZ") int pointZ) {
-        return SiteSeats.hash(GRID, original, seed, cellX, cellZ, purpose, x, z, pointX, pointZ);
+        SiteLattice.Seat seat = SiteSeats.seat(GRID, cellX, cellZ, x, z, pointX, pointZ);
+        return seat == null
+                ? original.call(seed, cellX, cellZ, purpose)
+                : original.call(seed, seat.cellX(), seat.cellZ(), purpose);
     }
 
     @ModifyVariable(method = "apply", at = @At("STORE"), name = "radius")

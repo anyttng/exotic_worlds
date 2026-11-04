@@ -47,7 +47,10 @@ public abstract class SeaCavesMixin {
     @WrapOperation(method = "carve", at = @At(value = "INVOKE", target = UltraTerraForgedInjectionTargets.CAVE_RANDOM))
     private float exotic_worlds$gate(int seed, int cellX, int cellZ, int purpose, Operation<Float> original,
             @Local(argsOnly = true) CaveCarving carving, @Local(name = "gridX") int pointX) {
-        return CaveCells.gate(GRID, original, seed, cellX, cellZ, purpose, carving, pointX);
+        CaveCells.Cell cell = CaveCells.gate(GRID, cellX, cellZ, carving, pointX);
+        return cell == null
+                ? original.call(seed, cellX, cellZ, purpose)
+                : original.call(seed, cell.x(), cell.z(), purpose);
     }
 
     @WrapOperation(method = "carve", at = @At(value = "INVOKE", target = UltraTerraForgedInjectionTargets.SITE_CACHE_GET))
