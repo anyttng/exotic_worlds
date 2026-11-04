@@ -2,6 +2,7 @@ package com.exoticworlds.compat.ultimatemapatlases.mixin;
 
 import java.util.Comparator;
 
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -10,6 +11,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import com.exoticworlds.compat.ultimatemapatlases.AtlasPointSeat;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.seam.MapSeamFold;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -34,9 +37,14 @@ public abstract class AtlasOverviewScreenMixin {
             at = @At(value = "INVOKE", target = "Ljava/util/List;sort(Ljava/util/Comparator;)V", ordinal = 0))
     private Comparator<DecorationBookmarkButton> exotic_worlds$byDistanceAcrossSeam(
             Comparator<DecorationBookmarkButton> byRawDistance) {
+        WorldFold fold = this.exotic_worlds$fold();
+        if (fold == null) {
+            return byRawDistance;
+        }
+
         Vec3 player = this.player.position();
         return Comparator.comparingDouble(
-                bookmark -> this.exotic_worlds$seated(bookmark.getWorldX(), bookmark.getWorldZ(), player)
+                bookmark -> AtlasPointSeat.toward(fold, player, bookmark.getWorldX(), bookmark.getWorldZ())
                         .distanceToSqr(player));
     }
 
@@ -46,8 +54,11 @@ public abstract class AtlasOverviewScreenMixin {
                     target = "Lnet/nanaky/ultimate_map_atlases/client/screen/DecorationBookmarkButton;getWorldX()D"))
     private double exotic_worlds$bookmarkXNearView(DecorationBookmarkButton bookmark, Operation<Double> original,
             @Local(argsOnly = true, ordinal = 0) int centerX, @Local(argsOnly = true, ordinal = 1) int centerZ) {
-        return this.exotic_worlds$seated(original.call(bookmark), bookmark.getWorldZ(),
-                new Vec3(centerX, 0.0, centerZ)).x;
+        double x = original.call(bookmark);
+        WorldFold fold = this.exotic_worlds$fold();
+        return fold == null
+                ? x
+                : AtlasPointSeat.toward(fold, new Vec3(centerX, 0.0, centerZ), x, bookmark.getWorldZ()).x;
     }
 
     @WrapOperation(
@@ -56,12 +67,15 @@ public abstract class AtlasOverviewScreenMixin {
                     target = "Lnet/nanaky/ultimate_map_atlases/client/screen/DecorationBookmarkButton;getWorldZ()D"))
     private double exotic_worlds$bookmarkZNearView(DecorationBookmarkButton bookmark, Operation<Double> original,
             @Local(argsOnly = true, ordinal = 0) int centerX, @Local(argsOnly = true, ordinal = 1) int centerZ) {
-        return this.exotic_worlds$seated(bookmark.getWorldX(), original.call(bookmark),
-                new Vec3(centerX, 0.0, centerZ)).z;
+        double z = original.call(bookmark);
+        WorldFold fold = this.exotic_worlds$fold();
+        return fold == null
+                ? z
+                : AtlasPointSeat.toward(fold, new Vec3(centerX, 0.0, centerZ), bookmark.getWorldX(), z).z;
     }
 
     @Unique
-    private Vec3 exotic_worlds$seated(double x, double z, Vec3 anchor) {
-        return AtlasPointSeat.toward(this.selectedSlice.dimension(), anchor, x, z);
+    private @Nullable WorldFold exotic_worlds$fold() {
+        return MapSeamFold.foldFor(null, this.selectedSlice.dimension());
     }
 }

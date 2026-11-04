@@ -1,5 +1,6 @@
 package com.exoticworlds.compat.ultimatemapatlases.mixin;
 
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -89,18 +90,21 @@ public abstract class MapWidgetMixin implements BrowsedDimension {
             method = "drawPlayerCursor",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getX()D"))
     private double exotic_worlds$cursorX(Player player, Operation<Double> original) {
-        return MapCopies.current() == MapCopies.SINGLE
-                ? ClientShapes.fold(ClientShapes.of(player.level()), player.position()).x
-                : original.call(player);
+        ToroidalShape shape = exotic_worlds$singleCopyShape(player);
+        return shape != null ? shape.fold(player.position()).x : original.call(player);
     }
 
     @WrapOperation(
             method = "drawPlayerCursor",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getZ()D"))
     private double exotic_worlds$cursorZ(Player player, Operation<Double> original) {
-        return MapCopies.current() == MapCopies.SINGLE
-                ? ClientShapes.fold(ClientShapes.of(player.level()), player.position()).z
-                : original.call(player);
+        ToroidalShape shape = exotic_worlds$singleCopyShape(player);
+        return shape != null ? shape.fold(player.position()).z : original.call(player);
+    }
+
+    @Unique
+    private static @Nullable ToroidalShape exotic_worlds$singleCopyShape(Player player) {
+        return MapCopies.current() == MapCopies.SINGLE ? ClientShapes.of(player.level()) : null;
     }
 
     @Unique
