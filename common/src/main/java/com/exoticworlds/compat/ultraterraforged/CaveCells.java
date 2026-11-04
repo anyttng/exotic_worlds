@@ -2,7 +2,6 @@ package com.exoticworlds.compat.ultraterraforged;
 
 import org.jspecify.annotations.Nullable;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.exoticworlds.compat.terraforged.SiteLattice;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.cave.CaveCarving;
@@ -10,6 +9,9 @@ import com.pandaismyname1.ultraterraforged.world.worldgen.landform.SiteCache;
 
 public final class CaveCells {
     private static final ThreadLocal<@Nullable CopyCell> SEATED = new ThreadLocal<>();
+
+    public record Cell(int x, int z) {
+    }
 
     private record CopyCell(SiteLattice lattice, int cellX, int cellZ) {
     }
@@ -24,15 +26,14 @@ public final class CaveCells {
         return lattice == null ? pointZ : lattice.cellZ(minZ);
     }
 
-    public static float gate(float spacing, Operation<Float> original, int seed, int cellX, int cellZ, int purpose,
-            CaveCarving carving, int pointX) {
+    public static @Nullable Cell gate(float spacing, int cellX, int cellZ, CaveCarving carving, int pointX) {
         SiteLattice lattice = SiteLattice.bound(spacing);
         if (lattice == null) {
-            return original.call(seed, cellX, cellZ, purpose);
+            return null;
         }
 
         int copyX = lattice.copyX(cellX, cellZ, pointX, carving.minX);
-        return original.call(seed, lattice.canonicalX(copyX), lattice.canonicalZ(cellZ), purpose);
+        return new Cell(lattice.canonicalX(copyX), lattice.canonicalZ(cellZ));
     }
 
     public static int copyX(float spacing, int cellX, int cellZ, CaveCarving carving, int pointX) {
