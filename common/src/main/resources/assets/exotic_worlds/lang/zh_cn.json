@@ -4,6 +4,13 @@
 
   "argument.exotic_worlds.pos.outside_world": "%s 超出了这个世界的范围，必须在 %s 和 %s 之间",
   "commands.exotic_worlds.region.across_seam": "该区域跨越世界边缘，可能指边缘的任意一侧。请在每一侧分别执行该命令",
+  "commands.exotic_worlds.dimensions.undecided": "%s 尚未选择形状。",
+  "commands.exotic_worlds.dimensions.configure": "选择形状",
+  "commands.exotic_worlds.dimensions.configure.hint": "打开这些维度的形状选择界面",
+  "commands.exotic_worlds.dimensions.no_client": "此界面需要你的游戏也安装 Exotic Worlds。",
+  "commands.exotic_worlds.dimensions.saved": "形状已保存，将在下次加载世界时生效。",
+  "commands.exotic_worlds.dimensions.refused": "%s 的形状保持不变。",
+  "commands.exotic_worlds.dimensions.dropped": "%s 在重新加载世界前生成了区块，所选形状已取消。",
 
   "gui.exotic_worlds.world_shape": "世界形状",
   "gui.exotic_worlds.world_shape.normal": "普通",
@@ -72,6 +79,13 @@
   "gui.exotic_worlds.custom_settings.mod_dimensions": "模组维度",
   "gui.exotic_worlds.custom_settings.from_overworld": "跟随主世界",
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "按此维度的坐标缩放比例沿用主世界的形状；若得不到整数宽度，则保持普通。",
+
+  "gui.exotic_worlds.world_dimensions.title": "世界维度",
+  "gui.exotic_worlds.world_dimensions.restart": "更改将在下次加载世界时生效",
+  "gui.exotic_worlds.world_dimensions.other": "其他形状",
+  "gui.exotic_worlds.world_dimensions.locked.vanilla": "在创建世界时确定",
+  "gui.exotic_worlds.world_dimensions.locked.chosen": "形状已选定，无法更改",
+  "gui.exotic_worlds.world_dimensions.locked.generated": "这里已有区块，形状无法更改",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds 设置",
   "gui.exotic_worlds.settings.map_copies": "全屏地图上的世界副本",
