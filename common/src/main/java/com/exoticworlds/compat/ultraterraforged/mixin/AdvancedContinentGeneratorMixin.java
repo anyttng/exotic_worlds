@@ -17,12 +17,14 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.exoticworlds.compat.terraforged.RtfLap;
 import com.exoticworlds.compat.ultraterraforged.CenterAxis;
+import com.exoticworlds.compat.ultraterraforged.ContinentWarp;
 import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedInjectionTargets;
 
 import net.minecraft.core.Direction;
 import com.pandaismyname1.ultraterraforged.concurrent.Resource;
 import com.pandaismyname1.ultraterraforged.world.worldgen.cell.Cell;
 import com.pandaismyname1.ultraterraforged.world.worldgen.continent.advanced.AdvancedContinentGenerator;
+import com.pandaismyname1.ultraterraforged.world.worldgen.noise.domain.Domain;
 import com.pandaismyname1.ultraterraforged.world.worldgen.noise.module.Noise;
 
 @Mixin(value = AdvancedContinentGenerator.class, remap = false)
@@ -89,6 +91,38 @@ public abstract class AdvancedContinentGeneratorMixin {
                 CenterAxis axis = CenterAxis.current();
                 cell.continentX = (int) frame.outerX(axis.xQuotient(), axis.zQuotient());
             }
+        }
+    }
+
+    @WrapOperation(method = "apply", at = @At(value = "INVOKE", target = "Lcom/pandaismyname1/ultraterraforged/world/"
+            + "worldgen/noise/domain/Domain;getX(FFI)F"))
+    private float exotic_worlds$warpX(Domain warp, float x, float z, int seed, Operation<Float> original) {
+        RtfLap.Frame frame = RtfLap.boundFrame();
+        if (frame == null) {
+            return original.call(warp, x, z, seed);
+        }
+
+        float xRatio = ContinentWarp.ratio(frame, Direction.Axis.X, this.frequency);
+        float zRatio = ContinentWarp.ratio(frame, Direction.Axis.Z, this.frequency);
+        try (RtfLap.Frame.Scope _ = ContinentWarp.enter(frame, xRatio, zRatio)) {
+            float u = x / xRatio;
+            return x + (original.call(warp, u, z / zRatio, seed) - u) * xRatio;
+        }
+    }
+
+    @WrapOperation(method = "apply", at = @At(value = "INVOKE", target = "Lcom/pandaismyname1/ultraterraforged/world/"
+            + "worldgen/noise/domain/Domain;getZ(FFI)F"))
+    private float exotic_worlds$warpZ(Domain warp, float x, float z, int seed, Operation<Float> original) {
+        RtfLap.Frame frame = RtfLap.boundFrame();
+        if (frame == null) {
+            return original.call(warp, x, z, seed);
+        }
+
+        float xRatio = ContinentWarp.ratio(frame, Direction.Axis.X, this.frequency);
+        float zRatio = ContinentWarp.ratio(frame, Direction.Axis.Z, this.frequency);
+        try (RtfLap.Frame.Scope _ = ContinentWarp.enter(frame, xRatio, zRatio)) {
+            float v = z / zRatio;
+            return z + (original.call(warp, x / xRatio, v, seed) - v) * zRatio;
         }
     }
 
