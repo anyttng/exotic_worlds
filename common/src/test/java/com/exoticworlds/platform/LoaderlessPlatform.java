@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.util.function.IntFunction;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.engine.net.DimensionChoicesPayload;
+import com.exoticworlds.engine.net.DimensionChoicesUpdatePayload;
 import com.exoticworlds.engine.net.PositionRowsPayload;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -43,6 +45,16 @@ public final class LoaderlessPlatform implements Platform {
 
     @Override
     public void sendPositionRows(ServerPlayer player, PositionRowsPayload rows) {
+        throw new UnsupportedOperationException(NO_LOADER);
+    }
+
+    @Override
+    public boolean sendDimensionChoices(ServerPlayer player, DimensionChoicesPayload choices) {
+        throw new UnsupportedOperationException(NO_LOADER);
+    }
+
+    @Override
+    public void sendDimensionChoicesUpdate(DimensionChoicesUpdatePayload update) {
         throw new UnsupportedOperationException(NO_LOADER);
     }
 

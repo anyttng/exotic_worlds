@@ -3,9 +3,12 @@ package com.exoticworlds;
 import com.exoticworlds.compat.moonlight.MoonlightParticles;
 import com.exoticworlds.compat.northbound.NorthboundLatitude;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasLecternTranslation;
+import com.exoticworlds.engine.gen.DimensionChoicesCommand;
 import com.exoticworlds.engine.gen.LoopedChunkGenerator;
 import com.exoticworlds.engine.gen.LoopedFlatChunkGenerator;
 import com.exoticworlds.engine.gen.WorldLoopGenerators;
+import com.exoticworlds.engine.net.DimensionChoicesPayload;
+import com.exoticworlds.engine.net.DimensionChoicesUpdatePayload;
 import com.exoticworlds.engine.net.OpenMenuTranslation;
 import com.exoticworlds.engine.net.PositionRowsPayload;
 import com.exoticworlds.engine.net.PositionRowsReloadListener;
@@ -21,6 +24,7 @@ import com.exoticworlds.shape.WorldShapeSetup;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -50,6 +54,12 @@ public class ExoticWorldsFabric implements ModInitializer {
 
         PayloadTypeRegistry.clientboundPlay().register(WrappingSettingsPayload.TYPE, WrappingSettingsPayload.STREAM_CODEC);
         PayloadTypeRegistry.clientboundPlay().register(PositionRowsPayload.TYPE, PositionRowsPayload.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(DimensionChoicesPayload.TYPE, DimensionChoicesPayload.STREAM_CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(DimensionChoicesUpdatePayload.TYPE,
+                DimensionChoicesUpdatePayload.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(DimensionChoicesUpdatePayload.TYPE,
+                (payload, context) -> context.server().execute(
+                        () -> DimensionChoicesCommand.apply(context.player(), payload.choices())));
 
         ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(PositionRowsReloadListener.ID,
                 new PositionRowsReloadListener());

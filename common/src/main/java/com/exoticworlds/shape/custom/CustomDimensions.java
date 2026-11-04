@@ -59,6 +59,10 @@ public final class CustomDimensions {
     private static @Nullable Map<ResourceKey<LevelStem>, DimensionShape> readModded(DimensionTable table) {
         Map<ResourceKey<LevelStem>, DimensionShape> modded = new HashMap<>();
         for (Map.Entry<ResourceKey<LevelStem>, DimensionTable.Entry> entry : table.entries().entrySet()) {
+            if (entry.getValue().fromOverworld()) {
+                continue;
+            }
+
             DimensionShape shape = shapeOf(entry.getValue());
             if (shape == null) {
                 return null;
@@ -70,7 +74,18 @@ public final class CustomDimensions {
         return modded;
     }
 
-    private static @Nullable DimensionShape shapeOf(DimensionTable.Entry entry) {
+    public static DimensionTable.Entry entryOf(@Nullable DimensionShape shape) {
+        if (shape == null) {
+            return DimensionTable.Entry.FROM_OVERWORLD;
+        }
+
+        LoopSpans spans = shape.spans();
+        return spans == null
+                ? DimensionTable.Entry.UNWRAPPED
+                : new DimensionTable.Entry(carried(spans, shape.options()));
+    }
+
+    public static @Nullable DimensionShape shapeOf(DimensionTable.Entry entry) {
         CarriedShape carried = entry.carried();
         if (carried == null) {
             return new DimensionShape(null, CustomSettings.DEFAULT_OPTIONS);
@@ -102,12 +117,7 @@ public final class CustomDimensions {
 
     private static DimensionTable tableOf(Map<ResourceKey<LevelStem>, DimensionShape> modded) {
         Map<ResourceKey<LevelStem>, DimensionTable.Entry> entries = new HashMap<>();
-        modded.forEach((key, shape) -> {
-            LoopSpans spans = shape.spans();
-            entries.put(key, spans == null
-                    ? DimensionTable.Entry.UNWRAPPED
-                    : new DimensionTable.Entry(carried(spans, shape.options())));
-        });
+        modded.forEach((key, shape) -> entries.put(key, entryOf(shape)));
         return DimensionTable.of(entries);
     }
 

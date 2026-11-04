@@ -4,6 +4,13 @@
 
   "argument.exotic_worlds.pos.outside_world": "%s est en dehors de ce monde. Doit être entre %s et %s",
   "commands.exotic_worlds.region.across_seam": "Cette zone traverse le bord du monde et peut désigner l'un ou l'autre côté. Exécutez la commande une fois par côté",
+  "commands.exotic_worlds.dimensions.undecided": "Aucune forme n'est encore choisie pour %s.",
+  "commands.exotic_worlds.dimensions.configure": "Choisir la forme",
+  "commands.exotic_worlds.dimensions.configure.hint": "Ouvre le choix de forme pour ces dimensions",
+  "commands.exotic_worlds.dimensions.no_client": "Cet écran nécessite aussi Exotic Worlds dans votre jeu.",
+  "commands.exotic_worlds.dimensions.saved": "Formes enregistrées. Elles s'appliqueront au prochain chargement du monde.",
+  "commands.exotic_worlds.dimensions.refused": "%s garde sa forme.",
+  "commands.exotic_worlds.dimensions.dropped": "La forme choisie pour %s est abandonnée, car des chunks y ont été générés avant le prochain chargement du monde.",
 
   "gui.exotic_worlds.world_shape": "Forme du monde",
   "gui.exotic_worlds.world_shape.normal": "Normale",
@@ -72,6 +79,13 @@
   "gui.exotic_worlds.custom_settings.mod_dimensions": "Dimensions des mods",
   "gui.exotic_worlds.custom_settings.from_overworld": "Comme la Surface",
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "Reprend la forme de la Surface, mise à l'échelle des coordonnées de cette dimension ; reste Normale quand cela ne donne pas une largeur entière.",
+
+  "gui.exotic_worlds.world_dimensions.title": "Dimensions du monde",
+  "gui.exotic_worlds.world_dimensions.restart": "Les changements s'appliquent au prochain chargement du monde",
+  "gui.exotic_worlds.world_dimensions.other": "Autre forme",
+  "gui.exotic_worlds.world_dimensions.locked.vanilla": "Fixée à la création du monde",
+  "gui.exotic_worlds.world_dimensions.locked.chosen": "La forme est déjà choisie, elle reste la même",
+  "gui.exotic_worlds.world_dimensions.locked.generated": "Des chunks existent déjà ici, la forme reste la même",
 
   "gui.exotic_worlds.settings.title": "Réglages d'Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Copies du monde sur la carte plein écran",

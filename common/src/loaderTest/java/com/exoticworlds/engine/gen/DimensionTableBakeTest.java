@@ -85,6 +85,18 @@ class DimensionTableBakeTest {
     }
 
     @Test
+    void aFromOverworldEntryDerivesAsAnUnlistedStemDoes() {
+        DimensionTable table = DimensionTable.of(Map.of(LISTED, DimensionTable.Entry.FROM_OVERWORLD));
+        Registry<LevelStem> baked = bake(wrappedOverworld(table), datapackRegistry(Map.of(
+                LISTED, stem(SAME_SCALE, foreignGenerator()),
+                UNLISTED, stem(SAME_SCALE, foreignGenerator()))));
+
+        FlatShape derived = shapeOf(baked, UNLISTED);
+        assertNotNull(derived, "the unlisted stem derived nothing, so this run says nothing about the entry");
+        assertEquals(derived, shapeOf(baked, LISTED));
+    }
+
+    @Test
     void aStemCarryingItsOwnShapeOutranksItsEntry() {
         FlatShape own = squareTorus(OVERWORLD_CHUNK_WIDTH);
         Registry<LevelStem> baked = bake(unwrappedOverworld(wrappedTable()), datapackRegistry(Map.of(

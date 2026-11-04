@@ -34,9 +34,6 @@ public class CustomSettingsScreen extends Screen {
     private static final Component MOD_SECTION =
             Component.translatable("gui.exotic_worlds.custom_settings.mod_dimensions")
                     .withStyle(ChatFormatting.BOLD);
-    private static final Component CUSTOMIZE = Component.translatable("selectWorld.customizeType");
-    private static final int CUSTOMIZE_WIDTH = 98;
-    private static final int ROW_SPACING = 4;
     private static final int CONTENTS_SPACING = 8;
     private static final int FOOTER_SPACING = 8;
 
@@ -101,16 +98,16 @@ public class CustomSettingsScreen extends Screen {
     }
 
     private LinearLayout dimensionRow(VanillaDimension dimension) {
-        LinearLayout row = LinearLayout.horizontal().spacing(ROW_SPACING);
-        Button customize = Button.builder(CUSTOMIZE, button -> this.customize(dimension))
-                .width(CUSTOMIZE_WIDTH)
+        LinearLayout row = LinearLayout.horizontal().spacing(ShapeRows.ROW_SPACING);
+        Button customize = Button.builder(ShapeRows.CUSTOMIZE, button -> this.customize(dimension))
+                .width(ShapeRows.CUSTOMIZE_WIDTH)
                 .build();
         StemKind kind = this.chosen.get(dimension).kind();
         row.addChild(CycleButton.builder(ShapeLabels::kind, kind)
                 .withValues(StemKind.values())
                 .displayOnlyValue()
                 .withTooltip(picked -> Tooltip.create(ShapeLabels.kindHint(picked)))
-                .create(0, 0, LoopSizeControls.FIELD_WIDTH - CUSTOMIZE_WIDTH - ROW_SPACING,
+                .create(0, 0, ShapeRows.CHOICE_WIDTH,
                         LoopSizeControls.FIELD_HEIGHT, ShapeLabels.dimension(dimension),
                         (button, picked) -> {
                             this.choose(dimension, picked);
@@ -122,44 +119,13 @@ public class CustomSettingsScreen extends Screen {
     }
 
     private LinearLayout modRow(ModDimension dimension) {
-        LinearLayout row = LinearLayout.horizontal().spacing(ROW_SPACING);
-        Button customize = Button.builder(CUSTOMIZE, button -> this.customize(dimension))
-                .width(CUSTOMIZE_WIDTH)
-                .build();
-        ModStemChoice choice = ModStemChoice.of(this.chosen.get(dimension));
-        row.addChild(CycleButton.builder(ShapeLabels::choice, choice)
-                .withValues(ModStemChoice.values())
-                .displayOnlyValue()
-                .withTooltip(picked -> Tooltip.create(ShapeLabels.choiceHint(picked)))
-                .create(0, 0, LoopSizeControls.FIELD_WIDTH - CUSTOMIZE_WIDTH - ROW_SPACING,
-                        LoopSizeControls.FIELD_HEIGHT, ShapeLabels.dimension(dimension),
-                        (button, picked) -> {
-                            this.choose(dimension, picked);
-                            customize.active = isCustomizable(picked);
-                        }));
-        customize.active = isCustomizable(choice);
-        row.addChild(customize);
-        return row;
-    }
-
-    private static boolean isCustomizable(ModStemChoice choice) {
-        return choice == ModStemChoice.TORUS || choice == ModStemChoice.CYLINDER;
+        return ShapeRows.modRow(dimension, ModStemChoice.of(this.chosen.get(dimension)),
+                picked -> this.chosen = this.chosen.with(dimension, picked.applyTo(this.chosen.get(dimension), dimension)),
+                () -> this.customize(dimension));
     }
 
     private void choose(VanillaDimension dimension, StemKind kind) {
         this.chosen = this.chosen.with(dimension, this.chosen.get(dimension).withKind(kind, dimension));
-    }
-
-    private void choose(ModDimension dimension, ModStemChoice choice) {
-        StemKind kind = choice.kind();
-        if (kind == null) {
-            this.chosen = this.chosen.with(dimension, null);
-            return;
-        }
-
-        DimensionShape current = this.chosen.get(dimension);
-        DimensionShape base = current != null ? current : new DimensionShape(null, CustomSettings.DEFAULT_OPTIONS);
-        this.chosen = this.chosen.with(dimension, base.withKind(kind, dimension));
     }
 
     private void customize(VanillaDimension dimension) {
