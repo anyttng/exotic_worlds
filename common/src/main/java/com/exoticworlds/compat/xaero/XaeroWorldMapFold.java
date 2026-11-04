@@ -355,15 +355,11 @@ public final class XaeroWorldMapFold {
                 : FullscreenZoomFloor.xaeroScale(shape, scaleMultiplier);
     }
 
-    public static Vec3 foldPoint(double blockX, double blockZ) {
-        return foldPoint(browsedShape(), blockX, blockZ);
-    }
-
     public static Vec3 foldFootprint(ClientLevel level, double blockX, double blockZ) {
         return foldPoint(ClientShapes.of(level), blockX, blockZ);
     }
 
-    static Vec3 foldPoint(@Nullable ToroidalShape shape, double blockX, double blockZ) {
+    public static Vec3 foldPoint(@Nullable ToroidalShape shape, double blockX, double blockZ) {
         return ClientShapes.fold(shape, new Vec3(blockX, 0.0, blockZ));
     }
 
