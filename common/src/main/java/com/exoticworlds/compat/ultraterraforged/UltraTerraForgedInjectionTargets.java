@@ -36,6 +36,8 @@ public final class UltraTerraForgedInjectionTargets {
     public static final String SIMPLEX2_SAMPLE =
             "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/module/Simplex2;sample(FFI)F";
 
+    public static final String VALLEY_WIDTH = "floatValue=275.0F";
+
     private UltraTerraForgedInjectionTargets() {
     }
 }

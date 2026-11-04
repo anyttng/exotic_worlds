@@ -1,8 +1,6 @@
 package com.exoticworlds.compat.terraforged;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -35,6 +33,14 @@ class RiverReachTest {
 
     private static final float ROOT_START = 400.0F;
 
+    private static final float RUN_PER_START = 2.0F;
+
+    private static final float FULL_SIZE = 1.0F;
+
+    private static final float SCALE_TOLERANCE = 1.0E-6F;
+
+    private static final float CAP_TOLERANCE = 0.01F;
+
     private static final int HALF_NARROW_CHUNKS = 128;
 
     @Test
@@ -56,19 +62,33 @@ class RiverReachTest {
     }
 
     @Test
-    void aNetworkFitsWhereARootReachesPastItsStart() {
-        assertTrue(fits(torus(64)), "a 2048-block torus carries rivers");
-        assertTrue(fits(torus(53)), "a 1696-block torus carries rivers");
-        assertFalse(fits(torus(52)), "a 1664-block torus carries no rivers");
-        assertFalse(fits(torus(32)), "a 1024-block torus carries no rivers");
+    void aWideLapKeepsTheNetworkAtFullSize() {
+        assertEquals(FULL_SIZE, scale(torus(WIDE_CHUNKS)), "a wide torus");
+        assertEquals(FULL_SIZE, scale(torus(78)), "a 2496-block torus");
+        assertEquals(FULL_SIZE, scale(cylinder(NARROW_CHUNKS)), "an 8192-block cylinder");
     }
 
-    private static boolean fits(WorldFold fold) {
-        int lap = fold.blockDomain(Direction.Axis.X).domainLength;
+    @Test
+    void aNarrowLapShrinksTheNetworkSoARootRunsAsFarAgainAsItsStart() {
+        assertNarrowed(torus(77), 2464);
+        assertNarrowed(torus(64), 2048);
+        assertNarrowed(torus(32), 1024);
+        assertNarrowed(torus(16), 512);
+        assertNarrowed(cylinder(32), 1024);
+    }
+
+    private static void assertNarrowed(WorldFold fold, int lap) {
+        float scale = lap / 2.0F / (CARVE_BLOCKS + RUN_PER_START * ROOT_START);
         try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(fold)) {
-            boolean fits = RiverReach.fits(RtfLap.frame());
-            assertEquals(lap / 2.0F - CARVE_BLOCKS >= ROOT_START, fits, "a lap of " + lap + " blocks");
-            return fits;
+            assertEquals(scale, RiverReach.scale(RtfLap.frame()), SCALE_TOLERANCE, "a lap of " + lap + " blocks");
+            assertEquals(RUN_PER_START * ROOT_START * scale, RiverReach.clamp(RtfLap.frame(), Float.MAX_VALUE),
+                    CAP_TOLERANCE, "a lap of " + lap + " blocks caps a root at twice its start");
+        }
+    }
+
+    private static float scale(WorldFold fold) {
+        try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(fold)) {
+            return RiverReach.scale(RtfLap.frame());
         }
     }
 
