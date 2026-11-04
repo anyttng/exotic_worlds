@@ -1,14 +1,21 @@
 package com.exoticworlds.client.engine;
 
+import java.util.List;
+
 import com.exoticworlds.accessors.ClientBoundsHolder;
+import com.exoticworlds.client.shape.custom.WorldDimensionsScreen;
 import com.exoticworlds.core.ForeignFrames;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.engine.gen.DimensionChoices;
 import com.exoticworlds.engine.level.CurrentClientLevel;
 import com.exoticworlds.engine.level.PublishedShapes;
 import com.exoticworlds.engine.net.ComponentPositions;
+import com.exoticworlds.engine.net.DimensionChoicesPayload;
+import com.exoticworlds.engine.net.DimensionChoicesUpdatePayload;
 import com.exoticworlds.engine.net.PositionRowsPayload;
+import com.exoticworlds.platform.Platforms;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -29,6 +36,23 @@ public final class WorldLoopClientNetwork {
     public static void declare(PositionRowsPayload rows) {
         SyncedTagFold.declare(rows.blockEntities());
         ComponentPositions.declare(rows.components());
+    }
+
+    public static void openDimensionChoices(DimensionChoicesPayload choices) {
+        List<WorldDimensionsScreen.Row> rows = choices.rows().stream()
+                .map(row -> new WorldDimensionsScreen.Row(row.stem(), row.lock().map(WorldLoopClientNetwork::lockOf)
+                        .orElse(null), row.entry()))
+                .toList();
+        Minecraft.getInstance().setScreen(new WorldDimensionsScreen(rows,
+                chosen -> Platforms.get().sendDimensionChoicesUpdate(new DimensionChoicesUpdatePayload(chosen))));
+    }
+
+    private static WorldDimensionsScreen.Lock lockOf(DimensionChoices.Refusal refusal) {
+        return switch (refusal) {
+            case VANILLA, UNKNOWN -> WorldDimensionsScreen.Lock.VANILLA;
+            case DECIDED -> WorldDimensionsScreen.Lock.CHOSEN;
+            case GENERATED -> WorldDimensionsScreen.Lock.GENERATED;
+        };
     }
 
     private WorldLoopClientNetwork() {

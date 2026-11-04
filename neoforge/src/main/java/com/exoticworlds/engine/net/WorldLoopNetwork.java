@@ -2,6 +2,9 @@ package com.exoticworlds.engine.net;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.client.engine.WorldLoopClientNetwork;
+import com.exoticworlds.engine.gen.DimensionChoicesCommand;
+
+import net.minecraft.server.level.ServerPlayer;
 
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -26,6 +29,15 @@ public final class WorldLoopNetwork {
                 PositionRowsPayload.TYPE,
                 PositionRowsPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(() -> WorldLoopClientNetwork.declare(payload)));
+        registrar.playToClient(
+                DimensionChoicesPayload.TYPE,
+                DimensionChoicesPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> WorldLoopClientNetwork.openDimensionChoices(payload)));
+        registrar.playToServer(
+                DimensionChoicesUpdatePayload.TYPE,
+                DimensionChoicesUpdatePayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(
+                        () -> DimensionChoicesCommand.apply((ServerPlayer) context.player(), payload.choices())));
     }
 
     @SubscribeEvent

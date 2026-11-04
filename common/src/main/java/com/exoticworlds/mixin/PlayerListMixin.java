@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.gen.DimensionChoicesCommand;
 import com.exoticworlds.engine.net.ListenerCopies;
 import com.exoticworlds.engine.net.MeasuredReach;
 import com.exoticworlds.engine.net.WorldShapeSync;
@@ -77,6 +78,7 @@ public class PlayerListMixin {
     private void exotic_worlds$sendBoundsOnLogin(Connection connection, ServerPlayer player, CommonListenerCookie cookie,
             CallbackInfo ci) {
         WorldShapeSync.sendAllTo(player);
+        DimensionChoicesCommand.hintTo(player);
     }
 
     @Inject(method = "respawn",

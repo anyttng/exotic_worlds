@@ -61,7 +61,8 @@ class StampedGeneratorCodecTest {
     private static final DimensionTable TABLE = DimensionTable.of(Map.of(
             BakeStampFixture.stemKey("wrapped"), new DimensionTable.Entry(new CarriedShape(
                     ShapeFixtures.torus(WorldLoopBounds.ofWidths(48, 32)), UNCOMPRESSED)),
-            BakeStampFixture.stemKey("unwrapped"), DimensionTable.Entry.UNWRAPPED));
+            BakeStampFixture.stemKey("unwrapped"), DimensionTable.Entry.UNWRAPPED,
+            BakeStampFixture.stemKey("from_overworld"), DimensionTable.Entry.FROM_OVERWORLD));
 
     private static HolderLookup.Provider worldgen;
 

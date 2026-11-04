@@ -7,6 +7,13 @@
   "message.exotic_worlds.schematic.selection_wider_than_world": "Esa selección es más ancha que el mundo y abarcaría algunos bloques dos veces — coloca la segunda esquina más cerca de la primera",
   "message.exotic_worlds.schematic.selection_cannot_grow_past_world": "Agrandar esa selección la haría más ancha que el mundo y abarcaría algunos bloques dos veces — desplaza la rueda en el otro sentido",
   "message.exotic_worlds.create.structure_circles_the_world": "Esa estructura da la vuelta completa al mundo, así que no puede moverse como un solo artefacto animado — deja un hueco en ella",
+  "commands.exotic_worlds.dimensions.undecided": "Aún no se ha elegido una forma para %s.",
+  "commands.exotic_worlds.dimensions.configure": "Elegir forma",
+  "commands.exotic_worlds.dimensions.configure.hint": "Abre la elección de forma para estas dimensiones",
+  "commands.exotic_worlds.dimensions.no_client": "Esta pantalla necesita Exotic Worlds también en tu juego.",
+  "commands.exotic_worlds.dimensions.saved": "Formas guardadas. Se aplicarán la próxima vez que se cargue el mundo.",
+  "commands.exotic_worlds.dimensions.refused": "%s conserva su forma.",
+  "commands.exotic_worlds.dimensions.dropped": "Se ha descartado la forma elegida para %s, porque se generaron chunks allí antes de volver a cargar el mundo.",
 
   "gui.exotic_worlds.world_shape": "Forma del mundo",
   "gui.exotic_worlds.world_shape.normal": "Normal",
@@ -75,6 +82,13 @@
   "gui.exotic_worlds.custom_settings.mod_dimensions": "Dimensiones de mods",
   "gui.exotic_worlds.custom_settings.from_overworld": "Como el Mundo superior",
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "Toma la forma del Mundo superior, escalada según la escala de coordenadas de esta dimensión; se queda en Normal si así no sale un ancho entero.",
+
+  "gui.exotic_worlds.world_dimensions.title": "Dimensiones del mundo",
+  "gui.exotic_worlds.world_dimensions.restart": "Los cambios se aplican la próxima vez que se cargue el mundo",
+  "gui.exotic_worlds.world_dimensions.other": "Otra forma",
+  "gui.exotic_worlds.world_dimensions.locked.vanilla": "Se fijó al crear el mundo",
+  "gui.exotic_worlds.world_dimensions.locked.chosen": "La forma ya está elegida, así que no cambia",
+  "gui.exotic_worlds.world_dimensions.locked.generated": "Aquí ya hay chunks, así que la forma no cambia",
 
   "gui.exotic_worlds.settings.title": "Ajustes de Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Copias del mundo en el mapa a pantalla completa",

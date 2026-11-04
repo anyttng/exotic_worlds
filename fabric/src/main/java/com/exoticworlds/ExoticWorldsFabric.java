@@ -8,9 +8,12 @@ import com.exoticworlds.compat.moonlight.MoonlightParticles;
 import com.exoticworlds.compat.northbound.NorthboundLatitude;
 import com.exoticworlds.compat.sable.SableMod;
 import com.exoticworlds.compat.supplementaries.SupplementariesPackets;
+import com.exoticworlds.engine.gen.DimensionChoicesCommand;
 import com.exoticworlds.engine.gen.LoopedChunkGenerator;
 import com.exoticworlds.engine.gen.LoopedFlatChunkGenerator;
 import com.exoticworlds.engine.gen.WorldLoopGenerators;
+import com.exoticworlds.engine.net.DimensionChoicesPayload;
+import com.exoticworlds.engine.net.DimensionChoicesUpdatePayload;
 import com.exoticworlds.engine.net.FabricPositionRowsReloadListener;
 import com.exoticworlds.engine.net.OpenMenuTranslation;
 import com.exoticworlds.engine.net.PositionRowsPayload;
@@ -26,6 +29,7 @@ import com.exoticworlds.shape.WorldShapeSetup;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -61,6 +65,12 @@ public class ExoticWorldsFabric implements ModInitializer {
 
         PayloadTypeRegistry.playS2C().register(WrappingSettingsPayload.TYPE, WrappingSettingsPayload.STREAM_CODEC);
         PayloadTypeRegistry.playS2C().register(PositionRowsPayload.TYPE, PositionRowsPayload.STREAM_CODEC);
+        PayloadTypeRegistry.playS2C().register(DimensionChoicesPayload.TYPE, DimensionChoicesPayload.STREAM_CODEC);
+        PayloadTypeRegistry.playC2S().register(DimensionChoicesUpdatePayload.TYPE,
+                DimensionChoicesUpdatePayload.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(DimensionChoicesUpdatePayload.TYPE,
+                (payload, context) -> context.server().execute(
+                        () -> DimensionChoicesCommand.apply(context.player(), payload.choices())));
 
         ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new FabricPositionRowsReloadListener());
         ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> PositionRowsSync.sendTo(player));

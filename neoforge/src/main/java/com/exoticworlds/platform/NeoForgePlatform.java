@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.util.function.IntFunction;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.engine.net.DimensionChoicesPayload;
+import com.exoticworlds.engine.net.DimensionChoicesUpdatePayload;
 import com.exoticworlds.engine.net.PositionRowsPayload;
 import com.exoticworlds.engine.net.WrappingSettingsPayload;
 
@@ -62,6 +64,21 @@ public final class NeoForgePlatform implements Platform {
         if (player.connection.hasChannel(PositionRowsPayload.TYPE)) {
             PacketDistributor.sendToPlayer(player, rows);
         }
+    }
+
+    @Override
+    public boolean sendDimensionChoices(ServerPlayer player, DimensionChoicesPayload choices) {
+        if (!player.connection.hasChannel(DimensionChoicesPayload.TYPE)) {
+            return false;
+        }
+
+        PacketDistributor.sendToPlayer(player, choices);
+        return true;
+    }
+
+    @Override
+    public void sendDimensionChoicesUpdate(DimensionChoicesUpdatePayload update) {
+        PacketDistributor.sendToServer(update);
     }
 
     @Override

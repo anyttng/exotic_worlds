@@ -1,5 +1,6 @@
 package com.exoticworlds.core;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -9,7 +10,6 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.registries.Registries;
@@ -22,14 +22,10 @@ public final class DimensionTable {
     public static final DimensionTable EMPTY = new DimensionTable(Map.of());
 
     private static final String NO_KEY_PREFIX = "";
-
-    private static final MapCodec<Entry> ENTRY_CODEC = RecordCodecBuilder.<Stated>mapCodec(instance -> instance.group(
-            CarriedShape.SHAPE_CODEC.optionalFieldOf(CarriedShape.WRAPPING_KEY).forGetter(Stated::shape),
-            GenerationOptions.mapCodec(NO_KEY_PREFIX).forGetter(Stated::options)
-    ).apply(instance, Stated::new)).xmap(Stated::entry, Stated::of);
+    private static final String FROM_OVERWORLD_KEY = "from_overworld";
 
     public static final Codec<DimensionTable> CODEC = Codec
-            .unboundedMap(ResourceKey.codec(Registries.LEVEL_STEM), ENTRY_CODEC.codec())
+            .unboundedMap(ResourceKey.codec(Registries.LEVEL_STEM), Entry.CODEC)
             .validate(DimensionTable::refuseVanillaStems)
             .xmap(DimensionTable::new, table -> table.entries);
 
@@ -45,6 +41,18 @@ public final class DimensionTable {
 
     public @Nullable Entry entry(ResourceKey<LevelStem> key) {
         return this.entries.get(key);
+    }
+
+    public DimensionTable with(ResourceKey<LevelStem> key, Entry entry) {
+        Map<ResourceKey<LevelStem>, Entry> entries = new HashMap<>(this.entries);
+        entries.put(key, entry);
+        return of(entries);
+    }
+
+    public DimensionTable without(ResourceKey<LevelStem> key) {
+        Map<ResourceKey<LevelStem>, Entry> entries = new HashMap<>(this.entries);
+        entries.remove(key);
+        return new DimensionTable(entries);
     }
 
     public Map<ResourceKey<LevelStem>, Entry> entries() {
@@ -87,19 +95,40 @@ public final class DimensionTable {
                 LevelStem.END);
     }
 
-    public record Entry(@Nullable CarriedShape carried) {
-        public static final Entry UNWRAPPED = new Entry(null);
+    public record Entry(@Nullable CarriedShape carried, boolean fromOverworld) {
+        public static final Entry UNWRAPPED = new Entry(null, false);
+        public static final Entry FROM_OVERWORLD = new Entry(null, true);
+
+        public static final Codec<Entry> CODEC = RecordCodecBuilder.<Stated>mapCodec(instance -> instance.group(
+                Codec.BOOL.optionalFieldOf(FROM_OVERWORLD_KEY, false).forGetter(Stated::fromOverworld),
+                CarriedShape.SHAPE_CODEC.optionalFieldOf(CarriedShape.WRAPPING_KEY).forGetter(Stated::shape),
+                GenerationOptions.mapCodec(NO_KEY_PREFIX).forGetter(Stated::options)
+        ).apply(instance, Stated::new)).xmap(Stated::entry, Stated::of).codec();
+
+        public Entry {
+            if (fromOverworld && carried != null) {
+                throw new IllegalArgumentException("A From Overworld entry carries no shape of its own");
+            }
+        }
+
+        public Entry(CarriedShape carried) {
+            this(carried, false);
+        }
     }
 
-    private record Stated(Optional<FlatShape> shape, GenerationOptions options) {
+    private record Stated(boolean fromOverworld, Optional<FlatShape> shape, GenerationOptions options) {
         private static Stated of(Entry entry) {
             CarriedShape carried = entry.carried();
             return carried == null
-                    ? new Stated(Optional.empty(), GenerationOptions.DEFAULT)
-                    : new Stated(Optional.of(carried.shape()), carried.generationOptions());
+                    ? new Stated(entry.fromOverworld(), Optional.empty(), GenerationOptions.DEFAULT)
+                    : new Stated(false, Optional.of(carried.shape()), carried.generationOptions());
         }
 
         private Entry entry() {
+            if (this.fromOverworld) {
+                return Entry.FROM_OVERWORLD;
+            }
+
             return this.shape.map(flat -> new Entry(new CarriedShape(flat, this.options))).orElse(Entry.UNWRAPPED);
         }
     }

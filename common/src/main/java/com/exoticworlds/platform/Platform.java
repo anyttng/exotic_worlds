@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.util.function.IntFunction;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.engine.net.DimensionChoicesPayload;
+import com.exoticworlds.engine.net.DimensionChoicesUpdatePayload;
 import com.exoticworlds.engine.net.PositionRowsPayload;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -26,6 +28,10 @@ public interface Platform {
     void sendWorldShape(ServerPlayer player, ResourceKey<Level> dimension, FlatShape shape);
 
     void sendPositionRows(ServerPlayer player, PositionRowsPayload rows);
+
+    boolean sendDimensionChoices(ServerPlayer player, DimensionChoicesPayload choices);
+
+    void sendDimensionChoicesUpdate(DimensionChoicesUpdatePayload update);
 
     IntFunction<RegistryFriendlyByteBuf> packetBuffers(ServerPlayer player);
 

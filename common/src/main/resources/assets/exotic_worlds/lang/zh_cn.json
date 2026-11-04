@@ -7,6 +7,13 @@
   "message.exotic_worlds.schematic.selection_wider_than_world": "此选区宽于整个世界，会把部分方块算两次 — 请将第二个角放得离第一个更近",
   "message.exotic_worlds.schematic.selection_cannot_grow_past_world": "继续扩大此选区会使其宽于整个世界，把部分方块算两次 — 请向相反方向滚动",
   "message.exotic_worlds.create.structure_circles_the_world": "该建筑绕世界一整圈，因此无法作为一个动态结构整体移动——请在其中留出一处空隙",
+  "commands.exotic_worlds.dimensions.undecided": "%s 尚未选择形状。",
+  "commands.exotic_worlds.dimensions.configure": "选择形状",
+  "commands.exotic_worlds.dimensions.configure.hint": "打开这些维度的形状选择界面",
+  "commands.exotic_worlds.dimensions.no_client": "此界面需要你的游戏也安装 Exotic Worlds。",
+  "commands.exotic_worlds.dimensions.saved": "形状已保存，将在下次加载世界时生效。",
+  "commands.exotic_worlds.dimensions.refused": "%s 的形状保持不变。",
+  "commands.exotic_worlds.dimensions.dropped": "%s 在重新加载世界前生成了区块，所选形状已取消。",
 
   "gui.exotic_worlds.world_shape": "世界形状",
   "gui.exotic_worlds.world_shape.normal": "普通",
@@ -75,6 +82,13 @@
   "gui.exotic_worlds.custom_settings.mod_dimensions": "模组维度",
   "gui.exotic_worlds.custom_settings.from_overworld": "跟随主世界",
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "按此维度的坐标缩放比例沿用主世界的形状；若得不到整数宽度，则保持普通。",
+
+  "gui.exotic_worlds.world_dimensions.title": "世界维度",
+  "gui.exotic_worlds.world_dimensions.restart": "更改将在下次加载世界时生效",
+  "gui.exotic_worlds.world_dimensions.other": "其他形状",
+  "gui.exotic_worlds.world_dimensions.locked.vanilla": "在创建世界时确定",
+  "gui.exotic_worlds.world_dimensions.locked.chosen": "形状已选定，无法更改",
+  "gui.exotic_worlds.world_dimensions.locked.generated": "这里已有区块，形状无法更改",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds 设置",
   "gui.exotic_worlds.settings.map_copies": "全屏地图上的世界副本",

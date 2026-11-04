@@ -7,6 +7,13 @@
   "message.exotic_worlds.schematic.selection_wider_than_world": "Це виділення ширше за світ і накрило б частину блоків двічі — постав другий кут ближче до першого",
   "message.exotic_worlds.schematic.selection_cannot_grow_past_world": "Розширення цього виділення зробило б його ширшим за світ і накрило б частину блоків двічі — прокрути в інший бік",
   "message.exotic_worlds.create.structure_circles_the_world": "Ця споруда обходить світ по колу, тож не може рухатися як одне Пристосування — лиши в ній проміжок",
+  "commands.exotic_worlds.dimensions.undecided": "Для %s ще не обрано форму.",
+  "commands.exotic_worlds.dimensions.configure": "Обрати форму",
+  "commands.exotic_worlds.dimensions.configure.hint": "Відкрити вибір форми для цих вимірів",
+  "commands.exotic_worlds.dimensions.no_client": "Для цього екрана Exotic Worlds має стояти й у твоїй грі.",
+  "commands.exotic_worlds.dimensions.saved": "Форми збережено. Вони діятимуть з наступного завантаження світу.",
+  "commands.exotic_worlds.dimensions.refused": "Форму %s не змінено.",
+  "commands.exotic_worlds.dimensions.dropped": "Вибір форми для %s скасовано, бо там з'явилися чанки ще до нового завантаження світу.",
 
   "gui.exotic_worlds.world_shape": "Форма світу",
   "gui.exotic_worlds.world_shape.normal": "Звичайна",
@@ -75,6 +82,13 @@
   "gui.exotic_worlds.custom_settings.mod_dimensions": "Виміри модів",
   "gui.exotic_worlds.custom_settings.from_overworld": "Від Верхнього світу",
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "Бере форму Верхнього світу в масштабі координат цього виміру; лишається Звичайною, якщо ширина тоді не виходить цілою.",
+
+  "gui.exotic_worlds.world_dimensions.title": "Виміри світу",
+  "gui.exotic_worlds.world_dimensions.restart": "Зміни діятимуть з наступного завантаження світу",
+  "gui.exotic_worlds.world_dimensions.other": "Інша форма",
+  "gui.exotic_worlds.world_dimensions.locked.vanilla": "Задано під час створення світу",
+  "gui.exotic_worlds.world_dimensions.locked.chosen": "Форму вже обрано, тож вона не зміниться",
+  "gui.exotic_worlds.world_dimensions.locked.generated": "Тут уже є чанки, тож форма не зміниться",
 
   "gui.exotic_worlds.settings.title": "Налаштування Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Копії світу на повноекранній мапі",

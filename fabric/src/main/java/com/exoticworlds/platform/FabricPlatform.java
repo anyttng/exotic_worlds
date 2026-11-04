@@ -5,6 +5,8 @@ import java.util.function.IntFunction;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.engine.net.DimensionChoicesPayload;
+import com.exoticworlds.engine.net.DimensionChoicesUpdatePayload;
 import com.exoticworlds.engine.net.PositionRowsPayload;
 import com.exoticworlds.engine.net.WrappingSettingsPayload;
 
@@ -12,6 +14,7 @@ import io.netty.buffer.Unpooled;
 
 
 import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -62,6 +65,21 @@ public final class FabricPlatform implements Platform {
         if (ServerPlayNetworking.canSend(player, PositionRowsPayload.TYPE)) {
             ServerPlayNetworking.send(player, rows);
         }
+    }
+
+    @Override
+    public boolean sendDimensionChoices(ServerPlayer player, DimensionChoicesPayload choices) {
+        if (!ServerPlayNetworking.canSend(player, DimensionChoicesPayload.TYPE)) {
+            return false;
+        }
+
+        ServerPlayNetworking.send(player, choices);
+        return true;
+    }
+
+    @Override
+    public void sendDimensionChoicesUpdate(DimensionChoicesUpdatePayload update) {
+        ClientPlayNetworking.send(update);
     }
 
     @Override
