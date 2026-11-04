@@ -18,14 +18,24 @@ import com.exoticworlds.api.v1.option.WorldOption;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 import com.exoticworlds.shape.WorldLoopPresets;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.ChunkPos;
 
 class WorldFoldsTest {
-    private static final WorldLoopBounds SQUARE = WorldLoopBounds.ofWidth(32);
+    private static final int SQUARE_CHUNKS = 32;
+    private static final WorldLoopBounds SQUARE = WorldLoopBounds.ofWidth(SQUARE_CHUNKS);
     private static final WorldLoopBounds X_ONLY =
             new WorldLoopBounds(new AxisBounds.Looped(-16, 16), AxisBounds.Unbounded.INSTANCE);
     private static final WorldLoopBounds Z_ONLY =
             new WorldLoopBounds(AxisBounds.Unbounded.INSTANCE, new AxisBounds.Looped(-16, 16));
+
+    private static final int LAPS_OUT = 3;
+    private static final int LAPS_OUT_CHUNKS = LAPS_OUT * SQUARE_CHUNKS + SQUARE_CHUNKS / 2;
+    private static final int LAPS_OUT_BLOCKS = SectionPos.sectionToBlockCoord(LAPS_OUT_CHUNKS);
+    private static final int CHUNK_STEP = 3;
+    private static final int BLOCK_STEP = 29;
 
     private static final WorldOption<Boolean> OPTION =
             new WorldOption<>("test_option", 0, Codec.BOOL, false);
@@ -171,6 +181,28 @@ class WorldFoldsTest {
     void theFoldableGatePassesEveryShapeTheEngineCanCarry() {
         for (FlatShape shape : Stream.concat(decomposable().stream(), Stream.of(SKEWED)).toList()) {
             assertSame(shape, WorldFolds.verifyFoldable(shape).getOrThrow(), shape.toString());
+        }
+    }
+
+    @Test
+    void foldingXFirstLeavesTheFoldOfZUnchanged() {
+        for (FlatShape shape : Stream.concat(decomposable().stream(), Stream.of(SKEWED)).toList()) {
+            WorldFold fold = WorldFolds.of(shape);
+            for (int x = -LAPS_OUT_BLOCKS; x <= LAPS_OUT_BLOCKS; x += BLOCK_STEP) {
+                for (int z = -LAPS_OUT_BLOCKS; z <= LAPS_OUT_BLOCKS; z += BLOCK_STEP) {
+                    long folded = fold.foldBlockNode(BlockPos.asLong(x, 0, z));
+                    long xFirst = fold.foldBlockNode(BlockPos.asLong(BlockPos.getX(folded), 0, z));
+                    assertEquals(BlockPos.getZ(folded), BlockPos.getZ(xFirst), shape + " block " + x + ", " + z);
+                }
+            }
+
+            for (int x = -LAPS_OUT_CHUNKS; x <= LAPS_OUT_CHUNKS; x += CHUNK_STEP) {
+                for (int z = -LAPS_OUT_CHUNKS; z <= LAPS_OUT_CHUNKS; z += CHUNK_STEP) {
+                    long folded = fold.foldChunkKey(ChunkPos.asLong(x, z));
+                    long xFirst = fold.foldChunkKey(ChunkPos.asLong(ChunkPos.getX(folded), z));
+                    assertEquals(ChunkPos.getZ(folded), ChunkPos.getZ(xFirst), shape + " chunk " + x + ", " + z);
+                }
+            }
         }
     }
 
