@@ -11,12 +11,14 @@ import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.exoticworlds.compat.terraforged.RiverReach;
 import com.exoticworlds.compat.terraforged.RtfLap;
+import com.exoticworlds.compat.ultraterraforged.ContinentWarp;
 
 import net.minecraft.core.Direction;
 import com.pandaismyname1.ultraterraforged.concurrent.Resource;
@@ -24,6 +26,7 @@ import com.pandaismyname1.ultraterraforged.data.preset.settings.WorldSettings;
 import com.pandaismyname1.ultraterraforged.world.worldgen.cell.Cell;
 import com.pandaismyname1.ultraterraforged.world.worldgen.continent.SimpleContinent;
 import com.pandaismyname1.ultraterraforged.world.worldgen.continent.simple.ContinentGenerator;
+import com.pandaismyname1.ultraterraforged.world.worldgen.noise.domain.Domain;
 import com.pandaismyname1.ultraterraforged.world.worldgen.noise.NoiseUtil;
 import com.pandaismyname1.ultraterraforged.world.worldgen.util.PosUtil;
 
@@ -163,6 +166,36 @@ public abstract class ContinentGeneratorMixin {
 
         return RiverReach.distanceToOcean(((SimpleContinent) (Object) this)::getEdgeValue,
                 this.controlPoints.shallowOcean, x, z, dx, dz, reach);
+    }
+
+    @WrapOperation(method = {"apply", "getEdgeValue", "getNearestCenter"}, at = @At(value = "INVOKE",
+            target = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/domain/Domain;getOffsetX(FFI)F"))
+    private float exotic_worlds$warpX(Domain warp, float x, float z, int seed, Operation<Float> original) {
+        RtfLap.Frame frame = RtfLap.boundFrame();
+        if (frame == null) {
+            return original.call(warp, x, z, seed);
+        }
+
+        float xRatio = ContinentWarp.ratio(frame, Direction.Axis.X, this.frequency);
+        float zRatio = ContinentWarp.ratio(frame, Direction.Axis.Z, this.frequency);
+        try (RtfLap.Frame.Scope _ = ContinentWarp.enter(frame, xRatio, zRatio)) {
+            return original.call(warp, x / xRatio, z / zRatio, seed) * xRatio;
+        }
+    }
+
+    @WrapOperation(method = {"apply", "getEdgeValue", "getNearestCenter"}, at = @At(value = "INVOKE",
+            target = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/domain/Domain;getOffsetZ(FFI)F"))
+    private float exotic_worlds$warpZ(Domain warp, float x, float z, int seed, Operation<Float> original) {
+        RtfLap.Frame frame = RtfLap.boundFrame();
+        if (frame == null) {
+            return original.call(warp, x, z, seed);
+        }
+
+        float xRatio = ContinentWarp.ratio(frame, Direction.Axis.X, this.frequency);
+        float zRatio = ContinentWarp.ratio(frame, Direction.Axis.Z, this.frequency);
+        try (RtfLap.Frame.Scope _ = ContinentWarp.enter(frame, xRatio, zRatio)) {
+            return original.call(warp, x / xRatio, z / zRatio, seed) * zRatio;
+        }
     }
 
     @ModifyExpressionValue(method = {"apply", "getEdgeValue", "getNearestCenter"},
