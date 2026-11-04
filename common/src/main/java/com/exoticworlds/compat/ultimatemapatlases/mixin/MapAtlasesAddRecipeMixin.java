@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.compat.ultimatemapatlases.AtlasCopyLookup;
+import com.exoticworlds.compat.ultimatemapatlases.AtlasTileCopies;
 import com.exoticworlds.compat.ultimatemapatlases.UltimateMapAtlasesInjectionTargets;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -23,6 +24,13 @@ public class MapAtlasesAddRecipeMixin {
             at = @At(value = "INVOKE", target = UltimateMapAtlasesInjectionTargets.SELECT_KEY))
     private @Nullable MapDataHolder exotic_worlds$addedMapAtAnyCopy(IMapCollection maps, MapKey key,
             Operation<MapDataHolder> original, @Local(argsOnly = true) Level level) {
-        return AtlasCopyLookup.atAnyCopy(level, maps, key, original);
+        for (AtlasTileCopies.TileCenter copy : AtlasCopyLookup.copies(level, maps, key.mapX(), key.mapZ())) {
+            @Nullable MapDataHolder map = original.call(maps, new MapKey(copy.x(), copy.z(), key.slice()));
+            if (map != null) {
+                return map;
+            }
+        }
+
+        return null;
     }
 }
