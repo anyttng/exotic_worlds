@@ -4,6 +4,13 @@
 
   "argument.exotic_worlds.pos.outside_world": "%s はこのワールドの外にあります。%s と %s の間でなければなりません",
   "commands.exotic_worlds.region.across_seam": "この範囲はワールドの端をまたいでおり、どちら側とも解釈できます。片側ずつコマンドを実行してください",
+  "commands.exotic_worlds.dimensions.undecided": "%s の形状がまだ選ばれていません。",
+  "commands.exotic_worlds.dimensions.configure": "形状を選ぶ",
+  "commands.exotic_worlds.dimensions.configure.hint": "これらのディメンションの形状選択を開きます",
+  "commands.exotic_worlds.dimensions.no_client": "この画面を開くには、あなたのゲームにも Exotic Worlds が必要です。",
+  "commands.exotic_worlds.dimensions.saved": "形状を保存しました。次にワールドを読み込んだときに反映されます。",
+  "commands.exotic_worlds.dimensions.refused": "%s の形状はそのままです。",
+  "commands.exotic_worlds.dimensions.dropped": "%s で再読み込み前にチャンクが生成されたため、選んだ形状は取り消されました。",
 
   "gui.exotic_worlds.world_shape": "ワールドの形状",
   "gui.exotic_worlds.world_shape.normal": "通常",
@@ -72,6 +79,13 @@
   "gui.exotic_worlds.custom_settings.mod_dimensions": "Modのディメンション",
   "gui.exotic_worlds.custom_settings.from_overworld": "オーバーワールドに合わせる",
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "このディメンションの座標スケールに合わせて、オーバーワールドの形を縮尺して使います。幅が整数にならない場合は通常のままです。",
+
+  "gui.exotic_worlds.world_dimensions.title": "ワールドのディメンション",
+  "gui.exotic_worlds.world_dimensions.restart": "変更は次にワールドを読み込んだときに反映されます",
+  "gui.exotic_worlds.world_dimensions.other": "その他の形状",
+  "gui.exotic_worlds.world_dimensions.locked.vanilla": "ワールド作成時に決まります",
+  "gui.exotic_worlds.world_dimensions.locked.chosen": "形状は選択済みのため、変えられません",
+  "gui.exotic_worlds.world_dimensions.locked.generated": "すでにチャンクがあるため、形状は変えられません",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds 設定",
   "gui.exotic_worlds.settings.map_copies": "全画面マップのワールドのコピー",

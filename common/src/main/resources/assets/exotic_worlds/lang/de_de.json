@@ -4,6 +4,13 @@
 
   "argument.exotic_worlds.pos.outside_world": "%s liegt außerhalb dieser Welt. Muss zwischen %s und %s liegen",
   "commands.exotic_worlds.region.across_seam": "Dieser Bereich kreuzt den Weltrand und kann beide Seiten meinen. Führe den Befehl je Seite einmal aus",
+  "commands.exotic_worlds.dimensions.undecided": "Für %s ist noch keine Form gewählt.",
+  "commands.exotic_worlds.dimensions.configure": "Form wählen",
+  "commands.exotic_worlds.dimensions.configure.hint": "Öffnet die Formwahl für diese Dimensionen",
+  "commands.exotic_worlds.dimensions.no_client": "Dieser Bildschirm braucht Exotic Worlds auch in deinem Spiel.",
+  "commands.exotic_worlds.dimensions.saved": "Formen gespeichert. Sie gelten ab dem nächsten Laden der Welt.",
+  "commands.exotic_worlds.dimensions.refused": "Die Form von %s bleibt unverändert.",
+  "commands.exotic_worlds.dimensions.dropped": "Die gewählte Form für %s wurde verworfen, weil dort vor dem nächsten Laden der Welt Chunks entstanden sind.",
 
   "gui.exotic_worlds.world_shape": "Weltform",
   "gui.exotic_worlds.world_shape.normal": "Normal",
@@ -72,6 +79,13 @@
   "gui.exotic_worlds.custom_settings.mod_dimensions": "Mod-Dimensionen",
   "gui.exotic_worlds.custom_settings.from_overworld": "Wie Oberwelt",
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "Übernimmt die Form der Oberwelt, skaliert mit dem Koordinatenmaßstab dieser Dimension; bleibt Normal, wo dabei keine ganze Breite herauskommt.",
+
+  "gui.exotic_worlds.world_dimensions.title": "Dimensionen der Welt",
+  "gui.exotic_worlds.world_dimensions.restart": "Änderungen gelten ab dem nächsten Laden der Welt",
+  "gui.exotic_worlds.world_dimensions.other": "Andere Form",
+  "gui.exotic_worlds.world_dimensions.locked.vanilla": "Beim Erstellen der Welt festgelegt",
+  "gui.exotic_worlds.world_dimensions.locked.chosen": "Die Form ist schon gewählt und bleibt",
+  "gui.exotic_worlds.world_dimensions.locked.generated": "Hier gibt es schon Chunks, die Form bleibt",
 
   "gui.exotic_worlds.settings.title": "Einstellungen von Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Weltkopien auf der Vollbildkarte",

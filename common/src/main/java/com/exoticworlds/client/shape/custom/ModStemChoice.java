@@ -2,6 +2,8 @@ package com.exoticworlds.client.shape.custom;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.shape.custom.CustomSettings;
+import com.exoticworlds.shape.custom.CustomStem;
 import com.exoticworlds.shape.custom.DimensionShape;
 import com.exoticworlds.shape.custom.StemKind;
 
@@ -19,6 +21,19 @@ enum ModStemChoice {
 
     @Nullable StemKind kind() {
         return this.kind;
+    }
+
+    boolean isCustomizable() {
+        return this == TORUS || this == CYLINDER;
+    }
+
+    @Nullable DimensionShape applyTo(@Nullable DimensionShape current, CustomStem dimension) {
+        if (this.kind == null) {
+            return null;
+        }
+
+        DimensionShape base = current != null ? current : new DimensionShape(null, CustomSettings.DEFAULT_OPTIONS);
+        return base.withKind(this.kind, dimension);
     }
 
     static ModStemChoice of(@Nullable DimensionShape shape) {

@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.core.RegistrationBoundary;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.gen.DimensionChoices;
 import com.exoticworlds.engine.gen.WorldShapeReport;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.engine.level.SeamRespawnData;
@@ -39,6 +40,11 @@ public class MinecraftServerMixin {
     @Inject(method = "runServer", at = @At("HEAD"))
     private void exotic_worlds$closeRegistrationBoundary(CallbackInfo ci) {
         RegistrationBoundary.STARTUP.close();
+    }
+
+    @Inject(method = "createLevels", at = @At("HEAD"))
+    private void exotic_worlds$recordFirstStartDimensions(CallbackInfo ci) {
+        DimensionChoices.recordFirstStart((MinecraftServer) (Object) this);
     }
 
     @Inject(method = "createLevels", at = @At("TAIL"))
