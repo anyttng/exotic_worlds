@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import org.joml.Vector3d;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.WorldFold;
 
 class LinkedReceiverSeamDeltaTest {
     private static final double RECEIVER_Y = 64.0;
@@ -31,22 +31,23 @@ class LinkedReceiverSeamDeltaTest {
     @Test
     void aSenderAcrossTheSeamGivesTheShortRelativePosition() {
         assertEquals(relative(-250.0 + WORLD_BLOCKS - 250.0),
-                LinkedReceiverSeamDelta.fold(PER_AXIS, sender(-250.0), receiver(250.0)));
+                LinkedReceiverSeamDelta.seat(PER_AXIS, sender(-250.0), receiver(250.0)).sub(receiver(250.0)));
         assertEquals(relative(250.0 - WORLD_BLOCKS + 250.0),
-                LinkedReceiverSeamDelta.fold(PER_AXIS, sender(250.0), receiver(-250.0)));
+                LinkedReceiverSeamDelta.seat(PER_AXIS, sender(250.0), receiver(-250.0)).sub(receiver(-250.0)));
     }
 
     @Test
     void aSenderOnTheReceiversOwnSideGivesThePlainDifference() {
-        assertEquals(relative(4.0), LinkedReceiverSeamDelta.fold(PER_AXIS, sender(254.0), receiver(250.0)));
+        assertEquals(relative(4.0),
+                LinkedReceiverSeamDelta.seat(PER_AXIS, sender(254.0), receiver(250.0)).sub(receiver(250.0)));
     }
 
     @Test
-    void theReceiverReadsTheResultBackOutOfTheVectorItPassed() {
+    void theSenderIsSeatedInTheVectorThatWasPassed() {
         Vector3d target = sender(-250.0);
 
-        assertSame(target, LinkedReceiverSeamDelta.fold(PER_AXIS, target, receiver(250.0)));
-        assertEquals(relative(-250.0 + WORLD_BLOCKS - 250.0), target);
+        assertSame(target, LinkedReceiverSeamDelta.seat(PER_AXIS, target, receiver(250.0)));
+        assertEquals(sender(-250.0 + WORLD_BLOCKS), target);
     }
 
     @Test
@@ -54,14 +55,14 @@ class LinkedReceiverSeamDeltaTest {
         Vector3d farAbove = new Vector3d(254.0, RECEIVER_Y + WORLD_BLOCKS, Z);
 
         assertEquals(new Vector3d(4.0, WORLD_BLOCKS, 0.0),
-                LinkedReceiverSeamDelta.fold(PER_AXIS, farAbove, receiver(250.0)));
+                LinkedReceiverSeamDelta.seat(PER_AXIS, farAbove, receiver(250.0)).sub(receiver(250.0)));
     }
 
     @Test
-    void anUnwrappedWorldGivesTheLongWayRound() {
+    void anUnwrappedWorldLeavesTheSenderWhereItIs() {
         Vector3d target = sender(-250.0);
 
-        assertSame(target, LinkedReceiverSeamDelta.fold(WorldFolds.NOOP, target, receiver(250.0)));
-        assertEquals(relative(-500.0), target);
+        assertSame(target, LinkedReceiverSeamDelta.seat((WorldFold) null, target, receiver(250.0)));
+        assertEquals(sender(-250.0), target);
     }
 }

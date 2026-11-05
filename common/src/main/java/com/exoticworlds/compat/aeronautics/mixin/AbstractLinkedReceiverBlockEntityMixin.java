@@ -19,6 +19,6 @@ public class AbstractLinkedReceiverBlockEntityMixin {
     @WrapOperation(method = "updateSignal", at = @At(value = "INVOKE", target = InjectionTargets.VECTOR3D_SUB))
     private Vector3d exotic_worlds$foldRelativePosition(Vector3d target, Vector3dc current,
             Operation<Vector3d> original) {
-        return LinkedReceiverSeamDelta.fold((BlockEntity) (Object) this, target, current, original);
+        return original.call(LinkedReceiverSeamDelta.seat((BlockEntity) (Object) this, target, current), current);
     }
 }

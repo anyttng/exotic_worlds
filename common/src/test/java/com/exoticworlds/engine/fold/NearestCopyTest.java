@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import java.util.List;
 import java.util.Random;
 
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.CoordinateConstants;
@@ -156,20 +158,24 @@ class NearestCopyTest {
     void theOperandFormsTowardANullFoldHandTheArgumentBack() {
         Vec3i target = new Vec3i(TARGET_BLOCK.getX(), TARGET_BLOCK.getY(), TARGET_BLOCK.getZ());
         Position position = TARGET;
+        Vector3dc vector = joml(TARGET);
         assertSame(target, NearestCopy.toward(null, ANCHOR_BLOCK_ACROSS_THE_SEAM, target));
         assertSame(target, NearestCopy.toward(null, BOX_ACROSS_THE_SEAM, target));
         assertSame(position, NearestCopy.toward(null, ANCHOR_ACROSS_THE_SEAM, position));
         assertSame(position, NearestCopy.towardCenterOf(null, ANCHOR_BLOCK_ACROSS_THE_SEAM, position));
+        assertSame(vector, NearestCopy.toward(null, joml(ANCHOR_ACROSS_THE_SEAM), vector));
     }
 
     @Test
     void theOperandFormsTowardAnAnchorBesideTheTargetHandTheArgumentBack() {
         Vec3i target = TARGET_BLOCK;
         Position position = TARGET;
+        Vector3dc vector = joml(TARGET);
         assertSame(target, NearestCopy.toward(CYLINDER, ANCHOR_BLOCK_BESIDE_THE_TARGET, target));
         assertSame(target, NearestCopy.toward(CYLINDER, BOX_BESIDE_THE_TARGET, target));
         assertSame(position, NearestCopy.toward(CYLINDER, ANCHOR_BESIDE_THE_TARGET, position));
         assertSame(position, NearestCopy.towardCenterOf(CYLINDER, ANCHOR_BLOCK_BESIDE_THE_TARGET, position));
+        assertSame(vector, NearestCopy.toward(CYLINDER, joml(ANCHOR_BESIDE_THE_TARGET), vector));
     }
 
     @Test
@@ -191,8 +197,15 @@ class NearestCopyTest {
                 Position seated = NearestCopy.toward(fold, from, (Position) to);
                 assertSameDistance(fold.sqrDistance(from.x, from.y, from.z, to.x, to.y, to.z),
                         from.distanceToSqr(seated.x(), seated.y(), seated.z()));
+                Vector3dc fromVector = joml(from);
+                assertSameDistance(fold.sqrDistance(from.x, from.y, from.z, to.x, to.y, to.z),
+                        fromVector.distanceSquared(NearestCopy.toward(fold, fromVector, joml(to))));
             }
         }
+    }
+
+    private static Vector3dc joml(Vec3 point) {
+        return new Vector3d(point.x, point.y, point.z);
     }
 
     private static void assertSameDistance(double expected, double actual) {

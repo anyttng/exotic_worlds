@@ -1,17 +1,19 @@
 package com.exoticworlds.compat.sable;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
 import org.junit.jupiter.api.Test;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.exoticworlds.core.JomlVectors;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.engine.fold.NearestCopy;
+
+import net.minecraft.world.phys.Vec3;
 
 class SableSeamDistanceTest {
     private static final int HALF_WIDTH_CHUNKS_X = 16;
@@ -23,63 +25,42 @@ class SableSeamDistanceTest {
     private static final Vector3dc TO = new Vector3d(-250.0, 100.0, -100.0);
     private static final Vector3dc TO_HIGH_ABOVE = new Vector3d(-250.0, 200.0, -100.0);
 
-    private static final double SENTINEL = 1234.5;
-    private static final Operation<Double> REFUSES = args -> {
-        throw new AssertionError("the original was called with a fold in hand");
-    };
+    private static double rectilinear(Vector3dc from, Vector3dc to) {
+        return Math.max(Math.abs(to.x() - from.x()), Math.max(Math.abs(to.y() - from.y()), Math.abs(to.z() - from.z())));
+    }
 
     @Test
     void theRectilinearDistanceIsTheWidestFoldedAxis() {
-        assertEquals(56.0, SableSeamDistance.rectilinear(FOLD, FROM, TO, REFUSES), 0.0,
+        assertEquals(56.0, rectilinear(FROM, NearestCopy.toward(FOLD, FROM, TO)), 0.0,
                 "z folds to 56, wider than the folded x of 12 and the y of 30");
     }
 
     @Test
     void theRectilinearDistanceCountsHeightUnfolded() {
-        assertEquals(130.0, SableSeamDistance.rectilinear(FOLD, FROM, TO_HIGH_ABOVE, REFUSES), 0.0,
+        assertEquals(130.0, rectilinear(FROM, NearestCopy.toward(FOLD, FROM, TO_HIGH_ABOVE)), 0.0,
                 "y is 130 and no axis folds past it");
     }
 
     @Test
-    void anUnwrappedLevelLeavesTheRectilinearDistanceToSable() {
-        Operation<Double> original = args -> {
-            assertArrayEquals(new Object[] {FROM, TO}, args);
-            return SENTINEL;
-        };
-
-        assertEquals(SENTINEL, SableSeamDistance.rectilinear((WorldFold) null, FROM, TO, original), 0.0);
-    }
-
-    @Test
     void theSquaredDistanceSumsEveryFoldedAxis() {
-        assertEquals(4180.0, SableSeamDistance.sqr(FOLD, FROM, TO, REFUSES), 0.0,
+        assertEquals(4180.0, FROM.distanceSquared(NearestCopy.toward(FOLD, FROM, TO)), 0.0,
                 "x folds to 12, z to 56, and y stays 30");
     }
 
     @Test
+    void anUnwrappedLevelHandsTheFarPointBack() {
+        assertSame(TO, NearestCopy.toward(null, FROM, TO));
+    }
+
+    @Test
     void theSquaredDistanceToCoordinatesSumsEveryFoldedAxis() {
-        assertEquals(4180.0, SableSeamDistance.sqr(FOLD, FROM, FROM.x(), FROM.y(), FROM.z(),
-                TO.x(), TO.y(), TO.z(), REFUSES), 0.0, "x folds to 12, z to 56, and y stays 30");
+        Vec3 to = SableSeamDistance.toward(FOLD, JomlVectors.read(FROM), TO.x(), TO.y(), TO.z());
+
+        assertEquals(4180.0, FROM.distanceSquared(to.x, to.y, to.z), 0.0, "x folds to 12, z to 56, and y stays 30");
     }
 
     @Test
-    void anUnwrappedLevelLeavesTheSquaredDistanceToTheCallee() {
-        Operation<Double> original = args -> {
-            assertArrayEquals(new Object[] {FROM, TO}, args);
-            return SENTINEL;
-        };
-
-        assertEquals(SENTINEL, SableSeamDistance.sqr((WorldFold) null, FROM, TO, original), 0.0);
-    }
-
-    @Test
-    void anUnwrappedLevelLeavesTheSquaredDistanceToCoordinatesToTheCallee() {
-        Operation<Double> original = args -> {
-            assertArrayEquals(new Object[] {FROM, TO.x(), TO.y(), TO.z()}, args);
-            return SENTINEL;
-        };
-
-        assertEquals(SENTINEL, SableSeamDistance.sqr(null, FROM, FROM.x(), FROM.y(), FROM.z(),
-                TO.x(), TO.y(), TO.z(), original), 0.0);
+    void anUnwrappedLevelHandsTheCoordinatesBack() {
+        assertEquals(JomlVectors.read(TO), SableSeamDistance.toward((WorldFold) null, JomlVectors.read(FROM), TO.x(), TO.y(), TO.z()));
     }
 }

@@ -20,6 +20,10 @@ public final class JomlVectors {
         return seated == raw ? source : new Vector3d(seated.x, seated.y, seated.z);
     }
 
+    public static Vector3dc seated(Vector3dc source, Vec3 raw, Vec3 seated) {
+        return seated == raw ? source : new Vector3d(seated.x, seated.y, seated.z);
+    }
+
     public static Vector3d seat(WorldFold fold, Vec3 anchor, Vector3d source) {
         Vec3 raw = read(source);
         return seated(source, raw, fold.nearestCopy(anchor, raw));

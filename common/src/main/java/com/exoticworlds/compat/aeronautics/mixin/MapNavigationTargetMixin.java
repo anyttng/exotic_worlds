@@ -24,6 +24,7 @@ public class MapNavigationTargetMixin {
             expect = 2)
     private static double exotic_worlds$distanceTheShortWayRound(Vec3 from, double x, double y, double z,
             Operation<Double> original, @Local(argsOnly = true) @Nullable Level level) {
-        return SableSeamDistance.sqr(level, from, x, y, z, original);
+        Vec3 to = SableSeamDistance.toward(level, from, x, y, z);
+        return original.call(from, to.x, to.y, to.z);
     }
 }

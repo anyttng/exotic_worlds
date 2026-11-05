@@ -25,7 +25,7 @@ public abstract class ActiveSableCompanionMixin {
             at = @At(value = "INVOKE", target = "Lorg/joml/Vector3dc;distanceSquared(Lorg/joml/Vector3dc;)D"))
     private double exotic_worlds$sqrDistanceThroughSeam(Vector3dc from, Vector3dc to, Operation<Double> original,
             @Local(argsOnly = true) Level level) {
-        return SableSeamDistance.sqr(level, from, to, original);
+        return original.call(from, SableSeamDistance.toward(level, from, to));
     }
 
     @WrapOperation(
@@ -40,6 +40,6 @@ public abstract class ActiveSableCompanionMixin {
                     target = "Ldev/ryanhcode/sable/ActiveSableCompanion;rectilinearDistance(Lorg/joml/Vector3dc;Lorg/joml/Vector3dc;)D"))
     private double exotic_worlds$rectilinearDistanceThroughSeam(Vector3dc from, Vector3dc to, Operation<Double> original,
             @Local(argsOnly = true) Level level) {
-        return SableSeamDistance.rectilinear(level, from, to, original);
+        return original.call(from, SableSeamDistance.toward(level, from, to));
     }
 }

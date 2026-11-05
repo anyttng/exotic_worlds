@@ -12,6 +12,7 @@ import com.exoticworlds.compat.sable.SableSeamDistance;
 import dev.simulated_team.simulated.util.hold_interaction.BlockHoldInteraction;
 
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = BlockHoldInteraction.class, remap = false)
 public class BlockHoldInteractionMixin {
@@ -22,6 +23,7 @@ public class BlockHoldInteractionMixin {
             at = @At(value = "INVOKE", target = "Lorg/joml/Vector3d;distanceSquared(DDD)D"))
     private static double exotic_worlds$eyeDistanceThroughSeam(Vector3d target, double eyeX, double eyeY, double eyeZ,
             Operation<Double> original, @Local(argsOnly = true) Player player) {
-        return SableSeamDistance.sqr(player.level(), target, eyeX, eyeY, eyeZ, original);
+        Vec3 eye = SableSeamDistance.toward(player.level(), target, eyeX, eyeY, eyeZ);
+        return original.call(target, eye.x, eye.y, eye.z);
     }
 }

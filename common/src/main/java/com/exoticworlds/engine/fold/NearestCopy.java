@@ -1,8 +1,10 @@
 package com.exoticworlds.engine.fold;
 
 import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.JomlVectors;
 import com.exoticworlds.core.WorldFold;
 
+import org.joml.Vector3dc;
 import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
@@ -16,6 +18,15 @@ import net.minecraft.world.phys.Vec3;
 public final class NearestCopy {
     public static Vec3 toward(@Nullable WorldFold fold, Vec3 anchor, Vec3 target) {
         return fold == null ? target : fold.nearestCopy(anchor, target);
+    }
+
+    public static Vector3dc toward(@Nullable WorldFold fold, Vector3dc anchor, Vector3dc target) {
+        if (fold == null) {
+            return target;
+        }
+
+        Vec3 raw = JomlVectors.read(target);
+        return JomlVectors.seated(target, raw, fold.nearestCopy(JomlVectors.read(anchor), raw));
     }
 
     public static BlockPos toward(@Nullable WorldFold fold, BlockPos anchor, BlockPos target) {

@@ -7,7 +7,9 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.level.CurrentServer;
 
 import mekanism.common.content.teleporter.TeleporterFrequency;
@@ -27,11 +29,9 @@ public class TeleporterFrequencyMixin {
     private double exotic_worlds$distanceTheShortWayRound(BlockPos from, Vec3i to, Operation<Double> original,
             @Local(argsOnly = true) GlobalPos source, @Local(name = "iterCoord") GlobalPos candidate) {
         MinecraftServer server = CurrentServer.get();
-        if (server == null || source.dimension() != candidate.dimension()) {
-            return original.call(from, to);
-        }
-
-        return WorldLoopAttachments.foldOfReader(server.getLevel(source.dimension()))
-                .sqrDistance(from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ());
+        WorldFold fold = server == null || source.dimension() != candidate.dimension()
+                ? null
+                : WorldLoopAttachments.wrappedFoldOfReader(server.getLevel(source.dimension()));
+        return original.call(from, NearestCopy.toward(fold, from, to));
     }
 }
