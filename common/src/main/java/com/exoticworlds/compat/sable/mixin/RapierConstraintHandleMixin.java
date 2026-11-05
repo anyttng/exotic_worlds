@@ -1,6 +1,5 @@
 package com.exoticworlds.compat.sable.mixin;
 
-import org.joml.Vector3d;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -60,15 +59,14 @@ public class RapierConstraintHandleMixin implements SableMotorGoalHolder, SableC
             return;
         }
 
-        if (!goal.completed()) {
-            return;
-        }
-
-        Vector3d correction = goal.seatCorrection();
+        int resend = goal.reseat(axis);
+        original.call(sceneHandle, handle, axis, goal.seatedTarget(axis), stiffness, damping, hasForceLimit,
+                maxForce);
         for (int linear = 0; linear < SableMotorGoal.LINEAR_AXES; linear++) {
-            double shift = correction == null ? 0.0 : correction.get(linear);
-            original.call(sceneHandle, handle, linear, goal.target(linear) + shift, goal.stiffness(linear),
-                    goal.damping(linear), goal.forceLimited(linear), goal.maxForce(linear));
+            if (linear != axis && (resend & (1 << linear)) != 0) {
+                original.call(sceneHandle, handle, linear, goal.seatedTarget(linear), goal.stiffness(linear),
+                        goal.damping(linear), goal.forceLimited(linear), goal.maxForce(linear));
+            }
         }
     }
 }

@@ -102,6 +102,7 @@
     "CarriageContraptionEntityRendererMixin",
     "CarriageSyncDataMixin",
     "ClickToLinkBlockItemClientMixin",
+    "DataComponentPatchCodecMixin",
     "FTBChunksTrainMapMixin",
     "FactoryPanelConnectionMixin",
     "FactoryPanelEffectPacketMixin",

@@ -1,5 +1,7 @@
 package com.exoticworlds.compat.sable;
 
+import java.util.Objects;
+
 import org.joml.Quaterniond;
 import org.joml.Quaterniondc;
 import org.joml.Vector3d;
@@ -23,8 +25,6 @@ import net.minecraft.world.phys.Vec3;
 public final class SableMotorGoal {
     public static final int LINEAR_AXES = ConstraintJointAxis.LINEAR.length;
 
-    private static final int ALL_LINEAR_WRITTEN = (1 << LINEAR_AXES) - 1;
-
     private final WorldFold fold;
     private final PhysicsPipelineBody body;
     private final Vector3d staticAnchor = new Vector3d();
@@ -36,6 +36,7 @@ public final class SableMotorGoal {
     private final boolean[] forceLimited = new boolean[LINEAR_AXES];
     private final double[] maxForce = new double[LINEAR_AXES];
     private int written;
+    private @Nullable Vector3d seated;
 
     private SableMotorGoal(WorldFold fold, PhysicsPipelineBody body, Vector3dc staticAnchor,
             Quaterniondc staticOrientation, Vector3dc bodyAnchor) {
@@ -74,10 +75,6 @@ public final class SableMotorGoal {
             return false;
         }
 
-        if (this.written == ALL_LINEAR_WRITTEN) {
-            this.written = 0;
-        }
-
         this.targets[axis] = target;
         this.stiffness[axis] = stiffness;
         this.damping[axis] = damping;
@@ -87,12 +84,18 @@ public final class SableMotorGoal {
         return true;
     }
 
-    public boolean completed() {
-        return this.written == ALL_LINEAR_WRITTEN;
+    public int reseat(int axis) {
+        Vector3d correction = this.seatCorrection();
+        if (Objects.equals(correction, this.seated)) {
+            return 1 << axis;
+        }
+
+        this.seated = correction;
+        return this.written;
     }
 
-    public double target(int axis) {
-        return this.targets[axis];
+    public double seatedTarget(int axis) {
+        return this.seated == null ? this.targets[axis] : this.targets[axis] + this.seated.get(axis);
     }
 
     public double stiffness(int axis) {
@@ -112,7 +115,7 @@ public final class SableMotorGoal {
     }
 
     public @Nullable Vector3d seatCorrection() {
-        if (!this.completed() || this.body.isRemoved()) {
+        if (this.body.isRemoved()) {
             return null;
         }
 

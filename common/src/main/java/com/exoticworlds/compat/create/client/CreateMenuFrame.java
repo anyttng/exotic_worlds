@@ -17,11 +17,21 @@ import net.minecraft.world.level.Level;
 public final class CreateMenuFrame {
     private static final ThreadScope<Frame> PAYLOAD_FRAME = new ThreadScope<>();
 
-    private record Frame(WorldFold fold, BlockPos anchor) {
+    public record Frame(WorldFold fold, BlockPos anchor) {
     }
 
     public static <T> T readingPayload(Supplier<T> read) {
         return PAYLOAD_FRAME.with(resolve(), read);
+    }
+
+    public static @Nullable Frame suspend() {
+        return PAYLOAD_FRAME.current() == null ? null : PAYLOAD_FRAME.enter(null);
+    }
+
+    public static void resume(@Nullable Frame suspended) {
+        if (suspended != null) {
+            PAYLOAD_FRAME.exit(suspended);
+        }
     }
 
     public static BlockPos fold(BlockPos canonical) {

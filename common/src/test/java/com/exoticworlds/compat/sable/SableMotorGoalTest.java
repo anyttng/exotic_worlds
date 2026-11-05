@@ -41,6 +41,10 @@ class SableMotorGoalTest {
     private static final double MAX_FORCE = 100.0;
     private static final int ANGULAR_ORDINAL = SableMotorGoal.LINEAR_AXES;
     private static final double EPSILON = 1.0e-9;
+    private static final int X_ONLY = 0b001;
+    private static final int Y_ONLY = 0b010;
+    private static final int X_AND_Z = 0b101;
+    private static final int ALL_LINEAR = 0b111;
 
     private static final class LiveBox extends BoxPhysicsObject {
         private boolean dropped;
@@ -78,6 +82,13 @@ class SableMotorGoalTest {
         }
     }
 
+    private static void aimAndSeat(SableMotorGoal goal, Vector3dc target) {
+        for (int axis = 0; axis < SableMotorGoal.LINEAR_AXES; axis++) {
+            assertTrue(goal.record(axis, target.get(axis), STIFFNESS, DAMPING, false, MAX_FORCE));
+            goal.reseat(axis);
+        }
+    }
+
     @Test
     void recordRefusesAnOrdinalOutsideTheLinearAxes() {
         SableMotorGoal goal = goalOver(new LiveBox(BODY_ACROSS_THE_SEAM), ORIGIN, IDENTITY);
@@ -92,7 +103,7 @@ class SableMotorGoalTest {
 
         assertTrue(goal.record(1, HEIGHT, STIFFNESS, DAMPING, true, MAX_FORCE));
 
-        assertEquals(HEIGHT, goal.target(1), 0.0);
+        assertEquals(HEIGHT, goal.seatedTarget(1), 0.0);
         assertEquals(STIFFNESS, goal.stiffness(1), 0.0);
         assertEquals(DAMPING, goal.damping(1), 0.0);
         assertTrue(goal.forceLimited(1));
@@ -100,39 +111,49 @@ class SableMotorGoalTest {
     }
 
     @Test
-    void theCorrectionWaitsForAllThreeLinearAxes() {
+    void aSingleLinearWriteIsHandedOnAtOnce() {
         SableMotorGoal goal = goalOver(new LiveBox(BODY_ACROSS_THE_SEAM), ORIGIN, IDENTITY);
 
         goal.record(0, GOAL_NEAR_THE_SEAM.x(), STIFFNESS, DAMPING, false, MAX_FORCE);
-        goal.record(1, GOAL_NEAR_THE_SEAM.y(), STIFFNESS, DAMPING, false, MAX_FORCE);
-        assertNull(goal.seatCorrection());
 
-        goal.record(2, GOAL_NEAR_THE_SEAM.z(), STIFFNESS, DAMPING, false, MAX_FORCE);
-        assertNotNull(goal.seatCorrection());
+        assertEquals(X_ONLY, goal.reseat(0));
+        assertEquals(GOAL_NEAR_THE_SEAM.x() + ONE_LAP_BACK.x(), goal.seatedTarget(0), EPSILON);
     }
 
     @Test
-    void completionNeedsAllThreeLinearAxes() {
+    void anUnchangedSeatResendsOnlyTheWrittenAxis() {
         SableMotorGoal goal = goalOver(new LiveBox(BODY_ACROSS_THE_SEAM), ORIGIN, IDENTITY);
+        aimAndSeat(goal, GOAL_NEAR_THE_SEAM);
 
-        goal.record(0, GOAL_NEAR_THE_SEAM.x(), STIFFNESS, DAMPING, false, MAX_FORCE);
-        goal.record(1, GOAL_NEAR_THE_SEAM.y(), STIFFNESS, DAMPING, false, MAX_FORCE);
-        goal.record(ANGULAR_ORDINAL, 0.0, STIFFNESS, DAMPING, false, MAX_FORCE);
-        assertFalse(goal.completed());
+        goal.record(1, HEIGHT + 1.0, STIFFNESS, DAMPING, false, MAX_FORCE);
 
-        goal.record(2, GOAL_NEAR_THE_SEAM.z(), STIFFNESS, DAMPING, false, MAX_FORCE);
-        assertTrue(goal.completed());
+        assertEquals(Y_ONLY, goal.reseat(1));
+        assertEquals(HEIGHT + 1.0, goal.seatedTarget(1), EPSILON);
     }
 
     @Test
-    void theFirstRecordAfterACompletedSetOpensANewOne() {
+    void aChangedSeatResendsEveryWrittenAxis() {
         SableMotorGoal goal = goalOver(new LiveBox(BODY_ACROSS_THE_SEAM), ORIGIN, IDENTITY);
-        aimAt(goal, GOAL_NEAR_THE_SEAM);
+        aimAndSeat(goal, GOAL_NEAR_THE_SEAM);
+        assertEquals(GOAL_NEAR_THE_SEAM.x() + ONE_LAP_BACK.x(), goal.seatedTarget(0), EPSILON);
+
+        goal.record(0, GOAL_ACROSS_THE_SEAM.x(), STIFFNESS, DAMPING, false, MAX_FORCE);
+
+        assertEquals(ALL_LINEAR, goal.reseat(0));
+        assertEquals(GOAL_ACROSS_THE_SEAM.x(), goal.seatedTarget(0), EPSILON);
+        assertEquals(HEIGHT, goal.seatedTarget(1), EPSILON);
+        assertEquals(GOAL_NEAR_THE_SEAM.z(), goal.seatedTarget(2), EPSILON);
+    }
+
+    @Test
+    void anAxisTheCallerNeverWroteIsNeverResent() {
+        SableMotorGoal goal = goalOver(new LiveBox(BODY_ACROSS_THE_SEAM), ORIGIN, IDENTITY);
+        goal.record(2, GOAL_NEAR_THE_SEAM.z(), STIFFNESS, DAMPING, false, MAX_FORCE);
+        goal.reseat(2);
 
         goal.record(0, GOAL_NEAR_THE_SEAM.x(), STIFFNESS, DAMPING, false, MAX_FORCE);
 
-        assertFalse(goal.completed());
-        assertNull(goal.seatCorrection());
+        assertEquals(X_AND_Z, goal.reseat(0));
     }
 
     @Test
@@ -143,7 +164,6 @@ class SableMotorGoalTest {
 
         aimAt(goal, GOAL_ACROSS_THE_SEAM);
 
-        assertTrue(goal.completed());
         assertNull(goal.seatCorrection());
     }
 
