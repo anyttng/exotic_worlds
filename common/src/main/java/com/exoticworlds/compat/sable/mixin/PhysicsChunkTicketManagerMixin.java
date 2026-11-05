@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.exoticworlds.compat.sable.SableChunkKeys;
+import com.exoticworlds.core.WorldLoopAttachments;
 
 import dev.ryanhcode.sable.sublevel.system.ticket.PhysicsChunkTicketManager;
 
@@ -19,6 +20,11 @@ public class PhysicsChunkTicketManagerMixin {
     @WrapMethod(method = "inhabitChunk")
     private void exotic_worlds$inhabitPhysicalChunk(ServerLevel level, DistanceManager distanceManager, UUID subLevelId, long gameTime,
             long chunkLong, int x, int z, Operation<Void> original) {
+        if (WorldLoopAttachments.wrappedFoldOf(level) == null) {
+            original.call(level, distanceManager, subLevelId, gameTime, chunkLong, x, z);
+            return;
+        }
+
         long physical = SableChunkKeys.physical(level, ChunkPos.asLong(x, z));
         original.call(level, distanceManager, subLevelId, gameTime, physical, ChunkPos.getX(physical), ChunkPos.getZ(physical));
     }

@@ -61,14 +61,14 @@ public class ContraptionMixin {
     @ModifyVariable(method = "searchMovedStructure", at = @At("STORE"), ordinal = 0)
     private Set<BlockPos> exotic_worlds$closeTheWalkOnCanonicalKeys(Set<BlockPos> visited, Level world, BlockPos pos,
             Direction forcedDirection) {
-        return LappedKeys.set(world);
+        return LappedKeys.set(world, visited);
     }
 
     @WrapMethod(method = "moveBlock")
     private boolean exotic_worlds$dropANameItsOwnCopyAlreadyClaimed(Level world, Direction forcedDirection,
             Queue<BlockPos> frontier, Set<BlockPos> visited, Operation<Boolean> original) {
         BlockPos polled = frontier.peek();
-        if (polled == null || !visited.contains(polled)) {
+        if (polled == null || !LappedKeys.claimedByACopy(visited, polled)) {
             return original.call(world, forcedDirection, frontier, visited);
         }
 

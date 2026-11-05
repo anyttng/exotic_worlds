@@ -23,7 +23,7 @@ public interface SendAroundRangeMixin {
             @Local(argsOnly = true, ordinal = 0) double x, @Local(argsOnly = true, ordinal = 1) double y,
             @Local(argsOnly = true, ordinal = 2) double z) {
         return NearestCopy.toward(((FoldSource) player).exotic_worlds$wrappedFold(), Direction.Axis.X,
-                new Vec3(x, y, z), player.position());
+                new Vec3(x, y, z), player.position().with(Direction.Axis.X, original.call(player)));
     }
 
     @WrapOperation(
@@ -33,7 +33,7 @@ public interface SendAroundRangeMixin {
             @Local(argsOnly = true, ordinal = 0) double x, @Local(argsOnly = true, ordinal = 1) double y,
             @Local(argsOnly = true, ordinal = 2) double z) {
         return NearestCopy.toward(((FoldSource) player).exotic_worlds$wrappedFold(), Direction.Axis.Y,
-                new Vec3(x, y, z), player.position());
+                new Vec3(x, y, z), player.position().with(Direction.Axis.Y, original.call(player)));
     }
 
     @WrapOperation(
@@ -43,6 +43,6 @@ public interface SendAroundRangeMixin {
             @Local(argsOnly = true, ordinal = 0) double x, @Local(argsOnly = true, ordinal = 1) double y,
             @Local(argsOnly = true, ordinal = 2) double z) {
         return NearestCopy.toward(((FoldSource) player).exotic_worlds$wrappedFold(), Direction.Axis.Z,
-                new Vec3(x, y, z), player.position());
+                new Vec3(x, y, z), player.position().with(Direction.Axis.Z, original.call(player)));
     }
 }

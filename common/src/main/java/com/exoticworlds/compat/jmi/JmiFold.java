@@ -1,5 +1,8 @@
 package com.exoticworlds.compat.jmi;
 
+import java.util.Collection;
+
+import com.exoticworlds.compat.ClientShapes;
 import com.exoticworlds.compat.ftbchunks.FtbChunksFold;
 
 import net.minecraft.client.Minecraft;
@@ -18,6 +21,10 @@ public final class JmiFold {
         }
 
         return FtbChunksFold.nearestChunk(foldChunk(player.chunkPosition()), folded);
+    }
+
+    public static Collection<ChunkPos> outlineOf(Collection<ChunkPos> area, Collection<ChunkPos> seated) {
+        return ClientShapes.current() == null ? area : seated;
     }
 
     private JmiFold() {

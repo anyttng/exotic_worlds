@@ -92,6 +92,10 @@ public abstract class TrainMapManagerMixin {
     @Unique
     private static List<FormattedText> exotic_worlds$pickOnEachCopy(GuiGraphics graphics, int mouseX, int mouseY,
             boolean linearFiltering, Rect2i bounds, Operation<List<FormattedText>> original) {
+        if (!TrainMapViewFold.fold().isWrapped()) {
+            return original.call(graphics, mouseX, mouseY, linearFiltering, bounds);
+        }
+
         PoseStack pose = graphics.pose();
         List<FormattedText> hovered = null;
         for (DeckTransformation copy : TrainMapViewFold.copiesDrawnFor(bounds)) {

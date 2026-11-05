@@ -34,6 +34,7 @@ public abstract class FtbClaimMenuMixin {
     @WrapOperation(method = "addRightClickOptions",
             at = @At(value = "INVOKE", target = FtbChunksInjectionTargets.XZ_OF))
     private static XZ exotic_worlds$foldSelectedChunk(int chunkX, int chunkZ, Operation<XZ> original) {
-        return FtbChunksFold.chunkOf(chunkX, chunkZ);
+        ChunkPos folded = FtbChunksFold.foldedChunkPos(new ChunkPos(chunkX, chunkZ));
+        return original.call(folded.x, folded.z);
     }
 }

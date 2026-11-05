@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.Slice;
 
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.gen.AddedStructureStarts;
 import com.exoticworlds.engine.gen.SpreadRingScan;
@@ -79,16 +80,24 @@ public class StructureLocatorSeamMixin {
             Operation<@Nullable Pair<BlockPos, Holder<Structure>>> original) {
         Pair<BlockPos, Holder<Structure>> found = original.call(generator, structures, level, structureManager,
                 searchCenter, skipKnown, placement);
-        return found == null ? null : Pair.of(
-                WorldLoopAttachments.foldOf(level).nearestCopy(searchCenter, found.getFirst()),
-                found.getSecond());
+        if (found == null) {
+            return null;
+        }
+
+        BlockPos seated = WorldLoopAttachments.foldOf(level).nearestCopy(searchCenter, found.getFirst());
+        return seated == found.getFirst() ? found : Pair.of(seated, found.getSecond());
     }
 
     @WrapOperation(method = "flushCandidates", at = @At(value = "INVOKE", target = LIST_ADD))
     private static boolean exotic_worlds$seatResult(List<Object> found, Object result, Operation<Boolean> original,
             @Local(argsOnly = true) ServerLevel level, @Local(argsOnly = true) BlockPos searchCenter) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        if (fold == null) {
+            return original.call(found, result);
+        }
+
         LocatedStructure located = (LocatedStructure) result;
-        BlockPos seated = WorldLoopAttachments.foldOf(level).nearestCopy(searchCenter, located.position());
+        BlockPos seated = fold.nearestCopy(searchCenter, located.position());
         LocatedStructure seatedResult = new LocatedStructure(seated, located.structure(), located.start(),
                 searchCenter.distSqr(seated));
         return !found.contains(seatedResult) && original.call(found, seatedResult);

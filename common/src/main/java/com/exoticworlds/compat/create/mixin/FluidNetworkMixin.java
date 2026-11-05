@@ -29,7 +29,7 @@ public class FluidNetworkMixin {
     @Inject(method = "<init>", at = @At("RETURN"))
     private void exotic_worlds$canonicaliseKeys(Level world, BlockFace location, Supplier<?> sourceSupplier,
             CallbackInfo ci) {
-        this.visited = CanonicalPositionKeys.set(world);
-        this.cache = CanonicalPositionKeys.map(world);
+        this.visited = CanonicalPositionKeys.set(world, this.visited);
+        this.cache = CanonicalPositionKeys.map(world, this.cache);
     }
 }

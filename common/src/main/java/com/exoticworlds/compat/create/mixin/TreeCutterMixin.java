@@ -18,12 +18,12 @@ public class TreeCutterMixin {
     @ModifyVariable(method = "validateCut", at = @At("STORE"), ordinal = 0)
     private static Set<BlockPos> exotic_worlds$canonicalGateVisited(Set<BlockPos> visited, BlockGetter reader,
             BlockPos pos) {
-        return CanonicalPositionKeys.set(reader);
+        return CanonicalPositionKeys.set(reader, visited);
     }
 
     @ModifyVariable(method = "findTree", at = @At("STORE"), ordinal = 0)
     private static Set<BlockPos> exotic_worlds$canonicalTreeVisited(Set<BlockPos> visited, BlockGetter reader, BlockPos pos,
             BlockState brokenState) {
-        return CanonicalPositionKeys.set(reader);
+        return CanonicalPositionKeys.set(reader, visited);
     }
 }

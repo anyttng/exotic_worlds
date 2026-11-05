@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.compat.mekanism.MekanismSeam;
+import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.level.CurrentServer;
 
 import mekanism.common.content.transporter.TransporterManager;
@@ -17,6 +18,7 @@ import mekanism.common.util.WorldUtils;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.Level;
 
 @Mixin(value = TransporterManager.class, remap = false)
 public class TransporterManagerMixin {
@@ -30,13 +32,13 @@ public class TransporterManagerMixin {
     private static Direction exotic_worlds$sideOfDestination(TransporterStack stack, Operation<Direction> original,
             @Local(argsOnly = true) GlobalPos position) {
         MinecraftServer server = CurrentServer.get();
-        if (server == null || !stack.hasPath()) {
+        Level level = server == null ? null : server.getLevel(position.dimension());
+        if (WorldLoopAttachments.wrappedFoldOf(level) == null || !stack.hasPath()) {
             return original.call(stack);
         }
 
         long dest = stack.getDest();
-        long lastTransporter = MekanismSeam.nearestCopy(server.getLevel(position.dimension()), dest,
-                stack.getPath().getLong(LAST_TRANSPORTER_INDEX));
+        long lastTransporter = MekanismSeam.nearestCopy(level, dest, stack.getPath().getLong(LAST_TRANSPORTER_INDEX));
         return WorldUtils.sideDifference(lastTransporter, dest);
     }
 }

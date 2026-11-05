@@ -18,6 +18,6 @@ public class FluidPropagatorMixin {
     @ModifyVariable(method = "resetAffectedFluidNetworks", at = @At("STORE"), ordinal = 0)
     private static Set<BlockPos> exotic_worlds$canonicalVisited(Set<BlockPos> visited, Level world, BlockPos start,
             Direction side) {
-        return CanonicalPositionKeys.set(world);
+        return CanonicalPositionKeys.set(world, visited);
     }
 }

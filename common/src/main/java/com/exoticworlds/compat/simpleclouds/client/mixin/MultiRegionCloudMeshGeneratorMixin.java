@@ -34,6 +34,6 @@ public abstract class MultiRegionCloudMeshGeneratorMixin {
     @ModifyConstant(method = {"initExtra", "onOffGen"},
             constant = @Constant(intValue = CloudRegionShaderSource.REGION_BUFFER_BYTES))
     private int exotic_worlds$foldedRegionBuffer(int bytes) {
-        return CloudRegionShaderSource.FOLDED_REGION_BUFFER_BYTES;
+        return CloudRegionShaderSource.rewritten() ? CloudRegionShaderSource.FOLDED_REGION_BUFFER_BYTES : bytes;
     }
 }

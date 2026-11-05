@@ -6,8 +6,10 @@ import static com.exoticworlds.compat.CompatFoldFixture.WORLD_BLOCKS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -92,5 +94,22 @@ class LappedKeysTest {
         assertFalse(keys.contains(new BlockPos(250 + 2 * WORLD_BLOCKS, 64, 10)));
         assertEquals(2, keys.size());
         assertNull(keys.lapped());
+    }
+
+    @Test
+    void aReaderWithoutAFoldKeepsTheSetItWasHanded() {
+        Set<BlockPos> built = new HashSet<>();
+
+        assertSame(built, LappedKeys.set(null, built));
+    }
+
+    @Test
+    void onlyALappedKeysClaimDropsAHead() {
+        Set<BlockPos> plain = new HashSet<>(Set.of(INSIDE));
+        LappedKeys keys = new LappedKeys(PER_AXIS);
+        keys.add(INSIDE);
+
+        assertFalse(LappedKeys.claimedByACopy(plain, INSIDE));
+        assertTrue(LappedKeys.claimedByACopy(keys, ONE_LAP_ON));
     }
 }

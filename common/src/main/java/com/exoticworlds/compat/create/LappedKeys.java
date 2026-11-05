@@ -2,7 +2,6 @@ package com.exoticworlds.compat.create;
 
 import java.util.AbstractSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -23,9 +22,13 @@ public final class LappedKeys extends AbstractSet<BlockPos> {
     public record Lap(BlockPos arrived, BlockPos claimed, BlockPos key) {
     }
 
-    public static Set<BlockPos> set(@Nullable BlockGetter reader) {
+    public static Set<BlockPos> set(@Nullable BlockGetter reader, Set<BlockPos> built) {
         WorldFold fold = CanonicalPositionKeys.wrappedFoldOf(reader);
-        return fold == null ? new HashSet<>() : new LappedKeys(fold);
+        return fold == null ? built : new LappedKeys(fold);
+    }
+
+    public static boolean claimedByACopy(Set<BlockPos> visited, BlockPos pos) {
+        return visited instanceof LappedKeys keys && keys.contains(pos);
     }
 
     LappedKeys(WorldFold fold) {

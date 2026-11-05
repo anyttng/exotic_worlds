@@ -11,6 +11,7 @@ import com.exoticworlds.compat.ftbchunks.FtbChunksInjectionTargets;
 import com.exoticworlds.compat.ftbxaerocompat.FtbXaeroFold;
 
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 
 import dev.ftb.mods.ftblibrary.math.XZ;
@@ -27,7 +28,8 @@ public abstract class ClaimsHighlighterMixin {
     @WrapOperation(method = "getChunk",
             at = @At(value = "INVOKE", target = FtbChunksInjectionTargets.XZ_OF))
     private static XZ exotic_worlds$foldChunkKey(int chunkX, int chunkZ, Operation<XZ> original) {
-        return FtbChunksFold.chunkOf(chunkX, chunkZ);
+        ChunkPos folded = FtbChunksFold.foldedChunkPos(new ChunkPos(chunkX, chunkZ));
+        return original.call(folded.x, folded.z);
     }
 
     @ModifyReturnValue(method = "regionHasHighlights", at = @At("RETURN"))

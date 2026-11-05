@@ -32,6 +32,11 @@ public class TileEntityTeleporterMixin {
             @Local(argsOnly = true) Level targetWorld,
             @Local(argsOnly = true) GlobalPos coords) {
         Level entityWorld = entity.level();
+        if (WorldLoopAttachments.wrappedFoldOf(entityWorld) == null
+                && WorldLoopAttachments.wrappedFoldOf(targetWorld) == null) {
+            return original.call(xDifference, yDifference, zDifference);
+        }
+
         DimensionType entityType = entityWorld.dimensionType();
         DimensionType targetType = targetWorld.dimensionType();
         WorldFold entityFold = WorldLoopAttachments.foldOf(entityWorld);

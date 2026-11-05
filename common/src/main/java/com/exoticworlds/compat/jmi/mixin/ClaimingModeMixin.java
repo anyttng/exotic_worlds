@@ -45,7 +45,7 @@ public abstract class ClaimingModeMixin {
                             + "Ljava/util/List;"))
     private List<MapPolygonWithHoles> exotic_worlds$outlineTheWholeWindow(Collection<ChunkPos> area, int y,
             Operation<List<MapPolygonWithHoles>> original) {
-        return original.call(exotic_worlds$outline, y);
+        return original.call(JmiFold.outlineOf(area, exotic_worlds$outline), y);
     }
 
     @WrapOperation(method = "createClaimingAreaOverlays",

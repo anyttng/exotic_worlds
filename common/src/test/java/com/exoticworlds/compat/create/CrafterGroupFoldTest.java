@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +19,7 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
 
 class CrafterGroupFoldTest {
     private static final List<WorldFold> UNSKEWED = List.of(PER_AXIS, DECK_TORUS);
@@ -82,5 +84,13 @@ class CrafterGroupFoldTest {
 
         assertSame(raw, CrafterGroupFold.foldStoredDelta(WorldFolds.NOOP, OWNER, raw));
         assertSame(raw, CrafterGroupFold.foldStoredDelta((WorldFold) null, OWNER, raw));
+    }
+
+    @Test
+    void anUnwrappedWorldGivesTheMembersBackByIdentity() {
+        Set<BlockPos> raw = Set.of(OWNER, MEMBER_ACROSS);
+
+        assertSame(raw, CrafterGroupFold.canonicalMembers((WorldFold) null, raw));
+        assertSame(raw, CrafterGroupFold.canonicalMembers((BlockGetter) null, raw));
     }
 }

@@ -39,7 +39,7 @@ public class ConnectivityHandlerMixin {
     @ModifyVariable(method = FORM_MULTI, at = @At("STORE"), ordinal = 0)
     private static Set<BlockPos> exotic_worlds$canonicalWalkVisited(Set<BlockPos> visited,
             @Local(argsOnly = true) BlockGetter level) {
-        return CanonicalPositionKeys.set(level);
+        return CanonicalPositionKeys.set(level, visited);
     }
 
     @ModifyExpressionValue(

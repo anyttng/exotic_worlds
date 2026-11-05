@@ -8,6 +8,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.exoticworlds.compat.ftbchunks.FtbChunksFold;
 import com.exoticworlds.compat.ftbchunks.FtbChunksInjectionTargets;
 
+import net.minecraft.world.level.ChunkPos;
+
 import dev.ftb.mods.ftbchunks.client.minimap.components.ZoneInfoComponent;
 import dev.ftb.mods.ftblibrary.math.XZ;
 
@@ -23,6 +25,7 @@ public abstract class ZoneInfoComponentMixin {
     @WrapOperation(method = "shouldRender",
             at = @At(value = "INVOKE", target = FtbChunksInjectionTargets.XZ_OF))
     private XZ exotic_worlds$foldChunkKey(int chunkX, int chunkZ, Operation<XZ> original) {
-        return FtbChunksFold.chunkOf(chunkX, chunkZ);
+        ChunkPos folded = FtbChunksFold.foldedChunkPos(new ChunkPos(chunkX, chunkZ));
+        return original.call(folded.x, folded.z);
     }
 }

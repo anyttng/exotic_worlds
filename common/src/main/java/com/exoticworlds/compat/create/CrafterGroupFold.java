@@ -58,9 +58,18 @@ public final class CrafterGroupFold {
     }
 
     public static Set<BlockPos> canonicalMembers(@Nullable BlockGetter level, Set<BlockPos> raw) {
+        return canonicalMembers(
+                level instanceof ServerLevel server ? WorldLoopAttachments.wrappedFoldOfReader(server) : null, raw);
+    }
+
+    static Set<BlockPos> canonicalMembers(@Nullable WorldFold fold, Set<BlockPos> raw) {
+        if (fold == null) {
+            return raw;
+        }
+
         Set<BlockPos> folded = new LinkedHashSet<>(raw.size());
         for (BlockPos member : raw) {
-            folded.add(CreateSeamFold.canonicalOnServer(level, member));
+            folded.add(fold.fold(member));
         }
 
         return folded;

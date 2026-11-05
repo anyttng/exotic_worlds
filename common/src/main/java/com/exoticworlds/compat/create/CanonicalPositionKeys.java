@@ -19,14 +19,14 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 
 public final class CanonicalPositionKeys {
-    public static Set<BlockPos> set(@Nullable BlockGetter reader) {
+    public static Set<BlockPos> set(@Nullable BlockGetter reader, Set<BlockPos> built) {
         WorldFold fold = wrappedFoldOf(reader);
-        return fold == null ? new HashSet<>() : new CanonicalSet(fold);
+        return fold == null ? built : new CanonicalSet(fold);
     }
 
-    public static <V> Map<BlockPos, V> map(@Nullable BlockGetter reader) {
+    public static <V> Map<BlockPos, V> map(@Nullable BlockGetter reader, Map<BlockPos, V> built) {
         WorldFold fold = wrappedFoldOf(reader);
-        return fold == null ? new HashMap<>() : new CanonicalMap<>(fold);
+        return fold == null ? built : new CanonicalMap<>(fold);
     }
 
     static @Nullable WorldFold wrappedFoldOf(@Nullable BlockGetter reader) {

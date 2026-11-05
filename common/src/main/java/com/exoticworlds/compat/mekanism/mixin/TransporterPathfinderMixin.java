@@ -9,6 +9,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.compat.mekanism.MekanismInjectionTargets;
 import com.exoticworlds.compat.mekanism.MekanismSeam;
+import com.exoticworlds.core.WorldLoopAttachments;
 
 import it.unimi.dsi.fastutil.longs.LongList;
 import mekanism.common.content.network.transmitter.LogisticalTransporterBase;
@@ -41,6 +42,11 @@ public class TransporterPathfinderMixin {
     private static void exotic_worlds$roundRobinSideOfDestination(IAdvancedTransportEjector outputter,
             TransporterPathfinder.Destination destination, Operation<Void> original,
             @Local(argsOnly = true) LogisticalTransporterBase start) {
+        if (WorldLoopAttachments.wrappedFoldOf(start.getLevel()) == null) {
+            original.call(outputter, destination);
+            return;
+        }
+
         LongList path = destination.getPath();
         long dest = path.getLong(DESTINATION_INDEX);
         long lastTransporter = MekanismSeam.nearestCopy(start.getLevel(), dest, path.getLong(LAST_TRANSPORTER_INDEX));

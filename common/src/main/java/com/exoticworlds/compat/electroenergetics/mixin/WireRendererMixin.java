@@ -34,6 +34,7 @@ import com.exoticworlds.compat.electroenergetics.ElectroEnergeticsInjectionTarge
 import com.exoticworlds.compat.electroenergetics.SecondEndWire;
 import com.exoticworlds.compat.electroenergetics.WireCopies;
 import com.exoticworlds.compat.electroenergetics.WireCopyHolder;
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 
 import dev.engine_room.flywheel.lib.visualization.VisualizationHelper;
@@ -109,9 +110,13 @@ public abstract class WireRendererMixin {
             @Local(name = "distance") LocalDoubleRef distance,
             @Local(name = "isBlock1Outer") LocalBooleanRef outer1,
             @Local(name = "isBlock2Outer") LocalBooleanRef outer2) {
+        WorldFold fold = WorldLoopAttachments.wrappedFoldOfReader(level);
+        if (fold == null) {
+            return;
+        }
+
         int end = SecondEndWire.end(wire);
-        WireCopies.Span span = WireCopies.from(WorldLoopAttachments.foldOfReader(level), pos1.get(),
-                pos2.get(), end);
+        WireCopies.Span span = WireCopies.from(fold, pos1.get(), pos2.get(), end);
         // A moved end's insulator and jumpers belong to the pass from that end, or they join across the world.
         if (end == WireCopies.SECOND_END) {
             outer1.set(false);
@@ -157,7 +162,12 @@ public abstract class WireRendererMixin {
 
     @Unique
     private static void exotic_worlds$queueSecondEnd(InWorldNodeConnection connection, WireData data) {
-        WireEffect effect = new WireEffect(Minecraft.getInstance().level, connection, data.wireType(), data);
+        ClientLevel level = Minecraft.getInstance().level;
+        if (WorldLoopAttachments.wrappedFoldOfReader(level) == null) {
+            return;
+        }
+
+        WireEffect effect = new WireEffect(level, connection, data.wireType(), data);
         ((WireCopyHolder) (Object) effect).exotic_worlds$setEnd(WireCopies.SECOND_END);
         WireEffect replaced = exotic_worlds$secondEndEffects.put(connection, effect);
         if (replaced != null) {
