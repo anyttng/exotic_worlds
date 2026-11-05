@@ -20,7 +20,6 @@ import com.sun.management.ThreadMXBean;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 class LatticeHotPathScan {
@@ -36,8 +35,6 @@ class LatticeHotPathScan {
     private static final double SEAM_INSET_BLOCKS = 3.5;
     private static final double LAP_OVERSHOOT_BLOCKS = 5.5;
     private static final double FLOOR_Y = 64.0;
-    private static final double BOX_SIDE_BLOCKS = 0.6;
-    private static final double BOX_HEIGHT_BLOCKS = 1.8;
 
     private static final String ROW_FORMAT =
             "path=%s world=%s fold=%s case=%s bytes_per_call=%.1f ns_per_call=%.1f checksum=%d";
@@ -80,8 +77,6 @@ class LatticeHotPathScan {
                                 in.targets[index].x, in.targets[index].y, in.targets[index].z)));
         rows.add(row(threads, "sqr_chunk_distance", world, named, in,
                 index -> fold.sqrChunkDistance(in.refChunks[index], in.targetChunks[index])));
-        rows.add(row(threads, "sqr_distance_to_box", world, named, in,
-                index -> (int) fold.sqrDistanceToBox(in.targetBoxes[index], in.refs[index])));
         return rows;
     }
 
@@ -141,7 +136,6 @@ class LatticeHotPathScan {
         private final ChunkPos[] refChunks = new ChunkPos[POINTS];
         private final ChunkPos[] targetChunks = new ChunkPos[POINTS];
         private final long[] chunkKeys = new long[POINTS];
-        private final AABB[] targetBoxes = new AABB[POINTS];
 
         private Inputs(String name) {
             this.name = name;
@@ -199,8 +193,6 @@ class LatticeHotPathScan {
             BlockPos foldedBlock = BlockPos.containing(folded);
             this.chunkKeys[index] = ChunkPos.pack(
                     Math.floorDiv(foldedBlock.getX(), CHUNK_BLOCKS), Math.floorDiv(foldedBlock.getZ(), CHUNK_BLOCKS));
-            this.targetBoxes[index] = AABB.ofSize(target.add(0.0, BOX_HEIGHT_BLOCKS / 2.0, 0.0),
-                    BOX_SIDE_BLOCKS, BOX_HEIGHT_BLOCKS, BOX_SIDE_BLOCKS);
         }
     }
 }

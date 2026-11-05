@@ -316,11 +316,6 @@ public final class DeckGroupFold implements WorldFold {
     }
 
     @Override
-    public double sqrDistanceToBox(AABB box, Vec3 point) {
-        return this.blocks.nearestBoxSqrGap(point.x, point.z, box) + SeamBoxes.sqrYGap(box, point);
-    }
-
-    @Override
     public boolean crossesBounds(AABB box) {
         return SeamBoxes.crosses(this.blocks.x, this.blocks.z, box);
     }
