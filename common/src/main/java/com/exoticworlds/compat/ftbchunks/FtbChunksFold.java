@@ -47,7 +47,7 @@ public final class FtbChunksFold {
     }
 
     public static XZ chunkOf(XZ chunk) {
-        return chunkOf(chunk.x(), chunk.z());
+        return foldedKey(ClientShapes.current(), chunk);
     }
 
     public static XZ chunkOf(ResourceKey<Level> dimension, int chunkX, int chunkZ) {
@@ -55,16 +55,21 @@ public final class FtbChunksFold {
         return XZ.of(folded.x(), folded.z());
     }
 
-    public static XZ chunkOf(ResourceKey<Level> dimension, ChunkPos pos) {
-        return chunkOf(dimension, pos.x(), pos.z());
+    public static XZ chunkOf(ResourceKey<Level> dimension, XZ chunk) {
+        return foldedKey(ClientShapes.of(dimension), chunk);
     }
 
-    public static XZ chunkOf(ResourceKey<Level> dimension, XZ chunk) {
-        return chunkOf(dimension, chunk.x(), chunk.z());
+    static XZ foldedKey(@Nullable ToroidalShape shape, XZ chunk) {
+        if (shape == null) {
+            return chunk;
+        }
+
+        ChunkPos folded = shape.fold(new ChunkPos(chunk.x(), chunk.z()));
+        return folded.x() == chunk.x() && folded.z() == chunk.z() ? chunk : XZ.of(folded.x(), folded.z());
     }
 
     public static ChunkPos foldedChunkPos(ResourceKey<Level> dimension, ChunkPos pos) {
-        return foldedChunk(ClientShapes.of(dimension), pos.x(), pos.z());
+        return ClientShapes.fold(ClientShapes.of(dimension), pos);
     }
 
     public static Set<XZ> foldedChunks(Set<XZ> chunks) {
@@ -78,25 +83,10 @@ public final class FtbChunksFold {
 
         Set<XZ> folded = new HashSet<>(chunks.size());
         for (XZ chunk : chunks) {
-            ChunkPos pos = shape.fold(new ChunkPos(chunk.x(), chunk.z()));
-            folded.add(XZ.of(pos.x(), pos.z()));
+            folded.add(foldedKey(shape, chunk));
         }
 
         return folded;
-    }
-
-    public static XZ regionOfChunk(int chunkX, int chunkZ) {
-        ChunkPos folded = foldedChunk(ClientShapes.current(), chunkX, chunkZ);
-        return XZ.regionFromChunk(folded.x(), folded.z());
-    }
-
-    public static XZ regionOfChunk(ResourceKey<Level> dimension, int chunkX, int chunkZ) {
-        ChunkPos folded = foldedChunk(ClientShapes.of(dimension), chunkX, chunkZ);
-        return XZ.regionFromChunk(folded.x(), folded.z());
-    }
-
-    public static XZ regionOfChunk(ResourceKey<Level> dimension, ChunkPos pos) {
-        return regionOfChunk(dimension, pos.x(), pos.z());
     }
 
     public static BlockPos foldBlock(int x, int z) {
@@ -361,7 +351,20 @@ public final class FtbChunksFold {
         return false;
     }
 
-    public static int regionImagePixel(int chunk, int chunksPerRegion) {
+    public static int minimapSourcePixel(Direction.Axis axis, int stored, int chunkX, int chunkZ,
+            int chunksPerRegion) {
+        return minimapSourcePixel(ClientShapes.current(), axis, stored, chunkX, chunkZ, chunksPerRegion);
+    }
+
+    static int minimapSourcePixel(@Nullable ToroidalShape shape, Direction.Axis axis, int stored, int chunkX,
+            int chunkZ, int chunksPerRegion) {
+        ChunkPos folded = foldedChunk(shape, chunkX, chunkZ);
+        int raw = axis == Direction.Axis.X ? chunkX : chunkZ;
+        int canonical = axis == Direction.Axis.X ? folded.x() : folded.z();
+        return canonical == raw ? stored : regionImagePixel(canonical, chunksPerRegion);
+    }
+
+    private static int regionImagePixel(int chunk, int chunksPerRegion) {
         return (chunk & chunksPerRegion - 1) * CHUNK_BLOCKS;
     }
 

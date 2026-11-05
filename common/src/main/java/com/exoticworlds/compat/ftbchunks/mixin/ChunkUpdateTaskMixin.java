@@ -48,7 +48,7 @@ public abstract class ChunkUpdateTaskMixin {
     private XZ exotic_worlds$foldRegionKey(ChunkPos pos, Operation<XZ> original) {
         exotic_worlds$rawChunkX = pos.x();
         exotic_worlds$rawChunkZ = pos.z();
-        exotic_worlds$regionKey = FtbChunksFold.regionOfChunk(this.level.dimension(), pos);
+        exotic_worlds$regionKey = original.call(FtbChunksFold.foldedChunkPos(this.level.dimension(), pos));
         return exotic_worlds$regionKey;
     }
 
@@ -56,7 +56,7 @@ public abstract class ChunkUpdateTaskMixin {
             at = @At(value = "INVOKE",
                     target = XZ_TYPE + "of(Lnet/minecraft/world/level/ChunkPos;)" + XZ_TYPE))
     private XZ exotic_worlds$foldChunkKey(ChunkPos pos, Operation<XZ> original) {
-        return FtbChunksFold.chunkOf(this.level.dimension(), pos);
+        return original.call(FtbChunksFold.foldedChunkPos(this.level.dimension(), pos));
     }
 
     @Inject(method = "runMapTask", at = @At("TAIL"))

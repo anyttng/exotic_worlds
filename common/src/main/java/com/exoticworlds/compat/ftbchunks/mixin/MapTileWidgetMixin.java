@@ -13,6 +13,8 @@ import com.exoticworlds.compat.ftbchunks.FtbChunksFold.TileBlit;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 
 import dev.ftb.mods.ftbchunks.client.gui.map.MapTileWidget;
 import dev.ftb.mods.ftbchunks.client.map.MapRegion;
@@ -31,8 +33,15 @@ public abstract class MapTileWidgetMixin {
     private void exotic_worlds$blitWorldPartOnly(GuiGraphicsExtractor graphics, RenderPipeline pipeline, Identifier texture,
             int x, int y, float u, float v, int width, int height, int srcWidth, int srcHeight, int textureWidth,
             int textureHeight, int color, Operation<Void> original) {
-        TileBlit blit = FtbChunksFold.worldPartOf(this.region.dimension.dimension, this.region.pos.x(),
-                this.region.pos.z(), x, y, width, height);
+        ResourceKey<Level> dimension = this.region.dimension.dimension;
+        if (FtbChunksFold.loopedAxes(dimension) == 0) {
+            original.call(graphics, pipeline, texture, x, y, u, v, width, height, srcWidth, srcHeight, textureWidth,
+                    textureHeight, color);
+            return;
+        }
+
+        TileBlit blit = FtbChunksFold.worldPartOf(dimension, this.region.pos.x(), this.region.pos.z(), x, y, width,
+                height);
         if (blit == null) {
             return;
         }

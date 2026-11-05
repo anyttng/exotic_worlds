@@ -41,19 +41,20 @@ public abstract class MinimapRegionCutoutTextureMixin {
     @WrapOperation(method = UPDATE,
             at = @At(value = "INVOKE", target = FtbChunksInjectionTargets.XZ_REGION_FROM_CHUNK))
     private XZ exotic_worlds$foldMinimapPieceRegion(int chunkX, int chunkZ, Operation<XZ> original) {
-        return FtbChunksFold.regionOfChunk(chunkX, chunkZ);
+        XZ chunk = FtbChunksFold.chunkOf(chunkX, chunkZ);
+        return original.call(chunk.x(), chunk.z());
     }
 
     // ox and oz stay raw: a ModifyVariable writes back into its local, and ox outlives the loop over oz.
     @ModifyVariable(method = UPDATE, at = @At("STORE"), name = "srcX")
     private int exotic_worlds$foldMinimapSourceX(int sourceX, @Local(name = "ox") int chunkX, @Local(name = "oz") int chunkZ,
             @Local(name = "chunksPerRegion") int chunksPerRegion) {
-        return FtbChunksFold.regionImagePixel(FtbChunksFold.chunkOf(chunkX, chunkZ).x(), chunksPerRegion);
+        return FtbChunksFold.minimapSourcePixel(Direction.Axis.X, sourceX, chunkX, chunkZ, chunksPerRegion);
     }
 
     @ModifyVariable(method = UPDATE, at = @At("STORE"), name = "srcZ")
     private int exotic_worlds$foldMinimapSourceZ(int sourceZ, @Local(name = "ox") int chunkX, @Local(name = "oz") int chunkZ,
             @Local(name = "chunksPerRegion") int chunksPerRegion) {
-        return FtbChunksFold.regionImagePixel(FtbChunksFold.chunkOf(chunkX, chunkZ).z(), chunksPerRegion);
+        return FtbChunksFold.minimapSourcePixel(Direction.Axis.Z, sourceZ, chunkX, chunkZ, chunksPerRegion);
     }
 }

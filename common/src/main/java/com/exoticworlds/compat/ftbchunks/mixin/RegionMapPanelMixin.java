@@ -39,7 +39,7 @@ import dev.ftb.mods.ftblibrary.client.gui.widget.Widget;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 
 @Mixin(value = RegionMapPanel.class, remap = false)
-public abstract class RegionMapPanelMixin {
+public abstract class RegionMapPanelMixin extends Panel {
     @Unique
     private static final int SEAM_LINE_WIDTH = 1;
 
@@ -58,6 +58,10 @@ public abstract class RegionMapPanelMixin {
 
     @Unique
     private @Nullable SeamView exotic_worlds$seamView;
+
+    protected RegionMapPanelMixin(Panel panel) {
+        super(panel);
+    }
 
     @Inject(method = "draw", at = @At("HEAD"))
     private void exotic_worlds$stopScrollAtTheEdge(GuiGraphicsExtractor graphics, Theme theme, int x, int y, int w, int h,
@@ -127,8 +131,9 @@ public abstract class RegionMapPanelMixin {
         original.call(panel, graphics, theme, x, y, w, h);
     }
 
-    // Not @Unique: it overrides Panel.drawOffsetBackground, drawn between the BACKGROUND tiles and FOREGROUND icons.
+    @Override
     public void drawOffsetBackground(GuiGraphicsExtractor graphics, Theme theme, int x, int y, int w, int h) {
+        super.drawOffsetBackground(graphics, theme, x, y, w, h);
         SeamView view = exotic_worlds$seamView;
         if (view == null) {
             return;

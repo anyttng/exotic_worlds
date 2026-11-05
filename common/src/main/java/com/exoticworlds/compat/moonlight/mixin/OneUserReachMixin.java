@@ -4,8 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.FoldSource;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -22,11 +21,6 @@ public interface OneUserReachMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.AABB_DISTANCE_TO_SQR))
     private double exotic_worlds$userReachAcrossSeam(AABB block, Vec3 eye, Operation<Double> original,
             @Local(argsOnly = true) Entity user) {
-        WorldFold fold = ((FoldSource) user).exotic_worlds$wrappedFold();
-        if (fold == null) {
-            return original.call(block, eye);
-        }
-
-        return fold.sqrDistanceToBox(block, eye);
+        return original.call(FoldedBoxQuery.toward(user, eye, block), eye);
     }
 }
