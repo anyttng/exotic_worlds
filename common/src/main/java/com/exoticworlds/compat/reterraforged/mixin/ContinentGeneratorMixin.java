@@ -30,9 +30,6 @@ public abstract class ContinentGeneratorMixin {
             "Lraccoonman/reterraforged/world/worldgen/cell/continent/simple/ContinentGenerator;frequency:F";
 
     @Unique
-    private static final String POS_PACK = "Lraccoonman/reterraforged/world/worldgen/util/PosUtil;pack(II)J";
-
-    @Unique
     private static final int X_READ = 0;
 
     @Unique
@@ -128,7 +125,8 @@ public abstract class ContinentGeneratorMixin {
     }
 
     // The winning cell's jittered point lies well inside the cell, so flooring it gives the cell back.
-    @WrapOperation(method = "getNearestCenter", at = @At(value = "INVOKE", target = POS_PACK))
+    @WrapOperation(method = "getNearestCenter",
+            at = @At(value = "INVOKE", target = ReTerraForgedInjectionTargets.POS_PACK))
     private long exotic_worlds$canonicalNearest(int conX, int conZ, Operation<Long> original,
             @Local(name = "centerX") float centerX, @Local(name = "centerY") float centerY) {
         RtfLap.Frame frame = RtfLap.boundFrame();

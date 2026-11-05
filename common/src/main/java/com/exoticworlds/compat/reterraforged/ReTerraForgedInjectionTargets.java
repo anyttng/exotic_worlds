@@ -15,6 +15,14 @@ public final class ReTerraForgedInjectionTargets {
     public static final String NOISE_COMPUTE =
             "Lraccoonman/reterraforged/world/worldgen/noise/module/Noise;compute(FFI)F";
 
+    public static final String POS_PACK = "Lraccoonman/reterraforged/world/worldgen/util/PosUtil;pack(II)J";
+
+    public static final String PERLIN_SAMPLE = "Lraccoonman/reterraforged/world/worldgen/noise/module/Perlin;"
+            + "sample(FFILraccoonman/reterraforged/world/worldgen/noise/function/Interpolation;)F";
+
+    public static final String SIMPLEX2_SAMPLE =
+            "Lraccoonman/reterraforged/world/worldgen/noise/module/Simplex2;sample(FFI)F";
+
     private ReTerraForgedInjectionTargets() {
     }
 }

@@ -6,6 +6,8 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.compat.terraforged.SimplexOnSquare;
+
 import raccoonman.reterraforged.world.worldgen.noise.module.Simplex;
 import raccoonman.reterraforged.world.worldgen.noise.module.Simplex2;
 
@@ -36,7 +38,8 @@ class SimplexOnSquareTest {
 
     private static final Field SIMPLEX2 = (x, z) -> Simplex2.sample(x, z, NOISE_SEED);
 
-    private static final Field SQUARE = (x, z) -> SimplexOnSquare.sample(x, z, NOISE_SEED, 1.0F);
+    private static final Field SQUARE = (x, z) -> SimplexOnSquare.sample(ReTerraForgedNoise.INSTANCE, x, z, NOISE_SEED,
+            1.0F);
 
     @Test
     void theSquareLatticeMatchesSimplexInAmplitudeAndFeatureSize() {

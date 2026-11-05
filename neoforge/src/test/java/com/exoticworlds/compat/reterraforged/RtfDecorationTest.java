@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.Method;
 import java.util.Random;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -54,6 +55,8 @@ class RtfDecorationTest {
     private static final int JOIN_REACH = 64;
 
     private static final int WARP_SAMPLES = 1024;
+
+    private static final String GET_POINT = "getPoint";
 
     private static final Noise VARIANCE = Noises.perlin(0, VARIANCE_SCALE, 1);
 
@@ -126,16 +129,16 @@ class RtfDecorationTest {
     }
 
     @Test
-    void aPoissonCellAtTheLatticeJoinIsAsWideAsTheOthers() {
+    void aPoissonCellAtTheLatticeJoinIsAsWideAsTheOthers() throws ReflectiveOperationException {
         RtfLap.Frame frame = RtfLap.frame();
         try (RtfLap.Frame.Scope lap = frame.bind(torus(NARROW_CHUNKS))) {
             FastPoissonContext context = poissonContext();
             double width = frame.lap(Direction.Axis.X) / frame.cells(Direction.Axis.X, context.frequency());
-            long previous = PoissonLattice.point(frame, SEED, -JOIN_REACH, 0, context);
+            long previous = poissonPoint(-JOIN_REACH, context);
             int run = 0;
             boolean interior = false;
             for (int x = -JOIN_REACH + 1; x < JOIN_REACH; x++) {
-                long point = PoissonLattice.point(frame, SEED, x, 0, context);
+                long point = poissonPoint(x, context);
                 run++;
                 if (point != previous) {
                     if (interior) {
@@ -197,6 +200,13 @@ class RtfDecorationTest {
         FastPoisson.visit(SEED, chunkX, 0, new Random(SEED), poissonContext(), new LongIterSet(), new LongArrayList(),
                 placed, (x, z, list) -> list.add(PosUtil.pack(x, z)));
         return placed;
+    }
+
+    private static long poissonPoint(float x, FastPoissonContext context) throws ReflectiveOperationException {
+        Method getPoint = FastPoisson.class.getDeclaredMethod(GET_POINT, int.class, float.class, float.class,
+                FastPoissonContext.class);
+        getPoint.setAccessible(true);
+        return (long) getPoint.invoke(null, SEED, x, 0.0F, context);
     }
 
     private static LongArrayList shifted(LongArrayList points, int dx) {
