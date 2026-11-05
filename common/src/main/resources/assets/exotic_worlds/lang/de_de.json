@@ -8,9 +8,8 @@
   "commands.exotic_worlds.dimensions.configure": "Form wählen",
   "commands.exotic_worlds.dimensions.configure.hint": "Öffnet die Formwahl für diese Dimensionen",
   "commands.exotic_worlds.dimensions.no_client": "Dieser Bildschirm braucht Exotic Worlds auch in deinem Spiel.",
-  "commands.exotic_worlds.dimensions.saved": "Formen gespeichert. Sie gelten ab dem nächsten Laden der Welt.",
+  "commands.exotic_worlds.dimensions.applied": "Formen übernommen.",
   "commands.exotic_worlds.dimensions.refused": "Die Form von %s bleibt unverändert.",
-  "commands.exotic_worlds.dimensions.dropped": "Die gewählte Form für %s wurde verworfen, weil dort vor dem nächsten Laden der Welt Chunks entstanden sind.",
 
   "gui.exotic_worlds.world_shape": "Weltform",
   "gui.exotic_worlds.world_shape.normal": "Normal",
@@ -81,7 +80,7 @@
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "Übernimmt die Form der Oberwelt, skaliert mit dem Koordinatenmaßstab dieser Dimension; bleibt Normal, wo dabei keine ganze Breite herauskommt.",
 
   "gui.exotic_worlds.world_dimensions.title": "Dimensionen der Welt",
-  "gui.exotic_worlds.world_dimensions.restart": "Änderungen gelten ab dem nächsten Laden der Welt",
+  "gui.exotic_worlds.world_dimensions.note": "Eine Form lässt sich einmal wählen, solange die Dimension keine Chunks hat",
   "gui.exotic_worlds.world_dimensions.other": "Andere Form",
   "gui.exotic_worlds.world_dimensions.locked.vanilla": "Beim Erstellen der Welt festgelegt",
   "gui.exotic_worlds.world_dimensions.locked.chosen": "Die Form ist schon gewählt und bleibt",

@@ -15,10 +15,13 @@ import io.netty.buffer.Unpooled;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -79,6 +82,16 @@ public final class FabricPlatform implements Platform {
     @Override
     public void sendDimensionChoicesUpdate(DimensionChoicesUpdatePayload update) {
         ClientPlayNetworking.send(update);
+    }
+
+    @Override
+    public void postLevelUnload(MinecraftServer server, ServerLevel level) {
+        ServerLevelEvents.UNLOAD.invoker().onLevelUnload(server, level);
+    }
+
+    @Override
+    public void postLevelLoad(MinecraftServer server, ServerLevel level) {
+        ServerLevelEvents.LOAD.invoker().onLevelLoad(server, level);
     }
 
     @Override

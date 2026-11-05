@@ -158,6 +158,7 @@
     "MaterialSystemMixin",
     "MinecartFurnaceFuelMixin",
     "MinecartPushMixin",
+    "MinecraftServerAccessor",
     "MinecraftServerMixin",
     "MobEffectUtilMixin",
     "MobMixin",

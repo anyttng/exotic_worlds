@@ -32,9 +32,8 @@ public final class DimensionChoicesCommand {
     private static final String CONFIGURE_KEY = KEY_PREFIX + "configure";
     private static final String CONFIGURE_HINT_KEY = CONFIGURE_KEY + ".hint";
     private static final String NO_CLIENT_KEY = KEY_PREFIX + "no_client";
-    private static final String SAVED_KEY = KEY_PREFIX + "saved";
+    private static final String APPLIED_KEY = KEY_PREFIX + "applied";
     private static final String REFUSED_KEY = KEY_PREFIX + "refused";
-    private static final String DROPPED_KEY = KEY_PREFIX + "dropped";
     private static final String NAME_SEPARATOR = ", ";
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -76,21 +75,11 @@ public final class DimensionChoicesCommand {
         });
 
         if (refused.size() < choices.size()) {
-            player.sendSystemMessage(Component.translatable(SAVED_KEY));
+            player.sendSystemMessage(Component.translatable(APPLIED_KEY));
         }
 
         if (!refused.isEmpty()) {
             player.sendSystemMessage(Component.translatable(REFUSED_KEY, names(refused)).withStyle(ChatFormatting.RED));
-        }
-    }
-
-    static void tellDropped(MinecraftServer server, ResourceKey<LevelStem> key) {
-        Component message = Component.translatable(DROPPED_KEY, key.identifier().toString())
-                .withStyle(ChatFormatting.YELLOW);
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            if (isOperator(player)) {
-                player.sendSystemMessage(message);
-            }
         }
     }
 
