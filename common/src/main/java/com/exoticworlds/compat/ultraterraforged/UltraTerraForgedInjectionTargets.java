@@ -22,6 +22,11 @@ public final class UltraTerraForgedInjectionTargets {
     public static final String CAVE_CARVING_MIN_Z =
             "Lcom/pandaismyname1/ultraterraforged/world/worldgen/cave/CaveCarving;minZ:I";
 
+    public static final String NOISE_FLOOR =
+            "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/NoiseUtil;floor(F)I";
+
+    public static final String POS_PACK = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/util/PosUtil;pack(II)J";
+
     public static final String NOISE_COMPUTE =
             "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/module/Noise;compute(FFI)F";
 
@@ -30,6 +35,8 @@ public final class UltraTerraForgedInjectionTargets {
 
     public static final String SIMPLEX2_SAMPLE =
             "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/module/Simplex2;sample(FFI)F";
+
+    public static final String VALLEY_WIDTH = "floatValue=275.0F";
 
     private UltraTerraForgedInjectionTargets() {
     }

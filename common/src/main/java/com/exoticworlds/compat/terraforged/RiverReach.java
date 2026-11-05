@@ -7,6 +7,12 @@ public final class RiverReach {
 
     private static final float ROOT_START = 400.0F;
 
+    private static final float RUN_PER_START = 2.0F;
+
+    private static final float FULL_SIZE_HALF_LAP = CARVE_MARGIN + ROOT_START * RUN_PER_START;
+
+    private static final float FULL_SIZE = 1.0F;
+
     private static final float HALF = 0.5F;
 
     private static final float COAST_STEP = 8.0F;
@@ -15,8 +21,6 @@ public final class RiverReach {
 
     private static final int CONTINENT_CELL_PER_SCALE = 4;
 
-    private static final double WHOLE_CELL = 1.0;
-
     private static final int MIN_ROOTS = 1;
 
     public static float clamp(RtfLap.Frame frame, float length) {
@@ -24,7 +28,26 @@ public final class RiverReach {
     }
 
     public static float reach(RtfLap.Frame frame) {
-        return Math.min(axisReach(frame, Direction.Axis.X), axisReach(frame, Direction.Axis.Z));
+        float margin = CARVE_MARGIN * scale(frame);
+        return Math.min(axisReach(frame, Direction.Axis.X, margin), axisReach(frame, Direction.Axis.Z, margin));
+    }
+
+    public static float scale(RtfLap.Frame frame) {
+        return Math.min(FULL_SIZE, Math.min(axisScale(frame, Direction.Axis.X), axisScale(frame, Direction.Axis.Z)));
+    }
+
+    public static float boundScale() {
+        RtfLap.Frame frame = RtfLap.boundFrame();
+        return frame == null ? FULL_SIZE : scale(frame);
+    }
+
+    private static float axisScale(RtfLap.Frame frame, Direction.Axis axis) {
+        double lap = frame.lap(axis);
+        if (lap == RtfLap.OPEN) {
+            return FULL_SIZE;
+        }
+
+        return (float) (lap * HALF / FULL_SIZE_HALF_LAP);
     }
 
     @FunctionalInterface
@@ -59,31 +82,18 @@ public final class RiverReach {
 
     public static int rootCount(RtfLap.Frame frame, int count, int continentScale) {
         double frequency = 1.0 / ((double) continentScale * CONTINENT_CELL_PER_SCALE);
-        double xRatio = cellRatio(frame, Direction.Axis.X, frequency);
-        double zRatio = cellRatio(frame, Direction.Axis.Z, frequency);
+        double xRatio = frame.cellRatio(Direction.Axis.X, frequency);
+        double zRatio = frame.cellRatio(Direction.Axis.Z, frequency);
         return Math.max(MIN_ROOTS, (int) Math.round(count * Math.sqrt(xRatio * zRatio)));
     }
 
-    private static double cellRatio(RtfLap.Frame frame, Direction.Axis axis, double frequency) {
-        double lap = frame.lap(axis);
-        if (lap == RtfLap.OPEN) {
-            return WHOLE_CELL;
-        }
-
-        return lap * frequency / frame.cells(axis, frequency);
-    }
-
-    public static boolean fits(RtfLap.Frame frame) {
-        return reach(frame) >= ROOT_START;
-    }
-
-    private static float axisReach(RtfLap.Frame frame, Direction.Axis axis) {
+    private static float axisReach(RtfLap.Frame frame, Direction.Axis axis, float margin) {
         double lap = frame.lap(axis);
         if (lap == RtfLap.OPEN) {
             return UNBOUNDED;
         }
 
-        return (float) (lap * HALF - CARVE_MARGIN);
+        return (float) (lap * HALF - margin);
     }
 
     private RiverReach() {

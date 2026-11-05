@@ -5,12 +5,12 @@
   "compatibilityLevel": "JAVA_25",
   "plugin": "com.exoticworlds.compat.ultraterraforged.UltraTerraForgedMixinPlugin",
   "mixins": [
-    "AbstractContinentAccessor",
     "AbstractContinentMixin",
     "AdvancedContinentGeneratorMixin",
     "AlluvialFansMixin",
     "AtollsMixin",
     "BaseRiverGeneratorAccessor",
+    "BaseRiverGeneratorMixin",
     "BillowMixin",
     "BiomeNoiseMixin",
     "BlueHolesMixin",
@@ -27,6 +27,7 @@
     "FastPoissonMixin",
     "FrequencyMixin",
     "FrozenFallsMixin",
+    "GenWarpMixin",
     "GiantCavernsMixin",
     "GlacialValleysMixin",
     "GlacierCavesMixin",
@@ -34,6 +35,8 @@
     "IslandArcsMixin",
     "KarstCavesMixin",
     "KarstMixin",
+    "LakePopulator2Mixin",
+    "LakePopulatorMixin",
     "LavaTubesMixin",
     "LegacyTemperatureMixin",
     "LevelsMixin",
@@ -44,6 +47,7 @@
     "PerlinRidgeMixin",
     "RegionModuleMixin",
     "RiverRoutesMixin",
+    "RiverWarpMixin",
     "RivermapMixin",
     "SaltFlatsMixin",
     "SampleGridMixin",
@@ -71,5 +75,8 @@
   ],
   "injectors": {
     "defaultRequire": 1
+  },
+  "mixinextras": {
+    "minVersion": "0.5.0"
   }
 }

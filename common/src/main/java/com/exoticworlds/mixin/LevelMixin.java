@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -38,8 +39,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
@@ -50,6 +49,14 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
     @Unique
     private static final String exotic_worlds$GET_ENTITIES =
             "getEntities(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;";
+
+    @Unique
+    private static final String GET_CHUNK =
+            "getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;";
+
+    @Unique
+    private static final String SOURCE_GET_CHUNK = "Lnet/minecraft/world/level/chunk/ChunkSource;"
+            + "getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;";
 
     @Unique
     private WorldFold exotic_worlds$fold;
@@ -63,21 +70,17 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
     @Unique
     private final AtomicBoolean exotic_worlds$periodicityClaimed = new AtomicBoolean();
 
-    @WrapOperation(
-            method = "getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/chunk/ChunkSource;getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;"))
-    private @Nullable ChunkAccess exotic_worlds$wrapChunkAccess(ChunkSource chunkSource, int chunkX, int chunkZ,
-            ChunkStatus status, boolean loadOrGenerate, Operation<@Nullable ChunkAccess> original) {
+    // Must stay above the Z handler: Mixin runs them in declaration order, and X folds by the unfolded Z.
+    @ModifyArg(method = GET_CHUNK, at = @At(value = "INVOKE", target = SOURCE_GET_CHUNK), index = 0)
+    private int exotic_worlds$chunkXThroughSeam(int chunkX, int chunkZ, ChunkStatus status, boolean loadOrGenerate) {
         WorldFold fold = exotic_worlds$fold();
-        if (!fold.isWrapped()) {
-            return original.call(chunkSource, chunkX, chunkZ, status, loadOrGenerate);
-        }
+        return fold.isWrapped() ? ChunkPos.getX(fold.foldChunkKey(ChunkPos.pack(chunkX, chunkZ))) : chunkX;
+    }
 
-        long folded = fold.foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
-        return original.call(chunkSource, ChunkPos.getX(folded), ChunkPos.getZ(folded),
-                status, loadOrGenerate);
+    @ModifyArg(method = GET_CHUNK, at = @At(value = "INVOKE", target = SOURCE_GET_CHUNK), index = 1)
+    private int exotic_worlds$chunkZThroughSeam(int chunkX, int chunkZ, ChunkStatus status, boolean loadOrGenerate) {
+        WorldFold fold = exotic_worlds$fold();
+        return fold.isWrapped() ? ChunkPos.getZ(fold.foldChunkKey(ChunkPos.pack(chunkX, chunkZ))) : chunkZ;
     }
 
     @ModifyVariable(method = "getBlockEntity", at = @At("HEAD"), argsOnly = true)

@@ -31,8 +31,10 @@ import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.ChunkPos;
 
 class CellFoldTest {
     private static final int SECTION = SectionPos.SECTION_SIZE;
@@ -45,6 +47,9 @@ class CellFoldTest {
     private static final int ODD_CHUNKS = 37;
     private static final int SKEWED_CHUNKS = 64;
     private static final int SKEW_CHUNKS = 5;
+    private static final int BLOCK_Y = 64;
+    private static final double BLOCK_CENTER = 0.5;
+    private static final int FAR_LAPS = 3;
 
     private static WorldFold torus(int widthChunks) {
         return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidths(widthChunks, widthChunks)));
@@ -218,12 +223,91 @@ class CellFoldTest {
         }
     }
 
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("shapes")
+    void everyLapCopyOfABlockFoldsToOneStoredBlock(String name, WorldFold worldFold) {
+        CellFold fold = CellFold.of(worldFold);
+        ToroidalShape shape = new ToroidalShapeView(worldFold);
+        List<int[]> moves = latticeMoves(shape, worldFold.blockLattice().skew());
+
+        for (int x = -SECTION * SECTION; x < SECTION * SECTION; x += SECTION + 1) {
+            for (int z = -SECTION * SECTION; z < SECTION * SECTION; z += SECTION + 1) {
+                long stored = fold.foldBlock(BlockPos.asLong(x, BLOCK_Y, z));
+                assertEquals(stored, fold.foldBlock(stored), name + " folds a stored block again");
+                for (int[] move : moves) {
+                    assertEquals(stored, fold.foldBlock(BlockPos.asLong(x + move[0], BLOCK_Y, z + move[1])),
+                            name + " stores the copy of " + x + "," + z + " moved by " + move[0] + "," + move[1]);
+                }
+            }
+        }
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("shapes")
+    void theCopyNearTheEyeIsTheOneCopyTheLapHolds(String name, WorldFold worldFold) {
+        CellFold fold = CellFold.of(worldFold);
+        ToroidalShape shape = new ToroidalShapeView(worldFold);
+        double eyeX = shape.loops(Direction.Axis.X) ? shape.maxBlock(Direction.Axis.X) - EYE_OFFSET : EYE_OFFSET;
+        double eyeZ = shape.loops(Direction.Axis.Z) ? shape.minBlock(Direction.Axis.Z) + EYE_OFFSET : EYE_OFFSET;
+        List<int[]> moves = latticeMoves(shape, worldFold.blockLattice().skew());
+
+        for (int x = -SECTION * SECTION; x < SECTION * SECTION; x += SECTION + 1) {
+            for (int z = -SECTION * SECTION; z < SECTION * SECTION; z += SECTION + 1) {
+                int blockX = (int) Math.floor(eyeX) + x;
+                int blockZ = (int) Math.floor(eyeZ) + z;
+                long copy = fold.copyNear(fold.foldBlock(BlockPos.asLong(blockX, BLOCK_Y, blockZ)), eyeX, eyeZ);
+                double centerX = BlockPos.getX(copy) + BLOCK_CENTER;
+                double centerZ = BlockPos.getZ(copy) + BLOCK_CENTER;
+                assertTrue(fold.meetsLap(centerX, centerZ, centerX, centerZ, eyeX, eyeZ, 0.0),
+                        name + " puts the copy of " + x + "," + z + " outside the lap");
+                for (int[] move : moves) {
+                    assertEquals(copy, fold.copyNear(BlockPos.asLong(blockX + move[0], BLOCK_Y, blockZ + move[1]),
+                            eyeX, eyeZ), name + " picks another copy of " + x + "," + z);
+                }
+            }
+        }
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("shapes")
+    void aChunkReadsEveryBlockBackFromTheFoldedChunks(String name, WorldFold worldFold) {
+        CellFold fold = CellFold.of(worldFold);
+        ToroidalShape shape = new ToroidalShapeView(worldFold);
+        int chunkX = shape.loops(Direction.Axis.X)
+                ? SectionPos.blockToSectionCoord(shape.maxBlock(Direction.Axis.X)) + FAR_LAPS * TINY_CHUNKS
+                : 0;
+        int chunkZ = shape.loops(Direction.Axis.Z)
+                ? SectionPos.blockToSectionCoord(shape.minBlock(Direction.Axis.Z)) - FAR_LAPS * TINY_CHUNKS
+                : 0;
+        Set<Long> folded = new HashSet<>();
+        for (long chunk : fold.foldedChunks(chunkX, chunkZ)) {
+            folded.add(chunk);
+        }
+
+        double centerX = SectionPos.sectionToBlockCoord(chunkX, SectionPos.SECTION_HALF_SIZE);
+        double centerZ = SectionPos.sectionToBlockCoord(chunkZ, SectionPos.SECTION_HALF_SIZE);
+        for (int dx = 0; dx < SECTION; dx++) {
+            for (int dz = 0; dz < SECTION; dz++) {
+                long block = BlockPos.asLong(SectionPos.sectionToBlockCoord(chunkX) + dx, BLOCK_Y,
+                        SectionPos.sectionToBlockCoord(chunkZ) + dz);
+                long stored = fold.foldBlock(block);
+                assertTrue(folded.contains(ChunkPos.pack(SectionPos.blockToSectionCoord(BlockPos.getX(stored)),
+                        SectionPos.blockToSectionCoord(BlockPos.getZ(stored)))), name + " misses a folded chunk");
+                assertEquals(block, fold.copyNear(stored, centerX, centerZ), name + " reads a block back elsewhere");
+            }
+        }
+    }
+
     @Test
     void anUnshapedWorldFoldsNothing() {
         long key = CellKey.pack(DetailLevel.MAX, 12345, 3, -6789);
         assertEquals(key, CellFold.NONE.foldKey(key));
         assertEquals(1, CellFold.NONE.copies(DetailLevel.MIN));
         assertEquals(7, CellFold.NONE.foldChunkX(7, 9));
+        long block = BlockPos.asLong(12345, BLOCK_Y, -6789);
+        assertEquals(block, CellFold.NONE.foldBlock(block));
+        assertEquals(block, CellFold.NONE.copyNear(block, 0.0, 0.0));
+        assertEquals(1, CellFold.NONE.foldedChunks(7, 9).length);
         assertTrue(CellFold.NONE.meetsLap(1.0e6, 1.0e6, 1.0e6, 1.0e6, 0.0, 0.0, 0.0));
         assertFalse(CellFold.of(null).repeats());
         assertNotEquals(CellFold.NONE, CellFold.of(torus(TINY_CHUNKS)));

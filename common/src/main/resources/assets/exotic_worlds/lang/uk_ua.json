@@ -4,6 +4,12 @@
 
   "argument.exotic_worlds.pos.outside_world": "%s поза межами цього світу. Має бути між %s і %s",
   "commands.exotic_worlds.region.across_seam": "Ця область перетинає край світу й може означати будь-який його бік. Виконай команду окремо для кожного",
+  "commands.exotic_worlds.dimensions.undecided": "Для %s ще не обрано форму.",
+  "commands.exotic_worlds.dimensions.configure": "Обрати форму",
+  "commands.exotic_worlds.dimensions.configure.hint": "Відкрити вибір форми для цих вимірів",
+  "commands.exotic_worlds.dimensions.no_client": "Для цього екрана Exotic Worlds має стояти й у твоїй грі.",
+  "commands.exotic_worlds.dimensions.applied": "Форми застосовано.",
+  "commands.exotic_worlds.dimensions.refused": "Форму %s не змінено.",
 
   "gui.exotic_worlds.world_shape": "Форма світу",
   "gui.exotic_worlds.world_shape.normal": "Звичайна",
@@ -72,6 +78,13 @@
   "gui.exotic_worlds.custom_settings.mod_dimensions": "Виміри модів",
   "gui.exotic_worlds.custom_settings.from_overworld": "Від Верхнього світу",
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "Бере форму Верхнього світу в масштабі координат цього виміру; лишається Звичайною, якщо ширина тоді не виходить цілою.",
+
+  "gui.exotic_worlds.world_dimensions.title": "Виміри світу",
+  "gui.exotic_worlds.world_dimensions.note": "Форму можна обрати один раз, поки у виміру немає чанків",
+  "gui.exotic_worlds.world_dimensions.other": "Інша форма",
+  "gui.exotic_worlds.world_dimensions.locked.vanilla": "Задано під час створення світу",
+  "gui.exotic_worlds.world_dimensions.locked.chosen": "Форму вже обрано, тож вона не зміниться",
+  "gui.exotic_worlds.world_dimensions.locked.generated": "Тут уже є чанки, тож форма не зміниться",
 
   "gui.exotic_worlds.settings.title": "Налаштування Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Копії світу на повноекранній мапі",

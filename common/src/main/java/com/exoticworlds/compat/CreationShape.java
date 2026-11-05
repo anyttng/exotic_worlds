@@ -21,7 +21,11 @@ public final class CreationShape {
     }
 
     public static Runnable underRouterBuild(@Nullable WorldFold fold, Runnable task) {
-        return () -> GenerationFoldContext.withRouterBuild(fold, () -> {
+        if (fold == null || !fold.isWrapped()) {
+            return task;
+        }
+
+        return () ->GenerationFoldContext.withRouterBuild(fold, () -> {
             task.run();
             return null;
         });

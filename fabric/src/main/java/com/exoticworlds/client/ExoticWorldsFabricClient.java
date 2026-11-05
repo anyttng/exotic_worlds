@@ -1,6 +1,7 @@
 package com.exoticworlds.client;
 
 import com.exoticworlds.client.engine.WorldLoopClientNetwork;
+import com.exoticworlds.engine.net.DimensionChoicesPayload;
 import com.exoticworlds.engine.net.PositionRowsPayload;
 import com.exoticworlds.engine.net.WrappingSettingsPayload;
 import com.exoticworlds.platform.Platforms;
@@ -18,5 +19,7 @@ public class ExoticWorldsFabricClient implements ClientModInitializer {
                 (payload, context) -> context.client().execute(() -> WorldLoopClientNetwork.apply(payload.dimension(), payload.shape())));
         ClientPlayNetworking.registerGlobalReceiver(PositionRowsPayload.TYPE,
                 (payload, context) -> context.client().execute(() -> WorldLoopClientNetwork.declare(payload)));
+        ClientPlayNetworking.registerGlobalReceiver(DimensionChoicesPayload.TYPE,
+                (payload, context) -> context.client().execute(() -> WorldLoopClientNetwork.openDimensionChoices(payload)));
     }
 }

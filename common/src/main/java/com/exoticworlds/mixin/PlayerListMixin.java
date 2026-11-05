@@ -12,6 +12,7 @@ import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
+import com.exoticworlds.engine.gen.DimensionChoicesCommand;
 import com.exoticworlds.engine.net.MeasuredReach;
 import com.exoticworlds.engine.net.WorldShapeSync;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -73,6 +74,7 @@ public class PlayerListMixin {
     private void exotic_worlds$sendBoundsOnLogin(Connection connection, ServerPlayer player, CommonListenerCookie cookie,
             CallbackInfo ci) {
         WorldShapeSync.sendAllTo(player);
+        DimensionChoicesCommand.hintTo(player);
     }
 
     @WrapOperation(

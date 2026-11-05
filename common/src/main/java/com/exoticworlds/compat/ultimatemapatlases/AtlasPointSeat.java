@@ -15,7 +15,7 @@ public final class AtlasPointSeat {
         return toward(MapSeamFold.foldFor(null, dimension), anchor, x, z);
     }
 
-    static Vec3 toward(@Nullable WorldFold fold, Vec3 anchor, double x, double z) {
+    public static Vec3 toward(@Nullable WorldFold fold, Vec3 anchor, double x, double z) {
         return NearestCopy.toward(fold, anchor, new Vec3(x, anchor.y, z));
     }
 

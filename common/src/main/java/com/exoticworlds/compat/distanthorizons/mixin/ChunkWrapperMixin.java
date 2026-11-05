@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.compat.distanthorizons.DhKeys;
+import com.exoticworlds.compat.distanthorizons.DhLattice;
 import com.exoticworlds.compat.distanthorizons.DhRowCopies;
 import com.exoticworlds.compat.distanthorizons.DhShapes;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -34,14 +35,18 @@ public class ChunkWrapperMixin {
                     target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getPos()Lnet/minecraft/world/level/ChunkPos;"))
     private ChunkPos exotic_worlds$foldedChunkPos(ChunkAccess chunk, Operation<ChunkPos> original) {
         ChunkPos folded = this.exotic_worlds$foldedPos;
-        if (folded == null) {
-            ChunkPos copy = DhRowCopies.pendingCopy();
-            folded = copy != null
-                    ? copy
-                    : DhKeys.foldChunk(DhShapes.clientFrame(this.wrappedLevel), original.call(chunk));
-            this.exotic_worlds$foldedPos = folded;
+        if (folded != null) {
+            return folded;
         }
 
+        ChunkPos copy = DhRowCopies.pendingCopy();
+        DhLattice lattice = copy == null ? DhShapes.clientFrame(this.wrappedLevel) : null;
+        if (copy == null && lattice == null) {
+            return original.call(chunk);
+        }
+
+        folded = copy != null ? copy : DhKeys.foldChunk(lattice, original.call(chunk));
+        this.exotic_worlds$foldedPos = folded;
         return folded;
     }
 }

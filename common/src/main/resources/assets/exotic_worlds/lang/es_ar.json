@@ -4,6 +4,12 @@
 
   "argument.exotic_worlds.pos.outside_world": "%s está fuera de este mundo. Debe estar entre %s y %s",
   "commands.exotic_worlds.region.across_seam": "Esa zona cruza el borde del mundo y puede significar cualquiera de los dos lados. Ejecuta el comando una vez por lado",
+  "commands.exotic_worlds.dimensions.undecided": "Todavía no se eligió una forma para %s.",
+  "commands.exotic_worlds.dimensions.configure": "Elegir forma",
+  "commands.exotic_worlds.dimensions.configure.hint": "Abre la elección de forma para estas dimensiones",
+  "commands.exotic_worlds.dimensions.no_client": "Esta pantalla necesita Exotic Worlds también en tu juego.",
+  "commands.exotic_worlds.dimensions.applied": "Formas aplicadas.",
+  "commands.exotic_worlds.dimensions.refused": "%s conserva su forma.",
 
   "gui.exotic_worlds.world_shape": "Forma del mundo",
   "gui.exotic_worlds.world_shape.normal": "Normal",
@@ -72,6 +78,13 @@
   "gui.exotic_worlds.custom_settings.mod_dimensions": "Dimensiones de mods",
   "gui.exotic_worlds.custom_settings.from_overworld": "Como la Superficie",
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "Toma la forma de la Superficie, escalada según la escala de coordenadas de esta dimensión; se queda en Normal si así no sale un ancho entero.",
+
+  "gui.exotic_worlds.world_dimensions.title": "Dimensiones del mundo",
+  "gui.exotic_worlds.world_dimensions.note": "La forma se puede elegir una vez, mientras la dimensión no tenga chunks",
+  "gui.exotic_worlds.world_dimensions.other": "Otra forma",
+  "gui.exotic_worlds.world_dimensions.locked.vanilla": "Se fijó al crear el mundo",
+  "gui.exotic_worlds.world_dimensions.locked.chosen": "La forma ya está elegida, así que no cambia",
+  "gui.exotic_worlds.world_dimensions.locked.generated": "Acá ya hay chunks, así que la forma no cambia",
 
   "gui.exotic_worlds.settings.title": "Ajustes de Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Copias del mundo en el mapa a pantalla completa",

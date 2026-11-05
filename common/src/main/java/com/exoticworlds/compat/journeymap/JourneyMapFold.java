@@ -78,7 +78,13 @@ public final class JourneyMapFold {
     }
 
     public static double clampedMove(Direction.Axis axis, double center, double delta, int zoom, int windowPixels) {
-        return copies(axis).clampView(center + delta, halfViewBlocks(zoom, windowPixels)) - center;
+        return clampedMove(copies(axis), center, delta, halfViewBlocks(zoom, windowPixels));
+    }
+
+    static double clampedMove(AxisCopies copies, double center, double delta, double halfSpan) {
+        double target = center + delta;
+        double clamped = copies.clampView(target, halfSpan);
+        return clamped == target ? delta : clamped - center;
     }
 
     public static double moveDelta(Context.UI ui, Direction.Axis axis, double center, double delta, int zoom) {

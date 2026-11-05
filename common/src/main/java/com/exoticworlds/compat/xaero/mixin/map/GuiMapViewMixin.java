@@ -14,6 +14,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.xaero.XaeroCamera;
 import com.exoticworlds.compat.xaero.XaeroCursorLap;
 import com.exoticworlds.compat.xaero.XaeroMapView;
@@ -77,7 +78,10 @@ public abstract class GuiMapViewMixin {
                     value = "INVOKE",
                     target = "Lxaero/map/entity/util/EntityUtil;getEntityX(Lnet/minecraft/world/entity/Entity;F)D"))
     private double exotic_worlds$foldCameraX(double x, @Local(name = "partialTicks") float partialTicks) {
-        return XaeroWorldMapFold.foldPoint(x, EntityUtil.getEntityZ(this.player, partialTicks)).x;
+        ToroidalShape shape = XaeroWorldMapFold.browsedShape();
+        return shape == null
+                ? x
+                : XaeroWorldMapFold.foldPoint(shape, x, EntityUtil.getEntityZ(this.player, partialTicks)).x;
     }
 
     @ModifyExpressionValue(
@@ -86,7 +90,10 @@ public abstract class GuiMapViewMixin {
                     value = "INVOKE",
                     target = "Lxaero/map/entity/util/EntityUtil;getEntityZ(Lnet/minecraft/world/entity/Entity;F)D"))
     private double exotic_worlds$foldCameraZ(double z, @Local(name = "partialTicks") float partialTicks) {
-        return XaeroWorldMapFold.foldPoint(EntityUtil.getEntityX(this.player, partialTicks), z).z;
+        ToroidalShape shape = XaeroWorldMapFold.browsedShape();
+        return shape == null
+                ? z
+                : XaeroWorldMapFold.foldPoint(shape, EntityUtil.getEntityX(this.player, partialTicks), z).z;
     }
 
     @Inject(

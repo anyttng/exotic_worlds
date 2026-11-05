@@ -4,6 +4,12 @@
 
   "argument.exotic_worlds.pos.outside_world": "%s znajduje się poza tym światem. Musi być pomiędzy %s a %s",
   "commands.exotic_worlds.region.across_seam": "Ten obszar przecina krawędź świata i może oznaczać każdą z jego stron. Wykonaj komendę osobno dla każdej strony",
+  "commands.exotic_worlds.dimensions.undecided": "Dla %s nie wybrano jeszcze kształtu.",
+  "commands.exotic_worlds.dimensions.configure": "Wybierz kształt",
+  "commands.exotic_worlds.dimensions.configure.hint": "Otwiera wybór kształtu dla tych wymiarów",
+  "commands.exotic_worlds.dimensions.no_client": "Ten ekran wymaga Exotic Worlds także w twojej grze.",
+  "commands.exotic_worlds.dimensions.applied": "Kształty zastosowane.",
+  "commands.exotic_worlds.dimensions.refused": "%s zachowuje swój kształt.",
 
   "gui.exotic_worlds.world_shape": "Kształt świata",
   "gui.exotic_worlds.world_shape.normal": "Zwykły",
@@ -72,6 +78,13 @@
   "gui.exotic_worlds.custom_settings.mod_dimensions": "Wymiary modów",
   "gui.exotic_worlds.custom_settings.from_overworld": "Jak Nadziemie",
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "Przejmuje kształt Nadziemia przeskalowany według skali współrzędnych tego wymiaru; zostaje Zwykły, gdy szerokość nie wychodzi całkowita.",
+
+  "gui.exotic_worlds.world_dimensions.title": "Wymiary świata",
+  "gui.exotic_worlds.world_dimensions.note": "Kształt można wybrać raz, dopóki wymiar nie ma chunków",
+  "gui.exotic_worlds.world_dimensions.other": "Inny kształt",
+  "gui.exotic_worlds.world_dimensions.locked.vanilla": "Ustalony przy tworzeniu świata",
+  "gui.exotic_worlds.world_dimensions.locked.chosen": "Kształt jest już wybrany, więc się nie zmieni",
+  "gui.exotic_worlds.world_dimensions.locked.generated": "Są tu już chunki, więc kształt się nie zmieni",
 
   "gui.exotic_worlds.settings.title": "Ustawienia Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Kopie świata na mapie pełnoekranowej",

@@ -4,10 +4,14 @@ import java.nio.file.Path;
 import java.util.function.IntFunction;
 
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.engine.net.DimensionChoicesPayload;
+import com.exoticworlds.engine.net.DimensionChoicesUpdatePayload;
 import com.exoticworlds.engine.net.PositionRowsPayload;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -25,6 +29,14 @@ public interface Platform {
     void sendWorldShape(ServerPlayer player, ResourceKey<Level> dimension, FlatShape shape);
 
     void sendPositionRows(ServerPlayer player, PositionRowsPayload rows);
+
+    boolean sendDimensionChoices(ServerPlayer player, DimensionChoicesPayload choices);
+
+    void sendDimensionChoicesUpdate(DimensionChoicesUpdatePayload update);
+
+    void postLevelUnload(MinecraftServer server, ServerLevel level);
+
+    void postLevelLoad(MinecraftServer server, ServerLevel level);
 
     IntFunction<RegistryFriendlyByteBuf> packetBuffers(ServerPlayer player);
 

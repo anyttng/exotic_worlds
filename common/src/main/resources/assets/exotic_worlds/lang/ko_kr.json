@@ -4,6 +4,12 @@
 
   "argument.exotic_worlds.pos.outside_world": "%s은(는) 이 세계 밖에 있습니다. %s와(과) %s 사이여야 합니다",
   "commands.exotic_worlds.region.across_seam": "이 영역은 세계의 가장자리를 가로질러 어느 쪽이든 의미할 수 있습니다. 양쪽에서 명령을 한 번씩 실행하세요",
+  "commands.exotic_worlds.dimensions.undecided": "%s의 형태가 아직 정해지지 않았습니다.",
+  "commands.exotic_worlds.dimensions.configure": "형태 선택",
+  "commands.exotic_worlds.dimensions.configure.hint": "이 차원들의 형태 선택 화면을 엽니다",
+  "commands.exotic_worlds.dimensions.no_client": "이 화면을 열려면 내 게임에도 Exotic Worlds가 있어야 합니다.",
+  "commands.exotic_worlds.dimensions.applied": "형태를 적용했습니다.",
+  "commands.exotic_worlds.dimensions.refused": "%s의 형태는 그대로 둡니다.",
 
   "gui.exotic_worlds.world_shape": "세계 형태",
   "gui.exotic_worlds.world_shape.normal": "일반",
@@ -72,6 +78,13 @@
   "gui.exotic_worlds.custom_settings.mod_dimensions": "모드 차원",
   "gui.exotic_worlds.custom_settings.from_overworld": "오버월드 따라가기",
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "이 차원의 좌표 배율에 맞춰 오버월드의 형태를 조정해 사용합니다. 너비가 정수로 나오지 않으면 일반으로 남습니다.",
+
+  "gui.exotic_worlds.world_dimensions.title": "세계의 차원",
+  "gui.exotic_worlds.world_dimensions.note": "형태는 차원에 청크가 없을 때 한 번만 고를 수 있습니다",
+  "gui.exotic_worlds.world_dimensions.other": "기타 형태",
+  "gui.exotic_worlds.world_dimensions.locked.vanilla": "세계를 만들 때 정해집니다",
+  "gui.exotic_worlds.world_dimensions.locked.chosen": "형태를 이미 골라서 바꿀 수 없습니다",
+  "gui.exotic_worlds.world_dimensions.locked.generated": "이미 청크가 있어 형태를 바꿀 수 없습니다",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds 설정",
   "gui.exotic_worlds.settings.map_copies": "전체 화면 지도의 세계 복사본",

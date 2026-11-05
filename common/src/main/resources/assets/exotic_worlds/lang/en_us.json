@@ -4,6 +4,12 @@
 
   "argument.exotic_worlds.pos.outside_world": "%s is outside this world. It must be between %s and %s",
   "commands.exotic_worlds.region.across_seam": "That area crosses the world's edge and could mean either side of it. Run the command once per side",
+  "commands.exotic_worlds.dimensions.undecided": "No shape is chosen yet for %s.",
+  "commands.exotic_worlds.dimensions.configure": "Choose shape",
+  "commands.exotic_worlds.dimensions.configure.hint": "Open the shape choice for these dimensions",
+  "commands.exotic_worlds.dimensions.no_client": "This screen needs Exotic Worlds on your game too.",
+  "commands.exotic_worlds.dimensions.applied": "Shapes applied.",
+  "commands.exotic_worlds.dimensions.refused": "Kept the current shape of %s.",
 
   "gui.exotic_worlds.world_shape": "World Shape",
   "gui.exotic_worlds.world_shape.normal": "Normal",
@@ -72,6 +78,13 @@
   "gui.exotic_worlds.custom_settings.mod_dimensions": "Mod dimensions",
   "gui.exotic_worlds.custom_settings.from_overworld": "From Overworld",
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "Takes the Overworld's shape, scaled by this dimension's coordinate scale; stays Normal where that gives no whole width.",
+
+  "gui.exotic_worlds.world_dimensions.title": "World Dimensions",
+  "gui.exotic_worlds.world_dimensions.note": "A shape can be chosen once, before the dimension has chunks",
+  "gui.exotic_worlds.world_dimensions.other": "Other shape",
+  "gui.exotic_worlds.world_dimensions.locked.vanilla": "Set when the world was created",
+  "gui.exotic_worlds.world_dimensions.locked.chosen": "Already chosen, so the shape stays",
+  "gui.exotic_worlds.world_dimensions.locked.generated": "Chunks already exist here, so the shape stays",
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds Settings",
   "gui.exotic_worlds.settings.map_copies": "Fullscreen map copies",

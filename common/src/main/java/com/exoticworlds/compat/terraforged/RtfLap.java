@@ -28,6 +28,8 @@ public final class RtfLap {
 
     private static final double TWO_PI = Math.PI * 2.0;
 
+    private static final double WHOLE_CELL = 1.0;
+
     public static final float UNSHEARED = 0.0F;
 
     private static volatile boolean active;
@@ -212,6 +214,11 @@ public final class RtfLap {
 
         public float snappedFrequency(Direction.Axis axis, float frequency) {
             return snapped(axis, cells(axis, frequency), frequency);
+        }
+
+        public double cellRatio(Direction.Axis axis, double frequency) {
+            double lap = lap(axis);
+            return lap == OPEN ? WHOLE_CELL : lap * frequency / cells(axis, frequency);
         }
 
         public float snappedAngular(Direction.Axis axis, float frequency) {
