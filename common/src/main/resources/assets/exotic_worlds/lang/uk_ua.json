@@ -8,9 +8,8 @@
   "commands.exotic_worlds.dimensions.configure": "Обрати форму",
   "commands.exotic_worlds.dimensions.configure.hint": "Відкрити вибір форми для цих вимірів",
   "commands.exotic_worlds.dimensions.no_client": "Для цього екрана Exotic Worlds має стояти й у твоїй грі.",
-  "commands.exotic_worlds.dimensions.saved": "Форми збережено. Вони діятимуть з наступного завантаження світу.",
+  "commands.exotic_worlds.dimensions.applied": "Форми застосовано.",
   "commands.exotic_worlds.dimensions.refused": "Форму %s не змінено.",
-  "commands.exotic_worlds.dimensions.dropped": "Вибір форми для %s скасовано, бо там з'явилися чанки ще до нового завантаження світу.",
 
   "gui.exotic_worlds.world_shape": "Форма світу",
   "gui.exotic_worlds.world_shape.normal": "Звичайна",
@@ -81,7 +80,7 @@
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "Бере форму Верхнього світу в масштабі координат цього виміру; лишається Звичайною, якщо ширина тоді не виходить цілою.",
 
   "gui.exotic_worlds.world_dimensions.title": "Виміри світу",
-  "gui.exotic_worlds.world_dimensions.restart": "Зміни діятимуть з наступного завантаження світу",
+  "gui.exotic_worlds.world_dimensions.note": "Форму можна обрати один раз, поки у виміру немає чанків",
   "gui.exotic_worlds.world_dimensions.other": "Інша форма",
   "gui.exotic_worlds.world_dimensions.locked.vanilla": "Задано під час створення світу",
   "gui.exotic_worlds.world_dimensions.locked.chosen": "Форму вже обрано, тож вона не зміниться",

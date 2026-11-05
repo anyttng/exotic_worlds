@@ -34,8 +34,8 @@ import net.minecraft.world.level.dimension.LevelStem;
 public class WorldDimensionsScreen extends Screen {
     private static final String KEY_PREFIX = "gui.exotic_worlds.world_dimensions.";
     private static final Component TITLE = Component.translatable(KEY_PREFIX + "title");
-    private static final Component RESTART =
-            Component.translatable(KEY_PREFIX + "restart").withStyle(ChatFormatting.GRAY);
+    private static final Component NOTE =
+            Component.translatable(KEY_PREFIX + "note").withStyle(ChatFormatting.GRAY);
     private static final Component OTHER_SHAPE = Component.translatable(KEY_PREFIX + "other");
     private static final Component LOCKED_VANILLA = Component.translatable(KEY_PREFIX + "locked.vanilla");
     private static final Component LOCKED_CHOSEN = Component.translatable(KEY_PREFIX + "locked.chosen");
@@ -82,7 +82,7 @@ public class WorldDimensionsScreen extends Screen {
         this.layout.addTitleHeader(this.title, this.font);
 
         LinearLayout contents = LinearLayout.vertical().spacing(CONTENTS_SPACING);
-        contents.addChild(new StringWidget(RESTART, this.font), LayoutSettings::alignHorizontallyCenter);
+        contents.addChild(new StringWidget(NOTE, this.font), LayoutSettings::alignHorizontallyCenter);
         contents.addChild(new StringWidget(VANILLA_SECTION, this.font), LayoutSettings::alignHorizontallyCenter);
         boolean modSection = false;
         for (Row row : this.rows) {

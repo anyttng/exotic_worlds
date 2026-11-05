@@ -140,23 +140,38 @@ public final class ShapedDimensions {
     }
 
     public static void stampDerived(Registry<LevelStem> dimensions) {
-        LevelStem overworld = dimensions.getOptional(LevelStem.OVERWORLD).orElse(null);
-        CarriedShape carried = overworld == null ? null : ShapedChunkGenerator.carriedShapeOf(overworld.generator());
-        DimensionTable table = overworld == null ? DimensionTable.EMPTY : dimensionTableOf(overworld.generator());
-        double overworldScale = overworld == null ? 0.0 : overworld.type().value().coordinateScale();
-        dimensions.listElements().forEach(entry -> {
-            LevelStem stem = entry.value();
-            if (entry.key() == LevelStem.OVERWORLD
+        Derivation derivation = Derivation.of(dimensions);
+        dimensions.listElements().forEach(entry -> derivation.stamp(entry.key(), entry.value()));
+    }
+
+    public static void stampDerived(Registry<LevelStem> dimensions, ResourceKey<LevelStem> key) {
+        LevelStem stem = dimensions.getValue(key);
+        if (stem != null) {
+            Derivation.of(dimensions).stamp(key, stem);
+        }
+    }
+
+    private record Derivation(@Nullable CarriedShape overworld, DimensionTable table, double overworldScale) {
+        private static Derivation of(Registry<LevelStem> dimensions) {
+            LevelStem overworld = dimensions.getOptional(LevelStem.OVERWORLD).orElse(null);
+            return overworld == null
+                    ? new Derivation(null, DimensionTable.EMPTY, 0.0)
+                    : new Derivation(ShapedChunkGenerator.carriedShapeOf(overworld.generator()),
+                            dimensionTableOf(overworld.generator()), overworld.type().value().coordinateScale());
+        }
+
+        private void stamp(ResourceKey<LevelStem> key, LevelStem stem) {
+            if (key == LevelStem.OVERWORLD
                     || carriesShape(stem.generator())
                     || !(stem.generator() instanceof ShapeStamp stamp)) {
                 return;
             }
 
-            DimensionTable.Entry chosen = table.entry(entry.key());
+            DimensionTable.Entry chosen = this.table.entry(key);
             stamp.exotic_worlds$stampBaked(chosen != null && !chosen.fromOverworld()
                     ? chosen.carried()
-                    : derivedCarried(carried, overworldScale, stem.type().value().coordinateScale()));
-        });
+                    : derivedCarried(this.overworld, this.overworldScale, stem.type().value().coordinateScale()));
+        }
     }
 
     private static @Nullable CarriedShape derivedCarried(@Nullable CarriedShape overworld, double overworldScale,

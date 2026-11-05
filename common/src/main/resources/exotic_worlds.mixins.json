@@ -162,6 +162,7 @@
     "MapItemSavedDataMixin",
     "MinecartFurnaceFuelMixin",
     "MinecartPushMixin",
+    "MinecraftServerAccessor",
     "MinecraftServerMixin",
     "MobEffectUtilMixin",
     "MobMixin",
