@@ -2,7 +2,6 @@ package com.exoticworlds.core;
 
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 
 final class SeamBoxes {
     private SeamBoxes() {}
@@ -18,10 +17,5 @@ final class SeamBoxes {
 
     static double center(double min, double max) {
         return (min + max) / 2.0;
-    }
-
-    static double sqrYGap(AABB box, Vec3 point) {
-        double yGap = Math.max(Math.max(box.minY - point.y, point.y - box.maxY), 0.0);
-        return yGap * yGap;
     }
 }

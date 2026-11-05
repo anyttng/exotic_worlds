@@ -1,6 +1,5 @@
 package com.exoticworlds.core;
 
-import static com.exoticworlds.core.WorldFoldFixture.EVEN;
 import static com.exoticworlds.core.WorldFoldFixture.PER_AXIS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -66,27 +65,6 @@ class SeamDistanceTest {
                 long shiftedX = dx + (long) xLaps * chunkX(fold).domainLength;
                 long shiftedZ = dz + (long) zLaps * chunkZ(fold).domainLength;
                 best = Math.min(best, shiftedX * shiftedX + shiftedZ * shiftedZ);
-            }
-        }
-        return best;
-    }
-
-    private static double flatBoxSqr(AABB box, Vec3 point) {
-        double xGap = Math.max(Math.max(box.minX - point.x, point.x - box.maxX), 0.0);
-        double yGap = Math.max(Math.max(box.minY - point.y, point.y - box.maxY), 0.0);
-        double zGap = Math.max(Math.max(box.minZ - point.z, point.z - box.maxZ), 0.0);
-        return xGap * xGap + yGap * yGap + zGap * zGap;
-    }
-
-    private static double boxSqrRef(WorldFold fold, AABB box, Vec3 point) {
-        double best = Double.MAX_VALUE;
-        for (int xLaps = -LAPS; xLaps <= LAPS; xLaps++) {
-            for (int zLaps = -LAPS; zLaps <= LAPS; zLaps++) {
-                AABB copy = box.move(
-                        xLaps * (double) blockX(fold).domainLength,
-                        0.0,
-                        zLaps * (double) blockZ(fold).domainLength);
-                best = Math.min(best, flatBoxSqr(copy, point));
             }
         }
         return best;
@@ -305,47 +283,6 @@ class SeamDistanceTest {
     }
 
     @Nested
-    class BoxDistance {
-        @Test
-        void distanceToSqrWrappedCoordMatchesTheNearestBoxCopy() {
-            Random random = new Random(SEED);
-            for (WorldFold fold : FOLDS) {
-                for (int i = 0; i < SAMPLES; i++) {
-                    double minX = blockX(fold).wrap(sampleBlock(random, blockX(fold)));
-                    double minY = sampleY(random);
-                    double minZ = blockZ(fold).wrap(sampleBlock(random, blockZ(fold)));
-                    AABB box = new AABB(minX, minY, minZ,
-                            minX + random.nextDouble() * 8, minY + random.nextDouble() * 8, minZ + random.nextDouble() * 8);
-                    Vec3 point = new Vec3(
-                            blockX(fold).wrap(sampleBlock(random, blockX(fold))),
-                            sampleY(random),
-                            blockZ(fold).wrap(sampleBlock(random, blockZ(fold))));
-
-                    assertEquals(boxSqrRef(fold, box, point),
-                            fold.sqrDistanceToBox(box, point), 1e-3,
-                            () -> "distanceToSqrWrappedCoord(" + box + ", " + point + ") " + in(fold));
-                }
-            }
-        }
-
-        @Test
-        void aBlockJustAcrossTheSeamIsAStepAwayNotAWorldAway() {
-            AABB box = new AABB(-512, 0, 0, -502, 10, 10);
-            Vec3 point = new Vec3(500, 5, 5);
-            assertEquals(144, EVEN.sqrDistanceToBox(box, point), 1e-9);
-        }
-
-        @Test
-        void aPointInsideTheBoxIsAtDistanceZero() {
-            AABB box = new AABB(-5, 0, -5, 5, 10, 5);
-            for (WorldFold fold : FOLDS) {
-                assertEquals(0.0, fold.sqrDistanceToBox(box, new Vec3(0, 5, 0)), 0.0,
-                        () -> in(fold));
-            }
-        }
-    }
-
-    @Nested
     class NearestCopyOrientedBox {
         @Test
         void movesByWholeWorldWidthsToTheCopyNearestTheReference() {
@@ -436,7 +373,6 @@ class SeamDistanceTest {
                 assertEquals(target, disabled.nearestCopy(ref, target));
 
                 AABB box = new AABB(dx, dy, dz, dx + 3, dy + 3, dz + 3);
-                assertEquals(flatBoxSqr(box, ref), disabled.sqrDistanceToBox(box, ref), 1e-9);
                 assertSame(box, disabled.nearestCopyOriented(ref, box).value());
             }
         }
