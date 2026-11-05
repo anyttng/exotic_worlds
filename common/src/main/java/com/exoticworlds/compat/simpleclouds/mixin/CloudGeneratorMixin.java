@@ -40,48 +40,86 @@ public abstract class CloudGeneratorMixin {
 
     @WrapMethod(method = "getCloudAtPosition(FF)Ldev/nonamecrackers2/simpleclouds/common/cloud/region/CloudRegion;")
     private CloudRegion exotic_worlds$bindCloudAtPosition(float x, float z, Operation<CloudRegion> original) {
-        return SimpleCloudsShapes.bound(this.exotic_worlds$level(), () -> original.call(x, z));
+        CloudShape previous = SimpleCloudsShapes.enter(this.exotic_worlds$level());
+        try {
+            return original.call(x, z);
+        } finally {
+            SimpleCloudsShapes.exit(previous);
+        }
     }
 
     @WrapMethod(method = "getCloudsInRegion")
     private List<CloudRegion> exotic_worlds$bindCloudsInRegion(SpawnRegion region, Operation<List<CloudRegion>> original) {
-        return SimpleCloudsShapes.bound(this.exotic_worlds$level(), () -> original.call(region));
+        CloudShape previous = SimpleCloudsShapes.enter(this.exotic_worlds$level());
+        try {
+            return original.call(region);
+        } finally {
+            SimpleCloudsShapes.exit(previous);
+        }
     }
 
     @WrapMethod(method = "getRegionsThatOccupyCloud")
     private List<SpawnRegion> exotic_worlds$bindRegionsThatOccupyCloud(CloudRegion cloud,
             Operation<List<SpawnRegion>> original) {
-        return SimpleCloudsShapes.bound(this.exotic_worlds$level(), () -> original.call(cloud));
+        CloudShape previous = SimpleCloudsShapes.enter(this.exotic_worlds$level());
+        try {
+            return original.call(cloud);
+        } finally {
+            SimpleCloudsShapes.exit(previous);
+        }
     }
 
     @WrapMethod(method = "addCloud")
     private boolean exotic_worlds$bindAddCloud(CloudRegion region, CloudGenerator.Order order, Operation<Boolean> original) {
-        return SimpleCloudsShapes.bound(this.exotic_worlds$level(), () -> original.call(region, order));
+        CloudShape previous = SimpleCloudsShapes.enter(this.exotic_worlds$level());
+        try {
+            return original.call(region, order);
+        } finally {
+            SimpleCloudsShapes.exit(previous);
+        }
     }
 
     @WrapMethod(method = "tick")
     private void exotic_worlds$bindTick(@Nullable Level level, float speed, Operation<Void> original) {
-        SimpleCloudsShapes.bound(this.exotic_worlds$level(), () -> original.call(level, speed));
+        CloudShape previous = SimpleCloudsShapes.enter(this.exotic_worlds$level());
+        try {
+            original.call(level, speed);
+        } finally {
+            SimpleCloudsShapes.exit(previous);
+        }
     }
 
     @WrapMethod(method = "spawnCloud(Ljava/util/function/Supplier;IILnet/minecraft/world/level/Level;Ldev/nonamecrackers2/simpleclouds/api/common/cloud/spawning/CreateRegionFunction;)Ljava/util/Optional;")
     private Optional<CloudRegion> exotic_worlds$bindSpawnCloud(Supplier<SpawnInfo> infoGetter, int nextSpawnInterval,
             int maxRegions, Level level, CreateRegionFunction regionFunc, Operation<Optional<CloudRegion>> original) {
-        return SimpleCloudsShapes.bound(this.exotic_worlds$level(),
-                () -> original.call(infoGetter, nextSpawnInterval, maxRegions, level, regionFunc));
+        CloudShape previous = SimpleCloudsShapes.enter(this.exotic_worlds$level());
+        try {
+            return original.call(infoGetter, nextSpawnInterval, maxRegions, level, regionFunc);
+        } finally {
+            SimpleCloudsShapes.exit(previous);
+        }
     }
 
     @WrapMethod(method = CREATE_REGION)
     private Optional<CloudRegion> exotic_worlds$bindCreateRegion(SpawnInfo info, float playerX, float playerZ, float x,
             float z, RandomSource random, boolean growTime, Operation<Optional<CloudRegion>> original) {
-        return SimpleCloudsShapes.bound(this.exotic_worlds$level(),
-                () -> original.call(info, playerX, playerZ, x, z, random, growTime));
+        CloudShape previous = SimpleCloudsShapes.enter(this.exotic_worlds$level());
+        try {
+            return original.call(info, playerX, playerZ, x, z, random, growTime);
+        } finally {
+            SimpleCloudsShapes.exit(previous);
+        }
     }
 
     @WrapMethod(method = "doInitialGen")
     private void exotic_worlds$bindInitialGen(int x, int z, Level level, boolean ignoreOtherRegions,
             Operation<Void> original) {
-        SimpleCloudsShapes.bound(this.exotic_worlds$level(), () -> original.call(x, z, level, ignoreOtherRegions));
+        CloudShape previous = SimpleCloudsShapes.enter(this.exotic_worlds$level());
+        try {
+            original.call(x, z, level, ignoreOtherRegions);
+        } finally {
+            SimpleCloudsShapes.exit(previous);
+        }
     }
 
     @WrapOperation(method = CREATE_REGION, at = @At(value = "INVOKE", target = "Lorg/joml/Vector2f;distance(FFFF)F"))

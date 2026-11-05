@@ -14,6 +14,7 @@ import com.exoticworlds.compat.create.CreateWalkClosure;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 @Mixin(value = GirderPlacementHelper.class, remap = false)
@@ -23,6 +24,7 @@ public abstract class GirderPlacementHelperMixin {
     private BlockState exotic_worlds$closeTheRing(Level world, BlockPos pos, Operation<BlockState> original,
             @Share("walkClosure") LocalRef<CreateWalkClosure> closureRef,
             @Share("walkClosureResolved") LocalBooleanRef resolved) {
-        return CreateWalkClosure.read(world, pos, original, closureRef, resolved);
+        return CreateWalkClosure.closesAt(world, pos, closureRef, resolved) ? Blocks.AIR.defaultBlockState()
+                : original.call(world, pos);
     }
 }

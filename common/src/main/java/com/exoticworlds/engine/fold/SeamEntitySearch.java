@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.WorldFold;
@@ -30,23 +30,30 @@ public final class SeamEntitySearch {
         return fold.isWrapped() && fold.crossesBounds(reach);
     }
 
-    public static <E extends EntityAccess> List<E> collect(WorldFold fold, AABB box, Function<AABB, List<E>> walk) {
-        AABB reach = sectionReach(box);
-        if (!crossesSeam(fold, reach)) {
-            return walk.apply(box);
+    public static final class Found<E extends EntityAccess> {
+        private final Predicate<EntityAccess> firstOverlap;
+        private final List<E> entities = new ArrayList<>();
+
+        public Found(WorldFold fold, AABB box) {
+            this.firstOverlap = firstOverlap(fold, box);
         }
 
-        Predicate<EntityAccess> firstOverlap = firstOverlap(fold, box);
-        List<E> found = new ArrayList<>();
-        for (Folded<AABB> piece : fold.split(reach)) {
-            for (E entity : walk.apply(piece.value())) {
-                if (firstOverlap.test(entity)) {
-                    found.add(entity);
+        public void add(List<? extends E> walked) {
+            for (E entity : walked) {
+                if (this.firstOverlap.test(entity)) {
+                    this.entities.add(entity);
                 }
             }
         }
 
-        return found;
+        public List<E> entities() {
+            return this.entities;
+        }
+    }
+
+    public static @Nullable List<Folded<AABB>> piecesAcrossSeam(WorldFold fold, AABB box) {
+        AABB reach = sectionReach(box);
+        return crossesSeam(fold, reach) ? fold.split(reach) : null;
     }
 
     public static <E extends EntityAccess> void forEach(WorldFold fold, AABB box, Consumer<E> output,

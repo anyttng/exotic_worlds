@@ -1,7 +1,5 @@
 package com.exoticworlds.compat.simpleclouds;
 
-import java.util.function.Supplier;
-
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
@@ -39,15 +37,12 @@ public final class SimpleCloudsShapes {
         return last.shape();
     }
 
-    public static <R> R bound(@Nullable Level level, Supplier<R> body) {
-        return BOUND.with(of(level), body);
+    public static @Nullable CloudShape enter(@Nullable Level level) {
+        return BOUND.enter(of(level));
     }
 
-    public static void bound(@Nullable Level level, Runnable body) {
-        BOUND.with(of(level), () -> {
-            body.run();
-            return null;
-        });
+    public static void exit(@Nullable CloudShape previous) {
+        BOUND.exit(previous);
     }
 
     public static @Nullable CloudShape current() {

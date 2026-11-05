@@ -14,6 +14,7 @@ import com.exoticworlds.compat.create.CreateWalkClosure;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
 @Mixin(value = NixieTubeBlock.class, remap = false)
@@ -30,6 +31,7 @@ public abstract class NixieTubeBlockMixin {
     private static BlockState exotic_worlds$closeTheRing(LevelAccessor world, BlockPos pos, Operation<BlockState> original,
             @Share("walkClosure") LocalRef<CreateWalkClosure> closureRef,
             @Share("walkClosureResolved") LocalBooleanRef resolved) {
-        return CreateWalkClosure.read(world, pos, original, closureRef, resolved);
+        return CreateWalkClosure.closesAt(world, pos, closureRef, resolved) ? Blocks.AIR.defaultBlockState()
+                : original.call(world, pos);
     }
 }

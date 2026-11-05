@@ -1,5 +1,9 @@
 package com.exoticworlds.compat.aeronautics;
 
+import java.util.function.Function;
+
+import org.jspecify.annotations.Nullable;
+
 import com.exoticworlds.compat.sable.SeamFrame;
 import com.exoticworlds.core.JomlVectors;
 import com.exoticworlds.core.WorldFold;
@@ -14,18 +18,16 @@ import net.minecraft.world.phys.Vec3;
 
 public final class MergingGlueSeamFrame {
 
-    public static void control(BlockEntity controller, BlockEntity partner, Runnable original) {
+    public static @Nullable Object enter(BlockEntity controller, BlockEntity partner) {
         Level level = controller.getLevel();
         WorldFold fold = WorldLoopAttachments.wrappedFoldOfReader(level);
         SubLevel own = Sable.HELPER.getContaining(controller);
         SubLevel other = Sable.HELPER.getContaining(partner);
         if (fold == null || own == null || other == null) {
-            original.run();
-            return;
+            return SeamFrame.KEPT;
         }
 
-        Vec3 anchor = positionOf(own);
-        SeamFrame.run(level, () -> anchor, original);
+        return SeamFrame.enter(level, positionOf(own), Function.identity());
     }
 
     private static Vec3 positionOf(SubLevel subLevel) {

@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+import com.exoticworlds.compat.simpleclouds.CloudShape;
 import com.exoticworlds.compat.simpleclouds.SimpleCloudsShapes;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
@@ -35,6 +36,11 @@ public abstract class CloudManagerMixin {
     @WrapMethod(method = "getCloudTypeAtPosition")
     private Pair<CloudType, Float> exotic_worlds$bindCloudShape(float x, float z,
             Operation<Pair<CloudType, Float>> original) {
-        return SimpleCloudsShapes.bound(this.level, () -> original.call(x, z));
+        CloudShape previous = SimpleCloudsShapes.enter(this.level);
+        try {
+            return original.call(x, z);
+        } finally {
+            SimpleCloudsShapes.exit(previous);
+        }
     }
 }

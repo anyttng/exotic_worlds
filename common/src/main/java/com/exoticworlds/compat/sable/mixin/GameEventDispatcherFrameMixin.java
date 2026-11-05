@@ -24,6 +24,11 @@ public abstract class GameEventDispatcherFrameMixin {
 
     @WrapMethod(method = "post")
     private void exotic_worlds$frameOnGameEvent(Holder<GameEvent> event, Vec3 source, GameEvent.Context context, Operation<Void> original) {
-        SeamFrame.with(this.level, source, Function.identity(), original, event, source, context);
+        Object entered = SeamFrame.enter(this.level, source, Function.identity());
+        try {
+            original.call(event, source, context);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 }

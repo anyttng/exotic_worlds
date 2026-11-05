@@ -18,6 +18,11 @@ public abstract class EntityFrameMixin {
 
     @WrapMethod(method = "getOnPos(F)Lnet/minecraft/core/BlockPos;")
     private BlockPos exotic_worlds$frameOnFootQuery(float distance, Operation<BlockPos> original) {
-        return SeamFrame.with(this.level(), (Entity) (Object) this, Entity::position, original, distance);
+        Object entered = SeamFrame.enter(this.level(), (Entity) (Object) this, Entity::position);
+        try {
+            return original.call(distance);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 }

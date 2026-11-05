@@ -40,13 +40,23 @@ public abstract class SubLevelInclusiveLevelEntityGetterMixin<T extends EntityAc
 
     @WrapMethod(method = BOX_QUERY)
     private void exotic_worlds$frameOnBoxQuery(AABB box, Consumer<T> consumer, Operation<Void> original) {
-        SeamFrame.with(this.level, box, AABB::getCenter, original, box, consumer);
+        Object entered = SeamFrame.enter(this.level, box, AABB::getCenter);
+        try {
+            original.call(box, consumer);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 
     @WrapMethod(method = TYPED_BOX_QUERY)
     private <U extends T> void exotic_worlds$frameOnTypedBoxQuery(EntityTypeTest<T, U> typeTest, AABB box,
             AbortableIterationConsumer<U> consumer, Operation<Void> original) {
-        SeamFrame.with(this.level, box, AABB::getCenter, original, typeTest, box, consumer);
+        Object entered = SeamFrame.enter(this.level, box, AABB::getCenter);
+        try {
+            original.call(typeTest, box, consumer);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 
     @WrapOperation(method = BOX_QUERY, at = @At(value = "INVOKE", target = InjectionTargets.LEVEL_ENTITY_GETTER_GET))

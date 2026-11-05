@@ -2,7 +2,6 @@ package com.exoticworlds.compat.create;
 
 import org.jspecify.annotations.Nullable;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.exoticworlds.core.WorldFold;
@@ -11,8 +10,6 @@ import com.exoticworlds.core.WorldLoopAttachments;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 
 public final class CreateWalkClosure {
     private final WorldFold fold;
@@ -27,19 +24,15 @@ public final class CreateWalkClosure {
         return fold == null ? null : new CreateWalkClosure(fold);
     }
 
-    public static BlockState read(LevelAccessor world, BlockPos pos, Operation<BlockState> original,
-            LocalRef<CreateWalkClosure> closureRef, LocalBooleanRef resolved) {
+    public static boolean closesAt(LevelAccessor world, BlockPos pos, LocalRef<CreateWalkClosure> closureRef,
+            LocalBooleanRef resolved) {
         if (!resolved.get()) {
             closureRef.set(of(world));
             resolved.set(true);
         }
 
         CreateWalkClosure closure = closureRef.get();
-        if (closure == null || !closure.closes(pos)) {
-            return original.call(world, pos);
-        }
-
-        return Blocks.AIR.defaultBlockState();
+        return closure != null && closure.closes(pos);
     }
 
     CreateWalkClosure(WorldFold fold) {

@@ -24,6 +24,11 @@ public abstract class ServerEntityFrameMixin {
 
     @WrapMethod(method = "sendChanges")
     private void exotic_worlds$frameOnTracking(Operation<Void> original) {
-        SeamFrame.with(this.level, this.entity, Entity::position, original);
+        Object entered = SeamFrame.enter(this.level, this.entity, Entity::position);
+        try {
+            original.call();
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 }

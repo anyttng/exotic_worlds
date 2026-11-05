@@ -2,7 +2,6 @@ package com.exoticworlds.compat.sable.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -25,36 +24,61 @@ public abstract class ServerGamePacketListenerImplFrameMixin {
 
     @WrapMethod(method = "handleMovePlayer")
     private void exotic_worlds$frameOnMove(ServerboundMovePlayerPacket packet, Operation<Void> original) {
-        exotic_worlds$framed(original, packet);
+        Object entered = SeamFrame.enter(this.player.serverLevel(), this.player, Entity::position);
+        try {
+            original.call(packet);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 
     @WrapMethod(method = "handleMoveVehicle")
     private void exotic_worlds$frameOnVehicleMove(ServerboundMoveVehiclePacket packet, Operation<Void> original) {
-        exotic_worlds$framed(original, packet);
+        Object entered = SeamFrame.enter(this.player.serverLevel(), this.player, Entity::position);
+        try {
+            original.call(packet);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 
     @WrapMethod(method = "handlePlayerAction")
     private void exotic_worlds$frameOnPlayerAction(ServerboundPlayerActionPacket packet, Operation<Void> original) {
-        exotic_worlds$framed(original, packet);
+        Object entered = SeamFrame.enter(this.player.serverLevel(), this.player, Entity::position);
+        try {
+            original.call(packet);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 
     @WrapMethod(method = "handleUseItemOn")
     private void exotic_worlds$frameOnUseItemOn(ServerboundUseItemOnPacket packet, Operation<Void> original) {
-        exotic_worlds$framed(original, packet);
+        Object entered = SeamFrame.enter(this.player.serverLevel(), this.player, Entity::position);
+        try {
+            original.call(packet);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 
     @WrapMethod(method = "handleUseItem")
     private void exotic_worlds$frameOnUseItem(ServerboundUseItemPacket packet, Operation<Void> original) {
-        exotic_worlds$framed(original, packet);
+        Object entered = SeamFrame.enter(this.player.serverLevel(), this.player, Entity::position);
+        try {
+            original.call(packet);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 
     @WrapMethod(method = "handleInteract")
     private void exotic_worlds$frameOnInteract(ServerboundInteractPacket packet, Operation<Void> original) {
-        exotic_worlds$framed(original, packet);
-    }
-
-    @Unique
-    private void exotic_worlds$framed(Operation<Void> original, Object packet) {
-        SeamFrame.with(this.player.serverLevel(), this.player, Entity::position, original, packet);
+        Object entered = SeamFrame.enter(this.player.serverLevel(), this.player, Entity::position);
+        try {
+            original.call(packet);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 }

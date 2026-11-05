@@ -14,6 +14,11 @@ public abstract class ServerPlayerTickFrameMixin {
     @WrapMethod(method = "doTick")
     private void exotic_worlds$frameOnPlayerTick(Operation<Void> original) {
         ServerPlayer player = (ServerPlayer) (Object) this;
-        SeamFrame.with(player.serverLevel(), player, Entity::position, original);
+        Object entered = SeamFrame.enter(player.serverLevel(), player, Entity::position);
+        try {
+            original.call();
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 }

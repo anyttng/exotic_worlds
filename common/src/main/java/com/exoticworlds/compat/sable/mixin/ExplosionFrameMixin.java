@@ -19,6 +19,11 @@ public abstract class ExplosionFrameMixin {
 
     @WrapMethod(method = "explode")
     private void exotic_worlds$frameOnExplosion(Operation<Void> original) {
-        SeamFrame.with(this.level, (Explosion) (Object) this, Explosion::center, original);
+        Object entered = SeamFrame.enter(this.level, (Explosion) (Object) this, Explosion::center);
+        try {
+            original.call();
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 }

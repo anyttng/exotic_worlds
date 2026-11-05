@@ -38,7 +38,12 @@ public abstract class PropellerActorBehaviourMixin {
     @WrapOperation(method = "pushEntities", at = @At(value = "INVOKE", target = PROPELLER_CENTER))
     private Vector3d exotic_worlds$centerInTheEntityFrame(Pose3d pose, Vector3d center, Operation<Vector3d> original,
             @Local Entity entity) {
-        return SeamFrame.with(entity.level(), entity, Entity::position, original, pose, center);
+        Object entered = SeamFrame.enter(entity.level(), entity, Entity::position);
+        try {
+            return original.call(pose, center);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 
     @WrapOperation(method = "pushEntities", at = @At(value = "INVOKE", target = InjectionTargets.VECTOR3D_SUB))
@@ -58,6 +63,11 @@ public abstract class PropellerActorBehaviourMixin {
     @WrapOperation(method = "pushEntities", at = @At(value = "INVOKE", target = AIRFLOW_RAY))
     private BlockHitResult exotic_worlds$rayInTheEntityFrame(Level level, ClipContext context,
             Operation<BlockHitResult> original, @Local Entity entity) {
-        return SeamFrame.with(level, entity, Entity::position, original, level, context);
+        Object entered = SeamFrame.enter(level, entity, Entity::position);
+        try {
+            return original.call(level, context);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 }

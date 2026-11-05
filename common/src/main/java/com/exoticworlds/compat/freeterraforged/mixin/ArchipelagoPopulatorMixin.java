@@ -1,5 +1,6 @@
 package com.exoticworlds.compat.freeterraforged.mixin;
 
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -36,32 +37,31 @@ public abstract class ArchipelagoPopulatorMixin {
     @WrapOperation(method = "apply",
             at = @At(value = "INVOKE", target = FreeTerraForgedInjectionTargets.NOISE_COMPUTE, ordinal = COASTAL_MODULATION))
     private float exotic_worlds$coastalModulationLap(Noise noise, float x, float z, int seed, Operation<Float> original) {
-        return exotic_worlds$computeScaled(noise, x, z, seed, COASTAL_MODULATION_FACTOR, original);
+        try (RtfLap.Frame.Scope scaled = exotic_worlds$scaled(COASTAL_MODULATION_FACTOR)) {
+            return original.call(noise, x, z, seed);
+        }
     }
 
     // The angle added to the position is read off the island shape, which already closes on the lap.
     @WrapOperation(method = "apply",
             at = @At(value = "INVOKE", target = FreeTerraForgedInjectionTargets.NOISE_COMPUTE, ordinal = ANGULAR_COAST))
     private float exotic_worlds$angularCoastLap(Noise noise, float x, float z, int seed, Operation<Float> original) {
-        return exotic_worlds$computeScaled(noise, x, z, seed, ANGULAR_COAST_FACTOR, original);
+        try (RtfLap.Frame.Scope scaled = exotic_worlds$scaled(ANGULAR_COAST_FACTOR)) {
+            return original.call(noise, x, z, seed);
+        }
     }
 
     @WrapOperation(method = "apply",
             at = @At(value = "INVOKE", target = FreeTerraForgedInjectionTargets.NOISE_COMPUTE, ordinal = SHELF_DETAIL))
     private float exotic_worlds$shelfDetailLap(Noise noise, float x, float z, int seed, Operation<Float> original) {
-        return exotic_worlds$computeScaled(noise, x, z, seed, SHELF_DETAIL_FACTOR, original);
+        try (RtfLap.Frame.Scope scaled = exotic_worlds$scaled(SHELF_DETAIL_FACTOR)) {
+            return original.call(noise, x, z, seed);
+        }
     }
 
     @Unique
-    private static float exotic_worlds$computeScaled(Noise noise, float x, float z, int seed, float factor,
-            Operation<Float> original) {
+    private static RtfLap.Frame.@Nullable Scope exotic_worlds$scaled(float factor) {
         RtfLap.Frame frame = RtfLap.boundFrame();
-        if (frame == null) {
-            return original.call(noise, x, z, seed);
-        }
-
-        try (RtfLap.Frame.Scope scaled = frame.scale(factor, factor)) {
-            return original.call(noise, x, z, seed);
-        }
+        return frame == null ? null : frame.scale(factor, factor);
     }
 }

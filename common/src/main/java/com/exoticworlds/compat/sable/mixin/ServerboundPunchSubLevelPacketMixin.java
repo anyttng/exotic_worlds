@@ -28,6 +28,11 @@ public abstract class ServerboundPunchSubLevelPacketMixin {
                     @At(value = "INVOKE", target = PLAYER_INVERSE, ordinal = 2)
             })
     private Vector3d exotic_worlds$frameOnPunch(Pose3d pose, Vector3d global, Operation<Vector3d> original, @Local Player player) {
-        return SeamFrame.with(player.level(), player, Entity::position, original, pose, global);
+        Object entered = SeamFrame.enter(player.level(), player, Entity::position);
+        try {
+            return original.call(pose, global);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 }

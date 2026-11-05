@@ -13,13 +13,14 @@ import com.exoticworlds.core.JomlVectors;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.ThreadScope;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.phys.Vec3;
 
 public final class SeamFrame {
+    public static final Object KEPT = new Object();
+
     private static final ThreadScope<Binding<?>> BOUND = new ThreadScope<>();
 
     private static boolean everBound;
@@ -85,40 +86,28 @@ public final class SeamFrame {
         }
     }
 
-    public static void run(LevelReader reader, Supplier<Vec3> anchor, Runnable body) {
-        with(reader, anchor, () -> {
-            body.run();
-            return null;
-        });
+    public static <A> @Nullable Object enter(LevelReader reader, A subject, Function<? super A, Vec3> anchor) {
+        return enter(serverFoldOf(reader), reader instanceof Level level ? level : null, subject, anchor);
     }
 
-    public static <R> R with(LevelReader reader, Supplier<Vec3> anchor, Supplier<R> body) {
-        return with(serverFoldOf(reader), reader instanceof Level level ? level : null, anchor, body);
-    }
-
-    public static <R> R with(@Nullable WorldFold fold, @Nullable Level level, Supplier<Vec3> anchor,
-            Supplier<R> body) {
-        return scoped(fold == null ? null : new Binding<>(fold, level, anchor, Supplier::get), body);
-    }
-
-    public static <A, R> R with(LevelReader reader, A subject, Function<? super A, Vec3> anchor,
-            Operation<R> original, Object... args) {
-        return with(serverFoldOf(reader), reader instanceof Level level ? level : null, subject, anchor, original,
-                args);
-    }
-
-    public static <A, R> R with(@Nullable WorldFold fold, @Nullable Level level, A subject,
-            Function<? super A, Vec3> anchor, Operation<R> original, Object... args) {
-        Binding<?> binding = fold == null ? null : new Binding<>(fold, level, subject, anchor);
-        if (binding == null && !isBound()) {
-            return original.call(args);
+    public static <A> @Nullable Object enter(@Nullable WorldFold fold, @Nullable Level level, A subject,
+            Function<? super A, Vec3> anchor) {
+        if (fold != null) {
+            everBound = true;
+            return BOUND.enter(new Binding<>(fold, level, subject, anchor));
         }
 
-        return scoped(binding, () -> original.call(args));
+        return isBound() ? BOUND.enter(null) : KEPT;
+    }
+
+    public static void exit(@Nullable Object entered) {
+        if (entered != KEPT) {
+            BOUND.exit((Binding<?>) entered);
+        }
     }
 
     public static <R> R unbound(Supplier<R> body) {
-        return scoped(null, body);
+        return isBound() ? BOUND.with(null, body) : body.get();
     }
 
     public static boolean isBound() {
@@ -140,16 +129,6 @@ public final class SeamFrame {
 
     private static @Nullable WorldFold serverFoldOf(LevelReader reader) {
         return WorldLoopAttachments.wrappedFoldOf(WorldLoopAttachments.serverLevelOf(reader));
-    }
-
-    private static <R> R scoped(@Nullable Binding<?> binding, Supplier<R> body) {
-        if (binding != null) {
-            everBound = true;
-        } else if (!isBound()) {
-            return body.get();
-        }
-
-        return BOUND.with(binding, body);
     }
 
     private SeamFrame() {

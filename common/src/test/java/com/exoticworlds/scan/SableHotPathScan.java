@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
 
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
@@ -31,8 +32,6 @@ import dev.ryanhcode.sable.companion.math.BoundingBox3d;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -84,11 +83,13 @@ class SableHotPathScan {
 
         rows.add(row(threads, "pose_unbound", "none", index -> poseSite(POSE_ACROSS_THE_SEAM)));
         for (Named named : List.of(new Named("per_axis", PER_AXIS), new Named("skewed", SKEWED))) {
-            SeamFrame.with(named.fold(), (Level) null, () -> ENTITY_ON_FAR_HALF, () -> {
+            Object entered = SeamFrame.enter(named.fold(), null, ENTITY_ON_FAR_HALF, Function.identity());
+            try {
                 rows.add(row(threads, "pose_across_the_seam", named.name(), index -> poseSite(POSE_ACROSS_THE_SEAM)));
                 rows.add(row(threads, "pose_on_the_same_half", named.name(), index -> poseSite(POSE_ON_THE_SAME_HALF)));
-                return null;
-            });
+            } finally {
+                SeamFrame.exit(entered);
+            }
         }
 
         int[] chunkXs = chunkCoords(0);
@@ -137,34 +138,42 @@ class SableHotPathScan {
     }
 
     private static void tickSite(@Nullable WorldFold fold, Subject entity) {
-        if (fold == null) {
-            SeamFrame.with((LevelReader) null, entity, Subject::position, TICK, entity);
-        } else {
-            SeamFrame.with(fold, null, entity, Subject::position, TICK, entity);
+        Object entered = SeamFrame.enter(fold, null, entity, Subject::position);
+        try {
+            TICK.call(entity);
+        } finally {
+            SeamFrame.exit(entered);
         }
     }
 
     private static BlockPos onPosSite(@Nullable WorldFold fold, Subject entity) {
         float distance = 0.2F;
-        return fold == null
-                ? SeamFrame.with((LevelReader) null, entity, Subject::position, ON_POS, distance)
-                : SeamFrame.with(fold, null, entity, Subject::position, ON_POS, distance);
+        Object entered = SeamFrame.enter(fold, null, entity, Subject::position);
+        try {
+            return ON_POS.call(distance);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 
     private static void boxQuerySite(@Nullable WorldFold fold, AABB box) {
         Object consumer = box;
-        if (fold == null) {
-            SeamFrame.with((LevelReader) null, box, AABB::getCenter, BOX_QUERY, box, consumer);
-        } else {
-            SeamFrame.with(fold, null, box, AABB::getCenter, BOX_QUERY, box, consumer);
+        Object entered = SeamFrame.enter(fold, null, box, AABB::getCenter);
+        try {
+            BOX_QUERY.call(box, consumer);
+        } finally {
+            SeamFrame.exit(entered);
         }
     }
 
     private static boolean freezeSite(@Nullable WorldFold fold, BlockPos pos) {
         boolean mustBeAtEdge = true;
-        return fold == null
-                ? SeamFrame.with((LevelReader) null, pos, Vec3::atCenterOf, FREEZE, null, pos, mustBeAtEdge)
-                : SeamFrame.with(fold, null, pos, Vec3::atCenterOf, FREEZE, null, pos, mustBeAtEdge);
+        Object entered = SeamFrame.enter(fold, null, pos, Vec3::atCenterOf);
+        try {
+            return FREEZE.call(null, pos, mustBeAtEdge);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 
     private static int poseSite(Vector3dc position) {

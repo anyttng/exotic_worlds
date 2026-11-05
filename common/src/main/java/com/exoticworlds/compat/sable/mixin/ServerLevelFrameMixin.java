@@ -13,11 +13,21 @@ import net.minecraft.world.entity.Entity;
 public abstract class ServerLevelFrameMixin {
     @WrapMethod(method = "tickNonPassenger")
     private void exotic_worlds$frameOnEntityTick(Entity entity, Operation<Void> original) {
-        SeamFrame.with((ServerLevel) (Object) this, entity, Entity::position, original, entity);
+        Object entered = SeamFrame.enter((ServerLevel) (Object) this, entity, Entity::position);
+        try {
+            original.call(entity);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 
     @WrapMethod(method = "tickPassenger")
     private void exotic_worlds$frameOnPassengerTick(Entity vehicle, Entity passenger, Operation<Void> original) {
-        SeamFrame.with((ServerLevel) (Object) this, passenger, Entity::position, original, vehicle, passenger);
+        Object entered = SeamFrame.enter((ServerLevel) (Object) this, passenger, Entity::position);
+        try {
+            original.call(vehicle, passenger);
+        } finally {
+            SeamFrame.exit(entered);
+        }
     }
 }
