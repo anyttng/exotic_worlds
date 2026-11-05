@@ -9,13 +9,19 @@ import com.exoticworlds.compat.AlignedPeriod;
 import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 
+import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
+import net.minecraft.world.level.ChunkPos;
 
 public final class CellFold {
     public static final CellFold NONE = new CellFold(null, 0);
 
     private static final double HALF = 0.5;
+    private static final int UNALIGNED = 0;
+    private static final int ANY_Y = 0;
     private static final String OPEN_AXIS = "open";
     private static final String AXIS_SEPARATOR = ";";
     private static final String FIELD_SEPARATOR = ":";
@@ -23,6 +29,7 @@ public final class CellFold {
     private final @Nullable ToroidalShape shape;
     private final int skewBlocks;
     private final AlignedPeriod chunks;
+    private final AlignedPeriod blocks;
     private final AlignedPeriod[] cells = new AlignedPeriod[DetailLevel.COUNT];
     private final String signature;
 
@@ -31,11 +38,13 @@ public final class CellFold {
         this.skewBlocks = skewBlocks;
         if (shape == null) {
             chunks = new AlignedPeriod(0L, 0L, 0L);
+            blocks = chunks;
             signature = OPEN_AXIS;
             return;
         }
 
         chunks = AlignedPeriod.of(shape, skewBlocks, SectionPos.SECTION_BITS);
+        blocks = AlignedPeriod.of(shape, skewBlocks, UNALIGNED);
         for (int level = DetailLevel.MIN; level <= DetailLevel.MAX; level++) {
             cells[level] = AlignedPeriod.of(shape, skewBlocks,
                     Integer.numberOfTrailingZeros(DetailLevel.blocksPerCell(level)));
@@ -87,6 +96,63 @@ public final class CellFold {
         }
 
         return (int) (foldZ(shape, chunks, SectionPos.sectionToBlockCoord(chunkZ)) >> SectionPos.SECTION_BITS);
+    }
+
+    public long foldBlock(long pos) {
+        if (shape == null) {
+            return pos;
+        }
+
+        int z = BlockPos.getZ(pos);
+        long x = foldX(shape, blocks, BlockPos.getX(pos), z);
+        return BlockPos.asLong((int) x, BlockPos.getY(pos), (int) foldZ(shape, blocks, z));
+    }
+
+    public long copyNear(long pos, double centerX, double centerZ) {
+        if (shape == null) {
+            return pos;
+        }
+
+        long x = BlockPos.getX(pos);
+        long z = BlockPos.getZ(pos);
+        double shear = 0.0;
+        if (shape.loops(Direction.Axis.Z)) {
+            int widthZ = width(Direction.Axis.Z);
+            long laps = lapsOff(z + HALF - centerZ, widthZ);
+            z -= laps * widthZ;
+            x -= laps * skewBlocks;
+            shear = (z + HALF - centerZ) / widthZ * skewBlocks;
+        }
+
+        if (shape.loops(Direction.Axis.X)) {
+            int widthX = width(Direction.Axis.X);
+            x -= lapsOff(x + HALF - centerX - shear, widthX) * widthX;
+        }
+
+        return BlockPos.asLong((int) x, BlockPos.getY(pos), (int) z);
+    }
+
+    public long[] foldedChunks(int chunkX, int chunkZ) {
+        if (shape == null) {
+            return new long[] {ChunkPos.pack(chunkX, chunkZ)};
+        }
+
+        LongLinkedOpenHashSet folded = new LongLinkedOpenHashSet();
+        int minX = SectionPos.sectionToBlockCoord(chunkX);
+        int minZ = SectionPos.sectionToBlockCoord(chunkZ);
+        for (int dz = 0; dz < SectionPos.SECTION_SIZE; dz++) {
+            for (int dx = 0; dx < SectionPos.SECTION_SIZE; dx++) {
+                long pos = foldBlock(BlockPos.asLong(minX + dx, ANY_Y, minZ + dz));
+                folded.add(ChunkPos.pack(SectionPos.blockToSectionCoord(BlockPos.getX(pos)),
+                        SectionPos.blockToSectionCoord(BlockPos.getZ(pos))));
+            }
+        }
+
+        return folded.toLongArray();
+    }
+
+    private static long lapsOff(double offset, int width) {
+        return (long) Math.floor(offset / width + HALF);
     }
 
     public int lapXBlocks() {
