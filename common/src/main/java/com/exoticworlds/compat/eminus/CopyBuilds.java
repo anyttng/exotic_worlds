@@ -14,7 +14,10 @@ public final class CopyBuilds<H> {
         QUEUE, JOINED
     }
 
-    public record Member<H>(long key, long request, float priority, @Nullable H held, int references) {
+    public record Member<H>(long key, long request, float priority, boolean fills, @Nullable H held, int references) {
+        private boolean leads(Member<H> leader) {
+            return fills != leader.fills ? fills : priority > leader.priority;
+        }
     }
 
     private static final class Group<H> {
@@ -41,7 +44,7 @@ public final class CopyBuilds<H> {
             return Offer.QUEUE;
         }
 
-        if (member.priority() <= group.leader.priority()) {
+        if (!member.leads(group.leader)) {
             group.followers.add(member);
             return Offer.JOINED;
         }

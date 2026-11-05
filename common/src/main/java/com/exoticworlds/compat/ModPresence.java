@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.classfile.ClassModel;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,6 +62,12 @@ public final class ModPresence {
 
     static boolean probe(ClassLoader classLoader, String resource) {
         return classLoader.getResource(resource) != null;
+    }
+
+    public static boolean probeMethod(String owner, String name, String descriptor) {
+        ClassModel model = new ClassFiles(ModPresence.class.getClassLoader()).load(owner).model();
+        return model != null && model.methods().stream().anyMatch(method -> method.methodName().equalsString(name)
+                && method.methodType().equalsString(descriptor));
     }
 
     private ModPresence(Builder builder, ClassLoader classLoader) {
