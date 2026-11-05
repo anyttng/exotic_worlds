@@ -16,6 +16,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 
 import org.jspecify.annotations.Nullable;
+import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 
 import com.exoticworlds.compat.MixinTargetCheck.Reason;
@@ -61,6 +62,12 @@ public final class ModPresence {
 
     static boolean probe(ClassLoader classLoader, String resource) {
         return classLoader.getResource(resource) != null;
+    }
+
+    public static boolean probeMethod(String owner, String name, String descriptor) {
+        ClassNode model = new ClassFiles(ModPresence.class.getClassLoader()).load(owner).model();
+        return model != null && model.methods.stream().anyMatch(method -> method.name.equals(name)
+                && method.desc.equals(descriptor));
     }
 
     private ModPresence(Builder builder, ClassLoader classLoader) {

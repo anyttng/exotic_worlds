@@ -6,6 +6,7 @@ public final class EminusInjectionTargets {
     public static final String MESH_QUEUE_POLL = "Lcom/eminus/mesh/MeshQueue;poll()Lcom/eminus/mesh/MeshTask;";
     public static final String MESH_LISTENER_MESHED = "Lcom/eminus/mesh/MeshListener;meshed(Lcom/eminus/mesh/CellMesh;J)V";
     public static final String MESH_LISTENER_FAILED = "Lcom/eminus/mesh/MeshListener;failed(JJ)V";
+    public static final String MESH_SERVICE_FILL_REQUEST = "(JLcom/eminus/cell/cache/CellHandle;IJFZ)V";
 
     private EminusInjectionTargets() {
     }

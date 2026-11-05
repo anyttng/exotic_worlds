@@ -63,8 +63,38 @@ class CopyBuildsTest {
         assertEquals(CopyBuilds.Offer.QUEUE, copies.offer(STORED, member(612L, 3L, FAR)));
     }
 
+    @Test
+    void aFillTakesTheLeadFromANearerRebuild() {
+        copies.offer(STORED, member(100L, 1L, NEAR));
+        assertEquals(CopyBuilds.Offer.QUEUE, copies.offer(STORED, fill(612L, 2L, FAR)));
+
+        assertTrue(copies.skip(1L), "the rebuild waits behind no one once a fill leads its group");
+        copies.taken(2L);
+        assertEquals(List.of(100L), keys(copies.delivered(2L)));
+    }
+
+    @Test
+    void aNearerRebuildJoinsAGroupAFillLeads() {
+        copies.offer(STORED, fill(612L, 1L, FAR));
+
+        assertEquals(CopyBuilds.Offer.JOINED, copies.offer(STORED, member(100L, 2L, NEAR)));
+        assertFalse(copies.skip(1L), "the fill keeps its place in the queue");
+    }
+
+    @Test
+    void aNearerFillTakesTheLeadFromAFill() {
+        copies.offer(STORED, fill(612L, 1L, FAR));
+
+        assertEquals(CopyBuilds.Offer.QUEUE, copies.offer(STORED, fill(100L, 2L, NEAR)));
+        assertTrue(copies.skip(1L));
+    }
+
     private static CopyBuilds.Member<String> member(long key, long request, float priority) {
-        return new CopyBuilds.Member<>(key, request, priority, null, 0);
+        return new CopyBuilds.Member<>(key, request, priority, false, null, 0);
+    }
+
+    private static CopyBuilds.Member<String> fill(long key, long request, float priority) {
+        return new CopyBuilds.Member<>(key, request, priority, true, null, 0);
     }
 
     private static List<Long> keys(List<CopyBuilds.Member<String>> members) {
