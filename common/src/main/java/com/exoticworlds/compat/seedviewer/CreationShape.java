@@ -19,8 +19,6 @@ import net.minecraft.world.level.dimension.LevelStem;
 public final class CreationShape {
     private static final String FINGERPRINT_PREFIX = "|exotic_worlds=";
 
-    private static final String UNSHAPED = FINGERPRINT_PREFIX + "none";
-
     private static final Map<CarriedShape, String> FINGERPRINTS = new ConcurrentHashMap<>();
 
     private static boolean sessionOpen;
@@ -28,7 +26,7 @@ public final class CreationShape {
     private static @Nullable Chosen kept;
 
     private record Chosen(WorldCreationContext settings, WorldShape shape, @Nullable CarriedShape carried,
-            String fingerprint) {
+            @Nullable String fingerprint) {
     }
 
     public static void openSession() {
@@ -50,8 +48,9 @@ public final class CreationShape {
         return carried != null ? carried.fold() : null;
     }
 
-    public static String fingerprint(WorldCreationContext settings) {
-        return chosen(settings).fingerprint();
+    public static String fingerprinted(String foreign, WorldCreationContext settings) {
+        String fingerprint = chosen(settings).fingerprint();
+        return fingerprint != null ? foreign + fingerprint : foreign;
     }
 
     public static WorldFold routerBuildFold() {
@@ -68,7 +67,7 @@ public final class CreationShape {
 
         CarriedShape carried = overworld(settings);
         Chosen chosen = new Chosen(settings, shape, carried, carried == null
-                ? UNSHAPED
+                ? null
                 : FINGERPRINTS.computeIfAbsent(carried, key -> FINGERPRINT_PREFIX + FINGERPRINTS.size()));
         if (sessionOpen) {
             kept = chosen;

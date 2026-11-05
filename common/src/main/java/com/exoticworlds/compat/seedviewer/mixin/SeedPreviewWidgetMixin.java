@@ -49,7 +49,7 @@ public class SeedPreviewWidgetMixin {
 
     @ModifyReturnValue(method = "settingsFingerprint", at = @At("RETURN"))
     private String exotic_worlds$fingerprintTheChosenShape(String fingerprint, @Local WorldCreationContext settings) {
-        return fingerprint + CreationShape.fingerprint(settings);
+        return CreationShape.fingerprinted(fingerprint, settings);
     }
 
     @Inject(method = SeedViewerInjectionTargets.DRAW_TILES,

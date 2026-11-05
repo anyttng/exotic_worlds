@@ -32,8 +32,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.saveddata.maps.MapId;
-import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
 import rubbertoe.simple_atlas.client.screen.AtlasScreen;
 import rubbertoe.simple_atlas.client.screen.icon.AtlasIcon;
@@ -108,15 +106,13 @@ public abstract class AtlasScreenMixin {
     @Inject(method = "<init>", at = @At("RETURN"))
     private void exotic_worlds$relayTiles(CallbackInfo ci) {
         Minecraft minecraft = Minecraft.getInstance();
-        MapItemSavedData first = this.tiles.isEmpty() || minecraft.level == null
-                ? null
-                : minecraft.level.getMapData(new MapId(this.tiles.getFirst().mapId()));
-        if (first == null) {
+        List<AtlasTilePayload> relaid = AtlasLayoutFold.relaid(this.tiles,
+                tile -> AtlasTileFold.blocksPerTile(minecraft.level, tile), AtlasTileFold::shapeOf,
+                MapCopies.current());
+        if (relaid == this.tiles) {
             return;
         }
 
-        List<AtlasTilePayload> relaid = AtlasLayoutFold.relaid(List.copyOf(this.tiles),
-                AtlasTileFold.MAP_PIXELS << first.scale, AtlasTileFold::shapeOf, MapCopies.current());
         this.tiles.clear();
         this.tiles.addAll(relaid);
         this.dimensionTileBounds.clear();

@@ -48,6 +48,6 @@ public class WorldCreationPreviewContextMixin {
             index = WORLDGEN_IDENTITY)
     private static String exotic_worlds$identifyTheChosenShape(String worldgenIdentity,
             @Local(argsOnly = true) WorldCreationUiState uiState) {
-        return worldgenIdentity + CreationShape.fingerprint(uiState.getSettings());
+        return CreationShape.fingerprinted(worldgenIdentity, uiState.getSettings());
     }
 }
