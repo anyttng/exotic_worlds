@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -270,6 +271,55 @@ class ForeignFrameFoldTest {
         BlockPos negatedBlock = new BlockPos(-PLOT_BLOCK, SEA_LEVEL, -PLOT_BLOCK);
         assertEquals(BARE_LATTICE.fold(negatedBlock), LATTICE.fold(negatedBlock));
         assertTrue(LATTICE.isOver(negatedBlock));
+    }
+
+    @Test
+    void theLatticeNearestChunkKeyLeavesEitherOperandInThePlotWhereItIs() {
+        long plotKey = PLOT_CHUNK_POS.toLong();
+        long worldKey = ChunkPos.asLong(8, -3);
+        assertEquals(plotKey, LATTICE.nearestCopyChunkKey(worldKey, plotKey));
+        assertEquals(worldKey, LATTICE.nearestCopyChunkKey(plotKey, worldKey));
+        assertEquals(FRAMED.nearestCopyChunkKey(worldKey, plotKey), LATTICE.nearestCopyChunkKey(worldKey, plotKey));
+
+        assertNotEquals(plotKey, BARE_LATTICE.nearestCopyChunkKey(worldKey, plotKey));
+    }
+
+    @Test
+    void theLatticeReadsTheChunkDistanceToThePlotRaw() {
+        ChunkPos world = new ChunkPos(8, -3);
+        int raw = squared(PLOT_CHUNK - world.x) + squared(PLOT_CHUNK - world.z);
+        assertEquals(raw, LATTICE.sqrChunkDistance(world, PLOT_CHUNK_POS));
+        assertEquals(raw, LATTICE.sqrChunkDistance(PLOT_CHUNK_POS, world));
+        assertEquals(FRAMED.sqrChunkDistance(world, PLOT_CHUNK_POS), LATTICE.sqrChunkDistance(world, PLOT_CHUNK_POS));
+    }
+
+    @Test
+    void theLatticeNearestBlockNodeLeavesThePlotWhereItIs() {
+        long plotNode = PLOT_BLOCK_POS.asLong();
+        long worldNode = WORLD_BLOCK_POS.asLong();
+        assertEquals(plotNode, LATTICE.nearestCopyBlockNode(worldNode, plotNode));
+        assertEquals(worldNode, LATTICE.nearestCopyBlockNode(plotNode, worldNode));
+    }
+
+    @Test
+    void aPlotChunkIsItsOwnOnlyCopy() {
+        assertTrue(LATTICE.deckTransformation(PLOT_CHUNK_POS, PLOT_CHUNK_POS).isIdentity());
+        assertSame(PLOT_BLOCK_POS, LATTICE.reseat(PLOT_BLOCK_POS, PLOT_CHUNK_POS));
+        assertSame(PLOT_BLOCK_POS, FRAMED.reseat(PLOT_BLOCK_POS, PLOT_CHUNK_POS));
+
+        ChunkPos plainLap = new ChunkPos(PLOT_CHUNK + WORLD_CHUNKS, PLOT_CHUNK);
+        assertThrows(IllegalArgumentException.class, () -> FRAMED.deckTransformation(PLOT_CHUNK_POS, plainLap));
+        assertThrows(IllegalArgumentException.class, () -> FRAMED.reseat(PLOT_BLOCK_POS, plainLap));
+        assertFalse(BARE.deckTransformation(PLOT_CHUNK_POS, plainLap).isIdentity());
+
+        ChunkPos latticeStep = new ChunkPos(PLOT_CHUNK + LATTICE_SKEW_CHUNKS, PLOT_CHUNK + WORLD_CHUNKS);
+        assertThrows(IllegalArgumentException.class, () -> LATTICE.deckTransformation(PLOT_CHUNK_POS, latticeStep));
+        assertThrows(IllegalArgumentException.class, () -> LATTICE.reseat(PLOT_BLOCK_POS, latticeStep));
+        assertFalse(BARE_LATTICE.deckTransformation(PLOT_CHUNK_POS, latticeStep).isIdentity());
+    }
+
+    private static int squared(int value) {
+        return value * value;
     }
 
     @Test

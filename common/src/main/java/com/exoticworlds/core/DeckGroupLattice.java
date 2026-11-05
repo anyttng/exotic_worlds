@@ -8,6 +8,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 
 final class DeckGroupLattice {
@@ -211,7 +212,41 @@ final class DeckGroupLattice {
         return foldMoveOfCell(fromX, fromZ).then(foldMoveOfCell(toX, toZ).inverse());
     }
 
+    boolean isOver(double coordX, double coordZ) {
+        return !this.laps.isForeign(coordX, coordZ) && (this.x.isOver(coordX) || this.z.isOver(coordZ));
+    }
+
+    boolean isOver(int cellX, int cellZ) {
+        return !this.laps.isForeign(cellX, cellZ) && (this.x.isOver(cellX) || this.z.isOver(cellZ));
+    }
+
+    int overshoot(int cellX, int cellZ) {
+        return this.laps.isForeign(cellX, cellZ) ? 0 : Math.max(this.x.overshoot(cellX), this.z.overshoot(cellZ));
+    }
+
+    boolean crossesBounds(AABB box) {
+        return !foreignBox(box.minX, box.maxX, box.minZ, box.maxZ) && SeamBoxes.crosses(this.x, this.z, box);
+    }
+
+    boolean crossesBounds(BoundingBox region) {
+        return !foreignBox(region.minX(), region.maxX(), region.minZ(), region.maxZ())
+                && SeamBoxes.crosses(this.x, this.z, region);
+    }
+
+    private boolean foreignBox(double minX, double maxX, double minZ, double maxZ) {
+        return (this.x.isForeign(minX) && this.x.isForeign(maxX))
+                || (this.z.isForeign(minZ) && this.z.isForeign(maxZ));
+    }
+
+    private boolean eitherForeign(double refX, double refZ, double targetX, double targetZ) {
+        return this.laps.isForeign(refX, refZ) || this.laps.isForeign(targetX, targetZ);
+    }
+
     SeamTransform nearestMoveOfCell(int refX, int refZ, int targetX, int targetZ) {
+        if (eitherForeign(refX, refZ, targetX, targetZ)) {
+            return SeamTransform.IDENTITY;
+        }
+
         long toRef = this.laps.ofCells(refX, refZ);
         long toTarget = this.laps.ofCells(targetX, targetZ);
         int foldedTargetX = this.laps.foldCellX(toTarget, targetX);
@@ -229,6 +264,10 @@ final class DeckGroupLattice {
     }
 
     long nearestCellsSqrDistance(int refX, int refZ, int targetX, int targetZ) {
+        if (eitherForeign(refX, refZ, targetX, targetZ)) {
+            return squared((long) targetX - refX) + squared((long) targetZ - refZ);
+        }
+
         long toRef = this.laps.ofCells(refX, refZ);
         long toTarget = this.laps.ofCells(targetX, targetZ);
         int foldedTargetX = this.laps.foldCellX(toTarget, targetX);
@@ -276,6 +315,10 @@ final class DeckGroupLattice {
     }
 
     SeamTransform nearestMoveOfCoord(double refX, double refZ, double targetX, double targetZ) {
+        if (eitherForeign(refX, refZ, targetX, targetZ)) {
+            return SeamTransform.IDENTITY;
+        }
+
         long toRef = this.laps.ofCoords(refX, refZ);
         long toTarget = this.laps.ofCoords(targetX, targetZ);
         double foldedTargetX = this.laps.foldX(toTarget, targetX);
@@ -293,6 +336,10 @@ final class DeckGroupLattice {
     }
 
     double nearestCoordsSqrDistance(double refX, double refZ, double targetX, double targetZ) {
+        if (eitherForeign(refX, refZ, targetX, targetZ)) {
+            return squared(targetX - refX) + squared(targetZ - refZ);
+        }
+
         long toRef = this.laps.ofCoords(refX, refZ);
         long toTarget = this.laps.ofCoords(targetX, targetZ);
         double foldedTargetX = this.laps.foldX(toTarget, targetX);

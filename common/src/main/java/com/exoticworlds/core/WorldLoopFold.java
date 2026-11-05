@@ -518,7 +518,7 @@ final class WorldLoopFold implements WorldFold {
             return DeckTransformation.IDENTITY;
         }
 
-        requireCopy(chunk, copy, deltaX, deltaZ);
+        requireCopy(chunk, copy);
         return new DeckTransformation(SeamTransform.translation(
                 SectionPos.sectionToBlockCoord(deltaX), SectionPos.sectionToBlockCoord(deltaZ)));
     }
@@ -531,12 +531,12 @@ final class WorldLoopFold implements WorldFold {
             return pos;
         }
 
-        requireCopy(new ChunkPos(pos), copy, deltaX, deltaZ);
+        requireCopy(new ChunkPos(pos), copy);
         return pos.offset(SectionPos.sectionToBlockCoord(deltaX), 0, SectionPos.sectionToBlockCoord(deltaZ));
     }
 
-    private void requireCopy(ChunkPos chunk, ChunkPos copy, int deltaX, int deltaZ) {
-        if (!chunks.x.isWholeLaps(deltaX) || !chunks.z.isWholeLaps(deltaZ)) {
+    private void requireCopy(ChunkPos chunk, ChunkPos copy) {
+        if (!chunks.x.isCopy(chunk.x, copy.x) || !chunks.z.isCopy(chunk.z, copy.z)) {
             throw new IllegalArgumentException(copy + " is not a copy of " + chunk + " in " + this);
         }
     }

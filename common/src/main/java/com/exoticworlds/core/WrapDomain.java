@@ -178,8 +178,12 @@ public class WrapDomain {
         return true;
     }
 
-    public boolean isWholeLaps(int delta) {
-        return Math.floorMod(delta, domainLength) == 0;
+    public boolean isCopy(int coord, int copy) {
+        if (coord == copy) {
+            return true;
+        }
+
+        return !isForeign(coord) && !isForeign(copy) && Math.floorMod(copy - coord, domainLength) == 0;
     }
 
     public boolean isOver(double coord) {
@@ -339,8 +343,8 @@ public class WrapDomain {
         }
 
         @Override
-        public boolean isWholeLaps(int delta) {
-            return delta == 0;
+        public boolean isCopy(int coord, int copy) {
+            return coord == copy;
         }
 
         @Override

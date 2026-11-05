@@ -17,7 +17,15 @@ final class DeckGroupLaps {
         this.steps = steps;
     }
 
+    boolean isForeign(double coordX, double coordZ) {
+        return this.x.isForeign(coordX) || this.z.isForeign(coordZ);
+    }
+
     long ofCells(int cellX, int cellZ) {
+        if (isForeign(cellX, cellZ)) {
+            return NONE;
+        }
+
         int currentX = cellX;
         int currentZ = cellZ;
         int first = 0;
@@ -47,6 +55,10 @@ final class DeckGroupLaps {
     }
 
     long ofCoords(double coordX, double coordZ) {
+        if (isForeign(coordX, coordZ)) {
+            return NONE;
+        }
+
         double currentX = coordX;
         double currentZ = coordZ;
         int first = 0;
