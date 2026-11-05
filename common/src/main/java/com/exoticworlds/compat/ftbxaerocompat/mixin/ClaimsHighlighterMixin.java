@@ -20,7 +20,8 @@ public abstract class ClaimsHighlighterMixin {
     @WrapOperation(method = "getChunk",
             at = @At(value = "INVOKE", target = FtbChunksInjectionTargets.XZ_REGION_FROM_CHUNK))
     private static XZ exotic_worlds$foldRegionKey(int chunkX, int chunkZ, Operation<XZ> original) {
-        return FtbChunksFold.regionOfChunk(chunkX, chunkZ);
+        XZ chunk = FtbChunksFold.chunkOf(chunkX, chunkZ);
+        return original.call(chunk.x(), chunk.z());
     }
 
     @WrapOperation(method = "getChunk",

@@ -964,43 +964,6 @@ class DeckGroupFoldMatrixTest {
             }
         }
 
-        @Test
-        void theDistanceToABoxIsTheNearestCopyOfThatBox() {
-            for (Case testCase : cases()) {
-                DeckGroupFold fold = testCase.fold();
-                Random random = new Random(SEED + 13);
-                for (int sample = 0; sample < SAMPLES; sample++) {
-                    Vec3 point = new Vec3(sample(random) + 0.5, 64.0, sample(random) + 0.5);
-                    double minX = sample(random);
-                    double minZ = sample(random);
-                    AABB box = new AABB(minX, 60.0, minZ, minX + 4.0, 68.0, minZ + 6.0);
-
-                    double best = Double.MAX_VALUE;
-                    for (int first = -ORBIT_REACH; first <= ORBIT_REACH; first++) {
-                        for (int second = -ORBIT_REACH; second <= ORBIT_REACH; second++) {
-                            double[] low = testCase.group().coord(box.minX, box.minZ, first, second);
-                            double[] high = testCase.group().coord(box.maxX, box.maxZ, first, second);
-                            best = Math.min(best, gapSquared(low, high, point));
-                        }
-                    }
-
-                    assertEquals(best, fold.sqrDistanceToBox(box, point),
-                            testCase.name() + ": the distance to the box is not the nearest copy's");
-                }
-            }
-        }
-
-        private static double gapSquared(double[] low, double[] high, Vec3 point) {
-            double minX = Math.min(low[0], high[0]);
-            double maxX = Math.max(low[0], high[0]);
-            double minZ = Math.min(low[1], high[1]);
-            double maxZ = Math.max(low[1], high[1]);
-            double xGap = Math.max(Math.max(minX - point.x, point.x - maxX), 0.0);
-            double yGap = Math.max(Math.max(60.0 - point.y, point.y - 68.0), 0.0);
-            double zGap = Math.max(Math.max(minZ - point.z, point.z - maxZ), 0.0);
-            return xGap * xGap + yGap * yGap + zGap * zGap;
-        }
-
         private static boolean anyCopyIntersects(Group group, BoundingBox first, BoundingBox second) {
             if (first.minY() > second.maxY() || second.minY() > first.maxY()) {
                 return false;

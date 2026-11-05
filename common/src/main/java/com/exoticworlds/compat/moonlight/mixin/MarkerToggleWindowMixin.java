@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.compat.moonlight.MoonlightMapFold;
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.sugar.Local;
 
@@ -22,19 +23,23 @@ public class MarkerToggleWindowMixin {
     @ModifyVariable(method = TOGGLE, at = @At("STORE"), ordinal = 0)
     private double exotic_worlds$seatToggleX(double x, @Local(argsOnly = true) LevelAccessor level,
             @Local(argsOnly = true) BlockPos pos) {
-        return exotic_worlds$seated(level, pos, Direction.Axis.X);
+        return exotic_worlds$seated(x, level, pos, Direction.Axis.X);
     }
 
     @ModifyVariable(method = TOGGLE, at = @At("STORE"), ordinal = 1)
     private double exotic_worlds$seatToggleZ(double z, @Local(argsOnly = true) LevelAccessor level,
             @Local(argsOnly = true) BlockPos pos) {
-        return exotic_worlds$seated(level, pos, Direction.Axis.Z);
+        return exotic_worlds$seated(z, level, pos, Direction.Axis.Z);
     }
 
     @Unique
-    private double exotic_worlds$seated(LevelAccessor level, BlockPos pos, Direction.Axis axis) {
+    private double exotic_worlds$seated(double stored, LevelAccessor level, BlockPos pos, Direction.Axis axis) {
         MapItemSavedData data = (MapItemSavedData) (Object) this;
-        return NearestCopy.toward(MoonlightMapFold.of(level, data), axis, new Vec3(data.centerX, 0.0, data.centerZ),
-                Vec3.atBottomCenterOf(pos));
+        WorldFold fold = MoonlightMapFold.of(level, data);
+        if (fold == null) {
+            return stored;
+        }
+
+        return NearestCopy.toward(fold, axis, new Vec3(data.centerX, 0.0, data.centerZ), Vec3.atBottomCenterOf(pos));
     }
 }

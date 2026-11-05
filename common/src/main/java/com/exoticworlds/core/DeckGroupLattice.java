@@ -339,42 +339,6 @@ final class DeckGroupLattice {
         return bestIndex;
     }
 
-    double nearestBoxSqrGap(double pointX, double pointZ, AABB box) {
-        double centerX = SeamBoxes.center(box.minX, box.maxX);
-        double centerZ = SeamBoxes.center(box.minZ, box.maxZ);
-        long toBox = this.laps.ofCoords(centerX, centerZ);
-        long toPoint = this.laps.ofCoords(pointX, pointZ);
-
-        double deltaX = this.laps.foldX(toBox, centerX) - this.laps.foldX(toPoint, pointX);
-        double deltaZ = this.laps.foldZ(toBox, centerZ) - this.laps.foldZ(toPoint, pointZ);
-        long first = nearFirst(deltaX, deltaZ);
-        long second = nearSecond(deltaX, deltaZ);
-        double best = gapSquared(box.minX, box.maxX, box.minZ, box.maxZ, pointX, pointZ);
-        for (int index = 0; index < candidateCount(); index++) {
-            int signX = this.laps.signThroughX(toBox, candidateSignX(index), toPoint);
-            int signZ = this.laps.signThroughZ(toBox, candidateSignZ(index), toPoint);
-            int shiftX = this.laps.shiftThroughX(toBox, candidateSignX(index), candidateOffsetX(index, first, second),
-                    toPoint);
-            int shiftZ = this.laps.shiftThroughZ(toBox, candidateSignZ(index), candidateOffsetZ(index, first, second),
-                    toPoint);
-            double firstX = signX * box.minX + shiftX;
-            double secondX = signX * box.maxX + shiftX;
-            double firstZ = signZ * box.minZ + shiftZ;
-            double secondZ = signZ * box.maxZ + shiftZ;
-            best = Math.min(best, gapSquared(Math.min(firstX, secondX), Math.max(firstX, secondX),
-                    Math.min(firstZ, secondZ), Math.max(firstZ, secondZ), pointX, pointZ));
-        }
-
-        return best;
-    }
-
-    private static double gapSquared(double minX, double maxX, double minZ, double maxZ, double pointX,
-            double pointZ) {
-        double xGap = Math.max(Math.max(minX - pointX, pointX - maxX), 0.0);
-        double zGap = Math.max(Math.max(minZ - pointZ, pointZ - maxZ), 0.0);
-        return xGap * xGap + zGap * zGap;
-    }
-
     private static boolean closerToRest(long firstX, long firstZ, long secondX, long secondZ) {
         long first = squared(firstX) + squared(firstZ);
         long second = squared(secondX) + squared(secondZ);

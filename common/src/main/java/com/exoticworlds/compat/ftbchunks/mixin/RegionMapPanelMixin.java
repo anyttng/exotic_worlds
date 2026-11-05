@@ -36,11 +36,12 @@ import dev.ftb.mods.ftbchunks.client.gui.MapTileWidget;
 import dev.ftb.mods.ftbchunks.client.gui.RegionMapPanel;
 import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftblibrary.ui.GuiHelper;
+import dev.ftb.mods.ftblibrary.ui.Panel;
 import dev.ftb.mods.ftblibrary.ui.Theme;
 import dev.ftb.mods.ftblibrary.ui.Widget;
 
 @Mixin(value = RegionMapPanel.class, remap = false)
-public abstract class RegionMapPanelMixin {
+public abstract class RegionMapPanelMixin extends Panel {
     // MapTileWidget.draw switches to linear filtering once a tile is narrower than 512 window pixels.
     @Unique
     private static final double LINEAR_FILTER_BELOW_PIXELS = 512.0;
@@ -63,6 +64,10 @@ public abstract class RegionMapPanelMixin {
 
     @Unique
     private @Nullable SeamView exotic_worlds$seamView;
+
+    protected RegionMapPanelMixin(Panel panel) {
+        super(panel);
+    }
 
     @Inject(method = "draw", at = @At("HEAD"))
     private void exotic_worlds$stopScrollAtTheEdge(GuiGraphics graphics, Theme theme, int x, int y, int w, int h,
@@ -132,8 +137,9 @@ public abstract class RegionMapPanelMixin {
         original.call(panel, graphics, theme, x, y, w, h);
     }
 
-    // Not @Unique: it overrides Panel.drawOffsetBackground, drawn between the BACKGROUND tiles and FOREGROUND icons.
+    @Override
     public void drawOffsetBackground(GuiGraphics graphics, Theme theme, int x, int y, int w, int h) {
+        super.drawOffsetBackground(graphics, theme, x, y, w, h);
         SeamView view = exotic_worlds$seamView;
         if (view == null) {
             return;

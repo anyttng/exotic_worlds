@@ -108,8 +108,6 @@ public interface WorldFold {
 
     int sqrChunkDistance(ChunkPos from, ChunkPos to);
 
-    double sqrDistanceToBox(AABB box, Vec3 point);
-
     boolean crossesBounds(AABB box);
 
     boolean crossesBounds(BoundingBox region);

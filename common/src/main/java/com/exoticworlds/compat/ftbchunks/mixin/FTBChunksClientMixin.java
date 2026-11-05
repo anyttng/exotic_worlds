@@ -40,10 +40,7 @@ public abstract class FTBChunksClientMixin {
     private static final int SOURCE_Z_ARG = 4;
 
     @Unique
-    private static final int REGION_CHUNK_MASK = 31;
-
-    @Unique
-    private static final int CHUNK_PIXELS = 16;
+    private static final int REGION_CHUNKS = 32;
 
     @Unique
     private static final String MAP_ICON_ENTITY =
@@ -78,14 +75,14 @@ public abstract class FTBChunksClientMixin {
             at = @At(value = "INVOKE", target = IMAGE_UPLOAD, remap = true))
     private int exotic_worlds$foldedPieceSourceX(int sourceX, @Local(name = "ox") int chunkX,
             @Local(name = "oz") int chunkZ) {
-        return (FtbChunksFold.foldedChunkPos(new ChunkPos(chunkX, chunkZ)).x & REGION_CHUNK_MASK) * CHUNK_PIXELS;
+        return FtbChunksFold.minimapSourcePixel(Direction.Axis.X, sourceX, chunkX, chunkZ, REGION_CHUNKS);
     }
 
     @ModifyArg(method = UPDATE_MINIMAP, index = SOURCE_Z_ARG,
             at = @At(value = "INVOKE", target = IMAGE_UPLOAD, remap = true))
     private int exotic_worlds$foldedPieceSourceZ(int sourceZ, @Local(name = "ox") int chunkX,
             @Local(name = "oz") int chunkZ) {
-        return (FtbChunksFold.foldedChunkPos(new ChunkPos(chunkX, chunkZ)).z & REGION_CHUNK_MASK) * CHUNK_PIXELS;
+        return FtbChunksFold.minimapSourcePixel(Direction.Axis.Z, sourceZ, chunkX, chunkZ, REGION_CHUNKS);
     }
 
     @ModifyVariable(method = MAP_ICON_ENTITY, at = @At("STORE"), name = "z")

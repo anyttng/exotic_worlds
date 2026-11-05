@@ -230,9 +230,6 @@ class ForeignFrameFoldTest {
         double raw = WORLD_VEC.distanceToSqr(PLOT_VEC);
         assertEquals(raw, LATTICE.sqrDistance(WORLD_VEC.x, WORLD_VEC.y, WORLD_VEC.z, PLOT_VEC.x, PLOT_VEC.y, PLOT_VEC.z), 0.0);
         assertEquals(raw, LATTICE.sqrDistance(PLOT_VEC.x, PLOT_VEC.y, PLOT_VEC.z, WORLD_VEC.x, WORLD_VEC.y, WORLD_VEC.z), 0.0);
-
-        AABB plotBox = new AABB(PLOT_BLOCK_POS).inflate(3.0);
-        assertEquals(plotBox.distanceToSqr(WORLD_VEC), LATTICE.sqrDistanceToBox(plotBox, WORLD_VEC), 0.0);
     }
 
     @Test

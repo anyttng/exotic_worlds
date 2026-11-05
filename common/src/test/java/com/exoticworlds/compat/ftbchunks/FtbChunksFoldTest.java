@@ -321,14 +321,48 @@ class FtbChunksFoldTest {
     }
 
     @Test
+    void anUnwrappedWorldHandsFtbItsOwnKeys() {
+        XZ key = XZ.of(9000, 33);
+        assertSame(key, FtbChunksFold.foldedKey(null, key), "an unwrapped world rebuilt the chunk key");
+        assertSame(key, FtbChunksFold.chunkOf(Level.END, key), "an unpublished dimension rebuilt the chunk key");
+        ChunkPos owner = new ChunkPos(9000, 33);
+        assertSame(owner, FtbChunksFold.foldedChunkPos(Level.END, owner),
+                "an unpublished dimension rebuilt the owner key");
+    }
+
+    @Test
+    void aKeyInsideTheWorldIsHandedBackItself() {
+        XZ key = XZ.of(3, 4);
+        assertSame(key, FtbChunksFold.foldedKey(torus(1024), key), "a canonical chunk key was rebuilt");
+        assertEquals(XZ.of(0, 4), FtbChunksFold.foldedKey(torus(1024), XZ.of(64, 4)),
+                "chunk 64 of a 64-chunk world is chunk 0");
+    }
+
+    @Test
+    void anUnwrappedMinimapKeepsFtbsSourcePixel() {
+        assertEquals(77, FtbChunksFold.minimapSourcePixel(null, Direction.Axis.X, 77, 40, 3, 32),
+                "an unwrapped world replaced the source column FTB stored");
+        assertEquals(77, FtbChunksFold.minimapSourcePixel(null, Direction.Axis.Z, 77, 40, 3, 32),
+                "an unwrapped world replaced the source row FTB stored");
+    }
+
+    @Test
+    void aMinimapChunkPastTheSeamReadsItsCanonicalPixel() {
+        assertEquals(77, FtbChunksFold.minimapSourcePixel(torus(512), Direction.Axis.X, 77, 5, 40, 32),
+                "chunk 5 is canonical on x and its stored column was replaced");
+        assertEquals(8 * 16, FtbChunksFold.minimapSourcePixel(torus(512), Direction.Axis.Z, 77, 5, 40, 32),
+                "chunk 40 of a 32-chunk world reads row 8 of its region image");
+    }
+
+    @Test
     void anOverworldKeyFoldsByTheOverworldWhateverElseIsPublished() {
         PublishedShapes.publish(Level.OVERWORLD, WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(64))));
         PublishedShapes.publish(Level.NETHER, WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(8))));
         try {
             assertEquals(XZ.of(10, 0), FtbChunksFold.chunkOf(Level.OVERWORLD, 10, 0),
                     "chunk 10 is canonical in a 64-chunk Overworld and was folded by the 8-chunk Nether");
-            assertEquals(XZ.of(0, 0), FtbChunksFold.regionOfChunk(Level.OVERWORLD, new ChunkPos(10, 0)),
-                    "the Overworld region key was taken from a chunk folded by the Nether");
+            assertEquals(new ChunkPos(10, 0), FtbChunksFold.foldedChunkPos(Level.OVERWORLD, new ChunkPos(10, 0)),
+                    "the Overworld owner key was folded by the Nether");
             assertEquals(XZ.of(2, 0), FtbChunksFold.chunkOf(Level.NETHER, XZ.of(10, 0)),
                     "the Nether's own key does not fold by its 8-chunk shape");
             assertEquals(XZ.of(40, 0), FtbChunksFold.chunkOf(Level.END, 40, 0),
