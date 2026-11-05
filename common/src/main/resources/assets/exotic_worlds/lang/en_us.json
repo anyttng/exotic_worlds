@@ -11,9 +11,8 @@
   "commands.exotic_worlds.dimensions.configure": "Choose shape",
   "commands.exotic_worlds.dimensions.configure.hint": "Open the shape choice for these dimensions",
   "commands.exotic_worlds.dimensions.no_client": "This screen needs Exotic Worlds on your game too.",
-  "commands.exotic_worlds.dimensions.saved": "Shapes saved. They apply the next time the world loads.",
+  "commands.exotic_worlds.dimensions.applied": "Shapes applied.",
   "commands.exotic_worlds.dimensions.refused": "Kept the current shape of %s.",
-  "commands.exotic_worlds.dimensions.dropped": "The shape chosen for %s is dropped, since chunks were made there before the world loaded again.",
 
   "gui.exotic_worlds.world_shape": "World Shape",
   "gui.exotic_worlds.world_shape.normal": "Normal",
@@ -84,7 +83,7 @@
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "Takes the Overworld's shape, scaled by this dimension's coordinate scale; stays Normal where that gives no whole width.",
 
   "gui.exotic_worlds.world_dimensions.title": "World Dimensions",
-  "gui.exotic_worlds.world_dimensions.restart": "Changes apply the next time the world loads",
+  "gui.exotic_worlds.world_dimensions.note": "A shape can be chosen once, before the dimension has chunks",
   "gui.exotic_worlds.world_dimensions.other": "Other shape",
   "gui.exotic_worlds.world_dimensions.locked.vanilla": "Set when the world was created",
   "gui.exotic_worlds.world_dimensions.locked.chosen": "Already chosen, so the shape stays",

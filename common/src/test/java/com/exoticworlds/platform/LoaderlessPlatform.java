@@ -11,6 +11,8 @@ import com.exoticworlds.engine.net.PositionRowsPayload;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -56,6 +58,16 @@ public final class LoaderlessPlatform implements Platform {
 
     @Override
     public void sendDimensionChoicesUpdate(DimensionChoicesUpdatePayload update) {
+        throw new UnsupportedOperationException(NO_LOADER);
+    }
+
+    @Override
+    public void postLevelUnload(MinecraftServer server, ServerLevel level) {
+        throw new UnsupportedOperationException(NO_LOADER);
+    }
+
+    @Override
+    public void postLevelLoad(MinecraftServer server, ServerLevel level) {
         throw new UnsupportedOperationException(NO_LOADER);
     }
 

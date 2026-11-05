@@ -11,9 +11,8 @@
   "commands.exotic_worlds.dimensions.configure": "Wybierz kształt",
   "commands.exotic_worlds.dimensions.configure.hint": "Otwiera wybór kształtu dla tych wymiarów",
   "commands.exotic_worlds.dimensions.no_client": "Ten ekran wymaga Exotic Worlds także w twojej grze.",
-  "commands.exotic_worlds.dimensions.saved": "Kształty zapisane. Zadziałają przy następnym wczytaniu świata.",
+  "commands.exotic_worlds.dimensions.applied": "Kształty zastosowane.",
   "commands.exotic_worlds.dimensions.refused": "%s zachowuje swój kształt.",
-  "commands.exotic_worlds.dimensions.dropped": "Wybrany kształt dla %s został odrzucony, bo przed ponownym wczytaniem świata powstały tam chunki.",
 
   "gui.exotic_worlds.world_shape": "Kształt świata",
   "gui.exotic_worlds.world_shape.normal": "Zwykły",
@@ -84,7 +83,7 @@
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "Przejmuje kształt Nadziemia przeskalowany według skali współrzędnych tego wymiaru; zostaje Zwykły, gdy szerokość nie wychodzi całkowita.",
 
   "gui.exotic_worlds.world_dimensions.title": "Wymiary świata",
-  "gui.exotic_worlds.world_dimensions.restart": "Zmiany zadziałają przy następnym wczytaniu świata",
+  "gui.exotic_worlds.world_dimensions.note": "Kształt można wybrać raz, dopóki wymiar nie ma chunków",
   "gui.exotic_worlds.world_dimensions.other": "Inny kształt",
   "gui.exotic_worlds.world_dimensions.locked.vanilla": "Ustalony przy tworzeniu świata",
   "gui.exotic_worlds.world_dimensions.locked.chosen": "Kształt jest już wybrany, więc się nie zmieni",

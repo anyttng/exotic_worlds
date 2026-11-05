@@ -5,9 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
@@ -17,7 +16,9 @@ import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.engine.level.LevelRebuild;
 import com.exoticworlds.engine.net.DimensionChoicesPayload;
+import com.exoticworlds.engine.net.WorldShapeSync;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
@@ -38,10 +39,6 @@ public final class DimensionChoices {
     private static final Comparator<ResourceKey<LevelStem>> STEM_ORDER = Comparator
             .comparingInt(DimensionChoices::vanillaIndex)
             .thenComparing(key -> key.location().toString());
-
-    private static final Object TABLE_LOCK = new Object();
-    private static final Map<ResourceKey<LevelStem>, Optional<DimensionTable.Entry>> PENDING =
-            new ConcurrentHashMap<>();
 
     public enum Refusal {
         VANILLA,
@@ -75,16 +72,12 @@ public final class DimensionChoices {
             return refusal;
         }
 
-        synchronized (TABLE_LOCK) {
-            PENDING.putIfAbsent(key, Optional.ofNullable(storedTable(server).entry(key)));
-            writeTable(server, table -> table.with(key, entry));
-        }
-
+        writeTable(server, table -> table.with(key, entry));
+        applyLive(server, key);
         return null;
     }
 
     public static void recordFirstStart(MinecraftServer server) {
-        PENDING.clear();
         if (server.getWorldData().overworldData().isInitialized() || !isShaped(server)) {
             return;
         }
@@ -107,27 +100,11 @@ public final class DimensionChoices {
         });
     }
 
-    public static void dropPending(ServerLevel level) {
-        if (PENDING.isEmpty()) {
-            return;
-        }
-
-        ResourceKey<LevelStem> key = Registries.levelToLevelStem(level.dimension());
-        if (!PENDING.containsKey(key)) {
-            return;
-        }
-
-        MinecraftServer server = level.getServer();
-        synchronized (TABLE_LOCK) {
-            Optional<DimensionTable.Entry> previous = PENDING.remove(key);
-            if (previous == null) {
-                return;
-            }
-
-            writeTable(server, table -> previous.map(entry -> table.with(key, entry)).orElseGet(() -> table.without(key)));
-        }
-
-        server.execute(() -> DimensionChoicesCommand.tellDropped(server, key));
+    private static void applyLive(MinecraftServer server, ResourceKey<LevelStem> key) {
+        ServerLevel level = Objects.requireNonNull(server.getLevel(Registries.levelStemToLevel(key)),
+                "A choice is accepted only for a live level");
+        ShapedDimensions.stampDerived(liveStems(server), key);
+        WorldShapeSync.sendToAll(LevelRebuild.rebuild(server, level));
     }
 
     private static @Nullable Refusal refusalOf(MinecraftServer server, ResourceKey<LevelStem> key) {
@@ -164,11 +141,8 @@ public final class DimensionChoices {
     }
 
     private static void writeTable(MinecraftServer server, UnaryOperator<DimensionTable> change) {
-        synchronized (TABLE_LOCK) {
-            ChunkGenerator generator = overworldGenerator(server);
-            if (generator instanceof ShapeStamp stamp) {
-                stamp.exotic_worlds$stampDimensionTable(change.apply(stamp.exotic_worlds$dimensionTable()));
-            }
+        if (overworldGenerator(server) instanceof ShapeStamp stamp) {
+            stamp.exotic_worlds$stampDimensionTable(change.apply(stamp.exotic_worlds$dimensionTable()));
         }
     }
 

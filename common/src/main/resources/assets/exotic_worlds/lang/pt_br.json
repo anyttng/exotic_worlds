@@ -11,9 +11,8 @@
   "commands.exotic_worlds.dimensions.configure": "Escolher formato",
   "commands.exotic_worlds.dimensions.configure.hint": "Abre a escolha de formato para essas dimensões",
   "commands.exotic_worlds.dimensions.no_client": "Esta tela precisa do Exotic Worlds também no seu jogo.",
-  "commands.exotic_worlds.dimensions.saved": "Formatos salvos. Eles valem a partir do próximo carregamento do mundo.",
+  "commands.exotic_worlds.dimensions.applied": "Formatos aplicados.",
   "commands.exotic_worlds.dimensions.refused": "%s mantém o formato.",
-  "commands.exotic_worlds.dimensions.dropped": "O formato escolhido para %s foi descartado, porque chunks foram gerados lá antes de o mundo carregar de novo.",
 
   "gui.exotic_worlds.world_shape": "Formato do mundo",
   "gui.exotic_worlds.world_shape.normal": "Normal",
@@ -84,7 +83,7 @@
   "gui.exotic_worlds.custom_settings.from_overworld.hint": "Usa o formato da Superfície, escalado pela escala de coordenadas desta dimensão; fica Normal quando a largura não dá um número inteiro.",
 
   "gui.exotic_worlds.world_dimensions.title": "Dimensões do mundo",
-  "gui.exotic_worlds.world_dimensions.restart": "As mudanças valem a partir do próximo carregamento do mundo",
+  "gui.exotic_worlds.world_dimensions.note": "O formato pode ser escolhido uma vez, enquanto a dimensão não tiver chunks",
   "gui.exotic_worlds.world_dimensions.other": "Outro formato",
   "gui.exotic_worlds.world_dimensions.locked.vanilla": "Definido na criação do mundo",
   "gui.exotic_worlds.world_dimensions.locked.chosen": "O formato já foi escolhido, então não muda",

@@ -4,13 +4,10 @@ import java.util.concurrent.CompletableFuture;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.exoticworlds.BinderOrder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.gen.DimensionChoices;
 import com.exoticworlds.engine.gen.FloatingCrumbs;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.PeriodicityCheck;
@@ -55,16 +52,6 @@ public class ChunkStatusTasksMixin {
         try (GenerationFoldContext.Context.FoldScope scope = GenerationFoldContext.context().withFold(fold)) {
             return original.call(context, step, chunks, chunk);
         }
-    }
-
-    @Inject(method = "generateStructureStarts", at = @At("HEAD"))
-    private static void exotic_worlds$dropPendingDimensionChoice(
-            WorldGenContext context,
-            ChunkStep step,
-            StaticCache2D<GenerationChunkHolder> chunks,
-            ChunkAccess chunk,
-            CallbackInfoReturnable<CompletableFuture<ChunkAccess>> cir) {
-        DimensionChoices.dropPending(context.level());
     }
 
     @ModifyReturnValue(method = "generateCarvers", at = @At("RETURN"))

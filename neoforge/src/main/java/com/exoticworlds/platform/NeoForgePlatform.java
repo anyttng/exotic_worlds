@@ -14,6 +14,8 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -23,6 +25,8 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.internal.versions.neoforge.NeoForgeVersion;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public final class NeoForgePlatform implements Platform {
@@ -79,6 +83,16 @@ public final class NeoForgePlatform implements Platform {
     @Override
     public void sendDimensionChoicesUpdate(DimensionChoicesUpdatePayload update) {
         PacketDistributor.sendToServer(update);
+    }
+
+    @Override
+    public void postLevelUnload(MinecraftServer server, ServerLevel level) {
+        NeoForge.EVENT_BUS.post(new LevelEvent.Unload(level));
+    }
+
+    @Override
+    public void postLevelLoad(MinecraftServer server, ServerLevel level) {
+        NeoForge.EVENT_BUS.post(new LevelEvent.Load(level));
     }
 
     @Override
