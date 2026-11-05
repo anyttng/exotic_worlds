@@ -23,7 +23,7 @@ public class ModNetworkingMixin {
                     opcode = Opcodes.GETFIELD))
     private static int exotic_worlds$centerXNearWaypoint(int centerX, @Local(argsOnly = true) MapItemSavedData data,
             @Local(argsOnly = true) AtlasContents.WaypointData waypoint) {
-        return MapCentreSeat.towardWaypoint(Direction.Axis.X, waypoint, data);
+        return MapCentreSeat.towardWaypoint(Direction.Axis.X, centerX, waypoint, data);
     }
 
     @ModifyExpressionValue(
@@ -32,6 +32,6 @@ public class ModNetworkingMixin {
                     opcode = Opcodes.GETFIELD))
     private static int exotic_worlds$centerZNearWaypoint(int centerZ, @Local(argsOnly = true) MapItemSavedData data,
             @Local(argsOnly = true) AtlasContents.WaypointData waypoint) {
-        return MapCentreSeat.towardWaypoint(Direction.Axis.Z, waypoint, data);
+        return MapCentreSeat.towardWaypoint(Direction.Axis.Z, centerZ, waypoint, data);
     }
 }
