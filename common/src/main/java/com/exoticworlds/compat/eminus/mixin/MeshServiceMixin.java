@@ -39,19 +39,21 @@ public class MeshServiceMixin implements MeshServiceCopies {
         return exotic_worlds$copies;
     }
 
-    @Inject(method = "request(JLcom/eminus/cell/cache/CellHandle;IJF)V", at = @At("HEAD"), cancellable = true)
-    private void exotic_worlds$joinAWaitingCopy(long key, @Nullable CellHandle held, int references, long request,
-            float priority, CallbackInfo ci) {
+    @Override
+    public boolean exotic_worlds$joined(long key, @Nullable CellHandle held, int references, long request,
+            float priority, boolean fills) {
         CellFold fold = CellFoldHolder.foldOf(coverage);
         if (!fold.repeats()) {
-            return;
+            return false;
         }
 
-        CopyBuilds.Member<CellHandle> member = new CopyBuilds.Member<>(key, request, priority, held, references);
-        if (exotic_worlds$copies.offer(fold.foldKey(key), member) == CopyBuilds.Offer.JOINED) {
-            exotic_worlds$release(held, references);
-            ci.cancel();
+        CopyBuilds.Member<CellHandle> member = new CopyBuilds.Member<>(key, request, priority, fills, held, references);
+        if (exotic_worlds$copies.offer(fold.foldKey(key), member) != CopyBuilds.Offer.JOINED) {
+            return false;
         }
+
+        exotic_worlds$release(held, references);
+        return true;
     }
 
     @WrapOperation(method = "take", at = @At(value = "INVOKE", target = EminusInjectionTargets.MESH_QUEUE_POLL))
