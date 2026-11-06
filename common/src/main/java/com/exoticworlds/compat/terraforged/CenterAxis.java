@@ -1,8 +1,6 @@
-package com.exoticworlds.compat.ultraterraforged;
+package com.exoticworlds.compat.terraforged;
 
 import org.jspecify.annotations.Nullable;
-
-import com.exoticworlds.compat.terraforged.RtfLap;
 
 import net.minecraft.core.Direction;
 
