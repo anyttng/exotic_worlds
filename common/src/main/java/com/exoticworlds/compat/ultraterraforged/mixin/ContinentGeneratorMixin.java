@@ -16,9 +16,9 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
+import com.exoticworlds.compat.terraforged.ContinentWarp;
 import com.exoticworlds.compat.terraforged.RiverReach;
 import com.exoticworlds.compat.terraforged.RtfLap;
-import com.exoticworlds.compat.ultraterraforged.ContinentWarp;
 import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedRiverReach;
 
 import net.minecraft.core.Direction;
