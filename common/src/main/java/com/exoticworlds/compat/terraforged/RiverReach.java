@@ -3,13 +3,9 @@ package com.exoticworlds.compat.terraforged;
 import net.minecraft.core.Direction;
 
 public final class RiverReach {
-    private static final float CARVE_MARGIN = 443.0F;
-
     private static final float ROOT_START = 400.0F;
 
     private static final float RUN_PER_START = 2.0F;
-
-    private static final float FULL_SIZE_HALF_LAP = CARVE_MARGIN + ROOT_START * RUN_PER_START;
 
     private static final float FULL_SIZE = 1.0F;
 
@@ -23,31 +19,40 @@ public final class RiverReach {
 
     private static final int MIN_ROOTS = 1;
 
-    public static float clamp(RtfLap.Frame frame, float length) {
+    private final float carveMargin;
+
+    private final float fullSizeHalfLap;
+
+    public RiverReach(float carveMargin) {
+        this.carveMargin = carveMargin;
+        this.fullSizeHalfLap = carveMargin + ROOT_START * RUN_PER_START;
+    }
+
+    public float clamp(RtfLap.Frame frame, float length) {
         return Math.min(length, reach(frame));
     }
 
-    public static float reach(RtfLap.Frame frame) {
-        float margin = CARVE_MARGIN * scale(frame);
+    public float reach(RtfLap.Frame frame) {
+        float margin = this.carveMargin * scale(frame);
         return Math.min(axisReach(frame, Direction.Axis.X, margin), axisReach(frame, Direction.Axis.Z, margin));
     }
 
-    public static float scale(RtfLap.Frame frame) {
+    public float scale(RtfLap.Frame frame) {
         return Math.min(FULL_SIZE, Math.min(axisScale(frame, Direction.Axis.X), axisScale(frame, Direction.Axis.Z)));
     }
 
-    public static float boundScale() {
+    public float boundScale() {
         RtfLap.Frame frame = RtfLap.boundFrame();
         return frame == null ? FULL_SIZE : scale(frame);
     }
 
-    private static float axisScale(RtfLap.Frame frame, Direction.Axis axis) {
+    private float axisScale(RtfLap.Frame frame, Direction.Axis axis) {
         double lap = frame.lap(axis);
         if (lap == RtfLap.OPEN) {
             return FULL_SIZE;
         }
 
-        return (float) (lap * HALF / FULL_SIZE_HALF_LAP);
+        return (float) (lap * HALF / this.fullSizeHalfLap);
     }
 
     @FunctionalInterface
@@ -94,8 +99,5 @@ public final class RiverReach {
         }
 
         return (float) (lap * HALF - margin);
-    }
-
-    private RiverReach() {
     }
 }

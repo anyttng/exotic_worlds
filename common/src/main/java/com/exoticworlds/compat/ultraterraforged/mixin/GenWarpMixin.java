@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.exoticworlds.compat.terraforged.RiverReach;
+import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedRiverReach;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.noise.domain.Domain;
 import com.pandaismyname1.ultraterraforged.world.worldgen.rivermap.gen.GenWarp;
@@ -26,7 +26,7 @@ public abstract class GenWarpMixin {
     @WrapOperation(method = "make", at = @At(value = "INVOKE", target = DOMAIN_PERLIN), require = WARPS)
     private static Domain exotic_worlds$warpForTheLap(int seed, int wavelength, int octaves, float strength,
             Operation<Domain> original) {
-        float lapScale = RiverReach.boundScale();
+        float lapScale = UltraTerraForgedRiverReach.INSTANCE.boundScale();
         return original.call(seed, Math.max(MIN_WAVELENGTH, Math.round(wavelength * lapScale)), octaves,
                 strength * lapScale);
     }

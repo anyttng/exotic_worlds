@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.exoticworlds.compat.terraforged.RiverReach;
 import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedInjectionTargets;
+import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedRiverReach;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.rivermap.river.BaseRiverGenerator;
 
@@ -35,24 +35,24 @@ public abstract class BaseRiverGeneratorMixin {
             @At(value = "CONSTANT", args = FORK_MIN_LENGTH),
             @At(value = "CONSTANT", args = UltraTerraForgedInjectionTargets.VALLEY_WIDTH)}, require = 2)
     private float exotic_worlds$forkSizedForTheLap(float blocks) {
-        return blocks * RiverReach.boundScale();
+        return blocks * UltraTerraForgedRiverReach.INSTANCE.boundScale();
     }
 
     @ModifyExpressionValue(method = "riverOverlaps", at = @At(value = "CONSTANT", args = OVERLAP_DISTANCE))
     private float exotic_worlds$overlapSizedForTheLap(float blocks) {
-        return blocks * RiverReach.boundScale();
+        return blocks * UltraTerraForgedRiverReach.INSTANCE.boundScale();
     }
 
     @ModifyExpressionValue(method = "addLake", at = {
             @At(value = "FIELD", target = LAKE_SIZE_MIN, opcode = Opcodes.GETFIELD),
             @At(value = "FIELD", target = LAKE_SIZE_RANGE, opcode = Opcodes.GETFIELD)}, require = 2)
     private float exotic_worlds$lakeSizedForTheLap(float blocks) {
-        return blocks * RiverReach.boundScale();
+        return blocks * UltraTerraForgedRiverReach.INSTANCE.boundScale();
     }
 
     @ModifyExpressionValue(method = "generateWetlands", at = @At(value = "INVOKE", target = VARIANCE_NEXT),
             require = 2)
     private float exotic_worlds$wetlandSizedForTheLap(float blocks) {
-        return blocks * RiverReach.boundScale();
+        return blocks * UltraTerraForgedRiverReach.INSTANCE.boundScale();
     }
 }
