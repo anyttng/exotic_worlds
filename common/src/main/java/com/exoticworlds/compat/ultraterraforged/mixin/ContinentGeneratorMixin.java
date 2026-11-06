@@ -19,6 +19,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.exoticworlds.compat.terraforged.RiverReach;
 import com.exoticworlds.compat.terraforged.RtfLap;
 import com.exoticworlds.compat.ultraterraforged.ContinentWarp;
+import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedRiverReach;
 
 import net.minecraft.core.Direction;
 import com.pandaismyname1.ultraterraforged.concurrent.Resource;
@@ -159,7 +160,7 @@ public abstract class ContinentGeneratorMixin {
     @WrapMethod(method = "getDistanceToOcean")
     private float exotic_worlds$firstCoast(int x, int z, float dx, float dz, Operation<Float> original) {
         RtfLap.Frame frame = RtfLap.boundFrame();
-        float reach = frame == null ? RiverReach.UNBOUNDED : RiverReach.reach(frame);
+        float reach = frame == null ? RiverReach.UNBOUNDED : UltraTerraForgedRiverReach.INSTANCE.reach(frame);
         if (reach == RiverReach.UNBOUNDED) {
             return original.call(x, z, dx, dz);
         }
