@@ -229,12 +229,6 @@ final class WorldLoopFold implements WorldFold {
         return pieces;
     }
 
-    private static double nearestSpanGap(WrapDomain domain, double min, double max, double coord) {
-        double center = SeamBoxes.center(min, max);
-        double nearestCenter = domain.unwrapAround(coord, center);
-        return Math.max(Math.abs(nearestCenter - coord) - (max - min) / 2.0, 0.0);
-    }
-
     @Override
     public boolean regionsOverlap(BoundingBox first, BoundingBox second) {
         return coords.x.overlaps(first.minX(), first.maxX(), second.minX(), second.maxX())
@@ -535,13 +529,6 @@ final class WorldLoopFold implements WorldFold {
         int dx = chunks.x.unwrapAround(from.x(), to.x()) - from.x();
         int dz = chunks.z.unwrapAround(from.z(), to.z()) - from.z();
         return dx * dx + dz * dz;
-    }
-
-    @Override
-    public double sqrDistanceToBox(AABB box, Vec3 point) {
-        double xGap = nearestSpanGap(coords.x, box.minX, box.maxX, point.x);
-        double zGap = nearestSpanGap(coords.z, box.minZ, box.maxZ, point.z);
-        return xGap * xGap + SeamBoxes.sqrYGap(box, point) + zGap * zGap;
     }
 
     @Override

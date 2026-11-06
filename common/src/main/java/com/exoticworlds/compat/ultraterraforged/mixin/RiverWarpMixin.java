@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.exoticworlds.compat.terraforged.RiverReach;
+import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedRiverReach;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.rivermap.river.RiverWarp;
 
@@ -45,17 +45,17 @@ public abstract class RiverWarpMixin {
     @Inject(method = CONSTRUCTOR, at = @At("RETURN"))
     private void exotic_worlds$keepTheLapScale(int seed, float lower, float upper, float frequency, float scale,
             CallbackInfo ci) {
-        this.exotic_worlds$lapScale = RiverReach.boundScale();
+        this.exotic_worlds$lapScale = UltraTerraForgedRiverReach.INSTANCE.boundScale();
     }
 
     @ModifyArg(method = CREATE, at = @At(value = "INVOKE", target = NEW_WARP), index = FREQUENCY)
     private static float exotic_worlds$frequencyForTheLap(float frequency) {
-        return frequency / RiverReach.boundScale();
+        return frequency / UltraTerraForgedRiverReach.INSTANCE.boundScale();
     }
 
     @ModifyArg(method = CREATE, at = @At(value = "INVOKE", target = NEW_WARP), index = SCALE)
     private static float exotic_worlds$scaleForTheLap(float scale) {
-        return scale * RiverReach.boundScale();
+        return scale * UltraTerraForgedRiverReach.INSTANCE.boundScale();
     }
 
     @ModifyExpressionValue(method = "getOffset", at = @At(value = "CONSTANT", args = WIGGLE_PER_BLOCK))

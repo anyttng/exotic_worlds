@@ -11,6 +11,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.exoticworlds.compat.terraforged.RiverReach;
 import com.exoticworlds.compat.terraforged.RtfLap;
 import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedInjectionTargets;
+import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedRiverReach;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.continent.SimpleContinent;
 import com.pandaismyname1.ultraterraforged.world.worldgen.continent.simple.SimpleRiverGenerator;
@@ -44,7 +45,7 @@ public abstract class SimpleRiverGeneratorMixin {
             @At(value = "CONSTANT", args = ROOT_START),
             @At(value = "CONSTANT", args = UltraTerraForgedInjectionTargets.VALLEY_WIDTH)}, require = 2)
     private float exotic_worlds$sizedForTheLap(float blocks) {
-        return blocks * RiverReach.boundScale();
+        return blocks * UltraTerraForgedRiverReach.INSTANCE.boundScale();
     }
 
     @WrapOperation(method = "generateRoots", at = @At(value = "INVOKE", target = DISTANCE_TO_OCEAN))
@@ -52,6 +53,6 @@ public abstract class SimpleRiverGeneratorMixin {
             Operation<Float> original) {
         float length = original.call(continent, x, z, dx, dz);
         RtfLap.Frame frame = RtfLap.boundFrame();
-        return frame == null ? length : RiverReach.clamp(frame, length);
+        return frame == null ? length : UltraTerraForgedRiverReach.INSTANCE.clamp(frame, length);
     }
 }
