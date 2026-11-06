@@ -27,6 +27,7 @@ import net.minecraft.world.level.biome.MultiNoiseBiomeSourceParameterList;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSourceParameterLists;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public final class ClimateScanFixture {
@@ -101,6 +102,10 @@ public final class ClimateScanFixture {
 
     public static NormalNoise noiseParameters(ResourceKey<NormalNoise> key) {
         return noises.getOrThrow(key).value();
+    }
+
+    public static DensityFunction densityFunction(ResourceKey<DensityFunction> key) {
+        return holders.lookupOrThrow(Registries.DENSITY_FUNCTION).getOrThrow(key).value();
     }
 
     public static NoiseGeneratorSettings settingsOf(WorldType type) {
