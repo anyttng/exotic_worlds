@@ -15,9 +15,9 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
+import com.exoticworlds.compat.terraforged.CenterAxis;
+import com.exoticworlds.compat.terraforged.ContinentWarp;
 import com.exoticworlds.compat.terraforged.RtfLap;
-import com.exoticworlds.compat.ultraterraforged.CenterAxis;
-import com.exoticworlds.compat.ultraterraforged.ContinentWarp;
 import com.exoticworlds.compat.ultraterraforged.UltraTerraForgedInjectionTargets;
 
 import net.minecraft.core.Direction;
