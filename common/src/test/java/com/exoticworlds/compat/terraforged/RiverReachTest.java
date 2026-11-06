@@ -31,6 +31,8 @@ class RiverReachTest {
 
     private static final float CARVE_BLOCKS = 443.0F;
 
+    private static final RiverReach REACH = new RiverReach(CARVE_BLOCKS);
+
     private static final float ROOT_START = 400.0F;
 
     private static final float RUN_PER_START = 2.0F;
@@ -49,14 +51,14 @@ class RiverReachTest {
                 -HALF_NARROW_CHUNKS, HALF_NARROW_CHUNKS)));
         int lapZ = fold.blockDomain(Direction.Axis.Z).domainLength;
         try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(fold)) {
-            assertEquals(lapZ / 2.0F - CARVE_BLOCKS, RiverReach.clamp(RtfLap.frame(), Float.MAX_VALUE),
+            assertEquals(lapZ / 2.0F - CARVE_BLOCKS, REACH.clamp(RtfLap.frame(), Float.MAX_VALUE),
                     "the narrower lap caps a root on every direction");
         }
 
         WorldFold cylinder = cylinder(NARROW_CHUNKS);
         int lapX = cylinder.blockDomain(Direction.Axis.X).domainLength;
         try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(cylinder)) {
-            assertEquals(lapX / 2.0F - CARVE_BLOCKS, RiverReach.clamp(RtfLap.frame(), Float.MAX_VALUE),
+            assertEquals(lapX / 2.0F - CARVE_BLOCKS, REACH.clamp(RtfLap.frame(), Float.MAX_VALUE),
                     "a cylinder caps a root by its looping lap alone");
         }
     }
@@ -80,15 +82,15 @@ class RiverReachTest {
     private static void assertNarrowed(WorldFold fold, int lap) {
         float scale = lap / 2.0F / (CARVE_BLOCKS + RUN_PER_START * ROOT_START);
         try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(fold)) {
-            assertEquals(scale, RiverReach.scale(RtfLap.frame()), SCALE_TOLERANCE, "a lap of " + lap + " blocks");
-            assertEquals(RUN_PER_START * ROOT_START * scale, RiverReach.clamp(RtfLap.frame(), Float.MAX_VALUE),
+            assertEquals(scale, REACH.scale(RtfLap.frame()), SCALE_TOLERANCE, "a lap of " + lap + " blocks");
+            assertEquals(RUN_PER_START * ROOT_START * scale, REACH.clamp(RtfLap.frame(), Float.MAX_VALUE),
                     CAP_TOLERANCE, "a lap of " + lap + " blocks caps a root at twice its start");
         }
     }
 
     private static float scale(WorldFold fold) {
         try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(fold)) {
-            return RiverReach.scale(RtfLap.frame());
+            return REACH.scale(RtfLap.frame());
         }
     }
 
