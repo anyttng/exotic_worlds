@@ -1,6 +1,4 @@
-package com.exoticworlds.compat.ultraterraforged;
-
-import com.exoticworlds.compat.terraforged.RtfLap;
+package com.exoticworlds.compat.terraforged;
 
 import net.minecraft.core.Direction;
 
