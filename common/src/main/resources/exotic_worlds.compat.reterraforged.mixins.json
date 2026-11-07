@@ -5,11 +5,11 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.exoticworlds.compat.reterraforged.ReTerraForgedMixinPlugin",
   "mixins": [
-    "AbstractContinentAccessor",
     "AbstractContinentMixin",
     "AdvancedContinentGeneratorMixin",
     "ArchipelagoPopulatorMixin",
     "BaseRiverGeneratorAccessor",
+    "BaseRiverGeneratorMixin",
     "BillowMixin",
     "CellSamplerMixin",
     "ChunkMapMixin",
@@ -19,6 +19,7 @@
     "ErosionNoiseMixin",
     "FastPoissonMixin",
     "FrequencyMixin",
+    "GenWarpMixin",
     "GeneratorContextMixin",
     "HeightmapMixin",
     "LegacyTemperatureMixin",
@@ -28,6 +29,7 @@
     "PerlinMixin",
     "PerlinRidgeMixin",
     "RegionModuleMixin",
+    "RiverWarpMixin",
     "RivermapMixin",
     "SimpleRiverGeneratorMixin",
     "Simplex2Mixin",
@@ -37,6 +39,7 @@
     "SingleContinentGeneratorMixin",
     "StrataRuleSourceMixin",
     "UpliftContinentGeneratorMixin",
+    "UpliftRiverCarverMixin",
     "WarpMixin",
     "WhiteMixin",
     "WorleyEdgeMixin",
@@ -44,5 +47,8 @@
   ],
   "injectors": {
     "defaultRequire": 1
+  },
+  "mixinextras": {
+    "minVersion": "0.5.0"
   }
 }

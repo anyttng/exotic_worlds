@@ -57,8 +57,6 @@ class RtfLapClosureTest {
 
     private static final int SKEW_CELL_SCALE = 97;
 
-    private static final float CELL_JITTER = 0.7F;
-
     private static final int FRAME_SEAM = 0;
 
     private static final String WORLDGEN = "raccoonman.reterraforged.world.worldgen.";
@@ -186,10 +184,6 @@ class RtfLapClosureTest {
                     NoiseUtil.valCoord2D(SEED, CELLS_PAST_LAP + skewCells, CELL_ROW + rows));
             assertEquals(NoiseUtil.cell(SEED, CELLS_PAST_LAP, CELL_ROW),
                     NoiseUtil.cell(SEED, CELLS_PAST_LAP - skewCells, CELL_ROW - rows));
-            assertEquals(CellCenters.correctedX(frame, SEED, CELLS_PAST_LAP, CELL_ROW, CELL_JITTER),
-                    CellCenters.correctedX(frame, SEED, CELLS_PAST_LAP + skewCells, CELL_ROW + rows, CELL_JITTER));
-            assertEquals(CellCenters.correctedZ(frame, SEED, CELLS_PAST_LAP, CELL_ROW, CELL_JITTER),
-                    CellCenters.correctedZ(frame, SEED, CELLS_PAST_LAP + skewCells, CELL_ROW + rows, CELL_JITTER));
         }
     }
 

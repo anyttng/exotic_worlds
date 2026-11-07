@@ -1,25 +1,19 @@
 package com.exoticworlds.compat.reterraforged.mixin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.exoticworlds.compat.reterraforged.RiverReach;
+import com.exoticworlds.compat.reterraforged.ReTerraForgedRiverReach;
+import com.exoticworlds.compat.terraforged.RiverReach;
 import com.exoticworlds.compat.terraforged.RtfLap;
 
 import raccoonman.reterraforged.world.worldgen.cell.continent.SimpleContinent;
 import raccoonman.reterraforged.world.worldgen.cell.continent.simple.SimpleRiverGenerator;
-import raccoonman.reterraforged.world.worldgen.cell.rivermap.gen.GenWarp;
-import raccoonman.reterraforged.world.worldgen.cell.rivermap.river.Network;
 
 @Mixin(value = SimpleRiverGenerator.class, remap = false)
 public abstract class SimpleRiverGeneratorMixin {
@@ -30,6 +24,9 @@ public abstract class SimpleRiverGeneratorMixin {
     @Unique
     private static final String COUNT =
             "Lraccoonman/reterraforged/world/worldgen/cell/continent/simple/SimpleRiverGenerator;count:I";
+
+    @Unique
+    private static final String ROOT_START = "floatValue=400.0F";
 
     @ModifyExpressionValue(method = "generateRoots",
             at = @At(value = "FIELD", target = COUNT, opcode = Opcodes.GETFIELD))
@@ -43,16 +40,9 @@ public abstract class SimpleRiverGeneratorMixin {
                 ((BaseRiverGeneratorAccessor) (Object) this).exotic_worlds$continentScale());
     }
 
-    // A world too narrow for a root to run past its own start carries no rivers.
-    @WrapMethod(method = "generateRoots")
-    private List<Network.Builder> exotic_worlds$rootsThatFit(int x, int z, Random random, GenWarp warp,
-            Operation<List<Network.Builder>> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
-        if (frame == null || RiverReach.fits(frame)) {
-            return original.call(x, z, random, warp);
-        }
-
-        return new ArrayList<>();
+    @ModifyExpressionValue(method = "generateRoots", at = @At(value = "CONSTANT", args = ROOT_START))
+    private float exotic_worlds$sizedForTheLap(float blocks) {
+        return blocks * ReTerraForgedRiverReach.INSTANCE.boundScale();
     }
 
     @WrapOperation(method = "generateRoots", at = @At(value = "INVOKE", target = DISTANCE_TO_OCEAN))
@@ -60,6 +50,6 @@ public abstract class SimpleRiverGeneratorMixin {
             Operation<Float> original) {
         float length = original.call(continent, x, z, dx, dz);
         RtfLap.Frame frame = RtfLap.boundFrame();
-        return frame == null ? length : RiverReach.clamp(frame, length, dx, dz);
+        return frame == null ? length : ReTerraForgedRiverReach.INSTANCE.clamp(frame, length);
     }
 }
