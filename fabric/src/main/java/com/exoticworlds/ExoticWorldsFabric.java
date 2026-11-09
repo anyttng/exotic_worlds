@@ -1,5 +1,6 @@
 package com.exoticworlds;
 
+import com.exoticworlds.compat.create.CreateTranslation;
 import com.exoticworlds.compat.moonlight.MoonlightParticles;
 import com.exoticworlds.compat.northbound.NorthboundLatitude;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasLecternTranslation;
@@ -67,5 +68,6 @@ public class ExoticWorldsFabric implements ModInitializer {
 
         OpenMenuTranslation.register();
         AtlasLecternTranslation.register();
+        CreateTranslation.register();
     }
 }

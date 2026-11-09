@@ -50,7 +50,8 @@
     "exotic_worlds.compat.immersiveoverlays.mixins.json",
     "exotic_worlds.compat.naturaltemperature.mixins.json",
     "exotic_worlds.compat.lithostitched.mixins.json",
-    "exotic_worlds.compat.tectonic.mixins.json"
+    "exotic_worlds.compat.tectonic.mixins.json",
+    "exotic_worlds.compat.create.mixins.json"
   ],
   "accessWidener": "exotic_worlds.accesswidener",
   "depends": {
