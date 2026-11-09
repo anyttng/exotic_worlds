@@ -86,8 +86,9 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | [ReTerraForged](https://www.curseforge.com/minecraft/mc-mods/reterraforged-unofficial) | 1.21.1 | NeoForge, Fabric | Supported | Small worlds get smaller rivers |
 | [FreeTerraForged](https://modrinth.com/mod/freeterraforged) | 1.21.1 | NeoForge, Fabric | Supported | Small worlds get smaller rivers |
 | [UltraTerraForged](https://www.curseforge.com/minecraft/mc-mods/ultraterraforged) | All | NeoForge, Fabric | Supported | Small worlds get smaller rivers |
+| [Tectonic](https://modrinth.com/mod/tectonic) | All | NeoForge, Fabric | Supported | |
+| [Lithostitched](https://modrinth.com/mod/lithostitched) | All | NeoForge, Fabric | Supported | |
 | Streams Reflowing | All | NeoForge, Fabric | Partially supported | |
-| Tectonic | All | NeoForge, Fabric | No edge support | |
 | [ReTerraForged: From the Ashes](https://www.curseforge.com/minecraft/mc-mods/reterraforged-from-the-ashes) | All | NeoForge, Fabric | No edge support | |
 | NeoTerraForged | 1.21.1 | NeoForge | No edge support | |
 | [TerraForged Reimagined](https://www.curseforge.com/minecraft/mc-mods/terraforged-reimagined) | — | — | Not tested | |
