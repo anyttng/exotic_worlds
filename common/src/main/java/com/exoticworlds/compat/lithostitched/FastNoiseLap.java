@@ -137,14 +137,6 @@ public final class FastNoiseLap {
                 + this.zLaps(octave, x, y, z) * this.zStep(octave), this.primes.z());
     }
 
-    long xCells(int octave) {
-        return this.xCells[octave];
-    }
-
-    long zCells(int octave) {
-        return this.zCells[octave];
-    }
-
     private boolean reduces(int octave) {
         return octave >= 0 && octave < this.xCells.length;
     }
