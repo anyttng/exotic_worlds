@@ -13,6 +13,15 @@
     "create:instant_schematic": {
       "bounds": "untouched"
     },
+    "create:client_motion": {
+      "motion": "untouched"
+    },
+    "create:relocate_train": {
+      "lookAngle": "untouched"
+    },
+    "create:controls_input": {
+      "controlsPos": "untouched"
+    },
     "simulated:honey_glue_spawn": {
       "from": "group",
       "to": "group"
