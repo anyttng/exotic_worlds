@@ -109,8 +109,10 @@ public abstract class UpliftContinentGeneratorMixin {
             try (Resource<Cell> resource = Cell.getResource()) {
                 Cell canonical = resource.get();
                 canonical.terrain = cell.terrain;
-                original.call(canonical, rawX + (canonicalX - cellX) / frame.xScale(),
-                        rawZ + (canonicalZ - cellZ) / frame.zScale());
+                // The warp and coast noise have reopened octaves by now, so the frame's scale is no longer the lattice's.
+                original.call(canonical,
+                        rawX + (canonicalX - cellX) / frame.snappedFrequency(Direction.Axis.X, this.frequency),
+                        rawZ + (canonicalZ - cellZ) / frame.snappedFrequency(Direction.Axis.Z, this.frequency));
                 cell.continentX = canonical.continentX;
                 cell.continentZ = canonical.continentZ;
             }
