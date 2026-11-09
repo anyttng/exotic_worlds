@@ -5,9 +5,19 @@
   "compatibilityLevel": "JAVA_25",
   "plugin": "com.exoticworlds.compat.lithostitched.LithostitchedMixinPlugin",
   "mixins": [
+    "CellularDensityFunctionCompileMixin",
+    "CellularXYZSamplerMixin",
+    "CellularXZSamplerMixin",
+    "FastNoiseConfigAccessor",
+    "FastNoiseFunctionCompileMixin",
+    "FastNoiseLiteAccessor",
+    "FastNoiseLiteMixin",
     "NoiseSlopePlacementMixin"
   ],
   "injectors": {
     "defaultRequire": 1
+  },
+  "mixinextras": {
+    "minVersion": "0.5.0"
   }
 }

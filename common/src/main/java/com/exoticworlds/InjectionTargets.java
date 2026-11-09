@@ -44,6 +44,9 @@ public final class InjectionTargets {
     public static final String DENSITY_SAMPLER_BOUND_SAMPLE_VALUE =
             "Lnet/minecraft/world/level/levelgen/densityfunction/DensitySampler$Bound;sampleValue(III)F";
 
+    public static final String DENSITY_SAMPLER_SAMPLE_VALUE =
+            "sampleValue(Lnet/minecraft/world/level/levelgen/densityfunction/SamplerContext;III)F";
+
     public static final String DISTANCE_PREDICATE_MATCHES =
             "Lnet/minecraft/advancements/predicates/DistancePredicate;matches(DDDDDD)Z";
 
