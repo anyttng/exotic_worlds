@@ -203,6 +203,7 @@
     "PrepareRamNearestTargetMixin",
     "ProjectileUtilMixin",
     "ProtoChunkMixin",
+    "RabbitMixin",
     "RaidMixin",
     "RaiderMoveThroughVillageGoalMixin",
     "RaidsMixin",
