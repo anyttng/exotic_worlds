@@ -206,6 +206,7 @@
     "ProjectileMixin",
     "ProjectileUtilMixin",
     "ProtoChunkMixin",
+    "RabbitMixin",
     "RaidMixin",
     "RaiderMoveThroughVillageGoalMixin",
     "RaidsMixin",
