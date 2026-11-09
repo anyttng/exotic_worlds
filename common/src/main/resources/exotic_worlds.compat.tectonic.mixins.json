@@ -1,0 +1,13 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.tectonic.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.tectonic.TectonicMixinPlugin",
+  "mixins": [
+    "ConfigNoiseMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
