@@ -1,0 +1,16 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.create.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "com.exoticworlds.compat.create.CreateMixinPlugin",
+  "client": [
+    "SchematicannonScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixinextras": {
+    "minVersion": "0.5.0"
+  }
+}
