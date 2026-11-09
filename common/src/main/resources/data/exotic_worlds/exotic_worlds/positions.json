@@ -1,0 +1,32 @@
+{
+  "payloads": {
+    "create:contraption_block_changed": {
+      "localPos": "untouched"
+    },
+    "create:contraption_interact": {
+      "localPos": "untouched"
+    },
+    "create:glue_in_area": {
+      "from": "group",
+      "to": "group"
+    },
+    "create:instant_schematic": {
+      "bounds": "untouched"
+    },
+    "create:potato_cannon": {
+      "motion": "untouched"
+    },
+    "create:client_motion": {
+      "motion": "untouched"
+    },
+    "create:relocate_train": {
+      "lookAngle": "untouched"
+    },
+    "create:controls_input": {
+      "controlsPos": "untouched"
+    },
+    "create:chain_package_interaction": {
+      "selectedConnection": "untouched"
+    }
+  }
+}
