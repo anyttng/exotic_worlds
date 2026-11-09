@@ -31,6 +31,8 @@ sourceSets.main.java.srcDir registerFreeTerraForgedSources('generateFreeTerraFor
         reTerraForgedCompat, [
         '**/compat/reterraforged/ReTerraForgedRiverReach.java',
         '**/compat/reterraforged/mixin/ArchipelagoPopulatorMixin.java',
+        '**/compat/reterraforged/mixin/ContinentGeneratorWarpMixin.java',
+        '**/compat/reterraforged/mixin/ContinentPosWarpMixin.java',
         '**/compat/reterraforged/mixin/UpliftContinentGeneratorMixin.java',
         '**/compat/reterraforged/preview/**'])
 sourceSets.main.resources.srcDir registerFreeTerraForgedSources('generateFreeTerraForgedResources',
