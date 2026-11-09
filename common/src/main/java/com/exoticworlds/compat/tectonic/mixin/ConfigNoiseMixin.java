@@ -4,6 +4,7 @@ import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.DomainWarp.Divisor;
@@ -20,13 +21,6 @@ import net.minecraft.world.level.levelgen.DensityFunction;
 @Mixin(ConfigNoise.class)
 public class ConfigNoiseMixin {
     @Unique
-    private static final String COMPUTE = "compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D";
-
-    @Unique
-    private static final String COMPUTE_INTERMEDIARY =
-            "method_40464(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D";
-
-    @Unique
     private static final double NO_Y = 0.0;
 
     @Unique
@@ -35,7 +29,8 @@ public class ConfigNoiseMixin {
     @Unique
     private @Nullable Divisor exotic_worlds$warpDivisor;
 
-    @WrapMethod(method = {COMPUTE, COMPUTE_INTERMEDIARY})
+    @WrapMethod(method = {InjectionTargets.DENSITY_FUNCTION_OVERRIDE_COMPUTE,
+            InjectionTargets.DENSITY_FUNCTION_OVERRIDE_COMPUTE_INTERMEDIARY})
     private double exotic_worlds$periodicCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
         Context generation = GenerationFoldContext.wrappedContext();
         if (generation == null) {
