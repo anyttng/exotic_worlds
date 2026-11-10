@@ -216,4 +216,7 @@ config="exotic_worlds.compat.lithostitched.mixins.json"
 config="exotic_worlds.compat.tectonic.mixins.json"
 
 [[mixins]]
+config="exotic_worlds.compat.adlods.mixins.json"
+
+[[mixins]]
 config="exotic_worlds.neoforge.mixins.json"

@@ -342,6 +342,7 @@ dependencies {
     compileOnly files(configurations.naturalTemperatureFabric)
     compileOnly "maven.modrinth:tectonic:${tectonic_version}"
     compileOnly "maven.modrinth:lithostitched:${lithostitched_version}"
+    compileOnly "curse.maven:large-ore-deposits-${adlods_cf_project}:${adlods_cf_file}"
     // Non-transitive: the FTB poms ask for Architectury, whose types no map fold names — pulling its maven in would
     // put a whole mod on the compile classpath to satisfy a reference nothing makes.
     compileOnly("dev.ftb.mods:ftb-chunks-neoforge:${ftbchunks_version}") { transitive = false }
@@ -431,6 +432,7 @@ dependencies {
     testRuntimeOnly "maven.modrinth:natural-temperature:${natural_temperature_version}"
     testRuntimeOnly "maven.modrinth:tectonic:${tectonic_version}"
     testRuntimeOnly "maven.modrinth:lithostitched:${lithostitched_version}"
+    testRuntimeOnly "curse.maven:large-ore-deposits-${adlods_cf_project}:${adlods_cf_file}"
     // The compat jars on the test runtime alone: every compat gate reads its mixins' targets from these class files,
     // and a config plugin cannot even load without IMixinConfigPlugin.
     testRuntimeOnly "maven.modrinth:journeymap:${journeymap_version}"
