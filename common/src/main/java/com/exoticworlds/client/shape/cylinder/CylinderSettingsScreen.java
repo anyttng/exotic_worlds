@@ -8,6 +8,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.client.shape.LoopSettingsScreen;
 import com.exoticworlds.client.shape.LoopSizeControls;
 import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.shape.cylinder.CylinderSettings;
 
 import net.minecraft.client.gui.Font;
@@ -27,9 +28,9 @@ public class CylinderSettingsScreen extends LoopSettingsScreen<CylinderSettings,
     private Direction.Axis axis;
 
     public CylinderSettingsScreen(Screen parent, CylinderSettings current, Consumer<CylinderSettings> onDone) {
-        super(TITLE, parent, onChange -> LoopSizeControls.single(current.chunkWidth(), current.netherScale(),
-                current.endChunkWidth(), onChange), current.generationOptions(), CylinderSettings.OFFERED_OPTIONS,
-                onDone);
+        super(TITLE, parent, onChange -> LoopSizeControls.single(current, current.axis(), onChange),
+                current.generationOptions(),
+                CylinderSettings.OFFERED_OPTIONS, onDone);
         this.axis = current.axis();
     }
 
@@ -48,7 +49,7 @@ public class CylinderSettingsScreen extends LoopSettingsScreen<CylinderSettings,
                 LoopSpans.ofWidth(this.axis, this.controls.completeSize(this.axis)),
                 this.controls.netherScale(),
                 LoopSpans.ofWidth(this.axis, this.controls.completeEndSize()),
-                this.committedOptions());
+                this.committedOptions().with(SpawnPoint.OPTION, this.controls.completeSpawn()));
     }
 
     @Override
@@ -58,6 +59,7 @@ public class CylinderSettingsScreen extends LoopSettingsScreen<CylinderSettings,
 
     private void chooseAxis(Direction.Axis chosen) {
         this.axis = chosen;
+        this.controls.loopedAxis(chosen);
         this.onControlsChanged();
     }
 

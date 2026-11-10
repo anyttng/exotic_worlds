@@ -169,6 +169,8 @@ Next to `wrapping`, the generator takes the options the world-creation screen of
 
 **`guaranteed_nether_complexes`** (toroidal only) keeps a small Nether from coming out without a nether fortress or a bastion remnant. With `true`, each one the world did not place on its own is placed in the chunk nearest the world's center whose biome allows it. A dimension that places neither is left alone. Where no biome in the Nether allows one, it stays missing and the server log names it. It defaults to `false`.
 
+**`spawn`** (toroidal and cylinder) sets where a new world starts looking for its spawn, in chunks. With `"spawn": { "x": 25, "z": -24 }` the search starts at block 400, -384 instead of 0, 0, and the player appears near there. The world, its edges and its terrain stay as they are. A point past the world's edge is taken at its copy inside the world. It is read on the Overworld alone and defaults to `{ "x": 0, "z": 0 }`. A terrain mod that picks the spawn its own way may ignore it.
+
 ## Dimensions other mods add
 
 A dimension another mod or a datapack adds takes the overworld's shape by default, its width scaled by that dimension's coordinate scale. Where no whole number of chunks comes out, it stays an ordinary infinite world.

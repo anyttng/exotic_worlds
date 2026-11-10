@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.client.shape.LoopSettingsScreen;
 import com.exoticworlds.client.shape.LoopSizeControls;
 import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.shape.torus.TorusSettings;
 
 import net.minecraft.client.gui.screens.Screen;
@@ -17,8 +18,7 @@ public class TorusSettingsScreen extends LoopSettingsScreen<TorusSettings, LoopS
     private static final Component TITLE = Component.translatable("gui.exotic_worlds.toroidal_settings.title");
 
     public TorusSettingsScreen(Screen parent, TorusSettings current, Consumer<TorusSettings> onDone) {
-        super(TITLE, parent, onChange -> LoopSizeControls.perAxis(current.overworld(), current.netherScale(),
-                current.endChunkWidth(), onChange),
+        super(TITLE, parent, onChange -> LoopSizeControls.perAxis(current, onChange),
                 current.generationOptions(), TorusSettings.OFFERED_OPTIONS, onDone);
     }
 
@@ -29,7 +29,7 @@ public class TorusSettingsScreen extends LoopSettingsScreen<TorusSettings, LoopS
                         this.controls.completeSize(Direction.Axis.Z)).withSkew(this.controls.completeSkew()),
                 this.controls.netherScale(),
                 LoopSpans.ofWidth(this.controls.completeEndSize()),
-                this.committedOptions());
+                this.committedOptions().with(SpawnPoint.OPTION, this.controls.completeSpawn()));
     }
 
     @Override

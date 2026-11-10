@@ -10,8 +10,10 @@ import org.jspecify.annotations.Nullable;
 import com.uber.nullaway.annotations.Initializer;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.CoordinateConstants;
+import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
+import com.exoticworlds.shape.StemSettings;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.google.common.math.IntMath;
 
@@ -60,6 +62,7 @@ public final class LoopSizeControls implements SizeControls {
     private final SizeField size;
     private final @Nullable SizeField zSize;
     private final @Nullable SkewField skew;
+    private final SpawnControls spawn;
     private final SizeField endSize;
 
     private int netherScale;
@@ -71,12 +74,13 @@ public final class LoopSizeControls implements SizeControls {
     private final Map<WorldLoopPresets, Button> presetButtons = new EnumMap<>(WorldLoopPresets.class);
     private Button netherScaleButton;
 
-    private LoopSizeControls(SizeField size, @Nullable SizeField zSize, @Nullable SkewField skew, int xChunkWidth,
-            int zChunkWidth, int skewChunks, int netherScale, int endChunkWidth, Runnable onChange) {
+    private LoopSizeControls(SizeField size, @Nullable SizeField zSize, @Nullable SkewField skew, SpawnControls spawn,
+            int xChunkWidth, int zChunkWidth, int skewChunks, int netherScale, int endChunkWidth, Runnable onChange) {
         this.onChange = onChange;
         this.size = size;
         this.zSize = zSize;
         this.skew = skew;
+        this.spawn = spawn;
         this.endSize = SizeField.end(endChunkWidth);
         this.netherScale = netherScale;
         this.wantedNetherScale = netherScale;
@@ -85,19 +89,26 @@ public final class LoopSizeControls implements SizeControls {
         this.scalePickedForSkew = skewChunks;
     }
 
-    public static LoopSizeControls single(int chunkWidth, int netherScale, int endChunkWidth, Runnable onChange) {
-        return new LoopSizeControls(SizeField.world(chunkWidth), null, null, chunkWidth, chunkWidth,
-                FlatShape.NO_SKEW, netherScale, endChunkWidth, onChange);
+    public static LoopSizeControls single(StemSettings current, Direction.Axis axis, Runnable onChange) {
+        int chunkWidth = current.overworld().chunkWidth(axis);
+        SpawnPoint spawn = current.generationOptions().get(SpawnPoint.OPTION);
+        return new LoopSizeControls(SizeField.world(chunkWidth), null, null,
+                SpawnControls.cylinder(spawn, axis),
+                chunkWidth, chunkWidth, FlatShape.NO_SKEW, current.netherScale(), current.end().chunkWidth(axis),
+                onChange);
     }
 
-    public static LoopSizeControls perAxis(LoopSpans overworld, int netherScale, int endChunkWidth,
-            Runnable onChange) {
+    public static LoopSizeControls perAxis(StemSettings current, Runnable onChange) {
+        LoopSpans overworld = current.overworld();
         int xChunkWidth = overworld.chunkWidth(Direction.Axis.X);
         int zChunkWidth = overworld.chunkWidth(Direction.Axis.Z);
         int skewChunks = Math.floorMod(overworld.skewChunks(), xChunkWidth);
+        SpawnPoint spawn = current.generationOptions().get(SpawnPoint.OPTION);
         return new LoopSizeControls(SizeField.world(SIZE_X_LABEL_KEY, xChunkWidth),
-                SizeField.world(SIZE_Z_LABEL_KEY, zChunkWidth), new SkewField(skewChunks), xChunkWidth, zChunkWidth,
-                skewChunks, netherScale, endChunkWidth, onChange);
+                SizeField.world(SIZE_Z_LABEL_KEY, zChunkWidth), new SkewField(skewChunks),
+                SpawnControls.torus(spawn),
+                xChunkWidth, zChunkWidth, skewChunks, current.netherScale(),
+                current.end().chunkWidth(Direction.Axis.X), onChange);
     }
 
     @Override
@@ -134,6 +145,8 @@ public final class LoopSizeControls implements SizeControls {
             this.skew.add(font, contents, this::onSizeChanged);
         }
 
+        this.spawn.add(font, contents, this::onSpawnChanged);
+
         this.netherScaleButton = contents.addChild(Button.builder(Component.empty(), button -> this.cycleNetherScale())
                 .width(FIELD_WIDTH)
                 .build());
@@ -144,6 +157,7 @@ public final class LoopSizeControls implements SizeControls {
     @Override
     public void refresh() {
         this.onSizeChanged();
+        this.onSpawnChanged();
         this.onEndSizeChanged();
     }
 
@@ -175,10 +189,18 @@ public final class LoopSizeControls implements SizeControls {
         return Objects.requireNonNull(this.effectiveEndSize(), INCOMPLETE);
     }
 
+    public void loopedAxis(Direction.Axis axis) {
+        this.spawn.loopedAxis(axis);
+    }
+
+    public SpawnPoint completeSpawn() {
+        return Objects.requireNonNull(this.spawn.effective(), INCOMPLETE);
+    }
+
     @Override
     public boolean isComplete() {
         return this.effectiveSize(Direction.Axis.X) != null && this.effectiveSize(Direction.Axis.Z) != null
-                && this.effectiveSkew() != null && this.endSize.effective() != null;
+                && this.effectiveSkew() != null && this.spawn.isComplete() && this.endSize.effective() != null;
     }
 
     private void apply(WorldLoopPresets preset) {
@@ -226,6 +248,7 @@ public final class LoopSizeControls implements SizeControls {
             this.skew.update(this.effectiveSize(Direction.Axis.X));
         }
 
+        this.updateSpawn();
         Integer xSizeChunks = this.effectiveSize(Direction.Axis.X);
         Integer zSizeChunks = this.effectiveSize(Direction.Axis.Z);
         Integer skewChunks = this.effectiveSkew();
@@ -236,6 +259,15 @@ public final class LoopSizeControls implements SizeControls {
         }
 
         this.changed();
+    }
+
+    private void onSpawnChanged() {
+        this.updateSpawn();
+        this.changed();
+    }
+
+    private void updateSpawn() {
+        this.spawn.update(this.effectiveSize(Direction.Axis.X), this.effectiveSize(Direction.Axis.Z));
     }
 
     private void onEndSizeChanged() {
