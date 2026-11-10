@@ -9,8 +9,10 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.api.v1.shape.ShapeDimensions;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.engine.gen.ShapedDimensions;
@@ -46,6 +48,24 @@ class TorusDimensionsTest {
         assertEquals(ShapeFixtures.torus(WorldLoopBounds.ofWidth(320)),
                 ShapedDimensions.shapeOf(created, LevelStem.END));
         assertEquals(RECTANGLE_64_BY_128, TorusDimensions.read(created));
+    }
+
+    @Test
+    void theSpawnPointStaysOnTheOverworldAndReadsBack() {
+        SpawnPoint spawn = new SpawnPoint(25, -24);
+        TorusSettings chosen = new TorusSettings(LoopSpans.ofWidths(256, 256), 8, LoopSpans.ofWidth(320),
+                TorusSettings.DEFAULT.generationOptions().with(SpawnPoint.OPTION, spawn));
+        WorldDimensions created = TorusDimensions.apply(vanillaDimensions(), chosen);
+
+        assertEquals(spawn, spawnOf(created, LevelStem.OVERWORLD));
+        assertEquals(SpawnPoint.ZERO, spawnOf(created, LevelStem.NETHER));
+        assertEquals(SpawnPoint.ZERO, spawnOf(created, LevelStem.END));
+        assertEquals(ShapeFixtures.torus(WorldLoopBounds.ofWidth(256)), ShapedDimensions.shapeOf(created, LevelStem.OVERWORLD));
+        assertEquals(chosen, TorusDimensions.read(created));
+    }
+
+    private static SpawnPoint spawnOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
+        return ShapeDimensions.optionsOf(dimensions, key).get(SpawnPoint.OPTION);
     }
 
     @Test

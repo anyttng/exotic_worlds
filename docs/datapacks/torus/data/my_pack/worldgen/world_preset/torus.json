@@ -24,7 +24,8 @@
           "factor": 6
         },
         "guaranteed_land": false,
-        "guaranteed_nether_complexes": false
+        "guaranteed_nether_complexes": false,
+        "spawn": { "x": 0, "z": 0 }
       }
     },
     "minecraft:the_nether": {
@@ -51,7 +52,8 @@
           "factor": 6
         },
         "guaranteed_land": false,
-        "guaranteed_nether_complexes": false
+        "guaranteed_nether_complexes": false,
+        "spawn": { "x": 0, "z": 0 }
       }
     },
     "minecraft:the_end": {
@@ -77,7 +79,8 @@
           "factor": 6
         },
         "guaranteed_land": false,
-        "guaranteed_nether_complexes": false
+        "guaranteed_nether_complexes": false,
+        "spawn": { "x": 0, "z": 0 }
       }
     }
   }
