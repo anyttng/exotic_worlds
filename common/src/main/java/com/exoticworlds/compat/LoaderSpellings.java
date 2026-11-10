@@ -29,18 +29,11 @@ final class LoaderSpellings {
     private LoaderSpellings() {
     }
 
-    static boolean isIntermediary(String selector) {
-        MemberRef selected = MemberRef.parse(selector);
-        return INTERMEDIARY_METHOD.matcher(selected.name()).matches()
-                || (selected.descriptor() != null && INTERMEDIARY_CLASS.matcher(selected.descriptor()).find());
-    }
-
     // A method named twice, once per loader's spelling, holds when either one is found.
     static boolean twinSelected(String selector, List<String> selectors, Predicate<String> found) {
-        boolean intermediary = isIntermediary(selector);
         int parameters = parameterCount(selector);
         for (String other : selectors) {
-            if (!other.equals(selector) && isIntermediary(other) != intermediary
+            if (!other.equals(selector) && spelledApart(selector, other)
                     && (parameters < 0 || parameterCount(other) < 0 || parameterCount(other) == parameters)
                     && found.test(other)) {
                 return true;
@@ -48,6 +41,24 @@ final class LoaderSpellings {
         }
 
         return false;
+    }
+
+    private static boolean spelledApart(String selector, String other) {
+        MemberRef selected = MemberRef.parse(selector);
+        MemberRef twin = MemberRef.parse(other);
+        if (intermediaryName(selected) != intermediaryName(twin)) {
+            return true;
+        }
+
+        return selected.name().equals(twin.name()) && intermediaryDescriptor(selected) != intermediaryDescriptor(twin);
+    }
+
+    private static boolean intermediaryName(MemberRef member) {
+        return INTERMEDIARY_METHOD.matcher(member.name()).matches();
+    }
+
+    private static boolean intermediaryDescriptor(MemberRef member) {
+        return member.descriptor() != null && INTERMEDIARY_CLASS.matcher(member.descriptor()).find();
     }
 
     static int parameterCount(String selector) {
