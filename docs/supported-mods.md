@@ -59,6 +59,7 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | Mekanism Generators | 1.21.1 | NeoForge | Supported | |
 | [AstikorCarts Redux](https://modrinth.com/mod/astikorcarts-redux) | 1.21.1 | NeoForge | Supported | |
 | [Create Electro Energetics](https://modrinth.com/mod/create-electro-energetics) | 1.21.1 | NeoForge | Supported | |
+| Create Fly | 26.3, 26.2 | Fabric | Partially supported | Machines, contraptions and trains stop working at the world's edge |
 
 ## Content and server side
 
@@ -88,6 +89,7 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | [UltraTerraForged](https://www.curseforge.com/minecraft/mc-mods/ultraterraforged) | All | NeoForge, Fabric | Supported | Small worlds get smaller rivers |
 | [Tectonic](https://modrinth.com/mod/tectonic) | All | NeoForge, Fabric | Supported | |
 | [Lithostitched](https://modrinth.com/mod/lithostitched) | All | NeoForge, Fabric | Supported | |
+| [Large Ore Deposits](https://modrinth.com/mod/large-ore-deposits) | All | NeoForge, Fabric | Supported | |
 | Streams Reflowing | All | NeoForge, Fabric | Partially supported | |
 | [ReTerraForged: From the Ashes](https://www.curseforge.com/minecraft/mc-mods/reterraforged-from-the-ashes) | All | NeoForge, Fabric | No edge support | |
 | NeoTerraForged | 1.21.1 | NeoForge | No edge support | |
