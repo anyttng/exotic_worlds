@@ -52,7 +52,7 @@
   ],
   "accessWidener": "exotic_worlds.accesswidener",
   "depends": {
-    "fabricloader": ">=0.19.3",
+    "fabricloader": ">=0.20.1",
     "fabric-api": "*",
     "minecraft": "26.1.x"
   },
