@@ -264,9 +264,8 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
     compileOnly "org.jspecify:jspecify:${jspecify_version}"
 
-    // Not bundled: Fabric Loader carries MixinExtras itself (0.19.3 nests 0.5.4) and keeps the higher version, so a
-    // copy here is dropped at load and only weighs. No annotation processor and no refmap: Loom 1.17 defaults
-    // useLegacyMixinAp to false and remaps the mixin annotations inside remapJar instead.
+    // No annotation processor and no refmap: Loom defaults useLegacyMixinAp to false and remaps the mixin
+    // annotations inside remapJar instead.
     compileOnly "io.github.llamalad7:mixinextras-fabric:${mixinextras_version}"
 
     // Bundled rather than borrowed from C2ME's own jar-in-jar: that copy is C2ME's implementation detail, and leaning
