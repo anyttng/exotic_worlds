@@ -207,6 +207,7 @@ dependencies {
     compileOnly "maven.modrinth:natural-temperature:${natural_temperature_version}"
     compileOnly "maven.modrinth:tectonic:${tectonic_version}"
     compileOnly "maven.modrinth:lithostitched:${lithostitched_version}"
+    compileOnly "curse.maven:large-ore-deposits-${adlods_cf_project}:${adlods_cf_file}"
     compileOnly "maven.modrinth:create-fly:${create_fly_version}"
     compileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"
     // Non-transitive: the FTB poms pull in FTB Teams, FTB Backups and a JSON5 library, whose types no map fold names.
@@ -254,6 +255,7 @@ dependencies {
     testRuntimeOnly "maven.modrinth:natural-temperature:${natural_temperature_version}"
     testRuntimeOnly "maven.modrinth:tectonic:${tectonic_version}"
     testRuntimeOnly "maven.modrinth:lithostitched:${lithostitched_version}"
+    testRuntimeOnly "curse.maven:large-ore-deposits-${adlods_cf_project}:${adlods_cf_file}"
     testRuntimeOnly "maven.modrinth:create-fly:${create_fly_version}"
     // The compat jars on the test runtime alone: every compat gate reads its mixins' targets from these class files,
     // and a config plugin cannot even load without IMixinConfigPlugin.
