@@ -12,6 +12,7 @@ import com.exoticworlds.core.RegistrationBoundary;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.gen.DimensionChoices;
+import com.exoticworlds.engine.gen.SpawnSearch;
 import com.exoticworlds.engine.gen.WorldShapeReport;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.engine.level.SeamRespawnData;
@@ -25,6 +26,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Climate;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.ServerLevelData;
 
@@ -68,12 +70,14 @@ public class MinecraftServerMixin {
                     target = "Lnet/minecraft/world/level/biome/Climate$Sampler;findSpawnPosition()Lnet/minecraft/core/BlockPos;"))
     private static BlockPos exotic_worlds$spawnSearchInBounds(Climate.Sampler sampler, Operation<BlockPos> original,
             @Local(argsOnly = true) ServerLevel level) {
+        ChunkGenerator generator = level.getChunkSource().getGenerator();
         WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
         if (fold == null) {
-            return original.call(sampler);
+            return SpawnSearch.from(generator, () -> original.call(sampler));
         }
 
-        BlockPos found = GenerationFoldContext.withFold(fold, () -> original.call(sampler));
+        BlockPos found = GenerationFoldContext.withFold(fold,
+                () -> SpawnSearch.from(generator, () -> original.call(sampler)));
         return fold.fold(found);
     }
 

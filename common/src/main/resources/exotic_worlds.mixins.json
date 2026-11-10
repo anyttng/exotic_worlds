@@ -60,6 +60,8 @@
     "ChunkTrackingViewPositionedMixin",
     "ChunkWaypointAccessor",
     "ClimateSamplerMixin",
+    "ClimateSamplerSpawnOriginMixin",
+    "ClimateSpawnFinderMixin",
     "CloneCommandsMixin",
     "CommandCoordinatesMixin",
     "CommandSourceStackMixin",

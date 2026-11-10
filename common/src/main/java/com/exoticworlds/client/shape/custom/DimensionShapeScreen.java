@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.client.shape.LoopSettingsScreen;
+import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.shape.custom.CustomSettings;
 import com.exoticworlds.shape.custom.CustomStem;
 import com.exoticworlds.shape.custom.DimensionShape;
@@ -23,13 +24,15 @@ public class DimensionShapeScreen extends LoopSettingsScreen<DimensionShape, Dim
                 parent,
                 onChange -> new DimensionSizeControls(dimension,
                         Objects.requireNonNull(current.spans(), "Customize opens only for a wrapped dimension"),
-                        onChange),
+                        current.options().get(SpawnPoint.OPTION), onChange),
                 current.options(), CustomSettings.offeredOptions(dimension, current.kind()), onDone);
     }
 
     @Override
     protected DimensionShape build() {
-        return new DimensionShape(this.controls.spans(), this.committedOptions());
+        SpawnPoint spawn = this.controls.spawn();
+        return new DimensionShape(this.controls.spans(), spawn == null ? this.committedOptions()
+                : this.committedOptions().with(SpawnPoint.OPTION, spawn));
     }
 
     @Override
