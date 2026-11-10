@@ -2,6 +2,7 @@ package com.exoticworlds.engine.noise;
 
 import static com.exoticworlds.engine.noise.ClimateScanFixture.SEED_BASE;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.cylinderOfWidth;
+import static com.exoticworlds.engine.noise.ClimateScanFixture.densityFunction;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.randomState;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.settingsOf;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.torusOfWidth;
@@ -13,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -24,17 +26,24 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
+import net.minecraft.world.level.levelgen.NoiseRouterData;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.densityfunction.DensityBuffer;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;
 import net.minecraft.world.level.levelgen.densityfunction.DensityVolume;
 import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
+import net.minecraft.world.level.levelgen.material.rule.OreVeinRule;
 
 class CompiledRouterPeriodicityTest {
     private static final int WIDTH_BLOCKS = 512;
     private static final int POINTS = 48;
     private static final int VOLUMES = 4;
+    private static final int VEIN_HITS = 64;
+    private static final int MAX_VEIN_DRAWS = 1 << 18;
+    private static final int MAX_VEIN_VOLUMES = 64;
+    private static final int CHUNK_BLOCKS = 16;
+    private static final float NO_VEIN = -1.0F;
 
     private static final int CELL_WIDTH = 4;
     private static final int CELL_HEIGHT = 8;
@@ -123,6 +132,87 @@ class CompiledRouterPeriodicityTest {
     }
 
     @Test
+    void everyOreVeinSamplerRepeatsOneLapAwayInsideTheVeinBand() {
+        NoiseGeneratorSettings settings = settingsOf(NoiseGeneratorSettings.OVERWORLD);
+        int minY = Stream.of(OreVeinRule.VeinType.values()).mapToInt(type -> type.minY).min().orElseThrow();
+        int maxY = Stream.of(OreVeinRule.VeinType.values()).mapToInt(type -> type.maxY).max().orElseThrow();
+        List<String> broken = new ArrayList<>();
+        for (Probe probe : PROBES) {
+            RandomState state = randomState(settings, probe.fold(), SEED_BASE);
+            Random random = new Random(SEED_BASE);
+            for (Map.Entry<String, DensityFunction> field : oreVeinFields().entrySet()) {
+                DensitySampler sampler = state.getSampler(field.getValue());
+                for (Direction.Axis axis : probe.axes()) {
+                    int mismatches = 0;
+                    int insideVein = 0;
+                    for (int draws = 0; insideVein < VEIN_HITS && draws < MAX_VEIN_DRAWS; draws++) {
+                        int x = random.nextInt(WIDTH_BLOCKS) - WIDTH_BLOCKS / 2;
+                        int y = minY + random.nextInt(maxY - minY + 1);
+                        int z = random.nextInt(WIDTH_BLOCKS) - WIDTH_BLOCKS / 2;
+                        float here = sampler.sampleValue(SamplerContext.EMPTY_UNCACHED, x, y, z);
+                        float lapAway = axis == Direction.Axis.X
+                                ? sampler.sampleValue(SamplerContext.EMPTY_UNCACHED, x + WIDTH_BLOCKS, y, z)
+                                : sampler.sampleValue(SamplerContext.EMPTY_UNCACHED, x, y, z + WIDTH_BLOCKS);
+                        mismatches += Float.floatToIntBits(here) == Float.floatToIntBits(lapAway) ? 0 : 1;
+                        insideVein += here > NO_VEIN ? 1 : 0;
+                    }
+
+                    collect(broken, mismatches, probe, NoiseGeneratorSettings.OVERWORLD, field.getKey(), axis,
+                            "sampleValue");
+                    if (insideVein < VEIN_HITS) {
+                        broken.add(probe.name() + " " + field.getKey() + " along " + axis.getName() + ": "
+                                + insideVein + " points inside a vein in " + MAX_VEIN_DRAWS
+                                + " draws, so the comparison has no power");
+                    }
+                }
+            }
+        }
+
+        assertTrue(broken.isEmpty(), "ore vein samplers that do not repeat one lap away: " + broken);
+    }
+
+    @Test
+    void everyOreVeinSamplerRepeatsOneLapAwayOverTheFillVolume() {
+        NoiseGeneratorSettings settings = settingsOf(NoiseGeneratorSettings.OVERWORLD);
+        int minY = settings.noiseSettings().minY();
+        int height = settings.noiseSettings().height();
+        List<String> broken = new ArrayList<>();
+        for (Probe probe : PROBES) {
+            RandomState state = randomState(settings, probe.fold(), SEED_BASE);
+            Random random = new Random(SEED_BASE);
+            for (Map.Entry<String, DensityFunction> field : oreVeinFields().entrySet()) {
+                DensitySampler sampler = state.getSampler(field.getValue());
+                for (Direction.Axis axis : probe.axes()) {
+                    int mismatches = 0;
+                    int insideVein = 0;
+                    for (int draws = 0; insideVein < VEIN_HITS && draws < MAX_VEIN_VOLUMES; draws++) {
+                        int minX = cellAligned(random, WIDTH_BLOCKS, CHUNK_BLOCKS) - WIDTH_BLOCKS / 2;
+                        int minZ = cellAligned(random, WIDTH_BLOCKS, CHUNK_BLOCKS) - WIDTH_BLOCKS / 2;
+                        float[] here = fillVolume(sampler, minX, minY, minZ, height);
+                        float[] lapAway = axis == Direction.Axis.X
+                                ? fillVolume(sampler, minX + WIDTH_BLOCKS, minY, minZ, height)
+                                : fillVolume(sampler, minX, minY, minZ + WIDTH_BLOCKS, height);
+                        mismatches += mismatchesBetween(here, lapAway);
+                        for (float value : here) {
+                            insideVein += value > NO_VEIN ? 1 : 0;
+                        }
+                    }
+
+                    collect(broken, mismatches, probe, NoiseGeneratorSettings.OVERWORLD, field.getKey(), axis,
+                            "fill volume");
+                    if (insideVein < VEIN_HITS) {
+                        broken.add(probe.name() + " " + field.getKey() + " along " + axis.getName() + ": "
+                                + insideVein + " blocks inside a vein in " + MAX_VEIN_VOLUMES
+                                + " chunk volumes, so the comparison has no power");
+                    }
+                }
+            }
+        }
+
+        assertTrue(broken.isEmpty(), "ore vein samplers that do not repeat one lap away: " + broken);
+    }
+
+    @Test
     void theVolumeReadsWhatThePointReads() {
         NoiseGeneratorSettings settings = settingsOf(NoiseGeneratorSettings.OVERWORLD);
         RandomState state = randomState(settings, torusOfWidth(WIDTH_BLOCKS), SEED_BASE);
@@ -150,6 +240,15 @@ class CompiledRouterPeriodicityTest {
         return fields;
     }
 
+    private static Map<String, DensityFunction> oreVeinFields() {
+        Map<String, DensityFunction> fields = new LinkedHashMap<>();
+        fields.put("ore_vein_copper_density", densityFunction(NoiseRouterData.ORE_VEIN_COPPER_DENSITY));
+        fields.put("ore_vein_iron_density", densityFunction(NoiseRouterData.ORE_VEIN_IRON_DENSITY));
+        fields.put("ore_vein_richness", densityFunction(NoiseRouterData.ORE_VEIN_RICHNESS));
+        fields.put("ore_vein_gap", densityFunction(NoiseRouterData.ORE_VEIN_GAP));
+        return fields;
+    }
+
     private static void addAquifer(Map<String, DensityFunction> fields, Aquifer.Config aquifer) {
         fields.put("aquifer_barrier", aquifer.barrierNoise());
         fields.put("aquifer_floodedness", aquifer.fluidLevelFloodednessNoise());
@@ -170,6 +269,18 @@ class CompiledRouterPeriodicityTest {
 
     private static float[] volume(DensitySampler sampler, int minX, int minY, int minZ) {
         DensityVolume volume = volumeAt(minX, minY, minZ);
+        DensityBuffer buffer = DensityBuffer.createUnpooled(volume.size());
+        sampler.sampleVolume(SamplerContext.EMPTY_UNCACHED, buffer, volume);
+        float[] values = new float[volume.size()];
+        for (int i = 0; i < values.length; i++) {
+            values[i] = buffer.get(i);
+        }
+
+        return values;
+    }
+
+    private static float[] fillVolume(DensitySampler sampler, int minX, int minY, int minZ, int height) {
+        DensityVolume volume = new DensityVolume(CHUNK_BLOCKS, height, CHUNK_BLOCKS, minX, minY, minZ);
         DensityBuffer buffer = DensityBuffer.createUnpooled(volume.size());
         sampler.sampleVolume(SamplerContext.EMPTY_UNCACHED, buffer, volume);
         float[] values = new float[volume.size()];

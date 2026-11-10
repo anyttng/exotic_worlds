@@ -59,6 +59,7 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | Mekanism Generators | 1.21.1 | NeoForge | Supported | |
 | [AstikorCarts Redux](https://modrinth.com/mod/astikorcarts-redux) | 1.21.1 | NeoForge | Supported | |
 | [Create Electro Energetics](https://modrinth.com/mod/create-electro-energetics) | 1.21.1 | NeoForge | Supported | |
+| Create Fly | 26.3, 26.2 | Fabric | Partially supported | Machines, contraptions and trains stop working at the world's edge |
 
 ## Content and server side
 
@@ -83,11 +84,13 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | BetterEnd and BetterNether | All | NeoForge, Fabric | Supported | |
 | Northbound | 26.2, 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | A toroidal world is cold at its north and south edges and warm in the middle |
 | [Natural Temperature](https://modrinth.com/mod/natural-temperature) | 26.3 | Fabric | Supported | A toroidal world is cold at its north and south edges and warm in the middle |
-| [ReTerraForged](https://www.curseforge.com/minecraft/mc-mods/reterraforged-unofficial) | 1.21.1 | NeoForge, Fabric | Supported | Small worlds get shorter rivers or none |
-| [FreeTerraForged](https://modrinth.com/mod/freeterraforged) | 1.21.1 | NeoForge, Fabric | Supported | Small worlds get shorter rivers or none |
+| [ReTerraForged](https://www.curseforge.com/minecraft/mc-mods/reterraforged-unofficial) | 1.21.1 | NeoForge, Fabric | Supported | Small worlds get smaller rivers |
+| [FreeTerraForged](https://modrinth.com/mod/freeterraforged) | 1.21.1 | NeoForge, Fabric | Supported | Small worlds get smaller rivers |
 | [UltraTerraForged](https://www.curseforge.com/minecraft/mc-mods/ultraterraforged) | All | NeoForge, Fabric | Supported | Small worlds get smaller rivers |
+| [Tectonic](https://modrinth.com/mod/tectonic) | All | NeoForge, Fabric | Supported | |
+| [Lithostitched](https://modrinth.com/mod/lithostitched) | All | NeoForge, Fabric | Supported | |
+| [Large Ore Deposits](https://modrinth.com/mod/large-ore-deposits) | All | NeoForge, Fabric | Supported | |
 | Streams Reflowing | All | NeoForge, Fabric | Partially supported | |
-| Tectonic | All | NeoForge, Fabric | No edge support | |
 | [ReTerraForged: From the Ashes](https://www.curseforge.com/minecraft/mc-mods/reterraforged-from-the-ashes) | All | NeoForge, Fabric | No edge support | |
 | NeoTerraForged | 1.21.1 | NeoForge | No edge support | |
 | [TerraForged Reimagined](https://www.curseforge.com/minecraft/mc-mods/terraforged-reimagined) | — | — | Not tested | |

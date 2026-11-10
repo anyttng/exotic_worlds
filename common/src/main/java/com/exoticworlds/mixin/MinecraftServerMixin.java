@@ -11,6 +11,7 @@ import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.core.RegistrationBoundary;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.gen.DimensionChoices;
+import com.exoticworlds.engine.gen.SpawnSearch;
 import com.exoticworlds.engine.gen.WorldShapeReport;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.engine.level.SeamRespawnData;
@@ -22,6 +23,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.ServerLevelData;
 
@@ -56,6 +59,16 @@ public class MinecraftServerMixin {
                 ExoticWorlds.LOGGER.info(line.text());
             }
         }
+    }
+
+    @WrapOperation(
+            method = "setInitialSpawn",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/chunk/ChunkGenerator;getOrigin(Lnet/minecraft/world/level/levelgen/RandomState;)Lnet/minecraft/world/level/ChunkPos;"))
+    private static ChunkPos exotic_worlds$searchFromTheSpawnPoint(ChunkGenerator generator, RandomState randomState,
+            Operation<ChunkPos> original) {
+        return SpawnSearch.from(generator, () -> original.call(generator, randomState));
     }
 
     @WrapOperation(

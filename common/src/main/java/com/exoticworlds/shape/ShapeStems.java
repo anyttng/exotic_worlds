@@ -4,8 +4,12 @@ import java.util.function.Predicate;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.api.v1.shape.ShapeDimensions;
+import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.engine.gen.ShapedDimensions;
 
@@ -37,15 +41,13 @@ public final class ShapeStems {
     }
 
     public static WorldDimensions withSpans(WorldDimensions dimensions, StemSettings settings) {
-        return ShapeDimensions.withSpans(dimensions,
-                settings.overworld(),
-                netherSpans(settings.overworld(), settings.netherScale()),
-                settings.end(),
-                settings.generationOptions());
-    }
-
-    private static LoopSpans netherSpans(LoopSpans overworld, int netherScale) {
-        return overworld.scaledDown(normalizeNetherScale(netherScale, overworld));
+        int netherScale = normalizeNetherScale(settings.netherScale(), settings.overworld());
+        GenerationOptions options = settings.generationOptions();
+        GenerationOptions withoutSpawn = options.with(SpawnPoint.OPTION, SpawnPoint.ZERO);
+        return ShapedDimensions.withShapes(dimensions,
+                new CarriedShape(FlatShape.of(settings.overworld()), options),
+                new CarriedShape(FlatShape.of(settings.overworld().scaledDown(netherScale)), withoutSpawn),
+                new CarriedShape(FlatShape.of(settings.end()), withoutSpawn));
     }
 
     public static int readNetherScale(WorldDimensions dimensions, Predicate<LoopSpans> ownGeometry,
