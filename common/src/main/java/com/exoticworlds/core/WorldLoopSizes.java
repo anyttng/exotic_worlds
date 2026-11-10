@@ -15,6 +15,8 @@ public final class WorldLoopSizes {
 
     public static final int DEFAULT_CHUNK_WIDTH = 32;
 
+    public static final int ENDLESS_AXIS_WIDTH = 0;
+
     public static final int END_MIN_CHUNK_WIDTH = 192;
     public static final int END_DEFAULT_CHUNK_WIDTH = 256;
 
@@ -28,6 +30,14 @@ public final class WorldLoopSizes {
 
     public static boolean isEndInRange(int chunkWidth) {
         return chunkWidth >= END_MIN_CHUNK_WIDTH && chunkWidth <= MAX_CHUNK_WIDTH;
+    }
+
+    public static int minSpawnChunk(int chunkWidth) {
+        return chunkWidth == ENDLESS_AXIS_WIDTH ? -MAX_CHUNK_RADIUS : -(chunkWidth / 2);
+    }
+
+    public static int maxSpawnChunk(int chunkWidth) {
+        return chunkWidth == ENDLESS_AXIS_WIDTH ? MAX_CHUNK_RADIUS : chunkWidth - chunkWidth / 2 - 1;
     }
 
     private WorldLoopSizes() {

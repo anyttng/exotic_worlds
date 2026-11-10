@@ -24,7 +24,7 @@ public final class SizeField {
     private static final String END_SIZE_LABEL_KEY = "gui.exotic_worlds.toroidal_settings.end_size";
     private static final String END_EFFECTIVE_KEY = "gui.exotic_worlds.toroidal_settings.end_effective";
     private static final Component END_HINT = Component.translatable("gui.exotic_worlds.toroidal_settings.end_hint");
-    private static final String TOO_SMALL_KEY = "gui.exotic_worlds.toroidal_settings.too_small";
+    static final String TOO_SMALL_KEY = "gui.exotic_worlds.toroidal_settings.too_small";
 
     private final String labelKey;
     private final String effectiveKey;
