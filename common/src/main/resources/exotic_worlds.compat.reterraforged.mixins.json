@@ -39,6 +39,8 @@
     "SimplexRidgeMixin",
     "SinMixin",
     "SingleContinentGeneratorMixin",
+    "SpawnFinderFixMixin",
+    "SpawnFinderOriginMixin",
     "StrataRuleSourceMixin",
     "UpliftContinentGeneratorMixin",
     "UpliftRiverCarverMixin",

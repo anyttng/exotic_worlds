@@ -13,6 +13,7 @@ public class ReTerraForgedMixinPlugin extends ModPresenceGatePlugin {
     private static final ModPresence RETERRAFORGED = ModPresence.gate(LOGGER, "[ew/reterraforged-compat] gate reterraforged_present")
             .probing("raccoonman/reterraforged/world/worldgen/cell/heightmap/Heightmap.class")
             .checking("exotic_worlds.compat.reterraforged.mixins.json")
+            .bodyFrom("SpawnFinderOriginMixin", RETERRAFORGED_PACKAGE + "mixin/MixinSpawnFinder")
             .modPackages(RETERRAFORGED_PACKAGE)
             .build();
 

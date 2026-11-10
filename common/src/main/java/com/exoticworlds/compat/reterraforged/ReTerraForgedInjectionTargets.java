@@ -17,6 +17,10 @@ public final class ReTerraForgedInjectionTargets {
     public static final String SIMPLEX2_SAMPLE =
             "Lraccoonman/reterraforged/world/worldgen/noise/module/Simplex2;sample(FFI)F";
 
+    public static final String SPAWN_FINDER_MIXIN = "raccoonman.reterraforged.mixin.MixinSpawnFinder";
+
+    public static final String FIND_SPAWN_POSITION = "findSpawnPosition";
+
     private ReTerraForgedInjectionTargets() {
     }
 }
