@@ -188,6 +188,7 @@ dependencies {
     compileOnly "maven.modrinth:natural-temperature:${natural_temperature_version}"
     compileOnly "maven.modrinth:tectonic:${tectonic_version}"
     compileOnly "maven.modrinth:lithostitched:${lithostitched_version}"
+    compileOnly "maven.modrinth:large-ore-deposits:${adlods_version}"
     compileOnly "maven.modrinth:create-fly:${create_fly_version}"
     compileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"
     compileOnly "com.uber.nullaway:nullaway-annotations:${nullaway_version}"
@@ -228,6 +229,7 @@ dependencies {
     testRuntimeOnly "maven.modrinth:natural-temperature:${natural_temperature_version}"
     testRuntimeOnly "maven.modrinth:tectonic:${tectonic_version}"
     testRuntimeOnly "maven.modrinth:lithostitched:${lithostitched_version}"
+    testRuntimeOnly "maven.modrinth:large-ore-deposits:${adlods_version}"
     testRuntimeOnly "maven.modrinth:create-fly:${create_fly_version}"
     // The compat jars on the test runtime alone: every compat gate reads its mixins' targets from these class files,
     // and a config plugin cannot even load without IMixinConfigPlugin.
