@@ -46,7 +46,7 @@ public class ChunkStatusTasksMixin {
             Operation<CompletableFuture<ChunkAccess>> original) {
         WorldFold fold = WorldLoopAttachments.foldOf(context.level());
         if (fold.isWrapped()) {
-            PeriodicityCheck.runOnce(context.level(), fold);
+            PeriodicityCheck.verdictOf(context.level());
         }
 
         try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
