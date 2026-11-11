@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
+import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
 import com.exoticworlds.compat.fixture.scan.FixtureCaller;
 import com.exoticworlds.compat.fixture.scan.FixtureScanPlugin;
@@ -30,6 +31,7 @@ class ModPresenceTest {
     private static final String PROBE_DESCRIPTOR = "(Ljava/lang/String;)Z";
     private static final String OTHER_DESCRIPTOR = "(I)Z";
     private static final String CONFIG = "fixture.mixins.json";
+    private static final String SIDED_CONFIG = "fixture.sided.mixins.json";
     private static final String ABSENT_CONFIG = "no_such.mixins.json";
     private static final String FIXTURES = "com.exoticworlds.compat.fixture.MixinFixtures$";
     private static final String MIXIN_PREFIX = "MixinFixtures$";
@@ -123,6 +125,36 @@ class ModPresenceTest {
         assertTrue(gate.covers(FIXTURES + INJECT_PRESENT), "a client mixin the predicate takes");
         assertFalse(gate.covers(FIXTURES + SHADOW_MISSING), "the predicate leaves this one to another gate");
         assertFalse(gate.covers("com.exoticworlds.mixin." + WRAP_PRESENT), "a mixin of another config's package");
+    }
+
+    @Test
+    void aDedicatedServerChecksNoClientMixin() {
+        assertTrue(sidedGate("server").build(ModPresence.class.getClassLoader(), () -> Side.SERVER).admitted(),
+                "Mixin applies no client block on a dedicated server, so its missing member closes nothing");
+    }
+
+    @Test
+    void anUnknownSideChecksNeitherSidedBlock() {
+        assertTrue(sidedGate("unknown").build(ModPresence.class.getClassLoader(), () -> Side.UNKNOWN).admitted(),
+                "Mixin applies only the common block where it cannot detect the side");
+    }
+
+    @Test
+    void aClientChecksItsClientMixins() {
+        assertFalse(sidedGate("client").build(ModPresence.class.getClassLoader(), () -> Side.CLIENT).admitted(),
+                "the client block applies on a client, and one of its mixins names a missing member");
+    }
+
+    @Test
+    void outsideAMixinRunEveryBlockIsChecked() {
+        assertFalse(sidedGate("unsided").build().admitted(),
+                "with no side handed in, the client block is checked as on a client");
+    }
+
+    private static ModPresence.Builder sidedGate(String label) {
+        return ModPresence.gate(LOGGER, "[test-compat] gate sided_" + label + "_present")
+                .probing(SHIPPED_CLASS)
+                .checking(SIDED_CONFIG);
     }
 
     @Test
