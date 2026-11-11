@@ -7,6 +7,7 @@ import com.exoticworlds.api.v1.option.WorldOption;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
+import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.WorldLoopSizes;
 import com.exoticworlds.shape.StemSettings;
 import com.exoticworlds.shape.climate.ClimateScale;
@@ -30,6 +31,10 @@ public record TorusSettings(LoopSpans overworld, int netherScale, LoopSpans end,
 
     public int endChunkWidth() {
         return end.chunkWidth(Direction.Axis.X);
+    }
+
+    public TorusSettings withSpawn(SpawnPoint spawn) {
+        return new TorusSettings(overworld, netherScale, end, generationOptions.with(SpawnPoint.OPTION, spawn));
     }
 
     public static boolean isTorus(LoopSpans spans) {
