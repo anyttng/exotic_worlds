@@ -2,6 +2,8 @@ package com.exoticworlds.compat;
 
 import java.util.List;
 
+import org.spongepowered.asm.mixin.MixinEnvironment;
+
 import com.exoticworlds.MixinGatePlugin;
 
 public abstract class ModPresenceGatePlugin extends MixinGatePlugin {
@@ -17,6 +19,7 @@ public abstract class ModPresenceGatePlugin extends MixinGatePlugin {
 
     @Override
     public void onLoad(String mixinPackage) {
+        ModPresence.runningSide(MixinEnvironment.getCurrentEnvironment().getSide());
         this.gates.forEach(ModPresence::admitted);
     }
 
