@@ -2,6 +2,26 @@ Required Notice: Copyright (c) 2026 Vitalik Yarina (https://github.com/anyttng/e
 
 These terms grant no rights to the name "Exotic Worlds".
 
+## Additional Permission: Ports
+
+In this section "I" means the licensor and "this mod" means the software.
+
+Which Minecraft versions you may port this mod to:
+
+- versions older than the newest Minecraft version I've released for, that I've never released for: yes, right away;
+- versions I've released for, other than the newest one: yes, after 6 months without a new release from me for that version;
+- the newest Minecraft version I've released for: yes, after 6 months without any release of this mod from me;
+- versions newer than the newest Minecraft version I've released for: yes, after the version has been out for 6 months without a release from me.
+
+You can publish the port anywhere, Modrinth and CurseForge included, and it does not count as competing under [Noncompete](#noncompete). Files you already published stay allowed if I later release for that version.
+
+Your port must:
+
+- have a different name than the original mod, though the mod's name may be part of it;
+- say on its page that it's an unofficial port, name the original mod and link to its mod page (or to the repository above if it has none);
+- keep its source code public;
+- stay under these terms, this permission included.
+
 # PolyForm Shield License 1.0.0
 
 <https://polyformproject.org/licenses/shield/1.0.0>
