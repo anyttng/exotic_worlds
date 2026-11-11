@@ -16,7 +16,8 @@ enum SeamField {
     COLUMN("column", false),
     BIOME("biome", false),
     SURFACE("surface", false),
-    CARVERS("carvers", false);
+    CARVERS("carvers", false),
+    FEATURES("features", false);
 
     private final String id;
     private final boolean climate;
@@ -42,7 +43,7 @@ enum SeamField {
             case EROSION -> point.erosion();
             case DEPTH -> point.depth();
             case WEIRDNESS -> point.weirdness();
-            case COLUMN, BIOME, SURFACE, CARVERS -> throw new IllegalStateException(this.id + " is no climate field");
+            case COLUMN, BIOME, SURFACE, CARVERS, FEATURES -> throw new IllegalStateException(this.id + " is no climate field");
         };
     }
 
@@ -55,7 +56,7 @@ enum SeamField {
             case DEPTH -> router.depth();
             case WEIRDNESS -> router.ridges();
             case COLUMN -> router.finalDensity();
-            case BIOME, SURFACE, CARVERS -> null;
+            case BIOME, SURFACE, CARVERS, FEATURES -> null;
         };
     }
 }
