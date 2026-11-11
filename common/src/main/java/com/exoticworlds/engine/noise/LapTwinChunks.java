@@ -1,7 +1,9 @@
 package com.exoticworlds.engine.noise;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -9,24 +11,30 @@ import org.slf4j.Logger;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.mixin.ChunkGeneratorAccessor;
 import com.exoticworlds.mixin.NoiseBasedChunkGeneratorAccessor;
+import com.exoticworlds.mixin.StructureManagerAccessor;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.UpgradeData;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseChunk;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.material.rule.MaterialRule;
 
@@ -34,6 +42,8 @@ final class LapTwinChunks {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final int QUARTS_PER_CHUNK = QuartPos.fromBlock(SectionPos.SECTION_SIZE);
+    private static final Set<Heightmap.Types> PRIMED_HEIGHTMAPS = EnumSet.of(Heightmap.Types.MOTION_BLOCKING,
+            Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Heightmap.Types.OCEAN_FLOOR, Heightmap.Types.WORLD_SURFACE);
 
     record Inputs(ServerLevel level, NoiseBasedChunkGenerator generator, RandomState randomState,
             BiomeManager biomeManager, WorldFold fold, SeamCauseSearch.Lap lap) {
@@ -50,11 +60,7 @@ final class LapTwinChunks {
 
         private Twin(Inputs inputs, ChunkPos pos) {
             this.inputs = inputs;
-            this.chunk = new ProtoChunk(pos, UpgradeData.EMPTY, inputs.level(),
-                    inputs.level().palettedContainerFactory(), null);
-            ((ChunkGeneratorAccessor) inputs.generator()).exotic_worlds$doCreateBiomes(Blender.empty(),
-                    inputs.randomState(), this.chunk);
-            this.chunk.setPersistedStatus(ChunkStatus.BIOMES);
+            this.chunk = biomesOnly(inputs, pos);
             NoiseGeneratorSettings settings = inputs.generator().generatorSettings().value();
             NoiseSettings noiseSettings = settings.noiseSettings()
                     .clampToHeightAccessor(this.chunk.getHeightAccessorForGeneration());
@@ -74,6 +80,21 @@ final class LapTwinChunks {
             CarverRecording.recording(recording, () -> {
                 steps(this.inputs).exotic_worlds$generateCarvers(this.chunk, Blender.empty(), this.noise,
                         this.inputs.randomState(), this.inputs.biomeManager(), null, rule);
+                return recording;
+            });
+            return recording;
+        }
+
+        private FeatureRecording features(ChunkAccess[] grid) {
+            Heightmap.primeHeightmaps(this.chunk, PRIMED_HEIGHTMAPS);
+            FeatureRecording recording = new FeatureRecording(this.chunk);
+            ServerLevel level = this.inputs.level();
+            LapTwinRegion region = new LapTwinRegion(level, this.inputs.randomState(),
+                    this.inputs.fold().fold(this.chunk.getPos()), grid, recording);
+            StructureManager structures = new StructureManager(region, new WorldOptions(level.getSeed(), false, false),
+                    ((StructureManagerAccessor) level.structureManager()).exotic_worlds$structureCheck());
+            FeatureRecording.recording(recording, () -> {
+                this.inputs.generator().applyBiomeDecoration(region, this.chunk, structures);
                 return recording;
             });
             return recording;
@@ -112,6 +133,11 @@ final class LapTwinChunks {
                     inputs.level().registryAccess().lookupOrThrow(Registries.CARVER));
             if (carvers != null) {
                 breaks.add(new SeamVerdict.Break(SeamField.CARVERS.id(), carvers));
+            } else if (surfaceAt == null) {
+                SeamCause features = featuresCause(inputs, here, there);
+                if (features != null) {
+                    breaks.add(new SeamVerdict.Break(SeamField.FEATURES.id(), features));
+                }
             }
         }
 
@@ -121,6 +147,55 @@ final class LapTwinChunks {
         }
 
         return new Reading(true, breaks);
+    }
+
+    private static @Nullable SeamCause featuresCause(Inputs inputs, Twin here, Twin there) {
+        SeamCauseSearch.Point carvedAt = differenceOf(here.chunk, there.chunk);
+        if (carvedAt != null) {
+            LOGGER.warn("[ew/world-loop] features_unread level={} chunk_x={} chunk_z={} reason=carved_blocks x={} y={} z={}",
+                    inputs.level().dimension().identifier(), here.chunk.getPos().x(), here.chunk.getPos().z(),
+                    carvedAt.x(), carvedAt.y(), carvedAt.z());
+            return null;
+        }
+
+        ChunkAccess[] hereGrid = gridAround(inputs, here.chunk);
+        ChunkAccess[] thereGrid = gridAround(inputs, there.chunk);
+        for (int index = 0; index < hereGrid.length; index++) {
+            if (!biomesEqual(hereGrid[index], thereGrid[index])) {
+                LOGGER.warn("[ew/world-loop] features_unread level={} chunk_x={} chunk_z={} reason=neighbor_biomes",
+                        inputs.level().dimension().identifier(), here.chunk.getPos().x(), here.chunk.getPos().z());
+                return null;
+            }
+        }
+
+        RegistryAccess registries = inputs.level().registryAccess();
+        return FeatureCauseSearch.causeOf(here.features(hereGrid), there.features(thereGrid),
+                new FeatureCauseSearch.Lookups(registries.lookupOrThrow(Registries.PLACED_FEATURE),
+                        registries.lookupOrThrow(Registries.FEATURE)));
+    }
+
+    private static ChunkAccess[] gridAround(Inputs inputs, ProtoChunk center) {
+        ChunkAccess[] grid = new ChunkAccess[LapTwinRegion.SIDE * LapTwinRegion.SIDE];
+        ChunkPos centerPos = center.getPos();
+        for (int offsetZ = -LapTwinRegion.REACH; offsetZ <= LapTwinRegion.REACH; offsetZ++) {
+            for (int offsetX = -LapTwinRegion.REACH; offsetX <= LapTwinRegion.REACH; offsetX++) {
+                grid[(offsetZ + LapTwinRegion.REACH) * LapTwinRegion.SIDE + offsetX + LapTwinRegion.REACH] =
+                        offsetX == 0 && offsetZ == 0
+                                ? center
+                                : biomesOnly(inputs, new ChunkPos(centerPos.x() + offsetX, centerPos.z() + offsetZ));
+            }
+        }
+
+        return grid;
+    }
+
+    private static ProtoChunk biomesOnly(Inputs inputs, ChunkPos pos) {
+        ProtoChunk chunk = new ProtoChunk(pos, UpgradeData.EMPTY, inputs.level(),
+                inputs.level().palettedContainerFactory(), null);
+        ((ChunkGeneratorAccessor) inputs.generator()).exotic_worlds$doCreateBiomes(Blender.empty(),
+                inputs.randomState(), chunk);
+        chunk.setPersistedStatus(ChunkStatus.BIOMES);
+        return chunk;
     }
 
     private static SeamCause surfaceCause(Inputs inputs, ChunkPos herePos, MaterialRule rule,
@@ -157,7 +232,7 @@ final class LapTwinChunks {
         return null;
     }
 
-    private static boolean biomesEqual(ProtoChunk here, ProtoChunk there) {
+    private static boolean biomesEqual(ChunkAccess here, ChunkAccess there) {
         int hereX = QuartPos.fromBlock(here.getPos().getMinBlockX());
         int hereZ = QuartPos.fromBlock(here.getPos().getMinBlockZ());
         int thereX = QuartPos.fromBlock(there.getPos().getMinBlockX());
