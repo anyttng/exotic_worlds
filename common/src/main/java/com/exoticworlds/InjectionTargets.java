@@ -68,6 +68,8 @@ public final class InjectionTargets {
 
     public static final String MTH_ATAN2 ="Lnet/minecraft/util/Mth;atan2(DD)D";
 
+    public static final String MTH_SQUARE_LONG = "Lnet/minecraft/util/Mth;square(J)J";
+
     public static final String PATHFINDER_MOB_GET_HOME_POSITION =
             "Lnet/minecraft/world/entity/PathfinderMob;getHomePosition()Lnet/minecraft/core/BlockPos;";
 
