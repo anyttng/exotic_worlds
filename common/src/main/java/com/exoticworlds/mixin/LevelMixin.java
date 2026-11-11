@@ -24,11 +24,12 @@ import com.exoticworlds.engine.fold.SeamEntitySearch;
 import com.exoticworlds.engine.gen.FloatingCrumbs;
 import com.exoticworlds.engine.gen.TerrainMasks;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.SeamVerdict;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import net.minecraft.core.BlockPos;
@@ -64,7 +65,7 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
     private final TerrainMasks exotic_worlds$terrainMasks = new TerrainMasks();
 
     @Unique
-    private final AtomicBoolean exotic_worlds$periodicityClaimed = new AtomicBoolean();
+    private final AtomicReference<SeamVerdict> exotic_worlds$seamVerdict = new AtomicReference<>();
 
     // Must stay above the Z handler: Mixin runs them in declaration order, and X folds by the unfolded Z.
     @ModifyArg(method = GET_CHUNK, at = @At(value = "INVOKE", target = SOURCE_GET_CHUNK), index = 0)
@@ -162,8 +163,8 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
     }
 
     @Override
-    public boolean exotic_worlds$claimPeriodicityCheck() {
-        return this.exotic_worlds$periodicityClaimed.compareAndSet(false, true);
+    public AtomicReference<SeamVerdict> exotic_worlds$seamVerdict() {
+        return this.exotic_worlds$seamVerdict;
     }
 
     @Unique

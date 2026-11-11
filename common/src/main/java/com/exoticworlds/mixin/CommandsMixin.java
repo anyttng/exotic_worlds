@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.engine.gen.DimensionChoicesCommand;
+import com.exoticworlds.engine.noise.SeamCommand;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.minecraft.commands.CommandBuildContext;
@@ -21,8 +22,9 @@ public class CommandsMixin {
     private CommandDispatcher<CommandSourceStack> dispatcher;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void exotic_worlds$registerDimensionChoices(Commands.CommandSelection selection,
+    private void exotic_worlds$registerCommands(Commands.CommandSelection selection,
             CommandBuildContext context, CallbackInfo ci) {
         DimensionChoicesCommand.register(this.dispatcher);
+        SeamCommand.register(this.dispatcher);
     }
 }
