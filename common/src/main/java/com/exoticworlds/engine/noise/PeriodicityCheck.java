@@ -113,42 +113,74 @@ public final class PeriodicityCheck {
 
     private static boolean sampleBroken(Probe probe, int x, int z, Map<SeamField, List<SeamCauseSearch.Point>> broken) {
         SeamCauseSearch.Point surface = new SeamCauseSearch.Point(x, SAMPLE_Y, z);
-        SeamCauseSearch.Point surfaceLapAway = probe.lap().away(surface);
-        NoiseColumn columnHere = probe.generator().getBaseColumn(x, z, probe.level(), probe.randomState());
-        NoiseColumn columnLapAway = probe.generator()
-                .getBaseColumn(surfaceLapAway.x(), surfaceLapAway.z(), probe.level(), probe.randomState());
-        boolean sampleBroken = collectColumn(broken, probe.level(), surface, columnHere, columnLapAway);
+        boolean column = collectColumn(probe, surface, broken);
+        boolean climate = collectClimate(probe, surface, broken);
+        boolean biome = collectBiome(probe, surface, broken);
+        return column || climate || biome;
+    }
 
-        SeamCauseSearch.Point quart = quartOf(surface);
-        SeamCauseSearch.Point quartLapAway = quartOf(surfaceLapAway);
-        Climate.TargetPoint climateHere = GenerationFoldContext.withFold(probe.fold(),
-                () -> ClimateTargets.at(probe.sampler(), quart.x(), quart.y(), quart.z()));
-        Climate.TargetPoint climateLapAway = GenerationFoldContext.withFold(probe.fold(),
-                () -> ClimateTargets.at(probe.sampler(), quartLapAway.x(), quartLapAway.y(), quartLapAway.z()));
-        SeamCauseSearch.Point climatePoint = new SeamCauseSearch.Point(QuartPos.toBlock(quart.x()),
-                QuartPos.toBlock(quart.y()), QuartPos.toBlock(quart.z()));
-        for (SeamField field : SeamField.values()) {
-            if (field.climate() && field.climateOf(climateHere) != field.climateOf(climateLapAway)) {
-                broken.computeIfAbsent(field, _ -> new ArrayList<>()).add(climatePoint);
-                sampleBroken = true;
+    private static boolean collectColumn(Probe probe, SeamCauseSearch.Point surface,
+            Map<SeamField, List<SeamCauseSearch.Point>> broken) {
+        SeamCauseSearch.Point lapAway = probe.lap().away(surface);
+        NoiseColumn here = probe.generator()
+                .getBaseColumn(surface.x(), surface.z(), probe.level(), probe.randomState());
+        NoiseColumn there = probe.generator()
+                .getBaseColumn(lapAway.x(), lapAway.z(), probe.level(), probe.randomState());
+        LevelHeightAccessor height = probe.level();
+        for (int y = height.getMinY(); y <= height.getMaxY(); y++) {
+            if (here.getBlock(y) != there.getBlock(y)) {
+                broken.computeIfAbsent(SeamField.COLUMN, _ -> new ArrayList<>())
+                        .add(new SeamCauseSearch.Point(surface.x(), y, surface.z()));
+                return true;
             }
         }
 
-        Holder<Biome> biomeHere = GenerationFoldContext.withFold(probe.fold(),
-                () -> probe.biomes().getNoiseBiome(quart.x(), quart.y(), quart.z()));
-        Holder<Biome> biomeLapAway = GenerationFoldContext.withFold(probe.fold(),
-                () -> probe.biomes().getNoiseBiome(quartLapAway.x(), quartLapAway.y(), quartLapAway.z()));
-        if (!biomeHere.equals(biomeLapAway)) {
-            broken.computeIfAbsent(SeamField.BIOME, _ -> new ArrayList<>()).add(climatePoint);
-            sampleBroken = true;
+        return false;
+    }
+
+    private static boolean collectClimate(Probe probe, SeamCauseSearch.Point surface,
+            Map<SeamField, List<SeamCauseSearch.Point>> broken) {
+        SeamCauseSearch.Point quart = quartOf(surface);
+        SeamCauseSearch.Point quartLapAway = quartOf(probe.lap().away(surface));
+        Climate.TargetPoint here = GenerationFoldContext.withFold(probe.fold(),
+                () -> ClimateTargets.at(probe.sampler(), quart.x(), quart.y(), quart.z()));
+        Climate.TargetPoint there = GenerationFoldContext.withFold(probe.fold(),
+                () -> ClimateTargets.at(probe.sampler(), quartLapAway.x(), quartLapAway.y(), quartLapAway.z()));
+        boolean found = false;
+        for (SeamField field : SeamField.values()) {
+            if (field.climate() && field.climateOf(here) != field.climateOf(there)) {
+                broken.computeIfAbsent(field, _ -> new ArrayList<>()).add(blockOf(quart));
+                found = true;
+            }
         }
 
-        return sampleBroken;
+        return found;
+    }
+
+    private static boolean collectBiome(Probe probe, SeamCauseSearch.Point surface,
+            Map<SeamField, List<SeamCauseSearch.Point>> broken) {
+        SeamCauseSearch.Point quart = quartOf(surface);
+        SeamCauseSearch.Point quartLapAway = quartOf(probe.lap().away(surface));
+        Holder<Biome> here = GenerationFoldContext.withFold(probe.fold(),
+                () -> probe.biomes().getNoiseBiome(quart.x(), quart.y(), quart.z()));
+        Holder<Biome> there = GenerationFoldContext.withFold(probe.fold(),
+                () -> probe.biomes().getNoiseBiome(quartLapAway.x(), quartLapAway.y(), quartLapAway.z()));
+        if (here.equals(there)) {
+            return false;
+        }
+
+        broken.computeIfAbsent(SeamField.BIOME, _ -> new ArrayList<>()).add(blockOf(quart));
+        return true;
     }
 
     private static SeamCauseSearch.Point quartOf(SeamCauseSearch.Point block) {
         return new SeamCauseSearch.Point(QuartPos.fromBlock(block.x()), QuartPos.fromBlock(block.y()),
                 QuartPos.fromBlock(block.z()));
+    }
+
+    private static SeamCauseSearch.Point blockOf(SeamCauseSearch.Point quart) {
+        return new SeamCauseSearch.Point(QuartPos.toBlock(quart.x()), QuartPos.toBlock(quart.y()),
+                QuartPos.toBlock(quart.z()));
     }
 
     private static void report(String levelName, Probe probe, SeamVerdict verdict, int brokenSamples) {
@@ -164,19 +196,6 @@ public final class PeriodicityCheck {
         LOGGER.warn(
                 "[ew/world-loop] periodicity_broken level={} axis={} width_blocks={} fields={} causes={} broken_samples={} samples={}",
                 levelName, axisName, widthBlocks, verdict.fields(), verdict.causes(), brokenSamples, samples);
-    }
-
-    private static boolean collectColumn(Map<SeamField, List<SeamCauseSearch.Point>> broken,
-            LevelHeightAccessor heightAccessor, SeamCauseSearch.Point surface, NoiseColumn here, NoiseColumn lapAway) {
-        for (int y = heightAccessor.getMinY(); y <= heightAccessor.getMaxY(); y++) {
-            if (here.getBlock(y) != lapAway.getBlock(y)) {
-                broken.computeIfAbsent(SeamField.COLUMN, _ -> new ArrayList<>())
-                        .add(new SeamCauseSearch.Point(surface.x(), y, surface.z()));
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private PeriodicityCheck() {

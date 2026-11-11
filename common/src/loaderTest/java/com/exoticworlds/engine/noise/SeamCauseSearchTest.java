@@ -1,23 +1,28 @@
 package com.exoticworlds.engine.noise;
 
 import static com.exoticworlds.engine.noise.ClimateScanFixture.SEED_BASE;
+import static com.exoticworlds.engine.noise.ClimateScanFixture.biomeSource;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.randomState;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.settingsOf;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.torusOfWidth;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.ExoticWorlds;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Interval;
+import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.densityfunction.DensityBuffer;
@@ -30,6 +35,7 @@ import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 
 class SeamCauseSearchTest {
     private static final int WIDTH_BLOCKS = 512;
+    private static final Identifier MULTI_NOISE = Identifier.withDefaultNamespace("multi_noise");
     private static final float RAW_X_SCALE = 1024.0F;
     private static final SeamCauseSearch.Lap LAP = new SeamCauseSearch.Lap(Direction.Axis.X, WIDTH_BLOCKS);
     private static final List<SeamCauseSearch.Point> POINTS = List.of(
@@ -89,6 +95,8 @@ class SeamCauseSearchTest {
                 SeamCauseSearch.densityCause(root, POINTS, LAP, state));
 
         assertEquals(RawX.class.getName(), node.type());
+        assertNull(node.holder());
+        assertNull(node.namespace());
         assertFalse(node.vanilla());
         assertEquals(List.of(), node.candidates());
     }
@@ -102,18 +110,32 @@ class SeamCauseSearchTest {
     }
 
     @Test
-    void candidatesLeaveOurOwnMixinsOutAndNameAnUnmappedMixinByItself() {
-        List<AppliedMixins.Applied> applied = List.of(
-                new AppliedMixins.Applied("com.exoticworlds.mixin.ExampleMixin", ExoticWorlds.MODID),
-                new AppliedMixins.Applied("com.example.mixin.FirstMixin", "example_mod"),
-                new AppliedMixins.Applied("com.example.mixin.SecondMixin", "example_mod"),
-                new AppliedMixins.Applied("com.loose.mixin.LooseMixin", null));
+    void aBrokenBiomeFollowsTheFirstBrokenClimateField() {
+        Map<SeamField, List<SeamCauseSearch.Point>> broken = new LinkedHashMap<>();
+        broken.put(SeamField.EROSION, POINTS);
+        broken.put(SeamField.BIOME, POINTS);
 
-        assertEquals(List.of("com.loose.mixin.LooseMixin", "example_mod"), AppliedMixins.foreign(applied));
+        List<SeamVerdict.Break> breaks = SeamCauseSearch.causesOf(broken, LAP, overworld(), overworldBiomes());
+
+        assertEquals(new SeamVerdict.Break(SeamField.BIOME.id(), new SeamCause.Follows(SeamField.EROSION.id())),
+                breaks.get(1));
+    }
+
+    @Test
+    void aBrokenBiomeUnderAHoldingClimateNamesTheBiomeSource() {
+        List<SeamVerdict.Break> breaks = SeamCauseSearch.causesOf(Map.of(SeamField.BIOME, POINTS), LAP,
+                overworld(), overworldBiomes());
+
+        assertEquals(List.of(new SeamVerdict.Break(SeamField.BIOME.id(),
+                new SeamCause.Biomes(MULTI_NOISE.toString(), Identifier.DEFAULT_NAMESPACE))), breaks);
     }
 
     private static RandomState overworld() {
         NoiseGeneratorSettings settings = settingsOf(NoiseGeneratorSettings.OVERWORLD);
         return randomState(settings, torusOfWidth(WIDTH_BLOCKS), SEED_BASE);
+    }
+
+    private static BiomeSource overworldBiomes() {
+        return biomeSource(ClimateScanFixture.TYPES.getFirst());
     }
 }
