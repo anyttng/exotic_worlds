@@ -23,10 +23,13 @@ import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.CreationShape;
 import com.exoticworlds.compat.MapCopies;
 import com.exoticworlds.compat.SeamLine;
+import com.exoticworlds.compat.ultraterraforged.preview.DrawnPreview;
 import com.exoticworlds.compat.ultraterraforged.preview.PreviewView;
 import com.exoticworlds.core.ToroidalShapeView;
 
 import com.pandaismyname1.ultraterraforged.client.gui.createworld.TerrainPreview;
+import com.pandaismyname1.ultraterraforged.data.preset.settings.WorldSettings;
+import com.pandaismyname1.ultraterraforged.world.worldgen.GeneratorContext;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -35,7 +38,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 
 @Mixin(value = TerrainPreview.class, remap = false)
-public abstract class TerrainPreviewCopiesMixin {
+public abstract class TerrainPreviewCopiesMixin implements DrawnPreview {
     @Unique
     private static final int SEAM_THICKNESS = 1;
 
@@ -54,6 +57,11 @@ public abstract class TerrainPreviewCopiesMixin {
 
     @Unique
     private @Nullable PreviewView exotic_worlds$drawn;
+
+    @Override
+    public @Nullable PreviewView exotic_worlds$drawn() {
+        return this.exotic_worlds$drawn;
+    }
 
     @ModifyVariable(method = "generate", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private float exotic_worlds$capTheZoom(float zoom, @Share("shape") LocalRef<ToroidalShape> shape,
@@ -88,9 +96,12 @@ public abstract class TerrainPreviewCopiesMixin {
             @Local(argsOnly = true, ordinal = 0) int generation, @Local(argsOnly = true, ordinal = 0) float zoom,
             @Local(argsOnly = true, ordinal = 1) float panX, @Local(argsOnly = true, ordinal = 2) float panZ,
             @Local(name = "centerX") float centerX, @Local(name = "centerZ") float centerZ,
+            @Local(name = "context") GeneratorContext context,
+            @Local(name = "properties") WorldSettings.Properties properties,
             @Share("shape") LocalRef<ToroidalShape> shape, @Share("copies") LocalRef<MapCopies> copies,
             @Share("shiftX") LocalFloatRef shiftX, @Share("shiftZ") LocalFloatRef shiftZ) {
-        PreviewView view = new PreviewView(shape.get(), copies.get(), centerX, centerZ, zoom);
+        PreviewView view = new PreviewView(shape.get(), copies.get(), centerX, centerZ, zoom,
+                properties.spawnType.getSearchCenter(context));
         float heldPanX = panX + shiftX.get();
         float heldPanZ = panZ + shiftZ.get();
         original.call(minecraft, (Runnable) () -> {
