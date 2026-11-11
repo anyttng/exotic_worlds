@@ -172,6 +172,7 @@
     "NaturalSpawnerMixin",
     "NetherPortalBlockMixin",
     "NodeMixin",
+    "NoiseBasedChunkGeneratorAccessor",
     "NoiseBasedChunkGeneratorCarversMixin",
     "NoiseBasedChunkGeneratorMixin",
     "NoiseBasedCountPlacementMixin",
