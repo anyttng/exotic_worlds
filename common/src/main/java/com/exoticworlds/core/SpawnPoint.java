@@ -16,8 +16,6 @@ public record SpawnPoint(Mode mode, int xChunk, int zChunk) {
 
     public static final SpawnPoint DEFAULT = new SpawnPoint(Mode.DEFAULT, 0, 0);
 
-    public static final SpawnPoint ZERO = DEFAULT;
-
     private static final Codec<SpawnPoint> POINT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf(X_KEY).forGetter(SpawnPoint::xChunk),
             Codec.INT.fieldOf(Z_KEY).forGetter(SpawnPoint::zChunk)

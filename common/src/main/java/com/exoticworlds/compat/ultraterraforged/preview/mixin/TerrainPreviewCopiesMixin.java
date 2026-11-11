@@ -28,8 +28,6 @@ import com.exoticworlds.compat.ultraterraforged.preview.PreviewView;
 import com.exoticworlds.core.ToroidalShapeView;
 
 import com.pandaismyname1.ultraterraforged.client.gui.createworld.TerrainPreview;
-import com.pandaismyname1.ultraterraforged.data.preset.settings.WorldSettings;
-import com.pandaismyname1.ultraterraforged.world.worldgen.GeneratorContext;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -96,12 +94,9 @@ public abstract class TerrainPreviewCopiesMixin implements DrawnPreview {
             @Local(argsOnly = true, ordinal = 0) int generation, @Local(argsOnly = true, ordinal = 0) float zoom,
             @Local(argsOnly = true, ordinal = 1) float panX, @Local(argsOnly = true, ordinal = 2) float panZ,
             @Local(name = "centerX") float centerX, @Local(name = "centerZ") float centerZ,
-            @Local(name = "context") GeneratorContext context,
-            @Local(name = "properties") WorldSettings.Properties properties,
             @Share("shape") LocalRef<ToroidalShape> shape, @Share("copies") LocalRef<MapCopies> copies,
             @Share("shiftX") LocalFloatRef shiftX, @Share("shiftZ") LocalFloatRef shiftZ) {
-        PreviewView view = new PreviewView(shape.get(), copies.get(), centerX, centerZ, zoom,
-                properties.spawnType.getSearchCenter(context));
+        PreviewView view = new PreviewView(shape.get(), copies.get(), centerX, centerZ, zoom);
         float heldPanX = panX + shiftX.get();
         float heldPanZ = panZ + shiftZ.get();
         original.call(minecraft, (Runnable) () -> {
