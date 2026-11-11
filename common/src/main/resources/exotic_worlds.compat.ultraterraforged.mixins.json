@@ -62,6 +62,8 @@
     "SinMixin",
     "SingleContinentGeneratorMixin",
     "SkerriesMixin",
+    "SpawnFinderMixin",
+    "SpawnTypeMixin",
     "StrataRuleMixin",
     "SubmarineCanyonsMixin",
     "TorsMixin",
