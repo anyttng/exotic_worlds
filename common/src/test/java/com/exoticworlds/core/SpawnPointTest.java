@@ -1,6 +1,7 @@
 package com.exoticworlds.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -21,10 +22,25 @@ class SpawnPointTest {
     }
 
     @Test
-    void aWorldFileWithoutASpawnPointReadsAsZero() {
+    void aWorldFileWithoutASpawnPointReadsAsDefault() {
         GenerationOptions read = OPTIONS.parse(JsonOps.INSTANCE, JsonParser.parseString("{}")).getOrThrow();
 
-        assertEquals(SpawnPoint.ZERO, read.get(SpawnPoint.OPTION));
+        assertEquals(SpawnPoint.DEFAULT, read.get(SpawnPoint.OPTION));
+        assertEquals(JsonParser.parseString("{}"), OPTIONS.encodeStart(JsonOps.INSTANCE, read).getOrThrow());
+    }
+
+    @Test
+    void aPointAtChunkZeroIsStoredAndReadBackAsAPoint() {
+        GenerationOptions chosen = GenerationOptions.DEFAULT.with(SpawnPoint.OPTION, new SpawnPoint(0, 0));
+        JsonElement written = OPTIONS.encodeStart(JsonOps.INSTANCE, chosen).getOrThrow();
+
+        assertEquals(JsonParser.parseString("{\"spawn\":{\"x\":0,\"z\":0}}"), written);
+        assertTrue(OPTIONS.parse(JsonOps.INSTANCE, written).getOrThrow().get(SpawnPoint.OPTION).isCustom());
+    }
+
+    @Test
+    void theDefaultHasNoCoordinatesOfItsOwn() {
+        assertEquals(SpawnPoint.DEFAULT, new SpawnPoint(SpawnPoint.Mode.DEFAULT, 5, -7));
     }
 
     @Test
