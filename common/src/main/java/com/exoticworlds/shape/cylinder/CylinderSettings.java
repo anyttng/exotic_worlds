@@ -6,6 +6,7 @@ import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.option.WorldOption;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.NetherScales;
+import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.WorldLoopSizes;
 import com.exoticworlds.shape.StemSettings;
 import com.exoticworlds.shape.climate.ClimateScale;
@@ -49,6 +50,10 @@ public record CylinderSettings(LoopSpans overworld, int netherScale, LoopSpans e
 
     public int endChunkWidth() {
         return end.chunkWidth(axis());
+    }
+
+    public CylinderSettings withSpawn(SpawnPoint spawn) {
+        return new CylinderSettings(overworld, netherScale, end, generationOptions.with(SpawnPoint.OPTION, spawn));
     }
 
     public static boolean isCylinder(LoopSpans spans) {

@@ -2,6 +2,7 @@ package com.exoticworlds.shape.custom;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.api.v1.shape.ShapeModule;
+import com.exoticworlds.shape.WorldShapes;
 import com.exoticworlds.client.shape.custom.CustomShapeSetup;
 
 import net.minecraft.resources.Identifier;
@@ -17,6 +18,7 @@ public final class CustomShape {
 
     public static void register(boolean client) {
         MODULE.register();
+        WorldShapes.takesSpawn(MODULE, CustomSettings::withSpawn);
 
         if (client) {
             CustomShapeSetup.register();
