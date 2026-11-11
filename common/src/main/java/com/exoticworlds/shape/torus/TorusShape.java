@@ -3,6 +3,7 @@ package com.exoticworlds.shape.torus;
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.client.shape.torus.TorusShapeSetup;
 import com.exoticworlds.api.v1.shape.ShapeModule;
+import com.exoticworlds.shape.WorldShapes;
 
 import net.minecraft.resources.ResourceLocation;
 
@@ -17,6 +18,7 @@ public final class TorusShape {
 
     public static void register(boolean client) {
         MODULE.register();
+        WorldShapes.takesSpawn(MODULE, TorusSettings::withSpawn);
 
         if (client) {
             TorusShapeSetup.register();
