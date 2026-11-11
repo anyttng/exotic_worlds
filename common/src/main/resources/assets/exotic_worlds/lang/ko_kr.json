@@ -102,5 +102,6 @@
   "gui.exotic_worlds.settings.seam_lines": "전체 화면 지도의 세계 가장자리 선",
   "gui.exotic_worlds.settings.seam_lines_hint": "전체 화면 지도에서 순환하는 세계의 복사본 사이, 세계의 가장자리를 따라 선을 그립니다. '반복'에서만 작동합니다. '하나만'에서는 선을 그리지 않습니다.",
 
-  "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "클릭해 스폰 지점 설정"
+  "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "클릭해 스폰 지점 설정",
+  "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "핀을 우클릭해 초기화"
 }

@@ -16,8 +16,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 
-public record PreviewView(ToroidalShape shape, MapCopies copies, float centerX, float centerZ, float zoom,
-        BlockPos searchCenter) {
+public record PreviewView(ToroidalShape shape, MapCopies copies, float centerX, float centerZ, float zoom) {
     public static final int PREVIEW_PIXELS = 256;
 
     private static final float HALF_PREVIEW_PIXELS = PREVIEW_PIXELS / 2.0F;

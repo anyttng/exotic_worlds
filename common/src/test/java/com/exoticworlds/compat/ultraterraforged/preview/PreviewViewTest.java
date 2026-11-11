@@ -53,21 +53,21 @@ class PreviewViewTest {
 
     @Test
     void theEdgesLandWhereThePictureDrawsThem() {
-        PreviewView view = new PreviewView(TORUS, MapCopies.REPEATED, 256f, 0f, 1f, BlockPos.ZERO);
+        PreviewView view = new PreviewView(TORUS, MapCopies.REPEATED, 256f, 0f, 1f);
         assertEquals(List.of(new SeamLine(true, 138, 20, 276)), view.seamLines(10, 20, 256),
                 "a 256-block window centered on the X edge at 256 meets it in the middle of a 256-pixel widget");
     }
 
     @Test
     void aCylinderDrawsItsLoopingAxisAlone() {
-        PreviewView view = new PreviewView(CYLINDER, MapCopies.REPEATED, 256f, 256f, 1f, BlockPos.ZERO);
+        PreviewView view = new PreviewView(CYLINDER, MapCopies.REPEATED, 256f, 256f, 1f);
         assertEquals(List.of(new SeamLine(true, 128, 0, 256)), view.seamLines(0, 0, 256),
                 "the endless Z axis draws no line");
     }
 
     @Test
     void aSkewedEdgeBreaksIntoSegments() {
-        PreviewView view = new PreviewView(SKEWED, MapCopies.REPEATED, 256f, 256f, 1f, BlockPos.ZERO);
+        PreviewView view = new PreviewView(SKEWED, MapCopies.REPEATED, 256f, 256f, 1f);
         List<SeamLine> lines = view.seamLines(0, 0, 256);
         assertEquals(2, lines.stream().filter(line -> !line.vertical()).count(),
                 "the Z edge splits where the X edge of the moved row meets it");
@@ -77,16 +77,16 @@ class PreviewViewTest {
 
     @Test
     void theReadoutNamesThePositionInsideTheWorld() {
-        PreviewView view = new PreviewView(TORUS, MapCopies.REPEATED, 0f, 0f, 1f, BlockPos.ZERO);
+        PreviewView view = new PreviewView(TORUS, MapCopies.REPEATED, 0f, 0f, 1f);
         assertEquals(new BlockPos(-212, 0, 40), view.inside(300, 40), "300 is one 512-block lap past -212");
-        PreviewView skewed = new PreviewView(SKEWED, MapCopies.REPEATED, 0f, 0f, 1f, BlockPos.ZERO);
+        PreviewView skewed = new PreviewView(SKEWED, MapCopies.REPEATED, 0f, 0f, 1f);
         assertEquals(new BlockPos(-64, 0, -212), skewed.inside(0, 300),
                 "crossing the Z edge moves X back by the 64-block skew");
     }
 
     @Test
     void aClickReadsTheBlockTheReadoutNames() {
-        PreviewView view = new PreviewView(TORUS, MapCopies.REPEATED, 0f, 0f, 1f, BlockPos.ZERO);
+        PreviewView view = new PreviewView(TORUS, MapCopies.REPEATED, 0f, 0f, 1f);
         assertEquals(new BlockPos(0, 0, -64), view.blockAt(10, 20, 256, 138.5, 84.0),
                 "preview pixel 128 is the center column, pixel 64 lies 64 blocks above it");
         assertEquals(new BlockPos(0, 0, -64), view.blockAt(10, 20, 128, 74.0, 52.0),
@@ -95,7 +95,7 @@ class PreviewViewTest {
 
     @Test
     void theMarkerLandsOnEveryCopyInsideThePicture() {
-        PreviewView view = new PreviewView(TORUS, MapCopies.REPEATED, 256f, 100f, 4f, BlockPos.ZERO);
+        PreviewView view = new PreviewView(TORUS, MapCopies.REPEATED, 256f, 100f, 4f);
         assertEquals(Set.of(new PreviewView.Pixel(64, 103), new PreviewView.Pixel(192, 103),
                         new PreviewView.Pixel(64, 231), new PreviewView.Pixel(192, 231)),
                 Set.copyOf(view.copiesOf(BlockPos.ZERO, 0, 0, 256)),
@@ -104,7 +104,7 @@ class PreviewViewTest {
 
     @Test
     void aCylinderMarksItsEndlessAxisOnce() {
-        PreviewView view = new PreviewView(CYLINDER, MapCopies.REPEATED, 256f, 100f, 4f, BlockPos.ZERO);
+        PreviewView view = new PreviewView(CYLINDER, MapCopies.REPEATED, 256f, 100f, 4f);
         assertEquals(Set.of(new PreviewView.Pixel(64, 103), new PreviewView.Pixel(192, 103)),
                 Set.copyOf(view.copiesOf(BlockPos.ZERO, 0, 0, 256)), "Z never repeats on a cylinder");
     }
