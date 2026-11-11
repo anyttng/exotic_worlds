@@ -1,9 +1,11 @@
 package com.exoticworlds.core;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -47,6 +49,19 @@ public final class DensityFunctionNodes {
         }
 
         return null;
+    }
+
+    public static List<DensityFunction> children(DensityFunction node) {
+        if (node instanceof DensityFunctions.HolderHolder(Holder<DensityFunction> holder) && !holder.isBound()) {
+            return List.of();
+        }
+
+        List<DensityFunction> children = new ArrayList<>();
+        node.rewriteChildren(child -> {
+            children.add(child);
+            return child;
+        });
+        return children;
     }
 
     private DensityFunctionNodes() {

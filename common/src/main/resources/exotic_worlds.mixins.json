@@ -26,6 +26,7 @@
     "BellBlockEntityMixin",
     "BiomeManagerMixin",
     "BiomeMixin",
+    "BiomeSourceAccessor",
     "BlazeAimMixin",
     "BlendedNoiseCompileMixin",
     "BlockCollisionsMixin",
