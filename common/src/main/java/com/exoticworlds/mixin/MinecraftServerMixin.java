@@ -2,12 +2,14 @@ package com.exoticworlds.mixin;
 
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.ExoticWorlds;
+import com.exoticworlds.accessors.SeamDetailsPendingHolder;
 import com.exoticworlds.core.RegistrationBoundary;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
@@ -17,6 +19,7 @@ import com.exoticworlds.engine.gen.WorldShapeReport;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.engine.level.SeamRespawnData;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.SeamDetailsPending;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -32,7 +35,15 @@ import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.ServerLevelData;
 
 @Mixin(MinecraftServer.class)
-public class MinecraftServerMixin {
+public class MinecraftServerMixin implements SeamDetailsPendingHolder {
+    @Unique
+    private final SeamDetailsPending exotic_worlds$seamDetailsPending = new SeamDetailsPending();
+
+    @Override
+    public SeamDetailsPending exotic_worlds$seamDetailsPending() {
+        return this.exotic_worlds$seamDetailsPending;
+    }
+
     @Inject(method = "runServer", at = @At("HEAD"))
     private void exotic_worlds$publishCurrentServer(CallbackInfo ci) {
         CurrentServer.set((MinecraftServer) (Object) this);

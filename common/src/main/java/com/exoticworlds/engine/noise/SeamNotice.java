@@ -26,7 +26,7 @@ public final class SeamNotice {
 
         unseen.forEach(verdict -> player.sendSystemMessage(SeamMessages.notice(verdict)));
         record.add(unseen.stream().map(SeamVerdict::fingerprint).toList());
-        record.markDetailsPending(player.getUUID());
+        SeamDetailsPending.of(server).mark(player.getUUID());
         ExoticWorlds.LOGGER.info("[ew/edge] notice player={} shown={}", player.getName().getString(),
                 unseen.stream().map(SeamVerdict::fingerprint).toList());
     }
