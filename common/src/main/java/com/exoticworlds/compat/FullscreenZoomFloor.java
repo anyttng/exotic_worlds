@@ -65,6 +65,16 @@ public final class FullscreenZoomFloor {
                 windowSide(axis, viewWidth, viewHeight), blocksPerTile, tilePixels));
     }
 
+    public static float ultraTerraForgedZoom(ToroidalShape shape, int widgetPixels, int previewPixels) {
+        return (float) minOverLoopedAxes(shape,
+                axis -> ultraTerraForgedZoom(shape.widthBlocks(axis), widgetPixels, previewPixels));
+    }
+
+    public static float ultraTerraForgedCoverZoom(ToroidalShape shape, int previewPixels) {
+        return (float) minOverLoopedAxes(shape,
+                axis -> ultraTerraForgedCoverZoom(shape.widthBlocks(axis), previewPixels));
+    }
+
     private static double maxOverLoopedAxes(ToroidalShape shape, ToDoubleFunction<Direction.Axis> floorOf) {
         double floor = 0.0;
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
@@ -74,6 +84,17 @@ public final class FullscreenZoomFloor {
         }
 
         return floor;
+    }
+
+    private static double minOverLoopedAxes(ToroidalShape shape, ToDoubleFunction<Direction.Axis> ceilingOf) {
+        double ceiling = Double.MAX_VALUE;
+        for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
+            if (shape.loops(axis)) {
+                ceiling = Math.min(ceiling, ceilingOf.applyAsDouble(axis));
+            }
+        }
+
+        return ceiling;
     }
 
     public static int journeyMapSeatedZoom(int zoom, int floor, MapCopies copies) {
@@ -98,6 +119,14 @@ public final class FullscreenZoomFloor {
 
     static float simpleAtlasCoverZoom(int widthBlocks, float viewPixels, int blocksPerTile, float tilePixels) {
         return viewPixels * blocksPerTile / (tilePixels * widthBlocks);
+    }
+
+    static double ultraTerraForgedZoom(int widthBlocks, int widgetPixels, int previewPixels) {
+        return (double) widthBlocks * widgetPixels / ((double) previewPixels * MIN_WORLD_PIXELS);
+    }
+
+    static double ultraTerraForgedCoverZoom(int widthBlocks, int previewPixels) {
+        return (double) widthBlocks / previewPixels;
     }
 
     private static int windowSide(Direction.Axis axis, int windowWidth, int windowHeight) {
