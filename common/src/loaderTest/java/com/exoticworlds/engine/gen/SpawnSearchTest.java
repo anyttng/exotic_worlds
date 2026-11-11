@@ -3,6 +3,7 @@ package com.exoticworlds.engine.gen;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,10 +67,29 @@ class SpawnSearchTest {
 
     @Test
     void aWorldWithoutASpawnPointSearchesAsVanillaDoes() {
-        LoopedChunkGenerator generator = noiseGenerator(SpawnPoint.ZERO);
+        LoopedChunkGenerator generator = noiseGenerator(SpawnPoint.DEFAULT);
         Climate.Sampler sampler = randomState(generator, overworldSettings.value()).sampler();
 
         assertEquals(sampler.findSpawnPosition(), SpawnSearch.from(generator, sampler::findSpawnPosition));
+    }
+
+    @Test
+    void aPointAtChunkZeroIsBoundAndDefaultIsNot() {
+        LoopedChunkGenerator atZero = noiseGenerator(new SpawnPoint(0, 0));
+        LoopedChunkGenerator unset = noiseGenerator(SpawnPoint.DEFAULT);
+        List<SpawnPoint> seen = new ArrayList<>();
+
+        SpawnSearch.from(atZero, () -> {
+            seen.add(SpawnSearch.bound());
+            return ChunkPos.ZERO;
+        });
+        SpawnSearch.from(unset, () -> {
+            seen.add(SpawnSearch.bound());
+            return ChunkPos.ZERO;
+        });
+
+        assertEquals(List.of(new SpawnPoint(0, 0), SpawnPoint.DEFAULT), seen);
+        assertTrue(seen.get(0).isCustom(), "a chosen chunk 0, 0 is a point like any other");
     }
 
     @Test
@@ -79,7 +99,7 @@ class SpawnSearchTest {
                         holders.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS), List.of()),
                 new CarriedShape(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDE_CHUNKS)),
                         GenerationOptions.DEFAULT.with(SpawnPoint.OPTION, FAR_POINT)));
-        Climate.Sampler sampler = randomState(noiseGenerator(SpawnPoint.ZERO), NoiseGeneratorSettings.dummy())
+        Climate.Sampler sampler = randomState(noiseGenerator(SpawnPoint.DEFAULT), NoiseGeneratorSettings.dummy())
                 .sampler();
 
         assertEquals(new ChunkPos(FAR_POINT.xChunk(), FAR_POINT.zChunk()),
