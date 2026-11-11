@@ -18,6 +18,6 @@ public abstract class SpawnTypeMixin {
     @ModifyReturnValue(method = "getSearchCenter", at = @At("RETURN"))
     private BlockPos exotic_worlds$centerAtTheSpawnPoint(BlockPos center) {
         SpawnPoint point = SpawnSearch.bound();
-        return point.equals(SpawnPoint.ZERO) ? center : new BlockPos(point.blockX(), center.getY(), point.blockZ());
+        return point.isCustom() ? new BlockPos(point.blockX(), center.getY(), point.blockZ()) : center;
     }
 }

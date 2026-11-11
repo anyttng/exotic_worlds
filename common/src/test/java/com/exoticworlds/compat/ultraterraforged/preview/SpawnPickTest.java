@@ -31,10 +31,7 @@ class SpawnPickTest {
     }
 
     @Test
-    void theMarkerStandsOnThePickedChunkOrWhereTheSearchStarts() {
-        BlockPos continent = new BlockPos(900, 0, -300);
-        assertEquals(continent, SpawnPick.marked(SpawnPoint.ZERO, continent), "no point set");
-        assertEquals(new BlockPos(56, 0, -72), SpawnPick.marked(new SpawnPoint(3, -5), continent),
-                "the center of chunk 3, -5");
+    void thePinStandsOnThePickedChunksCenter() {
+        assertEquals(new BlockPos(56, 0, -72), SpawnPick.pinOf(new SpawnPoint(3, -5)), "the center of chunk 3, -5");
     }
 }

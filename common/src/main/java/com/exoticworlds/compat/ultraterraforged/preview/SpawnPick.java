@@ -19,9 +19,8 @@ public final class SpawnPick {
                 chunkInBounds(shape, Direction.Axis.Z, inside.getZ()));
     }
 
-    public static BlockPos marked(SpawnPoint spawn, BlockPos searchCenter) {
-        return spawn.equals(SpawnPoint.ZERO) ? searchCenter
-                : new BlockPos(spawn.blockX() + CHUNK_CENTER, 0, spawn.blockZ() + CHUNK_CENTER);
+    public static BlockPos pinOf(SpawnPoint spawn) {
+        return new BlockPos(spawn.blockX() + CHUNK_CENTER, 0, spawn.blockZ() + CHUNK_CENTER);
     }
 
     private static int chunkInBounds(ToroidalShape shape, Direction.Axis axis, int block) {
