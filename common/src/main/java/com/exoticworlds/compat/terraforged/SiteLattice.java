@@ -25,8 +25,10 @@ public record SiteLattice(double xLap, double zLap, double skew, float spacing, 
         boolean torus = xLap != RtfLap.OPEN && zLap != RtfLap.OPEN;
         int xCells = RtfLap.cellsOver(xLap, 1.0 / spacing, torus);
         int zCells = RtfLap.cellsOver(zLap, 1.0 / spacing, torus);
-        return new SiteLattice(xLap, zLap, skew, spacing, xCells, zCells, snapped(xLap, xCells, spacing),
-                snapped(zLap, zCells, spacing));
+        float xSpacing = snapped(xLap, xCells, spacing);
+        float zSpacing = snapped(zLap, zCells, spacing);
+        return new SiteLattice(xLap, zLap, skew, spacing, xCells, zCells,
+                xCells == RtfLap.NO_PERIOD ? zSpacing : xSpacing, zCells == RtfLap.NO_PERIOD ? xSpacing : zSpacing);
     }
 
     public static float spacingOn(float spacing, Direction.Axis axis) {
