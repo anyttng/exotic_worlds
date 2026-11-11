@@ -17,6 +17,7 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.gen.DimensionChoicesCommand;
 import com.exoticworlds.engine.net.ListenerCopies;
 import com.exoticworlds.engine.net.MeasuredReach;
+import com.exoticworlds.engine.noise.SeamNotice;
 import com.exoticworlds.engine.net.WorldShapeSync;
 import com.exoticworlds.engine.seam.ClientPosition;
 import com.exoticworlds.core.WorldLoopAttachments;
@@ -79,6 +80,7 @@ public class PlayerListMixin {
             CallbackInfo ci) {
         WorldShapeSync.sendAllTo(player);
         DimensionChoicesCommand.hintTo(player);
+        SeamNotice.hintTo(player);
     }
 
     @Inject(method = "respawn",

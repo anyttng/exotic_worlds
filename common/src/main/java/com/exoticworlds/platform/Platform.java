@@ -1,6 +1,7 @@
 package com.exoticworlds.platform;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.function.IntFunction;
 
 import com.exoticworlds.core.FlatShape;
@@ -44,4 +45,8 @@ public interface Platform {
     LevelStem withGenerator(LevelStem stem, ChunkGenerator generator);
 
     Path configDir();
+
+    Optional<String> modName(String modId);
+
+    Optional<String> modIdOfResource(String path);
 }

@@ -1,6 +1,7 @@
 package com.exoticworlds.platform;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.function.IntFunction;
 
 import com.exoticworlds.ExoticWorlds;
@@ -108,5 +109,18 @@ public final class FabricPlatform implements Platform {
     @Override
     public Path configDir() {
         return FabricLoader.getInstance().getConfigDir();
+    }
+
+    @Override
+    public Optional<String> modName(String modId) {
+        return FabricLoader.getInstance().getModContainer(modId).map(container -> container.getMetadata().getName());
+    }
+
+    @Override
+    public Optional<String> modIdOfResource(String path) {
+        return FabricLoader.getInstance().getAllMods().stream()
+                .filter(mod -> mod.findPath(path).isPresent())
+                .map(mod -> mod.getMetadata().getId())
+                .findFirst();
     }
 }

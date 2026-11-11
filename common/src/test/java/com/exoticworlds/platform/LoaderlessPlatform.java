@@ -1,6 +1,7 @@
 package com.exoticworlds.platform;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.function.IntFunction;
 
 import com.exoticworlds.core.FlatShape;
@@ -83,6 +84,16 @@ public final class LoaderlessPlatform implements Platform {
 
     @Override
     public Path configDir() {
+        throw new UnsupportedOperationException(NO_LOADER);
+    }
+
+    @Override
+    public Optional<String> modName(String modId) {
+        throw new UnsupportedOperationException(NO_LOADER);
+    }
+
+    @Override
+    public Optional<String> modIdOfResource(String path) {
         throw new UnsupportedOperationException(NO_LOADER);
     }
 }

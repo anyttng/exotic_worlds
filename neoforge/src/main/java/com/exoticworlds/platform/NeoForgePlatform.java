@@ -1,6 +1,8 @@
 package com.exoticworlds.platform;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.function.IntFunction;
 
 import com.exoticworlds.core.FlatShape;
@@ -22,12 +24,14 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.internal.versions.neoforge.NeoForgeVersion;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforgespi.language.IModInfo;
 
 public final class NeoForgePlatform implements Platform {
     private final ModContainer modContainer;
@@ -109,5 +113,19 @@ public final class NeoForgePlatform implements Platform {
     @Override
     public Path configDir() {
         return FMLPaths.CONFIGDIR.get();
+    }
+
+    @Override
+    public Optional<String> modName(String modId) {
+        return ModList.get().getModContainerById(modId).map(container -> container.getModInfo().getDisplayName());
+    }
+
+    @Override
+    public Optional<String> modIdOfResource(String path) {
+        return ModList.get().getModFiles().stream()
+                .filter(file -> Files.exists(file.getFile().findResource(path)))
+                .flatMap(file -> file.getMods().stream())
+                .map(IModInfo::getModId)
+                .findFirst();
     }
 }
