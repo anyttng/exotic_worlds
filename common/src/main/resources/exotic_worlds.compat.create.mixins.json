@@ -4,6 +4,11 @@
   "package": "com.exoticworlds.compat.create.mixin",
   "compatibilityLevel": "JAVA_25",
   "plugin": "com.exoticworlds.compat.create.CreateMixinPlugin",
+  "mixins": [
+    "AllHandleMixin",
+    "CarriageContraptionEntityMixin",
+    "StockKeeperCategoryMenuMixin"
+  ],
   "client": [
     "SchematicannonScreenMixin"
   ],
