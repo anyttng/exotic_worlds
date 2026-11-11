@@ -40,6 +40,11 @@
   "gui.exotic_worlds.toroidal_settings.skew": "Przesunięcie wzdłuż X na okrążenie wzdłuż Z, w chunkach",
   "gui.exotic_worlds.toroidal_settings.skew_laps": "Okrążenia wzdłuż Z do powrotu do punktu wyjścia: %s",
   "gui.exotic_worlds.toroidal_settings.skew_hint": "Przekraczając krawędź wzdłuż Z, przesuwasz się też o tyle wzdłuż X, więc powrót do punktu wyjścia może zająć kilka okrążeń wzdłuż Z. 0 to zwykły torus.",
+  "gui.exotic_worlds.toroidal_settings.spawn_mode": "Punkt odradzania",
+  "gui.exotic_worlds.toroidal_settings.spawn_mode.default": "Domyślny",
+  "gui.exotic_worlds.toroidal_settings.spawn_mode.default.hint": "Gracz pojawi się tam, gdzie umieściłby go świat bez Exotic Worlds, w pobliżu 0, 0 albo tam, gdzie wskazuje własne ustawienie punktu odradzania moda terenu.",
+  "gui.exotic_worlds.toroidal_settings.spawn_mode.custom": "Niestandardowy",
+  "gui.exotic_worlds.toroidal_settings.spawn_mode.custom.hint": "Gracz pojawi się w pobliżu punktu ustawionego niżej.",
   "gui.exotic_worlds.toroidal_settings.spawn_point": "Punkt odradzania w chunkach",
   "gui.exotic_worlds.toroidal_settings.spawn_point_hint.point": "Nowy świat zaczyna szukać punktu odradzania od X %s, Z %s.",
   "gui.exotic_worlds.toroidal_settings.spawn_point_hint.search": "Gracz pojawi się w pobliżu tego punktu. Świat, jego krawędzie i teren się nie zmieniają. Mod terenu, który wybiera punkt odradzania po swojemu, może zignorować to ustawienie.",
@@ -95,5 +100,8 @@
   "gui.exotic_worlds.settings.map_copies.repeated": "Powtarzane",
   "gui.exotic_worlds.settings.map_copies.single": "Pojedyncza",
   "gui.exotic_worlds.settings.seam_lines": "Linie krawędzi świata na mapie pełnoekranowej",
-  "gui.exotic_worlds.settings.seam_lines_hint": "Rysuje linię wzdłuż krawędzi świata między kopiami zapętlonego świata na mapie pełnoekranowej. Działa tylko z „Powtarzane”: „Pojedyncza” nie rysuje żadnej."
+  "gui.exotic_worlds.settings.seam_lines_hint": "Rysuje linię wzdłuż krawędzi świata między kopiami zapętlonego świata na mapie pełnoekranowej. Działa tylko z „Powtarzane”: „Pojedyncza” nie rysuje żadnej.",
+
+  "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Kliknij, aby ustawić punkt odradzania",
+  "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "Kliknij znacznik prawym przyciskiem, aby zresetować"
 }

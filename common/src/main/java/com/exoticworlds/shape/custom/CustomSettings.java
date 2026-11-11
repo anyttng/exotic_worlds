@@ -10,6 +10,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.option.WorldOption;
 import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.shape.climate.CompactBiomes;
 import com.exoticworlds.shape.torus.GuaranteedLand;
 import com.exoticworlds.shape.torus.GuaranteedNetherComplexes;
@@ -49,6 +50,15 @@ public record CustomSettings(DimensionShape overworld, DimensionShape nether, Di
             case NETHER -> new CustomSettings(this.overworld, shape, this.end, this.modded);
             case END -> new CustomSettings(this.overworld, this.nether, shape, this.modded);
         };
+    }
+
+    public @Nullable CustomSettings withSpawn(SpawnPoint spawn) {
+        if (this.overworld.kind() == StemKind.NONE) {
+            return null;
+        }
+
+        return this.with(VanillaDimension.OVERWORLD, new DimensionShape(this.overworld.spans(),
+                this.overworld.options().with(SpawnPoint.OPTION, spawn)));
     }
 
     public @Nullable DimensionShape get(ModDimension dimension) {

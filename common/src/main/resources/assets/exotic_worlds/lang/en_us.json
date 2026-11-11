@@ -40,6 +40,11 @@
   "gui.exotic_worlds.toroidal_settings.skew": "X shift per lap along Z, in chunks",
   "gui.exotic_worlds.toroidal_settings.skew_laps": "Laps along Z to arrive back where you started: %s",
   "gui.exotic_worlds.toroidal_settings.skew_hint": "Crossing the Z edge also moves you this far along X, so arriving back where you started can take several laps along Z. 0 keeps the plain torus.",
+  "gui.exotic_worlds.toroidal_settings.spawn_mode": "Spawn point",
+  "gui.exotic_worlds.toroidal_settings.spawn_mode.default": "Default",
+  "gui.exotic_worlds.toroidal_settings.spawn_mode.default.hint": "The player appears where the world would put them without Exotic Worlds, near 0, 0 or wherever a terrain mod's own spawn setting points.",
+  "gui.exotic_worlds.toroidal_settings.spawn_mode.custom": "Custom",
+  "gui.exotic_worlds.toroidal_settings.spawn_mode.custom.hint": "The player appears near the point set below.",
   "gui.exotic_worlds.toroidal_settings.spawn_point": "Spawn point in chunks",
   "gui.exotic_worlds.toroidal_settings.spawn_point_hint.point": "A new world starts looking for its spawn at X %s, Z %s.",
   "gui.exotic_worlds.toroidal_settings.spawn_point_hint.search": "The player appears near that point. The world, its edges and its terrain stay as they are. A terrain mod that picks the spawn its own way may ignore it.",
@@ -95,5 +100,8 @@
   "gui.exotic_worlds.settings.map_copies.repeated": "Repeated",
   "gui.exotic_worlds.settings.map_copies.single": "Single",
   "gui.exotic_worlds.settings.seam_lines": "Fullscreen map edge lines",
-  "gui.exotic_worlds.settings.seam_lines_hint": "Draws a line along the world's edge between the copies of a world that wraps around on the fullscreen map. Works with Repeated alone: Single draws none."
+  "gui.exotic_worlds.settings.seam_lines_hint": "Draws a line along the world's edge between the copies of a world that wraps around on the fullscreen map. Works with Repeated alone: Single draws none.",
+
+  "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Click to set the spawn point",
+  "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "Right-click the pin to reset"
 }

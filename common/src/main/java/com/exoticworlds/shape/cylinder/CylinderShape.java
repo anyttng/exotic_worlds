@@ -3,6 +3,7 @@ package com.exoticworlds.shape.cylinder;
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.client.shape.cylinder.CylinderShapeSetup;
 import com.exoticworlds.api.v1.shape.ShapeModule;
+import com.exoticworlds.shape.WorldShapes;
 
 import net.minecraft.resources.Identifier;
 
@@ -17,6 +18,7 @@ public final class CylinderShape {
 
     public static void register(boolean client) {
         MODULE.register();
+        WorldShapes.takesSpawn(MODULE, CylinderSettings::withSpawn);
 
         if (client) {
             CylinderShapeSetup.register();

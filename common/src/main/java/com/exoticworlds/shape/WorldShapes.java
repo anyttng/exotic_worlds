@@ -3,9 +3,14 @@ package com.exoticworlds.shape;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.jspecify.annotations.Nullable;
+
 import com.exoticworlds.ExoticWorlds;
+import com.exoticworlds.api.v1.shape.ShapeModule;
+import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.StartupRegistry;
 import com.exoticworlds.engine.gen.ShapedDimensions;
 
@@ -26,10 +31,35 @@ public final class WorldShapes {
 
     private static final StartupRegistry<Identifier, WorldShape> SHAPES = new StartupRegistry<>("World shapes");
 
+    private static final StartupRegistry<Identifier, Predicate<SpawnPoint>> SPAWN_MOVES =
+            new StartupRegistry<>("World shape spawn moves");
+
     private static WorldShape selected = NORMAL;
+
+    @FunctionalInterface
+    public interface SpawnMove<S> {
+        @Nullable S withSpawn(S settings, SpawnPoint spawn);
+    }
 
     public static void register(WorldShape shape) {
         SHAPES.register(shape.id(), shape);
+    }
+
+    public static <S> void takesSpawn(ShapeModule<S> module, SpawnMove<S> move) {
+        SPAWN_MOVES.register(module.id(), spawn -> {
+            S moved = move.withSpawn(module.settings(), spawn);
+            if (moved == null) {
+                return false;
+            }
+
+            module.settings(moved);
+            return true;
+        });
+    }
+
+    public static boolean moveSpawn(SpawnPoint spawn) {
+        Predicate<SpawnPoint> move = SPAWN_MOVES.entries().get(selected.id());
+        return move != null && move.test(spawn);
     }
 
     public static List<WorldShape> shapes() {

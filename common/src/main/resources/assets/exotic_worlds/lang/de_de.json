@@ -40,6 +40,11 @@
   "gui.exotic_worlds.toroidal_settings.skew": "Verschiebung entlang X pro Runde entlang Z, in Chunks",
   "gui.exotic_worlds.toroidal_settings.skew_laps": "Runden entlang Z, bis du wieder am Ausgangspunkt ankommst: %s",
   "gui.exotic_worlds.toroidal_settings.skew_hint": "Überquerst du den Rand entlang Z, verschiebst du dich zugleich so weit entlang X, sodass die Rückkehr zum Ausgangspunkt mehrere Runden entlang Z dauern kann. 0 ergibt den gewöhnlichen Torus.",
+  "gui.exotic_worlds.toroidal_settings.spawn_mode": "Welteinstiegspunkt",
+  "gui.exotic_worlds.toroidal_settings.spawn_mode.default": "Standard",
+  "gui.exotic_worlds.toroidal_settings.spawn_mode.default.hint": "Der Spieler erscheint dort, wo ihn die Welt ohne Exotic Worlds hinsetzen würde, nahe 0, 0 oder dort, wohin die eigene Welteinstiegspunkt-Einstellung eines Geländemods zeigt.",
+  "gui.exotic_worlds.toroidal_settings.spawn_mode.custom": "Benutzerdefiniert",
+  "gui.exotic_worlds.toroidal_settings.spawn_mode.custom.hint": "Der Spieler erscheint in der Nähe des unten eingestellten Punkts.",
   "gui.exotic_worlds.toroidal_settings.spawn_point": "Welteinstiegspunkt in Chunks",
   "gui.exotic_worlds.toroidal_settings.spawn_point_hint.point": "Eine neue Welt sucht ihren Welteinstiegspunkt ab X %s, Z %s.",
   "gui.exotic_worlds.toroidal_settings.spawn_point_hint.search": "Der Spieler erscheint in der Nähe dieses Punkts. Die Welt, ihre Ränder und ihr Gelände bleiben, wie sie sind. Ein Geländemod, der den Welteinstiegspunkt auf eigene Weise wählt, kann diese Einstellung ignorieren.",
@@ -95,5 +100,8 @@
   "gui.exotic_worlds.settings.map_copies.repeated": "Wiederholt",
   "gui.exotic_worlds.settings.map_copies.single": "Einzeln",
   "gui.exotic_worlds.settings.seam_lines": "Weltrandlinien auf der Vollbildkarte",
-  "gui.exotic_worlds.settings.seam_lines_hint": "Zeichnet auf der Vollbildkarte am Weltrand zwischen den Kopien einer Welt, die sich schließt, eine Linie. Wirkt nur mit „Wiederholt“: „Einzeln“ zeichnet keine."
+  "gui.exotic_worlds.settings.seam_lines_hint": "Zeichnet auf der Vollbildkarte am Weltrand zwischen den Kopien einer Welt, die sich schließt, eine Linie. Wirkt nur mit „Wiederholt“: „Einzeln“ zeichnet keine.",
+
+  "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Klicken, um den Welteinstiegspunkt festzulegen",
+  "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "Rechtsklick auf die Markierung setzt zurück"
 }

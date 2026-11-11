@@ -46,11 +46,26 @@ class SiteLatticeTest {
     }
 
     @Test
-    void anOpenAxisKeepsTheModsOwnSpacing() {
-        SiteLattice lattice = SiteLattice.over(LAP, RtfLap.OPEN, RtfLap.NO_SKEW, SPACINGS[6]);
-        assertEquals(SPACINGS[6], lattice.zSpacing());
-        assertEquals(RtfLap.NO_PERIOD, lattice.zCells());
+    void anOpenAxisTakesTheLoopingAxisSpacingOnACylinder() {
+        for (float spacing : SPACINGS) {
+            SiteLattice alongX = SiteLattice.over(LAP, RtfLap.OPEN, RtfLap.NO_SKEW, spacing);
+            assertEquals(RtfLap.NO_PERIOD, alongX.zCells());
+            assertEquals(alongX.xSpacing(), alongX.zSpacing(), spacing + " looping on X");
+            SiteLattice alongZ = SiteLattice.over(RtfLap.OPEN, LAP, RtfLap.NO_SKEW, spacing);
+            assertEquals(RtfLap.NO_PERIOD, alongZ.xCells());
+            assertEquals(alongZ.zSpacing(), alongZ.xSpacing(), spacing + " looping on Z");
+        }
+
         assertEquals(1, SiteLattice.over(LAP, RtfLap.OPEN, RtfLap.NO_SKEW, SPACINGS[7]).xCells());
+    }
+
+    @Test
+    void aTorusKeepsEachAxisOnItsOwnLap() {
+        for (float spacing : SPACINGS) {
+            SiteLattice lattice = SiteLattice.over(LAP, NARROW_LAP, RtfLap.NO_SKEW, spacing);
+            assertEquals((float) (LAP / lattice.xCells()), lattice.xSpacing(), spacing + " on X");
+            assertEquals((float) (NARROW_LAP / lattice.zCells()), lattice.zSpacing(), spacing + " on Z");
+        }
     }
 
     @Test

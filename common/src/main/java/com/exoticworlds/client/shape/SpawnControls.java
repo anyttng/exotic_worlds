@@ -9,6 +9,7 @@ import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.WorldLoopSizes;
 
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.LinearLayout;
@@ -20,12 +21,16 @@ public final class SpawnControls {
     private static final String POINT_KEY = "gui.exotic_worlds.toroidal_settings.spawn_point_hint.point";
     private static final Component SEARCH =
             Component.translatable("gui.exotic_worlds.toroidal_settings.spawn_point_hint.search");
+    private static final Component MODE_LABEL = Component.translatable("gui.exotic_worlds.toroidal_settings.spawn_mode");
+    private static final String MODE_KEY_PREFIX = "gui.exotic_worlds.toroidal_settings.spawn_mode.";
+    private static final String MODE_HINT_SUFFIX = ".hint";
     private static final int FIELD_MAX_LENGTH = 8;
     private static final int ROW_SPACING = 4;
     private static final int AXIS_LETTER_WIDTH = 10;
 
     private final Entry x;
     private final Entry z;
+    private SpawnPoint.Mode mode;
     private Direction.@Nullable Axis loopedAxis;
     private @Nullable Integer xChunkWidth;
     private @Nullable Integer zChunkWidth;
@@ -33,6 +38,7 @@ public final class SpawnControls {
     private SpawnControls(SpawnPoint spawn, Direction.@Nullable Axis loopedAxis) {
         this.x = new Entry(Direction.Axis.X, spawn.xChunk());
         this.z = new Entry(Direction.Axis.Z, spawn.zChunk());
+        this.mode = spawn.mode();
         this.loopedAxis = loopedAxis;
     }
 
@@ -50,14 +56,28 @@ public final class SpawnControls {
     }
 
     public void add(Font font, LinearLayout contents, Runnable onEdited) {
+        contents.addChild(CycleButton.builder(SpawnControls::modeLabel, this.mode)
+                .withValues(SpawnPoint.Mode.values())
+                .withTooltip(mode -> Tooltip.create(modeHint(mode)))
+                .create(0, 0, LoopSizeControls.FIELD_WIDTH, LoopSizeControls.FIELD_HEIGHT, MODE_LABEL,
+                        (button, mode) -> this.chooseMode(mode, onEdited)));
         contents.addChild(new StringWidget(LoopSizeControls.FIELD_WIDTH, font.lineHeight, LABEL, font));
         LinearLayout row = contents.addChild(LinearLayout.horizontal().spacing(ROW_SPACING));
         int boxWidth = (LoopSizeControls.FIELD_WIDTH - 2 * AXIS_LETTER_WIDTH - 3 * ROW_SPACING) / 2;
+        boolean custom = this.mode == SpawnPoint.Mode.CUSTOM;
         for (Entry entry : List.of(this.x, this.z)) {
             row.addChild(new StringWidget(AXIS_LETTER_WIDTH, LoopSizeControls.FIELD_HEIGHT, axisLetter(entry.axis),
                     font));
-            row.addChild(entry.box(font, boxWidth, onEdited));
+            row.addChild(entry.box(font, boxWidth, custom, onEdited));
         }
+    }
+
+    private void chooseMode(SpawnPoint.Mode chosen, Runnable onEdited) {
+        this.mode = chosen;
+        boolean custom = chosen == SpawnPoint.Mode.CUSTOM;
+        this.x.editable(custom);
+        this.z.editable(custom);
+        onEdited.run();
     }
 
     public void update(@Nullable Integer xChunkWidth, @Nullable Integer zChunkWidth) {
@@ -83,6 +103,10 @@ public final class SpawnControls {
     }
 
     public @Nullable SpawnPoint effective() {
+        if (this.mode == SpawnPoint.Mode.DEFAULT) {
+            return SpawnPoint.DEFAULT;
+        }
+
         Integer xChunk = this.x.effective;
         Integer zChunk = this.z.effective;
         return xChunk == null || zChunk == null ? null : new SpawnPoint(xChunk, zChunk);
@@ -95,7 +119,7 @@ public final class SpawnControls {
     private Component hint() {
         HintText hint = new HintText();
         SpawnPoint spawn = this.effective();
-        if (spawn != null) {
+        if (spawn != null && spawn.isCustom()) {
             hint.paragraph(Component.translatable(POINT_KEY, spawn.blockX(), spawn.blockZ()));
         }
 
@@ -104,6 +128,14 @@ public final class SpawnControls {
 
     private static Component axisLetter(Direction.Axis axis) {
         return Component.literal(axis.getName().toUpperCase(Locale.ROOT));
+    }
+
+    private static Component modeLabel(SpawnPoint.Mode mode) {
+        return Component.translatable(MODE_KEY_PREFIX + mode.getSerializedName());
+    }
+
+    private static Component modeHint(SpawnPoint.Mode mode) {
+        return Component.translatable(MODE_KEY_PREFIX + mode.getSerializedName() + MODE_HINT_SUFFIX);
     }
 
     private static final class Entry {
@@ -119,16 +151,23 @@ public final class SpawnControls {
             this.effective = spawnChunk;
         }
 
-        private DigitsEditBox box(Font font, int width, Runnable onEdited) {
+        private DigitsEditBox box(Font font, int width, boolean editable, Runnable onEdited) {
             DigitsEditBox box = DigitsEditBox.signed(font, width, LoopSizeControls.FIELD_HEIGHT, LABEL);
             box.setMaxLength(FIELD_MAX_LENGTH);
             box.setValue(this.text);
+            box.setEditable(editable);
             box.setResponder(value -> {
                 this.text = value;
                 onEdited.run();
             });
             this.edit = box;
             return box;
+        }
+
+        private void editable(boolean editable) {
+            if (this.edit != null) {
+                this.edit.setEditable(editable);
+            }
         }
 
         private void read(@Nullable Integer chunkWidth) {
