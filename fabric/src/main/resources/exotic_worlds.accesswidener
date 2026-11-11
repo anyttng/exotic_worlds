@@ -18,3 +18,10 @@ accessible field net/minecraft/world/level/levelgen/synth/ImprovedNoise p [B
 accessible class net/minecraft/world/level/PotentialCalculator$PointCharge
 accessible field net/minecraft/world/level/PotentialCalculator$PointCharge pos Lnet/minecraft/core/BlockPos;
 accessible field net/minecraft/world/level/NaturalSpawner$SpawnState spawnPotential Lnet/minecraft/world/level/PotentialCalculator;
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$Context
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$SurfaceRule
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$Condition
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$SequenceRuleSource
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$TestRuleSource
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$NotConditionSource
+accessible class net/minecraft/world/level/levelgen/DensityFunctions$BeardifierMarker
