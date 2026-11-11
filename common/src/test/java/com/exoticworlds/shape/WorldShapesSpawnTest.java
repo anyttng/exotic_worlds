@@ -43,7 +43,7 @@ class WorldShapesSpawnTest {
     private static final RegistryAccess.Frozen REGISTRIES =
             RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 
-    private static final HolderLookup.Provider WORLDGEN = VanillaRegistries.createWorldLookup();
+    private static final HolderLookup.Provider WORLDGEN = VanillaRegistries.createLookup();
 
     private static final SpawnPoint PICKED = new SpawnPoint(3, -5);
 
