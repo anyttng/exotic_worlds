@@ -98,5 +98,7 @@
   "gui.exotic_worlds.settings.map_copies.repeated": "Repeated",
   "gui.exotic_worlds.settings.map_copies.single": "Single",
   "gui.exotic_worlds.settings.seam_lines": "Fullscreen map edge lines",
-  "gui.exotic_worlds.settings.seam_lines_hint": "Draws a line along the world's edge between the copies of a world that wraps around on the fullscreen map. Works with Repeated alone: Single draws none."
+  "gui.exotic_worlds.settings.seam_lines_hint": "Draws a line along the world's edge between the copies of a world that wraps around on the fullscreen map. Works with Repeated alone: Single draws none.",
+
+  "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Click to set the spawn point"
 }
