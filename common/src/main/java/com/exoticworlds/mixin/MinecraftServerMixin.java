@@ -17,6 +17,7 @@ import com.exoticworlds.engine.gen.WorldShapeReport;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.engine.level.SeamRespawnData;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -24,9 +25,9 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.progress.LevelLoadListener;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Climate;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.ServerLevelData;
 
@@ -63,6 +64,13 @@ public class MinecraftServerMixin {
         }
     }
 
+    @WrapMethod(method = "setInitialSpawn")
+    private static void exotic_worlds$spawnSearchFromTheSpawnPoint(ServerLevel level, ServerLevelData levelData,
+            boolean spawnBonusChest, boolean isDebug, LevelLoadListener levelLoadListener, Operation<Void> original) {
+        SpawnSearch.from(level.getChunkSource().getGenerator(),
+                () -> original.call(level, levelData, spawnBonusChest, isDebug, levelLoadListener));
+    }
+
     @WrapOperation(
             method = "setInitialSpawn",
             at = @At(
@@ -70,15 +78,12 @@ public class MinecraftServerMixin {
                     target = "Lnet/minecraft/world/level/biome/Climate$Sampler;findSpawnPosition()Lnet/minecraft/core/BlockPos;"))
     private static BlockPos exotic_worlds$spawnSearchInBounds(Climate.Sampler sampler, Operation<BlockPos> original,
             @Local(argsOnly = true) ServerLevel level) {
-        ChunkGenerator generator = level.getChunkSource().getGenerator();
         WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
         if (fold == null) {
-            return SpawnSearch.from(generator, () -> original.call(sampler));
+            return original.call(sampler);
         }
 
-        BlockPos found = GenerationFoldContext.withFold(fold,
-                () -> SpawnSearch.from(generator, () -> original.call(sampler)));
-        return fold.fold(found);
+        return fold.fold(GenerationFoldContext.withFold(fold, () -> original.call(sampler)));
     }
 
     @WrapOperation(
