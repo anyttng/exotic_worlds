@@ -76,6 +76,16 @@ public final class FullscreenZoomFloor {
                 windowSide(axis, viewWidth, viewHeight), mapBlocks));
     }
 
+    public static float ultraTerraForgedZoom(ToroidalShape shape, int widgetPixels, int previewPixels) {
+        return (float) minOverLoopedAxes(shape,
+                axis -> ultraTerraForgedZoom(shape.widthBlocks(axis), widgetPixels, previewPixels));
+    }
+
+    public static float ultraTerraForgedCoverZoom(ToroidalShape shape, int previewPixels) {
+        return (float) minOverLoopedAxes(shape,
+                axis -> ultraTerraForgedCoverZoom(shape.widthBlocks(axis), previewPixels));
+    }
+
     private static double maxOverLoopedAxes(ToroidalShape shape, ToDoubleFunction<Direction.Axis> floorOf) {
         double floor = 0.0;
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
@@ -128,6 +138,14 @@ public final class FullscreenZoomFloor {
 
     static float ultimateMapAtlasesCoverZoom(int widthBlocks, float viewWidth, float sidePixels, int mapBlocks) {
         return widthBlocks * viewWidth / (sidePixels * mapBlocks);
+    }
+
+    static double ultraTerraForgedZoom(int widthBlocks, int widgetPixels, int previewPixels) {
+        return (double) widthBlocks * widgetPixels / ((double) previewPixels * MIN_WORLD_PIXELS);
+    }
+
+    static double ultraTerraForgedCoverZoom(int widthBlocks, int previewPixels) {
+        return (double) widthBlocks / previewPixels;
     }
 
     private static int windowSide(Direction.Axis axis, int windowWidth, int windowHeight) {
