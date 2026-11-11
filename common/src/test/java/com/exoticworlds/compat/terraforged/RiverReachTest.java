@@ -98,7 +98,8 @@ class RiverReachTest {
     void rootsPerContinentFollowTheSnappedCell() {
         assertEquals(3, rootCount(torus(NARROW_CHUNKS)), "an 8192-block torus snaps the cell to 4096 of 12000");
         assertEquals(8, rootCount(torus(WIDE_CHUNKS)), "a wide torus keeps the preset's cell and its roots");
-        assertEquals(7, rootCount(cylinder(NARROW_CHUNKS)), "a cylinder shrinks the cell on its looping axis alone");
+        assertEquals(5, rootCount(cylinder(NARROW_CHUNKS)),
+                "a cylinder shrinks the cell on both axes by its looping axis' factor");
         assertEquals(1, rootCount(torus(32)), "a root count never rounds to zero");
     }
 
