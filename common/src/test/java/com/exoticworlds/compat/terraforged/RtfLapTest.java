@@ -40,13 +40,16 @@ class RtfLapTest {
 
     @Test
     void aFeatureOnTheLapIsNeverLargerThanTheModsOwn() {
-        for (WorldFold fold : new WorldFold[] {torus(NARROW_CHUNKS), torus(WIDE_CHUNKS), cylinder(NARROW_CHUNKS)}) {
+        for (WorldFold fold : new WorldFold[] {torus(NARROW_CHUNKS), torus(WIDE_CHUNKS),
+                cylinder(Direction.Axis.X, NARROW_CHUNKS), cylinder(Direction.Axis.Z, NARROW_CHUNKS)}) {
             try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(fold)) {
                 RtfLap.Frame frame = RtfLap.frame();
-                for (double frequency : FREQUENCIES) {
-                    float snapped = frame.snappedFrequency(Direction.Axis.X, (float) frequency);
-                    assertTrue(snapped >= (float) frequency * (1.0 - SIZE_EPSILON),
-                            "a feature of frequency " + frequency + " grew to " + snapped);
+                for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
+                    for (double frequency : FREQUENCIES) {
+                        float snapped = frame.snappedFrequency(axis, (float) frequency);
+                        assertTrue(snapped >= (float) frequency * (1.0 - SIZE_EPSILON),
+                                "a feature of frequency " + frequency + " grew to " + snapped + " on " + axis);
+                    }
                 }
             }
         }
@@ -65,12 +68,58 @@ class RtfLapTest {
     }
 
     @Test
-    void anOpenAxisKeepsTheModsOwnFrequency() {
-        try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(cylinder(NARROW_CHUNKS))) {
+    void anOpenAxisShrinksByTheLoopingAxisFactorOnACylinder() {
+        for (Direction.Axis loop : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
+            Direction.Axis open = loop == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X;
+            try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(cylinder(loop, NARROW_CHUNKS))) {
+                RtfLap.Frame frame = RtfLap.frame();
+                for (double frequency : FREQUENCIES) {
+                    assertEquals(RtfLap.NO_PERIOD, frame.cells(open, frequency));
+                    double factor = frame.snappedFrequency(loop, (float) frequency) / frequency;
+                    assertEquals(frequency * factor, frame.snappedFrequency(open, (float) frequency),
+                            frequency * factor * SIZE_EPSILON, "looping on " + loop + " at frequency " + frequency);
+                    assertEquals(frame.cellRatio(loop, frequency), frame.cellRatio(open, frequency),
+                            "looping on " + loop + " at frequency " + frequency);
+                    assertEquals(frame.snappedAngular(loop, (float) frequency),
+                            frame.snappedAngular(open, (float) frequency),
+                            "looping on " + loop + " at frequency " + frequency);
+                    try (RtfLap.Frame.Scope lattice = frame.octave(frequency)) {
+                        float loopScale = loop == Direction.Axis.X ? frame.xScale() : frame.zScale();
+                        float openScale = loop == Direction.Axis.X ? frame.zScale() : frame.xScale();
+                        assertEquals(loopScale, openScale, "looping on " + loop + " at frequency " + frequency);
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    void aTorusSnapsEachAxisOnItsOwnLap() {
+        WorldFold fold = skewed(NARROW_CHUNKS);
+        try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(fold)) {
             RtfLap.Frame frame = RtfLap.frame();
-            assertEquals(RtfLap.NO_PERIOD, frame.cells(Direction.Axis.Z, CONTINENT_FREQUENCY));
-            assertEquals((float) CONTINENT_FREQUENCY,
-                    frame.snappedFrequency(Direction.Axis.Z, (float) CONTINENT_FREQUENCY));
+            for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
+                double lap = frame.lap(axis);
+                for (double frequency : FREQUENCIES) {
+                    int cells = frame.cells(axis, frequency);
+                    assertEquals((float) (cells / lap), frame.snappedFrequency(axis, (float) frequency),
+                            axis + " at frequency " + frequency);
+                    assertEquals(lap * frequency / cells, frame.cellRatio(axis, frequency),
+                            axis + " at frequency " + frequency);
+                }
+            }
+        }
+    }
+
+    @Test
+    void anUnshapedWorldKeepsTheModsOwnFrequency() {
+        RtfLap.Frame frame = RtfLap.frame();
+        for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
+            for (double frequency : FREQUENCIES) {
+                assertEquals((float) frequency, frame.snappedFrequency(axis, (float) frequency));
+                assertEquals(1.0, frame.cellRatio(axis, frequency));
+                assertEquals((float) frequency, frame.snappedAngular(axis, (float) frequency));
+            }
         }
     }
 
@@ -201,8 +250,10 @@ class RtfLapTest {
         return WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-chunks, chunks, -chunks, chunks)));
     }
 
-    private static WorldFold cylinder(int chunks) {
-        return WorldFolds.of(ShapeFixtures.cylinder(new WorldLoopBounds(new AxisBounds.Looped(-chunks, chunks),
-                AxisBounds.Unbounded.INSTANCE)));
+    private static WorldFold cylinder(Direction.Axis loop, int chunks) {
+        AxisBounds looped = new AxisBounds.Looped(-chunks, chunks);
+        return WorldFolds.of(ShapeFixtures.cylinder(loop == Direction.Axis.X
+                ? new WorldLoopBounds(looped, AxisBounds.Unbounded.INSTANCE)
+                : new WorldLoopBounds(AxisBounds.Unbounded.INSTANCE, looped)));
     }
 }
