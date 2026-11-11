@@ -87,7 +87,7 @@ class RtfSpawnSearchTest {
     void aWorldWithoutASpawnPointSearchesFromReTerraForgedsCenter() {
         WorldSettings.Properties.spawnType = SpawnType.CONTINENT_CENTER;
 
-        BlockPos spawn = search(SpawnPoint.ZERO);
+        BlockPos spawn = search(SpawnPoint.DEFAULT);
 
         assertNear(SEARCH_CENTER, spawn);
     }

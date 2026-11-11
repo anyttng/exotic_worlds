@@ -105,5 +105,6 @@
   "gui.exotic_worlds.settings.seam_lines": "Linie krawędzi świata na mapie pełnoekranowej",
   "gui.exotic_worlds.settings.seam_lines_hint": "Rysuje linię wzdłuż krawędzi świata między kopiami zapętlonego świata na mapie pełnoekranowej. Działa tylko z „Powtarzane”: „Pojedyncza” nie rysuje żadnej.",
 
-  "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Kliknij, aby ustawić punkt odradzania"
+  "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Kliknij, aby ustawić punkt odradzania",
+  "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "Kliknij znacznik prawym przyciskiem, aby zresetować"
 }

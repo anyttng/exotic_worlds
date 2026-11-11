@@ -20,13 +20,13 @@ public class SpawnFinderFixMixin {
     @ModifyArg(method = "<init>", at = @At(value = "INVOKE", target = GET_SPAWN_POSITION_AND_FITNESS), index = 2)
     private int exotic_worlds$startAtTheSpawnPointX(int centerX) {
         SpawnPoint point = SpawnSearch.bound();
-        return point.equals(SpawnPoint.ZERO) ? centerX : point.blockX();
+        return point.isCustom() ? point.blockX() : centerX;
     }
 
     @ModifyArg(method = "<init>", at = @At(value = "INVOKE", target = GET_SPAWN_POSITION_AND_FITNESS), index = 3)
     private int exotic_worlds$startAtTheSpawnPointZ(int centerZ) {
         SpawnPoint point = SpawnSearch.bound();
-        return point.equals(SpawnPoint.ZERO) ? centerZ : point.blockZ();
+        return point.isCustom() ? point.blockZ() : centerZ;
     }
 
     @ModifyArg(method = "getSpawnPositionAndFitness",

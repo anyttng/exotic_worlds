@@ -105,5 +105,6 @@
   "gui.exotic_worlds.settings.seam_lines": "全屏地图上的世界边缘线",
   "gui.exotic_worlds.settings.seam_lines_hint": "在全屏地图上，于循环世界各副本之间沿世界边缘画一条线。仅在“重复”模式下生效：“单个”模式不画线。",
 
-  "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "点击以设置出生点"
+  "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "点击以设置出生点",
+  "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "右键点击标记以重置"
 }

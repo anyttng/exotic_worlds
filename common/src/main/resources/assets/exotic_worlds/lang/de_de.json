@@ -105,5 +105,6 @@
   "gui.exotic_worlds.settings.seam_lines": "Weltrandlinien auf der Vollbildkarte",
   "gui.exotic_worlds.settings.seam_lines_hint": "Zeichnet auf der Vollbildkarte am Weltrand zwischen den Kopien einer Welt, die sich schließt, eine Linie. Wirkt nur mit „Wiederholt“: „Einzeln“ zeichnet keine.",
 
-  "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Klicken, um den Welteinstiegspunkt festzulegen"
+  "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Klicken, um den Welteinstiegspunkt festzulegen",
+  "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "Rechtsklick auf die Markierung setzt zurück"
 }
