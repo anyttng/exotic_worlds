@@ -16,6 +16,6 @@ public class ClimateSamplerSpawnOriginMixin {
             at = @At(value = "FIELD", target = "Lnet/minecraft/core/BlockPos;ZERO:Lnet/minecraft/core/BlockPos;"))
     private BlockPos exotic_worlds$originAtTheSpawnPoint(BlockPos origin) {
         SpawnPoint point = SpawnSearch.bound();
-        return point.equals(SpawnPoint.ZERO) ? origin : new BlockPos(point.blockX(), origin.getY(), point.blockZ());
+        return point.isCustom() ? new BlockPos(point.blockX(), origin.getY(), point.blockZ()) : origin;
     }
 }

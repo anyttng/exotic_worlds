@@ -13,12 +13,12 @@ public final class SpawnSearch {
 
     public static <T> T from(ChunkGenerator generator, Supplier<T> search) {
         SpawnPoint point = SpawnPoint.of(ShapedChunkGenerator.foldOf(generator));
-        return BOUND.with(point.equals(SpawnPoint.ZERO) ? null : point, search);
+        return BOUND.with(point.isCustom() ? point : null, search);
     }
 
     public static SpawnPoint bound() {
         SpawnPoint point = BOUND.current();
-        return point == null ? SpawnPoint.ZERO : point;
+        return point == null ? SpawnPoint.DEFAULT : point;
     }
 
     private SpawnSearch() {
