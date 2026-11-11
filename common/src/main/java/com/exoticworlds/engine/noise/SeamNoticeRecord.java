@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.exoticworlds.ExoticWorlds;
 import com.mojang.serialization.Codec;
@@ -31,7 +29,6 @@ public final class SeamNoticeRecord extends SavedData {
             SeamNoticeRecord::new, SeamNoticeRecord::load, DataFixTypes.SAVED_DATA_COMMAND_STORAGE);
 
     private final Set<String> shown;
-    private final Set<UUID> detailsPending = ConcurrentHashMap.newKeySet();
 
     private SeamNoticeRecord() {
         this(List.of());
@@ -64,14 +61,6 @@ public final class SeamNoticeRecord extends SavedData {
         if (this.shown.addAll(fingerprints)) {
             this.setDirty();
         }
-    }
-
-    void markDetailsPending(UUID player) {
-        this.detailsPending.add(player);
-    }
-
-    boolean takeDetailsPending(UUID player) {
-        return this.detailsPending.remove(player);
     }
 
     private List<String> shown() {

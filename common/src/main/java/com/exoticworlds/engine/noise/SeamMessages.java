@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.engine.ChatPrefix;
 import com.exoticworlds.platform.Platforms;
 
 import net.minecraft.ChatFormatting;
@@ -16,8 +17,9 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 
 final class SeamMessages {
-    private static final String KEY_PREFIX = "commands.exotic_worlds.edge.";
-    static final String NONE_KEY = KEY_PREFIX + "none";
+    private static final String KEY_PREFIX = "commands.exotic_worlds.check_edge.";
+    private static final String NONE_KEY = KEY_PREFIX + "none";
+    private static final String HEADER_KEY = KEY_PREFIX + "header";
     private static final String HOLDS_KEY = KEY_PREFIX + "holds";
     private static final String BROKEN_KEY = KEY_PREFIX + "broken";
     private static final String UNCHECKED_KEY = KEY_PREFIX + "unchecked";
@@ -36,6 +38,14 @@ final class SeamMessages {
     private static final String DETAILS_HINT_KEY = DETAILS_KEY + ".hint";
     private static final String CAUSE_INDENT = "  ";
     private static final String SPACE = " ";
+
+    static Component none() {
+        return ChatPrefix.prefixed(Component.translatable(NONE_KEY));
+    }
+
+    static Component header() {
+        return ChatPrefix.prefixed(Component.translatable(HEADER_KEY));
+    }
 
     static List<Component> report(SeamVerdict verdict) {
         String dimension = verdict.dimension().location().toString();
@@ -66,7 +76,7 @@ final class SeamMessages {
         MutableComponent line = mods.isEmpty()
                 ? Component.translatable(NOTICE_UNKNOWN_KEY, dimension)
                 : Component.translatable(NOTICE_KEY, dimension, ComponentUtils.formatList(mods));
-        return line.append(SPACE).append(details());
+        return ChatPrefix.prefixed(line.append(SPACE).append(details()));
     }
 
     private static Component details() {
@@ -86,14 +96,14 @@ final class SeamMessages {
                     ? Component.translatable(CAUSE_VANILLA_NONE_KEY, node.type())
                     : Component.translatable(CAUSE_VANILLA_KEY, node.type(),
                             ComponentUtils.formatList(namesOf(node.candidates())));
-            case SeamCause.Node node -> Component.translatable(CAUSE_MOD_KEY, modOf(node.namespace(), node.type()),
+            case SeamCause.Node node -> Component.translatable(CAUSE_MOD_KEY, ownerOf(node.namespace(), node.type()),
                     node.holder() != null
                             ? Component.translatable(CAUSE_AT_KEY, node.type(), node.holder())
                             : Component.literal(node.type()));
             case SeamCause.Biomes biomes -> Component.translatable(CAUSE_BIOME_SOURCE_KEY, biomes.type(),
-                    modOf(biomes.namespace(), biomes.type()));
+                    ownerOf(biomes.namespace(), biomes.type()));
             case SeamCause.Generator generator -> Component.translatable(CAUSE_GENERATOR_KEY, generator.type(),
-                    modOf(generator.namespace(), generator.type()));
+                    ownerOf(generator.namespace(), generator.type()));
             case SeamCause.Follows follows -> Component.translatable(CAUSE_FOLLOWS_KEY, follows.field());
             case SeamCause.NotFound ignored -> Component.translatable(CAUSE_UNKNOWN_KEY);
         };
@@ -102,10 +112,10 @@ final class SeamMessages {
     private static Stream<String> modsOf(SeamCause cause) {
         return switch (cause) {
             case SeamCause.Node node when node.vanilla() -> namesOf(node.candidates()).stream();
-            case SeamCause.Node node -> Stream.of(modOf(node.namespace(), node.type()));
-            case SeamCause.Biomes biomes -> Stream.of(modOf(biomes.namespace(), biomes.type()));
-            case SeamCause.Generator generator -> Stream.of(modOf(generator.namespace(), generator.type()));
-            case SeamCause.Follows ignored -> Stream.empty();
+            case SeamCause.Node node -> Stream.of(ownerOf(node.namespace(), node.type()));
+            case SeamCause.Biomes biomes -> Stream.of(ownerOf(biomes.namespace(), biomes.type()));
+            case SeamCause.Generator generator -> Stream.of(ownerOf(generator.namespace(), generator.type()));
+            case SeamCause.Follows ignored -> Stream.empty();
             case SeamCause.NotFound ignored -> Stream.empty();
         };
     }
@@ -114,7 +124,7 @@ final class SeamMessages {
         return modIds.stream().map(modId -> Platforms.get().modName(modId).orElse(modId)).toList();
     }
 
-    private static String modOf(@Nullable String namespace, String type) {
+    private static String ownerOf(@Nullable String namespace, String type) {
         return namespace != null ? Platforms.get().modName(namespace).orElse(namespace) : type;
     }
 

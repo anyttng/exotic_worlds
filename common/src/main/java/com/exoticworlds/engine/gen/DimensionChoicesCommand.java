@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.core.DimensionTable;
+import com.exoticworlds.engine.ChatPrefix;
 import com.exoticworlds.engine.net.DimensionChoicesPayload;
 import com.exoticworlds.platform.Platforms;
 import com.mojang.brigadier.CommandDispatcher;
@@ -55,9 +56,9 @@ public final class DimensionChoicesCommand {
         Component configure = ComponentUtils.wrapInSquareBrackets(Component.translatable(CONFIGURE_KEY))
                 .withStyle(style -> style.withColor(ChatFormatting.GREEN)
                         .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, COMMAND))
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                Component.translatable(CONFIGURE_HINT_KEY))));
-        player.sendSystemMessage(Component.translatable(UNDECIDED_KEY, names(undecided)).append(" ").append(configure));
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable(CONFIGURE_HINT_KEY))));
+        player.sendSystemMessage(ChatPrefix.prefixed(
+                Component.translatable(UNDECIDED_KEY, names(undecided)).append(" ").append(configure)));
     }
 
     public static void apply(ServerPlayer player, Map<ResourceKey<LevelStem>, DimensionTable.Entry> choices) {

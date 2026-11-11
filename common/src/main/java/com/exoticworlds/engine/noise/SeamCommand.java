@@ -12,14 +12,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 public final class SeamCommand {
-    private static final String EDGE_LITERAL = "edge";
+    private static final String CHECK_EDGE_LITERAL = "check_edge";
     private static final String DETAILS_LITERAL = "details";
-    static final String DETAILS_COMMAND = "/" + ExoticWorlds.MODID + " " + EDGE_LITERAL + " " + DETAILS_LITERAL;
+    static final String DETAILS_COMMAND =
+            "/" + ExoticWorlds.MODID + " " + CHECK_EDGE_LITERAL + " " + DETAILS_LITERAL;
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal(ExoticWorlds.MODID)
                 .requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                .then(Commands.literal(EDGE_LITERAL)
+                .then(Commands.literal(CHECK_EDGE_LITERAL)
                         .executes(context -> report(context.getSource()))
                         .then(Commands.literal(DETAILS_LITERAL)
                                 .executes(context -> reportOnce(context.getSource())))));
@@ -27,7 +28,7 @@ public final class SeamCommand {
 
     private static int reportOnce(CommandSourceStack source) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
-        if (!SeamNoticeRecord.of(source.getServer()).takeDetailsPending(player.getUUID())) {
+        if (!SeamDetailsPending.of(source.getServer()).take(player.getUUID())) {
             ExoticWorlds.LOGGER.info("[ew/edge] details_repeat player={}", player.getName().getString());
             return 0;
         }
@@ -39,10 +40,11 @@ public final class SeamCommand {
         ExoticWorlds.LOGGER.info("[ew/edge] command source={}", source.getTextName());
         List<SeamVerdict> verdicts = PeriodicityCheck.verdictsOf(source.getServer());
         if (verdicts.isEmpty()) {
-            source.sendSuccess(() -> Component.translatable(SeamMessages.NONE_KEY), false);
+            source.sendSuccess(SeamMessages::none, false);
             return 0;
         }
 
+        source.sendSuccess(SeamMessages::header, false);
         int broken = 0;
         for (SeamVerdict verdict : verdicts) {
             for (Component line : SeamMessages.report(verdict)) {
