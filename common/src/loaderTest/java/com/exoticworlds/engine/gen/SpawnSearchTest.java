@@ -3,6 +3,7 @@ package com.exoticworlds.engine.gen;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,7 +66,7 @@ class SpawnSearchTest {
     @Test
     void theStructureOriginKeepsSearchingFromZero() {
         LoopedChunkGenerator moved = noiseGenerator(FAR_POINT);
-        LoopedChunkGenerator unmoved = noiseGenerator(SpawnPoint.ZERO);
+        LoopedChunkGenerator unmoved = noiseGenerator(SpawnPoint.DEFAULT);
         RandomState state = randomState(unmoved);
 
         assertEquals(unmoved.getOrigin(state), moved.getOrigin(state));
@@ -73,10 +74,29 @@ class SpawnSearchTest {
 
     @Test
     void aWorldWithoutASpawnPointSearchesAsVanillaDoes() {
-        LoopedChunkGenerator generator = noiseGenerator(SpawnPoint.ZERO);
+        LoopedChunkGenerator generator = noiseGenerator(SpawnPoint.DEFAULT);
         RandomState state = randomState(generator);
 
         assertEquals(generator.getOrigin(state), SpawnSearch.from(generator, () -> generator.getOrigin(state)));
+    }
+
+    @Test
+    void aPointAtChunkZeroIsBoundAndDefaultIsNot() {
+        LoopedChunkGenerator atZero = noiseGenerator(new SpawnPoint(0, 0));
+        LoopedChunkGenerator unset = noiseGenerator(SpawnPoint.DEFAULT);
+        List<SpawnPoint> seen = new ArrayList<>();
+
+        SpawnSearch.from(atZero, () -> {
+            seen.add(SpawnSearch.bound());
+            return ChunkPos.ZERO;
+        });
+        SpawnSearch.from(unset, () -> {
+            seen.add(SpawnSearch.bound());
+            return ChunkPos.ZERO;
+        });
+
+        assertEquals(List.of(new SpawnPoint(0, 0), SpawnPoint.DEFAULT), seen);
+        assertTrue(seen.get(0).isCustom(), "a chosen chunk 0, 0 is a point like any other");
     }
 
     @Test
@@ -86,7 +106,7 @@ class SpawnSearchTest {
                         holders.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS), List.of()),
                 new CarriedShape(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDE_CHUNKS)),
                         GenerationOptions.DEFAULT.with(SpawnPoint.OPTION, FAR_POINT)));
-        RandomState state = randomState(noiseGenerator(SpawnPoint.ZERO));
+        RandomState state = randomState(noiseGenerator(SpawnPoint.DEFAULT));
 
         assertEquals(new ChunkPos(FAR_POINT.xChunk(), FAR_POINT.zChunk()),
                 SpawnSearch.from(generator, () -> generator.getOrigin(state)));

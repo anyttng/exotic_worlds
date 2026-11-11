@@ -43,7 +43,7 @@ public final class ShapeStems {
     public static WorldDimensions withSpans(WorldDimensions dimensions, StemSettings settings) {
         int netherScale = normalizeNetherScale(settings.netherScale(), settings.overworld());
         GenerationOptions options = settings.generationOptions();
-        GenerationOptions withoutSpawn = options.with(SpawnPoint.OPTION, SpawnPoint.ZERO);
+        GenerationOptions withoutSpawn = options.with(SpawnPoint.OPTION, SpawnPoint.DEFAULT);
         return ShapedDimensions.withShapes(dimensions,
                 new CarriedShape(FlatShape.of(settings.overworld()), options),
                 new CarriedShape(FlatShape.of(settings.overworld().scaledDown(netherScale)), withoutSpawn),

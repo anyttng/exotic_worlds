@@ -58,8 +58,8 @@ class TorusDimensionsTest {
         WorldDimensions created = TorusDimensions.apply(vanillaDimensions(), chosen);
 
         assertEquals(spawn, spawnOf(created, LevelStem.OVERWORLD));
-        assertEquals(SpawnPoint.ZERO, spawnOf(created, LevelStem.NETHER));
-        assertEquals(SpawnPoint.ZERO, spawnOf(created, LevelStem.END));
+        assertEquals(SpawnPoint.DEFAULT, spawnOf(created, LevelStem.NETHER));
+        assertEquals(SpawnPoint.DEFAULT, spawnOf(created, LevelStem.END));
         assertEquals(ShapeFixtures.torus(WorldLoopBounds.ofWidth(256)), ShapedDimensions.shapeOf(created, LevelStem.OVERWORLD));
         assertEquals(chosen, TorusDimensions.read(created));
     }

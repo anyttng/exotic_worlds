@@ -15,7 +15,6 @@ public class ChunkGeneratorOriginMixin {
     @ModifyReturnValue(method = "getOrigin", at = @At("RETURN"))
     private ChunkPos exotic_worlds$originAtTheSpawnPoint(ChunkPos origin) {
         SpawnPoint point = SpawnSearch.bound();
-        return point.equals(SpawnPoint.ZERO) ? origin
-                : new ChunkPos(origin.x() + point.xChunk(), origin.z() + point.zChunk());
+        return point.isCustom() ? new ChunkPos(origin.x() + point.xChunk(), origin.z() + point.zChunk()) : origin;
     }
 }
