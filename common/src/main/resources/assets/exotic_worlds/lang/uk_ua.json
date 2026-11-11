@@ -95,5 +95,7 @@
   "gui.exotic_worlds.settings.map_copies.repeated": "Повторювати",
   "gui.exotic_worlds.settings.map_copies.single": "Одна копія",
   "gui.exotic_worlds.settings.seam_lines": "Лінії краю світу на повноекранній мапі",
-  "gui.exotic_worlds.settings.seam_lines_hint": "Позначає лінією край світу між копіями зацикленого світу на повноекранній мапі. Діє лише з «Повторювати»: в «Одна копія» лінії немає."
+  "gui.exotic_worlds.settings.seam_lines_hint": "Позначає лінією край світу між копіями зацикленого світу на повноекранній мапі. Діє лише з «Повторювати»: в «Одна копія» лінії немає.",
+
+  "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Клацніть, щоб задати точку відродження"
 }

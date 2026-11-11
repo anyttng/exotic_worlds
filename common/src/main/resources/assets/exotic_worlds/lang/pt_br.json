@@ -95,5 +95,7 @@
   "gui.exotic_worlds.settings.map_copies.repeated": "Repetido",
   "gui.exotic_worlds.settings.map_copies.single": "Única",
   "gui.exotic_worlds.settings.seam_lines": "Linhas da borda do mundo no mapa em tela cheia",
-  "gui.exotic_worlds.settings.seam_lines_hint": "Desenha uma linha ao longo da borda do mundo entre as cópias de um mundo que se fecha no mapa em tela cheia. Só funciona com \"Repetido\": \"Única\" não desenha nenhuma."
+  "gui.exotic_worlds.settings.seam_lines_hint": "Desenha uma linha ao longo da borda do mundo entre as cópias de um mundo que se fecha no mapa em tela cheia. Só funciona com \"Repetido\": \"Única\" não desenha nenhuma.",
+
+  "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Clique para definir o ponto de nascimento"
 }

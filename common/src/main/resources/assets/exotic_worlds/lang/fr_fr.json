@@ -95,5 +95,7 @@
   "gui.exotic_worlds.settings.map_copies.repeated": "Répété",
   "gui.exotic_worlds.settings.map_copies.single": "Unique",
   "gui.exotic_worlds.settings.seam_lines": "Lignes du bord du monde sur la carte plein écran",
-  "gui.exotic_worlds.settings.seam_lines_hint": "Trace une ligne le long du bord du monde entre les copies d'un monde refermé sur lui-même sur la carte plein écran. Ne fonctionne qu'avec « Répété » : « Unique » n'en trace aucune."
+  "gui.exotic_worlds.settings.seam_lines_hint": "Trace une ligne le long du bord du monde entre les copies d'un monde refermé sur lui-même sur la carte plein écran. Ne fonctionne qu'avec « Répété » : « Unique » n'en trace aucune.",
+
+  "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Cliquez pour placer le point d'apparition"
 }
