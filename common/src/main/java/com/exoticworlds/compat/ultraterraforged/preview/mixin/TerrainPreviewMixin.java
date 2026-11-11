@@ -81,7 +81,10 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
     private static final int HINT_INSET = 4;
 
     @Unique
-    private static final int HINT_ABOVE_BOTTOM = 24;
+    private static final int SPAWN_HINT_ABOVE_BOTTOM = 36;
+
+    @Unique
+    private static final int RESET_HINT_ABOVE_BOTTOM = 24;
 
     @Unique
     private static final int HINT_TEXT_COLOR = 0xFFFFFFFF;
@@ -220,15 +223,19 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
     @Inject(method = "extractWidgetRenderState", at = @At("RETURN"))
     private void exotic_worlds$hintTheSpawnPick(GuiGraphicsExtractor graphics, int mouseX, int mouseY,
             float partialTick, CallbackInfo callback) {
-        PreviewView view = ((DrawnPreview) (Object) this).exotic_worlds$drawn();
-        if (!this.exotic_worlds$picksSpawn() || view != null && this.isMouseOver(mouseX, mouseY)) {
+        if (!this.exotic_worlds$picksSpawn()) {
             return;
         }
 
-        Component hint = this.exotic_worlds$pins().isEmpty() ? SPAWN_HINT : RESET_HINT;
+        this.exotic_worlds$hint(graphics, SPAWN_HINT, SPAWN_HINT_ABOVE_BOTTOM);
+        this.exotic_worlds$hint(graphics, RESET_HINT, RESET_HINT_ABOVE_BOTTOM);
+    }
+
+    @Unique
+    private void exotic_worlds$hint(GuiGraphicsExtractor graphics, Component hint, int aboveBottom) {
         Font font = Minecraft.getInstance().font;
         if (font.width(hint) <= this.getWidth() - 2 * HINT_INSET) {
-            graphics.text(font, hint, this.getX() + HINT_INSET, this.getY() + this.getHeight() - HINT_ABOVE_BOTTOM,
+            graphics.text(font, hint, this.getX() + HINT_INSET, this.getY() + this.getHeight() - aboveBottom,
                     HINT_TEXT_COLOR);
         }
     }
