@@ -183,8 +183,8 @@ public final class RtfLap {
         public Scope octave(double frequency) {
             int xCells = cells(Direction.Axis.X, frequency);
             int zCells = cells(Direction.Axis.Z, frequency);
-            this.xScale = snapped(Direction.Axis.X, xCells, (float) frequency);
-            this.zScale = snapped(Direction.Axis.Z, zCells, (float) frequency);
+            this.xScale = snappedScale(Direction.Axis.X, frequency);
+            this.zScale = snappedScale(Direction.Axis.Z, frequency);
             int wholeCells = (int) Math.round(this.skew * this.xScale);
             push();
             this.xPeriod = xCells;
@@ -207,22 +207,24 @@ public final class RtfLap {
             return cellsOver(lap(axis), frequency, this.torus ? TORUS_FLOOR_CELLS : CYLINDER_FLOOR_CELLS);
         }
 
-        public float snapped(Direction.Axis axis, int cells, float frequency) {
-            double lap = lap(axis);
-            return lap == OPEN ? frequency : (float) (cells / lap);
+        public float snappedFrequency(Direction.Axis axis, float frequency) {
+            return snappedScale(axis, frequency);
         }
 
-        public float snappedFrequency(Direction.Axis axis, float frequency) {
-            return snapped(axis, cells(axis, frequency), frequency);
+        private float snappedScale(Direction.Axis axis, double frequency) {
+            Direction.Axis snapping = snapping(axis);
+            double lap = lap(snapping);
+            return lap == OPEN ? (float) frequency : (float) (cells(snapping, frequency) / lap);
         }
 
         public double cellRatio(Direction.Axis axis, double frequency) {
-            double lap = lap(axis);
-            return lap == OPEN ? WHOLE_CELL : lap * frequency / cells(axis, frequency);
+            Direction.Axis snapping = snapping(axis);
+            double lap = lap(snapping);
+            return lap == OPEN ? WHOLE_CELL : lap * frequency / cells(snapping, frequency);
         }
 
         public float snappedAngular(Direction.Axis axis, float frequency) {
-            double lap = lap(axis);
+            double lap = lap(snapping(axis));
             if (lap == OPEN) {
                 return frequency;
             }
@@ -297,6 +299,11 @@ public final class RtfLap {
 
         public double seatZ(double z, double anchorZ) {
             return z + zLapsToward(z, anchorZ) * this.zLap;
+        }
+
+        private Direction.Axis snapping(Direction.Axis axis) {
+            Direction.Axis across = axis == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X;
+            return lap(axis) == OPEN && lap(across) != OPEN ? across : axis;
         }
 
         private double zLaps(double z) {
