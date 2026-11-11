@@ -38,7 +38,7 @@ public final class SeamCommand {
 
     private static int report(CommandSourceStack source) {
         ExoticWorlds.LOGGER.info("[ew/edge] command source={}", source.getTextName());
-        List<SeamVerdict> verdicts = PeriodicityCheck.verdictsOf(source.getServer());
+        List<SeamVerdict> verdicts = PeriodicityCheck.fullVerdictsOf(source.getServer());
         if (verdicts.isEmpty()) {
             source.sendSuccess(SeamMessages::none, false);
             return 0;

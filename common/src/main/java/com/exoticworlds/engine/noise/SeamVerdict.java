@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
 public record SeamVerdict(ResourceKey<Level> dimension, List<Break> breaks,
-        SeamCause.@Nullable Generator unchecked) {
+        SeamCause.@Nullable Generator unchecked, int twinsRead) {
     private static final String FINGERPRINT_SEPARATOR = "|";
     private static final String LIST_SEPARATOR = ",";
     private static final String CAUSE_SEPARATOR = "=";

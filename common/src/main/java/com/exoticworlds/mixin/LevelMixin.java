@@ -71,6 +71,9 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
     @Unique
     private final AtomicReference<SeamVerdict> exotic_worlds$seamVerdict = new AtomicReference<>();
 
+    @Unique
+    private final AtomicReference<SeamVerdict> exotic_worlds$fullSeamVerdict = new AtomicReference<>();
+
     // Must stay above the Z handler: Mixin runs them in declaration order, and X folds by the unfolded Z.
     @ModifyArg(method = GET_CHUNK, at = @At(value = "INVOKE", target = SOURCE_GET_CHUNK), index = 0)
     private int exotic_worlds$chunkXThroughSeam(int chunkX, int chunkZ, ChunkStatus status, boolean loadOrGenerate) {
@@ -169,6 +172,11 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
     @Override
     public AtomicReference<SeamVerdict> exotic_worlds$seamVerdict() {
         return this.exotic_worlds$seamVerdict;
+    }
+
+    @Override
+    public AtomicReference<SeamVerdict> exotic_worlds$fullSeamVerdict() {
+        return this.exotic_worlds$fullSeamVerdict;
     }
 
     @Unique

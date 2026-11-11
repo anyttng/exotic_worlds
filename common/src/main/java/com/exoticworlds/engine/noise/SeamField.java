@@ -7,19 +7,23 @@ import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 
 enum SeamField {
-    TEMPERATURE("temperature"),
-    HUMIDITY("humidity"),
-    CONTINENTALNESS("continentalness"),
-    EROSION("erosion"),
-    DEPTH("depth"),
-    WEIRDNESS("weirdness"),
-    COLUMN("column"),
-    BIOME("biome");
+    TEMPERATURE("temperature", true),
+    HUMIDITY("humidity", true),
+    CONTINENTALNESS("continentalness", true),
+    EROSION("erosion", true),
+    DEPTH("depth", true),
+    WEIRDNESS("weirdness", true),
+    COLUMN("column", false),
+    BIOME("biome", false),
+    SURFACE("surface", false),
+    CARVERS("carvers", false);
 
     private final String id;
+    private final boolean climate;
 
-    SeamField(String id) {
+    SeamField(String id, boolean climate) {
         this.id = id;
+        this.climate = climate;
     }
 
     String id() {
@@ -27,7 +31,7 @@ enum SeamField {
     }
 
     boolean climate() {
-        return this != COLUMN && this != BIOME;
+        return this.climate;
     }
 
     long climateOf(Climate.TargetPoint point) {
@@ -38,7 +42,7 @@ enum SeamField {
             case EROSION -> point.erosion();
             case DEPTH -> point.depth();
             case WEIRDNESS -> point.weirdness();
-            case COLUMN, BIOME -> throw new IllegalStateException(this.id + " is no climate field");
+            case COLUMN, BIOME, SURFACE, CARVERS -> throw new IllegalStateException(this.id + " is no climate field");
         };
     }
 
@@ -51,7 +55,7 @@ enum SeamField {
             case DEPTH -> router.depth();
             case WEIRDNESS -> router.ridges();
             case COLUMN -> router.finalDensity();
-            case BIOME -> null;
+            case BIOME, SURFACE, CARVERS -> null;
         };
     }
 }

@@ -20,6 +20,7 @@ import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
@@ -50,4 +51,7 @@ public interface ChunkGeneratorAccessor {
             ChunkPos sourceChunkPos,
             ResourceKey<Level> level,
             Climate.Sampler climateSampler);
+
+    @Invoker("doCreateBiomes")
+    void exotic_worlds$doCreateBiomes(Blender blender, RandomState randomState, ChunkAccess protoChunk);
 }
