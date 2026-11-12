@@ -1,0 +1,56 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.jspecify.annotations.Nullable;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import com.zurrtum.create.content.trains.graph.TrackNodeLocation;
+import com.exoticworlds.compat.create.CreateSeamFold;
+import com.exoticworlds.compat.create.CreateTrackFold;
+import com.exoticworlds.compat.create.TrackNodeKeyFold;
+import com.exoticworlds.core.WorldFold;
+
+import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+
+@Mixin(TrackNodeLocation.class)
+public abstract class TrackNodeLocationMixin extends Vec3i implements TrackNodeKeyFold {
+    @Shadow
+    public ResourceKey<Level> dimension;
+
+    protected TrackNodeLocationMixin(int x, int y, int z) {
+        super(x, y, z);
+    }
+
+    @Override
+    public void exotic_worlds$foldNodeKey(@Nullable Level level) {
+        WorldFold fold = CreateSeamFold.wrappedFoldOf(level, this.dimension);
+        if (fold == null) {
+            return;
+        }
+
+        Vec3i canonical = CreateTrackFold.canonicalNodeKey(fold, this);
+        if (canonical == this) {
+            return;
+        }
+
+        setX(canonical.getX());
+        setZ(canonical.getZ());
+    }
+
+    @Inject(method = "in(Lnet/minecraft/resources/ResourceKey;)Lcom/zurrtum/create/content/trains/graph/TrackNodeLocation;",
+            at = @At("RETURN"))
+    private void exotic_worlds$foldKeyInDimension(ResourceKey<Level> dimension,
+            CallbackInfoReturnable<TrackNodeLocation> cir) {
+        exotic_worlds$foldNodeKey(null);
+    }
+
+    @Inject(method = {"read", "decode"}, at = @At("RETURN"))
+    private static void exotic_worlds$foldKeyOnRead(CallbackInfoReturnable<TrackNodeLocation> cir) {
+        ((TrackNodeKeyFold) cir.getReturnValue()).exotic_worlds$foldNodeKey(null);
+    }
+}
