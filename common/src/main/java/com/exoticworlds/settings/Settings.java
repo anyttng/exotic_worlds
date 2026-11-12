@@ -1,6 +1,6 @@
 package com.exoticworlds.settings;
 
-import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.map.MapCopies;
 
 public record Settings(MapCopies mapCopies, boolean seamLines) {
     public static final MapCopies DEFAULT_MAP_COPIES = MapCopies.REPEATED;

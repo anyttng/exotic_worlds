@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.compat.WorldCopies;
+import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;

@@ -1,7 +1,7 @@
 package com.exoticworlds.compat.sable;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModPresence;
+import com.exoticworlds.compat.gate.ModPresence;
 import com.exoticworlds.core.ForeignFrames;
 
 public final class SableMod {

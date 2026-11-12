@@ -10,9 +10,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.exoticworlds.compat.LapNoise;
-import com.exoticworlds.compat.OpenSimplexStandIn;
-import com.exoticworlds.compat.StandInHolder;
+import com.exoticworlds.compat.worldgen.LapNoise;
+import com.exoticworlds.compat.worldgen.OpenSimplexStandIn;
+import com.exoticworlds.compat.worldgen.StandInHolder;
 import com.exoticworlds.compat.wover.WoverInjectionTargets;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;

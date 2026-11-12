@@ -3,7 +3,7 @@ package com.exoticworlds.compat.c2me;
 import java.util.List;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModPresence;
+import com.exoticworlds.compat.gate.ModPresence;
 
 public final class C2meDfc {
     static final List<String> MIXINS = List.of("McToAstMixin", "BytecodeGenRegistryMixin", "DotGenRegistryMixin");

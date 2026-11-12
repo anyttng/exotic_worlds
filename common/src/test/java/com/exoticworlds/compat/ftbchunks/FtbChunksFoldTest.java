@@ -14,11 +14,11 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.TestShapes;
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.AxisCopies;
-import com.exoticworlds.compat.MapCopies;
-import com.exoticworlds.compat.MapShapes;
-import com.exoticworlds.compat.SeamLine;
-import com.exoticworlds.compat.WorldCopies;
+import com.exoticworlds.compat.map.AxisCopies;
+import com.exoticworlds.compat.map.MapCopies;
+import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.SeamLine;
+import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;

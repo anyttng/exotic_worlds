@@ -1,6 +1,6 @@
 package com.exoticworlds.compat.northbound;
 
-import com.exoticworlds.compat.LevelClimateCompression;
+import com.exoticworlds.compat.worldgen.LevelClimateCompression;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;

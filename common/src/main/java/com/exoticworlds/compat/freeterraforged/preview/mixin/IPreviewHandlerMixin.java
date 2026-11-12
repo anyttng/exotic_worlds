@@ -11,7 +11,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.compat.CreationShape;
+import com.exoticworlds.compat.preview.CreationShape;
 
 import etcodehome.freeterraforged.client.gui.screen.presetconfig.IPreviewHandler;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;

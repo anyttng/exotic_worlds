@@ -1,6 +1,6 @@
 package com.exoticworlds.compat.wover;
 
-import com.exoticworlds.compat.OpenSimplexStandIn;
+import com.exoticworlds.compat.worldgen.OpenSimplexStandIn;
 import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.Direction;

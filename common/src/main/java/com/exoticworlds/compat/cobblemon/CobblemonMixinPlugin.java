@@ -4,8 +4,8 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 
-import com.exoticworlds.compat.ModPresence;
-import com.exoticworlds.compat.ModPresenceGatePlugin;
+import com.exoticworlds.compat.gate.ModPresence;
+import com.exoticworlds.compat.gate.ModPresenceGatePlugin;
 import com.mojang.logging.LogUtils;
 
 public class CobblemonMixinPlugin extends ModPresenceGatePlugin {

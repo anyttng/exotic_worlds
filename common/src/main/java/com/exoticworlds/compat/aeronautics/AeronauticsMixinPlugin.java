@@ -2,7 +2,7 @@ package com.exoticworlds.compat.aeronautics;
 
 import java.util.List;
 
-import com.exoticworlds.compat.ModPresenceGatePlugin;
+import com.exoticworlds.compat.gate.ModPresenceGatePlugin;
 
 public class AeronauticsMixinPlugin extends ModPresenceGatePlugin {
     static final String CONFIG = "exotic_worlds.compat.aeronautics.mixins.json";

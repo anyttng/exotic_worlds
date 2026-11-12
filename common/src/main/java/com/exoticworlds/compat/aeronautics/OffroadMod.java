@@ -1,7 +1,7 @@
 package com.exoticworlds.compat.aeronautics;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModPresence;
+import com.exoticworlds.compat.gate.ModPresence;
 
 public final class OffroadMod {
     private static final String OFFROAD_PACKAGE = "dev/ryanhcode/offroad/";

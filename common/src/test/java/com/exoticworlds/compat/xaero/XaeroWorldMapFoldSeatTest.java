@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.MapShapes;
+import com.exoticworlds.compat.map.MapShapes;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;

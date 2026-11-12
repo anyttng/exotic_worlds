@@ -5,8 +5,8 @@ import org.betterx.betterend.world.surface.SplitNoiseCondition;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.compat.LapNoise;
-import com.exoticworlds.compat.StandInHolder;
+import com.exoticworlds.compat.worldgen.LapNoise;
+import com.exoticworlds.compat.worldgen.StandInHolder;
 import com.exoticworlds.compat.betterend.BetterEndInjectionTargets;
 import com.exoticworlds.compat.wover.WoverInjectionTargets;
 import com.exoticworlds.core.WorldFold;

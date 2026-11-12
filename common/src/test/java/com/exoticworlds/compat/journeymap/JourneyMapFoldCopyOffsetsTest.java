@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.compat.WorldCopies;
+import com.exoticworlds.compat.map.WorldCopies;
 
 class JourneyMapFoldCopyOffsetsTest {
     private static final Rectangle2D.Double SCREEN = new Rectangle2D.Double(0.0, 0.0, 1000.0, 600.0);

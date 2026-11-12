@@ -3,8 +3,8 @@ package com.exoticworlds.compat.distanthorizons;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModPresence;
-import com.exoticworlds.compat.ModPresenceGatePlugin;
+import com.exoticworlds.compat.gate.ModPresence;
+import com.exoticworlds.compat.gate.ModPresenceGatePlugin;
 
 public class DhMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();

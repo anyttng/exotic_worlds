@@ -6,10 +6,10 @@ import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.AxisCopies;
-import com.exoticworlds.compat.MapCopies;
-import com.exoticworlds.compat.MapViewSpan;
-import com.exoticworlds.compat.WorldCopies;
+import com.exoticworlds.compat.map.AxisCopies;
+import com.exoticworlds.compat.map.MapCopies;
+import com.exoticworlds.compat.map.MapViewSpan;
+import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TilePlacement;
 import com.mojang.blaze3d.platform.Window;
 

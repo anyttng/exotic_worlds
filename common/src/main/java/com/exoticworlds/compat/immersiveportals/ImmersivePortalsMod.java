@@ -1,6 +1,6 @@
 package com.exoticworlds.compat.immersiveportals;
 
-import com.exoticworlds.compat.ModPresence;
+import com.exoticworlds.compat.gate.ModPresence;
 
 public final class ImmersivePortalsMod {
     private static final String TRACKED_ENTITY_OVERWRITE =

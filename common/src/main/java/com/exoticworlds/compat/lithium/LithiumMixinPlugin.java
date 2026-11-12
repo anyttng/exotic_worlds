@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 
 import com.bawnorton.mixinsquared.MixinSquaredBootstrap;
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModPresence;
-import com.exoticworlds.compat.ModPresenceGatePlugin;
+import com.exoticworlds.compat.gate.ModPresence;
+import com.exoticworlds.compat.gate.ModPresenceGatePlugin;
 
 public class LithiumMixinPlugin extends ModPresenceGatePlugin {
     private static final Logger LOGGER = LogUtils.getLogger();

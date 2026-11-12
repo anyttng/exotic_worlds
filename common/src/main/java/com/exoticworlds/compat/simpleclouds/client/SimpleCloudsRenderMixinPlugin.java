@@ -3,8 +3,8 @@ package com.exoticworlds.compat.simpleclouds.client;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModPresence;
-import com.exoticworlds.compat.ModPresenceGatePlugin;
+import com.exoticworlds.compat.gate.ModPresence;
+import com.exoticworlds.compat.gate.ModPresenceGatePlugin;
 import com.exoticworlds.compat.simpleclouds.SimpleCloudsMixinPlugin;
 
 public class SimpleCloudsRenderMixinPlugin extends ModPresenceGatePlugin {

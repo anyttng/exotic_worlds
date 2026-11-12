@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 
 import com.uber.nullaway.annotations.Initializer;
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.ClientShapes;
+import com.exoticworlds.compat.map.ClientShapes;
 import com.exoticworlds.ExoticWorlds;
 import com.mojang.logging.LogUtils;
 

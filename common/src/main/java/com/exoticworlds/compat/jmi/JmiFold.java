@@ -2,7 +2,7 @@ package com.exoticworlds.compat.jmi;
 
 import java.util.Collection;
 
-import com.exoticworlds.compat.ClientShapes;
+import com.exoticworlds.compat.map.ClientShapes;
 import com.exoticworlds.compat.ftbchunks.FtbChunksFold;
 
 import net.minecraft.client.Minecraft;

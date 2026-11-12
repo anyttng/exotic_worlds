@@ -70,16 +70,16 @@ class UnreachedMembersTest {
             "engine.net.PacketTranslator.toServer",
             "accessors.FoldedClimateSampler.exotic_worlds$fold",
             "compat.reterraforged.LapCarrier.exotic_worlds$fold",
-            "compat.ModPresence.ownedClasses",
-            "compat.ModPresence.scannedClasses",
-            "compat.ModPresence.optional");
+            "compat.gate.ModPresence.ownedClasses",
+            "compat.gate.ModPresence.scannedClasses",
+            "compat.gate.ModPresence.optional");
     private static final Set<String> MAIN_FORM_FOR_SHARED_TESTS = Set.of(
             "core.DeckGroupFold.<init>",
             "core.WorldLoopFold.<init>",
             "engine.net.TranslationContext.toClientRelative");
     private static final Set<String> READ_BY_HARNESS = Set.of(
             "compat.distanthorizons.DhFold.periodSections",
-            "compat.ModPresenceGatePlugin.gates",
+            "compat.gate.ModPresenceGatePlugin.gates",
             "core.TranslationLattice.nearestZLaps",
             "compat.sable.SableConstraintGraph.size",
             "compat.sable.SeamFrame.isBound");

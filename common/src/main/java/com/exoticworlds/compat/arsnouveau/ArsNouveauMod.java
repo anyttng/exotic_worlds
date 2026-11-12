@@ -1,7 +1,7 @@
 package com.exoticworlds.compat.arsnouveau;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModPresence;
+import com.exoticworlds.compat.gate.ModPresence;
 
 final class ArsNouveauMod {
     private static final String ARS_NOUVEAU_PACKAGE = "com/hollingsworth/arsnouveau/";

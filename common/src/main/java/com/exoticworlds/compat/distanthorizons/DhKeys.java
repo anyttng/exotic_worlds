@@ -3,7 +3,7 @@ package com.exoticworlds.compat.distanthorizons;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.exoticworlds.compat.WorldCopies;
+import com.exoticworlds.compat.map.WorldCopies;
 import com.seibel.distanthorizons.core.pos.DhChunkPos;
 import com.seibel.distanthorizons.core.pos.DhSectionPos;
 import com.seibel.distanthorizons.core.pos.blockPos.DhBlockPos;

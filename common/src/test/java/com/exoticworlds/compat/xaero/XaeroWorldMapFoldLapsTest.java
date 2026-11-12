@@ -9,9 +9,9 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.MapCopies;
-import com.exoticworlds.compat.MapShapes;
-import com.exoticworlds.compat.WorldCopies;
+import com.exoticworlds.compat.map.MapCopies;
+import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.WorldCopies;
 
 class XaeroWorldMapFoldLapsTest {
     private static final ToroidalShape TORUS = MapShapes.torus(-32, 32);

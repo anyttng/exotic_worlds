@@ -1,7 +1,7 @@
 package com.exoticworlds.compat.c2me;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModPresence;
+import com.exoticworlds.compat.gate.ModPresence;
 
 public final class C2meLightingLock {
     public static final String OVERWRITE_CLASS =

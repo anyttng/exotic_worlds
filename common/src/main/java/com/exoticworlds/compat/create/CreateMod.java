@@ -1,7 +1,7 @@
 package com.exoticworlds.compat.create;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModPresence;
+import com.exoticworlds.compat.gate.ModPresence;
 import com.exoticworlds.compat.sable.SableMod;
 
 public final class CreateMod {

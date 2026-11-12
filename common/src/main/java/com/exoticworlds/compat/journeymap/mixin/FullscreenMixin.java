@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.mojang.blaze3d.platform.Window;
-import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.journeymap.JourneyMapFold;
 
 import journeymap.client.render.map.MapRenderer;

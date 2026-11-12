@@ -3,7 +3,7 @@ package com.exoticworlds.compat.xaero;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.AxisCopies;
+import com.exoticworlds.compat.map.AxisCopies;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;

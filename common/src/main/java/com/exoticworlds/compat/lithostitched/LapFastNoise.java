@@ -4,7 +4,7 @@ import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.compat.LapFrame;
+import com.exoticworlds.compat.worldgen.LapFrame;
 import com.exoticworlds.compat.lithostitched.mixin.FastNoiseConfigAccessor;
 import com.exoticworlds.compat.lithostitched.mixin.FastNoiseLiteAccessor;
 import com.exoticworlds.core.TranslationLattice;

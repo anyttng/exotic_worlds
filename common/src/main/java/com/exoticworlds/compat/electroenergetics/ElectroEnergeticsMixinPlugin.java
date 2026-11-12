@@ -1,8 +1,8 @@
 package com.exoticworlds.compat.electroenergetics;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModPresence;
-import com.exoticworlds.compat.ModPresenceGatePlugin;
+import com.exoticworlds.compat.gate.ModPresence;
+import com.exoticworlds.compat.gate.ModPresenceGatePlugin;
 
 public class ElectroEnergeticsMixinPlugin extends ModPresenceGatePlugin {
     static final String CONFIG = "exotic_worlds.compat.electroenergetics.mixins.json";

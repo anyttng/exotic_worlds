@@ -6,7 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.AxisCopies;
+import com.exoticworlds.compat.map.AxisCopies;
 import com.exoticworlds.ExoticWorlds;
 import com.mojang.logging.LogUtils;
 

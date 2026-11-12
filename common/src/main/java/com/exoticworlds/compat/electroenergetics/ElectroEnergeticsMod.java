@@ -1,7 +1,7 @@
 package com.exoticworlds.compat.electroenergetics;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModPresence;
+import com.exoticworlds.compat.gate.ModPresence;
 
 public final class ElectroEnergeticsMod {
     static final String SPAWN_GUARD_MIXIN = "BulbSpawnGuardMixin";
