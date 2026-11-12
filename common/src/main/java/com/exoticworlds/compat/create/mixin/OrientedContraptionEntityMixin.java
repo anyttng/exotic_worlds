@@ -1,0 +1,26 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
+import com.zurrtum.create.content.contraptions.OrientedContraptionEntity;
+import com.exoticworlds.compat.create.CreateSeamFold;
+
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
+
+@Mixin(OrientedContraptionEntity.class)
+public class OrientedContraptionEntityMixin {
+    @ModifyExpressionValue(method = "updateOrientation",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/vehicle/minecart/AbstractMinecart;"
+                            + "position()Lnet/minecraft/world/phys/Vec3;",
+                    ordinal = 1))
+    private Vec3 exotic_worlds$coupledCartInTheLeadingFrame(Vec3 coupledVec,
+            @Local(name = "positionVec") Vec3 positionVec) {
+        Entity self = (Entity) (Object) this;
+        return CreateSeamFold.nearestCopy(self.level(), positionVec, coupledVec);
+    }
+}

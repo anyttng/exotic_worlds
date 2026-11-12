@@ -12,6 +12,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public final class CreateSeamFold {
@@ -29,6 +30,10 @@ public final class CreateSeamFold {
 
     public static Vec3 nearestCopy(@Nullable Level level, Vec3 anchor, Vec3 target) {
         return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(level), anchor, target);
+    }
+
+    public static Vec3 foldPointToBox(@Nullable Level level, AABB box, Vec3 point) {
+        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(level), box.getCenter(), point);
     }
 
     public static DeckTransformation nearestCopyTransformation(@Nullable Level level, Vec3 anchor, Vec3 target) {
