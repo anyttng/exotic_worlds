@@ -5,13 +5,36 @@
   "compatibilityLevel": "JAVA_25",
   "plugin": "com.exoticworlds.compat.create.CreateMixinPlugin",
   "mixins": [
+    "AirCurrentMixin",
     "AllHandleMixin",
+    "BeltBlockEntityControllerMixin",
+    "BeltConnectorItemMixin",
     "CarriageContraptionEntityMixin",
+    "ConnectedInputAccessor",
+    "ConnectedInputHandlerMixin",
+    "ConnectivityHandlerMixin",
+    "DirectionalShaftHalvesBlockEntityMixin",
     "FluidHelperMixin",
+    "GantryShaftBlockEntityMixin",
+    "GantryShaftBlockMixin",
+    "GirderPlacementHelperMixin",
     "ItemHelperMixin",
-    "StockKeeperCategoryMenuMixin"
+    "MechanicalCrafterBlockEntityMixin",
+    "NozzleBlockEntityMixin",
+    "PoleHelperMixin",
+    "PoweredShaftBlockEntityMixin",
+    "RotationPropagatorMixin",
+    "SearchCacheMixin",
+    "SteamEngineBlockEntityMixin",
+    "StockKeeperCategoryMenuMixin",
+    "TreeCutterMixin"
   ],
   "client": [
+    "AbstractBlockEntityVisualAccessor",
+    "BeltConnectorHandlerMixin",
+    "GearboxRendererMixin",
+    "GearboxVisualMixin",
+    "KineticDebuggerMixin",
     "SchematicannonScreenMixin"
   ],
   "injectors": {

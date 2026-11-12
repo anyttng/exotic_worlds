@@ -1,0 +1,30 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+
+import com.llamalad7.mixinextras.sugar.Local;
+import com.exoticworlds.compat.create.CreateSeamFold;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+@Mixin(targets = "com.zurrtum.create.api.connectivity.ConnectivityHandler$SearchCache")
+public class SearchCacheMixin {
+    @ModifyVariable(
+            method = "getOrCache(Lnet/minecraft/world/level/block/entity/BlockEntityType;"
+                    + "Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Ljava/util/Optional;",
+            at = @At("HEAD"), argsOnly = true, ordinal = 0)
+    private BlockPos exotic_worlds$canonicalLookupKey(BlockPos pos, @Local(argsOnly = true) BlockGetter level) {
+        return CreateSeamFold.canonicalOnServer(level, pos);
+    }
+
+    @ModifyVariable(
+            method = "put(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/entity/BlockEntity;)V",
+            at = @At("HEAD"), argsOnly = true, ordinal = 0)
+    private BlockPos exotic_worlds$canonicalStoreKey(BlockPos pos, @Local(argsOnly = true) BlockEntity target) {
+        return CreateSeamFold.canonicalOnServer(target.getLevel(), pos);
+    }
+}
