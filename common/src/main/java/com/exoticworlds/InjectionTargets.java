@@ -69,7 +69,10 @@ public final class InjectionTargets {
     public static final String MAP_ITEM_SAVED_DATA_CENTER_Z =
             "Lnet/minecraft/world/level/saveddata/maps/MapItemSavedData;centerZ:I";
 
-    public static final String MTH_ATAN2 ="Lnet/minecraft/util/Mth;atan2(DD)D";
+    public static final String MAP_PUT =
+            "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;";
+
+    public static final String MTH_ATAN2 = "Lnet/minecraft/util/Mth;atan2(DD)D";
 
     public static final String MTH_SQUARE_LONG = "Lnet/minecraft/util/Mth;square(J)J";
 
