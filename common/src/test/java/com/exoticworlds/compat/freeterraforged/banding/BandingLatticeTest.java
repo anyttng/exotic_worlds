@@ -108,15 +108,39 @@ class BandingLatticeTest {
     }
 
     @Test
-    void anOpenAxisKeepsFreeTerraForgedsRegion() {
-        WorldFold fold = WorldFolds.of(ShapeFixtures.cylinder(new WorldLoopBounds(
-                new AxisBounds.Looped(-NARROW_CHUNKS, NARROW_CHUNKS), AxisBounds.Unbounded.INSTANCE)));
-        try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(fold)) {
-            for (int z : BLOCKS) {
-                assertEquals((double) z / REGION_BLOCKS, BandingLattice.z(RtfLap.frame(),
-                        ClimateScaleCompression.NO_COMPRESSION, z, REGION_BLOCKS), CLOSE);
+    void anOpenAxisShrinksByTheLoopingAxisFactorOnACylinder() {
+        for (Direction.Axis loop : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
+            WorldFold fold = cylinder(loop);
+            int lap = fold.blockDomain(loop).domainLength;
+            try (RtfLap.Frame.Scope bound = RtfLap.frame().bind(fold)) {
+                RtfLap.Frame frame = RtfLap.frame();
+                double regionsPerBlock = (double) frame.cells(loop, 1.0 / REGION_BLOCKS) / lap;
+                for (int open : BLOCKS) {
+                    double region = loop == Direction.Axis.X
+                            ? BandingLattice.z(frame, ClimateScaleCompression.NO_COMPRESSION, open, REGION_BLOCKS)
+                            : BandingLattice.x(frame, ClimateScaleCompression.NO_COMPRESSION, open, 0, REGION_BLOCKS);
+                    assertEquals(open * regionsPerBlock, region, CLOSE, "looping on " + loop + " at " + open);
+                }
             }
         }
+    }
+
+    @Test
+    void anUnshapedWorldKeepsFreeTerraForgedsRegion() {
+        RtfLap.Frame frame = RtfLap.frame();
+        for (int block : BLOCKS) {
+            assertEquals((double) block / REGION_BLOCKS,
+                    BandingLattice.x(frame, ClimateScaleCompression.NO_COMPRESSION, block, 0, REGION_BLOCKS), CLOSE);
+            assertEquals((double) block / REGION_BLOCKS,
+                    BandingLattice.z(frame, ClimateScaleCompression.NO_COMPRESSION, block, REGION_BLOCKS), CLOSE);
+        }
+    }
+
+    private static WorldFold cylinder(Direction.Axis loop) {
+        AxisBounds looped = new AxisBounds.Looped(-NARROW_CHUNKS, NARROW_CHUNKS);
+        return WorldFolds.of(ShapeFixtures.cylinder(loop == Direction.Axis.X
+                ? new WorldLoopBounds(looped, AxisBounds.Unbounded.INSTANCE)
+                : new WorldLoopBounds(AxisBounds.Unbounded.INSTANCE, looped)));
     }
 
     private static WorldFold torus() {
