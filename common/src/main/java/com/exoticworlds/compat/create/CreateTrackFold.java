@@ -1,0 +1,41 @@
+package com.exoticworlds.compat.create;
+
+import com.exoticworlds.core.WorldFold;
+
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.phys.Vec3;
+
+public final class CreateTrackFold {
+    private static final int NODE_KEY_UNITS_PER_BLOCK = 2;
+
+    public static Vec3i canonicalNodeKey(WorldFold fold, Vec3i key) {
+        Vec3 location = nodeKeyLocation(key);
+        if (!fold.isOver(location)) {
+            return key;
+        }
+
+        return nodeKeyAt(fold.fold(location), key.getY());
+    }
+
+    public static Vec3i nearestNodeKey(WorldFold fold, Vec3i anchor, Vec3i key) {
+        Vec3 location = nodeKeyLocation(key);
+        Vec3 nearest = fold.nearestCopy(nodeKeyLocation(anchor), location);
+        return nearest == location ? key : nodeKeyAt(nearest, key.getY());
+    }
+
+    private static Vec3 nodeKeyLocation(Vec3i key) {
+        return new Vec3((double) key.getX() / NODE_KEY_UNITS_PER_BLOCK, 0.0,
+                (double) key.getZ() / NODE_KEY_UNITS_PER_BLOCK);
+    }
+
+    private static Vec3i nodeKeyAt(Vec3 location, int keyY) {
+        return new Vec3i(nodeKeyUnits(location.x), keyY, nodeKeyUnits(location.z));
+    }
+
+    private static int nodeKeyUnits(double coord) {
+        return (int) Math.round(coord * NODE_KEY_UNITS_PER_BLOCK);
+    }
+
+    private CreateTrackFold() {
+    }
+}

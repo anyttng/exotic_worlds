@@ -10,6 +10,7 @@
     "AllHandleMixin",
     "BeltBlockEntityControllerMixin",
     "BeltConnectorItemMixin",
+    "BezierConnectionMixin",
     "CapabilityMinecartControllerMixin",
     "CarriageContraptionEntityMixin",
     "CartAssemblerBlockEntityMixin",
@@ -36,11 +37,22 @@
     "PoweredShaftBlockEntityMixin",
     "RotationPropagatorMixin",
     "SearchCacheMixin",
+    "StationMapMarkerMixin",
     "SteamEngineBlockEntityMixin",
     "StockKeeperCategoryMenuMixin",
     "SuperGlueEntityMixin",
     "SuperGlueHandlerMixin",
     "SuperGlueSelectionHelperMixin",
+    "TrackBlockEntityMixin",
+    "TrackBlockMixin",
+    "TrackEdgeMixin",
+    "TrackGraphDistanceMixin",
+    "TrackGraphHelperMixin",
+    "TrackNodeLocationMixin",
+    "TrackPaverV2Mixin",
+    "TrackPlacementMixin",
+    "TrackTargetingBlockItemMixin",
+    "TrackTargetingMapMarkerMixin",
     "TreeCutterMixin"
   ],
   "client": [
@@ -50,8 +62,11 @@
     "GantryContraptionEntityAccessor",
     "GearboxRendererMixin",
     "GearboxVisualMixin",
+    "ITrackBlockClientMixin",
     "KineticDebuggerMixin",
-    "SchematicannonScreenMixin"
+    "SchematicannonScreenMixin",
+    "TrackGraphVisualizerMixin",
+    "TrackTargetingClientMixin"
   ],
   "injectors": {
     "defaultRequire": 1
