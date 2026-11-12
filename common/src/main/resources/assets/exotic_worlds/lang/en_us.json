@@ -4,6 +4,7 @@
 
   "argument.exotic_worlds.pos.outside_world": "%s is outside this world. It must be between %s and %s",
   "commands.exotic_worlds.region.across_seam": "That area crosses the world's edge and could mean either side of it. Run the command once per side",
+  "message.exotic_worlds.create.structure_circles_the_world": "That structure goes all the way around the world, so it cannot move as one contraption. Leave a gap in it",
   "commands.exotic_worlds.dimensions.undecided": "No shape is chosen yet for %s.",
   "commands.exotic_worlds.dimensions.configure": "Choose shape",
   "commands.exotic_worlds.dimensions.configure.hint": "Open the shape choice for these dimensions",
