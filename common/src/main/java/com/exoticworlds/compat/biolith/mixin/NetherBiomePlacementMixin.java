@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.terraformersmc.biolith.impl.biome.DimensionBiomePlacement;
 import com.terraformersmc.biolith.impl.biome.NetherBiomePlacement;
 import com.terraformersmc.biolith.impl.noise.OpenSimplexNoise2;
-import com.exoticworlds.compat.LevelTemperature;
+import com.exoticworlds.compat.worldgen.LevelTemperature;
 import com.exoticworlds.compat.biolith.ReplacementNoiseFold;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;

@@ -5,7 +5,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 import com.mojang.serialization.Codec;
-import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.settings.Settings;
 import com.exoticworlds.settings.SettingsService;
 

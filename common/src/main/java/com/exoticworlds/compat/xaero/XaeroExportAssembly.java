@@ -7,8 +7,8 @@ import java.util.Objects;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.compat.MapCopies;
-import com.exoticworlds.compat.WorldCopies;
+import com.exoticworlds.compat.map.MapCopies;
+import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TilePlacement;
 import com.mojang.renderpearl.api.textures.GpuTextureView;
 

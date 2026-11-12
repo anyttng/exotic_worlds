@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.ClientShapes;
+import com.exoticworlds.compat.map.ClientShapes;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasBlockMarkerKey;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.seam.MapSeamFold;

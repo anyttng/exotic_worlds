@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.AlignedPeriod;
+import com.exoticworlds.compat.lod.AlignedPeriod;
 import com.seibel.distanthorizons.core.level.IDhLevel;
 import com.seibel.distanthorizons.core.pos.DhSectionPos;
 import com.seibel.distanthorizons.core.pos.blockPos.DhBlockPos;

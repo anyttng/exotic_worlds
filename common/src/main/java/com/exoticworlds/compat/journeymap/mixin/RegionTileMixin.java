@@ -15,8 +15,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.renderpearl.api.pipeline.RenderPipeline;
-import com.exoticworlds.compat.FullscreenZoomFloor;
-import com.exoticworlds.compat.WorldCopies;
+import com.exoticworlds.compat.map.FullscreenZoomFloor;
+import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.compat.journeymap.JourneyMapFold;
 
 import journeymap.api.v2.common.Context.UI;

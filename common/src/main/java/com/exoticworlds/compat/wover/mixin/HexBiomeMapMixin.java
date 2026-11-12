@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.exoticworlds.compat.FoldCompression;
+import com.exoticworlds.compat.worldgen.FoldCompression;
 import com.exoticworlds.compat.wover.EdgeBiomes;
 import com.exoticworlds.compat.wover.HexLapMap;
 import com.exoticworlds.compat.wover.LapMap;
