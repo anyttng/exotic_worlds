@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.client.engine.ClientFrame;
-import com.exoticworlds.compat.ClientShapes;
+import com.exoticworlds.compat.map.ClientShapes;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.BlockPos;

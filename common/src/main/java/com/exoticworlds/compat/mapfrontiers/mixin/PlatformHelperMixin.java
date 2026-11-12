@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.api.v1.ExoticWorldsApi;
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.ClientShapes;
+import com.exoticworlds.compat.map.ClientShapes;
 import com.exoticworlds.compat.mapfrontiers.ExoticWorldsGeometry;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;

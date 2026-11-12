@@ -7,7 +7,7 @@ import org.betterx.bclib.util.MHelper;
 import org.betterx.betterend.noise.OpenSimplexNoise;
 import org.betterx.betterend.world.generator.LayerOptions;
 
-import com.exoticworlds.compat.LapFrame;
+import com.exoticworlds.compat.worldgen.LapFrame;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;

@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.compat.OpenSimplexStandIn;
+import com.exoticworlds.compat.worldgen.OpenSimplexStandIn;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;

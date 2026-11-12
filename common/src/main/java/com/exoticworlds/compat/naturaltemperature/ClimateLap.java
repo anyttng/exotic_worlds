@@ -5,8 +5,8 @@ import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 import com.google.common.collect.MapMaker;
-import com.exoticworlds.compat.FoldCompression;
-import com.exoticworlds.compat.LapFrame;
+import com.exoticworlds.compat.worldgen.FoldCompression;
+import com.exoticworlds.compat.worldgen.LapFrame;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;

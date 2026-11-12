@@ -14,6 +14,7 @@ import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.gen.DimensionChoicesCommand;
 import com.exoticworlds.engine.net.MeasuredReach;
+import com.exoticworlds.engine.noise.SeamNotice;
 import com.exoticworlds.engine.net.WorldShapeSync;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -75,6 +76,7 @@ public class PlayerListMixin {
             CallbackInfo ci) {
         WorldShapeSync.sendAllTo(player);
         DimensionChoicesCommand.hintTo(player);
+        SeamNotice.hintTo(player);
     }
 
     @WrapOperation(

@@ -1,5 +1,11 @@
 package com.exoticworlds.accessors;
 
+import java.util.concurrent.atomic.AtomicReference;
+
+import com.exoticworlds.engine.noise.SeamVerdict;
+
 public interface PeriodicityMark {
-    boolean exotic_worlds$claimPeriodicityCheck();
+    AtomicReference<SeamVerdict> exotic_worlds$seamVerdict();
+
+    AtomicReference<SeamVerdict> exotic_worlds$fullSeamVerdict();
 }

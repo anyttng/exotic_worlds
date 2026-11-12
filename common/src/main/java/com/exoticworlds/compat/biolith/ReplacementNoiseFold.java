@@ -4,7 +4,7 @@ import java.util.stream.IntStream;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.compat.LevelClimateCompression;
+import com.exoticworlds.compat.worldgen.LevelClimateCompression;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.LapFloor;
 import com.exoticworlds.engine.noise.NoiseFrame;

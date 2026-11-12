@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModPresence;
+import com.exoticworlds.compat.gate.ModPresence;
 
 final class LithiumOptionGate {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -44,8 +44,11 @@ final class LithiumOptionGate {
     }
 
     private boolean optionEnabled(ClassLoader classLoader) throws ReflectiveOperationException {
-        Class<?> plugin = Class.forName(MIXIN_PLUGIN_CLASS, true, classLoader);
-        if (plugin.getField(DISABLE_ALL_FIELD).getBoolean(null)) {
+        return optionEnabled(Class.forName(MIXIN_PLUGIN_CLASS, true, classLoader), this.mixinRule);
+    }
+
+    static boolean optionEnabled(Class<?> plugin, String mixinRule) throws ReflectiveOperationException {
+        if (allMixinsDisabled(plugin)) {
             return false;
         }
 
@@ -53,10 +56,18 @@ final class LithiumOptionGate {
         configField.setAccessible(true);
         Object config = configField.get(null);
         if (config == null) {
-            throw new IllegalStateException(MIXIN_PLUGIN_CLASS + "." + CONFIG_FIELD + " is not loaded yet");
+            throw new IllegalStateException(plugin.getName() + "." + CONFIG_FIELD + " is not loaded yet");
         }
 
-        Object option = config.getClass().getMethod(EFFECTIVE_OPTION_METHOD, String.class).invoke(config, this.mixinRule);
+        Object option = config.getClass().getMethod(EFFECTIVE_OPTION_METHOD, String.class).invoke(config, mixinRule);
         return option != null && (Boolean) option.getClass().getMethod(IS_ENABLED_METHOD).invoke(option);
+    }
+
+    private static boolean allMixinsDisabled(Class<?> plugin) throws IllegalAccessException {
+        try {
+            return plugin.getField(DISABLE_ALL_FIELD).getBoolean(null);
+        } catch (NoSuchFieldException absent) {
+            return false;
+        }
     }
 }

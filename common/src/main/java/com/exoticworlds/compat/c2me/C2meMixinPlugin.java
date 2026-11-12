@@ -4,8 +4,8 @@ import org.spongepowered.asm.mixin.Mixins;
 
 import com.bawnorton.mixinsquared.MixinSquaredBootstrap;
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModPresence;
-import com.exoticworlds.compat.ModPresenceGatePlugin;
+import com.exoticworlds.compat.gate.ModPresence;
+import com.exoticworlds.compat.gate.ModPresenceGatePlugin;
 
 public class C2meMixinPlugin extends ModPresenceGatePlugin {
     static final String CONFIG = "exotic_worlds.compat.c2me.mixins.json";

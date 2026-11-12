@@ -88,6 +88,16 @@ public final class WorldLoopAttachments {
         return reader instanceof ServerLevelAccessor accessor ? accessor.getLevel() : null;
     }
 
+    public static @Nullable WorldFold wrappedFoldOfReader(@Nullable LevelReader reader) {
+        Level level = levelOf(reader);
+        if (level == null) {
+            return null;
+        }
+
+        WorldFold clientBounds = wrappedClientBoundsFoldOf(level);
+        return clientBounds != null ? clientBounds : wrappedFoldOf(level);
+    }
+
     private WorldLoopAttachments() {
     }
 }

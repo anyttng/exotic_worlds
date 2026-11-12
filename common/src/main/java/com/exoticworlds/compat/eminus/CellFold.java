@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 import com.eminus.cell.CellKey;
 import com.eminus.cell.DetailLevel;
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.AlignedPeriod;
+import com.exoticworlds.compat.lod.AlignedPeriod;
 import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 

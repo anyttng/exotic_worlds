@@ -16,8 +16,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 
 public final class CreateTranslation {
-    private static final String CONTROLLER_KEY = "Controller";
-    private static final String LAST_KNOWN_POS_KEY = "LastKnownPos";
+    public static final String CONTROLLER_KEY = "Controller";
+    public static final String LAST_KNOWN_POS_KEY = "LastKnownPos";
     private static final String PRINTER_KEY = "Printer";
     private static final String ANCHOR_KEY = "Anchor";
     private static final String FLYING_BLOCKS_KEY = "FlyingBlocks";
