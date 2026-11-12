@@ -1,0 +1,57 @@
+package com.exoticworlds.compat.create.mixin;
+
+import java.util.Set;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
+import com.zurrtum.create.api.connectivity.ConnectivityHandler;
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.compat.create.CanonicalPositionKeys;
+import com.exoticworlds.compat.create.CreateSeamFold;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+@Mixin(ConnectivityHandler.class)
+public class ConnectivityHandlerMixin {
+    @Unique
+    private static final String FORM_MULTI = "formMulti(Lnet/minecraft/world/level/block/entity/BlockEntityType;"
+            + "Lnet/minecraft/world/level/BlockGetter;Lcom/zurrtum/create/api/connectivity/"
+            + "ConnectivityHandler$SearchCache;Ljava/util/List;)V";
+
+    @ModifyExpressionValue(
+            method = "tryToFormNewMultiOfWidth",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/block/entity/BlockEntity;getBlockPos()Lnet/minecraft/core/BlockPos;",
+                    ordinal = 1))
+    private static BlockPos exotic_worlds$foldControllerIntoScanFrame(BlockPos conPos,
+            @Local(argsOnly = true) BlockEntity be) {
+        return CreateSeamFold.nearestCopy(be.getLevel(), be.getBlockPos(), conPos);
+    }
+
+    @ModifyVariable(method = FORM_MULTI, at = @At("STORE"), ordinal = 0)
+    private static Set<BlockPos> exotic_worlds$canonicalWalkVisited(Set<BlockPos> visited,
+            @Local(argsOnly = true) BlockGetter level) {
+        return CanonicalPositionKeys.set(level, visited);
+    }
+
+    @ModifyExpressionValue(
+            method = FORM_MULTI,
+            at = @At(value = "INVOKE",
+                    target = InjectionTargets.BLOCK_POS_RELATIVE))
+    private static BlockPos exotic_worlds$foldFrontierStepIntoBoundFrame(BlockPos next,
+            @Local(argsOnly = true) BlockGetter level, @Local(ordinal = 0) int minX, @Local(ordinal = 2) int minZ) {
+        if (minX == Integer.MIN_VALUE || minZ == Integer.MIN_VALUE || !(level instanceof Level blockLevel)) {
+            return next;
+        }
+
+        return CreateSeamFold.nearestCopy(blockLevel, new BlockPos(minX, next.getY(), minZ), next);
+    }
+}

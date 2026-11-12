@@ -1,0 +1,27 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.zurrtum.create.client.content.kinetics.gearbox.GearboxVisual;
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.compat.create.CreateSeamFold;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+@Mixin(GearboxVisual.class)
+public abstract class GearboxVisualMixin {
+    @WrapOperation(
+            method = "updateSourceFacing",
+            at = @At(value = "INVOKE",
+                    target = InjectionTargets.BLOCK_POS_SUBTRACT))
+    private BlockPos exotic_worlds$foldSourceDelta(BlockPos sourcePos, Vec3i anchorPos, Operation<BlockPos> original) {
+        BlockEntity blockEntity = ((AbstractBlockEntityVisualAccessor) this).exotic_worlds$blockEntity();
+        return CreateSeamFold.foldDelta(blockEntity.getLevel(), blockEntity.getBlockPos(), sourcePos,
+                original.call(sourcePos, anchorPos));
+    }
+}

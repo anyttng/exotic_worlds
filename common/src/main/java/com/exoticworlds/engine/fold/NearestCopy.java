@@ -59,7 +59,7 @@ public final class NearestCopy {
         return fold == null ? DeckTransformation.IDENTITY : fold.nearestCopyTransformation(ref, target);
     }
 
-    private static BlockPos asBlockPos(Vec3i pos) {
+    public static BlockPos asBlockPos(Vec3i pos) {
         return pos instanceof BlockPos blockPos ? blockPos : new BlockPos(pos.getX(), pos.getY(), pos.getZ());
     }
 
