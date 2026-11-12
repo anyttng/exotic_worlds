@@ -1,0 +1,26 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.zurrtum.create.content.kinetics.gantry.GantryShaftBlockEntity;
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.compat.create.CreateSeamFold;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+
+@Mixin(GantryShaftBlockEntity.class)
+public class GantryShaftBlockEntityMixin {
+    @WrapOperation(
+            method = "isCustomConnection",
+            at = @At(value = "INVOKE",
+                    target = InjectionTargets.BLOCK_POS_SUBTRACT))
+    private BlockPos exotic_worlds$foldCarriageDelta(BlockPos carriagePos, Vec3i shaftPos, Operation<BlockPos> original) {
+        GantryShaftBlockEntity self = (GantryShaftBlockEntity) (Object) this;
+        BlockPos rawDelta = original.call(carriagePos, shaftPos);
+        return CreateSeamFold.foldDelta(self.getLevel(), self.getBlockPos(), carriagePos, rawDelta);
+    }
+}

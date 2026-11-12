@@ -1,0 +1,61 @@
+package com.exoticworlds.compat.create;
+
+import org.jspecify.annotations.Nullable;
+
+import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.NearestCopy;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+
+public final class CreateSeamFold {
+    public static BlockPos foldDelta(@Nullable Level level, Vec3i anchor, BlockPos target, BlockPos rawDelta) {
+        if (level == null) {
+            return rawDelta;
+        }
+
+        return delta(WorldLoopAttachments.wrappedFoldOfReader(level), NearestCopy.asBlockPos(anchor), target, rawDelta);
+    }
+
+    public static BlockPos nearestCopy(@Nullable Level level, Vec3i anchor, BlockPos target) {
+        return nearest(WorldLoopAttachments.wrappedFoldOfReader(level), NearestCopy.asBlockPos(anchor), target);
+    }
+
+    public static Vec3 nearestCopy(@Nullable Level level, Vec3 anchor, Vec3 target) {
+        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(level), anchor, target);
+    }
+
+    public static DeckTransformation nearestCopyTransformation(@Nullable Level level, Vec3 anchor, Vec3 target) {
+        return NearestCopy.transformationToward(WorldLoopAttachments.wrappedFoldOfReader(level), anchor, target);
+    }
+
+    public static BlockPos canonical(@Nullable ServerLevel level, BlockPos position) {
+        return WorldLoopAttachments.foldOfReader(level).fold(position);
+    }
+
+    public static BlockPos canonicalOnServer(@Nullable BlockGetter level, BlockPos position) {
+        return level instanceof ServerLevel serverLevel ? canonical(serverLevel, position) : position;
+    }
+
+    static BlockPos delta(@Nullable WorldFold fold, BlockPos anchor, BlockPos target, BlockPos rawDelta) {
+        BlockPos nearest = nearest(fold, anchor, target);
+        if (nearest.equals(target)) {
+            return rawDelta;
+        }
+
+        return nearest.subtract(anchor);
+    }
+
+    static BlockPos nearest(@Nullable WorldFold fold, BlockPos anchor, BlockPos target) {
+        return NearestCopy.toward(fold, anchor, target);
+    }
+
+    private CreateSeamFold() {
+    }
+}

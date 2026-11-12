@@ -25,6 +25,12 @@ public final class InjectionTargets {
     public static final String BLOCK_POS_OFFSET_PACKED =
             "Lnet/minecraft/core/BlockPos;offset(JLnet/minecraft/core/Direction;)J";
 
+    public static final String BLOCK_POS_RELATIVE =
+            "Lnet/minecraft/core/BlockPos;relative(Lnet/minecraft/core/Direction;)Lnet/minecraft/core/BlockPos;";
+
+    public static final String BLOCK_POS_SUBTRACT =
+            "Lnet/minecraft/core/BlockPos;subtract(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/BlockPos;";
+
     public static final String BLOCK_STATE_BASE_GET_COLLISION_SHAPE =
             "getCollisionShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;"
                     + "Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;";
@@ -55,6 +61,13 @@ public final class InjectionTargets {
 
     public static final String ENTITY_POSITION =
             "Lnet/minecraft/world/entity/Entity;position()Lnet/minecraft/world/phys/Vec3;";
+
+    public static final String ITEM_STACK_GET =
+            "Lnet/minecraft/world/item/ItemStack;get(Lnet/minecraft/core/component/DataComponentType;)Ljava/lang/Object;";
+
+    public static final String LEVEL_GET_BLOCK_STATE =
+            "Lnet/minecraft/world/level/Level;getBlockState(Lnet/minecraft/core/BlockPos;)"
+                    + "Lnet/minecraft/world/level/block/state/BlockState;";
 
     public static final String LIVING_ENTITY_GET_X = "Lnet/minecraft/world/entity/LivingEntity;getX()D";
 
