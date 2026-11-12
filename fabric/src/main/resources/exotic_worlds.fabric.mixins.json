@@ -3,6 +3,9 @@
   "minVersion": "0.8",
   "package": "com.exoticworlds.platform.mixin",
   "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BlockApiCacheImplMixin"
+  ],
   "client": [
     "ClientPacketListenerSyncedTagMixin"
   ],
