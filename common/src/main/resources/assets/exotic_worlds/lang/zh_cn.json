@@ -4,6 +4,7 @@
 
   "argument.exotic_worlds.pos.outside_world": "%s 超出了这个世界的范围，必须在 %s 和 %s 之间",
   "commands.exotic_worlds.region.across_seam": "该区域跨越世界边缘，可能指边缘的任意一侧。请在每一侧分别执行该命令",
+  "message.exotic_worlds.create.structure_circles_the_world": "该建筑绕世界一整圈，因此无法作为一个动态结构整体移动。请在其中留出一处空隙",
   "commands.exotic_worlds.dimensions.undecided": "%s 尚未选择形状。",
   "commands.exotic_worlds.dimensions.configure": "选择形状",
   "commands.exotic_worlds.dimensions.configure.hint": "打开这些维度的形状选择界面",
