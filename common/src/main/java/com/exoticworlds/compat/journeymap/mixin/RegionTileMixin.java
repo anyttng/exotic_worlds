@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Coerce;
 
 import com.mojang.blaze3d.platform.Window;
-import com.exoticworlds.compat.FullscreenZoomFloor;
-import com.exoticworlds.compat.WorldCopies;
+import com.exoticworlds.compat.map.FullscreenZoomFloor;
+import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.compat.journeymap.JourneyMapFold;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;

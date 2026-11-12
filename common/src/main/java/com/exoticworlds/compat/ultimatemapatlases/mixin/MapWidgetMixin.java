@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.ClientShapes;
-import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.map.ClientShapes;
+import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasWorldView;
 import com.exoticworlds.compat.ultimatemapatlases.BrowsedDimension;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;

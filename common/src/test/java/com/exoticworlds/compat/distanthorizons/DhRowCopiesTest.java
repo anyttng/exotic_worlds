@@ -11,7 +11,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.compat.AlignedPeriod;
+import com.exoticworlds.compat.lod.AlignedPeriod;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;

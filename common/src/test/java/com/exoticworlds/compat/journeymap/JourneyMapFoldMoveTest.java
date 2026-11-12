@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.compat.AxisCopies;
+import com.exoticworlds.compat.map.AxisCopies;
 
 class JourneyMapFoldMoveTest {
     private static final double CENTER = 0.1;

@@ -2,8 +2,8 @@ package com.exoticworlds.compat.betterend;
 
 import org.betterx.betterend.noise.OpenSimplexNoise;
 
-import com.exoticworlds.compat.LapNoise;
-import com.exoticworlds.compat.StandInHolder;
+import com.exoticworlds.compat.worldgen.LapNoise;
+import com.exoticworlds.compat.worldgen.StandInHolder;
 import com.exoticworlds.core.WorldFold;
 
 public final class BetterEndSurfaceNoise {

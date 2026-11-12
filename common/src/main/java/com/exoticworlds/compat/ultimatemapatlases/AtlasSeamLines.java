@@ -6,8 +6,8 @@ import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.SeamLine;
-import com.exoticworlds.compat.WorldCopies;
+import com.exoticworlds.compat.map.SeamLine;
+import com.exoticworlds.compat.map.WorldCopies;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;

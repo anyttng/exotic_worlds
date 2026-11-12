@@ -7,7 +7,7 @@ import java.util.TreeSet;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.WorldCopies;
+import com.exoticworlds.compat.map.WorldCopies;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

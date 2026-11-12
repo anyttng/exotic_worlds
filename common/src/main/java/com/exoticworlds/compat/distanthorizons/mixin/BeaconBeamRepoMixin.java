@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-import com.exoticworlds.compat.WorldCopies;
+import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.compat.distanthorizons.DhKeys;
 import com.exoticworlds.compat.distanthorizons.DhLattice;
 import com.exoticworlds.compat.distanthorizons.DhRepoLevel;

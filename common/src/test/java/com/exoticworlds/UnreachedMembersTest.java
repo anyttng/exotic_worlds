@@ -69,12 +69,12 @@ class UnreachedMembersTest {
             "engine.net.PacketTranslator.toClient",
             "engine.net.PacketTranslator.toServer",
             "accessors.FoldedClimateSampler.exotic_worlds$fold",
-            "compat.ModPresence.ownedClasses",
-            "compat.ModPresence.scannedClasses",
-            "compat.ModPresence.optional");
+            "compat.gate.ModPresence.ownedClasses",
+            "compat.gate.ModPresence.scannedClasses",
+            "compat.gate.ModPresence.optional");
     private static final Set<String> READ_BY_HARNESS = Set.of(
             "compat.distanthorizons.DhFold.periodSections",
-            "compat.ModPresenceGatePlugin.gates",
+            "compat.gate.ModPresenceGatePlugin.gates",
             "core.TranslationLattice.nearestZLaps");
     private static final Set<String> CALLED_BY_EMITTED_CODE = Set.of(
             "engine.noise.ContextScaledNoise.sampleWrapped",

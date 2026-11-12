@@ -22,7 +22,7 @@ import com.eminus.cell.CellFrame;
 import com.eminus.cell.CellKey;
 import com.eminus.cell.DetailLevel;
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.AlignedPeriod;
+import com.exoticworlds.compat.lod.AlignedPeriod;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.ToroidalShapeView;

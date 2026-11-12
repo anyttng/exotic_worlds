@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Coerce;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.simpleatlas.AtlasTileFold;
 
 import net.minecraft.world.phys.Vec3;

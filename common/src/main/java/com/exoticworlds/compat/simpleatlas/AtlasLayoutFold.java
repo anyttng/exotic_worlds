@@ -10,7 +10,7 @@ import java.util.function.ToIntFunction;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.map.MapCopies;
 
 import net.minecraft.core.BlockPos;
 

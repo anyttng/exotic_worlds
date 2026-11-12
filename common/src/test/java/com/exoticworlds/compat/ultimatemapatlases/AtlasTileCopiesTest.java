@@ -11,7 +11,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.MapShapes;
+import com.exoticworlds.compat.map.MapShapes;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasTileCopies.TileCenter;
 
 import net.minecraft.core.BlockPos;
