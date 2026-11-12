@@ -1,0 +1,62 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.zurrtum.create.client.catnip.outliner.Outline;
+import com.zurrtum.create.client.catnip.outliner.Outliner;
+import com.zurrtum.create.client.content.trains.graph.TrackGraphVisualizer;
+import com.zurrtum.create.content.trains.graph.TrackEdge;
+import com.zurrtum.create.content.trains.graph.TrackGraph;
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.compat.create.CreateInjectionTargets;
+import com.exoticworlds.compat.create.client.CreateClientFrame;
+
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+
+@Mixin(TrackGraphVisualizer.class)
+public class TrackGraphVisualizerMixin {
+    @Unique
+    private static final String SHOW_LINE =
+            "Lcom/zurrtum/create/client/catnip/outliner/Outliner;showLine"
+                    + "(Ljava/lang/Object;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;)"
+                    + "Lcom/zurrtum/create/client/catnip/outliner/Outline$OutlineParams;";
+
+    @WrapOperation(method = {"visualiseSignalEdgeGroups", "debugViewGraph"},
+            at = @At(value = "INVOKE",
+                    target = InjectionTargets.AABB_INTERSECTS))
+    private static boolean exotic_worlds$foldGraphBounds(AABB graphBounds, AABB viewerBox, Operation<Boolean> original) {
+        return original.call(CreateClientFrame.nearestCopyOrientedToward(viewerBox.getCenter(), graphBounds), viewerBox);
+    }
+
+    @WrapOperation(method = {"visualiseSignalEdgeGroups", "debugViewGraph"},
+            at = @At(value = "INVOKE",
+                    target = InjectionTargets.VEC3_DISTANCE_TO))
+    private static double exotic_worlds$foldNodeAgainstCamera(Vec3 node, Vec3 camera, Operation<Double> original) {
+        return original.call(CreateClientFrame.nearestCopy(camera, node), camera);
+    }
+
+    @WrapOperation(method = {"visualiseSignalEdgeGroups", "debugViewGraph"},
+            at = @At(value = "INVOKE",
+                    target = CreateInjectionTargets.TRACK_EDGE_GET_POSITION))
+    private static Vec3 exotic_worlds$drawInClientFrame(TrackEdge edge, TrackGraph graph, double t,
+            Operation<Vec3> original) {
+        Vec3 anchor = edge.node1.getLocation().getLocation();
+        return CreateClientFrame.inFrameOf(anchor, original.call(edge, graph, t));
+    }
+
+    @WrapOperation(method = "debugViewGraph",
+            at = {
+                @At(value = "INVOKE", target = SHOW_LINE, ordinal = 0),
+                @At(value = "INVOKE", target = SHOW_LINE, ordinal = 1)
+            })
+    private static Outline.OutlineParams exotic_worlds$seatNodeMarker(Outliner outliner, Object slot, Vec3 start,
+            Vec3 end, Operation<Outline.OutlineParams> original) {
+        return original.call(outliner, slot, CreateClientFrame.inFrameOf(start, start),
+                CreateClientFrame.inFrameOf(start, end));
+    }
+}

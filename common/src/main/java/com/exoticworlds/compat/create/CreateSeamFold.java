@@ -6,16 +6,39 @@ import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
+import com.exoticworlds.engine.seam.MapSeamFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public final class CreateSeamFold {
+    public static @Nullable WorldFold wrappedFoldOf(@Nullable Level level, @Nullable ResourceKey<Level> dimension) {
+        if (level != null) {
+            return WorldLoopAttachments.wrappedFoldOfReader(level);
+        }
+
+        return dimension == null ? null : MapSeamFold.foldFor(null, dimension);
+    }
+
+    public static Vec3 nearestCopy(@Nullable ResourceKey<Level> dimension, Vec3 anchor, Vec3 target) {
+        return NearestCopy.toward(wrappedFoldOf(null, dimension), anchor, target);
+    }
+
+    public static Vec3i foldPositionToBox(@Nullable Level level, BoundingBox box, Vec3i position) {
+        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(level), box, position);
+    }
+
+    public static Vec3 inFrameOf(WorldFold fold, Vec3 viewer, Vec3 anchor, Vec3 point) {
+        return CreateFrameSeat.of(fold, viewer, anchor).apply(point);
+    }
+
     public static BlockPos foldDelta(@Nullable Level level, Vec3i anchor, BlockPos target, BlockPos rawDelta) {
         if (level == null) {
             return rawDelta;
