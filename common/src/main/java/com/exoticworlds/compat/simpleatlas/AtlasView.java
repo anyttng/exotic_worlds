@@ -1,6 +1,6 @@
 package com.exoticworlds.compat.simpleatlas;
 
-import com.exoticworlds.compat.AxisCopies;
+import com.exoticworlds.compat.map.AxisCopies;
 
 public record AtlasView(float contentX, float contentY, float contentWidth, float contentHeight) {
     public static double panKeepingCentre(double pan, float centre, float originBefore, float tileBefore,

@@ -3,7 +3,7 @@ package com.exoticworlds.compat.c2me;
 import java.util.List;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModPresence;
+import com.exoticworlds.compat.gate.ModPresence;
 
 public final class C2meChunkSystem {
     private static final List<String> SCANNED_BY_SIBLINGS = List.of(C2meAquifer.class.getSimpleName(),

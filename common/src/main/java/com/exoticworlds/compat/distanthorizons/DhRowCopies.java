@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.AlignedPeriod;
+import com.exoticworlds.compat.lod.AlignedPeriod;
 import com.exoticworlds.engine.ThreadScope;
 
 import net.minecraft.core.Direction;

@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.AxisCopies;
-import com.exoticworlds.compat.FullscreenZoomFloor;
-import com.exoticworlds.compat.MapCopies;
-import com.exoticworlds.compat.MapViewSpan;
-import com.exoticworlds.compat.SeamLine;
-import com.exoticworlds.compat.WorldCopies;
+import com.exoticworlds.compat.map.AxisCopies;
+import com.exoticworlds.compat.map.FullscreenZoomFloor;
+import com.exoticworlds.compat.map.MapCopies;
+import com.exoticworlds.compat.map.MapViewSpan;
+import com.exoticworlds.compat.map.SeamLine;
+import com.exoticworlds.compat.map.WorldCopies;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

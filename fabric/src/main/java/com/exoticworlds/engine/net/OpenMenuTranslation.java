@@ -3,7 +3,7 @@ package com.exoticworlds.engine.net;
 import java.util.function.Supplier;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModPresence;
+import com.exoticworlds.compat.gate.ModPresence;
 
 import net.fabricmc.fabric.impl.menu.Networking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;

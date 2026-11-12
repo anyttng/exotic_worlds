@@ -2,7 +2,7 @@ package com.exoticworlds.compat.simpleatlas;
 
 import java.util.List;
 
-import com.exoticworlds.compat.SeamLine;
+import com.exoticworlds.compat.map.SeamLine;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;

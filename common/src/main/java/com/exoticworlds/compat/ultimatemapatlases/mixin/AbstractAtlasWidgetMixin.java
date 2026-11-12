@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.ClientShapes;
-import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.map.ClientShapes;
+import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasPointSeat;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasSeamLines;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasTileCopies;

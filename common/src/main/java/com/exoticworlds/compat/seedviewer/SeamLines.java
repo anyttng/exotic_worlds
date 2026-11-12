@@ -1,10 +1,10 @@
 package com.exoticworlds.compat.seedviewer;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.AxisCopies;
-import com.exoticworlds.compat.FullscreenZoomFloor;
-import com.exoticworlds.compat.SeamLine;
-import com.exoticworlds.compat.WorldCopies;
+import com.exoticworlds.compat.map.AxisCopies;
+import com.exoticworlds.compat.map.FullscreenZoomFloor;
+import com.exoticworlds.compat.map.SeamLine;
+import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 

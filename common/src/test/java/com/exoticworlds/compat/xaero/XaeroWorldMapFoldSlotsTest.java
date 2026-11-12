@@ -11,9 +11,9 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.AxisCopies;
-import com.exoticworlds.compat.MapShapes;
-import com.exoticworlds.compat.WorldCopies;
+import com.exoticworlds.compat.map.AxisCopies;
+import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.WorldCopies;
 
 import net.minecraft.world.level.ChunkPos;
 

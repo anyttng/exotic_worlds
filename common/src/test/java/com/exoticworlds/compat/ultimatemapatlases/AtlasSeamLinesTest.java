@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.compat.MapShapes;
-import com.exoticworlds.compat.SeamLine;
+import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.SeamLine;
 
 class AtlasSeamLinesTest {
     @Test

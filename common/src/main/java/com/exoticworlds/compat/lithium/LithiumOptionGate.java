@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.compat.ModPresence;
+import com.exoticworlds.compat.gate.ModPresence;
 
 final class LithiumOptionGate {
     private static final Logger LOGGER = LogUtils.getLogger();

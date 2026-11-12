@@ -13,7 +13,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.compat.MapCopies;
+import com.exoticworlds.compat.map.MapCopies;
 
 public final class SettingsFile {
     public static final String MAP_COPIES_KEY = "map_copies";

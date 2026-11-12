@@ -8,7 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.MapShapes;
+import com.exoticworlds.compat.map.MapShapes;
 
 class AtlasCopiesTest {
     private static final int TILE_BLOCKS = 128;

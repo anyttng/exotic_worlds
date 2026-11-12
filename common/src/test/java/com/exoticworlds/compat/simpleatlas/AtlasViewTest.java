@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.compat.AxisCopies;
+import com.exoticworlds.compat.map.AxisCopies;
 
 class AtlasViewTest {
     private static final float ONE_PIXEL_PER_BLOCK = 1.0F;

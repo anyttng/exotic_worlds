@@ -1,7 +1,7 @@
 package com.exoticworlds.compat.distanthorizons;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.AlignedPeriod;
+import com.exoticworlds.compat.lod.AlignedPeriod;
 import com.exoticworlds.core.CoordinateConstants;
 
 import net.minecraft.core.Direction;
