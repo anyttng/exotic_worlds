@@ -59,7 +59,7 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | Mekanism Generators | 1.21.1 | NeoForge | Supported | |
 | [AstikorCarts Redux](https://modrinth.com/mod/astikorcarts-redux) | 1.21.1 | NeoForge | Supported | |
 | [Create Electro Energetics](https://modrinth.com/mod/create-electro-energetics) | 1.21.1 | NeoForge | Supported | |
-| Create Fly | 26.3, 26.2 | Fabric | Partially supported | Machines, logistics and fluids stop working at the world's edge |
+| Create Fly | 26.3, 26.2 | Fabric | Supported | |
 
 ## Content and server side
 
