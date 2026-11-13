@@ -19,6 +19,7 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.preview.CreationShape;
 import com.exoticworlds.compat.preview.PreviewView;
@@ -111,8 +112,7 @@ public abstract class TerrainPreviewCopiesMixin implements DrawnPreview {
     }
 
     @Inject(method = {"renderWidget", "method_48579"}, at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIFFIIII)V",
-            shift = At.Shift.AFTER, remap = true))
+            target = InjectionTargets.GUI_GRAPHICS_BLIT, shift = At.Shift.AFTER, remap = true))
     private void exotic_worlds$drawTheWorldEdges(GuiGraphics graphics, int mouseX, int mouseY,
             float partialTick, CallbackInfo callback) {
         PreviewView view = this.exotic_worlds$drawn;

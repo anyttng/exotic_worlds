@@ -5,7 +5,13 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.exoticworlds.compat.freeterraforged.preview.FreeTerraForgedPreviewMixinPlugin",
   "client": [
-    "IPreviewHandlerMixin"
+    "IPreviewHandlerMixin",
+    "PreGenContextMixin",
+    "PresetEditorPageMixin",
+    "PreviewEdgesMixin",
+    "PreviewMapMixin",
+    "PreviewSpawnMixin",
+    "PreviewStateMixin"
   ],
   "injectors": {
     "defaultRequire": 1

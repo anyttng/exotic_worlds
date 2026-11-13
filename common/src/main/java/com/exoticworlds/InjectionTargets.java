@@ -40,6 +40,8 @@ public final class InjectionTargets {
 
     public static final String BLOCK_POS_EQUALS = "Lnet/minecraft/core/BlockPos;equals(Ljava/lang/Object;)Z";
 
+    public static final String BLOCK_POS_INIT = "Lnet/minecraft/core/BlockPos;<init>(III)V";
+
     public static final String BLOCK_POS_OFFSET =
             "Lnet/minecraft/core/BlockPos;offset(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/core/BlockPos;";
 
@@ -101,6 +103,9 @@ public final class InjectionTargets {
 
     public static final String ENTITY_POSITION =
             "Lnet/minecraft/world/entity/Entity;position()Lnet/minecraft/world/phys/Vec3;";
+
+    public static final String GUI_GRAPHICS_BLIT =
+            "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIFFIIII)V";
 
     public static final String ITEM_STACK_GET =
             "Lnet/minecraft/world/item/ItemStack;get(Lnet/minecraft/core/component/DataComponentType;)Ljava/lang/Object;";

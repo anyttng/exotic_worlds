@@ -47,6 +47,7 @@
     "exotic_worlds.compat.freeterraforged.mixins.json",
     "exotic_worlds.compat.freeterraforged.banding.mixins.json",
     "exotic_worlds.compat.freeterraforged.preview.mixins.json",
+    "exotic_worlds.compat.freeterraforged.spawn.mixins.json",
     "exotic_worlds.compat.wover.mixins.json",
     "exotic_worlds.compat.ultraterraforged.mixins.json",
     "exotic_worlds.compat.ultraterraforged.preview.mixins.json",

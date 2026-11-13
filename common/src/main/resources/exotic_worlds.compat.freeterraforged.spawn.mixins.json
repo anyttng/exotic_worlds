@@ -1,0 +1,13 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.freeterraforged.spawn.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.freeterraforged.spawn.FreeTerraForgedSpawnMixinPlugin",
+  "mixins": [
+    "SpawnFinderUserSelectedMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

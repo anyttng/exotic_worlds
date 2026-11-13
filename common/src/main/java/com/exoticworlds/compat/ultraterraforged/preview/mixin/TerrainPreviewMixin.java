@@ -17,10 +17,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.compat.preview.CreationShape;
 import com.exoticworlds.compat.preview.PreviewView;
 import com.exoticworlds.compat.preview.SpawnPick;
+import com.exoticworlds.compat.preview.SpawnPin;
 import com.exoticworlds.compat.ultraterraforged.LapCarrier;
 import com.exoticworlds.compat.ultraterraforged.preview.DrawnPreview;
 import com.exoticworlds.compat.ultraterraforged.preview.PreviewSettings;
@@ -44,7 +44,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 
 @Mixin(value = TerrainPreview.class, remap = false)
 public abstract class TerrainPreviewMixin extends AbstractWidget {
@@ -62,19 +61,6 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
 
     @Unique
     private static final double CLICK_SLOP_PIXELS = 2.0;
-
-    @Unique
-    private static final String SPAWN_PIN_PATH = "preview/spawn_pin";
-
-    @Unique
-    private static final ResourceLocation SPAWN_PIN =
-            ResourceLocation.fromNamespaceAndPath(ExoticWorlds.MODID, SPAWN_PIN_PATH);
-
-    @Unique
-    private static final int PIN_WIDTH = 9;
-
-    @Unique
-    private static final int PIN_HEIGHT = 13;
 
     @Unique
     private static final int HINT_INSET = 4;
@@ -176,8 +162,7 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
     @Unique
     private boolean exotic_worlds$onPin(double mouseX, double mouseY) {
         for (PreviewView.Pixel pixel : this.exotic_worlds$pins()) {
-            if (mouseX >= pixel.x() - PIN_WIDTH / 2 && mouseX < pixel.x() - PIN_WIDTH / 2 + PIN_WIDTH
-                    && mouseY > pixel.y() - PIN_HEIGHT && mouseY <= pixel.y()) {
+            if (SpawnPin.covers(pixel.x(), pixel.y(), mouseX, mouseY)) {
                 return true;
             }
         }
@@ -214,8 +199,7 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
         int size = this.getWidth();
         graphics.enableScissor(x, y, x + size, y + size);
         for (PreviewView.Pixel pixel : pins) {
-            graphics.blitSprite(SPAWN_PIN, pixel.x() - PIN_WIDTH / 2, pixel.y() - (PIN_HEIGHT - 1), PIN_WIDTH,
-                    PIN_HEIGHT);
+            SpawnPin.draw(graphics, pixel.x(), pixel.y());
         }
         graphics.disableScissor();
     }

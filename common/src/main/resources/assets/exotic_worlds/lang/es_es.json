@@ -123,5 +123,8 @@
   "gui.exotic_worlds.settings.seam_lines_hint": "Dibuja una línea a lo largo del borde del mundo entre las copias de un mundo cerrado sobre sí mismo en el mapa a pantalla completa. Solo funciona con «Repetido»: «Única» no dibuja ninguna.",
 
   "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Haz clic para fijar el punto de aparición",
-  "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "Haz clic derecho en el marcador para restablecer"
+  "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "Haz clic derecho en el marcador para restablecer",
+
+  "gui.exotic_worlds.terraforged.preview.spawn_hint": "Haz clic para fijar el punto de aparición",
+  "gui.exotic_worlds.terraforged.preview.reset_hint": "Haz clic derecho en el marcador para restablecer"
 }

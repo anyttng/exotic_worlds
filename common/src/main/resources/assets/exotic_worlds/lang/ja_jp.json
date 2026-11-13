@@ -123,5 +123,8 @@
   "gui.exotic_worlds.settings.seam_lines_hint": "全画面マップで、一周するワールドのコピー同士の間にあるワールドの端に線を引きます。「繰り返し」でのみ有効です。「1つだけ」では線を引きません。",
 
   "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "クリックでスポーン地点を設定",
-  "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "ピンを右クリックでリセット"
+  "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "ピンを右クリックでリセット",
+
+  "gui.exotic_worlds.terraforged.preview.spawn_hint": "クリックでスポーン地点を設定",
+  "gui.exotic_worlds.terraforged.preview.reset_hint": "ピンを右クリックでリセット"
 }
