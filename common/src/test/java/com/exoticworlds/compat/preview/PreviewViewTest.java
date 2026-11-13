@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.ultraterraforged.preview;
+package com.exoticworlds.compat.preview;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -107,5 +107,22 @@ class PreviewViewTest {
         PreviewView view = new PreviewView(CYLINDER, MapCopies.REPEATED, 256f, 100f, 4f);
         assertEquals(Set.of(new PreviewView.Pixel(64, 103), new PreviewView.Pixel(192, 103)),
                 Set.copyOf(view.copiesOf(BlockPos.ZERO, 0, 0, 256)), "Z never repeats on a cylinder");
+    }
+
+    @Test
+    void theBlockCopiesAreTheWorldPositionsInsideThePicture() {
+        assertEquals(Set.of(BlockPos.ZERO, new BlockPos(512, 0, 0), new BlockPos(0, 0, 512),
+                        new BlockPos(512, 0, 512)),
+                Set.copyOf(new PreviewView(TORUS, MapCopies.REPEATED, 256f, 100f, 4f).blockCopiesOf(BlockPos.ZERO)),
+                "the window from -256 to 768 and -412 to 612 holds the origin and one 512-block lap on each axis");
+        assertEquals(Set.of(BlockPos.ZERO, new BlockPos(512, 0, 0)),
+                Set.copyOf(new PreviewView(CYLINDER, MapCopies.REPEATED, 256f, 100f, 4f)
+                        .blockCopiesOf(BlockPos.ZERO)),
+                "Z never repeats on a cylinder");
+        assertEquals(Set.of(BlockPos.ZERO, new BlockPos(512, 0, 0), new BlockPos(64, 0, 512),
+                        new BlockPos(576, 0, 512)),
+                Set.copyOf(new PreviewView(SKEWED, MapCopies.REPEATED, 256f, 100f, 4f)
+                        .blockCopiesOf(BlockPos.ZERO)),
+                "the row one Z lap on is moved by the 64-block skew");
     }
 }
