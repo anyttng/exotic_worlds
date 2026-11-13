@@ -1,5 +1,7 @@
 package com.exoticworlds.compat.c2me;
 
+import com.exoticworlds.accessors.ScaledShiftedNoise;
+import com.exoticworlds.compat.worldgen.ShiftedNoiseFold;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
@@ -25,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 import org.junit.jupiter.api.Test;
@@ -37,9 +40,11 @@ import com.ishland.c2me.opts.dfc.common.ast.misc.ConstantNode;
 import com.ishland.c2me.opts.dfc.common.ast.misc.CoordinateNode;
 import com.ishland.c2me.opts.dfc.common.ast.misc.DelegateNode;
 import com.ishland.c2me.opts.dfc.common.ast.noise.DFTWeirdScaledSamplerNode;
+import com.ishland.c2me.opts.dfc.common.ast.noise.GenericShiftedNoiseNode;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
@@ -58,6 +63,12 @@ class C2meDfcAstTest {
     private static final double SHIFT_Z = -5.0;
 
     private static final double FLAT_Y_SCALE = 0.0;
+
+    private static final boolean SHIFTS_SCALED = true;
+
+    private static final double MULTIPLIER = 1.3;
+
+    private static final double OFFSET = -0.2;
 
     private static final boolean CLIMATE_FIELD = true;
 
@@ -189,6 +200,33 @@ class C2meDfcAstTest {
     }
 
     @Test
+    void scaledShiftsFoldToTheSameSample() {
+        assertScaledShiftedFoldMatchesVanilla(SHIFTS_SCALED);
+    }
+
+    @Test
+    void unscaledShiftsFoldToTheSameSample() {
+        assertScaledShiftedFoldMatchesVanilla(!SHIFTS_SCALED);
+    }
+
+    @Test
+    void foreignTypeHoldingAnUnfoldedNoiseIsReported() {
+        DensityFunction source = scaledShiftedNoise(SHIFTS_SCALED);
+        AstNode produced = new AddNode(new MulNode(unfoldedNoiseNode(), new ConstantNode(MULTIPLIER)),
+                new ConstantNode(OFFSET));
+
+        assertTrue(C2meDfcAst.reportsMiss(source, produced, SQUARE));
+    }
+
+    @Test
+    void gameTypeOverAnUnfoldedNoiseIsNotReported() {
+        DensityFunction source = DensityFunctions.add(DensityFunctions.zero(), DensityFunctions.zero());
+        AstNode produced = new AddNode(unfoldedNoiseNode(), new ConstantNode(OFFSET));
+
+        assertFalse(C2meDfcAst.reportsMiss(source, produced, SQUARE));
+    }
+
+    @Test
     void unknownDensityFunctionIsPassedThrough() {
         DensityFunction source = DensityFunctions.constant(1.0);
         AstNode produced = new ConstantNode(1.0);
@@ -273,6 +311,49 @@ class C2meDfcAstTest {
                 DensityFunctions.WeirdScaledSampler.RarityValueMapper.TYPE1));
     }
 
+    private static void assertScaledShiftedFoldMatchesVanilla(boolean shiftsScaled) {
+        ScaledShiftedStandIn source = scaledShiftedNoise(shiftsScaled);
+        AstNode folded = GenerationFoldContext.withRouterBuild(SQUARE,
+                () -> C2meDfcAst.fold(source, c2meTreeOf(source)));
+        AddNode offset = assertInstanceOf(AddNode.class, folded);
+        MulNode multiplied = assertInstanceOf(MulNode.class, offset.left);
+        Random random = new Random(SEED);
+
+        for (int i = 0; i < GRID_SAMPLES; i++) {
+            int x = blockIn(random, SQUARE.blockDomain(Direction.Axis.X));
+            int y = blockY(random);
+            int z = blockIn(random, SQUARE.blockDomain(Direction.Axis.Z));
+            DensityFunction.FunctionContext at = new DensityFunction.SinglePointContext(x, y, z);
+
+            double vanilla = GenerationFoldContext.withFold(SQUARE, () -> source.compute(at));
+            double compiled = GenerationFoldContext.withFold(SQUARE,
+                    () -> sampleFolded(multiplied, x, y, z) + evaluate(offset.right, x, y, z));
+
+            assertEquals(vanilla, compiled, "at (" + x + ", " + y + ", " + z + ")");
+        }
+    }
+
+    private static ScaledShiftedStandIn scaledShiftedNoise(boolean shiftsScaled) {
+        return (ScaledShiftedStandIn) withLiveNoise(new ScaledShiftedStandIn(new DensityFunction.NoiseHolder(NOISE_DATA),
+                DensityFunctions.constant(SHIFT_X), DensityFunctions.constant(SHIFT_Z), XZ_SCALE, shiftsScaled,
+                MULTIPLIER, OFFSET));
+    }
+
+    private static AstNode c2meTreeOf(ScaledShiftedStandIn source) {
+        AstNode scale = new ConstantNode(source.scale());
+        AstNode shiftX = McToAst.toAst(source.shiftX());
+        AstNode shiftZ = McToAst.toAst(source.shiftZ());
+        AstNode inputX = source.shiftsScaled()
+                ? new MulNode(new AddNode(CoordinateNode.AXIS_X, shiftX), scale)
+                : new AddNode(new MulNode(CoordinateNode.AXIS_X, scale), shiftX);
+        AstNode inputZ = source.shiftsScaled()
+                ? new MulNode(new AddNode(CoordinateNode.AXIS_Z, shiftZ), scale)
+                : new AddNode(new MulNode(CoordinateNode.AXIS_Z, scale), shiftZ);
+
+        return new AddNode(new MulNode(new GenericShiftedNoiseNode(inputX, new ConstantNode(0.0), inputZ,
+                source.noise()), new ConstantNode(source.multiplier())), new ConstantNode(source.offset()));
+    }
+
     private static AstNode unfoldedNoiseNode() {
         return McToAst.toAst(withLiveNoise(DensityFunctions.noise(NOISE_DATA, XZ_SCALE, Y_SCALE)));
     }
@@ -353,5 +434,59 @@ class C2meDfcAstTest {
         DensityFunction zero = DensityFunctions.zero();
 
         return function.mapAll(input -> input == zero ? DensityFunctions.constant(SHIFT_Y) : input);
+    }
+
+    private record ScaledShiftedStandIn(DensityFunction.NoiseHolder noise, DensityFunction shiftX,
+            DensityFunction shiftZ, double scale, boolean shiftsScaled, double multiplier, double offset)
+            implements DensityFunction, ScaledShiftedNoise {
+        @Override
+        public DensityFunction.NoiseHolder exotic_worlds$noise() {
+            return this.noise;
+        }
+
+        @Override
+        public double exotic_worlds$scale() {
+            return this.scale;
+        }
+
+        @Override
+        public boolean exotic_worlds$shiftsScaled() {
+            return this.shiftsScaled;
+        }
+
+        @Override
+        public double compute(DensityFunction.FunctionContext context) {
+            GenerationFoldContext.Context generation = Objects.requireNonNull(GenerationFoldContext.wrappedContext());
+            ShiftedNoiseFold fold = ShiftedNoiseFold.of(this);
+            return fold.sample(generation, context.blockX(), context.blockZ(), this.shiftX.compute(context),
+                    this.shiftZ.compute(context), fold.warpDivisor(generation.fold())) * this.multiplier
+                    + this.offset;
+        }
+
+        @Override
+        public void fillArray(double[] densities, DensityFunction.ContextProvider contextProvider) {
+            contextProvider.fillAllDirectly(densities, this);
+        }
+
+        @Override
+        public DensityFunction mapAll(DensityFunction.Visitor visitor) {
+            return visitor.apply(new ScaledShiftedStandIn(visitor.visitNoise(this.noise), this.shiftX.mapAll(visitor),
+                    this.shiftZ.mapAll(visitor), this.scale, this.shiftsScaled, this.multiplier, this.offset));
+        }
+
+        @Override
+        public double minValue() {
+            return -this.maxValue();
+        }
+
+        @Override
+        public double maxValue() {
+            return this.noise.maxValue();
+        }
+
+        @Override
+        public KeyDispatchDataCodec<? extends DensityFunction> codec() {
+            throw new UnsupportedOperationException();
+        }
     }
 }
