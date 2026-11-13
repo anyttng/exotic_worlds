@@ -29,6 +29,7 @@
     "BiomeSourceAccessor",
     "BlazeAimMixin",
     "BlendedNoiseCompileMixin",
+    "BlockAttachedEntityMixin",
     "BlockCollisionsMixin",
     "BlockEntityDataPacketAccessor",
     "BlockEntityMixin",
