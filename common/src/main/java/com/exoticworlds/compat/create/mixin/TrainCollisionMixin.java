@@ -1,0 +1,54 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
+import com.zurrtum.create.content.trains.entity.Train;
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.compat.create.CreateInjectionTargets;
+import com.exoticworlds.compat.create.CreateSeamFold;
+
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+
+@Mixin(Train.class)
+public abstract class TrainCollisionMixin {
+    @Unique
+    private static final String COLLIDING_METHOD = "findCollidingTrain";
+
+    @Unique
+    private static final String OTHER_START_LOCAL = "start2";
+    @Unique
+    private static final int SPAN_END_ARGUMENT = 1;
+    @Unique
+    private static final int SPAN_START_ARGUMENT = 0;
+
+    @ModifyVariable(method = COLLIDING_METHOD, at = @At("HEAD"), argsOnly = true, ordinal = SPAN_END_ARGUMENT)
+    private Vec3 exotic_worlds$foldOwnSpan(Vec3 spanEnd, @Local(argsOnly = true) Level level,
+            @Local(argsOnly = true, ordinal = SPAN_START_ARGUMENT) Vec3 spanStart) {
+        return CreateSeamFold.nearestCopy(level, spanStart, spanEnd);
+    }
+
+    @ModifyExpressionValue(method = COLLIDING_METHOD,
+            at = @At(value = "INVOKE", target = CreateInjectionTargets.TRAVELLING_POINT_GET_POSITION, ordinal = 0))
+    private Vec3 exotic_worlds$foldOtherStart(Vec3 otherStart, @Local(argsOnly = true) Level level,
+            @Local(argsOnly = true, ordinal = SPAN_START_ARGUMENT) Vec3 spanStart) {
+        return CreateSeamFold.nearestCopy(level, spanStart, otherStart);
+    }
+
+    @ModifyExpressionValue(method = COLLIDING_METHOD,
+            at = @At(value = "INVOKE", target = CreateInjectionTargets.TRAVELLING_POINT_GET_POSITION, ordinal = 1))
+    private Vec3 exotic_worlds$foldOtherEnd(Vec3 otherEnd, @Local(argsOnly = true) Level level,
+            @Local(name = OTHER_START_LOCAL) Vec3 otherStart) {
+        return CreateSeamFold.nearestCopy(level, otherStart, otherEnd);
+    }
+
+    @ModifyExpressionValue(method = COLLIDING_METHOD, at = @At(value = "INVOKE", target = InjectionTargets.VEC3_ADD))
+    private Vec3 exotic_worlds$wrapCollisionPoint(Vec3 point, @Local(argsOnly = true) Level level) {
+        return CreateSeamFold.canonicalOnServer(level, point);
+    }
+}
