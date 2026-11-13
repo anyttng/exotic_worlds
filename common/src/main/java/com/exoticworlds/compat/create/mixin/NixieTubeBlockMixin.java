@@ -1,0 +1,37 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import com.zurrtum.create.content.redstone.nixieTube.NixieTubeBlock;
+import com.exoticworlds.compat.create.CreateWalkClosure;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+
+@Mixin(NixieTubeBlock.class)
+public abstract class NixieTubeBlockMixin {
+    @Unique
+    private static final String LEVEL_GET_BLOCK_STATE =
+            "Lnet/minecraft/world/level/LevelAccessor;getBlockState"
+                    + "(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;";
+
+    @WrapOperation(method = "walkNixies", at = {
+            @At(value = "INVOKE", target = LEVEL_GET_BLOCK_STATE, ordinal = 1),
+            @At(value = "INVOKE", target = LEVEL_GET_BLOCK_STATE, ordinal = 2),
+            @At(value = "INVOKE", target = LEVEL_GET_BLOCK_STATE, ordinal = 3) })
+    private static BlockState exotic_worlds$closeTheRing(LevelAccessor world, BlockPos pos,
+            Operation<BlockState> original, @Share("walkClosure") LocalRef<CreateWalkClosure> closureRef,
+            @Share("walkClosureResolved") LocalBooleanRef resolved) {
+        return CreateWalkClosure.closesAt(world, pos, closureRef, resolved) ? Blocks.AIR.defaultBlockState()
+                : original.call(world, pos);
+    }
+}

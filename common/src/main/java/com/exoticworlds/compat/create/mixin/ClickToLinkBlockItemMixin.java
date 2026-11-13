@@ -1,0 +1,34 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.zurrtum.create.content.redstone.displayLink.ClickToLinkBlockItem;
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.compat.create.CreateSeamFold;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.item.context.UseOnContext;
+
+@Mixin(ClickToLinkBlockItem.class)
+public class ClickToLinkBlockItemMixin {
+    @WrapOperation(method = "useOn",
+            at = @At(value = "INVOKE",
+                    target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
+    private boolean exotic_worlds$foldSelectionReach(BlockPos selected, Vec3i placed, double maxDistance,
+            Operation<Boolean> original, UseOnContext context) {
+        BlockPos folded = CreateSeamFold.nearestCopy(context.getLevel(), placed, selected);
+        return original.call(folded, placed, maxDistance);
+    }
+
+    @WrapOperation(method = "useOn",
+            at = @At(value = "INVOKE",
+                    target = InjectionTargets.BLOCK_POS_SUBTRACT))
+    private BlockPos exotic_worlds$foldSelectionOffset(BlockPos selected, Vec3i placed, Operation<BlockPos> original,
+            UseOnContext context) {
+        return CreateSeamFold.foldDelta(context.getLevel(), placed, selected, original.call(selected, placed));
+    }
+}

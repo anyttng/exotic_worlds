@@ -11,6 +11,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.zurrtum.create.content.contraptions.glue.SuperGlueHandler;
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.compat.create.CreateSeamFold;
 
 import net.minecraft.core.BlockPos;
@@ -36,7 +37,7 @@ public class SuperGlueHandlerMixin {
     }
 
     @WrapOperation(method = "glueInOffHandAppliesOnBlockPlace",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/core/BlockPos;equals(Ljava/lang/Object;)Z"))
+            at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_EQUALS))
     private static boolean exotic_worlds$namesThePlacedBlock(BlockPos hitNeighbor, Object placed,
             Operation<Boolean> original, @Local(argsOnly = true) ServerLevel world) {
         return original.call(CreateSeamFold.canonical(world, hitNeighbor), placed);
