@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
+import com.exoticworlds.accessors.FoldableFastNoise;
 import com.exoticworlds.accessors.ScaledShiftedNoise;
 import com.exoticworlds.compat.worldgen.ShiftedNoiseFold;
 import com.exoticworlds.core.WorldFold;
@@ -48,13 +49,14 @@ public final class C2meDfcAst {
             return worldFold == null ? produced : foldScaledShifted(source, scaled, produced, worldFold);
         }
 
+        if (source instanceof FoldableFastNoise fastNoise) {
+            return reported(source,
+                    worldFold == null ? produced : C2meFastNoise.fold(fastNoise, produced, worldFold), worldFold);
+        }
+
         Fold fold = foldOf(source);
         if (fold == null) {
-            if (reportsMiss(source, produced, worldFold)) {
-                LOGGER.warn("[ew/c2me-compat] dfc_ast noise_not_folded type={}", source.getClass().getName());
-            }
-
-            return produced;
+            return reported(source, produced, worldFold);
         }
 
         if (worldFold == null) {
@@ -92,6 +94,14 @@ public final class C2meDfcAst {
         };
     }
 
+    private static AstNode reported(DensityFunction source, AstNode produced, @Nullable WorldFold worldFold) {
+        if (reportsMiss(source, produced, worldFold)) {
+            LOGGER.warn("[ew/c2me-compat] dfc_ast noise_not_folded type={}", source.getClass().getName());
+        }
+
+        return produced;
+    }
+
     private static boolean delegatesToItsInput(DensityFunction source) {
         return source instanceof DensityFunctions.HolderHolder;
     }
@@ -113,6 +123,10 @@ public final class C2meDfcAst {
     private static boolean holdsUnfoldedNoise(AstNode node, boolean searchesChildren) {
         if (node instanceof GenericShiftedNoiseNode) {
             return !(node instanceof C2meFoldedNoiseNode);
+        }
+
+        if (C2meFastNoise.unfolded(node)) {
+            return true;
         }
 
         if (!searchesChildren) {
