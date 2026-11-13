@@ -59,6 +59,14 @@ public final class CreateSeamFold {
         return delta(WorldLoopAttachments.wrappedFoldOfReader(level), NearestCopy.asBlockPos(anchor), target, rawDelta);
     }
 
+    public static BlockPos farEndDelta(@Nullable Level level, BlockPos anchor, BlockPos delta, BlockPos rawFarEnd) {
+        if (level == null) {
+            return rawFarEnd;
+        }
+
+        return farEndDelta(WorldLoopAttachments.foldOfReader(level), anchor, delta, rawFarEnd);
+    }
+
     public static BlockPos nearestCopy(@Nullable Level level, Vec3i anchor, BlockPos target) {
         return nearest(WorldLoopAttachments.wrappedFoldOfReader(level), NearestCopy.asBlockPos(anchor), target);
     }
@@ -111,6 +119,16 @@ public final class CreateSeamFold {
         }
 
         return nearest.subtract(anchor);
+    }
+
+    static BlockPos farEndDelta(WorldFold fold, BlockPos anchor, BlockPos delta, BlockPos rawFarEnd) {
+        BlockPos farEnd = fold.fold(anchor.offset(delta));
+        BlockPos nearestAnchor = nearest(fold, farEnd, anchor);
+        if (nearestAnchor.equals(anchor)) {
+            return rawFarEnd;
+        }
+
+        return nearestAnchor.subtract(farEnd);
     }
 
     static BlockPos nearest(@Nullable WorldFold fold, BlockPos anchor, BlockPos target) {
