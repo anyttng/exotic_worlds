@@ -19,6 +19,8 @@ public final class InjectionTargets {
     public static final String BLOCK_POS_DIST_TO_CENTER_SQR =
             "Lnet/minecraft/core/BlockPos;distToCenterSqr(Lnet/minecraft/core/Position;)D";
 
+    public static final String BLOCK_POS_EQUALS = "Lnet/minecraft/core/BlockPos;equals(Ljava/lang/Object;)Z";
+
     public static final String BLOCK_POS_OFFSET_PACKED =
             "Lnet/minecraft/core/BlockPos;offset(JLnet/minecraft/core/Direction;)J";
 
