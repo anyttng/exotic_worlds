@@ -21,10 +21,10 @@ import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.preview.CreationShape;
+import com.exoticworlds.compat.preview.PreviewView;
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.ultraterraforged.preview.DrawnPreview;
-import com.exoticworlds.compat.ultraterraforged.preview.PreviewView;
 import com.exoticworlds.core.ToroidalShapeView;
 
 import com.pandaismyname1.ultraterraforged.client.gui.createworld.TerrainPreview;
