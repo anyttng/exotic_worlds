@@ -14,9 +14,11 @@ public final class C2meChunkSystem {
             .probing("com/ishland/c2me/rewrites/chunksystem/common/TheChunkSystem.class")
             .checking(C2meMixinPlugin.CONFIG, mixin -> !mixin.equals(C2meAquifer.MIXIN)
                     && !mixin.equals(C2meLightingLock.MIXIN) && !C2meNoTickVd.MIXINS.contains(mixin)
-                    && !mixin.equals(C2meOctaveNoise.MIXIN) && !C2meDfc.MIXINS.contains(mixin))
+                    && !mixin.equals(C2meOctaveNoise.MIXIN) && !C2meDfc.MIXINS.contains(mixin)
+                    && !C2meFastNoise.MIXINS.contains(mixin))
             .modPackages(C2meMixinPlugin.C2ME_PACKAGE, C2meMixinPlugin.FLOWSCHED_PACKAGE)
-            .scanning(name -> !SCANNED_BY_SIBLINGS.contains(name) && !C2meDfc.CLASSES.contains(name))
+            .scanning(name -> !SCANNED_BY_SIBLINGS.contains(name) && !C2meDfc.CLASSES.contains(name)
+                    && !C2meFastNoise.CLASSES.contains(name))
             .build();
 
     private C2meChunkSystem() {

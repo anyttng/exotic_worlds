@@ -9,6 +9,8 @@
     "AquiferSeamMixin",
     "BytecodeGenRegistryMixin",
     "DotGenRegistryMixin",
+    "FastNoiseBytecodeGenRegistryMixin",
+    "FastNoiseDotGenRegistryMixin",
     "McToAstMixin",
     "NewChunkHolderVanillaInterfaceMixin",
     "NewChunkStatusMixin",

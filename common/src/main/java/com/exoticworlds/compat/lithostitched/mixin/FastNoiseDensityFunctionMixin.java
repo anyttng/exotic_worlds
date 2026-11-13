@@ -4,8 +4,10 @@ import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
+import com.exoticworlds.accessors.FoldableFastNoise;
 import com.exoticworlds.compat.lithostitched.ClosedNoise;
 import com.exoticworlds.compat.lithostitched.LapFastNoise;
+import com.exoticworlds.compat.lithostitched.LapFastNoiseConfig;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
@@ -16,9 +18,16 @@ import dev.worldgen.lithostitched.impl.worldgen.densityfunction.FastNoiseDensity
 import net.minecraft.world.level.levelgen.DensityFunction;
 
 @Mixin(FastNoiseDensityFunction.class)
-public class FastNoiseDensityFunctionMixin {
+public class FastNoiseDensityFunctionMixin implements FoldableFastNoise {
     @Unique
     private volatile @Nullable ClosedNoise exotic_worlds$closedNoise;
+
+    @Override
+    public @Nullable Object exotic_worlds$closedConfig(WorldFold fold) {
+        FastNoiseDensityFunction self = (FastNoiseDensityFunction) (Object) this;
+        LapFastNoise noise = this.exotic_worlds$closedNoise(fold, self);
+        return noise == null ? null : new LapFastNoiseConfig(self.config().value(), noise);
+    }
 
     @WrapMethod(method = "compute(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D")
     private double exotic_worlds$closedCompute(DensityFunction.FunctionContext context, Operation<Double> original) {
