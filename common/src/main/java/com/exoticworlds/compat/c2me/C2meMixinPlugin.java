@@ -22,7 +22,7 @@ public class C2meMixinPlugin extends ModPresenceGatePlugin {
 
     public C2meMixinPlugin() {
         super(C2meChunkSystem.GATE, C2meLightingLock.GATE, C2meNoTickVd.GATE, C2meOctaveNoise.GATE, C2meDfc.GATE,
-                AQUIFER_GATE);
+                C2meFastNoise.GATE, AQUIFER_GATE);
     }
 
     @Override
