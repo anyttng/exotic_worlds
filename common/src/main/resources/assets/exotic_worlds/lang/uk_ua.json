@@ -5,6 +5,8 @@
   "argument.exotic_worlds.pos.outside_world": "%s поза межами цього світу. Має бути між %s і %s",
   "commands.exotic_worlds.region.across_seam": "Ця область перетинає край світу й може означати будь-який його бік. Виконай команду окремо для кожного",
   "message.exotic_worlds.create.structure_circles_the_world": "Ця споруда обходить світ по колу, тож не може рухатися як одне пристосування. Лиши в ній проміжок",
+  "message.exotic_worlds.schematic.selection_wider_than_world": "Це виділення ширше за світ і накрило б частину блоків двічі. Постав другий кут ближче до першого",
+  "message.exotic_worlds.schematic.selection_cannot_grow_past_world": "Розширення цього виділення зробило б його ширшим за світ і накрило б частину блоків двічі. Прокрути в інший бік",
   "commands.exotic_worlds.dimensions.undecided": "Для %s ще не обрано форму.",
   "commands.exotic_worlds.dimensions.configure": "Обрати форму",
   "commands.exotic_worlds.dimensions.configure.hint": "Відкрити вибір форми для цих вимірів",

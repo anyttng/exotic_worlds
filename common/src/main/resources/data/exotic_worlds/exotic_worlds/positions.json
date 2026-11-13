@@ -1,4 +1,7 @@
 {
+  "deny": [
+    "create:factory_panel_effect"
+  ],
   "payloads": {
     "create:contraption_block_changed": {
       "localPos": "untouched"

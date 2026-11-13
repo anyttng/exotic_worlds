@@ -1,0 +1,23 @@
+package com.exoticworlds.compat.create.mixin;
+
+import java.util.Set;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+
+import com.zurrtum.create.content.fluids.FluidPropagator;
+import com.exoticworlds.compat.create.CanonicalPositionKeys;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+
+@Mixin(FluidPropagator.class)
+public class FluidPropagatorMixin {
+    @ModifyVariable(method = "resetAffectedFluidNetworks", at = @At("STORE"), ordinal = 0)
+    private static Set<BlockPos> exotic_worlds$canonicalVisited(Set<BlockPos> visited, Level world, BlockPos start,
+            Direction side) {
+        return CanonicalPositionKeys.set(world, visited);
+    }
+}
