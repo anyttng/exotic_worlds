@@ -1,0 +1,22 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+
+import com.llamalad7.mixinextras.sugar.Local;
+import com.zurrtum.create.content.kinetics.deployer.DeployerMovementBehaviour;
+import com.exoticworlds.compat.create.CreateSchematicFold;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+
+@Mixin(DeployerMovementBehaviour.class)
+public class DeployerSchematicPrinterMixin {
+    @ModifyVariable(method = "activateAsSchematicPrinter", argsOnly = true, at = @At("HEAD"))
+    private BlockPos exotic_worlds$visitInSchematicFrame(BlockPos visited, @Local(argsOnly = true) Level level,
+            @Local(argsOnly = true) ItemStack filter) {
+        return CreateSchematicFold.visitedInSchematicFrame(level, filter, visited);
+    }
+}

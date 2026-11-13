@@ -138,6 +138,5 @@ public interface WorldFold {
         return copiesTouching(region, Integer.MAX_VALUE);
     }
 
-    // mc/1.21: refuses a Create schematic wider than the world.
     boolean foldsOntoItself(BoundingBox region);
 }
