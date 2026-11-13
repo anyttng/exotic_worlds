@@ -1,0 +1,25 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.zurrtum.create.content.redstone.link.controller.LecternControllerBlockEntity;
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.compat.create.CreateSeamFold;
+
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+
+@Mixin(LecternControllerBlockEntity.class)
+public class LecternControllerBlockEntityMixin {
+    @WrapOperation(method = "playerInRange",
+            at = @At(value = "INVOKE",
+                    target = InjectionTargets.VEC3_DISTANCE_TO_SQR))
+    private static double exotic_worlds$foldLecternReach(Vec3 eye, Vec3 center, Operation<Double> original,
+            Player player, Level world) {
+        return original.call(eye, CreateSeamFold.nearestCopy(world, eye, center));
+    }
+}
