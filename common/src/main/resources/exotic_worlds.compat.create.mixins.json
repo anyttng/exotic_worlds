@@ -39,6 +39,8 @@
     "FactoryPanelBlockEntityMixin",
     "FactoryPanelBlockMixin",
     "FluidHelperMixin",
+    "FluidNetworkMixin",
+    "FluidPropagatorMixin",
     "GantryShaftBlockEntityMixin",
     "GantryShaftBlockMixin",
     "GirderPlacementHelperMixin",
