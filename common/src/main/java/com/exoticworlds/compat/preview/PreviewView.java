@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.ultraterraforged.preview;
+package com.exoticworlds.compat.preview;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +16,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 
+// mc/1.21: FreeTerraForged and ReTerraForged previews read their maps through it, FreeTerraForged's 3D marker through blockCopiesOf.
 public record PreviewView(ToroidalShape shape, MapCopies copies, float centerX, float centerZ, float zoom) {
     public static final int PREVIEW_PIXELS = 256;
 
@@ -65,14 +66,22 @@ public record PreviewView(ToroidalShape shape, MapCopies copies, float centerX, 
         return Mth.floor(center + (pixel - HALF_PREVIEW_PIXELS) * this.zoom);
     }
 
-    public List<Pixel> copiesOf(BlockPos point, int widgetX, int widgetY, int widgetPixels) {
+    public List<BlockPos> blockCopiesOf(BlockPos point) {
         double halfBlocks = HALF_PREVIEW_PIXELS * this.zoom;
         AABB window = new AABB(this.centerX - halfBlocks, 0, this.centerZ - halfBlocks,
                 this.centerX + halfBlocks, 1, this.centerZ + halfBlocks);
+        List<BlockPos> blocks = new ArrayList<>();
+        for (ToroidalShape.Oriented<BlockPos> copy : this.shape.copiesInside(window, point)) {
+            blocks.add(copy.value());
+        }
+
+        return blocks;
+    }
+
+    public List<Pixel> copiesOf(BlockPos point, int widgetX, int widgetY, int widgetPixels) {
         double pixelsPerBlock = widgetPixels / (PREVIEW_PIXELS * (double) this.zoom);
         List<Pixel> pixels = new ArrayList<>();
-        for (ToroidalShape.Oriented<BlockPos> copy : this.shape.copiesInside(window, point)) {
-            BlockPos at = copy.value();
+        for (BlockPos at : this.blockCopiesOf(point)) {
             pixels.add(new Pixel(pixelAt(at.getX(), this.centerX, widgetX, widgetPixels, pixelsPerBlock),
                     pixelAt(at.getZ(), this.centerZ, widgetY, widgetPixels, pixelsPerBlock)));
         }
