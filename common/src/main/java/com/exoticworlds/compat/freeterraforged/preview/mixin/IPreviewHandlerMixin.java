@@ -12,9 +12,10 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.compat.freeterraforged.preview.FreeTerraForgedPreview;
-import com.exoticworlds.compat.freeterraforged.preview.ShownShape;
 import com.exoticworlds.compat.preview.CreationShape;
+import com.exoticworlds.compat.preview.PreviewHandle;
+import com.exoticworlds.compat.preview.ShownShape;
+import com.exoticworlds.compat.preview.TerraForgedPreview;
 
 import etcodehome.freeterraforged.client.gui.screen.presetconfig.IPreviewHandler;
 import net.minecraft.client.gui.components.Button;
@@ -40,7 +41,7 @@ public interface IPreviewHandlerMixin {
     @ModifyReturnValue(method = "onPress", at = @At("RETURN"))
     private static Button.OnPress exotic_worlds$pickTheSpawn(Button.OnPress press) {
         return button -> {
-            if (!(button instanceof IPreviewHandler preview) || !FreeTerraForgedPreview.pickSpawn(preview)) {
+            if (!(button instanceof PreviewHandle preview) || !TerraForgedPreview.pickSpawn(preview)) {
                 press.onPress(button);
             }
         };

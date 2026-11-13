@@ -7,11 +7,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.compat.freeterraforged.preview.FreeTerraForgedPreview;
 import com.exoticworlds.compat.map.SeamLine;
+import com.exoticworlds.compat.preview.PreviewHandle;
 import com.exoticworlds.compat.preview.PreviewView;
+import com.exoticworlds.compat.preview.TerraForgedPreview;
 
-import etcodehome.freeterraforged.client.gui.screen.presetconfig.IPreviewHandler;
 import etcodehome.freeterraforged.client.gui.screen.presetconfig.Preview2D;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -26,7 +26,7 @@ public abstract class PreviewEdgesMixin {
             target = InjectionTargets.GUI_GRAPHICS_BLIT, shift = At.Shift.AFTER, remap = true))
     private void exotic_worlds$drawTheWorldEdges(GuiGraphics graphics, int mouseX, int mouseY, float partialTick,
             CallbackInfo callback) {
-        PreviewView view = FreeTerraForgedPreview.view((IPreviewHandler) (Object) this);
+        PreviewView view = TerraForgedPreview.view((PreviewHandle) this);
         if (view == null || !view.copies().drawsSeamLines()) {
             return;
         }

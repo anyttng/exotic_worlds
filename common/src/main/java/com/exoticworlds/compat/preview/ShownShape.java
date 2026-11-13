@@ -1,4 +1,4 @@
-package com.exoticworlds.compat.freeterraforged.preview;
+package com.exoticworlds.compat.preview;
 
 import org.jspecify.annotations.Nullable;
 

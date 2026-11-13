@@ -5,7 +5,7 @@ import com.exoticworlds.ExoticWorlds;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
-// mc/1.21: the UltraTerraForged and FreeTerraForged previews draw and hit-test the Custom spawn pin through it.
+// mc/1.21: the UltraTerraForged, FreeTerraForged and ReTerraForged previews draw and hit-test the Custom pin through it.
 public final class SpawnPin {
     private static final String SPRITE_PATH = "preview/spawn_pin";
 

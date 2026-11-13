@@ -15,13 +15,14 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.exoticworlds.compat.freeterraforged.preview.FreeTerraForgedPreview;
-import com.exoticworlds.compat.freeterraforged.preview.MarkerBox;
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.compat.preview.MarkerBox;
+import com.exoticworlds.compat.preview.PreviewHandle;
 import com.exoticworlds.compat.preview.SpawnPin;
+import com.exoticworlds.compat.preview.TerraForgedPreview;
 
 import com.mojang.blaze3d.platform.InputConstants;
 
-import etcodehome.freeterraforged.client.gui.screen.presetconfig.IPreviewHandler;
 import etcodehome.freeterraforged.client.gui.screen.presetconfig.Preview2D;
 import etcodehome.freeterraforged.client.gui.screen.presetconfig.Preview3D;
 import etcodehome.freeterraforged.data.worldgen.preset.settings.SpawnType;
@@ -48,9 +49,6 @@ public abstract class PreviewSpawnMixin {
 
     @Unique
     private static final String SPAWN_Z = PROPERTIES + "spawnZ:I";
-
-    @Unique
-    private static final String GUI_GRAPHICS_FILL = "Lnet/minecraft/client/gui/GuiGraphics;fill(IIIII)V";
 
     @Unique
     private static final int MARKER_BAR_SHADOW = 0;
@@ -93,9 +91,9 @@ public abstract class PreviewSpawnMixin {
 
     @WrapMethod(method = "renderSpawnMarker")
     private void exotic_worlds$markEveryCopy(GuiGraphics graphics, Operation<Void> original) {
-        IPreviewHandler preview = (IPreviewHandler) (Object) this;
-        FreeTerraForgedPreview.readout(preview).exotic_worlds$markers().clear();
-        List<BlockPos> copies = FreeTerraForgedPreview.customSpawnCopies(preview);
+        PreviewHandle preview = (PreviewHandle) this;
+        preview.exotic_worlds$readout().exotic_worlds$markers().clear();
+        List<BlockPos> copies = TerraForgedPreview.customSpawnCopies(preview);
         if (copies == null) {
             original.call(graphics);
             return;
@@ -135,8 +133,8 @@ public abstract class PreviewSpawnMixin {
         return copy != null ? copy.getZ() : spawnZ;
     }
 
-    @WrapOperation(method = "renderSpawnMarker", at = @At(value = "INVOKE", target = GUI_GRAPHICS_FILL,
-            ordinal = MARKER_BAR, remap = true))
+    @WrapOperation(method = "renderSpawnMarker",
+            at = @At(value = "INVOKE", target = InjectionTargets.GUI_GRAPHICS_FILL, ordinal = MARKER_BAR, remap = true))
     private void exotic_worlds$pinTheCopy(GuiGraphics graphics, int minX, int barY, int maxX, int maxY, int color,
             Operation<Void> original) {
         if (this.exotic_worlds$drawing == null) {
@@ -146,13 +144,16 @@ public abstract class PreviewSpawnMixin {
 
         MarkerBox pin = MarkerBox.ofBar(minX, barY, maxX);
         SpawnPin.draw(graphics, pin.tipX(), pin.tipY());
-        FreeTerraForgedPreview.readout((IPreviewHandler) (Object) this).exotic_worlds$markers().add(pin);
+        ((PreviewHandle) this).exotic_worlds$readout().exotic_worlds$markers().add(pin);
     }
 
     @WrapOperation(method = "renderSpawnMarker", at = {
-            @At(value = "INVOKE", target = GUI_GRAPHICS_FILL, ordinal = MARKER_BAR_SHADOW, remap = true),
-            @At(value = "INVOKE", target = GUI_GRAPHICS_FILL, ordinal = MARKER_STEM_SHADOW, remap = true),
-            @At(value = "INVOKE", target = GUI_GRAPHICS_FILL, ordinal = MARKER_STEM, remap = true)})
+            @At(value = "INVOKE", target = InjectionTargets.GUI_GRAPHICS_FILL, ordinal = MARKER_BAR_SHADOW,
+                    remap = true),
+            @At(value = "INVOKE", target = InjectionTargets.GUI_GRAPHICS_FILL, ordinal = MARKER_STEM_SHADOW,
+                    remap = true),
+            @At(value = "INVOKE", target = InjectionTargets.GUI_GRAPHICS_FILL, ordinal = MARKER_STEM,
+                    remap = true)})
     private void exotic_worlds$leaveTheCrossOff(GuiGraphics graphics, int minX, int minY, int maxX, int maxY,
             int color, Operation<Void> original) {
         if (this.exotic_worlds$drawing == null) {
@@ -164,20 +165,20 @@ public abstract class PreviewSpawnMixin {
     private void exotic_worlds$resetOnTheMarker(double mouseX, double mouseY, int button,
             CallbackInfoReturnable<Boolean> callback) {
         if (button == InputConstants.MOUSE_BUTTON_RIGHT
-                && FreeTerraForgedPreview.resetOnMarker((IPreviewHandler) (Object) this, mouseX, mouseY)) {
+                && TerraForgedPreview.resetOnMarker((PreviewHandle) this, mouseX, mouseY)) {
             callback.setReturnValue(true);
         }
     }
 
     @Inject(method = "updateLegend", at = @At("RETURN"))
     private void exotic_worlds$readTheCustomSpawn(int mouseX, int mouseY, CallbackInfoReturnable<Boolean> callback) {
-        FreeTerraForgedPreview.showCustomSpawn((IPreviewHandler) (Object) this);
+        TerraForgedPreview.showCustomSpawn((PreviewHandle) this);
     }
 
     @Inject(method = {"renderWidget", "method_48579"}, at = @At("RETURN"))
     private void exotic_worlds$hintTheSpawnPick(GuiGraphics graphics, int mouseX, int mouseY, float partialTick,
             CallbackInfo callback) {
-        if (!FreeTerraForgedPreview.picksSpawn((IPreviewHandler) (Object) this)) {
+        if (!TerraForgedPreview.picksSpawn((PreviewHandle) this)) {
             return;
         }
 

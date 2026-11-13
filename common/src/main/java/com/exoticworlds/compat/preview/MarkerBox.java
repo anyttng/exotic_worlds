@@ -1,6 +1,4 @@
-package com.exoticworlds.compat.freeterraforged.preview;
-
-import com.exoticworlds.compat.preview.SpawnPin;
+package com.exoticworlds.compat.preview;
 
 public record MarkerBox(int tipX, int tipY) {
     public static MarkerBox ofBar(int minX, int barY, int maxX) {

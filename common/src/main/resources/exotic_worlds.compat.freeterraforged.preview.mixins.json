@@ -9,6 +9,7 @@
     "PreGenContextMixin",
     "PresetEditorPageMixin",
     "PreviewEdgesMixin",
+    "PreviewHandleMixin",
     "PreviewMapMixin",
     "PreviewSpawnMixin",
     "PreviewStateMixin"

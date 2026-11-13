@@ -6,12 +6,15 @@ import java.util.function.Supplier;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.compat.preview.CreationShape;
+import com.exoticworlds.compat.preview.PreviewHandle;
 
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
 import raccoonman.reterraforged.client.gui.screen.presetconfig.Preview2D;
@@ -24,5 +27,10 @@ public abstract class PreviewMixin {
     private CompletableFuture<?> exotic_worlds$buildUnderTheChosenShape(Supplier<?> build, Executor executor,
             Operation<CompletableFuture<?>> original, @Local WorldCreationContext settings) {
         return original.call(CreationShape.underRouterBuild(settings, build), executor);
+    }
+
+    @Inject(method = "executeRegenerate", at = @At(value = "INVOKE", target = "getZoom()I"))
+    private void exotic_worlds$showTheChosenShape(CallbackInfo callback, @Local WorldCreationContext settings) {
+        ((PreviewHandle) this).exotic_worlds$page().exotic_worlds$show(settings);
     }
 }

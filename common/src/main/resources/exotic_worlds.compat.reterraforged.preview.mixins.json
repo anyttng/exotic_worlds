@@ -5,7 +5,14 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.exoticworlds.compat.reterraforged.preview.ReTerraForgedPreviewMixinPlugin",
   "client": [
-    "PreviewMixin"
+    "PreGenContextMixin",
+    "PresetEditorPageMixin",
+    "Preview2DStateMixin",
+    "Preview3DStateMixin",
+    "PreviewEdgesMixin",
+    "PreviewMapMixin",
+    "PreviewMixin",
+    "PreviewSpawnMixin"
   ],
   "injectors": {
     "defaultRequire": 1

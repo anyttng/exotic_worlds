@@ -107,6 +107,8 @@ public final class InjectionTargets {
     public static final String GUI_GRAPHICS_BLIT =
             "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIFFIIII)V";
 
+    public static final String GUI_GRAPHICS_FILL = "Lnet/minecraft/client/gui/GuiGraphics;fill(IIIII)V";
+
     public static final String ITEM_STACK_GET =
             "Lnet/minecraft/world/item/ItemStack;get(Lnet/minecraft/core/component/DataComponentType;)Ljava/lang/Object;";
 

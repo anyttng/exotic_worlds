@@ -100,12 +100,21 @@ class RtfSpawnSearchTest {
     }
 
     @Test
-    void theUserSelectedTypeKeepsReTerraForgedsCoordinates() {
+    void theUserSelectedTypeSpawnsAtTheSpawnPoint() {
         WorldSettings.Properties.spawnType = SpawnType.USER_SELECTED;
         WorldSettings.Properties.spawnX = USER_SPAWN.getX();
         WorldSettings.Properties.spawnZ = USER_SPAWN.getZ();
 
-        assertEquals(USER_SPAWN, search(FAR_POINT));
+        assertEquals(new BlockPos(FAR_POINT.blockX(), 0, FAR_POINT.blockZ()), search(FAR_POINT));
+    }
+
+    @Test
+    void theUserSelectedTypeWithoutASpawnPointKeepsReTerraForgedsCoordinates() {
+        WorldSettings.Properties.spawnType = SpawnType.USER_SELECTED;
+        WorldSettings.Properties.spawnX = USER_SPAWN.getX();
+        WorldSettings.Properties.spawnZ = USER_SPAWN.getZ();
+
+        assertEquals(USER_SPAWN, search(SpawnPoint.DEFAULT));
     }
 
     private static BlockPos search(SpawnPoint point) {

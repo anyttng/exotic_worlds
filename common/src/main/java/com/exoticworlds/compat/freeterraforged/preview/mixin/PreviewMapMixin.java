@@ -6,9 +6,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import com.exoticworlds.compat.freeterraforged.preview.FreeTerraForgedPreview;
+import com.exoticworlds.compat.preview.PreviewHandle;
+import com.exoticworlds.compat.preview.TerraForgedPreview;
 
-import etcodehome.freeterraforged.client.gui.screen.presetconfig.IPreviewHandler;
 import etcodehome.freeterraforged.client.gui.screen.presetconfig.Preview2D;
 import etcodehome.freeterraforged.client.gui.screen.presetconfig.Preview3D;
 
@@ -16,11 +16,11 @@ import etcodehome.freeterraforged.client.gui.screen.presetconfig.Preview3D;
 public abstract class PreviewMapMixin {
     @ModifyReturnValue(method = "getZoom", at = @At("RETURN"))
     private int exotic_worlds$capTheZoom(int zoom) {
-        return FreeTerraForgedPreview.cappedZoom((IPreviewHandler) (Object) this, zoom);
+        return TerraForgedPreview.cappedZoom((PreviewHandle) this, zoom);
     }
 
     @Inject(method = "updateLegend", at = @At("RETURN"))
     private void exotic_worlds$readInsideTheWorld(int mouseX, int mouseY, CallbackInfoReturnable<Boolean> callback) {
-        FreeTerraForgedPreview.foldHovered((IPreviewHandler) (Object) this);
+        TerraForgedPreview.foldHovered((PreviewHandle) this);
     }
 }

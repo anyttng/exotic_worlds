@@ -41,6 +41,7 @@
     "SingleContinentGeneratorMixin",
     "SpawnFinderFixMixin",
     "SpawnFinderOriginMixin",
+    "SpawnFinderUserSelectedMixin",
     "StrataRuleSourceMixin",
     "UpliftContinentGeneratorMixin",
     "UpliftRiverCarverMixin",

@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-import com.exoticworlds.compat.freeterraforged.preview.MarkerBox;
-import com.exoticworlds.compat.freeterraforged.preview.PreviewReadout;
+import com.exoticworlds.compat.preview.MarkerBox;
+import com.exoticworlds.compat.preview.PreviewReadout;
 
 @Mixin(targets = "etcodehome.freeterraforged.client.gui.screen.presetconfig.PreviewState", remap = false)
 public abstract class PreviewStateMixin implements PreviewReadout {
