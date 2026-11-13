@@ -123,6 +123,12 @@ public final class InjectionTargets {
                     + "Lnet/minecraft/core/HolderLookup$Provider;Lnet/minecraft/nbt/CompoundTag;)"
                     + "Lnet/minecraft/world/level/storage/ValueInput;";
 
+    public static final String VEC3_ADD =
+            "Lnet/minecraft/world/phys/Vec3;add(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;";
+
+    public static final String VEC3_ADD_SCALARS =
+            "Lnet/minecraft/world/phys/Vec3;add(DDD)Lnet/minecraft/world/phys/Vec3;";
+
     public static final String VEC3_AT_BOTTOM_CENTER_OF =
             "Lnet/minecraft/world/phys/Vec3;atBottomCenterOf(Lnet/minecraft/core/Vec3i;)Lnet/minecraft/world/phys/Vec3;";
 

@@ -4,13 +4,16 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
+import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.engine.seam.MapSeamFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -31,7 +34,16 @@ public final class CreateSeamFold {
         return NearestCopy.toward(wrappedFoldOf(null, dimension), anchor, target);
     }
 
+    public static Vec3 nearestCopy(@Nullable Level level, @Nullable ResourceKey<Level> dimension, Vec3 anchor,
+            Vec3 target) {
+        return NearestCopy.toward(wrappedFoldOf(level, dimension), anchor, target);
+    }
+
     public static Vec3i foldPositionToBox(@Nullable Level level, BoundingBox box, Vec3i position) {
+        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(level), box, position);
+    }
+
+    public static BlockPos foldPositionToBox(@Nullable Level level, BoundingBox box, BlockPos position) {
         return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(level), box, position);
     }
 
@@ -67,8 +79,29 @@ public final class CreateSeamFold {
         return WorldLoopAttachments.foldOfReader(level).fold(position);
     }
 
+    public static BlockPos canonical(@Nullable ResourceKey<Level> dimension, BlockPos position) {
+        WorldFold fold = wrappedFoldOf(null, dimension);
+        return (fold == null ? WorldFolds.NOOP : fold).fold(position);
+    }
+
     public static BlockPos canonicalOnServer(@Nullable BlockGetter level, BlockPos position) {
         return level instanceof ServerLevel serverLevel ? canonical(serverLevel, position) : position;
+    }
+
+    public static Vec3 canonicalOnServer(@Nullable BlockGetter level, Vec3 position) {
+        return level instanceof ServerLevel serverLevel
+                ? WorldLoopAttachments.foldOfReader(serverLevel).fold(position)
+                : position;
+    }
+
+    // Off the server thread the write is the viewer's frame, and canonicalising it jumps the carriage a world width.
+    public static Vec3 canonicalOnServer(@Nullable ResourceKey<Level> dimension, Vec3 position) {
+        MinecraftServer server = CurrentServer.get();
+        if (server == null || !server.isSameThread() || dimension == null) {
+            return position;
+        }
+
+        return WorldLoopAttachments.foldIfLevel(server.getLevel(dimension)).fold(position);
     }
 
     static BlockPos delta(@Nullable WorldFold fold, BlockPos anchor, BlockPos target, BlockPos rawDelta) {

@@ -1,0 +1,52 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import com.zurrtum.create.content.trains.entity.CarriageBogey;
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.compat.create.CreateInjectionTargets;
+import com.exoticworlds.compat.create.CreateSeamFold;
+
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+
+@Mixin(CarriageBogey.class)
+public abstract class CarriageBogeyMixin {
+    @Shadow
+    public abstract ResourceKey<Level> getDimension();
+
+    @WrapOperation(method = "getAnchorPosition(Z)Lnet/minecraft/world/phys/Vec3;",
+            at = @At(value = "INVOKE",
+                    target = InjectionTargets.VEC3_ADD))
+    private Vec3 exotic_worlds$foldAnchorMidpoint(Vec3 leading, Vec3 trailing, Operation<Vec3> original) {
+        return original.call(leading, exotic_worlds$nearest(leading, trailing));
+    }
+
+    @ModifyExpressionValue(method = "updateAngles",
+            at = @At(value = "INVOKE",
+                    target = CreateInjectionTargets.TRAVELLING_POINT_GET_POSITION,
+                    ordinal = 1))
+    private Vec3 exotic_worlds$foldCoupledAngle(Vec3 trailing, @Local(ordinal = 0) Vec3 leading) {
+        return exotic_worlds$nearest(leading, trailing);
+    }
+
+    @WrapOperation(method = "getStress",
+            at = @At(value = "INVOKE",
+                    target = InjectionTargets.VEC3_DISTANCE_TO))
+    private double exotic_worlds$foldStressSpan(Vec3 leading, Vec3 trailing, Operation<Double> original) {
+        return original.call(leading, exotic_worlds$nearest(leading, trailing));
+    }
+
+    @Unique
+    private Vec3 exotic_worlds$nearest(Vec3 leading, Vec3 trailing) {
+        return CreateSeamFold.nearestCopy(getDimension(), leading, trailing);
+    }
+}
