@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.client.engine.ClientFrame;
 import com.exoticworlds.compat.create.CreateSeamFold;
+import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.exoticworlds.engine.fold.FoldedCopies;
@@ -34,6 +35,10 @@ public final class CreateClientFrame {
 
     public static BlockPos inViewerFrame(Vec3i canonical) {
         return ClientFrame.nearestToPlayer(NearestCopy.asBlockPos(canonical));
+    }
+
+    public static DeckTransformation inViewerFrameTransformation(BlockPos canonical) {
+        return ClientFrame.nearestCopyTransformation(canonical);
     }
 
     public static @Nullable BlockPos heldInViewerFrame(BlockPos canonical) {

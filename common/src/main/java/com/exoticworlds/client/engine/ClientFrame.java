@@ -64,7 +64,6 @@ public final class ClientFrame {
         return nearestCopy(player == null ? null : player.chunkPosition(), target);
     }
 
-    // mc/1.21: calls the transformation form, unused on main.
     public static DeckTransformation nearestCopyTransformation(BlockPos target) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) {
