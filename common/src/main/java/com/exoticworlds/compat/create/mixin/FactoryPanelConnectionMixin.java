@@ -1,0 +1,22 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.zurrtum.create.content.logistics.factoryBoard.FactoryPanelConnection;
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.compat.create.client.CreateClientFrame;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+
+@Mixin(FactoryPanelConnection.class)
+public class FactoryPanelConnectionMixin {
+    @WrapOperation(method = "calculatePathDiff",
+            at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_SUBTRACT))
+    private BlockPos exotic_worlds$foldStoredSource(BlockPos target, Vec3i source, Operation<BlockPos> original) {
+        return original.call(target, CreateClientFrame.inViewerFrame(source));
+    }
+}
