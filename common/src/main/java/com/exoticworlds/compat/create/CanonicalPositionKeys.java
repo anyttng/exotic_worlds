@@ -1,9 +1,12 @@
 package com.exoticworlds.compat.create;
 
+import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
@@ -19,6 +22,11 @@ public final class CanonicalPositionKeys {
     public static Set<BlockPos> set(@Nullable BlockGetter reader, Set<BlockPos> built) {
         WorldFold fold = wrappedFoldOf(reader);
         return fold == null ? built : new CanonicalSet(fold);
+    }
+
+    public static <V> Map<BlockPos, V> map(@Nullable BlockGetter reader, Map<BlockPos, V> built) {
+        WorldFold fold = wrappedFoldOf(reader);
+        return fold == null ? built : new CanonicalMap<>(fold);
     }
 
     static @Nullable WorldFold wrappedFoldOf(@Nullable BlockGetter reader) {
@@ -99,7 +107,11 @@ public final class CanonicalPositionKeys {
 
     static final class CanonicalSet extends FoldedSet<BlockPos> {
         CanonicalSet(WorldFold fold) {
-            super(fold, new HashSet<>());
+            this(fold, new HashSet<>());
+        }
+
+        private CanonicalSet(WorldFold fold, Set<BlockPos> keys) {
+            super(fold, keys);
         }
 
         @Override
@@ -120,6 +132,79 @@ public final class CanonicalPositionKeys {
             }
 
             return changed;
+        }
+    }
+
+    private static final class CanonicalEntrySet<V> extends FoldedSet<Map.Entry<BlockPos, V>> {
+        private CanonicalEntrySet(WorldFold fold, Set<Map.Entry<BlockPos, V>> entries) {
+            super(fold, entries);
+        }
+
+        @Override
+        Object canonical(Object candidate) {
+            if (candidate instanceof Map.Entry<?, ?> entry && entry.getKey() instanceof BlockPos pos) {
+                return new AbstractMap.SimpleEntry<>(fold.fold(pos), entry.getValue());
+            }
+
+            return candidate;
+        }
+    }
+
+    static final class CanonicalMap<V> extends AbstractMap<BlockPos, V> {
+        private final WorldFold fold;
+        private final Map<BlockPos, V> entries = new HashMap<>();
+        private final Set<BlockPos> keys;
+        private final Set<Entry<BlockPos, V>> foldedEntries;
+
+        CanonicalMap(WorldFold fold) {
+            this.fold = fold;
+            this.keys = new CanonicalSet(fold, entries.keySet());
+            this.foldedEntries = new CanonicalEntrySet<>(fold, entries.entrySet());
+        }
+
+        @Override
+        public @Nullable V put(BlockPos pos, V value) {
+            return entries.put(fold.fold(pos), value);
+        }
+
+        @Override
+        public @Nullable V get(Object candidate) {
+            return entries.get(key(fold, candidate));
+        }
+
+        @Override
+        public boolean containsKey(Object candidate) {
+            return entries.containsKey(key(fold, candidate));
+        }
+
+        @Override
+        public @Nullable V remove(Object candidate) {
+            return entries.remove(key(fold, candidate));
+        }
+
+        @Override
+        public Set<BlockPos> keySet() {
+            return keys;
+        }
+
+        @Override
+        public Collection<V> values() {
+            return entries.values();
+        }
+
+        @Override
+        public Set<Entry<BlockPos, V>> entrySet() {
+            return foldedEntries;
+        }
+
+        @Override
+        public int size() {
+            return entries.size();
+        }
+
+        @Override
+        public void clear() {
+            entries.clear();
         }
     }
 
