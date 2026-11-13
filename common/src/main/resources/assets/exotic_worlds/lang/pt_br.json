@@ -5,6 +5,8 @@
   "argument.exotic_worlds.pos.outside_world": "%s está fora deste mundo. Deve estar entre %s e %s",
   "commands.exotic_worlds.region.across_seam": "Essa área cruza a borda do mundo e pode significar qualquer um dos lados. Execute o comando uma vez por lado",
   "message.exotic_worlds.create.structure_circles_the_world": "Essa construção dá a volta completa no mundo, então não pode se mover como uma única engenhoca. Deixe uma abertura nela",
+  "message.exotic_worlds.schematic.selection_wider_than_world": "Essa seleção é mais larga que o mundo e cobriria alguns blocos duas vezes. Coloque o segundo canto mais perto do primeiro",
+  "message.exotic_worlds.schematic.selection_cannot_grow_past_world": "Aumentar essa seleção a deixaria mais larga que o mundo e cobriria alguns blocos duas vezes. Role a roda no sentido contrário",
   "commands.exotic_worlds.dimensions.undecided": "Ainda não foi escolhido um formato para %s.",
   "commands.exotic_worlds.dimensions.configure": "Escolher formato",
   "commands.exotic_worlds.dimensions.configure.hint": "Abre a escolha de formato para essas dimensões",

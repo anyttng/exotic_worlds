@@ -5,6 +5,8 @@
   "argument.exotic_worlds.pos.outside_world": "%s znajduje się poza tym światem. Musi być pomiędzy %s a %s",
   "commands.exotic_worlds.region.across_seam": "Ten obszar przecina krawędź świata i może oznaczać każdą z jego stron. Wykonaj komendę osobno dla każdej strony",
   "message.exotic_worlds.create.structure_circles_the_world": "Ta budowla okrąża cały świat, więc nie może poruszać się jako jedna maszyna. Zostaw w niej przerwę",
+  "message.exotic_worlds.schematic.selection_wider_than_world": "Ten zaznaczony obszar jest szerszy niż świat i objąłby część bloków dwa razy. Postaw drugi róg bliżej pierwszego",
+  "message.exotic_worlds.schematic.selection_cannot_grow_past_world": "Powiększenie tego obszaru sprawiłoby, że byłby szerszy niż świat i objąłby część bloków dwa razy. Przewiń w drugą stronę",
   "commands.exotic_worlds.dimensions.undecided": "Dla %s nie wybrano jeszcze kształtu.",
   "commands.exotic_worlds.dimensions.configure": "Wybierz kształt",
   "commands.exotic_worlds.dimensions.configure.hint": "Otwiera wybór kształtu dla tych wymiarów",

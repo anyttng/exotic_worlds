@@ -5,6 +5,8 @@
   "argument.exotic_worlds.pos.outside_world": "%s liegt außerhalb dieser Welt. Muss zwischen %s und %s liegen",
   "commands.exotic_worlds.region.across_seam": "Dieser Bereich kreuzt den Weltrand und kann beide Seiten meinen. Führe den Befehl je Seite einmal aus",
   "message.exotic_worlds.create.structure_circles_the_world": "Dieses Bauwerk umrundet die ganze Welt und kann sich daher nicht als eine Vorrichtung bewegen. Lass eine Lücke darin",
+  "message.exotic_worlds.schematic.selection_wider_than_world": "Diese Auswahl ist breiter als die Welt und würde manche Blöcke doppelt erfassen. Setze die zweite Ecke näher an die erste",
+  "message.exotic_worlds.schematic.selection_cannot_grow_past_world": "Diese Auswahl weiter zu vergrößern würde sie breiter als die Welt machen und manche Blöcke doppelt erfassen. Scrolle in die andere Richtung",
   "commands.exotic_worlds.dimensions.undecided": "Für %s ist noch keine Form gewählt.",
   "commands.exotic_worlds.dimensions.configure": "Form wählen",
   "commands.exotic_worlds.dimensions.configure.hint": "Öffnet die Formwahl für diese Dimensionen",

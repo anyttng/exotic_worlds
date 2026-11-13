@@ -1,0 +1,27 @@
+package com.exoticworlds.compat.create.mixin;
+
+import java.nio.file.Path;
+
+import org.spongepowered.asm.mixin.Mixin;
+
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.zurrtum.create.content.schematics.SchematicExport;
+import com.exoticworlds.compat.create.CreateSchematicFold;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+
+@Mixin(SchematicExport.class)
+public class SchematicExportMixin {
+    @WrapMethod(method = "saveSchematic")
+    private static SchematicExport.SchematicExportResult exotic_worlds$refuseRegionWiderThanWorld(Path dir,
+            String fileName, boolean overwrite, Level level, BlockPos first, BlockPos second,
+            Operation<SchematicExport.SchematicExportResult> original) {
+        if (CreateSchematicFold.regionExceedsWorld(level, first, second)) {
+            return null;
+        }
+
+        return original.call(dir, fileName, overwrite, level, first, second);
+    }
+}
