@@ -1,0 +1,24 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.zurrtum.create.content.equipment.sandPaper.SandPaperItem;
+import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.compat.create.CreateSeamFold;
+
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+
+@Mixin(SandPaperItem.class)
+public class SandPaperItemMixin {
+    @WrapOperation(method = "use", at = @At(value = "INVOKE", target = InjectionTargets.VEC3_DISTANCE_TO))
+    private double exotic_worlds$foldPickUpReach(Vec3 item, Vec3 player, Operation<Double> original,
+            Level worldIn, Player playerIn, InteractionHand handIn) {
+        return original.call(CreateSeamFold.nearestCopy(worldIn, player, item), player);
+    }
+}

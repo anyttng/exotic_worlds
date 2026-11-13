@@ -1,0 +1,27 @@
+package com.exoticworlds.compat.create.mixin;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.zurrtum.create.content.equipment.toolbox.ToolboxBlockEntity;
+import com.zurrtum.create.content.equipment.toolbox.ToolboxHandler;
+import com.exoticworlds.compat.create.CreateSeamFold;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
+
+@Mixin(ToolboxHandler.class)
+public class ToolboxHandlerMixin {
+    @WrapOperation(method = "withinRange",
+            at = @At(value = "INVOKE",
+                    target = "Lcom/zurrtum/create/content/equipment/toolbox/ToolboxHandler;"
+                            + "distance(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/core/BlockPos;)D"))
+    private static double exotic_worlds$foldToolboxRange(Vec3 location, BlockPos toolboxPos, Operation<Double> original,
+            Player player, ToolboxBlockEntity box) {
+        BlockPos folded = CreateSeamFold.nearestCopy(player.level(), BlockPos.containing(location), toolboxPos);
+        return original.call(location, folded);
+    }
+}
