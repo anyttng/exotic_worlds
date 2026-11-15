@@ -22,6 +22,7 @@ public final class CarriedShape {
         this.shape = shape;
         this.generationOptions = generationOptions;
         this.fold = WorldFolds.of(shape, generationOptions);
+        WorldFolds.verifyGeneratable(shape).getOrThrow(IllegalArgumentException::new);
     }
 
     public static MapCodec<CarriedShape> mapCodec(String keyPrefix) {
