@@ -15,7 +15,7 @@ import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.migration.FormerNamespace;
-import com.exoticworlds.shape.WorldOptionSetup;
+import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.cylinder.CylinderDimensions;
 import com.exoticworlds.shape.cylinder.CylinderSettings;
 import com.exoticworlds.shape.torus.TorusDimensions;
@@ -55,7 +55,7 @@ class FormerNamespaceDimensionsTest {
     static void bootstrapVanilla() {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
-        WorldOptionSetup.registerAll(false);
+        StartupRegistrations.options();
         worldgen = VanillaRegistries.createWorldLookup();
     }
 

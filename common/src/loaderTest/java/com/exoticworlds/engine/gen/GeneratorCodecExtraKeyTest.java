@@ -1,6 +1,6 @@
 package com.exoticworlds.engine.gen;
 
-import com.exoticworlds.shape.WorldOptionSetup;
+import com.exoticworlds.shape.StartupRegistrations;
 import static com.exoticworlds.engine.gen.BakeStampFixture.noiseGenerator;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
@@ -35,7 +35,7 @@ class GeneratorCodecExtraKeyTest {
     static void bootstrapVanilla() {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
-        WorldOptionSetup.registerAll(false);
+        StartupRegistrations.options();
         worldgen = VanillaRegistries.createWorldLookup();
     }
 

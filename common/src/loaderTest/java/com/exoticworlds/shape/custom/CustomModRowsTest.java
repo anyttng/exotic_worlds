@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Timeout;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.engine.gen.ShapedDimensions;
-import com.exoticworlds.shape.WorldOptionSetup;
+import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
 import com.exoticworlds.shape.cylinder.CylinderDimensions;
@@ -53,7 +53,7 @@ class CustomModRowsTest {
     static void bootstrapVanilla() {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
-        WorldOptionSetup.registerAll(false);
+        StartupRegistrations.options();
         worldgen = VanillaRegistries.createWorldLookup();
         compact6 = CustomSettings.DEFAULT_OPTIONS.with(CompactBiomes.OPTION, ClimateScale.custom(6));
     }

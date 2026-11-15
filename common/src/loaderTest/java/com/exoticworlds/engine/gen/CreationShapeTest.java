@@ -4,7 +4,7 @@ import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.shape.WorldOptionSetup;
+import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.CompactBiomes;
 import com.exoticworlds.shape.torus.TorusDimensions;
 import com.exoticworlds.shape.torus.TorusSettings;
@@ -52,7 +52,7 @@ class CreationShapeTest {
     static void bootstrapVanilla() {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
-        WorldOptionSetup.registerAll(false);
+        StartupRegistrations.options();
         worldgen = VanillaRegistries.createWorldLookup();
     }
 
