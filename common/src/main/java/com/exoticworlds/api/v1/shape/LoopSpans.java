@@ -21,7 +21,6 @@ import net.minecraft.core.Direction;
  * hands back a new instance.</p>
  */
 public final class LoopSpans {
-    private static final String ASCENDING_SPAN_REQUIRED = "A looping axis needs minChunk < maxChunk, got [";
     private static final String DOES_NOT_LOOP = " does not loop — check loops(axis) first";
     private static final String AXIS = "Axis ";
     private static final String POSITIVE_SCALE_REQUIRED = "A scale is positive, got ";
@@ -38,8 +37,6 @@ public final class LoopSpans {
     }
 
     LoopSpans(WorldLoopBounds bounds, int skewChunks) {
-        ascending(bounds.x());
-        ascending(bounds.z());
         this.bounds = bounds;
         this.skewChunks = FlatShape.latticeTorus(bounds, skewChunks).skewChunks();
     }
@@ -177,12 +174,5 @@ public final class LoopSpans {
         }
 
         throw new IllegalArgumentException(AXIS + axis + DOES_NOT_LOOP);
-    }
-
-    private static void ascending(AxisBounds axis) {
-        if (axis instanceof AxisBounds.Looped looped && looped.minChunk() >= looped.maxChunk()) {
-            throw new IllegalArgumentException(ASCENDING_SPAN_REQUIRED
-                    + looped.minChunk() + ", " + looped.maxChunk() + ")");
-        }
     }
 }

@@ -37,6 +37,12 @@ class LoopSpansTest {
     }
 
     @Test
+    void aSpanThatDoesNotAscendIsRefused() {
+        assertThrows(IllegalArgumentException.class, () -> LoopSpans.of(Direction.Axis.X, 4, 4));
+        assertThrows(IllegalArgumentException.class, () -> LoopSpans.ofWidth(64).and(Direction.Axis.Z, 8, -8));
+    }
+
+    @Test
     void aSkewNeedsBothAxesLooping() {
         assertThrows(IllegalArgumentException.class, () -> LoopSpans.ofWidth(Direction.Axis.X, 64).withSkew(8));
     }
