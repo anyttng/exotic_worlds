@@ -3,6 +3,7 @@ package com.exoticworlds.api.v1.shape;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.WorldLoopSizes;
 
 import net.minecraft.core.Direction;
 
@@ -41,6 +42,14 @@ public final class LoopSpans {
         ascending(bounds.z());
         this.bounds = bounds;
         this.skewChunks = FlatShape.latticeTorus(bounds, skewChunks).skewChunks();
+    }
+
+    /**
+     * The narrowest a looping axis may be in any dimension, in chunks. {@link ShapeDimensions#withSpans} refuses spans
+     * under it, so scale a nether down only as far as this allows.
+     */
+    public static int minChunkWidth() {
+        return WorldLoopSizes.MIN_CHUNK_WIDTH;
     }
 
     /** Both axes looping over {@code chunkWidth} chunks, centered on the origin. */
