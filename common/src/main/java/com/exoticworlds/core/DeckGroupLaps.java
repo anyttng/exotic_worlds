@@ -3,6 +3,8 @@ package com.exoticworlds.core;
 final class DeckGroupLaps {
     static final long NONE = 0L;
 
+    static final int SHIFT_REACH = Integer.MAX_VALUE / 8;
+
     private static final int COORD_FOLD_ATTEMPTS = 3;
 
     private final WrapDomain x;
@@ -11,10 +13,22 @@ final class DeckGroupLaps {
 
     private final DeckGroupLattice.Step[] steps;
 
+    private final int[] lapReach;
+
     DeckGroupLaps(WrapDomain x, WrapDomain z, DeckGroupLattice.Step[] steps) {
         this.x = x;
         this.z = z;
         this.steps = steps;
+        this.lapReach = new int[steps.length];
+        for (int index = 0; index < steps.length; index++) {
+            this.lapReach[index] = SHIFT_REACH / widestShift(steps[index].generator());
+        }
+    }
+
+    private static int widestShift(SeamTransform generator) {
+        int alongX = generator.xSign() > 0 ? Math.abs(generator.xShift()) : 0;
+        int alongZ = generator.zSign() > 0 ? Math.abs(generator.zShift()) : 0;
+        return Math.max(Math.max(alongX, alongZ), 1);
     }
 
     boolean isForeign(double coordX, double coordZ) {
@@ -69,12 +83,12 @@ final class DeckGroupLaps {
             int exponent = 0;
             for (int attempt = 0; attempt < COORD_FOLD_ATTEMPTS; attempt++) {
                 double coord = step.onX() ? currentX : currentZ;
-                long laps = (long) Math.floor((coord - domain.lowerBound) / domain.domainLength);
-                if (laps == 0) {
+                double laps = Math.floor((coord - domain.lowerBound) / domain.domainLength);
+                if (laps == 0.0 || !(Math.abs(laps) <= this.lapReach[index])) {
                     break;
                 }
 
-                int move = Math.toIntExact(-laps);
+                int move = (int) -laps;
                 double movedX = step.generator().powerApplyX(move, currentX);
                 double movedZ = step.generator().powerApplyZ(move, currentZ);
                 currentX = movedX;

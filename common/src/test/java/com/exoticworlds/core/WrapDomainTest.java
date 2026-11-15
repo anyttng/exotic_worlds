@@ -199,6 +199,31 @@ class WrapDomainTest {
                 assertEquals(0, domain.shiftToward(Integer.MIN_VALUE, Integer.MAX_VALUE), in(domain));
             }
         }
+
+        @Test
+        void unwrapAroundStandsStillWhenItsLapsDoNotFit() {
+            for (WrapDomain domain : DOMAINS) {
+                double inside = domain.lowerBound + 0.5;
+                double beyond = (double) domain.domainLength * 0x1p64;
+                assertEquals(inside, domain.unwrapAround(Double.POSITIVE_INFINITY, inside), in(domain));
+                assertEquals(inside, domain.unwrapAround(Double.NEGATIVE_INFINITY, inside), in(domain));
+                assertEquals(inside, domain.unwrapAround(Double.NaN, inside), in(domain));
+                assertEquals(inside, domain.unwrapAround(beyond, inside), in(domain));
+                assertEquals(inside, domain.unwrapAround(-beyond, inside), in(domain));
+                assertEquals(beyond, domain.unwrapAround(inside, beyond), in(domain));
+                assertEquals(-beyond, domain.unwrapAround(inside, -beyond), in(domain));
+            }
+        }
+
+        @Test
+        void unwrapAroundStillReachesAFarAnchorWhoseLapsFit() {
+            for (WrapDomain domain : DOMAINS) {
+                double anchor = 1.0e15;
+                double unwrapped = domain.unwrapAround(anchor, domain.lowerBound + 0.5);
+                assertTrue(Math.abs(unwrapped - anchor) <= domain.domainLength,
+                        () -> "unwrapAround(" + anchor + ", ...) gave " + unwrapped + " " + in(domain));
+            }
+        }
     }
 
     @Nested

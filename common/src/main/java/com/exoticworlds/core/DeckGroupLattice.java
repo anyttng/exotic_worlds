@@ -326,6 +326,10 @@ final class DeckGroupLattice {
 
         double deltaX = foldedTargetX - this.laps.foldX(toRef, refX);
         double deltaZ = foldedTargetZ - this.laps.foldZ(toRef, refZ);
+        if (!withinShiftReach(deltaX, deltaZ)) {
+            return SeamTransform.IDENTITY;
+        }
+
         long first = nearFirst(deltaX, deltaZ);
         long second = nearSecond(deltaX, deltaZ);
         int bestIndex = nearestCoordCandidate(refX, refZ, targetX, targetZ, toRef, first, second,
@@ -347,6 +351,10 @@ final class DeckGroupLattice {
 
         double deltaX = foldedTargetX - this.laps.foldX(toRef, refX);
         double deltaZ = foldedTargetZ - this.laps.foldZ(toRef, refZ);
+        if (!withinShiftReach(deltaX, deltaZ)) {
+            return squared(targetX - refX) + squared(targetZ - refZ);
+        }
+
         long first = nearFirst(deltaX, deltaZ);
         long second = nearSecond(deltaX, deltaZ);
         int bestIndex = nearestCoordCandidate(refX, refZ, targetX, targetZ, toRef, first, second,
@@ -358,6 +366,11 @@ final class DeckGroupLattice {
         double copyX = this.laps.unfoldX(toRef, candidateX(bestIndex, first, second, foldedTargetX));
         double copyZ = this.laps.unfoldZ(toRef, candidateZ(bestIndex, first, second, foldedTargetZ));
         return squared(copyX - refX) + squared(copyZ - refZ);
+    }
+
+    private boolean withinShiftReach(double deltaX, double deltaZ) {
+        return (!this.x.loops() || Math.abs(deltaX) <= DeckGroupLaps.SHIFT_REACH)
+                && (!this.z.loops() || Math.abs(deltaZ) <= DeckGroupLaps.SHIFT_REACH);
     }
 
     private int nearestCoordCandidate(double refX, double refZ, double targetX, double targetZ, long toRef,

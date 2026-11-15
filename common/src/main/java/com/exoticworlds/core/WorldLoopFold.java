@@ -479,15 +479,7 @@ final class WorldLoopFold implements WorldFold {
 
     @Override
     public DeckTransformation foldTransformation(Vec3 pos) {
-        int lapsX = coords.x.lapsOver(pos.x);
-        int lapsZ = coords.z.lapsOver(pos.z);
-        if (lapsX == 0 && lapsZ == 0) {
-            return DeckTransformation.IDENTITY;
-        }
-
-        return new DeckTransformation(SeamTransform.translation(
-                -Math.multiplyExact(lapsX, coords.x.domainLength),
-                -Math.multiplyExact(lapsZ, coords.z.domainLength)));
+        return translation(coords.x.shiftOver(pos.x), coords.z.shiftOver(pos.z));
     }
 
     @Override
