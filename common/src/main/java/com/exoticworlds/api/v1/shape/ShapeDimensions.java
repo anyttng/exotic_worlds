@@ -27,6 +27,9 @@ public final class ShapeDimensions {
      * The dimensions with each of the three vanilla stems carrying its declared spans, skew included, and the world's
      * options. A stem whose generator cannot take a shape is left alone, so a datapack dimension of another mod is
      * never rewritten.
+     *
+     * @throws IllegalArgumentException if a looping axis of any of the three spans is narrower than
+     *         {@link LoopSpans#minChunkWidth()}
      */
     public static WorldDimensions withSpans(WorldDimensions dimensions, LoopSpans overworld, LoopSpans nether,
             LoopSpans end, GenerationOptions options) {
