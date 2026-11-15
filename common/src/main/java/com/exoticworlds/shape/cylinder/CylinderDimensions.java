@@ -32,11 +32,12 @@ public final class CylinderDimensions {
             return null;
         }
 
-        return new CylinderSettings(
+        CylinderSettings read = new CylinderSettings(
                 overworld,
                 ShapeStems.readNetherScale(dimensions, CylinderSettings::isCylinder, overworld, axis),
                 readEndSpans(dimensions, axis),
                 ShapeDimensions.optionsOf(dimensions, LevelStem.OVERWORLD));
+        return ShapeStems.writesBack(dimensions, read) ? read : null;
     }
 
     private static LoopSpans readEndSpans(WorldDimensions dimensions, Direction.Axis axis) {

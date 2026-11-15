@@ -92,6 +92,54 @@ class CustomDimensionsTest {
     }
 
     @Test
+    void threeToriWithANetherOffTheScaleLadderStayCustom() {
+        assertOnlyCustomAdopts(new CustomSettings(
+                new DimensionShape(LoopSpans.ofWidth(64), CustomSettings.DEFAULT_OPTIONS),
+                new DimensionShape(LoopSpans.ofWidth(24), CustomSettings.DEFAULT_OPTIONS),
+                new DimensionShape(LoopSpans.ofWidth(256), CustomSettings.DEFAULT_OPTIONS)));
+    }
+
+    @Test
+    void threeToriWithARectangularEndStayCustom() {
+        assertOnlyCustomAdopts(new CustomSettings(
+                new DimensionShape(LoopSpans.ofWidth(64), CustomSettings.DEFAULT_OPTIONS),
+                new DimensionShape(LoopSpans.ofWidth(32), CustomSettings.DEFAULT_OPTIONS),
+                new DimensionShape(LoopSpans.ofWidths(256, 320), CustomSettings.DEFAULT_OPTIONS)));
+    }
+
+    @Test
+    void threeToriWithTheirOwnNetherOptionsStayCustom() {
+        assertOnlyCustomAdopts(new CustomSettings(
+                new DimensionShape(LoopSpans.ofWidth(64), CustomSettings.DEFAULT_OPTIONS),
+                new DimensionShape(LoopSpans.ofWidth(32), COMPACT_6),
+                new DimensionShape(LoopSpans.ofWidth(256), CustomSettings.DEFAULT_OPTIONS)));
+    }
+
+    @Test
+    void threeCylindersWithANetherOffTheScaleLadderStayCustom() {
+        assertOnlyCustomAdopts(new CustomSettings(
+                new DimensionShape(LoopSpans.ofWidth(Direction.Axis.X, 64), CustomSettings.DEFAULT_OPTIONS),
+                new DimensionShape(LoopSpans.ofWidth(Direction.Axis.X, 24), CustomSettings.DEFAULT_OPTIONS),
+                new DimensionShape(LoopSpans.ofWidth(Direction.Axis.X, 256), CustomSettings.DEFAULT_OPTIONS)));
+    }
+
+    @Test
+    void threeCylindersWithTheirOwnNetherOptionsStayCustom() {
+        assertOnlyCustomAdopts(new CustomSettings(
+                new DimensionShape(LoopSpans.ofWidth(Direction.Axis.X, 64), CustomSettings.DEFAULT_OPTIONS),
+                new DimensionShape(LoopSpans.ofWidth(Direction.Axis.X, 32), COMPACT_6),
+                new DimensionShape(LoopSpans.ofWidth(Direction.Axis.X, 256), CustomSettings.DEFAULT_OPTIONS)));
+    }
+
+    private static void assertOnlyCustomAdopts(CustomSettings chosen) {
+        WorldDimensions created = CustomDimensions.apply(vanillaDimensions(), chosen);
+
+        assertNull(TorusDimensions.read(created));
+        assertNull(CylinderDimensions.read(created));
+        assertEquals(chosen, CustomDimensions.read(created));
+    }
+
+    @Test
     void aWorldNoDimensionOfWhichWrapsIsNotCustom() {
         assertNull(CustomDimensions.read(vanillaDimensions()));
     }

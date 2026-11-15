@@ -125,6 +125,17 @@ class TorusDimensionsTest {
     }
 
     @Test
+    void aSkewedWorldWithANetherOffTheScaleLadderStaysTorus() {
+        TorusSettings chosen = new TorusSettings(LoopSpans.ofWidths(64, 128).withSkew(8), 4, LoopSpans.ofWidth(320),
+                TorusSettings.DEFAULT.generationOptions());
+        WorldDimensions offLadderNether = ShapedDimensions.withShape(
+                TorusDimensions.apply(vanillaDimensions(), chosen), LevelStem.NETHER,
+                new CarriedShape(FlatShape.of(LoopSpans.ofWidths(24, 40)), chosen.generationOptions()));
+
+        assertEquals(chosen.overworld(), TorusDimensions.read(offLadderNether).overworld());
+    }
+
+    @Test
     void aSquareStillRoundTrips() {
         WorldDimensions created = TorusDimensions.apply(vanillaDimensions(), TorusSettings.DEFAULT);
 
