@@ -172,6 +172,27 @@ public interface ToroidalShape {
     Vec3 shortestDelta(Vec3 from, Vec3 to);
 
     /**
+     * The squared distance from {@code from} to {@code to}, measured through the seam where that is shorter: what a
+     * range check or a nearest-target search asks once per candidate. Equal to
+     * {@code shortestDelta(from, to).lengthSqr()}, Y included, without building either vector.
+     */
+    double sqrDistance(Vec3 from, Vec3 to);
+
+    /**
+     * Whether two boxes overlap in some copy of the world: what an area query asks of a box that may straddle the
+     * seam or lie any number of laps out. Faces that only touch do not overlap, as in {@link AABB#intersects(AABB)}.
+     */
+    boolean boxesOverlap(AABB first, AABB second);
+
+    /**
+     * The pieces the world cuts {@code box} into at the seam, each folded into the world: what a mod scanning the
+     * blocks or entities of an area walks instead of the box itself. A box inside the world comes back as the one
+     * piece, the argument instance itself; one wider than the world is cut down to a single lap. Y passes through
+     * untouched, and each piece reports the orientation its fold applied.
+     */
+    List<Oriented<AABB>> split(AABB box);
+
+    /**
      * Every copy of the world that meets a horizontal rectangle, as the one move that carries the world into it —
      * what a map drawing its tiles asks once per frame. Near a seam, or where the rectangle is wider than the world,
      * that is more than one copy, and on a skewed shape a copy one row over is also moved sideways, so a copy is

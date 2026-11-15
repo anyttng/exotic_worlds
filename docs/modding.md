@@ -55,10 +55,12 @@ Client coordinates near the seam run whole world widths away from the server's, 
 `ToroidalShape` offers three ways to move a coordinate, and they are not interchangeable:
 
 - **`fold`**: the canonical position inside the world's bounds. Use it wherever a position becomes a key: a map, a set, a saved record, a hash. Two coordinates a lap apart are the same place, and only `fold` makes them the same key.
-- **`nearestCopy(ref, target)`**: the copy of `target` closest to `ref`. Use it wherever something is drawn or compared: a renderer, a range check, a squared distance. Something just across the seam reads as beside the reference instead of a world away.
+- **`nearestCopy(ref, target)`**: the copy of `target` closest to `ref`. Use it wherever something is drawn or compared: a renderer, a range check. Something just across the seam reads as beside the reference instead of a world away.
 - **`shortestDelta(from, to)`**: the vector from one to the other, measured through the seam where that is shorter. Use it wherever a direction or a signed distance is the answer: a waypoint arrow, a compass, a distance readout. It equals `nearestCopy(from, to).subtract(from)`.
 
 Two more answer for a rectangle rather than a reference point, as a map needs. `copiesMeeting(box)` lists every copy of the world that meets a horizontal rectangle, each as the `SeamShift` that carries the world there: a map asks it once per frame to know which tiles to draw. `copiesInside(box, pos)` lists every copy of one position inside the rectangle, in `Vec3` and `BlockPos` forms: a marker on that map asks it. Near a seam, or where the rectangle is wider than the world, both answer more than one copy. Build a copy from these, never by adding `widthBlocks`: on a skewed shape a copy one row over is also moved sideways.
+
+Where only how far matters, `sqrDistance(from, to)` answers the squared length of `shortestDelta(from, to)` without building either vector, so a check run for every candidate allocates nothing. For an area query, `boxesOverlap(first, second)` says whether two boxes meet in some copy of the world. `split(box)` lists the pieces the seam cuts a box into, each folded into the world with its `Orientation`, and a scan of the area walks those pieces rather than the box. A box inside the world comes back as one piece, the argument instance itself, and a box wider than the world is cut down to one lap.
 
 Ask `loops(axis)` before any per-axis member: `minChunk`, `maxBlock`, `widthChunks` and the rest throw `IllegalArgumentException` on an axis that does not loop, and `Direction.Axis.Y` never loops.
 
