@@ -2,6 +2,7 @@ package com.exoticworlds.engine.noise;
 
 import static com.exoticworlds.engine.noise.ClimateScanFixture.SEED_BASE;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.biomeSource;
+import static com.exoticworlds.engine.noise.ClimateScanFixture.cylinderOfWidth;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.randomState;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.torusOfWidth;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,9 +18,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.accessors.InterpretedDensity;
+import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.core.DeckGroupFold;
+import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldLoopBounds;
 
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.world.level.biome.BiomeSource;
@@ -32,7 +38,12 @@ class SeamCauseSearchTest {
     private static final WorldFold FOLD = torusOfWidth(WIDTH_BLOCKS);
     private static final Identifier MULTI_NOISE = Identifier.withDefaultNamespace("multi_noise");
     private static final double RAW_X_SCALE = 1024.0;
-    private static final SeamCauseSearch.Lap LAP = new SeamCauseSearch.Lap(Direction.Axis.X, WIDTH_BLOCKS);
+    private static final int SKEW_CHUNKS = 5;
+    private static final int SKEW_BLOCKS = SectionPos.sectionToBlockCoord(SKEW_CHUNKS);
+    private static final SeamCauseSearch.Lap LAP = new SeamCauseSearch.Lap(Direction.Axis.X, WIDTH_BLOCKS, 0);
+    private static final SeamCauseSearch.Lap Z_LAP = new SeamCauseSearch.Lap(Direction.Axis.Z, 0, WIDTH_BLOCKS);
+    private static final SeamCauseSearch.Lap SKEWED_Z_LAP =
+            new SeamCauseSearch.Lap(Direction.Axis.Z, SKEW_BLOCKS, WIDTH_BLOCKS);
     private static final List<SeamCauseSearch.Point> POINTS = List.of(
             new SeamCauseSearch.Point(0, 64, 0),
             new SeamCauseSearch.Point(100, 64, 137),
@@ -131,6 +142,40 @@ class SeamCauseSearchTest {
     }
 
     @Test
+    void aTorusHasALapOnEachAxis() {
+        assertEquals(List.of(LAP, Z_LAP), SeamCauseSearch.Lap.of(torusOfWidth(WIDTH_BLOCKS).blockLattice()));
+    }
+
+    @Test
+    void aCylinderHasItsOneLap() {
+        assertEquals(List.of(LAP), SeamCauseSearch.Lap.of(cylinderOfWidth(WIDTH_BLOCKS).blockLattice()));
+    }
+
+    @Test
+    void theZLapOfASkewedTorusMovesXByTheSkew() {
+        assertEquals(List.of(LAP, SKEWED_Z_LAP), SeamCauseSearch.Lap.of(skewedTorus().blockLattice()));
+    }
+
+    @Test
+    void aNodeThatReadsTheRawXHasNoCauseOnTheZLap() {
+        RandomState state = overworld();
+        DensityFunction root = DensityFunctions.add(state.router().erosion(), new RawX());
+
+        assertInstanceOf(SeamCause.NotFound.class, SeamCauseSearch.densityCause(root, POINTS, Z_LAP, FOLD));
+    }
+
+    @Test
+    void aSkewedFieldRepeatsOnItsOwnZLapAndNotOnThePlainOne() {
+        WorldFold skewed = skewedTorus();
+        RandomState state = randomState(ClimateScanFixture.TYPES.getFirst(), skewed, SEED_BASE);
+        DensityFunction erosion = state.router().erosion();
+
+        assertInstanceOf(SeamCause.NotFound.class,
+                SeamCauseSearch.densityCause(erosion, POINTS, SKEWED_Z_LAP, skewed));
+        assertInstanceOf(SeamCause.Node.class, SeamCauseSearch.densityCause(erosion, POINTS, Z_LAP, skewed));
+    }
+
+    @Test
     void aFieldThatRepeatsOneLapAwayHasNoCause() {
         RandomState state = overworld();
 
@@ -161,6 +206,13 @@ class SeamCauseSearchTest {
 
     private static RandomState overworld() {
         return randomState(ClimateScanFixture.TYPES.getFirst(), FOLD, SEED_BASE);
+    }
+
+    private static WorldFold skewedTorus() {
+        return new DeckGroupFold(
+                FlatShape.latticeTorus(WorldLoopBounds.ofWidth(SectionPos.blockToSectionCoord(WIDTH_BLOCKS)),
+                        SKEW_CHUNKS),
+                GenerationOptions.DEFAULT);
     }
 
     private static BiomeSource overworldBiomes() {
