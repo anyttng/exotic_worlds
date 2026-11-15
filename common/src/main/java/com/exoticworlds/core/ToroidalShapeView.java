@@ -108,6 +108,27 @@ public final class ToroidalShapeView implements ToroidalShape {
     }
 
     @Override
+    public double sqrDistance(Vec3 from, Vec3 to) {
+        return this.fold.sqrDistance(from.x, from.y, from.z, to.x, to.y, to.z);
+    }
+
+    @Override
+    public boolean boxesOverlap(AABB first, AABB second) {
+        return this.fold.boxesOverlap(first, second);
+    }
+
+    @Override
+    public List<Oriented<AABB>> split(AABB box) {
+        List<WorldFold.Folded<AABB>> pieces = this.fold.split(box);
+        List<Oriented<AABB>> oriented = new ArrayList<>(pieces.size());
+        for (WorldFold.Folded<AABB> piece : pieces) {
+            oriented.add(oriented(piece));
+        }
+
+        return oriented;
+    }
+
+    @Override
     public List<SeamShift> copiesMeeting(AABB box) {
         List<DeckTransformation> copies = copiesOf(box);
         List<SeamShift> shifts = new ArrayList<>(copies.size());
