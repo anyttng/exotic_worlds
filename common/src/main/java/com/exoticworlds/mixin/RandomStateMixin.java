@@ -2,6 +2,7 @@ package com.exoticworlds.mixin;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -12,9 +13,11 @@ import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.exoticworlds.accessors.BaseHeightsHolder;
 import com.exoticworlds.accessors.FoldedClimateSampler;
 import com.exoticworlds.core.GenerationMoments;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.gen.BaseHeights;
 import com.exoticworlds.engine.gen.CanonicalRandomFactory;
 import com.exoticworlds.engine.noise.DensityRewrites;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
@@ -29,9 +32,12 @@ import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 @Mixin(RandomState.class)
-public class RandomStateMixin {
+public class RandomStateMixin implements BaseHeightsHolder {
     private static final String CONSTRUCTOR = "<init>(Lnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;"
             + "Lnet/minecraft/core/HolderGetter;J)V";
+
+    @Unique
+    private @Nullable BaseHeights exotic_worlds$baseHeights;
 
     @ModifyExpressionValue(method = CONSTRUCTOR, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;noiseRouter()Lnet/minecraft/world/level/levelgen/NoiseRouter;"))
@@ -86,6 +92,7 @@ public class RandomStateMixin {
         WorldFold fold = GenerationFoldContext.context().routerBuildFold();
         if (fold != null) {
             ((FoldedClimateSampler) (Object) ((RandomState) (Object) this).sampler()).exotic_worlds$fold(fold);
+            this.exotic_worlds$baseHeights = new BaseHeights(fold);
             GenerationMoments.runAtRandomState((RandomState) (Object) this, fold.shapeView(),
                     fold.generationOptions(), settings.seaLevel());
         }
@@ -101,5 +108,10 @@ public class RandomStateMixin {
     private static List<DensityFunction> exotic_worlds$roots(NoiseRouter router) {
         return List.of(router.temperature(), router.vegetation(), router.continents(), router.erosion(),
                 router.depth(), router.ridges(), router.preliminarySurfaceLevel(), router.finalDensity());
+    }
+
+    @Override
+    public @Nullable BaseHeights exotic_worlds$baseHeights() {
+        return this.exotic_worlds$baseHeights;
     }
 }
