@@ -77,7 +77,8 @@ public final class ShapeModule<S> {
     /**
      * Registers the shape in the World Shape list.
      *
-     * @throws IllegalStateException if the registration boundary has already closed
+     * @throws IllegalStateException if the registration boundary has already closed, or a shape is already
+     *         registered under this module's id
      */
     public void register() {
         WorldShapes.register(WorldShape.of(

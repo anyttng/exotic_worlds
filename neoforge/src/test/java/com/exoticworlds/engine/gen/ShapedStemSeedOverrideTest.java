@@ -4,7 +4,7 @@ import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.shape.WorldOptionSetup;
+import com.exoticworlds.shape.StartupRegistrations;
 import static com.exoticworlds.engine.gen.BakeStampFixture.datapackRegistry;
 import static com.exoticworlds.engine.gen.BakeStampFixture.dimensionType;
 import static com.exoticworlds.engine.gen.BakeStampFixture.noiseGenerator;
@@ -50,7 +50,7 @@ class ShapedStemSeedOverrideTest {
     static void bootstrapVanilla() {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
-        WorldOptionSetup.registerAll(false);
+        StartupRegistrations.options();
         worldgen = VanillaRegistries.createLookup();
     }
 

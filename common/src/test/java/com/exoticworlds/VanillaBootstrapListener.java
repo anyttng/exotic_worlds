@@ -5,7 +5,7 @@ import org.junit.platform.launcher.LauncherSessionListener;
 
 import com.exoticworlds.platform.LoaderlessPlatform;
 import com.exoticworlds.platform.Platforms;
-import com.exoticworlds.shape.WorldOptionSetup;
+import com.exoticworlds.shape.StartupRegistrations;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.server.Bootstrap;
@@ -16,6 +16,6 @@ public final class VanillaBootstrapListener implements LauncherSessionListener {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
         Platforms.set(new LoaderlessPlatform());
-        WorldOptionSetup.registerAll(false);
+        StartupRegistrations.options();
     }
 }

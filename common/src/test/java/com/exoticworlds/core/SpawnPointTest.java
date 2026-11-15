@@ -3,11 +3,9 @@ package com.exoticworlds.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.shape.WorldOptionSetup;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
@@ -15,11 +13,6 @@ import com.mojang.serialization.JsonOps;
 
 class SpawnPointTest {
     private static final Codec<GenerationOptions> OPTIONS = GenerationOptions.mapCodec("").codec();
-
-    @BeforeAll
-    static void registerTheOptions() {
-        WorldOptionSetup.registerAll(false);
-    }
 
     @Test
     void aWorldFileWithoutASpawnPointReadsAsDefault() {
