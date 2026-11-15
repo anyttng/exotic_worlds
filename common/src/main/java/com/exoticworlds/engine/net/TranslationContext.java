@@ -366,4 +366,9 @@ public record TranslationContext(
     public Vec3 toServer(Vec3 position) {
         return fold.fold(position);
     }
+
+    @Override
+    public ChunkPos toServer(ChunkPos chunkPos) {
+        return fold.fold(chunkPos);
+    }
 }
