@@ -2,7 +2,7 @@ package com.exoticworlds.engine.seam;
 
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.fold.SeamDelta;
 
 import net.minecraft.world.phys.Vec3;
@@ -18,19 +18,19 @@ public final class SpreadArea {
                 && SeamDelta.fold(fold, antiDiagonal).equals(antiDiagonal);
     }
 
-    public static double randomMin(AxisBounds axis, double min, double max) {
-        return axis.coversWorld(max - min) && axis instanceof AxisBounds.Looped looped ? looped.minBlock() : min;
+    public static double randomMin(WrapDomain axis, double min, double max) {
+        return axis.coversWorld(max - min) ? axis.lowerBound : min;
     }
 
-    public static double randomMax(AxisBounds axis, double min, double max) {
-        return axis.coversWorld(max - min) && axis instanceof AxisBounds.Looped looped ? looped.maxBlock() : max;
+    public static double randomMax(WrapDomain axis, double min, double max) {
+        return axis.coversWorld(max - min) ? axis.upperBound : max;
     }
 
     public static Confined confine(WorldFold fold, double x, double z,
             double minX, double minZ, double maxX, double maxZ) {
-        boolean freeX = fold.bounds().x().coversWorld(maxX - minX);
-        boolean freeZ = fold.bounds().z().coversWorld(maxZ - minZ);
         TranslationLattice lattice = fold.blockLattice();
+        boolean freeX = lattice.x().coversWorld(maxX - minX);
+        boolean freeZ = lattice.z().coversWorld(maxZ - minZ);
         boolean clamped = false;
         if (freeZ) {
             x -= (double) lattice.zLaps(z) * lattice.skew();

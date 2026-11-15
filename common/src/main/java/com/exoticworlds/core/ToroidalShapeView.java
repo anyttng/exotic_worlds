@@ -18,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 public final class ToroidalShapeView implements ToroidalShape {
     private final WorldFold fold;
 
-    public ToroidalShapeView(WorldFold fold) {
+    ToroidalShapeView(WorldFold fold) {
         this.fold = fold;
     }
 
@@ -208,7 +208,11 @@ public final class ToroidalShapeView implements ToroidalShape {
     }
 
     private static <T> Oriented<T> oriented(T value, FoldOrientation orientation) {
-        return new Oriented<>(value, new Orientation(orientation.flipsX(), orientation.flipsZ()));
+        return new Oriented<>(value, orientationOf(orientation));
+    }
+
+    static Orientation orientationOf(FoldOrientation orientation) {
+        return new Orientation(orientation.flipsX(), orientation.flipsZ());
     }
 
     private List<DeckTransformation> copiesOf(AABB box) {

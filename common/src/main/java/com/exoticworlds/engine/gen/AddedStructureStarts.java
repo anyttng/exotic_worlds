@@ -17,7 +17,6 @@ import com.exoticworlds.api.v1.gen.StructureStarts;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.GenerationMoments;
-import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.mixin.StructureCheckAccessor;
@@ -79,7 +78,7 @@ public final class AddedStructureStarts {
     private static AddedStructureStarts compute(ChunkGeneratorStructureState state, StructureCheck check,
             CarriedShape carried) {
         WorldFold fold = carried.fold();
-        ToroidalShape shape = new ToroidalShapeView(fold);
+        ToroidalShape shape = fold.shapeView();
         Long2ObjectMap<List<StructureSet.StructureSelectionEntry>> byChunk = new Long2ObjectOpenHashMap<>();
         Map<StructurePlacement, List<StructureStarts.Added>> byPlacement = new HashMap<>();
         for (Holder<StructureSet> set : state.possibleStructureSets()) {

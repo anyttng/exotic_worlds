@@ -21,7 +21,6 @@ public final class DimensionTable {
 
     public static final DimensionTable EMPTY = new DimensionTable(Map.of());
 
-    private static final String NO_KEY_PREFIX = "";
     private static final String FROM_OVERWORLD_KEY = "from_overworld";
 
     public static final Codec<DimensionTable> CODEC = Codec
@@ -102,7 +101,7 @@ public final class DimensionTable {
         public static final Codec<Entry> CODEC = RecordCodecBuilder.<Stated>mapCodec(instance -> instance.group(
                 Codec.BOOL.optionalFieldOf(FROM_OVERWORLD_KEY, false).forGetter(Stated::fromOverworld),
                 CarriedShape.SHAPE_CODEC.optionalFieldOf(CarriedShape.WRAPPING_KEY).forGetter(Stated::shape),
-                GenerationOptions.mapCodec(NO_KEY_PREFIX).forGetter(Stated::options)
+                GenerationOptions.mapCodec(CarriedShape.NO_KEY_PREFIX).forGetter(Stated::options)
         ).apply(instance, Stated::new)).xmap(Stated::entry, Stated::of).codec();
 
         public Entry {

@@ -5,7 +5,6 @@ import com.exoticworlds.compat.map.AxisCopies;
 import com.exoticworlds.compat.map.FullscreenZoomFloor;
 import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.map.WorldCopies;
-import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 
 import net.acenia.seedviewer.client.map.MapCamera;
@@ -24,7 +23,7 @@ public final class SeamLines {
             return;
         }
 
-        ToroidalShape shape = new ToroidalShapeView(fold);
+        ToroidalShape shape = fold.shapeView();
         if (narrowerThanFloor(AxisCopies.of(shape, Direction.Axis.X), camera)
                 || narrowerThanFloor(AxisCopies.of(shape, Direction.Axis.Z), camera)) {
             return;

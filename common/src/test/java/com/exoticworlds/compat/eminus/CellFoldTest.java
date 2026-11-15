@@ -25,7 +25,6 @@ import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.lod.AlignedPeriod;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -100,7 +99,7 @@ class CellFoldTest {
     @MethodSource("shapes")
     void aSectionWrittenOnOneSideReadsAtEveryLapOnEveryLevel(String name, WorldFold worldFold) {
         CellFold fold = CellFold.of(worldFold);
-        ToroidalShape shape = new ToroidalShapeView(worldFold);
+        ToroidalShape shape = worldFold.shapeView();
         int sectionX = shape.loops(Direction.Axis.X) ? shape.maxBlock(Direction.Axis.X) - SECTION : 0;
         int sectionZ = shape.loops(Direction.Axis.Z) ? shape.minBlock(Direction.Axis.Z) : 0;
 
@@ -161,7 +160,7 @@ class CellFoldTest {
     @MethodSource("shapes")
     void theWindowHoldsOneCopyOfEveryPlaceAroundTheCamera(String name, WorldFold worldFold) {
         CellFold fold = CellFold.of(worldFold);
-        ToroidalShape shape = new ToroidalShapeView(worldFold);
+        ToroidalShape shape = worldFold.shapeView();
         double eyeX = shape.loops(Direction.Axis.X) ? shape.maxBlock(Direction.Axis.X) - EYE_OFFSET : EYE_OFFSET;
         double eyeZ = shape.loops(Direction.Axis.Z) ? shape.minBlock(Direction.Axis.Z) + EYE_OFFSET : EYE_OFFSET;
         List<int[]> moves = latticeMoves(shape, worldFold.blockLattice().skew());
@@ -186,7 +185,7 @@ class CellFoldTest {
     @MethodSource("shapes")
     void twoListedNodesShareAStoredKeyOnlyWhenBothCrossTheEdge(String name, WorldFold worldFold) {
         CellFold fold = CellFold.of(worldFold);
-        ToroidalShape shape = new ToroidalShapeView(worldFold);
+        ToroidalShape shape = worldFold.shapeView();
         int skew = worldFold.blockLattice().skew();
         double eyeX = shape.loops(Direction.Axis.X) ? shape.maxBlock(Direction.Axis.X) - EYE_OFFSET : EYE_OFFSET;
         double eyeZ = shape.loops(Direction.Axis.Z) ? shape.minBlock(Direction.Axis.Z) + EYE_OFFSET : EYE_OFFSET;
@@ -227,7 +226,7 @@ class CellFoldTest {
     @MethodSource("shapes")
     void everyLapCopyOfABlockFoldsToOneStoredBlock(String name, WorldFold worldFold) {
         CellFold fold = CellFold.of(worldFold);
-        ToroidalShape shape = new ToroidalShapeView(worldFold);
+        ToroidalShape shape = worldFold.shapeView();
         List<int[]> moves = latticeMoves(shape, worldFold.blockLattice().skew());
 
         for (int x = -SECTION * SECTION; x < SECTION * SECTION; x += SECTION + 1) {
@@ -246,7 +245,7 @@ class CellFoldTest {
     @MethodSource("shapes")
     void theCopyNearTheEyeIsTheOneCopyTheLapHolds(String name, WorldFold worldFold) {
         CellFold fold = CellFold.of(worldFold);
-        ToroidalShape shape = new ToroidalShapeView(worldFold);
+        ToroidalShape shape = worldFold.shapeView();
         double eyeX = shape.loops(Direction.Axis.X) ? shape.maxBlock(Direction.Axis.X) - EYE_OFFSET : EYE_OFFSET;
         double eyeZ = shape.loops(Direction.Axis.Z) ? shape.minBlock(Direction.Axis.Z) + EYE_OFFSET : EYE_OFFSET;
         List<int[]> moves = latticeMoves(shape, worldFold.blockLattice().skew());
@@ -272,7 +271,7 @@ class CellFoldTest {
     @MethodSource("shapes")
     void aChunkReadsEveryBlockBackFromTheFoldedChunks(String name, WorldFold worldFold) {
         CellFold fold = CellFold.of(worldFold);
-        ToroidalShape shape = new ToroidalShapeView(worldFold);
+        ToroidalShape shape = worldFold.shapeView();
         int chunkX = shape.loops(Direction.Axis.X)
                 ? SectionPos.blockToSectionCoord(shape.maxBlock(Direction.Axis.X)) + FAR_LAPS * TINY_CHUNKS
                 : 0;
