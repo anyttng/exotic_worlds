@@ -34,6 +34,8 @@ LoopSpans.ofWidth(24).withSkew(6);            // crossing the Z seam also moves 
 
 Which flat surface the world ends up being is read off the spans, never declared: both axes give a torus, one gives a cylinder, neither gives an ordinary world. `withSkew` needs both axes to loop, and makes a torus whose axes do not fold independently ([The two capability flags](../modding.md#the-two-capability-flags)); `skewChunks()` reads it back, brought into the range from minus half the X width to plus half. `scaledDown(scale)` divides every looping axis and the skew, and re-centers: how the nether is normally derived from the overworld, so the vanilla portal ratio still lands inside the world. It throws where the scale does not divide the skew.
 
+Every looping axis of every dimension must be at least `LoopSpans.minChunkWidth()` chunks wide, 16 chunks (256 blocks). `ShapeDimensions.withSpans` throws `IllegalArgumentException` on a narrower one. An eighth of the overworld clears it only from 128 chunks up, so choose the nether's scale against it.
+
 `ShapeDimensions` writes those spans into the three vanilla stems, and reads them back:
 
 ```java
