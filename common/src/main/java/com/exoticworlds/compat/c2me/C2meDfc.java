@@ -6,7 +6,8 @@ import com.mojang.logging.LogUtils;
 import com.exoticworlds.compat.gate.ModPresence;
 
 public final class C2meDfc {
-    static final List<String> MIXINS = List.of("McToAstMixin", "BytecodeGenRegistryMixin", "DotGenRegistryMixin");
+    static final List<String> MIXINS = List.of("McToAstMixin", "BytecodeGenRegistryMixin", "DotGenRegistryMixin",
+            "CompiledDensityFallbackMixin");
     static final List<String> CLASSES = List.of("C2meDfc", "C2meDfcAst", "C2meFoldedNoiseDotEmitter",
             "C2meFoldedNoiseEmitter", "C2meFoldedNoiseLoop", "C2meFoldedNoiseNode");
 
