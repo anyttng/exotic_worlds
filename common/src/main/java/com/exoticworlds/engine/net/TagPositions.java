@@ -229,14 +229,20 @@ public final class TagPositions {
                         + keys.length + " were registered on " + subjectType.getName());
             }
 
-            List<TagPosition> positions = new ArrayList<>(registered.entries().getOrDefault(subjectType, List.of()));
+            List<TagPosition> added = new ArrayList<>();
             for (int index = 0; index < keys.length; index += keyCount) {
-                positions.add(new TagPosition(nesting, container,
+                added.add(new TagPosition(nesting, container,
                         Arrays.asList(keys).subList(index, index + keyCount), shape));
             }
 
-            registered.register(subjectType, List.copyOf(positions));
+            registered.merge(subjectType, List.copyOf(added), Table::joined);
             resolved = new ConcurrentHashMap<>();
+        }
+
+        private static List<TagPosition> joined(List<TagPosition> held, List<TagPosition> added) {
+            List<TagPosition> positions = new ArrayList<>(held);
+            positions.addAll(added);
+            return List.copyOf(positions);
         }
 
         public synchronized void declare(Map<ResourceLocation, List<TagPosition>> rows) {

@@ -26,7 +26,8 @@ public final class ShapeCustomizers {
     /**
      * Registers the customizer for the shape declared under {@code shapeId}.
      *
-     * @throws IllegalStateException if the registration boundary has already closed
+     * @throws IllegalStateException if the registration boundary has already closed, or {@code shapeId} already has
+     *         a customizer
      */
     public static void register(ResourceLocation shapeId, Customizer customizer) {
         CUSTOMIZERS.register(shapeId, customizer);
