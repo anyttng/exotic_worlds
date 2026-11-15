@@ -3,12 +3,15 @@ package com.exoticworlds.engine.noise;
 import java.util.List;
 
 import com.exoticworlds.ExoticWorlds;
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
 public final class SeamCommand {
@@ -28,6 +31,10 @@ public final class SeamCommand {
 
     private static int reportOnce(CommandSourceStack source) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
+        if (SeamCheckRun.of(source.getServer()).running()) {
+            return refuse(source);
+        }
+
         if (!SeamDetailsPending.of(source.getServer()).take(player.getUUID())) {
             ExoticWorlds.LOGGER.info("[ew/edge] details_repeat player={}", player.getName().getString());
             return 0;
@@ -38,15 +45,30 @@ public final class SeamCommand {
 
     private static int report(CommandSourceStack source) {
         ExoticWorlds.LOGGER.info("[ew/edge] command source={}", source.getTextName());
-        List<SeamVerdict> verdicts = PeriodicityCheck.fullVerdictsOf(source.getServer());
-        if (verdicts.isEmpty()) {
+        MinecraftServer server = source.getServer();
+        List<ServerLevel> levels = PeriodicityCheck.wrappedLevels(server);
+        if (levels.isEmpty()) {
             source.sendSuccess(SeamMessages::none, false);
             return 0;
         }
 
+        if (levels.stream().allMatch(PeriodicityCheck::fullVerdictKnown)) {
+            return reportKnown(source, levels);
+        }
+
+        if (!SeamCheckRun.of(server).start(source, levels)) {
+            return refuse(source);
+        }
+
+        source.sendSuccess(SeamMessages::started, false);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int reportKnown(CommandSourceStack source, List<ServerLevel> levels) {
         source.sendSuccess(SeamMessages::header, false);
         int broken = 0;
-        for (SeamVerdict verdict : verdicts) {
+        for (ServerLevel level : levels) {
+            SeamVerdict verdict = PeriodicityCheck.fullVerdictOf(level);
             for (Component line : SeamMessages.report(verdict)) {
                 source.sendSuccess(() -> line, false);
             }
@@ -54,8 +76,13 @@ public final class SeamCommand {
             broken += verdict.broken() ? 1 : 0;
         }
 
-        ExoticWorlds.LOGGER.info("[ew/edge] command_done dimensions={} broken={}", verdicts.size(), broken);
+        ExoticWorlds.LOGGER.info("[ew/edge] command_done dimensions={} broken={}", levels.size(), broken);
         return broken;
+    }
+
+    private static int refuse(CommandSourceStack source) {
+        source.sendFailure(SeamMessages.running());
+        return 0;
     }
 
     private SeamCommand() {
