@@ -41,13 +41,37 @@ public final class ShapeStems {
     }
 
     public static WorldDimensions withSpans(WorldDimensions dimensions, StemSettings settings) {
-        int netherScale = normalizeNetherScale(settings.netherScale(), settings.overworld());
-        GenerationOptions options = settings.generationOptions();
-        GenerationOptions withoutSpawn = options.with(SpawnPoint.OPTION, SpawnPoint.DEFAULT);
-        return ShapedDimensions.withShapes(dimensions,
-                new CarriedShape(FlatShape.of(settings.overworld()), options),
-                new CarriedShape(FlatShape.of(settings.overworld().scaledDown(netherScale)), withoutSpawn),
-                new CarriedShape(FlatShape.of(settings.end()), withoutSpawn));
+        WrittenStems written = WrittenStems.of(settings);
+        return ShapedDimensions.withShapes(dimensions, written.overworld(), written.nether(), written.end());
+    }
+
+    public static boolean writesBack(WorldDimensions dimensions, StemSettings settings) {
+        WrittenStems written = WrittenStems.of(settings);
+        return isStoredOrAbsent(dimensions, LevelStem.OVERWORLD, written.overworld())
+                && isStoredOrAbsent(dimensions, LevelStem.NETHER, written.nether())
+                && isStoredOrAbsent(dimensions, LevelStem.END, written.end());
+    }
+
+    private static boolean isStoredOrAbsent(WorldDimensions dimensions, ResourceKey<LevelStem> key,
+            CarriedShape written) {
+        if (dimensions.get(key).isEmpty()) {
+            return true;
+        }
+
+        CarriedShape stored = ShapedDimensions.carriedShapeOf(dimensions, key);
+        return stored != null && written.equals(stored);
+    }
+
+    private record WrittenStems(CarriedShape overworld, CarriedShape nether, CarriedShape end) {
+        private static WrittenStems of(StemSettings settings) {
+            int netherScale = normalizeNetherScale(settings.netherScale(), settings.overworld());
+            GenerationOptions options = settings.generationOptions();
+            GenerationOptions withoutSpawn = options.with(SpawnPoint.OPTION, SpawnPoint.DEFAULT);
+            return new WrittenStems(
+                    new CarriedShape(FlatShape.of(settings.overworld()), options),
+                    new CarriedShape(FlatShape.of(settings.overworld().scaledDown(netherScale)), withoutSpawn),
+                    new CarriedShape(FlatShape.of(settings.end()), withoutSpawn));
+        }
     }
 
     public static int readNetherScale(WorldDimensions dimensions, Predicate<LoopSpans> ownGeometry,
