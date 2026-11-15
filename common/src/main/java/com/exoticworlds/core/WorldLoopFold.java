@@ -544,10 +544,8 @@ final class WorldLoopFold implements WorldFold {
 
     @Override
     public Folded<AABB> nearestCopyOriented(Vec3 ref, AABB box) {
-        double centerX = SeamBoxes.center(box.minX, box.maxX);
-        double centerZ = SeamBoxes.center(box.minZ, box.maxZ);
-        double shiftX = coords.x.unwrapAround(ref.x, centerX) - centerX;
-        double shiftZ = coords.z.unwrapAround(ref.z, centerZ) - centerZ;
-        return Folded.of(shiftX == 0.0 && shiftZ == 0.0 ? box : box.move(shiftX, 0.0, shiftZ));
+        int shiftX = coords.x.shiftToward(ref.x, SeamBoxes.center(box.minX, box.maxX));
+        int shiftZ = coords.z.shiftToward(ref.z, SeamBoxes.center(box.minZ, box.maxZ));
+        return Folded.of(shiftX == 0 && shiftZ == 0 ? box : SeamTransform.translation(shiftX, shiftZ).apply(box));
     }
 }
