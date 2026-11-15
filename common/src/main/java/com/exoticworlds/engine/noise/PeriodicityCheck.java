@@ -56,6 +56,10 @@ public final class PeriodicityCheck {
         return cached(((PeriodicityMark) level).exotic_worlds$fullSeamVerdict(), () -> fullCheck(level));
     }
 
+    static boolean fullVerdictKnown(ServerLevel level) {
+        return ((PeriodicityMark) level).exotic_worlds$fullSeamVerdict().get() != null;
+    }
+
     public static List<SeamVerdict> verdictsOf(MinecraftServer server) {
         return wrappedLevels(server).stream().map(PeriodicityCheck::verdictOf).toList();
     }
@@ -64,7 +68,7 @@ public final class PeriodicityCheck {
         return wrappedLevels(server).stream().map(PeriodicityCheck::fullVerdictOf).toList();
     }
 
-    private static List<ServerLevel> wrappedLevels(MinecraftServer server) {
+    static List<ServerLevel> wrappedLevels(MinecraftServer server) {
         List<ServerLevel> levels = new ArrayList<>();
         for (ServerLevel level : server.getAllLevels()) {
             if (WorldLoopAttachments.foldOf(level).isWrapped()) {

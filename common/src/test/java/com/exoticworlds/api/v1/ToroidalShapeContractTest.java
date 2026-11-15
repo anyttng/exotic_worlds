@@ -156,6 +156,17 @@ class ToroidalShapeContractTest {
         }
 
         @Test
+        void aBoxSeatedBesideAReferencePastTheEdgeMovesByExactlyOneLap() {
+            ToroidalShape shape = torus();
+            AABB box = new AABB(-38.850555167338115, 60.0, -1.0, -38.645934821519134, 62.0, 1.0);
+            AABB seated = shape.nearestCopy(new Vec3(-343.9936046295191, 64.0, 0.5), box);
+
+            assertEquals(box.minX - WIDTH, seated.minX, "the near edge is off the lap");
+            assertEquals(box.maxX - WIDTH, seated.maxX, "the far edge is off the lap");
+            assertEquals(box.minZ, seated.minZ, "an axis that needed no shift moved");
+        }
+
+        @Test
         void aBoxAlreadyNearestIsHandedBack() {
             ToroidalShape shape = torus();
             AABB box = new AABB(LOWER + 6.0, 60.0, -1.0, LOWER + 10.0, 62.0, 1.0);
