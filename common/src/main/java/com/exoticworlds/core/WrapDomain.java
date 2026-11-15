@@ -3,6 +3,8 @@ package com.exoticworlds.core;
 import java.util.List;
 
 public class WrapDomain {
+    private static final double LAP_COUNT_LIMIT = 0x1p63;
+
     public final int lowerBound;
     public final int upperBound;
     public final int domainLength;
@@ -34,6 +36,10 @@ public class WrapDomain {
         }
 
         return Math.toIntExact(laps);
+    }
+
+    int shiftOver(double coord) {
+        return lapShift(lapsOver(coord));
     }
 
     public boolean canLap(double coord) {
@@ -98,6 +104,10 @@ public class WrapDomain {
 
     private double lapsToward(double refCoord, double coord) {
         double quotient = (coord - refCoord) / domainLength;
+        if (!(Math.abs(quotient) < LAP_COUNT_LIMIT)) {
+            return 0.0;
+        }
+
         double laps = Math.round(quotient);
         if (quotient - laps == -0.5 && laps > 0) {
             return laps - 1;
