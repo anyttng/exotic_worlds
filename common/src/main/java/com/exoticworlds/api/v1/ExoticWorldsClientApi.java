@@ -2,7 +2,6 @@ package com.exoticworlds.api.v1;
 
 import java.util.Optional;
 
-import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.level.PublishedShapes;
@@ -28,7 +27,7 @@ public final class ExoticWorldsClientApi {
      */
     public static Optional<ToroidalShape> shapeOf(ClientLevel level) {
         WorldFold fold = WorldLoopAttachments.wrappedClientBoundsFoldOf(level);
-        return fold == null ? Optional.empty() : Optional.of(new ToroidalShapeView(fold));
+        return fold == null ? Optional.empty() : Optional.of(fold.shapeView());
     }
 
     /**
@@ -38,7 +37,7 @@ public final class ExoticWorldsClientApi {
      */
     public static Optional<ToroidalShape> shapeOf(ResourceKey<Level> dimension) {
         WorldFold fold = PublishedShapes.wrappedFoldOf(dimension);
-        return fold == null ? Optional.empty() : Optional.of(new ToroidalShapeView(fold));
+        return fold == null ? Optional.empty() : Optional.of(fold.shapeView());
     }
 
     private ExoticWorldsClientApi() {

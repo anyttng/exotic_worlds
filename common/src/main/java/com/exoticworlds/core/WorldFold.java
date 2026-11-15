@@ -2,6 +2,7 @@ package com.exoticworlds.core;
 
 import java.util.List;
 
+import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 
 import net.minecraft.core.BlockPos;
@@ -41,6 +42,8 @@ public interface WorldFold {
     TranslationLattice blockLattice();
 
     TranslationLattice chunkLattice();
+
+    ToroidalShape shapeView();
 
     boolean isOver(Vec3 pos);
 
@@ -102,7 +105,9 @@ public interface WorldFold {
 
     BlockPos reseat(BlockPos pos, ChunkPos copy);
 
-    Vec3 foldDelta(Vec3 from, Vec3 to);
+    default Vec3 foldDelta(Vec3 from, Vec3 to) {
+        return nearestCopy(from, to).subtract(from);
+    }
 
     double sqrDistance(double xFrom, double yFrom, double zFrom, double xTo, double yTo, double zTo);
 

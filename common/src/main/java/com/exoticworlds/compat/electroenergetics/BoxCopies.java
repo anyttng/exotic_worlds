@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.BlockPos;
@@ -49,7 +48,7 @@ public final class BoxCopies {
     }
 
     private static List<ToroidalShape.Oriented<BlockPos>> copies(WorldFold fold, AABB box, BlockPos pos) {
-        return new ToroidalShapeView(fold).copiesInside(box, pos);
+        return fold.shapeView().copiesInside(box, pos);
     }
 
     private static AABB square(ChunkPos center, int radius) {

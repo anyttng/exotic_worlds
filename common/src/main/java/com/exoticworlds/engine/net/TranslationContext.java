@@ -11,7 +11,6 @@ import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.net.SeamContext;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
@@ -106,7 +105,7 @@ public record TranslationContext(
 
     @Override
     public ToroidalShape shape() {
-        return new ToroidalShapeView(fold);
+        return fold.shapeView();
     }
 
     @Override
@@ -171,7 +170,7 @@ public record TranslationContext(
     }
 
     private boolean isForeign(Direction.Axis axis, double blockCoord) {
-        return rectangleAxis(fold.blockLattice(), axis).isForeign(blockCoord);
+        return fold.blockLattice().axis(axis).isForeign(blockCoord);
     }
 
     private static boolean withinView(ChunkPos pos, ChunkPos center, int viewReach) {
@@ -268,17 +267,13 @@ public record TranslationContext(
     private void guardReach(PacketReach reach, Direction.Axis axis, double serverValue, double clientValue,
             double anchor) {
         if (!withinReach(clientValue, anchor, reach) && !isForeign(axis, serverValue)
-                && carriesReach(rectangleAxis(fold.blockLattice(), axis), reach)) {
+                && carriesReach(fold.blockLattice().axis(axis), reach)) {
             warnCoordFarFromAnchor(reach, axis, serverValue, clientValue, anchor);
         }
     }
 
     private boolean chunkOutOfView(Direction.Axis axis, int delta, int viewReach) {
-        return Math.abs(delta) > viewReach && carriesView(rectangleAxis(fold.chunkLattice(), axis), viewReach);
-    }
-
-    private static WrapDomain rectangleAxis(TranslationLattice lattice, Direction.Axis axis) {
-        return axis == Direction.Axis.X ? lattice.x() : lattice.z();
+        return Math.abs(delta) > viewReach && carriesView(fold.chunkLattice().axis(axis), viewReach);
     }
 
     static boolean withinReach(double clientValue, double anchor, PacketReach reach) {

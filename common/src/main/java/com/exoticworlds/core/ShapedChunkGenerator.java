@@ -12,9 +12,8 @@ import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 
 public interface ShapedChunkGenerator {
     String SETTINGS_KEY = "settings";
-    String NO_KEY_PREFIX = "";
 
-    MapCodec<CarriedShape> CARRIED_CODEC = CarriedShape.mapCodec(NO_KEY_PREFIX);
+    MapCodec<CarriedShape> CARRIED_CODEC = CarriedShape.mapCodec(CarriedShape.NO_KEY_PREFIX);
 
     CarriedShape carriedShape();
 

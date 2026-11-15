@@ -36,7 +36,9 @@ public final class WorldFolds {
     }
 
     public static DataResult<FlatShape> verifyFoldable(FlatShape shape) {
-        return verifyPreservesLocalIndices(shape);
+        return shape.preservesLocalIndices()
+                ? DataResult.success(shape)
+                : DataResult.error(() -> refusal(shape, REVERSED_LOCAL_INDICES));
     }
 
     public static DataResult<FlatShape> verifyGeneratable(FlatShape shape) {
@@ -55,12 +57,6 @@ public final class WorldFolds {
         return Optional.of("A world looping " + WorldLoopSizes.describe(looped.chunkWidth()) + " on its "
                 + axis.getName() + " axis is under the " + WorldLoopSizes.describe(WorldLoopSizes.MIN_CHUNK_WIDTH)
                 + " chunk generation needs, and would crash while generating");
-    }
-
-    public static DataResult<FlatShape> verifyPreservesLocalIndices(FlatShape shape) {
-        return shape.preservesLocalIndices()
-                ? DataResult.success(shape)
-                : DataResult.error(() -> refusal(shape, REVERSED_LOCAL_INDICES));
     }
 
     private static String refusal(FlatShape shape, String reason) {

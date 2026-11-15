@@ -158,10 +158,10 @@ class WorldFoldsTest {
 
     @Test
     void theLocalIndexFloorSeparatesASkewFromAMirror() {
-        assertSame(SKEWED, WorldFolds.verifyPreservesLocalIndices(SKEWED).getOrThrow());
+        assertSame(SKEWED, WorldFolds.verifyFoldable(SKEWED).getOrThrow());
 
         for (FlatShape shape : mirrored()) {
-            DataResult<FlatShape> result = WorldFolds.verifyPreservesLocalIndices(shape);
+            DataResult<FlatShape> result = WorldFolds.verifyFoldable(shape);
             assertTrue(result.isError(), shape.toString());
             assertTrue(result.error().orElseThrow().message().contains(shape.identification().toString()),
                     result.toString());
@@ -203,16 +203,6 @@ class WorldFoldsTest {
                     assertEquals(ChunkPos.getZ(folded), ChunkPos.getZ(xFirst), shape + " chunk " + x + ", " + z);
                 }
             }
-        }
-    }
-
-    @Test
-    void theFoldableGateRefusesAMirrorOnTheFloorsOwnGrounds() {
-        for (FlatShape shape : mirrored()) {
-            assertEquals(
-                    WorldFolds.verifyPreservesLocalIndices(shape).error().orElseThrow().message(),
-                    WorldFolds.verifyFoldable(shape).error().orElseThrow().message(),
-                    shape.toString());
         }
     }
 }

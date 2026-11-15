@@ -49,25 +49,6 @@ public record WorldLoopBounds(AxisBounds x, AxisBounds z) {
                 return maxChunk * CoordinateConstants.CHUNK_WIDTH;
             }
 
-            public int blockWidth() {
-                return chunkWidth() * CoordinateConstants.CHUNK_WIDTH;
-            }
-
-            @Override
-            public boolean isOver(double blockCoord) {
-                return blockCoord < minBlock() || blockCoord >= maxBlock();
-            }
-
-            @Override
-            public boolean coversWorld(double blockSpan) {
-                return blockSpan >= blockWidth();
-            }
-
-            @Override
-            public boolean foldsOntoItself(int chunkCount) {
-                return chunkCount > chunkWidth();
-            }
-
             @Override
             public int maxViewDistance() {
                 return Math.max(1, chunkWidth() / 2 - CoordinateConstants.VIEW_DISTANCE_MARGIN);
@@ -83,21 +64,6 @@ public record WorldLoopBounds(AxisBounds x, AxisBounds z) {
             public static final Unbounded INSTANCE = new Unbounded();
 
             @Override
-            public boolean isOver(double blockCoord) {
-                return false;
-            }
-
-            @Override
-            public boolean coversWorld(double blockSpan) {
-                return false;
-            }
-
-            @Override
-            public boolean foldsOntoItself(int chunkCount) {
-                return false;
-            }
-
-            @Override
             public int maxViewDistance() {
                 return Integer.MAX_VALUE;
             }
@@ -107,12 +73,6 @@ public record WorldLoopBounds(AxisBounds x, AxisBounds z) {
                 return UNBOUNDED_TEXT;
             }
         }
-
-        boolean isOver(double blockCoord);
-
-        boolean coversWorld(double blockSpan);
-
-        boolean foldsOntoItself(int chunkCount);
 
         int maxViewDistance();
 

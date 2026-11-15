@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.exoticworlds.accessors.FoldedClimateSampler;
 import com.exoticworlds.core.GenerationMoments;
-import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.gen.CanonicalRandomFactory;
 import com.exoticworlds.engine.noise.DensityRewrites;
@@ -87,7 +86,7 @@ public class RandomStateMixin {
         WorldFold fold = GenerationFoldContext.context().routerBuildFold();
         if (fold != null) {
             ((FoldedClimateSampler) (Object) ((RandomState) (Object) this).sampler()).exotic_worlds$fold(fold);
-            GenerationMoments.runAtRandomState((RandomState) (Object) this, new ToroidalShapeView(fold),
+            GenerationMoments.runAtRandomState((RandomState) (Object) this, fold.shapeView(),
                     fold.generationOptions(), settings.seaLevel());
         }
     }

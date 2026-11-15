@@ -26,7 +26,6 @@ import com.exoticworlds.compat.preview.PreviewView;
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.ultraterraforged.preview.DrawnPreview;
-import com.exoticworlds.core.ToroidalShapeView;
 
 import com.pandaismyname1.ultraterraforged.client.gui.createworld.TerrainPreview;
 
@@ -65,7 +64,7 @@ public abstract class TerrainPreviewCopiesMixin implements DrawnPreview {
     @ModifyVariable(method = "generate", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private float exotic_worlds$capTheZoom(float zoom, @Share("shape") LocalRef<ToroidalShape> shape,
             @Share("copies") LocalRef<MapCopies> copies) {
-        shape.set(new ToroidalShapeView(CreationShape.routerBuildFold()));
+        shape.set(CreationShape.routerBuildFold().shapeView());
         copies.set(MapCopies.current());
         int widgetPixels = ((AbstractWidget) (Object) this).getWidth();
         return Math.min(zoom, PreviewView.zoomCeiling(shape.get(), copies.get(), widgetPixels));

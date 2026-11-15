@@ -2,9 +2,8 @@ package com.exoticworlds.engine.seam;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.fold.SeamSpans;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic3CommandExceptionType;
@@ -37,16 +36,12 @@ public final class SeamCommandErrors {
 
     public static void requireInsideWorld(WorldFold fold, Direction.Axis axis, double coord)
             throws CommandSyntaxException {
-        if (!(fold.bounds().axis(axis) instanceof AxisBounds.Looped looped) || !looped.isOver(coord)
-                || isForeign(fold.blockLattice(), axis, coord)) {
+        WrapDomain domain = fold.blockLattice().axis(axis);
+        if (!domain.isOver(coord)) {
             return;
         }
 
-        throw COORDINATE_OUTSIDE_WORLD.create(blockOf(coord), looped.minBlock(), looped.maxBlock() - 1);
-    }
-
-    private static boolean isForeign(TranslationLattice lattice, Direction.Axis axis, double coord) {
-        return (axis == Direction.Axis.X ? lattice.x() : lattice.z()).isForeign(coord);
+        throw COORDINATE_OUTSIDE_WORLD.create(blockOf(coord), domain.lowerBound, domain.upperBound - 1);
     }
 
     private static long blockOf(double coord) {

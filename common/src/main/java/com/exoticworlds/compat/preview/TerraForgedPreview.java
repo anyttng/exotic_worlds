@@ -8,7 +8,6 @@ import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.SpawnPoint;
-import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.shape.WorldShapes;
 
 import net.minecraft.client.Minecraft;
@@ -34,13 +33,13 @@ public final class TerraForgedPreview {
             return zoom;
         }
 
-        float ceiling = PreviewView.zoomCeiling(new ToroidalShapeView(shown.fold()), MapCopies.current(),
+        float ceiling = PreviewView.zoomCeiling(shown.fold().shapeView(), MapCopies.current(),
                 preview.exotic_worlds$widget().getWidth());
         return Math.min(zoom, Math.max(MIN_ZOOM, Mth.floor(ceiling)));
     }
 
     public static int heldCenter(Direction.Axis axis, int center, int zoom) {
-        ToroidalShape shape = new ToroidalShapeView(CreationShape.routerBuildFold());
+        ToroidalShape shape = CreationShape.routerBuildFold().shapeView();
         return Mth.floor(PreviewView.heldCenter(shape, MapCopies.current(), axis, center, zoom));
     }
 
@@ -51,7 +50,7 @@ public final class TerraForgedPreview {
         }
 
         PreviewReadout readout = preview.exotic_worlds$readout();
-        return new PreviewView(new ToroidalShapeView(shown.fold()), MapCopies.current(),
+        return new PreviewView(shown.fold().shapeView(), MapCopies.current(),
                 readout.exotic_worlds$centerX(), readout.exotic_worlds$centerZ(), preview.exotic_worlds$zoom());
     }
 
@@ -96,7 +95,7 @@ public final class TerraForgedPreview {
         PreviewReadout readout = preview.exotic_worlds$readout();
         if (!readout.exotic_worlds$hovered().isEmpty()) {
             BlockPos picked = new BlockPos(readout.exotic_worlds$hoveredX(), 0, readout.exotic_worlds$hoveredZ());
-            moveSpawn(preview, SpawnPick.at(new ToroidalShapeView(shown.fold()), picked));
+            moveSpawn(preview, SpawnPick.at(shown.fold().shapeView(), picked));
         }
         return true;
     }

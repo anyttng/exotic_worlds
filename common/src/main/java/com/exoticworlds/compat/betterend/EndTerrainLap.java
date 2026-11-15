@@ -74,7 +74,7 @@ public final class EndTerrainLap {
     }
 
     public double period(Direction.Axis axis, double unitBlocks) {
-        WrapDomain domain = axis == Direction.Axis.X ? this.lattice.x() : this.lattice.z();
+        WrapDomain domain = this.lattice.axis(axis);
         return domain.loops() ? domain.domainLength / unitBlocks : OpenSimplexStandIn.UNBOUNDED;
     }
 

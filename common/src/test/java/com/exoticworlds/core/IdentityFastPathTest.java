@@ -539,8 +539,12 @@ class IdentityFastPathTest {
         return random.nextInt(2 * span + 1) - span;
     }
 
+    private static int blockWidth(AxisBounds.Looped looped) {
+        return looped.chunkWidth() * CoordinateConstants.CHUNK_WIDTH;
+    }
+
     private static int sampleBlockCoord(Random random, AxisBounds axis) {
-        return sampleCoord(random, axis instanceof AxisBounds.Looped looped ? looped.blockWidth() : 0, BLOCK_REACH_CAP);
+        return sampleCoord(random, axis instanceof AxisBounds.Looped looped ? blockWidth(looped) : 0, BLOCK_REACH_CAP);
     }
 
     private static int sampleChunkCoord(Random random, AxisBounds axis) {
@@ -549,7 +553,7 @@ class IdentityFastPathTest {
 
     private static int insideBlockCoord(Random random, AxisBounds axis) {
         return axis instanceof AxisBounds.Looped looped
-                ? looped.minBlock() + random.nextInt(looped.blockWidth())
+                ? looped.minBlock() + random.nextInt(blockWidth(looped))
                 : sampleBlockCoord(random, axis);
     }
 
@@ -561,7 +565,7 @@ class IdentityFastPathTest {
 
     private static int regionSpan(Random random, AxisBounds axis) {
         return random.nextInt(
-                (axis instanceof AxisBounds.Looped looped ? looped.blockWidth() : UNBOUNDED_REGION_REACH) + 1);
+                (axis instanceof AxisBounds.Looped looped ? blockWidth(looped) : UNBOUNDED_REGION_REACH) + 1);
     }
 
     private static int sampleY(Random random) {
@@ -642,7 +646,7 @@ class IdentityFastPathTest {
 
     private static int wideSpan(Random random, AxisBounds axis) {
         return random.nextInt((axis instanceof AxisBounds.Looped looped
-                ? WIDE_REGION_LAPS * looped.blockWidth()
+                ? WIDE_REGION_LAPS * blockWidth(looped)
                 : UNBOUNDED_REGION_REACH) + 1);
     }
 
