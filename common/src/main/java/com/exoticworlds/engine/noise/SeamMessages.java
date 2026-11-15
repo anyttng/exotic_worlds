@@ -23,6 +23,9 @@ final class SeamMessages {
     private static final String HOLDS_KEY = KEY_PREFIX + "holds";
     private static final String BROKEN_KEY = KEY_PREFIX + "broken";
     private static final String UNCHECKED_KEY = KEY_PREFIX + "unchecked";
+    private static final String STARTED_KEY = KEY_PREFIX + "started";
+    private static final String RUNNING_KEY = KEY_PREFIX + "running";
+    private static final String FINISHED_KEY = KEY_PREFIX + "finished";
     private static final String CAUSE_KEY_PREFIX = KEY_PREFIX + "cause.";
     private static final String CAUSE_MOD_KEY = CAUSE_KEY_PREFIX + "mod";
     private static final String CAUSE_AT_KEY = CAUSE_KEY_PREFIX + "at";
@@ -45,6 +48,18 @@ final class SeamMessages {
 
     static Component header() {
         return ChatPrefix.prefixed(Component.translatable(HEADER_KEY));
+    }
+
+    static Component started() {
+        return ChatPrefix.prefixed(Component.translatable(STARTED_KEY));
+    }
+
+    static Component running() {
+        return ChatPrefix.prefixed(Component.translatable(RUNNING_KEY));
+    }
+
+    static Component finished() {
+        return ChatPrefix.prefixed(Component.translatable(FINISHED_KEY));
     }
 
     static List<Component> report(SeamVerdict verdict) {
