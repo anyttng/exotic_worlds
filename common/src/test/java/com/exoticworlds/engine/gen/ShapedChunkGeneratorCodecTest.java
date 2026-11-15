@@ -96,7 +96,7 @@ class ShapedChunkGeneratorCodecTest {
         FlatShape klein = ShapeFixtures.mirrored(SQUARE, Direction.Axis.Z, -7);
 
         assertEquals(
-                WorldFolds.verifyPreservesLocalIndices(klein).error().orElseThrow().message(),
+                WorldFolds.verifyFoldable(klein).error().orElseThrow().message(),
                 readError("{\"x\":{\"min_chunk\":-16,\"max_chunk\":16},\"z\":{\"min_chunk\":-16,\"max_chunk\":16},"
                         + "\"mirror\":{\"axis\":\"z\",\"line_chunk\":-7}}"));
     }

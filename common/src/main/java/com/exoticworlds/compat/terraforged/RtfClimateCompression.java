@@ -49,7 +49,7 @@ public final class RtfClimateCompression {
         double fit = ClimateScaleCompression.NO_COMPRESSION;
         TranslationLattice lattice = fold.blockLattice();
         for (Direction.Axis axis : HORIZONTAL) {
-            WrapDomain domain = axis == Direction.Axis.X ? lattice.x() : lattice.z();
+            WrapDomain domain = lattice.axis(axis);
             if (domain.loops()) {
                 double cellsPerLap = domain.domainLength * LATTICE_HALF_CELLS / halfBlocks(axis, scales);
                 fit = Math.max(fit, ClimateScaleCompression.fittedToCells(cellsPerLap));

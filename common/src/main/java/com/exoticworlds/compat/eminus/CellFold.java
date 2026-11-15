@@ -6,7 +6,6 @@ import com.eminus.cell.CellKey;
 import com.eminus.cell.DetailLevel;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.lod.AlignedPeriod;
-import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
@@ -57,7 +56,7 @@ public final class CellFold {
     public static CellFold of(@Nullable WorldFold fold) {
         return fold == null || !fold.isWrapped()
                 ? NONE
-                : new CellFold(new ToroidalShapeView(fold), fold.blockLattice().skew());
+                : new CellFold(fold.shapeView(), fold.blockLattice().skew());
     }
 
     public boolean repeats() {

@@ -16,7 +16,6 @@ import com.exoticworlds.accessors.FoldedCompileSource;
 import com.exoticworlds.accessors.FoldedRandomState;
 import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.GenerationMoments;
-import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.gen.CanonicalRandomFactory;
 import com.exoticworlds.engine.noise.AquiferCells;
@@ -93,7 +92,7 @@ public class RandomStateMixin implements CoastLiftCache, FoldSource, FoldedRando
         WorldFold fold = GenerationFoldContext.context().routerBuildFold();
         this.exotic_worlds$fold = fold;
         if (fold != null) {
-            GenerationMoments.runAtRandomState((RandomState) (Object) this, new ToroidalShapeView(fold),
+            GenerationMoments.runAtRandomState((RandomState) (Object) this, fold.shapeView(),
                     fold.generationOptions(), seaLevel);
         }
     }

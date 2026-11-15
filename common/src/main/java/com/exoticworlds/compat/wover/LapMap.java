@@ -30,7 +30,7 @@ public abstract class LapMap<T> {
     }
 
     WrapDomain blocks(Direction.Axis axis) {
-        return axis == Direction.Axis.X ? this.lattice.x() : this.lattice.z();
+        return this.lattice.axis(axis);
     }
 
     double frameX(double blockX, double blockZ) {

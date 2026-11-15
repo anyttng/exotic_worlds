@@ -145,7 +145,7 @@ public final class PeriodicityCheck {
         BiomeResolver biomes = generator.getBiomeSource().createResolver(sampler);
         Direction.Axis lapAxis = fold.bounds().loops(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
         TranslationLattice lattice = fold.blockLattice();
-        int widthBlocks = (lapAxis == Direction.Axis.X ? lattice.x() : lattice.z()).domainLength;
+        int widthBlocks = lattice.axis(lapAxis).domainLength;
         return new Probe(level, generator, randomState, sampler, biomes, fold,
                 new SeamCauseSearch.Lap(lapAxis, widthBlocks));
     }

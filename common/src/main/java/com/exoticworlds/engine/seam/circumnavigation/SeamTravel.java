@@ -101,7 +101,7 @@ public final class SeamTravel {
                 continue;
             }
 
-            int width = axis == Direction.Axis.X ? lattice.x().domainLength : lattice.z().domainLength;
+            int width = lattice.axis(axis).domainLength;
             double traveled = after.on(axis) + (axis == Direction.Axis.X ? alongX : folded.z);
             if (Math.abs(traveled) >= width) {
                 traveled -= Math.signum(traveled) * width;

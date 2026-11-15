@@ -11,7 +11,7 @@ import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.WrapDomain;
 
 class SpreadAreaTest {
     private static final WorldLoopBounds BOUNDS = WorldLoopBounds.ofWidth(64);
@@ -60,13 +60,14 @@ class SpreadAreaTest {
 
     @Test
     void aRandomRangeOpensToTheLapOnlyWhereTheAreaCoversALoopedAxis() {
-        AxisBounds looped = BOUNDS.x();
+        WrapDomain looped = TORUS.blockLattice().x();
+        WrapDomain unbounded = new WrapDomain.Noop();
 
         assertEquals(-HALF, SpreadArea.randomMin(looped, -WIDTH, WIDTH));
         assertEquals(HALF, SpreadArea.randomMax(looped, -WIDTH, WIDTH));
         assertEquals(-100.0, SpreadArea.randomMin(looped, -100.0, 100.0));
         assertEquals(100.0, SpreadArea.randomMax(looped, -100.0, 100.0));
-        assertEquals(-WIDTH, SpreadArea.randomMin(AxisBounds.Unbounded.INSTANCE, -WIDTH, WIDTH));
-        assertEquals(WIDTH, SpreadArea.randomMax(AxisBounds.Unbounded.INSTANCE, -WIDTH, WIDTH));
+        assertEquals(-WIDTH, SpreadArea.randomMin(unbounded, -WIDTH, WIDTH));
+        assertEquals(WIDTH, SpreadArea.randomMax(unbounded, -WIDTH, WIDTH));
     }
 }

@@ -3,6 +3,7 @@ package com.exoticworlds.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
@@ -31,6 +32,8 @@ final class WorldLoopFold implements WorldFold {
 
     private final int maxViewDistance;
 
+    private final ToroidalShape shapeView;
+
     WorldLoopFold(WorldLoopBounds bounds, GenerationOptions generationOptions) {
         this.bounds = bounds;
         boolean xLooped = bounds.x() instanceof AxisBounds.Looped;
@@ -45,6 +48,7 @@ final class WorldLoopFold implements WorldFold {
         this.blocks = new BlockOps();
         this.blockLattice = TranslationLattice.unskewed(this.coords.x, this.coords.z);
         this.chunkLattice = TranslationLattice.unskewed(this.chunks.x, this.chunks.z);
+        this.shapeView = new ToroidalShapeView(this);
     }
 
     private static WrapDomain chunkDomainFor(AxisBounds axis) {
@@ -362,6 +366,11 @@ final class WorldLoopFold implements WorldFold {
     }
 
     @Override
+    public ToroidalShape shapeView() {
+        return this.shapeView;
+    }
+
+    @Override
     public Vec3 fold(Vec3 pos) {
         return vectors.wrap(pos);
     }
@@ -501,11 +510,6 @@ final class WorldLoopFold implements WorldFold {
         if (!chunks.x.isWholeLaps(deltaX) || !chunks.z.isWholeLaps(deltaZ)) {
             throw new IllegalArgumentException(copy + " is not a copy of " + chunk + " in " + this);
         }
-    }
-
-    @Override
-    public Vec3 foldDelta(Vec3 from, Vec3 to) {
-        return vectors.nearestCopy(from, to).subtract(from);
     }
 
     @Override

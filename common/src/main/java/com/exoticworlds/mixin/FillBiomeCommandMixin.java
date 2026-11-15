@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.seam.SeamCommandErrors;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -64,14 +64,14 @@ public class FillBiomeCommandMixin {
             return;
         }
 
-        boolean foldX = exotic_worlds$leavesTheWorld(fold.bounds().x(), region.minX(), region.maxX());
-        boolean foldZ = exotic_worlds$leavesTheWorld(fold.bounds().z(), region.minZ(), region.maxZ());
+        TranslationLattice lattice = fold.blockLattice();
+        boolean foldX = exotic_worlds$leavesTheWorld(lattice.x(), region.minX(), region.maxX());
+        boolean foldZ = exotic_worlds$leavesTheWorld(lattice.z(), region.minZ(), region.maxZ());
         if (!foldX && !foldZ) {
             original.call(chunk, resolver);
             return;
         }
 
-        TranslationLattice lattice = fold.blockLattice();
         int regionMinX = region.minX();
         int regionMinZ = region.minZ();
         BiomeResolver inFrame = (quartX, quartY, quartZ) -> {
@@ -89,7 +89,7 @@ public class FillBiomeCommandMixin {
     }
 
     @Unique
-    private static boolean exotic_worlds$leavesTheWorld(AxisBounds axis, int minCoord, int maxCoord) {
+    private static boolean exotic_worlds$leavesTheWorld(WrapDomain axis, int minCoord, int maxCoord) {
         return axis.isOver(minCoord) || axis.isOver(maxCoord);
     }
 
