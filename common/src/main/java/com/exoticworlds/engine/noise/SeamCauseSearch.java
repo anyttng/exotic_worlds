@@ -10,6 +10,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.InterpretedDensity;
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.mixin.BiomeSourceAccessor;
 
@@ -40,11 +41,26 @@ final class SeamCauseSearch {
     record Point(int x, int y, int z) {
     }
 
-    record Lap(Direction.Axis axis, int widthBlocks) {
+    record Lap(Direction.Axis axis, int shiftX, int shiftZ) {
+        static List<Lap> of(TranslationLattice lattice) {
+            List<Lap> laps = new ArrayList<>();
+            if (lattice.x().loops()) {
+                laps.add(new Lap(Direction.Axis.X, lattice.x().domainLength, 0));
+            }
+
+            if (lattice.z().loops()) {
+                laps.add(new Lap(Direction.Axis.Z, lattice.skew(), lattice.z().domainLength));
+            }
+
+            return laps;
+        }
+
         Point away(Point point) {
-            return this.axis == Direction.Axis.X
-                    ? new Point(point.x() + this.widthBlocks, point.y(), point.z())
-                    : new Point(point.x(), point.y(), point.z() + this.widthBlocks);
+            return new Point(point.x() + this.shiftX, point.y(), point.z() + this.shiftZ);
+        }
+
+        int widthBlocks() {
+            return this.axis == Direction.Axis.X ? this.shiftX : this.shiftZ;
         }
     }
 
