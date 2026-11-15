@@ -9,6 +9,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public final class CarriedShape {
     public static final String WRAPPING_KEY = "wrapping";
+    public static final String NO_KEY_PREFIX = "";
 
     public static final Codec<FlatShape> SHAPE_CODEC = FlatShape.CODEC
             .validate(WorldFolds::verifyFoldable)

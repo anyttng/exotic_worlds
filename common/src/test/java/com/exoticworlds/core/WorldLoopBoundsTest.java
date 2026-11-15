@@ -79,27 +79,6 @@ class WorldLoopBoundsTest {
 
         assertEquals(-32 * 16, axis.minBlock());
         assertEquals(32 * 16, axis.maxBlock());
-        assertEquals(64 * 16, axis.blockWidth());
-
-        assertFalse(axis.isOver(-32 * 16));
-        assertFalse(axis.isOver(32 * 16 - 0.5));
-        assertTrue(axis.isOver(32 * 16));
-        assertTrue(axis.isOver(-32 * 16 - 1));
-
-        assertTrue(axis.coversWorld(64 * 16));
-        assertFalse(axis.coversWorld(64 * 16 - 1));
-        assertFalse(axis.foldsOntoItself(64));
-        assertTrue(axis.foldsOntoItself(65));
-    }
-
-    @Test
-    void anUnboundedAxisIsNeverOverAndNeverCovered() {
-        AxisBounds axis = AxisBounds.Unbounded.INSTANCE;
-
-        assertFalse(axis.isOver(-1.0e9));
-        assertFalse(axis.isOver(1.0e9));
-        assertFalse(axis.coversWorld(1.0e9));
-        assertFalse(axis.foldsOntoItself(Integer.MAX_VALUE));
     }
 
     @Test

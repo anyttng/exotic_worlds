@@ -8,9 +8,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.seam.SpreadArea;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -84,8 +85,9 @@ public class SpreadPlayersCommandMixin {
             return;
         }
 
-        AxisBounds xAxis = fold.bounds().x();
-        AxisBounds zAxis = fold.bounds().z();
+        TranslationLattice lattice = fold.blockLattice();
+        WrapDomain xAxis = lattice.x();
+        WrapDomain zAxis = lattice.z();
         original.call(position, random,
                 SpreadArea.randomMin(xAxis, minX, maxX), SpreadArea.randomMin(zAxis, minZ, maxZ),
                 SpreadArea.randomMax(xAxis, minX, maxX), SpreadArea.randomMax(zAxis, minZ, maxZ));

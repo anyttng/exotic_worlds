@@ -22,8 +22,7 @@ public final class SeamShiftView implements SeamShift {
 
     @Override
     public Orientation orientation() {
-        FoldOrientation orientation = this.transformation.orientation();
-        return new Orientation(orientation.flipsX(), orientation.flipsZ());
+        return ToroidalShapeView.orientationOf(this.transformation.orientation());
     }
 
     @Override
