@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.ExoticWorlds;
+import com.exoticworlds.accessors.SeamCheckRunHolder;
 import com.exoticworlds.accessors.SeamDetailsPendingHolder;
 import com.exoticworlds.core.RegistrationBoundary;
 import com.exoticworlds.core.WorldFold;
@@ -18,6 +19,7 @@ import com.exoticworlds.engine.gen.WorldShapeReport;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.engine.level.SeamRespawnData;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.SeamCheckRun;
 import com.exoticworlds.engine.noise.SeamDetailsPending;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -32,13 +34,21 @@ import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.storage.ServerLevelData;
 
 @Mixin(MinecraftServer.class)
-public class MinecraftServerMixin implements SeamDetailsPendingHolder {
+public class MinecraftServerMixin implements SeamDetailsPendingHolder, SeamCheckRunHolder {
     @Unique
     private final SeamDetailsPending exotic_worlds$seamDetailsPending = new SeamDetailsPending();
+
+    @Unique
+    private final SeamCheckRun exotic_worlds$seamCheckRun = new SeamCheckRun();
 
     @Override
     public SeamDetailsPending exotic_worlds$seamDetailsPending() {
         return this.exotic_worlds$seamDetailsPending;
+    }
+
+    @Override
+    public SeamCheckRun exotic_worlds$seamCheckRun() {
+        return this.exotic_worlds$seamCheckRun;
     }
 
     @Inject(method = "runServer", at = @At("HEAD"))
