@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.ExoticWorlds;
+import com.exoticworlds.accessors.InterpretedDensity;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.mixin.BiomeSourceAccessor;
 
@@ -111,7 +112,7 @@ final class SeamCauseSearch {
             }
 
             Identifier enclosing = holderKeyOf(node, holder);
-            for (DensityFunction child : DensityChildren.of(node)) {
+            for (DensityFunction child : childrenOf(node)) {
                 Found found = this.deepest(child, enclosing);
                 if (found != null) {
                     return found;
@@ -139,6 +140,15 @@ final class SeamCauseSearch {
                     point.z());
             return GenerationFoldContext.withFold(this.fold, () -> node.compute(at));
         }
+    }
+
+    private static List<DensityFunction> childrenOf(DensityFunction node) {
+        if (node instanceof InterpretedDensity compiled) {
+            DensityFunction interpreted = compiled.exotic_worlds$interpreted();
+            return interpreted != null ? List.of(interpreted) : List.of();
+        }
+
+        return DensityChildren.of(node);
     }
 
     private static @Nullable Identifier holderKeyOf(DensityFunction node, @Nullable Identifier enclosing) {

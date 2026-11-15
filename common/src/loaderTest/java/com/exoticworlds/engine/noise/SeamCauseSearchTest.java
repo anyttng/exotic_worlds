@@ -16,6 +16,7 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.accessors.InterpretedDensity;
 import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.Direction;
@@ -59,6 +60,34 @@ class SeamCauseSearchTest {
         }
     }
 
+    private record Compiled(DensityFunction compiled, DensityFunction interpreted)
+            implements DensityFunction.SimpleFunction, InterpretedDensity {
+        @Override
+        public double compute(DensityFunction.FunctionContext context) {
+            return this.compiled.compute(context);
+        }
+
+        @Override
+        public DensityFunction exotic_worlds$interpreted() {
+            return this.interpreted;
+        }
+
+        @Override
+        public double minValue() {
+            return Double.NEGATIVE_INFINITY;
+        }
+
+        @Override
+        public double maxValue() {
+            return Double.POSITIVE_INFINITY;
+        }
+
+        @Override
+        public KeyDispatchDataCodec<? extends DensityFunction> codec() {
+            throw new UnsupportedOperationException("a test node has no registered type");
+        }
+    }
+
     @BeforeAll
     static void bootstrapVanilla() {
         ClimateScanFixture.bootstrapVanilla();
@@ -77,6 +106,28 @@ class SeamCauseSearchTest {
         assertNull(node.namespace());
         assertFalse(node.vanilla());
         assertEquals(List.of(), node.candidates());
+    }
+
+    @Test
+    void aCompiledNodeIsSearchedThroughTheTreeItCompiled() {
+        RandomState state = overworld();
+        DensityFunction interpreted = DensityFunctions.add(state.router().erosion(), new RawX());
+
+        SeamCause.Node node = assertInstanceOf(SeamCause.Node.class,
+                SeamCauseSearch.densityCause(new Compiled(interpreted, interpreted), POINTS, LAP, FOLD));
+
+        assertEquals(RawX.class.getName(), node.type());
+    }
+
+    @Test
+    void aBreakOnlyTheCompiledNodeShowsNamesTheCompiledNode() {
+        RandomState state = overworld();
+
+        SeamCause.Node node = assertInstanceOf(SeamCause.Node.class,
+                SeamCauseSearch.densityCause(new Compiled(new RawX(), state.router().erosion()), POINTS, LAP,
+                        FOLD));
+
+        assertEquals(Compiled.class.getName(), node.type());
     }
 
     @Test
