@@ -37,4 +37,7 @@ public interface SeamContext {
 
     /** {@code pos} as the client sent it, folded back into the world's bounds. */
     Vec3 toServer(Vec3 pos);
+
+    /** {@code chunkPos} as the client sent it, folded back into the world's bounds. */
+    ChunkPos toServer(ChunkPos chunkPos);
 }
