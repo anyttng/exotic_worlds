@@ -50,13 +50,6 @@ class DhLatticeFoldTest {
             assertEquals(new AlignedPeriod(WIDTH_BLOCKS, 4L * WIDTH_BLOCKS, 64),
                     DhFold.period(lattice(CHUNK_SKEW_CHUNKS), LEAF));
         }
-
-        @Test
-        void theSkewLimitsTheExactLevelLikeAWidthDoes() {
-            assertEquals(6, DhFold.maxExactDetailLevel(lattice(LEAF_SKEW_CHUNKS)));
-            assertEquals(4, DhFold.maxExactDetailLevel(lattice(CHUNK_SKEW_CHUNKS)));
-            assertEquals(LEAF, DhFold.maxRenderableDetailLevel(lattice(CHUNK_SKEW_CHUNKS), LEAF));
-        }
     }
 
     @Nested

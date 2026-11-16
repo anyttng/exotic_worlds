@@ -131,12 +131,29 @@ public final class DhKeys {
             return true;
         }
 
-        return DhFold.isCompleteSection(lattice, LEAF, DhSectionPos.getDetailLevel(pos), DhSectionPos.getX(pos),
-                DhSectionPos.getZ(pos)) && isNearestCopy(lattice, refBlockX, refBlockZ, pos);
+        return isComplete(lattice, pos) && isNearestCopy(lattice, refBlockX, refBlockZ, pos);
     }
 
-    public static byte cappedDetail(DhLattice lattice, byte expected) {
-        return lattice == null ? expected : atMost(expected, DhFold.maxExpectedDetailLevel(lattice, LEAF));
+    public static byte completeDetail(DhLattice lattice, long pos, byte expected) {
+        if (lattice == null) {
+            return expected;
+        }
+
+        byte detail = DhSectionPos.getDetailLevel(pos);
+        if (!isComplete(lattice, pos)) {
+            return atMost(expected, (byte) (detail - 1 - LEAF));
+        }
+
+        if (!isComplete(lattice, DhSectionPos.getParentPos(pos))) {
+            return atMost(expected, (byte) (detail + 1 - LEAF));
+        }
+
+        return expected;
+    }
+
+    private static boolean isComplete(DhLattice lattice, long pos) {
+        return DhFold.isCompleteSection(lattice, LEAF, DhSectionPos.getDetailLevel(pos), DhSectionPos.getX(pos),
+                DhSectionPos.getZ(pos));
     }
 
     public static byte straddlerDetail(DhLattice lattice, int refBlockX, int refBlockZ, long pos, byte expected) {
