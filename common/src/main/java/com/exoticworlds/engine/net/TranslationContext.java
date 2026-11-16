@@ -63,13 +63,16 @@ public record TranslationContext(
                 entity, rebase, new CameraSide());
     }
 
+    public static TranslationContext followingCamera(ServerPlayer player, WorldFold fold) {
+        ClientPosition.of(player).followCamera(player);
+        return of(player, fold);
+    }
+
     public static TranslationContext of(ServerPlayer player, WorldFold fold) {
         int trackedViewDistance = trackedViewDistanceOf(player, fold);
-        ClientPosition clientPosition = ClientPosition.of(player);
-        clientPosition.followCamera(player);
         return new TranslationContext(
                 fold,
-                clientPosition,
+                ClientPosition.of(player),
                 Platforms.get().packetBuffers(player),
                 player.level().dimension(),
                 trackedViewDistance,
