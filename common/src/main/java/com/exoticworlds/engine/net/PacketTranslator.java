@@ -232,10 +232,12 @@ public final class PacketTranslator {
                             SERVERBOUND_PAYLOADS.rewrite(packet, packet.payload(), context))));
 
     private static final PacketRoute CLIENTBOUND = new PacketRoute(TO_CLIENT,
-            new StartupRegistry<>("Clientbound packet rewriters"), RecordPayloadFold::toClient);
+            new StartupRegistry<>("Clientbound packet rewriters"), RecordPayloadFold::toClient,
+            TranslationContext::followingCamera);
 
     private static final PacketRoute SERVERBOUND = new PacketRoute(TO_SERVER,
-            new StartupRegistry<>("Serverbound packet rewriters"), RecordPayloadFold::toServer);
+            new StartupRegistry<>("Serverbound packet rewriters"), RecordPayloadFold::toServer,
+            TranslationContext::of);
 
     public static <P extends Packet<?>> void registerClientboundPacketRewriter(Class<P> packetType,
             BiFunction<P, TranslationContext, Packet<?>> packetRewriter) {
@@ -255,7 +257,7 @@ public final class PacketTranslator {
         }
 
         if (packet instanceof ClientboundBundlePacket bundle) {
-            return castPacket(toClientBundle(bundle, () -> TranslationContext.of(player, fold)));
+            return castPacket(toClientBundle(bundle, () -> CLIENTBOUND.contextOf().apply(player, fold)));
         }
 
         return dispatch(CLIENTBOUND, packet, player, fold);
@@ -316,7 +318,7 @@ public final class PacketTranslator {
             Packet<T> packet, ServerPlayer player, WorldFold fold) {
         BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = route.rewriterOf(packet);
         return rewriter == null ? packet
-                : castPacket(rewriter.apply(packet, TranslationContext.of(player, fold)));
+                : castPacket(rewriter.apply(packet, route.contextOf().apply(player, fold)));
     }
 
     private static Packet<?> rewrite(PacketRoute route, Packet<?> packet, TranslationContext context) {
@@ -414,7 +416,8 @@ public final class PacketTranslator {
 
     private record PacketRoute(Map<Class<?>, BiFunction<Packet<?>, TranslationContext, Packet<?>>> table,
             StartupRegistry<Class<?>, BiFunction<Packet<?>, TranslationContext, Packet<?>>> rewriters,
-            BiFunction<Packet<?>, TranslationContext, Packet<?>> recordFold) {
+            BiFunction<Packet<?>, TranslationContext, Packet<?>> recordFold,
+            BiFunction<ServerPlayer, WorldFold, TranslationContext> contextOf) {
         @Nullable BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriterOf(Packet<?> packet) {
             BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = this.table.get(packet.getClass());
             if (rewriter == null) {
