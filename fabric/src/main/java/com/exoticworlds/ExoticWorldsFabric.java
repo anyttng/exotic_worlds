@@ -20,11 +20,9 @@ import com.exoticworlds.engine.net.PositionRowsPayload;
 import com.exoticworlds.engine.net.PositionRowsSync;
 import com.exoticworlds.engine.net.WrappingSettingsPayload;
 import com.exoticworlds.engine.seam.circumnavigation.WorldLoopCriteria;
-import com.exoticworlds.shape.WorldOptionSetup;
 import com.exoticworlds.platform.FabricPlatform;
 import com.exoticworlds.platform.Platforms;
-import com.exoticworlds.shape.GenerationHookSetup;
-import com.exoticworlds.shape.WorldShapeSetup;
+import com.exoticworlds.shape.StartupSetup;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -41,13 +39,11 @@ public class ExoticWorldsFabric implements ModInitializer {
     public void onInitialize() {
         ExoticWorlds.LOGGER.info("Exotic Worlds initializing");
         Platforms.set(new FabricPlatform());
-        WorldOptionSetup.registerAll();
-        WorldShapeSetup.registerAll();
+        StartupSetup.registerAll();
         SableMod.register();
         AeronauticsMod.register();
         CreateTranslation.register();
         AeronauticsTranslation.register();
-        GenerationHookSetup.registerAll();
         NorthboundLatitude.register();
         MoonlightParticles.register();
         SupplementariesPackets.register();

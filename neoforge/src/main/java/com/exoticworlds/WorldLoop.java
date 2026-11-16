@@ -18,12 +18,10 @@ import com.exoticworlds.engine.net.AuxiliaryLightTranslation;
 import com.exoticworlds.engine.net.BlockParticleTranslation;
 import com.exoticworlds.engine.net.SpawnBufferTranslation;
 import com.exoticworlds.engine.seam.circumnavigation.WorldLoopCriteria;
-import com.exoticworlds.shape.WorldOptionSetup;
 import com.exoticworlds.platform.NeoForgePlatform;
 import com.exoticworlds.platform.Platforms;
 import com.exoticworlds.settings.SettingsService;
-import com.exoticworlds.shape.GenerationHookSetup;
-import com.exoticworlds.shape.WorldShapeSetup;
+import com.exoticworlds.shape.StartupSetup;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.advancements.CriterionTrigger;
@@ -42,14 +40,12 @@ public final class WorldLoop {
 
     public static void init(IEventBus modEventBus, ModContainer modContainer) {
         Platforms.set(new NeoForgePlatform(modContainer));
-        WorldOptionSetup.registerAll();
-        WorldShapeSetup.registerAll();
+        StartupSetup.registerAll();
         SableMod.register();
         AeronauticsMod.register();
         CreateTranslation.register();
         AeronauticsTranslation.register();
         ElectroEnergeticsTranslation.register();
-        GenerationHookSetup.registerAll();
         NorthboundLatitude.register();
         MoonlightParticles.register();
         SupplementariesPackets.register();

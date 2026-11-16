@@ -26,11 +26,17 @@ import net.minecraft.world.level.biome.BiomeManager;
 
 @Mixin(BiomeManager.class)
 public class BiomeManagerMixin implements BiomeZoomOwner {
+    @Unique
     private static final int CORNERS = 8;
+    @Unique
     private static final int CORNER_X_BIT = 4;
+    @Unique
     private static final int CORNER_Y_BIT = 2;
+    @Unique
     private static final int CORNER_Z_BIT = 1;
+    @Unique
     private static final int ZOOM_CENTER = QuartPos.SIZE / 2;
+    @Unique
     private static final double ZOOM = QuartPos.SIZE;
 
     @Shadow

@@ -42,6 +42,7 @@ public final class GenerationFoldContext {
             return this.routerBuild;
         }
 
+        // mc/26.2: the noise samplers and C2ME's compiled tree read the scale through it.
         public double horizontalScale() {
             return this.horizontalScale;
         }
@@ -62,6 +63,7 @@ public final class GenerationFoldContext {
             return this.zDivisor;
         }
 
+        // mc/26.2: the noise samplers read the slot axes through it.
         public SlotAxes slotAxes() {
             return this.slotAxes;
         }
@@ -101,6 +103,7 @@ public final class GenerationFoldContext {
             return this.divisorScope;
         }
 
+        // mc/26.2: the octave samplers open their per-octave scale scope through it.
         public ScaleScope openScale() {
             this.scaleScope.push();
             return this.scaleScope;
@@ -185,6 +188,7 @@ public final class GenerationFoldContext {
                 this.previousShares.push(verticalShare);
             }
 
+            // mc/26.2: the octave samplers set each octave's scale through it.
             public void rescale(double scale) {
                 if (this.previousScales.isEmpty()) {
                     throw new IllegalStateException("rescale with no scale scope open");
