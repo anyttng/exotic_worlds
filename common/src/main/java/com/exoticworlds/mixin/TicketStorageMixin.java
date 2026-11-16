@@ -36,18 +36,11 @@ public class TicketStorageMixin implements LevelBindable, LevelBindRegistry {
         }
     }
 
-    @ModifyVariable(method = "addTicket(JLnet/minecraft/server/level/Ticket;)Z", at = @At("HEAD"), argsOnly = true)
-    private long exotic_worlds$foldAddedTicketKey(long key) {
-        return this.exotic_worlds$foldKey(key);
-    }
-
-    @ModifyVariable(method = "removeTicket(JLnet/minecraft/server/level/Ticket;)Z", at = @At("HEAD"), argsOnly = true)
-    private long exotic_worlds$foldRemovedTicketKey(long key) {
-        return this.exotic_worlds$foldKey(key);
-    }
-
-    @Unique
-    private long exotic_worlds$foldKey(long key) {
+    @ModifyVariable(
+            method = {"addTicket(JLnet/minecraft/server/level/Ticket;)Z",
+                    "removeTicket(JLnet/minecraft/server/level/Ticket;)Z"},
+            at = @At("HEAD"), argsOnly = true, require = 2)
+    private long exotic_worlds$foldTicketKey(long key) {
         return this.exotic_worlds$bound.fold().foldChunkKey(key);
     }
 }

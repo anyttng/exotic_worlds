@@ -13,9 +13,7 @@ import com.exoticworlds.engine.seam.circumnavigation.WorldLoopCriteria;
 import com.exoticworlds.platform.NeoForgePlatform;
 import com.exoticworlds.platform.Platforms;
 import com.exoticworlds.settings.SettingsService;
-import com.exoticworlds.shape.GenerationHookSetup;
-import com.exoticworlds.shape.WorldOptionSetup;
-import com.exoticworlds.shape.WorldShapeSetup;
+import com.exoticworlds.shape.StartupSetup;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.advancements.CriterionTrigger;
@@ -34,9 +32,7 @@ public final class WorldLoop {
 
     public static void init(IEventBus modEventBus, ModContainer modContainer) {
         Platforms.set(new NeoForgePlatform(modContainer));
-        WorldOptionSetup.registerAll();
-        WorldShapeSetup.registerAll();
-        GenerationHookSetup.registerAll();
+        StartupSetup.registerAll();
         NorthboundLatitude.register();
         MoonlightParticles.register();
 

@@ -40,18 +40,9 @@ public class DistanceManagerMixin implements LevelBindable {
         ((LevelBindable) this.playerTicketManager).exotic_worlds$bindLevel(level);
     }
 
-    @ModifyVariable(method = "inEntityTickingRange", at = @At("HEAD"), argsOnly = true)
-    private long exotic_worlds$entityTickingOnPhysicalChunk(long chunkKey) {
-        return this.exotic_worlds$foldKey(chunkKey);
-    }
-
-    @ModifyVariable(method = "inBlockTickingRange", at = @At("HEAD"), argsOnly = true)
-    private long exotic_worlds$blockTickingOnPhysicalChunk(long chunkKey) {
-        return this.exotic_worlds$foldKey(chunkKey);
-    }
-
-    @Unique
-    private long exotic_worlds$foldKey(long key) {
-        return this.exotic_worlds$bound.fold().foldChunkKey(key);
+    @ModifyVariable(method = {"inEntityTickingRange", "inBlockTickingRange"}, at = @At("HEAD"), argsOnly = true,
+            require = 2)
+    private long exotic_worlds$tickingOnPhysicalChunk(long chunkKey) {
+        return this.exotic_worlds$bound.fold().foldChunkKey(chunkKey);
     }
 }

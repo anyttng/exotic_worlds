@@ -65,9 +65,6 @@ public abstract class LoopSettingsScreen<S, C extends SizeControls> extends Scre
     protected void addBeforeFields(Font font, LinearLayout contents) {
     }
 
-    protected void addAfterFields(Font font, LinearLayout contents) {
-    }
-
     protected boolean isComplete() {
         return this.controls.isComplete() && this.optionControls().stream().allMatch(WorldOptionControl::isComplete);
     }
@@ -78,10 +75,6 @@ public abstract class LoopSettingsScreen<S, C extends SizeControls> extends Scre
         for (WorldOptionControl control : this.optionControls()) {
             control.onSharedStateChanged();
         }
-    }
-
-    protected final Screen parent() {
-        return this.parent;
     }
 
     protected final GenerationOptions committedOptions() {
@@ -107,7 +100,6 @@ public abstract class LoopSettingsScreen<S, C extends SizeControls> extends Scre
         this.controls.addPresets(contents);
         this.addBeforeFields(this.font, contents);
         this.controls.addFields(this.font, contents);
-        this.addAfterFields(this.font, contents);
         this.addOptionControls(this.font, contents);
 
         this.contentsScroll = new ScrollableLayout(this.minecraft, contents, this.layout.getContentHeight());
