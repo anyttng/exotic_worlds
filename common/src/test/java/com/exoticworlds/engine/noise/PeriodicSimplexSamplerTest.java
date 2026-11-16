@@ -86,7 +86,7 @@ class PeriodicSimplexSamplerTest {
         }
 
         double sample(WorldFold fold, double scale, double x, double z) {
-            return PeriodicSimplexSampler.sample(permutations, 0.0, 0.0, fold, scale, x, z);
+            return SimplexLattice.of(fold, scale).sample(permutations, 0.0, 0.0, x, z);
         }
     }
 

@@ -2,89 +2,27 @@ package com.exoticworlds.engine.noise;
 
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
 
 import net.minecraft.util.Mth;
 
 public final class PeriodicSimplexSampler {
     private static final double SQRT_3 = Math.sqrt(3.0);
     static final double VANILLA_SKEW = 0.5 * (SQRT_3 - 1.0);
-    private static final double VANILLA_UNSKEW = (3.0 - SQRT_3) / 6.0;
+    static final double VANILLA_UNSKEW = (3.0 - SQRT_3) / 6.0;
 
     private static final double KERNEL_RADIUS_SQR = 0.5;
     private static final double NORMALIZATION = 70.0;
     private static final int GRADIENT_COUNT = 12;
     private static final int PERMUTATION_MASK = 0xFF;
 
-    private static final long MAX_LAP_PERIOD = 1L << 29;
-
     public static boolean carries(WorldFold fold, double scale) {
         TranslationLattice lattice = fold.blockLattice();
         LapFloor floor = LapFloor.of(fold);
-        return PeriodicNoiseSampler.period(lattice.x(), scale, floor) <= MAX_LAP_PERIOD
-                && PeriodicNoiseSampler.period(lattice.z(), scale, floor) <= MAX_LAP_PERIOD;
+        return PeriodicNoiseSampler.period(lattice.x(), scale, floor) <= SimplexLattice.MAX_LAP_PERIOD
+                && PeriodicNoiseSampler.period(lattice.z(), scale, floor) <= SimplexLattice.MAX_LAP_PERIOD;
     }
 
-    public static double sample(int[] permutations, double xOffset, double zOffset,
-            WorldFold fold, double scale, double x, double z) {
-        TranslationLattice lattice = fold.blockLattice();
-        WrapDomain xDomain = lattice.x();
-        WrapDomain zDomain = lattice.z();
-        LapFloor floor = LapFloor.of(fold);
-        long xPeriod = PeriodicNoiseSampler.period(xDomain, scale, floor);
-        long zPeriod = PeriodicNoiseSampler.period(zDomain, scale, floor);
-        if (lattice.isSkewed()) {
-            return sampleSkewed(permutations, xOffset, zOffset, lattice, xPeriod, zPeriod, x, z);
-        }
-
-        double xs = PeriodicNoiseSampler.foldAndScaleSimplex(xDomain, xPeriod, scale, x) + xOffset;
-        double zs = PeriodicNoiseSampler.foldAndScaleSimplex(zDomain, zPeriod, scale, z) + zOffset;
-        long xClosed = closedPeriod(xPeriod);
-        long zClosed = closedPeriod(zPeriod);
-        long denominator = skewDenominator(xClosed, zClosed);
-        long numerator = skewNumerator(denominator);
-
-        double skew;
-        double unskew;
-        if (denominator == PeriodicNoiseSampler.UNBOUNDED_PERIOD) {
-            skew = VANILLA_SKEW;
-            unskew = VANILLA_UNSKEW;
-        } else {
-            skew = (double) numerator / denominator;
-            unskew = skew / (1.0 + 2.0 * skew);
-        }
-
-        long xLapV = denominator == PeriodicNoiseSampler.UNBOUNDED_PERIOD ? 0L : numerator * (xClosed / denominator);
-        long zLapU = denominator == PeriodicNoiseSampler.UNBOUNDED_PERIOD ? 0L : numerator * (zClosed / denominator);
-        long xLapU = xClosed + xLapV;
-        long zLapV = zClosed + zLapU;
-        return kernel(permutations, xs, zs, skew, unskew, xLapU, xLapV, zLapU, zLapV);
-    }
-
-    private static double sampleSkewed(int[] permutations, double xOffset, double zOffset,
-            TranslationLattice lattice, long xPeriod, long zPeriod, double x, double z) {
-        double width = lattice.x().domainLength;
-        double height = lattice.z().domainLength;
-        double skewBlocks = lattice.skew();
-        double sheared = xPeriod * skewBlocks / width;
-        long xLapU = Math.round(xPeriod + VANILLA_SKEW * xPeriod);
-        long xLapV = Math.round(VANILLA_SKEW * xPeriod);
-        long zLapU = Math.round(sheared + VANILLA_SKEW * (sheared + zPeriod));
-        long zLapV = Math.round(zPeriod + VANILLA_SKEW * (sheared + zPeriod));
-        double xLapX = xLapU - VANILLA_UNSKEW * (xLapU + xLapV);
-        double xLapZ = xLapV - VANILLA_UNSKEW * (xLapU + xLapV);
-        double zLapX = zLapU - VANILLA_UNSKEW * (zLapU + zLapV);
-        double zLapZ = zLapV - VANILLA_UNSKEW * (zLapU + zLapV);
-        double foldedX = lattice.foldX(x, z);
-        double foldedZ = lattice.foldZ(z);
-        double xLaps = foldedX / width - foldedZ * skewBlocks / (width * height);
-        double zLaps = foldedZ / height;
-        double xs = xLaps * xLapX + zLaps * zLapX + xOffset;
-        double zs = xLaps * xLapZ + zLaps * zLapZ + zOffset;
-        return kernel(permutations, xs, zs, VANILLA_SKEW, VANILLA_UNSKEW, xLapU, xLapV, zLapU, zLapV);
-    }
-
-    private static double kernel(int[] permutations, double xs, double zs, double skew, double unskew,
+    static double kernel(int[] permutations, double xs, double zs, double skew, double unskew,
             long xLapU, long xLapV, long zLapU, long zLapV) {
         double skewed = (xs + zs) * skew;
         long uCell = Mth.lfloor(xs + skewed);
@@ -144,10 +82,6 @@ public final class PeriodicSimplexSampler {
         }
 
         return larger;
-    }
-
-    private static long closedPeriod(long period) {
-        return PeriodicNoiseSampler.closes(period) ? period : PeriodicNoiseSampler.UNBOUNDED_PERIOD;
     }
 
     private static int gradient(int[] permutations, long u, long v,
