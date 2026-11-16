@@ -47,6 +47,11 @@ final class PacketTranslatorFixture {
     static final double SERVER_Z = 500.0;
     static final double CLIENT_Z = -524.0;
 
+    static final double PREVIOUS_LAP_X = -1468.0;
+    static final BlockPos PREVIOUS_LAP_BLOCK = new BlockPos(-1534, 64, -505);
+    static final ChunkPos PREVIOUS_LAP_CHUNK = new ChunkPos(-96, -32);
+    static final double PREVIOUS_LAP_TARGET_X = -1524.5;
+
     static final int VIEW_DISTANCE = 16;
 
     static final IntFunction<RegistryFriendlyByteBuf> BUFFERS =
@@ -60,6 +65,13 @@ final class PacketTranslatorFixture {
         ClientPosition mirror = new ClientPosition();
         mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, MIRRORED_FOLD);
         return new TranslationContext(MIRRORED_FOLD, mirror, BUFFERS, Level.OVERWORLD,
+                VIEW_DISTANCE, VIEW_DISTANCE, entityId -> null, entityId -> null, () -> {});
+    }
+
+    static TranslationContext contextAt(double x, double z) {
+        ClientPosition receiver = new ClientPosition();
+        receiver.rebase(x, z, Level.OVERWORLD, FOLD);
+        return new TranslationContext(FOLD, receiver, BUFFERS, Level.OVERWORLD,
                 VIEW_DISTANCE, VIEW_DISTANCE, entityId -> null, entityId -> null, () -> {});
     }
 

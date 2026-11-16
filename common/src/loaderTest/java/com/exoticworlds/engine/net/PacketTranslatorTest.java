@@ -483,6 +483,54 @@ class PacketTranslatorTest {
 
             assertSame(packet, PacketTranslator.toClient(packet, context()));
         }
+
+        @Test
+        void oneBlockWaypointInstanceSeatsInEachReceiversFrame() {
+            ClientboundTrackedWaypointPacket packet =
+                    ClientboundTrackedWaypointPacket.addWaypointPosition(new UUID(1L, 2L), new Waypoint.Icon(), SERVER_BLOCK);
+
+            Packet<?> forMirror = PacketTranslator.toClient(packet, context());
+            Packet<?> forPreviousLap = PacketTranslator.toClient(packet, contextAt(PREVIOUS_LAP_X, MIRROR_Z));
+
+            assertEquals(CLIENT_BLOCK, blockOf(forMirror));
+            assertEquals(PREVIOUS_LAP_BLOCK, blockOf(forPreviousLap));
+            assertEquals(SERVER_BLOCK, blockOf(packet));
+        }
+
+        @Test
+        void oneChunkWaypointInstanceSeatsInEachReceiversFrame() {
+            ClientboundTrackedWaypointPacket packet =
+                    ClientboundTrackedWaypointPacket.addWaypointChunk(new UUID(1L, 2L), new Waypoint.Icon(), SERVER_CHUNK);
+
+            Packet<?> forMirror = PacketTranslator.toClient(packet, context());
+            Packet<?> forPreviousLap = PacketTranslator.toClient(packet, contextAt(PREVIOUS_LAP_X, MIRROR_Z));
+
+            assertEquals(CLIENT_CHUNK, chunkOf(forMirror));
+            assertEquals(PREVIOUS_LAP_CHUNK, chunkOf(forPreviousLap));
+            assertEquals(SERVER_CHUNK, chunkOf(packet));
+        }
+
+        @Test
+        void waypointsOnTheReceiversLapComeBackAsHandedIn() {
+            TranslationContext onTheLap = contextAt(SERVER_BLOCK.getX(), SERVER_BLOCK.getZ());
+            ClientboundTrackedWaypointPacket block =
+                    ClientboundTrackedWaypointPacket.addWaypointPosition(new UUID(1L, 2L), new Waypoint.Icon(), SERVER_BLOCK);
+            ClientboundTrackedWaypointPacket chunk =
+                    ClientboundTrackedWaypointPacket.addWaypointChunk(new UUID(1L, 2L), new Waypoint.Icon(), SERVER_CHUNK);
+
+            assertSame(block, PacketTranslator.toClient(block, onTheLap));
+            assertSame(chunk, PacketTranslator.toClient(chunk, onTheLap));
+        }
+
+        private static BlockPos blockOf(Packet<?> packet) {
+            return BlockPos.ZERO.offset(((Vec3iWaypointAccessor) ((ClientboundTrackedWaypointPacket) packet).waypoint())
+                    .exotic_worlds$getVector());
+        }
+
+        private static ChunkPos chunkOf(Packet<?> packet) {
+            return ((ChunkWaypointAccessor) ((ClientboundTrackedWaypointPacket) packet).waypoint())
+                    .exotic_worlds$getChunkPos();
+        }
     }
 
     @Nested
@@ -597,6 +645,33 @@ class PacketTranslatorTest {
             assertEquals(CLIENT_X, accessor.exotic_worlds$getX());
             assertEquals(CLIENT_Z, accessor.exotic_worlds$getZ());
             assertSame(EntityAnchorArgument.Anchor.EYES, translated.getFromAnchor());
+        }
+
+        @Test
+        void oneLookAtInstanceSeatsInEachReceiversFrame() {
+            ClientboundPlayerLookAtPacket packet =
+                    new ClientboundPlayerLookAtPacket(EntityAnchorArgument.Anchor.EYES, SERVER_X, 70.0, SERVER_Z);
+
+            PlayerLookAtPacketAccessor forMirror =
+                    (PlayerLookAtPacketAccessor) PacketTranslator.toClient(packet, context());
+            PlayerLookAtPacketAccessor forPreviousLap =
+                    (PlayerLookAtPacketAccessor) PacketTranslator.toClient(packet, contextAt(PREVIOUS_LAP_X, MIRROR_Z));
+            PlayerLookAtPacketAccessor source = (PlayerLookAtPacketAccessor) packet;
+
+            assertEquals(CLIENT_X, forMirror.exotic_worlds$getX());
+            assertEquals(CLIENT_Z, forMirror.exotic_worlds$getZ());
+            assertEquals(PREVIOUS_LAP_TARGET_X, forPreviousLap.exotic_worlds$getX());
+            assertEquals(CLIENT_Z, forPreviousLap.exotic_worlds$getZ());
+            assertEquals(SERVER_X, source.exotic_worlds$getX());
+            assertEquals(SERVER_Z, source.exotic_worlds$getZ());
+        }
+
+        @Test
+        void lookAtOnTheReceiversLapComesBackAsHandedIn() {
+            ClientboundPlayerLookAtPacket packet =
+                    new ClientboundPlayerLookAtPacket(EntityAnchorArgument.Anchor.EYES, SERVER_X, 70.0, SERVER_Z);
+
+            assertSame(packet, PacketTranslator.toClient(packet, contextAt(SERVER_X, SERVER_Z)));
         }
 
         @Test
