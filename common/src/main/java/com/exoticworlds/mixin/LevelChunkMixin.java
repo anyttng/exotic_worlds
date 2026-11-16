@@ -3,7 +3,6 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -35,30 +34,24 @@ public class LevelChunkMixin {
     private Level level;
 
     @ModifyVariable(
-            method = "setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)"
-                    + "Lnet/minecraft/world/level/block/state/BlockState;",
-            at = @At("HEAD"), argsOnly = true)
-    private BlockPos exotic_worlds$wrapWrittenPos(BlockPos pos) {
-        return exotic_worlds$wrap(pos);
-    }
+            method = {
+                    "setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)"
+                            + "Lnet/minecraft/world/level/block/state/BlockState;",
+                    "getBlockEntity(Lnet/minecraft/core/BlockPos;"
+                            + "Lnet/minecraft/world/level/chunk/LevelChunk$EntityCreationType;)"
+                            + "Lnet/minecraft/world/level/block/entity/BlockEntity;",
+                    "removeBlockEntity",
+                    "getBlockEntityNbtForSaving"
+            },
+            at = @At("HEAD"), argsOnly = true, require = 4)
+    private BlockPos exotic_worlds$wrapPos(BlockPos pos) {
+        WorldFold fold = WorldLoopAttachments.foldOf(this.level);
+        if (fold.isWrapped()) {
+            return fold.fold(pos);
+        }
 
-    @ModifyVariable(
-            method = "getBlockEntity(Lnet/minecraft/core/BlockPos;"
-                    + "Lnet/minecraft/world/level/chunk/LevelChunk$EntityCreationType;)"
-                    + "Lnet/minecraft/world/level/block/entity/BlockEntity;",
-            at = @At("HEAD"), argsOnly = true)
-    private BlockPos exotic_worlds$wrapQueriedPos(BlockPos pos) {
-        return exotic_worlds$wrap(pos);
-    }
-
-    @ModifyVariable(method = "removeBlockEntity", at = @At("HEAD"), argsOnly = true)
-    private BlockPos exotic_worlds$wrapRemovedPos(BlockPos pos) {
-        return exotic_worlds$wrap(pos);
-    }
-
-    @ModifyVariable(method = "getBlockEntityNbtForSaving", at = @At("HEAD"), argsOnly = true)
-    private BlockPos exotic_worlds$wrapSavedPos(BlockPos pos) {
-        return exotic_worlds$wrap(pos);
+        return ChunkSeat.onto(WorldLoopAttachments.clientBoundsFoldOf(this.level),
+                ((LevelChunk) (Object) this).getPos(), pos);
     }
 
     @Inject(method = "setBlockEntity", at = @At("HEAD"))
@@ -72,16 +65,5 @@ public class LevelChunkMixin {
     private ValueInput exotic_worlds$seatSyncedPositions(ProblemReporter reporter, HolderLookup.Provider registries,
             CompoundTag tag, Operation<ValueInput> original, @Local BlockEntity blockEntity) {
         return original.call(reporter, registries, SyncedTagFold.inFrameOf(blockEntity, tag));
-    }
-
-    @Unique
-    private BlockPos exotic_worlds$wrap(BlockPos pos) {
-        WorldFold fold = WorldLoopAttachments.foldOf(this.level);
-        if (fold.isWrapped()) {
-            return fold.fold(pos);
-        }
-
-        return ChunkSeat.onto(WorldLoopAttachments.clientBoundsFoldOf(this.level),
-                ((LevelChunk) (Object) this).getPos(), pos);
     }
 }

@@ -1,6 +1,7 @@
 package com.exoticworlds.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
@@ -9,6 +10,7 @@ import com.exoticworlds.engine.gen.SpawnSearch;
 
 @Mixin(targets = "net.minecraft.world.level.biome.Climate$SpawnFinder")
 public class ClimateSpawnFinderMixin {
+    @Unique
     private static final String GET_SPAWN_POSITION_AND_FITNESS =
             "Lnet/minecraft/world/level/biome/Climate$SpawnFinder;getSpawnPositionAndFitness("
                     + "Ljava/util/List;Lnet/minecraft/world/level/biome/Climate$Sampler;II)"

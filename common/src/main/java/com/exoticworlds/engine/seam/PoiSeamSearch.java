@@ -14,7 +14,7 @@ import net.minecraft.world.level.ChunkPos;
 public final class PoiSeamSearch {
     public static Stream<ChunkPos> chunksAround(WorldFold fold, ChunkPos center, int chunkRadius) {
         Stream<ChunkPos> wrapped = ChunkPos.rangeClosed(center, chunkRadius)
-                .map(pos -> fold.isOver(pos) ? fold.fold(pos) : pos);
+                .map(fold::fold);
 
         if (!foldsOntoItself(fold, chunkRadius)) {
             return wrapped;
