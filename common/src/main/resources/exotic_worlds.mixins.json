@@ -282,6 +282,7 @@
     "ThrownTridentMixin",
     "TicketStorageMixin",
     "TrackedEntityMixin",
+    "TrackedWaypointAccessor",
     "TransportItemsBetweenContainersMixin",
     "TrialSpawnerMixin",
     "TurtleGoHomeGoalMixin",
