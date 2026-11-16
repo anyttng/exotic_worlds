@@ -19,6 +19,7 @@ import com.exoticworlds.mixin.BlockEntityDataPacketAccessor;
 import com.exoticworlds.mixin.ChunkWaypointAccessor;
 import com.exoticworlds.mixin.PlayerLookAtPacketAccessor;
 import com.exoticworlds.mixin.SectionBlocksUpdatePacketAccessor;
+import com.exoticworlds.mixin.TrackedWaypointAccessor;
 import com.exoticworlds.mixin.Vec3iWaypointAccessor;
 import com.google.common.base.Suppliers;
 
@@ -388,9 +389,11 @@ final class ClientboundPacketRewriters {
 
     private static ClientboundTrackedWaypointPacket withWaypoint(ClientboundTrackedWaypointPacket packet,
             TranslationContext context, Consumer<TrackedWaypoint> seat) {
-        ClientboundTrackedWaypointPacket copy = copyOf(ClientboundTrackedWaypointPacket.STREAM_CODEC, packet, context);
-        seat.accept(copy.waypoint());
-        return copy;
+        RegistryFriendlyByteBuf buffer = buffer(context);
+        packet.waypoint().write(buffer);
+        TrackedWaypoint copy = TrackedWaypointAccessor.exotic_worlds$read(buffer);
+        seat.accept(copy);
+        return new ClientboundTrackedWaypointPacket(packet.operation(), copy);
     }
 
     static Packet<?> setDefaultSpawnPosition(ClientboundSetDefaultSpawnPositionPacket packet, TranslationContext context) {
@@ -437,7 +440,9 @@ final class ClientboundPacketRewriters {
             return packet;
         }
 
-        ClientboundPlayerLookAtPacket copy = copyOf(ClientboundPlayerLookAtPacket.STREAM_CODEC, packet, context);
+        RegistryFriendlyByteBuf buffer = buffer(context);
+        accessor.exotic_worlds$write(buffer);
+        ClientboundPlayerLookAtPacket copy = PlayerLookAtPacketAccessor.exotic_worlds$create(buffer);
         PlayerLookAtPacketAccessor copyAccessor = (PlayerLookAtPacketAccessor) copy;
         copyAccessor.exotic_worlds$setX(near.x);
         copyAccessor.exotic_worlds$setZ(near.z);
@@ -486,14 +491,6 @@ final class ClientboundPacketRewriters {
         target.writeBytes(source);
         return reader.apply(target);
     }
-
-    private static <T> T copyOf(StreamCodec<? super RegistryFriendlyByteBuf, T> codec, T value,
-            TranslationContext context) {
-        RegistryFriendlyByteBuf buffer = buffer(context);
-        codec.encode(buffer, value);
-        return codec.decode(buffer);
-    }
-
     private static RegistryFriendlyByteBuf buffer(TranslationContext context) {
         return context.bufferFactory().apply(DEFAULT_BUFFER_CAPACITY);
     }
