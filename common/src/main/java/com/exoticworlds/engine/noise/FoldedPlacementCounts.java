@@ -7,27 +7,29 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 
 public final class FoldedPlacementCounts {
-    public static int noiseBased(WorldFold fold, int x, int z, double noiseFactor, double noiseOffset,
-            int noiseToCountRatio) {
-        return (int) Math.ceil((biomeInfo(fold, noiseFactor, x, z) + noiseOffset) * noiseToCountRatio);
+    private static final SimplexSlot THRESHOLD_SLOT = new SimplexSlot();
+
+    public static int noiseBased(SimplexSlot slot, WorldFold fold, int x, int z, double noiseFactor,
+            double noiseOffset, int noiseToCountRatio) {
+        return (int) Math.ceil((biomeInfo(slot, fold, noiseFactor, x, z) + noiseOffset) * noiseToCountRatio);
     }
 
     public static int noiseThreshold(WorldFold fold, int x, int z, double noiseLevel, int belowNoise, int aboveNoise) {
-        return biomeInfo(fold, NoiseConstants.BIOME_INFO_THRESHOLD_DIVISOR, x, z) < noiseLevel
+        return biomeInfo(THRESHOLD_SLOT, fold, NoiseConstants.BIOME_INFO_THRESHOLD_DIVISOR, x, z) < noiseLevel
                 ? belowNoise
                 : aboveNoise;
     }
 
     @SuppressWarnings("removal")
-    private static double biomeInfo(WorldFold fold, double divisor, int x, int z) {
+    private static double biomeInfo(SimplexSlot slot, WorldFold fold, double divisor, int x, int z) {
         SimplexNoise noise = (SimplexNoise) Biome.BIOME_INFO_NOISE;
-        double scale = 1.0 / divisor;
-        if (PeriodicSimplexSampler.carries(fold, scale)) {
-            return PeriodicSimplexSampler.sample(noise, fold, scale, x, z);
+        SimplexLattice lattice = slot.lattice(fold, 1.0 / divisor);
+        if (lattice.carries()) {
+            return PeriodicSimplexSampler.sample(lattice, noise, x, z);
         }
 
-        TranslationLattice lattice = fold.blockLattice();
-        return noise.get(lattice.foldX(x, z) / divisor, lattice.foldZ(z) / divisor);
+        TranslationLattice translations = fold.blockLattice();
+        return noise.get(translations.foldX(x, z) / divisor, translations.foldZ(z) / divisor);
     }
 
     private FoldedPlacementCounts() {

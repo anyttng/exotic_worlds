@@ -12,6 +12,7 @@ import com.exoticworlds.engine.noise.FoldedTemperatureCache;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.NoiseConstants;
 import com.exoticworlds.engine.noise.PeriodicSimplexSampler;
+import com.exoticworlds.engine.noise.SimplexSlot;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -41,6 +42,18 @@ public class BiomeMixin {
 
     @Unique
     private static final float exotic_worlds$ICE_PATCH_TEMPERATURE = 0.2F;
+
+    @Unique
+    private static final SimplexSlot.Stack exotic_worlds$FROZEN_SLOT = new SimplexSlot.Stack();
+
+    @Unique
+    private static final SimplexSlot exotic_worlds$EDGE_SLOT = new SimplexSlot();
+
+    @Unique
+    private static final SimplexSlot exotic_worlds$PATCH_SLOT = new SimplexSlot();
+
+    @Unique
+    private static final SimplexSlot exotic_worlds$HEIGHT_SLOT = new SimplexSlot();
 
     @Unique
     private final ThreadLocal<FoldedTemperatureCache> exotic_worlds$foldedTemperatureCache =
@@ -102,13 +115,14 @@ public class BiomeMixin {
     @SuppressWarnings("removal")
     @Unique
     private static float exotic_worlds$frozenPatchTemperature(WorldFold fold, BlockPos pos, float baseTemperature) {
-        double largeVariation = PeriodicSimplexSampler.sampleStack(fold, NoiseConstants.FROZEN_TEMPERATURE_SCALE,
-                (NoiseStack) Biome.FROZEN_TEMPERATURE_NOISE, pos.getX(), pos.getZ()) * exotic_worlds$LARGE_VARIATION_AMPLITUDE;
+        double largeVariation = PeriodicSimplexSampler.sampleStack(exotic_worlds$FROZEN_SLOT, fold,
+                NoiseConstants.FROZEN_TEMPERATURE_SCALE, (NoiseStack) Biome.FROZEN_TEMPERATURE_NOISE, pos.getX(),
+                pos.getZ()) * exotic_worlds$LARGE_VARIATION_AMPLITUDE;
         SimplexNoise biomeInfo = (SimplexNoise) Biome.BIOME_INFO_NOISE;
-        double edgeVariation = PeriodicSimplexSampler.sample(biomeInfo, fold,
+        double edgeVariation = PeriodicSimplexSampler.sample(exotic_worlds$EDGE_SLOT, biomeInfo, fold,
                 NoiseConstants.BIOME_INFO_EDGE_SCALE, pos.getX(), pos.getZ());
         if (largeVariation + edgeVariation < exotic_worlds$ICE_PATCH_THRESHOLD) {
-            double smallVariation = PeriodicSimplexSampler.sample(biomeInfo, fold,
+            double smallVariation = PeriodicSimplexSampler.sample(exotic_worlds$PATCH_SLOT, biomeInfo, fold,
                     NoiseConstants.BIOME_INFO_PATCH_SCALE, pos.getX(), pos.getZ());
             if (smallVariation < exotic_worlds$SMALL_VARIATION_THRESHOLD) {
                 return exotic_worlds$ICE_PATCH_TEMPERATURE;
@@ -128,7 +142,7 @@ public class BiomeMixin {
             return original.call(noise, x, z);
         }
 
-        return PeriodicSimplexSampler.sample((SimplexNoise) noise, fold, NoiseConstants.HEIGHT_TEMPERATURE_SCALE,
-                pos.getX(), pos.getZ());
+        return PeriodicSimplexSampler.sample(exotic_worlds$HEIGHT_SLOT, (SimplexNoise) noise, fold,
+                NoiseConstants.HEIGHT_TEMPERATURE_SCALE, pos.getX(), pos.getZ());
     }
 }
