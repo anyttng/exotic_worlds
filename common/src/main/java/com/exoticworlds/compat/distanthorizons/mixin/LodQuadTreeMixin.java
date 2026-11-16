@@ -12,7 +12,6 @@ import com.exoticworlds.compat.distanthorizons.DhClientShapes;
 import com.exoticworlds.compat.distanthorizons.DhKeys;
 import com.exoticworlds.compat.distanthorizons.DhLattice;
 import com.exoticworlds.compat.distanthorizons.DhShapes;
-import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -37,16 +36,13 @@ public class LodQuadTreeMixin {
         original.call(DhKeys.nearestSection(DhShapes.of(this.level), center.x, center.z, pos));
     }
 
-    @ModifyReturnValue(method = "calcExpectedDetailLevel*", at = @At("RETURN"))
-    private byte exotic_worlds$capDetailAtTheWorld(byte expected) {
-        return DhKeys.cappedDetail(DhShapes.of(this.level), expected);
-    }
-
     @WrapMethod(method = "calcExpectedDetailLevel(Lcom/seibel/distanthorizons/core/pos/blockPos/DhBlockPos2D;J)B")
-    private byte exotic_worlds$splitAStraddler(DhBlockPos2D playerPos, long sectionPos, Operation<Byte> original) {
+    private byte exotic_worlds$splitWhatCannotDraw(DhBlockPos2D playerPos, long sectionPos, Operation<Byte> original) {
         byte expected = original.call(playerPos, sectionPos);
+        DhLattice lattice = DhShapes.of(this.level);
         DhBlockPos2D center = exotic_worlds$center();
-        return DhKeys.straddlerDetail(DhShapes.of(this.level), center.x, center.z, sectionPos, expected);
+        return DhKeys.completeDetail(lattice, sectionPos,
+                DhKeys.straddlerDetail(lattice, center.x, center.z, sectionPos, expected));
     }
 
     @WrapOperation(
