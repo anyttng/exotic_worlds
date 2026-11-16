@@ -86,70 +86,6 @@ class DhFoldTest {
     }
 
     @Nested
-    class ExactnessIsDivisibility {
-        @Test
-        void aPowerOfTwoWorldFoldsEveryLevelUpToItsOwnWidth() {
-            assertEquals(WORLD, DhFold.maxExactDetailLevel(torus(0, WIDTH_CHUNKS)));
-        }
-
-        @Test
-        void anOddWidthStopsAtTheLargestPowerOfTwoDividingIt() {
-            assertEquals(LEAF, DhFold.maxExactDetailLevel(torus(0, 100)));
-        }
-
-        @Test
-        void theUnboundedAxisNeverLimits() {
-            assertEquals(WORLD, DhFold.maxExactDetailLevel(cylinder(0, WIDTH_CHUNKS)));
-        }
-
-        @Test
-        void aShapeLoopingOnNoAxisNeverLimits() {
-            assertEquals(Byte.MAX_VALUE, DhFold.maxExactDetailLevel(DhLattice.of(WorldFolds.NOOP)));
-        }
-    }
-
-    @Nested
-    class TheWidestSectionThatMayRender {
-        @Test
-        void aWorldOf1024BlocksRendersSectionsOf1024Blocks() {
-            assertEquals(WORLD, DhFold.maxRenderableDetailLevel(torus(0, WIDTH_CHUNKS), LEAF));
-        }
-
-        @Test
-        void aWorldOf1664BlocksRendersSectionsOf128Blocks() {
-            assertEquals(7, DhFold.maxRenderableDetailLevel(torus(0, 104), LEAF));
-        }
-
-        @Test
-        void aWorldOf1600BlocksRendersOnlyTheLeaf() {
-            assertEquals(LEAF, DhFold.maxRenderableDetailLevel(torus(0, 100), LEAF));
-        }
-
-        @Test
-        void aWorldOf1616BlocksNoSectionDividesStillRendersTheLeaf() {
-            assertEquals(LEAF, DhFold.maxRenderableDetailLevel(torus(0, 101), LEAF));
-        }
-
-        @Test
-        void aWorldOf800BlocksNoSectionDividesStillRendersTheLeaf() {
-            assertEquals(LEAF, DhFold.maxRenderableDetailLevel(torus(0, 50), LEAF));
-        }
-    }
-
-    @Nested
-    class AlignmentCountsAsMuchAsWidth {
-        @Test
-        void aWorldWhoseOriginIsOffTheGridStopsAtTheLevelItsOriginAllows() {
-            assertEquals(LEAF, DhFold.maxExactDetailLevel(torus(-52, 52)));
-        }
-
-        @Test
-        void theSameWidthStartingOnTheGridReachesTheLevelItsWidthAllows() {
-            assertEquals(7, DhFold.maxExactDetailLevel(torus(0, 104)));
-        }
-    }
-
-    @Nested
     class KeysFoldByThePeriodOfTheirLevel {
         private static final int ODD_CHUNKS = 101;
         private static final int ODD_BLOCKS = ODD_CHUNKS * 16;
@@ -225,11 +161,6 @@ class DhFoldTest {
         private static final byte SECTION_512 = 9;
 
         private final DhLattice tiny = torus(-16, 16);
-
-        @Test
-        void aWorldCenteredOnZeroIsExactUpToItsHalfWidth() {
-            assertEquals(CHUNK_16, DhFold.maxExactDetailLevel(tiny));
-        }
 
         @Test
         void aSectionAsWideAsTheWorldFoldsOntoOneKeyWhateverItsLap() {
@@ -332,29 +263,6 @@ class DhFoldTest {
             DhLattice cylinder = cylinder(0, 101);
             assertTrue(DhFold.containsACopy(cylinder, SECTION_128, 0, 3, LEAF, 0, 7));
             assertFalse(DhFold.containsACopy(cylinder, SECTION_128, 0, 3, LEAF, 0, 7 + 101));
-        }
-    }
-
-    @Nested
-    class TheCapReachesDhInItsOwnUnit {
-        @Test
-        void aWorldOf1024BlocksAllowsSectionsOf1024Blocks() {
-            assertEquals(4, DhFold.maxExpectedDetailLevel(torus(0, WIDTH_CHUNKS), LEAF));
-        }
-
-        @Test
-        void aWorldOf1664BlocksAllowsSectionsOf128Blocks() {
-            assertEquals(1, DhFold.maxExpectedDetailLevel(torus(0, 104), LEAF));
-        }
-
-        @Test
-        void aWorldOf1600BlocksAllowsOnlyTheLeaf() {
-            assertEquals(0, DhFold.maxExpectedDetailLevel(torus(0, 100), LEAF));
-        }
-
-        @Test
-        void aWorldNoSectionDividesStopsAtTheLeafRatherThanBelowIt() {
-            assertEquals(0, DhFold.maxExpectedDetailLevel(torus(0, 101), LEAF));
         }
     }
 

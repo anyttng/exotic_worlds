@@ -9,8 +9,4 @@ public record DhLattice(ToroidalShape shape, int skewBlocks, String seamDistance
         int skewBlocks = fold.blockLattice().skew();
         return new DhLattice(shape, skewBlocks, DhSeamSql.seamDistance(shape, skewBlocks));
     }
-
-    public boolean isSkewed() {
-        return this.skewBlocks != 0;
-    }
 }

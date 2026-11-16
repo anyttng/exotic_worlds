@@ -17,31 +17,6 @@ public final class DhFold {
         return 1 << detailLevel;
     }
 
-    public static byte maxExactDetailLevel(DhLattice lattice) {
-        ToroidalShape shape = lattice.shape();
-        int cap = Byte.MAX_VALUE;
-        for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (shape.loops(axis)) {
-                cap = Math.min(cap, Integer.numberOfTrailingZeros(shape.widthBlocks(axis)));
-                cap = Math.min(cap, Integer.numberOfTrailingZeros(shape.minBlock(axis)));
-            }
-        }
-
-        if (lattice.isSkewed()) {
-            cap = Math.min(cap, Integer.numberOfTrailingZeros(lattice.skewBlocks()));
-        }
-
-        return (byte) cap;
-    }
-
-    public static byte maxRenderableDetailLevel(DhLattice lattice, byte leafDetailLevel) {
-        return (byte) Math.max(maxExactDetailLevel(lattice), leafDetailLevel);
-    }
-
-    public static byte maxExpectedDetailLevel(DhLattice lattice, byte leafDetailLevel) {
-        return (byte) (maxRenderableDetailLevel(lattice, leafDetailLevel) - leafDetailLevel);
-    }
-
     public static long periodBlocks(ToroidalShape shape, Direction.Axis axis, byte detailLevel) {
         return AlignedPeriod.blocks(shape.widthBlocks(axis), detailLevel);
     }
