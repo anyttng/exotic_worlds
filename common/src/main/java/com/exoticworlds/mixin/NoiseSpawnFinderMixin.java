@@ -1,6 +1,7 @@
 package com.exoticworlds.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
@@ -11,6 +12,7 @@ import net.minecraft.world.level.levelgen.NoiseSpawnFinder;
 
 @Mixin(NoiseSpawnFinder.class)
 public class NoiseSpawnFinderMixin {
+    @Unique
     private static final String GET_SPAWN_POSITION_AND_FITNESS =
             "Lnet/minecraft/world/level/levelgen/NoiseSpawnFinder;getSpawnPositionAndFitness("
                     + "Lnet/minecraft/world/level/levelgen/densityfunction/DensitySamplerSet;Ljava/util/List;II)"

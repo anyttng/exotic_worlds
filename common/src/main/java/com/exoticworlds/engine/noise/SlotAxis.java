@@ -14,6 +14,7 @@ public enum SlotAxis {
         return this != NONE;
     }
 
+    // mc/26.2: the shift noise mixin scales an unwrapped slot through it.
     public double samplerInput(double coord, double uniformScale) {
         return carriesWorldAxis() ? coord : coord * uniformScale;
     }
