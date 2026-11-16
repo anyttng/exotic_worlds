@@ -425,10 +425,17 @@ final class ClientboundPacketRewriters {
 
     static ClientboundPlayerLookAtPacket playerLookAt(ClientboundPlayerLookAtPacket packet, TranslationContext context) {
         PlayerLookAtPacketAccessor accessor = (PlayerLookAtPacketAccessor) packet;
-        Vec3 near = context.nearestCopy(new Vec3(accessor.exotic_worlds$getX(), 0.0, accessor.exotic_worlds$getZ()));
-        accessor.exotic_worlds$setX(near.x);
-        accessor.exotic_worlds$setZ(near.z);
-        return packet;
+        Vec3 serverPos = new Vec3(accessor.exotic_worlds$getX(), 0.0, accessor.exotic_worlds$getZ());
+        Vec3 near = context.nearestCopy(serverPos);
+        if (near.equals(serverPos)) {
+            return packet;
+        }
+
+        ClientboundPlayerLookAtPacket copy = PacketTranslator.copyOf(ClientboundPlayerLookAtPacket.STREAM_CODEC, packet, context);
+        PlayerLookAtPacketAccessor copyAccessor = (PlayerLookAtPacketAccessor) copy;
+        copyAccessor.exotic_worlds$setX(near.x);
+        copyAccessor.exotic_worlds$setZ(near.z);
+        return copy;
     }
 
     static Packet<?> damageEvent(ClientboundDamageEventPacket packet, TranslationContext context) {

@@ -369,6 +369,13 @@ public final class PacketTranslator {
         return reader.apply(target);
     }
 
+    static <T> T copyOf(StreamCodec<? super RegistryFriendlyByteBuf, T> codec, T value,
+            TranslationContext context) {
+        RegistryFriendlyByteBuf buffer = buffer(context);
+        codec.encode(buffer, value);
+        return codec.decode(buffer);
+    }
+
     private static final int DEFAULT_BUFFER_CAPACITY = 256;
 
     private static RegistryFriendlyByteBuf buffer(TranslationContext context) {

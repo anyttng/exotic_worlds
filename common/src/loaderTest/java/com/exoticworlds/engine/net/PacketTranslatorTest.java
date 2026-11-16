@@ -563,6 +563,33 @@ class PacketTranslatorTest {
         }
 
         @Test
+        void oneLookAtInstanceSeatsInEachReceiversFrame() {
+            ClientboundPlayerLookAtPacket packet =
+                    new ClientboundPlayerLookAtPacket(EntityAnchorArgument.Anchor.EYES, SERVER_X, 70.0, SERVER_Z);
+
+            PlayerLookAtPacketAccessor forMirror =
+                    (PlayerLookAtPacketAccessor) PacketTranslator.toClient(packet, context());
+            PlayerLookAtPacketAccessor forPreviousLap =
+                    (PlayerLookAtPacketAccessor) PacketTranslator.toClient(packet, contextAt(PREVIOUS_LAP_X, MIRROR_Z));
+            PlayerLookAtPacketAccessor source = (PlayerLookAtPacketAccessor) packet;
+
+            assertEquals(CLIENT_X, forMirror.exotic_worlds$getX());
+            assertEquals(CLIENT_Z, forMirror.exotic_worlds$getZ());
+            assertEquals(PREVIOUS_LAP_TARGET_X, forPreviousLap.exotic_worlds$getX());
+            assertEquals(CLIENT_Z, forPreviousLap.exotic_worlds$getZ());
+            assertEquals(SERVER_X, source.exotic_worlds$getX());
+            assertEquals(SERVER_Z, source.exotic_worlds$getZ());
+        }
+
+        @Test
+        void lookAtOnTheReceiversLapComesBackAsHandedIn() {
+            ClientboundPlayerLookAtPacket packet =
+                    new ClientboundPlayerLookAtPacket(EntityAnchorArgument.Anchor.EYES, SERVER_X, 70.0, SERVER_Z);
+
+            assertSame(packet, PacketTranslator.toClient(packet, contextAt(SERVER_X, SERVER_Z)));
+        }
+
+        @Test
         void damageSourcePositionMovesToTheNearestCopy() {
             Holder<DamageType> sourceType = Holder.direct(new DamageType("generic", 0.0F));
             ClientboundDamageEventPacket translated = (ClientboundDamageEventPacket) PacketTranslator.toClient(
