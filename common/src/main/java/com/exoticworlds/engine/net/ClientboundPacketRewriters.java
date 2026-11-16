@@ -431,7 +431,9 @@ final class ClientboundPacketRewriters {
             return packet;
         }
 
-        ClientboundPlayerLookAtPacket copy = PacketTranslator.copyOf(ClientboundPlayerLookAtPacket.STREAM_CODEC, packet, context);
+        RegistryFriendlyByteBuf buffer = PacketTranslator.buffer(context);
+        accessor.exotic_worlds$write(buffer);
+        ClientboundPlayerLookAtPacket copy = PlayerLookAtPacketAccessor.exotic_worlds$create(buffer);
         PlayerLookAtPacketAccessor copyAccessor = (PlayerLookAtPacketAccessor) copy;
         copyAccessor.exotic_worlds$setX(near.x);
         copyAccessor.exotic_worlds$setZ(near.z);
