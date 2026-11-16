@@ -61,8 +61,7 @@ public final class PacketRewriters {
     /** How a particle type of this mod's own is rewritten on its way to a client. */
     public static <P extends ParticleOptions> void registerParticle(Class<P> particleType,
             ParticleRewriter<P> rewriter) {
-        PacketTranslator.registerParticleRewriter(particleType,
-                (particle, context, clientOrigin) -> rewriter.rewrite(particle, context, clientOrigin));
+        PacketTranslator.registerParticleRewriter(particleType, rewriter);
     }
 
     private PacketRewriters() {

@@ -158,8 +158,7 @@ class TranslationContextWarningTest {
                 entityId -> null,
                 entityId -> null,
                 () -> {
-                },
-                PacketTranslator.production());
+                });
     }
 
     private static org.apache.logging.log4j.core.Logger logger() {

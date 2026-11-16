@@ -148,6 +148,6 @@ class ModPacketTranslatorTest {
     @Test
     void aRegisteredRewriterTakesPrecedenceOverTheRecordFold() {
         assertEquals(new RewrittenProbePacket(BlockPos.ZERO),
-                PacketTranslator.toClient(new RewrittenProbePacket(SERVER_BLOCK), productionContext()));
+                PacketTranslator.toClient(new RewrittenProbePacket(SERVER_BLOCK), context()));
     }
 }

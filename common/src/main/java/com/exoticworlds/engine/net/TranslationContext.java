@@ -43,7 +43,6 @@ public record TranslationContext(
         IntFunction<@Nullable Vec3> entityPosition,
         IntFunction<TagPositions.@Nullable Subject> entity,
         Runnable rebase,
-        PacketRewriters rewriters,
         CameraSide cameraSide) implements SeamContext {
 
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -60,9 +59,9 @@ public record TranslationContext(
     public TranslationContext(WorldFold fold, ClientPosition clientPosition,
             IntFunction<RegistryFriendlyByteBuf> bufferFactory, ResourceKey<Level> dimension, int trackedViewDistance,
             int heldViewDistance, IntFunction<@Nullable Vec3> entityPosition,
-            IntFunction<TagPositions.@Nullable Subject> entity, Runnable rebase, PacketRewriters rewriters) {
+            IntFunction<TagPositions.@Nullable Subject> entity, Runnable rebase) {
         this(fold, clientPosition, bufferFactory, dimension, trackedViewDistance, heldViewDistance, entityPosition,
-                entity, rebase, rewriters, new CameraSide());
+                entity, rebase, new CameraSide());
     }
 
     public static TranslationContext of(ServerPlayer player, WorldFold fold) {
@@ -78,8 +77,7 @@ public record TranslationContext(
                 heldViewDistanceOf(player, trackedViewDistance),
                 entityId -> positionOf(player, entityId),
                 entityId -> subjectOf(player, entityId),
-                () -> ClientPosition.rebase(player),
-                PacketTranslator.production());
+                () -> ClientPosition.rebase(player));
     }
 
     private static int trackedViewDistanceOf(ServerPlayer player, WorldFold fold) {

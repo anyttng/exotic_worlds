@@ -2,7 +2,7 @@ package com.exoticworlds.engine.net;
 
 import static com.exoticworlds.engine.net.PacketTranslatorFixture.CLIENT_BLOCK;
 import static com.exoticworlds.engine.net.PacketTranslatorFixture.SERVER_BLOCK;
-import static com.exoticworlds.engine.net.PacketTranslatorFixture.productionContext;
+import static com.exoticworlds.engine.net.PacketTranslatorFixture.context;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -48,7 +48,7 @@ class OpenMenuTranslationTest {
     void openingPositionMovesToTheClientFrame() {
         ClientboundCustomPayloadPacket translated =
                 (ClientboundCustomPayloadPacket) PacketTranslator.toClient(
-                        openScreen(POSITION_CODEC, SERVER_BLOCK), productionContext());
+                        openScreen(POSITION_CODEC, SERVER_BLOCK), context());
 
         Networking.OpenScreenPayload<?> open = (Networking.OpenScreenPayload<?>) translated.payload();
         assertEquals(CLIENT_BLOCK, open.data());
@@ -62,13 +62,13 @@ class OpenMenuTranslationTest {
     void openingPositionAlreadyInTheClientFrameKeepsThePacket() {
         ClientboundCustomPayloadPacket packet = openScreen(POSITION_CODEC, CLIENT_BLOCK);
 
-        assertSame(packet, PacketTranslator.toClient(packet, productionContext()));
+        assertSame(packet, PacketTranslator.toClient(packet, context()));
     }
 
     @Test
     void openingDataThatIsNotAPositionPassesThrough() {
         ClientboundCustomPayloadPacket packet = openScreen(LABEL_CODEC, LABEL);
 
-        assertSame(packet, PacketTranslator.toClient(packet, productionContext()));
+        assertSame(packet, PacketTranslator.toClient(packet, context()));
     }
 }

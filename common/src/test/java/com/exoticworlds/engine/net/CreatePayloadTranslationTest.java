@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.RecordComponent;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -39,6 +41,7 @@ import com.simibubi.create.content.logistics.stockTicker.LogisticalStockResponse
 import com.simibubi.create.content.schematics.packet.InstantSchematicPacket;
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.compat.create.CreateTranslation;
+import com.exoticworlds.core.StartupRegistry;
 import com.exoticworlds.engine.seam.ClientPosition;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
@@ -85,6 +88,9 @@ class CreatePayloadTranslationTest {
             ResourceLocation.fromNamespaceAndPath("create", "instant_schematic");
     private static final String INSTANT_SCHEMATIC_SIZE = "bounds";
 
+    private static final String CLIENTBOUND_PAYLOADS_FIELD = "CLIENTBOUND_PAYLOADS";
+    private static final String REWRITERS_ACCESSOR = "rewriters";
+
     @BeforeAll
     static void registerTheCreateRewriters() {
         CreateTranslation.register();
@@ -94,8 +100,7 @@ class CreatePayloadTranslationTest {
         ClientPosition mirror = new ClientPosition();
         mirror.rebase(playerX, PLAYER_Z, Level.OVERWORLD, null, PER_AXIS);
         return new TranslationContext(PER_AXIS, mirror, CreatePayloadTranslationTest::buffer, Level.OVERWORLD,
-                VIEW_DISTANCE, VIEW_DISTANCE, entityId -> null, entityId -> null, () -> {},
-                PacketTranslator.production());
+                VIEW_DISTANCE, VIEW_DISTANCE, entityId -> null, entityId -> null, () -> {});
     }
 
     private static CustomPacketPayload seated(CustomPacketPayload payload, double playerX) {
@@ -114,8 +119,18 @@ class CreatePayloadTranslationTest {
                 .rebuilt(payload, value -> FoldedValue.walk(context, FoldedValue.toClient(context), value));
     }
 
+    private static StartupRegistry<?, ?> clientboundPayloadRewriters() throws ReflectiveOperationException {
+        Field route = PacketTranslator.class.getDeclaredField(CLIENTBOUND_PAYLOADS_FIELD);
+        route.setAccessible(true);
+        Object payloads = route.get(null);
+        Method rewriters = payloads.getClass().getDeclaredMethod(REWRITERS_ACCESSOR);
+        rewriters.setAccessible(true);
+        return (StartupRegistry<?, ?>) rewriters.invoke(payloads);
+    }
+
     @Test
-    void everyPayloadTheRecordFoldCoversHasNoRewriterOfItsOwn() {
+    void everyPayloadTheRecordFoldCoversHasNoRewriterOfItsOwn() throws ReflectiveOperationException {
+        Map<?, ?> rewriters = clientboundPayloadRewriters().entries();
         List<CustomPacketPayload> covered = List.of(
                 new ArmPlacementPacket.ClientBoundRequest(SERVER_BLOCK),
                 new EjectorPlacementPacket.ClientBoundRequest(SERVER_BLOCK),
@@ -127,7 +142,7 @@ class CreatePayloadTranslationTest {
                 new LogisticalStockResponsePacket(true, SERVER_BLOCK, List.of()),
                 new PackageDestroyPacket(SERVER_POINT, ItemStack.EMPTY));
         for (CustomPacketPayload payload : covered) {
-            assertNull(PacketTranslator.production().clientboundPayloadFor(payload), payload.getClass().getName());
+            assertNull(rewriters.get(payload.getClass()), payload.getClass().getName());
         }
     }
 
@@ -179,10 +194,10 @@ class CreatePayloadTranslationTest {
     }
 
     @Test
-    void theFactoryPanelFeedbackCrossesTheBoundaryCanonical() {
+    void theFactoryPanelFeedbackCrossesTheBoundaryCanonical() throws ReflectiveOperationException {
         FactoryPanelPosition acrossTheSeam = new FactoryPanelPosition(SERVER_BLOCK, FactoryPanelBlock.PanelSlot.TOP_LEFT);
         FactoryPanelEffectPacket feedback = new FactoryPanelEffectPacket(acrossTheSeam, acrossTheSeam, true);
-        assertNotNull(PacketTranslator.production().clientboundPayloadFor(feedback));
+        assertNotNull(clientboundPayloadRewriters().entries().get(feedback.getClass()));
         assertSame(feedback, seated(feedback));
     }
 

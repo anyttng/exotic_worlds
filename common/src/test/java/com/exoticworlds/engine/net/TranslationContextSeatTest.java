@@ -41,8 +41,7 @@ class TranslationContextSeatTest {
                 entityId -> null,
                 entityId -> null,
                 () -> {
-                },
-                PacketTranslator.production());
+                });
     }
 
     @Test

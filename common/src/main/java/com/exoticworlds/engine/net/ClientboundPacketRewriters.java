@@ -13,6 +13,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.ChunkPacketCopy;
 import com.exoticworlds.accessors.ChunkPacketPosition;
+import com.exoticworlds.api.v1.net.ParticleRewriter;
 import com.exoticworlds.engine.fold.SeamDelta;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.mixin.BlockEntityDataPacketAccessor;
@@ -257,7 +258,8 @@ final class ClientboundPacketRewriters {
     private static SynchedEntityData.DataValue<?> toClientData(SynchedEntityData.DataValue<?> item,
             @Nullable Class<?> entityType, Supplier<Vec3> anchor, FoldedValue.Leaves leaves,
             UnaryOperator<Object> fallback, TranslationContext context) {
-        PacketRewriters.EntityDataRewriter<Object> dataRewriter = context.rewriters().entityDataFor(entityType, item);
+        PacketTranslator.EntityDataRewriter<Object> dataRewriter =
+                PacketTranslator.entityDataRewriterFor(entityType, item);
         if (dataRewriter != null) {
             Object rewritten = dataRewriter.rewrite(item.value(), context, anchor.get());
             return rewritten == item.value() ? item : withValue(item, rewritten);
@@ -382,7 +384,7 @@ final class ClientboundPacketRewriters {
                         new BlockPositionSource(clientDestination), vibration.getArrivalInTicks());
             }
             default -> {
-                PacketRewriters.ParticleRewriter<ParticleOptions> particleRewriter = context.rewriters().particleFor(particle);
+                ParticleRewriter<ParticleOptions> particleRewriter = PacketTranslator.particleRewriterFor(particle);
                 yield particleRewriter == null ? particle : particleRewriter.rewrite(particle, context, clientOrigin);
             }
         };

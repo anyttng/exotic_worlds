@@ -143,8 +143,7 @@ class CobblemonEffectTranslationTest {
         ClientPosition mirror = new ClientPosition();
         mirror.rebase(PLAYER_X, PLAYER_Z, Level.OVERWORLD, null, PER_AXIS);
         return new TranslationContext(PER_AXIS, mirror, CobblemonEffectTranslationTest::buffer, Level.OVERWORLD,
-                VIEW_DISTANCE, VIEW_DISTANCE, entityPosition, entity, () -> {},
-                PacketTranslator.production());
+                VIEW_DISTANCE, VIEW_DISTANCE, entityPosition, entity, () -> {});
     }
 
     private static RegistryFriendlyByteBuf buffer(int capacity) {

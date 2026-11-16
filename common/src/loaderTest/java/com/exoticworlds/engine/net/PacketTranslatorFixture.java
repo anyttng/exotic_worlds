@@ -66,10 +66,8 @@ final class PacketTranslatorFixture {
     static final EntityDataSerializer<Vec3> UNFOLDED_POSITION_SERIALIZER =
             EntityDataSerializer.forValueType(POSITION_CODEC);
 
-    static final PacketRewriters REWRITERS = new PacketRewriters();
-
     static {
-        REWRITERS.registerEntityData(FOLDED_POSITION_SERIALIZER,
+        PacketTranslator.registerEntityDataRewriter(FOLDED_POSITION_SERIALIZER,
                 (position, context, anchor) -> context.fold().nearestCopy(anchor, position));
     }
 
@@ -86,29 +84,18 @@ final class PacketTranslatorFixture {
         ClientPosition mirror = new ClientPosition();
         mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, null, MIRRORED_FOLD);
         return new TranslationContext(MIRRORED_FOLD, mirror, BUFFERS, Level.OVERWORLD,
-                VIEW_DISTANCE, VIEW_DISTANCE, entityId -> null, entityId -> null, () -> {},
-                REWRITERS);
+                VIEW_DISTANCE, VIEW_DISTANCE, entityId -> null, entityId -> null, () -> {});
     }
 
     static TranslationContext context(IntFunction<Vec3> entityPosition) {
         return context(entityPosition, entityId -> null);
     }
 
-    static TranslationContext context(IntFunction<Vec3> entityPosition,
-            IntFunction<TagPositions.Subject> entity) {
-        return context(entityPosition, entity, REWRITERS);
-    }
-
-    static TranslationContext productionContext() {
-        return context(entityId -> null, entityId -> null, PacketTranslator.production());
-    }
-
-    static TranslationContext context(IntFunction<Vec3> entityPosition,
-            IntFunction<TagPositions.Subject> entity, PacketRewriters rewriters) {
+    static TranslationContext context(IntFunction<Vec3> entityPosition, IntFunction<TagPositions.Subject> entity) {
         ClientPosition mirror = new ClientPosition();
         mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, null, FOLD);
         return new TranslationContext(FOLD, mirror, BUFFERS, Level.OVERWORLD,
-                VIEW_DISTANCE, VIEW_DISTANCE, entityPosition, entity, () -> {}, rewriters);
+                VIEW_DISTANCE, VIEW_DISTANCE, entityPosition, entity, () -> {});
     }
 
     private PacketTranslatorFixture() {
