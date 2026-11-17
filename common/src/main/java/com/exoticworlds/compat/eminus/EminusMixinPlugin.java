@@ -1,5 +1,7 @@
 package com.exoticworlds.compat.eminus;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -14,6 +16,9 @@ public class EminusMixinPlugin extends ModPresenceGatePlugin {
     private static final String NEAR_BOX_CLASS = "com/eminus/handoff/NearBox.class";
     private static final String FAR_QUADS_MIXIN = "FarQuadsMixin";
     private static final String FAR_QUADS_EVERY_PIPELINE_MIXIN = "FarQuadsEveryPipelineMixin";
+    private static final String FAR_QUADS_PIPELINE_MIXIN = "FarQuadsPipelineMixin";
+    private static final String FAR_QUADS = "com/eminus/client/render/far/FarQuads";
+    private static final String PIPELINE = "pipeline";
     private static final String TREE_MANAGER_CHANGES_MIXIN = "TreeManagerChangesMixin";
     private static final String TREE_CHANGES_MIXIN = "TreeChangesMixin";
     private static final String TREE_NODE_ACCESSOR = "TreeNodeAccessor";
@@ -28,8 +33,16 @@ public class EminusMixinPlugin extends ModPresenceGatePlugin {
     private static final String BEAM_SET_MIXIN = "BeamSetMixin";
     private static final String BEAM_PASS_MIXIN = "BeamPassMixin";
     private static final String RUNTIME_BEAMS_MIXIN = "DimensionRuntimeBeamsMixin";
+    private static final String COLUMN_COVERAGE = "com/eminus/cell/ColumnCoverage";
+    private static final String HOLDS = "holds";
+    private static final String HOLDS_DESCRIPTOR = "(II)Z";
+    private static final String HOLDS_MIXIN = "ColumnCoverageHoldsMixin";
+    private static final String SAVE_IMPORT_CLASS = "com/eminus/ingest/saved/SaveImport.class";
+    private static final List<String> SAVE_IMPORT_MIXINS = List.of("SaveImportMixin", "SaveImportTileRunMixin",
+            "SavedChunkMixin", "SavedColumnMixin", "ServerSaveMixin");
 
-    private static final ModPresence EMINUS = ModPresence.gate(LOGGER, "[ew/eminus-compat] gate eminus_present")
+    private static final ModPresence EMINUS = withholdingSaveImports(ModPresence.gate(LOGGER,
+            "[ew/eminus-compat] gate eminus_present"))
             .probing("com/eminus/cell/cache/CellCache.class")
             .checking("exotic_worlds.compat.eminus.mixins.json")
             .modPackages(EMINUS_PACKAGE)
@@ -40,12 +53,16 @@ public class EminusMixinPlugin extends ModPresenceGatePlugin {
             .withholding(MISSING_COLUMNS_MIXIN, () -> !changesLiveInTreeChanges())
             .withholding(WAITING_MIXIN, () -> !changesLiveInTreeChanges())
             .withholding(FAR_QUADS_MIXIN, EminusMixinPlugin::solidPipelineSplit)
-            .withholding(FAR_QUADS_EVERY_PIPELINE_MIXIN, () -> !solidPipelineSplit())
+            .withholding(FAR_QUADS_EVERY_PIPELINE_MIXIN, () -> !solidPipelineSplit()
+                    || !buildsFarPipelineBy(EminusInjectionTargets.FAR_PIPELINE_BUILDER_WITH_CUTOUT))
+            .withholding(FAR_QUADS_PIPELINE_MIXIN,
+                    () -> !buildsFarPipelineBy(EminusInjectionTargets.FAR_PIPELINE_BUILDER))
             .withholding(REQUEST_MIXIN, EminusMixinPlugin::requestCarriesFill)
             .withholding(FILL_REQUEST_MIXIN, () -> !requestCarriesFill())
             .withholding(BEAM_SET_MIXIN, () -> !drawsBeams())
             .withholding(BEAM_PASS_MIXIN, () -> !drawsBeams())
             .withholding(RUNTIME_BEAMS_MIXIN, () -> !drawsBeams())
+            .withholding(HOLDS_MIXIN, () -> !coverageHolds())
             .build();
 
     public EminusMixinPlugin() {
@@ -62,6 +79,26 @@ public class EminusMixinPlugin extends ModPresenceGatePlugin {
 
     private static boolean drawsBeams() {
         return ModPresence.probe(BEAM_PASS_CLASS);
+    }
+
+    private static ModPresence.Builder withholdingSaveImports(ModPresence.Builder gate) {
+        for (String mixin : SAVE_IMPORT_MIXINS) {
+            gate.withholding(mixin, () -> !importsSaves());
+        }
+
+        return gate;
+    }
+
+    private static boolean buildsFarPipelineBy(String descriptor) {
+        return ModPresence.probeMethod(FAR_QUADS, PIPELINE, descriptor);
+    }
+
+    private static boolean importsSaves() {
+        return ModPresence.probe(SAVE_IMPORT_CLASS);
+    }
+
+    private static boolean coverageHolds() {
+        return ModPresence.probeMethod(COLUMN_COVERAGE, HOLDS, HOLDS_DESCRIPTOR);
     }
 
     private static boolean requestCarriesFill() {

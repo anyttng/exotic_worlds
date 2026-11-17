@@ -131,6 +131,15 @@ public final class CellFold {
         return BlockPos.asLong((int) x, BlockPos.getY(pos), (int) z);
     }
 
+    public long copyNearChunk(int chunkX, int chunkZ, int centerChunkX, int centerChunkZ) {
+        long copy = copyNear(BlockPos.asLong(SectionPos.sectionToBlockCoord(chunkX, SectionPos.SECTION_HALF_SIZE), ANY_Y,
+                SectionPos.sectionToBlockCoord(chunkZ, SectionPos.SECTION_HALF_SIZE)),
+                SectionPos.sectionToBlockCoord(centerChunkX, SectionPos.SECTION_HALF_SIZE),
+                SectionPos.sectionToBlockCoord(centerChunkZ, SectionPos.SECTION_HALF_SIZE));
+        return ChunkPos.pack(SectionPos.blockToSectionCoord(BlockPos.getX(copy)),
+                SectionPos.blockToSectionCoord(BlockPos.getZ(copy)));
+    }
+
     public long[] foldedChunks(int chunkX, int chunkZ) {
         if (shape == null) {
             return new long[] {ChunkPos.pack(chunkX, chunkZ)};
