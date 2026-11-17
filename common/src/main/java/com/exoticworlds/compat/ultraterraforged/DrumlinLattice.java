@@ -7,7 +7,7 @@ import com.exoticworlds.compat.terraforged.LapWave;
 import net.minecraft.core.Direction;
 
 public record DrumlinLattice(float alongX, float alongZ, float cellLength, float rowShift, float rowWidth,
-        int rowPeriod, int rowStep, int columns) {
+        int rowPeriod, long rowStep, long columns) {
     public static final float CELL_LENGTH = 90.0F;
 
     public static final float CELL_WIDTH = 40.0F;
@@ -15,6 +15,8 @@ public record DrumlinLattice(float alongX, float alongZ, float cellLength, float
     public static final float ROW_SHIFT = 45.0F;
 
     public static final int UNFOLDED = 0;
+
+    private static final long COLUMN_SPAN = 1L << (Integer.SIZE - 1);
 
     private static final ThreadLocal<Remembered> REMEMBERED = ThreadLocal.withInitial(Remembered::new);
 
@@ -52,16 +54,27 @@ public record DrumlinLattice(float alongX, float alongZ, float cellLength, float
     }
 
     public int foldColumn(int column, int row) {
+        long folded = fold(column, row);
+        return (int) (this.columns == UNFOLDED ? folded : folded % COLUMN_SPAN);
+    }
+
+    public int foldRow(int column, int row) {
+        if (this.rowPeriod == UNFOLDED) {
+            return row;
+        }
+
+        int folded = Math.floorMod(row, this.rowPeriod);
+        return this.columns == UNFOLDED ? folded
+                : (int) (folded + this.rowPeriod * (fold(column, row) / COLUMN_SPAN));
+    }
+
+    private long fold(int column, int row) {
         long folded = column;
         if (this.rowPeriod != UNFOLDED) {
             folded -= (long) Math.floorDiv(row, this.rowPeriod) * this.rowStep;
         }
 
-        return (int) (this.columns == UNFOLDED ? folded : Math.floorMod(folded, this.columns));
-    }
-
-    public int foldRow(int row) {
-        return this.rowPeriod == UNFOLDED ? row : Math.floorMod(row, this.rowPeriod);
+        return this.columns == UNFOLDED ? folded : Math.floorMod(folded, this.columns);
     }
 
     private DrumlinLattice folded(LapWave lap, LapWave.Wave along, LapWave.Wave across) {
@@ -87,7 +100,7 @@ public record DrumlinLattice(float alongX, float alongZ, float cellLength, float
 
     private DrumlinLattice withFold(long period, long step, long columns) {
         return new DrumlinLattice(this.alongX, this.alongZ, this.cellLength, this.rowShift, this.rowWidth,
-                Math.toIntExact(period), Math.toIntExact(step), Math.toIntExact(columns));
+                Math.toIntExact(period), step, columns);
     }
 
     private static double det(LapWave.Wave along, LapWave.Wave across) {
