@@ -1,6 +1,8 @@
 package com.exoticworlds.compat.ultraterraforged;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Random;
@@ -9,6 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.terraforged.LapWave;
 import com.exoticworlds.compat.terraforged.RtfLap;
+import com.exoticworlds.core.CoordinateConstants;
+import com.exoticworlds.core.WorldLoopSizes;
 
 import net.minecraft.core.Direction;
 
@@ -20,6 +24,8 @@ class DrumlinLatticeTest {
     private static final double TINY_LAP = 512.0;
 
     private static final double SKEW = 272.0;
+
+    private static final double WIDEST_LAP = (double) WorldLoopSizes.MAX_CHUNK_WIDTH * CoordinateConstants.CHUNK_WIDTH;
 
     private static final int DIRECTIONS = 36;
 
@@ -35,12 +41,19 @@ class DrumlinLatticeTest {
 
     private static final int NEIGHBORS = 1;
 
+    private static final int WIDEST_CELL_SPAN = 1_000_000;
+
     private static final LapWave[] LAPS = {
         new LapWave(LAP, NARROW_LAP, RtfLap.NO_SKEW),
         new LapWave(LAP, LAP, SKEW),
         new LapWave(TINY_LAP, TINY_LAP, RtfLap.NO_SKEW),
         new LapWave(LAP, RtfLap.OPEN, RtfLap.NO_SKEW),
         new LapWave(RtfLap.OPEN, NARROW_LAP, RtfLap.NO_SKEW)
+    };
+
+    private static final LapWave[] WIDEST_LAPS = {
+        new LapWave(WIDEST_LAP, WIDEST_LAP, RtfLap.NO_SKEW),
+        new LapWave(WIDEST_LAP, WIDEST_LAP, SKEW)
     };
 
     private record Seat(int column, int row, float alongOffset, float acrossOffset) {
@@ -56,6 +69,40 @@ class DrumlinLatticeTest {
                         "length " + lattice.cellLength() + " on " + lap + " at " + angle);
                 assertTrue(lattice.rowWidth() > 0.0F && lattice.rowWidth() <= DrumlinLattice.CELL_WIDTH + CLOSE,
                         "width " + lattice.rowWidth() + " on " + lap + " at " + angle);
+            }
+        }
+    }
+
+    @Test
+    void theLatticeHoldsOnTheWidestTorus() {
+        for (LapWave lap : WIDEST_LAPS) {
+            for (int i = 0; i < DIRECTIONS; i++) {
+                double angle = 2.0 * Math.PI * i / DIRECTIONS;
+                assertDoesNotThrow(() -> DrumlinLattice.over(lap, (float) Math.cos(angle), (float) Math.sin(angle)),
+                        lap + " at " + angle);
+            }
+        }
+    }
+
+    @Test
+    void aCellOneLapAwayOnTheWidestTorusFoldsToTheSameCellAndItsNeighborsToOthers() {
+        Random random = new Random(SEED);
+        for (LapWave lap : WIDEST_LAPS) {
+            for (int i = 0; i < DIRECTIONS; i++) {
+                double angle = 2.0 * Math.PI * i / DIRECTIONS;
+                DrumlinLattice lattice = DrumlinLattice.over(lap, (float) Math.cos(angle), (float) Math.sin(angle));
+                int[] xShift = cellShift(lattice, lap.xLap(), 0.0);
+                int[] zShift = cellShift(lattice, lap.skew(), lap.zLap());
+                for (int point = 0; point < POINTS; point++) {
+                    int column = random.nextInt(WIDEST_CELL_SPAN) - WIDEST_CELL_SPAN / 2;
+                    int row = random.nextInt(WIDEST_CELL_SPAN) - WIDEST_CELL_SPAN / 2;
+                    String where = lap + " at " + angle + ", cell " + column + " " + row;
+                    long here = folded(lattice, column, row);
+                    assertEquals(here, folded(lattice, column + xShift[0], row + xShift[1]), where);
+                    assertEquals(here, folded(lattice, column + zShift[0], row + zShift[1]), where);
+                    assertNotEquals(here, folded(lattice, column + NEIGHBORS, row), where);
+                    assertNotEquals(here, folded(lattice, column, row + NEIGHBORS), where);
+                }
             }
         }
     }
@@ -98,6 +145,17 @@ class DrumlinLatticeTest {
         return new Seat(column, row, shifted - column * lattice.cellLength(), across - row * lattice.rowWidth());
     }
 
+    private static int[] cellShift(DrumlinLattice lattice, double lapX, double lapZ) {
+        double rows = Math.rint((lapZ * lattice.alongX() - lapX * lattice.alongZ()) / lattice.rowWidth());
+        double along = lapX * lattice.alongX() + lapZ * lattice.alongZ();
+        double columns = Math.rint((along - rows * lattice.rowShift()) / lattice.cellLength());
+        return new int[] {(int) columns, (int) rows};
+    }
+
+    private static long folded(DrumlinLattice lattice, int column, int row) {
+        return ((long) lattice.foldColumn(column, row) << Integer.SIZE) | Integer.toUnsignedLong(lattice.foldRow(column, row));
+    }
+
     private static boolean onABorder(DrumlinLattice lattice, Seat seat) {
         return seat.alongOffset() < OFFSET_CLOSE || seat.alongOffset() > lattice.cellLength() - OFFSET_CLOSE
                 || seat.acrossOffset() < OFFSET_CLOSE || seat.acrossOffset() > lattice.rowWidth() - OFFSET_CLOSE;
@@ -110,9 +168,10 @@ class DrumlinLatticeTest {
             for (int column = -NEIGHBORS; column <= NEIGHBORS; column++) {
                 int hereRow = here.row() + row;
                 int copyRow = copy.row() + row;
-                assertEquals(lattice.foldRow(hereRow), lattice.foldRow(copyRow), where);
-                assertEquals(lattice.foldColumn(here.column() + column, hereRow),
-                        lattice.foldColumn(copy.column() + column, copyRow), where);
+                int hereColumn = here.column() + column;
+                int copyColumn = copy.column() + column;
+                assertEquals(lattice.foldRow(hereColumn, hereRow), lattice.foldRow(copyColumn, copyRow), where);
+                assertEquals(lattice.foldColumn(hereColumn, hereRow), lattice.foldColumn(copyColumn, copyRow), where);
             }
         }
     }
