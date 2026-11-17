@@ -28,6 +28,8 @@ public abstract class PantographBlockEntityMixin {
     @Unique
     private static final String CATENARY_END = "Lcom/george_vi/electroenergetics/content/railway_electrification/"
             + "catenary/CatenaryConnection;getEndingPos()Lnet/minecraft/world/phys/Vec3;";
+    @Unique
+    private static final int POSITION_TRANSFORM = 0;
 
     @ModifyExpressionValue(method = "handleOnServer",
             at = @At(value = "INVOKE", target = ElectroEnergeticsInjectionTargets.NODE_GET_POSITION, ordinal = 0))
@@ -46,7 +48,8 @@ public abstract class PantographBlockEntityMixin {
     @ModifyExpressionValue(method = "handleOnClient",
             at = @At(value = "INVOKE", target = ElectroEnergeticsInjectionTargets.NODE_GET_POSITION, ordinal = 0))
     private Vec3 exotic_worlds$clientWireStartBesideCollector(Vec3 start,
-            @Local(name = "positionTransform") UnaryOperator<Vec3> toWorld, @Local(name = "pantographPos") Vec3 head,
+            @Local(argsOnly = true, ordinal = POSITION_TRANSFORM) UnaryOperator<Vec3> toWorld,
+            @Local(name = "pantographPos") Vec3 head,
             @Share(WIRE_START) LocalRef<Vec3> seated) {
         seated.set(WireSpan.seatOnClientIfPresent(this.exotic_worlds$level(), toWorld.apply(head), start));
         return seated.get();
@@ -60,7 +63,8 @@ public abstract class PantographBlockEntityMixin {
 
     @ModifyExpressionValue(method = "handleOnClient", at = @At(value = "INVOKE", target = CATENARY_START))
     private Vec3 exotic_worlds$clientCatenaryStartBesideCollector(Vec3 start,
-            @Local(name = "positionTransform") UnaryOperator<Vec3> toWorld, @Local(name = "pantographPos") Vec3 head,
+            @Local(argsOnly = true, ordinal = POSITION_TRANSFORM) UnaryOperator<Vec3> toWorld,
+            @Local(name = "pantographPos") Vec3 head,
             @Share(WIRE_START) LocalRef<Vec3> seated) {
         seated.set(WireSpan.seatOnClientIfPresent(this.exotic_worlds$level(), toWorld.apply(head), start));
         return seated.get();
