@@ -86,6 +86,6 @@ public abstract class DrumlinsMixin {
         DrumlinLattice bound = lattice.get();
         return bound == null
                 ? original.call(seed, column, row, purpose)
-                : original.call(seed, bound.foldColumn(column, row), bound.foldRow(row), purpose);
+                : original.call(seed, bound.foldColumn(column, row), bound.foldRow(column, row), purpose);
     }
 }
