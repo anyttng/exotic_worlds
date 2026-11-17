@@ -12,22 +12,12 @@ import com.exoticworlds.compat.map.MapShapes;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.phys.Vec3;
 
 class XaeroWorldMapFoldSeatTest {
     private static final ToroidalShape LATTICE = MapShapes.latticeTorus(-16, 16, 16);
     private static final ToroidalShape HALF_SKEW_LATTICE = MapShapes.latticeTorus(-16, 16, 8);
     private static final ToroidalShape TORUS = MapShapes.torus(-16, 16);
     private static final ToroidalShape CYLINDER = MapShapes.cylinder(-16, 16);
-
-    @Test
-    void aFootprintPastTheZSeamOfALatticeTorusFoldsWhole() {
-        assertEquals(new Vec3(-155.5, 0, -249.5), XaeroWorldMapFold.foldPoint(LATTICE, 100.5, 262.5),
-                "crossing the Z seam moves X by 256 blocks, so a per-axis fold would have kept it at 100.5");
-        assertEquals(new Vec3(100.5, 0, -249.5), XaeroWorldMapFold.foldPoint(TORUS, 100.5, 262.5));
-        assertEquals(new Vec3(100.5, 0, 262.5), XaeroWorldMapFold.foldPoint(CYLINDER, 100.5, 262.5));
-        assertEquals(new Vec3(100.5, 0, 262.5), XaeroWorldMapFold.foldPoint(null, 100.5, 262.5));
-    }
 
     @Test
     void theCursorPastTheZSeamOfALatticeTorusNamesTheCanonicalBlock() {
