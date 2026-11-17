@@ -51,14 +51,6 @@ public final class JourneyMapFold {
         return ClientShapes.fold(shape, chunk);
     }
 
-    public static Vec3 foldCenter(double blockX, double blockZ) {
-        return foldCenter(ClientShapes.current(), blockX, blockZ);
-    }
-
-    static Vec3 foldCenter(@Nullable ToroidalShape shape, double blockX, double blockZ) {
-        return ClientShapes.fold(shape, new Vec3(blockX, 0.0, blockZ));
-    }
-
     public static Vec3 seatPixel(double refX, double refZ, double blockX, double blockZ, MapCopies copies) {
         return seatPixel(ClientShapes.current(), refX, refZ, blockX, blockZ, copies);
     }
@@ -102,7 +94,7 @@ public final class JourneyMapFold {
     }
 
     public static Center centerView(Context.UI ui, double blockX, double blockZ, int zoom) {
-        Vec3 folded = foldCenter(blockX, blockZ);
+        Vec3 folded = ClientShapes.fold(ClientShapes.current(), blockX, blockZ);
         if (copiesOf(ui) != MapCopies.SINGLE || !active()) {
             return new Center(folded.x, folded.z, zoom);
         }
