@@ -34,6 +34,10 @@ public final class ClientShapes {
         return shape == null ? point : shape.fold(point);
     }
 
+    public static Vec3 fold(@Nullable ToroidalShape shape, double blockX, double blockZ) {
+        return fold(shape, new Vec3(blockX, 0.0, blockZ));
+    }
+
     public static ChunkPos fold(@Nullable ToroidalShape shape, ChunkPos chunk) {
         return shape == null ? chunk : shape.fold(chunk);
     }

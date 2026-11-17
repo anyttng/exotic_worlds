@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.compat.map.ClientShapes;
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.MapShapes;
 
@@ -52,7 +53,7 @@ class JourneyMapFoldSeatTest {
 
     @Test
     void aSingleMapCenterOfALatticeTorusFoldsWholeBeforeItIsHeldInside() {
-        Vec3 center = JourneyMapFold.foldCenter(LATTICE, 0, 400);
+        Vec3 center = ClientShapes.fold(LATTICE, 0, 400);
         assertEquals(new Vec3(-256, 0, -112), center);
         assertEquals(-192.0,
                 JourneyMapFold.clampSingleCenter(LATTICE, Direction.Axis.X, center.x, ZOOM, WINDOW_PIXELS),

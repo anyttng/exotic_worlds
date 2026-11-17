@@ -15,6 +15,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.compat.map.ClientShapes;
 import com.exoticworlds.compat.xaero.XaeroCamera;
 import com.exoticworlds.compat.xaero.XaeroCursorLap;
 import com.exoticworlds.compat.xaero.XaeroInjectionTargets;
@@ -89,7 +90,7 @@ public abstract class GuiMapViewMixin {
         ToroidalShape shape = XaeroWorldMapFold.browsedShape();
         return shape == null
                 ? x
-                : XaeroWorldMapFold.foldPoint(shape, x, EntityUtil.getEntityZ(this.player, partialTicks)).x;
+                : ClientShapes.fold(shape, x, EntityUtil.getEntityZ(this.player, partialTicks)).x;
     }
 
     @ModifyExpressionValue(
@@ -101,7 +102,7 @@ public abstract class GuiMapViewMixin {
         ToroidalShape shape = XaeroWorldMapFold.browsedShape();
         return shape == null
                 ? z
-                : XaeroWorldMapFold.foldPoint(shape, EntityUtil.getEntityX(this.player, partialTicks), z).z;
+                : ClientShapes.fold(shape, EntityUtil.getEntityX(this.player, partialTicks), z).z;
     }
 
     @Inject(

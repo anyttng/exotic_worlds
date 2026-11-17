@@ -2,7 +2,6 @@ package com.exoticworlds.compat.map;
 
 import net.minecraft.client.gui.GuiGraphics;
 
-// mc/26.2: Simple Atlas, Seed Viewer and FTB Chunks place and draw their seam lines through it.
 public record SeamLine(boolean vertical, int at, int from, int to) {
     public static final int LINE_ARGB = 0xCCFFFFFF;
 
