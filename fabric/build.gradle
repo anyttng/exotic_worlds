@@ -19,6 +19,7 @@ def jarVersion = withBuildSuffix("${exotic_worlds_version}+mc${minecraft_version
 // The metadata closure is detached from this script by the configuration cache, so the property is read here.
 def journeymapMinVersion = journeymap_min_version
 def c2meMinVersion = c2me_fabric_min_version
+def eminusMinVersion = eminus_min_version
 
 base {
     archivesName = mod_id
@@ -196,9 +197,10 @@ processResources {
     inputs.property 'version', modIngameVersion
     inputs.property 'journeymap_min_version', journeymapMinVersion
     inputs.property 'c2me_min_version', c2meMinVersion
+    inputs.property 'eminus_min_version', eminusMinVersion
     filesMatching('fabric.mod.json') {
         expand version: modIngameVersion, journeymap_min_version: journeymapMinVersion,
-                c2me_min_version: c2meMinVersion
+                c2me_min_version: c2meMinVersion, eminus_min_version: eminusMinVersion
     }
 }
 
