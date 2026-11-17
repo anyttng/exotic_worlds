@@ -99,8 +99,9 @@ public final class SeamEntitySearch {
     }
 
     private static Predicate<Entity> firstOverlap(WorldFold fold, AABB box) {
+        List<Folded<AABB>> pieces = fold.split(box);
         Set<Entity> seen = Collections.newSetFromMap(new IdentityHashMap<>());
-        return entity -> fold.boxesOverlap(box, entity.getBoundingBox()) && seen.add(entity);
+        return entity -> fold.overlaps(pieces, entity.getBoundingBox()) && seen.add(entity);
     }
 
     private SeamEntitySearch() {

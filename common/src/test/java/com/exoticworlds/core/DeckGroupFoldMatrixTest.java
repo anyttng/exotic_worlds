@@ -992,6 +992,24 @@ class DeckGroupFoldMatrixTest {
             }
         }
 
+        @Test
+        void overlapsOfTheSplitFirstBoxAgreesWithTheOrbit() {
+            for (Case testCase : cases()) {
+                DeckGroupFold fold = testCase.fold();
+                Random random = new Random(SEED + 36);
+                for (int sample = 0; sample < SAMPLES; sample++) {
+                    AABB first = randomBox(random);
+                    AABB wide = randomBox(random);
+                    AABB small = randomEntityBox(random);
+                    List<Folded<AABB>> pieces = fold.split(first);
+                    assertEquals(anyCopyOverlaps(testCase.group(), first, wide), fold.overlaps(pieces, wide),
+                            testCase.name() + ": overlaps disagrees with the orbit on a wide box");
+                    assertEquals(anyCopyOverlaps(testCase.group(), first, small), fold.overlaps(pieces, small),
+                            testCase.name() + ": overlaps disagrees with the orbit on an entity-sized box");
+                }
+            }
+        }
+
         private static boolean anyCopyOverlaps(Group group, AABB first, AABB second) {
             if (first.minY >= second.maxY || second.minY >= first.maxY) {
                 return false;
@@ -1019,6 +1037,14 @@ class DeckGroupFoldMatrixTest {
             double minZ = sample(random) + random.nextDouble();
             return new AABB(minX, 60.0, minZ, minX + random.nextDouble() * 40.0, 68.0,
                     minZ + random.nextDouble() * 40.0);
+        }
+
+        private static AABB randomEntityBox(Random random) {
+            double minX = LOWER + random.nextInt(WIDTH) + random.nextDouble();
+            double minY = 60.0 + random.nextDouble() * 10.0;
+            double minZ = LOWER + random.nextInt(WIDTH) + random.nextDouble();
+            return new AABB(minX, minY, minZ, minX + random.nextDouble() * 2.0, minY + random.nextDouble() * 2.0,
+                    minZ + random.nextDouble() * 2.0);
         }
     }
 
