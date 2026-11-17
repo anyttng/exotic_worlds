@@ -90,7 +90,6 @@ class CrafterGroupFoldTest {
     void anUnwrappedWorldGivesTheMembersBackByIdentity() {
         Set<BlockPos> raw = Set.of(OWNER, MEMBER_ACROSS);
 
-        assertSame(raw, CrafterGroupFold.canonicalMembers((WorldFold) null, raw));
         assertSame(raw, CrafterGroupFold.canonicalMembers((BlockGetter) null, raw));
     }
 }

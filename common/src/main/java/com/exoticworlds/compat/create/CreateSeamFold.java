@@ -7,6 +7,7 @@ import com.exoticworlds.core.ForeignFrames;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.engine.fold.NearestCopy;
+import com.exoticworlds.engine.fold.SeamHit;
 import com.exoticworlds.engine.level.CurrentClientLevel;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.core.WorldLoopAttachments;
@@ -21,7 +22,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public final class CreateSeamFold {
@@ -113,11 +113,7 @@ public final class CreateSeamFold {
             return block;
         }
 
-        return foldPositionToBox(WorldLoopAttachments.wrappedFoldOfReader(level), box, block);
-    }
-
-    static BlockPos foldPositionToBox(@Nullable WorldFold fold, BoundingBox box, BlockPos position) {
-        return nearest(fold, box.getCenter(), position);
+        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(level), box, block);
     }
 
     public static Vec3 foldPointToBox(@Nullable Level level, AABB box, Vec3 point) {
@@ -133,21 +129,7 @@ public final class CreateSeamFold {
             return hit;
         }
 
-        return canonical(WorldLoopAttachments.foldOf(level), hit);
-    }
-
-    static BlockHitResult canonical(WorldFold fold, BlockHitResult hit) {
-        BlockPos raw = hit.getBlockPos();
-        BlockPos wrapped = fold.fold(raw);
-        if (wrapped.equals(raw)) {
-            return hit;
-        }
-
-        Vec3 offsetInBlock = hit.getLocation().subtract(Vec3.atLowerCornerOf(raw));
-        Vec3 location = Vec3.atLowerCornerOf(wrapped).add(offsetInBlock);
-        return hit.getType() == HitResult.Type.MISS
-                ? BlockHitResult.miss(location, hit.getDirection(), wrapped)
-                : new BlockHitResult(location, hit.getDirection(), wrapped, hit.isInside());
+        return SeamHit.reseat(hit, WorldLoopAttachments.foldOf(level).foldOriented(hit.getBlockPos()));
     }
 
     public static BlockPos canonical(@Nullable ResourceKey<Level> dimension, BlockPos position) {

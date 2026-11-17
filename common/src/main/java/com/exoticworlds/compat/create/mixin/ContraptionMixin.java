@@ -24,6 +24,7 @@ import com.exoticworlds.compat.create.CreateSeamFold;
 import com.exoticworlds.compat.create.LappedKeys;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.FoldedBoxQuery;
 
 import java.util.List;
 import java.util.Queue;
@@ -79,7 +80,7 @@ public class ContraptionMixin {
     @Inject(method = "searchMovedStructure", at = @At("RETURN"))
     private void exotic_worlds$refuseAStructureThatCirclesTheWorld(Level world, BlockPos pos, Direction forcedDirection,
             CallbackInfoReturnable<Boolean> cir, @Local Set<BlockPos> visited) throws AssemblyException {
-        if (visited instanceof LappedKeys keys && keys.lapped() != null) {
+        if (visited instanceof LappedKeys keys && keys.lapped()) {
             throw new AssemblyException(Component.translatable(CIRCLES_THE_WORLD_KEY));
         }
     }
@@ -112,7 +113,7 @@ public class ContraptionMixin {
         }
 
         Vec3 center = bounds == null ? Vec3.ZERO : bounds.getCenter();
-        superglue.replaceAll(box -> fold.nearestCopyOriented(center, box).value());
+        superglue.replaceAll(box -> FoldedBoxQuery.toward(fold, center, box));
     }
 
     @ModifyExpressionValue(method = "addBlocksToWorld",

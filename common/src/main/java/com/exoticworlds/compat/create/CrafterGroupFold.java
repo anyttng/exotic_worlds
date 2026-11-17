@@ -1,6 +1,5 @@
 package com.exoticworlds.compat.create;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -10,6 +9,7 @@ import com.simibubi.create.content.kinetics.crafter.MechanicalCrafterBlockEntity
 import com.exoticworlds.compat.create.mixin.ConnectedInputAccessor;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.FoldedCopies;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -58,21 +58,8 @@ public final class CrafterGroupFold {
     }
 
     public static Set<BlockPos> canonicalMembers(@Nullable BlockGetter level, Set<BlockPos> raw) {
-        return canonicalMembers(
-                level instanceof ServerLevel server ? WorldLoopAttachments.wrappedFoldOfReader(server) : null, raw);
-    }
-
-    static Set<BlockPos> canonicalMembers(@Nullable WorldFold fold, Set<BlockPos> raw) {
-        if (fold == null) {
-            return raw;
-        }
-
-        Set<BlockPos> folded = new LinkedHashSet<>(raw.size());
-        for (BlockPos member : raw) {
-            folded.add(fold.fold(member));
-        }
-
-        return folded;
+        WorldFold fold = level instanceof ServerLevel server ? WorldLoopAttachments.wrappedFoldOfReader(server) : null;
+        return fold == null ? raw : FoldedCopies.of(raw, fold::fold);
     }
 
     private CrafterGroupFold() {

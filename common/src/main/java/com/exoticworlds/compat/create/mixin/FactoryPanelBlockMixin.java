@@ -19,6 +19,7 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = FactoryPanelBlock.class, remap = false)
 public class FactoryPanelBlockMixin {
+    @Unique
     private static final String GET_TARGETED_SLOT =
             "Lcom/simibubi/create/content/logistics/factoryBoard/FactoryPanelBlock;getTargetedSlot"
                     + "(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;"

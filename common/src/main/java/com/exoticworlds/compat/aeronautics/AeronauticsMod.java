@@ -15,10 +15,6 @@ public final class AeronauticsMod {
             .scanning(name -> false)
             .build();
 
-    public static boolean admitted() {
-        return GATE.admitted();
-    }
-
     public static void register() {
         if (SimulatedMod.admitted() && SableMod.admitted()) {
             SableBodyShift.register(RopeSeamFrame::onGroupShifted);
