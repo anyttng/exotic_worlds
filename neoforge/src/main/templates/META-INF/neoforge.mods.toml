@@ -66,6 +66,13 @@ Circumnavigate the world — walk, sail or fly past the border and come out on t
     ordering="NONE"
     side="BOTH"
 
+[[dependencies.${mod_id}]]
+    modId="eminus"
+    type="optional"
+    versionRange="[${eminus_min_version},)"
+    ordering="NONE"
+    side="CLIENT"
+
 [[mixins]]
 config="exotic_worlds.mixins.json"
 

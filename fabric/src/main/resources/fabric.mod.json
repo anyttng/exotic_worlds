@@ -66,6 +66,7 @@
   "breaks": {
     "journeymap": "<${journeymap_min_version}",
     "ftbchunks": "<${ftbchunks_min_version}",
-    "c2me": ["<${c2me_min_version}", "${c2me_broken_version}"]
+    "c2me": ["<${c2me_min_version}", "${c2me_broken_version}"],
+    "eminus": "<${eminus_min_version}"
   }
 }

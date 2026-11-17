@@ -21,6 +21,7 @@ def journeymapMinVersion = journeymap_min_version
 def ftbchunksMinVersion = ftbchunks_min_version
 def c2meMinVersion = c2me_fabric_min_version
 def c2meBrokenVersion = c2me_fabric_broken_version
+def eminusMinVersion = eminus_min_version
 
 base {
     archivesName = mod_id
@@ -210,10 +211,12 @@ processResources {
     inputs.property 'ftbchunks_min_version', ftbchunksMinVersion
     inputs.property 'c2me_min_version', c2meMinVersion
     inputs.property 'c2me_broken_version', c2meBrokenVersion
+    inputs.property 'eminus_min_version', eminusMinVersion
     filesMatching('fabric.mod.json') {
         expand version: modIngameVersion, journeymap_min_version: journeymapMinVersion,
                 ftbchunks_min_version: ftbchunksMinVersion,
-                c2me_min_version: c2meMinVersion, c2me_broken_version: c2meBrokenVersion
+                c2me_min_version: c2meMinVersion, c2me_broken_version: c2meBrokenVersion,
+                eminus_min_version: eminusMinVersion
     }
 }
 
