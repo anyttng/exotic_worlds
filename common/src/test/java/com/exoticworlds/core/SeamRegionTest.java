@@ -57,6 +57,18 @@ class SeamRegionTest {
         return false;
     }
 
+    private static boolean overlapsOnLattice(WrapDomain domain, double aMin, double aMax, double bMin, double bMax) {
+        if (domain instanceof WrapDomain.Noop) {
+            return aMin < bMax && bMin < aMax;
+        }
+
+        for (int laps = -LAPS; laps <= LAPS; laps++) {
+            double shift = laps * (double) domain.domainLength;
+            if (aMin + shift < bMax && bMin < aMax + shift) return true;
+        }
+        return false;
+    }
+
     private static boolean containsOnLattice(WrapDomain domain, long min, long max, long coord) {
         for (int laps = -LAPS; laps <= LAPS; laps++) {
             long shifted = coord + (long) laps * domain.domainLength;
@@ -177,6 +189,32 @@ class SeamRegionTest {
                         assertEquals(expected, actual,
                                 () -> "(" + x + ", " + z + ") in splitAcrossBounds(" + box + ") should be "
                                         + finalExpected + " " + in(fold));
+                    }
+                }
+            }
+        }
+
+        private AABB sampleEntityBox(Random random, WorldFold fold) {
+            double minX = blockX(fold).wrap(sampleBlock(random, blockX(fold)));
+            double minY = sampleY(random);
+            double minZ = blockZ(fold).wrap(sampleBlock(random, blockZ(fold)));
+            return new AABB(minX, minY, minZ, minX + random.nextDouble() * 2, minY + random.nextDouble() * 2,
+                    minZ + random.nextDouble() * 2);
+        }
+
+        @Test
+        void overlapsOfTheSplitFirstBoxAgreesWithTheLatticeOfBoxCopies() {
+            Random random = new Random(SEED);
+            for (WorldFold fold : FOLDS) {
+                for (int i = 0; i < SAMPLES; i++) {
+                    AABB first = sampleBox(random, fold);
+                    List<WorldFold.Folded<AABB>> pieces = fold.split(first);
+                    for (AABB second : List.of(sampleBox(random, fold), sampleEntityBox(random, fold))) {
+                        boolean expected = first.minY < second.maxY && second.minY < first.maxY
+                                && overlapsOnLattice(blockX(fold), first.minX, first.maxX, second.minX, second.maxX)
+                                && overlapsOnLattice(blockZ(fold), first.minZ, first.maxZ, second.minZ, second.maxZ);
+                        assertEquals(expected, fold.overlaps(pieces, second),
+                                () -> "overlaps(split(" + first + "), " + second + ") " + in(fold));
                     }
                 }
             }

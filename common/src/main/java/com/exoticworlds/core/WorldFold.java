@@ -128,11 +128,28 @@ public interface WorldFold {
             return false;
         }
 
-        for (Folded<AABB> firstPiece : split(first)) {
-            for (Folded<AABB> secondPiece : split(second)) {
-                if (firstPiece.value().intersects(secondPiece.value())) {
-                    return true;
-                }
+        return overlaps(split(first), second);
+    }
+
+    default boolean overlaps(List<Folded<AABB>> firstPieces, AABB second) {
+        if (!crossesBounds(second)) {
+            return anyPieceIntersects(firstPieces, second);
+        }
+
+        List<Folded<AABB>> secondPieces = split(second);
+        for (int index = 0; index < secondPieces.size(); index++) {
+            if (anyPieceIntersects(firstPieces, secondPieces.get(index).value())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean anyPieceIntersects(List<Folded<AABB>> pieces, AABB box) {
+        for (int index = 0; index < pieces.size(); index++) {
+            if (pieces.get(index).value().intersects(box)) {
+                return true;
             }
         }
 
