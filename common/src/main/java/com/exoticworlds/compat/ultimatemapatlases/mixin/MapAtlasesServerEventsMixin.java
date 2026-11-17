@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -26,6 +27,7 @@ import net.nanaky.ultimate_map_atlases.utils.Slice;
 
 @Mixin(MapAtlasesServerEvents.class)
 public class MapAtlasesServerEventsMixin {
+    @Unique
     private static final String SELECT_AT = "Lnet/nanaky/ultimate_map_atlases/map_collection/IMapCollection;select(IILnet/nanaky/ultimate_map_atlases/utils/Slice;)Lnet/nanaky/ultimate_map_atlases/utils/MapDataHolder;";
 
     @WrapOperation(method = "onPlayerTick", at = @At(value = "INVOKE", target = SELECT_AT))

@@ -7,9 +7,6 @@ public final class XaeroInjectionTargets {
             "Lxaero/map/gui/GuiMap;renderTexturedModalRectWithLighting3(Lorg/joml/Matrix4f;FFFF"
                     + "Lcom/mojang/renderpearl/api/textures/GpuTextureView;Z"
                     + "Lxaero/map/graphics/renderer/multitexture/MultiTextureRenderTypeRenderer;)V";
-    public static final String MAP_RENDER_HELPER_RENDER_DYNAMIC_HIGHLIGHT =
-            "Lxaero/map/graphics/MapRenderHelper;renderDynamicHighlight(Lcom/mojang/blaze3d/vertex/PoseStack;"
-                    + "Lcom/mojang/blaze3d/vertex/VertexConsumer;IIIIIIFFFFFFFF)V";
 
     private XaeroInjectionTargets() {
     }
