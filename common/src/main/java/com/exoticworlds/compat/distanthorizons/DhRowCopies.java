@@ -20,8 +20,8 @@ public final class DhRowCopies {
     public static List<ChunkPos> copiesOf(DhLattice lattice, int chunkX, int chunkZ) {
         ToroidalShape shape = lattice.shape();
         AlignedPeriod period = DhFold.period(lattice, DhKeys.LEAF);
-        int lapsX = laps(shape, Direction.Axis.X, period.xBlocks());
-        int lapsZ = laps(shape, Direction.Axis.Z, period.zBlocks());
+        int lapsX = period.laps(shape, Direction.Axis.X);
+        int lapsZ = period.laps(shape, Direction.Axis.Z);
         if (lapsX == 1 && lapsZ == 1) {
             return List.of();
         }
@@ -39,10 +39,6 @@ public final class DhRowCopies {
         }
 
         return copies;
-    }
-
-    private static int laps(ToroidalShape shape, Direction.Axis axis, long periodBlocks) {
-        return shape.loops(axis) ? (int) (periodBlocks / shape.widthBlocks(axis)) : 1;
     }
 
     public static <T> T buildAt(ChunkPos copy, Supplier<T> build) {
