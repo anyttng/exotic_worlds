@@ -32,6 +32,35 @@ public record AlignedPeriod(long xBlocks, long zBlocks, long xShiftBlocks) {
         return (long) (worldWidth / gcd) << alignExponent;
     }
 
+    public long foldX(ToroidalShape shape, long blockX, long blockZ) {
+        long x = blockX;
+        if (xShiftBlocks != 0L) {
+            x -= Math.floorDiv(blockZ - shape.minBlock(Direction.Axis.Z), zBlocks) * xShiftBlocks;
+        }
+
+        if (shape.loops(Direction.Axis.X)) {
+            x -= Math.floorDiv(x - shape.minBlock(Direction.Axis.X), xBlocks) * xBlocks;
+        }
+
+        return x;
+    }
+
+    public long foldZ(ToroidalShape shape, long blockZ) {
+        if (!shape.loops(Direction.Axis.Z)) {
+            return blockZ;
+        }
+
+        return blockZ - Math.floorDiv(blockZ - shape.minBlock(Direction.Axis.Z), zBlocks) * zBlocks;
+    }
+
+    public int laps(ToroidalShape shape, Direction.Axis axis) {
+        if (!shape.loops(axis)) {
+            return 1;
+        }
+
+        return (int) ((axis == Direction.Axis.X ? xBlocks : zBlocks) / shape.widthBlocks(axis));
+    }
+
     private static long shift(int widthX, int alignExponent, long rowShift, long periodX) {
         int alignX = Integer.numberOfTrailingZeros(widthX);
         if (alignX >= alignExponent) {
