@@ -70,9 +70,12 @@ class SableHotPathScan {
 
         BoundingBox3d[] subLevels = subLevels();
         BoundingBox3d[] queries = queries();
+        List<BoundingBox3d> subLevelList = List.of(subLevels);
         for (Named named : List.of(new Named("per_axis", PER_AXIS), new Named("skewed", SKEWED))) {
             rows.add(row(threads, "sub_level_query", named.name(),
                     index -> intersecting(named.fold(), subLevels, queries[index % QUERIES])));
+            rows.add(row(threads, "sub_level_iterable", named.name(),
+                    index -> iterated(named.fold(), subLevelList, queries[index % QUERIES])));
         }
 
         for (Named named : List.of(new Named("noop", null), new Named("per_axis", PER_AXIS),
@@ -110,6 +113,15 @@ class SableHotPathScan {
             if (SableSeamQuery.intersects(fold, queryCenter, subLevel, query)) {
                 hits++;
             }
+        }
+
+        return hits;
+    }
+
+    private static int iterated(WorldFold fold, List<BoundingBox3d> subLevels, BoundingBox3d query) {
+        int hits = 0;
+        for (BoundingBox3d ignored : SableSeamQuery.intersecting(fold, subLevels, Function.identity(), query)) {
+            hits++;
         }
 
         return hits;

@@ -1,9 +1,13 @@
 package com.exoticworlds.compat.sable;
 
+import java.util.List;
+import java.util.function.Function;
+
 import com.exoticworlds.core.JomlVectors;
 import com.exoticworlds.core.WorldFold;
 
 import dev.ryanhcode.sable.companion.math.BoundingBox3dc;
+import dev.ryanhcode.sable.util.iterator.ListBackedFilterIterator;
 
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -13,6 +17,15 @@ public final class SableSeamQuery {
 
     public static Vec3 centerOf(BoundingBox3dc query) {
         return JomlVectors.center(query.minX(), query.minY(), query.minZ(), query.maxX(), query.maxY(), query.maxZ());
+    }
+
+    public static <T> Iterable<T> intersecting(WorldFold fold, List<T> candidates,
+            Function<? super T, ? extends BoundingBox3dc> boxOf, BoundingBox3dc query) {
+        return () -> {
+            Vec3 queryCenter = centerOf(query);
+            return new ListBackedFilterIterator<>(
+                    candidate -> intersects(fold, queryCenter, boxOf.apply(candidate), query), candidates);
+        };
     }
 
     public static boolean intersects(WorldFold fold, Vec3 queryCenter, BoundingBox3dc subLevelBox, BoundingBox3dc query) {
