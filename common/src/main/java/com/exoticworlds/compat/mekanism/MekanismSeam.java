@@ -35,10 +35,6 @@ public final class MekanismSeam {
         return WorldLoopAttachments.foldOfReader(level).nearestCopy(anchor, target);
     }
 
-    public static Vec3 nearestCopy(@Nullable Level level, Vec3 anchor, Vec3 target) {
-        return WorldLoopAttachments.foldOfReader(level).nearestCopy(anchor, target);
-    }
-
     public static AABB nearestCopy(@Nullable Level level, Vec3 anchor, AABB box) {
         return WorldLoopAttachments.foldOfReader(level).nearestCopyOriented(anchor, box).value();
     }

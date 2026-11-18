@@ -14,6 +14,7 @@ import net.minecraft.world.entity.Entity;
 
 @Mixin(value = EntityProjectileSpell.class, remap = false)
 public abstract class EntityProjectileSpellMixin {
+    @Unique
     private static final String ON_HIT = "onHit(Lnet/minecraft/world/phys/HitResult;)V";
 
     @ModifyArg(method = ON_HIT, at = @At(value = "INVOKE", target = InjectionTargets.SET_CONTAINS))

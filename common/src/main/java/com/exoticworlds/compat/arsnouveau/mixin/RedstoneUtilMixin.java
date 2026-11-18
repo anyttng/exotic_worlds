@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 
 @Mixin(value = RedstoneUtil.class, remap = false)
 public abstract class RedstoneUtilMixin {
+    @Unique
     private static final String GET_ARS_SIGNAL = "getArsSignal(Lnet/minecraft/server/level/ServerLevel;"
             + "Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;"
             + "Lorg/spongepowered/asm/mixin/injection/callback/CallbackInfoReturnable;)V";

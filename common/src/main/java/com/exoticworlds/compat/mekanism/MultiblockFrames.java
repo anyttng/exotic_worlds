@@ -71,8 +71,7 @@ public final class MultiblockFrames {
     }
 
     public static BlockPos fold(Structure structure, BlockPos pos) {
-        return WorldLoopAttachments.foldOfReader(((MultiblockStructureFrame) structure).exotic_worlds$level())
-                .fold(pos);
+        return MekanismSeam.fold(((MultiblockStructureFrame) structure).exotic_worlds$level(), pos);
     }
 
     private static void movePlanes(Int2ObjectSortedMap<VoxelPlane> planes, Structure.Axis axis,

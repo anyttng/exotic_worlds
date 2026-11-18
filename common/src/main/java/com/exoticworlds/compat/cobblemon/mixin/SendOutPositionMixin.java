@@ -1,6 +1,7 @@
 package com.exoticworlds.compat.cobblemon.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.cobblemon.mod.common.api.battles.model.actor.EntityBackedBattleActor;
@@ -14,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(ActiveBattlePokemon.class)
 public class SendOutPositionMixin {
+    @Unique
     private static final String SEND_OUT_POSITION = "getSendOutPosition()Lnet/minecraft/world/phys/Vec3;";
 
     @WrapOperation(method = SEND_OUT_POSITION, at = @At(value = "INVOKE",

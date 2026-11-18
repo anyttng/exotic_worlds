@@ -1,7 +1,6 @@
 package com.exoticworlds.compat.cobblemon.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.cobblemon.mod.common.util.PlayerExtensionsKt;
@@ -23,7 +22,7 @@ public class EntityTraceMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.AABB_CONTAINS))
     private static boolean exotic_worlds$traceThroughSeam(AABB box, Vec3 location, Operation<Boolean> original,
             @Local(argsOnly = true) LivingEntity tracer) {
-        return original.call(exotic_worlds$seated(tracer, location, box), location);
+        return original.call(FoldedBoxQuery.toward(tracer, location, box), location);
     }
 
     @WrapOperation(
@@ -31,11 +30,6 @@ public class EntityTraceMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.AABB_CONTAINS))
     private static boolean exotic_worlds$lookThroughSeam(AABB box, Vec3 location, Operation<Boolean> original,
             @Local(argsOnly = true, ordinal = 0) Entity looker) {
-        return original.call(exotic_worlds$seated(looker, location, box), location);
-    }
-
-    @Unique
-    private static AABB exotic_worlds$seated(Entity tracer, Vec3 location, AABB box) {
-        return FoldedBoxQuery.toward(tracer, location, box);
+        return original.call(FoldedBoxQuery.toward(looker, location, box), location);
     }
 }
