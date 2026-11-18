@@ -242,6 +242,18 @@ class RtfLapTest {
         }
     }
 
+    @Test
+    void theLapFlagFollowsTheServerHoldingALoopedWorld() {
+        Object loopedServer = new Object();
+        Object plainServer = new Object();
+        RtfLap.follow(loopedServer, true);
+        assertTrue(RtfLap.active());
+        RtfLap.follow(loopedServer, false);
+        assertTrue(RtfLap.active(), "a plain dimension of the same server cleared the flag");
+        RtfLap.follow(plainServer, false);
+        assertFalse(RtfLap.active(), "the flag outlived the server that set it");
+    }
+
     private static WorldFold skewed(int chunks) {
         return WorldFolds.of(new FlatShape(ShapeFixtures.loopedBounds(-chunks, chunks, -chunks, chunks), SKEW_CHUNKS, null));
     }
