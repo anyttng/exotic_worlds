@@ -16,11 +16,13 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.fold.RelativePosition;
 import com.exoticworlds.engine.seam.ClientPosition;
+import com.exoticworlds.engine.seam.HeldArea;
 import com.exoticworlds.platform.Platforms;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
@@ -129,6 +131,11 @@ public record TranslationContext(
         }
 
         int viewReach = viewReach();
+        ChunkPos areaPos = withinView(clientPos, anchor, viewReach) ? null : heldAreaCopy(chunkPos);
+        if (areaPos != null) {
+            return areaPos;
+        }
+
         ChunkPos cameraPos = cameraCopyOf(chunkPos, clientPos, anchor, viewReach);
         if (cameraPos != null) {
             return cameraPos;
@@ -157,6 +164,33 @@ public record TranslationContext(
         }
 
         return null;
+    }
+
+    private @Nullable ChunkPos heldAreaCopy(ChunkPos chunkPos) {
+        for (HeldArea area : clientPosition.heldAreas()) {
+            ChunkPos copy = area.copyOf(fold, chunkPos);
+            if (copy != null) {
+                return copy;
+            }
+        }
+
+        return null;
+    }
+
+    private @Nullable Vec3 heldAreaCopy(Vec3 position) {
+        if (clientPosition.heldAreas().isEmpty()) {
+            return null;
+        }
+
+        ChunkPos chunkPos = new ChunkPos(
+                SectionPos.blockToSectionCoord(position.x), SectionPos.blockToSectionCoord(position.z));
+        ChunkPos anchor = chunkAnchor();
+        if (withinView(fold.nearestCopy(anchor, chunkPos), anchor, viewReach())) {
+            return null;
+        }
+
+        ChunkPos areaPos = heldAreaCopy(chunkPos);
+        return areaPos == null ? null : fold.deckTransformation(chunkPos, areaPos).apply(position);
     }
 
     private void guardView(ChunkTraffic traffic, ChunkPos chunkPos, ChunkPos clientPos, ChunkPos anchor,
@@ -225,13 +259,21 @@ public record TranslationContext(
         }
 
         if (clientPosition.cameraChunk() != null) {
-            ChunkPos held = fold.nearestCopy(chunkAnchor(), chunkPos);
-            if (!candidates.contains(held)) {
-                candidates.add(held);
-            }
+            addCandidate(candidates, fold.nearestCopy(chunkAnchor(), chunkPos));
+        }
+
+        ChunkPos areaPos = heldAreaCopy(chunkPos);
+        if (areaPos != null) {
+            addCandidate(candidates, areaPos);
         }
 
         return candidates;
+    }
+
+    private static void addCandidate(List<ChunkPos> candidates, ChunkPos candidate) {
+        if (!candidates.contains(candidate)) {
+            candidates.add(candidate);
+        }
     }
 
     private static int[] candidateLaps(WrapDomain domain, int nearest, int delta, int ambiguityReach) {
@@ -341,6 +383,11 @@ public record TranslationContext(
     }
 
     public Vec3 toClient(Vec3 position, PacketReach reach) {
+        Vec3 areaPos = heldAreaCopy(position);
+        if (areaPos != null) {
+            return areaPos;
+        }
+
         Vec3 anchor = clientPosition.anchor(position.y);
         Vec3 clientPos = fold.nearestCopy(anchor, position);
         guardReach(reach, Direction.Axis.X, position.x, clientPos.x, anchor.x);

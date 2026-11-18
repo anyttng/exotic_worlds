@@ -1,5 +1,6 @@
 package com.exoticworlds.engine.seam;
 
+import java.util.List;
 import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
@@ -50,6 +51,8 @@ public final class ClientPosition {
 
     // One record because the two coordinates and their space are one fact: written on the server thread, read on the network thread.
     private volatile @Nullable ChunkPos heldCacheCenter;
+
+    private volatile List<HeldArea> heldAreas = List.of();
 
     private final LogRateGate warnGate = new LogRateGate();
 
@@ -184,6 +187,7 @@ public final class ClientPosition {
         this.heldSpawn = null;
         this.heldBorderCenter = null;
         this.heldCacheCenter = null;
+        this.heldAreas = List.of();
     }
 
     public @Nullable BlockPos heldSpawn() {
@@ -208,6 +212,15 @@ public final class ClientPosition {
 
     public void setHeldCacheCenter(ChunkPos heldCacheCenter) {
         this.heldCacheCenter = heldCacheCenter;
+    }
+
+    public List<HeldArea> heldAreas() {
+        return this.heldAreas;
+    }
+
+    // mc/1.21: Vista's zone payload rewriter holds each zone at the seat it sends the zone's center to.
+    public void setHeldAreas(List<HeldArea> heldAreas) {
+        this.heldAreas = List.copyOf(heldAreas);
     }
 
     public ChunkPos chunk() {
