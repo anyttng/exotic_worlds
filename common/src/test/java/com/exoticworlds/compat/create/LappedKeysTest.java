@@ -5,7 +5,6 @@ import static com.exoticworlds.compat.CompatFoldFixture.PER_AXIS;
 import static com.exoticworlds.compat.CompatFoldFixture.WORLD_BLOCKS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -35,7 +34,7 @@ class LappedKeysTest {
             assertTrue(keys.add(INSIDE), "in " + fold);
             assertFalse(keys.add(ONE_LAP_ON), "in " + fold);
             assertEquals(1, keys.size(), "in " + fold);
-            assertEquals(new LappedKeys.Lap(ONE_LAP_ON, INSIDE, INSIDE), keys.lapped(), "in " + fold);
+            assertTrue(keys.lapped(), "in " + fold);
         }
     }
 
@@ -46,7 +45,7 @@ class LappedKeysTest {
             keys.add(INSIDE);
 
             assertTrue(keys.contains(ONE_LAP_ON), "in " + fold);
-            assertEquals(new LappedKeys.Lap(ONE_LAP_ON, INSIDE, INSIDE), keys.lapped(), "in " + fold);
+            assertTrue(keys.lapped(), "in " + fold);
         }
     }
 
@@ -58,7 +57,7 @@ class LappedKeysTest {
 
             assertFalse(keys.add(INSIDE), "in " + fold);
             assertTrue(keys.contains(INSIDE), "in " + fold);
-            assertNull(keys.lapped(), "in " + fold);
+            assertFalse(keys.lapped(), "in " + fold);
         }
     }
 
@@ -70,7 +69,7 @@ class LappedKeysTest {
             assertTrue(keys.add(INSIDE), "in " + fold);
             assertTrue(keys.add(ANOTHER_BLOCK), "in " + fold);
             assertEquals(2, keys.size(), "in " + fold);
-            assertNull(keys.lapped(), "in " + fold);
+            assertFalse(keys.lapped(), "in " + fold);
         }
     }
 
@@ -93,7 +92,7 @@ class LappedKeysTest {
         assertTrue(keys.add(ONE_LAP_ON));
         assertFalse(keys.contains(new BlockPos(250 + 2 * WORLD_BLOCKS, 64, 10)));
         assertEquals(2, keys.size());
-        assertNull(keys.lapped());
+        assertFalse(keys.lapped());
     }
 
     @Test
