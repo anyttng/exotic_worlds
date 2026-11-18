@@ -137,6 +137,14 @@ public record TranslationContext(
         return clientPos;
     }
 
+    // mc/1.21: Vista's zone re-check asks where a held zone's center would be seated now.
+    public ChunkPos viewSeat(ChunkPos chunkPos) {
+        ChunkPos anchor = chunkAnchor();
+        ChunkPos clientPos = fold.nearestCopy(anchor, chunkPos);
+        ChunkPos cameraPos = cameraCopyOf(chunkPos, clientPos, anchor, viewReach());
+        return cameraPos == null ? clientPos : cameraPos;
+    }
+
     private @Nullable ChunkPos cameraCopyOf(ChunkPos chunkPos, ChunkPos clientPos, ChunkPos anchor, int viewReach) {
         ChunkPos cameraChunk = clientPosition.cameraChunk();
         if (cameraChunk == null) {

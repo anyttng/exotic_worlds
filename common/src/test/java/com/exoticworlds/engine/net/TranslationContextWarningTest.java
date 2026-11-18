@@ -75,6 +75,15 @@ class TranslationContextWarningTest {
     }
 
     @Test
+    void theViewSeatOfAChunkPastTheViewWritesNoWarning() {
+        TranslationContext context = contextAtTheOrigin();
+
+        context.viewSeat(CHUNK_PAST_THE_VIEW);
+
+        assertTrue(warnings.isEmpty(), warnings.toString());
+    }
+
+    @Test
     void bothAxesOfOnePositionReachTheLog() {
         TranslationContext context = contextAtTheOrigin();
 
