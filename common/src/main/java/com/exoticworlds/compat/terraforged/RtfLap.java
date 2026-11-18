@@ -1,5 +1,7 @@
 package com.exoticworlds.compat.terraforged;
 
+import java.lang.ref.WeakReference;
+
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.compat.worldgen.LapCells;
@@ -33,10 +35,23 @@ public final class RtfLap {
 
     private static volatile boolean active;
 
+    private static WeakReference<@Nullable Object> followed = new WeakReference<>(null);
+
     private static final ThreadLocal<Frame> FRAME = ThreadLocal.withInitial(Frame::new);
 
     public static void activate() {
         active = true;
+    }
+
+    public static synchronized void follow(Object server, boolean looped) {
+        if (followed.get() != server) {
+            followed = new WeakReference<>(server);
+            active = false;
+        }
+
+        if (looped) {
+            active = true;
+        }
     }
 
     public static boolean active() {
