@@ -1,5 +1,7 @@
 package com.exoticworlds.compat.supplementaries;
 
+import java.util.Objects;
+
 import com.exoticworlds.engine.net.PacketTranslator;
 import com.exoticworlds.engine.net.TranslationContext;
 
@@ -19,13 +21,13 @@ final class ParticlePacketRewriter {
         }
 
         Vec3 seated = context.toClient(packet.pos);
-        if (seated.equals(packet.pos)) {
-            return packet;
-        }
-
         Vec3 dir = packet.type == ClientBoundParticlePacket.Kind.PEARL_TELEPORT && packet.dir != null
                 ? context.fold().nearestCopy(seated, packet.dir)
                 : packet.dir;
+        if (seated.equals(packet.pos) && Objects.equals(dir, packet.dir)) {
+            return packet;
+        }
+
         int[] extraData = packet.getExtraData().stream().mapToInt(Integer::intValue).toArray();
         return new ClientBoundParticlePacket(seated, packet.type, dir, extraData);
     }
