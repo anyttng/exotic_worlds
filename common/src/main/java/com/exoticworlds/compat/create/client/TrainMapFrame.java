@@ -45,9 +45,22 @@ public final class TrainMapFrame {
         return CreateSeamFold.wrappedFoldOf(level, null);
     }
 
+    public static @Nullable ResourceKey<Level> trackedDimension() {
+        return drawnOrPlayerDimension(TrainMapRenderer.INSTANCE.trackingDim);
+    }
+
+    private static @Nullable ResourceKey<Level> drawnOrPlayerDimension(@Nullable ResourceKey<Level> drawnDimension) {
+        if (drawnDimension != null) {
+            return drawnDimension;
+        }
+
+        ClientLevel level = Minecraft.getInstance().level;
+        return level == null ? null : level.dimension();
+    }
+
     private static WorldFold resolve(@Nullable ResourceKey<Level> drawnDimension) {
         ClientLevel level = Minecraft.getInstance().level;
-        if (level == null || (drawnDimension != null && drawnDimension != level.dimension())) {
+        if (level == null || drawnOrPlayerDimension(drawnDimension) != level.dimension()) {
             return WorldFolds.NOOP;
         }
 

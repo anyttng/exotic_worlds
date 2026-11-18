@@ -9,6 +9,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.simibubi.create.compat.trainmap.FTBChunksTrainMap;
 import com.exoticworlds.compat.create.CreateInjectionTargets;
+import com.exoticworlds.compat.create.client.TrainMapFrame;
 import com.exoticworlds.compat.ftbchunks.FtbChunksFold;
 import com.exoticworlds.engine.seam.MapSurfaceCopies;
 import com.exoticworlds.engine.seam.MapSurfaceCopies.Copies;
@@ -24,7 +25,7 @@ public abstract class FTBChunksTrainMapMixin {
                     target = CreateInjectionTargets.TRAIN_MAP_MANAGER_RENDER_AND_PICK))
     private static List<FormattedText> exotic_worlds$onTheLargeMapSurface(GuiGraphics graphics, int mouseX, int mouseY,
             boolean linearFiltering, Rect2i bounds, Operation<List<FormattedText>> original) {
-        Copies previous = MapSurfaceCopies.bind(FtbChunksFold.largeMapCopies());
+        Copies previous = MapSurfaceCopies.bind(FtbChunksFold.largeMapCopies(TrainMapFrame.trackedDimension()));
         try {
             return original.call(graphics, mouseX, mouseY, linearFiltering, bounds);
         } finally {

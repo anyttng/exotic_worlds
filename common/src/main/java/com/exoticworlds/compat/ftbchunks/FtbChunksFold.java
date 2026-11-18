@@ -44,7 +44,7 @@ public final class FtbChunksFold {
     private static final int MINIMAP_CHUNKS = 15;
     private static final int MINIMAP_CENTRE_CHUNK = 7;
 
-    private static List<WorldCopies.Copy> largeMapCopies = List.of(WorldCopies.IDENTITY);
+    private static @Nullable RecordedCopies largeMapCopies;
 
     public static XZ chunkOf(int chunkX, int chunkZ) {
         ChunkPos folded = foldedChunk(ClientShapes.current(), chunkX, chunkZ);
@@ -190,13 +190,22 @@ public final class FtbChunksFold {
     public record TileBlit(int x, int y, int width, int height, float u0, float v0, float u1, float v1) {
     }
 
-    public static void recordLargeMapCopies(List<WorldCopies.Copy> copies) {
-        largeMapCopies = copies;
+    private record RecordedCopies(ResourceKey<Level> dimension, List<WorldCopies.Copy> copies) {
     }
 
-    public static Copies largeMapCopies() {
-        return MapCopyBudget.painted(ClientShapes.current(), largeMapCopies);
+    public static void recordLargeMapCopies(ResourceKey<Level> dimension, List<WorldCopies.Copy> copies) {
+        largeMapCopies = new RecordedCopies(dimension, copies);
     }
+
+    public static Copies largeMapCopies(@Nullable ResourceKey<Level> dimension) {
+        RecordedCopies recorded = largeMapCopies;
+        if (recorded == null || !recorded.dimension().equals(dimension)) {
+            return Copies.NONE;
+        }
+
+        return MapCopyBudget.painted(ClientShapes.of(recorded.dimension()), recorded.copies());
+    }
+
 
     public record SeamView(int originX, int originY, int tilePixels, int x, int y, int width, int height) {
     }

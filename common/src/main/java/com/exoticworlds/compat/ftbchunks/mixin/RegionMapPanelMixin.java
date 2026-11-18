@@ -129,7 +129,7 @@ public abstract class RegionMapPanelMixin extends Panel {
         }
 
         panel.setOffset(false);
-        FtbChunksFold.recordLargeMapCopies(copies);
+        FtbChunksFold.recordLargeMapCopies(dimension, copies);
 
         exotic_worlds$seamView = !mapCopies.drawsSeamLines()
                 ? null

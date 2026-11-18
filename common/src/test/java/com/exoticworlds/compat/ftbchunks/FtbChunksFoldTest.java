@@ -25,6 +25,7 @@ import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 import com.exoticworlds.engine.level.PublishedShapes;
+import com.exoticworlds.engine.seam.MapSurfaceCopies.Copies;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
@@ -367,6 +368,38 @@ class FtbChunksFoldTest {
                     "the Nether's own key does not fold by its 8-chunk shape");
             assertEquals(XZ.of(40, 0), FtbChunksFold.chunkOf(Level.END, 40, 0),
                     "a dimension the server never published folded its key");
+        } finally {
+            PublishedShapes.clear();
+        }
+    }
+
+    @Test
+    void theLargeMapCopiesOfOneDimensionAreNeverBoundForAnother() {
+        PublishedShapes.publish(Level.OVERWORLD, WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(64))));
+        PublishedShapes.publish(Level.NETHER, WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(8))));
+        try {
+            FtbChunksFold.recordLargeMapCopies(Level.NETHER, List.of(WorldCopies.IDENTITY, new WorldCopies.Copy(128, 0)));
+            assertSame(Copies.NONE, FtbChunksFold.largeMapCopies(Level.OVERWORLD),
+                    "the Nether's copies were bound for the Overworld Create still tracks");
+            assertSame(Copies.NONE, FtbChunksFold.largeMapCopies(null), "copies were bound with no dimension tracked");
+        } finally {
+            PublishedShapes.clear();
+        }
+    }
+
+    @Test
+    void theLargeMapCopiesOfADimensionArePaintedByItsOwnShape() {
+        PublishedShapes.publish(Level.OVERWORLD, WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(64))));
+        PublishedShapes.publish(Level.NETHER, WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(8))));
+        try {
+            FtbChunksFold.recordLargeMapCopies(Level.NETHER, List.of(WorldCopies.IDENTITY, new WorldCopies.Copy(128, 0)));
+            Copies copies = FtbChunksFold.largeMapCopies(Level.NETHER);
+            assertEquals(1, copies.reach(), "one copy a 128-block Nether along X");
+            assertEquals(-64, copies.painted().minX(), "the 8-chunk Nether starts at -64");
+            assertEquals(191, copies.painted().maxX(),
+                    "one Nether copy right of the world, last block inclusive, not the 64-chunk Overworld's 639");
+            assertEquals(-64, copies.painted().minZ(), "no copy below the Nether");
+            assertEquals(63, copies.painted().maxZ(), "no copy above the Nether");
         } finally {
             PublishedShapes.clear();
         }
