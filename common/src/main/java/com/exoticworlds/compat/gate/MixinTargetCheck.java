@@ -121,22 +121,27 @@ public final class MixinTargetCheck {
         }
 
         for (MethodModel method : mixin.methods()) {
-            List<Annotation> annotations = MixinAnnotations.of(method);
-            String name = method.methodName().stringValue();
-            String descriptor = method.methodType().stringValue();
-            for (Annotation annotation : annotations) {
-                switch (annotation.className().stringValue()) {
-                    case SHADOW, ACCESSOR, INVOKER -> {
-                        Refusal refusal = targetModel == null ? null
-                                : checkGenerated(mixinClassName, annotation, name, descriptor, target, targetModel);
-                        if (refusal != null) {
-                            refusals.add(refusal);
-                        }
+            checkMethod(mixinClassName, method, target, targetModel, refusals);
+        }
+    }
+
+    private void checkMethod(String mixinClassName, MethodModel method, String target,
+            @Nullable ClassModel targetModel, List<Refusal> refusals) {
+        List<Annotation> annotations = MixinAnnotations.of(method);
+        String name = method.methodName().stringValue();
+        String descriptor = method.methodType().stringValue();
+        for (Annotation annotation : annotations) {
+            switch (annotation.className().stringValue()) {
+                case SHADOW, ACCESSOR, INVOKER -> {
+                    Refusal refusal = targetModel == null ? null
+                            : checkGenerated(mixinClassName, annotation, name, descriptor, target, targetModel);
+                    if (refusal != null) {
+                        refusals.add(refusal);
                     }
-                    default -> {
-                        if (MixinAnnotations.element(annotation, METHOD_KEY).isPresent()) {
-                            checkInjector(mixinClassName, annotation, annotations, descriptor, target, refusals);
-                        }
+                }
+                default -> {
+                    if (MixinAnnotations.element(annotation, METHOD_KEY).isPresent()) {
+                        checkInjector(mixinClassName, annotation, annotations, descriptor, target, refusals);
                     }
                 }
             }

@@ -86,6 +86,8 @@ public final class FloatingCrumbs {
         private final BitSet taken;
         private final BitSet rejected;
         private final int[] pending;
+        private int tail;
+        private boolean kept;
 
         private CrumbSearch(TerrainMask[] window, BitSet taken, BitSet rejected, int[] pending) {
             this.window = window;
@@ -335,53 +337,58 @@ public final class FloatingCrumbs {
     }
 
     private static int gatherCrumb(CrumbSearch search, Cleared cleared, int start) {
-        BitSet taken = search.taken;
-        BitSet rejected = search.rejected;
         int[] pending = search.pending;
         CellGrid grid = cleared.grid;
-        taken.set(start);
+        search.taken.set(start);
         pending[0] = start;
+        search.tail = 1;
+        search.kept = false;
         int head = 0;
-        int tail = 1;
-        boolean kept = false;
 
-        while (head < tail && !kept) {
+        while (head < search.tail && !search.kept) {
             int cell = pending[head++];
             if (grid.onSide(cell)) {
-                kept = true;
+                search.kept = true;
                 break;
             }
 
-            for (int axis = 0; axis < CellGrid.AXES && !kept; axis++) {
-                for (int step = -1; step <= 1; step += 2) {
-                    int neighbor = grid.neighbor(cell, axis, step);
-                    if (neighbor == CellGrid.NO_CELL
-                            || !windowSolid(search.window, grid, neighbor, cleared.lowestY)) {
-                        continue;
-                    }
-
-                    if (rejected.get(neighbor) || tail == pending.length) {
-                        kept = true;
-                        break;
-                    }
-
-                    if (!taken.get(neighbor)) {
-                        taken.set(neighbor);
-                        pending[tail++] = neighbor;
-                    }
-                }
-            }
+            spreadFrom(search, cleared, cell);
         }
 
-        if (kept || tail >= CrumbFlood.SMALLEST_KEPT_BLOCKS) {
+        int tail = search.tail;
+        if (search.kept || tail >= CrumbFlood.SMALLEST_KEPT_BLOCKS) {
             for (int i = 0; i < tail; i++) {
-                rejected.set(pending[i]);
+                search.rejected.set(pending[i]);
             }
 
             return KEPT;
         }
 
         return tail;
+    }
+
+    private static void spreadFrom(CrumbSearch search, Cleared cleared, int cell) {
+        BitSet taken = search.taken;
+        int[] pending = search.pending;
+        CellGrid grid = cleared.grid;
+        for (int axis = 0; axis < CellGrid.AXES && !search.kept; axis++) {
+            for (int step = -1; step <= 1; step += 2) {
+                int neighbor = grid.neighbor(cell, axis, step);
+                if (neighbor == CellGrid.NO_CELL || !windowSolid(search.window, grid, neighbor, cleared.lowestY)) {
+                    continue;
+                }
+
+                if (search.rejected.get(neighbor) || search.tail == pending.length) {
+                    search.kept = true;
+                    break;
+                }
+
+                if (!taken.get(neighbor)) {
+                    taken.set(neighbor);
+                    pending[search.tail++] = neighbor;
+                }
+            }
+        }
     }
 
     private static void markCleared(CrumbSearch search, Cleared cleared, int size) {
