@@ -28,6 +28,7 @@ import com.exoticworlds.compat.create.CreateTranslation;
 import com.exoticworlds.compat.create.LappedKeys;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.FoldedBoxQuery;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -77,7 +78,7 @@ public class ContraptionMixin {
     @Inject(method = "searchMovedStructure", at = @At("RETURN"))
     private void exotic_worlds$refuseAStructureThatCirclesTheWorld(Level world, BlockPos pos, Direction forcedDirection,
             CallbackInfoReturnable<Boolean> cir, @Local Set<BlockPos> visited) throws AssemblyException {
-        if (visited instanceof LappedKeys keys && keys.lapped() != null) {
+        if (visited instanceof LappedKeys keys && keys.lapped()) {
             throw new AssemblyException(Component.translatable(CIRCLES_THE_WORLD_KEY));
         }
     }
@@ -111,7 +112,7 @@ public class ContraptionMixin {
         }
 
         Vec3 center = bounds == null ? Vec3.ZERO : bounds.getCenter();
-        superglue.replaceAll(box -> fold.nearestCopyOriented(center, box).value());
+        superglue.replaceAll(box -> FoldedBoxQuery.toward(fold, center, box));
     }
 
     @ModifyExpressionValue(method = "addBlocksToWorld",

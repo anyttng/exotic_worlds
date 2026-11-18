@@ -17,10 +17,7 @@ public final class LappedKeys extends AbstractSet<BlockPos> {
     private final WorldFold fold;
     private final Map<BlockPos, BlockPos> claims = new HashMap<>();
 
-    private @Nullable Lap lap;
-
-    public record Lap(BlockPos arrived, BlockPos claimed, BlockPos key) {
-    }
+    private boolean lapped;
 
     public static Set<BlockPos> set(@Nullable BlockGetter reader, Set<BlockPos> built) {
         WorldFold fold = CanonicalPositionKeys.wrappedFoldOf(reader);
@@ -35,8 +32,8 @@ public final class LappedKeys extends AbstractSet<BlockPos> {
         this.fold = fold;
     }
 
-    public @Nullable Lap lapped() {
-        return lap;
+    public boolean lapped() {
+        return lapped;
     }
 
     @Override
@@ -47,7 +44,7 @@ public final class LappedKeys extends AbstractSet<BlockPos> {
             return true;
         }
 
-        witness(pos, claimed, key);
+        witness(pos, claimed);
         return false;
     }
 
@@ -57,13 +54,12 @@ public final class LappedKeys extends AbstractSet<BlockPos> {
             return false;
         }
 
-        BlockPos key = fold.fold(pos);
-        BlockPos claimed = claims.get(key);
+        BlockPos claimed = claims.get(fold.fold(pos));
         if (claimed == null) {
             return false;
         }
 
-        witness(pos, claimed, key);
+        witness(pos, claimed);
         return true;
     }
 
@@ -87,9 +83,9 @@ public final class LappedKeys extends AbstractSet<BlockPos> {
         claims.clear();
     }
 
-    private void witness(BlockPos arrived, BlockPos claimed, BlockPos key) {
-        if (lap == null && !arrived.equals(claimed)) {
-            lap = new Lap(arrived, claimed, key);
+    private void witness(BlockPos arrived, BlockPos claimed) {
+        if (!arrived.equals(claimed)) {
+            lapped = true;
         }
     }
 }
