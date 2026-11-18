@@ -20,11 +20,6 @@ public class CellularXZSamplerMixin implements CellLapHolder {
     private @Nullable CellLap exotic_worlds$cellLap;
 
     @Override
-    public @Nullable CellLap exotic_worlds$cellLap() {
-        return this.exotic_worlds$cellLap;
-    }
-
-    @Override
     public void exotic_worlds$setCellLap(CellLap lap) {
         this.exotic_worlds$cellLap = lap;
     }

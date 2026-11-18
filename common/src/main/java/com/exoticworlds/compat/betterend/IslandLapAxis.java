@@ -1,5 +1,6 @@
 package com.exoticworlds.compat.betterend;
 
+import com.exoticworlds.compat.worldgen.LapCells;
 import com.exoticworlds.core.WrapDomain;
 
 import net.minecraft.util.Mth;
@@ -7,14 +8,12 @@ import net.minecraft.util.Mth;
 public record IslandLapAxis(int lapBlocks, int cells, double cellBlocks) {
     private static final int UNBOUNDED = 0;
 
-    private static final double CELL_EPSILON = 1.0E-9;
-
     public static IslandLapAxis of(WrapDomain blocks, double distance) {
         if (!blocks.loops()) {
             return new IslandLapAxis(UNBOUNDED, UNBOUNDED, distance);
         }
 
-        int cells = Math.max(1, (int) Math.ceil(blocks.domainLength / distance - CELL_EPSILON));
+        int cells = Math.toIntExact(LapCells.whole(blocks.domainLength / distance, 1));
         return new IslandLapAxis(blocks.domainLength, cells, (double) blocks.domainLength / cells);
     }
 

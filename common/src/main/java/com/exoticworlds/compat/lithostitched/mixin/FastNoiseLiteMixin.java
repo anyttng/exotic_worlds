@@ -16,21 +16,20 @@ import dev.worldgen.lithostitched.api.worldgen.densityfunction.fastnoise.FNL;
 
 @Mixin(FNL.class)
 public class FastNoiseLiteMixin implements FastNoiseLapHolder {
+    @Unique
     private static final String OWNER = "Ldev/worldgen/lithostitched/api/worldgen/densityfunction/fastnoise/FNL;";
 
+    @Unique
     private static final String GRAD_COORD = OWNER + "GradCoord(IIIIFFF)F";
 
+    @Unique
     private static final String HASH = OWNER + "Hash(IIII)I";
 
+    @Unique
     private static final String LACUNARITY = OWNER + "mLacunarity:F";
 
     @Unique
     private @Nullable FastNoiseLap exotic_worlds$lap;
-
-    @Override
-    public @Nullable FastNoiseLap exotic_worlds$lap() {
-        return this.exotic_worlds$lap;
-    }
 
     @Override
     public void exotic_worlds$setLap(FastNoiseLap lap) {

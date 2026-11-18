@@ -1,6 +1,7 @@
 package com.exoticworlds.compat.lithostitched.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;
 
 @Mixin(CellularDensityFunction.class)
 public class CellularDensityFunctionCompileMixin {
+    @Unique
     private static final String GRID_DIMENSIONS = "Ldev/worldgen/lithostitched/impl/worldgen/densityfunction/"
             + "CellularDensityFunction;gridDimensions:Ldev/worldgen/lithostitched/impl/worldgen/densityfunction/"
             + "CellularDensityFunction$GridDimensions;";
