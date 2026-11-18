@@ -1,5 +1,6 @@
 package com.exoticworlds.compat.lithostitched;
 
+import com.exoticworlds.compat.worldgen.LapCells;
 import com.google.common.math.IntMath;
 
 public final class FastNoiseLap {
@@ -12,8 +13,6 @@ public final class FastNoiseLap {
     private static final long ROTATED_NORM = 9L;
 
     private static final long TWO = 2L;
-
-    private static final double CELL_EPSILON = 1.0E-9;
 
     private static final int INVERSE_NEWTON_STEPS = 5;
 
@@ -59,7 +58,7 @@ public final class FastNoiseLap {
         long[] counts = new long[field.octaves()];
         double rate = field.frequency();
         for (int octave = 0; octave < counts.length; octave++) {
-            counts[octave] = Math.max(1L, (long) Math.ceil(commonInput * rate / step - CELL_EPSILON));
+            counts[octave] = LapCells.whole(commonInput * rate / step, 1L);
             rate *= field.lacunarity();
         }
 

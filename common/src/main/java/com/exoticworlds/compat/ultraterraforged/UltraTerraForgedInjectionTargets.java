@@ -1,11 +1,9 @@
 package com.exoticworlds.compat.ultraterraforged;
 
 public final class UltraTerraForgedInjectionTargets {
-    public static final String CELL_CONTINENT_X =
-            "Lcom/pandaismyname1/ultraterraforged/world/worldgen/cell/Cell;continentX:I";
-
-    public static final String CELL_CONTINENT_Z =
-            "Lcom/pandaismyname1/ultraterraforged/world/worldgen/cell/Cell;continentZ:I";
+    public static final String LAKE_POPULATOR_CONSTRUCTOR = "<init>(Lcom/pandaismyname1/ultraterraforged/world/"
+            + "worldgen/noise/NoiseUtil$Vec2f;FFLcom/pandaismyname1/ultraterraforged/world/worldgen/rivermap/lake/"
+            + "LakeConfig;)V";
 
     public static final String LANDFORM_RANDOM =
             "Lcom/pandaismyname1/ultraterraforged/world/worldgen/landform/Landform;random(IIII)F";
