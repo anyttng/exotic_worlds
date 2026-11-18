@@ -46,31 +46,14 @@ public final class DhFold {
     }
 
     private static int foldX(DhLattice lattice, byte detailLevel, int unitBlocks, int valueX, int valueZ) {
-        ToroidalShape shape = lattice.shape();
-        AlignedPeriod period = period(lattice, detailLevel);
-        long blockX = (long) valueX * unitBlocks;
-        if (period.xShiftBlocks() != 0L) {
-            long blockZ = (long) valueZ * unitBlocks;
-            long lapsZ = Math.floorDiv(blockZ - shape.minBlock(Direction.Axis.Z), period.zBlocks());
-            blockX -= lapsZ * period.xShiftBlocks();
-        }
-
-        if (shape.loops(Direction.Axis.X)) {
-            blockX -= Math.floorDiv(blockX - shape.minBlock(Direction.Axis.X), period.xBlocks()) * period.xBlocks();
-        }
-
+        long blockX = period(lattice, detailLevel).foldX(lattice.shape(), (long) valueX * unitBlocks,
+                (long) valueZ * unitBlocks);
         return (int) (blockX / unitBlocks);
     }
 
     private static int foldZ(DhLattice lattice, byte detailLevel, int unitBlocks, int valueZ) {
-        ToroidalShape shape = lattice.shape();
-        if (!shape.loops(Direction.Axis.Z)) {
-            return valueZ;
-        }
-
-        long period = period(lattice, detailLevel).zBlocks();
-        long laps = Math.floorDiv((long) valueZ * unitBlocks - shape.minBlock(Direction.Axis.Z), period);
-        return (int) (valueZ - laps * (period / unitBlocks));
+        long blockZ = period(lattice, detailLevel).foldZ(lattice.shape(), (long) valueZ * unitBlocks);
+        return (int) (blockZ / unitBlocks);
     }
 
     public static boolean isCompleteSection(DhLattice lattice, byte leafDetailLevel, byte detailLevel, int sectionX,
