@@ -51,18 +51,29 @@ public final class LapFastNoise {
         this.shear = new LapFrame(lattice).shear();
     }
 
-    public static @Nullable LapFastNoise of(FastNoiseConfig config, WorldFold fold, double xzScale) {
-        if (!KNOWN_CONFIGS.contains(config.getClass()) || xzScale == NO_XZ_SCALE) {
-            return null;
+    public static boolean samplesXz(double xzScale) {
+        return xzScale != NO_XZ_SCALE;
+    }
+
+    public static @Nullable Refusal refusal(FastNoiseConfig config) {
+        FastNoiseLiteAccessor source = sourceOf(config);
+        return refusal(config.getClass(), source.exotic_worlds$noiseType(), source.exotic_worlds$rotationType3d());
+    }
+
+    static @Nullable Refusal refusal(Class<?> configClass, FNL.NoiseType noiseType, FNL.RotationType3D rotation) {
+        if (!KNOWN_CONFIGS.contains(configClass)) {
+            return new Refusal(Reason.UNKNOWN_CONFIG, configClass.getName());
         }
 
-        FastNoiseLiteAccessor source = (FastNoiseLiteAccessor) ((FastNoiseConfigAccessor) config)
-                .exotic_worlds$fastNoiseLite();
-        if (!FOLDED_TYPES.contains(source.exotic_worlds$noiseType())
-                || source.exotic_worlds$rotationType3d() != FNL.RotationType3D.None) {
-            return null;
+        if (!FOLDED_TYPES.contains(noiseType)) {
+            return new Refusal(Reason.NOISE_TYPE, noiseType.name());
         }
 
+        return rotation == FNL.RotationType3D.None ? null : new Refusal(Reason.ROTATION, rotation.name());
+    }
+
+    public static LapFastNoise of(FastNoiseConfig config, WorldFold fold, double xzScale) {
+        FastNoiseLiteAccessor source = sourceOf(config);
         TranslationLattice lattice = fold.blockLattice();
         FastNoiseLap lap = FastNoiseLap.of(
                 new FastNoiseLap.Laps(lapOf(lattice.x()), lapOf(lattice.z()), xzScale),
@@ -72,6 +83,10 @@ public final class LapFastNoise {
                 new FastNoiseLap.Primes(FastNoiseLiteAccessor.exotic_worlds$primeX(),
                         FastNoiseLiteAccessor.exotic_worlds$primeY(), FastNoiseLiteAccessor.exotic_worlds$primeZ()));
         return new LapFastNoise(closedCopy(source, lap), lap, lattice, xzScale);
+    }
+
+    private static FastNoiseLiteAccessor sourceOf(FastNoiseConfig config) {
+        return (FastNoiseLiteAccessor) ((FastNoiseConfigAccessor) config).exotic_worlds$fastNoiseLite();
     }
 
     public float get(double x, double y, double z) {
@@ -107,5 +122,24 @@ public final class LapFastNoise {
 
     private static int lapOf(WrapDomain domain) {
         return domain.loops() ? domain.domainLength : FastNoiseLap.OPEN;
+    }
+
+    public enum Reason {
+        UNKNOWN_CONFIG("unknown_config"),
+        NOISE_TYPE("noise_type"),
+        ROTATION("rotation");
+
+        private final String id;
+
+        Reason(String id) {
+            this.id = id;
+        }
+
+        public String id() {
+            return this.id;
+        }
+    }
+
+    public record Refusal(Reason reason, String value) {
     }
 }
