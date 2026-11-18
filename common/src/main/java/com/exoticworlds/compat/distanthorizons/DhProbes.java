@@ -54,9 +54,9 @@ public final class DhProbes {
         LOGGER.info("[ew/dh-compat] key_period width_x_blocks={} period_x_blocks={} laps_x={}"
                 + " width_z_blocks={} period_z_blocks={} laps_z={} skew_blocks={} shift_x_blocks={}",
                 widthX, periodValue(shape, Direction.Axis.X, period.xBlocks()),
-                lapsValue(shape, Direction.Axis.X, period.xBlocks()),
+                lapsValue(shape, Direction.Axis.X, period),
                 widthZ, periodValue(shape, Direction.Axis.Z, period.zBlocks()),
-                lapsValue(shape, Direction.Axis.Z, period.zBlocks()),
+                lapsValue(shape, Direction.Axis.Z, period),
                 lattice.skewBlocks(), period.xShiftBlocks());
     }
 
@@ -68,8 +68,8 @@ public final class DhProbes {
         return shape.loops(axis) ? String.valueOf(periodBlocks) : NONE;
     }
 
-    static String lapsValue(ToroidalShape shape, Direction.Axis axis, long periodBlocks) {
-        return shape.loops(axis) ? String.valueOf(periodBlocks / shape.widthBlocks(axis)) : NONE;
+    static String lapsValue(ToroidalShape shape, Direction.Axis axis, AlignedPeriod period) {
+        return shape.loops(axis) ? String.valueOf(period.laps(shape, axis)) : NONE;
     }
 
     public static void repoShape(Object repo, IDhLevel level, boolean present) {
