@@ -1,7 +1,6 @@
 package com.exoticworlds.compat.ultraterraforged.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -12,11 +11,7 @@ import com.pandaismyname1.ultraterraforged.world.worldgen.terrain.populator.Lake
 
 @Mixin(value = LakePopulator2.class, remap = false)
 public abstract class LakePopulator2Mixin {
-    @Unique
-    private static final String CONSTRUCTOR = "<init>(Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/"
-            + "NoiseUtil$Vec2f;FFLcom/pandaismyname1/ultraterraforged/world/worldgen/rivermap/lake/LakeConfig;)V";
-
-    @ModifyExpressionValue(method = CONSTRUCTOR,
+    @ModifyExpressionValue(method = UltraTerraForgedInjectionTargets.LAKE_POPULATOR_CONSTRUCTOR,
             at = @At(value = "CONSTANT", args = UltraTerraForgedInjectionTargets.VALLEY_WIDTH))
     private float exotic_worlds$valleySizedForTheLap(float blocks) {
         return blocks * UltraTerraForgedRiverReach.INSTANCE.boundScale();

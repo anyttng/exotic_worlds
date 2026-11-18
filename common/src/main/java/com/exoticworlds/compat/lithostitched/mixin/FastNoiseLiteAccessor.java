@@ -52,9 +52,6 @@ public interface FastNoiseLiteAccessor {
     @Accessor("mPingPongStrength")
     float exotic_worlds$pingPongStrength();
 
-    @Accessor("mFractalBounding")
-    float exotic_worlds$fractalBounding();
-
     @Accessor("mCellularDistanceFunction")
     FNL.CellularDistanceFunction exotic_worlds$cellularDistanceFunction();
 

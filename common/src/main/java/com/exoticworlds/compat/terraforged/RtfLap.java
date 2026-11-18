@@ -2,6 +2,7 @@ package com.exoticworlds.compat.terraforged;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.compat.worldgen.LapCells;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
@@ -23,8 +24,6 @@ public final class RtfLap {
     private static final int TORUS_FLOOR_CELLS = 2;
 
     private static final int CYLINDER_FLOOR_CELLS = 1;
-
-    private static final double CEIL_SLACK = 1.0E-9;
 
     private static final double TWO_PI = Math.PI * 2.0;
 
@@ -370,7 +369,7 @@ public final class RtfLap {
             return NO_PERIOD;
         }
 
-        return Math.max(floorCells, (int) Math.ceil(lap * Math.abs(frequency) - CEIL_SLACK));
+        return Math.toIntExact(LapCells.whole(lap * Math.abs(frequency), floorCells));
     }
 
     private static double lapOf(WrapDomain domain) {
