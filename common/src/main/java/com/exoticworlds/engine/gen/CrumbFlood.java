@@ -65,18 +65,26 @@ final class CrumbFlood {
         int tail = 1;
         while (head < tail) {
             int cell = pending[head++];
-            for (int axis = 0; axis < CellGrid.AXES; axis++) {
-                for (int step = -1; step <= 1; step += 2) {
-                    int neighbor = grid.neighbor(cell, axis, step);
-                    if (neighbor != CellGrid.NO_CELL && solid[neighbor] && !taken[neighbor]) {
-                        taken[neighbor] = true;
-                        pending[tail++] = neighbor;
-                    }
+            tail = takeNeighbors(grid, solid, taken, pending, cell, tail);
+        }
+
+        return tail;
+    }
+
+    private static int takeNeighbors(CellGrid grid, boolean[] solid, boolean[] taken, int[] pending, int cell,
+            int tail) {
+        int next = tail;
+        for (int axis = 0; axis < CellGrid.AXES; axis++) {
+            for (int step = -1; step <= 1; step += 2) {
+                int neighbor = grid.neighbor(cell, axis, step);
+                if (neighbor != CellGrid.NO_CELL && solid[neighbor] && !taken[neighbor]) {
+                    taken[neighbor] = true;
+                    pending[next++] = neighbor;
                 }
             }
         }
 
-        return tail;
+        return next;
     }
 
     private static boolean touchesSide(CellGrid grid, int[] cells, int count) {
