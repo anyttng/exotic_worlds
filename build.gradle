@@ -50,6 +50,48 @@ def neoforgeJar = project(':neoforge').tasks.named('jar', Jar)
 def fabricJar = project(':fabric').tasks.named('remapJar', AbstractArchiveTask)
 def neoforgeJarName = neoforgeJar.get().archiveFileName.get()
 def fabricJarName = fabricJar.get().archiveFileName.get()
+def neoforgePath = "META-INF/jarjar/${neoforgeJarName}"
+def fabricPath = "META-INF/jars/${fabricJarName}"
+
+// Stored entries are the point: the shell deflates each nested jar as one stream. Nest the loader jars as built,
+// deflated entry by entry, and the shell has nothing left to pack.
+def storedLoaderJars = tasks.register('storedLoaderJars') {
+    def outputDir = layout.buildDirectory.dir('shell-parts')
+    def sources = [
+            (neoforgePath): neoforgeJar.flatMap { it.archiveFile },
+            (fabricPath)  : fabricJar.flatMap { it.archiveFile }]
+    inputs.files(sources.values())
+    inputs.property('paths', sources.keySet().toList())
+    outputs.dir(outputDir)
+
+    doLast {
+        def root = outputDir.get().asFile
+        // A jar left from an earlier version would ride into the shell beside the current one.
+        root.deleteDir()
+        sources.each { path, source ->
+            def target = new File(root, path)
+            target.parentFile.mkdirs()
+            new java.util.zip.ZipFile(source.get().asFile).withCloseable { zip ->
+                new java.util.zip.ZipOutputStream(target.newOutputStream()).withCloseable { out ->
+                    zip.entries().each { entry ->
+                        def bytes = entry.directory ? new byte[0] : zip.getInputStream(entry).withCloseable { it.bytes }
+                        def crc = new java.util.zip.CRC32()
+                        crc.update(bytes)
+                        def copy = new java.util.zip.ZipEntry(entry.name)
+                        copy.time = entry.time
+                        copy.method = java.util.zip.ZipEntry.STORED
+                        copy.size = bytes.length
+                        copy.compressedSize = bytes.length
+                        copy.crc = crc.value
+                        out.putNextEntry(copy)
+                        out.write(bytes)
+                        out.closeEntry()
+                    }
+                }
+            }
+        }
+    }
+}
 
 // 1.21.1 is obfuscated: the Fabric build names the game in intermediary and the NeoForge build in Mojmap, so the two
 // class sets cannot share one jar's root the way the 26.x merge does. The jar that ships is a shell instead — no
@@ -57,8 +99,6 @@ def fabricJarName = fabricJar.get().archiveFileName.get()
 // jar that metadata names. The shell carries its own mod id: the nested jar is the one that is exotic_worlds.
 def shellMetadata = tasks.register('shellMetadata') {
     def outputDir = layout.buildDirectory.dir('shell')
-    def neoforgePath = "META-INF/jarjar/${neoforgeJarName}"
-    def fabricPath = "META-INF/jars/${fabricJarName}"
     def neoforgeRange = "[${neo_version},)"
     def minecraftRange = minecraft_version_range
     def fabricLoaderRange = ">=${fabric_loader_version}"
@@ -131,7 +171,6 @@ tasks.register('modJar', Jar) {
     manifest.attributes('Automatic-Module-Name': shellId)
 
     from(shellMetadata)
-    from(neoforgeJar) { into 'META-INF/jarjar' }
-    from(fabricJar) { into 'META-INF/jars' }
+    from(storedLoaderJars)
     from('THIRD_PARTY_NOTICES')
 }
