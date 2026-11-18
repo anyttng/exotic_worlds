@@ -1,8 +1,12 @@
 package com.exoticworlds.engine.noise;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -108,13 +112,50 @@ final class MaterialCauseSearch {
         return node;
     }
 
-    private static List<Object> childrenOf(Object node) {
+    static List<Object> childrenOf(Object node) {
         return switch (node) {
             case SurfaceRules.SequenceRuleSource sequence -> new ArrayList<>(sequence.sequence());
             case SurfaceRules.TestRuleSource test -> List.of(test.ifTrue(), test.thenRun());
             case SurfaceRules.NotConditionSource not -> List.of(not.target());
-            default -> List.of();
+            default -> componentNodesOf(node);
         };
+    }
+
+    private static List<Object> componentNodesOf(Object node) {
+        RecordComponent[] components = node.getClass().getRecordComponents();
+        if (components == null) {
+            return List.of();
+        }
+
+        List<Object> nodes = new ArrayList<>();
+        for (RecordComponent component : components) {
+            collectNodes(valueOf(component, node), nodes);
+        }
+
+        return nodes;
+    }
+
+    private static void collectNodes(@Nullable Object value, List<Object> nodes) {
+        switch (value) {
+            case SurfaceRules.RuleSource rule -> nodes.add(rule);
+            case SurfaceRules.ConditionSource condition -> nodes.add(condition);
+            case Map<?, ?> map -> map.values().forEach(held -> collectNodes(held, nodes));
+            case Collection<?> collection -> collection.forEach(held -> collectNodes(held, nodes));
+            case null, default -> {
+            }
+        }
+    }
+
+    private static @Nullable Object valueOf(RecordComponent component, Object node) {
+        Method accessor = component.getAccessor();
+        try {
+            accessor.trySetAccessible();
+            return accessor.invoke(node);
+        } catch (ReflectiveOperationException | RuntimeException unreadable) {
+            ExoticWorlds.LOGGER.debug("[ew/edge] material_node_component_unread class={} component={} text={}",
+                    node.getClass().getName(), component.getName(), unreadable.toString());
+            return null;
+        }
     }
 
     private static SeamCause nodeCause(Object node) {
