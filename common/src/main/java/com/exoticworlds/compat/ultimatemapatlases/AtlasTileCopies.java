@@ -28,11 +28,6 @@ public final class AtlasTileCopies {
         @Nullable T at(int centerX, int centerZ);
     }
 
-    public static <T> @Nullable T first(@Nullable ToroidalShape shape, int x, int z, int mapBlocks,
-            TileLookup<T> lookup) {
-        return firstOf(of(shape, x, z, mapBlocks), lookup);
-    }
-
     public static <T> @Nullable T acrossEdge(@Nullable ToroidalShape shape, int x, int z, int mapBlocks,
             TileLookup<T> lookup) {
         List<TileCenter> centers = of(shape, x, z, mapBlocks);
