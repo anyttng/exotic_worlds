@@ -15,10 +15,6 @@ import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 
 public final class LevelClimateCompression {
-    public static DensityFunction temperatureOf(@Nullable ServerLevel level) {
-        return temperatureOf(routerTemperatureOf(level), overworldTemperatureOf(level));
-    }
-
     public static DensityFunction temperatureOf(ChunkGenerator own, @Nullable ChunkGenerator overworld) {
         return temperatureOf(routerTemperatureOf(own), routerTemperatureOf(overworld));
     }
