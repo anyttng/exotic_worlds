@@ -117,31 +117,36 @@ public final class CoastFieldLift {
                 continue;
             }
 
-            seen[start] = true;
-            queue[0] = start;
-            int head = 0;
-            int tail = 1;
-
-            while (head < tail) {
-                int cell = queue[head++];
-                int x = cell / zGrid;
-                int z = cell % zGrid;
-
-                for (int[] step : NEIGHBORS) {
-                    int zLaps = Math.floorDiv(z + step[1], zGrid);
-                    int next = Math.floorMod(x + step[0] - zLaps * skewCells, xGrid) * zGrid
-                            + Math.floorMod(z + step[1], zGrid);
-                    if (land[next] && !seen[next]) {
-                        seen[next] = true;
-                        queue[tail++] = next;
-                    }
-                }
-            }
-
-            largest = Math.max(largest, tail);
+            largest = Math.max(largest, componentSize(land, seen, queue, start, xGrid, zGrid, skewCells));
         }
 
         return largest;
+    }
+
+    private static int componentSize(boolean[] land, boolean[] seen, int[] queue, int start, int xGrid, int zGrid,
+            int skewCells) {
+        seen[start] = true;
+        queue[0] = start;
+        int head = 0;
+        int tail = 1;
+
+        while (head < tail) {
+            int cell = queue[head++];
+            int x = cell / zGrid;
+            int z = cell % zGrid;
+
+            for (int[] step : NEIGHBORS) {
+                int zLaps = Math.floorDiv(z + step[1], zGrid);
+                int next = Math.floorMod(x + step[0] - zLaps * skewCells, xGrid) * zGrid
+                        + Math.floorMod(z + step[1], zGrid);
+                if (land[next] && !seen[next]) {
+                    seen[next] = true;
+                    queue[tail++] = next;
+                }
+            }
+        }
+
+        return tail;
     }
 
     private CoastFieldLift() {
