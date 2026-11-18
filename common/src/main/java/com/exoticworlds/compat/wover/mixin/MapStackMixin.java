@@ -1,6 +1,5 @@
 package com.exoticworlds.compat.wover.mixin;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.betterx.wover.generator.api.biomesource.WoverBiomePicker;
@@ -8,6 +7,7 @@ import org.betterx.wover.generator.api.map.BiomeMap;
 import org.betterx.wover.generator.api.map.MapBuilderFunction;
 import org.betterx.wover.generator.impl.map.MapStack;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,9 +17,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.mojang.logging.LogUtils;
 import com.exoticworlds.compat.wover.LapMap;
-import com.exoticworlds.compat.wover.LapMapHolder;
 import com.exoticworlds.compat.wover.LapMapStack;
+import com.exoticworlds.compat.wover.StackLayers;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 
@@ -48,6 +49,13 @@ public class MapStackMixin {
     @Shadow
     @Final
     private int maxIndex;
+
+    @Unique
+    private static final Logger exotic_worlds$LOGGER = LogUtils.getLogger();
+
+    @Unique
+    private final StackLayers<WoverBiomePicker.PickableBiome> exotic_worlds$stackLayers = new StackLayers<>(
+            map -> exotic_worlds$LOGGER.warn("[ew/wover-compat] stack_unclosed map={}", map.getName()));
 
     @Unique
     private long exotic_worlds$seed;
@@ -92,17 +100,7 @@ public class MapStackMixin {
     }
 
     @Unique
-    @SuppressWarnings("unchecked")
     private List<LapMap<WoverBiomePicker.PickableBiome>> exotic_worlds$layers(WorldFold fold) {
-        List<LapMap<WoverBiomePicker.PickableBiome>> layers = new ArrayList<>(this.maps.length);
-        for (BiomeMap map : this.maps) {
-            if (!(map instanceof LapMapHolder<?> holder)) {
-                return List.of();
-            }
-
-            layers.add(((LapMapHolder<WoverBiomePicker.PickableBiome>) holder).exotic_worlds$lapMap(fold));
-        }
-
-        return layers;
+        return this.exotic_worlds$stackLayers.of(this.maps, fold);
     }
 }
