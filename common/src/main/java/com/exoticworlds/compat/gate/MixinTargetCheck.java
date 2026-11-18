@@ -125,22 +125,27 @@ public final class MixinTargetCheck {
         }
 
         for (MethodNode method : mixin.methods) {
-            List<AnnotationNode> annotations = MixinAnnotations.of(method);
-            String name = method.name;
-            String descriptor = method.desc;
-            for (AnnotationNode annotation : annotations) {
-                switch (annotation.desc) {
-                    case SHADOW, ACCESSOR, INVOKER -> {
-                        Refusal refusal = targetModel == null ? null
-                                : checkGenerated(mixinClassName, annotation, name, descriptor, target, targetModel);
-                        if (refusal != null) {
-                            refusals.add(refusal);
-                        }
+            checkMethod(mixinClassName, method, target, targetModel, refusals);
+        }
+    }
+
+    private void checkMethod(String mixinClassName, MethodNode method, String target,
+            @Nullable ClassNode targetModel, List<Refusal> refusals) {
+        List<AnnotationNode> annotations = MixinAnnotations.of(method);
+        String name = method.name;
+        String descriptor = method.desc;
+        for (AnnotationNode annotation : annotations) {
+            switch (annotation.desc) {
+                case SHADOW, ACCESSOR, INVOKER -> {
+                    Refusal refusal = targetModel == null ? null
+                            : checkGenerated(mixinClassName, annotation, name, descriptor, target, targetModel);
+                    if (refusal != null) {
+                        refusals.add(refusal);
                     }
-                    default -> {
-                        if (MixinAnnotations.element(annotation, METHOD_KEY).isPresent()) {
-                            checkInjector(mixinClassName, annotation, annotations, descriptor, target, refusals);
-                        }
+                }
+                default -> {
+                    if (MixinAnnotations.element(annotation, METHOD_KEY).isPresent()) {
+                        checkInjector(mixinClassName, annotation, annotations, descriptor, target, refusals);
                     }
                 }
             }

@@ -120,14 +120,12 @@ public final class RecordPayloadFold {
                 case GROUP -> {
                     if (groupMove == null) {
                         Vec3 anchor = FoldedValue.anchorOf(dimension, value);
-                        if (anchor == null) {
-                            continue;
-                        }
-
-                        groupMove = leaves.deck().apply(anchor);
+                        groupMove = anchor == null ? null : leaves.deck().apply(anchor);
                     }
 
-                    values[index] = FoldedValue.moved(dimension, groupMove, value);
+                    if (groupMove != null) {
+                        values[index] = FoldedValue.moved(dimension, groupMove, value);
+                    }
                 }
             }
         }

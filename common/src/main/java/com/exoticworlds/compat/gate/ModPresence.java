@@ -357,24 +357,29 @@ public final class ModPresence {
 
             try (Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
                 JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
-                Map<String, List<String>> blocks = new HashMap<>();
-                for (String key : MIXIN_LIST_KEYS) {
-                    List<String> mixins = new ArrayList<>();
-                    if (json.get(key) instanceof JsonArray list) {
-                        for (JsonElement mixin : list) {
-                            mixins.add(mixin.getAsString());
-                        }
-                    }
-
-                    blocks.put(key, List.copyOf(mixins));
-                }
-
+                Map<String, List<String>> blocks = mixinLists(json);
                 String plugin = json.has(PLUGIN_KEY) ? json.get(PLUGIN_KEY).getAsString() : null;
-                return new MixinConfig(json.get(PACKAGE_KEY).getAsString(), plugin, Map.copyOf(blocks));
+                return new MixinConfig(json.get(PACKAGE_KEY).getAsString(), plugin, blocks);
             }
         } catch (IOException unreadable) {
             throw new IllegalStateException("mixin config " + config + " cannot be read", unreadable);
         }
+    }
+
+    private static Map<String, List<String>> mixinLists(JsonObject json) {
+        Map<String, List<String>> blocks = new HashMap<>();
+        for (String key : MIXIN_LIST_KEYS) {
+            List<String> mixins = new ArrayList<>();
+            if (json.get(key) instanceof JsonArray list) {
+                for (JsonElement mixin : list) {
+                    mixins.add(mixin.getAsString());
+                }
+            }
+
+            blocks.put(key, List.copyOf(mixins));
+        }
+
+        return Map.copyOf(blocks);
     }
 
     private record MixinConfig(String mixinPackage, @Nullable String plugin, Map<String, List<String>> blocks) {
