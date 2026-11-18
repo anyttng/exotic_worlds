@@ -12,10 +12,12 @@ import com.simibubi.create.content.redstone.link.IRedstoneLinkable;
 import com.simibubi.create.content.redstone.link.RedstoneLinkNetworkHandler;
 import com.exoticworlds.compat.create.CreateSeamFold;
 import com.exoticworlds.compat.create.FoldedLinkable;
+import com.exoticworlds.core.DeckTransformation;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = RedstoneLinkNetworkHandler.class, remap = false)
 public class RedstoneLinkNetworkHandlerMixin {
@@ -28,25 +30,33 @@ public class RedstoneLinkNetworkHandlerMixin {
                             + "Lcom/simibubi/create/content/redstone/link/IRedstoneLinkable;"
                             + "Lcom/simibubi/create/content/redstone/link/IRedstoneLinkable;)Z"))
     private boolean exotic_worlds$foldLinkRange(IRedstoneLinkable from, IRedstoneLinkable to,
-            Operation<Boolean> original, LevelAccessor world, @Share(SEATED_FROM) LocalRef<BlockPos> seatedFromRef) {
+            Operation<Boolean> original, LevelAccessor world, @Share(SEATED_FROM) LocalRef<Vec3> seatedFromRef) {
         if (from == to || !(world instanceof Level level)) {
             return original.call(from, to);
         }
 
         BlockPos storedFrom = from.getLocation();
-        BlockPos storedTo = to.getLocation();
-        BlockPos seatedFrom = seatedFromRef.get();
+        Vec3 seatedFrom = seatedFromRef.get();
         if (seatedFrom == null) {
             seatedFrom = CreateSeamFold.worldSeat(level, storedFrom);
             seatedFromRef.set(seatedFrom);
         }
 
-        BlockPos seatedTo = CreateSeamFold.worldSeat(level, storedTo);
-        BlockPos foldedTo = CreateSeamFold.nearestCopy(level, seatedFrom, seatedTo);
-        if (seatedFrom.equals(storedFrom) && foldedTo.equals(storedTo)) {
+        BlockPos storedTo = to.getLocation();
+        Vec3 seatedTo = CreateSeamFold.worldSeat(level, storedTo);
+        DeckTransformation lap = CreateSeamFold.nearestCopyTransformation(level, seatedFrom, seatedTo);
+        if (lap.isIdentity()) {
             return original.call(from, to);
         }
 
-        return original.call(new FoldedLinkable(from, seatedFrom), new FoldedLinkable(to, foldedTo));
+        if (seatedTo.equals(Vec3.atCenterOf(storedTo))) {
+            return original.call(from, new FoldedLinkable(to, lap.apply(storedTo)));
+        }
+
+        if (seatedFrom.equals(Vec3.atCenterOf(storedFrom))) {
+            return original.call(new FoldedLinkable(from, lap.inverse().apply(storedFrom)), to);
+        }
+
+        return original.call(from, new FoldedLinkable(to, BlockPos.containing(lap.apply(seatedTo))));
     }
 }

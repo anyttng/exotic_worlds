@@ -73,13 +73,9 @@ public final class CreateSeamFold {
         return farEndDelta(WorldLoopAttachments.foldOfReader(level), anchor, delta, rawFarEnd);
     }
 
-    public static BlockPos worldSeat(@Nullable Level level, BlockPos stored) {
-        if (level == null) {
-            return stored;
-        }
-
-        Vec3 seated = ForeignFrames.seatInWorld(level, Vec3.atCenterOf(stored));
-        return BlockPos.containing(seated);
+    public static Vec3 worldSeat(@Nullable Level level, BlockPos stored) {
+        Vec3 center = Vec3.atCenterOf(stored);
+        return level == null ? center : ForeignFrames.seatInWorld(level, center);
     }
 
     public static BlockPos nearestCopy(@Nullable Level level, Vec3i anchor, BlockPos target) {
