@@ -1,6 +1,7 @@
 package com.exoticworlds.compat.lithostitched.mixin;
 
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
@@ -14,12 +15,17 @@ import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.mojang.logging.LogUtils;
 
+import dev.worldgen.lithostitched.api.worldgen.densityfunction.fastnoise.FastNoiseConfig;
 import dev.worldgen.lithostitched.impl.worldgen.densityfunction.FastNoiseDensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunction;
 
 @Mixin(FastNoiseDensityFunction.class)
 public class FastNoiseDensityFunctionMixin implements FoldableFastNoise {
+    @Unique
+    private static final Logger exotic_worlds$LOGGER = LogUtils.getLogger();
+
     @Unique
     private volatile @Nullable ClosedNoise exotic_worlds$closedNoise;
 
@@ -53,10 +59,27 @@ public class FastNoiseDensityFunctionMixin implements FoldableFastNoise {
     private @Nullable LapFastNoise exotic_worlds$closedNoise(WorldFold fold, FastNoiseDensityFunction self) {
         ClosedNoise closed = this.exotic_worlds$closedNoise;
         if (closed == null || closed.fold() != fold) {
-            closed = new ClosedNoise(fold, LapFastNoise.of(self.config().value(), fold, self.xzScale()));
+            closed = new ClosedNoise(fold, exotic_worlds$lapOf(fold, self));
             this.exotic_worlds$closedNoise = closed;
         }
 
         return closed.noise();
+    }
+
+    @Unique
+    private static @Nullable LapFastNoise exotic_worlds$lapOf(WorldFold fold, FastNoiseDensityFunction self) {
+        FastNoiseConfig config = self.config().value();
+        if (!LapFastNoise.samplesXz(self.xzScale())) {
+            return null;
+        }
+
+        LapFastNoise.Refusal refusal = LapFastNoise.refusal(config);
+        if (refusal != null) {
+            exotic_worlds$LOGGER.warn("[ew/lithostitched-compat] fast_noise_left_open config={} reason={} value={}",
+                    self.config().getRegisteredName(), refusal.reason().id(), refusal.value());
+            return null;
+        }
+
+        return LapFastNoise.of(config, fold, self.xzScale());
     }
 }
