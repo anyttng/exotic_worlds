@@ -4,6 +4,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.exoticworlds.engine.fold.NearestCopy;
 
 import net.minecraft.core.BlockPos;
@@ -36,7 +37,7 @@ public final class MekanismSeam {
     }
 
     public static AABB nearestCopy(@Nullable Level level, Vec3 anchor, AABB box) {
-        return WorldLoopAttachments.foldOfReader(level).nearestCopyOriented(anchor, box).value();
+        return FoldedBoxQuery.toward(WorldLoopAttachments.foldOfReader(level), anchor, box);
     }
 
     public static Vec3 stopOnAxis(@Nullable Level level, Vec3 origin, Direction.Axis axis, Vec3 entity) {
