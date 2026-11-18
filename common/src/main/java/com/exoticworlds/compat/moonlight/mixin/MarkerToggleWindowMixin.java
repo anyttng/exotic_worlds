@@ -18,6 +18,7 @@ import net.minecraft.world.phys.Vec3;
 
 @Mixin(value = MapItemSavedData.class, priority = 1100)
 public class MarkerToggleWindowMixin {
+    @Unique
     private static final String TOGGLE = "ml$toggleCustomDecoration";
 
     @ModifyVariable(method = TOGGLE, at = @At("STORE"), ordinal = 0)
