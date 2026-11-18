@@ -18,6 +18,7 @@ import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasPointSeat;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasSeamLines;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasTileCopies;
+import com.exoticworlds.compat.ultimatemapatlases.AtlasTileMemo;
 import com.exoticworlds.compat.ultimatemapatlases.BrowsedDimension;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -61,6 +62,9 @@ public abstract class AbstractAtlasWidgetMixin {
 
     @Unique
     private @Nullable ToroidalShape exotic_worlds$seamShape;
+
+    @Unique
+    private final AtlasTileMemo exotic_worlds$tileMemo = new AtlasTileMemo();
 
     @Unique
     private int exotic_worlds$requestX;
@@ -125,8 +129,15 @@ public abstract class AbstractAtlasWidgetMixin {
             Operation<MapDataHolder> original) {
         this.exotic_worlds$requestX = centerX;
         this.exotic_worlds$requestZ = centerZ;
-        return AtlasTileCopies.first(this.exotic_worlds$copyShape, centerX, centerZ, this.mapBlocksSize,
-                (x, z) -> original.call(widget, x, z));
+        for (AtlasTileCopies.TileCenter copy : this.exotic_worlds$tileMemo.copies(this.exotic_worlds$copyShape,
+                centerX, centerZ, this.mapBlocksSize)) {
+            @Nullable MapDataHolder map = original.call(widget, copy.x(), copy.z());
+            if (map != null) {
+                return map;
+            }
+        }
+
+        return null;
     }
 
     @Inject(
@@ -136,8 +147,8 @@ public abstract class AbstractAtlasWidgetMixin {
                     shift = At.Shift.AFTER))
     private void exotic_worlds$drawSeamLines(CallbackInfo ci, @Local(argsOnly = true) GuiGraphicsExtractor graphics) {
         if (this.exotic_worlds$seamShape != null) {
-            AtlasSeamLines.draw(graphics, AtlasSeamLines.of(this.exotic_worlds$seamShape, this.exotic_worlds$requestX,
-                    this.exotic_worlds$requestZ, this.mapBlocksSize));
+            AtlasSeamLines.draw(graphics, this.exotic_worlds$tileMemo.seamLines(this.exotic_worlds$seamShape,
+                    this.exotic_worlds$requestX, this.exotic_worlds$requestZ, this.mapBlocksSize));
         }
     }
 
