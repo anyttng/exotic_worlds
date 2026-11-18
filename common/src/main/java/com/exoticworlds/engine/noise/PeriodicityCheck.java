@@ -151,15 +151,8 @@ public final class PeriodicityCheck {
 
     private static int readTwins(Probe probe, NoiseBasedChunkGenerator generator,
             Map<String, SeamVerdict.Break> first) {
-        BiomeManager biomeManager = new BiomeManager(
-                (quartX, quartY, quartZ) -> generator.getBiomeSource()
-                        .getNoiseBiome(quartX, quartY, quartZ, probe.sampler()),
-                BiomeManager.obfuscateSeed(probe.level().getSeed()));
-        ((BiomeZoomOwner) biomeManager).exotic_worlds$setOwner(probe.level());
         int read = 0;
-        for (SeamCauseSearch.Lap lap : probe.laps()) {
-            LapTwinChunks.Inputs inputs = new LapTwinChunks.Inputs(probe.level(), generator, probe.randomState(),
-                    biomeManager, probe.fold(), lap);
+        for (LapTwinChunks.Inputs inputs : twinInputsOf(probe, generator)) {
             for (int z : SAMPLE_Z) {
                 for (int x : SAMPLE_X) {
                     LapTwinChunks.Reading reading = LapTwinChunks.read(inputs,
@@ -174,6 +167,18 @@ public final class PeriodicityCheck {
         }
 
         return read;
+    }
+
+    private static List<LapTwinChunks.Inputs> twinInputsOf(Probe probe, NoiseBasedChunkGenerator generator) {
+        BiomeManager biomeManager = new BiomeManager(
+                (quartX, quartY, quartZ) -> generator.getBiomeSource()
+                        .getNoiseBiome(quartX, quartY, quartZ, probe.sampler()),
+                BiomeManager.obfuscateSeed(probe.level().getSeed()));
+        ((BiomeZoomOwner) biomeManager).exotic_worlds$setOwner(probe.level());
+        return probe.laps().stream()
+                .map(lap -> new LapTwinChunks.Inputs(probe.level(), generator, probe.randomState(), biomeManager,
+                        probe.fold(), lap))
+                .toList();
     }
 
     private static boolean sampleBroken(Probe probe, SeamCauseSearch.Lap lap, SeamCauseSearch.Point surface,
