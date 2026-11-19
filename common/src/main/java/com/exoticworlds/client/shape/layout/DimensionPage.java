@@ -37,7 +37,6 @@ import net.minecraft.world.level.dimension.LevelStem;
 final class DimensionPage {
     private final DimensionOffer offer;
     private final CoordinateScales scales;
-    private final List<DimensionShape> declaredShapes;
     private final Supplier<DimensionLayout> overworld;
     private final Value<ShapeChoice> chosen = Value.of(ShapeChoice.of(ShapeKind.NORMAL));
     private final Value<Integer> netherScale = Value.of(NetherScales.DEFAULT);
@@ -49,11 +48,9 @@ final class DimensionPage {
     private ShapeKind shownKind = ShapeKind.NORMAL;
 
     DimensionPage(DimensionOffer offer, Theme theme, FillStyle fill, CoordinateScales scales,
-            List<DimensionShape> declaredShapes, Supplier<DimensionLayout> overworld, DimensionLayout shown,
-            @Nullable Component lockReason) {
+            Supplier<DimensionLayout> overworld, DimensionLayout shown, @Nullable Component lockReason) {
         this.offer = offer;
         this.scales = scales;
-        this.declaredShapes = List.copyOf(declaredShapes);
         this.overworld = overworld;
         this.options = shown.options();
         this.loops = new LoopFields(theme, fill, offer.minChunkWidth(), offer.defaultChunkWidth());
@@ -77,7 +74,8 @@ final class DimensionPage {
 
     void show(DimensionLayout layout) {
         this.options = layout.options();
-        DimensionShape shape = this.offered(layout.shape());
+        ResourceLocation declaredId = layout.shape();
+        DimensionShape shape = declaredId == null ? null : DeclaredShapes.of(declaredId);
         this.chosen.set(shape != null ? ShapeChoice.of(shape) : ShapeChoice.of(layout.kind()));
         this.shownKind = layout.kind();
         this.loops.show(layout.spans());
@@ -165,7 +163,7 @@ final class DimensionPage {
     private List<ShapeChoice> choices() {
         List<ShapeChoice> choices = new ArrayList<>();
         this.offer.kinds().forEach(kind -> choices.add(ShapeChoice.of(kind)));
-        this.declaredShapes.forEach(shape -> choices.add(ShapeChoice.of(shape)));
+        DeclaredShapes.all().forEach(shape -> choices.add(ShapeChoice.of(shape)));
         return choices;
     }
 
@@ -279,11 +277,6 @@ final class DimensionPage {
         }
 
         return resolved == ShapeKind.TORUS ? BuiltInShapes.TORUS : BuiltInShapes.CYLINDER;
-    }
-
-    private @Nullable DimensionShape offered(@Nullable ResourceLocation id) {
-        DimensionShape shape = id == null ? null : DeclaredShapes.of(id);
-        return shape != null && this.declaredShapes.contains(shape) ? shape : null;
     }
 
     private void changeShape(ShapeChoice picked) {
