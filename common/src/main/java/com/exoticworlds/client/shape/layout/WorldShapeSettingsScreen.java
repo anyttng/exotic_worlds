@@ -31,6 +31,7 @@ import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.layout.DimensionLayout;
 import com.exoticworlds.shape.layout.LayoutPreset;
+import com.exoticworlds.shape.layout.ShapeKind;
 import com.exoticworlds.shape.layout.WorldLayout;
 import com.uber.nullaway.annotations.Initializer;
 
@@ -56,7 +57,8 @@ public final class WorldShapeSettingsScreen extends Screen {
     private static final int FOOTER_BUTTON_WIDTH = 150;
 
     private final @Nullable Screen parent;
-    private final List<ModStem> modDimensions;
+    private final List<ResourceKey<LevelStem>> modDimensions;
+    private final CoordinateScales scales;
     private final Map<ResourceKey<LevelStem>, DimensionLock> locks;
     private final boolean existingWorld;
     private final Consumer<WorldLayout> onDone;
@@ -64,6 +66,10 @@ public final class WorldShapeSettingsScreen extends Screen {
     private WorldLayout chosen;
     private HeaderAndFooterLayout frame;
     private ComponentTree contents;
+    private @Nullable Roots roots;
+
+    private record Roots(Column header, Column body, Row footer) {
+    }
 
     @FunctionalInterface
     private interface Fold {
@@ -74,37 +80,46 @@ public final class WorldShapeSettingsScreen extends Screen {
             Function<WorldLayout, @Nullable LoopSpans> spans, Fold fold, BiConsumer<DimensionPage, WorldLayout> extra) {
     }
 
-    private WorldShapeSettingsScreen(@Nullable Screen parent, WorldLayout current, List<ModStem> modDimensions,
+    private WorldShapeSettingsScreen(@Nullable Screen parent, WorldLayout current,
+            List<ResourceKey<LevelStem>> modDimensions, CoordinateScales scales,
             Map<ResourceKey<LevelStem>, DimensionLock> locks, boolean existingWorld, Consumer<WorldLayout> onDone) {
         super(SettingsLines.TITLE);
         this.parent = parent;
         this.modDimensions = List.copyOf(modDimensions);
+        this.scales = scales;
         this.locks = Map.copyOf(locks);
         this.existingWorld = existingWorld;
         this.onDone = onDone;
         this.chosen = current;
     }
 
-    public static WorldShapeSettingsScreen forNewWorld(Screen parent, WorldLayout current, List<ModStem> modDimensions,
-            Consumer<WorldLayout> onDone) {
-        return new WorldShapeSettingsScreen(parent, current, modDimensions, Map.of(), false, onDone);
+    public static WorldShapeSettingsScreen forNewWorld(Screen parent, WorldLayout current,
+            List<ResourceKey<LevelStem>> modDimensions, CoordinateScales scales, Consumer<WorldLayout> onDone) {
+        return new WorldShapeSettingsScreen(parent, current, modDimensions, scales, Map.of(), false, onDone);
     }
 
-    public static WorldShapeSettingsScreen forExistingWorld(WorldLayout current, List<ModStem> modDimensions,
+    public static WorldShapeSettingsScreen forExistingWorld(WorldLayout current,
+            List<ResourceKey<LevelStem>> modDimensions, CoordinateScales scales,
             Map<ResourceKey<LevelStem>, DimensionLock> locks, Consumer<WorldLayout> onDone) {
-        return new WorldShapeSettingsScreen(null, current, modDimensions, locks, true, onDone);
+        return new WorldShapeSettingsScreen(null, current, modDimensions, scales, locks, true, onDone);
     }
 
     @Override
     @Initializer
     protected void init() {
-        this.fillSlots();
+        Roots built = this.roots != null ? this.roots : this.buildRoots();
+        this.roots = built;
         this.frame = new HeaderAndFooterLayout(this);
-        this.frame.addToHeader(new ComponentTree(this.header()));
-        this.contents = this.frame.addToContents(new ComponentTree(this.body()));
-        this.frame.addToFooter(new ComponentTree(this.footer()));
+        this.frame.addToHeader(new ComponentTree(built.header()));
+        this.contents = this.frame.addToContents(new ComponentTree(built.body()));
+        this.frame.addToFooter(new ComponentTree(built.footer()));
         this.frame.visitWidgets(this::addRenderableWidget);
         this.repositionElements();
+    }
+
+    private Roots buildRoots() {
+        this.fillSlots();
+        return new Roots(this.header(), this.body(), this.footer());
     }
 
     @Override
@@ -121,7 +136,6 @@ public final class WorldShapeSettingsScreen extends Screen {
     private void fillSlots() {
         BiConsumer<DimensionPage, WorldLayout> nothing = (page, layout) -> {
         };
-        this.slots.clear();
         this.slots.add(this.slot(DimensionOffer.OVERWORLD, LevelStem.OVERWORLD, WorldLayout::overworld,
                 layout -> layout.overworld().spans(), (layout, page, shown) -> layout.withOverworld(shown), nothing));
         this.slots.add(this.slot(DimensionOffer.NETHER, LevelStem.NETHER, WorldLayout::nether, WorldLayout::netherSpans,
@@ -129,18 +143,26 @@ public final class WorldShapeSettingsScreen extends Screen {
                 (page, layout) -> page.showNetherScale(layout.netherScale())));
         this.slots.add(this.slot(DimensionOffer.END, LevelStem.END, WorldLayout::end, WorldLayout::endSpans,
                 (layout, page, shown) -> layout.withEnd(shown), nothing));
-        for (ModStem stem : this.modDimensions) {
-            this.slots.add(this.slot(DimensionOffer.modDimension(stem), stem.key(),
-                    layout -> layout.modDimension(stem.key()), stem::spans,
-                    (layout, page, shown) -> layout.withModDimension(stem.key(), shown), nothing));
+        for (ResourceKey<LevelStem> key : this.modDimensions) {
+            this.slots.add(this.slot(DimensionOffer.modDimension(key, this.scales), key,
+                    layout -> layout.modDimension(key), layout -> this.modSpans(layout, key),
+                    (layout, page, shown) -> layout.withModDimension(key, shown), nothing));
         }
+    }
+
+    private @Nullable LoopSpans modSpans(WorldLayout layout, ResourceKey<LevelStem> key) {
+        DimensionLayout chosen = layout.modDimension(key);
+        return chosen.kind() == ShapeKind.FROM_OVERWORLD
+                ? this.scales.modDimension(key, layout.overworld().spans())
+                : chosen.spans();
     }
 
     private Slot slot(DimensionOffer offer, ResourceKey<LevelStem> key, Function<WorldLayout, DimensionLayout> shown,
             Function<WorldLayout, @Nullable LoopSpans> spans, Fold fold, BiConsumer<DimensionPage, WorldLayout> extra) {
         Supplier<@Nullable LoopSpans> overworldSpans = () -> this.chosen.overworld().spans();
         DimensionLock lock = this.locks.get(key);
-        DimensionPage page = new DimensionPage(offer, THEME, FILL, this.parent, overworldSpans, shown.apply(this.chosen),
+        DimensionPage page = new DimensionPage(offer, THEME, FILL, this.parent, overworldSpans,
+                shown.apply(this.chosen),
                 lock == null ? null : SettingsLines.lockReason(lock));
         extra.accept(page, this.chosen);
         return new Slot(page, lock != null, shown, spans, fold, extra);
