@@ -36,6 +36,11 @@
 
   "gui.exotic_worlds.world_shape_settings": "Weltform-Einstellungen",
   "gui.exotic_worlds.world_shape_settings.hint": "Wähle die Form für Oberwelt, Nether, Ende und jede Mod-Dimension.",
+  "gui.exotic_worlds.world_shape_settings.preset.tiny": "Winzig",
+  "gui.exotic_worlds.world_shape_settings.preset.small": "Klein",
+  "gui.exotic_worlds.world_shape_settings.preset.medium": "Mittel",
+  "gui.exotic_worlds.world_shape_settings.preset.large": "Groß",
+  "gui.exotic_worlds.world_shape_settings.preset.huge": "Riesig",
   "gui.exotic_worlds.world_shape.normal": "Normal",
   "gui.exotic_worlds.world_shape.normal.hint": "Die Vanilla-Welt: eine endlose Ebene in alle Richtungen.",
   "gui.exotic_worlds.world_shape.toroidal": "Toroidal",

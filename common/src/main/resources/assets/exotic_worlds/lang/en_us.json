@@ -36,6 +36,11 @@
 
   "gui.exotic_worlds.world_shape_settings": "World Shape Settings",
   "gui.exotic_worlds.world_shape_settings.hint": "Pick the shape of the Overworld, the Nether, the End and every mod dimension.",
+  "gui.exotic_worlds.world_shape_settings.preset.tiny": "Tiny",
+  "gui.exotic_worlds.world_shape_settings.preset.small": "Small",
+  "gui.exotic_worlds.world_shape_settings.preset.medium": "Medium",
+  "gui.exotic_worlds.world_shape_settings.preset.large": "Large",
+  "gui.exotic_worlds.world_shape_settings.preset.huge": "Huge",
   "gui.exotic_worlds.world_shape.normal": "Normal",
   "gui.exotic_worlds.world_shape.normal.hint": "The vanilla world: an endless plane in every direction.",
   "gui.exotic_worlds.world_shape.toroidal": "Toroidal",
