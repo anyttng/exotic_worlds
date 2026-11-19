@@ -16,6 +16,7 @@ import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.engine.gen.ShapedDimensions;
+import com.exoticworlds.shape.custom.CustomDimensions;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -116,23 +117,25 @@ class TorusDimensionsTest {
     }
 
     @Test
-    void aSkewedEndReadsBackAsTheDefaultEnd() {
+    void aSkewedEndLeavesTheWorldToCustom() {
         WorldDimensions created = TorusDimensions.apply(vanillaDimensions(), RECTANGLE_64_BY_128);
         WorldDimensions skewedEnd = ShapedDimensions.withShape(created, LevelStem.END, new CarriedShape(
                 FlatShape.latticeTorus(WorldLoopBounds.ofWidth(320), 5), RECTANGLE_64_BY_128.generationOptions()));
 
-        assertEquals(TorusSettings.DEFAULT.end(), TorusDimensions.read(skewedEnd).end());
+        assertNull(TorusDimensions.read(skewedEnd));
+        assertEquals(LoopSpans.ofWidth(320).withSkew(5), CustomDimensions.read(skewedEnd).end().spans());
     }
 
     @Test
-    void aSkewedWorldWithANetherOffTheScaleLadderStaysTorus() {
+    void aSkewedWorldWithANetherOffTheScaleLadderIsLeftToCustom() {
         TorusSettings chosen = new TorusSettings(LoopSpans.ofWidths(64, 128).withSkew(8), 4, LoopSpans.ofWidth(320),
                 TorusSettings.DEFAULT.generationOptions());
         WorldDimensions offLadderNether = ShapedDimensions.withShape(
                 TorusDimensions.apply(vanillaDimensions(), chosen), LevelStem.NETHER,
                 new CarriedShape(FlatShape.of(LoopSpans.ofWidths(24, 40)), chosen.generationOptions()));
 
-        assertEquals(chosen.overworld(), TorusDimensions.read(offLadderNether).overworld());
+        assertNull(TorusDimensions.read(offLadderNether));
+        assertEquals(chosen.overworld(), CustomDimensions.read(offLadderNether).overworld().spans());
     }
 
     @Test

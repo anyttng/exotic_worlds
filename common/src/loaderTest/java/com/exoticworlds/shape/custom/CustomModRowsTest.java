@@ -94,12 +94,14 @@ class CustomModRowsTest {
     void torusAndCylinderLeaveAWorldWithModRowsToCustom() {
         CustomSettings torus = new CustomSettings(
                 new DimensionShape(LoopSpans.ofWidth(64), CustomSettings.DEFAULT_OPTIONS),
-                new DimensionShape(LoopSpans.ofWidth(16), CustomSettings.DEFAULT_OPTIONS),
-                new DimensionShape(LoopSpans.ofWidth(256), CustomSettings.DEFAULT_OPTIONS));
+                DimensionShape.fromOverworld(CustomSettings.DEFAULT_OPTIONS),
+                new DimensionShape(LoopSpans.ofWidth(256), CustomSettings.DEFAULT_OPTIONS),
+                Map.of(), 4);
         CustomSettings cylinder = new CustomSettings(
                 new DimensionShape(LoopSpans.ofWidth(Direction.Axis.X, 64), CustomSettings.DEFAULT_OPTIONS),
-                new DimensionShape(LoopSpans.ofWidth(Direction.Axis.X, 16), CustomSettings.DEFAULT_OPTIONS),
-                new DimensionShape(LoopSpans.ofWidth(Direction.Axis.X, 256), CustomSettings.DEFAULT_OPTIONS));
+                DimensionShape.fromOverworld(CustomSettings.DEFAULT_OPTIONS),
+                new DimensionShape(LoopSpans.ofWidth(Direction.Axis.X, 256), CustomSettings.DEFAULT_OPTIONS),
+                Map.of(), 4);
         assertNotNull(TorusDimensions.read(CustomDimensions.apply(vanillaDimensions(), torus)),
                 "the torus world does not read as a torus even without rows, so this run says nothing");
         assertNotNull(CylinderDimensions.read(CustomDimensions.apply(vanillaDimensions(), cylinder)),

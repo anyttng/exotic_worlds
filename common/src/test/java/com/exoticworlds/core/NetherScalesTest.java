@@ -28,7 +28,7 @@ class NetherScalesTest {
     }
 
     private static int normalize(int scale, int chunkWidth) {
-        return NetherScales.normalize(scale, chunkWidth, chunkWidth, FlatShape.NO_SKEW);
+        return NetherScales.normalize(scale, allowedFor(chunkWidth));
     }
 
     private static int next(int scale, int chunkWidth) {
@@ -142,13 +142,15 @@ class NetherScalesTest {
         @Test
         void theNarrowerAxisCapsTheScale() {
             assertEquals(List.of(1, 2), NetherScales.allowedFor(32, 1024, FlatShape.NO_SKEW));
-            assertEquals(2, NetherScales.normalize(NetherScales.DEFAULT, 32, 1024, FlatShape.NO_SKEW));
+            assertEquals(2, NetherScales.normalize(NetherScales.DEFAULT,
+                    NetherScales.allowedFor(32, 1024, FlatShape.NO_SKEW)));
         }
 
         @Test
         void aScaleMustDivideBothWidths() {
             assertEquals(List.of(1, 2, 4), NetherScales.allowedFor(128, 100, FlatShape.NO_SKEW));
-            assertEquals(4, NetherScales.normalize(NetherScales.DEFAULT, 128, 100, FlatShape.NO_SKEW));
+            assertEquals(4, NetherScales.normalize(NetherScales.DEFAULT,
+                    NetherScales.allowedFor(128, 100, FlatShape.NO_SKEW)));
             assertEquals(1, NetherScales.next(4, 128, 100, FlatShape.NO_SKEW));
         }
     }
@@ -169,7 +171,7 @@ class NetherScalesTest {
             assertEquals(List.of(1, 2, 4), NetherScales.allowedFor(256, 256, 4));
             assertEquals(List.of(1), NetherScales.allowedFor(256, 256, 5));
             assertEquals(List.of(1, 2), NetherScales.allowedFor(256, 256, -6));
-            assertEquals(4, NetherScales.normalize(NetherScales.DEFAULT, 256, 256, 4));
+            assertEquals(4, NetherScales.normalize(NetherScales.DEFAULT, NetherScales.allowedFor(256, 256, 4)));
             assertEquals(1, NetherScales.next(4, 256, 256, 4));
         }
     }

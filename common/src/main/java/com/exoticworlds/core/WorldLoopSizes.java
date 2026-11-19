@@ -32,6 +32,10 @@ public final class WorldLoopSizes {
         return chunkWidth >= END_MIN_CHUNK_WIDTH && chunkWidth <= MAX_CHUNK_WIDTH;
     }
 
+    public static int endChunkWidthFor(int overworldChunkWidth) {
+        return Math.min(MAX_CHUNK_WIDTH, END_MIN_CHUNK_WIDTH + overworldChunkWidth - MIN_CHUNK_WIDTH);
+    }
+
     public static int minSpawnChunk(int chunkWidth) {
         return chunkWidth == ENDLESS_AXIS_WIDTH ? -MAX_CHUNK_RADIUS : -(chunkWidth / 2);
     }

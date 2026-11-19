@@ -1,8 +1,10 @@
 package com.exoticworlds.shape.custom;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,9 +13,11 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.api.v1.shape.ShapeDimensions;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.engine.gen.ShapedDimensions;
+import com.exoticworlds.shape.ShapeStems;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
 import com.exoticworlds.shape.cylinder.CylinderDimensions;
@@ -103,16 +107,18 @@ class CustomDimensionsTest {
     void threeToriWithARectangularEndStayCustom() {
         assertOnlyCustomAdopts(new CustomSettings(
                 new DimensionShape(LoopSpans.ofWidth(64), CustomSettings.DEFAULT_OPTIONS),
-                new DimensionShape(LoopSpans.ofWidth(32), CustomSettings.DEFAULT_OPTIONS),
-                new DimensionShape(LoopSpans.ofWidths(256, 320), CustomSettings.DEFAULT_OPTIONS)));
+                DimensionShape.fromOverworld(CustomSettings.DEFAULT_OPTIONS),
+                new DimensionShape(LoopSpans.ofWidths(256, 320), CustomSettings.DEFAULT_OPTIONS),
+                Map.of(), 2));
     }
 
     @Test
     void threeToriWithTheirOwnNetherOptionsStayCustom() {
         assertOnlyCustomAdopts(new CustomSettings(
                 new DimensionShape(LoopSpans.ofWidth(64), CustomSettings.DEFAULT_OPTIONS),
-                new DimensionShape(LoopSpans.ofWidth(32), COMPACT_6),
-                new DimensionShape(LoopSpans.ofWidth(256), CustomSettings.DEFAULT_OPTIONS)));
+                DimensionShape.fromOverworld(COMPACT_6),
+                new DimensionShape(LoopSpans.ofWidth(256), CustomSettings.DEFAULT_OPTIONS),
+                Map.of(), 2));
     }
 
     @Test
@@ -127,8 +133,87 @@ class CustomDimensionsTest {
     void threeCylindersWithTheirOwnNetherOptionsStayCustom() {
         assertOnlyCustomAdopts(new CustomSettings(
                 new DimensionShape(LoopSpans.ofWidth(Direction.Axis.X, 64), CustomSettings.DEFAULT_OPTIONS),
-                new DimensionShape(LoopSpans.ofWidth(Direction.Axis.X, 32), COMPACT_6),
-                new DimensionShape(LoopSpans.ofWidth(Direction.Axis.X, 256), CustomSettings.DEFAULT_OPTIONS)));
+                DimensionShape.fromOverworld(COMPACT_6),
+                new DimensionShape(LoopSpans.ofWidth(Direction.Axis.X, 256), CustomSettings.DEFAULT_OPTIONS),
+                Map.of(), 2));
+    }
+
+    @Test
+    void aSkewedTorusRoundTripsAndIsLeftToCustomWhereTorusCannotWriteItBack() {
+        CustomSettings chosen = new CustomSettings(
+                new DimensionShape(LoopSpans.ofWidth(64).withSkew(8), LAND),
+                new DimensionShape(LoopSpans.ofWidth(24).withSkew(4), COMPACT_6),
+                new DimensionShape(LoopSpans.ofWidth(256), CustomSettings.DEFAULT_OPTIONS));
+        WorldDimensions created = CustomDimensions.apply(vanillaDimensions(), chosen);
+
+        assertEquals(LoopSpans.ofWidth(64).withSkew(8), ShapeDimensions.spansOf(created, LevelStem.OVERWORLD));
+        assertNull(TorusDimensions.read(created));
+        assertEquals(chosen, CustomDimensions.read(created));
+    }
+
+    @Test
+    void aNetherFromTheOverworldRoundTripsAtEveryAllowedScale() {
+        LoopSpans overworld = LoopSpans.ofWidth(128);
+        for (int scale : ShapeStems.netherScalesFor(overworld)) {
+            CustomSettings chosen = new CustomSettings(
+                    new DimensionShape(overworld, CustomSettings.DEFAULT_OPTIONS),
+                    DimensionShape.fromOverworld(COMPACT_6),
+                    NONE, Map.of(), scale);
+            WorldDimensions created = CustomDimensions.apply(vanillaDimensions(), chosen);
+
+            assertEquals(LoopSpans.ofWidth(128 / scale), ShapeDimensions.spansOf(created, LevelStem.NETHER),
+                    "scale " + scale);
+            assertEquals(chosen, CustomDimensions.read(created), "scale " + scale);
+        }
+    }
+
+    @Test
+    void aNetherFromASkewedOverworldTakesTheSkewOverTheScale() {
+        CustomSettings chosen = new CustomSettings(
+                new DimensionShape(LoopSpans.ofWidth(64).withSkew(8), CustomSettings.DEFAULT_OPTIONS),
+                DimensionShape.fromOverworld(CustomSettings.DEFAULT_OPTIONS),
+                NONE, Map.of(), 4);
+        WorldDimensions created = CustomDimensions.apply(vanillaDimensions(), chosen);
+
+        assertEquals(LoopSpans.ofWidth(16).withSkew(2), ShapeDimensions.spansOf(created, LevelStem.NETHER));
+        assertEquals(chosen, CustomDimensions.read(created));
+    }
+
+    @Test
+    void anEndFromTheOverworldTakesTheWidthRuleOnEachLoopedAxis() {
+        assertEndFromOverworld(LoopSpans.ofWidths(32, 48), LoopSpans.ofWidths(208, 224));
+        assertEndFromOverworld(LoopSpans.ofWidth(Direction.Axis.Z, 64), LoopSpans.ofWidth(Direction.Axis.Z, 240));
+        assertEndFromOverworld(LoopSpans.ofWidth(64).withSkew(8), LoopSpans.ofWidth(240));
+    }
+
+    @Test
+    void aPlainOverworldLeavesADimensionFromItUnwrapped() {
+        WorldDimensions created = CustomDimensions.apply(vanillaDimensions(), new CustomSettings(
+                NONE,
+                DimensionShape.fromOverworld(CustomSettings.DEFAULT_OPTIONS),
+                DimensionShape.fromOverworld(CustomSettings.DEFAULT_OPTIONS)));
+
+        assertNull(ShapedDimensions.shapeOf(created, LevelStem.NETHER));
+        assertNull(ShapedDimensions.shapeOf(created, LevelStem.END));
+    }
+
+    @Test
+    void onlyTheNetherAndTheEndTakeFromOverworld() {
+        assertThrows(IllegalArgumentException.class, () -> new CustomSettings(
+                DimensionShape.fromOverworld(CustomSettings.DEFAULT_OPTIONS), NONE, NONE));
+        assertThrows(IllegalArgumentException.class,
+                () -> new DimensionShape(LoopSpans.ofWidth(64), CustomSettings.DEFAULT_OPTIONS, true));
+    }
+
+    private static void assertEndFromOverworld(LoopSpans overworld, LoopSpans end) {
+        CustomSettings chosen = new CustomSettings(
+                new DimensionShape(overworld, CustomSettings.DEFAULT_OPTIONS),
+                NONE,
+                DimensionShape.fromOverworld(COMPACT_6));
+        WorldDimensions created = CustomDimensions.apply(vanillaDimensions(), chosen);
+
+        assertEquals(end, ShapeDimensions.spansOf(created, LevelStem.END), overworld.toString());
+        assertEquals(chosen, CustomDimensions.read(created), overworld.toString());
     }
 
     private static void assertOnlyCustomAdopts(CustomSettings chosen) {
@@ -145,17 +230,16 @@ class CustomDimensionsTest {
     }
 
     @Test
-    void aSkewedTorusIsNotCustom() {
+    void aSkewedTorusTheTorusShapeWritesBackStaysTorusAndCustomReadsItsNetherFromTheOverworld() {
         WorldDimensions skewed = TorusDimensions.apply(vanillaDimensions(), new TorusSettings(
                 LoopSpans.ofWidth(64).withSkew(8), 4, LoopSpans.ofWidth(320), TorusSettings.DEFAULT.generationOptions()));
+        CustomSettings read = CustomDimensions.read(skewed);
 
-        assertNull(CustomDimensions.read(skewed));
-    }
-
-    @Test
-    void aDimensionShapeRefusesASkew() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new DimensionShape(LoopSpans.ofWidth(64).withSkew(8), CustomSettings.DEFAULT_OPTIONS));
+        assertNotNull(TorusDimensions.read(skewed));
+        assertEquals(LoopSpans.ofWidth(64).withSkew(8), read.overworld().spans());
+        assertTrue(read.nether().fromOverworld());
+        assertEquals(4, read.netherScale());
+        assertEquals(LoopSpans.ofWidth(320), read.end().spans());
     }
 
     @Test
