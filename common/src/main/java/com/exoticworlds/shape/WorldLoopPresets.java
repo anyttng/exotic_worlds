@@ -1,24 +1,23 @@
 package com.exoticworlds.shape;
 
 import com.exoticworlds.core.CoordinateConstants;
+import com.exoticworlds.core.WorldLoopSizes;
 
 public enum WorldLoopPresets {
-    TINY("tiny", 32, 2, 256),
-    SMALL("small", 64, 4, 320),
-    MEDIUM("medium", 128, 8, 384),
-    LARGE("large", 256, 8, 448),
-    HUGE("huge", 512, 8, 512);
+    TINY("tiny", 32, 2),
+    SMALL("small", 64, 4),
+    MEDIUM("medium", 128, 8),
+    LARGE("large", 256, 8),
+    HUGE("huge", 512, 8);
 
     private final String id;
     private final int chunkWidth;
     private final int netherScale;
-    private final int endChunkWidth;
 
-    WorldLoopPresets(String id, int chunkWidth, int netherScale, int endChunkWidth) {
+    WorldLoopPresets(String id, int chunkWidth, int netherScale) {
         this.id = id;
         this.chunkWidth = chunkWidth;
         this.netherScale = netherScale;
-        this.endChunkWidth = endChunkWidth;
     }
 
     public String id() {
@@ -34,7 +33,7 @@ public enum WorldLoopPresets {
     }
 
     public int endChunkWidth() {
-        return endChunkWidth;
+        return WorldLoopSizes.endChunkWidthFor(chunkWidth);
     }
 
     public int blockWidth() {

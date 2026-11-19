@@ -102,7 +102,7 @@ public class CustomSettingsScreen extends Screen {
         Button customize = Button.builder(ShapeRows.CUSTOMIZE, button -> this.customize(dimension))
                 .width(ShapeRows.CUSTOMIZE_WIDTH)
                 .build();
-        StemKind kind = this.chosen.get(dimension).kind();
+        StemKind kind = this.chosen.resolved(dimension).kind();
         row.addChild(CycleButton.builder(ShapeLabels::kind, kind)
                 .withValues(StemKind.values())
                 .displayOnlyValue()
@@ -125,11 +125,11 @@ public class CustomSettingsScreen extends Screen {
     }
 
     private void choose(VanillaDimension dimension, StemKind kind) {
-        this.chosen = this.chosen.with(dimension, this.chosen.get(dimension).withKind(kind, dimension));
+        this.chosen = this.chosen.with(dimension, this.chosen.resolved(dimension).withKind(kind, dimension));
     }
 
     private void customize(VanillaDimension dimension) {
-        DimensionShape current = this.chosen.get(dimension);
+        DimensionShape current = this.chosen.resolved(dimension);
         Minecraft.getInstance().setScreen(new DimensionShapeScreen(this, dimension, current,
                 shape -> this.chosen = this.chosen.with(dimension, shape)));
     }

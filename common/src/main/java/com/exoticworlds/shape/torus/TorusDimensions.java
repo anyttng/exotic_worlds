@@ -1,16 +1,12 @@
 package com.exoticworlds.shape.torus;
 
-import java.util.List;
-
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.api.v1.shape.ShapeDimensions;
-import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.shape.ShapeStems;
 
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldDimensions;
 
@@ -34,18 +30,7 @@ public final class TorusDimensions {
                 ShapeStems.readNetherScale(dimensions, TorusSettings::isTorus, overworld, Direction.Axis.X),
                 readEndSpans(dimensions),
                 ShapeDimensions.optionsOf(dimensions, LevelStem.OVERWORLD));
-        return carriesSkew(dimensions) || ShapeStems.writesBack(dimensions, read) ? read : null;
-    }
-
-    private static boolean carriesSkew(WorldDimensions dimensions) {
-        for (ResourceKey<LevelStem> key : List.of(LevelStem.OVERWORLD, LevelStem.NETHER, LevelStem.END)) {
-            LoopSpans spans = ShapeDimensions.spansOf(dimensions, key);
-            if (spans != null && spans.skewChunks() != FlatShape.NO_SKEW) {
-                return true;
-            }
-        }
-
-        return false;
+        return ShapeStems.writesBack(dimensions, read) ? read : null;
     }
 
     private static LoopSpans readEndSpans(WorldDimensions dimensions) {
