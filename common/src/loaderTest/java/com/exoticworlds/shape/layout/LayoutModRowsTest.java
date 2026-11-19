@@ -17,10 +17,6 @@ import com.exoticworlds.engine.gen.ShapedDimensions;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
-import com.exoticworlds.shape.custom.CustomDimensions;
-import com.exoticworlds.shape.custom.CustomSettings;
-import com.exoticworlds.shape.custom.DimensionShape;
-import com.exoticworlds.shape.custom.ModDimension;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Direction;
@@ -81,21 +77,6 @@ class LayoutModRowsTest {
                 NetherScales.DEFAULT);
 
         assertEquals(chosen, LayoutDimensions.read(LayoutDimensions.apply(vanillaDimensions(), chosen)));
-    }
-
-    @Test
-    void aWorldTheCustomShapeGaveModRowsReadsThem() {
-        ModDimension sky = new ModDimension(SKY);
-        CustomSettings custom = new CustomSettings(
-                new DimensionShape(LoopSpans.ofWidth(64), CustomSettings.DEFAULT_OPTIONS),
-                new DimensionShape(null, CustomSettings.DEFAULT_OPTIONS),
-                new DimensionShape(null, CustomSettings.DEFAULT_OPTIONS))
-                .with(sky, new DimensionShape(LoopSpans.ofWidths(48, 32), compact6));
-
-        WorldLayout read = LayoutDimensions.read(CustomDimensions.apply(vanillaDimensions(), custom));
-
-        assertEquals(new WorldLayout(DimensionLayout.looped(LoopSpans.ofWidth(64), PLAIN), NORMAL, NORMAL,
-                Map.of(SKY, DimensionLayout.looped(LoopSpans.ofWidths(48, 32), compact6)), NetherScales.DEFAULT), read);
     }
 
     private static ResourceKey<LevelStem> stemKey(String path) {

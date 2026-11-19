@@ -18,14 +18,7 @@ import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
-import com.exoticworlds.shape.custom.CustomDimensions;
-import com.exoticworlds.shape.custom.CustomSettings;
-import com.exoticworlds.shape.custom.DimensionShape;
-import com.exoticworlds.shape.cylinder.CylinderDimensions;
-import com.exoticworlds.shape.cylinder.CylinderSettings;
 import com.exoticworlds.shape.torus.GuaranteedLand;
-import com.exoticworlds.shape.torus.TorusDimensions;
-import com.exoticworlds.shape.torus.TorusSettings;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -121,49 +114,32 @@ class LayoutDimensionsTest {
     }
 
     @Test
-    void aWorldTheToroidalShapeMadeReadsWithItsSizesScaleAndEnd() {
-        TorusSettings torus = new TorusSettings(LoopSpans.ofWidths(64, 128).withSkew(16), 4, LoopSpans.ofWidth(320), LAND);
+    void aToroidalWorldWrittenThroughThePublicWriterReadsWithItsSizesScaleAndEnd() {
+        LoopSpans overworld = LoopSpans.ofWidths(64, 128).withSkew(16);
+        WorldDimensions made = ShapeDimensions.withSpans(vanillaDimensions(), overworld, overworld.scaledDown(4),
+                LoopSpans.ofWidth(320), LAND);
 
-        WorldLayout read = LayoutDimensions.read(TorusDimensions.apply(vanillaDimensions(), torus));
+        WorldLayout read = LayoutDimensions.read(made);
 
         assertNotNull(read);
-        assertEquals(DimensionLayout.looped(LoopSpans.ofWidths(64, 128).withSkew(16), LAND), read.overworld());
+        assertEquals(DimensionLayout.looped(overworld, LAND), read.overworld());
         assertEquals(ShapeKind.FROM_OVERWORLD, read.nether().kind());
         assertEquals(4, read.netherScale());
         assertEquals(LoopSpans.ofWidth(320), read.end().spans());
-        assertEquals(TorusDimensions.apply(vanillaDimensions(), torus).dimensions().keySet(),
-                LayoutDimensions.apply(vanillaDimensions(), read).dimensions().keySet());
-        assertSameShapes(TorusDimensions.apply(vanillaDimensions(), torus),
-                LayoutDimensions.apply(vanillaDimensions(), read));
+        assertSameShapes(made, LayoutDimensions.apply(vanillaDimensions(), read));
     }
 
     @Test
-    void aWorldTheCylinderShapeMadeReadsWithItsAxisSizeAndScale() {
-        CylinderSettings cylinder = new CylinderSettings(LoopSpans.ofWidth(Direction.Axis.X, 128), 8,
+    void aCylinderWorldWrittenThroughThePublicWriterReadsWithItsAxisSizeAndScale() {
+        LoopSpans overworld = LoopSpans.ofWidth(Direction.Axis.X, 128);
+        WorldDimensions made = ShapeDimensions.withSpans(vanillaDimensions(), overworld, overworld.scaledDown(8),
                 LoopSpans.ofWidth(Direction.Axis.X, 256), PLAIN.with(SpawnPoint.OPTION, new SpawnPoint(4, -3)));
-        WorldDimensions made = CylinderDimensions.apply(vanillaDimensions(), cylinder);
 
         WorldLayout read = LayoutDimensions.read(made);
 
         assertNotNull(read);
         assertEquals(ShapeKind.CYLINDER, read.overworld().kind());
         assertEquals(8, read.netherScale());
-        assertSameShapes(made, LayoutDimensions.apply(vanillaDimensions(), read));
-    }
-
-    @Test
-    void aWorldTheCustomShapeMadeReadsDimensionByDimension() {
-        CustomSettings custom = new CustomSettings(
-                new DimensionShape(null, CustomSettings.DEFAULT_OPTIONS),
-                new DimensionShape(LoopSpans.ofWidths(24, 40), COMPACT_6),
-                DimensionShape.fromOverworld(CustomSettings.DEFAULT_OPTIONS));
-        WorldDimensions made = CustomDimensions.apply(vanillaDimensions(), custom);
-
-        WorldLayout read = LayoutDimensions.read(made);
-
-        assertNotNull(read);
-        assertEquals(ShapeKind.NORMAL, read.overworld().kind());
-        assertEquals(DimensionLayout.looped(LoopSpans.ofWidths(24, 40), COMPACT_6), read.nether());
         assertSameShapes(made, LayoutDimensions.apply(vanillaDimensions(), read));
     }
 

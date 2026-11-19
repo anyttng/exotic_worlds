@@ -14,8 +14,8 @@ import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
-import com.exoticworlds.shape.torus.TorusDimensions;
-import com.exoticworlds.shape.torus.TorusSettings;
+import com.exoticworlds.shape.layout.LayoutDimensions;
+import com.exoticworlds.shape.layout.LayoutFixtures;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
@@ -79,9 +79,9 @@ class WorldDimensionsNbtRoundTripTest {
     }
 
     private static WorldDimensions shapedPreset() {
-        TorusSettings settings = new TorusSettings(LoopSpans.ofWidth(OVERWORLD_CHUNK_WIDTH), NETHER_SCALE,
-                LoopSpans.ofWidth(END_CHUNK_WIDTH), GENERATION_OPTIONS);
-        return TorusDimensions.apply(WorldPresets.createNormalWorldDimensions(worldgen), settings);
+        return LayoutDimensions.apply(WorldPresets.createNormalWorldDimensions(worldgen),
+                LayoutFixtures.shaped(LoopSpans.ofWidth(OVERWORLD_CHUNK_WIDTH), NETHER_SCALE,
+                        LoopSpans.ofWidth(END_CHUNK_WIDTH), GENERATION_OPTIONS));
     }
 
     private static WorldDimensions rereadThroughNbt(WorldDimensions dimensions) {
