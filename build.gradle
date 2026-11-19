@@ -32,7 +32,25 @@ subprojects {
             }
         }
     }
+
+    repositories {
+        ivy {
+            name = 'AscendiaCore'
+            url = rootProject.file('../ascendia-core-mc-26-2/build/libs')
+            patternLayout {
+                artifact "[artifact]-[revision]+mc${minecraft_version}.[ext]"
+            }
+            metadataSources {
+                artifact()
+            }
+            content {
+                includeGroup 'com.ascendia'
+            }
+        }
+    }
 }
+
+ext.ascendiaCoreModule = "com.ascendia:ascendia_core:${ascendia_core_version}"
 
 // The loader jars are this script's inputs, so their tasks have to exist before it names them.
 evaluationDependsOnChildren()
@@ -53,14 +71,35 @@ tasks.register('modJar', Zip) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     def manifestPath = 'META-INF/MANIFEST.MF'
+    def jarJarCore = 'META-INF/jarjar/ascendia_core-'
+    def fabricNestedCore = 'META-INF/jars/ascendia_core-'
     def neoforgeFile = neoforgeJar.flatMap { it.archiveFile }
     def fabricFile = fabricJar.flatMap { it.archiveFile }
-    // Which build a shared path comes from is stated, never left to the order the specs are walked in.
-    def neoforgeEntries = neoforgeFile.map { jar ->
+    def entriesOf = { jar ->
         new java.util.zip.ZipFile(jar.asFile).withCloseable { zip -> zip.entries().collect { it.name }.toSet() }
     }
+    // Which build a shared path comes from is stated, never left to the order the specs are walked in.
+    def neoforgeEntries = neoforgeFile.map(entriesOf)
+    def fabricEntries = fabricFile.map(entriesOf)
 
-    from(zipTree(neoforgeFile)) { exclude manifestPath }
+    // Fabric Loader reads Core only under META-INF/jars, while FML opens any path its metadata names.
+    doFirst {
+        def unmatched = neoforgeEntries.get()
+                .findAll { it.startsWith(jarJarCore) }
+                .collect { fabricNestedCore + it.substring(jarJarCore.length()) }
+                .findAll { !fabricEntries.get().contains(it) }
+        if (unmatched) {
+            throw new GradleException("The NeoForge build nests an Ascendia Core the Fabric build lacks: ${unmatched}")
+        }
+    }
+
+    from(zipTree(neoforgeFile)) {
+        exclude manifestPath
+        exclude "${jarJarCore}*.jar"
+        filesMatching('META-INF/jarjar/metadata.json') {
+            filter { line -> line.replace(jarJarCore, fabricNestedCore) }
+        }
+    }
     from(zipTree(fabricFile)) {
         exclude { element ->
             element.relativePath.pathString != manifestPath
