@@ -56,6 +56,7 @@
   "gui.exotic_worlds.world_shape_settings.dimension.nether": "네더",
   "gui.exotic_worlds.world_shape_settings.dimension.end": "엔드",
   "gui.exotic_worlds.world_shape_settings.dimensions.mod": "모드 차원",
+  "gui.exotic_worlds.world_shape_settings.dimensions.undecided": "형태 미선택",
   "gui.exotic_worlds.world_shape_settings.summary.shift": "이동 %s",
   "gui.exotic_worlds.world_shape_settings.shape": "형태",
   "gui.exotic_worlds.world_shape_settings.shape.normal": "일반",

@@ -56,6 +56,7 @@
   "gui.exotic_worlds.world_shape_settings.dimension.nether": "Nether",
   "gui.exotic_worlds.world_shape_settings.dimension.end": "Das Ende",
   "gui.exotic_worlds.world_shape_settings.dimensions.mod": "Mod-Dimensionen",
+  "gui.exotic_worlds.world_shape_settings.dimensions.undecided": "Noch ohne Form",
   "gui.exotic_worlds.world_shape_settings.summary.shift": "Verschiebung %s",
   "gui.exotic_worlds.world_shape_settings.shape": "Form",
   "gui.exotic_worlds.world_shape_settings.shape.normal": "Normal",

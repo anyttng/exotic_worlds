@@ -56,6 +56,7 @@
   "gui.exotic_worlds.world_shape_settings.dimension.nether": "下界",
   "gui.exotic_worlds.world_shape_settings.dimension.end": "末地",
   "gui.exotic_worlds.world_shape_settings.dimensions.mod": "模组维度",
+  "gui.exotic_worlds.world_shape_settings.dimensions.undecided": "尚未选择形状",
   "gui.exotic_worlds.world_shape_settings.summary.shift": "偏移 %s",
   "gui.exotic_worlds.world_shape_settings.shape": "形状",
   "gui.exotic_worlds.world_shape_settings.shape.normal": "普通",
