@@ -21,6 +21,7 @@ def journeymapMinVersion = journeymap_min_version
 def ftbchunksMinVersion = ftbchunks_min_version
 def c2meMinVersion = c2me_fabric_min_version
 def eminusMinVersion = eminus_min_version
+def ascendiaCoreVersion = ascendia_core_version
 
 base {
     archivesName = mod_id
@@ -273,6 +274,7 @@ dependencies {
     // on it would make the fold vanish the day C2ME drops or renames it. Loader JiJ keeps the highest version present,
     // so shipping ours costs nothing where C2ME already carries a newer one.
     include(implementation("com.github.bawnorton.mixinsquared:mixinsquared-fabric:${mixinsquared_version}"))
+    include(modImplementation(rootProject.ext.ascendiaCoreFabric))
 
     // NeoForge 1.21.1 runs on Mojmap, so the neoforge API flavor already speaks this workspace's names — plain
     // compileOnly, nothing to remap off intermediary. remapJar bridges the runtime gap the other way.
@@ -411,10 +413,11 @@ processResources {
     inputs.property 'ftbchunks_min_version', ftbchunksMinVersion
     inputs.property 'c2me_min_version', c2meMinVersion
     inputs.property 'eminus_min_version', eminusMinVersion
+    inputs.property 'ascendia_core_version', ascendiaCoreVersion
     filesMatching('fabric.mod.json') {
         expand version: modIngameVersion, journeymap_min_version: journeymapMinVersion,
                 ftbchunks_min_version: ftbchunksMinVersion, c2me_min_version: c2meMinVersion,
-                eminus_min_version: eminusMinVersion
+                eminus_min_version: eminusMinVersion, ascendia_core_version: ascendiaCoreVersion
     }
 }
 

@@ -33,7 +33,28 @@ subprojects {
             }
         }
     }
+
+    repositories {
+        ['neoforge', 'fabric'].each { loader ->
+            ivy {
+                name = "AscendiaCore${loader.capitalize()}"
+                url = rootProject.file("../ascendia-core-mc-1-21-1/${loader}/build/libs")
+                patternLayout {
+                    artifact "[artifact]-[revision]+mc${minecraft_version}.[ext]"
+                }
+                metadataSources {
+                    artifact()
+                }
+                content {
+                    includeModule 'com.ascendia', "ascendia_core-${loader}"
+                }
+            }
+        }
+    }
 }
+
+ext.ascendiaCoreNeoforge = "com.ascendia:ascendia_core-neoforge:${ascendia_core_version}"
+ext.ascendiaCoreFabric = "com.ascendia:ascendia_core-fabric:${ascendia_core_version}"
 
 // The loader jars are this script's inputs, so their tasks have to exist before it names them.
 evaluationDependsOnChildren()

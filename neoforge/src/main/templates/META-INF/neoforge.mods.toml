@@ -49,6 +49,13 @@ Circumnavigate the world — walk, sail or fly past the border and come out on t
     ordering="NONE"
     side="BOTH"
 
+[[dependencies.${mod_id}]]
+    modId="ascendia_core"
+    type="required"
+    versionRange="[${ascendia_core_version},)"
+    ordering="NONE"
+    side="BOTH"
+
 # JourneyMap dependency — the compat mixins shadow renderer symbols the older JourneyMap has not got.
 [[dependencies.${mod_id}]]
     modId="journeymap"
