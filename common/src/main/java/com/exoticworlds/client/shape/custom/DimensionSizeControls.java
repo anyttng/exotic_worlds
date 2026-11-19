@@ -28,6 +28,7 @@ public final class DimensionSizeControls implements SizeControls {
 
     private final CustomStem dimension;
     private final StemKind kind;
+    private final int skewChunks;
     private final Runnable onChange;
 
     private final SizeField first;
@@ -38,7 +39,8 @@ public final class DimensionSizeControls implements SizeControls {
     public DimensionSizeControls(CustomStem dimension, LoopSpans current, SpawnPoint spawn,
             Runnable onChange) {
         this.dimension = dimension;
-        this.kind = Objects.requireNonNull(StemKind.of(current), "A custom dimension holds a stated kind");
+        this.kind = StemKind.of(current);
+        this.skewChunks = current.skewChunks();
         this.onChange = onChange;
         this.axis = current.loops(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
         if (this.kind == StemKind.TORUS) {
@@ -109,7 +111,7 @@ public final class DimensionSizeControls implements SizeControls {
         }
 
         Integer secondWidth = this.second.effective();
-        return secondWidth == null ? null : LoopSpans.ofWidths(firstWidth, secondWidth);
+        return secondWidth == null ? null : LoopSpans.ofWidths(firstWidth, secondWidth).withSkew(this.skewChunks);
     }
 
     public @Nullable SpawnPoint spawn() {

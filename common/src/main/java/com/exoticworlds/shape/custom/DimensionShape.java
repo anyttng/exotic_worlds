@@ -1,22 +1,32 @@
 package com.exoticworlds.shape.custom;
 
-import java.util.Objects;
-
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 
-public record DimensionShape(@Nullable LoopSpans spans, GenerationOptions options) {
+public record DimensionShape(@Nullable LoopSpans spans, GenerationOptions options, boolean fromOverworld) {
 
     public DimensionShape {
-        if (StemKind.of(spans) == null) {
-            throw new IllegalArgumentException("A custom dimension is a torus or a cylinder, unskewed, got " + spans);
+        if (fromOverworld && spans != null) {
+            throw new IllegalArgumentException("A dimension from the Overworld takes its spans from it, got " + spans);
         }
     }
 
+    public DimensionShape(@Nullable LoopSpans spans, GenerationOptions options) {
+        this(spans, options, false);
+    }
+
+    public static DimensionShape fromOverworld(GenerationOptions options) {
+        return new DimensionShape(null, options, true);
+    }
+
     public StemKind kind() {
-        return Objects.requireNonNull(StemKind.of(this.spans), "A stem kind was checked in the constructor");
+        if (this.fromOverworld) {
+            throw new IllegalStateException("A dimension from the Overworld has the kind of its resolved spans");
+        }
+
+        return StemKind.of(this.spans);
     }
 
     public DimensionShape withKind(StemKind kind, CustomStem dimension) {

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.IntFunction;
 
@@ -41,6 +42,12 @@ class WorldLoopPresetsJsonTest {
             assertPreset(TORUS_PRESET_PREFIX + preset.id(), preset, WorldLoopBounds::ofWidth,
                     TorusSettings.OFFERED_OPTIONS, TorusSettings.DEFAULT.generationOptions());
         }
+    }
+
+    @Test
+    void theEndColumnFollowsTheWidthRule() {
+        assertEquals(List.of(208, 240, 304, 432, 688),
+                Arrays.stream(WorldLoopPresets.values()).map(WorldLoopPresets::endChunkWidth).toList());
     }
 
     @Test

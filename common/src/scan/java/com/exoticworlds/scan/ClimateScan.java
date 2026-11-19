@@ -70,8 +70,8 @@ class ClimateScan {
         int widthBlocks(WorldType type) {
             int blocks = this.chunkWidth * CoordinateConstants.CHUNK_WIDTH;
             return type.nether()
-                    ? blocks / NetherScales.normalize(this.netherScale, this.chunkWidth, this.chunkWidth,
-                            FlatShape.NO_SKEW)
+                    ? blocks / NetherScales.normalize(this.netherScale,
+                            NetherScales.allowedFor(this.chunkWidth, this.chunkWidth, FlatShape.NO_SKEW))
                     : blocks;
         }
     }
