@@ -44,6 +44,7 @@ final class SettingsLines {
 
     static final Component TITLE = Component.translatable(PREFIX);
     static final Component VANILLA_DIMENSIONS = Component.translatable(PREFIX + ".dimensions.vanilla");
+    static final Component MOD_DIMENSIONS = Component.translatable(PREFIX + ".dimensions.mod");
     static final Component OVERWORLD = Component.translatable(PREFIX + ".dimension.overworld");
     static final Component NETHER = Component.translatable(PREFIX + ".dimension.nether");
     static final Component END = Component.translatable(PREFIX + ".dimension.end");
@@ -92,12 +93,13 @@ final class SettingsLines {
         return Component.literal(axis.getName().toUpperCase(Locale.ROOT));
     }
 
-    static Component summary(DimensionLayout layout, @Nullable LoopSpans spans) {
+    static Component summary(DimensionLayout layout, @Nullable LoopSpans spans, boolean derivationKnown) {
         if (layout.kind() != ShapeKind.FROM_OVERWORLD) {
             return shapeSummary(spans);
         }
 
-        return shapeName(ShapeKind.FROM_OVERWORLD).copy().append(SEPARATOR).append(shapeSummary(spans));
+        Component fromOverworld = shapeName(ShapeKind.FROM_OVERWORLD);
+        return derivationKnown ? fromOverworld.copy().append(SEPARATOR).append(shapeSummary(spans)) : fromOverworld;
     }
 
     static Component shapeSummary(@Nullable LoopSpans spans) {

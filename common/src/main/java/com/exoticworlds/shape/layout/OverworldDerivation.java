@@ -6,8 +6,10 @@ import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.engine.gen.ShapedDimensions;
 
 import net.minecraft.core.Direction;
 
@@ -29,6 +31,16 @@ public final class OverworldDerivation {
             case CYLINDER -> LoopSpans.ofWidth(loopedAxis(overworld), endWidth(overworld, loopedAxis(overworld)));
             case NORMAL, FROM_OVERWORLD -> null;
         };
+    }
+
+    public static @Nullable LoopSpans modDimension(@Nullable LoopSpans overworld, double overworldScale,
+            double coordinateScale) {
+        if (overworld == null || ShapeKind.of(overworld) == ShapeKind.NORMAL) {
+            return null;
+        }
+
+        FlatShape derived = ShapedDimensions.derivedShape(FlatShape.of(overworld), overworldScale, coordinateScale);
+        return derived == null ? null : LayoutDimensions.spansOf(derived);
     }
 
     public static @Nullable Integer netherScaleOf(LoopSpans overworld, @Nullable LoopSpans nether) {

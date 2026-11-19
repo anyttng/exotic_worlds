@@ -51,6 +51,7 @@
   "gui.exotic_worlds.world_shape_settings.dimension.overworld": "Верхній світ",
   "gui.exotic_worlds.world_shape_settings.dimension.nether": "Незер",
   "gui.exotic_worlds.world_shape_settings.dimension.end": "Енд",
+  "gui.exotic_worlds.world_shape_settings.dimensions.mod": "Виміри модів",
   "gui.exotic_worlds.world_shape_settings.summary.shift": "зсув %s",
   "gui.exotic_worlds.world_shape_settings.shape": "Форма",
   "gui.exotic_worlds.world_shape_settings.shape.normal": "Звичайна",
