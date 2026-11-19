@@ -38,6 +38,10 @@ public record WorldLayout(DimensionLayout overworld, DimensionLayout nether, Dim
         return new WorldLayout(this.overworld, chosen, this.end, this.modDimensions, scale);
     }
 
+    public WorldLayout withEnd(DimensionLayout chosen) {
+        return new WorldLayout(this.overworld, this.nether, chosen, this.modDimensions, this.netherScale);
+    }
+
     public @Nullable LoopSpans netherSpans() {
         return this.nether.kind() == ShapeKind.FROM_OVERWORLD
                 ? OverworldDerivation.nether(this.overworld.spans(), this.netherScale)
