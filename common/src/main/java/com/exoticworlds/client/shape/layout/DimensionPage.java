@@ -17,41 +17,38 @@ import com.ascendiacore.gui.widget.label.model.LabelRole;
 import com.ascendiacore.gui.widget.panel.model.FillStyle;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.shape.LoopSpans;
-import com.exoticworlds.client.shape.climate.CompactBiomesFields;
+import com.exoticworlds.api.v2.shape.BuiltInShapes;
 import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.WorldLoopSizes;
-import com.exoticworlds.shape.climate.ClimateScale;
-import com.exoticworlds.shape.climate.CompactBiomes;
 import com.exoticworlds.shape.layout.DimensionLayout;
 import com.exoticworlds.shape.layout.OverworldDerivation;
 import com.exoticworlds.shape.layout.ShapeKind;
 
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
 final class DimensionPage {
     private final DimensionOffer offer;
     private final Supplier<@Nullable LoopSpans> overworldSpans;
     private final Value<ShapeKind> kind = Value.of(ShapeKind.NORMAL);
-    private final Value<Boolean> torusOption = Value.of(false);
     private final Value<Integer> netherScale = Value.of(NetherScales.DEFAULT);
     private final LoopFields loops;
     private final SpawnFields spawn;
-    private final CompactBiomesFields compactBiomes;
+    private final OptionControls declared;
     private final Column page = new Column();
     private GenerationOptions options;
     private ShapeKind shownKind = ShapeKind.NORMAL;
 
-    DimensionPage(DimensionOffer offer, Theme theme, FillStyle fill, @Nullable Screen parent,
-            Supplier<@Nullable LoopSpans> overworldSpans, DimensionLayout shown, @Nullable Component lockReason) {
+    DimensionPage(DimensionOffer offer, Theme theme, FillStyle fill, Supplier<@Nullable LoopSpans> overworldSpans,
+            DimensionLayout shown, @Nullable Component lockReason) {
         this.offer = offer;
         this.overworldSpans = overworldSpans;
         this.options = shown.options();
-        this.loops = new LoopFields(theme, fill, offer.minChunkWidth(), offer.defaultChunkWidth(), this::refresh);
-        this.spawn = new SpawnFields(theme, fill, this::spawnChunkWidth, this::refresh);
-        this.compactBiomes = new CompactBiomesFields(theme, fill, parent, this::refresh);
+        this.loops = new LoopFields(theme, fill, offer.minChunkWidth(), offer.defaultChunkWidth());
+        this.spawn = new SpawnFields(theme, fill, this::spawnChunkWidth);
+        this.declared = new OptionControls(theme, fill, offer.dimension(), this::resolvedShape, this::resolvedSpans);
         this.build(theme, fill, lockReason);
         this.show(shown);
     }
@@ -74,15 +71,11 @@ final class DimensionPage {
         this.shownKind = layout.kind();
         this.loops.show(layout.spans());
         this.spawn.show(this.options.get(SpawnPoint.OPTION));
-        this.compactBiomes.show(this.options.get(CompactBiomes.OPTION));
-        DimensionOffer.TorusToggle toggle = this.offer.torusToggle();
-        this.torusOption.set(toggle != null && this.options.get(toggle.option()));
-        this.refresh();
+        this.declared.show(this.options);
     }
 
     void showNetherScale(int scale) {
         this.netherScale.set(scale);
-        this.refresh();
     }
 
     int netherScale() {
@@ -109,22 +102,12 @@ final class DimensionPage {
     }
 
     private @Nullable GenerationOptions chosenOptions() {
-        ShapeKind resolved = ShapeKind.of(this.resolvedSpans());
-        if (resolved == ShapeKind.NORMAL) {
+        if (this.resolvedShape() == null) {
             return this.options;
         }
 
-        ClimateScale scale = this.compactBiomes.scale();
         SpawnPoint point = this.offer.spawnPoint() ? this.spawn.point() : this.options.get(SpawnPoint.OPTION);
-        if (scale == null || point == null) {
-            return null;
-        }
-
-        GenerationOptions chosen = this.options.with(CompactBiomes.OPTION, scale).with(SpawnPoint.OPTION, point);
-        DimensionOffer.TorusToggle toggle = this.offer.torusToggle();
-        return toggle != null && resolved == ShapeKind.TORUS
-                ? chosen.with(toggle.option(), this.torusOption.get())
-                : chosen;
+        return point == null ? null : this.declared.commit(this.options.with(SpawnPoint.OPTION, point));
     }
 
     private void build(Theme theme, FillStyle fill, @Nullable Component lockReason) {
@@ -136,18 +119,12 @@ final class DimensionPage {
         Column additional = new Column();
         additional.setGap(LoopFields.GAP);
         additional.add(Heading.of(fill, SettingsLines.ADDITIONAL));
-        additional.add(this.compactBiomes.section());
-        DimensionOffer.TorusToggle toggle = this.offer.torusToggle();
-        if (toggle != null) {
-            CycleButton<Boolean> torusToggle = OptionFields.toggle(theme, toggle.captionKey(), this.torusOption);
-            torusToggle.setVisible(() -> this.resolvedKind() == ShapeKind.TORUS);
-            additional.add(torusToggle);
-        }
+        additional.add(this.declared.section());
 
         this.loops.torus().setVisible(() -> this.kind.get() == ShapeKind.TORUS);
         this.loops.cylinder().setVisible(() -> this.kind.get() == ShapeKind.CYLINDER);
         this.spawn.section().setVisible(() -> this.offer.spawnPoint() && this.resolvedKind() != ShapeKind.NORMAL);
-        additional.setVisible(() -> this.resolvedKind() != ShapeKind.NORMAL);
+        additional.setVisible(this.declared::anyOffered);
 
         this.page.setGap(LoopFields.GAP);
         this.page.add(Heading.of(fill, this.offer.title()));
@@ -169,7 +146,6 @@ final class DimensionPage {
         CycleButton<Integer> scale = new CycleButton<>(theme.button(), SettingsLines.NETHER_SCALE, this::netherScales,
                 this.netherScale, picked -> SettingsLines.netherScaleName(this.netherScale()));
         scale.showValueOnly();
-        scale.setOnChange(picked -> this.refresh());
         Field field = new Field(fill, SettingsLines.NETHER_SCALE, scale);
         field.setValueLine(() -> SettingsLines.shapeSummary(this.resolvedSpans()));
         field.setVisible(() -> this.offer.netherScale() && this.kind.get() == ShapeKind.FROM_OVERWORLD);
@@ -206,14 +182,17 @@ final class DimensionPage {
         return chosen == ShapeKind.FROM_OVERWORLD ? ShapeKind.of(this.resolvedSpans()) : chosen;
     }
 
+    private @Nullable Identifier resolvedShape() {
+        return switch (this.resolvedKind()) {
+            case TORUS -> BuiltInShapes.TORUS;
+            case CYLINDER -> BuiltInShapes.CYLINDER;
+            case NORMAL, FROM_OVERWORLD -> null;
+        };
+    }
+
     private void changeKind(ShapeKind picked) {
         this.loops.carryWidth(this.shownKind, picked);
         this.shownKind = picked;
-        this.refresh();
-    }
-
-    private void refresh() {
-        this.compactBiomes.preview(this.resolvedSpans(), this.options);
     }
 
     private @Nullable Integer spawnChunkWidth(Direction.Axis axis) {

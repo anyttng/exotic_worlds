@@ -37,19 +37,18 @@ final class LoopFields {
     private final Column cylinder = new Column();
     private final int defaultChunkWidth;
 
-    LoopFields(Theme theme, FillStyle fill, int minChunkWidth, int defaultChunkWidth, Runnable onChange) {
+    LoopFields(Theme theme, FillStyle fill, int minChunkWidth, int defaultChunkWidth) {
         Optional<Bounds> bounds = Optional.of(new Bounds(minChunkWidth, WorldLoopSizes.MAX_CHUNK_WIDTH));
         this.defaultChunkWidth = defaultChunkWidth;
-        this.sizeX = sizeField(theme, fill, SettingsLines.sizeCaption(Direction.Axis.X, minChunkWidth), bounds,
-                onChange);
-        this.sizeZ = sizeField(theme, fill, SettingsLines.sizeCaption(Direction.Axis.Z, minChunkWidth), bounds,
-                onChange);
-        this.size = sizeField(theme, fill, SettingsLines.sizeCaption(minChunkWidth), bounds, onChange);
-        this.shift = new NumberField(fill, theme.textField(), SettingsLines.SHIFT, this::shiftBounds, onChange);
+        this.sizeX = sizeField(theme, fill, SettingsLines.sizeCaption(Direction.Axis.X, minChunkWidth), bounds);
+        this.sizeZ = sizeField(theme, fill, SettingsLines.sizeCaption(Direction.Axis.Z, minChunkWidth), bounds);
+        this.size = sizeField(theme, fill, SettingsLines.sizeCaption(minChunkWidth), bounds);
+        this.shift = new NumberField(fill, theme.textField(), SettingsLines.SHIFT, this::shiftBounds, () -> {
+        });
         this.shift.setMaxLength(SIZE_MAX_LENGTH);
         this.shift.setValueLine(this::shiftLaps);
         this.fillTorus();
-        this.fillCylinder(theme, onChange);
+        this.fillCylinder(theme);
         this.show(null);
     }
 
@@ -125,13 +124,12 @@ final class LoopFields {
         this.torus.add(this.shift);
     }
 
-    private void fillCylinder(Theme theme, Runnable onChange) {
+    private void fillCylinder(Theme theme) {
         CycleButton<Direction.Axis> axisButton = new CycleButton<>(theme.button(),
                 Component.translatable(SettingsLines.AXIS_KEY), () -> List.of(Direction.Axis.X, Direction.Axis.Z),
                 this.axis, SettingsLines::axisName);
         axisButton.setHint(theme.tooltip(), SettingsLines.AXIS_KEY,
                 picked -> picked == Direction.Axis.X ? AXIS_HINT_X : AXIS_HINT_Z);
-        axisButton.setOnChange(picked -> onChange.run());
         this.cylinder.setGap(GAP);
         this.cylinder.add(axisButton);
         this.cylinder.add(this.size);
@@ -147,9 +145,9 @@ final class LoopFields {
         return xChunkWidth == null ? Component.empty() : SettingsLines.shiftLaps(xChunkWidth, shiftChunks);
     }
 
-    private static NumberField sizeField(Theme theme, FillStyle fill, Component caption, Optional<Bounds> bounds,
-            Runnable onChange) {
-        NumberField field = new NumberField(fill, theme.textField(), caption, () -> bounds, onChange);
+    private static NumberField sizeField(Theme theme, FillStyle fill, Component caption, Optional<Bounds> bounds) {
+        NumberField field = new NumberField(fill, theme.textField(), caption, () -> bounds, () -> {
+        });
         field.setMaxLength(SIZE_MAX_LENGTH);
         field.setValueLine(SettingsLines::sizeEffective);
         return field;
