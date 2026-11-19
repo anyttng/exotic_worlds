@@ -66,6 +66,8 @@
   "gui.exotic_worlds.world_shape_settings.shape.hint.torus": "zapętla się ze wschodu na zachód i z północy na południe. Idź dostatecznie daleko w dowolną stronę, a wrócisz do punktu wyjścia.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.cylinder": "jedna oś pozioma się zapętla, druga ciągnie się bez końca jak w zwykłym świecie.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.from_overworld": "przejmuje kształt Nadziemia we własnym rozmiarze tego wymiaru.",
+  "gui.exotic_worlds.world_shape_settings.shape.hint.declared": "kształt dodany przez inny mod; jego opis jest pod tym przyciskiem.",
+  "gui.exotic_worlds.world_shape_settings.shape.size_error": "Ten kształt ma %s chunków szerokości; ten wymiar przyjmuje od %s do %s.",
   "gui.exotic_worlds.world_shape_settings.nether_scale": "Skala Netheru",
   "gui.exotic_worlds.world_shape_settings.size": "Rozmiar świata w chunkach (%s-%s)",
   "gui.exotic_worlds.world_shape_settings.size_x": "Rozmiar świata wzdłuż X w chunkach (%s-%s)",

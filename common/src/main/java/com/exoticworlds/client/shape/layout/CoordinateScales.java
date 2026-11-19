@@ -21,7 +21,7 @@ public record CoordinateScales(Map<ResourceKey<LevelStem>, Double> byDimension) 
         return OverworldDerivation.modDimension(overworld, this.of(LevelStem.OVERWORLD), this.of(dimension));
     }
 
-    private double of(ResourceKey<LevelStem> dimension) {
+    double of(ResourceKey<LevelStem> dimension) {
         return this.byDimension.getOrDefault(dimension, UNKNOWN);
     }
 }

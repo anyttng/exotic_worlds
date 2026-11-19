@@ -66,6 +66,8 @@
   "gui.exotic_worlds.world_shape_settings.shape.hint.torus": "uzavírá se do smyčky z východu na západ i ze severu na jih. Když půjdete dost daleko kterýmkoli směrem, vrátíte se tam, kde jste začali.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.cylinder": "jedna vodorovná osa se uzavírá do smyčky, druhá pokračuje donekonečna jako v základní hře.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.from_overworld": "přebírá tvar světa na povrchu ve vlastní velikosti této dimenze.",
+  "gui.exotic_worlds.world_shape_settings.shape.hint.declared": "tvar přidaný jiným modem; jeho popis je pod tímto tlačítkem.",
+  "gui.exotic_worlds.world_shape_settings.shape.size_error": "Tento tvar vychází na šířku %s chunků; tato dimenze bere %s až %s.",
   "gui.exotic_worlds.world_shape_settings.nether_scale": "Měřítko Netheru",
   "gui.exotic_worlds.world_shape_settings.size": "Velikost světa v chuncích (%s-%s)",
   "gui.exotic_worlds.world_shape_settings.size_x": "Velikost světa podél X v chuncích (%s-%s)",
