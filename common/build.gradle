@@ -190,6 +190,7 @@ dependencies {
     compileOnly "maven.modrinth:create-fly:${create_fly_version}"
     compileOnly "com.github.bawnorton.mixinsquared:mixinsquared-common:${mixinsquared_version}"
     compileOnly "com.uber.nullaway:nullaway-annotations:${nullaway_version}"
+    compileOnly rootProject.ext.ascendiaCoreModule
 }
 
 // Plain JUnit on the NeoForm vanilla classpath: NeoForm mode has no FML, hence no junit run-type and no applied
