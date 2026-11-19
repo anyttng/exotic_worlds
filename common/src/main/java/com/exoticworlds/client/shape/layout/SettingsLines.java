@@ -43,6 +43,7 @@ final class SettingsLines {
     static final String GUARANTEED_NETHER_COMPLEXES_KEY = PREFIX + ".guaranteed_nether_complexes";
 
     static final Component TITLE = Component.translatable(PREFIX);
+    static final Component EXISTING_WORLD = Component.translatable(PREFIX + ".existing_world");
     static final Component VANILLA_DIMENSIONS = Component.translatable(PREFIX + ".dimensions.vanilla");
     static final Component MOD_DIMENSIONS = Component.translatable(PREFIX + ".dimensions.mod");
     static final Component OVERWORLD = Component.translatable(PREFIX + ".dimension.overworld");
@@ -52,6 +53,10 @@ final class SettingsLines {
     static final Component SPAWN_POINT = Component.translatable(PREFIX + ".spawn.point");
     static final Component NETHER_SCALE = Component.translatable(PREFIX + ".nether_scale");
     static final Component ADDITIONAL = Component.translatable(PREFIX + ".additional");
+
+    static Component lockReason(DimensionLock lock) {
+        return Component.translatable(PREFIX + ".locked." + lock.name().toLowerCase(Locale.ROOT));
+    }
 
     static Component presetLabel(WorldLoopPresets preset) {
         return Component.translatable(PRESET_PREFIX + preset.id());
