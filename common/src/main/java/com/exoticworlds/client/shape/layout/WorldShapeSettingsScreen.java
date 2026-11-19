@@ -29,7 +29,6 @@ import com.ascendiacore.gui.widget.panel.model.FillStyle;
 import com.ascendiacore.gui.widget.scrollarea.ScrollArea;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.shape.WorldLoopPresets;
-import com.exoticworlds.shape.layout.DeclaredShapes;
 import com.exoticworlds.shape.layout.DimensionLayout;
 import com.exoticworlds.shape.layout.LayoutPreset;
 import com.exoticworlds.shape.layout.ShapeKind;
@@ -166,8 +165,7 @@ public final class WorldShapeSettingsScreen extends Screen {
             Function<WorldLayout, @Nullable LoopSpans> spans, Fold fold, BiConsumer<DimensionPage, WorldLayout> extra) {
         Supplier<DimensionLayout> overworld = () -> this.chosen.overworld();
         DimensionLock lock = this.locks.get(key);
-        DimensionPage page = new DimensionPage(offer, THEME, FILL, this.scales,
-                this.existingWorld ? List.of() : DeclaredShapes.all(), overworld, shown.apply(this.chosen),
+        DimensionPage page = new DimensionPage(offer, THEME, FILL, this.scales, overworld, shown.apply(this.chosen),
                 lock == null ? null : SettingsLines.lockReason(lock));
         extra.accept(page, this.chosen);
         return new Slot(page, lock != null, shown, spans, fold, extra);

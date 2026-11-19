@@ -20,10 +20,12 @@ import com.exoticworlds.api.v2.option.DimensionOption;
 import com.exoticworlds.api.v2.option.OptionPart;
 import com.exoticworlds.api.v2.shape.DimensionContext;
 import com.exoticworlds.api.v2.shape.DimensionShape;
+import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -84,6 +86,20 @@ class DeclaredShapeTest {
         assertEquals(BAND.id(), recognized.nether().shape());
         assertNull(recognized.end().shape());
         assertEquals(stored.end(), recognized.end());
+    }
+
+    @Test
+    void aDimensionOfACreatedWorldShowsTheShapeAndIsSentAsItsSpans() {
+        ResourceKey<LevelStem> sky = ResourceKey.create(Registries.LEVEL_STEM,
+                Identifier.fromNamespaceAndPath("example_mod", "sky"));
+        LoopSpans spans = LoopSpans.ofWidth(Direction.Axis.X, 128);
+        DimensionTable.Entry stored = LayoutDimensions.entryOf(DimensionLayout.looped(spans, WIDE));
+
+        WorldLayout recognized = ShapeRecognition.recognize(
+                LayoutDimensions.ofRows(Map.of(sky, stored)), DeclaredShapeTest::scale);
+
+        assertEquals(DimensionLayout.declared(BAND.id(), spans, WIDE), recognized.modDimension(sky));
+        assertEquals(stored, LayoutDimensions.entryOf(recognized.modDimension(sky)));
     }
 
     @Test
