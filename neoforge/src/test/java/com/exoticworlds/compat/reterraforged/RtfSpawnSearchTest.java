@@ -16,8 +16,7 @@ import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.engine.gen.LoopedChunkGenerator;
 import com.exoticworlds.engine.gen.SpawnSearch;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.shape.GenerationHookSetup;
-import com.exoticworlds.shape.WorldOptionSetup;
+import com.exoticworlds.shape.StartupRegistrations;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
@@ -54,8 +53,8 @@ class RtfSpawnSearchTest {
     static void bootstrapVanilla() {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
-        WorldOptionSetup.registerAll(false);
-        GenerationHookSetup.registerAll();
+        StartupRegistrations.options();
+        StartupRegistrations.generationHooks();
         holders = VanillaRegistries.createLookup();
         overworldSettings = holders.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.OVERWORLD);
     }
