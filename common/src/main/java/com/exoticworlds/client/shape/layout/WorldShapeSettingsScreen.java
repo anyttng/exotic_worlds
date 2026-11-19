@@ -43,6 +43,7 @@ public class WorldShapeSettingsScreen extends Screen {
     private static final int LIST_WIDTH = 150;
     private static final int OVERWORLD_ROW = 0;
     private static final int NETHER_ROW = 1;
+    private static final int END_ROW = 2;
     private static final int FOOTER_GAP = 8;
     private static final int FOOTER_BUTTON_WIDTH = 150;
 
@@ -53,6 +54,7 @@ public class WorldShapeSettingsScreen extends Screen {
     private ComponentTree contents;
     private DimensionPage overworld;
     private DimensionPage nether;
+    private DimensionPage end;
 
     public WorldShapeSettingsScreen(Screen parent, WorldLayout current, Consumer<WorldLayout> onDone) {
         super(SettingsLines.TITLE);
@@ -69,6 +71,8 @@ public class WorldShapeSettingsScreen extends Screen {
         this.nether = new DimensionPage(DimensionOffer.NETHER, THEME, FILL, this.parent,
                 () -> this.chosen.overworld().spans(), this.chosen.nether());
         this.nether.showNetherScale(this.chosen.netherScale());
+        this.end = new DimensionPage(DimensionOffer.END, THEME, FILL, this.parent,
+                () -> this.chosen.overworld().spans(), this.chosen.end());
         this.frame = new HeaderAndFooterLayout(this);
         this.frame.addToHeader(new ComponentTree(header()));
         this.contents = this.frame.addToContents(new ComponentTree(this.body()));
@@ -131,6 +135,8 @@ public class WorldShapeSettingsScreen extends Screen {
         pages.add(this.overworld.page());
         this.nether.page().setVisible(() -> dimensions.selected() == NETHER_ROW);
         pages.add(this.nether.page());
+        this.end.page().setVisible(() -> dimensions.selected() == END_ROW);
+        pages.add(this.end.page());
 
         Row split = new Row();
         split.setGap(SPLIT_GAP);
@@ -149,7 +155,8 @@ public class WorldShapeSettingsScreen extends Screen {
 
     private Row footer() {
         Button done = Button.text(THEME.button(), CommonComponents.GUI_DONE, this::commit);
-        done.setEnabled(() -> this.overworld.layout() != null && this.nether.layout() != null);
+        done.setEnabled(() -> this.overworld.layout() != null && this.nether.layout() != null
+                && this.end.layout() != null);
         Row footer = new Row();
         footer.setGap(FOOTER_GAP);
         footer.add(done, Length.fixed(FOOTER_BUTTON_WIDTH));
@@ -169,6 +176,11 @@ public class WorldShapeSettingsScreen extends Screen {
             this.chosen = this.chosen.withNether(shownNether, this.nether.netherScale());
         }
 
+        DimensionLayout shownEnd = this.end.layout();
+        if (shownEnd != null) {
+            this.chosen = this.chosen.withEnd(shownEnd);
+        }
+
         return this.chosen;
     }
 
@@ -177,6 +189,7 @@ public class WorldShapeSettingsScreen extends Screen {
         this.overworld.show(this.chosen.overworld());
         this.nether.show(this.chosen.nether());
         this.nether.showNetherScale(this.chosen.netherScale());
+        this.end.show(this.chosen.end());
     }
 
     private void commit() {

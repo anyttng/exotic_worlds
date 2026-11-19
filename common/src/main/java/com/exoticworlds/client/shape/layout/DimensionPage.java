@@ -12,6 +12,8 @@ import com.ascendiacore.gui.theme.Theme;
 import com.ascendiacore.gui.widget.cyclebutton.CycleButton;
 import com.ascendiacore.gui.widget.field.Field;
 import com.ascendiacore.gui.widget.heading.Heading;
+import com.ascendiacore.gui.widget.label.Label;
+import com.ascendiacore.gui.widget.label.model.LabelRole;
 import com.ascendiacore.gui.widget.panel.model.FillStyle;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.shape.LoopSpans;
@@ -47,7 +49,7 @@ final class DimensionPage {
         this.offer = offer;
         this.overworldSpans = overworldSpans;
         this.options = shown.options();
-        this.loops = new LoopFields(theme, fill, this::refresh);
+        this.loops = new LoopFields(theme, fill, offer.minChunkWidth(), offer.defaultChunkWidth(), this::refresh);
         this.spawn = new SpawnFields(theme, fill, this::spawnChunkWidth, this::refresh);
         this.compactBiomes = new CompactBiomesFields(theme, fill, parent, this::refresh);
         this.build(theme, fill);
@@ -65,7 +67,8 @@ final class DimensionPage {
         this.loops.show(layout.spans());
         this.spawn.show(this.options.get(SpawnPoint.OPTION));
         this.compactBiomes.show(this.options.get(CompactBiomes.OPTION));
-        this.torusOption.set(this.options.get(this.offer.torusOption()));
+        DimensionOffer.TorusToggle toggle = this.offer.torusToggle();
+        this.torusOption.set(toggle != null && this.options.get(toggle.option()));
         this.refresh();
     }
 
@@ -110,7 +113,10 @@ final class DimensionPage {
         }
 
         GenerationOptions chosen = this.options.with(CompactBiomes.OPTION, scale).with(SpawnPoint.OPTION, point);
-        return resolved == ShapeKind.TORUS ? chosen.with(this.offer.torusOption(), this.torusOption.get()) : chosen;
+        DimensionOffer.TorusToggle toggle = this.offer.torusToggle();
+        return toggle != null && resolved == ShapeKind.TORUS
+                ? chosen.with(toggle.option(), this.torusOption.get())
+                : chosen;
     }
 
     private void build(Theme theme, FillStyle fill) {
@@ -123,9 +129,12 @@ final class DimensionPage {
         additional.setGap(LoopFields.GAP);
         additional.add(Heading.of(fill, SettingsLines.ADDITIONAL));
         additional.add(this.compactBiomes.section());
-        CycleButton<Boolean> torusToggle = OptionFields.toggle(theme, this.offer.torusOptionKey(), this.torusOption);
-        torusToggle.setVisible(() -> this.resolvedKind() == ShapeKind.TORUS);
-        additional.add(torusToggle);
+        DimensionOffer.TorusToggle toggle = this.offer.torusToggle();
+        if (toggle != null) {
+            CycleButton<Boolean> torusToggle = OptionFields.toggle(theme, toggle.captionKey(), this.torusOption);
+            torusToggle.setVisible(() -> this.resolvedKind() == ShapeKind.TORUS);
+            additional.add(torusToggle);
+        }
 
         this.loops.torus().setVisible(() -> this.kind.get() == ShapeKind.TORUS);
         this.loops.cylinder().setVisible(() -> this.kind.get() == ShapeKind.CYLINDER);
@@ -136,6 +145,7 @@ final class DimensionPage {
         this.page.add(Heading.of(fill, this.offer.title()));
         this.page.add(shape);
         this.page.add(this.netherScaleField(theme, fill));
+        this.page.add(this.derivedLine(fill));
         this.page.add(this.loops.torus());
         this.page.add(this.loops.cylinder());
         this.page.add(this.spawn.section());
@@ -153,6 +163,13 @@ final class DimensionPage {
         return field;
     }
 
+    private Label derivedLine(FillStyle fill) {
+        Label line = new Label(fill, LabelRole.MUTED, Component.empty());
+        line.setText(() -> SettingsLines.shapeSummary(this.resolvedSpans()));
+        line.setVisible(() -> !this.offer.netherScale() && this.kind.get() == ShapeKind.FROM_OVERWORLD);
+        return line;
+    }
+
     private List<Integer> netherScales() {
         LoopSpans overworld = this.overworldSpans.get();
         return overworld == null || ShapeKind.of(overworld) == ShapeKind.NORMAL
@@ -166,7 +183,7 @@ final class DimensionPage {
             return this.loops.spans(chosen);
         }
 
-        return OverworldDerivation.nether(this.overworldSpans.get(), this.netherScale.get());
+        return this.offer.derivation().apply(this.overworldSpans.get(), this.netherScale.get());
     }
 
     private ShapeKind resolvedKind() {
