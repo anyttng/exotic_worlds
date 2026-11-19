@@ -34,7 +34,8 @@
   "commands.exotic_worlds.check_edge.details": "자세히",
   "commands.exotic_worlds.check_edge.details.hint": "세계의 가장자리를 깨뜨리는 원인을 표시합니다",
 
-  "gui.exotic_worlds.world_shape": "세계 형태",
+  "gui.exotic_worlds.world_shape_settings": "세계 형태 설정",
+  "gui.exotic_worlds.world_shape_settings.hint": "오버월드, 네더, 엔드와 각 모드 차원의 형태를 고릅니다.",
   "gui.exotic_worlds.world_shape.normal": "일반",
   "gui.exotic_worlds.world_shape.normal.hint": "일반 세계: 모든 방향으로 끝없이 이어지는 평면입니다.",
   "gui.exotic_worlds.world_shape.toroidal": "토로이드형",

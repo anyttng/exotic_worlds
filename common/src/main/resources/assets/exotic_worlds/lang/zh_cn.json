@@ -34,7 +34,8 @@
   "commands.exotic_worlds.check_edge.details": "详情",
   "commands.exotic_worlds.check_edge.details.hint": "显示破坏世界边缘的原因",
 
-  "gui.exotic_worlds.world_shape": "世界形状",
+  "gui.exotic_worlds.world_shape_settings": "世界形状设置",
+  "gui.exotic_worlds.world_shape_settings.hint": "为主世界、下界、末地以及每个模组维度选择形状。",
   "gui.exotic_worlds.world_shape.normal": "普通",
   "gui.exotic_worlds.world_shape.normal.hint": "普通世界：向各个方向无限延伸的平面。",
   "gui.exotic_worlds.world_shape.toroidal": "环面",

@@ -34,7 +34,8 @@
   "commands.exotic_worlds.check_edge.details": "Details",
   "commands.exotic_worlds.check_edge.details.hint": "Zeigt, was den Weltrand stört",
 
-  "gui.exotic_worlds.world_shape": "Weltform",
+  "gui.exotic_worlds.world_shape_settings": "Weltform-Einstellungen",
+  "gui.exotic_worlds.world_shape_settings.hint": "Wähle die Form für Oberwelt, Nether, Ende und jede Mod-Dimension.",
   "gui.exotic_worlds.world_shape.normal": "Normal",
   "gui.exotic_worlds.world_shape.normal.hint": "Die Vanilla-Welt: eine endlose Ebene in alle Richtungen.",
   "gui.exotic_worlds.world_shape.toroidal": "Toroidal",

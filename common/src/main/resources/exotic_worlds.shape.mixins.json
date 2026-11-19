@@ -4,9 +4,7 @@
   "package": "com.exoticworlds.client.shape.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "CreateWorldScreenAccessor",
-    "CreateWorldScreenMixin",
-    "WorldTabMixin"
+    "CreateWorldScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

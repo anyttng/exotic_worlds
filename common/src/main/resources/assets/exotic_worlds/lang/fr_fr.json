@@ -34,7 +34,8 @@
   "commands.exotic_worlds.check_edge.details": "Détails",
   "commands.exotic_worlds.check_edge.details.hint": "Montre ce qui casse le bord du monde",
 
-  "gui.exotic_worlds.world_shape": "Forme du monde",
+  "gui.exotic_worlds.world_shape_settings": "Réglages de la forme du monde",
+  "gui.exotic_worlds.world_shape_settings.hint": "Choisissez la forme de la Surface, du Nether, de l'End et de chaque dimension des mods.",
   "gui.exotic_worlds.world_shape.normal": "Normale",
   "gui.exotic_worlds.world_shape.normal.hint": "Le monde classique : un plan infini dans toutes les directions.",
   "gui.exotic_worlds.world_shape.toroidal": "Toroïdale",

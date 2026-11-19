@@ -34,7 +34,8 @@
   "commands.exotic_worlds.check_edge.details": "Докладніше",
   "commands.exotic_worlds.check_edge.details.hint": "Показати, що ламає край світу",
 
-  "gui.exotic_worlds.world_shape": "Форма світу",
+  "gui.exotic_worlds.world_shape_settings": "Налаштування форми світу",
+  "gui.exotic_worlds.world_shape_settings.hint": "Обери форму Верхнього світу, Незеру, Енду та кожного виміру з модів.",
   "gui.exotic_worlds.world_shape.normal": "Звичайна",
   "gui.exotic_worlds.world_shape.normal.hint": "Звичайний світ: нескінченна площина в усі боки.",
   "gui.exotic_worlds.world_shape.toroidal": "Тороїдальна",

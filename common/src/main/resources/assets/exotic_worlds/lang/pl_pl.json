@@ -34,7 +34,8 @@
   "commands.exotic_worlds.check_edge.details": "Szczegóły",
   "commands.exotic_worlds.check_edge.details.hint": "Pokazuje, co psuje krawędź świata",
 
-  "gui.exotic_worlds.world_shape": "Kształt świata",
+  "gui.exotic_worlds.world_shape_settings": "Ustawienia kształtu świata",
+  "gui.exotic_worlds.world_shape_settings.hint": "Wybierz kształt Nadziemia, Netheru, Endu i każdego wymiaru z modów.",
   "gui.exotic_worlds.world_shape.normal": "Zwykły",
   "gui.exotic_worlds.world_shape.normal.hint": "Zwykły świat: nieskończona płaszczyzna we wszystkie strony.",
   "gui.exotic_worlds.world_shape.toroidal": "Toroidalny",
