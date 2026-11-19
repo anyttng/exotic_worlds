@@ -43,7 +43,7 @@ class UnreachedMembersTest {
     private static final List<String> SOURCE_ROOTS = List.of("common/src/main/java", "frames/src/main/java",
             "neoforge/src/main/java", "fabric/src/main/java");
     private static final String OWN_PREFIX = "com/exoticworlds/";
-    private static final String API_PREFIX = OWN_PREFIX + "api/v1/";
+    private static final String API_PREFIX = OWN_PREFIX + "api/";
     private static final String MIXIN_SEGMENT = "/mixin/";
     private static final String CLASS_SUFFIX = ".class";
     private static final String JAVA_SUFFIX = ".java";
