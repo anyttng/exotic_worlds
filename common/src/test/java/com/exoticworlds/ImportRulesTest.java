@@ -45,7 +45,8 @@ class ImportRulesTest {
             "api.v1.gen.GenerationProbe -> engine.noise.TerrainCeiling",
             "shape.WorldShapes -> engine.gen.ShapedDimensions",
             "shape.ShapeStems -> engine.gen.ShapedDimensions",
-            "shape.custom.CustomDimensions -> engine.gen.ShapedDimensions");
+            "shape.custom.CustomDimensions -> engine.gen.ShapedDimensions",
+            "shape.layout.LayoutDimensions -> engine.gen.ShapedDimensions");
 
     @Test
     void everyImportStaysInsideItsGroup() throws IOException {

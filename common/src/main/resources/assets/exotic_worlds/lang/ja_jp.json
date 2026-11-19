@@ -36,6 +36,11 @@
 
   "gui.exotic_worlds.world_shape_settings": "ワールドの形状の設定",
   "gui.exotic_worlds.world_shape_settings.hint": "オーバーワールド、ネザー、エンド、各Modのディメンションの形状を選べます。",
+  "gui.exotic_worlds.world_shape_settings.preset.tiny": "極小",
+  "gui.exotic_worlds.world_shape_settings.preset.small": "小",
+  "gui.exotic_worlds.world_shape_settings.preset.medium": "中",
+  "gui.exotic_worlds.world_shape_settings.preset.large": "大",
+  "gui.exotic_worlds.world_shape_settings.preset.huge": "特大",
   "gui.exotic_worlds.world_shape.normal": "通常",
   "gui.exotic_worlds.world_shape.normal.hint": "通常のワールド：あらゆる方向に無限に広がる平面。",
   "gui.exotic_worlds.world_shape.toroidal": "トロイダル",

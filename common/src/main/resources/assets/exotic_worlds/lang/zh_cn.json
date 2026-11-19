@@ -36,6 +36,11 @@
 
   "gui.exotic_worlds.world_shape_settings": "世界形状设置",
   "gui.exotic_worlds.world_shape_settings.hint": "为主世界、下界、末地以及每个模组维度选择形状。",
+  "gui.exotic_worlds.world_shape_settings.preset.tiny": "微型",
+  "gui.exotic_worlds.world_shape_settings.preset.small": "小型",
+  "gui.exotic_worlds.world_shape_settings.preset.medium": "中型",
+  "gui.exotic_worlds.world_shape_settings.preset.large": "大型",
+  "gui.exotic_worlds.world_shape_settings.preset.huge": "超大型",
   "gui.exotic_worlds.world_shape.normal": "普通",
   "gui.exotic_worlds.world_shape.normal.hint": "普通世界：向各个方向无限延伸的平面。",
   "gui.exotic_worlds.world_shape.toroidal": "环面",
