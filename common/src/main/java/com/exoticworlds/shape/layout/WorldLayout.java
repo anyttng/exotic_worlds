@@ -1,5 +1,6 @@
 package com.exoticworlds.shape.layout;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
@@ -40,6 +41,22 @@ public record WorldLayout(DimensionLayout overworld, DimensionLayout nether, Dim
 
     public WorldLayout withEnd(DimensionLayout chosen) {
         return new WorldLayout(this.overworld, this.nether, chosen, this.modDimensions, this.netherScale);
+    }
+
+    public DimensionLayout modDimension(ResourceKey<LevelStem> key) {
+        DimensionLayout row = this.modDimensions.get(key);
+        return row != null ? row : DimensionLayout.fromOverworld(DimensionLayout.DEFAULT_OPTIONS);
+    }
+
+    public WorldLayout withModDimension(ResourceKey<LevelStem> key, DimensionLayout chosen) {
+        Map<ResourceKey<LevelStem>, DimensionLayout> rows = new HashMap<>(this.modDimensions);
+        if (chosen.kind() == ShapeKind.FROM_OVERWORLD) {
+            rows.remove(key);
+        } else {
+            rows.put(key, chosen);
+        }
+
+        return new WorldLayout(this.overworld, this.nether, this.end, rows, this.netherScale);
     }
 
     public @Nullable LoopSpans netherSpans() {

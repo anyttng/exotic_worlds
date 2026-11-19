@@ -102,9 +102,12 @@ public final class LayoutDimensions {
             return null;
         }
 
-        LoopSpans spans = and(and(LoopSpans.NONE, Direction.Axis.X, shape.bounds().x()),
-                Direction.Axis.Z, shape.bounds().z());
-        return DimensionLayout.looped(spans.withSkew(shape.skewChunks()), carried.generationOptions());
+        return DimensionLayout.looped(spansOf(shape), carried.generationOptions());
+    }
+
+    static LoopSpans spansOf(FlatShape shape) {
+        return and(and(LoopSpans.NONE, Direction.Axis.X, shape.bounds().x()), Direction.Axis.Z, shape.bounds().z())
+                .withSkew(shape.skewChunks());
     }
 
     private static LoopSpans and(LoopSpans spans, Direction.Axis axis, AxisBounds bounds) {
