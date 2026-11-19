@@ -31,10 +31,6 @@ class NetherScalesTest {
         return NetherScales.normalize(scale, allowedFor(chunkWidth));
     }
 
-    private static int next(int scale, int chunkWidth) {
-        return NetherScales.next(scale, chunkWidth, chunkWidth, FlatShape.NO_SKEW);
-    }
-
     @Nested
     class AllowedScales {
         @Test
@@ -49,10 +45,8 @@ class NetherScalesTest {
             for (int width : WIDTHS) {
                 for (int scale : allowedFor(width)) {
                     assertEquals(0, width % scale, "width " + width + " scale " + scale);
-                    assertTrue(NetherScales.netherChunkWidth(width, scale) >= WorldLoopSizes.MIN_CHUNK_WIDTH,
+                    assertTrue(width / scale >= WorldLoopSizes.MIN_CHUNK_WIDTH,
                             "width " + width + " scale " + scale + " leaves too narrow a nether");
-                    assertEquals(width, NetherScales.netherChunkWidth(width, scale) * scale,
-                            "width " + width + " scale " + scale + " does not divide evenly");
                 }
             }
         }
@@ -151,7 +145,6 @@ class NetherScalesTest {
             assertEquals(List.of(1, 2, 4), NetherScales.allowedFor(128, 100, FlatShape.NO_SKEW));
             assertEquals(4, NetherScales.normalize(NetherScales.DEFAULT,
                     NetherScales.allowedFor(128, 100, FlatShape.NO_SKEW)));
-            assertEquals(1, NetherScales.next(4, 128, 100, FlatShape.NO_SKEW));
         }
     }
 
@@ -172,28 +165,6 @@ class NetherScalesTest {
             assertEquals(List.of(1), NetherScales.allowedFor(256, 256, 5));
             assertEquals(List.of(1, 2), NetherScales.allowedFor(256, 256, -6));
             assertEquals(4, NetherScales.normalize(NetherScales.DEFAULT, NetherScales.allowedFor(256, 256, 4)));
-            assertEquals(1, NetherScales.next(4, 256, 256, 4));
-        }
-    }
-
-    @Nested
-    class Cycling {
-        @Test
-        void nextWalksTheWholeListInOrderAndWrapsAround() {
-            for (int width : WIDTHS) {
-                List<Integer> allowed = allowedFor(width);
-                for (int index = 0; index < allowed.size(); index++) {
-                    assertEquals(allowed.get((index + 1) % allowed.size()),
-                            next(allowed.get(index), width),
-                            "width " + width + " from " + allowed.get(index));
-                }
-            }
-        }
-
-        @Test
-        void anUnknownScaleAdvancesToTheFirstAllowed() {
-            assertEquals(1, next(7, 128));
-            assertEquals(1, next(-3, 128));
         }
     }
 }

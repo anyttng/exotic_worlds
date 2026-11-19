@@ -43,16 +43,6 @@ public final class NetherScales {
         return fallen;
     }
 
-    public static int next(int scale, int overworldXChunkWidth, int overworldZChunkWidth, int overworldSkewChunks) {
-        List<Integer> allowed = allowedFor(overworldXChunkWidth, overworldZChunkWidth, overworldSkewChunks);
-        int index = allowed.indexOf(scale);
-        return allowed.get((index + 1) % allowed.size());
-    }
-
-    public static int netherChunkWidth(int overworldChunkWidth, int scale) {
-        return overworldChunkWidth / scale;
-    }
-
     private NetherScales() {
     }
 }

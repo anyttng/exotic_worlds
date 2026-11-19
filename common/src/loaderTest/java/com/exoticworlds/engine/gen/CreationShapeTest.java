@@ -6,8 +6,9 @@ import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.CompactBiomes;
-import com.exoticworlds.shape.torus.TorusDimensions;
-import com.exoticworlds.shape.torus.TorusSettings;
+import com.exoticworlds.shape.layout.LayoutDimensions;
+import com.exoticworlds.shape.layout.LayoutFixtures;
+import com.exoticworlds.shape.layout.WorldLayout;
 import static com.exoticworlds.engine.gen.BakeStampFixture.foreignGenerator;
 import static com.exoticworlds.engine.gen.BakeStampFixture.noiseGenerator;
 import static com.exoticworlds.engine.gen.BakeStampFixture.noiseSubclassGenerator;
@@ -93,8 +94,8 @@ class CreationShapeTest {
 
     @Test
     void aTorusReachesEveryStemOverANoiseSubclassOverworld() {
-        WorldDimensions shaped = TorusDimensions.apply(vanillaThree(noiseSubclassGenerator(worldgen)),
-                TorusSettings.DEFAULT);
+        WorldDimensions shaped = LayoutDimensions.apply(vanillaThree(noiseSubclassGenerator(worldgen)),
+                LayoutFixtures.defaultTorus());
 
         assertNotNull(ShapedDimensions.shapeOf(shaped, LevelStem.OVERWORLD), "the overworld carries no shape");
         assertNotNull(ShapedDimensions.shapeOf(shaped, LevelStem.NETHER), "the nether was never reached");
@@ -103,19 +104,20 @@ class CreationShapeTest {
 
     @Test
     void aTorusCarriesItsClimateChoiceIntoEveryStemAndReadsItBack() {
-        WorldDimensions shaped = TorusDimensions.apply(vanillaThree(noiseSubclassGenerator(worldgen)),
-                TorusSettings.DEFAULT);
+        WorldDimensions shaped = LayoutDimensions.apply(vanillaThree(noiseSubclassGenerator(worldgen)),
+                LayoutFixtures.defaultTorus());
 
         assertNotNull(ShapedDimensions.shapeOf(shaped, LevelStem.NETHER), "the nether was never reached");
         for (ResourceKey<LevelStem> key : List.of(LevelStem.OVERWORLD, LevelStem.NETHER, LevelStem.END)) {
             CarriedShape carried = ShapedDimensions.carriedShapeOf(shaped, key);
             assertNotNull(carried, key.identifier().toString());
-            assertEquals(TorusSettings.DEFAULT.generationOptions().get(CompactBiomes.OPTION),
+            assertEquals(LayoutFixtures.PLAIN.get(CompactBiomes.OPTION),
                     carried.generationOptions().get(CompactBiomes.OPTION), key.identifier().toString());
         }
-        TorusSettings read = TorusDimensions.read(shaped);
-        assertNotNull(read, "the shaped world does not read back as a torus");
-        assertEquals(TorusSettings.DEFAULT.generationOptions().get(CompactBiomes.OPTION), read.generationOptions().get(CompactBiomes.OPTION));
+        WorldLayout read = LayoutDimensions.read(shaped);
+        assertNotNull(read, "the shaped world does not read back as a layout");
+        assertEquals(LayoutFixtures.PLAIN.get(CompactBiomes.OPTION),
+                read.overworld().options().get(CompactBiomes.OPTION));
     }
 
     @Test

@@ -1,24 +1,18 @@
 package com.exoticworlds.shape;
 
-import com.exoticworlds.api.v1.client.WorldOptionControls;
 import com.exoticworlds.api.v1.option.WorldOption;
 import com.exoticworlds.api.v1.option.WorldOptions;
-import com.exoticworlds.client.shape.BooleanOptionControl;
 
 import com.mojang.serialization.Codec;
 
-public record BooleanOptionDeclaration(WorldOption<Boolean> option, String labelKey) {
+public record BooleanOptionDeclaration(WorldOption<Boolean> option) {
     private static final boolean OFF = false;
 
-    public static BooleanOptionDeclaration of(String key, int position, String labelKey) {
-        return new BooleanOptionDeclaration(new WorldOption<>(key, position, Codec.BOOL, OFF), labelKey);
+    public static BooleanOptionDeclaration of(String key, int position) {
+        return new BooleanOptionDeclaration(new WorldOption<>(key, position, Codec.BOOL, OFF));
     }
 
-    public void register(boolean client) {
+    public void register() {
         WorldOptions.register(option);
-
-        if (client) {
-            WorldOptionControls.register(option, context -> new BooleanOptionControl(context, option, labelKey));
-        }
     }
 }
