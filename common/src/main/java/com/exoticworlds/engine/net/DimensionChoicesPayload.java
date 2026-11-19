@@ -40,7 +40,7 @@ public record DimensionChoicesPayload(List<Row> rows) implements CustomPacketPay
     }
 
     public record Row(ResourceKey<LevelStem> stem, Optional<DimensionChoices.Refusal> lock,
-            DimensionTable.Entry entry) {
+            DimensionTable.Entry entry, double coordinateScale) {
         private static final StreamCodec<ByteBuf, DimensionChoices.Refusal> REFUSAL_STREAM_CODEC =
                 ByteBufCodecs.STRING_UTF8.map(DimensionChoices.Refusal::valueOf, DimensionChoices.Refusal::name);
 
@@ -48,6 +48,7 @@ public record DimensionChoicesPayload(List<Row> rows) implements CustomPacketPay
                 ResourceKey.streamCodec(Registries.LEVEL_STEM), Row::stem,
                 ByteBufCodecs.optional(REFUSAL_STREAM_CODEC), Row::lock,
                 ENTRY_STREAM_CODEC, Row::entry,
+                ByteBufCodecs.DOUBLE, Row::coordinateScale,
                 Row::new);
     }
 }
