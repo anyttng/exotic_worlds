@@ -11,17 +11,17 @@
  *
  * <p>Declaring one — added in 0.17.0, three surfaces a mod reads once:</p>
  * <ul>
- *   <li>{@code api.v1.shape} — {@link com.exoticworlds.api.v1.shape.ShapeModule} is a whole world shape, declaring
- *       its geometry as {@link com.exoticworlds.api.v1.shape.LoopSpans} through
- *       {@link com.exoticworlds.api.v1.shape.ShapeDimensions}.</li>
+ *   <li>{@code api.v1.shape}: {@link com.exoticworlds.api.v1.shape.LoopSpans} states which axes loop and over
+ *       what span, and {@link com.exoticworlds.api.v1.shape.ShapeDimensions} reads them back out of a world. The
+ *       shape itself is declared through {@code api.v2.shape}; {@code ShapeModule} is deprecated.</li>
  *   <li>{@code api.v1.option} — {@link com.exoticworlds.api.v1.option.WorldOption} is a value the player picks at
  *       creation and the world stores, held in a {@link com.exoticworlds.api.v1.option.GenerationOptions}.</li>
  *   <li>{@code api.v1.gen} — {@link com.exoticworlds.api.v1.gen.GenerationHooks} runs a mod's own code at a named
  *       moment of world generation.</li>
  * </ul>
  *
- * <p>{@code api.v1.client} carries the client half of both declarations: the settings screen behind a shape's
- * Customize button, and the control one option is edited through.</p>
+ * <p>The settings screen and option control types of {@code api.v1.client} are deprecated: an option is declared
+ * and drawn through {@code api.v2.option}.</p>
  *
  * <p>Making a mechanism of your own work on one — added in 0.17.0. Every vanilla packet carrying a world position
  * is already rewritten between the server's frame and the client's; a payload, a particle type or a rigid group

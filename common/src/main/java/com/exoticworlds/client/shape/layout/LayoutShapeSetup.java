@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.ascendiacore.client.createworld.WorldTabRows;
-import com.exoticworlds.api.v1.client.ShapeCustomizers;
 import com.exoticworlds.api.v2.client.DimensionOptionLines;
 import com.exoticworlds.client.shape.climate.CompactBiomesLine;
 import com.exoticworlds.client.shape.WorldShapeRow;
@@ -31,8 +30,7 @@ public final class LayoutShapeSetup {
     private static WeakReference<CreateWorldScreen> recognizedFor = new WeakReference<>(null);
 
     public static void register() {
-        ShapeCustomizers.register(LayoutShape.MODULE.id(), LayoutShapeSetup::createScreen);
-        WorldTabRows.register(new WorldShapeRow(LayoutShape.MODULE.id()));
+        WorldTabRows.register(new WorldShapeRow(LayoutShapeSetup::createScreen));
         CompactBiomesLine factor = new CompactBiomesLine();
         DimensionOptionLines.register(CompactBiomes.SHOWN,
                 (scale, spans) -> Minecraft.getInstance().screen instanceof WorldShapeSettingsScreen open
@@ -42,7 +40,7 @@ public final class LayoutShapeSetup {
 
     private static Screen createScreen(Screen parent) {
         if (!(parent instanceof CreateWorldScreen create)) {
-            return WorldShapeSettingsScreen.forNewWorld(parent, LayoutShape.MODULE.settings(), List.of(),
+            return WorldShapeSettingsScreen.forNewWorld(parent, LayoutShape.layout(), List.of(),
                     new CoordinateScales(Map.of()), LayoutShapeSetup::choose);
         }
 
@@ -50,10 +48,10 @@ public final class LayoutShapeSetup {
         CoordinateScales scales = scalesOf(settings);
         if (recognizedFor.get() != create) {
             recognizedFor = new WeakReference<>(create);
-            LayoutShape.MODULE.settings(ShapeRecognition.recognize(LayoutShape.MODULE.settings(), scales::of));
+            LayoutShape.choose(ShapeRecognition.recognize(LayoutShape.layout(), scales::of));
         }
 
-        return WorldShapeSettingsScreen.forNewWorld(parent, LayoutShape.MODULE.settings(),
+        return WorldShapeSettingsScreen.forNewWorld(parent, LayoutShape.layout(),
                 modDimensions(settings.datapackDimensions()), scales, LayoutShapeSetup::choose);
     }
 
@@ -78,8 +76,8 @@ public final class LayoutShapeSetup {
     }
 
     private static void choose(WorldLayout layout) {
-        LayoutShape.MODULE.settings(layout);
-        WorldShapes.select(LayoutShape.MODULE.id());
+        LayoutShape.choose(layout);
+        WorldShapes.select(LayoutShape.ID);
     }
 
     private LayoutShapeSetup() {

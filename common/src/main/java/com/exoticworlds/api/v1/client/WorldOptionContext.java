@@ -11,7 +11,12 @@ import net.minecraft.core.Direction;
 /**
  * All a {@link WorldOptionControl} may reach of the settings screen around it, so that no control holds the screen
  * itself. A shape's own settings screen implements this and hands it to {@link WorldOptionControls#createAll}.
+ *
+ * @deprecated no screen builds these controls any more, so a control registered for an option is never shown.
+ *     Declare how the option is offered and drawn with a {@link com.exoticworlds.api.v2.option.DimensionOption};
+ *     the World Shape Settings screen draws it.
  */
+@Deprecated
 public interface WorldOptionContext {
 
     /** The screen the control lives on — what a sub-screen it opens returns to. */
