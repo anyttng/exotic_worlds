@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -170,12 +171,12 @@ class ShapeRegistrationBoundaryTest {
     @Test
     void reCreateAdoptsTheShapeThatClaimsTheWorld() {
         WorldShapes.restoreFromExisting(REGISTRIES, vanillaOverworld());
-        assertSame(WorldShapes.NORMAL, WorldShapes.selected());
+        assertNull(createdOverworldShape());
 
         WorldDimensions created = cylinder.atCreation().apply(REGISTRIES, vanillaOverworld());
         WorldShapes.restoreFromExisting(REGISTRIES, created);
 
-        assertSame(cylinder, WorldShapes.selected());
+        assertEquals(CYLINDER, createdOverworldShape());
     }
 
     @Test
@@ -224,7 +225,7 @@ class ShapeRegistrationBoundaryTest {
 
         WorldShapes.resetToDefault();
 
-        assertSame(WorldShapes.NORMAL, WorldShapes.selected());
+        assertNull(createdOverworldShape());
         assertTrue(settingsWereReset);
     }
 
@@ -242,7 +243,7 @@ class ShapeRegistrationBoundaryTest {
 
         WorldShapes.restoreFromExisting(REGISTRIES, wider);
 
-        assertSame(registered, WorldShapes.selected());
+        assertEquals(WIDER_CYLINDER, createdOverworldShape());
         assertEquals(WIDER_CYLINDER, MODULE.settings());
 
         WorldShapes.resetToDefault();
@@ -250,6 +251,10 @@ class ShapeRegistrationBoundaryTest {
         assertEquals(CYLINDER, MODULE.settings());
         assertEquals(CYLINDER, ShapedDimensions.shapeOf(
                 registered.atCreation().apply(REGISTRIES, vanillaOverworld()), LevelStem.OVERWORLD));
+    }
+
+    private static @Nullable FlatShape createdOverworldShape() {
+        return ShapedDimensions.shapeOf(WorldShapes.applyAtCreation(REGISTRIES, vanillaOverworld()), LevelStem.OVERWORLD);
     }
 
     private static WorldShape registeredModuleShape() {

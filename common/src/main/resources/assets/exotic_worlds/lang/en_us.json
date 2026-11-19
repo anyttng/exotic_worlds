@@ -34,7 +34,8 @@
   "commands.exotic_worlds.check_edge.details": "Details",
   "commands.exotic_worlds.check_edge.details.hint": "Show what breaks the world's edge",
 
-  "gui.exotic_worlds.world_shape": "World Shape",
+  "gui.exotic_worlds.world_shape_settings": "World Shape Settings",
+  "gui.exotic_worlds.world_shape_settings.hint": "Pick the shape of the Overworld, the Nether, the End and every mod dimension.",
   "gui.exotic_worlds.world_shape.normal": "Normal",
   "gui.exotic_worlds.world_shape.normal.hint": "The vanilla world: an endless plane in every direction.",
   "gui.exotic_worlds.world_shape.toroidal": "Toroidal",
