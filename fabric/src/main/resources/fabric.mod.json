@@ -58,7 +58,8 @@
   "depends": {
     "fabricloader": ">=0.20.1",
     "fabric-api": "*",
-    "minecraft": "26.1.x"
+    "minecraft": "26.1.x",
+    "ascendia_core": ">=${ascendia_core_version}"
   },
   "suggests": {
     "modmenu": "*"

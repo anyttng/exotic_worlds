@@ -214,6 +214,7 @@ dependencies {
     compileOnly("dev.ftb.mods:ftb-chunks-neoforge:${ftbchunks_version}") { transitive = false }
     compileOnly("dev.ftb.mods:ftb-library-neoforge:${ftblibrary_version}") { transitive = false }
     compileOnly "com.uber.nullaway:nullaway-annotations:${nullaway_version}"
+    compileOnly rootProject.ext.ascendiaCoreModule
 }
 
 // Plain JUnit on the NeoForm vanilla classpath: NeoForm mode has no FML, hence no junit run-type and no applied

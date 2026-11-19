@@ -127,6 +127,7 @@ dependencies {
     // one and ours is dropped; a declared range would make Gradle re-list versions from the repository daily.
     jarJar(implementation("com.github.bawnorton.mixinsquared:mixinsquared-neoforge:${mixinsquared_version}"))
     jarJar(project(':frames'))
+    jarJar(implementation(rootProject.ext.ascendiaCoreModule))
 
     testImplementation platform("org.junit:junit-bom:${junit_version}")
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -212,6 +213,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             ftbchunks_min_version  : ftbchunks_min_version,
             c2me_min_version       : c2me_neoforge_min_version,
             eminus_min_version     : eminus_min_version,
+            ascendia_core_version  : ascendia_core_version,
     ]
     inputs.properties replaceProperties
     expand replaceProperties
