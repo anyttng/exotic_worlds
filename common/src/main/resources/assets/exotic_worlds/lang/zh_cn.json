@@ -110,11 +110,15 @@
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds 设置",
   "gui.exotic_worlds.settings.map_copies": "全屏地图上的世界副本",
-  "gui.exotic_worlds.settings.map_copies_hint": "地图模组全屏显示循环世界的方式。\n重复：用世界的副本铺满窗口。\n单个：只显示一次世界，地图无法拖动或缩小到边缘之外。\n小地图始终重复显示。",
   "gui.exotic_worlds.settings.map_copies.repeated": "重复",
   "gui.exotic_worlds.settings.map_copies.single": "单个",
+  "gui.exotic_worlds.settings.map_copies.hint.intro": "地图模组全屏显示循环世界的方式。",
+  "gui.exotic_worlds.settings.map_copies.hint.repeated": "用世界的副本铺满窗口。",
+  "gui.exotic_worlds.settings.map_copies.hint.single": "只显示一次世界，地图无法拖动或缩小到边缘之外。",
+  "gui.exotic_worlds.settings.map_copies.hint.note": "小地图始终重复显示。",
   "gui.exotic_worlds.settings.seam_lines": "全屏地图上的世界边缘线",
-  "gui.exotic_worlds.settings.seam_lines_hint": "在全屏地图上，于循环世界各副本之间沿世界边缘画一条线。仅在“重复”模式下生效：“单个”模式不画线。",
+  "gui.exotic_worlds.settings.seam_lines.hint.intro": "在全屏地图上，于循环世界各副本之间沿世界边缘画一条线。",
+  "gui.exotic_worlds.settings.seam_lines.hint.requirement": "仅在%s模式下生效：%s模式不画线。",
 
   "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "点击以设置出生点",
   "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "右键点击标记以重置"

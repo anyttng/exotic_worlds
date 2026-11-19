@@ -110,11 +110,15 @@
 
   "gui.exotic_worlds.settings.title": "Ajustes de Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Copias del mundo en el mapa a pantalla completa",
-  "gui.exotic_worlds.settings.map_copies_hint": "Cómo los mods de mapas muestran a pantalla completa un mundo cerrado sobre sí mismo.\nRepetido: llena la ventana con copias del mundo.\nÚnica: muestra el mundo una sola vez y no deja desplazar ni alejar el mapa más allá de sus bordes.\nLos minimapas siempre lo repiten.",
   "gui.exotic_worlds.settings.map_copies.repeated": "Repetido",
   "gui.exotic_worlds.settings.map_copies.single": "Única",
+  "gui.exotic_worlds.settings.map_copies.hint.intro": "Cómo los mods de mapas muestran a pantalla completa un mundo cerrado sobre sí mismo.",
+  "gui.exotic_worlds.settings.map_copies.hint.repeated": "llena la ventana con copias del mundo.",
+  "gui.exotic_worlds.settings.map_copies.hint.single": "muestra el mundo una sola vez y no deja desplazar ni alejar el mapa más allá de sus bordes.",
+  "gui.exotic_worlds.settings.map_copies.hint.note": "Los minimapas siempre lo repiten.",
   "gui.exotic_worlds.settings.seam_lines": "Líneas del borde del mundo en el mapa a pantalla completa",
-  "gui.exotic_worlds.settings.seam_lines_hint": "Dibuja una línea a lo largo del borde del mundo entre las copias de un mundo cerrado sobre sí mismo en el mapa a pantalla completa. Solo funciona con «Repetido»: «Única» no dibuja ninguna.",
+  "gui.exotic_worlds.settings.seam_lines.hint.intro": "Dibuja una línea a lo largo del borde del mundo entre las copias de un mundo cerrado sobre sí mismo en el mapa a pantalla completa.",
+  "gui.exotic_worlds.settings.seam_lines.hint.requirement": "Solo funciona con %s: %s no dibuja ninguna.",
 
   "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Hacé clic para fijar el punto de aparición",
   "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "Hacé clic derecho en el marcador para restablecer"
