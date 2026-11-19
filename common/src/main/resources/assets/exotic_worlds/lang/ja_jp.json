@@ -110,11 +110,15 @@
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds 設定",
   "gui.exotic_worlds.settings.map_copies": "全画面マップのワールドのコピー",
-  "gui.exotic_worlds.settings.map_copies_hint": "マップMODが一周するワールドを全画面でどう表示するか。\n繰り返し: ウィンドウ全体をワールドのコピーで埋めます。\n1つだけ: ワールドを1回だけ表示し、端を越えてマップを動かしたりズームアウトしたりできなくします。\nミニマップは常に繰り返し表示します。",
   "gui.exotic_worlds.settings.map_copies.repeated": "繰り返し",
   "gui.exotic_worlds.settings.map_copies.single": "1つだけ",
+  "gui.exotic_worlds.settings.map_copies.hint.intro": "マップMODが一周するワールドを全画面でどう表示するか。",
+  "gui.exotic_worlds.settings.map_copies.hint.repeated": "ウィンドウ全体をワールドのコピーで埋めます。",
+  "gui.exotic_worlds.settings.map_copies.hint.single": "ワールドを1回だけ表示し、端を越えてマップを動かしたりズームアウトしたりできなくします。",
+  "gui.exotic_worlds.settings.map_copies.hint.note": "ミニマップは常に繰り返し表示します。",
   "gui.exotic_worlds.settings.seam_lines": "全画面マップのワールドの端の線",
-  "gui.exotic_worlds.settings.seam_lines_hint": "全画面マップで、一周するワールドのコピー同士の間にあるワールドの端に線を引きます。「繰り返し」でのみ有効です。「1つだけ」では線を引きません。",
+  "gui.exotic_worlds.settings.seam_lines.hint.intro": "全画面マップで、一周するワールドのコピー同士の間にあるワールドの端に線を引きます。",
+  "gui.exotic_worlds.settings.seam_lines.hint.requirement": "%sでのみ有効です。%sでは線を引きません。",
 
   "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "クリックでスポーン地点を設定",
   "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "ピンを右クリックでリセット"
