@@ -12,7 +12,12 @@ import com.exoticworlds.api.v1.option.WorldOptions;
 /**
  * The client half of the world-option framework: which control an option is edited through, and the building of them
  * all for one screen. A declaration registers its factory here from the client side alone, beside the option itself.
+ *
+ * @deprecated no screen builds these controls any more, so a control registered for an option is never shown.
+ *     Declare how the option is offered and drawn with a {@link com.exoticworlds.api.v2.option.DimensionOption};
+ *     the World Shape Settings screen draws it.
  */
+@Deprecated
 public final class WorldOptionControls {
 
     /** Builds the control for one option on one screen. */

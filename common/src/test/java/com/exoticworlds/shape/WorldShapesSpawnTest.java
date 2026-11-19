@@ -65,11 +65,11 @@ class WorldShapesSpawnTest {
 
     @Test
     void aLayoutWithAPlainOverworldRefusesTheSpawnPoint() {
-        LayoutShape.MODULE.settings(WorldLayout.DEFAULT);
-        WorldShapes.select(LayoutShape.MODULE.id());
+        LayoutShape.choose(WorldLayout.DEFAULT);
+        WorldShapes.select(LayoutShape.ID);
 
         assertFalse(WorldShapes.moveSpawn(PICKED));
-        assertEquals(WorldLayout.DEFAULT, LayoutShape.MODULE.settings());
+        assertEquals(WorldLayout.DEFAULT, LayoutShape.layout());
     }
 
     @Test
@@ -80,8 +80,8 @@ class WorldShapesSpawnTest {
     }
 
     private static void assertSpawnMovedInto(WorldLayout layout) {
-        LayoutShape.MODULE.settings(layout);
-        WorldShapes.select(LayoutShape.MODULE.id());
+        LayoutShape.choose(layout);
+        WorldShapes.select(LayoutShape.ID);
 
         assertTrue(WorldShapes.moveSpawn(PICKED));
 
