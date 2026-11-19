@@ -44,8 +44,6 @@ class ImportRulesTest {
             "api.v1.gen.GenerationProbe -> engine.noise.GenerationFoldContext",
             "api.v1.gen.GenerationProbe -> engine.noise.TerrainCeiling",
             "shape.WorldShapes -> engine.gen.ShapedDimensions",
-            "shape.ShapeStems -> engine.gen.ShapedDimensions",
-            "shape.custom.CustomDimensions -> engine.gen.ShapedDimensions",
             "shape.layout.LayoutDimensions -> engine.gen.ShapedDimensions",
             "shape.layout.OverworldDerivation -> engine.gen.ShapedDimensions");
 

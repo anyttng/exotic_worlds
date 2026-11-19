@@ -7,7 +7,7 @@ import com.exoticworlds.core.SpawnPoint;
 public final class StartupRegistrations {
     public static synchronized void options() {
         if (!WorldOptions.all().contains(SpawnPoint.OPTION)) {
-            WorldOptionSetup.registerAll(false);
+            WorldOptionSetup.registerAll();
         }
     }
 
