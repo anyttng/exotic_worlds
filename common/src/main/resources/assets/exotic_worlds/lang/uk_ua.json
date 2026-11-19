@@ -66,6 +66,8 @@
   "gui.exotic_worlds.world_shape_settings.shape.hint.torus": "зациклений зі сходу на захід і з півночі на південь. Пройди достатньо в будь-який бік і повернешся туди, звідки вийшов.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.cylinder": "одна горизонтальна вісь зациклена, інша триває нескінченно, як у звичайному світі.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.from_overworld": "бере форму Верхнього світу у власному розмірі цього виміру.",
+  "gui.exotic_worlds.world_shape_settings.shape.hint.declared": "форма з іншого мода; її опис показано під цією кнопкою.",
+  "gui.exotic_worlds.world_shape_settings.shape.size_error": "Ця форма виходить завширшки %s чанків; цей вимір приймає від %s до %s.",
   "gui.exotic_worlds.world_shape_settings.nether_scale": "Масштаб Незеру",
   "gui.exotic_worlds.world_shape_settings.size": "Розмір світу в чанках (%s-%s)",
   "gui.exotic_worlds.world_shape_settings.size_x": "Розмір світу по X у чанках (%s-%s)",

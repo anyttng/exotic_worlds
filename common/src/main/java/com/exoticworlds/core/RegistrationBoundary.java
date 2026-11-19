@@ -8,6 +8,8 @@ public final class RegistrationBoundary {
 
     private final List<StartupRegistry<?, ?>> registered = new ArrayList<>();
 
+    private final List<Runnable> atFirstClose = new ArrayList<>();
+
     private boolean closed;
 
     RegistrationBoundary() {
@@ -22,8 +24,16 @@ public final class RegistrationBoundary {
         registered.add(registry);
     }
 
+    public synchronized void atFirstClose(Runnable check) {
+        atFirstClose.add(check);
+    }
+
     public synchronized void close() {
+        boolean first = !closed;
         closed = true;
         registered.forEach(StartupRegistry::close);
+        if (first) {
+            atFirstClose.forEach(Runnable::run);
+        }
     }
 }

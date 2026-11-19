@@ -25,7 +25,7 @@ class LayoutPresetTest {
     void aPresetOnATorusSetsItsSizeAndPutsTheNetherAndTheEndOnTheOverworld() {
         WorldLayout skewed = withOverworld(DimensionLayout.looped(LoopSpans.ofWidths(48, 64).withSkew(4), LAND));
 
-        WorldLayout large = LayoutPreset.apply(skewed, WorldLoopPresets.LARGE);
+        WorldLayout large = LayoutPreset.apply(skewed, WorldLoopPresets.LARGE, 1.0);
 
         assertEquals(DimensionLayout.looped(LoopSpans.ofWidth(256), LAND), large.overworld());
         assertEquals(ShapeKind.FROM_OVERWORLD, large.nether().kind());
@@ -37,7 +37,7 @@ class LayoutPresetTest {
     void aPresetOnACylinderKeepsItsLoopingAxis() {
         WorldLayout cylinder = withOverworld(DimensionLayout.looped(LoopSpans.ofWidth(Direction.Axis.Z, 48), PLAIN));
 
-        WorldLayout tiny = LayoutPreset.apply(cylinder, WorldLoopPresets.TINY);
+        WorldLayout tiny = LayoutPreset.apply(cylinder, WorldLoopPresets.TINY, 1.0);
 
         assertEquals(LoopSpans.ofWidth(Direction.Axis.Z, WorldLoopPresets.TINY.chunkWidth()), tiny.overworld().spans());
         assertTrue(LayoutPreset.matches(tiny, WorldLoopPresets.TINY));
@@ -45,7 +45,7 @@ class LayoutPresetTest {
 
     @Test
     void aPresetOnANormalOverworldMakesItATorus() {
-        WorldLayout medium = LayoutPreset.apply(WorldLayout.DEFAULT, WorldLoopPresets.MEDIUM);
+        WorldLayout medium = LayoutPreset.apply(WorldLayout.DEFAULT, WorldLoopPresets.MEDIUM, 1.0);
 
         assertEquals(LoopSpans.ofWidth(WorldLoopPresets.MEDIUM.chunkWidth()), medium.overworld().spans());
         assertFalse(LayoutPreset.matches(WorldLayout.DEFAULT, WorldLoopPresets.MEDIUM));
@@ -53,7 +53,7 @@ class LayoutPresetTest {
 
     @Test
     void onlyThePresetJustAppliedMatches() {
-        WorldLayout small = LayoutPreset.apply(WorldLayout.DEFAULT, WorldLoopPresets.SMALL);
+        WorldLayout small = LayoutPreset.apply(WorldLayout.DEFAULT, WorldLoopPresets.SMALL, 1.0);
 
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
             assertEquals(preset == WorldLoopPresets.SMALL, LayoutPreset.matches(small, preset), preset.id());
@@ -62,7 +62,7 @@ class LayoutPresetTest {
 
     @Test
     void aPresetStopsMatchingOnceTheSizeOrTheShiftChanges() {
-        WorldLayout small = LayoutPreset.apply(WorldLayout.DEFAULT, WorldLoopPresets.SMALL);
+        WorldLayout small = LayoutPreset.apply(WorldLayout.DEFAULT, WorldLoopPresets.SMALL, 1.0);
         int chunkWidth = WorldLoopPresets.SMALL.chunkWidth();
 
         assertFalse(LayoutPreset.matches(
