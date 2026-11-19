@@ -12,25 +12,26 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ChunkLevel;
+import net.minecraft.server.level.GenerationChunkHolder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.StaticCache2D;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
@@ -41,8 +42,9 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.chunk.UpgradeData;
+import net.minecraft.world.level.chunk.status.ChunkPyramid;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
-import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.chunk.status.ChunkStep;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -57,10 +59,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.LevelTickAccess;
 import net.minecraft.world.ticks.WorldGenTickAccess;
 
-final class LapTwinRegion implements WorldGenLevel {
+final class LapTwinRegion extends WorldGenRegion {
     static final int REACH = 1;
     static final int SIDE = 2 * REACH + 1;
 
+    private static final ChunkStep FEATURES_STEP = ChunkPyramid.GENERATION_PYRAMID.getStepTo(ChunkStatus.FEATURES);
     private static final ResourceLocation REGION_RANDOM = ResourceLocation.withDefaultNamespace("worldgen_region_random");
     private static final String DUMMY_ID = "DUMMY";
     private static final String ID_KEY = "id";
@@ -74,26 +77,61 @@ final class LapTwinRegion implements WorldGenLevel {
     private final int centerZ;
     private final FeatureRecording recording;
     private final RandomSource random;
-    private final BiomeManager biomeManager;
     private final WorldGenTickAccess<Block> blockTicks = new WorldGenTickAccess<>(pos -> this.chunkFor(pos).getBlockTicks());
     private final WorldGenTickAccess<Fluid> fluidTicks = new WorldGenTickAccess<>(pos -> this.chunkFor(pos).getFluidTicks());
     private final Map<Long, ChunkAccess> pastTheReach = new HashMap<>();
     private final AtomicLong subTickCount = new AtomicLong();
 
+    private static final class TwinHolder extends GenerationChunkHolder {
+        private static final int TICKET_LEVEL = ChunkLevel.byStatus(ChunkStatus.FEATURES);
+
+        private final ChunkAccess chunk;
+
+        private TwinHolder(ChunkAccess chunk) {
+            super(chunk.getPos());
+            this.chunk = chunk;
+        }
+
+        @Override
+        public ChunkAccess getChunkIfPresentUnchecked(ChunkStatus status) {
+            return this.chunk;
+        }
+
+        @Override
+        public int getTicketLevel() {
+            return TICKET_LEVEL;
+        }
+
+        @Override
+        public int getQueueLevel() {
+            return TICKET_LEVEL;
+        }
+    }
+
     LapTwinRegion(ServerLevel level, RandomState randomState, ChunkPos seedChunk, ChunkAccess[] chunks,
             FeatureRecording recording) {
+        super(level, holdersOf(chunks), FEATURES_STEP, chunks[indexOf(0, 0)]);
         this.level = level;
         this.chunks = chunks;
-        ChunkPos center = chunks[SIDE * REACH + REACH].getPos();
+        ChunkPos center = chunks[indexOf(0, 0)].getPos();
         this.centerX = center.x;
         this.centerZ = center.z;
         this.recording = recording;
         this.random = randomState.getOrCreateRandomFactory(REGION_RANDOM).at(seedChunk.getWorldPosition());
-        this.biomeManager = new BiomeManager(this, BiomeManager.obfuscateSeed(level.getSeed()));
+    }
+
+    private static int indexOf(int offsetX, int offsetZ) {
+        return (offsetZ + REACH) * SIDE + offsetX + REACH;
+    }
+
+    private static StaticCache2D<GenerationChunkHolder> holdersOf(ChunkAccess[] chunks) {
+        ChunkPos center = chunks[indexOf(0, 0)].getPos();
+        return StaticCache2D.create(center.x, center.z, REACH,
+                (chunkX, chunkZ) -> new TwinHolder(chunks[indexOf(chunkX - center.x, chunkZ - center.z)]));
     }
 
     ChunkAccess center() {
-        return this.chunks[SIDE * REACH + REACH];
+        return this.chunks[indexOf(0, 0)];
     }
 
     private @Nullable ChunkAccess chunkAt(int chunkX, int chunkZ) {
@@ -103,7 +141,7 @@ final class LapTwinRegion implements WorldGenLevel {
             return null;
         }
 
-        return this.chunks[(offsetZ + REACH) * SIDE + offsetX + REACH];
+        return this.chunks[indexOf(offsetX, offsetZ)];
     }
 
     private ChunkAccess chunkFor(BlockPos pos) {
@@ -196,11 +234,6 @@ final class LapTwinRegion implements WorldGenLevel {
     @Override
     public Holder<Biome> getUncachedNoiseBiome(int quartX, int quartY, int quartZ) {
         return this.level.getUncachedNoiseBiome(quartX, quartY, quartZ);
-    }
-
-    @Override
-    public BiomeManager getBiomeManager() {
-        return this.biomeManager;
     }
 
     @Override
@@ -345,11 +378,6 @@ final class LapTwinRegion implements WorldGenLevel {
     }
 
     @Override
-    public RegistryAccess registryAccess() {
-        return this.level.registryAccess();
-    }
-
-    @Override
     public FeatureFlagSet enabledFeatures() {
         return this.level.enabledFeatures();
     }
@@ -372,11 +400,6 @@ final class LapTwinRegion implements WorldGenLevel {
     @Override
     public int getSeaLevel() {
         return this.level.getSeaLevel();
-    }
-
-    @Override
-    public DimensionType dimensionType() {
-        return this.level.dimensionType();
     }
 
     @Override
