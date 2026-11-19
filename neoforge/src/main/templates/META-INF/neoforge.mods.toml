@@ -205,6 +205,9 @@ config="exotic_worlds.compat.moonlight.mixins.json"
 config="exotic_worlds.compat.supplementaries.mixins.json"
 
 [[mixins]]
+config="exotic_worlds.compat.vista.mixins.json"
+
+[[mixins]]
 config="exotic_worlds.compat.cobblemon.mixins.json"
 
 [[mixins]]

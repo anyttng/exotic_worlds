@@ -330,6 +330,7 @@ dependencies {
     modCompileOnly "maven.modrinth:seed-viewer:${seed_viewer_fabric_version}"
     modCompileOnly "maven.modrinth:moonlight:${moonlight_fabric_version}"
     modCompileOnly "maven.modrinth:supplementaries:${supplementaries_fabric_version}"
+    modCompileOnly "maven.modrinth:vista_tv:${vista_fabric_version}"
     modCompileOnly "maven.modrinth:mapfrontiers:${mapfrontiers_fabric_version}"
     modCompileOnly "maven.modrinth:immersive-overlays:${immersive_overlays_fabric_version}"
 

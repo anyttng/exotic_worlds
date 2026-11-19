@@ -11,6 +11,7 @@ import com.exoticworlds.compat.moonlight.MoonlightParticles;
 import com.exoticworlds.compat.northbound.NorthboundLatitude;
 import com.exoticworlds.compat.sable.SableMod;
 import com.exoticworlds.compat.supplementaries.SupplementariesPackets;
+import com.exoticworlds.compat.vista.VistaPackets;
 import com.exoticworlds.engine.gen.LoopedChunkGenerator;
 import com.exoticworlds.engine.gen.LoopedFlatChunkGenerator;
 import com.exoticworlds.engine.gen.WorldLoopGenerators;
@@ -49,6 +50,7 @@ public final class WorldLoop {
         NorthboundLatitude.register();
         MoonlightParticles.register();
         SupplementariesPackets.register();
+        VistaPackets.register();
         CobblemonPackets.register();
         ArsNouveauPackets.register();
 
