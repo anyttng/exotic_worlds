@@ -25,6 +25,9 @@
     "simulated:honey_glue_spawn": {
       "from": "group",
       "to": "group"
+    },
+    "vista:sync_contraption_view_finder": {
+      "localPos": "untouched"
     }
   }
 }
