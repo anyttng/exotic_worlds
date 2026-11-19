@@ -14,6 +14,8 @@ import com.exoticworlds.shape.torus.GuaranteedLand;
 import com.exoticworlds.shape.torus.GuaranteedNetherComplexes;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.dimension.LevelStem;
 
 record DimensionOffer(Component title, List<ShapeKind> kinds, boolean spawnPoint, boolean netherScale,
         @Nullable TorusToggle torusToggle, int minChunkWidth, int defaultChunkWidth,
@@ -34,10 +36,10 @@ record DimensionOffer(Component title, List<ShapeKind> kinds, boolean spawnPoint
             WorldLoopSizes.END_MIN_CHUNK_WIDTH, WorldLoopSizes.END_DEFAULT_CHUNK_WIDTH,
             (overworld, netherScale) -> OverworldDerivation.end(overworld));
 
-    static DimensionOffer modDimension(ModStem stem) {
-        return new DimensionOffer(Component.literal(stem.key().location().toString()), DERIVED_KINDS, false, false,
+    static DimensionOffer modDimension(ResourceKey<LevelStem> dimension, CoordinateScales scales) {
+        return new DimensionOffer(Component.literal(dimension.location().toString()), DERIVED_KINDS, false, false,
                 null, WorldLoopSizes.MIN_CHUNK_WIDTH, WorldLoopSizes.DEFAULT_CHUNK_WIDTH,
-                (overworld, netherScale) -> stem.derived(overworld));
+                (overworld, netherScale) -> scales.modDimension(dimension, overworld));
     }
 
     record TorusToggle(String captionKey, WorldOption<Boolean> option) {

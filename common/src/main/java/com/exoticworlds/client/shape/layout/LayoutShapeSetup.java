@@ -1,7 +1,9 @@
 package com.exoticworlds.client.shape.layout;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.ascendiacore.client.createworld.WorldTabRows;
 import com.exoticworlds.api.v1.client.ShapeCustomizers;
@@ -14,10 +16,11 @@ import com.exoticworlds.shape.layout.WorldLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 
 public final class LayoutShapeSetup {
-    private static final double NO_OVERWORLD_SCALE = 0.0;
 
     public static void register() {
         ShapeCustomizers.register(LayoutShape.MODULE.id(), LayoutShapeSetup::createScreen);
@@ -25,24 +28,30 @@ public final class LayoutShapeSetup {
     }
 
     private static Screen createScreen(Screen parent) {
-        return WorldShapeSettingsScreen.forNewWorld(parent, LayoutShape.MODULE.settings(), modDimensions(parent),
-                LayoutShapeSetup::choose);
-    }
-
-    private static List<ModStem> modDimensions(Screen parent) {
         if (!(parent instanceof CreateWorldScreen create)) {
-            return List.of();
+            return WorldShapeSettingsScreen.forNewWorld(parent, LayoutShape.MODULE.settings(), List.of(),
+                    new CoordinateScales(Map.of()), LayoutShapeSetup::choose);
         }
 
         WorldCreationContext settings = create.getUiState().getSettings();
-        double overworldScale = settings.selectedDimensions().get(LevelStem.OVERWORLD)
-                .map(LayoutShapeSetup::coordinateScale)
-                .orElse(NO_OVERWORLD_SCALE);
-        return settings.datapackDimensions().entrySet().stream()
-                .filter(stem -> !DimensionTable.isVanillaStem(stem.getKey()))
-                .sorted(Comparator.comparing(stem -> stem.getKey().location().toString()))
-                .map(stem -> new ModStem(stem.getKey(), overworldScale, coordinateScale(stem.getValue())))
+        return WorldShapeSettingsScreen.forNewWorld(parent, LayoutShape.MODULE.settings(),
+                modDimensions(settings.datapackDimensions()), scalesOf(settings), LayoutShapeSetup::choose);
+    }
+
+    private static List<ResourceKey<LevelStem>> modDimensions(Registry<LevelStem> datapackDimensions) {
+        return datapackDimensions.registryKeySet().stream()
+                .filter(key -> !DimensionTable.isVanillaStem(key))
+                .sorted(Comparator.comparing(key -> key.location().toString()))
                 .toList();
+    }
+
+    private static CoordinateScales scalesOf(WorldCreationContext settings) {
+        Map<ResourceKey<LevelStem>, Double> scales = new HashMap<>();
+        settings.datapackDimensions().entrySet()
+                .forEach(stem -> scales.put(stem.getKey(), coordinateScale(stem.getValue())));
+        settings.selectedDimensions().dimensions()
+                .forEach((key, stem) -> scales.put(key, coordinateScale(stem)));
+        return new CoordinateScales(scales);
     }
 
     private static double coordinateScale(LevelStem stem) {

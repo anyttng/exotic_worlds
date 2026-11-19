@@ -7,7 +7,7 @@ import java.util.Map;
 
 import com.exoticworlds.accessors.ClientBoundsHolder;
 import com.exoticworlds.client.shape.layout.DimensionLock;
-import com.exoticworlds.client.shape.layout.ModStem;
+import com.exoticworlds.client.shape.layout.CoordinateScales;
 import com.exoticworlds.client.shape.layout.WorldShapeSettingsScreen;
 import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.FlatShape;
@@ -33,8 +33,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.LevelStem;
 
 public final class WorldLoopClientNetwork {
-    private static final double NO_OVERWORLD_SCALE = 0.0;
-
     public static void apply(ResourceKey<Level> dimension, FlatShape shape) {
         WorldFold fold = WorldFolds.of(shape);
         PublishedShapes.publish(dimension, fold);
@@ -53,40 +51,34 @@ public final class WorldLoopClientNetwork {
     public static void openDimensionChoices(DimensionChoicesPayload choices) {
         Map<ResourceKey<LevelStem>, DimensionTable.Entry> entries = new HashMap<>();
         Map<ResourceKey<LevelStem>, DimensionLock> locks = new HashMap<>();
-        List<ModStem> modStems = new ArrayList<>();
-        double overworldScale = overworldScaleOf(choices);
+        List<ResourceKey<LevelStem>> modStems = new ArrayList<>();
+        Map<ResourceKey<LevelStem>, Double> scales = new HashMap<>();
         for (DimensionChoicesPayload.Row row : choices.rows()) {
             entries.put(row.stem(), row.entry());
+            scales.put(row.stem(), row.coordinateScale());
             row.lock().ifPresent(refusal -> locks.put(row.stem(), lockOf(refusal)));
             if (!DimensionTable.isVanillaStem(row.stem())) {
-                modStems.add(new ModStem(row.stem(), overworldScale, row.coordinateScale()));
+                modStems.add(row.stem());
             }
         }
 
         Minecraft.getInstance().setScreen(WorldShapeSettingsScreen.forExistingWorld(
-                LayoutDimensions.ofRows(entries), modStems, locks, chosen -> send(chosen, modStems, locks)));
+                LayoutDimensions.ofRows(entries), modStems, new CoordinateScales(scales), locks,
+                chosen -> send(chosen, modStems, locks)));
     }
 
-    private static void send(WorldLayout chosen, List<ModStem> modStems,
+    private static void send(WorldLayout chosen, List<ResourceKey<LevelStem>> modStems,
             Map<ResourceKey<LevelStem>, DimensionLock> locks) {
         Map<ResourceKey<LevelStem>, DimensionTable.Entry> choices = new HashMap<>();
-        for (ModStem stem : modStems) {
-            if (!locks.containsKey(stem.key())) {
-                choices.put(stem.key(), LayoutDimensions.entryOf(chosen.modDimension(stem.key())));
+        for (ResourceKey<LevelStem> stem : modStems) {
+            if (!locks.containsKey(stem)) {
+                choices.put(stem, LayoutDimensions.entryOf(chosen.modDimension(stem)));
             }
         }
 
         if (!choices.isEmpty()) {
             Platforms.get().sendDimensionChoicesUpdate(new DimensionChoicesUpdatePayload(choices));
         }
-    }
-
-    private static double overworldScaleOf(DimensionChoicesPayload choices) {
-        return choices.rows().stream()
-                .filter(row -> row.stem().equals(LevelStem.OVERWORLD))
-                .mapToDouble(DimensionChoicesPayload.Row::coordinateScale)
-                .findFirst()
-                .orElse(NO_OVERWORLD_SCALE);
     }
 
     private static DimensionLock lockOf(DimensionChoices.Refusal refusal) {
