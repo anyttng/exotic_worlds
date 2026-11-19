@@ -51,6 +51,7 @@
   "gui.exotic_worlds.world_shape_settings.dimension.overworld": "Mundo superior",
   "gui.exotic_worlds.world_shape_settings.dimension.nether": "El Nether",
   "gui.exotic_worlds.world_shape_settings.dimension.end": "El End",
+  "gui.exotic_worlds.world_shape_settings.dimensions.mod": "Dimensiones de mods",
   "gui.exotic_worlds.world_shape_settings.summary.shift": "desplazamiento %s",
   "gui.exotic_worlds.world_shape_settings.shape": "Forma",
   "gui.exotic_worlds.world_shape_settings.shape.normal": "Normal",
