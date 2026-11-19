@@ -26,6 +26,7 @@ final class SettingsLines {
     private static final String SHIFT_LAPS_KEY = PREFIX + ".shift.laps";
     private static final String SUMMARY_SHIFT_KEY = PREFIX + ".summary.shift";
     private static final String SEPARATOR = ", ";
+    private static final String SCALE_PREFIX = "1:";
     private static final String TIMES = " × ";
     private static final String ROOM_SCARCE = "scarce";
     private static final String ROOM_VILLAGES = "villages";
@@ -39,6 +40,7 @@ final class SettingsLines {
     static final String AXIS_KEY = PREFIX + ".axis";
     static final String SPAWN_KEY = PREFIX + ".spawn";
     static final String GUARANTEED_LAND_KEY = PREFIX + ".guaranteed_land";
+    static final String GUARANTEED_NETHER_COMPLEXES_KEY = PREFIX + ".guaranteed_nether_complexes";
 
     static final Component TITLE = Component.translatable(PREFIX);
     static final Component VANILLA_DIMENSIONS = Component.translatable(PREFIX + ".dimensions.vanilla");
@@ -50,6 +52,7 @@ final class SettingsLines {
     static final Component SIZE_Z = sizeCaption(".size_z");
     static final Component SHIFT = Component.translatable(PREFIX + ".shift");
     static final Component SPAWN_POINT = Component.translatable(PREFIX + ".spawn.point");
+    static final Component NETHER_SCALE = Component.translatable(PREFIX + ".nether_scale");
     static final Component ADDITIONAL = Component.translatable(PREFIX + ".additional");
 
     static Component presetLabel(WorldLoopPresets preset) {
@@ -84,6 +87,10 @@ final class SettingsLines {
         return Component.translatable(SPAWN_KEY + "." + mode.getSerializedName());
     }
 
+    static Component netherScaleName(int scale) {
+        return Component.literal(SCALE_PREFIX + scale);
+    }
+
     static Component axisName(Direction.Axis axis) {
         return Component.literal(axis.getName().toUpperCase(Locale.ROOT));
     }
@@ -96,7 +103,7 @@ final class SettingsLines {
         return shapeName(ShapeKind.FROM_OVERWORLD).copy().append(SEPARATOR).append(shapeSummary(spans));
     }
 
-    private static Component shapeSummary(@Nullable LoopSpans spans) {
+    static Component shapeSummary(@Nullable LoopSpans spans) {
         ShapeKind kind = ShapeKind.of(spans);
         if (spans == null || kind == ShapeKind.NORMAL) {
             return shapeName(ShapeKind.NORMAL);
