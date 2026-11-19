@@ -44,15 +44,15 @@ final class DimensionPage {
     private GenerationOptions options;
     private ShapeKind shownKind = ShapeKind.NORMAL;
 
-    DimensionPage(DimensionOffer offer, Theme theme, FillStyle fill, Screen parent,
-            Supplier<@Nullable LoopSpans> overworldSpans, DimensionLayout shown) {
+    DimensionPage(DimensionOffer offer, Theme theme, FillStyle fill, @Nullable Screen parent,
+            Supplier<@Nullable LoopSpans> overworldSpans, DimensionLayout shown, @Nullable Component lockReason) {
         this.offer = offer;
         this.overworldSpans = overworldSpans;
         this.options = shown.options();
         this.loops = new LoopFields(theme, fill, offer.minChunkWidth(), offer.defaultChunkWidth(), this::refresh);
         this.spawn = new SpawnFields(theme, fill, this::spawnChunkWidth, this::refresh);
         this.compactBiomes = new CompactBiomesFields(theme, fill, parent, this::refresh);
-        this.build(theme, fill);
+        this.build(theme, fill, lockReason);
         this.show(shown);
     }
 
@@ -127,7 +127,7 @@ final class DimensionPage {
                 : chosen;
     }
 
-    private void build(Theme theme, FillStyle fill) {
+    private void build(Theme theme, FillStyle fill, @Nullable Component lockReason) {
         CycleButton<ShapeKind> shape = new CycleButton<>(theme.button(), Component.translatable(SettingsLines.SHAPE_KEY),
                 this.offer::kinds, this.kind, SettingsLines::shapeName);
         shape.setHint(theme.tooltip(), SettingsLines.SHAPE_KEY, picked -> picked.name().toLowerCase(Locale.ROOT));
@@ -151,6 +151,11 @@ final class DimensionPage {
 
         this.page.setGap(LoopFields.GAP);
         this.page.add(Heading.of(fill, this.offer.title()));
+        if (lockReason != null) {
+            this.page.add(new Label(fill, LabelRole.MUTED, lockReason));
+            this.page.setEnabled(false);
+        }
+
         this.page.add(shape);
         this.page.add(this.netherScaleField(theme, fill));
         this.page.add(this.derivedLine(fill));

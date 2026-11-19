@@ -36,6 +36,10 @@
 
   "gui.exotic_worlds.world_shape_settings": "Weltform-Einstellungen",
   "gui.exotic_worlds.world_shape_settings.hint": "Wähle die Form für Oberwelt, Nether, Ende und jede Mod-Dimension.",
+  "gui.exotic_worlds.world_shape_settings.existing_world": "Eine Form lässt sich einmal wählen, solange die Dimension keine Chunks hat",
+  "gui.exotic_worlds.world_shape_settings.locked.vanilla": "Beim Erstellen der Welt festgelegt",
+  "gui.exotic_worlds.world_shape_settings.locked.chosen": "Die Form ist schon gewählt und bleibt",
+  "gui.exotic_worlds.world_shape_settings.locked.generated": "Hier gibt es schon Chunks, die Form bleibt",
   "gui.exotic_worlds.world_shape_settings.preset.tiny": "Winzig",
   "gui.exotic_worlds.world_shape_settings.preset.small": "Klein",
   "gui.exotic_worlds.world_shape_settings.preset.medium": "Mittel",

@@ -47,6 +47,25 @@ public final class LayoutDimensions {
         return wrapped || !modDimensions.isEmpty() ? derived(overworld, nether, end, modDimensions) : null;
     }
 
+    public static WorldLayout ofRows(Map<ResourceKey<LevelStem>, DimensionTable.Entry> rows) {
+        Map<ResourceKey<LevelStem>, DimensionLayout> modDimensions = new HashMap<>();
+        rows.forEach((key, entry) -> {
+            DimensionLayout layout = DimensionTable.isVanillaStem(key) || entry.fromOverworld() ? null : layoutOf(entry);
+            if (layout != null) {
+                modDimensions.put(key, layout);
+            }
+        });
+        return derived(vanillaRow(rows, LevelStem.OVERWORLD), vanillaRow(rows, LevelStem.NETHER),
+                vanillaRow(rows, LevelStem.END), modDimensions);
+    }
+
+    private static DimensionLayout vanillaRow(Map<ResourceKey<LevelStem>, DimensionTable.Entry> rows,
+            ResourceKey<LevelStem> key) {
+        DimensionTable.Entry entry = rows.get(key);
+        DimensionLayout layout = entry == null ? null : layoutOf(entry);
+        return layout != null ? layout : DimensionLayout.normal(DimensionLayout.DEFAULT_OPTIONS);
+    }
+
     private static WorldLayout derived(DimensionLayout overworld, DimensionLayout nether, DimensionLayout end,
             Map<ResourceKey<LevelStem>, DimensionLayout> modDimensions) {
         LoopSpans spans = overworld.spans();
@@ -120,7 +139,11 @@ public final class LayoutDimensions {
         return DimensionTable.of(entries);
     }
 
-    private static DimensionTable.Entry entryOf(DimensionLayout layout) {
+    public static DimensionTable.Entry entryOf(DimensionLayout layout) {
+        if (layout.kind() == ShapeKind.FROM_OVERWORLD) {
+            return DimensionTable.Entry.FROM_OVERWORLD;
+        }
+
         LoopSpans spans = layout.spans();
         return spans == null
                 ? DimensionTable.Entry.UNWRAPPED

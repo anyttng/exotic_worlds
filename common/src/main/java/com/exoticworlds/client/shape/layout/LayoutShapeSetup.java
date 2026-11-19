@@ -25,7 +25,7 @@ public final class LayoutShapeSetup {
     }
 
     private static Screen createScreen(Screen parent) {
-        return new WorldShapeSettingsScreen(parent, LayoutShape.MODULE.settings(), modDimensions(parent),
+        return WorldShapeSettingsScreen.forNewWorld(parent, LayoutShape.MODULE.settings(), modDimensions(parent),
                 LayoutShapeSetup::choose);
     }
 

@@ -36,7 +36,7 @@ public final class CompactBiomesFields {
     private static final String UNKNOWN_FACTOR = "—";
     private static final String FRACTIONAL_FACTOR_FORMAT = "%.2f";
 
-    private final Screen parent;
+    private final @Nullable Screen parent;
     private final Value<ClimateScale.Mode> mode = Value.of(ClimateScale.Mode.OFF);
     private final NumberField factor;
     private final TextField preview;
@@ -44,7 +44,7 @@ public final class CompactBiomesFields {
     private @Nullable ClimateScale previewedScale;
     private @Nullable LoopSpans previewedSpans;
 
-    public CompactBiomesFields(Theme theme, FillStyle fill, Screen parent, Runnable onChange) {
+    public CompactBiomesFields(Theme theme, FillStyle fill, @Nullable Screen parent, Runnable onChange) {
         this.parent = parent;
         CycleButton<ClimateScale.Mode> modeButton = new CycleButton<>(theme.button(), Component.translatable(KEY),
                 () -> List.of(ClimateScale.Mode.values()), this.mode, CompactBiomesFields::modeName);
@@ -95,9 +95,10 @@ public final class CompactBiomesFields {
 
         this.previewedScale = scale;
         this.previewedSpans = spans;
-        this.preview.setValue(spans == null || scale == null
+        Screen screen = this.parent;
+        this.preview.setValue(screen == null || spans == null || scale == null
                 ? UNKNOWN_FACTOR
-                : display(ClimateFactorPreview.temperatureFactor(this.parent,
+                : display(ClimateFactorPreview.temperatureFactor(screen,
                         options.with(CompactBiomes.OPTION, scale), spans)));
     }
 

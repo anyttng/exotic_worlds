@@ -36,6 +36,10 @@
 
   "gui.exotic_worlds.world_shape_settings": "世界形状设置",
   "gui.exotic_worlds.world_shape_settings.hint": "为主世界、下界、末地以及每个模组维度选择形状。",
+  "gui.exotic_worlds.world_shape_settings.existing_world": "形状只能在维度尚无区块时选择一次",
+  "gui.exotic_worlds.world_shape_settings.locked.vanilla": "在创建世界时确定",
+  "gui.exotic_worlds.world_shape_settings.locked.chosen": "形状已选定，无法更改",
+  "gui.exotic_worlds.world_shape_settings.locked.generated": "这里已有区块，形状无法更改",
   "gui.exotic_worlds.world_shape_settings.preset.tiny": "微型",
   "gui.exotic_worlds.world_shape_settings.preset.small": "小型",
   "gui.exotic_worlds.world_shape_settings.preset.medium": "中型",

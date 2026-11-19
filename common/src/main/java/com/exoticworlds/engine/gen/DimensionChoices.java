@@ -34,6 +34,7 @@ import net.minecraft.world.level.storage.LevelResource;
 public final class DimensionChoices {
     private static final String REGION_FOLDER = "region";
     private static final String REGION_SUFFIX = ".mca";
+    private static final double NO_COORDINATE_SCALE = 0.0;
     private static final List<ResourceKey<LevelStem>> VANILLA_ORDER =
             List.of(LevelStem.OVERWORLD, LevelStem.NETHER, LevelStem.END);
     private static final Comparator<ResourceKey<LevelStem>> STEM_ORDER = Comparator
@@ -53,7 +54,8 @@ public final class DimensionChoices {
             Refusal refusal = refusalOf(server, key);
             DimensionTable.Entry entry = table.entry(key);
             return new DimensionChoicesPayload.Row(key, Optional.ofNullable(refusal),
-                    entry != null ? entry : refusal == null ? DimensionTable.Entry.FROM_OVERWORLD : liveEntry(server, key));
+                    entry != null ? entry : refusal == null ? DimensionTable.Entry.FROM_OVERWORLD : liveEntry(server, key),
+                    coordinateScale(server, key));
         }).toList();
     }
 
@@ -159,6 +161,11 @@ public final class DimensionChoices {
     private static boolean isShaped(MinecraftServer server) {
         return !storedTable(server).isEmpty() || liveStems(server).stream()
                 .anyMatch(stem -> ShapedChunkGenerator.carriedShapeOf(stem.generator()) != null);
+    }
+
+    private static double coordinateScale(MinecraftServer server, ResourceKey<LevelStem> key) {
+        LevelStem stem = liveStems(server).get(key);
+        return stem == null ? NO_COORDINATE_SCALE : stem.type().value().coordinateScale();
     }
 
     private static DimensionTable.Entry liveEntry(MinecraftServer server, ResourceKey<LevelStem> key) {
