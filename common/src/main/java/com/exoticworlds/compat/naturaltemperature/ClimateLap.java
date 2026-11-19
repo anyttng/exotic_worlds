@@ -43,8 +43,13 @@ public final class ClimateLap {
                 : BY_FOLD.computeIfAbsent(fold, key -> new ClimateLap(key.blockLattice(), FoldCompression.of(key)));
     }
 
-    public int x(int blockX, int blockZ, int mode, double equatorialDistance) {
-        double scale = xScale(mode, equatorialDistance);
+    public int x(int blockX, int blockZ) {
+        NaturalConfig config = NaturalConfig.current();
+        return x(blockX, blockZ, config.generationMode(), config.equatorialDistance(), config.loopingWorld());
+    }
+
+    public int x(int blockX, int blockZ, int mode, double equatorialDistance, boolean loopingWorld) {
+        double scale = xScale(mode, equatorialDistance, loopingWorld);
         WrapDomain x = this.lattice.x();
         if (!x.loops()) {
             return (int) Math.round(blockX * scale);
@@ -55,9 +60,9 @@ public final class ClimateLap {
         return (int) Math.round(mirrored(this.frame.frameX(blockX, fromZCenter), x) * scale);
     }
 
-    double xScale(int mode, double equatorialDistance) {
+    double xScale(int mode, double equatorialDistance, boolean loopingWorld) {
         WrapDomain z = this.lattice.z();
-        if (!z.loops() || radial(mode) || equatorialDistance <= 0.0) {
+        if (!z.loops() || radial(mode) || equatorialDistance <= 0.0 || !loopingWorld) {
             return this.compression;
         }
 
@@ -65,7 +70,13 @@ public final class ClimateLap {
         return POLE_TO_EQUATOR_SPANS * equatorialDistance / halfTurn;
     }
 
-    public int z(int blockZ, int mode, double equatorialDistance, double equatorOffset) {
+    public int z(int blockZ) {
+        NaturalConfig config = NaturalConfig.current();
+        return z(blockZ, config.generationMode(), config.equatorialDistance(), config.equatorOffset(),
+                config.loopingWorld());
+    }
+
+    public int z(int blockZ, int mode, double equatorialDistance, double equatorOffset, boolean loopingWorld) {
         WrapDomain z = this.lattice.z();
         if (!z.loops()) {
             return compressed(blockZ);
@@ -77,6 +88,10 @@ public final class ClimateLap {
 
         if (equatorialDistance <= 0.0) {
             return blockZ;
+        }
+
+        if (!loopingWorld) {
+            return (int) -Math.round(mirrored(blockZ, z) * this.compression);
         }
 
         double turns = (blockZ - (double) z.lowerBound) / z.domainLength * bands(equatorialDistance);

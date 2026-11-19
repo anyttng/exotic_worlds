@@ -10,7 +10,6 @@ import com.exoticworlds.compat.naturaltemperature.NaturalTemperatureInjectionTar
 import com.exoticworlds.compat.naturaltemperature.PinnedSample;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.naturaltemperature.Config;
 
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -32,8 +31,7 @@ public class NeoForgeWorldPainterMixin {
 
         DensityFunction.@Nullable FunctionContext previous = PinnedSample.enter(x, y, z);
         try {
-            return original.call(sampler, lap.x(x, z, Config.generation_mode, Config.equatorial_distance), y,
-                    lap.z(z, Config.generation_mode, Config.equatorial_distance, Config.equator_offset));
+            return original.call(sampler, lap.x(x, z), y, lap.z(z));
         } finally {
             PinnedSample.exit(previous);
         }
@@ -52,8 +50,7 @@ public class NeoForgeWorldPainterMixin {
 
         DensityFunction.@Nullable FunctionContext previous = PinnedSample.enter(x, y, z);
         try {
-            return original.call(sampler, lap.x(x, z, Config.generation_mode, Config.equatorial_distance), y,
-                    lap.z(z, Config.generation_mode, Config.equatorial_distance, Config.equator_offset));
+            return original.call(sampler, lap.x(x, z), y, lap.z(z));
         } finally {
             PinnedSample.exit(previous);
         }

@@ -14,9 +14,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.levelgen.DensityFunction;
 
-import naturaltemperature.ModConfig;
-import naturaltemperature.NaturalTemperature;
-
 @Mixin(value = Climate.Sampler.class, priority = 1100)
 public class WorldPainterMixin {
     private static final String WORLD_PAINTER = "naturaltemperature.mixin.WorldPainter";
@@ -32,11 +29,9 @@ public class WorldPainterMixin {
             return original.call(sampler, x, y, z);
         }
 
-        ModConfig config = NaturalTemperature.CONFIG;
         DensityFunction.@Nullable FunctionContext previous = PinnedSample.enter(x, y, z);
         try {
-            return original.call(sampler, lap.x(x, z, config.generation_mode, config.equatorial_distance), y,
-                    lap.z(z, config.generation_mode, config.equatorial_distance, config.equator_offset));
+            return original.call(sampler, lap.x(x, z), y, lap.z(z));
         } finally {
             PinnedSample.exit(previous);
         }
@@ -53,11 +48,9 @@ public class WorldPainterMixin {
             return original.call(sampler, x, y, z);
         }
 
-        ModConfig config = NaturalTemperature.CONFIG;
         DensityFunction.@Nullable FunctionContext previous = PinnedSample.enter(x, y, z);
         try {
-            return original.call(sampler, lap.x(x, z, config.generation_mode, config.equatorial_distance), y,
-                    lap.z(z, config.generation_mode, config.equatorial_distance, config.equator_offset));
+            return original.call(sampler, lap.x(x, z), y, lap.z(z));
         } finally {
             PinnedSample.exit(previous);
         }
