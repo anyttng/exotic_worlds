@@ -1,8 +1,7 @@
 package com.exoticworlds.compat.c2me;
 
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.shape.GenerationHookSetup;
-import com.exoticworlds.shape.WorldOptionSetup;
+import com.exoticworlds.shape.StartupRegistrations;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.SQUARE;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -59,8 +58,8 @@ class C2meFoldedRouterChunkTest {
     static void bootstrapVanilla() {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
-        WorldOptionSetup.registerAll(false);
-        GenerationHookSetup.registerAll();
+        StartupRegistrations.options();
+        StartupRegistrations.generationHooks();
         holders = VanillaRegistries.createLookup();
         noises = holders.lookupOrThrow(Registries.NOISE);
         overworld = holders.lookupOrThrow(Registries.NOISE_SETTINGS)
