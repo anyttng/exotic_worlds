@@ -1,4 +1,4 @@
-package com.exoticworlds.client.shape.custom;
+package com.exoticworlds.client.shape.layout;
 
 import java.util.function.Consumer;
 
@@ -11,9 +11,8 @@ import com.ascendiacore.gui.theme.Themes;
 import com.ascendiacore.gui.widget.button.Button;
 import com.ascendiacore.gui.widget.heading.Heading;
 import com.ascendiacore.gui.widget.panel.model.FillKind;
-import com.exoticworlds.client.shape.ShapeLines;
 import com.exoticworlds.shape.WorldLoopPresets;
-import com.exoticworlds.shape.custom.CustomSettings;
+import com.exoticworlds.shape.layout.WorldLayout;
 import com.uber.nullaway.annotations.Initializer;
 
 import net.minecraft.client.Minecraft;
@@ -23,7 +22,9 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
 public class WorldShapeSettingsScreen extends Screen {
-    private static final Component TITLE = Component.translatable("gui.exotic_worlds.world_shape_settings");
+    private static final String KEY_PREFIX = "gui.exotic_worlds.world_shape_settings";
+    private static final String PRESET_KEY_PREFIX = KEY_PREFIX + ".preset.";
+    private static final Component TITLE = Component.translatable(KEY_PREFIX);
     private static final Theme THEME = Themes.VANILLA;
     private static final int CONTENT_WIDTH = 468;
     private static final int SIDE_MARGIN = 10;
@@ -32,12 +33,12 @@ public class WorldShapeSettingsScreen extends Screen {
     private static final int FOOTER_BUTTON_WIDTH = 150;
 
     private final Screen parent;
-    private final Consumer<CustomSettings> onDone;
-    private final CustomSettings chosen;
+    private final Consumer<WorldLayout> onDone;
+    private final WorldLayout chosen;
     private HeaderAndFooterLayout layout;
     private ComponentTree contents;
 
-    public WorldShapeSettingsScreen(Screen parent, CustomSettings current, Consumer<CustomSettings> onDone) {
+    public WorldShapeSettingsScreen(Screen parent, WorldLayout current, Consumer<WorldLayout> onDone) {
         super(TITLE);
         this.parent = parent;
         this.onDone = onDone;
@@ -82,7 +83,7 @@ public class WorldShapeSettingsScreen extends Screen {
         Row row = new Row();
         row.setGap(PRESET_GAP);
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
-            row.add(Button.text(THEME.button(), ShapeLines.presetLabel(preset), () -> {
+            row.add(Button.text(THEME.button(), Component.translatable(PRESET_KEY_PREFIX + preset.id()), () -> {
             }), Length.fill());
         }
 

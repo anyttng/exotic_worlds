@@ -36,6 +36,11 @@
 
   "gui.exotic_worlds.world_shape_settings": "Налаштування форми світу",
   "gui.exotic_worlds.world_shape_settings.hint": "Обери форму Верхнього світу, Незеру, Енду та кожного виміру з модів.",
+  "gui.exotic_worlds.world_shape_settings.preset.tiny": "Крихітний",
+  "gui.exotic_worlds.world_shape_settings.preset.small": "Малий",
+  "gui.exotic_worlds.world_shape_settings.preset.medium": "Середній",
+  "gui.exotic_worlds.world_shape_settings.preset.large": "Великий",
+  "gui.exotic_worlds.world_shape_settings.preset.huge": "Величезний",
   "gui.exotic_worlds.world_shape.normal": "Звичайна",
   "gui.exotic_worlds.world_shape.normal.hint": "Звичайний світ: нескінченна площина в усі боки.",
   "gui.exotic_worlds.world_shape.toroidal": "Тороїдальна",

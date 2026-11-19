@@ -36,6 +36,11 @@
 
   "gui.exotic_worlds.world_shape_settings": "세계 형태 설정",
   "gui.exotic_worlds.world_shape_settings.hint": "오버월드, 네더, 엔드와 각 모드 차원의 형태를 고릅니다.",
+  "gui.exotic_worlds.world_shape_settings.preset.tiny": "아주 작음",
+  "gui.exotic_worlds.world_shape_settings.preset.small": "작음",
+  "gui.exotic_worlds.world_shape_settings.preset.medium": "중간",
+  "gui.exotic_worlds.world_shape_settings.preset.large": "큼",
+  "gui.exotic_worlds.world_shape_settings.preset.huge": "아주 큼",
   "gui.exotic_worlds.world_shape.normal": "일반",
   "gui.exotic_worlds.world_shape.normal.hint": "일반 세계: 모든 방향으로 끝없이 이어지는 평면입니다.",
   "gui.exotic_worlds.world_shape.toroidal": "토로이드형",

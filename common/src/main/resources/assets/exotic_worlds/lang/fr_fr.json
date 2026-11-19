@@ -36,6 +36,11 @@
 
   "gui.exotic_worlds.world_shape_settings": "Réglages de la forme du monde",
   "gui.exotic_worlds.world_shape_settings.hint": "Choisissez la forme de la Surface, du Nether, de l'End et de chaque dimension des mods.",
+  "gui.exotic_worlds.world_shape_settings.preset.tiny": "Minuscule",
+  "gui.exotic_worlds.world_shape_settings.preset.small": "Petit",
+  "gui.exotic_worlds.world_shape_settings.preset.medium": "Moyen",
+  "gui.exotic_worlds.world_shape_settings.preset.large": "Grand",
+  "gui.exotic_worlds.world_shape_settings.preset.huge": "Immense",
   "gui.exotic_worlds.world_shape.normal": "Normale",
   "gui.exotic_worlds.world_shape.normal.hint": "Le monde classique : un plan infini dans toutes les directions.",
   "gui.exotic_worlds.world_shape.toroidal": "Toroïdale",
