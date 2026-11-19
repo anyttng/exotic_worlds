@@ -29,6 +29,7 @@ import com.ascendiacore.gui.widget.panel.model.FillStyle;
 import com.ascendiacore.gui.widget.scrollarea.ScrollArea;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.shape.WorldLoopPresets;
+import com.exoticworlds.shape.layout.DeclaredShapes;
 import com.exoticworlds.shape.layout.DimensionLayout;
 import com.exoticworlds.shape.layout.LayoutPreset;
 import com.exoticworlds.shape.layout.ShapeKind;
@@ -163,9 +164,10 @@ public final class WorldShapeSettingsScreen extends Screen {
 
     private Slot slot(DimensionOffer offer, ResourceKey<LevelStem> key, Function<WorldLayout, DimensionLayout> shown,
             Function<WorldLayout, @Nullable LoopSpans> spans, Fold fold, BiConsumer<DimensionPage, WorldLayout> extra) {
-        Supplier<@Nullable LoopSpans> overworldSpans = () -> this.chosen.overworld().spans();
+        Supplier<DimensionLayout> overworld = () -> this.chosen.overworld();
         DimensionLock lock = this.locks.get(key);
-        DimensionPage page = new DimensionPage(offer, THEME, FILL, overworldSpans, shown.apply(this.chosen),
+        DimensionPage page = new DimensionPage(offer, THEME, FILL, this.scales,
+                this.existingWorld ? List.of() : DeclaredShapes.all(), overworld, shown.apply(this.chosen),
                 lock == null ? null : SettingsLines.lockReason(lock));
         extra.accept(page, this.chosen);
         return new Slot(page, lock != null, shown, spans, fold, extra);
@@ -194,7 +196,7 @@ public final class WorldShapeSettingsScreen extends Screen {
     private Row presetRow() {
         Row row = new Row();
         row.setGap(PRESET_GAP);
-        row.setEnabled(!this.existingWorld);
+        row.setEnabled(() -> !this.existingWorld && LayoutPreset.offered(this.current()));
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
             Button button = Button.text(THEME.button(), SettingsLines.presetLabel(preset), () -> this.apply(preset));
             button.setSelected(() -> LayoutPreset.matches(this.current(), preset));
@@ -271,7 +273,7 @@ public final class WorldShapeSettingsScreen extends Screen {
     }
 
     private void apply(WorldLoopPresets preset) {
-        this.chosen = LayoutPreset.apply(this.current(), preset);
+        this.chosen = LayoutPreset.apply(this.current(), preset, this.scales.of(LevelStem.OVERWORLD));
         for (Slot slot : this.slots) {
             slot.page().show(slot.shown().apply(this.chosen));
             slot.extra().accept(slot.page(), this.chosen);
