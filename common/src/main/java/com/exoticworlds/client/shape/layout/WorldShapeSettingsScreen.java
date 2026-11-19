@@ -1,6 +1,7 @@
 package com.exoticworlds.client.shape.layout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -209,11 +210,22 @@ public final class WorldShapeSettingsScreen extends Screen {
         ListBox dimensions = new ListBox(THEME, FILL, RowStyle.FRAMED, selected -> {
         });
         Column pages = new Column();
-        for (int index = 0; index < this.slots.size(); index++) {
-            this.addHeadingBefore(dimensions, index);
-            this.addRow(dimensions, this.slots.get(index));
+        List<Slot> listed = new ArrayList<>();
+        Map<Integer, Component> headings = new HashMap<>();
+        int vanilla = this.slots.size() - this.modDimensions.size();
+        list(listed, headings, SettingsLines.UNDECIDED_DIMENSIONS, this.slots.stream().filter(this::open).toList());
+        list(listed, headings, SettingsLines.VANILLA_DIMENSIONS, this.decided(this.slots.subList(0, vanilla)));
+        list(listed, headings, SettingsLines.MOD_DIMENSIONS,
+                this.decided(this.slots.subList(vanilla, this.slots.size())));
+        for (int index = 0; index < listed.size(); index++) {
+            Component heading = headings.get(index);
+            if (heading != null) {
+                dimensions.addHeading(heading);
+            }
+
+            this.addRow(dimensions, listed.get(index));
             int row = index;
-            Column page = this.slots.get(index).page().page();
+            Column page = listed.get(index).page().page();
             page.setVisible(() -> dimensions.selected() == row);
             pages.add(page);
         }
@@ -225,18 +237,26 @@ public final class WorldShapeSettingsScreen extends Screen {
         return split;
     }
 
-    private void addHeadingBefore(ListBox dimensions, int index) {
-        if (index == 0) {
-            dimensions.addHeading(SettingsLines.VANILLA_DIMENSIONS);
-        } else if (index == this.slots.size() - this.modDimensions.size()) {
-            dimensions.addHeading(SettingsLines.MOD_DIMENSIONS);
+    private static void list(List<Slot> listed, Map<Integer, Component> headings, Component heading,
+            List<Slot> group) {
+        if (!group.isEmpty()) {
+            headings.put(listed.size(), heading);
+            listed.addAll(group);
         }
+    }
+
+    private boolean open(Slot slot) {
+        return this.existingWorld && !slot.locked();
+    }
+
+    private List<Slot> decided(List<Slot> group) {
+        return group.stream().filter(slot -> !this.open(slot)).toList();
     }
 
     private void addRow(ListBox dimensions, Slot slot) {
         Component name = slot.page().title();
         ListRow row = dimensions.addRow(name);
-        row.add(new Label(row.fill(), LabelRole.NORMAL, name));
+        row.add(new Label(row.fill(), slot.locked() ? LabelRole.MUTED : LabelRole.NORMAL, name));
         Label line = new Label(row.fill(), LabelRole.MUTED, Component.empty());
         line.setText(() -> this.summary(slot));
         row.add(line);

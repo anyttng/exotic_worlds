@@ -56,6 +56,7 @@
   "gui.exotic_worlds.world_shape_settings.dimension.nether": "ネザー",
   "gui.exotic_worlds.world_shape_settings.dimension.end": "ジ・エンド",
   "gui.exotic_worlds.world_shape_settings.dimensions.mod": "Modのディメンション",
+  "gui.exotic_worlds.world_shape_settings.dimensions.undecided": "形状は未選択",
   "gui.exotic_worlds.world_shape_settings.summary.shift": "ずれ %s",
   "gui.exotic_worlds.world_shape_settings.shape": "形状",
   "gui.exotic_worlds.world_shape_settings.shape.normal": "通常",
