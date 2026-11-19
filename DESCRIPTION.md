@@ -30,7 +30,7 @@ The world loops one way, east to west or north to south, and goes on forever the
 
 ## Settings
 
-Pick a shape under **World Shape** on the world-creation screen, then tune it:
+Open **World Shape Settings** on the world-creation screen, give each dimension its shape, then tune it:
 
 - **Size**: five presets from Tiny to Huge, or your own size in chunks, with X and Z set separately.
 - **Nether scale**: 1:2, 1:4 or 1:8 against the overworld. The End gets a size of its own.
