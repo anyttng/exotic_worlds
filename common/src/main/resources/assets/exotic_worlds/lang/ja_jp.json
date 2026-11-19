@@ -34,7 +34,8 @@
   "commands.exotic_worlds.check_edge.details": "詳細",
   "commands.exotic_worlds.check_edge.details.hint": "ワールドの端を壊しているものを表示します",
 
-  "gui.exotic_worlds.world_shape": "ワールドの形状",
+  "gui.exotic_worlds.world_shape_settings": "ワールドの形状の設定",
+  "gui.exotic_worlds.world_shape_settings.hint": "オーバーワールド、ネザー、エンド、各Modのディメンションの形状を選べます。",
   "gui.exotic_worlds.world_shape.normal": "通常",
   "gui.exotic_worlds.world_shape.normal.hint": "通常のワールド：あらゆる方向に無限に広がる平面。",
   "gui.exotic_worlds.world_shape.toroidal": "トロイダル",

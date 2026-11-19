@@ -34,7 +34,8 @@
   "commands.exotic_worlds.check_edge.details": "Podrobnosti",
   "commands.exotic_worlds.check_edge.details.hint": "Ukázat, co narušuje okraj světa",
 
-  "gui.exotic_worlds.world_shape": "Tvar světa",
+  "gui.exotic_worlds.world_shape_settings": "Nastavení tvaru světa",
+  "gui.exotic_worlds.world_shape_settings.hint": "Vyberte tvar pro svět na povrchu, Nether, End a každou dimenzi z modů.",
   "gui.exotic_worlds.world_shape.normal": "Normální",
   "gui.exotic_worlds.world_shape.normal.hint": "Svět ze základní hry: nekonečná plocha do všech stran.",
   "gui.exotic_worlds.world_shape.toroidal": "Toroidní",

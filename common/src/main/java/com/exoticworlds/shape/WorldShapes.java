@@ -75,11 +75,16 @@ public final class WorldShapes {
                 .toList();
     }
 
-    public static WorldShape selected() {
-        return selected;
+    public static void select(WorldShape shape) {
+        selected = shape;
     }
 
-    public static void select(WorldShape shape) {
+    public static void select(Identifier id) {
+        WorldShape shape = SHAPES.entries().get(id);
+        if (shape == null) {
+            throw new IllegalArgumentException("No world shape is registered under " + id);
+        }
+
         selected = shape;
     }
 
