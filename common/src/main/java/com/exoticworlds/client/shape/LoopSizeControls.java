@@ -38,6 +38,7 @@ public final class LoopSizeControls implements SizeControls {
     private static final String NETHER_EFFECTIVE_XZ_KEY = "gui.exotic_worlds.toroidal_settings.nether_effective_xz";
     private static final Component NETHER_HINT = Component.translatable("gui.exotic_worlds.toroidal_settings.nether_hint");
 
+    private static final String PRESET_KEY_PREFIX = "gui.exotic_worlds.toroidal_settings.preset.";
     private static final String STRUCTURES_SCARCE_KEY = "gui.exotic_worlds.toroidal_settings.consequence.structures_scarce";
     private static final String STRUCTURES_VILLAGES_KEY = "gui.exotic_worlds.toroidal_settings.consequence.structures_villages";
     private static final String STRUCTURES_COMMON_KEY = "gui.exotic_worlds.toroidal_settings.consequence.structures_common";
@@ -114,7 +115,7 @@ public final class LoopSizeControls implements SizeControls {
     public void addPresets(LinearLayout contents) {
         LinearLayout presetRow = contents.addChild(LinearLayout.horizontal().spacing(PRESET_SPACING));
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
-            Button presetButton = presetRow.addChild(Button.builder(ShapeLines.presetLabel(preset),button -> this.apply(preset))
+            Button presetButton = presetRow.addChild(Button.builder(presetLabel(preset), button -> this.apply(preset))
                     .width(PRESET_WIDTH)
                     .build());
             presetButton.setTooltip(this.presetTooltip(preset));
@@ -318,6 +319,10 @@ public final class LoopSizeControls implements SizeControls {
         this.wantedNetherScale = this.netherScale;
         this.refreshNetherScale(effectiveXSize, effectiveZSize, effectiveSkew);
         this.changed();
+    }
+
+    private static Component presetLabel(WorldLoopPresets preset) {
+        return Component.translatable(PRESET_KEY_PREFIX + preset.id());
     }
 
     private static String structureRoomKey(int sizeChunks) {

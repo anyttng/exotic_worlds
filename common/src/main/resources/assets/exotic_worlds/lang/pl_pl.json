@@ -36,6 +36,11 @@
 
   "gui.exotic_worlds.world_shape_settings": "Ustawienia kształtu świata",
   "gui.exotic_worlds.world_shape_settings.hint": "Wybierz kształt Nadziemia, Netheru, Endu i każdego wymiaru z modów.",
+  "gui.exotic_worlds.world_shape_settings.preset.tiny": "Malutki",
+  "gui.exotic_worlds.world_shape_settings.preset.small": "Mały",
+  "gui.exotic_worlds.world_shape_settings.preset.medium": "Średni",
+  "gui.exotic_worlds.world_shape_settings.preset.large": "Duży",
+  "gui.exotic_worlds.world_shape_settings.preset.huge": "Ogromny",
   "gui.exotic_worlds.world_shape.normal": "Zwykły",
   "gui.exotic_worlds.world_shape.normal.hint": "Zwykły świat: nieskończona płaszczyzna we wszystkie strony.",
   "gui.exotic_worlds.world_shape.toroidal": "Toroidalny",
