@@ -104,6 +104,10 @@ public final class WorldShapeSettingsScreen extends Screen {
         return new WorldShapeSettingsScreen(null, current, modDimensions, scales, locks, true, onDone);
     }
 
+    public @Nullable Screen creationScreen() {
+        return this.parent;
+    }
+
     @Override
     @Initializer
     protected void init() {
@@ -161,8 +165,7 @@ public final class WorldShapeSettingsScreen extends Screen {
             Function<WorldLayout, @Nullable LoopSpans> spans, Fold fold, BiConsumer<DimensionPage, WorldLayout> extra) {
         Supplier<@Nullable LoopSpans> overworldSpans = () -> this.chosen.overworld().spans();
         DimensionLock lock = this.locks.get(key);
-        DimensionPage page = new DimensionPage(offer, THEME, FILL, this.parent, overworldSpans,
-                shown.apply(this.chosen),
+        DimensionPage page = new DimensionPage(offer, THEME, FILL, overworldSpans, shown.apply(this.chosen),
                 lock == null ? null : SettingsLines.lockReason(lock));
         extra.accept(page, this.chosen);
         return new Slot(page, lock != null, shown, spans, fold, extra);

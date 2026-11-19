@@ -39,8 +39,6 @@ final class SettingsLines {
     static final String SHAPE_KEY = PREFIX + ".shape";
     static final String AXIS_KEY = PREFIX + ".axis";
     static final String SPAWN_KEY = PREFIX + ".spawn";
-    static final String GUARANTEED_LAND_KEY = PREFIX + ".guaranteed_land";
-    static final String GUARANTEED_NETHER_COMPLEXES_KEY = PREFIX + ".guaranteed_nether_complexes";
 
     static final Component TITLE = Component.translatable(PREFIX);
     static final Component EXISTING_WORLD = Component.translatable(PREFIX + ".existing_world");
