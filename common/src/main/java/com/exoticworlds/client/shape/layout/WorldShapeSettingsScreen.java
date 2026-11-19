@@ -199,7 +199,7 @@ public final class WorldShapeSettingsScreen extends Screen {
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
             Button button = Button.text(THEME.button(), SettingsLines.presetLabel(preset), () -> this.apply(preset));
             button.setSelected(() -> LayoutPreset.matches(this.current(), preset));
-            button.setTooltip(THEME.tooltip(), SettingsLines.presetHint(preset));
+            button.setTooltip(THEME.tooltip(), SettingsLines.presetHint(THEME.tooltip(), preset));
             row.add(button, Length.fill());
         }
 

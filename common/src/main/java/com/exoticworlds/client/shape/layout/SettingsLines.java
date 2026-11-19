@@ -4,6 +4,8 @@ import java.util.Locale;
 
 import org.jspecify.annotations.Nullable;
 
+import com.ascendiacore.gui.base.component.model.TooltipStyle;
+import com.ascendiacore.gui.base.hint.Hint;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.SpawnPoint;
@@ -64,16 +66,18 @@ final class SettingsLines {
         return Component.translatable(PRESET_PREFIX + preset.id());
     }
 
-    static Component presetHint(WorldLoopPresets preset) {
+    static Component presetHint(TooltipStyle style, WorldLoopPresets preset) {
         int endChunkWidth = preset.endChunkWidth();
-        return sizeEffective(preset.chunkWidth()).copy()
+        Component sizes = sizeEffective(preset.chunkWidth()).copy()
                 .append(CommonComponents.NEW_LINE)
                 .append(Component.translatable(PRESET_PREFIX + "nether", preset.netherScale()))
                 .append(CommonComponents.NEW_LINE)
                 .append(Component.translatable(PRESET_PREFIX + "end", endChunkWidth,
-                        endChunkWidth * CoordinateConstants.CHUNK_WIDTH))
-                .append(CommonComponents.NEW_LINE)
-                .append(Component.translatable(STRUCTURES_PREFIX + structureRoom(preset.chunkWidth())));
+                        endChunkWidth * CoordinateConstants.CHUNK_WIDTH));
+        return Hint.of(style)
+                .derived(sizes)
+                .note(Component.translatable(STRUCTURES_PREFIX + structureRoom(preset.chunkWidth())))
+                .build();
     }
 
     static Component sizeEffective(int chunkWidth) {

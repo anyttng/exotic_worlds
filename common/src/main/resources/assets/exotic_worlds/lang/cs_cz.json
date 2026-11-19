@@ -110,11 +110,15 @@
 
   "gui.exotic_worlds.settings.title": "Nastavení Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Kopie na celoobrazovkové mapě",
-  "gui.exotic_worlds.settings.map_copies_hint": "Jak mapové mody ukazují na celé obrazovce svět, který se uzavírá do smyčky.\nOpakovaně: vyplní okno kopiemi světa.\nJednou: ukáže svět jednou a na jeho okrajích přestane posouvat a oddalovat.\nMinimapy ho opakují vždy.",
   "gui.exotic_worlds.settings.map_copies.repeated": "Opakovaně",
   "gui.exotic_worlds.settings.map_copies.single": "Jednou",
+  "gui.exotic_worlds.settings.map_copies.hint.intro": "Jak mapové mody ukazují na celé obrazovce svět, který se uzavírá do smyčky.",
+  "gui.exotic_worlds.settings.map_copies.hint.repeated": "vyplní okno kopiemi světa.",
+  "gui.exotic_worlds.settings.map_copies.hint.single": "ukáže svět jednou a na jeho okrajích přestane posouvat a oddalovat.",
+  "gui.exotic_worlds.settings.map_copies.hint.note": "Minimapy ho opakují vždy.",
   "gui.exotic_worlds.settings.seam_lines": "Čáry okraje na celoobrazovkové mapě",
-  "gui.exotic_worlds.settings.seam_lines_hint": "Na celoobrazovkové mapě kreslí čáru podél okraje světa mezi kopiemi světa, který se uzavírá do smyčky. Funguje jen s volbou Opakovaně: Jednou žádnou nekreslí.",
+  "gui.exotic_worlds.settings.seam_lines.hint.intro": "Na celoobrazovkové mapě kreslí čáru podél okraje světa mezi kopiemi světa, který se uzavírá do smyčky.",
+  "gui.exotic_worlds.settings.seam_lines.hint.requirement": "Funguje jen s volbou %s: %s žádnou nekreslí.",
 
   "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Kliknutím nastavíte výchozí bod",
   "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "Kliknutím pravým tlačítkem na špendlík ho vrátíte",

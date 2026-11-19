@@ -110,11 +110,15 @@
 
   "gui.exotic_worlds.settings.title": "Einstellungen von Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Weltkopien auf der Vollbildkarte",
-  "gui.exotic_worlds.settings.map_copies_hint": "Wie Karten-Mods eine Welt, die sich schließt, im Vollbild zeigen.\nWiederholt: füllt das Fenster mit Kopien der Welt.\nEinzeln: zeigt die Welt einmal und lässt die Karte nicht über ihre Ränder hinaus verschieben oder herauszoomen.\nMinikarten wiederholen sie immer.",
   "gui.exotic_worlds.settings.map_copies.repeated": "Wiederholt",
   "gui.exotic_worlds.settings.map_copies.single": "Einzeln",
+  "gui.exotic_worlds.settings.map_copies.hint.intro": "Wie Karten-Mods eine Welt, die sich schließt, im Vollbild zeigen.",
+  "gui.exotic_worlds.settings.map_copies.hint.repeated": "füllt das Fenster mit Kopien der Welt.",
+  "gui.exotic_worlds.settings.map_copies.hint.single": "zeigt die Welt einmal und lässt die Karte nicht über ihre Ränder hinaus verschieben oder herauszoomen.",
+  "gui.exotic_worlds.settings.map_copies.hint.note": "Minikarten wiederholen sie immer.",
   "gui.exotic_worlds.settings.seam_lines": "Weltrandlinien auf der Vollbildkarte",
-  "gui.exotic_worlds.settings.seam_lines_hint": "Zeichnet auf der Vollbildkarte am Weltrand zwischen den Kopien einer Welt, die sich schließt, eine Linie. Wirkt nur mit „Wiederholt“: „Einzeln“ zeichnet keine.",
+  "gui.exotic_worlds.settings.seam_lines.hint.intro": "Zeichnet auf der Vollbildkarte am Weltrand zwischen den Kopien einer Welt, die sich schließt, eine Linie.",
+  "gui.exotic_worlds.settings.seam_lines.hint.requirement": "Wirkt nur mit %s: %s zeichnet keine.",
 
   "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Klicken, um den Welteinstiegspunkt festzulegen",
   "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "Rechtsklick auf die Markierung setzt zurück",

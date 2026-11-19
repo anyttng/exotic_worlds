@@ -110,11 +110,15 @@
 
   "gui.exotic_worlds.settings.title": "Exotic Worlds Settings",
   "gui.exotic_worlds.settings.map_copies": "Fullscreen map copies",
-  "gui.exotic_worlds.settings.map_copies_hint": "How map mods show a world that wraps around, full screen.\nRepeated: fills the window with copies of the world.\nSingle: shows the world once and stops panning and zooming out at its edges.\nMinimaps always repeat it.",
   "gui.exotic_worlds.settings.map_copies.repeated": "Repeated",
   "gui.exotic_worlds.settings.map_copies.single": "Single",
+  "gui.exotic_worlds.settings.map_copies.hint.intro": "How map mods show a world that wraps around, full screen.",
+  "gui.exotic_worlds.settings.map_copies.hint.repeated": "fills the window with copies of the world.",
+  "gui.exotic_worlds.settings.map_copies.hint.single": "shows the world once and stops panning and zooming out at its edges.",
+  "gui.exotic_worlds.settings.map_copies.hint.note": "Minimaps always repeat it.",
   "gui.exotic_worlds.settings.seam_lines": "Fullscreen map edge lines",
-  "gui.exotic_worlds.settings.seam_lines_hint": "Draws a line along the world's edge between the copies of a world that wraps around on the fullscreen map. Works with Repeated alone: Single draws none.",
+  "gui.exotic_worlds.settings.seam_lines.hint.intro": "Draws a line along the world's edge between the copies of a world that wraps around on the fullscreen map.",
+  "gui.exotic_worlds.settings.seam_lines.hint.requirement": "Works with %s alone: %s draws none.",
 
   "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Click to set the spawn point",
   "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "Right-click the pin to reset",
