@@ -66,6 +66,8 @@
   "gui.exotic_worlds.world_shape_settings.shape.hint.torus": "se cierra de este a oeste y de norte a sur: camina lo suficiente en cualquier dirección y volverás al punto de partida.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.cylinder": "un eje horizontal se cierra sobre sí mismo; el otro sigue sin fin, como en el mundo normal.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.from_overworld": "toma la forma del Mundo superior con el tamaño propio de esta dimensión.",
+  "gui.exotic_worlds.world_shape_settings.shape.hint.declared": "una forma añadida por otro mod; su descripción aparece debajo de este botón.",
+  "gui.exotic_worlds.world_shape_settings.shape.size_error": "Esta forma mide %s chunks de ancho; esta dimensión admite de %s a %s.",
   "gui.exotic_worlds.world_shape_settings.nether_scale": "Escala del Nether",
   "gui.exotic_worlds.world_shape_settings.size": "Tamaño del mundo en chunks (%s-%s)",
   "gui.exotic_worlds.world_shape_settings.size_x": "Tamaño del mundo en X en chunks (%s-%s)",

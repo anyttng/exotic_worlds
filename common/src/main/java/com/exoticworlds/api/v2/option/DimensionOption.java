@@ -68,6 +68,11 @@ public final class DimensionOption<T> {
         return this.parts;
     }
 
+    /** The shapes the option is offered for; empty means every shape. */
+    public List<Identifier> shapes() {
+        return this.shapes;
+    }
+
     /** Whether the option is offered where {@code shape} is the shape of {@code dimension}. */
     public boolean offeredFor(Identifier shape, ResourceKey<LevelStem> dimension) {
         return (this.shapes.isEmpty() || this.shapes.contains(shape))

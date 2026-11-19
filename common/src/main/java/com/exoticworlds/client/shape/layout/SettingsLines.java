@@ -9,6 +9,7 @@ import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.WorldLoopSizes;
 import com.exoticworlds.shape.WorldLoopPresets;
+import com.exoticworlds.shape.WorldShape;
 import com.exoticworlds.shape.layout.DimensionLayout;
 import com.exoticworlds.shape.layout.ShapeKind;
 import com.google.common.math.IntMath;
@@ -17,6 +18,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
 
 final class SettingsLines {
     private static final String PREFIX = "gui.exotic_worlds.world_shape_settings";
@@ -25,6 +27,7 @@ final class SettingsLines {
     private static final String SIZE_EFFECTIVE_KEY = PREFIX + ".size.effective";
     private static final String SHIFT_LAPS_KEY = PREFIX + ".shift.laps";
     private static final String SUMMARY_SHIFT_KEY = PREFIX + ".summary.shift";
+    private static final String SHAPE_SIZE_ERROR_KEY = PREFIX + ".shape.size_error";
     private static final String SEPARATOR = ", ";
     private static final String SCALE_PREFIX = "1:";
     private static final String TIMES = " × ";
@@ -96,7 +99,17 @@ final class SettingsLines {
         return Component.literal(axis.getName().toUpperCase(Locale.ROOT));
     }
 
+    static Component shapeSizeError(int chunkWidth, int minChunkWidth) {
+        return Component.translatable(SHAPE_SIZE_ERROR_KEY, chunkWidth, minChunkWidth,
+                WorldLoopSizes.MAX_CHUNK_WIDTH);
+    }
+
     static Component summary(DimensionLayout layout, @Nullable LoopSpans spans, boolean derivationKnown) {
+        Identifier declared = layout.shape();
+        if (declared != null) {
+            return WorldShape.label(declared);
+        }
+
         if (layout.kind() != ShapeKind.FROM_OVERWORLD) {
             return shapeSummary(spans);
         }

@@ -1,7 +1,7 @@
 package com.exoticworlds.client.shape.layout;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
@@ -18,9 +18,13 @@ import com.ascendiacore.gui.widget.panel.model.FillStyle;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.api.v2.shape.BuiltInShapes;
+import com.exoticworlds.api.v2.shape.DimensionContext;
+import com.exoticworlds.api.v2.shape.DimensionShape;
 import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.shape.WorldShape;
+import com.exoticworlds.shape.layout.DeclaredShapes;
 import com.exoticworlds.shape.layout.DimensionLayout;
 import com.exoticworlds.shape.layout.OverworldDerivation;
 import com.exoticworlds.shape.layout.ShapeKind;
@@ -28,11 +32,14 @@ import com.exoticworlds.shape.layout.ShapeKind;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.dimension.LevelStem;
 
 final class DimensionPage {
     private final DimensionOffer offer;
-    private final Supplier<@Nullable LoopSpans> overworldSpans;
-    private final Value<ShapeKind> kind = Value.of(ShapeKind.NORMAL);
+    private final CoordinateScales scales;
+    private final List<DimensionShape> declaredShapes;
+    private final Supplier<DimensionLayout> overworld;
+    private final Value<ShapeChoice> chosen = Value.of(ShapeChoice.of(ShapeKind.NORMAL));
     private final Value<Integer> netherScale = Value.of(NetherScales.DEFAULT);
     private final LoopFields loops;
     private final SpawnFields spawn;
@@ -41,10 +48,13 @@ final class DimensionPage {
     private GenerationOptions options;
     private ShapeKind shownKind = ShapeKind.NORMAL;
 
-    DimensionPage(DimensionOffer offer, Theme theme, FillStyle fill, Supplier<@Nullable LoopSpans> overworldSpans,
-            DimensionLayout shown, @Nullable Component lockReason) {
+    DimensionPage(DimensionOffer offer, Theme theme, FillStyle fill, CoordinateScales scales,
+            List<DimensionShape> declaredShapes, Supplier<DimensionLayout> overworld, DimensionLayout shown,
+            @Nullable Component lockReason) {
         this.offer = offer;
-        this.overworldSpans = overworldSpans;
+        this.scales = scales;
+        this.declaredShapes = List.copyOf(declaredShapes);
+        this.overworld = overworld;
         this.options = shown.options();
         this.loops = new LoopFields(theme, fill, offer.minChunkWidth(), offer.defaultChunkWidth());
         this.spawn = new SpawnFields(theme, fill, this::spawnChunkWidth);
@@ -67,7 +77,8 @@ final class DimensionPage {
 
     void show(DimensionLayout layout) {
         this.options = layout.options();
-        this.kind.set(layout.kind());
+        DimensionShape shape = this.offered(layout.shape());
+        this.chosen.set(shape != null ? ShapeChoice.of(shape) : ShapeChoice.of(layout.kind()));
         this.shownKind = layout.kind();
         this.loops.show(layout.spans());
         this.spawn.show(this.options.get(SpawnPoint.OPTION));
@@ -83,8 +94,8 @@ final class DimensionPage {
     }
 
     @Nullable DimensionLayout layout() {
-        ShapeKind chosen = this.kind.get();
-        if (chosen == ShapeKind.NORMAL) {
+        ShapeKind own = this.own();
+        if (own == ShapeKind.NORMAL) {
             return DimensionLayout.normal(this.options);
         }
 
@@ -93,11 +104,18 @@ final class DimensionPage {
             return null;
         }
 
-        if (chosen == ShapeKind.FROM_OVERWORLD) {
+        DimensionShape shape = this.chosen.get().declared();
+        if (shape != null) {
+            return this.sizeError().getString().isEmpty()
+                    ? DimensionLayout.declared(shape.id(), this.declaredSpans(shape), chosenOptions)
+                    : null;
+        }
+
+        if (own == ShapeKind.FROM_OVERWORLD) {
             return DimensionLayout.fromOverworld(chosenOptions);
         }
 
-        LoopSpans spans = this.loops.spans(chosen);
+        LoopSpans spans = own == null ? null : this.loops.spans(own);
         return spans == null ? null : DimensionLayout.looped(spans, chosenOptions);
     }
 
@@ -111,18 +129,18 @@ final class DimensionPage {
     }
 
     private void build(Theme theme, FillStyle fill, @Nullable Component lockReason) {
-        CycleButton<ShapeKind> shape = new CycleButton<>(theme.button(), Component.translatable(SettingsLines.SHAPE_KEY),
-                this.offer::kinds, this.kind, SettingsLines::shapeName);
-        shape.setHint(theme.tooltip(), SettingsLines.SHAPE_KEY, picked -> picked.name().toLowerCase(Locale.ROOT));
-        shape.setOnChange(this::changeKind);
+        CycleButton<ShapeChoice> shape = new CycleButton<>(theme.button(),
+                Component.translatable(SettingsLines.SHAPE_KEY), this::choices, this.chosen, ShapeChoice::name);
+        shape.setHint(theme.tooltip(), SettingsLines.SHAPE_KEY, ShapeChoice::hintKey);
+        shape.setOnChange(this::changeShape);
 
         Column additional = new Column();
         additional.setGap(LoopFields.GAP);
         additional.add(Heading.of(fill, SettingsLines.ADDITIONAL));
         additional.add(this.declared.section());
 
-        this.loops.torus().setVisible(() -> this.kind.get() == ShapeKind.TORUS);
-        this.loops.cylinder().setVisible(() -> this.kind.get() == ShapeKind.CYLINDER);
+        this.loops.torus().setVisible(() -> this.own() == ShapeKind.TORUS);
+        this.loops.cylinder().setVisible(() -> this.own() == ShapeKind.CYLINDER);
         this.spawn.section().setVisible(() -> this.offer.spawnPoint() && this.resolvedKind() != ShapeKind.NORMAL);
         additional.setVisible(this.declared::anyOffered);
 
@@ -134,12 +152,31 @@ final class DimensionPage {
         }
 
         this.page.add(shape);
+        this.page.add(this.declaredHint(fill));
         this.page.add(this.netherScaleField(theme, fill));
         this.page.add(this.derivedLine(fill));
+        this.page.add(this.sizeErrorLine(fill));
         this.page.add(this.loops.torus());
         this.page.add(this.loops.cylinder());
         this.page.add(this.spawn.section());
         this.page.add(additional);
+    }
+
+    private List<ShapeChoice> choices() {
+        List<ShapeChoice> choices = new ArrayList<>();
+        this.offer.kinds().forEach(kind -> choices.add(ShapeChoice.of(kind)));
+        this.declaredShapes.forEach(shape -> choices.add(ShapeChoice.of(shape)));
+        return choices;
+    }
+
+    private Label declaredHint(FillStyle fill) {
+        Label hint = new Label(fill, LabelRole.MUTED, Component.empty());
+        hint.setText(() -> {
+            DimensionShape shape = this.chosen.get().declared();
+            return shape == null ? Component.empty() : WorldShape.hint(shape.id());
+        });
+        hint.setVisible(() -> this.chosen.get().declared() != null);
+        return hint;
     }
 
     private Field netherScaleField(Theme theme, FillStyle fill) {
@@ -148,55 +185,120 @@ final class DimensionPage {
         scale.showValueOnly();
         Field field = new Field(fill, SettingsLines.NETHER_SCALE, scale);
         field.setValueLine(() -> SettingsLines.shapeSummary(this.resolvedSpans()));
-        field.setVisible(() -> this.offer.netherScale() && this.kind.get() == ShapeKind.FROM_OVERWORLD);
+        field.setVisible(() -> this.offer.netherScale() && this.own() == ShapeKind.FROM_OVERWORLD);
         return field;
     }
 
     private Label derivedLine(FillStyle fill) {
         Label line = new Label(fill, LabelRole.MUTED, Component.empty());
         line.setText(() -> SettingsLines.shapeSummary(this.resolvedSpans()));
-        line.setVisible(() -> this.derivationKnown() && !this.offer.netherScale()
-                && this.kind.get() == ShapeKind.FROM_OVERWORLD);
+        line.setVisible(() -> this.chosen.get().declared() != null
+                || (this.derivationKnown() && !this.offer.netherScale() && this.own() == ShapeKind.FROM_OVERWORLD));
         return line;
     }
 
+    private Label sizeErrorLine(FillStyle fill) {
+        Label line = new Label(fill, LabelRole.ERROR, Component.empty());
+        line.setText(this::sizeError);
+        line.setVisible(() -> !this.sizeError().getString().isEmpty());
+        return line;
+    }
+
+    private Component sizeError() {
+        DimensionShape shape = this.chosen.get().declared();
+        LoopSpans spans = shape == null ? null : this.declaredSpans(shape);
+        if (spans == null) {
+            return Component.empty();
+        }
+
+        for (Direction.Axis axis : List.of(Direction.Axis.X, Direction.Axis.Z)) {
+            if (spans.loops(axis) && !this.allowed(spans.chunkWidth(axis))) {
+                return SettingsLines.shapeSizeError(spans.chunkWidth(axis), this.offer.minChunkWidth());
+            }
+        }
+
+        return Component.empty();
+    }
+
+    private boolean allowed(int chunkWidth) {
+        return chunkWidth >= this.offer.minChunkWidth() && chunkWidth <= WorldLoopSizes.MAX_CHUNK_WIDTH;
+    }
+
     private List<Integer> netherScales() {
-        LoopSpans overworld = this.overworldSpans.get();
-        return overworld == null || ShapeKind.of(overworld) == ShapeKind.NORMAL
-                ? List.of(this.netherScale.get())
-                : OverworldDerivation.netherScales(overworld);
+        LoopSpans spans = this.overworld.get().spans();
+        return spans == null ? List.of(this.netherScale.get()) : OverworldDerivation.netherScales(spans);
     }
 
     private @Nullable LoopSpans resolvedSpans() {
-        ShapeKind chosen = this.kind.get();
-        if (chosen != ShapeKind.FROM_OVERWORLD) {
-            return this.loops.spans(chosen);
+        ShapeChoice choice = this.chosen.get();
+        DimensionShape shape = choice.declared();
+        if (shape != null) {
+            return this.declaredSpans(shape);
+        }
+
+        ShapeKind own = choice.own();
+        if (own != ShapeKind.FROM_OVERWORLD) {
+            return own == null ? null : this.loops.spans(own);
         }
 
         var derivation = this.offer.derivation();
-        return derivation == null ? null : derivation.apply(this.overworldSpans.get(), this.netherScale.get());
+        return derivation == null ? null : derivation.apply(this.overworld.get().spans(), this.netherScale.get());
+    }
+
+    private @Nullable LoopSpans declaredSpans(DimensionShape shape) {
+        GenerationOptions chosenOptions = this.declared.commit(this.options);
+        if (chosenOptions == null) {
+            return null;
+        }
+
+        boolean overworldItself = this.offer.dimension() == LevelStem.OVERWORLD;
+        return DeclaredShapes.resolve(shape, new DimensionContext(this.offer.dimension(), chosenOptions,
+                overworldItself ? null : this.overworld.get().spans(), this.scales.of(LevelStem.OVERWORLD),
+                this.scales.of(this.offer.dimension())));
+    }
+
+    private @Nullable ShapeKind own() {
+        return this.chosen.get().own();
     }
 
     private ShapeKind resolvedKind() {
-        ShapeKind chosen = this.kind.get();
-        return chosen == ShapeKind.FROM_OVERWORLD ? ShapeKind.of(this.resolvedSpans()) : chosen;
+        ShapeKind own = this.own();
+        return own == null || own == ShapeKind.FROM_OVERWORLD ? ShapeKind.of(this.resolvedSpans()) : own;
     }
 
     private @Nullable Identifier resolvedShape() {
-        return switch (this.resolvedKind()) {
-            case TORUS -> BuiltInShapes.TORUS;
-            case CYLINDER -> BuiltInShapes.CYLINDER;
-            case NORMAL, FROM_OVERWORLD -> null;
-        };
+        DimensionShape shape = this.chosen.get().declared();
+        if (shape != null) {
+            return shape.id();
+        }
+
+        ShapeKind resolved = this.resolvedKind();
+        Identifier fromOverworld = this.own() == ShapeKind.FROM_OVERWORLD ? this.overworld.get().shape() : null;
+        if (resolved == ShapeKind.NORMAL || fromOverworld != null) {
+            return resolved == ShapeKind.NORMAL ? null : fromOverworld;
+        }
+
+        return resolved == ShapeKind.TORUS ? BuiltInShapes.TORUS : BuiltInShapes.CYLINDER;
     }
 
-    private void changeKind(ShapeKind picked) {
-        this.loops.carryWidth(this.shownKind, picked);
-        this.shownKind = picked;
+    private @Nullable DimensionShape offered(@Nullable Identifier id) {
+        DimensionShape shape = id == null ? null : DeclaredShapes.of(id);
+        return shape != null && this.declaredShapes.contains(shape) ? shape : null;
+    }
+
+    private void changeShape(ShapeChoice picked) {
+        ShapeKind own = picked.own();
+        if (own != null) {
+            this.loops.carryWidth(this.shownKind, own);
+            this.shownKind = own;
+        }
     }
 
     private @Nullable Integer spawnChunkWidth(Direction.Axis axis) {
-        LoopSpans spans = this.loops.spans(this.kind.get());
+        ShapeChoice choice = this.chosen.get();
+        DimensionShape shape = choice.declared();
+        ShapeKind own = choice.own();
+        LoopSpans spans = shape != null ? this.declaredSpans(shape) : own == null ? null : this.loops.spans(own);
         if (spans == null) {
             return null;
         }
