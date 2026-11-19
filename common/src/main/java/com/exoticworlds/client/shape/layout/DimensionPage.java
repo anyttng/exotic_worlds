@@ -60,6 +60,14 @@ final class DimensionPage {
         return this.page;
     }
 
+    Component title() {
+        return this.offer.title();
+    }
+
+    boolean derivationKnown() {
+        return this.offer.derivation() != null;
+    }
+
     void show(DimensionLayout layout) {
         this.options = layout.options();
         this.kind.set(layout.kind());
@@ -166,7 +174,8 @@ final class DimensionPage {
     private Label derivedLine(FillStyle fill) {
         Label line = new Label(fill, LabelRole.MUTED, Component.empty());
         line.setText(() -> SettingsLines.shapeSummary(this.resolvedSpans()));
-        line.setVisible(() -> !this.offer.netherScale() && this.kind.get() == ShapeKind.FROM_OVERWORLD);
+        line.setVisible(() -> this.derivationKnown() && !this.offer.netherScale()
+                && this.kind.get() == ShapeKind.FROM_OVERWORLD);
         return line;
     }
 
@@ -183,7 +192,8 @@ final class DimensionPage {
             return this.loops.spans(chosen);
         }
 
-        return this.offer.derivation().apply(this.overworldSpans.get(), this.netherScale.get());
+        var derivation = this.offer.derivation();
+        return derivation == null ? null : derivation.apply(this.overworldSpans.get(), this.netherScale.get());
     }
 
     private ShapeKind resolvedKind() {

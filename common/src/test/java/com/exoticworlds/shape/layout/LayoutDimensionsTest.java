@@ -175,6 +175,27 @@ class LayoutDimensionsTest {
     }
 
     @Test
+    void aModDimensionWithNoRowIsFromTheOverworldAndChoosingThatDropsItsRow() {
+        DimensionLayout own = DimensionLayout.looped(LoopSpans.ofWidth(48), COMPACT_6);
+
+        WorldLayout withRow = WorldLayout.DEFAULT.withModDimension(MOD_STEM, own);
+
+        assertEquals(ShapeKind.FROM_OVERWORLD, WorldLayout.DEFAULT.modDimension(MOD_STEM).kind());
+        assertEquals(own, withRow.modDimension(MOD_STEM));
+        assertEquals(Map.of(), withRow.withModDimension(MOD_STEM, DimensionLayout.fromOverworld(PLAIN)).modDimensions());
+    }
+
+    @Test
+    void aModDimensionFromTheOverworldTakesItsSizeOverTheCoordinateScales() {
+        LoopSpans overworld = LoopSpans.ofWidths(128, 64).withSkew(16);
+
+        assertEquals(overworld, OverworldDerivation.modDimension(overworld, 1.0, 1.0));
+        assertEquals(LoopSpans.ofWidths(32, 16).withSkew(4), OverworldDerivation.modDimension(overworld, 1.0, 4.0));
+        assertNull(OverworldDerivation.modDimension(LoopSpans.ofWidth(100), 1.0, 8.0));
+        assertNull(OverworldDerivation.modDimension(null, 1.0, 1.0));
+    }
+
+    @Test
     void theSpawnPointMovesOnlyOnALoopedOverworld() {
         SpawnPoint spawn = new SpawnPoint(5, -7);
         WorldLayout looped = new WorldLayout(DimensionLayout.looped(LoopSpans.ofWidth(64), PLAIN),
