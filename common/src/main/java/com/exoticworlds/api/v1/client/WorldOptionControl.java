@@ -9,7 +9,12 @@ import net.minecraft.client.gui.layouts.LinearLayout;
  * What one world option contributes to a settings screen: its widgets, and the value it writes back. A control is
  * built once per screen, through the factory registered with {@link WorldOptionControls#register}, and reaches the
  * screen around it only through its {@link WorldOptionContext}.
+ *
+ * @deprecated no screen builds these controls any more, so a control registered for an option is never shown.
+ *     Declare how the option is offered and drawn with a {@link com.exoticworlds.api.v2.option.DimensionOption};
+ *     the World Shape Settings screen draws it.
  */
+@Deprecated
 public interface WorldOptionControl {
 
     /** Adds this option's widgets to the screen's vertical contents, in registry order with the other options. */

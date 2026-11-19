@@ -20,7 +20,11 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
  * written on the client thread and read once as the world is made.</p>
  *
  * @param <S> the shape's own settings type, opaque to Exotic Worlds
+ * @deprecated a shape declared here still registers, but no screen lists it and nothing opens a Customize screen
+ *     for it: the World Shape Settings screen sets a shape per dimension. Declare a
+ *     {@link com.exoticworlds.api.v2.shape.DimensionShape} instead.
  */
+@Deprecated
 public final class ShapeModule<S> {
 
     /** What the shape does to the dimensions at creation — normally one {@link ShapeDimensions#withSpans} call. */

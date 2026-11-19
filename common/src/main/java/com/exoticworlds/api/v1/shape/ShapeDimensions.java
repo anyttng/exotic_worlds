@@ -17,9 +17,8 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
  * noise, the packet rewriting, the seam behaviour — is derived from what is written here and is not reachable from
  * this package.
  *
- * <p>Call {@link #withSpans} from {@link ShapeModule.Apply} and {@link #spansOf} from {@link ShapeModule.Read}. The
- * dimensions handed to {@code Apply} have had any earlier shape stripped, so a shape states its whole geometry rather
- * than amending someone else's.</p>
+ * <p>A shape declared through {@code api.v2} writes nothing here itself: it answers its spans and Exotic Worlds
+ * writes them. {@link #spansOf} and {@link #optionsOf} read a world's dimensions back.</p>
  */
 public final class ShapeDimensions {
 
@@ -41,9 +40,7 @@ public final class ShapeDimensions {
 
     /**
      * The spans that stem was created with, skew included, or {@code null} where it carries no shape of ours or one
-     * spans cannot state. A shape reads this in {@link ShapeModule.Read} and refuses anything that is not its own
-     * geometry — normally by checking which axes {@link LoopSpans#loops} answers for and its
-     * {@link LoopSpans#skewChunks()}.
+     * spans cannot state.
      */
     public static @Nullable LoopSpans spansOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
         FlatShape shape = ShapedDimensions.shapeOf(dimensions, key);

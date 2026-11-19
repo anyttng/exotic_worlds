@@ -2,21 +2,39 @@
 
 Part of [Exotic Worlds from Another Mod](../modding.md).
 
-A shape is one declaration: an id, the settings it starts from, what it writes into the world's dimensions at creation, and how it reads itself back out of an existing world.
+A shape is one class. It has an id and answers the spans of each dimension the player puts it on. The player picks it with the **Shape** button of the **World Shape Settings** screen, on any dimension.
 
 ```java
-public static final ShapeModule<BandSettings> MODULE = ShapeModule.of(
-        Identifier.fromNamespaceAndPath("your_mod", "band"),
-        BandSettings.DEFAULT,
-        BandDimensions::apply,
-        BandDimensions::read);
+public final class BandShape implements DimensionShape {
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("your_mod", "band");
+
+    @Override
+    public Identifier id() {
+        return ID;
+    }
+
+    @Override
+    public LoopSpans spans(DimensionContext context) {
+        return LoopSpans.ofWidth(Direction.Axis.X, context.options().get(BandWidth.OPTION));
+    }
+}
 ```
 
-`MODULE.register()` registers it. Call that from your mod's initializer: the registry closes at `MinecraftServer.runServer`, before the levels load, and a `register` past that throws instead of being silently half-effective.
+`new BandShape().register()` registers it. Call that from your mod's initializer: the registry closes at `MinecraftServer.runServer`, before the levels load, and a `register` past that throws.
 
-The settings type is yours and Exotic Worlds never looks inside it. A Customize screen reads `MODULE.settings()` and writes its result back through `MODULE.settings(chosen)`; the module holds the player's choice until the world is made.
+The shape's name and its one-line description come from `gui.<namespace>.world_shape.<path>` and that key plus `.hint`; for the shape above, `gui.your_mod.world_shape.band` and `gui.your_mod.world_shape.band.hint`.
 
-The shape's name and tooltip come from `gui.<namespace>.world_shape.<path>` and that key plus `.hint`; for the module above, `gui.your_mod.world_shape.band` and `gui.your_mod.world_shape.band.hint`.
+A shape has no screen and no settings of its own. What the player tunes are world options that name it, declared below.
+
+## What `spans` is given
+
+`DimensionContext` carries the dimension the shape was chosen for, the options chosen on that dimension's page, the Overworld's spans, and the coordinate scales of the Overworld and of this dimension. The Overworld's spans are `null` for the Overworld itself and under an Overworld that loops nothing.
+
+Return `LoopSpans.NONE` to leave the dimension as the game makes it.
+
+A world stores the spans and the options, never the shape. When the player re-creates the world, a dimension shows your shape again if `spans` returns the stored spans for the stored options. So make `spans` depend on its context alone.
+
+A dimension set to **From Overworld** is not asked: it takes the Overworld's spans at its own size.
 
 ## The geometry it declares
 
@@ -32,59 +50,71 @@ LoopSpans.of(Direction.Axis.X, -12, 12)
 LoopSpans.ofWidth(24).withSkew(6);            // crossing the Z seam also moves X by 6 chunks
 ```
 
-Which flat surface the world ends up being is read off the spans, never declared: both axes give a torus, one gives a cylinder, neither gives an ordinary world. `withSkew` needs both axes to loop, and makes a torus whose axes do not fold independently ([The two capability flags](../modding.md#the-two-capability-flags)); `skewChunks()` reads it back, brought into the range from minus half the X width to plus half. `scaledDown(scale)` divides every looping axis and the skew, and re-centers: how the nether is normally derived from the overworld, so the vanilla portal ratio still lands inside the world. It throws where the scale does not divide the skew.
+Which flat surface the world ends up being is read off the spans, never declared: both axes give a torus, one gives a cylinder, neither gives an ordinary world. `withSkew` needs both axes to loop, and makes a torus whose axes do not fold independently ([The two capability flags](../modding.md#the-two-capability-flags)); `skewChunks()` reads it back, brought into the range from minus half the X width to plus half. `scaledDown(scale)` divides every looping axis and the skew, and re-centers. It throws where the scale does not divide the skew.
 
-Every looping axis of every dimension must be at least `LoopSpans.minChunkWidth()` chunks wide, 16 chunks (256 blocks). `ShapeDimensions.withSpans` throws `IllegalArgumentException` on a narrower one. An eighth of the overworld clears it only from 128 chunks up, so choose the nether's scale against it.
+Every looping axis must be at least `LoopSpans.minChunkWidth()` chunks wide, 16 chunks (256 blocks), and 192 chunks (3072 blocks) in the End. Spans outside that show an error on the page and keep **Done** off until the player changes the option behind them.
 
-`ShapeDimensions` writes those spans into the three vanilla stems, and reads them back:
+## Size presets
+
+The preset row sets a size, and a shape has no size field, so a preset reaches it through its options.
 
 ```java
-public static WorldDimensions apply(WorldDimensions dimensions, BandSettings settings) {
-    LoopSpans spans = settings.spans();
-    return ShapeDimensions.withSpans(dimensions, spans, spans.scaledDown(8), spans, settings.options());
+@Override
+public boolean takesPresets() {
+    return true;
 }
 
-public static @Nullable BandSettings read(WorldDimensions dimensions) {
-    LoopSpans spans = ShapeDimensions.spansOf(dimensions, LevelStem.OVERWORLD);
-    if (spans == null || spans.loops(Direction.Axis.X) || !spans.loops(Direction.Axis.Z)) {
-        return null;
-    }
-
-    return new BandSettings(spans, ShapeDimensions.optionsOf(dimensions, LevelStem.OVERWORLD));
+@Override
+public GenerationOptions withPreset(int chunkWidth, GenerationOptions options) {
+    return options.with(BandWidth.OPTION, chunkWidth);
 }
 ```
 
-`read` is asked of every registered shape when an existing world is opened, and the first one to answer non-null owns it. So refuse anything you did not write: check which axes loop and what `skewChunks()` answers, not just that a shape is there. `spansOf` answers `null` for a stem carrying no shape of ours, and for a mirrored one, which spans cannot state; a skewed stem comes back with its skew.
-
-The dimensions handed to `apply` have had any earlier shape stripped, so state your whole geometry rather than amending someone else's. A stem whose generator cannot take a shape is left alone.
-
-## The settings screen
-
-`ShapeCustomizers` maps the shape's id to the screen behind the Customize button; a shape with no customizer registered leaves that button dark. Register it from the client side only.
-
-```java
-ShapeCustomizers.register(MODULE.id(), parent -> new BandSettingsScreen(parent, MODULE.settings(), MODULE::settings));
-```
+Without `takesPresets`, the preset row is off while the Overworld is on your shape. The row finds the current preset by calling `withPreset` again, so return the options unchanged when they already hold that size.
 
 ## Declaring a world option
 
-A world option is a value the player picks at creation, stored in the world and read back at load. It is a declaration, not a screen: the codec key, where it sits among the other options, its codec and its default.
+A world option is a value the player picks, stored in the world and read back at load: the codec key, where it sits among the other options, its codec and its default.
 
 ```java
-public static final WorldOption<Boolean> OPTION =
-        new WorldOption<>("band_floor", 100, Codec.BOOL, Boolean.FALSE);
+public static final WorldOption<Integer> OPTION =
+        new WorldOption<>("band_width", 100, Codec.intRange(16, 512), 64);
 
 WorldOptions.register(OPTION);
 ```
 
-The key is written into the world's generators and must be unique across every mod. `position` orders the option against the others on a settings screen; equal positions fall back to the key.
+The key is written into the world's generators and must be unique across every mod. `position` orders the option against the others on the page; equal positions fall back to the key.
 
-`GenerationOptions` is the value set a world carries: `get(option)` to read, `with(option, value)` to write, `GenerationOptions.DEFAULT` to start from. Only a value that differs from its option's default is written to the world file, so an option nobody touched costs nothing on disk.
+`GenerationOptions` is the value set a dimension carries: `get(option)` to read, `with(option, value)` to write, `GenerationOptions.DEFAULT` to start from. Only a value that differs from its option's default is written to the world file.
 
-The client half is one control per option:
+## Showing the option
+
+A `DimensionOption` says where the option is offered and which controls the screen draws for it. You bring no widget.
 
 ```java
-WorldOptionControls.register(OPTION, BandFloorControl::new);
+DimensionOption.of(BandWidth.OPTION, "gui.your_mod.band_width", List.of(OptionPart.number(16, 512)))
+        .forShapes(List.of(BandShape.ID))
+        .register();
 ```
 
-A `WorldOptionControl` adds its own widgets, commits its value into the options, and may veto **Done** while its value is unusable. It reaches the screen around it only through `WorldOptionContext`: the parent screen, the loop width the screen states on each axis (`loopChunkWidth(axis)`; the no-argument form answers the narrower one), the current options, a change signal and a rebuild request. A shape's settings screen builds them all with `WorldOptionControls.createAll(context)`, in registry order.
+`forShapes` and `forDimensions` narrow it; without them the option is offered for every shape on every dimension. `BuiltInShapes.TORUS` and `BuiltInShapes.CYLINDER` name the shapes Exotic Worlds ships. A dimension with no shape stores no options, so nothing is offered there.
+
+A part is one control: `OptionPart.toggle()`, `OptionPart.choice(values, valueKey)` or `OptionPart.number(min, max)`. An option whose value has several pieces lists one part per piece, built with the record constructors `OptionPart.Toggle`, `OptionPart.Choice` and `OptionPart.WholeNumber`. Each takes how to read its piece from the value, how to write it back, and when to show it.
+
+Every text is a translation key under the caption key:
+
+| Key | Text |
+| --- | --- |
+| `<caption>` | the option's name |
+| `<caption>.<part key>` | the name of a part that has a key |
+| `<part caption>.<value key>` | the name of a choice value |
+| `<part caption>.hint.<value key>` | one line about that value; `on` and `off` for a toggle |
+| `<part caption>.hint.intro`, `<part caption>.hint.note` | optional lines above and below the values |
+
+`DimensionOptionLines.register(option, line)` adds one line of text under the option's controls, worked out from the value and the dimension's spans. Register it from the client side only; an empty component shows no line.
+
+## What the v1 declarations no longer do
+
+`ShapeModule`, `ShapeCustomizers`, `WorldOptionControl`, `WorldOptionContext` and `WorldOptionControls` are deprecated. They still compile and load, and nothing shows them: a `ShapeModule` shape is in no list, no button opens a `ShapeCustomizers` screen, and no screen builds a `WorldOptionControls` control. Move a shape to `DimensionShape` and an option's control to `DimensionOption`.
+
+`WorldOption`, `WorldOptions`, `GenerationOptions`, `LoopSpans` and `ShapeDimensions` are unchanged.
