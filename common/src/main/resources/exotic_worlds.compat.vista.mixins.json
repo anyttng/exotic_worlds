@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.exoticworlds.compat.vista.VistaMixinPlugin",
   "mixins": [
+    "GazeRedirectSeamMixin",
     "TvSlideshowRangeSeatMixin"
   ],
   "injectors": {
