@@ -4,7 +4,9 @@
   "package": "com.exoticworlds.compat.vista.mixin",
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.exoticworlds.compat.vista.VistaMixinPlugin",
-  "mixins": [],
+  "mixins": [
+    "TvSlideshowRangeSeatMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }
