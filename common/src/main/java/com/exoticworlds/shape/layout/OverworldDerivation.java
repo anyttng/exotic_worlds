@@ -41,7 +41,7 @@ public final class OverworldDerivation {
         return null;
     }
 
-    private static List<Integer> netherScales(LoopSpans overworld) {
+    public static List<Integer> netherScales(LoopSpans overworld) {
         int looped = overworld.chunkWidth(loopedAxis(overworld));
         int xChunkWidth = overworld.loops(Direction.Axis.X) ? overworld.chunkWidth(Direction.Axis.X) : looped;
         int zChunkWidth = overworld.loops(Direction.Axis.Z) ? overworld.chunkWidth(Direction.Axis.Z) : looped;
