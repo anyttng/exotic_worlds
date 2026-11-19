@@ -11,6 +11,7 @@ import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
@@ -168,7 +169,7 @@ class LatticeHotPathScan {
                 double offset = spread(index);
                 Vec3 lapOutside = (index & 1) == 0
                         ? new Vec3(x.maxBlock() + LAP_OVERSHOOT_BLOCKS + offset, FLOOR_Y, centerZ + offset)
-                        : new Vec3(x.minBlock() + x.blockWidth() / 2.0 + offset, FLOOR_Y,
+                        : new Vec3(x.minBlock() + x.chunkWidth() * CoordinateConstants.CHUNK_WIDTH / 2.0 + offset, FLOOR_Y,
                                 z.maxBlock() + LAP_OVERSHOOT_BLOCKS + offset);
                 inputs.fill(index, new Vec3(x.maxBlock() - SEAM_INSET_BLOCKS, FLOOR_Y, centerZ + offset),
                         new Vec3(x.minBlock() + SEAM_INSET_BLOCKS + Math.abs(offset), FLOOR_Y, centerZ - offset),

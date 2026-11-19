@@ -28,7 +28,7 @@ PacketRewriters.registerServerboundPayload(StationPickPayload.class, (payload, c
         new StationPickPayload(context.toServer(payload.picked())));
 ```
 
-`SeamContext` is the two frames one connection has. `toClient` takes a canonical position to the copy that client holds, the one to write into anything it will draw, place or measure against. `toServer` folds a position the client sent back into the world's bounds. Both come in `BlockPos`, `Vec3` and (clientbound) `ChunkPos` forms, both hand the argument instance itself back when nothing moved, and `context.shape()` is the level's whole geometry for anything the two do not cover.
+`SeamContext` is the two frames one connection has. `toClient` takes a canonical position to the copy that client holds, the one to write into anything it will draw, place or measure against. `toServer` folds a position the client sent back into the world's bounds. Both come in `BlockPos`, `Vec3` and `ChunkPos` forms, both hand the argument instance itself back when nothing moved, and `context.shape()` is the level's whole geometry for anything the two do not cover.
 
 Register from your mod's initializer, beside everything else: the table closes at `MinecraftServer.runServer`, before the levels load, and a later registration throws rather than being silently half-effective. A rewriter runs for payloads of that exact class, on a folding level and nowhere else; on an ordinary world nothing you registered is ever called. Where one is registered the record fold does not run for that class; the record fold spells each position the way `toClient` and `toServer` do, so moving a payload between the two routes changes nothing its receiver reads.
 

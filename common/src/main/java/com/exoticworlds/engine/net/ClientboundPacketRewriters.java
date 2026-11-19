@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -18,6 +19,7 @@ import com.exoticworlds.mixin.BlockEntityDataPacketAccessor;
 import com.exoticworlds.mixin.ChunkWaypointAccessor;
 import com.exoticworlds.mixin.PlayerLookAtPacketAccessor;
 import com.exoticworlds.mixin.SectionBlocksUpdatePacketAccessor;
+import com.exoticworlds.mixin.TrackedWaypointAccessor;
 import com.exoticworlds.mixin.Vec3iWaypointAccessor;
 import com.google.common.base.Suppliers;
 
@@ -74,6 +76,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.gameevent.BlockPositionSource;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.waypoints.TrackedWaypoint;
 
 final class ClientboundPacketRewriters {
     private static final String SOUND_KIND = "sound";
@@ -368,12 +371,29 @@ final class ClientboundPacketRewriters {
 
     static ClientboundTrackedWaypointPacket trackedWaypoint(ClientboundTrackedWaypointPacket packet, TranslationContext context) {
         if (packet.waypoint() instanceof Vec3iWaypointAccessor waypoint) {
-            waypoint.exotic_worlds$setVector(context.nearestCopy(BlockPos.ZERO.offset(waypoint.exotic_worlds$getVector())));
-        } else if (packet.waypoint() instanceof ChunkWaypointAccessor waypoint) {
-            waypoint.exotic_worlds$setChunkPos(context.nearestCopy(waypoint.exotic_worlds$getChunkPos()));
+            BlockPos serverPos = BlockPos.ZERO.offset(waypoint.exotic_worlds$getVector());
+            BlockPos clientPos = context.nearestCopy(serverPos);
+            return clientPos.equals(serverPos) ? packet : withWaypoint(packet, context,
+                    copy -> ((Vec3iWaypointAccessor) copy).exotic_worlds$setVector(clientPos));
+        }
+
+        if (packet.waypoint() instanceof ChunkWaypointAccessor waypoint) {
+            ChunkPos serverPos = waypoint.exotic_worlds$getChunkPos();
+            ChunkPos clientPos = context.nearestCopy(serverPos);
+            return clientPos.equals(serverPos) ? packet : withWaypoint(packet, context,
+                    copy -> ((ChunkWaypointAccessor) copy).exotic_worlds$setChunkPos(clientPos));
         }
 
         return packet;
+    }
+
+    private static ClientboundTrackedWaypointPacket withWaypoint(ClientboundTrackedWaypointPacket packet,
+            TranslationContext context, Consumer<TrackedWaypoint> seat) {
+        RegistryFriendlyByteBuf buffer = buffer(context);
+        packet.waypoint().write(buffer);
+        TrackedWaypoint copy = TrackedWaypointAccessor.exotic_worlds$read(buffer);
+        seat.accept(copy);
+        return new ClientboundTrackedWaypointPacket(packet.operation(), copy);
     }
 
     static Packet<?> setDefaultSpawnPosition(ClientboundSetDefaultSpawnPositionPacket packet, TranslationContext context) {
@@ -414,10 +434,19 @@ final class ClientboundPacketRewriters {
 
     static ClientboundPlayerLookAtPacket playerLookAt(ClientboundPlayerLookAtPacket packet, TranslationContext context) {
         PlayerLookAtPacketAccessor accessor = (PlayerLookAtPacketAccessor) packet;
-        Vec3 near = context.nearestCopy(new Vec3(accessor.exotic_worlds$getX(), 0.0, accessor.exotic_worlds$getZ()));
-        accessor.exotic_worlds$setX(near.x);
-        accessor.exotic_worlds$setZ(near.z);
-        return packet;
+        Vec3 serverPos = new Vec3(accessor.exotic_worlds$getX(), 0.0, accessor.exotic_worlds$getZ());
+        Vec3 near = context.nearestCopy(serverPos);
+        if (near.equals(serverPos)) {
+            return packet;
+        }
+
+        RegistryFriendlyByteBuf buffer = buffer(context);
+        accessor.exotic_worlds$write(buffer);
+        ClientboundPlayerLookAtPacket copy = PlayerLookAtPacketAccessor.exotic_worlds$create(buffer);
+        PlayerLookAtPacketAccessor copyAccessor = (PlayerLookAtPacketAccessor) copy;
+        copyAccessor.exotic_worlds$setX(near.x);
+        copyAccessor.exotic_worlds$setZ(near.z);
+        return copy;
     }
 
     static Packet<?> damageEvent(ClientboundDamageEventPacket packet, TranslationContext context) {
@@ -462,7 +491,6 @@ final class ClientboundPacketRewriters {
         target.writeBytes(source);
         return reader.apply(target);
     }
-
     private static RegistryFriendlyByteBuf buffer(TranslationContext context) {
         return context.bufferFactory().apply(DEFAULT_BUFFER_CAPACITY);
     }

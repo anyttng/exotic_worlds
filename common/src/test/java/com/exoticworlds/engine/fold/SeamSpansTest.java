@@ -1,5 +1,6 @@
 package com.exoticworlds.engine.fold;
 
+import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
@@ -44,7 +45,7 @@ class SeamSpansTest {
     private record Axis(boolean looped, int lower, int width) {
         static Axis of(AxisBounds bounds) {
             return switch (bounds) {
-                case AxisBounds.Looped looped -> new Axis(true, looped.minBlock(), looped.blockWidth());
+                case AxisBounds.Looped looped -> new Axis(true, looped.minBlock(), looped.chunkWidth() * CoordinateConstants.CHUNK_WIDTH);
                 case AxisBounds.Unbounded() -> new Axis(false, 0, 0);
             };
         }

@@ -1,16 +1,11 @@
 package com.exoticworlds.engine.gen;
 
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-
+import com.exoticworlds.accessors.FoldedRandomState;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.BiomeSource;
@@ -30,20 +25,12 @@ public class LoopedChunkGenerator extends NoiseBasedChunkGenerator implements Sh
                     CARRIED_CODEC.forGetter(LoopedChunkGenerator::carriedShape)
             ).apply(instance, instance.stable(LoopedChunkGenerator::new)));
 
-    private static final int BASE_HEIGHT_CACHE_CAP = 1 << 18;
-
     private final CarriedShape carriedShape;
-
-    private final Map<Heightmap.Types, Map<Long, Integer>> baseHeightCache = new EnumMap<>(Heightmap.Types.class);
 
     public LoopedChunkGenerator(BiomeSource biomeSource, Holder<NoiseGeneratorSettings> settings,
             CarriedShape carriedShape) {
         super(biomeSource, settings);
         this.carriedShape = carriedShape;
-
-        for (Heightmap.Types type : Heightmap.Types.values()) {
-            this.baseHeightCache.put(type, new ConcurrentHashMap<>());
-        }
     }
 
     @Override
@@ -59,20 +46,12 @@ public class LoopedChunkGenerator extends NoiseBasedChunkGenerator implements Sh
     @Override
     public int getBaseHeight(int x, int z, Heightmap.Types type, LevelHeightAccessor heightAccessor,
             RandomState randomState) {
-        long folded = fold().foldBlockNode(BlockPos.asLong(x, 0, z));
-        Map<Long, Integer> cache = Objects.requireNonNull(this.baseHeightCache.get(type), "filled for every type");
-
-        Integer cached = cache.get(folded);
-        if (cached != null) {
-            return cached;
+        BaseHeights heights = ((FoldedRandomState) (Object) randomState).exotic_worlds$baseHeights();
+        if (heights == null) {
+            return super.getBaseHeight(x, z, type, heightAccessor, randomState);
         }
 
-        int height = super.getBaseHeight(x, z, type, heightAccessor, randomState);
-        if (cache.size() >= BASE_HEIGHT_CACHE_CAP) {
-            cache.clear();
-        }
-        cache.put(folded, height);
-        return height;
+        return heights.heightAt(x, z, type, () -> super.getBaseHeight(x, z, type, heightAccessor, randomState));
     }
 
     @Override

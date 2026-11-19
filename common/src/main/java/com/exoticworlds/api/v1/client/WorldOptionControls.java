@@ -27,7 +27,8 @@ public final class WorldOptionControls {
     /**
      * Registers the control {@code option} is edited through.
      *
-     * @throws IllegalStateException if the registration boundary has already closed
+     * @throws IllegalStateException if the registration boundary has already closed, or a control is already
+     *         registered under the key of {@code option}
      */
     public static void register(WorldOption<?> option, Factory factory) {
         FACTORIES.register(option.key(), factory);

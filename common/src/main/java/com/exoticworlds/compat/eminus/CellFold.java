@@ -6,7 +6,6 @@ import com.eminus.cell.CellKey;
 import com.eminus.cell.DetailLevel;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.lod.AlignedPeriod;
-import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
@@ -57,7 +56,7 @@ public final class CellFold {
     public static CellFold of(@Nullable WorldFold fold) {
         return fold == null || !fold.isWrapped()
                 ? NONE
-                : new CellFold(new ToroidalShapeView(fold), fold.blockLattice().skew());
+                : new CellFold(fold.shapeView(), fold.blockLattice().skew());
     }
 
     public boolean repeats() {
@@ -76,8 +75,8 @@ public final class CellFold {
         int level = CellKey.level(key);
         int side = DetailLevel.blocksPerCell(level);
         long blockZ = (long) CellKey.z(key) * side;
-        long x = foldX(shape, cells[level], (long) CellKey.x(key) * side, blockZ);
-        long z = foldZ(shape, cells[level], blockZ);
+        long x = cells[level].foldX(shape, (long) CellKey.x(key) * side, blockZ);
+        long z = cells[level].foldZ(shape, blockZ);
         return CellKey.pack(level, (int) Math.floorDiv(x, side), CellKey.y(key), (int) Math.floorDiv(z, side));
     }
 
@@ -86,7 +85,7 @@ public final class CellFold {
             return chunkX;
         }
 
-        return (int) (foldX(shape, chunks, SectionPos.sectionToBlockCoord(chunkX),
+        return (int) (chunks.foldX(shape, SectionPos.sectionToBlockCoord(chunkX),
                 SectionPos.sectionToBlockCoord(chunkZ)) >> SectionPos.SECTION_BITS);
     }
 
@@ -95,7 +94,7 @@ public final class CellFold {
             return chunkZ;
         }
 
-        return (int) (foldZ(shape, chunks, SectionPos.sectionToBlockCoord(chunkZ)) >> SectionPos.SECTION_BITS);
+        return (int) (chunks.foldZ(shape, SectionPos.sectionToBlockCoord(chunkZ)) >> SectionPos.SECTION_BITS);
     }
 
     public long foldBlock(long pos) {
@@ -104,8 +103,8 @@ public final class CellFold {
         }
 
         int z = BlockPos.getZ(pos);
-        long x = foldX(shape, blocks, BlockPos.getX(pos), z);
-        return BlockPos.asLong((int) x, BlockPos.getY(pos), (int) foldZ(shape, blocks, z));
+        long x = blocks.foldX(shape, BlockPos.getX(pos), z);
+        return BlockPos.asLong((int) x, BlockPos.getY(pos), (int) blocks.foldZ(shape, z));
     }
 
     public long copyNear(long pos, double centerX, double centerZ) {
@@ -130,6 +129,15 @@ public final class CellFold {
         }
 
         return BlockPos.asLong((int) x, BlockPos.getY(pos), (int) z);
+    }
+
+    public long copyNearChunk(int chunkX, int chunkZ, int centerChunkX, int centerChunkZ) {
+        long copy = copyNear(BlockPos.asLong(SectionPos.sectionToBlockCoord(chunkX, SectionPos.SECTION_HALF_SIZE), ANY_Y,
+                SectionPos.sectionToBlockCoord(chunkZ, SectionPos.SECTION_HALF_SIZE)),
+                SectionPos.sectionToBlockCoord(centerChunkX, SectionPos.SECTION_HALF_SIZE),
+                SectionPos.sectionToBlockCoord(centerChunkZ, SectionPos.SECTION_HALF_SIZE));
+        return ChunkPos.pack(SectionPos.blockToSectionCoord(BlockPos.getX(copy)),
+                SectionPos.blockToSectionCoord(BlockPos.getZ(copy)));
     }
 
     public long[] foldedChunks(int chunkX, int chunkZ) {
@@ -213,37 +221,12 @@ public final class CellFold {
         return highX - lowShift > -half && lowX - highShift < half;
     }
 
-    private static long foldX(ToroidalShape shape, AlignedPeriod period, long blockX, long blockZ) {
-        long x = blockX;
-        if (period.xShiftBlocks() != 0L) {
-            x -= Math.floorDiv(blockZ - shape.minBlock(Direction.Axis.Z), period.zBlocks()) * period.xShiftBlocks();
-        }
-
-        if (shape.loops(Direction.Axis.X)) {
-            x -= Math.floorDiv(x - shape.minBlock(Direction.Axis.X), period.xBlocks()) * period.xBlocks();
-        }
-
-        return x;
-    }
-
-    private static long foldZ(ToroidalShape shape, AlignedPeriod period, long blockZ) {
-        if (!shape.loops(Direction.Axis.Z)) {
-            return blockZ;
-        }
-
-        return blockZ - Math.floorDiv(blockZ - shape.minBlock(Direction.Axis.Z), period.zBlocks()) * period.zBlocks();
-    }
-
     private int lapsX(int level) {
-        return shape != null && shape.loops(Direction.Axis.X)
-                ? (int) (cells[level].xBlocks() / width(Direction.Axis.X))
-                : 1;
+        return shape == null ? 1 : cells[level].laps(shape, Direction.Axis.X);
     }
 
     private int lapsZ(int level) {
-        return shape != null && shape.loops(Direction.Axis.Z)
-                ? (int) (cells[level].zBlocks() / width(Direction.Axis.Z))
-                : 1;
+        return shape == null ? 1 : cells[level].laps(shape, Direction.Axis.Z);
     }
 
     private int width(Direction.Axis axis) {

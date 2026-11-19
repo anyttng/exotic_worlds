@@ -3,7 +3,7 @@ package com.exoticworlds.engine.gen;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.shape.WorldOptionSetup;
+import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
 import static com.exoticworlds.engine.gen.BakeStampFixture.OVERWORLD_CHUNK_WIDTH;
@@ -76,7 +76,7 @@ class BakeStampTest {
     static void bootstrapVanilla() {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
-        WorldOptionSetup.registerAll(false);
+        StartupRegistrations.options();
         worldgen = VanillaRegistries.createWorldLookup();
     }
 

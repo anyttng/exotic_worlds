@@ -15,7 +15,10 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import net.minecraft.core.Direction;
+import net.minecraft.network.VarInt;
 
 class WorldLoopBoundsTest {
     private static final int LEGACY_DISABLED_AXIS_RADIUS = 1883191;
@@ -76,27 +79,6 @@ class WorldLoopBoundsTest {
 
         assertEquals(-32 * 16, axis.minBlock());
         assertEquals(32 * 16, axis.maxBlock());
-        assertEquals(64 * 16, axis.blockWidth());
-
-        assertFalse(axis.isOver(-32 * 16));
-        assertFalse(axis.isOver(32 * 16 - 0.5));
-        assertTrue(axis.isOver(32 * 16));
-        assertTrue(axis.isOver(-32 * 16 - 1));
-
-        assertTrue(axis.coversWorld(64 * 16));
-        assertFalse(axis.coversWorld(64 * 16 - 1));
-        assertFalse(axis.foldsOntoItself(64));
-        assertTrue(axis.foldsOntoItself(65));
-    }
-
-    @Test
-    void anUnboundedAxisIsNeverOverAndNeverCovered() {
-        AxisBounds axis = AxisBounds.Unbounded.INSTANCE;
-
-        assertFalse(axis.isOver(-1.0e9));
-        assertFalse(axis.isOver(1.0e9));
-        assertFalse(axis.coversWorld(1.0e9));
-        assertFalse(axis.foldsOntoItself(Integer.MAX_VALUE));
     }
 
     @Test
@@ -182,9 +164,19 @@ class WorldLoopBoundsTest {
     }
 
     @Test
-    void aDegenerateSpanIsNotSquare() {
-        assertFalse(ShapeFixtures.loopedBounds(5, 5, 5, 5).isSquare());
-        assertFalse(ShapeFixtures.loopedBounds(10, -10, 10, -10).isSquare());
+    void aLoopedAxisRefusesAnEmptyOrReversedSpan() {
+        assertThrows(IllegalArgumentException.class, () -> new AxisBounds.Looped(5, 5));
+        assertThrows(IllegalArgumentException.class, () -> new AxisBounds.Looped(10, -10));
+    }
+
+    @Test
+    void theWireRefusesAnEmptySpan() {
+        ByteBuf buffer = Unpooled.buffer();
+        buffer.writeBoolean(true);
+        VarInt.write(buffer, 5);
+        VarInt.write(buffer, 5);
+
+        assertThrows(IllegalArgumentException.class, () -> AxisBounds.STREAM_CODEC.decode(buffer));
     }
 
     @Test

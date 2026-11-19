@@ -1,17 +1,16 @@
 package com.exoticworlds.compat.wover;
 
+import com.exoticworlds.compat.worldgen.LapCells;
 import com.exoticworlds.compat.worldgen.OpenSimplexStandIn;
 import com.exoticworlds.core.WrapDomain;
 
 record LapAxis(WrapDomain blocks, double cellBlocks, int cells, int chunks, int chunkSide) {
-    private static final double CELL_EPSILON = 1.0E-9;
-
     static LapAxis of(WrapDomain blocks, double cellBlocks, boolean evenCells, int chunkSide) {
         if (!blocks.loops()) {
             return new LapAxis(blocks, cellBlocks, 0, 0, chunkSide);
         }
 
-        int cells = Math.max(1, (int) Math.ceil(blocks.domainLength / cellBlocks - CELL_EPSILON));
+        int cells = Math.toIntExact(LapCells.whole(blocks.domainLength / cellBlocks, 1));
         if (evenCells && (cells & 1) == 1) {
             cells++;
         }

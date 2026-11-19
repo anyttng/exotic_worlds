@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
@@ -31,6 +32,8 @@ public final class DeckGroupFold implements WorldFold {
 
     private final GenerationOptions generationOptions;
 
+    private final ToroidalShape shapeView;
+
     public DeckGroupFold(FlatShape shape, GenerationOptions generationOptions) {
         this.shape = shape;
         boolean xLooped = shape.bounds().x() instanceof AxisBounds.Looped;
@@ -41,6 +44,7 @@ public final class DeckGroupFold implements WorldFold {
         this.blocks = new DeckGroupLattice(shape, CoordinateConstants.CHUNK_WIDTH);
         this.chunkLattice = this.chunks.translations;
         this.blockLattice = this.blocks.translations;
+        this.shapeView = new ToroidalShapeView(this);
     }
 
     public FlatShape shape() {
@@ -127,6 +131,11 @@ public final class DeckGroupFold implements WorldFold {
     @Override
     public TranslationLattice chunkLattice() {
         return translationLattice(this.chunkLattice);
+    }
+
+    @Override
+    public ToroidalShape shapeView() {
+        return this.shapeView;
     }
 
     private TranslationLattice translationLattice(@Nullable TranslationLattice lattice) {
@@ -297,11 +306,6 @@ public final class DeckGroupFold implements WorldFold {
     @Override
     public BlockPos reseat(BlockPos pos, ChunkPos copy) {
         return deckTransformation(ChunkPos.containing(pos), copy).apply(pos);
-    }
-
-    @Override
-    public Vec3 foldDelta(Vec3 from, Vec3 to) {
-        return nearestCopy(from, to).subtract(from);
     }
 
     @Override

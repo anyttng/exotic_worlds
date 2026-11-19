@@ -1,7 +1,10 @@
 package com.exoticworlds.compat.terraforged;
 
+import java.lang.ref.WeakReference;
+
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.compat.worldgen.LapCells;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
@@ -24,8 +27,6 @@ public final class RtfLap {
 
     private static final int CYLINDER_FLOOR_CELLS = 1;
 
-    private static final double CEIL_SLACK = 1.0E-9;
-
     private static final double TWO_PI = Math.PI * 2.0;
 
     private static final double WHOLE_CELL = 1.0;
@@ -34,10 +35,23 @@ public final class RtfLap {
 
     private static volatile boolean active;
 
+    private static WeakReference<@Nullable Object> followed = new WeakReference<>(null);
+
     private static final ThreadLocal<Frame> FRAME = ThreadLocal.withInitial(Frame::new);
 
     public static void activate() {
         active = true;
+    }
+
+    public static synchronized void follow(Object server, boolean looped) {
+        if (followed.get() != server) {
+            followed = new WeakReference<>(server);
+            active = false;
+        }
+
+        if (looped) {
+            active = true;
+        }
     }
 
     public static boolean active() {
@@ -370,7 +384,7 @@ public final class RtfLap {
             return NO_PERIOD;
         }
 
-        return Math.max(floorCells, (int) Math.ceil(lap * Math.abs(frequency) - CEIL_SLACK));
+        return Math.toIntExact(LapCells.whole(lap * Math.abs(frequency), floorCells));
     }
 
     private static double lapOf(WrapDomain domain) {

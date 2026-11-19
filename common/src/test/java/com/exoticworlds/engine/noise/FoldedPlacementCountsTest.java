@@ -161,7 +161,8 @@ class FoldedPlacementCountsTest {
         }
 
         private static int count(WorldFold fold, int x, int z, double factor) {
-            return FoldedPlacementCounts.noiseBased(fold, x, z, factor, BAMBOO_OFFSET, BAMBOO_RATIO);
+            return FoldedPlacementCounts.noiseBased(new SimplexSlot(), fold, x, z, factor, BAMBOO_OFFSET,
+                    BAMBOO_RATIO);
         }
     }
 
@@ -240,8 +241,8 @@ class FoldedPlacementCountsTest {
                     int z = lineCoord(random, unbounded, i);
 
                     assertEquals(vanilla.count(RandomSource.create(SEED), new BlockPos(x, 0, z)),
-                            FoldedPlacementCounts.noiseBased(WorldFolds.NOOP, x, z, factor, BAMBOO_OFFSET,
-                                    BAMBOO_RATIO),
+                            FoldedPlacementCounts.noiseBased(new SimplexSlot(), WorldFolds.NOOP, x, z, factor,
+                                    BAMBOO_OFFSET, BAMBOO_RATIO),
                             () -> "noiseBased(" + x + ", " + z + ") vs vanilla with noise factor " + factor);
                 }
             }
@@ -279,8 +280,8 @@ class FoldedPlacementCountsTest {
                         int z = lineCoord(random, fold.blockDomain(Direction.Axis.Z), i);
 
                         assertDoesNotThrow(
-                                () -> FoldedPlacementCounts.noiseBased(fold, x, z, factor, BAMBOO_OFFSET,
-                                        BAMBOO_RATIO),
+                                () -> FoldedPlacementCounts.noiseBased(new SimplexSlot(), fold, x, z, factor,
+                                        BAMBOO_OFFSET, BAMBOO_RATIO),
                                 () -> "noiseBased(" + x + ", " + z + ") in " + fold + " with noise factor " + factor);
                     }
                 }

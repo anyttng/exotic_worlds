@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.compat.map.ClientShapes;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
 
 import xaero.hud.minimap.element.render.MinimapElementReader;
@@ -23,7 +24,7 @@ public abstract class MinimapElementReaderWrapperMixin {
         ToroidalShape shape = XaeroWorldMapFold.browsedShape();
         return shape == null
                 ? original
-                : XaeroWorldMapFold.foldPoint(shape, original, this.reader.getRenderZ(element, context, partialTicks)).x;
+                : ClientShapes.fold(shape, original, this.reader.getRenderZ(element, context, partialTicks)).x;
     }
 
     @ModifyReturnValue(method = "getRenderZ", at = @At("RETURN"))
@@ -31,6 +32,6 @@ public abstract class MinimapElementReaderWrapperMixin {
         ToroidalShape shape = XaeroWorldMapFold.browsedShape();
         return shape == null
                 ? original
-                : XaeroWorldMapFold.foldPoint(shape, this.reader.getRenderX(element, context, partialTicks), original).z;
+                : ClientShapes.fold(shape, this.reader.getRenderX(element, context, partialTicks), original).z;
     }
 }

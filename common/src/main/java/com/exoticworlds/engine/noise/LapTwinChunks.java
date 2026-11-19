@@ -14,6 +14,8 @@ import com.exoticworlds.mixin.NoiseBasedChunkGeneratorAccessor;
 import com.exoticworlds.mixin.StructureManagerAccessor;
 import com.mojang.logging.LogUtils;
 
+import net.minecraft.CrashReport;
+import net.minecraft.ReportedException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.RegistryAccess;
@@ -41,6 +43,8 @@ import net.minecraft.world.level.levelgen.material.rule.MaterialRule;
 final class LapTwinChunks {
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    private static final String DESCRIPTION_PREFIX = "Description: ";
+    private static final String NOT_REPORTED = "none";
     private static final int QUARTS_PER_CHUNK = QuartPos.fromBlock(SectionPos.SECTION_SIZE);
     private static final Set<Heightmap.Types> PRIMED_HEIGHTMAPS = EnumSet.of(Heightmap.Types.MOTION_BLOCKING,
             Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Heightmap.Types.OCEAN_FLOOR, Heightmap.Types.WORLD_SURFACE);
@@ -110,10 +114,27 @@ final class LapTwinChunks {
         try {
             return GenerationFoldContext.withFold(inputs.fold(), () -> readFolded(inputs, here));
         } catch (RuntimeException unread) {
-            LOGGER.warn("[ew/world-loop] twins_unread level={} chunk_x={} chunk_z={} text={}",
-                    inputs.level().dimension().identifier(), here.x(), here.z(), unread.toString());
+            CrashReport report = unread instanceof ReportedException reported ? reported.getReport() : null;
+            Throwable cause = report != null ? report.getException() : unread;
+            LOGGER.warn("[ew/world-loop] twins_unread level={} chunk_x={} chunk_z={} text={} feature={} cause={} at={}",
+                    inputs.level().dimension().identifier(), here.x(), here.z(), unread.toString(),
+                    report != null ? descriptionOf(report) : NOT_REPORTED, cause.toString(), firstFrameOf(cause));
             return Reading.UNREAD;
         }
+    }
+
+    private static String descriptionOf(CrashReport report) {
+        return report.getDetails().lines()
+                .map(String::strip)
+                .filter(line -> line.startsWith(DESCRIPTION_PREFIX))
+                .map(line -> line.substring(DESCRIPTION_PREFIX.length()))
+                .findFirst()
+                .orElse(NOT_REPORTED);
+    }
+
+    private static String firstFrameOf(Throwable cause) {
+        StackTraceElement[] frames = cause.getStackTrace();
+        return frames.length > 0 ? frames[0].toString() : NOT_REPORTED;
     }
 
     private static Reading readFolded(Inputs inputs, ChunkPos herePos) {

@@ -18,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 public final class ToroidalShapeView implements ToroidalShape {
     private final WorldFold fold;
 
-    public ToroidalShapeView(WorldFold fold) {
+    ToroidalShapeView(WorldFold fold) {
         this.fold = fold;
     }
 
@@ -105,6 +105,27 @@ public final class ToroidalShapeView implements ToroidalShape {
     @Override
     public Vec3 shortestDelta(Vec3 from, Vec3 to) {
         return this.fold.foldDelta(from, to);
+    }
+
+    @Override
+    public double sqrDistance(Vec3 from, Vec3 to) {
+        return this.fold.sqrDistance(from.x, from.y, from.z, to.x, to.y, to.z);
+    }
+
+    @Override
+    public boolean boxesOverlap(AABB first, AABB second) {
+        return this.fold.boxesOverlap(first, second);
+    }
+
+    @Override
+    public List<Oriented<AABB>> split(AABB box) {
+        List<WorldFold.Folded<AABB>> pieces = this.fold.split(box);
+        List<Oriented<AABB>> oriented = new ArrayList<>(pieces.size());
+        for (WorldFold.Folded<AABB> piece : pieces) {
+            oriented.add(oriented(piece));
+        }
+
+        return oriented;
     }
 
     @Override
@@ -208,7 +229,11 @@ public final class ToroidalShapeView implements ToroidalShape {
     }
 
     private static <T> Oriented<T> oriented(T value, FoldOrientation orientation) {
-        return new Oriented<>(value, new Orientation(orientation.flipsX(), orientation.flipsZ()));
+        return new Oriented<>(value, orientationOf(orientation));
+    }
+
+    static Orientation orientationOf(FoldOrientation orientation) {
+        return new Orientation(orientation.flipsX(), orientation.flipsZ());
     }
 
     private List<DeckTransformation> copiesOf(AABB box) {

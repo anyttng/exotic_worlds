@@ -55,6 +55,46 @@ class StartupRegistryTest {
     }
 
     @Test
+    void aSecondRegistrationUnderTheSameKeyFailsAndNamesTheSubjectAndTheKey() {
+        StartupRegistry<String, Integer> registry = registry();
+        registry.register("one", 1);
+
+        IllegalStateException refused =
+                assertThrows(IllegalStateException.class, () -> registry.register("one", 2));
+        assertTrue(refused.getMessage().startsWith(SUBJECT), refused.getMessage());
+        assertTrue(refused.getMessage().contains("one"), refused.getMessage());
+        assertEquals(Integer.valueOf(1), registry.entries().get("one"));
+    }
+
+    @Test
+    void aMergeUnderAFreeKeyRegistersTheValue() {
+        StartupRegistry<String, Integer> registry = registry();
+
+        registry.merge("one", 1, Integer::sum);
+
+        assertEquals(Integer.valueOf(1), registry.entries().get("one"));
+    }
+
+    @Test
+    void aMergeUnderAHeldKeyCombinesTheHeldValueWithTheNewOne() {
+        StartupRegistry<String, Integer> registry = registry();
+        registry.register("one", 1);
+
+        registry.merge("one", 2, Integer::sum);
+
+        assertEquals(Integer.valueOf(3), registry.entries().get("one"));
+    }
+
+    @Test
+    void aMergeAfterTheCloseFails() {
+        StartupRegistry<String, Integer> registry = registry();
+
+        boundary.close();
+
+        assertThrows(IllegalStateException.class, () -> registry.merge("one", 1, Integer::sum));
+    }
+
+    @Test
     void aRegistrationAfterTheCloseFailsAndNamesTheBoundary() {
         StartupRegistry<String, Integer> registry = registry();
 

@@ -11,17 +11,18 @@ import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.net.SeamContext;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.fold.RelativePosition;
 import com.exoticworlds.engine.seam.ClientPosition;
+import com.exoticworlds.engine.seam.HeldArea;
 import com.exoticworlds.platform.Platforms;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
@@ -64,13 +65,16 @@ public record TranslationContext(
                 entity, rebase, new CameraSide());
     }
 
+    public static TranslationContext followingCamera(ServerPlayer player, WorldFold fold) {
+        ClientPosition.of(player).followCamera(player);
+        return of(player, fold);
+    }
+
     public static TranslationContext of(ServerPlayer player, WorldFold fold) {
         int trackedViewDistance = trackedViewDistanceOf(player, fold);
-        ClientPosition clientPosition = ClientPosition.of(player);
-        clientPosition.followCamera(player);
         return new TranslationContext(
                 fold,
-                clientPosition,
+                ClientPosition.of(player),
                 Platforms.get().packetBuffers(player),
                 player.level().dimension(),
                 trackedViewDistance,
@@ -106,7 +110,7 @@ public record TranslationContext(
 
     @Override
     public ToroidalShape shape() {
-        return new ToroidalShapeView(fold);
+        return fold.shapeView();
     }
 
     @Override
@@ -119,6 +123,11 @@ public record TranslationContext(
         ChunkPos anchor = chunkAnchor();
         ChunkPos clientPos = fold.nearestCopy(anchor, chunkPos);
         int viewReach = viewReach();
+        ChunkPos areaPos = withinView(clientPos, anchor, viewReach) ? null : heldAreaCopy(chunkPos);
+        if (areaPos != null) {
+            return areaPos;
+        }
+
         ChunkPos cameraPos = cameraCopyOf(chunkPos, clientPos, anchor, viewReach);
         if (cameraPos != null) {
             return cameraPos;
@@ -126,6 +135,14 @@ public record TranslationContext(
 
         guardView(chunkPos, clientPos, anchor, viewReach);
         return clientPos;
+    }
+
+    // mc/1.21: Vista's zone re-check asks where a held zone's center would be seated now.
+    public ChunkPos viewSeat(ChunkPos chunkPos) {
+        ChunkPos anchor = chunkAnchor();
+        ChunkPos clientPos = fold.nearestCopy(anchor, chunkPos);
+        ChunkPos cameraPos = cameraCopyOf(chunkPos, clientPos, anchor, viewReach());
+        return cameraPos == null ? clientPos : cameraPos;
     }
 
     private @Nullable ChunkPos cameraCopyOf(ChunkPos chunkPos, ChunkPos clientPos, ChunkPos anchor, int viewReach) {
@@ -147,6 +164,33 @@ public record TranslationContext(
         }
 
         return null;
+    }
+
+    private @Nullable ChunkPos heldAreaCopy(ChunkPos chunkPos) {
+        for (HeldArea area : clientPosition.heldAreas()) {
+            ChunkPos copy = area.copyOf(fold, chunkPos);
+            if (copy != null) {
+                return copy;
+            }
+        }
+
+        return null;
+    }
+
+    private @Nullable Vec3 heldAreaCopy(Vec3 position) {
+        if (clientPosition.heldAreas().isEmpty()) {
+            return null;
+        }
+
+        ChunkPos chunkPos = new ChunkPos(
+                SectionPos.blockToSectionCoord(position.x), SectionPos.blockToSectionCoord(position.z));
+        ChunkPos anchor = chunkAnchor();
+        if (withinView(fold.nearestCopy(anchor, chunkPos), anchor, viewReach())) {
+            return null;
+        }
+
+        ChunkPos areaPos = heldAreaCopy(chunkPos);
+        return areaPos == null ? null : fold.deckTransformation(chunkPos, areaPos).apply(position);
     }
 
     private void guardView(ChunkPos chunkPos, ChunkPos clientPos, ChunkPos anchor, int viewReach) {
@@ -205,13 +249,21 @@ public record TranslationContext(
         }
 
         if (clientPosition.cameraChunk() != null) {
-            ChunkPos held = fold.nearestCopy(chunkAnchor(), chunkPos);
-            if (!candidates.contains(held)) {
-                candidates.add(held);
-            }
+            addCandidate(candidates, fold.nearestCopy(chunkAnchor(), chunkPos));
+        }
+
+        ChunkPos areaPos = heldAreaCopy(chunkPos);
+        if (areaPos != null) {
+            addCandidate(candidates, areaPos);
         }
 
         return candidates;
+    }
+
+    private static void addCandidate(List<ChunkPos> candidates, ChunkPos candidate) {
+        if (!candidates.contains(candidate)) {
+            candidates.add(candidate);
+        }
     }
 
     private static int[] candidateLaps(WrapDomain domain, int delta, int ambiguityReach) {
@@ -250,17 +302,13 @@ public record TranslationContext(
     private void guardReach(PacketReach reach, Direction.Axis axis, double serverValue, double clientValue,
             double anchor) {
         if (!withinReach(clientValue, anchor, reach)
-                && carriesReach(rectangleAxis(fold.blockLattice(), axis), reach)) {
+                && carriesReach(fold.blockLattice().axis(axis), reach)) {
             warnCoordFarFromAnchor(reach, axis, serverValue, clientValue, anchor);
         }
     }
 
     private boolean chunkOutOfView(Direction.Axis axis, int delta, int viewReach) {
-        return Math.abs(delta) > viewReach && carriesView(rectangleAxis(fold.chunkLattice(), axis), viewReach);
-    }
-
-    private static WrapDomain rectangleAxis(TranslationLattice lattice, Direction.Axis axis) {
-        return axis == Direction.Axis.X ? lattice.x() : lattice.z();
+        return Math.abs(delta) > viewReach && carriesView(fold.chunkLattice().axis(axis), viewReach);
     }
 
     static boolean withinReach(double clientValue, double anchor, PacketReach reach) {
@@ -324,6 +372,11 @@ public record TranslationContext(
     }
 
     public Vec3 toClient(Vec3 position, PacketReach reach) {
+        Vec3 areaPos = heldAreaCopy(position);
+        if (areaPos != null) {
+            return areaPos;
+        }
+
         Vec3 anchor = clientPosition.anchor(position.y);
         Vec3 clientPos = fold.nearestCopy(anchor, position);
         guardReach(reach, Direction.Axis.X, position.x, clientPos.x, anchor.x);
@@ -351,5 +404,10 @@ public record TranslationContext(
     @Override
     public Vec3 toServer(Vec3 position) {
         return fold.fold(position);
+    }
+
+    @Override
+    public ChunkPos toServer(ChunkPos chunkPos) {
+        return fold.fold(chunkPos);
     }
 }

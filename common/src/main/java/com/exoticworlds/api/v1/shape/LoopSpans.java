@@ -3,6 +3,7 @@ package com.exoticworlds.api.v1.shape;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.WorldLoopSizes;
 
 import net.minecraft.core.Direction;
 
@@ -20,7 +21,6 @@ import net.minecraft.core.Direction;
  * hands back a new instance.</p>
  */
 public final class LoopSpans {
-    private static final String ASCENDING_SPAN_REQUIRED = "A looping axis needs minChunk < maxChunk, got [";
     private static final String DOES_NOT_LOOP = " does not loop — check loops(axis) first";
     private static final String AXIS = "Axis ";
     private static final String POSITIVE_SCALE_REQUIRED = "A scale is positive, got ";
@@ -37,10 +37,16 @@ public final class LoopSpans {
     }
 
     LoopSpans(WorldLoopBounds bounds, int skewChunks) {
-        ascending(bounds.x());
-        ascending(bounds.z());
         this.bounds = bounds;
         this.skewChunks = FlatShape.latticeTorus(bounds, skewChunks).skewChunks();
+    }
+
+    /**
+     * The narrowest a looping axis may be in any dimension, in chunks. {@link ShapeDimensions#withSpans} refuses spans
+     * under it, so scale a nether down only as far as this allows.
+     */
+    public static int minChunkWidth() {
+        return WorldLoopSizes.MIN_CHUNK_WIDTH;
     }
 
     /** Both axes looping over {@code chunkWidth} chunks, centered on the origin. */
@@ -168,12 +174,5 @@ public final class LoopSpans {
         }
 
         throw new IllegalArgumentException(AXIS + axis + DOES_NOT_LOOP);
-    }
-
-    private static void ascending(AxisBounds axis) {
-        if (axis instanceof AxisBounds.Looped looped && looped.minChunk() >= looped.maxChunk()) {
-            throw new IllegalArgumentException(ASCENDING_SPAN_REQUIRED
-                    + looped.minChunk() + ", " + looped.maxChunk() + ")");
-        }
     }
 }

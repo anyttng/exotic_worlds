@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.ToroidalShape;
@@ -23,7 +24,7 @@ class AtlasTileCopiesTest {
     void aKeyOnTheUpperBoundFindsTheMapHeldOnTheLowerBound() {
         AtlasTileCopies.TileLookup<TileCenter> held = holding(new TileCenter(-256, 0));
         ToroidalShape shape = MapShapes.torus(-16, 16);
-        assertEquals(new TileCenter(-256, 0), AtlasTileCopies.first(shape, 256, 0, MAP_BLOCKS, held),
+        assertEquals(new TileCenter(-256, 0), firstHeld(shape, 256, 0, MAP_BLOCKS, held),
                 "the key a player beside the upper bound gets is the held map's copy");
         assertEquals(new TileCenter(-256, 0), AtlasTileCopies.acrossEdge(shape, 256, 0, MAP_BLOCKS, held),
                 "so making a map there would duplicate it");
@@ -35,7 +36,7 @@ class AtlasTileCopiesTest {
     void theKeyItselfIsAskedBeforeItsCopies() {
         AtlasTileCopies.TileLookup<TileCenter> held = holding(new TileCenter(256, 0), new TileCenter(-256, 0));
         assertEquals(new TileCenter(256, 0),
-                AtlasTileCopies.first(MapShapes.torus(-16, 16), 256, 0, MAP_BLOCKS, held),
+                firstHeld(MapShapes.torus(-16, 16), 256, 0, MAP_BLOCKS, held),
                 "an atlas already holding both answers with the exact key");
     }
 
@@ -45,7 +46,7 @@ class AtlasTileCopiesTest {
         BlockPos canonical = shape.fold(new BlockPos(0, 0, 512));
         TileCenter heldCenter = new TileCenter(canonical.getX(), canonical.getZ());
         AtlasTileCopies.TileLookup<TileCenter> held = holding(heldCenter);
-        assertEquals(heldCenter, AtlasTileCopies.first(shape, 0, 512, MAP_BLOCKS, held),
+        assertEquals(heldCenter, firstHeld(shape, 0, 512, MAP_BLOCKS, held),
                 "a lap in Z finds the map the skew moved one map along X");
         assertEquals(heldCenter, AtlasTileCopies.acrossEdge(shape, 0, 512, MAP_BLOCKS, held),
                 "and refuses a second map of that ground");
@@ -55,17 +56,29 @@ class AtlasTileCopiesTest {
     void aCylinderFindsTheHeldMapAlongTheLoopedAxisAlone() {
         ToroidalShape shape = MapShapes.cylinder(-16, 16);
         AtlasTileCopies.TileLookup<TileCenter> held = holding(new TileCenter(-256, 5000));
-        assertEquals(new TileCenter(-256, 5000), AtlasTileCopies.first(shape, 256, 5000, MAP_BLOCKS, held),
+        assertEquals(new TileCenter(-256, 5000), firstHeld(shape, 256, 5000, MAP_BLOCKS, held),
                 "X folds a lap back");
-        assertNull(AtlasTileCopies.first(shape, -256, 5512, MAP_BLOCKS, held), "the unbounded Z never folds");
+        assertNull(firstHeld(shape, -256, 5512, MAP_BLOCKS, held), "the unbounded Z never folds");
     }
 
     @Test
     void noShapeFindsTheExactKeyAlone() {
         AtlasTileCopies.TileLookup<TileCenter> held = holding(new TileCenter(-256, 0));
-        assertNull(AtlasTileCopies.first(null, 256, 0, MAP_BLOCKS, held), "an unwrapped level has no copies");
+        assertNull(firstHeld(null, 256, 0, MAP_BLOCKS, held), "an unwrapped level has no copies");
         assertNull(AtlasTileCopies.acrossEdge(null, -256, 0, MAP_BLOCKS, held),
                 "and never refuses a map for one");
+    }
+
+    private static @Nullable TileCenter firstHeld(@Nullable ToroidalShape shape, int x, int z, int mapBlocks,
+            AtlasTileCopies.TileLookup<TileCenter> held) {
+        for (TileCenter copy : new AtlasTileMemo().copies(shape, x, z, mapBlocks)) {
+            TileCenter found = held.at(copy.x(), copy.z());
+            if (found != null) {
+                return found;
+            }
+        }
+
+        return null;
     }
 
     private static AtlasTileCopies.TileLookup<TileCenter> holding(TileCenter... centers) {

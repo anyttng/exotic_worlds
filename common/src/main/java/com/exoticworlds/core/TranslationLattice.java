@@ -1,5 +1,7 @@
 package com.exoticworlds.core;
 
+import net.minecraft.core.Direction;
+
 public final class TranslationLattice {
     public static final int NO_SKEW = 0;
 
@@ -59,6 +61,14 @@ public final class TranslationLattice {
 
     public WrapDomain z() {
         return this.z;
+    }
+
+    public WrapDomain axis(Direction.Axis axis) {
+        return switch (axis) {
+            case X -> this.x;
+            case Z -> this.z;
+            case Y -> throw new IllegalArgumentException("The lattice carries no Y axis");
+        };
     }
 
     public int skew() {

@@ -3,6 +3,7 @@ package com.exoticworlds.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import com.exoticworlds.shape.climate.CompactBiomes;
 class CarriedShapeTest {
     private static final WorldLoopBounds SQUARE = WorldLoopBounds.ofWidth(32);
     private static final WorldLoopBounds NARROWER = WorldLoopBounds.ofWidth(16);
+    private static final WorldLoopBounds TOO_NARROW = WorldLoopBounds.ofWidth(WorldLoopSizes.MIN_CHUNK_WIDTH - 2);
 
     private static final String NO_PREFIX = "";
     private static final String STAMP_PREFIX = ExoticWorlds.MODID + ":";
@@ -71,5 +73,22 @@ class CarriedShapeTest {
 
         assertEquals(ShapeFixtures.torus(NARROWER), derived.shape());
         assertEquals(carried.generationOptions(), derived.generationOptions());
+    }
+
+    @Test
+    void aShapeTooNarrowToGenerateIsRefusedWithTheVerifiersMessage() {
+        FlatShape narrow = ShapeFixtures.torus(TOO_NARROW);
+
+        IllegalArgumentException refused = assertThrows(IllegalArgumentException.class,
+                () -> new CarriedShape(narrow, GenerationOptions.DEFAULT));
+
+        assertEquals(WorldFolds.verifyGeneratable(narrow).error().orElseThrow().message(), refused.getMessage());
+    }
+
+    @Test
+    void aDerivedShapeIsHeldToTheSameFloor() {
+        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE), GenerationOptions.DEFAULT);
+
+        assertThrows(IllegalArgumentException.class, () -> carried.withShape(ShapeFixtures.torus(TOO_NARROW)));
     }
 }

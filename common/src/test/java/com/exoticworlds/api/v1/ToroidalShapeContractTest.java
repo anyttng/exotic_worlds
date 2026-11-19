@@ -37,6 +37,8 @@ class ToroidalShapeContractTest {
     private static final int WIDTH = (MAX_CHUNK - MIN_CHUNK) * UNIT;
     private static final int LOWER = MIN_CHUNK * UNIT;
     private static final int LATTICE_SKEW_CHUNKS = 3;
+    private static final int SKEW = LATTICE_SKEW_CHUNKS * UNIT;
+    private static final int UPPER = LOWER + WIDTH;
 
     private static final AxisBounds.Looped LOOPED = new AxisBounds.Looped(MIN_CHUNK, MAX_CHUNK);
     private static final WorldLoopBounds BOTH = new WorldLoopBounds(LOOPED, LOOPED);
@@ -44,6 +46,10 @@ class ToroidalShapeContractTest {
 
     private static ToroidalShape torus() {
         return TestShapes.of(WorldFolds.of(ShapeFixtures.torus(BOTH)));
+    }
+
+    private static ToroidalShape cylinder() {
+        return TestShapes.of(WorldFolds.of(ShapeFixtures.cylinder(X_ONLY)));
     }
 
     private static ToroidalShape mobius() {
@@ -311,9 +317,89 @@ class ToroidalShapeContractTest {
     }
 
     @Nested
+    class MeasuringAndCutting {
+        private static final AABB NEAR_THE_X_EDGE = new AABB(UPPER - 8, 0, 0, UPPER - 1, 8, 8);
+        private static final AABB ACROSS_THE_CORNER = new AABB(UPPER - 8, 0, UPPER - 6, UPPER + 8, 8, UPPER + 10);
+
+        @Test
+        void aSquaredDistanceIsTheShortestDeltaSquared() {
+            Random random = new Random(0x1447L);
+            for (ToroidalShape shape : List.of(torus(), cylinder(), latticeTorus())) {
+                for (int sample = 0; sample < 200; sample++) {
+                    Vec3 from = randomPosition(random);
+                    Vec3 to = randomPosition(random);
+                    double expected = shape.shortestDelta(from, to).lengthSqr();
+                    assertEquals(expected, shape.sqrDistance(from, to), 1.0e-9 * Math.max(1.0, expected),
+                            "the squared distance from " + from + " to " + to);
+                }
+            }
+        }
+
+        @Test
+        void boxesOverlapAcrossTheSeamAndLapsOutButNotWhereTheyOnlyTouch() {
+            AABB acrossTheSeam = new AABB(LOWER - 4, 0, 0, LOWER + 4, 8, 8);
+            for (ToroidalShape shape : List.of(torus(), cylinder(), latticeTorus())) {
+                assertTrue(shape.boxesOverlap(NEAR_THE_X_EDGE, acrossTheSeam), "a box across the seam");
+                assertTrue(shape.boxesOverlap(NEAR_THE_X_EDGE, acrossTheSeam.move(5 * WIDTH, 0, 0)), "laps out");
+                assertFalse(shape.boxesOverlap(NEAR_THE_X_EDGE, acrossTheSeam.move(0, 100, 0)), "apart on y");
+                assertFalse(shape.boxesOverlap(NEAR_THE_X_EDGE.setMaxX(UPPER), new AABB(LOWER, 0, 0, LOWER + 4, 8, 8)),
+                        "faces touching across the seam");
+            }
+        }
+
+        @Test
+        void theSkewedSeamMovesTheOverlapTheSkewOver() {
+            AABB nearTheZEdge = new AABB(0, 0, UPPER - 8, 8, 8, UPPER - 1);
+            AABB acrossTheZSeam = new AABB(0, 0, LOWER - 4, 8, 8, LOWER + 4);
+            assertTrue(latticeTorus().boxesOverlap(nearTheZEdge, acrossTheZSeam.move(-SKEW, 0, 0)), "the skew over");
+            assertFalse(latticeTorus().boxesOverlap(nearTheZEdge, acrossTheZSeam), "straight across");
+        }
+
+        @Test
+        void aBoxInsideTheWorldIsItsOwnOnePiece() {
+            for (ToroidalShape shape : List.of(torus(), cylinder(), latticeTorus())) {
+                List<Oriented<AABB>> pieces = shape.split(NEAR_THE_X_EDGE);
+                assertEquals(1, pieces.size(), "a box inside the world was cut");
+                assertSame(NEAR_THE_X_EDGE, pieces.getFirst().value(), "a box inside the world was rebuilt");
+            }
+        }
+
+        @Test
+        void thePiecesLieInsideTheWorldAndCoverTheBoxOnce() {
+            AABB widerThanTheWorld = new AABB(LOWER - 10, 0, 0, UPPER + 10, 8, 8);
+            for (ToroidalShape shape : List.of(torus(), cylinder(), latticeTorus())) {
+                assertPieces(shape, ACROSS_THE_CORNER, area(ACROSS_THE_CORNER));
+                assertPieces(shape, widerThanTheWorld, WIDTH * 8.0);
+            }
+        }
+
+        private static void assertPieces(ToroidalShape shape, AABB box, double expectedArea) {
+            double total = 0.0;
+            for (Oriented<AABB> piece : shape.split(box)) {
+                AABB value = piece.value();
+                assertTrue(piece.isIdentity(), "an unmirrored piece reported a flip");
+                assertTrue(value.minX >= LOWER && value.maxX <= UPPER, "a piece past the x bounds: " + value);
+                assertTrue(!shape.loops(Direction.Axis.Z) || (value.minZ >= LOWER && value.maxZ <= UPPER),
+                        "a piece past the z bounds: " + value);
+                assertEquals(box.minY, value.minY, "a piece moved on y");
+                total += area(value);
+            }
+
+            assertEquals(expectedArea, total, 1.0e-9, "the pieces of " + box + " do not cover it once");
+        }
+
+        private static double area(AABB box) {
+            return (box.maxX - box.minX) * (box.maxZ - box.minZ);
+        }
+
+        private static Vec3 randomPosition(Random random) {
+            return new Vec3((random.nextDouble() - 0.5) * 6 * WIDTH, random.nextDouble() * 128,
+                    (random.nextDouble() - 0.5) * 6 * WIDTH);
+        }
+    }
+
+    @Nested
     class ListingCopies {
-        private static final int SKEW = LATTICE_SKEW_CHUNKS * UNIT;
-        private static final int UPPER = LOWER + WIDTH;
         private static final int ORBIT_REACH = 8;
         private static final double Y = 64.0;
 
@@ -324,10 +410,6 @@ class ToroidalShapeContractTest {
         private static final AABB LAPS_OUT = new AABB(
                 LOWER + 5 * WIDTH - 3, 0, LOWER - 4 * WIDTH - 3, LOWER + 5 * WIDTH + 3, 0, LOWER - 4 * WIDTH + 3);
         private static final AABB ONE_WORLD_PAST_THE_EDGE = new AABB(LOWER, 0, LOWER, UPPER + WIDTH, 0, UPPER);
-
-        private static ToroidalShape cylinder() {
-            return TestShapes.of(WorldFolds.of(ShapeFixtures.cylinder(X_ONLY)));
-        }
 
         @Test
         void everyCopyThatMeetsTheRectangleIsListedOnceWithTheWorldFirst() {

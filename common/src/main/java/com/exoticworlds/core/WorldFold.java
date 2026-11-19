@@ -2,6 +2,7 @@ package com.exoticworlds.core;
 
 import java.util.List;
 
+import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 
 import net.minecraft.core.BlockPos;
@@ -41,6 +42,8 @@ public interface WorldFold {
     TranslationLattice blockLattice();
 
     TranslationLattice chunkLattice();
+
+    ToroidalShape shapeView();
 
     boolean isOver(Vec3 pos);
 
@@ -100,7 +103,9 @@ public interface WorldFold {
 
     BlockPos reseat(BlockPos pos, ChunkPos copy);
 
-    Vec3 foldDelta(Vec3 from, Vec3 to);
+    default Vec3 foldDelta(Vec3 from, Vec3 to) {
+        return nearestCopy(from, to).subtract(from);
+    }
 
     double sqrDistance(double xFrom, double yFrom, double zFrom, double xTo, double yTo, double zTo);
 
@@ -121,11 +126,28 @@ public interface WorldFold {
             return false;
         }
 
-        for (Folded<AABB> firstPiece : split(first)) {
-            for (Folded<AABB> secondPiece : split(second)) {
-                if (firstPiece.value().intersects(secondPiece.value())) {
-                    return true;
-                }
+        return overlaps(split(first), second);
+    }
+
+    default boolean overlaps(List<Folded<AABB>> firstPieces, AABB second) {
+        if (!crossesBounds(second)) {
+            return anyPieceIntersects(firstPieces, second);
+        }
+
+        List<Folded<AABB>> secondPieces = split(second);
+        for (int index = 0; index < secondPieces.size(); index++) {
+            if (anyPieceIntersects(firstPieces, secondPieces.get(index).value())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean anyPieceIntersects(List<Folded<AABB>> pieces, AABB box) {
+        for (int index = 0; index < pieces.size(); index++) {
+            if (pieces.get(index).value().intersects(box)) {
+                return true;
             }
         }
 

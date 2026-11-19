@@ -17,17 +17,14 @@ import dev.worldgen.lithostitched.impl.worldgen.densityfunction.CellularDensityF
 
 @Mixin(CellularDensityFunction.XYZSampler.class)
 public class CellularXYZSamplerMixin implements CellLapHolder {
+    @Unique
     private static final String EXPRESSION = "MIXINEXTRAS:EXPRESSION";
 
+    @Unique
     private static final int SEED_USE = 0;
 
     @Unique
     private @Nullable CellLap exotic_worlds$cellLap;
-
-    @Override
-    public @Nullable CellLap exotic_worlds$cellLap() {
-        return this.exotic_worlds$cellLap;
-    }
 
     @Override
     public void exotic_worlds$setCellLap(CellLap lap) {

@@ -9,6 +9,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public final class CarriedShape {
     public static final String WRAPPING_KEY = "wrapping";
+    public static final String NO_KEY_PREFIX = "";
 
     public static final Codec<FlatShape> SHAPE_CODEC = FlatShape.CODEC
             .validate(WorldFolds::verifyFoldable)
@@ -22,6 +23,7 @@ public final class CarriedShape {
         this.shape = shape;
         this.generationOptions = generationOptions;
         this.fold = WorldFolds.of(shape, generationOptions);
+        WorldFolds.verifyGeneratable(shape).getOrThrow(IllegalArgumentException::new);
     }
 
     public static MapCodec<CarriedShape> mapCodec(String keyPrefix) {

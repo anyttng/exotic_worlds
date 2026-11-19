@@ -24,6 +24,14 @@ public record WorldLoopBounds(AxisBounds x, AxisBounds z) {
         String UNBOUNDED_TEXT = "unbounded";
 
         record Looped(int minChunk, int maxChunk) implements AxisBounds {
+            private static final String ASCENDING_SPAN_REQUIRED = "A looped axis needs minChunk < maxChunk, got [";
+
+            public Looped {
+                if (minChunk >= maxChunk) {
+                    throw new IllegalArgumentException(ASCENDING_SPAN_REQUIRED + minChunk + ", " + maxChunk + ")");
+                }
+            }
+
             public static Looped ofWidth(int chunkWidth) {
                 int minChunk = -(chunkWidth / 2);
                 return new Looped(minChunk, chunkWidth + minChunk);
@@ -41,25 +49,6 @@ public record WorldLoopBounds(AxisBounds x, AxisBounds z) {
                 return maxChunk * CoordinateConstants.CHUNK_WIDTH;
             }
 
-            public int blockWidth() {
-                return chunkWidth() * CoordinateConstants.CHUNK_WIDTH;
-            }
-
-            @Override
-            public boolean isOver(double blockCoord) {
-                return blockCoord < minBlock() || blockCoord >= maxBlock();
-            }
-
-            @Override
-            public boolean coversWorld(double blockSpan) {
-                return blockSpan >= blockWidth();
-            }
-
-            @Override
-            public boolean foldsOntoItself(int chunkCount) {
-                return chunkCount > chunkWidth();
-            }
-
             @Override
             public int maxViewDistance() {
                 return Math.max(1, chunkWidth() / 2 - CoordinateConstants.VIEW_DISTANCE_MARGIN);
@@ -75,21 +64,6 @@ public record WorldLoopBounds(AxisBounds x, AxisBounds z) {
             public static final Unbounded INSTANCE = new Unbounded();
 
             @Override
-            public boolean isOver(double blockCoord) {
-                return false;
-            }
-
-            @Override
-            public boolean coversWorld(double blockSpan) {
-                return false;
-            }
-
-            @Override
-            public boolean foldsOntoItself(int chunkCount) {
-                return false;
-            }
-
-            @Override
             public int maxViewDistance() {
                 return Integer.MAX_VALUE;
             }
@@ -99,12 +73,6 @@ public record WorldLoopBounds(AxisBounds x, AxisBounds z) {
                 return UNBOUNDED_TEXT;
             }
         }
-
-        boolean isOver(double blockCoord);
-
-        boolean coversWorld(double blockSpan);
-
-        boolean foldsOntoItself(int chunkCount);
 
         int maxViewDistance();
 
@@ -147,12 +115,11 @@ public record WorldLoopBounds(AxisBounds x, AxisBounds z) {
                 return DataResult.success(Unbounded.INSTANCE);
             }
 
-            if (minChunk.get() >= maxChunk.get()) {
-                return DataResult.error(() -> "A looped axis needs " + MIN_CHUNK_KEY + " < " + MAX_CHUNK_KEY
-                        + ", got [" + minChunk.get() + ", " + maxChunk.get() + ")");
+            try {
+                return DataResult.success(new Looped(minChunk.get(), maxChunk.get()));
+            } catch (IllegalArgumentException refused) {
+                return DataResult.error(refused::getMessage);
             }
-
-            return DataResult.success(new Looped(minChunk.get(), maxChunk.get()));
         }
 
         private static DataResult<Pair<Optional<Integer>, Optional<Integer>>> write(AxisBounds axis) {
@@ -252,8 +219,7 @@ public record WorldLoopBounds(AxisBounds x, AxisBounds z) {
     public boolean isSquare() {
         return x instanceof AxisBounds.Looped xLooped
                 && z instanceof AxisBounds.Looped zLooped
-                && xLooped.chunkWidth() == zLooped.chunkWidth()
-                && xLooped.chunkWidth() > 0;
+                && xLooped.chunkWidth() == zLooped.chunkWidth();
     }
 
     public int maxViewDistance() {

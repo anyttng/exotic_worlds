@@ -16,8 +16,8 @@ import com.exoticworlds.accessors.FoldedCompileSource;
 import com.exoticworlds.accessors.FoldedRandomState;
 import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.GenerationMoments;
-import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.gen.BaseHeights;
 import com.exoticworlds.engine.gen.CanonicalRandomFactory;
 import com.exoticworlds.engine.noise.AquiferCells;
 import com.exoticworlds.engine.noise.FoldedCompileContext;
@@ -52,6 +52,9 @@ public class RandomStateMixin implements CoastLiftCache, FoldSource, FoldedRando
 
     @Unique
     private volatile @Nullable AquiferCells exotic_worlds$aquiferCells;
+
+    @Unique
+    private @Nullable BaseHeights exotic_worlds$baseHeights;
 
     @ModifyArg(
             method = exotic_worlds$CONSTRUCTOR,
@@ -93,7 +96,8 @@ public class RandomStateMixin implements CoastLiftCache, FoldSource, FoldedRando
         WorldFold fold = GenerationFoldContext.context().routerBuildFold();
         this.exotic_worlds$fold = fold;
         if (fold != null) {
-            GenerationMoments.runAtRandomState((RandomState) (Object) this, new ToroidalShapeView(fold),
+            this.exotic_worlds$baseHeights = new BaseHeights(fold);
+            GenerationMoments.runAtRandomState((RandomState) (Object) this, fold.shapeView(),
                     fold.generationOptions(), seaLevel);
         }
     }
@@ -115,6 +119,11 @@ public class RandomStateMixin implements CoastLiftCache, FoldSource, FoldedRando
     @Override
     public @Nullable FoldedCompileContext exotic_worlds$compileContext() {
         return this.exotic_worlds$compileContext;
+    }
+
+    @Override
+    public @Nullable BaseHeights exotic_worlds$baseHeights() {
+        return this.exotic_worlds$baseHeights;
     }
 
     @Override

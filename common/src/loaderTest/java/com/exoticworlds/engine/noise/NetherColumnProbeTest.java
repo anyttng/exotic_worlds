@@ -18,8 +18,7 @@ import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.shape.GenerationHookSetup;
-import com.exoticworlds.shape.WorldOptionSetup;
+import com.exoticworlds.shape.StartupRegistrations;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Direction;
@@ -67,8 +66,8 @@ class NetherColumnProbeTest {
     static void bootstrapVanilla() {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
-        WorldOptionSetup.registerAll(false);
-        GenerationHookSetup.registerAll();
+        StartupRegistrations.options();
+        StartupRegistrations.generationHooks();
         holders = VanillaRegistries.createWorldLookup();
         Holder<NoiseGeneratorSettings> settingsHolder =
                 holders.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.NETHER);

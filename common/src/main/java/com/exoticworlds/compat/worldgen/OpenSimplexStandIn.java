@@ -23,8 +23,6 @@ public final class OpenSimplexStandIn {
 
     private static final long MIN_CELLS = 1L;
 
-    private static final double CELL_EPSILON = 1.0E-9;
-
     private final PerlinNoise noise;
 
     public OpenSimplexStandIn(long seed) {
@@ -50,7 +48,7 @@ public final class OpenSimplexStandIn {
     static long cells(double period, double rate) {
         return period == UNBOUNDED
                 ? PeriodicNoiseSampler.UNBOUNDED_PERIOD
-                : Math.max(MIN_CELLS, (long) Math.ceil(period * rate - CELL_EPSILON));
+                : LapCells.whole(period * rate, MIN_CELLS);
     }
 
     private static double lattice(double coord, double period, long cells, double rate) {

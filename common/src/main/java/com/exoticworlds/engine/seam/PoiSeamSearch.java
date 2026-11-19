@@ -3,6 +3,7 @@ package com.exoticworlds.engine.seam;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
+import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -13,7 +14,7 @@ import net.minecraft.world.level.ChunkPos;
 public final class PoiSeamSearch {
     public static Stream<ChunkPos> chunksAround(WorldFold fold, ChunkPos center, int chunkRadius) {
         Stream<ChunkPos> wrapped = ChunkPos.rangeClosed(center, chunkRadius)
-                .map(pos -> fold.isOver(pos) ? fold.fold(pos) : pos);
+                .map(fold::fold);
 
         if (!foldsOntoItself(fold, chunkRadius)) {
             return wrapped;
@@ -35,7 +36,8 @@ public final class PoiSeamSearch {
 
     private static boolean foldsOntoItself(WorldFold fold, int chunkRadius) {
         int span = chunkRadius * 2 + 1;
-        return fold.bounds().x().foldsOntoItself(span) || fold.bounds().z().foldsOntoItself(span);
+        TranslationLattice chunks = fold.chunkLattice();
+        return chunks.x().foldsOntoItself(span) || chunks.z().foldsOntoItself(span);
     }
 
     private PoiSeamSearch() {

@@ -10,7 +10,7 @@ import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.migration.FormerNamespace;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.shape.WorldOptionSetup;
+import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
 import static com.exoticworlds.engine.gen.BakeStampFixture.noiseGenerator;
@@ -70,7 +70,7 @@ class StampedGeneratorCodecTest {
     static void bootstrapVanilla() {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
-        WorldOptionSetup.registerAll(false);
+        StartupRegistrations.options();
         worldgen = VanillaRegistries.createWorldLookup();
     }
 

@@ -3,7 +3,6 @@ package com.exoticworlds.api.v1;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
-import com.exoticworlds.core.ToroidalShapeView;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.seam.circumnavigation.SeamTravel;
@@ -25,7 +24,7 @@ public final class ExoticWorldsApi {
      */
     public static Optional<ToroidalShape> shapeOf(Level level) {
         WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
-        return fold == null ? Optional.empty() : Optional.of(new ToroidalShapeView(fold));
+        return fold == null ? Optional.empty() : Optional.of(fold.shapeView());
     }
 
     /**

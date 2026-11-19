@@ -34,7 +34,8 @@ public final class GenerationHooks {
      * Registers {@code hook} at the {@link RandomState} moment under {@code key}, which orders the hooks against one
      * another and must be unique across every mod — prefix it with your mod id where a clash is possible.
      *
-     * @throws IllegalStateException if the registration boundary has already closed
+     * @throws IllegalStateException if the registration boundary has already closed, or a hook is already
+     *         registered under {@code key} at this moment
      */
     public static void atRandomState(String key, RandomStateHook hook) {
         GenerationMoments.atRandomState(key, hook);
@@ -58,7 +59,8 @@ public final class GenerationHooks {
      * Registers {@code hook} at the structure-start moment under {@code key}, which orders the hooks against one
      * another and must be unique across every mod — prefix it with your mod id where a clash is possible.
      *
-     * @throws IllegalStateException if the registration boundary has already closed
+     * @throws IllegalStateException if the registration boundary has already closed, or a hook is already
+     *         registered under {@code key} at this moment
      */
     public static void atStructureStarts(String key, StructureStartsHook hook) {
         GenerationMoments.atStructureStarts(key, hook);
