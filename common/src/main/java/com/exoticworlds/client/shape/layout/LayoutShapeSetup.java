@@ -7,16 +7,21 @@ import java.util.Map;
 
 import com.ascendiacore.client.createworld.WorldTabRows;
 import com.exoticworlds.api.v1.client.ShapeCustomizers;
+import com.exoticworlds.api.v2.client.DimensionOptionLines;
+import com.exoticworlds.client.shape.climate.CompactBiomesLine;
 import com.exoticworlds.client.shape.WorldShapeRow;
 import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.shape.WorldShapes;
+import com.exoticworlds.shape.climate.CompactBiomes;
 import com.exoticworlds.shape.layout.LayoutShape;
 import com.exoticworlds.shape.layout.WorldLayout;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 
@@ -25,6 +30,11 @@ public final class LayoutShapeSetup {
     public static void register() {
         ShapeCustomizers.register(LayoutShape.MODULE.id(), LayoutShapeSetup::createScreen);
         WorldTabRows.register(new WorldShapeRow(LayoutShape.MODULE.id()));
+        CompactBiomesLine factor = new CompactBiomesLine();
+        DimensionOptionLines.register(CompactBiomes.SHOWN,
+                (scale, spans) -> Minecraft.getInstance().screen instanceof WorldShapeSettingsScreen open
+                        ? factor.line(open, open.creationScreen(), scale, spans)
+                        : Component.empty());
     }
 
     private static Screen createScreen(Screen parent) {

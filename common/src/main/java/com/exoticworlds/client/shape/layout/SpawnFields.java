@@ -32,14 +32,13 @@ final class SpawnFields {
     private final NumberField z;
     private final Column section = new Column();
 
-    SpawnFields(Theme theme, FillStyle fill, Function<Direction.Axis, @Nullable Integer> chunkWidth, Runnable onChange) {
-        this.x = chunkField(theme, fill, Direction.Axis.X, chunkWidth, onChange);
-        this.z = chunkField(theme, fill, Direction.Axis.Z, chunkWidth, onChange);
+    SpawnFields(Theme theme, FillStyle fill, Function<Direction.Axis, @Nullable Integer> chunkWidth) {
+        this.x = chunkField(theme, fill, Direction.Axis.X, chunkWidth);
+        this.z = chunkField(theme, fill, Direction.Axis.Z, chunkWidth);
         CycleButton<SpawnPoint.Mode> modeButton = new CycleButton<>(theme.button(),
                 Component.translatable(SettingsLines.SPAWN_KEY), () -> List.of(SpawnPoint.Mode.values()), this.mode,
                 SettingsLines::spawnModeName);
         modeButton.setHint(theme.tooltip(), SettingsLines.SPAWN_KEY, SpawnPoint.Mode::getSerializedName);
-        modeButton.setOnChange(picked -> onChange.run());
 
         Row point = new Row();
         point.setGap(PAIR_GAP);
@@ -74,9 +73,10 @@ final class SpawnFields {
     }
 
     private static NumberField chunkField(Theme theme, FillStyle fill, Direction.Axis axis,
-            Function<Direction.Axis, @Nullable Integer> chunkWidth, Runnable onChange) {
+            Function<Direction.Axis, @Nullable Integer> chunkWidth) {
         NumberField field = new NumberField(fill, theme.textField(), SettingsLines.axisName(axis),
-                () -> bounds(chunkWidth.apply(axis)), onChange);
+                () -> bounds(chunkWidth.apply(axis)), () -> {
+                });
         field.setSigned(true);
         field.setMaxLength(MAX_LENGTH);
         return field;

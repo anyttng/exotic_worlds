@@ -1,0 +1,20 @@
+package com.exoticworlds.api.v2.shape;
+
+import com.exoticworlds.ExoticWorlds;
+
+import net.minecraft.resources.ResourceLocation;
+
+/** The ids of the shapes Exotic Worlds itself offers for a dimension, for a declaration that names a shape. */
+public final class BuiltInShapes {
+    private static final String TORUS_PATH = "torus";
+    private static final String CYLINDER_PATH = "cylinder";
+
+    /** Both horizontal axes loop. */
+    public static final ResourceLocation TORUS = ResourceLocation.fromNamespaceAndPath(ExoticWorlds.MODID, TORUS_PATH);
+
+    /** One horizontal axis loops, the other runs on. */
+    public static final ResourceLocation CYLINDER = ResourceLocation.fromNamespaceAndPath(ExoticWorlds.MODID, CYLINDER_PATH);
+
+    private BuiltInShapes() {
+    }
+}
