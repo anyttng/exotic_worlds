@@ -47,9 +47,6 @@ final class SettingsLines {
     static final Component OVERWORLD = Component.translatable(PREFIX + ".dimension.overworld");
     static final Component NETHER = Component.translatable(PREFIX + ".dimension.nether");
     static final Component END = Component.translatable(PREFIX + ".dimension.end");
-    static final Component SIZE = sizeCaption(".size");
-    static final Component SIZE_X = sizeCaption(".size_x");
-    static final Component SIZE_Z = sizeCaption(".size_z");
     static final Component SHIFT = Component.translatable(PREFIX + ".shift");
     static final Component SPAWN_POINT = Component.translatable(PREFIX + ".spawn.point");
     static final Component NETHER_SCALE = Component.translatable(PREFIX + ".nether_scale");
@@ -120,8 +117,16 @@ final class SettingsLines {
         return shift == 0 ? summary : summary.append(SEPARATOR).append(Component.translatable(SUMMARY_SHIFT_KEY, shift));
     }
 
-    private static Component sizeCaption(String key) {
-        return Component.translatable(PREFIX + key, WorldLoopSizes.MIN_CHUNK_WIDTH, WorldLoopSizes.MAX_CHUNK_WIDTH);
+    static Component sizeCaption(int minChunkWidth) {
+        return sizeCaption(".size", minChunkWidth);
+    }
+
+    static Component sizeCaption(Direction.Axis axis, int minChunkWidth) {
+        return sizeCaption(axis == Direction.Axis.X ? ".size_x" : ".size_z", minChunkWidth);
+    }
+
+    private static Component sizeCaption(String key, int minChunkWidth) {
+        return Component.translatable(PREFIX + key, minChunkWidth, WorldLoopSizes.MAX_CHUNK_WIDTH);
     }
 
     private static String structureRoom(int chunkWidth) {

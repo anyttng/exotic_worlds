@@ -27,8 +27,6 @@ final class LoopFields {
     private static final int SIZE_MAX_LENGTH = 7;
     private static final String AXIS_HINT_X = "x";
     private static final String AXIS_HINT_Z = "z";
-    private static final Optional<Bounds> SIZE_BOUNDS =
-            Optional.of(new Bounds(WorldLoopSizes.MIN_CHUNK_WIDTH, WorldLoopSizes.MAX_CHUNK_WIDTH));
 
     private final NumberField sizeX;
     private final NumberField sizeZ;
@@ -37,11 +35,16 @@ final class LoopFields {
     private final Value<Direction.Axis> axis = Value.of(Direction.Axis.X);
     private final Column torus = new Column();
     private final Column cylinder = new Column();
+    private final int defaultChunkWidth;
 
-    LoopFields(Theme theme, FillStyle fill, Runnable onChange) {
-        this.sizeX = sizeField(theme, fill, SettingsLines.SIZE_X, onChange);
-        this.sizeZ = sizeField(theme, fill, SettingsLines.SIZE_Z, onChange);
-        this.size = sizeField(theme, fill, SettingsLines.SIZE, onChange);
+    LoopFields(Theme theme, FillStyle fill, int minChunkWidth, int defaultChunkWidth, Runnable onChange) {
+        Optional<Bounds> bounds = Optional.of(new Bounds(minChunkWidth, WorldLoopSizes.MAX_CHUNK_WIDTH));
+        this.defaultChunkWidth = defaultChunkWidth;
+        this.sizeX = sizeField(theme, fill, SettingsLines.sizeCaption(Direction.Axis.X, minChunkWidth), bounds,
+                onChange);
+        this.sizeZ = sizeField(theme, fill, SettingsLines.sizeCaption(Direction.Axis.Z, minChunkWidth), bounds,
+                onChange);
+        this.size = sizeField(theme, fill, SettingsLines.sizeCaption(minChunkWidth), bounds, onChange);
         this.shift = new NumberField(fill, theme.textField(), SettingsLines.SHIFT, this::shiftBounds, onChange);
         this.shift.setMaxLength(SIZE_MAX_LENGTH);
         this.shift.setValueLine(this::shiftLaps);
@@ -61,7 +64,7 @@ final class LoopFields {
     void show(@Nullable LoopSpans spans) {
         ShapeKind kind = ShapeKind.of(spans);
         if (spans == null || kind == ShapeKind.NORMAL) {
-            this.showWidths(WorldLoopSizes.DEFAULT_CHUNK_WIDTH, WorldLoopSizes.DEFAULT_CHUNK_WIDTH, 0);
+            this.showWidths(this.defaultChunkWidth, this.defaultChunkWidth, 0);
             return;
         }
 
@@ -144,8 +147,9 @@ final class LoopFields {
         return xChunkWidth == null ? Component.empty() : SettingsLines.shiftLaps(xChunkWidth, shiftChunks);
     }
 
-    private static NumberField sizeField(Theme theme, FillStyle fill, Component caption, Runnable onChange) {
-        NumberField field = new NumberField(fill, theme.textField(), caption, () -> SIZE_BOUNDS, onChange);
+    private static NumberField sizeField(Theme theme, FillStyle fill, Component caption, Optional<Bounds> bounds,
+            Runnable onChange) {
+        NumberField field = new NumberField(fill, theme.textField(), caption, () -> bounds, onChange);
         field.setMaxLength(SIZE_MAX_LENGTH);
         field.setValueLine(SettingsLines::sizeEffective);
         return field;
