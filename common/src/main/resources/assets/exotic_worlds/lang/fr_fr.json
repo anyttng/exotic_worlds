@@ -110,11 +110,15 @@
 
   "gui.exotic_worlds.settings.title": "Réglages d'Exotic Worlds",
   "gui.exotic_worlds.settings.map_copies": "Copies du monde sur la carte plein écran",
-  "gui.exotic_worlds.settings.map_copies_hint": "Comment les mods de carte affichent en plein écran un monde refermé sur lui-même.\nRépété : remplit la fenêtre de copies du monde.\nUnique : montre le monde une seule fois et empêche de déplacer ou de dézoomer la carte au-delà de ses bords.\nLes minicartes le répètent toujours.",
   "gui.exotic_worlds.settings.map_copies.repeated": "Répété",
   "gui.exotic_worlds.settings.map_copies.single": "Unique",
+  "gui.exotic_worlds.settings.map_copies.hint.intro": "Comment les mods de carte affichent en plein écran un monde refermé sur lui-même.",
+  "gui.exotic_worlds.settings.map_copies.hint.repeated": "remplit la fenêtre de copies du monde.",
+  "gui.exotic_worlds.settings.map_copies.hint.single": "montre le monde une seule fois et empêche de déplacer ou de dézoomer la carte au-delà de ses bords.",
+  "gui.exotic_worlds.settings.map_copies.hint.note": "Les minicartes le répètent toujours.",
   "gui.exotic_worlds.settings.seam_lines": "Lignes du bord du monde sur la carte plein écran",
-  "gui.exotic_worlds.settings.seam_lines_hint": "Trace une ligne le long du bord du monde entre les copies d'un monde refermé sur lui-même sur la carte plein écran. Ne fonctionne qu'avec « Répété » : « Unique » n'en trace aucune.",
+  "gui.exotic_worlds.settings.seam_lines.hint.intro": "Trace une ligne le long du bord du monde entre les copies d'un monde refermé sur lui-même sur la carte plein écran.",
+  "gui.exotic_worlds.settings.seam_lines.hint.requirement": "Ne fonctionne qu'avec %s : %s n'en trace aucune.",
 
   "gui.exotic_worlds.ultraterraforged.preview.spawn_hint": "Cliquez pour placer le point d'apparition",
   "gui.exotic_worlds.ultraterraforged.preview.reset_hint": "Clic droit sur le repère pour réinitialiser"
