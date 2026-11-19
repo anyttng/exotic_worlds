@@ -1,12 +1,12 @@
 package com.exoticworlds.client.shape;
 
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 import com.ascendiacore.client.createworld.WorldTabRow;
 import com.ascendiacore.gui.base.component.GuiComponent;
 import com.ascendiacore.gui.theme.Themes;
 import com.ascendiacore.gui.widget.button.Button;
-import com.exoticworlds.api.v1.client.ShapeCustomizers;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.shape.WorldShapes;
 
@@ -14,7 +14,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.dimension.LevelStem;
 
 public final class WorldShapeRow implements WorldTabRow {
@@ -23,10 +22,10 @@ public final class WorldShapeRow implements WorldTabRow {
     private static final Component SEAM_WARNING =
             Component.translatable("gui.exotic_worlds.world_shape.seam_warning");
 
-    private final Identifier shapeId;
+    private final UnaryOperator<Screen> settingsScreen;
 
-    public WorldShapeRow(Identifier shapeId) {
-        this.shapeId = shapeId;
+    public WorldShapeRow(UnaryOperator<Screen> settingsScreen) {
+        this.settingsScreen = settingsScreen;
     }
 
     @Override
@@ -42,11 +41,10 @@ public final class WorldShapeRow implements WorldTabRow {
     }
 
     private void openSettings() {
-        ShapeCustomizers.Customizer customizer = ShapeCustomizers.of(this.shapeId);
         Minecraft minecraft = Minecraft.getInstance();
         Screen parent = minecraft.gui.screen();
-        if (customizer != null && parent != null) {
-            minecraft.gui.setScreen(customizer.createScreen(parent));
+        if (parent != null) {
+            minecraft.gui.setScreen(this.settingsScreen.apply(parent));
         }
     }
 
