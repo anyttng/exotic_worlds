@@ -1,5 +1,6 @@
 package com.exoticworlds.shape;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 import org.jspecify.annotations.Nullable;
@@ -64,12 +65,11 @@ public final class ShapeStems {
 
     private record WrittenStems(CarriedShape overworld, CarriedShape nether, CarriedShape end) {
         private static WrittenStems of(StemSettings settings) {
-            int netherScale = normalizeNetherScale(settings.netherScale(), settings.overworld());
             GenerationOptions options = settings.generationOptions();
             GenerationOptions withoutSpawn = options.with(SpawnPoint.OPTION, SpawnPoint.DEFAULT);
             return new WrittenStems(
                     new CarriedShape(FlatShape.of(settings.overworld()), options),
-                    new CarriedShape(FlatShape.of(settings.overworld().scaledDown(netherScale)), withoutSpawn),
+                    new CarriedShape(FlatShape.of(netherOf(settings.overworld(), settings.netherScale())), withoutSpawn),
                     new CarriedShape(FlatShape.of(settings.end()), withoutSpawn));
         }
     }
@@ -83,12 +83,20 @@ public final class ShapeStems {
         return normalizeNetherScale(stored, overworld);
     }
 
-    private static int normalizeNetherScale(int netherScale, LoopSpans overworld) {
+    public static LoopSpans netherOf(LoopSpans overworld, int netherScale) {
+        return overworld.scaledDown(normalizeNetherScale(netherScale, overworld));
+    }
+
+    public static List<Integer> netherScalesFor(LoopSpans overworld) {
         int xChunkWidth = overworld.loops(Direction.Axis.X)
                 ? overworld.chunkWidth(Direction.Axis.X)
                 : overworld.chunkWidth(Direction.Axis.Z);
         int zChunkWidth = overworld.loops(Direction.Axis.Z) ? overworld.chunkWidth(Direction.Axis.Z) : xChunkWidth;
-        return NetherScales.normalize(netherScale, xChunkWidth, zChunkWidth, overworld.skewChunks());
+        return NetherScales.allowedFor(xChunkWidth, zChunkWidth, overworld.skewChunks());
+    }
+
+    private static int normalizeNetherScale(int netherScale, LoopSpans overworld) {
+        return NetherScales.normalize(netherScale, netherScalesFor(overworld));
     }
 
     private ShapeStems() {

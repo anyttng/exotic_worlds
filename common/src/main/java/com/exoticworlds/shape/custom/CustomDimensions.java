@@ -24,7 +24,7 @@ public final class CustomDimensions {
     public static WorldDimensions apply(WorldDimensions dimensions, CustomSettings settings) {
         WorldDimensions shaped = dimensions;
         for (VanillaDimension dimension : VanillaDimension.values()) {
-            shaped = withShape(shaped, dimension.stem(), settings.get(dimension));
+            shaped = withShape(shaped, dimension.stem(), settings.resolved(dimension));
         }
 
         return settings.modded().isEmpty()
@@ -41,8 +41,28 @@ public final class CustomDimensions {
             return null;
         }
 
-        CustomSettings read = new CustomSettings(overworld, nether, end, modded);
+        CustomSettings read = fromOverworld(new CustomSettings(overworld, nether, end, modded));
         return isWrapped(read) || !modded.isEmpty() ? read : null;
+    }
+
+    private static CustomSettings fromOverworld(CustomSettings read) {
+        LoopSpans overworld = read.overworld().spans();
+        if (overworld == null || StemKind.of(overworld) == StemKind.NONE) {
+            return read;
+        }
+
+        CustomSettings derived = read;
+        Integer netherScale = FromOverworld.netherScaleOf(overworld, read.nether().spans());
+        if (netherScale != null) {
+            derived = derived.with(VanillaDimension.NETHER, DimensionShape.fromOverworld(read.nether().options()))
+                    .withNetherScale(netherScale);
+        }
+
+        if (FromOverworld.isEnd(overworld, read.end().spans())) {
+            derived = derived.with(VanillaDimension.END, DimensionShape.fromOverworld(read.end().options()));
+        }
+
+        return derived;
     }
 
     private static @Nullable DimensionShape readShape(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
@@ -53,7 +73,7 @@ public final class CustomDimensions {
                     : null;
         }
 
-        return StemKind.of(spans) == null ? null : new DimensionShape(spans, ShapeDimensions.optionsOf(dimensions, key));
+        return new DimensionShape(spans, ShapeDimensions.optionsOf(dimensions, key));
     }
 
     private static @Nullable Map<ResourceKey<LevelStem>, DimensionShape> readModded(DimensionTable table) {
@@ -92,13 +112,13 @@ public final class CustomDimensions {
         }
 
         FlatShape shape = carried.shape();
-        if (shape.mirror() != null || shape.skewChunks() != FlatShape.NO_SKEW) {
+        if (shape.mirror() != null) {
             return null;
         }
 
         LoopSpans spans = and(and(LoopSpans.NONE, Direction.Axis.X, shape.bounds().x()),
                 Direction.Axis.Z, shape.bounds().z());
-        return new DimensionShape(spans, carried.generationOptions());
+        return new DimensionShape(spans.withSkew(shape.skewChunks()), carried.generationOptions());
     }
 
     private static LoopSpans and(LoopSpans spans, Direction.Axis axis, AxisBounds bounds) {
@@ -107,7 +127,7 @@ public final class CustomDimensions {
 
     private static boolean isWrapped(CustomSettings settings) {
         for (VanillaDimension dimension : VanillaDimension.values()) {
-            if (settings.get(dimension).spans() != null) {
+            if (settings.resolved(dimension).spans() != null) {
                 return true;
             }
         }

@@ -3,7 +3,6 @@ package com.exoticworlds.shape.custom;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.shape.LoopSpans;
-import com.exoticworlds.core.FlatShape;
 
 import net.minecraft.core.Direction;
 
@@ -24,13 +23,9 @@ public enum StemKind {
         };
     }
 
-    public static @Nullable StemKind of(@Nullable LoopSpans spans) {
+    public static StemKind of(@Nullable LoopSpans spans) {
         if (spans == null) {
             return NONE;
-        }
-
-        if (spans.skewChunks() != FlatShape.NO_SKEW) {
-            return null;
         }
 
         boolean x = spans.loops(Direction.Axis.X);

@@ -30,11 +30,6 @@ public final class NetherScales {
         return scales;
     }
 
-    public static int normalize(int scale, int overworldXChunkWidth, int overworldZChunkWidth,
-            int overworldSkewChunks) {
-        return normalize(scale, allowedFor(overworldXChunkWidth, overworldZChunkWidth, overworldSkewChunks));
-    }
-
     public static int normalize(int scale, List<Integer> allowed) {
         int fallen = allowed.get(0);
         for (int candidate : allowed) {

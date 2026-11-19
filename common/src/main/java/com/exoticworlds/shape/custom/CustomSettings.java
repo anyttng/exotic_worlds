@@ -10,6 +10,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.option.WorldOption;
 import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.shape.climate.CompactBiomes;
 import com.exoticworlds.shape.torus.GuaranteedLand;
@@ -20,7 +21,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 
 public record CustomSettings(DimensionShape overworld, DimensionShape nether, DimensionShape end,
-        Map<ResourceKey<LevelStem>, DimensionShape> modded) {
+        Map<ResourceKey<LevelStem>, DimensionShape> modded, int netherScale) {
     public static final GenerationOptions DEFAULT_OPTIONS = TorusSettings.DEFAULT.generationOptions();
 
     public static final CustomSettings DEFAULT = new CustomSettings(
@@ -30,6 +31,14 @@ public record CustomSettings(DimensionShape overworld, DimensionShape nether, Di
 
     public CustomSettings {
         modded = Map.copyOf(modded);
+        if (overworld.fromOverworld() || modded.values().stream().anyMatch(DimensionShape::fromOverworld)) {
+            throw new IllegalArgumentException("Only the Nether and the End take From Overworld as a shape");
+        }
+    }
+
+    public CustomSettings(DimensionShape overworld, DimensionShape nether, DimensionShape end,
+            Map<ResourceKey<LevelStem>, DimensionShape> modded) {
+        this(overworld, nether, end, modded, NetherScales.DEFAULT);
     }
 
     public CustomSettings(DimensionShape overworld, DimensionShape nether, DimensionShape end) {
@@ -46,10 +55,26 @@ public record CustomSettings(DimensionShape overworld, DimensionShape nether, Di
 
     public CustomSettings with(VanillaDimension dimension, DimensionShape shape) {
         return switch (dimension) {
-            case OVERWORLD -> new CustomSettings(shape, this.nether, this.end, this.modded);
-            case NETHER -> new CustomSettings(this.overworld, shape, this.end, this.modded);
-            case END -> new CustomSettings(this.overworld, this.nether, shape, this.modded);
+            case OVERWORLD -> new CustomSettings(shape, this.nether, this.end, this.modded, this.netherScale);
+            case NETHER -> new CustomSettings(this.overworld, shape, this.end, this.modded, this.netherScale);
+            case END -> new CustomSettings(this.overworld, this.nether, shape, this.modded, this.netherScale);
         };
+    }
+
+    public CustomSettings withNetherScale(int scale) {
+        return new CustomSettings(this.overworld, this.nether, this.end, this.modded, scale);
+    }
+
+    public DimensionShape resolved(VanillaDimension dimension) {
+        DimensionShape shape = this.get(dimension);
+        if (!shape.fromOverworld()) {
+            return shape;
+        }
+
+        LoopSpans overworldSpans = this.overworld.spans();
+        return new DimensionShape(dimension == VanillaDimension.END
+                ? FromOverworld.end(overworldSpans)
+                : FromOverworld.nether(overworldSpans, this.netherScale), shape.options());
     }
 
     public @Nullable CustomSettings withSpawn(SpawnPoint spawn) {
@@ -73,7 +98,7 @@ public record CustomSettings(DimensionShape overworld, DimensionShape nether, Di
             rows.put(dimension.stem(), shape);
         }
 
-        return new CustomSettings(this.overworld, this.nether, this.end, rows);
+        return new CustomSettings(this.overworld, this.nether, this.end, rows, this.netherScale);
     }
 
     public static List<WorldOption<?>> offeredOptions(CustomStem dimension, StemKind kind) {
