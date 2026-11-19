@@ -36,6 +36,10 @@
 
   "gui.exotic_worlds.world_shape_settings": "ワールドの形状の設定",
   "gui.exotic_worlds.world_shape_settings.hint": "オーバーワールド、ネザー、エンド、各Modのディメンションの形状を選べます。",
+  "gui.exotic_worlds.world_shape_settings.existing_world": "形状はディメンションにチャンクがないうちに一度だけ選べます",
+  "gui.exotic_worlds.world_shape_settings.locked.vanilla": "ワールド作成時に決まります",
+  "gui.exotic_worlds.world_shape_settings.locked.chosen": "形状は選択済みのため、変えられません",
+  "gui.exotic_worlds.world_shape_settings.locked.generated": "すでにチャンクがあるため、形状は変えられません",
   "gui.exotic_worlds.world_shape_settings.preset.tiny": "極小",
   "gui.exotic_worlds.world_shape_settings.preset.small": "小",
   "gui.exotic_worlds.world_shape_settings.preset.medium": "中",

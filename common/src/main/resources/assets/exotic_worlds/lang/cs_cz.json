@@ -36,6 +36,10 @@
 
   "gui.exotic_worlds.world_shape_settings": "Nastavení tvaru světa",
   "gui.exotic_worlds.world_shape_settings.hint": "Vyberte tvar pro svět na povrchu, Nether, End a každou dimenzi z modů.",
+  "gui.exotic_worlds.world_shape_settings.existing_world": "Tvar lze zvolit jen jednou, dokud dimenze nemá žádné chunky",
+  "gui.exotic_worlds.world_shape_settings.locked.vanilla": "Nastaveno při vytvoření světa",
+  "gui.exotic_worlds.world_shape_settings.locked.chosen": "Už zvoleno, takže tvar zůstává",
+  "gui.exotic_worlds.world_shape_settings.locked.generated": "Chunky tu už existují, takže tvar zůstává",
   "gui.exotic_worlds.world_shape_settings.preset.tiny": "Drobný",
   "gui.exotic_worlds.world_shape_settings.preset.small": "Malý",
   "gui.exotic_worlds.world_shape_settings.preset.medium": "Střední",

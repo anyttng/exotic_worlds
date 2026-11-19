@@ -36,6 +36,10 @@
 
   "gui.exotic_worlds.world_shape_settings": "Ustawienia kształtu świata",
   "gui.exotic_worlds.world_shape_settings.hint": "Wybierz kształt Nadziemia, Netheru, Endu i każdego wymiaru z modów.",
+  "gui.exotic_worlds.world_shape_settings.existing_world": "Kształt można wybrać raz, dopóki wymiar nie ma chunków",
+  "gui.exotic_worlds.world_shape_settings.locked.vanilla": "Ustalony przy tworzeniu świata",
+  "gui.exotic_worlds.world_shape_settings.locked.chosen": "Kształt jest już wybrany, więc się nie zmieni",
+  "gui.exotic_worlds.world_shape_settings.locked.generated": "Są tu już chunki, więc kształt się nie zmieni",
   "gui.exotic_worlds.world_shape_settings.preset.tiny": "Malutki",
   "gui.exotic_worlds.world_shape_settings.preset.small": "Mały",
   "gui.exotic_worlds.world_shape_settings.preset.medium": "Średni",

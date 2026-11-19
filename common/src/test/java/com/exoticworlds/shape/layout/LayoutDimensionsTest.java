@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.api.v1.shape.ShapeDimensions;
+import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.shape.climate.ClimateScale;
@@ -52,6 +53,9 @@ class LayoutDimensionsTest {
 
     private static final ResourceKey<LevelStem> MOD_STEM = ResourceKey.create(Registries.LEVEL_STEM,
             Identifier.fromNamespaceAndPath("example_mod", "sky"));
+
+    private static final ResourceKey<LevelStem> OTHER_MOD_STEM = ResourceKey.create(Registries.LEVEL_STEM,
+            Identifier.fromNamespaceAndPath("example_mod", "mine"));
 
     @Test
     void theDefaultLayoutLeavesTheWorldAsItWas() {
@@ -193,6 +197,26 @@ class LayoutDimensionsTest {
         assertEquals(LoopSpans.ofWidths(32, 16).withSkew(4), OverworldDerivation.modDimension(overworld, 1.0, 4.0));
         assertNull(OverworldDerivation.modDimension(LoopSpans.ofWidth(100), 1.0, 8.0));
         assertNull(OverworldDerivation.modDimension(null, 1.0, 1.0));
+    }
+
+    @Test
+    void theRowsAServerSendsReadAsTheWorldsLayout() {
+        DimensionLayout overworld = DimensionLayout.looped(LoopSpans.ofWidth(64), LAND);
+        DimensionLayout sky = DimensionLayout.looped(LoopSpans.ofWidth(Direction.Axis.Z, 48), COMPACT_6);
+        Map<ResourceKey<LevelStem>, DimensionTable.Entry> rows = new HashMap<>();
+        rows.put(LevelStem.OVERWORLD, LayoutDimensions.entryOf(overworld));
+        rows.put(LevelStem.NETHER, LayoutDimensions.entryOf(DimensionLayout.looped(LoopSpans.ofWidth(16), PLAIN)));
+        rows.put(LevelStem.END, DimensionTable.Entry.UNWRAPPED);
+        rows.put(MOD_STEM, LayoutDimensions.entryOf(sky));
+        rows.put(OTHER_MOD_STEM, LayoutDimensions.entryOf(DimensionLayout.fromOverworld(PLAIN)));
+
+        WorldLayout read = LayoutDimensions.ofRows(rows);
+
+        assertEquals(overworld, read.overworld());
+        assertEquals(ShapeKind.FROM_OVERWORLD, read.nether().kind());
+        assertEquals(4, read.netherScale());
+        assertEquals(ShapeKind.NORMAL, read.end().kind());
+        assertEquals(Map.of(MOD_STEM, sky), read.modDimensions());
     }
 
     @Test
