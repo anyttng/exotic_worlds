@@ -1,15 +1,15 @@
 package com.exoticworlds.compat.naturaltemperature.mixin;
 
-import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Slice;
 
 import com.bawnorton.mixinsquared.TargetHandler;
 import com.exoticworlds.InjectionTargets;
+import com.exoticworlds.compat.naturaltemperature.BandNoises;
 import com.exoticworlds.compat.naturaltemperature.ClimateLap;
+import com.exoticworlds.compat.naturaltemperature.NaturalTemperatureInjectionTargets;
+import com.exoticworlds.compat.naturaltemperature.NaturalWaveCells;
 import com.exoticworlds.compat.naturaltemperature.PinnedSample;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -19,7 +19,6 @@ import naturaltemperature.NoiseBiomeBandsGenerator;
 
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.levelgen.DensityFunction;
-import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
 
 @Mixin(value = Climate.Sampler.class, priority = 1100)
 public class WorldPainterMixin {
@@ -31,21 +30,9 @@ public class WorldPainterMixin {
 
     private static final String HUMIDITY = "customHumidityCalculation(III)F";
 
-    private static final String SQRT = "Ljava/lang/Math;sqrt(D)D";
-
-    private static final String SIN = "Ljava/lang/Math;sin(D)D";
-
     private static final String WAVE_FREQUENCY = "waveFrequency";
 
     private static final String MAGNIFICATION = "magnification";
-
-    private static final String MODULATED_FREQUENCY = "modulatedFrequency";
-
-    private static final String MODULATED_HUMIDITY_FREQUENCY = "modulatedUFrequency";
-
-    private static final int NOISE_OCTAVE = 0;
-
-    private static final double NOISE_FREQUENCY = 0x1.0p-7;
 
     @WrapOperation(
             method = "@MixinSquared:Handler",
@@ -98,98 +85,70 @@ public class WorldPainterMixin {
     }
 
     @WrapOperation(
-            method = {TEMPERATURE, HUMIDITY},
-            at = @At(value = "INVOKE", target = SQRT),
-            slice = @Slice(to = @At(value = "INVOKE", target = SIN, ordinal = 0)))
-    private double exotic_worlds$turnTheLap(double value, Operation<Double> original,
-            @Local(name = WAVE_FREQUENCY) double waveFrequency, @Local(name = MAGNIFICATION) double magnification,
-            @Local(name = MODULATED_FREQUENCY) double modulatedFrequency) {
-        double frequency = original.call(value);
-        PinnedSample sample = PinnedSample.current();
-        return sample == null
-                ? frequency
-                : sample.lap().lapFrequency(frequency, waveFrequency / magnification, modulatedFrequency);
-    }
-
-    @WrapOperation(
-            method = {TEMPERATURE, HUMIDITY},
-            at = @At(value = "INVOKE", target = "Lnaturaltemperature/NoiseBiomeBandsGenerator;getNoise(DDD)D"))
-    private double exotic_worlds$noiseOnTheLap(NoiseBiomeBandsGenerator noise, double x, double z, double scale,
+            method = HUMIDITY,
+            at = @At(value = "INVOKE", target = NaturalTemperatureInjectionTargets.LARGE_NOISE))
+    private double exotic_worlds$largeNoiseOnTheLap(NoiseBiomeBandsGenerator noise, double x, double z, double scale,
             Operation<Double> original) {
         PinnedSample sample = PinnedSample.current();
         if (sample == null || !sample.lap().closesNoise()) {
             return original.call(noise, x, z, scale);
         }
 
-        @Nullable ImprovedNoise field = ((NoiseBiomeBandsGeneratorAccessor) noise).exotic_worlds$noise()
-                .getOctaveNoise(NOISE_OCTAVE);
-        if (field == null) {
+        return sample.lap().noise(((BandNoises) noise).exotic_worlds$large(), scale, x, z, sample.blockZ());
+    }
+
+    @WrapOperation(
+            method = HUMIDITY,
+            at = @At(value = "INVOKE", target = NaturalTemperatureInjectionTargets.DETAIL_NOISE))
+    private double exotic_worlds$detailNoiseOnTheLap(NoiseBiomeBandsGenerator noise, double x, double z,
+            double scale, Operation<Double> original) {
+        PinnedSample sample = PinnedSample.current();
+        if (sample == null || !sample.lap().closesNoise()) {
             return original.call(noise, x, z, scale);
         }
 
-        return sample.lap().noise(field.p, field.xo, field.yo, field.zo, scale * NOISE_FREQUENCY, x, z,
-                sample.blockZ());
+        return sample.lap().noise(((BandNoises) noise).exotic_worlds$detail(), scale, x, z, sample.blockZ());
     }
 
-    @ModifyVariable(method = {TEMPERATURE, HUMIDITY}, at = @At("STORE"), name = "wave")
-    private double exotic_worlds$foldAfterTheWave(double wave, @Local(argsOnly = true, ordinal = 2) int z,
-            @Local(name = "noise") double noise, @Local(name = "distortionAmplitude") double distortionAmplitude) {
+    @WrapOperation(
+            method = HUMIDITY,
+            at = @At(value = "INVOKE", target = NaturalTemperatureInjectionTargets.NATURAL_WAVE, ordinal = 0))
+    private double exotic_worlds$waveOnTheXLap(double x, double amplitude, double frequency, long seed,
+            Operation<Double> original, @Local(name = WAVE_FREQUENCY) double waveFrequency,
+            @Local(name = MAGNIFICATION) double magnification) {
         PinnedSample sample = PinnedSample.current();
-        return sample == null ? wave : sample.lap().carriedWave(sample.blockZ(), z, wave, noise * distortionAmplitude);
+        if (sample == null || !sample.lap().closesXWave()) {
+            return original.call(x, amplitude, frequency, seed);
+        }
+
+        return sample.lap().xWave(NaturalWaveCells.INSTANCE, seed, x, amplitude, waveFrequency / magnification);
+    }
+
+    @WrapOperation(
+            method = HUMIDITY,
+            at = @At(value = "INVOKE", target = NaturalTemperatureInjectionTargets.NATURAL_WAVE, ordinal = 1))
+    private double exotic_worlds$waveOnTheZLap(double z, double amplitude, double frequency, long seed,
+            Operation<Double> original, @Local(name = WAVE_FREQUENCY) double waveFrequency,
+            @Local(name = MAGNIFICATION) double magnification) {
+        PinnedSample sample = PinnedSample.current();
+        if (sample == null || !sample.lap().closesZWave()) {
+            return original.call(z, amplitude, frequency, seed);
+        }
+
+        return sample.lap().zWave(NaturalWaveCells.INSTANCE, seed, sample.blockZ(), amplitude,
+                waveFrequency / magnification);
+    }
+
+    @ModifyVariable(method = HUMIDITY, at = @At(value = "LOAD", ordinal = 0), name = "wave")
+    private double exotic_worlds$foldAfterTheWave(double wave, @Local(argsOnly = true, ordinal = 2) int z,
+            @Local(name = "distorsion") double distortion) {
+        PinnedSample sample = PinnedSample.current();
+        return sample == null ? wave : sample.lap().carriedWave(sample.blockZ(), z, wave, distortion);
     }
 
     @ModifyVariable(method = HUMIDITY, at = @At("STORE"), name = "hbw")
     private double exotic_worlds$bandsOnTheLap(double width) {
         PinnedSample sample = PinnedSample.current();
         return sample == null ? width : sample.lap().lapBandWidth(width);
-    }
-
-    @WrapOperation(method = HUMIDITY, at = @At(value = "INVOKE", target = SIN, ordinal = 4))
-    private double exotic_worlds$firstZWave(double angle, Operation<Double> original,
-            @Local(argsOnly = true, ordinal = 2) int z, @Local(name = "fq1") double frequency,
-            @Local(name = WAVE_FREQUENCY) double waveFrequency, @Local(name = MAGNIFICATION) double magnification,
-            @Local(name = MODULATED_FREQUENCY) double modulatedFrequency,
-            @Local(name = MODULATED_HUMIDITY_FREQUENCY) double modulatedHumidityFrequency) {
-        return original.call(exotic_worlds$zAngle(angle, z, frequency, waveFrequency / magnification,
-                modulatedFrequency, modulatedHumidityFrequency));
-    }
-
-    @WrapOperation(method = HUMIDITY, at = @At(value = "INVOKE", target = SIN, ordinal = 5))
-    private double exotic_worlds$secondZWave(double angle, Operation<Double> original,
-            @Local(argsOnly = true, ordinal = 2) int z, @Local(name = "fq2") double frequency,
-            @Local(name = WAVE_FREQUENCY) double waveFrequency, @Local(name = MAGNIFICATION) double magnification,
-            @Local(name = MODULATED_FREQUENCY) double modulatedFrequency,
-            @Local(name = MODULATED_HUMIDITY_FREQUENCY) double modulatedHumidityFrequency) {
-        return original.call(exotic_worlds$zAngle(angle, z, frequency, waveFrequency / magnification,
-                modulatedFrequency, modulatedHumidityFrequency));
-    }
-
-    @WrapOperation(method = HUMIDITY, at = @At(value = "INVOKE", target = SIN, ordinal = 6))
-    private double exotic_worlds$thirdZWave(double angle, Operation<Double> original,
-            @Local(argsOnly = true, ordinal = 2) int z, @Local(name = "fq3") double frequency,
-            @Local(name = WAVE_FREQUENCY) double waveFrequency, @Local(name = MAGNIFICATION) double magnification,
-            @Local(name = MODULATED_FREQUENCY) double modulatedFrequency,
-            @Local(name = MODULATED_HUMIDITY_FREQUENCY) double modulatedHumidityFrequency) {
-        return original.call(exotic_worlds$zAngle(angle, z, frequency, waveFrequency / magnification,
-                modulatedFrequency, modulatedHumidityFrequency));
-    }
-
-    @WrapOperation(method = HUMIDITY, at = @At(value = "INVOKE", target = SIN, ordinal = 7))
-    private double exotic_worlds$fourthZWave(double angle, Operation<Double> original,
-            @Local(argsOnly = true, ordinal = 2) int z, @Local(name = "fq4") double frequency,
-            @Local(name = WAVE_FREQUENCY) double waveFrequency, @Local(name = MAGNIFICATION) double magnification,
-            @Local(name = MODULATED_FREQUENCY) double modulatedFrequency,
-            @Local(name = MODULATED_HUMIDITY_FREQUENCY) double modulatedHumidityFrequency) {
-        return original.call(exotic_worlds$zAngle(angle, z, frequency, waveFrequency / magnification,
-                modulatedFrequency, modulatedHumidityFrequency));
-    }
-
-    @Unique
-    private static double exotic_worlds$zAngle(double angle, int z, double frequency, double nominalRate,
-            double rate, double zRate) {
-        PinnedSample sample = PinnedSample.current();
-        return sample == null
-                ? angle
-                : sample.lap().zWaveAngle(angle, frequency, nominalRate, rate, zRate, z, sample.blockZ());
     }
 }

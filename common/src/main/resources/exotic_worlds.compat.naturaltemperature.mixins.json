@@ -5,7 +5,10 @@
   "compatibilityLevel": "JAVA_25",
   "plugin": "com.exoticworlds.compat.naturaltemperature.NaturalTemperatureMixinPlugin",
   "mixins": [
-    "NoiseBiomeBandsGeneratorAccessor",
+    "MathUtilsAccessor",
+    "NaturalTemperatureHooksMixin",
+    "NoiseBiomeBandsGeneratorMixin",
+    "TemperatureContextFactoryMixin",
     "WorldPainterMixin"
   ],
   "injectors": {
