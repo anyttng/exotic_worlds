@@ -6,7 +6,9 @@
   "plugin": "com.exoticworlds.compat.vista.VistaMixinPlugin",
   "mixins": [
     "GazeRedirectSeamMixin",
-    "TvSlideshowRangeSeatMixin"
+    "TvSlideshowRangeSeatMixin",
+    "ZoneChunkKeysMixin",
+    "ZoneFoldStampMixin"
   ],
   "injectors": {
     "defaultRequire": 1
