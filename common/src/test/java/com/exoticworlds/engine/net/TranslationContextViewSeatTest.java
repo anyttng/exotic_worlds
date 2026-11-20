@@ -30,6 +30,10 @@ class TranslationContextViewSeatTest {
     private static final ChunkPos CHUNK_BESIDE_THE_CAMERA = new ChunkPos(-14, 0);
     private static final ChunkPos ITS_CAMERA_COPY = new ChunkPos(-14 + WIDTH_IN_CHUNKS, 0);
 
+    private static final ChunkPos CHUNK_IN_BOTH_VIEWS = new ChunkPos(-10, 0);
+    private static final ChunkPos ITS_COPY_BESIDE_THE_CAMERA = new ChunkPos(-10 + WIDTH_IN_CHUNKS, 0);
+    private static final ChunkPos ITS_AREA_COPY_A_LAP_BEHIND = new ChunkPos(-10 - WIDTH_IN_CHUNKS, 0);
+
     private static final HeldArea AREA_AT_THE_ANTIPODE = new HeldArea(new ChunkPos(WIDTH_IN_CHUNKS / 2, 0), 2);
     private static final ChunkPos CHUNK_IN_THE_AREA = new ChunkPos(-15, 0);
     private static final ChunkPos ITS_AREA_COPY = new ChunkPos(-15 + WIDTH_IN_CHUNKS, 0);
@@ -81,6 +85,24 @@ class TranslationContextViewSeatTest {
 
         assertEquals(ITS_CAMERA_COPY, context.viewSeat(CHUNK_BESIDE_THE_CAMERA));
         assertEquals(context.toClient(CHUNK_BESIDE_THE_CAMERA), context.viewSeat(CHUNK_BESIDE_THE_CAMERA));
+    }
+
+    @Test
+    void aChunkHeldByTheViewTheCameraAndAnAreaAnswersOneSeatPerPass() {
+        ClientPosition clientPosition = playerAtTheOrigin();
+        clientPosition.setHeldCacheCenter(PLAYER_CHUNK);
+        clientPosition.followCamera(CAMERA, Level.OVERWORLD);
+        clientPosition.setHeldAreas(List.of(new HeldArea(ITS_AREA_COPY_A_LAP_BEHIND, 2)));
+        TranslationContext context = contextOver(clientPosition);
+
+        assertEquals(CHUNK_IN_BOTH_VIEWS, context.toClient(CHUNK_IN_BOTH_VIEWS));
+        assertEquals(3, context.seatPass().seats());
+
+        context.seatPass().answer(1);
+        assertEquals(ITS_COPY_BESIDE_THE_CAMERA, context.toClient(CHUNK_IN_BOTH_VIEWS));
+
+        context.seatPass().answer(2);
+        assertEquals(ITS_AREA_COPY_A_LAP_BEHIND, context.toClient(CHUNK_IN_BOTH_VIEWS));
     }
 
     @Test

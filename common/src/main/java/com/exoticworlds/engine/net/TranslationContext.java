@@ -44,7 +44,7 @@ public record TranslationContext(
         IntFunction<@Nullable Vec3> entityPosition,
         IntFunction<TagPositions.@Nullable Subject> entity,
         Runnable rebase,
-        CameraSide cameraSide) implements SeamContext {
+        SeatPass seatPass) implements SeamContext {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -62,7 +62,7 @@ public record TranslationContext(
             int heldViewDistance, IntFunction<@Nullable Vec3> entityPosition,
             IntFunction<TagPositions.@Nullable Subject> entity, Runnable rebase) {
         this(fold, clientPosition, bufferFactory, dimension, trackedViewDistance, heldViewDistance, entityPosition,
-                entity, rebase, new CameraSide());
+                entity, rebase, new SeatPass());
     }
 
     public static TranslationContext followingCamera(ServerPlayer player, WorldFold fold) {
@@ -131,14 +131,18 @@ public record TranslationContext(
         }
 
         int viewReach = viewReach();
-        ChunkPos areaPos = withinView(clientPos, anchor, viewReach) ? null : heldAreaCopy(chunkPos);
+        if (withinView(clientPos, anchor, viewReach)) {
+            return seatInsideView(chunkPos, clientPos, viewReach);
+        }
+
+        ChunkPos areaPos = heldAreaCopy(chunkPos);
         if (areaPos != null) {
             return areaPos;
         }
 
-        ChunkPos cameraPos = cameraCopyOf(chunkPos, clientPos, anchor, viewReach);
-        if (cameraPos != null) {
-            return cameraPos;
+        ChunkPos cameraChunk = clientPosition.cameraChunk();
+        if (cameraChunk != null) {
+            return fold.nearestCopy(cameraChunk, chunkPos);
         }
 
         guardView(traffic, chunkPos, clientPos, anchor, viewReach);
@@ -149,29 +153,45 @@ public record TranslationContext(
     public ChunkPos viewSeat(ChunkPos chunkPos) {
         ChunkPos anchor = chunkAnchor();
         ChunkPos clientPos = fold.nearestCopy(anchor, chunkPos);
-        ChunkPos cameraPos = cameraCopyOf(chunkPos, clientPos, anchor, viewReach());
-        return cameraPos == null ? clientPos : cameraPos;
+        ChunkPos cameraChunk = clientPosition.cameraChunk();
+        return cameraChunk == null || withinView(clientPos, anchor, viewReach())
+                ? clientPos
+                : fold.nearestCopy(cameraChunk, chunkPos);
     }
 
-    private @Nullable ChunkPos cameraCopyOf(ChunkPos chunkPos, ChunkPos clientPos, ChunkPos anchor, int viewReach) {
+    private ChunkPos seatInsideView(ChunkPos chunkPos, ChunkPos clientPos, int viewReach) {
+        ChunkPos cameraPos = cameraCopyInsideView(chunkPos, clientPos, viewReach);
+        List<HeldArea> areas = clientPosition.heldAreas();
+        if (cameraPos == null && areas.isEmpty()) {
+            return clientPos;
+        }
+
+        List<ChunkPos> seats = new ArrayList<>();
+        seats.add(clientPos);
+        if (cameraPos != null) {
+            seats.add(cameraPos);
+        }
+
+        for (HeldArea area : areas) {
+            ChunkPos areaPos = area.copyOf(fold, chunkPos);
+            if (areaPos != null) {
+                addCandidate(seats, areaPos);
+            }
+        }
+
+        seatPass.sawSeats(seats.size());
+        int answered = seatPass.answered();
+        return answered < seats.size() ? seats.get(answered) : clientPos;
+    }
+
+    private @Nullable ChunkPos cameraCopyInsideView(ChunkPos chunkPos, ChunkPos clientPos, int viewReach) {
         ChunkPos cameraChunk = clientPosition.cameraChunk();
         if (cameraChunk == null) {
             return null;
         }
 
-        if (!withinView(clientPos, anchor, viewReach)) {
-            return fold.nearestCopy(cameraChunk, chunkPos);
-        }
-
         ChunkPos cameraPos = fold.nearestCopy(cameraChunk, chunkPos);
-        if (!cameraPos.equals(clientPos) && withinView(cameraPos, cameraChunk, viewReach)) {
-            if (cameraSide.answersCamera()) {
-                return cameraPos;
-            }
-            cameraSide.markSecondCopy();
-        }
-
-        return null;
+        return !cameraPos.equals(clientPos) && withinView(cameraPos, cameraChunk, viewReach) ? cameraPos : null;
     }
 
     private @Nullable ChunkPos heldAreaCopy(ChunkPos chunkPos) {
