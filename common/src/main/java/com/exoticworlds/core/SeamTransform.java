@@ -6,13 +6,17 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-public record SeamTransform(int xSign, int zSign, int xShift, int zShift) {
+public record SeamTransform(int xSign, int zSign, int xShift, int zShift, boolean swapsAxes) {
     public static final SeamTransform IDENTITY = new SeamTransform(1, 1, 0, 0);
 
     public SeamTransform {
         if (Math.abs(xSign) != 1 || Math.abs(zSign) != 1) {
             throw new IllegalArgumentException("An axis sign is +1 or -1, got x=" + xSign + " z=" + zSign);
         }
+    }
+
+    public SeamTransform(int xSign, int zSign, int xShift, int zShift) {
+        this(xSign, zSign, xShift, zShift, false);
     }
 
     public static SeamTransform translation(int xShift, int zShift) {
@@ -28,27 +32,27 @@ public record SeamTransform(int xSign, int zSign, int xShift, int zShift) {
     }
 
     public boolean isIdentity() {
-        return this.xSign == 1 && this.zSign == 1 && this.xShift == 0 && this.zShift == 0;
+        return this.xSign == 1 && this.zSign == 1 && this.xShift == 0 && this.zShift == 0 && !this.swapsAxes;
     }
 
     public FoldOrientation orientation() {
-        return FoldOrientation.of(this.xSign < 0, this.zSign < 0);
+        return FoldOrientation.of(this.swapsAxes, this.xSign < 0, this.zSign < 0);
     }
 
-    public double applyX(double x) {
-        return this.xSign * x + this.xShift;
+    public double applyX(double x, double z) {
+        return this.xSign * (this.swapsAxes ? z : x) + this.xShift;
     }
 
-    public double applyZ(double z) {
-        return this.zSign * z + this.zShift;
+    public double applyZ(double x, double z) {
+        return this.zSign * (this.swapsAxes ? x : z) + this.zShift;
     }
 
-    public int applyCellX(int x) {
-        return cellOf(this.xSign, this.xShift, x);
+    public int applyCellX(int x, int z) {
+        return cellOf(this.xSign, this.xShift, this.swapsAxes ? z : x);
     }
 
-    public int applyCellZ(int z) {
-        return cellOf(this.zSign, this.zShift, z);
+    public int applyCellZ(int x, int z) {
+        return cellOf(this.zSign, this.zShift, this.swapsAxes ? x : z);
     }
 
     public Vec3 apply(Vec3 pos) {
@@ -56,7 +60,7 @@ public record SeamTransform(int xSign, int zSign, int xShift, int zShift) {
             return pos;
         }
 
-        return new Vec3(applyX(pos.x), pos.y, applyZ(pos.z));
+        return new Vec3(applyX(pos.x, pos.z), pos.y, applyZ(pos.x, pos.z));
     }
 
     public BlockPos apply(BlockPos pos) {
@@ -64,7 +68,7 @@ public record SeamTransform(int xSign, int zSign, int xShift, int zShift) {
             return pos;
         }
 
-        return new BlockPos(applyCellX(pos.getX()), pos.getY(), applyCellZ(pos.getZ()));
+        return new BlockPos(applyCellX(pos.getX(), pos.getZ()), pos.getY(), applyCellZ(pos.getX(), pos.getZ()));
     }
 
     public ChunkPos apply(ChunkPos pos) {
@@ -72,7 +76,7 @@ public record SeamTransform(int xSign, int zSign, int xShift, int zShift) {
             return pos;
         }
 
-        return new ChunkPos(applyCellX(pos.x()), applyCellZ(pos.z()));
+        return new ChunkPos(applyCellX(pos.x(), pos.z()), applyCellZ(pos.x(), pos.z()));
     }
 
     public AABB apply(AABB box) {
@@ -80,7 +84,9 @@ public record SeamTransform(int xSign, int zSign, int xShift, int zShift) {
             return box;
         }
 
-        return new AABB(applyX(box.minX), box.minY, applyZ(box.minZ), applyX(box.maxX), box.maxY, applyZ(box.maxZ));
+        return new AABB(
+                applyX(box.minX, box.minZ), box.minY, applyZ(box.minX, box.minZ),
+                applyX(box.maxX, box.maxZ), box.maxY, applyZ(box.maxX, box.maxZ));
     }
 
     public BoundingBox apply(BoundingBox box) {
@@ -88,24 +94,34 @@ public record SeamTransform(int xSign, int zSign, int xShift, int zShift) {
             return box;
         }
 
-        int firstX = applyCellX(box.minX());
-        int secondX = applyCellX(box.maxX());
-        int firstZ = applyCellZ(box.minZ());
-        int secondZ = applyCellZ(box.maxZ());
+        int firstX = applyCellX(box.minX(), box.minZ());
+        int secondX = applyCellX(box.maxX(), box.maxZ());
+        int firstZ = applyCellZ(box.minX(), box.minZ());
+        int secondZ = applyCellZ(box.maxX(), box.maxZ());
         return new BoundingBox(
                 Math.min(firstX, secondX), box.minY(), Math.min(firstZ, secondZ),
                 Math.max(firstX, secondX), box.maxY(), Math.max(firstZ, secondZ));
     }
 
     public SeamTransform then(SeamTransform next) {
+        int carriedXSign = next.swapsAxes ? this.zSign : this.xSign;
+        int carriedZSign = next.swapsAxes ? this.xSign : this.zSign;
+        int carriedXShift = next.swapsAxes ? this.zShift : this.xShift;
+        int carriedZShift = next.swapsAxes ? this.xShift : this.zShift;
         return new SeamTransform(
-                this.xSign * next.xSign,
-                this.zSign * next.zSign,
-                next.xSign * this.xShift + next.xShift,
-                next.zSign * this.zShift + next.zShift);
+                carriedXSign * next.xSign,
+                carriedZSign * next.zSign,
+                next.xSign * carriedXShift + next.xShift,
+                next.zSign * carriedZShift + next.zShift,
+                this.swapsAxes ^ next.swapsAxes);
     }
 
     public SeamTransform inverse() {
+        if (this.swapsAxes) {
+            return new SeamTransform(
+                    this.zSign, this.xSign, -this.zSign * this.zShift, -this.xSign * this.xShift, true);
+        }
+
         return new SeamTransform(this.xSign, this.zSign, -this.xSign * this.xShift, -this.zSign * this.zShift);
     }
 
@@ -114,11 +130,24 @@ public record SeamTransform(int xSign, int zSign, int xShift, int zShift) {
             return IDENTITY;
         }
 
+        if (this.swapsAxes) {
+            return turnedPower(exponent);
+        }
+
         return new SeamTransform(
                 signPower(this.xSign, exponent),
                 signPower(this.zSign, exponent),
                 shiftPower(this.xSign, this.xShift, exponent),
                 shiftPower(this.zSign, this.zShift, exponent));
+    }
+
+    private SeamTransform turnedPower(int exponent) {
+        if (exponent < 0) {
+            return inverse().turnedPower(Math.negateExact(exponent));
+        }
+
+        SeamTransform pairs = then(this).power(exponent / 2);
+        return (exponent & 1) == 0 ? pairs : pairs.then(this);
     }
 
     double powerApplyX(int exponent, double x) {

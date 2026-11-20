@@ -253,7 +253,7 @@ public final class DeckGroupFold implements WorldFold {
         int x = ChunkPos.getX(chunkKey);
         int z = ChunkPos.getZ(chunkKey);
         SeamTransform move = this.chunks.nearestMoveOfCell(ChunkPos.getX(refKey), ChunkPos.getZ(refKey), x, z);
-        return move.isIdentity() ? chunkKey : ChunkPos.pack(move.applyCellX(x), move.applyCellZ(z));
+        return move.isIdentity() ? chunkKey : ChunkPos.pack(move.applyCellX(x, z), move.applyCellZ(x, z));
     }
 
     @Override
