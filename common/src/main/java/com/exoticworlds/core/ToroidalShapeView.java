@@ -233,6 +233,10 @@ public final class ToroidalShapeView implements ToroidalShape {
     }
 
     static Orientation orientationOf(FoldOrientation orientation) {
+        if (orientation.swapsAxes()) {
+            throw new IllegalStateException("The api's Orientation carries no quarter turn, got " + orientation);
+        }
+
         return new Orientation(orientation.flipsX(), orientation.flipsZ());
     }
 

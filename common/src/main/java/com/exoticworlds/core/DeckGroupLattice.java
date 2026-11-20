@@ -12,7 +12,13 @@ import net.minecraft.core.Direction;
 final class DeckGroupLattice {
     private static final int CANDIDATE_REACH = 2;
 
-    record Step(SeamTransform generator, boolean onX) {}
+    record Step(SeamTransform generator, boolean onX) {
+        Step {
+            if (generator.swapsAxes()) {
+                throw new IllegalArgumentException("A deck group step folds one axis, got the turned " + generator);
+            }
+        }
+    }
 
     final WrapDomain x;
 
@@ -162,27 +168,27 @@ final class DeckGroupLattice {
         return Math.toIntExact(-translations.nearShiftZ(first, second, index));
     }
 
-    private int candidateCellX(int index, long first, long second, int x) {
+    private int candidateCellX(int index, long first, long second, int x, int z) {
         return this.translations == null
-                ? this.candidates[index].applyCellX(x)
+                ? this.candidates[index].applyCellX(x, z)
                 : x + candidateShiftX(this.translations, index, first, second);
     }
 
-    private int candidateCellZ(int index, long first, long second, int z) {
+    private int candidateCellZ(int index, long first, long second, int x, int z) {
         return this.translations == null
-                ? this.candidates[index].applyCellZ(z)
+                ? this.candidates[index].applyCellZ(x, z)
                 : z + candidateShiftZ(this.translations, index, first, second);
     }
 
-    private double candidateX(int index, long first, long second, double x) {
+    private double candidateX(int index, long first, long second, double x, double z) {
         return this.translations == null
-                ? this.candidates[index].applyX(x)
+                ? this.candidates[index].applyX(x, z)
                 : x + candidateShiftX(this.translations, index, first, second);
     }
 
-    private double candidateZ(int index, long first, long second, double z) {
+    private double candidateZ(int index, long first, long second, double x, double z) {
         return this.translations == null
-                ? this.candidates[index].applyZ(z)
+                ? this.candidates[index].applyZ(x, z)
                 : z + candidateShiftZ(this.translations, index, first, second);
     }
 
@@ -243,8 +249,10 @@ final class DeckGroupLattice {
             return squared((long) targetX - refX) + squared((long) targetZ - refZ);
         }
 
-        long copyX = this.laps.unfoldCellX(toRef, candidateCellX(bestIndex, first, second, foldedTargetX));
-        long copyZ = this.laps.unfoldCellZ(toRef, candidateCellZ(bestIndex, first, second, foldedTargetZ));
+        long copyX = this.laps.unfoldCellX(toRef,
+                candidateCellX(bestIndex, first, second, foldedTargetX, foldedTargetZ));
+        long copyZ = this.laps.unfoldCellZ(toRef,
+                candidateCellZ(bestIndex, first, second, foldedTargetX, foldedTargetZ));
         return squared(copyX - refX) + squared(copyZ - refZ);
     }
 
@@ -255,8 +263,8 @@ final class DeckGroupLattice {
         long bestShiftX = 0;
         long bestShiftZ = 0;
         for (int index = 0; index < candidateCount(); index++) {
-            int inFrameX = candidateCellX(index, first, second, foldedTargetX);
-            int inFrameZ = candidateCellZ(index, first, second, foldedTargetZ);
+            int inFrameX = candidateCellX(index, first, second, foldedTargetX, foldedTargetZ);
+            int inFrameZ = candidateCellZ(index, first, second, foldedTargetX, foldedTargetZ);
             long copyX = this.laps.unfoldCellX(toRef, inFrameX);
             long copyZ = this.laps.unfoldCellZ(toRef, inFrameZ);
             long distance = squared(copyX - refX) + squared(copyZ - refZ);
@@ -315,8 +323,8 @@ final class DeckGroupLattice {
             return squared(targetX - refX) + squared(targetZ - refZ);
         }
 
-        double copyX = this.laps.unfoldX(toRef, candidateX(bestIndex, first, second, foldedTargetX));
-        double copyZ = this.laps.unfoldZ(toRef, candidateZ(bestIndex, first, second, foldedTargetZ));
+        double copyX = this.laps.unfoldX(toRef, candidateX(bestIndex, first, second, foldedTargetX, foldedTargetZ));
+        double copyZ = this.laps.unfoldZ(toRef, candidateZ(bestIndex, first, second, foldedTargetX, foldedTargetZ));
         return squared(copyX - refX) + squared(copyZ - refZ);
     }
 
@@ -332,8 +340,8 @@ final class DeckGroupLattice {
         double bestShiftX = 0.0;
         double bestShiftZ = 0.0;
         for (int index = 0; index < candidateCount(); index++) {
-            double inFrameX = candidateX(index, first, second, foldedTargetX);
-            double inFrameZ = candidateZ(index, first, second, foldedTargetZ);
+            double inFrameX = candidateX(index, first, second, foldedTargetX, foldedTargetZ);
+            double inFrameZ = candidateZ(index, first, second, foldedTargetX, foldedTargetZ);
             double copyX = this.laps.unfoldX(toRef, inFrameX);
             double copyZ = this.laps.unfoldZ(toRef, inFrameZ);
             double distance = squared(copyX - refX) + squared(copyZ - refZ);
