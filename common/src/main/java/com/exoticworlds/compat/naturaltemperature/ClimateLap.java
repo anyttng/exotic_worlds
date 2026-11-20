@@ -10,17 +10,29 @@ import com.exoticworlds.compat.worldgen.LapCells;
 import com.exoticworlds.compat.worldgen.LapFrame;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.NoiseConstants;
 import com.exoticworlds.engine.noise.PeriodicNoiseSampler;
 
 import naturaltemperature.ModConfig;
 import naturaltemperature.NaturalTemperature;
 
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
+import net.minecraft.world.level.levelgen.synth.NormalNoise;
+import net.minecraft.world.level.levelgen.synth.PerlinNoise;
+
 public final class ClimateLap {
     private static final int CIRCULAR = 3;
 
     private static final int FIXED_CIRCULAR = 4;
+
+    private static final int CIRCULAR_SIX = 7;
+
+    private static final int FIXED_CIRCULAR_SIX = 8;
 
     private static final int SQUARE = 9;
 
@@ -29,8 +41,6 @@ public final class ClimateLap {
     private static final double POLE_TO_EQUATOR_SPANS = 2.0;
 
     private static final double HUMIDITY_BAND_SPANS = 4.0;
-
-    private static final double FULL_TURN = 2.0 * Math.PI;
 
     private static final long ONE_TURN = 1L;
 
@@ -51,7 +61,14 @@ public final class ClimateLap {
     }
 
     public static @Nullable ClimateLap bound() {
-        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        return of(GenerationFoldContext.context().wrappedFold());
+    }
+
+    public static @Nullable ClimateLap ofTheOverworld() {
+        return of(WorldLoopAttachments.wrappedFoldOf(CurrentServer.get(), Level.OVERWORLD));
+    }
+
+    private static @Nullable ClimateLap of(@Nullable WorldFold fold) {
         return fold == null ? null
                 : BY_FOLD.computeIfAbsent(fold, key -> new ClimateLap(key.blockLattice(), FoldCompression.of(key)));
     }
@@ -140,42 +157,51 @@ public final class ClimateLap {
         return equatorialDistance * (2.0 * towardEquator - 1.0) - equatorOffset;
     }
 
-    public double lapFrequency(double frequency, double nominalRate, double rate) {
+    public boolean closesXWave() {
+        return closesX(NaturalTemperature.CONFIG.generation_mode);
+    }
+
+    public boolean closesZWave() {
+        return this.lattice.z().loops() && !radial(NaturalTemperature.CONFIG.generation_mode);
+    }
+
+    public double xWave(WaveCells cells, long seed, double handedX, double amplitude, double baseRate) {
         ModConfig config = NaturalTemperature.CONFIG;
-        return lapFrequency(frequency, nominalRate, rate, config.generation_mode, config.equatorial_distance,
-                config.looping_world);
+        double scale = xScale(config.generation_mode, config.equatorial_distance, config.looping_world);
+        return wave(cells, seed, handedX, this.lattice.x().domainLength * scale, amplitude,
+                config.wave_frequency * baseRate);
     }
 
-    double lapFrequency(double frequency, double nominalRate, double rate, int mode, double equatorialDistance,
-            boolean loopingWorld) {
-        if (!closesX(mode)) {
-            return frequency;
-        }
-
-        double lap = this.lattice.x().domainLength * xScale(mode, equatorialDistance, loopingWorld);
-        return LapCells.whole(frequency * nominalRate * lap, ONE_TURN) / (lap * rate);
-    }
-
-    public double zWaveAngle(double angle, double frequency, double nominalRate, double rate, double zRate,
-            int handedZ, int blockZ) {
+    public double zWave(WaveCells cells, long seed, int blockZ, double amplitude, double baseRate) {
         ModConfig config = NaturalTemperature.CONFIG;
-        return zWaveAngle(angle, frequency, nominalRate, rate, zRate, handedZ, blockZ, config.generation_mode,
-                config.equatorial_distance, config.looping_world);
-    }
-
-    double zWaveAngle(double angle, double frequency, double nominalRate, double rate, double zRate, int handedZ,
-            int blockZ, int mode, double equatorialDistance, boolean loopingWorld) {
+        double scale = xScale(config.generation_mode, config.equatorial_distance, config.looping_world);
         WrapDomain z = this.lattice.z();
-        if (!z.loops() || radial(mode)) {
-            return angle;
+        return wave(cells, seed, centered(blockZ, z) * scale, z.domainLength * scale, amplitude,
+                config.wave_frequency * baseRate);
+    }
+
+    static double wave(WaveCells cells, long seed, double position, double lap, double amplitude, double rate) {
+        if (amplitude == 0.0 || rate <= 0.0) {
+            return 0.0;
         }
 
-        double lap = z.domainLength * xScale(mode, equatorialDistance, loopingWorld);
-        double cyclesPerBlock = frequency * (closesX(mode) ? rate : nominalRate);
-        long turns = LapCells.whole(cyclesPerBlock * lap, ONE_TURN);
-        double handedTurns = frequency * zRate * handedZ;
-        double lapTurns = turns * centered(blockZ, z) / z.domainLength;
-        return angle + FULL_TURN * (lapTurns - handedTurns);
+        long perLap = LapCells.whole(rate * lap, ONE_TURN);
+        double along = position / lap * perLap;
+        long cell = (long) Math.floor(along);
+        if (along < point(cells, seed, cell, perLap)) {
+            cell--;
+        }
+
+        double left = point(cells, seed, cell, perLap);
+        double right = point(cells, seed, cell + 1, perLap);
+        double leftValue = cells.value(seed, Math.floorMod(cell, perLap)) * amplitude;
+        double rightValue = cells.value(seed, Math.floorMod(cell + 1, perLap)) * amplitude;
+        double share = (along - left) / (right - left);
+        return leftValue + (rightValue - leftValue) * share * share * (3.0 - 2.0 * share);
+    }
+
+    private static double point(WaveCells cells, long seed, long cell, long perLap) {
+        return cell + cells.pointShare(seed, Math.floorMod(cell, perLap));
     }
 
     public double lapBandWidth(double width) {
@@ -196,25 +222,59 @@ public final class ClimateLap {
         return !radial(NaturalTemperature.CONFIG.generation_mode);
     }
 
-    public double noise(byte[] permutations, double offsetX, double offsetY, double offsetZ, double cellsPerBlock,
-            double handedX, double handedZ, int blockZ) {
+    public double noise(NormalNoise noise, double cellsPerBlock, double handedX, double handedZ, int blockZ) {
         ModConfig config = NaturalTemperature.CONFIG;
         double scale = xScale(config.generation_mode, config.equatorial_distance, config.looping_world);
-        return noise(permutations, offsetX, offsetY, offsetZ, cellsPerBlock, handedX, handedZ, blockZ, scale);
+        return noise(noise, cellsPerBlock, handedX, handedZ, blockZ, scale);
     }
 
-    double noise(byte[] permutations, double offsetX, double offsetY, double offsetZ, double cellsPerBlock,
-            double handedX, double handedZ, int blockZ, double scale) {
+    double noise(NormalNoise noise, double cellsPerBlock, double handedX, double handedZ, int blockZ, double scale) {
+        double first = octaves(noise.first, cellsPerBlock, handedX, handedZ, blockZ, scale);
+        double second = octaves(noise.second, cellsPerBlock * NoiseConstants.SECOND_LAYER_DETUNE, handedX, handedZ,
+                blockZ, scale);
+        return (first + second) * noise.valueFactor;
+    }
+
+    private double octaves(PerlinNoise stack, double cellsPerBlock, double handedX, double handedZ, int blockZ,
+            double scale) {
+        double value = 0.0;
+        double frequency = stack.lowestFreqInputFactor;
+        double amplitude = stack.lowestFreqValueFactor;
+        for (int index = 0; index < stack.amplitudes.size(); index++) {
+            ImprovedNoise octave = stack.getOctaveNoise(index);
+            if (octave != null) {
+                double cells = cellsPerBlock * frequency;
+                double shrink = shrink(cells, scale);
+                value += stack.amplitudes.getDouble(index) * amplitude / shrink * noise(octave.p, octave.xo,
+                        octave.yo, octave.zo, cells, handedX, handedZ, blockZ, scale, shrink);
+            }
+
+            frequency *= 2.0;
+            amplitude /= 2.0;
+        }
+
+        return value;
+    }
+
+    double shrink(double cellsPerBlock, double scale) {
         WrapDomain x = this.lattice.x();
         WrapDomain z = this.lattice.z();
         double xCells = x.loops() ? x.domainLength * scale * cellsPerBlock : OPEN;
         double zCells = z.loops() ? z.domainLength * scale * cellsPerBlock : OPEN;
-        double shrink = Math.max(shrinkOf(xCells), shrinkOf(zCells));
+        return Math.max(shrinkOf(xCells), shrinkOf(zCells));
+    }
+
+    double noise(byte[] permutations, double offsetX, double offsetY, double offsetZ, double cellsPerBlock,
+            double handedX, double handedZ, int blockZ, double scale, double shrink) {
+        WrapDomain x = this.lattice.x();
+        WrapDomain z = this.lattice.z();
+        double xCells = x.loops() ? x.domainLength * scale * cellsPerBlock : OPEN;
+        double zCells = z.loops() ? z.domainLength * scale * cellsPerBlock : OPEN;
         double alongZ = z.loops() ? centered(blockZ, z) * scale : handedZ;
         double latticeX = handedX * cellsPerBlock * shrinkOn(xCells, shrink) + offsetX;
-        double latticeZ = alongZ * cellsPerBlock * shrinkOn(zCells, shrink) + offsetZ;
-        return PeriodicNoiseSampler.sampleLattice(permutations, latticeX, offsetY, latticeZ, periodOf(xCells, shrink),
-                periodOf(zCells, shrink));
+        double latticeY = alongZ * cellsPerBlock * shrinkOn(zCells, shrink) + offsetY;
+        return PeriodicNoiseSampler.sampleLattice(permutations, latticeX, latticeY, offsetZ, periodOf(xCells, shrink),
+                periodOf(zCells, shrink), PeriodicNoiseSampler.UNBOUNDED_PERIOD);
     }
 
     private static double shrinkOf(double cells) {
@@ -244,7 +304,8 @@ public final class ClimateLap {
     }
 
     static boolean radial(int mode) {
-        return mode == CIRCULAR || mode == FIXED_CIRCULAR || mode == SQUARE || mode == FIXED_SQUARE;
+        return mode == CIRCULAR || mode == FIXED_CIRCULAR || mode == CIRCULAR_SIX || mode == FIXED_CIRCULAR_SIX
+                || mode == SQUARE || mode == FIXED_SQUARE;
     }
 
     static double mirrored(double coord, WrapDomain domain) {
