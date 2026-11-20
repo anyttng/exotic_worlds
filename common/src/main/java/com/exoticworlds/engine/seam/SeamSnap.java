@@ -54,10 +54,14 @@ public final class SeamSnap {
 
     private static void moveHistory(Entity entity, DeckTransformation lap) {
         SeamTransform applied = lap.blockTransform();
-        entity.xo = applied.applyX(entity.xo);
-        entity.zo = applied.applyZ(entity.zo);
-        entity.xOld = applied.applyX(entity.xOld);
-        entity.zOld = applied.applyZ(entity.zOld);
+        double previousX = entity.xo;
+        double previousZ = entity.zo;
+        entity.xo = applied.applyX(previousX, previousZ);
+        entity.zo = applied.applyZ(previousX, previousZ);
+        double oldX = entity.xOld;
+        double oldZ = entity.zOld;
+        entity.xOld = applied.applyX(oldX, oldZ);
+        entity.zOld = applied.applyZ(oldX, oldZ);
         EntityAccessor stored = (EntityAccessor) entity;
         @Nullable Vec3 known = stored.exotic_worlds$lastKnownPosition();
         if (known != null) {

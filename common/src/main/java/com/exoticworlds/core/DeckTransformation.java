@@ -40,9 +40,11 @@ public record DeckTransformation(SeamTransform blockTransform) {
             return chunk;
         }
 
+        int blockX = chunk.getMinBlockX();
+        int blockZ = chunk.getMinBlockZ();
         return new ChunkPos(
-                SectionPos.blockToSectionCoord(this.blockTransform.applyCellX(chunk.getMinBlockX())),
-                SectionPos.blockToSectionCoord(this.blockTransform.applyCellZ(chunk.getMinBlockZ())));
+                SectionPos.blockToSectionCoord(this.blockTransform.applyCellX(blockX, blockZ)),
+                SectionPos.blockToSectionCoord(this.blockTransform.applyCellZ(blockX, blockZ)));
     }
 
     public AABB apply(AABB box) {

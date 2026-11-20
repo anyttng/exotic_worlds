@@ -4,25 +4,45 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 
 public enum FoldOrientation {
-    IDENTITY(false, false),
-    MIRROR_X(true, false),
-    MIRROR_Z(false, true),
-    HALF_TURN(true, true);
+    IDENTITY(false, false, false),
+    MIRROR_X(false, true, false),
+    MIRROR_Z(false, false, true),
+    HALF_TURN(false, true, true),
+    QUARTER_TURN_CLOCKWISE(true, true, false),
+    QUARTER_TURN_COUNTERCLOCKWISE(true, false, true),
+    MIRROR_DIAGONAL(true, false, false),
+    MIRROR_ANTIDIAGONAL(true, true, true);
 
-    private static final FoldOrientation[] BY_FLIPS = {IDENTITY, MIRROR_Z, MIRROR_X, HALF_TURN};
+    private static final FoldOrientation[] BY_PARTS = {
+            IDENTITY, MIRROR_Z, MIRROR_X, HALF_TURN,
+            MIRROR_DIAGONAL, QUARTER_TURN_COUNTERCLOCKWISE, QUARTER_TURN_CLOCKWISE, MIRROR_ANTIDIAGONAL};
+
+    private static final int SWAP_BIT = 4;
+    private static final int FLIP_X_BIT = 2;
+    private static final int FLIP_Z_BIT = 1;
 
     private static final double BLOCK_WIDTH = 1.0;
 
+    private final boolean swapsAxes;
     private final boolean flipsX;
     private final boolean flipsZ;
 
-    FoldOrientation(boolean flipsX, boolean flipsZ) {
+    FoldOrientation(boolean swapsAxes, boolean flipsX, boolean flipsZ) {
+        this.swapsAxes = swapsAxes;
         this.flipsX = flipsX;
         this.flipsZ = flipsZ;
     }
 
     public static FoldOrientation of(boolean flipsX, boolean flipsZ) {
-        return BY_FLIPS[(flipsX ? 2 : 0) | (flipsZ ? 1 : 0)];
+        return of(false, flipsX, flipsZ);
+    }
+
+    public static FoldOrientation of(boolean swapsAxes, boolean flipsX, boolean flipsZ) {
+        return BY_PARTS[(swapsAxes ? SWAP_BIT : 0) | (flipsX ? FLIP_X_BIT : 0) | (flipsZ ? FLIP_Z_BIT : 0)];
+    }
+
+    public boolean swapsAxes() {
+        return this.swapsAxes;
     }
 
     public boolean flipsX() {
@@ -38,11 +58,13 @@ public enum FoldOrientation {
     }
 
     public boolean preservesHandedness() {
-        return this.flipsX == this.flipsZ;
+        return (this.flipsX == this.flipsZ) != this.swapsAxes;
     }
 
     public FoldOrientation compose(FoldOrientation next) {
-        return of(this.flipsX ^ next.flipsX, this.flipsZ ^ next.flipsZ);
+        boolean carriedX = next.swapsAxes ? this.flipsZ : this.flipsX;
+        boolean carriedZ = next.swapsAxes ? this.flipsX : this.flipsZ;
+        return of(this.swapsAxes ^ next.swapsAxes, next.flipsX ^ carriedX, next.flipsZ ^ carriedZ);
     }
 
     public Vec3 applyToDelta(Vec3 delta) {
@@ -50,7 +72,9 @@ public enum FoldOrientation {
             return delta;
         }
 
-        return new Vec3(this.flipsX ? -delta.x : delta.x, delta.y, this.flipsZ ? -delta.z : delta.z);
+        double sourceX = this.swapsAxes ? delta.z : delta.x;
+        double sourceZ = this.swapsAxes ? delta.x : delta.z;
+        return new Vec3(this.flipsX ? -sourceX : sourceX, delta.y, this.flipsZ ? -sourceZ : sourceZ);
     }
 
     public Vec3 applyToBlockOffset(Vec3 offset) {
@@ -58,21 +82,31 @@ public enum FoldOrientation {
             return offset;
         }
 
+        double sourceX = this.swapsAxes ? offset.z : offset.x;
+        double sourceZ = this.swapsAxes ? offset.x : offset.z;
         return new Vec3(
-                this.flipsX ? BLOCK_WIDTH - offset.x : offset.x,
+                this.flipsX ? BLOCK_WIDTH - sourceX : sourceX,
                 offset.y,
-                this.flipsZ ? BLOCK_WIDTH - offset.z : offset.z);
+                this.flipsZ ? BLOCK_WIDTH - sourceZ : sourceZ);
     }
 
     public Direction applyToFace(Direction face) {
-        if (isIdentity()) {
+        if (isIdentity() || face.getAxis() == Direction.Axis.Y) {
             return face;
         }
 
-        return switch (face.getAxis()) {
-            case X -> this.flipsX ? face.getOpposite() : face;
-            case Y -> face;
-            case Z -> this.flipsZ ? face.getOpposite() : face;
-        };
+        return faceOf(face.getStepX(), face.getStepZ());
+    }
+
+    private Direction faceOf(int stepX, int stepZ) {
+        int sourceX = this.swapsAxes ? stepZ : stepX;
+        int sourceZ = this.swapsAxes ? stepX : stepZ;
+        int turnedX = this.flipsX ? -sourceX : sourceX;
+        int turnedZ = this.flipsZ ? -sourceZ : sourceZ;
+        if (turnedX != 0) {
+            return turnedX > 0 ? Direction.EAST : Direction.WEST;
+        }
+
+        return turnedZ > 0 ? Direction.SOUTH : Direction.NORTH;
     }
 }

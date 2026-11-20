@@ -93,10 +93,12 @@ final class DeckGroupRegions {
         int highestFirst = Math.min(firstLaps[1], reach);
         for (int firstPower = lowestFirst; firstPower <= highestFirst; firstPower++) {
             SeamTransform moved = first.generator().power(firstPower);
-            int[] worldX = worldImage(this.x,
-                    moved.applyCellX(this.x.lowerBound), moved.applyCellX(this.x.upperBound - 1));
-            int[] worldZ = worldImage(this.z,
-                    moved.applyCellZ(this.z.lowerBound), moved.applyCellZ(this.z.upperBound - 1));
+            int lowX = this.x.lowerBound;
+            int lowZ = this.z.lowerBound;
+            int highX = this.x.upperBound - 1;
+            int highZ = this.z.upperBound - 1;
+            int[] worldX = worldImage(this.x, moved.applyCellX(lowX, lowZ), moved.applyCellX(highX, highZ));
+            int[] worldZ = worldImage(this.z, moved.applyCellZ(lowX, lowZ), moved.applyCellZ(highX, highZ));
             if (second == null) {
                 if (meets(worldX, minX, maxX) && meets(worldZ, minZ, maxZ)) {
                     addCopy(copies, moved);

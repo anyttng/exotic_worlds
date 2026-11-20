@@ -815,6 +815,10 @@ class DeckGroupFoldMatrixTest {
             assertEquals(FoldOrientation.HALF_TURN,
                     FoldOrientation.MIRROR_X.compose(FoldOrientation.MIRROR_Z), "mirrors do not compose");
             for (FoldOrientation orientation : FoldOrientation.values()) {
+                if (orientation.swapsAxes() && orientation.preservesHandedness()) {
+                    continue;
+                }
+
                 assertEquals(FoldOrientation.IDENTITY, orientation.compose(orientation),
                         orientation + " is not its own inverse");
             }
