@@ -16,7 +16,7 @@ One `level-type` line in `server.properties` turns a dedicated server into a tor
 
 ## For mod developers
 
-Other mods read the world's shape, make their own mechanisms cross the edge and declare shapes of their own through `com.exoticworlds.api.v1`. The Maven coordinate and every walkthrough are in [docs/modding.md](docs/modding.md).
+Other mods read the world's shape, make their own mechanisms cross the edge and declare shapes of their own through `com.exoticworlds.api.v1` and `com.exoticworlds.api.v2`. The Maven coordinate and every walkthrough are in [docs/modding.md](docs/modding.md).
 
 ## Building from source
 

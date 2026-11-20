@@ -12,23 +12,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.shape.ShapeModule;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.SpawnPoint;
-import com.exoticworlds.shape.custom.CustomSettings;
-import com.exoticworlds.shape.custom.CustomShape;
-import com.exoticworlds.shape.custom.DimensionShape;
-import com.exoticworlds.shape.custom.VanillaDimension;
-import com.exoticworlds.shape.cylinder.CylinderShape;
-import com.exoticworlds.shape.torus.TorusShape;
+import com.exoticworlds.shape.layout.LayoutFixtures;
+import com.exoticworlds.shape.layout.LayoutShape;
+import com.exoticworlds.shape.layout.WorldLayout;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.FixedBiomeSource;
@@ -48,10 +43,8 @@ class WorldShapesSpawnTest {
     private static final SpawnPoint PICKED = new SpawnPoint(3, -5);
 
     @BeforeAll
-    static void registerTheModsShapes() {
-        TorusShape.register(false);
-        CylinderShape.register(false);
-        CustomShape.register(false);
+    static void registerTheModsShape() {
+        LayoutShape.register(false);
     }
 
     @AfterEach
@@ -60,29 +53,22 @@ class WorldShapesSpawnTest {
     }
 
     @Test
-    void theTorusCreatesItsOverworldAtTheMovedSpawnPoint() {
-        assertSpawnMovedInto(TorusShape.MODULE);
+    void aToroidalOverworldIsCreatedAtTheMovedSpawnPoint() {
+        assertSpawnMovedInto(LayoutFixtures.defaultTorus());
     }
 
     @Test
-    void theCylinderCreatesItsOverworldAtTheMovedSpawnPoint() {
-        assertSpawnMovedInto(CylinderShape.MODULE);
+    void aCylinderOverworldIsCreatedAtTheMovedSpawnPoint() {
+        assertSpawnMovedInto(LayoutFixtures.defaultCylinder());
     }
 
     @Test
-    void customCreatesItsOverworldAtTheMovedSpawnPoint() {
-        assertSpawnMovedInto(CustomShape.MODULE);
-    }
-
-    @Test
-    void customWithAPlainOverworldRefusesTheSpawnPoint() {
-        CustomSettings plainOverworld = CustomSettings.DEFAULT.with(VanillaDimension.OVERWORLD,
-                new DimensionShape(null, CustomSettings.DEFAULT_OPTIONS));
-        CustomShape.MODULE.settings(plainOverworld);
-        WorldShapes.select(registered(CustomShape.MODULE.id()));
+    void aLayoutWithAPlainOverworldRefusesTheSpawnPoint() {
+        LayoutShape.choose(WorldLayout.DEFAULT);
+        WorldShapes.select(LayoutShape.ID);
 
         assertFalse(WorldShapes.moveSpawn(PICKED));
-        assertEquals(plainOverworld, CustomShape.MODULE.settings());
+        assertEquals(WorldLayout.DEFAULT, LayoutShape.layout());
     }
 
     @Test
@@ -92,8 +78,9 @@ class WorldShapesSpawnTest {
         assertFalse(WorldShapes.moveSpawn(PICKED));
     }
 
-    private static void assertSpawnMovedInto(ShapeModule<?> module) {
-        WorldShapes.select(registered(module.id()));
+    private static void assertSpawnMovedInto(WorldLayout layout) {
+        LayoutShape.choose(layout);
+        WorldShapes.select(LayoutShape.ID);
 
         assertTrue(WorldShapes.moveSpawn(PICKED));
 
@@ -102,13 +89,6 @@ class WorldShapesSpawnTest {
                 created.dimensions().get(LevelStem.OVERWORLD).generator());
         assertNotNull(overworld);
         assertEquals(PICKED, overworld.generationOptions().get(SpawnPoint.OPTION));
-    }
-
-    private static WorldShape registered(Identifier id) {
-        return WorldShapes.shapes().stream()
-                .filter(shape -> shape.id().equals(id))
-                .findFirst()
-                .orElseThrow();
     }
 
     private static WorldDimensions vanillaDimensions() {

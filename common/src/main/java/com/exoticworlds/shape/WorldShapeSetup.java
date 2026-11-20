@@ -1,17 +1,16 @@
 package com.exoticworlds.shape;
 
+import com.exoticworlds.core.RegistrationBoundary;
 import com.exoticworlds.platform.Platforms;
-import com.exoticworlds.shape.custom.CustomShape;
-import com.exoticworlds.shape.cylinder.CylinderShape;
-import com.exoticworlds.shape.torus.TorusShape;
+import com.exoticworlds.shape.layout.DeclaredShapes;
+import com.exoticworlds.shape.layout.LayoutShape;
 
 public final class WorldShapeSetup {
 
     public static void registerAll() {
         boolean client = Platforms.get().isClient();
-        TorusShape.register(client);
-        CylinderShape.register(client);
-        CustomShape.register(client);
+        LayoutShape.register(client);
+        RegistrationBoundary.STARTUP.atFirstClose(DeclaredShapes::warnOfUnknownOptionShapes);
     }
 
     private WorldShapeSetup() {

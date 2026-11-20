@@ -1,9 +1,15 @@
 package com.exoticworlds.client.engine;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.exoticworlds.accessors.ClientBoundsHolder;
-import com.exoticworlds.client.shape.custom.WorldDimensionsScreen;
+import com.exoticworlds.client.shape.layout.DimensionLock;
+import com.exoticworlds.client.shape.layout.CoordinateScales;
+import com.exoticworlds.client.shape.layout.WorldShapeSettingsScreen;
+import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -14,11 +20,15 @@ import com.exoticworlds.engine.net.DimensionChoicesPayload;
 import com.exoticworlds.engine.net.DimensionChoicesUpdatePayload;
 import com.exoticworlds.engine.net.PositionRowsPayload;
 import com.exoticworlds.platform.Platforms;
+import com.exoticworlds.shape.layout.LayoutDimensions;
+import com.exoticworlds.shape.layout.ShapeRecognition;
+import com.exoticworlds.shape.layout.WorldLayout;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.LevelStem;
 
 public final class WorldLoopClientNetwork {
     public static void apply(ResourceKey<Level> dimension, FlatShape shape) {
@@ -36,19 +46,45 @@ public final class WorldLoopClientNetwork {
     }
 
     public static void openDimensionChoices(DimensionChoicesPayload choices) {
-        List<WorldDimensionsScreen.Row> rows = choices.rows().stream()
-                .map(row -> new WorldDimensionsScreen.Row(row.stem(), row.lock().map(WorldLoopClientNetwork::lockOf)
-                        .orElse(null), row.entry()))
-                .toList();
-        Minecraft.getInstance().gui.setScreen(new WorldDimensionsScreen(rows,
-                chosen -> Platforms.get().sendDimensionChoicesUpdate(new DimensionChoicesUpdatePayload(chosen))));
+        Map<ResourceKey<LevelStem>, DimensionTable.Entry> entries = new HashMap<>();
+        Map<ResourceKey<LevelStem>, DimensionLock> locks = new HashMap<>();
+        List<ResourceKey<LevelStem>> modStems = new ArrayList<>();
+        Map<ResourceKey<LevelStem>, Double> scales = new HashMap<>();
+        for (DimensionChoicesPayload.Row row : choices.rows()) {
+            entries.put(row.stem(), row.entry());
+            scales.put(row.stem(), row.coordinateScale());
+            row.lock().ifPresent(refusal -> locks.put(row.stem(), lockOf(refusal)));
+            if (!DimensionTable.isVanillaStem(row.stem())) {
+                modStems.add(row.stem());
+            }
+        }
+
+        CoordinateScales coordinateScales = new CoordinateScales(scales);
+        Minecraft.getInstance().gui.setScreen(WorldShapeSettingsScreen.forExistingWorld(
+                ShapeRecognition.recognize(LayoutDimensions.ofRows(entries), coordinateScales::of), modStems,
+                coordinateScales, locks,
+                chosen -> send(chosen, modStems, locks)));
     }
 
-    private static WorldDimensionsScreen.Lock lockOf(DimensionChoices.Refusal refusal) {
+    private static void send(WorldLayout chosen, List<ResourceKey<LevelStem>> modStems,
+            Map<ResourceKey<LevelStem>, DimensionLock> locks) {
+        Map<ResourceKey<LevelStem>, DimensionTable.Entry> choices = new HashMap<>();
+        for (ResourceKey<LevelStem> stem : modStems) {
+            if (!locks.containsKey(stem)) {
+                choices.put(stem, LayoutDimensions.entryOf(chosen.modDimension(stem)));
+            }
+        }
+
+        if (!choices.isEmpty()) {
+            Platforms.get().sendDimensionChoicesUpdate(new DimensionChoicesUpdatePayload(choices));
+        }
+    }
+
+    private static DimensionLock lockOf(DimensionChoices.Refusal refusal) {
         return switch (refusal) {
-            case VANILLA, UNKNOWN -> WorldDimensionsScreen.Lock.VANILLA;
-            case DECIDED -> WorldDimensionsScreen.Lock.CHOSEN;
-            case GENERATED -> WorldDimensionsScreen.Lock.GENERATED;
+            case VANILLA, UNKNOWN -> DimensionLock.VANILLA;
+            case DECIDED -> DimensionLock.CHOSEN;
+            case GENERATED -> DimensionLock.GENERATED;
         };
     }
 

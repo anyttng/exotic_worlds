@@ -48,8 +48,8 @@
         "settings": "minecraft:end",
         "wrapping": {
           "x": {
-            "min_chunk": -192,
-            "max_chunk": 192
+            "min_chunk": -152,
+            "max_chunk": 152
           },
           "z": {}
         },

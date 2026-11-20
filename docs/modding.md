@@ -1,8 +1,8 @@
 # Exotic Worlds from Another Mod
 
-Exotic Worlds exposes one package to other mods: `com.exoticworlds.api.v1`. It answers what the world's shape is and folds coordinates into it, so a mod that measures distance, keys storage by position or draws a marker keeps working when the world loops. It lets a mod carry its own packets, particles and rigid groups across the seam, which nothing but that mod's author can do for them. And it lets a mod declare a world shape of its own, which the player then picks on the world-creation screen beside the ones this mod ships.
+Exotic Worlds exposes two packages to other mods: `com.exoticworlds.api.v1` and `com.exoticworlds.api.v2`. They answer what the world's shape is and fold coordinates into it, so a mod that measures distance, keys storage by position or draws a marker keeps working when the world loops. They let a mod carry its own packets, particles and rigid groups across the seam, which nothing but that mod's author can do for them. And they let a mod declare a world shape of its own, which the player then picks for any dimension on the **World Shape Settings** screen.
 
-Everything outside that package is internal: it moves between releases without notice, and mixins into it are unsupported.
+Everything outside those packages is internal: it moves between releases without notice, and mixins into it are unsupported.
 
 ## Depending on it
 
@@ -97,5 +97,5 @@ Vec3 heading = folded.orientation().applyToDelta(velocity);
 ## The rest of the API
 
 - [Making your own mechanism cross the seam](modding/crossing.md): packets, particles, the positions your blocks, entities and items store, rigid groups, client anchors.
-- [Declaring a world shape](modding/shapes.md): a shape of your own, its settings screen, world options.
+- [Declaring a world shape](modding/shapes.md): a shape of your own and the options the player tunes it with.
 - [Hooking world generation](modding/generation.md): generation hooks, structure starts, terrain computed outside the chunk map.

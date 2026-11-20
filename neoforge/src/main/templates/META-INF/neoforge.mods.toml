@@ -17,6 +17,8 @@ displayName="${mod_name}" #mandatory
 
 # A file name (in the root of the mod JAR) containing a logo for display.
 logoFile="logo.png"
+iconFile="logo.png"
+iconBlur=true
 
 # The authors of the mod, displayed in the mod UI.
 authors="Anyttng"
@@ -39,6 +41,13 @@ Circumnavigate the world — walk, sail or fly past the border and come out on t
     modId="minecraft"
     type="required"
     versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="ascendia_core"
+    type="required"
+    versionRange="[${ascendia_core_version},)"
     ordering="NONE"
     side="BOTH"
 

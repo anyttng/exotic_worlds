@@ -29,7 +29,7 @@ public class CustomHumiditySamplerMixin {
             return original.call(rawTemperature, rawHumidity, noise, x, y, z);
         }
 
-        return original.call(PinnedSample.at(rawTemperature, x, y, z), PinnedSample.at(rawHumidity, x, y, z), noise,
-                lap.x(x, z), y, lap.z(z));
+        return original.call(PinnedSample.at(rawTemperature, lap, x, y, z), PinnedSample.at(rawHumidity, lap, x, y, z),
+                noise, lap.x(x, z), y, lap.z(z));
     }
 }

@@ -6,7 +6,11 @@
   "plugin": "com.exoticworlds.compat.naturaltemperature.NaturalTemperatureMixinPlugin",
   "mixins": [
     "CustomHumiditySamplerMixin",
-    "CustomTemperatureSamplerMixin"
+    "CustomTemperatureSamplerMixin",
+    "MathUtilsAccessor",
+    "NaturalTemperatureHooksMixin",
+    "NoiseBiomeBandsGeneratorMixin",
+    "PainterCoreMixin"
   ],
   "injectors": {
     "defaultRequire": 1

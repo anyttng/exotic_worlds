@@ -11,7 +11,12 @@ import net.minecraft.resources.Identifier;
  * The screen behind the Customize button on the create-world screen, one per shape. A shape with no customizer
  * registered leaves the button dark; register at startup, from the client side only, beside
  * {@link com.exoticworlds.api.v1.shape.ShapeModule#register()}.
+ *
+ * @deprecated no screen shows a Customize button any more, so a customizer registered here is never opened. A
+ *     {@link com.exoticworlds.api.v2.shape.DimensionShape} has no screen of its own: what the player tunes are
+ *     options, declared as a {@link com.exoticworlds.api.v2.option.DimensionOption}.
  */
+@Deprecated
 public final class ShapeCustomizers {
 
     /** Builds the settings screen for one shape. {@code parent} is the screen to return to when it closes. */

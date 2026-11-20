@@ -16,10 +16,9 @@ import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.migration.FormerNamespace;
 import com.exoticworlds.shape.StartupRegistrations;
-import com.exoticworlds.shape.cylinder.CylinderDimensions;
-import com.exoticworlds.shape.cylinder.CylinderSettings;
-import com.exoticworlds.shape.torus.TorusDimensions;
-import com.exoticworlds.shape.torus.TorusSettings;
+import com.exoticworlds.shape.layout.LayoutDimensions;
+import com.exoticworlds.shape.layout.LayoutFixtures;
+import com.exoticworlds.shape.layout.WorldLayout;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.SharedConstants;
@@ -61,7 +60,7 @@ class FormerNamespaceDimensionsTest {
 
     @Test
     void aTorusSavedUnderTheFormerNamespaceLoadsAndIsWrittenBackUnderTheCurrentOne() throws CommandSyntaxException {
-        assertMigrates(TorusDimensions.apply(WorldPresets.createNormalWorldDimensions(worldgen), torus()),
+        assertMigrates(LayoutDimensions.apply(WorldPresets.createNormalWorldDimensions(worldgen), torus()),
                 TOROIDAL_TYPE);
     }
 
@@ -70,14 +69,14 @@ class FormerNamespaceDimensionsTest {
             throws CommandSyntaxException {
         WorldDimensions flat = worldgen.lookupOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT).value()
                 .createWorldDimensions();
-        assertMigrates(TorusDimensions.apply(flat, torus()), TOROIDAL_FLAT_TYPE);
+        assertMigrates(LayoutDimensions.apply(flat, torus()), TOROIDAL_FLAT_TYPE);
     }
 
     @Test
     void aCylinderSavedUnderTheFormerNamespaceLoadsAndIsWrittenBackUnderTheCurrentOne()
             throws CommandSyntaxException {
-        assertMigrates(CylinderDimensions.apply(WorldPresets.createNormalWorldDimensions(worldgen),
-                CylinderSettings.DEFAULT), TOROIDAL_TYPE);
+        assertMigrates(LayoutDimensions.apply(WorldPresets.createNormalWorldDimensions(worldgen),
+                LayoutFixtures.defaultCylinder()), TOROIDAL_TYPE);
     }
 
     private static void assertMigrates(WorldDimensions saved, String formerType) throws CommandSyntaxException {
@@ -99,9 +98,9 @@ class FormerNamespaceDimensionsTest {
         assertEquals(current, rewritten);
     }
 
-    private static TorusSettings torus() {
-        return new TorusSettings(LoopSpans.ofWidth(OVERWORLD_CHUNK_WIDTH), NETHER_SCALE,
-                LoopSpans.ofWidth(END_CHUNK_WIDTH), CylinderSettings.DEFAULT.generationOptions());
+    private static WorldLayout torus() {
+        return LayoutFixtures.shaped(LoopSpans.ofWidth(OVERWORLD_CHUNK_WIDTH), NETHER_SCALE,
+                LoopSpans.ofWidth(END_CHUNK_WIDTH), LayoutFixtures.PLAIN);
     }
 
     private static CarriedShape carriedShapeOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {

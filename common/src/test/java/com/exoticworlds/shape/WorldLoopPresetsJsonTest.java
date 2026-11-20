@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.IntFunction;
 
@@ -19,12 +20,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.api.v1.option.WorldOption;
 import com.exoticworlds.api.v1.option.WorldOptions;
-import com.exoticworlds.shape.cylinder.CylinderSettings;
-import com.exoticworlds.shape.torus.TorusSettings;
+import com.exoticworlds.shape.climate.CompactBiomes;
+import com.exoticworlds.shape.layout.DimensionLayout;
+import com.exoticworlds.shape.torus.GuaranteedLand;
+import com.exoticworlds.shape.torus.GuaranteedNetherComplexes;
 
 import net.minecraft.core.Direction;
 
@@ -34,13 +36,22 @@ class WorldLoopPresetsJsonTest {
     private static final String CYLINDER_PRESET_PREFIX = "cylinder_";
     private static final String TORUS_PRESET_PREFIX = "torus_";
     private static final String PRESET_FILE_EXTENSION = ".json";
+    private static final List<WorldOption<?>> TORUS_OPTIONS =
+            List.of(CompactBiomes.OPTION, GuaranteedLand.OPTION, GuaranteedNetherComplexes.OPTION);
+    private static final List<WorldOption<?>> CYLINDER_OPTIONS = List.of(CompactBiomes.OPTION);
 
     @Test
     void everyPresetShipsATorusWorldPresetMatchingItsConfiguration() throws IOException {
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
             assertPreset(TORUS_PRESET_PREFIX + preset.id(), preset, WorldLoopBounds::ofWidth,
-                    TorusSettings.OFFERED_OPTIONS, TorusSettings.DEFAULT.generationOptions());
+                    TORUS_OPTIONS, DimensionLayout.DEFAULT_OPTIONS);
         }
+    }
+
+    @Test
+    void theEndColumnFollowsTheWidthRule() {
+        assertEquals(List.of(208, 240, 304, 432, 688),
+                Arrays.stream(WorldLoopPresets.values()).map(WorldLoopPresets::endChunkWidth).toList());
     }
 
     @Test
@@ -53,10 +64,10 @@ class WorldLoopPresetsJsonTest {
 
     @Test
     void everyPresetShipsACylinderWorldPresetOnTheDefaultAxis() throws IOException {
-        Direction.Axis axis = CylinderSettings.DEFAULT.axis();
+        Direction.Axis axis = Direction.Axis.X;
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
             assertPreset(CYLINDER_PRESET_PREFIX + preset.id(), preset, width -> WorldLoopBounds.ofWidth(axis, width),
-                    CylinderSettings.OFFERED_OPTIONS, CylinderSettings.DEFAULT.generationOptions());
+                    CYLINDER_OPTIONS, DimensionLayout.DEFAULT_OPTIONS);
         }
     }
 
@@ -69,7 +80,7 @@ class WorldLoopPresetsJsonTest {
         assertDimension(presetId, dimensions, "minecraft:overworld", "minecraft:overworld",
                 boundsOfWidth.apply(preset.chunkWidth()), offered, defaults);
         assertDimension(presetId, dimensions, "minecraft:the_nether", "minecraft:nether",
-                boundsOfWidth.apply(NetherScales.netherChunkWidth(preset.chunkWidth(), preset.netherScale())),
+                boundsOfWidth.apply(preset.chunkWidth() / preset.netherScale()),
                 offered, defaults);
         assertDimension(presetId, dimensions, "minecraft:the_end", "minecraft:end",
                 boundsOfWidth.apply(preset.endChunkWidth()), offered, defaults);
