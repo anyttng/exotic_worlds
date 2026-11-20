@@ -90,11 +90,12 @@ public class WorldPainterMixin {
     private double exotic_worlds$largeNoiseOnTheLap(NoiseBiomeBandsGenerator noise, double x, double z, double scale,
             Operation<Double> original) {
         PinnedSample sample = PinnedSample.current();
-        if (sample == null || !sample.lap().closesNoise()) {
+        if (sample == null) {
             return original.call(noise, x, z, scale);
         }
 
-        return sample.lap().noise(((BandNoises) noise).exotic_worlds$large(), scale, x, z, sample.blockZ());
+        return sample.lap().noise(((BandNoises) noise).exotic_worlds$large(), scale, sample.signedX(), z,
+                sample.blockZ());
     }
 
     @WrapOperation(
@@ -103,11 +104,12 @@ public class WorldPainterMixin {
     private double exotic_worlds$detailNoiseOnTheLap(NoiseBiomeBandsGenerator noise, double x, double z,
             double scale, Operation<Double> original) {
         PinnedSample sample = PinnedSample.current();
-        if (sample == null || !sample.lap().closesNoise()) {
+        if (sample == null) {
             return original.call(noise, x, z, scale);
         }
 
-        return sample.lap().noise(((BandNoises) noise).exotic_worlds$detail(), scale, x, z, sample.blockZ());
+        return sample.lap().noise(((BandNoises) noise).exotic_worlds$detail(), scale, sample.signedX(), z,
+                sample.blockZ());
     }
 
     @WrapOperation(
@@ -121,7 +123,8 @@ public class WorldPainterMixin {
             return original.call(x, amplitude, frequency, seed);
         }
 
-        return sample.lap().xWave(NaturalWaveCells.INSTANCE, seed, x, amplitude, waveFrequency / magnification);
+        return sample.lap().xWave(NaturalWaveCells.INSTANCE, seed, sample.signedX(), amplitude,
+                waveFrequency / magnification);
     }
 
     @WrapOperation(
@@ -144,6 +147,12 @@ public class WorldPainterMixin {
             @Local(name = "distorsion") double distortion) {
         PinnedSample sample = PinnedSample.current();
         return sample == null ? wave : sample.lap().carriedWave(sample.blockZ(), z, wave, distortion);
+    }
+
+    @ModifyVariable(method = HUMIDITY, at = @At(value = "LOAD", ordinal = 0), name = "uwave")
+    private double exotic_worlds$bandsKeepTheirSide(double wave, @Local(argsOnly = true, ordinal = 0) int x) {
+        PinnedSample sample = PinnedSample.current();
+        return sample == null ? wave : sample.carriedSide(x, wave);
     }
 
     @ModifyVariable(method = HUMIDITY, at = @At("STORE"), name = "hbw")

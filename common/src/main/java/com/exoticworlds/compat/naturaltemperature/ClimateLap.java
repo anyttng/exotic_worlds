@@ -79,16 +79,33 @@ public final class ClimateLap {
     }
 
     public int x(int blockX, int blockZ, int mode, double equatorialDistance, boolean loopingWorld) {
-        double scale = xScale(mode, equatorialDistance, loopingWorld);
         WrapDomain x = this.lattice.x();
-        if (!x.loops()) {
-            return (int) Math.round(blockX * scale);
+        if (!x.loops() || !radial(mode)) {
+            return signedX(blockX, blockZ, mode, equatorialDistance, loopingWorld);
         }
 
+        double scale = xScale(mode, equatorialDistance, loopingWorld);
+        return (int) Math.round(mirrored(frameX(blockX, blockZ), x) * scale);
+    }
+
+    public int signedX(int blockX, int blockZ) {
+        ModConfig config = NaturalTemperature.CONFIG;
+        return signedX(blockX, blockZ, config.generation_mode, config.equatorial_distance, config.looping_world);
+    }
+
+    int signedX(int blockX, int blockZ, int mode, double equatorialDistance, boolean loopingWorld) {
+        double scale = xScale(mode, equatorialDistance, loopingWorld);
+        WrapDomain x = this.lattice.x();
+        return (int) Math.round((x.loops() ? centered(frameX(blockX, blockZ), x) : blockX) * scale);
+    }
+
+    private double frameX(int blockX, int blockZ) {
         WrapDomain z = this.lattice.z();
-        double fromZCenter = z.loops() ? blockZ - center(z) : blockZ;
-        double frameX = this.frame.frameX(blockX, fromZCenter);
-        return (int) Math.round((radial(mode) ? mirrored(frameX, x) : centered(frameX, x)) * scale);
+        return this.frame.frameX(blockX, z.loops() ? blockZ - center(z) : blockZ);
+    }
+
+    public double carriedSide(int blockX, int blockZ, int handedX, double wave) {
+        return wave + signedX(blockX, blockZ) - handedX;
     }
 
     double xScale(int mode, double equatorialDistance, boolean loopingWorld) {
@@ -158,11 +175,11 @@ public final class ClimateLap {
     }
 
     public boolean closesXWave() {
-        return closesX(NaturalTemperature.CONFIG.generation_mode);
+        return this.lattice.x().loops();
     }
 
     public boolean closesZWave() {
-        return this.lattice.z().loops() && !radial(NaturalTemperature.CONFIG.generation_mode);
+        return this.lattice.z().loops();
     }
 
     public double xWave(WaveCells cells, long seed, double handedX, double amplitude, double baseRate) {
@@ -210,16 +227,12 @@ public final class ClimateLap {
     }
 
     double lapBandWidth(double width, int mode, double equatorialDistance, boolean loopingWorld) {
-        if (!closesX(mode) || width <= 0.0) {
+        if (!this.lattice.x().loops() || width <= 0.0) {
             return width;
         }
 
         double lap = this.lattice.x().domainLength * xScale(mode, equatorialDistance, loopingWorld);
         return lap / (HUMIDITY_BAND_SPANS * LapCells.whole(lap / (HUMIDITY_BAND_SPANS * width), ONE_TURN));
-    }
-
-    public boolean closesNoise() {
-        return !radial(NaturalTemperature.CONFIG.generation_mode);
     }
 
     public double noise(NormalNoise noise, double cellsPerBlock, double handedX, double handedZ, int blockZ) {
@@ -287,10 +300,6 @@ public final class ClimateLap {
 
     static long periodOf(double cells, double shrink) {
         return cells == OPEN ? PeriodicNoiseSampler.UNBOUNDED_PERIOD : LapCells.whole(cells * shrink, ONE_TURN);
-    }
-
-    private boolean closesX(int mode) {
-        return this.lattice.x().loops() && !radial(mode);
     }
 
     public int bands(double equatorialDistance) {

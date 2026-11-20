@@ -29,11 +29,12 @@ public class TemperatureContextFactoryMixin {
     private static double exotic_worlds$largeNoiseOnTheLap(NoiseBiomeBandsGenerator noise, double x, double z,
             double scale, Operation<Double> original) {
         PinnedSample sample = PinnedSample.current();
-        if (sample == null || !sample.lap().closesNoise()) {
+        if (sample == null) {
             return original.call(noise, x, z, scale);
         }
 
-        return sample.lap().noise(((BandNoises) noise).exotic_worlds$large(), scale, x, z, sample.blockZ());
+        return sample.lap().noise(((BandNoises) noise).exotic_worlds$large(), scale, sample.signedX(), z,
+                sample.blockZ());
     }
 
     @WrapOperation(
@@ -42,11 +43,12 @@ public class TemperatureContextFactoryMixin {
     private static double exotic_worlds$detailNoiseOnTheLap(NoiseBiomeBandsGenerator noise, double x, double z,
             double scale, Operation<Double> original) {
         PinnedSample sample = PinnedSample.current();
-        if (sample == null || !sample.lap().closesNoise()) {
+        if (sample == null) {
             return original.call(noise, x, z, scale);
         }
 
-        return sample.lap().noise(((BandNoises) noise).exotic_worlds$detail(), scale, x, z, sample.blockZ());
+        return sample.lap().noise(((BandNoises) noise).exotic_worlds$detail(), scale, sample.signedX(), z,
+                sample.blockZ());
     }
 
     @WrapOperation(
@@ -60,7 +62,8 @@ public class TemperatureContextFactoryMixin {
             return original.call(x, amplitude, frequency, seed);
         }
 
-        return sample.lap().xWave(NaturalWaveCells.INSTANCE, seed, x, amplitude, waveFrequency / magnification);
+        return sample.lap().xWave(NaturalWaveCells.INSTANCE, seed, sample.signedX(), amplitude,
+                waveFrequency / magnification);
     }
 
     @ModifyVariable(method = CREATE, at = @At(value = "LOAD", ordinal = 0), name = "wave")
