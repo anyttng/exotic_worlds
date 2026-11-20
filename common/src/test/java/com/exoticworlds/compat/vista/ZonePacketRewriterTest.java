@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.engine.net.TranslationContext;
 import com.exoticworlds.engine.seam.ClientPosition;
+import com.exoticworlds.engine.seam.HeldArea;
 
 import net.mehvahdjukaar.vista.common.chunk_tracking.ExtraChunkViewData;
 import net.minecraft.world.level.ChunkPos;
@@ -50,6 +51,18 @@ class ZonePacketRewriterTest {
     void theSeatsNameTheCopyEachZoneWasSentOn() {
         assertEquals(List.of(CENTER_INLAND, ITS_CLIENT_COPY),
                 ZonePacketRewriter.seats(zones(CENTER_INLAND, CENTER_ACROSS_THE_SEAM), context()));
+    }
+
+    @Test
+    void eachZoneIsHeldAtItsSeatWithItsOwnRadius() {
+        ExtraChunkViewData raw = zones(CENTER_INLAND, CENTER_ACROSS_THE_SEAM);
+        assertEquals(List.of(new HeldArea(CENTER_INLAND, ZONE_RADIUS), new HeldArea(ITS_CLIENT_COPY, ZONE_RADIUS)),
+                ZonePacketRewriter.heldAreas(raw, ZonePacketRewriter.seats(raw, context())));
+    }
+
+    @Test
+    void aPacketWithNoZonesHoldsNoArea() {
+        assertEquals(List.of(), ZonePacketRewriter.heldAreas(new ExtraChunkViewData(), List.of()));
     }
 
     private static ExtraChunkViewData seated(ExtraChunkViewData data) {

@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.exoticworlds.engine.net.PacketTranslator;
 import com.exoticworlds.engine.net.TranslationContext;
+import com.exoticworlds.engine.seam.HeldArea;
 
 import net.mehvahdjukaar.vista.common.chunk_tracking.ExtraChunkViewData;
 import net.mehvahdjukaar.vista.network.ClientBoundSyncExtraChunksPacket;
@@ -20,6 +21,7 @@ final class ZonePacketRewriter {
     private static CustomPacketPayload seated(ClientBoundSyncExtraChunksPacket packet, TranslationContext context) {
         List<ChunkPos> seats = seats(packet.data(), context);
         ((ZoneSeats) packet.data()).exotic_worlds$setSentSeats(seats);
+        context.clientPosition().setHeldAreas(heldAreas(packet.data(), seats));
         ExtraChunkViewData seated = seated(packet.data(), seats);
         return seated == packet.data() ? packet : new ClientBoundSyncExtraChunksPacket(seated);
     }
@@ -31,6 +33,16 @@ final class ZonePacketRewriter {
         }
 
         return List.copyOf(seats);
+    }
+
+    static List<HeldArea> heldAreas(ExtraChunkViewData data, List<ChunkPos> seats) {
+        List<ExtraChunkViewData.Zone> zones = data.getZones();
+        List<HeldArea> areas = new ArrayList<>();
+        for (int index = 0; index < zones.size(); index++) {
+            areas.add(new HeldArea(seats.get(index), zones.get(index).radius()));
+        }
+
+        return List.copyOf(areas);
     }
 
     static ExtraChunkViewData seated(ExtraChunkViewData data, List<ChunkPos> seats) {

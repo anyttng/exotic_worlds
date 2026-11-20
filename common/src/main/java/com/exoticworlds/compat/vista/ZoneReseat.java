@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.net.TranslationContext;
+import com.exoticworlds.engine.seam.ClientPosition;
+import com.exoticworlds.engine.seam.HeldArea;
 
 import net.mehvahdjukaar.moonlight.api.platform.network.NetworkHelper;
 import net.mehvahdjukaar.vista.VistaMod;
@@ -23,6 +25,7 @@ public final class ZoneReseat {
 
         TranslationContext context = TranslationContext.of(player, WorldLoopAttachments.foldOf(player.serverLevel()));
         if (sent.equals(ZonePacketRewriter.seats(viewData, context))) {
+            holdAgain(context.clientPosition(), ZonePacketRewriter.heldAreas(viewData, sent));
             return;
         }
 
@@ -33,6 +36,12 @@ public final class ZoneReseat {
         }
 
         NetworkHelper.sendToClientPlayer(player, new ClientBoundSyncExtraChunksPacket(viewData));
+    }
+
+    private static void holdAgain(ClientPosition clientPosition, List<HeldArea> areas) {
+        if (!clientPosition.heldAreas().equals(areas)) {
+            clientPosition.setHeldAreas(areas);
+        }
     }
 
     private ZoneReseat() {
