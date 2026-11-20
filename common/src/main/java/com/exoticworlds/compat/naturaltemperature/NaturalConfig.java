@@ -13,6 +13,8 @@ public interface NaturalConfig {
 
     boolean loopingWorld();
 
+    double waveFrequency();
+
     @Nullable String customModeId(int slot);
 
     static NaturalConfig current() {

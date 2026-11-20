@@ -24,6 +24,12 @@ accessible class net/minecraft/world/level/levelgen/DensityFunctions$RangeChoice
 accessible class net/minecraft/world/level/levelgen/DensityFunctions$Marker
 accessible class net/minecraft/world/level/levelgen/DensityFunctions$Marker$Type
 accessible field net/minecraft/world/level/levelgen/synth/ImprovedNoise p [B
+accessible field net/minecraft/world/level/levelgen/synth/NormalNoise first Lnet/minecraft/world/level/levelgen/synth/PerlinNoise;
+accessible field net/minecraft/world/level/levelgen/synth/NormalNoise second Lnet/minecraft/world/level/levelgen/synth/PerlinNoise;
+accessible field net/minecraft/world/level/levelgen/synth/NormalNoise valueFactor D
+accessible field net/minecraft/world/level/levelgen/synth/PerlinNoise amplitudes Lit/unimi/dsi/fastutil/doubles/DoubleList;
+accessible field net/minecraft/world/level/levelgen/synth/PerlinNoise lowestFreqInputFactor D
+accessible field net/minecraft/world/level/levelgen/synth/PerlinNoise lowestFreqValueFactor D
 accessible class net/minecraft/world/level/PotentialCalculator$PointCharge
 accessible field net/minecraft/world/level/PotentialCalculator$PointCharge pos Lnet/minecraft/core/BlockPos;
 accessible field net/minecraft/world/level/NaturalSpawner$SpawnState spawnPotential Lnet/minecraft/world/level/PotentialCalculator;

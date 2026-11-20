@@ -27,6 +27,11 @@ final class FabricNaturalConfig implements NaturalConfig {
     }
 
     @Override
+    public double waveFrequency() {
+        return NaturalTemperature.CONFIG.wave_frequency;
+    }
+
+    @Override
     public @Nullable String customModeId(int slot) {
         ModConfig config = NaturalTemperature.CONFIG;
         return switch (slot) {

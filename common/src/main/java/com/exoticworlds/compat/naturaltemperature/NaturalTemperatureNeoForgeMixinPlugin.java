@@ -16,6 +16,7 @@ public class NaturalTemperatureNeoForgeMixinPlugin extends ModPresenceGatePlugin
             .probing(WORLD_PAINTER + ".class")
             .checking("exotic_worlds.compat.naturaltemperature.neoforge.mixins.json")
             .bodyFrom("PaintedFieldMixin", WORLD_PAINTER)
+            .bodyFrom("NeoForgeWorldPainterMixin", WORLD_PAINTER)
             .build();
 
     public NaturalTemperatureNeoForgeMixinPlugin() {

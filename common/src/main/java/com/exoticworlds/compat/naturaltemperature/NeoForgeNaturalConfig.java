@@ -26,6 +26,11 @@ final class NeoForgeNaturalConfig implements NaturalConfig {
     }
 
     @Override
+    public double waveFrequency() {
+        return Config.wave_frequency;
+    }
+
+    @Override
     public @Nullable String customModeId(int slot) {
         return switch (slot) {
             case 1 -> Config.custom_mode_id_1;

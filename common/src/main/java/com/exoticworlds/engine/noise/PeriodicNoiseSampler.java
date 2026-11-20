@@ -281,6 +281,11 @@ public final class PeriodicNoiseSampler {
 
     public static double sampleLattice(byte[] permutations, double xs, double ys, double zs, long xPeriod,
             long zPeriod) {
+        return sampleLattice(permutations, xs, ys, zs, xPeriod, UNBOUNDED_PERIOD, zPeriod);
+    }
+
+    public static double sampleLattice(byte[] permutations, double xs, double ys, double zs, long xPeriod,
+            long yPeriod, long zPeriod) {
         long xCell = Mth.lfloor(xs);
         long yCell = Mth.lfloor(ys);
         long zCell = Mth.lfloor(zs);
@@ -288,7 +293,7 @@ public final class PeriodicNoiseSampler {
         double yFrac = ys - yCell;
         double zFrac = zs - zCell;
         return sampleAndLerp(permutations, xCell, yCell, zCell, xFrac, yFrac, zFrac, yFrac,
-                xPeriod, UNBOUNDED_PERIOD, zPeriod);
+                xPeriod, yPeriod, zPeriod);
     }
 
     private static double anchorSample(byte[] permutations, WrapDomain xDomain, WrapDomain zDomain,

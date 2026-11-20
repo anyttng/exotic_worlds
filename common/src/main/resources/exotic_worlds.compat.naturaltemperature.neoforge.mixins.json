@@ -5,6 +5,10 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "com.exoticworlds.compat.naturaltemperature.NaturalTemperatureNeoForgeMixinPlugin",
   "mixins": [
+    "NeoForgeMathUtilsAccessor",
+    "NeoForgeNaturalTemperatureHooksMixin",
+    "NeoForgeNoiseBiomeBandsGeneratorMixin",
+    "NeoForgeTemperatureContextFactoryMixin",
     "NeoForgeWorldPainterMixin",
     "PaintedFieldMixin"
   ],
