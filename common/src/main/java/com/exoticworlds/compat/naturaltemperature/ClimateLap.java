@@ -35,6 +35,22 @@ public final class ClimateLap {
 
     private static final int FIXED_SQUARE = 10;
 
+    private static final int CUSTOM_ONE = 101;
+
+    private static final int CUSTOM_TWO = 102;
+
+    private static final int CUSTOM_THREE = 103;
+
+    private static final int CUSTOM_FOUR = 104;
+
+    private static final int CUSTOM_FIVE = 105;
+
+    private static final String CIRCULAR_BODY = "circular";
+
+    private static final String CIRCULAR_SIX_BODY = "circular6";
+
+    private static final String SQUARE_BODY = "square6";
+
     private static final double POLE_TO_EQUATOR_SPANS = 2.0;
 
     private static final double HUMIDITY_BAND_SPANS = 4.0;
@@ -72,7 +88,7 @@ public final class ClimateLap {
 
     public int x(int blockX, int blockZ) {
         ModConfig config = NaturalTemperature.CONFIG;
-        return x(blockX, blockZ, config.generation_mode, config.equatorial_distance, config.looping_world);
+        return x(blockX, blockZ, mode(config), config.equatorial_distance, config.looping_world);
     }
 
     public int x(int blockX, int blockZ, int mode, double equatorialDistance, boolean loopingWorld) {
@@ -87,7 +103,7 @@ public final class ClimateLap {
 
     public int signedX(int blockX, int blockZ) {
         ModConfig config = NaturalTemperature.CONFIG;
-        return signedX(blockX, blockZ, config.generation_mode, config.equatorial_distance, config.looping_world);
+        return signedX(blockX, blockZ, mode(config), config.equatorial_distance, config.looping_world);
     }
 
     int signedX(int blockX, int blockZ, int mode, double equatorialDistance, boolean loopingWorld) {
@@ -117,7 +133,7 @@ public final class ClimateLap {
 
     public int z(int blockZ) {
         ModConfig config = NaturalTemperature.CONFIG;
-        return z(blockZ, config.generation_mode, config.equatorial_distance, config.equator_offset,
+        return z(blockZ, mode(config), config.equatorial_distance, config.equator_offset,
                 config.looping_world);
     }
 
@@ -144,7 +160,7 @@ public final class ClimateLap {
 
     public double carriedWave(int blockZ, int handedZ, double wave, double distortion) {
         ModConfig config = NaturalTemperature.CONFIG;
-        return carriedWave(blockZ, handedZ, wave, distortion, config.generation_mode, config.equatorial_distance,
+        return carriedWave(blockZ, handedZ, wave, distortion, mode(config), config.equatorial_distance,
                 config.equator_offset, config.looping_world);
     }
 
@@ -181,14 +197,14 @@ public final class ClimateLap {
 
     public double xWave(WaveCells cells, long seed, double handedX, double amplitude, double baseRate) {
         ModConfig config = NaturalTemperature.CONFIG;
-        double scale = xScale(config.generation_mode, config.equatorial_distance, config.looping_world);
+        double scale = xScale(mode(config), config.equatorial_distance, config.looping_world);
         return wave(cells, seed, handedX, this.lattice.x().domainLength * scale, amplitude,
                 config.wave_frequency * baseRate);
     }
 
     public double zWave(WaveCells cells, long seed, int blockZ, double amplitude, double baseRate) {
         ModConfig config = NaturalTemperature.CONFIG;
-        double scale = xScale(config.generation_mode, config.equatorial_distance, config.looping_world);
+        double scale = xScale(mode(config), config.equatorial_distance, config.looping_world);
         WrapDomain z = this.lattice.z();
         return wave(cells, seed, centered(blockZ, z) * scale, z.domainLength * scale, amplitude,
                 config.wave_frequency * baseRate);
@@ -220,7 +236,7 @@ public final class ClimateLap {
 
     public double lapBandWidth(double width) {
         ModConfig config = NaturalTemperature.CONFIG;
-        return lapBandWidth(width, config.generation_mode, config.equatorial_distance, config.looping_world);
+        return lapBandWidth(width, mode(config), config.equatorial_distance, config.looping_world);
     }
 
     double lapBandWidth(double width, int mode, double equatorialDistance, boolean loopingWorld) {
@@ -234,7 +250,7 @@ public final class ClimateLap {
 
     public double noise(NoiseStack stack, double cellsPerBlock, double handedX, double handedZ, int blockZ) {
         ModConfig config = NaturalTemperature.CONFIG;
-        double scale = xScale(config.generation_mode, config.equatorial_distance, config.looping_world);
+        double scale = xScale(mode(config), config.equatorial_distance, config.looping_world);
         return noise(stack, cellsPerBlock, handedX, handedZ, blockZ, scale);
     }
 
@@ -292,6 +308,35 @@ public final class ClimateLap {
 
     private int compressed(int block) {
         return (int) Math.round(block * this.compression);
+    }
+
+    static int mode(ModConfig config) {
+        int mode = config.generation_mode;
+        return mode < CUSTOM_ONE ? mode : mode(mode, customBody(config));
+    }
+
+    private static @Nullable String customBody(ModConfig config) {
+        return switch (config.generation_mode) {
+            case CUSTOM_ONE -> config.custom_mode_id_1;
+            case CUSTOM_TWO -> config.custom_mode_id_2;
+            case CUSTOM_THREE -> config.custom_mode_id_3;
+            case CUSTOM_FOUR -> config.custom_mode_id_4;
+            case CUSTOM_FIVE -> config.custom_mode_id_5;
+            default -> null;
+        };
+    }
+
+    static int mode(int mode, @Nullable String customBody) {
+        if (mode < CUSTOM_ONE || mode > CUSTOM_FIVE || customBody == null) {
+            return mode;
+        }
+
+        return switch (customBody) {
+            case CIRCULAR_BODY -> CIRCULAR;
+            case CIRCULAR_SIX_BODY -> CIRCULAR_SIX;
+            case SQUARE_BODY -> SQUARE;
+            default -> mode;
+        };
     }
 
     static boolean radial(int mode) {

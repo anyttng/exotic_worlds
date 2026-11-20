@@ -55,6 +55,15 @@ class ClimateLapTest {
 
     private static final int RADIAL_MODE = 3;
 
+    private static final int[] CUSTOM_MODES = {101, 102, 103, 104, 105};
+
+    private static final int PAST_CUSTOM_MODES = 106;
+
+    private static final String[] RADIAL_BODIES = {"circular", "circular6", "square6"};
+
+    private static final String[] LATITUDE_BODIES = {"default", "simplified", "linear", "banded", "discrete",
+            "another_mod_body"};
+
     private static final int[] NOISE_MODES = {0, RADIAL_MODE};
 
     private static final double SIDE_WAVE_RATE = 0.003;
@@ -512,6 +521,30 @@ class ClimateLapTest {
         for (int mode : LATITUDE_MODES) {
             assertTrue(!ClimateLap.radial(mode), "mode " + mode);
         }
+    }
+
+    @Test
+    void aCustomModeNamingARadialBodyIsRadial() {
+        for (int mode : CUSTOM_MODES) {
+            for (String body : RADIAL_BODIES) {
+                assertTrue(ClimateLap.radial(ClimateLap.mode(mode, body)), "mode " + mode + " with " + body);
+            }
+
+            for (String body : LATITUDE_BODIES) {
+                assertTrue(!ClimateLap.radial(ClimateLap.mode(mode, body)), "mode " + mode + " with " + body);
+            }
+
+            assertTrue(!ClimateLap.radial(ClimateLap.mode(mode, null)), "mode " + mode + " with no id");
+        }
+    }
+
+    @Test
+    void aModeOutsideTheCustomOnesKeepsItsNumberWhateverTheIdNames() {
+        for (int mode : MODES) {
+            assertEquals(mode, ClimateLap.mode(mode, RADIAL_BODIES[0]));
+        }
+
+        assertEquals(PAST_CUSTOM_MODES, ClimateLap.mode(PAST_CUSTOM_MODES, RADIAL_BODIES[0]));
     }
 
     @Test
