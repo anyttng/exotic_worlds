@@ -7,7 +7,9 @@
   "mixins": [
     "CustomHumiditySamplerMixin",
     "CustomTemperatureSamplerMixin",
-    "NoiseBiomeBandsGeneratorAccessor",
+    "MathUtilsAccessor",
+    "NaturalTemperatureHooksMixin",
+    "NoiseBiomeBandsGeneratorMixin",
     "PainterCoreMixin"
   ],
   "injectors": {

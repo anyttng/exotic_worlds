@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +13,10 @@ import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WrapDomain;
+
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
+import net.minecraft.world.level.levelgen.synth.NoiseStack;
+import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 class ClimateLapTest {
     private static final int LAP = 8192;
@@ -42,9 +47,11 @@ class ClimateLapTest {
 
     private static final List<TranslationLattice> LOOPED_Z = List.of(TORUS, SKEWED, CYLINDER_Z, OFF_CENTER);
 
-    private static final int[] MODES = {0, 1, 2, 3, 4, 5, 6, 9, 10};
+    private static final int[] MODES = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 
-    private static final int[] LATITUDE_MODES = {0, 1, 2, 5, 6};
+    private static final int[] LATITUDE_MODES = {0, 1, 2, 5, 6, 11, 12};
+
+    private static final int[] RADIAL_MODES = {3, 4, 7, 8, 9, 10};
 
     private static final int RADIAL_MODE = 3;
 
@@ -68,11 +75,45 @@ class ClimateLapTest {
 
     private static final int[] SIDE_REACH = {1, 517, 3000};
 
-    private static final double[] WAVE_FREQUENCIES = {1.3784, 1.4491, 1.9235, 5.3216};
+    private static final double[] WAVE_RATES = {0.0005, 0.0007, 0.003, 0.00001};
 
-    private static final double NOMINAL_RATE = 0.0005;
+    private static final double[] WAVE_LAPS = {LAP, LAP * 1.5, 512.0};
 
-    private static final double JITTERED_RATE = 0.000503;
+    private static final double WAVE_AMPLITUDE = 84.0;
+
+    private static final long WAVE_SEED = 8891L;
+
+    private static final int WAVE_SAMPLES = 257;
+
+    private static final double WAVE_NUDGE = 1.0E-4;
+
+    private static final double WAVE_STEP_SLACK = 1.0E-2;
+
+    private static final WaveCells CELLS = new WaveCells() {
+        @Override
+        public double pointShare(long seed, long cell) {
+            return 0.25 + 0.5 * new Random(seed * 31 + cell * 17 + 1).nextDouble();
+        }
+
+        @Override
+        public double value(long seed, long cell) {
+            return 2.0 * new Random(seed * 31 + cell * 17 + 2).nextDouble() - 1.0;
+        }
+    };
+
+    private static final double DETAIL_SCALE = 6.0;
+
+    private static final long NOISE_SEED = 42L;
+
+    private static final int NARROW_LAP = 512;
+
+    private static final int WIDE_LAP = 65536;
+
+    private static final int WIDE_STRIDE = 31;
+
+    private static final double STEEPER_SLACK = 1.25;
+
+    private static final double FLATTER_SLACK = 3.0;
 
     private static final double TURN_SLACK = 1.0E-6;
 
@@ -395,37 +436,46 @@ class ClimateLapTest {
     }
 
     @Test
-    void theWaveTurnsWholeTimesOnTheXLapAndNeverSlower() {
-        for (TranslationLattice lattice : List.of(TORUS, SKEWED, CYLINDER_X, OFF_CENTER)) {
-            for (double compression : COMPRESSIONS) {
-                ClimateLap lap = new ClimateLap(lattice, compression);
-                for (int mode : LATITUDE_MODES) {
-                    for (double distance : EQUATORIAL_DISTANCES) {
-                        assertWholeTurns(lap, lattice, mode, distance);
-                    }
-                }
+    void theWaveRepeatsOnTheLapWithoutAStep() {
+        for (double lap : WAVE_LAPS) {
+            for (double rate : WAVE_RATES) {
+                assertWaveOnTheLap(lap, rate);
             }
         }
     }
 
-    private static void assertWholeTurns(ClimateLap lap, TranslationLattice lattice, int mode, double distance) {
-        double handedLap = lattice.x().domainLength * lap.xScale(mode, distance, true);
-        for (double frequency : WAVE_FREQUENCIES) {
-            double turns = lap.lapFrequency(frequency, NOMINAL_RATE, JITTERED_RATE, mode, distance, true)
-                    * JITTERED_RATE * handedLap;
-            assertEquals(Math.rint(turns), turns, TURN_SLACK);
-            assertTrue(turns >= frequency * NOMINAL_RATE * handedLap - TURN_SLACK, turns + " turns");
-            assertTrue(turns >= 1.0 - TURN_SLACK, turns + " turns");
+    private static void assertWaveOnTheLap(double lap, double rate) {
+        double lowest = Double.MAX_VALUE;
+        double highest = -Double.MAX_VALUE;
+        for (int sample = 0; sample <= WAVE_SAMPLES; sample++) {
+            double position = -lap / 2.0 + lap * sample / WAVE_SAMPLES;
+            double here = ClimateLap.wave(CELLS, WAVE_SEED, position, lap, WAVE_AMPLITUDE, rate);
+            assertEquals(here, ClimateLap.wave(CELLS, WAVE_SEED, position + lap, lap, WAVE_AMPLITUDE, rate),
+                    FOLD_SLACK);
+            assertEquals(here, ClimateLap.wave(CELLS, WAVE_SEED, position + WAVE_NUDGE, lap, WAVE_AMPLITUDE, rate),
+                    WAVE_STEP_SLACK);
+            assertTrue(Math.abs(here) <= WAVE_AMPLITUDE, "wave " + here);
+            lowest = Math.min(lowest, here);
+            highest = Math.max(highest, here);
         }
+
+        assertEquals(rate * lap > 1.0, highest - lowest > FOLD_SLACK, "span " + (highest - lowest));
     }
 
     @Test
-    void theWaveKeepsItsFrequencyOnAnOpenXAndInRadialModes() {
-        for (double frequency : WAVE_FREQUENCIES) {
-            assertEquals(frequency, new ClimateLap(CYLINDER_Z, 2.0).lapFrequency(frequency, NOMINAL_RATE,
-                    JITTERED_RATE, 0, 50000.0, true));
-            assertEquals(frequency, new ClimateLap(TORUS, 2.0).lapFrequency(frequency, NOMINAL_RATE, JITTERED_RATE,
-                    RADIAL_MODE, 50000.0, true));
+    void theWaveIsFlatWithNoAmplitudeOrRate() {
+        assertEquals(0.0, ClimateLap.wave(CELLS, WAVE_SEED, 517.0, LAP, 0.0, 0.0005));
+        assertEquals(0.0, ClimateLap.wave(CELLS, WAVE_SEED, 517.0, LAP, WAVE_AMPLITUDE, 0.0));
+    }
+
+    @Test
+    void theSixZoneCirclesAreRadialAndTheDiscreteModesFollowTheLatitude() {
+        for (int mode : RADIAL_MODES) {
+            assertTrue(ClimateLap.radial(mode), "mode " + mode);
+        }
+
+        for (int mode : LATITUDE_MODES) {
+            assertTrue(!ClimateLap.radial(mode), "mode " + mode);
         }
     }
 
@@ -495,26 +545,6 @@ class ClimateLapTest {
     }
 
     @Test
-    void theHumidityWaveTurnsWholeTimesOnTheZLap() {
-        for (TranslationLattice lattice : LOOPED_Z) {
-            for (double compression : COMPRESSIONS) {
-                ClimateLap lap = new ClimateLap(lattice, compression);
-                int lapZ = lattice.z().domainLength;
-                for (double frequency : WAVE_FREQUENCIES) {
-                    double here = lap.zWaveAngle(1.0, frequency, NOMINAL_RATE, JITTERED_RATE, JITTERED_RATE, 0, 517, 0,
-                            50000.0, true);
-                    double oneLapOn = lap.zWaveAngle(1.0, frequency, NOMINAL_RATE, JITTERED_RATE, JITTERED_RATE, 0,
-                            517 + lapZ, 0, 50000.0, true);
-                    double besideIt = lap.zWaveAngle(1.0, frequency, NOMINAL_RATE, JITTERED_RATE, JITTERED_RATE, 0,
-                            518, 0, 50000.0, true);
-                    assertEquals(here, oneLapOn, FOLD_SLACK);
-                    assertTrue(besideIt > here);
-                }
-            }
-        }
-    }
-
-    @Test
     void theNoiseRepeatsOnTheLapAndNotAboutItsCenter() {
         byte[] permutations = permutations();
         for (TranslationLattice lattice : LATTICES) {
@@ -549,9 +579,84 @@ class ClimateLapTest {
     }
 
     private static double noiseAt(ClimateLap lap, byte[] permutations, int blockX, int blockZ) {
+        double scale = lap.xScale(0, 50000.0, true);
         return lap.noise(permutations, 3.25, 7.5, 11.75, NOISE_CELLS_PER_BLOCK,
                 lap.x(blockX, blockZ, 0, 50000.0, true), lap.z(blockZ, 0, 50000.0, EQUATOR_OFFSET, true), blockZ,
-                lap.xScale(0, 50000.0, true));
+                scale, lap.shrink(NOISE_CELLS_PER_BLOCK, scale));
+    }
+
+    @Test
+    void aNoiseStackRepeatsOnTheLapLayerByLayer() {
+        NoiseStack stack = (NoiseStack) NormalNoise.createParity(-7, 1.0, 1.0)
+                .create(new LegacyRandomSource(NOISE_SEED));
+        for (TranslationLattice lattice : LATTICES) {
+            ClimateLap lap = new ClimateLap(lattice, 1.5);
+            int lapX = lattice.x().loops() ? lattice.x().domainLength : 0;
+            int lapZ = lattice.z().loops() ? lattice.z().domainLength : 0;
+            double span = 0.0;
+            for (int x : CROSS) {
+                for (int z : CROSS) {
+                    double here = stackAt(lap, stack, x, z);
+                    assertEquals(here, stackAt(lap, stack, x + lapX, z), NOISE_SLACK);
+                    assertEquals(here, stackAt(lap, stack, x + lattice.skew(), z + lapZ), NOISE_SLACK);
+                    span = Math.max(span, Math.abs(here));
+                }
+            }
+
+            assertTrue(span > NOISE_SLACK, "span " + span);
+        }
+    }
+
+    @Test
+    void aNoiseStackRepeatsOneHandedLapAlongX() {
+        NoiseStack large = (NoiseStack) NormalNoise.createParity(-14, -14.0, -14.0, -14.0)
+                .create(new LegacyRandomSource(NOISE_SEED));
+        NoiseStack detail = (NoiseStack) NormalNoise.createParity(-7, 1.0).create(new LegacyRandomSource(NOISE_SEED));
+        for (TranslationLattice lattice : List.of(TORUS, SKEWED, CYLINDER_X, OFF_CENTER)) {
+            for (double distance : EQUATORIAL_DISTANCES) {
+                ClimateLap lap = new ClimateLap(lattice, 1.5);
+                double scale = lap.xScale(0, distance, true);
+                double handedLap = lattice.x().domainLength * scale;
+                for (int z : CROSS) {
+                    for (NoiseStack stack : List.of(large, detail)) {
+                        double here = lap.noise(stack, DETAIL_SCALE, -handedLap / 2.0, 0.0, z, scale);
+                        assertEquals(here, lap.noise(stack, DETAIL_SCALE, handedLap / 2.0, 0.0, z, scale),
+                                NOISE_SLACK * Math.max(1.0, Math.abs(here)));
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    void aSqueezedNoiseStackKeepsItsMeanSlope() {
+        NoiseStack large = (NoiseStack) NormalNoise.createParity(-14, -14.0, -14.0, -14.0)
+                .create(new LegacyRandomSource(NOISE_SEED));
+        WrapDomain narrow = new WrapDomain(-NARROW_LAP / 2, NARROW_LAP / 2);
+        WrapDomain wide = new WrapDomain(-WIDE_LAP / 2, WIDE_LAP / 2);
+        double squeezed = meanSlope(new ClimateLap(TranslationLattice.unskewed(narrow, narrow), 1.0), large,
+                NARROW_LAP, 1);
+        double shipped = meanSlope(new ClimateLap(TranslationLattice.unskewed(wide, wide), 1.0), large, WIDE_LAP,
+                WIDE_STRIDE);
+        assertTrue(squeezed < STEEPER_SLACK * shipped && shipped < FLATTER_SLACK * squeezed,
+                "squeezed " + squeezed + " shipped " + shipped);
+    }
+
+    private static double meanSlope(ClimateLap lap, NoiseStack stack, int lapBlocks, int stride) {
+        double total = 0.0;
+        int pairs = 0;
+        for (int z = -lapBlocks / 2; z < lapBlocks / 2 - 1; z += stride) {
+            total += Math.abs(lap.noise(stack, DETAIL_SCALE, 0.0, 0.0, z + 1, 1.0)
+                    - lap.noise(stack, DETAIL_SCALE, 0.0, 0.0, z, 1.0));
+            pairs++;
+        }
+
+        return total / pairs;
+    }
+
+    private static double stackAt(ClimateLap lap, NoiseStack stack, int blockX, int blockZ) {
+        return lap.noise(stack, DETAIL_SCALE, lap.x(blockX, blockZ, 0, 50000.0, true),
+                lap.z(blockZ, 0, 50000.0, EQUATOR_OFFSET, true), blockZ, lap.xScale(0, 50000.0, true));
     }
 
     private static byte[] permutations() {
