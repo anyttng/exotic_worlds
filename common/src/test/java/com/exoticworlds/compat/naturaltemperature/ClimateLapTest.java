@@ -64,6 +64,30 @@ class ClimateLapTest {
 
     private static final int NARROW_LAP_DISTANCE = 50000;
 
+    private static final boolean[] LOOPING_WORLD = {true, false};
+
+    private static final int[] SIDE_REACH = {1, 517, 3000};
+
+    private static final double[] WAVE_FREQUENCIES = {1.3784, 1.4491, 1.9235, 5.3216};
+
+    private static final double NOMINAL_RATE = 0.0005;
+
+    private static final double JITTERED_RATE = 0.000503;
+
+    private static final double TURN_SLACK = 1.0E-6;
+
+    private static final double WAVE = 37.5;
+
+    private static final double DISTORTION = -11.25;
+
+    private static final double FOLD_SLACK = 1.0E-6;
+
+    private static final double[] BAND_WIDTHS = {100.0, 500.0, 2500.0, 40000.0};
+
+    private static final double NOISE_CELLS_PER_BLOCK = 0.046875;
+
+    private static final double NOISE_SLACK = 1.0E-5;
+
     @Test
     void xTakesTheSameValueOneLapAwayOnEveryLattice() {
         for (TranslationLattice lattice : LATTICES) {
@@ -103,11 +127,14 @@ class ClimateLapTest {
                 for (int mode : MODES) {
                     for (double distance : EQUATORIAL_DISTANCES) {
                         int step = (int) Math.ceil(lap.xScale(mode, distance, true));
+                        double turn = ClimateLap.radial(mode) ? 0.0
+                                : lattice.x().domainLength * lap.xScale(mode, distance, true);
                         for (int z : CROSS) {
                             int lower = lattice.x().lowerBound;
                             int upper = lower + lattice.x().domainLength;
-                            assertTrue(Math.abs(lap.x(lower, z, mode, distance, true)
-                                    - lap.x(upper - 1, z, mode, distance, true)) <= step);
+                            int jump = Math.abs(lap.x(lower, z, mode, distance, true)
+                                    - lap.x(upper - 1, z, mode, distance, true));
+                            assertTrue(jump <= step || Math.abs(jump - turn) <= step + 1, "jump " + jump);
                             assertTrue(Math.abs(lap.x(upper - 1, z, mode, distance, true)
                                     - lap.x(upper - 2, z, mode, distance, true)) <= step);
                         }
@@ -233,7 +260,8 @@ class ClimateLapTest {
 
                 assertEquals(Math.round(coord * compression), cylinderZ.x(coord, 0, RADIAL_MODE, 50000.0, true));
                 for (int mode : MODES) {
-                    assertEquals(Math.round(Math.abs(coord) * compression), cylinderX.x(coord, 0, mode, 50000.0, true));
+                    assertEquals(Math.round((ClimateLap.radial(mode) ? Math.abs(coord) : coord) * compression),
+                            cylinderX.x(coord, 0, mode, 50000.0, true));
                 }
             }
         }
@@ -345,5 +373,193 @@ class ClimateLapTest {
                 assertEquals(here, lap.x(x + lattice.skew(), z + lattice.z().domainLength, 0, 50000.0, false));
             }
         }
+    }
+
+    @Test
+    void xKeepsItsSideOfTheLapCenterOutsideRadialModes() {
+        for (TranslationLattice lattice : List.of(TORUS, CYLINDER_X, OFF_CENTER)) {
+            int center = lattice.x().lowerBound + lattice.x().domainLength / 2;
+            for (double compression : COMPRESSIONS) {
+                ClimateLap lap = new ClimateLap(lattice, compression);
+                for (int mode : LATITUDE_MODES) {
+                    for (boolean looping : LOOPING_WORLD) {
+                        for (int fromCenter : SIDE_REACH) {
+                            int east = lap.x(center + fromCenter, 0, mode, 50000.0, looping);
+                            int west = lap.x(center - fromCenter, 0, mode, 50000.0, looping);
+                            assertTrue(east != west, "mirrored at " + fromCenter);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    void theWaveTurnsWholeTimesOnTheXLapAndNeverSlower() {
+        for (TranslationLattice lattice : List.of(TORUS, SKEWED, CYLINDER_X, OFF_CENTER)) {
+            for (double compression : COMPRESSIONS) {
+                ClimateLap lap = new ClimateLap(lattice, compression);
+                for (int mode : LATITUDE_MODES) {
+                    for (double distance : EQUATORIAL_DISTANCES) {
+                        assertWholeTurns(lap, lattice, mode, distance);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void assertWholeTurns(ClimateLap lap, TranslationLattice lattice, int mode, double distance) {
+        double handedLap = lattice.x().domainLength * lap.xScale(mode, distance, true);
+        for (double frequency : WAVE_FREQUENCIES) {
+            double turns = lap.lapFrequency(frequency, NOMINAL_RATE, JITTERED_RATE, mode, distance, true)
+                    * JITTERED_RATE * handedLap;
+            assertEquals(Math.rint(turns), turns, TURN_SLACK);
+            assertTrue(turns >= frequency * NOMINAL_RATE * handedLap - TURN_SLACK, turns + " turns");
+            assertTrue(turns >= 1.0 - TURN_SLACK, turns + " turns");
+        }
+    }
+
+    @Test
+    void theWaveKeepsItsFrequencyOnAnOpenXAndInRadialModes() {
+        for (double frequency : WAVE_FREQUENCIES) {
+            assertEquals(frequency, new ClimateLap(CYLINDER_Z, 2.0).lapFrequency(frequency, NOMINAL_RATE,
+                    JITTERED_RATE, 0, 50000.0, true));
+            assertEquals(frequency, new ClimateLap(TORUS, 2.0).lapFrequency(frequency, NOMINAL_RATE, JITTERED_RATE,
+                    RADIAL_MODE, 50000.0, true));
+        }
+    }
+
+    @Test
+    void theLatitudeFoldsAfterTheDisplacement() {
+        for (TranslationLattice lattice : LOOPED_Z) {
+            for (double compression : COMPRESSIONS) {
+                ClimateLap lap = new ClimateLap(lattice, compression);
+                for (double distance : EQUATORIAL_DISTANCES) {
+                    for (boolean looping : LOOPING_WORLD) {
+                        assertFoldAfterDisplacement(lap, lattice.z(), distance, looping);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void assertFoldAfterDisplacement(ClimateLap lap, WrapDomain z, double distance, boolean looping) {
+        double scale = lap.xScale(0, distance, looping);
+        for (int blockZ : CROSS) {
+            int handed = lap.z(blockZ, 0, distance, EQUATOR_OFFSET, looping);
+            double carried = lap.carriedWave(blockZ, handed, WAVE, DISTORTION, 0, distance, EQUATOR_OFFSET, looping);
+            double displaced = lap.latitude(blockZ + (DISTORTION + WAVE) / scale, distance, EQUATOR_OFFSET, looping);
+            assertEquals(displaced, handed + DISTORTION + carried, FOLD_SLACK);
+            assertEquals(carried, lap.carriedWave(blockZ + z.domainLength, handed, WAVE, DISTORTION, 0, distance,
+                    EQUATOR_OFFSET, looping), FOLD_SLACK);
+        }
+    }
+
+    @Test
+    void aDisplacementMovesBothSidesOfTheCenterTheSameWay() {
+        ClimateLap lap = new ClimateLap(TORUS, 1.0);
+        for (boolean looping : LOOPING_WORLD) {
+            double north = lap.latitude(-EVEN_SPAN + WAVE, 2048.0, 0.0, looping)
+                    - lap.latitude(-EVEN_SPAN, 2048.0, 0.0, looping);
+            double south = lap.latitude(EVEN_SPAN + WAVE, 2048.0, 0.0, looping)
+                    - lap.latitude(EVEN_SPAN, 2048.0, 0.0, looping);
+            assertEquals(-north, south, FOLD_SLACK);
+            assertTrue(Math.abs(north) > FOLD_SLACK);
+        }
+    }
+
+    @Test
+    void theWaveIsLeftAloneOnAnOpenZAndInRadialModes() {
+        assertEquals(WAVE, new ClimateLap(CYLINDER_X, 2.0).carriedWave(517, 1034, WAVE, DISTORTION, 0, 50000.0,
+                EQUATOR_OFFSET, true));
+        assertEquals(WAVE, new ClimateLap(TORUS, 2.0).carriedWave(517, 1034, WAVE, DISTORTION, RADIAL_MODE, 50000.0,
+                EQUATOR_OFFSET, true));
+    }
+
+    @Test
+    void humidityBandsRepeatWholeTimesOnTheXLapAndNeverWider() {
+        for (TranslationLattice lattice : List.of(TORUS, SKEWED, CYLINDER_X, OFF_CENTER)) {
+            for (double compression : COMPRESSIONS) {
+                ClimateLap lap = new ClimateLap(lattice, compression);
+                double handedLap = lattice.x().domainLength * lap.xScale(0, 50000.0, true);
+                for (double width : BAND_WIDTHS) {
+                    double fitted = lap.lapBandWidth(width, 0, 50000.0, true);
+                    double repeats = handedLap / (4.0 * fitted);
+                    assertEquals(Math.rint(repeats), repeats, TURN_SLACK);
+                    assertTrue(fitted <= width + TURN_SLACK, fitted + " over " + width);
+                }
+            }
+        }
+
+        assertEquals(500.0, new ClimateLap(CYLINDER_Z, 2.0).lapBandWidth(500.0, 0, 50000.0, true));
+    }
+
+    @Test
+    void theHumidityWaveTurnsWholeTimesOnTheZLap() {
+        for (TranslationLattice lattice : LOOPED_Z) {
+            for (double compression : COMPRESSIONS) {
+                ClimateLap lap = new ClimateLap(lattice, compression);
+                int lapZ = lattice.z().domainLength;
+                for (double frequency : WAVE_FREQUENCIES) {
+                    double here = lap.zWaveAngle(1.0, frequency, NOMINAL_RATE, JITTERED_RATE, JITTERED_RATE, 0, 517, 0,
+                            50000.0, true);
+                    double oneLapOn = lap.zWaveAngle(1.0, frequency, NOMINAL_RATE, JITTERED_RATE, JITTERED_RATE, 0,
+                            517 + lapZ, 0, 50000.0, true);
+                    double besideIt = lap.zWaveAngle(1.0, frequency, NOMINAL_RATE, JITTERED_RATE, JITTERED_RATE, 0,
+                            518, 0, 50000.0, true);
+                    assertEquals(here, oneLapOn, FOLD_SLACK);
+                    assertTrue(besideIt > here);
+                }
+            }
+        }
+    }
+
+    @Test
+    void theNoiseRepeatsOnTheLapAndNotAboutItsCenter() {
+        byte[] permutations = permutations();
+        for (TranslationLattice lattice : LATTICES) {
+            for (double compression : COMPRESSIONS) {
+                assertNoiseOnTheLap(new ClimateLap(lattice, compression), lattice, permutations);
+            }
+        }
+    }
+
+    private static void assertNoiseOnTheLap(ClimateLap lap, TranslationLattice lattice, byte[] permutations) {
+        int lapX = lattice.x().loops() ? lattice.x().domainLength : 0;
+        int lapZ = lattice.z().loops() ? lattice.z().domainLength : 0;
+        int differing = 0;
+        for (int x : CROSS) {
+            for (int z : CROSS) {
+                double here = noiseAt(lap, permutations, x, z);
+                assertEquals(here, noiseAt(lap, permutations, x + lapX, z), NOISE_SLACK);
+                assertEquals(here, noiseAt(lap, permutations, x + lattice.skew(), z + lapZ), NOISE_SLACK);
+                int mirrorX = 2 * (lattice.x().lowerBound + lapX / 2) - x;
+                int mirrorZ = 2 * (lattice.z().lowerBound + lapZ / 2) - z;
+                if (lapX != 0 && Math.abs(here - noiseAt(lap, permutations, mirrorX, z)) > NOISE_SLACK) {
+                    differing++;
+                }
+
+                if (lapZ != 0 && Math.abs(here - noiseAt(lap, permutations, x, mirrorZ)) > NOISE_SLACK) {
+                    differing++;
+                }
+            }
+        }
+
+        assertTrue(differing > CROSS.length, differing + " mirror pairs differ");
+    }
+
+    private static double noiseAt(ClimateLap lap, byte[] permutations, int blockX, int blockZ) {
+        return lap.noise(permutations, 3.25, 7.5, 11.75, NOISE_CELLS_PER_BLOCK,
+                lap.x(blockX, blockZ, 0, 50000.0, true), lap.z(blockZ, 0, 50000.0, EQUATOR_OFFSET, true), blockZ,
+                lap.xScale(0, 50000.0, true));
+    }
+
+    private static byte[] permutations() {
+        byte[] permutations = new byte[256];
+        for (int index = 0; index < permutations.length; index++) {
+            permutations[index] = (byte) (index * 167 + 13);
+        }
+
+        return permutations;
     }
 }

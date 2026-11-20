@@ -28,6 +28,6 @@ public class CustomTemperatureSamplerMixin {
             return original.call(rawTemperature, noise, x, y, z);
         }
 
-        return original.call(PinnedSample.at(rawTemperature, x, y, z), noise, lap.x(x, z), y, lap.z(z));
+        return original.call(PinnedSample.at(rawTemperature, lap, x, y, z), noise, lap.x(x, z), y, lap.z(z));
     }
 }
