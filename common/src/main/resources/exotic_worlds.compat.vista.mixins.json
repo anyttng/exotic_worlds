@@ -8,7 +8,8 @@
     "GazeRedirectSeamMixin",
     "TvSlideshowRangeSeatMixin",
     "ZoneChunkKeysMixin",
-    "ZoneFoldStampMixin"
+    "ZoneFoldStampMixin",
+    "ZoneReseatMixin"
   ],
   "injectors": {
     "defaultRequire": 1

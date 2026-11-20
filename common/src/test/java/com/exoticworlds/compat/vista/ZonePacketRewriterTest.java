@@ -29,21 +29,31 @@ class ZonePacketRewriterTest {
 
     @Test
     void aZoneAcrossTheSeamIsCenteredOnTheCopyTheClientHolds() {
-        ExtraChunkViewData sent = ZonePacketRewriter.seated(zones(CENTER_INLAND, CENTER_ACROSS_THE_SEAM), context());
+        ExtraChunkViewData sent = seated(zones(CENTER_INLAND, CENTER_ACROSS_THE_SEAM));
         assertEquals(List.of(zone(CENTER_INLAND), zone(ITS_CLIENT_COPY)), sent.getZones());
     }
 
     @Test
     void theServersOwnZonesStayCanonical() {
         ExtraChunkViewData raw = zones(CENTER_ACROSS_THE_SEAM);
-        ZonePacketRewriter.seated(raw, context());
+        seated(raw);
         assertEquals(List.of(zone(CENTER_ACROSS_THE_SEAM)), raw.getZones());
     }
 
     @Test
     void zonesInThePlayersOwnFrameTravelUntouched() {
         ExtraChunkViewData raw = zones(CENTER_INLAND);
-        assertSame(raw, ZonePacketRewriter.seated(raw, context()));
+        assertSame(raw, seated(raw));
+    }
+
+    @Test
+    void theSeatsNameTheCopyEachZoneWasSentOn() {
+        assertEquals(List.of(CENTER_INLAND, ITS_CLIENT_COPY),
+                ZonePacketRewriter.seats(zones(CENTER_INLAND, CENTER_ACROSS_THE_SEAM), context()));
+    }
+
+    private static ExtraChunkViewData seated(ExtraChunkViewData data) {
+        return ZonePacketRewriter.seated(data, ZonePacketRewriter.seats(data, context()));
     }
 
     private static ExtraChunkViewData zones(ChunkPos... centers) {

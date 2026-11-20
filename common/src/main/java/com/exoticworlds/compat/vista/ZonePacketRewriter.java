@@ -1,5 +1,8 @@
 package com.exoticworlds.compat.vista;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.exoticworlds.engine.net.PacketTranslator;
 import com.exoticworlds.engine.net.TranslationContext;
 
@@ -15,15 +18,28 @@ final class ZonePacketRewriter {
     }
 
     private static CustomPacketPayload seated(ClientBoundSyncExtraChunksPacket packet, TranslationContext context) {
-        ExtraChunkViewData seated = seated(packet.data(), context);
+        List<ChunkPos> seats = seats(packet.data(), context);
+        ((ZoneSeats) packet.data()).exotic_worlds$setSentSeats(seats);
+        ExtraChunkViewData seated = seated(packet.data(), seats);
         return seated == packet.data() ? packet : new ClientBoundSyncExtraChunksPacket(seated);
     }
 
-    static ExtraChunkViewData seated(ExtraChunkViewData data, TranslationContext context) {
+    static List<ChunkPos> seats(ExtraChunkViewData data, TranslationContext context) {
+        List<ChunkPos> seats = new ArrayList<>();
+        for (ExtraChunkViewData.Zone zone : data.getZones()) {
+            seats.add(context.viewSeat(zone.center()));
+        }
+
+        return List.copyOf(seats);
+    }
+
+    static ExtraChunkViewData seated(ExtraChunkViewData data, List<ChunkPos> seats) {
+        List<ExtraChunkViewData.Zone> zones = data.getZones();
         ExtraChunkViewData seated = new ExtraChunkViewData();
         boolean moved = false;
-        for (ExtraChunkViewData.Zone zone : data.getZones()) {
-            ChunkPos seat = context.viewSeat(zone.center());
+        for (int index = 0; index < zones.size(); index++) {
+            ExtraChunkViewData.Zone zone = zones.get(index);
+            ChunkPos seat = seats.get(index);
             moved |= !seat.equals(zone.center());
             seated.addZone(seat, zone.radius());
         }

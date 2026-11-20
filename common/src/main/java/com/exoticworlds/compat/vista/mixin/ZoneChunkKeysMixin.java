@@ -1,13 +1,16 @@
 package com.exoticworlds.compat.vista.mixin;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.accessors.FoldHolder;
+import com.exoticworlds.compat.vista.ZoneSeats;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -17,9 +20,22 @@ import net.mehvahdjukaar.vista.common.chunk_tracking.ExtraChunkViewData;
 import net.minecraft.world.level.ChunkPos;
 
 @Mixin(targets = "net.mehvahdjukaar.vista.common.chunk_tracking.ExtraChunkViewData")
-public class ZoneChunkKeysMixin implements FoldHolder {
+public class ZoneChunkKeysMixin implements FoldHolder, ZoneSeats {
     @Unique
     private WorldFold exotic_worlds$fold = WorldFolds.NOOP;
+
+    @Unique
+    private @Nullable List<ChunkPos> exotic_worlds$sentSeats;
+
+    @Override
+    public @Nullable List<ChunkPos> exotic_worlds$sentSeats() {
+        return this.exotic_worlds$sentSeats;
+    }
+
+    @Override
+    public void exotic_worlds$setSentSeats(List<ChunkPos> seats) {
+        this.exotic_worlds$sentSeats = seats;
+    }
 
     @Override
     public WorldFold exotic_worlds$fold() {
