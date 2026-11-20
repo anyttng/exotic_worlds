@@ -67,6 +67,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
 public final class PacketTranslator {
+    private static final int SINGLE_SEAT = 1;
+
     private static final PayloadRoute<ClientboundCustomPayloadPacket> CLIENTBOUND_PAYLOADS = new PayloadRoute<>(
             new StartupRegistry<>("Clientbound payload rewriters"), RecordPayloadFold::toClient,
             ClientboundCustomPayloadPacket::new);
@@ -294,23 +296,26 @@ public final class PacketTranslator {
     @SuppressWarnings("unchecked")
     private static Packet<?> perCopy(BiFunction<Packet<?>, TranslationContext, Packet<?>> once, Packet<?> packet,
             TranslationContext context) {
-        CameraSide cameraSide = context.cameraSide();
-        cameraSide.reset();
+        SeatPass seatPass = context.seatPass();
+        seatPass.reset();
         Packet<?> held = once.apply(packet, context);
-        if (!cameraSide.secondCopy()) {
+        int seats = seatPass.seats();
+        if (seats == SINGLE_SEAT) {
             return held;
         }
 
-        Packet<?> camera;
-        cameraSide.answerCamera();
+        List<Packet<? super ClientGamePacketListener>> copies = new ArrayList<>(seats);
+        copies.add((Packet<? super ClientGamePacketListener>) held);
         try {
-            camera = once.apply(packet, context);
+            for (int seat = SINGLE_SEAT; seat < seats; seat++) {
+                seatPass.answer(seat);
+                copies.add((Packet<? super ClientGamePacketListener>) once.apply(packet, context));
+            }
         } finally {
-            cameraSide.reset();
+            seatPass.reset();
         }
 
-        return new ClientboundBundlePacket(List.of(
-                (Packet<? super ClientGamePacketListener>) held, (Packet<? super ClientGamePacketListener>) camera));
+        return new ClientboundBundlePacket(copies);
     }
 
     private record PacketRoute(Map<Class<?>, BiFunction<Packet<?>, TranslationContext, Packet<?>>> table,

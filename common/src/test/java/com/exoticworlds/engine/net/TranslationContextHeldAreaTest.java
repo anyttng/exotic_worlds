@@ -117,6 +117,25 @@ class TranslationContextHeldAreaTest {
     }
 
     @Test
+    void anAreaChunkInsideTheHeldViewAlsoSeatsBesideTheAreaSeat() {
+        TranslationContext context = contextHolding(new HeldArea(IN_VIEW_SEAT_A_LAP_AWAY, RADIUS));
+        assertEquals(IN_VIEW, context.toClient(IN_VIEW));
+        assertEquals(2, context.seatPass().seats());
+
+        context.seatPass().answer(1);
+        assertEquals(IN_VIEW_SEAT_A_LAP_AWAY, context.toClient(IN_VIEW));
+        assertEquals(IN_VIEW_SEAT_A_LAP_AWAY.getMiddleBlockPosition(64),
+                context.toClient(IN_VIEW.getMiddleBlockPosition(64)));
+    }
+
+    @Test
+    void aChunkInsideTheHeldViewAndOutsideEveryAreaHasOneSeat() {
+        TranslationContext context = contextHoldingTheAntipode();
+        assertEquals(IN_VIEW, context.toClient(IN_VIEW));
+        assertEquals(1, context.seatPass().seats());
+    }
+
+    @Test
     void aRebaseDropsTheHeldAreas() {
         ClientPosition clientPosition = new ClientPosition();
         clientPosition.setHeldAreas(List.of(new HeldArea(ANTIPODE_SEAT, RADIUS)));
