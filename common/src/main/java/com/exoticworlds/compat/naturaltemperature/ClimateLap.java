@@ -6,11 +6,13 @@ import org.jspecify.annotations.Nullable;
 
 import com.google.common.collect.MapMaker;
 import com.exoticworlds.compat.worldgen.FoldCompression;
+import com.exoticworlds.compat.worldgen.LapCells;
 import com.exoticworlds.compat.worldgen.LapFrame;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.PeriodicNoiseSampler;
 
 public final class ClimateLap {
     private static final int CIRCULAR = 3;
@@ -22,6 +24,14 @@ public final class ClimateLap {
     private static final int FIXED_SQUARE = 10;
 
     private static final double POLE_TO_EQUATOR_SPANS = 2.0;
+
+    private static final double HUMIDITY_BAND_SPANS = 4.0;
+
+    private static final double FULL_TURN = 2.0 * Math.PI;
+
+    private static final long ONE_TURN = 1L;
+
+    private static final double OPEN = 0.0;
 
     private static final Map<WorldFold, ClimateLap> BY_FOLD = new MapMaker().weakKeys().makeMap();
 
@@ -57,7 +67,8 @@ public final class ClimateLap {
 
         WrapDomain z = this.lattice.z();
         double fromZCenter = z.loops() ? blockZ - center(z) : blockZ;
-        return (int) Math.round(mirrored(this.frame.frameX(blockX, fromZCenter), x) * scale);
+        double frameX = this.frame.frameX(blockX, fromZCenter);
+        return (int) Math.round((radial(mode) ? mirrored(frameX, x) : centered(frameX, x)) * scale);
     }
 
     double xScale(int mode, double equatorialDistance, boolean loopingWorld) {
@@ -94,9 +105,129 @@ public final class ClimateLap {
             return (int) -Math.round(mirrored(blockZ, z) * this.compression);
         }
 
-        double turns = (blockZ - (double) z.lowerBound) / z.domainLength * bands(equatorialDistance);
+        return (int) Math.round(tent(blockZ, equatorialDistance, equatorOffset));
+    }
+
+    public double carriedWave(int blockZ, int handedZ, double wave, double distortion) {
+        NaturalConfig config = NaturalConfig.current();
+        return carriedWave(blockZ, handedZ, wave, distortion, config.generationMode(), config.equatorialDistance(),
+                config.equatorOffset(), config.loopingWorld());
+    }
+
+    double carriedWave(int blockZ, int handedZ, double wave, double distortion, int mode, double equatorialDistance,
+            double equatorOffset, boolean loopingWorld) {
+        if (!this.lattice.z().loops() || radial(mode) || equatorialDistance <= 0.0) {
+            return wave;
+        }
+
+        double displaced = blockZ + (distortion + wave) / xScale(mode, equatorialDistance, loopingWorld);
+        return latitude(displaced, equatorialDistance, equatorOffset, loopingWorld) - handedZ - distortion;
+    }
+
+    double latitude(double blockZ, double equatorialDistance, double equatorOffset, boolean loopingWorld) {
+        return loopingWorld
+                ? tent(blockZ, equatorialDistance, equatorOffset)
+                : -mirrored(blockZ, this.lattice.z()) * this.compression;
+    }
+
+    private double tent(double blockZ, double equatorialDistance, double equatorOffset) {
+        WrapDomain z = this.lattice.z();
+        double turns = (blockZ - z.lowerBound) / z.domainLength * bands(equatorialDistance);
         double towardEquator = 1.0 - Math.abs(2.0 * (turns - Math.floor(turns)) - 1.0);
-        return (int) Math.round(equatorialDistance * (2.0 * towardEquator - 1.0) - equatorOffset);
+        return equatorialDistance * (2.0 * towardEquator - 1.0) - equatorOffset;
+    }
+
+    public double lapFrequency(double frequency, double nominalRate, double rate) {
+        NaturalConfig config = NaturalConfig.current();
+        return lapFrequency(frequency, nominalRate, rate, config.generationMode(), config.equatorialDistance(),
+                config.loopingWorld());
+    }
+
+    double lapFrequency(double frequency, double nominalRate, double rate, int mode, double equatorialDistance,
+            boolean loopingWorld) {
+        if (!closesX(mode)) {
+            return frequency;
+        }
+
+        double lap = this.lattice.x().domainLength * xScale(mode, equatorialDistance, loopingWorld);
+        return LapCells.whole(frequency * nominalRate * lap, ONE_TURN) / (lap * rate);
+    }
+
+    public double zWaveAngle(double angle, double frequency, double nominalRate, double rate, double zRate,
+            int handedZ, int blockZ) {
+        NaturalConfig config = NaturalConfig.current();
+        return zWaveAngle(angle, frequency, nominalRate, rate, zRate, handedZ, blockZ, config.generationMode(),
+                config.equatorialDistance(), config.loopingWorld());
+    }
+
+    double zWaveAngle(double angle, double frequency, double nominalRate, double rate, double zRate, int handedZ,
+            int blockZ, int mode, double equatorialDistance, boolean loopingWorld) {
+        WrapDomain z = this.lattice.z();
+        if (!z.loops() || radial(mode)) {
+            return angle;
+        }
+
+        double lap = z.domainLength * xScale(mode, equatorialDistance, loopingWorld);
+        double cyclesPerBlock = frequency * (closesX(mode) ? rate : nominalRate);
+        long turns = LapCells.whole(cyclesPerBlock * lap, ONE_TURN);
+        double handedTurns = frequency * zRate * handedZ;
+        double lapTurns = turns * centered(blockZ, z) / z.domainLength;
+        return angle + FULL_TURN * (lapTurns - handedTurns);
+    }
+
+    public double lapBandWidth(double width) {
+        NaturalConfig config = NaturalConfig.current();
+        return lapBandWidth(width, config.generationMode(), config.equatorialDistance(), config.loopingWorld());
+    }
+
+    double lapBandWidth(double width, int mode, double equatorialDistance, boolean loopingWorld) {
+        if (!closesX(mode) || width <= 0.0) {
+            return width;
+        }
+
+        double lap = this.lattice.x().domainLength * xScale(mode, equatorialDistance, loopingWorld);
+        return lap / (HUMIDITY_BAND_SPANS * LapCells.whole(lap / (HUMIDITY_BAND_SPANS * width), ONE_TURN));
+    }
+
+    public boolean closesNoise() {
+        return !radial(NaturalConfig.current().generationMode());
+    }
+
+    public double noise(byte[] permutations, double offsetX, double offsetY, double offsetZ, double cellsPerBlock,
+            double handedX, double handedZ, int blockZ) {
+        NaturalConfig config = NaturalConfig.current();
+        double scale = xScale(config.generationMode(), config.equatorialDistance(), config.loopingWorld());
+        return noise(permutations, offsetX, offsetY, offsetZ, cellsPerBlock, handedX, handedZ, blockZ, scale);
+    }
+
+    double noise(byte[] permutations, double offsetX, double offsetY, double offsetZ, double cellsPerBlock,
+            double handedX, double handedZ, int blockZ, double scale) {
+        WrapDomain x = this.lattice.x();
+        WrapDomain z = this.lattice.z();
+        double xCells = x.loops() ? x.domainLength * scale * cellsPerBlock : OPEN;
+        double zCells = z.loops() ? z.domainLength * scale * cellsPerBlock : OPEN;
+        double shrink = Math.max(shrinkOf(xCells), shrinkOf(zCells));
+        double alongZ = z.loops() ? centered(blockZ, z) * scale : handedZ;
+        double latticeX = handedX * cellsPerBlock * shrinkOn(xCells, shrink) + offsetX;
+        double latticeZ = alongZ * cellsPerBlock * shrinkOn(zCells, shrink) + offsetZ;
+        return PeriodicNoiseSampler.sampleLattice(permutations, latticeX, offsetY, latticeZ, periodOf(xCells, shrink),
+                periodOf(zCells, shrink));
+    }
+
+    private static double shrinkOf(double cells) {
+        return cells == OPEN ? 1.0 : LapCells.whole(cells, ONE_TURN) / cells;
+    }
+
+    private static double shrinkOn(double cells, double shrink) {
+        return cells == OPEN ? shrink : periodOf(cells, shrink) / cells;
+    }
+
+    static long periodOf(double cells, double shrink) {
+        return cells == OPEN ? PeriodicNoiseSampler.UNBOUNDED_PERIOD : LapCells.whole(cells * shrink, ONE_TURN);
+    }
+
+    private boolean closesX(int mode) {
+        return this.lattice.x().loops() && !radial(mode);
     }
 
     public int bands(double equatorialDistance) {
@@ -114,9 +245,13 @@ public final class ClimateLap {
     }
 
     static double mirrored(double coord, WrapDomain domain) {
+        return Math.abs(centered(coord, domain));
+    }
+
+    static double centered(double coord, WrapDomain domain) {
         double half = domain.domainLength / 2.0;
         double fromCenter = coord - center(domain);
-        return Math.abs(fromCenter - Math.floor((fromCenter + half) / domain.domainLength) * domain.domainLength);
+        return fromCenter - Math.floor((fromCenter + half) / domain.domainLength) * domain.domainLength;
     }
 
     private static double center(WrapDomain domain) {
