@@ -10,7 +10,6 @@ import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.shape.WorldShape;
 import com.exoticworlds.shape.WorldShapes;
 
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
@@ -25,7 +24,7 @@ public final class CreationShape {
 
     private static @Nullable Chosen kept;
 
-    private record Chosen(WorldCreationContext settings, WorldShape shape, @Nullable CarriedShape carried,
+    private record Chosen(WorldCreationContext settings, @Nullable CarriedShape carried,
             @Nullable String fingerprint) {
     }
 
@@ -59,14 +58,13 @@ public final class CreationShape {
     }
 
     private static Chosen chosen(WorldCreationContext settings) {
-        WorldShape shape = WorldShapes.selected();
         Chosen last = kept;
-        if (last != null && last.settings() == settings && last.shape() == shape) {
+        if (last != null && last.settings() == settings) {
             return last;
         }
 
         CarriedShape carried = overworld(settings);
-        Chosen chosen = new Chosen(settings, shape, carried, carried == null
+        Chosen chosen = new Chosen(settings, carried, carried == null
                 ? null
                 : FINGERPRINTS.computeIfAbsent(carried, key -> FINGERPRINT_PREFIX + FINGERPRINTS.size()));
         if (sessionOpen) {
