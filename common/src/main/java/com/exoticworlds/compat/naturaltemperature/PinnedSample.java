@@ -11,18 +11,22 @@ public final class PinnedSample {
 
     private final ClimateLap lap;
 
+    private final int blockX;
+
     private final int blockZ;
 
-    private PinnedSample(DensityFunction.FunctionContext context, ClimateLap lap, int blockZ) {
+    private PinnedSample(DensityFunction.FunctionContext context, ClimateLap lap, int blockX, int blockZ) {
         this.context = context;
         this.lap = lap;
+        this.blockX = blockX;
         this.blockZ = blockZ;
     }
 
     public static @Nullable PinnedSample enter(ClimateLap lap, int blockX, int blockY, int blockZ) {
         Pin pin = PIN.get();
         PinnedSample previous = pin.sample;
-        pin.sample = new PinnedSample(new DensityFunction.SinglePointContext(blockX, blockY, blockZ), lap, blockZ);
+        pin.sample = new PinnedSample(new DensityFunction.SinglePointContext(blockX, blockY, blockZ), lap, blockX,
+                blockZ);
         return previous;
     }
 
@@ -45,6 +49,14 @@ public final class PinnedSample {
 
     public int blockZ() {
         return this.blockZ;
+    }
+
+    public int signedX() {
+        return this.lap.signedX(this.blockX, this.blockZ);
+    }
+
+    public double carriedSide(int handedX, double wave) {
+        return this.lap.carriedSide(this.blockX, this.blockZ, handedX, wave);
     }
 
     private static final class Pin {
