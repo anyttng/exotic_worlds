@@ -12,17 +12,20 @@ public final class PinnedSample implements DensitySampler {
 
     private final ClimateLap lap;
 
+    private final int blockX;
+
     private final int blockZ;
 
-    private PinnedSample(float value, ClimateLap lap, int blockZ) {
+    private PinnedSample(float value, ClimateLap lap, int blockX, int blockZ) {
         this.value = value;
         this.lap = lap;
+        this.blockX = blockX;
         this.blockZ = blockZ;
     }
 
     public static DensitySampler.Bound at(DensitySampler.Bound field, ClimateLap lap, int blockX, int blockY,
             int blockZ) {
-        return new DensitySampler.Bound(new PinnedSample(field.sampleValue(blockX, blockY, blockZ), lap, blockZ),
+        return new DensitySampler.Bound(new PinnedSample(field.sampleValue(blockX, blockY, blockZ), lap, blockX, blockZ),
                 field.context());
     }
 
@@ -36,6 +39,14 @@ public final class PinnedSample implements DensitySampler {
 
     public int blockZ() {
         return this.blockZ;
+    }
+
+    public int signedX() {
+        return this.lap.signedX(this.blockX, this.blockZ);
+    }
+
+    public double carriedSide(int handedX, double wave) {
+        return this.lap.carriedSide(this.blockX, this.blockZ, handedX, wave);
     }
 
     @Override

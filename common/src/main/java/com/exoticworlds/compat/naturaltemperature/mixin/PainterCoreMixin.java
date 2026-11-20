@@ -36,11 +36,12 @@ public class PainterCoreMixin {
             double scale, Operation<Double> original,
             @Local(argsOnly = true, ordinal = 0) DensitySampler.Bound rawTemperature) {
         PinnedSample sample = PinnedSample.of(rawTemperature);
-        if (sample == null || !sample.lap().closesNoise()) {
+        if (sample == null) {
             return original.call(noise, x, z, scale);
         }
 
-        return sample.lap().noise(((BandNoises) noise).exotic_worlds$large(), scale, x, z, sample.blockZ());
+        return sample.lap().noise(((BandNoises) noise).exotic_worlds$large(), scale, sample.signedX(), z,
+                sample.blockZ());
     }
 
     @WrapOperation(
@@ -52,11 +53,12 @@ public class PainterCoreMixin {
             double scale, Operation<Double> original,
             @Local(argsOnly = true, ordinal = 0) DensitySampler.Bound rawTemperature) {
         PinnedSample sample = PinnedSample.of(rawTemperature);
-        if (sample == null || !sample.lap().closesNoise()) {
+        if (sample == null) {
             return original.call(noise, x, z, scale);
         }
 
-        return sample.lap().noise(((BandNoises) noise).exotic_worlds$detail(), scale, x, z, sample.blockZ());
+        return sample.lap().noise(((BandNoises) noise).exotic_worlds$detail(), scale, sample.signedX(), z,
+                sample.blockZ());
     }
 
     @WrapOperation(
@@ -70,7 +72,8 @@ public class PainterCoreMixin {
             return original.call(x, amplitude, frequency, seed);
         }
 
-        return sample.lap().xWave(NaturalWaveCells.INSTANCE, seed, x, amplitude, waveFrequency / magnification);
+        return sample.lap().xWave(NaturalWaveCells.INSTANCE, seed, sample.signedX(), amplitude,
+                waveFrequency / magnification);
     }
 
     @WrapOperation(method = HUMIDITY, at = @At(value = "INVOKE", target = NATURAL_WAVE, ordinal = 1))
@@ -92,6 +95,14 @@ public class PainterCoreMixin {
             @Local(argsOnly = true, ordinal = 2) int z, @Local(name = "distorsion") double distortion) {
         PinnedSample sample = PinnedSample.of(rawTemperature);
         return sample == null ? wave : sample.lap().carriedWave(sample.blockZ(), z, wave, distortion);
+    }
+
+    @ModifyVariable(method = HUMIDITY, at = @At(value = "LOAD", ordinal = 0), name = "uwave")
+    private static double exotic_worlds$bandsKeepTheirSide(double wave,
+            @Local(argsOnly = true, ordinal = 0) DensitySampler.Bound rawTemperature,
+            @Local(argsOnly = true, ordinal = 0) int x) {
+        PinnedSample sample = PinnedSample.of(rawTemperature);
+        return sample == null ? wave : sample.carriedSide(x, wave);
     }
 
     @ModifyVariable(method = HUMIDITY, at = @At("STORE"), name = "hbw")
