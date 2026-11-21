@@ -5,6 +5,8 @@ import java.util.Map;
 
 import com.exoticworlds.accessors.CoastLiftCache;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.periodic.LapFloor;
+import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
@@ -111,7 +113,7 @@ final class BlendedNoiseFixture {
     static double sample(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold fold, double scale, double x, double y, double z, double verticalShare, LapFloor floor) {
         return PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(permutations, xOffset, yOffset, zOffset,
-                PeriodicNoiseSampler.NO_FUDGE, fold, frameOf(verticalShare), scale, floor), x, y, z, y);
+                PerlinMath.NO_FUDGE, fold, frameOf(verticalShare), scale, floor), x, y, z, y);
     }
 
     private static NoiseFrame frameOf(double verticalShare) {

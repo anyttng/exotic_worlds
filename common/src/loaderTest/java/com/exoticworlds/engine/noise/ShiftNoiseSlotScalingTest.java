@@ -10,6 +10,8 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.engine.noise.periodic.PeriodicOctaveSampler;
+
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunctions;
 import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;

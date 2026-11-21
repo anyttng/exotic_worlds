@@ -5,6 +5,8 @@ import com.exoticworlds.core.NoiseShaping;
 import com.exoticworlds.core.NoiseShapings;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.periodic.PeriodicOctaveSampler;
+import com.exoticworlds.engine.noise.periodic.PeriodicOctaves;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;

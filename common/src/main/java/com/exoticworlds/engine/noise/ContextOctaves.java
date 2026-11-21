@@ -1,6 +1,7 @@
 package com.exoticworlds.engine.noise;
 
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.periodic.PeriodicOctaves;
 
 public final class ContextOctaves {
     private final WorldFold fold;

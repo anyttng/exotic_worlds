@@ -2,6 +2,7 @@ package com.exoticworlds.engine.noise;
 
 import com.exoticworlds.accessors.ContextOctavesHolder;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.periodic.PeriodicOctaveSampler;
 
 import net.minecraft.world.level.levelgen.synth.Noise;
 import net.minecraft.world.level.levelgen.synth.NoiseStack;

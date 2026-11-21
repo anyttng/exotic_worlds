@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.periodic;
 
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
@@ -9,6 +9,11 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.engine.noise.DensityFunctionSlotAxes;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.engine.noise.NoiseConstants;
+import com.exoticworlds.engine.noise.NoiseFrame;
+import com.exoticworlds.engine.noise.SlotAxes;
 import static com.exoticworlds.core.WorldFoldFixture.ODD_BOUNDS;
 import static com.exoticworlds.core.WorldFoldFixture.SQUARE;
 import static com.exoticworlds.core.WorldFoldFixture.UNEVEN_BOUNDS;

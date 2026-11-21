@@ -6,10 +6,11 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.compat.worldgen.LevelClimateCompression;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.LapFloor;
 import com.exoticworlds.engine.noise.NoiseFrame;
-import com.exoticworlds.engine.noise.PeriodicLattice;
-import com.exoticworlds.engine.noise.PeriodicNoiseSampler;
+import com.exoticworlds.engine.noise.PerlinMath;
+import com.exoticworlds.engine.noise.periodic.LapFloor;
+import com.exoticworlds.engine.noise.periodic.PeriodicLattice;
+import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
 
 import net.minecraft.core.QuartPos;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
@@ -109,7 +110,7 @@ public final class ReplacementNoiseFold {
             double verticalQuarts = scaleQuarts[this.verticalScaleSlots[octave]] * OPEN_SIMPLEX_COLUMN_RATE / factor;
             verticalScales[octave] = 1.0 / (verticalQuarts * BLOCKS_PER_QUART);
             octaveLattices[octave] = PeriodicNoiseSampler.lattice(noise.perms, noise.offsetX, noise.offsetY,
-                    noise.offsetZ, PeriodicNoiseSampler.NO_FUDGE, fold, UNDAMPED_FRAME, scale, floor);
+                    noise.offsetZ, PerlinMath.NO_FUDGE, fold, UNDAMPED_FRAME, scale, floor);
         }
 
         Lattices built = new Lattices(fold, factor, seed, scaleQuarts, octaveLattices, verticalScales);
