@@ -282,6 +282,75 @@ class FoldOrientationTest {
     }
 
     @Nested
+    class Headings {
+        private static final float[] YAWS = {0.0F, 37.5F, 90.0F, -120.0F, 180.0F};
+        private static final float YAW_CHANGE = 25.0F;
+
+        private static Vec3 lookAlong(float yaw) {
+            double radians = Math.toRadians(yaw);
+            return new Vec3(-Math.sin(radians), 0.0, Math.cos(radians));
+        }
+
+        @Test
+        void aHeadingTurnsWithItsLookVector() {
+            for (FoldOrientation orientation : FoldOrientation.values()) {
+                for (float yaw : YAWS) {
+                    assertClose(orientation.applyToDelta(lookAlong(yaw)), lookAlong(orientation.applyToYaw(yaw)),
+                            orientation + " turns the heading " + yaw + " away from its look vector");
+                }
+            }
+        }
+
+        @Test
+        void aChangeOfHeadingIsWhatTheHeadingMovesBy() {
+            for (FoldOrientation orientation : FoldOrientation.values()) {
+                for (float yaw : YAWS) {
+                    assertEquals(orientation.applyToYawChange(YAW_CHANGE),
+                            orientation.applyToYaw(yaw + YAW_CHANGE) - orientation.applyToYaw(yaw), TOLERANCE,
+                            orientation + " moves the heading " + yaw + " by another change");
+                }
+            }
+        }
+
+        @Test
+        void onlyAMirrorReversesAChangeOfHeading() {
+            for (FoldOrientation orientation : FoldOrientation.values()) {
+                assertEquals(orientation.preservesHandedness() ? YAW_CHANGE : -YAW_CHANGE,
+                        orientation.applyToYawChange(YAW_CHANGE), orientation + " turns a change the wrong way");
+            }
+        }
+
+        @Test
+        void theInverseTurnsAHeadingBack() {
+            for (FoldOrientation orientation : FoldOrientation.values()) {
+                for (float yaw : YAWS) {
+                    assertClose(lookAlong(yaw), lookAlong(orientation.inverse().applyToYaw(orientation.applyToYaw(yaw))),
+                            orientation + " and its inverse leave the heading " + yaw + " turned");
+                }
+            }
+        }
+
+        @Test
+        void theQuarterTurnsFollowTheGameCompass() {
+            for (Direction face : HORIZONTAL) {
+                assertClose(face.getClockWise().getUnitVec3(),
+                        lookAlong(FoldOrientation.QUARTER_TURN_CLOCKWISE.applyToYaw(face.toYRot())),
+                        "a heading " + face + " did not turn clockwise");
+                assertClose(face.getCounterClockWise().getUnitVec3(),
+                        lookAlong(FoldOrientation.QUARTER_TURN_COUNTERCLOCKWISE.applyToYaw(face.toYRot())),
+                        "a heading " + face + " did not turn counterclockwise");
+            }
+        }
+
+        @Test
+        void theIdentityHandsTheHeadingBack() {
+            for (float yaw : YAWS) {
+                assertEquals(yaw, FoldOrientation.IDENTITY.applyToYaw(yaw), "an upright heading was changed");
+            }
+        }
+    }
+
+    @Nested
     class BlockOffsets {
         @Test
         void aPointOnAFaceLandsOnTheTurnedFace() {

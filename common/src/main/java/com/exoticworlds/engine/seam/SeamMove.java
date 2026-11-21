@@ -1,8 +1,12 @@
 package com.exoticworlds.engine.seam;
 
+import org.jspecify.annotations.Nullable;
+
 import com.exoticworlds.accessors.MoveCheckpoints;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldLoopAttachments;
 
+import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -35,6 +39,41 @@ public final class SeamMove {
         ClientPosition.of(player).set(clampedX, clampedZ, MirrorWriter.VEHICLE_MOVE);
         Entity vehicle = player.getRootVehicle();
         return fold.nearestCopy(vehicle.position(), new Vec3(clampedX, vehicle.getY(), clampedZ));
+    }
+
+    public static float playerYaw(ServerPlayer player, ServerboundMovePlayerPacket packet, float yaw) {
+        if (!packet.hasRotation()) {
+            return yaw;
+        }
+
+        return yawFrom(player, player.position(), packet.hasPosition() ? clientPointOf(packet) : null, yaw);
+    }
+
+    private static Vec3 clientPointOf(ServerboundMovePlayerPacket packet) {
+        return new Vec3(packet.getX(0.0), 0.0, packet.getZ(0.0));
+    }
+
+    public static float vehicleYaw(ServerPlayer player, Vec3 clientPoint, float yaw) {
+        return yawFrom(player, player.getRootVehicle().position(), clientPoint, yaw);
+    }
+
+    public static float heldYaw(ServerPlayer player, float yaw) {
+        return yawFrom(player, player.position(), null, yaw);
+    }
+
+    private static float yawFrom(ServerPlayer player, Vec3 serverPosition, @Nullable Vec3 clientPoint, float yaw) {
+        WorldFold fold = WorldLoopAttachments.foldOf(player.level());
+        ClientPosition mirror = ClientPosition.of(player);
+        if (fold.preservesLocalIndices() || !mirror.describes(player.level().dimension())) {
+            return yaw;
+        }
+
+        Vec3 seen = clientPoint == null ? new Vec3(mirror.x(), 0.0, mirror.z()) : clientPoint;
+        return serverYaw(fold, serverPosition, seen, yaw);
+    }
+
+    static float serverYaw(WorldFold fold, Vec3 serverPosition, Vec3 clientPoint, float yaw) {
+        return fold.nearestCopyTransformation(serverPosition, clientPoint).orientation().applyToYaw(yaw);
     }
 
     public static void playerIntoBounds(ServerPlayer player, MoveCheckpoints checkpoints) {
