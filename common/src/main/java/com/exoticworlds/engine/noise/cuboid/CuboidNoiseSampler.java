@@ -6,9 +6,16 @@ import com.exoticworlds.engine.noise.PerlinMath;
 import net.minecraft.util.Mth;
 
 final class CuboidNoiseSampler {
+    enum Part {
+        VALUE,
+        SECOND_VALUE,
+        WARP_X,
+        WARP_Z
+    }
+
     private static final int VERTEX_SIGN_BIT = 1;
 
-    static float sample(CuboidLattice lattice, int atlasFace, double localX, double y, double localZ,
+    static float sample(Part part, CuboidLattice lattice, int atlasFace, double localX, double y, double localZ,
             double originalY) {
         CuboidLattice.Face face = lattice.faces()[atlasFace];
         double xs = localX * face.xRatio();
@@ -25,36 +32,60 @@ final class CuboidNoiseSampler {
                 ? (float) yRelative
                 : (float) (yRelative - PerlinMath.fudgeY(originalY, yRelative, fudgeYScale));
         byte[] permutations = lattice.permutations();
-        float d000 = corner(permutations, face, xCell, yCell, zCell, xFrac, yFrac, zFrac);
-        float d100 = corner(permutations, face, xCell + 1, yCell, zCell, xFrac - 1.0F, yFrac, zFrac);
-        float d010 = corner(permutations, face, xCell, yCell + 1L, zCell, xFrac, yFrac - 1.0F, zFrac);
-        float d110 = corner(permutations, face, xCell + 1, yCell + 1L, zCell, xFrac - 1.0F, yFrac - 1.0F, zFrac);
-        float d001 = corner(permutations, face, xCell, yCell, zCell + 1, xFrac, yFrac, zFrac - 1.0F);
-        float d101 = corner(permutations, face, xCell + 1, yCell, zCell + 1, xFrac - 1.0F, yFrac, zFrac - 1.0F);
-        float d011 = corner(permutations, face, xCell, yCell + 1L, zCell + 1, xFrac, yFrac - 1.0F, zFrac - 1.0F);
-        float d111 = corner(permutations, face, xCell + 1, yCell + 1L, zCell + 1, xFrac - 1.0F, yFrac - 1.0F,
+        float d000 = corner(part, permutations, face, xCell, yCell, zCell, xFrac, yFrac, zFrac);
+        float d100 = corner(part, permutations, face, xCell + 1, yCell, zCell, xFrac - 1.0F, yFrac, zFrac);
+        float d010 = corner(part, permutations, face, xCell, yCell + 1L, zCell, xFrac, yFrac - 1.0F, zFrac);
+        float d110 = corner(part, permutations, face, xCell + 1, yCell + 1L, zCell, xFrac - 1.0F, yFrac - 1.0F, zFrac);
+        float d001 = corner(part, permutations, face, xCell, yCell, zCell + 1, xFrac, yFrac, zFrac - 1.0F);
+        float d101 = corner(part, permutations, face, xCell + 1, yCell, zCell + 1, xFrac - 1.0F, yFrac, zFrac - 1.0F);
+        float d011 = corner(part, permutations, face, xCell, yCell + 1L, zCell + 1, xFrac, yFrac - 1.0F, zFrac - 1.0F);
+        float d111 = corner(part, permutations, face, xCell + 1, yCell + 1L, zCell + 1, xFrac - 1.0F, yFrac - 1.0F,
                 zFrac - 1.0F);
         return Mth.lerp3(Mth.smoothstep(xFrac), Mth.smoothstep((float) yRelative), Mth.smoothstep(zFrac),
                 d000, d100, d010, d110, d001, d101, d011, d111);
     }
 
-    private static float corner(byte[] permutations, CuboidLattice.Face face, int xNode, long yNode, int zNode,
-            float xOffset, float yOffset, float zOffset) {
+    private static float corner(Part part, byte[] permutations, CuboidLattice.Face face, int xNode, long yNode,
+            int zNode, float xOffset, float yOffset, float zOffset) {
         int hash = hash(permutations, face, xNode, yNode, zNode);
-        boolean onXEdge = xNode == 0 || xNode == face.xCells();
-        boolean onZEdge = zNode == 0 || zNode == face.zCells();
-        if (onXEdge && onZEdge) {
+        return switch (part) {
+            case VALUE -> value(face, hash, xNode, zNode, xOffset, yOffset, zOffset);
+            case SECOND_VALUE -> value(face, PerlinMath.p(permutations, hash), xNode, zNode, xOffset, yOffset,
+                    zOffset);
+            case WARP_X -> CuboidVectorNoise.alongX(face, hash, PerlinMath.p(permutations, hash), xNode, zNode,
+                    xOffset, yOffset, zOffset);
+            case WARP_Z -> CuboidVectorNoise.alongZ(face, hash, PerlinMath.p(permutations, hash), xNode, zNode,
+                    xOffset, yOffset, zOffset);
+        };
+    }
+
+    private static float value(CuboidLattice.Face face, int hash, int xNode, int zNode, float xOffset,
+            float yOffset, float zOffset) {
+        if (onXEdge(face, xNode) && onZEdge(face, zNode)) {
             return (hash & VERTEX_SIGN_BIT) == 0 ? yOffset : -yOffset;
         }
 
+        return row(face, hash, xNode, zNode, xOffset, yOffset, zOffset);
+    }
+
+    static boolean onXEdge(CuboidLattice.Face face, int xNode) {
+        return xNode == 0 || xNode == face.xCells();
+    }
+
+    static boolean onZEdge(CuboidLattice.Face face, int zNode) {
+        return zNode == 0 || zNode == face.zCells();
+    }
+
+    static float row(CuboidLattice.Face face, int hash, int xNode, int zNode, float xOffset, float yOffset,
+            float zOffset) {
         int[] gradient = PerlinMath.gradient(hash);
-        if (onXEdge) {
+        if (onXEdge(face, xNode)) {
             double across = xNode == 0 ? -face.xAcross() : face.xAcross();
             return (float) (gradient[0] * zOffset * face.zSign() + gradient[1] * yOffset
                     + gradient[2] * xOffset * across);
         }
 
-        if (onZEdge) {
+        if (onZEdge(face, zNode)) {
             double across = zNode == 0 ? -face.zAcross() : face.zAcross();
             return (float) (gradient[0] * xOffset * face.xSign() + gradient[1] * yOffset
                     + gradient[2] * zOffset * across);

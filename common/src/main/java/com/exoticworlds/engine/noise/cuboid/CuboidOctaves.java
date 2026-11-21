@@ -8,6 +8,7 @@ import com.exoticworlds.core.CuboidAtlas;
 import com.exoticworlds.core.CuboidFace;
 import com.exoticworlds.engine.noise.CompiledOctaves;
 import com.exoticworlds.engine.noise.PerlinMath;
+import com.exoticworlds.engine.noise.cuboid.CuboidNoiseSampler.Part;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.synth.GradientNoise;
@@ -18,6 +19,8 @@ import net.minecraft.world.level.levelgen.synth.SmearedPerlinNoise;
 
 public final class CuboidOctaves implements CompiledOctaves {
     private static final String NOT_PERLIN_LEAF = "Cuboid octaves sample Perlin leaves only, got ";
+
+    private static final double WARP_Y = 0.0;
 
     private final List<CuboidFace> faces;
 
@@ -69,14 +72,36 @@ public final class CuboidOctaves implements CompiledOctaves {
 
     @Override
     public float sample(double x, double y, double z) {
+        return sampleFlat(Part.VALUE, x, y, z);
+    }
+
+    public float sampleSecond(double x, double y, double z) {
+        return sampleFlat(Part.SECOND_VALUE, x, y, z);
+    }
+
+    public float sampleOnFace(int atlasFace, double localX, double y, double localZ) {
+        return sample(Part.VALUE, atlasFace, localX, y, localZ);
+    }
+
+    float warpX(int atlasFace, double localX, double localZ) {
+        return sample(Part.WARP_X, atlasFace, localX, WARP_Y, localZ);
+    }
+
+    float warpZ(int atlasFace, double localX, double localZ) {
+        return sample(Part.WARP_Z, atlasFace, localX, WARP_Y, localZ);
+    }
+
+    private float sampleFlat(Part part, double x, double y, double z) {
         int atlasFace = faceAt(Mth.floor(x), Mth.floor(z));
         CuboidFace face = this.faces.get(atlasFace);
-        double localX = x - face.minBlockX();
-        double localZ = z - face.minBlockZ();
+        return sample(part, atlasFace, x - face.minBlockX(), y, z - face.minBlockZ());
+    }
+
+    private float sample(Part part, int atlasFace, double localX, double y, double localZ) {
         float value = 0.0F;
         for (int i = 0; i < this.lattices.length; i++) {
             double octaveY = y * this.frequencies[i];
-            value += this.amplitudes[i] * CuboidNoiseSampler.sample(this.lattices[i], atlasFace, localX,
+            value += this.amplitudes[i] * CuboidNoiseSampler.sample(part, this.lattices[i], atlasFace, localX,
                     GradientNoise.wrap(octaveY), localZ, octaveY);
         }
 
@@ -88,7 +113,7 @@ public final class CuboidOctaves implements CompiledOctaves {
         return true;
     }
 
-    private int faceAt(int blockX, int blockZ) {
+    int faceAt(int blockX, int blockZ) {
         for (int i = 0; i < this.faces.size(); i++) {
             if (this.faces.get(i).contains(blockX, blockZ)) {
                 return i;

@@ -9,11 +9,13 @@ import com.exoticworlds.core.NoiseShapings;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.cuboid.CuboidOctaves;
+import com.exoticworlds.engine.noise.cuboid.CuboidWarp;
 import com.exoticworlds.engine.noise.periodic.PeriodicOctaveSampler;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.levelgen.densityfunction.CachingDensitySampler;
 import net.minecraft.world.level.levelgen.densityfunction.DensityBuffer;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunctions;
@@ -24,6 +26,7 @@ import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 import net.minecraft.world.level.levelgen.densityfunction.op.BinaryFunction;
 import net.minecraft.world.level.levelgen.densityfunction.op.ClampFunction;
 import net.minecraft.world.level.levelgen.densityfunction.op.LerpFunction;
+import net.minecraft.world.level.levelgen.densityfunction.op.SliceFunction;
 import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 import net.minecraft.world.level.levelgen.synth.Noise;
 import net.minecraft.world.level.levelgen.synth.NoiseStack;
@@ -34,6 +37,8 @@ public final class FoldedSamplers {
     private static final float SHIFT_AMPLITUDE = (float) NoiseConstants.SHIFT_AMPLITUDE;
 
     private static final double NO_Y_SCALE = 0.0;
+
+    private static final double WARP_DIAGONAL = Math.sqrt(2.0);
 
     private static final float BLEND_CHOICE_OFFSET = 0.5F;
 
@@ -62,8 +67,10 @@ public final class FoldedSamplers {
     public static DensitySampler compileNoise(FoldedCompileContext context, Holder<NormalNoise> noise,
             double vanillaXzScale, double yScale, DensityFunction shiftX, DensityFunction shiftY,
             DensityFunction shiftZ) {
-        if (context.fold().cuboidAtlas() != null) {
-            return cuboidNoise(context, stack(context, noise), vanillaXzScale, yScale, shiftY);
+        CuboidAtlas atlas = context.fold().cuboidAtlas();
+        if (atlas != null) {
+            return cuboidNoise(context, atlas, stack(context, noise), vanillaXzScale, yScale, shiftX, shiftY,
+                    shiftZ);
         }
 
         NoiseShaping shaping = NoiseShapings.get();
@@ -81,13 +88,49 @@ public final class FoldedSamplers {
                 shaping.warpDivisor(context.fold(), noise, xzScale, verticalShare), shiftX, shiftY, shiftZ);
     }
 
-    private static DensitySampler cuboidNoise(FoldedCompileContext context, NoiseStack stack, double xzScale,
-            double yScale, DensityFunction shiftY) {
+    private static DensitySampler cuboidNoise(FoldedCompileContext context, CuboidAtlas atlas, NoiseStack stack,
+            double xzScale, double yScale, DensityFunction shiftX, DensityFunction shiftY, DensityFunction shiftZ) {
         CompiledOctaves octaves = octaves(context.fold(), frameOf(context, xzScale, yScale),
                 xzScale, null, stack);
+        CuboidWarp warp = octaves instanceof CuboidOctaves ? cuboidWarp(context, atlas, xzScale, shiftX, shiftZ) : null;
+        if (warp != null) {
+            return new CuboidShiftedNoiseSampler((CuboidOctaves) octaves, warp, yScale,
+                    shiftY.compileSampler(context.vanilla()));
+        }
+
         return shiftY.equals(DensityFunctions.zero())
                 ? new NoiseSampler(octaves, yScale, NO_LIFT)
                 : new RaisedNoiseSampler(octaves, yScale, shiftY.compileSampler(context.vanilla()));
+    }
+
+    private static @Nullable CuboidWarp cuboidWarp(FoldedCompileContext context, CuboidAtlas atlas, double xzScale,
+            DensityFunction shiftX, DensityFunction shiftZ) {
+        DensityFunction zero = DensityFunctions.zero();
+        if (xzScale == 0.0 || shiftX.equals(zero) || shiftZ.equals(zero)) {
+            return null;
+        }
+
+        if (!(shiftSource(shiftX.compileSampler(context.vanilla())) instanceof CuboidShiftSampler alongX)
+                || !(shiftSource(shiftZ.compileSampler(context.vanilla())) instanceof CuboidShiftSampler alongZ)) {
+            return null;
+        }
+
+        if (alongX.transposed() || !alongZ.transposed() || !alongX.noise().equals(alongZ.noise())
+                || alongX.range() <= 0.0F) {
+            return null;
+        }
+
+        double shiftBlocks = SHIFT_AMPLITUDE / xzScale;
+        return CuboidWarp.of(atlas, alongX.octaves(), shiftBlocks,
+                Math.abs(shiftBlocks) * alongX.range() * WARP_DIAGONAL);
+    }
+
+    private static DensitySampler shiftSource(DensitySampler sampler) {
+        return switch (sampler) {
+            case CachingDensitySampler cached -> shiftSource(cached.input());
+            case SliceFunction.YSampler slice -> shiftSource(slice.input());
+            default -> sampler;
+        };
     }
 
     private static DensitySampler noise(FoldedCompileContext context, NoiseStack stack, double xzScale,
@@ -153,7 +196,10 @@ public final class FoldedSamplers {
     }
 
     public static DensitySampler shiftB(FoldedCompileContext context, Holder<NormalNoise> noise) {
-        return shiftSampler(context, noise, DensityFunctionSlotAxes.SHIFT_B, NO_Y_SCALE, true);
+        boolean cuboid = context.fold().cuboidAtlas() != null
+                && frameOf(context, SlotAxes.DEFAULT, GenerationFoldContext.UNDECLARED_VERTICAL_SHARE).isDefault();
+        return shiftSampler(context, noise, cuboid ? SlotAxes.DEFAULT : DensityFunctionSlotAxes.SHIFT_B, NO_Y_SCALE,
+                true);
     }
 
     private static DensitySampler shiftSampler(FoldedCompileContext context, Holder<NormalNoise> noise,
@@ -162,6 +208,10 @@ public final class FoldedSamplers {
         CompiledOctaves octaves = octaves(context.fold(),
                 frameOf(context, axes, GenerationFoldContext.UNDECLARED_VERTICAL_SHARE),
                 NoiseConstants.SHIFT_SCALE, null, stack);
+        if (octaves instanceof CuboidOctaves cuboid && yScale == NO_Y_SCALE) {
+            return new CuboidShiftSampler(noise, transposed, cuboid, stack.range().max());
+        }
+
         return octaves.indexable()
                 ? new ShiftSampler(octaves, yScale, transposed)
                 : new VanillaShiftAtFoldSampler(context.fold(), stack, yScale, transposed);
@@ -319,6 +369,36 @@ public final class FoldedSamplers {
                     ? this.octaves.sample(blockZ, blockX, 0.0)
                     : this.octaves.sample(blockX, blockY * this.yScale, blockZ);
             return value * SHIFT_AMPLITUDE;
+        }
+    }
+
+    private record CuboidShiftSampler(Holder<NormalNoise> noise, boolean transposed, CuboidOctaves octaves,
+            float range) implements DensitySampler {
+        @Override
+        public void sampleVolume(SamplerContext context, DensityBuffer outputBuffer, DensityVolume volume) {
+            DensitySampler.sampleVolumeNaive(context, outputBuffer, volume, this);
+        }
+
+        @Override
+        public float sampleValue(SamplerContext context, int blockX, int blockY, int blockZ) {
+            float value = this.transposed
+                    ? this.octaves.sampleSecond(blockX, NO_Y_SCALE, blockZ)
+                    : this.octaves.sample(blockX, NO_Y_SCALE, blockZ);
+            return value * SHIFT_AMPLITUDE;
+        }
+    }
+
+    private record CuboidShiftedNoiseSampler(CuboidOctaves octaves, CuboidWarp warp, double yScale,
+            DensitySampler shiftY) implements DensitySampler {
+        @Override
+        public void sampleVolume(SamplerContext context, DensityBuffer outputBuffer, DensityVolume volume) {
+            DensitySampler.sampleVolumeNaive(context, outputBuffer, volume, this);
+        }
+
+        @Override
+        public float sampleValue(SamplerContext context, int blockX, int blockY, int blockZ) {
+            return this.warp.sample(this.octaves, blockX,
+                    blockY * this.yScale + this.shiftY.sampleValue(context, blockX, blockY, blockZ), blockZ);
         }
     }
 
