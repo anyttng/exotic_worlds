@@ -12,7 +12,7 @@ import com.exoticworlds.accessors.IndexableNoise;
 import com.exoticworlds.accessors.WrappedPerlinNoise;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
-import com.exoticworlds.engine.noise.PeriodicOctaveSampler;
+import com.exoticworlds.engine.noise.periodic.PeriodicOctaveSampler;
 import com.exoticworlds.shape.climate.ClimateCompression;
 import com.exoticworlds.shape.climate.ClimateCompression.Resolved;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;

@@ -15,6 +15,10 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.engine.noise.periodic.LapFloor;
+import com.exoticworlds.engine.noise.periodic.PeriodicLattice;
+import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
+import com.exoticworlds.engine.noise.periodic.SimplexLattice;
 
 class SamplerGoldenValuesTest {
     private static final long SEED = 0x0153EL;

@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.periodic;
 
 import org.jspecify.annotations.Nullable;
 
@@ -6,7 +6,7 @@ import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WrapDomain;
 
 @SuppressWarnings("ArrayRecordComponent")
-record PeriodicLattice(byte[] permutations, double xOffset, double yOffset, double zOffset,
+public record PeriodicLattice(byte[] permutations, double xOffset, double yOffset, double zOffset,
         Axis x, Axis y, Axis z, double correction, double anchor, @Nullable Shear shear) {
     record Axis(boolean folds, WrapDomain domain, long period, double scale, double ratio) {
         static final Axis PASS_THROUGH = of(false, new WrapDomain.Noop(), PeriodicNoiseSampler.UNBOUNDED_PERIOD, 1.0);
@@ -26,7 +26,7 @@ record PeriodicLattice(byte[] permutations, double xOffset, double yOffset, doub
         }
     }
 
-    boolean indexable() {
+    public boolean indexable() {
         return this.x.indexable() && this.y.indexable() && this.z.indexable();
     }
 

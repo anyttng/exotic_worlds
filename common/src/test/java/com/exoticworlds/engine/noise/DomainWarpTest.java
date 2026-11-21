@@ -13,6 +13,8 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.engine.noise.periodic.LapFloor;
+import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
 
 class DomainWarpTest {
     private static final int CHUNK_WIDTH = 32;

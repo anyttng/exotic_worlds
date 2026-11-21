@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.periodic;
 
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
