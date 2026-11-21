@@ -52,6 +52,7 @@ import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.network.protocol.game.ClientboundLightUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundMoveMinecartPacket;
 import net.minecraft.network.protocol.game.ClientboundMoveVehiclePacket;
 import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
@@ -100,7 +101,7 @@ final class ClientboundPacketRewriters {
     static Packet<?> levelChunk(ClientboundLevelChunkWithLightPacket packet, TranslationContext context) {
         ChunkPos serverPos = new ChunkPos(packet.getX(), packet.getZ());
         ChunkPos clientPos = context.toClient(serverPos);
-        FoldOrientation orientation = context.fold().deckTransformation(serverPos, clientPos).orientation();
+        FoldOrientation orientation = orientation(context, serverPos, clientPos);
         if (orientation.isIdentity()) {
             return movedCopy(packet, clientPos);
         }
@@ -109,12 +110,27 @@ final class ClientboundPacketRewriters {
         target.writeInt(clientPos.x());
         target.writeInt(clientPos.z());
         TurnedChunkData.turned(packet.getChunkData(), orientation, target::registryAccess).write(target);
-        packet.getLightData().write(target);
+        TurnedChunkData.turned(packet.getLightData(), orientation).write(target);
         return ClientboundLevelChunkWithLightPacket.STREAM_CODEC.decode(target);
     }
 
-    static Packet<?> chunkPosition(Packet<?> packet, int x, int z, TranslationContext context) {
-        return movedCopy(packet, context.toClient(new ChunkPos(x, z)));
+    static Packet<?> lightUpdate(ClientboundLightUpdatePacket packet, TranslationContext context) {
+        ChunkPos serverPos = new ChunkPos(packet.getX(), packet.getZ());
+        ChunkPos clientPos = context.toClient(serverPos);
+        FoldOrientation orientation = orientation(context, serverPos, clientPos);
+        if (orientation.isIdentity()) {
+            return movedCopy(packet, clientPos);
+        }
+
+        RegistryFriendlyByteBuf target = buffer(context);
+        target.writeVarInt(clientPos.x());
+        target.writeVarInt(clientPos.z());
+        TurnedChunkData.turned(packet.getLightData(), orientation).write(target);
+        return ClientboundLightUpdatePacket.STREAM_CODEC.decode(target);
+    }
+
+    private static FoldOrientation orientation(TranslationContext context, ChunkPos serverPos, ChunkPos clientPos) {
+        return context.fold().deckTransformation(serverPos, clientPos).orientation();
     }
 
     private static Packet<?> movedCopy(Packet<?> packet, ChunkPos clientPos) {
@@ -220,11 +236,17 @@ final class ClientboundPacketRewriters {
     }
 
     static ClientboundSectionBlocksUpdatePacket sectionBlocksUpdate(ClientboundSectionBlocksUpdatePacket packet, TranslationContext context) {
-        return rewritePosition(
+        ChunkPos serverPos = ((SectionBlocksUpdatePacketAccessor) packet).exotic_worlds$getSectionPos().chunk();
+        ChunkPos clientPos = context.toClient(serverPos);
+        ClientboundSectionBlocksUpdatePacket seated = rewritePosition(
                 (sectionPacket, output) -> ((SectionBlocksUpdatePacketAccessor) sectionPacket).exotic_worlds$write(output),
                 SectionBlocksUpdatePacketAccessor::exotic_worlds$create,
                 SectionPos.STREAM_CODEC, packet, context,
-                section -> SectionPos.of(context.toClient(section.chunk()), section.y()));
+                section -> SectionPos.of(clientPos, section.y()));
+        SectionBlocksUpdatePacketAccessor changes = (SectionBlocksUpdatePacketAccessor) seated;
+        TurnedChunkData.turnSectionChanges(changes.exotic_worlds$getPositions(), changes.exotic_worlds$getStates(),
+                orientation(context, serverPos, clientPos));
+        return seated;
     }
 
     static ClientboundBlockEntityDataPacket blockEntityData(ClientboundBlockEntityDataPacket packet, TranslationContext context) {
@@ -469,9 +491,15 @@ final class ClientboundPacketRewriters {
 
     static ClientboundChunksBiomesPacket chunkBiomes(ClientboundChunksBiomesPacket packet, TranslationContext context) {
         return new ClientboundChunksBiomesPacket(packet.chunkBiomeData().stream()
-                .map(data -> new ClientboundChunksBiomesPacket.ChunkBiomeData(
-                        context.toClient(data.pos()), data.buffer()))
+                .map(data -> chunkBiomeData(data, context))
                 .toList());
+    }
+
+    private static ClientboundChunksBiomesPacket.ChunkBiomeData chunkBiomeData(
+            ClientboundChunksBiomesPacket.ChunkBiomeData data, TranslationContext context) {
+        ChunkPos clientPos = context.toClient(data.pos());
+        return new ClientboundChunksBiomesPacket.ChunkBiomeData(clientPos, TurnedChunkData.turnedBiomes(
+                data.buffer(), orientation(context, data.pos(), clientPos), () -> buffer(context).registryAccess()));
     }
 
     private static <T, P> T rewritePosition(BiConsumer<T, RegistryFriendlyByteBuf> writer,

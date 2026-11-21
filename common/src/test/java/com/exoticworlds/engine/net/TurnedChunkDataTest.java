@@ -1,10 +1,12 @@
 package com.exoticworlds.engine.net;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -22,12 +24,15 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.RegistrationInfo;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
+import net.minecraft.network.protocol.game.ClientboundLightUpdatePacketData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.SimpleBitStorage;
 import net.minecraft.world.level.biome.Biome;
@@ -36,14 +41,19 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.level.chunk.PalettedContainerFactory;
+import net.minecraft.world.level.chunk.PalettedContainerRO;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 class TurnedChunkDataTest {
     private static final int BLOCK_WIDTH = 16;
     private static final int BIOME_WIDTH = 4;
     private static final int HEIGHTMAP_CELLS = BLOCK_WIDTH * BLOCK_WIDTH;
+    private static final int LIGHT_LEVELS = 16;
+    private static final int BLOCK_LIGHT_SHIFT = 5;
 
     private static final int OVERWORLD_SECTIONS = 24;
     private static final int OVERWORLD_HEIGHT_BITS = 9;
@@ -276,6 +286,151 @@ class TurnedChunkDataTest {
                     assertEquals((byte) landed, TurnedChunkData.packedXZ((byte) (x << 4 | z), orientation),
                             orientation + " misplaced the block entity of (" + x + ", " + z + ")");
                 }
+            }
+        }
+    }
+
+    private static int lightAt(int x, int y, int z) {
+        return (x * 3 + z * 5 + y * 7) % LIGHT_LEVELS;
+    }
+
+    private static byte[] lightLayer(int shift) {
+        DataLayer layer = new DataLayer();
+        forEachCell(BLOCK_WIDTH, (x, y, z) -> layer.set(x, y, z, (lightAt(x, y, z) + shift) % LIGHT_LEVELS));
+        return layer.getData();
+    }
+
+    private static BitSet sections(int... indexes) {
+        BitSet mask = new BitSet();
+        for (int index : indexes) {
+            mask.set(index);
+        }
+
+        return mask;
+    }
+
+    private static ClientboundLightUpdatePacketData sentLight() {
+        FriendlyByteBuf sent = new FriendlyByteBuf(Unpooled.buffer());
+        sent.writeBitSet(sections(1));
+        sent.writeBitSet(sections(2));
+        sent.writeBitSet(sections(3));
+        sent.writeBitSet(sections(4));
+        sent.writeCollection(List.of(lightLayer(0)), ByteBufCodecs.byteArray(DataLayer.SIZE));
+        sent.writeCollection(List.of(lightLayer(BLOCK_LIGHT_SHIFT)), ByteBufCodecs.byteArray(DataLayer.SIZE));
+        return new ClientboundLightUpdatePacketData(sent, 0, 0);
+    }
+
+    @Test
+    void eachLightNibbleLandsAtItsPermutedCell() {
+        for (FoldOrientation orientation : FoldOrientation.values()) {
+            DataLayer turned = new DataLayer(
+                    TurnedChunkData.lightLayer(lightLayer(0), orientation.localIndexTable(BLOCK_WIDTH)));
+            forEachCell(BLOCK_WIDTH, (x, y, z) -> assertEquals(
+                    lightAt(x, y, z),
+                    turned.get(orientation.applyToLocalX(x, z, BLOCK_WIDTH), y,
+                            orientation.applyToLocalZ(x, z, BLOCK_WIDTH)),
+                    orientation + " misplaced the light of (" + x + ", " + y + ", " + z + ")"));
+        }
+    }
+
+    @Test
+    void aTurnedSeatGetsBothLightLayersUnderTheSentMasks() {
+        for (FoldOrientation orientation : FoldOrientation.values()) {
+            if (orientation.isIdentity()) {
+                continue;
+            }
+
+            ClientboundLightUpdatePacketData sent = sentLight();
+            ClientboundLightUpdatePacketData turned = TurnedChunkData.turned(sent, orientation);
+            int[] seats = orientation.localIndexTable(BLOCK_WIDTH);
+
+            assertEquals(sent.getSkyYMask(), turned.getSkyYMask(), orientation + " changed the sky mask");
+            assertEquals(sent.getBlockYMask(), turned.getBlockYMask(), orientation + " changed the block mask");
+            assertEquals(sent.getEmptySkyYMask(), turned.getEmptySkyYMask(),
+                    orientation + " changed the empty sky mask");
+            assertEquals(sent.getEmptyBlockYMask(), turned.getEmptyBlockYMask(),
+                    orientation + " changed the empty block mask");
+            assertEquals(1, turned.getSkyUpdates().size(), orientation + " changed the sky layer count");
+            assertEquals(1, turned.getBlockUpdates().size(), orientation + " changed the block layer count");
+            assertArrayEquals(TurnedChunkData.lightLayer(lightLayer(0), seats), turned.getSkyUpdates().getFirst(),
+                    orientation + " misplaced the sky light");
+            assertArrayEquals(TurnedChunkData.lightLayer(lightLayer(BLOCK_LIGHT_SHIFT), seats),
+                    turned.getBlockUpdates().getFirst(), orientation + " misplaced the block light");
+        }
+    }
+
+    @Test
+    void anUprightSeatGetsTheSentLightItself() {
+        ClientboundLightUpdatePacketData sent = sentLight();
+        assertSame(sent, TurnedChunkData.turned(sent, FoldOrientation.IDENTITY));
+    }
+
+    private static byte[] biomeBuffer() {
+        List<PalettedContainerRO<Holder<Biome>>> sent =
+                List.of(mixedSection().getBiomes(), CONTAINERS.createForBiomes());
+        byte[] buffer = new byte[sent.stream().mapToInt(PalettedContainerRO::getSerializedSize).sum()];
+        FriendlyByteBuf output = new FriendlyByteBuf(Unpooled.wrappedBuffer(buffer).writerIndex(0));
+        sent.forEach(biomes -> biomes.write(output));
+        return buffer;
+    }
+
+    private static List<PalettedContainer<Holder<Biome>>> readBiomes(byte[] buffer) {
+        FriendlyByteBuf input = new FriendlyByteBuf(Unpooled.wrappedBuffer(buffer));
+        List<PalettedContainer<Holder<Biome>>> read = new ArrayList<>();
+        while (input.isReadable()) {
+            PalettedContainer<Holder<Biome>> biomes = CONTAINERS.createForBiomes();
+            biomes.read(input);
+            read.add(biomes);
+        }
+
+        return read;
+    }
+
+    @Test
+    void eachBiomeOfABiomeBufferLandsAtItsPermutedQuart() {
+        for (FoldOrientation orientation : FoldOrientation.values()) {
+            List<PalettedContainer<Holder<Biome>>> turned =
+                    readBiomes(TurnedChunkData.turnedBiomes(biomeBuffer(), orientation, () -> REGISTRIES));
+            assertEquals(SENT_SECTIONS, turned.size(), orientation + " changed the section count");
+            forEachCell(BIOME_WIDTH, (x, y, z) -> assertSame(
+                    biomeAt(x, y, z),
+                    turned.getFirst().get(orientation.applyToLocalX(x, z, BIOME_WIDTH), y,
+                            orientation.applyToLocalZ(x, z, BIOME_WIDTH)),
+                    orientation + " misplaced the biome of (" + x + ", " + y + ", " + z + ")"));
+        }
+    }
+
+    @Test
+    void anUprightSeatGetsTheSentBiomeBufferItself() {
+        byte[] sent = biomeBuffer();
+        assertSame(sent, TurnedChunkData.turnedBiomes(sent, FoldOrientation.IDENTITY, () -> {
+            throw new AssertionError("an upright seat asked for the registries");
+        }));
+    }
+
+    @Test
+    void eachSectionChangeLandsAtItsPermutedCellWithItsStateTurned() {
+        for (FoldOrientation orientation : FoldOrientation.values()) {
+            short[] positions = new short[BLOCK_WIDTH * BLOCK_WIDTH * BLOCK_WIDTH];
+            BlockState[] states = new BlockState[positions.length];
+            List<BlockPos> sent = new ArrayList<>();
+            forEachCell(BLOCK_WIDTH, (x, y, z) -> {
+                positions[sent.size()] = SectionPos.sectionRelativePos(new BlockPos(x, y, z));
+                states[sent.size()] = stateAt(x, y, z);
+                sent.add(new BlockPos(x, y, z));
+            });
+
+            TurnedChunkData.turnSectionChanges(positions, states, orientation);
+
+            for (int change = 0; change < positions.length; change++) {
+                BlockPos cell = sent.get(change);
+                BlockPos seat = new BlockPos(
+                        orientation.applyToLocalX(cell.getX(), cell.getZ(), BLOCK_WIDTH), cell.getY(),
+                        orientation.applyToLocalZ(cell.getX(), cell.getZ(), BLOCK_WIDTH));
+                assertEquals(SectionPos.sectionRelativePos(seat), positions[change],
+                        orientation + " misplaced the change of " + cell);
+                assertSame(orientation.applyToState(stateAt(cell.getX(), cell.getY(), cell.getZ())), states[change],
+                        orientation + " left the state of " + cell + " unturned");
             }
         }
     }
