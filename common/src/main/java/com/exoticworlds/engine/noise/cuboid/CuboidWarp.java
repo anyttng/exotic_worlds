@@ -3,30 +3,20 @@ package com.exoticworlds.engine.noise.cuboid;
 import java.util.List;
 
 import com.exoticworlds.core.CuboidAtlas;
-import com.exoticworlds.core.CuboidEdge;
 import com.exoticworlds.core.CuboidFace;
 import com.exoticworlds.core.SeamTransform;
+import com.exoticworlds.engine.noise.cuboid.CuboidCrossings.Crossing;
 
-import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 
 public final class CuboidWarp {
-    private static final int SIDES = 4;
-    private static final int WEST = 0;
-    private static final int EAST = 1;
-    private static final int NORTH = 2;
-    private static final int SOUTH = 3;
-
     private static final double INSIDE = 2.0;
 
     private static final int MOST_CROSSINGS = 64;
 
-    private record Crossing(int face, SeamTransform transform) {
-    }
-
     private final List<CuboidFace> faces;
 
-    private final Crossing[][] crossings;
+    private final CuboidCrossings crossings;
 
     private final CuboidOctaves shift;
 
@@ -34,7 +24,7 @@ public final class CuboidWarp {
 
     private final double largestBlocks;
 
-    private CuboidWarp(List<CuboidFace> faces, Crossing[][] crossings, CuboidOctaves shift, double shiftBlocks,
+    private CuboidWarp(List<CuboidFace> faces, CuboidCrossings crossings, CuboidOctaves shift, double shiftBlocks,
             double largestBlocks) {
         this.faces = faces;
         this.crossings = crossings;
@@ -44,36 +34,7 @@ public final class CuboidWarp {
     }
 
     public static CuboidWarp of(CuboidAtlas atlas, CuboidOctaves shift, double shiftBlocks, double largestBlocks) {
-        List<CuboidFace> faces = atlas.faces();
-        Crossing[][] crossings = new Crossing[faces.size()][SIDES];
-        for (CuboidEdge edge : atlas.edges()) {
-            int first = indexOf(faces, edge.first());
-            int second = indexOf(faces, edge.second());
-            crossings[first][sideOf(edge.firstSide())] = new Crossing(second, edge.transform());
-            crossings[second][sideOf(edge.secondSide())] = new Crossing(first, edge.transform().inverse());
-        }
-
-        return new CuboidWarp(faces, crossings, shift, shiftBlocks, largestBlocks);
-    }
-
-    private static int indexOf(List<CuboidFace> faces, CuboidFace.Side side) {
-        for (int i = 0; i < faces.size(); i++) {
-            if (faces.get(i).side() == side) {
-                return i;
-            }
-        }
-
-        throw new IllegalArgumentException("The atlas has no " + side + " face");
-    }
-
-    private static int sideOf(Direction side) {
-        return switch (side) {
-            case WEST -> WEST;
-            case EAST -> EAST;
-            case NORTH -> NORTH;
-            case SOUTH -> SOUTH;
-            default -> throw new IllegalArgumentException("A face has no " + side + " edge");
-        };
+        return new CuboidWarp(atlas.faces(), CuboidCrossings.of(atlas), shift, shiftBlocks, largestBlocks);
     }
 
     public float sample(CuboidOctaves field, int blockX, double y, int blockZ) {
@@ -101,9 +62,9 @@ public final class CuboidWarp {
             double exit = Math.min(exitX, exitZ);
             double crossX = startX + exit * (endX - startX);
             double crossZ = startZ + exit * (endZ - startZ);
-            Crossing crossing = this.crossings[atlasFace][exitX <= exitZ
-                    ? westOrEast(endX, face.minBlockX())
-                    : northOrSouth(endZ, face.minBlockZ())];
+            Crossing crossing = this.crossings.at(atlasFace, exitX <= exitZ
+                    ? CuboidCrossings.westOrEast(endX, face.minBlockX())
+                    : CuboidCrossings.northOrSouth(endZ, face.minBlockZ()));
             SeamTransform transform = crossing.transform();
             startX = transform.applyX(crossX, crossZ);
             startZ = transform.applyZ(crossX, crossZ);
@@ -133,13 +94,5 @@ public final class CuboidWarp {
 
         int max = min + size;
         return end > max ? Mth.clamp((max - start) / (end - start), 0.0, 1.0) : INSIDE;
-    }
-
-    private static int westOrEast(double endX, int minBlockX) {
-        return endX < minBlockX ? WEST : EAST;
-    }
-
-    private static int northOrSouth(double endZ, int minBlockZ) {
-        return endZ < minBlockZ ? NORTH : SOUTH;
     }
 }

@@ -8,6 +8,7 @@ import com.exoticworlds.core.NoiseShaping;
 import com.exoticworlds.core.NoiseShapings;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.cuboid.CuboidEndIslands;
 import com.exoticworlds.engine.noise.cuboid.CuboidOctaves;
 import com.exoticworlds.engine.noise.cuboid.CuboidSimplexStandIn;
 import com.exoticworlds.engine.noise.cuboid.CuboidWarp;
@@ -251,7 +252,16 @@ public final class FoldedSamplers {
     public static DensitySampler endIslands(FoldedCompileContext context) {
         RandomSource islandRandom = context.vanilla().createEndIslandRandom();
         islandRandom.consumeCount(END_ISLAND_RANDOM_SKIP);
-        return new EndIslandSampler(context.fold(), new SimplexNoise(islandRandom, true));
+        SimplexNoise islandNoise = new SimplexNoise(islandRandom, true);
+        WorldFold fold = context.fold();
+        CuboidAtlas atlas = fold.cuboidAtlas();
+        if (atlas != null) {
+            CuboidEndIslands islands = CuboidEndIslands.of(atlas);
+            return new EndIslandSampler((blockX, blockZ) -> islands.outerHeightValue(islandNoise, blockX, blockZ));
+        }
+
+        return new EndIslandSampler(
+                (blockX, blockZ) -> PeriodicEndIslands.outerHeightValue(islandNoise, fold, blockX, blockZ));
     }
 
     public static DensitySampler distanceToPoint(FoldedCompileContext context, Vec3i point, DistanceMetric metric) {
@@ -411,7 +421,12 @@ public final class FoldedSamplers {
         }
     }
 
-    private record EndIslandSampler(WorldFold fold, SimplexNoise islandNoise) implements DensitySampler {
+    @FunctionalInterface
+    private interface OuterIslands {
+        float heightValue(int blockX, int blockZ);
+    }
+
+    private record EndIslandSampler(OuterIslands islands) implements DensitySampler {
         @Override
         public void sampleVolume(SamplerContext context, DensityBuffer outputBuffer, DensityVolume volume) {
             for (int z = 0; z < volume.sizeZ(); z++) {
@@ -425,8 +440,7 @@ public final class FoldedSamplers {
 
         @Override
         public float sampleValue(SamplerContext context, int blockX, int blockY, int blockZ) {
-            return PeriodicEndIslands.density(
-                    PeriodicEndIslands.outerHeightValue(this.islandNoise, this.fold, blockX, blockZ));
+            return PeriodicEndIslands.density(this.islands.heightValue(blockX, blockZ));
         }
     }
 
