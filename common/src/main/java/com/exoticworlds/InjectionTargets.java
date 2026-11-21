@@ -67,6 +67,10 @@ public final class InjectionTargets {
     public static final String ITEM_STACK_GET =
             "Lnet/minecraft/world/item/ItemStack;get(Lnet/minecraft/core/component/DataComponentType;)Ljava/lang/Object;";
 
+    public static final String LEVEL_CHUNK_GET_HEIGHT =
+            "Lnet/minecraft/world/level/chunk/LevelChunk;"
+                    + "getHeight(Lnet/minecraft/world/level/levelgen/Heightmap$Types;II)I";
+
     public static final String LEVEL_GET_BLOCK_STATE =
             "Lnet/minecraft/world/level/Level;getBlockState(Lnet/minecraft/core/BlockPos;)"
                     + "Lnet/minecraft/world/level/block/state/BlockState;";
