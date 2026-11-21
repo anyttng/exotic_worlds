@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.BiomeZoomOwner;
+import com.exoticworlds.core.FoldOrientation;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedQuart;
@@ -106,8 +107,12 @@ public class BiomeManagerMixin implements BiomeZoomOwner {
             int cornerY = yEven ? parentY : parentY + 1;
             int cornerZ = zEven ? parentZ : parentZ + 1;
             long folded = FoldedQuart.fold(fold, cornerX, cornerY, cornerZ);
+            FoldOrientation orientation = FoldedQuart.orientation(fold, cornerX, cornerY, cornerZ);
+            double distanceX = xEven ? fractX : fractX - 1.0;
+            double distanceZ = zEven ? fractZ : fractZ - 1.0;
             double next = getFiddledDistance(this.biomeZoomSeed, FoldedQuart.x(folded), cornerY, FoldedQuart.z(folded),
-                    xEven ? fractX : fractX - 1.0, yEven ? fractY : fractY - 1.0, zEven ? fractZ : fractZ - 1.0);
+                    FoldedQuart.distanceX(orientation, distanceX, distanceZ), yEven ? fractY : fractY - 1.0,
+                    FoldedQuart.distanceZ(orientation, distanceX, distanceZ));
             if (minFiddledDistance > next) {
                 minI = i;
                 minFiddledDistance = next;

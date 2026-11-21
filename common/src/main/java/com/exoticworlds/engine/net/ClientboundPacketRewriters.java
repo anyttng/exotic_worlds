@@ -224,7 +224,8 @@ final class ClientboundPacketRewriters {
     }
 
     static ClientboundBlockUpdatePacket blockUpdate(ClientboundBlockUpdatePacket packet, TranslationContext context) {
-        return new ClientboundBlockUpdatePacket(context.toClient(packet.getPos()), packet.getBlockState());
+        BlockSeat seat = BlockSeat.of(context, packet.getPos());
+        return new ClientboundBlockUpdatePacket(seat.pos(), seat.orientation().applyToState(packet.getBlockState()));
     }
 
     static ClientboundSectionBlocksUpdatePacket sectionBlocksUpdate(ClientboundSectionBlocksUpdatePacket packet, TranslationContext context) {
@@ -247,7 +248,9 @@ final class ClientboundPacketRewriters {
     }
 
     static ClientboundAddTransientBlockPacket addTransientBlock(ClientboundAddTransientBlockPacket packet, TranslationContext context) {
-        return new ClientboundAddTransientBlockPacket(context.toClient(packet.getPos()), packet.getBlockState());
+        BlockSeat seat = BlockSeat.of(context, packet.getPos());
+        return new ClientboundAddTransientBlockPacket(
+                seat.pos(), seat.orientation().applyToState(packet.getBlockState()));
     }
 
     static ClientboundBlockDestructionPacket blockDestruction(ClientboundBlockDestructionPacket packet, TranslationContext context) {
@@ -256,8 +259,11 @@ final class ClientboundPacketRewriters {
     }
 
     static ClientboundLevelEventPacket levelEvent(ClientboundLevelEventPacket packet, TranslationContext context) {
+        BlockSeat seat = BlockSeat.of(context, packet.getPos());
         return new ClientboundLevelEventPacket(
-                packet.getType(), context.toClient(packet.getPos()), packet.getData(), packet.isGlobalEvent());
+                packet.getType(), seat.pos(),
+                EventDirections.turnedLevelEventData(packet.getType(), packet.getData(), seat.orientation()),
+                packet.isGlobalEvent());
     }
 
     static ClientboundSetEntityDataPacket setEntityData(ClientboundSetEntityDataPacket packet, TranslationContext context) {
@@ -308,8 +314,11 @@ final class ClientboundPacketRewriters {
     }
 
     static ClientboundBlockEventPacket blockEvent(ClientboundBlockEventPacket packet, TranslationContext context) {
+        BlockSeat seat = BlockSeat.of(context, packet.getPos());
         return new ClientboundBlockEventPacket(
-                context.toClient(packet.getPos()), packet.getBlock(), packet.getB0(), packet.getB1());
+                seat.pos(), packet.getBlock(), packet.getB0(),
+                EventDirections.turnedBlockEventData(
+                        packet.getBlock(), packet.getB0(), packet.getB1(), seat.orientation()));
     }
 
     static ClientboundOpenSignEditorPacket openSignEditor(ClientboundOpenSignEditorPacket packet, TranslationContext context) {
