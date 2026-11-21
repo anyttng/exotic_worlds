@@ -6,6 +6,8 @@ import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.engine.noise.BlendedNoiseFixture.Octave;
 import com.exoticworlds.engine.noise.LayeredNoise.CorrectedGrids;
+import com.exoticworlds.engine.noise.periodic.LapFloor;
+import com.exoticworlds.engine.noise.periodic.OctaveVarianceCorrection;
 import static com.exoticworlds.engine.noise.BlendedNoiseFixture.mix;
 import static com.exoticworlds.engine.noise.BlendedNoiseFixture.sample;
 import static com.exoticworlds.engine.noise.LayeredNoise.Stats.variance;

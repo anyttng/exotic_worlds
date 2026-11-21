@@ -1,8 +1,12 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.periodic;
 
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.NoiseFrame;
+import com.exoticworlds.engine.noise.PerlinMath;
+import com.exoticworlds.engine.noise.SlotAxes;
+import com.exoticworlds.engine.noise.SlotAxis;
 
 import net.minecraft.world.level.levelgen.synth.GradientNoise;
 import net.minecraft.world.level.levelgen.synth.Noise;
@@ -11,7 +15,9 @@ import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import net.minecraft.world.level.levelgen.synth.SmearedPerlinNoise;
 
 public final class PeriodicOctaveSampler {
-    static PeriodicOctaves compile(WorldFold fold, NoiseFrame frame, double scale,
+    private static final String NOT_PERLIN_LEAF = "Periodic octaves sample Perlin leaves only, got ";
+
+    public static PeriodicOctaves compile(WorldFold fold, NoiseFrame frame, double scale,
             double @Nullable [] layerFactors, NoiseStack stack) {
         LapFloor floor = LapFloor.of(fold);
         NoiseStack.Layer[] layers = stack.layers;
@@ -45,7 +51,7 @@ public final class PeriodicOctaveSampler {
         if (leaf.getClass() == PerlinNoise.class) {
             PerlinNoise perlin = (PerlinNoise) leaf;
             return PeriodicNoiseSampler.lattice(perlin.perms, perlin.offsetX, perlin.offsetY, perlin.offsetZ,
-                    PeriodicNoiseSampler.NO_FUDGE, fold, frame, layerScale, floor);
+                    PerlinMath.NO_FUDGE, fold, frame, layerScale, floor);
         }
 
         if (leaf.getClass() == SmearedPerlinNoise.class) {
@@ -54,8 +60,7 @@ public final class PeriodicOctaveSampler {
                     smeared.fudgeYScale, fold, frame, layerScale, floor);
         }
 
-        throw new IllegalArgumentException("Periodic octaves sample Perlin leaves only, got "
-                + leaf.getClass().getName());
+        throw new IllegalArgumentException(NOT_PERLIN_LEAF + leaf.getClass().getName());
     }
 
     private static double slotInput(SlotAxis axis, double coord, double frequency) {

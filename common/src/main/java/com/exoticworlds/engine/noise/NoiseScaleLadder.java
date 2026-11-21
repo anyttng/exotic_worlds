@@ -10,6 +10,7 @@ import java.util.TreeSet;
 
 import com.exoticworlds.core.DensityFunctionNodes;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.periodic.LapFloor;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;

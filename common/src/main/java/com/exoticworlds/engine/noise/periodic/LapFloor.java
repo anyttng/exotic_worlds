@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.periodic;
 
 import com.exoticworlds.core.WorldFold;
 
@@ -7,7 +7,7 @@ public enum LapFloor {
     TWO_CELLS(2L),
     HELD(PeriodicNoiseSampler.HELD_PERIOD);
 
-    final long period;
+    public final long period;
 
     LapFloor(long period) {
         this.period = period;

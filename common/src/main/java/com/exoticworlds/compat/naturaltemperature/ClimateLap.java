@@ -14,7 +14,7 @@ import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.engine.noise.PeriodicNoiseSampler;
+import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
 import com.naturaltemperature.ModConfig;
 import com.naturaltemperature.NaturalTemperature;
 

@@ -13,9 +13,10 @@ import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.engine.noise.periodic.SimplexSlot;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

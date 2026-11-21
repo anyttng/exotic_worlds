@@ -1,6 +1,7 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.periodic;
 
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.PerlinMath;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.synth.NoiseStack;
@@ -38,7 +39,7 @@ public final class PeriodicSimplexSampler {
         return sample(slot.lattice(fold, scale), noise, x, z);
     }
 
-    static float sample(SimplexLattice lattice, SimplexNoise noise, double x, double z) {
+    public static float sample(SimplexLattice lattice, SimplexNoise noise, double x, double z) {
         return (float) lattice.sample(noise.perms, noise.offsetX, noise.offsetY, x, z);
     }
 
@@ -135,7 +136,7 @@ public final class PeriodicSimplexSampler {
         }
 
         falloff *= falloff;
-        int[] gradient = PeriodicNoiseSampler.GRADIENT[gradientIndex];
+        int[] gradient = PerlinMath.gradient(gradientIndex);
         return falloff * falloff * (gradient[0] * x + gradient[1] * z);
     }
 
