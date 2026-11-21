@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.check;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -16,6 +16,7 @@ import com.exoticworlds.accessors.PeriodicityMark;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.BlockPos;

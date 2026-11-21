@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.CarverRecording;
+import com.exoticworlds.engine.noise.check.CarverRecording;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 

@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.check;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -12,6 +12,8 @@ import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.InterpretedDensity;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.DensityChildren;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.mixin.BiomeSourceAccessor;
 
 import net.minecraft.core.Direction;
