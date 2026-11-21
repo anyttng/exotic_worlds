@@ -12,6 +12,7 @@ import java.util.function.UnaryOperator;
 import com.exoticworlds.accessors.ChunkPacketCopy;
 import com.exoticworlds.accessors.ChunkPacketPosition;
 import com.exoticworlds.api.v1.net.ParticleRewriter;
+import com.exoticworlds.core.FoldOrientation;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.SeamDelta;
 import com.exoticworlds.engine.seam.ClientPosition;
@@ -48,6 +49,7 @@ import net.minecraft.network.protocol.game.ClientboundDamageEventPacket;
 import net.minecraft.network.protocol.game.ClientboundEntityPositionSyncPacket;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
+import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.network.protocol.game.ClientboundMoveMinecartPacket;
@@ -95,9 +97,27 @@ final class ClientboundPacketRewriters {
 
     private static final int DEFAULT_BUFFER_CAPACITY = 256;
 
-    static Packet<?> chunkPosition(Packet<?> packet, int x, int z, TranslationContext context) {
-        ChunkPos clientPos = context.toClient(new ChunkPos(x, z));
+    static Packet<?> levelChunk(ClientboundLevelChunkWithLightPacket packet, TranslationContext context) {
+        ChunkPos serverPos = new ChunkPos(packet.getX(), packet.getZ());
+        ChunkPos clientPos = context.toClient(serverPos);
+        FoldOrientation orientation = context.fold().deckTransformation(serverPos, clientPos).orientation();
+        if (orientation.isIdentity()) {
+            return movedCopy(packet, clientPos);
+        }
 
+        RegistryFriendlyByteBuf target = buffer(context);
+        target.writeInt(clientPos.x());
+        target.writeInt(clientPos.z());
+        TurnedChunkData.turned(packet.getChunkData(), orientation, target::registryAccess).write(target);
+        packet.getLightData().write(target);
+        return ClientboundLevelChunkWithLightPacket.STREAM_CODEC.decode(target);
+    }
+
+    static Packet<?> chunkPosition(Packet<?> packet, int x, int z, TranslationContext context) {
+        return movedCopy(packet, context.toClient(new ChunkPos(x, z)));
+    }
+
+    private static Packet<?> movedCopy(Packet<?> packet, ChunkPos clientPos) {
         Packet<?> copy = ((ChunkPacketCopy) packet).exotic_worlds$copy();
         ChunkPacketPosition accessor = (ChunkPacketPosition) copy;
         accessor.exotic_worlds$setX(clientPos.x());
