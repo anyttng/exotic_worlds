@@ -1,6 +1,7 @@
 package com.exoticworlds.engine.net;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -58,6 +59,7 @@ import net.minecraft.network.protocol.game.ClientboundMoveVehiclePacket;
 import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerRotationPacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheCenterPacket;
 import net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket;
@@ -150,24 +152,71 @@ final class ClientboundPacketRewriters {
 
         PositionMoveRotation change = packet.change();
         Vec3 position = change.position();
+        Set<Relative> relatives = packet.relatives();
+        WorldFold fold = context.fold();
 
         Vec3 mirror = new Vec3(clientPosition.x(), 0.0, clientPosition.z());
-        Vec3 clientDestination = clientPosition.destinationOf(context.fold(), position, packet.relatives());
+        FoldOrientation standing = clientPosition.orientation(fold);
+        Vec3 clientDestination = clientPosition.destinationOf(fold, position, relatives);
+        FoldOrientation arriving = relatives.contains(Relative.X) || relatives.contains(Relative.Z)
+                ? standing
+                : ClientPosition.orientationAt(fold, clientDestination);
         clientPosition.set(clientDestination.x, clientDestination.z, MirrorWriter.POSITION_PACKET);
 
-        Vec3 sentPosition = sentPosition(context.fold(), position, packet.relatives(), clientDestination, mirror);
+        Vec3 sentPosition = sentPosition(fold, position, relatives, clientDestination, mirror, standing);
+        FoldOrientation ofYaw = relatives.contains(Relative.Y_ROT) ? standing : arriving;
+        FoldOrientation ofMovement = relativeMovement(relatives) ? standing : arriving;
         return new ClientboundPlayerPositionPacket(
                 packet.id(),
-                new PositionMoveRotation(sentPosition, change.deltaMovement(), change.yRot(), change.xRot()),
-                packet.relatives());
+                new PositionMoveRotation(
+                        sentPosition,
+                        ofMovement.applyToDelta(change.deltaMovement()),
+                        relatives.contains(Relative.Y_ROT)
+                                ? ofYaw.applyToYawChange(change.yRot())
+                                : ofYaw.applyToYaw(change.yRot()),
+                        change.xRot()),
+                movementRelatives(relatives, ofMovement));
+    }
+
+    private static boolean relativeMovement(Set<Relative> relatives) {
+        return relatives.contains(Relative.DELTA_X) || relatives.contains(Relative.DELTA_Z);
+    }
+
+    private static Set<Relative> movementRelatives(Set<Relative> relatives, FoldOrientation orientation) {
+        boolean keepsX = relatives.contains(Relative.DELTA_X);
+        boolean keepsZ = relatives.contains(Relative.DELTA_Z);
+        if (!orientation.swapsAxes() || keepsX == keepsZ) {
+            return relatives;
+        }
+
+        Set<Relative> swapped = EnumSet.copyOf(relatives);
+        swapped.remove(keepsX ? Relative.DELTA_X : Relative.DELTA_Z);
+        swapped.add(keepsX ? Relative.DELTA_Z : Relative.DELTA_X);
+        return swapped;
+    }
+
+    static Packet<?> playerRotation(ClientboundPlayerRotationPacket packet, TranslationContext context) {
+        ClientPosition clientPosition = context.clientPosition();
+        if (!clientPosition.describes(context.dimension())) {
+            return packet;
+        }
+
+        FoldOrientation standing = clientPosition.orientation(context.fold());
+        if (standing.isIdentity()) {
+            return packet;
+        }
+
+        return new ClientboundPlayerRotationPacket(
+                packet.relativeY() ? standing.applyToYawChange(packet.yRot()) : standing.applyToYaw(packet.yRot()),
+                packet.relativeY(), packet.xRot(), packet.relativeX());
     }
 
     private static Vec3 sentPosition(WorldFold fold, Vec3 position, Set<Relative> relatives, Vec3 clientDestination,
-            Vec3 mirror) {
+            Vec3 mirror, FoldOrientation standing) {
         boolean relativeX = relatives.contains(Relative.X);
         boolean relativeZ = relatives.contains(Relative.Z);
         return relativeX && relativeZ
-                ? SeamDelta.fold(fold, position)
+                ? standing.applyToDelta(SeamDelta.fold(fold, position))
                 : new Vec3(
                         relativeX ? clientDestination.x - mirror.x : clientDestination.x,
                         position.y,
@@ -211,7 +260,8 @@ final class ClientboundPacketRewriters {
     static Packet<?> moveVehicle(ClientboundMoveVehiclePacket packet, TranslationContext context) {
         PositionAndRotation movingTo = packet.movingTo();
         Vec3 clientPos = context.toClient(movingTo.position(), context.trackedReach());
-        return new ClientboundMoveVehiclePacket(PositionAndRotation.of(clientPos, movingTo.yRot(), movingTo.xRot()));
+        float clientYaw = ClientPosition.orientationAt(context.fold(), clientPos).applyToYaw(movingTo.yRot());
+        return new ClientboundMoveVehiclePacket(PositionAndRotation.of(clientPos, clientYaw, movingTo.xRot()));
     }
 
     private static PositionMoveRotation toClientChange(TranslationContext context, PositionMoveRotation change, Set<Relative> relatives) {

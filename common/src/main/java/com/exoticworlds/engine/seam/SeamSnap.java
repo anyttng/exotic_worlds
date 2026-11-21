@@ -4,12 +4,14 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.NavigationShifter;
 import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.FoldOrientation;
 import com.exoticworlds.core.SeamTransform;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.mixin.EntityAccessor;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.decoration.BlockAttachedEntity;
 import net.minecraft.world.phys.Vec3;
@@ -31,6 +33,7 @@ public final class SeamSnap {
         Vec3 to = lap.apply(from);
         moveBody(entity, lap, to);
         moveHistory(entity, lap);
+        turnHeading(entity, lap.orientation());
         if (entity instanceof Mob mob) {
             shiftNavigation(mob, (int) Math.round(to.x - from.x), (int) Math.round(to.z - from.z));
         }
@@ -66,6 +69,22 @@ public final class SeamSnap {
         @Nullable Vec3 known = stored.exotic_worlds$lastKnownPosition();
         if (known != null) {
             stored.exotic_worlds$setLastKnownPosition(lap.apply(known));
+        }
+    }
+
+    private static void turnHeading(Entity entity, FoldOrientation orientation) {
+        if (orientation.isIdentity()) {
+            return;
+        }
+
+        entity.setDeltaMovement(orientation.applyToDelta(entity.getDeltaMovement()));
+        entity.setYRot(orientation.applyToYaw(entity.getYRot()));
+        entity.yRotO = orientation.applyToYaw(entity.yRotO);
+        if (entity instanceof LivingEntity living) {
+            living.yHeadRot = orientation.applyToYaw(living.yHeadRot);
+            living.yHeadRotO = orientation.applyToYaw(living.yHeadRotO);
+            living.yBodyRot = orientation.applyToYaw(living.yBodyRot);
+            living.yBodyRotO = orientation.applyToYaw(living.yBodyRotO);
         }
     }
 
