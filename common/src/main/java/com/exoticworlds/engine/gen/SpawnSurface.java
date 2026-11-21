@@ -24,10 +24,6 @@ final class SpawnSurface {
 
     private final CuboidStraightWalk walk;
 
-    private int walkedPoints;
-
-    private int offNetPoints;
-
     private SpawnSurface(WorldFold fold, CuboidAtlas atlas) {
         this.fold = fold;
         this.faces = atlas.faces();
@@ -41,11 +37,6 @@ final class SpawnSurface {
 
     BlockPos walked(BlockPos searchOrigin, int blockX, int blockZ) {
         BlockPos.MutableBlockPos landed = new BlockPos.MutableBlockPos(blockX, searchOrigin.getY(), blockZ);
-        this.walkedPoints++;
-        if (!isOnFace(blockX, blockZ)) {
-            this.offNetPoints++;
-        }
-
         int startFace = faceAt(searchOrigin.getX(), searchOrigin.getZ());
         if (startFace == NO_FACE) {
             return landed;
@@ -64,18 +55,6 @@ final class SpawnSurface {
 
     BlockPos nearestTo(SpawnPoint point, int blockX, int blockZ) {
         return this.fold.nearestCopy(new BlockPos(point.blockX(), 0, point.blockZ()), new BlockPos(blockX, 0, blockZ));
-    }
-
-    boolean isOnFace(int blockX, int blockZ) {
-        return faceAt(blockX, blockZ) != NO_FACE;
-    }
-
-    int walkedPoints() {
-        return this.walkedPoints;
-    }
-
-    int offNetPoints() {
-        return this.offNetPoints;
     }
 
     private int faceAt(int blockX, int blockZ) {

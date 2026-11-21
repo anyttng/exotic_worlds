@@ -2,7 +2,6 @@ package com.exoticworlds.engine.gen;
 
 import java.util.function.Supplier;
 
-import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.engine.ThreadScope;
@@ -22,16 +21,7 @@ public final class SpawnSearch {
     }
 
     public static BlockPos overSurface(ChunkGenerator generator, Supplier<BlockPos> search) {
-        SpawnSurface surface = SpawnSurface.of(ShapedChunkGenerator.foldOf(generator));
-        BlockPos found = SURFACE.with(surface, search);
-        if (surface != null) {
-            ExoticWorlds.LOGGER.info(
-                    "[ew/spawn] surface_search block_x={} block_z={} on_face={} walked_points={} off_net_points={}",
-                    found.getX(), found.getZ(), surface.isOnFace(found.getX(), found.getZ()),
-                    surface.walkedPoints(), surface.offNetPoints());
-        }
-
-        return found;
+        return SURFACE.with(SpawnSurface.of(ShapedChunkGenerator.foldOf(generator)), search);
     }
 
     public static SpawnPoint bound() {

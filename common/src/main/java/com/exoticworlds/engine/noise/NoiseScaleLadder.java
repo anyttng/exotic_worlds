@@ -99,10 +99,6 @@ public final class NoiseScaleLadder {
         return separated.isEmpty() ? NONE : new NoiseScaleLadder(Map.copyOf(separated));
     }
 
-    public int separatedNoises() {
-        return this.separated.size();
-    }
-
     public double separated(Holder<NormalNoise> noise, double xzScale) {
         Map<Double, Double> rungs = this.separated.get(noise);
         if (rungs == null) {

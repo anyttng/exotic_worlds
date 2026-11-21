@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.CoastLiftCache;
 import com.exoticworlds.accessors.FoldedClimateSampler;
 import com.exoticworlds.accessors.FoldedCompileSource;
@@ -98,12 +97,7 @@ public class RandomStateMixin implements CoastLiftCache, FoldSource, FoldedRando
         this.exotic_worlds$fold = fold;
         if (fold != null) {
             this.exotic_worlds$baseHeights = new BaseHeights(fold);
-            boolean hooksRan = GenerationMoments.runAtRandomState((RandomState) (Object) this, fold, seaLevel);
-            FoldedCompileContext compiled = this.exotic_worlds$compileContext;
-            ExoticWorlds.LOGGER.info("[ew/noise] random_state_built fold={} ladder_noises={} hooks={}",
-                    fold.getClass().getSimpleName(),
-                    compiled == null ? "none" : compiled.ladder().separatedNoises(),
-                    hooksRan ? "run" : "skipped");
+            GenerationMoments.runAtRandomState((RandomState) (Object) this, fold, seaLevel);
         }
     }
 
