@@ -252,6 +252,7 @@
     "ShulkerBulletMixin",
     "SignFacingMixin",
     "SimplexNoiseAccessor",
+    "SkyLightEmptySectionStepMixin",
     "SleepInBedMixin",
     "SnifferMixin",
     "SocializeAtBellMixin",
