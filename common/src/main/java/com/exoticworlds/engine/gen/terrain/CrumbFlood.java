@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.gen;
+package com.exoticworlds.engine.gen.terrain;
 
 import java.util.Arrays;
 import java.util.List;

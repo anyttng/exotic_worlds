@@ -9,7 +9,7 @@ import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 import net.minecraft.world.level.levelgen.synth.Noise;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
-final class CompiledDensity {
+public final class CompiledDensity {
     private static final String NOISELESS = "a noiseless density function draws no noise and no random";
 
     private static final DensityFunction.CompileContext NOISELESS_CONTEXT = new DensityFunction.CompileContext() {
@@ -30,7 +30,7 @@ final class CompiledDensity {
         }
     };
 
-    static float valueAt(DensityFunction function, int blockX, int blockY, int blockZ) {
+    public static float valueAt(DensityFunction function, int blockX, int blockY, int blockZ) {
         return new DensityFunctionCompiler(NOISELESS_CONTEXT).getSampler(function)
                 .sampleValue(SamplerContext.EMPTY_UNCACHED, blockX, blockY, blockZ);
     }

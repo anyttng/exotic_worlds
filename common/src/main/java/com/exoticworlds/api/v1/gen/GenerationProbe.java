@@ -4,9 +4,9 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.gen.FloatingCrumbs;
+import com.exoticworlds.engine.gen.terrain.FloatingCrumbs;
+import com.exoticworlds.engine.gen.terrain.TerrainCeiling;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.engine.noise.TerrainCeiling;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;

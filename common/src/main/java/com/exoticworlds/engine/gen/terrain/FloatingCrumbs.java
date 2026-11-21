@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.gen;
+package com.exoticworlds.engine.gen.terrain;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +15,6 @@ import com.exoticworlds.accessors.TerrainMaskHolder;
 import com.exoticworlds.api.v1.gen.TerrainSnapshot;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.engine.noise.TerrainCeiling;
 
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 
