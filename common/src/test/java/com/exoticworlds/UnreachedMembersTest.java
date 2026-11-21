@@ -74,7 +74,6 @@ class UnreachedMembersTest {
             "compat.gate.ModPresence.optional",
             "core.CuboidAtlas.of",
             "core.CuboidFace.boxPoint",
-            "core.FoldOrientation.localIndexTable",
             "core.FoldOrientation.stateMirror",
             "core.FoldOrientation.stateRotation");
     private static final Set<String> READ_BY_HARNESS = Set.of(
