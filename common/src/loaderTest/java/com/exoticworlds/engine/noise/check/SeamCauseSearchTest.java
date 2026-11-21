@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.check;
 
 import static com.exoticworlds.engine.noise.ClimateScanFixture.SEED_BASE;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.biomeSource;
@@ -22,6 +22,7 @@ import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.engine.noise.ClimateScanFixture;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;

@@ -24,7 +24,7 @@ import com.exoticworlds.engine.fold.SeamEntitySearch;
 import com.exoticworlds.engine.gen.FloatingCrumbs;
 import com.exoticworlds.engine.gen.TerrainMasks;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.engine.noise.SeamVerdict;
+import com.exoticworlds.engine.noise.check.SeamVerdict;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
