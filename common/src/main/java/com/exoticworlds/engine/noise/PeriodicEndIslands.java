@@ -8,14 +8,14 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 
 public final class PeriodicEndIslands {
-    private static final int SECTION_WIDTH = 8;
+    public static final int SECTION_WIDTH = 8;
     private static final int SECTIONS_PER_CHUNK = 2;
 
     private static final float ISLAND_PEAK_HEIGHT = 100.0F;
-    private static final float MIN_HEIGHT_VALUE = -100.0F;
+    public static final float MIN_HEIGHT_VALUE = -100.0F;
     private static final float MAX_HEIGHT_VALUE = 80.0F;
 
-    private static final int ISLAND_SEARCH_CHUNK_REACH = 12;
+    public static final int ISLAND_SEARCH_CHUNK_REACH = 12;
     private static final long OUTER_ISLAND_MIN_CHUNK_DISTANCE_SQUARED = 4096L;
     private static final float ISLAND_NOISE_THRESHOLD = -0.9F;
 
@@ -40,20 +40,27 @@ public final class PeriodicEndIslands {
             for (int zo = -ISLAND_SEARCH_CHUNK_REACH; zo <= ISLAND_SEARCH_CHUNK_REACH; zo++) {
                 long cellX = lattice.foldX(chunkX + xo, chunkZ + zo);
                 long cellZ = lattice.foldZ(chunkZ + zo);
-                if (cellX * cellX + cellZ * cellZ > OUTER_ISLAND_MIN_CHUNK_DISTANCE_SQUARED
-                        && islandNoise.get((double) cellX, (double) cellZ) < ISLAND_NOISE_THRESHOLD) {
-                    float islandSize = (Mth.abs((float) cellX) * ISLAND_SIZE_X_FACTOR
-                            + Mth.abs((float) cellZ) * ISLAND_SIZE_Z_FACTOR) % ISLAND_SIZE_SPREAD + ISLAND_SIZE_MIN;
+                if (hostsIsland(islandNoise, cellX, cellZ)) {
                     float xd = subSectionX - xo * SECTIONS_PER_CHUNK;
                     float zd = subSectionZ - zo * SECTIONS_PER_CHUNK;
-                    float newHeight = Mth.clamp(ISLAND_PEAK_HEIGHT - Mth.sqrt(xd * xd + zd * zd) * islandSize,
-                            MIN_HEIGHT_VALUE, MAX_HEIGHT_VALUE);
-                    height = Math.max(height, newHeight);
+                    height = Math.max(height, islandHeightValue(cellX, cellZ, xd, zd));
                 }
             }
         }
 
         return height;
+    }
+
+    public static boolean hostsIsland(SimplexNoise islandNoise, long cellX, long cellZ) {
+        return cellX * cellX + cellZ * cellZ > OUTER_ISLAND_MIN_CHUNK_DISTANCE_SQUARED
+                && islandNoise.get((double) cellX, (double) cellZ) < ISLAND_NOISE_THRESHOLD;
+    }
+
+    public static float islandHeightValue(long cellX, long cellZ, float sectionsX, float sectionsZ) {
+        float islandSize = (Mth.abs((float) cellX) * ISLAND_SIZE_X_FACTOR
+                + Mth.abs((float) cellZ) * ISLAND_SIZE_Z_FACTOR) % ISLAND_SIZE_SPREAD + ISLAND_SIZE_MIN;
+        return Mth.clamp(ISLAND_PEAK_HEIGHT - Mth.sqrt(sectionsX * sectionsX + sectionsZ * sectionsZ) * islandSize,
+                MIN_HEIGHT_VALUE, MAX_HEIGHT_VALUE);
     }
 
     public static float density(float heightValue) {
