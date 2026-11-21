@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.gen.terrain;
 
 import java.util.ArrayDeque;
 import java.util.Collections;

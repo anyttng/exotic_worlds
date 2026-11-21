@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.gen.terrain;
 
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;

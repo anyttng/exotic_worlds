@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Unique;
 import com.exoticworlds.accessors.FramedStructureStart;
 import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.gen.MovedStructureStart;
+import com.exoticworlds.engine.gen.structure.MovedStructureStart;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 

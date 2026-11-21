@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.gen;
+package com.exoticworlds.engine.gen.structure;
 
 import java.util.List;
 import java.util.function.Function;

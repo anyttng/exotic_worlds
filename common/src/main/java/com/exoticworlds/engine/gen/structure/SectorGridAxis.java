@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.gen;
+package com.exoticworlds.engine.gen.structure;
 
 import com.exoticworlds.core.WrapDomain;
 

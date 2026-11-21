@@ -16,7 +16,7 @@ import com.exoticworlds.accessors.AddedStartsHolder;
 import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.engine.gen.AddedStructureStarts;
+import com.exoticworlds.engine.gen.structure.AddedStructureStarts;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;

@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.gen;
+package com.exoticworlds.engine.gen.structure;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
