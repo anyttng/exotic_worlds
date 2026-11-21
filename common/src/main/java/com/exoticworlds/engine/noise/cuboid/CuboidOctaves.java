@@ -114,8 +114,12 @@ public final class CuboidOctaves implements CompiledOctaves {
     }
 
     int faceAt(int blockX, int blockZ) {
-        for (int i = 0; i < this.faces.size(); i++) {
-            if (this.faces.get(i).contains(blockX, blockZ)) {
+        return faceAt(this.faces, blockX, blockZ);
+    }
+
+    static int faceAt(List<CuboidFace> faces, int blockX, int blockZ) {
+        for (int i = 0; i < faces.size(); i++) {
+            if (faces.get(i).contains(blockX, blockZ)) {
                 return i;
             }
         }

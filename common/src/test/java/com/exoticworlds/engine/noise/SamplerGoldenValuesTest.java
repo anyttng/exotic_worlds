@@ -19,7 +19,6 @@ import com.exoticworlds.engine.noise.periodic.LapFloor;
 import com.exoticworlds.engine.noise.periodic.PeriodicLattice;
 import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
 import com.exoticworlds.engine.noise.periodic.SimplexLattice;
-import com.exoticworlds.engine.noise.periodic.SimplexSlot;
 
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;

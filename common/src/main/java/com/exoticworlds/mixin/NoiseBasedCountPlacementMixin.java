@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Unique;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.FoldedPlacementCounts;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.engine.noise.periodic.SimplexSlot;
+import com.exoticworlds.engine.noise.SimplexSlot;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
