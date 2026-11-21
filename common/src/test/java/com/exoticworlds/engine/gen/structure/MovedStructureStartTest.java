@@ -28,6 +28,28 @@ class MovedStructureStartTest {
     }
 
     @Test
+    void aClockwiseTurnCarriesAJunctionToItsTurnedCell() {
+        JigsawJunction junction = new JigsawJunction(500, 70, -20, 3, StructureTemplatePool.Projection.RIGID);
+        DeckTransformation turn = new DeckTransformation(new SeamTransform(-1, 1, WIDTH, -WIDTH, true));
+
+        JigsawJunction moved = MovedStructureStart.movedJunction(junction, turn);
+
+        assertEquals(new JigsawJunction(20 + WIDTH - 1, 70, 500 - WIDTH, 3, StructureTemplatePool.Projection.RIGID),
+                moved);
+    }
+
+    @Test
+    void aCounterclockwiseTurnCarriesAJunctionToItsTurnedCell() {
+        JigsawJunction junction = new JigsawJunction(500, 70, -20, 3, StructureTemplatePool.Projection.RIGID);
+        DeckTransformation turn = new DeckTransformation(new SeamTransform(1, -1, WIDTH, -WIDTH, true));
+
+        JigsawJunction moved = MovedStructureStart.movedJunction(junction, turn);
+
+        assertEquals(new JigsawJunction(-20 + WIDTH, 70, -500 - WIDTH - 1, 3, StructureTemplatePool.Projection.RIGID),
+                moved);
+    }
+
+    @Test
     void theIdentityLeavesAJunctionWhereItWas() {
         JigsawJunction junction = new JigsawJunction(500, 70, -20, 3, StructureTemplatePool.Projection.TERRAIN_MATCHING);
 
