@@ -5,12 +5,15 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.exoticworlds.accessors.NavigationShifter;
+import com.exoticworlds.accessors.PathCarry;
+import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.SeamTransform;
+import com.exoticworlds.engine.seam.NavigationCarry;
 
 import net.minecraft.world.level.pathfinder.Node;
 
 @Mixin(Node.class)
-public class NodeMixin implements NavigationShifter {
+public class NodeMixin implements PathCarry {
     @Mutable
     @Shadow
     @Final
@@ -31,9 +34,12 @@ public class NodeMixin implements NavigationShifter {
     private int hash;
 
     @Override
-    public void exotic_worlds$shiftBy(int shiftX, int shiftZ) {
-        this.x += shiftX;
-        this.z += shiftZ;
+    public void exotic_worlds$carry(DeckTransformation lap, int footprint) {
+        SeamTransform move = lap.blockTransform();
+        int fromX = this.x;
+        int fromZ = this.z;
+        this.x = NavigationCarry.nodeX(move, fromX, fromZ, footprint);
+        this.z = NavigationCarry.nodeZ(move, fromX, fromZ, footprint);
         this.hash = Node.createHash(this.x, this.y, this.z);
     }
 }
