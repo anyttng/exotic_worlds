@@ -1,10 +1,16 @@
 package com.exoticworlds.engine.noise.cuboid;
 
+import static com.exoticworlds.core.CuboidFixtures.MIN_CHUNK_X;
+import static com.exoticworlds.core.CuboidFixtures.MIN_CHUNK_Z;
+import static com.exoticworlds.core.CuboidFixtures.acrossBlocks;
+import static com.exoticworlds.core.CuboidFixtures.atlases;
+import static com.exoticworlds.core.CuboidFixtures.carried;
+import static com.exoticworlds.core.CuboidFixtures.edgeBlocks;
+import static com.exoticworlds.core.CuboidFixtures.pointBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -15,14 +21,13 @@ import com.exoticworlds.core.CuboidAtlas;
 import com.exoticworlds.core.CuboidEdge;
 import com.exoticworlds.core.CuboidFace;
 import com.exoticworlds.core.CuboidFace.BoxVector;
+import com.exoticworlds.core.CuboidFixtures;
 import com.exoticworlds.core.CuboidVertex;
-import com.exoticworlds.core.SeamTransform;
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.CompiledOctaves;
 import com.exoticworlds.engine.noise.FoldedSamplers;
 import com.exoticworlds.engine.noise.NoiseFrame;
+import com.exoticworlds.engine.noise.cuboid.CuboidNoiseSampler.Part;
 
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.synth.GradientNoise;
 import net.minecraft.world.level.levelgen.synth.NoiseStack;
@@ -44,11 +49,6 @@ class CuboidNoiseSamplerTest {
     private static final double HEIGHT_SPAN = 8.0;
     private static final double NO_FUDGE = 0.0;
     private static final double COMPILED_SCALE = 0.25;
-    private static final int MIN_CHUNK_X = -3;
-    private static final int MIN_CHUNK_Z = 5;
-    private static final String ATLAS_MEMBER = "cuboidAtlas";
-
-    private static final int[][] CHUNK_SIZES = {{1, 1, 1}, {3, 5, 2}, {7, 1, 2}, {16, 24, 40}};
 
     private static final double[] SCALES = {0.01, 0.0625, 0.25, 1.17};
 
@@ -57,8 +57,7 @@ class CuboidNoiseSamplerTest {
     private record Field(CuboidAtlas atlas, CuboidLattice lattice, double scale) {
         static List<Field> all() {
             List<Field> fields = new ArrayList<>();
-            for (int[] size : CHUNK_SIZES) {
-                CuboidAtlas atlas = CuboidAtlas.of(size[0], size[1], size[2], MIN_CHUNK_X, MIN_CHUNK_Z);
+            for (CuboidAtlas atlas : atlases()) {
                 for (double scale : SCALES) {
                     for (double fudgeYScale : FUDGE_SCALES) {
                         fields.add(of(atlas, scale, fudgeYScale));
@@ -75,7 +74,7 @@ class CuboidNoiseSamplerTest {
         }
 
         CuboidFace face(CuboidFace.Side side) {
-            return this.atlas.faces().stream().filter(face -> face.side() == side).findFirst().orElseThrow();
+            return CuboidFixtures.face(this.atlas, side);
         }
 
         double cellBlocks(int blocks) {
@@ -89,45 +88,9 @@ class CuboidNoiseSamplerTest {
         double value(CuboidFace face, double localX, double localZ, double y) {
             assertTrue(localX > -SAME_POINT && localX < face.widthBlocks() + SAME_POINT, "x " + localX);
             assertTrue(localZ > -SAME_POINT && localZ < face.depthBlocks() + SAME_POINT, "z " + localZ);
-            return CuboidNoiseSampler.sample(this.lattice, this.atlas.faces().indexOf(face), localX, y, localZ, y);
+            return CuboidNoiseSampler.sample(Part.VALUE, this.lattice, this.atlas.faces().indexOf(face), localX, y,
+                    localZ, y);
         }
-    }
-
-    private static WorldFold foldOver(CuboidAtlas atlas) {
-        return (WorldFold) Proxy.newProxyInstance(WorldFold.class.getClassLoader(), new Class<?>[] {WorldFold.class},
-                (proxy, method, arguments) -> {
-                    if (method.getName().equals(ATLAS_MEMBER)) {
-                        return atlas;
-                    }
-
-                    throw new UnsupportedOperationException(method.getName());
-                });
-    }
-
-    private static boolean runsAlongZ(Direction side) {
-        return side == Direction.WEST || side == Direction.EAST;
-    }
-
-    private static int edgeBlocks(CuboidFace face, Direction side) {
-        return runsAlongZ(side) ? face.depthBlocks() : face.widthBlocks();
-    }
-
-    private static int acrossBlocks(CuboidFace face, Direction side) {
-        return runsAlongZ(side) ? face.widthBlocks() : face.depthBlocks();
-    }
-
-    private static double[] pointBy(CuboidFace face, Direction side, double along, double outward) {
-        return switch (side) {
-            case WEST -> new double[] {face.minBlockX() - outward, face.minBlockZ() + along};
-            case EAST -> new double[] {face.minBlockX() + face.widthBlocks() + outward, face.minBlockZ() + along};
-            case NORTH -> new double[] {face.minBlockX() + along, face.minBlockZ() - outward};
-            case SOUTH -> new double[] {face.minBlockX() + along, face.minBlockZ() + face.depthBlocks() + outward};
-            default -> throw new IllegalArgumentException("A face has no " + side + " edge");
-        };
-    }
-
-    private static double[] carried(SeamTransform transform, double[] flat) {
-        return new double[] {transform.applyX(flat[0], flat[1]), transform.applyZ(flat[0], flat[1])};
     }
 
     @Test
@@ -239,7 +202,7 @@ class CuboidNoiseSamplerTest {
     void compiledOctavesSumTheFaceLattices() {
         CuboidAtlas atlas = CuboidAtlas.of(3, 5, 2, MIN_CHUNK_X, MIN_CHUNK_Z);
         NoiseStack stack = (NoiseStack) NormalNoise.createParity(-3, 1.0, 1.0).create(new LegacyRandomSource(SEED));
-        CompiledOctaves octaves = FoldedSamplers.octaves(foldOver(atlas), NoiseFrame.UNDECLARED,
+        CompiledOctaves octaves = FoldedSamplers.octaves(CuboidFixtures.cuboidFold(atlas), NoiseFrame.UNDECLARED,
                 COMPILED_SCALE, null, stack);
         Random random = new Random(SEED);
         for (CuboidFace face : atlas.faces()) {
@@ -261,8 +224,8 @@ class CuboidNoiseSamplerTest {
             double octaveY = y * layer.frequency();
             CuboidLattice lattice = CuboidLattice.of(leaf.perms, leaf.offsetY, NO_FUDGE, atlas,
                     COMPILED_SCALE * layer.frequency());
-            sum += layer.amplitude() * CuboidNoiseSampler.sample(lattice, atlas.faces().indexOf(face), localX,
-                    GradientNoise.wrap(octaveY), localZ, octaveY);
+            sum += layer.amplitude() * CuboidNoiseSampler.sample(Part.VALUE, lattice, atlas.faces().indexOf(face),
+                    localX, GradientNoise.wrap(octaveY), localZ, octaveY);
         }
 
         return sum;
@@ -272,10 +235,9 @@ class CuboidNoiseSamplerTest {
     void blockOutsideEveryFaceIsRefused() {
         CuboidAtlas atlas = CuboidAtlas.of(3, 5, 2, MIN_CHUNK_X, MIN_CHUNK_Z);
         NoiseStack stack = (NoiseStack) NormalNoise.createParity(-3, 1.0, 1.0).create(new LegacyRandomSource(SEED));
-        CompiledOctaves octaves = FoldedSamplers.octaves(foldOver(atlas), NoiseFrame.UNDECLARED,
+        CompiledOctaves octaves = FoldedSamplers.octaves(CuboidFixtures.cuboidFold(atlas), NoiseFrame.UNDECLARED,
                 COMPILED_SCALE, null, stack);
-        CuboidFace top = atlas.faces().stream().filter(face -> face.side() == CuboidFace.Side.TOP).findFirst()
-                .orElseThrow();
+        CuboidFace top = CuboidFixtures.face(atlas, CuboidFace.Side.TOP);
         assertThrows(IllegalArgumentException.class,
                 () -> octaves.sample(top.blockX(top.widthBlocks()), 0.0, top.blockZ(0)));
     }
