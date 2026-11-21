@@ -103,16 +103,22 @@ final class ClientboundPacketRewriters {
     static ClientboundLevelChunkWithLightPacket levelChunk(ClientboundLevelChunkWithLightPacket packet, TranslationContext context) {
         ChunkPos serverPos = new ChunkPos(packet.x(), packet.z());
         ChunkPos clientPos = context.toClient(serverPos);
-        FoldOrientation orientation = context.fold().deckTransformation(serverPos, clientPos).orientation();
+        FoldOrientation orientation = orientation(context, serverPos, clientPos);
         return new ClientboundLevelChunkWithLightPacket(
                 clientPos.x(), clientPos.z(),
                 TurnedChunkData.turned(packet.chunkData(), orientation, () -> buffer(context).registryAccess()),
-                packet.lightData());
+                TurnedChunkData.turned(packet.lightData(), orientation));
     }
 
     static ClientboundLightUpdatePacket lightUpdate(ClientboundLightUpdatePacket packet, TranslationContext context) {
-        ChunkPos clientPos = context.toClient(new ChunkPos(packet.x(), packet.z()));
-        return new ClientboundLightUpdatePacket(clientPos.x(), clientPos.z(), packet.lightData());
+        ChunkPos serverPos = new ChunkPos(packet.x(), packet.z());
+        ChunkPos clientPos = context.toClient(serverPos);
+        return new ClientboundLightUpdatePacket(clientPos.x(), clientPos.z(),
+                TurnedChunkData.turned(packet.lightData(), orientation(context, serverPos, clientPos)));
+    }
+
+    private static FoldOrientation orientation(TranslationContext context, ChunkPos serverPos, ChunkPos clientPos) {
+        return context.fold().deckTransformation(serverPos, clientPos).orientation();
     }
 
     static Packet<?> forgetChunk(ClientboundForgetLevelChunkPacket packet, TranslationContext context) {
@@ -222,11 +228,17 @@ final class ClientboundPacketRewriters {
     }
 
     static ClientboundSectionBlocksUpdatePacket sectionBlocksUpdate(ClientboundSectionBlocksUpdatePacket packet, TranslationContext context) {
-        return rewritePosition(
+        ChunkPos serverPos = ((SectionBlocksUpdatePacketAccessor) packet).exotic_worlds$getSectionPos().chunk();
+        ChunkPos clientPos = context.toClient(serverPos);
+        ClientboundSectionBlocksUpdatePacket seated = rewritePosition(
                 (sectionPacket, output) -> ((SectionBlocksUpdatePacketAccessor) sectionPacket).exotic_worlds$write(output),
                 SectionBlocksUpdatePacketAccessor::exotic_worlds$create,
                 SectionPos.STREAM_CODEC, packet, context,
-                section -> SectionPos.of(context.toClient(section.chunk()), section.y()));
+                section -> SectionPos.of(clientPos, section.y()));
+        SectionBlocksUpdatePacketAccessor changes = (SectionBlocksUpdatePacketAccessor) seated;
+        TurnedChunkData.turnSectionChanges(changes.exotic_worlds$getPositions(), changes.exotic_worlds$getStates(),
+                orientation(context, serverPos, clientPos));
+        return seated;
     }
 
     static ClientboundBlockEntityDataPacket blockEntityData(ClientboundBlockEntityDataPacket packet, TranslationContext context) {
@@ -478,9 +490,15 @@ final class ClientboundPacketRewriters {
 
     static ClientboundChunksBiomesPacket chunkBiomes(ClientboundChunksBiomesPacket packet, TranslationContext context) {
         return new ClientboundChunksBiomesPacket(packet.chunkBiomeData().stream()
-                .map(data -> new ClientboundChunksBiomesPacket.ChunkBiomeData(
-                        context.toClient(data.pos()), data.buffer()))
+                .map(data -> chunkBiomeData(data, context))
                 .toList());
+    }
+
+    private static ClientboundChunksBiomesPacket.ChunkBiomeData chunkBiomeData(
+            ClientboundChunksBiomesPacket.ChunkBiomeData data, TranslationContext context) {
+        ChunkPos clientPos = context.toClient(data.pos());
+        return new ClientboundChunksBiomesPacket.ChunkBiomeData(clientPos, TurnedChunkData.turnedBiomes(
+                data.buffer(), orientation(context, data.pos(), clientPos), () -> buffer(context).registryAccess()));
     }
 
     private static <T, P> T rewritePosition(BiConsumer<T, RegistryFriendlyByteBuf> writer,
