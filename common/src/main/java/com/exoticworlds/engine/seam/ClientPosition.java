@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import com.exoticworlds.accessors.ClientPositionHolder;
+import com.exoticworlds.core.FoldOrientation;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopAttachments;
@@ -219,12 +220,23 @@ public final class ClientPosition {
         return new ChunkPos(SectionPos.blockToSectionCoord(position.x), SectionPos.blockToSectionCoord(position.z));
     }
 
+    public FoldOrientation orientation(WorldFold fold) {
+        Mirror currMirror = seededMirror();
+        return orientationAt(fold, new Vec3(currMirror.x(), 0.0, currMirror.z()));
+    }
+
+    public static FoldOrientation orientationAt(WorldFold fold, Vec3 clientPoint) {
+        return fold.preservesLocalIndices()
+                ? FoldOrientation.IDENTITY
+                : fold.foldTransformation(clientPoint).orientation().inverse();
+    }
+
     public Vec3 destinationOf(WorldFold fold, Vec3 position, Set<Relative> relatives) {
         Mirror currMirror = seededMirror();
         boolean relativeX = relatives.contains(Relative.X);
         boolean relativeZ = relatives.contains(Relative.Z);
         if (relativeX && relativeZ) {
-            Vec3 step = SeamDelta.fold(fold, position.x, position.z);
+            Vec3 step = orientation(fold).applyToDelta(SeamDelta.fold(fold, position.x, position.z));
             return new Vec3(currMirror.x() + step.x, position.y, currMirror.z() + step.z);
         }
 

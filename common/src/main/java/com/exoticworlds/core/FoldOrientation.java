@@ -26,11 +26,15 @@ public enum FoldOrientation {
 
     private static final double BLOCK_WIDTH = 1.0;
 
+    private static final float QUARTER_TURN_DEGREES = 90.0F;
+    private static final float HALF_TURN_DEGREES = 180.0F;
+
     private final boolean swapsAxes;
     private final boolean flipsX;
     private final boolean flipsZ;
     private final Mirror stateMirror;
     private final Rotation stateRotation;
+    private final float yawOffset;
 
     FoldOrientation(boolean swapsAxes, boolean flipsX, boolean flipsZ, Mirror stateMirror, Rotation stateRotation) {
         this.swapsAxes = swapsAxes;
@@ -38,6 +42,20 @@ public enum FoldOrientation {
         this.flipsZ = flipsZ;
         this.stateMirror = stateMirror;
         this.stateRotation = stateRotation;
+        this.yawOffset = yawOffsetOf(stateMirror) + yawOffsetOf(stateRotation);
+    }
+
+    private static float yawOffsetOf(Mirror mirror) {
+        return mirror == Mirror.LEFT_RIGHT ? HALF_TURN_DEGREES : 0.0F;
+    }
+
+    private static float yawOffsetOf(Rotation rotation) {
+        return switch (rotation) {
+            case NONE -> 0.0F;
+            case CLOCKWISE_90 -> QUARTER_TURN_DEGREES;
+            case CLOCKWISE_180 -> HALF_TURN_DEGREES;
+            case COUNTERCLOCKWISE_90 -> -QUARTER_TURN_DEGREES;
+        };
     }
 
     public static FoldOrientation of(boolean flipsX, boolean flipsZ) {
@@ -86,6 +104,18 @@ public enum FoldOrientation {
         double sourceX = this.swapsAxes ? delta.z : delta.x;
         double sourceZ = this.swapsAxes ? delta.x : delta.z;
         return new Vec3(this.flipsX ? -sourceX : sourceX, delta.y, this.flipsZ ? -sourceZ : sourceZ);
+    }
+
+    public float applyToYaw(float yaw) {
+        if (isIdentity()) {
+            return yaw;
+        }
+
+        return applyToYawChange(yaw) + this.yawOffset;
+    }
+
+    public float applyToYawChange(float change) {
+        return preservesHandedness() ? change : -change;
     }
 
     public Vec3 applyToBlockOffset(Vec3 offset) {
