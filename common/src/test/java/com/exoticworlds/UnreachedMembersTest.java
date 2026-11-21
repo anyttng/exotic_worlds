@@ -71,7 +71,13 @@ class UnreachedMembersTest {
             "accessors.FoldedClimateSampler.exotic_worlds$fold",
             "compat.gate.ModPresence.ownedClasses",
             "compat.gate.ModPresence.scannedClasses",
-            "compat.gate.ModPresence.optional");
+            "compat.gate.ModPresence.optional",
+            "core.FoldOrientation.applyToLocalX",
+            "core.FoldOrientation.applyToLocalZ",
+            "core.FoldOrientation.localIndexTable",
+            "core.FoldOrientation.stateMirror",
+            "core.FoldOrientation.stateRotation",
+            "core.FoldOrientation.applyToState");
     private static final Set<String> READ_BY_HARNESS = Set.of(
             "compat.distanthorizons.DhFold.periodSections",
             "compat.gate.ModPresenceGatePlugin.gates",

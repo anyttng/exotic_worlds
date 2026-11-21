@@ -8,7 +8,11 @@ import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 
 class FoldOrientationTest {
@@ -29,6 +33,21 @@ class FoldOrientationTest {
 
     private static Vec3 faceCenter(Direction face) {
         return BLOCK_CENTER.add(face.getStepX() * 0.5, face.getStepY() * 0.5, face.getStepZ() * 0.5);
+    }
+
+    private static final int[] GRID_WIDTHS = {16, 4};
+    private static final int SOURCE_CHUNK_X = 2;
+    private static final int SOURCE_CHUNK_Z = -7;
+    private static final int SHIFT_CHUNKS_X = 3;
+    private static final int SHIFT_CHUNKS_Z = -5;
+
+    private static SeamTransform wholeChunkMove(FoldOrientation orientation, int width) {
+        return new SeamTransform(
+                orientation.flipsX() ? -1 : 1,
+                orientation.flipsZ() ? -1 : 1,
+                SHIFT_CHUNKS_X * width,
+                SHIFT_CHUNKS_Z * width,
+                orientation.swapsAxes());
     }
 
     private static FoldOrientation inverseOf(FoldOrientation orientation) {
@@ -142,6 +161,115 @@ class FoldOrientationTest {
                             orientation + " turns the " + face + " face away from its normal");
                 }
             }
+        }
+    }
+
+    @Nested
+    class LocalIndices {
+        @Test
+        void aLocalPairLandsOnTheLowBitsOfTheMovedCell() {
+            for (FoldOrientation orientation : FoldOrientation.values()) {
+                for (int width : GRID_WIDTHS) {
+                    assertFollowsTheMove(orientation, width);
+                }
+            }
+        }
+
+        private static void assertFollowsTheMove(FoldOrientation orientation, int width) {
+            SeamTransform move = wholeChunkMove(orientation, width);
+            for (int localZ = 0; localZ < width; localZ++) {
+                for (int localX = 0; localX < width; localX++) {
+                    BlockPos moved = move.apply(
+                            new BlockPos(SOURCE_CHUNK_X * width + localX, 0, SOURCE_CHUNK_Z * width + localZ));
+                    String cell = orientation + " at (" + localX + ", " + localZ + ") on width " + width;
+                    assertEquals(Math.floorMod(moved.getX(), width),
+                            orientation.applyToLocalX(localX, localZ, width), cell + " misses the moved x");
+                    assertEquals(Math.floorMod(moved.getZ(), width),
+                            orientation.applyToLocalZ(localX, localZ, width), cell + " misses the moved z");
+                }
+            }
+        }
+
+        @Test
+        void permutingByACompositionIsPermutingByTheFirstThenTheNext() {
+            for (FoldOrientation first : FoldOrientation.values()) {
+                for (FoldOrientation next : FoldOrientation.values()) {
+                    for (int width : GRID_WIDTHS) {
+                        assertComposes(first, next, width);
+                    }
+                }
+            }
+        }
+
+        private static void assertComposes(FoldOrientation first, FoldOrientation next, int width) {
+            FoldOrientation composed = first.compose(next);
+            for (int localZ = 0; localZ < width; localZ++) {
+                for (int localX = 0; localX < width; localX++) {
+                    int firstX = first.applyToLocalX(localX, localZ, width);
+                    int firstZ = first.applyToLocalZ(localX, localZ, width);
+                    String cell = first + " then " + next + " at (" + localX + ", " + localZ + ") on width " + width;
+                    assertEquals(next.applyToLocalX(firstX, firstZ, width),
+                            composed.applyToLocalX(localX, localZ, width), cell + " is not their composition on x");
+                    assertEquals(next.applyToLocalZ(firstX, firstZ, width),
+                            composed.applyToLocalZ(localX, localZ, width), cell + " is not their composition on z");
+                }
+            }
+        }
+
+        @Test
+        void theIndexTableSendsEachCellWhereItsPairLands() {
+            for (FoldOrientation orientation : FoldOrientation.values()) {
+                for (int width : GRID_WIDTHS) {
+                    assertTableFollowsThePair(orientation, width);
+                }
+            }
+        }
+
+        private static void assertTableFollowsThePair(FoldOrientation orientation, int width) {
+            int[] table = orientation.localIndexTable(width);
+            assertEquals(width * width, table.length, orientation + " on width " + width + " has a short table");
+            for (int localZ = 0; localZ < width; localZ++) {
+                for (int localX = 0; localX < width; localX++) {
+                    int landed = orientation.applyToLocalZ(localX, localZ, width) * width
+                            + orientation.applyToLocalX(localX, localZ, width);
+                    assertEquals(landed, table[localZ * width + localX],
+                            orientation + " at (" + localX + ", " + localZ + ") on width " + width
+                                    + " lands apart from its pair");
+                }
+            }
+        }
+    }
+
+    @Nested
+    class States {
+        @Test
+        void theMirrorThenTheRotationTurnAFaceAsTheOrientationDoes() {
+            for (FoldOrientation orientation : FoldOrientation.values()) {
+                for (Direction face : HORIZONTAL) {
+                    assertEquals(orientation.applyToFace(face),
+                            orientation.stateRotation().rotate(orientation.stateMirror().mirror(face)),
+                            orientation + " turns the " + face + " face apart from its mirror and rotation");
+                }
+            }
+        }
+
+        @Test
+        void aFacingStateTurnsWithItsFace() {
+            for (FoldOrientation orientation : FoldOrientation.values()) {
+                for (Direction face : HORIZONTAL) {
+                    BlockState state = Blocks.FURNACE.defaultBlockState()
+                            .setValue(BlockStateProperties.HORIZONTAL_FACING, face);
+                    assertEquals(orientation.applyToFace(face),
+                            orientation.applyToState(state).getValue(BlockStateProperties.HORIZONTAL_FACING),
+                            orientation + " turns a state facing " + face + " apart from its face");
+                }
+            }
+        }
+
+        @Test
+        void theIdentityHandsTheStateBack() {
+            BlockState state = Blocks.FURNACE.defaultBlockState();
+            assertSame(state, FoldOrientation.IDENTITY.applyToState(state), "an upright state was rebuilt");
         }
     }
 
