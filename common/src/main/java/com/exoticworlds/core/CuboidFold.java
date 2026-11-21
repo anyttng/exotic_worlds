@@ -15,21 +15,21 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public final class CuboidFold implements WorldFold {
-    private static final int WEST = 0;
-    private static final int EAST = 1;
-    private static final int NORTH = 2;
-    private static final int SOUTH = 3;
+    static final int WEST = 0;
+    static final int EAST = 1;
+    static final int NORTH = 2;
+    static final int SOUTH = 3;
     static final int SIDES = 4;
     private static final int NO_BAND = -1;
-    private static final int NO_FACE = -1;
-    private static final double NOT_PAST = -1.0;
+    static final int NO_FACE = -1;
+    static final double NOT_PAST = -1.0;
     private static final double CELL_CENTER = 0.5;
     private static final int CHUNK_CENTER = CoordinateConstants.CHUNK_WIDTH / 2;
 
     record Crossing(int face, int entrySide, SeamTransform transform) {
     }
 
-    private record Rect(int minX, int minZ, int endX, int endZ) {
+    record Rect(int minX, int minZ, int endX, int endZ) {
         static Rect of(CuboidFace face) {
             return new Rect(
                     face.minBlockX(),
@@ -86,6 +86,8 @@ public final class CuboidFold implements WorldFold {
 
     private final CuboidUnfoldings unfoldings;
 
+    private final CuboidRegions regions;
+
     private final int maxViewDistance;
 
     public CuboidFold(CuboidAtlas atlas, GenerationOptions generationOptions) {
@@ -101,6 +103,7 @@ public final class CuboidFold implements WorldFold {
 
         this.crossings = crossingsOf(atlasFaces, atlas.edges());
         this.unfoldings = CuboidUnfoldings.of(this.crossings);
+        this.regions = new CuboidRegions(this.faces, this.crossings);
         this.maxViewDistance = Math.max(1, smallestEdge / 2 - CoordinateConstants.VIEW_DISTANCE_MARGIN);
     }
 
@@ -138,18 +141,22 @@ public final class CuboidFold implements WorldFold {
         };
     }
 
-    private static int opposite(int side) {
+    static int opposite(int side) {
         return side ^ 1;
     }
 
-    private int faceOf(int blockX, int blockZ) {
-        for (int face = 0; face < this.faces.length; face++) {
-            if (this.faces[face].contains(blockX, blockZ)) {
+    static int faceOf(Rect[] faces, int blockX, int blockZ) {
+        for (int face = 0; face < faces.length; face++) {
+            if (faces[face].contains(blockX, blockZ)) {
                 return face;
             }
         }
 
         return NO_FACE;
+    }
+
+    private int faceOf(int blockX, int blockZ) {
+        return faceOf(this.faces, blockX, blockZ);
     }
 
     private int nearestBand(double x, double z, int blockX, int blockZ) {
@@ -271,10 +278,6 @@ public final class CuboidFold implements WorldFold {
         return new IllegalStateException("A cuboid has no period");
     }
 
-    private static UnsupportedOperationException notCarried(String member) {
-        return new UnsupportedOperationException("The cuboid fold does not carry " + member + " yet");
-    }
-
     @Override
     public WorldLoopBounds bounds() {
         throw noPeriod();
@@ -322,7 +325,7 @@ public final class CuboidFold implements WorldFold {
 
     @Override
     public ToroidalShape shapeView() {
-        throw notCarried("shapeView");
+        throw new UnsupportedOperationException("The cuboid fold does not carry shapeView yet");
     }
 
     @Override
@@ -532,36 +535,36 @@ public final class CuboidFold implements WorldFold {
 
     @Override
     public boolean crossesBounds(AABB box) {
-        throw notCarried("crossesBounds");
+        return this.regions.crosses(box);
     }
 
     @Override
     public boolean crossesBounds(BoundingBox region) {
-        throw notCarried("crossesBounds");
+        return this.regions.crosses(region);
     }
 
     @Override
     public List<Folded<AABB>> split(AABB box) {
-        throw notCarried("split");
+        return this.regions.split(box);
     }
 
     @Override
     public List<Folded<BoundingBox>> split(BoundingBox region) {
-        throw notCarried("split");
+        return this.regions.split(region);
     }
 
     @Override
     public boolean regionsOverlap(BoundingBox first, BoundingBox second) {
-        throw notCarried("regionsOverlap");
+        return this.regions.regionsOverlap(first, second);
     }
 
     @Override
     public List<DeckTransformation> copiesTouching(BoundingBox region, int reach) {
-        throw notCarried("copiesTouching");
+        return this.regions.copiesTouching(region, reach);
     }
 
     @Override
     public boolean foldsOntoItself(BoundingBox region) {
-        throw notCarried("foldsOntoItself");
+        return this.regions.foldsOntoItself(region);
     }
 }
