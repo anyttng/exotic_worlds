@@ -1,11 +1,11 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.cuboid;
 
 import com.exoticworlds.core.CuboidFace.BoxVector;
+import com.exoticworlds.engine.noise.PerlinMath;
 
 import net.minecraft.util.Mth;
 
 final class CuboidNoiseSampler {
-    private static final int GRADIENT_MASK = 15;
     private static final int VERTEX_SIGN_BIT = 1;
 
     static float sample(CuboidLattice lattice, int atlasFace, double localX, double y, double localZ,
@@ -21,9 +21,9 @@ final class CuboidNoiseSampler {
         double yRelative = ys - yCell;
         float zFrac = (float) (zs - zCell);
         double fudgeYScale = lattice.fudgeYScale();
-        float yFrac = fudgeYScale == PeriodicNoiseSampler.NO_FUDGE
+        float yFrac = fudgeYScale == PerlinMath.NO_FUDGE
                 ? (float) yRelative
-                : (float) (yRelative - PeriodicNoiseSampler.fudgeY(originalY, yRelative, fudgeYScale));
+                : (float) (yRelative - PerlinMath.fudgeY(originalY, yRelative, fudgeYScale));
         byte[] permutations = lattice.permutations();
         float d000 = corner(permutations, face, xCell, yCell, zCell, xFrac, yFrac, zFrac);
         float d100 = corner(permutations, face, xCell + 1, yCell, zCell, xFrac - 1.0F, yFrac, zFrac);
@@ -47,7 +47,7 @@ final class CuboidNoiseSampler {
             return (hash & VERTEX_SIGN_BIT) == 0 ? yOffset : -yOffset;
         }
 
-        int[] gradient = PeriodicNoiseSampler.GRADIENT[hash & GRADIENT_MASK];
+        int[] gradient = PerlinMath.gradient(hash);
         if (onXEdge) {
             double across = xNode == 0 ? -face.xAcross() : face.xAcross();
             return (float) (gradient[0] * zOffset * face.zSign() + gradient[1] * yOffset
@@ -70,8 +70,8 @@ final class CuboidNoiseSampler {
         int a = origin.a() + xNode * alongX.a() + zNode * alongZ.a();
         int b = origin.b() + xNode * alongX.b() + zNode * alongZ.b();
         int c = origin.c() + xNode * alongX.c() + zNode * alongZ.c();
-        return PeriodicNoiseSampler.p(permutations, PeriodicNoiseSampler.p(permutations,
-                PeriodicNoiseSampler.p(permutations, PeriodicNoiseSampler.p(permutations, a) + b) + c) + yNode);
+        return PerlinMath.p(permutations, PerlinMath.p(permutations,
+                PerlinMath.p(permutations, PerlinMath.p(permutations, a) + b) + c) + yNode);
     }
 
     private CuboidNoiseSampler() {

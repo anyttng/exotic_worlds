@@ -3,6 +3,7 @@ package com.exoticworlds.engine.noise.periodic;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.CompiledOctaves;
 import com.exoticworlds.engine.noise.NoiseFrame;
 import com.exoticworlds.engine.noise.PerlinMath;
 import com.exoticworlds.engine.noise.SlotAxes;
@@ -27,7 +28,7 @@ public final class PeriodicOctaveSampler {
         for (int i = 0; i < layers.length; i++) {
             NoiseStack.Layer layer = layers[i];
             double frequency = layer.frequency();
-            lattices[i] = lattice(fold, frame, layerScale(scale, layerFactors, i, frequency), floor,
+            lattices[i] = lattice(fold, frame, CompiledOctaves.layerScale(scale, layerFactors, i, frequency), floor,
                     layer.noise());
             frequencies[i] = frequency;
             amplitudes[i] = layer.amplitude();
@@ -39,10 +40,6 @@ public final class PeriodicOctaveSampler {
     static float octave(SlotAxes axes, PeriodicLattice lattice, double frequency, double x, double y, double z) {
         return PeriodicNoiseSampler.sample(lattice, slotInput(axes.x(), x, frequency),
                 slotInput(axes.y(), y, frequency), slotInput(axes.z(), z, frequency), y * frequency);
-    }
-
-    private static double layerScale(double scale, double @Nullable [] layerFactors, int layer, double frequency) {
-        return layerFactors == null ? scale * frequency : scale * layerFactors[layer] * frequency;
     }
 
     @SuppressWarnings("deprecation")

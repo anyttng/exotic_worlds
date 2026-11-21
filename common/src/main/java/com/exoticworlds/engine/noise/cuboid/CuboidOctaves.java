@@ -1,0 +1,100 @@
+package com.exoticworlds.engine.noise.cuboid;
+
+import java.util.List;
+
+import org.jspecify.annotations.Nullable;
+
+import com.exoticworlds.core.CuboidAtlas;
+import com.exoticworlds.core.CuboidFace;
+import com.exoticworlds.engine.noise.CompiledOctaves;
+import com.exoticworlds.engine.noise.PerlinMath;
+
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.levelgen.synth.GradientNoise;
+import net.minecraft.world.level.levelgen.synth.Noise;
+import net.minecraft.world.level.levelgen.synth.NoiseStack;
+import net.minecraft.world.level.levelgen.synth.PerlinNoise;
+import net.minecraft.world.level.levelgen.synth.SmearedPerlinNoise;
+
+public final class CuboidOctaves implements CompiledOctaves {
+    private static final String NOT_PERLIN_LEAF = "Cuboid octaves sample Perlin leaves only, got ";
+
+    private final List<CuboidFace> faces;
+
+    private final CuboidLattice[] lattices;
+
+    private final double[] frequencies;
+
+    private final float[] amplitudes;
+
+    private CuboidOctaves(CuboidAtlas atlas, CuboidLattice[] lattices, double[] frequencies, float[] amplitudes) {
+        this.faces = atlas.faces();
+        this.lattices = lattices;
+        this.frequencies = frequencies;
+        this.amplitudes = amplitudes;
+    }
+
+    public static CuboidOctaves compile(CuboidAtlas atlas, double scale, double @Nullable [] layerFactors,
+            NoiseStack stack) {
+        NoiseStack.Layer[] layers = stack.layers;
+        CuboidLattice[] lattices = new CuboidLattice[layers.length];
+        double[] frequencies = new double[layers.length];
+        float[] amplitudes = new float[layers.length];
+        for (int i = 0; i < layers.length; i++) {
+            NoiseStack.Layer layer = layers[i];
+            double frequency = layer.frequency();
+            lattices[i] = lattice(atlas, CompiledOctaves.layerScale(scale, layerFactors, i, frequency),
+                    layer.noise());
+            frequencies[i] = frequency;
+            amplitudes[i] = layer.amplitude();
+        }
+
+        return new CuboidOctaves(atlas, lattices, frequencies, amplitudes);
+    }
+
+    @SuppressWarnings("deprecation")
+    private static CuboidLattice lattice(CuboidAtlas atlas, double layerScale, Noise leaf) {
+        if (leaf.getClass() == PerlinNoise.class) {
+            PerlinNoise perlin = (PerlinNoise) leaf;
+            return CuboidLattice.of(perlin.perms, perlin.offsetY, PerlinMath.NO_FUDGE, atlas, layerScale);
+        }
+
+        if (leaf.getClass() == SmearedPerlinNoise.class) {
+            SmearedPerlinNoise smeared = (SmearedPerlinNoise) leaf;
+            return CuboidLattice.of(smeared.perms, smeared.offsetY, smeared.fudgeYScale, atlas, layerScale);
+        }
+
+        throw new IllegalArgumentException(NOT_PERLIN_LEAF + leaf.getClass().getName());
+    }
+
+    @Override
+    public float sample(double x, double y, double z) {
+        int atlasFace = faceAt(Mth.floor(x), Mth.floor(z));
+        CuboidFace face = this.faces.get(atlasFace);
+        double localX = x - face.minBlockX();
+        double localZ = z - face.minBlockZ();
+        float value = 0.0F;
+        for (int i = 0; i < this.lattices.length; i++) {
+            double octaveY = y * this.frequencies[i];
+            value += this.amplitudes[i] * CuboidNoiseSampler.sample(this.lattices[i], atlasFace, localX,
+                    GradientNoise.wrap(octaveY), localZ, octaveY);
+        }
+
+        return value;
+    }
+
+    @Override
+    public boolean indexable() {
+        return true;
+    }
+
+    private int faceAt(int blockX, int blockZ) {
+        for (int i = 0; i < this.faces.size(); i++) {
+            if (this.faces.get(i).contains(blockX, blockZ)) {
+                return i;
+            }
+        }
+
+        throw new IllegalArgumentException("A cuboid noise samples inside a face, got x=" + blockX + " z=" + blockZ);
+    }
+}

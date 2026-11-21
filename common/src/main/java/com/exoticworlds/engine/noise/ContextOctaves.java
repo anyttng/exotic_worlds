@@ -1,18 +1,17 @@
 package com.exoticworlds.engine.noise;
 
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.periodic.PeriodicOctaves;
 
 public final class ContextOctaves {
     private final WorldFold fold;
 
     private final double scale;
 
-    private final PeriodicOctaves octaves;
+    private final CompiledOctaves octaves;
 
     private final boolean indexable;
 
-    ContextOctaves(WorldFold fold, double scale, PeriodicOctaves octaves) {
+    ContextOctaves(WorldFold fold, double scale, CompiledOctaves octaves) {
         this.fold = fold;
         this.scale = scale;
         this.octaves = octaves;

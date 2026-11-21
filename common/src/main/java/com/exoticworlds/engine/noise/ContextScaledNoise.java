@@ -2,7 +2,6 @@ package com.exoticworlds.engine.noise;
 
 import com.exoticworlds.accessors.ContextOctavesHolder;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.engine.noise.periodic.PeriodicOctaveSampler;
 
 import net.minecraft.world.level.levelgen.synth.Noise;
 import net.minecraft.world.level.levelgen.synth.NoiseStack;
@@ -26,7 +25,7 @@ public final class ContextScaledNoise {
         }
 
         ContextOctaves built = new ContextOctaves(fold, scale,
-                PeriodicOctaveSampler.compile(fold, NoiseFrame.UNDECLARED, scale, null, stack));
+                FoldedSamplers.octaves(fold, NoiseFrame.UNDECLARED, scale, null, stack));
         holder.exotic_worlds$contextOctaves(built);
         return built;
     }

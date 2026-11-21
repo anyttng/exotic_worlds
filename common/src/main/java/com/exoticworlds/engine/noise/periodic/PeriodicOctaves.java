@@ -1,8 +1,9 @@
 package com.exoticworlds.engine.noise.periodic;
 
+import com.exoticworlds.engine.noise.CompiledOctaves;
 import com.exoticworlds.engine.noise.SlotAxes;
 
-public final class PeriodicOctaves {
+public final class PeriodicOctaves implements CompiledOctaves {
     private final SlotAxes axes;
 
     private final PeriodicLattice[] lattices;
@@ -18,6 +19,7 @@ public final class PeriodicOctaves {
         this.amplitudes = amplitudes;
     }
 
+    @Override
     public float sample(double x, double y, double z) {
         float value = 0.0F;
         for (int i = 0; i < this.lattices.length; i++) {
@@ -28,6 +30,7 @@ public final class PeriodicOctaves {
         return value;
     }
 
+    @Override
     public boolean indexable() {
         for (PeriodicLattice lattice : this.lattices) {
             if (!lattice.indexable()) {
