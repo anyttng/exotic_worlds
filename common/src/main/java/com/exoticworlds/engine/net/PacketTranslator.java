@@ -44,6 +44,7 @@ import net.minecraft.network.protocol.game.ClientboundMoveVehiclePacket;
 import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerRotationPacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundSetBorderCenterPacket;
 import net.minecraft.network.protocol.game.ClientboundSetChunkCacheCenterPacket;
@@ -88,6 +89,7 @@ public final class PacketTranslator {
             Map.entry(ClientboundSetChunkCacheCenterPacket.class, rewriter(ClientboundPacketRewriters::chunkCacheCenter)),
             Map.entry(ClientboundChunksBiomesPacket.class, perCopy(ClientboundPacketRewriters::chunkBiomes)),
             Map.entry(ClientboundPlayerPositionPacket.class, rewriter(ClientboundPacketRewriters::playerPosition)),
+            Map.entry(ClientboundPlayerRotationPacket.class, rewriter(ClientboundPacketRewriters::playerRotation)),
             Map.entry(ClientboundBlockUpdatePacket.class, perCopy(ClientboundPacketRewriters::blockUpdate)),
             Map.entry(ClientboundSectionBlocksUpdatePacket.class, perCopy(ClientboundPacketRewriters::sectionBlocksUpdate)),
             Map.entry(ClientboundBlockEntityDataPacket.class, perCopy(ClientboundPacketRewriters::blockEntityData)),
