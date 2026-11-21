@@ -16,6 +16,9 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
+import com.exoticworlds.engine.noise.periodic.LapFloor;
+import com.exoticworlds.engine.noise.periodic.PeriodicLattice;
+import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
 
 class PeriodicLatticesTest {
     private static final long SEED = 0x978L;

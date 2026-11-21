@@ -1,19 +1,19 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.periodic;
 
 import com.exoticworlds.core.WorldFold;
 
-enum LapFloor {
+public enum LapFloor {
     FOUR_CELLS(4L),
     TWO_CELLS(2L),
     HELD(PeriodicNoiseSampler.HELD_PERIOD);
 
-    final long period;
+    public final long period;
 
     LapFloor(long period) {
         this.period = period;
     }
 
-    static LapFloor of(WorldFold fold) {
+    public static LapFloor of(WorldFold fold) {
         return fold.blockLattice().bothLoop() ? TWO_CELLS : HELD;
     }
 }

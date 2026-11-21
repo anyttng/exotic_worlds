@@ -12,6 +12,7 @@ import java.util.TreeSet;
 
 import com.exoticworlds.accessors.NoiseScaleRungs;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.periodic.LapFloor;
 
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;

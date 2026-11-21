@@ -2,6 +2,9 @@ package com.exoticworlds.engine.noise;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
+import com.exoticworlds.engine.noise.periodic.LapFloor;
+import com.exoticworlds.engine.noise.periodic.PeriodicLattice;
+import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
 
 public final class PeriodicLattices {
     private final ContextKeyedCache<PeriodicLattice> lattices = new ContextKeyedCache<>();

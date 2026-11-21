@@ -1,6 +1,6 @@
 package com.exoticworlds.compat.worldgen;
 
-import com.exoticworlds.engine.noise.PeriodicNoiseSampler;
+import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
 
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;

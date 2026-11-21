@@ -3,6 +3,8 @@ package com.exoticworlds.engine.noise;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.periodic.LapFloor;
+import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
 
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;

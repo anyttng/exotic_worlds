@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.periodic;
 
 import com.exoticworlds.accessors.IndexableNoise;
 import com.exoticworlds.accessors.WrappedImprovedNoise;

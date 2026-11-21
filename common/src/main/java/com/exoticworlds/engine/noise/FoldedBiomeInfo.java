@@ -3,6 +3,7 @@ package com.exoticworlds.engine.noise;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
+import com.exoticworlds.engine.noise.periodic.PeriodicSimplexSampler;
 
 import net.minecraft.world.level.biome.Biome;
 

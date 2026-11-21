@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.periodic;
 
 import com.exoticworlds.core.WrapDomain;
 
@@ -79,7 +79,7 @@ public final class OctaveVarianceCorrection {
         return (xCells + zCells) / 2.0;
     }
 
-    static double flat(double cellsPerLap) {
+    public static double flat(double cellsPerLap) {
         if (cellsPerLap <= CELLS_PER_LAP[0]) {
             return FLAT_CORRECTION[0] * cellsPerLap / CELLS_PER_LAP[0];
         }

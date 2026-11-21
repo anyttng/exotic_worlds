@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.periodic;
 
 import org.jspecify.annotations.Nullable;
 
@@ -6,6 +6,8 @@ import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
+import com.exoticworlds.engine.noise.SlotAxes;
+import com.exoticworlds.engine.noise.SlotAxis;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
@@ -44,7 +46,7 @@ public final class PeriodicNoiseSampler {
     private static final int PERMUTATION_MASK = 0xFF;
     private static final int PAIR_SHIFT = 8;
 
-    static PeriodicLattice lattice(byte[] permutations, double xOffset, double yOffset, double zOffset,
+    public static PeriodicLattice lattice(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold fold, Context context, LapFloor floor) {
         TranslationLattice translations = fold.blockLattice();
         SlotAxes axes = context.slotAxes();
@@ -131,7 +133,7 @@ public final class PeriodicNoiseSampler {
         return axes.z() == axis ? Z_SLOT : NO_SLOT;
     }
 
-    static double sample(PeriodicLattice lattice, double x, double y, double z, double yScale, double yFudge) {
+    public static double sample(PeriodicLattice lattice, double x, double y, double z, double yScale, double yFudge) {
         PeriodicLattice.Shear shear = lattice.shear();
         if (shear != null) {
             return sampleSheared(lattice, shear, x, y, z, yScale, yFudge);
@@ -308,7 +310,7 @@ public final class PeriodicNoiseSampler {
                 xPeriod, UNBOUNDED_PERIOD, zPeriod);
     }
 
-    static long period(WrapDomain domain, double scale, LapFloor floor) {
+    public static long period(WrapDomain domain, double scale, LapFloor floor) {
         if (!domain.loops()) {
             return UNBOUNDED_PERIOD;
         }
@@ -321,11 +323,11 @@ public final class PeriodicNoiseSampler {
         return closes(period) ? (double) period / domain.domainLength : 0.0;
     }
 
-    static double foldAndScale(WrapDomain domain, long period, double scale, double coord) {
+    public static double foldAndScale(WrapDomain domain, long period, double scale, double coord) {
         return foldAndScale(domain, period, scale, ratio(domain, period), coord);
     }
 
-    static double foldAndScale(WrapDomain domain, long period, double scale, double ratio, double coord) {
+    public static double foldAndScale(WrapDomain domain, long period, double scale, double ratio, double coord) {
         return period == UNBOUNDED_PERIOD
                 ? PerlinNoise.wrap(coord * scale)
                 : folded(domain, period, ratio, coord);
