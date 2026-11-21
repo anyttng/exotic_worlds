@@ -73,7 +73,13 @@ class UnreachedMembersTest {
             "compat.gate.ModPresence.scannedClasses",
             "compat.gate.ModPresence.optional",
             "core.CuboidAtlas.of",
-            "core.CuboidFace.boxPoint");
+            "core.CuboidFace.boxPoint",
+            "core.FoldOrientation.applyToLocalX",
+            "core.FoldOrientation.applyToLocalZ",
+            "core.FoldOrientation.localIndexTable",
+            "core.FoldOrientation.stateMirror",
+            "core.FoldOrientation.stateRotation",
+            "core.FoldOrientation.applyToState");
     private static final Set<String> READ_BY_HARNESS = Set.of(
             "compat.distanthorizons.DhFold.periodSections",
             "compat.gate.ModPresenceGatePlugin.gates");
