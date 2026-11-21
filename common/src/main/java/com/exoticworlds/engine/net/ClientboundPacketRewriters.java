@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import com.exoticworlds.api.v1.net.ParticleRewriter;
+import com.exoticworlds.core.FoldOrientation;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.SeamDelta;
 import com.exoticworlds.engine.seam.ClientPosition;
@@ -100,9 +101,13 @@ final class ClientboundPacketRewriters {
     private static final int DEFAULT_BUFFER_CAPACITY = 256;
 
     static ClientboundLevelChunkWithLightPacket levelChunk(ClientboundLevelChunkWithLightPacket packet, TranslationContext context) {
-        ChunkPos clientPos = context.toClient(new ChunkPos(packet.x(), packet.z()));
+        ChunkPos serverPos = new ChunkPos(packet.x(), packet.z());
+        ChunkPos clientPos = context.toClient(serverPos);
+        FoldOrientation orientation = context.fold().deckTransformation(serverPos, clientPos).orientation();
         return new ClientboundLevelChunkWithLightPacket(
-                clientPos.x(), clientPos.z(), packet.chunkData(), packet.lightData());
+                clientPos.x(), clientPos.z(),
+                TurnedChunkData.turned(packet.chunkData(), orientation, () -> buffer(context).registryAccess()),
+                packet.lightData());
     }
 
     static ClientboundLightUpdatePacket lightUpdate(ClientboundLightUpdatePacket packet, TranslationContext context) {
