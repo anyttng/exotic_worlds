@@ -25,6 +25,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.chunk.ProtoChunk;
 
 class ChunkFrameTest {
     private static final int CHUNK_WIDTH = CoordinateConstants.CHUNK_WIDTH;
@@ -124,6 +125,20 @@ class ChunkFrameTest {
         }
 
         @Test
+        void aWrittenPositionSitsDownAtTheFoldedBlock() {
+            assertEquals(SEATED, ChunkFrame.seatPos(TURNED, OWN, PAST_THE_EDGE),
+                    "a write past a turned edge kept its raw low bits");
+        }
+
+        @Test
+        void aPostProcessingMarkIsPackedAtTheNeighboursOwnLocalPosition() {
+            short packed = ProtoChunk.packOffsetCoordinates(ChunkFrame.seatPos(TURNED, OWN, PAST_THE_EDGE));
+
+            assertEquals(SEATED, ProtoChunk.unpackOffsetCoordinates(packed, SectionPos.blockToSectionCoord(Y), OWN),
+                    "the mark was packed at another block of the neighbouring chunk");
+        }
+
+        @Test
         void aStateWrittenLandsTurnedIntoTheChunk() {
             assertEquals(facing(Direction.NORTH), ChunkFrame.toChunk(TURNED, PAST_THE_EDGE, facing(Direction.WEST)),
                     "the written state kept the writer's frame");
@@ -147,6 +162,9 @@ class ChunkFrameTest {
             long column = ChunkFrame.seatColumn(unreadFold(), OWN, OWN_BLOCK.getX(), OWN_BLOCK.getZ());
             assertEquals(OWN_BLOCK.getX(), BlockPos.getX(column), "a column of the chunk itself moved on x");
             assertEquals(OWN_BLOCK.getZ(), BlockPos.getZ(column), "a column of the chunk itself moved on z");
+
+            assertSame(OWN_BLOCK, ChunkFrame.seatPos(unreadFold(), OWN, OWN_BLOCK),
+                    "a written position of the chunk itself was reseated");
         }
 
         @Test
@@ -164,6 +182,7 @@ class ChunkFrameTest {
         @Test
         void noPositionIsReseated() {
             assertNull(ChunkFrame.seat(TORUS, TORUS_OWN, ONE_LAP_AWAY), "a torus read was reseated");
+            assertSame(ONE_LAP_AWAY, ChunkFrame.seatPos(TORUS, TORUS_OWN, ONE_LAP_AWAY), "a torus write was reseated");
         }
 
         @Test

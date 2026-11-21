@@ -19,6 +19,11 @@ public final class ChunkFrame {
         return ChunkSeat.sitsIn(own, folded.value().getX(), folded.value().getZ()) ? folded : null;
     }
 
+    public static BlockPos seatPos(WorldFold fold, ChunkPos own, BlockPos pos) {
+        WorldFold.Folded<BlockPos> seated = seat(fold, own, pos);
+        return seated == null ? pos : seated.value();
+    }
+
     public static long seatColumn(WorldFold fold, ChunkPos own, int x, int z) {
         long raw = BlockPos.asLong(x, 0, z);
         if (ChunkSeat.sitsIn(own, x, z) || fold.preservesLocalIndices()) {
