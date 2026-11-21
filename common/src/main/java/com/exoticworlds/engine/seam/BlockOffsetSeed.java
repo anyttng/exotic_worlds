@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public final class BlockOffsetSeed {
     private static final ThreadLocal<BlockOffsetSeed> CURRENT = ThreadLocal.withInitial(BlockOffsetSeed::new);
@@ -22,6 +23,18 @@ public final class BlockOffsetSeed {
 
     public static BlockPos seedPosition(BlockPos pos) {
         return CURRENT.get().fold.fold(pos);
+    }
+
+    public static Vec3 inCopyFrame(BlockPos pos, Vec3 canonicalOffset) {
+        return inCopyFrame(CURRENT.get().fold, pos, canonicalOffset);
+    }
+
+    static Vec3 inCopyFrame(WorldFold fold, BlockPos pos, Vec3 canonicalOffset) {
+        if (fold.preservesLocalIndices()) {
+            return canonicalOffset;
+        }
+
+        return fold.foldOriented(pos).orientation().inverse().applyToDelta(canonicalOffset);
     }
 
     public static @Nullable BlockOffsetSeed enter(@Nullable BlockGetter getter, BlockState state) {
