@@ -13,9 +13,13 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.api.v1.shape.ShapeDimensions;
+import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.CuboidShape;
 import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.core.SpawnPoint;
+import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.engine.gen.ShapedDimensions;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
 import com.exoticworlds.shape.torus.GuaranteedLand;
@@ -43,6 +47,8 @@ class LayoutDimensionsTest {
     private static final GenerationOptions COMPACT_6 = PLAIN.with(CompactBiomes.OPTION, ClimateScale.custom(6));
 
     private static final GenerationOptions LAND = PLAIN.with(GuaranteedLand.OPTION, true);
+
+    private static final CuboidShape CUBOID = new CuboidShape(16, 24, 40);
 
     private static final ResourceKey<LevelStem> MOD_STEM = ResourceKey.create(Registries.LEVEL_STEM,
             Identifier.fromNamespaceAndPath("example_mod", "sky"));
@@ -207,6 +213,48 @@ class LayoutDimensionsTest {
         assertNotNull(moved);
         assertEquals(spawn, moved.overworld().options().get(SpawnPoint.OPTION));
         assertNull(WorldLayout.DEFAULT.withSpawn(spawn));
+    }
+
+    @Test
+    void aCuboidOverworldWritesItsThreeSizesAndReadsBack() {
+        WorldLayout chosen = new WorldLayout(DimensionLayout.cuboid(CUBOID),
+                DimensionLayout.fromOverworld(PLAIN), DimensionLayout.fromOverworld(PLAIN), Map.of(),
+                NetherScales.DEFAULT);
+
+        WorldDimensions created = LayoutDimensions.apply(vanillaDimensions(), chosen);
+
+        CarriedShape carried = ShapedDimensions.carriedShapeOf(created, LevelStem.OVERWORLD);
+        assertNotNull(carried);
+        assertEquals(CUBOID, carried.shape());
+        assertEquals(PLAIN, carried.generationOptions());
+        assertNull(ShapedDimensions.carriedShapeOf(created, LevelStem.NETHER));
+        assertNull(ShapedDimensions.carriedShapeOf(created, LevelStem.END));
+        assertEquals(chosen, LayoutDimensions.read(created));
+    }
+
+    @Test
+    void aLoopedNetherUnderACuboidOverworldKeepsItsOwnShape() {
+        WorldLayout chosen = new WorldLayout(DimensionLayout.cuboid(CUBOID),
+                DimensionLayout.looped(LoopSpans.ofWidths(24, 40), COMPACT_6), DimensionLayout.fromOverworld(PLAIN),
+                Map.of(), NetherScales.DEFAULT);
+
+        assertEquals(chosen, roundTrip(chosen));
+    }
+
+    @Test
+    void aCuboidEdgeUnderTheFloorIsRefused() {
+        int underTheFloor = WorldLoopSizes.MIN_CHUNK_WIDTH - 1;
+
+        assertThrows(IllegalArgumentException.class, () -> DimensionLayout.cuboid(new CuboidShape(underTheFloor, 24, 40)));
+        assertThrows(IllegalArgumentException.class, () -> DimensionLayout.cuboid(new CuboidShape(16, underTheFloor, 40)));
+        assertThrows(IllegalArgumentException.class, () -> DimensionLayout.cuboid(new CuboidShape(16, 24, underTheFloor)));
+    }
+
+    @Test
+    void theSpawnPointDoesNotMoveOnACuboidOverworld() {
+        WorldLayout cuboid = WorldLayout.DEFAULT.withOverworld(DimensionLayout.cuboid(CUBOID));
+
+        assertNull(cuboid.withSpawn(new SpawnPoint(5, -7)));
     }
 
     private static WorldLayout roundTrip(WorldLayout chosen) {

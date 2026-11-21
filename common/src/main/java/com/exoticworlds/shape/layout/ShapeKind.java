@@ -10,6 +10,7 @@ public enum ShapeKind {
     NORMAL,
     TORUS,
     CYLINDER,
+    CUBOID,
     FROM_OVERWORLD;
 
     public static ShapeKind of(@Nullable LoopSpans spans) {

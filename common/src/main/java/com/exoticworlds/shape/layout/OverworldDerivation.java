@@ -29,7 +29,7 @@ public final class OverworldDerivation {
         return switch (ShapeKind.of(overworld)) {
             case TORUS -> LoopSpans.ofWidths(endWidth(overworld, Direction.Axis.X), endWidth(overworld, Direction.Axis.Z));
             case CYLINDER -> LoopSpans.ofWidth(loopedAxis(overworld), endWidth(overworld, loopedAxis(overworld)));
-            case NORMAL, FROM_OVERWORLD -> null;
+            case NORMAL, CUBOID, FROM_OVERWORLD -> null;
         };
     }
 

@@ -20,6 +20,7 @@ import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.api.v2.shape.BuiltInShapes;
 import com.exoticworlds.api.v2.shape.DimensionContext;
 import com.exoticworlds.api.v2.shape.DimensionShape;
+import com.exoticworlds.core.CuboidShape;
 import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.WorldLoopSizes;
@@ -41,6 +42,7 @@ final class DimensionPage {
     private final Value<ShapeChoice> chosen = Value.of(ShapeChoice.of(ShapeKind.NORMAL));
     private final Value<Integer> netherScale = Value.of(NetherScales.DEFAULT);
     private final LoopFields loops;
+    private final CuboidFields cuboid;
     private final SpawnFields spawn;
     private final OptionControls declared;
     private final Column page = new Column();
@@ -54,6 +56,7 @@ final class DimensionPage {
         this.overworld = overworld;
         this.options = shown.options();
         this.loops = new LoopFields(theme, fill, offer.minChunkWidth(), offer.defaultChunkWidth());
+        this.cuboid = new CuboidFields(theme, fill);
         this.spawn = new SpawnFields(theme, fill, this::spawnChunkWidth);
         this.declared = new OptionControls(theme, fill, offer.dimension(), this::resolvedShape, this::resolvedSpans);
         this.build(theme, fill, lockReason);
@@ -79,6 +82,7 @@ final class DimensionPage {
         this.chosen.set(shape != null ? ShapeChoice.of(shape) : ShapeChoice.of(layout.kind()));
         this.shownKind = layout.kind();
         this.loops.show(layout.spans());
+        this.cuboid.show(layout.cuboid());
         this.spawn.show(this.options.get(SpawnPoint.OPTION));
         this.declared.show(this.options);
     }
@@ -113,6 +117,11 @@ final class DimensionPage {
             return DimensionLayout.fromOverworld(chosenOptions);
         }
 
+        if (own == ShapeKind.CUBOID) {
+            CuboidShape sizes = this.cuboid.shape();
+            return sizes == null ? null : DimensionLayout.cuboid(sizes);
+        }
+
         LoopSpans spans = own == null ? null : this.loops.spans(own);
         return spans == null ? null : DimensionLayout.looped(spans, chosenOptions);
     }
@@ -139,7 +148,8 @@ final class DimensionPage {
 
         this.loops.torus().setVisible(() -> this.own() == ShapeKind.TORUS);
         this.loops.cylinder().setVisible(() -> this.own() == ShapeKind.CYLINDER);
-        this.spawn.section().setVisible(() -> this.offer.spawnPoint() && this.resolvedKind() != ShapeKind.NORMAL);
+        this.cuboid.section().setVisible(() -> this.own() == ShapeKind.CUBOID);
+        this.spawn.section().setVisible(() -> this.offer.spawnPoint() && this.takesOptions(this.resolvedKind()));
         additional.setVisible(this.declared::anyOffered);
 
         this.page.setGap(LoopFields.GAP);
@@ -156,6 +166,7 @@ final class DimensionPage {
         this.page.add(this.sizeErrorLine(fill));
         this.page.add(this.loops.torus());
         this.page.add(this.loops.cylinder());
+        this.page.add(this.cuboid.section());
         this.page.add(this.spawn.section());
         this.page.add(additional);
     }
@@ -271,12 +282,20 @@ final class DimensionPage {
         }
 
         ShapeKind resolved = this.resolvedKind();
+        if (!this.takesOptions(resolved)) {
+            return null;
+        }
+
         Identifier fromOverworld = this.own() == ShapeKind.FROM_OVERWORLD ? this.overworld.get().shape() : null;
-        if (resolved == ShapeKind.NORMAL || fromOverworld != null) {
-            return resolved == ShapeKind.NORMAL ? null : fromOverworld;
+        if (fromOverworld != null) {
+            return fromOverworld;
         }
 
         return resolved == ShapeKind.TORUS ? BuiltInShapes.TORUS : BuiltInShapes.CYLINDER;
+    }
+
+    private boolean takesOptions(ShapeKind resolved) {
+        return resolved != ShapeKind.NORMAL && resolved != ShapeKind.CUBOID;
     }
 
     private void changeShape(ShapeChoice picked) {

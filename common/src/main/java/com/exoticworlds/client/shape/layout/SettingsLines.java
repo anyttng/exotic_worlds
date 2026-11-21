@@ -8,6 +8,7 @@ import com.ascendiacore.gui.base.component.model.TooltipStyle;
 import com.ascendiacore.gui.base.hint.Hint;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.CoordinateConstants;
+import com.exoticworlds.core.CuboidShape;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.WorldLoopSizes;
 import com.exoticworlds.shape.WorldLoopPresets;
@@ -57,6 +58,9 @@ final class SettingsLines {
     static final Component SPAWN_POINT = Component.translatable(PREFIX + ".spawn.point");
     static final Component NETHER_SCALE = Component.translatable(PREFIX + ".nether_scale");
     static final Component ADDITIONAL = Component.translatable(PREFIX + ".additional");
+    static final Component CUBOID_SIZE_A = cuboidSizeCaption(".size_a");
+    static final Component CUBOID_SIZE_B = cuboidSizeCaption(".size_b");
+    static final Component CUBOID_SIZE_C = cuboidSizeCaption(".size_c");
 
     static Component lockReason(DimensionLock lock) {
         return Component.translatable(PREFIX + ".locked." + lock.name().toLowerCase(Locale.ROOT));
@@ -115,6 +119,12 @@ final class SettingsLines {
             return WorldShape.label(declared);
         }
 
+        CuboidShape cuboid = layout.cuboid();
+        if (cuboid != null) {
+            return shapeName(ShapeKind.CUBOID).copy()
+                    .append(SEPARATOR + cuboid.aChunks() + TIMES + cuboid.bChunks() + TIMES + cuboid.cChunks());
+        }
+
         if (layout.kind() != ShapeKind.FROM_OVERWORLD) {
             return shapeSummary(spans);
         }
@@ -150,6 +160,11 @@ final class SettingsLines {
 
     private static Component sizeCaption(String key, int minChunkWidth) {
         return Component.translatable(PREFIX + key, minChunkWidth, WorldLoopSizes.MAX_CHUNK_WIDTH);
+    }
+
+    private static Component cuboidSizeCaption(String key) {
+        return Component.translatable(PREFIX + key, WorldLoopSizes.MIN_CHUNK_WIDTH,
+                WorldLoopSizes.MAX_CUBOID_EDGE_CHUNKS);
     }
 
     private static String structureRoom(int chunkWidth) {

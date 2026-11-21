@@ -72,7 +72,7 @@ public record WorldLayout(DimensionLayout overworld, DimensionLayout nether, Dim
     }
 
     public @Nullable WorldLayout withSpawn(SpawnPoint spawn) {
-        if (this.overworld.kind() == ShapeKind.NORMAL) {
+        if (this.overworld.kind() == ShapeKind.NORMAL || this.overworld.kind() == ShapeKind.CUBOID) {
             return null;
         }
 

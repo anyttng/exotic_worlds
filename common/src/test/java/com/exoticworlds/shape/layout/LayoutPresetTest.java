@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.core.CuboidShape;
 import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.torus.GuaranteedLand;
@@ -71,6 +72,12 @@ class LayoutPresetTest {
         assertFalse(LayoutPreset.matches(
                 small.withOverworld(DimensionLayout.looped(LoopSpans.ofWidth(chunkWidth).withSkew(2), PLAIN)),
                 WorldLoopPresets.SMALL));
+    }
+
+    @Test
+    void thePresetRowIsNotOfferedUnderACuboidOverworld() {
+        assertTrue(LayoutPreset.offered(WorldLayout.DEFAULT));
+        assertFalse(LayoutPreset.offered(withOverworld(DimensionLayout.cuboid(new CuboidShape(16, 24, 40)))));
     }
 
     private static WorldLayout withOverworld(DimensionLayout overworld) {

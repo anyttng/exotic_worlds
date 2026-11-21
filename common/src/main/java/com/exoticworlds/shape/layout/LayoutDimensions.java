@@ -10,6 +10,7 @@ import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.api.v1.shape.ShapeDimensions;
 import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.CuboidShape;
 import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
@@ -24,8 +25,7 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
 public final class LayoutDimensions {
 
     public static WorldDimensions apply(WorldDimensions dimensions, WorldLayout layout) {
-        WorldDimensions shaped = withShape(dimensions, LevelStem.OVERWORLD, layout.overworld().spans(),
-                layout.overworld().options());
+        WorldDimensions shaped = withOverworld(dimensions, layout.overworld());
         shaped = withShape(shaped, LevelStem.NETHER, layout.netherSpans(), layout.nether().options());
         shaped = withShape(shaped, LevelStem.END, layout.endSpans(), layout.end().options());
         return layout.modDimensions().isEmpty()
@@ -34,7 +34,7 @@ public final class LayoutDimensions {
     }
 
     public static @Nullable WorldLayout read(WorldDimensions dimensions) {
-        DimensionLayout overworld = readStem(dimensions, LevelStem.OVERWORLD);
+        DimensionLayout overworld = readOverworld(dimensions);
         DimensionLayout nether = readStem(dimensions, LevelStem.NETHER);
         DimensionLayout end = readStem(dimensions, LevelStem.END);
         Map<ResourceKey<LevelStem>, DimensionLayout> modDimensions =
@@ -43,7 +43,7 @@ public final class LayoutDimensions {
             return null;
         }
 
-        boolean wrapped = overworld.spans() != null || nether.spans() != null || end.spans() != null;
+        boolean wrapped = overworld.kind() != ShapeKind.NORMAL || nether.spans() != null || end.spans() != null;
         return wrapped || !modDimensions.isEmpty() ? derived(overworld, nether, end, modDimensions) : null;
     }
 
@@ -68,6 +68,11 @@ public final class LayoutDimensions {
 
     private static WorldLayout derived(DimensionLayout overworld, DimensionLayout nether, DimensionLayout end,
             Map<ResourceKey<LevelStem>, DimensionLayout> modDimensions) {
+        if (overworld.kind() == ShapeKind.CUBOID) {
+            return new WorldLayout(overworld, underCuboid(nether), underCuboid(end), modDimensions,
+                    NetherScales.DEFAULT);
+        }
+
         LoopSpans spans = overworld.spans();
         if (spans == null) {
             return new WorldLayout(overworld, nether, end, modDimensions, NetherScales.DEFAULT);
@@ -79,6 +84,17 @@ public final class LayoutDimensions {
                 netherScale == null ? nether : DimensionLayout.fromOverworld(nether.options()),
                 derivedEnd != null && Objects.equals(derivedEnd, end.spans()) ?DimensionLayout.fromOverworld(end.options()) : end,
                 modDimensions, netherScale == null ? NetherScales.DEFAULT : netherScale);
+    }
+
+    private static DimensionLayout underCuboid(DimensionLayout read) {
+        return read.kind() == ShapeKind.NORMAL ? DimensionLayout.fromOverworld(read.options()) : read;
+    }
+
+    private static @Nullable DimensionLayout readOverworld(WorldDimensions dimensions) {
+        CarriedShape carried = ShapedDimensions.carriedShapeOf(dimensions, LevelStem.OVERWORLD);
+        return carried != null && carried.shape() instanceof CuboidShape cuboid
+                ? DimensionLayout.cuboid(cuboid)
+                : readStem(dimensions, LevelStem.OVERWORLD);
     }
 
     private static @Nullable DimensionLayout readStem(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
@@ -147,6 +163,14 @@ public final class LayoutDimensions {
         return spans == null
                 ? DimensionTable.Entry.UNWRAPPED
                 : new DimensionTable.Entry(carried(spans, layout.options()));
+    }
+
+    private static WorldDimensions withOverworld(WorldDimensions dimensions, DimensionLayout overworld) {
+        CuboidShape cuboid = overworld.cuboid();
+        return cuboid == null
+                ? withShape(dimensions, LevelStem.OVERWORLD, overworld.spans(), overworld.options())
+                : ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
+                        new CarriedShape(cuboid, overworld.options()));
     }
 
     private static WorldDimensions withShape(WorldDimensions dimensions, ResourceKey<LevelStem> key,

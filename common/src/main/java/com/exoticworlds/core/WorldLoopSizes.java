@@ -13,6 +13,8 @@ public final class WorldLoopSizes {
     public static final int MIN_CHUNK_WIDTH = MIN_CHUNK_RADIUS * 2;
     public static final int MAX_CHUNK_WIDTH = MAX_CHUNK_RADIUS * 2;
 
+    public static final int MAX_CUBOID_EDGE_CHUNKS = MAX_CHUNK_WIDTH / 4;
+
     public static final int DEFAULT_CHUNK_WIDTH = 32;
 
     public static final int ENDLESS_AXIS_WIDTH = 0;

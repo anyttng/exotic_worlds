@@ -145,7 +145,7 @@ final class LoopFields {
         return xChunkWidth == null ? Component.empty() : SettingsLines.shiftLaps(xChunkWidth, shiftChunks);
     }
 
-    private static NumberField sizeField(Theme theme, FillStyle fill, Component caption, Optional<Bounds> bounds) {
+    static NumberField sizeField(Theme theme, FillStyle fill, Component caption, Optional<Bounds> bounds) {
         NumberField field = new NumberField(fill, theme.textField(), caption, () -> bounds, () -> {
         });
         field.setMaxLength(SIZE_MAX_LENGTH);

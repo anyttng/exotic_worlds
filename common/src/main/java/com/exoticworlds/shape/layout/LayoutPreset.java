@@ -16,6 +16,10 @@ import net.minecraft.world.level.dimension.LevelStem;
 public final class LayoutPreset {
 
     public static boolean offered(WorldLayout layout) {
+        if (layout.overworld().kind() == ShapeKind.CUBOID) {
+            return false;
+        }
+
         Identifier declared = layout.overworld().shape();
         return declared == null || presetShape(declared) != null;
     }
