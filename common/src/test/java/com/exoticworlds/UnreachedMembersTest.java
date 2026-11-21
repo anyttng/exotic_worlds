@@ -76,8 +76,7 @@ class UnreachedMembersTest {
             "core.FoldOrientation.applyToLocalZ",
             "core.FoldOrientation.localIndexTable",
             "core.FoldOrientation.stateMirror",
-            "core.FoldOrientation.stateRotation",
-            "core.FoldOrientation.applyToState");
+            "core.FoldOrientation.stateRotation");
     private static final Set<String> READ_BY_HARNESS = Set.of(
             "compat.distanthorizons.DhFold.periodSections",
             "compat.gate.ModPresenceGatePlugin.gates");

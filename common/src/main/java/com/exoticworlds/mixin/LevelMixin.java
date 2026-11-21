@@ -19,6 +19,7 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.BlockEntitySeat;
+import com.exoticworlds.engine.fold.ChunkFrame;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.exoticworlds.engine.fold.SeamEntitySearch;
 import com.exoticworlds.engine.gen.terrain.FloatingCrumbs;
@@ -28,11 +29,13 @@ import com.exoticworlds.engine.noise.check.SeamVerdict;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.world.entity.Entity;
@@ -40,9 +43,12 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelEntityGetter;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 
 @Mixin(Level.class)
@@ -58,6 +64,10 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
     @Unique
     private static final String SOURCE_GET_CHUNK = "Lnet/minecraft/world/level/chunk/ChunkSource;"
             + "getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;";
+
+    @Unique
+    private static final String SET_BLOCK =
+            "setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)Z";
 
     @Unique
     private WorldFold exotic_worlds$fold;
@@ -97,8 +107,24 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
         return exotic_worlds$wrap(pos);
     }
 
-    @ModifyVariable(method = "setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)Z",
-            at = @At("HEAD"), argsOnly = true)
+    @WrapOperation(
+            method = "getHeight(Lnet/minecraft/world/level/levelgen/Heightmap$Types;II)I",
+            at = @At(value = "INVOKE", target = InjectionTargets.LEVEL_CHUNK_GET_HEIGHT))
+    private int exotic_worlds$heightInChunkFrame(LevelChunk chunk, Heightmap.Types type, int localX, int localZ,
+            Operation<Integer> original, @Local(argsOnly = true, ordinal = 0) int x,
+            @Local(argsOnly = true, ordinal = 1) int z) {
+        long seated = ChunkFrame.seatColumn(exotic_worlds$fold(), chunk.getPos(), x, z);
+        return original.call(chunk, type,
+                SectionPos.sectionRelative(BlockPos.getX(seated)), SectionPos.sectionRelative(BlockPos.getZ(seated)));
+    }
+
+    // Must stay above the position handler: Mixin runs them in declaration order, and the turn reads the unfolded position.
+    @ModifyVariable(method = SET_BLOCK, at = @At("HEAD"), argsOnly = true)
+    private BlockState exotic_worlds$turnPlacedState(BlockState state, @Local(argsOnly = true) BlockPos pos) {
+        return ChunkFrame.toChunk(exotic_worlds$fold(), pos, state);
+    }
+
+    @ModifyVariable(method = SET_BLOCK, at = @At("HEAD"), argsOnly = true)
     private BlockPos exotic_worlds$wrapPlacedBlockPos(BlockPos pos) {
         return exotic_worlds$wrap(pos);
     }

@@ -16,9 +16,12 @@ public final class ChunkSeat {
         return sitsIn(own, nearest) ? nearest : pos;
     }
 
+    public static boolean sitsIn(ChunkPos own, int x, int z) {
+        return SectionPos.blockToSectionCoord(x) == own.x() && SectionPos.blockToSectionCoord(z) == own.z();
+    }
+
     private static boolean sitsIn(ChunkPos own, BlockPos pos) {
-        return SectionPos.blockToSectionCoord(pos.getX()) == own.x()
-                && SectionPos.blockToSectionCoord(pos.getZ()) == own.z();
+        return sitsIn(own, pos.getX(), pos.getZ());
     }
 
     private ChunkSeat() {
