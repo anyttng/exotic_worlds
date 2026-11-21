@@ -3,13 +3,14 @@ package com.exoticworlds.engine.noise.cuboid;
 import com.exoticworlds.core.CuboidAtlas;
 import com.exoticworlds.core.CuboidFace;
 import com.exoticworlds.core.CuboidFace.BoxVector;
+import com.exoticworlds.engine.noise.BoxDivisors;
 
 @SuppressWarnings("ArrayRecordComponent")
 record CuboidLattice(byte[] permutations, double yOffset, double fudgeYScale, Face[] faces) {
-    private static final int AXES = 3;
-    private static final int A_AXIS = 0;
-    private static final int B_AXIS = 1;
-    private static final int C_AXIS = 2;
+    static final int AXES = 3;
+    static final int A_AXIS = 0;
+    static final int B_AXIS = 1;
+    static final int C_AXIS = 2;
 
     record Face(int xCells, int zCells, double xRatio, double zRatio, BoxVector origin, BoxVector alongX,
             BoxVector alongZ, int xSign, int zSign, double xAcross, double zAcross) {
@@ -33,10 +34,17 @@ record CuboidLattice(byte[] permutations, double yOffset, double fudgeYScale, Fa
 
     static CuboidLattice of(byte[] permutations, double yOffset, double fudgeYScale, CuboidAtlas atlas,
             double scale) {
+        return of(permutations, yOffset, fudgeYScale, atlas, scale, BoxDivisors.UNDIVIDED);
+    }
+
+    static CuboidLattice of(byte[] permutations, double yOffset, double fudgeYScale, CuboidAtlas atlas,
+            double scale, BoxDivisors divisors) {
         int[] cells = new int[AXES];
         for (CuboidFace face : atlas.faces()) {
-            cells[axisOf(face.alongX())] = cellsAlong(face.widthBlocks(), scale);
-            cells[axisOf(face.alongZ())] = cellsAlong(face.depthBlocks(), scale);
+            int xAxis = axisOf(face.alongX());
+            int zAxis = axisOf(face.alongZ());
+            cells[xAxis] = cellsAlong(face.widthBlocks(), scale / divisor(divisors, xAxis));
+            cells[zAxis] = cellsAlong(face.depthBlocks(), scale / divisor(divisors, zAxis));
         }
 
         Face[] faces = new Face[atlas.faces().size()];
@@ -55,7 +63,15 @@ record CuboidLattice(byte[] permutations, double yOffset, double fudgeYScale, Fa
         return originBlocks == 0 ? 0 : cells;
     }
 
-    private static int axisOf(BoxVector direction) {
+    private static double divisor(BoxDivisors divisors, int axis) {
+        return switch (axis) {
+            case A_AXIS -> divisors.a();
+            case B_AXIS -> divisors.b();
+            default -> divisors.c();
+        };
+    }
+
+    static int axisOf(BoxVector direction) {
         if (direction.a() != 0) {
             return A_AXIS;
         }

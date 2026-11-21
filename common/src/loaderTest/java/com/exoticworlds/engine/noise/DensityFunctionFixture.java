@@ -96,9 +96,18 @@ public final class DensityFunctionFixture {
     }
 
     private static DensitySampler compileFolded(DensityFunction function, WorldFold fold, NoiseScaleLadder ladder) {
+        return new DensityFunctionCompiler(foldedContext(fold, ladder).vanilla()).getSampler(function);
+    }
+
+    public static FoldedCompileContext foldedContext(WorldFold fold) {
+        return foldedContext(fold, NoiseScaleLadder.NONE);
+    }
+
+    private static FoldedCompileContext foldedContext(WorldFold fold, NoiseScaleLadder ladder) {
         FoldedSeeded context = new FoldedSeeded();
-        context.exotic_worlds$foldedCompile(new FoldedCompileContext(context, fold, NO_LIFT, ladder));
-        return new DensityFunctionCompiler(context).getSampler(function);
+        FoldedCompileContext folded = new FoldedCompileContext(context, fold, NO_LIFT, ladder);
+        context.exotic_worlds$foldedCompile(folded);
+        return folded;
     }
 
     public static NoiseScaleLadder ladderOf(DensityFunction function, WorldFold fold) {
