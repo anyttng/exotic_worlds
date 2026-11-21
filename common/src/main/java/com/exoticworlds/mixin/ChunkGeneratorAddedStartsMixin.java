@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.engine.gen.AddedStructureStarts;
+import com.exoticworlds.engine.gen.structure.AddedStructureStarts;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.core.RegistryAccess;

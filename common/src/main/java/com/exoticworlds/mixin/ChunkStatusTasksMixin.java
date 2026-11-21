@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.exoticworlds.BinderOrder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.gen.FloatingCrumbs;
+import com.exoticworlds.engine.gen.terrain.FloatingCrumbs;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.check.PeriodicityCheck;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
