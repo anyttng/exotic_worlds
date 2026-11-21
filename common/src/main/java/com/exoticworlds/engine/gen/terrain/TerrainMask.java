@@ -6,6 +6,8 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.gen.TerrainSnapshot;
 import com.exoticworlds.core.CoordinateConstants;
+import com.exoticworlds.core.FoldOrientation;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -38,18 +40,22 @@ public final class TerrainMask implements TerrainSnapshot {
 
     private final int highestY;
 
+    private final @Nullable WorldFold turning;
+
     private @Nullable BitSet written;
 
-    private TerrainMask(ChunkPos pos, int minY, CellGrid grid, BitSet solid, int lowestY, int highestY) {
+    private TerrainMask(ChunkPos pos, int minY, CellGrid grid, BitSet solid, int lowestY, int highestY,
+            @Nullable WorldFold turning) {
         this.pos = pos;
         this.minY = minY;
         this.grid = grid;
         this.solid = solid;
         this.lowestY = lowestY;
         this.highestY = highestY;
+        this.turning = turning;
     }
 
-    static TerrainMask of(boolean[] solid, ChunkPos pos, int minY, CellGrid grid) {
+    static TerrainMask of(boolean[] solid, ChunkPos pos, int minY, CellGrid grid, @Nullable WorldFold turning) {
         BitSet bits = new BitSet(grid.cells());
         int lowestY = Integer.MAX_VALUE;
         int highestY = Integer.MIN_VALUE;
@@ -65,10 +71,11 @@ public final class TerrainMask implements TerrainSnapshot {
             highestY = Math.max(highestY, y);
         }
 
-        return new TerrainMask(pos, minY, grid, bits, lowestY, highestY);
+        return new TerrainMask(pos, minY, grid, bits, lowestY, highestY, turning);
     }
 
-    static @Nullable TerrainMask load(CompoundTag tag, ChunkPos pos, int minY, int height) {
+    static @Nullable TerrainMask load(CompoundTag tag, ChunkPos pos, int minY, int height,
+            @Nullable WorldFold turning) {
         CellGrid grid = new CellGrid(CoordinateConstants.CHUNK_WIDTH, height);
         long[] solid = tag.getLongArray(SOLID_KEY).orElse(null);
         if (solid == null || tag.getIntOr(MIN_Y_KEY, NO_VALUE) != minY
@@ -77,7 +84,8 @@ public final class TerrainMask implements TerrainSnapshot {
         }
 
         TerrainMask mask = new TerrainMask(pos, minY, grid, BitSet.valueOf(solid),
-                tag.getIntOr(LOWEST_Y_KEY, Integer.MAX_VALUE), tag.getIntOr(HIGHEST_Y_KEY, Integer.MIN_VALUE));
+                tag.getIntOr(LOWEST_Y_KEY, Integer.MAX_VALUE), tag.getIntOr(HIGHEST_Y_KEY, Integer.MIN_VALUE),
+                turning);
         tag.getLongArray(WRITTEN_KEY).ifPresent(written -> mask.written = BitSet.valueOf(written));
         return mask;
     }
@@ -130,6 +138,29 @@ public final class TerrainMask implements TerrainSnapshot {
     boolean solidAt(int localX, int y, int localZ) {
         int cell = this.cellOf(localX, y, localZ);
         return cell != CellGrid.NO_CELL && this.solid.get(cell);
+    }
+
+    boolean solidAt(FoldOrientation frame, int localX, int y, int localZ) {
+        return this.solidAt(frame.applyToLocalX(localX, localZ, CoordinateConstants.CHUNK_WIDTH), y,
+                frame.applyToLocalZ(localX, localZ, CoordinateConstants.CHUNK_WIDTH));
+    }
+
+    FoldOrientation @Nullable [] windowFrames(int windowChunks) {
+        WorldFold fold = this.turning;
+        if (fold == null) {
+            return null;
+        }
+
+        int reach = windowChunks / 2;
+        FoldOrientation[] frames = new FoldOrientation[windowChunks * windowChunks];
+        for (int stepZ = -reach; stepZ <= reach; stepZ++) {
+            for (int stepX = -reach; stepX <= reach; stepX++) {
+                ChunkPos slot = new ChunkPos(this.pos.x() + stepX, this.pos.z() + stepZ);
+                frames[(stepZ + reach) * windowChunks + stepX + reach] = fold.foldOriented(slot).orientation();
+            }
+        }
+
+        return frames;
     }
 
     boolean untouchedAt(int localX, int y, int localZ) {
