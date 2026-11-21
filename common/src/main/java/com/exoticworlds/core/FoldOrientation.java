@@ -74,6 +74,10 @@ public enum FoldOrientation {
         return of(this.swapsAxes ^ next.swapsAxes, next.flipsX ^ carriedX, next.flipsZ ^ carriedZ);
     }
 
+    public FoldOrientation inverse() {
+        return this.swapsAxes ? of(true, this.flipsZ, this.flipsX) : this;
+    }
+
     public Vec3 applyToDelta(Vec3 delta) {
         if (isIdentity()) {
             return delta;
