@@ -251,6 +251,7 @@
     "ShootTongueMixin",
     "ShulkerBulletMixin",
     "SignFacingMixin",
+    "SkyLightEmptySectionStepMixin",
     "SleepInBedMixin",
     "SnifferMixin",
     "SocializeAtBellMixin",
