@@ -273,6 +273,7 @@
     "StructureGenerateBindingMixin",
     "StructureManagerAccessor",
     "StructureManagerMixin",
+    "StructurePieceAccessor",
     "StructureStartMixin",
     "StructureTemplateMixin",
     "SurfaceSystemMixin",
