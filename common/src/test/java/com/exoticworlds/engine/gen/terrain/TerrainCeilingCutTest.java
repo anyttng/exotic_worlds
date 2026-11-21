@@ -1,10 +1,11 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.gen.terrain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.engine.noise.CompiledDensity;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.MapCodec;
 
