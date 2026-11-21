@@ -16,7 +16,7 @@ import com.eminus.render.tree.CameraFrame;
 import com.eminus.render.tree.NodeTable;
 import com.eminus.render.tree.RenderList;
 import com.eminus.render.tree.TreeNode;
-import com.eminus.render.tree.TreeRing;
+import com.eminus.render.tree.TreeRoots;
 import com.exoticworlds.compat.eminus.CellFoldHolder;
 import com.exoticworlds.compat.eminus.LapTest;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -56,7 +56,7 @@ public class TreeTraversalMixin implements LapTest {
 
     @Inject(method = {"visit", "collectOutOfView"}, at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$refineThroughTheMargin(CallbackInfo ci, @Local(argsOnly = true) TreeNode node) {
-        if (!exotic_worlds$meets(node.key(), TreeRing.MOVE_BLOCKS)) {
+        if (!exotic_worlds$meets(node.key(), TreeRoots.MOVE_BLOCKS)) {
             ci.cancel();
         }
     }
