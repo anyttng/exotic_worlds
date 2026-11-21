@@ -23,7 +23,6 @@ class CuboidAtlasTest {
     private static final int GLUED_PAIRS = 7;
     private static final int VERTICES = 8;
     private static final int FACES_PER_VERTEX = 3;
-    private static final int BLOCK_Y = 64;
 
     private static List<CuboidAtlas> atlases() {
         List<CuboidAtlas> atlases = new ArrayList<>();
@@ -91,40 +90,14 @@ class CuboidAtlasTest {
 
     private static void cross(CuboidAtlas atlas, CuboidFace from, Direction fromSide, CuboidFace to,
             Direction toSide, SeamTransform transform) {
-        for (BlockPos inside : blocksAlong(from, fromSide)) {
+        for (BlockPos inside : CuboidFixtures.blocksAlong(from, fromSide)) {
             BlockPos outside = inside.relative(fromSide);
             BlockPos landed = transform.apply(outside);
             assertSame(to, atlas.faceAt(landed.getX(), landed.getZ()));
-            assertEquals(sharedSegment(from, inside, fromSide), sharedSegment(to, landed, toSide));
+            assertEquals(CuboidFixtures.sharedSegment(from, inside, fromSide),
+                    CuboidFixtures.sharedSegment(to, landed, toSide));
             assertEquals(outside, transform.inverse().apply(landed));
         }
-    }
-
-    private static List<BlockPos> blocksAlong(CuboidFace face, Direction side) {
-        List<BlockPos> blocks = new ArrayList<>();
-        boolean alongX = side.getAxis() == Direction.Axis.Z;
-        int length = alongX ? face.widthBlocks() : face.depthBlocks();
-        int far = (alongX ? face.depthBlocks() : face.widthBlocks()) - 1;
-        int fixed = side == Direction.SOUTH || side == Direction.EAST ? far : 0;
-        for (int along = 0; along < length; along++) {
-            blocks.add(alongX
-                    ? new BlockPos(face.blockX(along), BLOCK_Y, face.blockZ(fixed))
-                    : new BlockPos(face.blockX(fixed), BLOCK_Y, face.blockZ(along)));
-        }
-
-        return blocks;
-    }
-
-    private static Set<BoxVector> sharedSegment(CuboidFace face, BlockPos block, Direction side) {
-        int localX = face.localX(block.getX());
-        int localZ = face.localZ(block.getZ());
-        return switch (side) {
-            case NORTH -> Set.of(face.boxPoint(localX, localZ), face.boxPoint(localX + 1, localZ));
-            case SOUTH -> Set.of(face.boxPoint(localX, localZ + 1), face.boxPoint(localX + 1, localZ + 1));
-            case WEST -> Set.of(face.boxPoint(localX, localZ), face.boxPoint(localX, localZ + 1));
-            case EAST -> Set.of(face.boxPoint(localX + 1, localZ), face.boxPoint(localX + 1, localZ + 1));
-            default -> throw new IllegalArgumentException("A face has no side " + side);
-        };
     }
 
     @Test
@@ -172,7 +145,7 @@ class CuboidAtlasTest {
         for (int localX : new int[] {0, face.widthBlocks()}) {
             for (int localZ : new int[] {0, face.depthBlocks()}) {
                 if (face.boxPoint(localX, localZ).equals(point)) {
-                    return new BlockPos(face.blockX(localX), BLOCK_Y, face.blockZ(localZ));
+                    return new BlockPos(face.blockX(localX), CuboidFixtures.BLOCK_Y, face.blockZ(localZ));
                 }
             }
         }

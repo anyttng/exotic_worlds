@@ -1,14 +1,20 @@
 package com.exoticworlds.core;
 
-import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
+import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.core.CuboidFace.BoxVector;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 
 public final class CuboidFixtures {
     public static final int MIN_CHUNK_X = -3;
     public static final int MIN_CHUNK_Z = 5;
 
-    private static final String ATLAS_MEMBER = "cuboidAtlas";
+    public static final int BLOCK_Y = 64;
 
     private static final int[][] CHUNK_SIZES = {{1, 1, 1}, {3, 5, 2}, {7, 1, 2}, {16, 24, 40}};
 
@@ -58,15 +64,34 @@ public final class CuboidFixtures {
                 transform.applyZ(vector[0], vector[1]) - transform.applyZ(0.0, 0.0)};
     }
 
-    public static WorldFold cuboidFold(CuboidAtlas atlas) {
-        return (WorldFold) Proxy.newProxyInstance(WorldFold.class.getClassLoader(), new Class<?>[] {WorldFold.class},
-                (proxy, method, arguments) -> {
-                    if (method.getName().equals(ATLAS_MEMBER)) {
-                        return atlas;
-                    }
+    public static List<BlockPos> blocksAlong(CuboidFace face, Direction side) {
+        List<BlockPos> blocks = new ArrayList<>();
+        boolean alongZ = runsAlongZ(side);
+        int far = acrossBlocks(face, side) - 1;
+        int fixed = side == Direction.SOUTH || side == Direction.EAST ? far : 0;
+        for (int along = 0; along < edgeBlocks(face, side); along++) {
+            blocks.add(alongZ
+                    ? new BlockPos(face.blockX(fixed), BLOCK_Y, face.blockZ(along))
+                    : new BlockPos(face.blockX(along), BLOCK_Y, face.blockZ(fixed)));
+        }
 
-                    throw new UnsupportedOperationException(method.getName());
-                });
+        return blocks;
+    }
+
+    public static Set<BoxVector> sharedSegment(CuboidFace face, BlockPos block, Direction side) {
+        int localX = face.localX(block.getX());
+        int localZ = face.localZ(block.getZ());
+        return switch (side) {
+            case NORTH -> Set.of(face.boxPoint(localX, localZ), face.boxPoint(localX + 1, localZ));
+            case SOUTH -> Set.of(face.boxPoint(localX, localZ + 1), face.boxPoint(localX + 1, localZ + 1));
+            case WEST -> Set.of(face.boxPoint(localX, localZ), face.boxPoint(localX, localZ + 1));
+            case EAST -> Set.of(face.boxPoint(localX + 1, localZ), face.boxPoint(localX + 1, localZ + 1));
+            default -> throw new IllegalArgumentException("A face has no " + side + " edge");
+        };
+    }
+
+    public static WorldFold cuboidFold(CuboidAtlas atlas) {
+        return new CuboidFold(atlas, GenerationOptions.DEFAULT);
     }
 
     private CuboidFixtures() {
