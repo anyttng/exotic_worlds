@@ -19,14 +19,14 @@ public final class CuboidFold implements WorldFold {
     private static final int EAST = 1;
     private static final int NORTH = 2;
     private static final int SOUTH = 3;
-    private static final int SIDES = 4;
+    static final int SIDES = 4;
     private static final int NO_BAND = -1;
     private static final int NO_FACE = -1;
     private static final double NOT_PAST = -1.0;
     private static final double CELL_CENTER = 0.5;
     private static final int CHUNK_CENTER = CoordinateConstants.CHUNK_WIDTH / 2;
 
-    private record Crossing(int face, int entrySide, SeamTransform transform) {
+    record Crossing(int face, int entrySide, SeamTransform transform) {
     }
 
     private record Rect(int minX, int minZ, int endX, int endZ) {
@@ -84,6 +84,8 @@ public final class CuboidFold implements WorldFold {
 
     private final Crossing[][] crossings;
 
+    private final CuboidUnfoldings unfoldings;
+
     private final int maxViewDistance;
 
     public CuboidFold(CuboidAtlas atlas, GenerationOptions generationOptions) {
@@ -98,6 +100,7 @@ public final class CuboidFold implements WorldFold {
         }
 
         this.crossings = crossingsOf(atlasFaces, atlas.edges());
+        this.unfoldings = CuboidUnfoldings.of(this.crossings);
         this.maxViewDistance = Math.max(1, smallestEdge / 2 - CoordinateConstants.VIEW_DISTANCE_MARGIN);
     }
 
@@ -214,6 +217,40 @@ public final class CuboidFold implements WorldFold {
 
     private SeamTransform moveOfCoord(double x, double z) {
         return moveOf(x, z, Mth.floor(x), Mth.floor(z));
+    }
+
+    private SeamTransform nearestMove(double refX, double refZ, int refBlockX, int refBlockZ,
+            double x, double z, int blockX, int blockZ) {
+        SeamTransform refMove = moveOf(refX, refZ, refBlockX, refBlockZ);
+        SeamTransform targetMove = moveOf(x, z, blockX, blockZ);
+        int refFace = faceOf(refMove.applyCellX(refBlockX, refBlockZ), refMove.applyCellZ(refBlockX, refBlockZ));
+        int targetFace = faceOf(targetMove.applyCellX(blockX, blockZ), targetMove.applyCellZ(blockX, blockZ));
+        if (refFace == NO_FACE || targetFace == NO_FACE || (refFace == targetFace && refMove.equals(targetMove))) {
+            return SeamTransform.IDENTITY;
+        }
+
+        SeamTransform unfolding = this.unfoldings.nearest(refFace, targetFace,
+                refMove.applyX(refX, refZ), refMove.applyZ(refX, refZ),
+                targetMove.applyX(x, z), targetMove.applyZ(x, z));
+        return targetMove.then(unfolding).then(refMove.inverse());
+    }
+
+    private SeamTransform nearestMoveOfChunk(int refChunkX, int refChunkZ, int chunkX, int chunkZ) {
+        int refBlockX = SectionPos.sectionToBlockCoord(refChunkX);
+        int refBlockZ = SectionPos.sectionToBlockCoord(refChunkZ);
+        int blockX = SectionPos.sectionToBlockCoord(chunkX);
+        int blockZ = SectionPos.sectionToBlockCoord(chunkZ);
+        return nearestMove(refBlockX + CHUNK_CENTER, refBlockZ + CHUNK_CENTER, refBlockX, refBlockZ,
+                blockX + CHUNK_CENTER, blockZ + CHUNK_CENTER, blockX, blockZ);
+    }
+
+    private SeamTransform nearestMoveOfBlock(BlockPos ref, BlockPos target) {
+        return nearestMove(ref.getX() + CELL_CENTER, ref.getZ() + CELL_CENTER, ref.getX(), ref.getZ(),
+                target.getX() + CELL_CENTER, target.getZ() + CELL_CENTER, target.getX(), target.getZ());
+    }
+
+    private SeamTransform nearestMoveOfCoord(double refX, double refZ, double x, double z) {
+        return nearestMove(refX, refZ, Mth.floor(refX), Mth.floor(refZ), x, z, Mth.floor(x), Mth.floor(z));
     }
 
     private static int carriedChunkX(SeamTransform move, int chunkX, int chunkZ) {
@@ -426,57 +463,71 @@ public final class CuboidFold implements WorldFold {
 
     @Override
     public Vec3 nearestCopy(Vec3 ref, Vec3 target) {
-        throw notCarried("nearestCopy");
+        return nearestMoveOfCoord(ref.x, ref.z, target.x, target.z).apply(target);
     }
 
     @Override
     public BlockPos nearestCopy(BlockPos ref, BlockPos target) {
-        throw notCarried("nearestCopy");
+        return nearestMoveOfBlock(ref, target).apply(target);
     }
 
     @Override
     public ChunkPos nearestCopy(ChunkPos ref, ChunkPos target) {
-        throw notCarried("nearestCopy");
+        return carried(nearestMoveOfChunk(ref.x(), ref.z(), target.x(), target.z())).apply(target);
     }
 
     @Override
     public long nearestCopyChunkKey(long refKey, long chunkKey) {
-        throw notCarried("nearestCopyChunkKey");
+        int x = ChunkPos.getX(chunkKey);
+        int z = ChunkPos.getZ(chunkKey);
+        SeamTransform move = nearestMoveOfChunk(ChunkPos.getX(refKey), ChunkPos.getZ(refKey), x, z);
+        return move.isIdentity() ? chunkKey : ChunkPos.pack(carriedChunkX(move, x, z), carriedChunkZ(move, x, z));
     }
 
     @Override
     public Folded<Vec3> nearestCopyOriented(Vec3 ref, Vec3 target) {
-        throw notCarried("nearestCopyOriented");
+        SeamTransform move = nearestMoveOfCoord(ref.x, ref.z, target.x, target.z);
+        return new Folded<>(move.apply(target), move.orientation());
     }
 
     @Override
     public Folded<BlockPos> nearestCopyOriented(BlockPos ref, BlockPos target) {
-        throw notCarried("nearestCopyOriented");
+        SeamTransform move = nearestMoveOfBlock(ref, target);
+        return new Folded<>(move.apply(target), move.orientation());
     }
 
     @Override
     public Folded<AABB> nearestCopyOriented(Vec3 ref, AABB box) {
-        throw notCarried("nearestCopyOriented");
+        SeamTransform move = nearestMoveOfCoord(ref.x, ref.z,
+                SeamBoxes.center(box.minX, box.maxX), SeamBoxes.center(box.minZ, box.maxZ));
+        return new Folded<>(move.apply(box), move.orientation());
     }
 
     @Override
     public DeckTransformation nearestCopyTransformation(Vec3 ref, Vec3 target) {
-        throw notCarried("nearestCopyTransformation");
+        return carried(nearestMoveOfCoord(ref.x, ref.z, target.x, target.z));
     }
 
     @Override
     public DeckTransformation nearestCopyTransformation(BlockPos ref, BlockPos target) {
-        throw notCarried("nearestCopyTransformation");
+        return carried(nearestMoveOfBlock(ref, target));
     }
 
     @Override
     public double sqrDistance(double xFrom, double yFrom, double zFrom, double xTo, double yTo, double zTo) {
-        throw notCarried("sqrDistance");
+        SeamTransform move = nearestMoveOfCoord(xFrom, zFrom, xTo, zTo);
+        double dx = move.applyX(xTo, zTo) - xFrom;
+        double dy = yTo - yFrom;
+        double dz = move.applyZ(xTo, zTo) - zFrom;
+        return dx * dx + dy * dy + dz * dz;
     }
 
     @Override
     public int sqrChunkDistance(ChunkPos from, ChunkPos to) {
-        throw notCarried("sqrChunkDistance");
+        SeamTransform move = nearestMoveOfChunk(from.x(), from.z(), to.x(), to.z());
+        int dx = carriedChunkX(move, to.x(), to.z()) - from.x();
+        int dz = carriedChunkZ(move, to.x(), to.z()) - from.z();
+        return dx * dx + dz * dz;
     }
 
     @Override
