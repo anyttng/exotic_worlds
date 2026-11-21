@@ -21,11 +21,17 @@ public final class GenerationMoments {
         RANDOM_STATE.register(key, hook);
     }
 
-    public static void runAtRandomState(RandomState randomState, ToroidalShape shape, GenerationOptions options,
-            int seaLevel) {
+    public static boolean runAtRandomState(RandomState randomState, WorldFold fold, int seaLevel) {
+        if (fold.cuboidAtlas() != null) {
+            return false;
+        }
+
+        ToroidalShape shape = fold.shapeView();
+        GenerationOptions options = fold.generationOptions();
         RANDOM_STATE.entries().entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .forEach(entry -> entry.getValue().run(randomState, shape, options, seaLevel));
+        return true;
     }
 
     public static void atStructureStarts(String key, GenerationHooks.StructureStartsHook hook) {

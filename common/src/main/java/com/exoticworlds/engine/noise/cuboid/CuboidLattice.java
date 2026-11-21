@@ -39,6 +39,16 @@ record CuboidLattice(byte[] permutations, double yOffset, double fudgeYScale, Fa
 
     static CuboidLattice of(byte[] permutations, double yOffset, double fudgeYScale, CuboidAtlas atlas,
             double scale, BoxDivisors divisors) {
+        int[] cells = cells(atlas, scale, divisors);
+        Face[] faces = new Face[atlas.faces().size()];
+        for (int i = 0; i < faces.length; i++) {
+            faces[i] = Face.of(atlas.faces().get(i), cells);
+        }
+
+        return new CuboidLattice(permutations, yOffset, fudgeYScale, faces);
+    }
+
+    static int[] cells(CuboidAtlas atlas, double scale, BoxDivisors divisors) {
         int[] cells = new int[AXES];
         for (CuboidFace face : atlas.faces()) {
             int xAxis = axisOf(face.alongX());
@@ -47,12 +57,7 @@ record CuboidLattice(byte[] permutations, double yOffset, double fudgeYScale, Fa
             cells[zAxis] = cellsAlong(face.depthBlocks(), scale / divisor(divisors, zAxis));
         }
 
-        Face[] faces = new Face[atlas.faces().size()];
-        for (int i = 0; i < faces.length; i++) {
-            faces[i] = Face.of(atlas.faces().get(i), cells);
-        }
-
-        return new CuboidLattice(permutations, yOffset, fudgeYScale, faces);
+        return cells;
     }
 
     static int cellsAlong(int blocks, double scale) {

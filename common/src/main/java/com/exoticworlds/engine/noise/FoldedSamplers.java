@@ -72,8 +72,8 @@ public final class FoldedSamplers {
             DensityFunction shiftZ) {
         CuboidAtlas atlas = context.fold().cuboidAtlas();
         if (atlas != null) {
-            return cuboidNoise(context, atlas, stack(context, noise), vanillaXzScale, yScale, shiftX, shiftY,
-                    shiftZ);
+            return cuboidNoise(context, atlas, stack(context, noise),
+                    context.ladder().separated(noise, vanillaXzScale), vanillaXzScale, yScale, shiftX, shiftY, shiftZ);
         }
 
         NoiseShaping shaping = NoiseShapings.get();
@@ -92,10 +92,13 @@ public final class FoldedSamplers {
     }
 
     private static DensitySampler cuboidNoise(FoldedCompileContext context, CuboidAtlas atlas, NoiseStack stack,
-            double xzScale, double yScale, DensityFunction shiftX, DensityFunction shiftY, DensityFunction shiftZ) {
+            double xzScale, double vanillaXzScale, double yScale, DensityFunction shiftX, DensityFunction shiftY,
+            DensityFunction shiftZ) {
         CompiledOctaves octaves = octaves(context.fold(), frameOf(context, xzScale, yScale),
                 xzScale, null, stack);
-        CuboidWarp warp = octaves instanceof CuboidOctaves ? cuboidWarp(context, atlas, xzScale, shiftX, shiftZ) : null;
+        CuboidWarp warp = octaves instanceof CuboidOctaves
+                ? cuboidWarp(context, atlas, vanillaXzScale, shiftX, shiftZ)
+                : null;
         if (warp != null) {
             return new CuboidShiftedNoiseSampler((CuboidOctaves) octaves, warp, yScale,
                     shiftY.compileSampler(context.vanilla()));

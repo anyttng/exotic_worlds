@@ -24,6 +24,8 @@ public final class GenerationHooks {
      * registered beside, and a level is one of several a world builds, so it runs once per dimension too. Read
      * {@code shape} and {@code options} and return early unless both are what this hook is for; reaching for a span
      * on an axis that does not loop throws.</p>
+     *
+     * <p>A level folded as a cuboid runs no {@code RandomStateHook}: a {@link ToroidalShape} cannot describe it.</p>
      */
     @FunctionalInterface
     public interface RandomStateHook {

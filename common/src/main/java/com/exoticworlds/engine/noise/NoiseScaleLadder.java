@@ -8,8 +8,12 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.jspecify.annotations.Nullable;
+
+import com.exoticworlds.core.CuboidAtlas;
 import com.exoticworlds.core.DensityFunctionNodes;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.cuboid.CuboidScaleCells;
 import com.exoticworlds.engine.noise.periodic.LapFloor;
 
 import net.minecraft.core.Holder;
@@ -29,13 +33,56 @@ public final class NoiseScaleLadder {
         this.separated = separated;
     }
 
-    public static NoiseScaleLadder of(WorldFold fold, List<DensityFunction> roots,
-            DensityFunction.CompileContext context) {
-        int lap = ClimateScaleCompression.lapBlocks(fold);
-        if (lap == ClimateScaleCompression.UNBOUNDED_LAP) {
-            return NONE;
+    private interface Span {
+        int rungBlocks();
+
+        long rungCells(double layerScale);
+
+        Object latticeCells(double layerScale);
+    }
+
+    private record LapSpan(int rungBlocks) implements Span {
+        @Override
+        public long rungCells(double layerScale) {
+            return Math.max(FLOOR_CELLS, Math.round(this.rungBlocks * layerScale));
         }
 
+        @Override
+        public Object latticeCells(double layerScale) {
+            return rungCells(layerScale);
+        }
+    }
+
+    private record CuboidSpan(CuboidAtlas atlas, int rungBlocks) implements Span {
+        @Override
+        public long rungCells(double layerScale) {
+            return CuboidScaleCells.alongEdge(this.rungBlocks, layerScale);
+        }
+
+        @Override
+        public Object latticeCells(double layerScale) {
+            return CuboidScaleCells.perBoxAxis(this.atlas, layerScale);
+        }
+    }
+
+    public static NoiseScaleLadder of(WorldFold fold, List<DensityFunction> roots,
+            DensityFunction.CompileContext context) {
+        Span span = spanOf(fold);
+        return span == null ? NONE : of(span, roots, context);
+    }
+
+    private static @Nullable Span spanOf(WorldFold fold) {
+        CuboidAtlas atlas = fold.cuboidAtlas();
+        if (atlas != null) {
+            return new CuboidSpan(atlas, CuboidScaleCells.shortestEdgeBlocks(atlas));
+        }
+
+        int lap = ClimateScaleCompression.lapBlocks(fold);
+        return lap == ClimateScaleCompression.UNBOUNDED_LAP ? null : new LapSpan(lap);
+    }
+
+    private static NoiseScaleLadder of(Span span, List<DensityFunction> roots,
+            DensityFunction.CompileContext context) {
         Map<Holder<NormalNoise>, Map<Double, Double>> separated = new HashMap<>();
         for (Map.Entry<Holder<NormalNoise>, SortedSet<Double>> entry : scalesOf(roots).entrySet()) {
             SortedSet<Double> ascending = entry.getValue();
@@ -44,12 +91,16 @@ public final class NoiseScaleLadder {
             }
 
             NoiseStack.Layer[] layers = FoldedSamplers.stackOf(context.createNoiseSampler(entry.getKey())).layers;
-            if (collides(lap, ascending, layers)) {
-                separated.put(entry.getKey(), rungs(lap, ascending, lowestFrequency(layers)));
+            if (collides(span, ascending, layers)) {
+                separated.put(entry.getKey(), rungs(span, ascending, lowestFrequency(layers)));
             }
         }
 
         return separated.isEmpty() ? NONE : new NoiseScaleLadder(Map.copyOf(separated));
+    }
+
+    public int separatedNoises() {
+        return this.separated.size();
     }
 
     public double separated(Holder<NormalNoise> noise, double xzScale) {
@@ -75,14 +126,14 @@ public final class NoiseScaleLadder {
         return scales;
     }
 
-    private static boolean collides(int lap, SortedSet<Double> scales, NoiseStack.Layer[] layers) {
+    private static boolean collides(Span span, SortedSet<Double> scales, NoiseStack.Layer[] layers) {
         for (NoiseStack.Layer layer : layers) {
-            Set<Long> periods = new HashSet<>();
+            Set<Object> lattices = new HashSet<>();
             for (double scale : scales) {
-                periods.add(cells(lap, scale, layer.frequency()));
+                lattices.add(span.latticeCells(scale * layer.frequency()));
             }
 
-            if (periods.size() < scales.size()) {
+            if (lattices.size() < scales.size()) {
                 return true;
             }
         }
@@ -90,20 +141,16 @@ public final class NoiseScaleLadder {
         return false;
     }
 
-    private static Map<Double, Double> rungs(int lap, SortedSet<Double> ascending, double lowestFrequency) {
+    private static Map<Double, Double> rungs(Span span, SortedSet<Double> ascending, double lowestFrequency) {
         Map<Double, Double> rungs = new HashMap<>();
         long previous = 0L;
         for (double scale : ascending) {
-            long cells = Math.max(cells(lap, scale, lowestFrequency), previous + 1L);
-            rungs.put(scale, cells / (lap * lowestFrequency));
+            long cells = Math.max(span.rungCells(scale * lowestFrequency), previous + 1L);
+            rungs.put(scale, cells / (span.rungBlocks() * lowestFrequency));
             previous = cells;
         }
 
         return Map.copyOf(rungs);
-    }
-
-    private static long cells(int lap, double scale, double frequency) {
-        return Math.max(FLOOR_CELLS, Math.round(lap * scale * frequency));
     }
 
     private static double lowestFrequency(NoiseStack.Layer[] layers) {
