@@ -25,9 +25,12 @@ public final class CuboidEndIslands {
 
     private final CuboidCrossings crossings;
 
+    private final CuboidAskingFace asking;
+
     private CuboidEndIslands(List<CuboidFace> faces, CuboidCrossings crossings) {
         this.faces = faces;
         this.crossings = crossings;
+        this.asking = new CuboidAskingFace(faces, crossings);
     }
 
     public static CuboidEndIslands of(CuboidAtlas atlas) {
@@ -35,7 +38,18 @@ public final class CuboidEndIslands {
     }
 
     public float outerHeightValue(SimplexNoise islandNoise, int blockX, int blockZ) {
-        int atlasFace = CuboidOctaves.faceAt(this.faces, blockX, blockZ);
+        int atlasFace = this.asking.faceAt(blockX, blockZ);
+        if (atlasFace == CuboidAskingFace.NO_FACE) {
+            Crossing crossing = this.asking.crossingOf(blockX, blockZ);
+            SeamTransform transform = crossing.transform();
+            return outerHeightValue(islandNoise, crossing.face(), transform.applyCellX(blockX, blockZ),
+                    transform.applyCellZ(blockX, blockZ));
+        }
+
+        return outerHeightValue(islandNoise, atlasFace, blockX, blockZ);
+    }
+
+    private float outerHeightValue(SimplexNoise islandNoise, int atlasFace, int blockX, int blockZ) {
         CuboidFace face = this.faces.get(atlasFace);
         double sectionX = Math.floorDiv(blockX, SECTION_WIDTH) * SECTION_WIDTH + SECTION_CENTER;
         double sectionZ = Math.floorDiv(blockZ, SECTION_WIDTH) * SECTION_WIDTH + SECTION_CENTER;

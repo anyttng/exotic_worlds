@@ -7,6 +7,7 @@ import com.exoticworlds.core.CuboidFace;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.PerlinMath;
 import com.exoticworlds.engine.noise.SimplexField;
+import com.exoticworlds.engine.noise.cuboid.CuboidCrossings.Crossing;
 import com.exoticworlds.engine.noise.cuboid.CuboidNoiseSampler.Part;
 
 import net.minecraft.util.Mth;
@@ -27,17 +28,20 @@ public final class CuboidSimplexStandIn implements SimplexField {
 
     private final List<CuboidFace> faces;
 
+    private final CuboidAskingFace asking;
+
     private final CuboidLattice lattice;
 
-    private CuboidSimplexStandIn(WorldFold fold, double scale, List<CuboidFace> faces, CuboidLattice lattice) {
+    private CuboidSimplexStandIn(WorldFold fold, double scale, CuboidAtlas atlas, CuboidLattice lattice) {
         this.fold = fold;
         this.scale = scale;
-        this.faces = faces;
+        this.faces = atlas.faces();
+        this.asking = CuboidAskingFace.of(atlas);
         this.lattice = lattice;
     }
 
     public static CuboidSimplexStandIn of(WorldFold fold, CuboidAtlas atlas, double scale, SimplexNoise noise) {
-        return new CuboidSimplexStandIn(fold, scale, atlas.faces(),
+        return new CuboidSimplexStandIn(fold, scale, atlas,
                 CuboidLattice.of(noise.perms, BETWEEN_PLANES, PerlinMath.NO_FUDGE, atlas, scale * RATE));
     }
 
@@ -58,7 +62,15 @@ public final class CuboidSimplexStandIn implements SimplexField {
 
     @Override
     public double sample(SimplexNoise noise, double x, double z) {
-        int atlasFace = CuboidOctaves.faceAt(this.faces, Mth.floor(x), Mth.floor(z));
+        int blockX = Mth.floor(x);
+        int blockZ = Mth.floor(z);
+        int atlasFace = this.asking.faceAt(blockX, blockZ);
+        if (atlasFace == CuboidAskingFace.NO_FACE) {
+            Crossing crossing = this.asking.crossingOf(blockX, blockZ);
+            return sampleOnFace(crossing.face(), this.asking.localX(crossing, x, z),
+                    this.asking.localZ(crossing, x, z));
+        }
+
         CuboidFace face = this.faces.get(atlasFace);
         return sampleOnFace(atlasFace, x - face.minBlockX(), z - face.minBlockZ());
     }

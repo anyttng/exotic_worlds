@@ -47,7 +47,8 @@ public class ChunkStatusTasksMixin {
             PeriodicityCheck.verdictOf(context.level());
         }
 
-        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+        try (GenerationFoldContext.Context.FoldScope _ =
+                GenerationFoldContext.context().withFold(fold, chunk.getPos())) {
             return original.call(context, step, chunks, chunk);
         }
     }

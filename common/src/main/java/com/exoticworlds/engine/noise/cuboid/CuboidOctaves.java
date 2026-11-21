@@ -9,6 +9,7 @@ import com.exoticworlds.core.CuboidFace;
 import com.exoticworlds.engine.noise.BoxDivisors;
 import com.exoticworlds.engine.noise.CompiledOctaves;
 import com.exoticworlds.engine.noise.PerlinMath;
+import com.exoticworlds.engine.noise.cuboid.CuboidCrossings.Crossing;
 import com.exoticworlds.engine.noise.cuboid.CuboidNoiseSampler.Part;
 
 import net.minecraft.util.Mth;
@@ -25,6 +26,8 @@ public final class CuboidOctaves implements CompiledOctaves {
 
     private final List<CuboidFace> faces;
 
+    private final CuboidAskingFace asking;
+
     private final CuboidLattice[] lattices;
 
     private final double[] frequencies;
@@ -33,6 +36,7 @@ public final class CuboidOctaves implements CompiledOctaves {
 
     private CuboidOctaves(CuboidAtlas atlas, CuboidLattice[] lattices, double[] frequencies, float[] amplitudes) {
         this.faces = atlas.faces();
+        this.asking = CuboidAskingFace.of(atlas);
         this.lattices = lattices;
         this.frequencies = frequencies;
         this.amplitudes = amplitudes;
@@ -94,7 +98,15 @@ public final class CuboidOctaves implements CompiledOctaves {
     }
 
     private float sampleFlat(Part part, double x, double y, double z) {
-        int atlasFace = faceAt(Mth.floor(x), Mth.floor(z));
+        int blockX = Mth.floor(x);
+        int blockZ = Mth.floor(z);
+        int atlasFace = this.asking.faceAt(blockX, blockZ);
+        if (atlasFace == CuboidAskingFace.NO_FACE) {
+            Crossing crossing = this.asking.crossingOf(blockX, blockZ);
+            return sample(part, crossing.face(), this.asking.localX(crossing, x, z), y,
+                    this.asking.localZ(crossing, x, z));
+        }
+
         CuboidFace face = this.faces.get(atlasFace);
         return sample(part, atlasFace, x - face.minBlockX(), y, z - face.minBlockZ());
     }
@@ -113,19 +125,5 @@ public final class CuboidOctaves implements CompiledOctaves {
     @Override
     public boolean indexable() {
         return true;
-    }
-
-    int faceAt(int blockX, int blockZ) {
-        return faceAt(this.faces, blockX, blockZ);
-    }
-
-    static int faceAt(List<CuboidFace> faces, int blockX, int blockZ) {
-        for (int i = 0; i < faces.size(); i++) {
-            if (faces.get(i).contains(blockX, blockZ)) {
-                return i;
-            }
-        }
-
-        throw new IllegalArgumentException("A cuboid noise samples inside a face, got x=" + blockX + " z=" + blockZ);
     }
 }

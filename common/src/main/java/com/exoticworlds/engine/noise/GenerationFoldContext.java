@@ -9,6 +9,8 @@ import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.engine.DoubleStack;
 import com.exoticworlds.engine.ObjectStack;
 
+import net.minecraft.world.level.ChunkPos;
+
 public final class GenerationFoldContext {
     public static final double UNDECLARED_VERTICAL_SHARE = -1.0;
 
@@ -16,9 +18,12 @@ public final class GenerationFoldContext {
         return xzScale == 0.0 ? UNDECLARED_VERTICAL_SHARE : yScale / xzScale;
     }
 
+    private static final ChunkPos NO_ASKING_CHUNK = new ChunkPos(Integer.MIN_VALUE, Integer.MIN_VALUE);
+
     public static final class Context {
         private WorldFold fold = WorldFolds.NOOP;
         private @Nullable WorldFold routerBuild;
+        private ChunkPos askingChunk = NO_ASKING_CHUNK;
         private double horizontalScale = NoiseConstants.UNSCALED;
         private double verticalShare = UNDECLARED_VERTICAL_SHARE;
         private double xDivisor = NoiseConstants.UNDIVIDED;
@@ -40,6 +45,10 @@ public final class GenerationFoldContext {
 
         public @Nullable WorldFold routerBuildFold() {
             return this.routerBuild;
+        }
+
+        public @Nullable ChunkPos askingChunk() {
+            return this.askingChunk == NO_ASKING_CHUNK ? null : this.askingChunk;
         }
 
         // mc/26.2: the noise samplers and C2ME's compiled tree read the scale through it.
@@ -71,6 +80,13 @@ public final class GenerationFoldContext {
         public FoldScope withFold(WorldFold boundFold) {
             this.foldScope.push();
             this.fold = boundFold;
+            return this.foldScope;
+        }
+
+        public FoldScope withFold(WorldFold boundFold, ChunkPos boundAskingChunk) {
+            this.foldScope.push();
+            this.fold = boundFold;
+            this.askingChunk = boundAskingChunk;
             return this.foldScope;
         }
 
@@ -143,17 +159,20 @@ public final class GenerationFoldContext {
 
         public final class FoldScope implements AutoCloseable {
             private final ObjectStack<WorldFold> previousFolds = new ObjectStack<>();
+            private final ObjectStack<ChunkPos> previousAskingChunks = new ObjectStack<>();
 
             private FoldScope() {
             }
 
             private void push() {
                 this.previousFolds.push(fold);
+                this.previousAskingChunks.push(askingChunk);
             }
 
             @Override
             public void close() {
                 fold = this.previousFolds.pop();
+                askingChunk = this.previousAskingChunks.pop();
             }
         }
 

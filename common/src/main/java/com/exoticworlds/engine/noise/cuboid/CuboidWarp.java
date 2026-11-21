@@ -18,6 +18,8 @@ public final class CuboidWarp {
 
     private final CuboidCrossings crossings;
 
+    private final CuboidAskingFace asking;
+
     private final CuboidOctaves shift;
 
     private final double shiftBlocks;
@@ -28,6 +30,7 @@ public final class CuboidWarp {
             double largestBlocks) {
         this.faces = faces;
         this.crossings = crossings;
+        this.asking = new CuboidAskingFace(faces, crossings);
         this.shift = shift;
         this.shiftBlocks = shiftBlocks;
         this.largestBlocks = largestBlocks;
@@ -38,7 +41,13 @@ public final class CuboidWarp {
     }
 
     public float sample(CuboidOctaves field, int blockX, double y, int blockZ) {
-        int atlasFace = this.shift.faceAt(blockX, blockZ);
+        int atlasFace = this.asking.faceAt(blockX, blockZ);
+        if (atlasFace == CuboidAskingFace.NO_FACE) {
+            Crossing crossing = this.asking.crossingOf(blockX, blockZ);
+            return sampleFrom(field, crossing.face(), this.asking.localX(crossing, blockX, blockZ), y,
+                    this.asking.localZ(crossing, blockX, blockZ));
+        }
+
         CuboidFace face = this.faces.get(atlasFace);
         return sampleFrom(field, atlasFace, blockX - face.minBlockX(), y, blockZ - face.minBlockZ());
     }
