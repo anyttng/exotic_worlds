@@ -1,17 +1,20 @@
 package com.exoticworlds.core;
 
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 public enum FoldOrientation {
-    IDENTITY(false, false, false),
-    MIRROR_X(false, true, false),
-    MIRROR_Z(false, false, true),
-    HALF_TURN(false, true, true),
-    QUARTER_TURN_CLOCKWISE(true, true, false),
-    QUARTER_TURN_COUNTERCLOCKWISE(true, false, true),
-    MIRROR_DIAGONAL(true, false, false),
-    MIRROR_ANTIDIAGONAL(true, true, true);
+    IDENTITY(false, false, false, Mirror.NONE, Rotation.NONE),
+    MIRROR_X(false, true, false, Mirror.FRONT_BACK, Rotation.NONE),
+    MIRROR_Z(false, false, true, Mirror.LEFT_RIGHT, Rotation.NONE),
+    HALF_TURN(false, true, true, Mirror.NONE, Rotation.CLOCKWISE_180),
+    QUARTER_TURN_CLOCKWISE(true, true, false, Mirror.NONE, Rotation.CLOCKWISE_90),
+    QUARTER_TURN_COUNTERCLOCKWISE(true, false, true, Mirror.NONE, Rotation.COUNTERCLOCKWISE_90),
+    MIRROR_DIAGONAL(true, false, false, Mirror.FRONT_BACK, Rotation.COUNTERCLOCKWISE_90),
+    MIRROR_ANTIDIAGONAL(true, true, true, Mirror.FRONT_BACK, Rotation.CLOCKWISE_90);
 
     private static final FoldOrientation[] BY_PARTS = {
             IDENTITY, MIRROR_Z, MIRROR_X, HALF_TURN,
@@ -26,11 +29,15 @@ public enum FoldOrientation {
     private final boolean swapsAxes;
     private final boolean flipsX;
     private final boolean flipsZ;
+    private final Mirror stateMirror;
+    private final Rotation stateRotation;
 
-    FoldOrientation(boolean swapsAxes, boolean flipsX, boolean flipsZ) {
+    FoldOrientation(boolean swapsAxes, boolean flipsX, boolean flipsZ, Mirror stateMirror, Rotation stateRotation) {
         this.swapsAxes = swapsAxes;
         this.flipsX = flipsX;
         this.flipsZ = flipsZ;
+        this.stateMirror = stateMirror;
+        this.stateRotation = stateRotation;
     }
 
     public static FoldOrientation of(boolean flipsX, boolean flipsZ) {
@@ -96,6 +103,46 @@ public enum FoldOrientation {
         }
 
         return faceOf(face.getStepX(), face.getStepZ());
+    }
+
+    public int applyToLocalX(int localX, int localZ, int width) {
+        return localOf(this.flipsX, this.swapsAxes ? localZ : localX, width);
+    }
+
+    public int applyToLocalZ(int localX, int localZ, int width) {
+        return localOf(this.flipsZ, this.swapsAxes ? localX : localZ, width);
+    }
+
+    public int[] localIndexTable(int width) {
+        int[] table = new int[width * width];
+        for (int localZ = 0; localZ < width; localZ++) {
+            for (int localX = 0; localX < width; localX++) {
+                table[localZ * width + localX] =
+                        applyToLocalZ(localX, localZ, width) * width + applyToLocalX(localX, localZ, width);
+            }
+        }
+
+        return table;
+    }
+
+    public Mirror stateMirror() {
+        return this.stateMirror;
+    }
+
+    public Rotation stateRotation() {
+        return this.stateRotation;
+    }
+
+    public BlockState applyToState(BlockState state) {
+        if (isIdentity()) {
+            return state;
+        }
+
+        return state.mirror(this.stateMirror).rotate(this.stateRotation);
+    }
+
+    private static int localOf(boolean flips, int source, int width) {
+        return flips ? width - 1 - source : source;
     }
 
     private Direction faceOf(int stepX, int stepZ) {
