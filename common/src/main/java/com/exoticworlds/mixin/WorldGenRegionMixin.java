@@ -6,10 +6,12 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.accessors.LevelHolder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.ChunkFrame;
 import com.exoticworlds.engine.gen.ChunkFrameTicks;
 import com.exoticworlds.engine.gen.RegionReach;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -33,6 +35,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.status.ChunkStep;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.LevelTickAccess;
 
@@ -103,6 +106,24 @@ public abstract class WorldGenRegionMixin implements LevelHolder {
     @Unique
     private BlockPos exotic_worlds$keyIn(ChunkAccess chunk, BlockPos pos) {
         return WorldLoopAttachments.foldOf(this.level).reseat(pos, chunk.getPos());
+    }
+
+    @ModifyVariable(method = "setBlock", at = @At("HEAD"), argsOnly = true)
+    private BlockState exotic_worlds$turnPlacedState(BlockState state, @Local(argsOnly = true) BlockPos pos) {
+        return ChunkFrame.toChunk(WorldLoopAttachments.foldOf(this.level), pos, state);
+    }
+
+    @WrapOperation(
+            method = "getHeight(Lnet/minecraft/world/level/levelgen/Heightmap$Types;II)I",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getHeight(Lnet/minecraft/world/level/levelgen/Heightmap$Types;II)I"))
+    private int exotic_worlds$heightInChunkFrame(ChunkAccess chunk, Heightmap.Types type, int localX, int localZ,
+            Operation<Integer> original, @Local(argsOnly = true, ordinal = 0) int x,
+            @Local(argsOnly = true, ordinal = 1) int z) {
+        long seated = ChunkFrame.seatColumn(WorldLoopAttachments.foldOf(this.level), chunk.getPos(), x, z);
+        return original.call(chunk, type,
+                SectionPos.sectionRelative(BlockPos.getX(seated)), SectionPos.sectionRelative(BlockPos.getZ(seated)));
     }
 
     @WrapOperation(
