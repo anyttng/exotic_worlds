@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.engine.gen.DimensionChoicesCommand;
-import com.exoticworlds.engine.noise.SeamCommand;
+import com.exoticworlds.engine.noise.check.SeamCommand;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.minecraft.commands.CommandBuildContext;

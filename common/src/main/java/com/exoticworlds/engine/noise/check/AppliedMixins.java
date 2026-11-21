@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.check;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

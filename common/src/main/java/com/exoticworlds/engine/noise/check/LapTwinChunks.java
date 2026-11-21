@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.check;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -9,6 +9,7 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.mixin.ChunkGeneratorAccessor;
 import com.exoticworlds.mixin.NoiseBasedChunkGeneratorAccessor;
 import com.exoticworlds.mixin.StructureManagerAccessor;

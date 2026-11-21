@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.check;
 
 import net.minecraft.core.QuartPos;
 import net.minecraft.world.level.biome.Climate;

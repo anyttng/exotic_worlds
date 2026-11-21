@@ -2,6 +2,7 @@ package com.exoticworlds.engine.noise;
 
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScanFixture.WorldType;
+import com.exoticworlds.engine.noise.check.ClimateTargets;
 import com.exoticworlds.shape.WorldLoopPresets;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.SCAN_Y_BLOCKS;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.SEED_BASE;
