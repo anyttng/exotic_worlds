@@ -3,13 +3,13 @@ package com.exoticworlds.engine.noise.cuboid;
 import com.exoticworlds.core.CuboidAtlas;
 import com.exoticworlds.core.CuboidFace;
 import com.exoticworlds.core.CuboidFace.BoxVector;
+import com.exoticworlds.engine.noise.AquiferCellGrid;
 import com.exoticworlds.engine.noise.BoxDivisors;
-import com.exoticworlds.engine.noise.CellGrid;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.TilingCellGrid;
 
 public record CuboidCellGrid(CuboidAtlas atlas, int aCellWidth, int bCellWidth, int cCellWidth)
-        implements CellGrid {
+        implements AquiferCellGrid {
     public static CuboidCellGrid of(CuboidAtlas atlas, int vanillaCellWidth) {
         int[] widths = new int[CuboidLattice.AXES];
         for (CuboidFace face : atlas.faces()) {
