@@ -82,9 +82,7 @@ public final class PacketTranslator {
 
     private static final Map<Class<?>, BiFunction<Packet<?>, TranslationContext, Packet<?>>> TO_CLIENT = Map.ofEntries(
             Map.entry(ClientboundLevelChunkWithLightPacket.class, perCopy(ClientboundPacketRewriters::levelChunk)),
-            Map.entry(ClientboundLightUpdatePacket.class, perCopy(
-                    (ClientboundLightUpdatePacket packet, TranslationContext context) ->
-                            ClientboundPacketRewriters.chunkPosition(packet, packet.getX(), packet.getZ(), context))),
+            Map.entry(ClientboundLightUpdatePacket.class, perCopy(ClientboundPacketRewriters::lightUpdate)),
             Map.entry(ClientboundForgetLevelChunkPacket.class, rewriter(ClientboundPacketRewriters::forgetChunk)),
             Map.entry(ClientboundSetChunkCacheCenterPacket.class, rewriter(ClientboundPacketRewriters::chunkCacheCenter)),
             Map.entry(ClientboundChunksBiomesPacket.class, perCopy(ClientboundPacketRewriters::chunkBiomes)),
