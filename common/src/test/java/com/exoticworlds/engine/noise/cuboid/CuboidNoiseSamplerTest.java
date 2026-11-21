@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.cuboid;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -18,6 +18,9 @@ import com.exoticworlds.core.CuboidFace.BoxVector;
 import com.exoticworlds.core.CuboidVertex;
 import com.exoticworlds.core.SeamTransform;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.CompiledOctaves;
+import com.exoticworlds.engine.noise.FoldedSamplers;
+import com.exoticworlds.engine.noise.NoiseFrame;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
@@ -236,7 +239,7 @@ class CuboidNoiseSamplerTest {
     void compiledOctavesSumTheFaceLattices() {
         CuboidAtlas atlas = CuboidAtlas.of(3, 5, 2, MIN_CHUNK_X, MIN_CHUNK_Z);
         NoiseStack stack = (NoiseStack) NormalNoise.createParity(-3, 1.0, 1.0).create(new LegacyRandomSource(SEED));
-        PeriodicOctaves octaves = PeriodicOctaveSampler.compile(foldOver(atlas), NoiseFrame.UNDECLARED,
+        CompiledOctaves octaves = FoldedSamplers.octaves(foldOver(atlas), NoiseFrame.UNDECLARED,
                 COMPILED_SCALE, null, stack);
         Random random = new Random(SEED);
         for (CuboidFace face : atlas.faces()) {
@@ -269,7 +272,7 @@ class CuboidNoiseSamplerTest {
     void blockOutsideEveryFaceIsRefused() {
         CuboidAtlas atlas = CuboidAtlas.of(3, 5, 2, MIN_CHUNK_X, MIN_CHUNK_Z);
         NoiseStack stack = (NoiseStack) NormalNoise.createParity(-3, 1.0, 1.0).create(new LegacyRandomSource(SEED));
-        PeriodicOctaves octaves = PeriodicOctaveSampler.compile(foldOver(atlas), NoiseFrame.UNDECLARED,
+        CompiledOctaves octaves = FoldedSamplers.octaves(foldOver(atlas), NoiseFrame.UNDECLARED,
                 COMPILED_SCALE, null, stack);
         CuboidFace top = atlas.faces().stream().filter(face -> face.side() == CuboidFace.Side.TOP).findFirst()
                 .orElseThrow();

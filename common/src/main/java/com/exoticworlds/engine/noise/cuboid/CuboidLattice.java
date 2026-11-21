@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.cuboid;
 
 import com.exoticworlds.core.CuboidAtlas;
 import com.exoticworlds.core.CuboidFace;

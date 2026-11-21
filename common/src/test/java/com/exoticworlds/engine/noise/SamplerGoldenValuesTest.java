@@ -13,8 +13,13 @@ import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.engine.noise.periodic.LapFloor;
+import com.exoticworlds.engine.noise.periodic.PeriodicLattice;
+import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
+import com.exoticworlds.engine.noise.periodic.SimplexLattice;
+import com.exoticworlds.engine.noise.periodic.SimplexSlot;
 
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
@@ -43,8 +48,8 @@ class SamplerGoldenValuesTest {
 
     private static final double[] PERLIN_SCALES = {1.0 / 2048.0, 0.0125, 0.05, 0.25, 1.0};
     private static final double[] SIMPLEX_SCALES = {1.0 / 1024.0, 0.0125, 0.05, 0.09, 0.125, 0.2, 1.0};
-    private static final double[] FUDGES = {PeriodicNoiseSampler.NO_FUDGE, 1.0};
-    private static final double[] UNFUDGED = {PeriodicNoiseSampler.NO_FUDGE};
+    private static final double[] FUDGES = {PerlinMath.NO_FUDGE, 1.0};
+    private static final double[] UNFUDGED = {PerlinMath.NO_FUDGE};
     private static final long[] LATTICE_PERIODS = {PeriodicNoiseSampler.UNBOUNDED_PERIOD, 7L, 64L};
     private static final double[] NOISE_FACTORS = {80.0, 400.0, 1.0, 1.0E-7};
     private static final double[] NOISE_LEVELS = {0.0, -0.8};

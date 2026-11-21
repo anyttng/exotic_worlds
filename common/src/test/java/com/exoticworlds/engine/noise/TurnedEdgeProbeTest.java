@@ -10,6 +10,8 @@ import java.util.Random;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
+
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
@@ -30,7 +32,6 @@ class TurnedEdgeProbeTest {
     private static final double MIN_SPREAD = 0.1;
     private static final double HEIGHT_SPAN = 8.0;
     private static final int PERMUTATION_MASK = 0xFF;
-    private static final int GRADIENT_MASK = 15;
 
     private static final int[][] SIZES = {{4, 4, 4}, {3, 5, 2}, {7, 1, 2}, {300, 257, 2}, {1, 1, 1}};
 
@@ -134,9 +135,9 @@ class TurnedEdgeProbeTest {
 
             double first = dot(offset, basis.first());
             double second = dot(offset, basis.second());
-            double firstRow = row(PeriodicNoiseSampler.GRADIENT[hash & GRADIENT_MASK], first, yOffset, second);
+            double firstRow = row(PerlinMath.gradient(hash), first, yOffset, second);
             double secondRow = row(
-                    PeriodicNoiseSampler.GRADIENT[hash(this.secondPermutations, node, yNode) & GRADIENT_MASK],
+                    PerlinMath.gradient(hash(this.secondPermutations, node, yNode)),
                     first, yOffset, second);
             for (int axis = 0; axis < AXES; axis++) {
                 vector[axis] += weight * (firstRow * basis.first()[axis] + secondRow * basis.second()[axis]);

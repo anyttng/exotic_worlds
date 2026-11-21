@@ -25,7 +25,7 @@ public final class ContextScaledNoise {
         }
 
         ContextOctaves built = new ContextOctaves(fold, scale,
-                PeriodicOctaveSampler.compile(fold, NoiseFrame.UNDECLARED, scale, null, stack));
+                FoldedSamplers.octaves(fold, NoiseFrame.UNDECLARED, scale, null, stack));
         holder.exotic_worlds$contextOctaves(built);
         return built;
     }

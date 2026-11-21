@@ -1,48 +1,29 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.periodic;
 
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.engine.noise.NoiseFrame;
+import com.exoticworlds.engine.noise.PerlinMath;
+import com.exoticworlds.engine.noise.SlotAxes;
+import com.exoticworlds.engine.noise.SlotAxis;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.synth.GradientNoise;
 
 public final class PeriodicNoiseSampler {
-    static final int[][] GRADIENT = {
-            {1, 1, 0},
-            {-1, 1, 0},
-            {1, -1, 0},
-            {-1, -1, 0},
-            {1, 0, 1},
-            {-1, 0, 1},
-            {1, 0, -1},
-            {-1, 0, -1},
-            {0, 1, 1},
-            {0, -1, 1},
-            {0, 1, -1},
-            {0, -1, -1},
-            {1, 1, 0},
-            {0, -1, 1},
-            {-1, 1, 0},
-            {0, -1, -1}
-    };
-
     public static final long UNBOUNDED_PERIOD = 0L;
 
     static final long HELD_PERIOD = -1L;
 
     static final long MAX_INDEXED_PERIOD = 1L << 36;
 
-    public static final double NO_FUDGE = 0.0;
-
     private static final int X_SLOT = 0;
     private static final int Y_SLOT = 1;
     private static final int Z_SLOT = 2;
     private static final int NO_SLOT = -1;
-
-    private static final float FUDGE_EPSILON = 1.0E-7F;
 
     private static final int PERMUTATION_MASK = 0xFF;
     private static final int PAIR_SHIFT = 8;
@@ -83,7 +64,7 @@ public final class PeriodicNoiseSampler {
         if (translations.isSkewed()) {
             PeriodicLattice.Shear shear = PeriodicLattice.Shear.of(translations, X_SLOT, Z_SLOT, xPeriod, zPeriod);
             double anchor = anchorGain > 0.0
-                    ? anchorGain * sample(new PeriodicLattice(permutations, xOffset, yOffset, zOffset, NO_FUDGE,
+                    ? anchorGain * sample(new PeriodicLattice(permutations, xOffset, yOffset, zOffset, PerlinMath.NO_FUDGE,
                             xAxis, PeriodicLattice.Axis.PASS_THROUGH, zAxis, 1.0, 0.0, shear), 0.0, 0.0, 0.0, 0.0)
                     : 0.0;
             return new PeriodicLattice(permutations, xOffset, yOffset, zOffset, fudgeYScale,
@@ -160,9 +141,9 @@ public final class PeriodicNoiseSampler {
         double yRelative = ys - yCell;
         float zFrac = (float) (zs - zCell);
         double fudgeYScale = lattice.fudgeYScale();
-        float yFracFudged = fudgeYScale == NO_FUDGE
+        float yFracFudged = fudgeYScale == PerlinMath.NO_FUDGE
                 ? (float) yRelative
-                : (float) (yRelative - fudgeY(originalY, yRelative, fudgeYScale));
+                : (float) (yRelative - PerlinMath.fudgeY(originalY, yRelative, fudgeYScale));
         float noise = sampleAndLerp(lattice.permutations(), xCell, yCell, zCell, xFrac, yFracFudged, zFrac,
                 (float) yRelative, lattice.x().period(), lattice.y().period(), lattice.z().period());
         return (float) (lattice.correction() * noise) + (float) lattice.anchor();
@@ -184,9 +165,9 @@ public final class PeriodicNoiseSampler {
         double yRelative = ys - yCell;
         float zFrac = (float) (zs - zCell);
         double fudgeYScale = lattice.fudgeYScale();
-        float yFracFudged = fudgeYScale == NO_FUDGE
+        float yFracFudged = fudgeYScale == PerlinMath.NO_FUDGE
                 ? (float) yRelative
-                : (float) (yRelative - fudgeY(originalY, yRelative, fudgeYScale));
+                : (float) (yRelative - PerlinMath.fudgeY(originalY, yRelative, fudgeYScale));
         byte[] permutations = lattice.permutations();
         int xSlot = shear.xSlot();
         int zSlot = shear.zSlot();
@@ -255,7 +236,7 @@ public final class PeriodicNoiseSampler {
         long x = pairedCell(X_SLOT, xSlot, zSlot, pair, free);
         long y = pairedCell(Y_SLOT, xSlot, zSlot, pair, free);
         long z = pairedCell(Z_SLOT, xSlot, zSlot, pair, free);
-        return p(permutations, p(permutations, p(permutations, x) + y) + z);
+        return PerlinMath.p(permutations, PerlinMath.p(permutations, PerlinMath.p(permutations, x) + y) + z);
     }
 
     private static int slotStep(int slot, int dx, int dy, int dz) {
@@ -290,11 +271,6 @@ public final class PeriodicNoiseSampler {
         };
     }
 
-    static double fudgeY(double originalY, double yRelative, double fudgeYScale) {
-        double fudgeLimit = originalY >= 0.0 && originalY < yRelative ? originalY : yRelative;
-        return Mth.floor(fudgeLimit / fudgeYScale + FUDGE_EPSILON) * fudgeYScale;
-    }
-
     private static float anchorSample(byte[] permutations, WrapDomain xDomain, WrapDomain zDomain,
             long xPeriod, long zPeriod, double scale, double xOffset, double yOffset, double zOffset) {
         double xs = foldAndScale(xDomain, xPeriod, scale, 0.0) + xOffset;
@@ -307,7 +283,7 @@ public final class PeriodicNoiseSampler {
                 yFrac, xPeriod, UNBOUNDED_PERIOD, zPeriod);
     }
 
-    static long period(WrapDomain domain, double scale, LapFloor floor) {
+    public static long period(WrapDomain domain, double scale, LapFloor floor) {
         if (!domain.loops()) {
             return UNBOUNDED_PERIOD;
         }
@@ -320,7 +296,7 @@ public final class PeriodicNoiseSampler {
         return closes(period) ? (double) period / domain.domainLength : 0.0;
     }
 
-    static double foldAndScale(WrapDomain domain, long period, double scale, double coord) {
+    public static double foldAndScale(WrapDomain domain, long period, double scale, double coord) {
         return foldAndScale(domain, period, scale, ratio(domain, period), coord);
     }
 
@@ -342,24 +318,24 @@ public final class PeriodicNoiseSampler {
             float xFrac, float yFracFudged, float zFrac, float yFracOriginal,
             long xPeriod, long yPeriod, long zPeriod) {
         long xWrapped = wrapCell(xCell, xPeriod);
-        int x0 = p(permutations, xWrapped);
-        int x1 = p(permutations, nextCell(xWrapped, xPeriod));
+        int x0 = PerlinMath.p(permutations, xWrapped);
+        int x1 = PerlinMath.p(permutations, nextCell(xWrapped, xPeriod));
         long y0 = wrapCell(yCell, yPeriod);
         long y1 = nextCell(y0, yPeriod);
-        int xy00 = p(permutations, x0 + y0);
-        int xy01 = p(permutations, x0 + y1);
-        int xy10 = p(permutations, x1 + y0);
-        int xy11 = p(permutations, x1 + y1);
+        int xy00 = PerlinMath.p(permutations, x0 + y0);
+        int xy01 = PerlinMath.p(permutations, x0 + y1);
+        int xy10 = PerlinMath.p(permutations, x1 + y0);
+        int xy11 = PerlinMath.p(permutations, x1 + y1);
         long z0 = wrapCell(zCell, zPeriod);
         long z1 = nextCell(z0, zPeriod);
-        float d000 = gradDot(p(permutations, xy00 + z0), xFrac, yFracFudged, zFrac);
-        float d100 = gradDot(p(permutations, xy10 + z0), xFrac - 1.0F, yFracFudged, zFrac);
-        float d010 = gradDot(p(permutations, xy01 + z0), xFrac, yFracFudged - 1.0F, zFrac);
-        float d110 = gradDot(p(permutations, xy11 + z0), xFrac - 1.0F, yFracFudged - 1.0F, zFrac);
-        float d001 = gradDot(p(permutations, xy00 + z1), xFrac, yFracFudged, zFrac - 1.0F);
-        float d101 = gradDot(p(permutations, xy10 + z1), xFrac - 1.0F, yFracFudged, zFrac - 1.0F);
-        float d011 = gradDot(p(permutations, xy01 + z1), xFrac, yFracFudged - 1.0F, zFrac - 1.0F);
-        float d111 = gradDot(p(permutations, xy11 + z1), xFrac - 1.0F, yFracFudged - 1.0F, zFrac - 1.0F);
+        float d000 = gradDot(PerlinMath.p(permutations, xy00 + z0), xFrac, yFracFudged, zFrac);
+        float d100 = gradDot(PerlinMath.p(permutations, xy10 + z0), xFrac - 1.0F, yFracFudged, zFrac);
+        float d010 = gradDot(PerlinMath.p(permutations, xy01 + z0), xFrac, yFracFudged - 1.0F, zFrac);
+        float d110 = gradDot(PerlinMath.p(permutations, xy11 + z0), xFrac - 1.0F, yFracFudged - 1.0F, zFrac);
+        float d001 = gradDot(PerlinMath.p(permutations, xy00 + z1), xFrac, yFracFudged, zFrac - 1.0F);
+        float d101 = gradDot(PerlinMath.p(permutations, xy10 + z1), xFrac - 1.0F, yFracFudged, zFrac - 1.0F);
+        float d011 = gradDot(PerlinMath.p(permutations, xy01 + z1), xFrac, yFracFudged - 1.0F, zFrac - 1.0F);
+        float d111 = gradDot(PerlinMath.p(permutations, xy11 + z1), xFrac - 1.0F, yFracFudged - 1.0F, zFrac - 1.0F);
         float xAlpha = Mth.smoothstep(xFrac);
         float yAlpha = Mth.smoothstep(yFracOriginal);
         float zAlpha = Mth.smoothstep(zFrac);
@@ -379,12 +355,8 @@ public final class PeriodicNoiseSampler {
         return closes(period) && next == period ? 0L : next;
     }
 
-    static int p(byte[] permutations, long index) {
-        return permutations[(int) (index & 0xFFL)] & 0xFF;
-    }
-
     private static float gradDot(int hash, float x, float y, float z) {
-        int[] gradient = GRADIENT[hash & 15];
+        int[] gradient = PerlinMath.gradient(hash);
         return gradient[0] * x + gradient[1] * y + gradient[2] * z;
     }
 

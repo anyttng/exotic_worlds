@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.noise.periodic;
 
 import org.jspecify.annotations.Nullable;
 
@@ -9,7 +9,7 @@ import net.minecraft.world.level.levelgen.synth.NoiseStack;
 public final class SimplexSlot {
     private volatile @Nullable SimplexLattice held;
 
-    SimplexLattice lattice(WorldFold fold, double scale) {
+    public SimplexLattice lattice(WorldFold fold, double scale) {
         SimplexLattice current = this.held;
         if (current != null && current.fold() == fold && Double.compare(current.scale(), scale) == 0) {
             return current;

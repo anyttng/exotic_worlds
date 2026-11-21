@@ -2,6 +2,9 @@ package com.exoticworlds.engine.noise;
 
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.periodic.PeriodicSimplexSampler;
+import com.exoticworlds.engine.noise.periodic.SimplexLattice;
+import com.exoticworlds.engine.noise.periodic.SimplexSlot;
 
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;

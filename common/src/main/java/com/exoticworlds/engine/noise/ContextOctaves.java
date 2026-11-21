@@ -7,11 +7,11 @@ public final class ContextOctaves {
 
     private final double scale;
 
-    private final PeriodicOctaves octaves;
+    private final CompiledOctaves octaves;
 
     private final boolean indexable;
 
-    ContextOctaves(WorldFold fold, double scale, PeriodicOctaves octaves) {
+    ContextOctaves(WorldFold fold, double scale, CompiledOctaves octaves) {
         this.fold = fold;
         this.scale = scale;
         this.octaves = octaves;
