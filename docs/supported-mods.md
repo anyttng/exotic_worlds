@@ -69,8 +69,8 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | [Supplementaries](https://modrinth.com/mod/supplementaries) | 1.21.1 | NeoForge, Fabric | Supported | |
 | [Cobblemon](https://modrinth.com/mod/cobblemon) | 1.21.1 | NeoForge, Fabric | Supported | |
 | [Ars Nouveau](https://modrinth.com/mod/ars-nouveau) | 1.21.1 | NeoForge | Supported | |
+| Vista | 1.21.1 | NeoForge, Fabric | Supported | |
 | Immersive Portals | 1.21.1 | NeoForge, Fabric | Partially supported | What lies past the world's edge does not show next to you |
-| Vista | 1.21.1 | NeoForge, Fabric | No edge support | |
 
 ## World generation
 
@@ -84,7 +84,7 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | MTChunkGeneration | 1.21.1 | NeoForge | Supported | |
 | BetterEnd and BetterNether | All | NeoForge, Fabric | Supported | |
 | Northbound | 26.2, 26.1.2, 1.21.1 | NeoForge, Fabric | Supported | A toroidal world is cold at its north and south edges and warm in the middle |
-| [Natural Temperature](https://modrinth.com/mod/natural-temperature) | 26.3 | Fabric | Supported | A toroidal world is cold at its north and south edges and warm in the middle |
+| [Natural Temperature](https://modrinth.com/mod/natural-temperature) | 26.3, 26.2 | Fabric | Supported | With the mod's `looping_world` on, a toroidal world is cold at its north and south edges and warm in the middle |
 | [ReTerraForged](https://www.curseforge.com/minecraft/mc-mods/reterraforged-unofficial) | 1.21.1 | NeoForge, Fabric | Supported | Small worlds get smaller rivers |
 | [FreeTerraForged](https://modrinth.com/mod/freeterraforged) | 1.21.1 | NeoForge, Fabric | Supported | Small worlds get smaller rivers |
 | [UltraTerraForged](https://www.curseforge.com/minecraft/mc-mods/ultraterraforged) | All | NeoForge, Fabric | Supported | Small worlds get smaller rivers |
