@@ -72,8 +72,6 @@ class UnreachedMembersTest {
             "compat.gate.ModPresence.ownedClasses",
             "compat.gate.ModPresence.scannedClasses",
             "compat.gate.ModPresence.optional",
-            "core.FoldOrientation.applyToLocalX",
-            "core.FoldOrientation.applyToLocalZ",
             "core.FoldOrientation.localIndexTable",
             "core.FoldOrientation.stateMirror",
             "core.FoldOrientation.stateRotation");

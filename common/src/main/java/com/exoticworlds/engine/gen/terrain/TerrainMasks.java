@@ -6,6 +6,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.core.WorldFold;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.ChunkPos;
 
@@ -55,10 +57,11 @@ public final class TerrainMasks {
         return tag;
     }
 
-    @Nullable TerrainMask restore(ChunkPos pos, CompoundTag tag, int minY, int height) {
+    @Nullable TerrainMask restore(ChunkPos pos, CompoundTag tag, int minY, int height,
+            @Nullable WorldFold turning) {
         int remaining = tag.getIntOr(REMAINING_KEY, 0);
         TerrainMask mask = tag.getCompound(MASK_KEY)
-                .map(stored -> TerrainMask.load(stored, pos, minY, height))
+                .map(stored -> TerrainMask.load(stored, pos, minY, height, turning))
                 .orElse(null);
         if (mask == null || remaining <= 0) {
             return null;
