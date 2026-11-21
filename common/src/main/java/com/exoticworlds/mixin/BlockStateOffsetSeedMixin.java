@@ -30,7 +30,7 @@ public abstract class BlockStateOffsetSeedMixin {
                     target = "Lnet/minecraft/world/level/block/state/BlockBehaviour$OffsetFunction;evaluate(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/Vec3;"))
     private Vec3 exotic_worlds$seedFromCanonical(BlockBehaviour.OffsetFunction function, BlockState state, BlockPos pos,
             Operation<Vec3> original) {
-        return original.call(function, state, BlockOffsetSeed.seedPosition(pos));
+        return BlockOffsetSeed.inCopyFrame(pos, original.call(function, state, BlockOffsetSeed.seedPosition(pos)));
     }
 
     @WrapMethod(method = "getShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;")
