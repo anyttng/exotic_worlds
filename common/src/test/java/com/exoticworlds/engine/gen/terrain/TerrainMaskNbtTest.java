@@ -38,7 +38,7 @@ class TerrainMaskNbtTest {
             }
         }
 
-        TerrainMask mask = TerrainMask.of(cells, POS, MIN_Y, GRID);
+        TerrainMask mask = TerrainMask.of(cells, POS, MIN_Y, GRID, null);
         for (int y = 0; y < HEIGHT; y++) {
             for (int z = 0; z < SIDE; z++) {
                 for (int x = 0; x < SIDE; x++) {
@@ -54,7 +54,7 @@ class TerrainMaskNbtTest {
 
     @Test
     void roundTripKeepsEverySolidAndWrittenCell() {
-        TerrainMask loaded = TerrainMask.load(sample().save(), POS, MIN_Y, HEIGHT);
+        TerrainMask loaded = TerrainMask.load(sample().save(), POS, MIN_Y, HEIGHT, null);
 
         assertNotNull(loaded);
         assertEquals(POS, loaded.pos());
@@ -74,11 +74,11 @@ class TerrainMaskNbtTest {
 
     @Test
     void anotherWorldHeightDiscardsTheMask() {
-        assertNull(TerrainMask.load(sample().save(), POS, MIN_Y, HEIGHT + SIDE));
+        assertNull(TerrainMask.load(sample().save(), POS, MIN_Y, HEIGHT + SIDE, null));
     }
 
     @Test
     void anotherWorldBottomDiscardsTheMask() {
-        assertNull(TerrainMask.load(sample().save(), POS, MIN_Y - SIDE, HEIGHT));
+        assertNull(TerrainMask.load(sample().save(), POS, MIN_Y - SIDE, HEIGHT, null));
     }
 }
