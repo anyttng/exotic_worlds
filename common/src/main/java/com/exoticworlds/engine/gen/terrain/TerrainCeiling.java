@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.gen.terrain;
 
 import java.util.ArrayDeque;
 import java.util.Collections;
@@ -10,6 +10,7 @@ import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.noise.DensityChildren;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;

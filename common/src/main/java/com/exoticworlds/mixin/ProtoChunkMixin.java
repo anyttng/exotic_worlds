@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.exoticworlds.accessors.TerrainMaskHolder;
-import com.exoticworlds.engine.gen.TerrainMask;
+import com.exoticworlds.engine.gen.terrain.TerrainMask;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;

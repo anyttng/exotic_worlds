@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.gen;
+package com.exoticworlds.engine.gen.terrain;
 
 final class CellGrid {
     static final int NO_CELL = -1;

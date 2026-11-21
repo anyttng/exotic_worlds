@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.noise;
+package com.exoticworlds.engine.gen.terrain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -12,6 +12,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.engine.noise.DensityChildren;
 import com.mojang.serialization.Lifecycle;
 
 import net.minecraft.core.Holder;
