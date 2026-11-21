@@ -23,6 +23,7 @@ import com.exoticworlds.core.CuboidFace;
 import com.exoticworlds.core.CuboidFace.BoxVector;
 import com.exoticworlds.core.CuboidFixtures;
 import com.exoticworlds.core.CuboidVertex;
+import com.exoticworlds.engine.noise.BoxDivisors;
 import com.exoticworlds.engine.noise.CompiledOctaves;
 import com.exoticworlds.engine.noise.FoldedSamplers;
 import com.exoticworlds.engine.noise.NoiseFrame;
@@ -49,6 +50,9 @@ class CuboidNoiseSamplerTest {
     private static final double HEIGHT_SPAN = 8.0;
     private static final double NO_FUDGE = 0.0;
     private static final double COMPILED_SCALE = 0.25;
+    private static final double DIVISOR = 4.0;
+
+    private static final BoxDivisors UNEQUAL_DIVISORS = new BoxDivisors(16.0, 24.0, 8.0);
 
     private static final double[] SCALES = {0.01, 0.0625, 0.25, 1.17};
 
@@ -110,6 +114,46 @@ class CuboidNoiseSamplerTest {
                 }
             }
         }
+    }
+
+    @Test
+    void dividedOctavesAgreeOnBothFacesOfEveryEdge() {
+        Random random = new Random(SEED);
+        NoiseStack stack = (NoiseStack) NormalNoise.createParity(-3, 1.0, 1.0).create(new LegacyRandomSource(SEED));
+        for (CuboidAtlas atlas : atlases()) {
+            NoiseFrame frame = new NoiseFrame(NoiseFrame.UNDECLARED.axes(), NoiseFrame.UNDECLARED.xDivisor(),
+                    NoiseFrame.UNDECLARED.zDivisor(), NoiseFrame.UNDECLARED.verticalShare(), UNEQUAL_DIVISORS);
+            CuboidOctaves octaves = (CuboidOctaves) FoldedSamplers.octaves(CuboidFixtures.cuboidFold(atlas), frame,
+                    COMPILED_SCALE, null, stack);
+            for (CuboidEdge edge : atlas.edges()) {
+                CuboidFace first = CuboidFixtures.face(atlas, edge.first());
+                CuboidFace second = CuboidFixtures.face(atlas, edge.second());
+                for (int i = 0; i < SAMPLES; i++) {
+                    double[] onEdge = pointBy(first, edge.firstSide(),
+                            random.nextDouble() * edgeBlocks(first, edge.firstSide()), 0.0);
+                    double[] carried = carried(edge.transform(), onEdge);
+                    double y = random.nextDouble() * HEIGHT_SPAN;
+                    assertEquals(
+                            octaves.sampleOnFace(atlas.faces().indexOf(first), onEdge[0] - first.minBlockX(), y,
+                                    onEdge[1] - first.minBlockZ()),
+                            octaves.sampleOnFace(atlas.faces().indexOf(second), carried[0] - second.minBlockX(), y,
+                                    carried[1] - second.minBlockZ()),
+                            SAME_VALUE, edge.first() + " to " + edge.second());
+                }
+            }
+        }
+    }
+
+    @Test
+    void aDivisorThinsTheCellsOfItsOwnBoxAxisAlone() {
+        CuboidAtlas atlas = CuboidAtlas.of(16, 24, 40, MIN_CHUNK_X, MIN_CHUNK_Z);
+        PerlinNoise noise = new PerlinNoise(new LegacyRandomSource(SEED));
+        CuboidLattice whole = CuboidLattice.of(noise.perms, noise.offsetY, NO_FUDGE, atlas, COMPILED_SCALE);
+        CuboidLattice divided = CuboidLattice.of(noise.perms, noise.offsetY, NO_FUDGE, atlas, COMPILED_SCALE,
+                new BoxDivisors(DIVISOR, 1.0, 1.0));
+        int front = atlas.faces().indexOf(CuboidFixtures.face(atlas, CuboidFace.Side.FRONT));
+        assertEquals(whole.faces()[front].xCells() / (int) DIVISOR, divided.faces()[front].xCells());
+        assertEquals(whole.faces()[front].zCells(), divided.faces()[front].zCells());
     }
 
     @Test

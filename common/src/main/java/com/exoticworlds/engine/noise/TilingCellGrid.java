@@ -7,7 +7,8 @@ import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
 
-public record TilingCellGrid(WorldFold fold, int xCellWidth, int zCellWidth, int skew, int rowsPerLap) {
+public record TilingCellGrid(WorldFold fold, int xCellWidth, int zCellWidth, int skew, int rowsPerLap)
+        implements CellGrid {
     private static final int SMALLEST_CELL_COUNT = 1;
 
     public static TilingCellGrid of(WorldFold fold, int vanillaCellWidth) {
@@ -25,6 +26,7 @@ public record TilingCellGrid(WorldFold fold, int xCellWidth, int zCellWidth, int
                 : of(fold, vanillaCellWidth);
     }
 
+    @Override
     public int cellOriginX(int blockX, int blockZ) {
         if (this.skew == TranslationLattice.NO_SKEW) {
             return Math.floorDiv(blockX, this.xCellWidth) * this.xCellWidth;
@@ -38,12 +40,21 @@ public record TilingCellGrid(WorldFold fold, int xCellWidth, int zCellWidth, int
         return Math.floorDiv(blockZ, this.zCellWidth) * this.zCellWidth;
     }
 
-    static int tilingWidth(WrapDomain domain, int vanillaCellWidth) {
-        if (!domain.loops()) {
-            return vanillaCellWidth;
-        }
+    @Override
+    public int cellOriginZ(int blockX, int blockZ) {
+        return cellOriginZ(blockZ);
+    }
 
-        int width = domain.domainLength;
+    @Override
+    public GenerationFoldContext.Context.DivisorScope divide(GenerationFoldContext.Context context) {
+        return context.withDivisors(this.xCellWidth, this.zCellWidth);
+    }
+
+    static int tilingWidth(WrapDomain domain, int vanillaCellWidth) {
+        return domain.loops() ? tilingWidth(domain.domainLength, vanillaCellWidth) : vanillaCellWidth;
+    }
+
+    public static int tilingWidth(int width, int vanillaCellWidth) {
         double vanillaCellCount = (double) width / vanillaCellWidth;
         int cellCount = SMALLEST_CELL_COUNT;
 

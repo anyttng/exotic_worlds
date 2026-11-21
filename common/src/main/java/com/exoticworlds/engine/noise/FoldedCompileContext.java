@@ -9,10 +9,11 @@ import com.exoticworlds.core.WorldFold;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 
 public record FoldedCompileContext(DensityFunction.CompileContext vanilla, WorldFold fold, CoastLiftCache coastLift,
-        NoiseScaleLadder ladder, double xDivisor, double zDivisor) {
+        NoiseScaleLadder ladder, double xDivisor, double zDivisor, BoxDivisors boxDivisors) {
     public FoldedCompileContext(DensityFunction.CompileContext vanilla, WorldFold fold, CoastLiftCache coastLift,
             NoiseScaleLadder ladder) {
-        this(vanilla, fold, coastLift, ladder, NoiseConstants.UNDIVIDED, NoiseConstants.UNDIVIDED);
+        this(vanilla, fold, coastLift, ladder, NoiseConstants.UNDIVIDED, NoiseConstants.UNDIVIDED,
+                BoxDivisors.UNDIVIDED);
     }
 
     public static @Nullable FoldedCompileContext of(DensityFunction.CompileContext context) {
@@ -27,8 +28,9 @@ public record FoldedCompileContext(DensityFunction.CompileContext vanilla, World
 
         GenerationFoldContext.Context scope = GenerationFoldContext.context();
         return scope.xDivisor() == folded.xDivisor && scope.zDivisor() == folded.zDivisor
+                && scope.boxDivisors().equals(folded.boxDivisors)
                 ? folded
                 : new FoldedCompileContext(folded.vanilla, folded.fold, folded.coastLift, folded.ladder,
-                        scope.xDivisor(), scope.zDivisor());
+                        scope.xDivisor(), scope.zDivisor(), scope.boxDivisors());
     }
 }

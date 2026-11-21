@@ -22,6 +22,7 @@ import com.exoticworlds.core.CuboidFace;
 import com.exoticworlds.core.CuboidFace.BoxVector;
 import com.exoticworlds.core.CuboidFixtures;
 import com.exoticworlds.core.CuboidVertex;
+import com.exoticworlds.engine.noise.BoxDivisors;
 import com.exoticworlds.engine.noise.NoiseConstants;
 import com.exoticworlds.engine.noise.PerlinMath;
 import com.exoticworlds.engine.noise.cuboid.CuboidNoiseSampler.Part;
@@ -100,9 +101,10 @@ class CuboidWarpTest {
         static Warped of(CuboidAtlas atlas, double scale) {
             NoiseStack shiftStack = stack(SHIFT_SEED);
             double shiftBlocks = NoiseConstants.SHIFT_AMPLITUDE / scale;
-            CuboidOctaves shift = CuboidOctaves.compile(atlas, NoiseConstants.SHIFT_SCALE, null, shiftStack);
+            CuboidOctaves shift = CuboidOctaves.compile(atlas, NoiseConstants.SHIFT_SCALE, BoxDivisors.UNDIVIDED,
+                    null, shiftStack);
             double largestBlocks = shiftBlocks * shiftStack.range().max() * WARP_DIAGONAL;
-            return new Warped(atlas, CuboidOctaves.compile(atlas, scale, null, stack(SEED)),
+            return new Warped(atlas, CuboidOctaves.compile(atlas, scale, BoxDivisors.UNDIVIDED, null, stack(SEED)),
                     CuboidWarp.of(atlas, shift, shiftBlocks, largestBlocks), scale, largestBlocks);
         }
 

@@ -23,6 +23,7 @@ public final class GenerationFoldContext {
         private double verticalShare = UNDECLARED_VERTICAL_SHARE;
         private double xDivisor = NoiseConstants.UNDIVIDED;
         private double zDivisor = NoiseConstants.UNDIVIDED;
+        private BoxDivisors boxDivisors = BoxDivisors.UNDIVIDED;
         private SlotAxes slotAxes = SlotAxes.DEFAULT;
         private final ScaleScope scaleScope = new ScaleScope();
         private final DivisorScope divisorScope = new DivisorScope();
@@ -58,6 +59,10 @@ public final class GenerationFoldContext {
             return this.zDivisor;
         }
 
+        public BoxDivisors boxDivisors() {
+            return this.boxDivisors;
+        }
+
         // mc/26.2: the noise samplers read the slot axes through it.
         public SlotAxes slotAxes() {
             return this.slotAxes;
@@ -86,6 +91,12 @@ public final class GenerationFoldContext {
             this.divisorScope.push();
             this.xDivisor = xDivisor;
             this.zDivisor = zDivisor;
+            return this.divisorScope;
+        }
+
+        public DivisorScope withBoxDivisors(BoxDivisors boxDivisors) {
+            this.divisorScope.push();
+            this.boxDivisors = boxDivisors;
             return this.divisorScope;
         }
 
@@ -177,6 +188,7 @@ public final class GenerationFoldContext {
         public final class DivisorScope implements AutoCloseable {
             private final DoubleStack previousXDivisors = new DoubleStack();
             private final DoubleStack previousZDivisors = new DoubleStack();
+            private final ObjectStack<BoxDivisors> previousBoxDivisors = new ObjectStack<>();
 
             private DivisorScope() {
             }
@@ -184,12 +196,14 @@ public final class GenerationFoldContext {
             private void push() {
                 this.previousXDivisors.push(xDivisor);
                 this.previousZDivisors.push(zDivisor);
+                this.previousBoxDivisors.push(boxDivisors);
             }
 
             @Override
             public void close() {
                 xDivisor = this.previousXDivisors.pop();
                 zDivisor = this.previousZDivisors.pop();
+                boxDivisors = this.previousBoxDivisors.pop();
             }
         }
     }

@@ -108,7 +108,7 @@ public final class FoldedSamplers {
     private static @Nullable CuboidWarp cuboidWarp(FoldedCompileContext context, CuboidAtlas atlas, double xzScale,
             DensityFunction shiftX, DensityFunction shiftZ) {
         DensityFunction zero = DensityFunctions.zero();
-        if (xzScale == 0.0 || shiftX.equals(zero) || shiftZ.equals(zero)) {
+        if (xzScale == 0.0 || shiftX.equals(zero) || shiftZ.equals(zero) || !context.boxDivisors().isUndivided()) {
             return null;
         }
 
@@ -173,7 +173,7 @@ public final class FoldedSamplers {
             double @Nullable [] layerFactors, NoiseStack stack) {
         CuboidAtlas atlas = fold.cuboidAtlas();
         return atlas != null && frame.isDefault()
-                ? CuboidOctaves.compile(atlas, scale, layerFactors, stack)
+                ? CuboidOctaves.compile(atlas, scale, frame.boxDivisors(), layerFactors, stack)
                 : PeriodicOctaveSampler.compile(fold, frame, scale, layerFactors, stack);
     }
 
@@ -189,7 +189,7 @@ public final class FoldedSamplers {
     }
 
     private static NoiseFrame frameOf(FoldedCompileContext context, SlotAxes axes, double verticalShare) {
-        return new NoiseFrame(axes, context.xDivisor(), context.zDivisor(), verticalShare);
+        return new NoiseFrame(axes, context.xDivisor(), context.zDivisor(), verticalShare, context.boxDivisors());
     }
 
     private static CoastLiftCache liftOf(FoldedCompileContext context, boolean coast) {

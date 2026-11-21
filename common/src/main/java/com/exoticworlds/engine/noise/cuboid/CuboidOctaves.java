@@ -6,6 +6,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.CuboidAtlas;
 import com.exoticworlds.core.CuboidFace;
+import com.exoticworlds.engine.noise.BoxDivisors;
 import com.exoticworlds.engine.noise.CompiledOctaves;
 import com.exoticworlds.engine.noise.PerlinMath;
 import com.exoticworlds.engine.noise.cuboid.CuboidNoiseSampler.Part;
@@ -37,8 +38,8 @@ public final class CuboidOctaves implements CompiledOctaves {
         this.amplitudes = amplitudes;
     }
 
-    public static CuboidOctaves compile(CuboidAtlas atlas, double scale, double @Nullable [] layerFactors,
-            NoiseStack stack) {
+    public static CuboidOctaves compile(CuboidAtlas atlas, double scale, BoxDivisors divisors,
+            double @Nullable [] layerFactors, NoiseStack stack) {
         NoiseStack.Layer[] layers = stack.layers;
         CuboidLattice[] lattices = new CuboidLattice[layers.length];
         double[] frequencies = new double[layers.length];
@@ -46,7 +47,7 @@ public final class CuboidOctaves implements CompiledOctaves {
         for (int i = 0; i < layers.length; i++) {
             NoiseStack.Layer layer = layers[i];
             double frequency = layer.frequency();
-            lattices[i] = lattice(atlas, CompiledOctaves.layerScale(scale, layerFactors, i, frequency),
+            lattices[i] = lattice(atlas, CompiledOctaves.layerScale(scale, layerFactors, i, frequency), divisors,
                     layer.noise());
             frequencies[i] = frequency;
             amplitudes[i] = layer.amplitude();
@@ -56,15 +57,16 @@ public final class CuboidOctaves implements CompiledOctaves {
     }
 
     @SuppressWarnings("deprecation")
-    private static CuboidLattice lattice(CuboidAtlas atlas, double layerScale, Noise leaf) {
+    private static CuboidLattice lattice(CuboidAtlas atlas, double layerScale, BoxDivisors divisors, Noise leaf) {
         if (leaf.getClass() == PerlinNoise.class) {
             PerlinNoise perlin = (PerlinNoise) leaf;
-            return CuboidLattice.of(perlin.perms, perlin.offsetY, PerlinMath.NO_FUDGE, atlas, layerScale);
+            return CuboidLattice.of(perlin.perms, perlin.offsetY, PerlinMath.NO_FUDGE, atlas, layerScale, divisors);
         }
 
         if (leaf.getClass() == SmearedPerlinNoise.class) {
             SmearedPerlinNoise smeared = (SmearedPerlinNoise) leaf;
-            return CuboidLattice.of(smeared.perms, smeared.offsetY, smeared.fudgeYScale, atlas, layerScale);
+            return CuboidLattice.of(smeared.perms, smeared.offsetY, smeared.fudgeYScale, atlas, layerScale,
+                    divisors);
         }
 
         throw new IllegalArgumentException(NOT_PERLIN_LEAF + leaf.getClass().getName());
