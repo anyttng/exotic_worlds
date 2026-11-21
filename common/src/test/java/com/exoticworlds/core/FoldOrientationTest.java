@@ -87,6 +87,14 @@ class FoldOrientationTest {
         }
 
         @Test
+        void theInverseIsTheOrientationOfTheInverseMove() {
+            for (FoldOrientation orientation : FoldOrientation.values()) {
+                assertEquals(inverseOf(orientation), orientation.inverse(),
+                        orientation + " is undone by another orientation than its inverse move");
+            }
+        }
+
+        @Test
         void theClockwiseTurnUndoesTheCounterclockwiseOne() {
             assertEquals(FoldOrientation.QUARTER_TURN_COUNTERCLOCKWISE,
                     inverseOf(FoldOrientation.QUARTER_TURN_CLOCKWISE), "a clockwise turn is undone by another");
