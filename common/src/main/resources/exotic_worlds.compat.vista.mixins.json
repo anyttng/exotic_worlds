@@ -10,7 +10,8 @@
     "TvSlideshowRangeSeatMixin",
     "ZoneChunkKeysMixin",
     "ZoneFoldStampMixin",
-    "ZoneReseatMixin"
+    "ZoneReseatMixin",
+    "ZoneViewTestMixin"
   ],
   "injectors": {
     "defaultRequire": 1
