@@ -290,7 +290,7 @@ public final class PeriodicNoiseSampler {
         };
     }
 
-    private static double fudgeY(double originalY, double yRelative, double fudgeYScale) {
+    static double fudgeY(double originalY, double yRelative, double fudgeYScale) {
         double fudgeLimit = originalY >= 0.0 && originalY < yRelative ? originalY : yRelative;
         return Mth.floor(fudgeLimit / fudgeYScale + FUDGE_EPSILON) * fudgeYScale;
     }
@@ -379,7 +379,7 @@ public final class PeriodicNoiseSampler {
         return closes(period) && next == period ? 0L : next;
     }
 
-    private static int p(byte[] permutations, long index) {
+    static int p(byte[] permutations, long index) {
         return permutations[(int) (index & 0xFFL)] & 0xFF;
     }
 

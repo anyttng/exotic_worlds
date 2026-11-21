@@ -57,6 +57,10 @@ public final class FoldedSamplers {
     public static DensitySampler compileNoise(FoldedCompileContext context, Holder<NormalNoise> noise,
             double vanillaXzScale, double yScale, DensityFunction shiftX, DensityFunction shiftY,
             DensityFunction shiftZ) {
+        if (context.fold().cuboidAtlas() != null) {
+            return cuboidNoise(context, stack(context, noise), vanillaXzScale, yScale, shiftY);
+        }
+
         NoiseShaping shaping = NoiseShapings.get();
         double xzScale = context.ladder().separated(noise, vanillaXzScale);
         double verticalShare = GenerationFoldContext.verticalShare(xzScale, yScale);
@@ -70,6 +74,15 @@ public final class FoldedSamplers {
 
         return shiftedNoise(context, stack, xzScale, vanillaXzScale, yScale, layerFactors, coast,
                 shaping.warpDivisor(context.fold(), noise, xzScale, verticalShare), shiftX, shiftY, shiftZ);
+    }
+
+    private static DensitySampler cuboidNoise(FoldedCompileContext context, NoiseStack stack, double xzScale,
+            double yScale, DensityFunction shiftY) {
+        PeriodicOctaves octaves = PeriodicOctaveSampler.compile(context.fold(), frameOf(context, xzScale, yScale),
+                xzScale, null, stack);
+        return shiftY.equals(DensityFunctions.zero())
+                ? new NoiseSampler(octaves, yScale, NO_LIFT)
+                : new RaisedNoiseSampler(octaves, yScale, shiftY.compileSampler(context.vanilla()));
     }
 
     private static DensitySampler noise(FoldedCompileContext context, NoiseStack stack, double xzScale,
@@ -192,6 +205,20 @@ public final class FoldedSamplers {
         public float sampleValue(SamplerContext context, int blockX, int blockY, int blockZ) {
             return this.octaves.sample(blockX, blockY * this.yScale, blockZ)
                     + (float) this.coastLift.exotic_worlds$coastLift();
+        }
+    }
+
+    private record RaisedNoiseSampler(PeriodicOctaves octaves, double yScale, DensitySampler shiftY)
+            implements DensitySampler {
+        @Override
+        public void sampleVolume(SamplerContext context, DensityBuffer outputBuffer, DensityVolume volume) {
+            DensitySampler.sampleVolumeNaive(context, outputBuffer, volume, this);
+        }
+
+        @Override
+        public float sampleValue(SamplerContext context, int blockX, int blockY, int blockZ) {
+            return this.octaves.sample(blockX,
+                    blockY * this.yScale + this.shiftY.sampleValue(context, blockX, blockY, blockZ), blockZ);
         }
     }
 

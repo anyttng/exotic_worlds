@@ -3,6 +3,8 @@ package com.exoticworlds.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
@@ -368,6 +370,11 @@ final class WorldLoopFold implements WorldFold {
     @Override
     public ToroidalShape shapeView() {
         return this.shapeView;
+    }
+
+    @Override
+    public @Nullable CuboidAtlas cuboidAtlas() {
+        return null;
     }
 
     @Override

@@ -138,6 +138,11 @@ public final class DeckGroupFold implements WorldFold {
         return this.shapeView;
     }
 
+    @Override
+    public @Nullable CuboidAtlas cuboidAtlas() {
+        return null;
+    }
+
     private TranslationLattice translationLattice(@Nullable TranslationLattice lattice) {
         if (lattice == null) {
             throw new IllegalStateException(this.shape.identification() + " is not a translation lattice");

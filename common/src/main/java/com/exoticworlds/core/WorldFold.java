@@ -2,6 +2,8 @@ package com.exoticworlds.core;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 
@@ -44,6 +46,8 @@ public interface WorldFold {
     TranslationLattice chunkLattice();
 
     ToroidalShape shapeView();
+
+    @Nullable CuboidAtlas cuboidAtlas();
 
     boolean isOver(Vec3 pos);
 
