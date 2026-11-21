@@ -14,7 +14,10 @@ import com.exoticworlds.accessors.TerrainMaskCache;
 import com.exoticworlds.accessors.TerrainMaskHolder;
 import com.exoticworlds.api.v1.gen.TerrainSnapshot;
 import com.exoticworlds.core.CoordinateConstants;
+import com.exoticworlds.core.FoldOrientation;
 import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.WorldLoopAttachments;
 
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 
@@ -82,14 +85,17 @@ public final class FloatingCrumbs {
 
     private static final class CrumbSearch {
         private final TerrainMask[] window;
+        private final FoldOrientation @Nullable [] frames;
         private final BitSet taken;
         private final BitSet rejected;
         private final int[] pending;
         private int tail;
         private boolean kept;
 
-        private CrumbSearch(TerrainMask[] window, BitSet taken, BitSet rejected, int[] pending) {
+        private CrumbSearch(TerrainMask[] window, FoldOrientation @Nullable [] frames, BitSet taken,
+                BitSet rejected, int[] pending) {
             this.window = window;
+            this.frames = frames;
             this.taken = taken;
             this.rejected = rejected;
             this.pending = pending;
@@ -109,6 +115,11 @@ public final class FloatingCrumbs {
 
     private static TerrainMasks terrainMasksOf(ServerLevel level) {
         return ((TerrainMaskCache) level).exotic_worlds$terrainMasks();
+    }
+
+    private static @Nullable WorldFold turningFoldOf(ServerLevel level) {
+        WorldFold fold = WorldLoopAttachments.foldOf(level);
+        return fold.preservesLocalIndices() ? null : fold;
     }
 
     private static @Nullable TerrainMask terrainMaskOf(ChunkAccess chunk) {
@@ -138,7 +149,7 @@ public final class FloatingCrumbs {
                     cell -> write(chunk, grid, cursor, cell, minY, CrumbFlood.blockOf(fluids, fluid[cell])));
         }
 
-        attachTerrainMask(chunk, TerrainMask.of(solid, chunk.getPos(), minY, grid));
+        attachTerrainMask(chunk, TerrainMask.of(solid, chunk.getPos(), minY, grid, turningFoldOf(level)));
     }
 
     public static void registerMask(ServerLevel level, ChunkAccess chunk) {
@@ -157,7 +168,8 @@ public final class FloatingCrumbs {
             return;
         }
 
-        TerrainMask mask = terrainMasksOf(level).restore(chunk.getPos(), saved, chunk.getMinY(), chunk.getHeight());
+        TerrainMask mask = terrainMasksOf(level).restore(chunk.getPos(), saved, chunk.getMinY(), chunk.getHeight(),
+                turningFoldOf(level));
         if (mask != null) {
             attachTerrainMask(chunk, mask);
         }
@@ -302,7 +314,7 @@ public final class FloatingCrumbs {
         BitSet rejected = new BitSet(grid.cells());
         int[] pending = new int[CrumbFlood.SMALLEST_KEPT_BLOCKS];
         Cleared cleared = new Cleared(grid, lowestY);
-        CrumbSearch search = new CrumbSearch(window, taken, rejected, pending);
+        CrumbSearch search = new CrumbSearch(window, center.windowFrames(WINDOW_CHUNKS), taken, rejected, pending);
 
         for (int y = center.lowestY(); y <= center.highestY(); y++) {
             for (int localZ = 0; localZ < CoordinateConstants.CHUNK_WIDTH; localZ++) {
@@ -373,7 +385,7 @@ public final class FloatingCrumbs {
         for (int axis = 0; axis < CellGrid.AXES && !search.kept; axis++) {
             for (int step = -1; step <= 1; step += 2) {
                 int neighbor = grid.neighbor(cell, axis, step);
-                if (neighbor == CellGrid.NO_CELL || !windowSolid(search.window, grid, neighbor, cleared.lowestY)) {
+                if (neighbor == CellGrid.NO_CELL || !windowSolid(search, grid, neighbor, cleared.lowestY)) {
                     continue;
                 }
 
@@ -459,9 +471,14 @@ public final class FloatingCrumbs {
                 chunk.getPos().getMinBlockZ() + grid.localZ(cell));
     }
 
-    private static boolean windowSolid(TerrainMask[] window, CellGrid grid, int cell, int lowestY) {
-        return window[chunkIndexOf(grid, cell)].solidAt(grid.localX(cell) % CoordinateConstants.CHUNK_WIDTH,
-                lowestY + grid.layer(cell), grid.localZ(cell) % CoordinateConstants.CHUNK_WIDTH);
+    private static boolean windowSolid(CrumbSearch search, CellGrid grid, int cell, int lowestY) {
+        int index = chunkIndexOf(grid, cell);
+        TerrainMask mask = search.window[index];
+        int localX = grid.localX(cell) % CoordinateConstants.CHUNK_WIDTH;
+        int localZ = grid.localZ(cell) % CoordinateConstants.CHUNK_WIDTH;
+        int y = lowestY + grid.layer(cell);
+        FoldOrientation[] frames = search.frames;
+        return frames == null ? mask.solidAt(localX, y, localZ) : mask.solidAt(frames[index], localX, y, localZ);
     }
 
     private static int chunkIndexOf(CellGrid grid, int cell) {

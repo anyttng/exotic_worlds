@@ -74,8 +74,6 @@ class UnreachedMembersTest {
             "compat.gate.ModPresence.optional",
             "core.CuboidAtlas.of",
             "core.CuboidFace.boxPoint",
-            "core.FoldOrientation.applyToLocalX",
-            "core.FoldOrientation.applyToLocalZ",
             "core.FoldOrientation.localIndexTable",
             "core.FoldOrientation.stateMirror",
             "core.FoldOrientation.stateRotation");
