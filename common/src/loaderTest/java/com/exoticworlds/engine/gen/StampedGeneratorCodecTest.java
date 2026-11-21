@@ -3,6 +3,7 @@ package com.exoticworlds.engine.gen;
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.CuboidShape;
 import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapeFixtures;
@@ -54,6 +55,8 @@ class StampedGeneratorCodecTest {
 
     private static final int STAMPED_CHUNK_WIDTH = 64;
 
+    private static final CuboidShape CUBOID = new CuboidShape(16, 24, 40);
+
     private static final String UNREADABLE_SHAPE = "not a shape at all";
 
     private static final String TABLE_KEY = KEY_PREFIX + DimensionTable.KEY;
@@ -97,6 +100,16 @@ class StampedGeneratorCodecTest {
         CarriedShape decoded = carriedShapeOf(decode(encoded).getOrThrow());
         assertEquals(shape, decoded.shape());
         assertEquals(ClimateScale.OFF, decoded.generationOptions().get(CompactBiomes.OPTION));
+    }
+
+    @Test
+    void aStampedCuboidSurvivesTheRoundTrip() {
+        ChunkGenerator generator = noiseGenerator(worldgen);
+        ((ShapeStamp) generator).exotic_worlds$stamp(new CarriedShape(CUBOID, GenerationOptions.DEFAULT));
+        CompoundTag encoded = encode(generator);
+
+        assertTrue(encoded.contains(SHAPE_KEY), "the stamped cuboid never reached the encoded generator");
+        assertEquals(CUBOID, carriedShapeOf(decode(encoded).getOrThrow()).shape());
     }
 
     @Test

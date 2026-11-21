@@ -116,8 +116,7 @@ public final class LayoutDimensions {
             return DimensionLayout.normal(DimensionLayout.DEFAULT_OPTIONS);
         }
 
-        FlatShape shape = carried.shape();
-        if (shape.mirror() != null) {
+        if (!(carried.shape() instanceof FlatShape shape) || shape.mirror() != null) {
             return null;
         }
 

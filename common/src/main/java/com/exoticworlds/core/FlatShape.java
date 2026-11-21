@@ -16,7 +16,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-public record FlatShape(WorldLoopBounds bounds, int skewChunks, @Nullable Mirror mirror) {
+public record FlatShape(WorldLoopBounds bounds, int skewChunks, @Nullable Mirror mirror) implements ShapeModel {
     private static final String SKEW_CHUNKS_KEY = "skew_chunks";
     private static final String MIRROR_KEY = "mirror";
 

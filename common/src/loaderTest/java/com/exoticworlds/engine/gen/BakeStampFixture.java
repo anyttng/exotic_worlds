@@ -127,7 +127,7 @@ final class BakeStampFixture {
 
     static @Nullable FlatShape shapeOf(Registry<LevelStem> baked, ResourceKey<LevelStem> key) {
         CarriedShape carried = carriedShapeOf(baked, key);
-        return carried == null ? null : carried.shape();
+        return carried != null && carried.shape() instanceof FlatShape flat ? flat : null;
     }
 
     static @Nullable CarriedShape carriedShapeOf(Registry<LevelStem> baked, ResourceKey<LevelStem> key) {

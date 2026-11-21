@@ -10,7 +10,7 @@ import com.exoticworlds.client.shape.layout.DimensionLock;
 import com.exoticworlds.client.shape.layout.CoordinateScales;
 import com.exoticworlds.client.shape.layout.WorldShapeSettingsScreen;
 import com.exoticworlds.core.DimensionTable;
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeModel;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.engine.gen.DimensionChoices;
@@ -31,7 +31,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.LevelStem;
 
 public final class WorldLoopClientNetwork {
-    public static void apply(ResourceKey<Level> dimension, FlatShape shape) {
+    public static void apply(ResourceKey<Level> dimension, ShapeModel shape) {
         WorldFold fold = WorldFolds.of(shape);
         PublishedShapes.publish(dimension, fold);
         ClientLevel level = Minecraft.getInstance().level;

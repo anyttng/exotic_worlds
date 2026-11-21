@@ -11,8 +11,10 @@ import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.CoordinateConstants;
+import com.exoticworlds.core.CuboidShape;
 import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeModel;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
@@ -35,6 +37,7 @@ public final class WorldShapeReport {
     private static final String STORED_SOURCE = "stored";
     private static final String TABLE_SOURCE = "table";
     private static final String NOT_PERIODIC_NOTE = ", stamped, terrain not periodic";
+    private static final String CUBOID_IDENTIFICATION = "CUBOID";
 
     public record Line(boolean broken, String text) {
     }
@@ -44,20 +47,35 @@ public final class WorldShapeReport {
     }
 
     public static List<Line> lines(MinecraftServer server) {
-        FlatShape overworldShape = shapeOf(server.overworld());
+        ShapeModel overworldShape = shapeOf(server.overworld());
         List<Line> lines = new ArrayList<>();
         boolean anyWrapped = false;
         for (ServerLevel level : server.getAllLevels()) {
-            FlatShape shape = shapeOf(level);
-            if (shape != null) {
-                anyWrapped = true;
-                lines.add(wrappedLine(server, level, shape));
-            } else {
-                lines.add(new Line(false, unwrappedLine(server, level, overworldShape)));
-            }
+            ShapeModel shape = shapeOf(level);
+            anyWrapped |= shape != null;
+            lines.add(switch (shape) {
+                case null -> new Line(false, unwrappedLine(server, level, overworldShape));
+                case FlatShape flat -> wrappedLine(server, level, flat);
+                case CuboidShape cuboid -> cuboidLine(server, level, cuboid);
+            });
         }
 
         return anyWrapped ? lines : List.of();
+    }
+
+    private static Line cuboidLine(MinecraftServer server, ServerLevel level, CuboidShape shape) {
+        StemOverride override = overrideOf(level);
+        ChunkGenerator generator = level.getChunkSource().getGenerator();
+        return new Line(false, "World shape: " + level.dimension().identifier()
+                + " generator=" + generatorId(generator)
+                + " shape=" + shapeSource(server, level, override)
+                + " identification=" + CUBOID_IDENTIFICATION
+                + " a=" + WorldLoopSizes.describe(shape.aChunks())
+                + " b=" + WorldLoopSizes.describe(shape.bChunks())
+                + " c=" + WorldLoopSizes.describe(shape.cChunks())
+                + seamTerrain(generator)
+                + datapackOverride(override)
+                + tail());
     }
 
     private static Line wrappedLine(MinecraftServer server, ServerLevel level, FlatShape shape) {
@@ -80,20 +98,23 @@ public final class WorldShapeReport {
                 + tail());
     }
 
-    private static String unwrappedLine(MinecraftServer server, ServerLevel level, @Nullable FlatShape overworldShape) {
+    private static String unwrappedLine(MinecraftServer server, ServerLevel level, @Nullable ShapeModel overworldShape) {
         return "World shape: " + level.dimension().identifier() + " not wrapped"
                 + " generator=" + generatorId(level.getChunkSource().getGenerator())
                 + ", " + unwrappedReason(server, level, overworldShape)
                 + tail();
     }
 
-    private static String unwrappedReason(MinecraftServer server, ServerLevel level, @Nullable FlatShape overworldShape) {
+    private static String unwrappedReason(MinecraftServer server, ServerLevel level, @Nullable ShapeModel overworldShape) {
         if (tableEntryOf(server, level) != null) {
             return "the overworld's dimension table leaves it unwrapped";
         }
 
-        return overworldShape == null ? "neither it nor the overworld carries a shape"
-                : underivedReason(server, level, overworldShape);
+        return switch (overworldShape) {
+            case null -> "neither it nor the overworld carries a shape";
+            case FlatShape flat -> underivedReason(server, level, flat);
+            case CuboidShape cuboid -> "the overworld's cuboid derives no shape for another dimension";
+        };
     }
 
     private static DimensionTable.@Nullable Entry tableEntryOf(MinecraftServer server, ServerLevel level) {
@@ -155,7 +176,7 @@ public final class WorldShapeReport {
                 + " loader=" + Platforms.get().loaderName() + " " + Platforms.get().loaderVersion();
     }
 
-    private static @Nullable FlatShape shapeOf(@Nullable ServerLevel level) {
+    private static @Nullable ShapeModel shapeOf(@Nullable ServerLevel level) {
         CarriedShape carried = level == null ? null : ShapedChunkGenerator.carriedShapeOf(level);
         return carried == null ? null : carried.shape();
     }
@@ -194,8 +215,7 @@ public final class WorldShapeReport {
             return Note.NONE;
         }
 
-        FlatShape overworldShape = shapeOf(server.overworld());
-        if (overworldShape == null) {
+        if (!(shapeOf(server.overworld()) instanceof FlatShape overworldShape)) {
             return Note.NONE;
         }
 

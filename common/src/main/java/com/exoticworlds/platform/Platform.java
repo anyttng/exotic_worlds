@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.IntFunction;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeModel;
 import com.exoticworlds.engine.net.DimensionChoicesPayload;
 import com.exoticworlds.engine.net.DimensionChoicesUpdatePayload;
 import com.exoticworlds.engine.net.PositionRowsPayload;
@@ -27,7 +27,7 @@ public interface Platform {
 
     String loaderVersion();
 
-    void sendWorldShape(ServerPlayer player, ResourceKey<Level> dimension, FlatShape shape);
+    void sendWorldShape(ServerPlayer player, ResourceKey<Level> dimension, ShapeModel shape);
 
     void sendPositionRows(ServerPlayer player, PositionRowsPayload rows);
 

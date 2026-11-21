@@ -294,7 +294,7 @@ class ShapedChunkGeneratorCodecTest {
     }
 
     private static String readError(String json) {
-        DataResult<FlatShape> result =
+        DataResult<?> result =
                 CarriedShape.SHAPE_CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(json));
         assertTrue(result.isError(), result.toString());
         return result.error().orElseThrow().message();

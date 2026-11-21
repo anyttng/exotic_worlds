@@ -115,7 +115,7 @@ public final class DimensionTable {
         }
     }
 
-    private record Stated(boolean fromOverworld, Optional<FlatShape> shape, GenerationOptions options) {
+    private record Stated(boolean fromOverworld, Optional<ShapeModel> shape, GenerationOptions options) {
         private static Stated of(Entry entry) {
             CarriedShape carried = entry.carried();
             return carried == null
@@ -128,7 +128,7 @@ public final class DimensionTable {
                 return Entry.FROM_OVERWORLD;
             }
 
-            return this.shape.map(flat -> new Entry(new CarriedShape(flat, this.options))).orElse(Entry.UNWRAPPED);
+            return this.shape.map(stated -> new Entry(new CarriedShape(stated, this.options))).orElse(Entry.UNWRAPPED);
         }
     }
 }

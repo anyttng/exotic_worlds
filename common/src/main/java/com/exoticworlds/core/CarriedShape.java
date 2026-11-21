@@ -11,15 +11,15 @@ public final class CarriedShape {
     public static final String WRAPPING_KEY = "wrapping";
     public static final String NO_KEY_PREFIX = "";
 
-    public static final Codec<FlatShape> SHAPE_CODEC = FlatShape.CODEC
+    public static final Codec<ShapeModel> SHAPE_CODEC = ShapeModel.CODEC
             .validate(WorldFolds::verifyFoldable)
             .validate(WorldFolds::verifyGeneratable);
 
-    private final FlatShape shape;
+    private final ShapeModel shape;
     private final GenerationOptions generationOptions;
     private final WorldFold fold;
 
-    public CarriedShape(FlatShape shape, GenerationOptions generationOptions) {
+    public CarriedShape(ShapeModel shape, GenerationOptions generationOptions) {
         this.shape = shape;
         this.generationOptions = generationOptions;
         this.fold = WorldFolds.of(shape, generationOptions);
@@ -33,7 +33,7 @@ public final class CarriedShape {
         ).apply(instance, CarriedShape::new));
     }
 
-    public FlatShape shape() {
+    public ShapeModel shape() {
         return this.shape;
     }
 
@@ -45,7 +45,7 @@ public final class CarriedShape {
         return this.fold;
     }
 
-    public CarriedShape withShape(FlatShape shape) {
+    public CarriedShape withShape(ShapeModel shape) {
         return new CarriedShape(shape, this.generationOptions);
     }
 

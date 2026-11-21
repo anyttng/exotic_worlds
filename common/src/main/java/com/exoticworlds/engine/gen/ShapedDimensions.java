@@ -176,11 +176,11 @@ public final class ShapedDimensions {
 
     private static @Nullable CarriedShape derivedCarried(@Nullable CarriedShape overworld, double overworldScale,
             double scale) {
-        if (overworld == null || overworld.shape().mirror() != null) {
+        if (overworld == null || !(overworld.shape() instanceof FlatShape flat) || flat.mirror() != null) {
             return null;
         }
 
-        FlatShape derived = derivedShape(overworld.shape(), overworldScale, scale);
+        FlatShape derived = derivedShape(flat, overworldScale, scale);
         return derived == null ? null : overworld.withShape(derived);
     }
 
@@ -218,7 +218,7 @@ public final class ShapedDimensions {
 
     public static @Nullable FlatShape shapeOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
         CarriedShape carried = carriedShapeOf(dimensions, key);
-        return carried == null ? null : carried.shape();
+        return carried != null && carried.shape() instanceof FlatShape flat ? flat : null;
     }
 
     public static @Nullable FlatShape derivedShape(FlatShape worldShape, double overworldScale, double scale) {

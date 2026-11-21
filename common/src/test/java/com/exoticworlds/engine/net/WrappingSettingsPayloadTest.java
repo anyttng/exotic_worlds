@@ -8,8 +8,10 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.core.CuboidShape;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeModel;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
@@ -44,7 +46,8 @@ class WrappingSettingsPayloadTest {
 
     @Test
     void everyShapeTheEpicPlansRoundTripsInEveryDimensionAndDrainsTheBuffer() {
-        List<FlatShape> shapes = List.of(
+        List<ShapeModel> shapes = List.of(
+                new CuboidShape(16, 24, 40),
                 FlatShape.rectangle(),
                 ShapeFixtures.cylinder(X_ONLY),
                 ShapeFixtures.cylinder(Z_ONLY),
@@ -54,7 +57,7 @@ class WrappingSettingsPayloadTest {
                 ShapeFixtures.mirrored(Z_ONLY, Direction.Axis.X, 3),
                 ShapeFixtures.mirrored(SQUARE, Direction.Axis.Z, -7));
         for (ResourceKey<Level> dimension : DIMENSIONS) {
-            for (FlatShape shape : shapes) {
+            for (ShapeModel shape : shapes) {
                 RegistryFriendlyByteBuf buffer = buffer();
                 WrappingSettingsPayload.STREAM_CODEC.encode(buffer, new WrappingSettingsPayload(dimension, shape));
 
@@ -70,6 +73,7 @@ class WrappingSettingsPayloadTest {
     @Test
     void anUnmirroredShapeLaysDownItsDimensionThenItsExactBytes() {
         assertWire(Level.OVERWORLD, ShapeFixtures.cylinder(X_ONLY), new byte[] {
+                0x00,
                 0x01, (byte) 0xF0, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x0F, 0x10,
                 0x00,
                 0x00,
@@ -80,21 +84,27 @@ class WrappingSettingsPayloadTest {
     void aMirroredShapeLaysDownItsDimensionThenItsExactBytes() {
         assertWire(Level.NETHER, ShapeFixtures.mirrored(Z_ONLY, Direction.Axis.X, 3), new byte[] {
                 0x00,
+                0x00,
                 0x01, (byte) 0xF0, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x0F, 0x10,
                 0x00,
                 0x01, 0x00, 0x03});
     }
 
     @Test
-    void anUnwrappedShapeIsFourBytesAfterItsDimension() {
+    void aCuboidLaysDownItsDimensionThenItsKindAndThreeSizes() {
+        assertWire(Level.OVERWORLD, new CuboidShape(16, 24, 40), new byte[] {0x01, 0x10, 0x18, 0x28});
+    }
+
+    @Test
+    void anUnwrappedShapeIsFiveBytesAfterItsDimension() {
         RegistryFriendlyByteBuf buffer = buffer();
         WrappingSettingsPayload.STREAM_CODEC.encode(buffer,
                 new WrappingSettingsPayload(Level.OVERWORLD, FlatShape.rectangle()));
 
-        assertEquals(dimensionWire(Level.OVERWORLD).length + 4, buffer.readableBytes());
+        assertEquals(dimensionWire(Level.OVERWORLD).length + 5, buffer.readableBytes());
     }
 
-    private static void assertWire(ResourceKey<Level> dimension, FlatShape shape, byte[] shapeWire) {
+    private static void assertWire(ResourceKey<Level> dimension, ShapeModel shape, byte[] shapeWire) {
         byte[] dimensionWire = dimensionWire(dimension);
         byte[] wire = new byte[dimensionWire.length + shapeWire.length];
         System.arraycopy(dimensionWire, 0, wire, 0, dimensionWire.length);

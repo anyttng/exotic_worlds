@@ -92,7 +92,7 @@ class DatapackTemplatesJsonTest {
         assertEquals(GENERATOR_ID, generator.get("type").getAsString(), context + ": generator type");
         assertEquals(noiseSettingsId, generator.get("settings").getAsString(), context + ": noise settings");
 
-        FlatShape shape = CarriedShape.SHAPE_CODEC
+        FlatShape shape = (FlatShape) CarriedShape.SHAPE_CODEC
                 .parse(JsonOps.INSTANCE, generator.get(CarriedShape.WRAPPING_KEY))
                 .getOrThrow(message -> new AssertionError(context + ": wrapping is refused: " + message));
         assertEquals(identification, shape.identification(), context + ": identification");

@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.IntFunction;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeModel;
 import com.exoticworlds.engine.net.DimensionChoicesPayload;
 import com.exoticworlds.engine.net.DimensionChoicesUpdatePayload;
 import com.exoticworlds.engine.net.PositionRowsPayload;
@@ -42,7 +42,7 @@ public final class LoaderlessPlatform implements Platform {
     }
 
     @Override
-    public void sendWorldShape(ServerPlayer player, ResourceKey<Level> dimension, FlatShape shape) {
+    public void sendWorldShape(ServerPlayer player, ResourceKey<Level> dimension, ShapeModel shape) {
         throw new UnsupportedOperationException(NO_LOADER);
     }
 
