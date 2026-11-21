@@ -29,13 +29,11 @@ public final class SeamSnap {
 
     // mc/1.21: Create's carriage moves its riders by the carriage's own lap.
     public static void withPassengers(Entity entity, DeckTransformation lap) {
-        Vec3 from = entity.position();
-        Vec3 to = lap.apply(from);
-        moveBody(entity, lap, to);
+        moveBody(entity, lap, lap.apply(entity.position()));
         moveHistory(entity, lap);
         turnHeading(entity, lap.orientation());
         if (entity instanceof Mob mob) {
-            shiftNavigation(mob, (int) Math.round(to.x - from.x), (int) Math.round(to.z - from.z));
+            carryNavigation(mob, lap);
         }
 
         if (entity instanceof ServerPlayer rider) {
@@ -88,10 +86,10 @@ public final class SeamSnap {
         }
     }
 
-    private static void shiftNavigation(Mob mob, int shiftX, int shiftZ) {
-        ((NavigationShifter) mob.getNavigation()).exotic_worlds$shiftBy(shiftX, shiftZ);
-        ((NavigationShifter) mob.getMoveControl()).exotic_worlds$shiftBy(shiftX, shiftZ);
-        ((NavigationShifter) mob.getLookControl()).exotic_worlds$shiftBy(shiftX, shiftZ);
+    private static void carryNavigation(Mob mob, DeckTransformation lap) {
+        ((NavigationShifter) mob.getNavigation()).exotic_worlds$carry(lap);
+        ((NavigationShifter) mob.getMoveControl()).exotic_worlds$carry(lap);
+        ((NavigationShifter) mob.getLookControl()).exotic_worlds$carry(lap);
     }
 
     private SeamSnap() {

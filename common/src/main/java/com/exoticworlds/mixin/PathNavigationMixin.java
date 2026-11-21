@@ -13,9 +13,12 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.NavigationShifter;
 import com.exoticworlds.accessors.FoldSource;
+import com.exoticworlds.accessors.PathCarry;
+import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.FoldedCopies;
 import com.exoticworlds.engine.fold.SeamDelta;
+import com.exoticworlds.engine.seam.NavigationCarry;
 import com.exoticworlds.engine.seam.SeamRange;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -96,18 +99,19 @@ public class PathNavigationMixin implements NavigationShifter {
     }
 
     @Override
-    public void exotic_worlds$shiftBy(int shiftX, int shiftZ) {
+    public void exotic_worlds$carry(DeckTransformation lap) {
+        int footprint = NavigationCarry.footprintOf(this.mob);
         if (this.targetPos != null) {
-            this.targetPos = this.targetPos.offset(shiftX, 0, shiftZ);
+            this.targetPos = lap.apply(this.targetPos);
         }
 
-        this.lastStuckCheckPos = this.lastStuckCheckPos.add(shiftX, 0, shiftZ);
+        this.lastStuckCheckPos = lap.apply(this.lastStuckCheckPos);
         if (!Vec3i.ZERO.equals(this.timeoutCachedNode)) {
-            this.timeoutCachedNode = this.timeoutCachedNode.offset(shiftX, 0, shiftZ);
+            this.timeoutCachedNode = NavigationCarry.node(lap.blockTransform(), this.timeoutCachedNode, footprint);
         }
 
         if (this.path != null && !this.path.isDone()) {
-            ((NavigationShifter) (Object) this.path).exotic_worlds$shiftBy(shiftX, shiftZ);
+            ((PathCarry) (Object) this.path).exotic_worlds$carry(lap, footprint);
         }
     }
 
