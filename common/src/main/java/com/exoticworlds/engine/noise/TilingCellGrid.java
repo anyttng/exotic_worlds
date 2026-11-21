@@ -8,7 +8,7 @@ import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
 
 public record TilingCellGrid(WorldFold fold, int xCellWidth, int zCellWidth, int skew, int rowsPerLap)
-        implements CellGrid {
+        implements AquiferCellGrid {
     private static final int SMALLEST_CELL_COUNT = 1;
 
     public static TilingCellGrid of(WorldFold fold, int vanillaCellWidth) {

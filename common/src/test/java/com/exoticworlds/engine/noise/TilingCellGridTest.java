@@ -233,7 +233,7 @@ class TilingCellGridTest {
 
         private static CuboidCellGrid cuboidGrid(CuboidAtlas atlas, int vanillaCellWidth) {
             return assertInstanceOf(CuboidCellGrid.class,
-                    CellGrid.of(CuboidFixtures.cuboidFold(atlas), vanillaCellWidth));
+                    AquiferCellGrid.of(CuboidFixtures.cuboidFold(atlas), vanillaCellWidth));
         }
 
         private static void assertCellsLieWholeIn(CuboidAtlas atlas, CuboidCellGrid grid, CuboidFace face) {

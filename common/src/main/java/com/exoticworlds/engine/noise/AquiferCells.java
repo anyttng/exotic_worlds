@@ -7,7 +7,8 @@ import net.minecraft.world.level.levelgen.densityfunction.DfRewriteRule;
 import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 import net.minecraft.world.level.levelgen.densityfunction.op.CacheFunction;
 
-public record AquiferCells(CellGrid levelGrid, DensitySampler level, CellGrid typeGrid, DensitySampler type) {
+public record AquiferCells(AquiferCellGrid levelGrid, DensitySampler level, AquiferCellGrid typeGrid,
+        DensitySampler type) {
     private static final DfRewriteRule UNCACHED = new DfRewriteRule() {
         @Override
         public DensityFunction rewrite(DensityFunction function) {
@@ -17,8 +18,8 @@ public record AquiferCells(CellGrid levelGrid, DensitySampler level, CellGrid ty
     };
 
     public static AquiferCells compile(FoldedCompileContext context, Aquifer.Config config) {
-        CellGrid levelGrid = CellGrid.of(context.fold(), NoiseConstants.AQUIFER_FLUID_LEVEL_CELL_WIDTH);
-        CellGrid typeGrid = CellGrid.of(context.fold(), NoiseConstants.AQUIFER_FLUID_TYPE_CELL_WIDTH);
+        AquiferCellGrid levelGrid = AquiferCellGrid.of(context.fold(), NoiseConstants.AQUIFER_FLUID_LEVEL_CELL_WIDTH);
+        AquiferCellGrid typeGrid = AquiferCellGrid.of(context.fold(), NoiseConstants.AQUIFER_FLUID_TYPE_CELL_WIDTH);
         return new AquiferCells(
                 levelGrid, compileOnGrid(context, levelGrid, config.fluidLevelSpreadNoise()),
                 typeGrid, compileOnGrid(context, typeGrid, config.lavaNoise()));
@@ -34,7 +35,7 @@ public record AquiferCells(CellGrid levelGrid, DensitySampler level, CellGrid ty
                 this.typeGrid.cellOriginX(blockX, blockZ), cellY, this.typeGrid.cellOriginZ(blockX, blockZ));
     }
 
-    private static DensitySampler compileOnGrid(FoldedCompileContext context, CellGrid grid,
+    private static DensitySampler compileOnGrid(FoldedCompileContext context, AquiferCellGrid grid,
             DensityFunction function) {
         try (GenerationFoldContext.Context.DivisorScope _ = grid.divide(GenerationFoldContext.context())) {
             return UNCACHED.rewrite(function).compileSampler(context.vanilla());
