@@ -1,11 +1,8 @@
 package com.exoticworlds.engine.noise.periodic;
 
-import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.PerlinMath;
 
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.levelgen.synth.NoiseStack;
-import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 
 public final class PeriodicSimplexSampler {
     private static final double SQRT_3 = Math.sqrt(3.0);
@@ -16,32 +13,6 @@ public final class PeriodicSimplexSampler {
     private static final double NORMALIZATION = 70.0;
     private static final int GRADIENT_COUNT = 12;
     private static final int PERMUTATION_MASK = 0xFF;
-
-    public static float sampleStack(SimplexSlot.Stack slot, WorldFold fold, double scale, NoiseStack stack,
-            double x, double z) {
-        SimplexLattice[] lattices = slot.lattices(fold, scale, stack);
-        float value = 0.0F;
-        for (int i = 0; i < lattices.length; i++) {
-            NoiseStack.Layer layer = stack.layers[i];
-            if (!(layer.noise() instanceof SimplexNoise leaf)) {
-                throw new IllegalArgumentException("A periodic simplex stack samples simplex leaves only, got "
-                        + layer.noise().getClass().getName());
-            }
-
-            value += layer.amplitude() * sample(lattices[i], leaf, x, z);
-        }
-
-        return value;
-    }
-
-    public static float sample(SimplexSlot slot, SimplexNoise noise, WorldFold fold, double scale, double x,
-            double z) {
-        return sample(slot.lattice(fold, scale), noise, x, z);
-    }
-
-    public static float sample(SimplexLattice lattice, SimplexNoise noise, double x, double z) {
-        return (float) lattice.sample(noise.perms, noise.offsetX, noise.offsetY, x, z);
-    }
 
     static double kernel(byte[] permutations, double xs, double zs, double skew, double unskew,
             long xLapU, long xLapV, long zLapU, long zLapV) {

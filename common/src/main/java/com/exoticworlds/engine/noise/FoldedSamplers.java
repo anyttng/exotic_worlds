@@ -9,8 +9,10 @@ import com.exoticworlds.core.NoiseShapings;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.cuboid.CuboidOctaves;
+import com.exoticworlds.engine.noise.cuboid.CuboidSimplexStandIn;
 import com.exoticworlds.engine.noise.cuboid.CuboidWarp;
 import com.exoticworlds.engine.noise.periodic.PeriodicOctaveSampler;
+import com.exoticworlds.engine.noise.periodic.SimplexLattice;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
@@ -173,6 +175,13 @@ public final class FoldedSamplers {
         return atlas != null && frame.isDefault()
                 ? CuboidOctaves.compile(atlas, scale, layerFactors, stack)
                 : PeriodicOctaveSampler.compile(fold, frame, scale, layerFactors, stack);
+    }
+
+    public static SimplexField simplexField(WorldFold fold, double scale, SimplexNoise noise) {
+        CuboidAtlas atlas = fold.cuboidAtlas();
+        return atlas != null
+                ? CuboidSimplexStandIn.of(fold, atlas, scale, noise)
+                : SimplexLattice.of(fold, scale);
     }
 
     private static NoiseFrame frameOf(FoldedCompileContext context, double xzScale, double yScale) {

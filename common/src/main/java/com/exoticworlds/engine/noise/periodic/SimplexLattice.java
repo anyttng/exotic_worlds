@@ -3,17 +3,19 @@ package com.exoticworlds.engine.noise.periodic;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.engine.noise.SimplexField;
 
-public sealed interface SimplexLattice {
+import net.minecraft.world.level.levelgen.synth.SimplexNoise;
+
+public sealed interface SimplexLattice extends SimplexField {
     long MAX_LAP_PERIOD = 1L << 29;
 
-    WorldFold fold();
-
-    double scale();
-
-    boolean carries();
-
     double sample(byte[] permutations, double xOffset, double zOffset, double x, double z);
+
+    @Override
+    default double sample(SimplexNoise noise, double x, double z) {
+        return sample(noise.perms, noise.offsetX, noise.offsetY, x, z);
+    }
 
     static SimplexLattice of(WorldFold fold, double scale) {
         TranslationLattice lattice = fold.blockLattice();
