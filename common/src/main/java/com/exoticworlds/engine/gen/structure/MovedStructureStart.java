@@ -3,11 +3,13 @@ package com.exoticworlds.engine.gen.structure;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.mixin.StructurePieceAccessor;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
+import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
@@ -27,14 +29,22 @@ public final class MovedStructureStart {
 
     private static void movePieces(StructureStart start, DeckTransformation move) {
         start.getPieces().forEach(piece -> {
-            BoundingBox box = piece.getBoundingBox();
-            BoundingBox moved = move.apply(box);
-            piece.move(moved.minX() - box.minX(), 0, moved.minZ() - box.minZ());
+            movePiece(piece, move);
 
             if (piece instanceof PoolElementStructurePiece poolPiece) {
                 poolPiece.getJunctions().replaceAll(junction -> movedJunction(junction, move));
             }
         });
+    }
+
+    public static void movePiece(StructurePiece piece, DeckTransformation move) {
+        BoundingBox box = piece.getBoundingBox();
+        BoundingBox moved = move.apply(box);
+        piece.move(moved.minX() - box.minX(), 0, moved.minZ() - box.minZ());
+
+        if (move.orientation().swapsAxes()) {
+            ((StructurePieceAccessor) piece).exotic_worlds$setBoundingBox(moved);
+        }
     }
 
     public static JigsawJunction movedJunction(JigsawJunction junction, DeckTransformation move) {

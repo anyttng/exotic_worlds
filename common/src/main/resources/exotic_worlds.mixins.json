@@ -271,6 +271,7 @@
     "StructureGenerateBindingMixin",
     "StructureManagerAccessor",
     "StructureManagerMixin",
+    "StructurePieceAccessor",
     "StructureStartMixin",
     "StructureTemplateMixin",
     "SulfurCubeMixin",
