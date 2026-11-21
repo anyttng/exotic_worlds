@@ -1,5 +1,6 @@
 package com.exoticworlds.mixin;
 
+import java.util.List;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -12,13 +13,16 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.exoticworlds.BinderOrder;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.engine.gen.SpawnSearch;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.WorldGenRegion;
@@ -34,8 +38,10 @@ import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseChunk;
 import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.SpawnTargetPoint;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
+import net.minecraft.world.level.levelgen.densityfunction.DensitySamplerSet;
 import net.minecraft.world.level.levelgen.material.rule.MaterialRule;
 
 @Mixin(NoiseBasedChunkGenerator.class)
@@ -106,6 +112,19 @@ public class NoiseBasedChunkGeneratorMixin {
                 GenerationFoldContext.context().withFold(fold, columnChunk)) {
             return original.call(heightAccessor, randomState, blockX, blockZ, columnReference, tester);
         }
+    }
+
+    @WrapOperation(
+            method = "getOrigin",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/levelgen/NoiseSpawnFinder;findSpawnPosition(Ljava/util/List;"
+                            + "Lnet/minecraft/world/level/levelgen/densityfunction/DensitySamplerSet;)"
+                            + "Lnet/minecraft/core/BlockPos;"))
+    private BlockPos exotic_worlds$searchOverTheSurface(List<SpawnTargetPoint> targetPoints, DensitySamplerSet samplers,
+            Operation<BlockPos> original) {
+        return SpawnSearch.overSurface((NoiseBasedChunkGenerator) (Object) this,
+                () -> original.call(targetPoints, samplers));
     }
 
     @ModifyReturnValue(method = "getOrigin", at = @At("RETURN"))

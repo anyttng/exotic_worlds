@@ -1,6 +1,7 @@
 package com.exoticworlds.engine.gen;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.CuboidShape;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -36,6 +38,7 @@ class SpawnSearchTest {
     private static final int WIDE_CHUNKS = 1024;
     private static final SpawnPoint FAR_POINT = new SpawnPoint(300, -300);
     private static final int SEARCH_REACH_BLOCKS = 2560;
+    private static final int CUBE_CHUNKS = 16;
 
     private static HolderLookup.Provider holders;
     private static Holder<NoiseGeneratorSettings> overworldSettings;
@@ -111,12 +114,27 @@ class SpawnSearchTest {
                 SpawnSearch.from(generator, () -> generator.getOrigin(state)));
     }
 
+    @Test
+    void theSpawnSearchOnACuboidAnswersOnAFace() {
+        LoopedChunkGenerator generator = noiseGenerator(
+                new CarriedShape(new CuboidShape(CUBE_CHUNKS, CUBE_CHUNKS, CUBE_CHUNKS), GenerationOptions.DEFAULT));
+        RandomState state = randomState(generator);
+
+        ChunkPos origin = generator.getOrigin(state);
+
+        assertFalse(generator.carriedShape().fold().isOver(origin), "origin " + origin + " is on no face");
+    }
+
     private static LoopedChunkGenerator noiseGenerator(SpawnPoint point) {
+        return noiseGenerator(new CarriedShape(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDE_CHUNKS)),
+                GenerationOptions.DEFAULT.with(SpawnPoint.OPTION, point)));
+    }
+
+    private static LoopedChunkGenerator noiseGenerator(CarriedShape shape) {
         return new LoopedChunkGenerator(
                 new FixedBiomeSource(holders.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)),
                 overworldSettings,
-                new CarriedShape(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDE_CHUNKS)),
-                        GenerationOptions.DEFAULT.with(SpawnPoint.OPTION, point)));
+                shape);
     }
 
     private static RandomState randomState(LoopedChunkGenerator generator) {
