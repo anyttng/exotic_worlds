@@ -31,9 +31,11 @@ import com.exoticworlds.engine.noise.ClimateScanFixture;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.Direction;
+import net.minecraft.core.QuartPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Interval;
+import net.minecraft.world.level.biome.BiomeResolver;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
@@ -56,6 +58,7 @@ class SeamCauseSearchTest {
     private static final SeamCauseSearch.Lap Z_LAP = new SeamCauseSearch.Lap(Direction.Axis.Z, 0, WIDTH_BLOCKS);
     private static final SeamCauseSearch.Lap SKEWED_Z_LAP =
             new SeamCauseSearch.Lap(Direction.Axis.Z, SKEW_BLOCKS, WIDTH_BLOCKS);
+    private static final int QUART_BLOCKS = QuartPos.toBlock(1);
     private static final int CUBOID_EDGE_CHUNKS = 16;
     private static final CuboidAtlas CUBOID = CuboidAtlas.of(CUBOID_EDGE_CHUNKS, CUBOID_EDGE_CHUNKS,
             CUBOID_EDGE_CHUNKS, MIN_CHUNK_X, MIN_CHUNK_Z);
@@ -210,6 +213,23 @@ class SeamCauseSearchTest {
         for (SeamPassage passage : SeamPassage.of(fold)) {
             for (SeamCauseSearch.Point sample : passage.samples()) {
                 assertEquals(List.of(), PeriodicityCheck.climateBreaks(sampler, fold, passage, sample),
+                        sample + " across " + passage.edge());
+            }
+        }
+    }
+
+    @Test
+    void theBiomeReadsTheSameFromBothFacesAlongEveryEdge() {
+        WorldFold fold = cuboidFold(CUBOID);
+        RandomState state = randomState(settingsOf(NoiseGeneratorSettings.OVERWORLD), fold, SEED_BASE);
+        BiomeResolver biomes = overworldBiomes()
+                .createResolver(state.createClimateSampler(SamplerContext.EMPTY_UNCACHED));
+
+        for (EdgePassage passage : EdgePassage.of(fold, CUBOID)) {
+            for (int along = QUART_BLOCKS; along < passage.lengthBlocks(); along += QUART_BLOCKS) {
+                SeamCauseSearch.Point sample = passage.pointAt(along);
+
+                assertFalse(PeriodicityCheck.biomeBreaks(biomes, fold, passage, sample),
                         sample + " across " + passage.edge());
             }
         }

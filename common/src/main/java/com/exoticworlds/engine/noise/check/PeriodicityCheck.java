@@ -18,6 +18,7 @@ import com.exoticworlds.accessors.PeriodicityMark;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.FoldedQuart;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.mojang.logging.LogUtils;
 
@@ -273,19 +274,31 @@ public final class PeriodicityCheck {
 
     private static boolean collectBiome(Probe probe, SeamPassage passage, SeamCauseSearch.Point surface,
             Map<SeamField, List<SeamCauseSearch.Point>> broken) {
-        SeamCauseSearch.Point away = passage.away(surface);
-        SeamCauseSearch.Point quart = quartOf(surface);
-        SeamCauseSearch.Point quartAway = quartOf(away);
-        Holder<Biome> here = GenerationFoldContext.withFold(probe.fold(), () -> passage.reading(surface,
-                () -> probe.biomes().getNoiseBiome(quart.x(), quart.y(), quart.z())));
-        Holder<Biome> there = GenerationFoldContext.withFold(probe.fold(), () -> passage.reading(away,
-                () -> probe.biomes().getNoiseBiome(quartAway.x(), quartAway.y(), quartAway.z())));
-        if (here.equals(there)) {
+        if (!biomeBreaks(probe.biomes(), probe.fold(), passage, surface)) {
             return false;
         }
 
-        broken.computeIfAbsent(SeamField.BIOME, _ -> new ArrayList<>()).add(blockOf(quart));
+        broken.computeIfAbsent(SeamField.BIOME, _ -> new ArrayList<>()).add(blockOf(quartOf(surface)));
         return true;
+    }
+
+    static boolean biomeBreaks(BiomeResolver biomes, WorldFold fold, SeamPassage passage,
+            SeamCauseSearch.Point surface) {
+        SeamCauseSearch.Point quart = quartOf(surface);
+        SeamCauseSearch.Point quartAway = passage.edge() == null
+                ? quartOf(passage.away(surface))
+                : foldedQuart(fold, quart);
+        SeamCauseSearch.Point blockAway = blockOf(quartAway);
+        Holder<Biome> here = GenerationFoldContext.withFold(fold, () -> passage.reading(surface,
+                () -> biomes.getNoiseBiome(quart.x(), quart.y(), quart.z())));
+        Holder<Biome> there = GenerationFoldContext.withFold(fold, () -> passage.reading(blockAway,
+                () -> biomes.getNoiseBiome(quartAway.x(), quartAway.y(), quartAway.z())));
+        return !here.equals(there);
+    }
+
+    private static SeamCauseSearch.Point foldedQuart(WorldFold fold, SeamCauseSearch.Point quart) {
+        long folded = FoldedQuart.fold(fold, quart.x(), quart.y(), quart.z());
+        return new SeamCauseSearch.Point(FoldedQuart.x(folded), quart.y(), FoldedQuart.z(folded));
     }
 
     private static SeamCauseSearch.Point quartOf(SeamCauseSearch.Point block) {

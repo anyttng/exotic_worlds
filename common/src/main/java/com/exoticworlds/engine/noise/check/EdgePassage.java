@@ -15,8 +15,7 @@ import net.minecraft.core.QuartPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 
-record EdgePassage(WorldFold fold, CuboidAtlas atlas, CuboidEdge edge, CuboidFace first,
-        List<SeamCauseSearch.Point> samples) implements SeamPassage {
+record EdgePassage(WorldFold fold, CuboidAtlas atlas, CuboidEdge edge, CuboidFace first) implements SeamPassage {
     private static final int SAMPLES_PER_EDGE = 3;
     private static final int PAST_THE_EDGE = QuartPos.toBlock(1);
     private static final int SAMPLE_Y = 64;
@@ -25,8 +24,7 @@ record EdgePassage(WorldFold fold, CuboidAtlas atlas, CuboidEdge edge, CuboidFac
         List<EdgePassage> passages = new ArrayList<>();
         for (CuboidEdge edge : atlas.edges()) {
             if (!edge.transform().isIdentity()) {
-                CuboidFace first = faceOf(atlas, edge.first());
-                passages.add(new EdgePassage(fold, atlas, edge, first, samplesOf(edge, first)));
+                passages.add(new EdgePassage(fold, atlas, edge, faceOf(atlas, edge.first())));
             }
         }
 
@@ -43,23 +41,35 @@ record EdgePassage(WorldFold fold, CuboidAtlas atlas, CuboidEdge edge, CuboidFac
         throw new IllegalArgumentException("The atlas has no " + side + " face");
     }
 
-    private static List<SeamCauseSearch.Point> samplesOf(CuboidEdge edge, CuboidFace first) {
-        int endX = first.minBlockX() + first.widthBlocks();
-        int endZ = first.minBlockZ() + first.depthBlocks();
+    @Override
+    public List<SeamCauseSearch.Point> samples() {
         List<SeamCauseSearch.Point> samples = new ArrayList<>();
         for (int sample = 1; sample <= SAMPLES_PER_EDGE; sample++) {
-            int alongX = first.minBlockX() + first.widthBlocks() * sample / (SAMPLES_PER_EDGE + 1);
-            int alongZ = first.minBlockZ() + first.depthBlocks() * sample / (SAMPLES_PER_EDGE + 1);
-            samples.add(switch (edge.firstSide()) {
-                case WEST -> new SeamCauseSearch.Point(first.minBlockX() - PAST_THE_EDGE, SAMPLE_Y, alongZ);
-                case EAST -> new SeamCauseSearch.Point(endX + PAST_THE_EDGE, SAMPLE_Y, alongZ);
-                case NORTH -> new SeamCauseSearch.Point(alongX, SAMPLE_Y, first.minBlockZ() - PAST_THE_EDGE);
-                case SOUTH -> new SeamCauseSearch.Point(alongX, SAMPLE_Y, endZ + PAST_THE_EDGE);
-                default -> throw new IllegalArgumentException("A face has no " + edge.firstSide() + " edge");
-            });
+            samples.add(pointAt(lengthBlocks() * sample / (SAMPLES_PER_EDGE + 1)));
         }
 
-        return List.copyOf(samples);
+        return samples;
+    }
+
+    int lengthBlocks() {
+        return switch (this.edge.firstSide()) {
+            case WEST, EAST -> this.first.depthBlocks();
+            default -> this.first.widthBlocks();
+        };
+    }
+
+    SeamCauseSearch.Point pointAt(int alongBlocks) {
+        int endX = this.first.minBlockX() + this.first.widthBlocks();
+        int endZ = this.first.minBlockZ() + this.first.depthBlocks();
+        int alongX = this.first.minBlockX() + alongBlocks;
+        int alongZ = this.first.minBlockZ() + alongBlocks;
+        return switch (this.edge.firstSide()) {
+            case WEST -> new SeamCauseSearch.Point(this.first.minBlockX() - PAST_THE_EDGE, SAMPLE_Y, alongZ);
+            case EAST -> new SeamCauseSearch.Point(endX + PAST_THE_EDGE, SAMPLE_Y, alongZ);
+            case NORTH -> new SeamCauseSearch.Point(alongX, SAMPLE_Y, this.first.minBlockZ() - PAST_THE_EDGE);
+            case SOUTH -> new SeamCauseSearch.Point(alongX, SAMPLE_Y, endZ + PAST_THE_EDGE);
+            default -> throw new IllegalArgumentException("A face has no " + this.edge.firstSide() + " edge");
+        };
     }
 
     @Override
