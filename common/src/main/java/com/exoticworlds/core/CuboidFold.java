@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.api.v2.geometry.WorldGeometry;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -344,6 +345,11 @@ public final class CuboidFold implements WorldFold {
     @Override
     public ToroidalShape shapeView() {
         throw new UnsupportedOperationException("The cuboid fold does not carry shapeView yet");
+    }
+
+    @Override
+    public WorldGeometry geometryView() {
+        throw new UnsupportedOperationException("The cuboid fold does not carry geometryView yet");
     }
 
     @Override
