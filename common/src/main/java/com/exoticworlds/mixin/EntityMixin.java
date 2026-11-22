@@ -16,6 +16,7 @@ import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.engine.fold.CuboidBorder;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.seam.ClientPosition;
 import com.exoticworlds.engine.seam.SeamAim;
@@ -36,8 +37,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.entity.Relative;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 @Mixin(Entity.class)
 public class EntityMixin implements FoldSource {
@@ -146,6 +149,16 @@ public class EntityMixin implements FoldSource {
         BlockPos raw = found.get();
         BlockPos folded = WorldLoopAttachments.foldOf(level).fold(raw);
         return folded == raw ? found : Optional.of(folded);
+    }
+
+    @WrapOperation(
+            method = "collectCollidersIgnoringWorldBorder(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/level/Level;"
+                    + "Ljava/util/List;Lnet/minecraft/world/phys/AABB;)Ljava/util/List;",
+            at = @At(value = "INVOKE", target = InjectionTargets.WORLD_BORDER_GET_COLLISION_SHAPE))
+    private static VoxelShape exotic_worlds$borderWallInColliderFrame(WorldBorder border, Operation<VoxelShape> original,
+            @Local(argsOnly = true) Entity source) {
+        CuboidBorder cuboid = CuboidBorder.of(border);
+        return cuboid == null ? original.call(border) : cuboid.wallAround(source.getX(), source.getZ());
     }
 
     @ModifyReturnValue(method = "getOnPos(F)Lnet/minecraft/core/BlockPos;", at = @At("RETURN"))

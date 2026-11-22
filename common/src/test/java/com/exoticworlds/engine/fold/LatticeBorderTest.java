@@ -16,7 +16,7 @@ import com.exoticworlds.core.WorldLoopBounds;
 
 import net.minecraft.world.phys.Vec3;
 
-class SeamBorderTest {
+class LatticeBorderTest {
     private static final WorldLoopBounds BOUNDS = WorldLoopBounds.ofWidth(64);
     private static final int WIDTH = 64 * 16;
     private static final int SKEW = 5 * 16;
@@ -26,11 +26,11 @@ class SeamBorderTest {
     private static final long LONG_SEED = 20261009L;
     private static final int LONG_SAMPLES = 4000;
 
-    private static final SeamBorder TORUS = border(ShapeFixtures.torus(BOUNDS));
-    private static final SeamBorder SKEWED = border(FlatShape.latticeTorus(BOUNDS, 5));
+    private static final LatticeBorder TORUS = border(ShapeFixtures.torus(BOUNDS));
+    private static final LatticeBorder SKEWED = border(FlatShape.latticeTorus(BOUNDS, 5));
 
-    private static SeamBorder border(FlatShape shape) {
-        return new SeamBorder(WorldFolds.of(shape).blockLattice(), -HALF, HALF, -HALF, HALF);
+    private static LatticeBorder border(FlatShape shape) {
+        return new LatticeBorder(WorldFolds.of(shape).blockLattice(), -HALF, HALF, -HALF, HALF);
     }
 
     @Test
@@ -71,7 +71,7 @@ class SeamBorderTest {
     void onALongSkewedWorldTheEdgeIsMeasuredOnTheBestCopy() {
         TranslationLattice lattice = WorldFolds.of(
                 FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-512, 512, -8, 8), LONG_SKEW_CHUNKS)).blockLattice();
-        SeamBorder border = new SeamBorder(lattice, LONG_CENTER - HALF, LONG_CENTER + HALF, -HALF, HALF);
+        LatticeBorder border = new LatticeBorder(lattice, LONG_CENTER - HALF, LONG_CENTER + HALF, -HALF, HALF);
         Random random = new Random(LONG_SEED);
         for (int sample = 0; sample < LONG_SAMPLES; sample++) {
             double x = random.nextInt(-lattice.x().domainLength, lattice.x().domainLength) + 0.5;

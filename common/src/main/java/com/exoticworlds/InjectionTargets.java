@@ -166,6 +166,9 @@ public final class InjectionTargets {
     public static final String VEC3_SUBTRACT =
             "Lnet/minecraft/world/phys/Vec3;subtract(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;";
 
+    public static final String WORLD_BORDER_GET_COLLISION_SHAPE =
+            "Lnet/minecraft/world/level/border/WorldBorder;getCollisionShape()Lnet/minecraft/world/phys/shapes/VoxelShape;";
+
     private InjectionTargets() {
     }
 }

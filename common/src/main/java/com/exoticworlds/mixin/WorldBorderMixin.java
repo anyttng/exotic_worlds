@@ -10,6 +10,8 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.engine.fold.CuboidBorder;
+import com.exoticworlds.engine.fold.LatticeBorder;
 import com.exoticworlds.engine.fold.SeamBorder;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -91,12 +93,15 @@ public class WorldBorderMixin implements FoldHolder {
         double maxX = getMaxX();
         double minZ = getMinZ();
         double maxZ = getMaxZ();
+        if (fold.cuboidAtlas() != null) {
+            return new CuboidBorder(fold, minX, maxX, minZ, maxZ).wallAround((minX + maxX) / 2.0, (minZ + maxZ) / 2.0);
+        }
 
         double[] bounds = this.exotic_worlds$wallBounds;
         VoxelShape wall = this.exotic_worlds$wall;
         if (wall == null || bounds == null
                 || bounds[0] != minX || bounds[1] != maxX || bounds[2] != minZ || bounds[3] != maxZ) {
-            wall = exotic_worlds$buildWall(exotic_worlds$border(fold));
+            wall = exotic_worlds$buildWall(new LatticeBorder(fold.blockLattice(), minX, maxX, minZ, maxZ));
             this.exotic_worlds$wall = wall;
             this.exotic_worlds$wallBounds = new double[] {minX, maxX, minZ, maxZ};
         }
@@ -106,11 +111,11 @@ public class WorldBorderMixin implements FoldHolder {
 
     @Unique
     private SeamBorder exotic_worlds$border(WorldFold fold) {
-        return new SeamBorder(fold.blockLattice(), getMinX(), getMaxX(), getMinZ(), getMaxZ());
+        return SeamBorder.of(fold, getMinX(), getMaxX(), getMinZ(), getMaxZ());
     }
 
     @Unique
-    private static VoxelShape exotic_worlds$buildWall(SeamBorder border) {
+    private static VoxelShape exotic_worlds$buildWall(LatticeBorder border) {
         VoxelShape wall = Shapes.INFINITY;
         for (Vec3 shift : border.wallShifts()) {
             wall = Shapes.join(wall, Shapes.box(

@@ -1,155 +1,21 @@
 package com.exoticworlds.engine.fold;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.exoticworlds.core.WorldFold;
 
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WrapDomain;
-import com.google.common.math.IntMath;
-
-import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
-public record SeamBorder(TranslationLattice lattice, double minX, double maxX, double minZ, double maxZ) {
-    private static final double CLAMP_INSET = 1.0E-5F;
+public sealed interface SeamBorder permits LatticeBorder, CuboidBorder {
+    double CLAMP_INSET = 1.0E-5F;
 
-    public boolean inside(double x, double z, double margin) {
-        WrapDomain xDomain = this.lattice.x();
-        WrapDomain zDomain = this.lattice.z();
-        double dx = x - centerX();
-        double dz = z - centerZ();
-        if (xDomain.coversWorld(spanX())) {
-            return zDomain.coversWorld(spanZ()) || offsetInside(zDomain.unwrapAround(0.0, dz), halfZ(), margin);
-        }
-
-        if (zDomain.coversWorld(spanZ())) {
-            return this.lattice.isSkewed()
-                    ? someSkewInside(xDomain.domainLength, dx, margin)
-                    : offsetInside(xDomain.unwrapAround(0.0, dx), halfX(), margin);
-        }
-
-        if (!zDomain.loops()) {
-            return offsetInside(dz, halfZ(), margin) && offsetInside(xDomain.unwrapAround(0.0, dx), halfX(), margin);
-        }
-
-        long firstLaps = (long) Math.floor((dz - halfZ() - margin) / zDomain.domainLength) + 1;
-        long lastLaps = (long) Math.floor((dz + halfZ() + margin) / zDomain.domainLength);
-        for (long laps = firstLaps; laps <= lastLaps; laps++) {
-            if (offsetInside(dz - (double) laps * zDomain.domainLength, halfZ(), margin)
-                    && offsetInside(xDomain.unwrapAround(0.0, dx - (double) laps * this.lattice.skew()), halfX(),
-                    margin)) {
-                return true;
-            }
-        }
-
-        return false;
+    static SeamBorder of(WorldFold fold, double minX, double maxX, double minZ, double maxZ) {
+        return fold.cuboidAtlas() == null
+                ? new LatticeBorder(fold.blockLattice(), minX, maxX, minZ, maxZ)
+                : new CuboidBorder(fold, minX, maxX, minZ, maxZ);
     }
 
-    public double distanceToEdge(double x, double z) {
-        WrapDomain zDomain = this.lattice.z();
-        double dx = x - centerX();
-        double dz = z - centerZ();
-        double best = Double.NEGATIVE_INFINITY;
-        long first = this.lattice.nearFirst(dx, dz);
-        long second = this.lattice.nearSecond(dx, dz);
-        for (int index = 0; index < this.lattice.nearCount(); index++) {
-            long laps = this.lattice.nearZLap(first, second, index);
-            double zOffset = dz - (double) laps * zDomain.domainLength;
-            double xOffset = this.lattice.x().unwrapAround(0.0, dx - (double) laps * this.lattice.skew());
-            best = Math.max(best, Math.min(halfX() - Math.abs(xOffset), halfZ() - Math.abs(zOffset)));
-        }
+    boolean inside(double x, double z, double margin);
 
-        return best;
-    }
+    double distanceToEdge(double x, double z);
 
-    public Vec3 clamped(double x, double y, double z) {
-        Vec3 box = nearestBoxCenter(x, z);
-        return new Vec3(
-                clampToBox(this.lattice.x(), spanX(), box.x, halfX(), x),
-                y,
-                clampToBox(this.lattice.z(), spanZ(), box.z, halfZ(), z));
-    }
-
-    private Vec3 nearestBoxCenter(double x, double z) {
-        WrapDomain xDomain = this.lattice.x();
-        WrapDomain zDomain = this.lattice.z();
-        double boxX = centerX();
-        double boxZ = centerZ();
-        double bestGap = Double.NEGATIVE_INFINITY;
-        long first = this.lattice.nearFirst(x - centerX(), z - centerZ());
-        long second = this.lattice.nearSecond(x - centerX(), z - centerZ());
-        for (int index = 0; index < this.lattice.nearCount(); index++) {
-            long laps = this.lattice.nearZLap(first, second, index);
-            double copyZ = centerZ() + (double) laps * zDomain.domainLength;
-            double copyX = xDomain.unwrapAround(x, centerX() + (double) laps * this.lattice.skew());
-            double gap = Math.min(halfX() - Math.abs(x - copyX), halfZ() - Math.abs(z - copyZ));
-            if (gap > bestGap) {
-                bestGap = gap;
-                boxX = copyX;
-                boxZ = copyZ;
-            }
-        }
-
-        return new Vec3(boxX, 0.0, boxZ);
-    }
-
-    public List<Vec3> wallShifts() {
-        List<Vec3> shifts = new ArrayList<>(9);
-        for (int xLaps : neighborLaps(this.lattice.x())) {
-            for (int zLaps : neighborLaps(this.lattice.z())) {
-                shifts.add(new Vec3(
-                        (double) xLaps * this.lattice.x().domainLength + (double) zLaps * this.lattice.skew(),
-                        0.0,
-                        (double) zLaps * this.lattice.z().domainLength));
-            }
-        }
-
-        return shifts;
-    }
-
-    private boolean someSkewInside(int width, double dx, double margin) {
-        int step = IntMath.gcd(Math.abs(this.lattice.skew()), width);
-        double span = 2.0 * (halfX() + margin);
-        return span >= step || Mth.positiveModulo(dx + halfX() + margin, (double) step) < span;
-    }
-
-    private static int[] neighborLaps(WrapDomain domain) {
-        return domain.loops() ? new int[] {-1, 0, 1} : new int[] {0};
-    }
-
-    private static boolean offsetInside(double offset, double half, double margin) {
-        return offset >= -half - margin && offset < half + margin;
-    }
-
-    private static double clampToBox(WrapDomain domain, double span, double center, double half, double coord) {
-        if (domain.coversWorld(span)) {
-            return coord;
-        }
-
-        return Mth.clamp(coord, center - half, center + half - CLAMP_INSET);
-    }
-
-    private double centerX() {
-        return (this.minX + this.maxX) / 2.0;
-    }
-
-    private double centerZ() {
-        return (this.minZ + this.maxZ) / 2.0;
-    }
-
-    private double spanX() {
-        return this.maxX - this.minX;
-    }
-
-    private double spanZ() {
-        return this.maxZ - this.minZ;
-    }
-
-    private double halfX() {
-        return spanX() / 2.0;
-    }
-
-    private double halfZ() {
-        return spanZ() / 2.0;
-    }
+    Vec3 clamped(double x, double y, double z);
 }
