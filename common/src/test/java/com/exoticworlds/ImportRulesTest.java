@@ -40,6 +40,7 @@ class ImportRulesTest {
             "api.v1.net.PacketRewriters -> engine.net.PacketTranslator",
             "api.v1.ExoticWorldsApi -> engine.seam.circumnavigation.SeamTravel",
             "api.v1.ExoticWorldsClientApi -> engine.level.PublishedShapes",
+            "api.v2.client.ClientGeometries -> engine.level.PublishedShapes",
             "api.v1.gen.GenerationProbe -> engine.gen.terrain.FloatingCrumbs",
             "api.v1.gen.GenerationProbe -> engine.noise.GenerationFoldContext",
             "api.v1.gen.GenerationProbe -> engine.gen.terrain.TerrainCeiling",
