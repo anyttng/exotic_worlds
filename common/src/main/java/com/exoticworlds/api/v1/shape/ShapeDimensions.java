@@ -29,7 +29,11 @@ public final class ShapeDimensions {
      *
      * @throws IllegalArgumentException if a looping axis of any of the three spans is narrower than
      *         {@link LoopSpans#minChunkWidth()}
+     * @deprecated nothing calls this at world creation any more: it was what a {@link ShapeModule} applied, and no
+     *     screen lists one. A {@link com.exoticworlds.api.v2.shape.DimensionShape} answers its spans and Exotic Worlds
+     *     writes them.
      */
+    @Deprecated
     public static WorldDimensions withSpans(WorldDimensions dimensions, LoopSpans overworld, LoopSpans nether,
             LoopSpans end, GenerationOptions options) {
         return ShapedDimensions.withShapes(dimensions,
