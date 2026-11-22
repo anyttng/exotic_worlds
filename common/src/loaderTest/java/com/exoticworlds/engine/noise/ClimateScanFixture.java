@@ -21,6 +21,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.Bootstrap;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSourceParameterList;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSourceParameterLists;
@@ -101,6 +102,10 @@ public final class ClimateScanFixture {
 
     public static NormalNoise noiseParameters(ResourceKey<NormalNoise> key) {
         return noises.getOrThrow(key).value();
+    }
+
+    public static Holder<Biome> biome(ResourceKey<Biome> key) {
+        return holders.lookupOrThrow(Registries.BIOME).getOrThrow(key);
     }
 
     public static DensityFunction densityFunction(ResourceKey<DensityFunction> key) {

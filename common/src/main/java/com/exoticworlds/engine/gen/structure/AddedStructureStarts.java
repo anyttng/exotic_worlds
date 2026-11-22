@@ -12,9 +12,9 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.AddedStartsHolder;
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.api.v1.gen.StructureStarts;
 import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.api.v2.gen.StructureStarts;
+import com.exoticworlds.api.v2.geometry.WorldGeometry;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.GenerationMoments;
 import com.exoticworlds.core.WorldFold;
@@ -78,12 +78,12 @@ public final class AddedStructureStarts {
     private static AddedStructureStarts compute(ChunkGeneratorStructureState state, StructureCheck check,
             CarriedShape carried) {
         WorldFold fold = carried.fold();
-        ToroidalShape shape = fold.shapeView();
+        WorldGeometry geometry = fold.geometryView();
         Long2ObjectMap<List<StructureSet.StructureSelectionEntry>> byChunk = new Long2ObjectOpenHashMap<>();
         Map<StructurePlacement, List<StructureStarts.Added>> byPlacement = new HashMap<>();
         for (Holder<StructureSet> set : state.possibleStructureSets()) {
-            SetView view = new SetView(state, check, fold, shape, carried.generationOptions(), set);
-            List<StructureStarts.Added> accepted = view.accepted(GenerationMoments.runAtStructureStarts(view));
+            SetView view = new SetView(state, check, fold, geometry, carried.generationOptions(), set);
+            List<StructureStarts.Added> accepted = view.accepted(GenerationMoments.runAtStructureStarts(view, fold));
             if (accepted.isEmpty()) {
                 continue;
             }
@@ -102,24 +102,24 @@ public final class AddedStructureStarts {
         private final ChunkGeneratorStructureState state;
         private final StructureCheck check;
         private final WorldFold fold;
-        private final ToroidalShape shape;
+        private final WorldGeometry geometry;
         private final GenerationOptions options;
         private final Holder<StructureSet> set;
         private @Nullable List<Pick> picks;
 
-        private SetView(ChunkGeneratorStructureState state, StructureCheck check, WorldFold fold, ToroidalShape shape,
-                GenerationOptions options, Holder<StructureSet> set) {
+        private SetView(ChunkGeneratorStructureState state, StructureCheck check, WorldFold fold,
+                WorldGeometry geometry, GenerationOptions options, Holder<StructureSet> set) {
             this.state = state;
             this.check = check;
             this.fold = fold;
-            this.shape = shape;
+            this.geometry = geometry;
             this.options = options;
             this.set = set;
         }
 
         @Override
-        public ToroidalShape shape() {
-            return this.shape;
+        public WorldGeometry geometry() {
+            return this.geometry;
         }
 
         @Override
