@@ -117,4 +117,6 @@ Every text is a translation key under the caption key:
 
 `ShapeModule`, `ShapeCustomizers`, `WorldOptionControl`, `WorldOptionContext` and `WorldOptionControls` are deprecated. They still compile and load, and nothing shows them: a `ShapeModule` shape is in no list, no button opens a `ShapeCustomizers` screen, and no screen builds a `WorldOptionControls` control. Move a shape to `DimensionShape` and an option's control to `DimensionOption`.
 
-`WorldOption`, `WorldOptions`, `GenerationOptions`, `LoopSpans` and `ShapeDimensions` are unchanged.
+`ShapeDimensions.withSpans` is deprecated too. A `DimensionShape` returns its spans from `spans` and never calls it.
+
+`WorldOption`, `WorldOptions`, `GenerationOptions`, `LoopSpans` and the rest of `ShapeDimensions` are unchanged.
