@@ -1,11 +1,15 @@
 package com.exoticworlds.api.v2.gen;
 
+import static com.exoticworlds.core.CuboidFixtures.MIN_CHUNK_X;
+import static com.exoticworlds.core.CuboidFixtures.MIN_CHUNK_Z;
+import static com.exoticworlds.core.CuboidFixtures.cuboidFold;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.SEED_BASE;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.randomState;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.settingsOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -18,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v2.geometry.WorldGeometry;
 import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.CuboidAtlas;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -57,6 +62,8 @@ class GenerationHooksTest {
     private static final String STARTS_DUPLICATE_KEY = KEY_PREFIX + "starts_duplicate";
 
     private static final int TORUS_WIDTH_CHUNKS = 32;
+
+    private static final int EDGE_CHUNKS = 16;
 
     private static final int RING_DISTANCE = 4;
 
@@ -121,6 +128,14 @@ class GenerationHooksTest {
         assertEquals(1, SEEN.size());
         assertSame(fold.geometryView(), SEEN.get(0).geometry());
         assertSame(fold.generationOptions(), SEEN.get(0).options());
+    }
+
+    @Test
+    void aCuboidRunsNoRandomStateHook() {
+        CuboidAtlas atlas = CuboidAtlas.of(EDGE_CHUNKS, EDGE_CHUNKS, EDGE_CHUNKS, MIN_CHUNK_X, MIN_CHUNK_Z);
+        randomState(settingsOf(NoiseGeneratorSettings.OVERWORLD), cuboidFold(atlas), SEED_BASE);
+
+        assertTrue(SEEN.isEmpty());
     }
 
     @Test

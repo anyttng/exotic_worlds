@@ -26,6 +26,8 @@ public final class GenerationHooks {
      * whatever shape made it and whichever mod declared that shape: a hook is not scoped to the shape it was
      * registered beside, and a level is one of several a world builds, so it runs once per dimension too. Read
      * {@code geometry} and {@code options} and return early unless both are what this hook is for.</p>
+     *
+     * <p>A level folded as a cuboid runs no {@code RandomStateHook}.</p>
      */
     @FunctionalInterface
     public interface RandomStateHook {
