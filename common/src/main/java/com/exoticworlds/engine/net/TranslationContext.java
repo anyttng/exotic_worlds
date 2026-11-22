@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.net.SeamContext;
+import com.exoticworlds.api.v2.geometry.WorldGeometry;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.TranslationLattice;
@@ -44,7 +45,7 @@ public record TranslationContext(
         IntFunction<@Nullable Vec3> entityPosition,
         IntFunction<TagPositions.@Nullable Subject> entity,
         Runnable rebase,
-        SeatPass seatPass) implements SeamContext {
+        SeatPass seatPass) implements SeamContext, com.exoticworlds.api.v2.net.SeamContext {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -111,6 +112,11 @@ public record TranslationContext(
     @Override
     public ToroidalShape shape() {
         return fold.shapeView();
+    }
+
+    @Override
+    public WorldGeometry geometry() {
+        return fold.geometryView();
     }
 
     @Override
