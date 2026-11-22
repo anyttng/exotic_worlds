@@ -94,6 +94,16 @@ Vec3 heading = folded.orientation().applyToDelta(velocity);
 
 `Orientation.IDENTITY` is the only orientation an unmirrored shape ever reports (which today means the only one you will see), and `preservesHandedness()` tells a half turn from a genuine mirror.
 
+## Reading through `api.v2`
+
+`WorldGeometry` in `com.exoticworlds.api.v2.geometry` is the v2 form of `ToroidalShape`. `WorldGeometries.of(level)` answers it on the server, `ClientGeometries.of(clientLevel)` and `ClientGeometries.of(dimension)` on the client, and each is empty where `shapeOf` is empty.
+
+Every whole-position member keeps its name and its arguments, and the `==` guarantee holds for it. `SeamShift`, `Oriented` and `Orientation` have types of their own in the same package, so import them from `api.v2.geometry` wherever a result is stored.
+
+The per-axis members and `decomposesPerAxis()` are gone. Read a bound or a width from `spans()`, which answers the dimension's `LoopSpans` in chunks, and fold the whole position where v1 code called `foldBlock`, `foldChunk`, `foldCoord` or `nearestCoord`.
+
+`Orientation` has no `flipsX()` or `flipsZ()`. Carry a vector through `applyToDelta(delta)`, and ask `isIdentity()` or `preservesHandedness()` where the code branched on a flip.
+
 ## The rest of the API
 
 - [Making your own mechanism cross the seam](modding/crossing.md): packets, particles, the positions your blocks, entities and items store, rigid groups, client anchors.
