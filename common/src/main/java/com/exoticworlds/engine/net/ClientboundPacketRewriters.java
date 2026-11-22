@@ -13,7 +13,6 @@ import java.util.function.UnaryOperator;
 
 import com.exoticworlds.accessors.ChunkPacketCopy;
 import com.exoticworlds.accessors.ChunkPacketPosition;
-import com.exoticworlds.api.v1.net.ParticleRewriter;
 import com.exoticworlds.core.FoldOrientation;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.fold.SeamDelta;
@@ -446,7 +445,8 @@ final class ClientboundPacketRewriters {
                         new BlockPositionSource(clientDestination), vibration.getArrivalInTicks());
             }
             default -> {
-                ParticleRewriter<ParticleOptions> particleRewriter = PacketTranslator.particleRewriterFor(particle);
+                PacketTranslator.ParticleTranslation<ParticleOptions> particleRewriter =
+                        PacketTranslator.particleRewriterFor(particle);
                 yield particleRewriter == null ? particle : particleRewriter.rewrite(particle, context, clientOrigin);
             }
         };
