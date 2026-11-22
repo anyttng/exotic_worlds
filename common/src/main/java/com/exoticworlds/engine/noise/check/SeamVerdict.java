@@ -5,6 +5,8 @@ import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.core.CuboidEdge;
+
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
@@ -14,7 +16,10 @@ public record SeamVerdict(ResourceKey<Level> dimension, List<Break> breaks,
     private static final String LIST_SEPARATOR = ",";
     private static final String CAUSE_SEPARATOR = "=";
 
-    public record Break(String field, SeamCause cause) {
+    public record Break(String field, SeamCause cause, @Nullable CuboidEdge edge) {
+        public Break(String field, SeamCause cause) {
+            this(field, cause, null);
+        }
     }
 
     public boolean broken() {

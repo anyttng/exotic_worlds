@@ -1,5 +1,8 @@
 package com.exoticworlds.engine.noise.check;
 
+import static com.exoticworlds.core.CuboidFixtures.MIN_CHUNK_X;
+import static com.exoticworlds.core.CuboidFixtures.MIN_CHUNK_Z;
+import static com.exoticworlds.core.CuboidFixtures.cuboidFold;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.SEED_BASE;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.biomeSource;
 import static com.exoticworlds.engine.noise.ClimateScanFixture.cylinderOfWidth;
@@ -19,6 +22,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.core.CuboidAtlas;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.WorldFold;
@@ -31,6 +35,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Interval;
 import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.densityfunction.DensityBuffer;
@@ -51,6 +56,9 @@ class SeamCauseSearchTest {
     private static final SeamCauseSearch.Lap Z_LAP = new SeamCauseSearch.Lap(Direction.Axis.Z, 0, WIDTH_BLOCKS);
     private static final SeamCauseSearch.Lap SKEWED_Z_LAP =
             new SeamCauseSearch.Lap(Direction.Axis.Z, SKEW_BLOCKS, WIDTH_BLOCKS);
+    private static final int CUBOID_EDGE_CHUNKS = 16;
+    private static final CuboidAtlas CUBOID = CuboidAtlas.of(CUBOID_EDGE_CHUNKS, CUBOID_EDGE_CHUNKS,
+            CUBOID_EDGE_CHUNKS, MIN_CHUNK_X, MIN_CHUNK_Z);
     private static final List<SeamCauseSearch.Point> POINTS = List.of(
             new SeamCauseSearch.Point(0, 64, 0),
             new SeamCauseSearch.Point(100, 64, 137),
@@ -174,6 +182,54 @@ class SeamCauseSearchTest {
 
         assertEquals(List.of(new SeamVerdict.Break(SeamField.BIOME.id(),
                 new SeamCause.Biomes(MULTI_NOISE.toString(), Identifier.DEFAULT_NAMESPACE))), breaks);
+    }
+
+    @Test
+    void theOverworldRouterReadsTheSameFromBothFacesOfEveryEdge() {
+        WorldFold fold = cuboidFold(CUBOID);
+        RandomState state = randomState(settingsOf(NoiseGeneratorSettings.OVERWORLD), fold, SEED_BASE);
+
+        for (SeamPassage passage : SeamPassage.of(fold)) {
+            for (SeamField field : SeamField.values()) {
+                DensityFunction root = field.densityOf(state.router);
+                if (root != null) {
+                    assertInstanceOf(SeamCause.NotFound.class,
+                            SeamCauseSearch.densityCause(root, passage.samples(), passage, state),
+                            field.id() + " across " + passage.edge());
+                }
+            }
+        }
+    }
+
+    @Test
+    void theClimateReadsTheSameFromBothFacesOfEveryEdge() {
+        WorldFold fold = cuboidFold(CUBOID);
+        RandomState state = randomState(settingsOf(NoiseGeneratorSettings.OVERWORLD), fold, SEED_BASE);
+        Climate.Sampler sampler = state.createClimateSampler(SamplerContext.EMPTY_UNCACHED);
+
+        for (SeamPassage passage : SeamPassage.of(fold)) {
+            for (SeamCauseSearch.Point sample : passage.samples()) {
+                assertEquals(List.of(), PeriodicityCheck.climateBreaks(sampler, fold, passage, sample),
+                        sample + " across " + passage.edge());
+            }
+        }
+    }
+
+    @Test
+    void aNodeThatReadsTheRawCoordinateBreaksOnAnEdgeAndTheBreakNamesIt() {
+        WorldFold fold = cuboidFold(CUBOID);
+        RandomState state = randomState(settingsOf(NoiseGeneratorSettings.OVERWORLD), fold, SEED_BASE);
+        DensityFunction root = DensityFunctions.add(state.router.erosion(), new RawX());
+
+        for (SeamPassage passage : SeamPassage.of(fold)) {
+            SeamCause.Node node = assertInstanceOf(SeamCause.Node.class,
+                    SeamCauseSearch.densityCause(root, passage.samples(), passage, state));
+            List<SeamVerdict.Break> breaks = SeamCauseSearch.causesOf(
+                    Map.of(SeamField.EROSION, passage.samples()), passage, state, overworldBiomes());
+
+            assertEquals(RawX.class.getName(), node.type());
+            assertEquals(passage.edge(), breaks.getFirst().edge());
+        }
     }
 
     private static RandomState overworld() {

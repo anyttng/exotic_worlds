@@ -2,10 +2,13 @@ package com.exoticworlds.engine.noise.check;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.core.CuboidEdge;
+import com.exoticworlds.core.CuboidFace;
 import com.exoticworlds.engine.ChatPrefix;
 import com.exoticworlds.platform.Platforms;
 
@@ -22,6 +25,8 @@ final class SeamMessages {
     private static final String HEADER_KEY = KEY_PREFIX + "header";
     private static final String HOLDS_KEY = KEY_PREFIX + "holds";
     private static final String BROKEN_KEY = KEY_PREFIX + "broken";
+    private static final String BROKEN_EDGE_KEY = BROKEN_KEY + ".edge";
+    private static final String FACE_KEY_PREFIX = KEY_PREFIX + "face.";
     private static final String UNCHECKED_KEY = KEY_PREFIX + "unchecked";
     private static final String STARTED_KEY = KEY_PREFIX + "started";
     private static final String RUNNING_KEY = KEY_PREFIX + "running";
@@ -75,11 +80,23 @@ final class SeamMessages {
 
         List<Component> lines = new ArrayList<>();
         for (SeamVerdict.Break broken : verdict.breaks()) {
-            lines.add(Component.translatable(BROKEN_KEY, dimension, broken.field()).withStyle(ChatFormatting.RED));
+            lines.add(brokenLine(dimension, broken).withStyle(ChatFormatting.RED));
             lines.add(causeLine(broken.cause()));
         }
 
         return lines;
+    }
+
+    private static MutableComponent brokenLine(String dimension, SeamVerdict.Break broken) {
+        CuboidEdge edge = broken.edge();
+        return edge == null
+                ? Component.translatable(BROKEN_KEY, dimension, broken.field())
+                : Component.translatable(BROKEN_EDGE_KEY, dimension, broken.field(), faceName(edge.first()),
+                        faceName(edge.second()));
+    }
+
+    private static Component faceName(CuboidFace.Side side) {
+        return Component.translatable(FACE_KEY_PREFIX + side.name().toLowerCase(Locale.ROOT));
     }
 
     static Component notice(SeamVerdict verdict) {

@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.ExoticWorlds;
+import com.exoticworlds.core.CuboidEdge;
 import com.exoticworlds.core.DensityFunctionNodes;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.mixin.BiomeSourceAccessor;
@@ -24,7 +26,6 @@ import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunctions;
 import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;
-import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 import net.minecraft.world.level.levelgen.synth.GradientNoise;
 import net.minecraft.world.level.levelgen.synth.NoiseStack;
@@ -43,7 +44,25 @@ final class SeamCauseSearch {
     record Point(int x, int y, int z) {
     }
 
-    record Lap(Direction.Axis axis, int shiftX, int shiftZ) {
+    record Lap(Direction.Axis axis, int shiftX, int shiftZ) implements SeamPassage {
+        static final int[] SAMPLE_X = {0, 100, 255};
+        static final int[] SAMPLE_Z = {0, 137, -211};
+
+        private static final int SAMPLE_Y = 64;
+
+        private static final List<Point> SAMPLES = samplesOf();
+
+        private static List<Point> samplesOf() {
+            List<Point> samples = new ArrayList<>();
+            for (int z : SAMPLE_Z) {
+                for (int x : SAMPLE_X) {
+                    samples.add(new Point(x, SAMPLE_Y, z));
+                }
+            }
+
+            return List.copyOf(samples);
+        }
+
         static List<Lap> of(TranslationLattice lattice) {
             List<Lap> laps = new ArrayList<>();
             if (lattice.x().loops()) {
@@ -57,8 +76,24 @@ final class SeamCauseSearch {
             return laps;
         }
 
-        Point away(Point point) {
+        @Override
+        public List<Point> samples() {
+            return SAMPLES;
+        }
+
+        @Override
+        public Point away(Point point) {
             return new Point(point.x() + this.shiftX, point.y(), point.z() + this.shiftZ);
+        }
+
+        @Override
+        public <T> T reading(Point at, Supplier<T> read) {
+            return read.get();
+        }
+
+        @Override
+        public @Nullable CuboidEdge edge() {
+            return null;
         }
 
         int widthBlocks() {
@@ -69,28 +104,29 @@ final class SeamCauseSearch {
     private record Found(DensityFunction node, @Nullable Identifier holder) {
     }
 
-    static List<SeamVerdict.Break> causesOf(Map<SeamField, List<Point>> broken, Lap lap, RandomState state,
-            BiomeSource biomes) {
+    static List<SeamVerdict.Break> causesOf(Map<SeamField, List<Point>> broken, SeamPassage passage,
+            RandomState state, BiomeSource biomes) {
         SeamField brokenClimate = broken.keySet().stream().filter(SeamField::climate).findFirst().orElse(null);
         List<SeamVerdict.Break> breaks = new ArrayList<>();
         broken.forEach((field, points) -> {
             DensityFunction root = field.densityOf(state.router);
             SeamCause cause;
             if (root != null) {
-                cause = densityCause(root, points, lap, state);
+                cause = densityCause(root, points, passage, state);
             } else if (brokenClimate != null) {
                 cause = new SeamCause.Follows(brokenClimate.id());
             } else {
                 cause = biomeSourceCause(biomes);
             }
 
-            breaks.add(new SeamVerdict.Break(field.id(), cause));
+            breaks.add(new SeamVerdict.Break(field.id(), cause, passage.edge()));
         });
         return breaks;
     }
 
-    static SeamCause densityCause(DensityFunction root, List<Point> points, Lap lap, RandomState state) {
-        return new Search(state, lap, points).causeUnder(root);
+    static SeamCause densityCause(DensityFunction root, List<Point> points, SeamPassage passage,
+            RandomState state) {
+        return new Search(state, passage, points).causeUnder(root);
     }
 
     static SeamCause.Generator generatorCause(ChunkGenerator generator) {
@@ -109,13 +145,13 @@ final class SeamCauseSearch {
 
     private static final class Search {
         private final RandomState state;
-        private final Lap lap;
+        private final SeamPassage passage;
         private final List<Point> points;
         private final IdentityHashMap<DensityFunction, Boolean> breaks = new IdentityHashMap<>();
 
-        Search(RandomState state, Lap lap, List<Point> points) {
+        Search(RandomState state, SeamPassage passage, List<Point> points) {
             this.state = state;
-            this.lap = lap;
+            this.passage = passage;
             this.points = points;
         }
 
@@ -125,7 +161,7 @@ final class SeamCauseSearch {
         }
 
         private @Nullable Found deepest(DensityFunction node, @Nullable Identifier holder) {
-            if (!this.breaks.computeIfAbsent(node, this::breaksAtLap)) {
+            if (!this.breaks.computeIfAbsent(node, this::breaksAcross)) {
                 return null;
             }
 
@@ -140,13 +176,10 @@ final class SeamCauseSearch {
             return new Found(node, holder);
         }
 
-        private boolean breaksAtLap(DensityFunction node) {
+        private boolean breaksAcross(DensityFunction node) {
             DensitySampler sampler = this.state.getSampler(node);
             for (Point point : this.points) {
-                Point away = this.lap.away(point);
-                float here = sampler.sampleValue(SamplerContext.EMPTY_UNCACHED, point.x(), point.y(), point.z());
-                float lapAway = sampler.sampleValue(SamplerContext.EMPTY_UNCACHED, away.x(), away.y(), away.z());
-                if (Float.floatToIntBits(here) != Float.floatToIntBits(lapAway)) {
+                if (this.passage.differsAt(sampler, point)) {
                     return true;
                 }
             }
