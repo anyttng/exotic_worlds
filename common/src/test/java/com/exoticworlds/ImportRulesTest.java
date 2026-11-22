@@ -38,6 +38,7 @@ class ImportRulesTest {
             "shape.torus.CoastFieldLift -> engine.noise.GenerationFoldContext",
             "api.v1.shape.ShapeDimensions -> engine.gen.ShapedDimensions",
             "api.v1.net.PacketRewriters -> engine.net.PacketTranslator",
+            "api.v2.net.PacketRewriters -> engine.net.PacketTranslator",
             "api.v1.ExoticWorldsApi -> engine.seam.circumnavigation.SeamTravel",
             "api.v1.ExoticWorldsClientApi -> engine.level.PublishedShapes",
             "api.v2.client.ClientGeometries -> engine.level.PublishedShapes",

@@ -9,7 +9,6 @@ import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.net.ParticleRewriter;
 import com.exoticworlds.core.StartupRegistry;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopAttachments;
@@ -69,8 +68,14 @@ import net.minecraft.network.protocol.game.ServerboundTestInstanceBlockActionPac
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec3;
 
 public final class PacketTranslator {
+    @FunctionalInterface
+    public interface ParticleTranslation<P extends ParticleOptions> {
+        ParticleOptions rewrite(P particle, TranslationContext context, Vec3 clientOrigin);
+    }
+
     private static final int SINGLE_SEAT = 1;
 
     private static final PayloadRoute<ClientboundCustomPayloadPacket> CLIENTBOUND_PAYLOADS = new PayloadRoute<>(
@@ -160,16 +165,16 @@ public final class PacketTranslator {
         return (payload, context) -> payloadRewriter.apply(payloadType.cast(payload), context);
     }
 
-    private static final StartupRegistry<Class<?>, ParticleRewriter<ParticleOptions>> PARTICLE_REWRITERS =
+    private static final StartupRegistry<Class<?>, ParticleTranslation<ParticleOptions>> PARTICLE_REWRITERS =
             new StartupRegistry<>("Particle rewriters");
 
     public static <P extends ParticleOptions> void registerParticleRewriter(Class<P> particleType,
-            ParticleRewriter<P> particleRewriter) {
+            ParticleTranslation<P> particleRewriter) {
         PARTICLE_REWRITERS.register(particleType,
                 (particle, context, clientOrigin) -> particleRewriter.rewrite(particleType.cast(particle), context, clientOrigin));
     }
 
-    static @Nullable ParticleRewriter<ParticleOptions> particleRewriterFor(ParticleOptions particle) {
+    static @Nullable ParticleTranslation<ParticleOptions> particleRewriterFor(ParticleOptions particle) {
         return PARTICLE_REWRITERS.entries().get(particle.getClass());
     }
 
