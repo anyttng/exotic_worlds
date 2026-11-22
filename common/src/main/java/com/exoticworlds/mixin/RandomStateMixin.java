@@ -97,8 +97,7 @@ public class RandomStateMixin implements CoastLiftCache, FoldSource, FoldedRando
         this.exotic_worlds$fold = fold;
         if (fold != null) {
             this.exotic_worlds$baseHeights = new BaseHeights(fold);
-            GenerationMoments.runAtRandomState((RandomState) (Object) this, fold.shapeView(),
-                    fold.generationOptions(), seaLevel);
+            GenerationMoments.runAtRandomState((RandomState) (Object) this, fold, seaLevel);
         }
     }
 
