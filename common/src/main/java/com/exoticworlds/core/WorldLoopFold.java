@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.api.v2.geometry.WorldGeometry;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.BlockPos;
@@ -35,6 +36,7 @@ final class WorldLoopFold implements WorldFold {
     private final int maxViewDistance;
 
     private final ToroidalShape shapeView;
+    private final WorldGeometry geometryView;
 
     WorldLoopFold(WorldLoopBounds bounds, GenerationOptions generationOptions) {
         this.bounds = bounds;
@@ -51,6 +53,7 @@ final class WorldLoopFold implements WorldFold {
         this.blockLattice = TranslationLattice.unskewed(this.coords.x, this.coords.z);
         this.chunkLattice = TranslationLattice.unskewed(this.chunks.x, this.chunks.z);
         this.shapeView = new ToroidalShapeView(this);
+        this.geometryView = new WorldGeometryView(this);
     }
 
     private static WrapDomain chunkDomainFor(AxisBounds axis) {
@@ -375,6 +378,11 @@ final class WorldLoopFold implements WorldFold {
     @Override
     public ToroidalShape shapeView() {
         return this.shapeView;
+    }
+
+    @Override
+    public WorldGeometry geometryView() {
+        return this.geometryView;
     }
 
     @Override

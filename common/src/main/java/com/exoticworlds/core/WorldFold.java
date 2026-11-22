@@ -6,6 +6,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.api.v2.geometry.WorldGeometry;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -46,6 +47,8 @@ public interface WorldFold {
     TranslationLattice chunkLattice();
 
     ToroidalShape shapeView();
+
+    WorldGeometry geometryView();
 
     @Nullable CuboidAtlas cuboidAtlas();
 
