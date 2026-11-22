@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.gen.StructureStarts;
+import com.exoticworlds.api.v2.gen.StructureStarts;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 

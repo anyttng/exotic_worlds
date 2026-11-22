@@ -38,7 +38,7 @@ public final class GenerationHooks {
      *         registered under {@code key} at this moment
      */
     public static void atRandomState(String key, RandomStateHook hook) {
-        GenerationMoments.atRandomState(key, hook);
+        GenerationMoments.atRandomStateV1(key, hook);
     }
 
     /**
@@ -63,7 +63,7 @@ public final class GenerationHooks {
      *         registered under {@code key} at this moment
      */
     public static void atStructureStarts(String key, StructureStartsHook hook) {
-        GenerationMoments.atStructureStarts(key, hook);
+        GenerationMoments.atStructureStartsV1(key, hook);
     }
 
     private GenerationHooks() {
