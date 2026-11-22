@@ -2,20 +2,30 @@ package com.exoticworlds.engine.gen.structure;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import com.exoticworlds.core.CuboidAtlas;
+import com.exoticworlds.core.CuboidFace;
+import com.exoticworlds.core.CuboidFixtures;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
@@ -32,6 +42,10 @@ class SpreadRingScanTest {
             WorldFolds.of(FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-32, 32, -32, 32), SKEW_CHUNKS));
     private static final RandomSpreadStructurePlacement PLACEMENT =
             new RandomSpreadStructurePlacement(SPACING, SEPARATION, RandomSpreadType.LINEAR, SALT);
+    private static final int CUBOID_EDGE_CHUNKS = 16;
+    private static final CuboidAtlas CUBOID = CuboidAtlas.of(CUBOID_EDGE_CHUNKS, CUBOID_EDGE_CHUNKS,
+            CUBOID_EDGE_CHUNKS, CuboidFixtures.MIN_CHUNK_X, CuboidFixtures.MIN_CHUNK_Z);
+    private static final WorldFold CUBOID_FOLD = CuboidFixtures.cuboidFold(CUBOID);
 
     private static SpreadRingScan scanAround(ChunkPos center) {
         return SpreadRingScan.of(FOLD, AddedStructureStarts.NONE, PLACEMENT, SEED, center);
@@ -75,5 +89,95 @@ class SpreadRingScanTest {
             return null;
         }, added -> null));
         assertEquals(List.of(), probed);
+    }
+
+    @Test
+    void aCellPastTheTopFacesWestEdgeReadsTheWestFace() {
+        CuboidFace top = CuboidFixtures.face(CUBOID, CuboidFace.Side.TOP);
+        ChunkPos center = new ChunkPos(SectionPos.blockToSectionCoord(top.minBlockX()),
+                SectionPos.blockToSectionCoord(top.minBlockZ() + top.depthBlocks() / 2));
+        List<SectorCells.Read> reads = new SplitSectorCells(CUBOID_FOLD, SPACING, center).reads(-1, 0);
+
+        Set<CuboidFace.Side> faces = new HashSet<>();
+        for (SectorCells.Read read : reads) {
+            CuboidFace face = CUBOID.faceAt(SectionPos.sectionToBlockCoord(read.minChunkX()),
+                    SectionPos.sectionToBlockCoord(read.minChunkZ()));
+            assertSame(face, CUBOID.faceAt(SectionPos.sectionToBlockCoord(read.maxChunkX()),
+                    SectionPos.sectionToBlockCoord(read.maxChunkZ())), "read " + read);
+            assertTrue(read.cellX() * SPACING <= read.maxChunkX() && (read.cellX() + 1) * SPACING > read.minChunkX()
+                    && read.cellZ() * SPACING <= read.maxChunkZ() && (read.cellZ() + 1) * SPACING > read.minChunkZ(),
+                    "read " + read);
+            faces.add(face.side());
+        }
+
+        assertTrue(faces.contains(CuboidFace.Side.WEST), "faces read " + faces);
+    }
+
+    @ParameterizedTest
+    @MethodSource("cuboidCenters")
+    void theRingsUpToTheCapProbeEveryPickOnTheNetAndNothingElse(ChunkPos center) {
+        SpreadRingScan scan = SpreadRingScan.of(CUBOID_FOLD, AddedStructureStarts.NONE, PLACEMENT, SEED, center);
+        Set<ChunkPos> probed = new HashSet<>();
+        for (int radius = 0; radius <= cuboidCap(); radius++) {
+            scan.ring(radius, chunk -> {
+                probed.add(chunk);
+                return null;
+            }, added -> null);
+        }
+
+        assertEquals(picksOnTheNet(), probed);
+    }
+
+    @ParameterizedTest
+    @MethodSource("cuboidCenters")
+    void aCuboidRingPastTheCapProbesNothing(ChunkPos center) {
+        List<ChunkPos> probed = new ArrayList<>();
+        assertNull(SpreadRingScan.of(CUBOID_FOLD, AddedStructureStarts.NONE, PLACEMENT, SEED, center)
+                .ring(cuboidCap() + 1, chunk -> {
+                    probed.add(chunk);
+                    return null;
+                }, added -> null));
+        assertEquals(List.of(), probed);
+    }
+
+    static Stream<ChunkPos> cuboidCenters() {
+        CuboidFace top = CuboidFixtures.face(CUBOID, CuboidFace.Side.TOP);
+        CuboidFace front = CuboidFixtures.face(CUBOID, CuboidFace.Side.FRONT);
+        return Stream.of(
+                new ChunkPos(SectionPos.blockToSectionCoord(top.minBlockX()),
+                        SectionPos.blockToSectionCoord(top.minBlockZ() + top.depthBlocks() / 2)),
+                new ChunkPos(SectionPos.blockToSectionCoord(top.minBlockX()),
+                        SectionPos.blockToSectionCoord(top.minBlockZ())),
+                new ChunkPos(SectionPos.blockToSectionCoord(front.minBlockX() + front.widthBlocks() / 2),
+                        SectionPos.blockToSectionCoord(front.minBlockZ() + front.depthBlocks() / 2)));
+    }
+
+    private static int cuboidCap() {
+        return CUBOID_FOLD.stepsToCoverTheWorld(SPACING * SectionPos.SECTION_SIZE);
+    }
+
+    private static Set<ChunkPos> picksOnTheNet() {
+        int minChunkX = Integer.MAX_VALUE;
+        int minChunkZ = Integer.MAX_VALUE;
+        int maxChunkX = Integer.MIN_VALUE;
+        int maxChunkZ = Integer.MIN_VALUE;
+        for (CuboidFace face : CUBOID.faces()) {
+            minChunkX = Math.min(minChunkX, SectionPos.blockToSectionCoord(face.minBlockX()));
+            minChunkZ = Math.min(minChunkZ, SectionPos.blockToSectionCoord(face.minBlockZ()));
+            maxChunkX = Math.max(maxChunkX, SectionPos.blockToSectionCoord(face.minBlockX() + face.widthBlocks()) - 1);
+            maxChunkZ = Math.max(maxChunkZ, SectionPos.blockToSectionCoord(face.minBlockZ() + face.depthBlocks()) - 1);
+        }
+
+        Set<ChunkPos> picks = new HashSet<>();
+        for (int cellX = Math.floorDiv(minChunkX, SPACING); cellX <= Math.floorDiv(maxChunkX, SPACING); cellX++) {
+            for (int cellZ = Math.floorDiv(minChunkZ, SPACING); cellZ <= Math.floorDiv(maxChunkZ, SPACING); cellZ++) {
+                ChunkPos picked = PLACEMENT.getPotentialStructureChunk(SEED, cellX * SPACING, cellZ * SPACING);
+                if (!CUBOID_FOLD.isOver(picked)) {
+                    picks.add(picked);
+                }
+            }
+        }
+
+        return picks;
     }
 }

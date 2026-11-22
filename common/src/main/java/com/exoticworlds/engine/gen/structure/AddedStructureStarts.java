@@ -58,7 +58,7 @@ public final class AddedStructureStarts {
         synchronized (holder) {
             known = holder.exotic_worlds$addedStarts();
             if (known == null) {
-                known = GenerationMoments.hasStructureStartHooks() ? compute(state, check, carried) : NONE;
+                known = GenerationMoments.runsAtStructureStarts(carried.fold()) ? compute(state, check, carried) : NONE;
                 holder.exotic_worlds$addedStarts(known);
             }
 

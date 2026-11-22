@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +22,7 @@ import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v2.geometry.WorldGeometry;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.CuboidAtlas;
+import com.exoticworlds.core.CuboidShape;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -166,8 +166,31 @@ class GenerationHooksTest {
 
     @Test
     void aStructureStartsHookIsAskedOncePerSetAndItsStartIsAccepted() {
-        Holder<Biome> plains = ClimateScanFixture.biome(Biomes.PLAINS);
-        HolderSet<Biome> biomes = HolderSet.direct(plains);
+        List<Holder<StructureSet>> sets = testSets();
+        CarriedShape carried = torus();
+
+        List<StructureSet.StructureSelectionEntry> added =
+                AddedStructureStarts.of(structureState(carried, sets), null, carried).at(ADDED_CHUNK);
+
+        assertEquals(sets, ASKED);
+        assertEquals(1, added.size());
+        assertSame(sets.get(0).value().structures().get(0).structure(), added.get(0).structure());
+    }
+
+    @Test
+    void aCuboidRunsNoStructureStartsHook() {
+        List<Holder<StructureSet>> sets = testSets();
+        CarriedShape carried =
+                new CarriedShape(new CuboidShape(EDGE_CHUNKS, EDGE_CHUNKS, EDGE_CHUNKS), GenerationOptions.DEFAULT);
+
+        AddedStructureStarts added = AddedStructureStarts.of(structureState(carried, sets), null, carried);
+
+        assertSame(AddedStructureStarts.NONE, added);
+        assertTrue(ASKED.isEmpty());
+    }
+
+    private static List<Holder<StructureSet>> testSets() {
+        HolderSet<Biome> biomes = HolderSet.direct(ClimateScanFixture.biome(Biomes.PLAINS));
         Holder<Structure> structure =
                 Holder.direct(new BuriedTreasureStructure(new Structure.StructureSettings(biomes)));
         StructurePlacement rings = new ConcentricRingsStructurePlacement(RING_DISTANCE, RING_SPREAD, RING_COUNT,
@@ -176,18 +199,15 @@ class GenerationHooksTest {
         Holder<StructureSet> second = Holder.direct(new StructureSet(
                 List.of(new StructureSet.StructureSelectionEntry(structure, SECOND_SET_WEIGHT)), rings));
         TEST_SETS.addAll(List.of(first, second));
-        CarriedShape carried = torus();
+        return List.of(first, second);
+    }
+
+    private static ChunkGeneratorStructureState structureState(CarriedShape carried,
+            List<Holder<StructureSet>> sets) {
         RandomState randomState = randomState(settingsOf(NoiseGeneratorSettings.OVERWORLD), carried.fold(),
                 SEED_BASE);
-        ChunkGeneratorStructureState state = ChunkGeneratorStructureState.createForFlat(randomState, SEED_BASE,
-                new ChunkPos(0, 0), new FixedBiomeSource(plains), Stream.of(first, second));
-
-        List<StructureSet.StructureSelectionEntry> added =
-                AddedStructureStarts.of(state, null, carried).at(ADDED_CHUNK);
-
-        assertEquals(List.of(first, second), ASKED);
-        assertEquals(1, added.size());
-        assertSame(structure, added.get(0).structure());
+        return ChunkGeneratorStructureState.createForFlat(randomState, SEED_BASE, new ChunkPos(0, 0),
+                new FixedBiomeSource(ClimateScanFixture.biome(Biomes.PLAINS)), sets.stream());
     }
 
     private static CarriedShape torus() {

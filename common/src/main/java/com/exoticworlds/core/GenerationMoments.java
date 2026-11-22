@@ -61,6 +61,10 @@ public final class GenerationMoments {
         return !STRUCTURE_STARTS.entries().isEmpty();
     }
 
+    public static boolean runsAtStructureStarts(WorldFold fold) {
+        return hasStructureStartHooks() && fold.cuboidAtlas() == null;
+    }
+
     public static List<StructureStarts.Added> runAtStructureStarts(StructureStarts set, WorldFold fold) {
         return STRUCTURE_STARTS.entries().entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
