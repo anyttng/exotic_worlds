@@ -48,9 +48,7 @@ public class ServerLevelBiomeSearchMixin {
     @Unique
     private static int exotic_worlds$radiusToCoverTheWorld(WorldFold fold, int maxSearchRadius,
             int sampleResolutionHorizontal) {
-        int steps = Math.max(
-                fold.blockLattice().x().stepsToCoverTheWorld(sampleResolutionHorizontal),
-                fold.blockLattice().z().stepsToCoverTheWorld(sampleResolutionHorizontal));
+        int steps = fold.stepsToCoverTheWorld(sampleResolutionHorizontal);
         return (int) Math.min(maxSearchRadius, (long) steps * sampleResolutionHorizontal);
     }
 }

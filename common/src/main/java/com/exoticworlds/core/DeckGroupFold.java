@@ -396,6 +396,11 @@ public final class DeckGroupFold implements WorldFold {
     }
 
     @Override
+    public int stepsToCoverTheWorld(int step) {
+        return Math.max(this.blocks.x.stepsToCoverTheWorld(step), this.blocks.z.stepsToCoverTheWorld(step));
+    }
+
+    @Override
     public Folded<AABB> nearestCopyOriented(Vec3 ref, AABB box) {
         SeamTransform move = this.blocks.nearestMoveOfCoord(ref.x, ref.z,
                 SeamBoxes.center(box.minX, box.maxX), SeamBoxes.center(box.minZ, box.maxZ));

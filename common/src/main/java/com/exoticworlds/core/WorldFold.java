@@ -165,4 +165,6 @@ public interface WorldFold {
     }
 
     boolean foldsOntoItself(BoundingBox region);
+
+    int stepsToCoverTheWorld(int step);
 }

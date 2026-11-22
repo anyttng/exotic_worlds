@@ -285,6 +285,11 @@ final class WorldLoopFold implements WorldFold {
     }
 
     @Override
+    public int stepsToCoverTheWorld(int step) {
+        return Math.max(coords.x.stepsToCoverTheWorld(step), coords.z.stepsToCoverTheWorld(step));
+    }
+
+    @Override
     public int maxViewDistance() {
         return maxViewDistance;
     }

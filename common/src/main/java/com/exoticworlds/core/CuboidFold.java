@@ -90,6 +90,8 @@ public final class CuboidFold implements WorldFold {
 
     private final int maxViewDistance;
 
+    private final int netSideBlocks;
+
     public CuboidFold(CuboidAtlas atlas, GenerationOptions generationOptions) {
         this.atlas = atlas;
         this.generationOptions = generationOptions;
@@ -105,6 +107,22 @@ public final class CuboidFold implements WorldFold {
         this.unfoldings = CuboidUnfoldings.of(this.crossings);
         this.regions = new CuboidRegions(this.faces, this.crossings);
         this.maxViewDistance = Math.max(1, smallestEdge / 2 - CoordinateConstants.VIEW_DISTANCE_MARGIN);
+        this.netSideBlocks = netSideBlocks(this.faces);
+    }
+
+    private static int netSideBlocks(Rect[] faces) {
+        int minX = Integer.MAX_VALUE;
+        int minZ = Integer.MAX_VALUE;
+        int endX = Integer.MIN_VALUE;
+        int endZ = Integer.MIN_VALUE;
+        for (Rect face : faces) {
+            minX = Math.min(minX, face.minX());
+            minZ = Math.min(minZ, face.minZ());
+            endX = Math.max(endX, face.endX());
+            endZ = Math.max(endZ, face.endZ());
+        }
+
+        return Math.max(endX - minX, endZ - minZ);
     }
 
     private static Crossing[][] crossingsOf(List<CuboidFace> faces, List<CuboidEdge> edges) {
@@ -566,5 +584,10 @@ public final class CuboidFold implements WorldFold {
     @Override
     public boolean foldsOntoItself(BoundingBox region) {
         return this.regions.foldsOntoItself(region);
+    }
+
+    @Override
+    public int stepsToCoverTheWorld(int step) {
+        return step <= 0 ? Integer.MAX_VALUE : Math.ceilDiv(this.netSideBlocks, step);
     }
 }
