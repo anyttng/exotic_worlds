@@ -93,8 +93,7 @@ public class RandomStateMixin implements BaseHeightsHolder {
         if (fold != null) {
             ((FoldedClimateSampler) (Object) ((RandomState) (Object) this).sampler()).exotic_worlds$fold(fold);
             this.exotic_worlds$baseHeights = new BaseHeights(fold);
-            GenerationMoments.runAtRandomState((RandomState) (Object) this, fold.shapeView(),
-                    fold.generationOptions(), settings.seaLevel());
+            GenerationMoments.runAtRandomState((RandomState) (Object) this, fold, settings.seaLevel());
         }
     }
 
