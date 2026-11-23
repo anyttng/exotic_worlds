@@ -1,6 +1,5 @@
 package com.exoticworlds.core;
 
-import com.exoticworlds.api.v1.option.WorldOption;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -25,7 +24,7 @@ public record SpawnPoint(Mode mode, int xChunk, int zChunk) {
             ? DataResult.success(spawn)
             : DataResult.error(() -> DEFAULT_NOT_STORED));
 
-    public static final WorldOption<SpawnPoint> OPTION = new WorldOption<>(KEY, POSITION, CODEC, DEFAULT);
+    public static final OptionKey<SpawnPoint> OPTION = new OptionKey<>(KEY, POSITION, CODEC, DEFAULT);
 
     public SpawnPoint {
         if (mode == Mode.DEFAULT) {
@@ -39,7 +38,7 @@ public record SpawnPoint(Mode mode, int xChunk, int zChunk) {
     }
 
     public static SpawnPoint of(WorldFold fold) {
-        return fold.generationOptions().get(OPTION);
+        return fold.options().get(OPTION);
     }
 
     public boolean isCustom() {

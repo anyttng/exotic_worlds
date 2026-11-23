@@ -12,7 +12,6 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.accessors.CrumbSweepCache;
 import com.exoticworlds.accessors.TerrainMaskCache;
 import com.exoticworlds.accessors.TerrainMaskHolder;
-import com.exoticworlds.api.v1.gen.TerrainSnapshot;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.FoldOrientation;
 import com.exoticworlds.core.ShapedChunkGenerator;
@@ -122,7 +121,7 @@ public final class FloatingCrumbs {
         return fold.preservesLocalIndices() ? null : fold;
     }
 
-    private static @Nullable TerrainMask terrainMaskOf(ChunkAccess chunk) {
+    public static @Nullable TerrainMask terrainMaskOf(ChunkAccess chunk) {
         return chunk instanceof TerrainMaskHolder holder ? holder.exotic_worlds$terrainMask() : null;
     }
 
@@ -253,12 +252,7 @@ public final class FloatingCrumbs {
         return clearInChunk(chunk, cells, cleared.count, reader.get());
     }
 
-    public static @Nullable TerrainSnapshot snapshotOf(ChunkAccess chunk) {
-        return terrainMaskOf(chunk);
-    }
-
-    public static long[] crumbPositions(TerrainSnapshot[] window) {
-        TerrainMask[] masks = masksOf(window);
+    public static long[] crumbPositions(TerrainMask[] masks) {
         Cleared cleared = crumbCells(masks);
         if (cleared == null) {
             return NO_POSITIONS;
@@ -277,17 +271,8 @@ public final class FloatingCrumbs {
         return positions;
     }
 
-    public static long[] clearBorderCrumbs(ChunkAccess chunk, TerrainSnapshot[] window, LevelReader reader) {
-        return sweepWindow(chunk, masksOf(window), () -> reader);
-    }
-
-    private static TerrainMask[] masksOf(TerrainSnapshot[] window) {
-        TerrainMask[] masks = new TerrainMask[window.length];
-        for (int i = 0; i < window.length; i++) {
-            masks[i] = window[i] instanceof TerrainMask mask ? mask : null;
-        }
-
-        return masks;
+    public static long[] clearBorderCrumbs(ChunkAccess chunk, TerrainMask[] masks, LevelReader reader) {
+        return sweepWindow(chunk, masks, () -> reader);
     }
 
     private static @Nullable Cleared crumbCells(TerrainMask[] window) {

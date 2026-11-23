@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -32,7 +32,7 @@ class AtlasCenterSeatTest {
     @Test
     void bothAxesSeatTogetherOnASkewedTorus() {
         WorldFold fold = new DeckGroupFold(FlatShape.latticeTorus(new WorldLoopBounds(TINY, TINY), 8),
-                GenerationOptions.DEFAULT);
+                OptionValues.DEFAULT);
         assertEquals(512, AtlasCenterSeat.toward(fold, Direction.Axis.Z, 0, 0, 0.0, 500.0),
                 "the center a lap up in Z");
         assertEquals(128, Math.abs(AtlasCenterSeat.toward(fold, Direction.Axis.X, 0, 0, 0.0, 500.0)),

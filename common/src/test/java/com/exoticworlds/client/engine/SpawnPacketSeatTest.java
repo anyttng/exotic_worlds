@@ -7,10 +7,10 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -29,9 +29,9 @@ class SpawnPacketSeatTest {
 
     private static final WorldFold PER_AXIS = WorldFolds.of(ShapeFixtures.torus(BOUNDS));
     private static final WorldFold DECK_TORUS = new DeckGroupFold(ShapeFixtures.torus(BOUNDS),
-            GenerationOptions.DEFAULT);
+            OptionValues.DEFAULT);
     private static final WorldFold LATTICE_TORUS = new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS),
-            GenerationOptions.DEFAULT);
+            OptionValues.DEFAULT);
 
     private static final List<WorldFold> FOLDS = List.of(PER_AXIS, DECK_TORUS);
 

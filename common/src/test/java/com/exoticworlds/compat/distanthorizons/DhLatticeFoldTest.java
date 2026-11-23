@@ -35,7 +35,7 @@ class DhLatticeFoldTest {
     }
 
     private static int minChunk() {
-        return lattice(LEAF_SKEW_CHUNKS).shape().minChunk(Direction.Axis.X);
+        return lattice(LEAF_SKEW_CHUNKS).fold().minChunk(Direction.Axis.X);
     }
 
     @Nested
@@ -121,7 +121,7 @@ class DhLatticeFoldTest {
             for (int chunkX = -100; chunkX <= 100; chunkX += 13) {
                 for (int chunkZ = -100; chunkZ <= 100; chunkZ += 17) {
                     ChunkPos raw = new ChunkPos(chunkX, chunkZ);
-                    assertEquals(this.lattice.shape().fold(raw), DhKeys.foldChunk(this.lattice, raw),
+                    assertEquals(this.lattice.fold().fold(raw), DhKeys.foldChunk(this.lattice, raw),
                             "chunk " + chunkX + "," + chunkZ);
                 }
             }

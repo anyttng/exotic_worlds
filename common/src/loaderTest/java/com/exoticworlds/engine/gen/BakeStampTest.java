@@ -2,7 +2,7 @@ package com.exoticworlds.engine.gen;
 
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
@@ -64,8 +64,8 @@ class BakeStampTest {
     private static final int STORED_END_CHUNK_WIDTH = 192;
     private static final int DATAPACK_DECLARED_CHUNK_WIDTH = 128;
 
-    private static final GenerationOptions UNCOMPRESSED =
-            GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
+    private static final OptionValues UNCOMPRESSED =
+            OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
 
     private static final ResourceKey<LevelStem> FOREIGN = stemKey("foreign");
     private static final ResourceKey<LevelStem> SIBLING = stemKey("sibling");
@@ -330,7 +330,7 @@ class BakeStampTest {
 
         CarriedShape foreign = carriedShapeOf(baked, FOREIGN);
         assertNotNull(foreign, "the foreign stem carries no fold, so this run says nothing");
-        assertEquals(ClimateScale.OFF, foreign.generationOptions().get(CompactBiomes.OPTION));
+        assertEquals(ClimateScale.OFF, foreign.options().get(CompactBiomes.OPTION));
     }
 
     @Test
@@ -343,7 +343,7 @@ class BakeStampTest {
 
         LoopedChunkGenerator restored = assertInstanceOf(LoopedChunkGenerator.class,
                 generatorOf(baked, LevelStem.OVERWORLD));
-        assertEquals(ClimateScale.OFF, restored.carriedShape().generationOptions().get(CompactBiomes.OPTION));
+        assertEquals(ClimateScale.OFF, restored.carriedShape().options().get(CompactBiomes.OPTION));
     }
 
     private static Map<ResourceKey<LevelStem>, LevelStem> storedToroidalWorld() {

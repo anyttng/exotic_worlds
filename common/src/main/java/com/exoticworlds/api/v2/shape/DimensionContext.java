@@ -2,8 +2,7 @@ package com.exoticworlds.api.v2.shape;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.api.v2.option.ShapeOptions;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -18,6 +17,6 @@ import net.minecraft.world.level.dimension.LevelStem;
  * @param overworldScale the coordinate scale of the Overworld's dimension type
  * @param coordinateScale the coordinate scale of this dimension's type
  */
-public record DimensionContext(ResourceKey<LevelStem> dimension, GenerationOptions options,
+public record DimensionContext(ResourceKey<LevelStem> dimension, ShapeOptions options,
         @Nullable LoopSpans overworld, double overworldScale, double coordinateScale) {
 }

@@ -2,7 +2,6 @@ package com.exoticworlds.core;
 
 import java.util.List;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
 public final class WorldFoldFixture {
@@ -13,11 +12,11 @@ public final class WorldFoldFixture {
     public static final WorldLoopBounds X_ONLY_BOUNDS =
             new WorldLoopBounds(new AxisBounds.Looped(-32, 32), AxisBounds.Unbounded.INSTANCE);
 
-    public static final WorldFold EVEN = new WorldLoopFold(SQUARE, GenerationOptions.DEFAULT);
-    public static final WorldFold ODD = new WorldLoopFold(ODD_BOUNDS, GenerationOptions.DEFAULT);
-    public static final WorldFold UNEVEN = new WorldLoopFold(UNEVEN_BOUNDS, GenerationOptions.DEFAULT);
-    public static final WorldFold UNIT = new WorldLoopFold(UNIT_BOUNDS, GenerationOptions.DEFAULT);
-    public static final WorldFold X_ONLY = new WorldLoopFold(X_ONLY_BOUNDS, GenerationOptions.DEFAULT);
+    public static final WorldFold EVEN = new WorldLoopFold(SQUARE, OptionValues.DEFAULT);
+    public static final WorldFold ODD = new WorldLoopFold(ODD_BOUNDS, OptionValues.DEFAULT);
+    public static final WorldFold UNEVEN = new WorldLoopFold(UNEVEN_BOUNDS, OptionValues.DEFAULT);
+    public static final WorldFold UNIT = new WorldLoopFold(UNIT_BOUNDS, OptionValues.DEFAULT);
+    public static final WorldFold X_ONLY = new WorldLoopFold(X_ONLY_BOUNDS, OptionValues.DEFAULT);
 
     public static final List<WorldFold> PER_AXIS = List.of(EVEN, ODD, UNEVEN, X_ONLY, WorldFolds.NOOP);
 

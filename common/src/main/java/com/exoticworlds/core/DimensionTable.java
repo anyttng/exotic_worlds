@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -101,7 +100,7 @@ public final class DimensionTable {
         public static final Codec<Entry> CODEC = RecordCodecBuilder.<Stated>mapCodec(instance -> instance.group(
                 Codec.BOOL.optionalFieldOf(FROM_OVERWORLD_KEY, false).forGetter(Stated::fromOverworld),
                 CarriedShape.SHAPE_CODEC.optionalFieldOf(CarriedShape.WRAPPING_KEY).forGetter(Stated::shape),
-                GenerationOptions.mapCodec(CarriedShape.NO_KEY_PREFIX).forGetter(Stated::options)
+                OptionValues.mapCodec(CarriedShape.NO_KEY_PREFIX).forGetter(Stated::options)
         ).apply(instance, Stated::new)).xmap(Stated::entry, Stated::of).codec();
 
         public Entry {
@@ -115,12 +114,12 @@ public final class DimensionTable {
         }
     }
 
-    private record Stated(boolean fromOverworld, Optional<FlatShape> shape, GenerationOptions options) {
+    private record Stated(boolean fromOverworld, Optional<FlatShape> shape, OptionValues options) {
         private static Stated of(Entry entry) {
             CarriedShape carried = entry.carried();
             return carried == null
-                    ? new Stated(entry.fromOverworld(), Optional.empty(), GenerationOptions.DEFAULT)
-                    : new Stated(false, Optional.of(carried.shape()), carried.generationOptions());
+                    ? new Stated(entry.fromOverworld(), Optional.empty(), OptionValues.DEFAULT)
+                    : new Stated(false, Optional.of(carried.shape()), carried.options());
         }
 
         private Entry entry() {

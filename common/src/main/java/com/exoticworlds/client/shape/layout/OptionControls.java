@@ -19,12 +19,13 @@ import com.ascendiacore.gui.widget.label.model.LabelRole;
 import com.ascendiacore.gui.widget.numberfield.NumberField;
 import com.ascendiacore.gui.widget.numberfield.model.Bounds;
 import com.ascendiacore.gui.widget.panel.model.FillStyle;
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v1.shape.LoopSpans;
-import com.exoticworlds.api.v2.client.DimensionOptionLines;
 import com.exoticworlds.api.v2.option.DimensionOption;
 import com.exoticworlds.api.v2.option.OptionPart;
+import com.exoticworlds.client.shape.OptionLines;
+import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.shape.DeclaredOptions;
+import com.exoticworlds.shape.ShapeOptionsAdapter;
 
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -42,12 +43,12 @@ final class OptionControls {
     private final FillStyle fill;
     private final ResourceKey<LevelStem> dimension;
     private final Supplier<@Nullable Identifier> shape;
-    private final Supplier<@Nullable LoopSpans> spans;
+    private final Supplier<@Nullable FlatShape> spans;
     private final List<Bound<?>> bound = new ArrayList<>();
     private final Column section = new Column();
 
     OptionControls(Theme theme, FillStyle fill, ResourceKey<LevelStem> dimension, Supplier<@Nullable Identifier> shape,
-            Supplier<@Nullable LoopSpans> spans) {
+            Supplier<@Nullable FlatShape> spans) {
         this.theme = theme;
         this.fill = fill;
         this.dimension = dimension;
@@ -67,12 +68,12 @@ final class OptionControls {
         return this.bound.stream().anyMatch(Bound::offered);
     }
 
-    void show(GenerationOptions options) {
+    void show(OptionValues options) {
         this.bound.forEach(option -> option.show(options));
     }
 
-    @Nullable GenerationOptions commit(GenerationOptions into) {
-        GenerationOptions chosen = into;
+    @Nullable OptionValues commit(OptionValues into) {
+        OptionValues chosen = into;
         for (Bound<?> option : this.bound) {
             chosen = option.commit(chosen);
             if (chosen == null) {
@@ -96,7 +97,7 @@ final class OptionControls {
             this.declared = declared;
             this.value = declared.option().defaultValue();
             declared.parts().forEach(this::add);
-            DimensionOptionLines.Line<T> line = DimensionOptionLines.of(declared);
+            BiFunction<T, FlatShape, Component> line = OptionLines.of(declared);
             if (line != null) {
                 this.addLine(line);
             }
@@ -107,18 +108,18 @@ final class OptionControls {
             return chosen != null && this.declared.offeredFor(chosen, OptionControls.this.dimension);
         }
 
-        void show(GenerationOptions options) {
-            this.value = options.get(this.declared.option());
+        void show(OptionValues options) {
+            this.value = options.get(ShapeOptionsAdapter.optionKey(this.declared.option()));
             this.shownValues.forEach(Runnable::run);
         }
 
-        @Nullable GenerationOptions commit(GenerationOptions into) {
+        @Nullable OptionValues commit(OptionValues into) {
             if (!this.offered()) {
                 return into;
             }
 
             T chosen = this.chosen();
-            return chosen == null ? null : into.with(this.declared.option(), chosen);
+            return chosen == null ? null : into.with(ShapeOptionsAdapter.optionKey(this.declared.option()), chosen);
         }
 
         private @Nullable T chosen() {
@@ -188,17 +189,17 @@ final class OptionControls {
             return field;
         }
 
-        private void addLine(DimensionOptionLines.Line<T> line) {
+        private void addLine(BiFunction<T, FlatShape, Component> line) {
             Label label = new Label(OptionControls.this.fill, LabelRole.MUTED, Component.empty());
             label.setText(() -> this.lineText(line));
             label.setVisible(() -> this.offered() && !this.lineText(line).getString().isEmpty());
             OptionControls.this.section.add(label);
         }
 
-        private Component lineText(DimensionOptionLines.Line<T> line) {
+        private Component lineText(BiFunction<T, FlatShape, Component> line) {
             T chosen = this.chosen();
-            LoopSpans dimensionSpans = OptionControls.this.spans.get();
-            return chosen == null || dimensionSpans == null ? Component.empty() : line.line(chosen, dimensionSpans);
+            FlatShape dimensionSpans = OptionControls.this.spans.get();
+            return chosen == null || dimensionSpans == null ? Component.empty() : line.apply(chosen, dimensionSpans);
         }
     }
 }

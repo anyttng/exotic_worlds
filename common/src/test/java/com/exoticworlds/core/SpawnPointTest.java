@@ -5,18 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 
 class SpawnPointTest {
-    private static final Codec<GenerationOptions> OPTIONS = GenerationOptions.mapCodec("").codec();
+    private static final Codec<OptionValues> OPTIONS = OptionValues.mapCodec("").codec();
 
     @Test
     void aWorldFileWithoutASpawnPointReadsAsDefault() {
-        GenerationOptions read = OPTIONS.parse(JsonOps.INSTANCE, JsonParser.parseString("{}")).getOrThrow();
+        OptionValues read = OPTIONS.parse(JsonOps.INSTANCE, JsonParser.parseString("{}")).getOrThrow();
 
         assertEquals(SpawnPoint.DEFAULT, read.get(SpawnPoint.OPTION));
         assertEquals(JsonParser.parseString("{}"), OPTIONS.encodeStart(JsonOps.INSTANCE, read).getOrThrow());
@@ -24,7 +23,7 @@ class SpawnPointTest {
 
     @Test
     void aPointAtChunkZeroIsStoredAndReadBackAsAPoint() {
-        GenerationOptions chosen = GenerationOptions.DEFAULT.with(SpawnPoint.OPTION, new SpawnPoint(0, 0));
+        OptionValues chosen = OptionValues.DEFAULT.with(SpawnPoint.OPTION, new SpawnPoint(0, 0));
         JsonElement written = OPTIONS.encodeStart(JsonOps.INSTANCE, chosen).getOrThrow();
 
         assertEquals(JsonParser.parseString("{\"spawn\":{\"x\":0,\"z\":0}}"), written);
@@ -38,7 +37,7 @@ class SpawnPointTest {
 
     @Test
     void aSpawnPointIsWrittenInChunksAndReadBack() {
-        GenerationOptions chosen = GenerationOptions.DEFAULT.with(SpawnPoint.OPTION, new SpawnPoint(2, -3));
+        OptionValues chosen = OptionValues.DEFAULT.with(SpawnPoint.OPTION, new SpawnPoint(2, -3));
         JsonElement written = OPTIONS.encodeStart(JsonOps.INSTANCE, chosen).getOrThrow();
 
         assertEquals(JsonParser.parseString("{\"spawn\":{\"x\":2,\"z\":-3}}"), written);

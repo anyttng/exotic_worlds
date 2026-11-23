@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -165,17 +164,6 @@ public record WorldLoopBounds(AxisBounds x, AxisBounds z) {
 
     public static WorldLoopBounds ofWidth(Direction.Axis axis, int chunkWidth) {
         return UNBOUNDED.with(axis, AxisBounds.Looped.ofWidth(chunkWidth));
-    }
-
-    public static WorldLoopBounds of(LoopSpans spans) {
-        WorldLoopBounds bounds = UNBOUNDED;
-        for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (spans.loops(axis)) {
-                bounds = bounds.with(axis, new AxisBounds.Looped(spans.minChunk(axis), spans.maxChunk(axis)));
-            }
-        }
-
-        return bounds;
     }
 
     public WorldLoopBounds with(Direction.Axis axis, AxisBounds bounds) {

@@ -7,17 +7,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 
 class XaeroWorldMapFoldSeatTest {
-    private static final ToroidalShape LATTICE = MapShapes.latticeTorus(-16, 16, 16);
-    private static final ToroidalShape HALF_SKEW_LATTICE = MapShapes.latticeTorus(-16, 16, 8);
-    private static final ToroidalShape TORUS = MapShapes.torus(-16, 16);
-    private static final ToroidalShape CYLINDER = MapShapes.cylinder(-16, 16);
+    private static final WorldFold LATTICE = MapFolds.latticeTorus(-16, 16, 16);
+    private static final WorldFold HALF_SKEW_LATTICE = MapFolds.latticeTorus(-16, 16, 8);
+    private static final WorldFold TORUS = MapFolds.torus(-16, 16);
+    private static final WorldFold CYLINDER = MapFolds.cylinder(-16, 16);
 
     @Test
     void theCursorPastTheZSeamOfALatticeTorusNamesTheCanonicalBlock() {

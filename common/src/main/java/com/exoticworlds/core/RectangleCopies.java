@@ -10,8 +10,8 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-final class RectangleCopies {
-    static List<DeckTransformation> meeting(WorldFold fold, AABB box) {
+public final class RectangleCopies {
+    public static List<DeckTransformation> meeting(WorldFold fold, AABB box) {
         int minX = Mth.floor(box.minX);
         int maxX = Mth.ceil(box.maxX) - 1;
         int minZ = Mth.floor(box.minZ);
@@ -23,7 +23,8 @@ final class RectangleCopies {
         return fold.copiesTouching(new BoundingBox(minX, 0, minZ, maxX, 0, maxZ));
     }
 
-    static <R> List<R> inside(WorldFold fold, AABB box, Vec3 pos, BiFunction<Vec3, FoldOrientation, R> oriented) {
+    public static <R> List<R> inside(WorldFold fold, AABB box, Vec3 pos,
+            BiFunction<Vec3, FoldOrientation, R> oriented) {
         List<DeckTransformation> copies = meeting(fold, box);
         WorldFold.Folded<Vec3> folded = fold.foldOriented(pos);
         List<R> inside = new ArrayList<>(copies.size());
@@ -38,7 +39,7 @@ final class RectangleCopies {
         return inside;
     }
 
-    static <R> List<R> inside(
+    public static <R> List<R> inside(
             WorldFold fold, AABB box, BlockPos pos, BiFunction<BlockPos, FoldOrientation, R> oriented) {
         List<DeckTransformation> copies = meeting(fold, box);
         WorldFold.Folded<BlockPos> folded = fold.foldOriented(pos);

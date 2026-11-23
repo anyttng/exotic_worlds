@@ -163,7 +163,7 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
         }
 
         BlockPos picked = view.blockAt(this.getX(), this.getY(), this.getWidth(), mouseX, mouseY);
-        this.exotic_worlds$moveSpawn(SpawnPick.at(view.shape(), picked));
+        this.exotic_worlds$moveSpawn(SpawnPick.at(view.fold(), picked));
     }
 
     @Unique
@@ -249,7 +249,7 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
     @Unique
     private static @Nullable CarriedShape exotic_worlds$terrainOf(@Nullable CarriedShape carried) {
         return carried == null ? null : new CarriedShape(carried.shape(),
-                carried.generationOptions().with(SpawnPoint.OPTION, SpawnPoint.DEFAULT));
+                carried.options().with(SpawnPoint.OPTION, SpawnPoint.DEFAULT));
     }
 
     @WrapOperation(method = "refresh", at = @At(value = "INVOKE",

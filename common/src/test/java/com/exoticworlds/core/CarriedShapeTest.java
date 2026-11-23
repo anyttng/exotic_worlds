@@ -14,7 +14,6 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
 
@@ -31,7 +30,7 @@ class CarriedShapeTest {
     @Test
     void everyPrefixCarriesTheShapeAndTheChosenOptionsBackUnchanged() {
         CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE),
-                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
+                OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
 
         for (String prefix : PREFIXES) {
             MapCodec<CarriedShape> codec = CarriedShape.mapCodec(prefix);
@@ -45,7 +44,7 @@ class CarriedShapeTest {
 
     @Test
     void anOptionLeftAtItsDefaultIsNeverWrittenAndComesBackAsTheDefault() {
-        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE), GenerationOptions.DEFAULT);
+        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE), OptionValues.DEFAULT);
 
         for (String prefix : PREFIXES) {
             MapCodec<CarriedShape> codec = CarriedShape.mapCodec(prefix);
@@ -58,7 +57,7 @@ class CarriedShapeTest {
 
     @Test
     void theFoldIsBuiltOnceAndHandedBackAsTheSameReference() {
-        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE), GenerationOptions.DEFAULT);
+        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE), OptionValues.DEFAULT);
 
         assertSame(carried.fold(), carried.fold());
         assertTrue(carried.fold().isWrapped());
@@ -67,12 +66,12 @@ class CarriedShapeTest {
     @Test
     void aDerivedShapeKeepsTheOptionsItWasCarriedWith() {
         CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE),
-                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
+                OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
 
         CarriedShape derived = carried.withShape(ShapeFixtures.torus(NARROWER));
 
         assertEquals(ShapeFixtures.torus(NARROWER), derived.shape());
-        assertEquals(carried.generationOptions(), derived.generationOptions());
+        assertEquals(carried.options(), derived.options());
     }
 
     @Test
@@ -80,14 +79,14 @@ class CarriedShapeTest {
         FlatShape narrow = ShapeFixtures.torus(TOO_NARROW);
 
         IllegalArgumentException refused = assertThrows(IllegalArgumentException.class,
-                () -> new CarriedShape(narrow, GenerationOptions.DEFAULT));
+                () -> new CarriedShape(narrow, OptionValues.DEFAULT));
 
         assertEquals(WorldFolds.verifyGeneratable(narrow).error().orElseThrow().message(), refused.getMessage());
     }
 
     @Test
     void aDerivedShapeIsHeldToTheSameFloor() {
-        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE), GenerationOptions.DEFAULT);
+        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE), OptionValues.DEFAULT);
 
         assertThrows(IllegalArgumentException.class, () -> carried.withShape(ShapeFixtures.torus(TOO_NARROW)));
     }

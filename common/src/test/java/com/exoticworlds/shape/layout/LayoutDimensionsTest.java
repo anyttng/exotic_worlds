@@ -10,11 +10,14 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.api.v1.shape.ShapeDimensions;
+import com.exoticworlds.bridge.v1.option.OptionBridge;
 import com.exoticworlds.core.DimensionTable;
+import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
+import com.exoticworlds.core.OptionValues;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
@@ -38,11 +41,11 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
 class LayoutDimensionsTest {
     private static final HolderLookup.Provider WORLDGEN = VanillaRegistries.createWorldLookup();
 
-    private static final GenerationOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
+    private static final OptionValues PLAIN = DimensionLayout.DEFAULT_OPTIONS;
 
-    private static final GenerationOptions COMPACT_6 = PLAIN.with(CompactBiomes.OPTION, ClimateScale.custom(6));
+    private static final OptionValues COMPACT_6 = PLAIN.with(CompactBiomes.OPTION, ClimateScale.custom(6));
 
-    private static final GenerationOptions LAND = PLAIN.with(GuaranteedLand.OPTION, true);
+    private static final OptionValues LAND = PLAIN.with(GuaranteedLand.OPTION, true);
 
     private static final ResourceKey<LevelStem> MOD_STEM = ResourceKey.create(Registries.LEVEL_STEM,
             Identifier.fromNamespaceAndPath("example_mod", "sky"));
@@ -64,8 +67,8 @@ class LayoutDimensionsTest {
     void eachDimensionKeepsItsOwnShapeAndOptions() {
         WorldLayout chosen = new WorldLayout(
                 DimensionLayout.normal(PLAIN),
-                DimensionLayout.looped(LoopSpans.ofWidths(24, 40), COMPACT_6),
-                DimensionLayout.looped(LoopSpans.ofWidth(Direction.Axis.X, 256), PLAIN),
+                DimensionLayout.looped(ShapeFixtures.torus(24, 40), COMPACT_6),
+                DimensionLayout.looped(ShapeFixtures.cylinder(Direction.Axis.X, 256), PLAIN),
                 Map.of(), NetherScales.DEFAULT);
 
         assertEquals(chosen, roundTrip(chosen));
@@ -74,7 +77,7 @@ class LayoutDimensionsTest {
     @Test
     void aSkewedTorusWithTheNetherAndTheEndFromItRoundTrips() {
         WorldLayout chosen = new WorldLayout(
-                DimensionLayout.looped(LoopSpans.ofWidths(64, 96).withSkew(8), LAND),
+                DimensionLayout.looped(ShapeFixtures.latticeTorus(64, 96, 8), LAND),
                 DimensionLayout.fromOverworld(COMPACT_6),
                 DimensionLayout.fromOverworld(PLAIN),
                 Map.of(), 4);
@@ -89,7 +92,7 @@ class LayoutDimensionsTest {
     @Test
     void aCylinderGivesTheNetherAndTheEndItsLoopingAxis() {
         WorldLayout chosen = new WorldLayout(
-                DimensionLayout.looped(LoopSpans.ofWidth(Direction.Axis.Z, 128), PLAIN),
+                DimensionLayout.looped(ShapeFixtures.cylinder(Direction.Axis.Z, 128), PLAIN),
                 DimensionLayout.fromOverworld(PLAIN),
                 DimensionLayout.fromOverworld(PLAIN),
                 Map.of(), 8);
@@ -104,12 +107,12 @@ class LayoutDimensionsTest {
     @Test
     void aNetherScaleTheOverworldCannotTakeFallsToOneItCan() {
         WorldLayout chosen = new WorldLayout(
-                DimensionLayout.looped(LoopSpans.ofWidth(32), PLAIN),
+                DimensionLayout.looped(ShapeFixtures.torus(32), PLAIN),
                 DimensionLayout.fromOverworld(PLAIN),
                 DimensionLayout.fromOverworld(PLAIN),
                 Map.of(), 8);
 
-        assertEquals(LoopSpans.ofWidth(16), chosen.netherSpans());
+        assertEquals(ShapeFixtures.torus(16), chosen.netherSpans());
         assertEquals(2, roundTrip(chosen).netherScale());
     }
 
@@ -117,15 +120,15 @@ class LayoutDimensionsTest {
     void aToroidalWorldWrittenThroughThePublicWriterReadsWithItsSizesScaleAndEnd() {
         LoopSpans overworld = LoopSpans.ofWidths(64, 128).withSkew(16);
         WorldDimensions made = ShapeDimensions.withSpans(vanillaDimensions(), overworld, overworld.scaledDown(4),
-                LoopSpans.ofWidth(320), LAND);
+                LoopSpans.ofWidth(320), OptionBridge.toV1(LAND));
 
         WorldLayout read = LayoutDimensions.read(made);
 
         assertNotNull(read);
-        assertEquals(DimensionLayout.looped(overworld, LAND), read.overworld());
+        assertEquals(DimensionLayout.looped(ShapeFixtures.latticeTorus(64, 128, 16), LAND), read.overworld());
         assertEquals(ShapeKind.FROM_OVERWORLD, read.nether().kind());
         assertEquals(4, read.netherScale());
-        assertEquals(LoopSpans.ofWidth(320), read.end().spans());
+        assertEquals(ShapeFixtures.torus(320), read.end().spans());
         assertSameShapes(made, LayoutDimensions.apply(vanillaDimensions(), read));
     }
 
@@ -133,7 +136,8 @@ class LayoutDimensionsTest {
     void aCylinderWorldWrittenThroughThePublicWriterReadsWithItsAxisSizeAndScale() {
         LoopSpans overworld = LoopSpans.ofWidth(Direction.Axis.X, 128);
         WorldDimensions made = ShapeDimensions.withSpans(vanillaDimensions(), overworld, overworld.scaledDown(8),
-                LoopSpans.ofWidth(Direction.Axis.X, 256), PLAIN.with(SpawnPoint.OPTION, new SpawnPoint(4, -3)));
+                LoopSpans.ofWidth(Direction.Axis.X, 256),
+                OptionBridge.toV1(PLAIN.with(SpawnPoint.OPTION, new SpawnPoint(4, -3))));
 
         WorldLayout read = LayoutDimensions.read(made);
 
@@ -156,7 +160,7 @@ class LayoutDimensionsTest {
 
     @Test
     void aModDimensionWithNoRowIsFromTheOverworldAndChoosingThatDropsItsRow() {
-        DimensionLayout own = DimensionLayout.looped(LoopSpans.ofWidth(48), COMPACT_6);
+        DimensionLayout own = DimensionLayout.looped(ShapeFixtures.torus(48), COMPACT_6);
 
         WorldLayout withRow = WorldLayout.DEFAULT.withModDimension(MOD_STEM, own);
 
@@ -167,21 +171,21 @@ class LayoutDimensionsTest {
 
     @Test
     void aModDimensionFromTheOverworldTakesItsSizeOverTheCoordinateScales() {
-        LoopSpans overworld = LoopSpans.ofWidths(128, 64).withSkew(16);
+        FlatShape overworld = ShapeFixtures.latticeTorus(128, 64, 16);
 
         assertEquals(overworld, OverworldDerivation.modDimension(overworld, 1.0, 1.0));
-        assertEquals(LoopSpans.ofWidths(32, 16).withSkew(4), OverworldDerivation.modDimension(overworld, 1.0, 4.0));
-        assertNull(OverworldDerivation.modDimension(LoopSpans.ofWidth(100), 1.0, 8.0));
+        assertEquals(ShapeFixtures.latticeTorus(32, 16, 4), OverworldDerivation.modDimension(overworld, 1.0, 4.0));
+        assertNull(OverworldDerivation.modDimension(ShapeFixtures.torus(100), 1.0, 8.0));
         assertNull(OverworldDerivation.modDimension(null, 1.0, 1.0));
     }
 
     @Test
     void theRowsAServerSendsReadAsTheWorldsLayout() {
-        DimensionLayout overworld = DimensionLayout.looped(LoopSpans.ofWidth(64), LAND);
-        DimensionLayout sky = DimensionLayout.looped(LoopSpans.ofWidth(Direction.Axis.Z, 48), COMPACT_6);
+        DimensionLayout overworld = DimensionLayout.looped(ShapeFixtures.torus(64), LAND);
+        DimensionLayout sky = DimensionLayout.looped(ShapeFixtures.cylinder(Direction.Axis.Z, 48), COMPACT_6);
         Map<ResourceKey<LevelStem>, DimensionTable.Entry> rows = new HashMap<>();
         rows.put(LevelStem.OVERWORLD, LayoutDimensions.entryOf(overworld));
-        rows.put(LevelStem.NETHER, LayoutDimensions.entryOf(DimensionLayout.looped(LoopSpans.ofWidth(16), PLAIN)));
+        rows.put(LevelStem.NETHER, LayoutDimensions.entryOf(DimensionLayout.looped(ShapeFixtures.torus(16), PLAIN)));
         rows.put(LevelStem.END, DimensionTable.Entry.UNWRAPPED);
         rows.put(MOD_STEM, LayoutDimensions.entryOf(sky));
         rows.put(OTHER_MOD_STEM, LayoutDimensions.entryOf(DimensionLayout.fromOverworld(PLAIN)));
@@ -198,7 +202,7 @@ class LayoutDimensionsTest {
     @Test
     void theSpawnPointMovesOnlyOnALoopedOverworld() {
         SpawnPoint spawn = new SpawnPoint(5, -7);
-        WorldLayout looped = new WorldLayout(DimensionLayout.looped(LoopSpans.ofWidth(64), PLAIN),
+        WorldLayout looped = new WorldLayout(DimensionLayout.looped(ShapeFixtures.torus(64), PLAIN),
                 DimensionLayout.fromOverworld(PLAIN), DimensionLayout.fromOverworld(PLAIN), Map.of(),
                 NetherScales.DEFAULT);
 

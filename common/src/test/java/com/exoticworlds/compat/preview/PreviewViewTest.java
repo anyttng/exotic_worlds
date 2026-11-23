@@ -7,27 +7,26 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.TestShapes;
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.MapCopies;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.SeamLine;
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 
 class PreviewViewTest {
-    private static final ToroidalShape TORUS = MapShapes.torus(-16, 16);
-    private static final ToroidalShape CYLINDER = MapShapes.cylinder(-16, 16);
-    private static final ToroidalShape SKEWED = MapShapes.latticeTorus(-16, 16, 4);
+    private static final WorldFold TORUS = MapFolds.torus(-16, 16);
+    private static final WorldFold CYLINDER = MapFolds.cylinder(-16, 16);
+    private static final WorldFold SKEWED = MapFolds.latticeTorus(-16, 16, 4);
     private static final int WIDGET_PIXELS = 200;
 
     @Test
     void repeatedCopiesKeepTheWorldAtLeast64PixelsWide() {
         assertEquals(6.25f, PreviewView.zoomCeiling(TORUS, MapCopies.REPEATED, WIDGET_PIXELS), 1e-6f,
                 "512 blocks over 64 of 200 widget pixels showing 256 preview pixels: 512 * 200 / (256 * 64)");
-        assertEquals(Float.POSITIVE_INFINITY, PreviewView.zoomCeiling(TestShapes.of(WorldFolds.NOOP),
+        assertEquals(Float.POSITIVE_INFINITY, PreviewView.zoomCeiling(WorldFolds.NOOP,
                 MapCopies.REPEATED, WIDGET_PIXELS), "a world that loops on no axis caps nothing");
     }
 

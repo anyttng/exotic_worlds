@@ -4,7 +4,6 @@ import java.util.BitSet;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.gen.TerrainSnapshot;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.FoldOrientation;
 import com.exoticworlds.core.WorldFold;
@@ -13,7 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.ChunkPos;
 
-public final class TerrainMask implements TerrainSnapshot {
+public final class TerrainMask {
     private static final String MIN_Y_KEY = "min_y";
 
     private static final String CELLS_KEY = "cells";

@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v2.gen.StructureStarts;
+import com.exoticworlds.core.AddedStart;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 
@@ -14,14 +14,14 @@ import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStruct
 
 public final class SpreadRingScan {
     private final WorldFold fold;
-    private final List<StructureStarts.Added> added;
+    private final List<AddedStart> added;
     private final RandomSpreadStructurePlacement placement;
     private final long seed;
     private final int skew;
     private final SectorGridAxis xCells;
     private final SectorGridAxis zCells;
 
-    private SpreadRingScan(WorldFold fold, List<StructureStarts.Added> added,
+    private SpreadRingScan(WorldFold fold, List<AddedStart> added,
             RandomSpreadStructurePlacement placement, long seed, ChunkPos center) {
         TranslationLattice lattice = fold.chunkLattice();
         this.fold = fold;
@@ -39,7 +39,7 @@ public final class SpreadRingScan {
     }
 
     public <T> @Nullable T ring(int radius, Function<ChunkPos, @Nullable T> candidate,
-            Function<StructureStarts.Added, @Nullable T> addedStart) {
+            Function<AddedStart, @Nullable T> addedStart) {
         if (radius > Math.max(this.xCells.offsetCap(), this.zCells.offsetCap())) {
             return null;
         }
@@ -63,7 +63,7 @@ public final class SpreadRingScan {
 
     // mc/1.21: Supplementaries' structure locator folds the cells of its own round rings through it.
     public <T> @Nullable T cell(int x, int z, Function<ChunkPos, @Nullable T> candidate,
-            Function<StructureStarts.Added, @Nullable T> addedStart) {
+            Function<AddedStart, @Nullable T> addedStart) {
         if (Math.abs(x) > this.xCells.offsetCap() || Math.abs(z) > this.zCells.offsetCap()) {
             return null;
         }
@@ -82,9 +82,9 @@ public final class SpreadRingScan {
     }
 
     private <T> @Nullable T addedInCell(int probeX, int probeZ,
-            Function<StructureStarts.Added, @Nullable T> addedStart) {
+            Function<AddedStart, @Nullable T> addedStart) {
         int spacing = this.placement.spacing();
-        for (StructureStarts.Added start : this.added) {
+        for (AddedStart start : this.added) {
             if (Math.floorDiv(start.chunk().x(), spacing) != Math.floorDiv(probeX, spacing)
                     || Math.floorDiv(start.chunk().z(), spacing) != Math.floorDiv(probeZ, spacing)) {
                 continue;

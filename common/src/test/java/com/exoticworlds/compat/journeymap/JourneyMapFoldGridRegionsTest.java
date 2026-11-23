@@ -10,14 +10,14 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.world.level.ChunkPos;
 
 class JourneyMapFoldGridRegionsTest {
-    private static final ToroidalShape ON_GRID = MapShapes.torus(-64, 64);
-    private static final ToroidalShape OFF_GRID = MapShapes.torus(-937, 938);
+    private static final WorldFold ON_GRID = MapFolds.torus(-64, 64);
+    private static final WorldFold OFF_GRID = MapFolds.torus(-937, 938);
 
     @Test
     void anUnshapedWorldKeepsTheGridsOwnRegions() {
@@ -55,7 +55,7 @@ class JourneyMapFoldGridRegionsTest {
     @Test
     void aGridPastALatticeSeamFoldsOntoTheRegionTheSkewMovesItTo() {
         assertEquals(Set.of(ChunkPos.pack(-1, -2)),
-                regions(JourneyMapFold.gridRegions(MapShapes.latticeTorus(-64, 64, 32), 0, 2, 0, 2)),
+                regions(JourneyMapFold.gridRegions(MapFolds.latticeTorus(-64, 64, 32), 0, 2, 0, 2)),
                 "raw region (0, 2) lies one Z lap up and 512 blocks over, so it folds onto (-1, -2), not (0, -2)");
     }
 
@@ -80,7 +80,7 @@ class JourneyMapFoldGridRegionsTest {
 
     @Test
     void aLatticeTileIsShownWhereTheSkewedRowPutsIt() {
-        ToroidalShape lattice = MapShapes.latticeTorus(-64, 64, 32);
+        WorldFold lattice = MapFolds.latticeTorus(-64, 64, 32);
         assertTrue(JourneyMapFold.regionInView(lattice, bounds(0.0, 2.0, 1.0, 3.0), -1, -2),
                 "region (-1, -2) one Z lap up and 512 blocks over sits on raw region (0, 2)");
         assertFalse(JourneyMapFold.regionInView(lattice, bounds(0.0, 2.0, 1.0, 3.0), 0, -2),

@@ -6,12 +6,12 @@ import java.util.List;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.AxisCopies;
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.MapViewSpan;
 import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.map.WorldCopies;
+import com.exoticworlds.core.WorldFold;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
@@ -47,28 +47,28 @@ public final class XaeroMapView {
     }
 
     public double clampCameraX(double cameraX, double scale) {
-        return clampCamera(XaeroWorldMapFold.browsedShape(), this.mapCopies, Direction.Axis.X, cameraX,
+        return clampCamera(XaeroWorldMapFold.browsedFold(), this.mapCopies, Direction.Axis.X, cameraX,
                 MapViewSpan.halfBlocks(Minecraft.getInstance().getWindow().getWidth(), scale));
     }
 
     public double clampCameraZ(double cameraZ, double scale) {
-        return clampCamera(XaeroWorldMapFold.browsedShape(), this.mapCopies, Direction.Axis.Z, cameraZ,
+        return clampCamera(XaeroWorldMapFold.browsedFold(), this.mapCopies, Direction.Axis.Z, cameraZ,
                 MapViewSpan.halfBlocks(Minecraft.getInstance().getWindow().getHeight(), scale));
     }
 
-    static double clampCamera(@Nullable ToroidalShape shape, MapCopies mapCopies, Direction.Axis axis, double camera,
+    static double clampCamera(@Nullable WorldFold fold, MapCopies mapCopies, Direction.Axis axis, double camera,
             double halfSpan) {
-        if (mapCopies != MapCopies.SINGLE || shape == null) {
+        if (mapCopies != MapCopies.SINGLE || fold == null) {
             return camera;
         }
 
-        return AxisCopies.of(shape, axis).clampView(camera, halfSpan);
+        return AxisCopies.of(fold, axis).clampView(camera, halfSpan);
     }
 
     public void drawSeamGrid(Matrix4f matrix, VertexConsumer buffer, int flooredCameraX, int flooredCameraZ,
             XaeroCamera camera) {
         Window window = Minecraft.getInstance().getWindow();
-        for (SeamFill fill : seamFills(XaeroWorldMapFold.browsedShape(), this.mapCopies.drawsSeamLines(), camera,
+        for (SeamFill fill : seamFills(XaeroWorldMapFold.browsedFold(), this.mapCopies.drawsSeamLines(), camera,
                 window.getWidth(), window.getHeight())) {
             MapRenderHelper.fillIntoExistingBuffer(matrix, buffer, fill.minX() - flooredCameraX,
                     fill.minZ() - flooredCameraZ, fill.maxX() - flooredCameraX, fill.maxZ() - flooredCameraZ,
@@ -77,9 +77,9 @@ public final class XaeroMapView {
         }
     }
 
-    static List<SeamFill> seamFills(@Nullable ToroidalShape shape, boolean drawsSeamLines, XaeroCamera camera,
+    static List<SeamFill> seamFills(@Nullable WorldFold fold, boolean drawsSeamLines, XaeroCamera camera,
             int windowWidth, int windowHeight) {
-        if (!drawsSeamLines || shape == null) {
+        if (!drawsSeamLines || fold == null) {
             return List.of();
         }
 
@@ -88,7 +88,7 @@ public final class XaeroMapView {
         int[] spanX = MapViewSpan.of(camera.x(), windowWidth, scale, thickness);
         int[] spanZ = MapViewSpan.of(camera.z(), windowHeight, scale, thickness);
         List<SeamFill> fills = new ArrayList<>();
-        for (WorldCopies.Edge seam : WorldCopies.seams(shape, spanX[0], spanZ[0], spanX[1], spanZ[1])) {
+        for (WorldCopies.Edge seam : WorldCopies.seams(fold, spanX[0], spanZ[0], spanX[1], spanZ[1])) {
             fills.add(new SeamFill(seam.fromX(), seam.fromZ(), Math.max(seam.toX(), seam.fromX() + thickness),
                     Math.max(seam.toZ(), seam.fromZ() + thickness)));
         }

@@ -9,9 +9,11 @@ import java.util.function.Predicate;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.api.v1.gen.GenerationHooks;
-import com.exoticworlds.api.v1.gen.StructureStarts;
+import com.exoticworlds.core.AddedStart;
+import com.exoticworlds.core.GenerationMoments;
+import com.exoticworlds.core.StructurePick;
+import com.exoticworlds.core.StructureStartSet;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -27,25 +29,25 @@ public final class NetherComplexStarts {
     private static final ChunkPos WORLD_ORIGIN = new ChunkPos(0, 0);
 
     public static void register() {
-        GenerationHooks.atStructureStarts(GuaranteedNetherComplexes.KEY, NetherComplexStarts::starts);
+        GenerationMoments.atStructureStarts(GuaranteedNetherComplexes.KEY, NetherComplexStarts::starts);
     }
 
-    private static List<StructureStarts.Added> starts(StructureStarts set) {
+    private static List<AddedStart> starts(StructureStartSet set) {
         if (!set.options().get(GuaranteedNetherComplexes.OPTION)
                 || !set.structureSet().is(BuiltinStructureSets.NETHER_COMPLEXES)) {
             return List.of();
         }
 
-        ToroidalShape shape = set.shape();
+        WorldFold fold = set.fold();
         StructureSet structures = set.structureSet().value();
-        if (!shape.loops(Direction.Axis.X) || !shape.loops(Direction.Axis.Z)
+        if (!fold.loops(Direction.Axis.X) || !fold.loops(Direction.Axis.Z)
                 || !(structures.placement() instanceof RandomSpreadStructurePlacement spread)) {
             return List.of();
         }
 
         List<ChunkPos> taken = new ArrayList<>();
         Set<Holder<Structure>> present = new HashSet<>();
-        for (StructureStarts.Pick pick : set.picks()) {
+        for (StructurePick pick : set.picks()) {
             taken.add(pick.chunk());
             pick.structure().ifPresent(present::add);
         }
@@ -53,35 +55,35 @@ public final class NetherComplexStarts {
         return placeMissing(set, structures, spread, taken, present);
     }
 
-    private static List<StructureStarts.Added> placeMissing(StructureStarts set, StructureSet structures,
+    private static List<AddedStart> placeMissing(StructureStartSet set, StructureSet structures,
             RandomSpreadStructurePlacement spread, List<ChunkPos> taken, Set<Holder<Structure>> present) {
-        ToroidalShape shape = set.shape();
-        List<StructureStarts.Added> added = new ArrayList<>();
+        WorldFold fold = set.fold();
+        List<AddedStart> added = new ArrayList<>();
         for (StructureSet.StructureSelectionEntry entry : structures.structures()) {
             Holder<Structure> structure = entry.structure();
             if (present.contains(structure)) {
                 continue;
             }
 
-            ChunkPos chosen = firstFree(shape, chunk -> set.canStart(structure, chunk), taken, spread.separation());
+            ChunkPos chosen = firstFree(fold, chunk -> set.canStart(structure, chunk), taken, spread.separation());
             if (chosen == null) {
                 ExoticWorlds.LOGGER.warn("[ew/guaranteed-nether-complexes] no chunk in bounds takes structure={}",
                         structure.getRegisteredName());
                 continue;
             }
 
-            added.add(new StructureStarts.Added(structure, chosen));
+            added.add(new AddedStart(structure, chosen));
             taken.add(chosen);
         }
 
         return added;
     }
 
-    static @Nullable ChunkPos firstFree(ToroidalShape shape, Predicate<ChunkPos> canStart, List<ChunkPos> taken,
+    static @Nullable ChunkPos firstFree(WorldFold fold, Predicate<ChunkPos> canStart, List<ChunkPos> taken,
             int separation) {
-        int xWidth = shape.widthChunks(Direction.Axis.X);
-        int zWidth = shape.widthChunks(Direction.Axis.Z);
-        ChunkPos origin = shape.fold(WORLD_ORIGIN);
+        int xWidth = fold.widthChunks(Direction.Axis.X);
+        int zWidth = fold.widthChunks(Direction.Axis.Z);
+        ChunkPos origin = fold.fold(WORLD_ORIGIN);
         Set<ChunkPos> visited = new HashSet<>();
         int farthestRing = Math.max(xWidth, zWidth) / 2;
         for (int ring = 0; ring <= farthestRing; ring++) {
@@ -91,8 +93,8 @@ public final class NetherComplexStarts {
                         continue;
                     }
 
-                    ChunkPos chunk = shape.fold(new ChunkPos(origin.x() + dx, origin.z() + dz));
-                    if (!visited.add(chunk) || isNearAny(shape, chunk, taken, separation)) {
+                    ChunkPos chunk = fold.fold(new ChunkPos(origin.x() + dx, origin.z() + dz));
+                    if (!visited.add(chunk) || isNearAny(fold, chunk, taken, separation)) {
                         continue;
                     }
 
@@ -106,9 +108,9 @@ public final class NetherComplexStarts {
         return null;
     }
 
-    private static boolean isNearAny(ToroidalShape shape, ChunkPos chunk, List<ChunkPos> taken, int separation) {
+    private static boolean isNearAny(WorldFold fold, ChunkPos chunk, List<ChunkPos> taken, int separation) {
         for (ChunkPos other : taken) {
-            Vec3 delta = shape.shortestDelta(cornerOf(chunk), cornerOf(other));
+            Vec3 delta = fold.foldDelta(cornerOf(chunk), cornerOf(other));
             if (Math.max(Math.abs(delta.x), Math.abs(delta.z)) < separation * SectionPos.SECTION_SIZE) {
                 return true;
             }

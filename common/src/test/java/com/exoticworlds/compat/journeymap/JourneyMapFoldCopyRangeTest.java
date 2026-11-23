@@ -11,14 +11,14 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.MapCopies;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.WorldCopies;
+import com.exoticworlds.core.WorldFold;
 
 class JourneyMapFoldCopyRangeTest {
     private static final int BLIT_BUDGET = 16384;
-    private static final ToroidalShape TINY = MapShapes.torus(-16, 16);
+    private static final WorldFold TINY = MapFolds.torus(-16, 16);
     private static final int[] NEAR = {-1000, 1000};
     private static final int[] FAR = {-50_000, 50_000};
 
@@ -35,7 +35,7 @@ class JourneyMapFoldCopyRangeTest {
         assertEquals(WorldCopies.IDENTITY, copies.get(0), "the world itself was not kept first");
         assertTrue(copies.contains(new WorldCopies.Copy(1024, 0)), "a copy two worlds from the center was dropped");
         assertFalse(copies.contains(new WorldCopies.Copy(512 * 97, 0)), "a copy at the view's edge outran a nearer one");
-        assertEquals(197, JourneyMapFold.drawnCopies(MapShapes.cylinder(-16, 16), 16, FAR, FAR, MapCopies.REPEATED).size(),
+        assertEquals(197, JourneyMapFold.drawnCopies(MapFolds.cylinder(-16, 16), 16, FAR, FAR, MapCopies.REPEATED).size(),
                 "16 tiles over 197 copies of a cylinder do not stay inside the budget");
     }
 
@@ -48,7 +48,7 @@ class JourneyMapFoldCopyRangeTest {
     @Test
     void aFewTilesOnAWideWorldStillGetTheCopyTheViewReaches() {
         assertEquals(Set.of(WorldCopies.IDENTITY, new WorldCopies.Copy(30000, 0)),
-                new HashSet<>(JourneyMapFold.drawnCopies(MapShapes.torus(-937, 938), 8,
+                new HashSet<>(JourneyMapFold.drawnCopies(MapFolds.torus(-937, 938), 8,
                         new int[] {14024, 15944}, new int[] {-960, 960}, MapCopies.REPEATED)),
                 "8 tiles on a 60 x 60-region world, a view crossing the +X seam and none along Z");
     }
@@ -56,7 +56,7 @@ class JourneyMapFoldCopyRangeTest {
     @Test
     void theRowPastALatticeSeamIsDrawnMovedByTheSkew() {
         assertEquals(Set.of(new WorldCopies.Copy(-256, 512), new WorldCopies.Copy(256, 512)),
-                new HashSet<>(JourneyMapFold.drawnCopies(MapShapes.latticeTorus(-16, 16, 16), 1,
+                new HashSet<>(JourneyMapFold.drawnCopies(MapFolds.latticeTorus(-16, 16, 16), 1,
                         new int[] {-256, 256}, new int[] {256, 768}, MapCopies.REPEATED)),
                 "the row above a skew-256 world is not drawn at -256 and 256");
     }

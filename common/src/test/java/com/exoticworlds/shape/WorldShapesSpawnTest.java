@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.shape.layout.LayoutFixtures;
@@ -88,7 +89,7 @@ class WorldShapesSpawnTest {
         CarriedShape overworld = ShapedChunkGenerator.carriedShapeOf(
                 created.dimensions().get(LevelStem.OVERWORLD).generator());
         assertNotNull(overworld);
-        assertEquals(PICKED, overworld.generationOptions().get(SpawnPoint.OPTION));
+        assertEquals(PICKED, overworld.options().get(SpawnPoint.OPTION));
     }
 
     private static WorldDimensions vanillaDimensions() {

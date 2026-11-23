@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.shape.layout.OverworldDerivation;
 
 import net.minecraft.resources.ResourceKey;
@@ -17,7 +17,7 @@ public record CoordinateScales(Map<ResourceKey<LevelStem>, Double> byDimension) 
         byDimension = Map.copyOf(byDimension);
     }
 
-    @Nullable LoopSpans modDimension(ResourceKey<LevelStem> dimension, @Nullable LoopSpans overworld) {
+    @Nullable FlatShape modDimension(ResourceKey<LevelStem> dimension, @Nullable FlatShape overworld) {
         return OverworldDerivation.modDimension(overworld, this.of(LevelStem.OVERWORLD), this.of(dimension));
     }
 

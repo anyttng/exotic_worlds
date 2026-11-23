@@ -8,9 +8,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -24,7 +24,7 @@ class ClimateScaleCompressionTest {
     private static final double HORIZONTAL_SHARE = 0.0;
 
     private static final WorldFold SKEWED = new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, 7),
-            GenerationOptions.DEFAULT);
+            OptionValues.DEFAULT);
 
     @Test
     void aSkewedLatticeLapsOnItsShorterAxisLikeItsTorus() {

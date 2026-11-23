@@ -10,9 +10,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.NetherScales;
+import com.exoticworlds.core.OptionValues;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.engine.gen.ShapedDimensions;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.ClimateScale;
@@ -42,11 +42,11 @@ class LayoutModRowsTest {
     private static final ResourceKey<LevelStem> SKY = stemKey("sky");
     private static final ResourceKey<LevelStem> MINE = stemKey("mine");
 
-    private static final GenerationOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
+    private static final OptionValues PLAIN = DimensionLayout.DEFAULT_OPTIONS;
     private static final DimensionLayout NORMAL = DimensionLayout.normal(PLAIN);
 
     private static HolderLookup.Provider worldgen;
-    private static GenerationOptions compact6;
+    private static OptionValues compact6;
 
     @BeforeAll
     static void bootstrapVanilla() {
@@ -60,7 +60,7 @@ class LayoutModRowsTest {
     @Test
     void modRowsBesideANormalWorldRoundTrip() {
         WorldLayout chosen = new WorldLayout(NORMAL, NORMAL, NORMAL, Map.of(
-                SKY, DimensionLayout.looped(LoopSpans.ofWidths(48, 32), compact6),
+                SKY, DimensionLayout.looped(ShapeFixtures.torus(48, 32), compact6),
                 MINE, NORMAL), NetherScales.DEFAULT);
 
         WorldDimensions created = LayoutDimensions.apply(vanillaDimensions(), chosen);
@@ -72,8 +72,8 @@ class LayoutModRowsTest {
 
     @Test
     void modRowsBesideAWrappedOverworldRoundTrip() {
-        WorldLayout chosen = new WorldLayout(DimensionLayout.looped(LoopSpans.ofWidth(64), PLAIN), NORMAL, NORMAL,
-                Map.of(SKY, DimensionLayout.looped(LoopSpans.ofWidth(Direction.Axis.Z, 40), compact6)),
+        WorldLayout chosen = new WorldLayout(DimensionLayout.looped(ShapeFixtures.torus(64), PLAIN), NORMAL, NORMAL,
+                Map.of(SKY, DimensionLayout.looped(ShapeFixtures.cylinder(Direction.Axis.Z, 40), compact6)),
                 NetherScales.DEFAULT);
 
         assertEquals(chosen, LayoutDimensions.read(LayoutDimensions.apply(vanillaDimensions(), chosen)));

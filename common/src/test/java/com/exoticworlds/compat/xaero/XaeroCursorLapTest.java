@@ -4,14 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 
 class XaeroCursorLapTest {
-    private static final ToroidalShape SMALL = MapShapes.torus(-16, 16);
+    private static final WorldFold SMALL = MapFolds.torus(-16, 16);
     private static final int LAP = 512;
 
     @Test

@@ -2,19 +2,11 @@ package com.exoticworlds.api.v1.gen;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.gen.terrain.FloatingCrumbs;
-import com.exoticworlds.engine.gen.terrain.TerrainCeiling;
-import com.exoticworlds.engine.noise.GenerationFoldContext;
+import com.exoticworlds.bridge.v1.gen.ProbeBridge;
 
-import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
-import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
 
 /**
@@ -30,8 +22,6 @@ import net.minecraft.world.level.levelgen.RandomState;
  */
 public final class GenerationProbe {
 
-    private static final int WINDOW_SNAPSHOTS = 9;
-
     /**
      * The noise router a folding level would build for {@code seed}, terrain ceiling and fold included, as the chunk
      * map builds the level's own. Registered {@code RandomState} hooks run for it exactly as they do for the level's.
@@ -42,17 +32,7 @@ public final class GenerationProbe {
      * @throws IllegalArgumentException if the level's generator is not noise based, so there is no router to build
      */
     public static RandomState randomState(ServerLevel level, long seed) {
-        ChunkGenerator generator = level.getChunkSource().getGenerator();
-        if (!(generator instanceof NoiseBasedChunkGenerator noise)) {
-            throw new IllegalArgumentException(
-                    "The level's generator is not noise based: " + generator.getClass().getName());
-        }
-
-        @Nullable WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
-        NoiseGeneratorSettings settings = noise.generatorSettings().value();
-        NoiseGeneratorSettings shaped = fold != null ? TerrainCeiling.withCeiling(settings) : settings;
-        return GenerationFoldContext.withRouterBuild(fold,
-                () -> RandomState.create(level.registryAccess().lookupOrThrow(Registries.NOISE), seed, shaped));
+        return ProbeBridge.randomState(level, seed);
     }
 
     /**
@@ -62,7 +42,7 @@ public final class GenerationProbe {
      * {@link #randomState} built is folded either way. The binding is per thread and lasts only for the call.
      */
     public static void withFold(ServerLevel level, Runnable body) {
-        GenerationFoldContext.runWithFold(WorldLoopAttachments.foldOf(level), body);
+        ProbeBridge.withFold(level, body);
     }
 
     /**
@@ -72,7 +52,7 @@ public final class GenerationProbe {
      * measuring the twin passes the same chunk through this call and reads no change.
      */
     public static void sweepCrumbs(ServerLevel level, ChunkAccess chunk) {
-        FloatingCrumbs.sweep(level, chunk);
+        ProbeBridge.sweepCrumbs(level, chunk);
     }
 
     /**
@@ -80,7 +60,7 @@ public final class GenerationProbe {
      * chunk's shape rather than the chunk. A chunk that never went through that call carries none.
      */
     public static @Nullable TerrainSnapshot snapshotOf(ChunkAccess chunk) {
-        return FloatingCrumbs.snapshotOf(chunk);
+        return ProbeBridge.snapshotOf(chunk);
     }
 
     /**
@@ -93,8 +73,7 @@ public final class GenerationProbe {
      * @throws IllegalArgumentException if the window does not hold nine snapshots
      */
     public static long[] borderCrumbs(TerrainSnapshot[] window) {
-        requireWindow(window);
-        return FloatingCrumbs.crumbPositions(window);
+        return ProbeBridge.borderCrumbs(window);
     }
 
     /**
@@ -111,15 +90,7 @@ public final class GenerationProbe {
      * @throws IllegalArgumentException if the window does not hold nine snapshots
      */
     public static long[] clearBorderCrumbs(ChunkAccess chunk, TerrainSnapshot[] window, LevelReader reader) {
-        requireWindow(window);
-        return FloatingCrumbs.clearBorderCrumbs(chunk, window, reader);
-    }
-
-    private static void requireWindow(TerrainSnapshot[] window) {
-        if (window.length != WINDOW_SNAPSHOTS) {
-            throw new IllegalArgumentException(
-                    "A 3 x 3 window takes nine snapshots, not " + window.length);
-        }
+        return ProbeBridge.clearBorderCrumbs(chunk, window, reader);
     }
 
     private GenerationProbe() {

@@ -28,7 +28,7 @@ import com.ascendiacore.gui.widget.list.model.RowStyle;
 import com.ascendiacore.gui.widget.panel.model.FillKind;
 import com.ascendiacore.gui.widget.panel.model.FillStyle;
 import com.ascendiacore.gui.widget.scrollarea.ScrollArea;
-import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.layout.DimensionLayout;
 import com.exoticworlds.shape.layout.LayoutPreset;
@@ -78,7 +78,7 @@ public final class WorldShapeSettingsScreen extends Screen {
     }
 
     private record Slot(DimensionPage page, boolean locked, Function<WorldLayout, DimensionLayout> shown,
-            Function<WorldLayout, @Nullable LoopSpans> spans, Fold fold, BiConsumer<DimensionPage, WorldLayout> extra) {
+            Function<WorldLayout, @Nullable FlatShape> spans, Fold fold, BiConsumer<DimensionPage, WorldLayout> extra) {
     }
 
     private WorldShapeSettingsScreen(@Nullable Screen parent, WorldLayout current,
@@ -155,7 +155,7 @@ public final class WorldShapeSettingsScreen extends Screen {
         }
     }
 
-    private @Nullable LoopSpans modSpans(WorldLayout layout, ResourceKey<LevelStem> key) {
+    private @Nullable FlatShape modSpans(WorldLayout layout, ResourceKey<LevelStem> key) {
         DimensionLayout chosen = layout.modDimension(key);
         return chosen.kind() == ShapeKind.FROM_OVERWORLD
                 ? this.scales.modDimension(key, layout.overworld().spans())
@@ -163,7 +163,7 @@ public final class WorldShapeSettingsScreen extends Screen {
     }
 
     private Slot slot(DimensionOffer offer, ResourceKey<LevelStem> key, Function<WorldLayout, DimensionLayout> shown,
-            Function<WorldLayout, @Nullable LoopSpans> spans, Fold fold, BiConsumer<DimensionPage, WorldLayout> extra) {
+            Function<WorldLayout, @Nullable FlatShape> spans, Fold fold, BiConsumer<DimensionPage, WorldLayout> extra) {
         Supplier<DimensionLayout> overworld = () -> this.chosen.overworld();
         DimensionLock lock = this.locks.get(key);
         DimensionPage page = new DimensionPage(offer, THEME, FILL, this.scales, overworld, shown.apply(this.chosen),

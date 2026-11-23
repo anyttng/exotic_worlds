@@ -1,11 +1,14 @@
-package com.exoticworlds.core;
+package com.exoticworlds.bridge.v1.geometry;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.exoticworlds.api.v1.SeamShift;
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.FoldOrientation;
+import com.exoticworlds.core.RectangleCopies;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,7 +16,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-public final class ToroidalShapeView implements ToroidalShape {
+final class ToroidalShapeView implements ToroidalShape {
     private final WorldFold fold;
 
     ToroidalShapeView(WorldFold fold) {
@@ -22,57 +25,57 @@ public final class ToroidalShapeView implements ToroidalShape {
 
     @Override
     public boolean loops(Direction.Axis axis) {
-        return boundsOf(axis) instanceof AxisBounds.Looped;
+        return this.fold.loops(axis);
     }
 
     @Override
     public int minChunk(Direction.Axis axis) {
-        return looped(axis).minChunk();
+        return this.fold.minChunk(axis);
     }
 
     @Override
     public int maxChunk(Direction.Axis axis) {
-        return looped(axis).maxChunk();
+        return this.fold.maxChunk(axis);
     }
 
     @Override
     public int widthChunks(Direction.Axis axis) {
-        return looped(axis).chunkWidth();
+        return this.fold.widthChunks(axis);
     }
 
     @Override
     public int minBlock(Direction.Axis axis) {
-        return looped(axis).minChunk() * CoordinateConstants.CHUNK_WIDTH;
+        return this.fold.minBlock(axis);
     }
 
     @Override
     public int maxBlock(Direction.Axis axis) {
-        return looped(axis).maxChunk() * CoordinateConstants.CHUNK_WIDTH;
+        return this.fold.maxBlock(axis);
     }
 
     @Override
     public int widthBlocks(Direction.Axis axis) {
-        return looped(axis).chunkWidth() * CoordinateConstants.CHUNK_WIDTH;
+        return this.fold.widthBlocks(axis);
     }
 
     @Override
     public double foldCoord(Direction.Axis axis, double coord) {
-        return axis == Direction.Axis.Y ? coord : this.fold.blockDomain(axis).wrap(coord);
+        return this.fold.foldCoord(axis, coord);
     }
 
     @Override
     public int foldBlock(Direction.Axis axis, int coord) {
-        return axis == Direction.Axis.Y ? coord : this.fold.blockDomain(axis).wrap(coord);
+        return this.fold.foldBlock(axis, coord);
     }
 
     @Override
     public int foldChunk(Direction.Axis axis, int chunk) {
-        return axis == Direction.Axis.Y ? chunk : this.fold.chunkDomain(axis).wrap(chunk);
+        return this.fold.foldChunk(axis, chunk);
     }
 
     @Override
     public double nearestCoord(Direction.Axis axis, double ref, double coord) {
-        return axis == Direction.Axis.Y ? coord : this.fold.blockDomain(axis).unwrapAround(ref, coord);
+        return this.fold.nearestCoord(axis, ref, coord);
     }
 
     @Override
@@ -216,21 +219,5 @@ public final class ToroidalShapeView implements ToroidalShape {
         }
 
         return new Orientation(orientation.flipsX(), orientation.flipsZ());
-    }
-
-    private AxisBounds boundsOf(Direction.Axis axis) {
-        return switch (axis) {
-            case X -> this.fold.bounds().x();
-            case Z -> this.fold.bounds().z();
-            case Y -> AxisBounds.Unbounded.INSTANCE;
-        };
-    }
-
-    private AxisBounds.Looped looped(Direction.Axis axis) {
-        if (boundsOf(axis) instanceof AxisBounds.Looped loopedBounds) {
-            return loopedBounds;
-        }
-
-        throw new IllegalArgumentException("Axis " + axis + " does not loop — check loops(axis) first");
     }
 }

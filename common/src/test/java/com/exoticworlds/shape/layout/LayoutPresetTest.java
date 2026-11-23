@@ -8,26 +8,26 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.NetherScales;
+import com.exoticworlds.core.OptionValues;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.torus.GuaranteedLand;
 
 import net.minecraft.core.Direction;
 
 class LayoutPresetTest {
-    private static final GenerationOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
+    private static final OptionValues PLAIN = DimensionLayout.DEFAULT_OPTIONS;
 
-    private static final GenerationOptions LAND = PLAIN.with(GuaranteedLand.OPTION, true);
+    private static final OptionValues LAND = PLAIN.with(GuaranteedLand.OPTION, true);
 
     @Test
     void aPresetOnATorusSetsItsSizeAndPutsTheNetherAndTheEndOnTheOverworld() {
-        WorldLayout skewed = withOverworld(DimensionLayout.looped(LoopSpans.ofWidths(48, 64).withSkew(4), LAND));
+        WorldLayout skewed = withOverworld(DimensionLayout.looped(ShapeFixtures.latticeTorus(48, 64, 4), LAND));
 
         WorldLayout large = LayoutPreset.apply(skewed, WorldLoopPresets.LARGE, 1.0);
 
-        assertEquals(DimensionLayout.looped(LoopSpans.ofWidth(256), LAND), large.overworld());
+        assertEquals(DimensionLayout.looped(ShapeFixtures.torus(256), LAND), large.overworld());
         assertEquals(ShapeKind.FROM_OVERWORLD, large.nether().kind());
         assertEquals(ShapeKind.FROM_OVERWORLD, large.end().kind());
         assertEquals(WorldLoopPresets.LARGE.netherScale(), large.netherScale());
@@ -35,11 +35,13 @@ class LayoutPresetTest {
 
     @Test
     void aPresetOnACylinderKeepsItsLoopingAxis() {
-        WorldLayout cylinder = withOverworld(DimensionLayout.looped(LoopSpans.ofWidth(Direction.Axis.Z, 48), PLAIN));
+        WorldLayout cylinder =
+                withOverworld(DimensionLayout.looped(ShapeFixtures.cylinder(Direction.Axis.Z, 48), PLAIN));
 
         WorldLayout tiny = LayoutPreset.apply(cylinder, WorldLoopPresets.TINY, 1.0);
 
-        assertEquals(LoopSpans.ofWidth(Direction.Axis.Z, WorldLoopPresets.TINY.chunkWidth()), tiny.overworld().spans());
+        assertEquals(ShapeFixtures.cylinder(Direction.Axis.Z, WorldLoopPresets.TINY.chunkWidth()),
+                tiny.overworld().spans());
         assertTrue(LayoutPreset.matches(tiny, WorldLoopPresets.TINY));
     }
 
@@ -47,7 +49,7 @@ class LayoutPresetTest {
     void aPresetOnANormalOverworldMakesItATorus() {
         WorldLayout medium = LayoutPreset.apply(WorldLayout.DEFAULT, WorldLoopPresets.MEDIUM, 1.0);
 
-        assertEquals(LoopSpans.ofWidth(WorldLoopPresets.MEDIUM.chunkWidth()), medium.overworld().spans());
+        assertEquals(ShapeFixtures.torus(WorldLoopPresets.MEDIUM.chunkWidth()), medium.overworld().spans());
         assertFalse(LayoutPreset.matches(WorldLayout.DEFAULT, WorldLoopPresets.MEDIUM));
     }
 
@@ -66,10 +68,11 @@ class LayoutPresetTest {
         int chunkWidth = WorldLoopPresets.SMALL.chunkWidth();
 
         assertFalse(LayoutPreset.matches(
-                small.withOverworld(DimensionLayout.looped(LoopSpans.ofWidths(chunkWidth, chunkWidth * 2), PLAIN)),
+                small.withOverworld(DimensionLayout.looped(ShapeFixtures.torus(chunkWidth, chunkWidth * 2), PLAIN)),
                 WorldLoopPresets.SMALL));
         assertFalse(LayoutPreset.matches(
-                small.withOverworld(DimensionLayout.looped(LoopSpans.ofWidth(chunkWidth).withSkew(2), PLAIN)),
+                small.withOverworld(
+                        DimensionLayout.looped(ShapeFixtures.latticeTorus(chunkWidth, chunkWidth, 2), PLAIN)),
                 WorldLoopPresets.SMALL));
     }
 

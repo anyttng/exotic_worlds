@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
 import com.exoticworlds.core.SpawnPoint;
 
@@ -59,13 +59,13 @@ public record WorldLayout(DimensionLayout overworld, DimensionLayout nether, Dim
         return new WorldLayout(this.overworld, this.nether, this.end, rows, this.netherScale);
     }
 
-    public @Nullable LoopSpans netherSpans() {
+    public @Nullable FlatShape netherSpans() {
         return this.nether.kind() == ShapeKind.FROM_OVERWORLD
                 ? OverworldDerivation.nether(this.overworld.spans(), this.netherScale)
                 : this.nether.spans();
     }
 
-    public @Nullable LoopSpans endSpans() {
+    public @Nullable FlatShape endSpans() {
         return this.end.kind() == ShapeKind.FROM_OVERWORLD
                 ? OverworldDerivation.end(this.overworld.spans())
                 : this.end.spans();

@@ -2,8 +2,8 @@ package com.exoticworlds.compat.xaero;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.MapCopies;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.BlockPos;
 
@@ -20,9 +20,9 @@ record XaeroSlotSource(Kind kind, boolean folded, int blockX, int blockZ) {
         CANONICAL
     }
 
-    static XaeroSlotSource of(@Nullable ToroidalShape shape, MapCopies mapCopies, boolean isCandidate,
+    static XaeroSlotSource of(@Nullable WorldFold fold, MapCopies mapCopies, boolean isCandidate,
             boolean glueable, boolean insideWorld, int viewBlockX, int viewBlockZ) {
-        if (shape == null) {
+        if (fold == null) {
             return isCandidate ? HIDDEN : RAW;
         }
 
@@ -30,7 +30,7 @@ record XaeroSlotSource(Kind kind, boolean folded, int blockX, int blockZ) {
             return !isCandidate && insideWorld ? RAW : ANY_CANONICAL;
         }
 
-        BlockPos folded = XaeroWorldMapFold.foldBlock(shape, viewBlockX, viewBlockZ);
+        BlockPos folded = XaeroWorldMapFold.foldBlock(fold, viewBlockX, viewBlockZ);
         if (folded.getX() == viewBlockX && folded.getZ() == viewBlockZ) {
             return isCandidate ? HIDDEN : RAW;
         }

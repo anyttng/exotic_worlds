@@ -7,9 +7,6 @@ import java.util.function.IntFunction;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.api.v1.net.SeamContext;
-import com.exoticworlds.api.v2.geometry.WorldGeometry;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.TranslationLattice;
@@ -45,7 +42,7 @@ public record TranslationContext(
         IntFunction<@Nullable Vec3> entityPosition,
         IntFunction<TagPositions.@Nullable Subject> entity,
         Runnable rebase,
-        SeatPass seatPass) implements SeamContext, com.exoticworlds.api.v2.net.SeamContext {
+        SeatPass seatPass) {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -109,22 +106,10 @@ public record TranslationContext(
                 : new TagPositions.Subject(entity.getClass(), BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()));
     }
 
-    @Override
-    public ToroidalShape shape() {
-        return fold.shapeView();
-    }
-
-    @Override
-    public WorldGeometry geometry() {
-        return fold.geometryView();
-    }
-
-    @Override
     public BlockPos toClient(BlockPos pos) {
         return fold.reseat(pos, toClient(ChunkPos.containing(pos)));
     }
 
-    @Override
     public ChunkPos toClient(ChunkPos chunkPos) {
         ChunkPos anchor = chunkAnchor();
         ChunkPos clientPos = fold.nearestCopy(anchor, chunkPos);
@@ -385,7 +370,6 @@ public record TranslationContext(
                 reach.blocks(), reach.slackBlocks());
     }
 
-    @Override
     public Vec3 toClient(Vec3 position) {
         return toClient(position, trackedReach());
     }
@@ -418,7 +402,6 @@ public record TranslationContext(
         return fold.nearestCopyTransformation(clientPosition.anchor(position.y), position);
     }
 
-    @Override
     public BlockPos toServer(BlockPos pos) {
         return fold.fold(pos);
     }
@@ -427,12 +410,10 @@ public record TranslationContext(
         return fold.foldOriented(pos);
     }
 
-    @Override
     public Vec3 toServer(Vec3 position) {
         return fold.fold(position);
     }
 
-    @Override
     public ChunkPos toServer(ChunkPos chunkPos) {
         return fold.fold(chunkPos);
     }

@@ -11,7 +11,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.JsonOps;
-import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -97,17 +97,17 @@ class ClimateCompressionTest {
 
     private static WorldFold uncompressedSquare(int chunkWidth) {
         return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)),
-                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
+                OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
     }
 
     private static WorldFold strongSquare(int chunkWidth) {
         return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)),
-                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.STRONG));
+                OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.STRONG));
     }
 
     private static WorldFold customSquare(int chunkWidth, int factor) {
         return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)),
-                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.custom(factor)));
+                OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.custom(factor)));
     }
 
     private static void assertFactor(Field field, int chunkWidth) {
@@ -173,7 +173,7 @@ class ClimateCompressionTest {
             for (int chunkWidth : PRESET_CHUNK_WIDTHS) {
                 for (ClimateScale scale : List.of(ClimateScale.OFF, ClimateScale.AUTO, ClimateScale.STRONG,
                         ClimateScale.custom(6))) {
-                    GenerationOptions options = GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, scale);
+                    OptionValues options = OptionValues.DEFAULT.with(CompactBiomes.OPTION, scale);
                     WorldFold cylinder = WorldFolds.of(
                             ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(axis, chunkWidth)), options);
                     WorldFold torus = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)), options);
@@ -192,7 +192,7 @@ class ClimateCompressionTest {
     void aCylinderThatDeclinedCompressionIsMultipliedByExactlyOne() {
         for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
             WorldFold cylinder = WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(axis, 32)),
-                    GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
+                    OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
 
             assertEquals(1.0, actual(TEMPERATURE, cylinder, HORIZONTAL), 0.0, "temperature on an " + axis + " cylinder");
             assertEquals(1.0, actual(VEGETATION, cylinder, HORIZONTAL), 0.0, "vegetation on an " + axis + " cylinder");

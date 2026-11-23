@@ -1,9 +1,8 @@
 package com.exoticworlds.shape.torus;
 
 import com.exoticworlds.accessors.CoastLiftCache;
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.api.v1.gen.GenerationHooks;
-import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.core.GenerationMoments;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.noise.DensityNoises;
@@ -26,15 +25,16 @@ public final class CoastFieldLift {
     private static final int[][] NEIGHBORS = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
     public static void register() {
-        GenerationHooks.atRandomState(GuaranteedLand.KEY, CoastFieldLift::solve);
+        GenerationMoments.atRandomState(GuaranteedLand.KEY,
+                (randomState, fold, seaLevel) -> solve(randomState, fold, fold.options(), seaLevel));
     }
 
-    private static void solve(RandomState randomState, ToroidalShape shape, GenerationOptions options, int seaLevel) {
+    private static void solve(RandomState randomState, WorldFold dimensionFold, OptionValues options, int seaLevel) {
         if (!options.get(GuaranteedLand.OPTION)) {
             return;
         }
 
-        if (!shape.loops(Direction.Axis.X) || !shape.loops(Direction.Axis.Z)) {
+        if (!dimensionFold.loops(Direction.Axis.X) || !dimensionFold.loops(Direction.Axis.Z)) {
             return;
         }
 
@@ -48,13 +48,13 @@ public final class CoastFieldLift {
             return;
         }
 
-        searchLift(randomState, router, fold, shape, seaLevel);
+        searchLift(randomState, router, fold, dimensionFold, seaLevel);
     }
 
-    private static void searchLift(RandomState randomState, NoiseRouter router, WorldFold fold, ToroidalShape shape,
+    private static void searchLift(RandomState randomState, NoiseRouter router, WorldFold fold, WorldFold dimensionFold,
             int seaLevel) {
-        int xLength = shape.widthBlocks(Direction.Axis.X);
-        int zLength = shape.widthBlocks(Direction.Axis.Z);
+        int xLength = dimensionFold.widthBlocks(Direction.Axis.X);
+        int zLength = dimensionFold.widthBlocks(Direction.Axis.Z);
         CoastLiftCache lift = (CoastLiftCache) (Object) randomState;
         DensitySampler density = randomState.getSampler(router.finalDensity());
         int stride = Math.max(STRIDE_BLOCKS, Math.max(xLength, zLength) / GRID_CAP);

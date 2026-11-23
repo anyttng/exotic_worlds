@@ -2,9 +2,7 @@ package com.exoticworlds.api.v2.option;
 
 import java.util.List;
 
-import com.exoticworlds.api.v1.option.WorldOption;
-import com.exoticworlds.api.v1.option.WorldOptions;
-import com.exoticworlds.shape.DeclaredOptions;
+import com.exoticworlds.bridge.v2.option.OptionBridge;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -12,8 +10,8 @@ import net.minecraft.world.level.dimension.LevelStem;
 
 /**
  * How a world option is offered to the player: which shapes and which dimensions it is for, and the controls the
- * World Shape Settings screen draws for it. The value itself is a {@link WorldOption}, registered on its own with
- * {@link WorldOptions#register}; this declaration adds where and how it is shown. Call {@link #register()} at startup,
+ * World Shape Settings screen draws for it. The value itself is a {@link ShapeOption}, registered on its own with
+ * {@link ShapeOption#register}; this declaration adds where and how it is shown. Call {@link #register()} at startup,
  * before the registration boundary closes.
  *
  * <p>The option names the shapes and the dimensions, never the other way round. An empty list means all of them: a
@@ -26,13 +24,13 @@ import net.minecraft.world.level.dimension.LevelStem;
  * @param <T> the option's value type
  */
 public final class DimensionOption<T> {
-    private final WorldOption<T> option;
+    private final ShapeOption<T> option;
     private final String captionKey;
     private final List<OptionPart<T>> parts;
     private final List<Identifier> shapes;
     private final List<ResourceKey<LevelStem>> dimensions;
 
-    private DimensionOption(WorldOption<T> option, String captionKey, List<OptionPart<T>> parts,
+    private DimensionOption(ShapeOption<T> option, String captionKey, List<OptionPart<T>> parts,
             List<Identifier> shapes, List<ResourceKey<LevelStem>> dimensions) {
         this.option = option;
         this.captionKey = captionKey;
@@ -42,7 +40,7 @@ public final class DimensionOption<T> {
     }
 
     /** Declares the option for every shape on every dimension, drawn as {@code parts}, top to bottom. */
-    public static <T> DimensionOption<T> of(WorldOption<T> option, String captionKey, List<OptionPart<T>> parts) {
+    public static <T> DimensionOption<T> of(ShapeOption<T> option, String captionKey, List<OptionPart<T>> parts) {
         return new DimensionOption<>(option, captionKey, parts, List.of(), List.of());
     }
 
@@ -56,7 +54,7 @@ public final class DimensionOption<T> {
         return new DimensionOption<>(this.option, this.captionKey, this.parts, this.shapes, offered);
     }
 
-    public WorldOption<T> option() {
+    public ShapeOption<T> option() {
         return this.option;
     }
 
@@ -86,6 +84,6 @@ public final class DimensionOption<T> {
      *         registered for this option
      */
     public void register() {
-        DeclaredOptions.register(this);
+        OptionBridge.register(this);
     }
 }

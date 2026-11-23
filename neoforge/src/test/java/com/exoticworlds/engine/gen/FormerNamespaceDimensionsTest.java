@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.migration.FormerNamespace;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.layout.LayoutDimensions;
@@ -89,8 +89,8 @@ class FormerNamespaceDimensionsTest {
                 .getOrThrow();
         for (ResourceKey<LevelStem> stem : STEMS) {
             assertEquals(carriedShapeOf(saved, stem).shape(), carriedShapeOf(loaded, stem).shape(), stem.toString());
-            assertEquals(carriedShapeOf(saved, stem).generationOptions(),
-                    carriedShapeOf(loaded, stem).generationOptions(), stem.toString());
+            assertEquals(carriedShapeOf(saved, stem).options(),
+                    carriedShapeOf(loaded, stem).options(), stem.toString());
         }
 
         Tag rewritten = WorldDimensions.CODEC.encoder().encodeStart(ops, loaded).getOrThrow();
@@ -99,8 +99,8 @@ class FormerNamespaceDimensionsTest {
     }
 
     private static WorldLayout torus() {
-        return LayoutFixtures.shaped(LoopSpans.ofWidth(OVERWORLD_CHUNK_WIDTH), NETHER_SCALE,
-                LoopSpans.ofWidth(END_CHUNK_WIDTH), LayoutFixtures.PLAIN);
+        return LayoutFixtures.shaped(ShapeFixtures.torus(OVERWORLD_CHUNK_WIDTH), NETHER_SCALE,
+                ShapeFixtures.torus(END_CHUNK_WIDTH), LayoutFixtures.PLAIN);
     }
 
     private static CarriedShape carriedShapeOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {

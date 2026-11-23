@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.gen;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.shape.StartupRegistrations;
@@ -71,7 +71,7 @@ class CreationShapeTest {
         FlatShape shape = squareTorus(CHOSEN_CHUNK_WIDTH);
 
         WorldDimensions shaped = ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
-                new CarriedShape(shape, GenerationOptions.DEFAULT));
+                new CarriedShape(shape, OptionValues.DEFAULT));
 
         assertNotSame(dimensions, shaped, "the shaped dimensions are the object the apply guard compares");
         assertEquals(shape, ShapedDimensions.shapeOf(shaped, LevelStem.OVERWORLD));
@@ -85,7 +85,7 @@ class CreationShapeTest {
         FlatShape shape = squareTorus(CHOSEN_CHUNK_WIDTH);
 
         WorldDimensions shaped = ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
-                new CarriedShape(shape, GenerationOptions.DEFAULT));
+                new CarriedShape(shape, OptionValues.DEFAULT));
 
         assertNotSame(dimensions, shaped, "the shaped dimensions are the object the apply guard compares");
         assertEquals(shape, ShapedDimensions.shapeOf(shaped, LevelStem.OVERWORLD));
@@ -112,7 +112,7 @@ class CreationShapeTest {
             CarriedShape carried = ShapedDimensions.carriedShapeOf(shaped, key);
             assertNotNull(carried, key.identifier().toString());
             assertEquals(LayoutFixtures.PLAIN.get(CompactBiomes.OPTION),
-                    carried.generationOptions().get(CompactBiomes.OPTION), key.identifier().toString());
+                    carried.options().get(CompactBiomes.OPTION), key.identifier().toString());
         }
         WorldLayout read = LayoutDimensions.read(shaped);
         assertNotNull(read, "the shaped world does not read back as a layout");
@@ -124,7 +124,7 @@ class CreationShapeTest {
     void strippingClearsAShapeStampedByAnEarlierAttempt() {
         ChunkGenerator overworld = noiseSubclassGenerator(worldgen);
         WorldDimensions shaped = ShapedDimensions.withShape(overworldOnly(overworld), LevelStem.OVERWORLD,
-                new CarriedShape(squareTorus(CHOSEN_CHUNK_WIDTH), GenerationOptions.DEFAULT));
+                new CarriedShape(squareTorus(CHOSEN_CHUNK_WIDTH), OptionValues.DEFAULT));
 
         assertNull(ShapedDimensions.shapeOf(ShapedDimensions.stripShapes(shaped), LevelStem.OVERWORLD));
     }
