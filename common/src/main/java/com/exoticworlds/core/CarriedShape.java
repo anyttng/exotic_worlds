@@ -2,7 +2,6 @@ package com.exoticworlds.core;
 
 import java.util.Objects;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -16,29 +15,29 @@ public final class CarriedShape {
             .validate(WorldFolds::verifyGeneratable);
 
     private final FlatShape shape;
-    private final GenerationOptions generationOptions;
+    private final OptionValues options;
     private final WorldFold fold;
 
-    public CarriedShape(FlatShape shape, GenerationOptions generationOptions) {
+    public CarriedShape(FlatShape shape, OptionValues options) {
         this.shape = shape;
-        this.generationOptions = generationOptions;
-        this.fold = WorldFolds.of(shape, generationOptions);
+        this.options = options;
+        this.fold = WorldFolds.of(shape, options);
         WorldFolds.verifyGeneratable(shape).getOrThrow(IllegalArgumentException::new);
     }
 
     public static MapCodec<CarriedShape> mapCodec(String keyPrefix) {
         return RecordCodecBuilder.mapCodec(instance -> instance.group(
                 SHAPE_CODEC.fieldOf(keyPrefix + WRAPPING_KEY).forGetter(CarriedShape::shape),
-                GenerationOptions.mapCodec(keyPrefix).forGetter(CarriedShape::generationOptions)
-        ).apply(instance, CarriedShape::new));
+                OptionValues.mapCodec(keyPrefix).forGetter(CarriedShape::options)
+        ).apply(instance, (FlatShape shape, OptionValues options) -> new CarriedShape(shape, options)));
     }
 
     public FlatShape shape() {
         return this.shape;
     }
 
-    public GenerationOptions generationOptions() {
-        return this.generationOptions;
+    public OptionValues options() {
+        return this.options;
     }
 
     public WorldFold fold() {
@@ -46,18 +45,18 @@ public final class CarriedShape {
     }
 
     public CarriedShape withShape(FlatShape shape) {
-        return new CarriedShape(shape, this.generationOptions);
+        return new CarriedShape(shape, this.options);
     }
 
     @Override
     public boolean equals(Object other) {
         return other instanceof CarriedShape carried
                 && this.shape.equals(carried.shape)
-                && this.generationOptions.equals(carried.generationOptions);
+                && this.options.equals(carried.options);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.shape, this.generationOptions);
+        return Objects.hash(this.shape, this.options);
     }
 }

@@ -11,9 +11,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.TestShapes;
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 
@@ -22,8 +21,8 @@ import net.minecraft.world.level.ChunkPos;
 class NetherComplexStartsTest {
     private static final int WIDTH = 16;
     private static final int SEPARATION = 4;
-    private static final ToroidalShape SMALLEST_NETHER =
-            TestShapes.of(WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH))));
+    private static final WorldFold SMALLEST_NETHER =
+            WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH)));
 
     @Test
     void takesTheOriginWhenNothingStandsNearIt() {

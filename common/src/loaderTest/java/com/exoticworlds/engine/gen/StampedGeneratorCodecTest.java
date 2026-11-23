@@ -5,10 +5,10 @@ import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.migration.FormerNamespace;
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.ClimateScale;
@@ -49,8 +49,8 @@ class StampedGeneratorCodecTest {
     private static final String CLIMATE_SCALE_KEY =
             ExoticWorlds.MODID + ":" + CompactBiomes.KEY;
 
-    private static final GenerationOptions UNCOMPRESSED =
-            GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
+    private static final OptionValues UNCOMPRESSED =
+            OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
 
     private static final int STAMPED_CHUNK_WIDTH = 64;
 
@@ -84,7 +84,7 @@ class StampedGeneratorCodecTest {
 
         CarriedShape decoded = carriedShapeOf(decode(encoded).getOrThrow());
         assertEquals(shape, decoded.shape());
-        assertEquals(ClimateScale.AUTO, decoded.generationOptions().get(CompactBiomes.OPTION));
+        assertEquals(ClimateScale.AUTO, decoded.options().get(CompactBiomes.OPTION));
     }
 
     @Test
@@ -96,7 +96,7 @@ class StampedGeneratorCodecTest {
 
         CarriedShape decoded = carriedShapeOf(decode(encoded).getOrThrow());
         assertEquals(shape, decoded.shape());
-        assertEquals(ClimateScale.OFF, decoded.generationOptions().get(CompactBiomes.OPTION));
+        assertEquals(ClimateScale.OFF, decoded.options().get(CompactBiomes.OPTION));
     }
 
     @Test
@@ -111,7 +111,7 @@ class StampedGeneratorCodecTest {
         ChunkGenerator decoded = decode(former).getOrThrow();
         CarriedShape carried = carriedShapeOf(decoded);
         assertEquals(shape, carried.shape());
-        assertEquals(ClimateScale.OFF, carried.generationOptions().get(CompactBiomes.OPTION));
+        assertEquals(ClimateScale.OFF, carried.options().get(CompactBiomes.OPTION));
 
         CompoundTag rewritten = encode(decoded);
         assertTrue(rewritten.contains(SHAPE_KEY));

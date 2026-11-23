@@ -6,11 +6,11 @@ import java.util.function.Consumer;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.AxisCopies;
 import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TileArea;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TilePiece;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
@@ -34,7 +34,7 @@ public final class XaeroMinimapTiles {
     private @Nullable MapRegion foldedRegion;
     private @Nullable MapProcessor processor;
     private @Nullable List<TileArea> areas;
-    private @Nullable ToroidalShape shape;
+    private @Nullable WorldFold fold;
     private AxisCopies copiesX = AxisCopies.UNBOUNDED;
     private AxisCopies copiesZ = AxisCopies.UNBOUNDED;
     private WorldCopies.@Nullable Window window;
@@ -55,11 +55,11 @@ public final class XaeroMinimapTiles {
     }
 
     public void begin(int minViewX, int maxViewX, int minViewZ, int maxViewZ) {
-        ToroidalShape shape = XaeroWorldMapFold.browsedShape();
-        this.shape = shape;
-        this.copiesX = AxisCopies.of(shape, Direction.Axis.X);
-        this.copiesZ = AxisCopies.of(shape, Direction.Axis.Z);
-        this.window = shape == null ? null : WorldCopies.Window.of(shape,
+        WorldFold fold = XaeroWorldMapFold.browsedFold();
+        this.fold = fold;
+        this.copiesX = AxisCopies.of(fold, Direction.Axis.X);
+        this.copiesZ = AxisCopies.of(fold, Direction.Axis.Z);
+        this.window = fold == null ? null : WorldCopies.Window.of(fold,
                 XaeroWorldMapFold.tileBlock(minViewX), XaeroWorldMapFold.tileBlock(minViewZ),
                 XaeroWorldMapFold.tileBlock(maxViewX + 1), XaeroWorldMapFold.tileBlock(maxViewZ + 1));
     }
@@ -81,12 +81,12 @@ public final class XaeroMinimapTiles {
 
     private @Nullable MapRegion foldedFetch(int regX, int regZ, RegionFetch original) {
         MapRegion existing = original.fetch(regX, regZ);
-        if (existing != null || this.shape == null) {
+        if (existing != null || this.fold == null) {
             return existing;
         }
 
         // A candidate value only, so the null-guarded chunk fetch runs at all; the chunk fetch re-fetches precisely.
-        ChunkPos folded = XaeroWorldMapFold.foldRegion(this.shape, regX, regZ);
+        ChunkPos folded = XaeroWorldMapFold.foldRegion(this.fold, regX, regZ);
         return original.fetch(folded.x(), folded.z());
     }
 
@@ -195,11 +195,11 @@ public final class XaeroMinimapTiles {
     }
 
     public int placedTileX(int raw) {
-        return this.shape != null ? this.mirrorTileX : raw;
+        return this.fold != null ? this.mirrorTileX : raw;
     }
 
     public int placedTileZ(int raw) {
-        return this.shape != null ? this.mirrorTileZ : raw;
+        return this.fold != null ? this.mirrorTileZ : raw;
     }
 
     public void bump(@Nullable MapRegion region, Consumer<MapRegion> original) {

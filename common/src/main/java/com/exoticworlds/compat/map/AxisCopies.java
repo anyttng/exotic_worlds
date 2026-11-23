@@ -2,7 +2,7 @@ package com.exoticworlds.compat.map;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WrapDomain;
 
 import net.minecraft.core.Direction;
@@ -16,12 +16,12 @@ public final class AxisCopies {
         this.domain = domain;
     }
 
-    public static AxisCopies of(@Nullable ToroidalShape shape, Direction.Axis axis) {
-        return shape != null && shape.loops(axis) ? looped(shape.minBlock(axis), shape.widthBlocks(axis)) : UNBOUNDED;
+    public static AxisCopies of(@Nullable WorldFold fold, Direction.Axis axis) {
+        return fold != null && fold.loops(axis) ? looped(fold.minBlock(axis), fold.widthBlocks(axis)) : UNBOUNDED;
     }
 
-    public static AxisCopies ofChunks(@Nullable ToroidalShape shape, Direction.Axis axis) {
-        return shape != null && shape.loops(axis) ? looped(shape.minChunk(axis), shape.widthChunks(axis)) : UNBOUNDED;
+    public static AxisCopies ofChunks(@Nullable WorldFold fold, Direction.Axis axis) {
+        return fold != null && fold.loops(axis) ? looped(fold.minChunk(axis), fold.widthChunks(axis)) : UNBOUNDED;
     }
 
     public static AxisCopies looped(int min, int width) {

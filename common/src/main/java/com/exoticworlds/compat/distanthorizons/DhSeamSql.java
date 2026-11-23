@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.Direction;
 
@@ -40,38 +40,38 @@ public final class DhSeamSql {
         return matched ? sql.replace(PLAIN_DISTANCE, lattice.seamDistance()) : sql;
     }
 
-    static String seamDistance(ToroidalShape shape, int skewBlocks) {
+    static String seamDistance(WorldFold fold, int skewBlocks) {
         if (skewBlocks != 0) {
-            return latticeDistance(shape, skewBlocks);
+            return latticeDistance(fold, skewBlocks);
         }
 
-        return axisDistance(shape, Direction.Axis.X, CORNER_X + " - " + TARGET_X) + " + "
-                + axisDistance(shape, Direction.Axis.Z, CORNER_Z + " - " + TARGET_Z);
+        return axisDistance(fold, Direction.Axis.X, CORNER_X + " - " + TARGET_X) + " + "
+                + axisDistance(fold, Direction.Axis.Z, CORNER_Z + " - " + TARGET_Z);
     }
 
-    private static String latticeDistance(ToroidalShape shape, int skewBlocks) {
-        int widthZ = shape.widthBlocks(Direction.Axis.Z);
+    private static String latticeDistance(WorldFold fold, int skewBlocks) {
+        int widthZ = fold.widthBlocks(Direction.Axis.Z);
         String deltaX = "(" + CORNER_X + " - " + TARGET_X + ")";
         String deltaZ = "(" + CORNER_Z + " - " + TARGET_Z + ")";
         String lappedZ = lapped(deltaZ, widthZ);
         String rowBelow = "((" + deltaZ + " - " + lappedZ + ") / " + widthZ + ")";
-        long reach = DhFold.rowsThatCanWin(shape, skewBlocks);
+        long reach = DhFold.rowsThatCanWin(fold, skewBlocks);
         List<String> rows = new ArrayList<>();
         for (long row = -reach; row <= 1 + reach; row++) {
             String shiftedX = deltaX + " - (" + rowBelow + " + " + row + ") * " + skewBlocks;
             rows.add("abs(" + lappedZ + " - " + row * widthZ + ") + "
-                    + axisDistance(shape, Direction.Axis.X, shiftedX));
+                    + axisDistance(fold, Direction.Axis.X, shiftedX));
         }
 
         return "min(" + String.join(", ", rows) + ")";
     }
 
-    private static String axisDistance(ToroidalShape shape, Direction.Axis axis, String delta) {
-        if (!shape.loops(axis)) {
+    private static String axisDistance(WorldFold fold, Direction.Axis axis, String delta) {
+        if (!fold.loops(axis)) {
             return "abs(" + delta + ")";
         }
 
-        int width = shape.widthBlocks(axis);
+        int width = fold.widthBlocks(axis);
         String lapped = lapped(delta, width);
         return "min(" + lapped + ", " + width + " - " + lapped + ")";
     }

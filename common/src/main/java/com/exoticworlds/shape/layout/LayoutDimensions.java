@@ -6,17 +6,13 @@ import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v1.shape.LoopSpans;
-import com.exoticworlds.api.v1.shape.ShapeDimensions;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.engine.gen.ShapedDimensions;
 
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldDimensions;
@@ -68,13 +64,13 @@ public final class LayoutDimensions {
 
     private static WorldLayout derived(DimensionLayout overworld, DimensionLayout nether, DimensionLayout end,
             Map<ResourceKey<LevelStem>, DimensionLayout> modDimensions) {
-        LoopSpans spans = overworld.spans();
+        FlatShape spans = overworld.spans();
         if (spans == null) {
             return new WorldLayout(overworld, nether, end, modDimensions, NetherScales.DEFAULT);
         }
 
         Integer netherScale = OverworldDerivation.netherScaleOf(spans, nether.spans());
-        LoopSpans derivedEnd = OverworldDerivation.end(spans);
+        FlatShape derivedEnd = OverworldDerivation.end(spans);
         return new WorldLayout(overworld,
                 netherScale == null ? nether : DimensionLayout.fromOverworld(nether.options()),
                 derivedEnd != null && Objects.equals(derivedEnd, end.spans()) ?DimensionLayout.fromOverworld(end.options()) : end,
@@ -82,14 +78,16 @@ public final class LayoutDimensions {
     }
 
     private static @Nullable DimensionLayout readStem(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
-        LoopSpans spans = ShapeDimensions.spansOf(dimensions, key);
+        FlatShape stored = ShapedDimensions.shapeOf(dimensions, key);
+        FlatShape spans = stored == null || stored.mirror() != null ? null : stored;
         if (spans == null) {
             return ShapedDimensions.carriedShapeOf(dimensions, key) == null
                     ? DimensionLayout.normal(DimensionLayout.DEFAULT_OPTIONS)
                     : null;
         }
 
-        return DimensionLayout.looped(spans, ShapeDimensions.optionsOf(dimensions, key));
+        CarriedShape carried = ShapedDimensions.carriedShapeOf(dimensions, key);
+        return DimensionLayout.looped(spans, carried == null ? OptionValues.DEFAULT : carried.options());
     }
 
     private static @Nullable Map<ResourceKey<LevelStem>, DimensionLayout> readTable(DimensionTable table) {
@@ -121,16 +119,7 @@ public final class LayoutDimensions {
             return null;
         }
 
-        return DimensionLayout.looped(spansOf(shape), carried.generationOptions());
-    }
-
-    static LoopSpans spansOf(FlatShape shape) {
-        return and(and(LoopSpans.NONE, Direction.Axis.X, shape.bounds().x()), Direction.Axis.Z, shape.bounds().z())
-                .withSkew(shape.skewChunks());
-    }
-
-    private static LoopSpans and(LoopSpans spans, Direction.Axis axis, AxisBounds bounds) {
-        return bounds instanceof AxisBounds.Looped looped ? spans.and(axis, looped.minChunk(), looped.maxChunk()) : spans;
+        return DimensionLayout.looped(shape, carried.options());
     }
 
     private static DimensionTable tableOf(Map<ResourceKey<LevelStem>, DimensionLayout> modDimensions) {
@@ -144,19 +133,19 @@ public final class LayoutDimensions {
             return DimensionTable.Entry.FROM_OVERWORLD;
         }
 
-        LoopSpans spans = layout.spans();
+        FlatShape spans = layout.spans();
         return spans == null
                 ? DimensionTable.Entry.UNWRAPPED
                 : new DimensionTable.Entry(carried(spans, layout.options()));
     }
 
     private static WorldDimensions withShape(WorldDimensions dimensions, ResourceKey<LevelStem> key,
-            @Nullable LoopSpans spans, GenerationOptions options) {
+            @Nullable FlatShape spans, OptionValues options) {
         return spans == null ? dimensions : ShapedDimensions.withShape(dimensions, key, carried(spans, options));
     }
 
-    private static CarriedShape carried(LoopSpans spans, GenerationOptions options) {
-        return new CarriedShape(FlatShape.of(spans), options);
+    private static CarriedShape carried(FlatShape spans, OptionValues options) {
+        return new CarriedShape(spans, options);
     }
 
     private LayoutDimensions() {

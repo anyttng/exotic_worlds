@@ -23,8 +23,6 @@ import net.minecraft.core.Direction;
 public final class LoopSpans {
     private static final String DOES_NOT_LOOP = " does not loop — check loops(axis) first";
     private static final String AXIS = "Axis ";
-    private static final String POSITIVE_SCALE_REQUIRED = "A scale is positive, got ";
-    private static final String SKEW_NOT_DIVISIBLE = "A skew of %d chunks does not divide by the scale %d";
 
     /** Neither axis loops — an ordinary world. */
     public static final LoopSpans NONE = new LoopSpans(WorldLoopBounds.UNBOUNDED);
@@ -136,15 +134,8 @@ public final class LoopSpans {
      *         or does not divide the skew
      */
     public LoopSpans scaledDown(int scale) {
-        if (scale <= 0) {
-            throw new IllegalArgumentException(POSITIVE_SCALE_REQUIRED + scale);
-        }
-
-        if (this.skewChunks % scale != 0) {
-            throw new IllegalArgumentException(String.format(SKEW_NOT_DIVISIBLE, this.skewChunks, scale));
-        }
-
-        return new LoopSpans(this.bounds.scaledDown(scale), this.skewChunks / scale);
+        FlatShape scaled = this.shape().scaledDown(scale);
+        return new LoopSpans(scaled.bounds(), scaled.skewChunks());
     }
 
     @Override
@@ -166,6 +157,10 @@ public final class LoopSpans {
 
     WorldLoopBounds bounds() {
         return this.bounds;
+    }
+
+    FlatShape shape() {
+        return FlatShape.latticeTorus(this.bounds, this.skewChunks);
     }
 
     private AxisBounds.Looped looping(Direction.Axis axis) {

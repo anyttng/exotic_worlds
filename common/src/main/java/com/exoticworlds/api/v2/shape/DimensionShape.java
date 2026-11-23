@@ -1,8 +1,7 @@
 package com.exoticworlds.api.v2.shape;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v1.shape.LoopSpans;
-import com.exoticworlds.shape.layout.DeclaredShapes;
+import com.exoticworlds.api.v2.option.ShapeOptions;
+import com.exoticworlds.bridge.v2.shape.ShapeBridge;
 
 import net.minecraft.resources.Identifier;
 
@@ -36,7 +35,7 @@ public interface DimensionShape {
      * The Overworld's options with a size preset of {@code chunkWidth} chunks applied, asked only where
      * {@link #takesPresets()} answers true. A preset draws selected while this changes nothing.
      */
-    default GenerationOptions withPreset(int chunkWidth, GenerationOptions options) {
+    default ShapeOptions withPreset(int chunkWidth, ShapeOptions options) {
         return options;
     }
 
@@ -47,6 +46,6 @@ public interface DimensionShape {
      *         under this id
      */
     default void register() {
-        DeclaredShapes.register(this);
+        ShapeBridge.register(this);
     }
 }

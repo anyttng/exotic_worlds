@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TileArea;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TilePiece;
@@ -34,7 +34,7 @@ class XaeroPieceRectTest {
 
     @Test
     void theSeamTilesPiecesCoverTheTileOnce() {
-        WorldCopies.Window window = MapShapes.windows(MapShapes.torus(-937, 938)).getLast();
+        WorldCopies.Window window = MapFolds.windows(MapFolds.torus(-937, 938)).getLast();
         float covered = 0.0F;
         for (TileArea area : XaeroWorldMapFold.tilePieces(window, 234, 0)) {
             covered += XaeroPieceRect.of(TILE, area.x(), area.z()).width();

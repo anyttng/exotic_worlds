@@ -7,17 +7,17 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
+import com.exoticworlds.core.WorldFold;
 
 class AtlasCopiesTest {
     private static final int TILE_BLOCKS = 128;
 
     private static final float PIXELS_PER_BLOCK = 40.0F / TILE_BLOCKS;
 
-    private static final ToroidalShape ONE_TILE_TORUS = MapShapes.torus(-4, 4);
+    private static final WorldFold ONE_TILE_TORUS = MapFolds.torus(-4, 4);
 
-    private static final ToroidalShape UNEVEN_TORUS = MapShapes.torus(-17, 17);
+    private static final WorldFold UNEVEN_TORUS = MapFolds.torus(-17, 17);
 
     private static final AtlasCopies.Layout ONE_TILE = new AtlasCopies.Layout(0.0F, 0.0F, 40.0F, 40.0F, -64, -64,
             PIXELS_PER_BLOCK);
@@ -35,7 +35,7 @@ class AtlasCopiesTest {
 
     @Test
     void aCylinderRepeatsOnItsLoopingAxisOnly() {
-        List<AtlasCopies.Offset> offsets = AtlasCopies.visible(MapShapes.cylinder(-4, 4), ONE_TILE,
+        List<AtlasCopies.Offset> offsets = AtlasCopies.visible(MapFolds.cylinder(-4, 4), ONE_TILE,
                 new AtlasView(20.0F, 20.0F, 40.0F, 40.0F), TILE_BLOCKS);
 
         assertEquals(List.of(AtlasCopies.BASE, new AtlasCopies.Offset(40.0F, 0.0F)), offsets);
@@ -67,7 +67,7 @@ class AtlasCopiesTest {
 
     @Test
     void theRowPastTheZSeamSitsTheSkewOver() {
-        List<AtlasCopies.Offset> offsets = AtlasCopies.visible(MapShapes.latticeTorus(-8, 8, 8), TWO_TILES,
+        List<AtlasCopies.Offset> offsets = AtlasCopies.visible(MapFolds.latticeTorus(-8, 8, 8), TWO_TILES,
                 new AtlasView(0.0F, 80.0F, 80.0F, 80.0F), TILE_BLOCKS);
 
         assertEquals(List.of(new AtlasCopies.Offset(-40.0F, 80.0F), new AtlasCopies.Offset(40.0F, 80.0F)), offsets);
@@ -75,7 +75,7 @@ class AtlasCopiesTest {
 
     @Test
     void aSkewOfHalfAMapDrawsOnlyTheRowsItMovesByWholeMaps() {
-        List<AtlasCopies.Offset> offsets = AtlasCopies.visible(MapShapes.latticeTorus(-8, 8, 4), TWO_TILES,
+        List<AtlasCopies.Offset> offsets = AtlasCopies.visible(MapFolds.latticeTorus(-8, 8, 4), TWO_TILES,
                 new AtlasView(-100.0F, -100.0F, 300.0F, 300.0F), TILE_BLOCKS);
 
         assertTrue(offsets.stream().allMatch(offset -> offset.y() % 160.0F == 0.0F), offsets::toString);
@@ -93,7 +93,7 @@ class AtlasCopiesTest {
 
     @Test
     void aPointerOverTheSkewedRowLandsOnTheBaseByTheSameMove() {
-        List<AtlasCopies.Offset> copies = AtlasCopies.visible(MapShapes.latticeTorus(-8, 8, 8), TWO_TILES,
+        List<AtlasCopies.Offset> copies = AtlasCopies.visible(MapFolds.latticeTorus(-8, 8, 8), TWO_TILES,
                 new AtlasView(0.0F, 80.0F, 80.0F, 80.0F), TILE_BLOCKS);
 
         assertEquals(new AtlasCopies.Offset(40.0F, 80.0F), AtlasCopies.under(50.0, 90.0, copies, TWO_TILES));

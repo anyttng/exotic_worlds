@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.world.level.ChunkPos;
 
@@ -37,8 +37,8 @@ public final class XaeroRegionLoads {
         int regX = region.regX();
         int regZ = region.regZ();
         this.sweep.seen(regX, regZ);
-        ToroidalShape shape = frame.shape();
-        if (shape == null) {
+        WorldFold fold = frame.fold();
+        if (fold == null) {
             return existing;
         }
 
@@ -47,15 +47,15 @@ public final class XaeroRegionLoads {
             return existing;
         }
 
-        LeveledRegion<?> candidate = this.canonicalCandidate(processor, shape, region);
+        LeveledRegion<?> candidate = this.canonicalCandidate(processor, fold, region);
         frame.candidate(candidate);
         return candidate;
     }
 
-    private @Nullable LeveledRegion<?> canonicalCandidate(MapProcessor processor, ToroidalShape shape,
+    private @Nullable LeveledRegion<?> canonicalCandidate(MapProcessor processor, WorldFold fold,
             XaeroRegionKey region) {
         int level = region.level();
-        for (long corner : XaeroWorldMapFold.canonicalRegionCorners(shape, region.regX(), region.regZ(), level)) {
+        for (long corner : XaeroWorldMapFold.canonicalRegionCorners(fold, region.regX(), region.regZ(), level)) {
             LeveledRegion<?> candidate = texturedRegion(processor, region.caveLayer(), ChunkPos.getX(corner),
                     ChunkPos.getZ(corner), level);
             if (candidate != null) {
@@ -128,12 +128,12 @@ public final class XaeroRegionLoads {
 
     public @Nullable MapRegion leafOrFold(MapProcessor processor, @Nullable MapRegion existing, int caveLayer, int regX,
             int regZ) {
-        ToroidalShape shape = this.frame.shape();
-        if (existing != null || shape == null) {
+        WorldFold fold = this.frame.fold();
+        if (existing != null || fold == null) {
             return existing;
         }
 
-        ChunkPos folded = XaeroWorldMapFold.foldRegion(shape, regX, regZ);
+        ChunkPos folded = XaeroWorldMapFold.foldRegion(fold, regX, regZ);
         return leafRegion(processor, caveLayer, folded.x(), folded.z());
     }
 

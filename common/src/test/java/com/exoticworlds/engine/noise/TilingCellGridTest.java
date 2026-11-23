@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
@@ -211,7 +211,7 @@ class TilingCellGridTest {
 
         private WorldFold skewed(int skewChunks) {
             return new DeckGroupFold(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(32), skewChunks),
-                    GenerationOptions.DEFAULT);
+                    OptionValues.DEFAULT);
         }
     }
 }

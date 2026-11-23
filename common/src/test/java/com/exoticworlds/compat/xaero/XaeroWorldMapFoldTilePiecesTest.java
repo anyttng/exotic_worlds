@@ -11,14 +11,14 @@ import java.util.Set;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TileArea;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TilePiece;
+import com.exoticworlds.core.WorldFold;
 
 class XaeroWorldMapFoldTilePiecesTest {
-    private static final ToroidalShape OFF_GRID = MapShapes.torus(-937, 938);
+    private static final WorldFold OFF_GRID = MapFolds.torus(-937, 938);
     private static final TilePiece WHOLE_ZERO = new TilePiece(0, 0, 4, 0);
 
     @Test
@@ -47,14 +47,14 @@ class XaeroWorldMapFoldTilePiecesTest {
 
     @Test
     void aWorldOnTheTileGridFoldsWholeTiles() {
-        assertEquals(alongX(new TilePiece(-4, 0, 4, 0)), tilePieces(MapShapes.torus(-16, 16), 4, 0),
+        assertEquals(alongX(new TilePiece(-4, 0, 4, 0)), tilePieces(MapFolds.torus(-16, 16), 4, 0),
                 "chunks 16..19 of a 32-chunk world fold onto -16..-13, one whole tile");
     }
 
     @Test
     void aTilePastALatticeSeamFoldsOntoTheTileTheSkewMovesItTo() {
         assertEquals(List.of(new TileArea(new TilePiece(-2, 0, 4, 0), new TilePiece(-4, 0, 4, 0))),
-                tilePieces(MapShapes.latticeTorus(-16, 16, 8), 0, 4),
+                tilePieces(MapFolds.latticeTorus(-16, 16, 8), 0, 4),
                 "chunks (0..3, 16..19) lie one Z lap up and 8 chunks over, so they fold onto (-8..-5, -16..-13)");
     }
 
@@ -64,10 +64,10 @@ class XaeroWorldMapFoldTilePiecesTest {
                 tilePieces(null, 7, -3));
     }
 
-    private static List<TileArea> tilePieces(@Nullable ToroidalShape shape, int rawTileX, int rawTileZ) {
+    private static List<TileArea> tilePieces(@Nullable WorldFold shape, int rawTileX, int rawTileZ) {
         List<List<TileArea>> answers = new ArrayList<>();
         Set<Set<TileArea>> distinct = new HashSet<>();
-        for (WorldCopies.Window window : MapShapes.windows(shape)) {
+        for (WorldCopies.Window window : MapFolds.windows(shape)) {
             List<TileArea> pieces = XaeroWorldMapFold.tilePieces(window, rawTileX, rawTileZ);
             answers.add(pieces);
             distinct.add(Set.copyOf(pieces));

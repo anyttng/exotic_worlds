@@ -9,11 +9,10 @@ import java.util.function.ToIntFunction;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.TestShapes;
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.MapCopies;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
@@ -29,13 +28,13 @@ class AtlasLayoutFoldTest {
 
     private static final AxisBounds.Looped TINY = new AxisBounds.Looped(-16, 16);
 
-    private static final ToroidalShape TORUS = TestShapes.of(WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(TINY,
-            TINY))));
+    private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(TINY,
+            TINY)));
 
-    private static final ToroidalShape CYLINDER = TestShapes.of(WorldFolds.of(ShapeFixtures.cylinder(new WorldLoopBounds(
-            TINY, AxisBounds.Unbounded.INSTANCE))));
+    private static final WorldFold CYLINDER = WorldFolds.of(ShapeFixtures.cylinder(new WorldLoopBounds(
+            TINY, AxisBounds.Unbounded.INSTANCE)));
 
-    private static final ToroidalShape LATTICE = MapShapes.latticeTorus(-8, 8, 8);
+    private static final WorldFold LATTICE = MapFolds.latticeTorus(-8, 8, 8);
 
     private static final List<AtlasTilePayload> ACROSS_THE_EDGE = List.of(
             tile(1, 256, 0), tile(2, 128, 0), tile(3, -128, 0));
@@ -45,7 +44,7 @@ class AtlasLayoutFoldTest {
     @Test
     void repeatedLaysTheMapsAcrossTheEdgeSideBySide() {
         List<AtlasTilePayload> relaid = AtlasLayoutFold.relaid(ACROSS_THE_EDGE, AtlasLayoutFoldTest::blocksPerTile,
-                shapes(TORUS), MapCopies.REPEATED);
+                folds(TORUS), MapCopies.REPEATED);
 
         assertEquals(List.of(1, 0, 2), tileXs(relaid));
         assertEquals(List.of(0, 0, 0), tileYs(relaid));
@@ -54,7 +53,7 @@ class AtlasLayoutFoldTest {
     @Test
     void singleKeepsEachMapWhereItWasMade() {
         List<AtlasTilePayload> relaid = AtlasLayoutFold.relaid(ACROSS_THE_EDGE, AtlasLayoutFoldTest::blocksPerTile,
-                shapes(TORUS), MapCopies.SINGLE);
+                folds(TORUS), MapCopies.SINGLE);
 
         assertEquals(List.of(3, 2, 0), tileXs(relaid));
     }
@@ -62,7 +61,7 @@ class AtlasLayoutFoldTest {
     @Test
     void theCentresStayAsTheServerSentThem() {
         List<AtlasTilePayload> relaid = AtlasLayoutFold.relaid(ACROSS_THE_EDGE, AtlasLayoutFoldTest::blocksPerTile,
-                shapes(TORUS), MapCopies.REPEATED);
+                folds(TORUS), MapCopies.REPEATED);
 
         assertEquals(List.of(256, 128, -128), relaid.stream().map(AtlasTilePayload::centerX).toList());
     }
@@ -70,7 +69,7 @@ class AtlasLayoutFoldTest {
     @Test
     void repeatedLaysTheMapPastTheZSeamOnItsSkewedCopy() {
         List<AtlasTilePayload> relaid = AtlasLayoutFold.relaid(ACROSS_THE_SKEWED_EDGE,
-                AtlasLayoutFoldTest::blocksPerTile, shapes(LATTICE), MapCopies.REPEATED);
+                AtlasLayoutFoldTest::blocksPerTile, folds(LATTICE), MapCopies.REPEATED);
 
         assertEquals(List.of(0, 0), tileXs(relaid));
         assertEquals(List.of(0, 1), tileYs(relaid));
@@ -79,7 +78,7 @@ class AtlasLayoutFoldTest {
     @Test
     void singleKeepsTheSkewedMapWhereItWasMade() {
         List<AtlasTilePayload> relaid = AtlasLayoutFold.relaid(ACROSS_THE_SKEWED_EDGE,
-                AtlasLayoutFoldTest::blocksPerTile, shapes(LATTICE), MapCopies.SINGLE);
+                AtlasLayoutFoldTest::blocksPerTile, folds(LATTICE), MapCopies.SINGLE);
 
         assertEquals(List.of(1, 0), tileXs(relaid));
         assertEquals(List.of(1, 0), tileYs(relaid));
@@ -90,7 +89,7 @@ class AtlasLayoutFoldTest {
         List<AtlasTilePayload> tiles = List.of(tile(1, 256, 1024), tile(2, 256, -1024));
 
         List<AtlasTilePayload> relaid = AtlasLayoutFold.relaid(tiles, AtlasLayoutFoldTest::blocksPerTile,
-                shapes(CYLINDER), MapCopies.REPEATED);
+                folds(CYLINDER), MapCopies.REPEATED);
 
         assertEquals(List.of(16, 0), tileYs(relaid));
     }
@@ -139,8 +138,8 @@ class AtlasLayoutFoldTest {
         return new AtlasTilePayload(mapId, centerX, centerZ, 0, 0, OVERWORLD);
     }
 
-    private static Function<String, ToroidalShape> shapes(ToroidalShape shape) {
-        return dimension -> shape;
+    private static Function<String, WorldFold> folds(WorldFold fold) {
+        return dimension -> fold;
     }
 
     private static List<Integer> tileXs(List<AtlasTilePayload> tiles) {

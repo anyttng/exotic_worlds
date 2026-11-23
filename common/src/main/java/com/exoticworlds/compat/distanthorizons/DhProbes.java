@@ -8,8 +8,8 @@ import java.util.concurrent.atomic.LongAdder;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.lod.AlignedPeriod;
+import com.exoticworlds.core.WorldFold;
 import com.seibel.distanthorizons.core.level.IDhLevel;
 import com.seibel.distanthorizons.core.pos.DhSectionPos;
 import com.seibel.distanthorizons.core.pos.blockPos.DhBlockPos;
@@ -43,9 +43,9 @@ public final class DhProbes {
     }
 
     public static void keyPeriod(DhLattice lattice, byte leafDetailLevel) {
-        ToroidalShape shape = lattice.shape();
-        String widthX = widthValue(shape, Direction.Axis.X);
-        String widthZ = widthValue(shape, Direction.Axis.Z);
+        WorldFold fold = lattice.fold();
+        String widthX = widthValue(fold, Direction.Axis.X);
+        String widthZ = widthValue(fold, Direction.Axis.Z);
         if (!SEEN_KEY_PERIODS.add(widthX + ":" + widthZ + ":" + lattice.skewBlocks())) {
             return;
         }
@@ -53,27 +53,27 @@ public final class DhProbes {
         AlignedPeriod period = DhFold.period(lattice, leafDetailLevel);
         LOGGER.info("[ew/dh-compat] key_period width_x_blocks={} period_x_blocks={} laps_x={}"
                 + " width_z_blocks={} period_z_blocks={} laps_z={} skew_blocks={} shift_x_blocks={}",
-                widthX, periodValue(shape, Direction.Axis.X, period.xBlocks()),
-                lapsValue(shape, Direction.Axis.X, period),
-                widthZ, periodValue(shape, Direction.Axis.Z, period.zBlocks()),
-                lapsValue(shape, Direction.Axis.Z, period),
+                widthX, periodValue(fold, Direction.Axis.X, period.xBlocks()),
+                lapsValue(fold, Direction.Axis.X, period),
+                widthZ, periodValue(fold, Direction.Axis.Z, period.zBlocks()),
+                lapsValue(fold, Direction.Axis.Z, period),
                 lattice.skewBlocks(), period.xShiftBlocks());
     }
 
-    static String widthValue(ToroidalShape shape, Direction.Axis axis) {
-        return shape.loops(axis) ? String.valueOf(shape.widthBlocks(axis)) : NONE;
+    static String widthValue(WorldFold fold, Direction.Axis axis) {
+        return fold.loops(axis) ? String.valueOf(fold.widthBlocks(axis)) : NONE;
     }
 
-    static String periodValue(ToroidalShape shape, Direction.Axis axis, long periodBlocks) {
-        return shape.loops(axis) ? String.valueOf(periodBlocks) : NONE;
+    static String periodValue(WorldFold fold, Direction.Axis axis, long periodBlocks) {
+        return fold.loops(axis) ? String.valueOf(periodBlocks) : NONE;
     }
 
-    static String lapsValue(ToroidalShape shape, Direction.Axis axis, AlignedPeriod period) {
-        return shape.loops(axis) ? String.valueOf(period.laps(shape, axis)) : NONE;
+    static String lapsValue(WorldFold fold, Direction.Axis axis, AlignedPeriod period) {
+        return fold.loops(axis) ? String.valueOf(period.laps(fold, axis)) : NONE;
     }
 
     public static void repoShape(Object repo, IDhLevel level, boolean present) {
-        LOGGER.info("[ew/dh-compat] repo_shape repo={} level={} shape={}",
+        LOGGER.info("[ew/dh-compat] repo_shape repo={} level={} fold={}",
                 repo.getClass().getSimpleName(), levelName(level), present ? "present" : "absent");
     }
 

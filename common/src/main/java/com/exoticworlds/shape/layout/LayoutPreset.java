@@ -2,11 +2,11 @@ package com.exoticworlds.shape.layout;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v1.shape.LoopSpans;
-import com.exoticworlds.api.v2.shape.DimensionContext;
+import com.exoticworlds.api.v2.option.ShapeOptions;
 import com.exoticworlds.api.v2.shape.DimensionShape;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.shape.ShapeOptionsAdapter;
 import com.exoticworlds.shape.WorldLoopPresets;
 
 import net.minecraft.core.Direction;
@@ -40,21 +40,22 @@ public final class LayoutPreset {
         Identifier declared = overworld.shape();
         if (declared != null) {
             DimensionShape shape = presetShape(declared);
-            return shape != null
-                    && shape.withPreset(preset.chunkWidth(), overworld.options()).equals(overworld.options());
+            ShapeOptions chosen = ShapeOptionsAdapter.shapeOptions(overworld.options());
+            return shape != null && shape.withPreset(preset.chunkWidth(), chosen).equals(chosen);
         }
 
-        LoopSpans spans = overworld.spans();
+        FlatShape spans = overworld.spans();
         if (spans == null) {
             return false;
         }
 
         int chunkWidth = preset.chunkWidth();
         if (overworld.kind() == ShapeKind.CYLINDER) {
-            return spans.chunkWidth(loopedAxis(spans)) == chunkWidth;
+            return spans.bounds().chunkWidth(loopedAxis(spans)) == chunkWidth;
         }
 
-        return spans.chunkWidth(Direction.Axis.X) == chunkWidth && spans.chunkWidth(Direction.Axis.Z) == chunkWidth
+        return spans.bounds().chunkWidth(Direction.Axis.X) == chunkWidth
+                && spans.bounds().chunkWidth(Direction.Axis.Z) == chunkWidth
                 && spans.skewChunks() == FlatShape.NO_SKEW;
     }
 
@@ -67,15 +68,17 @@ public final class LayoutPreset {
                 return null;
             }
 
-            GenerationOptions options = shape.withPreset(preset.chunkWidth(), overworld.options());
-            return DimensionLayout.declared(declared, DeclaredShapes.resolve(shape, new DimensionContext(
-                    LevelStem.OVERWORLD, options, null, overworldScale, overworldScale)), options);
+            ShapeOptions options =
+                    shape.withPreset(preset.chunkWidth(), ShapeOptionsAdapter.shapeOptions(overworld.options()));
+            return DimensionLayout.declared(declared, DeclaredShapes.resolve(shape, DeclaredShapes.context(
+                    LevelStem.OVERWORLD, options, null, overworldScale, overworldScale)),
+                    ShapeOptionsAdapter.optionValues(options));
         }
 
-        LoopSpans current = overworld.spans();
+        FlatShape current = overworld.spans();
         return DimensionLayout.looped(current != null && overworld.kind() == ShapeKind.CYLINDER
-                ? LoopSpans.ofWidth(loopedAxis(current), preset.chunkWidth())
-                : LoopSpans.ofWidth(preset.chunkWidth()), overworld.options());
+                ? FlatShape.unskewed(WorldLoopBounds.ofWidth(loopedAxis(current), preset.chunkWidth()))
+                : FlatShape.unskewed(WorldLoopBounds.ofWidth(preset.chunkWidth())), overworld.options());
     }
 
     private static @Nullable DimensionShape presetShape(Identifier declared) {
@@ -83,8 +86,8 @@ public final class LayoutPreset {
         return shape != null && shape.takesPresets() ? shape : null;
     }
 
-    private static Direction.Axis loopedAxis(LoopSpans spans) {
-        return spans.loops(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
+    private static Direction.Axis loopedAxis(FlatShape spans) {
+        return spans.bounds().loops(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
     }
 
     private LayoutPreset() {

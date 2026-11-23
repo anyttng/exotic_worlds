@@ -2,7 +2,7 @@ package com.exoticworlds.api.v2.geometry;
 
 import java.util.List;
 
-import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.api.v2.shape.LoopSpans;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

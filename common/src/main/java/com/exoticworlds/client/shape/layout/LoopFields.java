@@ -14,7 +14,8 @@ import com.ascendiacore.gui.widget.cyclebutton.CycleButton;
 import com.ascendiacore.gui.widget.numberfield.NumberField;
 import com.ascendiacore.gui.widget.numberfield.model.Bounds;
 import com.ascendiacore.gui.widget.panel.model.FillStyle;
-import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopSizes;
 import com.exoticworlds.shape.layout.ShapeKind;
 
@@ -60,7 +61,7 @@ final class LoopFields {
         return this.cylinder;
     }
 
-    void show(@Nullable LoopSpans spans) {
+    void show(@Nullable FlatShape spans) {
         ShapeKind kind = ShapeKind.of(spans);
         if (spans == null || kind == ShapeKind.NORMAL) {
             this.showWidths(this.defaultChunkWidth, this.defaultChunkWidth, 0);
@@ -68,20 +69,21 @@ final class LoopFields {
         }
 
         if (kind == ShapeKind.CYLINDER) {
-            this.axis.set(spans.loops(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z);
-            int width = spans.chunkWidth(this.axis.get());
+            this.axis.set(spans.bounds().loops(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z);
+            int width = spans.bounds().chunkWidth(this.axis.get());
             this.showWidths(width, width, 0);
             return;
         }
 
-        int xChunkWidth = spans.chunkWidth(Direction.Axis.X);
-        this.showWidths(xChunkWidth, spans.chunkWidth(Direction.Axis.Z), Math.floorMod(spans.skewChunks(), xChunkWidth));
+        int xChunkWidth = spans.bounds().chunkWidth(Direction.Axis.X);
+        this.showWidths(xChunkWidth, spans.bounds().chunkWidth(Direction.Axis.Z),
+                Math.floorMod(spans.skewChunks(), xChunkWidth));
     }
 
-    @Nullable LoopSpans spans(ShapeKind kind) {
+    @Nullable FlatShape spans(ShapeKind kind) {
         if (kind == ShapeKind.CYLINDER) {
             Integer width = this.size.value();
-            return width == null ? null : LoopSpans.ofWidth(this.axis.get(), width);
+            return width == null ? null : FlatShape.unskewed(WorldLoopBounds.ofWidth(this.axis.get(), width));
         }
 
         Integer xChunkWidth = this.sizeX.value();
@@ -89,7 +91,7 @@ final class LoopFields {
         Integer shiftChunks = this.shift.value();
         return kind != ShapeKind.TORUS || xChunkWidth == null || zChunkWidth == null || shiftChunks == null
                 ? null
-                : LoopSpans.ofWidths(xChunkWidth, zChunkWidth).withSkew(shiftChunks);
+                : FlatShape.latticeTorus(WorldLoopBounds.ofWidths(xChunkWidth, zChunkWidth), shiftChunks);
     }
 
     void carryWidth(ShapeKind from, ShapeKind to) {

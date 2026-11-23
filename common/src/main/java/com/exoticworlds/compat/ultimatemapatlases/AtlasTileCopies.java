@@ -6,8 +6,9 @@ import java.util.TreeSet;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.WorldCopies;
+import com.exoticworlds.core.RectangleCopies;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,24 +29,26 @@ public final class AtlasTileCopies {
         @Nullable T at(int centerX, int centerZ);
     }
 
-    public static <T> @Nullable T acrossEdge(@Nullable ToroidalShape shape, int x, int z, int mapBlocks,
+    public static <T> @Nullable T acrossEdge(@Nullable WorldFold fold, int x, int z, int mapBlocks,
             TileLookup<T> lookup) {
-        List<TileCenter> centers = of(shape, x, z, mapBlocks);
+        List<TileCenter> centers = of(fold, x, z, mapBlocks);
         return firstOf(centers.subList(1, centers.size()), lookup);
     }
 
-    public static List<TileCenter> of(@Nullable ToroidalShape shape, int x, int z, int mapBlocks) {
+    public static List<TileCenter> of(@Nullable WorldFold fold, int x, int z, int mapBlocks) {
         TileCenter request = new TileCenter(x, z);
-        if (shape == null) {
+        if (fold == null) {
             return List.of(request);
         }
 
         int half = mapBlocks / 2;
-        AABB near = new AABB(lower(shape, Direction.Axis.X, x) - half, 0.0, lower(shape, Direction.Axis.Z, z) - half,
-                upper(shape, Direction.Axis.X, x) + half, 1.0, upper(shape, Direction.Axis.Z, z) + half);
+        AABB near = new AABB(lower(fold, Direction.Axis.X, x) - half, 0.0, lower(fold, Direction.Axis.Z, z) - half,
+                upper(fold, Direction.Axis.X, x) + half, 1.0, upper(fold, Direction.Axis.Z, z) + half);
         List<TileCenter> centers = new ArrayList<>();
         centers.add(request);
-        for (ToroidalShape.Oriented<BlockPos> copy : shape.copiesInside(near, new BlockPos(x, 0, z))) {
+        List<WorldFold.Folded<BlockPos>> inside =
+                RectangleCopies.inside(fold, near, new BlockPos(x, 0, z), WorldFold.Folded::new);
+        for (WorldFold.Folded<BlockPos> copy : inside) {
             if (!copy.orientation().isIdentity()) {
                 throw new IllegalStateException("A map draws its copies unturned, got " + copy.orientation());
             }
@@ -60,9 +63,9 @@ public final class AtlasTileCopies {
         return centers;
     }
 
-    public static <T> List<Placed<T>> shifted(@Nullable ToroidalShape shape, TileCenter center, int reachTiles,
+    public static <T> List<Placed<T>> shifted(@Nullable WorldFold fold, TileCenter center, int reachTiles,
             int mapBlocks, TileLookup<T> lookup) {
-        if (shape == null) {
+        if (fold == null) {
             return List.of();
         }
 
@@ -72,16 +75,16 @@ public final class AtlasTileCopies {
         int maxX = center.x() + reach;
         int maxZ = center.z() + reach;
         List<Placed<T>> placed = new ArrayList<>();
-        for (WorldCopies.Copy move : WorldCopies.meeting(shape, minX - mapBlocks, minZ - mapBlocks, maxX + mapBlocks,
+        for (WorldCopies.Copy move : WorldCopies.meeting(fold, minX - mapBlocks, minZ - mapBlocks, maxX + mapBlocks,
                 maxZ + mapBlocks)) {
             if (wholeMaps(move.dx(), move.dz(), mapBlocks)) {
                 continue;
             }
 
-            int lastX = lastCenter(shape, Direction.Axis.X, maxX - move.dx(), mapBlocks);
-            int lastZ = lastCenter(shape, Direction.Axis.Z, maxZ - move.dz(), mapBlocks);
-            for (int x = firstCenter(shape, Direction.Axis.X, minX - move.dx(), mapBlocks); x <= lastX; x += mapBlocks) {
-                for (int z = firstCenter(shape, Direction.Axis.Z, minZ - move.dz(), mapBlocks); z <= lastZ;
+            int lastX = lastCenter(fold, Direction.Axis.X, maxX - move.dx(), mapBlocks);
+            int lastZ = lastCenter(fold, Direction.Axis.Z, maxZ - move.dz(), mapBlocks);
+            for (int x = firstCenter(fold, Direction.Axis.X, minX - move.dx(), mapBlocks); x <= lastX; x += mapBlocks) {
+                for (int z = firstCenter(fold, Direction.Axis.Z, minZ - move.dz(), mapBlocks); z <= lastZ;
                         z += mapBlocks) {
                     T map = lookup.at(x, z);
                     if (map != null) {
@@ -94,9 +97,9 @@ public final class AtlasTileCopies {
         return placed;
     }
 
-    public static <T> boolean coveredByShifted(@Nullable ToroidalShape shape, TileCenter tile, int mapBlocks,
+    public static <T> boolean coveredByShifted(@Nullable WorldFold fold, TileCenter tile, int mapBlocks,
             TileLookup<T> lookup) {
-        List<Placed<T>> copies = shifted(shape, tile, 0, mapBlocks, lookup);
+        List<Placed<T>> copies = shifted(fold, tile, 0, mapBlocks, lookup);
         if (copies.isEmpty()) {
             return false;
         }
@@ -135,14 +138,14 @@ public final class AtlasTileCopies {
         return moveX % mapBlocks == 0 && moveZ % mapBlocks == 0;
     }
 
-    private static int firstCenter(ToroidalShape shape, Direction.Axis axis, int viewMin, int mapBlocks) {
-        int past = Math.max(viewMin, lower(shape, axis, viewMin)) - mapBlocks / 2;
+    private static int firstCenter(WorldFold fold, Direction.Axis axis, int viewMin, int mapBlocks) {
+        int past = Math.max(viewMin, lower(fold, axis, viewMin)) - mapBlocks / 2;
         int center = gridCenter(past, mapBlocks);
         return center > past ? center : center + mapBlocks;
     }
 
-    private static int lastCenter(ToroidalShape shape, Direction.Axis axis, int viewMax, int mapBlocks) {
-        int before = Math.min(viewMax, upper(shape, axis, viewMax)) + mapBlocks / 2;
+    private static int lastCenter(WorldFold fold, Direction.Axis axis, int viewMax, int mapBlocks) {
+        int before = Math.min(viewMax, upper(fold, axis, viewMax)) + mapBlocks / 2;
         int center = gridCenter(before, mapBlocks);
         return center < before ? center : center - mapBlocks;
     }
@@ -162,12 +165,12 @@ public final class AtlasTileCopies {
         return null;
     }
 
-    private static int lower(ToroidalShape shape, Direction.Axis axis, int coord) {
-        return shape.loops(axis) ? shape.minBlock(axis) : coord;
+    private static int lower(WorldFold fold, Direction.Axis axis, int coord) {
+        return fold.loops(axis) ? fold.minBlock(axis) : coord;
     }
 
-    private static int upper(ToroidalShape shape, Direction.Axis axis, int coord) {
-        return shape.loops(axis) ? shape.minBlock(axis) + shape.widthBlocks(axis) : coord;
+    private static int upper(WorldFold fold, Direction.Axis axis, int coord) {
+        return fold.loops(axis) ? fold.minBlock(axis) + fold.widthBlocks(axis) : coord;
     }
 
     private AtlasTileCopies() {

@@ -5,12 +5,12 @@ import java.util.List;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.AxisCopies;
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.MapViewSpan;
 import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TilePlacement;
+import com.exoticworlds.core.WorldFold;
 import com.mojang.blaze3d.platform.Window;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -30,7 +30,7 @@ public final class XaeroRegionFrame {
     private static final int NO_SLOT_SIZE = 0;
     private static final int NO_LEVEL = -1;
 
-    private @Nullable ToroidalShape shape;
+    private @Nullable WorldFold fold;
     private MapCopies mapCopies = MapCopies.REPEATED;
     private AxisCopies copiesX = AxisCopies.UNBOUNDED;
     private AxisCopies copiesZ = AxisCopies.UNBOUNDED;
@@ -50,24 +50,24 @@ public final class XaeroRegionFrame {
     private long @Nullable [] slotOrigins;
 
     public void begin() {
-        this.shape = XaeroWorldMapFold.browsedShape();
+        this.fold = XaeroWorldMapFold.browsedFold();
         this.mapCopies = MapCopies.current();
-        this.copiesX = AxisCopies.of(this.shape, Direction.Axis.X);
-        this.copiesZ = AxisCopies.of(this.shape, Direction.Axis.Z);
+        this.copiesX = AxisCopies.of(this.fold, Direction.Axis.X);
+        this.copiesZ = AxisCopies.of(this.fold, Direction.Axis.Z);
         this.glueSlotSize = NO_SLOT_SIZE;
         this.windowLevel = NO_LEVEL;
         this.drawnCopiesLevel = NO_LEVEL;
         this.drawnCanonicalSlots.clear();
     }
 
-    public @Nullable ToroidalShape shape() {
-        return this.shape;
+    public @Nullable WorldFold fold() {
+        return this.fold;
     }
 
     private boolean glueableAt(int slotSize) {
         if (slotSize != this.glueSlotSize) {
             this.glueSlotSize = slotSize;
-            this.glueable = XaeroWorldMapFold.glueableAt(this.shape, slotSize);
+            this.glueable = XaeroWorldMapFold.glueableAt(this.fold, slotSize);
         }
 
         return this.glueable;
@@ -94,7 +94,7 @@ public final class XaeroRegionFrame {
             int[] drawnZ = drawnSpan(this.viewCamera.z(), screen.getHeight());
             int[] regionsX = regionSpan(this.viewCamera.x(), screen.getWidth());
             int[] regionsZ = regionSpan(this.viewCamera.z(), screen.getHeight());
-            resolved = WorldCopies.Window.of(this.shape, Math.min(drawnX[0], regionsX[0]),
+            resolved = WorldCopies.Window.of(this.fold, Math.min(drawnX[0], regionsX[0]),
                     Math.min(drawnZ[0], regionsZ[0]), Math.max(drawnX[1], regionsX[1]),
                     Math.max(drawnZ[1], regionsZ[1]));
             this.window = resolved;
@@ -151,7 +151,7 @@ public final class XaeroRegionFrame {
     }
 
     private boolean isCandidate(@Nullable LeveledRegion<?> region) {
-        return this.shape != null && region != null && region == this.leveledCandidate;
+        return this.fold != null && region != null && region == this.leveledCandidate;
     }
 
     private void beginSlot(int slotX, int slotZ) {
@@ -181,7 +181,7 @@ public final class XaeroRegionFrame {
 
     public @Nullable RegionTexture<?> hoverTexture(MapProcessor processor, @Nullable RegionTexture<?> texture,
             int mouseBlockX, int mouseBlockZ) {
-        return this.shape == null ? texture : canonicalRegionTexture(processor, mouseBlockX, mouseBlockZ);
+        return this.fold == null ? texture : canonicalRegionTexture(processor, mouseBlockX, mouseBlockZ);
     }
 
     public @Nullable RegionTexture<?> slotTexture(MapProcessor processor, @Nullable RegionTexture<?> texture,
@@ -189,8 +189,8 @@ public final class XaeroRegionFrame {
         boolean isCandidate = isCandidate(region);
         beginSlot(slotX, slotZ);
         int slotSize = slotSize();
-        boolean shaped = this.shape != null;
-        XaeroSlotSource source = XaeroSlotSource.of(this.shape, this.mapCopies, isCandidate,
+        boolean shaped = this.fold != null;
+        XaeroSlotSource source = XaeroSlotSource.of(this.fold, this.mapCopies, isCandidate,
                 shaped && glueableAt(slotSize), shaped && slotInsideWorld(slotSize), this.slotViewBlockX,
                 this.slotViewBlockZ);
         this.slotFolded = source.folded();
@@ -203,16 +203,16 @@ public final class XaeroRegionFrame {
     }
 
     public @Nullable RegionTexture<?> rootTexture(@Nullable RegionTexture<?> texture) {
-        return this.shape != null && this.slotFolded ? null : texture;
+        return this.fold != null && this.slotFolded ? null : texture;
     }
 
     public @Nullable GpuTextureAndView drawPeriodCopies(MapProcessor processor, @Nullable GpuTextureAndView texture,
             Matrix4f matrix, int textureX, int textureZ, int flooredCameraX, int flooredCameraZ,
             RegionTexture<?> regionTexture, MultiTextureRenderTypeRenderer withLightRenderer,
             MultiTextureRenderTypeRenderer noLightRenderer) {
-        ToroidalShape shape = this.shape;
+        WorldFold fold = this.fold;
         int slotSize = slotSize();
-        if (texture == null || shape == null || glueableAt(slotSize)) {
+        if (texture == null || fold == null || glueableAt(slotSize)) {
             return texture;
         }
 
@@ -234,7 +234,7 @@ public final class XaeroRegionFrame {
                 continue;
             }
 
-            for (TilePlacement placement : XaeroWorldMapFold.placements(shape, originX, originZ, slotSize, copies)) {
+            for (TilePlacement placement : XaeroWorldMapFold.placements(fold, originX, originZ, slotSize, copies)) {
                 GuiMap.renderTexturedModalSubRectWithLighting(matrix, x + (placement.minX() - this.slotViewBlockX),
                         y + (placement.minZ() - this.slotViewBlockZ), placement.u1(), placement.v1(), placement.u2(),
                         placement.v2(), placement.width(), placement.height(), textureAndView.view, hasLight,

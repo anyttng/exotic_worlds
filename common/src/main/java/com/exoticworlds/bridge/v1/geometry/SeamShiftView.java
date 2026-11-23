@@ -1,17 +1,18 @@
-package com.exoticworlds.core;
+package com.exoticworlds.bridge.v1.geometry;
 
-import com.exoticworlds.api.v2.geometry.Orientation;
-import com.exoticworlds.api.v2.geometry.SeamShift;
+import com.exoticworlds.api.v1.SeamShift;
+import com.exoticworlds.api.v1.ToroidalShape.Orientation;
+import com.exoticworlds.core.DeckTransformation;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-final class GeometryShiftView implements SeamShift {
+final class SeamShiftView implements SeamShift {
     private final DeckTransformation transformation;
 
-    GeometryShiftView(DeckTransformation transformation) {
+    SeamShiftView(DeckTransformation transformation) {
         this.transformation = transformation;
     }
 
@@ -22,7 +23,7 @@ final class GeometryShiftView implements SeamShift {
 
     @Override
     public Orientation orientation() {
-        return this.transformation.orientation();
+        return ToroidalShapeView.orientationOf(this.transformation.orientation());
     }
 
     @Override

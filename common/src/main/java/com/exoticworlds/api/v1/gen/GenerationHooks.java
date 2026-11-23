@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.core.GenerationMoments;
+import com.exoticworlds.bridge.v1.gen.GenerationBridge;
 
 import net.minecraft.world.level.levelgen.RandomState;
 
@@ -38,7 +38,7 @@ public final class GenerationHooks {
      *         registered under {@code key} at this moment
      */
     public static void atRandomState(String key, RandomStateHook hook) {
-        GenerationMoments.atRandomStateV1(key, hook);
+        GenerationBridge.atRandomState(key, hook);
     }
 
     /**
@@ -63,7 +63,7 @@ public final class GenerationHooks {
      *         registered under {@code key} at this moment
      */
     public static void atStructureStarts(String key, StructureStartsHook hook) {
-        GenerationMoments.atStructureStartsV1(key, hook);
+        GenerationBridge.atStructureStarts(key, hook);
     }
 
     private GenerationHooks() {

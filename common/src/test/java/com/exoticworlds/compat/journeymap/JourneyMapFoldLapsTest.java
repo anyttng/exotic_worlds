@@ -8,14 +8,14 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.MapCopies;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.WorldCopies;
+import com.exoticworlds.core.WorldFold;
 
 class JourneyMapFoldLapsTest {
     private static final int TILE = 512;
-    private static final ToroidalShape WIDE = MapShapes.torus(-937, 938);
+    private static final WorldFold WIDE = MapFolds.torus(-937, 938);
     private static final int[] EDGE_X = {14024, 15944};
     private static final int[] MIDDLE_Z = {-960, 960};
 
@@ -42,7 +42,7 @@ class JourneyMapFoldLapsTest {
     @Test
     void aViewWiderThanTheWorldTakesEveryCopyTheTileMeets() {
         int[] span = {-1000, 1000};
-        List<WorldCopies.Copy> drawn = JourneyMapFold.drawnCopies(MapShapes.torus(-16, 16), 1, span, span, MapCopies.REPEATED);
+        List<WorldCopies.Copy> drawn = JourneyMapFold.drawnCopies(MapFolds.torus(-16, 16), 1, span, span, MapCopies.REPEATED);
         assertEquals(15, JourneyMapFold.tileCopies(drawn, 0, 0, TILE, span, span).size(),
                 "region 0 meets -1000..999 one and two worlds back and one on, on both axes, less itself");
     }
@@ -51,7 +51,7 @@ class JourneyMapFoldLapsTest {
     void aTileOfALatticeTorusIsDrawnOnTheSkewedRowAbove() {
         int[] spanX = {-256, 256};
         int[] spanZ = {256, 768};
-        List<WorldCopies.Copy> drawn = JourneyMapFold.drawnCopies(MapShapes.latticeTorus(-16, 16, 16), 1, spanX, spanZ,
+        List<WorldCopies.Copy> drawn = JourneyMapFold.drawnCopies(MapFolds.latticeTorus(-16, 16, 16), 1, spanX, spanZ,
                 MapCopies.REPEATED);
         assertEquals(Set.of(new WorldCopies.Copy(-256, 512)),
                 new HashSet<>(JourneyMapFold.tileCopies(drawn, 0, -256, 256, spanX, spanZ)),

@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.engine.gen.LoopedChunkGenerator;
 import com.exoticworlds.engine.level.CurrentServer;
@@ -53,6 +53,6 @@ class FoldCompressionTest {
         return new CarriedShape(
                 ShapeFixtures.torus(
                         ShapeFixtures.loopedBounds(TINY_CHUNK_MIN, TINY_CHUNK_MAX, TINY_CHUNK_MIN, TINY_CHUNK_MAX)),
-                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.STRONG));
+                OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.STRONG));
     }
 }

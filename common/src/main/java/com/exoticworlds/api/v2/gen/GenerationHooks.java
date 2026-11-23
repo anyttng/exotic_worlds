@@ -2,9 +2,9 @@ package com.exoticworlds.api.v2.gen;
 
 import java.util.List;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v2.geometry.WorldGeometry;
-import com.exoticworlds.core.GenerationMoments;
+import com.exoticworlds.api.v2.option.ShapeOptions;
+import com.exoticworlds.bridge.v2.gen.GenerationBridge;
 
 import net.minecraft.world.level.levelgen.RandomState;
 
@@ -29,7 +29,7 @@ public final class GenerationHooks {
      */
     @FunctionalInterface
     public interface RandomStateHook {
-        void run(RandomState randomState, WorldGeometry geometry, GenerationOptions options, int seaLevel);
+        void run(RandomState randomState, WorldGeometry geometry, ShapeOptions options, int seaLevel);
     }
 
     /**
@@ -40,7 +40,7 @@ public final class GenerationHooks {
      *         already registered under {@code key} at this moment
      */
     public static void atRandomState(String key, RandomStateHook hook) {
-        GenerationMoments.atRandomState(key, hook);
+        GenerationBridge.atRandomState(key, hook);
     }
 
     /**
@@ -65,7 +65,7 @@ public final class GenerationHooks {
      *         already registered under {@code key} at this moment
      */
     public static void atStructureStarts(String key, StructureStartsHook hook) {
-        GenerationMoments.atStructureStarts(key, hook);
+        GenerationBridge.atStructureStarts(key, hook);
     }
 
     private GenerationHooks() {

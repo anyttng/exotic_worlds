@@ -8,13 +8,13 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.MapCopies;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.WorldCopies;
+import com.exoticworlds.core.WorldFold;
 
 class XaeroWorldMapFoldLapsTest {
-    private static final ToroidalShape TORUS = MapShapes.torus(-32, 32);
+    private static final WorldFold TORUS = MapFolds.torus(-32, 32);
     private static final int[] INSIDE_Z = {-100, 100};
 
     @Test
@@ -53,7 +53,7 @@ class XaeroWorldMapFoldLapsTest {
     @Test
     void aRepeatedLatticeMapDrawsTheRowAboveMovedByTheSkew() {
         assertEquals(Set.of(new WorldCopies.Copy(-256, 512), new WorldCopies.Copy(256, 512)),
-                new HashSet<>(XaeroWorldMapFold.drawnCopies(MapShapes.latticeTorus(-16, 16, 16),
+                new HashSet<>(XaeroWorldMapFold.drawnCopies(MapFolds.latticeTorus(-16, 16, 16),
                         new int[] {-256, 256}, new int[] {256, 768}, MapCopies.REPEATED)),
                 "the row above a skew-256 world is not drawn at -256 and 256");
     }

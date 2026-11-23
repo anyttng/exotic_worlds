@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.terraformersmc.biolith.impl.noise.OpenSimplexNoise2;
-import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -115,16 +115,16 @@ class ReplacementNoiseFoldTest {
     private static final List<ClimateScale> COMPRESSING_SCALES = List.of(ClimateScale.AUTO, ClimateScale.STRONG);
 
     private static WorldFold torus(int chunkMin, int chunkMax) {
-        return torus(chunkMin, chunkMax, GenerationOptions.DEFAULT);
+        return torus(chunkMin, chunkMax, OptionValues.DEFAULT);
     }
 
-    private static WorldFold torus(int chunkMin, int chunkMax, GenerationOptions options) {
+    private static WorldFold torus(int chunkMin, int chunkMax, OptionValues options) {
         return WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(chunkMin, chunkMax, chunkMin, chunkMax)),
                 options);
     }
 
     private static WorldFold compressed(int chunkMin, int chunkMax, ClimateScale scale) {
-        return torus(chunkMin, chunkMax, GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, scale));
+        return torus(chunkMin, chunkMax, OptionValues.DEFAULT.with(CompactBiomes.OPTION, scale));
     }
 
     private static final class VanillaWorldgen {

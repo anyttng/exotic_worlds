@@ -9,16 +9,16 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.MapCopies;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.MapViewSpan;
 import com.exoticworlds.compat.xaero.XaeroMapView.SeamFill;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.Direction;
 
 class XaeroMapViewTest {
-    private static final ToroidalShape SMALL = MapShapes.torus(-16, 16);
+    private static final WorldFold SMALL = MapFolds.torus(-16, 16);
     private static final int WINDOW = 1024;
     private static final double HALF_SPAN = MapViewSpan.halfBlocks(100, 1.0);
 

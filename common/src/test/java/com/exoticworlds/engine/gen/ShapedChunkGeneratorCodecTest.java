@@ -18,7 +18,7 @@ import com.mojang.serialization.MapCodec;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.FlatShape.Identification;
-import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -198,11 +198,11 @@ class ShapedChunkGeneratorCodecTest {
         JsonElement encoded = LoopedChunkGenerator.CODEC.codec()
                 .encodeStart(ops,
                         noiseGenerator(ShapeFixtures.torus(SQUARE),
-                                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.AUTO))).getOrThrow();
+                                OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.AUTO))).getOrThrow();
 
         assertFalse(encoded.getAsJsonObject().has(CLIMATE_SCALE_KEY), encoded.toString());
         assertEquals(ClimateScale.AUTO,
-                LoopedChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow().carriedShape().generationOptions().get(CompactBiomes.OPTION));
+                LoopedChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow().carriedShape().options().get(CompactBiomes.OPTION));
     }
 
     @Test
@@ -212,11 +212,11 @@ class ShapedChunkGeneratorCodecTest {
         JsonElement encoded = LoopedChunkGenerator.CODEC.codec()
                 .encodeStart(ops,
                         noiseGenerator(ShapeFixtures.torus(SQUARE),
-                                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF))).getOrThrow();
+                                OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF))).getOrThrow();
 
         assertFalse(encoded.getAsJsonObject().get(CLIMATE_SCALE_KEY).getAsBoolean(), encoded.toString());
         assertEquals(ClimateScale.OFF,
-                LoopedChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow().carriedShape().generationOptions().get(CompactBiomes.OPTION));
+                LoopedChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow().carriedShape().options().get(CompactBiomes.OPTION));
     }
 
     @Test
@@ -225,11 +225,11 @@ class ShapedChunkGeneratorCodecTest {
         JsonElement encoded = LoopedChunkGenerator.CODEC.codec()
                 .encodeStart(ops,
                         noiseGenerator(ShapeFixtures.torus(SQUARE),
-                                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF))).getOrThrow();
+                                OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF))).getOrThrow();
         encoded.getAsJsonObject().remove(CLIMATE_SCALE_KEY);
 
         assertEquals(ClimateScale.AUTO,
-                LoopedChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow().carriedShape().generationOptions().get(CompactBiomes.OPTION));
+                LoopedChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow().carriedShape().options().get(CompactBiomes.OPTION));
     }
 
     @Test
@@ -238,11 +238,11 @@ class ShapedChunkGeneratorCodecTest {
 
         JsonElement encoded = LoopedChunkGenerator.CODEC.codec()
                 .encodeStart(ops, noiseGenerator(ShapeFixtures.torus(SQUARE),
-                        GenerationOptions.DEFAULT.with(GuaranteedLand.OPTION, true))).getOrThrow();
+                        OptionValues.DEFAULT.with(GuaranteedLand.OPTION, true))).getOrThrow();
 
         assertTrue(encoded.getAsJsonObject().get(GUARANTEED_LAND_KEY).getAsBoolean(), encoded.toString());
         assertTrue(LoopedChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow()
-                .carriedShape().generationOptions().get(GuaranteedLand.OPTION));
+                .carriedShape().options().get(GuaranteedLand.OPTION));
     }
 
     @Test
@@ -250,11 +250,11 @@ class ShapedChunkGeneratorCodecTest {
         RegistryOps<JsonElement> ops = WORLDGEN.createSerializationContext(JsonOps.INSTANCE);
 
         JsonElement encoded = LoopedChunkGenerator.CODEC.codec()
-                .encodeStart(ops, noiseGenerator(ShapeFixtures.torus(SQUARE), GenerationOptions.DEFAULT)).getOrThrow();
+                .encodeStart(ops, noiseGenerator(ShapeFixtures.torus(SQUARE), OptionValues.DEFAULT)).getOrThrow();
 
         assertFalse(encoded.getAsJsonObject().has(GUARANTEED_LAND_KEY), encoded.toString());
         assertFalse(LoopedChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow()
-                .carriedShape().generationOptions().get(GuaranteedLand.OPTION));
+                .carriedShape().options().get(GuaranteedLand.OPTION));
     }
 
     @Test
@@ -264,18 +264,18 @@ class ShapedChunkGeneratorCodecTest {
         JsonElement encoded = LoopedFlatChunkGenerator.CODEC.codec()
                 .encodeStart(ops,
                         flatGenerator(ShapeFixtures.torus(SQUARE),
-                                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF))).getOrThrow();
+                                OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF))).getOrThrow();
 
         assertFalse(encoded.getAsJsonObject().get(CLIMATE_SCALE_KEY).getAsBoolean(), encoded.toString());
         assertEquals(ClimateScale.OFF,
-                LoopedFlatChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow().carriedShape().generationOptions().get(CompactBiomes.OPTION));
+                LoopedFlatChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow().carriedShape().options().get(CompactBiomes.OPTION));
     }
 
     private static LoopedChunkGenerator noiseGenerator(FlatShape shape) {
-        return noiseGenerator(shape, GenerationOptions.DEFAULT);
+        return noiseGenerator(shape, OptionValues.DEFAULT);
     }
 
-    private static LoopedChunkGenerator noiseGenerator(FlatShape shape, GenerationOptions generationOptions) {
+    private static LoopedChunkGenerator noiseGenerator(FlatShape shape, OptionValues generationOptions) {
         return new LoopedChunkGenerator(
                 new FixedBiomeSource(WORLDGEN.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)),
                 WORLDGEN.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.OVERWORLD),
@@ -283,10 +283,10 @@ class ShapedChunkGeneratorCodecTest {
     }
 
     private static LoopedFlatChunkGenerator flatGenerator(FlatShape shape) {
-        return flatGenerator(shape, GenerationOptions.DEFAULT);
+        return flatGenerator(shape, OptionValues.DEFAULT);
     }
 
-    private static LoopedFlatChunkGenerator flatGenerator(FlatShape shape, GenerationOptions generationOptions) {
+    private static LoopedFlatChunkGenerator flatGenerator(FlatShape shape, OptionValues generationOptions) {
         return new LoopedFlatChunkGenerator(new FlatLevelGeneratorSettings(
                 Optional.empty(),
                 WORLDGEN.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS),

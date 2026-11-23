@@ -2,7 +2,7 @@ package com.exoticworlds.engine.noise;
 
 import java.util.List;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -77,17 +77,17 @@ public final class ClimateScanFixture {
 
     public static WorldFold strongTorusOfWidth(int widthBlocks) {
         return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)),
-                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.STRONG));
+                OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.STRONG));
     }
 
     public static WorldFold guaranteedTorusOfWidth(int widthBlocks) {
         return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)),
-                GenerationOptions.DEFAULT.with(GuaranteedLand.OPTION, true));
+                OptionValues.DEFAULT.with(GuaranteedLand.OPTION, true));
     }
 
     public static WorldFold uncompressedTorusOfWidth(int widthBlocks) {
         return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)),
-                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
+                OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
     }
 
     public static WorldFold cylinderOfWidth(int widthBlocks) {
@@ -96,7 +96,7 @@ public final class ClimateScanFixture {
 
     public static WorldFold uncompressedCylinderOfWidth(int widthBlocks) {
         return WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, widthBlocks / 16)),
-                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
+                OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
     }
 
     public static NormalNoise.NoiseParameters noiseParameters(ResourceKey<NormalNoise.NoiseParameters> key) {

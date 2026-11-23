@@ -69,7 +69,7 @@ public final class DhKeys {
         }
 
         BlockPos raw = new BlockPos(pos.getX(), pos.getY(), pos.getZ());
-        BlockPos block = lattice.shape().fold(raw);
+        BlockPos block = lattice.fold().fold(raw);
         if (block == raw) {
             DhProbes.keyKept(DhProbes.Key.BEACON);
             return pos;
@@ -178,7 +178,7 @@ public final class DhKeys {
 
     public static List<WorldCopies.Piece> beamPieces(DhLattice lattice, int minX, int maxX, int minZ, int maxZ) {
         List<WorldCopies.Piece> pieces = new ArrayList<>();
-        for (WorldCopies.Piece piece : WorldCopies.pieces(lattice.shape(), minX, minZ, maxX + 1, maxZ + 1)) {
+        for (WorldCopies.Piece piece : WorldCopies.pieces(lattice.fold(), minX, minZ, maxX + 1, maxZ + 1)) {
             pieces.add(new WorldCopies.Piece(piece.copy(), piece.minX(), piece.minZ(), piece.maxX() - 1,
                     piece.maxZ() - 1));
         }

@@ -5,8 +5,9 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.SeamShift;
-import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.RectangleCopies;
+import com.exoticworlds.core.WorldFold;
 
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 
@@ -18,19 +19,19 @@ import net.minecraft.world.phys.AABB;
 public final class WorldCopies {
     public static final Copy IDENTITY = new Copy(0, 0);
 
-    public static List<Copy> meeting(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ) {
+    public static List<Copy> meeting(@Nullable WorldFold fold, int minX, int minZ, int maxX, int maxZ) {
         if (minX >= maxX || minZ >= maxZ) {
             return List.of();
         }
 
-        if (shape == null) {
+        if (fold == null) {
             return List.of(IDENTITY);
         }
 
-        List<SeamShift> shifts = shape.copiesMeeting(new AABB(minX, 0, minZ, maxX, 1, maxZ));
+        List<DeckTransformation> shifts = RectangleCopies.meeting(fold, new AABB(minX, 0, minZ, maxX, 1, maxZ));
         List<Copy> copies = new ArrayList<>(shifts.size());
-        for (SeamShift shift : shifts) {
-            if (!shift.orientation().equals(ToroidalShape.Orientation.IDENTITY)) {
+        for (DeckTransformation shift : shifts) {
+            if (!shift.orientation().isIdentity()) {
                 throw new IllegalStateException("A map draws its copies unturned, got " + shift.orientation());
             }
 
@@ -41,19 +42,19 @@ public final class WorldCopies {
         return copies;
     }
 
-    public static List<Piece> pieces(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ) {
-        return Window.of(shape, minX, minZ, maxX, maxZ).pieces();
+    public static List<Piece> pieces(@Nullable WorldFold fold, int minX, int minZ, int maxX, int maxZ) {
+        return Window.of(fold, minX, minZ, maxX, maxZ).pieces();
     }
 
-    public static List<Edge> seams(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ) {
-        if (shape == null) {
+    public static List<Edge> seams(@Nullable WorldFold fold, int minX, int minZ, int maxX, int maxZ) {
+        if (fold == null) {
             return List.of();
         }
 
-        AxisCopies x = AxisCopies.of(shape, Direction.Axis.X);
-        AxisCopies z = AxisCopies.of(shape, Direction.Axis.Z);
+        AxisCopies x = AxisCopies.of(fold, Direction.Axis.X);
+        AxisCopies z = AxisCopies.of(fold, Direction.Axis.Z);
         List<Edge> edges = new ArrayList<>();
-        for (Copy copy : meeting(shape, minX, minZ, maxX, maxZ)) {
+        for (Copy copy : meeting(fold, minX, minZ, maxX, maxZ)) {
             int fromX = x.loops() ? Math.max(minX, x.min() + copy.dx()) : minX;
             int toX = x.loops() ? Math.min(maxX, x.max() + copy.dx()) : maxX;
             int fromZ = z.loops() ? Math.max(minZ, z.min() + copy.dz()) : minZ;
@@ -82,9 +83,9 @@ public final class WorldCopies {
     public record Edge(int fromX, int fromZ, int toX, int toZ) {
     }
 
-    public record Window(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ, List<Copy> copies) {
-        public static Window of(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ) {
-            return new Window(shape, minX, minZ, maxX, maxZ, WorldCopies.meeting(shape, minX, minZ, maxX, maxZ));
+    public record Window(@Nullable WorldFold fold, int minX, int minZ, int maxX, int maxZ, List<Copy> copies) {
+        public static Window of(@Nullable WorldFold fold, int minX, int minZ, int maxX, int maxZ) {
+            return new Window(fold, minX, minZ, maxX, maxZ, WorldCopies.meeting(fold, minX, minZ, maxX, maxZ));
         }
 
         public List<Copy> copiesFor(int minX, int minZ, int maxX, int maxZ) {
@@ -92,16 +93,16 @@ public final class WorldCopies {
                 return this.copies;
             }
 
-            return WorldCopies.meeting(this.shape, minX, minZ, maxX, maxZ);
+            return WorldCopies.meeting(this.fold, minX, minZ, maxX, maxZ);
         }
 
         public Window within(int minX, int minZ, int maxX, int maxZ) {
-            return new Window(this.shape, minX, minZ, maxX, maxZ, copiesFor(minX, minZ, maxX, maxZ));
+            return new Window(this.fold, minX, minZ, maxX, maxZ, copiesFor(minX, minZ, maxX, maxZ));
         }
 
         public List<Piece> pieces() {
-            AxisCopies x = AxisCopies.of(this.shape, Direction.Axis.X);
-            AxisCopies z = AxisCopies.of(this.shape, Direction.Axis.Z);
+            AxisCopies x = AxisCopies.of(this.fold, Direction.Axis.X);
+            AxisCopies z = AxisCopies.of(this.fold, Direction.Axis.Z);
             List<Piece> pieces = new ArrayList<>();
             for (Copy copy : this.copies) {
                 int pieceMinX = x.clipMin(this.minX - copy.dx());

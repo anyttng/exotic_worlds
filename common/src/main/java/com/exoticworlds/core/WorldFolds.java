@@ -2,7 +2,6 @@ package com.exoticworlds.core;
 
 import java.util.Optional;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 import com.mojang.serialization.DataResult;
 
@@ -14,15 +13,15 @@ public final class WorldFolds {
     public static final WorldFold NOOP = of(FlatShape.rectangle());
 
     public static WorldFold of(FlatShape shape) {
-        return of(shape, GenerationOptions.DEFAULT);
+        return of(shape, OptionValues.DEFAULT);
     }
 
-    public static WorldFold of(FlatShape shape, GenerationOptions generationOptions) {
+    public static WorldFold of(FlatShape shape, OptionValues options) {
         verifyFoldable(shape).getOrThrow(IllegalArgumentException::new);
 
         return shape.decomposesPerAxis()
-                ? new WorldLoopFold(shape.bounds(), generationOptions)
-                : new DeckGroupFold(shape, generationOptions);
+                ? new WorldLoopFold(shape.bounds(), options)
+                : new DeckGroupFold(shape, options);
     }
 
     public static DataResult<FlatShape> verifyFoldable(FlatShape shape) {

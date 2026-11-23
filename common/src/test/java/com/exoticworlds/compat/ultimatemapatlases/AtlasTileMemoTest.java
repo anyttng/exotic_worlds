@@ -9,17 +9,17 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasTileCopies.TileCenter;
+import com.exoticworlds.core.WorldFold;
 
 class AtlasTileMemoTest {
     private static final int MAP_BLOCKS = 128;
 
     @Test
     void aHeldTileAnswersWhatTheLookupsAnswer() {
-        ToroidalShape shape = MapShapes.torus(-16, 16);
+        WorldFold shape = MapFolds.torus(-16, 16);
         AtlasTileMemo memo = new AtlasTileMemo();
         for (int ask = 0; ask < 2; ask++) {
             assertEquals(AtlasTileCopies.of(shape, 768, 0, MAP_BLOCKS), memo.copies(shape, 768, 0, MAP_BLOCKS),
@@ -34,7 +34,7 @@ class AtlasTileMemoTest {
 
     @Test
     void tilesThatShareOneCoordinateAreHeldApart() {
-        ToroidalShape shape = MapShapes.torus(-16, 16);
+        WorldFold shape = MapFolds.torus(-16, 16);
         AtlasTileMemo memo = new AtlasTileMemo();
         assertEquals(AtlasTileCopies.of(shape, 256, -256, MAP_BLOCKS), memo.copies(shape, 256, -256, MAP_BLOCKS));
         assertEquals(AtlasTileCopies.of(shape, -256, 256, MAP_BLOCKS), memo.copies(shape, -256, 256, MAP_BLOCKS),
@@ -44,8 +44,8 @@ class AtlasTileMemoTest {
 
     @Test
     void anotherShapeDropsWhatWasHeld() {
-        ToroidalShape torus = MapShapes.torus(-16, 16);
-        ToroidalShape cylinder = MapShapes.cylinder(-16, 16);
+        WorldFold torus = MapFolds.torus(-16, 16);
+        WorldFold cylinder = MapFolds.cylinder(-16, 16);
         AtlasTileMemo memo = new AtlasTileMemo();
         memo.copies(torus, 256, 768, MAP_BLOCKS);
         List<SeamLine> torusLines = memo.seamLines(torus, 256, 256, MAP_BLOCKS);
@@ -61,7 +61,7 @@ class AtlasTileMemoTest {
 
     @Test
     void anotherMapSizeDropsWhatWasHeld() {
-        ToroidalShape shape = MapShapes.torus(-16, 16);
+        WorldFold shape = MapFolds.torus(-16, 16);
         AtlasTileMemo memo = new AtlasTileMemo();
         memo.copies(shape, 1472, 0, MAP_BLOCKS);
         assertEquals(AtlasTileCopies.of(shape, 1472, 0, 1024), memo.copies(shape, 1472, 0, 1024),
@@ -70,7 +70,7 @@ class AtlasTileMemoTest {
 
     @Test
     void aViewDraggedWithoutEndNeverHoldsMoreThanTheCeiling() {
-        ToroidalShape shape = MapShapes.torus(-16, 16);
+        WorldFold shape = MapFolds.torus(-16, 16);
         AtlasTileMemo memo = new AtlasTileMemo();
         List<TileCenter> first = memo.copies(shape, 0, 0, MAP_BLOCKS);
         for (int tile = 1; tile < AtlasTileMemo.MAX_TILES; tile++) {

@@ -15,14 +15,20 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v2.geometry.WorldGeometry;
+import com.exoticworlds.api.v2.option.ShapeOption;
+import com.exoticworlds.api.v2.option.ShapeOptions;
+import com.exoticworlds.bridge.v2.geometry.GeometryBridge;
 import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.engine.gen.structure.AddedStructureStarts;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
+import com.exoticworlds.shape.torus.GuaranteedLand;
+import com.exoticworlds.shape.torus.GuaranteedNetherComplexes;
+import com.mojang.serialization.Codec;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -67,6 +73,14 @@ class GenerationHooksTest {
 
     private static final ChunkPos ADDED_CHUNK = new ChunkPos(3, -5);
 
+    private static final int ANY_POSITION = 0;
+
+    private static final ShapeOption<Boolean> NETHER_COMPLEXES =
+            new ShapeOption<>(GuaranteedNetherComplexes.KEY, ANY_POSITION, Codec.BOOL, false);
+
+    private static final ShapeOption<Boolean> LAND =
+            new ShapeOption<>(GuaranteedLand.KEY, ANY_POSITION, Codec.BOOL, false);
+
     private static final List<Seen> SEEN = new CopyOnWriteArrayList<>();
 
     private static final List<String> ORDER = new CopyOnWriteArrayList<>();
@@ -75,7 +89,7 @@ class GenerationHooksTest {
 
     private static final List<Holder<StructureSet>> TEST_SETS = new CopyOnWriteArrayList<>();
 
-    private record Seen(WorldGeometry geometry, GenerationOptions options) {
+    private record Seen(WorldGeometry geometry, ShapeOptions options) {
     }
 
     @BeforeAll
@@ -113,13 +127,14 @@ class GenerationHooksTest {
     }
 
     @Test
-    void aRandomStateHookRunsOncePerRandomStateWithTheFoldsGeometry() {
-        WorldFold fold = torus().fold();
+    void aRandomStateHookRunsOncePerRandomStateWithTheFoldsGeometryAndOptions() {
+        WorldFold fold = torus(OptionValues.DEFAULT.with(GuaranteedNetherComplexes.OPTION, true)).fold();
         randomState(settingsOf(ClimateScanFixture.TYPES.getFirst()), fold, SEED_BASE);
 
         assertEquals(1, SEEN.size());
-        assertSame(fold.geometryView(), SEEN.get(0).geometry());
-        assertSame(fold.generationOptions(), SEEN.get(0).options());
+        assertSame(GeometryBridge.of(fold), SEEN.get(0).geometry());
+        assertEquals(true, SEEN.get(0).options().get(NETHER_COMPLEXES));
+        assertEquals(false, SEEN.get(0).options().get(LAND));
     }
 
     @Test
@@ -175,7 +190,10 @@ class GenerationHooksTest {
     }
 
     private static CarriedShape torus() {
-        return new CarriedShape(ShapeFixtures.torus(WorldLoopBounds.ofWidth(TORUS_WIDTH_CHUNKS)),
-                GenerationOptions.DEFAULT);
+        return torus(OptionValues.DEFAULT);
+    }
+
+    private static CarriedShape torus(OptionValues options) {
+        return new CarriedShape(ShapeFixtures.torus(WorldLoopBounds.ofWidth(TORUS_WIDTH_CHUNKS)), options);
     }
 }

@@ -6,9 +6,9 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.SeamLine;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.world.phys.Vec3;
 
@@ -19,9 +19,9 @@ class AtlasTileFoldTest {
 
     private static final int BLOCKS_PER_TILE = 128;
 
-    private static final ToroidalShape TORUS = MapShapes.torus(-8, 8);
+    private static final WorldFold TORUS = MapFolds.torus(-8, 8);
 
-    private static final ToroidalShape LATTICE = MapShapes.latticeTorus(-8, 8, 4);
+    private static final WorldFold LATTICE = MapFolds.latticeTorus(-8, 8, 4);
 
     @Test
     void aPointPastTheZSeamIsSeatedOnTheSkewedCopyNearestTheTile() {

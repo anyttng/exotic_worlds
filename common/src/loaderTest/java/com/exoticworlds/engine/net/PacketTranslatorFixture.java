@@ -2,8 +2,8 @@ package com.exoticworlds.engine.net;
 
 import java.util.function.IntFunction;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -26,7 +26,7 @@ final class PacketTranslatorFixture {
             WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-32, 32, -32, 32)));
     static final WorldFold MIRRORED_FOLD = new DeckGroupFold(ShapeFixtures.mirrored(
             new WorldLoopBounds(new AxisBounds.Looped(-32, 32), AxisBounds.Unbounded.INSTANCE),
-            Direction.Axis.Z, 0), GenerationOptions.DEFAULT);
+            Direction.Axis.Z, 0), OptionValues.DEFAULT);
     static final RegistryAccess.Frozen REGISTRIES =
             RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 

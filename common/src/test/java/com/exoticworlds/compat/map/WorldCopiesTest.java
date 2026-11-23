@@ -11,7 +11,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.core.WorldFold;
 
 class WorldCopiesTest {
     private static final int MIN_CHUNK = -16;
@@ -21,9 +21,9 @@ class WorldCopiesTest {
     private static final int SKEW_CHUNKS = 16;
     private static final int SKEW = 256;
 
-    private static final ToroidalShape TORUS = MapShapes.torus(MIN_CHUNK, MAX_CHUNK);
-    private static final ToroidalShape LATTICE = MapShapes.latticeTorus(MIN_CHUNK, MAX_CHUNK, SKEW_CHUNKS);
-    private static final ToroidalShape CYLINDER = MapShapes.cylinder(MIN_CHUNK, MAX_CHUNK);
+    private static final WorldFold TORUS = MapFolds.torus(MIN_CHUNK, MAX_CHUNK);
+    private static final WorldFold LATTICE = MapFolds.latticeTorus(MIN_CHUNK, MAX_CHUNK, SKEW_CHUNKS);
+    private static final WorldFold CYLINDER = MapFolds.cylinder(MIN_CHUNK, MAX_CHUNK);
 
     @Test
     void aViewWiderThanThePlainTorusMeetsEveryCopyOnTheGrid() {
@@ -63,7 +63,7 @@ class WorldCopiesTest {
 
     @Test
     void thePiecesOfAViewCoverItOnceInsideTheWorld() {
-        for (ToroidalShape shape : List.of(TORUS, LATTICE, CYLINDER)) {
+        for (WorldFold shape : List.of(TORUS, LATTICE, CYLINDER)) {
             List<WorldCopies.Piece> pieces = WorldCopies.pieces(shape, -1100, -900, 1300, 700);
             long area = 0;
             for (WorldCopies.Piece piece : pieces) {
@@ -92,7 +92,7 @@ class WorldCopiesTest {
 
     @Test
     void aCopyListWiderThanTheViewClipsToTheSamePiecesAsTheShape() {
-        for (ToroidalShape shape : List.of(TORUS, LATTICE, CYLINDER)) {
+        for (WorldFold shape : List.of(TORUS, LATTICE, CYLINDER)) {
             WorldCopies.Window view = WorldCopies.Window.of(shape, -5000, -5000, 5000, 5000)
                     .within(-1100, -900, 1300, 700);
             assertEquals(new HashSet<>(WorldCopies.pieces(shape, -1100, -900, 1300, 700)),

@@ -42,8 +42,8 @@ class DhRowCopiesTest {
 
     private static long rowsOfThePeriod(DhLattice lattice) {
         AlignedPeriod period = DhFold.period(lattice, LEAF);
-        long lapsX = period.xBlocks() / lattice.shape().widthBlocks(Direction.Axis.X);
-        long lapsZ = period.zBlocks() / lattice.shape().widthBlocks(Direction.Axis.Z);
+        long lapsX = period.xBlocks() / lattice.fold().widthBlocks(Direction.Axis.X);
+        long lapsZ = period.zBlocks() / lattice.fold().widthBlocks(Direction.Axis.Z);
         return lapsX * lapsZ;
     }
 
@@ -89,7 +89,7 @@ class DhRowCopiesTest {
                     keys.add(key(shape, new ChunkPos(chunkX, chunkZ)));
                     for (ChunkPos copy : copies) {
                         assertTrue(keys.add(key(shape, copy)), "chunk " + chunkX + "," + chunkZ + " copy " + copy);
-                        assertEquals(shape.shape().fold(new ChunkPos(chunkX, chunkZ)), shape.shape().fold(copy),
+                        assertEquals(shape.fold().fold(new ChunkPos(chunkX, chunkZ)), shape.fold().fold(copy),
                                 "chunk " + chunkX + "," + chunkZ + " copy " + copy);
                     }
 

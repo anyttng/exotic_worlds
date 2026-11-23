@@ -3,9 +3,7 @@ package com.exoticworlds.api.v2.client;
 import java.util.Optional;
 
 import com.exoticworlds.api.v2.geometry.WorldGeometry;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.engine.level.PublishedShapes;
+import com.exoticworlds.bridge.v2.client.ClientGeometryBridge;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceKey;
@@ -28,8 +26,7 @@ public final class ClientGeometries {
      * not arrived yet: they are synced on login and dimension change, before the first chunk.
      */
     public static Optional<WorldGeometry> of(ClientLevel level) {
-        WorldFold fold = WorldLoopAttachments.wrappedClientBoundsFoldOf(level);
-        return fold == null ? Optional.empty() : Optional.of(fold.geometryView());
+        return ClientGeometryBridge.of(level);
     }
 
     /**
@@ -38,8 +35,7 @@ public final class ClientGeometries {
      * never published it: every wrapped level arrives on login, before the first chunk.
      */
     public static Optional<WorldGeometry> of(ResourceKey<Level> dimension) {
-        WorldFold fold = PublishedShapes.wrappedFoldOf(dimension);
-        return fold == null ? Optional.empty() : Optional.of(fold.geometryView());
+        return ClientGeometryBridge.of(dimension);
     }
 
     private ClientGeometries() {

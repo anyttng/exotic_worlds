@@ -97,8 +97,8 @@ class DhKeysRenderTreeTest {
     void aChildOfASectionSplitForWhatCannotDrawIsNeverAskedForMoreThanOneLevelAboveItsOwn() {
         for (DhLattice lattice : List.of(this.wide, this.odd, torus(-50, 50), cylinder(0, 101), skewed(1),
                 skewed(4))) {
-            int min = lattice.shape().minBlock(Direction.Axis.X);
-            int max = lattice.shape().maxBlock(Direction.Axis.X);
+            int min = lattice.fold().minBlock(Direction.Axis.X);
+            int max = lattice.fold().maxBlock(Direction.Axis.X);
             for (int ref : new int[] {0, max - 10}) {
                 for (byte level = LEAF + 1; level <= TOP_LEVEL; level++) {
                     for (int x : sectionsAround(level, min, max)) {

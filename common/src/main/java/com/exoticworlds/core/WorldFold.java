@@ -2,9 +2,7 @@ package com.exoticworlds.core;
 
 import java.util.List;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v2.geometry.WorldGeometry;
+import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -34,19 +32,59 @@ public interface WorldFold {
 
     boolean preservesLocalIndices();
 
-    GenerationOptions generationOptions();
+    OptionValues options();
 
     WrapDomain blockDomain(Direction.Axis axis);
 
     WrapDomain chunkDomain(Direction.Axis axis);
 
+    default boolean loops(Direction.Axis axis) {
+        return axis != Direction.Axis.Y && bounds().axis(axis) instanceof AxisBounds.Looped;
+    }
+
+    default int minChunk(Direction.Axis axis) {
+        return looped(axis).minChunk();
+    }
+
+    default int maxChunk(Direction.Axis axis) {
+        return looped(axis).maxChunk();
+    }
+
+    default int widthChunks(Direction.Axis axis) {
+        return looped(axis).chunkWidth();
+    }
+
+    default int minBlock(Direction.Axis axis) {
+        return looped(axis).minBlock();
+    }
+
+    default int maxBlock(Direction.Axis axis) {
+        return looped(axis).maxBlock();
+    }
+
+    default int widthBlocks(Direction.Axis axis) {
+        return widthChunks(axis) * CoordinateConstants.CHUNK_WIDTH;
+    }
+
+    default double foldCoord(Direction.Axis axis, double coord) {
+        return axis == Direction.Axis.Y ? coord : blockDomain(axis).wrap(coord);
+    }
+
+    default int foldBlock(Direction.Axis axis, int coord) {
+        return axis == Direction.Axis.Y ? coord : blockDomain(axis).wrap(coord);
+    }
+
+    default int foldChunk(Direction.Axis axis, int chunk) {
+        return axis == Direction.Axis.Y ? chunk : chunkDomain(axis).wrap(chunk);
+    }
+
+    default double nearestCoord(Direction.Axis axis, double ref, double coord) {
+        return axis == Direction.Axis.Y ? coord : blockDomain(axis).unwrapAround(ref, coord);
+    }
+
     TranslationLattice blockLattice();
 
     TranslationLattice chunkLattice();
-
-    ToroidalShape shapeView();
-
-    WorldGeometry geometryView();
 
     boolean isOver(Vec3 pos);
 
@@ -164,4 +202,12 @@ public interface WorldFold {
     }
 
     boolean foldsOntoItself(BoundingBox region);
+
+    private AxisBounds.Looped looped(Direction.Axis axis) {
+        if (loops(axis) && bounds().axis(axis) instanceof AxisBounds.Looped looped) {
+            return looped;
+        }
+
+        throw new IllegalArgumentException("Axis " + axis + " does not loop, check loops(axis) first");
+    }
 }

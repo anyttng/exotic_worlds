@@ -3,9 +3,6 @@ package com.exoticworlds.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v2.geometry.WorldGeometry;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.BlockPos;
@@ -29,19 +26,16 @@ final class WorldLoopFold implements WorldFold {
 
     private final boolean wrapped;
 
-    private final GenerationOptions generationOptions;
+    private final OptionValues options;
 
     private final int maxViewDistance;
 
-    private final ToroidalShape shapeView;
-    private final WorldGeometry geometryView;
-
-    WorldLoopFold(WorldLoopBounds bounds, GenerationOptions generationOptions) {
+    WorldLoopFold(WorldLoopBounds bounds, OptionValues options) {
         this.bounds = bounds;
         boolean xLooped = bounds.x() instanceof AxisBounds.Looped;
         boolean zLooped = bounds.z() instanceof AxisBounds.Looped;
         this.wrapped = xLooped || zLooped;
-        this.generationOptions = generationOptions;
+        this.options = options;
         this.maxViewDistance = bounds.maxViewDistance();
 
         this.coords = new CoordOps(blockDomainFor(bounds.x()), blockDomainFor(bounds.z()));
@@ -50,8 +44,6 @@ final class WorldLoopFold implements WorldFold {
         this.blocks = new BlockOps();
         this.blockLattice = TranslationLattice.unskewed(this.coords.x, this.coords.z);
         this.chunkLattice = TranslationLattice.unskewed(this.chunks.x, this.chunks.z);
-        this.shapeView = new ToroidalShapeView(this);
-        this.geometryView = new WorldGeometryView(this);
     }
 
     private static WrapDomain chunkDomainFor(AxisBounds axis) {
@@ -336,8 +328,8 @@ final class WorldLoopFold implements WorldFold {
     }
 
     @Override
-    public GenerationOptions generationOptions() {
-        return this.generationOptions;
+    public OptionValues options() {
+        return this.options;
     }
 
     @Override
@@ -366,16 +358,6 @@ final class WorldLoopFold implements WorldFold {
     @Override
     public TranslationLattice chunkLattice() {
         return this.chunkLattice;
-    }
-
-    @Override
-    public ToroidalShape shapeView() {
-        return this.shapeView;
-    }
-
-    @Override
-    public WorldGeometry geometryView() {
-        return this.geometryView;
     }
 
     @Override

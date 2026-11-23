@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.world.phys.AABB;
@@ -41,9 +40,9 @@ class UnlappableCoordinateTest {
     }
 
     private static final List<Subject> SUBJECTS = List.of(
-            new Subject("torus", new WorldLoopFold(BOUNDS, GenerationOptions.DEFAULT)),
+            new Subject("torus", new WorldLoopFold(BOUNDS, OptionValues.DEFAULT)),
             new Subject("lattice torus",
-                    new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS), GenerationOptions.DEFAULT)));
+                    new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS), OptionValues.DEFAULT)));
 
     private static List<Vec3> positions(double... coordinates) {
         List<Vec3> built = new ArrayList<>();

@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.ClientShapes;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.map.WorldCopies;
 
@@ -24,32 +24,32 @@ public final class AtlasTileFold {
     public static final int MAP_PIXELS = 128;
 
     public static Vec3 nearestToTile(AtlasTilePayload tile, double x, double z) {
-        return nearestToTile(shapeOf(tile.dimension()), tile, x, z);
+        return nearestToTile(foldOf(tile.dimension()), tile, x, z);
     }
 
-    static Vec3 nearestToTile(@Nullable ToroidalShape shape, AtlasTilePayload tile, double x, double z) {
+    static Vec3 nearestToTile(@Nullable WorldFold fold, AtlasTilePayload tile, double x, double z) {
         Vec3 point = new Vec3(x, 0.0, z);
-        return shape == null ? point : shape.nearestCopy(new Vec3(tile.centerX(), 0.0, tile.centerZ()), point);
+        return fold == null ? point : fold.nearestCopy(new Vec3(tile.centerX(), 0.0, tile.centerZ()), point);
     }
 
     public static Vec3 foldOnTile(AtlasTilePayload tile, double x, double z) {
-        return foldOnTile(shapeOf(tile.dimension()), x, z);
+        return foldOnTile(foldOf(tile.dimension()), x, z);
     }
 
-    static Vec3 foldOnTile(@Nullable ToroidalShape shape, double x, double z) {
-        return ClientShapes.fold(shape, new Vec3(x, 0.0, z));
+    static Vec3 foldOnTile(@Nullable WorldFold fold, double x, double z) {
+        return ClientFolds.fold(fold, new Vec3(x, 0.0, z));
     }
 
     public static List<SeamLine> seamLines(AtlasTilePayload tile, int blocksPerTile) {
-        return seamLines(shapeOf(tile.dimension()), tile, blocksPerTile);
+        return seamLines(foldOf(tile.dimension()), tile, blocksPerTile);
     }
 
-    static List<SeamLine> seamLines(@Nullable ToroidalShape shape, AtlasTilePayload tile, int blocksPerTile) {
+    static List<SeamLine> seamLines(@Nullable WorldFold fold, AtlasTilePayload tile, int blocksPerTile) {
         int blocksPerPixel = blocksPerTile / MAP_PIXELS;
         int minX = tile.centerX() - blocksPerTile / 2;
         int minZ = tile.centerZ() - blocksPerTile / 2;
         List<SeamLine> lines = new ArrayList<>();
-        for (WorldCopies.Edge edge : WorldCopies.seams(shape, minX, minZ, minX + blocksPerTile,
+        for (WorldCopies.Edge edge : WorldCopies.seams(fold, minX, minZ, minX + blocksPerTile,
                 minZ + blocksPerTile)) {
             lines.add(SeamLine.of(edge, -minX / blocksPerPixel, -minZ / blocksPerPixel, 1.0 / blocksPerPixel));
         }
@@ -72,9 +72,9 @@ public final class AtlasTileFold {
         return data == null ? 0 : MAP_PIXELS << data.scale;
     }
 
-    public static @Nullable ToroidalShape shapeOf(String dimension) {
+    public static @Nullable WorldFold foldOf(String dimension) {
         Identifier id = Identifier.tryParse(dimension);
-        return id == null ? null : ClientShapes.of(ResourceKey.create(Registries.DIMENSION, id));
+        return id == null ? null : ClientFolds.of(ResourceKey.create(Registries.DIMENSION, id));
     }
 
     private AtlasTileFold() {

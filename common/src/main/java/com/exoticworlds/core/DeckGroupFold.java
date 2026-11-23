@@ -5,9 +5,6 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v2.geometry.WorldGeometry;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.BlockPos;
@@ -31,24 +28,18 @@ public final class DeckGroupFold implements WorldFold {
 
     private final boolean wrapped;
 
-    private final GenerationOptions generationOptions;
+    private final OptionValues options;
 
-    private final ToroidalShape shapeView;
-
-    private final WorldGeometry geometryView;
-
-    public DeckGroupFold(FlatShape shape, GenerationOptions generationOptions) {
+    public DeckGroupFold(FlatShape shape, OptionValues options) {
         this.shape = shape;
         boolean xLooped = shape.bounds().x() instanceof AxisBounds.Looped;
         boolean zLooped = shape.bounds().z() instanceof AxisBounds.Looped;
         this.wrapped = xLooped || zLooped;
-        this.generationOptions = generationOptions;
+        this.options = options;
         this.chunks = new DeckGroupLattice(shape, 1);
         this.blocks = new DeckGroupLattice(shape, CoordinateConstants.CHUNK_WIDTH);
         this.chunkLattice = this.chunks.translations;
         this.blockLattice = this.blocks.translations;
-        this.shapeView = new ToroidalShapeView(this);
-        this.geometryView = new WorldGeometryView(this);
     }
 
     public FlatShape shape() {
@@ -76,8 +67,8 @@ public final class DeckGroupFold implements WorldFold {
     }
 
     @Override
-    public GenerationOptions generationOptions() {
-        return this.generationOptions;
+    public OptionValues options() {
+        return this.options;
     }
 
     @Override
@@ -135,16 +126,6 @@ public final class DeckGroupFold implements WorldFold {
     @Override
     public TranslationLattice chunkLattice() {
         return translationLattice(this.chunkLattice);
-    }
-
-    @Override
-    public ToroidalShape shapeView() {
-        return this.shapeView;
-    }
-
-    @Override
-    public WorldGeometry geometryView() {
-        return this.geometryView;
     }
 
     private TranslationLattice translationLattice(@Nullable TranslationLattice lattice) {

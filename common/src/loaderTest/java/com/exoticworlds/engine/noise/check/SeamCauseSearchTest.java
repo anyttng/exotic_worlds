@@ -17,9 +17,9 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
@@ -162,7 +162,7 @@ class SeamCauseSearchTest {
         return new DeckGroupFold(
                 FlatShape.latticeTorus(WorldLoopBounds.ofWidth(SectionPos.blockToSectionCoord(WIDTH_BLOCKS)),
                         SKEW_CHUNKS),
-                GenerationOptions.DEFAULT);
+                OptionValues.DEFAULT);
     }
 
     private static BiomeSource overworldBiomes() {

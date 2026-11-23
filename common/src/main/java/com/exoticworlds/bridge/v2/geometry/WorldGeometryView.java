@@ -1,18 +1,21 @@
-package com.exoticworlds.core;
+package com.exoticworlds.bridge.v2.geometry;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.api.v2.geometry.Oriented;
 import com.exoticworlds.api.v2.geometry.SeamShift;
 import com.exoticworlds.api.v2.geometry.WorldGeometry;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.api.v2.shape.LoopSpans;
+import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.RectangleCopies;
+import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.shape.ShapeSpansAdapter;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -37,15 +40,7 @@ final class WorldGeometryView implements WorldGeometry {
     }
 
     private static LoopSpans spansOf(WorldFold fold) {
-        WorldLoopBounds bounds = fold.bounds();
-        LoopSpans spans = LoopSpans.NONE;
-        for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (bounds.axis(axis) instanceof AxisBounds.Looped looped) {
-                spans = spans.and(axis, looped.minChunk(), looped.maxChunk());
-            }
-        }
-
-        return spans.withSkew(fold.chunkLattice().skew());
+        return ShapeSpansAdapter.loopSpans(FlatShape.latticeTorus(fold.bounds(), fold.chunkLattice().skew()));
     }
 
     @Override
@@ -127,12 +122,14 @@ final class WorldGeometryView implements WorldGeometry {
 
     @Override
     public List<Oriented<Vec3>> copiesInside(AABB box, Vec3 pos) {
-        return RectangleCopies.inside(this.fold, box, pos, Oriented::new);
+        return RectangleCopies.inside(this.fold, box, pos,
+                (value, orientation) -> new Oriented<>(value, OrientationView.of(orientation)));
     }
 
     @Override
     public List<Oriented<BlockPos>> copiesInside(AABB box, BlockPos pos) {
-        return RectangleCopies.inside(this.fold, box, pos, Oriented::new);
+        return RectangleCopies.inside(this.fold, box, pos,
+                (value, orientation) -> new Oriented<>(value, OrientationView.of(orientation)));
     }
 
     @Override
@@ -171,6 +168,6 @@ final class WorldGeometryView implements WorldGeometry {
     }
 
     private static <T> Oriented<T> oriented(WorldFold.Folded<T> folded) {
-        return new Oriented<>(folded.value(), folded.orientation());
+        return new Oriented<>(folded.value(), OrientationView.of(folded.orientation()));
     }
 }
