@@ -4,16 +4,16 @@ import java.util.Map;
 
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.WorldLoopSizes;
 
 import net.minecraft.core.Direction;
 
 public final class LayoutFixtures {
-    public static final OptionValues PLAIN = DimensionLayout.DEFAULT_OPTIONS;
+    public static final ShapeOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
 
-    public static WorldLayout shaped(FlatShape overworld, int netherScale, FlatShape end, OptionValues options) {
+    public static WorldLayout shaped(FlatShape overworld, int netherScale, FlatShape end, ShapeOptions options) {
         return new WorldLayout(DimensionLayout.looped(overworld, options), DimensionLayout.fromOverworld(options),
                 DimensionLayout.looped(end, options), Map.of(), netherScale);
     }

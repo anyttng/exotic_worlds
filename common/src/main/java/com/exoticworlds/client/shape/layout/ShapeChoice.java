@@ -4,8 +4,8 @@ import java.util.Locale;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v2.shape.DimensionShape;
 import com.exoticworlds.shape.WorldShape;
+import com.exoticworlds.shape.dimension.DimensionShape;
 import com.exoticworlds.shape.layout.ShapeKind;
 
 import net.minecraft.network.chat.Component;

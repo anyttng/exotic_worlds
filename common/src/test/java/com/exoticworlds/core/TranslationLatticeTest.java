@@ -16,7 +16,7 @@ class TranslationLatticeTest {
     private static final WorldLoopBounds BOUNDS = ShapeFixtures.loopedBounds(-16, 16, -12, 12);
     private static final int SKEW_CHUNKS = 5;
     private static final DeckGroupFold SKEWED = new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS),
-            OptionValues.DEFAULT);
+            ShapeOptions.DEFAULT);
     private static final TranslationLattice LATTICE = SKEWED.blockLattice();
 
     private static final int WIDTH_X = 512;
@@ -165,7 +165,7 @@ class TranslationLatticeTest {
         int halfZ = shape[1] / 2;
         return new DeckGroupFold(
                 FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-halfX, halfX, -halfZ, halfZ),
-                        shape[2]), OptionValues.DEFAULT);
+                        shape[2]), ShapeOptions.DEFAULT);
     }
 
     static double shortestSquared(TranslationLattice lattice, double deltaX, double deltaZ) {
@@ -188,7 +188,7 @@ class TranslationLatticeTest {
     @Test
     void aMirrorIsNoTranslationLattice() {
         DeckGroupFold mirrored = new DeckGroupFold(ShapeFixtures.mirrored(BOUNDS, Direction.Axis.Z, 0),
-                OptionValues.DEFAULT);
+                ShapeOptions.DEFAULT);
         assertThrows(IllegalStateException.class, mirrored::blockLattice);
         assertThrows(IllegalStateException.class, mirrored::chunkLattice);
     }

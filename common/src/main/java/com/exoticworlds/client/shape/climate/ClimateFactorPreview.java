@@ -5,7 +5,7 @@ import java.util.OptionalDouble;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionValues;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.shape.climate.ClimateCompression;
 import com.exoticworlds.shape.noise.DensityNoises;
@@ -21,7 +21,7 @@ final class ClimateFactorPreview {
 
     private static final double HORIZONTAL_SHARE = 0.0;
 
-    static OptionalDouble temperatureFactor(Screen parent, OptionValues options, FlatShape spans) {
+    static OptionalDouble temperatureFactor(Screen parent, ShapeOptions options, FlatShape spans) {
         DensityNoises.ScaledNoise temperature = temperatureNoise(parent);
         if (temperature == null) {
             return OptionalDouble.empty();

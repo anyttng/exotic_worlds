@@ -4,19 +4,19 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v2.gen.StructureStarts;
-import com.exoticworlds.api.v2.geometry.WorldGeometry;
-import com.exoticworlds.api.v2.option.ShapeOptions;
+import com.exoticworlds.api.v2.gen.StructureStartsV2;
+import com.exoticworlds.api.v2.geometry.WorldGeometryV2;
+import com.exoticworlds.api.v2.option.ShapeOptionsV2;
 import com.exoticworlds.bridge.v2.geometry.GeometryBridge;
+import com.exoticworlds.bridge.v2.option.ShapeOptionsAdapter;
 import com.exoticworlds.core.StructureStartSet;
-import com.exoticworlds.shape.ShapeOptionsAdapter;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 
-final class StructureStartsView implements StructureStarts {
+final class StructureStartsView implements StructureStartsV2 {
     private final StructureStartSet set;
     private @Nullable List<Pick> picks;
 
@@ -25,13 +25,13 @@ final class StructureStartsView implements StructureStarts {
     }
 
     @Override
-    public WorldGeometry geometry() {
+    public WorldGeometryV2 geometry() {
         return GeometryBridge.of(this.set.fold());
     }
 
     @Override
-    public ShapeOptions options() {
-        return ShapeOptionsAdapter.shapeOptions(this.set.options());
+    public ShapeOptionsV2 options() {
+        return ShapeOptionsAdapter.toV2(this.set.options());
     }
 
     @Override

@@ -6,28 +6,29 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v2.option.DimensionOption;
-import com.exoticworlds.api.v2.option.OptionPart;
-import com.exoticworlds.api.v2.option.ShapeOption;
-import com.exoticworlds.api.v2.option.ShapeOptions;
-import com.exoticworlds.api.v2.shape.DimensionContext;
-import com.exoticworlds.api.v2.shape.DimensionShape;
-import com.exoticworlds.api.v2.shape.LoopSpans;
+import com.exoticworlds.api.v2.option.ShapeOptionV2;
+import com.exoticworlds.api.v2.option.ShapeOptionsV2;
+import com.exoticworlds.api.v2.shape.DimensionContextV2;
+import com.exoticworlds.api.v2.shape.DimensionShapeV2;
+import com.exoticworlds.api.v2.shape.LoopSpansV2;
+import com.exoticworlds.bridge.v2.option.ShapeOptionsAdapter;
 import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionKey;
-import com.exoticworlds.core.OptionKeys;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.shape.ShapeOptionsAdapter;
+import com.exoticworlds.core.ShapeOption;
+import com.exoticworlds.core.ShapeOptionRegistry;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.shape.WorldLoopPresets;
+import com.exoticworlds.shape.dimension.DeclaredShapes;
+import com.exoticworlds.shape.dimension.DimensionContext;
+import com.exoticworlds.shape.dimension.DimensionShape;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.core.Direction;
@@ -39,22 +40,22 @@ import net.minecraft.world.level.dimension.LevelStem;
 class DeclaredShapeTest {
     private static final double NETHER_SCALE = 8.0;
 
-    private static final ShapeOption<Integer> SHAPE_WIDTH =
-            new ShapeOption<>("example_band_width", 200, Codec.INT, 64);
+    private static final ShapeOptionV2<Integer> SHAPE_WIDTH =
+            new ShapeOptionV2<>("example_band_width", 200, Codec.INT, 64);
 
-    private static final OptionKey<Integer> WIDTH = ShapeOptionsAdapter.optionKey(SHAPE_WIDTH);
+    private static final ShapeOption<Integer> WIDTH = ShapeOptionsAdapter.fromV2(SHAPE_WIDTH);
 
-    private static final OptionValues PLAIN = DimensionLayout.DEFAULT_OPTIONS;
+    private static final ShapeOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
 
-    private static final OptionValues WIDE = PLAIN.with(WIDTH, 128);
+    private static final ShapeOptions WIDE = PLAIN.with(WIDTH, 128);
 
-    private static final DimensionShape BAND = new Band();
+    private static final DimensionShapeV2 BAND = new Band();
 
-    private static final DimensionShape STRIP = new Strip();
+    private static final DimensionShapeV2 STRIP = new Strip();
 
     @BeforeAll
     static void registerShapes() {
-        if (!OptionKeys.all().contains(WIDTH)) {
+        if (!ShapeOptionRegistry.all().contains(WIDTH)) {
             SHAPE_WIDTH.register();
         }
 
@@ -66,18 +67,18 @@ class DeclaredShapeTest {
 
     @Test
     void aShapeWorksItsSpansOutFromTheOptionsOnTheOverworldAndFromTheOverworldElsewhere() {
-        FlatShape overworld = DeclaredShapes.resolve(BAND, context(LevelStem.OVERWORLD, WIDE, null));
+        FlatShape overworld = DeclaredShapes.resolve(band(), context(LevelStem.OVERWORLD, WIDE, null));
 
         assertEquals(ShapeFixtures.cylinder(Direction.Axis.X, 128), overworld);
         assertEquals(ShapeFixtures.cylinder(Direction.Axis.X, 16),
-                DeclaredShapes.resolve(BAND, context(LevelStem.NETHER, PLAIN, overworld)));
+                DeclaredShapes.resolve(band(), context(LevelStem.NETHER, PLAIN, overworld)));
         assertEquals(ShapeFixtures.cylinder(Direction.Axis.X, 128),
-                DeclaredShapes.resolve(BAND, context(LevelStem.END, PLAIN, overworld)));
+                DeclaredShapes.resolve(band(), context(LevelStem.END, PLAIN, overworld)));
     }
 
     @Test
     void aShapeThatLoopsNoAxisLeavesTheDimensionAsTheGameMakesIt() {
-        FlatShape none = DeclaredShapes.resolve(BAND, context(LevelStem.OVERWORLD, PLAIN.with(WIDTH, 0), null));
+        FlatShape none = DeclaredShapes.resolve(band(), context(LevelStem.OVERWORLD, PLAIN.with(WIDTH, 0), null));
         DimensionLayout layout = DimensionLayout.declared(BAND.id(), none, PLAIN);
 
         assertNull(none);
@@ -141,40 +142,33 @@ class DeclaredShapeTest {
         assertTrue(LayoutPreset.offered(WorldLayout.DEFAULT));
     }
 
-    @Test
-    void anOptionNamingAShapeNobodyDeclaredIsReported() {
-        Identifier ghost = Identifier.fromNamespaceAndPath("example_mod", "ghost");
-        DimensionOption<Integer> narrowed = DimensionOption.of(SHAPE_WIDTH, "gui.example_mod.band_width",
-                List.of(OptionPart.number(0, 512))).forShapes(List.of(BAND.id(), ghost));
-
-        assertEquals(List.of("option=example_band_width shape=example_mod:ghost"),
-                DeclaredShapes.unknownOptionShapes(List.of(narrowed), Set.of(BAND.id())));
+    private static DimensionContext context(ResourceKey<LevelStem> dimension, ShapeOptions options,
+            @Nullable FlatShape overworld) {
+        return new DimensionContext(dimension, options, overworld, 1.0, scale(dimension));
     }
 
-    private static DimensionContext context(ResourceKey<LevelStem> dimension, OptionValues options,
-            FlatShape overworld) {
-        return DeclaredShapes.context(dimension, ShapeOptionsAdapter.shapeOptions(options), overworld, 1.0,
-                scale(dimension));
+    private static DimensionShape band() {
+        return Objects.requireNonNull(DeclaredShapes.of(BAND.id()));
     }
 
     private static double scale(ResourceKey<LevelStem> dimension) {
         return dimension == LevelStem.NETHER ? NETHER_SCALE : 1.0;
     }
 
-    private static final class Band implements DimensionShape {
+    private static final class Band implements DimensionShapeV2 {
         @Override
         public Identifier id() {
             return Identifier.fromNamespaceAndPath("example_mod", "band");
         }
 
         @Override
-        public LoopSpans spans(DimensionContext context) {
-            LoopSpans overworld = context.overworld();
+        public LoopSpansV2 spans(DimensionContextV2 context) {
+            LoopSpansV2 overworld = context.overworld();
             int chunkWidth = overworld == null
                     ? context.options().get(SHAPE_WIDTH)
                     : (int) (overworld.chunkWidth(Direction.Axis.X) * context.overworldScale()
                             / context.coordinateScale());
-            return chunkWidth == 0 ? LoopSpans.NONE : LoopSpans.ofWidth(Direction.Axis.X, chunkWidth);
+            return chunkWidth == 0 ? LoopSpansV2.NONE : LoopSpansV2.ofWidth(Direction.Axis.X, chunkWidth);
         }
 
         @Override
@@ -183,20 +177,20 @@ class DeclaredShapeTest {
         }
 
         @Override
-        public ShapeOptions withPreset(int chunkWidth, ShapeOptions options) {
+        public ShapeOptionsV2 withPreset(int chunkWidth, ShapeOptionsV2 options) {
             return options.with(SHAPE_WIDTH, chunkWidth);
         }
     }
 
-    private static final class Strip implements DimensionShape {
+    private static final class Strip implements DimensionShapeV2 {
         @Override
         public Identifier id() {
             return Identifier.fromNamespaceAndPath("example_mod", "strip");
         }
 
         @Override
-        public LoopSpans spans(DimensionContext context) {
-            return LoopSpans.ofWidth(Direction.Axis.Z, 48);
+        public LoopSpansV2 spans(DimensionContextV2 context) {
+            return LoopSpansV2.ofWidth(Direction.Axis.Z, 48);
         }
     }
 }

@@ -4,12 +4,12 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 
-import com.exoticworlds.api.v2.geometry.Orientation;
+import com.exoticworlds.api.v2.geometry.OrientationV2;
 import com.exoticworlds.core.FoldOrientation;
 
 import net.minecraft.world.phys.Vec3;
 
-final class OrientationView implements Orientation {
+final class OrientationView implements OrientationV2 {
     private static final Map<FoldOrientation, OrientationView> VIEWS = views();
 
     private final FoldOrientation orientation;
@@ -18,7 +18,7 @@ final class OrientationView implements Orientation {
         this.orientation = orientation;
     }
 
-    static Orientation of(FoldOrientation orientation) {
+    static OrientationV2 of(FoldOrientation orientation) {
         return Objects.requireNonNull(VIEWS.get(orientation), "every fold orientation has a view");
     }
 

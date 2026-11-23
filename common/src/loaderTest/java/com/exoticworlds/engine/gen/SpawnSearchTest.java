@@ -11,8 +11,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
@@ -97,7 +97,7 @@ class SpawnSearchTest {
                 new FlatLevelGeneratorSettings(Optional.empty(),
                         holders.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS), List.of()),
                 new CarriedShape(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDE_CHUNKS)),
-                        OptionValues.DEFAULT.with(SpawnPoint.OPTION, FAR_POINT)));
+                        ShapeOptions.DEFAULT.with(SpawnPoint.OPTION, FAR_POINT)));
         Climate.Sampler sampler = randomState(noiseGenerator(SpawnPoint.DEFAULT), NoiseGeneratorSettings.dummy())
                 .sampler();
 
@@ -110,7 +110,7 @@ class SpawnSearchTest {
                 new FixedBiomeSource(holders.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)),
                 overworldSettings,
                 new CarriedShape(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDE_CHUNKS)),
-                        OptionValues.DEFAULT.with(SpawnPoint.OPTION, point)));
+                        ShapeOptions.DEFAULT.with(SpawnPoint.OPTION, point)));
     }
 
     private static RandomState randomState(LoopedChunkGenerator generator, NoiseGeneratorSettings settings) {

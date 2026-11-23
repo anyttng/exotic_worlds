@@ -13,8 +13,8 @@ import net.minecraft.resources.Identifier;
  * {@link com.exoticworlds.api.v1.shape.ShapeModule#register()}.
  *
  * @deprecated no screen shows a Customize button any more, so a customizer registered here is never opened. A
- *     {@link com.exoticworlds.api.v2.shape.DimensionShape} has no screen of its own: what the player tunes are
- *     options, declared as a {@link com.exoticworlds.api.v2.option.DimensionOption}.
+ *     {@link com.exoticworlds.api.v2.shape.DimensionShapeV2} has no screen of its own: what the player tunes are
+ *     options, declared as a {@link com.exoticworlds.api.v2.option.DimensionOptionV2}.
  */
 @Deprecated
 public final class ShapeCustomizers {

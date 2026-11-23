@@ -51,11 +51,11 @@ class IdentityFastPathTest {
     private static final int WIDE_REGION_LAPS = 3;
 
     private static final List<WorldFold> DECK_GROUP = List.of(
-            new DeckGroupFold(ShapeFixtures.torus(SQUARE), OptionValues.DEFAULT),
-            new DeckGroupFold(FlatShape.latticeTorus(SQUARE, SKEW_CHUNKS), OptionValues.DEFAULT),
-            new DeckGroupFold(ShapeFixtures.mirrored(X_ONLY_BOUNDS, Direction.Axis.Z, 0), OptionValues.DEFAULT),
+            new DeckGroupFold(ShapeFixtures.torus(SQUARE), ShapeOptions.DEFAULT),
+            new DeckGroupFold(FlatShape.latticeTorus(SQUARE, SKEW_CHUNKS), ShapeOptions.DEFAULT),
+            new DeckGroupFold(ShapeFixtures.mirrored(X_ONLY_BOUNDS, Direction.Axis.Z, 0), ShapeOptions.DEFAULT),
             new DeckGroupFold(ShapeFixtures.mirrored(SQUARE, Direction.Axis.Z, MIRROR_LINE_CHUNK),
-                    OptionValues.DEFAULT));
+                    ShapeOptions.DEFAULT));
 
     private static final List<WorldFold> FOLDS = Stream.concat(PER_AXIS.stream(), DECK_GROUP.stream()).toList();
 

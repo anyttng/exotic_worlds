@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -357,11 +357,11 @@ class PeriodicSimplexSamplerTest {
     class SkewedLattice {
         private static final List<DeckGroupFold> SKEWED = List.of(
                 new DeckGroupFold(FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-16, 16, -16, 16), 5),
-                        OptionValues.DEFAULT),
+                        ShapeOptions.DEFAULT),
                 new DeckGroupFold(FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-8, 8, -8, 8), -3),
-                        OptionValues.DEFAULT),
+                        ShapeOptions.DEFAULT),
                 new DeckGroupFold(FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-32, 32, 0, 16), 13),
-                        OptionValues.DEFAULT));
+                        ShapeOptions.DEFAULT));
 
         @Test
         void agreesAtEveryCopyUnderBothDeckGenerators() {

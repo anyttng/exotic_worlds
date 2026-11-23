@@ -32,7 +32,7 @@ public interface WorldFold {
 
     boolean preservesLocalIndices();
 
-    OptionValues options();
+    ShapeOptions options();
 
     WrapDomain blockDomain(Direction.Axis axis);
 

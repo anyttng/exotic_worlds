@@ -1,23 +1,55 @@
 package com.exoticworlds.bridge.v2.option;
 
-import com.exoticworlds.api.v2.option.DimensionOption;
-import com.exoticworlds.api.v2.option.ShapeOption;
-import com.exoticworlds.core.OptionKey;
-import com.exoticworlds.core.OptionKeys;
-import com.exoticworlds.shape.DeclaredOptions;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.exoticworlds.api.v2.option.DimensionOptionV2;
+import com.exoticworlds.api.v2.option.OptionPartV2;
+import com.exoticworlds.api.v2.option.ShapeOptionV2;
+import com.exoticworlds.core.ShapeOption;
+import com.exoticworlds.core.ShapeOptionRegistry;
+import com.exoticworlds.shape.option.DeclaredOptions;
+import com.exoticworlds.shape.option.DimensionOption;
+import com.exoticworlds.shape.option.OptionPart;
 
 public final class OptionBridge {
 
-    public static void register(DimensionOption<?> declared) {
-        DeclaredOptions.register(declared);
+    public static void register(DimensionOptionV2<?> declared) {
+        DeclaredOptions.register(internal(declared));
     }
 
-    public static void register(ShapeOption<?> option) {
-        OptionKeys.register(keyOf(option));
+    public static void register(ShapeOptionV2<?> option) {
+        ShapeOptionRegistry.register(keyOf(option));
     }
 
-    private static <T> OptionKey<T> keyOf(ShapeOption<T> option) {
-        return new OptionKey<>(option.key(), option.position(), option.codec(), option.defaultValue());
+    private static <T> DimensionOption<T> internal(DimensionOptionV2<T> declared) {
+        List<OptionPart<T>> parts = new ArrayList<>(declared.parts().size());
+        for (OptionPartV2<T> part : declared.parts()) {
+            parts.add(internal(part));
+        }
+
+        return DimensionOption.of(keyOf(declared.option()), declared.captionKey(), parts)
+                .forShapes(declared.shapes())
+                .forDimensions(declared.dimensions());
+    }
+
+    private static <T> OptionPart<T> internal(OptionPartV2<T> part) {
+        return switch (part) {
+            case OptionPartV2.Toggle<T> toggle ->
+                    new OptionPart.Toggle<>(toggle.key(), toggle.read(), toggle.write(), toggle.shownWhen());
+            case OptionPartV2.Choice<T, ?> choice -> internal(choice);
+            case OptionPartV2.WholeNumber<T> number -> new OptionPart.WholeNumber<>(number.key(), number.min(),
+                    number.max(), number.read(), number.write(), number.shownWhen());
+        };
+    }
+
+    private static <T, V> OptionPart<T> internal(OptionPartV2.Choice<T, V> choice) {
+        return new OptionPart.Choice<>(choice.key(), choice.values(), choice.valueKey(), choice.ownName(),
+                choice.read(), choice.write(), choice.shownWhen());
+    }
+
+    private static <T> ShapeOption<T> keyOf(ShapeOptionV2<T> option) {
+        return new ShapeOption<>(option.key(), option.position(), option.codec(), option.defaultValue());
     }
 
     private OptionBridge() {

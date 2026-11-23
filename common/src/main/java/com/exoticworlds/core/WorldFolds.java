@@ -13,10 +13,10 @@ public final class WorldFolds {
     public static final WorldFold NOOP = of(FlatShape.rectangle());
 
     public static WorldFold of(FlatShape shape) {
-        return of(shape, OptionValues.DEFAULT);
+        return of(shape, ShapeOptions.DEFAULT);
     }
 
-    public static WorldFold of(FlatShape shape, OptionValues options) {
+    public static WorldFold of(FlatShape shape, ShapeOptions options) {
         verifyFoldable(shape).getOrThrow(IllegalArgumentException::new);
 
         return shape.decomposesPerAxis()

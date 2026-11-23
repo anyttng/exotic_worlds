@@ -2,7 +2,7 @@ package com.exoticworlds.shape;
 
 import com.exoticworlds.core.RegistrationBoundary;
 import com.exoticworlds.platform.Platforms;
-import com.exoticworlds.shape.layout.DeclaredShapes;
+import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.layout.LayoutShape;
 
 public final class WorldShapeSetup {

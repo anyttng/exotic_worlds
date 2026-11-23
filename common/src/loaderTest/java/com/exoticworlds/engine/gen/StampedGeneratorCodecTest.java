@@ -5,11 +5,11 @@ import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
+import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.migration.FormerNamespace;
-import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
@@ -49,8 +49,8 @@ class StampedGeneratorCodecTest {
     private static final String CLIMATE_SCALE_KEY =
             ExoticWorlds.MODID + ":" + CompactBiomes.KEY;
 
-    private static final OptionValues UNCOMPRESSED =
-            OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
+    private static final ShapeOptions UNCOMPRESSED =
+            ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
 
     private static final int STAMPED_CHUNK_WIDTH = 64;
 

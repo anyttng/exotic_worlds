@@ -15,10 +15,10 @@ public final class CarriedShape {
             .validate(WorldFolds::verifyGeneratable);
 
     private final FlatShape shape;
-    private final OptionValues options;
+    private final ShapeOptions options;
     private final WorldFold fold;
 
-    public CarriedShape(FlatShape shape, OptionValues options) {
+    public CarriedShape(FlatShape shape, ShapeOptions options) {
         this.shape = shape;
         this.options = options;
         this.fold = WorldFolds.of(shape, options);
@@ -28,15 +28,15 @@ public final class CarriedShape {
     public static MapCodec<CarriedShape> mapCodec(String keyPrefix) {
         return RecordCodecBuilder.mapCodec(instance -> instance.group(
                 SHAPE_CODEC.fieldOf(keyPrefix + WRAPPING_KEY).forGetter(CarriedShape::shape),
-                OptionValues.mapCodec(keyPrefix).forGetter(CarriedShape::options)
-        ).apply(instance, (FlatShape shape, OptionValues options) -> new CarriedShape(shape, options)));
+                ShapeOptions.mapCodec(keyPrefix).forGetter(CarriedShape::options)
+        ).apply(instance, (FlatShape shape, ShapeOptions options) -> new CarriedShape(shape, options)));
     }
 
     public FlatShape shape() {
         return this.shape;
     }
 
-    public OptionValues options() {
+    public ShapeOptions options() {
         return this.options;
     }
 
