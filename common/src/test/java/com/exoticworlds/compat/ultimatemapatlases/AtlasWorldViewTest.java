@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.MapCopies;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.world.phys.Vec3;
 
@@ -17,7 +17,7 @@ class AtlasWorldViewTest {
 
     @Test
     void theCeilingFollowsTheCopiesSetting() {
-        ToroidalShape shape = MapShapes.torus(-16, 16);
+        WorldFold shape = MapFolds.torus(-16, 16);
         assertEquals(4.0F, AtlasWorldView.zoomCeiling(shape, MapCopies.SINGLE, WIDTH, HEIGHT, MAP_BLOCKS),
                 "one copy: the 512-block world covers a 256 px view at 4 maps across");
         assertEquals(16.0F, AtlasWorldView.zoomCeiling(shape, MapCopies.REPEATED, WIDTH, HEIGHT, MAP_BLOCKS),
@@ -35,7 +35,7 @@ class AtlasWorldViewTest {
 
     @Test
     void aSingleViewFoldsThenHoldsInsideTheWorld() {
-        ToroidalShape shape = MapShapes.torus(-16, 16);
+        WorldFold shape = MapFolds.torus(-16, 16);
         assertEquals(new Vec3(88.0, 0.0, 0.0),
                 AtlasWorldView.held(shape, new Vec3(600.0, 0.0, 0.0), 2.0F, WIDTH, HEIGHT, MAP_BLOCKS, true),
                 "600 folds to 88, already half a 256-block window inside the world");
@@ -46,7 +46,7 @@ class AtlasWorldViewTest {
 
     @Test
     void aSkewedFoldMovesBothAxesBeforeTheHold() {
-        ToroidalShape shape = MapShapes.latticeTorus(-16, 16, 8);
+        WorldFold shape = MapFolds.latticeTorus(-16, 16, 8);
         Vec3 folded = shape.fold(new Vec3(0.0, 0.0, 300.0));
         assertEquals(new Vec3(folded.x, 0.0, folded.z),
                 AtlasWorldView.held(shape, new Vec3(0.0, 0.0, 300.0), 1.0F, WIDTH, HEIGHT, MAP_BLOCKS, true),
@@ -55,7 +55,7 @@ class AtlasWorldViewTest {
 
     @Test
     void aCylinderHoldsItsLoopedAxisAlone() {
-        assertEquals(new Vec3(128.0, 0.0, 5000.0), AtlasWorldView.held(MapShapes.cylinder(-16, 16),
+        assertEquals(new Vec3(128.0, 0.0, 5000.0), AtlasWorldView.held(MapFolds.cylinder(-16, 16),
                 new Vec3(600.0, 0.0, 5000.0), 2.0F, WIDTH, HEIGHT, MAP_BLOCKS, false),
                 "X holds inside the world and the unbounded Z goes where it was asked");
     }

@@ -1,8 +1,8 @@
 package com.exoticworlds.engine.gen;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.shape.StartupRegistrations;
 import static com.exoticworlds.engine.gen.BakeStampFixture.datapackRegistry;
@@ -60,7 +60,7 @@ class ShapedStemSeedOverrideTest {
 
         WorldDimensions shaped = ShapedDimensions.withShape(
                 selected(Map.of(LevelStem.OVERWORLD, declared)), LevelStem.OVERWORLD, new CarriedShape(SHAPE,
-                        GenerationOptions.DEFAULT));
+                        OptionValues.DEFAULT));
 
         assertReshapedAlone(declared, shaped.get(LevelStem.OVERWORLD).orElseThrow());
     }
@@ -70,7 +70,7 @@ class ShapedStemSeedOverrideTest {
         NoiseBasedChunkGenerator noise = (NoiseBasedChunkGenerator) noiseGenerator(worldgen);
         LevelStem declared = declaredStem(
                 new LoopedChunkGenerator(noise.getBiomeSource(), noise.generatorSettings(),
-                        new CarriedShape(SHAPE, GenerationOptions.DEFAULT)));
+                        new CarriedShape(SHAPE, OptionValues.DEFAULT)));
 
         WorldDimensions stripped = ShapedDimensions.stripShapes(selected(Map.of(LevelStem.OVERWORLD, declared)));
 

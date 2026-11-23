@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -135,8 +134,25 @@ public record FlatShape(WorldLoopBounds bounds, int skewChunks, @Nullable Mirror
         return new FlatShape(bounds, skewChunks, null);
     }
 
-    public static FlatShape of(LoopSpans spans) {
-        return new FlatShape(WorldLoopBounds.of(spans), spans.skewChunks(), null);
+    public static FlatShape unskewed(WorldLoopBounds bounds) {
+        return new FlatShape(bounds, NO_SKEW, null);
+    }
+
+    public FlatShape scaledDown(int scale) {
+        if (scale <= 0) {
+            throw new IllegalArgumentException("A scale is positive, got " + scale);
+        }
+
+        if (mirror != null) {
+            throw new IllegalArgumentException("A mirrored shape has no scaled-down form: " + this);
+        }
+
+        if (skewChunks % scale != 0) {
+            throw new IllegalArgumentException(
+                    String.format("A skew of %d chunks does not divide by the scale %d", skewChunks, scale));
+        }
+
+        return latticeTorus(bounds.scaledDown(scale), skewChunks / scale);
     }
 
     public Identification identification() {

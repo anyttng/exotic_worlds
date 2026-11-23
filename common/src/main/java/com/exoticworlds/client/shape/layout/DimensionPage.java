@@ -15,14 +15,13 @@ import com.ascendiacore.gui.widget.heading.Heading;
 import com.ascendiacore.gui.widget.label.Label;
 import com.ascendiacore.gui.widget.label.model.LabelRole;
 import com.ascendiacore.gui.widget.panel.model.FillStyle;
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v1.shape.LoopSpans;
-import com.exoticworlds.api.v2.shape.BuiltInShapes;
-import com.exoticworlds.api.v2.shape.DimensionContext;
 import com.exoticworlds.api.v2.shape.DimensionShape;
+import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.shape.ShapeOptionsAdapter;
 import com.exoticworlds.shape.WorldShape;
 import com.exoticworlds.shape.layout.DeclaredShapes;
 import com.exoticworlds.shape.layout.DimensionLayout;
@@ -44,7 +43,7 @@ final class DimensionPage {
     private final SpawnFields spawn;
     private final OptionControls declared;
     private final Column page = new Column();
-    private GenerationOptions options;
+    private OptionValues options;
     private ShapeKind shownKind = ShapeKind.NORMAL;
 
     DimensionPage(DimensionOffer offer, Theme theme, FillStyle fill, CoordinateScales scales,
@@ -97,7 +96,7 @@ final class DimensionPage {
             return DimensionLayout.normal(this.options);
         }
 
-        GenerationOptions chosenOptions = this.chosenOptions();
+        OptionValues chosenOptions = this.chosenOptions();
         if (!this.page.fieldsValid() || chosenOptions == null) {
             return null;
         }
@@ -113,11 +112,11 @@ final class DimensionPage {
             return DimensionLayout.fromOverworld(chosenOptions);
         }
 
-        LoopSpans spans = own == null ? null : this.loops.spans(own);
+        FlatShape spans = own == null ? null : this.loops.spans(own);
         return spans == null ? null : DimensionLayout.looped(spans, chosenOptions);
     }
 
-    private @Nullable GenerationOptions chosenOptions() {
+    private @Nullable OptionValues chosenOptions() {
         if (this.resolvedShape() == null) {
             return this.options;
         }
@@ -204,14 +203,14 @@ final class DimensionPage {
 
     private Component sizeError() {
         DimensionShape shape = this.chosen.get().declared();
-        LoopSpans spans = shape == null ? null : this.declaredSpans(shape);
+        FlatShape spans = shape == null ? null : this.declaredSpans(shape);
         if (spans == null) {
             return Component.empty();
         }
 
         for (Direction.Axis axis : List.of(Direction.Axis.X, Direction.Axis.Z)) {
-            if (spans.loops(axis) && !this.allowed(spans.chunkWidth(axis))) {
-                return SettingsLines.shapeSizeError(spans.chunkWidth(axis), this.offer.minChunkWidth());
+            if (spans.bounds().loops(axis) && !this.allowed(spans.bounds().chunkWidth(axis))) {
+                return SettingsLines.shapeSizeError(spans.bounds().chunkWidth(axis), this.offer.minChunkWidth());
             }
         }
 
@@ -223,11 +222,11 @@ final class DimensionPage {
     }
 
     private List<Integer> netherScales() {
-        LoopSpans spans = this.overworld.get().spans();
+        FlatShape spans = this.overworld.get().spans();
         return spans == null ? List.of(this.netherScale.get()) : OverworldDerivation.netherScales(spans);
     }
 
-    private @Nullable LoopSpans resolvedSpans() {
+    private @Nullable FlatShape resolvedSpans() {
         ShapeChoice choice = this.chosen.get();
         DimensionShape shape = choice.declared();
         if (shape != null) {
@@ -243,14 +242,15 @@ final class DimensionPage {
         return derivation == null ? null : derivation.apply(this.overworld.get().spans(), this.netherScale.get());
     }
 
-    private @Nullable LoopSpans declaredSpans(DimensionShape shape) {
-        GenerationOptions chosenOptions = this.declared.commit(this.options);
+    private @Nullable FlatShape declaredSpans(DimensionShape shape) {
+        OptionValues chosenOptions = this.declared.commit(this.options);
         if (chosenOptions == null) {
             return null;
         }
 
         boolean overworldItself = this.offer.dimension() == LevelStem.OVERWORLD;
-        return DeclaredShapes.resolve(shape, new DimensionContext(this.offer.dimension(), chosenOptions,
+        return DeclaredShapes.resolve(shape, DeclaredShapes.context(this.offer.dimension(),
+                ShapeOptionsAdapter.shapeOptions(chosenOptions),
                 overworldItself ? null : this.overworld.get().spans(), this.scales.of(LevelStem.OVERWORLD),
                 this.scales.of(this.offer.dimension())));
     }
@@ -276,7 +276,7 @@ final class DimensionPage {
             return resolved == ShapeKind.NORMAL ? null : fromOverworld;
         }
 
-        return resolved == ShapeKind.TORUS ? BuiltInShapes.TORUS : BuiltInShapes.CYLINDER;
+        return resolved == ShapeKind.TORUS ? DeclaredShapes.TORUS : DeclaredShapes.CYLINDER;
     }
 
     private void changeShape(ShapeChoice picked) {
@@ -291,11 +291,11 @@ final class DimensionPage {
         ShapeChoice choice = this.chosen.get();
         DimensionShape shape = choice.declared();
         ShapeKind own = choice.own();
-        LoopSpans spans = shape != null ? this.declaredSpans(shape) : own == null ? null : this.loops.spans(own);
+        FlatShape spans = shape != null ? this.declaredSpans(shape) : own == null ? null : this.loops.spans(own);
         if (spans == null) {
             return null;
         }
 
-        return spans.loops(axis) ? spans.chunkWidth(axis) : WorldLoopSizes.ENDLESS_AXIS_WIDTH;
+        return spans.bounds().loops(axis) ? spans.bounds().chunkWidth(axis) : WorldLoopSizes.ENDLESS_AXIS_WIDTH;
     }
 }

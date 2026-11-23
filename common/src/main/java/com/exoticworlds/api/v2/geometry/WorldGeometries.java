@@ -2,8 +2,7 @@ package com.exoticworlds.api.v2.geometry;
 
 import java.util.Optional;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.bridge.v2.geometry.GeometryBridge;
 
 import net.minecraft.world.level.Level;
 
@@ -19,8 +18,7 @@ public final class WorldGeometries {
      * may hold it for as long as the level lives.
      */
     public static Optional<WorldGeometry> of(Level level) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
-        return fold == null ? Optional.empty() : Optional.of(fold.geometryView());
+        return GeometryBridge.of(level);
     }
 
     private WorldGeometries() {

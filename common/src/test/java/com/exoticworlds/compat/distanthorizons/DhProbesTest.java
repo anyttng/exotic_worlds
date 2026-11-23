@@ -39,8 +39,8 @@ class DhProbesTest {
     @Test
     void theLoopingAxisNamesItsWidthAndTheOtherSaysNone() {
         DhLattice lattice = cylinder();
-        assertEquals(String.valueOf(WIDTH_BLOCKS), DhProbes.widthValue(lattice.shape(), Direction.Axis.X));
-        assertEquals("none", DhProbes.widthValue(lattice.shape(), Direction.Axis.Z));
+        assertEquals(String.valueOf(WIDTH_BLOCKS), DhProbes.widthValue(lattice.fold(), Direction.Axis.X));
+        assertEquals("none", DhProbes.widthValue(lattice.fold(), Direction.Axis.Z));
     }
 
     @Test

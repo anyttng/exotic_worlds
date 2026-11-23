@@ -40,6 +40,8 @@ class DatapackTemplatesJsonTest {
     private static final String GENERATOR_ID = "exotic_worlds:toroidal";
     private static final int VANILLA_DIMENSIONS = 3;
 
+    private static final String TEST_OPTION_PREFIX = "example_";
+
     @Test
     void theTorusTemplateLoopsBothAxesAndStatesEveryWorldOption() throws IOException {
         assertTemplate(TORUS, FlatShape.Identification.TORUS, true);
@@ -97,9 +99,9 @@ class DatapackTemplatesJsonTest {
                 .getOrThrow(message -> new AssertionError(context + ": wrapping is refused: " + message));
         assertEquals(identification, shape.identification(), context + ": identification");
 
-        for (WorldOption<?> option : WorldOptions.all()) {
-            assertOption(context, generator, option, statesOptions);
-        }
+        WorldOptions.all().stream()
+                .filter(option -> !option.key().startsWith(TEST_OPTION_PREFIX))
+                .forEach(option -> assertOption(context, generator, option, statesOptions));
 
         return shape.bounds();
     }

@@ -12,15 +12,14 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.TestShapes;
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.AxisCopies;
 import com.exoticworlds.compat.map.MapCopies;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.core.CoordinateConstants;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
@@ -39,9 +38,9 @@ class FtbChunksFoldTest {
     private static final int SKEW = SKEW_CHUNKS * CoordinateConstants.CHUNK_WIDTH;
     private static final int WIDTH = 512;
 
-    private static final ToroidalShape LATTICE = MapShapes.latticeTorus(0, 32, SKEW_CHUNKS);
-    private static final ToroidalShape CENTRED_LATTICE = MapShapes.latticeTorus(-16, 16, SKEW_CHUNKS);
-    private static final ToroidalShape CENTRED_TORUS = MapShapes.torus(-16, 16);
+    private static final WorldFold LATTICE = MapFolds.latticeTorus(0, 32, SKEW_CHUNKS);
+    private static final WorldFold CENTRED_LATTICE = MapFolds.latticeTorus(-16, 16, SKEW_CHUNKS);
+    private static final WorldFold CENTRED_TORUS = MapFolds.torus(-16, 16);
 
     @Test
     void anUnboundedAxisKeepsTheCutsFtbMade() {
@@ -156,11 +155,11 @@ class FtbChunksFoldTest {
     @Test
     void anUnwrappedWorldDrawsItselfInBothModes() {
         assertEquals(List.of(WorldCopies.IDENTITY),
-                FtbChunksFold.drawnCopies((ToroidalShape) null, -40000000, -40000000, 40000000, 40000000,
+                FtbChunksFold.drawnCopies((WorldFold) null, -40000000, -40000000, 40000000, 40000000,
                         MapCopies.SINGLE),
                 "an unwrapped world lost itself under SINGLE");
         assertEquals(List.of(WorldCopies.IDENTITY),
-                FtbChunksFold.drawnCopies((ToroidalShape) null, -40000000, -40000000, 40000000, 40000000,
+                FtbChunksFold.drawnCopies((WorldFold) null, -40000000, -40000000, 40000000, 40000000,
                         MapCopies.REPEATED),
                 "an unwrapped world grew copies under REPEATED");
     }
@@ -181,7 +180,7 @@ class FtbChunksFoldTest {
 
     @Test
     void anUnwrappedWorldDrawsNoSeam() {
-        assertEquals(List.of(), FtbChunksFold.seamLines((ToroidalShape) null,
+        assertEquals(List.of(), FtbChunksFold.seamLines((WorldFold) null,
                 new FtbChunksFold.SeamView(0, 0, FtbChunksFold.REGION_BLOCKS, -256, 200, 512, 200)),
                 "an unwrapped world drew a seam");
     }
@@ -347,16 +346,16 @@ class FtbChunksFoldTest {
         return vertical;
     }
 
-    private static ToroidalShape torus(int widthBlocks) {
+    private static WorldFold torus(int widthBlocks) {
         return shape(looped(widthBlocks), looped(widthBlocks));
     }
 
-    private static ToroidalShape cylinder(int widthBlocksZ) {
+    private static WorldFold cylinder(int widthBlocksZ) {
         return shape(AxisBounds.Unbounded.INSTANCE, looped(widthBlocksZ));
     }
 
-    private static ToroidalShape shape(AxisBounds x, AxisBounds z) {
-        return TestShapes.of(WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(x, z))));
+    private static WorldFold shape(AxisBounds x, AxisBounds z) {
+        return WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(x, z)));
     }
 
     private static AxisBounds looped(int widthBlocks) {

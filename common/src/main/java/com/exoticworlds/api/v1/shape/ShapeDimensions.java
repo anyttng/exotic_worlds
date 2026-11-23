@@ -3,6 +3,7 @@ package com.exoticworlds.api.v1.shape;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.option.GenerationOptions;
+import com.exoticworlds.bridge.v1.option.OptionBridge;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.engine.gen.ShapedDimensions;
@@ -57,11 +58,11 @@ public final class ShapeDimensions {
      */
     public static GenerationOptions optionsOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
         CarriedShape carried = ShapedDimensions.carriedShapeOf(dimensions, key);
-        return carried == null ? GenerationOptions.DEFAULT : carried.generationOptions();
+        return carried == null ? GenerationOptions.DEFAULT : OptionBridge.toV1(carried.options());
     }
 
     private static CarriedShape carried(LoopSpans spans, GenerationOptions options) {
-        return new CarriedShape(FlatShape.of(spans), options);
+        return new CarriedShape(spans.shape(), OptionBridge.fromV1(options));
     }
 
     private ShapeDimensions() {

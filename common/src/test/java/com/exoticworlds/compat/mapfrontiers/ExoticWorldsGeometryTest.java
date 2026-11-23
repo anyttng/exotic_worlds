@@ -11,12 +11,11 @@ import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.TestShapes;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.WorldLoopBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
@@ -46,7 +45,7 @@ class ExoticWorldsGeometryTest {
     }
 
     private static ExoticWorldsGeometry geometry(FlatShape shape) {
-        return new ExoticWorldsGeometry(TestShapes.of(WorldFolds.of(shape)));
+        return new ExoticWorldsGeometry(WorldFolds.of(shape));
     }
 
     private static List<BlockPos> copiesInBounds(ExoticWorldsGeometry geometry, BlockPos point, double minX,

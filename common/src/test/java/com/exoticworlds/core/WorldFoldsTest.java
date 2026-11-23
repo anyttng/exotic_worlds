@@ -13,8 +13,6 @@ import org.junit.jupiter.api.Test;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v1.option.WorldOption;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 import com.exoticworlds.shape.WorldLoopPresets;
 
@@ -37,8 +35,7 @@ class WorldFoldsTest {
     private static final int CHUNK_STEP = 3;
     private static final int BLOCK_STEP = 29;
 
-    private static final WorldOption<Boolean> OPTION =
-            new WorldOption<>("test_option", 0, Codec.BOOL, false);
+    private static final OptionKey<Boolean> OPTION = new OptionKey<>("test_option", 0, Codec.BOOL, false);
 
     private static List<FlatShape> decomposable() {
         return List.of(
@@ -110,10 +107,10 @@ class WorldFoldsTest {
     @Test
     void aShapeLoopingOneAxisCarriesTheOptionsItWasBuiltWith() {
         FlatShape cylinder = ShapeFixtures.cylinder(X_ONLY);
-        GenerationOptions chosen = GenerationOptions.DEFAULT.with(OPTION, true);
+        OptionValues chosen = OptionValues.DEFAULT.with(OPTION, true);
 
-        assertTrue(WorldFolds.of(cylinder, chosen).generationOptions().get(OPTION));
-        assertTrue(new DeckGroupFold(cylinder, chosen).generationOptions().get(OPTION));
+        assertTrue(WorldFolds.of(cylinder, chosen).options().get(OPTION));
+        assertTrue(new DeckGroupFold(cylinder, chosen).options().get(OPTION));
     }
 
     @Test
@@ -134,13 +131,13 @@ class WorldFoldsTest {
 
     @Test
     void aSkewedShapeGetsTheDeckGroupFoldOverItsLattice() {
-        WorldFold fold = WorldFolds.of(SKEWED, GenerationOptions.DEFAULT.with(OPTION, true));
+        WorldFold fold = WorldFolds.of(SKEWED, OptionValues.DEFAULT.with(OPTION, true));
 
         assertTrue(fold instanceof DeckGroupFold, fold.getClass().getName());
         assertEquals(SKEWED.bounds(), fold.bounds());
         assertFalse(fold.decomposesPerAxis());
         assertEquals(SKEWED.skewChunks(), fold.chunkLattice().skew());
-        assertTrue(fold.generationOptions().get(OPTION));
+        assertTrue(fold.options().get(OPTION));
     }
 
     @Test

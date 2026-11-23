@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ascendiacore.client.createworld.WorldTabRows;
-import com.exoticworlds.api.v2.client.DimensionOptionLines;
+import com.exoticworlds.client.shape.OptionLines;
 import com.exoticworlds.client.shape.climate.CompactBiomesLine;
 import com.exoticworlds.client.shape.WorldShapeRow;
 import com.exoticworlds.core.DimensionTable;
@@ -32,7 +32,7 @@ public final class LayoutShapeSetup {
     public static void register() {
         WorldTabRows.register(new WorldShapeRow(LayoutShapeSetup::createScreen));
         CompactBiomesLine factor = new CompactBiomesLine();
-        DimensionOptionLines.register(CompactBiomes.SHOWN,
+        OptionLines.register(CompactBiomes.SHOWN,
                 (scale, spans) -> Minecraft.getInstance().screen instanceof WorldShapeSettingsScreen open
                         ? factor.line(open, open.creationScreen(), scale, spans)
                         : Component.empty());

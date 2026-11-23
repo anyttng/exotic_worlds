@@ -1,14 +1,12 @@
 package com.exoticworlds.core;
 
-import com.exoticworlds.api.v2.geometry.Orientation;
-
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-public enum FoldOrientation implements Orientation {
+public enum FoldOrientation {
     IDENTITY(false, false, false, Mirror.NONE, Rotation.NONE),
     MIRROR_X(false, true, false, Mirror.FRONT_BACK, Rotation.NONE),
     MIRROR_Z(false, false, true, Mirror.LEFT_RIGHT, Rotation.NONE),
@@ -80,12 +78,10 @@ public enum FoldOrientation implements Orientation {
         return this.flipsZ;
     }
 
-    @Override
     public boolean isIdentity() {
         return this == IDENTITY;
     }
 
-    @Override
     public boolean preservesHandedness() {
         return (this.flipsX == this.flipsZ) != this.swapsAxes;
     }
@@ -100,7 +96,6 @@ public enum FoldOrientation implements Orientation {
         return this.swapsAxes ? of(true, this.flipsZ, this.flipsX) : this;
     }
 
-    @Override
     public Vec3 applyToDelta(Vec3 delta) {
         if (isIdentity()) {
             return delta;

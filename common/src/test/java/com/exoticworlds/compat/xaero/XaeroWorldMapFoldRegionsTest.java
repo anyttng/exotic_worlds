@@ -7,15 +7,15 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.compat.map.MapShapes;
+import com.exoticworlds.compat.map.MapFolds;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 
 class XaeroWorldMapFoldRegionsTest {
-    private static final ToroidalShape OFF_GRID = MapShapes.torus(-937, 938);
-    private static final ToroidalShape SMALL = MapShapes.torus(-16, 16);
+    private static final WorldFold OFF_GRID = MapFolds.torus(-937, 938);
+    private static final WorldFold SMALL = MapFolds.torus(-16, 16);
     private static final int REACH = 6;
 
     @Test
@@ -50,8 +50,8 @@ class XaeroWorldMapFoldRegionsTest {
 
     @Test
     void theRegionFoldIsTheFoldOfTheRegionsOriginBlock() {
-        for (ToroidalShape shape : List.of(OFF_GRID, SMALL, MapShapes.latticeTorus(-16, 16, 8),
-                MapShapes.cylinder(-16, 16))) {
+        for (WorldFold shape : List.of(OFF_GRID, SMALL, MapFolds.latticeTorus(-16, 16, 8),
+                MapFolds.cylinder(-16, 16))) {
             for (int regX = -REACH; regX <= REACH; regX++) {
                 for (int regZ = -REACH; regZ <= REACH; regZ++) {
                     BlockPos origin = XaeroWorldMapFold.foldBlock(shape, regX * XaeroWorldMapFold.REGION_BLOCKS,

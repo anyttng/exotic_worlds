@@ -2,8 +2,8 @@ package com.exoticworlds.compat.map;
 
 import java.util.function.ToDoubleFunction;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.core.CoordinateConstants;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -18,78 +18,78 @@ public final class FullscreenZoomFloor {
 
     public static final int FTBCHUNKS_MAX_ZOOM = 1_024;
 
-    public static int journeyMapZoom(ToroidalShape shape) {
-        return (int) maxOverLoopedAxes(shape, axis -> journeyMapZoom(shape.widthBlocks(axis)));
+    public static int journeyMapZoom(WorldFold fold) {
+        return (int) maxOverLoopedAxes(fold, axis -> journeyMapZoom(fold.widthBlocks(axis)));
     }
 
-    public static double xaeroScale(ToroidalShape shape, double scaleMultiplier) {
-        return maxOverLoopedAxes(shape, axis -> xaeroScale(shape.widthBlocks(axis), scaleMultiplier));
+    public static double xaeroScale(WorldFold fold, double scaleMultiplier) {
+        return maxOverLoopedAxes(fold, axis -> xaeroScale(fold.widthBlocks(axis), scaleMultiplier));
     }
 
-    public static int ftbChunksZoom(ToroidalShape shape) {
+    public static int ftbChunksZoom(WorldFold fold) {
         int floor = 0;
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (shape.loops(axis)) {
-                floor = Math.max(floor, ftbChunksZoom(shape.widthBlocks(axis)));
+            if (fold.loops(axis)) {
+                floor = Math.max(floor, ftbChunksZoom(fold.widthBlocks(axis)));
             }
         }
 
         return floor;
     }
 
-    public static int journeyMapCoverZoom(ToroidalShape shape, int windowWidth, int windowHeight) {
-        return (int) maxOverLoopedAxes(shape,
-                axis -> journeyMapCoverZoom(shape.widthBlocks(axis), windowSide(axis, windowWidth, windowHeight)));
+    public static int journeyMapCoverZoom(WorldFold fold, int windowWidth, int windowHeight) {
+        return (int) maxOverLoopedAxes(fold,
+                axis -> journeyMapCoverZoom(fold.widthBlocks(axis), windowSide(axis, windowWidth, windowHeight)));
     }
 
-    public static int ftbChunksCoverZoom(ToroidalShape shape, int windowWidth, int windowHeight) {
+    public static int ftbChunksCoverZoom(WorldFold fold, int windowWidth, int windowHeight) {
         int floor = 0;
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (shape.loops(axis)) {
-                floor = Math.max(floor, ftbChunksCoverZoom(shape.widthBlocks(axis), windowSide(axis, windowWidth, windowHeight)));
+            if (fold.loops(axis)) {
+                floor = Math.max(floor, ftbChunksCoverZoom(fold.widthBlocks(axis), windowSide(axis, windowWidth, windowHeight)));
             }
         }
 
         return floor;
     }
 
-    public static double xaeroCoverScale(ToroidalShape shape, double scaleMultiplier, int windowWidth, int windowHeight) {
-        return maxOverLoopedAxes(shape,
-                axis -> xaeroCoverScale(shape.widthBlocks(axis), scaleMultiplier, windowSide(axis, windowWidth, windowHeight)));
+    public static double xaeroCoverScale(WorldFold fold, double scaleMultiplier, int windowWidth, int windowHeight) {
+        return maxOverLoopedAxes(fold,
+                axis -> xaeroCoverScale(fold.widthBlocks(axis), scaleMultiplier, windowSide(axis, windowWidth, windowHeight)));
     }
 
     // mc/26.2: Simple Atlas holds its SINGLE view at this zoom.
-    public static float simpleAtlasCoverZoom(ToroidalShape shape, float viewWidth, float viewHeight, int blocksPerTile,
+    public static float simpleAtlasCoverZoom(WorldFold fold, float viewWidth, float viewHeight, int blocksPerTile,
             float tilePixels) {
-        return (float) maxOverLoopedAxes(shape, axis -> simpleAtlasCoverZoom(shape.widthBlocks(axis),
+        return (float) maxOverLoopedAxes(fold, axis -> simpleAtlasCoverZoom(fold.widthBlocks(axis),
                 windowSide(axis, viewWidth, viewHeight), blocksPerTile, tilePixels));
     }
 
-    public static float ultimateMapAtlasesZoom(ToroidalShape shape, float viewWidth, int mapBlocks) {
-        return (float) minOverLoopedAxes(shape,
-                axis -> ultimateMapAtlasesZoom(shape.widthBlocks(axis), viewWidth, mapBlocks));
+    public static float ultimateMapAtlasesZoom(WorldFold fold, float viewWidth, int mapBlocks) {
+        return (float) minOverLoopedAxes(fold,
+                axis -> ultimateMapAtlasesZoom(fold.widthBlocks(axis), viewWidth, mapBlocks));
     }
 
-    public static float ultimateMapAtlasesCoverZoom(ToroidalShape shape, float viewWidth, float viewHeight,
+    public static float ultimateMapAtlasesCoverZoom(WorldFold fold, float viewWidth, float viewHeight,
             int mapBlocks) {
-        return (float) minOverLoopedAxes(shape, axis -> ultimateMapAtlasesCoverZoom(shape.widthBlocks(axis), viewWidth,
+        return (float) minOverLoopedAxes(fold, axis -> ultimateMapAtlasesCoverZoom(fold.widthBlocks(axis), viewWidth,
                 windowSide(axis, viewWidth, viewHeight), mapBlocks));
     }
 
-    public static float ultraTerraForgedZoom(ToroidalShape shape, int widgetPixels, int previewPixels) {
-        return (float) minOverLoopedAxes(shape,
-                axis -> ultraTerraForgedZoom(shape.widthBlocks(axis), widgetPixels, previewPixels));
+    public static float ultraTerraForgedZoom(WorldFold fold, int widgetPixels, int previewPixels) {
+        return (float) minOverLoopedAxes(fold,
+                axis -> ultraTerraForgedZoom(fold.widthBlocks(axis), widgetPixels, previewPixels));
     }
 
-    public static float ultraTerraForgedCoverZoom(ToroidalShape shape, int previewPixels) {
-        return (float) minOverLoopedAxes(shape,
-                axis -> ultraTerraForgedCoverZoom(shape.widthBlocks(axis), previewPixels));
+    public static float ultraTerraForgedCoverZoom(WorldFold fold, int previewPixels) {
+        return (float) minOverLoopedAxes(fold,
+                axis -> ultraTerraForgedCoverZoom(fold.widthBlocks(axis), previewPixels));
     }
 
-    private static double maxOverLoopedAxes(ToroidalShape shape, ToDoubleFunction<Direction.Axis> floorOf) {
+    private static double maxOverLoopedAxes(WorldFold fold, ToDoubleFunction<Direction.Axis> floorOf) {
         double floor = 0.0;
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (shape.loops(axis)) {
+            if (fold.loops(axis)) {
                 floor = Math.max(floor, floorOf.applyAsDouble(axis));
             }
         }
@@ -97,10 +97,10 @@ public final class FullscreenZoomFloor {
         return floor;
     }
 
-    private static double minOverLoopedAxes(ToroidalShape shape, ToDoubleFunction<Direction.Axis> ceilingOf) {
+    private static double minOverLoopedAxes(WorldFold fold, ToDoubleFunction<Direction.Axis> ceilingOf) {
         double ceiling = Double.MAX_VALUE;
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (shape.loops(axis)) {
+            if (fold.loops(axis)) {
                 ceiling = Math.min(ceiling, ceilingOf.applyAsDouble(axis));
             }
         }

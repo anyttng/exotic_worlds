@@ -7,9 +7,9 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -33,9 +33,9 @@ class SimplexSlotsGoldenValuesTest {
             WorldFolds.of(ShapeFixtures.cylinder(
                     new WorldLoopBounds(new AxisBounds.Looped(-16, 16), AxisBounds.Unbounded.INSTANCE))),
             WorldFolds.NOOP,
-            new DeckGroupFold(FlatShape.latticeTorus(SQUARE, 5), GenerationOptions.DEFAULT),
+            new DeckGroupFold(FlatShape.latticeTorus(SQUARE, 5), OptionValues.DEFAULT),
             new DeckGroupFold(FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-32, 32, 0, 16), -13),
-                    GenerationOptions.DEFAULT));
+                    OptionValues.DEFAULT));
     private static final double[] DIVISORS = {80.0, 400.0, 200.0, 1.0, 1.0E-7};
     private static final double[] SCALES = {1.0 / 1024.0, 0.0125, 0.05, 0.2};
     private static final List<Integer> OCTAVES = List.of(-2, -1, 0);

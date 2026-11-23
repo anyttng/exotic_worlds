@@ -8,8 +8,6 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
@@ -18,7 +16,7 @@ class TranslationLatticeTest {
     private static final WorldLoopBounds BOUNDS = ShapeFixtures.loopedBounds(-16, 16, -12, 12);
     private static final int SKEW_CHUNKS = 5;
     private static final DeckGroupFold SKEWED = new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS),
-            GenerationOptions.DEFAULT);
+            OptionValues.DEFAULT);
     private static final TranslationLattice LATTICE = SKEWED.blockLattice();
 
     private static final int WIDTH_X = 512;
@@ -167,7 +165,7 @@ class TranslationLatticeTest {
         int halfZ = shape[1] / 2;
         return new DeckGroupFold(
                 FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-halfX, halfX, -halfZ, halfZ),
-                        shape[2]), GenerationOptions.DEFAULT);
+                        shape[2]), OptionValues.DEFAULT);
     }
 
     static double shortestSquared(TranslationLattice lattice, double deltaX, double deltaZ) {
@@ -190,7 +188,7 @@ class TranslationLatticeTest {
     @Test
     void aMirrorIsNoTranslationLattice() {
         DeckGroupFold mirrored = new DeckGroupFold(ShapeFixtures.mirrored(BOUNDS, Direction.Axis.Z, 0),
-                GenerationOptions.DEFAULT);
+                OptionValues.DEFAULT);
         assertThrows(IllegalStateException.class, mirrored::blockLattice);
         assertThrows(IllegalStateException.class, mirrored::chunkLattice);
     }

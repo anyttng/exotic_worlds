@@ -26,7 +26,7 @@ class FoldedRegionsTest {
     void aTileCutByTheLapEdgeIsPlannedForTheRegionPastTheEdge(int widthChunks) {
         WorldFold worldFold = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidths(widthChunks, widthChunks)));
         CellFold fold = CellFold.of(worldFold);
-        int minChunkX = worldFold.shapeView().minChunk(Direction.Axis.X);
+        int minChunkX = worldFold.minChunk(Direction.Axis.X);
         int pastLap = minChunkX + widthChunks;
         int tileX = Math.floorDiv(pastLap - 1, TILE_CHUNKS) * TILE_CHUNKS;
         assertTrue(pastLap - tileX > 0 && pastLap - tileX < TILE_CHUNKS, "the tile must straddle the lap edge");
@@ -45,7 +45,7 @@ class FoldedRegionsTest {
     void noFirstChunkOfTheRegionReachesTheEdgeRegionWhenTheCutTileIsItsLast(int widthChunks) {
         WorldFold worldFold = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidths(widthChunks, widthChunks)));
         CellFold fold = CellFold.of(worldFold);
-        int minChunkX = worldFold.shapeView().minChunk(Direction.Axis.X);
+        int minChunkX = worldFold.minChunk(Direction.Axis.X);
         int tileX = Math.floorDiv(minChunkX + widthChunks - 1, TILE_CHUNKS) * TILE_CHUNKS;
         int regionFirstX = Math.floorDiv(tileX, ChunkPos.REGION_SIZE) * ChunkPos.REGION_SIZE;
         assertTrue(tileX - regionFirstX == ChunkPos.REGION_SIZE - TILE_CHUNKS, "the cut tile must close its region");

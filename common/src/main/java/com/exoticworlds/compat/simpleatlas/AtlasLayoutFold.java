@@ -9,7 +9,7 @@ import java.util.function.ToIntFunction;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.compat.map.MapCopies;
 
 import net.minecraft.core.BlockPos;
@@ -18,7 +18,7 @@ import rubbertoe.simple_atlas.network.AtlasTilePayload;
 
 public final class AtlasLayoutFold {
     public static List<AtlasTilePayload> relaid(List<AtlasTilePayload> tiles,
-            ToIntFunction<AtlasTilePayload> blocksPerTile, Function<String, @Nullable ToroidalShape> shapes,
+            ToIntFunction<AtlasTilePayload> blocksPerTile, Function<String, @Nullable WorldFold> shapes,
             MapCopies copies) {
         Map<String, List<Integer>> byDimension = new LinkedHashMap<>();
         for (int i = 0; i < tiles.size(); i++) {
@@ -27,23 +27,23 @@ public final class AtlasLayoutFold {
 
         List<AtlasTilePayload> relaid = null;
         for (Map.Entry<String, List<Integer>> dimension : byDimension.entrySet()) {
-            ToroidalShape shape = shapes.apply(dimension.getKey());
+            WorldFold fold = shapes.apply(dimension.getKey());
             List<Integer> indices = dimension.getValue();
             int span = blocksPerTile.applyAsInt(tiles.get(indices.getFirst()));
-            if (shape == null || span == 0) {
+            if (fold == null || span == 0) {
                 continue;
             }
 
             if (relaid == null) {
                 relaid = new ArrayList<>(tiles);
             }
-            relayDimension(tiles, indices, shape, span, copies, relaid);
+            relayDimension(tiles, indices, fold, span, copies, relaid);
         }
 
         return relaid == null ? tiles : relaid;
     }
 
-    private static void relayDimension(List<AtlasTilePayload> tiles, List<Integer> indices, ToroidalShape shape,
+    private static void relayDimension(List<AtlasTilePayload> tiles, List<Integer> indices, WorldFold fold,
             int blocksPerTile, MapCopies copies, List<AtlasTilePayload> relaid) {
         int[] cellsX = new int[indices.size()];
         int[] cellsZ = new int[indices.size()];
@@ -52,7 +52,7 @@ public final class AtlasLayoutFold {
         int minZ = Integer.MAX_VALUE;
         for (int i = 0; i < indices.size(); i++) {
             BlockPos center = center(tiles.get(indices.get(i)));
-            BlockPos seated = copies == MapCopies.SINGLE ? center : shape.nearestCopy(origin, center);
+            BlockPos seated = copies == MapCopies.SINGLE ? center : fold.nearestCopy(origin, center);
             cellsX[i] = cell(seated.getX() - origin.getX(), blocksPerTile);
             cellsZ[i] = cell(seated.getZ() - origin.getZ(), blocksPerTile);
             minX = Math.min(minX, cellsX[i]);

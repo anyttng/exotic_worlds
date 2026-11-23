@@ -10,13 +10,14 @@ import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.AxisCopies;
-import com.exoticworlds.compat.map.ClientShapes;
+import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.compat.map.FullscreenZoomFloor;
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.map.WorldCopies;
+import com.exoticworlds.core.RectangleCopies;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -42,90 +43,90 @@ public final class FtbChunksFold {
     private static final int MINIMAP_CENTRE_CHUNK = 7;
 
     public static XZ chunkOf(int chunkX, int chunkZ) {
-        ChunkPos folded = foldedChunk(ClientShapes.current(), chunkX, chunkZ);
+        ChunkPos folded = foldedChunk(ClientFolds.current(), chunkX, chunkZ);
         return XZ.of(folded.x(), folded.z());
     }
 
     public static XZ chunkOf(XZ chunk) {
-        return foldedKey(ClientShapes.current(), chunk);
+        return foldedKey(ClientFolds.current(), chunk);
     }
 
     public static XZ chunkOf(ResourceKey<Level> dimension, int chunkX, int chunkZ) {
-        ChunkPos folded = foldedChunk(ClientShapes.of(dimension), chunkX, chunkZ);
+        ChunkPos folded = foldedChunk(ClientFolds.of(dimension), chunkX, chunkZ);
         return XZ.of(folded.x(), folded.z());
     }
 
     public static XZ chunkOf(ResourceKey<Level> dimension, XZ chunk) {
-        return foldedKey(ClientShapes.of(dimension), chunk);
+        return foldedKey(ClientFolds.of(dimension), chunk);
     }
 
-    static XZ foldedKey(@Nullable ToroidalShape shape, XZ chunk) {
-        if (shape == null) {
+    static XZ foldedKey(@Nullable WorldFold fold, XZ chunk) {
+        if (fold == null) {
             return chunk;
         }
 
-        ChunkPos folded = shape.fold(new ChunkPos(chunk.x(), chunk.z()));
+        ChunkPos folded = fold.fold(new ChunkPos(chunk.x(), chunk.z()));
         return folded.x() == chunk.x() && folded.z() == chunk.z() ? chunk : XZ.of(folded.x(), folded.z());
     }
 
     public static ChunkPos foldedChunkPos(ResourceKey<Level> dimension, ChunkPos pos) {
-        return ClientShapes.fold(ClientShapes.of(dimension), pos);
+        return ClientFolds.fold(ClientFolds.of(dimension), pos);
     }
 
     public static Set<XZ> foldedChunks(Set<XZ> chunks) {
-        return foldedChunks(ClientShapes.current(), chunks);
+        return foldedChunks(ClientFolds.current(), chunks);
     }
 
-    static Set<XZ> foldedChunks(@Nullable ToroidalShape shape, Set<XZ> chunks) {
-        if (shape == null) {
+    static Set<XZ> foldedChunks(@Nullable WorldFold fold, Set<XZ> chunks) {
+        if (fold == null) {
             return chunks;
         }
 
         Set<XZ> folded = new HashSet<>(chunks.size());
         for (XZ chunk : chunks) {
-            folded.add(foldedKey(shape, chunk));
+            folded.add(foldedKey(fold, chunk));
         }
 
         return folded;
     }
 
     public static BlockPos foldBlock(int x, int z) {
-        return foldBlock(ClientShapes.current(), x, z);
+        return foldBlock(ClientFolds.current(), x, z);
     }
 
     public static BlockPos foldBlock(ResourceKey<Level> dimension, int x, int z) {
-        return foldBlock(ClientShapes.of(dimension), x, z);
+        return foldBlock(ClientFolds.of(dimension), x, z);
     }
 
-    private static BlockPos foldBlock(@Nullable ToroidalShape shape, int x, int z) {
-        return ClientShapes.fold(shape, new BlockPos(x, 0, z));
+    private static BlockPos foldBlock(@Nullable WorldFold fold, int x, int z) {
+        return ClientFolds.fold(fold, new BlockPos(x, 0, z));
     }
 
     public static Vec3 foldPosition(ResourceKey<Level> dimension, Vec3 position) {
-        return ClientShapes.fold(ClientShapes.of(dimension), position);
+        return ClientFolds.fold(ClientFolds.of(dimension), position);
     }
 
-    static ChunkPos foldedChunk(@Nullable ToroidalShape shape, int chunkX, int chunkZ) {
-        return ClientShapes.fold(shape, new ChunkPos(chunkX, chunkZ));
+    static ChunkPos foldedChunk(@Nullable WorldFold fold, int chunkX, int chunkZ) {
+        return ClientFolds.fold(fold, new ChunkPos(chunkX, chunkZ));
     }
 
     public static int loopedAxes(ResourceKey<Level> dimension) {
-        ToroidalShape shape = ClientShapes.of(dimension);
-        if (shape == null) {
+        WorldFold fold = ClientFolds.of(dimension);
+        if (fold == null) {
             return 0;
         }
 
-        return (shape.loops(Direction.Axis.X) ? 1 : 0) + (shape.loops(Direction.Axis.Z) ? 1 : 0);
+        return (fold.loops(Direction.Axis.X) ? 1 : 0) + (fold.loops(Direction.Axis.Z) ? 1 : 0);
     }
 
     public static List<WorldCopies.Copy> drawnCopies(ResourceKey<Level> dimension, int minX, int minZ, int maxX,
             int maxZ, MapCopies mapCopies) {
-        return drawnCopies(ClientShapes.of(dimension), minX, minZ, maxX, maxZ, mapCopies);
+        return drawnCopies(ClientFolds.of(dimension), minX, minZ, maxX, maxZ, mapCopies);
     }
 
-    static List<WorldCopies.Copy> drawnCopies(@Nullable ToroidalShape shape, int minX, int minZ, int maxX, int maxZ,
+    static List<WorldCopies.Copy> drawnCopies(@Nullable WorldFold fold, int minX, int minZ, int maxX, int maxZ,
             MapCopies mapCopies) {
-        List<WorldCopies.Copy> copies = WorldCopies.meeting(shape, minX, minZ, maxX, maxZ);
+        List<WorldCopies.Copy> copies = WorldCopies.meeting(fold, minX, minZ, maxX, maxZ);
         if (mapCopies != MapCopies.SINGLE) {
             return copies;
         }
@@ -134,17 +135,17 @@ public final class FtbChunksFold {
     }
 
     public static List<SeamLine> seamLines(ResourceKey<Level> dimension, SeamView view) {
-        return seamLines(ClientShapes.of(dimension), view);
+        return seamLines(ClientFolds.of(dimension), view);
     }
 
-    static List<SeamLine> seamLines(@Nullable ToroidalShape shape, SeamView view) {
+    static List<SeamLine> seamLines(@Nullable WorldFold fold, SeamView view) {
         double pixelsPerBlock = view.tilePixels() / (double) REGION_BLOCKS;
         int minX = (int) Math.floor((view.x() - view.originX()) / pixelsPerBlock);
         int maxX = (int) Math.ceil((view.x() + view.width() - view.originX()) / pixelsPerBlock);
         int minZ = (int) Math.floor((view.y() - view.originY()) / pixelsPerBlock);
         int maxZ = (int) Math.ceil((view.y() + view.height() - view.originY()) / pixelsPerBlock);
         List<SeamLine> lines = new ArrayList<>();
-        for (WorldCopies.Edge edge : WorldCopies.seams(shape, minX, minZ, maxX, maxZ)) {
+        for (WorldCopies.Edge edge : WorldCopies.seams(fold, minX, minZ, maxX, maxZ)) {
             lines.add(SeamLine.of(edge, view.originX(), view.originY(), pixelsPerBlock));
         }
 
@@ -168,14 +169,14 @@ public final class FtbChunksFold {
     }
 
     public static int zoomFloor(ResourceKey<Level> dimension, int windowWidth, int windowHeight) {
-        ToroidalShape shape = ClientShapes.of(dimension);
-        if (shape == null) {
+        WorldFold fold = ClientFolds.of(dimension);
+        if (fold == null) {
             return 0;
         }
 
         return MapCopies.current() == MapCopies.SINGLE
-                ? FullscreenZoomFloor.ftbChunksCoverZoom(shape, windowWidth, windowHeight)
-                : FullscreenZoomFloor.ftbChunksZoom(shape);
+                ? FullscreenZoomFloor.ftbChunksCoverZoom(fold, windowWidth, windowHeight)
+                : FullscreenZoomFloor.ftbChunksZoom(fold);
     }
 
     public record TileBlit(int x, int y, int width, int height, int u, int v, int srcWidth, int srcHeight) {
@@ -189,9 +190,9 @@ public final class FtbChunksFold {
 
     public static @Nullable TileBlit worldPartOf(ResourceKey<Level> dimension, int regionX, int regionZ, int x, int y,
             int width, int height) {
-        ToroidalShape shape = ClientShapes.of(dimension);
-        int[] spanX = worldSpanInRegion(shape, Direction.Axis.X, regionX);
-        int[] spanZ = worldSpanInRegion(shape, Direction.Axis.Z, regionZ);
+        WorldFold fold = ClientFolds.of(dimension);
+        int[] spanX = worldSpanInRegion(fold, Direction.Axis.X, regionX);
+        int[] spanZ = worldSpanInRegion(fold, Direction.Axis.Z, regionZ);
         if (spanX[0] >= spanX[1] || spanZ[0] >= spanZ[1]) {
             return null;
         }
@@ -206,19 +207,19 @@ public final class FtbChunksFold {
                 spanX[0], spanZ[0], spanX[1] - spanX[0], spanZ[1] - spanZ[0]);
     }
 
-    static int[] worldSpanInRegion(@Nullable ToroidalShape shape, Direction.Axis axis, int region) {
+    static int[] worldSpanInRegion(@Nullable WorldFold fold, Direction.Axis axis, int region) {
         int regionStart = region * REGION_BLOCKS;
-        if (shape == null || !shape.loops(axis)) {
+        if (fold == null || !fold.loops(axis)) {
             return new int[] {0, REGION_BLOCKS};
         }
 
-        int from = Math.max(shape.minBlock(axis), regionStart) - regionStart;
-        int to = Math.min(shape.maxBlock(axis), regionStart + REGION_BLOCKS) - regionStart;
+        int from = Math.max(fold.minBlock(axis), regionStart) - regionStart;
+        int to = Math.min(fold.maxBlock(axis), regionStart + REGION_BLOCKS) - regionStart;
         return new int[] {from, Math.max(from, to)};
     }
 
     public static void mirrorSeamEdges(MapDimension dimension, int foldedChunkX, int foldedChunkZ) {
-        List<HaloPixel> halo = haloPixels(ClientShapes.of(dimension.dimension), foldedChunkX, foldedChunkZ);
+        List<HaloPixel> halo = haloPixels(ClientFolds.of(dimension.dimension), foldedChunkX, foldedChunkZ);
         if (halo.isEmpty()) {
             return;
         }
@@ -243,24 +244,24 @@ public final class FtbChunksFold {
         }
     }
 
-    static List<HaloPixel> haloPixels(@Nullable ToroidalShape shape, int foldedChunkX, int foldedChunkZ) {
-        if (shape == null) {
+    static List<HaloPixel> haloPixels(@Nullable WorldFold fold, int foldedChunkX, int foldedChunkZ) {
+        if (fold == null) {
             return List.of();
         }
 
         int chunkMinX = foldedChunkX * CHUNK_BLOCKS;
         int chunkMinZ = foldedChunkZ * CHUNK_BLOCKS;
-        AABB ring = new AABB(ringMin(shape, Direction.Axis.X, chunkMinX), 0.0, ringMin(shape, Direction.Axis.Z, chunkMinZ),
-                ringMax(shape, Direction.Axis.X, chunkMinX), 1.0, ringMax(shape, Direction.Axis.Z, chunkMinZ));
+        AABB ring = new AABB(ringMin(fold, Direction.Axis.X, chunkMinX), 0.0, ringMin(fold, Direction.Axis.Z, chunkMinZ),
+                ringMax(fold, Direction.Axis.X, chunkMinX), 1.0, ringMax(fold, Direction.Axis.Z, chunkMinZ));
         List<HaloPixel> halo = new ArrayList<>();
         for (int z = chunkMinZ; z < chunkMinZ + CHUNK_BLOCKS; z++) {
             for (int x = chunkMinX; x < chunkMinX + CHUNK_BLOCKS; x++) {
-                if (!onWorldEdge(shape, Direction.Axis.X, x) && !onWorldEdge(shape, Direction.Axis.Z, z)) {
+                if (!onWorldEdge(fold, Direction.Axis.X, x) && !onWorldEdge(fold, Direction.Axis.Z, z)) {
                     continue;
                 }
 
                 BlockPos pixel = new BlockPos(x, 0, z);
-                for (ToroidalShape.Oriented<BlockPos> copy : shape.copiesInside(ring, pixel)) {
+                for (WorldFold.Folded<BlockPos> copy : RectangleCopies.inside(fold, ring, pixel, WorldFold.Folded::new)) {
                     if (!copy.value().equals(pixel)) {
                         halo.add(new HaloPixel(x, z, copy.value().getX(), copy.value().getZ()));
                     }
@@ -271,16 +272,16 @@ public final class FtbChunksFold {
         return halo;
     }
 
-    private static int ringMin(ToroidalShape shape, Direction.Axis axis, int chunkMin) {
-        return shape.loops(axis) ? shape.minBlock(axis) - 1 : chunkMin;
+    private static int ringMin(WorldFold fold, Direction.Axis axis, int chunkMin) {
+        return fold.loops(axis) ? fold.minBlock(axis) - 1 : chunkMin;
     }
 
-    private static int ringMax(ToroidalShape shape, Direction.Axis axis, int chunkMin) {
-        return shape.loops(axis) ? shape.maxBlock(axis) + 1 : chunkMin + CHUNK_BLOCKS;
+    private static int ringMax(WorldFold fold, Direction.Axis axis, int chunkMin) {
+        return fold.loops(axis) ? fold.maxBlock(axis) + 1 : chunkMin + CHUNK_BLOCKS;
     }
 
-    private static boolean onWorldEdge(ToroidalShape shape, Direction.Axis axis, int coord) {
-        return shape.loops(axis) && (coord == shape.minBlock(axis) || coord == shape.maxBlock(axis) - 1);
+    private static boolean onWorldEdge(WorldFold fold, Direction.Axis axis, int coord) {
+        return fold.loops(axis) && (coord == fold.minBlock(axis) || coord == fold.maxBlock(axis) - 1);
     }
 
     private static int regionIndex(int x, int z) {
@@ -306,17 +307,17 @@ public final class FtbChunksFold {
     }
 
     public static AxisCopies copies(ResourceKey<Level> dimension, Direction.Axis axis) {
-        ToroidalShape shape = ClientShapes.of(dimension);
-        return shape == null ? AxisCopies.UNBOUNDED : AxisCopies.of(shape, axis);
+        WorldFold fold = ClientFolds.of(dimension);
+        return fold == null ? AxisCopies.UNBOUNDED : AxisCopies.of(fold, axis);
     }
 
     public static int[] minimapSplits(Direction.Axis axis, XZ centreChunk, int[] unfolded) {
-        return minimapSplits(ClientShapes.current(), axis, centreChunk.x(), centreChunk.z(), unfolded);
+        return minimapSplits(ClientFolds.current(), axis, centreChunk.x(), centreChunk.z(), unfolded);
     }
 
-    static int[] minimapSplits(@Nullable ToroidalShape shape, Direction.Axis axis, int centreChunkX, int centreChunkZ,
+    static int[] minimapSplits(@Nullable WorldFold fold, Direction.Axis axis, int centreChunkX, int centreChunkZ,
             int[] unfolded) {
-        if (shape == null || !shape.loops(axis)) {
+        if (fold == null || !fold.loops(axis)) {
             return unfolded;
         }
 
@@ -324,7 +325,7 @@ public final class FtbChunksFold {
         int count = 0;
         cuts[count++] = 0;
         for (int along = 1; along < MINIMAP_CHUNKS; along++) {
-            if (runBreaks(shape, axis, centreChunkX - MINIMAP_CENTRE_CHUNK, centreChunkZ - MINIMAP_CENTRE_CHUNK, along)) {
+            if (runBreaks(fold, axis, centreChunkX - MINIMAP_CENTRE_CHUNK, centreChunkZ - MINIMAP_CENTRE_CHUNK, along)) {
                 cuts[count++] = along;
             }
         }
@@ -333,15 +334,15 @@ public final class FtbChunksFold {
         return Arrays.copyOf(cuts, count);
     }
 
-    private static boolean runBreaks(ToroidalShape shape, Direction.Axis axis, int firstChunkX, int firstChunkZ,
+    private static boolean runBreaks(WorldFold fold, Direction.Axis axis, int firstChunkX, int firstChunkZ,
             int along) {
         int stepX = axis == Direction.Axis.X ? 1 : 0;
         int stepZ = 1 - stepX;
         for (int across = 0; across < MINIMAP_CHUNKS; across++) {
             int chunkX = firstChunkX + (stepX == 1 ? along : across);
             int chunkZ = firstChunkZ + (stepZ == 1 ? along : across);
-            ChunkPos here = shape.fold(new ChunkPos(chunkX, chunkZ));
-            ChunkPos before = shape.fold(new ChunkPos(chunkX - stepX, chunkZ - stepZ));
+            ChunkPos here = fold.fold(new ChunkPos(chunkX, chunkZ));
+            ChunkPos before = fold.fold(new ChunkPos(chunkX - stepX, chunkZ - stepZ));
             if (here.x() != before.x() + stepX || here.z() != before.z() + stepZ
                     || regionOf(here.x()) != regionOf(before.x()) || regionOf(here.z()) != regionOf(before.z())) {
                 return true;
@@ -353,12 +354,12 @@ public final class FtbChunksFold {
 
     public static int minimapSourcePixel(Direction.Axis axis, int stored, int chunkX, int chunkZ,
             int chunksPerRegion) {
-        return minimapSourcePixel(ClientShapes.current(), axis, stored, chunkX, chunkZ, chunksPerRegion);
+        return minimapSourcePixel(ClientFolds.current(), axis, stored, chunkX, chunkZ, chunksPerRegion);
     }
 
-    static int minimapSourcePixel(@Nullable ToroidalShape shape, Direction.Axis axis, int stored, int chunkX,
+    static int minimapSourcePixel(@Nullable WorldFold fold, Direction.Axis axis, int stored, int chunkX,
             int chunkZ, int chunksPerRegion) {
-        ChunkPos folded = foldedChunk(shape, chunkX, chunkZ);
+        ChunkPos folded = foldedChunk(fold, chunkX, chunkZ);
         int raw = axis == Direction.Axis.X ? chunkX : chunkZ;
         int canonical = axis == Direction.Axis.X ? folded.x() : folded.z();
         return canonical == raw ? stored : regionImagePixel(canonical, chunksPerRegion);

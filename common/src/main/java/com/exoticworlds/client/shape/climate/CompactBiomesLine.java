@@ -7,8 +7,8 @@ import java.util.OptionalDouble;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
 
@@ -24,10 +24,10 @@ public final class CompactBiomesLine {
     private final Map<Shown, Component> lines = new HashMap<>();
     private @Nullable Screen linesFor;
 
-    private record Shown(ClimateScale scale, LoopSpans spans) {
+    private record Shown(ClimateScale scale, FlatShape spans) {
     }
 
-    public Component line(Screen shownOn, @Nullable Screen creation, ClimateScale scale, LoopSpans spans) {
+    public Component line(Screen shownOn, @Nullable Screen creation, ClimateScale scale, FlatShape spans) {
         if (creation == null || scale.mode() == ClimateScale.Mode.OFF || scale.mode() == ClimateScale.Mode.CUSTOM) {
             return Component.empty();
         }
@@ -42,7 +42,7 @@ public final class CompactBiomesLine {
 
     private static Component factorLine(Screen creation, Shown shown) {
         OptionalDouble factor = ClimateFactorPreview.temperatureFactor(creation,
-                GenerationOptions.DEFAULT.with(CompactBiomes.OPTION, shown.scale()), shown.spans());
+                OptionValues.DEFAULT.with(CompactBiomes.OPTION, shown.scale()), shown.spans());
         if (factor.isEmpty()) {
             return Component.empty();
         }

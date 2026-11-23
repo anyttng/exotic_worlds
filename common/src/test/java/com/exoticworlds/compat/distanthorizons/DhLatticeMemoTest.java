@@ -42,9 +42,9 @@ class DhLatticeMemoTest {
         DhLattice second = memo.latticeOf(large);
         DhLattice third = memo.latticeOf(small);
 
-        assertEquals(512, first.shape().widthBlocks(Direction.Axis.X));
-        assertEquals(1024, second.shape().widthBlocks(Direction.Axis.X));
-        assertEquals(512, third.shape().widthBlocks(Direction.Axis.X));
+        assertEquals(512, first.fold().widthBlocks(Direction.Axis.X));
+        assertEquals(1024, second.fold().widthBlocks(Direction.Axis.X));
+        assertEquals(512, third.fold().widthBlocks(Direction.Axis.X));
         assertNotSame(first, third);
     }
 

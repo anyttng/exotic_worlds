@@ -3,8 +3,6 @@ package com.exoticworlds.engine.net;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.exoticworlds.api.v1.net.SeamContext;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.level.ChunkPos;
@@ -16,7 +14,7 @@ public final class AuxiliaryLightTranslation {
                 AuxiliaryLightTranslation::seated);
     }
 
-    static CustomPacketPayload seated(AuxiliaryLightDataPayload payload, SeamContext context) {
+    static CustomPacketPayload seated(AuxiliaryLightDataPayload payload, TranslationContext context) {
         ChunkPos clientChunk = context.toClient(payload.pos());
         if (clientChunk.equals(payload.pos())) {
             return payload;

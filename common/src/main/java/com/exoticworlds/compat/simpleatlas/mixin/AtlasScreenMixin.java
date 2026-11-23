@@ -107,7 +107,7 @@ public abstract class AtlasScreenMixin {
     private void exotic_worlds$relayTiles(CallbackInfo ci) {
         Minecraft minecraft = Minecraft.getInstance();
         List<AtlasTilePayload> relaid = AtlasLayoutFold.relaid(this.tiles,
-                tile -> AtlasTileFold.blocksPerTile(minecraft.level, tile), AtlasTileFold::shapeOf,
+                tile -> AtlasTileFold.blocksPerTile(minecraft.level, tile), AtlasTileFold::foldOf,
                 MapCopies.current());
         if (relaid == this.tiles) {
             return;
@@ -305,7 +305,7 @@ public abstract class AtlasScreenMixin {
                         scaledTileSize / blocksPerTile);
         List<AtlasCopies.Offset> copies = layout == null
                 ? AtlasCopies.BASE_ONLY
-                : AtlasCopies.visible(AtlasTileFold.shapeOf(dimension), layout, area,
+                : AtlasCopies.visible(AtlasTileFold.foldOf(dimension), layout, area,
                         mode == MapCopies.SINGLE ? AtlasCopies.ANY_MOVE : blocksPerTile);
         this.exotic_worlds$copies = copies;
         this.exotic_worlds$copiesLayout = layout;

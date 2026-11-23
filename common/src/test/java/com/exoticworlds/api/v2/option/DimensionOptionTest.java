@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v1.option.WorldOption;
 import com.exoticworlds.api.v2.shape.BuiltInShapes;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
@@ -28,7 +27,7 @@ class DimensionOptionTest {
     private static final ResourceKey<LevelStem> MOD_DIMENSION = ResourceKey.create(Registries.LEVEL_STEM,
             Identifier.fromNamespaceAndPath("example_mod", "sky"));
 
-    private static final WorldOption<Integer> FLOOR = new WorldOption<>("example_floor", 100, Codec.INT, 0);
+    private static final ShapeOption<Integer> FLOOR = new ShapeOption<>("example_floor", 100, Codec.INT, 0);
 
     private static final DimensionOption<Integer> EVERYWHERE =
             DimensionOption.of(FLOOR, "gui.example_mod.floor", List.of(OptionPart.number(0, 64)));

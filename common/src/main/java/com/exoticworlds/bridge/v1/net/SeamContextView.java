@@ -1,0 +1,48 @@
+package com.exoticworlds.bridge.v1.net;
+
+import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.api.v1.net.SeamContext;
+import com.exoticworlds.bridge.v1.geometry.GeometryBridge;
+import com.exoticworlds.engine.net.TranslationContext;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.phys.Vec3;
+
+record SeamContextView(TranslationContext context) implements SeamContext {
+
+    @Override
+    public ToroidalShape shape() {
+        return GeometryBridge.of(this.context.fold());
+    }
+
+    @Override
+    public BlockPos toClient(BlockPos pos) {
+        return this.context.toClient(pos);
+    }
+
+    @Override
+    public Vec3 toClient(Vec3 pos) {
+        return this.context.toClient(pos);
+    }
+
+    @Override
+    public ChunkPos toClient(ChunkPos chunkPos) {
+        return this.context.toClient(chunkPos);
+    }
+
+    @Override
+    public BlockPos toServer(BlockPos pos) {
+        return this.context.toServer(pos);
+    }
+
+    @Override
+    public Vec3 toServer(Vec3 pos) {
+        return this.context.toServer(pos);
+    }
+
+    @Override
+    public ChunkPos toServer(ChunkPos chunkPos) {
+        return this.context.toServer(chunkPos);
+    }
+}

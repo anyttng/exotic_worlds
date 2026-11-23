@@ -5,7 +5,7 @@ import java.util.function.BiFunction;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.WorldLoopSizes;
 import com.exoticworlds.shape.layout.OverworldDerivation;
 import com.exoticworlds.shape.layout.ShapeKind;
@@ -16,7 +16,7 @@ import net.minecraft.world.level.dimension.LevelStem;
 
 record DimensionOffer(ResourceKey<LevelStem> dimension, Component title, List<ShapeKind> kinds, boolean spawnPoint,
         boolean netherScale, int minChunkWidth, int defaultChunkWidth,
-        @Nullable BiFunction<@Nullable LoopSpans, Integer, @Nullable LoopSpans> derivation) {
+        @Nullable BiFunction<@Nullable FlatShape, Integer, @Nullable FlatShape> derivation) {
     private static final List<ShapeKind> OWN_KINDS = List.of(ShapeKind.NORMAL, ShapeKind.TORUS, ShapeKind.CYLINDER);
     private static final List<ShapeKind> DERIVED_KINDS =
             List.of(ShapeKind.FROM_OVERWORLD, ShapeKind.NORMAL, ShapeKind.TORUS, ShapeKind.CYLINDER);

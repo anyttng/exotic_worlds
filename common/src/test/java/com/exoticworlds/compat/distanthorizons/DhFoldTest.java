@@ -98,9 +98,9 @@ class DhFoldTest {
             assertEquals(4 * ODD_BLOCKS, DhFold.period(odd, LEAF).xBlocks());
             assertEquals(2 * 800, DhFold.period(torus(0, 50), LEAF).xBlocks());
             assertEquals(1664, DhFold.period(torus(0, 104), LEAF).xBlocks());
-            assertEquals(ODD_LEAF_SECTIONS, DhFold.periodSections(odd.shape(), Direction.Axis.X, LEAF));
-            assertEquals(25, DhFold.periodSections(torus(0, 50).shape(), Direction.Axis.X, LEAF));
-            assertEquals(26, DhFold.periodSections(torus(0, 104).shape(), Direction.Axis.X, LEAF));
+            assertEquals(ODD_LEAF_SECTIONS, DhFold.periodSections(odd.fold(), Direction.Axis.X, LEAF));
+            assertEquals(25, DhFold.periodSections(torus(0, 50).fold(), Direction.Axis.X, LEAF));
+            assertEquals(26, DhFold.periodSections(torus(0, 104).fold(), Direction.Axis.X, LEAF));
         }
 
         @Test
@@ -180,7 +180,7 @@ class DhFoldTest {
         void aWorldTheSectionDoesNotDivideFoldsByWholeLapsOfIt() {
             DhLattice odd = torus(0, 101);
             assertEquals(8 * 1616, DhFold.period(odd, SECTION_128).xBlocks());
-            assertEquals(101, DhFold.periodSections(odd.shape(), Direction.Axis.X, SECTION_128));
+            assertEquals(101, DhFold.periodSections(odd.fold(), Direction.Axis.X, SECTION_128));
             assertEquals(50, DhFold.foldSectionX(odd, SECTION_128, 50 + 101, 0));
             assertEquals(2 * 1600, DhFold.period(torus(-50, 50), SECTION_128).xBlocks());
         }

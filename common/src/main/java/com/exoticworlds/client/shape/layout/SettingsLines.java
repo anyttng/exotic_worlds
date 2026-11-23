@@ -6,9 +6,10 @@ import org.jspecify.annotations.Nullable;
 
 import com.ascendiacore.gui.base.component.model.TooltipStyle;
 import com.ascendiacore.gui.base.hint.Hint;
-import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.CoordinateConstants;
+import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.SpawnPoint;
+import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopSizes;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.WorldShape;
@@ -109,7 +110,7 @@ final class SettingsLines {
                 WorldLoopSizes.MAX_CHUNK_WIDTH);
     }
 
-    static Component summary(DimensionLayout layout, @Nullable LoopSpans spans, boolean derivationKnown) {
+    static Component summary(DimensionLayout layout, @Nullable FlatShape spans, boolean derivationKnown) {
         Identifier declared = layout.shape();
         if (declared != null) {
             return WorldShape.label(declared);
@@ -123,20 +124,21 @@ final class SettingsLines {
         return derivationKnown ? fromOverworld.copy().append(SEPARATOR).append(shapeSummary(spans)) : fromOverworld;
     }
 
-    static Component shapeSummary(@Nullable LoopSpans spans) {
+    static Component shapeSummary(@Nullable FlatShape spans) {
         ShapeKind kind = ShapeKind.of(spans);
         if (spans == null || kind == ShapeKind.NORMAL) {
             return shapeName(ShapeKind.NORMAL);
         }
 
+        WorldLoopBounds bounds = spans.bounds();
         MutableComponent summary = shapeName(kind).copy();
         if (kind == ShapeKind.CYLINDER) {
-            Direction.Axis axis = spans.loops(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
-            return summary.append(" ").append(axisName(axis)).append(SEPARATOR + spans.chunkWidth(axis));
+            Direction.Axis axis = bounds.loops(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
+            return summary.append(" ").append(axisName(axis)).append(SEPARATOR + bounds.chunkWidth(axis));
         }
 
-        summary.append(SEPARATOR + spans.chunkWidth(Direction.Axis.X) + TIMES + spans.chunkWidth(Direction.Axis.Z));
-        int shift = Math.floorMod(spans.skewChunks(), spans.chunkWidth(Direction.Axis.X));
+        summary.append(SEPARATOR + bounds.chunkWidth(Direction.Axis.X) + TIMES + bounds.chunkWidth(Direction.Axis.Z));
+        int shift = Math.floorMod(spans.skewChunks(), bounds.chunkWidth(Direction.Axis.X));
         return shift == 0 ? summary : summary.append(SEPARATOR).append(Component.translatable(SUMMARY_SHIFT_KEY, shift));
     }
 

@@ -2,9 +2,9 @@ package com.exoticworlds.api.v2.client;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.api.v2.option.DimensionOption;
-import com.exoticworlds.core.StartupRegistry;
+import com.exoticworlds.api.v2.shape.LoopSpans;
+import com.exoticworlds.bridge.v2.client.OptionLinesBridge;
 
 import net.minecraft.network.chat.Component;
 
@@ -25,8 +25,6 @@ public final class DimensionOptionLines {
         Component line(T value, LoopSpans spans);
     }
 
-    private static final StartupRegistry<String, Line<?>> LINES = new StartupRegistry<>("Dimension option lines");
-
     /**
      * Registers the line shown under {@code option}.
      *
@@ -34,13 +32,12 @@ public final class DimensionOptionLines {
      *         for this option
      */
     public static <T> void register(DimensionOption<T> option, Line<T> line) {
-        LINES.register(option.option().key(), line);
+        OptionLinesBridge.register(option, line);
     }
 
     /** The line registered for {@code option}, or {@code null} where it has none. */
-    @SuppressWarnings("unchecked")
     public static <T> @Nullable Line<T> of(DimensionOption<T> option) {
-        return (Line<T>) LINES.entries().get(option.option().key());
+        return OptionLinesBridge.of(option);
     }
 
     private DimensionOptionLines() {

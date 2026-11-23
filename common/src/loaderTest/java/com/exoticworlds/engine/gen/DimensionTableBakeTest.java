@@ -23,10 +23,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import com.exoticworlds.accessors.ShapeStamp;
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.shape.StartupRegistrations;
@@ -132,7 +132,7 @@ class DimensionTableBakeTest {
 
     private static DimensionTable wrappedTable() {
         return DimensionTable.of(Map.of(LISTED,
-                new DimensionTable.Entry(new CarriedShape(TABLE_SHAPE, GenerationOptions.DEFAULT))));
+                new DimensionTable.Entry(new CarriedShape(TABLE_SHAPE, OptionValues.DEFAULT))));
     }
 
     private static WorldDimensions unwrappedOverworld(DimensionTable table) {

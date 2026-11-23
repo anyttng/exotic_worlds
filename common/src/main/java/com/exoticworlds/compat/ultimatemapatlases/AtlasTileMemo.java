@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.SeamLine;
+import com.exoticworlds.core.WorldFold;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
@@ -19,32 +19,32 @@ public final class AtlasTileMemo {
     private final Held<List<SeamLine>> seamLines = new Held<>(AtlasSeamLines::of);
 
     private interface PerTile<T> {
-        T of(@Nullable ToroidalShape shape, int centerX, int centerZ, int mapBlocks);
+        T of(@Nullable WorldFold fold, int centerX, int centerZ, int mapBlocks);
     }
 
-    public List<AtlasTileCopies.TileCenter> copies(@Nullable ToroidalShape shape, int centerX, int centerZ,
+    public List<AtlasTileCopies.TileCenter> copies(@Nullable WorldFold fold, int centerX, int centerZ,
             int mapBlocks) {
-        return this.copies.at(shape, centerX, centerZ, mapBlocks);
+        return this.copies.at(fold, centerX, centerZ, mapBlocks);
     }
 
-    public List<SeamLine> seamLines(@Nullable ToroidalShape shape, int centerX, int centerZ, int mapBlocks) {
-        return this.seamLines.at(shape, centerX, centerZ, mapBlocks);
+    public List<SeamLine> seamLines(@Nullable WorldFold fold, int centerX, int centerZ, int mapBlocks) {
+        return this.seamLines.at(fold, centerX, centerZ, mapBlocks);
     }
 
     private static final class Held<T> {
         private final Long2ObjectOpenHashMap<T> byTile = new Long2ObjectOpenHashMap<>();
         private final PerTile<T> perTile;
-        private @Nullable ToroidalShape shape;
+        private @Nullable WorldFold fold;
         private int mapBlocks;
 
         private Held(PerTile<T> perTile) {
             this.perTile = perTile;
         }
 
-        private T at(@Nullable ToroidalShape shape, int centerX, int centerZ, int mapBlocks) {
-            if (shape != this.shape || mapBlocks != this.mapBlocks) {
+        private T at(@Nullable WorldFold fold, int centerX, int centerZ, int mapBlocks) {
+            if (fold != this.fold || mapBlocks != this.mapBlocks) {
                 this.byTile.clear();
-                this.shape = shape;
+                this.fold = fold;
                 this.mapBlocks = mapBlocks;
             }
 
@@ -58,7 +58,7 @@ public final class AtlasTileMemo {
                 this.byTile.clear();
             }
 
-            T answered = this.perTile.of(shape, centerX, centerZ, mapBlocks);
+            T answered = this.perTile.of(fold, centerX, centerZ, mapBlocks);
             this.byTile.put(tile, answered);
             return answered;
         }

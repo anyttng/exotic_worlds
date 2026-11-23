@@ -1,6 +1,5 @@
 package com.exoticworlds.compat.seedviewer;
 
-import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.compat.map.AxisCopies;
 import com.exoticworlds.compat.map.FullscreenZoomFloor;
 import com.exoticworlds.compat.map.SeamLine;
@@ -23,9 +22,8 @@ public final class SeamLines {
             return;
         }
 
-        ToroidalShape shape = fold.shapeView();
-        if (narrowerThanFloor(AxisCopies.of(shape, Direction.Axis.X), camera)
-                || narrowerThanFloor(AxisCopies.of(shape, Direction.Axis.Z), camera)) {
+        if (narrowerThanFloor(AxisCopies.of(fold, Direction.Axis.X), camera)
+                || narrowerThanFloor(AxisCopies.of(fold, Direction.Axis.Z), camera)) {
             return;
         }
 
@@ -33,7 +31,7 @@ public final class SeamLines {
         int maxX = (int) Math.ceil(camera.screenToWorldX(viewport.right(), viewport.x(), viewport.width()));
         int minZ = (int) Math.floor(camera.screenToWorldZ(viewport.y(), viewport.y(), viewport.height()));
         int maxZ = (int) Math.ceil(camera.screenToWorldZ(viewport.bottom(), viewport.y(), viewport.height()));
-        for (WorldCopies.Edge seam : WorldCopies.seams(shape, minX, minZ, maxX, maxZ)) {
+        for (WorldCopies.Edge seam : WorldCopies.seams(fold, minX, minZ, maxX, maxZ)) {
             int x0 = screenX(camera, viewport, seam.fromX());
             int y0 = screenY(camera, viewport, seam.fromZ());
             int x1 = screenX(camera, viewport, seam.toX());

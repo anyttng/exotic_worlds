@@ -6,7 +6,8 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.ToroidalShape;
+import com.exoticworlds.core.RectangleCopies;
+import com.exoticworlds.core.WorldFold;
 
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -39,8 +40,8 @@ public final class AtlasCopies {
     private static final Comparator<Offset> ROWS_THEN_COLUMNS =
             Comparator.comparingDouble(Offset::y).thenComparingDouble(Offset::x);
 
-    public static List<Offset> visible(@Nullable ToroidalShape shape, Layout layout, AtlasView area, int moveBlocks) {
-        if (shape == null) {
+    public static List<Offset> visible(@Nullable WorldFold fold, Layout layout, AtlasView area, int moveBlocks) {
+        if (fold == null) {
             return BASE_ONLY;
         }
 
@@ -52,7 +53,7 @@ public final class AtlasCopies {
                 anchor.x + (area.contentX() + area.contentWidth() - layout.originX()) / pixelsPerBlock, 1.0,
                 anchor.z + (area.contentY() + area.contentHeight() - layout.originY()) / pixelsPerBlock);
         List<Offset> offsets = new ArrayList<>();
-        for (ToroidalShape.Oriented<Vec3> copy : shape.copiesInside(reach, anchor)) {
+        for (WorldFold.Folded<Vec3> copy : RectangleCopies.inside(fold, reach, anchor, WorldFold.Folded::new)) {
             long moveX = Math.round(copy.value().x - anchor.x);
             long moveZ = Math.round(copy.value().z - anchor.z);
             if (moveX % moveBlocks != 0 || moveZ % moveBlocks != 0) {

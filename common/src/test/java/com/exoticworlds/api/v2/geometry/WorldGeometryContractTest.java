@@ -10,10 +10,11 @@ import java.util.Random;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.api.v1.shape.LoopSpans;
+import com.exoticworlds.api.v2.shape.LoopSpans;
+import com.exoticworlds.bridge.v2.geometry.GeometryBridge;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -53,7 +54,8 @@ class WorldGeometryContractTest {
 
     private record Twins(String name, ToroidalShape v1, WorldGeometry v2, LoopSpans spans) {
         static Twins of(String name, WorldFold fold, LoopSpans spans) {
-            return new Twins(name, fold.shapeView(), fold.geometryView(), spans);
+            return new Twins(name, com.exoticworlds.bridge.v1.geometry.GeometryBridge.of(fold),
+                    GeometryBridge.of(fold), spans);
         }
     }
 
@@ -61,7 +63,7 @@ class WorldGeometryContractTest {
         return List.of(
                 Twins.of("torus", WorldFolds.of(ShapeFixtures.torus(BOTH)), BOTH_SPANS),
                 Twins.of("lattice torus",
-                        new DeckGroupFold(FlatShape.latticeTorus(BOTH, LATTICE_SKEW_CHUNKS), GenerationOptions.DEFAULT),
+                        new DeckGroupFold(FlatShape.latticeTorus(BOTH, LATTICE_SKEW_CHUNKS), OptionValues.DEFAULT),
                         BOTH_SPANS.withSkew(LATTICE_SKEW_CHUNKS)),
                 Twins.of("cylinder", WorldFolds.of(ShapeFixtures.cylinder(X_ONLY)), X_SPANS));
     }

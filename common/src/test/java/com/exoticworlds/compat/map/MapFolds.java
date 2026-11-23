@@ -4,40 +4,39 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v1.TestShapes;
-import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.WorldLoopBounds;
 
 import net.minecraft.core.Direction;
 
-public final class MapShapes {
+public final class MapFolds {
     private static final int WIDE_WINDOW_REACH_BLOCKS = 20000;
     private static final int WIDE_WINDOW_LAPS = 3;
 
-    public static ToroidalShape torus(int minChunk, int maxChunk) {
+    public static WorldFold torus(int minChunk, int maxChunk) {
         AxisBounds.Looped looped = new AxisBounds.Looped(minChunk, maxChunk);
-        return TestShapes.of(WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(looped, looped))));
+        return WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(looped, looped)));
     }
 
-    public static ToroidalShape cylinder(int minChunk, int maxChunk) {
-        return TestShapes.of(WorldFolds.of(ShapeFixtures.cylinder(
-                new WorldLoopBounds(new AxisBounds.Looped(minChunk, maxChunk), AxisBounds.Unbounded.INSTANCE))));
+    public static WorldFold cylinder(int minChunk, int maxChunk) {
+        return WorldFolds.of(ShapeFixtures.cylinder(
+                new WorldLoopBounds(new AxisBounds.Looped(minChunk, maxChunk), AxisBounds.Unbounded.INSTANCE)));
     }
 
-    public static ToroidalShape latticeTorus(int minChunk, int maxChunk, int skewChunks) {
+    public static WorldFold latticeTorus(int minChunk, int maxChunk, int skewChunks) {
         AxisBounds.Looped looped = new AxisBounds.Looped(minChunk, maxChunk);
-        return TestShapes.of(
+        return 
                 new DeckGroupFold(FlatShape.latticeTorus(new WorldLoopBounds(looped, looped), skewChunks),
-                        GenerationOptions.DEFAULT));
+                        OptionValues.DEFAULT);
     }
 
-    public static List<WorldCopies.Window> windows(@Nullable ToroidalShape shape) {
+    public static List<WorldCopies.Window> windows(@Nullable WorldFold shape) {
         int width = Math.max(AxisCopies.of(shape, Direction.Axis.X).width(),
                 AxisCopies.of(shape, Direction.Axis.Z).width());
         int reach = WIDE_WINDOW_REACH_BLOCKS + WIDE_WINDOW_LAPS * width;
@@ -45,6 +44,6 @@ public final class MapShapes {
                 WorldCopies.Window.of(shape, -reach, -reach, reach, reach));
     }
 
-    private MapShapes() {
+    private MapFolds() {
     }
 }

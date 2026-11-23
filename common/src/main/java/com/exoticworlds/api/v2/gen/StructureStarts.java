@@ -3,8 +3,8 @@ package com.exoticworlds.api.v2.gen;
 import java.util.List;
 import java.util.Optional;
 
-import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v2.geometry.WorldGeometry;
+import com.exoticworlds.api.v2.option.ShapeOptions;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.ChunkPos;
@@ -20,7 +20,7 @@ public interface StructureStarts {
 
     WorldGeometry geometry();
 
-    GenerationOptions options();
+    ShapeOptions options();
 
     Holder<StructureSet> structureSet();
 
