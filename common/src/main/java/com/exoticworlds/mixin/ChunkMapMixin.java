@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -27,7 +28,7 @@ import com.exoticworlds.engine.gen.SeamDriveRequest;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.gen.terrain.TerrainCeiling;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -304,16 +305,23 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
         return view;
     }
 
-    @WrapMethod(method = "isChunkTracked")
-    private boolean exotic_worlds$trackPhysicalChunk(ServerPlayer player, int chunkX, int chunkZ,
-            Operation<Boolean> original) {
+    @Redirect(
+            method = "isChunkTracked",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/level/ChunkTrackingView;contains(II)Z"))
+    private boolean exotic_worlds$trackPhysicalChunk(ChunkTrackingView view, int chunkX, int chunkZ) {
         long folded = WorldLoopAttachments.foldOf(this.level).foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
-        return original.call(player, ChunkPos.getX(folded), ChunkPos.getZ(folded));
+        return view.contains(ChunkPos.getX(folded), ChunkPos.getZ(folded));
     }
 
-    @WrapMethod(method = "getPlayerViewDistance")
-    private int exotic_worlds$clampLoopedViewDistance(ServerPlayer player, Operation<Integer> original) {
-        int vanilla = original.call(player);
+    @ModifyExpressionValue(method = "isChunkTracked", at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_POS_PACK))
+    private long exotic_worlds$pendingPhysicalChunk(long chunkKey) {
+        return WorldLoopAttachments.foldOf(this.level).foldChunkKey(chunkKey);
+    }
+
+    @ModifyReturnValue(method = "getPlayerViewDistance", at = @At("RETURN"))
+    private int exotic_worlds$clampLoopedViewDistance(int vanilla) {
         WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.level);
         return fold == null ? vanilla : fold.limitViewDistance(vanilla);
     }
