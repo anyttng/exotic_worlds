@@ -309,6 +309,7 @@
     "WorldGenRegionMixin"
   ],
   "client": [
+    "BiomeGrassColorMixin",
     "BiomePrecipitationMixin",
     "ClientboundAddEntityPacketMixin",
     "ClientChunkCacheMixin",
