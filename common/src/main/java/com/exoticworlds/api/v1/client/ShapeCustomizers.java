@@ -2,7 +2,7 @@ package com.exoticworlds.api.v1.client;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.StartupRegistry;
+import com.exoticworlds.bridge.v1.client.CustomizerBridge;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.Identifier;
@@ -25,9 +25,6 @@ public final class ShapeCustomizers {
         Screen createScreen(Screen parent);
     }
 
-    private static final StartupRegistry<Identifier, Customizer> CUSTOMIZERS =
-            new StartupRegistry<>("Shape customizers");
-
     /**
      * Registers the customizer for the shape declared under {@code shapeId}.
      *
@@ -35,12 +32,12 @@ public final class ShapeCustomizers {
      *         a customizer
      */
     public static void register(Identifier shapeId, Customizer customizer) {
-        CUSTOMIZERS.register(shapeId, customizer);
+        CustomizerBridge.register(shapeId, customizer);
     }
 
     /** The customizer registered for {@code shapeId}, or {@code null} where that shape offers no settings screen. */
     public static @Nullable Customizer of(Identifier shapeId) {
-        return CUSTOMIZERS.entries().get(shapeId);
+        return CustomizerBridge.of(shapeId);
     }
 
     private ShapeCustomizers() {

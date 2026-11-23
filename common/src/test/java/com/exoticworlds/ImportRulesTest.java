@@ -29,9 +29,10 @@ class ImportRulesTest {
     private static final String JAVA_SUFFIX = ".java";
     private static final String MIXIN_SEGMENT = "mixin";
     private static final String ROOT_GROUP = "";
+    private static final String API_GROUP = "api";
     private static final String API_V2 = "api.v2";
     private static final String BRIDGE_GROUP = "bridge";
-    private static final Set<String> VERSIONED_ROOTS = Set.of("api", BRIDGE_GROUP);
+    private static final Set<String> VERSIONED_ROOTS = Set.of(API_GROUP, BRIDGE_GROUP);
     private static final Set<String> VERSIONS = Set.of("v1", "v2");
     private static final List<String> MODEL_READERS = List.of("shape", "client.shape");
     private static final Set<String> MODEL_KINDS = Set.of("interface", "record", "enum", "abstract class");
@@ -51,9 +52,6 @@ class ImportRulesTest {
     private static final Set<String> EXCEPTIONS = Set.of(
             "shape.climate.ClimateCompression -> engine.noise.ClimateScaleCompression",
             "shape.torus.CoastFieldLift -> engine.noise.GenerationFoldContext",
-            "api.v1.shape.ShapeDimensions -> engine.gen.ShapedDimensions",
-            "api.v1.ExoticWorldsApi -> engine.seam.circumnavigation.SeamTravel",
-            "api.v1.ExoticWorldsClientApi -> engine.level.PublishedShapes",
             "shape.WorldShapes -> engine.gen.ShapedDimensions",
             "shape.layout.LayoutDimensions -> engine.gen.ShapedDimensions",
             "shape.layout.OverworldDerivation -> engine.gen.ShapedDimensions");
@@ -85,8 +83,8 @@ class ImportRulesTest {
         if (readerVersion != null && importedVersion != null && !readerVersion.equals(importedVersion)) {
             return "versions never read each other: an api and its bridge stand alone";
         }
-        if (packageOf(reader).startsWith(API_V2) && importedVersion == null) {
-            return "api.v2 holds declarations alone: it reads itself and its bridge";
+        if (readerGroup.equals(API_GROUP) && importedVersion == null) {
+            return "an api holds declarations alone: it reads itself and its bridge";
         }
         if (readerVersion == null && importedGroup.equals(BRIDGE_GROUP)) {
             return "the mod never reads a bridge: only its api calls it";
