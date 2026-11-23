@@ -1,6 +1,6 @@
 package com.exoticworlds.shape;
 
-import com.exoticworlds.core.OptionKeys;
+import com.exoticworlds.core.ShapeOptionRegistry;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.shape.climate.CompactBiomes;
 import com.exoticworlds.shape.torus.GuaranteedLand;
@@ -9,7 +9,7 @@ import com.exoticworlds.shape.torus.GuaranteedNetherComplexes;
 public final class WorldOptionSetup {
 
     public static void registerAll() {
-        OptionKeys.register(SpawnPoint.OPTION);
+        ShapeOptionRegistry.register(SpawnPoint.OPTION);
         CompactBiomes.register();
         GuaranteedLand.register();
         GuaranteedNetherComplexes.register();

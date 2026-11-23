@@ -5,32 +5,32 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v2.geometry.Oriented;
-import com.exoticworlds.api.v2.geometry.SeamShift;
-import com.exoticworlds.api.v2.geometry.WorldGeometry;
-import com.exoticworlds.api.v2.shape.LoopSpans;
+import com.exoticworlds.api.v2.geometry.OrientedV2;
+import com.exoticworlds.api.v2.geometry.SeamShiftV2;
+import com.exoticworlds.api.v2.geometry.WorldGeometryV2;
+import com.exoticworlds.api.v2.shape.LoopSpansV2;
+import com.exoticworlds.bridge.v2.shape.ShapeSpansAdapter;
 import com.exoticworlds.core.DeckTransformation;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.RectangleCopies;
 import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.shape.ShapeSpansAdapter;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-final class WorldGeometryView implements WorldGeometry {
+final class WorldGeometryView implements WorldGeometryV2 {
     private final WorldFold fold;
-    private @Nullable LoopSpans spans;
+    private @Nullable LoopSpansV2 spans;
 
     WorldGeometryView(WorldFold fold) {
         this.fold = fold;
     }
 
     @Override
-    public LoopSpans spans() {
-        LoopSpans stated = this.spans;
+    public LoopSpansV2 spans() {
+        LoopSpansV2 stated = this.spans;
         if (stated == null) {
             stated = spansOf(this.fold);
             this.spans = stated;
@@ -39,7 +39,7 @@ final class WorldGeometryView implements WorldGeometry {
         return stated;
     }
 
-    private static LoopSpans spansOf(WorldFold fold) {
+    private static LoopSpansV2 spansOf(WorldFold fold) {
         return ShapeSpansAdapter.loopSpans(FlatShape.latticeTorus(fold.bounds(), fold.chunkLattice().skew()));
     }
 
@@ -74,12 +74,12 @@ final class WorldGeometryView implements WorldGeometry {
     }
 
     @Override
-    public SeamShift shiftToNearestCopy(Vec3 ref, Vec3 anchor) {
+    public SeamShiftV2 shiftToNearestCopy(Vec3 ref, Vec3 anchor) {
         return new GeometryShiftView(this.fold.nearestCopyTransformation(ref, anchor));
     }
 
     @Override
-    public SeamShift shiftToNearestCopy(BlockPos ref, BlockPos anchor) {
+    public SeamShiftV2 shiftToNearestCopy(BlockPos ref, BlockPos anchor) {
         return new GeometryShiftView(this.fold.nearestCopyTransformation(ref, anchor));
     }
 
@@ -99,9 +99,9 @@ final class WorldGeometryView implements WorldGeometry {
     }
 
     @Override
-    public List<Oriented<AABB>> split(AABB box) {
+    public List<OrientedV2<AABB>> split(AABB box) {
         List<WorldFold.Folded<AABB>> pieces = this.fold.split(box);
-        List<Oriented<AABB>> oriented = new ArrayList<>(pieces.size());
+        List<OrientedV2<AABB>> oriented = new ArrayList<>(pieces.size());
         for (WorldFold.Folded<AABB> piece : pieces) {
             oriented.add(oriented(piece));
         }
@@ -110,9 +110,9 @@ final class WorldGeometryView implements WorldGeometry {
     }
 
     @Override
-    public List<SeamShift> copiesMeeting(AABB box) {
+    public List<SeamShiftV2> copiesMeeting(AABB box) {
         List<DeckTransformation> copies = RectangleCopies.meeting(this.fold, box);
-        List<SeamShift> shifts = new ArrayList<>(copies.size());
+        List<SeamShiftV2> shifts = new ArrayList<>(copies.size());
         for (DeckTransformation copy : copies) {
             shifts.add(new GeometryShiftView(copy));
         }
@@ -121,15 +121,15 @@ final class WorldGeometryView implements WorldGeometry {
     }
 
     @Override
-    public List<Oriented<Vec3>> copiesInside(AABB box, Vec3 pos) {
+    public List<OrientedV2<Vec3>> copiesInside(AABB box, Vec3 pos) {
         return RectangleCopies.inside(this.fold, box, pos,
-                (value, orientation) -> new Oriented<>(value, OrientationView.of(orientation)));
+                (value, orientation) -> new OrientedV2<>(value, OrientationView.of(orientation)));
     }
 
     @Override
-    public List<Oriented<BlockPos>> copiesInside(AABB box, BlockPos pos) {
+    public List<OrientedV2<BlockPos>> copiesInside(AABB box, BlockPos pos) {
         return RectangleCopies.inside(this.fold, box, pos,
-                (value, orientation) -> new Oriented<>(value, OrientationView.of(orientation)));
+                (value, orientation) -> new OrientedV2<>(value, OrientationView.of(orientation)));
     }
 
     @Override
@@ -138,36 +138,36 @@ final class WorldGeometryView implements WorldGeometry {
     }
 
     @Override
-    public Oriented<BlockPos> foldOriented(BlockPos pos) {
+    public OrientedV2<BlockPos> foldOriented(BlockPos pos) {
         return oriented(this.fold.foldOriented(pos));
     }
 
     @Override
-    public Oriented<Vec3> foldOriented(Vec3 pos) {
+    public OrientedV2<Vec3> foldOriented(Vec3 pos) {
         return oriented(this.fold.foldOriented(pos));
     }
 
     @Override
-    public Oriented<ChunkPos> foldOriented(ChunkPos pos) {
+    public OrientedV2<ChunkPos> foldOriented(ChunkPos pos) {
         return oriented(this.fold.foldOriented(pos));
     }
 
     @Override
-    public Oriented<Vec3> nearestCopyOriented(Vec3 ref, Vec3 target) {
+    public OrientedV2<Vec3> nearestCopyOriented(Vec3 ref, Vec3 target) {
         return oriented(this.fold.nearestCopyOriented(ref, target));
     }
 
     @Override
-    public Oriented<BlockPos> nearestCopyOriented(BlockPos ref, BlockPos target) {
+    public OrientedV2<BlockPos> nearestCopyOriented(BlockPos ref, BlockPos target) {
         return oriented(this.fold.nearestCopyOriented(ref, target));
     }
 
     @Override
-    public Oriented<AABB> nearestCopyOriented(Vec3 ref, AABB box) {
+    public OrientedV2<AABB> nearestCopyOriented(Vec3 ref, AABB box) {
         return oriented(this.fold.nearestCopyOriented(ref, box));
     }
 
-    private static <T> Oriented<T> oriented(WorldFold.Folded<T> folded) {
-        return new Oriented<>(folded.value(), OrientationView.of(folded.orientation()));
+    private static <T> OrientedV2<T> oriented(WorldFold.Folded<T> folded) {
+        return new OrientedV2<>(folded.value(), OrientationView.of(folded.orientation()));
     }
 }

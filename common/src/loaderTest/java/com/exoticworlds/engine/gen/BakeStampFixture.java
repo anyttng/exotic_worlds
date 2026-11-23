@@ -13,8 +13,8 @@ import com.mojang.serialization.MapCodec;
 import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldLoopBounds;
 
@@ -84,10 +84,10 @@ final class BakeStampFixture {
     }
 
     static ChunkGenerator stamped(ChunkGenerator generator, FlatShape shape) {
-        return stamped(generator, shape, OptionValues.DEFAULT);
+        return stamped(generator, shape, ShapeOptions.DEFAULT);
     }
 
-    static ChunkGenerator stamped(ChunkGenerator generator, FlatShape shape, OptionValues options) {
+    static ChunkGenerator stamped(ChunkGenerator generator, FlatShape shape, ShapeOptions options) {
         ((ShapeStamp) generator).exotic_worlds$stamp(new CarriedShape(shape, options));
         return generator;
     }
@@ -235,7 +235,7 @@ final class BakeStampFixture {
         private final CarriedShape carriedShape;
 
         private ShapedForeignChunkGenerator(FlatShape shape) {
-            this.carriedShape = new CarriedShape(shape, OptionValues.DEFAULT);
+            this.carriedShape = new CarriedShape(shape, ShapeOptions.DEFAULT);
         }
 
         @Override

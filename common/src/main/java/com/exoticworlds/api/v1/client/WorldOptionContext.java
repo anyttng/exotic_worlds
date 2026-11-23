@@ -13,7 +13,7 @@ import net.minecraft.core.Direction;
  * itself. A shape's own settings screen implements this and hands it to {@link WorldOptionControls#createAll}.
  *
  * @deprecated no screen builds these controls any more, so a control registered for an option is never shown.
- *     Declare how the option is offered and drawn with a {@link com.exoticworlds.api.v2.option.DimensionOption};
+ *     Declare how the option is offered and drawn with a {@link com.exoticworlds.api.v2.option.DimensionOptionV2};
  *     the World Shape Settings screen draws it.
  */
 @Deprecated

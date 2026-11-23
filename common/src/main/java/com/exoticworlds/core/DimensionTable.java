@@ -100,7 +100,7 @@ public final class DimensionTable {
         public static final Codec<Entry> CODEC = RecordCodecBuilder.<Stated>mapCodec(instance -> instance.group(
                 Codec.BOOL.optionalFieldOf(FROM_OVERWORLD_KEY, false).forGetter(Stated::fromOverworld),
                 CarriedShape.SHAPE_CODEC.optionalFieldOf(CarriedShape.WRAPPING_KEY).forGetter(Stated::shape),
-                OptionValues.mapCodec(CarriedShape.NO_KEY_PREFIX).forGetter(Stated::options)
+                ShapeOptions.mapCodec(CarriedShape.NO_KEY_PREFIX).forGetter(Stated::options)
         ).apply(instance, Stated::new)).xmap(Stated::entry, Stated::of).codec();
 
         public Entry {
@@ -114,11 +114,11 @@ public final class DimensionTable {
         }
     }
 
-    private record Stated(boolean fromOverworld, Optional<FlatShape> shape, OptionValues options) {
+    private record Stated(boolean fromOverworld, Optional<FlatShape> shape, ShapeOptions options) {
         private static Stated of(Entry entry) {
             CarriedShape carried = entry.carried();
             return carried == null
-                    ? new Stated(entry.fromOverworld(), Optional.empty(), OptionValues.DEFAULT)
+                    ? new Stated(entry.fromOverworld(), Optional.empty(), ShapeOptions.DEFAULT)
                     : new Stated(false, Optional.of(carried.shape()), carried.options());
         }
 

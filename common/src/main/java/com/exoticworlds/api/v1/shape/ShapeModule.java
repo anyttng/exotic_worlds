@@ -21,7 +21,7 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
  * @param <S> the shape's own settings type, opaque to Exotic Worlds
  * @deprecated a shape declared here still registers, but no screen lists it and nothing opens a Customize screen
  *     for it: the World Shape Settings screen sets a shape per dimension. Declare a
- *     {@link com.exoticworlds.api.v2.shape.DimensionShape} instead.
+ *     {@link com.exoticworlds.api.v2.shape.DimensionShapeV2} instead.
  */
 @Deprecated
 public final class ShapeModule<S> {

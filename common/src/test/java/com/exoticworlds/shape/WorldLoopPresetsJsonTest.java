@@ -19,10 +19,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
+import com.exoticworlds.core.ShapeOption;
+import com.exoticworlds.core.ShapeOptionRegistry;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.OptionKey;
-import com.exoticworlds.core.OptionKeys;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.shape.climate.CompactBiomes;
 import com.exoticworlds.shape.layout.DimensionLayout;
 import com.exoticworlds.shape.torus.GuaranteedLand;
@@ -36,9 +36,9 @@ class WorldLoopPresetsJsonTest {
     private static final String CYLINDER_PRESET_PREFIX = "cylinder_";
     private static final String TORUS_PRESET_PREFIX = "torus_";
     private static final String PRESET_FILE_EXTENSION = ".json";
-    private static final List<OptionKey<?>> TORUS_OPTIONS =
+    private static final List<ShapeOption<?>> TORUS_OPTIONS =
             List.of(CompactBiomes.OPTION, GuaranteedLand.OPTION, GuaranteedNetherComplexes.OPTION);
-    private static final List<OptionKey<?>> CYLINDER_OPTIONS = List.of(CompactBiomes.OPTION);
+    private static final List<ShapeOption<?>> CYLINDER_OPTIONS = List.of(CompactBiomes.OPTION);
 
     @Test
     void everyPresetShipsATorusWorldPresetMatchingItsConfiguration() throws IOException {
@@ -72,7 +72,7 @@ class WorldLoopPresetsJsonTest {
     }
 
     private static void assertPreset(String presetId, WorldLoopPresets preset, IntFunction<WorldLoopBounds> boundsOfWidth,
-            List<OptionKey<?>> offered, OptionValues defaults) throws IOException {
+            List<ShapeOption<?>> offered, ShapeOptions defaults) throws IOException {
         JsonObject dimensions = readPresetJson(presetId).getAsJsonObject("dimensions");
         assertNotNull(dimensions, presetId + ": no dimensions object");
         assertEquals(3, dimensions.size(), presetId + ": expected exactly the three vanilla dimensions");
@@ -87,8 +87,8 @@ class WorldLoopPresetsJsonTest {
     }
 
     private static void assertDimension(String presetId, JsonObject dimensions, String dimensionId,
-            String noiseSettingsId, WorldLoopBounds expected, List<OptionKey<?>> offered,
-            OptionValues defaults) {
+            String noiseSettingsId, WorldLoopBounds expected, List<ShapeOption<?>> offered,
+            ShapeOptions defaults) {
         String context = presetId + " " + dimensionId;
         JsonObject dimension = dimensions.getAsJsonObject(dimensionId);
         assertNotNull(dimension, context + ": dimension missing");
@@ -102,7 +102,7 @@ class WorldLoopPresetsJsonTest {
                 .getOrThrow(message -> new AssertionError(context + ": wrapping does not parse: " + message));
         assertEquals(expected, wrapping, context + ": wrapping");
 
-        for (OptionKey<?> option : OptionKeys.all()) {
+        for (ShapeOption<?> option : ShapeOptionRegistry.all()) {
             if (offered.contains(option)) {
                 assertStatedOption(context, generator, option, defaults);
             } else {
@@ -111,8 +111,8 @@ class WorldLoopPresetsJsonTest {
         }
     }
 
-    private static <V> void assertStatedOption(String context, JsonObject generator, OptionKey<V> option,
-            OptionValues defaults) {
+    private static <V> void assertStatedOption(String context, JsonObject generator, ShapeOption<V> option,
+            ShapeOptions defaults) {
         JsonElement stated = generator.get(option.key());
         assertNotNull(stated, context + ": " + option.key() + " is not stated");
 

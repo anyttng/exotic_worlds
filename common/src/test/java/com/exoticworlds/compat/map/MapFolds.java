@@ -6,12 +6,12 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.Direction;
 
@@ -33,7 +33,7 @@ public final class MapFolds {
         AxisBounds.Looped looped = new AxisBounds.Looped(minChunk, maxChunk);
         return 
                 new DeckGroupFold(FlatShape.latticeTorus(new WorldLoopBounds(looped, looped), skewChunks),
-                        OptionValues.DEFAULT);
+                        ShapeOptions.DEFAULT);
     }
 
     public static List<WorldCopies.Window> windows(@Nullable WorldFold shape) {

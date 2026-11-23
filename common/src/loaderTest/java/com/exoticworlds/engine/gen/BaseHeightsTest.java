@@ -8,8 +8,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.shape.StartupRegistrations;
 
@@ -66,7 +66,7 @@ class BaseHeightsTest {
 
     private static BaseHeights heights() {
         return new BaseHeights(
-                new CarriedShape(ShapeFixtures.torus(WorldLoopBounds.ofWidth(LAP_CHUNKS)), OptionValues.DEFAULT)
+                new CarriedShape(ShapeFixtures.torus(WorldLoopBounds.ofWidth(LAP_CHUNKS)), ShapeOptions.DEFAULT)
                         .fold());
     }
 }

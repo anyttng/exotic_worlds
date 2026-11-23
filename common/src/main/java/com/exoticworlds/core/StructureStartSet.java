@@ -10,7 +10,7 @@ import net.minecraft.world.level.levelgen.structure.StructureSet;
 public interface StructureStartSet {
     WorldFold fold();
 
-    OptionValues options();
+    ShapeOptions options();
 
     Holder<StructureSet> structureSet();
 

@@ -7,10 +7,10 @@ import java.util.function.ToDoubleFunction;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v2.shape.DimensionContext;
-import com.exoticworlds.api.v2.shape.DimensionShape;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.shape.ShapeOptionsAdapter;
+import com.exoticworlds.shape.dimension.DeclaredShapes;
+import com.exoticworlds.shape.dimension.DimensionContext;
+import com.exoticworlds.shape.dimension.DimensionShape;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -36,8 +36,8 @@ public final class ShapeRecognition {
             return stored;
         }
 
-        DimensionContext context = DeclaredShapes.context(dimension, ShapeOptionsAdapter.shapeOptions(stored.options()),
-                overworld, scales.applyAsDouble(LevelStem.OVERWORLD), scales.applyAsDouble(dimension));
+        DimensionContext context = new DimensionContext(dimension, stored.options(), overworld,
+                scales.applyAsDouble(LevelStem.OVERWORLD), scales.applyAsDouble(dimension));
         for (DimensionShape shape : DeclaredShapes.all()) {
             if (Objects.equals(DeclaredShapes.resolve(shape, context), spans)) {
                 return DimensionLayout.declared(shape.id(), spans, stored.options());

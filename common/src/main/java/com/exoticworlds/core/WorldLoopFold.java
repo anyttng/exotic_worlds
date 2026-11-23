@@ -26,11 +26,11 @@ final class WorldLoopFold implements WorldFold {
 
     private final boolean wrapped;
 
-    private final OptionValues options;
+    private final ShapeOptions options;
 
     private final int maxViewDistance;
 
-    WorldLoopFold(WorldLoopBounds bounds, OptionValues options) {
+    WorldLoopFold(WorldLoopBounds bounds, ShapeOptions options) {
         this.bounds = bounds;
         boolean xLooped = bounds.x() instanceof AxisBounds.Looped;
         boolean zLooped = bounds.z() instanceof AxisBounds.Looped;
@@ -328,7 +328,7 @@ final class WorldLoopFold implements WorldFold {
     }
 
     @Override
-    public OptionValues options() {
+    public ShapeOptions options() {
         return this.options;
     }
 

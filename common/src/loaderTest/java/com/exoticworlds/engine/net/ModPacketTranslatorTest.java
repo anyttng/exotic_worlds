@@ -136,12 +136,12 @@ class ModPacketTranslatorTest {
     static void registerTheRewrittenProbeThroughThePublicSeamAlone() {
         PacketRewriters.registerClientboundPacket(RewrittenProbePacket.class,
                 (packet, context) -> new RewrittenProbePacket(BlockPos.ZERO));
-        com.exoticworlds.api.v2.net.PacketRewriters.registerClientboundPacket(GeometryProbePacket.class,
+        com.exoticworlds.api.v2.net.PacketRewritersV2.registerClientboundPacket(GeometryProbePacket.class,
                 (packet, context) -> new GeometryProbePacket(context.geometry().fold(context.toClient(packet.pos()))));
         PacketRewriters.registerClientboundPacket(TwiceRegisteredProbePacket.class, (packet, context) -> packet);
         PacketRewriters.registerParticle(ProbeParticle.class,
                 (particle, context, clientOrigin) -> new ProbeParticle(context.toClient(particle.target())));
-        com.exoticworlds.api.v2.net.PacketRewriters.registerParticle(GeometryProbeParticle.class,
+        com.exoticworlds.api.v2.net.PacketRewritersV2.registerParticle(GeometryProbeParticle.class,
                 (particle, context, clientOrigin) -> new GeometryProbeParticle(
                         context.geometry().fold(particle.target())));
     }
@@ -216,7 +216,7 @@ class ModPacketTranslatorTest {
     @Test
     void aPacketRegisteredThroughV1AndV2IsRefused() {
         assertThrows(IllegalStateException.class, () ->
-                com.exoticworlds.api.v2.net.PacketRewriters.registerClientboundPacket(
+                com.exoticworlds.api.v2.net.PacketRewritersV2.registerClientboundPacket(
                         TwiceRegisteredProbePacket.class, (packet, context) -> packet));
     }
 
@@ -233,7 +233,7 @@ class ModPacketTranslatorTest {
     @Test
     void aParticleRegisteredThroughV1AndV2IsRefused() {
         assertThrows(IllegalStateException.class, () ->
-                com.exoticworlds.api.v2.net.PacketRewriters.registerParticle(
+                com.exoticworlds.api.v2.net.PacketRewritersV2.registerParticle(
                         ProbeParticle.class, (particle, context, clientOrigin) -> particle));
     }
 

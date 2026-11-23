@@ -35,7 +35,7 @@ class WorldFoldsTest {
     private static final int CHUNK_STEP = 3;
     private static final int BLOCK_STEP = 29;
 
-    private static final OptionKey<Boolean> OPTION = new OptionKey<>("test_option", 0, Codec.BOOL, false);
+    private static final ShapeOption<Boolean> OPTION = new ShapeOption<>("test_option", 0, Codec.BOOL, false);
 
     private static List<FlatShape> decomposable() {
         return List.of(
@@ -107,7 +107,7 @@ class WorldFoldsTest {
     @Test
     void aShapeLoopingOneAxisCarriesTheOptionsItWasBuiltWith() {
         FlatShape cylinder = ShapeFixtures.cylinder(X_ONLY);
-        OptionValues chosen = OptionValues.DEFAULT.with(OPTION, true);
+        ShapeOptions chosen = ShapeOptions.DEFAULT.with(OPTION, true);
 
         assertTrue(WorldFolds.of(cylinder, chosen).options().get(OPTION));
         assertTrue(new DeckGroupFold(cylinder, chosen).options().get(OPTION));
@@ -131,7 +131,7 @@ class WorldFoldsTest {
 
     @Test
     void aSkewedShapeGetsTheDeckGroupFoldOverItsLattice() {
-        WorldFold fold = WorldFolds.of(SKEWED, OptionValues.DEFAULT.with(OPTION, true));
+        WorldFold fold = WorldFolds.of(SKEWED, ShapeOptions.DEFAULT.with(OPTION, true));
 
         assertTrue(fold instanceof DeckGroupFold, fold.getClass().getName());
         assertEquals(SKEWED.bounds(), fold.bounds());

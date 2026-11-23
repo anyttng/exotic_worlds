@@ -24,7 +24,7 @@ public record SpawnPoint(Mode mode, int xChunk, int zChunk) {
             ? DataResult.success(spawn)
             : DataResult.error(() -> DEFAULT_NOT_STORED));
 
-    public static final OptionKey<SpawnPoint> OPTION = new OptionKey<>(KEY, POSITION, CODEC, DEFAULT);
+    public static final ShapeOption<SpawnPoint> OPTION = new ShapeOption<>(KEY, POSITION, CODEC, DEFAULT);
 
     public SpawnPoint {
         if (mode == Mode.DEFAULT) {

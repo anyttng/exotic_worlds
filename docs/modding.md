@@ -96,13 +96,13 @@ Vec3 heading = folded.orientation().applyToDelta(velocity);
 
 ## Reading through `api.v2`
 
-`WorldGeometry` in `com.exoticworlds.api.v2.geometry` is the v2 form of `ToroidalShape`. `WorldGeometries.of(level)` answers it on the server, `ClientGeometries.of(clientLevel)` and `ClientGeometries.of(dimension)` on the client, and each is empty where `shapeOf` is empty.
+`WorldGeometryV2` in `com.exoticworlds.api.v2.geometry` is the v2 form of `ToroidalShape`. `WorldGeometriesV2.of(level)` answers it on the server, `ClientGeometriesV2.of(clientLevel)` and `ClientGeometriesV2.of(dimension)` on the client, and each is empty where `shapeOf` is empty.
 
-Every whole-position member keeps its name and its arguments, and the `==` guarantee holds for it. `SeamShift`, `Oriented` and `Orientation` have types of their own in the same package, so import them from `api.v2.geometry` wherever a result is stored.
+Every whole-position member keeps its name and its arguments, and the `==` guarantee holds for it. `SeamShiftV2`, `OrientedV2` and `OrientationV2` have types of their own in the same package, so import them from `api.v2.geometry` wherever a result is stored.
 
-The per-axis members and `decomposesPerAxis()` are gone. Read a bound or a width from `spans()`, which answers the dimension's `LoopSpans` in chunks, and fold the whole position where v1 code called `foldBlock`, `foldChunk`, `foldCoord` or `nearestCoord`.
+The per-axis members and `decomposesPerAxis()` are gone. Read a bound or a width from `spans()`, which answers the dimension's `LoopSpansV2` in chunks, and fold the whole position where v1 code called `foldBlock`, `foldChunk`, `foldCoord` or `nearestCoord`.
 
-`Orientation` has no `flipsX()` or `flipsZ()`. Carry a vector through `applyToDelta(delta)`, and ask `isIdentity()` or `preservesHandedness()` where the code branched on a flip.
+`OrientationV2` has no `flipsX()` or `flipsZ()`. Carry a vector through `applyToDelta(delta)`, and ask `isIdentity()` or `preservesHandedness()` where the code branched on a flip.
 
 ## The rest of the API
 

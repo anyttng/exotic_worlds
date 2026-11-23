@@ -15,7 +15,7 @@ import com.exoticworlds.accessors.AddedStartsHolder;
 import com.exoticworlds.core.AddedStart;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.GenerationMoments;
-import com.exoticworlds.core.OptionValues;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.StructurePick;
 import com.exoticworlds.core.StructureStartSet;
 import com.exoticworlds.core.WorldFold;
@@ -102,12 +102,12 @@ public final class AddedStructureStarts {
         private final ChunkGeneratorStructureState state;
         private final StructureCheck check;
         private final WorldFold fold;
-        private final OptionValues options;
+        private final ShapeOptions options;
         private final Holder<StructureSet> set;
         private @Nullable List<StructurePick> picks;
 
         private SetView(ChunkGeneratorStructureState state, StructureCheck check, WorldFold fold,
-                OptionValues options, Holder<StructureSet> set) {
+                ShapeOptions options, Holder<StructureSet> set) {
             this.state = state;
             this.check = check;
             this.fold = fold;
@@ -121,7 +121,7 @@ public final class AddedStructureStarts {
         }
 
         @Override
-        public OptionValues options() {
+        public ShapeOptions options() {
             return this.options;
         }
 

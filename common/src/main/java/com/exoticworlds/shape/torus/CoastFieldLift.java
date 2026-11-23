@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.exoticworlds.accessors.CoastLiftCache;
 import com.exoticworlds.core.GenerationMoments;
-import com.exoticworlds.core.OptionValues;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.noise.DensityNoises;
@@ -32,7 +32,7 @@ public final class CoastFieldLift {
                 (randomState, fold, seaLevel) -> solve(randomState, fold, fold.options(), seaLevel));
     }
 
-    private static void solve(RandomState randomState, WorldFold dimensionFold, OptionValues options, int seaLevel) {
+    private static void solve(RandomState randomState, WorldFold dimensionFold, ShapeOptions options, int seaLevel) {
         if (!options.get(GuaranteedLand.OPTION)) {
             return;
         }

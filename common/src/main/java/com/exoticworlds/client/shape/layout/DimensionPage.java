@@ -15,15 +15,15 @@ import com.ascendiacore.gui.widget.heading.Heading;
 import com.ascendiacore.gui.widget.label.Label;
 import com.ascendiacore.gui.widget.label.model.LabelRole;
 import com.ascendiacore.gui.widget.panel.model.FillStyle;
-import com.exoticworlds.api.v2.shape.DimensionShape;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
-import com.exoticworlds.core.OptionValues;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.core.WorldLoopSizes;
-import com.exoticworlds.shape.ShapeOptionsAdapter;
 import com.exoticworlds.shape.WorldShape;
-import com.exoticworlds.shape.layout.DeclaredShapes;
+import com.exoticworlds.shape.dimension.DeclaredShapes;
+import com.exoticworlds.shape.dimension.DimensionContext;
+import com.exoticworlds.shape.dimension.DimensionShape;
 import com.exoticworlds.shape.layout.DimensionLayout;
 import com.exoticworlds.shape.layout.OverworldDerivation;
 import com.exoticworlds.shape.layout.ShapeKind;
@@ -43,7 +43,7 @@ final class DimensionPage {
     private final SpawnFields spawn;
     private final OptionControls declared;
     private final Column page = new Column();
-    private OptionValues options;
+    private ShapeOptions options;
     private ShapeKind shownKind = ShapeKind.NORMAL;
 
     DimensionPage(DimensionOffer offer, Theme theme, FillStyle fill, CoordinateScales scales,
@@ -96,7 +96,7 @@ final class DimensionPage {
             return DimensionLayout.normal(this.options);
         }
 
-        OptionValues chosenOptions = this.chosenOptions();
+        ShapeOptions chosenOptions = this.chosenOptions();
         if (!this.page.fieldsValid() || chosenOptions == null) {
             return null;
         }
@@ -116,7 +116,7 @@ final class DimensionPage {
         return spans == null ? null : DimensionLayout.looped(spans, chosenOptions);
     }
 
-    private @Nullable OptionValues chosenOptions() {
+    private @Nullable ShapeOptions chosenOptions() {
         if (this.resolvedShape() == null) {
             return this.options;
         }
@@ -243,14 +243,13 @@ final class DimensionPage {
     }
 
     private @Nullable FlatShape declaredSpans(DimensionShape shape) {
-        OptionValues chosenOptions = this.declared.commit(this.options);
+        ShapeOptions chosenOptions = this.declared.commit(this.options);
         if (chosenOptions == null) {
             return null;
         }
 
         boolean overworldItself = this.offer.dimension() == LevelStem.OVERWORLD;
-        return DeclaredShapes.resolve(shape, DeclaredShapes.context(this.offer.dimension(),
-                ShapeOptionsAdapter.shapeOptions(chosenOptions),
+        return DeclaredShapes.resolve(shape, new DimensionContext(this.offer.dimension(), chosenOptions,
                 overworldItself ? null : this.overworld.get().spans(), this.scales.of(LevelStem.OVERWORLD),
                 this.scales.of(this.offer.dimension())));
     }

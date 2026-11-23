@@ -28,9 +28,9 @@ public final class DeckGroupFold implements WorldFold {
 
     private final boolean wrapped;
 
-    private final OptionValues options;
+    private final ShapeOptions options;
 
-    public DeckGroupFold(FlatShape shape, OptionValues options) {
+    public DeckGroupFold(FlatShape shape, ShapeOptions options) {
         this.shape = shape;
         boolean xLooped = shape.bounds().x() instanceof AxisBounds.Looped;
         boolean zLooped = shape.bounds().z() instanceof AxisBounds.Looped;
@@ -67,7 +67,7 @@ public final class DeckGroupFold implements WorldFold {
     }
 
     @Override
-    public OptionValues options() {
+    public ShapeOptions options() {
         return this.options;
     }
 

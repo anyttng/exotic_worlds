@@ -1,9 +1,9 @@
 package com.exoticworlds.shape.torus;
 
-import com.exoticworlds.api.v2.option.DimensionOption;
-import com.exoticworlds.core.OptionKey;
-import com.exoticworlds.shape.BooleanOptionDeclaration;
-import com.exoticworlds.shape.layout.DeclaredShapes;
+import com.exoticworlds.core.ShapeOption;
+import com.exoticworlds.shape.dimension.DeclaredShapes;
+import com.exoticworlds.shape.option.BooleanOptionDeclaration;
+import com.exoticworlds.shape.option.DimensionOption;
 
 import net.minecraft.world.level.dimension.LevelStem;
 
@@ -17,7 +17,7 @@ public final class GuaranteedNetherComplexes {
     private static final BooleanOptionDeclaration DECLARATION =
             BooleanOptionDeclaration.of(KEY, POSITION, CAPTION_KEY, DeclaredShapes.TORUS, LevelStem.NETHER);
 
-    public static final OptionKey<Boolean> OPTION = DECLARATION.option();
+    public static final ShapeOption<Boolean> OPTION = DECLARATION.option();
 
     public static final DimensionOption<Boolean> SHOWN = DECLARATION.shown();
 

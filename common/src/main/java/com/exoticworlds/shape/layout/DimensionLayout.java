@@ -3,16 +3,16 @@ package com.exoticworlds.shape.layout;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionValues;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
 
 import net.minecraft.resources.Identifier;
 
 public record DimensionLayout(ShapeKind kind, @Nullable Identifier shape, @Nullable FlatShape spans,
-        OptionValues options) {
-    public static final OptionValues DEFAULT_OPTIONS =
-            OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
+        ShapeOptions options) {
+    public static final ShapeOptions DEFAULT_OPTIONS =
+            ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
 
     public DimensionLayout {
         boolean loops = kind == ShapeKind.TORUS || kind == ShapeKind.CYLINDER;
@@ -29,25 +29,25 @@ public record DimensionLayout(ShapeKind kind, @Nullable Identifier shape, @Nulla
         }
     }
 
-    public static DimensionLayout normal(OptionValues options) {
+    public static DimensionLayout normal(ShapeOptions options) {
         return new DimensionLayout(ShapeKind.NORMAL, null, null, options);
     }
 
-    public static DimensionLayout fromOverworld(OptionValues options) {
+    public static DimensionLayout fromOverworld(ShapeOptions options) {
         return new DimensionLayout(ShapeKind.FROM_OVERWORLD, null, null, options);
     }
 
-    public static DimensionLayout looped(@Nullable FlatShape spans, OptionValues options) {
+    public static DimensionLayout looped(@Nullable FlatShape spans, ShapeOptions options) {
         ShapeKind kind = ShapeKind.of(spans);
         return kind == ShapeKind.NORMAL ? normal(options) : new DimensionLayout(kind, null, spans, options);
     }
 
-    public static DimensionLayout declared(Identifier shape, @Nullable FlatShape spans, OptionValues options) {
+    public static DimensionLayout declared(Identifier shape, @Nullable FlatShape spans, ShapeOptions options) {
         ShapeKind kind = ShapeKind.of(spans);
         return new DimensionLayout(kind, shape, kind == ShapeKind.NORMAL ? null : spans, options);
     }
 
-    public DimensionLayout withOptions(OptionValues chosen) {
+    public DimensionLayout withOptions(ShapeOptions chosen) {
         return new DimensionLayout(this.kind, this.shape, this.spans, chosen);
     }
 }

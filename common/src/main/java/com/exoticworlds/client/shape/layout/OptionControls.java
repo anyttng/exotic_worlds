@@ -19,13 +19,12 @@ import com.ascendiacore.gui.widget.label.model.LabelRole;
 import com.ascendiacore.gui.widget.numberfield.NumberField;
 import com.ascendiacore.gui.widget.numberfield.model.Bounds;
 import com.ascendiacore.gui.widget.panel.model.FillStyle;
-import com.exoticworlds.api.v2.option.DimensionOption;
-import com.exoticworlds.api.v2.option.OptionPart;
 import com.exoticworlds.client.shape.OptionLines;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionValues;
-import com.exoticworlds.shape.DeclaredOptions;
-import com.exoticworlds.shape.ShapeOptionsAdapter;
+import com.exoticworlds.core.ShapeOptions;
+import com.exoticworlds.shape.option.DeclaredOptions;
+import com.exoticworlds.shape.option.DimensionOption;
+import com.exoticworlds.shape.option.OptionPart;
 
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -68,12 +67,12 @@ final class OptionControls {
         return this.bound.stream().anyMatch(Bound::offered);
     }
 
-    void show(OptionValues options) {
+    void show(ShapeOptions options) {
         this.bound.forEach(option -> option.show(options));
     }
 
-    @Nullable OptionValues commit(OptionValues into) {
-        OptionValues chosen = into;
+    @Nullable ShapeOptions commit(ShapeOptions into) {
+        ShapeOptions chosen = into;
         for (Bound<?> option : this.bound) {
             chosen = option.commit(chosen);
             if (chosen == null) {
@@ -97,7 +96,7 @@ final class OptionControls {
             this.declared = declared;
             this.value = declared.option().defaultValue();
             declared.parts().forEach(this::add);
-            BiFunction<T, FlatShape, Component> line = OptionLines.of(declared);
+            BiFunction<T, FlatShape, Component> line = OptionLines.of(declared.option());
             if (line != null) {
                 this.addLine(line);
             }
@@ -108,18 +107,18 @@ final class OptionControls {
             return chosen != null && this.declared.offeredFor(chosen, OptionControls.this.dimension);
         }
 
-        void show(OptionValues options) {
-            this.value = options.get(ShapeOptionsAdapter.optionKey(this.declared.option()));
+        void show(ShapeOptions options) {
+            this.value = options.get(this.declared.option());
             this.shownValues.forEach(Runnable::run);
         }
 
-        @Nullable OptionValues commit(OptionValues into) {
+        @Nullable ShapeOptions commit(ShapeOptions into) {
             if (!this.offered()) {
                 return into;
             }
 
             T chosen = this.chosen();
-            return chosen == null ? null : into.with(ShapeOptionsAdapter.optionKey(this.declared.option()), chosen);
+            return chosen == null ? null : into.with(this.declared.option(), chosen);
         }
 
         private @Nullable T chosen() {

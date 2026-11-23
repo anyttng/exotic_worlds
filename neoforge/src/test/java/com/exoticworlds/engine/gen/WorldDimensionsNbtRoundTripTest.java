@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
@@ -34,8 +34,8 @@ class WorldDimensionsNbtRoundTripTest {
     private static final int OVERWORLD_CHUNK_WIDTH = 128;
     private static final int NETHER_SCALE = 8;
     private static final int END_CHUNK_WIDTH = 256;
-    private static final OptionValues GENERATION_OPTIONS =
-            OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
+    private static final ShapeOptions GENERATION_OPTIONS =
+            ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
 
     private static HolderLookup.Provider worldgen;
 
