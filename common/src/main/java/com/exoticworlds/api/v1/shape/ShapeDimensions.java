@@ -3,10 +3,7 @@ package com.exoticworlds.api.v1.shape;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.option.GenerationOptions;
-import com.exoticworlds.bridge.v1.option.OptionBridge;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.engine.gen.ShapedDimensions;
+import com.exoticworlds.bridge.v1.shape.ShapeBridge;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -35,12 +32,10 @@ public final class ShapeDimensions {
      *     writes them.
      */
     @Deprecated
+    @SuppressWarnings("InlineMeSuggester")
     public static WorldDimensions withSpans(WorldDimensions dimensions, LoopSpans overworld, LoopSpans nether,
             LoopSpans end, GenerationOptions options) {
-        return ShapedDimensions.withShapes(dimensions,
-                carried(overworld, options),
-                carried(nether, options),
-                carried(end, options));
+        return ShapeBridge.withSpans(dimensions, overworld, nether, end, options);
     }
 
     /**
@@ -48,8 +43,7 @@ public final class ShapeDimensions {
      * spans cannot state.
      */
     public static @Nullable LoopSpans spansOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
-        FlatShape shape = ShapedDimensions.shapeOf(dimensions, key);
-        return shape == null || shape.mirror() != null ? null : new LoopSpans(shape.bounds(), shape.skewChunks());
+        return ShapeBridge.spansOf(dimensions, key);
     }
 
     /**
@@ -57,12 +51,7 @@ public final class ShapeDimensions {
      * ours. Options are stored per stem but written once for the whole world, so the overworld's are the world's.
      */
     public static GenerationOptions optionsOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
-        CarriedShape carried = ShapedDimensions.carriedShapeOf(dimensions, key);
-        return carried == null ? GenerationOptions.DEFAULT : OptionBridge.toV1(carried.options());
-    }
-
-    private static CarriedShape carried(LoopSpans spans, GenerationOptions options) {
-        return new CarriedShape(spans.shape(), OptionBridge.fromV1(options));
+        return ShapeBridge.optionsOf(dimensions, key);
     }
 
     private ShapeDimensions() {

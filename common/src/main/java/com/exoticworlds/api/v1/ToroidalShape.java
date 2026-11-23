@@ -2,7 +2,7 @@ package com.exoticworlds.api.v1;
 
 import java.util.List;
 
-import com.exoticworlds.core.FoldOrientation;
+import com.exoticworlds.bridge.v1.geometry.OrientationBridge;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -242,7 +242,7 @@ public interface ToroidalShape {
 
         /** Whether the fold kept handedness: a reversal on both axes is a half turn, not a mirror. */
         public boolean preservesHandedness() {
-            return fold().preservesHandedness();
+            return OrientationBridge.preservesHandedness(this.flipsX, this.flipsZ);
         }
 
         /**
@@ -250,11 +250,7 @@ public interface ToroidalShape {
          * with the folded position, or it will point the wrong way on the far side of a mirrored seam.
          */
         public Vec3 applyToDelta(Vec3 delta) {
-            return fold().applyToDelta(delta);
-        }
-
-        private FoldOrientation fold() {
-            return FoldOrientation.of(this.flipsX, this.flipsZ);
+            return OrientationBridge.applyToDelta(this.flipsX, this.flipsZ, delta);
         }
     }
 

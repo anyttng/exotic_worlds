@@ -4,7 +4,7 @@ import java.util.function.Predicate;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.client.engine.ClientFrame;
+import com.exoticworlds.bridge.v1.client.AnchorBridge;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
@@ -27,22 +27,22 @@ public final class ClientAnchors {
 
     /** The copy of {@code target} nearest the player. */
     public static @Nullable BlockPos nearestToPlayer(@Nullable BlockPos target) {
-        return ClientFrame.nearestToPlayer(target);
+        return AnchorBridge.nearestToPlayer(target);
     }
 
     /** The copy of {@code target} nearest the player. */
     public static @Nullable Vec3 nearestToPlayer(@Nullable Vec3 target) {
-        return ClientFrame.nearestToPlayer(target);
+        return AnchorBridge.nearestToPlayer(target);
     }
 
     /** The copy of {@code target} nearest the player. */
     public static @Nullable ChunkPos nearestToPlayer(@Nullable ChunkPos target) {
-        return ClientFrame.nearestToPlayer(target);
+        return AnchorBridge.nearestToPlayer(target);
     }
 
     /** The copy of {@code target} nearest the camera — what anything drawn in the world is moved toward. */
     public static @Nullable Vec3 nearestToCamera(@Nullable Vec3 target) {
-        return ClientFrame.nearestToCamera(target);
+        return AnchorBridge.nearestToCamera(target);
     }
 
     /**
@@ -55,7 +55,7 @@ public final class ClientAnchors {
      * the honest answer that there is nothing to key: treat it as "not loaded", never as the canonical position.</p>
      */
     public static @Nullable BlockPos heldCopy(BlockPos canonical) {
-        return ClientFrame.heldCopy(canonical);
+        return AnchorBridge.heldCopy(canonical);
     }
 
     /**
@@ -63,7 +63,7 @@ public final class ClientAnchors {
      * whatever "present" means to the caller's own storage.
      */
     public static @Nullable ChunkPos heldCopy(ChunkPos canonical, Predicate<ChunkPos> holds) {
-        return ClientFrame.heldCopy(canonical, holds);
+        return AnchorBridge.heldCopy(canonical, holds);
     }
 
     private ClientAnchors() {

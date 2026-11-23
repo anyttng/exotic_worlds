@@ -1,13 +1,11 @@
 package com.exoticworlds.api.v1.client;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-import com.exoticworlds.core.StartupRegistry;
 import com.exoticworlds.api.v1.option.WorldOption;
 import com.exoticworlds.api.v1.option.WorldOptions;
+import com.exoticworlds.bridge.v1.client.OptionControlsBridge;
 
 /**
  * The client half of the world-option framework: which control an option is edited through, and the building of them
@@ -26,9 +24,6 @@ public final class WorldOptionControls {
         WorldOptionControl create(WorldOptionContext context);
     }
 
-    private static final StartupRegistry<String, Factory> FACTORIES =
-            new StartupRegistry<>("World option controls");
-
     /**
      * Registers the control {@code option} is edited through.
      *
@@ -36,7 +31,7 @@ public final class WorldOptionControls {
      *         registered under the key of {@code option}
      */
     public static void register(WorldOption<?> option, Factory factory) {
-        FACTORIES.register(option.key(), factory);
+        OptionControlsBridge.register(option, factory);
     }
 
     /**
@@ -53,16 +48,7 @@ public final class WorldOptionControls {
      */
     public static List<WorldOptionControl> createAll(WorldOptionContext context,
             Collection<? extends WorldOption<?>> offered) {
-        Map<String, Factory> factories = FACTORIES.entries();
-        List<WorldOptionControl> controls = new ArrayList<>();
-        for (WorldOption<?> option : WorldOptions.all()) {
-            Factory factory = factories.get(option.key());
-            if (factory != null && offered.contains(option)) {
-                controls.add(factory.create(context));
-            }
-        }
-
-        return List.copyOf(controls);
+        return OptionControlsBridge.createAll(context, offered);
     }
 
     private WorldOptionControls() {
