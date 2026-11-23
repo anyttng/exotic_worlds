@@ -16,8 +16,8 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -57,7 +57,7 @@ class SkewedFieldDistributionTest {
         for (int skewChunks : SKEW_CHUNKS) {
             readings.addAll(
                     measure("skew " + skewChunks,
-                            new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, skewChunks), OptionValues.DEFAULT)));
+                            new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, skewChunks), ShapeOptions.DEFAULT)));
         }
 
         StringBuilder report = new StringBuilder("Damped-octave gates, 512-block lap, ")

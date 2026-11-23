@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Timeout;
 import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.DimensionTable;
-import com.exoticworlds.core.OptionValues;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.shape.StartupRegistrations;
 
@@ -48,7 +48,7 @@ class OwnGeneratorTableCodecTest {
 
     @Test
     void aDimensionTableOnOurOwnGeneratorSurvivesTheRoundTrip() {
-        CarriedShape overworldShape = new CarriedShape(squareTorus(OVERWORLD_CHUNK_WIDTH), OptionValues.DEFAULT);
+        CarriedShape overworldShape = new CarriedShape(squareTorus(OVERWORLD_CHUNK_WIDTH), ShapeOptions.DEFAULT);
         ChunkGenerator generator = ShapedDimensions.withShape(
                 selected(Map.of(LevelStem.OVERWORLD, stem(OVERWORLD_SCALE, noiseGenerator(worldgen)))),
                 LevelStem.OVERWORLD, overworldShape)

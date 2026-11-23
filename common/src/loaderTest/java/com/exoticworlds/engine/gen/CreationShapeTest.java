@@ -1,8 +1,8 @@
 package com.exoticworlds.engine.gen;
 
 import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.CompactBiomes;
@@ -71,7 +71,7 @@ class CreationShapeTest {
         FlatShape shape = squareTorus(CHOSEN_CHUNK_WIDTH);
 
         WorldDimensions shaped = ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
-                new CarriedShape(shape, OptionValues.DEFAULT));
+                new CarriedShape(shape, ShapeOptions.DEFAULT));
 
         assertNotSame(dimensions, shaped, "the shaped dimensions are the object the apply guard compares");
         assertEquals(shape, ShapedDimensions.shapeOf(shaped, LevelStem.OVERWORLD));
@@ -85,7 +85,7 @@ class CreationShapeTest {
         FlatShape shape = squareTorus(CHOSEN_CHUNK_WIDTH);
 
         WorldDimensions shaped = ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
-                new CarriedShape(shape, OptionValues.DEFAULT));
+                new CarriedShape(shape, ShapeOptions.DEFAULT));
 
         assertNotSame(dimensions, shaped, "the shaped dimensions are the object the apply guard compares");
         assertEquals(shape, ShapedDimensions.shapeOf(shaped, LevelStem.OVERWORLD));
@@ -124,7 +124,7 @@ class CreationShapeTest {
     void strippingClearsAShapeStampedByAnEarlierAttempt() {
         ChunkGenerator overworld = noiseSubclassGenerator(worldgen);
         WorldDimensions shaped = ShapedDimensions.withShape(overworldOnly(overworld), LevelStem.OVERWORLD,
-                new CarriedShape(squareTorus(CHOSEN_CHUNK_WIDTH), OptionValues.DEFAULT));
+                new CarriedShape(squareTorus(CHOSEN_CHUNK_WIDTH), ShapeOptions.DEFAULT));
 
         assertNull(ShapedDimensions.shapeOf(ShapedDimensions.stripShapes(shaped), LevelStem.OVERWORLD));
     }

@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.WorldLoopBounds;
 
 import net.minecraft.core.Direction;
@@ -28,11 +28,11 @@ class ShapeBridgeTest {
     void spansAtTheStatedFloorAreCarriedAndSpansUnderItAreRefused() {
         int floor = LoopSpans.minChunkWidth();
 
-        new CarriedShape(ShapeBridge.flatShapeOf(LoopSpans.ofWidth(floor)), OptionValues.DEFAULT);
-        new CarriedShape(ShapeBridge.flatShapeOf(LoopSpans.ofWidth(Direction.Axis.Z, floor)), OptionValues.DEFAULT);
+        new CarriedShape(ShapeBridge.flatShapeOf(LoopSpans.ofWidth(floor)), ShapeOptions.DEFAULT);
+        new CarriedShape(ShapeBridge.flatShapeOf(LoopSpans.ofWidth(Direction.Axis.Z, floor)), ShapeOptions.DEFAULT);
         assertThrows(IllegalArgumentException.class,
-                () -> new CarriedShape(ShapeBridge.flatShapeOf(LoopSpans.ofWidth(floor - 2)), OptionValues.DEFAULT));
+                () -> new CarriedShape(ShapeBridge.flatShapeOf(LoopSpans.ofWidth(floor - 2)), ShapeOptions.DEFAULT));
         assertThrows(IllegalArgumentException.class, () -> new CarriedShape(
-                ShapeBridge.flatShapeOf(LoopSpans.ofWidths(floor, floor - 2)), OptionValues.DEFAULT));
+                ShapeBridge.flatShapeOf(LoopSpans.ofWidths(floor, floor - 2)), ShapeOptions.DEFAULT));
     }
 }

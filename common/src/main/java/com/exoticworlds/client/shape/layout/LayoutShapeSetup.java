@@ -32,7 +32,7 @@ public final class LayoutShapeSetup {
     public static void register() {
         WorldTabRows.register(new WorldShapeRow(LayoutShapeSetup::createScreen));
         CompactBiomesLine factor = new CompactBiomesLine();
-        OptionLines.register(CompactBiomes.SHOWN,
+        OptionLines.register(CompactBiomes.OPTION,
                 (scale, spans) -> Minecraft.getInstance().gui.screen() instanceof WorldShapeSettingsScreen open
                         ? factor.line(open, open.creationScreen(), scale, spans)
                         : Component.empty());

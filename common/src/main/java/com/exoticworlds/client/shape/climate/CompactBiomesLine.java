@@ -8,7 +8,7 @@ import java.util.OptionalDouble;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionValues;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
 
@@ -42,7 +42,7 @@ public final class CompactBiomesLine {
 
     private static Component factorLine(Screen creation, Shown shown) {
         OptionalDouble factor = ClimateFactorPreview.temperatureFactor(creation,
-                OptionValues.DEFAULT.with(CompactBiomes.OPTION, shown.scale()), shown.spans());
+                ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, shown.scale()), shown.spans());
         if (factor.isEmpty()) {
             return Component.empty();
         }

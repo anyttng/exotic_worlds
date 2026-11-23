@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldLoopBounds;
 import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
@@ -62,7 +62,7 @@ class ShapedDimensionsTest {
     void strippingASuperflatShapeHandsBackThePlainFlatSourceOnItsOwnSettings() {
         FlatLevelGeneratorSettings settings = flatSettings();
         WorldDimensions stripped = ShapedDimensions.stripShapes(overworldOf(new LoopedFlatChunkGenerator(
-                settings, new CarriedShape(TORUS, OptionValues.DEFAULT))));
+                settings, new CarriedShape(TORUS, ShapeOptions.DEFAULT))));
 
         ChunkGenerator generator = overworldGeneratorOf(stripped);
         assertNull(ShapedDimensions.shapeOf(stripped, LevelStem.OVERWORLD));
@@ -75,7 +75,7 @@ class ShapedDimensionsTest {
         BiomeSource biomes = plainsBiomeSource();
         Holder<NoiseGeneratorSettings> settings = overworldNoiseSettings();
         WorldDimensions stripped = ShapedDimensions.stripShapes(overworldOf(new LoopedChunkGenerator(
-                biomes, settings, new CarriedShape(TORUS, OptionValues.DEFAULT))));
+                biomes, settings, new CarriedShape(TORUS, ShapeOptions.DEFAULT))));
 
         ChunkGenerator generator = overworldGeneratorOf(stripped);
         assertNull(ShapedDimensions.shapeOf(stripped, LevelStem.OVERWORLD));
@@ -88,8 +88,8 @@ class ShapedDimensionsTest {
     void reShapingASuperflatWorldRebuildsFromTheFlatSettingsRatherThanTheOldShape() {
         FlatLevelGeneratorSettings settings = flatSettings();
         WorldDimensions reshaped = ShapedDimensions.withShape(
-                overworldOf(new LoopedFlatChunkGenerator(settings, new CarriedShape(TORUS, OptionValues.DEFAULT))),
-                LevelStem.OVERWORLD, new CarriedShape(CYLINDER, OptionValues.DEFAULT));
+                overworldOf(new LoopedFlatChunkGenerator(settings, new CarriedShape(TORUS, ShapeOptions.DEFAULT))),
+                LevelStem.OVERWORLD, new CarriedShape(CYLINDER, ShapeOptions.DEFAULT));
 
         assertEquals(CYLINDER, ShapedDimensions.shapeOf(reshaped, LevelStem.OVERWORLD));
         assertSame(settings, ((LoopedFlatChunkGenerator) overworldGeneratorOf(reshaped)).settings());
@@ -110,8 +110,8 @@ class ShapedDimensionsTest {
                 new NoiseBasedChunkGenerator(plainsBiomeSource(), overworldNoiseSettings()));
 
         WorldDimensions shaped = ShapedDimensions.withShapes(foreign,
-                new CarriedShape(TORUS, OptionValues.DEFAULT), new CarriedShape(TORUS, OptionValues.DEFAULT),
-                        new CarriedShape(TORUS, OptionValues.DEFAULT));
+                new CarriedShape(TORUS, ShapeOptions.DEFAULT), new CarriedShape(TORUS, ShapeOptions.DEFAULT),
+                        new CarriedShape(TORUS, ShapeOptions.DEFAULT));
 
         assertSame(foreign, shaped);
         assertNull(ShapedDimensions.shapeOf(shaped, LevelStem.NETHER));
@@ -120,7 +120,7 @@ class ShapedDimensionsTest {
     @Test
     void aShapedChosenPresetReplacesAnUnshapedResult() {
         WorldDimensions chosen = overworldOf(new LoopedChunkGenerator(
-                plainsBiomeSource(), overworldNoiseSettings(), new CarriedShape(TORUS, OptionValues.DEFAULT)));
+                plainsBiomeSource(), overworldNoiseSettings(), new CarriedShape(TORUS, ShapeOptions.DEFAULT)));
         WorldDimensions replaced = overworldOf(new NoiseBasedChunkGenerator(
                 plainsBiomeSource(), overworldNoiseSettings()));
 
@@ -130,11 +130,11 @@ class ShapedDimensionsTest {
     @Test
     void aShapedResultStandsOverAShapedChosenPreset() {
         WorldDimensions chosen = overworldOf(new LoopedChunkGenerator(
-                plainsBiomeSource(), overworldNoiseSettings(), new CarriedShape(TORUS, OptionValues.DEFAULT)));
+                plainsBiomeSource(), overworldNoiseSettings(), new CarriedShape(TORUS, ShapeOptions.DEFAULT)));
         WorldDimensions created = overworldAndNetherOf(
                 new NoiseBasedChunkGenerator(plainsBiomeSource(), overworldNoiseSettings()),
                 new LoopedChunkGenerator(plainsBiomeSource(), overworldNoiseSettings(),
-                        new CarriedShape(CYLINDER, OptionValues.DEFAULT)));
+                        new CarriedShape(CYLINDER, ShapeOptions.DEFAULT)));
 
         assertSame(created, ShapedDimensions.keepChosenShape(created, chosen));
     }

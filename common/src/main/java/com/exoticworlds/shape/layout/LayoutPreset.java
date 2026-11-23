@@ -2,12 +2,13 @@ package com.exoticworlds.shape.layout;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.api.v2.option.ShapeOptions;
-import com.exoticworlds.api.v2.shape.DimensionShape;
 import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.shape.ShapeOptionsAdapter;
 import com.exoticworlds.shape.WorldLoopPresets;
+import com.exoticworlds.shape.dimension.DeclaredShapes;
+import com.exoticworlds.shape.dimension.DimensionContext;
+import com.exoticworlds.shape.dimension.DimensionShape;
 
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
@@ -40,7 +41,7 @@ public final class LayoutPreset {
         Identifier declared = overworld.shape();
         if (declared != null) {
             DimensionShape shape = presetShape(declared);
-            ShapeOptions chosen = ShapeOptionsAdapter.shapeOptions(overworld.options());
+            ShapeOptions chosen = overworld.options();
             return shape != null && shape.withPreset(preset.chunkWidth(), chosen).equals(chosen);
         }
 
@@ -68,11 +69,9 @@ public final class LayoutPreset {
                 return null;
             }
 
-            ShapeOptions options =
-                    shape.withPreset(preset.chunkWidth(), ShapeOptionsAdapter.shapeOptions(overworld.options()));
-            return DimensionLayout.declared(declared, DeclaredShapes.resolve(shape, DeclaredShapes.context(
-                    LevelStem.OVERWORLD, options, null, overworldScale, overworldScale)),
-                    ShapeOptionsAdapter.optionValues(options));
+            ShapeOptions options = shape.withPreset(preset.chunkWidth(), overworld.options());
+            return DimensionLayout.declared(declared, DeclaredShapes.resolve(shape, new DimensionContext(
+                    LevelStem.OVERWORLD, options, null, overworldScale, overworldScale)), options);
         }
 
         FlatShape current = overworld.spans();

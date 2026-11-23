@@ -9,17 +9,17 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.NetherScales;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.torus.GuaranteedLand;
 
 import net.minecraft.core.Direction;
 
 class LayoutPresetTest {
-    private static final OptionValues PLAIN = DimensionLayout.DEFAULT_OPTIONS;
+    private static final ShapeOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
 
-    private static final OptionValues LAND = PLAIN.with(GuaranteedLand.OPTION, true);
+    private static final ShapeOptions LAND = PLAIN.with(GuaranteedLand.OPTION, true);
 
     @Test
     void aPresetOnATorusSetsItsSizeAndPutsTheNetherAndTheEndOnTheOverworld() {

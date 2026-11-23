@@ -19,12 +19,12 @@ import org.junit.jupiter.api.Test;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.api.v1.shape.ShapeModule;
 import com.exoticworlds.api.v1.client.ShapeCustomizers;
+import com.exoticworlds.api.v1.shape.ShapeModule;
 import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -80,7 +80,7 @@ class ShapeRegistrationBoundaryTest {
             CYLINDER,
             (dimensions, shape) ->
                     ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
-                            new CarriedShape(shape, OptionValues.DEFAULT)),
+                            new CarriedShape(shape, ShapeOptions.DEFAULT)),
             dimensions -> {
                 FlatShape shape = ShapedDimensions.shapeOf(dimensions, LevelStem.OVERWORLD);
                 return WIDER_CYLINDER.equals(shape) ? shape : null;
@@ -95,7 +95,7 @@ class ShapeRegistrationBoundaryTest {
                 Component.literal("Boundary test cylinder"),
                 Component.literal("A cylinder registered by the boundary test"),
                 (registries, dimensions) -> ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
-                        new CarriedShape(CYLINDER, OptionValues.DEFAULT)),
+                        new CarriedShape(CYLINDER, ShapeOptions.DEFAULT)),
                 () -> settingsWereReset = true,
                 (registries, dimensions) ->
                         CYLINDER.equals(ShapedDimensions.shapeOf(dimensions, LevelStem.OVERWORLD)));
@@ -197,8 +197,8 @@ class ShapeRegistrationBoundaryTest {
     void reCreatingIntoAShapeLeavesNoStemTheNewShapeDoesNotWrite() {
         WorldDimensions inherited = ShapedDimensions.withShape(
                 ShapedDimensions.withShape(vanillaOverworldAndNether(), LevelStem.OVERWORLD,
-                        new CarriedShape(CYLINDER, OptionValues.DEFAULT)),
-                LevelStem.NETHER, new CarriedShape(CYLINDER, OptionValues.DEFAULT));
+                        new CarriedShape(CYLINDER, ShapeOptions.DEFAULT)),
+                LevelStem.NETHER, new CarriedShape(CYLINDER, ShapeOptions.DEFAULT));
 
         WorldShapes.select(cylinder);
         WorldDimensions created = WorldShapes.applyAtCreation(REGISTRIES, inherited);
@@ -211,7 +211,7 @@ class ShapeRegistrationBoundaryTest {
     void reCreatingFromOneShapeIntoAnotherTakesTheNewGeometry() {
         WorldDimensions inherited =
                 ShapedDimensions.withShape(vanillaOverworld(), LevelStem.OVERWORLD,
-                        new CarriedShape(WIDER_CYLINDER, OptionValues.DEFAULT));
+                        new CarriedShape(WIDER_CYLINDER, ShapeOptions.DEFAULT));
 
         WorldShapes.select(cylinder);
         WorldDimensions created = WorldShapes.applyAtCreation(REGISTRIES, inherited);
@@ -239,7 +239,7 @@ class ShapeRegistrationBoundaryTest {
     void aModuleAdoptsTheWorldItRecognisesAndResetsBackToItsOwnDefault() {
         WorldShape registered = registeredModuleShape();
         WorldDimensions wider = ShapedDimensions.withShape(
-                vanillaOverworld(), LevelStem.OVERWORLD, new CarriedShape(WIDER_CYLINDER, OptionValues.DEFAULT));
+                vanillaOverworld(), LevelStem.OVERWORLD, new CarriedShape(WIDER_CYLINDER, ShapeOptions.DEFAULT));
 
         WorldShapes.restoreFromExisting(REGISTRIES, wider);
 

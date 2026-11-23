@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -32,7 +32,7 @@ class AtlasPointSeatTest {
     @Test
     void bothAxesSeatTogetherOnASkewedTorus() {
         WorldFold fold = new DeckGroupFold(FlatShape.latticeTorus(new WorldLoopBounds(TINY, TINY), 8),
-                OptionValues.DEFAULT);
+                ShapeOptions.DEFAULT);
         Vec3 seated = AtlasPointSeat.toward(fold, new Vec3(0.0, 0.0, 500.0), 0.0, 0.0);
         assertEquals(512.0, seated.z, "the point a lap up in Z");
         assertEquals(128.0, Math.abs(seated.x), "the same seat moves X by the skew");

@@ -2,11 +2,11 @@ package com.exoticworlds.shape.climate;
 
 import java.util.List;
 
-import com.exoticworlds.api.v2.option.DimensionOption;
-import com.exoticworlds.api.v2.option.OptionPart;
-import com.exoticworlds.core.OptionKey;
-import com.exoticworlds.core.OptionKeys;
-import com.exoticworlds.shape.ShapeOptionsAdapter;
+import com.exoticworlds.core.ShapeOption;
+import com.exoticworlds.core.ShapeOptionRegistry;
+import com.exoticworlds.shape.option.DeclaredOptions;
+import com.exoticworlds.shape.option.DimensionOption;
+import com.exoticworlds.shape.option.OptionPart;
 
 import net.minecraft.network.chat.CommonComponents;
 
@@ -19,10 +19,10 @@ public final class CompactBiomes {
 
     private static final int POSITION = 0;
 
-    public static final OptionKey<ClimateScale> OPTION =
-            new OptionKey<>(KEY, POSITION, ClimateScale.CODEC, ClimateScale.AUTO);
+    public static final ShapeOption<ClimateScale> OPTION =
+            new ShapeOption<>(KEY, POSITION, ClimateScale.CODEC, ClimateScale.AUTO);
 
-    public static final DimensionOption<ClimateScale> SHOWN = DimensionOption.of(ShapeOptionsAdapter.shapeOption(OPTION), CAPTION_KEY, List.of(
+    public static final DimensionOption<ClimateScale> SHOWN = DimensionOption.of(OPTION, CAPTION_KEY, List.of(
             new OptionPart.Choice<>(OptionPart.OWN_CAPTION, List.of(ClimateScale.Mode.values()),
                     ClimateScale.Mode::getSerializedName,
                     mode -> mode == ClimateScale.Mode.OFF ? CommonComponents.OPTION_OFF : null,
@@ -32,8 +32,8 @@ public final class CompactBiomes {
                     scale -> scale.mode() == ClimateScale.Mode.CUSTOM)));
 
     public static void register() {
-        OptionKeys.register(OPTION);
-        SHOWN.register();
+        ShapeOptionRegistry.register(OPTION);
+        DeclaredOptions.register(SHOWN);
     }
 
     private CompactBiomes() {

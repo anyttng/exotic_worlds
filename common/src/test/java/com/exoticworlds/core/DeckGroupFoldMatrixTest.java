@@ -122,7 +122,7 @@ class DeckGroupFoldMatrixTest {
 
     private record Case(String name, FlatShape shape, Group group) {
         DeckGroupFold fold() {
-            return new DeckGroupFold(this.shape, OptionValues.DEFAULT);
+            return new DeckGroupFold(this.shape, ShapeOptions.DEFAULT);
         }
     }
 
@@ -256,7 +256,7 @@ class DeckGroupFoldMatrixTest {
         for (Case testCase : decomposableCases()) {
             built.add(
                     new Subject(testCase.name() + ", per-axis",
-                            new WorldLoopFold(testCase.shape().bounds(), OptionValues.DEFAULT)));
+                            new WorldLoopFold(testCase.shape().bounds(), ShapeOptions.DEFAULT)));
         }
 
         return built;
@@ -461,10 +461,10 @@ class DeckGroupFoldMatrixTest {
 
         @Test
         void theTieDoesNotDependOnWhereTheBoundsAreDrawn() {
-            DeckGroupFold centered = new DeckGroupFold(ShapeFixtures.torus(BOTH), OptionValues.DEFAULT);
+            DeckGroupFold centered = new DeckGroupFold(ShapeFixtures.torus(BOTH), ShapeOptions.DEFAULT);
             DeckGroupFold shifted = new DeckGroupFold(ShapeFixtures.torus(
                     new WorldLoopBounds(new AxisBounds.Looped(-5, 11),
-                            new AxisBounds.Looped(-5, 11))), OptionValues.DEFAULT);
+                            new AxisBounds.Looped(-5, 11))), ShapeOptions.DEFAULT);
             BlockPos ref = new BlockPos(0, 64, 0);
             BlockPos target = new BlockPos(WIDTH / 2, 64, WIDTH / 2);
             BlockPos fromCentered = centered.nearestCopy(ref, target);
@@ -1066,29 +1066,29 @@ class DeckGroupFoldMatrixTest {
         @Test
         void aSkewOneWorldWiderIsTheSameLattice() {
             DeckGroupFold plain = new DeckGroupFold(FlatShape.latticeTorus(BOTH, SKEW_CHUNKS),
-                    OptionValues.DEFAULT);
+                    ShapeOptions.DEFAULT);
             DeckGroupFold wider = new DeckGroupFold(
-                    FlatShape.latticeTorus(BOTH, SKEW_CHUNKS + (MAX_CHUNK - MIN_CHUNK)), OptionValues.DEFAULT);
+                    FlatShape.latticeTorus(BOTH, SKEW_CHUNKS + (MAX_CHUNK - MIN_CHUNK)), ShapeOptions.DEFAULT);
             assertSameFold(plain, wider, "a skew one world wider is a different lattice");
         }
 
         @Test
         void aMirrorLineHalfAWorldFurtherIsTheSameBottle() {
             DeckGroupFold plain = new DeckGroupFold(
-                    ShapeFixtures.mirrored(BOTH, Direction.Axis.Z, OFFSET_MIRROR_CHUNK), OptionValues.DEFAULT);
+                    ShapeFixtures.mirrored(BOTH, Direction.Axis.Z, OFFSET_MIRROR_CHUNK), ShapeOptions.DEFAULT);
             DeckGroupFold further = new DeckGroupFold(ShapeFixtures.mirrored(
                     BOTH, Direction.Axis.Z, OFFSET_MIRROR_CHUNK + (
-                            MAX_CHUNK - MIN_CHUNK) / 2), OptionValues.DEFAULT);
+                            MAX_CHUNK - MIN_CHUNK) / 2), ShapeOptions.DEFAULT);
             assertSameFold(plain, further, "a mirror line half a world further is a different bottle");
         }
 
         @Test
         void aMirrorLineOnXHalfAWorldFurtherIsTheSameBottle() {
             DeckGroupFold plain = new DeckGroupFold(
-                    ShapeFixtures.mirrored(BOTH, Direction.Axis.X, OFFSET_MIRROR_CHUNK), OptionValues.DEFAULT);
+                    ShapeFixtures.mirrored(BOTH, Direction.Axis.X, OFFSET_MIRROR_CHUNK), ShapeOptions.DEFAULT);
             DeckGroupFold further = new DeckGroupFold(ShapeFixtures.mirrored(
                     BOTH, Direction.Axis.X, OFFSET_MIRROR_CHUNK + (
-                            MAX_CHUNK - MIN_CHUNK) / 2), OptionValues.DEFAULT);
+                            MAX_CHUNK - MIN_CHUNK) / 2), ShapeOptions.DEFAULT);
             assertSameFold(plain, further, "a mirror line on X half a world further is a different bottle");
         }
 
@@ -1171,7 +1171,7 @@ class DeckGroupFoldMatrixTest {
         void theDecomposableShapesAgreeWithThePerAxisFoldOnBoundsQueries() {
             for (Case testCase : decomposableCases()) {
                 DeckGroupFold generic = testCase.fold();
-                WorldFold perAxis = new WorldLoopFold(testCase.shape().bounds(), OptionValues.DEFAULT);
+                WorldFold perAxis = new WorldLoopFold(testCase.shape().bounds(), ShapeOptions.DEFAULT);
                 Random random = new Random(SEED + 18);
                 for (int sample = 0; sample < SAMPLES; sample++) {
                     BlockPos block = new BlockPos(sample(random), 64, sample(random));
@@ -1193,7 +1193,7 @@ class DeckGroupFoldMatrixTest {
         void theDecomposableShapesAgreeWithThePerAxisFold() {
             for (Case testCase : decomposableCases()) {
                 DeckGroupFold generic = testCase.fold();
-                WorldFold perAxis = new WorldLoopFold(testCase.shape().bounds(), OptionValues.DEFAULT);
+                WorldFold perAxis = new WorldLoopFold(testCase.shape().bounds(), ShapeOptions.DEFAULT);
                 Random random = new Random(SEED + 14);
                 for (int sample = 0; sample < SAMPLES; sample++) {
                     BlockPos ref = new BlockPos(sample(random), 64, sample(random));
@@ -1234,7 +1234,7 @@ class DeckGroupFoldMatrixTest {
         void theDecomposableShapesAgreeWithThePerAxisFoldOnTheReseat() {
             for (Case testCase : decomposableCases()) {
                 DeckGroupFold generic = testCase.fold();
-                WorldFold perAxis = new WorldLoopFold(testCase.shape().bounds(), OptionValues.DEFAULT);
+                WorldFold perAxis = new WorldLoopFold(testCase.shape().bounds(), ShapeOptions.DEFAULT);
                 Random random = new Random(SEED + 21);
                 for (int sample = 0; sample < SAMPLES; sample++) {
                     int x = sample(random);

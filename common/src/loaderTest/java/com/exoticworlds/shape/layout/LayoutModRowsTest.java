@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import com.exoticworlds.core.NetherScales;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.engine.gen.ShapedDimensions;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.ClimateScale;
@@ -42,11 +42,11 @@ class LayoutModRowsTest {
     private static final ResourceKey<LevelStem> SKY = stemKey("sky");
     private static final ResourceKey<LevelStem> MINE = stemKey("mine");
 
-    private static final OptionValues PLAIN = DimensionLayout.DEFAULT_OPTIONS;
+    private static final ShapeOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
     private static final DimensionLayout NORMAL = DimensionLayout.normal(PLAIN);
 
     private static HolderLookup.Provider worldgen;
-    private static OptionValues compact6;
+    private static ShapeOptions compact6;
 
     @BeforeAll
     static void bootstrapVanilla() {

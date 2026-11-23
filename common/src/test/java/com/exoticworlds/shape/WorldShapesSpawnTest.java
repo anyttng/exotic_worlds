@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.OptionValues;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.ShapedChunkGenerator;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.shape.layout.LayoutFixtures;

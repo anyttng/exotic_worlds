@@ -8,12 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -30,17 +26,9 @@ class ImportRulesTest {
     private static final String MIXIN_SEGMENT = "mixin";
     private static final String ROOT_GROUP = "";
     private static final String API_GROUP = "api";
-    private static final String API_V2 = "api.v2";
     private static final String BRIDGE_GROUP = "bridge";
     private static final Set<String> VERSIONED_ROOTS = Set.of(API_GROUP, BRIDGE_GROUP);
     private static final Set<String> VERSIONS = Set.of("v1", "v2");
-    private static final List<String> MODEL_READERS = List.of("shape", "client.shape");
-    private static final Set<String> MODEL_KINDS = Set.of("interface", "record", "enum", "abstract class");
-    private static final Set<String> MODEL_CLASSES = Set.of("api.v2.option.DimensionOption", "api.v2.option.ShapeOptions");
-    private static final String ABSTRACT_CLASS = "abstract class";
-    private static final Pattern DECLARATION = Pattern.compile(
-            "^public\\s+((?:(?:final|abstract|sealed|non-sealed)\\s+)*)(class|interface|record|enum)\\s",
-            Pattern.MULTILINE);
 
     private static final Set<String> ENGINE_READERS =
             Set.of("engine", "mixin", "accessors", "compat", "platform", "client.engine", BRIDGE_GROUP);
@@ -59,13 +47,12 @@ class ImportRulesTest {
     @Test
     void everyImportStaysInsideItsGroup() throws IOException {
         List<Path> sources = sourceFiles();
-        Map<String, String> kinds = kindsOf(sources);
         List<String> violations = new ArrayList<>();
         for (Path source : sources) {
             String type = typeOf(source);
             for (String imported : ownImports(source)) {
                 String edge = type + " -> " + imported;
-                String broken = brokenRule(type, imported, kinds);
+                String broken = brokenRule(type, imported);
                 if (broken != null && !EXCEPTIONS.contains(edge)) {
                     violations.add(edge + " (" + broken + ")");
                 }
@@ -75,7 +62,7 @@ class ImportRulesTest {
         assertTrue(violations.isEmpty(), "imports crossing a group boundary: " + violations.stream().sorted().toList());
     }
 
-    private static String brokenRule(String reader, String imported, Map<String, String> kinds) {
+    private static String brokenRule(String reader, String imported) {
         String readerGroup = groupOf(packageOf(reader));
         String importedGroup = groupOf(packageOf(imported));
         String readerVersion = versionOf(reader);
@@ -89,8 +76,8 @@ class ImportRulesTest {
         if (readerVersion == null && importedGroup.equals(BRIDGE_GROUP)) {
             return "the mod never reads a bridge: only its api calls it";
         }
-        if (readerVersion == null && importedVersion != null && !isModelRead(reader, imported, kinds)) {
-            return "the mod reads the api only as v2 models in shape and client/shape";
+        if (readerVersion == null && importedVersion != null) {
+            return "the mod never reads an api: only its bridge does";
         }
         if (importedGroup.equals("engine")
                 && !ENGINE_READERS.contains(readerGroup)
@@ -128,27 +115,6 @@ class ImportRulesTest {
             }
         }
         return null;
-    }
-
-    private static boolean isModelRead(String reader, String imported, Map<String, String> kinds) {
-        String readerPackage = packageOf(reader);
-        boolean readsModels = MODEL_READERS.stream()
-                .anyMatch(group -> readerPackage.equals(group) || readerPackage.startsWith(group + "."));
-        boolean isModel = MODEL_KINDS.contains(kinds.getOrDefault(imported, ""))
-                || MODEL_CLASSES.contains(imported);
-        return readsModels && packageOf(imported).startsWith(API_V2) && isModel;
-    }
-
-    private static Map<String, String> kindsOf(List<Path> sources) throws IOException {
-        Map<String, String> kinds = new HashMap<>();
-        for (Path source : sources) {
-            Matcher declaration = DECLARATION.matcher(Files.readString(source, StandardCharsets.UTF_8));
-            if (declaration.find()) {
-                boolean abstractClass = declaration.group(1).contains("abstract") && declaration.group(2).equals("class");
-                kinds.put(typeOf(source), abstractClass ? ABSTRACT_CLASS : declaration.group(2));
-            }
-        }
-        return kinds;
     }
 
     private static String groupOf(String packageName) {

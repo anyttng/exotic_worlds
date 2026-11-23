@@ -30,7 +30,7 @@ class CarriedShapeTest {
     @Test
     void everyPrefixCarriesTheShapeAndTheChosenOptionsBackUnchanged() {
         CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE),
-                OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
+                ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
 
         for (String prefix : PREFIXES) {
             MapCodec<CarriedShape> codec = CarriedShape.mapCodec(prefix);
@@ -44,7 +44,7 @@ class CarriedShapeTest {
 
     @Test
     void anOptionLeftAtItsDefaultIsNeverWrittenAndComesBackAsTheDefault() {
-        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE), OptionValues.DEFAULT);
+        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE), ShapeOptions.DEFAULT);
 
         for (String prefix : PREFIXES) {
             MapCodec<CarriedShape> codec = CarriedShape.mapCodec(prefix);
@@ -57,7 +57,7 @@ class CarriedShapeTest {
 
     @Test
     void theFoldIsBuiltOnceAndHandedBackAsTheSameReference() {
-        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE), OptionValues.DEFAULT);
+        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE), ShapeOptions.DEFAULT);
 
         assertSame(carried.fold(), carried.fold());
         assertTrue(carried.fold().isWrapped());
@@ -66,7 +66,7 @@ class CarriedShapeTest {
     @Test
     void aDerivedShapeKeepsTheOptionsItWasCarriedWith() {
         CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE),
-                OptionValues.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
+                ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
 
         CarriedShape derived = carried.withShape(ShapeFixtures.torus(NARROWER));
 
@@ -79,14 +79,14 @@ class CarriedShapeTest {
         FlatShape narrow = ShapeFixtures.torus(TOO_NARROW);
 
         IllegalArgumentException refused = assertThrows(IllegalArgumentException.class,
-                () -> new CarriedShape(narrow, OptionValues.DEFAULT));
+                () -> new CarriedShape(narrow, ShapeOptions.DEFAULT));
 
         assertEquals(WorldFolds.verifyGeneratable(narrow).error().orElseThrow().message(), refused.getMessage());
     }
 
     @Test
     void aDerivedShapeIsHeldToTheSameFloor() {
-        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE), OptionValues.DEFAULT);
+        CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE), ShapeOptions.DEFAULT);
 
         assertThrows(IllegalArgumentException.class, () -> carried.withShape(ShapeFixtures.torus(TOO_NARROW)));
     }

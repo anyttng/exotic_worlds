@@ -2,8 +2,8 @@ package com.exoticworlds.compat;
 
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.core.WorldLoopBounds;
@@ -23,11 +23,11 @@ public final class CompatFoldFixture {
             new WorldLoopBounds(new AxisBounds.Looped(-WORLD_CHUNKS, WORLD_CHUNKS), AxisBounds.Unbounded.INSTANCE);
 
     public static final WorldFold PER_AXIS = WorldFolds.of(ShapeFixtures.torus(BOUNDS));
-    public static final WorldFold DECK_TORUS = new DeckGroupFold(ShapeFixtures.torus(BOUNDS), OptionValues.DEFAULT);
+    public static final WorldFold DECK_TORUS = new DeckGroupFold(ShapeFixtures.torus(BOUNDS), ShapeOptions.DEFAULT);
     public static final WorldFold SKEWED =
-            new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS), OptionValues.DEFAULT);
+            new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS), ShapeOptions.DEFAULT);
     public static final WorldFold MIRRORED =
-            new DeckGroupFold(ShapeFixtures.mirrored(BOUNDS, Direction.Axis.Z, MIRROR_LINE_CHUNK), OptionValues.DEFAULT);
+            new DeckGroupFold(ShapeFixtures.mirrored(BOUNDS, Direction.Axis.Z, MIRROR_LINE_CHUNK), ShapeOptions.DEFAULT);
     public static final WorldFold CYLINDER = WorldFolds.of(ShapeFixtures.cylinder(X_ONLY));
 
     private CompatFoldFixture() {

@@ -16,8 +16,8 @@ import com.exoticworlds.bridge.v1.option.OptionBridge;
 import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.SpawnPoint;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
@@ -41,11 +41,11 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
 class LayoutDimensionsTest {
     private static final HolderLookup.Provider WORLDGEN = VanillaRegistries.createWorldLookup();
 
-    private static final OptionValues PLAIN = DimensionLayout.DEFAULT_OPTIONS;
+    private static final ShapeOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
 
-    private static final OptionValues COMPACT_6 = PLAIN.with(CompactBiomes.OPTION, ClimateScale.custom(6));
+    private static final ShapeOptions COMPACT_6 = PLAIN.with(CompactBiomes.OPTION, ClimateScale.custom(6));
 
-    private static final OptionValues LAND = PLAIN.with(GuaranteedLand.OPTION, true);
+    private static final ShapeOptions LAND = PLAIN.with(GuaranteedLand.OPTION, true);
 
     private static final ResourceKey<LevelStem> MOD_STEM = ResourceKey.create(Registries.LEVEL_STEM,
             Identifier.fromNamespaceAndPath("example_mod", "sky"));

@@ -40,9 +40,9 @@ class UnlappableCoordinateTest {
     }
 
     private static final List<Subject> SUBJECTS = List.of(
-            new Subject("torus", new WorldLoopFold(BOUNDS, OptionValues.DEFAULT)),
+            new Subject("torus", new WorldLoopFold(BOUNDS, ShapeOptions.DEFAULT)),
             new Subject("lattice torus",
-                    new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS), OptionValues.DEFAULT)));
+                    new DeckGroupFold(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS), ShapeOptions.DEFAULT)));
 
     private static List<Vec3> positions(double... coordinates) {
         List<Vec3> built = new ArrayList<>();

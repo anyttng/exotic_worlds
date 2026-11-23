@@ -12,7 +12,7 @@ import com.exoticworlds.bridge.v1.client.OptionControlsBridge;
  * all for one screen. A declaration registers its factory here from the client side alone, beside the option itself.
  *
  * @deprecated no screen builds these controls any more, so a control registered for an option is never shown.
- *     Declare how the option is offered and drawn with a {@link com.exoticworlds.api.v2.option.DimensionOption};
+ *     Declare how the option is offered and drawn with a {@link com.exoticworlds.api.v2.option.DimensionOptionV2};
  *     the World Shape Settings screen draws it.
  */
 @Deprecated

@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.accessors.CoastLiftCache;
 import com.exoticworlds.core.DeckGroupFold;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.TranslationLattice;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
@@ -165,7 +165,7 @@ class PeriodicEndIslandsTest {
     @Nested
     class SkewedLattice {
         private static final WorldFold SKEWED = new DeckGroupFold(
-                FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-128, 128, -96, 96), 37), OptionValues.DEFAULT);
+                FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-128, 128, -96, 96), 37), ShapeOptions.DEFAULT);
 
         private static final TranslationLattice LATTICE = SKEWED.blockLattice();
 

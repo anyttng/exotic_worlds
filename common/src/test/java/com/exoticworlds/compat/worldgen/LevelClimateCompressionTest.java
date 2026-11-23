@@ -8,8 +8,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.OptionValues;
 import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.WorldFold;
 import com.exoticworlds.core.WorldFolds;
 import com.exoticworlds.shape.climate.ClimateScale;
@@ -82,6 +82,6 @@ class LevelClimateCompressionTest {
         return WorldFolds.of(
                 ShapeFixtures.torus(
                         ShapeFixtures.loopedBounds(TINY_CHUNK_MIN, TINY_CHUNK_MAX, TINY_CHUNK_MIN, TINY_CHUNK_MAX)),
-                OptionValues.DEFAULT.with(CompactBiomes.OPTION, scale));
+                ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, scale));
     }
 }

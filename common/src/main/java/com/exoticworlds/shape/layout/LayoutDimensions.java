@@ -10,7 +10,7 @@ import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.DimensionTable;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.NetherScales;
-import com.exoticworlds.core.OptionValues;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.engine.gen.ShapedDimensions;
 
 import net.minecraft.resources.ResourceKey;
@@ -87,7 +87,7 @@ public final class LayoutDimensions {
         }
 
         CarriedShape carried = ShapedDimensions.carriedShapeOf(dimensions, key);
-        return DimensionLayout.looped(spans, carried == null ? OptionValues.DEFAULT : carried.options());
+        return DimensionLayout.looped(spans, carried == null ? ShapeOptions.DEFAULT : carried.options());
     }
 
     private static @Nullable Map<ResourceKey<LevelStem>, DimensionLayout> readTable(DimensionTable table) {
@@ -140,11 +140,11 @@ public final class LayoutDimensions {
     }
 
     private static WorldDimensions withShape(WorldDimensions dimensions, ResourceKey<LevelStem> key,
-            @Nullable FlatShape spans, OptionValues options) {
+            @Nullable FlatShape spans, ShapeOptions options) {
         return spans == null ? dimensions : ShapedDimensions.withShape(dimensions, key, carried(spans, options));
     }
 
-    private static CarriedShape carried(FlatShape spans, OptionValues options) {
+    private static CarriedShape carried(FlatShape spans, ShapeOptions options) {
         return new CarriedShape(spans, options);
     }
 

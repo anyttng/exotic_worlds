@@ -1,7 +1,7 @@
 package com.exoticworlds.bridge.v2.net;
 
-import com.exoticworlds.api.v2.geometry.WorldGeometry;
-import com.exoticworlds.api.v2.net.SeamContext;
+import com.exoticworlds.api.v2.geometry.WorldGeometryV2;
+import com.exoticworlds.api.v2.net.SeamContextV2;
 import com.exoticworlds.bridge.v2.geometry.GeometryBridge;
 import com.exoticworlds.engine.net.TranslationContext;
 
@@ -9,10 +9,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.phys.Vec3;
 
-record SeamContextView(TranslationContext context) implements SeamContext {
+record SeamContextView(TranslationContext context) implements SeamContextV2 {
 
     @Override
-    public WorldGeometry geometry() {
+    public WorldGeometryV2 geometry() {
         return GeometryBridge.of(this.context.fold());
     }
 
