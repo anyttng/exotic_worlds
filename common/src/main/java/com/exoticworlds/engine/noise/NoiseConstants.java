@@ -14,6 +14,7 @@ public final class NoiseConstants {
     public static final double BIOME_INFO_PATCH_SCALE = 0.09;
     public static final double BIOME_INFO_THRESHOLD_DIVISOR = 200.0;
     public static final double HEIGHT_TEMPERATURE_SCALE = 1.0 / 8.0;
+    public static final double SWAMP_GRASS_SCALE = 0.0225;
 
     public static final int AQUIFER_FLUID_LEVEL_CELL_WIDTH = 16;
     public static final int AQUIFER_FLUID_TYPE_CELL_WIDTH = 64;
