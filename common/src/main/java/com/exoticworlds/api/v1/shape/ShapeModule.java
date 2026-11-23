@@ -2,8 +2,7 @@ package com.exoticworlds.api.v1.shape;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.shape.WorldShape;
-import com.exoticworlds.shape.WorldShapes;
+import com.exoticworlds.bridge.v1.shape.ModuleBridge;
 
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.Identifier;
@@ -85,13 +84,7 @@ public final class ShapeModule<S> {
      *         registered under this module's id
      */
     public void register() {
-        WorldShapes.register(WorldShape.of(
-                this.id,
-                WorldShape.label(this.id),
-                WorldShape.hint(this.id),
-                this::applyAtCreation,
-                this::resetSettings,
-                this::restoreFromExisting));
+        ModuleBridge.register(this.id, this::applyAtCreation, this::resetSettings, this::restoreFromExisting);
     }
 
     private void resetSettings() {

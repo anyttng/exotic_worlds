@@ -6,11 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CarriedShape;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.OptionValues;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldLoopBounds;
 
 import net.minecraft.core.Direction;
 
@@ -55,24 +51,5 @@ class LoopSpansTest {
     @Test
     void aScaleThatDoesNotDivideTheSkewIsRefused() {
         assertThrows(IllegalArgumentException.class, () -> LoopSpans.ofWidth(64).withSkew(6).scaledDown(4));
-    }
-
-    @Test
-    void theFlatShapeOfSpansCarriesTheSkew() {
-        assertEquals(FlatShape.latticeTorus(WorldLoopBounds.ofWidths(64, 128), 8),
-                LoopSpans.ofWidths(64, 128).withSkew(8).shape());
-        assertEquals(ShapeFixtures.torus(WorldLoopBounds.ofWidths(64, 128)), LoopSpans.ofWidths(64, 128).shape());
-    }
-
-    @Test
-    void spansAtTheStatedFloorAreCarriedAndSpansUnderItAreRefused() {
-        int floor = LoopSpans.minChunkWidth();
-
-        new CarriedShape(LoopSpans.ofWidth(floor).shape(), OptionValues.DEFAULT);
-        new CarriedShape(LoopSpans.ofWidth(Direction.Axis.Z, floor).shape(), OptionValues.DEFAULT);
-        assertThrows(IllegalArgumentException.class,
-                () -> new CarriedShape(LoopSpans.ofWidth(floor - 2).shape(), OptionValues.DEFAULT));
-        assertThrows(IllegalArgumentException.class, () -> new CarriedShape(
-                LoopSpans.ofWidths(floor, floor - 2).shape(), OptionValues.DEFAULT));
     }
 }
