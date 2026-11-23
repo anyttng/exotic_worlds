@@ -18,6 +18,7 @@ import com.exoticworlds.api.v1.option.WorldOption;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.api.v2.option.DimensionOption;
 import com.exoticworlds.api.v2.option.OptionPart;
+import com.exoticworlds.api.v2.shape.AbstractDimensionShape;
 import com.exoticworlds.api.v2.shape.DimensionContext;
 import com.exoticworlds.api.v2.shape.DimensionShape;
 import com.exoticworlds.core.DimensionTable;
@@ -147,10 +148,9 @@ class DeclaredShapeTest {
         return dimension == LevelStem.NETHER ? NETHER_SCALE : 1.0;
     }
 
-    private static final class Band implements DimensionShape {
-        @Override
-        public Identifier id() {
-            return Identifier.fromNamespaceAndPath("example_mod", "band");
+    private static final class Band extends AbstractDimensionShape {
+        Band() {
+            super(Identifier.fromNamespaceAndPath("example_mod", "band"));
         }
 
         @Override
@@ -174,10 +174,9 @@ class DeclaredShapeTest {
         }
     }
 
-    private static final class Strip implements DimensionShape {
-        @Override
-        public Identifier id() {
-            return Identifier.fromNamespaceAndPath("example_mod", "strip");
+    private static final class Strip extends AbstractDimensionShape {
+        Strip() {
+            super(Identifier.fromNamespaceAndPath("example_mod", "strip"));
         }
 
         @Override
