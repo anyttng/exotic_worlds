@@ -172,7 +172,7 @@ class FieldDistributionProbeTest {
             }
             double octaveScale = XZ_SCALE * Math.pow(2.0, params.firstOctave() + i);
             double trueCells = WORLD_BLOCKS * octaveScale;
-            long period = PeriodicNoiseSampler.period(WORLD.blockDomain(Direction.Axis.X), octaveScale,
+            long period = PeriodicNoiseSampler.period(WORLD.getBlockDomain(Direction.Axis.X), octaveScale,
                     LapFloor.of(WORLD));
             report.append(String.format("  oct %d amp %.1f: true %.2f cells/lap -> period %d%s%n",
                     params.firstOctave() + i, params.amplitudes()[i], trueCells, period,

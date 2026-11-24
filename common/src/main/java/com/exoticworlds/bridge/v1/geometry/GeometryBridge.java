@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.google.common.collect.MapMaker;
 
 import net.minecraft.world.level.Level;
@@ -18,7 +18,7 @@ public final class GeometryBridge {
     }
 
     public static Optional<ToroidalShape> of(Level level) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         return fold == null ? Optional.empty() : Optional.of(of(fold));
     }
 

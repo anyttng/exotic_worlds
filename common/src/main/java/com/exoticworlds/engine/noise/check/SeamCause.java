@@ -5,14 +5,14 @@ import java.util.List;
 import org.jspecify.annotations.Nullable;
 
 public sealed interface SeamCause {
-    String key();
+    String getKey();
 
-    record Node(String type, @Nullable String holder, @Nullable String namespace, boolean vanilla,
+    record Node(String type, @Nullable String holder, @Nullable String namespace, boolean isVanilla,
             List<String> candidates) implements SeamCause {
         private static final String KEY_PREFIX = "node:";
 
         @Override
-        public String key() {
+        public String getKey() {
             return KEY_PREFIX + this.type;
         }
     }
@@ -21,7 +21,7 @@ public sealed interface SeamCause {
         private static final String KEY_PREFIX = "biome_source:";
 
         @Override
-        public String key() {
+        public String getKey() {
             return KEY_PREFIX + this.type;
         }
     }
@@ -30,7 +30,7 @@ public sealed interface SeamCause {
         private static final String KEY_PREFIX = "generator:";
 
         @Override
-        public String key() {
+        public String getKey() {
             return KEY_PREFIX + this.type;
         }
     }
@@ -39,7 +39,7 @@ public sealed interface SeamCause {
         private static final String KEY_PREFIX = "follows:";
 
         @Override
-        public String key() {
+        public String getKey() {
             return KEY_PREFIX + this.field;
         }
     }
@@ -48,7 +48,7 @@ public sealed interface SeamCause {
         private static final String KEY = "not_found";
 
         @Override
-        public String key() {
+        public String getKey() {
             return KEY;
         }
     }

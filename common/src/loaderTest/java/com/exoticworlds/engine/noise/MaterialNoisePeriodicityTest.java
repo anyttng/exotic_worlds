@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
@@ -44,7 +44,7 @@ class MaterialNoisePeriodicityTest {
 
     private static final int BAND_Y = 64;
     private static final int NO_GRADIENT = 0;
-    private static final int NO_STONE_DEPTH = 1;
+    private static final int NO_STONE_DEPTH_BLOCKS = 1;
     private static final int NO_WATER = Integer.MIN_VALUE;
 
     private static final ResourceKey<NormalNoise> RULE_NOISE_2D = Noises.SURFACE;
@@ -101,13 +101,13 @@ class MaterialNoisePeriodicityTest {
         for (WorldFold fold : WORLDS) {
             RandomState state = ClimateScanFixture.randomState(settings, fold, SEED);
             MaterialSystem surface = state.surfaceSystem();
-            int widthX = fold.blockDomain(Direction.Axis.X).domainLength;
-            int widthZ = fold.blockDomain(Direction.Axis.Z).domainLength;
+            int widthX = fold.getBlockDomain(Direction.Axis.X).domainLength;
+            int widthZ = fold.getBlockDomain(Direction.Axis.Z).domainLength;
             Random random = new Random(SEED);
             Set<Object> values = new HashSet<>();
             for (int i = 0; i < SAMPLES; i++) {
-                int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
-                int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
+                int x = blockIn(random, fold.getBlockDomain(Direction.Axis.X));
+                int z = blockIn(random, fold.getBlockDomain(Direction.Axis.Z));
                 Object here = bound(fold, () -> read.at(surface, state, x, z));
                 values.add(here);
                 assertEquals(here, bound(fold, () -> read.at(surface, state, x + widthX, z)),
@@ -130,7 +130,7 @@ class MaterialNoisePeriodicityTest {
             MaterialRuleContext context = ruleContext.newInstance(surface, state,
                     new DensityVolume(1, 1, 1, blockX, BAND_Y, blockZ), null, null, null, null);
             updateXZ.invoke(context, blockX, blockZ, NO_GRADIENT, NO_GRADIENT);
-            updateY.invoke(context, NO_STONE_DEPTH, NO_STONE_DEPTH, NO_WATER, BAND_Y);
+            updateY.invoke(context, NO_STONE_DEPTH_BLOCKS, NO_STONE_DEPTH_BLOCKS, NO_WATER, BAND_Y);
             DoubleSupplier sampler = context.getNoiseSampler(noise, is3d);
             return sampler.getAsDouble();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {

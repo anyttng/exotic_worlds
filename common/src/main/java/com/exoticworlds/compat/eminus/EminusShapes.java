@@ -25,15 +25,15 @@ public final class EminusShapes {
     private static final String SIZE_TIME_SEPARATOR = "@";
     private static final List<String> STORE_SUFFIXES = List.of("", "-wal", "-shm");
 
-    public static CellFold publishedFold(String dimension) {
+    public static CellFold getPublishedFold(String dimension) {
         Identifier id = Identifier.tryParse(dimension);
         return id == null
                 ? CellFold.NONE
-                : CellFold.of(PublishedShapes.wrappedFoldOf(ResourceKey.create(Registries.DIMENSION, id)));
+                : CellFold.of(PublishedShapes.getWrappedFold(ResourceKey.create(Registries.DIMENSION, id)));
     }
 
     public static void matchStore(Path folder, CellFold fold) {
-        if (!fold.repeats()) {
+        if (!fold.isRepeating()) {
             return;
         }
 
@@ -57,7 +57,7 @@ public final class EminusShapes {
     }
 
     public static void stampStore(Path folder, CellFold fold) {
-        if (!fold.repeats()) {
+        if (!fold.isRepeating()) {
             return;
         }
 
@@ -69,7 +69,7 @@ public final class EminusShapes {
     }
 
     private static String stamp(Path folder, CellFold fold) throws IOException {
-        StringBuilder stamp = new StringBuilder(fold.signature());
+        StringBuilder stamp = new StringBuilder(fold.getSignature());
         for (String suffix : STORE_SUFFIXES) {
             Path file = folder.resolve(SqliteCellStore.FILE_NAME + suffix);
             stamp.append(FIELD_SEPARATOR).append(Files.exists(file)

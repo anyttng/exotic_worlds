@@ -3,8 +3,8 @@ package com.exoticworlds.mixin;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -19,8 +19,8 @@ public class DebugEntryChunkGenerationMixin {
     @WrapMethod(method = "update")
     private void exotic_worlds$sampleThisWorldsField(@Nullable LevelChunk serverChunk, BlockPos feetPos,
             ServerLevel serverLevel, Operation<Void> original) {
-        WorldFold fold = WorldLoopAttachments.foldOf(serverLevel);
-        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+        WorldFold fold = WorldLoopAttachments.getFold(serverLevel);
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             original.call(serverChunk, feetPos, serverLevel);
         }
     }

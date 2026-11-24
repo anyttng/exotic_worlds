@@ -2,13 +2,13 @@ package com.exoticworlds.engine.gen;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.ShapeStamp;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.DimensionTable;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.DimensionTable;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.migration.FormerNamespace;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.ClimateScale;
@@ -52,7 +52,7 @@ class StampedGeneratorCodecTest {
     private static final ShapeOptions UNCOMPRESSED =
             ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
 
-    private static final int STAMPED_CHUNK_WIDTH = 64;
+    private static final int STAMPED_WIDTH_CHUNKS = 64;
 
     private static final String UNREADABLE_SHAPE = "not a shape at all";
 
@@ -76,32 +76,32 @@ class StampedGeneratorCodecTest {
 
     @Test
     void aStampedShapeSurvivesTheRoundTrip() {
-        FlatShape shape = squareTorus(STAMPED_CHUNK_WIDTH);
+        FlatShape shape = squareTorus(STAMPED_WIDTH_CHUNKS);
         CompoundTag encoded = encode(stamped(noiseGenerator(worldgen), shape));
 
         assertTrue(encoded.contains(SHAPE_KEY), "the stamped shape never reached the encoded generator");
         assertFalse(encoded.contains(CLIMATE_SCALE_KEY), "a compressed stamp wrote the choice it need not");
 
         CarriedShape decoded = carriedShapeOf(decode(encoded).getOrThrow());
-        assertEquals(shape, decoded.shape());
-        assertEquals(ClimateScale.AUTO, decoded.options().get(CompactBiomes.OPTION));
+        assertEquals(shape, decoded.getShape());
+        assertEquals(ClimateScale.AUTO, decoded.getOptions().get(CompactBiomes.OPTION));
     }
 
     @Test
     void aStampedChoiceAgainstCompressionSurvivesTheRoundTrip() {
-        FlatShape shape = squareTorus(STAMPED_CHUNK_WIDTH);
+        FlatShape shape = squareTorus(STAMPED_WIDTH_CHUNKS);
         CompoundTag encoded = encode(stamped(noiseGenerator(worldgen), shape, UNCOMPRESSED));
 
         assertTrue(encoded.contains(CLIMATE_SCALE_KEY), "the stamped choice never reached the encoded generator");
 
         CarriedShape decoded = carriedShapeOf(decode(encoded).getOrThrow());
-        assertEquals(shape, decoded.shape());
-        assertEquals(ClimateScale.OFF, decoded.options().get(CompactBiomes.OPTION));
+        assertEquals(shape, decoded.getShape());
+        assertEquals(ClimateScale.OFF, decoded.getOptions().get(CompactBiomes.OPTION));
     }
 
     @Test
     void aStampUnderTheFormerNamespaceIsReadAndWrittenBackUnderTheCurrentOne() {
-        FlatShape shape = squareTorus(STAMPED_CHUNK_WIDTH);
+        FlatShape shape = squareTorus(STAMPED_WIDTH_CHUNKS);
         CompoundTag current = encode(stamped(noiseGenerator(worldgen), shape, UNCOMPRESSED));
         CompoundTag former = new CompoundTag();
         current.forEach((key, value) -> former.put(
@@ -110,8 +110,8 @@ class StampedGeneratorCodecTest {
 
         ChunkGenerator decoded = decode(former).getOrThrow();
         CarriedShape carried = carriedShapeOf(decoded);
-        assertEquals(shape, carried.shape());
-        assertEquals(ClimateScale.OFF, carried.options().get(CompactBiomes.OPTION));
+        assertEquals(shape, carried.getShape());
+        assertEquals(ClimateScale.OFF, carried.getOptions().get(CompactBiomes.OPTION));
 
         CompoundTag rewritten = encode(decoded);
         assertTrue(rewritten.contains(SHAPE_KEY));
@@ -123,7 +123,7 @@ class StampedGeneratorCodecTest {
         CompoundTag encoded = encode(noiseGenerator(worldgen));
 
         assertFalse(encoded.contains(SHAPE_KEY));
-        assertNull(ShapedChunkGenerator.carriedShapeOf(decode(encoded).getOrThrow()));
+        assertNull(ShapedChunkGenerator.getCarriedShape(decode(encoded).getOrThrow()));
     }
 
     @Test
@@ -134,7 +134,7 @@ class StampedGeneratorCodecTest {
 
         assertTrue(encoded.contains(TABLE_KEY), "the table never reached the encoded generator");
         assertFalse(encoded.contains(SHAPE_KEY), "a table alone wrote a shape");
-        assertEquals(TABLE, ShapedDimensions.dimensionTableOf(decode(encoded).getOrThrow()));
+        assertEquals(TABLE, ShapedDimensions.getDimensionTable(decode(encoded).getOrThrow()));
     }
 
     @Test
@@ -156,7 +156,7 @@ class StampedGeneratorCodecTest {
     }
 
     private static CarriedShape carriedShapeOf(ChunkGenerator generator) {
-        CarriedShape carried = ShapedChunkGenerator.carriedShapeOf(generator);
+        CarriedShape carried = ShapedChunkGenerator.getCarriedShape(generator);
         assertNotNull(carried, "the decoded generator carries no shape");
         return carried;
     }

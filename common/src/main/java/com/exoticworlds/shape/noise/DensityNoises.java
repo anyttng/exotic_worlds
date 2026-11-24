@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import com.exoticworlds.core.DensityFunctionNodes;
+import com.exoticworlds.core.gen.DensityFunctionNodes;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;

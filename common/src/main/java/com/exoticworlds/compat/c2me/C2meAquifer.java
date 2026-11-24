@@ -15,23 +15,23 @@ public final class C2meAquifer {
     private static final String CONFIG_CLASS = "com.ishland.c2me.opts.worldgen.vanilla.common.Config";
     private static final String OPTIMIZE_AQUIFER_FIELD = "optimizeAquifer";
 
-    private static final boolean OPTIMIZED = readOptimizeAquifer(C2meAquifer.class.getClassLoader());
+    private static final boolean IS_AQUIFER_OPTIMIZED = readOptimizeAquifer(C2meAquifer.class.getClassLoader());
 
-    public static boolean optimizesAquifer() {
-        return OPTIMIZED;
+    public static boolean isAquiferOptimized() {
+        return IS_AQUIFER_OPTIMIZED;
     }
 
     static boolean readOptimizeAquifer(ClassLoader classLoader) {
         try {
-            boolean optimized = readSwitch(
+            boolean isOptimized = readSwitch(
                     Class.forName(CONFIG_CLASS, true, classLoader).getField(OPTIMIZE_AQUIFER_FIELD));
-            if (!optimized) {
+            if (!isOptimized) {
                 LOGGER.info("[ew/c2me-compat] gate c2me_present=true optimize_aquifer=false");
                 return false;
             }
 
             LOGGER.info("[ew/c2me-compat] gate c2me_present=true optimize_aquifer=true");
-            return C2meMixinPlugin.AQUIFER_GATE.admitted();
+            return C2meMixinPlugin.AQUIFER_GATE.isAdmitted();
         } catch (ClassNotFoundException absent) {
             return false;
         } catch (ReflectiveOperationException | LinkageError changed) {

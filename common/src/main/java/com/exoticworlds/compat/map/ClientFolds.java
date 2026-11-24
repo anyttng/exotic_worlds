@@ -2,8 +2,8 @@ package com.exoticworlds.compat.map;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.level.PublishedShapes;
 
 import net.minecraft.client.Minecraft;
@@ -15,16 +15,16 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public final class ClientFolds {
-    public static @Nullable WorldFold current() {
+    public static @Nullable WorldFold getCurrent() {
         return of(Minecraft.getInstance().level);
     }
 
     public static @Nullable WorldFold of(@Nullable Level level) {
-        return level instanceof ClientLevel client ? WorldLoopAttachments.wrappedClientBoundsFoldOf(client) : null;
+        return level instanceof ClientLevel client ? WorldLoopAttachments.getWrappedClientBoundsFold(client) : null;
     }
 
     public static @Nullable WorldFold of(ResourceKey<Level> dimension) {
-        return PublishedShapes.wrappedFoldOf(dimension);
+        return PublishedShapes.getWrappedFold(dimension);
     }
 
     public static BlockPos fold(@Nullable WorldFold fold, BlockPos pos) {

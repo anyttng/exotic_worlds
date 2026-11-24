@@ -29,26 +29,26 @@ class DimensionOptionV2Test {
 
     @Test
     void aDeclarationWithNoListsIsOfferedForEveryShapeOnEveryDimension() {
-        assertTrue(EVERYWHERE.offeredFor(BuiltInShapesV2.TORUS, LevelStem.OVERWORLD));
-        assertTrue(EVERYWHERE.offeredFor(BuiltInShapesV2.CYLINDER, LevelStem.END));
-        assertTrue(EVERYWHERE.offeredFor(MOD_SHAPE, MOD_DIMENSION));
+        assertTrue(EVERYWHERE.isOfferedFor(BuiltInShapesV2.TORUS, LevelStem.OVERWORLD));
+        assertTrue(EVERYWHERE.isOfferedFor(BuiltInShapesV2.CYLINDER, LevelStem.END));
+        assertTrue(EVERYWHERE.isOfferedFor(MOD_SHAPE, MOD_DIMENSION));
     }
 
     @Test
     void aNamedDimensionNarrowsItToThatDimension() {
         DimensionOptionV2<Integer> onTheModDimension = EVERYWHERE.forDimensions(List.of(MOD_DIMENSION));
 
-        assertTrue(onTheModDimension.offeredFor(BuiltInShapesV2.TORUS, MOD_DIMENSION));
-        assertFalse(onTheModDimension.offeredFor(BuiltInShapesV2.TORUS, LevelStem.OVERWORLD));
+        assertTrue(onTheModDimension.isOfferedFor(BuiltInShapesV2.TORUS, MOD_DIMENSION));
+        assertFalse(onTheModDimension.isOfferedFor(BuiltInShapesV2.TORUS, LevelStem.OVERWORLD));
     }
 
     @Test
     void aNamedShapeNarrowsItToThatShapeAModsOwnIncluded() {
         DimensionOptionV2<Integer> forTheBand = EVERYWHERE.forShapes(List.of(MOD_SHAPE, BuiltInShapesV2.CYLINDER));
 
-        assertTrue(forTheBand.offeredFor(MOD_SHAPE, LevelStem.NETHER));
-        assertTrue(forTheBand.offeredFor(BuiltInShapesV2.CYLINDER, LevelStem.NETHER));
-        assertFalse(forTheBand.offeredFor(BuiltInShapesV2.TORUS, LevelStem.NETHER));
+        assertTrue(forTheBand.isOfferedFor(MOD_SHAPE, LevelStem.NETHER));
+        assertTrue(forTheBand.isOfferedFor(BuiltInShapesV2.CYLINDER, LevelStem.NETHER));
+        assertFalse(forTheBand.isOfferedFor(BuiltInShapesV2.TORUS, LevelStem.NETHER));
     }
 
     @Test

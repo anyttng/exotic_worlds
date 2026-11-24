@@ -97,7 +97,7 @@ public class MapAtlasesServerEventsMixin {
     @Inject(method = "maybeCreateNewMapEntry", at = @At("HEAD"), cancellable = true)
     private static void exotic_worlds$keepTheHeldCopy(ServerPlayer player, ItemStack atlas, IMapCollection maps,
             Slice slice, int destX, int destZ, CallbackInfo ci) {
-        if (AtlasCopyLookup.heldAcrossEdge(player.level(), maps, MapKey.at(maps.getScale(), destX, destZ, slice))) {
+        if (AtlasCopyLookup.isHeldAcrossEdge(player.level(), maps, MapKey.at(maps.getScale(), destX, destZ, slice))) {
             ci.cancel();
         }
     }

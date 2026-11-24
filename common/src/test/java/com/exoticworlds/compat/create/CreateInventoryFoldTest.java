@@ -17,8 +17,8 @@ import org.junit.jupiter.api.Test;
 
 import com.zurrtum.create.api.packager.InventoryIdentifier;
 import com.zurrtum.create.catnip.math.BlockFace;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -83,7 +83,7 @@ class CreateInventoryFoldTest {
     void aBoundsCrossingTheSeamAnswersForBlocksOnEitherSide() {
         BoundingBox crossing = new BoundingBox(250, 60, 0, 260, 70, 5);
         for (WorldFold fold : ALL) {
-            assertTrue(fold.crossesBounds(crossing), "the fixture must cross the seam in " + fold);
+            assertTrue(fold.isCrossingBounds(crossing), "the fixture must cross the seam in " + fold);
             InventoryIdentifier folded = CreateInventoryFold.fold(fold, new InventoryIdentifier.Bounds(crossing));
 
             assertTrue(folded.contains(face(new BlockPos(252, 65, 2))), "the inbounds side in " + fold);

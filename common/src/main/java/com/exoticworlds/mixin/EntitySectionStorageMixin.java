@@ -23,7 +23,7 @@ public class EntitySectionStorageMixin implements LevelBindable {
 
     @ModifyVariable(method = {"getOrCreateSection", "getSection", "remove"}, at = @At("HEAD"), argsOnly = true)
     private long exotic_worlds$physicalSection(long sectionKey) {
-        return this.exotic_worlds$bound.fold().foldSectionNode(sectionKey);
+        return this.exotic_worlds$bound.getFold().foldSectionNode(sectionKey);
     }
 
     @ModifyVariable(
@@ -31,6 +31,6 @@ public class EntitySectionStorageMixin implements LevelBindable {
             at = @At("HEAD"),
             argsOnly = true)
     private long exotic_worlds$physicalChunk(long chunkKey) {
-        return this.exotic_worlds$bound.fold().foldChunkKey(chunkKey);
+        return this.exotic_worlds$bound.getFold().foldChunkKey(chunkKey);
     }
 }

@@ -17,11 +17,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -65,8 +65,8 @@ class ClientPositionTest {
         mirror.set(MIRROR_X + WIDTH_BLOCKS, MIRROR_Z, MirrorWriter.PLAYER_MOVE);
         mirror.set(MIRROR_X, MIRROR_Z - WIDTH_BLOCKS, MirrorWriter.VEHICLE_MOVE);
 
-        assertEquals(MIRROR_X, mirror.x());
-        assertEquals(MIRROR_Z, mirror.z());
+        assertEquals(MIRROR_X, mirror.getX());
+        assertEquals(MIRROR_Z, mirror.getZ());
         assertEquals(List.of(), warnings);
     }
 
@@ -76,8 +76,8 @@ class ClientPositionTest {
 
         mirror.set(MIRROR_X - 2 * WIDTH_BLOCKS, MIRROR_Z + WIDTH_BLOCKS, MirrorWriter.PLAYER_MOVE);
 
-        assertEquals(MIRROR_X, mirror.x());
-        assertEquals(MIRROR_Z, mirror.z());
+        assertEquals(MIRROR_X, mirror.getX());
+        assertEquals(MIRROR_Z, mirror.getZ());
         assertEquals(List.of(), warnings);
     }
 
@@ -86,10 +86,10 @@ class ClientPositionTest {
         ClientPosition mirror = seeded(TORUS);
 
         mirror.set(MIRROR_X + 200.0, MIRROR_Z, MirrorWriter.PLAYER_MOVE);
-        assertEquals(MIRROR_X + 200.0, mirror.x());
+        assertEquals(MIRROR_X + 200.0, mirror.getX());
 
         mirror.set(MIRROR_X + 200.0 - 255.0, MIRROR_Z, MirrorWriter.PLAYER_MOVE);
-        assertEquals(MIRROR_X + 200.0 - 255.0, mirror.x());
+        assertEquals(MIRROR_X + 200.0 - 255.0, mirror.getX());
         assertEquals(List.of(), warnings);
     }
 
@@ -98,10 +98,10 @@ class ClientPositionTest {
         ClientPosition mirror = seeded(TORUS);
 
         mirror.set(MIRROR_X + WIDTH_BLOCKS / 2, MIRROR_Z, MirrorWriter.PLAYER_MOVE);
-        assertEquals(MIRROR_X + WIDTH_BLOCKS / 2, mirror.x());
+        assertEquals(MIRROR_X + WIDTH_BLOCKS / 2, mirror.getX());
 
         mirror.set(MIRROR_X + WIDTH_BLOCKS / 2, MIRROR_Z - WIDTH_BLOCKS / 2, MirrorWriter.VEHICLE_MOVE);
-        assertEquals(MIRROR_Z - WIDTH_BLOCKS / 2, mirror.z());
+        assertEquals(MIRROR_Z - WIDTH_BLOCKS / 2, mirror.getZ());
         assertEquals(List.of(), warnings);
     }
 
@@ -111,8 +111,8 @@ class ClientPositionTest {
 
         mirror.set(MIRROR_X + WIDTH_BLOCKS, MIRROR_Z, MirrorWriter.POSITION_PACKET);
 
-        assertEquals(MIRROR_X + WIDTH_BLOCKS, mirror.x());
-        assertEquals(MIRROR_Z, mirror.z());
+        assertEquals(MIRROR_X + WIDTH_BLOCKS, mirror.getX());
+        assertEquals(MIRROR_Z, mirror.getZ());
         assertEquals(1, warnings.size(), warnings.toString());
         String warning = warnings.get(0);
         assertTrue(warning.startsWith(HALF_WORLD_WARNING), warning);
@@ -126,8 +126,8 @@ class ClientPositionTest {
 
         mirror.set(MIRROR_X + SKEW_BLOCKS, MIRROR_Z + WIDTH_BLOCKS, MirrorWriter.PLAYER_MOVE);
 
-        assertEquals(MIRROR_X, mirror.x());
-        assertEquals(MIRROR_Z, mirror.z());
+        assertEquals(MIRROR_X, mirror.getX());
+        assertEquals(MIRROR_Z, mirror.getZ());
         assertEquals(List.of(), warnings);
     }
 
@@ -137,7 +137,7 @@ class ClientPositionTest {
 
         mirror.set(MIRROR_X, MIRROR_Z + 270.0, MirrorWriter.POSITION_PACKET);
 
-        assertEquals(MIRROR_Z + 270.0, mirror.z());
+        assertEquals(MIRROR_Z + 270.0, mirror.getZ());
         assertEquals(List.of(), warnings);
     }
 
@@ -146,10 +146,10 @@ class ClientPositionTest {
         ClientPosition mirror = seeded(CYLINDER_X);
 
         mirror.set(MIRROR_X, MIRROR_Z + WIDTH_BLOCKS, MirrorWriter.PLAYER_MOVE);
-        assertEquals(MIRROR_Z + WIDTH_BLOCKS, mirror.z());
+        assertEquals(MIRROR_Z + WIDTH_BLOCKS, mirror.getZ());
 
         mirror.set(MIRROR_X + WIDTH_BLOCKS, MIRROR_Z + WIDTH_BLOCKS, MirrorWriter.PLAYER_MOVE);
-        assertEquals(MIRROR_X, mirror.x());
+        assertEquals(MIRROR_X, mirror.getX());
         assertEquals(List.of(), warnings);
     }
 
@@ -161,7 +161,7 @@ class ClientPositionTest {
 
         assertEquals(cameraX, mirror.anchor(0.0).x);
         assertEquals(MIRROR_Z, mirror.anchor(0.0).z);
-        assertEquals(MIRROR_X, mirror.x());
+        assertEquals(MIRROR_X, mirror.getX());
     }
 
     @Test
@@ -186,7 +186,7 @@ class ClientPositionTest {
         mirror.set(destination.x, destination.z, MirrorWriter.POSITION_PACKET);
 
         assertEquals(cameraX, destination.x);
-        assertEquals(cameraX, mirror.x());
+        assertEquals(cameraX, mirror.getX());
         assertEquals(cameraX, mirror.anchor(0.0).x);
         assertEquals(List.of(), warnings);
     }

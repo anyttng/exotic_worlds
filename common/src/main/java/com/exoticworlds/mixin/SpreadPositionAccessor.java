@@ -9,13 +9,13 @@ import net.minecraft.server.commands.SpreadPlayersCommand;
 @Mixin(SpreadPlayersCommand.Position.class)
 public interface SpreadPositionAccessor {
     @Accessor("x")
-    double exotic_worlds$x();
+    double exotic_worlds$getX();
 
     @Accessor("x")
     void exotic_worlds$setX(double x);
 
     @Accessor("z")
-    double exotic_worlds$z();
+    double exotic_worlds$getZ();
 
     @Accessor("z")
     void exotic_worlds$setZ(double z);

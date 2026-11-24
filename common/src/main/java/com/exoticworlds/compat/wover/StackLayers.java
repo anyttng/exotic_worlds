@@ -6,12 +6,12 @@ import java.util.function.Consumer;
 
 import org.betterx.wover.generator.api.map.BiomeMap;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 public final class StackLayers<T> {
     private final Consumer<Class<?>> unclosed;
 
-    private boolean reported;
+    private boolean isReported;
 
     public StackLayers(Consumer<Class<?>> unclosed) {
         this.unclosed = unclosed;
@@ -33,8 +33,8 @@ public final class StackLayers<T> {
     }
 
     private void report(BiomeMap map) {
-        if (!this.reported) {
-            this.reported = true;
+        if (!this.isReported) {
+            this.isReported = true;
             this.unclosed.accept(map.getClass());
         }
     }

@@ -20,8 +20,8 @@ public class StrollToPoiListMixin {
             method = "lambda$create$2",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private static boolean exotic_worlds$anchorTetherThroughSeam(BlockPos anchorPos, Position bodyPosition, double distance,
+    private static boolean exotic_worlds$anchorTetherThroughSeam(BlockPos anchorPos, Position bodyPosition, double distanceBlocks,
             Operation<Boolean> original, @Local(argsOnly = true) Villager body) {
-        return original.call(anchorPos, SeamRange.towardCenterOf(body, anchorPos, bodyPosition), distance);
+        return original.call(anchorPos, SeamRange.towardCenterOf(body, anchorPos, bodyPosition), distanceBlocks);
     }
 }

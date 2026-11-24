@@ -7,8 +7,8 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.core.SpawnPoint;
-import com.exoticworlds.core.StartupRegistry;
+import com.exoticworlds.core.world.SpawnPoint;
+import com.exoticworlds.core.registry.StartupRegistry;
 import com.exoticworlds.engine.gen.ShapedDimensions;
 
 import net.minecraft.core.RegistryAccess;
@@ -41,15 +41,15 @@ public final class WorldShapes {
         SPAWN_MOVES.register(shapeId, move);
     }
 
-    public static boolean moveSpawn(SpawnPoint spawn) {
-        Predicate<SpawnPoint> move = SPAWN_MOVES.entries().get(selected.id());
+    public static boolean tryMoveSpawn(SpawnPoint spawn) {
+        Predicate<SpawnPoint> move = SPAWN_MOVES.getEntries().get(selected.id());
         return move != null && move.test(spawn);
     }
 
-    public static List<WorldShape> shapes() {
+    public static List<WorldShape> getShapes() {
         List<WorldShape> own = new ArrayList<>();
         List<WorldShape> foreign = new ArrayList<>();
-        for (WorldShape shape : SHAPES.entries().values()) {
+        for (WorldShape shape : SHAPES.getEntries().values()) {
             (ExoticWorlds.MODID.equals(shape.id().getNamespace()) ? own : foreign).add(shape);
         }
         foreign.sort(Comparator.comparing(shape -> shape.id().toString()));
@@ -64,7 +64,7 @@ public final class WorldShapes {
     }
 
     public static void select(Identifier id) {
-        WorldShape shape = SHAPES.entries().get(id);
+        WorldShape shape = SHAPES.getEntries().get(id);
         if (shape == null) {
             throw new IllegalArgumentException("No world shape is registered under " + id);
         }
@@ -74,12 +74,12 @@ public final class WorldShapes {
 
     public static void resetToDefault() {
         selected = NORMAL;
-        shapes().forEach(shape -> shape.resetSettings().run());
+        getShapes().forEach(shape -> shape.resetSettings().run());
     }
 
     public static void restoreFromExisting(RegistryAccess.Frozen registries, WorldDimensions dimensions) {
-        for (WorldShape shape : shapes()) {
-            if (shape.fromExisting() != null && shape.fromExisting().adopt(registries, dimensions)) {
+        for (WorldShape shape : getShapes()) {
+            if (shape.fromExisting() != null && shape.fromExisting().tryAdopt(registries, dimensions)) {
                 selected = shape;
                 return;
             }

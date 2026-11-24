@@ -3,9 +3,9 @@ package com.exoticworlds.bridge.v2.shape;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v2.shape.LoopSpansV2;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 public final class ShapeSpansAdapter {
 

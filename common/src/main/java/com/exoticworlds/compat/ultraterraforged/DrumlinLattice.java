@@ -20,8 +20,8 @@ public record DrumlinLattice(float alongX, float alongZ, float cellLength, float
 
     private static final ThreadLocal<Remembered> REMEMBERED = ThreadLocal.withInitial(Remembered::new);
 
-    public static @Nullable DrumlinLattice bound(float cosFlow, float sinFlow) {
-        LapWave lap = LapWave.bound();
+    public static @Nullable DrumlinLattice getBound(float cosFlow, float sinFlow) {
+        LapWave lap = LapWave.getBound();
         return lap == null ? null : REMEMBERED.get().over(lap, cosFlow, sinFlow);
     }
 
@@ -30,7 +30,7 @@ public record DrumlinLattice(float alongX, float alongZ, float cellLength, float
         double alongX = cosFlow / CELL_LENGTH + sinFlow * ROW_SHIFT / (CELL_LENGTH * CELL_WIDTH);
         double alongZ = sinFlow / CELL_LENGTH - cosFlow * ROW_SHIFT / (CELL_LENGTH * CELL_WIDTH);
         LapWave.Wave along = lap.nearest(alongX, alongZ,
-                wave -> det(wave, across) > 0.0 && across.frequency() / det(wave, across) <= CELL_LENGTH);
+                wave -> det(wave, across) > 0.0 && across.getFrequency() / det(wave, across) <= CELL_LENGTH);
         double det = det(along, across);
         double cellX = across.z() / det;
         double cellZ = -across.x() / det;
@@ -40,7 +40,7 @@ public record DrumlinLattice(float alongX, float alongZ, float cellLength, float
         double rowX = -along.z() / det;
         double rowZ = along.x() / det;
         DrumlinLattice lattice = new DrumlinLattice((float) unitX, (float) unitZ, (float) length,
-                (float) (rowX * unitX + rowZ * unitZ), (float) (1.0 / across.frequency()), UNFOLDED, UNFOLDED,
+                (float) (rowX * unitX + rowZ * unitZ), (float) (1.0 / across.getFrequency()), UNFOLDED, UNFOLDED,
                 UNFOLDED);
         return lattice.folded(lap, along, across);
     }
@@ -78,9 +78,9 @@ public record DrumlinLattice(float alongX, float alongZ, float cellLength, float
     }
 
     private DrumlinLattice folded(LapWave lap, LapWave.Wave along, LapWave.Wave across) {
-        boolean xLoops = lap.loops(Direction.Axis.X);
-        boolean zLoops = lap.loops(Direction.Axis.Z);
-        if (xLoops && zLoops) {
+        boolean isXLooped = lap.isLooped(Direction.Axis.X);
+        boolean isZLooped = lap.isLooped(Direction.Axis.Z);
+        if (isXLooped && isZLooped) {
             long[] bezout = bezout(across.xTurns(), across.zTurns());
             long period = bezout[0];
             long step = bezout[1] * along.xTurns() + bezout[2] * along.zTurns();
@@ -88,8 +88,8 @@ public record DrumlinLattice(float alongX, float alongZ, float cellLength, float
             return withFold(period, Math.floorMod(step, columns), columns);
         }
 
-        long columnTurns = xLoops ? along.xTurns() : along.zTurns();
-        long rowTurns = xLoops ? across.xTurns() : across.zTurns();
+        long columnTurns = isXLooped ? along.xTurns() : along.zTurns();
+        long rowTurns = isXLooped ? across.xTurns() : across.zTurns();
         if (rowTurns == LapWave.NO_TURNS) {
             return withFold(UNFOLDED, UNFOLDED, Math.abs(columnTurns));
         }

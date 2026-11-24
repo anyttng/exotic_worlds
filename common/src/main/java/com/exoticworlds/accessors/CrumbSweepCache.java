@@ -1,5 +1,5 @@
 package com.exoticworlds.accessors;
 
 public interface CrumbSweepCache {
-    boolean exotic_worlds$sweepsCrumbs();
+    boolean exotic_worlds$isSweepingCrumbs();
 }

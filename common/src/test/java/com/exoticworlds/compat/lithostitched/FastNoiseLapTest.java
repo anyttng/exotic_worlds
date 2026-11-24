@@ -118,7 +118,7 @@ class FastNoiseLapTest {
     @Test
     void theOctaveStepsCarryTheScaleOntoEachOctavesWholeCells() {
         FastNoiseLap lap = lap(LAP_BLOCKS, LAP_BLOCKS, true, OCTAVES);
-        double scale = lap.blockScale();
+        double scale = lap.getBlockScale();
         for (int octave = 0; octave < OCTAVES; octave++) {
             double cells = ROTATED_STEP * period(lap, octave, X_LAP_DIRECTION);
             assertEquals(cells, scale * LAP_BLOCKS, cells * SCALE_TOLERANCE);

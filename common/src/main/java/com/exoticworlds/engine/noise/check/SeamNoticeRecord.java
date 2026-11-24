@@ -20,7 +20,7 @@ public final class SeamNoticeRecord extends SavedData {
     private static final String SHOWN_KEY = "shown";
 
     private static final Codec<SeamNoticeRecord> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.listOf().fieldOf(SHOWN_KEY).forGetter(SeamNoticeRecord::shown))
+            Codec.STRING.listOf().fieldOf(SHOWN_KEY).forGetter(SeamNoticeRecord::getShown))
             .apply(instance, SeamNoticeRecord::new));
 
     // Vanilla's reader calls the fix type unguarded, so a null here loses the record on every Fabric load.
@@ -42,7 +42,7 @@ public final class SeamNoticeRecord extends SavedData {
         return server.getDataStorage().computeIfAbsent(TYPE);
     }
 
-    boolean contains(String fingerprint) {
+    boolean isShown(String fingerprint) {
         return this.shown.contains(fingerprint);
     }
 
@@ -52,7 +52,7 @@ public final class SeamNoticeRecord extends SavedData {
         }
     }
 
-    private List<String> shown() {
+    private List<String> getShown() {
         return List.copyOf(this.shown);
     }
 }

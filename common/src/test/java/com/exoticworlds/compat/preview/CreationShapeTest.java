@@ -6,11 +6,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 class CreationShapeTest {
     private static final AxisBounds.Looped TINY = new AxisBounds.Looped(-16, 16);
@@ -29,8 +29,8 @@ class CreationShapeTest {
     void aChosenShapeIsTheRouterBuildFoldWhileTheTaskRuns() {
         WorldFold fold = WorldFolds.of(ShapeFixtures.torus(new WorldLoopBounds(TINY, TINY)));
         AtomicReference<WorldFold> seen = new AtomicReference<>();
-        CreationShape.underRouterBuild(fold, () -> seen.set(CreationShape.routerBuildFold())).run();
+        CreationShape.underRouterBuild(fold, () -> seen.set(CreationShape.getRouterBuildFold())).run();
         assertSame(fold, seen.get());
-        assertSame(WorldFolds.NOOP, CreationShape.routerBuildFold());
+        assertSame(WorldFolds.NOOP, CreationShape.getRouterBuildFold());
     }
 }

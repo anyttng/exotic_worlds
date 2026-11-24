@@ -13,8 +13,8 @@ import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.SeamTravelHolder;
 import com.exoticworlds.accessors.TrackedEntityRefresher;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.level.SeamRespawnData;
 import com.exoticworlds.engine.net.ClientAnchorSync;
 import com.exoticworlds.engine.net.WorldShapeSync;
@@ -51,7 +51,7 @@ public class ServerPlayerMixin implements SeamTravelHolder {
     private final SeamTravel exotic_worlds$travel = new SeamTravel();
 
     @Override
-    public SeamTravel exotic_worlds$travel() {
+    public SeamTravel exotic_worlds$getTravel() {
         return this.exotic_worlds$travel;
     }
 
@@ -67,7 +67,7 @@ public class ServerPlayerMixin implements SeamTravelHolder {
 
     @Inject(method = "restoreFrom", at = @At("TAIL"))
     private void exotic_worlds$carryTravelThroughRespawn(ServerPlayer oldPlayer, boolean restoreAll, CallbackInfo ci) {
-        this.exotic_worlds$travel.copyFrom(((SeamTravelHolder) oldPlayer).exotic_worlds$travel());
+        this.exotic_worlds$travel.copyFrom(((SeamTravelHolder) oldPlayer).exotic_worlds$getTravel());
     }
 
     @ModifyVariable(method = "setRespawnPosition", at = @At("HEAD"), argsOnly = true)
@@ -121,7 +121,7 @@ public class ServerPlayerMixin implements SeamTravelHolder {
             return;
         }
 
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(player.level());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(player.level());
         if (fold == null) {
             return;
         }

@@ -1,6 +1,6 @@
 package com.exoticworlds.engine.noise.periodic;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 public enum LapFloor {
     FOUR_CELLS(4L),
@@ -14,6 +14,6 @@ public enum LapFloor {
     }
 
     public static LapFloor of(WorldFold fold) {
-        return fold.blockLattice().bothLoop() ? TWO_CELLS : HELD;
+        return fold.getBlockLattice().areBothLooped() ? TWO_CELLS : HELD;
     }
 }

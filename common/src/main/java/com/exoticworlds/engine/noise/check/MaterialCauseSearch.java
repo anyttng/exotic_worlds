@@ -70,7 +70,7 @@ final class MaterialCauseSearch {
             throw new UnsupportedOperationException("A recorder is never serialized");
         }
 
-        IdentityHashMap<Object, Object> answers() {
+        IdentityHashMap<Object, Object> getAnswers() {
             return this.answers;
         }
     }
@@ -144,7 +144,7 @@ final class MaterialCauseSearch {
 
         List<Object> nodes = new ArrayList<>();
         for (RecordComponent component : components) {
-            collectNodes(valueOf(component, node), nodes);
+            collectNodes(readValue(component, node), nodes);
         }
 
         return nodes;
@@ -161,7 +161,7 @@ final class MaterialCauseSearch {
         }
     }
 
-    private static @Nullable Object valueOf(RecordComponent component, Object node) {
+    private static @Nullable Object readValue(RecordComponent component, Object node) {
         Method accessor = component.getAccessor();
         try {
             accessor.trySetAccessible();
@@ -187,14 +187,14 @@ final class MaterialCauseSearch {
         String holder = found.holder() != null ? found.holder().toString() : null;
         Identifier type = typeKeyOf(node);
         String className = node.getClass().getName();
-        boolean vanilla = type != null
+        boolean isVanilla = type != null
                 ? type.getNamespace().equals(Identifier.DEFAULT_NAMESPACE)
                 : className.startsWith(VANILLA_PACKAGE);
-        List<String> candidates = vanilla
+        List<String> candidates = isVanilla
                 ? AppliedMixins.foreignOn(Stream.concat(Stream.of(className), MATERIAL_CLASSES.stream()).toList())
                 : List.of();
         return new SeamCause.Node(type != null ? type.toString() : className, holder,
-                type != null ? type.getNamespace() : null, vanilla, candidates);
+                type != null ? type.getNamespace() : null, isVanilla, candidates);
     }
 
     private static @Nullable Identifier typeKeyOf(Object node) {

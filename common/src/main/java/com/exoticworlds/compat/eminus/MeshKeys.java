@@ -9,7 +9,7 @@ import com.eminus.mesh.CellMesh;
 public final class MeshKeys {
     private static final String KEY_COMPONENT = "key";
     private static final RecordComponent[] COMPONENTS = CellMesh.class.getRecordComponents();
-    private static final Constructor<CellMesh> CANONICAL = canonical();
+    private static final Constructor<CellMesh> CANONICAL = findCanonicalConstructor();
 
     public static CellMesh withKey(CellMesh mesh, long key) {
         Object[] values = new Object[COMPONENTS.length];
@@ -26,7 +26,7 @@ public final class MeshKeys {
         }
     }
 
-    private static Constructor<CellMesh> canonical() {
+    private static Constructor<CellMesh> findCanonicalConstructor() {
         try {
             return CellMesh.class.getDeclaredConstructor(
                     Arrays.stream(COMPONENTS).map(RecordComponent::getType).toArray(Class<?>[]::new));

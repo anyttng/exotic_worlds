@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeOption;
+import com.exoticworlds.core.option.ShapeOption;
 import com.exoticworlds.shape.option.DimensionOption;
 import com.exoticworlds.shape.option.OptionPart;
 import com.mojang.serialization.Codec;

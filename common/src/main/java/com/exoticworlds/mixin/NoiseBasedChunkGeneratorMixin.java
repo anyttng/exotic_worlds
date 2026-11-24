@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.BinderOrder;
-import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -44,17 +44,17 @@ public class NoiseBasedChunkGeneratorMixin {
                     target = "Lnet/minecraft/world/level/levelgen/NoiseRouter;finalDensity()"
                             + "Lnet/minecraft/world/level/levelgen/densityfunction/DensityFunction;"))
     private DensityFunction exotic_worlds$fillUnderTheCeiling(DensityFunction finalDensity, @Local NoiseChunk noiseChunk) {
-        if (ShapedChunkGenerator.wrappedFoldOf((NoiseBasedChunkGenerator) (Object) this) == null) {
+        if (ShapedChunkGenerator.getWrappedFold((NoiseBasedChunkGenerator) (Object) this) == null) {
             return finalDensity;
         }
 
-        return ((NoiseChunkAccessor) noiseChunk).exotic_worlds$randomState().router.finalDensity();
+        return ((NoiseChunkAccessor) noiseChunk).exotic_worlds$getRandomState().router.finalDensity();
     }
 
     @WrapMethod(method = "doFill", order = BinderOrder.FOLD)
     private void exotic_worlds$bindWhileFilling(NoiseChunk noiseChunk, ChunkAccess chunk, Operation<Void> original) {
-        WorldFold fold = ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this);
-        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+        WorldFold fold = ShapedChunkGenerator.getFold((NoiseBasedChunkGenerator) (Object) this);
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             original.call(noiseChunk, chunk);
         }
     }
@@ -63,8 +63,8 @@ public class NoiseBasedChunkGeneratorMixin {
     private void exotic_worlds$bindWhileBuildingSurface(ChunkAccess chunk, NoiseChunk noiseChunk, RandomState randomState,
             BiomeManager biomeManager, Set<Holder<Biome>> possibleBiomes, MaterialRule materialRule,
             Operation<Void> original) {
-        WorldFold fold = ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this);
-        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+        WorldFold fold = ShapedChunkGenerator.getFold((NoiseBasedChunkGenerator) (Object) this);
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             original.call(chunk, noiseChunk, randomState, biomeManager, possibleBiomes, materialRule);
         }
     }
@@ -73,8 +73,8 @@ public class NoiseBasedChunkGeneratorMixin {
     private void exotic_worlds$bindWhileCarving(ChunkAccess chunk, Blender blender, NoiseChunk noiseChunk,
             RandomState randomState, BiomeManager biomeManager, WorldGenRegion carverBiomeRegion,
             MaterialRule materialRule, Operation<Void> original) {
-        WorldFold fold = ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this);
-        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+        WorldFold fold = ShapedChunkGenerator.getFold((NoiseBasedChunkGenerator) (Object) this);
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             original.call(chunk, blender, noiseChunk, randomState, biomeManager, carverBiomeRegion, materialRule);
         }
     }
@@ -83,14 +83,14 @@ public class NoiseBasedChunkGeneratorMixin {
     private OptionalInt exotic_worlds$bindWhileReadingColumn(LevelHeightAccessor heightAccessor, RandomState randomState,
             int blockX, int blockZ, @Nullable MutableObject<NoiseColumn> columnReference,
             @Nullable Predicate<BlockState> tester, Operation<OptionalInt> original) {
-        WorldFold fold = ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this);
-        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+        WorldFold fold = ShapedChunkGenerator.getFold((NoiseBasedChunkGenerator) (Object) this);
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             return original.call(heightAccessor, randomState, blockX, blockZ, columnReference, tester);
         }
     }
 
     @ModifyReturnValue(method = "getOrigin", at = @At("RETURN"))
     private ChunkPos exotic_worlds$originInsideBounds(ChunkPos origin) {
-        return ShapedChunkGenerator.foldOf((NoiseBasedChunkGenerator) (Object) this).fold(origin);
+        return ShapedChunkGenerator.getFold((NoiseBasedChunkGenerator) (Object) this).fold(origin);
     }
 }

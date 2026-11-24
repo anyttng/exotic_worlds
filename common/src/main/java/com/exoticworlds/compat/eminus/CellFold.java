@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 import com.eminus.cell.CellKey;
 import com.eminus.cell.DetailLevel;
 import com.exoticworlds.compat.lod.AlignedPeriod;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 
@@ -55,14 +55,14 @@ public final class CellFold {
     public static CellFold of(@Nullable WorldFold fold) {
         return fold == null || !fold.isWrapped()
                 ? NONE
-                : new CellFold(fold, fold.blockLattice().skew());
+                : new CellFold(fold, fold.getBlockLattice().getSkew());
     }
 
-    public boolean repeats() {
+    public boolean isRepeating() {
         return fold != null;
     }
 
-    public String signature() {
+    public String getSignature() {
         return signature;
     }
 
@@ -72,11 +72,11 @@ public final class CellFold {
         }
 
         int level = CellKey.level(key);
-        int side = DetailLevel.blocksPerCell(level);
-        long blockZ = (long) CellKey.z(key) * side;
-        long x = cells[level].foldX(fold, (long) CellKey.x(key) * side, blockZ);
+        int sideBlocks = DetailLevel.blocksPerCell(level);
+        long blockZ = (long) CellKey.z(key) * sideBlocks;
+        long x = cells[level].foldX(fold, (long) CellKey.x(key) * sideBlocks, blockZ);
         long z = cells[level].foldZ(fold, blockZ);
-        return CellKey.pack(level, (int) Math.floorDiv(x, side), CellKey.y(key), (int) Math.floorDiv(z, side));
+        return CellKey.pack(level, (int) Math.floorDiv(x, sideBlocks), CellKey.y(key), (int) Math.floorDiv(z, sideBlocks));
     }
 
     public int foldChunkX(int chunkX, int chunkZ) {
@@ -114,16 +114,16 @@ public final class CellFold {
         long x = BlockPos.getX(pos);
         long z = BlockPos.getZ(pos);
         double shear = 0.0;
-        if (fold.loops(Direction.Axis.Z)) {
-            int widthZ = width(Direction.Axis.Z);
+        if (fold.isLooped(Direction.Axis.Z)) {
+            int widthZ = getWidthBlocks(Direction.Axis.Z);
             long laps = lapsOff(z + HALF - centerZ, widthZ);
             z -= laps * widthZ;
             x -= laps * skewBlocks;
             shear = (z + HALF - centerZ) / widthZ * skewBlocks;
         }
 
-        if (fold.loops(Direction.Axis.X)) {
-            int widthX = width(Direction.Axis.X);
+        if (fold.isLooped(Direction.Axis.X)) {
+            int widthX = getWidthBlocks(Direction.Axis.X);
             x -= lapsOff(x + HALF - centerX - shear, widthX) * widthX;
         }
 
@@ -158,19 +158,19 @@ public final class CellFold {
         return folded.toLongArray();
     }
 
-    private static long lapsOff(double offset, int width) {
-        return (long) Math.floor(offset / width + HALF);
+    private static long lapsOff(double offsetBlocks, int widthBlocks) {
+        return (long) Math.floor(offsetBlocks / widthBlocks + HALF);
     }
 
-    public int lapXBlocks() {
-        return width(Direction.Axis.X);
+    public int getLapXBlocks() {
+        return getWidthBlocks(Direction.Axis.X);
     }
 
-    public int lapZBlocks() {
-        return width(Direction.Axis.Z);
+    public int getLapZBlocks() {
+        return getWidthBlocks(Direction.Axis.Z);
     }
 
-    public int skewBlocks() {
+    public int getSkewBlocks() {
         return skewBlocks;
     }
 
@@ -180,27 +180,27 @@ public final class CellFold {
 
     public int copyOffsetX(int level, int copy) {
         int lapsX = lapsX(level);
-        return copy % lapsX * width(Direction.Axis.X) + copy / lapsX * skewBlocks;
+        return copy % lapsX * getWidthBlocks(Direction.Axis.X) + copy / lapsX * skewBlocks;
     }
 
     public int copyOffsetZ(int level, int copy) {
-        return copy / lapsX(level) * width(Direction.Axis.Z);
+        return copy / lapsX(level) * getWidthBlocks(Direction.Axis.Z);
     }
 
-    public boolean meetsLap(double minX, double minZ, double maxX, double maxZ, double eyeX, double eyeZ,
-            double margin) {
+    public boolean isMeetingLap(double minX, double minZ, double maxX, double maxZ, double eyeX, double eyeZ,
+            double marginBlocks) {
         if (fold == null) {
             return true;
         }
 
-        double lowX = minX - eyeX - margin;
-        double highX = maxX - eyeX + margin;
-        double lowZ = minZ - eyeZ - margin;
-        double highZ = maxZ - eyeZ + margin;
-        double lowShift = 0.0;
-        double highShift = 0.0;
-        if (fold.loops(Direction.Axis.Z)) {
-            double widthZ = width(Direction.Axis.Z);
+        double lowX = minX - eyeX - marginBlocks;
+        double highX = maxX - eyeX + marginBlocks;
+        double lowZ = minZ - eyeZ - marginBlocks;
+        double highZ = maxZ - eyeZ + marginBlocks;
+        double lowShiftBlocks = 0.0;
+        double highShiftBlocks = 0.0;
+        if (fold.isLooped(Direction.Axis.Z)) {
+            double widthZ = getWidthBlocks(Direction.Axis.Z);
             double half = widthZ * HALF;
             if (highZ <= -half || lowZ >= half) {
                 return false;
@@ -208,16 +208,16 @@ public final class CellFold {
 
             double first = Math.clamp(lowZ / widthZ, -HALF, HALF) * skewBlocks;
             double last = Math.clamp(highZ / widthZ, -HALF, HALF) * skewBlocks;
-            lowShift = Math.min(first, last);
-            highShift = Math.max(first, last);
+            lowShiftBlocks = Math.min(first, last);
+            highShiftBlocks = Math.max(first, last);
         }
 
-        if (!fold.loops(Direction.Axis.X)) {
+        if (!fold.isLooped(Direction.Axis.X)) {
             return true;
         }
 
-        double half = width(Direction.Axis.X) * HALF;
-        return highX - lowShift > -half && lowX - highShift < half;
+        double half = getWidthBlocks(Direction.Axis.X) * HALF;
+        return highX - lowShiftBlocks > -half && lowX - highShiftBlocks < half;
     }
 
     private int lapsX(int level) {
@@ -228,13 +228,13 @@ public final class CellFold {
         return fold == null ? 1 : cells[level].laps(fold, Direction.Axis.Z);
     }
 
-    private int width(Direction.Axis axis) {
-        return fold != null && fold.loops(axis) ? fold.widthBlocks(axis) : 0;
+    private int getWidthBlocks(Direction.Axis axis) {
+        return fold != null && fold.isLooped(axis) ? fold.getWidthBlocks(axis) : 0;
     }
 
     private static String axisSignature(WorldFold fold, Direction.Axis axis) {
-        return fold.loops(axis)
-                ? fold.minBlock(axis) + FIELD_SEPARATOR + fold.widthBlocks(axis)
+        return fold.isLooped(axis)
+                ? fold.getMinBlock(axis) + FIELD_SEPARATOR + fold.getWidthBlocks(axis)
                 : OPEN_AXIS;
     }
 

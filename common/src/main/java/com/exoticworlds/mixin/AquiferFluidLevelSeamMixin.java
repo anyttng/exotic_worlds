@@ -31,12 +31,12 @@ public class AquiferFluidLevelSeamMixin implements AquiferCellsHolder {
     }
 
     @Override
-    public @Nullable AquiferCells exotic_worlds$aquiferCells() {
+    public @Nullable AquiferCells exotic_worlds$getAquiferCells() {
         return this.exotic_worlds$aquiferCells;
     }
 
     @Override
-    public void exotic_worlds$aquiferCells(AquiferCells cells) {
+    public void exotic_worlds$setAquiferCells(AquiferCells cells) {
         this.exotic_worlds$aquiferCells = cells;
     }
 }

@@ -2,15 +2,15 @@ package com.exoticworlds.bridge.v2.option;
 
 import com.exoticworlds.api.v2.option.ShapeOptionV2;
 import com.exoticworlds.api.v2.option.ShapeOptionsV2;
-import com.exoticworlds.core.ShapeOption;
-import com.exoticworlds.core.ShapeOptionRegistry;
-import com.exoticworlds.core.ShapeOptions;
+import com.exoticworlds.core.option.ShapeOption;
+import com.exoticworlds.core.option.ShapeOptionRegistry;
+import com.exoticworlds.core.option.ShapeOptions;
 
 public final class ShapeOptionsAdapter {
 
     public static ShapeOptionsV2 toV2(ShapeOptions stored) {
         ShapeOptionsV2 converted = ShapeOptionsV2.DEFAULT;
-        for (ShapeOption<?> key : ShapeOptionRegistry.all()) {
+        for (ShapeOption<?> key : ShapeOptionRegistry.getAll()) {
             converted = carried(converted, key, stored);
         }
 
@@ -19,7 +19,7 @@ public final class ShapeOptionsAdapter {
 
     public static ShapeOptions fromV2(ShapeOptionsV2 chosen) {
         ShapeOptions converted = ShapeOptions.DEFAULT;
-        for (ShapeOption<?> key : ShapeOptionRegistry.all()) {
+        for (ShapeOption<?> key : ShapeOptionRegistry.getAll()) {
             converted = carried(converted, key, chosen);
         }
 

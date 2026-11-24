@@ -16,7 +16,7 @@ public final class SeamTarget extends DhBlockPos2D {
         return lattice == null ? target : new SeamTarget(lattice, target);
     }
 
-    public int chebyshevDistFrom(DhBlockPos2D pos) {
-        return (int) DhFold.seamChebyshevDistance(this.lattice, pos.x, pos.z, this.x, this.z);
+    public int chebyshevDistanceBlocksFrom(DhBlockPos2D pos) {
+        return (int) DhFold.seamChebyshevDistanceBlocks(this.lattice, pos.x, pos.z, this.x, this.z);
     }
 }

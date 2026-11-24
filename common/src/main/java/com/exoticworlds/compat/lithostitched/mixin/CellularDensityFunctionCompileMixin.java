@@ -34,7 +34,7 @@ public class CellularDensityFunctionCompileMixin {
         }
 
         return new CellularDensityFunction.GridDimensions(
-                CellLap.of(folded.fold(), dimensions.horizontal()).width(), dimensions.vertical());
+                CellLap.of(folded.fold(), dimensions.horizontal()).widthBlocks(), dimensions.vertical());
     }
 
     @ModifyReturnValue(method = InjectionTargets.DENSITY_FUNCTION_COMPILE_SAMPLER, at = @At("RETURN"))

@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
 import net.minecraft.core.BlockPos;
@@ -22,6 +22,6 @@ public class BeeGoToHiveGoalMixin {
             method = "hasReachedTarget",
             at = @At(value = "INVOKE", target = InjectionTargets.PATH_GET_TARGET))
     private BlockPos exotic_worlds$pathTargetCanonical(BlockPos target) {
-        return WorldLoopAttachments.foldOf(this.bee.level()).fold(target);
+        return WorldLoopAttachments.getFold(this.bee.level()).fold(target);
     }
 }

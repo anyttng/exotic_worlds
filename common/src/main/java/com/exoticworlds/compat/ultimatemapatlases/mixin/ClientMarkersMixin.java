@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasBlockMarkerKey;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.seam.MapSeamFold;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -66,7 +66,7 @@ public class ClientMarkersMixin {
     private static BlockPos exotic_worlds$nearPlayer(BlockPos marker) {
         LocalPlayer player = Minecraft.getInstance().player;
         return player == null ? marker
-                : NearestCopy.toward(MapSeamFold.foldFor(null, player.level().dimension()),
+                : NearestCopy.toward(MapSeamFold.getWrappedFold(null, player.level().dimension()),
                         player.blockPosition(), marker);
     }
 }

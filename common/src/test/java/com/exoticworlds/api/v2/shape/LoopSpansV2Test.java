@@ -16,11 +16,11 @@ class LoopSpansV2Test {
         LoopSpansV2 even = LoopSpansV2.ofWidth(64);
         LoopSpansV2 odd = LoopSpansV2.ofWidth(Direction.Axis.Z, 33);
 
-        assertEquals(-32, even.minChunk(Direction.Axis.X));
-        assertEquals(32, even.maxChunk(Direction.Axis.Z));
-        assertEquals(-16, odd.minChunk(Direction.Axis.Z));
-        assertEquals(17, odd.maxChunk(Direction.Axis.Z));
-        assertFalse(odd.loops(Direction.Axis.X));
+        assertEquals(-32, even.getMinChunk(Direction.Axis.X));
+        assertEquals(32, even.getMaxChunk(Direction.Axis.Z));
+        assertEquals(-16, odd.getMinChunk(Direction.Axis.Z));
+        assertEquals(17, odd.getMaxChunk(Direction.Axis.Z));
+        assertFalse(odd.isLooped(Direction.Axis.X));
     }
 
     @Test
@@ -58,8 +58,8 @@ class LoopSpansV2Test {
     void theYAxisNeverLoopsAndIsRefused() {
         LoopSpansV2 torus = LoopSpansV2.ofWidth(64);
 
-        assertFalse(torus.loops(Direction.Axis.Y));
-        assertThrows(IllegalArgumentException.class, () -> torus.chunkWidth(Direction.Axis.Y));
+        assertFalse(torus.isLooped(Direction.Axis.Y));
+        assertThrows(IllegalArgumentException.class, () -> torus.getWidthChunks(Direction.Axis.Y));
         assertThrows(IllegalArgumentException.class, () -> LoopSpansV2.NONE.and(Direction.Axis.Y, 0, 4));
     }
 

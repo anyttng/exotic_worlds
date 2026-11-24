@@ -2,14 +2,14 @@ package com.exoticworlds.engine.noise.periodic;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.level.levelgen.synth.NoiseStack;
 
 public final class SimplexSlot {
     private volatile @Nullable SimplexLattice held;
 
-    public SimplexLattice lattice(WorldFold fold, double scale) {
+    public SimplexLattice getLattice(WorldFold fold, double scale) {
         SimplexLattice current = this.held;
         if (current != null && current.fold() == fold && Double.compare(current.scale(), scale) == 0) {
             return current;
@@ -27,7 +27,7 @@ public final class SimplexSlot {
 
         private volatile @Nullable Layers held;
 
-        SimplexLattice[] lattices(WorldFold fold, double scale, NoiseStack stack) {
+        SimplexLattice[] getLattices(WorldFold fold, double scale, NoiseStack stack) {
             Layers current = this.held;
             if (current != null && current.fold() == fold && Double.compare(current.scale(), scale) == 0
                     && current.stack() == stack) {

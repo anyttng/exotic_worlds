@@ -2,7 +2,7 @@ package com.exoticworlds.shape.option;
 
 import java.util.List;
 
-import com.exoticworlds.core.ShapeOption;
+import com.exoticworlds.core.option.ShapeOption;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -36,23 +36,23 @@ public final class DimensionOption<T> {
         return new DimensionOption<>(this.option, this.captionKey, this.parts, this.shapes, offered);
     }
 
-    public ShapeOption<T> option() {
+    public ShapeOption<T> getOption() {
         return this.option;
     }
 
-    public String captionKey() {
+    public String getCaptionKey() {
         return this.captionKey;
     }
 
-    public List<OptionPart<T>> parts() {
+    public List<OptionPart<T>> getParts() {
         return this.parts;
     }
 
-    public List<Identifier> shapes() {
+    public List<Identifier> getShapes() {
         return this.shapes;
     }
 
-    public boolean offeredFor(Identifier shape, ResourceKey<LevelStem> dimension) {
+    public boolean isOfferedFor(Identifier shape, ResourceKey<LevelStem> dimension) {
         return (this.shapes.isEmpty() || this.shapes.contains(shape))
                 && (this.dimensions.isEmpty() || this.dimensions.contains(dimension));
     }

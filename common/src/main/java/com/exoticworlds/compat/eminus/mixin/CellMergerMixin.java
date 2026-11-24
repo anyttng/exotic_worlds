@@ -16,7 +16,7 @@ public class CellMergerMixin implements CellFoldHolder {
     private volatile CellFold exotic_worlds$fold = CellFold.NONE;
 
     @Override
-    public CellFold exotic_worlds$fold() {
+    public CellFold exotic_worlds$getFold() {
         return exotic_worlds$fold;
     }
 
@@ -29,12 +29,12 @@ public class CellMergerMixin implements CellFoldHolder {
     private boolean exotic_worlds$mergeEveryLapCopy(SectionPyramid pyramid, int level, int blockX, int blockY, int blockZ,
             Operation<Boolean> original) {
         CellFold fold = exotic_worlds$fold;
-        boolean changed = original.call(pyramid, level, blockX, blockY, blockZ);
+        boolean isChanged = original.call(pyramid, level, blockX, blockY, blockZ);
         for (int copy = 1; copy < fold.copies(level); copy++) {
-            changed |= original.call(pyramid, level, blockX + fold.copyOffsetX(level, copy), blockY,
+            isChanged |= original.call(pyramid, level, blockX + fold.copyOffsetX(level, copy), blockY,
                     blockZ + fold.copyOffsetZ(level, copy));
         }
 
-        return changed;
+        return isChanged;
     }
 }

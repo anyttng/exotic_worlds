@@ -18,10 +18,10 @@ import org.joml.Matrix3x2fStack;
 public abstract class PolygonGeometryDrawPassMixin {
     @Inject(method = "draw", at = @At("HEAD"))
     private void exotic_worlds$drawSeamLines(GuiGraphicsExtractor graphics, Matrix3x2fStack pose,
-            List<? extends DrawPolygonStep> polygonSteps, double xOffset, double yOffset, Renderer renderer,
+            List<? extends DrawPolygonStep> polygonSteps, double xOffsetPixels, double yOffsetPixels, Renderer renderer,
             double fontScale, double rotation, CallbackInfo ci) {
         if (renderer instanceof JourneyMapSeamPass seamPass) {
-            seamPass.exotic_worlds$drawSeams(graphics, pose, xOffset, yOffset);
+            seamPass.exotic_worlds$drawSeams(graphics, pose, xOffsetPixels, yOffsetPixels);
         }
     }
 }

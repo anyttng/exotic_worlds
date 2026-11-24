@@ -36,7 +36,7 @@ public class AllHandleClientMixin {
     private double exotic_worlds$syncedCoordInTheGantryFrame(double canonicalCoord,
             @Local GantryContraptionEntity gantry) {
         return CreateContraptionFold.axisInFrameOf(gantry,
-                ((GantryContraptionEntityAccessor) gantry).exotic_worlds$movementAxis().getAxis(), canonicalCoord);
+                ((GantryContraptionEntityAccessor) gantry).exotic_worlds$getMovementAxis().getAxis(), canonicalCoord);
     }
 
     @ModifyArg(method = "onFactoryPanelEffect",

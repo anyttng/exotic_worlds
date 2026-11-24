@@ -1,7 +1,7 @@
 package com.exoticworlds.compat.betterend;
 
 import com.exoticworlds.compat.worldgen.LapCells;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import net.minecraft.util.Mth;
 
@@ -9,7 +9,7 @@ public record IslandLapAxis(int lapBlocks, int cells, double cellBlocks) {
     private static final int UNBOUNDED = 0;
 
     public static IslandLapAxis of(WrapDomain blocks, double distance) {
-        if (!blocks.loops()) {
+        if (!blocks.isLooped()) {
             return new IslandLapAxis(UNBOUNDED, UNBOUNDED, distance);
         }
 
@@ -17,7 +17,7 @@ public record IslandLapAxis(int lapBlocks, int cells, double cellBlocks) {
         return new IslandLapAxis(blocks.domainLength, cells, (double) blocks.domainLength / cells);
     }
 
-    public boolean loops() {
+    public boolean isLooped() {
         return this.cells != UNBOUNDED;
     }
 
@@ -26,22 +26,22 @@ public record IslandLapAxis(int lapBlocks, int cells, double cellBlocks) {
     }
 
     public int wrap(int cell) {
-        return loops() ? Math.floorMod(cell, this.cells) : cell;
+        return isLooped() ? Math.floorMod(cell, this.cells) : cell;
     }
 
     public int laps(int cell) {
-        return loops() ? Math.floorDiv(cell, this.cells) : 0;
+        return isLooped() ? Math.floorDiv(cell, this.cells) : 0;
     }
 
     public int nearestToOrigin(int canonicalCell) {
-        return loops() && 2 * canonicalCell + 1 > this.cells ? canonicalCell - this.cells : canonicalCell;
+        return isLooped() && 2 * canonicalCell + 1 > this.cells ? canonicalCell - this.cells : canonicalCell;
     }
 
     public int originLapsOfCell(int cell) {
-        return loops() ? (cell - nearestToOrigin(wrap(cell))) / this.cells : 0;
+        return isLooped() ? (cell - nearestToOrigin(wrap(cell))) / this.cells : 0;
     }
 
     public int originLaps(double block) {
-        return loops() ? (int) Math.round(block / this.lapBlocks) : 0;
+        return isLooped() ? (int) Math.round(block / this.lapBlocks) : 0;
     }
 }

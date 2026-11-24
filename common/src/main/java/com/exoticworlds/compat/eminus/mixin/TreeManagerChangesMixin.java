@@ -26,7 +26,7 @@ public class TreeManagerChangesMixin {
     private NodeTable nodes;
 
     @Unique
-    private boolean exotic_worlds$coveringCopies;
+    private boolean exotic_worlds$isCoveringCopies;
 
     @Shadow
     private void requestBuild(TreeNode node) {
@@ -41,8 +41,8 @@ public class TreeManagerChangesMixin {
             at = @At(value = "INVOKE", target = EminusInjectionTargets.NODE_TABLE_GET))
     private @Nullable TreeNode exotic_worlds$everyNodeOfTheStoredKey(NodeTable table, long key,
             Operation<@Nullable TreeNode> original) {
-        CellFold fold = CellFoldHolder.foldOf(nodes);
-        if (!fold.repeats()) {
+        CellFold fold = CellFoldHolder.getFold(nodes);
+        if (!fold.isRepeating()) {
             return original.call(table, key);
         }
 
@@ -51,15 +51,15 @@ public class TreeManagerChangesMixin {
 
     @Inject(method = "applyCovered", at = @At("HEAD"))
     private void exotic_worlds$coverEveryLapCopy(int chunkX, int chunkZ, CallbackInfo ci) {
-        if (exotic_worlds$coveringCopies) {
+        if (exotic_worlds$isCoveringCopies) {
             return;
         }
 
-        exotic_worlds$coveringCopies = true;
+        exotic_worlds$isCoveringCopies = true;
         try {
-            StoredKeyRebuilds.coverLapCopies(CellFoldHolder.foldOf(nodes), chunkX, chunkZ, this::applyCovered);
+            StoredKeyRebuilds.coverLapCopies(CellFoldHolder.getFold(nodes), chunkX, chunkZ, this::applyCovered);
         } finally {
-            exotic_worlds$coveringCopies = false;
+            exotic_worlds$isCoveringCopies = false;
         }
     }
 }

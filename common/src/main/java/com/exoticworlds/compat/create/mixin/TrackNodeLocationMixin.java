@@ -11,7 +11,7 @@ import com.zurrtum.create.content.trains.graph.TrackNodeLocation;
 import com.exoticworlds.compat.create.CreateSeamFold;
 import com.exoticworlds.compat.create.CreateTrackFold;
 import com.exoticworlds.compat.create.TrackNodeKeyFold;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceKey;
@@ -28,7 +28,7 @@ public abstract class TrackNodeLocationMixin extends Vec3i implements TrackNodeK
 
     @Override
     public void exotic_worlds$foldNodeKey(@Nullable Level level) {
-        WorldFold fold = CreateSeamFold.wrappedFoldOf(level, this.dimension);
+        WorldFold fold = CreateSeamFold.getWrappedFold(level, this.dimension);
         if (fold == null) {
             return;
         }

@@ -32,7 +32,7 @@ public abstract class BeltBlockEntityControllerMixin implements SeamKeyedBlockEn
     }
 
     @Inject(method = "read", at = @At("RETURN"))
-    private void exotic_worlds$foldReadController(ValueInput view, boolean clientPacket, CallbackInfo ci) {
+    private void exotic_worlds$foldReadController(ValueInput view, boolean isClientPacket, CallbackInfo ci) {
         exotic_worlds$foldStoredController();
     }
 

@@ -15,10 +15,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import com.exoticworlds.accessors.ShapeStamp;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.DimensionTable;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.DimensionTable;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
 import com.exoticworlds.shape.StartupRegistrations;
 
 import net.minecraft.SharedConstants;
@@ -34,7 +34,7 @@ import net.minecraft.world.level.dimension.LevelStem;
 @Timeout(60)
 class OwnGeneratorTableCodecTest {
     private static final double OVERWORLD_SCALE = 1.0;
-    private static final int OVERWORLD_CHUNK_WIDTH = 64;
+    private static final int OVERWORLD_WIDTH_CHUNKS = 64;
 
     private static HolderLookup.Provider worldgen;
 
@@ -48,7 +48,7 @@ class OwnGeneratorTableCodecTest {
 
     @Test
     void aDimensionTableOnOurOwnGeneratorSurvivesTheRoundTrip() {
-        CarriedShape overworldShape = new CarriedShape(squareTorus(OVERWORLD_CHUNK_WIDTH), ShapeOptions.DEFAULT);
+        CarriedShape overworldShape = new CarriedShape(squareTorus(OVERWORLD_WIDTH_CHUNKS), ShapeOptions.DEFAULT);
         ChunkGenerator generator = ShapedDimensions.withShape(
                 selected(Map.of(LevelStem.OVERWORLD, stem(OVERWORLD_SCALE, noiseGenerator(worldgen)))),
                 LevelStem.OVERWORLD, overworldShape)
@@ -61,7 +61,7 @@ class OwnGeneratorTableCodecTest {
         ChunkGenerator decoded = ChunkGenerator.CODEC.parse(ops,
                 ChunkGenerator.CODEC.encodeStart(ops, generator).getOrThrow()).getOrThrow();
 
-        assertEquals(table, ShapedDimensions.dimensionTableOf(decoded));
-        assertEquals(overworldShape, ShapedChunkGenerator.carriedShapeOf(decoded));
+        assertEquals(table, ShapedDimensions.getDimensionTable(decoded));
+        assertEquals(overworldShape, ShapedChunkGenerator.getCarriedShape(decoded));
     }
 }

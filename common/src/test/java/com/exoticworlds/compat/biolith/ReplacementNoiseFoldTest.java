@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.terraformersmc.biolith.impl.noise.OpenSimplexNoise2;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.climate.ClimateCompression;
 import com.exoticworlds.shape.climate.ClimateScale;
@@ -50,7 +50,7 @@ class ReplacementNoiseFoldTest {
 
     private static final double NETHER_SUM_DIVISOR = 1.09375;
 
-    private static final int NETHER_QUART_HEIGHT = 32;
+    private static final int NETHER_HEIGHT_QUARTS = 32;
 
     private static final int NETHER_SAMPLE_QUART_Y = 16;
 
@@ -269,8 +269,8 @@ class ReplacementNoiseFoldTest {
 
     private static Spread spread(WorldFold worldFold, Field field) {
         double[] values = new double[SAMPLES_PER_AXIS * SAMPLES_PER_AXIS];
-        int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
-        int minQuart = worldFold.blockDomain(Direction.Axis.X).lowerBound / 4;
+        int lapQuarts = worldFold.getBlockDomain(Direction.Axis.X).domainLength / 4;
+        int minQuart = worldFold.getBlockDomain(Direction.Axis.X).lowerBound / 4;
         int index = 0;
         for (int xStep = 0; xStep < SAMPLES_PER_AXIS; xStep++) {
             for (int zStep = 0; zStep < SAMPLES_PER_AXIS; zStep++) {
@@ -283,8 +283,8 @@ class ReplacementNoiseFoldTest {
     }
 
     private static double belowMedian(WorldFold worldFold, Field field) {
-        int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
-        int minQuart = worldFold.blockDomain(Direction.Axis.X).lowerBound / 4;
+        int lapQuarts = worldFold.getBlockDomain(Direction.Axis.X).domainLength / 4;
+        int minQuart = worldFold.getBlockDomain(Direction.Axis.X).lowerBound / 4;
         int below = 0;
         for (int xStep = 0; xStep < SAMPLES_PER_AXIS; xStep++) {
             for (int zStep = 0; zStep < SAMPLES_PER_AXIS; zStep++) {
@@ -299,8 +299,8 @@ class ReplacementNoiseFoldTest {
     }
 
     private static double crossingsPerQuart(WorldFold worldFold, Line line, int samples, int strideQuarts) {
-        int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
-        int minQuart = worldFold.blockDomain(Direction.Axis.X).lowerBound / 4;
+        int lapQuarts = worldFold.getBlockDomain(Direction.Axis.X).domainLength / 4;
+        int minQuart = worldFold.getBlockDomain(Direction.Axis.X).lowerBound / 4;
         Random random = new Random(WORLD_SEED);
         long crossed = 0L;
         for (int index = 0; index < REGION_LINES; index++) {
@@ -327,16 +327,16 @@ class ReplacementNoiseFoldTest {
     }
 
     private static double[] columnDeviations(WorldFold worldFold, Column column) {
-        int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
-        int minQuart = worldFold.blockDomain(Direction.Axis.X).lowerBound / 4;
+        int lapQuarts = worldFold.getBlockDomain(Direction.Axis.X).domainLength / 4;
+        int minQuart = worldFold.getBlockDomain(Direction.Axis.X).lowerBound / 4;
         double[] deviations = new double[COLUMNS_PER_AXIS * COLUMNS_PER_AXIS];
-        double[] values = new double[NETHER_QUART_HEIGHT];
+        double[] values = new double[NETHER_HEIGHT_QUARTS];
         int index = 0;
         for (int xStep = 0; xStep < COLUMNS_PER_AXIS; xStep++) {
             for (int zStep = 0; zStep < COLUMNS_PER_AXIS; zStep++) {
                 int quartX = minQuart + xStep * lapQuarts / COLUMNS_PER_AXIS;
                 int quartZ = minQuart + zStep * lapQuarts / COLUMNS_PER_AXIS;
-                for (int quartY = 0; quartY < NETHER_QUART_HEIGHT; quartY++) {
+                for (int quartY = 0; quartY < NETHER_HEIGHT_QUARTS; quartY++) {
                     values[quartY] = column.at(quartX, quartY, quartZ);
                 }
 
@@ -356,7 +356,7 @@ class ReplacementNoiseFoldTest {
         void repeatsOneLapAway() {
             for (WorldFold worldFold : new WorldFold[] {TINY, HUGE, CYLINDER}) {
                 ReplacementNoiseFold fold = fold();
-                int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
+                int lapQuarts = worldFold.getBlockDomain(Direction.Axis.X).domainLength / 4;
                 Random random = new Random(WORLD_SEED);
                 for (int sample = 0; sample < PERIODICITY_SAMPLES; sample++) {
                     int quartX = random.nextInt(-lapQuarts, lapQuarts);
@@ -365,7 +365,7 @@ class ReplacementNoiseFoldTest {
                             folded(fold, worldFold, quartX + lapQuarts, quartZ),
                             "X lap at quart " + quartX + ", " + quartZ);
 
-                    if (worldFold.blockDomain(Direction.Axis.Z).loops()) {
+                    if (worldFold.getBlockDomain(Direction.Axis.Z).isLooped()) {
                         assertEquals(folded(fold, worldFold, quartX, quartZ),
                                 folded(fold, worldFold, quartX, quartZ + lapQuarts),
                                 "Z lap at quart " + quartX + ", " + quartZ);
@@ -472,12 +472,12 @@ class ReplacementNoiseFoldTest {
         void repeatsOneLapAway() {
             for (WorldFold worldFold : new WorldFold[] {NETHER_SCALED, HUGE}) {
                 ReplacementNoiseFold fold = netherFold();
-                int lapQuarts = worldFold.blockDomain(Direction.Axis.X).domainLength / 4;
+                int lapQuarts = worldFold.getBlockDomain(Direction.Axis.X).domainLength / 4;
                 Random random = new Random(WORLD_SEED);
                 for (int sample = 0; sample < PERIODICITY_SAMPLES; sample++) {
                     int quartX = random.nextInt(-lapQuarts, lapQuarts);
                     int quartZ = random.nextInt(-lapQuarts, lapQuarts);
-                    int quartY = random.nextInt(0, NETHER_QUART_HEIGHT);
+                    int quartY = random.nextInt(0, NETHER_HEIGHT_QUARTS);
                     assertEquals(foldedNether(fold, worldFold, quartX, quartY, quartZ),
                             foldedNether(fold, worldFold, quartX + lapQuarts, quartY, quartZ),
                             "X lap at quart " + quartX + ", " + quartY + ", " + quartZ);

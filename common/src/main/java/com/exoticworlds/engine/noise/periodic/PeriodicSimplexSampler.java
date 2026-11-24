@@ -1,6 +1,6 @@
 package com.exoticworlds.engine.noise.periodic;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.PerlinMath;
 
 import net.minecraft.util.Mth;
@@ -19,7 +19,7 @@ public final class PeriodicSimplexSampler {
 
     public static float sampleStack(SimplexSlot.Stack slot, WorldFold fold, double scale, NoiseStack stack,
             double x, double z) {
-        SimplexLattice[] lattices = slot.lattices(fold, scale, stack);
+        SimplexLattice[] lattices = slot.getLattices(fold, scale, stack);
         float value = 0.0F;
         for (int i = 0; i < lattices.length; i++) {
             NoiseStack.Layer layer = stack.layers[i];
@@ -36,7 +36,7 @@ public final class PeriodicSimplexSampler {
 
     public static float sample(SimplexSlot slot, SimplexNoise noise, WorldFold fold, double scale, double x,
             double z) {
-        return sample(slot.lattice(fold, scale), noise, x, z);
+        return sample(slot.getLattice(fold, scale), noise, x, z);
     }
 
     public static float sample(SimplexLattice lattice, SimplexNoise noise, double x, double z) {
@@ -126,7 +126,7 @@ public final class PeriodicSimplexSampler {
             reducedV = v - laps * zLapV;
         }
 
-        return p(permutations, reducedU + p(permutations, reducedV)) % GRADIENT_COUNT;
+        return getPermutation(permutations, reducedU + getPermutation(permutations, reducedV)) % GRADIENT_COUNT;
     }
 
     private static double cornerNoise(int gradientIndex, double x, double z) {
@@ -136,11 +136,11 @@ public final class PeriodicSimplexSampler {
         }
 
         falloff *= falloff;
-        int[] gradient = PerlinMath.gradient(gradientIndex);
+        int[] gradient = PerlinMath.getGradient(gradientIndex);
         return falloff * falloff * (gradient[0] * x + gradient[1] * z);
     }
 
-    private static int p(byte[] permutations, long index) {
+    private static int getPermutation(byte[] permutations, long index) {
         return permutations[(int) (index & PERMUTATION_MASK)] & PERMUTATION_MASK;
     }
 

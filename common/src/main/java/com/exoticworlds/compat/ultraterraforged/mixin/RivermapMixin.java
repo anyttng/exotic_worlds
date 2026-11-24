@@ -9,7 +9,7 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.exoticworlds.compat.terraforged.RtfLap;
 import com.exoticworlds.compat.ultraterraforged.LapCarrier;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.cell.Cell;
 import com.pandaismyname1.ultraterraforged.world.worldgen.heightmap.Heightmap;
@@ -29,19 +29,19 @@ public abstract class RivermapMixin {
             + "Lcom/pandaismyname1/ultraterraforged/world/worldgen/rivermap/Rivermap;")
     private static Rivermap exotic_worlds$bindNetwork(int x, int z, @Nullable Rivermap instance, Heightmap heightmap,
             Operation<Rivermap> original) {
-        WorldFold fold = LapCarrier.foldOf(heightmap.levels());
+        WorldFold fold = LapCarrier.getFold(heightmap.levels());
         if (fold == null) {
             return original.call(x, z, instance, heightmap);
         }
 
-        try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(fold)) {
+        try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(fold)) {
             return original.call(x, z, instance, heightmap);
         }
     }
 
     @WrapMethod(method = "apply")
     private void exotic_worlds$seatOnCenter(Cell cell, float x, float z, Operation<Void> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             original.call(cell, x, z);
             return;
@@ -66,7 +66,7 @@ public abstract class RivermapMixin {
 
     @Unique
     private float exotic_worlds$warpOnCenter(float x, float z, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return original.call(x, z);
         }

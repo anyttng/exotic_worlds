@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.LevelHolder;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -33,24 +33,24 @@ public class ChunkGenerationTaskMixin {
     private static StaticCache2D<GenerationChunkHolder> exotic_worlds$foldSeamSlots(
             int centerX,
             int centerZ,
-            int range,
+            int rangeChunks,
             StaticCache2D.Initializer<GenerationChunkHolder> initializer,
             Operation<StaticCache2D<GenerationChunkHolder>> original,
             @Local(argsOnly = true) GeneratingChunkMap chunkMap) {
         if (!(chunkMap instanceof ChunkMap map)) {
-            return original.call(centerX, centerZ, range, initializer);
+            return original.call(centerX, centerZ, rangeChunks, initializer);
         }
 
-        ServerLevel level = ((LevelHolder) (Object) map).exotic_worlds$level();
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        ServerLevel level = ((LevelHolder) (Object) map).exotic_worlds$getLevel();
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         if (fold == null) {
-            return original.call(centerX, centerZ, range, initializer);
+            return original.call(centerX, centerZ, rangeChunks, initializer);
         }
 
         String levelName = level.dimension().identifier().toString();
         StaticCache2D.Initializer<GenerationChunkHolder> folding = (slotX, slotZ) -> exotic_worlds$slotFor(
                 map, fold, levelName, initializer, centerX, centerZ, slotX, slotZ);
-        return original.call(centerX, centerZ, range, folding);
+        return original.call(centerX, centerZ, rangeChunks, folding);
     }
 
     @Unique

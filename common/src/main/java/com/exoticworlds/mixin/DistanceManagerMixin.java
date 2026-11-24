@@ -48,6 +48,6 @@ public class DistanceManagerMixin implements LevelBindable {
     @ModifyVariable(method = {"inEntityTickingRange", "inBlockTickingRange"}, at = @At("HEAD"), argsOnly = true,
             require = 2)
     private long exotic_worlds$tickingOnPhysicalChunk(long chunkKey) {
-        return this.exotic_worlds$bound.fold().foldChunkKey(chunkKey);
+        return this.exotic_worlds$bound.getFold().foldChunkKey(chunkKey);
     }
 }

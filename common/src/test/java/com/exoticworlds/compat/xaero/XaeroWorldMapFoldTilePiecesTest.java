@@ -15,7 +15,7 @@ import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TileArea;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TilePiece;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 class XaeroWorldMapFoldTilePiecesTest {
     private static final WorldFold OFF_GRID = MapFolds.torus(-937, 938);

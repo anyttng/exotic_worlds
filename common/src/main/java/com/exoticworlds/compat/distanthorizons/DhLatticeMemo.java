@@ -2,7 +2,7 @@ package com.exoticworlds.compat.distanthorizons;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 public final class DhLatticeMemo {
     private volatile @Nullable Built built;

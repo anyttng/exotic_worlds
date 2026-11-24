@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.option.WorldOption;
-import com.exoticworlds.core.ShapeOption;
-import com.exoticworlds.core.ShapeOptionRegistry;
-import com.exoticworlds.core.ShapeOptions;
+import com.exoticworlds.core.option.ShapeOption;
+import com.exoticworlds.core.option.ShapeOptionRegistry;
+import com.exoticworlds.core.option.ShapeOptions;
 
 public final class OptionBridge {
 
@@ -15,13 +15,13 @@ public final class OptionBridge {
         return option;
     }
 
-    public static List<WorldOption<?>> all() {
-        return ShapeOptionRegistry.all().stream().<WorldOption<?>>map(OptionBridge::twin).toList();
+    public static List<WorldOption<?>> getAll() {
+        return ShapeOptionRegistry.getAll().stream().<WorldOption<?>>map(OptionBridge::twin).toList();
     }
 
     public static GenerationOptions toV1(ShapeOptions values) {
         GenerationOptions converted = GenerationOptions.DEFAULT;
-        for (ShapeOption<?> key : ShapeOptionRegistry.all()) {
+        for (ShapeOption<?> key : ShapeOptionRegistry.getAll()) {
             converted = carried(converted, key, values);
         }
 
@@ -30,7 +30,7 @@ public final class OptionBridge {
 
     public static ShapeOptions fromV1(GenerationOptions options) {
         ShapeOptions converted = ShapeOptions.DEFAULT;
-        for (ShapeOption<?> key : ShapeOptionRegistry.all()) {
+        for (ShapeOption<?> key : ShapeOptionRegistry.getAll()) {
             converted = carried(converted, key, options);
         }
 

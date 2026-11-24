@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.WorldCopies;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 class XaeroWorldMapFoldLapsTest {
     private static final WorldFold TORUS = MapFolds.torus(-32, 32);

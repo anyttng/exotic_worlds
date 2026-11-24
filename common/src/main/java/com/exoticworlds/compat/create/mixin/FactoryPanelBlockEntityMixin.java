@@ -16,7 +16,7 @@ import net.minecraft.world.level.storage.ValueInput;
 @Mixin(FactoryPanelBlockEntity.class)
 public abstract class FactoryPanelBlockEntityMixin implements SeamKeyedBlockEntity {
     @Inject(method = "read", at = @At("RETURN"))
-    private void exotic_worlds$rekeyOnRead(ValueInput view, boolean clientPacket, CallbackInfo ci) {
+    private void exotic_worlds$rekeyOnRead(ValueInput view, boolean isClientPacket, CallbackInfo ci) {
         exotic_worlds$rekey();
     }
 

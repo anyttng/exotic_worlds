@@ -11,7 +11,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.zurrtum.create.content.kinetics.fan.AirCurrent;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.compat.create.CreateSeamFold;
-import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.fold.DeckTransformation;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;

@@ -10,7 +10,7 @@ public final class WorldOptions {
     }
 
     public static List<WorldOption<?>> all() {
-        return OptionBridge.all();
+        return OptionBridge.getAll();
     }
 
     private WorldOptions() {

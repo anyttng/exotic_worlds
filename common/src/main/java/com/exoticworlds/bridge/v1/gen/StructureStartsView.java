@@ -8,7 +8,7 @@ import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v1.gen.StructureStarts;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.bridge.v1.option.OptionBridge;
-import com.exoticworlds.core.StructureStartSet;
+import com.exoticworlds.core.gen.StructureStartSet;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.ChunkPos;
@@ -32,18 +32,18 @@ final class StructureStartsView implements StructureStarts {
 
     @Override
     public GenerationOptions options() {
-        return OptionBridge.toV1(this.set.options());
+        return OptionBridge.toV1(this.set.getOptions());
     }
 
     @Override
     public Holder<StructureSet> structureSet() {
-        return this.set.structureSet();
+        return this.set.getStructureSet();
     }
 
     @Override
     public List<Pick> picks() {
         if (this.picks == null) {
-            this.picks = this.set.picks().stream()
+            this.picks = this.set.getPicks().stream()
                     .map(pick -> new Pick(pick.chunk(), pick.structure()))
                     .toList();
         }

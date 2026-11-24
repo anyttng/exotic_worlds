@@ -3,8 +3,8 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.SeamSpans;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -25,7 +25,7 @@ public class ForceLoadCommandMixin {
     @WrapMethod(method = "changeForceLoad")
     private static int exotic_worlds$foldRequestedRange(CommandSourceStack source, ColumnPos from, ColumnPos to,
             boolean add, Operation<Integer> original) throws CommandSyntaxException {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(source.getLevel());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(source.getLevel());
         if (fold == null) {
             return original.call(source, from, to, add);
         }
@@ -45,7 +45,7 @@ public class ForceLoadCommandMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setChunkForced(IIZ)Z"))
     private static boolean exotic_worlds$reserveThePhysicalChunk(ServerLevel level, int chunkX, int chunkZ, boolean forced,
             Operation<Boolean> original) {
-        long folded = WorldLoopAttachments.foldOf(level).foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
+        long folded = WorldLoopAttachments.getFold(level).foldChunkKey(ChunkPos.pack(chunkX, chunkZ));
         return original.call(level, ChunkPos.getX(folded), ChunkPos.getZ(folded), forced);
     }
 
@@ -54,7 +54,7 @@ public class ForceLoadCommandMixin {
             at = @At(value = "NEW", target = "net/minecraft/world/level/ChunkPos"))
     private static ChunkPos exotic_worlds$reportThePhysicalChunk(ChunkPos chunkPos,
             @Local(argsOnly = true) CommandSourceStack source) {
-        return WorldLoopAttachments.foldOf(source.getLevel()).fold(chunkPos);
+        return WorldLoopAttachments.getFold(source.getLevel()).fold(chunkPos);
     }
 
     @ModifyExpressionValue(
@@ -62,6 +62,6 @@ public class ForceLoadCommandMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ColumnPos;toChunkPos()Lnet/minecraft/world/level/ChunkPos;"))
     private static ChunkPos exotic_worlds$queryThePhysicalChunk(ChunkPos chunkPos,
             @Local(argsOnly = true) CommandSourceStack source) {
-        return WorldLoopAttachments.foldOf(source.getLevel()).fold(chunkPos);
+        return WorldLoopAttachments.getFold(source.getLevel()).fold(chunkPos);
     }
 }

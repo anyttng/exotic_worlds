@@ -34,12 +34,12 @@ public class ServerChunkCacheMixin {
 
     @ModifyVariable(method = "getChunkFutureMainThread", at = @At("HEAD"), argsOnly = true, index = 1)
     private int exotic_worlds$wrapRequestedChunkX(int chunkX, @Local(argsOnly = true, ordinal = 1) int chunkZ) {
-        return this.exotic_worlds$bound.fold().chunkLattice().foldX(chunkX, chunkZ);
+        return this.exotic_worlds$bound.getFold().getChunkLattice().foldX(chunkX, chunkZ);
     }
 
     @ModifyVariable(method = "getChunkFutureMainThread", at = @At("HEAD"), argsOnly = true, index = 2)
     private int exotic_worlds$wrapRequestedChunkZ(int chunkZ) {
-        return this.exotic_worlds$bound.fold().chunkLattice().foldZ(chunkZ);
+        return this.exotic_worlds$bound.getFold().getChunkLattice().foldZ(chunkZ);
     }
 
     @ModifyVariable(
@@ -47,46 +47,46 @@ public class ServerChunkCacheMixin {
             at = @At("HEAD"),
             argsOnly = true)
     private ChunkPos exotic_worlds$foldTicketCenter(ChunkPos pos) {
-        return this.exotic_worlds$bound.fold().fold(pos);
+        return this.exotic_worlds$bound.getFold().fold(pos);
     }
 
     @ModifyVariable(method = "getChunkNow", at = @At("HEAD"), argsOnly = true, index = 1)
     private int exotic_worlds$wrapChunkX(int chunkX, @Local(argsOnly = true, ordinal = 1) int chunkZ) {
-        return this.exotic_worlds$bound.fold().chunkLattice().foldX(chunkX, chunkZ);
+        return this.exotic_worlds$bound.getFold().getChunkLattice().foldX(chunkX, chunkZ);
     }
 
     @ModifyVariable(method = "getChunkNow", at = @At("HEAD"), argsOnly = true, index = 2)
     private int exotic_worlds$wrapChunkZ(int chunkZ) {
-        return this.exotic_worlds$bound.fold().chunkLattice().foldZ(chunkZ);
+        return this.exotic_worlds$bound.getFold().getChunkLattice().foldZ(chunkZ);
     }
 
     @ModifyVariable(method = "hasChunk", at = @At("HEAD"), argsOnly = true, index = 1)
     private int exotic_worlds$wrapPresenceChunkX(int chunkX, @Local(argsOnly = true, ordinal = 1) int chunkZ) {
-        return this.exotic_worlds$bound.fold().chunkLattice().foldX(chunkX, chunkZ);
+        return this.exotic_worlds$bound.getFold().getChunkLattice().foldX(chunkX, chunkZ);
     }
 
     @ModifyVariable(method = "hasChunk", at = @At("HEAD"), argsOnly = true, index = 2)
     private int exotic_worlds$wrapPresenceChunkZ(int chunkZ) {
-        return this.exotic_worlds$bound.fold().chunkLattice().foldZ(chunkZ);
+        return this.exotic_worlds$bound.getFold().getChunkLattice().foldZ(chunkZ);
     }
 
     @ModifyVariable(method = "getChunkForLighting", at = @At("HEAD"), argsOnly = true, index = 1)
     private int exotic_worlds$wrapLightingChunkX(int chunkX, @Local(argsOnly = true, ordinal = 1) int chunkZ) {
-        return this.exotic_worlds$bound.fold().chunkLattice().foldX(chunkX, chunkZ);
+        return this.exotic_worlds$bound.getFold().getChunkLattice().foldX(chunkX, chunkZ);
     }
 
     @ModifyVariable(method = "getChunkForLighting", at = @At("HEAD"), argsOnly = true, index = 2)
     private int exotic_worlds$wrapLightingChunkZ(int chunkZ) {
-        return this.exotic_worlds$bound.fold().chunkLattice().foldZ(chunkZ);
+        return this.exotic_worlds$bound.getFold().getChunkLattice().foldZ(chunkZ);
     }
 
     @ModifyVariable(method = "onLightUpdate", at = @At("HEAD"), argsOnly = true)
     private SectionPos exotic_worlds$foldLightUpdateSection(SectionPos pos) {
-        return this.exotic_worlds$bound.fold().fold(pos);
+        return this.exotic_worlds$bound.getFold().fold(pos);
     }
 
     @ModifyVariable(method = "blockChanged", at = @At("HEAD"), argsOnly = true)
     private BlockPos exotic_worlds$wrapChangedBlock(BlockPos pos) {
-        return this.exotic_worlds$bound.fold().fold(pos);
+        return this.exotic_worlds$bound.getFold().fold(pos);
     }
 }

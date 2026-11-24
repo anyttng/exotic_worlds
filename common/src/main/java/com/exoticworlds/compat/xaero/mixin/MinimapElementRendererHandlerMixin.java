@@ -22,7 +22,7 @@ public abstract class MinimapElementRendererHandlerMixin {
     private static final int ELEMENT_Z_INDEX = 3;
 
     @Unique
-    private boolean exotic_worlds$seatPending;
+    private boolean exotic_worlds$isSeatPending;
     @Unique
     private Vec3 exotic_worlds$seated = Vec3.ZERO;
 
@@ -45,13 +45,13 @@ public abstract class MinimapElementRendererHandlerMixin {
     // The first of the two handlers on a call seats the element, the second takes that seat, in either order.
     @Unique
     private Vec3 exotic_worlds$seat(double elementX, double elementZ) {
-        if (this.exotic_worlds$seatPending) {
-            this.exotic_worlds$seatPending = false;
+        if (this.exotic_worlds$isSeatPending) {
+            this.exotic_worlds$isSeatPending = false;
             return this.exotic_worlds$seated;
         }
 
         this.exotic_worlds$seated = XaeroFold.nearestToCamera(elementX, elementZ);
-        this.exotic_worlds$seatPending = true;
+        this.exotic_worlds$isSeatPending = true;
         return this.exotic_worlds$seated;
     }
 }

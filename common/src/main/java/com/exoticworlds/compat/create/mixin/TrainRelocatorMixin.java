@@ -28,12 +28,12 @@ public abstract class TrainRelocatorMixin {
             return point;
         }
 
-        Vec3 anchor = toVisualise.isEmpty() ? exotic_worlds$viewer() : toVisualise.get(toVisualise.size() - 1);
+        Vec3 anchor = toVisualise.isEmpty() ? exotic_worlds$getViewer() : toVisualise.get(toVisualise.size() - 1);
         return anchor == null ? point : CreateClientFrame.nearestCopy(anchor, raw);
     }
 
     @Unique
-    private static @Nullable Vec3 exotic_worlds$viewer() {
+    private static @Nullable Vec3 exotic_worlds$getViewer() {
         LocalPlayer player = Minecraft.getInstance().player;
         return player == null ? null : player.position();
     }

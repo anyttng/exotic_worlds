@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.FoldSource;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.seam.SeamSteering;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -38,7 +38,7 @@ public class BeePollinateGoalMixin {
             index = 0)
     private BiPredicate<BlockPos, BlockState> exotic_worlds$flowerCandidatesThroughSeam(
             BiPredicate<BlockPos, BlockState> byRawPos) {
-        WorldFold fold = ((FoldSource) this.bee).exotic_worlds$wrappedFold();
+        WorldFold fold = ((FoldSource) this.bee).exotic_worlds$getWrappedFold();
         if (fold == null) {
             return byRawPos;
         }
@@ -48,7 +48,7 @@ public class BeePollinateGoalMixin {
 
     @ModifyReturnValue(method = "findNearbyFlower", at = @At("RETURN"))
     private Optional<BlockPos> exotic_worlds$foundFlowerCanonical(Optional<BlockPos> found) {
-        return found.map(WorldLoopAttachments.foldOf(this.bee.level())::fold);
+        return found.map(WorldLoopAttachments.getFold(this.bee.level())::fold);
     }
 
     @ModifyExpressionValue(

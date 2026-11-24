@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.compat.map.AxisCopies;
 import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.WorldCopies;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.level.ChunkPos;
 
@@ -60,11 +60,11 @@ class XaeroWorldMapFoldSlotsTest {
 
     @Test
     void aSlotLeavesTheWorldWhereAnyOfItReachesPastABound() {
-        assertTrue(XaeroWorldMapFold.spanLeavesWorld(OFF_GRID, 14976, SLOT), "14976..15039 crosses the seam at 15008");
-        assertTrue(XaeroWorldMapFold.spanLeavesWorld(OFF_GRID, 15040, SLOT), "15040..15103 lies wholly past it");
-        assertTrue(XaeroWorldMapFold.spanLeavesWorld(OFF_GRID, -15040, SLOT), "-15040..-14977 crosses the seam at -14992");
-        assertFalse(XaeroWorldMapFold.spanLeavesWorld(OFF_GRID, 14912, SLOT), "14912..14975 lies inside");
-        assertFalse(XaeroWorldMapFold.spanLeavesWorld(AxisCopies.UNBOUNDED, 15040, SLOT), "an unbounded axis has no bound");
+        assertTrue(XaeroWorldMapFold.isSpanLeavingWorld(OFF_GRID, 14976, SLOT), "14976..15039 crosses the seam at 15008");
+        assertTrue(XaeroWorldMapFold.isSpanLeavingWorld(OFF_GRID, 15040, SLOT), "15040..15103 lies wholly past it");
+        assertTrue(XaeroWorldMapFold.isSpanLeavingWorld(OFF_GRID, -15040, SLOT), "-15040..-14977 crosses the seam at -14992");
+        assertFalse(XaeroWorldMapFold.isSpanLeavingWorld(OFF_GRID, 14912, SLOT), "14912..14975 lies inside");
+        assertFalse(XaeroWorldMapFold.isSpanLeavingWorld(AxisCopies.UNBOUNDED, 15040, SLOT), "an unbounded axis has no bound");
     }
 
     private static Set<Long> slotOrigins(@Nullable WorldFold shape, int viewBlockX, int viewBlockZ, int slotSize) {

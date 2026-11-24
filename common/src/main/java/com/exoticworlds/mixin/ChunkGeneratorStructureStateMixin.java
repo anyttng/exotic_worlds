@@ -14,8 +14,8 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.AddedStartsHolder;
 import com.exoticworlds.accessors.FoldHolder;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.gen.structure.AddedStructureStarts;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -37,17 +37,17 @@ public abstract class ChunkGeneratorStructureStateMixin implements FoldHolder, A
     private volatile @Nullable AddedStructureStarts exotic_worlds$addedStarts;
 
     @Override
-    public @Nullable AddedStructureStarts exotic_worlds$addedStarts() {
+    public @Nullable AddedStructureStarts exotic_worlds$getAddedStarts() {
         return this.exotic_worlds$addedStarts;
     }
 
     @Override
-    public void exotic_worlds$addedStarts(AddedStructureStarts starts) {
+    public void exotic_worlds$setAddedStarts(AddedStructureStarts starts) {
         this.exotic_worlds$addedStarts = starts;
     }
 
     @Override
-    public WorldFold exotic_worlds$fold() {
+    public WorldFold exotic_worlds$getFold() {
         return this.exotic_worlds$fold;
     }
 

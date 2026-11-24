@@ -1,16 +1,16 @@
 package com.exoticworlds.engine.fold;
 
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
-import static com.exoticworlds.core.WorldFoldFixture.ODD_BOUNDS;
-import static com.exoticworlds.core.WorldFoldFixture.SQUARE;
-import static com.exoticworlds.core.WorldFoldFixture.UNEVEN_BOUNDS;
-import static com.exoticworlds.core.WorldFoldFixture.X_ONLY_BOUNDS;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
+import static com.exoticworlds.core.fold.WorldFoldFixture.ODD_BOUNDS;
+import static com.exoticworlds.core.fold.WorldFoldFixture.SQUARE;
+import static com.exoticworlds.core.fold.WorldFoldFixture.UNEVEN_BOUNDS;
+import static com.exoticworlds.core.fold.WorldFoldFixture.X_ONLY_BOUNDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -42,34 +42,34 @@ class SeamSpansTest {
         return WorldFolds.of(ShapeFixtures.torus(bounds));
     }
 
-    private record Axis(boolean looped, int lower, int width) {
+    private record Axis(boolean looped, int lower, int widthBlocks) {
         static Axis of(AxisBounds bounds) {
             return switch (bounds) {
-                case AxisBounds.Looped looped -> new Axis(true, looped.minBlock(), looped.chunkWidth() * CoordinateConstants.CHUNK_WIDTH);
+                case AxisBounds.Looped looped -> new Axis(true, looped.getMinBlock(), looped.getWidthChunks() * CoordinateConstants.CHUNK_WIDTH_BLOCKS);
                 case AxisBounds.Unbounded() -> new Axis(false, 0, 0);
             };
         }
 
         int sampleBlock(Random random) {
-            int reach = 3 * (this.looped ? Math.min(this.width, 16_000) : 16_000);
-            return random.nextInt(2 * reach + 1) - reach;
+            int reachBlocks = 3 * (this.looped ? Math.min(this.widthBlocks, 16_000) : 16_000);
+            return random.nextInt(2 * reachBlocks + 1) - reachBlocks;
         }
 
         int wrap(int coord) {
-            return this.looped ? this.lower + Math.floorMod(coord - this.lower, this.width) : coord;
+            return this.looped ? this.lower + Math.floorMod(coord - this.lower, this.widthBlocks) : coord;
         }
 
         boolean isOver(int coord) {
-            return this.looped && (coord < this.lower || coord >= this.lower + this.width);
+            return this.looped && (coord < this.lower || coord >= this.lower + this.widthBlocks);
         }
 
         boolean spansNaive(int min, int max) {
-            return this.looped && 2 * Math.abs((long) max - min) > this.width;
+            return this.looped && 2 * Math.abs((long) max - min) > this.widthBlocks;
         }
 
         boolean containsOnLattice(long min, long max, long coord) {
             for (int laps = -LAPS; laps <= LAPS; laps++) {
-                long shifted = coord + (long) laps * this.width;
+                long shifted = coord + (long) laps * this.widthBlocks;
                 if (shifted >= min && shifted <= max) {
                     return true;
                 }
@@ -80,11 +80,11 @@ class SeamSpansTest {
     }
 
     private static Axis xAxis(WorldFold fold) {
-        return Axis.of(fold.bounds().x());
+        return Axis.of(fold.getBounds().x());
     }
 
     private static Axis zAxis(WorldFold fold) {
-        return Axis.of(fold.bounds().z());
+        return Axis.of(fold.getBounds().z());
     }
 
     private static BoundingBox sampleRegion(Random random, WorldFold fold) {
@@ -95,9 +95,9 @@ class SeamSpansTest {
         int minY = random.nextInt(320) - 64;
         return new BoundingBox(
                 minX, minY, minZ,
-                minX + random.nextInt(2 * (x.looped() ? Math.min(x.width(), 16_000) : 16_000) + 1),
+                minX + random.nextInt(2 * (x.looped() ? Math.min(x.widthBlocks(), 16_000) : 16_000) + 1),
                 minY + random.nextInt(32),
-                minZ + random.nextInt(2 * (z.looped() ? Math.min(z.width(), 16_000) : 16_000) + 1));
+                minZ + random.nextInt(2 * (z.looped() ? Math.min(z.widthBlocks(), 16_000) : 16_000) + 1));
     }
 
     private static BoundingBox sampleWrappedCornerRegion(Random random, WorldFold fold) {
@@ -125,7 +125,7 @@ class SeamSpansTest {
                 BoundingBox region = sampleRegion(random, fold);
                 boolean expected = xAxis(fold).spansNaive(region.minX(), region.maxX())
                         || zAxis(fold).spansNaive(region.minZ(), region.maxZ());
-                assertEquals(expected, SeamSpans.crossesSeam(fold, region),
+                assertEquals(expected, SeamSpans.isCrossingSeam(fold, region),
                         () -> "crossesSeam(" + region + ") " + in(fold));
             }
         }
@@ -165,7 +165,7 @@ class SeamSpansTest {
             return;
         }
 
-        assertEquals(axis.width(), (foldedMax - foldedMin) + (max - min),
+        assertEquals(axis.widthBlocks(), (foldedMax - foldedMin) + (max - min),
                 () -> "folded [" + min + ", " + max + "] " + in(fold));
         assertFalse(axis.isOver(foldedMin),
                 () -> "folded [" + min + ", " + max + "] starts outside the world " + in(fold));
@@ -182,7 +182,7 @@ class SeamSpansTest {
     void aSkewedRegionWithinHalfTheLatticeIsLeftAlone() {
         BoundingBox region = new BoundingBox(-200, 0, -200, 200, 4, 200);
 
-        assertFalse(SeamSpans.crossesSeam(SKEWED, region));
+        assertFalse(SeamSpans.isCrossingSeam(SKEWED, region));
         assertSame(region, SeamSpans.foldAcrossSeam(SKEWED, region));
     }
 
@@ -190,7 +190,7 @@ class SeamSpansTest {
     void aSkewedRegionAcrossTheZSeamReadsTheShortWayThroughTheLattice() {
         BoundingBox region = new BoundingBox(100, 0, -500, 300, 4, 500);
 
-        assertTrue(SeamSpans.crossesSeam(SKEWED, region));
+        assertTrue(SeamSpans.isCrossingSeam(SKEWED, region));
         assertEquals(new BoundingBox(180, 0, 500, 300, 4, 524), SeamSpans.foldAcrossSeam(SKEWED, region));
     }
 
@@ -200,7 +200,7 @@ class SeamSpansTest {
                 FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-256, 256, -96, 96), 200));
         BoundingBox region = new BoundingBox(-2032, 0, -1520, 2944, 0, 1520);
 
-        assertTrue(SeamSpans.crossesSeam(longSkewed, region));
+        assertTrue(SeamSpans.isCrossingSeam(longSkewed, region));
         assertEquals(new BoundingBox(2944, 0, -1552, 2960, 0, -1520), SeamSpans.foldAcrossSeam(longSkewed, region));
     }
 }

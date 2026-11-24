@@ -9,7 +9,7 @@ final class SeatPass {
 
     private int seats = ONE_SEAT;
 
-    int answered() {
+    int getAnswered() {
         return answered;
     }
 
@@ -17,7 +17,7 @@ final class SeatPass {
         answered = seat;
     }
 
-    int seats() {
+    int getSeats() {
         return seats;
     }
 

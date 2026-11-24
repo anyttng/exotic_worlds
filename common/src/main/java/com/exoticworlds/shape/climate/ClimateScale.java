@@ -34,8 +34,8 @@ public record ClimateScale(Mode mode, int factor) {
         }
     }
 
-    public static ClimateScale ofBoolean(boolean compression) {
-        return compression ? AUTO : OFF;
+    public static ClimateScale ofBoolean(boolean isCompressed) {
+        return isCompressed ? AUTO : OFF;
     }
 
     public static ClimateScale custom(int factor) {

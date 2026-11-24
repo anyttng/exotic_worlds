@@ -30,7 +30,7 @@ public final class AtlasLecternTranslation {
             .build();
 
     public static void register() {
-        if (GATE.admitted()) {
+        if (GATE.isAdmitted()) {
             Rewriter.register();
         }
     }
@@ -65,8 +65,8 @@ public final class AtlasLecternTranslation {
 
         Rewriter(Class<?> payloadType) throws ReflectiveOperationException {
             MethodHandles.Lookup payloads = MethodHandles.privateLookupIn(payloadType, MethodHandles.lookup());
-            RecordComponent registrationComponent = componentOf(payloadType, REGISTRATION_COMPONENT);
-            RecordComponent messageComponent = componentOf(payloadType, MESSAGE_COMPONENT);
+            RecordComponent registrationComponent = findComponent(payloadType, REGISTRATION_COMPONENT);
+            RecordComponent messageComponent = findComponent(payloadType, MESSAGE_COMPONENT);
             this.registration = payloads.unreflect(registrationComponent.getAccessor()).asType(ACCESSOR_TYPE);
             this.message = payloads.unreflect(messageComponent.getAccessor()).asType(ACCESSOR_TYPE);
             this.payload = payloads.findConstructor(payloadType, MethodType.methodType(void.class,
@@ -131,7 +131,7 @@ public final class AtlasLecternTranslation {
             }
         }
 
-        private static RecordComponent componentOf(Class<?> payloadType, String name) throws NoSuchFieldException {
+        private static RecordComponent findComponent(Class<?> payloadType, String name) throws NoSuchFieldException {
             RecordComponent @Nullable [] components = payloadType.getRecordComponents();
             if (components != null) {
                 for (RecordComponent component : components) {

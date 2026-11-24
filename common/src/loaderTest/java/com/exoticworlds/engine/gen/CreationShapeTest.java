@@ -1,9 +1,9 @@
 package com.exoticworlds.engine.gen;
 
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.CompactBiomes;
 import com.exoticworlds.shape.layout.LayoutDimensions;
@@ -45,7 +45,7 @@ class CreationShapeTest {
     private static final double OVERWORLD_SCALE = 1.0;
     private static final double NETHER_COORDINATE_SCALE = 8.0;
 
-    private static final int CHOSEN_CHUNK_WIDTH = 64;
+    private static final int CHOSEN_WIDTH_CHUNKS = 64;
 
     private static HolderLookup.Provider worldgen;
 
@@ -59,22 +59,22 @@ class CreationShapeTest {
 
     @Test
     void terrainTilesAtTheSeamForNoiseGeneratorsAndNotForAForeignOne() {
-        assertTrue(ShapedChunkGenerator.tilesAtSeam(noiseGenerator(worldgen)));
-        assertTrue(ShapedChunkGenerator.tilesAtSeam(noiseSubclassGenerator(worldgen)));
-        assertFalse(ShapedChunkGenerator.tilesAtSeam(foreignGenerator()));
+        assertTrue(ShapedChunkGenerator.isTilingAtSeam(noiseGenerator(worldgen)));
+        assertTrue(ShapedChunkGenerator.isTilingAtSeam(noiseSubclassGenerator(worldgen)));
+        assertFalse(ShapedChunkGenerator.isTilingAtSeam(foreignGenerator()));
     }
 
     @Test
     void aNoiseSubclassOverworldKeepsItsClassAndTakesTheShape() {
         ChunkGenerator overworld = noiseSubclassGenerator(worldgen);
         WorldDimensions dimensions = overworldOnly(overworld);
-        FlatShape shape = squareTorus(CHOSEN_CHUNK_WIDTH);
+        FlatShape shape = squareTorus(CHOSEN_WIDTH_CHUNKS);
 
         WorldDimensions shaped = ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
                 new CarriedShape(shape, ShapeOptions.DEFAULT));
 
         assertNotSame(dimensions, shaped, "the shaped dimensions are the object the apply guard compares");
-        assertEquals(shape, ShapedDimensions.shapeOf(shaped, LevelStem.OVERWORLD));
+        assertEquals(shape, ShapedDimensions.getShape(shaped, LevelStem.OVERWORLD));
         assertSame(overworld, shaped.get(LevelStem.OVERWORLD).orElseThrow().generator());
     }
 
@@ -82,13 +82,13 @@ class CreationShapeTest {
     void aForeignOverworldKeepsItsClassAndTakesTheShape() {
         ChunkGenerator overworld = foreignGenerator();
         WorldDimensions dimensions = overworldOnly(overworld);
-        FlatShape shape = squareTorus(CHOSEN_CHUNK_WIDTH);
+        FlatShape shape = squareTorus(CHOSEN_WIDTH_CHUNKS);
 
         WorldDimensions shaped = ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
                 new CarriedShape(shape, ShapeOptions.DEFAULT));
 
         assertNotSame(dimensions, shaped, "the shaped dimensions are the object the apply guard compares");
-        assertEquals(shape, ShapedDimensions.shapeOf(shaped, LevelStem.OVERWORLD));
+        assertEquals(shape, ShapedDimensions.getShape(shaped, LevelStem.OVERWORLD));
         assertSame(overworld, shaped.get(LevelStem.OVERWORLD).orElseThrow().generator());
     }
 
@@ -97,9 +97,9 @@ class CreationShapeTest {
         WorldDimensions shaped = LayoutDimensions.apply(vanillaThree(noiseSubclassGenerator(worldgen)),
                 LayoutFixtures.defaultTorus());
 
-        assertNotNull(ShapedDimensions.shapeOf(shaped, LevelStem.OVERWORLD), "the overworld carries no shape");
-        assertNotNull(ShapedDimensions.shapeOf(shaped, LevelStem.NETHER), "the nether was never reached");
-        assertNotNull(ShapedDimensions.shapeOf(shaped, LevelStem.END), "the End was never reached");
+        assertNotNull(ShapedDimensions.getShape(shaped, LevelStem.OVERWORLD), "the overworld carries no shape");
+        assertNotNull(ShapedDimensions.getShape(shaped, LevelStem.NETHER), "the nether was never reached");
+        assertNotNull(ShapedDimensions.getShape(shaped, LevelStem.END), "the End was never reached");
     }
 
     @Test
@@ -107,12 +107,12 @@ class CreationShapeTest {
         WorldDimensions shaped = LayoutDimensions.apply(vanillaThree(noiseSubclassGenerator(worldgen)),
                 LayoutFixtures.defaultTorus());
 
-        assertNotNull(ShapedDimensions.shapeOf(shaped, LevelStem.NETHER), "the nether was never reached");
+        assertNotNull(ShapedDimensions.getShape(shaped, LevelStem.NETHER), "the nether was never reached");
         for (ResourceKey<LevelStem> key : List.of(LevelStem.OVERWORLD, LevelStem.NETHER, LevelStem.END)) {
-            CarriedShape carried = ShapedDimensions.carriedShapeOf(shaped, key);
+            CarriedShape carried = ShapedDimensions.getCarriedShape(shaped, key);
             assertNotNull(carried, key.identifier().toString());
             assertEquals(LayoutFixtures.PLAIN.get(CompactBiomes.OPTION),
-                    carried.options().get(CompactBiomes.OPTION), key.identifier().toString());
+                    carried.getOptions().get(CompactBiomes.OPTION), key.identifier().toString());
         }
         WorldLayout read = LayoutDimensions.read(shaped);
         assertNotNull(read, "the shaped world does not read back as a layout");
@@ -124,9 +124,9 @@ class CreationShapeTest {
     void strippingClearsAShapeStampedByAnEarlierAttempt() {
         ChunkGenerator overworld = noiseSubclassGenerator(worldgen);
         WorldDimensions shaped = ShapedDimensions.withShape(overworldOnly(overworld), LevelStem.OVERWORLD,
-                new CarriedShape(squareTorus(CHOSEN_CHUNK_WIDTH), ShapeOptions.DEFAULT));
+                new CarriedShape(squareTorus(CHOSEN_WIDTH_CHUNKS), ShapeOptions.DEFAULT));
 
-        assertNull(ShapedDimensions.shapeOf(ShapedDimensions.stripShapes(shaped), LevelStem.OVERWORLD));
+        assertNull(ShapedDimensions.getShape(ShapedDimensions.stripShapes(shaped), LevelStem.OVERWORLD));
     }
 
     private static WorldDimensions overworldOnly(ChunkGenerator overworld) {

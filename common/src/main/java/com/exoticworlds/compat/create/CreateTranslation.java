@@ -26,7 +26,7 @@ public final class CreateTranslation {
             Identifier.fromNamespaceAndPath("create", "track_targeting_item_selected_pos");
 
     public static void register() {
-        if (!CreateMixinPlugin.CREATE.admitted()) {
+        if (!CreateMixinPlugin.CREATE.isAdmitted()) {
             return;
         }
 

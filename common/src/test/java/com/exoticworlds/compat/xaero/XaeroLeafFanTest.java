@@ -28,11 +28,11 @@ class XaeroLeafFanTest {
     void theRowsPastTheRegionReadTheFannedLeavesInOrder() {
         XaeroLeafFan fan = begun();
         fan.extendColumn(SIDE, 0, 0, 0, 0, 0, 0, 1, (x, z) -> new long[] {FIRST, SECOND, THIRD});
-        assertEquals(FIRST, fan.leaf(0, 2), "the first row past a two-row region");
-        assertEquals(THIRD, fan.leaf(0, 4));
-        assertEquals(XaeroLeafFan.NO_LEAF, fan.leaf(0, 5));
-        assertEquals(XaeroLeafFan.NO_LEAF, fan.leaf(0, 1), "a row inside the region is Xaero's own");
-        assertEquals(XaeroLeafFan.NO_LEAF, fan.leaf(1, 2), "only the chosen column fans");
+        assertEquals(FIRST, fan.getLeaf(0, 2), "the first row past a two-row region");
+        assertEquals(THIRD, fan.getLeaf(0, 4));
+        assertEquals(XaeroLeafFan.NO_LEAF, fan.getLeaf(0, 5));
+        assertEquals(XaeroLeafFan.NO_LEAF, fan.getLeaf(0, 1), "a row inside the region is Xaero's own");
+        assertEquals(XaeroLeafFan.NO_LEAF, fan.getLeaf(1, 2), "only the chosen column fans");
     }
 
     @Test
@@ -41,8 +41,8 @@ class XaeroLeafFanTest {
         fan.extendColumn(SIDE, 0, 0, 0, 0, 0, 0, 1, (x, z) -> new long[] {FIRST});
         assertEquals(Integer.MAX_VALUE, fan.admitRow(1, 0, 2));
         assertEquals(1, fan.admitRow(1, 0, 1));
-        assertFalse(fan.exists(true, 0, 2));
-        assertTrue(fan.exists(true, 0, 1));
+        assertFalse(fan.isExisting(true, 0, 2));
+        assertTrue(fan.isExisting(true, 0, 1));
     }
 
     @Test
@@ -67,7 +67,7 @@ class XaeroLeafFanTest {
         fan.extendColumn(SIDE, 0, 0, 0, 0, 0, 0, 1, (x, z) -> new long[] {FIRST, SECOND});
         assertEquals(SIDE + 1, fan.extendColumn(SIDE, 0, 1, 0, 2, 0, 0, 1, (x, z) -> new long[] {SECOND, THIRD}),
                 "the next region fans only the leaf the first one left");
-        assertEquals(THIRD, fan.leaf(0, 4));
+        assertEquals(THIRD, fan.getLeaf(0, 4));
     }
 
     @Test

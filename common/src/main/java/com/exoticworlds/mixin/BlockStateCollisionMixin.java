@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.core.BlockPos;
@@ -19,6 +19,6 @@ public abstract class BlockStateCollisionMixin {
             at = @At("HEAD"),
             argsOnly = true)
     private BlockPos exotic_worlds$canonicalCollisionPos(BlockPos pos, @Local(argsOnly = true) BlockGetter getter) {
-        return WorldLoopAttachments.foldIfLevel(getter).fold(pos);
+        return WorldLoopAttachments.getFoldIfLevel(getter).fold(pos);
     }
 }

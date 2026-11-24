@@ -6,11 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -32,8 +32,8 @@ class PublishedShapesTest {
     void aDimensionTheServerNeverPublishedAnswersNull() {
         PublishedShapes.publish(Level.OVERWORLD, WIDE);
 
-        assertNull(PublishedShapes.wrappedFoldOf(Level.NETHER));
-        assertNull(PublishedShapes.wrappedFoldOf(DATAPACK_DIMENSION));
+        assertNull(PublishedShapes.getWrappedFold(Level.NETHER));
+        assertNull(PublishedShapes.getWrappedFold(DATAPACK_DIMENSION));
     }
 
     @Test
@@ -42,16 +42,16 @@ class PublishedShapesTest {
         PublishedShapes.publish(Level.NETHER, NARROW);
         PublishedShapes.publish(DATAPACK_DIMENSION, WIDE);
 
-        assertSame(WIDE, PublishedShapes.wrappedFoldOf(Level.OVERWORLD));
-        assertSame(NARROW, PublishedShapes.wrappedFoldOf(Level.NETHER));
-        assertSame(WIDE, PublishedShapes.wrappedFoldOf(DATAPACK_DIMENSION));
+        assertSame(WIDE, PublishedShapes.getWrappedFold(Level.OVERWORLD));
+        assertSame(NARROW, PublishedShapes.getWrappedFold(Level.NETHER));
+        assertSame(WIDE, PublishedShapes.getWrappedFold(DATAPACK_DIMENSION));
     }
 
     @Test
     void aRectangleAnswersNullLikeAnUnloopedLevel() {
         PublishedShapes.publish(Level.END, WorldFolds.of(FlatShape.rectangle()));
 
-        assertNull(PublishedShapes.wrappedFoldOf(Level.END));
+        assertNull(PublishedShapes.getWrappedFold(Level.END));
     }
 
     @Test
@@ -59,7 +59,7 @@ class PublishedShapesTest {
         PublishedShapes.publish(Level.NETHER, WIDE);
         PublishedShapes.publish(Level.NETHER, NARROW);
 
-        assertSame(NARROW, PublishedShapes.wrappedFoldOf(Level.NETHER));
+        assertSame(NARROW, PublishedShapes.getWrappedFold(Level.NETHER));
     }
 
     @Test
@@ -69,7 +69,7 @@ class PublishedShapesTest {
 
         PublishedShapes.clear();
 
-        assertNull(PublishedShapes.wrappedFoldOf(Level.OVERWORLD));
-        assertNull(PublishedShapes.wrappedFoldOf(Level.NETHER));
+        assertNull(PublishedShapes.getWrappedFold(Level.OVERWORLD));
+        assertNull(PublishedShapes.getWrappedFold(Level.NETHER));
     }
 }

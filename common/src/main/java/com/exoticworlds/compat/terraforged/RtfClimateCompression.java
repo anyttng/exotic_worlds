@@ -5,9 +5,9 @@ import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 import com.google.common.collect.MapMaker;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 import com.exoticworlds.shape.climate.ClimateCompression;
 
@@ -22,7 +22,7 @@ public final class RtfClimateCompression {
 
     static final double MOISTURE_HALF_Z = 0.233;
 
-    private static final boolean CLIMATE_FIELD = true;
+    private static final boolean IS_CLIMATE_FIELD = true;
 
     private static final double HORIZONTAL_SHARE = 0.0;
 
@@ -31,7 +31,7 @@ public final class RtfClimateCompression {
     private static final Map<WorldFold, Double> BY_FOLD = new MapMaker().weakKeys().makeMap();
 
     public static double factor(WorldFold fold, RtfClimateScales scales) {
-        return ClimateCompression.factor(fold, CLIMATE_FIELD, HORIZONTAL_SHARE, () -> fitted(fold, scales));
+        return ClimateCompression.factor(fold, IS_CLIMATE_FIELD, HORIZONTAL_SHARE, () -> fitted(fold, scales));
     }
 
     public static double carry(WorldFold fold, RtfClimateScales scales) {
@@ -47,10 +47,10 @@ public final class RtfClimateCompression {
 
     static double fitted(WorldFold fold, RtfClimateScales scales) {
         double fit = ClimateScaleCompression.NO_COMPRESSION;
-        TranslationLattice lattice = fold.blockLattice();
+        TranslationLattice lattice = fold.getBlockLattice();
         for (Direction.Axis axis : HORIZONTAL) {
-            WrapDomain domain = lattice.axis(axis);
-            if (domain.loops()) {
+            WrapDomain domain = lattice.getAxis(axis);
+            if (domain.isLooped()) {
                 double cellsPerLap = domain.domainLength * LATTICE_HALF_CELLS / halfBlocks(axis, scales);
                 fit = Math.max(fit, ClimateScaleCompression.fittedToCells(cellsPerLap));
             }
@@ -61,11 +61,11 @@ public final class RtfClimateCompression {
 
     static double halfBlocks(Direction.Axis axis, RtfClimateScales scales) {
         double moisture = (axis == Direction.Axis.X ? MOISTURE_HALF_X : MOISTURE_HALF_Z)
-                * scales.exotic_worlds$moistureScale();
+                * scales.exotic_worlds$getMoistureScale();
         double coarsest = axis == Direction.Axis.X
                 ? moisture
-                : Math.max(moisture, TEMPERATURE_HALF_Z * scales.exotic_worlds$temperatureScale());
-        return coarsest / scales.exotic_worlds$biomeFrequency();
+                : Math.max(moisture, TEMPERATURE_HALF_Z * scales.exotic_worlds$getTemperatureScale());
+        return coarsest / scales.exotic_worlds$getBiomeFrequency();
     }
 
     private RtfClimateCompression() {

@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import com.exoticworlds.core.StartupRegistry;
+import com.exoticworlds.core.registry.StartupRegistry;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.BlockPos;
@@ -94,7 +94,7 @@ public final class TagPositions {
         COMPOUND {
             @Override
             @Nullable CompoundTag seated(Seat seat, CompoundTag tag, TagPosition position) {
-                String container = position.nestedContainer();
+                String container = position.getNestedContainer();
                 if (!(tag.get(container) instanceof CompoundTag stored)) {
                     return null;
                 }
@@ -106,7 +106,7 @@ public final class TagPositions {
         EACH_OF_LIST {
             @Override
             @Nullable CompoundTag seated(Seat seat, CompoundTag tag, TagPosition position) {
-                String container = position.nestedContainer();
+                String container = position.getNestedContainer();
                 if (!(tag.get(container) instanceof ListTag stored)) {
                     return null;
                 }
@@ -148,11 +148,11 @@ public final class TagPositions {
             }
         }
 
-        String nestedContainer() {
+        String getNestedContainer() {
             return Objects.requireNonNull(container, "a TOP position has no container");
         }
 
-        boolean sharesAddressWith(TagPosition other) {
+        boolean isSharingAddressWith(TagPosition other) {
             return nesting == other.nesting && Objects.equals(container, other.container) && key.equals(other.key);
         }
     }
@@ -210,16 +210,16 @@ public final class TagPositions {
             resolved = new ConcurrentHashMap<>();
         }
 
-        public boolean carriesPositions(Subject carrier) {
-            return !positionsOf(carrier).isEmpty();
+        public boolean hasPositions(Subject carrier) {
+            return !getPositions(carrier).isEmpty();
         }
 
         public CompoundTag seatedIn(Seat seat, Subject carrier, CompoundTag tag) {
-            List<TagPosition> positions = positionsOf(carrier);
+            List<TagPosition> positions = getPositions(carrier);
             return positions.isEmpty() ? tag : TagPositions.seatedIn(seat, positions, tag);
         }
 
-        private List<TagPosition> positionsOf(Subject carrier) {
+        private List<TagPosition> getPositions(Subject carrier) {
             return resolved.computeIfAbsent(carrier, this::resolve);
         }
 
@@ -228,7 +228,7 @@ public final class TagPositions {
             List<TagPosition> positions = new ArrayList<>(registeredOnly);
             List<TagPosition> rows = carrier.id() == null ? List.of() : declared.getOrDefault(carrier.id(), List.of());
             for (TagPosition row : rows) {
-                if (registeredOnly.stream().anyMatch(row::sharesAddressWith)) {
+                if (registeredOnly.stream().anyMatch(row::isSharingAddressWith)) {
                     LOGGER.warn("{}: a data file declares {} for {} at an address a registration on {} already holds;"
                             + " the registration is kept", label, row, carrier.id(), carrier.type().getName());
                 } else {
@@ -241,7 +241,7 @@ public final class TagPositions {
 
         private List<TagPosition> registeredFor(Subject carrier) {
             List<TagPosition> positions = new ArrayList<>();
-            registered.entries().forEach((registeredType, registeredPositions) -> {
+            registered.getEntries().forEach((registeredType, registeredPositions) -> {
                 if (registeredType.isAssignableFrom(carrier.type())) {
                     positions.addAll(registeredPositions);
                 }

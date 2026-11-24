@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.core.DimensionTable;
+import com.exoticworlds.core.world.DimensionTable;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;

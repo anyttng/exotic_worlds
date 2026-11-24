@@ -12,7 +12,7 @@ import net.minecraft.core.BlockPos;
 @Mixin(ConnectedInputHandler.ConnectedInput.class)
 public interface ConnectedInputAccessor {
     @Accessor("data")
-    List<BlockPos> exotic_worlds$data();
+    List<BlockPos> exotic_worlds$getData();
 
     @Accessor("isController")
     boolean exotic_worlds$isController();

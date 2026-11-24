@@ -5,11 +5,11 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.bridge.v1.option.OptionBridge;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 import com.exoticworlds.engine.gen.ShapedDimensions;
 
 import net.minecraft.core.Direction;
@@ -28,13 +28,13 @@ public final class ShapeBridge {
     }
 
     public static @Nullable LoopSpans spansOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
-        FlatShape shape = ShapedDimensions.shapeOf(dimensions, key);
+        FlatShape shape = ShapedDimensions.getShape(dimensions, key);
         return shape == null || shape.mirror() != null ? null : spansOf(shape);
     }
 
     public static GenerationOptions optionsOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
-        CarriedShape carried = ShapedDimensions.carriedShapeOf(dimensions, key);
-        return carried == null ? GenerationOptions.DEFAULT : OptionBridge.toV1(carried.options());
+        CarriedShape carried = ShapedDimensions.getCarriedShape(dimensions, key);
+        return carried == null ? GenerationOptions.DEFAULT : OptionBridge.toV1(carried.getOptions());
     }
 
     private static CarriedShape carried(LoopSpans spans, GenerationOptions options) {
@@ -44,7 +44,7 @@ public final class ShapeBridge {
     private static LoopSpans spansOf(FlatShape shape) {
         LoopSpans spans = LoopSpans.NONE;
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (shape.bounds().axis(axis) instanceof AxisBounds.Looped looped) {
+            if (shape.bounds().getAxis(axis) instanceof AxisBounds.Looped looped) {
                 spans = spans.and(axis, looped.minChunk(), looped.maxChunk());
             }
         }

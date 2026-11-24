@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 
 import com.exoticworlds.client.engine.ClientFrame;
 import com.exoticworlds.compat.map.ClientFolds;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.BlockPos;
@@ -17,7 +17,7 @@ public final class XaeroFold {
     private static volatile Object @Nullable [] coordReadoutDisplays;
 
     public static @Nullable BlockPos foldWorldNodeSpawn(@Nullable BlockPos spawn) {
-        return spawn == null ? null : ClientFolds.fold(ClientFolds.current(), spawn);
+        return spawn == null ? null : ClientFolds.fold(ClientFolds.getCurrent(), spawn);
     }
 
     public static Vec3 nearestToCamera(double blockX, double blockZ) {
@@ -25,12 +25,12 @@ public final class XaeroFold {
     }
 
     public static BlockPos foldInfoDisplayPos(Object infoDisplay, BlockPos playerPos) {
-        WorldFold fold = ClientFolds.current();
+        WorldFold fold = ClientFolds.getCurrent();
         if (fold == null || playerPos == null) {
             return playerPos;
         }
 
-        Object[] targets = coordReadoutDisplays();
+        Object[] targets = resolveCoordReadoutDisplays();
         boolean isCoordReadout = false;
         for (Object target : targets) {
             if (target == infoDisplay) {
@@ -46,7 +46,7 @@ public final class XaeroFold {
         return fold.fold(playerPos);
     }
 
-    private static Object[] coordReadoutDisplays() {
+    private static Object[] resolveCoordReadoutDisplays() {
         Object[] resolved = coordReadoutDisplays;
         if (resolved != null) {
             return resolved;

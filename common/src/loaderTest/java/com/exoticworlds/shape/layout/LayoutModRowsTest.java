@@ -10,9 +10,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import com.exoticworlds.core.NetherScales;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
+import com.exoticworlds.core.world.NetherScales;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.engine.gen.ShapedDimensions;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.ClimateScale;
@@ -65,8 +65,8 @@ class LayoutModRowsTest {
 
         WorldDimensions created = LayoutDimensions.apply(vanillaDimensions(), chosen);
 
-        assertNull(ShapedDimensions.shapeOf(created, LevelStem.OVERWORLD));
-        assertEquals(2, ShapedDimensions.dimensionTableOf(created).entries().size());
+        assertNull(ShapedDimensions.getShape(created, LevelStem.OVERWORLD));
+        assertEquals(2, ShapedDimensions.getDimensionTable(created).getEntries().size());
         assertEquals(chosen, LayoutDimensions.read(created));
     }
 

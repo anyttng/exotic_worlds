@@ -24,7 +24,7 @@ import org.joml.Vector3dc;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.fold.DeckTransformation;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 
@@ -82,7 +82,7 @@ public final class RecordPayloadFold {
         return folded(packet, packet.type().id(), context, FoldedValue::toServer);
     }
 
-    static Form formOf(Class<?> payloadType) {
+    static Form getForm(Class<?> payloadType) {
         return FORMS.get(payloadType);
     }
 
@@ -90,7 +90,7 @@ public final class RecordPayloadFold {
             Function<TranslationContext, FoldedValue.Leaves> leavesOf) {
         Form form = FORMS.get(record.getClass());
         Rows current = rows;
-        if (!form.carriesPositions() || current.deny().contains(typeId)) {
+        if (!form.hasPositions() || current.deny().contains(typeId)) {
             return record;
         }
 
@@ -131,9 +131,9 @@ public final class RecordPayloadFold {
         }
     }
 
-    private static boolean carriesPosition(Type type, Set<Class<?>> visited) {
+    private static boolean hasPosition(Type type, Set<Class<?>> visited) {
         if (type instanceof ParameterizedType parameterized && CONTAINER_TYPES.contains(parameterized.getRawType())) {
-            return carriesPosition(parameterized.getActualTypeArguments()[0], visited);
+            return hasPosition(parameterized.getActualTypeArguments()[0], visited);
         }
 
         if (POSITION_TYPES.contains(type)) {
@@ -145,7 +145,7 @@ public final class RecordPayloadFold {
         }
 
         for (RecordComponent component : nested.getRecordComponents()) {
-            if (carriesPosition(component.getGenericType(), visited)) {
+            if (hasPosition(component.getGenericType(), visited)) {
                 return true;
             }
         }
@@ -203,7 +203,7 @@ public final class RecordPayloadFold {
             this.positional = positional;
         }
 
-        boolean carriesPositions() {
+        boolean hasPositions() {
             return constructor != null;
         }
 
@@ -244,13 +244,13 @@ public final class RecordPayloadFold {
 
         private static boolean @Nullable [] positionalOf(RecordComponent[] components) {
             boolean[] positional = new boolean[components.length];
-            boolean carries = false;
+            boolean isCarrying = false;
             for (int index = 0; index < components.length; index++) {
-                positional[index] = carriesPosition(components[index].getGenericType(), new HashSet<>());
-                carries |= positional[index];
+                positional[index] = hasPosition(components[index].getGenericType(), new HashSet<>());
+                isCarrying |= positional[index];
             }
 
-            return carries ? positional : null;
+            return isCarrying ? positional : null;
         }
 
         private static Form reachable(Class<?> type, RecordComponent[] components, boolean[] positional) {
@@ -298,7 +298,7 @@ public final class RecordPayloadFold {
                 Object[] values = valuesOf(instance);
                 Object[] foldedValues = values.clone();
                 fold.accept(foldedValues);
-                if (!anyChanged(values, foldedValues)) {
+                if (!isAnyChanged(values, foldedValues)) {
                     return instance;
                 }
 
@@ -325,7 +325,7 @@ public final class RecordPayloadFold {
             return values;
         }
 
-        private static boolean anyChanged(Object[] values, Object[] foldedValues) {
+        private static boolean isAnyChanged(Object[] values, Object[] foldedValues) {
             for (int index = 0; index < values.length; index++) {
                 if (foldedValues[index] != values[index]) {
                     return true;

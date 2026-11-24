@@ -17,7 +17,7 @@ public class ColumnCoverageMixin implements CellFoldHolder {
     private volatile CellFold exotic_worlds$fold = CellFold.NONE;
 
     @Override
-    public CellFold exotic_worlds$fold() {
+    public CellFold exotic_worlds$getFold() {
         return exotic_worlds$fold;
     }
 

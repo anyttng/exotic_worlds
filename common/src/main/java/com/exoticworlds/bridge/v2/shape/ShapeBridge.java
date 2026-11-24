@@ -11,11 +11,11 @@ public final class ShapeBridge {
         DeclaredShapes.register(new DimensionShapeView(shape));
     }
 
-    public static Identifier torus() {
+    public static Identifier getTorus() {
         return DeclaredShapes.TORUS;
     }
 
-    public static Identifier cylinder() {
+    public static Identifier getCylinder() {
         return DeclaredShapes.CYLINDER;
     }
 

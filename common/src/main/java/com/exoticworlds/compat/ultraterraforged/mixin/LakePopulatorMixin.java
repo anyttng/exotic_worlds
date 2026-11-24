@@ -14,6 +14,6 @@ public abstract class LakePopulatorMixin {
     @ModifyExpressionValue(method = UltraTerraForgedInjectionTargets.LAKE_POPULATOR_CONSTRUCTOR,
             at = @At(value = "CONSTANT", args = UltraTerraForgedInjectionTargets.VALLEY_WIDTH))
     private float exotic_worlds$valleySizedForTheLap(float blocks) {
-        return blocks * UltraTerraForgedRiverReach.INSTANCE.boundScale();
+        return blocks * UltraTerraForgedRiverReach.INSTANCE.getBoundScale();
     }
 }

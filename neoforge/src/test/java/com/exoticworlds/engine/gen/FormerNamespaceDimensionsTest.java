@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.ShapeFixtures;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.migration.FormerNamespace;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.layout.LayoutDimensions;
@@ -41,9 +41,9 @@ class FormerNamespaceDimensionsTest {
     private static final String TOROIDAL_TYPE = FormerNamespace.KEY_PREFIX + WorldLoopGenerators.TOROIDAL_ID;
     private static final String TOROIDAL_FLAT_TYPE = FormerNamespace.KEY_PREFIX + WorldLoopGenerators.TOROIDAL_FLAT_ID;
 
-    private static final int OVERWORLD_CHUNK_WIDTH = 128;
+    private static final int OVERWORLD_WIDTH_CHUNKS = 128;
     private static final int NETHER_SCALE = 8;
-    private static final int END_CHUNK_WIDTH = 256;
+    private static final int END_WIDTH_CHUNKS = 256;
 
     private static final List<ResourceKey<LevelStem>> STEMS = List.of(LevelStem.OVERWORLD, LevelStem.NETHER,
             LevelStem.END);
@@ -88,9 +88,9 @@ class FormerNamespaceDimensionsTest {
         WorldDimensions loaded = WorldDimensions.CODEC.decoder().parse(ops, TagParser.parseCompoundFully(former))
                 .getOrThrow();
         for (ResourceKey<LevelStem> stem : STEMS) {
-            assertEquals(carriedShapeOf(saved, stem).shape(), carriedShapeOf(loaded, stem).shape(), stem.toString());
-            assertEquals(carriedShapeOf(saved, stem).options(),
-                    carriedShapeOf(loaded, stem).options(), stem.toString());
+            assertEquals(carriedShapeOf(saved, stem).getShape(), carriedShapeOf(loaded, stem).getShape(), stem.toString());
+            assertEquals(carriedShapeOf(saved, stem).getOptions(),
+                    carriedShapeOf(loaded, stem).getOptions(), stem.toString());
         }
 
         Tag rewritten = WorldDimensions.CODEC.encoder().encodeStart(ops, loaded).getOrThrow();
@@ -99,12 +99,12 @@ class FormerNamespaceDimensionsTest {
     }
 
     private static WorldLayout torus() {
-        return LayoutFixtures.shaped(ShapeFixtures.torus(OVERWORLD_CHUNK_WIDTH), NETHER_SCALE,
-                ShapeFixtures.torus(END_CHUNK_WIDTH), LayoutFixtures.PLAIN);
+        return LayoutFixtures.shaped(ShapeFixtures.torus(OVERWORLD_WIDTH_CHUNKS), NETHER_SCALE,
+                ShapeFixtures.torus(END_WIDTH_CHUNKS), LayoutFixtures.PLAIN);
     }
 
     private static CarriedShape carriedShapeOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
-        CarriedShape carried = ShapedDimensions.carriedShapeOf(dimensions, key);
+        CarriedShape carried = ShapedDimensions.getCarriedShape(dimensions, key);
         assertNotNull(carried, key.identifier().toString());
         return carried;
     }

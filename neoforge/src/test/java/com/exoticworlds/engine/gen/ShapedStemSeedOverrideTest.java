@@ -1,9 +1,9 @@
 package com.exoticworlds.engine.gen;
 
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
 import com.exoticworlds.shape.StartupRegistrations;
 import static com.exoticworlds.engine.gen.BakeStampFixture.datapackRegistry;
 import static com.exoticworlds.engine.gen.BakeStampFixture.dimensionType;
@@ -41,8 +41,8 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
 class ShapedStemSeedOverrideTest {
     private static final double SAME_SCALE = 1.0;
     private static final long DECLARED_SEED = 0x5EED_0BE7L;
-    private static final int CHUNK_WIDTH = 64;
-    private static final FlatShape SHAPE = squareTorus(CHUNK_WIDTH);
+    private static final int WIDTH_CHUNKS = 64;
+    private static final FlatShape SHAPE = squareTorus(WIDTH_CHUNKS);
 
     private static HolderLookup.Provider worldgen;
 
@@ -93,7 +93,7 @@ class ShapedStemSeedOverrideTest {
         Registry<LevelStem> restored = restore(declared);
 
         LevelStem restoredStem = restored.getOptional(LevelStem.OVERWORLD).orElseThrow();
-        assertNotNull(ShapedChunkGenerator.carriedShapeOf(restoredStem.generator()), "the stem took no shape");
+        assertNotNull(ShapedChunkGenerator.getCarriedShape(restoredStem.generator()), "the stem took no shape");
         assertSame(declared.type(), restoredStem.type());
         assertEquals(OptionalLong.of(DECLARED_SEED), restoredStem.seedOverride());
     }

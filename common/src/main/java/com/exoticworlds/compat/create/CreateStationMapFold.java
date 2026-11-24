@@ -2,7 +2,7 @@ package com.exoticworlds.compat.create;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.NearestCopy;
 
 import net.minecraft.core.BlockPos;
@@ -12,7 +12,7 @@ import net.minecraft.world.phys.Vec3;
 
 public final class CreateStationMapFold {
     public static BlockPos canonicalTarget(ResourceKey<Level> dimension, BlockPos target) {
-        WorldFold fold = foldFor(dimension);
+        WorldFold fold = getWrappedFold(dimension);
         return fold == null ? target : canonicalTarget(fold, target);
     }
 
@@ -21,7 +21,7 @@ public final class CreateStationMapFold {
     }
 
     public static BlockPos targetInMapFrame(ResourceKey<Level> dimension, int centerX, int centerZ, BlockPos target) {
-        return targetInMapFrame(foldFor(dimension), centerX, centerZ, target);
+        return targetInMapFrame(getWrappedFold(dimension), centerX, centerZ, target);
     }
 
     public static BlockPos targetInMapFrame(@Nullable WorldFold fold, int centerX, int centerZ,
@@ -30,7 +30,7 @@ public final class CreateStationMapFold {
     }
 
     public static Vec3 centerInMapFrame(ResourceKey<Level> dimension, int centerX, int centerZ, double x, double z) {
-        return centerInMapFrame(foldFor(dimension), centerX, centerZ, x, z);
+        return centerInMapFrame(getWrappedFold(dimension), centerX, centerZ, x, z);
     }
 
     public static Vec3 centerInMapFrame(@Nullable WorldFold fold, int centerX, int centerZ, double x,
@@ -38,8 +38,8 @@ public final class CreateStationMapFold {
         return NearestCopy.toward(fold, new Vec3(centerX, 0.0, centerZ), new Vec3(x, 0.0, z));
     }
 
-    private static @Nullable WorldFold foldFor(ResourceKey<Level> dimension) {
-        return CreateSeamFold.wrappedFoldOf(null, dimension);
+    private static @Nullable WorldFold getWrappedFold(ResourceKey<Level> dimension) {
+        return CreateSeamFold.getWrappedFold(null, dimension);
     }
 
     private CreateStationMapFold() {

@@ -43,36 +43,36 @@ public record LoopSpansV2(@Nullable Span x, @Nullable Span z, int skewChunks) {
         }
 
         /** The span's width in chunks. */
-        public int chunkWidth() {
+        public int widthChunks() {
             return this.maxChunk - this.minChunk;
         }
     }
 
     public LoopSpansV2 {
-        skewChunks = SpansBridge.normalizedSkew(x, z, skewChunks);
+        skewChunks = SpansBridge.normalizedSkewChunks(x, z, skewChunks);
     }
 
     /**
      * The narrowest a looping axis may be in any dimension, in chunks. A dimension whose spans hold a narrower axis is
      * refused, so scale a nether down only as far as this allows.
      */
-    public static int minChunkWidth() {
-        return SpansBridge.minChunkWidth();
+    public static int getMinWidthChunks() {
+        return SpansBridge.getMinWidthChunks();
     }
 
-    /** Both axes looping over {@code chunkWidth} chunks, centered on the origin. */
-    public static LoopSpansV2 ofWidth(int chunkWidth) {
-        return SpansBridge.ofWidth(chunkWidth);
+    /** Both axes looping over {@code widthChunks} chunks, centered on the origin. */
+    public static LoopSpansV2 ofWidth(int widthChunks) {
+        return SpansBridge.ofWidth(widthChunks);
     }
 
-    /** X looping over {@code xChunkWidth} chunks and Z over {@code zChunkWidth}, both centered on the origin. */
-    public static LoopSpansV2 ofWidths(int xChunkWidth, int zChunkWidth) {
-        return SpansBridge.ofWidths(xChunkWidth, zChunkWidth);
+    /** X looping over {@code xWidthChunks} chunks and Z over {@code zWidthChunks}, both centered on the origin. */
+    public static LoopSpansV2 ofWidths(int xWidthChunks, int zWidthChunks) {
+        return SpansBridge.ofWidths(xWidthChunks, zWidthChunks);
     }
 
-    /** One axis looping over {@code chunkWidth} chunks, centered on the origin; the other does not loop. */
-    public static LoopSpansV2 ofWidth(Direction.Axis axis, int chunkWidth) {
-        return SpansBridge.ofWidth(axis, chunkWidth);
+    /** One axis looping over {@code widthChunks} chunks, centered on the origin; the other does not loop. */
+    public static LoopSpansV2 ofWidth(Direction.Axis axis, int widthChunks) {
+        return SpansBridge.ofWidth(axis, widthChunks);
     }
 
     /** One axis looping over the half-open chunk span {@code [minChunk, maxChunk)}; the other does not loop. */
@@ -100,8 +100,8 @@ public record LoopSpansV2(@Nullable Span x, @Nullable Span z, int skewChunks) {
     }
 
     /** Whether this axis loops. {@link Direction.Axis#Y} always answers {@code false}. */
-    public boolean loops(Direction.Axis axis) {
-        return span(axis) != null;
+    public boolean isLooped(Direction.Axis axis) {
+        return getSpan(axis) != null;
     }
 
     /**
@@ -109,8 +109,8 @@ public record LoopSpansV2(@Nullable Span x, @Nullable Span z, int skewChunks) {
      *
      * @throws IllegalArgumentException if {@code axis} does not loop
      */
-    public int minChunk(Direction.Axis axis) {
-        return looping(axis).minChunk();
+    public int getMinChunk(Direction.Axis axis) {
+        return getLoopingSpan(axis).minChunk();
     }
 
     /**
@@ -118,8 +118,8 @@ public record LoopSpansV2(@Nullable Span x, @Nullable Span z, int skewChunks) {
      *
      * @throws IllegalArgumentException if {@code axis} does not loop
      */
-    public int maxChunk(Direction.Axis axis) {
-        return looping(axis).maxChunk();
+    public int getMaxChunk(Direction.Axis axis) {
+        return getLoopingSpan(axis).maxChunk();
     }
 
     /**
@@ -127,13 +127,13 @@ public record LoopSpansV2(@Nullable Span x, @Nullable Span z, int skewChunks) {
      *
      * @throws IllegalArgumentException if {@code axis} does not loop
      */
-    public int chunkWidth(Direction.Axis axis) {
-        return looping(axis).chunkWidth();
+    public int getWidthChunks(Direction.Axis axis) {
+        return getLoopingSpan(axis).widthChunks();
     }
 
     /** Whether both axes loop over the same number of chunks. */
     public boolean isSquare() {
-        return this.x != null && this.z != null && this.x.chunkWidth() == this.z.chunkWidth();
+        return this.x != null && this.z != null && this.x.widthChunks() == this.z.widthChunks();
     }
 
     /**
@@ -148,7 +148,7 @@ public record LoopSpansV2(@Nullable Span x, @Nullable Span z, int skewChunks) {
         return SpansBridge.scaledDown(this, scale);
     }
 
-    private @Nullable Span span(Direction.Axis axis) {
+    private @Nullable Span getSpan(Direction.Axis axis) {
         return switch (axis) {
             case X -> this.x;
             case Z -> this.z;
@@ -156,8 +156,8 @@ public record LoopSpansV2(@Nullable Span x, @Nullable Span z, int skewChunks) {
         };
     }
 
-    private Span looping(Direction.Axis axis) {
-        Span span = span(axis);
+    private Span getLoopingSpan(Direction.Axis axis) {
+        Span span = getSpan(axis);
         if (span == null) {
             throw new IllegalArgumentException(AXIS + axis + DOES_NOT_LOOP);
         }

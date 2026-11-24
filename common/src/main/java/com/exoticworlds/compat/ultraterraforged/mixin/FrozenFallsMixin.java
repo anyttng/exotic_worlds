@@ -10,8 +10,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.exoticworlds.compat.ultraterraforged.LapCarrier;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.GeneratorContext;
 import com.pandaismyname1.ultraterraforged.world.worldgen.rivermap.FrozenFalls;
@@ -27,12 +27,12 @@ public abstract class FrozenFallsMixin {
     private static @Nullable ChunkAccess exotic_worlds$foldSide(ChunkAccess center, List<ChunkAccess> region,
             int blockX, int blockZ, Operation<ChunkAccess> original,
             @Local(argsOnly = true) GeneratorContext context) {
-        WorldFold fold = LapCarrier.foldOf(context.levels);
+        WorldFold fold = LapCarrier.getFold(context.levels);
         if (fold == null) {
             return original.call(center, region, blockX, blockZ);
         }
 
-        TranslationLattice lattice = fold.blockLattice();
+        TranslationLattice lattice = fold.getBlockLattice();
         return original.call(center, region, lattice.foldX(blockX, blockZ), lattice.foldZ(blockZ));
     }
 }

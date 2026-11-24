@@ -13,12 +13,12 @@ public class RandomStateCompileContextMixin implements FoldedCompileSource {
     private @Nullable FoldedCompileContext exotic_worlds$foldedCompile;
 
     @Override
-    public @Nullable FoldedCompileContext exotic_worlds$foldedCompile() {
+    public @Nullable FoldedCompileContext exotic_worlds$getFoldedCompile() {
         return this.exotic_worlds$foldedCompile;
     }
 
     @Override
-    public void exotic_worlds$foldedCompile(FoldedCompileContext context) {
+    public void exotic_worlds$setFoldedCompile(FoldedCompileContext context) {
         this.exotic_worlds$foldedCompile = context;
     }
 }

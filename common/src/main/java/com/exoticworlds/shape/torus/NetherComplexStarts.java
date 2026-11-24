@@ -9,11 +9,11 @@ import java.util.function.Predicate;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.core.AddedStart;
-import com.exoticworlds.core.GenerationMoments;
-import com.exoticworlds.core.StructurePick;
-import com.exoticworlds.core.StructureStartSet;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.gen.AddedStart;
+import com.exoticworlds.core.gen.GenerationMoments;
+import com.exoticworlds.core.gen.StructurePick;
+import com.exoticworlds.core.gen.StructureStartSet;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -33,21 +33,21 @@ public final class NetherComplexStarts {
     }
 
     private static List<AddedStart> starts(StructureStartSet set) {
-        if (!set.options().get(GuaranteedNetherComplexes.OPTION)
-                || !set.structureSet().is(BuiltinStructureSets.NETHER_COMPLEXES)) {
+        if (!set.getOptions().get(GuaranteedNetherComplexes.OPTION)
+                || !set.getStructureSet().is(BuiltinStructureSets.NETHER_COMPLEXES)) {
             return List.of();
         }
 
-        WorldFold fold = set.fold();
-        StructureSet structures = set.structureSet().value();
-        if (!fold.loops(Direction.Axis.X) || !fold.loops(Direction.Axis.Z)
+        WorldFold fold = set.getFold();
+        StructureSet structures = set.getStructureSet().value();
+        if (!fold.isLooped(Direction.Axis.X) || !fold.isLooped(Direction.Axis.Z)
                 || !(structures.placement() instanceof RandomSpreadStructurePlacement spread)) {
             return List.of();
         }
 
         List<ChunkPos> taken = new ArrayList<>();
         Set<Holder<Structure>> present = new HashSet<>();
-        for (StructurePick pick : set.picks()) {
+        for (StructurePick pick : set.getPicks()) {
             taken.add(pick.chunk());
             pick.structure().ifPresent(present::add);
         }
@@ -57,7 +57,7 @@ public final class NetherComplexStarts {
 
     private static List<AddedStart> placeMissing(StructureStartSet set, StructureSet structures,
             RandomSpreadStructurePlacement spread, List<ChunkPos> taken, Set<Holder<Structure>> present) {
-        WorldFold fold = set.fold();
+        WorldFold fold = set.getFold();
         List<AddedStart> added = new ArrayList<>();
         for (StructureSet.StructureSelectionEntry entry : structures.structures()) {
             Holder<Structure> structure = entry.structure();
@@ -81,11 +81,11 @@ public final class NetherComplexStarts {
 
     static @Nullable ChunkPos firstFree(WorldFold fold, Predicate<ChunkPos> canStart, List<ChunkPos> taken,
             int separation) {
-        int xWidth = fold.widthChunks(Direction.Axis.X);
-        int zWidth = fold.widthChunks(Direction.Axis.Z);
+        int xWidthChunks = fold.getWidthChunks(Direction.Axis.X);
+        int zWidthChunks = fold.getWidthChunks(Direction.Axis.Z);
         ChunkPos origin = fold.fold(WORLD_ORIGIN);
         Set<ChunkPos> visited = new HashSet<>();
-        int farthestRing = Math.max(xWidth, zWidth) / 2;
+        int farthestRing = Math.max(xWidthChunks, zWidthChunks) / 2;
         for (int ring = 0; ring <= farthestRing; ring++) {
             for (int dx = -ring; dx <= ring; dx++) {
                 for (int dz = -ring; dz <= ring; dz++) {

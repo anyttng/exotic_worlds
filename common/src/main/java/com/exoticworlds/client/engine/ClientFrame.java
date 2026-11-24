@@ -3,9 +3,9 @@ package com.exoticworlds.client.engine;
 import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 
 import java.util.function.Predicate;
@@ -27,7 +27,7 @@ public final class ClientFrame {
             return target;
         }
 
-        return NearestCopy.toward(fold(), anchor, target);
+        return NearestCopy.toward(getFold(), anchor, target);
     }
 
     public static @Nullable Vec3 nearestCopy(@Nullable Vec3 anchor, @Nullable Vec3 target) {
@@ -35,7 +35,7 @@ public final class ClientFrame {
             return target;
         }
 
-        return NearestCopy.toward(fold(), anchor, target);
+        return NearestCopy.toward(getFold(), anchor, target);
     }
 
     public static @Nullable ChunkPos nearestCopy(@Nullable ChunkPos anchor, @Nullable ChunkPos target) {
@@ -43,7 +43,7 @@ public final class ClientFrame {
             return target;
         }
 
-        return NearestCopy.toward(fold(), anchor, target);
+        return NearestCopy.toward(getFold(), anchor, target);
     }
 
     @Contract("!null -> !null")
@@ -70,7 +70,7 @@ public final class ClientFrame {
             return DeckTransformation.IDENTITY;
         }
 
-        return NearestCopy.transformationToward(fold(), player.blockPosition(), target);
+        return NearestCopy.transformationToward(getFold(), player.blockPosition(), target);
     }
 
     @Contract("!null -> !null")
@@ -87,12 +87,12 @@ public final class ClientFrame {
             return canonical;
         }
 
-        return heldCopy(fold(), player == null ? null : player.blockPosition(), canonical, pos -> holds(level, pos));
+        return heldCopy(getFold(), player == null ? null : player.blockPosition(), canonical, pos -> isHeld(level, pos));
     }
 
     public static @Nullable ChunkPos heldCopy(ChunkPos canonical, Predicate<ChunkPos> holds) {
         LocalPlayer player = Minecraft.getInstance().player;
-        return heldCopy(fold(), player == null ? null : player.chunkPosition(), canonical, holds);
+        return heldCopy(getFold(), player == null ? null : player.chunkPosition(), canonical, holds);
     }
 
     public static @Nullable BlockPos heldCopy(@Nullable WorldFold fold, @Nullable BlockPos anchor, BlockPos canonical,
@@ -116,7 +116,7 @@ public final class ClientFrame {
     }
 
     public static long nearestChunkKey(int chunkX, int chunkZ) {
-        WorldFold fold = fold();
+        WorldFold fold = getFold();
         LocalPlayer player = Minecraft.getInstance().player;
         return nearestChunkKey(fold, player == null ? null : player.chunkPosition(), chunkX, chunkZ);
     }
@@ -134,11 +134,11 @@ public final class ClientFrame {
         return level == Minecraft.getInstance().level;
     }
 
-    public static @Nullable WorldFold fold() {
-        return WorldLoopAttachments.wrappedClientBoundsFoldOf(Minecraft.getInstance().level);
+    public static @Nullable WorldFold getFold() {
+        return WorldLoopAttachments.getWrappedClientBoundsFold(Minecraft.getInstance().level);
     }
 
-    private static boolean holds(ClientLevel level, BlockPos pos) {
+    private static boolean isHeld(ClientLevel level, BlockPos pos) {
         return level.getChunkSource().hasChunk(
                 SectionPos.blockToSectionCoord(pos.getX()),
                 SectionPos.blockToSectionCoord(pos.getZ()));

@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.exoticworlds.compat.eminus.SavedChunkOwner;
 import com.exoticworlds.compat.eminus.SavedLevelSource;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -30,7 +30,7 @@ public class ServerSaveMixin implements SavedLevelSource {
     private ServerLevel level;
 
     @Override
-    public ServerLevel exotic_worlds$savedLevel() {
+    public ServerLevel exotic_worlds$getSavedLevel() {
         return level;
     }
 
@@ -40,7 +40,7 @@ public class ServerSaveMixin implements SavedLevelSource {
                     + "Lnet/minecraft/world/level/ChunkPos;)Ljava/util/concurrent/CompletableFuture;"))
     private CompletableFuture<Optional<CompoundTag>> exotic_worlds$readStoredChunk(ChunkMap storage, ChunkPos pos,
             Operation<CompletableFuture<Optional<CompoundTag>>> original) {
-        return original.call(storage, WorldLoopAttachments.foldOf(level).fold(pos));
+        return original.call(storage, WorldLoopAttachments.getFold(level).fold(pos));
     }
 
     @Inject(method = "parse", at = @At("RETURN"))

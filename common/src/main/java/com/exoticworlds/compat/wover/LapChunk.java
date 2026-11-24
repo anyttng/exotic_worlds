@@ -13,11 +13,11 @@ class LapChunk<T> {
         this.cells = new Object[sideX * sideZ];
     }
 
-    int sideX() {
+    int getSideX() {
         return this.sideX;
     }
 
-    int sideZ() {
+    int getSideZ() {
         return this.sideZ;
     }
 

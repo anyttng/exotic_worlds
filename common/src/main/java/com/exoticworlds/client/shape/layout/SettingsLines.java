@@ -6,11 +6,11 @@ import org.jspecify.annotations.Nullable;
 
 import com.ascendiacore.gui.base.component.model.TooltipStyle;
 import com.ascendiacore.gui.base.hint.Hint;
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.SpawnPoint;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.SpawnPoint;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopSizes;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.WorldShape;
 import com.exoticworlds.shape.layout.DimensionLayout;
@@ -64,29 +64,29 @@ final class SettingsLines {
     }
 
     static Component presetLabel(WorldLoopPresets preset) {
-        return Component.translatable(PRESET_PREFIX + preset.id());
+        return Component.translatable(PRESET_PREFIX + preset.getId());
     }
 
     static Component presetHint(TooltipStyle style, WorldLoopPresets preset) {
-        int endChunkWidth = preset.endChunkWidth();
-        Component sizes = sizeEffective(preset.chunkWidth()).copy()
+        int endWidthChunks = preset.getEndWidthChunks();
+        Component sizes = sizeEffective(preset.getWidthChunks()).copy()
                 .append(CommonComponents.NEW_LINE)
-                .append(Component.translatable(PRESET_PREFIX + "nether", preset.netherScale()))
+                .append(Component.translatable(PRESET_PREFIX + "nether", preset.getNetherScale()))
                 .append(CommonComponents.NEW_LINE)
-                .append(Component.translatable(PRESET_PREFIX + "end", endChunkWidth,
-                        endChunkWidth * CoordinateConstants.CHUNK_WIDTH));
+                .append(Component.translatable(PRESET_PREFIX + "end", endWidthChunks,
+                        endWidthChunks * CoordinateConstants.CHUNK_WIDTH_BLOCKS));
         return Hint.of(style)
                 .derived(sizes)
-                .note(Component.translatable(STRUCTURES_PREFIX + structureRoom(preset.chunkWidth())))
+                .note(Component.translatable(STRUCTURES_PREFIX + structureRoom(preset.getWidthChunks())))
                 .build();
     }
 
-    static Component sizeEffective(int chunkWidth) {
-        return Component.translatable(SIZE_EFFECTIVE_KEY, chunkWidth, chunkWidth * CoordinateConstants.CHUNK_WIDTH);
+    static Component sizeEffective(int widthChunks) {
+        return Component.translatable(SIZE_EFFECTIVE_KEY, widthChunks, widthChunks * CoordinateConstants.CHUNK_WIDTH_BLOCKS);
     }
 
-    static Component shiftLaps(int xChunkWidth, int shiftChunks) {
-        return Component.translatable(SHIFT_LAPS_KEY, xChunkWidth / IntMath.gcd(xChunkWidth, shiftChunks));
+    static Component shiftLaps(int xWidthChunks, int shiftChunks) {
+        return Component.translatable(SHIFT_LAPS_KEY, xWidthChunks / IntMath.gcd(xWidthChunks, shiftChunks));
     }
 
     static Component shapeName(ShapeKind kind) {
@@ -105,12 +105,12 @@ final class SettingsLines {
         return Component.literal(axis.getName().toUpperCase(Locale.ROOT));
     }
 
-    static Component shapeSizeError(int chunkWidth, int minChunkWidth) {
-        return Component.translatable(SHAPE_SIZE_ERROR_KEY, chunkWidth, minChunkWidth,
-                WorldLoopSizes.MAX_CHUNK_WIDTH);
+    static Component shapeSizeError(int widthChunks, int minWidthChunks) {
+        return Component.translatable(SHAPE_SIZE_ERROR_KEY, widthChunks, minWidthChunks,
+                WorldLoopSizes.MAX_WIDTH_CHUNKS);
     }
 
-    static Component summary(DimensionLayout layout, @Nullable FlatShape spans, boolean derivationKnown) {
+    static Component summary(DimensionLayout layout, @Nullable FlatShape spans, boolean isDerivationKnown) {
         Identifier declared = layout.shape();
         if (declared != null) {
             return WorldShape.label(declared);
@@ -121,7 +121,7 @@ final class SettingsLines {
         }
 
         Component fromOverworld = shapeName(ShapeKind.FROM_OVERWORLD);
-        return derivationKnown ? fromOverworld.copy().append(SEPARATOR).append(shapeSummary(spans)) : fromOverworld;
+        return isDerivationKnown ? fromOverworld.copy().append(SEPARATOR).append(shapeSummary(spans)) : fromOverworld;
     }
 
     static Component shapeSummary(@Nullable FlatShape spans) {
@@ -133,37 +133,37 @@ final class SettingsLines {
         WorldLoopBounds bounds = spans.bounds();
         MutableComponent summary = shapeName(kind).copy();
         if (kind == ShapeKind.CYLINDER) {
-            Direction.Axis axis = bounds.loops(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
-            return summary.append(" ").append(axisName(axis)).append(SEPARATOR + bounds.chunkWidth(axis));
+            Direction.Axis axis = bounds.isLooped(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
+            return summary.append(" ").append(axisName(axis)).append(SEPARATOR + bounds.getWidthChunks(axis));
         }
 
-        summary.append(SEPARATOR + bounds.chunkWidth(Direction.Axis.X) + TIMES + bounds.chunkWidth(Direction.Axis.Z));
-        int shift = Math.floorMod(spans.skewChunks(), bounds.chunkWidth(Direction.Axis.X));
-        return shift == 0 ? summary : summary.append(SEPARATOR).append(Component.translatable(SUMMARY_SHIFT_KEY, shift));
+        summary.append(SEPARATOR + bounds.getWidthChunks(Direction.Axis.X) + TIMES + bounds.getWidthChunks(Direction.Axis.Z));
+        int shiftChunks = Math.floorMod(spans.skewChunks(), bounds.getWidthChunks(Direction.Axis.X));
+        return shiftChunks == 0 ? summary : summary.append(SEPARATOR).append(Component.translatable(SUMMARY_SHIFT_KEY, shiftChunks));
     }
 
-    static Component sizeCaption(int minChunkWidth) {
-        return sizeCaption(".size", minChunkWidth);
+    static Component sizeCaption(int minWidthChunks) {
+        return sizeCaption(".size", minWidthChunks);
     }
 
-    static Component sizeCaption(Direction.Axis axis, int minChunkWidth) {
-        return sizeCaption(axis == Direction.Axis.X ? ".size_x" : ".size_z", minChunkWidth);
+    static Component sizeCaption(Direction.Axis axis, int minWidthChunks) {
+        return sizeCaption(axis == Direction.Axis.X ? ".size_x" : ".size_z", minWidthChunks);
     }
 
-    private static Component sizeCaption(String key, int minChunkWidth) {
-        return Component.translatable(PREFIX + key, minChunkWidth, WorldLoopSizes.MAX_CHUNK_WIDTH);
+    private static Component sizeCaption(String key, int minWidthChunks) {
+        return Component.translatable(PREFIX + key, minWidthChunks, WorldLoopSizes.MAX_WIDTH_CHUNKS);
     }
 
-    private static String structureRoom(int chunkWidth) {
-        if (chunkWidth < VILLAGE_GRID_CHUNKS) {
+    private static String structureRoom(int widthChunks) {
+        if (widthChunks < VILLAGE_GRID_CHUNKS) {
             return ROOM_SCARCE;
         }
 
-        if (chunkWidth < MANSION_GRID_CHUNKS) {
+        if (widthChunks < MANSION_GRID_CHUNKS) {
             return ROOM_VILLAGES;
         }
 
-        return chunkWidth < STRONGHOLD_RING_CHUNKS ? ROOM_COMMON : ROOM_ALL;
+        return widthChunks < STRONGHOLD_RING_CHUNKS ? ROOM_COMMON : ROOM_ALL;
     }
 
     private SettingsLines() {

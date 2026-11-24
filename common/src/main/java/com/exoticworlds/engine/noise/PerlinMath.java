@@ -28,7 +28,7 @@ public final class PerlinMath {
 
     private static final float FUDGE_EPSILON = 1.0E-7F;
 
-    public static int[] gradient(int hash) {
+    public static int[] getGradient(int hash) {
         return GRADIENT[hash & GRADIENT_MASK];
     }
 
@@ -37,7 +37,7 @@ public final class PerlinMath {
         return Mth.floor(fudgeLimit / fudgeYScale + FUDGE_EPSILON) * fudgeYScale;
     }
 
-    public static int p(byte[] permutations, long index) {
+    public static int getPermutation(byte[] permutations, long index) {
         return permutations[(int) (index & 0xFFL)] & 0xFF;
     }
 

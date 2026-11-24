@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.seam.ClientPosition;
 import com.exoticworlds.engine.seam.HeldArea;
 
@@ -19,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
 
 class TranslationContextViewSeatTest {
     private static final int WIDTH_IN_CHUNKS = 32;
-    private static final int VIEW_DISTANCE = 8;
+    private static final int VIEW_DISTANCE_CHUNKS = 8;
     private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH_IN_CHUNKS)));
 
     private static final ChunkPos PLAYER_CHUNK = new ChunkPos(0, 0);
@@ -46,8 +46,8 @@ class TranslationContextViewSeatTest {
                     throw new UnsupportedOperationException();
                 },
                 Level.OVERWORLD,
-                VIEW_DISTANCE,
-                VIEW_DISTANCE,
+                VIEW_DISTANCE_CHUNKS,
+                VIEW_DISTANCE_CHUNKS,
                 entityId -> null,
                 entityId -> null,
                 () -> {
@@ -96,7 +96,7 @@ class TranslationContextViewSeatTest {
         TranslationContext context = contextOver(clientPosition);
 
         assertEquals(CHUNK_IN_BOTH_VIEWS, context.toClient(CHUNK_IN_BOTH_VIEWS));
-        assertEquals(3, context.seatPass().seats());
+        assertEquals(3, context.seatPass().getSeats());
 
         context.seatPass().answer(1);
         assertEquals(ITS_COPY_BESIDE_THE_CAMERA, context.toClient(CHUNK_IN_BOTH_VIEWS));

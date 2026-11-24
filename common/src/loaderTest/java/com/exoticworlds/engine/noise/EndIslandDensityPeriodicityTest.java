@@ -16,8 +16,8 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;
@@ -38,8 +38,8 @@ class EndIslandDensityPeriodicityTest {
     private static void repeatsAcrossTheSeam(List<WorldFold> folds, Direction.Axis axis) {
         Random random = new Random(SEED);
         for (WorldFold fold : folds) {
-            WrapDomain domain = fold.blockDomain(axis);
-            WrapDomain other = fold.blockDomain(axis == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X);
+            WrapDomain domain = fold.getBlockDomain(axis);
+            WrapDomain other = fold.getBlockDomain(axis == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X);
             int hits = 0;
             for (int i = 0; i < SAMPLES; i++) {
                 int along = acrossTheSeam(random, domain);

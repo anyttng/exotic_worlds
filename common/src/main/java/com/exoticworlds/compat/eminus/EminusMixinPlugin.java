@@ -46,62 +46,62 @@ public class EminusMixinPlugin extends ModPresenceGatePlugin {
             .probing("com/eminus/cell/cache/CellCache.class")
             .checking("exotic_worlds.compat.eminus.mixins.json")
             .modPackages(EMINUS_PACKAGE)
-            .withholding(TREE_MANAGER_CHANGES_MIXIN, EminusMixinPlugin::changesLiveInTreeChanges)
-            .withholding(TREE_CHANGES_MIXIN, () -> !changesLiveInTreeChanges())
-            .withholding(TREE_NODE_ACCESSOR, () -> !changesLiveInTreeChanges())
-            .withholding(MESH_FAILURES_MIXIN, () -> !changesLiveInTreeChanges())
-            .withholding(MISSING_COLUMNS_MIXIN, () -> !changesLiveInTreeChanges())
-            .withholding(WAITING_MIXIN, () -> !changesLiveInTreeChanges())
-            .withholding(FAR_QUADS_MIXIN, EminusMixinPlugin::solidPipelineSplit)
-            .withholding(FAR_QUADS_EVERY_PIPELINE_MIXIN, () -> !solidPipelineSplit()
-                    || !buildsFarPipelineBy(EminusInjectionTargets.FAR_PIPELINE_BUILDER_WITH_CUTOUT))
+            .withholding(TREE_MANAGER_CHANGES_MIXIN, EminusMixinPlugin::areChangesInTreeChanges)
+            .withholding(TREE_CHANGES_MIXIN, () -> !areChangesInTreeChanges())
+            .withholding(TREE_NODE_ACCESSOR, () -> !areChangesInTreeChanges())
+            .withholding(MESH_FAILURES_MIXIN, () -> !areChangesInTreeChanges())
+            .withholding(MISSING_COLUMNS_MIXIN, () -> !areChangesInTreeChanges())
+            .withholding(WAITING_MIXIN, () -> !areChangesInTreeChanges())
+            .withholding(FAR_QUADS_MIXIN, EminusMixinPlugin::isSolidPipelineSplit)
+            .withholding(FAR_QUADS_EVERY_PIPELINE_MIXIN, () -> !isSolidPipelineSplit()
+                    || !canBuildFarPipelineBy(EminusInjectionTargets.FAR_PIPELINE_BUILDER_WITH_CUTOUT))
             .withholding(FAR_QUADS_PIPELINE_MIXIN,
-                    () -> !buildsFarPipelineBy(EminusInjectionTargets.FAR_PIPELINE_BUILDER))
-            .withholding(REQUEST_MIXIN, EminusMixinPlugin::requestCarriesFill)
-            .withholding(FILL_REQUEST_MIXIN, () -> !requestCarriesFill())
-            .withholding(BEAM_SET_MIXIN, () -> !drawsBeams())
-            .withholding(BEAM_PASS_MIXIN, () -> !drawsBeams())
-            .withholding(RUNTIME_BEAMS_MIXIN, () -> !drawsBeams())
-            .withholding(HOLDS_MIXIN, () -> !coverageHolds())
+                    () -> !canBuildFarPipelineBy(EminusInjectionTargets.FAR_PIPELINE_BUILDER))
+            .withholding(REQUEST_MIXIN, EminusMixinPlugin::isFillCarriedByRequest)
+            .withholding(FILL_REQUEST_MIXIN, () -> !isFillCarriedByRequest())
+            .withholding(BEAM_SET_MIXIN, () -> !canDrawBeams())
+            .withholding(BEAM_PASS_MIXIN, () -> !canDrawBeams())
+            .withholding(RUNTIME_BEAMS_MIXIN, () -> !canDrawBeams())
+            .withholding(HOLDS_MIXIN, () -> !hasCoverageHolds())
             .build();
 
     public EminusMixinPlugin() {
         super(EMINUS);
     }
 
-    private static boolean changesLiveInTreeChanges() {
-        return ModPresence.probe(TREE_CHANGES_CLASS);
+    private static boolean areChangesInTreeChanges() {
+        return ModPresence.hasResource(TREE_CHANGES_CLASS);
     }
 
-    private static boolean solidPipelineSplit() {
-        return ModPresence.probe(NEAR_BOX_CLASS);
+    private static boolean isSolidPipelineSplit() {
+        return ModPresence.hasResource(NEAR_BOX_CLASS);
     }
 
-    private static boolean drawsBeams() {
-        return ModPresence.probe(BEAM_PASS_CLASS);
+    private static boolean canDrawBeams() {
+        return ModPresence.hasResource(BEAM_PASS_CLASS);
     }
 
     private static ModPresence.Builder withholdingSaveImports(ModPresence.Builder gate) {
         for (String mixin : SAVE_IMPORT_MIXINS) {
-            gate.withholding(mixin, () -> !importsSaves());
+            gate.withholding(mixin, () -> !canImportSaves());
         }
 
         return gate;
     }
 
-    private static boolean buildsFarPipelineBy(String descriptor) {
-        return ModPresence.probeMethod(FAR_QUADS, PIPELINE, descriptor);
+    private static boolean canBuildFarPipelineBy(String descriptor) {
+        return ModPresence.hasMethod(FAR_QUADS, PIPELINE, descriptor);
     }
 
-    private static boolean importsSaves() {
-        return ModPresence.probe(SAVE_IMPORT_CLASS);
+    private static boolean canImportSaves() {
+        return ModPresence.hasResource(SAVE_IMPORT_CLASS);
     }
 
-    private static boolean coverageHolds() {
-        return ModPresence.probeMethod(COLUMN_COVERAGE, HOLDS, HOLDS_DESCRIPTOR);
+    private static boolean hasCoverageHolds() {
+        return ModPresence.hasMethod(COLUMN_COVERAGE, HOLDS, HOLDS_DESCRIPTOR);
     }
 
-    private static boolean requestCarriesFill() {
-        return ModPresence.probeMethod(MESH_SERVICE, REQUEST, EminusInjectionTargets.MESH_SERVICE_FILL_REQUEST);
+    private static boolean isFillCarriedByRequest() {
+        return ModPresence.hasMethod(MESH_SERVICE, REQUEST, EminusInjectionTargets.MESH_SERVICE_FILL_REQUEST);
     }
 }

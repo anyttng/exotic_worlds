@@ -16,7 +16,7 @@ public class IngestServiceBiomeMixin {
     @ModifyReturnValue(method = "biomeWindow", at = @At("RETURN"))
     private static BiomeWindow exotic_worlds$zoomOnTheChunksLevel(BiomeWindow window,
             @Local(argsOnly = true) LevelChunk chunk) {
-        ((BiomeZoomOwner) ((BiomeWindowAccessor) (Object) window).exotic_worlds$manager()).exotic_worlds$setOwner(
+        ((BiomeZoomOwner) ((BiomeWindowAccessor) (Object) window).exotic_worlds$getManager()).exotic_worlds$setOwner(
                 chunk.getLevel());
         return window;
     }

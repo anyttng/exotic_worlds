@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.FoldSource;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedOrder;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -30,7 +30,7 @@ public class PrepareRamNearestTargetMixin {
             index = 0)
     private Comparator<BlockPos> exotic_worlds$ramStartOrderThroughSeam(Comparator<BlockPos> original,
             @Local(argsOnly = true) PathfinderMob body) {
-        WorldFold fold = ((FoldSource) body).exotic_worlds$wrappedFold();
+        WorldFold fold = ((FoldSource) body).exotic_worlds$getWrappedFold();
         if (fold == null) {
             return original;
         }
@@ -43,7 +43,7 @@ public class PrepareRamNearestTargetMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/ai/behavior/PrepareRamNearestTarget$RamCandidate;getStartPosition()Lnet/minecraft/core/BlockPos;"))
     private BlockPos exotic_worlds$ramStartThroughSeam(BlockPos startPos, @Local(argsOnly = true) PathfinderMob body) {
-        return WorldLoopAttachments.foldOf(body.level()).fold(startPos);
+        return WorldLoopAttachments.getFold(body.level()).fold(startPos);
     }
 
     @WrapOperation(
@@ -52,7 +52,7 @@ public class PrepareRamNearestTargetMixin {
                     target = "Lnet/minecraft/world/entity/ai/behavior/PrepareRamNearestTarget;getEdgeOfBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/phys/Vec3;"))
     private Vec3 exotic_worlds$ramEdgeThroughSeam(PrepareRamNearestTarget<?> self, BlockPos startRamPos, BlockPos targetPos,
             Operation<Vec3> original, @Local(argsOnly = true) PathfinderMob body) {
-        WorldFold fold = ((FoldSource) body).exotic_worlds$wrappedFold();
+        WorldFold fold = ((FoldSource) body).exotic_worlds$getWrappedFold();
         return original.call(self, NearestCopy.toward(fold, targetPos, startRamPos), targetPos);
     }
 }

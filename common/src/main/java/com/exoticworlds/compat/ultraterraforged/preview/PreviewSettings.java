@@ -16,7 +16,7 @@ public final class PreviewSettings {
         }
 
         if (source instanceof EditorSessionAccessor session) {
-            return session.exotic_worlds$screen().getSettings();
+            return session.exotic_worlds$getScreen().getSettings();
         }
 
         return null;

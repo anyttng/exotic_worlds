@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.shape.layout.OverworldDerivation;
 
 import net.minecraft.resources.ResourceKey;

@@ -26,7 +26,7 @@ public abstract class GenWarpMixin {
     @WrapOperation(method = "make", at = @At(value = "INVOKE", target = DOMAIN_PERLIN), require = WARPS)
     private static Domain exotic_worlds$warpForTheLap(int seed, int wavelength, int octaves, float strength,
             Operation<Domain> original) {
-        float lapScale = UltraTerraForgedRiverReach.INSTANCE.boundScale();
+        float lapScale = UltraTerraForgedRiverReach.INSTANCE.getBoundScale();
         return original.call(seed, Math.max(MIN_WAVELENGTH, Math.round(wavelength * lapScale)), octaves,
                 strength * lapScale);
     }

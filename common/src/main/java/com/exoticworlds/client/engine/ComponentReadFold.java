@@ -2,7 +2,7 @@ package com.exoticworlds.client.engine;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.net.ComponentPositions;
 import com.exoticworlds.engine.net.FoldedValue;
 
@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 
 public final class ComponentReadFold {
     public static @Nullable Object seated(DataComponentType<?> type, @Nullable Object stored) {
-        ComponentPositions.Mover mover = ComponentPositions.moverOf(type);
+        ComponentPositions.Mover mover = ComponentPositions.getMover(type);
         if (mover == null || stored == null) {
             return stored;
         }
@@ -26,7 +26,7 @@ public final class ComponentReadFold {
 
         ClientLevel level = minecraft.level;
         LocalPlayer player = minecraft.player;
-        WorldFold fold = ClientFrame.fold();
+        WorldFold fold = ClientFrame.getFold();
         if (level == null || player == null || fold == null) {
             return stored;
         }

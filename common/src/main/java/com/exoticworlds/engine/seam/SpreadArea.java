@@ -1,59 +1,59 @@
 package com.exoticworlds.engine.seam;
 
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.engine.fold.SeamDelta;
 
 import net.minecraft.world.phys.Vec3;
 
 public final class SpreadArea {
-    public record Confined(double x, double z, boolean clamped) {
+    public record Confined(double x, double z, boolean isClamped) {
     }
 
-    public static boolean fitsInHalfTheWorld(WorldFold fold, double xSpan, double zSpan) {
-        Vec3 diagonal = new Vec3(xSpan, 0.0, zSpan);
-        Vec3 antiDiagonal = new Vec3(xSpan, 0.0, -zSpan);
+    public static boolean canFitInHalfTheWorld(WorldFold fold, double xSpanBlocks, double zSpanBlocks) {
+        Vec3 diagonal = new Vec3(xSpanBlocks, 0.0, zSpanBlocks);
+        Vec3 antiDiagonal = new Vec3(xSpanBlocks, 0.0, -zSpanBlocks);
         return SeamDelta.fold(fold, diagonal).equals(diagonal)
                 && SeamDelta.fold(fold, antiDiagonal).equals(antiDiagonal);
     }
 
     public static double randomMin(WrapDomain axis, double min, double max) {
-        return axis.coversWorld(max - min) ? axis.lowerBound : min;
+        return axis.isCoveringWorld(max - min) ? axis.lowerBound : min;
     }
 
     public static double randomMax(WrapDomain axis, double min, double max) {
-        return axis.coversWorld(max - min) ? axis.upperBound : max;
+        return axis.isCoveringWorld(max - min) ? axis.upperBound : max;
     }
 
     public static Confined confine(WorldFold fold, double x, double z,
             double minX, double minZ, double maxX, double maxZ) {
-        TranslationLattice lattice = fold.blockLattice();
-        boolean freeX = lattice.x().coversWorld(maxX - minX);
-        boolean freeZ = lattice.z().coversWorld(maxZ - minZ);
-        boolean clamped = false;
-        if (freeZ) {
-            x -= (double) lattice.zLaps(z) * lattice.skew();
+        TranslationLattice lattice = fold.getBlockLattice();
+        boolean isXFree = lattice.getX().isCoveringWorld(maxX - minX);
+        boolean isZFree = lattice.getZ().isCoveringWorld(maxZ - minZ);
+        boolean isClamped = false;
+        if (isZFree) {
+            x -= (double) lattice.zLaps(z) * lattice.getSkew();
             z = lattice.foldZ(z);
         } else if (z < minZ) {
             z = minZ;
-            clamped = true;
+            isClamped = true;
         } else if (z > maxZ) {
             z = maxZ;
-            clamped = true;
+            isClamped = true;
         }
 
-        if (freeX) {
-            x = lattice.x().wrap(x);
+        if (isXFree) {
+            x = lattice.getX().wrap(x);
         } else if (x < minX) {
             x = minX;
-            clamped = true;
+            isClamped = true;
         } else if (x > maxX) {
             x = maxX;
-            clamped = true;
+            isClamped = true;
         }
 
-        return new Confined(x, z, clamped);
+        return new Confined(x, z, isClamped);
     }
 
     private SpreadArea() {

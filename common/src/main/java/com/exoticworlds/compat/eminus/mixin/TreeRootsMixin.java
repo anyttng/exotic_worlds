@@ -31,7 +31,7 @@ public class TreeRootsMixin implements CellFoldHolder {
     private CellFold exotic_worlds$fold = CellFold.NONE;
 
     @Override
-    public CellFold exotic_worlds$fold() {
+    public CellFold exotic_worlds$getFold() {
         return exotic_worlds$fold;
     }
 
@@ -42,7 +42,7 @@ public class TreeRootsMixin implements CellFoldHolder {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void exotic_worlds$foldOfTheRuntime(CallbackInfo ci) {
-        exotic_worlds$fold = CellFoldHolder.foldOf(ClientSession.runtime());
+        exotic_worlds$fold = CellFoldHolder.getFold(ClientSession.runtime());
     }
 
     @WrapMethod(method = "inDisc")
@@ -53,7 +53,7 @@ public class TreeRootsMixin implements CellFoldHolder {
 
         int minX = CellFrame.originBlockX(cellX, DetailLevel.MAX);
         int minZ = CellFrame.originBlockZ(cellZ, DetailLevel.MAX);
-        int side = DetailLevel.blocksPerCell(DetailLevel.MAX);
-        return exotic_worlds$fold.meetsLap(minX, minZ, minX + side, minZ + side, anchorX, anchorZ, MARGIN_BLOCKS);
+        int sideBlocks = DetailLevel.blocksPerCell(DetailLevel.MAX);
+        return exotic_worlds$fold.isMeetingLap(minX, minZ, minX + sideBlocks, minZ + sideBlocks, anchorX, anchorZ, MARGIN_BLOCKS);
     }
 }

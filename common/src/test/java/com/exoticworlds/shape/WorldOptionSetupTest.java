@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.option.WorldOptions;
 import com.exoticworlds.bridge.v1.option.OptionBridge;
-import com.exoticworlds.core.ShapeOption;
-import com.exoticworlds.core.ShapeOptionRegistry;
-import com.exoticworlds.core.SpawnPoint;
+import com.exoticworlds.core.option.ShapeOption;
+import com.exoticworlds.core.option.ShapeOptionRegistry;
+import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.shape.climate.CompactBiomes;
 import com.exoticworlds.shape.torus.GuaranteedLand;
 import com.exoticworlds.shape.torus.GuaranteedNetherComplexes;
@@ -28,7 +28,7 @@ class WorldOptionSetupTest {
     @Test
     void theModsOwnOptionsAreKnownInsideAndShownToV1() {
         for (ShapeOption<?> key : OWN) {
-            assertTrue(ShapeOptionRegistry.all().contains(key), key.key());
+            assertTrue(ShapeOptionRegistry.getAll().contains(key), key.key());
             assertTrue(WorldOptions.all().contains(OptionBridge.twin(key)), key.key());
         }
     }

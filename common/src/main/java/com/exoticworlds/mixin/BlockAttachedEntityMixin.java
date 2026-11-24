@@ -6,8 +6,8 @@ import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
@@ -23,7 +23,7 @@ public class BlockAttachedEntityMixin {
                             + "Lcom/mojang/serialization/Codec;)Ljava/util/Optional;"))
     private Optional<BlockPos> exotic_worlds$storedAnchorNearestEntity(Optional<BlockPos> stored) {
         BlockAttachedEntity entity = (BlockAttachedEntity) (Object) this;
-        @Nullable WorldFold fold = WorldLoopAttachments.wrappedFoldOfReader(entity.level());
+        @Nullable WorldFold fold = WorldLoopAttachments.getWrappedFoldOfReader(entity.level());
         return stored.map(anchor -> NearestCopy.toward(fold, entity.blockPosition(), anchor));
     }
 }

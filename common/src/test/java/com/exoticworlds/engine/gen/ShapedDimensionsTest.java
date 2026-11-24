@@ -11,13 +11,13 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -65,7 +65,7 @@ class ShapedDimensionsTest {
                 settings, new CarriedShape(TORUS, ShapeOptions.DEFAULT))));
 
         ChunkGenerator generator = overworldGeneratorOf(stripped);
-        assertNull(ShapedDimensions.shapeOf(stripped, LevelStem.OVERWORLD));
+        assertNull(ShapedDimensions.getShape(stripped, LevelStem.OVERWORLD));
         assertFalse(generator instanceof ShapedChunkGenerator, generator.getClass().getName());
         assertSame(settings, ((FlatLevelSource) generator).settings());
     }
@@ -78,7 +78,7 @@ class ShapedDimensionsTest {
                 biomes, settings, new CarriedShape(TORUS, ShapeOptions.DEFAULT))));
 
         ChunkGenerator generator = overworldGeneratorOf(stripped);
-        assertNull(ShapedDimensions.shapeOf(stripped, LevelStem.OVERWORLD));
+        assertNull(ShapedDimensions.getShape(stripped, LevelStem.OVERWORLD));
         assertFalse(generator instanceof ShapedChunkGenerator, generator.getClass().getName());
         assertSame(biomes, generator.getBiomeSource());
         assertSame(settings, ((NoiseBasedChunkGenerator) generator).generatorSettings());
@@ -91,7 +91,7 @@ class ShapedDimensionsTest {
                 overworldOf(new LoopedFlatChunkGenerator(settings, new CarriedShape(TORUS, ShapeOptions.DEFAULT))),
                 LevelStem.OVERWORLD, new CarriedShape(CYLINDER, ShapeOptions.DEFAULT));
 
-        assertEquals(CYLINDER, ShapedDimensions.shapeOf(reshaped, LevelStem.OVERWORLD));
+        assertEquals(CYLINDER, ShapedDimensions.getShape(reshaped, LevelStem.OVERWORLD));
         assertSame(settings, ((LoopedFlatChunkGenerator) overworldGeneratorOf(reshaped)).settings());
     }
 
@@ -114,7 +114,7 @@ class ShapedDimensionsTest {
                         new CarriedShape(TORUS, ShapeOptions.DEFAULT));
 
         assertSame(foreign, shaped);
-        assertNull(ShapedDimensions.shapeOf(shaped, LevelStem.NETHER));
+        assertNull(ShapedDimensions.getShape(shaped, LevelStem.NETHER));
     }
 
     @Test

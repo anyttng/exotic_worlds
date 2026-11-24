@@ -27,7 +27,7 @@ class ModPresenceTest {
     private static final String ABSENT_CLASS = "com/exoticworlds/compat/NoSuchModEntryPoint.class";
     private static final String SHIPPED_OWNER = "com/exoticworlds/compat/gate/ModPresence";
     private static final String ABSENT_OWNER = "com/exoticworlds/compat/NoSuchModEntryPoint";
-    private static final String PROBE_METHOD = "probe";
+    private static final String HAS_RESOURCE_METHOD = "hasResource";
     private static final String PROBE_DESCRIPTOR = "(Ljava/lang/String;)Z";
     private static final String OTHER_DESCRIPTOR = "(I)Z";
     private static final String CONFIG = "fixture.mixins.json";
@@ -44,7 +44,7 @@ class ModPresenceTest {
         assertTrue(ModPresence.gate(LOGGER, "[test-compat] gate holding_present")
                 .probing(SHIPPED_CLASS)
                 .checking(CONFIG, mixin -> !mixin.equals(MIXIN_PREFIX + SHADOW_MISSING))
-                .build().admitted(), "every mixin the gate covers names only members its target has");
+                .build().isAdmitted(), "every mixin the gate covers names only members its target has");
     }
 
     @Test
@@ -52,7 +52,7 @@ class ModPresenceTest {
         assertFalse(ModPresence.gate(LOGGER, "[test-compat] gate one_moved_present")
                 .probing(SHIPPED_CLASS)
                 .checking(CONFIG)
-                .build().admitted(), "one covered mixin shadows a field its target no longer declares");
+                .build().isAdmitted(), "one covered mixin shadows a field its target no longer declares");
     }
 
     @Test
@@ -60,7 +60,7 @@ class ModPresenceTest {
         assertTrue(ModPresence.gate(LOGGER, "[test-compat] gate narrowed_present")
                 .probing(SHIPPED_CLASS)
                 .checking(CONFIG, (MIXIN_PREFIX + WRAP_PRESENT)::equals)
-                .build().admitted(), "the refused mixin belongs to another gate's set");
+                .build().isAdmitted(), "the refused mixin belongs to another gate's set");
     }
 
     @Test
@@ -68,14 +68,14 @@ class ModPresenceTest {
         assertFalse(ModPresence.gate(LOGGER, "[test-compat] gate uninstalled_present")
                 .probing(ABSENT_CLASS)
                 .checking(ABSENT_CONFIG)
-                .build().admitted(), "an absent mod closes the gate before its config is opened");
+                .build().isAdmitted(), "an absent mod closes the gate before its config is opened");
     }
 
     @Test
     void aGateClosesWhenAnyOfItsResourcesIsAbsent() {
         assertFalse(ModPresence.gate(LOGGER, "[test-compat] gate half_installed_present")
                 .probing(SHIPPED_CLASS, ABSENT_CLASS)
-                .build().admitted(), "a gate standing on two mods needs both");
+                .build().isAdmitted(), "a gate standing on two mods needs both");
     }
 
     @Test
@@ -89,7 +89,7 @@ class ModPresenceTest {
                 .probing(SHIPPED_CLASS)
                 .checking(CONFIG, (MIXIN_PREFIX + WRAP_PRESENT)::equals)
                 .requiring(refusing)
-                .build().admitted(), "its own mixin holds, but it casts into what the refused gate's mixins add");
+                .build().isAdmitted(), "its own mixin holds, but it casts into what the refused gate's mixins add");
     }
 
     @Test
@@ -103,15 +103,15 @@ class ModPresenceTest {
                 .probing(SHIPPED_CLASS)
                 .checking(CONFIG, (MIXIN_PREFIX + WRAP_PRESENT)::equals)
                 .requiring(admitting)
-                .build().admitted(), "both its own mixin and the required gate's hold");
+                .build().isAdmitted(), "both its own mixin and the required gate's hold");
     }
 
     @Test
     void aGateWithoutAConfigIsTheBareProbe() {
         assertTrue(ModPresence.gate(LOGGER, "[test-compat] gate shipped_present").probing(SHIPPED_CLASS).build()
-                .admitted(), "the mod's own class file resolves through the loader the builder picks");
+                .isAdmitted(), "the mod's own class file resolves through the loader the builder picks");
         assertFalse(ModPresence.gate(LOGGER, "[test-compat] gate absent_present").probing(ABSENT_CLASS).build()
-                .admitted(), "no jar on the classpath carries that class file");
+                .isAdmitted(), "no jar on the classpath carries that class file");
     }
 
     @Test
@@ -121,33 +121,33 @@ class ModPresenceTest {
                 .checking(CONFIG, mixin -> !mixin.equals(MIXIN_PREFIX + SHADOW_MISSING))
                 .build();
 
-        assertTrue(gate.covers(FIXTURES + WRAP_PRESENT), "a common mixin the predicate takes");
-        assertTrue(gate.covers(FIXTURES + INJECT_PRESENT), "a client mixin the predicate takes");
-        assertFalse(gate.covers(FIXTURES + SHADOW_MISSING), "the predicate leaves this one to another gate");
-        assertFalse(gate.covers("com.exoticworlds.mixin." + WRAP_PRESENT), "a mixin of another config's package");
+        assertTrue(gate.isCovering(FIXTURES + WRAP_PRESENT), "a common mixin the predicate takes");
+        assertTrue(gate.isCovering(FIXTURES + INJECT_PRESENT), "a client mixin the predicate takes");
+        assertFalse(gate.isCovering(FIXTURES + SHADOW_MISSING), "the predicate leaves this one to another gate");
+        assertFalse(gate.isCovering("com.exoticworlds.mixin." + WRAP_PRESENT), "a mixin of another config's package");
     }
 
     @Test
     void aDedicatedServerChecksNoClientMixin() {
-        assertTrue(sidedGate("server").build(ModPresence.class.getClassLoader(), () -> Side.SERVER).admitted(),
+        assertTrue(sidedGate("server").build(ModPresence.class.getClassLoader(), () -> Side.SERVER).isAdmitted(),
                 "Mixin applies no client block on a dedicated server, so its missing member closes nothing");
     }
 
     @Test
     void anUnknownSideChecksNeitherSidedBlock() {
-        assertTrue(sidedGate("unknown").build(ModPresence.class.getClassLoader(), () -> Side.UNKNOWN).admitted(),
+        assertTrue(sidedGate("unknown").build(ModPresence.class.getClassLoader(), () -> Side.UNKNOWN).isAdmitted(),
                 "Mixin applies only the common block where it cannot detect the side");
     }
 
     @Test
     void aClientChecksItsClientMixins() {
-        assertFalse(sidedGate("client").build(ModPresence.class.getClassLoader(), () -> Side.CLIENT).admitted(),
+        assertFalse(sidedGate("client").build(ModPresence.class.getClassLoader(), () -> Side.CLIENT).isAdmitted(),
                 "the client block applies on a client, and one of its mixins names a missing member");
     }
 
     @Test
     void outsideAMixinRunEveryBlockIsChecked() {
-        assertFalse(sidedGate("unsided").build().admitted(),
+        assertFalse(sidedGate("unsided").build().isAdmitted(),
                 "with no side handed in, the client block is checked as on a client");
     }
 
@@ -165,24 +165,24 @@ class ModPresenceTest {
                 .withholding(MIXIN_PREFIX + SHADOW_MISSING, () -> true)
                 .build();
 
-        assertTrue(gate.admitted(), "the one mixin naming a missing member is withheld, so the rest opens the gate");
-        assertFalse(gate.admits(FIXTURES + SHADOW_MISSING), "a withheld mixin is never applied");
-        assertTrue(gate.admits(FIXTURES + WRAP_PRESENT), "the mixins beside it apply");
+        assertTrue(gate.isAdmitted(), "the one mixin naming a missing member is withheld, so the rest opens the gate");
+        assertFalse(gate.isAdmitting(FIXTURES + SHADOW_MISSING), "a withheld mixin is never applied");
+        assertTrue(gate.isAdmitting(FIXTURES + WRAP_PRESENT), "the mixins beside it apply");
     }
 
     @Test
     void theBareProbeAnswersTheSameAsAGate() {
-        assertTrue(ModPresence.probe(SHIPPED_CLASS), "the bare probe resolves the shipped class through the same loader");
-        assertFalse(ModPresence.probe(ABSENT_CLASS), "the bare probe reads an absent class as absent");
+        assertTrue(ModPresence.hasResource(SHIPPED_CLASS), "the bare probe resolves the shipped class through the same loader");
+        assertFalse(ModPresence.hasResource(ABSENT_CLASS), "the bare probe reads an absent class as absent");
     }
 
     @Test
     void theMethodProbeMatchesNameAndDescriptorTogether() {
-        assertTrue(ModPresence.probeMethod(SHIPPED_OWNER, PROBE_METHOD, PROBE_DESCRIPTOR),
+        assertTrue(ModPresence.hasMethod(SHIPPED_OWNER, HAS_RESOURCE_METHOD, PROBE_DESCRIPTOR),
                 "the shipped class declares the method under that descriptor");
-        assertFalse(ModPresence.probeMethod(SHIPPED_OWNER, PROBE_METHOD, OTHER_DESCRIPTOR),
+        assertFalse(ModPresence.hasMethod(SHIPPED_OWNER, HAS_RESOURCE_METHOD, OTHER_DESCRIPTOR),
                 "the same name under another descriptor is another method");
-        assertFalse(ModPresence.probeMethod(ABSENT_OWNER, PROBE_METHOD, PROBE_DESCRIPTOR),
+        assertFalse(ModPresence.hasMethod(ABSENT_OWNER, HAS_RESOURCE_METHOD, PROBE_DESCRIPTOR),
                 "an absent class declares nothing");
     }
 
@@ -192,8 +192,8 @@ class ModPresenceTest {
         ModPresence gate = ModPresence.gate(LOGGER, "[test-compat] gate once_present").probing(SHIPPED_CLASS)
                 .build(loader);
 
-        assertTrue(gate.admitted());
-        assertTrue(gate.admitted());
+        assertTrue(gate.isAdmitted());
+        assertTrue(gate.isAdmitted());
 
         assertEquals(1, loader.lookups, "the second admitted() answers from the value the first one probed");
         assertEquals(SHIPPED_CLASS, loader.asked, "the probe asks for the resource its gate names");
@@ -201,13 +201,13 @@ class ModPresenceTest {
 
     @Test
     void aGateWhoseCompatClassesReachOnlyWhatTheModHasOpens() {
-        assertTrue(scanGate(ScanFixtures.SCAN_CONFIG).build(ScanFixtures.current()).admitted(),
+        assertTrue(scanGate(ScanFixtures.SCAN_CONFIG).build(ScanFixtures.current()).isAdmitted(),
                 "every class of the gate's package reaches only members the mod has");
     }
 
     @Test
     void aCompatClassReachingAMemberTheModLacksClosesTheGate() {
-        assertFalse(scanGate(ScanFixtures.SCAN_CONFIG).build(ScanFixtures.older()).admitted(),
+        assertFalse(scanGate(ScanFixtures.SCAN_CONFIG).build(ScanFixtures.older()).isAdmitted(),
                 "a class outside the mixins calls a method the older mod lacks");
     }
 
@@ -216,26 +216,26 @@ class ModPresenceTest {
         ModPresence gate = scanGate(ScanFixtures.SCAN_CONFIG).optional(ScanFixtures.OPTIONAL_HOLDER)
                 .build(ScanFixtures.withoutLater());
 
-        assertTrue(gate.admitted(), "only the optional holder and the nested gate's class name the missing class");
+        assertTrue(gate.isAdmitted(), "only the optional holder and the nested gate's class name the missing class");
         assertEquals(List.of(FixtureScanPlugin.class.getName(), FixtureCaller.class.getName()),
-                gate.scannedClasses(), "the gate reads its own package and leaves the nested one to its gate");
+                gate.scanClasses(), "the gate reads its own package and leaves the nested one to its gate");
     }
 
     @Test
     void anUndeclaredHolderOfAMissingClassClosesTheGate() {
-        assertFalse(scanGate(ScanFixtures.SCAN_CONFIG).build(ScanFixtures.withoutLater()).admitted(),
+        assertFalse(scanGate(ScanFixtures.SCAN_CONFIG).build(ScanFixtures.withoutLater()).isAdmitted(),
                 "the holder is read like every other class of the package");
     }
 
     @Test
     void aNestedGateReadsItsOwnPackage() {
-        assertFalse(scanGate(ScanFixtures.NESTED_CONFIG).build(ScanFixtures.withoutLater()).admitted(),
+        assertFalse(scanGate(ScanFixtures.NESTED_CONFIG).build(ScanFixtures.withoutLater()).isAdmitted(),
                 "the nested gate's caller names the class the mod lacks");
     }
 
     @Test
     void aGateCheckingTheModsPackagesClosesWithoutTheClassIndex() {
-        assertFalse(scanGate(ScanFixtures.SCAN_CONFIG).build(ScanFixtures.withoutIndex()).admitted(),
+        assertFalse(scanGate(ScanFixtures.SCAN_CONFIG).build(ScanFixtures.withoutIndex()).isAdmitted(),
                 "a build without the index cannot say which classes the gate stands for");
     }
 
@@ -244,12 +244,12 @@ class ModPresenceTest {
         ModPresence first = firstSharedGate().build(ScanFixtures.withoutLater());
         ModPresence second = secondSharedGate().build(ScanFixtures.withoutLater());
 
-        assertFalse(first.admitted(), "the first gate's class and mixin create the class the mod lacks");
-        assertTrue(second.admitted(), "the second gate reads neither of them");
+        assertFalse(first.isAdmitted(), "the first gate's class and mixin create the class the mod lacks");
+        assertTrue(second.isAdmitted(), "the second gate reads neither of them");
         assertEquals(List.of(FixtureSharedFirst.class.getName(), FixtureSharedFirstMixin.class.getName()),
-                first.scannedClasses(), "the class its scanning set takes and the mixin it covers");
+                first.scanClasses(), "the class its scanning set takes and the mixin it covers");
         assertEquals(List.of(FixtureSharedPlugin.class.getName(), FixtureSharedSecond.class.getName(),
-                        FixtureSharedSecondMixin.class.getName()), second.scannedClasses(),
+                        FixtureSharedSecondMixin.class.getName()), second.scanClasses(),
                 "every other class of the root and the mixin it covers");
     }
 
@@ -260,8 +260,8 @@ class ModPresenceTest {
                 .withholding(ScanFixtures.SHARED_FIRST_MIXIN, () -> true)
                 .build(ScanFixtures.withoutLater());
 
-        assertTrue(gate.admitted(), "the withheld mixin is the gate's only class naming the class the mod lacks");
-        assertEquals(List.of(), gate.scannedClasses(), "a mixin never applied never runs its body");
+        assertTrue(gate.isAdmitted(), "the withheld mixin is the gate's only class naming the class the mod lacks");
+        assertEquals(List.of(), gate.scanClasses(), "a mixin never applied never runs its body");
     }
 
     @Test
@@ -270,7 +270,7 @@ class ModPresenceTest {
 
         assertEquals(List.of(FixtureSharedPlugin.class.getName(), FixtureSharedFirst.class.getName(),
                         FixtureSharedSecond.class.getName(), FixtureSharedFirstMixin.class.getName(),
-                        FixtureSharedSecondMixin.class.getName()), gate.ownedClasses(),
+                        FixtureSharedSecondMixin.class.getName()), gate.scanOwnedClasses(),
                 "beside a sibling gate every class of the root then has two owners");
     }
 

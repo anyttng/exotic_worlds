@@ -21,7 +21,7 @@ import com.exoticworlds.compat.create.BezierCurveFold;
 import com.exoticworlds.compat.create.CreateFrameSeat;
 import com.exoticworlds.compat.create.CreateInjectionTargets;
 import com.exoticworlds.compat.create.CreateSeamFold;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -100,7 +100,7 @@ public abstract class TrackEdgeMixin {
             @Share(OTHER_NEAR_END) LocalRef<Vec3> otherNearEndRef,
             @Share(OTHER_SEAT) LocalRef<CreateFrameSeat> seatRef) {
         Vec3 rawNearEnd = original.call(target);
-        WorldFold fold = CreateSeamFold.wrappedFoldOf(null, target.getDimension());
+        WorldFold fold = CreateSeamFold.getWrappedFold(null, target.getDimension());
         if (fold == null) {
             otherNearEndRef.set(rawNearEnd);
             return rawNearEnd;

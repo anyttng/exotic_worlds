@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.DoubleStack;
 import com.exoticworlds.engine.ObjectStack;
 
@@ -29,37 +29,37 @@ public final class GenerationFoldContext {
         private final BindingScope bindingScope = new BindingScope();
         private final FoldScope foldScope = new FoldScope();
 
-        public WorldFold fold() {
+        public WorldFold getFold() {
             return this.fold;
         }
 
-        public @Nullable WorldFold wrappedFold() {
+        public @Nullable WorldFold getWrappedFold() {
             return this.fold.isWrapped() ? this.fold : null;
         }
 
-        public @Nullable WorldFold routerBuildFold() {
+        public @Nullable WorldFold getRouterBuildFold() {
             return this.routerBuild;
         }
 
         // mc/26.2: the noise samplers and C2ME's compiled tree read the scale through it.
-        public double horizontalScale() {
+        public double getHorizontalScale() {
             return this.horizontalScale;
         }
 
-        public double verticalShare() {
+        public double getVerticalShare() {
             return this.verticalShare;
         }
 
-        public double xDivisor() {
+        public double getXDivisor() {
             return this.xDivisor;
         }
 
-        public double zDivisor() {
+        public double getZDivisor() {
             return this.zDivisor;
         }
 
         // mc/26.2: the noise samplers read the slot axes through it.
-        public SlotAxes slotAxes() {
+        public SlotAxes getSlotAxes() {
             return this.slotAxes;
         }
 
@@ -196,12 +196,12 @@ public final class GenerationFoldContext {
 
     private static final ThreadLocal<Context> CONTEXT = ThreadLocal.withInitial(Context::new);
 
-    public static Context context() {
+    public static Context getContext() {
         return CONTEXT.get();
     }
 
     public static @Nullable WorldFold carriedOrBound(@Nullable WorldFold carried) {
-        return carried != null ? carried : CONTEXT.get().wrappedFold();
+        return carried != null ? carried : CONTEXT.get().getWrappedFold();
     }
 
     public static <T> T withFold(WorldFold fold, Supplier<T> action) {

@@ -33,7 +33,7 @@ class FoldedValueTest {
 
     private static final String UNFOLDED = "a label the fold knows nothing about";
 
-    private static final double HALF_SIDE = 0.5;
+    private static final double HALF_SIDE_BLOCKS = 0.5;
 
     private static Vec3 anchor() {
         return new Vec3(MIRROR_X, 0.0, MIRROR_Z);
@@ -185,7 +185,7 @@ class FoldedValueTest {
     }
 
     private static AABB boxAround(double x, double z) {
-        return new AABB(x - HALF_SIDE, 64.0, z - HALF_SIDE, x + HALF_SIDE, 64.0 + 2 * HALF_SIDE, z + HALF_SIDE);
+        return new AABB(x - HALF_SIDE_BLOCKS, 64.0, z - HALF_SIDE_BLOCKS, x + HALF_SIDE_BLOCKS, 64.0 + 2 * HALF_SIDE_BLOCKS, z + HALF_SIDE_BLOCKS);
     }
 
     record Marker(BlockPos pos, String label) {

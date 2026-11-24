@@ -1,28 +1,28 @@
 package com.exoticworlds.engine.gen.structure;
 
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.WrapDomain;
 
 public final class SectorGridAxis {
     private final WrapDomain domain;
-    private final int spacing;
+    private final int spacingChunks;
     private final int originChunk;
-    private final boolean closes;
+    private final boolean isClosed;
     private final int gridMin;
     private final int gridCount;
     private final int originGrid;
     private final int offsetCap;
 
-    private SectorGridAxis(WrapDomain domain, int spacing, int originChunk) {
+    private SectorGridAxis(WrapDomain domain, int spacingChunks, int originChunk) {
         this.domain = domain;
-        this.spacing = spacing;
+        this.spacingChunks = spacingChunks;
         this.originChunk = originChunk;
-        this.closes = domain.stepsToCoverTheWorld(spacing) != Integer.MAX_VALUE;
-        if (this.closes) {
-            int lowestCell = Math.floorDiv(domain.lowerBound, spacing);
-            int highestCell = Math.floorDiv(domain.upperBound - 1, spacing);
+        this.isClosed = domain.stepsToCoverTheWorld(spacingChunks) != Integer.MAX_VALUE;
+        if (this.isClosed) {
+            int lowestCell = Math.floorDiv(domain.lowerBound, spacingChunks);
+            int highestCell = Math.floorDiv(domain.upperBound - 1, spacingChunks);
             this.gridMin = lowestCell;
             this.gridCount = highestCell - lowestCell + 1;
-            this.originGrid = Math.floorDiv(originChunk, spacing);
+            this.originGrid = Math.floorDiv(originChunk, spacingChunks);
             this.offsetCap = this.gridCount / 2;
         } else {
             this.gridMin = 0;
@@ -32,33 +32,33 @@ public final class SectorGridAxis {
         }
     }
 
-    public static SectorGridAxis of(WrapDomain chunkDomain, int spacing, int originChunk) {
-        return new SectorGridAxis(chunkDomain, spacing, originChunk);
+    public static SectorGridAxis of(WrapDomain chunkDomain, int spacingChunks, int originChunk) {
+        return new SectorGridAxis(chunkDomain, spacingChunks, originChunk);
     }
 
-    public int offsetCap() {
+    public int getOffsetCap() {
         return offsetCap;
     }
 
     public int probeChunk(int offset) {
-        if (!closes) {
-            return originChunk + spacing * offset;
+        if (!isClosed) {
+            return originChunk + spacingChunks * offset;
         }
 
         int cell = gridMin + Math.floorMod(originGrid + offset - gridMin, gridCount);
-        return Math.max(cell * spacing, domain.lowerBound);
+        return Math.max(cell * spacingChunks, domain.lowerBound);
     }
 
     public int lapsCrossed(int offset) {
-        return closes ? Math.floorDiv(originGrid + offset - gridMin, gridCount) : 0;
+        return isClosed ? Math.floorDiv(originGrid + offset - gridMin, gridCount) : 0;
     }
 
     public int probeChunkShifted(int offset, int shiftChunks) {
         int probe = probeChunk(offset);
-        if (shiftChunks == 0 || !closes) {
+        if (shiftChunks == 0 || !isClosed) {
             return probe;
         }
 
-        return Math.max(Math.floorDiv(domain.wrap(probe + shiftChunks), spacing) * spacing, domain.lowerBound);
+        return Math.max(Math.floorDiv(domain.wrap(probe + shiftChunks), spacingChunks) * spacingChunks, domain.lowerBound);
     }
 }

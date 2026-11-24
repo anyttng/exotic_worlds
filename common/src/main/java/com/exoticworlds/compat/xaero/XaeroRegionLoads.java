@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.level.ChunkPos;
 
@@ -37,7 +37,7 @@ public final class XaeroRegionLoads {
         int regX = region.regX();
         int regZ = region.regZ();
         this.sweep.seen(regX, regZ);
-        WorldFold fold = frame.fold();
+        WorldFold fold = frame.getFold();
         if (fold == null) {
             return existing;
         }
@@ -56,7 +56,7 @@ public final class XaeroRegionLoads {
             XaeroRegionKey region) {
         int level = region.level();
         for (long corner : XaeroWorldMapFold.canonicalRegionCorners(fold, region.regX(), region.regZ(), level)) {
-            LeveledRegion<?> candidate = texturedRegion(processor, region.caveLayer(), ChunkPos.getX(corner),
+            LeveledRegion<?> candidate = getTexturedRegion(processor, region.caveLayer(), ChunkPos.getX(corner),
                     ChunkPos.getZ(corner), level);
             if (candidate != null) {
                 this.sweep.seen(ChunkPos.getX(corner), ChunkPos.getZ(corner));
@@ -67,31 +67,31 @@ public final class XaeroRegionLoads {
         return null;
     }
 
-    private static @Nullable LeveledRegion<?> texturedRegion(MapProcessor processor, int caveLayer, int regX, int regZ,
+    private static @Nullable LeveledRegion<?> getTexturedRegion(MapProcessor processor, int caveLayer, int regX, int regZ,
             int level) {
         LeveledRegion<?> region = processor.getLeveledRegion(caveLayer, regX, regZ, level);
         return region == null || !region.hasTextures() ? null : region;
     }
 
     @SuppressWarnings("NonApiType")
-    public void keepFannedRegions(MapProcessor processor, boolean prevWaitingForBranchCache,
+    public void keepFannedRegions(MapProcessor processor, boolean isPrevWaitingForBranchCache,
             boolean[] waitingForBranchCache, ArrayList<BranchLeveledRegion> branchRegionBuffer) {
         this.sweep.forEachUnseen(region -> keep(processor, ChunkPos.getX(region), ChunkPos.getZ(region),
-                prevWaitingForBranchCache, waitingForBranchCache, branchRegionBuffer));
+                isPrevWaitingForBranchCache, waitingForBranchCache, branchRegionBuffer));
     }
 
     @SuppressWarnings("NonApiType")
-    private void keep(MapProcessor processor, int regX, int regZ, boolean prevWaitingForBranchCache,
+    private void keep(MapProcessor processor, int regX, int regZ, boolean isPrevWaitingForBranchCache,
             boolean[] waitingForBranchCache, ArrayList<BranchLeveledRegion> branchRegionBuffer) {
-        int level = this.frame.viewLevel();
-        LeveledRegion<?> region = processor.getLeveledRegion(this.frame.viewCaveLayer(), regX, regZ, level);
+        int level = this.frame.getViewLevel();
+        LeveledRegion<?> region = processor.getLeveledRegion(this.frame.getViewCaveLayer(), regX, regZ, level);
         if (region == null || processor.isUploadingPaused() || WorldMap.pauseRequests) {
             return;
         }
 
         if (region instanceof BranchLeveledRegion branch) {
             int leaves = 1 << level;
-            branch.checkForUpdates(processor, prevWaitingForBranchCache, waitingForBranchCache, branchRegionBuffer,
+            branch.checkForUpdates(processor, isPrevWaitingForBranchCache, waitingForBranchCache, branchRegionBuffer,
                     level, regX * leaves, regZ * leaves, regX * leaves + leaves - 1, regZ * leaves + leaves - 1);
         }
 
@@ -108,36 +108,36 @@ public final class XaeroRegionLoads {
         return this.fan.admitRow(maxLeafRegZ, regX, regZ);
     }
 
-    public boolean fannedLeafExists(boolean exists, int regX, int regZ) {
-        return this.fan.exists(exists, regX, regZ);
+    public boolean isFannedLeafExisting(boolean isExisting, int regX, int regZ) {
+        return this.fan.isExisting(isExisting, regX, regZ);
     }
 
-    public @Nullable MapRegion loopLeaf(MapProcessor processor, @Nullable MapRegion existing, int caveLayer, int regX,
+    public @Nullable MapRegion getLoopLeaf(MapProcessor processor, @Nullable MapRegion existing, int caveLayer, int regX,
             int regZ) {
-        long leaf = this.fan.leaf(regX, regZ);
+        long leaf = this.fan.getLeaf(regX, regZ);
         return leaf == XaeroLeafFan.NO_LEAF
-                ? leafOrFold(processor, existing, caveLayer, regX, regZ)
-                : leafRegion(processor, caveLayer, ChunkPos.getX(leaf), ChunkPos.getZ(leaf));
+                ? getLeafOrFold(processor, existing, caveLayer, regX, regZ)
+                : getLeafRegion(processor, caveLayer, ChunkPos.getX(leaf), ChunkPos.getZ(leaf));
     }
 
-    public @Nullable MapRegion hoverLeaf(MapProcessor processor, @Nullable MapRegion existing, int caveLayer,
+    public @Nullable MapRegion getHoverLeaf(MapProcessor processor, @Nullable MapRegion existing, int caveLayer,
             int mouseBlockX, int mouseBlockZ) {
-        return leafOrFold(processor, existing, caveLayer, Math.floorDiv(mouseBlockX, XaeroWorldMapFold.REGION_BLOCKS),
+        return getLeafOrFold(processor, existing, caveLayer, Math.floorDiv(mouseBlockX, XaeroWorldMapFold.REGION_BLOCKS),
                 Math.floorDiv(mouseBlockZ, XaeroWorldMapFold.REGION_BLOCKS));
     }
 
-    public @Nullable MapRegion leafOrFold(MapProcessor processor, @Nullable MapRegion existing, int caveLayer, int regX,
+    public @Nullable MapRegion getLeafOrFold(MapProcessor processor, @Nullable MapRegion existing, int caveLayer, int regX,
             int regZ) {
-        WorldFold fold = this.frame.fold();
+        WorldFold fold = this.frame.getFold();
         if (existing != null || fold == null) {
             return existing;
         }
 
         ChunkPos folded = XaeroWorldMapFold.foldRegion(fold, regX, regZ);
-        return leafRegion(processor, caveLayer, folded.x(), folded.z());
+        return getLeafRegion(processor, caveLayer, folded.x(), folded.z());
     }
 
-    private static @Nullable MapRegion leafRegion(MapProcessor processor, int caveLayer, int regX, int regZ) {
+    private static @Nullable MapRegion getLeafRegion(MapProcessor processor, int caveLayer, int regX, int regZ) {
         return processor.getLeafMapRegion(caveLayer, regX, regZ, processor.regionExists(caveLayer, regX, regZ));
     }
 

@@ -5,7 +5,7 @@ import org.betterx.wover.generator.impl.biomesource.nether.WoverNetherBiomeSourc
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.FoldedQuart;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -17,7 +17,7 @@ public class WoverBiomeSourceMixin {
     @ModifyReturnValue(method = "createResolver", at = @At("RETURN"))
     private BiomeResolver exotic_worlds$foldedResolver(BiomeResolver resolver) {
         return (quartX, quartY, quartZ) -> {
-            WorldFold fold = GenerationFoldContext.context().wrappedFold();
+            WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
             if (fold == null) {
                 return resolver.getNoiseBiome(quartX, quartY, quartZ);
             }

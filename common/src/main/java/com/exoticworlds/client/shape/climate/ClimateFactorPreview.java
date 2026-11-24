@@ -4,9 +4,9 @@ import java.util.OptionalDouble;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.shape.climate.ClimateCompression;
 
 import net.minecraft.client.gui.screens.Screen;

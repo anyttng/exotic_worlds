@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.SeamLine;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -68,9 +68,9 @@ class PreviewViewTest {
     void aSkewedEdgeBreaksIntoSegments() {
         PreviewView view = new PreviewView(SKEWED, MapCopies.REPEATED, 256f, 256f, 1f);
         List<SeamLine> lines = view.seamLines(0, 0, 256);
-        assertEquals(2, lines.stream().filter(line -> !line.vertical()).count(),
+        assertEquals(2, lines.stream().filter(line -> !line.isVertical()).count(),
                 "the Z edge splits where the X edge of the moved row meets it");
-        assertEquals(2, lines.stream().filter(SeamLine::vertical).map(SeamLine::at).distinct().count(),
+        assertEquals(2, lines.stream().filter(SeamLine::isVertical).map(SeamLine::at).distinct().count(),
                 "the X edge past the Z edge is moved by the 64-block skew");
     }
 

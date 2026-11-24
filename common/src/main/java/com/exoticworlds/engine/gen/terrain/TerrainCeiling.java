@@ -4,8 +4,8 @@ import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.DensityFunctionNodes;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.gen.DensityFunctionNodes;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -29,9 +29,9 @@ public final class TerrainCeiling {
 
     private static final float PENALTY = 0.25F;
 
-    private static final int CELL_WIDTH = 4;
+    private static final int CELL_WIDTH_BLOCKS = 4;
 
-    private static final int CELL_HEIGHT = 8;
+    private static final int CELL_HEIGHT_BLOCKS = 8;
 
     @SuppressWarnings("deprecation")
     public static NoiseGeneratorSettings withCeiling(NoiseGeneratorSettings settings) {
@@ -96,7 +96,7 @@ public final class TerrainCeiling {
 
         DensityFunction aboveCeiling = DensityFunctions.sub(worldY(), ceiling);
         DensityFunction ramp = DensityFunctions
-                .mul(DensityFunctions.interpolated(aboveCeiling, CELL_WIDTH, CELL_HEIGHT),
+                .mul(DensityFunctions.interpolated(aboveCeiling, CELL_WIDTH_BLOCKS, CELL_HEIGHT_BLOCKS),
                         DensityFunctions.constant(1.0F / RAMP_BLOCKS))
                 .clamp(0.0F, 1.0F);
         return withFinalDensity(source, DensityFunctions.add(source.finalDensity(),

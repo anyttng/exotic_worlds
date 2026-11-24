@@ -9,10 +9,10 @@ import com.exoticworlds.accessors.ClientBoundsHolder;
 import com.exoticworlds.client.shape.layout.DimensionLock;
 import com.exoticworlds.client.shape.layout.CoordinateScales;
 import com.exoticworlds.client.shape.layout.WorldShapeSettingsScreen;
-import com.exoticworlds.core.DimensionTable;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.world.DimensionTable;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.gen.DimensionChoices;
 import com.exoticworlds.engine.level.PublishedShapes;
 import com.exoticworlds.engine.net.ComponentPositions;
@@ -71,7 +71,7 @@ public final class WorldLoopClientNetwork {
         Map<ResourceKey<LevelStem>, DimensionTable.Entry> choices = new HashMap<>();
         for (ResourceKey<LevelStem> stem : modStems) {
             if (!locks.containsKey(stem)) {
-                choices.put(stem, LayoutDimensions.entryOf(chosen.modDimension(stem)));
+                choices.put(stem, LayoutDimensions.entryOf(chosen.getModDimension(stem)));
             }
         }
 

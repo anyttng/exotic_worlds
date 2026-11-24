@@ -9,13 +9,13 @@ import java.util.Random;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.engine.noise.periodic.SimplexSlot;
 
 import net.minecraft.core.BlockPos;
@@ -77,8 +77,8 @@ class FoldedPlacementCountsTest {
         return domain.lowerBound + step * (domain.domainLength / LINE_SAMPLES) + random.nextInt(2);
     }
 
-    private static int lap(WorldFold fold, Direction.Axis axis) {
-        return fold.blockDomain(axis).domainLength;
+    private static int lapBlocks(WorldFold fold, Direction.Axis axis) {
+        return fold.getBlockDomain(axis).domainLength;
     }
 
     @Nested
@@ -87,13 +87,13 @@ class FoldedPlacementCountsTest {
         void agreesOneWorldWidthApartAlongX() {
             Random random = new Random(SEED);
             for (WorldFold fold : WRAPPED_X) {
-                int period = lap(fold, Direction.Axis.X);
+                int periodBlocks = lapBlocks(fold, Direction.Axis.X);
                 for (double factor : NOISE_FACTORS) {
                     for (int i = 0; i < LINE_SAMPLES; i++) {
-                        int x = blockInDomain(random, fold.blockDomain(Direction.Axis.X));
-                        int z = lineCoord(random, fold.blockDomain(Direction.Axis.Z), i);
+                        int x = blockInDomain(random, fold.getBlockDomain(Direction.Axis.X));
+                        int z = lineCoord(random, fold.getBlockDomain(Direction.Axis.Z), i);
 
-                        assertEquals(count(fold, x, z, factor), count(fold, x + period, z, factor),
+                        assertEquals(count(fold, x, z, factor), count(fold, x + periodBlocks, z, factor),
                                 () -> "count(" + x + ", " + z + ") vs one X lap in " + fold
                                         + " with noise factor " + factor);
                     }
@@ -105,13 +105,13 @@ class FoldedPlacementCountsTest {
         void agreesOneWorldWidthApartAlongZ() {
             Random random = new Random(SEED);
             for (WorldFold fold : BOTH_AXES) {
-                int period = lap(fold, Direction.Axis.Z);
+                int periodBlocks = lapBlocks(fold, Direction.Axis.Z);
                 for (double factor : NOISE_FACTORS) {
                     for (int i = 0; i < LINE_SAMPLES; i++) {
-                        int x = lineCoord(random, fold.blockDomain(Direction.Axis.X), i);
-                        int z = blockInDomain(random, fold.blockDomain(Direction.Axis.Z));
+                        int x = lineCoord(random, fold.getBlockDomain(Direction.Axis.X), i);
+                        int z = blockInDomain(random, fold.getBlockDomain(Direction.Axis.Z));
 
-                        assertEquals(count(fold, x, z, factor), count(fold, x, z + period, factor),
+                        assertEquals(count(fold, x, z, factor), count(fold, x, z + periodBlocks, factor),
                                 () -> "count(" + x + ", " + z + ") vs one Z lap in " + fold
                                         + " with noise factor " + factor);
                     }
@@ -123,14 +123,14 @@ class FoldedPlacementCountsTest {
         void agreesWhenBothAxesWrapAtOnce() {
             Random random = new Random(SEED);
             for (WorldFold fold : BOTH_AXES) {
-                int xPeriod = lap(fold, Direction.Axis.X);
-                int zPeriod = lap(fold, Direction.Axis.Z);
+                int xPeriodBlocks = lapBlocks(fold, Direction.Axis.X);
+                int zPeriodBlocks = lapBlocks(fold, Direction.Axis.Z);
                 for (double factor : NOISE_FACTORS) {
                     for (int i = 0; i < LINE_SAMPLES; i++) {
-                        int x = blockInDomain(random, fold.blockDomain(Direction.Axis.X));
-                        int z = blockInDomain(random, fold.blockDomain(Direction.Axis.Z));
+                        int x = blockInDomain(random, fold.getBlockDomain(Direction.Axis.X));
+                        int z = blockInDomain(random, fold.getBlockDomain(Direction.Axis.Z));
 
-                        assertEquals(count(fold, x, z, factor), count(fold, x + xPeriod, z + zPeriod, factor),
+                        assertEquals(count(fold, x, z, factor), count(fold, x + xPeriodBlocks, z + zPeriodBlocks, factor),
                                 () -> "count(" + x + ", " + z + ") vs the corner lap in " + fold
                                         + " with noise factor " + factor);
                     }
@@ -144,13 +144,13 @@ class FoldedPlacementCountsTest {
             NoiseBasedCountPlacement vanilla =
                     NoiseBasedCountPlacement.of(BAMBOO_RATIO, UNCARRIED_FACTOR, BAMBOO_OFFSET);
             for (WorldFold fold : WRAPPED_X) {
-                TranslationLattice lattice = fold.blockLattice();
-                int xPeriod = lap(fold, Direction.Axis.X);
-                int zPeriod = fold.blockDomain(Direction.Axis.Z).loops() ? lap(fold, Direction.Axis.Z) : 0;
+                TranslationLattice lattice = fold.getBlockLattice();
+                int xPeriodBlocks = lapBlocks(fold, Direction.Axis.X);
+                int zPeriodBlocks = fold.getBlockDomain(Direction.Axis.Z).isLooped() ? lapBlocks(fold, Direction.Axis.Z) : 0;
                 for (int i = 0; i < LINE_SAMPLES; i++) {
-                    int x = blockInDomain(random, fold.blockDomain(Direction.Axis.X));
-                    int z = lineCoord(random, fold.blockDomain(Direction.Axis.Z), i);
-                    for (int[] block : new int[][] {{x, z}, {x + xPeriod, z}, {x, z + zPeriod}}) {
+                    int x = blockInDomain(random, fold.getBlockDomain(Direction.Axis.X));
+                    int z = lineCoord(random, fold.getBlockDomain(Direction.Axis.Z), i);
+                    for (int[] block : new int[][] {{x, z}, {x + xPeriodBlocks, z}, {x, z + zPeriodBlocks}}) {
                         int expected = vanilla.count(RandomSource.create(SEED),
                                 new BlockPos(lattice.foldX(block[0], block[1]), 0, lattice.foldZ(block[1])));
                         assertEquals(expected, count(fold, block[0], block[1], UNCARRIED_FACTOR),
@@ -173,13 +173,13 @@ class FoldedPlacementCountsTest {
         void agreesOneWorldWidthApartAlongX() {
             Random random = new Random(SEED);
             for (WorldFold fold : WRAPPED_X) {
-                int period = lap(fold, Direction.Axis.X);
+                int periodBlocks = lapBlocks(fold, Direction.Axis.X);
                 for (double level : NOISE_LEVELS) {
                     for (int i = 0; i < LINE_SAMPLES; i++) {
-                        int x = blockInDomain(random, fold.blockDomain(Direction.Axis.X));
-                        int z = lineCoord(random, fold.blockDomain(Direction.Axis.Z), i);
+                        int x = blockInDomain(random, fold.getBlockDomain(Direction.Axis.X));
+                        int z = lineCoord(random, fold.getBlockDomain(Direction.Axis.Z), i);
 
-                        assertEquals(count(fold, x, z, level), count(fold, x + period, z, level),
+                        assertEquals(count(fold, x, z, level), count(fold, x + periodBlocks, z, level),
                                 () -> "count(" + x + ", " + z + ") vs one X lap in " + fold
                                         + " with noise level " + level);
                     }
@@ -191,13 +191,13 @@ class FoldedPlacementCountsTest {
         void agreesOneWorldWidthApartAlongZ() {
             Random random = new Random(SEED);
             for (WorldFold fold : BOTH_AXES) {
-                int period = lap(fold, Direction.Axis.Z);
+                int periodBlocks = lapBlocks(fold, Direction.Axis.Z);
                 for (double level : NOISE_LEVELS) {
                     for (int i = 0; i < LINE_SAMPLES; i++) {
-                        int x = lineCoord(random, fold.blockDomain(Direction.Axis.X), i);
-                        int z = blockInDomain(random, fold.blockDomain(Direction.Axis.Z));
+                        int x = lineCoord(random, fold.getBlockDomain(Direction.Axis.X), i);
+                        int z = blockInDomain(random, fold.getBlockDomain(Direction.Axis.Z));
 
-                        assertEquals(count(fold, x, z, level), count(fold, x, z + period, level),
+                        assertEquals(count(fold, x, z, level), count(fold, x, z + periodBlocks, level),
                                 () -> "count(" + x + ", " + z + ") vs one Z lap in " + fold
                                         + " with noise level " + level);
                     }
@@ -209,14 +209,14 @@ class FoldedPlacementCountsTest {
         void agreesWhenBothAxesWrapAtOnce() {
             Random random = new Random(SEED);
             for (WorldFold fold : BOTH_AXES) {
-                int xPeriod = lap(fold, Direction.Axis.X);
-                int zPeriod = lap(fold, Direction.Axis.Z);
+                int xPeriodBlocks = lapBlocks(fold, Direction.Axis.X);
+                int zPeriodBlocks = lapBlocks(fold, Direction.Axis.Z);
                 for (double level : NOISE_LEVELS) {
                     for (int i = 0; i < LINE_SAMPLES; i++) {
-                        int x = blockInDomain(random, fold.blockDomain(Direction.Axis.X));
-                        int z = blockInDomain(random, fold.blockDomain(Direction.Axis.Z));
+                        int x = blockInDomain(random, fold.getBlockDomain(Direction.Axis.X));
+                        int z = blockInDomain(random, fold.getBlockDomain(Direction.Axis.Z));
 
-                        assertEquals(count(fold, x, z, level), count(fold, x + xPeriod, z + zPeriod, level),
+                        assertEquals(count(fold, x, z, level), count(fold, x + xPeriodBlocks, z + zPeriodBlocks, level),
                                 () -> "count(" + x + ", " + z + ") vs the corner lap in " + fold
                                         + " with noise level " + level);
                     }
@@ -234,7 +234,7 @@ class FoldedPlacementCountsTest {
         @Test
         void reproducesVanillaOnAnUnboundedFold() {
             Random random = new Random(SEED);
-            WrapDomain unbounded = WorldFolds.NOOP.blockDomain(Direction.Axis.X);
+            WrapDomain unbounded = WorldFolds.NOOP.getBlockDomain(Direction.Axis.X);
             for (double factor : NOISE_FACTORS) {
                 NoiseBasedCountPlacement vanilla = NoiseBasedCountPlacement.of(BAMBOO_RATIO, factor, BAMBOO_OFFSET);
                 for (int i = 0; i < LINE_SAMPLES; i++) {
@@ -252,7 +252,7 @@ class FoldedPlacementCountsTest {
         @Test
         void reproducesVanillaThresholdOnAnUnboundedFold() {
             Random random = new Random(SEED);
-            WrapDomain unbounded = WorldFolds.NOOP.blockDomain(Direction.Axis.X);
+            WrapDomain unbounded = WorldFolds.NOOP.getBlockDomain(Direction.Axis.X);
             for (double level : NOISE_LEVELS) {
                 NoiseThresholdCountPlacement vanilla =
                         NoiseThresholdCountPlacement.of(level, GRASS_BELOW, GRASS_ABOVE);
@@ -277,8 +277,8 @@ class FoldedPlacementCountsTest {
             for (WorldFold fold : WRAPPED_X) {
                 for (double factor : UNFOLDABLE_FACTORS) {
                     for (int i = 0; i < LINE_SAMPLES; i++) {
-                        int x = blockInDomain(random, fold.blockDomain(Direction.Axis.X));
-                        int z = lineCoord(random, fold.blockDomain(Direction.Axis.Z), i);
+                        int x = blockInDomain(random, fold.getBlockDomain(Direction.Axis.X));
+                        int z = lineCoord(random, fold.getBlockDomain(Direction.Axis.Z), i);
 
                         assertDoesNotThrow(
                                 () -> FoldedPlacementCounts.noiseBased(new SimplexSlot(), fold, x, z, factor,

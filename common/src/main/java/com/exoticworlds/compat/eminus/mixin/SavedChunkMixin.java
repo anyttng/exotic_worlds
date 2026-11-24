@@ -16,7 +16,7 @@ public class SavedChunkMixin implements SavedChunkOwner {
     private @Nullable LevelReader exotic_worlds$owner;
 
     @Override
-    public @Nullable LevelReader exotic_worlds$owner() {
+    public @Nullable LevelReader exotic_worlds$getOwner() {
         return exotic_worlds$owner;
     }
 

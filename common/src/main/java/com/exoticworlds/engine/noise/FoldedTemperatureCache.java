@@ -2,7 +2,7 @@ package com.exoticworlds.engine.noise;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import it.unimi.dsi.fastutil.longs.Long2FloatLinkedOpenHashMap;
 
@@ -23,7 +23,7 @@ public final class FoldedTemperatureCache {
         this.temperatures.defaultReturnValue(Float.NaN);
     }
 
-    public Long2FloatLinkedOpenHashMap temperaturesUnder(WorldFold fold) {
+    public Long2FloatLinkedOpenHashMap getTemperaturesUnder(WorldFold fold) {
         if (this.filledUnder != fold) {
             this.temperatures.clear();
             this.filledUnder = fold;

@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import com.exoticworlds.compat.worldgen.OpenSimplexStandIn;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import net.minecraft.util.Mth;
 
@@ -42,17 +42,17 @@ public final class LapMapStack<T> {
         this.vertical = vertical;
         this.layering = layering;
         this.noise = new OpenSimplexStandIn(seed);
-        this.lattice = fold.blockLattice();
-        this.xPeriod = noisePeriod(this.lattice.x());
-        this.zPeriod = noisePeriod(this.lattice.z());
-        this.chunks = new LapChunkCache<>(() -> this.layers.getFirst().bounded(), this::build);
+        this.lattice = fold.getBlockLattice();
+        this.xPeriod = noisePeriod(this.lattice.getX());
+        this.zPeriod = noisePeriod(this.lattice.getZ());
+        this.chunks = new LapChunkCache<>(() -> this.layers.getFirst().isBounded(), this::build);
         for (int index = 0; index < this.layers.size(); index++) {
             int layer = index;
-            this.layers.get(index).shareChunks((kx, kz) -> chunk(layer, kx, kz));
+            this.layers.get(index).shareChunks((kx, kz) -> getChunk(layer, kx, kz));
         }
     }
 
-    public boolean covers(WorldFold fold) {
+    public boolean isCovering(WorldFold fold) {
         return this.fold == fold;
     }
 
@@ -72,7 +72,7 @@ public final class LapMapStack<T> {
         return Mth.clamp(layer, 0, this.layering.maxIndex());
     }
 
-    LapChunk<T> chunk(int layer, int kx, int kz) {
+    LapChunk<T> getChunk(int layer, int kx, int kz) {
         return this.chunks.get(kx, kz).get(layer);
     }
 
@@ -85,13 +85,13 @@ public final class LapMapStack<T> {
     static <T> void copyVertical(List<LapChunk<T>> chunks, Predicate<T> vertical) {
         LapChunk<T> first = chunks.getFirst();
         for (LapChunk<T> chunk : chunks) {
-            if (chunk.sideX() != first.sideX() || chunk.sideZ() != first.sideZ()) {
+            if (chunk.getSideX() != first.getSideX() || chunk.getSideZ() != first.getSideZ()) {
                 throw new IllegalStateException("The layers of one map stack laid different chunk grids");
             }
         }
 
-        for (int x = 0; x < first.sideX(); x++) {
-            for (int z = 0; z < first.sideZ(); z++) {
+        for (int x = 0; x < first.getSideX(); x++) {
+            for (int z = 0; z < first.getSideZ(); z++) {
                 T found = null;
                 for (LapChunk<T> chunk : chunks) {
                     T biome = chunk.get(x, z);
@@ -111,6 +111,6 @@ public final class LapMapStack<T> {
     }
 
     private static double noisePeriod(WrapDomain blocks) {
-        return blocks.loops() ? blocks.domainLength * LAYER_NOISE_RATE : OpenSimplexStandIn.UNBOUNDED;
+        return blocks.isLooped() ? blocks.domainLength * LAYER_NOISE_RATE : OpenSimplexStandIn.UNBOUNDED;
     }
 }

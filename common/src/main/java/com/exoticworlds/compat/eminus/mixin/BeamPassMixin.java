@@ -26,10 +26,10 @@ public class BeamPassMixin {
                     + "Ljava/util/List;"))
     private List<Object> exotic_worlds$drawEachBeamAtItsLapCopy(List<Object> beams, ClientLevel level,
             GameFrame game, Operation<List<Object>> original) {
-        CellFold fold = CellFoldHolder.foldOf(ClientSession.runtime());
+        CellFold fold = CellFoldHolder.getFold(ClientSession.runtime());
         List<Object> copies = new ArrayList<>(beams.size());
         for (Object beam : beams) {
-            copies.add(EminusBeams.at(beam, fold.copyNear(EminusBeams.pos(beam), game.eyeX(), game.eyeZ())));
+            copies.add(EminusBeams.copyAt(beam, fold.copyNear(EminusBeams.readPos(beam), game.eyeX(), game.eyeZ())));
         }
 
         return original.call(copies, level, game);

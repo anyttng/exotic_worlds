@@ -3,7 +3,7 @@ package com.exoticworlds.bridge.v1.client;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.client.ShapeCustomizers;
-import com.exoticworlds.core.StartupRegistry;
+import com.exoticworlds.core.registry.StartupRegistry;
 
 import net.minecraft.resources.Identifier;
 
@@ -16,7 +16,7 @@ public final class CustomizerBridge {
     }
 
     public static ShapeCustomizers.@Nullable Customizer of(Identifier shapeId) {
-        return CUSTOMIZERS.entries().get(shapeId);
+        return CUSTOMIZERS.getEntries().get(shapeId);
     }
 
     private CustomizerBridge() {

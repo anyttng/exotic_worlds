@@ -2,7 +2,7 @@ package com.exoticworlds.client.engine;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.NearestCopy;
 
 import net.minecraft.client.Minecraft;
@@ -17,7 +17,7 @@ public final class SpawnPacketSeat {
         }
 
         LocalPlayer player = minecraft.player;
-        return seated(ClientFrame.fold(), player == null ? null : player.position(), stored);
+        return seated(ClientFrame.getFold(), player == null ? null : player.position(), stored);
     }
 
     static Vec3 seated(@Nullable WorldFold fold, @Nullable Vec3 anchor, Vec3 stored) {

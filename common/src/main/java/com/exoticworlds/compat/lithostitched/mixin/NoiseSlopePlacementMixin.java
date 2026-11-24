@@ -2,7 +2,7 @@ package com.exoticworlds.compat.lithostitched.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -17,7 +17,7 @@ import net.minecraft.world.level.levelgen.placement.PlacementContext;
 public class NoiseSlopePlacementMixin {
     @WrapMethod(method = "count(Lnet/minecraft/world/level/levelgen/placement/PlacementContext;Lnet/minecraft/core/BlockPos;)I")
     private int exotic_worlds$foldedCount(PlacementContext context, BlockPos pos, Operation<Integer> original) {
-        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
         if (fold == null) {
             return original.call(context, pos);
         }

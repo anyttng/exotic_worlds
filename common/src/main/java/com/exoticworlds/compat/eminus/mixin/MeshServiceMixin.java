@@ -35,19 +35,19 @@ public class MeshServiceMixin implements MeshServiceCopies {
     private final CopyBuilds<CellHandle> exotic_worlds$copies = new CopyBuilds<>();
 
     @Override
-    public CopyBuilds<CellHandle> exotic_worlds$copies() {
+    public CopyBuilds<CellHandle> exotic_worlds$getCopies() {
         return exotic_worlds$copies;
     }
 
     @Override
-    public boolean exotic_worlds$joined(long key, @Nullable CellHandle held, int references, long request,
-            float priority, boolean fills) {
-        CellFold fold = CellFoldHolder.foldOf(coverage);
-        if (!fold.repeats()) {
+    public boolean exotic_worlds$tryJoin(long key, @Nullable CellHandle held, int references, long request,
+            float priority, boolean isFill) {
+        CellFold fold = CellFoldHolder.getFold(coverage);
+        if (!fold.isRepeating()) {
             return false;
         }
 
-        CopyBuilds.Member<CellHandle> member = new CopyBuilds.Member<>(key, request, priority, fills, held, references);
+        CopyBuilds.Member<CellHandle> member = new CopyBuilds.Member<>(key, request, priority, isFill, held, references);
         if (exotic_worlds$copies.offer(fold.foldKey(key), member) != CopyBuilds.Offer.JOINED) {
             return false;
         }
@@ -59,7 +59,7 @@ public class MeshServiceMixin implements MeshServiceCopies {
     @WrapOperation(method = "take", at = @At(value = "INVOKE", target = EminusInjectionTargets.MESH_QUEUE_POLL))
     private @Nullable MeshTask exotic_worlds$skipAbsorbedCopies(MeshQueue queue, Operation<@Nullable MeshTask> original) {
         MeshTask task = original.call(queue);
-        while (task != null && exotic_worlds$copies.skip(task.request())) {
+        while (task != null && exotic_worlds$copies.trySkip(task.request())) {
             exotic_worlds$release(task.held(), task.references());
             task = original.call(queue);
         }
@@ -75,7 +75,7 @@ public class MeshServiceMixin implements MeshServiceCopies {
     private void exotic_worlds$meshEveryCopy(MeshListener listener, CellMesh mesh, long request,
             Operation<Void> original) {
         original.call(listener, mesh, request);
-        for (CopyBuilds.Member<CellHandle> copy : exotic_worlds$copies.delivered(request)) {
+        for (CopyBuilds.Member<CellHandle> copy : exotic_worlds$copies.takeDelivered(request)) {
             listener.meshed(MeshKeys.withKey(mesh, copy.key()), copy.request());
         }
     }

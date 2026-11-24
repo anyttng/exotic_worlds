@@ -14,12 +14,12 @@ public abstract class SpawnFinderMixin {
     @ModifyArg(method = "getSpawnPositionAndFitness",
             at = @At(value = "INVOKE", target = InjectionTargets.MTH_SQUARE_LONG, ordinal = 0))
     private long exotic_worlds$distanceFromTheSpawnPointX(long blockX) {
-        return blockX - SpawnSearch.bound().blockX();
+        return blockX - SpawnSearch.getBound().getBlockX();
     }
 
     @ModifyArg(method = "getSpawnPositionAndFitness",
             at = @At(value = "INVOKE", target = InjectionTargets.MTH_SQUARE_LONG, ordinal = 1))
     private long exotic_worlds$distanceFromTheSpawnPointZ(long blockZ) {
-        return blockZ - SpawnSearch.bound().blockZ();
+        return blockZ - SpawnSearch.getBound().getBlockZ();
     }
 }

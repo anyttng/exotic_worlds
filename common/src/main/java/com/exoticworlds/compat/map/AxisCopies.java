@@ -2,8 +2,8 @@ package com.exoticworlds.compat.map;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import net.minecraft.core.Direction;
 
@@ -17,11 +17,11 @@ public final class AxisCopies {
     }
 
     public static AxisCopies of(@Nullable WorldFold fold, Direction.Axis axis) {
-        return fold != null && fold.loops(axis) ? looped(fold.minBlock(axis), fold.widthBlocks(axis)) : UNBOUNDED;
+        return fold != null && fold.isLooped(axis) ? looped(fold.getMinBlock(axis), fold.getWidthBlocks(axis)) : UNBOUNDED;
     }
 
     public static AxisCopies ofChunks(@Nullable WorldFold fold, Direction.Axis axis) {
-        return fold != null && fold.loops(axis) ? looped(fold.minChunk(axis), fold.widthChunks(axis)) : UNBOUNDED;
+        return fold != null && fold.isLooped(axis) ? looped(fold.getMinChunk(axis), fold.getWidthChunks(axis)) : UNBOUNDED;
     }
 
     public static AxisCopies looped(int min, int width) {
@@ -32,19 +32,19 @@ public final class AxisCopies {
         return new AxisCopies(new WrapDomain(min, min + width));
     }
 
-    public boolean loops() {
+    public boolean isLooped() {
         return this.domain != null;
     }
 
-    public int min() {
-        return looped().lowerBound;
+    public int getMin() {
+        return getLoopedDomain().lowerBound;
     }
 
-    public int max() {
-        return looped().upperBound;
+    public int getMax() {
+        return getLoopedDomain().upperBound;
     }
 
-    public int width() {
+    public int getWidth() {
         return this.domain == null ? 0 : this.domain.domainLength;
     }
 
@@ -77,9 +77,9 @@ public final class AxisCopies {
         return this.domain == null ? spanMax : Math.min(spanMax, this.domain.upperBound);
     }
 
-    private WrapDomain looped() {
+    private WrapDomain getLoopedDomain() {
         if (this.domain == null) {
-            throw new IllegalStateException("The axis does not loop — check loops() first");
+            throw new IllegalStateException("The axis does not loop — check isLooped() first");
         }
 
         return this.domain;

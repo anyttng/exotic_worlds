@@ -25,7 +25,7 @@ import net.minecraft.world.level.levelgen.material.rule.MaterialRule;
 @Mixin(NoiseBasedChunkGenerator.class)
 public interface NoiseBasedChunkGeneratorAccessor {
     @Accessor("globalFluidPicker")
-    Supplier<Aquifer.FluidPicker> exotic_worlds$globalFluidPicker();
+    Supplier<Aquifer.FluidPicker> exotic_worlds$getGlobalFluidPicker();
 
     @Invoker("chunkVolume")
     static DensityVolume exotic_worlds$chunkVolume(ChunkAccess chunk, NoiseSettings noiseSettings) {

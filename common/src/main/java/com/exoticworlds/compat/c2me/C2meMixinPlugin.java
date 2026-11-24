@@ -33,8 +33,8 @@ public class C2meMixinPlugin extends ModPresenceGatePlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (AQUIFER_GATE.covers(mixinClassName)) {
-            return C2meAquifer.optimizesAquifer();
+        if (AQUIFER_GATE.isCovering(mixinClassName)) {
+            return C2meAquifer.isAquiferOptimized();
         }
 
         return super.shouldApplyMixin(targetClassName, mixinClassName);

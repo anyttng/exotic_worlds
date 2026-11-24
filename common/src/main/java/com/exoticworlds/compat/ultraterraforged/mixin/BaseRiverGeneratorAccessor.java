@@ -8,5 +8,5 @@ import com.pandaismyname1.ultraterraforged.world.worldgen.rivermap.river.BaseRiv
 @Mixin(value = BaseRiverGenerator.class, remap = false)
 public interface BaseRiverGeneratorAccessor {
     @Accessor("continentScale")
-    int exotic_worlds$continentScale();
+    int exotic_worlds$getContinentScale();
 }

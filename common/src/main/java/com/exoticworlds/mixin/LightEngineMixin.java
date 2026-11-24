@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.accessors.LightStepFrame;
-import com.exoticworlds.core.FoldOrientation;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.FoldOrientation;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.level.BoundLevelFold;
 
 import net.minecraft.core.BlockPos;
@@ -38,16 +38,16 @@ public abstract class LightEngineMixin implements FoldHolder, LightStepFrame {
 
     @ModifyVariable(method = "getLightValue(Lnet/minecraft/core/BlockPos;)I", at = @At("HEAD"), argsOnly = true)
     private BlockPos exotic_worlds$wrapLightValuePos(BlockPos pos) {
-        return exotic_worlds$fold().fold(pos);
+        return exotic_worlds$getFold().fold(pos);
     }
 
     @Override
-    public WorldFold exotic_worlds$fold() {
-        return this.exotic_worlds$bound.fold();
+    public WorldFold exotic_worlds$getFold() {
+        return this.exotic_worlds$bound.getFold();
     }
 
     @Override
-    public FoldOrientation exotic_worlds$stepOrientation() {
+    public FoldOrientation exotic_worlds$getStepOrientation() {
         return this.exotic_worlds$stepOrientation;
     }
 

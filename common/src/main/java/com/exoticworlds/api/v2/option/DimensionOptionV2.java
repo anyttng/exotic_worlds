@@ -54,30 +54,30 @@ public final class DimensionOptionV2<T> {
         return new DimensionOptionV2<>(this.option, this.captionKey, this.parts, this.shapes, offered);
     }
 
-    public ShapeOptionV2<T> option() {
+    public ShapeOptionV2<T> getOption() {
         return this.option;
     }
 
-    public String captionKey() {
+    public String getCaptionKey() {
         return this.captionKey;
     }
 
-    public List<OptionPartV2<T>> parts() {
+    public List<OptionPartV2<T>> getParts() {
         return this.parts;
     }
 
     /** The shapes the option is offered for; empty means every shape. */
-    public List<Identifier> shapes() {
+    public List<Identifier> getShapes() {
         return this.shapes;
     }
 
     /** The dimensions the option is offered on; empty means every dimension. */
-    public List<ResourceKey<LevelStem>> dimensions() {
+    public List<ResourceKey<LevelStem>> getDimensions() {
         return this.dimensions;
     }
 
     /** Whether the option is offered where {@code shape} is the shape of {@code dimension}. */
-    public boolean offeredFor(Identifier shape, ResourceKey<LevelStem> dimension) {
+    public boolean isOfferedFor(Identifier shape, ResourceKey<LevelStem> dimension) {
         return (this.shapes.isEmpty() || this.shapes.contains(shape))
                 && (this.dimensions.isEmpty() || this.dimensions.contains(dimension));
     }

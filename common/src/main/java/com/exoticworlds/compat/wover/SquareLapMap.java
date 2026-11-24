@@ -1,7 +1,7 @@
 package com.exoticworlds.compat.wover;
 
 import com.exoticworlds.compat.worldgen.OpenSimplexStandIn;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -35,8 +35,8 @@ public final class SquareLapMap<T> extends LapMap<T> {
         super(fold, factor);
         this.picker = picker;
         this.cellBlocks = sizeXZ / factor;
-        this.x = LapAxis.of(blocks(Direction.Axis.X), this.cellBlocks, false, CHUNK_SIDE);
-        this.z = LapAxis.of(blocks(Direction.Axis.Z), this.cellBlocks, false, CHUNK_SIDE);
+        this.x = LapAxis.of(getBlocks(Direction.Axis.X), this.cellBlocks, false, CHUNK_SIDE);
+        this.z = LapAxis.of(getBlocks(Direction.Axis.Z), this.cellBlocks, false, CHUNK_SIDE);
         this.noiseX = new OpenSimplexStandIn(seed << 1);
         this.noiseZ = new OpenSimplexStandIn((seed << 1) | 1L);
         this.depth = Math.max(0, (int) Math.ceil(Math.log(this.cellBlocks) / Math.log(2.0)) - DEPTH_OFFSET);
@@ -66,23 +66,23 @@ public final class SquareLapMap<T> extends LapMap<T> {
         int cellZ = this.z.wrapCell(Mth.floor(pz));
         int kx = this.x.chunkOf(cellX);
         int kz = this.z.chunkOf(cellZ);
-        boolean shiftX = this.x.isBorder(kx, cellX - this.x.startOf(kx)) && ((cellZ >> CRENEL_SHIFT) & 1) == 1;
-        boolean shiftZ = this.z.isBorder(kz, cellZ - this.z.startOf(kz)) && ((cellX >> CRENEL_SHIFT) & 1) == 1;
-        if (shiftX) {
+        boolean shouldShiftX = this.x.isBorder(kx, cellX - this.x.startOf(kx)) && ((cellZ >> CRENEL_SHIFT) & 1) == 1;
+        boolean shouldShiftZ = this.z.isBorder(kz, cellZ - this.z.startOf(kz)) && ((cellX >> CRENEL_SHIFT) & 1) == 1;
+        if (shouldShiftX) {
             cellX = this.x.wrapCell(cellX + 1);
             kx = this.x.chunkOf(cellX);
         }
 
-        if (shiftZ) {
+        if (shouldShiftZ) {
             cellZ = this.z.wrapCell(cellZ + 1);
             kz = this.z.chunkOf(cellZ);
         }
 
-        return chunk(kx, kz).get(cellX - this.x.startOf(kx), cellZ - this.z.startOf(kz));
+        return getChunk(kx, kz).get(cellX - this.x.startOf(kx), cellZ - this.z.startOf(kz));
     }
 
     @Override
-    LapAxis axis(Direction.Axis axis) {
+    LapAxis getAxis(Direction.Axis axis) {
         return axis == Direction.Axis.X ? this.x : this.z;
     }
 

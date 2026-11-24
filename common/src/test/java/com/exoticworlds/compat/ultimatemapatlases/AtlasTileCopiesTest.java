@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasTileCopies.TileCenter;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 
@@ -142,15 +142,15 @@ class AtlasTileCopiesTest {
     @Test
     void theRowPastASkewedSeamIsDrawnMovedSidewaysOffTheGrid() {
         WorldFold shape = MapFolds.latticeTorus(-16, 16, 4);
-        int skew = shape.fold(new BlockPos(0, 0, 512)).getX();
-        assertEquals(64, Math.abs(skew), "a lap in Z moves X by the 64-block skew");
+        int skewBlocks = shape.fold(new BlockPos(0, 0, 512)).getX();
+        assertEquals(64, Math.abs(skewBlocks), "a lap in Z moves X by the 64-block skew");
         assertEquals(List.of(new TileCenter(0, 384)), AtlasTileCopies.of(shape, 0, 384, MAP_BLOCKS),
                 "half a map sideways is no whole move, so the grid finds no map past the Z edge");
         List<AtlasTileCopies.Placed<TileCenter>> placed = AtlasTileCopies.shifted(shape, new TileCenter(0, 384), 0,
                 MAP_BLOCKS, holdingGrid(-256, 256));
-        assertTrue(placed.contains(new AtlasTileCopies.Placed<>(new TileCenter(skew - 64, -128),
+        assertTrue(placed.contains(new AtlasTileCopies.Placed<>(new TileCenter(skewBlocks - 64, -128),
                 new TileCenter(-64, 384))), "the map behind the left half arrives moved sideways by the skew");
-        assertTrue(placed.contains(new AtlasTileCopies.Placed<>(new TileCenter(skew + 64, -128),
+        assertTrue(placed.contains(new AtlasTileCopies.Placed<>(new TileCenter(skewBlocks + 64, -128),
                 new TileCenter(64, 384))), "and so does the map behind the right half");
     }
 
@@ -174,10 +174,10 @@ class AtlasTileCopiesTest {
     @Test
     void aTilePastTheEdgeIsCoveredOnlyWhereBothHalvesAreHeld() {
         WorldFold shape = MapFolds.torus(-18, 18);
-        assertTrue(AtlasTileCopies.coveredByShifted(shape, new TileCenter(384, 0), MAP_BLOCKS,
+        assertTrue(AtlasTileCopies.isCoveredByShifted(shape, new TileCenter(384, 0), MAP_BLOCKS,
                 holding(new TileCenter(-256, 0), new TileCenter(-128, 0))),
                 "blocks 320 to 448 are the ground of the maps at -256 and -128, a lap of 576 blocks back");
-        assertFalse(AtlasTileCopies.coveredByShifted(shape, new TileCenter(384, 0), MAP_BLOCKS,
+        assertFalse(AtlasTileCopies.isCoveredByShifted(shape, new TileCenter(384, 0), MAP_BLOCKS,
                 holding(new TileCenter(-256, 0))), "the map at -256 holds only the half from 320 to 384");
     }
 
@@ -187,19 +187,19 @@ class AtlasTileCopiesTest {
         AtlasTileCopies.TileLookup<TileCenter> held = holding(new TileCenter(-256, 0));
         assertEquals(1, AtlasTileCopies.shifted(shape, new TileCenter(256, 0), 0, MAP_BLOCKS, held).size(),
                 "the copy of the map at -256 lands at 320 and reaches into the tile");
-        assertFalse(AtlasTileCopies.coveredByShifted(shape, new TileCenter(256, 0), MAP_BLOCKS, held),
+        assertFalse(AtlasTileCopies.isCoveredByShifted(shape, new TileCenter(256, 0), MAP_BLOCKS, held),
                 "but only the 64 blocks of it past the edge");
     }
 
     @Test
     void aSkewedRowPastTheZEdgeIsCoveredByTheMapsMovedSideways() {
         WorldFold shape = MapFolds.latticeTorus(-16, 16, 4);
-        int skew = shape.fold(new BlockPos(0, 0, 512)).getX();
-        assertTrue(AtlasTileCopies.coveredByShifted(shape, new TileCenter(0, 384), MAP_BLOCKS,
-                holding(new TileCenter(skew - 64, -128), new TileCenter(skew + 64, -128))),
+        int skewBlocks = shape.fold(new BlockPos(0, 0, 512)).getX();
+        assertTrue(AtlasTileCopies.isCoveredByShifted(shape, new TileCenter(0, 384), MAP_BLOCKS,
+                holding(new TileCenter(skewBlocks - 64, -128), new TileCenter(skewBlocks + 64, -128))),
                 "the two maps a row back, moved by the skew, meet in the middle of the tile");
-        assertFalse(AtlasTileCopies.coveredByShifted(shape, new TileCenter(0, 384), MAP_BLOCKS,
-                holding(new TileCenter(skew - 64, -128))), "one of them leaves half the tile");
+        assertFalse(AtlasTileCopies.isCoveredByShifted(shape, new TileCenter(0, 384), MAP_BLOCKS,
+                holding(new TileCenter(skewBlocks - 64, -128))), "one of them leaves half the tile");
     }
 
     private static AtlasTileCopies.TileLookup<TileCenter> holdingGrid(int from, int to) {

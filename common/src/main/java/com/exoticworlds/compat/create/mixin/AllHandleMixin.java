@@ -28,18 +28,18 @@ public class AllHandleMixin {
             method = {"onBlockEntityConfiguration", "lambda$onCurvedTrackDestroy$0", "onClipboardEdit"},
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_THAN),
             require = BLOCK_GATES)
-    private static boolean exotic_worlds$blockReachThroughSeam(BlockPos block, Vec3i other, double distance,
+    private static boolean exotic_worlds$blockReachThroughSeam(BlockPos block, Vec3i other, double distanceBlocks,
             Operation<Boolean> original, @Local(argsOnly = true) ServerGamePacketListenerImpl listener) {
-        return original.call(block, SeamRange.toward(listener.player, block, other), distance);
+        return original.call(block, SeamRange.toward(listener.player, block, other), distanceBlocks);
     }
 
     @WrapOperation(
             method = {"onTrainRelocation", "onControlsInput"},
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_CLOSER_THAN),
             require = POINT_GATES)
-    private static boolean exotic_worlds$pointReachThroughSeam(Vec3 point, Position other, double distance,
+    private static boolean exotic_worlds$pointReachThroughSeam(Vec3 point, Position other, double distanceBlocks,
             Operation<Boolean> original, @Local(argsOnly = true) ServerGamePacketListenerImpl listener) {
-        return original.call(point, SeamRange.toward(listener.player, point, other), distance);
+        return original.call(point, SeamRange.toward(listener.player, point, other), distanceBlocks);
     }
 
     @ModifyExpressionValue(method = "lambda$onChainConveyorConnection$0",
@@ -53,12 +53,12 @@ public class AllHandleMixin {
 
     @WrapOperation(method = "onPackagePortPlacement",
             at = @At(value = "INVOKE", target = InjectionTargets.VEC3_CLOSER_THAN))
-    private static boolean exotic_worlds$targetTowardThePort(Vec3 target, Position port, double range,
+    private static boolean exotic_worlds$targetTowardThePort(Vec3 target, Position port, double rangeBlocks,
             Operation<Boolean> original, @Local(argsOnly = true) ServerGamePacketListenerImpl listener) {
         if (!(port instanceof Vec3 anchor)) {
-            return original.call(target, port, range);
+            return original.call(target, port, rangeBlocks);
         }
 
-        return original.call(CreateSeamFold.nearestCopy(listener.player.level(), anchor, target), port, range);
+        return original.call(CreateSeamFold.nearestCopy(listener.player.level(), anchor, target), port, rangeBlocks);
     }
 }

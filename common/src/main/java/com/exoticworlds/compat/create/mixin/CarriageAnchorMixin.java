@@ -20,7 +20,7 @@ import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.compat.create.CarriageEntityFrame;
 import com.exoticworlds.compat.create.CreateInjectionTargets;
 import com.exoticworlds.compat.create.CreateSeamFold;
-import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.fold.DeckTransformation;
 import com.exoticworlds.engine.seam.SeamSnap;
 
 import net.minecraft.resources.ResourceKey;
@@ -63,7 +63,7 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
                     ordinal = 2))
     private Vec3 exotic_worlds$anchorForWrite(Vec3 anchor) {
         Vec3 written = exotic_worlds$anchorInClientFrame(anchor);
-        Entity carriageEntity = exotic_worlds$entity();
+        Entity carriageEntity = exotic_worlds$getEntity();
         if (carriageEntity == null || carriageEntity.level().isClientSide()) {
             return written;
         }
@@ -74,7 +74,7 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
 
     @ModifyExpressionValue(method = "alignEntity", at = @At(value = "INVOKE", target = COUPLE_GET_SECOND))
     private Object exotic_worlds$coupledAnchorInLeadingFrame(Object coupled, @Local(ordinal = 0) Vec3 leading) {
-        Entity carriageEntity = exotic_worlds$entity();
+        Entity carriageEntity = exotic_worlds$getEntity();
         if (carriageEntity == null || !(coupled instanceof Vec3 trailing)) {
             return coupled;
         }
@@ -86,7 +86,7 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
             at = @At(value = "INVOKE",
                     target = "Lcom/zurrtum/create/content/trains/entity/CarriageContraptionEntity;position()Lnet/minecraft/world/phys/Vec3;"))
     private Vec3 exotic_worlds$entityPositionInAnchorFrame(Vec3 position) {
-        Entity carriageEntity = exotic_worlds$entity();
+        Entity carriageEntity = exotic_worlds$getEntity();
         Vec3 anchor = this.positionAnchor;
         if (carriageEntity == null || anchor == null) {
             return position;
@@ -122,13 +122,13 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
     }
 
     @Override
-    public @Nullable Level exotic_worlds$carriageLevel() {
-        Entity carriageEntity = exotic_worlds$entity();
+    public @Nullable Level exotic_worlds$getCarriageLevel() {
+        Entity carriageEntity = exotic_worlds$getEntity();
         return carriageEntity == null ? null : carriageEntity.level();
     }
 
     @Override
-    public @Nullable ResourceKey<Level> exotic_worlds$carriageDimension() {
+    public @Nullable ResourceKey<Level> exotic_worlds$getCarriageDimension() {
         return this.exotic_worlds$dimension;
     }
 
@@ -139,7 +139,7 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
 
     @Unique
     private Vec3 exotic_worlds$inCutoffFrame(Vec3 anchor, Vec3 target) {
-        return CreateSeamFold.nearestCopy(exotic_worlds$carriageLevel(),
+        return CreateSeamFold.nearestCopy(exotic_worlds$getCarriageLevel(),
                 this.pivot == null ? null : this.pivot.getDimension(), anchor, target);
     }
 
@@ -156,7 +156,7 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
         }
 
         if (carriage instanceof ContraptionColliderAccessor colliders) {
-            for (Entity aboard : colliders.exotic_worlds$collidingEntities().keySet()) {
+            for (Entity aboard : colliders.exotic_worlds$getCollidingEntities().keySet()) {
                 if (aboard.isPassenger() || aboard instanceof Player) {
                     continue;
                 }
@@ -168,7 +168,7 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
 
     @Unique
     private @Nullable Vec3 exotic_worlds$anchorInClientFrame(@Nullable Vec3 anchor) {
-        Entity carriageEntity = exotic_worlds$entity();
+        Entity carriageEntity = exotic_worlds$getEntity();
         if (anchor == null || carriageEntity == null || !carriageEntity.level().isClientSide()) {
             return anchor;
         }
@@ -177,7 +177,7 @@ public abstract class CarriageAnchorMixin implements CarriageEntityFrame {
     }
 
     @Unique
-    private @Nullable Entity exotic_worlds$entity() {
+    private @Nullable Entity exotic_worlds$getEntity() {
         return this.entity.get() instanceof Entity carriageEntity ? carriageEntity : null;
     }
 }

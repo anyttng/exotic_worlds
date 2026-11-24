@@ -12,7 +12,7 @@ import com.terraformersmc.biolith.impl.biome.OverworldBiomePlacement;
 import com.terraformersmc.biolith.impl.noise.OpenSimplexNoise2;
 import com.exoticworlds.compat.worldgen.LevelTemperature;
 import com.exoticworlds.compat.biolith.ReplacementNoiseFold;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 @Mixin(OverworldBiomePlacement.class)
@@ -35,7 +35,7 @@ public abstract class OverworldBiomePlacementMixin extends DimensionBiomePlaceme
     @Inject(method = "getLocalNoise", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$foldedLocalNoise(int x, int y, int z, CallbackInfoReturnable<Double> cir) {
         OpenSimplexNoise2 noise = this.replacementNoise;
-        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
         if (noise == null || fold == null) {
             return;
         }

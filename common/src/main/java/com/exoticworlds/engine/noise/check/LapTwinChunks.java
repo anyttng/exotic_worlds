@@ -8,7 +8,7 @@ import java.util.Set;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.mixin.ChunkGeneratorAccessor;
 import com.exoticworlds.mixin.NoiseBasedChunkGeneratorAccessor;
@@ -54,7 +54,7 @@ final class LapTwinChunks {
             BiomeManager biomeManager, WorldFold fold, SeamCauseSearch.Lap lap) {
     }
 
-    record Reading(boolean read, List<SeamVerdict.Break> breaks) {
+    record Reading(boolean isRead, List<SeamVerdict.Break> breaks) {
         private static final Reading UNREAD = new Reading(false, List.of());
     }
 
@@ -70,7 +70,7 @@ final class LapTwinChunks {
             NoiseSettings noiseSettings = settings.noiseSettings()
                     .clampToHeightAccessor(this.chunk.getHeightAccessorForGeneration());
             this.noise = new NoiseChunk(inputs.randomState(), null, settings,
-                    steps(inputs).exotic_worlds$globalFluidPicker().get(), Blender.empty(),
+                    steps(inputs).exotic_worlds$getGlobalFluidPicker().get(), Blender.empty(),
                     NoiseBasedChunkGeneratorAccessor.exotic_worlds$chunkVolume(this.chunk, noiseSettings));
             steps(inputs).exotic_worlds$doFill(this.noise, this.chunk);
         }
@@ -97,7 +97,7 @@ final class LapTwinChunks {
             LapTwinRegion region = new LapTwinRegion(level, this.inputs.randomState(),
                     this.inputs.fold().fold(this.chunk.getPos()), grid, recording);
             StructureManager structures = new StructureManager(region, new WorldOptions(level.getSeed(), false, false),
-                    ((StructureManagerAccessor) level.structureManager()).exotic_worlds$structureCheck());
+                    ((StructureManagerAccessor) level.structureManager()).exotic_worlds$getStructureCheck());
             FeatureRecording.recording(recording, () -> {
                 this.inputs.generator().applyBiomeDecoration(region, this.chunk, structures);
                 return recording;
@@ -144,27 +144,27 @@ final class LapTwinChunks {
         List<SeamVerdict.Break> breaks = new ArrayList<>();
         SeamCauseSearch.Point surfaceAt = null;
         try (Twin here = new Twin(inputs, herePos); Twin there = new Twin(inputs, therePos)) {
-            if (!biomesEqual(here.chunk, there.chunk) || differenceOf(here.chunk, there.chunk) != null) {
+            if (!areBiomesEqual(here.chunk, there.chunk) || differenceOf(here.chunk, there.chunk) != null) {
                 return Reading.UNREAD;
             }
 
             here.surface(rule);
             there.surface(rule);
             surfaceAt = differenceOf(here.chunk, there.chunk);
-            SeamCause carvers = CarverCauseSearch.causeOf(here.carvers(rule).carved(), there.carvers(rule).carved(),
+            SeamCause carvers = CarverCauseSearch.causeOf(here.carvers(rule).getCarved(), there.carvers(rule).getCarved(),
                     inputs.level().registryAccess().lookupOrThrow(Registries.CARVER));
             if (carvers != null) {
-                breaks.add(new SeamVerdict.Break(SeamField.CARVERS.id(), carvers));
+                breaks.add(new SeamVerdict.Break(SeamField.CARVERS.getId(), carvers));
             } else if (surfaceAt == null) {
                 SeamCause features = featuresCause(inputs, here, there);
                 if (features != null) {
-                    breaks.add(new SeamVerdict.Break(SeamField.FEATURES.id(), features));
+                    breaks.add(new SeamVerdict.Break(SeamField.FEATURES.getId(), features));
                 }
             }
         }
 
         if (surfaceAt != null) {
-            breaks.addFirst(new SeamVerdict.Break(SeamField.SURFACE.id(), surfaceCause(inputs, herePos, rule,
+            breaks.addFirst(new SeamVerdict.Break(SeamField.SURFACE.getId(), surfaceCause(inputs, herePos, rule,
                     surfaceAt)));
         }
 
@@ -183,7 +183,7 @@ final class LapTwinChunks {
         ChunkAccess[] hereGrid = gridAround(inputs, here.chunk);
         ChunkAccess[] thereGrid = gridAround(inputs, there.chunk);
         for (int index = 0; index < hereGrid.length; index++) {
-            if (!biomesEqual(hereGrid[index], thereGrid[index])) {
+            if (!areBiomesEqual(hereGrid[index], thereGrid[index])) {
                 LOGGER.warn("[ew/world-loop] features_unread level={} chunk_x={} chunk_z={} reason=neighbor_biomes",
                         inputs.level().dimension().identifier(), here.chunk.getPos().x(), here.chunk.getPos().z());
                 return null;
@@ -197,11 +197,11 @@ final class LapTwinChunks {
     }
 
     private static ChunkAccess[] gridAround(Inputs inputs, ProtoChunk center) {
-        ChunkAccess[] grid = new ChunkAccess[LapTwinRegion.SIDE * LapTwinRegion.SIDE];
+        ChunkAccess[] grid = new ChunkAccess[LapTwinRegion.SIDE_CHUNKS * LapTwinRegion.SIDE_CHUNKS];
         ChunkPos centerPos = center.getPos();
-        for (int offsetZ = -LapTwinRegion.REACH; offsetZ <= LapTwinRegion.REACH; offsetZ++) {
-            for (int offsetX = -LapTwinRegion.REACH; offsetX <= LapTwinRegion.REACH; offsetX++) {
-                grid[(offsetZ + LapTwinRegion.REACH) * LapTwinRegion.SIDE + offsetX + LapTwinRegion.REACH] =
+        for (int offsetZ = -LapTwinRegion.REACH_CHUNKS; offsetZ <= LapTwinRegion.REACH_CHUNKS; offsetZ++) {
+            for (int offsetX = -LapTwinRegion.REACH_CHUNKS; offsetX <= LapTwinRegion.REACH_CHUNKS; offsetX++) {
+                grid[(offsetZ + LapTwinRegion.REACH_CHUNKS) * LapTwinRegion.SIDE_CHUNKS + offsetX + LapTwinRegion.REACH_CHUNKS] =
                         offsetX == 0 && offsetZ == 0
                                 ? center
                                 : biomesOnly(inputs, new ChunkPos(centerPos.x() + offsetX, centerPos.z() + offsetZ));
@@ -229,7 +229,7 @@ final class LapTwinChunks {
             there.surface(thereRecorder);
         }
 
-        return MaterialCauseSearch.causeOf(rule, hereRecorder.answers(), thereRecorder.answers());
+        return MaterialCauseSearch.causeOf(rule, hereRecorder.getAnswers(), thereRecorder.getAnswers());
     }
 
     private static SeamCauseSearch.@Nullable Point differenceOf(ProtoChunk here, ProtoChunk there) {
@@ -254,7 +254,7 @@ final class LapTwinChunks {
         return null;
     }
 
-    private static boolean biomesEqual(ChunkAccess here, ChunkAccess there) {
+    private static boolean areBiomesEqual(ChunkAccess here, ChunkAccess there) {
         int hereX = QuartPos.fromBlock(here.getPos().getMinBlockX());
         int hereZ = QuartPos.fromBlock(here.getPos().getMinBlockZ());
         int thereX = QuartPos.fromBlock(there.getPos().getMinBlockX());

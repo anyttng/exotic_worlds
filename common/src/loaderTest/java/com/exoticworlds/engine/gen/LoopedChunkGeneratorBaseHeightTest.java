@@ -8,10 +8,10 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.StartupRegistrations;
 
@@ -128,7 +128,7 @@ class LoopedChunkGeneratorBaseHeightTest {
     }
 
     private static RandomState foldedState(LoopedChunkGenerator generator, long seed) {
-        return GenerationFoldContext.withRouterBuild(generator.carriedShape().fold(),
+        return GenerationFoldContext.withRouterBuild(generator.getCarriedShape().getFold(),
                 () -> RandomState.create(holders.lookupOrThrow(Registries.NOISE), seed, overworldSettings.value()));
     }
 

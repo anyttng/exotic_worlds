@@ -9,7 +9,7 @@ import com.exoticworlds.api.v2.geometry.WorldGeometryV2;
 import com.exoticworlds.api.v2.option.ShapeOptionsV2;
 import com.exoticworlds.bridge.v2.geometry.GeometryBridge;
 import com.exoticworlds.bridge.v2.option.ShapeOptionsAdapter;
-import com.exoticworlds.core.StructureStartSet;
+import com.exoticworlds.core.gen.StructureStartSet;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.ChunkPos;
@@ -25,24 +25,24 @@ final class StructureStartsView implements StructureStartsV2 {
     }
 
     @Override
-    public WorldGeometryV2 geometry() {
-        return GeometryBridge.of(this.set.fold());
+    public WorldGeometryV2 getGeometry() {
+        return GeometryBridge.of(this.set.getFold());
     }
 
     @Override
-    public ShapeOptionsV2 options() {
-        return ShapeOptionsAdapter.toV2(this.set.options());
+    public ShapeOptionsV2 getOptions() {
+        return ShapeOptionsAdapter.toV2(this.set.getOptions());
     }
 
     @Override
-    public Holder<StructureSet> structureSet() {
-        return this.set.structureSet();
+    public Holder<StructureSet> getStructureSet() {
+        return this.set.getStructureSet();
     }
 
     @Override
-    public List<Pick> picks() {
+    public List<Pick> getPicks() {
         if (this.picks == null) {
-            this.picks = this.set.picks().stream()
+            this.picks = this.set.getPicks().stream()
                     .map(pick -> new Pick(pick.chunk(), pick.structure()))
                     .toList();
         }

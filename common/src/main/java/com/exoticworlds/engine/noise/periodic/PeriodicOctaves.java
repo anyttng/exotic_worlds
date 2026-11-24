@@ -28,9 +28,9 @@ public final class PeriodicOctaves {
         return value;
     }
 
-    public boolean indexable() {
+    public boolean isIndexable() {
         for (PeriodicLattice lattice : this.lattices) {
-            if (!lattice.indexable()) {
+            if (!lattice.isIndexable()) {
                 return false;
             }
         }

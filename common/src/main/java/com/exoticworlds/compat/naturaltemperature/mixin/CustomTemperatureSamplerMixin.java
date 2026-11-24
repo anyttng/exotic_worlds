@@ -23,7 +23,7 @@ public class CustomTemperatureSamplerMixin {
                             + "Lcom/naturaltemperature/NoiseBiomeBandsGenerator;III)F"))
     private float exotic_worlds$paintTheLap(DensitySampler.Bound rawTemperature, NoiseBiomeBandsGenerator noise,
             int x, int y, int z, Operation<Float> original) {
-        ClimateLap lap = ClimateLap.bound();
+        ClimateLap lap = ClimateLap.getBound();
         if (lap == null) {
             return original.call(rawTemperature, noise, x, y, z);
         }

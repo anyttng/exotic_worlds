@@ -1,9 +1,9 @@
 package com.exoticworlds.shape.torus;
 
 import com.exoticworlds.accessors.CoastLiftCache;
-import com.exoticworlds.core.GenerationMoments;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.gen.GenerationMoments;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.noise.DensityNoises;
 
@@ -26,7 +26,7 @@ public final class CoastFieldLift {
 
     public static void register() {
         GenerationMoments.atRandomState(GuaranteedLand.KEY,
-                (randomState, fold, seaLevel) -> solve(randomState, fold, fold.options(), seaLevel));
+                (randomState, fold, seaLevel) -> solve(randomState, fold, fold.getOptions(), seaLevel));
     }
 
     private static void solve(RandomState randomState, WorldFold dimensionFold, ShapeOptions options, int seaLevel) {
@@ -34,11 +34,11 @@ public final class CoastFieldLift {
             return;
         }
 
-        if (!dimensionFold.loops(Direction.Axis.X) || !dimensionFold.loops(Direction.Axis.Z)) {
+        if (!dimensionFold.isLooped(Direction.Axis.X) || !dimensionFold.isLooped(Direction.Axis.Z)) {
             return;
         }
 
-        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
+        WorldFold fold = GenerationFoldContext.getContext().getRouterBuildFold();
         if (fold == null) {
             return;
         }
@@ -53,34 +53,34 @@ public final class CoastFieldLift {
 
     private static void searchLift(RandomState randomState, NoiseRouter router, WorldFold fold, WorldFold dimensionFold,
             int seaLevel) {
-        int xLength = dimensionFold.widthBlocks(Direction.Axis.X);
-        int zLength = dimensionFold.widthBlocks(Direction.Axis.Z);
+        int xLengthBlocks = dimensionFold.getWidthBlocks(Direction.Axis.X);
+        int zLengthBlocks = dimensionFold.getWidthBlocks(Direction.Axis.Z);
         CoastLiftCache lift = (CoastLiftCache) (Object) randomState;
         DensitySampler density = randomState.getSampler(router.finalDensity());
-        int stride = Math.max(STRIDE_BLOCKS, Math.max(xLength, zLength) / GRID_CAP);
-        int xGrid = Math.max(1, xLength / stride);
-        int zGrid = Math.max(1, zLength / stride);
-        long cellBlocks = (long) stride * stride;
-        int skewCells = (int) Math.round((double) fold.blockLattice().skew() / stride);
+        int strideBlocks = Math.max(STRIDE_BLOCKS, Math.max(xLengthBlocks, zLengthBlocks) / GRID_CAP);
+        int xGrid = Math.max(1, xLengthBlocks / strideBlocks);
+        int zGrid = Math.max(1, zLengthBlocks / strideBlocks);
+        long cellBlocks = (long) strideBlocks * strideBlocks;
+        int skewCells = (int) Math.round((double) fold.getBlockLattice().getSkew() / strideBlocks);
 
         for (double candidate : CANDIDATES) {
-            lift.exotic_worlds$coastLift(candidate);
-            long patch = largestPatch(density, seaLevel, stride, xGrid, zGrid, skewCells) * cellBlocks;
+            lift.exotic_worlds$setCoastLift(candidate);
+            long patch = largestPatch(density, seaLevel, strideBlocks, xGrid, zGrid, skewCells) * cellBlocks;
             if (patch >= LAND_FLOOR_BLOCKS) {
                 return;
             }
         }
 
-        lift.exotic_worlds$coastLift(CANDIDATES[CANDIDATES.length - 1]);
+        lift.exotic_worlds$setCoastLift(CANDIDATES[CANDIDATES.length - 1]);
     }
 
-    private static int largestPatch(DensitySampler density, int seaLevel, int stride, int xGrid, int zGrid,
+    private static int largestPatch(DensitySampler density, int seaLevel, int strideBlocks, int xGrid, int zGrid,
             int skewCells) {
         boolean[] land = new boolean[xGrid * zGrid];
         for (int ix = 0; ix < xGrid; ix++) {
             for (int iz = 0; iz < zGrid; iz++) {
                 land[ix * zGrid + iz] = density.sampleValue(
-                        SamplerContext.EMPTY_UNCACHED, ix * stride, seaLevel, iz * stride) > 0.0F;
+                        SamplerContext.EMPTY_UNCACHED, ix * strideBlocks, seaLevel, iz * strideBlocks) > 0.0F;
             }
         }
 

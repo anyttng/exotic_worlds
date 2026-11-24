@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.FoldSource;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.NoiseConstants;
@@ -54,16 +54,16 @@ public class MaterialSystemMixin implements FoldSource {
     }
 
     @Override
-    public @Nullable WorldFold exotic_worlds$wrappedFold() {
+    public @Nullable WorldFold exotic_worlds$getWrappedFold() {
         FoldSource randomState = this.exotic_worlds$randomState;
-        return randomState != null ? randomState.exotic_worlds$wrappedFold() : null;
+        return randomState != null ? randomState.exotic_worlds$getWrappedFold() : null;
     }
 
     @WrapOperation(
             method = {"getSurfaceDepth", "getSurfaceSecondary", "getBand"},
             at = @At(value = "INVOKE", target = InjectionTargets.NOISE_GET))
     private float exotic_worlds$blockPositionNoise(Noise noise, double x, double y, double z, Operation<Float> original) {
-        WorldFold fold = GenerationFoldContext.carriedOrBound(this.exotic_worlds$wrappedFold());
+        WorldFold fold = GenerationFoldContext.carriedOrBound(this.exotic_worlds$getWrappedFold());
         if (fold == null) {
             return original.call(noise, x, y, z);
         }
@@ -86,7 +86,7 @@ public class MaterialSystemMixin implements FoldSource {
     @Unique
     private float exotic_worlds$rawCoordinateNoise(Noise noise, double x, double y, double z, int blockX, int blockZ,
             Operation<Float> original) {
-        WorldFold fold = GenerationFoldContext.carriedOrBound(this.exotic_worlds$wrappedFold());
+        WorldFold fold = GenerationFoldContext.carriedOrBound(this.exotic_worlds$getWrappedFold());
         if (fold == null) {
             return original.call(noise, x, y, z);
         }

@@ -22,8 +22,8 @@ class CopyBuildsTest {
         assertEquals(CopyBuilds.Offer.JOINED, copies.offer(STORED, member(612L, 2L, FAR)));
 
         copies.taken(1L);
-        assertEquals(List.of(612L), keys(copies.delivered(1L)));
-        assertTrue(copies.delivered(1L).isEmpty(), "a group is delivered once");
+        assertEquals(List.of(612L), keys(copies.takeDelivered(1L)));
+        assertTrue(copies.takeDelivered(1L).isEmpty(), "a group is delivered once");
     }
 
     @Test
@@ -32,8 +32,8 @@ class CopyBuildsTest {
         copies.taken(1L);
 
         assertEquals(CopyBuilds.Offer.QUEUE, copies.offer(STORED, member(612L, 2L, FAR)));
-        assertTrue(copies.delivered(1L).isEmpty(), "the copy asked after the build read its cell never rides it");
-        assertTrue(copies.delivered(2L).isEmpty());
+        assertTrue(copies.takeDelivered(1L).isEmpty(), "the copy asked after the build read its cell never rides it");
+        assertTrue(copies.takeDelivered(2L).isEmpty());
     }
 
     @Test
@@ -41,10 +41,10 @@ class CopyBuildsTest {
         copies.offer(STORED, member(612L, 1L, FAR));
         assertEquals(CopyBuilds.Offer.QUEUE, copies.offer(STORED, member(100L, 2L, NEAR)));
 
-        assertTrue(copies.skip(1L), "the farther task waits behind no one");
-        assertFalse(copies.skip(2L));
+        assertTrue(copies.trySkip(1L), "the farther task waits behind no one");
+        assertFalse(copies.trySkip(2L));
         copies.taken(2L);
-        assertEquals(List.of(612L), keys(copies.delivered(2L)));
+        assertEquals(List.of(612L), keys(copies.takeDelivered(2L)));
     }
 
     @Test
@@ -59,7 +59,7 @@ class CopyBuildsTest {
         copies.offer(STORED, member(100L, 1L, NEAR));
         copies.offer(STORED, member(612L, 2L, FAR));
 
-        assertEquals(List.of(612L), keys(copies.delivered(1L)));
+        assertEquals(List.of(612L), keys(copies.takeDelivered(1L)));
         assertEquals(CopyBuilds.Offer.QUEUE, copies.offer(STORED, member(612L, 3L, FAR)));
     }
 
@@ -68,9 +68,9 @@ class CopyBuildsTest {
         copies.offer(STORED, member(100L, 1L, NEAR));
         assertEquals(CopyBuilds.Offer.QUEUE, copies.offer(STORED, fill(612L, 2L, FAR)));
 
-        assertTrue(copies.skip(1L), "the rebuild waits behind no one once a fill leads its group");
+        assertTrue(copies.trySkip(1L), "the rebuild waits behind no one once a fill leads its group");
         copies.taken(2L);
-        assertEquals(List.of(100L), keys(copies.delivered(2L)));
+        assertEquals(List.of(100L), keys(copies.takeDelivered(2L)));
     }
 
     @Test
@@ -78,7 +78,7 @@ class CopyBuildsTest {
         copies.offer(STORED, fill(612L, 1L, FAR));
 
         assertEquals(CopyBuilds.Offer.JOINED, copies.offer(STORED, member(100L, 2L, NEAR)));
-        assertFalse(copies.skip(1L), "the fill keeps its place in the queue");
+        assertFalse(copies.trySkip(1L), "the fill keeps its place in the queue");
     }
 
     @Test
@@ -86,7 +86,7 @@ class CopyBuildsTest {
         copies.offer(STORED, fill(612L, 1L, FAR));
 
         assertEquals(CopyBuilds.Offer.QUEUE, copies.offer(STORED, fill(100L, 2L, NEAR)));
-        assertTrue(copies.skip(1L));
+        assertTrue(copies.trySkip(1L));
     }
 
     private static CopyBuilds.Member<String> member(long key, long request, float priority) {

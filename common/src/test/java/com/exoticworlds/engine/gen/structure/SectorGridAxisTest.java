@@ -13,7 +13,7 @@ import java.util.TreeSet;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.WrapDomain;
 
 class SectorGridAxisTest {
     private static final long SEED = 0x5EEDL;
@@ -77,14 +77,14 @@ class SectorGridAxisTest {
     @Test
     void offsetCapIsHalfTheCellCount() {
         forEachClosedAxis((domain, spacing, origin, axis, cells) ->
-                assertEquals(cells.size() / 2, axis.offsetCap(), in(domain, spacing, origin)));
+                assertEquals(cells.size() / 2, axis.getOffsetCap(), in(domain, spacing, origin)));
     }
 
     @Test
     void everyOffsetNamesItsCellAtTheFoldedDistance() {
         forEachClosedAxis((domain, spacing, origin, axis, cells) -> {
             int originCell = Math.floorDiv(origin, spacing);
-            for (int offset = -axis.offsetCap(); offset <= axis.offsetCap(); offset++) {
+            for (int offset = -axis.getOffsetCap(); offset <= axis.getOffsetCap(); offset++) {
                 int cell = Math.floorDiv(axis.probeChunk(offset), spacing);
                 assertEquals(Math.abs(offset), foldedCellDistance(originCell, cell, cells.size()),
                         in(domain, spacing, origin) + " offset " + offset);
@@ -96,7 +96,7 @@ class SectorGridAxisTest {
     void offsetsNameEveryCellOnceExceptTheEvenAntipode() {
         forEachClosedAxis((domain, spacing, origin, axis, cells) -> {
             Map<Integer, Integer> named = new HashMap<>();
-            for (int offset = -axis.offsetCap(); offset <= axis.offsetCap(); offset++) {
+            for (int offset = -axis.getOffsetCap(); offset <= axis.getOffsetCap(); offset++) {
                 named.merge(Math.floorDiv(axis.probeChunk(offset), spacing), 1, Integer::sum);
             }
 
@@ -107,7 +107,7 @@ class SectorGridAxisTest {
                 return;
             }
 
-            int cap = axis.offsetCap();
+            int cap = axis.getOffsetCap();
             int antipode = Math.floorDiv(axis.probeChunk(cap), spacing);
             assertEquals(antipode, Math.floorDiv(axis.probeChunk(-cap), spacing), context);
             named.forEach((cell, count) ->
@@ -118,7 +118,7 @@ class SectorGridAxisTest {
     @Test
     void probeChunkAnswersInsideTheWorld() {
         forEachClosedAxis((domain, spacing, origin, axis, cells) -> {
-            for (int offset = -axis.offsetCap(); offset <= axis.offsetCap(); offset++) {
+            for (int offset = -axis.getOffsetCap(); offset <= axis.getOffsetCap(); offset++) {
                 int probe = axis.probeChunk(offset);
                 String context = in(domain, spacing, origin) + " offset " + offset + " probe " + probe;
                 assertTrue(probe >= domain.lowerBound && probe < domain.upperBound, context);
@@ -131,7 +131,7 @@ class SectorGridAxisTest {
     void lapsCrossedCountsTheWrapsTheCellWalkTook() {
         forEachClosedAxis((domain, spacing, origin, axis, cells) -> {
             int originCell = Math.floorDiv(origin, spacing);
-            for (int offset = -axis.offsetCap(); offset <= axis.offsetCap(); offset++) {
+            for (int offset = -axis.getOffsetCap(); offset <= axis.getOffsetCap(); offset++) {
                 int laps = axis.lapsCrossed(offset);
                 int cell = Math.floorDiv(axis.probeChunk(offset), spacing);
                 assertEquals(originCell + offset - laps * cells.size(), cell,
@@ -143,7 +143,7 @@ class SectorGridAxisTest {
     @Test
     void aShiftedProbeLandsInTheCellOfTheShiftedChunkInsideTheWorld() {
         forEachClosedAxis((domain, spacing, origin, axis, cells) -> {
-            for (int offset = -axis.offsetCap(); offset <= axis.offsetCap(); offset++) {
+            for (int offset = -axis.getOffsetCap(); offset <= axis.getOffsetCap(); offset++) {
                 assertEquals(axis.probeChunk(offset), axis.probeChunkShifted(offset, 0));
                 for (int shift : new int[] {-5, 3, 17}) {
                     int shifted = axis.probeChunkShifted(offset, shift);
@@ -162,7 +162,7 @@ class SectorGridAxisTest {
         for (int spacing : SPACINGS) {
             for (int origin : List.of(-1000, 0, 37)) {
                 SectorGridAxis axis = SectorGridAxis.of(open, spacing, origin);
-                assertEquals(Integer.MAX_VALUE, axis.offsetCap());
+                assertEquals(Integer.MAX_VALUE, axis.getOffsetCap());
                 for (int offset = -50; offset <= 50; offset++) {
                     assertEquals(origin + spacing * offset, axis.probeChunk(offset),
                             "spacing " + spacing + " origin " + origin + " offset " + offset);

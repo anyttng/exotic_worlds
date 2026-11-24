@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.WorldCopies;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 class JourneyMapFoldCopyRangeTest {
     private static final int BLIT_BUDGET = 16384;
@@ -63,11 +63,11 @@ class JourneyMapFoldCopyRangeTest {
 
     @Test
     void theViewSpanIsTheWindowInBlocksAroundTheCenter() {
-        assertArrayEquals(new int[] {-640, 640}, JourneyMapFold.viewSpan(0.0, 1280, 512),
+        assertArrayEquals(new int[] {-640, 640}, JourneyMapFold.viewSpanBlocks(0.0, 1280, 512),
                 "1280 px at 512 px per 512-block region is 1280 blocks, 640 each side");
-        assertArrayEquals(new int[] {100 - 5120, 100 + 5120}, JourneyMapFold.viewSpan(100.0, 1280, 64),
+        assertArrayEquals(new int[] {100 - 5120, 100 + 5120}, JourneyMapFold.viewSpanBlocks(100.0, 1280, 64),
                 "1280 px at 64 px per region is 10240 blocks, 5120 each side of the center at 100");
         assertArrayEquals(new int[] {(int) Math.floor(100.5 - 640), (int) Math.ceil(100.5 + 640)},
-                JourneyMapFold.viewSpan(100.5, 1280, 512), "a fractional center does not floor and ceil outward");
+                JourneyMapFold.viewSpanBlocks(100.5, 1280, 512), "a fractional center does not floor and ceil outward");
     }
 }

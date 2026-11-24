@@ -2,8 +2,8 @@ package com.exoticworlds.compat.create;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.zurrtum.create.AllDataComponents;
 
@@ -16,7 +16,7 @@ import net.minecraft.world.phys.AABB;
 
 public final class CreateSchematicFold {
     public static ItemStack anchoredNear(@Nullable Level level, BlockPos reference, ItemStack blueprint) {
-        return anchoredNear(WorldLoopAttachments.wrappedFoldOfReader(level),
+        return anchoredNear(WorldLoopAttachments.getWrappedFoldOfReader(level),
                 AllDataComponents.SCHEMATIC_ANCHOR, reference, blueprint);
     }
 
@@ -38,7 +38,7 @@ public final class CreateSchematicFold {
     }
 
     public static BlockPos visitedInSchematicFrame(@Nullable Level level, ItemStack blueprint, BlockPos visited) {
-        return visitedInSchematicFrame(WorldLoopAttachments.wrappedFoldOfReader(level),
+        return visitedInSchematicFrame(WorldLoopAttachments.getWrappedFoldOfReader(level),
                 AllDataComponents.SCHEMATIC_ANCHOR, blueprint, visited);
     }
 
@@ -53,20 +53,20 @@ public final class CreateSchematicFold {
     }
 
     public static AABB glueInScanFrame(@Nullable Level level, AABB scanBox, AABB glueBox) {
-        return FoldedBoxQuery.toward(WorldLoopAttachments.wrappedFoldOfReader(level), scanBox.getCenter(),
+        return FoldedBoxQuery.toward(WorldLoopAttachments.getWrappedFoldOfReader(level), scanBox.getCenter(),
                 glueBox);
     }
 
-    public static boolean regionExceedsWorld(@Nullable Level level, BlockPos first, BlockPos second) {
-        return regionExceedsWorld(WorldLoopAttachments.wrappedFoldOfReader(level), first, second);
+    public static boolean isRegionExceedingWorld(@Nullable Level level, BlockPos first, BlockPos second) {
+        return isRegionExceedingWorld(WorldLoopAttachments.getWrappedFoldOfReader(level), first, second);
     }
 
-    static boolean regionExceedsWorld(@Nullable WorldFold fold, BlockPos first, BlockPos second) {
+    static boolean isRegionExceedingWorld(@Nullable WorldFold fold, BlockPos first, BlockPos second) {
         if (fold == null) {
             return false;
         }
 
-        return fold.foldsOntoItself(BoundingBox.fromCorners(first, second));
+        return fold.isFoldedOntoItself(BoundingBox.fromCorners(first, second));
     }
 
     private CreateSchematicFold() {

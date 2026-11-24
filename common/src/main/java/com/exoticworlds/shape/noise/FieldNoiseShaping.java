@@ -1,8 +1,8 @@
 package com.exoticworlds.shape.noise;
 
-import com.exoticworlds.core.NoiseShaping;
-import com.exoticworlds.core.NoiseShapings;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.gen.NoiseShaping;
+import com.exoticworlds.core.gen.NoiseShapings;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.shape.climate.ClimateCompression;
 import com.exoticworlds.shape.torus.CoastFields;
 
@@ -27,7 +27,7 @@ public final class FieldNoiseShaping implements NoiseShaping {
     }
 
     @Override
-    public boolean coast(Holder<NormalNoise> noise) {
+    public boolean isCoast(Holder<NormalNoise> noise) {
         return noise.unwrapKey().filter(CoastFields::isCoast).isPresent();
     }
 

@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.fold;
 
 import com.exoticworlds.accessors.FoldSource;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import org.jspecify.annotations.Nullable;
 
@@ -15,7 +15,7 @@ public final class FoldedBoxQuery {
     }
 
     public static AABB toward(Entity levelSource, Vec3 anchor, AABB box) {
-        return toward(((FoldSource) levelSource).exotic_worlds$wrappedFold(), anchor, box);
+        return toward(((FoldSource) levelSource).exotic_worlds$getWrappedFold(), anchor, box);
     }
 
     private FoldedBoxQuery() {

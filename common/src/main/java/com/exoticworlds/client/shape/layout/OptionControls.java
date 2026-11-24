@@ -20,8 +20,8 @@ import com.ascendiacore.gui.widget.numberfield.NumberField;
 import com.ascendiacore.gui.widget.numberfield.model.Bounds;
 import com.ascendiacore.gui.widget.panel.model.FillStyle;
 import com.exoticworlds.client.shape.OptionLines;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeOptions;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.shape.option.DeclaredOptions;
 import com.exoticworlds.shape.option.DimensionOption;
 import com.exoticworlds.shape.option.OptionPart;
@@ -53,18 +53,18 @@ final class OptionControls {
         this.dimension = dimension;
         this.shape = shape;
         this.spans = spans;
-        this.section.setGap(LoopFields.GAP);
-        for (DimensionOption<?> declared : DeclaredOptions.all()) {
+        this.section.setGap(LoopFields.GAP_PIXELS);
+        for (DimensionOption<?> declared : DeclaredOptions.getAll()) {
             this.bound.add(new Bound<>(declared));
         }
     }
 
-    Column section() {
+    Column getSection() {
         return this.section;
     }
 
-    boolean anyOffered() {
-        return this.bound.stream().anyMatch(Bound::offered);
+    boolean isAnyOffered() {
+        return this.bound.stream().anyMatch(Bound::isOffered);
     }
 
     void show(ShapeOptions options) {
@@ -94,34 +94,34 @@ final class OptionControls {
 
         Bound(DimensionOption<T> declared) {
             this.declared = declared;
-            this.value = declared.option().defaultValue();
-            declared.parts().forEach(this::add);
-            BiFunction<T, FlatShape, Component> line = OptionLines.of(declared.option());
+            this.value = declared.getOption().defaultValue();
+            declared.getParts().forEach(this::add);
+            BiFunction<T, FlatShape, Component> line = OptionLines.of(declared.getOption());
             if (line != null) {
                 this.addLine(line);
             }
         }
 
-        boolean offered() {
+        boolean isOffered() {
             Identifier chosen = OptionControls.this.shape.get();
-            return chosen != null && this.declared.offeredFor(chosen, OptionControls.this.dimension);
+            return chosen != null && this.declared.isOfferedFor(chosen, OptionControls.this.dimension);
         }
 
         void show(ShapeOptions options) {
-            this.value = options.get(this.declared.option());
+            this.value = options.get(this.declared.getOption());
             this.shownValues.forEach(Runnable::run);
         }
 
         @Nullable ShapeOptions commit(ShapeOptions into) {
-            if (!this.offered()) {
+            if (!this.isOffered()) {
                 return into;
             }
 
-            T chosen = this.chosen();
-            return chosen == null ? null : into.with(this.declared.option(), chosen);
+            T chosen = this.getChosen();
+            return chosen == null ? null : into.with(this.declared.getOption(), chosen);
         }
 
-        private @Nullable T chosen() {
+        private @Nullable T getChosen() {
             T chosen = this.value;
             for (NumberPart<T> number : this.numbers) {
                 if (!number.part().shownWhen().test(this.value)) {
@@ -141,8 +141,8 @@ final class OptionControls {
 
         private void add(OptionPart<T> part) {
             String captionKey = part.key().isEmpty()
-                    ? this.declared.captionKey()
-                    : this.declared.captionKey() + KEY_SEPARATOR + part.key();
+                    ? this.declared.getCaptionKey()
+                    : this.declared.getCaptionKey() + KEY_SEPARATOR + part.key();
             GuiComponent control = switch (part) {
                 case OptionPart.Toggle<T> toggle -> this.cycle(captionKey, List.of(false, true),
                         on -> on ? CommonComponents.OPTION_ON : CommonComponents.OPTION_OFF,
@@ -150,7 +150,7 @@ final class OptionControls {
                 case OptionPart.Choice<T, ?> choice -> this.choice(captionKey, choice);
                 case OptionPart.WholeNumber<T> number -> this.number(captionKey, number);
             };
-            control.setVisible(() -> this.offered() && part.shownWhen().test(this.value));
+            control.setVisible(() -> this.isOffered() && part.shownWhen().test(this.value));
             OptionControls.this.section.add(control);
         }
 
@@ -191,12 +191,12 @@ final class OptionControls {
         private void addLine(BiFunction<T, FlatShape, Component> line) {
             Label label = new Label(OptionControls.this.fill, LabelRole.MUTED, Component.empty());
             label.setText(() -> this.lineText(line));
-            label.setVisible(() -> this.offered() && !this.lineText(line).getString().isEmpty());
+            label.setVisible(() -> this.isOffered() && !this.lineText(line).getString().isEmpty());
             OptionControls.this.section.add(label);
         }
 
         private Component lineText(BiFunction<T, FlatShape, Component> line) {
-            T chosen = this.chosen();
+            T chosen = this.getChosen();
             FlatShape dimensionSpans = OptionControls.this.spans.get();
             return chosen == null || dimensionSpans == null ? Component.empty() : line.apply(chosen, dimensionSpans);
         }

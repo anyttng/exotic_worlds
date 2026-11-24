@@ -29,9 +29,9 @@ import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 class TerrainCeilingCutTest {
     private static final String JAGGEDNESS_PATH = "overworld/jaggedness";
 
-    private static final int HEIGHT = 128;
+    private static final int HEIGHT_BLOCKS = 128;
 
-    private static final int CELL_HEIGHT = 8;
+    private static final int CELL_HEIGHT_BLOCKS = 8;
 
     private static final int SURFACE_Y = 40;
 
@@ -105,7 +105,7 @@ class TerrainCeilingCutTest {
     @Test
     void theRampKeepsItsKneeWhereTheCeilingStarts() {
         int knee = ceilingY(KNEE_X);
-        assertNotEquals(0, knee % CELL_HEIGHT,
+        assertNotEquals(0, knee % CELL_HEIGHT_BLOCKS,
                 "a knee on a cell boundary holds wherever the marker sits, and grades nothing");
 
         assertEquals(BASE_DENSITY, densityAt(KNEE_X, knee), TOLERANCE);
@@ -124,7 +124,7 @@ class TerrainCeilingCutTest {
 
                 @Override
                 public float sampleValue(SamplerContext samplerContext, int blockX, int blockY, int blockZ) {
-                    return (float) (SURFACE_Y + Mth.clamp(blockX * SURFACE_RISE_PER_BLOCK, 0.0, HEIGHT));
+                    return (float) (SURFACE_Y + Mth.clamp(blockX * SURFACE_RISE_PER_BLOCK, 0.0, HEIGHT_BLOCKS));
                 }
             };
         }
@@ -136,7 +136,7 @@ class TerrainCeilingCutTest {
 
         @Override
         public Interval range() {
-            return Interval.of(SURFACE_Y, SURFACE_Y + HEIGHT);
+            return Interval.of(SURFACE_Y, SURFACE_Y + HEIGHT_BLOCKS);
         }
 
         @Override

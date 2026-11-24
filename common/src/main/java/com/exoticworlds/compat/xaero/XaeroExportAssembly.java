@@ -46,11 +46,11 @@ public final class XaeroExportAssembly {
         this.placedChunk = null;
     }
 
-    public boolean walking() {
+    public boolean isWalking() {
         return this.regions != null;
     }
 
-    public int lastWalkedRegion() {
+    public int getLastWalkedRegion() {
         return Objects.requireNonNull(this.regions, "read only while walking").length - 1;
     }
 
@@ -66,29 +66,29 @@ public final class XaeroExportAssembly {
         this.regionZ = ChunkPos.getZ(region);
     }
 
-    public int regionX() {
+    public int getRegionX() {
         return this.regionX;
     }
 
-    public int regionZ() {
+    public int getRegionZ() {
         return this.regionZ;
     }
 
     public int tileChunkX(ExportMapTileChunk chunk) {
-        return placed(chunk) ? this.frameMinTileX : this.frameMinTileX - 1;
+        return isPlaced(chunk) ? this.frameMinTileX : this.frameMinTileX - 1;
     }
 
     public int tileChunkZ(ExportMapTileChunk chunk) {
-        return placed(chunk) ? this.frameMinTileZ : this.frameMinTileZ - 1;
+        return isPlaced(chunk) ? this.frameMinTileZ : this.frameMinTileZ - 1;
     }
 
-    private boolean placed(ExportMapTileChunk chunk) {
+    private boolean isPlaced(ExportMapTileChunk chunk) {
         if (chunk != this.placedChunk) {
             this.placedChunk = chunk;
             List<TilePlacement> placements = new ArrayList<>();
             for (TilePlacement placement : XaeroWorldMapFold.placements(chunk.getX() * XaeroWorldMapFold.SLOT_BLOCKS,
                     chunk.getZ() * XaeroWorldMapFold.SLOT_BLOCKS, XaeroWorldMapFold.SLOT_BLOCKS, this.copies)) {
-                if (placement.meets(this.frameMinX, this.frameMinZ, this.frameMaxX, this.frameMaxZ)) {
+                if (placement.isMeeting(this.frameMinX, this.frameMinZ, this.frameMaxX, this.frameMaxZ)) {
                     placements.add(placement);
                 }
             }
@@ -104,7 +104,7 @@ public final class XaeroExportAssembly {
         for (TilePlacement placement : this.placements) {
             GuiMap.renderTexturedModalSubRectWithLighting(matrix, x + (placement.minX() - this.frameMinX),
                     y + (placement.minZ() - this.frameMinZ), placement.u1(), placement.v1(), placement.u2(),
-                    placement.v2(), placement.width(), placement.height(), texture, hasLight, renderer);
+                    placement.v2(), placement.widthBlocks(), placement.heightBlocks(), texture, hasLight, renderer);
         }
     }
 }

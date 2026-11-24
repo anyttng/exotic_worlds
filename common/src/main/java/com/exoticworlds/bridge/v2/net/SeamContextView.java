@@ -12,7 +12,7 @@ import net.minecraft.world.phys.Vec3;
 record SeamContextView(TranslationContext context) implements SeamContextV2 {
 
     @Override
-    public WorldGeometryV2 geometry() {
+    public WorldGeometryV2 getGeometry() {
         return GeometryBridge.of(this.context.fold());
     }
 

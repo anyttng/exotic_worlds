@@ -19,7 +19,7 @@ public final class FastNoiseLap {
     public record Laps(int xBlocks, int zBlocks, double xzScale) {
     }
 
-    public record Field(int seed, float frequency, float lacunarity, int octaves, boolean rotated) {
+    public record Field(int seed, float frequency, float lacunarity, int octaves, boolean isRotated) {
     }
 
     public record Primes(int x, int y, int z) {
@@ -27,7 +27,7 @@ public final class FastNoiseLap {
 
     private final int seed;
 
-    private final boolean rotated;
+    private final boolean isRotated;
 
     private final long[] xCells;
 
@@ -49,11 +49,11 @@ public final class FastNoiseLap {
 
     private FastNoiseLap(Laps laps, Field field, Primes primes) {
         this.seed = field.seed();
-        this.rotated = field.rotated();
+        this.isRotated = field.isRotated();
         this.primes = primes;
         this.inverses = new Primes(inverseOfOdd(primes.x()), inverseOfOdd(primes.y()), inverseOfOdd(primes.z()));
         int common = commonLap(laps);
-        int step = field.rotated() ? ROTATED_STEP : AXIS_STEP;
+        int step = field.isRotated() ? ROTATED_STEP : AXIS_STEP;
         double commonInput = common * Math.abs(laps.xzScale());
         long[] counts = new long[field.octaves()];
         double rate = field.frequency();
@@ -77,11 +77,11 @@ public final class FastNoiseLap {
         this.inputScale = this.blockScale / Math.abs(laps.xzScale());
     }
 
-    public double blockScale() {
+    public double getBlockScale() {
         return this.blockScale;
     }
 
-    public double inputScale() {
+    public double getInputScale() {
         return this.inputScale;
     }
 
@@ -91,12 +91,12 @@ public final class FastNoiseLap {
 
     public int reduceX(int octaveSeed, int xPrimed, int yPrimed, int zPrimed) {
         int octave = octaveSeed - this.seed;
-        if (!this.reduces(octave)) {
+        if (!this.isReducing(octave)) {
             return xPrimed;
         }
 
         long x = unprimed(xPrimed, this.inverses.x());
-        if (!this.rotated) {
+        if (!this.isRotated) {
             return primed(this.xCells[octave] == OPEN ? x : Math.floorMod(x, this.xCells[octave]), this.primes.x());
         }
 
@@ -108,7 +108,7 @@ public final class FastNoiseLap {
 
     public int reduceY(int octaveSeed, int xPrimed, int yPrimed, int zPrimed) {
         int octave = octaveSeed - this.seed;
-        if (!this.rotated || !this.reduces(octave)) {
+        if (!this.isRotated || !this.isReducing(octave)) {
             return yPrimed;
         }
 
@@ -121,12 +121,12 @@ public final class FastNoiseLap {
 
     public int reduceZ(int octaveSeed, int xPrimed, int yPrimed, int zPrimed) {
         int octave = octaveSeed - this.seed;
-        if (!this.reduces(octave)) {
+        if (!this.isReducing(octave)) {
             return zPrimed;
         }
 
         long z = unprimed(zPrimed, this.inverses.z());
-        if (!this.rotated) {
+        if (!this.isRotated) {
             return primed(this.zCells[octave] == OPEN ? z : Math.floorMod(z, this.zCells[octave]), this.primes.z());
         }
 
@@ -136,7 +136,7 @@ public final class FastNoiseLap {
                 + this.zLaps(octave, x, y, z) * this.zStep(octave), this.primes.z());
     }
 
-    private boolean reduces(int octave) {
+    private boolean isReducing(int octave) {
         return octave >= 0 && octave < this.xCells.length;
     }
 

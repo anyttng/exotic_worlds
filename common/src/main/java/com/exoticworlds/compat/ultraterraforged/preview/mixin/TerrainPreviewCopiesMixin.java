@@ -17,7 +17,7 @@ import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.preview.CreationShape;
 import com.exoticworlds.compat.preview.PreviewView;
 import com.exoticworlds.compat.ultraterraforged.preview.DrawnPreview;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -37,7 +37,7 @@ import net.minecraft.core.Direction;
 @Mixin(value = TerrainPreview.class, remap = false)
 public abstract class TerrainPreviewCopiesMixin implements DrawnPreview {
     @Unique
-    private static final int SEAM_THICKNESS = 1;
+    private static final int SEAM_THICKNESS_PIXELS = 1;
 
     @Shadow
     @Final
@@ -56,15 +56,15 @@ public abstract class TerrainPreviewCopiesMixin implements DrawnPreview {
     private @Nullable PreviewView exotic_worlds$drawn;
 
     @Override
-    public @Nullable PreviewView exotic_worlds$drawn() {
+    public @Nullable PreviewView exotic_worlds$getDrawn() {
         return this.exotic_worlds$drawn;
     }
 
     @ModifyVariable(method = "generate", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private float exotic_worlds$capTheZoom(float zoom, @Share("fold") LocalRef<WorldFold> fold,
             @Share("copies") LocalRef<MapCopies> copies) {
-        fold.set(CreationShape.routerBuildFold());
-        copies.set(MapCopies.current());
+        fold.set(CreationShape.getRouterBuildFold());
+        copies.set(MapCopies.getCurrent());
         int widgetPixels = ((AbstractWidget) (Object) this).getWidth();
         return Math.min(zoom, PreviewView.zoomCeiling(fold.get(), copies.get(), widgetPixels));
     }
@@ -116,17 +116,17 @@ public abstract class TerrainPreviewCopiesMixin implements DrawnPreview {
     private void exotic_worlds$drawTheWorldEdges(GuiGraphicsExtractor graphics, int mouseX, int mouseY,
             float partialTick, CallbackInfo callback) {
         PreviewView view = this.exotic_worlds$drawn;
-        if (view == null || !view.copies().drawsSeamLines()) {
+        if (view == null || !view.copies().isDrawingSeamLines()) {
             return;
         }
 
         AbstractWidget widget = (AbstractWidget) (Object) this;
         int x = widget.getX();
         int y = widget.getY();
-        int size = widget.getWidth();
-        graphics.enableScissor(x, y, x + size, y + size);
-        for (SeamLine line : view.seamLines(x, y, size)) {
-            line.fill(graphics, SEAM_THICKNESS);
+        int sizePixels = widget.getWidth();
+        graphics.enableScissor(x, y, x + sizePixels, y + sizePixels);
+        for (SeamLine line : view.seamLines(x, y, sizePixels)) {
+            line.fill(graphics, SEAM_THICKNESS_PIXELS);
         }
         graphics.disableScissor();
     }

@@ -6,23 +6,23 @@ import java.lang.reflect.Proxy;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.SeamTransform;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.SeamTransform;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.world.phys.Vec3;
 
 class SeamMoveTest {
-    private static final int FACE_WIDTH = 64;
+    private static final int FACE_WIDTH_BLOCKS = 64;
     private static final int TORUS_WIDTH_IN_CHUNKS = 32;
-    private static final int TORUS_WIDTH = TORUS_WIDTH_IN_CHUNKS * 16;
+    private static final int TORUS_WIDTH_BLOCKS = TORUS_WIDTH_IN_CHUNKS * 16;
 
     private static final SeamTransform QUARTER_TURN_TO_THE_SERVER =
-            new SeamTransform(-1, 1, FACE_WIDTH, -FACE_WIDTH, true);
-    private static final SeamTransform MIRROR_ON_Z_TO_THE_SERVER = new SeamTransform(1, -1, 0, FACE_WIDTH);
+            new SeamTransform(-1, 1, FACE_WIDTH_BLOCKS, -FACE_WIDTH_BLOCKS, true);
+    private static final SeamTransform MIRROR_ON_Z_TO_THE_SERVER = new SeamTransform(1, -1, 0, FACE_WIDTH_BLOCKS);
 
     private static final WorldFold TORUS =
             WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(TORUS_WIDTH_IN_CHUNKS)));
@@ -55,6 +55,6 @@ class SeamMoveTest {
 
     @Test
     void aHeadingSentFromALappedCopyIsLeftAsSent() {
-        assertEquals(YAW, SeamMove.serverYaw(TORUS, SERVER_POSITION, SERVER_POSITION.add(TORUS_WIDTH, 0.0, 0.0), YAW));
+        assertEquals(YAW, SeamMove.serverYaw(TORUS, SERVER_POSITION, SERVER_POSITION.add(TORUS_WIDTH_BLOCKS, 0.0, 0.0), YAW));
     }
 }

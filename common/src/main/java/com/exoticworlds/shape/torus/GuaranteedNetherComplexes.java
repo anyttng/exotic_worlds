@@ -1,6 +1,6 @@
 package com.exoticworlds.shape.torus;
 
-import com.exoticworlds.core.ShapeOption;
+import com.exoticworlds.core.option.ShapeOption;
 import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.option.BooleanOptionDeclaration;
 import com.exoticworlds.shape.option.DimensionOption;

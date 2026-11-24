@@ -1,9 +1,9 @@
 package com.exoticworlds.engine.noise;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.noise.BlendedNoiseFixture.Octave;
 import com.exoticworlds.engine.noise.LayeredNoise.CorrectedGrids;
 import com.exoticworlds.engine.noise.periodic.LapFloor;
@@ -22,7 +22,7 @@ import net.minecraft.core.Direction;
 final class OctaveCalibration {
     private static final int CYLINDER_GRID_X = 16;
     private static final int CYLINDER_GRID_Z = 256;
-    private static final double CYLINDER_Z_SPAN = 8192.0;
+    private static final double CYLINDER_Z_SPAN_BLOCKS = 8192.0;
     private static final int VERTICAL_GRID_XZ = 16;
     private static final int VERTICAL_GRID_Y = 8;
 
@@ -227,7 +227,7 @@ final class OctaveCalibration {
         WorldFold cylinder = WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, 32)));
         LapFloor[] floors = {LapFloor.FOUR_CELLS, LapFloor.of(cylinder)};
         java.util.Random windows = new java.util.Random(0x0153E);
-        report.append("cylinder calibration (X lap 512 blocks, Z unbounded, window ").append((int) CYLINDER_Z_SPAN)
+        report.append("cylinder calibration (X lap 512 blocks, Z unbounded, window ").append((int) CYLINDER_Z_SPAN_BLOCKS)
                 .append(" blocks of Z, ").append(seeds).append(" seeds x ").append(CYLINDER_GRID_X).append("x")
                 .append(CYLINDER_GRID_Z)
                 .append(" grid; rms of strip / line / X-step; the last column is the fold's own rule):\n");
@@ -265,7 +265,7 @@ final class OctaveCalibration {
         for (int i = 0; i < CYLINDER_GRID_X; i++) {
             double x = i * (WORLD_BLOCKS / (double) CYLINDER_GRID_X);
             for (int j = 0; j < CYLINDER_GRID_Z; j++) {
-                double z = j * (CYLINDER_Z_SPAN / CYLINDER_GRID_Z);
+                double z = j * (CYLINDER_Z_SPAN_BLOCKS / CYLINDER_GRID_Z);
                 grids[0][i][j] = octave.vanilla().get((draw.windowX() + x) * scale, 0.0,
                         (draw.windowZ() + z) * scale);
                 for (int f = 0; f < floors.length; f++) {

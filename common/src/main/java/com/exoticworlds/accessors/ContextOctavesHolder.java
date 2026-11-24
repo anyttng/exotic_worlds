@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.engine.noise.ContextOctaves;
 
 public interface ContextOctavesHolder {
-    @Nullable ContextOctaves exotic_worlds$contextOctaves();
+    @Nullable ContextOctaves exotic_worlds$getContextOctaves();
 
-    void exotic_worlds$contextOctaves(ContextOctaves octaves);
+    void exotic_worlds$setContextOctaves(ContextOctaves octaves);
 }

@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.accessors.FoldSource;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.gen.CanonicalRandomFactory;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
@@ -23,12 +23,12 @@ public class MaterialRuleContextMixin implements FoldSource {
 
     @ModifyReturnValue(method = "getOrCreateRandomFactory", at = @At("RETURN"))
     private PositionalRandomFactory exotic_worlds$seedFromCanonicalPosition(PositionalRandomFactory factory) {
-        WorldFold fold = this.exotic_worlds$wrappedFold();
+        WorldFold fold = this.exotic_worlds$getWrappedFold();
         return fold == null ? factory : new CanonicalRandomFactory(factory, fold);
     }
 
     @Override
-    public @Nullable WorldFold exotic_worlds$wrappedFold() {
-        return ((FoldSource) (Object) this.randomState).exotic_worlds$wrappedFold();
+    public @Nullable WorldFold exotic_worlds$getWrappedFold() {
+        return ((FoldSource) (Object) this.randomState).exotic_worlds$getWrappedFold();
     }
 }

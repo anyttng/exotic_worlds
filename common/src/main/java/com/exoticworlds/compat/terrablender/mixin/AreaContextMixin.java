@@ -35,14 +35,14 @@ public class AreaContextMixin {
     private Area exotic_worlds$registerMergeLayer(Area area, PixelTransformer transformer, Area first, Area second) {
         LayeredArea firstLayer = (LayeredArea) (Object) first;
         LayeredArea secondLayer = (LayeredArea) (Object) second;
-        exotic_worlds$registerAbove(area, firstLayer.exotic_worlds$depth() >= secondLayer.exotic_worlds$depth() ? firstLayer : secondLayer);
+        exotic_worlds$registerAbove(area, firstLayer.exotic_worlds$getDepth() >= secondLayer.exotic_worlds$getDepth() ? firstLayer : secondLayer);
         return area;
     }
 
     @Unique
     private static void exotic_worlds$registerAbove(Area area, LayeredArea parent) {
-        RegionLayerStack stack = parent.exotic_worlds$stack();
+        RegionLayerStack stack = parent.exotic_worlds$getStack();
         ((LayeredArea) (Object) area).exotic_worlds$register(stack != null ? stack : new RegionLayerStack(),
-                parent.exotic_worlds$depth() + 1);
+                parent.exotic_worlds$getDepth() + 1);
     }
 }

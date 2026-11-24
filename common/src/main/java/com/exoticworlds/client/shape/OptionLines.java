@@ -4,9 +4,9 @@ import java.util.function.BiFunction;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeOption;
-import com.exoticworlds.core.StartupRegistry;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.option.ShapeOption;
+import com.exoticworlds.core.registry.StartupRegistry;
 
 import net.minecraft.network.chat.Component;
 
@@ -20,7 +20,7 @@ public final class OptionLines {
 
     @SuppressWarnings("unchecked")
     public static <T> @Nullable BiFunction<T, FlatShape, Component> of(ShapeOption<T> option) {
-        return (BiFunction<T, FlatShape, Component>) LINES.entries().get(option.key());
+        return (BiFunction<T, FlatShape, Component>) LINES.getEntries().get(option.key());
     }
 
     private OptionLines() {

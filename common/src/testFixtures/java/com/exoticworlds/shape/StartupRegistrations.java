@@ -1,12 +1,12 @@
 package com.exoticworlds.shape;
 
-import com.exoticworlds.core.GenerationMoments;
-import com.exoticworlds.core.ShapeOptionRegistry;
-import com.exoticworlds.core.SpawnPoint;
+import com.exoticworlds.core.gen.GenerationMoments;
+import com.exoticworlds.core.option.ShapeOptionRegistry;
+import com.exoticworlds.core.world.SpawnPoint;
 
 public final class StartupRegistrations {
     public static synchronized void options() {
-        if (!ShapeOptionRegistry.all().contains(SpawnPoint.OPTION)) {
+        if (!ShapeOptionRegistry.getAll().contains(SpawnPoint.OPTION)) {
             WorldOptionSetup.registerAll();
         }
     }

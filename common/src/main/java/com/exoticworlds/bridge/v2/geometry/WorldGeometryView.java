@@ -10,10 +10,10 @@ import com.exoticworlds.api.v2.geometry.SeamShiftV2;
 import com.exoticworlds.api.v2.geometry.WorldGeometryV2;
 import com.exoticworlds.api.v2.shape.LoopSpansV2;
 import com.exoticworlds.bridge.v2.shape.ShapeSpansAdapter;
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.RectangleCopies;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.fold.RectangleCopies;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
@@ -29,7 +29,7 @@ final class WorldGeometryView implements WorldGeometryV2 {
     }
 
     @Override
-    public LoopSpansV2 spans() {
+    public LoopSpansV2 getSpans() {
         LoopSpansV2 stated = this.spans;
         if (stated == null) {
             stated = spansOf(this.fold);
@@ -40,7 +40,7 @@ final class WorldGeometryView implements WorldGeometryV2 {
     }
 
     private static LoopSpansV2 spansOf(WorldFold fold) {
-        return ShapeSpansAdapter.loopSpans(FlatShape.latticeTorus(fold.bounds(), fold.chunkLattice().skew()));
+        return ShapeSpansAdapter.loopSpans(FlatShape.latticeTorus(fold.getBounds(), fold.getChunkLattice().getSkew()));
     }
 
     @Override
@@ -89,13 +89,13 @@ final class WorldGeometryView implements WorldGeometryV2 {
     }
 
     @Override
-    public double sqrDistance(Vec3 from, Vec3 to) {
-        return this.fold.sqrDistance(from.x, from.y, from.z, to.x, to.y, to.z);
+    public double sqrDistanceBlocks(Vec3 from, Vec3 to) {
+        return this.fold.sqrDistanceBlocks(from.x, from.y, from.z, to.x, to.y, to.z);
     }
 
     @Override
-    public boolean boxesOverlap(AABB first, AABB second) {
-        return this.fold.boxesOverlap(first, second);
+    public boolean areBoxesOverlapping(AABB first, AABB second) {
+        return this.fold.areBoxesOverlapping(first, second);
     }
 
     @Override
@@ -133,8 +133,8 @@ final class WorldGeometryView implements WorldGeometryV2 {
     }
 
     @Override
-    public boolean preservesLocalIndices() {
-        return this.fold.preservesLocalIndices();
+    public boolean areLocalIndicesPreserved() {
+        return this.fold.isPreservingLocalIndices();
     }
 
     @Override

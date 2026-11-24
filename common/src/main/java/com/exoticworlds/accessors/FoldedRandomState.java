@@ -7,11 +7,11 @@ import com.exoticworlds.engine.noise.AquiferCells;
 import com.exoticworlds.engine.noise.FoldedCompileContext;
 
 public interface FoldedRandomState {
-    @Nullable FoldedCompileContext exotic_worlds$compileContext();
+    @Nullable FoldedCompileContext exotic_worlds$getCompileContext();
 
-    @Nullable BaseHeights exotic_worlds$baseHeights();
+    @Nullable BaseHeights exotic_worlds$getBaseHeights();
 
-    @Nullable AquiferCells exotic_worlds$aquiferCells();
+    @Nullable AquiferCells exotic_worlds$getAquiferCells();
 
-    void exotic_worlds$aquiferCells(AquiferCells cells);
+    void exotic_worlds$setAquiferCells(AquiferCells cells);
 }

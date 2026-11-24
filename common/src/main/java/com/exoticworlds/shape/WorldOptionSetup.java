@@ -1,7 +1,7 @@
 package com.exoticworlds.shape;
 
-import com.exoticworlds.core.ShapeOptionRegistry;
-import com.exoticworlds.core.SpawnPoint;
+import com.exoticworlds.core.option.ShapeOptionRegistry;
+import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.shape.climate.CompactBiomes;
 import com.exoticworlds.shape.torus.GuaranteedLand;
 import com.exoticworlds.shape.torus.GuaranteedNetherComplexes;

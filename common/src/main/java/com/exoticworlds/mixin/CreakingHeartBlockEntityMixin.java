@@ -4,8 +4,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -34,7 +34,7 @@ public class CreakingHeartBlockEntityMixin {
     @Unique
     private static Vec3 exotic_worlds$nearestToHeart(CreakingHeartBlockEntity heart, Vec3 center) {
         BlockPos heartPos = heart.getBlockPos();
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(heart.getLevel());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(heart.getLevel());
         return NearestCopy.toward(fold, Vec3.atCenterOf(heartPos), center);
     }
 }

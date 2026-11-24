@@ -24,8 +24,8 @@ public class TurtleGoHomeGoalMixin {
             method = { "canUse", "canContinueToUse", "tick" },
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean exotic_worlds$homeReachThroughSeam(BlockPos homePos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$homeReachThroughSeam(BlockPos homePos, Position bodyPosition, double distanceBlocks,
             Operation<Boolean> original) {
-        return original.call(homePos, SeamRange.towardCenterOf(this.turtle, homePos, bodyPosition), distance);
+        return original.call(homePos, SeamRange.towardCenterOf(this.turtle, homePos, bodyPosition), distanceBlocks);
     }
 }

@@ -8,9 +8,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
@@ -31,9 +31,9 @@ import net.minecraft.world.level.levelgen.presets.WorldPresets;
 
 @Timeout(60)
 class WorldDimensionsNbtRoundTripTest {
-    private static final int OVERWORLD_CHUNK_WIDTH = 128;
+    private static final int OVERWORLD_WIDTH_CHUNKS = 128;
     private static final int NETHER_SCALE = 8;
-    private static final int END_CHUNK_WIDTH = 256;
+    private static final int END_WIDTH_CHUNKS = 256;
     private static final ShapeOptions GENERATION_OPTIONS =
             ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
 
@@ -51,37 +51,37 @@ class WorldDimensionsNbtRoundTripTest {
     void theUnshapedPresetComesBackUnshaped() {
         WorldDimensions preset = WorldPresets.createNormalWorldDimensions(worldgen);
 
-        assertNull(ShapedDimensions.shapeOf(rereadThroughNbt(preset), LevelStem.OVERWORLD));
+        assertNull(ShapedDimensions.getShape(rereadThroughNbt(preset), LevelStem.OVERWORLD));
     }
 
     @Test
     void everyShapedStemComesBackWithTheSameShape() {
         WorldDimensions shaped = shapedPreset();
-        assertNotNull(ShapedDimensions.shapeOf(shaped, LevelStem.OVERWORLD), "the fixture carries no shape to lose");
+        assertNotNull(ShapedDimensions.getShape(shaped, LevelStem.OVERWORLD), "the fixture carries no shape to lose");
 
         WorldDimensions reread = rereadThroughNbt(shaped);
 
-        assertEquals(ShapedDimensions.shapeOf(shaped, LevelStem.OVERWORLD),
-                ShapedDimensions.shapeOf(reread, LevelStem.OVERWORLD));
-        assertEquals(ShapedDimensions.shapeOf(shaped, LevelStem.NETHER),
-                ShapedDimensions.shapeOf(reread, LevelStem.NETHER));
-        assertEquals(ShapedDimensions.shapeOf(shaped, LevelStem.END),
-                ShapedDimensions.shapeOf(reread, LevelStem.END));
-        assertEquals(GENERATION_OPTIONS, carriedShapeOf(reread, LevelStem.OVERWORLD).options());
-        assertEquals(GENERATION_OPTIONS, carriedShapeOf(reread, LevelStem.NETHER).options());
-        assertEquals(GENERATION_OPTIONS, carriedShapeOf(reread, LevelStem.END).options());
+        assertEquals(ShapedDimensions.getShape(shaped, LevelStem.OVERWORLD),
+                ShapedDimensions.getShape(reread, LevelStem.OVERWORLD));
+        assertEquals(ShapedDimensions.getShape(shaped, LevelStem.NETHER),
+                ShapedDimensions.getShape(reread, LevelStem.NETHER));
+        assertEquals(ShapedDimensions.getShape(shaped, LevelStem.END),
+                ShapedDimensions.getShape(reread, LevelStem.END));
+        assertEquals(GENERATION_OPTIONS, carriedShapeOf(reread, LevelStem.OVERWORLD).getOptions());
+        assertEquals(GENERATION_OPTIONS, carriedShapeOf(reread, LevelStem.NETHER).getOptions());
+        assertEquals(GENERATION_OPTIONS, carriedShapeOf(reread, LevelStem.END).getOptions());
     }
 
     private static CarriedShape carriedShapeOf(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
-        CarriedShape carried = ShapedDimensions.carriedShapeOf(dimensions, key);
+        CarriedShape carried = ShapedDimensions.getCarriedShape(dimensions, key);
         assertNotNull(carried, key.identifier().toString());
         return carried;
     }
 
     private static WorldDimensions shapedPreset() {
         return LayoutDimensions.apply(WorldPresets.createNormalWorldDimensions(worldgen),
-                LayoutFixtures.shaped(ShapeFixtures.torus(OVERWORLD_CHUNK_WIDTH), NETHER_SCALE,
-                        ShapeFixtures.torus(END_CHUNK_WIDTH), GENERATION_OPTIONS));
+                LayoutFixtures.shaped(ShapeFixtures.torus(OVERWORLD_WIDTH_CHUNKS), NETHER_SCALE,
+                        ShapeFixtures.torus(END_WIDTH_CHUNKS), GENERATION_OPTIONS));
     }
 
     private static WorldDimensions rereadThroughNbt(WorldDimensions dimensions) {

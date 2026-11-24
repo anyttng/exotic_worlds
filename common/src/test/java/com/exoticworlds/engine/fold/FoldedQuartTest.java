@@ -9,14 +9,14 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FoldOrientation;
-import com.exoticworlds.core.SeamTransform;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.FoldOrientation;
+import com.exoticworlds.core.fold.SeamTransform;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 
 class FoldedQuartTest {
-    private static final int FACE_WIDTH = 64;
+    private static final int FACE_WIDTH_BLOCKS = 64;
     private static final int Y = 70;
     private static final int QUART_Y = Y >> 2;
 
@@ -26,16 +26,16 @@ class FoldedQuartTest {
     private static final double ZOOM = 4.0;
 
     private static final SeamTransform CLOCKWISE_OVER_THE_EAST_EDGE =
-            new SeamTransform(-1, 1, FACE_WIDTH, -FACE_WIDTH, true);
+            new SeamTransform(-1, 1, FACE_WIDTH_BLOCKS, -FACE_WIDTH_BLOCKS, true);
 
     private static final WorldFold TURNED = (WorldFold) Proxy.newProxyInstance(
             WorldFold.class.getClassLoader(),
             new Class<?>[] {WorldFold.class},
             (proxy, method, arguments) -> switch (method.getName()) {
-                case "preservesLocalIndices" -> false;
+                case "isPreservingLocalIndices" -> false;
                 case "foldOriented" -> new WorldFold.Folded<>(
                         CLOCKWISE_OVER_THE_EAST_EDGE.apply((BlockPos) arguments[0]),
-                        CLOCKWISE_OVER_THE_EAST_EDGE.orientation());
+                        CLOCKWISE_OVER_THE_EAST_EDGE.getOrientation());
                 case "foldBlockNode" ->
                         CLOCKWISE_OVER_THE_EAST_EDGE.apply(BlockPos.of((long) arguments[0])).asLong();
                 default -> throw new UnsupportedOperationException(method.getName());
@@ -45,7 +45,7 @@ class FoldedQuartTest {
             WorldFold.class.getClassLoader(),
             new Class<?>[] {WorldFold.class},
             (proxy, method, arguments) -> switch (method.getName()) {
-                case "preservesLocalIndices" -> true;
+                case "isPreservingLocalIndices" -> true;
                 default -> throw new UnsupportedOperationException(method.getName());
             });
 
@@ -84,7 +84,7 @@ class FoldedQuartTest {
 
     @Test
     void aBlockPastATurnedEdgeZoomsOnTheCornersOfItsCopyAtTheSameDistances() {
-        for (int blockX = FACE_WIDTH; blockX < FACE_WIDTH + 8; blockX++) {
+        for (int blockX = FACE_WIDTH_BLOCKS; blockX < FACE_WIDTH_BLOCKS + 8; blockX++) {
             for (int blockZ = 5; blockZ < 13; blockZ++) {
                 BlockPos copy = CLOCKWISE_OVER_THE_EAST_EDGE.apply(new BlockPos(blockX, Y, blockZ));
                 assertEquals(vanillaCorners(copy.getX(), copy.getZ()), foldedCorners(blockX, blockZ),

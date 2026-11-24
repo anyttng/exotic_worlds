@@ -1,10 +1,10 @@
 package com.exoticworlds.engine.noise;
 
 import com.exoticworlds.accessors.CoastLiftCache;
-import com.exoticworlds.core.NoiseShaping;
-import com.exoticworlds.core.NoiseShapings;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.gen.NoiseShaping;
+import com.exoticworlds.core.gen.NoiseShapings;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.periodic.PeriodicOctaveSampler;
 import com.exoticworlds.engine.noise.periodic.PeriodicOctaves;
 
@@ -28,7 +28,7 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 
 public final class FoldedSamplers {
-    private static final float SHIFT_AMPLITUDE = (float) NoiseConstants.SHIFT_AMPLITUDE;
+    private static final float SHIFT_AMPLITUDE_BLOCKS = (float) NoiseConstants.SHIFT_AMPLITUDE_BLOCKS;
 
     private static final double NO_Y_SCALE = 0.0;
 
@@ -42,48 +42,48 @@ public final class FoldedSamplers {
 
     private static final CoastLiftCache NO_LIFT = new CoastLiftCache() {
         @Override
-        public double exotic_worlds$coastLift() {
+        public double exotic_worlds$getCoastLift() {
             return 0.0;
         }
 
         @Override
-        public void exotic_worlds$coastLift(double lift) {
+        public void exotic_worlds$setCoastLift(double lift) {
             throw new UnsupportedOperationException("A field outside the coast carries no lift");
         }
     };
 
     public static NoiseStack stack(FoldedCompileContext context, Holder<NormalNoise> noise) {
-        return stackOf(context.vanilla().createNoiseSampler(noise));
+        return getStack(context.vanilla().createNoiseSampler(noise));
     }
 
     public static DensitySampler compileNoise(FoldedCompileContext context, Holder<NormalNoise> noise,
             double vanillaXzScale, double yScale, DensityFunction shiftX, DensityFunction shiftY,
             DensityFunction shiftZ) {
         NoiseShaping shaping = NoiseShapings.get();
-        double xzScale = context.ladder().separated(noise, vanillaXzScale);
+        double xzScale = context.ladder().getSeparated(noise, vanillaXzScale);
         double verticalShare = GenerationFoldContext.verticalShare(xzScale, yScale);
         NoiseStack stack = stack(context, noise);
         double[] layerFactors = shaping.layerFactors(context.fold(), noise, stack, xzScale, verticalShare);
-        boolean coast = shaping.coast(noise);
+        boolean isCoast = shaping.isCoast(noise);
         DensityFunction zero = DensityFunctions.zero();
         if (shiftX.equals(zero) && shiftY.equals(zero) && shiftZ.equals(zero)) {
-            return noise(context, stack, xzScale, vanillaXzScale, yScale, layerFactors, coast);
+            return noise(context, stack, xzScale, vanillaXzScale, yScale, layerFactors, isCoast);
         }
 
-        return shiftedNoise(context, stack, xzScale, vanillaXzScale, yScale, layerFactors, coast,
+        return shiftedNoise(context, stack, xzScale, vanillaXzScale, yScale, layerFactors, isCoast,
                 shaping.warpDivisor(context.fold(), noise, xzScale, verticalShare), shiftX, shiftY, shiftZ);
     }
 
     private static DensitySampler noise(FoldedCompileContext context, NoiseStack stack, double xzScale,
-            double vanillaXzScale, double yScale, double[] layerFactors, boolean coast) {
+            double vanillaXzScale, double yScale, double[] layerFactors, boolean isCoast) {
         return octavesOrVanilla(context, PeriodicOctaveSampler.compile(context.fold(),
                 frameOf(context, xzScale, yScale), xzScale, layerFactors, stack), stack, vanillaXzScale, yScale,
-                liftOf(context, coast));
+                getLift(context, isCoast));
     }
 
     private static DensitySampler octavesOrVanilla(FoldedCompileContext context, PeriodicOctaves octaves,
             NoiseStack stack, double vanillaXzScale, double yScale, CoastLiftCache coastLift) {
-        if (octaves.indexable()) {
+        if (octaves.isIndexable()) {
             return new NoiseSampler(octaves, yScale, coastLift);
         }
 
@@ -92,20 +92,20 @@ public final class FoldedSamplers {
     }
 
     private static DensitySampler shiftedNoise(FoldedCompileContext context, NoiseStack stack, double xzScale,
-            double vanillaXzScale, double yScale, double[] layerFactors, boolean coast, double warpDivisor,
+            double vanillaXzScale, double yScale, double[] layerFactors, boolean isCoast, double warpDivisor,
             DensityFunction shiftX, DensityFunction shiftY, DensityFunction shiftZ) {
         PeriodicOctaves octaves = PeriodicOctaveSampler.compile(context.fold(), frameOf(context, xzScale, yScale),
                 xzScale, layerFactors, stack);
         DensitySampler shiftXSampler = shiftX.compileSampler(context.vanilla());
         DensitySampler shiftYSampler = shiftY.compileSampler(context.vanilla());
         DensitySampler shiftZSampler = shiftZ.compileSampler(context.vanilla());
-        if (!octaves.indexable()) {
-            return new VanillaAtFoldSampler(context.fold(), stack, vanillaXzScale, yScale, liftOf(context, coast),
+        if (!octaves.isIndexable()) {
+            return new VanillaAtFoldSampler(context.fold(), stack, vanillaXzScale, yScale, getLift(context, isCoast),
                     shiftXSampler, shiftYSampler, shiftZSampler);
         }
 
         return new ShiftedNoiseSampler(context.fold(), octaves, stack, xzScale, vanillaXzScale, yScale,
-                liftOf(context, coast), warpDivisor, shiftXSampler, shiftYSampler, shiftZSampler);
+                getLift(context, isCoast), warpDivisor, shiftXSampler, shiftYSampler, shiftZSampler);
     }
 
     private static NoiseFrame frameOf(FoldedCompileContext context, double xzScale, double yScale) {
@@ -116,8 +116,8 @@ public final class FoldedSamplers {
         return new NoiseFrame(axes, context.xDivisor(), context.zDivisor(), verticalShare);
     }
 
-    private static CoastLiftCache liftOf(FoldedCompileContext context, boolean coast) {
-        return coast ? context.coastLift() : NO_LIFT;
+    private static CoastLiftCache getLift(FoldedCompileContext context, boolean isCoast) {
+        return isCoast ? context.coastLift() : NO_LIFT;
     }
 
     public static DensitySampler shift(FoldedCompileContext context, Holder<NormalNoise> noise) {
@@ -133,14 +133,14 @@ public final class FoldedSamplers {
     }
 
     private static DensitySampler shiftSampler(FoldedCompileContext context, Holder<NormalNoise> noise,
-            SlotAxes axes, double yScale, boolean transposed) {
-        NoiseStack stack = stackOf(context.vanilla().createNoiseSampler(noise));
+            SlotAxes axes, double yScale, boolean isTransposed) {
+        NoiseStack stack = getStack(context.vanilla().createNoiseSampler(noise));
         PeriodicOctaves octaves = PeriodicOctaveSampler.compile(context.fold(),
                 frameOf(context, axes, GenerationFoldContext.UNDECLARED_VERTICAL_SHARE),
                 NoiseConstants.SHIFT_SCALE, null, stack);
-        return octaves.indexable()
-                ? new ShiftSampler(octaves, yScale, transposed)
-                : new VanillaShiftAtFoldSampler(context.fold(), stack, yScale, transposed);
+        return octaves.isIndexable()
+                ? new ShiftSampler(octaves, yScale, isTransposed)
+                : new VanillaShiftAtFoldSampler(context.fold(), stack, yScale, isTransposed);
     }
 
     public static DensitySampler blended(FoldedCompileContext context, BlendedNoise blended) {
@@ -175,7 +175,7 @@ public final class FoldedSamplers {
         return new DistanceSampler(context.fold(), point, metric);
     }
 
-    static NoiseStack stackOf(Noise noise) {
+    static NoiseStack getStack(Noise noise) {
         if (!(noise instanceof NoiseStack stack)) {
             throw new IllegalArgumentException("A folded noise samples a NoiseStack, got " + noise.getClass().getName());
         }
@@ -193,7 +193,7 @@ public final class FoldedSamplers {
         @Override
         public float sampleValue(SamplerContext context, int blockX, int blockY, int blockZ) {
             return this.octaves.sample(blockX, blockY * this.yScale, blockZ)
-                    + (float) this.coastLift.exotic_worlds$coastLift();
+                    + (float) this.coastLift.exotic_worlds$getCoastLift();
         }
     }
 
@@ -211,19 +211,19 @@ public final class FoldedSamplers {
             double y = blockY * this.yScale + this.shiftY.sampleValue(context, blockX, blockY, blockZ);
             double z = blockZ;
             if (this.xzScale != 0.0) {
-                TranslationLattice lattice = this.fold.blockLattice();
+                TranslationLattice lattice = this.fold.getBlockLattice();
                 double shiftX = this.shiftX.sampleValue(context, blockX, blockY, blockZ);
                 double shiftZ = this.shiftZ.sampleValue(context, blockX, blockY, blockZ);
-                if (!DomainWarp.carries(lattice, blockX, blockZ, shiftX, shiftZ, this.vanillaXzScale)) {
+                if (!DomainWarp.canCarry(lattice, blockX, blockZ, shiftX, shiftZ, this.vanillaXzScale)) {
                     return vanillaAtFold(lattice, this.noise, this.vanillaXzScale, blockX, y, blockZ, shiftX, shiftZ)
-                            + (float) this.coastLift.exotic_worlds$coastLift();
+                            + (float) this.coastLift.exotic_worlds$getCoastLift();
                 }
 
                 x = DomainWarp.applyX(lattice, blockX, blockZ, shiftX, this.warpDivisor);
                 z = DomainWarp.applyZ(lattice, blockZ, shiftZ, this.warpDivisor);
             }
 
-            return this.octaves.sample(x, y, z) + (float) this.coastLift.exotic_worlds$coastLift();
+            return this.octaves.sample(x, y, z) + (float) this.coastLift.exotic_worlds$getCoastLift();
         }
     }
 
@@ -238,10 +238,10 @@ public final class FoldedSamplers {
         @Override
         public float sampleValue(SamplerContext context, int blockX, int blockY, int blockZ) {
             double y = blockY * this.yScale + this.shiftY.sampleValue(context, blockX, blockY, blockZ);
-            return vanillaAtFold(this.fold.blockLattice(), this.noise, this.xzScale, blockX, y, blockZ,
+            return vanillaAtFold(this.fold.getBlockLattice(), this.noise, this.xzScale, blockX, y, blockZ,
                     this.shiftX.sampleValue(context, blockX, blockY, blockZ),
                     this.shiftZ.sampleValue(context, blockX, blockY, blockZ))
-                    + (float) this.coastLift.exotic_worlds$coastLift();
+                    + (float) this.coastLift.exotic_worlds$getCoastLift();
         }
     }
 
@@ -250,7 +250,7 @@ public final class FoldedSamplers {
         return noise.get(lattice.foldX(x, z) * xzScale + shiftX, y, lattice.foldZ(z) * xzScale + shiftZ);
     }
 
-    private record VanillaShiftAtFoldSampler(WorldFold fold, Noise noise, double yScale, boolean transposed)
+    private record VanillaShiftAtFoldSampler(WorldFold fold, Noise noise, double yScale, boolean isTransposed)
             implements DensitySampler {
         @Override
         public void sampleVolume(SamplerContext context, DensityBuffer outputBuffer, DensityVolume volume) {
@@ -259,17 +259,17 @@ public final class FoldedSamplers {
 
         @Override
         public float sampleValue(SamplerContext context, int blockX, int blockY, int blockZ) {
-            TranslationLattice lattice = this.fold.blockLattice();
+            TranslationLattice lattice = this.fold.getBlockLattice();
             double x = lattice.foldX(blockX, blockZ) * NoiseConstants.SHIFT_SCALE;
             double z = lattice.foldZ(blockZ) * NoiseConstants.SHIFT_SCALE;
-            float value = this.transposed
+            float value = this.isTransposed
                     ? this.noise.get(z, x, 0.0)
                     : this.noise.get(x, blockY * this.yScale, z);
-            return value * SHIFT_AMPLITUDE;
+            return value * SHIFT_AMPLITUDE_BLOCKS;
         }
     }
 
-    private record ShiftSampler(PeriodicOctaves octaves, double yScale, boolean transposed) implements DensitySampler {
+    private record ShiftSampler(PeriodicOctaves octaves, double yScale, boolean isTransposed) implements DensitySampler {
         @Override
         public void sampleVolume(SamplerContext context, DensityBuffer outputBuffer, DensityVolume volume) {
             DensitySampler.sampleVolumeNaive(context, outputBuffer, volume, this);
@@ -277,10 +277,10 @@ public final class FoldedSamplers {
 
         @Override
         public float sampleValue(SamplerContext context, int blockX, int blockY, int blockZ) {
-            float value = this.transposed
+            float value = this.isTransposed
                     ? this.octaves.sample(blockZ, blockX, 0.0)
                     : this.octaves.sample(blockX, blockY * this.yScale, blockZ);
-            return value * SHIFT_AMPLITUDE;
+            return value * SHIFT_AMPLITUDE_BLOCKS;
         }
     }
 
@@ -311,7 +311,7 @@ public final class FoldedSamplers {
 
         @Override
         public float sampleValue(SamplerContext context, int blockX, int blockY, int blockZ) {
-            TranslationLattice lattice = this.fold.blockLattice();
+            TranslationLattice lattice = this.fold.getBlockLattice();
             int deltaX = lattice.foldX(this.point.getX(), this.point.getZ()) - lattice.foldX(blockX, blockZ);
             int deltaZ = lattice.foldZ(this.point.getZ()) - lattice.foldZ(blockZ);
             int laps = lattice.nearestZLaps(deltaX, deltaZ);

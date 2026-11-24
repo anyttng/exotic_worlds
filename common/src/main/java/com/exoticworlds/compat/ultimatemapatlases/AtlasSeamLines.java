@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.map.WorldCopies;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
@@ -30,10 +30,10 @@ public final class AtlasSeamLines {
             return;
         }
 
-        int thickness = Math.max(1, Mth.ceil(1.0F / graphics.pose().m00()));
+        int thicknessPixels = Math.max(1, Mth.ceil(1.0F / graphics.pose().m00()));
         graphics.nextStratum();
         for (SeamLine line : lines) {
-            line.fill(graphics, Math.min(thickness, AtlasTileCopies.MAP_PIXELS - line.at()));
+            line.fill(graphics, Math.min(thicknessPixels, AtlasTileCopies.MAP_PIXELS - line.at()));
         }
     }
 

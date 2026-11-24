@@ -11,11 +11,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.JsonOps;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 
@@ -36,7 +36,7 @@ class ClimateCompressionTest {
     private static final String MODE_KEY = "mode";
     private static final String FACTOR_KEY = "factor";
 
-    private static final int[] PRESET_CHUNK_WIDTHS = {32, 64, 128, 256, 512};
+    private static final int[] PRESET_WIDTHS_CHUNKS = {32, 64, 128, 256, 512};
 
     private record Octave(double amplitude, double cellBlocks) {
     }
@@ -91,36 +91,36 @@ class ClimateCompressionTest {
                 Math.pow(2.0, field.firstOctave()), XZ_SCALE, verticalShare);
     }
 
-    private static WorldFold square(int chunkWidth) {
-        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)));
+    private static WorldFold square(int widthChunks) {
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthChunks)));
     }
 
-    private static WorldFold uncompressedSquare(int chunkWidth) {
-        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)),
+    private static WorldFold uncompressedSquare(int widthChunks) {
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthChunks)),
                 ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
     }
 
-    private static WorldFold strongSquare(int chunkWidth) {
-        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)),
+    private static WorldFold strongSquare(int widthChunks) {
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthChunks)),
                 ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.STRONG));
     }
 
-    private static WorldFold customSquare(int chunkWidth, int factor) {
-        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)),
+    private static WorldFold customSquare(int widthChunks, int factor) {
+        return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthChunks)),
                 ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.custom(factor)));
     }
 
-    private static void assertFactor(Field field, int chunkWidth) {
-        double lapBlocks = chunkWidth * 16.0;
-        assertEquals(expected(field, lapBlocks), actual(field, square(chunkWidth), HORIZONTAL), TOLERANCE,
+    private static void assertFactor(Field field, int widthChunks) {
+        double lapBlocks = widthChunks * 16.0;
+        assertEquals(expected(field, lapBlocks), actual(field, square(widthChunks), HORIZONTAL), TOLERANCE,
                 field.name() + " on " + (int) lapBlocks + " blocks");
     }
 
     @Test
     void everyClimateFieldMatchesTheCellSizeArithmeticOnEveryPreset() {
         for (Field field : List.of(TEMPERATURE, TEMPERATURE_LARGE, VEGETATION, CONTINENTALNESS, EROSION)) {
-            for (int chunkWidth : new int[] {32, 64, 128, 256, 512}) {
-                assertFactor(field, chunkWidth);
+            for (int widthChunks : new int[] {32, 64, 128, 256, 512}) {
+                assertFactor(field, widthChunks);
             }
         }
     }
@@ -129,9 +129,9 @@ class ClimateCompressionTest {
     void aTorusThatDeclinedCompressionIsMultipliedByExactlyOneOnEveryFieldAndPreset() {
         for (Field field : List.of(TEMPERATURE, TEMPERATURE_LARGE, VEGETATION, CONTINENTALNESS, EROSION,
                 TEMPERATURE_NETHER)) {
-            for (int chunkWidth : new int[] {16, 32, 64, 128, 256, 512}) {
-                assertEquals(1.0, actual(field, uncompressedSquare(chunkWidth), HORIZONTAL), 0.0,
-                        field.name() + " uncompressed on " + chunkWidth * 16 + " blocks");
+            for (int widthChunks : new int[] {16, 32, 64, 128, 256, 512}) {
+                assertEquals(1.0, actual(field, uncompressedSquare(widthChunks), HORIZONTAL), 0.0,
+                        field.name() + " uncompressed on " + widthChunks * 16 + " blocks");
             }
         }
     }
@@ -170,14 +170,14 @@ class ClimateCompressionTest {
     @Test
     void aCylinderIsCompressedAsATorusOfTheSameLapInEveryMode() {
         for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
-            for (int chunkWidth : PRESET_CHUNK_WIDTHS) {
+            for (int widthChunks : PRESET_WIDTHS_CHUNKS) {
                 for (ClimateScale scale : List.of(ClimateScale.OFF, ClimateScale.AUTO, ClimateScale.STRONG,
                         ClimateScale.custom(6))) {
                     ShapeOptions options = ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, scale);
                     WorldFold cylinder = WorldFolds.of(
-                            ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(axis, chunkWidth)), options);
-                    WorldFold torus = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth)), options);
-                    String where = axis + " cylinder of " + chunkWidth * 16 + " blocks under " + scale.mode();
+                            ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(axis, widthChunks)), options);
+                    WorldFold torus = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthChunks)), options);
+                    String where = axis + " cylinder of " + widthChunks * 16 + " blocks under " + scale.mode();
 
                     for (Field field : List.of(TEMPERATURE, TEMPERATURE_LARGE, VEGETATION, CONTINENTALNESS)) {
                         assertEquals(actual(field, torus, HORIZONTAL), actual(field, cylinder, HORIZONTAL), 0.0,
@@ -202,10 +202,10 @@ class ClimateCompressionTest {
     @Test
     void strongIsAutoOrFourTimes_whicheverIsLarger_onEveryClimateFieldAndPreset() {
         for (Field field : List.of(TEMPERATURE, TEMPERATURE_LARGE, VEGETATION)) {
-            for (int chunkWidth : PRESET_CHUNK_WIDTHS) {
-                double auto = actual(field, square(chunkWidth), HORIZONTAL);
-                double strong = actual(field, strongSquare(chunkWidth), HORIZONTAL);
-                String where = field.name() + " on " + chunkWidth * 16 + " blocks";
+            for (int widthChunks : PRESET_WIDTHS_CHUNKS) {
+                double auto = actual(field, square(widthChunks), HORIZONTAL);
+                double strong = actual(field, strongSquare(widthChunks), HORIZONTAL);
+                String where = field.name() + " on " + widthChunks * 16 + " blocks";
 
                 assertEquals(Math.max(auto, ClimateScale.STRONG_FACTOR), strong, TOLERANCE, where);
                 assertTrue(strong >= auto, where + ": strong is weaker than auto");
@@ -215,11 +215,11 @@ class ClimateCompressionTest {
 
     @Test
     void strongShrinksTheWidestPresetsWhereAutoDoesNothing() {
-        for (int chunkWidth : new int[] {256, 512}) {
-            String where = "temperature on " + chunkWidth * 16 + " blocks";
+        for (int widthChunks : new int[] {256, 512}) {
+            String where = "temperature on " + widthChunks * 16 + " blocks";
 
-            assertEquals(1.0, actual(TEMPERATURE, square(chunkWidth), HORIZONTAL), 0.0, where + ", auto");
-            assertEquals(ClimateScale.STRONG_FACTOR, actual(TEMPERATURE, strongSquare(chunkWidth), HORIZONTAL),
+            assertEquals(1.0, actual(TEMPERATURE, square(widthChunks), HORIZONTAL), 0.0, where + ", auto");
+            assertEquals(ClimateScale.STRONG_FACTOR, actual(TEMPERATURE, strongSquare(widthChunks), HORIZONTAL),
                     0.0, where + ", strong");
         }
     }
@@ -227,18 +227,18 @@ class ClimateCompressionTest {
     @Test
     void strongLeavesTheFieldsThatShapeTheCoastAloneOnEveryPreset() {
         for (Field field : List.of(CONTINENTALNESS, EROSION)) {
-            for (int chunkWidth : PRESET_CHUNK_WIDTHS) {
-                assertEquals(1.0, actual(field, strongSquare(chunkWidth), HORIZONTAL), 0.0,
-                        field.name() + " under strong on " + chunkWidth * 16 + " blocks");
+            for (int widthChunks : PRESET_WIDTHS_CHUNKS) {
+                assertEquals(1.0, actual(field, strongSquare(widthChunks), HORIZONTAL), 0.0,
+                        field.name() + " under strong on " + widthChunks * 16 + " blocks");
             }
         }
     }
 
     @Test
     void customAppliesTheTypedFactorExactlyAndIsNeverCombinedWithAuto() {
-        for (int chunkWidth : PRESET_CHUNK_WIDTHS) {
-            assertEquals(6.0, actual(TEMPERATURE, customSquare(chunkWidth, 6), HORIZONTAL), 0.0,
-                    "temperature under custom 6 on " + chunkWidth * 16 + " blocks");
+        for (int widthChunks : PRESET_WIDTHS_CHUNKS) {
+            assertEquals(6.0, actual(TEMPERATURE, customSquare(widthChunks, 6), HORIZONTAL), 0.0,
+                    "temperature under custom 6 on " + widthChunks * 16 + " blocks");
         }
 
         assertEquals(2.0, actual(TEMPERATURE, customSquare(32, 2), HORIZONTAL), 0.0,
@@ -248,9 +248,9 @@ class ClimateCompressionTest {
     @Test
     void customLeavesTheFieldsThatShapeTheCoastAloneOnEveryPreset() {
         for (Field field : List.of(CONTINENTALNESS, EROSION)) {
-            for (int chunkWidth : PRESET_CHUNK_WIDTHS) {
-                assertEquals(1.0, actual(field, customSquare(chunkWidth, 16), HORIZONTAL), 0.0,
-                        field.name() + " under custom 16 on " + chunkWidth * 16 + " blocks");
+            for (int widthChunks : PRESET_WIDTHS_CHUNKS) {
+                assertEquals(1.0, actual(field, customSquare(widthChunks, 16), HORIZONTAL), 0.0,
+                        field.name() + " under custom 16 on " + widthChunks * 16 + " blocks");
             }
         }
     }
@@ -294,9 +294,9 @@ class ClimateCompressionTest {
     @Test
     void offIsExactlyOneInEveryModeAwareBranch() {
         for (Field field : List.of(TEMPERATURE, VEGETATION, CONTINENTALNESS, EROSION)) {
-            for (int chunkWidth : PRESET_CHUNK_WIDTHS) {
-                assertEquals(1.0, actual(field, uncompressedSquare(chunkWidth), HORIZONTAL), 0.0,
-                        field.name() + " off on " + chunkWidth * 16 + " blocks");
+            for (int widthChunks : PRESET_WIDTHS_CHUNKS) {
+                assertEquals(1.0, actual(field, uncompressedSquare(widthChunks), HORIZONTAL), 0.0,
+                        field.name() + " off on " + widthChunks * 16 + " blocks");
             }
         }
     }

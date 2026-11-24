@@ -34,9 +34,9 @@ public class ClientSessionMixin {
             return;
         }
 
-        CellFold opened = CellFoldHolder.foldOf(current);
-        CellFold published = EminusShapes.publishedFold(current.identity().dimension());
-        if (published.repeats() && !opened.equals(published)) {
+        CellFold opened = CellFoldHolder.getFold(current);
+        CellFold published = EminusShapes.getPublishedFold(current.identity().dimension());
+        if (published.isRepeating() && !opened.equals(published)) {
             LOGGER.info("[ew/eminus-compat] session_restart dimension={} opened={} published={}",
                     current.identity().dimension(), opened, published);
             restartSession();

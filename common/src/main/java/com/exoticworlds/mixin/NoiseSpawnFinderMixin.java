@@ -20,23 +20,23 @@ public class NoiseSpawnFinderMixin {
 
     @ModifyArg(method = "<init>", at = @At(value = "INVOKE", target = GET_SPAWN_POSITION_AND_FITNESS), index = 2)
     private int exotic_worlds$startAtTheSpawnPointX(int blockX) {
-        return SpawnSearch.bound().blockX();
+        return SpawnSearch.getBound().getBlockX();
     }
 
     @ModifyArg(method = "<init>", at = @At(value = "INVOKE", target = GET_SPAWN_POSITION_AND_FITNESS), index = 3)
     private int exotic_worlds$startAtTheSpawnPointZ(int blockZ) {
-        return SpawnSearch.bound().blockZ();
+        return SpawnSearch.getBound().getBlockZ();
     }
 
     @ModifyArg(method = "getSpawnPositionAndFitness",
             at = @At(value = "INVOKE", target = InjectionTargets.MTH_SQUARE_LONG, ordinal = 0))
     private static long exotic_worlds$distanceFromTheSpawnPointX(long blockX) {
-        return blockX - SpawnSearch.bound().blockX();
+        return blockX - SpawnSearch.getBound().getBlockX();
     }
 
     @ModifyArg(method = "getSpawnPositionAndFitness",
             at = @At(value = "INVOKE", target = InjectionTargets.MTH_SQUARE_LONG, ordinal = 1))
     private static long exotic_worlds$distanceFromTheSpawnPointZ(long blockZ) {
-        return blockZ - SpawnSearch.bound().blockZ();
+        return blockZ - SpawnSearch.getBound().getBlockZ();
     }
 }

@@ -37,11 +37,11 @@ class LapWaveTest {
                 for (int i = 0; i < DIRECTIONS; i++) {
                     double angle = 2.0 * Math.PI * i / DIRECTIONS;
                     LapWave.Wave wave = lap.noLonger(Math.cos(angle) / wavelength, Math.sin(angle) / wavelength);
-                    if (lap.loops(Direction.Axis.X)) {
+                    if (lap.isLooped(Direction.Axis.X)) {
                         assertEquals((double) wave.xTurns(), wave.x() * lap.xLap(), CLOSE, lap + " at " + angle);
                     }
 
-                    if (lap.loops(Direction.Axis.Z)) {
+                    if (lap.isLooped(Direction.Axis.Z)) {
                         assertEquals((double) wave.zTurns(), wave.x() * lap.skew() + wave.z() * lap.zLap(), CLOSE,
                                 lap + " at " + angle);
                     }
@@ -57,8 +57,8 @@ class LapWaveTest {
                 for (int i = 0; i < DIRECTIONS; i++) {
                     double angle = 2.0 * Math.PI * i / DIRECTIONS;
                     LapWave.Wave wave = lap.noLonger(Math.cos(angle) / wavelength, Math.sin(angle) / wavelength);
-                    assertTrue(1.0 / wave.frequency() <= wavelength + CLOSE,
-                            wavelength + " grew to " + 1.0 / wave.frequency() + " on " + lap + " at " + angle);
+                    assertTrue(1.0 / wave.getFrequency() <= wavelength + CLOSE,
+                            wavelength + " grew to " + 1.0 / wave.getFrequency() + " on " + lap + " at " + angle);
                 }
             }
         }

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.exoticworlds.accessors.CoastLiftCache;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.periodic.LapFloor;
 import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
 
@@ -62,12 +62,12 @@ final class BlendedNoiseFixture {
 
     private static final CoastLiftCache NO_LIFT = new CoastLiftCache() {
         @Override
-        public double exotic_worlds$coastLift() {
+        public double exotic_worlds$getCoastLift() {
             return 0.0;
         }
 
         @Override
-        public void exotic_worlds$coastLift(double lift) {
+        public void exotic_worlds$setCoastLift(double lift) {
         }
     };
 

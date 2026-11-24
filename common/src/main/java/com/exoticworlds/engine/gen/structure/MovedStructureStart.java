@@ -2,7 +2,7 @@ package com.exoticworlds.engine.gen.structure;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.fold.DeckTransformation;
 import com.exoticworlds.mixin.StructurePieceAccessor;
 
 import net.minecraft.core.BlockPos;
@@ -42,7 +42,7 @@ public final class MovedStructureStart {
         BoundingBox moved = move.apply(box);
         piece.move(moved.minX() - box.minX(), 0, moved.minZ() - box.minZ());
 
-        if (move.orientation().swapsAxes()) {
+        if (move.getOrientation().isSwappingAxes()) {
             ((StructurePieceAccessor) piece).exotic_worlds$setBoundingBox(moved);
         }
     }

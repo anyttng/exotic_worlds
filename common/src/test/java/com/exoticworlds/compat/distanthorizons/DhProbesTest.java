@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 import com.seibel.distanthorizons.core.pos.DhSectionPos;
 import com.seibel.distanthorizons.core.pos.blockPos.DhBlockPos;
 
@@ -48,7 +48,7 @@ class DhProbesTest {
         DhLattice lattice = cylinder();
         DhKeys.foldChunk(lattice, new ChunkPos(WIDTH_CHUNKS, 1));
         DhKeys.foldChunk(lattice, new ChunkPos(WIDTH_CHUNKS + 3, 2));
-        assertEquals(1, DhProbes.foldedKeyLines(DhProbes.Key.CHUNK));
+        assertEquals(1, DhProbes.getFoldedKeyLines(DhProbes.Key.CHUNK));
     }
 
     @Test
@@ -56,8 +56,8 @@ class DhProbesTest {
         DhLattice lattice = cylinder();
         DhKeys.foldChunk(lattice, new ChunkPos(1, 1));
         DhKeys.foldChunk(lattice, new ChunkPos(2, 2));
-        assertEquals(2, DhProbes.unchangedKeys(DhProbes.Key.CHUNK));
-        assertEquals(0, DhProbes.foldedKeyLines(DhProbes.Key.CHUNK));
+        assertEquals(2, DhProbes.getUnchangedKeys(DhProbes.Key.CHUNK));
+        assertEquals(0, DhProbes.getFoldedKeyLines(DhProbes.Key.CHUNK));
     }
 
     @Test
@@ -75,9 +75,9 @@ class DhProbesTest {
         DhLattice lattice = cylinder();
         int sectionsPerWorld = WIDTH_BLOCKS / DhFold.sectionWidthBlocks(DhKeys.LEAF);
         DhKeys.foldSection(lattice, DhSectionPos.encode(DhKeys.LEAF, sectionsPerWorld, 1));
-        assertEquals(1, DhProbes.foldedKeyLines(DhProbes.Key.SECTION));
-        assertEquals(0, DhProbes.foldedKeyLines(DhProbes.Key.CHUNK));
-        assertEquals(0, DhProbes.foldedKeyLines(DhProbes.Key.BEACON));
+        assertEquals(1, DhProbes.getFoldedKeyLines(DhProbes.Key.SECTION));
+        assertEquals(0, DhProbes.getFoldedKeyLines(DhProbes.Key.CHUNK));
+        assertEquals(0, DhProbes.getFoldedKeyLines(DhProbes.Key.BEACON));
     }
 
     @Test

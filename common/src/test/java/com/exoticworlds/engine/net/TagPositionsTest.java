@@ -342,7 +342,7 @@ class TagPositionsTest {
 
             CompoundTag seated = table.seatedIn(new HomeLap(), subject(HungSubject.class), tag);
 
-            assertTrue(table.carriesPositions(subject(HungSubject.class)));
+            assertTrue(table.hasPositions(subject(HungSubject.class)));
             assertEquals(new BlockPos(7, 102, 0), blockPosIn(seated, BLOCK_POS_KEY));
         }
 
@@ -385,8 +385,8 @@ class TagPositionsTest {
             CompoundTag tag = new CompoundTag();
             tag.putLong(PACKED_KEY, new BlockPos(3 + LAP_BLOCKS, 102, 0).asLong());
 
-            assertTrue(table.carriesPositions(subject(PackedSubject.class)));
-            assertFalse(table.carriesPositions(subject(UnregisteredSubject.class)));
+            assertTrue(table.hasPositions(subject(PackedSubject.class)));
+            assertFalse(table.hasPositions(subject(UnregisteredSubject.class)));
             assertSame(tag, table.seatedIn(new HomeLap(), subject(UnregisteredSubject.class), tag));
         }
 
@@ -424,8 +424,8 @@ class TagPositionsTest {
 
             registeredInto.register(PackedSubject.class, TagPositions.PositionShape.PACKED_LONG, PACKED_KEY);
 
-            assertTrue(registeredInto.carriesPositions(subject(PackedSubject.class)));
-            assertFalse(untouched.carriesPositions(subject(PackedSubject.class)));
+            assertTrue(registeredInto.hasPositions(subject(PackedSubject.class)));
+            assertFalse(untouched.hasPositions(subject(PackedSubject.class)));
         }
 
         @Test
@@ -436,7 +436,7 @@ class TagPositionsTest {
 
             CompoundTag seated = table.seatedIn(new HomeLap(), declared, blockPosAt(new BlockPos(7 + LAP_BLOCKS, 102, 0)));
 
-            assertTrue(table.carriesPositions(declared));
+            assertTrue(table.hasPositions(declared));
             assertEquals(new BlockPos(7, 102, 0), blockPosIn(seated, BLOCK_POS_KEY));
         }
 
@@ -445,8 +445,8 @@ class TagPositionsTest {
             TagPositions.Table table = new TagPositions.Table(SUBJECT);
             table.declare(blockPosDeclaredFor(DECLARED_ID));
 
-            assertFalse(table.carriesPositions(new TagPositions.Subject(UnregisteredSubject.class, OTHER_ID)));
-            assertFalse(table.carriesPositions(subject(UnregisteredSubject.class)));
+            assertFalse(table.hasPositions(new TagPositions.Subject(UnregisteredSubject.class, OTHER_ID)));
+            assertFalse(table.hasPositions(subject(UnregisteredSubject.class)));
         }
 
         @Test
@@ -455,11 +455,11 @@ class TagPositionsTest {
             table.declare(blockPosDeclaredFor(DECLARED_ID));
             TagPositions.Subject declared = new TagPositions.Subject(UnregisteredSubject.class, DECLARED_ID);
             CompoundTag tag = blockPosAt(new BlockPos(7 + LAP_BLOCKS, 102, 0));
-            assertTrue(table.carriesPositions(declared));
+            assertTrue(table.hasPositions(declared));
 
             table.declare(Map.of());
 
-            assertFalse(table.carriesPositions(declared));
+            assertFalse(table.hasPositions(declared));
             assertSame(tag, table.seatedIn(new HomeLap(), declared, tag));
         }
 

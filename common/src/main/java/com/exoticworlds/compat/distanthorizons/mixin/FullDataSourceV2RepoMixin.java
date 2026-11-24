@@ -28,12 +28,12 @@ public class FullDataSourceV2RepoMixin {
 
     @WrapMethod(method = "setPreparedStatementWhereClause(Ljava/sql/PreparedStatement;ILjava/lang/Long;)I")
     private int exotic_worlds$foldWhereKey(PreparedStatement statement, int index, Long pos, Operation<Integer> original) {
-        return original.call(statement, index, DhKeys.foldSection(DhRepoLevel.latticeOf(this), pos));
+        return original.call(statement, index, DhKeys.foldSection(DhRepoLevel.getLattice(this), pos));
     }
 
     @WrapMethod(method = "createUpsertStatement(Lcom/seibel/distanthorizons/core/sql/dto/FullDataSourceV2DTO;)Ljava/sql/PreparedStatement;")
     private PreparedStatement exotic_worlds$foldUpsert(FullDataSourceV2DTO dto, Operation<PreparedStatement> original) {
-        Object raw = DhKeys.seatFolded(DhRepoLevel.latticeOf(this), dto);
+        Object raw = DhKeys.seatFolded(DhRepoLevel.getLattice(this), dto);
         try {
             return original.call(dto);
         } finally {
@@ -44,7 +44,7 @@ public class FullDataSourceV2RepoMixin {
     @WrapMethod(method = "getAdjByPosAndDirection")
     private @Nullable FullDataSourceV2DTO exotic_worlds$foldAdjacent(long pos, EDhDirection direction,
             Operation<@Nullable FullDataSourceV2DTO> original) {
-        FullDataSourceV2DTO dto = original.call(DhKeys.foldSection(DhRepoLevel.latticeOf(this), pos), direction);
+        FullDataSourceV2DTO dto = original.call(DhKeys.foldSection(DhRepoLevel.getLattice(this), pos), direction);
         if (dto != null) {
             dto.pos = pos;
         }
@@ -53,51 +53,51 @@ public class FullDataSourceV2RepoMixin {
     }
 
     @WrapMethod(method = "setApplyToParent")
-    private void exotic_worlds$foldApplyToParent(long pos, boolean applyToParent, Operation<Void> original) {
-        original.call(DhKeys.foldSection(DhRepoLevel.latticeOf(this), pos), applyToParent);
+    private void exotic_worlds$foldApplyToParent(long pos, boolean shouldApplyToParent, Operation<Void> original) {
+        original.call(DhKeys.foldSection(DhRepoLevel.getLattice(this), pos), shouldApplyToParent);
     }
 
     @WrapMethod(method = "setApplyToChild")
-    private void exotic_worlds$foldApplyToChild(long pos, boolean applyToChild, Operation<Void> original) {
-        original.call(DhKeys.foldSection(DhRepoLevel.latticeOf(this), pos), applyToChild);
+    private void exotic_worlds$foldApplyToChild(long pos, boolean shouldApplyToChild, Operation<Void> original) {
+        original.call(DhKeys.foldSection(DhRepoLevel.getLattice(this), pos), shouldApplyToChild);
     }
 
     @WrapMethod(method = "setRegenerate")
-    private void exotic_worlds$foldRegenerate(long pos, boolean regenerate, Operation<Void> original) {
-        original.call(DhKeys.foldSection(DhRepoLevel.latticeOf(this), pos), regenerate);
+    private void exotic_worlds$foldRegenerate(long pos, boolean shouldRegenerate, Operation<Void> original) {
+        original.call(DhKeys.foldSection(DhRepoLevel.getLattice(this), pos), shouldRegenerate);
     }
 
     @WrapMethod(method = "getColumnGenerationStepForPos")
     private void exotic_worlds$foldGenerationStepPos(long pos, ByteArrayList output, Operation<Void> original) {
-        original.call(DhKeys.foldSection(DhRepoLevel.latticeOf(this), pos), output);
+        original.call(DhKeys.foldSection(DhRepoLevel.getLattice(this), pos), output);
     }
 
     @WrapMethod(method = "getTimestampForPos")
     private Long exotic_worlds$foldTimestampPos(long pos, Operation<Long> original) {
-        return original.call(DhKeys.foldSection(DhRepoLevel.latticeOf(this), pos));
+        return original.call(DhKeys.foldSection(DhRepoLevel.getLattice(this), pos));
     }
 
     @WrapMethod(method = "getDataSizeInBytes")
     private long exotic_worlds$foldDataSizePos(long pos, Operation<Long> original) {
-        return original.call(DhKeys.foldSection(DhRepoLevel.latticeOf(this), pos));
+        return original.call(DhKeys.foldSection(DhRepoLevel.getLattice(this), pos));
     }
 
     @WrapMethod(method = "getPositionsToUpdate(IIILjava/lang/String;)Lit/unimi/dsi/fastutil/longs/LongArrayList;")
     private LongArrayList exotic_worlds$rankUpdatesThroughTheSeam(int targetBlockX, int targetBlockZ, int returnCount,
             String sql, Operation<LongArrayList> original) {
         return original.call(targetBlockX, targetBlockZ, returnCount,
-                DhSeamSql.rewrite(DhRepoLevel.latticeOf(this), sql, DhSeamSql.Site.UPDATE));
+                DhSeamSql.rewrite(DhRepoLevel.getLattice(this), sql, DhSeamSql.Site.UPDATE));
     }
 
     @WrapOperation(method = "getChildPositionsToRegen", at = @At(value = "INVOKE", target = CREATE_PREPARED_STATEMENT))
     private PreparedStatement exotic_worlds$filterRegenThroughTheSeam(FullDataSourceV2Repo repo, String sql,
             Operation<PreparedStatement> original) {
-        return original.call(repo, DhSeamSql.rewrite(DhRepoLevel.latticeOf(this), sql, DhSeamSql.Site.REGEN));
+        return original.call(repo, DhSeamSql.rewrite(DhRepoLevel.getLattice(this), sql, DhSeamSql.Site.REGEN));
     }
 
     @WrapOperation(method = "getRegenChunkCount", at = @At(value = "INVOKE", target = CREATE_PREPARED_STATEMENT))
     private PreparedStatement exotic_worlds$countRegenThroughTheSeam(FullDataSourceV2Repo repo, String sql,
             Operation<PreparedStatement> original) {
-        return original.call(repo, DhSeamSql.rewrite(DhRepoLevel.latticeOf(this), sql, DhSeamSql.Site.REGEN_COUNT));
+        return original.call(repo, DhSeamSql.rewrite(DhRepoLevel.getLattice(this), sql, DhSeamSql.Site.REGEN_COUNT));
     }
 }

@@ -18,10 +18,10 @@ public class WallClimberNavigationMixin {
             method = "tick",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean exotic_worlds$climbTargetReachThroughSeam(BlockPos climbPos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$climbTargetReachThroughSeam(BlockPos climbPos, Position bodyPosition, double distanceBlocks,
             Operation<Boolean> original) {
         return original.call(climbPos,
-                SeamRange.towardCenterOf(((PathNavigationAccessor) this).exotic_worlds$mob(), climbPos, bodyPosition),
-                distance);
+                SeamRange.towardCenterOf(((PathNavigationAccessor) this).exotic_worlds$getMob(), climbPos, bodyPosition),
+                distanceBlocks);
     }
 }

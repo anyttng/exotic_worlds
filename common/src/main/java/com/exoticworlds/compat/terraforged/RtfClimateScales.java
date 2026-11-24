@@ -1,9 +1,9 @@
 package com.exoticworlds.compat.terraforged;
 
 public interface RtfClimateScales {
-    float exotic_worlds$biomeFrequency();
+    float exotic_worlds$getBiomeFrequency();
 
-    int exotic_worlds$temperatureScale();
+    int exotic_worlds$getTemperatureScale();
 
-    int exotic_worlds$moistureScale();
+    int exotic_worlds$getMoistureScale();
 }

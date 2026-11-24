@@ -14,10 +14,10 @@ import com.exoticworlds.accessors.CrumbSweepCache;
 import com.exoticworlds.accessors.PeriodicityMark;
 import com.exoticworlds.accessors.TerrainMaskCache;
 import com.exoticworlds.accessors.FoldCache;
-import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.BlockEntitySeat;
 import com.exoticworlds.engine.fold.ChunkFrame;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
@@ -73,7 +73,7 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
     private WorldFold exotic_worlds$fold;
 
     @Unique
-    private @Nullable Boolean exotic_worlds$sweepsCrumbs;
+    private @Nullable Boolean exotic_worlds$isSweepingCrumbs;
 
     @Unique
     private final TerrainMasks exotic_worlds$terrainMasks = new TerrainMasks();
@@ -87,13 +87,13 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
     // Must stay above the Z handler: Mixin runs them in declaration order, and X folds by the unfolded Z.
     @ModifyArg(method = GET_CHUNK, at = @At(value = "INVOKE", target = SOURCE_GET_CHUNK), index = 0)
     private int exotic_worlds$chunkXThroughSeam(int chunkX, int chunkZ, ChunkStatus status, boolean loadOrGenerate) {
-        WorldFold fold = exotic_worlds$fold();
+        WorldFold fold = exotic_worlds$getFold();
         return fold.isWrapped() ? ChunkPos.getX(fold.foldChunkKey(ChunkPos.pack(chunkX, chunkZ))) : chunkX;
     }
 
     @ModifyArg(method = GET_CHUNK, at = @At(value = "INVOKE", target = SOURCE_GET_CHUNK), index = 1)
     private int exotic_worlds$chunkZThroughSeam(int chunkX, int chunkZ, ChunkStatus status, boolean loadOrGenerate) {
-        WorldFold fold = exotic_worlds$fold();
+        WorldFold fold = exotic_worlds$getFold();
         return fold.isWrapped() ? ChunkPos.getZ(fold.foldChunkKey(ChunkPos.pack(chunkX, chunkZ))) : chunkZ;
     }
 
@@ -113,7 +113,7 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
     private int exotic_worlds$heightInChunkFrame(LevelChunk chunk, Heightmap.Types type, int localX, int localZ,
             Operation<Integer> original, @Local(argsOnly = true, ordinal = 0) int x,
             @Local(argsOnly = true, ordinal = 1) int z) {
-        long seated = ChunkFrame.seatColumn(exotic_worlds$fold(), chunk.getPos(), x, z);
+        long seated = ChunkFrame.seatColumn(exotic_worlds$getFold(), chunk.getPos(), x, z);
         return original.call(chunk, type,
                 SectionPos.sectionRelative(BlockPos.getX(seated)), SectionPos.sectionRelative(BlockPos.getZ(seated)));
     }
@@ -121,7 +121,7 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
     // Must stay above the position handler: Mixin runs them in declaration order, and the turn reads the unfolded position.
     @ModifyVariable(method = SET_BLOCK, at = @At("HEAD"), argsOnly = true)
     private BlockState exotic_worlds$turnPlacedState(BlockState state, @Local(argsOnly = true) BlockPos pos) {
-        return ChunkFrame.toChunk(exotic_worlds$fold(), pos, state);
+        return ChunkFrame.toChunk(exotic_worlds$getFold(), pos, state);
     }
 
     @ModifyVariable(method = SET_BLOCK, at = @At("HEAD"), argsOnly = true)
@@ -131,7 +131,7 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
 
     @Inject(method = "setBlockEntity", at = @At("HEAD"))
     private void exotic_worlds$wrapBlockEntityIdentity(BlockEntity blockEntity, CallbackInfo ci) {
-        BlockEntitySeat.intoBounds(exotic_worlds$fold(), blockEntity);
+        BlockEntitySeat.intoBounds(exotic_worlds$getFold(), blockEntity);
     }
 
     @WrapOperation(
@@ -141,7 +141,7 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
                     target = "Lnet/minecraft/world/level/entity/LevelEntityGetter;get(Lnet/minecraft/world/phys/AABB;Ljava/util/function/Consumer;)V"))
     private void exotic_worlds$entitiesThroughSeam(LevelEntityGetter<Entity> entities, AABB box, Consumer<Entity> output,
             Operation<Void> original) {
-        SeamEntitySearch.forEach(exotic_worlds$fold(), box, output,
+        SeamEntitySearch.forEach(exotic_worlds$getFold(), box, output,
                 (piece, sink) -> original.call(entities, piece, sink));
     }
 
@@ -149,7 +149,7 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
             method = exotic_worlds$GET_ENTITIES,
             at = @At(value = "INVOKE", target = InjectionTargets.AABB_INTERSECTS))
     private boolean exotic_worlds$partBoxTowardQuery(AABB query, AABB part, Operation<Boolean> original) {
-        return original.call(query, FoldedBoxQuery.toward(exotic_worlds$fold(), query.getCenter(), part));
+        return original.call(query, FoldedBoxQuery.toward(exotic_worlds$getFold(), query.getCenter(), part));
     }
 
     @WrapOperation(
@@ -162,17 +162,17 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
                     target = "Lnet/minecraft/world/level/entity/LevelEntityGetter;get(Lnet/minecraft/world/level/entity/EntityTypeTest;Lnet/minecraft/world/phys/AABB;Lnet/minecraft/util/AbortableIterationConsumer;)V"))
     private <U extends Entity> void exotic_worlds$typedEntitiesThroughSeam(LevelEntityGetter<Entity> entities,
             EntityTypeTest<Entity, U> type, AABB box, AbortableIterationConsumer<U> output, Operation<Void> original) {
-        SeamEntitySearch.forEachUntilAborted(exotic_worlds$fold(), box, output,
+        SeamEntitySearch.forEachUntilAborted(exotic_worlds$getFold(), box, output,
                 (piece, sink) -> original.call(entities, type, piece, sink));
     }
 
     @Unique
     private BlockPos exotic_worlds$wrap(BlockPos pos) {
-        return exotic_worlds$fold().fold(pos);
+        return exotic_worlds$getFold().fold(pos);
     }
 
     @Override
-    public WorldFold exotic_worlds$fold() {
+    public WorldFold exotic_worlds$getFold() {
         if (this.exotic_worlds$fold == null) {
             this.exotic_worlds$fold = exotic_worlds$resolveFold();
         }
@@ -181,47 +181,47 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
     }
 
     @Override
-    public boolean exotic_worlds$sweepsCrumbs() {
-        if (this.exotic_worlds$sweepsCrumbs == null) {
-            ServerLevel level = WorldLoopAttachments.serverLevelOf((Level) (Object) this);
-            this.exotic_worlds$sweepsCrumbs = level == (Object) this && FloatingCrumbs.installedOn(level);
+    public boolean exotic_worlds$isSweepingCrumbs() {
+        if (this.exotic_worlds$isSweepingCrumbs == null) {
+            ServerLevel level = WorldLoopAttachments.getServerLevel((Level) (Object) this);
+            this.exotic_worlds$isSweepingCrumbs = level == (Object) this && FloatingCrumbs.isInstalledOn(level);
         }
 
-        return this.exotic_worlds$sweepsCrumbs;
+        return this.exotic_worlds$isSweepingCrumbs;
     }
 
     @Override
-    public TerrainMasks exotic_worlds$terrainMasks() {
+    public TerrainMasks exotic_worlds$getTerrainMasks() {
         return this.exotic_worlds$terrainMasks;
     }
 
     @Override
-    public AtomicReference<SeamVerdict> exotic_worlds$seamVerdict() {
+    public AtomicReference<SeamVerdict> exotic_worlds$getSeamVerdict() {
         return this.exotic_worlds$seamVerdict;
     }
 
     @Override
-    public AtomicReference<SeamVerdict> exotic_worlds$fullSeamVerdict() {
+    public AtomicReference<SeamVerdict> exotic_worlds$getFullSeamVerdict() {
         return this.exotic_worlds$fullSeamVerdict;
     }
 
     @Unique
     private WorldFold exotic_worlds$resolveFold() {
-        ServerLevel level = WorldLoopAttachments.serverLevelOf((Level) (Object) this);
+        ServerLevel level = WorldLoopAttachments.getServerLevel((Level) (Object) this);
         if (level == null) {
             return WorldFolds.NOOP;
         }
 
         return level == (Object) this
-                ? ShapedChunkGenerator.foldOf(level.getChunkSource().getGenerator())
-                : WorldLoopAttachments.foldOf(level);
+                ? ShapedChunkGenerator.getFold(level.getChunkSource().getGenerator())
+                : WorldLoopAttachments.getFold(level);
     }
 
     @WrapMethod(method = "precipitationAt")
     private Biome.Precipitation exotic_worlds$bindPrecipitationFold(
             BlockPos pos, Operation<Biome.Precipitation> original) {
-        WorldFold fold = WorldLoopAttachments.noiseFoldOf((Level) (Object) this);
-        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+        WorldFold fold = WorldLoopAttachments.getNoiseFold((Level) (Object) this);
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             return original.call(pos);
         }
     }

@@ -4,13 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import net.minecraft.core.Direction;
 
@@ -47,7 +47,7 @@ class LapNoiseTest {
                 CYLINDER_WIDTH)));
         assertRepeatsOnLoopingAxes(cylinder);
         for (double scale : CONDITION_SCALES) {
-            assertEquals(OpenSimplexStandIn.UNBOUNDED, LapNoise.period(cylinder.blockLattice().z(), scale));
+            assertEquals(OpenSimplexStandIn.UNBOUNDED, LapNoise.period(cylinder.getBlockLattice().getZ(), scale));
         }
     }
 
@@ -55,21 +55,21 @@ class LapNoiseTest {
     void onASkewedNetherAConditionReadRepeatsAlongBothLatticeVectors() {
         WorldFold fold = WorldFolds.of(
                 FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-40, 40, -24, 24), SKEW_CHUNKS));
-        TranslationLattice lattice = fold.blockLattice();
+        TranslationLattice lattice = fold.getBlockLattice();
         OpenSimplexStandIn noise = new OpenSimplexStandIn(SEED);
-        int widthX = lattice.x().domainLength;
-        int widthZ = lattice.z().domainLength;
+        int widthX = lattice.getX().domainLength;
+        int widthZ = lattice.getZ().domainLength;
         for (double scale : CONDITION_SCALES) {
-            for (int x = lattice.x().lowerBound; x < lattice.x().upperBound; x += SKEWED_STEP) {
-                for (int z = lattice.z().lowerBound; z < lattice.z().upperBound; z += SKEWED_STEP) {
+            for (int x = lattice.getX().lowerBound; x < lattice.getX().upperBound; x += SKEWED_STEP) {
+                for (int z = lattice.getZ().lowerBound; z < lattice.getZ().upperBound; z += SKEWED_STEP) {
                     String where = x + ", " + z + " at scale " + scale;
                     double read = LapNoise.eval(noise, fold, x * scale, z * scale, scale, scale);
                     assertEquals(read, LapNoise.eval(noise, fold, (x + widthX) * scale, z * scale, scale, scale),
                             TOLERANCE, where + " one X lap on");
-                    assertEquals(read, LapNoise.eval(noise, fold, (x + lattice.skew()) * scale, (z + widthZ) * scale,
+                    assertEquals(read, LapNoise.eval(noise, fold, (x + lattice.getSkew()) * scale, (z + widthZ) * scale,
                             scale, scale), TOLERANCE, where + " one Z lap on");
                     double volume = LapNoise.eval(noise, fold, x * scale, SURFACE_Y * scale, z * scale, scale, scale);
-                    assertEquals(volume, LapNoise.eval(noise, fold, (x + lattice.skew()) * scale, SURFACE_Y * scale,
+                    assertEquals(volume, LapNoise.eval(noise, fold, (x + lattice.getSkew()) * scale, SURFACE_Y * scale,
                             (z + widthZ) * scale, scale, scale), TOLERANCE, where + " one Z lap on in three dimensions");
                 }
             }
@@ -79,8 +79,8 @@ class LapNoiseTest {
     private static void assertRepeatsOnLoopingAxes(WorldFold fold) {
         OpenSimplexStandIn noise = new OpenSimplexStandIn(SEED);
         for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
-            WrapDomain domain = fold.blockDomain(axis);
-            if (!domain.loops()) {
+            WrapDomain domain = fold.getBlockDomain(axis);
+            if (!domain.isLooped()) {
                 continue;
             }
 

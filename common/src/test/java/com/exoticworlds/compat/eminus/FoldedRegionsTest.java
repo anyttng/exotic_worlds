@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 
@@ -26,7 +26,7 @@ class FoldedRegionsTest {
     void aTileCutByTheLapEdgeIsPlannedForTheRegionPastTheEdge(int widthChunks) {
         WorldFold worldFold = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidths(widthChunks, widthChunks)));
         CellFold fold = CellFold.of(worldFold);
-        int minChunkX = worldFold.minChunk(Direction.Axis.X);
+        int minChunkX = worldFold.getMinChunk(Direction.Axis.X);
         int pastLap = minChunkX + widthChunks;
         int tileX = Math.floorDiv(pastLap - 1, TILE_CHUNKS) * TILE_CHUNKS;
         assertTrue(pastLap - tileX > 0 && pastLap - tileX < TILE_CHUNKS, "the tile must straddle the lap edge");
@@ -45,7 +45,7 @@ class FoldedRegionsTest {
     void noFirstChunkOfTheRegionReachesTheEdgeRegionWhenTheCutTileIsItsLast(int widthChunks) {
         WorldFold worldFold = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidths(widthChunks, widthChunks)));
         CellFold fold = CellFold.of(worldFold);
-        int minChunkX = worldFold.minChunk(Direction.Axis.X);
+        int minChunkX = worldFold.getMinChunk(Direction.Axis.X);
         int tileX = Math.floorDiv(minChunkX + widthChunks - 1, TILE_CHUNKS) * TILE_CHUNKS;
         int regionFirstX = Math.floorDiv(tileX, ChunkPos.REGION_SIZE) * ChunkPos.REGION_SIZE;
         assertTrue(tileX - regionFirstX == ChunkPos.REGION_SIZE - TILE_CHUNKS, "the cut tile must close its region");

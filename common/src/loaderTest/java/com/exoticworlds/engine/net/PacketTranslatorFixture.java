@@ -2,13 +2,13 @@ package com.exoticworlds.engine.net;
 
 import java.util.function.IntFunction;
 
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 import com.exoticworlds.engine.seam.ClientPosition;
 
 import io.netty.buffer.Unpooled;
@@ -52,7 +52,7 @@ final class PacketTranslatorFixture {
     static final ChunkPos PREVIOUS_LAP_CHUNK = new ChunkPos(-96, -32);
     static final double PREVIOUS_LAP_TARGET_X = -1524.5;
 
-    static final int VIEW_DISTANCE = 16;
+    static final int VIEW_DISTANCE_CHUNKS = 16;
 
     static final IntFunction<RegistryFriendlyByteBuf> BUFFERS =
             capacity -> new RegistryFriendlyByteBuf(Unpooled.buffer(capacity), REGISTRIES);
@@ -65,14 +65,14 @@ final class PacketTranslatorFixture {
         ClientPosition mirror = new ClientPosition();
         mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, MIRRORED_FOLD);
         return new TranslationContext(MIRRORED_FOLD, mirror, BUFFERS, Level.OVERWORLD,
-                VIEW_DISTANCE, VIEW_DISTANCE, entityId -> null, entityId -> null, () -> {});
+                VIEW_DISTANCE_CHUNKS, VIEW_DISTANCE_CHUNKS, entityId -> null, entityId -> null, () -> {});
     }
 
     static TranslationContext contextAt(double x, double z) {
         ClientPosition receiver = new ClientPosition();
         receiver.rebase(x, z, Level.OVERWORLD, FOLD);
         return new TranslationContext(FOLD, receiver, BUFFERS, Level.OVERWORLD,
-                VIEW_DISTANCE, VIEW_DISTANCE, entityId -> null, entityId -> null, () -> {});
+                VIEW_DISTANCE_CHUNKS, VIEW_DISTANCE_CHUNKS, entityId -> null, entityId -> null, () -> {});
     }
 
     static TranslationContext context(IntFunction<Vec3> entityPosition) {
@@ -83,7 +83,7 @@ final class PacketTranslatorFixture {
         ClientPosition mirror = new ClientPosition();
         mirror.rebase(MIRROR_X, MIRROR_Z, Level.OVERWORLD, FOLD);
         return new TranslationContext(FOLD, mirror, BUFFERS, Level.OVERWORLD,
-                VIEW_DISTANCE, VIEW_DISTANCE, entityPosition, entity, () -> {});
+                VIEW_DISTANCE_CHUNKS, VIEW_DISTANCE_CHUNKS, entityPosition, entity, () -> {});
     }
 
     private PacketTranslatorFixture() {

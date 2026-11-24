@@ -37,28 +37,28 @@ public final class FeatureRecording {
     record Modify(PlacementModifier modifier, long input, List<Long> outputs) implements Step {
     }
 
-    record Place(Feature feature, long pos, boolean answer, Map<Long, BlockState> written) implements Step {
+    record Place(Feature feature, long pos, boolean isPlaced, Map<Long, BlockState> written) implements Step {
     }
 
     static final class Entry {
         private final PlacedFeature placed;
         private final List<Step> steps = new ArrayList<>();
-        private boolean pastTheReach;
+        private boolean isPastTheReach;
 
         private Entry(PlacedFeature placed) {
             this.placed = placed;
         }
 
-        PlacedFeature placed() {
+        PlacedFeature getPlaced() {
             return this.placed;
         }
 
-        List<Step> steps() {
+        List<Step> getSteps() {
             return this.steps;
         }
 
-        boolean pastTheReach() {
-            return this.pastTheReach;
+        boolean isPastTheReach() {
+            return this.isPastTheReach;
         }
     }
 
@@ -103,11 +103,11 @@ public final class FeatureRecording {
         return SCOPE.with(recording, body);
     }
 
-    public static @Nullable FeatureRecording current() {
-        return SCOPE.current();
+    public static @Nullable FeatureRecording getCurrent() {
+        return SCOPE.getCurrent();
     }
 
-    List<Entry> entries() {
+    List<Entry> getEntries() {
         return Collections.unmodifiableList(this.entries);
     }
 
@@ -139,7 +139,7 @@ public final class FeatureRecording {
         }
     }
 
-    public void exitFeature(Feature feature, BlockPos pos, boolean answer) {
+    public void exitFeature(Feature feature, BlockPos pos, boolean isPlaced) {
         Frame closing = this.frame;
         if (this.depth != TOP_PLACER || closing == null) {
             return;
@@ -150,7 +150,7 @@ public final class FeatureRecording {
             this.addSectionWrites(taken.getKey(), taken.getValue(), closing.written);
         }
 
-        this.step(new Place(feature, this.relative(pos), answer, Map.copyOf(closing.written)));
+        this.step(new Place(feature, this.relative(pos), isPlaced, Map.copyOf(closing.written)));
     }
 
     void wrote(BlockPos pos, BlockState state) {
@@ -165,9 +165,9 @@ public final class FeatureRecording {
         }
     }
 
-    void pastTheReach() {
+    void isPastTheReach() {
         if (!this.entries.isEmpty()) {
-            this.entries.getLast().pastTheReach = true;
+            this.entries.getLast().isPastTheReach = true;
         }
     }
 
@@ -186,7 +186,7 @@ public final class FeatureRecording {
         BlockState[] blocks = new BlockState[sections.length * SECTION_BLOCKS];
         for (int index = 0; index < sections.length; index++) {
             for (int cell = 0; cell < SECTION_BLOCKS; cell++) {
-                blocks[index * SECTION_BLOCKS + cell] = stateAt(sections[index], cell);
+                blocks[index * SECTION_BLOCKS + cell] = getStateAt(sections[index], cell);
             }
         }
 
@@ -199,7 +199,7 @@ public final class FeatureRecording {
         for (int index = 0; index < sections.length; index++) {
             int bottom = SectionPos.sectionToBlockCoord(chunk.getMinSectionY() + index);
             for (int cell = 0; cell < SECTION_BLOCKS; cell++) {
-                BlockState now = stateAt(sections[index], cell);
+                BlockState now = getStateAt(sections[index], cell);
                 if (now != before[index * SECTION_BLOCKS + cell]) {
                     pos.set(chunk.getPos().getMinBlockX() + (cell & SECTION_MASK), bottom + (cell >> Y_SHIFT),
                             chunk.getPos().getMinBlockZ() + ((cell >> Z_SHIFT) & SECTION_MASK));
@@ -209,7 +209,7 @@ public final class FeatureRecording {
         }
     }
 
-    private static BlockState stateAt(LevelChunkSection section, int cell) {
+    private static BlockState getStateAt(LevelChunkSection section, int cell) {
         return section.getBlockState(cell & SECTION_MASK, cell >> Y_SHIFT, (cell >> Z_SHIFT) & SECTION_MASK);
     }
 }
