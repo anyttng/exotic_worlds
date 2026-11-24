@@ -45,7 +45,7 @@ The hook gates itself, as a `RandomState` hook does: it runs for every set of ev
 
 Every answer depends on the seed, the shape and the options alone, so a hook that reads only these returns the same starts on every load. A start outside the bounds, on a chunk the placement already picked, or of a structure the set does not hold is dropped with a warning. The key works as for `atRandomState`.
 
-`com.exoticworlds.api.v2.gen` holds the same two moments over the level's [`WorldGeometryV2`](../modding.md#reading-through-apiv2). Its `RandomStateHook` is handed `geometry` where the v1 hook is handed `shape`, and its `StructureStartsV2` answers `geometry()` where the v1 set answers `shape()`. `StructureStartsV2.Pick` and `StructureStartsV2.Added` have types of their own there, so take them from the same package as the hook. Hooks of both versions run in one order of their keys, and a key registered through both versions throws on the second registration.
+`com.exoticworlds.api.v2.gen` holds the same two moments over the level's [`WorldGeometryV2`](../modding.md#reading-through-apiv2). Its `RandomStateHook` is handed `geometry` where the v1 hook is handed `shape`, and its `StructureStartsV2` answers `getGeometry()`, `getOptions()`, `getStructureSet()` and `getPicks()` where the v1 set answers `shape()`, `options()`, `structureSet()` and `picks()`. `StructureStartsV2.Pick` and `StructureStartsV2.Added` have types of their own there, so take them from the same package as the hook. Hooks of both versions run in one order of their keys, and a key registered through both versions throws on the second registration.
 
 ## Generating terrain outside the chunk map
 
