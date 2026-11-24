@@ -5,16 +5,15 @@ import com.exoticworlds.api.v2.shape.DimensionShapeV2;
 import com.exoticworlds.bridge.v2.option.ShapeOptionsAdapter;
 import com.exoticworlds.core.FlatShape;
 import com.exoticworlds.core.ShapeOptions;
+import com.exoticworlds.shape.dimension.AbstractDimensionShape;
 import com.exoticworlds.shape.dimension.DimensionContext;
-import com.exoticworlds.shape.dimension.DimensionShape;
 
-import net.minecraft.resources.Identifier;
+final class DimensionShapeView extends AbstractDimensionShape {
+    private final DimensionShapeV2 declared;
 
-record DimensionShapeView(DimensionShapeV2 declared) implements DimensionShape {
-
-    @Override
-    public Identifier id() {
-        return this.declared.id();
+    DimensionShapeView(DimensionShapeV2 declared) {
+        super(declared.id());
+        this.declared = declared;
     }
 
     @Override
