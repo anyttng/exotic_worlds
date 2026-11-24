@@ -9,7 +9,7 @@ public final class BandShape implements DimensionShapeV2 {
     public static final Identifier ID = Identifier.fromNamespaceAndPath("your_mod", "band");
 
     @Override
-    public Identifier id() {
+    public Identifier getId() {
         return ID;
     }
 
@@ -52,7 +52,7 @@ LoopSpansV2.ofWidth(24).withSkew(6);            // crossing the Z seam also move
 
 Which flat surface the world ends up being is read off the spans, never declared: both axes give a torus, one gives a cylinder, neither gives an ordinary world. `withSkew` needs both axes to loop, and makes a torus whose axes do not fold independently ([The two capability flags](../modding.md#the-two-capability-flags)); `skewChunks()` reads it back, brought into the range from minus half the X width to plus half. `scaledDown(scale)` divides every looping axis and the skew, and re-centers. It throws where the scale does not divide the skew.
 
-Every looping axis must be at least `LoopSpansV2.minChunkWidth()` chunks wide, 16 chunks (256 blocks), and 192 chunks (3072 blocks) in the End. Spans outside that show an error on the page and keep **Done** off until the player changes the option behind them.
+Every looping axis must be at least `LoopSpansV2.getMinWidthChunks()` chunks wide, 16 chunks (256 blocks), and 192 chunks (3072 blocks) in the End. Spans outside that show an error on the page and keep **Done** off until the player changes the option behind them.
 
 ## Size presets
 
@@ -60,17 +60,17 @@ The preset row sets a size, and a shape has no size field, so a preset reaches i
 
 ```java
 @Override
-public boolean takesPresets() {
+public boolean canTakePresets() {
     return true;
 }
 
 @Override
-public GenerationOptions withPreset(int chunkWidth, GenerationOptions options) {
-    return options.with(BandWidth.OPTION, chunkWidth);
+public GenerationOptions withPreset(int widthChunks, GenerationOptions options) {
+    return options.with(BandWidth.OPTION, widthChunks);
 }
 ```
 
-Without `takesPresets`, the preset row is off while the Overworld is on your shape. The row finds the current preset by calling `withPreset` again, so return the options unchanged when they already hold that size.
+Without `canTakePresets`, the preset row is off while the Overworld is on your shape. The row finds the current preset by calling `withPreset` again, so return the options unchanged when they already hold that size.
 
 ## Declaring a world option
 

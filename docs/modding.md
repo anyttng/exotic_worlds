@@ -98,11 +98,11 @@ Vec3 heading = folded.orientation().applyToDelta(velocity);
 
 `WorldGeometryV2` in `com.exoticworlds.api.v2.geometry` is the v2 form of `ToroidalShape`. `WorldGeometriesV2.of(level)` answers it on the server, `ClientGeometriesV2.of(clientLevel)` and `ClientGeometriesV2.of(dimension)` on the client, and each is empty where `shapeOf` is empty.
 
-Every whole-position member keeps its name and its arguments, and the `==` guarantee holds for it. `SeamShiftV2`, `OrientedV2` and `OrientationV2` have types of their own in the same package, so import them from `api.v2.geometry` wherever a result is stored.
+Every whole-position member keeps its arguments, and the `==` guarantee holds for it. Two of them take new names: `sqrDistance` is `sqrDistanceBlocks`, and `boxesOverlap` is `areBoxesOverlapping`. `SeamShiftV2`, `OrientedV2` and `OrientationV2` have types of their own in the same package, so import them from `api.v2.geometry` wherever a result is stored.
 
-The per-axis members and `decomposesPerAxis()` are gone. Read a bound or a width from `spans()`, which answers the dimension's `LoopSpansV2` in chunks, and fold the whole position where v1 code called `foldBlock`, `foldChunk`, `foldCoord` or `nearestCoord`.
+The per-axis members and `decomposesPerAxis()` are gone, and `preservesLocalIndices()` is `areLocalIndicesPreserved()`. Read a bound or a width from `getSpans()`, which answers the dimension's `LoopSpansV2` in chunks, and fold the whole position where v1 code called `foldBlock`, `foldChunk`, `foldCoord` or `nearestCoord`.
 
-`OrientationV2` has no `flipsX()` or `flipsZ()`. Carry a vector through `applyToDelta(delta)`, and ask `isIdentity()` or `preservesHandedness()` where the code branched on a flip.
+`OrientationV2` has no `flipsX()` or `flipsZ()`. Carry a vector through `applyToDelta(delta)`, and ask `isIdentity()` or `isHandednessPreserved()` where the code branched on a flip.
 
 ## The rest of the API
 
