@@ -15,9 +15,11 @@ import com.ascendiacore.gui.widget.numberfield.NumberField;
 import com.ascendiacore.gui.widget.numberfield.model.Bounds;
 import com.ascendiacore.gui.widget.panel.model.FillStyle;
 import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.ShapeOptions;
 import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.shape.cylinder.Cylinder;
 import com.exoticworlds.shape.layout.ShapeKind;
+import com.exoticworlds.shape.torus.Torus;
 
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -69,21 +71,22 @@ final class LoopFields {
         }
 
         if (kind == ShapeKind.CYLINDER) {
-            this.axis.set(spans.bounds().loops(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z);
-            int width = spans.bounds().chunkWidth(this.axis.get());
+            ShapeOptions size = Cylinder.SHAPE.optionsFor(spans);
+            int width = size.get(Cylinder.WIDTH);
+            this.axis.set(size.get(Cylinder.AXIS));
             this.showWidths(width, width, 0);
             return;
         }
 
-        int xChunkWidth = spans.bounds().chunkWidth(Direction.Axis.X);
-        this.showWidths(xChunkWidth, spans.bounds().chunkWidth(Direction.Axis.Z),
-                Math.floorMod(spans.skewChunks(), xChunkWidth));
+        ShapeOptions size = Torus.SHAPE.optionsFor(spans);
+        this.showWidths(size.get(Torus.X_WIDTH), size.get(Torus.Z_WIDTH), size.get(Torus.SHIFT));
     }
 
-    @Nullable FlatShape spans(ShapeKind kind) {
+    @Nullable ShapeOptions size(ShapeKind kind) {
         if (kind == ShapeKind.CYLINDER) {
             Integer width = this.size.value();
-            return width == null ? null : FlatShape.unskewed(WorldLoopBounds.ofWidth(this.axis.get(), width));
+            return width == null ? null
+                    : ShapeOptions.DEFAULT.with(Cylinder.AXIS, this.axis.get()).with(Cylinder.WIDTH, width);
         }
 
         Integer xChunkWidth = this.sizeX.value();
@@ -91,7 +94,8 @@ final class LoopFields {
         Integer shiftChunks = this.shift.value();
         return kind != ShapeKind.TORUS || xChunkWidth == null || zChunkWidth == null || shiftChunks == null
                 ? null
-                : FlatShape.latticeTorus(WorldLoopBounds.ofWidths(xChunkWidth, zChunkWidth), shiftChunks);
+                : ShapeOptions.DEFAULT.with(Torus.X_WIDTH, xChunkWidth).with(Torus.Z_WIDTH, zChunkWidth)
+                        .with(Torus.SHIFT, shiftChunks);
     }
 
     void carryWidth(ShapeKind from, ShapeKind to) {

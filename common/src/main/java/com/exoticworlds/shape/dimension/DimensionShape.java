@@ -10,11 +10,9 @@ public interface DimensionShape {
 
     FlatShape spans(DimensionContext context);
 
-    default boolean takesPresets() {
-        return false;
-    }
+    boolean takesPresets();
 
-    default ShapeOptions withPreset(int chunkWidth, ShapeOptions options) {
-        return options;
-    }
+    ShapeOptions withPreset(int chunkWidth, ShapeOptions options);
+
+    ShapeOptions optionsFor(FlatShape spans);
 }
