@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.WrapDomain;
 
 class IslandLapAxisTest {
     private static final int[] LAPS = {512, 2048, 4096, 16384};
@@ -39,7 +39,7 @@ class IslandLapAxisTest {
     @Test
     void anUnboundedAxisKeepsBetterEndsGridAsItIs() {
         IslandLapAxis axis = IslandLapAxis.of(new WrapDomain.Noop(), 300.0);
-        assertFalse(axis.loops());
+        assertFalse(axis.isLooped());
         assertEquals(300.0, axis.cellBlocks(), EPSILON);
         assertEquals(-7, axis.wrap(-7));
         assertEquals(-7, axis.nearestToOrigin(-7));

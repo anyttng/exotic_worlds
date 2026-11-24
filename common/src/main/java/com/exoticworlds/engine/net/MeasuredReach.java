@@ -11,7 +11,7 @@ public final class MeasuredReach implements AutoCloseable {
 
     private final DoubleStack previous = new DoubleStack();
 
-    public static double blocks() {
+    public static double getBlocks() {
         return CURRENT.get().blocks;
     }
 

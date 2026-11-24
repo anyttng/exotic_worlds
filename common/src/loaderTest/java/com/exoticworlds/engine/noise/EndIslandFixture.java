@@ -2,19 +2,19 @@ package com.exoticworlds.engine.noise;
 
 import java.util.Random;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 
 public final class EndIslandFixture {
     private static final int SWEEP_REACH_BLOCKS = 13 * 16;
-    private static final int UNBOUNDED_SPAN = 4096;
+    private static final int UNBOUNDED_SPAN_BLOCKS = 4096;
     private static final float NO_ISLAND_HEIGHT = -100.0F;
 
     public static final WorldFold TORUS = WorldFolds.of(
@@ -32,8 +32,8 @@ public final class EndIslandFixture {
     }
 
     public static int anyBlock(Random random, WrapDomain domain) {
-        if (!domain.loops()) {
-            return random.nextInt(UNBOUNDED_SPAN) - UNBOUNDED_SPAN / 2;
+        if (!domain.isLooped()) {
+            return random.nextInt(UNBOUNDED_SPAN_BLOCKS) - UNBOUNDED_SPAN_BLOCKS / 2;
         }
 
         return domain.lowerBound + random.nextInt(domain.domainLength);

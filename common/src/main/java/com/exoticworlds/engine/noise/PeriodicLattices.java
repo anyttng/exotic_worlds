@@ -1,6 +1,6 @@
 package com.exoticworlds.engine.noise;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.periodic.LapFloor;
 import com.exoticworlds.engine.noise.periodic.PeriodicLattice;

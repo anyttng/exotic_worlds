@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.BinderOrder;
 import com.exoticworlds.accessors.FoldedClimateSampler;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.fold.FoldedQuart;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -26,12 +26,12 @@ public class ClimateSamplerMixin implements FoldedClimateSampler {
     }
 
     @Override
-    public WorldFold exotic_worlds$fold() {
+    public WorldFold exotic_worlds$getFold() {
         return this.exotic_worlds$fold;
     }
 
     @Override
-    public void exotic_worlds$fold(WorldFold fold) {
+    public void exotic_worlds$setFold(WorldFold fold) {
         this.exotic_worlds$fold = fold;
     }
 }

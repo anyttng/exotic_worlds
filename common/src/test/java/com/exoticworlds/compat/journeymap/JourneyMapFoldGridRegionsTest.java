@@ -11,7 +11,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.map.MapFolds;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.level.ChunkPos;
 
@@ -61,29 +61,30 @@ class JourneyMapFoldGridRegionsTest {
 
     @Test
     void anUnboundedAxisShowsOnlyTheRegionsInsideTheBounds() {
-        assertTrue(JourneyMapFold.regionInView(null, bounds(0.0, 0.0, 4.0, 1.0), 3, 0));
-        assertFalse(JourneyMapFold.regionInView(null, bounds(0.0, 0.0, 4.0, 1.0), 4, 0), "the bounds' max is exclusive");
+        assertTrue(JourneyMapFold.isRegionInView(null, bounds(0.0, 0.0, 4.0, 1.0), 3, 0));
+        assertFalse(JourneyMapFold.isRegionInView(null, bounds(0.0, 0.0, 4.0, 1.0), 4, 0),
+                "the bounds' max is exclusive");
     }
 
     @Test
     void aTileWhoseCopyMeetsTheBoundsIsShown() {
-        assertTrue(JourneyMapFold.regionInView(OFF_GRID, bounds(25.0, -1.0, 36.0, 1.0), -30, 0),
+        assertTrue(JourneyMapFold.isRegionInView(OFF_GRID, bounds(25.0, -1.0, 36.0, 1.0), -30, 0),
                 "region -30 is blocks -15360..-14849, its copy one world over 14640..15151 lies inside 12800..18431");
-        assertTrue(JourneyMapFold.regionInView(OFF_GRID, bounds(25.0, -1.0, 36.0, 1.0), 26, 0));
+        assertTrue(JourneyMapFold.isRegionInView(OFF_GRID, bounds(25.0, -1.0, 36.0, 1.0), 26, 0));
     }
 
     @Test
     void aTileNoCopyOfWhichMeetsTheBoundsIsHidden() {
-        assertFalse(JourneyMapFold.regionInView(OFF_GRID, bounds(25.0, -1.0, 36.0, 1.0), 0, 0),
+        assertFalse(JourneyMapFold.isRegionInView(OFF_GRID, bounds(25.0, -1.0, 36.0, 1.0), 0, 0),
                 "region 0's copies sit at 0 and at 30000 blocks, both outside 12800..18431");
     }
 
     @Test
     void aLatticeTileIsShownWhereTheSkewedRowPutsIt() {
         WorldFold lattice = MapFolds.latticeTorus(-64, 64, 32);
-        assertTrue(JourneyMapFold.regionInView(lattice, bounds(0.0, 2.0, 1.0, 3.0), -1, -2),
+        assertTrue(JourneyMapFold.isRegionInView(lattice, bounds(0.0, 2.0, 1.0, 3.0), -1, -2),
                 "region (-1, -2) one Z lap up and 512 blocks over sits on raw region (0, 2)");
-        assertFalse(JourneyMapFold.regionInView(lattice, bounds(0.0, 2.0, 1.0, 3.0), 0, -2),
+        assertFalse(JourneyMapFold.isRegionInView(lattice, bounds(0.0, 2.0, 1.0, 3.0), 0, -2),
                 "region (0, -2) was shown where only an unskewed copy would put it");
     }
 

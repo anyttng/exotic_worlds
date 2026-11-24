@@ -7,8 +7,8 @@ import org.jspecify.annotations.Nullable;
 
 import com.zurrtum.create.content.kinetics.crafter.MechanicalCrafterBlockEntity;
 import com.exoticworlds.compat.create.mixin.ConnectedInputAccessor;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedCopies;
 
 import net.minecraft.core.BlockPos;
@@ -18,7 +18,7 @@ import net.minecraft.world.level.Level;
 
 public final class CrafterGroupFold {
     public static BlockPos foldStoredDelta(Level level, BlockPos owner, BlockPos rawDelta) {
-        return foldStoredDelta(WorldLoopAttachments.wrappedFoldOfReader(level), owner, rawDelta);
+        return foldStoredDelta(WorldLoopAttachments.getWrappedFoldOfReader(level), owner, rawDelta);
     }
 
     static BlockPos foldStoredDelta(@Nullable WorldFold fold, BlockPos owner, BlockPos rawDelta) {
@@ -33,7 +33,7 @@ public final class CrafterGroupFold {
         }
 
         BlockPos controllerPos = controller.getBlockPos();
-        for (BlockPos delta : List.copyOf(input.exotic_worlds$data())) {
+        for (BlockPos delta : List.copyOf(input.exotic_worlds$getData())) {
             if (delta.equals(BlockPos.ZERO)) {
                 continue;
             }
@@ -46,7 +46,7 @@ public final class CrafterGroupFold {
     }
 
     public static void normalizeOwn(ServerLevel level, MechanicalCrafterBlockEntity crafter) {
-        List<BlockPos> data = ((ConnectedInputAccessor) crafter.getInput()).exotic_worlds$data();
+        List<BlockPos> data = ((ConnectedInputAccessor) crafter.getInput()).exotic_worlds$getData();
         BlockPos owner = crafter.getBlockPos();
         for (int index = 0; index < data.size(); index++) {
             BlockPos raw = data.get(index);
@@ -58,7 +58,7 @@ public final class CrafterGroupFold {
     }
 
     public static Set<BlockPos> canonicalMembers(@Nullable BlockGetter level, Set<BlockPos> raw) {
-        WorldFold fold = level instanceof ServerLevel server ? WorldLoopAttachments.wrappedFoldOfReader(server) : null;
+        WorldFold fold = level instanceof ServerLevel server ? WorldLoopAttachments.getWrappedFoldOfReader(server) : null;
         return fold == null ? raw : FoldedCopies.of(raw, fold::fold);
     }
 

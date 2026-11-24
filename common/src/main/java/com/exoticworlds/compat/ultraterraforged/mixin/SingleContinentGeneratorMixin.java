@@ -30,13 +30,13 @@ public abstract class SingleContinentGeneratorMixin {
 
     @ModifyExpressionValue(method = "apply", at = @At(value = "FIELD", target = CENTER, opcode = Opcodes.GETFIELD))
     private NoiseUtil.Vec2i exotic_worlds$canonicalCenter(NoiseUtil.Vec2i center) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return center;
         }
 
         LappedCenter<NoiseUtil.Vec2i> held = this.exotic_worlds$lappedCenter;
-        if (held != null && held.holds(frame)) {
+        if (held != null && held.isValidFor(frame)) {
             return held.center();
         }
 

@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.level.PublishedShapes;
 
 import net.minecraft.world.level.Level;
@@ -26,18 +26,18 @@ class MapSeamFoldTest {
     void withNoLevelAndNoServerTheMapTakesItsDimensionsPublishedFold() {
         PublishedShapes.publish(Level.OVERWORLD, PUBLISHED);
 
-        assertSame(PUBLISHED, MapSeamFold.foldFor(null, Level.OVERWORLD));
+        assertSame(PUBLISHED, MapSeamFold.getWrappedFold(null, Level.OVERWORLD));
     }
 
     @Test
     void withNothingPublishedTheMapIsUnfolded() {
-        assertNull(MapSeamFold.foldFor(null, Level.OVERWORLD));
+        assertNull(MapSeamFold.getWrappedFold(null, Level.OVERWORLD));
     }
 
     @Test
     void anotherDimensionsPublishedFoldIsNotTheMapsFold() {
         PublishedShapes.publish(Level.NETHER, PUBLISHED);
 
-        assertNull(MapSeamFold.foldFor(null, Level.OVERWORLD));
+        assertNull(MapSeamFold.getWrappedFold(null, Level.OVERWORLD));
     }
 }

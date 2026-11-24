@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.FoldSource;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 public final class LightLockFolds {
     private static final Map<Integer, Owner> OWNERS = new ConcurrentHashMap<>();
@@ -23,7 +23,7 @@ public final class LightLockFolds {
 
     public static long foldKey(int ownerTag, long chunkKey) {
         Owner owner = OWNERS.get(ownerTag);
-        return foldKey(owner != null ? owner.source().exotic_worlds$wrappedFold() : null, chunkKey);
+        return foldKey(owner != null ? owner.source().exotic_worlds$getWrappedFold() : null, chunkKey);
     }
 
     static long foldKey(@Nullable WorldFold fold, long chunkKey) {

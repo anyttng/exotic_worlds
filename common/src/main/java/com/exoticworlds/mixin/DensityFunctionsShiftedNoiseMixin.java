@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.DomainWarp.Divisor;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
@@ -54,7 +54,7 @@ public class DensityFunctionsShiftedNoiseMixin {
             return original.call(context);
         }
 
-        WorldFold fold = generation.fold();
+        WorldFold fold = generation.getFold();
         double xzScale = NoiseScaleLadder.installedScale(this.noise, this.xzScale);
         double verticalShare = GenerationFoldContext.verticalShare(xzScale, this.yScale);
         double y = context.blockY() * this.yScale + this.shiftY.compute(context);

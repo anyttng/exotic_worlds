@@ -11,15 +11,15 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 class WorldCopiesTest {
     private static final int MIN_CHUNK = -16;
     private static final int MAX_CHUNK = 16;
     private static final int LOWER = -256;
-    private static final int WIDTH = 512;
+    private static final int WIDTH_BLOCKS = 512;
     private static final int SKEW_CHUNKS = 16;
-    private static final int SKEW = 256;
+    private static final int SKEW_BLOCKS = 256;
 
     private static final WorldFold TORUS = MapFolds.torus(MIN_CHUNK, MAX_CHUNK);
     private static final WorldFold LATTICE = MapFolds.latticeTorus(MIN_CHUNK, MAX_CHUNK, SKEW_CHUNKS);
@@ -36,14 +36,14 @@ class WorldCopiesTest {
     @Test
     void theRowPastTheZSeamOfALatticeTorusIsMovedByTheSkew() {
         Set<WorldCopies.Copy> copies = new HashSet<>(WorldCopies.meeting(LATTICE, LOWER, 256, 256, 768));
-        assertEquals(Set.of(new WorldCopies.Copy(-SKEW, WIDTH), new WorldCopies.Copy(SKEW, WIDTH)), copies,
+        assertEquals(Set.of(new WorldCopies.Copy(-SKEW_BLOCKS, WIDTH_BLOCKS), new WorldCopies.Copy(SKEW_BLOCKS, WIDTH_BLOCKS)), copies,
                 "the row above the world is not the two copies a skew of 256 puts over -256..255");
-        assertFalse(copies.contains(new WorldCopies.Copy(0, WIDTH)), "a copy straight above the world exists");
+        assertFalse(copies.contains(new WorldCopies.Copy(0, WIDTH_BLOCKS)), "a copy straight above the world exists");
     }
 
     @Test
     void aViewWiderThanALatticeTorusMeetsEveryLatticeCopy() {
-        assertEquals(expected(SKEW, true, -1500, -1300, 1700, 1100),
+        assertEquals(expected(SKEW_BLOCKS, true, -1500, -1300, 1700, 1100),
                 new HashSet<>(WorldCopies.meeting(LATTICE, -1500, -1300, 1700, 1100)),
                 "a wide view on the lattice torus is not the lattice's own copies");
     }
@@ -68,7 +68,7 @@ class WorldCopiesTest {
             long area = 0;
             for (WorldCopies.Piece piece : pieces) {
                 area += (long) (piece.maxX() - piece.minX()) * (piece.maxZ() - piece.minZ());
-                assertTrue(piece.minX() >= LOWER && piece.maxX() <= LOWER + WIDTH, "a piece left the world on X");
+                assertTrue(piece.minX() >= LOWER && piece.maxX() <= LOWER + WIDTH_BLOCKS, "a piece left the world on X");
             }
 
             assertEquals(2400L * 1600L, area, "the pieces do not cover the view exactly once");
@@ -78,8 +78,8 @@ class WorldCopiesTest {
     @Test
     void aLatticePieceIsTheViewMovedBackByItsOwnCopy() {
         assertEquals(Set.of(
-                        new WorldCopies.Piece(new WorldCopies.Copy(-SKEW, WIDTH), 0, LOWER, 256, 256),
-                        new WorldCopies.Piece(new WorldCopies.Copy(SKEW, WIDTH), LOWER, LOWER, 0, 256)),
+                        new WorldCopies.Piece(new WorldCopies.Copy(-SKEW_BLOCKS, WIDTH_BLOCKS), 0, LOWER, 256, 256),
+                        new WorldCopies.Piece(new WorldCopies.Copy(SKEW_BLOCKS, WIDTH_BLOCKS), LOWER, LOWER, 0, 256)),
                 new HashSet<>(WorldCopies.pieces(LATTICE, LOWER, 256, 256, 768)),
                 "the row above maps onto the world shifted by the skew, not straight down");
     }
@@ -96,10 +96,10 @@ class WorldCopiesTest {
             WorldCopies.Window view = WorldCopies.Window.of(shape, -5000, -5000, 5000, 5000)
                     .within(-1100, -900, 1300, 700);
             assertEquals(new HashSet<>(WorldCopies.pieces(shape, -1100, -900, 1300, 700)),
-                    new HashSet<>(view.pieces()),
+                    new HashSet<>(view.getPieces()),
                     "a copy that misses the view left a piece, or one that meets it lost its piece");
             assertEquals(new HashSet<>(WorldCopies.meeting(shape, -1100, -900, 1300, 700)),
-                    new HashSet<>(view.meeting()),
+                    new HashSet<>(view.getMeetingCopies()),
                     "the wide list kept a copy the view does not meet");
         }
     }
@@ -115,22 +115,22 @@ class WorldCopiesTest {
         WorldCopies.Window window = WorldCopies.Window.of(LATTICE, -100, -100, 100, 100);
         assertEquals(WorldCopies.meeting(LATTICE, 50, 50, 900, 900), window.copiesFor(50, 50, 900, 900),
                 "the window answered a rectangle it does not hold with its own copies");
-        assertEquals(Set.of(WorldCopies.IDENTITY, new WorldCopies.Copy(SKEW, WIDTH)),
-                new HashSet<>(window.within(50, 50, 200, 300).meeting()),
+        assertEquals(Set.of(WorldCopies.IDENTITY, new WorldCopies.Copy(SKEW_BLOCKS, WIDTH_BLOCKS)),
+                new HashSet<>(window.within(50, 50, 200, 300).getMeetingCopies()),
                 "50..199 x 50..299 meets the world and the row above it, whose copy at 0..511 is moved by the skew");
     }
 
     @Test
     void thePlainTorusSeamsAreTheWorldsEdgesOnBothAxes() {
         List<WorldCopies.Edge> seams = WorldCopies.seams(TORUS, -300, -300, 300, 300);
-        assertEquals(Set.of(LOWER, LOWER + WIDTH), verticalAt(seams, -300, 300), "the X seams are not at -256 and 256");
-        assertEquals(Set.of(LOWER, LOWER + WIDTH), horizontalAt(seams), "the Z seams are not at -256 and 256");
+        assertEquals(Set.of(LOWER, LOWER + WIDTH_BLOCKS), verticalAt(seams, -300, 300), "the X seams are not at -256 and 256");
+        assertEquals(Set.of(LOWER, LOWER + WIDTH_BLOCKS), horizontalAt(seams), "the Z seams are not at -256 and 256");
     }
 
     @Test
     void theLatticeXSeamsPastTheZSeamAreMovedByTheSkew() {
         List<WorldCopies.Edge> seams = WorldCopies.seams(LATTICE, -300, -300, 300, 700);
-        assertEquals(Set.of(LOWER, LOWER + WIDTH), verticalAt(seams, LOWER, 256), "the world's own X seams moved");
+        assertEquals(Set.of(LOWER, LOWER + WIDTH_BLOCKS), verticalAt(seams, LOWER, 256), "the world's own X seams moved");
         assertEquals(Set.of(0), verticalAt(seams, 256, 700), "the row above does not put its X seam at -256 + 256 = 0");
     }
 
@@ -138,18 +138,18 @@ class WorldCopiesTest {
     void aCylinderHasNoSeamAcrossZ() {
         List<WorldCopies.Edge> seams = WorldCopies.seams(CYLINDER, -300, -5000, 300, 5000);
         assertEquals(Set.of(), horizontalAt(seams), "a cylinder drew a Z seam");
-        assertEquals(Set.of(LOWER, LOWER + WIDTH), verticalAt(seams, -5000, 5000), "a cylinder lost its X seams");
+        assertEquals(Set.of(LOWER, LOWER + WIDTH_BLOCKS), verticalAt(seams, -5000, 5000), "a cylinder lost its X seams");
     }
 
-    private static Set<WorldCopies.Copy> expected(int skew, boolean zLoops, int minX, int minZ, int maxX, int maxZ) {
+    private static Set<WorldCopies.Copy> expected(int skewBlocks, boolean zLoops, int minX, int minZ, int maxX, int maxZ) {
         Set<WorldCopies.Copy> copies = new HashSet<>();
         int rows = zLoops ? 20 : 0;
         for (int row = -rows; row <= rows; row++) {
             for (int column = -20; column <= 20; column++) {
-                int dx = column * WIDTH + row * skew;
-                int dz = row * WIDTH;
-                boolean meetsZ = !zLoops || (LOWER + dz < maxZ && LOWER + WIDTH + dz > minZ);
-                if (meetsZ && LOWER + dx < maxX && LOWER + WIDTH + dx > minX) {
+                int dx = column * WIDTH_BLOCKS + row * skewBlocks;
+                int dz = row * WIDTH_BLOCKS;
+                boolean meetsZ = !zLoops || (LOWER + dz < maxZ && LOWER + WIDTH_BLOCKS + dz > minZ);
+                if (meetsZ && LOWER + dx < maxX && LOWER + WIDTH_BLOCKS + dx > minX) {
                     copies.add(new WorldCopies.Copy(dx, dz));
                 }
             }

@@ -5,24 +5,24 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 
 class ChunkSeatTest {
     private static final int WIDTH_IN_CHUNKS = 64;
-    private static final int WIDTH = WIDTH_IN_CHUNKS * CoordinateConstants.CHUNK_WIDTH;
+    private static final int WIDTH_BLOCKS = WIDTH_IN_CHUNKS * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
 
     private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH_IN_CHUNKS)));
     private static final ChunkPos OWN = new ChunkPos(0, 0);
 
     private static final BlockPos INSIDE = new BlockPos(5, 64, 5);
-    private static final BlockPos ONE_LAP_AWAY = new BlockPos(5 + WIDTH, 64, 5 + WIDTH);
+    private static final BlockPos ONE_LAP_AWAY = new BlockPos(5 + WIDTH_BLOCKS, 64, 5 + WIDTH_BLOCKS);
     private static final BlockPos NEXT_CHUNK = new BlockPos(20, 64, 5);
     private static final BlockPos JUST_UNDER_HALF_A_LAP = new BlockPos(500, 64, 5);
 

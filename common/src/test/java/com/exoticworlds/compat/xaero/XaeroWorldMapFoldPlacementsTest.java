@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TilePlacement;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.level.ChunkPos;
 
@@ -69,7 +69,7 @@ class XaeroWorldMapFoldPlacementsTest {
     @Test
     void aPlacementMeetsOnlyASpanItOverlaps() {
         TilePlacement placement = new TilePlacement(0, 0, 32, SLOT, 0.0F, 0.0F, 0.5F, 1.0F);
-        assertTrue(placement.meets(31, 0, 64, 64), "block 31 is the placement's last column");
-        assertFalse(placement.meets(32, 0, 64, 64), "block 32 is the first column past it");
+        assertTrue(placement.isMeeting(31, 0, 64, 64), "block 31 is the placement's last column");
+        assertFalse(placement.isMeeting(32, 0, 64, 64), "block 32 is the first column past it");
     }
 }

@@ -2,7 +2,7 @@ package com.exoticworlds.compat.simpleatlas;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.seam.MapSeamFold;
 
@@ -20,7 +20,7 @@ public final class MapCentreSeat {
 
     public static int towardWaypoint(Direction.Axis axis, int center, AtlasContents.WaypointData waypoint,
             MapItemSavedData data) {
-        return toward(MapSeamFold.foldFor(null, data.dimension), axis, center, waypoint.worldX(), waypoint.worldZ(),
+        return toward(MapSeamFold.getWrappedFold(null, data.dimension), axis, center, waypoint.worldX(), waypoint.worldZ(),
                 data);
     }
 

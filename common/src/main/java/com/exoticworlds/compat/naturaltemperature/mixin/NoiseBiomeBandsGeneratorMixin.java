@@ -21,12 +21,12 @@ public class NoiseBiomeBandsGeneratorMixin implements BandNoises {
     private NormalNoise detailNoise;
 
     @Override
-    public NormalNoise exotic_worlds$large() {
+    public NormalNoise exotic_worlds$getLarge() {
         return this.largeNoise;
     }
 
     @Override
-    public NormalNoise exotic_worlds$detail() {
+    public NormalNoise exotic_worlds$getDetail() {
         return this.detailNoise;
     }
 }

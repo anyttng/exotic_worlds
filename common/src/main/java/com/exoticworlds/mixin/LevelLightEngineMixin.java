@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.level.BoundLevelFold;
 
 import net.minecraft.core.BlockPos;
@@ -36,35 +36,35 @@ public class LevelLightEngineMixin {
 
     @Inject(method = "checkBlock", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$skipBlockPastBounds(BlockPos pos, CallbackInfo ci) {
-        if (exotic_worlds$pastBounds(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()))) {
+        if (exotic_worlds$isPastBounds(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()))) {
             ci.cancel();
         }
     }
 
     @Inject(method = "propagateLightSources", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$skipSourcesPastBounds(ChunkPos pos, CallbackInfo ci) {
-        if (exotic_worlds$pastBounds(pos)) {
+        if (exotic_worlds$isPastBounds(pos)) {
             ci.cancel();
         }
     }
 
     @Inject(method = "setLightEnabled", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$skipEnablePastBounds(ChunkPos pos, boolean enable, CallbackInfo ci) {
-        if (exotic_worlds$pastBounds(pos)) {
+        if (exotic_worlds$isPastBounds(pos)) {
             ci.cancel();
         }
     }
 
     @Inject(method = "retainData", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$skipRetainPastBounds(ChunkPos pos, boolean retain, CallbackInfo ci) {
-        if (exotic_worlds$pastBounds(pos)) {
+        if (exotic_worlds$isPastBounds(pos)) {
             ci.cancel();
         }
     }
 
     @Inject(method = "updateSectionStatus", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$skipSectionPastBounds(SectionPos pos, boolean sectionEmpty, CallbackInfo ci) {
-        if (exotic_worlds$pastBounds(pos.x(), pos.z())) {
+        if (exotic_worlds$isPastBounds(pos.x(), pos.z())) {
             ci.cancel();
         }
     }
@@ -72,20 +72,20 @@ public class LevelLightEngineMixin {
     @Inject(method = "queueSectionData", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$skipSectionDataPastBounds(LightLayer layer, SectionPos pos, @Nullable DataLayer data,
             CallbackInfo ci) {
-        if (exotic_worlds$pastBounds(pos.x(), pos.z())) {
+        if (exotic_worlds$isPastBounds(pos.x(), pos.z())) {
             ci.cancel();
         }
     }
 
     @Unique
-    private boolean exotic_worlds$pastBounds(ChunkPos pos) {
-        WorldFold fold = this.exotic_worlds$bound.fold();
+    private boolean exotic_worlds$isPastBounds(ChunkPos pos) {
+        WorldFold fold = this.exotic_worlds$bound.getFold();
         return fold.isWrapped() && fold.isOver(pos);
     }
 
     @Unique
-    private boolean exotic_worlds$pastBounds(int chunkX, int chunkZ) {
-        WorldFold fold = this.exotic_worlds$bound.fold();
+    private boolean exotic_worlds$isPastBounds(int chunkX, int chunkZ) {
+        WorldFold fold = this.exotic_worlds$bound.getFold();
         return fold.isWrapped() && fold.isOver(new ChunkPos(chunkX, chunkZ));
     }
 }

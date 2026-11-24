@@ -9,8 +9,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.exoticworlds.accessors.TerrainMaskHolder;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.ChunkFrame;
 import com.exoticworlds.engine.fold.ChunkSeat;
 import com.exoticworlds.engine.gen.terrain.TerrainMask;
@@ -33,28 +33,28 @@ public class ProtoChunkMixin implements TerrainMaskHolder {
     private @Nullable TerrainMask exotic_worlds$terrainMask;
 
     @Override
-    public @Nullable TerrainMask exotic_worlds$terrainMask() {
+    public @Nullable TerrainMask exotic_worlds$getTerrainMask() {
         return this.exotic_worlds$terrainMask;
     }
 
     @Override
-    public void exotic_worlds$terrainMask(TerrainMask mask) {
+    public void exotic_worlds$setTerrainMask(TerrainMask mask) {
         this.exotic_worlds$terrainMask = mask;
     }
 
     @Unique
-    private WorldFold exotic_worlds$fold() {
-        return WorldLoopAttachments.foldIfLevel(((ChunkAccessAccessor) this).exotic_worlds$getLevelHeightAccessor());
+    private WorldFold exotic_worlds$getFold() {
+        return WorldLoopAttachments.getFoldIfLevel(((ChunkAccessAccessor) this).exotic_worlds$getLevelHeightAccessor());
     }
 
     @WrapMethod(method = "getBlockState")
     private BlockState exotic_worlds$readInOwnFrame(BlockPos pos, Operation<BlockState> original) {
         ChunkPos own = ((ProtoChunk) (Object) this).getPos();
-        if (ChunkSeat.sitsIn(own, pos.getX(), pos.getZ())) {
+        if (ChunkSeat.isSittingIn(own, pos.getX(), pos.getZ())) {
             return original.call(pos);
         }
 
-        WorldFold.Folded<BlockPos> seated = ChunkFrame.seat(this.exotic_worlds$fold(), own, pos);
+        WorldFold.Folded<BlockPos> seated = ChunkFrame.seat(this.exotic_worlds$getFold(), own, pos);
         return seated == null
                 ? original.call(pos)
                 : ChunkFrame.toReader(original.call(seated.value()), seated.orientation());
@@ -66,11 +66,11 @@ public class ProtoChunkMixin implements TerrainMaskHolder {
             at = @At("HEAD"), argsOnly = true, require = 3)
     private BlockPos exotic_worlds$seatInOwnFrame(BlockPos pos) {
         ChunkPos own = ((ProtoChunk) (Object) this).getPos();
-        if (ChunkSeat.sitsIn(own, pos.getX(), pos.getZ())) {
+        if (ChunkSeat.isSittingIn(own, pos.getX(), pos.getZ())) {
             return pos;
         }
 
-        return ChunkFrame.seatPos(this.exotic_worlds$fold(), own, pos);
+        return ChunkFrame.seatPos(this.exotic_worlds$getFold(), own, pos);
     }
 
     @Inject(method = SET_BLOCK_STATE, at = @At("HEAD"))

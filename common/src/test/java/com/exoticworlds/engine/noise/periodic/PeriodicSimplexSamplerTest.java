@@ -9,16 +9,16 @@ import java.util.Random;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -114,12 +114,12 @@ class PeriodicSimplexSamplerTest {
     class SkewDerivation {
         @Test
         void sharesOneDenominatorBetweenTheTwoAxes() {
-            assertEquals(26, PeriodicNoiseSampler.period(DEFAULT.blockDomain(Direction.Axis.X), 0.05,
+            assertEquals(26, PeriodicNoiseSampler.period(DEFAULT.getBlockDomain(Direction.Axis.X), 0.05,
                     LapFloor.of(DEFAULT)));
             assertEquals(26, PeriodicSimplexSampler.skewDenominator(26, 26));
             assertEquals(9, PeriodicSimplexSampler.skewNumerator(26));
 
-            assertEquals(102, PeriodicNoiseSampler.period(DEFAULT.blockDomain(Direction.Axis.X), 0.2,
+            assertEquals(102, PeriodicNoiseSampler.period(DEFAULT.getBlockDomain(Direction.Axis.X), 0.2,
                     LapFloor.of(DEFAULT)));
             assertEquals(37, PeriodicSimplexSampler.skewNumerator(102));
         }
@@ -143,16 +143,16 @@ class PeriodicSimplexSamplerTest {
 
         @Test
         void takesTheLoopedAxisWhenTheOtherIsUnbounded() {
-            long xPeriod = PeriodicNoiseSampler.period(X_ONLY.blockDomain(Direction.Axis.X), 0.05, LapFloor.of(X_ONLY));
-            long zPeriod = PeriodicNoiseSampler.period(X_ONLY.blockDomain(Direction.Axis.Z), 0.05, LapFloor.of(X_ONLY));
+            long xPeriod = PeriodicNoiseSampler.period(X_ONLY.getBlockDomain(Direction.Axis.X), 0.05, LapFloor.of(X_ONLY));
+            long zPeriod = PeriodicNoiseSampler.period(X_ONLY.getBlockDomain(Direction.Axis.Z), 0.05, LapFloor.of(X_ONLY));
             assertEquals(0, zPeriod);
             assertEquals(xPeriod, PeriodicSimplexSampler.skewDenominator(xPeriod, zPeriod));
         }
 
         @Test
         void collapsesToZeroWhenThePeriodsAreCoprime() {
-            long xPeriod = PeriodicNoiseSampler.period(UNEVEN.blockDomain(Direction.Axis.X), 0.05, LapFloor.of(UNEVEN));
-            long zPeriod = PeriodicNoiseSampler.period(UNEVEN.blockDomain(Direction.Axis.Z), 0.05, LapFloor.of(UNEVEN));
+            long xPeriod = PeriodicNoiseSampler.period(UNEVEN.getBlockDomain(Direction.Axis.X), 0.05, LapFloor.of(UNEVEN));
+            long zPeriod = PeriodicNoiseSampler.period(UNEVEN.getBlockDomain(Direction.Axis.Z), 0.05, LapFloor.of(UNEVEN));
             assertEquals(51, xPeriod);
             assertEquals(13, zPeriod);
             assertEquals(1, PeriodicSimplexSampler.skewDenominator(xPeriod, zPeriod));
@@ -173,8 +173,8 @@ class PeriodicSimplexSamplerTest {
         @Test
         void aCylinderHoldsAStarvedOctaveAroundTheRingAndVariesAlongTheOpenAxis() {
             Random random = new Random(SEED);
-            WrapDomain ring = X_ONLY.blockDomain(Direction.Axis.X);
-            WrapDomain open = X_ONLY.blockDomain(Direction.Axis.Z);
+            WrapDomain ring = X_ONLY.getBlockDomain(Direction.Axis.X);
+            WrapDomain open = X_ONLY.getBlockDomain(Direction.Axis.Z);
             for (long worldSeed : WORLD_SEEDS) {
                 NoiseInstance noise = NoiseInstance.of(worldSeed);
                 double min = Double.MAX_VALUE;
@@ -207,16 +207,16 @@ class PeriodicSimplexSamplerTest {
         void agreesOneWorldWidthApartAlongTheWholeSeamLine() {
             Random random = new Random(SEED);
             for (WorldFold fold : WRAPPED_X) {
-                double period = fold.blockDomain(Direction.Axis.X).domainLength;
+                double periodBlocks = fold.getBlockDomain(Direction.Axis.X).domainLength;
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SCALES) {
                         for (int i = 0; i < LINE_SAMPLES; i++) {
-                            double x = blockInDomain(random, fold.blockDomain(Direction.Axis.X));
-                            double z = lineCoord(random, fold.blockDomain(Direction.Axis.Z), i);
+                            double x = blockInDomain(random, fold.getBlockDomain(Direction.Axis.X));
+                            double z = lineCoord(random, fold.getBlockDomain(Direction.Axis.Z), i);
 
                             double base = noise.sample(fold, scale, x, z);
-                            double lap = noise.sample(fold, scale, x + period, z);
+                            double lap = noise.sample(fold, scale, x + periodBlocks, z);
                             assertEquals(base, lap,
                                     () -> "sample(" + x + ", " + z + ") vs one X lap "
                                             + at(fold, worldSeed, scale));
@@ -233,16 +233,16 @@ class PeriodicSimplexSamplerTest {
         void agreesOneWorldWidthApartAlongTheWholeSeamLine() {
             Random random = new Random(SEED);
             for (WorldFold fold : BOTH_AXES) {
-                double period = fold.blockDomain(Direction.Axis.Z).domainLength;
+                double periodBlocks = fold.getBlockDomain(Direction.Axis.Z).domainLength;
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SCALES) {
                         for (int i = 0; i < LINE_SAMPLES; i++) {
-                            double x = lineCoord(random, fold.blockDomain(Direction.Axis.X), i);
-                            double z = blockInDomain(random, fold.blockDomain(Direction.Axis.Z));
+                            double x = lineCoord(random, fold.getBlockDomain(Direction.Axis.X), i);
+                            double z = blockInDomain(random, fold.getBlockDomain(Direction.Axis.Z));
 
                             double base = noise.sample(fold, scale, x, z);
-                            double lap = noise.sample(fold, scale, x, z + period);
+                            double lap = noise.sample(fold, scale, x, z + periodBlocks);
                             assertEquals(base, lap,
                                     () -> "sample(" + x + ", " + z + ") vs one Z lap "
                                             + at(fold, worldSeed, scale));
@@ -259,17 +259,17 @@ class PeriodicSimplexSamplerTest {
         void agreesWhenBothAxesWrapAtOnce() {
             Random random = new Random(SEED);
             for (WorldFold fold : BOTH_AXES) {
-                double xPeriod = fold.blockDomain(Direction.Axis.X).domainLength;
-                double zPeriod = fold.blockDomain(Direction.Axis.Z).domainLength;
+                double xPeriodBlocks = fold.getBlockDomain(Direction.Axis.X).domainLength;
+                double zPeriodBlocks = fold.getBlockDomain(Direction.Axis.Z).domainLength;
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SCALES) {
                         for (int i = 0; i < LINE_SAMPLES; i++) {
-                            double x = blockInDomain(random, fold.blockDomain(Direction.Axis.X));
-                            double z = blockInDomain(random, fold.blockDomain(Direction.Axis.Z));
+                            double x = blockInDomain(random, fold.getBlockDomain(Direction.Axis.X));
+                            double z = blockInDomain(random, fold.getBlockDomain(Direction.Axis.Z));
 
                             double base = noise.sample(fold, scale, x, z);
-                            double corner = noise.sample(fold, scale, x + xPeriod, z + zPeriod);
+                            double corner = noise.sample(fold, scale, x + xPeriodBlocks, z + zPeriodBlocks);
                             assertEquals(base, corner,
                                     () -> "sample(" + x + ", " + z + ") vs the corner lap "
                                             + at(fold, worldSeed, scale));
@@ -286,14 +286,14 @@ class PeriodicSimplexSamplerTest {
         void closesAcrossTheXSeamAlongTheWholeLine() {
             Random random = new Random(SEED);
             for (WorldFold fold : WRAPPED_X) {
-                WrapDomain xDomain = fold.blockDomain(Direction.Axis.X);
+                WrapDomain xDomain = fold.getBlockDomain(Direction.Axis.X);
                 double before = xDomain.upperBound - SEAM_EPSILON;
                 double after = xDomain.lowerBound;
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SCALES) {
                         for (int i = 0; i < LINE_SAMPLES; i++) {
-                            double z = lineCoord(random, fold.blockDomain(Direction.Axis.Z), i);
+                            double z = lineCoord(random, fold.getBlockDomain(Direction.Axis.Z), i);
                             double gap = Math.abs(noise.sample(fold, scale, before, z)
                                     - noise.sample(fold, scale, after, z));
                             assertTrue(gap <= CONTINUITY_TOLERANCE,
@@ -309,14 +309,14 @@ class PeriodicSimplexSamplerTest {
         void closesAcrossTheZSeamAlongTheWholeLine() {
             Random random = new Random(SEED);
             for (WorldFold fold : BOTH_AXES) {
-                WrapDomain zDomain = fold.blockDomain(Direction.Axis.Z);
+                WrapDomain zDomain = fold.getBlockDomain(Direction.Axis.Z);
                 double before = zDomain.upperBound - SEAM_EPSILON;
                 double after = zDomain.lowerBound;
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SCALES) {
                         for (int i = 0; i < LINE_SAMPLES; i++) {
-                            double x = lineCoord(random, fold.blockDomain(Direction.Axis.X), i);
+                            double x = lineCoord(random, fold.getBlockDomain(Direction.Axis.X), i);
                             double gap = Math.abs(noise.sample(fold, scale, x, before)
                                     - noise.sample(fold, scale, x, after));
                             assertTrue(gap <= CONTINUITY_TOLERANCE,
@@ -331,7 +331,7 @@ class PeriodicSimplexSamplerTest {
         @Test
         void vanillaTearsTheSameSeamItIsAskedToClose() {
             Random random = new Random(SEED);
-            WrapDomain xDomain = DEFAULT.blockDomain(Direction.Axis.X);
+            WrapDomain xDomain = DEFAULT.getBlockDomain(Direction.Axis.X);
             double before = xDomain.upperBound - SEAM_EPSILON;
             double after = xDomain.lowerBound;
             for (long worldSeed : WORLD_SEEDS) {
@@ -339,7 +339,7 @@ class PeriodicSimplexSamplerTest {
                 for (double scale : SCALES) {
                     double widest = 0.0;
                     for (int i = 0; i < LINE_SAMPLES; i++) {
-                        double z = lineCoord(random, DEFAULT.blockDomain(Direction.Axis.Z), i) * scale;
+                        double z = lineCoord(random, DEFAULT.getBlockDomain(Direction.Axis.Z), i) * scale;
                         widest = Math.max(widest, Math.abs(noise.vanilla().getValue(before * scale, z)
                                 - noise.vanilla().getValue(after * scale, z)));
                     }
@@ -367,17 +367,17 @@ class PeriodicSimplexSamplerTest {
         void agreesAtEveryCopyUnderBothDeckGenerators() {
             Random random = new Random(SEED);
             for (DeckGroupFold fold : SKEWED) {
-                TranslationLattice lattice = fold.blockLattice();
-                double width = lattice.x().domainLength;
-                double height = lattice.z().domainLength;
-                double skew = lattice.skew();
-                double[][] copies = {{width, 0.0}, {skew, height}, {skew - width, height}, {-2.0 * skew, -2.0 * height}};
+                TranslationLattice lattice = fold.getBlockLattice();
+                double widthBlocks = lattice.getX().domainLength;
+                double heightBlocks = lattice.getZ().domainLength;
+                double skewBlocks = lattice.getSkew();
+                double[][] copies = {{widthBlocks, 0.0}, {skewBlocks, heightBlocks}, {skewBlocks - widthBlocks, heightBlocks}, {-2.0 * skewBlocks, -2.0 * heightBlocks}};
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SCALES) {
                         for (int i = 0; i < LINE_SAMPLES; i++) {
-                            double x = blockInDomain(random, lattice.x());
-                            double z = blockInDomain(random, lattice.z());
+                            double x = blockInDomain(random, lattice.getX());
+                            double z = blockInDomain(random, lattice.getZ());
                             double base = noise.sample(fold, scale, x, z);
                             for (double[] copy : copies) {
                                 double moved = noise.sample(fold, scale, x + copy[0], z + copy[1]);
@@ -394,9 +394,9 @@ class PeriodicSimplexSamplerTest {
         void closesAcrossBothSeamsAlongTheWholeLine() {
             Random random = new Random(SEED);
             for (DeckGroupFold fold : SKEWED) {
-                TranslationLattice lattice = fold.blockLattice();
-                WrapDomain xDomain = lattice.x();
-                WrapDomain zDomain = lattice.z();
+                TranslationLattice lattice = fold.getBlockLattice();
+                WrapDomain xDomain = lattice.getX();
+                WrapDomain zDomain = lattice.getZ();
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SCALES) {
@@ -409,7 +409,7 @@ class PeriodicSimplexSamplerTest {
 
                             double x = lineCoord(random, xDomain, i);
                             double zGap = Math.abs(noise.sample(fold, scale, x, zDomain.upperBound - SEAM_EPSILON)
-                                    - noise.sample(fold, scale, x - lattice.skew(), zDomain.lowerBound));
+                                    - noise.sample(fold, scale, x - lattice.getSkew(), zDomain.lowerBound));
                             assertTrue(zGap <= CONTINUITY_TOLERANCE, () -> "Z seam gap at x " + x + " is " + zGap
                                     + " " + at(fold, worldSeed, scale));
                         }
@@ -422,15 +422,15 @@ class PeriodicSimplexSamplerTest {
         void outputVariesAroundTheWorld() {
             Random random = new Random(SEED);
             for (DeckGroupFold fold : SKEWED) {
-                TranslationLattice lattice = fold.blockLattice();
+                TranslationLattice lattice = fold.getBlockLattice();
                 for (long worldSeed : WORLD_SEEDS) {
                     NoiseInstance noise = NoiseInstance.of(worldSeed);
                     for (double scale : SPREAD_SCALES) {
                         double min = Double.MAX_VALUE;
                         double max = -Double.MAX_VALUE;
                         for (int i = 0; i < LINE_SAMPLES; i++) {
-                            double value = noise.sample(fold, scale, lineCoord(random, lattice.x(), i),
-                                    lineCoord(random, lattice.z(), i));
+                            double value = noise.sample(fold, scale, lineCoord(random, lattice.getX(), i),
+                                    lineCoord(random, lattice.getZ(), i));
                             min = Math.min(min, value);
                             max = Math.max(max, value);
                         }
@@ -453,8 +453,8 @@ class PeriodicSimplexSamplerTest {
                 NoiseInstance noise = NoiseInstance.of(worldSeed);
                 for (double scale : SCALES) {
                     for (int i = 0; i < LINE_SAMPLES; i++) {
-                        double x = lineCoord(random, WorldFolds.NOOP.blockDomain(Direction.Axis.X), i);
-                        double z = lineCoord(random, WorldFolds.NOOP.blockDomain(Direction.Axis.Z), i);
+                        double x = lineCoord(random, WorldFolds.NOOP.getBlockDomain(Direction.Axis.X), i);
+                        double z = lineCoord(random, WorldFolds.NOOP.getBlockDomain(Direction.Axis.Z), i);
 
                         double periodic = noise.sample(WorldFolds.NOOP, scale, x, z);
                         double vanilla = noise.vanilla().getValue(x * scale, z * scale);
@@ -495,9 +495,9 @@ class PeriodicSimplexSamplerTest {
             double min = Double.MAX_VALUE;
             double max = -Double.MAX_VALUE;
             for (int i = 0; i < LINE_SAMPLES; i++) {
-                WrapDomain xDomain = fold.blockDomain(Direction.Axis.X);
+                WrapDomain xDomain = fold.getBlockDomain(Direction.Axis.X);
                 double x = alongSeam ? xDomain.lowerBound : lineCoord(random, xDomain, i);
-                double z = alongSeam ? lineCoord(random, fold.blockDomain(Direction.Axis.Z), i) : 5.0;
+                double z = alongSeam ? lineCoord(random, fold.getBlockDomain(Direction.Axis.Z), i) : 5.0;
                 double value = noise.sample(fold, scale, x, z);
                 min = Math.min(min, value);
                 max = Math.max(max, value);

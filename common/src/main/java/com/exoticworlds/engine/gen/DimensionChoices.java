@@ -14,9 +14,9 @@ import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.ShapeStamp;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.DimensionTable;
-import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.DimensionTable;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
 import com.exoticworlds.engine.level.LevelRebuild;
 import com.exoticworlds.engine.net.DimensionChoicesPayload;
 import com.exoticworlds.engine.net.WorldShapeSync;
@@ -50,12 +50,12 @@ public final class DimensionChoices {
     }
 
     public static List<DimensionChoicesPayload.Row> rows(MinecraftServer server) {
-        DimensionTable table = storedTable(server);
+        DimensionTable table = getStoredTable(server);
         return stems(server).map(key -> {
             Refusal refusal = refusalOf(server, key);
-            DimensionTable.Entry entry = table.entry(key);
+            DimensionTable.Entry entry = table.getEntry(key);
             return new DimensionChoicesPayload.Row(key, Optional.ofNullable(refusal),
-                    entry != null ? entry : refusal == null ? DimensionTable.Entry.FROM_OVERWORLD : liveEntry(server, key),
+                    entry != null ? entry : refusal == null ? DimensionTable.Entry.FROM_OVERWORLD : getLiveEntry(server, key),
                     coordinateScale(server, key));
         }).toList();
     }
@@ -85,9 +85,9 @@ public final class DimensionChoices {
             return;
         }
 
-        DimensionTable table = storedTable(server);
+        DimensionTable table = getStoredTable(server);
         List<ResourceKey<LevelStem>> present = stems(server)
-                .filter(key -> !DimensionTable.isVanillaStem(key) && table.entry(key) == null)
+                .filter(key -> !DimensionTable.isVanillaStem(key) && table.getEntry(key) == null)
                 .toList();
         if (present.isEmpty()) {
             return;
@@ -106,7 +106,7 @@ public final class DimensionChoices {
     private static void applyLive(MinecraftServer server, ResourceKey<LevelStem> key) {
         ServerLevel level = Objects.requireNonNull(server.getLevel(Registries.levelStemToLevel(key)),
                 "A choice is accepted only for a live level");
-        ShapedDimensions.stampDerived(liveStems(server), key);
+        ShapedDimensions.stampDerived(getLiveStems(server), key);
         WorldShapeSync.sendToAll(LevelRebuild.rebuild(server, level));
     }
 
@@ -120,7 +120,7 @@ public final class DimensionChoices {
             return Refusal.UNKNOWN;
         }
 
-        if (storedTable(server).entry(key) != null) {
+        if (getStoredTable(server).getEntry(key) != null) {
             return Refusal.DECIDED;
         }
 
@@ -146,7 +146,7 @@ public final class DimensionChoices {
     private static void writeTable(MinecraftServer server, UnaryOperator<DimensionTable> change) {
         for (ChunkGenerator generator : overworldGenerators(server)) {
             if (generator instanceof ShapeStamp stamp) {
-                stamp.exotic_worlds$stampDimensionTable(change.apply(stamp.exotic_worlds$dimensionTable()));
+                stamp.exotic_worlds$stampDimensionTable(change.apply(stamp.exotic_worlds$getDimensionTable()));
             }
         }
 
@@ -157,7 +157,7 @@ public final class DimensionChoices {
         List<ChunkGenerator> generators = new ArrayList<>(2);
         server.getWorldGenSettings().dimensions().get(LevelStem.OVERWORLD)
                 .ifPresent(stem -> generators.add(stem.generator()));
-        LevelStem live = liveStems(server).getValue(LevelStem.OVERWORLD);
+        LevelStem live = getLiveStems(server).getValue(LevelStem.OVERWORLD);
         if (live != null && generators.stream().noneMatch(generator -> generator == live.generator())) {
             generators.add(live.generator());
         }
@@ -165,31 +165,31 @@ public final class DimensionChoices {
         return generators;
     }
 
-    private static DimensionTable storedTable(MinecraftServer server) {
-        return ShapedDimensions.dimensionTableOf(server.getWorldGenSettings().dimensions());
+    private static DimensionTable getStoredTable(MinecraftServer server) {
+        return ShapedDimensions.getDimensionTable(server.getWorldGenSettings().dimensions());
     }
 
     private static boolean isShaped(MinecraftServer server) {
-        return !storedTable(server).isEmpty() || liveStems(server).stream()
-                .anyMatch(stem -> ShapedChunkGenerator.carriedShapeOf(stem.generator()) != null);
+        return !getStoredTable(server).isEmpty() || getLiveStems(server).stream()
+                .anyMatch(stem -> ShapedChunkGenerator.getCarriedShape(stem.generator()) != null);
     }
 
     private static double coordinateScale(MinecraftServer server, ResourceKey<LevelStem> key) {
-        LevelStem stem = liveStems(server).getValue(key);
+        LevelStem stem = getLiveStems(server).getValue(key);
         return stem == null ? NO_COORDINATE_SCALE : stem.type().value().coordinateScale();
     }
 
-    private static DimensionTable.Entry liveEntry(MinecraftServer server, ResourceKey<LevelStem> key) {
-        LevelStem stem = liveStems(server).getValue(key);
-        CarriedShape carried = stem == null ? null : ShapedChunkGenerator.carriedShapeOf(stem.generator());
+    private static DimensionTable.Entry getLiveEntry(MinecraftServer server, ResourceKey<LevelStem> key) {
+        LevelStem stem = getLiveStems(server).getValue(key);
+        CarriedShape carried = stem == null ? null : ShapedChunkGenerator.getCarriedShape(stem.generator());
         return carried == null ? DimensionTable.Entry.UNWRAPPED : new DimensionTable.Entry(carried);
     }
 
     private static Stream<ResourceKey<LevelStem>> stems(MinecraftServer server) {
-        return liveStems(server).registryKeySet().stream().sorted(STEM_ORDER);
+        return getLiveStems(server).registryKeySet().stream().sorted(STEM_ORDER);
     }
 
-    private static Registry<LevelStem> liveStems(MinecraftServer server) {
+    private static Registry<LevelStem> getLiveStems(MinecraftServer server) {
         return server.registryAccess().lookupOrThrow(Registries.LEVEL_STEM);
     }
 

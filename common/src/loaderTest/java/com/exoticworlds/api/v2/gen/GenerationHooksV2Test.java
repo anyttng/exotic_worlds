@@ -19,11 +19,11 @@ import com.exoticworlds.api.v2.geometry.WorldGeometryV2;
 import com.exoticworlds.api.v2.option.ShapeOptionV2;
 import com.exoticworlds.api.v2.option.ShapeOptionsV2;
 import com.exoticworlds.bridge.v2.geometry.GeometryBridge;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.gen.structure.AddedStructureStarts;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
 import com.exoticworlds.shape.torus.GuaranteedLand;
@@ -113,22 +113,22 @@ class GenerationHooksV2Test {
     }
 
     private static List<StructureStartsV2.Added> starts(StructureStartsV2 set) {
-        if (!TEST_SETS.contains(set.structureSet())) {
+        if (!TEST_SETS.contains(set.getStructureSet())) {
             return List.of();
         }
 
-        ASKED.add(set.structureSet());
-        if (set.structureSet() != TEST_SETS.get(0)) {
+        ASKED.add(set.getStructureSet());
+        if (set.getStructureSet() != TEST_SETS.get(0)) {
             return List.of();
         }
 
-        Holder<Structure> structure = set.structureSet().value().structures().get(0).structure();
+        Holder<Structure> structure = set.getStructureSet().value().structures().get(0).structure();
         return List.of(new StructureStartsV2.Added(structure, ADDED_CHUNK));
     }
 
     @Test
     void aRandomStateHookRunsOncePerRandomStateWithTheFoldsGeometryAndOptions() {
-        WorldFold fold = torus(ShapeOptions.DEFAULT.with(GuaranteedNetherComplexes.OPTION, true)).fold();
+        WorldFold fold = torus(ShapeOptions.DEFAULT.with(GuaranteedNetherComplexes.OPTION, true)).getFold();
         randomState(settingsOf(ClimateScanFixture.TYPES.getFirst()), fold, SEED_BASE);
 
         assertEquals(1, SEEN.size());
@@ -139,7 +139,7 @@ class GenerationHooksV2Test {
 
     @Test
     void hooksOfBothVersionsRunInOneOrderOfTheirKeys() {
-        randomState(settingsOf(ClimateScanFixture.TYPES.getFirst()), torus().fold(), SEED_BASE);
+        randomState(settingsOf(ClimateScanFixture.TYPES.getFirst()), torus().getFold(), SEED_BASE);
 
         assertEquals(List.of(FIRST_KEY, SECOND_KEY, THIRD_KEY), ORDER);
     }
@@ -176,13 +176,13 @@ class GenerationHooksV2Test {
                 List.of(new StructureSet.StructureSelectionEntry(structure, SECOND_SET_WEIGHT)), rings));
         TEST_SETS.addAll(List.of(first, second));
         CarriedShape carried = torus();
-        RandomState randomState = randomState(settingsOf(ClimateScanFixture.TYPES.getFirst()), carried.fold(),
+        RandomState randomState = randomState(settingsOf(ClimateScanFixture.TYPES.getFirst()), carried.getFold(),
                 SEED_BASE);
         ChunkGeneratorStructureState state = ChunkGeneratorStructureState.createForFlat(randomState, SEED_BASE,
                 new FixedBiomeSource(plains), Stream.of(first, second));
 
         List<StructureSet.StructureSelectionEntry> added =
-                AddedStructureStarts.of(state, null, carried).at(ADDED_CHUNK);
+                AddedStructureStarts.of(state, null, carried).getEntriesAt(ADDED_CHUNK);
 
         assertEquals(List.of(first, second), ASKED);
         assertEquals(1, added.size());

@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
 import xaero.hud.minimap.element.render.MinimapElementReader;
@@ -21,7 +21,7 @@ public abstract class MinimapElementReaderWrapperMixin {
 
     @ModifyReturnValue(method = "getRenderX", at = @At("RETURN"))
     private double exotic_worlds$foldRenderX(double original, Object element, Object context, float partialTicks) {
-        WorldFold fold = XaeroWorldMapFold.browsedFold();
+        WorldFold fold = XaeroWorldMapFold.getBrowsedFold();
         return fold == null
                 ? original
                 : ClientFolds.fold(fold, original, this.reader.getRenderZ(element, context, partialTicks)).x;
@@ -29,7 +29,7 @@ public abstract class MinimapElementReaderWrapperMixin {
 
     @ModifyReturnValue(method = "getRenderZ", at = @At("RETURN"))
     private double exotic_worlds$foldRenderZ(double original, Object element, Object context, float partialTicks) {
-        WorldFold fold = XaeroWorldMapFold.browsedFold();
+        WorldFold fold = XaeroWorldMapFold.getBrowsedFold();
         return fold == null
                 ? original
                 : ClientFolds.fold(fold, this.reader.getRenderX(element, context, partialTicks), original).z;

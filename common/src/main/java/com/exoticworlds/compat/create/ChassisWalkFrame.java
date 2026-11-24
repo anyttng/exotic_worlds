@@ -17,7 +17,7 @@ public final class ChassisWalkFrame {
     }
 
     public static BlockPos fold(BlockPos worldPosition) {
-        Scope scope = BOUND.current();
+        Scope scope = BOUND.getCurrent();
         if (scope == null) {
             return worldPosition;
         }

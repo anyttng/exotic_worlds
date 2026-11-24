@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.noise.periodic;
 
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.util.Mth;
 
@@ -16,10 +16,10 @@ public final class PeriodicSimplexSampler {
     private static final int PERMUTATION_MASK = 0xFF;
 
     public static boolean carries(WorldFold fold, double scale) {
-        TranslationLattice lattice = fold.blockLattice();
+        TranslationLattice lattice = fold.getBlockLattice();
         LapFloor floor = LapFloor.of(fold);
-        return PeriodicNoiseSampler.period(lattice.x(), scale, floor) <= SimplexLattice.MAX_LAP_PERIOD
-                && PeriodicNoiseSampler.period(lattice.z(), scale, floor) <= SimplexLattice.MAX_LAP_PERIOD;
+        return PeriodicNoiseSampler.period(lattice.getX(), scale, floor) <= SimplexLattice.MAX_LAP_PERIOD
+                && PeriodicNoiseSampler.period(lattice.getZ(), scale, floor) <= SimplexLattice.MAX_LAP_PERIOD;
     }
 
     static double kernel(int[] permutations, double xs, double zs, double skew, double unskew,
@@ -105,7 +105,7 @@ public final class PeriodicSimplexSampler {
             reducedV = v - laps * zLapV;
         }
 
-        return p(permutations, reducedU + p(permutations, reducedV)) % GRADIENT_COUNT;
+        return getPermutation(permutations, reducedU + getPermutation(permutations, reducedV)) % GRADIENT_COUNT;
     }
 
     private static double cornerNoise(int gradientIndex, double x, double z) {
@@ -119,7 +119,7 @@ public final class PeriodicSimplexSampler {
         return falloff * falloff * (gradient[0] * x + gradient[1] * z);
     }
 
-    private static int p(int[] permutations, long index) {
+    private static int getPermutation(int[] permutations, long index) {
         return permutations[(int) (index & PERMUTATION_MASK)];
     }
 

@@ -26,17 +26,17 @@ public final class StoredKeyRebuilds {
         return folded.isEmpty() ? null : folded.getFirst();
     }
 
-    public static boolean changeLapCopies(CellFold fold, NodeTable table, long key, Predicate<TreeNode> change) {
-        return changeAllButFirst(((StoredKeyIndex) (Object) table).exotic_worlds$nodesAt(fold.foldKey(key)), change);
+    public static boolean isWalkDueAfterChangingLapCopies(CellFold fold, NodeTable table, long key, Predicate<TreeNode> change) {
+        return isWalkDueAfterChangingAllButFirst(((StoredKeyIndex) (Object) table).exotic_worlds$nodesAt(fold.foldKey(key)), change);
     }
 
-    static <N> boolean changeAllButFirst(List<N> folded, Predicate<N> change) {
-        boolean walkDue = false;
+    static <N> boolean isWalkDueAfterChangingAllButFirst(List<N> folded, Predicate<N> change) {
+        boolean isWalkDue = false;
         for (int index = 1; index < folded.size(); index++) {
-            walkDue |= change.test(folded.get(index));
+            isWalkDue |= change.test(folded.get(index));
         }
 
-        return walkDue;
+        return isWalkDue;
     }
 
     public static void coverLapCopies(CellFold fold, int chunkX, int chunkZ, ChunkCover cover) {

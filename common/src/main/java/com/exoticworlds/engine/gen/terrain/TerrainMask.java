@@ -4,9 +4,9 @@ import java.util.BitSet;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.FoldOrientation;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.fold.FoldOrientation;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -55,7 +55,7 @@ public final class TerrainMask {
     }
 
     static TerrainMask of(boolean[] solid, ChunkPos pos, int minY, CellGrid grid, @Nullable WorldFold turning) {
-        BitSet bits = new BitSet(grid.cells());
+        BitSet bits = new BitSet(grid.getCellCount());
         int lowestY = Integer.MAX_VALUE;
         int highestY = Integer.MIN_VALUE;
 
@@ -73,12 +73,12 @@ public final class TerrainMask {
         return new TerrainMask(pos, minY, grid, bits, lowestY, highestY, turning);
     }
 
-    static @Nullable TerrainMask load(CompoundTag tag, ChunkPos pos, int minY, int height,
+    static @Nullable TerrainMask load(CompoundTag tag, ChunkPos pos, int minY, int heightBlocks,
             @Nullable WorldFold turning) {
-        CellGrid grid = new CellGrid(CoordinateConstants.CHUNK_WIDTH, height);
+        CellGrid grid = new CellGrid(CoordinateConstants.CHUNK_WIDTH_BLOCKS, heightBlocks);
         long[] solid = tag.getLongArray(SOLID_KEY).orElse(null);
         if (solid == null || tag.getIntOr(MIN_Y_KEY, NO_VALUE) != minY
-                || tag.getIntOr(CELLS_KEY, NO_VALUE) != grid.cells()) {
+                || tag.getIntOr(CELLS_KEY, NO_VALUE) != grid.getCellCount()) {
             return null;
         }
 
@@ -92,7 +92,7 @@ public final class TerrainMask {
     CompoundTag save() {
         CompoundTag tag = new CompoundTag();
         tag.putInt(MIN_Y_KEY, this.minY);
-        tag.putInt(CELLS_KEY, this.grid.cells());
+        tag.putInt(CELLS_KEY, this.grid.getCellCount());
         tag.putLongArray(SOLID_KEY, this.solid.toLongArray());
         tag.putInt(LOWEST_Y_KEY, this.lowestY);
         tag.putInt(HIGHEST_Y_KEY, this.highestY);
@@ -105,20 +105,20 @@ public final class TerrainMask {
     }
 
     public void wrote(BlockPos pos) {
-        int cell = this.cellOf(pos.getX() & (CoordinateConstants.CHUNK_WIDTH - 1), pos.getY(),
-                pos.getZ() & (CoordinateConstants.CHUNK_WIDTH - 1));
+        int cell = this.cellOf(pos.getX() & (CoordinateConstants.CHUNK_WIDTH_BLOCKS - 1), pos.getY(),
+                pos.getZ() & (CoordinateConstants.CHUNK_WIDTH_BLOCKS - 1));
         if (cell == CellGrid.NO_CELL) {
             return;
         }
 
         if (this.written == null) {
-            this.written = new BitSet(this.grid.cells());
+            this.written = new BitSet(this.grid.getCellCount());
         }
 
         this.written.set(cell);
     }
 
-    ChunkPos pos() {
+    ChunkPos getPos() {
         return this.pos;
     }
 
@@ -126,22 +126,22 @@ public final class TerrainMask {
         return this.lowestY > this.highestY;
     }
 
-    int lowestY() {
+    int getLowestY() {
         return this.lowestY;
     }
 
-    int highestY() {
+    int getHighestY() {
         return this.highestY;
     }
 
-    boolean solidAt(int localX, int y, int localZ) {
+    boolean isSolidAt(int localX, int y, int localZ) {
         int cell = this.cellOf(localX, y, localZ);
         return cell != CellGrid.NO_CELL && this.solid.get(cell);
     }
 
-    boolean solidAt(FoldOrientation frame, int localX, int y, int localZ) {
-        return this.solidAt(frame.applyToLocalX(localX, localZ, CoordinateConstants.CHUNK_WIDTH), y,
-                frame.applyToLocalZ(localX, localZ, CoordinateConstants.CHUNK_WIDTH));
+    boolean isSolidAt(FoldOrientation frame, int localX, int y, int localZ) {
+        return this.isSolidAt(frame.applyToLocalX(localX, localZ, CoordinateConstants.CHUNK_WIDTH_BLOCKS), y,
+                frame.applyToLocalZ(localX, localZ, CoordinateConstants.CHUNK_WIDTH_BLOCKS));
     }
 
     FoldOrientation @Nullable [] windowFrames(int windowChunks) {
@@ -150,19 +150,19 @@ public final class TerrainMask {
             return null;
         }
 
-        int reach = windowChunks / 2;
+        int reachChunks = windowChunks / 2;
         FoldOrientation[] frames = new FoldOrientation[windowChunks * windowChunks];
-        for (int stepZ = -reach; stepZ <= reach; stepZ++) {
-            for (int stepX = -reach; stepX <= reach; stepX++) {
+        for (int stepZ = -reachChunks; stepZ <= reachChunks; stepZ++) {
+            for (int stepX = -reachChunks; stepX <= reachChunks; stepX++) {
                 ChunkPos slot = new ChunkPos(this.pos.x() + stepX, this.pos.z() + stepZ);
-                frames[(stepZ + reach) * windowChunks + stepX + reach] = fold.foldOriented(slot).orientation();
+                frames[(stepZ + reachChunks) * windowChunks + stepX + reachChunks] = fold.foldOriented(slot).orientation();
             }
         }
 
         return frames;
     }
 
-    boolean untouchedAt(int localX, int y, int localZ) {
+    boolean isUntouchedAt(int localX, int y, int localZ) {
         int cell = this.cellOf(localX, y, localZ);
         if (cell == CellGrid.NO_CELL || !this.solid.get(cell)) {
             return false;
@@ -174,7 +174,7 @@ public final class TerrainMask {
 
     int cellOf(int localX, int y, int localZ) {
         int layer = y - this.minY;
-        if (layer < 0 || layer >= this.grid.layers()) {
+        if (layer < 0 || layer >= this.grid.getLayerCount()) {
             return CellGrid.NO_CELL;
         }
 

@@ -13,14 +13,14 @@ import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.MapViewSpan;
 import com.exoticworlds.compat.xaero.XaeroMapView.SeamFill;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Direction;
 
 class XaeroMapViewTest {
     private static final WorldFold SMALL = MapFolds.torus(-16, 16);
     private static final int WINDOW = 1024;
-    private static final double HALF_SPAN = MapViewSpan.halfBlocks(100, 1.0);
+    private static final double HALF_SPAN_BLOCKS = MapViewSpan.halfBlocks(100, 1.0);
 
     @Test
     void theSeamGridFillsAOneBlockLineAtEachXSeam() {
@@ -43,14 +43,14 @@ class XaeroMapViewTest {
 
     @Test
     void aSingleCopyViewHoldsTheCameraHalfAWindowInsideTheEdge() {
-        assertEquals(206.0, XaeroMapView.clampCamera(SMALL, MapCopies.SINGLE, Direction.Axis.X, 250.0, HALF_SPAN),
+        assertEquals(206.0, XaeroMapView.clampCamera(SMALL, MapCopies.SINGLE, Direction.Axis.X, 250.0, HALF_SPAN_BLOCKS),
                 "the world ends at 256 and the window reaches 50 blocks either side");
     }
 
     @Test
     void aRepeatedViewAndAnUnshapedWorldLeaveTheCameraFree() {
-        assertEquals(250.0, XaeroMapView.clampCamera(SMALL, MapCopies.REPEATED, Direction.Axis.X, 250.0, HALF_SPAN));
-        assertEquals(250.0, XaeroMapView.clampCamera(null, MapCopies.SINGLE, Direction.Axis.X, 250.0, HALF_SPAN));
+        assertEquals(250.0, XaeroMapView.clampCamera(SMALL, MapCopies.REPEATED, Direction.Axis.X, 250.0, HALF_SPAN_BLOCKS));
+        assertEquals(250.0, XaeroMapView.clampCamera(null, MapCopies.SINGLE, Direction.Axis.X, 250.0, HALF_SPAN_BLOCKS));
     }
 
     @Test
@@ -60,10 +60,10 @@ class XaeroMapViewTest {
         assertEquals(0.25, XaeroMapView.raised(0.25, 0.0), "no floor on a world without a shape");
     }
 
-    private static Set<Integer> verticalAt(List<SeamFill> fills, int thickness) {
+    private static Set<Integer> verticalAt(List<SeamFill> fills, int thicknessPixels) {
         Set<Integer> xs = new HashSet<>();
         for (SeamFill fill : fills) {
-            if (fill.maxX() - fill.minX() == thickness && fill.maxZ() - fill.minZ() > thickness) {
+            if (fill.maxX() - fill.minX() == thicknessPixels && fill.maxZ() - fill.minZ() > thicknessPixels) {
                 xs.add(fill.minX());
             }
         }

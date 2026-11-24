@@ -2,9 +2,9 @@ package com.exoticworlds.engine.level;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelHeightAccessor;
@@ -19,7 +19,7 @@ public final class BoundLevelFold {
         this.fold = null;
     }
 
-    public WorldFold fold() {
+    public WorldFold getFold() {
         WorldFold fold = this.fold;
         if (fold != null) {
             return fold;
@@ -30,13 +30,13 @@ public final class BoundLevelFold {
             return WorldFolds.NOOP;
         }
 
-        fold = WorldLoopAttachments.foldOf(level);
+        fold = WorldLoopAttachments.getFold(level);
         this.fold = fold;
         return fold;
     }
 
-    public @Nullable WorldFold wrapped() {
-        WorldFold fold = fold();
+    public @Nullable WorldFold getWrapped() {
+        WorldFold fold = getFold();
         return fold.isWrapped() ? fold : null;
     }
 }

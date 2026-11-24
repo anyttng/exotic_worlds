@@ -20,9 +20,9 @@ public class BellBlockEntityMixin {
             method = "updateEntities",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean exotic_worlds$hearingRangeThroughSeam(BlockPos bellPos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$hearingRangeThroughSeam(BlockPos bellPos, Position bodyPosition, double distanceBlocks,
             Operation<Boolean> original, @Local LivingEntity body) {
-        return original.call(bellPos, SeamRange.towardCenterOf(body, bellPos, bodyPosition), distance);
+        return original.call(bellPos, SeamRange.towardCenterOf(body, bellPos, bodyPosition), distanceBlocks);
     }
 
     @WrapOperation(
@@ -30,8 +30,8 @@ public class BellBlockEntityMixin {
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN),
             expect = 3)
-    private static boolean exotic_worlds$raiderRangeThroughSeam(BlockPos bellPos, Position bodyPosition, double distance,
+    private static boolean exotic_worlds$raiderRangeThroughSeam(BlockPos bellPos, Position bodyPosition, double distanceBlocks,
             Operation<Boolean> original, @Local LivingEntity body) {
-        return original.call(bellPos, SeamRange.towardCenterOf(body, bellPos, bodyPosition), distance);
+        return original.call(bellPos, SeamRange.towardCenterOf(body, bellPos, bodyPosition), distanceBlocks);
     }
 }

@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import com.exoticworlds.BinderOrder;
 import com.exoticworlds.compat.seedviewer.FoldedNoiseSampler;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;

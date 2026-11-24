@@ -54,7 +54,7 @@ public abstract class SeaCliffsMixin {
 
     @WrapMethod(method = "seaProximity")
     private float exotic_worlds$closeSeaOnLap(float x, float z, Heightmap heightmap, Operation<Float> original) {
-        SiteLattice lattice = SiteLattice.bound(SEA_GRID);
+        SiteLattice lattice = SiteLattice.getBound(SEA_GRID);
         if (lattice == null) {
             return original.call(x, z, heightmap);
         }
@@ -86,7 +86,7 @@ public abstract class SeaCliffsMixin {
     private void exotic_worlds$seatStack(SeaCliffs cliffs, Cell cell, float x, float z, int gridX, int gridZ,
             Heightmap heightmap, Operation<Void> original, @Local(name = "gridX") int pointX,
             @Local(name = "gridZ") int pointZ) {
-        SiteLattice lattice = SiteLattice.bound(STACK_GRID);
+        SiteLattice lattice = SiteLattice.getBound(STACK_GRID);
         if (lattice == null) {
             original.call(cliffs, cell, x, z, gridX, gridZ, heightmap);
             return;

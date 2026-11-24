@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.exoticworlds.accessors.CoastLiftCache;
-import com.exoticworlds.core.GenerationMoments;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.gen.GenerationMoments;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.noise.DensityNoises;
 
@@ -29,7 +29,7 @@ public final class CoastFieldLift {
 
     public static void register() {
         GenerationMoments.atRandomState(GuaranteedLand.KEY,
-                (randomState, fold, seaLevel) -> solve(randomState, fold, fold.options(), seaLevel));
+                (randomState, fold, seaLevel) -> solve(randomState, fold, fold.getOptions(), seaLevel));
     }
 
     private static void solve(RandomState randomState, WorldFold dimensionFold, ShapeOptions options, int seaLevel) {
@@ -37,11 +37,11 @@ public final class CoastFieldLift {
             return;
         }
 
-        if (!dimensionFold.loops(Direction.Axis.X) || !dimensionFold.loops(Direction.Axis.Z)) {
+        if (!dimensionFold.isLooped(Direction.Axis.X) || !dimensionFold.isLooped(Direction.Axis.Z)) {
             return;
         }
 
-        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
+        WorldFold fold = GenerationFoldContext.getContext().getRouterBuildFold();
         if (fold == null) {
             return;
         }
@@ -56,14 +56,14 @@ public final class CoastFieldLift {
 
     private static void searchLift(RandomState randomState, List<CoastLiftCache> coasts, WorldFold fold,
             WorldFold dimensionFold, int seaLevel) {
-        int xLength = dimensionFold.widthBlocks(Direction.Axis.X);
-        int zLength = dimensionFold.widthBlocks(Direction.Axis.Z);
+        int xLength = dimensionFold.getWidthBlocks(Direction.Axis.X);
+        int zLength = dimensionFold.getWidthBlocks(Direction.Axis.Z);
         DensityFunction density = randomState.router().finalDensity();
         int stride = Math.max(STRIDE_BLOCKS, Math.max(xLength, zLength) / GRID_CAP);
         int xGrid = Math.max(1, xLength / stride);
         int zGrid = Math.max(1, zLength / stride);
         long cellBlocks = (long) stride * stride;
-        int skewCells = (int) Math.round((double) fold.blockLattice().skew() / stride);
+        int skewCells = (int) Math.round((double) fold.getBlockLattice().getSkew() / stride);
 
         for (double candidate : CANDIDATES) {
             apply(coasts, candidate);
@@ -79,7 +79,7 @@ public final class CoastFieldLift {
 
     private static void apply(List<CoastLiftCache> coasts, double lift) {
         for (CoastLiftCache coast : coasts) {
-            coast.exotic_worlds$coastLift(lift);
+            coast.exotic_worlds$setCoastLift(lift);
         }
     }
 

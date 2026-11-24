@@ -1,6 +1,6 @@
 package com.exoticworlds.compat.c2me;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.CLIMATE_NOISE_DATA;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.CLIMATE_XZ_SCALE;
@@ -34,9 +34,9 @@ final class C2meCompiledFunctions {
             int[] zs = new int[count];
 
             for (int i = 0; i < count; i++) {
-                xs[i] = blockIn(random, fold.blockDomain(Direction.Axis.X));
+                xs[i] = blockIn(random, fold.getBlockDomain(Direction.Axis.X));
                 ys[i] = blockY(random);
-                zs[i] = blockIn(random, fold.blockDomain(Direction.Axis.Z));
+                zs[i] = blockIn(random, fold.getBlockDomain(Direction.Axis.Z));
             }
 
             return new Points(xs, ys, zs);

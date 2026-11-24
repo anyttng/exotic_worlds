@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 
 import com.exoticworlds.accessors.PathCarry;
-import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.fold.DeckTransformation;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.pathfinder.Node;

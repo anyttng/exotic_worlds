@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import com.exoticworlds.accessors.FoldableFastNoise;
 import com.exoticworlds.compat.gate.ModPresence;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.ishland.c2me.opts.dfc.common.ast.AstNode;
 
 public final class C2meFastNoise {
@@ -29,7 +29,7 @@ public final class C2meFastNoise {
             .build();
 
     static AstNode fold(FoldableFastNoise source, AstNode produced, WorldFold worldFold) {
-        return GATE.admitted() ? C2meFoldedFastNoiseNode.folding(source, produced, worldFold) : produced;
+        return GATE.isAdmitted() ? C2meFoldedFastNoiseNode.folding(source, produced, worldFold) : produced;
     }
 
     static boolean unfolded(AstNode node) {

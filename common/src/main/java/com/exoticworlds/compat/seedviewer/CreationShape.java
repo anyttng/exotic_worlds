@@ -5,10 +5,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.WorldShapes;
 
@@ -44,7 +44,7 @@ public final class CreationShape {
 
     public static @Nullable WorldFold fold(WorldCreationContext settings) {
         CarriedShape carried = chosen(settings).carried();
-        return carried != null ? carried.fold() : null;
+        return carried != null ? carried.getFold() : null;
     }
 
     public static String fingerprinted(String foreign, WorldCreationContext settings) {
@@ -53,7 +53,7 @@ public final class CreationShape {
     }
 
     public static WorldFold routerBuildFold() {
-        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
+        WorldFold fold = GenerationFoldContext.getContext().getRouterBuildFold();
         return fold != null ? fold : WorldFolds.NOOP;
     }
 
@@ -76,7 +76,7 @@ public final class CreationShape {
     private static @Nullable CarriedShape overworld(WorldCreationContext settings) {
         return WorldShapes.applyAtCreation(settings.worldgenLoadContext(), settings.selectedDimensions())
                 .get(LevelStem.OVERWORLD)
-                .map(stem -> ShapedChunkGenerator.carriedShapeOf(stem.generator()))
+                .map(stem -> ShapedChunkGenerator.getCarriedShape(stem.generator()))
                 .orElse(null);
     }
 

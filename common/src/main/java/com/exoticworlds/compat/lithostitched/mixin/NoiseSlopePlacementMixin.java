@@ -17,8 +17,8 @@ import net.minecraft.world.level.levelgen.placement.PlacementContext;
 public class NoiseSlopePlacementMixin {
     @WrapMethod(method = "count(Lnet/minecraft/world/level/levelgen/placement/PlacementContext;Lnet/minecraft/core/BlockPos;)I")
     private int exotic_worlds$foldedCount(PlacementContext context, BlockPos pos, Operation<Integer> original) {
-        Context generation = GenerationFoldContext.context();
-        if (!generation.fold().isWrapped()) {
+        Context generation = GenerationFoldContext.getContext();
+        if (!generation.getFold().isWrapped()) {
             return original.call(context, pos);
         }
 

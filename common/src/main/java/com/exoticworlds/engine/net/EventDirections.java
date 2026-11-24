@@ -2,7 +2,7 @@ package com.exoticworlds.engine.net;
 
 import java.util.Arrays;
 
-import com.exoticworlds.core.FoldOrientation;
+import com.exoticworlds.core.fold.FoldOrientation;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.BellBlock;
@@ -59,7 +59,7 @@ final class EventDirections {
     }
 
     private static int turnedAxis(int data, FoldOrientation orientation) {
-        if (!orientation.swapsAxes()) {
+        if (!orientation.isSwappingAxes()) {
             return data;
         }
 

@@ -13,9 +13,9 @@ import com.exoticworlds.compat.seedviewer.CreationShape;
 import com.exoticworlds.compat.seedviewer.FoldedNoiseSampler;
 import com.exoticworlds.compat.seedviewer.FoldedSampleCache;
 import com.exoticworlds.compat.seedviewer.SeedViewerInjectionTargets;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 import net.acenia.seedviewer.client.worldgen.NoiseMapType;
 import net.acenia.seedviewer.client.worldgen.NoiseSampler;
@@ -38,7 +38,7 @@ public class NoiseSamplerMixin implements FoldedNoiseSampler {
     @Inject(method = SeedViewerInjectionTargets.CONSTRUCTOR + SeedViewerInjectionTargets.FROM_LEVEL,
             at = @At("RETURN"))
     private void exotic_worlds$takeTheLevelsFold(ServerLevel level, CallbackInfo callback) {
-        exotic_worlds$bind(WorldLoopAttachments.foldOf(level));
+        exotic_worlds$bind(WorldLoopAttachments.getFold(level));
     }
 
     @Override

@@ -8,10 +8,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -30,8 +30,8 @@ import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 @Timeout(60)
 class FramedStructureStartTest {
     private static final int WIDTH_CHUNKS = 32;
-    private static final int PIECE_SPAN = 15;
-    private static final int PIECE_HEIGHT = 1;
+    private static final int PIECE_SPAN_BLOCKS = 15;
+    private static final int PIECE_HEIGHT_BLOCKS = 1;
 
     private static final ChunkPos CENTER = new ChunkPos(0, 0);
     private static final ChunkPos INSIDE = new ChunkPos(2, 3);
@@ -68,7 +68,7 @@ class FramedStructureStartTest {
     private static StructureStart validStart(ChunkPos pos) {
         BoundingBox box = new BoundingBox(
                 pos.getMinBlockX(), 0, pos.getMinBlockZ(),
-                pos.getMinBlockX() + PIECE_SPAN, PIECE_HEIGHT, pos.getMinBlockZ() + PIECE_SPAN);
+                pos.getMinBlockX() + PIECE_SPAN_BLOCKS, PIECE_HEIGHT_BLOCKS, pos.getMinBlockZ() + PIECE_SPAN_BLOCKS);
         return new StructureStart(null, pos, 0, new PiecesContainer(List.of(piece(box))));
     }
 

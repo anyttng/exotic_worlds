@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 import net.minecraft.world.level.LevelReader;
 
 public interface SavedChunkOwner {
-    @Nullable LevelReader exotic_worlds$owner();
+    @Nullable LevelReader exotic_worlds$getOwner();
 
     void exotic_worlds$setOwner(@Nullable LevelReader owner);
 
@@ -15,7 +15,7 @@ public interface SavedChunkOwner {
         }
     }
 
-    static @Nullable LevelReader ownerOf(Object chunk) {
-        return chunk instanceof SavedChunkOwner owned ? owned.exotic_worlds$owner() : null;
+    static @Nullable LevelReader getOwner(Object chunk) {
+        return chunk instanceof SavedChunkOwner owned ? owned.exotic_worlds$getOwner() : null;
     }
 }

@@ -38,7 +38,7 @@ public abstract class AtlasIconMixin {
 
     @Unique
     private static Vec3 exotic_worlds$seat(AtlasTilePayload tile, double x, double z) {
-        return MapCopies.current() == MapCopies.SINGLE
+        return MapCopies.getCurrent() == MapCopies.SINGLE
                 ? AtlasTileFold.foldOnTile(tile, x, z)
                 : AtlasTileFold.nearestToTile(tile, x, z);
     }

@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.fold;
 
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.WorldFold;
 
 import org.jspecify.annotations.Nullable;
 

@@ -14,7 +14,7 @@ import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasWorldView;
 import com.exoticworlds.compat.ultimatemapatlases.BrowsedDimension;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -55,7 +55,7 @@ public abstract class MapWidgetMixin implements BrowsedDimension {
     private float targetZoomLevel;
 
     @Override
-    public ResourceKey<Level> exotic_worlds$browsedDimension() {
+    public ResourceKey<Level> exotic_worlds$getBrowsedDimension() {
         return this.mapScreen.getSelectedSlice().dimension();
     }
 
@@ -82,7 +82,7 @@ public abstract class MapWidgetMixin implements BrowsedDimension {
     @ModifyReturnValue(method = "getHoveredPos", at = @At("RETURN"))
     private ColumnPos exotic_worlds$foldedHover(ColumnPos hovered) {
         BlockPos raw = new BlockPos(hovered.x(), 0, hovered.z());
-        BlockPos folded = ClientFolds.fold(ClientFolds.of(this.exotic_worlds$browsedDimension()), raw);
+        BlockPos folded = ClientFolds.fold(ClientFolds.of(this.exotic_worlds$getBrowsedDimension()), raw);
         return folded.equals(raw) ? hovered : new ColumnPos(folded.getX(), folded.getZ());
     }
 
@@ -104,22 +104,22 @@ public abstract class MapWidgetMixin implements BrowsedDimension {
 
     @Unique
     private static @Nullable WorldFold exotic_worlds$singleCopyFold(Player player) {
-        return MapCopies.current() == MapCopies.SINGLE ? ClientFolds.of(player.level()) : null;
+        return MapCopies.getCurrent() == MapCopies.SINGLE ? ClientFolds.of(player.level()) : null;
     }
 
     @Unique
-    private void exotic_worlds$hold(boolean fold) {
-        WorldFold worldFold = ClientFolds.of(this.exotic_worlds$browsedDimension());
+    private void exotic_worlds$hold(boolean shouldFold) {
+        WorldFold worldFold = ClientFolds.of(this.exotic_worlds$getBrowsedDimension());
         if (worldFold == null) {
             return;
         }
 
         AbstractAtlasWidgetAccessor widget = (AbstractAtlasWidgetAccessor) (Object) this;
-        MapCopies copies = MapCopies.current();
-        int mapBlocks = widget.exotic_worlds$mapBlocksSize();
+        MapCopies copies = MapCopies.getCurrent();
+        int mapBlocks = widget.exotic_worlds$getMapSizeBlocks();
         exotic_worlds$capZoom(widget, AtlasWorldView.zoomCeiling(worldFold, copies, this.width, this.height, mapBlocks));
         if (copies == MapCopies.SINGLE) {
-            exotic_worlds$holdCenters(widget, worldFold, mapBlocks, fold);
+            exotic_worlds$holdCenters(widget, worldFold, mapBlocks, shouldFold);
         }
     }
 
@@ -130,21 +130,21 @@ public abstract class MapWidgetMixin implements BrowsedDimension {
             this.cumulativeZoomValue = AtlasWorldView.discreteZoomSteps(ceiling);
         }
 
-        if (widget.exotic_worlds$zoomLevel() > ceiling) {
+        if (widget.exotic_worlds$getZoomLevel() > ceiling) {
             widget.exotic_worlds$setZoomLevel(ceiling);
         }
     }
 
     @Unique
     private void exotic_worlds$holdCenters(AbstractAtlasWidgetAccessor widget, WorldFold worldFold, int mapBlocks,
-            boolean fold) {
+            boolean shouldFold) {
         Vec3 current = AtlasWorldView.held(worldFold,
-                new Vec3(widget.exotic_worlds$currentXCenter(), 0.0, widget.exotic_worlds$currentZCenter()),
-                widget.exotic_worlds$zoomLevel(), this.width, this.height, mapBlocks, fold);
+                new Vec3(widget.exotic_worlds$getCurrentXCenter(), 0.0, widget.exotic_worlds$getCurrentZCenter()),
+                widget.exotic_worlds$getZoomLevel(), this.width, this.height, mapBlocks, shouldFold);
         widget.exotic_worlds$setCurrentXCenter(current.x);
         widget.exotic_worlds$setCurrentZCenter(current.z);
         Vec3 target = AtlasWorldView.held(worldFold, new Vec3(this.targetXCenter, 0.0, this.targetZCenter),
-                this.targetZoomLevel, this.width, this.height, mapBlocks, fold);
+                this.targetZoomLevel, this.width, this.height, mapBlocks, shouldFold);
         this.targetXCenter = target.x;
         this.targetZCenter = target.z;
     }

@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.exoticworlds.api.v2.geometry.OrientationV2;
-import com.exoticworlds.core.FoldOrientation;
+import com.exoticworlds.core.fold.FoldOrientation;
 
 import net.minecraft.world.phys.Vec3;
 
@@ -36,8 +36,8 @@ final class OrientationView implements OrientationV2 {
     }
 
     @Override
-    public boolean preservesHandedness() {
-        return this.orientation.preservesHandedness();
+    public boolean isHandednessPreserved() {
+        return this.orientation.isHandednessPreserved();
     }
 
     @Override

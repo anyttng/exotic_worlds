@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.exoticworlds.accessors.RecipientPositionHolder;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -29,7 +29,7 @@ public class GameEventDispatcherMixin {
             method = "handleGameEventMessagesInQueue",
             at = @At(value = "INVOKE", target = "Ljava/util/Collections;sort(Ljava/util/List;)V"))
     private void exotic_worlds$orderThroughSeam(List<GameEvent.ListenerInfo> listenerInfos, Operation<Void> original) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.level);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(this.level);
         if (fold != null) {
             listenerInfos.replaceAll(info -> exotic_worlds$nearestCopy(info, fold));
         }
@@ -39,7 +39,7 @@ public class GameEventDispatcherMixin {
 
     @Unique
     private static GameEvent.ListenerInfo exotic_worlds$nearestCopy(GameEvent.ListenerInfo info, WorldFold fold) {
-        Vec3 recipientPos = ((RecipientPositionHolder) (Object) info).exotic_worlds$recipientPos();
+        Vec3 recipientPos = ((RecipientPositionHolder) (Object) info).exotic_worlds$getRecipientPos();
         Vec3 nearest = fold.nearestCopy(info.source(), recipientPos);
         return nearest == recipientPos
                 ? info

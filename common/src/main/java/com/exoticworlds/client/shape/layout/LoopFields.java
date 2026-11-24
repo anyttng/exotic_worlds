@@ -14,9 +14,9 @@ import com.ascendiacore.gui.widget.cyclebutton.CycleButton;
 import com.ascendiacore.gui.widget.numberfield.NumberField;
 import com.ascendiacore.gui.widget.numberfield.model.Bounds;
 import com.ascendiacore.gui.widget.panel.model.FillStyle;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.WorldLoopSizes;
 import com.exoticworlds.shape.cylinder.Cylinder;
 import com.exoticworlds.shape.layout.ShapeKind;
 import com.exoticworlds.shape.torus.Torus;
@@ -25,8 +25,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 
 final class LoopFields {
-    static final int GAP = 4;
-    private static final int PAIR_GAP = 6;
+    static final int GAP_PIXELS = 4;
+    private static final int PAIR_GAP_PIXELS = 6;
     private static final int SIZE_MAX_LENGTH = 7;
     private static final String AXIS_HINT_X = "x";
     private static final String AXIS_HINT_Z = "z";
@@ -38,14 +38,14 @@ final class LoopFields {
     private final Value<Direction.Axis> axis = Value.of(Direction.Axis.X);
     private final Column torus = new Column();
     private final Column cylinder = new Column();
-    private final int defaultChunkWidth;
+    private final int defaultWidthChunks;
 
-    LoopFields(Theme theme, FillStyle fill, int minChunkWidth, int defaultChunkWidth) {
-        Optional<Bounds> bounds = Optional.of(new Bounds(minChunkWidth, WorldLoopSizes.MAX_CHUNK_WIDTH));
-        this.defaultChunkWidth = defaultChunkWidth;
-        this.sizeX = sizeField(theme, fill, SettingsLines.sizeCaption(Direction.Axis.X, minChunkWidth), bounds);
-        this.sizeZ = sizeField(theme, fill, SettingsLines.sizeCaption(Direction.Axis.Z, minChunkWidth), bounds);
-        this.size = sizeField(theme, fill, SettingsLines.sizeCaption(minChunkWidth), bounds);
+    LoopFields(Theme theme, FillStyle fill, int minWidthChunks, int defaultWidthChunks) {
+        Optional<Bounds> bounds = Optional.of(new Bounds(minWidthChunks, WorldLoopSizes.MAX_WIDTH_CHUNKS));
+        this.defaultWidthChunks = defaultWidthChunks;
+        this.sizeX = sizeField(theme, fill, SettingsLines.sizeCaption(Direction.Axis.X, minWidthChunks), bounds);
+        this.sizeZ = sizeField(theme, fill, SettingsLines.sizeCaption(Direction.Axis.Z, minWidthChunks), bounds);
+        this.size = sizeField(theme, fill, SettingsLines.sizeCaption(minWidthChunks), bounds);
         this.shift = new NumberField(fill, theme.textField(), SettingsLines.SHIFT, this::shiftBounds, () -> {
         });
         this.shift.setMaxLength(SIZE_MAX_LENGTH);
@@ -55,26 +55,26 @@ final class LoopFields {
         this.show(null);
     }
 
-    Column torus() {
+    Column getTorus() {
         return this.torus;
     }
 
-    Column cylinder() {
+    Column getCylinder() {
         return this.cylinder;
     }
 
     void show(@Nullable FlatShape spans) {
         ShapeKind kind = ShapeKind.of(spans);
         if (spans == null || kind == ShapeKind.NORMAL) {
-            this.showWidths(this.defaultChunkWidth, this.defaultChunkWidth, 0);
+            this.showWidths(this.defaultWidthChunks, this.defaultWidthChunks, 0);
             return;
         }
 
         if (kind == ShapeKind.CYLINDER) {
             ShapeOptions size = Cylinder.SHAPE.optionsFor(spans);
-            int width = size.get(Cylinder.WIDTH);
+            int widthChunks = size.get(Cylinder.WIDTH);
             this.axis.set(size.get(Cylinder.AXIS));
-            this.showWidths(width, width, 0);
+            this.showWidths(widthChunks, widthChunks, 0);
             return;
         }
 
@@ -84,48 +84,48 @@ final class LoopFields {
 
     @Nullable ShapeOptions size(ShapeKind kind) {
         if (kind == ShapeKind.CYLINDER) {
-            Integer width = this.size.value();
-            return width == null ? null
-                    : ShapeOptions.DEFAULT.with(Cylinder.AXIS, this.axis.get()).with(Cylinder.WIDTH, width);
+            Integer widthChunks = this.size.value();
+            return widthChunks == null ? null
+                    : ShapeOptions.DEFAULT.with(Cylinder.AXIS, this.axis.get()).with(Cylinder.WIDTH, widthChunks);
         }
 
-        Integer xChunkWidth = this.sizeX.value();
-        Integer zChunkWidth = this.sizeZ.value();
+        Integer xWidthChunks = this.sizeX.value();
+        Integer zWidthChunks = this.sizeZ.value();
         Integer shiftChunks = this.shift.value();
-        return kind != ShapeKind.TORUS || xChunkWidth == null || zChunkWidth == null || shiftChunks == null
+        return kind != ShapeKind.TORUS || xWidthChunks == null || zWidthChunks == null || shiftChunks == null
                 ? null
-                : ShapeOptions.DEFAULT.with(Torus.X_WIDTH, xChunkWidth).with(Torus.Z_WIDTH, zChunkWidth)
+                : ShapeOptions.DEFAULT.with(Torus.X_WIDTH, xWidthChunks).with(Torus.Z_WIDTH, zWidthChunks)
                         .with(Torus.SHIFT, shiftChunks);
     }
 
     void carryWidth(ShapeKind from, ShapeKind to) {
         if (from == ShapeKind.CYLINDER && to == ShapeKind.TORUS) {
-            Integer width = this.size.value();
-            if (width != null) {
-                this.sizeX.setValue(width);
-                this.sizeZ.setValue(width);
+            Integer widthChunks = this.size.value();
+            if (widthChunks != null) {
+                this.sizeX.setValue(widthChunks);
+                this.sizeZ.setValue(widthChunks);
             }
         } else if (from == ShapeKind.TORUS && to == ShapeKind.CYLINDER) {
-            Integer width = this.sizeX.value();
-            if (width != null) {
-                this.size.setValue(width);
+            Integer widthChunks = this.sizeX.value();
+            if (widthChunks != null) {
+                this.size.setValue(widthChunks);
             }
         }
     }
 
-    private void showWidths(int xChunkWidth, int zChunkWidth, int shiftChunks) {
-        this.sizeX.setValue(xChunkWidth);
-        this.sizeZ.setValue(zChunkWidth);
-        this.size.setValue(xChunkWidth);
+    private void showWidths(int xWidthChunks, int zWidthChunks, int shiftChunks) {
+        this.sizeX.setValue(xWidthChunks);
+        this.sizeZ.setValue(zWidthChunks);
+        this.size.setValue(xWidthChunks);
         this.shift.setValue(shiftChunks);
     }
 
     private void fillTorus() {
         Row sizes = new Row();
-        sizes.setGap(PAIR_GAP);
+        sizes.setGap(PAIR_GAP_PIXELS);
         sizes.add(this.sizeX, Length.fill());
         sizes.add(this.sizeZ, Length.fill());
-        this.torus.setGap(GAP);
+        this.torus.setGap(GAP_PIXELS);
         this.torus.add(sizes);
         this.torus.add(this.shift);
     }
@@ -136,19 +136,19 @@ final class LoopFields {
                 this.axis, SettingsLines::axisName);
         axisButton.setHint(theme.tooltip(), SettingsLines.AXIS_KEY,
                 picked -> picked == Direction.Axis.X ? AXIS_HINT_X : AXIS_HINT_Z);
-        this.cylinder.setGap(GAP);
+        this.cylinder.setGap(GAP_PIXELS);
         this.cylinder.add(axisButton);
         this.cylinder.add(this.size);
     }
 
     private Optional<Bounds> shiftBounds() {
-        Integer xChunkWidth = this.sizeX.value();
-        return xChunkWidth == null ? Optional.empty() : Optional.of(new Bounds(0, xChunkWidth - 1));
+        Integer xWidthChunks = this.sizeX.value();
+        return xWidthChunks == null ? Optional.empty() : Optional.of(new Bounds(0, xWidthChunks - 1));
     }
 
     private Component shiftLaps(int shiftChunks) {
-        Integer xChunkWidth = this.sizeX.value();
-        return xChunkWidth == null ? Component.empty() : SettingsLines.shiftLaps(xChunkWidth, shiftChunks);
+        Integer xWidthChunks = this.sizeX.value();
+        return xWidthChunks == null ? Component.empty() : SettingsLines.shiftLaps(xWidthChunks, shiftChunks);
     }
 
     private static NumberField sizeField(Theme theme, FillStyle fill, Component caption, Optional<Bounds> bounds) {

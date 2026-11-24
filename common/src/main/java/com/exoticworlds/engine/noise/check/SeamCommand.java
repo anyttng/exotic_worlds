@@ -31,11 +31,11 @@ public final class SeamCommand {
 
     private static int reportOnce(CommandSourceStack source) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
-        if (SeamCheckRun.of(source.getServer()).running()) {
+        if (SeamCheckRun.of(source.getServer()).isRunning()) {
             return refuse(source);
         }
 
-        if (!SeamDetailsPending.of(source.getServer()).take(player.getUUID())) {
+        if (!SeamDetailsPending.of(source.getServer()).tryTake(player.getUUID())) {
             ExoticWorlds.LOGGER.info("[ew/edge] details_repeat player={}", player.getName().getString());
             return 0;
         }
@@ -52,11 +52,11 @@ public final class SeamCommand {
             return 0;
         }
 
-        if (levels.stream().allMatch(PeriodicityCheck::fullVerdictKnown)) {
+        if (levels.stream().allMatch(PeriodicityCheck::isFullVerdictKnown)) {
             return reportKnown(source, levels);
         }
 
-        if (!SeamCheckRun.of(server).start(source, levels)) {
+        if (!SeamCheckRun.of(server).tryStart(source, levels)) {
             return refuse(source);
         }
 
@@ -73,7 +73,7 @@ public final class SeamCommand {
                 source.sendSuccess(() -> line, false);
             }
 
-            broken += verdict.broken() ? 1 : 0;
+            broken += verdict.isBroken() ? 1 : 0;
         }
 
         ExoticWorlds.LOGGER.info("[ew/edge] command_done dimensions={} broken={}", levels.size(), broken);

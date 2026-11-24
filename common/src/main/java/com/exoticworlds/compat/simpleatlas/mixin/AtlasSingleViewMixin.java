@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Coerce;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.compat.map.AxisCopies;
 import com.exoticworlds.compat.map.FullscreenZoomFloor;
 import com.exoticworlds.compat.map.MapCopies;
@@ -110,7 +110,7 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
         this.exotic_worlds$view = view;
         this.exotic_worlds$singleWorld = null;
         this.exotic_worlds$tileBeforeHold = 0.0F;
-        if (MapCopies.current() != MapCopies.SINGLE) {
+        if (MapCopies.getCurrent() != MapCopies.SINGLE) {
             return viewport;
         }
 
@@ -180,10 +180,10 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
         float pixelsPerBlock = tile / blocksPerTile;
         float worldX = view.contentX();
         float worldWidth = view.contentWidth();
-        if (fold.loops(Direction.Axis.X)) {
-            worldWidth = fold.widthBlocks(Direction.Axis.X) * pixelsPerBlock;
+        if (fold.isLooped(Direction.Axis.X)) {
+            worldWidth = fold.getWidthBlocks(Direction.Axis.X) * pixelsPerBlock;
             float start = exotic_worlds$worldStart(originX + (float) this.panX, this.localTileX(dimension, first),
-                    first.centerX(), fold.minBlock(Direction.Axis.X), tile, blocksPerTile);
+                    first.centerX(), fold.getMinBlock(Direction.Axis.X), tile, blocksPerTile);
             float shift = AtlasView.panInside(AxisCopies.of(fold, Direction.Axis.X), start, view.contentX(),
                     view.contentWidth(), pixelsPerBlock);
             this.panX += shift;
@@ -192,10 +192,10 @@ public abstract class AtlasSingleViewMixin implements AtlasViews {
 
         float worldY = view.contentY();
         float worldHeight = view.contentHeight();
-        if (fold.loops(Direction.Axis.Z)) {
-            worldHeight = fold.widthBlocks(Direction.Axis.Z) * pixelsPerBlock;
+        if (fold.isLooped(Direction.Axis.Z)) {
+            worldHeight = fold.getWidthBlocks(Direction.Axis.Z) * pixelsPerBlock;
             float start = exotic_worlds$worldStart(originY + (float) this.panY, this.localTileY(dimension, first),
-                    first.centerZ(), fold.minBlock(Direction.Axis.Z), tile, blocksPerTile);
+                    first.centerZ(), fold.getMinBlock(Direction.Axis.Z), tile, blocksPerTile);
             float shift = AtlasView.panInside(AxisCopies.of(fold, Direction.Axis.Z), start, view.contentY(),
                     view.contentHeight(), pixelsPerBlock);
             this.panY += shift;

@@ -15,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.exoticworlds.accessors.BaseHeightsHolder;
 import com.exoticworlds.accessors.FoldedClimateSampler;
-import com.exoticworlds.core.GenerationMoments;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.gen.GenerationMoments;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.gen.BaseHeights;
 import com.exoticworlds.engine.gen.CanonicalRandomFactory;
 import com.exoticworlds.engine.noise.DensityRewrites;
@@ -42,7 +42,7 @@ public class RandomStateMixin implements BaseHeightsHolder {
     @ModifyExpressionValue(method = CONSTRUCTOR, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;noiseRouter()Lnet/minecraft/world/level/levelgen/NoiseRouter;"))
     private NoiseRouter exotic_worlds$rewriteKeyedDensities(NoiseRouter router) {
-        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
+        WorldFold fold = GenerationFoldContext.getContext().getRouterBuildFold();
         return fold != null ? DensityRewrites.apply(router, fold) : router;
     }
 
@@ -80,7 +80,7 @@ public class RandomStateMixin implements BaseHeightsHolder {
             opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
     private void exotic_worlds$separateCloseNoiseScales(NoiseGeneratorSettings settings,
             HolderGetter<NormalNoise.NoiseParameters> noises, long seed, CallbackInfo callback) {
-        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
+        WorldFold fold = GenerationFoldContext.getContext().getRouterBuildFold();
         if (fold != null) {
             NoiseScaleLadder.of(fold, exotic_worlds$roots(((RandomState) (Object) this).router())).install();
         }
@@ -89,9 +89,9 @@ public class RandomStateMixin implements BaseHeightsHolder {
     @Inject(method = CONSTRUCTOR, at = @At("RETURN"))
     private void exotic_worlds$runGenerationHooks(NoiseGeneratorSettings settings,
             HolderGetter<NormalNoise.NoiseParameters> noises, long seed, CallbackInfo callback) {
-        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
+        WorldFold fold = GenerationFoldContext.getContext().getRouterBuildFold();
         if (fold != null) {
-            ((FoldedClimateSampler) (Object) ((RandomState) (Object) this).sampler()).exotic_worlds$fold(fold);
+            ((FoldedClimateSampler) (Object) ((RandomState) (Object) this).sampler()).exotic_worlds$setFold(fold);
             this.exotic_worlds$baseHeights = new BaseHeights(fold);
             GenerationMoments.runAtRandomState((RandomState) (Object) this, fold, settings.seaLevel());
         }
@@ -99,7 +99,7 @@ public class RandomStateMixin implements BaseHeightsHolder {
 
     @Unique
     private static PositionalRandomFactory exotic_worlds$canonical(PositionalRandomFactory factory) {
-        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
+        WorldFold fold = GenerationFoldContext.getContext().getRouterBuildFold();
         return fold == null ? factory : new CanonicalRandomFactory(factory, fold);
     }
 
@@ -110,7 +110,7 @@ public class RandomStateMixin implements BaseHeightsHolder {
     }
 
     @Override
-    public @Nullable BaseHeights exotic_worlds$baseHeights() {
+    public @Nullable BaseHeights exotic_worlds$getBaseHeights() {
         return this.exotic_worlds$baseHeights;
     }
 }

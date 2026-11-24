@@ -14,9 +14,9 @@ public final class CopyBuilds<H> {
         QUEUE, JOINED
     }
 
-    public record Member<H>(long key, long request, float priority, boolean fills, @Nullable H held, int references) {
-        private boolean leads(Member<H> leader) {
-            return fills != leader.fills ? fills : priority > leader.priority;
+    public record Member<H>(long key, long request, float priority, boolean isFill, @Nullable H held, int references) {
+        private boolean isLeading(Member<H> leader) {
+            return isFill != leader.isFill ? isFill : priority > leader.priority;
         }
     }
 
@@ -44,7 +44,7 @@ public final class CopyBuilds<H> {
             return Offer.QUEUE;
         }
 
-        if (!member.leads(group.leader)) {
+        if (!member.isLeading(group.leader)) {
             group.followers.add(member);
             return Offer.JOINED;
         }
@@ -57,7 +57,7 @@ public final class CopyBuilds<H> {
         return Offer.QUEUE;
     }
 
-    public synchronized boolean skip(long request) {
+    public synchronized boolean trySkip(long request) {
         return this.absorbed.remove(request);
     }
 
@@ -68,7 +68,7 @@ public final class CopyBuilds<H> {
         }
     }
 
-    public synchronized List<Member<H>> delivered(long request) {
+    public synchronized List<Member<H>> takeDelivered(long request) {
         Group<H> group = this.byLeader.remove(request);
         if (group == null) {
             return List.of();

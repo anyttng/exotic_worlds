@@ -7,9 +7,9 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.compat.worldgen.LapFrame;
 import com.exoticworlds.compat.lithostitched.mixin.FastNoiseConfigAccessor;
 import com.exoticworlds.compat.lithostitched.mixin.FastNoiseLiteAccessor;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import dev.worldgen.lithostitched.api.worldgen.densityfunction.fastnoise.FNL;
 import dev.worldgen.lithostitched.api.worldgen.densityfunction.fastnoise.FastNoiseConfig;
@@ -48,16 +48,16 @@ public final class LapFastNoise {
         this.lap = lap;
         this.lattice = lattice;
         this.xzScale = xzScale;
-        this.shear = new LapFrame(lattice).shear();
+        this.shear = new LapFrame(lattice).getShear();
     }
 
-    public static boolean samplesXz(double xzScale) {
+    public static boolean isSamplingXz(double xzScale) {
         return xzScale != NO_XZ_SCALE;
     }
 
     public static @Nullable Refusal refusal(FastNoiseConfig config) {
-        FastNoiseLiteAccessor source = sourceOf(config);
-        return refusal(config.getClass(), source.exotic_worlds$noiseType(), source.exotic_worlds$rotationType3d());
+        FastNoiseLiteAccessor source = getSource(config);
+        return refusal(config.getClass(), source.exotic_worlds$getNoiseType(), source.exotic_worlds$getRotationType3d());
     }
 
     static @Nullable Refusal refusal(Class<?> configClass, FNL.NoiseType noiseType, FNL.RotationType3D rotation) {
@@ -73,55 +73,55 @@ public final class LapFastNoise {
     }
 
     public static LapFastNoise of(FastNoiseConfig config, WorldFold fold, double xzScale) {
-        FastNoiseLiteAccessor source = sourceOf(config);
-        TranslationLattice lattice = fold.blockLattice();
+        FastNoiseLiteAccessor source = getSource(config);
+        TranslationLattice lattice = fold.getBlockLattice();
         FastNoiseLap lap = FastNoiseLap.of(
-                new FastNoiseLap.Laps(lapOf(lattice.x()), lapOf(lattice.z()), xzScale),
-                new FastNoiseLap.Field(source.exotic_worlds$seed(), source.exotic_worlds$frequency(),
-                        source.exotic_worlds$lacunarity(), octavesOf(source),
-                        source.exotic_worlds$noiseType() == FNL.NoiseType.OpenSimplex2S),
-                new FastNoiseLap.Primes(FastNoiseLiteAccessor.exotic_worlds$primeX(),
-                        FastNoiseLiteAccessor.exotic_worlds$primeY(), FastNoiseLiteAccessor.exotic_worlds$primeZ()));
+                new FastNoiseLap.Laps(lapOf(lattice.getX()), lapOf(lattice.getZ()), xzScale),
+                new FastNoiseLap.Field(source.exotic_worlds$getSeed(), source.exotic_worlds$getFrequency(),
+                        source.exotic_worlds$getLacunarity(), octavesOf(source),
+                        source.exotic_worlds$getNoiseType() == FNL.NoiseType.OpenSimplex2S),
+                new FastNoiseLap.Primes(FastNoiseLiteAccessor.exotic_worlds$getPrimeX(),
+                        FastNoiseLiteAccessor.exotic_worlds$getPrimeY(), FastNoiseLiteAccessor.exotic_worlds$getPrimeZ()));
         return new LapFastNoise(closedCopy(source, lap), lap, lattice, xzScale);
     }
 
-    private static FastNoiseLiteAccessor sourceOf(FastNoiseConfig config) {
-        return (FastNoiseLiteAccessor) ((FastNoiseConfigAccessor) config).exotic_worlds$fastNoiseLite();
+    private static FastNoiseLiteAccessor getSource(FastNoiseConfig config) {
+        return (FastNoiseLiteAccessor) ((FastNoiseConfigAccessor) config).exotic_worlds$getFastNoiseLite();
     }
 
     public float get(double x, double y, double z) {
         double blockZ = z / this.xzScale;
         double foldedZ = this.lattice.foldZ(blockZ);
         double frameX = this.lattice.foldX(x / this.xzScale, blockZ) - foldedZ * this.shear;
-        return this.noise.GetNoise(frameX * this.lap.blockScale(), y * this.lap.inputScale(),
-                foldedZ * this.lap.blockScale());
+        return this.noise.GetNoise(frameX * this.lap.getBlockScale(), y * this.lap.getInputScale(),
+                foldedZ * this.lap.getBlockScale());
     }
 
     private static FNL closedCopy(FastNoiseLiteAccessor source, FastNoiseLap lap) {
         FNL copy = new FNL();
-        copy.SetSeed(source.exotic_worlds$seed());
+        copy.SetSeed(source.exotic_worlds$getSeed());
         copy.SetFrequency(UNIT_FREQUENCY);
-        copy.SetNoiseType(source.exotic_worlds$noiseType());
-        copy.SetFractalType(source.exotic_worlds$fractalType());
-        copy.SetFractalOctaves(source.exotic_worlds$octaves());
-        copy.SetFractalLacunarity(source.exotic_worlds$lacunarity());
-        copy.SetFractalGain(source.exotic_worlds$gain());
-        copy.SetFractalWeightedStrength(source.exotic_worlds$weightedStrength());
-        copy.SetFractalPingPongStrength(source.exotic_worlds$pingPongStrength());
-        copy.SetCellularDistanceFunction(source.exotic_worlds$cellularDistanceFunction());
-        copy.SetCellularReturnType(source.exotic_worlds$cellularReturnType());
-        copy.SetCellularJitter(source.exotic_worlds$cellularJitterModifier());
+        copy.SetNoiseType(source.exotic_worlds$getNoiseType());
+        copy.SetFractalType(source.exotic_worlds$getFractalType());
+        copy.SetFractalOctaves(source.exotic_worlds$getOctaves());
+        copy.SetFractalLacunarity(source.exotic_worlds$getLacunarity());
+        copy.SetFractalGain(source.exotic_worlds$getGain());
+        copy.SetFractalWeightedStrength(source.exotic_worlds$getWeightedStrength());
+        copy.SetFractalPingPongStrength(source.exotic_worlds$getPingPongStrength());
+        copy.SetCellularDistanceFunction(source.exotic_worlds$getCellularDistanceFunction());
+        copy.SetCellularReturnType(source.exotic_worlds$getCellularReturnType());
+        copy.SetCellularJitter(source.exotic_worlds$getCellularJitterModifier());
         ((FastNoiseLapHolder) copy).exotic_worlds$setLap(lap);
         return copy;
     }
 
     private static int octavesOf(FastNoiseLiteAccessor source) {
-        return SUMMED_FRACTALS.contains(source.exotic_worlds$fractalType()) ? source.exotic_worlds$octaves()
+        return SUMMED_FRACTALS.contains(source.exotic_worlds$getFractalType()) ? source.exotic_worlds$getOctaves()
                 : SINGLE_OCTAVE;
     }
 
     private static int lapOf(WrapDomain domain) {
-        return domain.loops() ? domain.domainLength : FastNoiseLap.OPEN;
+        return domain.isLooped() ? domain.domainLength : FastNoiseLap.OPEN;
     }
 
     public enum Reason {
@@ -135,7 +135,7 @@ public final class LapFastNoise {
             this.id = id;
         }
 
-        public String id() {
+        public String getId() {
             return this.id;
         }
     }

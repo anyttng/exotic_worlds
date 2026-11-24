@@ -1,6 +1,6 @@
 package com.exoticworlds.compat.seedviewer;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.acenia.seedviewer.client.worldgen.NoiseMapType;
 

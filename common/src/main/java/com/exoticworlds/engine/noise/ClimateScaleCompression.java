@@ -1,8 +1,8 @@
 package com.exoticworlds.engine.noise;
 
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 
@@ -15,7 +15,7 @@ public final class ClimateScaleCompression {
 
     static final int UNBOUNDED_LAP = 0;
 
-    public static boolean compressible(WorldFold fold, double verticalShare) {
+    public static boolean isCompressible(WorldFold fold, double verticalShare) {
         return verticalShare == HORIZONTAL_SHARE && lapBlocks(fold) != UNBOUNDED_LAP;
     }
 
@@ -31,18 +31,18 @@ public final class ClimateScaleCompression {
     }
 
     static int lapBlocks(WorldFold fold) {
-        TranslationLattice lattice = fold.blockLattice();
-        WrapDomain xDomain = lattice.x();
-        WrapDomain zDomain = lattice.z();
-        if (xDomain.loops() && zDomain.loops()) {
+        TranslationLattice lattice = fold.getBlockLattice();
+        WrapDomain xDomain = lattice.getX();
+        WrapDomain zDomain = lattice.getZ();
+        if (xDomain.isLooped() && zDomain.isLooped()) {
             return Math.min(xDomain.domainLength, zDomain.domainLength);
         }
 
-        if (xDomain.loops()) {
+        if (xDomain.isLooped()) {
             return xDomain.domainLength;
         }
 
-        return zDomain.loops() ? zDomain.domainLength : UNBOUNDED_LAP;
+        return zDomain.isLooped() ? zDomain.domainLength : UNBOUNDED_LAP;
     }
 
     private static double weightedCellsPerLap(DoubleList amplitudes, double lowestOctaveCells) {

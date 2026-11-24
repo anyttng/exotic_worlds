@@ -10,8 +10,8 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
@@ -31,19 +31,19 @@ class ContextScaledNoiseTest {
     void aNoiseWhosePeriodOverflowsTheCellIndexSamplesVanillaAtTheFoldedBlock() {
         Random random = new Random(SEED);
         for (WorldFold fold : WORLDS) {
-            TranslationLattice lattice = fold.blockLattice();
-            int xWidth = fold.blockDomain(Direction.Axis.X).domainLength;
-            int zWidth = fold.blockDomain(Direction.Axis.Z).domainLength;
+            TranslationLattice lattice = fold.getBlockLattice();
+            int xWidthBlocks = fold.getBlockDomain(Direction.Axis.X).domainLength;
+            int zWidthBlocks = fold.getBlockDomain(Direction.Axis.Z).domainLength;
             for (double scale : SCALES) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
+                    int x = blockIn(random, fold.getBlockDomain(Direction.Axis.X));
                     int y = blockY(random);
-                    int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
-                    for (int[] block : new int[][] {{x, z}, {x + xWidth, z}, {x, z + zWidth}}) {
+                    int z = blockIn(random, fold.getBlockDomain(Direction.Axis.Z));
+                    for (int[] block : new int[][] {{x, z}, {x + xWidthBlocks, z}, {x, z + zWidthBlocks}}) {
                         double expected = UNINDEXABLE.getValue(lattice.foldX(block[0], block[1]) * scale, y,
                                 lattice.foldZ(block[1]) * scale);
                         double folded = GenerationFoldContext.withFold(fold,
-                                () -> ContextScaledNoise.sample(GenerationFoldContext.context(), UNINDEXABLE,
+                                () -> ContextScaledNoise.sample(GenerationFoldContext.getContext(), UNINDEXABLE,
                                         block[0], y, block[1], scale));
                         assertEquals(expected, folded, "vanilla at the folded block in " + fold + " at scale "
                                 + scale + " at (" + block[0] + ", " + y + ", " + block[1] + ")");

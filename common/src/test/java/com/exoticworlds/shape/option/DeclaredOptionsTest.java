@@ -31,26 +31,26 @@ class DeclaredOptionsTest {
         StartupRegistrations.options();
 
         assertEquals(List.of(CompactBiomes.SHOWN, GuaranteedLand.SHOWN, GuaranteedNetherComplexes.SHOWN),
-                DeclaredOptions.all());
+                DeclaredOptions.getAll());
     }
 
     @Test
     void theModsOwnOptionsNameTheirShapesAndDimensions() {
-        assertTrue(CompactBiomes.SHOWN.offeredFor(DeclaredShapes.CYLINDER, LevelStem.END));
-        assertTrue(CompactBiomes.SHOWN.offeredFor(MOD_SHAPE, MOD_DIMENSION));
+        assertTrue(CompactBiomes.SHOWN.isOfferedFor(DeclaredShapes.CYLINDER, LevelStem.END));
+        assertTrue(CompactBiomes.SHOWN.isOfferedFor(MOD_SHAPE, MOD_DIMENSION));
 
-        assertTrue(GuaranteedLand.SHOWN.offeredFor(DeclaredShapes.TORUS, LevelStem.OVERWORLD));
-        assertFalse(GuaranteedLand.SHOWN.offeredFor(DeclaredShapes.CYLINDER, LevelStem.OVERWORLD));
-        assertFalse(GuaranteedLand.SHOWN.offeredFor(DeclaredShapes.TORUS, LevelStem.NETHER));
-        assertFalse(GuaranteedLand.SHOWN.offeredFor(MOD_SHAPE, LevelStem.OVERWORLD));
+        assertTrue(GuaranteedLand.SHOWN.isOfferedFor(DeclaredShapes.TORUS, LevelStem.OVERWORLD));
+        assertFalse(GuaranteedLand.SHOWN.isOfferedFor(DeclaredShapes.CYLINDER, LevelStem.OVERWORLD));
+        assertFalse(GuaranteedLand.SHOWN.isOfferedFor(DeclaredShapes.TORUS, LevelStem.NETHER));
+        assertFalse(GuaranteedLand.SHOWN.isOfferedFor(MOD_SHAPE, LevelStem.OVERWORLD));
 
-        assertTrue(GuaranteedNetherComplexes.SHOWN.offeredFor(DeclaredShapes.TORUS, LevelStem.NETHER));
-        assertFalse(GuaranteedNetherComplexes.SHOWN.offeredFor(DeclaredShapes.TORUS, LevelStem.OVERWORLD));
+        assertTrue(GuaranteedNetherComplexes.SHOWN.isOfferedFor(DeclaredShapes.TORUS, LevelStem.NETHER));
+        assertFalse(GuaranteedNetherComplexes.SHOWN.isOfferedFor(DeclaredShapes.TORUS, LevelStem.OVERWORLD));
     }
 
     @Test
     void compactBiomesIsAChoiceOfModeWithAFactorShownForCustomAlone() {
-        List<OptionPart<ClimateScale>> parts = CompactBiomes.SHOWN.parts();
+        List<OptionPart<ClimateScale>> parts = CompactBiomes.SHOWN.getParts();
         OptionPart.WholeNumber<ClimateScale> factor = (OptionPart.WholeNumber<ClimateScale>) parts.get(1);
 
         assertEquals(2, parts.size());

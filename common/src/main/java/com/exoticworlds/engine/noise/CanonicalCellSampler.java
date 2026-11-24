@@ -25,10 +25,10 @@ public final class CanonicalCellSampler {
             return sample.at(cell);
         }
 
-        TilingCellGrid grid = TilingCellGrid.resolve(this.grid, generation.fold(), this.vanillaCellWidth);
+        TilingCellGrid grid = TilingCellGrid.resolve(this.grid, generation.getFold(), this.vanillaCellWidth);
         this.grid = grid;
 
-        try (Context.DivisorScope _ = generation.withDivisors(grid.xCellWidth(), grid.zCellWidth())) {
+        try (Context.DivisorScope _ = generation.withDivisors(grid.xCellWidthBlocks(), grid.zCellWidthBlocks())) {
             return sample.at(QuantizedCoordinates.inBlocks(grid, blockX, cell.blockY(), blockZ));
         }
     }

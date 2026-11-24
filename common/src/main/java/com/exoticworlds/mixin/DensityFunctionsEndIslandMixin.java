@@ -27,7 +27,7 @@ public class DensityFunctionsEndIslandMixin {
             return original.call(context);
         }
 
-        return PeriodicEndIslands.density(PeriodicEndIslands.heightValue(this.islandNoise, generation.fold(),
+        return PeriodicEndIslands.density(PeriodicEndIslands.heightValue(this.islandNoise, generation.getFold(),
                 context.blockX(), context.blockZ()));
     }
 }

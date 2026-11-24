@@ -7,9 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.engine.gen.LoopedChunkGenerator;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.shape.climate.ClimateScale;
@@ -36,17 +36,17 @@ class FoldCompressionTest {
                 new FixedBiomeSource(LOOKUP.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)),
                 LOOKUP.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.OVERWORLD),
                 carried);
-        double expected = LevelClimateCompression.factor(carried.fold(),
+        double expected = LevelClimateCompression.factor(carried.getFold(),
                 LevelClimateCompression.temperatureOf(generator, null));
 
         assertNull(CurrentServer.get());
         assertTrue(expected > NO_COMPRESSION, String.valueOf(expected));
-        assertEquals(expected, FoldCompression.of(carried.fold()));
+        assertEquals(expected, FoldCompression.of(carried.getFold()));
     }
 
     @Test
     void aFoldNoGeneratorCarriesIsNotCompressed() {
-        assertEquals(NO_COMPRESSION, FoldCompression.of(compactTiny().fold()));
+        assertEquals(NO_COMPRESSION, FoldCompression.of(compactTiny().getFold()));
     }
 
     private static CarriedShape compactTiny() {

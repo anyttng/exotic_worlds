@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;

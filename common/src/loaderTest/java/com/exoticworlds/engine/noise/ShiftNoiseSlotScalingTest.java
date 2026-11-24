@@ -6,9 +6,9 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
@@ -21,7 +21,7 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 class ShiftNoiseSlotScalingTest {
     private static final long SEED = 0x510753CA1EL;
     private static final int SAMPLES = 16;
-    private static final double COORDINATE_SPAN = 512.0;
+    private static final double COORDINATE_SPAN_BLOCKS = 512.0;
 
     private static final NormalNoise.NoiseParameters PARAMETERS =
             new NormalNoise.NoiseParameters(-6, DoubleArrayList.of(1.0, 1.0, 1.0));
@@ -79,26 +79,26 @@ class ShiftNoiseSlotScalingTest {
     }
 
     private static double folded(SlotAxes axes, double x, double y, double z) {
-        Context generation = GenerationFoldContext.context();
+        Context generation = GenerationFoldContext.getContext();
 
-        try (Context.BindingScope _ = generation.bind(SQUARE, axes, generation.horizontalScale(),
+        try (Context.BindingScope _ = generation.bind(SQUARE, axes, generation.getHorizontalScale(),
                 GenerationFoldContext.UNDECLARED_VERTICAL_SHARE)) {
             return SHIFT_NOISE.compute(x, y, z);
         }
     }
 
     private static double reference(SlotAxes axes, double x, double y, double z) {
-        Context generation = GenerationFoldContext.context();
+        Context generation = GenerationFoldContext.getContext();
 
-        try (Context.BindingScope _ = generation.bind(SQUARE, axes, generation.horizontalScale(),
+        try (Context.BindingScope _ = generation.bind(SQUARE, axes, generation.getHorizontalScale(),
                 GenerationFoldContext.UNDECLARED_VERTICAL_SHARE)) {
             return ContextScaledNoise.sample(generation, NOISE, x, y, z, NoiseConstants.SHIFT_SCALE)
-                    * NoiseConstants.SHIFT_AMPLITUDE;
+                    * NoiseConstants.SHIFT_AMPLITUDE_BLOCKS;
         }
     }
 
     private static double coordinate(Random random) {
-        return (random.nextDouble() - 0.5) * COORDINATE_SPAN;
+        return (random.nextDouble() - 0.5) * COORDINATE_SPAN_BLOCKS;
     }
 
     private static String at(String slot, double x, double y, double z) {

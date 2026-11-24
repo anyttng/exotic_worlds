@@ -3,7 +3,7 @@ package com.exoticworlds.compat.c2me;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.InstructionAdapter;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.SlotAxes;
 import com.ishland.c2me.opts.dfc.common.gen.jvm.BytecodeEmitter;

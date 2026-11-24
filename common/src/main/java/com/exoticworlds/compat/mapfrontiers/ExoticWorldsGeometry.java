@@ -2,8 +2,8 @@ package com.exoticworlds.compat.mapfrontiers;
 
 import java.util.function.Predicate;
 
-import com.exoticworlds.core.RectangleCopies;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.RectangleCopies;
+import com.exoticworlds.core.fold.WorldFold;
 
 import games.alejandrocoria.mapfrontiers.platform.services.WorldGeometry;
 import net.minecraft.core.BlockPos;
@@ -26,12 +26,12 @@ public record ExoticWorldsGeometry(WorldFold fold) implements WorldGeometry {
 
     @Override
     public int periodX() {
-        return period(Direction.Axis.X);
+        return periodBlocks(Direction.Axis.X);
     }
 
     @Override
     public int periodZ() {
-        return period(Direction.Axis.Z);
+        return periodBlocks(Direction.Axis.Z);
     }
 
     @Override
@@ -48,10 +48,10 @@ public record ExoticWorldsGeometry(WorldFold fold) implements WorldGeometry {
 
     @Override
     public boolean hasWrappedAxes() {
-        return this.fold.loops(Direction.Axis.X) || this.fold.loops(Direction.Axis.Z);
+        return this.fold.isLooped(Direction.Axis.X) || this.fold.isLooped(Direction.Axis.Z);
     }
 
-    public boolean anyCopyInBounds(BlockPos point, double minX, double maxX, double minZ, double maxZ,
+    public boolean isAnyCopyInBounds(BlockPos point, double minX, double maxX, double minZ, double maxZ,
             Predicate<BlockPos> test) {
         AABB bounds = new AABB(minX, point.getY(), minZ, Math.floor(maxX) + 1.0, point.getY() + 1.0,
                 Math.floor(maxZ) + 1.0);
@@ -64,7 +64,7 @@ public record ExoticWorldsGeometry(WorldFold fold) implements WorldGeometry {
         return false;
     }
 
-    private int period(Direction.Axis axis) {
-        return this.fold.decomposesPerAxis() && this.fold.loops(axis) ? this.fold.widthBlocks(axis) : 0;
+    private int periodBlocks(Direction.Axis axis) {
+        return this.fold.isDecomposedPerAxis() && this.fold.isLooped(axis) ? this.fold.getWidthBlocks(axis) : 0;
     }
 }

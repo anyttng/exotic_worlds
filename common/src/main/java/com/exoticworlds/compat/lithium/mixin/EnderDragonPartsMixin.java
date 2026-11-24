@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -24,6 +24,6 @@ public class EnderDragonPartsMixin {
     private boolean exotic_worlds$partBoxTowardQuery(AABB query, AABB part, Operation<Boolean> original,
             @Local(argsOnly = true) Level level) {
         return original.call(query,
-                FoldedBoxQuery.toward(WorldLoopAttachments.wrappedFoldOf(level), query.getCenter(), part));
+                FoldedBoxQuery.toward(WorldLoopAttachments.getWrappedFold(level), query.getCenter(), part));
     }
 }

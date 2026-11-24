@@ -56,14 +56,14 @@ public class TreeTraversalMixin implements LapTest {
 
     @Inject(method = {"visit", "collectOutOfView"}, at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$refineThroughTheMargin(CallbackInfo ci, @Local(argsOnly = true) TreeNode node) {
-        if (!exotic_worlds$meets(node.key(), TreeRoots.MOVE_BLOCKS)) {
+        if (!exotic_worlds$isMeeting(node.key(), TreeRoots.MOVE_BLOCKS)) {
             ci.cancel();
         }
     }
 
     @Inject(method = {"listOutOfView", "draw"}, at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$drawOneLap(CallbackInfo ci, @Local(argsOnly = true) TreeNode node) {
-        if (!exotic_worlds$meets(node.key(), NO_MARGIN)) {
+        if (!exotic_worlds$isMeeting(node.key(), NO_MARGIN)) {
             ci.cancel();
         }
     }
@@ -72,15 +72,15 @@ public class TreeTraversalMixin implements LapTest {
             target = "Lit/unimi/dsi/fastutil/longs/LongOpenHashSet;add(J)Z"))
     private boolean exotic_worlds$descendInsideTheLap(LongOpenHashSet descendedKeys, long key,
             Operation<Boolean> original) {
-        return exotic_worlds$meets(key, NO_MARGIN) && original.call(descendedKeys, key);
+        return exotic_worlds$isMeeting(key, NO_MARGIN) && original.call(descendedKeys, key);
     }
 
     @Override
-    public boolean exotic_worlds$meets(long key, double margin) {
+    public boolean exotic_worlds$isMeeting(long key, double marginBlocks) {
         int minX = CellFrame.originXOf(key);
         int minZ = CellFrame.originZOf(key);
-        int side = DetailLevel.blocksPerCell(CellKey.level(key));
-        return CellFoldHolder.foldOf(nodes).meetsLap(minX, minZ, minX + side, minZ + side, exotic_worlds$eyeX,
-                exotic_worlds$eyeZ, margin);
+        int sideBlocks = DetailLevel.blocksPerCell(CellKey.level(key));
+        return CellFoldHolder.getFold(nodes).isMeetingLap(minX, minZ, minX + sideBlocks, minZ + sideBlocks, exotic_worlds$eyeX,
+                exotic_worlds$eyeZ, marginBlocks);
     }
 }

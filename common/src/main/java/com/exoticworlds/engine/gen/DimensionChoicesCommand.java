@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.core.DimensionTable;
+import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.engine.ChatPrefix;
 import com.exoticworlds.engine.net.DimensionChoicesPayload;
 import com.exoticworlds.platform.Platforms;

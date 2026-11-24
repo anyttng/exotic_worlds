@@ -35,7 +35,7 @@ public interface WorldGeometryV2 {
      *
      * @throws IllegalStateException if this geometry is no flat shape that spans can state
      */
-    LoopSpansV2 spans();
+    LoopSpansV2 getSpans();
 
     /**
      * The position folded into the world; an in-bounds position comes back as the argument instance itself.
@@ -94,13 +94,13 @@ public interface WorldGeometryV2 {
      * range check or a nearest-target search asks once per candidate. Equal to
      * {@code shortestDelta(from, to).lengthSqr()}, Y included, without building either vector.
      */
-    double sqrDistance(Vec3 from, Vec3 to);
+    double sqrDistanceBlocks(Vec3 from, Vec3 to);
 
     /**
      * Whether two boxes overlap in some copy of the world: what an area query asks of a box that may straddle the
      * seam or lie any number of laps out. Faces that only touch do not overlap, as in {@link AABB#intersects(AABB)}.
      */
-    boolean boxesOverlap(AABB first, AABB second);
+    boolean areBoxesOverlapping(AABB first, AABB second);
 
     /**
      * The pieces the world cuts {@code box} into at the seam, each folded into the world: what a mod scanning the
@@ -135,7 +135,7 @@ public interface WorldGeometryV2 {
      * the local indices, so anything keyed by the low bits of a coordinate (block state arrays, heightmaps,
      * post-processing shorts) must be rebuilt, not carried across.
      */
-    boolean preservesLocalIndices();
+    boolean areLocalIndicesPreserved();
 
     /** {@link #fold(BlockPos)}, reporting the orientation the fold applied. */
     OrientedV2<BlockPos> foldOriented(BlockPos pos);

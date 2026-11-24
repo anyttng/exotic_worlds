@@ -2,8 +2,8 @@ package com.exoticworlds.engine.net;
 
 import java.util.Objects;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.seam.ClientPosition;
 import com.exoticworlds.engine.seam.ClientPosition.BorderCenter;
 
@@ -21,13 +21,13 @@ import net.minecraft.world.level.storage.LevelData;
 public final class ClientAnchorSync {
     public static void refresh(ServerPlayer player) {
         ServerLevel level = player.level();
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         if (fold == null) {
             return;
         }
 
         ClientPosition clientPosition = ClientPosition.of(player);
-        if (!clientPosition.describes(level.dimension())) {
+        if (!clientPosition.isForDimension(level.dimension())) {
             return;
         }
 
@@ -45,7 +45,7 @@ public final class ClientAnchorSync {
             return;
         }
 
-        BlockPos held = clientPosition.heldSpawn();
+        BlockPos held = clientPosition.getHeldSpawn();
         BlockPos spawnPos = respawnData.pos();
         BlockPos want = TranslationContext.nearestCopy(fold, clientPosition, spawnPos);
         if (Objects.equals(want, held)) {
@@ -58,7 +58,7 @@ public final class ClientAnchorSync {
     private static void refreshBorderCenter(ServerPlayer player, ServerLevel level, WorldFold fold,
             ClientPosition clientPosition) {
         WorldBorder border = level.getWorldBorder();
-        BorderCenter held = clientPosition.heldBorderCenter();
+        BorderCenter held = clientPosition.getHeldBorderCenter();
         BorderCenter want = ClientboundPacketRewriters.nearestCopyCenter(fold, clientPosition,
                 new BorderCenter(border.getCenterX(), border.getCenterZ()));
         if (want.equals(held)) {
@@ -69,7 +69,7 @@ public final class ClientAnchorSync {
     }
 
     private static void refreshCacheCenter(ServerPlayer player, WorldFold fold, ClientPosition clientPosition) {
-        ChunkPos held = clientPosition.heldCacheCenter();
+        ChunkPos held = clientPosition.getHeldCacheCenter();
         if (held == null || !(player.getChunkTrackingView() instanceof ChunkTrackingView.Positioned view)) {
             return;
         }

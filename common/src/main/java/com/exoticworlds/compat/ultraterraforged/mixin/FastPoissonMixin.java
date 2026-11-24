@@ -68,15 +68,15 @@ public abstract class FastPoissonMixin {
             Operation<Long> original, @Share(FRAME) LocalRef<RtfLap.@Nullable Frame> lap,
             @Share(X_SCALE) LocalFloatRef xScale, @Share(Z_SCALE) LocalFloatRef zScale,
             @Share(X_LAPS) LocalIntRef xLaps, @Share(Z_LAPS) LocalIntRef zLaps) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         lap.set(frame);
         if (frame == null) {
             return original.call(seed, x, z, context);
         }
 
         try (RtfLap.Frame.Scope _ = frame.octave(context.frequency())) {
-            xScale.set(frame.xScale());
-            zScale.set(frame.zScale());
+            xScale.set(frame.getXScale());
+            zScale.set(frame.getZScale());
             float latticeX = frame.latticeX(x, z);
             float latticeZ = frame.shiftZ(z);
             xLaps.set(Math.round(x - frame.outerX(latticeX, latticeZ)));
@@ -136,7 +136,7 @@ public abstract class FastPoissonMixin {
             return original.call(x, z);
         }
 
-        int outerX = frame.sheared() ? NoiseUtil.floor(frame.outerX(pointX.get(), pointZ.get())) : x;
+        int outerX = frame.isSheared() ? NoiseUtil.floor(frame.outerX(pointX.get(), pointZ.get())) : x;
         return original.call(outerX + xLaps.get(), z + zLaps.get());
     }
 }

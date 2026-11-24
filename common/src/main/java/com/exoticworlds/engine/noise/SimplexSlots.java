@@ -2,7 +2,7 @@ package com.exoticworlds.engine.noise;
 
 import java.util.Arrays;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.periodic.SimplexLattice;
 
 public final class SimplexSlots {

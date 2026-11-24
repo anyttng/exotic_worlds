@@ -19,8 +19,8 @@ public class GoToTargetLocationMixin {
     @WrapOperation(
             method = "lambda$create$2",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
-    private static boolean exotic_worlds$arrivalThroughSeam(BlockPos location, Vec3i bodyPos, double distance,
+    private static boolean exotic_worlds$arrivalThroughSeam(BlockPos location, Vec3i bodyPos, double distanceBlocks,
             Operation<Boolean> original, @Local(argsOnly = true) Mob body) {
-        return original.call(location, SeamRange.toward(body, location, bodyPos), distance);
+        return original.call(location, SeamRange.toward(body, location, bodyPos), distanceBlocks);
     }
 }

@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.accessors.LightStepFrame;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.LightStep;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
@@ -23,7 +23,7 @@ public abstract class LightNodeStepMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_OFFSET_PACKED),
             expect = 2)
     private long exotic_worlds$wrapToNode(long node) {
-        WorldFold fold = ((FoldHolder) (Object) this).exotic_worlds$fold();
+        WorldFold fold = ((FoldHolder) (Object) this).exotic_worlds$getFold();
         long folded = fold.foldBlockNode(node);
         ((LightStepFrame) (Object) this).exotic_worlds$setStepOrientation(LightStep.orientationOf(fold, node, folded));
         return folded;
@@ -37,7 +37,7 @@ public abstract class LightNodeStepMixin {
             expect = 3)
     private Direction exotic_worlds$turnBackDirection(Direction backDirection) {
         return LightStep.inTargetFrame(
-                ((LightStepFrame) (Object) this).exotic_worlds$stepOrientation(), backDirection);
+                ((LightStepFrame) (Object) this).exotic_worlds$getStepOrientation(), backDirection);
     }
 
     @ModifyArg(
@@ -48,6 +48,6 @@ public abstract class LightNodeStepMixin {
                             + "Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/Direction;)Z"),
             index = 1)
     private BlockState exotic_worlds$readTargetInSourceFrame(BlockState toState) {
-        return LightStep.inSourceFrame(((LightStepFrame) (Object) this).exotic_worlds$stepOrientation(), toState);
+        return LightStep.inSourceFrame(((LightStepFrame) (Object) this).exotic_worlds$getStepOrientation(), toState);
     }
 }

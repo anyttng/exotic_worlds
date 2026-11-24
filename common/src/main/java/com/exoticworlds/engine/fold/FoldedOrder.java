@@ -1,6 +1,6 @@
 package com.exoticworlds.engine.fold;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import java.util.Comparator;
 import java.util.function.UnaryOperator;

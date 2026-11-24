@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.IntConsumer;
 
-import com.exoticworlds.core.CoordinateConstants;
+import com.exoticworlds.core.world.CoordinateConstants;
 
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.block.Blocks;
@@ -41,7 +41,7 @@ final class CrumbFlood {
             }
 
             int size = collect(grid, solid, taken, pending, start);
-            if (touchesSide(grid, pending, size)) {
+            if (isTouchingSide(grid, pending, size)) {
                 continue;
             }
 
@@ -87,9 +87,9 @@ final class CrumbFlood {
         return next;
     }
 
-    private static boolean touchesSide(CellGrid grid, int[] cells, int count) {
+    private static boolean isTouchingSide(CellGrid grid, int[] cells, int count) {
         for (int i = 0; i < count; i++) {
-            if (grid.onSide(cells[i])) {
+            if (grid.isOnSide(cells[i])) {
                 return true;
             }
         }
@@ -110,9 +110,9 @@ final class CrumbFlood {
     }
 
     static void floodCleared(CellGrid grid, byte[] fluid, int[] cells, int count) {
-        boolean spread = true;
-        while (spread) {
-            spread = false;
+        boolean isSpread = true;
+        while (isSpread) {
+            isSpread = false;
             for (int i = 0; i < count; i++) {
                 int cell = cells[i];
                 if (fluid[cell] != NO_FLUID) {
@@ -122,7 +122,7 @@ final class CrumbFlood {
                 byte around = fluidAround(grid, fluid, cell);
                 if (around != NO_FLUID) {
                     fluid[cell] = around;
-                    spread = true;
+                    isSpread = true;
                 }
             }
         }
@@ -157,8 +157,8 @@ final class CrumbFlood {
 
             int sectionMinY = SectionPos.sectionToBlockCoord(chunk.getSectionYFromSectionIndex(index));
             for (int y = 0; y < SECTION_BLOCKS; y++) {
-                for (int z = 0; z < CoordinateConstants.CHUNK_WIDTH; z++) {
-                    for (int x = 0; x < CoordinateConstants.CHUNK_WIDTH; x++) {
+                for (int z = 0; z < CoordinateConstants.CHUNK_WIDTH_BLOCKS; z++) {
+                    for (int x = 0; x < CoordinateConstants.CHUNK_WIDTH_BLOCKS; x++) {
                         BlockState state = section.getBlockState(x, y, z);
                         int cell = grid.cell(x, sectionMinY + y - minY, z);
                         FluidState carried = state.getFluidState();
@@ -166,7 +166,7 @@ final class CrumbFlood {
                             fluid[cell] = codeOf(fluids, sourceBlockOf(carried));
                         }
 
-                        if (solidCell(state)) {
+                        if (isSolidCell(state)) {
                             solid[cell] = true;
                             solidBlocks++;
                         }
@@ -178,7 +178,7 @@ final class CrumbFlood {
         return solidBlocks;
     }
 
-    static boolean solidCell(BlockState state) {
+    static boolean isSolidCell(BlockState state) {
         return !state.isAir() && !(state.getBlock() instanceof LiquidBlock);
     }
 
@@ -202,7 +202,7 @@ final class CrumbFlood {
         return (byte) (index + 1);
     }
 
-    static BlockState blockOf(List<BlockState> fluids, byte code) {
+    static BlockState getBlock(List<BlockState> fluids, byte code) {
         return code == NO_FLUID ? AIR : fluids.get(code - 1);
     }
 

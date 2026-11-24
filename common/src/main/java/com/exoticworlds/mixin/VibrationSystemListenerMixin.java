@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.seam.SeamRange;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -31,7 +31,7 @@ public class VibrationSystemListenerMixin {
     @ModifyVariable(method = "isOccluded", at = @At("HEAD"), argsOnly = true, ordinal = 1)
     private static Vec3 exotic_worlds$unwrapOcclusionTarget(Vec3 dest, @Local(argsOnly = true, ordinal = 0) Vec3 origin,
             @Local(argsOnly = true) Level level) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         return NearestCopy.toward(fold, origin, dest);
     }
 }

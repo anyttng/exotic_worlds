@@ -7,18 +7,18 @@ public enum MirrorWriter {
     POSITION_PACKET("position_packet", false);
 
     private final String key;
-    private final boolean needsSeating;
+    private final boolean isSeatingNeeded;
 
-    MirrorWriter(String key, boolean needsSeating) {
+    MirrorWriter(String key, boolean isSeatingNeeded) {
         this.key = key;
-        this.needsSeating = needsSeating;
+        this.isSeatingNeeded = isSeatingNeeded;
     }
 
-    public String key() {
+    public String getKey() {
         return key;
     }
 
-    public boolean needsSeating() {
-        return needsSeating;
+    public boolean isSeatingNeeded() {
+        return isSeatingNeeded;
     }
 }

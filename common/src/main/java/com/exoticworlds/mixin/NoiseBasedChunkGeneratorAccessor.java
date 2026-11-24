@@ -16,7 +16,7 @@ import net.minecraft.world.level.levelgen.blending.Blender;
 @Mixin(NoiseBasedChunkGenerator.class)
 public interface NoiseBasedChunkGeneratorAccessor {
     @Accessor("globalFluidPicker")
-    Supplier<Aquifer.FluidPicker> exotic_worlds$globalFluidPicker();
+    Supplier<Aquifer.FluidPicker> exotic_worlds$getGlobalFluidPicker();
 
     @Invoker("doCreateBiomes")
     void exotic_worlds$doCreateBiomes(Blender blender, RandomState randomState, StructureManager structureManager,

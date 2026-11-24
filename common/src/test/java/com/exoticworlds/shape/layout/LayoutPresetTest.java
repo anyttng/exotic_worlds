@@ -8,9 +8,9 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.NetherScales;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
+import com.exoticworlds.core.world.NetherScales;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.torus.GuaranteedLand;
 
@@ -30,7 +30,7 @@ class LayoutPresetTest {
         assertEquals(DimensionLayout.looped(ShapeFixtures.torus(256), LAND), large.overworld());
         assertEquals(ShapeKind.FROM_OVERWORLD, large.nether().kind());
         assertEquals(ShapeKind.FROM_OVERWORLD, large.end().kind());
-        assertEquals(WorldLoopPresets.LARGE.netherScale(), large.netherScale());
+        assertEquals(WorldLoopPresets.LARGE.getNetherScale(), large.netherScale());
     }
 
     @Test
@@ -40,17 +40,17 @@ class LayoutPresetTest {
 
         WorldLayout tiny = LayoutPreset.apply(cylinder, WorldLoopPresets.TINY, 1.0);
 
-        assertEquals(ShapeFixtures.cylinder(Direction.Axis.Z, WorldLoopPresets.TINY.chunkWidth()),
+        assertEquals(ShapeFixtures.cylinder(Direction.Axis.Z, WorldLoopPresets.TINY.getWidthChunks()),
                 tiny.overworld().spans());
-        assertTrue(LayoutPreset.matches(tiny, WorldLoopPresets.TINY));
+        assertTrue(LayoutPreset.isMatching(tiny, WorldLoopPresets.TINY));
     }
 
     @Test
     void aPresetOnANormalOverworldMakesItATorus() {
         WorldLayout medium = LayoutPreset.apply(WorldLayout.DEFAULT, WorldLoopPresets.MEDIUM, 1.0);
 
-        assertEquals(ShapeFixtures.torus(WorldLoopPresets.MEDIUM.chunkWidth()), medium.overworld().spans());
-        assertFalse(LayoutPreset.matches(WorldLayout.DEFAULT, WorldLoopPresets.MEDIUM));
+        assertEquals(ShapeFixtures.torus(WorldLoopPresets.MEDIUM.getWidthChunks()), medium.overworld().spans());
+        assertFalse(LayoutPreset.isMatching(WorldLayout.DEFAULT, WorldLoopPresets.MEDIUM));
     }
 
     @Test
@@ -58,21 +58,21 @@ class LayoutPresetTest {
         WorldLayout small = LayoutPreset.apply(WorldLayout.DEFAULT, WorldLoopPresets.SMALL, 1.0);
 
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
-            assertEquals(preset == WorldLoopPresets.SMALL, LayoutPreset.matches(small, preset), preset.id());
+            assertEquals(preset == WorldLoopPresets.SMALL, LayoutPreset.isMatching(small, preset), preset.getId());
         }
     }
 
     @Test
     void aPresetStopsMatchingOnceTheSizeOrTheShiftChanges() {
         WorldLayout small = LayoutPreset.apply(WorldLayout.DEFAULT, WorldLoopPresets.SMALL, 1.0);
-        int chunkWidth = WorldLoopPresets.SMALL.chunkWidth();
+        int widthChunks = WorldLoopPresets.SMALL.getWidthChunks();
 
-        assertFalse(LayoutPreset.matches(
-                small.withOverworld(DimensionLayout.looped(ShapeFixtures.torus(chunkWidth, chunkWidth * 2), PLAIN)),
+        assertFalse(LayoutPreset.isMatching(
+                small.withOverworld(DimensionLayout.looped(ShapeFixtures.torus(widthChunks, widthChunks * 2), PLAIN)),
                 WorldLoopPresets.SMALL));
-        assertFalse(LayoutPreset.matches(
+        assertFalse(LayoutPreset.isMatching(
                 small.withOverworld(
-                        DimensionLayout.looped(ShapeFixtures.latticeTorus(chunkWidth, chunkWidth, 2), PLAIN)),
+                        DimensionLayout.looped(ShapeFixtures.latticeTorus(widthChunks, widthChunks, 2), PLAIN)),
                 WorldLoopPresets.SMALL));
     }
 

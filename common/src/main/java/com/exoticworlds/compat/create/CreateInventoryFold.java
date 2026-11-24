@@ -6,8 +6,8 @@ import org.jspecify.annotations.Nullable;
 
 import com.zurrtum.create.api.packager.InventoryIdentifier;
 import com.zurrtum.create.catnip.math.BlockFace;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -19,7 +19,7 @@ public final class CreateInventoryFold {
             return null;
         }
 
-        return fold(WorldLoopAttachments.wrappedFoldOf(level), identifier);
+        return fold(WorldLoopAttachments.getWrappedFold(level), identifier);
     }
 
     static @Nullable InventoryIdentifier fold(@Nullable WorldFold fold,
@@ -45,7 +45,7 @@ public final class CreateInventoryFold {
     }
 
     private static InventoryIdentifier seamBounds(WorldFold fold, InventoryIdentifier.Bounds bounds) {
-        if (!fold.crossesBounds(bounds.bounds())) {
+        if (!fold.isCrossingBounds(bounds.bounds())) {
             return bounds;
         }
 

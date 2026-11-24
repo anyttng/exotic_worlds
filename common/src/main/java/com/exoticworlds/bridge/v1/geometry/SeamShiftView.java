@@ -2,7 +2,7 @@ package com.exoticworlds.bridge.v1.geometry;
 
 import com.exoticworlds.api.v1.SeamShift;
 import com.exoticworlds.api.v1.ToroidalShape.Orientation;
-import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.fold.DeckTransformation;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
@@ -23,7 +23,7 @@ final class SeamShiftView implements SeamShift {
 
     @Override
     public Orientation orientation() {
-        return ToroidalShapeView.orientationOf(this.transformation.orientation());
+        return ToroidalShapeView.orientationOf(this.transformation.getOrientation());
     }
 
     @Override

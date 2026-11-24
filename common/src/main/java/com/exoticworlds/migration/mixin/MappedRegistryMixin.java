@@ -26,7 +26,7 @@ public class MappedRegistryMixin<T> {
         }
 
         Identifier twin = FormerNamespace.twinOf(id);
-        return twin == null ? found : this.exotic_worlds$registry().get(twin);
+        return twin == null ? found : this.exotic_worlds$getRegistry().get(twin);
     }
 
     @ModifyReturnValue(method = "get(Lnet/minecraft/resources/ResourceKey;)Ljava/util/Optional;", at = @At("RETURN"))
@@ -37,7 +37,7 @@ public class MappedRegistryMixin<T> {
         }
 
         ResourceKey<T> twin = FormerNamespace.twinOf(key);
-        return twin == null ? found : this.exotic_worlds$registry().get(twin);
+        return twin == null ? found : this.exotic_worlds$getRegistry().get(twin);
     }
 
     @ModifyReturnValue(method = "getValue(Lnet/minecraft/resources/Identifier;)Ljava/lang/Object;", at = @At("RETURN"))
@@ -47,7 +47,7 @@ public class MappedRegistryMixin<T> {
         }
 
         Identifier twin = FormerNamespace.twinOf(id);
-        return twin == null ? found : this.exotic_worlds$registry().getValue(twin);
+        return twin == null ? found : this.exotic_worlds$getRegistry().getValue(twin);
     }
 
     @ModifyReturnValue(method = "getValue(Lnet/minecraft/resources/ResourceKey;)Ljava/lang/Object;", at = @At("RETURN"))
@@ -57,7 +57,7 @@ public class MappedRegistryMixin<T> {
         }
 
         ResourceKey<T> twin = FormerNamespace.twinOf(key);
-        return twin == null ? found : this.exotic_worlds$registry().getValue(twin);
+        return twin == null ? found : this.exotic_worlds$getRegistry().getValue(twin);
     }
 
     @ModifyReturnValue(method = "containsKey(Lnet/minecraft/resources/Identifier;)Z", at = @At("RETURN"))
@@ -67,7 +67,7 @@ public class MappedRegistryMixin<T> {
         }
 
         Identifier twin = FormerNamespace.twinOf(id);
-        return twin != null && this.exotic_worlds$registry().containsKey(twin);
+        return twin != null && this.exotic_worlds$getRegistry().containsKey(twin);
     }
 
     @ModifyReturnValue(method = "containsKey(Lnet/minecraft/resources/ResourceKey;)Z", at = @At("RETURN"))
@@ -77,12 +77,12 @@ public class MappedRegistryMixin<T> {
         }
 
         ResourceKey<T> twin = FormerNamespace.twinOf(key);
-        return twin != null && this.exotic_worlds$registry().containsKey(twin);
+        return twin != null && this.exotic_worlds$getRegistry().containsKey(twin);
     }
 
     @Unique
     @SuppressWarnings("unchecked")
-    private MappedRegistry<T> exotic_worlds$registry() {
+    private MappedRegistry<T> exotic_worlds$getRegistry() {
         return (MappedRegistry<T>) (Object) this;
     }
 }

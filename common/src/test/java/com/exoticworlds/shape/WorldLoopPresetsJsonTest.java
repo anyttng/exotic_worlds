@@ -19,10 +19,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
-import com.exoticworlds.core.ShapeOption;
-import com.exoticworlds.core.ShapeOptionRegistry;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.option.ShapeOption;
+import com.exoticworlds.core.option.ShapeOptionRegistry;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.shape.climate.CompactBiomes;
 import com.exoticworlds.shape.layout.DimensionLayout;
 import com.exoticworlds.shape.torus.GuaranteedLand;
@@ -43,7 +43,7 @@ class WorldLoopPresetsJsonTest {
     @Test
     void everyPresetShipsATorusWorldPresetMatchingItsConfiguration() throws IOException {
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
-            assertPreset(TORUS_PRESET_PREFIX + preset.id(), preset, WorldLoopBounds::ofWidth,
+            assertPreset(TORUS_PRESET_PREFIX + preset.getId(), preset, WorldLoopBounds::ofWidth,
                     TORUS_OPTIONS, DimensionLayout.DEFAULT_OPTIONS);
         }
     }
@@ -51,13 +51,13 @@ class WorldLoopPresetsJsonTest {
     @Test
     void theEndColumnFollowsTheWidthRule() {
         assertEquals(List.of(208, 240, 304, 432, 688),
-                Arrays.stream(WorldLoopPresets.values()).map(WorldLoopPresets::endChunkWidth).toList());
+                Arrays.stream(WorldLoopPresets.values()).map(WorldLoopPresets::getEndWidthChunks).toList());
     }
 
     @Test
     void noPresetAnswersToABareSize() {
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
-            String resource = PRESET_RESOURCE_DIR + preset.id() + PRESET_FILE_EXTENSION;
+            String resource = PRESET_RESOURCE_DIR + preset.getId() + PRESET_FILE_EXTENSION;
             assertNull(WorldLoopPresetsJsonTest.class.getResource(resource), "a bare size preset ships: " + resource);
         }
     }
@@ -66,7 +66,7 @@ class WorldLoopPresetsJsonTest {
     void everyPresetShipsACylinderWorldPresetOnTheDefaultAxis() throws IOException {
         Direction.Axis axis = Direction.Axis.X;
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
-            assertPreset(CYLINDER_PRESET_PREFIX + preset.id(), preset, width -> WorldLoopBounds.ofWidth(axis, width),
+            assertPreset(CYLINDER_PRESET_PREFIX + preset.getId(), preset, width -> WorldLoopBounds.ofWidth(axis, width),
                     CYLINDER_OPTIONS, DimensionLayout.DEFAULT_OPTIONS);
         }
     }
@@ -78,12 +78,12 @@ class WorldLoopPresetsJsonTest {
         assertEquals(3, dimensions.size(), presetId + ": expected exactly the three vanilla dimensions");
 
         assertDimension(presetId, dimensions, "minecraft:overworld", "minecraft:overworld",
-                boundsOfWidth.apply(preset.chunkWidth()), offered, defaults);
+                boundsOfWidth.apply(preset.getWidthChunks()), offered, defaults);
         assertDimension(presetId, dimensions, "minecraft:the_nether", "minecraft:nether",
-                boundsOfWidth.apply(preset.chunkWidth() / preset.netherScale()),
+                boundsOfWidth.apply(preset.getWidthChunks() / preset.getNetherScale()),
                 offered, defaults);
         assertDimension(presetId, dimensions, "minecraft:the_end", "minecraft:end",
-                boundsOfWidth.apply(preset.endChunkWidth()), offered, defaults);
+                boundsOfWidth.apply(preset.getEndWidthChunks()), offered, defaults);
     }
 
     private static void assertDimension(String presetId, JsonObject dimensions, String dimensionId,
@@ -102,7 +102,7 @@ class WorldLoopPresetsJsonTest {
                 .getOrThrow(message -> new AssertionError(context + ": wrapping does not parse: " + message));
         assertEquals(expected, wrapping, context + ": wrapping");
 
-        for (ShapeOption<?> option : ShapeOptionRegistry.all()) {
+        for (ShapeOption<?> option : ShapeOptionRegistry.getAll()) {
             if (offered.contains(option)) {
                 assertStatedOption(context, generator, option, defaults);
             } else {

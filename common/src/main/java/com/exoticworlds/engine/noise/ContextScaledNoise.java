@@ -3,8 +3,8 @@ package com.exoticworlds.engine.noise;
 import com.exoticworlds.accessors.CoastLiftCache;
 import com.exoticworlds.accessors.IndexableNoise;
 import com.exoticworlds.accessors.WrappedNormalNoise;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -59,7 +59,7 @@ public final class ContextScaledNoise {
     public static double sampleWrapped(WorldFold fold, SlotAxes axes,
             DensityFunction.NoiseHolder noise,
             double x, double y, double z, double horizontalScale, double vanillaScale, double verticalShare) {
-        Context context = GenerationFoldContext.context();
+        Context context = GenerationFoldContext.getContext();
 
         try (Context.BindingScope _ = context.bind(fold, axes, horizontalScale, vanillaScale,
                 verticalShare)) {
@@ -70,7 +70,7 @@ public final class ContextScaledNoise {
     public static double sampleWrappedWarped(WorldFold fold, DensityFunction.NoiseHolder noise,
             int blockX, double y, int blockZ, double shiftX, double shiftZ, double warpDivisor,
             double horizontalScale, double vanillaScale, double verticalShare) {
-        return sampleWrappedWarped(GenerationFoldContext.context(), fold, noise, blockX, y, blockZ,
+        return sampleWrappedWarped(GenerationFoldContext.getContext(), fold, noise, blockX, y, blockZ,
                 shiftX, shiftZ, warpDivisor, horizontalScale, vanillaScale, verticalShare);
     }
 
@@ -84,8 +84,8 @@ public final class ContextScaledNoise {
     }
 
     public static double vanillaAtFoldedSlots(Context context, NormalNoise noise, double x, double y, double z) {
-        SlotAxes axes = context.slotAxes();
-        TranslationLattice lattice = context.fold().blockLattice();
+        SlotAxes axes = context.getSlotAxes();
+        TranslationLattice lattice = context.getFold().getBlockLattice();
         double worldZ = worldCoord(axes, SlotAxis.Z, x, y, z);
         double foldedX = lattice.foldX(worldCoord(axes, SlotAxis.X, x, y, z), worldZ);
         double foldedZ = lattice.foldZ(worldZ);
@@ -100,9 +100,9 @@ public final class ContextScaledNoise {
 
     private static double warped(Context context, DensityFunction.NoiseHolder noise,
             int blockX, double y, int blockZ, double shiftX, double shiftZ, double warpDivisor) {
-        TranslationLattice lattice = context.fold().blockLattice();
+        TranslationLattice lattice = context.getFold().getBlockLattice();
         double vanillaScale = context.vanillaScale();
-        if (!indexable(context, noise) || !DomainWarp.carries(lattice, blockX, blockZ, shiftX, shiftZ, vanillaScale)) {
+        if (!indexable(context, noise) || !DomainWarp.canCarry(lattice, blockX, blockZ, shiftX, shiftZ, vanillaScale)) {
             return vanillaAt(context, noise, lattice.foldX(blockX, blockZ) * vanillaScale + shiftX, y,
                     lattice.foldZ(blockZ) * vanillaScale + shiftZ);
         }
@@ -122,7 +122,7 @@ public final class ContextScaledNoise {
             value = noise.getValue(x, y, z);
         }
 
-        return noise.noise() instanceof CoastLiftCache coast ? value + coast.exotic_worlds$coastLift() : value;
+        return noise.noise() instanceof CoastLiftCache coast ? value + coast.exotic_worlds$getCoastLift() : value;
     }
 
     private static double worldCoord(SlotAxes axes, SlotAxis axis, double x, double y, double z) {
@@ -139,8 +139,8 @@ public final class ContextScaledNoise {
 
     private static double vanillaSlot(Context context, SlotAxis axis, double raw, double foldedX, double foldedZ) {
         return switch (axis) {
-            case X -> foldedX * context.vanillaScale() / axis.divisorIn(context);
-            case Z -> foldedZ * context.vanillaScale() / axis.divisorIn(context);
+            case X -> foldedX * context.vanillaScale() / axis.getDivisor(context);
+            case Z -> foldedZ * context.vanillaScale() / axis.getDivisor(context);
             case NONE -> raw;
         };
     }

@@ -3,5 +3,5 @@ package com.exoticworlds.accessors;
 import net.minecraft.world.phys.Vec3;
 
 public interface RecipientPositionHolder {
-    Vec3 exotic_worlds$recipientPos();
+    Vec3 exotic_worlds$getRecipientPos();
 }

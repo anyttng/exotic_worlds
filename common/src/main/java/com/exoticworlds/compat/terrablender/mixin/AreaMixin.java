@@ -30,19 +30,19 @@ public class AreaMixin implements LayeredArea {
     }
 
     @Override
-    public @Nullable RegionLayerStack exotic_worlds$stack() {
+    public @Nullable RegionLayerStack exotic_worlds$getStack() {
         return this.exotic_worlds$stack;
     }
 
     @Override
-    public int exotic_worlds$depth() {
+    public int exotic_worlds$getDepth() {
         return this.exotic_worlds$depth;
     }
 
     @ModifyVariable(method = "get", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private int exotic_worlds$foldCoordinates(int x, @Local(argsOnly = true, ordinal = 1) LocalIntRef z) {
         RegionLayerStack stack = this.exotic_worlds$stack;
-        RegionLayerFold fold = stack == null ? null : stack.resolved();
+        RegionLayerFold fold = stack == null ? null : stack.getFold();
         if (fold == null) {
             return x;
         }

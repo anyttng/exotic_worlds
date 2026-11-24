@@ -19,7 +19,7 @@ import com.exoticworlds.compat.ultimatemapatlases.AtlasSeamLines;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasTileCopies;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasTileMemo;
 import com.exoticworlds.compat.ultimatemapatlases.BrowsedDimension;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -53,8 +53,9 @@ public abstract class AbstractAtlasWidgetMixin {
 
     @Shadow
     private void drawMap(Player player, GuiGraphicsExtractor graphics, List<Pair<Integer, Integer>> normalBorders,
-            List<Pair<Integer, Integer>> selectedBorders, int ix, int iy, MapDataHolder state, boolean drawPlayerIcons,
-            int light, @Nullable MapItemSavedData selectedData, List<Runnable> pendingDecorations) {
+            List<Pair<Integer, Integer>> selectedBorders, int ix, int iy, MapDataHolder state,
+            boolean shouldDrawPlayerIcons, int light, @Nullable MapItemSavedData selectedData,
+            List<Runnable> pendingDecorations) {
     }
 
     @Unique
@@ -75,10 +76,10 @@ public abstract class AbstractAtlasWidgetMixin {
     @Inject(method = "drawAtlas", at = @At("HEAD"))
     private void exotic_worlds$resolveFold(CallbackInfo ci, @Local(argsOnly = true) Player player) {
         if ((Object) this instanceof BrowsedDimension browsed) {
-            WorldFold fold = ClientFolds.of(browsed.exotic_worlds$browsedDimension());
-            MapCopies copies = MapCopies.current();
+            WorldFold fold = ClientFolds.of(browsed.exotic_worlds$getBrowsedDimension());
+            MapCopies copies = MapCopies.getCurrent();
             this.exotic_worlds$copyFold = copies == MapCopies.SINGLE ? null : fold;
-            this.exotic_worlds$seamFold = copies.drawsSeamLines() ? fold : null;
+            this.exotic_worlds$seamFold = copies.isDrawingSeamLines() ? fold : null;
         } else {
             this.exotic_worlds$copyFold = ClientFolds.of(player.level());
             this.exotic_worlds$seamFold = null;
@@ -108,11 +109,12 @@ public abstract class AbstractAtlasWidgetMixin {
             this.exotic_worlds$requestX = copy.at().x();
             this.exotic_worlds$requestZ = copy.at().z();
             MapDataHolder state = copy.map();
-            boolean drawPlayerIcons = !this.drawBigPlayerMarker && state.data.dimension.equals(player.level().dimension());
+            boolean shouldDrawPlayerIcons = !this.drawBigPlayerMarker
+                    && state.data.dimension.equals(player.level().dimension());
             pose.pushMatrix();
             pose.translate((copy.at().x() - centerMap.x()) / blocksPerPixel,
                     (copy.at().z() - centerMap.z()) / blocksPerPixel);
-            this.drawMap(player, graphics, unframed, unframed, 0, 0, state, drawPlayerIcons, light, selectedKey,
+            this.drawMap(player, graphics, unframed, unframed, 0, 0, state, shouldDrawPlayerIcons, light, selectedKey,
                     pendingDecorations);
             pose.popMatrix();
             unframed.clear();

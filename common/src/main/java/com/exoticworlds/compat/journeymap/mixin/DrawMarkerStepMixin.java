@@ -17,11 +17,11 @@ public abstract class DrawMarkerStepMixin {
                     target = "Ljourneymap/client/render/draw/DrawUtil;drawOnMapImage(Lnet/minecraft/client/gui/GuiGraphicsExtractor;"
                             + "Lnet/minecraft/resources/Identifier;IFDDDDFFFFDZ)V"))
     private void exotic_worlds$markerOnEveryCopy(GuiGraphicsExtractor graphics, Identifier texture, int color, float alpha,
-            double x, double y, double width, double height, float minU, float maxU, float minV, float maxV,
-            double rotation, boolean blur, Operation<Void> original) {
-        for (double[] copy : ((OverlayCopies) (Object) this).exotic_worlds$copies()) {
-            original.call(graphics, texture, color, alpha, x + copy[0], y + copy[1], width, height, minU, maxU, minV,
-                    maxV, rotation, blur);
+            double x, double y, double widthPixels, double heightPixels, float minU, float maxU, float minV, float maxV,
+            double rotation, boolean shouldBlur, Operation<Void> original) {
+        for (double[] copy : ((OverlayCopies) (Object) this).exotic_worlds$getCopies()) {
+            original.call(graphics, texture, color, alpha, x + copy[0], y + copy[1], widthPixels, heightPixels, minU, maxU, minV,
+                    maxV, rotation, shouldBlur);
         }
     }
 }

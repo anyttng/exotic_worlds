@@ -19,8 +19,8 @@ public class RingBellMixin {
     @WrapOperation(
             method = "lambda$create$2",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
-    private static boolean exotic_worlds$bellReachThroughSeam(BlockPos bellPos, Vec3i bodyPos, double distance,
+    private static boolean exotic_worlds$bellReachThroughSeam(BlockPos bellPos, Vec3i bodyPos, double distanceBlocks,
             Operation<Boolean> original, @Local(argsOnly = true) LivingEntity body) {
-        return original.call(bellPos, SeamRange.toward(body, bellPos, bodyPos), distance);
+        return original.call(bellPos, SeamRange.toward(body, bellPos, bodyPos), distanceBlocks);
     }
 }

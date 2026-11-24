@@ -39,7 +39,7 @@ public class PerlinSimplexNoiseMixin {
             return original.call(x, z, useNoiseStart);
         }
 
-        SimplexLattice[] lattices = this.exotic_worlds$slots.octaves(generation.fold(), generation.horizontalScale(),
+        SimplexLattice[] lattices = this.exotic_worlds$slots.octaves(generation.getFold(), generation.getHorizontalScale(),
                 this.highestFreqInputFactor, this.noiseLevels.length);
         double value = 0.0;
         double valueFactor = this.highestFreqValueFactor;

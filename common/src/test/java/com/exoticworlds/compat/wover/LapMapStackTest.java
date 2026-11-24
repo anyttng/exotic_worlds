@@ -9,12 +9,12 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 
 import net.minecraft.core.Direction;
@@ -50,16 +50,16 @@ class LapMapStackTest {
     private static void assertLayerPickRepeats(WorldFold fold) {
         LapMapStack<Integer> stack =
                 new LapMapStack<>(fold, List.of(), LapMapStackTest::isVertical, AMPLIFIED_NETHER, SEED);
-        TranslationLattice lattice = fold.blockLattice();
-        WrapDomain x = lattice.x();
-        WrapDomain z = lattice.z();
+        TranslationLattice lattice = fold.getBlockLattice();
+        WrapDomain x = lattice.getX();
+        WrapDomain z = lattice.getZ();
         Set<Integer> picked = new HashSet<>();
         for (int bx = x.lowerBound - 64; bx < x.upperBound; bx += 7) {
             for (int bz = z.lowerBound - 64; bz < z.upperBound; bz += 11) {
                 int layer = stack.layer(bx, BORDER_Y, bz);
                 picked.add(layer);
                 assertEquals(layer, stack.layer(bx + x.domainLength, BORDER_Y, bz), "x " + bx + " z " + bz);
-                assertEquals(layer, stack.layer(bx + lattice.skew(), BORDER_Y, bz + z.domainLength),
+                assertEquals(layer, stack.layer(bx + lattice.getSkew(), BORDER_Y, bz + z.domainLength),
                         "x " + bx + " z " + bz);
             }
         }
@@ -91,15 +91,15 @@ class LapMapStackTest {
                 new HexLapMap<>(fold, 32.0F, ClimateScaleCompression.NO_COMPRESSION, 1, PICKER),
                 new HexLapMap<>(fold, 32.0F, ClimateScaleCompression.NO_COMPRESSION, 2, PICKER));
         new LapMapStack<>(fold, layers, LapMapStackTest::isVertical, AMPLIFIED_NETHER, SEED);
-        LapAxis x = layers.getFirst().axis(Direction.Axis.X);
-        LapAxis z = layers.getFirst().axis(Direction.Axis.Z);
+        LapAxis x = layers.getFirst().getAxis(Direction.Axis.X);
+        LapAxis z = layers.getFirst().getAxis(Direction.Axis.Z);
         int vertical = 0;
         for (int kx = 0; kx < x.chunks(); kx++) {
             for (int kz = 0; kz < z.chunks(); kz++) {
-                LapChunk<Integer> lower = layers.get(0).chunk(kx, kz);
-                LapChunk<Integer> upper = layers.get(1).chunk(kx, kz);
-                for (int lx = 0; lx < lower.sideX(); lx++) {
-                    for (int lz = 0; lz < lower.sideZ(); lz++) {
+                LapChunk<Integer> lower = layers.get(0).getChunk(kx, kz);
+                LapChunk<Integer> upper = layers.get(1).getChunk(kx, kz);
+                for (int lx = 0; lx < lower.getSideX(); lx++) {
+                    for (int lz = 0; lz < lower.getSideZ(); lz++) {
                         if (lower.get(lx, lz) == VERTICAL || upper.get(lx, lz) == VERTICAL) {
                             vertical++;
                             assertEquals(VERTICAL, lower.get(lx, lz), "lower layer, chunk " + kx + "," + kz);

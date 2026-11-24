@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.compat.c2me.C2meSeamFold;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.ishland.c2me.rewrites.chunksystem.common.NewChunkStatus;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -25,7 +25,7 @@ public class NewChunkStatusMixin {
             Operation<ChunkPos> original,
             @Local(argsOnly = true) ItemHolder<?, ?, ?, ?> holder) {
         WorldFold fold = holder.getUserData().get() instanceof FoldSource source
-                ? source.exotic_worlds$wrappedFold()
+                ? source.exotic_worlds$getWrappedFold()
                 : null;
         if (fold == null) {
             return original.call(chunkX, chunkZ);

@@ -20,6 +20,6 @@ public class TreeManagerMixin {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void exotic_worlds$foldOfTheRuntime(CallbackInfo ci) {
-        CellFoldHolder.setFold(nodes, CellFoldHolder.foldOf(ClientSession.runtime()));
+        CellFoldHolder.setFold(nodes, CellFoldHolder.getFold(ClientSession.runtime()));
     }
 }

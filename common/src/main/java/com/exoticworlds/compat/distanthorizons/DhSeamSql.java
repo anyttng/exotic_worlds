@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Direction;
 
@@ -35,9 +35,9 @@ public final class DhSeamSql {
             return sql;
         }
 
-        boolean matched = sql.contains(PLAIN_DISTANCE);
-        DhProbes.seamSql(site, matched);
-        return matched ? sql.replace(PLAIN_DISTANCE, lattice.seamDistance()) : sql;
+        boolean isMatched = sql.contains(PLAIN_DISTANCE);
+        DhProbes.seamSql(site, isMatched);
+        return isMatched ? sql.replace(PLAIN_DISTANCE, lattice.seamDistance()) : sql;
     }
 
     static String seamDistance(WorldFold fold, int skewBlocks) {
@@ -50,7 +50,7 @@ public final class DhSeamSql {
     }
 
     private static String latticeDistance(WorldFold fold, int skewBlocks) {
-        int widthZ = fold.widthBlocks(Direction.Axis.Z);
+        int widthZ = fold.getWidthBlocks(Direction.Axis.Z);
         String deltaX = "(" + CORNER_X + " - " + TARGET_X + ")";
         String deltaZ = "(" + CORNER_Z + " - " + TARGET_Z + ")";
         String lappedZ = lapped(deltaZ, widthZ);
@@ -67,17 +67,17 @@ public final class DhSeamSql {
     }
 
     private static String axisDistance(WorldFold fold, Direction.Axis axis, String delta) {
-        if (!fold.loops(axis)) {
+        if (!fold.isLooped(axis)) {
             return "abs(" + delta + ")";
         }
 
-        int width = fold.widthBlocks(axis);
-        String lapped = lapped(delta, width);
-        return "min(" + lapped + ", " + width + " - " + lapped + ")";
+        int widthBlocks = fold.getWidthBlocks(axis);
+        String lapped = lapped(delta, widthBlocks);
+        return "min(" + lapped + ", " + widthBlocks + " - " + lapped + ")";
     }
 
-    private static String lapped(String delta, int width) {
-        return "(((" + delta + ") % " + width + " + " + width + ") % " + width + ")";
+    private static String lapped(String delta, int widthBlocks) {
+        return "(((" + delta + ") % " + widthBlocks + " + " + widthBlocks + ") % " + widthBlocks + ")";
     }
 
     private DhSeamSql() {

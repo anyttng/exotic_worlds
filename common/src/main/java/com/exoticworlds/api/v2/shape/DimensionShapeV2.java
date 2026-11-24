@@ -18,7 +18,7 @@ import net.minecraft.resources.Identifier;
  * order they were registered.</p>
  */
 public interface DimensionShapeV2 {
-    Identifier id();
+    Identifier getId();
 
     /**
      * The spans of one dimension the shape is chosen for. Spans that loop no axis leave the dimension as the game
@@ -27,15 +27,15 @@ public interface DimensionShapeV2 {
     LoopSpansV2 spans(DimensionContextV2 context);
 
     /** Whether the shape takes a size preset. While the Overworld is on one that does not, the preset row is off. */
-    default boolean takesPresets() {
+    default boolean canTakePresets() {
         return false;
     }
 
     /**
-     * The Overworld's options with a size preset of {@code chunkWidth} chunks applied, asked only where
-     * {@link #takesPresets()} answers true. A preset draws selected while this changes nothing.
+     * The Overworld's options with a size preset of {@code widthChunks} chunks applied, asked only where
+     * {@link #canTakePresets()} answers true. A preset draws selected while this changes nothing.
      */
-    default ShapeOptionsV2 withPreset(int chunkWidth, ShapeOptionsV2 options) {
+    default ShapeOptionsV2 withPreset(int widthChunks, ShapeOptionsV2 options) {
         return options;
     }
 

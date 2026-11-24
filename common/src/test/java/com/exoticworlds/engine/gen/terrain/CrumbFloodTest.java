@@ -25,8 +25,8 @@ class CrumbFloodTest {
     private static final byte OTHER = 2;
 
     private static final class Grid {
-        private final boolean[] solid = new boolean[GRID.cells()];
-        private final byte[] fluid = new byte[GRID.cells()];
+        private final boolean[] solid = new boolean[GRID.getCellCount()];
+        private final byte[] fluid = new byte[GRID.getCellCount()];
         private int blocks;
 
         private static int cell(int x, int z, int y) {
@@ -270,10 +270,10 @@ class CrumbFloodTest {
         BlockState waterlogged = Blocks.OAK_STAIRS.defaultBlockState()
                 .setValue(BlockStateProperties.WATERLOGGED, true);
 
-        assertTrue(CrumbFlood.solidCell(Blocks.STONE.defaultBlockState()));
-        assertTrue(CrumbFlood.solidCell(waterlogged));
-        assertFalse(CrumbFlood.solidCell(Blocks.WATER.defaultBlockState()));
-        assertFalse(CrumbFlood.solidCell(Blocks.AIR.defaultBlockState()));
+        assertTrue(CrumbFlood.isSolidCell(Blocks.STONE.defaultBlockState()));
+        assertTrue(CrumbFlood.isSolidCell(waterlogged));
+        assertFalse(CrumbFlood.isSolidCell(Blocks.WATER.defaultBlockState()));
+        assertFalse(CrumbFlood.isSolidCell(Blocks.AIR.defaultBlockState()));
         assertEquals(Blocks.WATER.defaultBlockState(),
                 CrumbFlood.sourceBlockOf(waterlogged.getFluidState()));
         assertEquals(Blocks.LAVA.defaultBlockState(),

@@ -1,7 +1,7 @@
 package com.exoticworlds.compat.worldgen;
 
 import com.exoticworlds.accessors.ScaledShiftedNoise;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;

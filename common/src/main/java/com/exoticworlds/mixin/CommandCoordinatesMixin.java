@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.seam.SeamCommandErrors;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
@@ -20,7 +20,7 @@ public class CommandCoordinatesMixin {
     @Inject(method = "getPosition", at = @At("HEAD"))
     private void exotic_worlds$refuseCoordinateOutsideWorld(CommandSourceStack source, CallbackInfoReturnable<Vec3> cir)
             throws CommandSyntaxException {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(source.getLevel());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(source.getLevel());
         if (fold == null) {
             return;
         }

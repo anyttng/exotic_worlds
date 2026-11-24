@@ -2,8 +2,8 @@ package com.exoticworlds.engine.seam;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.engine.fold.SeamSpans;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic3CommandExceptionType;
@@ -34,7 +34,7 @@ public final class SeamCommandErrors {
 
     public static void requireInsideWorld(WorldFold fold, Direction.Axis axis, double coord)
             throws CommandSyntaxException {
-        WrapDomain domain = fold.blockLattice().axis(axis);
+        WrapDomain domain = fold.getBlockLattice().getAxis(axis);
         if (!domain.isOver(coord)) {
             return;
         }
@@ -48,7 +48,7 @@ public final class SeamCommandErrors {
 
     public static @Nullable CommandSyntaxException refusalForAmbiguousRegion(
             @Nullable WorldFold fold, BoundingBox region) {
-        if (fold == null || !SeamSpans.crossesSeam(fold, region)) {
+        if (fold == null || !SeamSpans.isCrossingSeam(fold, region)) {
             return null;
         }
 

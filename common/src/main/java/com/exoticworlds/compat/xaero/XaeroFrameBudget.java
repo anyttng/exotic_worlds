@@ -25,24 +25,24 @@ public final class XaeroFrameBudget {
     private static final String SET_COMPUTE_LIMITS = "setComputeLimits";
     private static final String LIMIT_EXCEPTION = "LimitExceededException";
     private static final String OBJECT = "java/lang/Object";
-    private static @Nullable Boolean exceeded;
+    private static @Nullable Boolean isExceeded;
 
-    record Verdict(boolean classFound, boolean limitPresent, boolean stripped, boolean exceeded) {
+    record Verdict(boolean isClassFound, boolean isLimitPresent, boolean isStripped, boolean isExceeded) {
         static final Verdict ABSENT = new Verdict(false, false, false, false);
     }
 
-    public static synchronized boolean exceeded() {
-        if (exceeded == null) {
+    public static synchronized boolean isExceeded() {
+        if (isExceeded == null) {
             long started = System.nanoTime();
             ClassLoader loader = XaeroFrameBudget.class.getClassLoader();
             Verdict verdict = measure(loader, read(loader, GUI_MAP_RESOURCE), RENDER_STATE_METHOD, BUDGET, true);
             LOGGER.info("[ew/xaero-compat] gate xaero_worldmap_frames budget_exceeded={} asm_limit_present={} class_found={}"
-                    + " stripped={} budget={} ms={}", verdict.exceeded(), verdict.limitPresent(), verdict.classFound(),
-                    verdict.stripped(), BUDGET, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started));
-            exceeded = verdict.exceeded();
+                    + " stripped={} budget={} ms={}", verdict.isExceeded(), verdict.isLimitPresent(), verdict.isClassFound(),
+                    verdict.isStripped(), BUDGET, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started));
+            isExceeded = verdict.isExceeded();
         }
 
-        return exceeded;
+        return isExceeded;
     }
 
     static byte @Nullable [] read(ClassLoader loader, String resource) {
@@ -54,7 +54,7 @@ public final class XaeroFrameBudget {
     }
 
     static Verdict measure(ClassLoader loader, byte @Nullable [] classBytes, String methodName, long budget,
-            boolean strip) {
+            boolean shouldStrip) {
         if (classBytes == null) {
             return Verdict.ABSENT;
         }
@@ -67,7 +67,7 @@ public final class XaeroFrameBudget {
         ClassNode node = new ClassNode();
         new ClassReader(classBytes).accept(node, 0);
         node.methods.removeIf(candidate -> !methodName.equals(candidate.name));
-        boolean stripped = strip && !node.methods.isEmpty() && strip(loader, node.methods.getFirst());
+        boolean isStripped = shouldStrip && !node.methods.isEmpty() && tryStrip(loader, node.methods.getFirst());
         ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
             @Override
             protected String getCommonSuperClass(String first, String second) {
@@ -77,12 +77,12 @@ public final class XaeroFrameBudget {
         try {
             limits.invoke(writer, Integer.MAX_VALUE, budget);
             node.accept(writer);
-            return new Verdict(true, true, stripped, false);
+            return new Verdict(true, true, isStripped, false);
         } catch (IllegalAccessException | InvocationTargetException unreachable) {
             throw new IllegalStateException(SET_COMPUTE_LIMITS, unreachable);
         } catch (RuntimeException refused) {
             if (LIMIT_EXCEPTION.equals(refused.getClass().getSimpleName())) {
-                return new Verdict(true, true, stripped, true);
+                return new Verdict(true, true, isStripped, true);
             }
 
             throw refused;
@@ -97,7 +97,7 @@ public final class XaeroFrameBudget {
         }
     }
 
-    private static boolean strip(ClassLoader loader, MethodNode method) {
+    private static boolean tryStrip(ClassLoader loader, MethodNode method) {
         try {
             Class.forName(FRAMES_CLASS, true, loader).getMethod(STRIP_METHOD, MethodNode.class).invoke(null, method);
             return true;

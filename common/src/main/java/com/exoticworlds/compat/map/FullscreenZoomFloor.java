@@ -2,8 +2,8 @@ package com.exoticworlds.compat.map;
 
 import java.util.function.ToDoubleFunction;
 
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -16,55 +16,55 @@ public final class FullscreenZoomFloor {
     public static final int JOURNEYMAP_MAX_ZOOM = 16_384;
 
     public static int journeyMapZoom(WorldFold fold) {
-        return (int) maxOverLoopedAxes(fold, axis -> journeyMapZoom(fold.widthBlocks(axis)));
+        return (int) maxOverLoopedAxes(fold, axis -> journeyMapZoom(fold.getWidthBlocks(axis)));
     }
 
     public static double xaeroScale(WorldFold fold, double scaleMultiplier) {
-        return maxOverLoopedAxes(fold, axis -> xaeroScale(fold.widthBlocks(axis), scaleMultiplier));
+        return maxOverLoopedAxes(fold, axis -> xaeroScale(fold.getWidthBlocks(axis), scaleMultiplier));
     }
 
-    public static int journeyMapCoverZoom(WorldFold fold, int windowWidth, int windowHeight) {
+    public static int journeyMapCoverZoom(WorldFold fold, int windowWidthPixels, int windowHeightPixels) {
         return (int) maxOverLoopedAxes(fold,
-                axis -> journeyMapCoverZoom(fold.widthBlocks(axis), windowSide(axis, windowWidth, windowHeight)));
+                axis -> journeyMapCoverZoom(fold.getWidthBlocks(axis), windowSidePixels(axis, windowWidthPixels, windowHeightPixels)));
     }
 
-    public static double xaeroCoverScale(WorldFold fold, double scaleMultiplier, int windowWidth, int windowHeight) {
+    public static double xaeroCoverScale(WorldFold fold, double scaleMultiplier, int windowWidthPixels, int windowHeightPixels) {
         return maxOverLoopedAxes(fold,
-                axis -> xaeroCoverScale(fold.widthBlocks(axis), scaleMultiplier, windowSide(axis, windowWidth, windowHeight)));
+                axis -> xaeroCoverScale(fold.getWidthBlocks(axis), scaleMultiplier, windowSidePixels(axis, windowWidthPixels, windowHeightPixels)));
     }
 
     // mc/26.2: Simple Atlas holds its SINGLE view at this zoom.
-    public static float simpleAtlasCoverZoom(WorldFold fold, float viewWidth, float viewHeight, int blocksPerTile,
+    public static float simpleAtlasCoverZoom(WorldFold fold, float viewWidthPixels, float viewHeightPixels, int blocksPerTile,
             float tilePixels) {
-        return (float) maxOverLoopedAxes(fold, axis -> simpleAtlasCoverZoom(fold.widthBlocks(axis),
-                windowSide(axis, viewWidth, viewHeight), blocksPerTile, tilePixels));
+        return (float) maxOverLoopedAxes(fold, axis -> simpleAtlasCoverZoom(fold.getWidthBlocks(axis),
+                windowSidePixels(axis, viewWidthPixels, viewHeightPixels), blocksPerTile, tilePixels));
     }
 
-    public static float ultimateMapAtlasesZoom(WorldFold fold, float viewWidth, int mapBlocks) {
+    public static float ultimateMapAtlasesZoom(WorldFold fold, float viewWidthPixels, int mapBlocks) {
         return (float) minOverLoopedAxes(fold,
-                axis -> ultimateMapAtlasesZoom(fold.widthBlocks(axis), viewWidth, mapBlocks));
+                axis -> ultimateMapAtlasesZoom(fold.getWidthBlocks(axis), viewWidthPixels, mapBlocks));
     }
 
-    public static float ultimateMapAtlasesCoverZoom(WorldFold fold, float viewWidth, float viewHeight,
+    public static float ultimateMapAtlasesCoverZoom(WorldFold fold, float viewWidthPixels, float viewHeightPixels,
             int mapBlocks) {
-        return (float) minOverLoopedAxes(fold, axis -> ultimateMapAtlasesCoverZoom(fold.widthBlocks(axis), viewWidth,
-                windowSide(axis, viewWidth, viewHeight), mapBlocks));
+        return (float) minOverLoopedAxes(fold, axis -> ultimateMapAtlasesCoverZoom(fold.getWidthBlocks(axis), viewWidthPixels,
+                windowSidePixels(axis, viewWidthPixels, viewHeightPixels), mapBlocks));
     }
 
     public static float ultraTerraForgedZoom(WorldFold fold, int widgetPixels, int previewPixels) {
         return (float) minOverLoopedAxes(fold,
-                axis -> ultraTerraForgedZoom(fold.widthBlocks(axis), widgetPixels, previewPixels));
+                axis -> ultraTerraForgedZoom(fold.getWidthBlocks(axis), widgetPixels, previewPixels));
     }
 
     public static float ultraTerraForgedCoverZoom(WorldFold fold, int previewPixels) {
         return (float) minOverLoopedAxes(fold,
-                axis -> ultraTerraForgedCoverZoom(fold.widthBlocks(axis), previewPixels));
+                axis -> ultraTerraForgedCoverZoom(fold.getWidthBlocks(axis), previewPixels));
     }
 
     private static double maxOverLoopedAxes(WorldFold fold, ToDoubleFunction<Direction.Axis> floorOf) {
         double floor = 0.0;
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (fold.loops(axis)) {
+            if (fold.isLooped(axis)) {
                 floor = Math.max(floor, floorOf.applyAsDouble(axis));
             }
         }
@@ -75,7 +75,7 @@ public final class FullscreenZoomFloor {
     private static double minOverLoopedAxes(WorldFold fold, ToDoubleFunction<Direction.Axis> ceilingOf) {
         double ceiling = Double.MAX_VALUE;
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (fold.loops(axis)) {
+            if (fold.isLooped(axis)) {
                 ceiling = Math.min(ceiling, ceilingOf.applyAsDouble(axis));
             }
         }
@@ -103,12 +103,12 @@ public final class FullscreenZoomFloor {
         return viewPixels * blocksPerTile / (tilePixels * widthBlocks);
     }
 
-    static float ultimateMapAtlasesZoom(int widthBlocks, float viewWidth, int mapBlocks) {
-        return widthBlocks * viewWidth / (MIN_WORLD_PIXELS * mapBlocks);
+    static float ultimateMapAtlasesZoom(int widthBlocks, float viewWidthPixels, int mapBlocks) {
+        return widthBlocks * viewWidthPixels / (MIN_WORLD_PIXELS * mapBlocks);
     }
 
-    static float ultimateMapAtlasesCoverZoom(int widthBlocks, float viewWidth, float sidePixels, int mapBlocks) {
-        return widthBlocks * viewWidth / (sidePixels * mapBlocks);
+    static float ultimateMapAtlasesCoverZoom(int widthBlocks, float viewWidthPixels, float sidePixels, int mapBlocks) {
+        return widthBlocks * viewWidthPixels / (sidePixels * mapBlocks);
     }
 
     static double ultraTerraForgedZoom(int widthBlocks, int widgetPixels, int previewPixels) {
@@ -119,12 +119,12 @@ public final class FullscreenZoomFloor {
         return (double) widthBlocks / previewPixels;
     }
 
-    private static int windowSide(Direction.Axis axis, int windowWidth, int windowHeight) {
-        return axis == Direction.Axis.X ? windowWidth : windowHeight;
+    private static int windowSidePixels(Direction.Axis axis, int windowWidthPixels, int windowHeightPixels) {
+        return axis == Direction.Axis.X ? windowWidthPixels : windowHeightPixels;
     }
 
-    private static float windowSide(Direction.Axis axis, float windowWidth, float windowHeight) {
-        return axis == Direction.Axis.X ? windowWidth : windowHeight;
+    private static float windowSidePixels(Direction.Axis axis, float windowWidthPixels, float windowHeightPixels) {
+        return axis == Direction.Axis.X ? windowWidthPixels : windowHeightPixels;
     }
 
     static int journeyMapZoom(int widthBlocks) {

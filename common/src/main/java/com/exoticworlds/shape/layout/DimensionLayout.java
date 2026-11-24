@@ -2,8 +2,8 @@ package com.exoticworlds.shape.layout;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeOptions;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
 
@@ -15,8 +15,8 @@ public record DimensionLayout(ShapeKind kind, @Nullable Identifier shape, @Nulla
             ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
 
     public DimensionLayout {
-        boolean loops = kind == ShapeKind.TORUS || kind == ShapeKind.CYLINDER;
-        if (loops ? kind != ShapeKind.of(spans) : spans != null) {
+        boolean isLooped = kind == ShapeKind.TORUS || kind == ShapeKind.CYLINDER;
+        if (isLooped ? kind != ShapeKind.of(spans) : spans != null) {
             throw new IllegalArgumentException("A " + kind + " dimension cannot hold the spans " + spans);
         }
 

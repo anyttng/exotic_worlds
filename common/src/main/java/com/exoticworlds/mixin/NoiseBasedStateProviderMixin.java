@@ -22,8 +22,8 @@ public class NoiseBasedStateProviderMixin {
 
     @WrapMethod(method = "getNoiseValue(Lnet/minecraft/core/BlockPos;D)D")
     private double exotic_worlds$rawCoordinateNoise(BlockPos pos, double scale, Operation<Double> original) {
-        Context generation = GenerationFoldContext.context();
-        if (!generation.fold().isWrapped()) {
+        Context generation = GenerationFoldContext.getContext();
+        if (!generation.getFold().isWrapped()) {
             return original.call(pos, scale);
         }
 

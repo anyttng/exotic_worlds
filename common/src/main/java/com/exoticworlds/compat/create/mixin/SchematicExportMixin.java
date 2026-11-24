@@ -16,12 +16,12 @@ import net.minecraft.world.level.Level;
 public class SchematicExportMixin {
     @WrapMethod(method = "saveSchematic")
     private static SchematicExport.SchematicExportResult exotic_worlds$refuseRegionWiderThanWorld(Path dir,
-            String fileName, boolean overwrite, Level level, BlockPos first, BlockPos second,
+            String fileName, boolean shouldOverwrite, Level level, BlockPos first, BlockPos second,
             Operation<SchematicExport.SchematicExportResult> original) {
-        if (CreateSchematicFold.regionExceedsWorld(level, first, second)) {
+        if (CreateSchematicFold.isRegionExceedingWorld(level, first, second)) {
             return null;
         }
 
-        return original.call(dir, fileName, overwrite, level, first, second);
+        return original.call(dir, fileName, shouldOverwrite, level, first, second);
     }
 }

@@ -27,10 +27,10 @@ public class DensityFunctionsShiftBMixin {
             return original.call(context);
         }
 
-        try (Context.BindingScope _ = generation.bind(generation.fold(), DensityFunctionSlotAxes.SHIFT_B,
+        try (Context.BindingScope _ = generation.bind(generation.getFold(), DensityFunctionSlotAxes.SHIFT_B,
                 NoiseConstants.SHIFT_SCALE, GenerationFoldContext.UNDECLARED_VERTICAL_SHARE)) {
             return ContextScaledNoise.wrappedValue(generation, this.offsetNoise, context.blockZ(), context.blockX(),
-                    0.0) * NoiseConstants.SHIFT_AMPLITUDE;
+                    0.0) * NoiseConstants.SHIFT_AMPLITUDE_BLOCKS;
         }
     }
 }

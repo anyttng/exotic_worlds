@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 
@@ -24,6 +24,6 @@ public class AcquirePoiMixin {
             return null;
         }
 
-        return WorldLoopAttachments.foldOf(level).fold(target);
+        return WorldLoopAttachments.getFold(level).fold(target);
     }
 }

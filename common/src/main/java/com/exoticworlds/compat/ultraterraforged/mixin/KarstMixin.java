@@ -91,7 +91,7 @@ public abstract class KarstMixin {
     private float exotic_worlds$towerHash(int seed, int cellX, int cellZ, int purpose, Operation<Float> original,
             @Local(argsOnly = true, ordinal = X_ARGUMENT) float x, @Local(argsOnly = true, ordinal = Z_ARGUMENT) float z,
             @Local(name = "gridX") int pointX, @Local(name = "gridZ") int pointZ) {
-        SiteLattice lattice = SiteLattice.bound(TOWER_GRID);
+        SiteLattice lattice = SiteLattice.getBound(TOWER_GRID);
         if (lattice == null) {
             return original.call(seed, cellX, cellZ, purpose);
         }
@@ -109,7 +109,7 @@ public abstract class KarstMixin {
     private float exotic_worlds$towerCenterX(float centerX, @Local(argsOnly = true, ordinal = X_ARGUMENT) float x,
             @Local(argsOnly = true, ordinal = Z_ARGUMENT) float z, @Local(name = "gridX") int pointX,
             @Local(name = "gridZ") int pointZ, @Local(name = "gx") int cellX, @Local(name = "gz") int cellZ) {
-        SiteLattice lattice = SiteLattice.bound(TOWER_GRID);
+        SiteLattice lattice = SiteLattice.getBound(TOWER_GRID);
         if (lattice == null) {
             return centerX;
         }
@@ -122,7 +122,7 @@ public abstract class KarstMixin {
     private float exotic_worlds$towerCenterZ(float centerZ, @Local(argsOnly = true, ordinal = X_ARGUMENT) float x,
             @Local(argsOnly = true, ordinal = Z_ARGUMENT) float z, @Local(name = "gridX") int pointX,
             @Local(name = "gridZ") int pointZ, @Local(name = "gx") int cellX, @Local(name = "gz") int cellZ) {
-        SiteLattice lattice = SiteLattice.bound(TOWER_GRID);
+        SiteLattice lattice = SiteLattice.getBound(TOWER_GRID);
         if (lattice == null) {
             return centerZ;
         }

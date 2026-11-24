@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.debug.DebugEntryPosition;
@@ -40,7 +40,7 @@ public class DebugEntryPositionMixin {
             return lines;
         }
 
-        WorldFold fold = WorldLoopAttachments.wrappedClientBoundsFoldOf(level);
+        WorldFold fold = WorldLoopAttachments.getWrappedClientBoundsFold(level);
         Entity entity = minecraft.getCameraEntity();
         if (fold == null || entity == null) {
             return lines;

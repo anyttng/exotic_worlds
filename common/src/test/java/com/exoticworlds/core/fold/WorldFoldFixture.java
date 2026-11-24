@@ -1,0 +1,29 @@
+package com.exoticworlds.core.fold;
+
+import java.util.List;
+
+import com.exoticworlds.core.fold.loop.WorldLoopFold;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+
+public final class WorldFoldFixture {
+    public static final WorldLoopBounds SQUARE = ShapeFixtures.loopedBounds(-32, 32, -32, 32);
+    public static final WorldLoopBounds ODD_BOUNDS = ShapeFixtures.loopedBounds(-2, 3, -2, 3);
+    public static final WorldLoopBounds UNEVEN_BOUNDS = ShapeFixtures.loopedBounds(-48, 16, 0, 16);
+    public static final WorldLoopBounds UNIT_BOUNDS = ShapeFixtures.loopedBounds(0, 1, 0, 1);
+    public static final WorldLoopBounds X_ONLY_BOUNDS =
+            new WorldLoopBounds(new AxisBounds.Looped(-32, 32), AxisBounds.Unbounded.INSTANCE);
+
+    public static final WorldFold EVEN = new WorldLoopFold(SQUARE, ShapeOptions.DEFAULT);
+    public static final WorldFold ODD = new WorldLoopFold(ODD_BOUNDS, ShapeOptions.DEFAULT);
+    public static final WorldFold UNEVEN = new WorldLoopFold(UNEVEN_BOUNDS, ShapeOptions.DEFAULT);
+    public static final WorldFold UNIT = new WorldLoopFold(UNIT_BOUNDS, ShapeOptions.DEFAULT);
+    public static final WorldFold X_ONLY = new WorldLoopFold(X_ONLY_BOUNDS, ShapeOptions.DEFAULT);
+
+    public static final List<WorldFold> PER_AXIS = List.of(EVEN, ODD, UNEVEN, X_ONLY, WorldFolds.NOOP);
+
+    private WorldFoldFixture() {
+    }
+}

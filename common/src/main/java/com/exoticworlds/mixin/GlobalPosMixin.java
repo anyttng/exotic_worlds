@@ -3,7 +3,7 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -24,6 +24,6 @@ public class GlobalPosMixin {
     private int exotic_worlds$chessboardThroughSeam(BlockPos stored, Vec3i asked, Operation<Integer> original,
             ResourceKey<Level> dimension) {
         return original.call(stored,
-                NearestCopy.toward(WorldLoopAttachments.wrappedFoldOf(CurrentServer.get(), dimension), stored, asked));
+                NearestCopy.toward(WorldLoopAttachments.getWrappedFold(CurrentServer.get(), dimension), stored, asked));
     }
 }

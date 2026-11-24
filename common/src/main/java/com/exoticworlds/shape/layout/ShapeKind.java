@@ -2,7 +2,7 @@ package com.exoticworlds.shape.layout;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.shape.cylinder.Cylinder;
 import com.exoticworlds.shape.dimension.DimensionShape;
 import com.exoticworlds.shape.torus.Torus;
@@ -20,16 +20,16 @@ public enum ShapeKind {
             return NORMAL;
         }
 
-        boolean x = shape.bounds().loops(Direction.Axis.X);
-        boolean z = shape.bounds().loops(Direction.Axis.Z);
-        if (x && z) {
+        boolean isXLooped = shape.bounds().isLooped(Direction.Axis.X);
+        boolean isZLooped = shape.bounds().isLooped(Direction.Axis.Z);
+        if (isXLooped && isZLooped) {
             return TORUS;
         }
 
-        return x || z ? CYLINDER : NORMAL;
+        return isXLooped || isZLooped ? CYLINDER : NORMAL;
     }
 
-    public @Nullable DimensionShape builtIn() {
+    public @Nullable DimensionShape getBuiltIn() {
         return switch (this) {
             case TORUS -> Torus.SHAPE;
             case CYLINDER -> Cylinder.SHAPE;

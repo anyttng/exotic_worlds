@@ -1,10 +1,10 @@
 package com.exoticworlds.accessors;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 
 public interface ClientBoundsHolder {
-    default WorldFold exotic_worlds$clientBounds() {
+    default WorldFold exotic_worlds$getClientBounds() {
         return WorldFolds.NOOP;
     }
 

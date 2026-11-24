@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 
 public final class ContextKeyedCache<T> {
@@ -16,11 +16,11 @@ public final class ContextKeyedCache<T> {
             double zDivisor, T value) {
         boolean matches(WorldFold fold, Context context) {
             return this.fold == fold
-                    && this.scale == context.horizontalScale()
+                    && this.scale == context.getHorizontalScale()
                     && this.verticalShare == context.verticalShare()
-                    && this.xDivisor == context.xDivisor()
-                    && this.zDivisor == context.zDivisor()
-                    && this.axes.equals(context.slotAxes());
+                    && this.xDivisor == context.getXDivisor()
+                    && this.zDivisor == context.getZDivisor()
+                    && this.axes.equals(context.getSlotAxes());
         }
     }
 
@@ -41,8 +41,8 @@ public final class ContextKeyedCache<T> {
         Entry<T>[] current = this.entries;
         int kept = Math.min(current.length, CAPACITY - 1);
         Entry<T>[] next = Arrays.copyOfRange(current, current.length - kept, current.length + 1);
-        next[kept] = new Entry<>(fold, context.slotAxes(), context.horizontalScale(), context.verticalShare(),
-                context.xDivisor(), context.zDivisor(), value);
+        next[kept] = new Entry<>(fold, context.getSlotAxes(), context.getHorizontalScale(), context.verticalShare(),
+                context.getXDivisor(), context.getZDivisor(), value);
         this.entries = next;
         return value;
     }

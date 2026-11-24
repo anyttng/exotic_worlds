@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.ultimatemapatlases.AtlasTileCopies.TileCenter;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 class AtlasTileMemoTest {
     private static final int MAP_BLOCKS = 128;

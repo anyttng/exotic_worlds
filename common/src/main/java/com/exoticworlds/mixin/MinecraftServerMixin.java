@@ -11,9 +11,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.SeamCheckRunHolder;
 import com.exoticworlds.accessors.SeamDetailsPendingHolder;
-import com.exoticworlds.core.RegistrationBoundary;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.registry.RegistrationBoundary;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.gen.DimensionChoices;
 import com.exoticworlds.engine.gen.SpawnSearch;
 import com.exoticworlds.engine.gen.WorldShapeReport;
@@ -45,12 +45,12 @@ public class MinecraftServerMixin implements SeamDetailsPendingHolder, SeamCheck
     private final SeamCheckRun exotic_worlds$seamCheckRun = new SeamCheckRun();
 
     @Override
-    public SeamDetailsPending exotic_worlds$seamDetailsPending() {
+    public SeamDetailsPending exotic_worlds$getSeamDetailsPending() {
         return this.exotic_worlds$seamDetailsPending;
     }
 
     @Override
-    public SeamCheckRun exotic_worlds$seamCheckRun() {
+    public SeamCheckRun exotic_worlds$getSeamCheckRun() {
         return this.exotic_worlds$seamCheckRun;
     }
 
@@ -77,7 +77,7 @@ public class MinecraftServerMixin implements SeamDetailsPendingHolder, SeamCheck
     @Inject(method = "createLevels", at = @At("TAIL"))
     private void exotic_worlds$logWorldShape(CallbackInfo ci) {
         for (WorldShapeReport.Line line : WorldShapeReport.lines((MinecraftServer) (Object) this)) {
-            if (line.broken()) {
+            if (line.isBroken()) {
                 ExoticWorlds.LOGGER.warn(line.text());
             } else {
                 ExoticWorlds.LOGGER.info(line.text());
@@ -99,7 +99,7 @@ public class MinecraftServerMixin implements SeamDetailsPendingHolder, SeamCheck
                     target = "Lnet/minecraft/world/level/biome/Climate$Sampler;findSpawnPosition()Lnet/minecraft/core/BlockPos;"))
     private static BlockPos exotic_worlds$spawnSearchInBounds(Climate.Sampler sampler, Operation<BlockPos> original,
             @Local(argsOnly = true) ServerLevel level) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         if (fold == null) {
             return original.call(sampler);
         }
@@ -114,7 +114,7 @@ public class MinecraftServerMixin implements SeamDetailsPendingHolder, SeamCheck
                     target = "Lnet/minecraft/server/level/PlayerSpawnFinder;getSpawnPosInChunk(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/ChunkPos;)Lnet/minecraft/core/BlockPos;"))
     private static @Nullable BlockPos exotic_worlds$searchWrappedChunk(ServerLevel level, ChunkPos chunkPos,
             Operation<@Nullable BlockPos> original) {
-        return original.call(level, WorldLoopAttachments.foldOf(level).fold(chunkPos));
+        return original.call(level, WorldLoopAttachments.getFold(level).fold(chunkPos));
     }
 
     @WrapOperation(

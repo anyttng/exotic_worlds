@@ -15,16 +15,16 @@ public record SiteLattice(double xLap, double zLap, double skew, float spacing, 
     public record Seat(int cellX, int cellZ, float x, float z) {
     }
 
-    public static @Nullable SiteLattice bound(float spacing) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+    public static @Nullable SiteLattice getBound(float spacing) {
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         return frame == null ? null : over(frame.lap(Direction.Axis.X), frame.lap(Direction.Axis.Z),
-                frame.entrySkew(), spacing);
+                frame.getEntrySkew(), spacing);
     }
 
     public static SiteLattice over(double xLap, double zLap, double skew, float spacing) {
-        boolean torus = xLap != RtfLap.OPEN && zLap != RtfLap.OPEN;
-        int xCells = RtfLap.cellsOver(xLap, 1.0 / spacing, torus);
-        int zCells = RtfLap.cellsOver(zLap, 1.0 / spacing, torus);
+        boolean isTorus = xLap != RtfLap.OPEN && zLap != RtfLap.OPEN;
+        int xCells = RtfLap.cellsOver(xLap, 1.0 / spacing, isTorus);
+        int zCells = RtfLap.cellsOver(zLap, 1.0 / spacing, isTorus);
         float xSpacing = snapped(xLap, xCells, spacing);
         float zSpacing = snapped(zLap, zCells, spacing);
         return new SiteLattice(xLap, zLap, skew, spacing, xCells, zCells,
@@ -32,30 +32,30 @@ public record SiteLattice(double xLap, double zLap, double skew, float spacing, 
     }
 
     public static float spacingOn(float spacing, Direction.Axis axis) {
-        SiteLattice lattice = bound(spacing);
-        return lattice == null ? spacing : lattice.spacing(axis);
+        SiteLattice lattice = getBound(spacing);
+        return lattice == null ? spacing : lattice.getSpacing(axis);
     }
 
     public static float sharedOn(float spacing) {
-        SiteLattice lattice = bound(spacing);
-        return lattice == null ? spacing : lattice.shared();
+        SiteLattice lattice = getBound(spacing);
+        return lattice == null ? spacing : lattice.getShared();
     }
 
     public static float scaledOn(float length, float spacing) {
-        SiteLattice lattice = bound(spacing);
+        SiteLattice lattice = getBound(spacing);
         return lattice == null ? length : length * lattice.scale();
     }
 
-    public float spacing(Direction.Axis axis) {
+    public float getSpacing(Direction.Axis axis) {
         return axis == Direction.Axis.X ? this.xSpacing : this.zSpacing;
     }
 
-    public float shared() {
+    public float getShared() {
         return Math.min(this.xSpacing, this.zSpacing);
     }
 
     public float scale() {
-        return shared() / this.spacing;
+        return getShared() / this.spacing;
     }
 
     public int cellX(float x) {

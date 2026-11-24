@@ -2,7 +2,7 @@ package com.exoticworlds.compat.map;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
-public record SeamLine(boolean vertical, int at, int from, int to) {
+public record SeamLine(boolean isVertical, int at, int from, int to) {
     public static final int LINE_ARGB = 0xCCFFFFFF;
 
     public static SeamLine of(WorldCopies.Edge edge, int originX, int originY, double pixelsPerBlock) {
@@ -15,11 +15,11 @@ public record SeamLine(boolean vertical, int at, int from, int to) {
                 : new SeamLine(false, fromY, fromX, toX);
     }
 
-    public void fill(GuiGraphicsExtractor graphics, int thickness) {
-        if (this.vertical) {
-            graphics.fill(this.at, this.from, this.at + thickness, this.to, LINE_ARGB);
+    public void fill(GuiGraphicsExtractor graphics, int thicknessPixels) {
+        if (this.isVertical) {
+            graphics.fill(this.at, this.from, this.at + thicknessPixels, this.to, LINE_ARGB);
         } else {
-            graphics.fill(this.from, this.at, this.to, this.at + thickness, LINE_ARGB);
+            graphics.fill(this.from, this.at, this.to, this.at + thicknessPixels, LINE_ARGB);
         }
     }
 

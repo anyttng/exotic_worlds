@@ -14,10 +14,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.accessors.FoldedClimateSampler;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.QuartPos;
@@ -117,7 +117,7 @@ class ClimateSamplerEntryTest {
     private static BlockPos receivedAt(WorldFold fold, BlockPos asked) {
         Recorder recorder = new Recorder();
         Climate.Sampler sampler = recordingSampler(recorder);
-        ((FoldedClimateSampler) (Object) sampler).exotic_worlds$fold(fold);
+        ((FoldedClimateSampler) (Object) sampler).exotic_worlds$setFold(fold);
 
         sampler.sample(QuartPos.fromBlock(asked.getX()), QuartPos.fromBlock(asked.getY()),
                 QuartPos.fromBlock(asked.getZ()));
@@ -129,6 +129,6 @@ class ClimateSamplerEntryTest {
     }
 
     private static WorldFold foldOf(Climate.Sampler sampler) {
-        return ((FoldedClimateSampler) (Object) sampler).exotic_worlds$fold();
+        return ((FoldedClimateSampler) (Object) sampler).exotic_worlds$getFold();
     }
 }

@@ -13,9 +13,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.endertech.minecraft.mods.adlods.world.WorldTargets;
 import com.exoticworlds.accessors.FoldHolder;
 import com.exoticworlds.compat.adlods.DeferredEntryKeys;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
 import net.minecraft.core.BlockPos;
@@ -33,7 +33,7 @@ public abstract class WorldTargetsMixin implements FoldHolder {
 
     @Inject(method = "get", at = @At("RETURN"))
     private static void exotic_worlds$bindTheLevelsFold(ServerLevel level, CallbackInfoReturnable<WorldTargets> cir) {
-        ((FoldHolder) cir.getReturnValue()).exotic_worlds$setFold(WorldLoopAttachments.foldOf(level));
+        ((FoldHolder) cir.getReturnValue()).exotic_worlds$setFold(WorldLoopAttachments.getFold(level));
     }
 
     @ModifyExpressionValue(method = "saveDeferredEntryPoint", at = @At(value = "INVOKE",
@@ -43,7 +43,7 @@ public abstract class WorldTargetsMixin implements FoldHolder {
     }
 
     @Override
-    public WorldFold exotic_worlds$fold() {
+    public WorldFold exotic_worlds$getFold() {
         return this.exotic_worlds$fold;
     }
 

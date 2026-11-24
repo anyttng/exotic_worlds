@@ -13,11 +13,11 @@ public final class EminusImports {
     private EminusImports() {
     }
 
-    public static int tileBits() {
+    public static int getTileBits() {
         return Handles.TILE_BITS;
     }
 
-    public static Object center(Object column) {
+    public static Object readCenter(Object column) {
         try {
             return Handles.CENTER.invoke(column);
         } catch (Throwable failure) {

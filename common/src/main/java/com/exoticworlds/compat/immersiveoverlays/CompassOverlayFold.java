@@ -1,6 +1,6 @@
 package com.exoticworlds.compat.immersiveoverlays;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 

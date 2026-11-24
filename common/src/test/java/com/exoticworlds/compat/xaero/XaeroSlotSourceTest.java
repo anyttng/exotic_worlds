@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.MapFolds;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 class XaeroSlotSourceTest {
     private static final WorldFold SMALL = MapFolds.torus(-16, 16);

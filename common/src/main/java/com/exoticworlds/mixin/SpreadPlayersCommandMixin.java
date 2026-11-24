@@ -8,10 +8,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.engine.seam.SpreadArea;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -31,12 +31,12 @@ public class SpreadPlayersCommandMixin {
     private static final String SPREAD_FOLD = "spreadFold";
 
     @Inject(method = "spreadPositions", at = @At("HEAD"))
-    private static void exotic_worlds$resolveSpreadFold(Vec2 center, double spreadDist, ServerLevel level,
+    private static void exotic_worlds$resolveSpreadFold(Vec2 center, double spreadDistanceBlocks, ServerLevel level,
             RandomSource random, double minX, double minZ, double maxX, double maxZ, int maxHeight,
             SpreadPlayersCommand.Position[] positions, boolean respectTeams, CallbackInfo ci,
             @Share(SPREAD_FOLD) LocalRef<@Nullable WorldFold> spreadFold) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
-        if (fold != null && !SpreadArea.fitsInHalfTheWorld(fold, maxX - minX, maxZ - minZ)) {
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
+        if (fold != null && !SpreadArea.canFitInHalfTheWorld(fold, maxX - minX, maxZ - minZ)) {
             spreadFold.set(fold);
         }
     }
@@ -63,11 +63,11 @@ public class SpreadPlayersCommandMixin {
         }
 
         SpreadPositionAccessor accessor = (SpreadPositionAccessor) position;
-        SpreadArea.Confined confined = SpreadArea.confine(fold, accessor.exotic_worlds$x(),
-                accessor.exotic_worlds$z(), minX, minZ, maxX, maxZ);
+        SpreadArea.Confined confined = SpreadArea.confine(fold, accessor.exotic_worlds$getX(),
+                accessor.exotic_worlds$getZ(), minX, minZ, maxX, maxZ);
         accessor.exotic_worlds$setX(confined.x());
         accessor.exotic_worlds$setZ(confined.z());
-        return confined.clamped();
+        return confined.isClamped();
     }
 
     @WrapOperation(
@@ -85,9 +85,9 @@ public class SpreadPlayersCommandMixin {
             return;
         }
 
-        TranslationLattice lattice = fold.blockLattice();
-        WrapDomain xAxis = lattice.x();
-        WrapDomain zAxis = lattice.z();
+        TranslationLattice lattice = fold.getBlockLattice();
+        WrapDomain xAxis = lattice.getX();
+        WrapDomain zAxis = lattice.getZ();
         original.call(position, random,
                 SpreadArea.randomMin(xAxis, minX, maxX), SpreadArea.randomMin(zAxis, minZ, maxZ),
                 SpreadArea.randomMax(xAxis, minX, maxX), SpreadArea.randomMax(zAxis, minZ, maxZ));
@@ -101,7 +101,7 @@ public class SpreadPlayersCommandMixin {
     private static double exotic_worlds$distThroughSeam(SpreadPlayersCommand.Position position,
             SpreadPlayersCommand.Position target, Operation<Double> original,
             @Local(argsOnly = true) ServerLevel level) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         return original.call(position, fold == null ? target : exotic_worlds$nearestCopy(fold, position, target));
     }
 
@@ -110,8 +110,8 @@ public class SpreadPlayersCommandMixin {
             SpreadPlayersCommand.Position anchor, SpreadPlayersCommand.Position target) {
         SpreadPositionAccessor from = (SpreadPositionAccessor) anchor;
         SpreadPositionAccessor to = (SpreadPositionAccessor) target;
-        Vec3 raw = new Vec3(to.exotic_worlds$x(), 0.0, to.exotic_worlds$z());
-        Vec3 nearest = fold.nearestCopy(new Vec3(from.exotic_worlds$x(), 0.0, from.exotic_worlds$z()), raw);
+        Vec3 raw = new Vec3(to.exotic_worlds$getX(), 0.0, to.exotic_worlds$getZ());
+        Vec3 nearest = fold.nearestCopy(new Vec3(from.exotic_worlds$getX(), 0.0, from.exotic_worlds$getZ()), raw);
         if (nearest == raw) {
             return target;
         }

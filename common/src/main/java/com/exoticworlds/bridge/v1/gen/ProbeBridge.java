@@ -3,8 +3,8 @@ package com.exoticworlds.bridge.v1.gen;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.gen.TerrainSnapshot;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.gen.terrain.FloatingCrumbs;
 import com.exoticworlds.engine.gen.terrain.TerrainCeiling;
 import com.exoticworlds.engine.gen.terrain.TerrainMask;
@@ -29,7 +29,7 @@ public final class ProbeBridge {
                     "The level's generator is not noise based: " + generator.getClass().getName());
         }
 
-        @Nullable WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        @Nullable WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         NoiseGeneratorSettings settings = noise.generatorSettings().value();
         NoiseGeneratorSettings shaped = fold != null ? TerrainCeiling.withCeiling(settings) : settings;
         return GenerationFoldContext.withRouterBuild(fold,
@@ -37,7 +37,7 @@ public final class ProbeBridge {
     }
 
     public static void withFold(ServerLevel level, Runnable body) {
-        GenerationFoldContext.runWithFold(WorldLoopAttachments.foldOf(level), body);
+        GenerationFoldContext.runWithFold(WorldLoopAttachments.getFold(level), body);
     }
 
     public static void sweepCrumbs(ServerLevel level, ChunkAccess chunk) {
@@ -45,7 +45,7 @@ public final class ProbeBridge {
     }
 
     public static @Nullable TerrainSnapshot snapshotOf(ChunkAccess chunk) {
-        TerrainMask mask = FloatingCrumbs.terrainMaskOf(chunk);
+        TerrainMask mask = FloatingCrumbs.getTerrainMask(chunk);
         return mask == null ? null : new TerrainSnapshotView(mask);
     }
 

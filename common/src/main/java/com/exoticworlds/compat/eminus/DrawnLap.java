@@ -19,7 +19,7 @@ public final class DrawnLap {
 
     @SuppressWarnings("ReferenceEquality")
     public RenderList of(CellFold fold, RenderList list, double eyeX, double eyeZ) {
-        if (!fold.repeats()) {
+        if (!fold.isRepeating()) {
             return list;
         }
 
@@ -30,10 +30,10 @@ public final class DrawnLap {
         List<MeshSummary> kept = new ArrayList<>(list.meshes().size());
         for (MeshSummary mesh : list.meshes()) {
             long key = mesh.key();
-            int side = DetailLevel.blocksPerCell(CellKey.level(key));
+            int sideBlocks = DetailLevel.blocksPerCell(CellKey.level(key));
             int minX = CellFrame.originXOf(key);
             int minZ = CellFrame.originZOf(key);
-            if (fold.meetsLap(minX, minZ, minX + side, minZ + side, eyeX, eyeZ, NO_MARGIN)) {
+            if (fold.isMeetingLap(minX, minZ, minX + sideBlocks, minZ + sideBlocks, eyeX, eyeZ, NO_MARGIN)) {
                 kept.add(mesh);
             }
         }

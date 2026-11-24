@@ -5,9 +5,9 @@ import java.lang.ref.WeakReference;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.compat.worldgen.LapCells;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.engine.DoubleStack;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
@@ -33,47 +33,47 @@ public final class RtfLap {
 
     public static final float UNSHEARED = 0.0F;
 
-    private static volatile boolean active;
+    private static volatile boolean isActive;
 
     private static WeakReference<@Nullable Object> followed = new WeakReference<>(null);
 
     private static final ThreadLocal<Frame> FRAME = ThreadLocal.withInitial(Frame::new);
 
     public static void activate() {
-        active = true;
+        isActive = true;
     }
 
-    public static synchronized void follow(Object server, boolean looped) {
+    public static synchronized void follow(Object server, boolean isLooped) {
         if (followed.get() != server) {
             followed = new WeakReference<>(server);
-            active = false;
+            isActive = false;
         }
 
-        if (looped) {
-            active = true;
+        if (isLooped) {
+            isActive = true;
         }
     }
 
-    public static boolean active() {
-        return active;
+    public static boolean isActive() {
+        return isActive;
     }
 
-    public static Frame frame() {
+    public static Frame getFrame() {
         return FRAME.get();
     }
 
-    public static @Nullable Frame boundFrame() {
-        if (!active) {
+    public static @Nullable Frame getBoundFrame() {
+        if (!isActive) {
             return null;
         }
 
         Frame frame = FRAME.get();
         frame.followGeneration();
-        return frame.bound() ? frame : null;
+        return frame.isBound() ? frame : null;
     }
 
     public static float snapped(Direction.Axis axis, float frequency) {
-        Frame frame = boundFrame();
+        Frame frame = getBoundFrame();
         return frame == null ? frequency : frame.snappedFrequency(axis, frequency);
     }
 
@@ -82,7 +82,7 @@ public final class RtfLap {
         private double zLap = OPEN;
         private double skew = NO_SKEW;
         private double entrySkew = NO_SKEW;
-        private boolean torus;
+        private boolean isTorus;
         private int xPeriod = NO_PERIOD;
         private int zPeriod = NO_PERIOD;
         private int skewCells = NO_SKEW_CELLS;
@@ -93,7 +93,7 @@ public final class RtfLap {
         private final Scope scope = new Scope();
         private @Nullable WorldFold followed;
 
-        public boolean bound() {
+        public boolean isBound() {
             return this.xLap != OPEN || this.zLap != OPEN;
         }
 
@@ -101,11 +101,11 @@ public final class RtfLap {
             return axis == Direction.Axis.X ? this.xLap : this.zLap;
         }
 
-        public double skew() {
+        public double getSkew() {
             return this.skew;
         }
 
-        public double entrySkew() {
+        public double getEntrySkew() {
             return this.entrySkew;
         }
 
@@ -120,7 +120,7 @@ public final class RtfLap {
                 return;
             }
 
-            WorldFold fold = GenerationFoldContext.context().wrappedFold();
+            WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
             if (fold != this.followed) {
                 this.followed = fold;
                 seat(fold);
@@ -128,19 +128,19 @@ public final class RtfLap {
         }
 
         private void seat(@Nullable WorldFold fold) {
-            TranslationLattice lattice = fold == null ? null : fold.blockLattice();
-            this.xLap = lattice == null ? OPEN : lapOf(lattice.x());
-            this.zLap = lattice == null ? OPEN : lapOf(lattice.z());
-            this.skew = lattice == null ? NO_SKEW : lattice.skew();
+            TranslationLattice lattice = fold == null ? null : fold.getBlockLattice();
+            this.xLap = lattice == null ? OPEN : lapOf(lattice.getX());
+            this.zLap = lattice == null ? OPEN : lapOf(lattice.getZ());
+            this.skew = lattice == null ? NO_SKEW : lattice.getSkew();
             this.entrySkew = this.skew;
-            this.torus = this.xLap != OPEN && this.zLap != OPEN;
+            this.isTorus = this.xLap != OPEN && this.zLap != OPEN;
             this.xPeriod = NO_PERIOD;
             this.zPeriod = NO_PERIOD;
             this.skewCells = NO_SKEW_CELLS;
             this.compression = ClimateScaleCompression.NO_COMPRESSION;
         }
 
-        public double compression() {
+        public double getCompression() {
             return this.compression;
         }
 
@@ -209,16 +209,16 @@ public final class RtfLap {
             return this.scope;
         }
 
-        public float xScale() {
+        public float getXScale() {
             return this.xScale;
         }
 
-        public float zScale() {
+        public float getZScale() {
             return this.zScale;
         }
 
         public int cells(Direction.Axis axis, double frequency) {
-            return cellsOver(lap(axis), frequency, this.torus ? TORUS_FLOOR_CELLS : CYLINDER_FLOOR_CELLS);
+            return cellsOver(lap(axis), frequency, this.isTorus ? TORUS_FLOOR_CELLS : CYLINDER_FLOOR_CELLS);
         }
 
         public float snappedFrequency(Direction.Axis axis, float frequency) {
@@ -281,7 +281,7 @@ public final class RtfLap {
         }
 
         public float latticeX(float x, float z) {
-            if (this.entrySkew == NO_SKEW && !sheared()) {
+            if (this.entrySkew == NO_SKEW && !isSheared()) {
                 return wrapX(x);
             }
 
@@ -298,12 +298,12 @@ public final class RtfLap {
             return shiftZ(z) * this.zScale;
         }
 
-        public boolean sheared() {
+        public boolean isSheared() {
             return this.skew != this.entrySkew;
         }
 
         public float outerX(float x, float z) {
-            return sheared() ? (float) (x - (this.skew - this.entrySkew) * z / this.zLap) : x;
+            return isSheared() ? (float) (x - (this.skew - this.entrySkew) * z / this.zLap) : x;
         }
 
         public double seatX(double x, double z, double anchorX, double anchorZ) {
@@ -337,7 +337,7 @@ public final class RtfLap {
             this.saved.push(this.zLap);
             this.saved.push(this.skew);
             this.saved.push(this.entrySkew);
-            this.saved.push(this.torus ? 1.0 : 0.0);
+            this.saved.push(this.isTorus ? 1.0 : 0.0);
             this.saved.push(this.xPeriod);
             this.saved.push(this.zPeriod);
             this.saved.push(this.skewCells);
@@ -349,7 +349,7 @@ public final class RtfLap {
             this.skewCells = (int) this.saved.pop();
             this.zPeriod = (int) this.saved.pop();
             this.xPeriod = (int) this.saved.pop();
-            this.torus = this.saved.pop() != 0.0;
+            this.isTorus = this.saved.pop() != 0.0;
             this.entrySkew = this.saved.pop();
             this.skew = this.saved.pop();
             this.zLap = this.saved.pop();
@@ -368,15 +368,15 @@ public final class RtfLap {
     }
 
     public static int wrapLatticeX(int x, int z) {
-        return active ? FRAME.get().foldX(x, z) : x;
+        return isActive ? FRAME.get().foldX(x, z) : x;
     }
 
     public static int wrapLatticeZ(int z) {
-        return active ? FRAME.get().foldZ(z) : z;
+        return isActive ? FRAME.get().foldZ(z) : z;
     }
 
-    static int cellsOver(double lap, double frequency, boolean torus) {
-        return cellsOver(lap, frequency, torus ? TORUS_FLOOR_CELLS : CYLINDER_FLOOR_CELLS);
+    static int cellsOver(double lap, double frequency, boolean isTorus) {
+        return cellsOver(lap, frequency, isTorus ? TORUS_FLOOR_CELLS : CYLINDER_FLOOR_CELLS);
     }
 
     static int cellsOver(double lap, double frequency, int floorCells) {
@@ -388,7 +388,7 @@ public final class RtfLap {
     }
 
     private static double lapOf(WrapDomain domain) {
-        return domain.loops() ? domain.domainLength : OPEN;
+        return domain.isLooped() ? domain.domainLength : OPEN;
     }
 
     private RtfLap() {

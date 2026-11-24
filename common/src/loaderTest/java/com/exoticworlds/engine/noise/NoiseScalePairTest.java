@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import net.minecraft.core.Direction;
@@ -65,21 +65,21 @@ class NoiseScalePairTest {
                 DensityFunctions.mul(noise(FAR_SCALE), DensityFunctions.constant(-1.0)));
         ladderOf(gap, fold).install();
 
-        int lower = fold.blockDomain(Direction.Axis.X).lowerBound;
-        int width = fold.blockDomain(Direction.Axis.X).domainLength;
-        int step = width / GRID_STEPS;
+        int lower = fold.getBlockDomain(Direction.Axis.X).lowerBound;
+        int widthBlocks = fold.getBlockDomain(Direction.Axis.X).domainLength;
+        int stepBlocks = widthBlocks / GRID_STEPS;
         double widest = 0.0;
         for (int i = 0; i < GRID_STEPS; i++) {
             for (int j = 0; j < GRID_STEPS; j++) {
                 DensityFunction.FunctionContext at =
-                        new DensityFunction.SinglePointContext(lower + i * step, SAMPLE_Y, lower + j * step);
+                        new DensityFunction.SinglePointContext(lower + i * stepBlocks, SAMPLE_Y, lower + j * stepBlocks);
                 double value = GenerationFoldContext.withFold(fold, () -> gap.compute(at));
                 widest = Math.max(widest, Math.abs(value));
             }
         }
 
         assertTrue(widest > OCEAN_GAP, "widest gap between scales " + NEAR_SCALE + " and " + FAR_SCALE
-                + " on a " + width + "-block lap: " + widest);
+                + " on a " + widthBlocks + "-block lap: " + widest);
     }
 
     @Test

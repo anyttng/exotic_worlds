@@ -20,8 +20,8 @@ public class SleepInBedMixin {
             method = { "checkExtraStartConditions", "canStillUse" },
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean exotic_worlds$bedReachThroughSeam(BlockPos bedPos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$bedReachThroughSeam(BlockPos bedPos, Position bodyPosition, double distanceBlocks,
             Operation<Boolean> original, @Local(argsOnly = true) LivingEntity body) {
-        return original.call(bedPos, SeamRange.towardCenterOf(body, bedPos, bodyPosition), distance);
+        return original.call(bedPos, SeamRange.towardCenterOf(body, bedPos, bodyPosition), distanceBlocks);
     }
 }

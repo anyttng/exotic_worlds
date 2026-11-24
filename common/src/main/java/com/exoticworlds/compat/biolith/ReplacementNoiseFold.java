@@ -5,7 +5,7 @@ import java.util.stream.IntStream;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.compat.worldgen.LevelClimateCompression;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.PeriodicLattices;
@@ -77,7 +77,7 @@ public final class ReplacementNoiseFold {
 
     private double sum(WorldFold fold, long seed, double[] scaleQuarts, int quartX, int quartY, int quartZ,
             double amplitude, DensityFunction temperature) {
-        Context context = GenerationFoldContext.context();
+        Context context = GenerationFoldContext.getContext();
         double factor = compression(fold, temperature);
         Lattices resolved = latticesFor(seed);
         double x = QuartPos.toBlock(quartX);

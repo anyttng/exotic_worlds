@@ -4,21 +4,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.BlockPos;
 
 class CompassOverlayFoldTest {
     private static final int MIN_CHUNK = -8;
     private static final int MAX_CHUNK = 8;
-    private static final int WIDTH = (MAX_CHUNK - MIN_CHUNK) * 16;
+    private static final int WIDTH_BLOCKS = (MAX_CHUNK - MIN_CHUNK) * 16;
     private static final int SKEW_CHUNKS = 3;
-    private static final int SKEW = SKEW_CHUNKS * 16;
+    private static final int SKEW_BLOCKS = SKEW_CHUNKS * 16;
     private static final int Y = 64;
     private static final int LAPS = 3;
 
@@ -26,9 +26,9 @@ class CompassOverlayFoldTest {
     private static final WorldLoopBounds BOTH = new WorldLoopBounds(LOOPED, LOOPED);
     private static final WorldLoopBounds X_ONLY = new WorldLoopBounds(LOOPED, AxisBounds.Unbounded.INSTANCE);
 
-    private static final BlockPos X_LAP = new BlockPos(WIDTH, 0, 0);
-    private static final BlockPos Z_LAP = new BlockPos(0, 0, WIDTH);
-    private static final BlockPos SKEWED_Z_LAP = new BlockPos(SKEW, 0, WIDTH);
+    private static final BlockPos X_LAP = new BlockPos(WIDTH_BLOCKS, 0, 0);
+    private static final BlockPos Z_LAP = new BlockPos(0, 0, WIDTH_BLOCKS);
+    private static final BlockPos SKEWED_Z_LAP = new BlockPos(SKEW_BLOCKS, 0, WIDTH_BLOCKS);
 
     @Test
     void theTorusOffsetCrossesTheXSeamAtAnyLap() {
@@ -39,7 +39,7 @@ class CompassOverlayFoldTest {
     @Test
     void theLatticeTorusOffsetCrossesTheSkewedZSeamAtAnyLap() {
         assertShortWayAtEveryLap(WorldFolds.of(FlatShape.latticeTorus(BOTH, SKEW_CHUNKS)), X_LAP, SKEWED_Z_LAP,
-                new BlockPos(0, Y, 125), new BlockPos(-SKEW, Y, -125), new BlockPos(0, 0, -6));
+                new BlockPos(0, Y, 125), new BlockPos(-SKEW_BLOCKS, Y, -125), new BlockPos(0, 0, -6));
     }
 
     @Test

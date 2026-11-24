@@ -12,8 +12,8 @@ import com.exoticworlds.compat.seedviewer.CreationShape;
 import com.exoticworlds.compat.seedviewer.FoldedBiomeSampler;
 import com.exoticworlds.compat.seedviewer.FoldedSampleCache;
 import com.exoticworlds.compat.seedviewer.SeedViewerInjectionTargets;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -40,7 +40,7 @@ public class BiomeSamplerMixin implements FoldedBiomeSampler {
     @Inject(method = SeedViewerInjectionTargets.CONSTRUCTOR + SeedViewerInjectionTargets.FROM_LEVEL,
             at = @At("RETURN"))
     private void exotic_worlds$takeTheLevelsFold(ServerLevel level, CallbackInfo callback) {
-        exotic_worlds$bind(WorldLoopAttachments.foldOf(level));
+        exotic_worlds$bind(WorldLoopAttachments.getFold(level));
     }
 
     @WrapMethod(method = "sample", order = BinderOrder.FOLD)

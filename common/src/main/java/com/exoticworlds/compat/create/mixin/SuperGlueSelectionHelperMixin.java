@@ -16,7 +16,7 @@ import net.minecraft.world.level.Level;
 public class SuperGlueSelectionHelperMixin {
     @ModifyVariable(method = "searchGlueGroup", at = @At("STORE"), ordinal = 0)
     private static Set<BlockPos> exotic_worlds$canonicalVisited(Set<BlockPos> visited, Level level, BlockPos startPos,
-            BlockPos endPos, boolean includeOther) {
+            BlockPos endPos, boolean shouldIncludeOther) {
         return CanonicalPositionKeys.set(level, visited);
     }
 }

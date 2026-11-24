@@ -9,8 +9,8 @@ import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.mixin.BiomeSourceAccessor;
 
@@ -44,12 +44,12 @@ final class SeamCauseSearch {
     record Lap(Direction.Axis axis, int shiftX, int shiftZ) {
         static List<Lap> of(TranslationLattice lattice) {
             List<Lap> laps = new ArrayList<>();
-            if (lattice.x().loops()) {
-                laps.add(new Lap(Direction.Axis.X, lattice.x().domainLength, 0));
+            if (lattice.getX().isLooped()) {
+                laps.add(new Lap(Direction.Axis.X, lattice.getX().domainLength, 0));
             }
 
-            if (lattice.z().loops()) {
-                laps.add(new Lap(Direction.Axis.Z, lattice.skew(), lattice.z().domainLength));
+            if (lattice.getZ().isLooped()) {
+                laps.add(new Lap(Direction.Axis.Z, lattice.getSkew(), lattice.getZ().domainLength));
             }
 
             return laps;
@@ -59,7 +59,7 @@ final class SeamCauseSearch {
             return new Point(point.x() + this.shiftX, point.y(), point.z() + this.shiftZ);
         }
 
-        int widthBlocks() {
+        int getWidthBlocks() {
             return this.axis == Direction.Axis.X ? this.shiftX : this.shiftZ;
         }
     }
@@ -69,20 +69,20 @@ final class SeamCauseSearch {
 
     static List<SeamVerdict.Break> causesOf(Map<SeamField, List<Point>> broken, Lap lap, RandomState state,
             WorldFold fold, BiomeSource biomes) {
-        SeamField brokenClimate = broken.keySet().stream().filter(SeamField::climate).findFirst().orElse(null);
+        SeamField brokenClimate = broken.keySet().stream().filter(SeamField::isClimate).findFirst().orElse(null);
         List<SeamVerdict.Break> breaks = new ArrayList<>();
         broken.forEach((field, points) -> {
-            DensityFunction root = field.densityOf(state.router());
+            DensityFunction root = field.getDensity(state.router());
             SeamCause cause;
             if (root != null) {
                 cause = densityCause(root, points, lap, fold);
             } else if (brokenClimate != null) {
-                cause = new SeamCause.Follows(brokenClimate.id());
+                cause = new SeamCause.Follows(brokenClimate.getId());
             } else {
                 cause = biomeSourceCause(biomes);
             }
 
-            breaks.add(new SeamVerdict.Break(field.id(), cause));
+            breaks.add(new SeamVerdict.Break(field.getId(), cause));
         });
         return breaks;
     }
@@ -99,7 +99,7 @@ final class SeamCauseSearch {
     }
 
     private static SeamCause biomeSourceCause(BiomeSource biomes) {
-        Identifier type = BuiltInRegistries.BIOME_SOURCE.getKey(((BiomeSourceAccessor) biomes).exotic_worlds$codec());
+        Identifier type = BuiltInRegistries.BIOME_SOURCE.getKey(((BiomeSourceAccessor) biomes).exotic_worlds$getCodec());
         return type != null
                 ? new SeamCause.Biomes(type.toString(), type.getNamespace())
                 : new SeamCause.Biomes(biomes.getClass().getName(), null);
@@ -123,7 +123,7 @@ final class SeamCauseSearch {
         }
 
         private @Nullable Found deepest(DensityFunction node, @Nullable Identifier holder) {
-            if (!this.breaks.computeIfAbsent(node, this::breaksAtLap)) {
+            if (!this.breaks.computeIfAbsent(node, this::isBreakingAtLap)) {
                 return null;
             }
 
@@ -138,7 +138,7 @@ final class SeamCauseSearch {
             return new Found(node, holder);
         }
 
-        private boolean breaksAtLap(DensityFunction node) {
+        private boolean isBreakingAtLap(DensityFunction node) {
             for (Point point : this.points) {
                 Point away = this.lap.away(point);
                 double here = this.sample(node, point);
@@ -185,14 +185,14 @@ final class SeamCauseSearch {
         String holder = holderKey != null ? holderKey.toString() : null;
         Identifier type = typeKeyOf(node);
         String className = node.getClass().getName();
-        boolean vanilla = type != null
+        boolean isVanilla = type != null
                 ? type.getNamespace().equals(Identifier.DEFAULT_NAMESPACE)
                 : className.startsWith(VANILLA_PACKAGE);
-        List<String> candidates = vanilla
+        List<String> candidates = isVanilla
                 ? AppliedMixins.foreignOn(Stream.concat(Stream.of(className), NOISE_CLASSES.stream()).toList())
                 : List.of();
         return new SeamCause.Node(type != null ? type.toString() : className, holder,
-                type != null ? type.getNamespace() : null, vanilla, candidates);
+                type != null ? type.getNamespace() : null, isVanilla, candidates);
     }
 
     private static @Nullable Identifier typeKeyOf(DensityFunction node) {

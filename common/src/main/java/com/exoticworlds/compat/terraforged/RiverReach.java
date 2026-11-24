@@ -41,8 +41,8 @@ public final class RiverReach {
         return Math.min(FULL_SIZE, Math.min(axisScale(frame, Direction.Axis.X), axisScale(frame, Direction.Axis.Z)));
     }
 
-    public float boundScale() {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+    public float getBoundScale() {
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         return frame == null ? FULL_SIZE : scale(frame);
     }
 

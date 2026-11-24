@@ -2,8 +2,8 @@ package com.exoticworlds.engine.seam;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.engine.level.PublishedShapes;
 
@@ -12,13 +12,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 
 public final class MapSeamFold {
-    public static @Nullable WorldFold foldFor(@Nullable LevelAccessor level, ResourceKey<Level> dimension) {
+    public static @Nullable WorldFold getWrappedFold(@Nullable LevelAccessor level, ResourceKey<Level> dimension) {
         if (level instanceof Level actualLevel && !actualLevel.isClientSide()) {
-            return WorldLoopAttachments.wrappedFoldOf(actualLevel);
+            return WorldLoopAttachments.getWrappedFold(actualLevel);
         }
 
-        WorldFold serverFold = WorldLoopAttachments.wrappedFoldOf(CurrentServer.get(), dimension);
-        return serverFold != null ? serverFold : PublishedShapes.wrappedFoldOf(dimension);
+        WorldFold serverFold = WorldLoopAttachments.getWrappedFold(CurrentServer.get(), dimension);
+        return serverFold != null ? serverFold : PublishedShapes.getWrappedFold(dimension);
     }
 
     private MapSeamFold() {

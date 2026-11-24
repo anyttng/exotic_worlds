@@ -1,6 +1,6 @@
 package com.exoticworlds.engine.net;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.SeamHit;
 
 import net.minecraft.core.BlockPos;

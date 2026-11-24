@@ -12,10 +12,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.core.SpawnPoint;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.shape.layout.LayoutFixtures;
 import com.exoticworlds.shape.layout.LayoutShape;
 import com.exoticworlds.shape.layout.WorldLayout;
@@ -68,28 +68,28 @@ class WorldShapesSpawnTest {
         LayoutShape.choose(WorldLayout.DEFAULT);
         WorldShapes.select(LayoutShape.ID);
 
-        assertFalse(WorldShapes.moveSpawn(PICKED));
-        assertEquals(WorldLayout.DEFAULT, LayoutShape.layout());
+        assertFalse(WorldShapes.tryMoveSpawn(PICKED));
+        assertEquals(WorldLayout.DEFAULT, LayoutShape.getLayout());
     }
 
     @Test
     void normalRefusesTheSpawnPoint() {
         WorldShapes.select(WorldShapes.NORMAL);
 
-        assertFalse(WorldShapes.moveSpawn(PICKED));
+        assertFalse(WorldShapes.tryMoveSpawn(PICKED));
     }
 
     private static void assertSpawnMovedInto(WorldLayout layout) {
         LayoutShape.choose(layout);
         WorldShapes.select(LayoutShape.ID);
 
-        assertTrue(WorldShapes.moveSpawn(PICKED));
+        assertTrue(WorldShapes.tryMoveSpawn(PICKED));
 
         WorldDimensions created = WorldShapes.applyAtCreation(REGISTRIES, vanillaDimensions());
-        CarriedShape overworld = ShapedChunkGenerator.carriedShapeOf(
+        CarriedShape overworld = ShapedChunkGenerator.getCarriedShape(
                 created.dimensions().get(LevelStem.OVERWORLD).generator());
         assertNotNull(overworld);
-        assertEquals(PICKED, overworld.options().get(SpawnPoint.OPTION));
+        assertEquals(PICKED, overworld.getOptions().get(SpawnPoint.OPTION));
     }
 
     private static WorldDimensions vanillaDimensions() {

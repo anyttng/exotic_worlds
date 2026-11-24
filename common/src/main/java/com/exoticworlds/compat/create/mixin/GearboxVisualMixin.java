@@ -20,7 +20,7 @@ public abstract class GearboxVisualMixin {
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_SUBTRACT))
     private BlockPos exotic_worlds$foldSourceDelta(BlockPos sourcePos, Vec3i anchorPos, Operation<BlockPos> original) {
-        BlockEntity blockEntity = ((AbstractBlockEntityVisualAccessor) this).exotic_worlds$blockEntity();
+        BlockEntity blockEntity = ((AbstractBlockEntityVisualAccessor) this).exotic_worlds$getBlockEntity();
         return CreateSeamFold.foldDelta(blockEntity.getLevel(), blockEntity.getBlockPos(), sourcePos,
                 original.call(sourcePos, anchorPos));
     }

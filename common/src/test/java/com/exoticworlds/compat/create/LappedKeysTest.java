@@ -14,8 +14,8 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 
 import net.minecraft.core.BlockPos;
 
@@ -34,7 +34,7 @@ class LappedKeysTest {
             assertTrue(keys.add(INSIDE), "in " + fold);
             assertFalse(keys.add(ONE_LAP_ON), "in " + fold);
             assertEquals(1, keys.size(), "in " + fold);
-            assertTrue(keys.lapped(), "in " + fold);
+            assertTrue(keys.isLapped(), "in " + fold);
         }
     }
 
@@ -45,7 +45,7 @@ class LappedKeysTest {
             keys.add(INSIDE);
 
             assertTrue(keys.contains(ONE_LAP_ON), "in " + fold);
-            assertTrue(keys.lapped(), "in " + fold);
+            assertTrue(keys.isLapped(), "in " + fold);
         }
     }
 
@@ -57,7 +57,7 @@ class LappedKeysTest {
 
             assertFalse(keys.add(INSIDE), "in " + fold);
             assertTrue(keys.contains(INSIDE), "in " + fold);
-            assertFalse(keys.lapped(), "in " + fold);
+            assertFalse(keys.isLapped(), "in " + fold);
         }
     }
 
@@ -69,7 +69,7 @@ class LappedKeysTest {
             assertTrue(keys.add(INSIDE), "in " + fold);
             assertTrue(keys.add(ANOTHER_BLOCK), "in " + fold);
             assertEquals(2, keys.size(), "in " + fold);
-            assertFalse(keys.lapped(), "in " + fold);
+            assertFalse(keys.isLapped(), "in " + fold);
         }
     }
 
@@ -92,7 +92,7 @@ class LappedKeysTest {
         assertTrue(keys.add(ONE_LAP_ON));
         assertFalse(keys.contains(new BlockPos(250 + 2 * WORLD_BLOCKS, 64, 10)));
         assertEquals(2, keys.size());
-        assertFalse(keys.lapped());
+        assertFalse(keys.isLapped());
     }
 
     @Test
@@ -108,7 +108,7 @@ class LappedKeysTest {
         LappedKeys keys = new LappedKeys(PER_AXIS);
         keys.add(INSIDE);
 
-        assertFalse(LappedKeys.claimedByACopy(plain, INSIDE));
-        assertTrue(LappedKeys.claimedByACopy(keys, ONE_LAP_ON));
+        assertFalse(LappedKeys.isClaimedByACopy(plain, INSIDE));
+        assertTrue(LappedKeys.isClaimedByACopy(keys, ONE_LAP_ON));
     }
 }

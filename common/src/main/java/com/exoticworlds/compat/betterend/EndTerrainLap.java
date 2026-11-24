@@ -7,10 +7,10 @@ import com.exoticworlds.compat.worldgen.LapFrame;
 import com.exoticworlds.compat.worldgen.OpenSimplexStandIn;
 import com.exoticworlds.compat.worldgen.StandInHolder;
 import com.exoticworlds.compat.betterend.mixin.TerrainGeneratorAccessor;
-import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -30,34 +30,34 @@ public final class EndTerrainLap {
 
     EndTerrainLap(WorldFold fold, StandInHolder first, StandInHolder second) {
         this.fold = fold;
-        this.lattice = fold.blockLattice();
+        this.lattice = fold.getBlockLattice();
         this.frame = new LapFrame(this.lattice);
-        this.first = first.exotic_worlds$standIn();
-        this.second = second.exotic_worlds$standIn();
+        this.first = first.exotic_worlds$getStandIn();
+        this.second = second.exotic_worlds$getStandIn();
     }
 
     public static void capture(ServerLevel level) {
-        WorldFold fold = ShapedChunkGenerator.wrappedFoldOf(level.getChunkSource().getGenerator());
-        OpenSimplexNoise first = TerrainGeneratorAccessor.exotic_worlds$noise1();
-        OpenSimplexNoise second = TerrainGeneratorAccessor.exotic_worlds$noise2();
+        WorldFold fold = ShapedChunkGenerator.getWrappedFold(level.getChunkSource().getGenerator());
+        OpenSimplexNoise first = TerrainGeneratorAccessor.exotic_worlds$getNoise1();
+        OpenSimplexNoise second = TerrainGeneratorAccessor.exotic_worlds$getNoise2();
         current = fold == null || first == null || second == null
                 ? null
                 : new EndTerrainLap(fold, (StandInHolder) (Object) first, (StandInHolder) (Object) second);
     }
 
-    public static @Nullable EndTerrainLap current() {
+    public static @Nullable EndTerrainLap getCurrent() {
         return current;
     }
 
-    public WorldFold fold() {
+    public WorldFold getFold() {
         return this.fold;
     }
 
-    public OpenSimplexStandIn first() {
+    public OpenSimplexStandIn getFirst() {
         return this.first;
     }
 
-    public OpenSimplexStandIn second() {
+    public OpenSimplexStandIn getSecond() {
         return this.second;
     }
 
@@ -74,12 +74,12 @@ public final class EndTerrainLap {
     }
 
     public double period(Direction.Axis axis, double unitBlocks) {
-        WrapDomain domain = this.lattice.axis(axis);
-        return domain.loops() ? domain.domainLength / unitBlocks : OpenSimplexStandIn.UNBOUNDED;
+        WrapDomain domain = this.lattice.getAxis(axis);
+        return domain.isLooped() ? domain.domainLength / unitBlocks : OpenSimplexStandIn.UNBOUNDED;
     }
 
     public LapIslandPlacement.Grid grid(double distance) {
-        return new LapIslandPlacement.Grid(IslandLapAxis.of(this.lattice.x(), distance),
-                IslandLapAxis.of(this.lattice.z(), distance), this.frame);
+        return new LapIslandPlacement.Grid(IslandLapAxis.of(this.lattice.getX(), distance),
+                IslandLapAxis.of(this.lattice.getZ(), distance), this.frame);
     }
 }

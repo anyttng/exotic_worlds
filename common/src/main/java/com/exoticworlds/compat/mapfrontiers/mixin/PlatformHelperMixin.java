@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.compat.mapfrontiers.ExoticWorldsGeometry;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 
@@ -23,7 +23,7 @@ import net.minecraft.world.level.Level;
 public class PlatformHelperMixin {
     @ModifyReturnValue(method = "getWorldGeometry", at = @At("RETURN"))
     private WorldGeometry exotic_worlds$serverGeometry(WorldGeometry original, @Local(argsOnly = true) Level level) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         return fold == null ? original : new ExoticWorldsGeometry(fold);
     }
 

@@ -9,9 +9,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockCollisions;
@@ -38,7 +38,7 @@ public abstract class BlockCollisionsMixin {
     private void exotic_worlds$resolveFold(CollisionGetter collisionGetter, CollisionContext context, AABB box,
             boolean onlySuffocatingBlocks, BiFunction<BlockPos.MutableBlockPos, VoxelShape, ?> resultProvider,
             CallbackInfo ci) {
-        this.exotic_worlds$fold = WorldLoopAttachments.foldIfLevel(collisionGetter);
+        this.exotic_worlds$fold = WorldLoopAttachments.getFoldIfLevel(collisionGetter);
     }
 
     // Must stay above the Z handler: Mixin runs them in declaration order, and the Z handler reads the node kept here.

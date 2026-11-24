@@ -5,12 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -18,9 +18,9 @@ import net.minecraft.world.phys.Vec3;
 class FoldedBoxQueryTest {
     private static final int MIN_CHUNK = -8;
     private static final int MAX_CHUNK = 8;
-    private static final int LOWER = MIN_CHUNK * CoordinateConstants.CHUNK_WIDTH;
-    private static final int UPPER = MAX_CHUNK * CoordinateConstants.CHUNK_WIDTH;
-    private static final int WIDTH = UPPER - LOWER;
+    private static final int LOWER = MIN_CHUNK * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
+    private static final int UPPER = MAX_CHUNK * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
+    private static final int WIDTH_BLOCKS = UPPER - LOWER;
 
     private static final int BEFORE_SEAM = 8;
 
@@ -56,7 +56,7 @@ class FoldedBoxQueryTest {
 
     @Test
     void towardAnAnchorAcrossTheSeamSeatsTheBoxInTheLappedCopy() {
-        assertEquals(NEAR_PIECE.move(-WIDTH, 0.0, 0.0),
+        assertEquals(NEAR_PIECE.move(-WIDTH_BLOCKS, 0.0, 0.0),
                 FoldedBoxQuery.toward(CYLINDER, ANCHOR_ACROSS_THE_SEAM, NEAR_PIECE));
     }
 }

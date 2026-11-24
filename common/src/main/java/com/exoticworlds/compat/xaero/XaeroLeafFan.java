@@ -58,16 +58,16 @@ public final class XaeroLeafFan {
         return untaken.toLongArray();
     }
 
-    public long leaf(int regX, int regZ) {
+    public long getLeaf(int regX, int regZ) {
         int index = regZ - this.firstRow;
         return regX == this.column && index >= 0 && index < this.leaves.length ? this.leaves[index] : NO_LEAF;
     }
 
     public int admitRow(int maxLeafRegZ, int regX, int regZ) {
-        return leaf(regX, regZ) == NO_LEAF ? maxLeafRegZ : Integer.MAX_VALUE;
+        return getLeaf(regX, regZ) == NO_LEAF ? maxLeafRegZ : Integer.MAX_VALUE;
     }
 
-    public boolean exists(boolean exists, int regX, int regZ) {
-        return exists && leaf(regX, regZ) == NO_LEAF;
+    public boolean isExisting(boolean isExisting, int regX, int regZ) {
+        return isExisting && getLeaf(regX, regZ) == NO_LEAF;
     }
 }

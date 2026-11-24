@@ -12,11 +12,11 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.lod.AlignedPeriod;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
@@ -42,8 +42,8 @@ class DhRowCopiesTest {
 
     private static long rowsOfThePeriod(DhLattice lattice) {
         AlignedPeriod period = DhFold.period(lattice, LEAF);
-        long lapsX = period.xBlocks() / lattice.fold().widthBlocks(Direction.Axis.X);
-        long lapsZ = period.zBlocks() / lattice.fold().widthBlocks(Direction.Axis.Z);
+        long lapsX = period.xBlocks() / lattice.fold().getWidthBlocks(Direction.Axis.X);
+        long lapsZ = period.zBlocks() / lattice.fold().getWidthBlocks(Direction.Axis.Z);
         return lapsX * lapsZ;
     }
 
@@ -102,8 +102,8 @@ class DhRowCopiesTest {
     @Test
     void theCopyPositionIsBoundOnlyWhileTheCopyIsBuilt() {
         ChunkPos copy = new ChunkPos(6, 19);
-        assertSame(copy, DhRowCopies.buildAt(copy, DhRowCopies::pendingCopy));
-        assertNull(DhRowCopies.pendingCopy());
+        assertSame(copy, DhRowCopies.buildAt(copy, DhRowCopies::getPendingCopy));
+        assertNull(DhRowCopies.getPendingCopy());
     }
 
     @Test
@@ -111,11 +111,11 @@ class DhRowCopiesTest {
         ChunkPos outer = new ChunkPos(6, 19);
         ChunkPos inner = new ChunkPos(3, 69);
         ChunkPos seen = DhRowCopies.buildAt(outer, () -> {
-            assertSame(inner, DhRowCopies.buildAt(inner, DhRowCopies::pendingCopy));
-            return DhRowCopies.pendingCopy();
+            assertSame(inner, DhRowCopies.buildAt(inner, DhRowCopies::getPendingCopy));
+            return DhRowCopies.getPendingCopy();
         });
 
         assertSame(outer, seen);
-        assertNull(DhRowCopies.pendingCopy());
+        assertNull(DhRowCopies.getPendingCopy());
     }
 }

@@ -1,8 +1,8 @@
 package com.exoticworlds.engine.noise;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.noise.BlendedNoiseFixture.Octave;
 import static com.exoticworlds.engine.noise.BlendedNoiseFixture.mix;
 import static com.exoticworlds.engine.noise.BlendedNoiseFixture.sample;

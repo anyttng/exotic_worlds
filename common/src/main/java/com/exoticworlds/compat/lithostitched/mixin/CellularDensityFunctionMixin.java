@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.compat.lithostitched.CellLap;
 import com.exoticworlds.compat.lithostitched.ClosedGrid;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.llamalad7.mixinextras.expression.Definition;
@@ -89,7 +89,7 @@ public class CellularDensityFunctionMixin {
             return null;
         }
 
-        WorldFold fold = generation.fold();
+        WorldFold fold = generation.getFold();
         ClosedGrid grid = this.exotic_worlds$closedGrid;
         if (grid == null || grid.fold() != fold) {
             grid = ClosedGrid.of(fold, dimensions);

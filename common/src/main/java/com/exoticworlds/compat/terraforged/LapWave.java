@@ -16,19 +16,19 @@ public record LapWave(double xLap, double zLap, double skew) {
     private static final ThreadLocal<Remembered> REMEMBERED = ThreadLocal.withInitial(Remembered::new);
 
     public record Wave(double x, double z, long xTurns, long zTurns) {
-        public double frequency() {
+        public double getFrequency() {
             return Math.hypot(this.x, this.z);
         }
     }
 
-    public static @Nullable LapWave bound() {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+    public static @Nullable LapWave getBound() {
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         return frame == null ? null
-                : new LapWave(frame.lap(Direction.Axis.X), frame.lap(Direction.Axis.Z), frame.entrySkew());
+                : new LapWave(frame.lap(Direction.Axis.X), frame.lap(Direction.Axis.Z), frame.getEntrySkew());
     }
 
     public static float directionOn(Direction.Axis axis, float cos, float sin, float wavelength) {
-        LapWave lap = bound();
+        LapWave lap = getBound();
         if (lap == null) {
             return axis == Direction.Axis.X ? cos : sin;
         }
@@ -37,33 +37,33 @@ public record LapWave(double xLap, double zLap, double skew) {
         return (float) ((axis == Direction.Axis.X ? wave.x() : wave.z()) * wavelength);
     }
 
-    public boolean loops(Direction.Axis axis) {
+    public boolean isLooped(Direction.Axis axis) {
         return (axis == Direction.Axis.X ? this.xLap : this.zLap) != RtfLap.OPEN;
     }
 
     public Wave noLonger(double x, double z) {
         double frequency = Math.hypot(x, z);
-        return nearest(x, z, wave -> wave.frequency() >= frequency);
+        return nearest(x, z, wave -> wave.getFrequency() >= frequency);
     }
 
     public Wave nearest(double x, double z, Predicate<Wave> accepted) {
-        boolean xLoops = loops(Direction.Axis.X);
-        boolean zLoops = loops(Direction.Axis.Z);
-        long xFirst = xLoops ? (long) Math.floor(x * this.xLap) - REACH + 1 : NO_TURNS;
-        long zFirst = zLoops ? (long) Math.floor(x * this.skew + z * this.zLap) - REACH + 1 : NO_TURNS;
-        long xLast = xLoops ? xFirst + 2 * REACH - 1 : NO_TURNS;
-        long zLast = zLoops ? zFirst + 2 * REACH - 1 : NO_TURNS;
+        boolean isXLooped = isLooped(Direction.Axis.X);
+        boolean isZLooped = isLooped(Direction.Axis.Z);
+        long xFirst = isXLooped ? (long) Math.floor(x * this.xLap) - REACH + 1 : NO_TURNS;
+        long zFirst = isZLooped ? (long) Math.floor(x * this.skew + z * this.zLap) - REACH + 1 : NO_TURNS;
+        long xLast = isXLooped ? xFirst + 2 * REACH - 1 : NO_TURNS;
+        long zLast = isZLooped ? zFirst + 2 * REACH - 1 : NO_TURNS;
         @Nullable Wave best = null;
-        double bestDistance = Double.POSITIVE_INFINITY;
+        double bestSqrDistance = Double.POSITIVE_INFINITY;
         for (long xTurns = xFirst; xTurns <= xLast; xTurns++) {
             for (long zTurns = zFirst; zTurns <= zLast; zTurns++) {
-                double waveX = xLoops ? xTurns / this.xLap : x;
-                double waveZ = zLoops ? (zTurns - waveX * this.skew) / this.zLap : z;
+                double waveX = isXLooped ? xTurns / this.xLap : x;
+                double waveZ = isZLooped ? (zTurns - waveX * this.skew) / this.zLap : z;
                 Wave wave = new Wave(waveX, waveZ, xTurns, zTurns);
-                double distance = (waveX - x) * (waveX - x) + (waveZ - z) * (waveZ - z);
-                if (distance < bestDistance && accepted.test(wave)) {
+                double sqrDistance = (waveX - x) * (waveX - x) + (waveZ - z) * (waveZ - z);
+                if (sqrDistance < bestSqrDistance && accepted.test(wave)) {
                     best = wave;
-                    bestDistance = distance;
+                    bestSqrDistance = sqrDistance;
                 }
             }
         }

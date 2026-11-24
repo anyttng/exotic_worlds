@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.exoticworlds.compat.ultraterraforged.LapCarrier;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.cell.Cell;
 import com.pandaismyname1.ultraterraforged.world.worldgen.heightmap.Levels;
@@ -21,25 +21,25 @@ public abstract class WorldLookupMixin {
     private Levels levels;
 
     @WrapMethod(method = "apply(Lcom/pandaismyname1/ultraterraforged/world/worldgen/cell/Cell;IIZ)Z")
-    private boolean exotic_worlds$foldLookup(Cell cell, int x, int z, boolean load, Operation<Boolean> original) {
-        WorldFold fold = LapCarrier.foldOf(this.levels);
+    private boolean exotic_worlds$foldLookup(Cell cell, int x, int z, boolean shouldLoad, Operation<Boolean> original) {
+        WorldFold fold = LapCarrier.getFold(this.levels);
         if (fold == null) {
-            return original.call(cell, x, z, load);
+            return original.call(cell, x, z, shouldLoad);
         }
 
-        TranslationLattice lattice = fold.blockLattice();
-        return original.call(cell, lattice.foldX(x, z), lattice.foldZ(z), load);
+        TranslationLattice lattice = fold.getBlockLattice();
+        return original.call(cell, lattice.foldX(x, z), lattice.foldZ(z), shouldLoad);
     }
 
     @WrapMethod(method = "getGenerationHeight")
-    private int exotic_worlds$foldChunk(int chunkX, int chunkZ, NoiseGeneratorSettings settings, boolean load,
+    private int exotic_worlds$foldChunk(int chunkX, int chunkZ, NoiseGeneratorSettings settings, boolean shouldLoad,
             Operation<Integer> original) {
-        WorldFold fold = LapCarrier.foldOf(this.levels);
+        WorldFold fold = LapCarrier.getFold(this.levels);
         if (fold == null) {
-            return original.call(chunkX, chunkZ, settings, load);
+            return original.call(chunkX, chunkZ, settings, shouldLoad);
         }
 
-        TranslationLattice lattice = fold.chunkLattice();
-        return original.call(lattice.foldX(chunkX, chunkZ), lattice.foldZ(chunkZ), settings, load);
+        TranslationLattice lattice = fold.getChunkLattice();
+        return original.call(lattice.foldX(chunkX, chunkZ), lattice.foldZ(chunkZ), settings, shouldLoad);
     }
 }

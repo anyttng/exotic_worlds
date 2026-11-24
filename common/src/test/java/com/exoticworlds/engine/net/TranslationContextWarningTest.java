@@ -15,10 +15,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.seam.ClientPosition;
 
 import net.minecraft.world.level.ChunkPos;
@@ -27,7 +27,7 @@ import net.minecraft.world.phys.Vec3;
 
 class TranslationContextWarningTest {
     private static final int WIDTH_IN_CHUNKS = 32;
-    private static final int VIEW_DISTANCE = 8;
+    private static final int VIEW_DISTANCE_CHUNKS = 8;
     private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH_IN_CHUNKS)));
 
     private static final ChunkPos CHUNK_PAST_THE_VIEW = new ChunkPos(12, 0);
@@ -36,8 +36,8 @@ class TranslationContextWarningTest {
     private static final Vec3 X_PAST_THE_REACH = new Vec3(COORD_PAST_THE_REACH, 64.0, 0.0);
 
     private static final String PARTICLE_KIND = "particle";
-    private static final double PARTICLE_RADIUS = 32.0;
-    private static final PacketReach PARTICLE = PacketReach.measured(PARTICLE_KIND, PARTICLE_RADIUS);
+    private static final double PARTICLE_RADIUS_BLOCKS = 32.0;
+    private static final PacketReach PARTICLE = PacketReach.measured(PARTICLE_KIND, PARTICLE_RADIUS_BLOCKS);
 
     private static final double ANCHOR_NEAR_THE_SEAM = 250.0;
     private static final Vec3 POSITION_ACROSS_THE_SEAM = new Vec3(-200.0, 64.0, -200.0);
@@ -119,7 +119,7 @@ class TranslationContextWarningTest {
     void aSendThatMeasuredItsRadiusIsJudgedAgainstIt() {
         TranslationContext context = contextAnchoredAt(ANCHOR_NEAR_THE_SEAM);
 
-        try (MeasuredReach _ = MeasuredReach.measuring(PARTICLE_RADIUS)) {
+        try (MeasuredReach _ = MeasuredReach.measuring(PARTICLE_RADIUS_BLOCKS)) {
             assertEquals(ITS_NEAREST_COPY, context.toClientMeasured(POSITION_ACROSS_THE_SEAM, PARTICLE_KIND));
         }
 
@@ -138,7 +138,7 @@ class TranslationContextWarningTest {
     @Test
     void theRadiusDoesNotOutliveTheSendThatMeasuredIt() {
         TranslationContext context = contextAnchoredAt(ANCHOR_NEAR_THE_SEAM);
-        try (MeasuredReach _ = MeasuredReach.measuring(PARTICLE_RADIUS)) {
+        try (MeasuredReach _ = MeasuredReach.measuring(PARTICLE_RADIUS_BLOCKS)) {
             context.toClientMeasured(POSITION_ACROSS_THE_SEAM, PARTICLE_KIND);
         }
 
@@ -162,8 +162,8 @@ class TranslationContextWarningTest {
                     throw new UnsupportedOperationException();
                 },
                 Level.OVERWORLD,
-                VIEW_DISTANCE,
-                VIEW_DISTANCE,
+                VIEW_DISTANCE_CHUNKS,
+                VIEW_DISTANCE_CHUNKS,
                 entityId -> null,
                 entityId -> null,
                 () -> {

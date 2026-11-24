@@ -10,7 +10,7 @@ import com.exoticworlds.api.v1.client.WorldOptionControl;
 import com.exoticworlds.api.v1.client.WorldOptionControls;
 import com.exoticworlds.api.v1.option.WorldOption;
 import com.exoticworlds.api.v1.option.WorldOptions;
-import com.exoticworlds.core.StartupRegistry;
+import com.exoticworlds.core.registry.StartupRegistry;
 
 public final class OptionControlsBridge {
     private static final StartupRegistry<String, WorldOptionControls.Factory> FACTORIES =
@@ -22,7 +22,7 @@ public final class OptionControlsBridge {
 
     public static List<WorldOptionControl> createAll(WorldOptionContext context,
             Collection<? extends WorldOption<?>> offered) {
-        Map<String, WorldOptionControls.Factory> factories = FACTORIES.entries();
+        Map<String, WorldOptionControls.Factory> factories = FACTORIES.getEntries();
         List<WorldOptionControl> controls = new ArrayList<>();
         for (WorldOption<?> option : WorldOptions.all()) {
             WorldOptionControls.Factory factory = factories.get(option.key());

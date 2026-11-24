@@ -4,9 +4,9 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.ShapeStamp;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.DimensionTable;
-import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.DimensionTable;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
 import com.exoticworlds.migration.FormerNamespace;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
@@ -54,9 +54,9 @@ public final class StampedGeneratorCodec {
         public <T> DataResult<T> encode(ChunkGenerator input, DynamicOps<T> ops, T prefix) {
             DataResult<T> encoded = this.dispatch.encode(input, ops, prefix);
             ShapeStamp stamp = stampOf(input);
-            CarriedShape carried = stamp == null ? null : stamp.exotic_worlds$carriedShape();
+            CarriedShape carried = stamp == null ? null : stamp.exotic_worlds$getCarriedShape();
             ShapeStamp tableStamp = tableStampOf(input);
-            DimensionTable table = tableStamp == null ? DimensionTable.EMPTY : tableStamp.exotic_worlds$dimensionTable();
+            DimensionTable table = tableStamp == null ? DimensionTable.EMPTY : tableStamp.exotic_worlds$getDimensionTable();
             if (carried == null && table.isEmpty()) {
                 return encoded;
             }

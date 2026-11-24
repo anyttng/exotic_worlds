@@ -10,9 +10,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.BiomeZoomOwner;
-import com.exoticworlds.core.FoldOrientation;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.FoldOrientation;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedQuart;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -58,7 +58,7 @@ public class BiomeManagerMixin implements BiomeZoomOwner {
     }
 
     @Override
-    public @Nullable LevelReader exotic_worlds$owner() {
+    public @Nullable LevelReader exotic_worlds$getOwner() {
         return this.exotic_worlds$owner;
     }
 
@@ -83,7 +83,7 @@ public class BiomeManagerMixin implements BiomeZoomOwner {
 
     @WrapMethod(method = "getBiome(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/core/Holder;")
     private Holder<Biome> exotic_worlds$zoomOnFoldedCorners(BlockPos pos, Operation<Holder<Biome>> original) {
-        WorldFold fold = WorldLoopAttachments.foldOfReader(this.exotic_worlds$owner);
+        WorldFold fold = WorldLoopAttachments.getFoldOfReader(this.exotic_worlds$owner);
         if (!fold.isWrapped()) {
             return original.call(pos);
         }

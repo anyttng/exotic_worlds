@@ -3,7 +3,7 @@ package com.exoticworlds.compat.ultraterraforged.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.SpawnPoint;
+import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.engine.gen.SpawnSearch;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
@@ -17,7 +17,7 @@ import net.minecraft.core.BlockPos;
 public abstract class SpawnTypeMixin {
     @ModifyReturnValue(method = "getSearchCenter", at = @At("RETURN"))
     private BlockPos exotic_worlds$centerAtTheSpawnPoint(BlockPos center) {
-        SpawnPoint point = SpawnSearch.bound();
-        return point.isCustom() ? new BlockPos(point.blockX(), center.getY(), point.blockZ()) : center;
+        SpawnPoint point = SpawnSearch.getBound();
+        return point.isCustom() ? new BlockPos(point.getBlockX(), center.getY(), point.getBlockZ()) : center;
     }
 }

@@ -2,9 +2,9 @@ package com.exoticworlds.engine.noise.periodic;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.SlotAxes;
 import com.exoticworlds.engine.noise.SlotAxis;
@@ -48,10 +48,10 @@ public final class PeriodicNoiseSampler {
 
     public static PeriodicLattice lattice(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold fold, Context context, LapFloor floor) {
-        TranslationLattice translations = fold.blockLattice();
-        SlotAxes axes = context.slotAxes();
-        double scale = context.horizontalScale();
-        boolean slotted = axes != SlotAxes.DEFAULT || context.xDivisor() != 1.0 || context.zDivisor() != 1.0;
+        TranslationLattice translations = fold.getBlockLattice();
+        SlotAxes axes = context.getSlotAxes();
+        double scale = context.getHorizontalScale();
+        boolean slotted = axes != SlotAxes.DEFAULT || context.getXDivisor() != 1.0 || context.getZDivisor() != 1.0;
         return slotted
                 ? slottedLattice(permutations, xOffset, yOffset, zOffset, translations, axes, context, scale, floor)
                 : worldLattice(permutations, xOffset, yOffset, zOffset, translations, context, scale, floor);
@@ -69,8 +69,8 @@ public final class PeriodicNoiseSampler {
 
     private static PeriodicLattice worldLattice(byte[] permutations, double xOffset, double yOffset,
             double zOffset, TranslationLattice translations, Context context, double scale, LapFloor floor) {
-        WrapDomain xDomain = translations.x();
-        WrapDomain zDomain = translations.z();
+        WrapDomain xDomain = translations.getX();
+        WrapDomain zDomain = translations.getZ();
         long xPeriod = period(xDomain, scale, floor);
         long zPeriod = period(zDomain, scale, floor);
         double verticalShare = context.verticalShare();
@@ -99,9 +99,9 @@ public final class PeriodicNoiseSampler {
     // A slot carrying no world axis arrives already scaled by its caller, so scaling it again would move the lattice.
     private static PeriodicLattice.Axis slotAxis(SlotAxis axis, TranslationLattice translations, Context context,
             double scale, LapFloor floor) {
-        WrapDomain domain = axis.domainOf(translations);
-        double slotScale = scale / axis.divisorIn(context);
-        return PeriodicLattice.Axis.of(axis.carriesWorldAxis(), domain, period(domain, slotScale, floor), slotScale);
+        WrapDomain domain = axis.getDomain(translations);
+        double slotScale = scale / axis.getDivisor(context);
+        return PeriodicLattice.Axis.of(axis.hasWorldAxis(), domain, period(domain, slotScale, floor), slotScale);
     }
 
     private static PeriodicLattice.@Nullable Shear slotShear(TranslationLattice translations, SlotAxes axes,
@@ -162,25 +162,25 @@ public final class PeriodicNoiseSampler {
         double xs = shearedCoord(X_SLOT, shear, lattice.x(), x, noiseX, noiseZ) + lattice.xOffset();
         double ys = shearedCoord(Y_SLOT, shear, lattice.y(), y, noiseX, noiseZ) + lattice.yOffset();
         double zs = shearedCoord(Z_SLOT, shear, lattice.z(), z, noiseX, noiseZ) + lattice.zOffset();
-        long xCell = Mth.lfloor(xs);
-        long yCell = Mth.lfloor(ys);
-        long zCell = Mth.lfloor(zs);
-        double xFrac = xs - xCell;
-        double yFrac = ys - yCell;
-        double zFrac = zs - zCell;
+        long cellX = Mth.lfloor(xs);
+        long cellY = Mth.lfloor(ys);
+        long cellZ = Mth.lfloor(zs);
+        double xFrac = xs - cellX;
+        double yFrac = ys - cellY;
+        double zFrac = zs - cellZ;
         double yFracFudged = yFrac - yFracFudge(yFrac, yScale, yFudge);
         byte[] permutations = lattice.permutations();
         int xSlot = shear.xSlot();
         int zSlot = shear.zSlot();
         int freeSlot = X_SLOT + Y_SLOT + Z_SLOT - xSlot - zSlot;
-        long xPairCell = slotCell(xSlot, xCell, yCell, zCell);
-        long zPairCell = slotCell(zSlot, xCell, yCell, zCell);
+        long xPairCell = slotCell(xSlot, cellX, cellY, cellZ);
+        long zPairCell = slotCell(zSlot, cellX, cellY, cellZ);
         int pair00 = reducedPair(shear, xPairCell, zPairCell);
         int pair10 = reducedPair(shear, xPairCell + 1L, zPairCell);
         int pair01 = reducedPair(shear, xPairCell, zPairCell + 1L);
         int pair11 = reducedPair(shear, xPairCell + 1L, zPairCell + 1L);
-        long freeCell = slotCell(freeSlot, xCell, yCell, zCell);
-        long freePeriod = axisAt(freeSlot, lattice).period();
+        long freeCell = slotCell(freeSlot, cellX, cellY, cellZ);
+        long freePeriod = getAxis(freeSlot, lattice).period();
         long free0 = wrapCell(freeCell, freePeriod);
         long free1 = wrapCell(freeCell + 1L, freePeriod);
         double d000 = gradDot(cornerHash(permutations, xSlot, zSlot, pair00, pair10, pair01, pair11, free0, free1,
@@ -230,10 +230,10 @@ public final class PeriodicNoiseSampler {
         return slot == shear.zSlot() ? noiseZ : axis.coord(input);
     }
 
-    private static int reducedPair(PeriodicLattice.Shear shear, long xCell, long zCell) {
-        long laps = Math.floorDiv(zCell, shear.zPeriod());
-        long reducedZ = zCell - laps * shear.zPeriod();
-        long reducedX = Math.floorMod(xCell - laps * shear.skewCells(), shear.xPeriod());
+    private static int reducedPair(PeriodicLattice.Shear shear, long cellX, long cellZ) {
+        long laps = Math.floorDiv(cellZ, shear.zPeriod());
+        long reducedZ = cellZ - laps * shear.zPeriod();
+        long reducedX = Math.floorMod(cellX - laps * shear.skewCells(), shear.xPeriod());
         return (int) (reducedX & PERMUTATION_MASK) | (int) (reducedZ & PERMUTATION_MASK) << PAIR_SHIFT;
     }
 
@@ -265,7 +265,7 @@ public final class PeriodicNoiseSampler {
         return slot == zSlot ? pair >>> PAIR_SHIFT : free;
     }
 
-    private static PeriodicLattice.Axis axisAt(int slot, PeriodicLattice lattice) {
+    private static PeriodicLattice.Axis getAxis(int slot, PeriodicLattice lattice) {
         return switch (slot) {
             case X_SLOT -> lattice.x();
             case Y_SLOT -> lattice.y();
@@ -273,11 +273,11 @@ public final class PeriodicNoiseSampler {
         };
     }
 
-    private static long slotCell(int slot, long xCell, long yCell, long zCell) {
+    private static long slotCell(int slot, long cellX, long cellY, long cellZ) {
         return switch (slot) {
-            case X_SLOT -> xCell;
-            case Y_SLOT -> yCell;
-            default -> zCell;
+            case X_SLOT -> cellX;
+            case Y_SLOT -> cellY;
+            default -> cellZ;
         };
     }
 
@@ -311,7 +311,7 @@ public final class PeriodicNoiseSampler {
     }
 
     public static long period(WrapDomain domain, double scale, LapFloor floor) {
-        if (!domain.loops()) {
+        if (!domain.isLooped()) {
             return UNBOUNDED_PERIOD;
         }
 
@@ -320,7 +320,7 @@ public final class PeriodicNoiseSampler {
     }
 
     static double ratio(WrapDomain domain, long period) {
-        return closes(period) ? (double) period / domain.domainLength : 0.0;
+        return isClosed(period) ? (double) period / domain.domainLength : 0.0;
     }
 
     public static double foldAndScale(WrapDomain domain, long period, double scale, double coord) {
@@ -369,17 +369,17 @@ public final class PeriodicNoiseSampler {
         return Mth.lerp3(xAlpha, yAlpha, zAlpha, d000, d100, d010, d110, d001, d101, d011, d111);
     }
 
-    static boolean closes(long period) {
+    static boolean isClosed(long period) {
         return period > UNBOUNDED_PERIOD;
     }
 
     private static long wrapCell(long cell, long period) {
-        return closes(period) ? Math.floorMod(cell, period) : cell;
+        return isClosed(period) ? Math.floorMod(cell, period) : cell;
     }
 
     private static long nextCell(long wrapped, long period) {
         long next = wrapped + 1L;
-        return closes(period) && next == period ? 0L : next;
+        return isClosed(period) && next == period ? 0L : next;
     }
 
     private static int p(byte[] permutations, long index) {

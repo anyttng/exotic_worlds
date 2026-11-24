@@ -15,7 +15,7 @@ public class MeshServiceRequestMixin {
     @Inject(method = "request(JLcom/eminus/cell/cache/CellHandle;IJF)V", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$joinAWaitingCopy(long key, @Nullable CellHandle held, int references, long request,
             float priority, CallbackInfo ci) {
-        if (((MeshServiceCopies) (Object) this).exotic_worlds$joined(key, held, references, request, priority,
+        if (((MeshServiceCopies) (Object) this).exotic_worlds$tryJoin(key, held, references, request, priority,
                 false)) {
             ci.cancel();
         }

@@ -2,7 +2,7 @@ package com.exoticworlds.compat.c2me;
 
 import com.exoticworlds.accessors.ScaledShiftedNoise;
 import com.exoticworlds.compat.worldgen.ShiftedNoiseFold;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.climate.ClimateCompression;
@@ -133,13 +133,13 @@ class C2meDfcAstTest {
                 CLIMATE_XZ_SCALE, CLIMATE_NOISE_DATA));
         AstNode folded = GenerationFoldContext.withRouterBuild(SQUARE, () -> McToAst.toAst(source));
         Random random = new Random(SEED);
-        int xWidth = SQUARE.blockDomain(Direction.Axis.X).domainLength;
-        int zWidth = SQUARE.blockDomain(Direction.Axis.Z).domainLength;
+        int xWidth = SQUARE.getBlockDomain(Direction.Axis.X).domainLength;
+        int zWidth = SQUARE.getBlockDomain(Direction.Axis.Z).domainLength;
 
         for (int i = 0; i < PERIODICITY_SAMPLES; i++) {
-            int x = blockIn(random, SQUARE.blockDomain(Direction.Axis.X));
+            int x = blockIn(random, SQUARE.getBlockDomain(Direction.Axis.X));
             int y = blockY(random);
-            int z = blockIn(random, SQUARE.blockDomain(Direction.Axis.Z));
+            int z = blockIn(random, SQUARE.getBlockDomain(Direction.Axis.Z));
 
             assertEquals(sampleFolded(folded, x, y, z), sampleFolded(folded, x + xWidth, y, z),
                     "x lap at (" + x + ", " + y + ", " + z + ")");
@@ -180,13 +180,13 @@ class C2meDfcAstTest {
                 withLiveNoise(DensityFunctions.shiftB(NOISE_DATA)))) {
             for (WorldFold worldFold : WORLDS) {
                 AstNode folded = GenerationFoldContext.withRouterBuild(worldFold, () -> McToAst.toAst(source));
-                int xWidth = worldFold.blockDomain(Direction.Axis.X).domainLength;
-                int zWidth = worldFold.blockDomain(Direction.Axis.Z).domainLength;
+                int xWidth = worldFold.getBlockDomain(Direction.Axis.X).domainLength;
+                int zWidth = worldFold.getBlockDomain(Direction.Axis.Z).domainLength;
 
                 for (int i = 0; i < PERIODICITY_SAMPLES; i++) {
-                    int x = blockIn(random, worldFold.blockDomain(Direction.Axis.X));
+                    int x = blockIn(random, worldFold.getBlockDomain(Direction.Axis.X));
                     int y = blockY(random);
-                    int z = blockIn(random, worldFold.blockDomain(Direction.Axis.Z));
+                    int z = blockIn(random, worldFold.getBlockDomain(Direction.Axis.Z));
 
                     assertEquals(sampleFolded(folded, x, y, z), sampleFolded(folded, x + xWidth, y, z),
                             "x lap of " + source + " in " + worldFold + " at (" + x + ", " + y + ", " + z + ")");
@@ -300,9 +300,9 @@ class C2meDfcAstTest {
         Random random = new Random(SEED);
 
         for (int i = 0; i < GRID_SAMPLES; i++) {
-            int x = blockIn(random, SQUARE.blockDomain(Direction.Axis.X));
+            int x = blockIn(random, SQUARE.getBlockDomain(Direction.Axis.X));
             int y = blockY(random);
-            int z = blockIn(random, SQUARE.blockDomain(Direction.Axis.Z));
+            int z = blockIn(random, SQUARE.getBlockDomain(Direction.Axis.Z));
             DensityFunction.FunctionContext at = new DensityFunction.SinglePointContext(x, y, z);
 
             double vanilla = GenerationFoldContext.withFold(SQUARE, () -> source.compute(at));
@@ -351,9 +351,9 @@ class C2meDfcAstTest {
         Random random = new Random(SEED);
 
         for (int i = 0; i < GRID_SAMPLES; i++) {
-            int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
+            int x = blockIn(random, fold.getBlockDomain(Direction.Axis.X));
             int y = blockY(random);
-            int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
+            int z = blockIn(random, fold.getBlockDomain(Direction.Axis.Z));
             DensityFunction.FunctionContext at = new DensityFunction.SinglePointContext(x, y, z);
 
             double vanilla = GenerationFoldContext.withFold(fold, () -> source.compute(at));
@@ -439,7 +439,7 @@ class C2meDfcAstTest {
             GenerationFoldContext.Context generation = Objects.requireNonNull(GenerationFoldContext.wrappedContext());
             ShiftedNoiseFold fold = ShiftedNoiseFold.of(this);
             return fold.sample(generation, context.blockX(), context.blockZ(), this.shiftX.compute(context),
-                    this.shiftZ.compute(context), fold.warpDivisor(generation.fold())) * this.multiplier
+                    this.shiftZ.compute(context), fold.warpDivisor(generation.getFold())) * this.multiplier
                     + this.offset;
         }
 

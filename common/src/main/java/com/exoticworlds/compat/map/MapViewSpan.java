@@ -1,9 +1,9 @@
 package com.exoticworlds.compat.map;
 
 public final class MapViewSpan {
-    public static int[] of(double center, int windowPixels, double pixelsPerBlock, int margin) {
-        double halfSpan = halfBlocks(windowPixels, pixelsPerBlock);
-        return new int[] {(int) Math.floor(center - halfSpan) - margin, (int) Math.ceil(center + halfSpan) + margin};
+    public static int[] of(double center, int windowPixels, double pixelsPerBlock, int marginBlocks) {
+        double halfSpanBlocks = halfBlocks(windowPixels, pixelsPerBlock);
+        return new int[] {(int) Math.floor(center - halfSpanBlocks) - marginBlocks, (int) Math.ceil(center + halfSpanBlocks) + marginBlocks};
     }
 
     public static double halfBlocks(int windowPixels, double pixelsPerBlock) {

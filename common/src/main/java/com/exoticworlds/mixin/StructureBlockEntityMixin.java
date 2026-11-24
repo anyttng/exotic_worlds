@@ -5,8 +5,8 @@ import java.util.stream.Stream;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
 import net.minecraft.core.BlockPos;
@@ -18,7 +18,7 @@ public class StructureBlockEntityMixin {
     @ModifyReturnValue(method = "getRelatedCorners", at = @At("RETURN"))
     private Stream<BlockPos> exotic_worlds$cornersInOwnFrame(Stream<BlockPos> corners) {
         BlockEntity self = (BlockEntity) (Object) this;
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(self.getLevel());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(self.getLevel());
         if (fold == null) {
             return corners;
         }

@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.NoiseConstants;
@@ -41,12 +41,12 @@ public class BiomeGrassColorMixin {
             return original.call(modifier, x, z, baseColor);
         }
 
-        WorldFold fold = exotic_worlds$tintFold();
+        WorldFold fold = exotic_worlds$getTintFold();
         if (fold == null) {
             return original.call(modifier, x, z, baseColor);
         }
 
-        Context generation = GenerationFoldContext.context();
+        Context generation = GenerationFoldContext.getContext();
         double groundValue;
         try (Context.FoldScope _ = generation.withFold(fold);
                 Context.ScaleScope _ = generation.withScale(NoiseConstants.SWAMP_GRASS_SCALE)) {
@@ -59,8 +59,8 @@ public class BiomeGrassColorMixin {
     }
 
     @Unique
-    private static @Nullable WorldFold exotic_worlds$tintFold() {
-        WorldFold bound = GenerationFoldContext.context().wrappedFold();
+    private static @Nullable WorldFold exotic_worlds$getTintFold() {
+        WorldFold bound = GenerationFoldContext.getContext().getWrappedFold();
         if (bound != null) {
             return bound;
         }
@@ -71,6 +71,6 @@ public class BiomeGrassColorMixin {
             return null;
         }
 
-        return WorldLoopAttachments.wrappedClientBoundsFoldOf(minecraft.level);
+        return WorldLoopAttachments.getWrappedClientBoundsFold(minecraft.level);
     }
 }

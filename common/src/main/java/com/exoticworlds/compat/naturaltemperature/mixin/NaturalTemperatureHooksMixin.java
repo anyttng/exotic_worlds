@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.compat.naturaltemperature.ClimateLap;
 import com.exoticworlds.compat.naturaltemperature.PinnedSample;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -36,12 +36,12 @@ public class NaturalTemperatureHooksMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.DENSITY_FUNCTION_COMPUTE))
     private static double exotic_worlds$rawTemperatureOnTheLap(DensityFunction temperature,
             DensityFunction.FunctionContext context, Operation<Double> original) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(CurrentServer.get(), Level.OVERWORLD);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(CurrentServer.get(), Level.OVERWORLD);
         if (fold == null) {
             return original.call(temperature, context);
         }
 
-        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             return original.call(temperature, context);
         }
     }

@@ -8,56 +8,56 @@ import dev.worldgen.lithostitched.api.worldgen.densityfunction.fastnoise.FNL;
 @Mixin(FNL.class)
 public interface FastNoiseLiteAccessor {
     @Accessor("PrimeX")
-    static int exotic_worlds$primeX() {
+    static int exotic_worlds$getPrimeX() {
         throw new AssertionError();
     }
 
     @Accessor("PrimeY")
-    static int exotic_worlds$primeY() {
+    static int exotic_worlds$getPrimeY() {
         throw new AssertionError();
     }
 
     @Accessor("PrimeZ")
-    static int exotic_worlds$primeZ() {
+    static int exotic_worlds$getPrimeZ() {
         throw new AssertionError();
     }
 
     @Accessor("mSeed")
-    int exotic_worlds$seed();
+    int exotic_worlds$getSeed();
 
     @Accessor("mFrequency")
-    float exotic_worlds$frequency();
+    float exotic_worlds$getFrequency();
 
     @Accessor("mNoiseType")
-    FNL.NoiseType exotic_worlds$noiseType();
+    FNL.NoiseType exotic_worlds$getNoiseType();
 
     @Accessor("mRotationType3D")
-    FNL.RotationType3D exotic_worlds$rotationType3d();
+    FNL.RotationType3D exotic_worlds$getRotationType3d();
 
     @Accessor("mFractalType")
-    FNL.FractalType exotic_worlds$fractalType();
+    FNL.FractalType exotic_worlds$getFractalType();
 
     @Accessor("mOctaves")
-    int exotic_worlds$octaves();
+    int exotic_worlds$getOctaves();
 
     @Accessor("mLacunarity")
-    float exotic_worlds$lacunarity();
+    float exotic_worlds$getLacunarity();
 
     @Accessor("mGain")
-    float exotic_worlds$gain();
+    float exotic_worlds$getGain();
 
     @Accessor("mWeightedStrength")
-    float exotic_worlds$weightedStrength();
+    float exotic_worlds$getWeightedStrength();
 
     @Accessor("mPingPongStrength")
-    float exotic_worlds$pingPongStrength();
+    float exotic_worlds$getPingPongStrength();
 
     @Accessor("mCellularDistanceFunction")
-    FNL.CellularDistanceFunction exotic_worlds$cellularDistanceFunction();
+    FNL.CellularDistanceFunction exotic_worlds$getCellularDistanceFunction();
 
     @Accessor("mCellularReturnType")
-    FNL.CellularReturnType exotic_worlds$cellularReturnType();
+    FNL.CellularReturnType exotic_worlds$getCellularReturnType();
 
     @Accessor("mCellularJitterModifier")
-    float exotic_worlds$cellularJitterModifier();
+    float exotic_worlds$getCellularJitterModifier();
 }

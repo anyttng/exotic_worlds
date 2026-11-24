@@ -5,11 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.world.level.ChunkPos;
 
@@ -23,7 +23,7 @@ class ChunkViewSweepTest {
     private static final WorldFold TORUS =
             WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(MAX_CHUNK - MIN_CHUNK + 1)));
 
-    private static final int VIEW_DISTANCE = 8;
+    private static final int VIEW_DISTANCE_CHUNKS = 8;
 
     @Test
     void aPairTheFoldCannotRelateSweepsEachViewAloneAtAnyDistance() {
@@ -38,7 +38,7 @@ class ChunkViewSweepTest {
     @Test
     void aMoveAcrossTheSeamPlansTheBoxItAlwaysDid() {
         ChunkViewSweep sweep = ChunkViewSweep.between(
-                TORUS, new ChunkPos(15, 0), VIEW_DISTANCE, new ChunkPos(-15, 0), VIEW_DISTANCE);
+                TORUS, new ChunkPos(15, 0), VIEW_DISTANCE_CHUNKS, new ChunkPos(-15, 0), VIEW_DISTANCE_CHUNKS);
 
         assertEquals(new ChunkViewSweep.OverBoth(6, -9, 26, 9), sweep);
     }
@@ -50,7 +50,7 @@ class ChunkViewSweepTest {
         for (int x = MIN_CHUNK; x <= MAX_CHUNK; x++) {
             for (int z = MIN_CHUNK; z <= MAX_CHUNK; z++) {
                 ChunkPos next = new ChunkPos(x, z);
-                ChunkViewSweep sweep = ChunkViewSweep.between(TORUS, seamCorner, VIEW_DISTANCE, next, VIEW_DISTANCE);
+                ChunkViewSweep sweep = ChunkViewSweep.between(TORUS, seamCorner, VIEW_DISTANCE_CHUNKS, next, VIEW_DISTANCE_CHUNKS);
 
                 assertTrue(sweep instanceof ChunkViewSweep.OverBoth, () -> "split the sweep at " + next);
             }
@@ -59,6 +59,6 @@ class ChunkViewSweepTest {
 
     private static ChunkViewSweep sweepAlongTheUnboundedAxis(int chunksAway) {
         return ChunkViewSweep.between(
-                CYLINDER, new ChunkPos(0, 0), VIEW_DISTANCE, new ChunkPos(0, chunksAway), VIEW_DISTANCE);
+                CYLINDER, new ChunkPos(0, 0), VIEW_DISTANCE_CHUNKS, new ChunkPos(0, chunksAway), VIEW_DISTANCE_CHUNKS);
     }
 }

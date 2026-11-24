@@ -5,9 +5,9 @@ import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.AddedStart;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.gen.AddedStart;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
@@ -17,20 +17,20 @@ public final class SpreadRingScan {
     private final List<AddedStart> added;
     private final RandomSpreadStructurePlacement placement;
     private final long seed;
-    private final int skew;
+    private final int skewChunks;
     private final SectorGridAxis xCells;
     private final SectorGridAxis zCells;
 
     private SpreadRingScan(WorldFold fold, List<AddedStart> added,
             RandomSpreadStructurePlacement placement, long seed, ChunkPos center) {
-        TranslationLattice lattice = fold.chunkLattice();
+        TranslationLattice lattice = fold.getChunkLattice();
         this.fold = fold;
         this.added = added;
         this.placement = placement;
         this.seed = seed;
-        this.skew = lattice.skew();
-        this.xCells = SectorGridAxis.of(lattice.x(), placement.spacing(), center.x());
-        this.zCells = SectorGridAxis.of(lattice.z(), placement.spacing(), center.z());
+        this.skewChunks = lattice.getSkew();
+        this.xCells = SectorGridAxis.of(lattice.getX(), placement.spacing(), center.x());
+        this.zCells = SectorGridAxis.of(lattice.getZ(), placement.spacing(), center.z());
     }
 
     public static SpreadRingScan of(WorldFold fold, AddedStructureStarts added,
@@ -40,14 +40,14 @@ public final class SpreadRingScan {
 
     public <T> @Nullable T ring(int radius, Function<ChunkPos, @Nullable T> candidate,
             Function<AddedStart, @Nullable T> addedStart) {
-        if (radius > Math.max(this.xCells.offsetCap(), this.zCells.offsetCap())) {
+        if (radius > Math.max(this.xCells.getOffsetCap(), this.zCells.getOffsetCap())) {
             return null;
         }
 
         for (int x = -radius; x <= radius; x++) {
-            boolean xEdge = x == -radius || x == radius;
+            boolean isXEdge = x == -radius || x == radius;
             for (int z = -radius; z <= radius; z++) {
-                if (!xEdge && z != -radius && z != radius) {
+                if (!isXEdge && z != -radius && z != radius) {
                     continue;
                 }
 
@@ -64,11 +64,11 @@ public final class SpreadRingScan {
     // mc/1.21: Supplementaries' structure locator folds the cells of its own round rings through it.
     public <T> @Nullable T cell(int x, int z, Function<ChunkPos, @Nullable T> candidate,
             Function<AddedStart, @Nullable T> addedStart) {
-        if (Math.abs(x) > this.xCells.offsetCap() || Math.abs(z) > this.zCells.offsetCap()) {
+        if (Math.abs(x) > this.xCells.getOffsetCap() || Math.abs(z) > this.zCells.getOffsetCap()) {
             return null;
         }
 
-        int probeX = this.xCells.probeChunkShifted(x, -this.zCells.lapsCrossed(z) * this.skew);
+        int probeX = this.xCells.probeChunkShifted(x, -this.zCells.lapsCrossed(z) * this.skewChunks);
         int probeZ = this.zCells.probeChunk(z);
         ChunkPos picked = this.placement.getPotentialStructureChunk(this.seed, probeX, probeZ);
         if (!this.fold.isOver(picked)) {
@@ -83,10 +83,10 @@ public final class SpreadRingScan {
 
     private <T> @Nullable T addedInCell(int probeX, int probeZ,
             Function<AddedStart, @Nullable T> addedStart) {
-        int spacing = this.placement.spacing();
+        int spacingChunks = this.placement.spacing();
         for (AddedStart start : this.added) {
-            if (Math.floorDiv(start.chunk().x(), spacing) != Math.floorDiv(probeX, spacing)
-                    || Math.floorDiv(start.chunk().z(), spacing) != Math.floorDiv(probeZ, spacing)) {
+            if (Math.floorDiv(start.chunk().x(), spacingChunks) != Math.floorDiv(probeX, spacingChunks)
+                    || Math.floorDiv(start.chunk().z(), spacingChunks) != Math.floorDiv(probeZ, spacingChunks)) {
                 continue;
             }
 

@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.noise.FoldedTemperatureCache;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
@@ -39,12 +39,12 @@ public class BiomeMixin {
             at = @At(value = "INVOKE", target = "Ljava/lang/ThreadLocal;get()Ljava/lang/Object;"),
             require = 0)
     private Object exotic_worlds$temperatureCacheOfBoundFold(ThreadLocal<?> cache, Operation<Object> original) {
-        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
         if (fold == null) {
             return original.call(cache);
         }
 
-        return this.exotic_worlds$foldedTemperatureCache.get().temperaturesUnder(fold);
+        return this.exotic_worlds$foldedTemperatureCache.get().getTemperaturesUnder(fold);
     }
 
     @WrapMethod(method = "shouldFreeze(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Z)Z")
@@ -60,7 +60,7 @@ public class BiomeMixin {
 
     @Unique
     private <T> T exotic_worlds$boundToLevel(LevelReader level, Supplier<T> action) {
-        WorldFold fold = WorldLoopAttachments.noiseFoldOfReader(level);
+        WorldFold fold = WorldLoopAttachments.getNoiseFoldOfReader(level);
         if (fold == null) {
             return action.get();
         }
@@ -79,8 +79,8 @@ public class BiomeMixin {
             return original.call(modifier, pos, baseTemperature);
         }
 
-        Context generation = GenerationFoldContext.context();
-        if (generation.wrappedFold() == null) {
+        Context generation = GenerationFoldContext.getContext();
+        if (generation.getWrappedFold() == null) {
             return original.call(modifier, pos, baseTemperature);
         }
 
@@ -126,8 +126,8 @@ public class BiomeMixin {
             boolean useNoiseStart,
             Operation<Double> original,
             @Local(argsOnly = true) BlockPos pos) {
-        Context generation = GenerationFoldContext.context();
-        if (generation.wrappedFold() == null) {
+        Context generation = GenerationFoldContext.getContext();
+        if (generation.getWrappedFold() == null) {
             return original.call(noise, x, z, useNoiseStart);
         }
 

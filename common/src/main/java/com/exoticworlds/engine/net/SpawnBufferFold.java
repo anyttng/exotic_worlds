@@ -17,8 +17,8 @@ public final class SpawnBufferFold {
         TABLE.declare(rows);
     }
 
-    public static boolean carriesPositions(TagPositions.Subject entity) {
-        return TABLE.carriesPositions(entity);
+    public static boolean hasPositions(TagPositions.Subject entity) {
+        return TABLE.hasPositions(entity);
     }
 
     public static CompoundTag seatedIn(TagPositions.Seat seat, TagPositions.Subject entity, CompoundTag tag) {

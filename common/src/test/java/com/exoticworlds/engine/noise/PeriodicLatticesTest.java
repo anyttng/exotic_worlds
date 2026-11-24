@@ -1,9 +1,9 @@
 package com.exoticworlds.engine.noise;
 
-import static com.exoticworlds.core.WorldFoldFixture.EVEN;
-import static com.exoticworlds.core.WorldFoldFixture.ODD;
-import static com.exoticworlds.core.WorldFoldFixture.UNEVEN;
-import static com.exoticworlds.core.WorldFoldFixture.X_ONLY;
+import static com.exoticworlds.core.fold.WorldFoldFixture.EVEN;
+import static com.exoticworlds.core.fold.WorldFoldFixture.ODD;
+import static com.exoticworlds.core.fold.WorldFoldFixture.UNEVEN;
+import static com.exoticworlds.core.fold.WorldFoldFixture.X_ONLY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.periodic.LapFloor;
 import com.exoticworlds.engine.noise.periodic.PeriodicLattice;
@@ -56,7 +56,7 @@ class PeriodicLatticesTest {
 
     private record Key(WorldFold fold, SlotAxes axes, double scale, double verticalShare, double divisor) {
         <T> T under(Supplier<T> action) {
-            Context context = GenerationFoldContext.context();
+            Context context = GenerationFoldContext.getContext();
             try (Context.BindingScope _ = context.bind(this.fold, this.axes, this.scale, this.verticalShare);
                     Context.DivisorScope _ = context.withDivisors(this.divisor, this.divisor)) {
                 return action.get();
@@ -89,7 +89,7 @@ class PeriodicLatticesTest {
 
         PeriodicLattice latticeIn(PeriodicLattices table, Key key) {
             return key.under(() -> table.latticeFor(this.permutations, this.xo, this.yo, this.zo, key.fold(),
-                    GenerationFoldContext.context()));
+                    GenerationFoldContext.getContext()));
         }
     }
 
@@ -132,10 +132,10 @@ class PeriodicLatticesTest {
             double y = random.nextInt(384) - 64 + random.nextDouble();
             double z = (random.nextDouble() * 2.0 - 1.0) * REACH_BLOCKS;
             double cached = key.under(() -> table.sample(noise.permutations(), noise.xo(), noise.yo(), noise.zo(),
-                    key.fold(), GenerationFoldContext.context(), x, y, z, yParams[0], yParams[1]));
+                    key.fold(), GenerationFoldContext.getContext(), x, y, z, yParams[0], yParams[1]));
             double perCall = key.under(() -> PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(
                     noise.permutations(), noise.xo(), noise.yo(), noise.zo(), key.fold(),
-                    GenerationFoldContext.context(), LapFloor.of(key.fold())), x, y, z, yParams[0],
+                    GenerationFoldContext.getContext(), LapFloor.of(key.fold())), x, y, z, yParams[0],
                     yParams[1]));
             assertEquals(perCall, cached, () -> "sample(" + x + ", " + y + ", " + z + ") under " + key);
         }

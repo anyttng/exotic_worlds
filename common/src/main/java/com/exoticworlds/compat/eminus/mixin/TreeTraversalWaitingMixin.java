@@ -14,7 +14,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 public class TreeTraversalWaitingMixin {
     @Inject(method = "waiting", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$waitOnlyInsideTheLap(CallbackInfo ci, @Local(argsOnly = true) long key) {
-        if (!((LapTest) (Object) this).exotic_worlds$meets(key, LapTest.NO_MARGIN)) {
+        if (!((LapTest) (Object) this).exotic_worlds$isMeeting(key, LapTest.NO_MARGIN)) {
             ci.cancel();
         }
     }

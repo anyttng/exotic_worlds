@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.accessors.FramedStructureStart;
 import com.exoticworlds.accessors.LevelHolder;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -43,7 +43,7 @@ public class StructureManagerMixin {
             return starts;
         }
 
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(((LevelHolder) region).exotic_worlds$level());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(((LevelHolder) region).exotic_worlds$getLevel());
         if (fold != null && !starts.isEmpty()) {
             List<StructureStart> framed = new ArrayList<>(starts.size());
             for (StructureStart start : starts) {
@@ -65,7 +65,7 @@ public class StructureManagerMixin {
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/levelgen/structure/BoundingBox;isInside(Lnet/minecraft/core/Vec3i;)Z"))
     private boolean exotic_worlds$startBoxThroughSeam(BoundingBox box, Vec3i pos, Operation<Boolean> original) {
-        return original.call(box, NearestCopy.toward(WorldLoopAttachments.foldOfReader(this.level), box, pos));
+        return original.call(box, NearestCopy.toward(WorldLoopAttachments.getFoldOfReader(this.level), box, pos));
     }
 
     @WrapMethod(method = "structureHasPieceAt(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/structure/StructureStart;)Z")
@@ -74,7 +74,7 @@ public class StructureManagerMixin {
             return original.call(pos, start);
         }
 
-        BlockPos seated = NearestCopy.toward(WorldLoopAttachments.foldOfReader(this.level),
+        BlockPos seated = NearestCopy.toward(WorldLoopAttachments.getFoldOfReader(this.level),
                 start.getBoundingBox(), pos);
         return original.call(new BlockPos(seated.getX(), pos.getY(), seated.getZ()), start);
     }

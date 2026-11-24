@@ -8,8 +8,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedOrder;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -27,10 +27,10 @@ import net.minecraft.world.level.portal.PortalForcer;
 @Mixin(value = PortalForcer.class, priority = 1100)
 public class PortalForcerMixin {
     @Unique
-    private static final int NETHER_SEARCH_RADIUS = 16;
+    private static final int NETHER_SEARCH_RADIUS_BLOCKS = 16;
 
     @Unique
-    private static final int OVERWORLD_SEARCH_RADIUS = 128;
+    private static final int OVERWORLD_SEARCH_RADIUS_BLOCKS = 128;
 
     @Shadow
     @Final
@@ -42,17 +42,17 @@ public class PortalForcerMixin {
             boolean toNether,
             WorldBorder worldBorder,
             Operation<Optional<BlockPos>> original) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.level);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(this.level);
         if (fold == null) {
             return original.call(approximateExitPos, toNether, worldBorder);
         }
 
         PoiManager poiManager = this.level.getPoiManager();
-        int radius = toNether ? NETHER_SEARCH_RADIUS : OVERWORLD_SEARCH_RADIUS;
-        poiManager.ensureLoadedAndValid(this.level, approximateExitPos, radius);
+        int radiusBlocks = toNether ? NETHER_SEARCH_RADIUS_BLOCKS : OVERWORLD_SEARCH_RADIUS_BLOCKS;
+        poiManager.ensureLoadedAndValid(this.level, approximateExitPos, radiusBlocks);
         Comparator<BlockPos> byDistance = Comparator.<BlockPos>comparingDouble(pos -> pos.distSqr(approximateExitPos))
                 .thenComparingInt(Vec3i::getY);
-        return poiManager.getInSquare(type -> type.is(PoiTypes.NETHER_PORTAL), approximateExitPos, radius,
+        return poiManager.getInSquare(type -> type.is(PoiTypes.NETHER_PORTAL), approximateExitPos, radiusBlocks,
                         PoiManager.Occupancy.ANY)
                 .map(PoiRecord::getPos)
                 .filter(worldBorder::isWithinBounds)

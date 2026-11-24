@@ -15,8 +15,8 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 public class SavedColumnMixin {
     @ModifyReturnValue(method = "biomeWindow", at = @At("RETURN"))
     private BiomeWindow exotic_worlds$zoomOnTheSavedLevel(BiomeWindow window) {
-        ((BiomeZoomOwner) ((BiomeWindowAccessor) (Object) window).exotic_worlds$manager())
-                .exotic_worlds$setOwner(SavedChunkOwner.ownerOf(EminusImports.center(this)));
+        ((BiomeZoomOwner) ((BiomeWindowAccessor) (Object) window).exotic_worlds$getManager())
+                .exotic_worlds$setOwner(SavedChunkOwner.getOwner(EminusImports.readCenter(this)));
         return window;
     }
 }

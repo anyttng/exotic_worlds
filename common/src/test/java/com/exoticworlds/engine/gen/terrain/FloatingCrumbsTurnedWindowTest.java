@@ -8,19 +8,19 @@ import java.lang.reflect.Proxy;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.FoldOrientation;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.fold.FoldOrientation;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.level.ChunkPos;
 
 class FloatingCrumbsTurnedWindowTest {
-    private static final int CHUNK_WIDTH = CoordinateConstants.CHUNK_WIDTH;
+    private static final int CHUNK_WIDTH_BLOCKS = CoordinateConstants.CHUNK_WIDTH_BLOCKS;
     private static final int WINDOW_CHUNKS = 3;
-    private static final int HEIGHT = 16;
+    private static final int HEIGHT_BLOCKS = 16;
     private static final int MIN_Y = 0;
     private static final int LAYER = 5;
-    private static final CellGrid GRID = new CellGrid(CHUNK_WIDTH, HEIGHT);
+    private static final CellGrid GRID = new CellGrid(CHUNK_WIDTH_BLOCKS, HEIGHT_BLOCKS);
 
     private static final ChunkPos CENTER = new ChunkPos(3, 0);
     private static final int CENTER_INDEX = 4;
@@ -54,12 +54,12 @@ class FloatingCrumbsTurnedWindowTest {
 
     private static TerrainMask mask(ChunkPos pos, @Nullable WorldFold turning, FoldOrientation frame,
             @Nullable Box solid) {
-        boolean[] cells = new boolean[GRID.cells()];
+        boolean[] cells = new boolean[GRID.getCellCount()];
         if (solid != null) {
             for (int localZ = solid.minZ(); localZ <= solid.maxZ(); localZ++) {
                 for (int localX = solid.minX(); localX <= solid.maxX(); localX++) {
-                    cells[GRID.cell(frame.applyToLocalX(localX, localZ, CHUNK_WIDTH), LAYER,
-                            frame.applyToLocalZ(localX, localZ, CHUNK_WIDTH))] = true;
+                    cells[GRID.cell(frame.applyToLocalX(localX, localZ, CHUNK_WIDTH_BLOCKS), LAYER,
+                            frame.applyToLocalZ(localX, localZ, CHUNK_WIDTH_BLOCKS))] = true;
                 }
             }
         }

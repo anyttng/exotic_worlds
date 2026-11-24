@@ -75,7 +75,7 @@ public abstract class ErosionNoiseMixin {
                     + "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/module/Noise;[F)F"))
     private float exotic_worlds$canonicalCandidate(int dx, int dy, float px, float py, Noise module, float[] cache,
             Operation<Float> original, @Local(argsOnly = true, ordinal = GRID_SIZE_ORDINAL) float cellSize) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return original.call(dx, dy, px, py, module, cache);
         }

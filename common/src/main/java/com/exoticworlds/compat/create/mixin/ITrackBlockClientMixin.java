@@ -21,7 +21,7 @@ public interface ITrackBlockClientMixin {
                     target = "Lcom/zurrtum/create/content/trains/graph/TrackNodeLocation;allAdjacent()Ljava/util/Collection;"))
     private static Collection<BlockPos> exotic_worlds$walkInClientFrame(TrackNodeLocation location,
             Operation<Collection<BlockPos>> original, BlockGetter worldIn, TrackNodeLocation walkedFrom,
-            boolean linear) {
+            boolean isLinear) {
         return CreateClientFrame.nearestCopies(worldIn, original.call(location));
     }
 }

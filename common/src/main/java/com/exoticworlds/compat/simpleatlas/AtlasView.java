@@ -11,7 +11,7 @@ public record AtlasView(float contentX, float contentY, float contentWidth, floa
 
     public static float panInside(AxisCopies axis, float worldStart, float viewStart, float viewLength,
             float pixelsPerBlock) {
-        double centre = axis.min() + (viewStart + viewLength / 2.0 - worldStart) / pixelsPerBlock;
+        double centre = axis.getMin() + (viewStart + viewLength / 2.0 - worldStart) / pixelsPerBlock;
         double clamped = axis.clampView(centre, viewLength / 2.0 / pixelsPerBlock);
         return (float) ((centre - clamped) * pixelsPerBlock);
     }

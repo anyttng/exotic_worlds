@@ -3,7 +3,7 @@ package com.exoticworlds.compat.worldgen;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.FoldGenerators;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 

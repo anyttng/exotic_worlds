@@ -12,14 +12,14 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.api.v1.ToroidalShape;
 import com.exoticworlds.api.v2.shape.LoopSpansV2;
 import com.exoticworlds.bridge.v2.geometry.GeometryBridge;
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -31,9 +31,9 @@ class WorldGeometryV2ContractTest {
     private static final int UNIT = 16;
     private static final int MIN_CHUNK = -8;
     private static final int MAX_CHUNK = 8;
-    private static final int WIDTH = (MAX_CHUNK - MIN_CHUNK) * UNIT;
+    private static final int WIDTH_BLOCKS = (MAX_CHUNK - MIN_CHUNK) * UNIT;
     private static final int LOWER = MIN_CHUNK * UNIT;
-    private static final int UPPER = LOWER + WIDTH;
+    private static final int UPPER = LOWER + WIDTH_BLOCKS;
     private static final int LATTICE_SKEW_CHUNKS = 3;
     private static final int SAMPLES = 200;
     private static final int LAPS_SAMPLED = 6;
@@ -49,7 +49,7 @@ class WorldGeometryV2ContractTest {
     private static final AABB INSIDE = new AABB(LOWER + 10, 0, LOWER + 10, LOWER + 20, 8, LOWER + 20);
     private static final AABB ACROSS_THE_CORNER = new AABB(UPPER - 8, 0, UPPER - 6, UPPER + 8, 8, UPPER + 10);
     private static final AABB WIDER_THAN_THE_WORLD =
-            new AABB(LOWER - WIDTH / 2.0, 0, LOWER - WIDTH / 2.0, UPPER + WIDTH / 2.0, 8, UPPER + WIDTH / 2.0);
+            new AABB(LOWER - WIDTH_BLOCKS / 2.0, 0, LOWER - WIDTH_BLOCKS / 2.0, UPPER + WIDTH_BLOCKS / 2.0, 8, UPPER + WIDTH_BLOCKS / 2.0);
     private static final List<AABB> BOXES = List.of(INSIDE, ACROSS_THE_CORNER, WIDER_THAN_THE_WORLD);
 
     private record Twins(String name, ToroidalShape v1, WorldGeometryV2 v2, LoopSpansV2 spans) {
@@ -71,7 +71,7 @@ class WorldGeometryV2ContractTest {
     @Test
     void theSpansAreTheOnesTheShapeWasDeclaredWith() {
         for (Twins twins : shapes()) {
-            assertEquals(twins.spans(), twins.v2().spans(), twins.name() + ": the spans");
+            assertEquals(twins.spans(), twins.v2().getSpans(), twins.name() + ": the spans");
         }
     }
 
@@ -81,7 +81,7 @@ class WorldGeometryV2ContractTest {
         for (Twins twins : shapes()) {
             ToroidalShape v1 = twins.v1();
             WorldGeometryV2 v2 = twins.v2();
-            assertEquals(v1.preservesLocalIndices(), v2.preservesLocalIndices(), twins.name() + ": local indices");
+            assertEquals(v1.preservesLocalIndices(), v2.areLocalIndicesPreserved(), twins.name() + ": local indices");
             for (int sample = 0; sample < SAMPLES; sample++) {
                 Vec3 ref = randomPosition(random);
                 Vec3 target = randomPosition(random);
@@ -97,8 +97,9 @@ class WorldGeometryV2ContractTest {
                 assertEquals(v1.nearestCopy(refBlock, targetBlock), v2.nearestCopy(refBlock, targetBlock), at);
                 assertEquals(v1.nearestCopy(ref, box), v2.nearestCopy(ref, box), at);
                 assertEquals(v1.shortestDelta(ref, target), v2.shortestDelta(ref, target), at);
-                assertEquals(v1.sqrDistance(ref, target), v2.sqrDistance(ref, target), at);
-                assertEquals(v1.boxesOverlap(box, ACROSS_THE_CORNER), v2.boxesOverlap(box, ACROSS_THE_CORNER), at);
+                assertEquals(v1.sqrDistance(ref, target), v2.sqrDistanceBlocks(ref, target), at);
+                assertEquals(v1.boxesOverlap(box, ACROSS_THE_CORNER),
+                        v2.areBoxesOverlapping(box, ACROSS_THE_CORNER), at);
             }
         }
     }
@@ -203,7 +204,7 @@ class WorldGeometryV2ContractTest {
         BlockPos block = BlockPos.containing(member);
         AABB box = new AABB(member, member.add(3.0, 2.0, 5.0));
         assertEquals(expected.isIdentity(), actual.isIdentity(), at);
-        assertTwin(expected.orientation(), actual.orientation(), at);
+        assertTwin(expected.orientation(), actual.getOrientation(), at);
         assertEquals(expected.apply(member), actual.apply(member), at);
         assertEquals(expected.apply(block), actual.apply(block), at);
         assertEquals(expected.apply(ChunkPos.containing(block)), actual.apply(ChunkPos.containing(block)), at);
@@ -212,12 +213,12 @@ class WorldGeometryV2ContractTest {
 
     private static void assertTwin(ToroidalShape.Orientation expected, OrientationV2 actual, String at) {
         assertEquals(expected.isIdentity(), actual.isIdentity(), at);
-        assertEquals(expected.preservesHandedness(), actual.preservesHandedness(), at);
+        assertEquals(expected.preservesHandedness(), actual.isHandednessPreserved(), at);
         assertEquals(expected.applyToDelta(CARRIED_DELTA), actual.applyToDelta(CARRIED_DELTA), at);
     }
 
     private static Vec3 randomPosition(Random random) {
-        return new Vec3((random.nextDouble() - 0.5) * LAPS_SAMPLED * WIDTH, random.nextDouble() * 128,
-                (random.nextDouble() - 0.5) * LAPS_SAMPLED * WIDTH);
+        return new Vec3((random.nextDouble() - 0.5) * LAPS_SAMPLED * WIDTH_BLOCKS, random.nextDouble() * 128,
+                (random.nextDouble() - 0.5) * LAPS_SAMPLED * WIDTH_BLOCKS);
     }
 }

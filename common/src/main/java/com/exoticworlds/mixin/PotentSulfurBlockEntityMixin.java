@@ -2,8 +2,8 @@ package com.exoticworlds.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -18,7 +18,7 @@ public class PotentSulfurBlockEntityMixin {
     @WrapMethod(method = "canBeReachedByNoxiousGas")
     private static boolean exotic_worlds$gasReachThroughSeam(Level level, BlockPos sourceBlock, Vec3 pos,
             Operation<Boolean> original) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         return original.call(level, sourceBlock, NearestCopy.toward(fold, Vec3.atCenterOf(sourceBlock), pos));
     }
 }

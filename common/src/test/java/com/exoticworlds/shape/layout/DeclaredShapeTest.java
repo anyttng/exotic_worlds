@@ -19,12 +19,12 @@ import com.exoticworlds.api.v2.shape.DimensionContextV2;
 import com.exoticworlds.api.v2.shape.DimensionShapeV2;
 import com.exoticworlds.api.v2.shape.LoopSpansV2;
 import com.exoticworlds.bridge.v2.option.ShapeOptionsAdapter;
-import com.exoticworlds.core.DimensionTable;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOption;
-import com.exoticworlds.core.ShapeOptionRegistry;
-import com.exoticworlds.core.ShapeOptions;
+import com.exoticworlds.core.world.DimensionTable;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOption;
+import com.exoticworlds.core.option.ShapeOptionRegistry;
+import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.dimension.DimensionContext;
@@ -55,11 +55,11 @@ class DeclaredShapeTest {
 
     @BeforeAll
     static void registerShapes() {
-        if (!ShapeOptionRegistry.all().contains(WIDTH)) {
+        if (!ShapeOptionRegistry.getAll().contains(WIDTH)) {
             SHAPE_WIDTH.register();
         }
 
-        if (DeclaredShapes.of(BAND.id()) == null) {
+        if (DeclaredShapes.of(BAND.getId()) == null) {
             BAND.register();
             STRIP.register();
         }
@@ -79,12 +79,12 @@ class DeclaredShapeTest {
     @Test
     void aShapeThatLoopsNoAxisLeavesTheDimensionAsTheGameMakesIt() {
         FlatShape none = DeclaredShapes.resolve(band(), context(LevelStem.OVERWORLD, PLAIN.with(WIDTH, 0), null));
-        DimensionLayout layout = DimensionLayout.declared(BAND.id(), none, PLAIN);
+        DimensionLayout layout = DimensionLayout.declared(BAND.getId(), none, PLAIN);
 
         assertNull(none);
         assertEquals(ShapeKind.NORMAL, layout.kind());
         assertNull(layout.spans());
-        assertEquals(BAND.id(), layout.shape());
+        assertEquals(BAND.getId(), layout.shape());
     }
 
     @Test
@@ -96,8 +96,8 @@ class DeclaredShapeTest {
 
         WorldLayout recognized = ShapeRecognition.recognize(stored, DeclaredShapeTest::scale);
 
-        assertEquals(BAND.id(), recognized.overworld().shape());
-        assertEquals(BAND.id(), recognized.nether().shape());
+        assertEquals(BAND.getId(), recognized.overworld().shape());
+        assertEquals(BAND.getId(), recognized.nether().shape());
         assertNull(recognized.end().shape());
         assertEquals(stored.end(), recognized.end());
     }
@@ -112,34 +112,34 @@ class DeclaredShapeTest {
         WorldLayout recognized = ShapeRecognition.recognize(
                 LayoutDimensions.ofRows(Map.of(sky, stored)), DeclaredShapeTest::scale);
 
-        assertEquals(DimensionLayout.declared(BAND.id(), spans, WIDE), recognized.modDimension(sky));
-        assertEquals(stored, LayoutDimensions.entryOf(recognized.modDimension(sky)));
+        assertEquals(DimensionLayout.declared(BAND.getId(), spans, WIDE), recognized.getModDimension(sky));
+        assertEquals(stored, LayoutDimensions.entryOf(recognized.getModDimension(sky)));
     }
 
     @Test
     void aPresetOnAShapeThatTakesOneChangesItsOptionsAndTheSpansTheyComeTo() {
         WorldLayout band = WorldLayout.DEFAULT.withOverworld(
-                DimensionLayout.declared(BAND.id(), ShapeFixtures.cylinder(Direction.Axis.X, 128), WIDE));
+                DimensionLayout.declared(BAND.getId(), ShapeFixtures.cylinder(Direction.Axis.X, 128), WIDE));
 
         WorldLayout large = LayoutPreset.apply(band, WorldLoopPresets.LARGE, 1.0);
 
-        assertTrue(LayoutPreset.offered(band));
-        assertEquals(DimensionLayout.declared(BAND.id(), ShapeFixtures.cylinder(Direction.Axis.X, 256),
+        assertTrue(LayoutPreset.isOffered(band));
+        assertEquals(DimensionLayout.declared(BAND.getId(), ShapeFixtures.cylinder(Direction.Axis.X, 256),
                 PLAIN.with(WIDTH, 256)), large.overworld());
-        assertEquals(WorldLoopPresets.LARGE.netherScale(), large.netherScale());
-        assertTrue(LayoutPreset.matches(large, WorldLoopPresets.LARGE));
-        assertFalse(LayoutPreset.matches(large, WorldLoopPresets.SMALL));
+        assertEquals(WorldLoopPresets.LARGE.getNetherScale(), large.netherScale());
+        assertTrue(LayoutPreset.isMatching(large, WorldLoopPresets.LARGE));
+        assertFalse(LayoutPreset.isMatching(large, WorldLoopPresets.SMALL));
     }
 
     @Test
     void aShapeThatTakesNoPresetLeavesTheLayoutAsItIs() {
         WorldLayout strip = WorldLayout.DEFAULT.withOverworld(
-                DimensionLayout.declared(STRIP.id(), ShapeFixtures.cylinder(Direction.Axis.Z, 48), PLAIN));
+                DimensionLayout.declared(STRIP.getId(), ShapeFixtures.cylinder(Direction.Axis.Z, 48), PLAIN));
 
-        assertFalse(LayoutPreset.offered(strip));
+        assertFalse(LayoutPreset.isOffered(strip));
         assertSame(strip, LayoutPreset.apply(strip, WorldLoopPresets.LARGE, 1.0));
-        assertFalse(LayoutPreset.matches(strip, WorldLoopPresets.LARGE));
-        assertTrue(LayoutPreset.offered(WorldLayout.DEFAULT));
+        assertFalse(LayoutPreset.isMatching(strip, WorldLoopPresets.LARGE));
+        assertTrue(LayoutPreset.isOffered(WorldLayout.DEFAULT));
     }
 
     private static DimensionContext context(ResourceKey<LevelStem> dimension, ShapeOptions options,
@@ -148,7 +148,7 @@ class DeclaredShapeTest {
     }
 
     private static DimensionShape band() {
-        return Objects.requireNonNull(DeclaredShapes.of(BAND.id()));
+        return Objects.requireNonNull(DeclaredShapes.of(BAND.getId()));
     }
 
     private static double scale(ResourceKey<LevelStem> dimension) {
@@ -157,34 +157,34 @@ class DeclaredShapeTest {
 
     private static final class Band implements DimensionShapeV2 {
         @Override
-        public Identifier id() {
+        public Identifier getId() {
             return Identifier.fromNamespaceAndPath("example_mod", "band");
         }
 
         @Override
         public LoopSpansV2 spans(DimensionContextV2 context) {
             LoopSpansV2 overworld = context.overworld();
-            int chunkWidth = overworld == null
+            int widthChunks = overworld == null
                     ? context.options().get(SHAPE_WIDTH)
-                    : (int) (overworld.chunkWidth(Direction.Axis.X) * context.overworldScale()
+                    : (int) (overworld.getWidthChunks(Direction.Axis.X) * context.overworldScale()
                             / context.coordinateScale());
-            return chunkWidth == 0 ? LoopSpansV2.NONE : LoopSpansV2.ofWidth(Direction.Axis.X, chunkWidth);
+            return widthChunks == 0 ? LoopSpansV2.NONE : LoopSpansV2.ofWidth(Direction.Axis.X, widthChunks);
         }
 
         @Override
-        public boolean takesPresets() {
+        public boolean canTakePresets() {
             return true;
         }
 
         @Override
-        public ShapeOptionsV2 withPreset(int chunkWidth, ShapeOptionsV2 options) {
-            return options.with(SHAPE_WIDTH, chunkWidth);
+        public ShapeOptionsV2 withPreset(int widthChunks, ShapeOptionsV2 options) {
+            return options.with(SHAPE_WIDTH, widthChunks);
         }
     }
 
     private static final class Strip implements DimensionShapeV2 {
         @Override
-        public Identifier id() {
+        public Identifier getId() {
             return Identifier.fromNamespaceAndPath("example_mod", "strip");
         }
 

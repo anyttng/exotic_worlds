@@ -31,7 +31,7 @@ public abstract class NixieTubeBlockMixin {
     private static BlockState exotic_worlds$closeTheRing(LevelAccessor world, BlockPos pos,
             Operation<BlockState> original, @Share("walkClosure") LocalRef<CreateWalkClosure> closureRef,
             @Share("walkClosureResolved") LocalBooleanRef resolved) {
-        return CreateWalkClosure.closesAt(world, pos, closureRef, resolved) ? Blocks.AIR.defaultBlockState()
+        return CreateWalkClosure.isClosingAt(world, pos, closureRef, resolved) ? Blocks.AIR.defaultBlockState()
                 : original.call(world, pos);
     }
 }

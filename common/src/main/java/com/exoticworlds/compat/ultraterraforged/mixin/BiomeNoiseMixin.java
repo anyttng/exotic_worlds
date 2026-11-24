@@ -78,24 +78,24 @@ public abstract class BiomeNoiseMixin implements RtfClimateScales {
     }
 
     @Override
-    public float exotic_worlds$biomeFrequency() {
+    public float exotic_worlds$getBiomeFrequency() {
         return this.biomeFreq;
     }
 
     @Override
-    public int exotic_worlds$temperatureScale() {
+    public int exotic_worlds$getTemperatureScale() {
         return this.exotic_worlds$temperatureScale;
     }
 
     @Override
-    public int exotic_worlds$moistureScale() {
+    public int exotic_worlds$getMoistureScale() {
         return this.exotic_worlds$moistureScale;
     }
 
     @WrapMethod(method = APPLY)
     private void exotic_worlds$closeApply(Cell cell, float x, float z, float originalX, float originalZ, boolean mask,
             Operation<Void> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             original.call(cell, x, z, originalX, originalZ, mask);
             return;
@@ -123,26 +123,26 @@ public abstract class BiomeNoiseMixin implements RtfClimateScales {
     @ModifyExpressionValue(method = APPLY,
             at = @At(value = "FIELD", target = BIOME_FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = CENTER_X_READ))
     private float exotic_worlds$centerBlockX(float frequency) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         return frame == null
                 ? frequency
-                : (float) (frame.snappedFrequency(Direction.Axis.X, frequency) * frame.compression());
+                : (float) (frame.snappedFrequency(Direction.Axis.X, frequency) * frame.getCompression());
     }
 
     @ModifyExpressionValue(method = APPLY,
             at = @At(value = "FIELD", target = BIOME_FREQUENCY, opcode = Opcodes.GETFIELD, ordinal = CENTER_Z_READ))
     private float exotic_worlds$centerBlockZ(float frequency) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         return frame == null
                 ? frequency
-                : (float) (frame.snappedFrequency(Direction.Axis.Z, frequency) * frame.compression());
+                : (float) (frame.snappedFrequency(Direction.Axis.Z, frequency) * frame.getCompression());
     }
 
     @WrapOperation(method = APPLY, at = @At(value = "INVOKE",
             target = "Lcom/pandaismyname1/ultraterraforged/world/worldgen/continent/Continent;getLandValue(FF)F"))
     private float exotic_worlds$landOnTheWorldLap(Continent continent, float x, float z, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
-        if (frame == null || frame.compression() == ClimateScaleCompression.NO_COMPRESSION) {
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
+        if (frame == null || frame.getCompression() == ClimateScaleCompression.NO_COMPRESSION) {
             return original.call(continent, x, z);
         }
 
@@ -153,7 +153,7 @@ public abstract class BiomeNoiseMixin implements RtfClimateScales {
 
     @WrapOperation(method = APPLY, at = @At(value = "INVOKE", target = UltraTerraForgedInjectionTargets.NOISE_COMPUTE))
     private float exotic_worlds$latticeLap(Noise noise, float x, float z, int seed, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null || noise == this.warpX || noise == this.warpZ) {
             return original.call(noise, x, z, seed);
         }

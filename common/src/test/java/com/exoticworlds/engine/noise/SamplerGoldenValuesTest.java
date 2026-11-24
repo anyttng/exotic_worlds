@@ -7,14 +7,14 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 import com.exoticworlds.engine.noise.periodic.LapFloor;
 import com.exoticworlds.engine.noise.periodic.PeriodicLattice;
 import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
@@ -113,7 +113,7 @@ class SamplerGoldenValuesTest {
     private static long perlin(SlotAxes axes, double xDivisor, double zDivisor, double[][] fudges) {
         long hash = FNV_OFFSET;
         Random random = new Random(SEED);
-        GenerationFoldContext.Context context = GenerationFoldContext.context();
+        GenerationFoldContext.Context context = GenerationFoldContext.getContext();
         for (WorldFold fold : PERLIN_FOLDS) {
             for (double scale : PERLIN_SCALES) {
                 for (double[] fudge : fudges) {

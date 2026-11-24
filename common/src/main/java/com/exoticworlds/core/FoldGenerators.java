@@ -1,5 +1,8 @@
 package com.exoticworlds.core;
 
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.world.CarriedShape;
+
 import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
@@ -13,7 +16,7 @@ public final class FoldGenerators {
 
     public static void fileFold(ChunkGenerator generator, @Nullable CarriedShape carried) {
         if (carried != null) {
-            BY_FOLD.put(carried.fold(), generator);
+            BY_FOLD.put(carried.getFold(), generator);
         }
     }
 
