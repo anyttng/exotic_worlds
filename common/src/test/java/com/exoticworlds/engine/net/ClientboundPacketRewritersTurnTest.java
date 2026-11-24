@@ -6,9 +6,9 @@ import java.lang.reflect.Proxy;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.SeamTransform;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.SeamTransform;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.seam.ClientPosition;
 
 import net.minecraft.core.BlockPos;
@@ -24,10 +24,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 class ClientboundPacketRewritersTurnTest {
-    private static final int FACE_WIDTH = 64;
-    private static final int VIEW_DISTANCE = 12;
+    private static final int FACE_WIDTH_BLOCKS = 64;
+    private static final int VIEW_DISTANCE_CHUNKS = 12;
 
-    private static final SeamTransform CLOCKWISE_TO_THE_SEAT = new SeamTransform(-1, 1, FACE_WIDTH, -FACE_WIDTH, true);
+    private static final SeamTransform CLOCKWISE_TO_THE_SEAT = new SeamTransform(-1, 1, FACE_WIDTH_BLOCKS, -FACE_WIDTH_BLOCKS, true);
 
     private static final BlockPos SERVER_POS = new BlockPos(58, 70, 2);
     private static final BlockPos SEAT_POS = new BlockPos(61, 70, -6);
@@ -45,7 +45,7 @@ class ClientboundPacketRewritersTurnTest {
             WorldFold.class.getClassLoader(),
             new Class<?>[] {WorldFold.class},
             (proxy, method, arguments) -> switch (method.getName()) {
-                case "preservesLocalIndices" -> false;
+                case "isPreservingLocalIndices" -> false;
                 case "nearestCopy" -> SEAT_CHUNK;
                 case "deckTransformation" -> new DeckTransformation(CLOCKWISE_TO_THE_SEAT);
                 case "reseat" -> CLOCKWISE_TO_THE_SEAT.apply((BlockPos) arguments[0]);
@@ -62,8 +62,8 @@ class ClientboundPacketRewritersTurnTest {
                     throw new UnsupportedOperationException();
                 },
                 Level.OVERWORLD,
-                VIEW_DISTANCE,
-                VIEW_DISTANCE,
+                VIEW_DISTANCE_CHUNKS,
+                VIEW_DISTANCE_CHUNKS,
                 entityId -> null,
                 entityId -> null,
                 () -> {

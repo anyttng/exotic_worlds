@@ -3,10 +3,10 @@ package com.exoticworlds.engine.noise;
 import java.util.List;
 import java.util.Random;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
@@ -18,7 +18,7 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 public final class DensityFunctionFixture {
     public static final long SEED = 0x0153EL;
 
-    private static final int WORLD_HEIGHT = 384;
+    private static final int WORLD_HEIGHT_BLOCKS = 384;
     private static final int LOWEST_Y = -64;
 
     private static final NormalNoise.NoiseParameters PARAMETERS =
@@ -87,7 +87,7 @@ public final class DensityFunctionFixture {
     }
 
     public static int blockY(Random random) {
-        return LOWEST_Y + random.nextInt(WORLD_HEIGHT);
+        return LOWEST_Y + random.nextInt(WORLD_HEIGHT_BLOCKS);
     }
 
     private DensityFunctionFixture() {

@@ -10,13 +10,13 @@ import java.lang.reflect.Proxy;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.FoldOrientation;
-import com.exoticworlds.core.SeamTransform;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.fold.FoldOrientation;
+import com.exoticworlds.core.fold.SeamTransform;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,27 +27,27 @@ import net.minecraft.world.level.lighting.LightEngine;
 import net.minecraft.world.phys.shapes.Shapes;
 
 class LightStepTest {
-    private static final int FACE_WIDTH = 4 * CoordinateConstants.CHUNK_WIDTH;
+    private static final int FACE_WIDTH_BLOCKS = 4 * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
     private static final int Y = 70;
     private static final int LEVEL = 14;
 
     private static final SeamTransform CLOCKWISE_OVER_THE_EAST_EDGE =
-            new SeamTransform(-1, 1, FACE_WIDTH, -FACE_WIDTH, true);
+            new SeamTransform(-1, 1, FACE_WIDTH_BLOCKS, -FACE_WIDTH_BLOCKS, true);
     private static final WorldFold TURNED = foldBy(CLOCKWISE_OVER_THE_EAST_EDGE);
 
     private static final Direction STEP = Direction.EAST;
-    private static final BlockPos SOURCE = new BlockPos(FACE_WIDTH - 1, Y, 5);
+    private static final BlockPos SOURCE = new BlockPos(FACE_WIDTH_BLOCKS - 1, Y, 5);
     private static final BlockPos STEPPED = SOURCE.relative(STEP);
     private static final BlockPos TARGET = CLOCKWISE_OVER_THE_EAST_EDGE.apply(STEPPED);
     private static final Direction BACK_AT_THE_SOURCE =
             directionBetween(TARGET, CLOCKWISE_OVER_THE_EAST_EDGE.apply(SOURCE));
-    private static final FoldOrientation TURN = CLOCKWISE_OVER_THE_EAST_EDGE.orientation();
+    private static final FoldOrientation TURN = CLOCKWISE_OVER_THE_EAST_EDGE.getOrientation();
 
     private static final int TORUS_WIDTH_IN_CHUNKS = 64;
     private static final WorldFold TORUS =
             WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(TORUS_WIDTH_IN_CHUNKS)));
     private static final BlockPos ONE_LAP_AWAY =
-            new BlockPos(5 + TORUS_WIDTH_IN_CHUNKS * CoordinateConstants.CHUNK_WIDTH, Y, 5);
+            new BlockPos(5 + TORUS_WIDTH_IN_CHUNKS * CoordinateConstants.CHUNK_WIDTH_BLOCKS, Y, 5);
 
     private static final BlockState AIR = Blocks.AIR.defaultBlockState();
 
@@ -56,9 +56,9 @@ class LightStepTest {
                 WorldFold.class.getClassLoader(),
                 new Class<?>[] {WorldFold.class},
                 (proxy, method, arguments) -> switch (method.getName()) {
-                    case "preservesLocalIndices" -> false;
+                    case "isPreservingLocalIndices" -> false;
                     case "foldOriented" -> new WorldFold.Folded<>(
-                            move.apply((BlockPos) arguments[0]), move.orientation());
+                            move.apply((BlockPos) arguments[0]), move.getOrientation());
                     default -> throw new UnsupportedOperationException(method.getName());
                 });
     }

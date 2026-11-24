@@ -1,6 +1,6 @@
 package com.exoticworlds.compat.create;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;

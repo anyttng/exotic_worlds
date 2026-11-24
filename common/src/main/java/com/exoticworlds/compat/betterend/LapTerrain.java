@@ -57,11 +57,11 @@ public final class LapTerrain {
         }
 
         double x(double x, double z) {
-            return sum(this.lap.first(), this.lap.second(), x, z);
+            return sum(this.lap.getFirst(), this.lap.getSecond(), x, z);
         }
 
         double z(double x, double z) {
-            return sum(this.lap.second(), this.lap.first(), x, z);
+            return sum(this.lap.getSecond(), this.lap.getFirst(), x, z);
         }
 
         private double sum(OpenSimplexStandIn odd, OpenSimplexStandIn even, double x, double z) {
@@ -78,17 +78,17 @@ public final class LapTerrain {
         }
     }
 
-    public static boolean fill(double[] buffer, int posX, int posZ, int scaleXZ, int scaleY, int maxHeight) {
-        EndTerrainLap lap = EndTerrainLap.current();
-        LapIslands[] layers = layers();
+    public static boolean tryFill(double[] buffer, int posX, int posZ, int scaleXZ, int scaleY, int maxHeight) {
+        EndTerrainLap lap = EndTerrainLap.getCurrent();
+        LapIslands[] layers = getLayers();
         if (lap == null || layers == null) {
             return false;
         }
 
-        ReentrantLock locker = TerrainGeneratorAccessor.exotic_worlds$locker();
+        ReentrantLock locker = TerrainGeneratorAccessor.exotic_worlds$getLocker();
         locker.lock();
         try {
-            GenerationFoldContext.runWithFold(lap.fold(), () -> fillFolded(lap, layers, buffer,
+            GenerationFoldContext.runWithFold(lap.getFold(), () -> fillFolded(lap, layers, buffer,
                     lap.foldX(posX, posZ), lap.foldZ(posZ), scaleXZ, scaleY, maxHeight));
         } finally {
             locker.unlock();
@@ -98,27 +98,27 @@ public final class LapTerrain {
     }
 
     public static @Nullable Boolean isLand(int quartX, int quartZ, int maxHeight) {
-        EndTerrainLap lap = EndTerrainLap.current();
-        LapIslands[] layers = layers();
+        EndTerrainLap lap = EndTerrainLap.getCurrent();
+        LapIslands[] layers = getLayers();
         if (lap == null || layers == null) {
             return null;
         }
 
-        long folded = FoldedQuart.fold(lap.fold(), quartX, 0, quartZ);
+        long folded = FoldedQuart.fold(lap.getFold(), quartX, 0, quartZ);
         int x = FoldedQuart.x(folded);
         int z = FoldedQuart.z(folded);
-        ReentrantLock locker = TerrainGeneratorAccessor.exotic_worlds$locker();
+        ReentrantLock locker = TerrainGeneratorAccessor.exotic_worlds$getLocker();
         locker.lock();
         try {
-            TerrainBoolCache section = section(x, z);
+            TerrainBoolCache section = getSection(x, z);
             byte known = section.getData(x, z);
             if (known > 0) {
                 return known > LAND_AIR;
             }
 
-            boolean land = landFolded(lap, layers, x, z, maxHeight);
-            section.setData(x, z, land ? LAND_SOLID : LAND_AIR);
-            return land;
+            boolean isLand = isLandFolded(lap, layers, x, z, maxHeight);
+            section.setData(x, z, isLand ? LAND_SOLID : LAND_AIR);
+            return isLand;
         } finally {
             locker.unlock();
         }
@@ -138,8 +138,8 @@ public final class LapTerrain {
             layer.exotic_worlds$updatePositionsOnLap(lap, px, pz, maxHeight);
         }
 
-        double xPeriod = lap.period(Direction.Axis.X, 1.0);
-        double zPeriod = lap.period(Direction.Axis.Z, 1.0);
+        double xPeriodBlocks = lap.period(Direction.Axis.X, 1.0);
+        double zPeriodBlocks = lap.period(Direction.Axis.Z, 1.0);
         for (int y = 0; y < buffer.length; y++) {
             double py = (double) y * scaleY;
             float dist = layers[0].exotic_worlds$densityOnLap(px, py, pz, height);
@@ -148,7 +148,7 @@ public final class LapTerrain {
             }
 
             if (dist > DETAIL_ABOVE) {
-                dist = withDetail(lap, dist, px, py, pz, xPeriod, zPeriod);
+                dist = withDetail(lap, dist, px, py, pz, xPeriodBlocks, zPeriodBlocks);
             }
 
             if (py >= maxHeight) {
@@ -161,7 +161,7 @@ public final class LapTerrain {
         }
     }
 
-    private static boolean landFolded(EndTerrainLap lap, LapIslands[] layers, int x, int z, int maxHeight) {
+    private static boolean isLandFolded(EndTerrainLap lap, LapIslands[] layers, int x, int z, int maxHeight) {
         int stepY = (int) Math.ceil(maxHeight / LAND_CELL_HEIGHT);
         double cellX = (x >> 1) + CELL_MIDDLE;
         double cellZ = (z >> 1) + CELL_MIDDLE;
@@ -172,8 +172,8 @@ public final class LapTerrain {
             layer.exotic_worlds$updatePositionsOnLap(lap, px, pz, maxHeight);
         }
 
-        double xPeriod = lap.period(Direction.Axis.X, 1.0);
-        double zPeriod = lap.period(Direction.Axis.Z, 1.0);
+        double xPeriodBlocks = lap.period(Direction.Axis.X, 1.0);
+        double zPeriodBlocks = lap.period(Direction.Axis.Z, 1.0);
         for (int y = 0; y < stepY; y++) {
             double py = y * LAND_CELL_HEIGHT;
             float dist = layers[0].exotic_worlds$densityOnLap(px, py, pz);
@@ -182,7 +182,7 @@ public final class LapTerrain {
             }
 
             if (dist > DETAIL_ABOVE) {
-                dist = withDetail(lap, dist, px, py, pz, xPeriod, zPeriod);
+                dist = withDetail(lap, dist, px, py, pz, xPeriodBlocks, zPeriodBlocks);
             }
 
             if (dist > LAND_ABOVE) {
@@ -193,23 +193,23 @@ public final class LapTerrain {
         return false;
     }
 
-    private static float withDetail(EndTerrainLap lap, float dist, double x, double y, double z, double xPeriod,
-            double zPeriod) {
+    private static float withDetail(EndTerrainLap lap, float dist, double x, double y, double z, double xPeriodBlocks,
+            double zPeriodBlocks) {
         double frameX = lap.frameX(x, z);
         for (int octave = 0; octave < DETAIL_FREQUENCIES.length; octave++) {
             double frequency = DETAIL_FREQUENCIES[octave];
-            OpenSimplexStandIn noise = (octave & 1) == 0 ? lap.first() : lap.second();
+            OpenSimplexStandIn noise = (octave & 1) == 0 ? lap.getFirst() : lap.getSecond();
             double amplitude = DETAIL_AMPLITUDES[octave];
-            dist += (float) (noise.eval(frameX * frequency, y * frequency, z * frequency, xPeriod * frequency,
-                    zPeriod * frequency) * amplitude + amplitude);
+            dist += (float) (noise.eval(frameX * frequency, y * frequency, z * frequency, xPeriodBlocks * frequency,
+                    zPeriodBlocks * frequency) * amplitude + amplitude);
         }
 
         return dist;
     }
 
-    private static TerrainBoolCache section(int x, int z) {
-        Map<Point, TerrainBoolCache> cache = TerrainGeneratorAccessor.exotic_worlds$boolCache();
-        Point pos = TerrainGeneratorAccessor.exotic_worlds$pos();
+    private static TerrainBoolCache getSection(int x, int z) {
+        Map<Point, TerrainBoolCache> cache = TerrainGeneratorAccessor.exotic_worlds$getBoolCache();
+        Point pos = TerrainGeneratorAccessor.exotic_worlds$getPos();
         pos.setLocation(TerrainBoolCache.scaleCoordinate(x), TerrainBoolCache.scaleCoordinate(z));
         TerrainBoolCache section = cache.get(pos);
         if (section == null) {
@@ -225,15 +225,15 @@ public final class LapTerrain {
     }
 
     private static void clearCaches() {
-        TerrainGeneratorAccessor.exotic_worlds$largeIslands().clearCache();
-        TerrainGeneratorAccessor.exotic_worlds$mediumIslands().clearCache();
-        TerrainGeneratorAccessor.exotic_worlds$smallIslands().clearCache();
+        TerrainGeneratorAccessor.exotic_worlds$getLargeIslands().clearCache();
+        TerrainGeneratorAccessor.exotic_worlds$getMediumIslands().clearCache();
+        TerrainGeneratorAccessor.exotic_worlds$getSmallIslands().clearCache();
     }
 
-    private static LapIslands @Nullable [] layers() {
-        IslandLayer large = TerrainGeneratorAccessor.exotic_worlds$largeIslands();
-        IslandLayer medium = TerrainGeneratorAccessor.exotic_worlds$mediumIslands();
-        IslandLayer small = TerrainGeneratorAccessor.exotic_worlds$smallIslands();
+    private static LapIslands @Nullable [] getLayers() {
+        IslandLayer large = TerrainGeneratorAccessor.exotic_worlds$getLargeIslands();
+        IslandLayer medium = TerrainGeneratorAccessor.exotic_worlds$getMediumIslands();
+        IslandLayer small = TerrainGeneratorAccessor.exotic_worlds$getSmallIslands();
         if (large == null || medium == null || small == null) {
             return null;
         }

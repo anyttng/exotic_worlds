@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
@@ -17,14 +17,14 @@ public final class LappedKeys extends AbstractSet<BlockPos> {
     private final WorldFold fold;
     private final Map<BlockPos, BlockPos> claims = new HashMap<>();
 
-    private boolean lapped;
+    private boolean isLapped;
 
     public static Set<BlockPos> set(@Nullable BlockGetter reader, Set<BlockPos> built) {
-        WorldFold fold = CanonicalPositionKeys.wrappedFoldOf(reader);
+        WorldFold fold = CanonicalPositionKeys.getWrappedFold(reader);
         return fold == null ? built : new LappedKeys(fold);
     }
 
-    public static boolean claimedByACopy(Set<BlockPos> visited, BlockPos pos) {
+    public static boolean isClaimedByACopy(Set<BlockPos> visited, BlockPos pos) {
         return visited instanceof LappedKeys keys && keys.contains(pos);
     }
 
@@ -32,8 +32,8 @@ public final class LappedKeys extends AbstractSet<BlockPos> {
         this.fold = fold;
     }
 
-    public boolean lapped() {
-        return lapped;
+    public boolean isLapped() {
+        return isLapped;
     }
 
     @Override
@@ -85,7 +85,7 @@ public final class LappedKeys extends AbstractSet<BlockPos> {
 
     private void witness(BlockPos arrived, BlockPos claimed) {
         if (!arrived.equals(claimed)) {
-            lapped = true;
+            isLapped = true;
         }
     }
 }

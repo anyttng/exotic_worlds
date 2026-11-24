@@ -11,10 +11,10 @@ import java.awt.Color;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 import com.seibel.distanthorizons.core.pos.DhChunkPos;
 import com.seibel.distanthorizons.core.pos.DhSectionPos;
 import com.seibel.distanthorizons.core.pos.blockPos.DhBlockPos;
@@ -209,31 +209,31 @@ class DhFoldTest {
 
         @Test
         void aCoarseSectionHangingOverTheWorldEdgeIsNot() {
-            assertFalse(DhFold.foldedSpanInsideTheWorld(odd, SECTION_256, 6, 0));
+            assertFalse(DhFold.isFoldedSpanInsideTheWorld(odd, SECTION_256, 6, 0));
             assertFalse(DhFold.isCompleteSection(odd, LEAF, SECTION_256, 6, 1));
-            assertFalse(DhFold.foldedSpanInsideTheWorld(torus(0, 104), SECTION_256, 6, 0));
+            assertFalse(DhFold.isFoldedSpanInsideTheWorld(torus(0, 104), SECTION_256, 6, 0));
         }
 
         @Test
         void aCoarseSectionInAFarLapIsCompleteOnlyWhereItFoldsIntoTheFirst() {
-            assertFalse(DhFold.foldedSpanInsideTheWorld(odd, SECTION_256, 7, 0));
-            assertFalse(DhFold.foldedSpanInsideTheWorld(odd, SECTION_256, 6 + 101, 0));
-            assertTrue(DhFold.foldedSpanInsideTheWorld(odd, SECTION_256, 1 + 101, 0));
-            assertTrue(DhFold.foldedSpanInsideTheWorld(torus(0, 104), SECTION_256, 13, 0));
+            assertFalse(DhFold.isFoldedSpanInsideTheWorld(odd, SECTION_256, 7, 0));
+            assertFalse(DhFold.isFoldedSpanInsideTheWorld(odd, SECTION_256, 6 + 101, 0));
+            assertTrue(DhFold.isFoldedSpanInsideTheWorld(odd, SECTION_256, 1 + 101, 0));
+            assertTrue(DhFold.isFoldedSpanInsideTheWorld(torus(0, 104), SECTION_256, 13, 0));
         }
 
         @Test
         void aStraddlerOfAnOffGridWorldEdgeIsIncompleteOnBothSides() {
             DhLattice shifted = torus(-50, 50);
-            assertFalse(DhFold.foldedSpanInsideTheWorld(shifted, SECTION_128, 6, 0));
-            assertFalse(DhFold.foldedSpanInsideTheWorld(shifted, SECTION_128, -7, 0));
-            assertTrue(DhFold.foldedSpanInsideTheWorld(shifted, SECTION_128, 0, 0));
-            assertTrue(DhFold.foldedSpanInsideTheWorld(shifted, SECTION_128, -6, 0));
+            assertFalse(DhFold.isFoldedSpanInsideTheWorld(shifted, SECTION_128, 6, 0));
+            assertFalse(DhFold.isFoldedSpanInsideTheWorld(shifted, SECTION_128, -7, 0));
+            assertTrue(DhFold.isFoldedSpanInsideTheWorld(shifted, SECTION_128, 0, 0));
+            assertTrue(DhFold.isFoldedSpanInsideTheWorld(shifted, SECTION_128, -6, 0));
         }
 
         @Test
         void theUnboundedAxisOfACylinderIsAlwaysComplete() {
-            assertTrue(DhFold.foldedSpanInsideTheWorld(cylinder(0, 101), SECTION_256, 1, 9999));
+            assertTrue(DhFold.isFoldedSpanInsideTheWorld(cylinder(0, 101), SECTION_256, 1, 9999));
             assertTrue(DhFold.isCompleteSection(cylinder(0, 101), LEAF, SECTION_256, 1, 9999));
         }
     }
@@ -246,23 +246,23 @@ class DhFoldTest {
 
         @Test
         void theCopyInsideTheSectionIsFoundWhicheverLapTheSectionIsIn() {
-            assertTrue(DhFold.containsACopy(odd, SECTION_128, 114, 0, LEAF, 26, 0));
-            assertTrue(DhFold.containsACopy(odd, SECTION_128, 114, 0, LEAF, 27, 0));
-            assertFalse(DhFold.containsACopy(odd, SECTION_128, 114, 0, LEAF, 28, 0));
-            assertFalse(DhFold.containsACopy(odd, SECTION_128, 114, 0, LEAF, 25, 0));
+            assertTrue(DhFold.isContainingACopy(odd, SECTION_128, 114, 0, LEAF, 26, 0));
+            assertTrue(DhFold.isContainingACopy(odd, SECTION_128, 114, 0, LEAF, 27, 0));
+            assertFalse(DhFold.isContainingACopy(odd, SECTION_128, 114, 0, LEAF, 28, 0));
+            assertFalse(DhFold.isContainingACopy(odd, SECTION_128, 114, 0, LEAF, 25, 0));
         }
 
         @Test
         void aSectionContainsItsOwnCopiesAndNoNeighbor() {
-            assertTrue(DhFold.containsACopy(odd, LEAF, 5, 0, LEAF, 5 + 3 * 101, 0));
-            assertFalse(DhFold.containsACopy(odd, LEAF, 5, 0, LEAF, 6, 0));
+            assertTrue(DhFold.isContainingACopy(odd, LEAF, 5, 0, LEAF, 5 + 3 * 101, 0));
+            assertFalse(DhFold.isContainingACopy(odd, LEAF, 5, 0, LEAF, 6, 0));
         }
 
         @Test
         void theUnboundedAxisOfACylinderContainsOnlyWhatLiesInside() {
             DhLattice cylinder = cylinder(0, 101);
-            assertTrue(DhFold.containsACopy(cylinder, SECTION_128, 0, 3, LEAF, 0, 7));
-            assertFalse(DhFold.containsACopy(cylinder, SECTION_128, 0, 3, LEAF, 0, 7 + 101));
+            assertTrue(DhFold.isContainingACopy(cylinder, SECTION_128, 0, 3, LEAF, 0, 7));
+            assertFalse(DhFold.isContainingACopy(cylinder, SECTION_128, 0, 3, LEAF, 0, 7 + 101));
         }
     }
 
@@ -320,8 +320,8 @@ class DhFoldTest {
             DhLattice tiny = torus(-16, 16);
             assertFalse(DhFold.isNearestSection(tiny, Direction.Axis.X, SNAP, (byte) 9, 0, 0));
             assertFalse(DhFold.isNearestSection(tiny, Direction.Axis.X, SNAP, (byte) 9, 0, -1));
-            assertTrue(DhFold.overlapsNearestWindow(tiny, Direction.Axis.X, SNAP, (byte) 9, 0, 0));
-            assertTrue(DhFold.overlapsNearestWindow(tiny, Direction.Axis.X, SNAP, (byte) 9, 0, -1));
+            assertTrue(DhFold.isOverlappingNearestWindow(tiny, Direction.Axis.X, SNAP, (byte) 9, 0, 0));
+            assertTrue(DhFold.isOverlappingNearestWindow(tiny, Direction.Axis.X, SNAP, (byte) 9, 0, -1));
         }
 
         @Test
@@ -369,7 +369,7 @@ class DhFoldTest {
 
     @Nested
     class TheTreeHoldsOneLapAroundItsCenter {
-        private static final int LEAF_WIDTH = DhFold.sectionWidthBlocks(LEAF);
+        private static final int LEAF_WIDTH_BLOCKS = DhFold.sectionWidthBlocks(LEAF);
         private static final int REF = 100;
         private static final int HALF = WIDTH_BLOCKS / 2;
 
@@ -377,39 +377,39 @@ class DhFoldTest {
 
         @Test
         void aSectionInsideTheLapIsHeld() {
-            assertTrue(DhFold.overlapsNearestLap(lattice, Direction.Axis.X, REF, 512, 4 * LEAF_WIDTH));
+            assertTrue(DhFold.isOverlappingNearestLap(lattice, Direction.Axis.X, REF, 512, 4 * LEAF_WIDTH_BLOCKS));
         }
 
         @Test
         void aSectionPastHalfAWorldIsRefusedAndItsNearCopyIsHeld() {
-            assertFalse(DhFold.overlapsNearestLap(lattice, Direction.Axis.X, REF, 640, LEAF_WIDTH));
-            assertTrue(DhFold.overlapsNearestLap(lattice, Direction.Axis.X, REF, 640 - WIDTH_BLOCKS, LEAF_WIDTH));
+            assertFalse(DhFold.isOverlappingNearestLap(lattice, Direction.Axis.X, REF, 640, LEAF_WIDTH_BLOCKS));
+            assertTrue(DhFold.isOverlappingNearestLap(lattice, Direction.Axis.X, REF, 640 - WIDTH_BLOCKS, LEAF_WIDTH_BLOCKS));
         }
 
         @Test
         void aSectionTouchingTheLapEdgeFromOutsideIsRefused() {
-            assertFalse(DhFold.overlapsNearestLap(lattice, Direction.Axis.X, REF, REF + HALF, LEAF_WIDTH));
-            assertFalse(DhFold.overlapsNearestLap(lattice, Direction.Axis.X, REF, REF - HALF - LEAF_WIDTH, LEAF_WIDTH));
-            assertTrue(DhFold.overlapsNearestLap(lattice, Direction.Axis.X, REF, REF + HALF - 1, LEAF_WIDTH));
+            assertFalse(DhFold.isOverlappingNearestLap(lattice, Direction.Axis.X, REF, REF + HALF, LEAF_WIDTH_BLOCKS));
+            assertFalse(DhFold.isOverlappingNearestLap(lattice, Direction.Axis.X, REF, REF - HALF - LEAF_WIDTH_BLOCKS, LEAF_WIDTH_BLOCKS));
+            assertTrue(DhFold.isOverlappingNearestLap(lattice, Direction.Axis.X, REF, REF + HALF - 1, LEAF_WIDTH_BLOCKS));
         }
 
         @Test
         void aSectionWiderThanTheWorldIsHeldOnlyWhereItCoversTheLap() {
-            assertTrue(DhFold.overlapsNearestLap(lattice, Direction.Axis.X, REF, 0, 4 * WIDTH_BLOCKS));
-            assertFalse(DhFold.overlapsNearestLap(lattice, Direction.Axis.X, REF, 4 * WIDTH_BLOCKS, 4 * WIDTH_BLOCKS));
+            assertTrue(DhFold.isOverlappingNearestLap(lattice, Direction.Axis.X, REF, 0, 4 * WIDTH_BLOCKS));
+            assertFalse(DhFold.isOverlappingNearestLap(lattice, Direction.Axis.X, REF, 4 * WIDTH_BLOCKS, 4 * WIDTH_BLOCKS));
         }
 
         @Test
         void theLoopingAxisOfACylinderRefusesPastHalfAWorld() {
             DhLattice cylinder = cylinder(0, WIDTH_CHUNKS);
-            assertFalse(DhFold.overlapsNearestLap(cylinder, Direction.Axis.X, REF, REF + HALF, LEAF_WIDTH));
+            assertFalse(DhFold.isOverlappingNearestLap(cylinder, Direction.Axis.X, REF, REF + HALF, LEAF_WIDTH_BLOCKS));
         }
 
         @Test
         void theUnboundedAxisOfACylinderHoldsAnySection() {
             DhLattice cylinder = cylinder(0, WIDTH_CHUNKS);
-            assertTrue(DhFold.overlapsNearestLap(cylinder, Direction.Axis.Z, REF, 9999 * LEAF_WIDTH, LEAF_WIDTH));
-            assertTrue(DhFold.overlapsNearestLap(cylinder, Direction.Axis.Z, REF, -9999 * LEAF_WIDTH, LEAF_WIDTH));
+            assertTrue(DhFold.isOverlappingNearestLap(cylinder, Direction.Axis.Z, REF, 9999 * LEAF_WIDTH_BLOCKS, LEAF_WIDTH_BLOCKS));
+            assertTrue(DhFold.isOverlappingNearestLap(cylinder, Direction.Axis.Z, REF, -9999 * LEAF_WIDTH_BLOCKS, LEAF_WIDTH_BLOCKS));
         }
     }
 
@@ -453,15 +453,15 @@ class DhFoldTest {
             for (int ref = -600; ref <= 600; ref += 37) {
                 for (byte level = LEAF + 1; level <= WORLD; level++) {
                     for (int section = -6; section <= 6; section++) {
-                        if (DhFold.overlapsNearestWindow(lattice, Direction.Axis.X, SNAP, level, ref, section)) {
+                        if (DhFold.isOverlappingNearestWindow(lattice, Direction.Axis.X, SNAP, level, ref, section)) {
                             continue;
                         }
 
                         byte child = (byte) (level - 1);
                         String where = "ref " + ref + " level " + level + " section " + section;
-                        assertFalse(DhFold.overlapsNearestWindow(lattice, Direction.Axis.X, SNAP, child, ref, 2 * section),
+                        assertFalse(DhFold.isOverlappingNearestWindow(lattice, Direction.Axis.X, SNAP, child, ref, 2 * section),
                                 where + " first child");
-                        assertFalse(DhFold.overlapsNearestWindow(lattice, Direction.Axis.X, SNAP, child, ref, 2 * section + 1),
+                        assertFalse(DhFold.isOverlappingNearestWindow(lattice, Direction.Axis.X, SNAP, child, ref, 2 * section + 1),
                                 where + " last child");
                     }
                 }
@@ -472,9 +472,9 @@ class DhFoldTest {
         void aHalfWorldSectionStraddlesTheWindowEdgeOnOneSideAndLiesWholeOnTheOther() {
             assertTrue(DhFold.isNearestSection(lattice, Direction.Axis.X, SNAP, CHUNK_32, 200, 0));
             assertFalse(DhFold.isNearestSection(lattice, Direction.Axis.X, SNAP, CHUNK_32, 200, -1));
-            assertTrue(DhFold.overlapsNearestWindow(lattice, Direction.Axis.X, SNAP, CHUNK_32, 200, -1));
-            assertTrue(DhFold.overlapsNearestWindow(lattice, Direction.Axis.X, SNAP, CHUNK_32, 200, 1));
-            assertFalse(DhFold.overlapsNearestWindow(lattice, Direction.Axis.X, SNAP, CHUNK_32, 200, 2));
+            assertTrue(DhFold.isOverlappingNearestWindow(lattice, Direction.Axis.X, SNAP, CHUNK_32, 200, -1));
+            assertTrue(DhFold.isOverlappingNearestWindow(lattice, Direction.Axis.X, SNAP, CHUNK_32, 200, 1));
+            assertFalse(DhFold.isOverlappingNearestWindow(lattice, Direction.Axis.X, SNAP, CHUNK_32, 200, 2));
         }
 
         @Test
@@ -499,39 +499,39 @@ class DhFoldTest {
 
         @Test
         void twoPointsEitherSideOfTheSeamAreCloseTogether() {
-            assertEquals(20, DhFold.seamChebyshevDistance(lattice, 10, 0, WIDTH_BLOCKS - 10, 0));
-            assertEquals(20, DhFold.seamChebyshevDistance(lattice, 0, WIDTH_BLOCKS - 10, 0, 10));
+            assertEquals(20, DhFold.seamChebyshevDistanceBlocks(lattice, 10, 0, WIDTH_BLOCKS - 10, 0));
+            assertEquals(20, DhFold.seamChebyshevDistanceBlocks(lattice, 0, WIDTH_BLOCKS - 10, 0, 10));
         }
 
         @Test
         void twoPointsOnOneSideKeepTheirPlainDistance() {
-            assertEquals(200, DhFold.seamChebyshevDistance(lattice, 100, 0, 300, 0));
+            assertEquals(200, DhFold.seamChebyshevDistanceBlocks(lattice, 100, 0, 300, 0));
         }
 
         @Test
         void aPointAnyNumberOfLapsOutMeasuresFromItsNearestCopy() {
-            assertEquals(0, DhFold.seamChebyshevDistance(lattice, 10, 0, 10 + 3 * WIDTH_BLOCKS, 0));
-            assertEquals(24, DhFold.seamChebyshevDistance(lattice, 0, 0, 1000 + WIDTH_BLOCKS, 0));
-            assertEquals(24, DhFold.seamChebyshevDistance(lattice, 0, 0, 1000 - 2 * WIDTH_BLOCKS, 0));
+            assertEquals(0, DhFold.seamChebyshevDistanceBlocks(lattice, 10, 0, 10 + 3 * WIDTH_BLOCKS, 0));
+            assertEquals(24, DhFold.seamChebyshevDistanceBlocks(lattice, 0, 0, 1000 + WIDTH_BLOCKS, 0));
+            assertEquals(24, DhFold.seamChebyshevDistanceBlocks(lattice, 0, 0, 1000 - 2 * WIDTH_BLOCKS, 0));
         }
 
         @Test
         void theAntipodeIsHalfAWorldAwayEitherWay() {
-            assertEquals(WIDTH_BLOCKS / 2, DhFold.seamChebyshevDistance(lattice, 0, 0, WIDTH_BLOCKS / 2, 0));
-            assertEquals(WIDTH_BLOCKS / 2, DhFold.seamChebyshevDistance(lattice, WIDTH_BLOCKS / 2, 0, 0, 0));
+            assertEquals(WIDTH_BLOCKS / 2, DhFold.seamChebyshevDistanceBlocks(lattice, 0, 0, WIDTH_BLOCKS / 2, 0));
+            assertEquals(WIDTH_BLOCKS / 2, DhFold.seamChebyshevDistanceBlocks(lattice, WIDTH_BLOCKS / 2, 0, 0, 0));
         }
 
         @Test
         void theUnboundedAxisOfACylinderKeepsThePlainDistance() {
             DhLattice cylinder = cylinder(0, WIDTH_CHUNKS);
-            assertEquals(5 * WIDTH_BLOCKS, DhFold.seamChebyshevDistance(cylinder, 0, 0, 0, 5 * WIDTH_BLOCKS));
-            assertEquals(20, DhFold.seamChebyshevDistance(cylinder, 10, 0, WIDTH_BLOCKS - 10, 0));
+            assertEquals(5 * WIDTH_BLOCKS, DhFold.seamChebyshevDistanceBlocks(cylinder, 0, 0, 0, 5 * WIDTH_BLOCKS));
+            assertEquals(20, DhFold.seamChebyshevDistanceBlocks(cylinder, 10, 0, WIDTH_BLOCKS - 10, 0));
         }
 
         @Test
         void theChebyshevDistanceTakesTheLongerAxisThroughTheSeam() {
-            assertEquals(30, DhFold.seamChebyshevDistance(lattice, 10, 5, WIDTH_BLOCKS - 10, WIDTH_BLOCKS - 25));
-            assertEquals(300, DhFold.seamChebyshevDistance(lattice, 10, 100, WIDTH_BLOCKS - 10, 400));
+            assertEquals(30, DhFold.seamChebyshevDistanceBlocks(lattice, 10, 5, WIDTH_BLOCKS - 10, WIDTH_BLOCKS - 25));
+            assertEquals(300, DhFold.seamChebyshevDistanceBlocks(lattice, 10, 100, WIDTH_BLOCKS - 10, 400));
         }
     }
 

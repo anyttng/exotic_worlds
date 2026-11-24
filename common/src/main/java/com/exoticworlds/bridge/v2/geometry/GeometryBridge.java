@@ -6,8 +6,8 @@ import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v2.geometry.WorldGeometryV2;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.google.common.collect.MapMaker;
 
 import net.minecraft.world.level.Level;
@@ -20,7 +20,7 @@ public final class GeometryBridge {
     }
 
     public static Optional<WorldGeometryV2> of(Level level) {
-        return ofNullable(WorldLoopAttachments.wrappedFoldOf(level));
+        return ofNullable(WorldLoopAttachments.getWrappedFold(level));
     }
 
     public static Optional<WorldGeometryV2> ofNullable(@Nullable WorldFold fold) {

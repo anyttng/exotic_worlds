@@ -13,7 +13,7 @@ public final class EminusBeams {
     private EminusBeams() {
     }
 
-    public static long pos(Object beam) {
+    public static long readPos(Object beam) {
         try {
             return (long) Handles.POS.invoke(beam);
         } catch (Throwable failure) {
@@ -21,7 +21,7 @@ public final class EminusBeams {
         }
     }
 
-    public static Object at(Object beam, long pos) {
+    public static Object copyAt(Object beam, long pos) {
         try {
             return Handles.CREATE.invoke(pos, (List<?>) Handles.SECTIONS.invoke(beam));
         } catch (Throwable failure) {

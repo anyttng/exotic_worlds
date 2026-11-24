@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.BinderOrder;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.gen.terrain.FloatingCrumbs;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.check.PeriodicityCheck;
@@ -44,12 +44,12 @@ public class ChunkStatusTasksMixin {
             StaticCache2D<GenerationChunkHolder> chunks,
             ChunkAccess chunk,
             Operation<CompletableFuture<ChunkAccess>> original) {
-        WorldFold fold = WorldLoopAttachments.foldOf(context.level());
+        WorldFold fold = WorldLoopAttachments.getFold(context.level());
         if (fold.isWrapped()) {
             PeriodicityCheck.verdictOf(context.level());
         }
 
-        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             return original.call(context, step, chunks, chunk);
         }
     }

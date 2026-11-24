@@ -12,6 +12,6 @@ import com.exoticworlds.compat.eminus.CellFoldHolder;
 public class DimensionRuntimeBeamsMixin {
     @Inject(method = "openBeams", at = @At("RETURN"))
     private void exotic_worlds$foldTheBeams(CallbackInfoReturnable<Object> cir) {
-        CellFoldHolder.setFold(cir.getReturnValue(), CellFoldHolder.foldOf(this));
+        CellFoldHolder.setFold(cir.getReturnValue(), CellFoldHolder.getFold(this));
     }
 }

@@ -35,6 +35,6 @@ public abstract class LayerLightSectionStorageMixin {
             at = @At(value = "INVOKE", target = InjectionTargets.SECTION_POS_OFFSET))
     private long exotic_worlds$foldNeighborSection(long sectionNode, int stepX, int stepY, int stepZ,
             Operation<Long> original) {
-        return this.exotic_worlds$bound.fold().foldSectionNode(original.call(sectionNode, stepX, stepY, stepZ));
+        return this.exotic_worlds$bound.getFold().foldSectionNode(original.call(sectionNode, stepX, stepY, stepZ));
     }
 }

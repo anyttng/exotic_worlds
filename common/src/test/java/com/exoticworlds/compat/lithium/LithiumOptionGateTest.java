@@ -10,22 +10,22 @@ class LithiumOptionGateTest {
 
     @Test
     void absentSwitchReadsAnEnabledOption() throws Exception {
-        assertTrue(LithiumOptionGate.optionEnabled(PluginWithoutSwitch.class, RULE));
+        assertTrue(LithiumOptionGate.readOptionEnabled(PluginWithoutSwitch.class, RULE));
     }
 
     @Test
     void absentSwitchReadsADisabledOption() throws Exception {
-        assertFalse(LithiumOptionGate.optionEnabled(PluginWithoutSwitchOptionOff.class, RULE));
+        assertFalse(LithiumOptionGate.readOptionEnabled(PluginWithoutSwitchOptionOff.class, RULE));
     }
 
     @Test
     void setSwitchStandsDownBeforeTheConfigLoads() throws Exception {
-        assertFalse(LithiumOptionGate.optionEnabled(PluginSwitchedOff.class, RULE));
+        assertFalse(LithiumOptionGate.readOptionEnabled(PluginSwitchedOff.class, RULE));
     }
 
     @Test
     void clearSwitchReadsTheOption() throws Exception {
-        assertTrue(LithiumOptionGate.optionEnabled(PluginSwitchClear.class, RULE));
+        assertTrue(LithiumOptionGate.readOptionEnabled(PluginSwitchClear.class, RULE));
     }
 
     static final class PluginWithoutSwitch {

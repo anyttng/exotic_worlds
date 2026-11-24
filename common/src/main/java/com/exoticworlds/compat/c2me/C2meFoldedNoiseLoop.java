@@ -2,7 +2,7 @@ package com.exoticworlds.compat.c2me;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
@@ -16,7 +16,7 @@ public final class C2meFoldedNoiseLoop {
             double[] res, double @Nullable [] xs, double xConst, double @Nullable [] ys, double yConst,
             double @Nullable [] zs, double zConst, double horizontalScale, double vanillaScale,
             double verticalShare) {
-        Context context = GenerationFoldContext.context();
+        Context context = GenerationFoldContext.getContext();
 
         try (Context.BindingScope _ = context.bind(fold, axes, horizontalScale, vanillaScale,
                 verticalShare)) {
@@ -33,7 +33,7 @@ public final class C2meFoldedNoiseLoop {
             int[] blockXs, int[] blockZs, double @Nullable [] shiftXs, double shiftXConst,
             double @Nullable [] ys, double yConst, double @Nullable [] shiftZs, double shiftZConst,
             double warpDivisor, double horizontalScale, double vanillaScale, double verticalShare) {
-        Context context = GenerationFoldContext.context();
+        Context context = GenerationFoldContext.getContext();
         for (int i = 0; i < res.length; i++) {
             double shiftX = shiftXs != null ? shiftXs[i] : shiftXConst;
             double y = ys != null ? ys[i] : yConst;

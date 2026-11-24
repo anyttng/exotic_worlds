@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.NetherScales;
-import com.exoticworlds.core.SpawnPoint;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.NetherScales;
+import com.exoticworlds.core.world.SpawnPoint;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -43,7 +43,7 @@ public record WorldLayout(DimensionLayout overworld, DimensionLayout nether, Dim
         return new WorldLayout(this.overworld, this.nether, chosen, this.modDimensions, this.netherScale);
     }
 
-    public DimensionLayout modDimension(ResourceKey<LevelStem> key) {
+    public DimensionLayout getModDimension(ResourceKey<LevelStem> key) {
         DimensionLayout row = this.modDimensions.get(key);
         return row != null ? row : DimensionLayout.fromOverworld(DimensionLayout.DEFAULT_OPTIONS);
     }
@@ -59,13 +59,13 @@ public record WorldLayout(DimensionLayout overworld, DimensionLayout nether, Dim
         return new WorldLayout(this.overworld, this.nether, this.end, rows, this.netherScale);
     }
 
-    public @Nullable FlatShape netherSpans() {
+    public @Nullable FlatShape getNetherSpans() {
         return this.nether.kind() == ShapeKind.FROM_OVERWORLD
                 ? OverworldDerivation.nether(this.overworld.spans(), this.netherScale)
                 : this.nether.spans();
     }
 
-    public @Nullable FlatShape endSpans() {
+    public @Nullable FlatShape getEndSpans() {
         return this.end.kind() == ShapeKind.FROM_OVERWORLD
                 ? OverworldDerivation.end(this.overworld.spans())
                 : this.end.spans();

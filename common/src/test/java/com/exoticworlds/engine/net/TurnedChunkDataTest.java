@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FoldOrientation;
+import com.exoticworlds.core.fold.FoldOrientation;
 import com.mojang.serialization.Lifecycle;
 
 import io.netty.buffer.Unpooled;

@@ -38,7 +38,7 @@ public final class SettingsService {
         return service;
     }
 
-    public Settings settings() {
+    public Settings getSettings() {
         return settings;
     }
 

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.core.DimensionTable;
+import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.engine.gen.DimensionChoices;
 
 import io.netty.buffer.ByteBuf;

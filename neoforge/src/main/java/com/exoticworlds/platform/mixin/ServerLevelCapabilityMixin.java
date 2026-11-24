@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -24,6 +24,6 @@ public class ServerLevelCapabilityMixin {
 
     @Unique
     private BlockPos exotic_worlds$canonicalKey(BlockPos pos) {
-        return WorldLoopAttachments.foldOf((ServerLevel) (Object) this).fold(pos);
+        return WorldLoopAttachments.getFold((ServerLevel) (Object) this).fold(pos);
     }
 }

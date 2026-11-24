@@ -59,8 +59,8 @@ import net.minecraft.world.ticks.LevelTickAccess;
 import net.minecraft.world.ticks.WorldGenTickAccess;
 
 final class LapTwinRegion extends WorldGenRegion {
-    static final int REACH = 1;
-    static final int SIDE = 2 * REACH + 1;
+    static final int REACH_CHUNKS = 1;
+    static final int SIDE_CHUNKS = 2 * REACH_CHUNKS + 1;
 
     private static final ChunkStep FEATURES_STEP = ChunkPyramid.GENERATION_PYRAMID.getStepTo(ChunkStatus.FEATURES);
     private static final Identifier REGION_RANDOM = Identifier.withDefaultNamespace("worldgen_region_random");
@@ -77,8 +77,8 @@ final class LapTwinRegion extends WorldGenRegion {
     private final int centerZ;
     private final FeatureRecording recording;
     private final RandomSource random;
-    private final WorldGenTickAccess<Block> blockTicks = new WorldGenTickAccess<>(pos -> this.chunkFor(pos).getBlockTicks());
-    private final WorldGenTickAccess<Fluid> fluidTicks = new WorldGenTickAccess<>(pos -> this.chunkFor(pos).getFluidTicks());
+    private final WorldGenTickAccess<Block> blockTicks = new WorldGenTickAccess<>(pos -> this.getChunkFor(pos).getBlockTicks());
+    private final WorldGenTickAccess<Fluid> fluidTicks = new WorldGenTickAccess<>(pos -> this.getChunkFor(pos).getFluidTicks());
     private final Map<Long, ChunkAccess> pastTheReach = new HashMap<>();
     private final AtomicLong subTickCount = new AtomicLong();
 
@@ -125,53 +125,49 @@ final class LapTwinRegion extends WorldGenRegion {
     }
 
     private static int indexOf(int offsetX, int offsetZ) {
-        return (offsetZ + REACH) * SIDE + offsetX + REACH;
+        return (offsetZ + REACH_CHUNKS) * SIDE_CHUNKS + offsetX + REACH_CHUNKS;
     }
 
     private static StaticCache2D<GenerationChunkHolder> holdersOf(ChunkAccess[] chunks) {
         ChunkPos center = chunks[indexOf(0, 0)].getPos();
-        return StaticCache2D.create(center.x(), center.z(), REACH,
+        return StaticCache2D.create(center.x(), center.z(), REACH_CHUNKS,
                 (chunkX, chunkZ) -> new TwinHolder(chunks[indexOf(chunkX - center.x(), chunkZ - center.z())]));
     }
 
-    ChunkAccess center() {
-        return this.chunks[indexOf(0, 0)];
-    }
-
-    private @Nullable ChunkAccess chunkAt(int chunkX, int chunkZ) {
+    private @Nullable ChunkAccess getChunkAt(int chunkX, int chunkZ) {
         int offsetX = chunkX - this.centerX;
         int offsetZ = chunkZ - this.centerZ;
-        if (Math.abs(offsetX) > REACH || Math.abs(offsetZ) > REACH) {
+        if (Math.abs(offsetX) > REACH_CHUNKS || Math.abs(offsetZ) > REACH_CHUNKS) {
             return null;
         }
 
         return this.chunks[indexOf(offsetX, offsetZ)];
     }
 
-    private ChunkAccess chunkFor(BlockPos pos) {
-        return this.chunkOrPast(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
+    private ChunkAccess getChunkFor(BlockPos pos) {
+        return this.getChunkOrPast(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
     }
 
-    private ChunkAccess chunkOrPast(int chunkX, int chunkZ) {
-        ChunkAccess chunk = this.chunkAt(chunkX, chunkZ);
+    private ChunkAccess getChunkOrPast(int chunkX, int chunkZ) {
+        ChunkAccess chunk = this.getChunkAt(chunkX, chunkZ);
         if (chunk != null) {
             return chunk;
         }
 
-        this.recording.pastTheReach();
+        this.recording.isPastTheReach();
         return this.pastTheReach.computeIfAbsent(ChunkPos.pack(chunkX, chunkZ),
                 _ -> new ProtoChunk(new ChunkPos(chunkX, chunkZ), UpgradeData.EMPTY, this.level,
                         this.level.palettedContainerFactory(), null));
     }
 
-    private boolean withinReach(BlockPos pos) {
-        boolean within = this.chunkAt(SectionPos.blockToSectionCoord(pos.getX()),
+    private boolean isWithinReach(BlockPos pos) {
+        boolean isWithin = this.getChunkAt(SectionPos.blockToSectionCoord(pos.getX()),
                 SectionPos.blockToSectionCoord(pos.getZ())) != null;
-        if (!within) {
-            this.recording.pastTheReach();
+        if (!isWithin) {
+            this.recording.isPastTheReach();
         }
 
-        return within;
+        return isWithin;
     }
 
     @Override
@@ -181,7 +177,7 @@ final class LapTwinRegion extends WorldGenRegion {
 
     @Override
     public boolean ensureCanWrite(BlockPos pos) {
-        return this.withinReach(pos);
+        return this.isWithinReach(pos);
     }
 
     @Override
@@ -191,31 +187,31 @@ final class LapTwinRegion extends WorldGenRegion {
 
     @Override
     public ChunkAccess getChunk(int chunkX, int chunkZ, ChunkStatus targetStatus, boolean loadOrGenerate) {
-        ChunkAccess chunk = this.chunkOrPast(chunkX, chunkZ);
+        ChunkAccess chunk = this.getChunkOrPast(chunkX, chunkZ);
         this.recording.took(chunk);
         return chunk;
     }
 
     @Override
     public boolean hasChunk(int chunkX, int chunkZ) {
-        return this.chunkAt(chunkX, chunkZ) != null;
+        return this.getChunkAt(chunkX, chunkZ) != null;
     }
 
     @Override
     public BlockState getBlockState(BlockPos pos) {
-        return this.withinReach(pos) ? this.chunkFor(pos).getBlockState(pos) : Blocks.AIR.defaultBlockState();
+        return this.isWithinReach(pos) ? this.getChunkFor(pos).getBlockState(pos) : Blocks.AIR.defaultBlockState();
     }
 
     @Override
     public FluidState getFluidState(BlockPos pos) {
-        return this.withinReach(pos) ? this.chunkFor(pos).getFluidState(pos) : Fluids.EMPTY.defaultFluidState();
+        return this.isWithinReach(pos) ? this.getChunkFor(pos).getFluidState(pos) : Fluids.EMPTY.defaultFluidState();
     }
 
     @Override
     public int getHeight(Heightmap.Types type, int x, int z) {
-        ChunkAccess chunk = this.chunkAt(SectionPos.blockToSectionCoord(x), SectionPos.blockToSectionCoord(z));
+        ChunkAccess chunk = this.getChunkAt(SectionPos.blockToSectionCoord(x), SectionPos.blockToSectionCoord(z));
         if (chunk == null) {
-            this.recording.pastTheReach();
+            this.recording.isPastTheReach();
             return this.getMinY();
         }
 
@@ -224,7 +220,7 @@ final class LapTwinRegion extends WorldGenRegion {
 
     @Override
     public Holder<Biome> getNoiseBiome(int quartX, int quartY, int quartZ) {
-        ChunkAccess chunk = this.chunkAt(QuartPos.toSection(quartX), QuartPos.toSection(quartZ));
+        ChunkAccess chunk = this.getChunkAt(QuartPos.toSection(quartX), QuartPos.toSection(quartZ));
         return chunk != null
                 ? chunk.getNoiseBiome(quartX, quartY, quartZ)
                 : this.getUncachedNoiseBiome(quartX, quartY, quartZ);
@@ -237,11 +233,11 @@ final class LapTwinRegion extends WorldGenRegion {
 
     @Override
     public @Nullable BlockEntity getBlockEntity(BlockPos pos) {
-        if (!this.withinReach(pos)) {
+        if (!this.isWithinReach(pos)) {
             return null;
         }
 
-        ChunkAccess chunk = this.chunkFor(pos);
+        ChunkAccess chunk = this.getChunkFor(pos);
         BlockEntity blockEntity = chunk.getBlockEntity(pos);
         if (blockEntity != null) {
             return blockEntity;
@@ -268,11 +264,11 @@ final class LapTwinRegion extends WorldGenRegion {
 
     @Override
     public boolean setBlock(BlockPos pos, BlockState blockState, @Block.UpdateFlags int updateFlags, int updateLimit) {
-        if (!this.withinReach(pos)) {
+        if (!this.isWithinReach(pos)) {
             return false;
         }
 
-        ChunkAccess chunk = this.chunkFor(pos);
+        ChunkAccess chunk = this.getChunkFor(pos);
         BlockState oldState = chunk.setBlockState(pos, blockState, updateFlags);
         this.recording.wrote(pos, blockState);
         if (blockState.hasBlockEntity()) {
@@ -288,8 +284,8 @@ final class LapTwinRegion extends WorldGenRegion {
 
         if ((updateFlags & POST_PROCESS_SKIPPED) == 0) {
             BlockPos postProcessPos = blockState.getPostProcessPos(this, pos);
-            if (postProcessPos != null && this.withinReach(postProcessPos)) {
-                this.chunkFor(postProcessPos).markPosForPostprocessing(postProcessPos);
+            if (postProcessPos != null && this.isWithinReach(postProcessPos)) {
+                this.getChunkFor(postProcessPos).markPosForPostprocessing(postProcessPos);
             }
         }
 
@@ -309,11 +305,11 @@ final class LapTwinRegion extends WorldGenRegion {
 
     @Override
     public boolean addFreshEntity(Entity entity) {
-        if (!this.withinReach(entity.blockPosition())) {
+        if (!this.isWithinReach(entity.blockPosition())) {
             return false;
         }
 
-        this.chunkFor(entity.blockPosition()).addEntity(entity);
+        this.getChunkFor(entity.blockPosition()).addEntity(entity);
         return true;
     }
 

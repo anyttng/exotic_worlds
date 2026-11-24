@@ -26,8 +26,8 @@ import com.exoticworlds.compat.create.ChassisWalkFrame;
 import com.exoticworlds.compat.create.CreateSeamFold;
 import com.exoticworlds.compat.create.CreateTranslation;
 import com.exoticworlds.compat.create.LappedKeys;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 
 import net.minecraft.core.BlockPos;
@@ -67,7 +67,7 @@ public class ContraptionMixin {
     private boolean exotic_worlds$dropANameItsOwnCopyAlreadyClaimed(Level world, Direction forcedDirection,
             Queue<BlockPos> frontier, Set<BlockPos> visited, Operation<Boolean> original) {
         BlockPos polled = frontier.peek();
-        if (polled == null || !LappedKeys.claimedByACopy(visited, polled)) {
+        if (polled == null || !LappedKeys.isClaimedByACopy(visited, polled)) {
             return original.call(world, forcedDirection, frontier, visited);
         }
 
@@ -78,7 +78,7 @@ public class ContraptionMixin {
     @Inject(method = "searchMovedStructure", at = @At("RETURN"))
     private void exotic_worlds$refuseAStructureThatCirclesTheWorld(Level world, BlockPos pos, Direction forcedDirection,
             CallbackInfoReturnable<Boolean> cir, @Local Set<BlockPos> visited) throws AssemblyException {
-        if (visited instanceof LappedKeys keys && keys.lapped()) {
+        if (visited instanceof LappedKeys keys && keys.isLapped()) {
             throw new AssemblyException(Component.translatable(CIRCLES_THE_WORLD_KEY));
         }
     }
@@ -106,7 +106,7 @@ public class ContraptionMixin {
             require = 1,
             allow = 1)
     private void exotic_worlds$foldGlueIntoTheLocalFrame(Level world, BlockPos offset, CallbackInfo ci) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(world);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(world);
         if (fold == null) {
             return;
         }

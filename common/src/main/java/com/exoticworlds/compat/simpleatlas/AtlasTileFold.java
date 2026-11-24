@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.map.WorldCopies;

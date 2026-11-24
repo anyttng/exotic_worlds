@@ -9,7 +9,7 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.map.MapFolds;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.level.ChunkPos;
 
@@ -54,27 +54,27 @@ class XaeroWriterFoldTest {
     void theLastChunkOfTheWorldTriggersTheBufferAtTheTilesLastSlot() {
         XaeroWriterFold fold = fold(OFF_GRID);
         fold.enterChunk(937, 0);
-        assertEquals(1, fold.insideX(RAW));
-        assertEquals(3, fold.lastInsideX(RAW), "937 is the world's last chunk, so the tile is complete after it");
-        assertEquals(0, fold.lastInsideZ(RAW));
+        assertEquals(1, fold.getInsideX(RAW));
+        assertEquals(3, fold.getLastInsideX(RAW), "937 is the world's last chunk, so the tile is complete after it");
+        assertEquals(0, fold.getLastInsideZ(RAW));
     }
 
     @Test
     void aChunkPastTheSeamTakesItsCanonicalSlotInsideTheTile() {
         XaeroWriterFold fold = fold(OFF_GRID);
         fold.enterChunk(938, 0);
-        assertEquals(3, fold.insideX(RAW), "938 folds onto -937, slot 3 of tile -235");
-        assertEquals(3, fold.lastInsideX(RAW));
+        assertEquals(3, fold.getInsideX(RAW), "938 folds onto -937, slot 3 of tile -235");
+        assertEquals(3, fold.getLastInsideX(RAW));
     }
 
     @Test
     void anUnshapedWorldKeepsXaerosOwnSlots() {
         XaeroWriterFold fold = fold(null);
         fold.enterChunk(938, 0);
-        assertEquals(RAW, fold.insideX(RAW));
-        assertEquals(RAW, fold.insideZ(RAW));
-        assertEquals(RAW, fold.lastInsideX(RAW));
-        assertEquals(RAW, fold.lastInsideZ(RAW));
+        assertEquals(RAW, fold.getInsideX(RAW));
+        assertEquals(RAW, fold.getInsideZ(RAW));
+        assertEquals(RAW, fold.getLastInsideX(RAW));
+        assertEquals(RAW, fold.getLastInsideZ(RAW));
     }
 
     @Test

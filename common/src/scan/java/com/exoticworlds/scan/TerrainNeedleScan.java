@@ -1,7 +1,7 @@
 package com.exoticworlds.scan;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
 import com.exoticworlds.engine.noise.ClimateScanFixture.WorldType;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
@@ -107,7 +107,7 @@ class TerrainNeedleScan {
                 .append(" no chunk generation.").append(System.lineSeparator())
                 .append("A needle is a column standing at least ").append(NEEDLE_DROP_BLOCKS)
                 .append(" blocks above all four of its neighbors; the blade metric of the wall scan reads the")
-                .append(" generator's ").append(TerrainWallScan.CELL_WIDTH)
+                .append(" generator's ").append(TerrainWallScan.CELL_WIDTH_BLOCKS)
                 .append("-block corner lattice and cannot see one.")
                 .append(System.lineSeparator())
                 .append("Per preset: ").append(NEEDLE_SEEDS).append(" seeds, one ").append(NEEDLE_WINDOW_BLOCKS)
@@ -144,15 +144,15 @@ class TerrainNeedleScan {
         List<String> widened = new ArrayList<>();
 
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
-            int widthBlocks = preset.blockWidth();
-            NeedleRow torus = needleRow(type, noiseSettings, widthBlocks, true, preset.id(), sites);
-            NeedleRow control = needleRow(type, noiseSettings, widthBlocks, false, preset.id(), sites);
+            int widthBlocks = preset.getWidthBlocks();
+            NeedleRow torus = needleRow(type, noiseSettings, widthBlocks, true, preset.getId(), sites);
+            NeedleRow control = needleRow(type, noiseSettings, widthBlocks, false, preset.getId(), sites);
             torusRows.add(torus);
             controlRows.add(control);
-            widened.addAll(overrun(preset.id(), torus.jumps(), control.jumps()));
+            widened.addAll(overrun(preset.getId(), torus.jumps(), control.jumps()));
 
             report.append(String.format(Locale.ROOT, "    %-8s %-14s %5d %5d %5d %5d %5d %5d %5d %5d %5d %5d%n",
-                    preset.id(), widthBlocks + " blocks",
+                    preset.getId(), widthBlocks + " blocks",
                     torus.jumps().p50(), torus.jumps().p90(), torus.jumps().p99(), torus.jumps().p999(),
                     torus.jumps().max(),
                     control.jumps().p50(), control.jumps().p90(), control.jumps().p99(),
@@ -171,7 +171,7 @@ class TerrainNeedleScan {
             NeedleRow torus = torusRows.get(row);
             NeedleRow control = controlRows.get(row++);
             report.append(String.format(Locale.ROOT, "    %-8s %-14s %5d %7d %5d %6d %5d %7d %5d %6d%n",
-                    preset.id(), preset.blockWidth() + " blocks",
+                    preset.getId(), preset.getWidthBlocks() + " blocks",
                     torus.seedsWithNeedle(), torus.needles(), torus.worstDrop(), torus.pits(),
                     control.seedsWithNeedle(), control.needles(), control.worstDrop(), control.pits()));
         }
@@ -296,12 +296,12 @@ class TerrainNeedleScan {
 
     private static int[] surfaceHeights(NeedleWindow window) {
         DensityFunction density = window.state().router().finalDensity();
-        int span = NEEDLE_WINDOW_BLOCKS + 2;
-        int[] heights = new int[span * span];
+        int spanBlocks = NEEDLE_WINDOW_BLOCKS + 2;
+        int[] heights = new int[spanBlocks * spanBlocks];
 
-        for (int dx = 0; dx < span; dx++) {
-            for (int dz = 0; dz < span; dz++) {
-                heights[dx * span + dz] = surfaceHeight(density, window.noiseSettings(),
+        for (int dx = 0; dx < spanBlocks; dx++) {
+            for (int dz = 0; dz < spanBlocks; dz++) {
+                heights[dx * spanBlocks + dz] = surfaceHeight(density, window.noiseSettings(),
                         window.originX() + dx - 1, window.originZ() + dz - 1);
             }
         }
@@ -311,21 +311,21 @@ class TerrainNeedleScan {
 
     private static Needles classify(NeedleWindow window, int[] heights, List<Spike> sites, IntArrayList steps) {
         NoiseSettings noiseSettings = window.noiseSettings();
-        int span = NEEDLE_WINDOW_BLOCKS + 2;
+        int spanBlocks = NEEDLE_WINDOW_BLOCKS + 2;
         int needles = 0;
         int worstDrop = 0;
         int pits = 0;
 
         for (int dx = 1; dx <= NEEDLE_WINDOW_BLOCKS; dx++) {
             for (int dz = 1; dz <= NEEDLE_WINDOW_BLOCKS; dz++) {
-                int here = height(heights[dx * span + dz], noiseSettings);
-                steps.add(Math.abs(here - height(heights[(dx + 1) * span + dz], noiseSettings)));
-                steps.add(Math.abs(here - height(heights[dx * span + dz + 1], noiseSettings)));
+                int here = height(heights[dx * spanBlocks + dz], noiseSettings);
+                steps.add(Math.abs(here - height(heights[(dx + 1) * spanBlocks + dz], noiseSettings)));
+                steps.add(Math.abs(here - height(heights[dx * spanBlocks + dz + 1], noiseSettings)));
                 int rise = Integer.MAX_VALUE;
                 int fall = Integer.MAX_VALUE;
 
                 for (int[] step : NEEDLE_NEIGHBORS) {
-                    int neighbor = height(heights[(dx + step[0]) * span + dz + step[1]], noiseSettings);
+                    int neighbor = height(heights[(dx + step[0]) * spanBlocks + dz + step[1]], noiseSettings);
                     rise = Math.min(rise, here - neighbor);
                     fall = Math.min(fall, neighbor - here);
                 }

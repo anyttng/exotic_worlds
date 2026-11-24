@@ -3,7 +3,7 @@ package com.exoticworlds.compat.xaero;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.compat.map.AxisCopies;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
@@ -16,14 +16,14 @@ public final class XaeroWriterFold {
     private int foldedTileChunkX;
     private int foldedTileChunkZ;
     private long @Nullable [] visitRegions;
-    private boolean foldedPosition;
+    private boolean isFoldedPosition;
     private int insideX;
     private int insideZ;
     private int lastInsideX;
     private int lastInsideZ;
 
     public void beginRender() {
-        beginRender(XaeroWorldMapFold.browsedFold());
+        beginRender(XaeroWorldMapFold.getBrowsedFold());
     }
 
     void beginRender(@Nullable WorldFold fold) {
@@ -64,8 +64,8 @@ public final class XaeroWriterFold {
     }
 
     public void enterChunk(int chunkX, int chunkZ) {
-        this.foldedPosition = this.fold != null;
-        if (!this.foldedPosition) {
+        this.isFoldedPosition = this.fold != null;
+        if (!this.isFoldedPosition) {
             return;
         }
 
@@ -76,20 +76,20 @@ public final class XaeroWriterFold {
         this.lastInsideZ = XaeroWorldMapFold.lastInsideTile(this.chunkCopiesZ, canonical.z());
     }
 
-    public int insideX(int raw) {
-        return this.foldedPosition ? this.insideX : raw;
+    public int getInsideX(int raw) {
+        return this.isFoldedPosition ? this.insideX : raw;
     }
 
-    public int insideZ(int raw) {
-        return this.foldedPosition ? this.insideZ : raw;
+    public int getInsideZ(int raw) {
+        return this.isFoldedPosition ? this.insideZ : raw;
     }
 
-    public int lastInsideX(int raw) {
-        return this.foldedPosition ? this.lastInsideX : raw;
+    public int getLastInsideX(int raw) {
+        return this.isFoldedPosition ? this.lastInsideX : raw;
     }
 
-    public int lastInsideZ(int raw) {
-        return this.foldedPosition ? this.lastInsideZ : raw;
+    public int getLastInsideZ(int raw) {
+        return this.isFoldedPosition ? this.lastInsideZ : raw;
     }
 
     public ChunkPos canonicalChunk(int chunkX, int chunkZ) {

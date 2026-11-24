@@ -20,15 +20,15 @@ final class CellGrid {
         this.layers = layers;
     }
 
-    int width() {
+    int getWidthCells() {
         return this.width;
     }
 
-    int layers() {
+    int getLayerCount() {
         return this.layers;
     }
 
-    int cells() {
+    int getCellCount() {
         return this.width * this.width * this.layers;
     }
 
@@ -48,7 +48,7 @@ final class CellGrid {
         return cell / (this.width * this.width);
     }
 
-    boolean onSide(int cell) {
+    boolean isOnSide(int cell) {
         int localX = this.localX(cell);
         int localZ = this.localZ(cell);
         return localX == 0 || localZ == 0 || localX == this.width - 1 || localZ == this.width - 1;

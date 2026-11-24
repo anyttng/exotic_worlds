@@ -66,14 +66,14 @@ public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMa
 
     @Override
     public boolean exotic_worlds$indexable(Context context) {
-        return context.wrappedFold() == null || PeriodicOctaveSampler.indexable(context,
+        return context.getWrappedFold() == null || PeriodicOctaveSampler.indexable(context,
                 this.exotic_worlds$baseScale(context), this.noiseLevels, this.lowestFreqInputFactor);
     }
 
     @Unique
     private double exotic_worlds$baseScale(Context generation) {
-        double declaredScale = generation.horizontalScale();
-        return declaredScale * ClimateCompression.resolve(this, generation.fold(),
+        double declaredScale = generation.getHorizontalScale();
+        return declaredScale * ClimateCompression.resolve(this, generation.getFold(),
                 this.exotic_worlds$climateField, this.amplitudes, this.lowestFreqInputFactor, declaredScale,
                 generation.verticalShare());
     }

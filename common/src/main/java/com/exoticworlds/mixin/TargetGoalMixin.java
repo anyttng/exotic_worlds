@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -41,6 +41,6 @@ public class TargetGoalMixin {
 
     @Unique
     private BlockPos exotic_worlds$targetNear(Node last, BlockPos target) {
-        return WorldLoopAttachments.foldOf(this.mob.level()).nearestCopy(last.asBlockPos(), target);
+        return WorldLoopAttachments.getFold(this.mob.level()).nearestCopy(last.asBlockPos(), target);
     }
 }

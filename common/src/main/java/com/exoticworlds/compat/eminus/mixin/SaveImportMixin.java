@@ -56,7 +56,7 @@ public class SaveImportMixin {
     @Inject(method = "<init>", at = @At("RETURN"))
     private void exotic_worlds$readTheSavedLevel(@Coerce Object source, IngestService ingest, ColumnCoverage columns,
             WorkService<SectionPyramid> service, long biomeZoomSeed, CallbackInfo ci) {
-        exotic_worlds$savedLevel = source instanceof SavedLevelSource saved ? saved.exotic_worlds$savedLevel() : null;
+        exotic_worlds$savedLevel = source instanceof SavedLevelSource saved ? saved.exotic_worlds$getSavedLevel() : null;
     }
 
     @Inject(method = "saved", at = @At("HEAD"))
@@ -69,13 +69,13 @@ public class SaveImportMixin {
 
     @Inject(method = "start", at = @At("RETURN"))
     private void exotic_worlds$foldTheTileRun(long tile, BitSet wanted, CallbackInfoReturnable<Object> cir) {
-        CellFoldHolder.setFold(cir.getReturnValue(), CellFoldHolder.foldOf(coverage));
+        CellFoldHolder.setFold(cir.getReturnValue(), CellFoldHolder.getFold(coverage));
     }
 
     @WrapMethod(method = "tick")
     private void exotic_worlds$tickFromTheStoredChunk(int playerChunkX, int playerChunkZ, int radiusChunks,
             int clientViewChunks, Operation<Void> original) {
-        CellFold fold = CellFoldHolder.foldOf(coverage);
+        CellFold fold = CellFoldHolder.getFold(coverage);
         original.call(fold.foldChunkX(playerChunkX, playerChunkZ), fold.foldChunkZ(playerChunkZ), radiusChunks,
                 clientViewChunks);
     }
@@ -84,19 +84,19 @@ public class SaveImportMixin {
             method = {"saved", "whole"},
             at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_POS_PACK))
     private long exotic_worlds$packStoredChunk(int chunkX, int chunkZ, Operation<Long> original) {
-        CellFold fold = CellFoldHolder.foldOf(coverage);
+        CellFold fold = CellFoldHolder.getFold(coverage);
         return original.call(fold.foldChunkX(chunkX, chunkZ), fold.foldChunkZ(chunkZ));
     }
 
     @WrapMethod(method = "inView")
     private boolean exotic_worlds$inViewAtTheNearestCopy(int chunkX, int chunkZ, Operation<Boolean> original) {
-        long copy = CellFoldHolder.foldOf(coverage).copyNearChunk(chunkX, chunkZ, centerChunkX, centerChunkZ);
+        long copy = CellFoldHolder.getFold(coverage).copyNearChunk(chunkX, chunkZ, centerChunkX, centerChunkZ);
         return original.call(ChunkPos.getX(copy), ChunkPos.getZ(copy));
     }
 
     @WrapMethod(method = "markDirty(II)V")
     private void exotic_worlds$markTheNearestCopy(int chunkX, int chunkZ, Operation<Void> original) {
-        long copy = CellFoldHolder.foldOf(coverage).copyNearChunk(chunkX, chunkZ, centerChunkX, centerChunkZ);
+        long copy = CellFoldHolder.getFold(coverage).copyNearChunk(chunkX, chunkZ, centerChunkX, centerChunkZ);
         original.call(ChunkPos.getX(copy), ChunkPos.getZ(copy));
     }
 
@@ -105,7 +105,7 @@ public class SaveImportMixin {
             at = @At(value = "INVOKE", target = "Lcom/eminus/ingest/saved/SaveImport$Candidate;centerChunkX()I"))
     private int exotic_worlds$centerXNearTheChunk(int viewX, @Local(name = "chunkX") int chunkX,
             @Local(name = "chunkZ") int chunkZ) {
-        return ChunkPos.getX(CellFoldHolder.foldOf(coverage).copyNearChunk(viewX, centerChunkZ, chunkX, chunkZ));
+        return ChunkPos.getX(CellFoldHolder.getFold(coverage).copyNearChunk(viewX, centerChunkZ, chunkX, chunkZ));
     }
 
     @ModifyExpressionValue(
@@ -113,14 +113,14 @@ public class SaveImportMixin {
             at = @At(value = "INVOKE", target = "Lcom/eminus/ingest/saved/SaveImport$Candidate;centerChunkZ()I"))
     private int exotic_worlds$centerZNearTheChunk(int viewZ, @Local(name = "chunkX") int chunkX,
             @Local(name = "chunkZ") int chunkZ) {
-        return ChunkPos.getZ(CellFoldHolder.foldOf(coverage).copyNearChunk(centerChunkX, viewZ, chunkX, chunkZ));
+        return ChunkPos.getZ(CellFoldHolder.getFold(coverage).copyNearChunk(centerChunkX, viewZ, chunkX, chunkZ));
     }
 
     @ModifyVariable(method = "wanted", at = @At("STORE"), name = "inView")
-    private boolean exotic_worlds$anotherCopyCountsAsSeen(boolean inView, @Local(name = "chunkX") int chunkX,
+    private boolean exotic_worlds$anotherCopyCountsAsSeen(boolean isInView, @Local(name = "chunkX") int chunkX,
             @Local(name = "chunkZ") int chunkZ) {
         long chunk = ChunkPos.pack(chunkX, chunkZ);
-        return inView || CellFoldHolder.foldOf(coverage).copyNearChunk(chunkX, chunkZ, centerChunkX, centerChunkZ)
+        return isInView || CellFoldHolder.getFold(coverage).copyNearChunk(chunkX, chunkZ, centerChunkX, centerChunkZ)
                 != chunk;
     }
 
@@ -130,7 +130,7 @@ public class SaveImportMixin {
                     target = "Lcom/eminus/ingest/saved/ImportTiles;plan(Lit/unimi/dsi/fastutil/longs/LongSet;III)[J"))
     private long[] exotic_worlds$planOverStoredRegions(LongSet regions, int viewX, int viewZ, int radiusChunks,
             Operation<long[]> original) {
-        return original.call(FoldedRegions.of(regions, CellFoldHolder.foldOf(coverage), 1 << EminusImports.tileBits()),
+        return original.call(FoldedRegions.of(regions, CellFoldHolder.getFold(coverage), 1 << EminusImports.getTileBits()),
                 viewX, viewZ, radiusChunks);
     }
 }

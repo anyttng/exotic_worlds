@@ -40,7 +40,8 @@ public abstract class RegionTileMixin {
     private boolean exotic_worlds$showTilesWhoseCopyMeetsTheGrid(Rectangle2D.Double regionBounds, double regionX,
             double regionZ, Operation<Boolean> original) {
         return original.call(regionBounds, regionX, regionZ)
-                || JourneyMapFold.active() && JourneyMapFold.regionInView(regionBounds, (int) regionX, (int) regionZ);
+                || JourneyMapFold.isActive()
+                        && JourneyMapFold.isRegionInView(regionBounds, (int) regionX, (int) regionZ);
     }
 
     @WrapMethod(method = "render")
@@ -66,7 +67,7 @@ public abstract class RegionTileMixin {
 
     @Unique
     private @Nullable List<WorldCopies.Copy> exotic_worlds$copiesToDraw(UI context) {
-        JourneyMapFold.View view = JourneyMapFold.viewOf(context);
+        JourneyMapFold.View view = JourneyMapFold.getView(context);
         if (JourneyMapFold.loopedAxes() == 0 || view == null) {
             return null;
         }
@@ -74,10 +75,10 @@ public abstract class RegionTileMixin {
         Window window = Minecraft.getInstance().getWindow();
         int viewportX = exotic_worlds$viewportPixels(context, window.getWidth());
         int viewportZ = exotic_worlds$viewportPixels(context, window.getHeight());
-        int[] spanX = JourneyMapFold.viewSpan(view.centerX(), viewportX, this.zoom);
-        int[] spanZ = JourneyMapFold.viewSpan(view.centerZ(), viewportZ, this.zoom);
+        int[] spanX = JourneyMapFold.viewSpanBlocks(view.centerX(), viewportX, this.zoom);
+        int[] spanZ = JourneyMapFold.viewSpanBlocks(view.centerZ(), viewportZ, this.zoom);
         List<WorldCopies.Copy> drawn = JourneyMapFold.drawnCopies(view.tiles(), spanX, spanZ,
-                JourneyMapFold.copiesOf(context));
+                JourneyMapFold.getCopies(context));
         JourneyMapFold.recordCopies(context, drawn);
         RegionCoord region = this.getRegionCoord();
         return JourneyMapFold.tileCopies(drawn,

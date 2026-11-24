@@ -40,13 +40,13 @@ class TerrainCeilingCutTest {
 
     private static final int MIN_Y = 0;
 
-    private static final int HEIGHT = 128;
+    private static final int HEIGHT_BLOCKS = 128;
 
     private static final int SIZE_HORIZONTAL = 1;
 
     private static final int SIZE_VERTICAL = 2;
 
-    private static final int CELL_HEIGHT = QuartPos.toBlock(SIZE_VERTICAL);
+    private static final int CELL_HEIGHT_BLOCKS = QuartPos.toBlock(SIZE_VERTICAL);
 
     private static final int SURFACE_Y = 40;
 
@@ -95,7 +95,7 @@ class TerrainCeilingCutTest {
     @SuppressWarnings("deprecation")
     private static NoiseGeneratorSettings settings() {
         return new NoiseGeneratorSettings(
-                NoiseSettings.create(MIN_Y, HEIGHT, SIZE_HORIZONTAL, SIZE_VERTICAL),
+                NoiseSettings.create(MIN_Y, HEIGHT_BLOCKS, SIZE_HORIZONTAL, SIZE_VERTICAL),
                 Blocks.STONE.defaultBlockState(),
                 Blocks.AIR.defaultBlockState(),
                 router(),
@@ -155,7 +155,7 @@ class TerrainCeilingCutTest {
     @Test
     void theRampKeepsItsKneeWhereTheCeilingStarts() {
         int knee = ceilingY(KNEE_X);
-        assertNotEquals(0, knee % CELL_HEIGHT,
+        assertNotEquals(0, knee % CELL_HEIGHT_BLOCKS,
                 "a knee on a cell boundary holds wherever the marker sits, and grades nothing");
 
         assertEquals(BASE_DENSITY, densityAt(KNEE_X, knee), TOLERANCE);
@@ -165,7 +165,7 @@ class TerrainCeilingCutTest {
     private record RisingSurface() implements DensityFunction.SimpleFunction {
         @Override
         public double compute(DensityFunction.FunctionContext context) {
-            return SURFACE_Y + Mth.clamp(context.blockX() * SURFACE_RISE_PER_BLOCK, 0.0, HEIGHT);
+            return SURFACE_Y + Mth.clamp(context.blockX() * SURFACE_RISE_PER_BLOCK, 0.0, HEIGHT_BLOCKS);
         }
 
         @Override
@@ -175,7 +175,7 @@ class TerrainCeilingCutTest {
 
         @Override
         public double maxValue() {
-            return SURFACE_Y + HEIGHT;
+            return SURFACE_Y + HEIGHT_BLOCKS;
         }
 
         @Override

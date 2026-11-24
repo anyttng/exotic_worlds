@@ -30,7 +30,7 @@ public class AquiferFluidTypeSeamMixin {
             @Local(argsOnly = true, ordinal = 0) int blockX,
             @Local(argsOnly = true, ordinal = 2) int blockZ) {
         if (this.exotic_worlds$typeSampler == null) {
-            this.exotic_worlds$typeSampler = new CanonicalCellSampler(NoiseConstants.AQUIFER_FLUID_TYPE_CELL_WIDTH);
+            this.exotic_worlds$typeSampler = new CanonicalCellSampler(NoiseConstants.AQUIFER_FLUID_TYPE_CELL_WIDTH_BLOCKS);
         }
 
         return this.exotic_worlds$typeSampler.sample(cell, blockX, blockZ, folded -> original.call(noise, folded));

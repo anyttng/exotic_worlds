@@ -6,10 +6,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.engine.seam.SeamCommandErrors;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -39,7 +39,7 @@ public class FillBiomeCommandMixin {
             @Local(argsOnly = true) ServerLevel level,
             @Local BoundingBox region) {
         CommandSyntaxException refusal = SeamCommandErrors.refusalForAmbiguousRegion(
-                WorldLoopAttachments.wrappedFoldOf(level), region);
+                WorldLoopAttachments.getWrappedFold(level), region);
         if (refusal == null) {
             return;
         }
@@ -55,15 +55,15 @@ public class FillBiomeCommandMixin {
     private static void exotic_worlds$fillInTheRegionsFrame(ChunkAccess chunk, BiomeResolver resolver,
             Climate.Sampler sampler, Operation<Void> original,
             @Local(argsOnly = true) ServerLevel level, @Local BoundingBox region) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         if (fold == null) {
             original.call(chunk, resolver, sampler);
             return;
         }
 
-        TranslationLattice lattice = fold.blockLattice();
-        boolean foldX = exotic_worlds$leavesTheWorld(lattice.x(), region.minX(), region.maxX());
-        boolean foldZ = exotic_worlds$leavesTheWorld(lattice.z(), region.minZ(), region.maxZ());
+        TranslationLattice lattice = fold.getBlockLattice();
+        boolean foldX = exotic_worlds$isLeavingTheWorld(lattice.getX(), region.minX(), region.maxX());
+        boolean foldZ = exotic_worlds$isLeavingTheWorld(lattice.getZ(), region.minZ(), region.maxZ());
         if (!foldX && !foldZ) {
             original.call(chunk, resolver, sampler);
             return;
@@ -74,10 +74,10 @@ public class FillBiomeCommandMixin {
         BiomeResolver inFrame = (quartX, quartY, quartZ, resolverSampler) -> {
             int blockX = QuartPos.toBlock(quartX);
             int blockZ = QuartPos.toBlock(quartZ);
-            int zLaps = foldZ ? Math.floorDiv(blockZ - regionMinZ, lattice.z().domainLength) : 0;
-            int shiftedX = blockX - zLaps * lattice.skew();
-            int frameX = foldX || shiftedX != blockX ? lattice.x().wrapFrom(regionMinX, shiftedX) : blockX;
-            int frameZ = blockZ - zLaps * lattice.z().domainLength;
+            int zLaps = foldZ ? Math.floorDiv(blockZ - regionMinZ, lattice.getZ().domainLength) : 0;
+            int shiftedX = blockX - zLaps * lattice.getSkew();
+            int frameX = foldX || shiftedX != blockX ? lattice.getX().wrapFrom(regionMinX, shiftedX) : blockX;
+            int frameZ = blockZ - zLaps * lattice.getZ().domainLength;
             return resolver.getNoiseBiome(
                     quartX + QuartPos.fromBlock(frameX - blockX), quartY, quartZ + QuartPos.fromBlock(frameZ - blockZ),
                     resolverSampler);
@@ -87,7 +87,7 @@ public class FillBiomeCommandMixin {
     }
 
     @Unique
-    private static boolean exotic_worlds$leavesTheWorld(WrapDomain axis, int minCoord, int maxCoord) {
+    private static boolean exotic_worlds$isLeavingTheWorld(WrapDomain axis, int minCoord, int maxCoord) {
         return axis.isOver(minCoord) || axis.isOver(maxCoord);
     }
 

@@ -4,8 +4,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.seam.SeamRange;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -25,14 +25,14 @@ public interface PlayerDetectorMixin {
     @WrapOperation(
             method = {"lambda$static$1", "lambda$static$4"},
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
-    private static boolean exotic_worlds$detectionRangeThroughSeam(BlockPos playerPos, Vec3i spawnerPos, double range,
+    private static boolean exotic_worlds$detectionRangeThroughSeam(BlockPos playerPos, Vec3i spawnerPos, double rangeBlocks,
             Operation<Boolean> original, @Local(argsOnly = true) Player player) {
-        return original.call(playerPos, SeamRange.toward(player, playerPos, spawnerPos), range);
+        return original.call(playerPos, SeamRange.toward(player, playerPos, spawnerPos), rangeBlocks);
     }
 
     @WrapMethod(method = "inLineOfSight")
     private static boolean exotic_worlds$sightLineThroughSeam(Level level, Vec3 origin, Vec3 dest, Operation<Boolean> original) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         return original.call(level, origin, NearestCopy.toward(fold, origin, dest));
     }
 }

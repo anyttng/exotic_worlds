@@ -4,8 +4,8 @@ import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -32,7 +32,7 @@ public class CompassAngleStateMixin {
             return null;
         }
 
-        WorldFold fold = WorldLoopAttachments.wrappedClientBoundsFoldOf(owner.level());
+        WorldFold fold = WorldLoopAttachments.getWrappedClientBoundsFold(owner.level());
         BlockPos stored = target.pos();
         BlockPos nearest = NearestCopy.toward(fold, BlockPos.containing(owner.position()), stored);
         return nearest == stored ? target : GlobalPos.of(target.dimension(), nearest);

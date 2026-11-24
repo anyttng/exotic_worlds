@@ -8,9 +8,9 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v2.shape.LoopSpansV2;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.Direction;
 

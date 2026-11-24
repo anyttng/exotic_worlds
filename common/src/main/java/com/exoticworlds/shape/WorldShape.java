@@ -20,7 +20,7 @@ public record WorldShape(Identifier id, Component label, Component hint, AtCreat
 
     @FunctionalInterface
     public interface FromExisting {
-        boolean adopt(RegistryAccess.Frozen registries, WorldDimensions dimensions);
+        boolean tryAdopt(RegistryAccess.Frozen registries, WorldDimensions dimensions);
     }
 
     public static WorldShape of(Identifier id, Component label, Component hint, AtCreation atCreation) {

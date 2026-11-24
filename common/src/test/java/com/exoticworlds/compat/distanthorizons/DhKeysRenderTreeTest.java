@@ -11,11 +11,11 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 import com.seibel.distanthorizons.core.pos.DhSectionPos;
 import com.seibel.distanthorizons.core.pos.blockPos.DhBlockPos;
 import com.seibel.distanthorizons.core.sql.dto.BeaconBeamDTO;
@@ -97,8 +97,8 @@ class DhKeysRenderTreeTest {
     void aChildOfASectionSplitForWhatCannotDrawIsNeverAskedForMoreThanOneLevelAboveItsOwn() {
         for (DhLattice lattice : List.of(this.wide, this.odd, torus(-50, 50), cylinder(0, 101), skewed(1),
                 skewed(4))) {
-            int min = lattice.fold().minBlock(Direction.Axis.X);
-            int max = lattice.fold().maxBlock(Direction.Axis.X);
+            int min = lattice.fold().getMinBlock(Direction.Axis.X);
+            int max = lattice.fold().getMaxBlock(Direction.Axis.X);
             for (int ref : new int[] {0, max - 10}) {
                 for (byte level = LEAF + 1; level <= TOP_LEVEL; level++) {
                     for (int x : sectionsAround(level, min, max)) {
@@ -121,11 +121,11 @@ class DhKeysRenderTreeTest {
     }
 
     private static int[] sectionsAround(byte level, int minBlock, int maxBlock) {
-        int width = DhFold.sectionWidthBlocks(level);
+        int widthBlocks = DhFold.sectionWidthBlocks(level);
         int[] sections = new int[4 * EDGE_REACH];
         for (int i = 0; i < 2 * EDGE_REACH; i++) {
-            sections[i] = Math.floorDiv(minBlock, width) - EDGE_REACH + i;
-            sections[2 * EDGE_REACH + i] = Math.floorDiv(maxBlock, width) - EDGE_REACH + i;
+            sections[i] = Math.floorDiv(minBlock, widthBlocks) - EDGE_REACH + i;
+            sections[2 * EDGE_REACH + i] = Math.floorDiv(maxBlock, widthBlocks) - EDGE_REACH + i;
         }
 
         return sections;
@@ -152,15 +152,15 @@ class DhKeysRenderTreeTest {
 
     @Test
     void aSectionHangingOverTheWorldEdgeIsRefusedAndItsCompleteNeighborDrawn() {
-        assertFalse(DhKeys.drawsSection(this.odd, 1600, 384, DhSectionPos.encode(SECTION_256, 6, 1)),
+        assertFalse(DhKeys.isSectionDrawn(this.odd, 1600, 384, DhSectionPos.encode(SECTION_256, 6, 1)),
                 "blocks 1536..1791 run past the 1616 block world");
-        assertTrue(DhKeys.drawsSection(this.odd, 1600, 384, DhSectionPos.encode(SECTION_256, 5, 1)));
+        assertTrue(DhKeys.isSectionDrawn(this.odd, 1600, 384, DhSectionPos.encode(SECTION_256, 5, 1)));
     }
 
     @Test
     void onlyTheNearestCopyOfACompleteSectionIsDrawn() {
-        assertTrue(DhKeys.drawsSection(this.torus, 60, 0, DhSectionPos.encode(LEAF, 4, 0)));
-        assertFalse(DhKeys.drawsSection(this.torus, 60, 0, DhSectionPos.encode(LEAF, 4 - LEAVES_PER_WORLD, 0)));
+        assertTrue(DhKeys.isSectionDrawn(this.torus, 60, 0, DhSectionPos.encode(LEAF, 4, 0)));
+        assertFalse(DhKeys.isSectionDrawn(this.torus, 60, 0, DhSectionPos.encode(LEAF, 4 - LEAVES_PER_WORLD, 0)));
     }
 
     @Test
@@ -177,7 +177,7 @@ class DhKeysRenderTreeTest {
         long pos = DhSectionPos.encode(SECTION_512, 3, -7);
         assertEquals(7, DhKeys.completeDetail(null, pos, (byte) 7));
         assertEquals(5, DhKeys.straddlerDetail(null, 0, 0, pos, (byte) 5));
-        assertTrue(DhKeys.drawsSection(null, 0, 0, pos));
+        assertTrue(DhKeys.isSectionDrawn(null, 0, 0, pos));
         assertTrue(DhKeys.isNearestCopy(null, 0, 0, pos));
         assertEquals(pos, DhKeys.nearestSection(null, 0, 0, pos));
 

@@ -6,8 +6,8 @@ import java.util.List;
 import com.exoticworlds.api.v2.option.DimensionOptionV2;
 import com.exoticworlds.api.v2.option.OptionPartV2;
 import com.exoticworlds.api.v2.option.ShapeOptionV2;
-import com.exoticworlds.core.ShapeOption;
-import com.exoticworlds.core.ShapeOptionRegistry;
+import com.exoticworlds.core.option.ShapeOption;
+import com.exoticworlds.core.option.ShapeOptionRegistry;
 import com.exoticworlds.shape.option.DeclaredOptions;
 import com.exoticworlds.shape.option.DimensionOption;
 import com.exoticworlds.shape.option.OptionPart;
@@ -23,14 +23,14 @@ public final class OptionBridge {
     }
 
     private static <T> DimensionOption<T> internal(DimensionOptionV2<T> declared) {
-        List<OptionPart<T>> parts = new ArrayList<>(declared.parts().size());
-        for (OptionPartV2<T> part : declared.parts()) {
+        List<OptionPart<T>> parts = new ArrayList<>(declared.getParts().size());
+        for (OptionPartV2<T> part : declared.getParts()) {
             parts.add(internal(part));
         }
 
-        return DimensionOption.of(keyOf(declared.option()), declared.captionKey(), parts)
-                .forShapes(declared.shapes())
-                .forDimensions(declared.dimensions());
+        return DimensionOption.of(keyOf(declared.getOption()), declared.getCaptionKey(), parts)
+                .forShapes(declared.getShapes())
+                .forDimensions(declared.getDimensions());
     }
 
     private static <T> OptionPart<T> internal(OptionPartV2<T> part) {

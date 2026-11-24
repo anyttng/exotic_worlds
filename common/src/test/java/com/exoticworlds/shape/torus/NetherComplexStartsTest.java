@@ -11,18 +11,18 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.world.level.ChunkPos;
 
 class NetherComplexStartsTest {
-    private static final int WIDTH = 16;
+    private static final int WIDTH_CHUNKS = 16;
     private static final int SEPARATION = 4;
     private static final WorldFold SMALLEST_NETHER =
-            WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH)));
+            WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH_CHUNKS)));
 
     @Test
     void takesTheOriginWhenNothingStandsNearIt() {
@@ -44,8 +44,8 @@ class NetherComplexStartsTest {
         assertFalse(asked.isEmpty());
         for (ChunkPos chunk : asked) {
             for (ChunkPos other : taken) {
-                int gap = Math.max(gap(chunk.x(), other.x()), gap(chunk.z(), other.z()));
-                assertTrue(gap >= SEPARATION, chunk + " was asked about, " + gap + " chunks from " + other);
+                int gapChunks = Math.max(gapChunks(chunk.x(), other.x()), gapChunks(chunk.z(), other.z()));
+                assertTrue(gapChunks >= SEPARATION, chunk + " was asked about, " + gapChunks + " chunks from " + other);
             }
         }
     }
@@ -59,14 +59,14 @@ class NetherComplexStartsTest {
             return false;
         }, List.of(), SEPARATION));
 
-        assertEquals(WIDTH * WIDTH, asked.size());
-        assertEquals(WIDTH * WIDTH, new HashSet<>(asked).size());
-        assertTrue(asked.stream().noneMatch(chunk -> chunk.x() < -WIDTH / 2 || chunk.x() >= WIDTH / 2
-                || chunk.z() < -WIDTH / 2 || chunk.z() >= WIDTH / 2));
+        assertEquals(WIDTH_CHUNKS * WIDTH_CHUNKS, asked.size());
+        assertEquals(WIDTH_CHUNKS * WIDTH_CHUNKS, new HashSet<>(asked).size());
+        assertTrue(asked.stream().noneMatch(chunk -> chunk.x() < -WIDTH_CHUNKS / 2 || chunk.x() >= WIDTH_CHUNKS / 2
+                || chunk.z() < -WIDTH_CHUNKS / 2 || chunk.z() >= WIDTH_CHUNKS / 2));
     }
 
-    private static int gap(int from, int to) {
-        int gap = Math.floorMod(to - from, WIDTH);
-        return Math.min(gap, WIDTH - gap);
+    private static int gapChunks(int from, int to) {
+        int gapChunks = Math.floorMod(to - from, WIDTH_CHUNKS);
+        return Math.min(gapChunks, WIDTH_CHUNKS - gapChunks);
     }
 }

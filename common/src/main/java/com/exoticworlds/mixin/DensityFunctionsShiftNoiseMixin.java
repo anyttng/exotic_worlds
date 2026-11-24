@@ -25,7 +25,7 @@ public interface DensityFunctionsShiftNoiseMixin {
             return original.call(localX, localY, localZ);
         }
 
-        SlotAxes axes = generation.slotAxes();
+        SlotAxes axes = generation.getSlotAxes();
 
         double sample = ContextScaledNoise.sample(generation, this.offsetNoise(),
                 axes.x().samplerInput(localX, NoiseConstants.SHIFT_SCALE),
@@ -33,6 +33,6 @@ public interface DensityFunctionsShiftNoiseMixin {
                 axes.z().samplerInput(localZ, NoiseConstants.SHIFT_SCALE),
                 NoiseConstants.SHIFT_SCALE);
 
-        return sample * NoiseConstants.SHIFT_AMPLITUDE;
+        return sample * NoiseConstants.SHIFT_AMPLITUDE_BLOCKS;
     }
 }

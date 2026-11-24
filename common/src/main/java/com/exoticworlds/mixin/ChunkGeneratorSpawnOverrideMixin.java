@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.sugar.Local;
 
@@ -27,7 +27,7 @@ public class ChunkGeneratorSpawnOverrideMixin {
             return check;
         }
 
-        WorldFold fold = WorldLoopAttachments.foldOfReader(
+        WorldFold fold = WorldLoopAttachments.getFoldOfReader(
                 ((StructureManagerAccessor) structureManager).exotic_worlds$level());
         if (!fold.isWrapped()) {
             return check;

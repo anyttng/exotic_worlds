@@ -42,7 +42,7 @@ public class WorldPainterMixin {
     @TargetHandler(mixin = WORLD_PAINTER, name = PAINT)
     private float exotic_worlds$paintTheLapTemperature(Climate.Sampler sampler, int x, int y, int z,
             Operation<Float> original) {
-        ClimateLap lap = ClimateLap.bound();
+        ClimateLap lap = ClimateLap.getBound();
         if (lap == null) {
             return original.call(sampler, x, y, z);
         }
@@ -63,7 +63,7 @@ public class WorldPainterMixin {
     @TargetHandler(mixin = WORLD_PAINTER, name = PAINT)
     private float exotic_worlds$paintTheLapHumidity(Climate.Sampler sampler, int x, int y, int z,
             Operation<Float> original) {
-        ClimateLap lap = ClimateLap.bound();
+        ClimateLap lap = ClimateLap.getBound();
         if (lap == null) {
             return original.call(sampler, x, y, z);
         }
@@ -94,8 +94,8 @@ public class WorldPainterMixin {
             return original.call(noise, x, z, scale);
         }
 
-        return sample.lap().noise(((BandNoises) noise).exotic_worlds$large(), scale, sample.signedX(), z,
-                sample.blockZ());
+        return sample.getLap().noise(((BandNoises) noise).exotic_worlds$getLarge(), scale, sample.signedX(), z,
+                sample.getBlockZ());
     }
 
     @WrapOperation(
@@ -108,8 +108,8 @@ public class WorldPainterMixin {
             return original.call(noise, x, z, scale);
         }
 
-        return sample.lap().noise(((BandNoises) noise).exotic_worlds$detail(), scale, sample.signedX(), z,
-                sample.blockZ());
+        return sample.getLap().noise(((BandNoises) noise).exotic_worlds$getDetail(), scale, sample.signedX(), z,
+                sample.getBlockZ());
     }
 
     @WrapOperation(
@@ -119,11 +119,11 @@ public class WorldPainterMixin {
             Operation<Double> original, @Local(name = WAVE_FREQUENCY) double waveFrequency,
             @Local(name = MAGNIFICATION) double magnification) {
         PinnedSample sample = PinnedSample.current();
-        if (sample == null || !sample.lap().closesXWave()) {
+        if (sample == null || !sample.getLap().isXWaveClosed()) {
             return original.call(x, amplitude, frequency, seed);
         }
 
-        return sample.lap().xWave(NaturalWaveCells.INSTANCE, seed, sample.signedX(), amplitude,
+        return sample.getLap().xWave(NaturalWaveCells.INSTANCE, seed, sample.signedX(), amplitude,
                 waveFrequency / magnification);
     }
 
@@ -134,11 +134,11 @@ public class WorldPainterMixin {
             Operation<Double> original, @Local(name = WAVE_FREQUENCY) double waveFrequency,
             @Local(name = MAGNIFICATION) double magnification) {
         PinnedSample sample = PinnedSample.current();
-        if (sample == null || !sample.lap().closesZWave()) {
+        if (sample == null || !sample.getLap().isZWaveClosed()) {
             return original.call(z, amplitude, frequency, seed);
         }
 
-        return sample.lap().zWave(NaturalWaveCells.INSTANCE, seed, sample.blockZ(), amplitude,
+        return sample.getLap().zWave(NaturalWaveCells.INSTANCE, seed, sample.getBlockZ(), amplitude,
                 waveFrequency / magnification);
     }
 
@@ -146,7 +146,7 @@ public class WorldPainterMixin {
     private double exotic_worlds$foldAfterTheWave(double wave, @Local(argsOnly = true, ordinal = 2) int z,
             @Local(name = "distorsion") double distortion) {
         PinnedSample sample = PinnedSample.current();
-        return sample == null ? wave : sample.lap().carriedWave(sample.blockZ(), z, wave, distortion);
+        return sample == null ? wave : sample.getLap().carriedWave(sample.getBlockZ(), z, wave, distortion);
     }
 
     @ModifyVariable(method = HUMIDITY, at = @At(value = "LOAD", ordinal = 0), name = "uwave")
@@ -158,6 +158,6 @@ public class WorldPainterMixin {
     @ModifyVariable(method = HUMIDITY, at = @At("STORE"), name = "hbw")
     private double exotic_worlds$bandsOnTheLap(double width) {
         PinnedSample sample = PinnedSample.current();
-        return sample == null ? width : sample.lap().lapBandWidth(width);
+        return sample == null ? width : sample.getLap().lapBandWidthBlocks(width);
     }
 }

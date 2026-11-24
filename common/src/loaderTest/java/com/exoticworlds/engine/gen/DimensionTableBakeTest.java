@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.gen;
 
-import static com.exoticworlds.engine.gen.BakeStampFixture.OVERWORLD_CHUNK_WIDTH;
-import static com.exoticworlds.engine.gen.BakeStampFixture.chunkWidth;
+import static com.exoticworlds.engine.gen.BakeStampFixture.OVERWORLD_WIDTH_CHUNKS;
+import static com.exoticworlds.engine.gen.BakeStampFixture.widthChunks;
 import static com.exoticworlds.engine.gen.BakeStampFixture.datapackRegistry;
 import static com.exoticworlds.engine.gen.BakeStampFixture.foreignGenerator;
 import static com.exoticworlds.engine.gen.BakeStampFixture.noiseGenerator;
@@ -23,12 +23,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import com.exoticworlds.accessors.ShapeStamp;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.DimensionTable;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.DimensionTable;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.shape.StartupRegistrations;
 
 import net.minecraft.SharedConstants;
@@ -81,7 +81,7 @@ class DimensionTableBakeTest {
         assertNull(shapeOf(baked, LISTED));
         FlatShape derived = shapeOf(baked, UNLISTED);
         assertNotNull(derived, "the unlisted stem derived nothing, so this run says nothing about the entry");
-        assertEquals(OVERWORLD_CHUNK_WIDTH, chunkWidth(derived, Direction.Axis.X));
+        assertEquals(OVERWORLD_WIDTH_CHUNKS, widthChunks(derived, Direction.Axis.X));
     }
 
     @Test
@@ -98,7 +98,7 @@ class DimensionTableBakeTest {
 
     @Test
     void aStemCarryingItsOwnShapeOutranksItsEntry() {
-        FlatShape own = squareTorus(OVERWORLD_CHUNK_WIDTH);
+        FlatShape own = squareTorus(OVERWORLD_WIDTH_CHUNKS);
         Registry<LevelStem> baked = bake(unwrappedOverworld(wrappedTable()), datapackRegistry(Map.of(
                 LISTED, stem(SAME_SCALE, shapedGenerator(own)))));
 
@@ -140,7 +140,7 @@ class DimensionTableBakeTest {
     }
 
     private static WorldDimensions wrappedOverworld(DimensionTable table) {
-        return withTable(shapedGenerator(squareTorus(OVERWORLD_CHUNK_WIDTH)), table);
+        return withTable(shapedGenerator(squareTorus(OVERWORLD_WIDTH_CHUNKS)), table);
     }
 
     private static WorldDimensions withTable(ChunkGenerator overworld, DimensionTable table) {

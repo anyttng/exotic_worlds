@@ -10,10 +10,10 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.net.TranslationContext;
 import com.exoticworlds.engine.seam.ClientPosition;
 
@@ -29,8 +29,8 @@ import net.nanaky.ultimate_map_atlases.networking.MapAtlasesNetworking;
 
 class AtlasLecternTranslationTest {
     private static final int WIDTH_IN_CHUNKS = 32;
-    private static final int WIDTH = WIDTH_IN_CHUNKS * 16;
-    private static final int VIEW_DISTANCE = 12;
+    private static final int WIDTH_BLOCKS = WIDTH_IN_CHUNKS * 16;
+    private static final int VIEW_DISTANCE_CHUNKS = 12;
 
     private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH_IN_CHUNKS)));
 
@@ -48,8 +48,8 @@ class AtlasLecternTranslationTest {
                     throw new UnsupportedOperationException();
                 },
                 Level.OVERWORLD,
-                VIEW_DISTANCE,
-                VIEW_DISTANCE,
+                VIEW_DISTANCE_CHUNKS,
+                VIEW_DISTANCE_CHUNKS,
                 entityId -> null,
                 entityId -> null,
                 () -> {
@@ -90,7 +90,7 @@ class AtlasLecternTranslationTest {
         Object open = messageOf(rewritten);
         assertSame(sent.getClass(), rewritten.getClass());
         assertSame(sent.type(), rewritten.type());
-        assertEquals(LECTERN_ACROSS_THE_SEAM.offset(WIDTH, 0, 0), fieldOf(open, "lecternPos"));
+        assertEquals(LECTERN_ACROSS_THE_SEAM.offset(WIDTH_BLOCKS, 0, 0), fieldOf(open, "lecternPos"));
         assertSame(C2S2COpenAtlasScreenPacket.OpenSource.LECTERN, fieldOf(open, "source"));
         assertNull(fieldOf(open, "hand"));
         assertEquals(true, fieldOf(open, "pinOnly"));

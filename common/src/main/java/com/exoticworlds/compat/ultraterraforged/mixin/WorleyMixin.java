@@ -53,7 +53,7 @@ public abstract class WorleyMixin {
 
     @WrapMethod(method = "compute")
     private float exotic_worlds$closeOnLap(float x, float z, int seed, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return original.call(x, z, seed);
         }
@@ -74,7 +74,7 @@ public abstract class WorleyMixin {
             + "Lcom/pandaismyname1/ultraterraforged/world/worldgen/noise/module/Noise;)F"))
     private static float exotic_worlds$canonicalCell(CellFunction function, int seed, int cellX, int cellY, float nearest,
             NoiseUtil.Vec2f vector, Noise lookup, Operation<Float> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return original.call(function, seed, cellX, cellY, nearest, vector, lookup);
         }

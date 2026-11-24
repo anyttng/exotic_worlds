@@ -11,12 +11,12 @@ import org.jspecify.annotations.Nullable;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.MapCodec;
 import com.exoticworlds.accessors.ShapeStamp;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -58,17 +58,17 @@ import net.minecraft.world.level.levelgen.blending.Blender;
 final class BakeStampFixture {
     static final String TEST_NAMESPACE = "exotic_worlds_test";
 
-    static final int OVERWORLD_CHUNK_WIDTH = 32;
+    static final int OVERWORLD_WIDTH_CHUNKS = 32;
 
     private static final int MIN_Y = -64;
-    private static final int HEIGHT = 384;
+    private static final int HEIGHT_BLOCKS = 384;
     private static final float NO_AMBIENT_LIGHT = 0.0F;
     private static final int NO_MONSTER_LIGHT = 0;
 
     private static final String UNUSED_IN_THIS_HARNESS = "The bake fixture never generates";
 
-    static FlatShape squareTorus(int chunkWidth) {
-        return ShapeFixtures.torus(WorldLoopBounds.ofWidth(chunkWidth));
+    static FlatShape squareTorus(int widthChunks) {
+        return ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthChunks));
     }
 
     static ResourceKey<LevelStem> stemKey(String path) {
@@ -125,19 +125,19 @@ final class BakeStampFixture {
 
     static @Nullable FlatShape shapeOf(Registry<LevelStem> baked, ResourceKey<LevelStem> key) {
         CarriedShape carried = carriedShapeOf(baked, key);
-        return carried == null ? null : carried.shape();
+        return carried == null ? null : carried.getShape();
     }
 
     static @Nullable CarriedShape carriedShapeOf(Registry<LevelStem> baked, ResourceKey<LevelStem> key) {
-        return ShapedChunkGenerator.carriedShapeOf(generatorOf(baked, key));
+        return ShapedChunkGenerator.getCarriedShape(generatorOf(baked, key));
     }
 
     static ChunkGenerator generatorOf(Registry<LevelStem> baked, ResourceKey<LevelStem> key) {
         return baked.getOptional(key).orElseThrow().generator();
     }
 
-    static int chunkWidth(FlatShape shape, Direction.Axis axis) {
-        return shape.bounds().chunkWidth(axis);
+    static int widthChunks(FlatShape shape, Direction.Axis axis) {
+        return shape.bounds().getWidthChunks(axis);
     }
 
     static DimensionType dimensionType(double coordinateScale) {
@@ -148,8 +148,8 @@ final class BakeStampFixture {
                 false,
                 coordinateScale,
                 MIN_Y,
-                HEIGHT,
-                HEIGHT,
+                HEIGHT_BLOCKS,
+                HEIGHT_BLOCKS,
                 BlockTags.INFINIBURN_OVERWORLD,
                 NO_AMBIENT_LIGHT,
                 new DimensionType.MonsterSettings(ConstantInt.of(NO_MONSTER_LIGHT), NO_MONSTER_LIGHT),
@@ -195,7 +195,7 @@ final class BakeStampFixture {
 
         @Override
         public int getGenDepth() {
-            return HEIGHT;
+            return HEIGHT_BLOCKS;
         }
 
         @Override
@@ -239,12 +239,12 @@ final class BakeStampFixture {
         }
 
         @Override
-        public CarriedShape carriedShape() {
+        public CarriedShape getCarriedShape() {
             return this.carriedShape;
         }
 
         @Override
-        public ChunkGenerator unshaped() {
+        public ChunkGenerator getUnshaped() {
             return new ForeignChunkGenerator();
         }
     }

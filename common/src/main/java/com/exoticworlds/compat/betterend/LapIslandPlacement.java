@@ -17,7 +17,7 @@ public final class LapIslandPlacement {
     public record Island(BlockPos canonical, BlockPos seated) {
     }
 
-    public record Center(boolean island, int biomesSize, long innerVoidSquared) {
+    public record Center(boolean isIsland, int biomesSize, long innerVoidSquared) {
     }
 
     public record Grid(IslandLapAxis x, IslandLapAxis z, LapFrame frame) {
@@ -26,8 +26,8 @@ public final class LapIslandPlacement {
         }
 
         int reachX() {
-            double reach = Math.min(this.x.cellBlocks(), this.z.cellBlocks()) * (1.0 + Math.abs(this.frame.shear()));
-            return (int) Math.ceil(reach / this.x.cellBlocks());
+            double reachBlocks = Math.min(this.x.cellBlocks(), this.z.cellBlocks()) * (1.0 + Math.abs(this.frame.getShear()));
+            return (int) Math.ceil(reachBlocks / this.x.cellBlocks());
         }
     }
 
@@ -37,7 +37,7 @@ public final class LapIslandPlacement {
 
     private static final double COVERAGE_FREQUENCY = 0.01;
 
-    private static final int REACH = 1;
+    private static final int REACH_CELLS = 1;
 
     public static void place(List<Island> into, Grid grid, int cellX, int cellZ, int maxHeight, LayerOptions options,
             IntBinaryOperator seedOf, OpenSimplexNoise coverage, Center center) {
@@ -46,7 +46,7 @@ public final class LapIslandPlacement {
         for (int offsetX = -reachX; offsetX <= reachX; offsetX++) {
             int rawX = cellX + offsetX;
             int canonicalX = grid.x().wrap(rawX);
-            for (int offsetZ = -REACH; offsetZ <= REACH; offsetZ++) {
+            for (int offsetZ = -REACH_CELLS; offsetZ <= REACH_CELLS; offsetZ++) {
                 int rawZ = cellZ + offsetZ;
                 int canonicalZ = grid.z().wrap(rawZ);
                 long[] fromOrigin = cellsFromOrigin(grid, canonicalX, canonicalZ);
@@ -71,7 +71,7 @@ public final class LapIslandPlacement {
 
     private static void clearCenter(List<Island> into, Grid grid, int cellX, int cellZ, LayerOptions options,
             Center center) {
-        if (!center.island()) {
+        if (!center.isIsland()) {
             return;
         }
 

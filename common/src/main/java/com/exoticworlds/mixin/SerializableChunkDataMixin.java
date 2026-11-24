@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.gen.terrain.FloatingCrumbs;
 import com.exoticworlds.migration.FormerNamespace;
 import com.google.common.collect.Maps;
@@ -48,7 +48,7 @@ public class SerializableChunkDataMixin {
 
     // Vanilla's own literal, restated because the code it lives in is not reachable from here.
     @Unique
-    private static final int exotic_worlds$MAX_REFERENCE_DISTANCE = 8;
+    private static final int exotic_worlds$MAX_REFERENCE_DISTANCE_CHUNKS = 8;
 
     @Unique
     private static final String exotic_worlds$REFERENCES_KEY = "References";
@@ -63,7 +63,7 @@ public class SerializableChunkDataMixin {
     private static void exotic_worlds$snapshotTerrainMask(ServerLevel level, ChunkAccess chunk,
             CallbackInfoReturnable<SerializableChunkData> callback) {
         ((SerializableChunkDataMixin) (Object) callback.getReturnValue()).exotic_worlds$terrainMask =
-                FloatingCrumbs.savedMask(level, chunk.getPos());
+                FloatingCrumbs.getSavedMask(level, chunk.getPos());
     }
 
     @Inject(method = "write", at = @At("RETURN"))
@@ -105,7 +105,7 @@ public class SerializableChunkDataMixin {
             CompoundTag tag,
             Operation<Map<Structure, LongSet>> original,
             @Local(argsOnly = true) ServerLevel level) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(level);
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         if (fold == null) {
             return original.call(registryAccess, pos, tag);
         }
@@ -137,7 +137,7 @@ public class SerializableChunkDataMixin {
         LongSet kept = new LongOpenHashSet();
         for (long referenceKey : stored) {
             ChunkPos referencePos = ChunkPos.unpack(referenceKey);
-            if (pos.getChessboardDistance(fold.nearestCopy(pos, referencePos)) > exotic_worlds$MAX_REFERENCE_DISTANCE) {
+            if (pos.getChessboardDistance(fold.nearestCopy(pos, referencePos)) > exotic_worlds$MAX_REFERENCE_DISTANCE_CHUNKS) {
                 exotic_worlds$LOGGER.warn(
                         "Found invalid structure reference [ {} @ {} ] for chunk {}.", structureId, referencePos, pos);
                 continue;

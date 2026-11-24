@@ -1,9 +1,9 @@
 package com.exoticworlds.bridge.v1.shape;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
-import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.WorldLoopSizes;
 
 import net.minecraft.core.Direction;
 
@@ -21,20 +21,20 @@ public final class SpansBridge {
         return new Spans(WorldLoopBounds.UNBOUNDED, FlatShape.NO_SKEW);
     }
 
-    public static int minChunkWidth() {
-        return WorldLoopSizes.MIN_CHUNK_WIDTH;
+    public static int getMinWidthChunks() {
+        return WorldLoopSizes.MIN_WIDTH_CHUNKS;
     }
 
-    public static Spans ofWidth(int chunkWidth) {
-        return new Spans(WorldLoopBounds.ofWidth(chunkWidth), FlatShape.NO_SKEW);
+    public static Spans ofWidth(int widthChunks) {
+        return new Spans(WorldLoopBounds.ofWidth(widthChunks), FlatShape.NO_SKEW);
     }
 
-    public static Spans ofWidths(int xChunkWidth, int zChunkWidth) {
-        return new Spans(WorldLoopBounds.ofWidths(xChunkWidth, zChunkWidth), FlatShape.NO_SKEW);
+    public static Spans ofWidths(int xWidthChunks, int zWidthChunks) {
+        return new Spans(WorldLoopBounds.ofWidths(xWidthChunks, zWidthChunks), FlatShape.NO_SKEW);
     }
 
-    public static Spans ofWidth(Direction.Axis axis, int chunkWidth) {
-        return new Spans(WorldLoopBounds.ofWidth(axis, chunkWidth), FlatShape.NO_SKEW);
+    public static Spans ofWidth(Direction.Axis axis, int widthChunks) {
+        return new Spans(WorldLoopBounds.ofWidth(axis, widthChunks), FlatShape.NO_SKEW);
     }
 
     public static Spans and(Spans spans, Direction.Axis axis, int minChunk, int maxChunk) {
@@ -46,7 +46,7 @@ public final class SpansBridge {
     }
 
     public static boolean loops(Spans spans, Direction.Axis axis) {
-        return axis != Direction.Axis.Y && spans.bounds().loops(axis);
+        return axis != Direction.Axis.Y && spans.bounds().isLooped(axis);
     }
 
     public static int minChunk(Spans spans, Direction.Axis axis) {
@@ -57,8 +57,8 @@ public final class SpansBridge {
         return looping(spans, axis).maxChunk();
     }
 
-    public static int chunkWidth(Spans spans, Direction.Axis axis) {
-        return looping(spans, axis).chunkWidth();
+    public static int getWidthChunks(Spans spans, Direction.Axis axis) {
+        return looping(spans, axis).getWidthChunks();
     }
 
     public static boolean isSquare(Spans spans) {
@@ -71,12 +71,12 @@ public final class SpansBridge {
     }
 
     public static String text(Spans spans) {
-        return "LoopSpans[x=" + spans.bounds().x().spanText() + ", z=" + spans.bounds().z().spanText()
+        return "LoopSpans[x=" + spans.bounds().x().getSpanText() + ", z=" + spans.bounds().z().getSpanText()
                 + ", skew=" + spans.skewChunks() + "]";
     }
 
     private static AxisBounds.Looped looping(Spans spans, Direction.Axis axis) {
-        if (spans.bounds().axis(axis) instanceof AxisBounds.Looped looped) {
+        if (spans.bounds().getAxis(axis) instanceof AxisBounds.Looped looped) {
             return looped;
         }
 

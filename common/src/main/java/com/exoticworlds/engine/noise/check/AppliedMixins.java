@@ -20,7 +20,7 @@ public final class AppliedMixins {
     private static final String CLASS_SUFFIX = ".class";
 
     public record Applied(String mixin, @Nullable String modId) {
-        String owner() {
+        String getOwner() {
             return this.modId != null ? this.modId : this.mixin;
         }
     }
@@ -48,7 +48,7 @@ public final class AppliedMixins {
     static List<String> foreign(Collection<Applied> applied) {
         return applied.stream()
                 .filter(mixin -> !Objects.equals(mixin.modId(), ExoticWorlds.MODID))
-                .map(Applied::owner)
+                .map(Applied::getOwner)
                 .distinct()
                 .sorted()
                 .toList();

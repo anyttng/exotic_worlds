@@ -37,32 +37,32 @@ public abstract class PNGExporterMixin {
             @Local(name = "minTileChunkZ") int minTileChunkZ, @Local(name = "maxTileChunkX") int maxTileChunkX,
             @Local(name = "maxTileChunkZ") int maxTileChunkZ) {
         this.exotic_worlds$assembly.beginFrame(minTileChunkX, minTileChunkZ, maxTileChunkX, maxTileChunkZ);
-        return this.exotic_worlds$assembly.walking() ? 0 : minRegionX;
+        return this.exotic_worlds$assembly.isWalking() ? 0 : minRegionX;
     }
 
     @ModifyVariable(method = "export", at = @At("STORE"), name = "minRegionZ")
     private int exotic_worlds$walkFromRegionZ(int minRegionZ) {
-        return this.exotic_worlds$assembly.walking() ? 0 : minRegionZ;
+        return this.exotic_worlds$assembly.isWalking() ? 0 : minRegionZ;
     }
 
     @ModifyVariable(method = "export", at = @At("STORE"), name = "maxRegionX")
     private int exotic_worlds$walkToRegionX(int maxRegionX) {
-        return this.exotic_worlds$assembly.walking() ? 0 : maxRegionX;
+        return this.exotic_worlds$assembly.isWalking() ? 0 : maxRegionX;
     }
 
     @ModifyVariable(method = "export", at = @At("STORE"), name = "maxRegionZ")
     private int exotic_worlds$walkToRegionZ(int maxRegionZ) {
-        return this.exotic_worlds$assembly.walking() ? this.exotic_worlds$assembly.lastWalkedRegion() : maxRegionZ;
+        return this.exotic_worlds$assembly.isWalking() ? this.exotic_worlds$assembly.getLastWalkedRegion() : maxRegionZ;
     }
 
     @WrapOperation(
             method = "export",
             at = @At(value = "INVOKE", target = XaeroInjectionTargets.MAP_PROCESSOR_GET_LEAF_MAP_REGION))
     private MapRegion exotic_worlds$fetchSourceRegion(MapProcessor processor, int caveLayer, int regionX, int regionZ,
-            boolean create, Operation<MapRegion> original) {
+            boolean shouldCreate, Operation<MapRegion> original) {
         this.exotic_worlds$assembly.enterRegion(regionX, regionZ);
-        return original.call(processor, caveLayer, this.exotic_worlds$assembly.regionX(), this.exotic_worlds$assembly.regionZ(),
-                create);
+        return original.call(processor, caveLayer, this.exotic_worlds$assembly.getRegionX(), this.exotic_worlds$assembly.getRegionZ(),
+                shouldCreate);
     }
 
     @WrapOperation(
@@ -70,7 +70,7 @@ public abstract class PNGExporterMixin {
             at = @At(value = "INVOKE", target = "Lxaero/map/region/MapLayer;regionDetectionExists(II)Z"))
     private boolean exotic_worlds$detectSourceRegion(MapLayer layer, int regionX, int regionZ,
             Operation<Boolean> original) {
-        return original.call(layer, this.exotic_worlds$assembly.regionX(), this.exotic_worlds$assembly.regionZ());
+        return original.call(layer, this.exotic_worlds$assembly.getRegionX(), this.exotic_worlds$assembly.getRegionZ());
     }
 
     @WrapOperation(
@@ -80,7 +80,7 @@ public abstract class PNGExporterMixin {
                     target = "Lxaero/map/region/MapLayer;getRegionDetection(II)Lxaero/map/file/RegionDetection;"))
     private RegionDetection exotic_worlds$fetchSourceDetection(MapLayer layer, int regionX, int regionZ,
             Operation<RegionDetection> original) {
-        return original.call(layer, this.exotic_worlds$assembly.regionX(), this.exotic_worlds$assembly.regionZ());
+        return original.call(layer, this.exotic_worlds$assembly.getRegionX(), this.exotic_worlds$assembly.getRegionZ());
     }
 
     @WrapOperation(
@@ -89,14 +89,14 @@ public abstract class PNGExporterMixin {
                     value = "INVOKE",
                     target = "Lxaero/map/highlight/DimensionHighlighterHandler;shouldApplyRegionHighlights(IIZ)Z"))
     private boolean exotic_worlds$sourceRegionHighlights(DimensionHighlighterHandler handler, int regionX, int regionZ,
-            boolean discovered, Operation<Boolean> original) {
-        return original.call(handler, this.exotic_worlds$assembly.regionX(), this.exotic_worlds$assembly.regionZ(), discovered);
+            boolean isDiscovered, Operation<Boolean> original) {
+        return original.call(handler, this.exotic_worlds$assembly.getRegionX(), this.exotic_worlds$assembly.getRegionZ(), isDiscovered);
     }
 
     @WrapOperation(method = "export", at = @At(value = "NEW", target = "xaero/map/region/ExportMapRegion"))
     private ExportMapRegion exotic_worlds$buildSourceRegion(MapDimension dimension, int regionX, int regionZ,
             int caveLayer, Registry<Biome> biomes, Operation<ExportMapRegion> original) {
-        return original.call(dimension, this.exotic_worlds$assembly.regionX(), this.exotic_worlds$assembly.regionZ(), caveLayer,
+        return original.call(dimension, this.exotic_worlds$assembly.getRegionX(), this.exotic_worlds$assembly.getRegionZ(), caveLayer,
                 biomes);
     }
 
@@ -104,25 +104,25 @@ public abstract class PNGExporterMixin {
             method = "export",
             at = @At(value = "INVOKE", target = "Lxaero/map/region/ExportMapTileChunk;getX()I"))
     private int exotic_worlds$slotX(ExportMapTileChunk chunk, Operation<Integer> original) {
-        return this.exotic_worlds$assembly.walking() ? this.exotic_worlds$assembly.tileChunkX(chunk) : original.call(chunk);
+        return this.exotic_worlds$assembly.isWalking() ? this.exotic_worlds$assembly.tileChunkX(chunk) : original.call(chunk);
     }
 
     @WrapOperation(
             method = "export",
             at = @At(value = "INVOKE", target = "Lxaero/map/region/ExportMapTileChunk;getZ()I"))
     private int exotic_worlds$slotZ(ExportMapTileChunk chunk, Operation<Integer> original) {
-        return this.exotic_worlds$assembly.walking() ? this.exotic_worlds$assembly.tileChunkZ(chunk) : original.call(chunk);
+        return this.exotic_worlds$assembly.isWalking() ? this.exotic_worlds$assembly.tileChunkZ(chunk) : original.call(chunk);
     }
 
     @WrapOperation(
             method = "export",
             at = @At(value = "INVOKE", target = XaeroInjectionTargets.GUI_MAP_RENDER_TEXTURED_MODAL_RECT_WITH_LIGHTING_3))
-    private void exotic_worlds$drawTileCopies(Matrix4f matrix, float x, float y, float width, float height,
+    private void exotic_worlds$drawTileCopies(Matrix4f matrix, float x, float y, float widthPixels, float heightPixels,
             GpuTextureView texture, boolean hasLight, MultiTextureRenderTypeRenderer renderer, Operation<Void> original) {
-        if (this.exotic_worlds$assembly.walking()) {
+        if (this.exotic_worlds$assembly.isWalking()) {
             this.exotic_worlds$assembly.draw(matrix, x, y, texture, hasLight, renderer);
         } else {
-            original.call(matrix, x, y, width, height, texture, hasLight, renderer);
+            original.call(matrix, x, y, widthPixels, heightPixels, texture, hasLight, renderer);
         }
     }
 }

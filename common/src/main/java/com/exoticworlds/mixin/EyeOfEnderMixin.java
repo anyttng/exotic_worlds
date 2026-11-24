@@ -4,8 +4,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.seam.SeamSteering;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -29,7 +29,7 @@ public class EyeOfEnderMixin {
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = UPDATE_DELTA_MOVEMENT))
     private Vec3 exotic_worlds$steerThroughSeam(Vec3 movement, Vec3 position, Vec3 target, Operation<Vec3> original) {
         EyeOfEnder self = (EyeOfEnder) (Object) this;
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(self.level());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(self.level());
         return original.call(movement, position, NearestCopy.toward(fold, position, target));
     }
 }

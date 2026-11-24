@@ -4,7 +4,7 @@ import com.exoticworlds.compat.map.AxisCopies;
 import com.exoticworlds.compat.map.FullscreenZoomFloor;
 import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.map.WorldCopies;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.acenia.seedviewer.client.map.MapCamera;
 import net.acenia.seedviewer.client.map.MapViewport;
@@ -44,7 +44,7 @@ public final class SeamLines {
     }
 
     private static boolean narrowerThanFloor(AxisCopies axis, MapCamera camera) {
-        return axis.loops() && axis.width() * camera.pixelsPerBlock() < FullscreenZoomFloor.MIN_WORLD_PIXELS;
+        return axis.isLooped() && axis.getWidth() * camera.pixelsPerBlock() < FullscreenZoomFloor.MIN_WORLD_PIXELS;
     }
 
     private static int screenX(MapCamera camera, MapViewport viewport, int blockX) {

@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.FoldHolder;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.ChunkViewSweep;
 
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -25,7 +25,7 @@ public interface ChunkTrackingViewMixin {
             return;
         }
 
-        WorldFold fold = ((FoldHolder) (Object) next).exotic_worlds$fold();
+        WorldFold fold = ((FoldHolder) (Object) next).exotic_worlds$getFold();
         if (!fold.isWrapped()) {
             return;
         }

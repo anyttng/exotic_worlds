@@ -2,8 +2,8 @@ package com.exoticworlds.engine.seam;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,7 +13,7 @@ public final class WaypointLapGate {
     private @Nullable ChunkPos lastClientChunk;
 
     public int widen(int distance, ServerPlayer receiver, BlockPos serverBlock) {
-        if (WorldLoopAttachments.wrappedFoldOf(receiver.level()) == null) {
+        if (WorldLoopAttachments.getWrappedFold(receiver.level()) == null) {
             return distance;
         }
 
@@ -21,17 +21,17 @@ public final class WaypointLapGate {
     }
 
     public int widen(int distance, ServerPlayer receiver, ChunkPos serverChunk) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(receiver.level());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(receiver.level());
         if (fold == null) {
             return distance;
         }
 
         ClientPosition mirror = ClientPosition.of(receiver);
-        if (!mirror.describes(receiver.level().dimension())) {
+        if (!mirror.isForDimension(receiver.level().dimension())) {
             return distance;
         }
 
-        ChunkPos projection = fold.nearestCopy(mirror.anchorChunk(), serverChunk);
+        ChunkPos projection = fold.nearestCopy(mirror.getAnchorChunk(), serverChunk);
         ChunkPos previous = this.lastClientChunk;
         this.lastClientChunk = projection;
         if (distance > 0 || previous == null || previous.equals(projection)) {

@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.compat.ultraterraforged.LapCarrier;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.heightmap.Levels;
@@ -19,12 +19,12 @@ public abstract class LevelsMixin implements LapCarrier {
     private volatile double exotic_worlds$climateCompression = ClimateScaleCompression.NO_COMPRESSION;
 
     @Override
-    public @Nullable WorldFold exotic_worlds$fold() {
+    public @Nullable WorldFold exotic_worlds$getFold() {
         return this.exotic_worlds$fold;
     }
 
     @Override
-    public double exotic_worlds$climateCompression() {
+    public double exotic_worlds$getClimateCompression() {
         return this.exotic_worlds$climateCompression;
     }
 

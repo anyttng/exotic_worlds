@@ -20,7 +20,7 @@ public class VexYawMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/monster/Vex;setYRot(F)V", ordinal = 1))
     private void exotic_worlds$bodyYawThroughSeam(Vex vex, float yRot, Operation<Void> original) {
         LivingEntity target = vex.getTarget();
-        if (target == null || ((FoldSource) vex).exotic_worlds$wrappedFold() == null) {
+        if (target == null || ((FoldSource) vex).exotic_worlds$getWrappedFold() == null) {
             original.call(vex, yRot);
             return;
         }

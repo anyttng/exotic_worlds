@@ -10,11 +10,11 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.SpawnPoint;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.SpawnPoint;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.StartupRegistrations;
 
@@ -59,8 +59,8 @@ class SpawnSearchTest {
 
         BlockPos spawn = SpawnSearch.from(generator, sampler::findSpawnPosition);
 
-        assertTrue(Math.abs(spawn.getX() - FAR_POINT.blockX()) <= SEARCH_REACH_BLOCKS
-                        && Math.abs(spawn.getZ() - FAR_POINT.blockZ()) <= SEARCH_REACH_BLOCKS,
+        assertTrue(Math.abs(spawn.getX() - FAR_POINT.getBlockX()) <= SEARCH_REACH_BLOCKS
+                        && Math.abs(spawn.getZ() - FAR_POINT.getBlockZ()) <= SEARCH_REACH_BLOCKS,
                 "spawn " + spawn + " is not near the spawn point " + FAR_POINT);
     }
 
@@ -79,11 +79,11 @@ class SpawnSearchTest {
         List<SpawnPoint> seen = new ArrayList<>();
 
         SpawnSearch.from(atZero, () -> {
-            seen.add(SpawnSearch.bound());
+            seen.add(SpawnSearch.getBound());
             return ChunkPos.ZERO;
         });
         SpawnSearch.from(unset, () -> {
-            seen.add(SpawnSearch.bound());
+            seen.add(SpawnSearch.getBound());
             return ChunkPos.ZERO;
         });
 
@@ -101,7 +101,7 @@ class SpawnSearchTest {
         Climate.Sampler sampler = randomState(noiseGenerator(SpawnPoint.DEFAULT), NoiseGeneratorSettings.dummy())
                 .sampler();
 
-        assertEquals(new ChunkPos(FAR_POINT.xChunk(), FAR_POINT.zChunk()),
+        assertEquals(new ChunkPos(FAR_POINT.chunkX(), FAR_POINT.chunkZ()),
                 ChunkPos.containing(SpawnSearch.from(generator, sampler::findSpawnPosition)));
     }
 
@@ -114,7 +114,7 @@ class SpawnSearchTest {
     }
 
     private static RandomState randomState(LoopedChunkGenerator generator, NoiseGeneratorSettings settings) {
-        return GenerationFoldContext.withRouterBuild(generator.carriedShape().fold(),
+        return GenerationFoldContext.withRouterBuild(generator.getCarriedShape().getFold(),
                 () -> RandomState.create(settings, holders.lookupOrThrow(Registries.NOISE), SEED));
     }
 }

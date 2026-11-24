@@ -9,11 +9,11 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -39,9 +39,9 @@ class BlendedNoiseVanillaAtFoldTest {
 
     @Test
     void anExtremeHorizontalScaleSamplesVanillaAtTheFoldedBlock() {
-        TranslationLattice lattice = WIDE.blockLattice();
-        WrapDomain xDomain = WIDE.blockDomain(Direction.Axis.X);
-        WrapDomain zDomain = WIDE.blockDomain(Direction.Axis.Z);
+        TranslationLattice lattice = WIDE.getBlockLattice();
+        WrapDomain xDomain = WIDE.getBlockDomain(Direction.Axis.X);
+        WrapDomain zDomain = WIDE.getBlockDomain(Direction.Axis.Z);
         Random random = new Random(SEED);
         for (int i = 0; i < SAMPLES; i++) {
             int x = blockIn(random, xDomain);

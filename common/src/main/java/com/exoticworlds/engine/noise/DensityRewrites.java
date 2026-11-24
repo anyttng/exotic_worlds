@@ -5,8 +5,8 @@ import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.StartupRegistry;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.registry.StartupRegistry;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -28,7 +28,7 @@ public final class DensityRewrites {
     }
 
     public static NoiseRouter apply(NoiseRouter router, WorldFold fold) {
-        Map<ResourceKey<DensityFunction>, Rewrite> rewrites = REWRITES.entries();
+        Map<ResourceKey<DensityFunction>, Rewrite> rewrites = REWRITES.getEntries();
         if (rewrites.isEmpty()) {
             return router;
         }

@@ -17,21 +17,21 @@ public record SeamVerdict(ResourceKey<Level> dimension, List<Break> breaks,
     public record Break(String field, SeamCause cause) {
     }
 
-    public boolean broken() {
+    public boolean isBroken() {
         return !this.breaks.isEmpty();
     }
 
-    public String fields() {
+    public String getFields() {
         return this.breaks.stream().map(Break::field).collect(Collectors.joining(LIST_SEPARATOR));
     }
 
-    public String causes() {
+    public String getCauses() {
         return this.breaks.stream()
-                .map(broken -> broken.field() + CAUSE_SEPARATOR + broken.cause().key())
+                .map(broken -> broken.field() + CAUSE_SEPARATOR + broken.cause().getKey())
                 .collect(Collectors.joining(LIST_SEPARATOR));
     }
 
-    public String fingerprint() {
-        return this.dimension.identifier() + FINGERPRINT_SEPARATOR + this.causes();
+    public String getFingerprint() {
+        return this.dimension.identifier() + FINGERPRINT_SEPARATOR + this.getCauses();
     }
 }

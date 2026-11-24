@@ -1,14 +1,14 @@
 package com.exoticworlds.engine.gen;
 
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeOptions;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
-import static com.exoticworlds.engine.gen.BakeStampFixture.OVERWORLD_CHUNK_WIDTH;
+import static com.exoticworlds.engine.gen.BakeStampFixture.OVERWORLD_WIDTH_CHUNKS;
 import static com.exoticworlds.engine.gen.BakeStampFixture.carriedShapeOf;
-import static com.exoticworlds.engine.gen.BakeStampFixture.chunkWidth;
+import static com.exoticworlds.engine.gen.BakeStampFixture.widthChunks;
 import static com.exoticworlds.engine.gen.BakeStampFixture.datapackRegistry;
 import static com.exoticworlds.engine.gen.BakeStampFixture.foreignGenerator;
 import static com.exoticworlds.engine.gen.BakeStampFixture.generatorOf;
@@ -53,16 +53,16 @@ class BakeStampTest {
     private static final double TRIPLE_SCALE = 3.0;
     private static final double NETHER_COORDINATE_SCALE = 8.0;
 
-    private static final int SAME_SCALE_CHUNK_WIDTH = 32;
-    private static final int DOUBLE_SCALE_CHUNK_WIDTH = 16;
-    private static final int HALF_SCALE_CHUNK_WIDTH = 64;
+    private static final int SAME_SCALE_WIDTH_CHUNKS = 32;
+    private static final int DOUBLE_SCALE_WIDTH_CHUNKS = 16;
+    private static final int HALF_SCALE_WIDTH_CHUNKS = 64;
 
-    private static final int CODEC_CARRIED_CHUNK_WIDTH = 64;
+    private static final int CODEC_CARRIED_WIDTH_CHUNKS = 64;
 
-    private static final int STORED_OVERWORLD_CHUNK_WIDTH = 256;
-    private static final int STORED_NETHER_CHUNK_WIDTH = 64;
-    private static final int STORED_END_CHUNK_WIDTH = 192;
-    private static final int DATAPACK_DECLARED_CHUNK_WIDTH = 128;
+    private static final int STORED_OVERWORLD_WIDTH_CHUNKS = 256;
+    private static final int STORED_NETHER_WIDTH_CHUNKS = 64;
+    private static final int STORED_END_WIDTH_CHUNKS = 192;
+    private static final int DATAPACK_DECLARED_WIDTH_CHUNKS = 128;
 
     private static final ShapeOptions UNCOMPRESSED =
             ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
@@ -85,8 +85,8 @@ class BakeStampTest {
         FlatShape shape = bakeForeign(SAME_SCALE, foreignGenerator());
 
         assertNotNull(shape, "the foreign stem carries no fold");
-        assertEquals(SAME_SCALE_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.X));
-        assertEquals(SAME_SCALE_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.Z));
+        assertEquals(SAME_SCALE_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.X));
+        assertEquals(SAME_SCALE_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.Z));
     }
 
     @Test
@@ -94,8 +94,8 @@ class BakeStampTest {
         FlatShape shape = bakeForeign(DOUBLE_SCALE, foreignGenerator());
 
         assertNotNull(shape, "the foreign stem carries no fold");
-        assertEquals(DOUBLE_SCALE_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.X));
-        assertEquals(DOUBLE_SCALE_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.Z));
+        assertEquals(DOUBLE_SCALE_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.X));
+        assertEquals(DOUBLE_SCALE_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.Z));
     }
 
     @Test
@@ -103,8 +103,8 @@ class BakeStampTest {
         FlatShape shape = bakeForeign(HALF_SCALE, foreignGenerator());
 
         assertNotNull(shape, "the foreign stem carries no fold");
-        assertEquals(HALF_SCALE_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.X));
-        assertEquals(HALF_SCALE_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.Z));
+        assertEquals(HALF_SCALE_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.X));
+        assertEquals(HALF_SCALE_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.Z));
     }
 
     @Test
@@ -115,23 +115,23 @@ class BakeStampTest {
 
         FlatShape sibling = shapeOf(baked, SIBLING);
         assertNotNull(sibling, "the sibling stem carries no fold, so this run says nothing about the refusal");
-        assertEquals(SAME_SCALE_CHUNK_WIDTH, chunkWidth(sibling, Direction.Axis.X));
+        assertEquals(SAME_SCALE_WIDTH_CHUNKS, widthChunks(sibling, Direction.Axis.X));
         assertNull(shapeOf(baked, FOREIGN));
     }
 
     @Test
     void aStemCarryingItsOwnShapeIsLeftAlone() {
         Registry<LevelStem> baked = bake(Map.of(
-                FOREIGN, stem(DOUBLE_SCALE, shapedGenerator(squareTorus(CODEC_CARRIED_CHUNK_WIDTH))),
+                FOREIGN, stem(DOUBLE_SCALE, shapedGenerator(squareTorus(CODEC_CARRIED_WIDTH_CHUNKS))),
                 SIBLING, stem(SAME_SCALE, foreignGenerator())));
 
         FlatShape sibling = shapeOf(baked, SIBLING);
         assertNotNull(sibling, "the sibling stem carries no fold, so this run says nothing about the codec shape");
-        assertEquals(SAME_SCALE_CHUNK_WIDTH, chunkWidth(sibling, Direction.Axis.X));
+        assertEquals(SAME_SCALE_WIDTH_CHUNKS, widthChunks(sibling, Direction.Axis.X));
 
         FlatShape carried = shapeOf(baked, FOREIGN);
         assertNotNull(carried, "the codec-carried shape was dropped");
-        assertEquals(CODEC_CARRIED_CHUNK_WIDTH, chunkWidth(carried, Direction.Axis.X));
+        assertEquals(CODEC_CARRIED_WIDTH_CHUNKS, widthChunks(carried, Direction.Axis.X));
     }
 
     @Test
@@ -153,8 +153,8 @@ class BakeStampTest {
 
         FlatShape shape = shapeOf(baked, LevelStem.OVERWORLD);
         assertNotNull(shape, "the overworld carries no fold");
-        assertEquals(STORED_OVERWORLD_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.X));
-        assertEquals(STORED_OVERWORLD_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.Z));
+        assertEquals(STORED_OVERWORLD_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.X));
+        assertEquals(STORED_OVERWORLD_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.Z));
     }
 
     @Test
@@ -176,8 +176,8 @@ class BakeStampTest {
 
         FlatShape shape = shapeOf(baked, LevelStem.NETHER);
         assertNotNull(shape, "the nether carries no fold");
-        assertEquals(STORED_NETHER_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.X));
-        assertEquals(STORED_NETHER_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.Z));
+        assertEquals(STORED_NETHER_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.X));
+        assertEquals(STORED_NETHER_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.Z));
     }
 
     @Test
@@ -187,8 +187,8 @@ class BakeStampTest {
 
         FlatShape shape = shapeOf(baked, LevelStem.NETHER);
         assertNotNull(shape, "the nether carries no fold");
-        assertEquals(STORED_NETHER_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.X));
-        assertEquals(STORED_NETHER_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.Z));
+        assertEquals(STORED_NETHER_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.X));
+        assertEquals(STORED_NETHER_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.Z));
     }
 
     @Test
@@ -198,8 +198,8 @@ class BakeStampTest {
 
         FlatShape shape = shapeOf(baked, LevelStem.END);
         assertNotNull(shape, "the End carries no fold");
-        assertEquals(STORED_END_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.X));
-        assertEquals(STORED_END_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.Z));
+        assertEquals(STORED_END_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.X));
+        assertEquals(STORED_END_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.Z));
     }
 
     @Test
@@ -212,7 +212,7 @@ class BakeStampTest {
 
         FlatShape shape = shapeOf(baked, LevelStem.OVERWORLD);
         assertNotNull(shape, "the overworld carries no fold");
-        assertEquals(STORED_OVERWORLD_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.X));
+        assertEquals(STORED_OVERWORLD_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.X));
     }
 
     @Test
@@ -225,17 +225,17 @@ class BakeStampTest {
 
         FlatShape shape = shapeOf(baked, LevelStem.OVERWORLD);
         assertNotNull(shape, "the datapack overworld carries no fold");
-        assertEquals(STORED_OVERWORLD_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.X));
+        assertEquals(STORED_OVERWORLD_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.X));
     }
 
     @Test
     void aDatapackStemDeclaringItsOwnShapeOutranksTheStoredOne() {
         Registry<LevelStem> baked = bake(storedToroidalWorld(), Map.of(LevelStem.OVERWORLD,
-                stem(SAME_SCALE, shapedGenerator(squareTorus(DATAPACK_DECLARED_CHUNK_WIDTH)))));
+                stem(SAME_SCALE, shapedGenerator(squareTorus(DATAPACK_DECLARED_WIDTH_CHUNKS)))));
 
         FlatShape shape = shapeOf(baked, LevelStem.OVERWORLD);
         assertNotNull(shape, "the overworld carries no fold");
-        assertEquals(DATAPACK_DECLARED_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.X));
+        assertEquals(DATAPACK_DECLARED_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.X));
     }
 
     @Test
@@ -291,24 +291,24 @@ class BakeStampTest {
 
     @Test
     void aStampedOverworldKeepsItsShapeThroughBakeAndReachesItsSiblings() {
-        ChunkGenerator overworld = stamped(noiseSubclassGenerator(worldgen), squareTorus(OVERWORLD_CHUNK_WIDTH));
+        ChunkGenerator overworld = stamped(noiseSubclassGenerator(worldgen), squareTorus(OVERWORLD_WIDTH_CHUNKS));
         Registry<LevelStem> baked = bake(
                 Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, overworld)),
                 Map.of(FOREIGN, stem(SAME_SCALE, foreignGenerator())));
 
         FlatShape kept = shapeOf(baked, LevelStem.OVERWORLD);
         assertNotNull(kept, "the stamped overworld lost its shape at bake");
-        assertEquals(OVERWORLD_CHUNK_WIDTH, chunkWidth(kept, Direction.Axis.X));
+        assertEquals(OVERWORLD_WIDTH_CHUNKS, widthChunks(kept, Direction.Axis.X));
 
         FlatShape sibling = shapeOf(baked, FOREIGN);
         assertNotNull(sibling, "a stamped overworld derived nothing for its siblings");
-        assertEquals(SAME_SCALE_CHUNK_WIDTH, chunkWidth(sibling, Direction.Axis.X));
+        assertEquals(SAME_SCALE_WIDTH_CHUNKS, widthChunks(sibling, Direction.Axis.X));
     }
 
     @Test
     void aDatapackOverworldTakesTheShapeAStampedStoredOverworldCarries() {
         ChunkGenerator stored = stamped(noiseSubclassGenerator(worldgen),
-                squareTorus(STORED_OVERWORLD_CHUNK_WIDTH));
+                squareTorus(STORED_OVERWORLD_WIDTH_CHUNKS));
         Registry<LevelStem> baked = bake(
                 Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, stored)),
                 Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, noiseGenerator(worldgen))));
@@ -317,12 +317,12 @@ class BakeStampTest {
 
         FlatShape shape = shapeOf(baked, LevelStem.OVERWORLD);
         assertNotNull(shape, "the datapack overworld carries no fold");
-        assertEquals(STORED_OVERWORLD_CHUNK_WIDTH, chunkWidth(shape, Direction.Axis.X));
+        assertEquals(STORED_OVERWORLD_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.X));
     }
 
     @Test
     void aForeignStemTakesTheOverworldsChoiceAgainstCompression() {
-        ChunkGenerator overworld = stamped(noiseSubclassGenerator(worldgen), squareTorus(OVERWORLD_CHUNK_WIDTH),
+        ChunkGenerator overworld = stamped(noiseSubclassGenerator(worldgen), squareTorus(OVERWORLD_WIDTH_CHUNKS),
                 UNCOMPRESSED);
         Registry<LevelStem> baked = bake(
                 Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, overworld)),
@@ -330,28 +330,28 @@ class BakeStampTest {
 
         CarriedShape foreign = carriedShapeOf(baked, FOREIGN);
         assertNotNull(foreign, "the foreign stem carries no fold, so this run says nothing");
-        assertEquals(ClimateScale.OFF, foreign.options().get(CompactBiomes.OPTION));
+        assertEquals(ClimateScale.OFF, foreign.getOptions().get(CompactBiomes.OPTION));
     }
 
     @Test
     void aDatapackOverworldTakesTheChoiceAStoredOverworldCarries() {
         ChunkGenerator stored = stamped(noiseSubclassGenerator(worldgen),
-                squareTorus(STORED_OVERWORLD_CHUNK_WIDTH), UNCOMPRESSED);
+                squareTorus(STORED_OVERWORLD_WIDTH_CHUNKS), UNCOMPRESSED);
         Registry<LevelStem> baked = bake(
                 Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, stored)),
                 Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, noiseGenerator(worldgen))));
 
         LoopedChunkGenerator restored = assertInstanceOf(LoopedChunkGenerator.class,
                 generatorOf(baked, LevelStem.OVERWORLD));
-        assertEquals(ClimateScale.OFF, restored.carriedShape().options().get(CompactBiomes.OPTION));
+        assertEquals(ClimateScale.OFF, restored.getCarriedShape().getOptions().get(CompactBiomes.OPTION));
     }
 
     private static Map<ResourceKey<LevelStem>, LevelStem> storedToroidalWorld() {
         return Map.of(
-                LevelStem.OVERWORLD, stem(SAME_SCALE, shapedGenerator(squareTorus(STORED_OVERWORLD_CHUNK_WIDTH))),
+                LevelStem.OVERWORLD, stem(SAME_SCALE, shapedGenerator(squareTorus(STORED_OVERWORLD_WIDTH_CHUNKS))),
                 LevelStem.NETHER,
-                stem(NETHER_COORDINATE_SCALE, shapedGenerator(squareTorus(STORED_NETHER_CHUNK_WIDTH))),
-                LevelStem.END, stem(SAME_SCALE, shapedGenerator(squareTorus(STORED_END_CHUNK_WIDTH))));
+                stem(NETHER_COORDINATE_SCALE, shapedGenerator(squareTorus(STORED_NETHER_WIDTH_CHUNKS))),
+                LevelStem.END, stem(SAME_SCALE, shapedGenerator(squareTorus(STORED_END_WIDTH_CHUNKS))));
     }
 
     private static FlatShape bakeForeign(double coordinateScale, ChunkGenerator generator) {
@@ -360,7 +360,7 @@ class BakeStampTest {
 
     private static Registry<LevelStem> bake(Map<ResourceKey<LevelStem>, LevelStem> datapackStems) {
         return bake(
-                Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, shapedGenerator(squareTorus(OVERWORLD_CHUNK_WIDTH)))),
+                Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, shapedGenerator(squareTorus(OVERWORLD_WIDTH_CHUNKS)))),
                 datapackStems);
     }
 

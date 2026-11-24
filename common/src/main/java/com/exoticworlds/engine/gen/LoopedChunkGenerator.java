@@ -1,9 +1,9 @@
 package com.exoticworlds.engine.gen;
 
 import com.exoticworlds.accessors.BaseHeightsHolder;
-import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.FoldGenerators;
-import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -23,7 +23,7 @@ public final class LoopedChunkGenerator extends NoiseBasedChunkGenerator impleme
             instance -> instance.group(
                     BiomeSource.CODEC.fieldOf(BIOME_SOURCE_KEY).forGetter(ChunkGenerator::getBiomeSource),
                     NoiseGeneratorSettings.CODEC.fieldOf(SETTINGS_KEY).forGetter(NoiseBasedChunkGenerator::generatorSettings),
-                    CARRIED_CODEC.forGetter(LoopedChunkGenerator::carriedShape)
+                    CARRIED_CODEC.forGetter(LoopedChunkGenerator::getCarriedShape)
             ).apply(instance, instance.stable(LoopedChunkGenerator::new)));
 
     private final CarriedShape carriedShape;
@@ -36,19 +36,19 @@ public final class LoopedChunkGenerator extends NoiseBasedChunkGenerator impleme
     }
 
     @Override
-    public CarriedShape carriedShape() {
+    public CarriedShape getCarriedShape() {
         return this.carriedShape;
     }
 
     @Override
-    public ChunkGenerator unshaped() {
+    public ChunkGenerator getUnshaped() {
         return new NoiseBasedChunkGenerator(getBiomeSource(), generatorSettings());
     }
 
     @Override
     public int getBaseHeight(int x, int z, Heightmap.Types type, LevelHeightAccessor heightAccessor,
             RandomState randomState) {
-        BaseHeights heights = ((BaseHeightsHolder) (Object) randomState).exotic_worlds$baseHeights();
+        BaseHeights heights = ((BaseHeightsHolder) (Object) randomState).exotic_worlds$getBaseHeights();
         if (heights == null) {
             return super.getBaseHeight(x, z, type, heightAccessor, randomState);
         }

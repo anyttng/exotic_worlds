@@ -11,12 +11,12 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.SeamTransform;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.SeamTransform;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.seam.ClientPosition;
 
 import io.netty.buffer.Unpooled;
@@ -57,17 +57,17 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 
 class ClientboundPacketRewritersEntityTurnTest {
-    private static final int FACE_WIDTH = 64;
-    private static final int VIEW_DISTANCE = 12;
+    private static final int FACE_WIDTH_BLOCKS = 64;
+    private static final int VIEW_DISTANCE_CHUNKS = 12;
     private static final int TORUS_WIDTH_IN_CHUNKS = 32;
 
-    private static final SeamTransform CLOCKWISE_TO_THE_SEAT = new SeamTransform(-1, 1, FACE_WIDTH, -FACE_WIDTH, true);
+    private static final SeamTransform CLOCKWISE_TO_THE_SEAT = new SeamTransform(-1, 1, FACE_WIDTH_BLOCKS, -FACE_WIDTH_BLOCKS, true);
 
     private static final WorldFold TURNED = (WorldFold) Proxy.newProxyInstance(
             WorldFold.class.getClassLoader(),
             new Class<?>[] {WorldFold.class},
             (proxy, method, arguments) -> switch (method.getName()) {
-                case "preservesLocalIndices" -> false;
+                case "isPreservingLocalIndices" -> false;
                 case "nearestCopy" -> CLOCKWISE_TO_THE_SEAT.apply((Vec3) arguments[1]);
                 case "foldTransformation" -> new DeckTransformation(CLOCKWISE_TO_THE_SEAT.inverse());
                 default -> throw new UnsupportedOperationException(method.getName());
@@ -95,7 +95,7 @@ class ClientboundPacketRewritersEntityTurnTest {
     private static final int OWNER_ID = 77;
     private static final int DIRECTION_SLOT = 8;
     private static final float STEP_WEIGHT = 1.0F;
-    private static final float EXPLOSION_RADIUS = 4.0F;
+    private static final float EXPLOSION_RADIUS_BLOCKS = 4.0F;
 
     private static final short STEP_XA = 100;
     private static final short STEP_YA = 7;
@@ -109,8 +109,8 @@ class ClientboundPacketRewritersEntityTurnTest {
                 clientPosition,
                 size -> new RegistryFriendlyByteBuf(Unpooled.buffer(size), RegistryAccess.EMPTY),
                 Level.OVERWORLD,
-                VIEW_DISTANCE,
-                VIEW_DISTANCE,
+                VIEW_DISTANCE_CHUNKS,
+                VIEW_DISTANCE_CHUNKS,
                 entityId -> SERVER_POSITION,
                 entityId -> new TagPositions.Subject(entityClass, null),
                 () -> {
@@ -295,7 +295,7 @@ class ClientboundPacketRewritersEntityTurnTest {
     @Test
     void anExplosionsKnockbackIsTurnedByTheCopyThePlayerStandsOn() {
         ClientboundExplodePacket seated = ClientboundPacketRewriters.explode(
-                new ClientboundExplodePacket(SERVER_POSITION, EXPLOSION_RADIUS, 0, Optional.of(MOVEMENT),
+                new ClientboundExplodePacket(SERVER_POSITION, EXPLOSION_RADIUS_BLOCKS, 0, Optional.of(MOVEMENT),
                         ParticleTypes.EXPLOSION, SoundEvents.GENERIC_EXPLODE, WeightedList.of()),
                 turned(Pig.class));
 

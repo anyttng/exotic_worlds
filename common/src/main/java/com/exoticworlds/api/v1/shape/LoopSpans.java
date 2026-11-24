@@ -32,7 +32,7 @@ public final class LoopSpans {
      * under it, so scale a nether down only as far as this allows.
      */
     public static int minChunkWidth() {
-        return SpansBridge.minChunkWidth();
+        return SpansBridge.getMinWidthChunks();
     }
 
     /** Both axes looping over {@code chunkWidth} chunks, centered on the origin. */
@@ -105,7 +105,7 @@ public final class LoopSpans {
      * @throws IllegalArgumentException if {@code axis} does not loop
      */
     public int chunkWidth(Direction.Axis axis) {
-        return SpansBridge.chunkWidth(this.spans, axis);
+        return SpansBridge.getWidthChunks(this.spans, axis);
     }
 
     /** Whether both axes loop over the same number of chunks. */

@@ -1,6 +1,6 @@
 package com.exoticworlds.compat.northbound;
 
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.world.level.levelgen.DensityFunction;

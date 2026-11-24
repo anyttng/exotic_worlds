@@ -15,8 +15,8 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;

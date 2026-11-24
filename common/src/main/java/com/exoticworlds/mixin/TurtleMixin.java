@@ -18,8 +18,8 @@ public class TurtleMixin {
             method = "travelInWater",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean exotic_worlds$homeApproachThroughSeam(BlockPos homePos, Position bodyPosition, double distance,
+    private boolean exotic_worlds$homeApproachThroughSeam(BlockPos homePos, Position bodyPosition, double distanceBlocks,
             Operation<Boolean> original) {
-        return original.call(homePos, SeamRange.towardCenterOf((Turtle) (Object) this, homePos, bodyPosition), distance);
+        return original.call(homePos, SeamRange.towardCenterOf((Turtle) (Object) this, homePos, bodyPosition), distanceBlocks);
     }
 }

@@ -6,12 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.worldgen.OpenSimplexStandIn;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.Direction;
 
@@ -39,21 +39,21 @@ class EndTerrainLapTest {
         OpenSimplexStandIn first = new OpenSimplexStandIn(FIRST_SEED);
         OpenSimplexStandIn second = new OpenSimplexStandIn(SECOND_SEED);
         EndTerrainLap lap = new EndTerrainLap(WorldFolds.of(ShapeFixtures.torus(BOUNDS)), () -> first, () -> second);
-        assertSame(first, lap.first());
-        assertSame(second, lap.second());
+        assertSame(first, lap.getFirst());
+        assertSame(second, lap.getSecond());
     }
 
     @Test
     void onASkewedEndTheFoldReadsTheSameAlongBothLatticeVectors() {
         EndTerrainLap lap = skewed();
         TranslationLattice lattice = lattice();
-        int widthX = lattice.x().domainLength;
-        int widthZ = lattice.z().domainLength;
-        for (int x = 3 * lattice.x().lowerBound; x < 3 * lattice.x().upperBound; x += STEP) {
-            for (int z = 3 * lattice.z().lowerBound; z < 3 * lattice.z().upperBound; z += STEP) {
+        int widthX = lattice.getX().domainLength;
+        int widthZ = lattice.getZ().domainLength;
+        for (int x = 3 * lattice.getX().lowerBound; x < 3 * lattice.getX().upperBound; x += STEP) {
+            for (int z = 3 * lattice.getZ().lowerBound; z < 3 * lattice.getZ().upperBound; z += STEP) {
                 String where = x + ", " + z;
                 assertEquals(lap.foldX(x, z), lap.foldX(x + widthX, z), where + " one X lap on");
-                assertEquals(lap.foldX(x, z), lap.foldX(x + lattice.skew(), z + widthZ), where + " one Z lap on");
+                assertEquals(lap.foldX(x, z), lap.foldX(x + lattice.getSkew(), z + widthZ), where + " one Z lap on");
                 assertEquals(lap.foldZ(z), lap.foldZ(z + widthZ), where + " one Z lap on");
             }
         }
@@ -63,12 +63,12 @@ class EndTerrainLapTest {
     void onASkewedEndTheFrameTakesAZLapAsNoShiftAlongX() {
         EndTerrainLap lap = skewed();
         TranslationLattice lattice = lattice();
-        for (int x = lattice.x().lowerBound; x < lattice.x().upperBound; x += STEP) {
-            for (int z = lattice.z().lowerBound; z < lattice.z().upperBound; z += STEP) {
+        for (int x = lattice.getX().lowerBound; x < lattice.getX().upperBound; x += STEP) {
+            for (int z = lattice.getZ().lowerBound; z < lattice.getZ().upperBound; z += STEP) {
                 String where = x + ", " + z;
-                assertEquals(lap.frameX(x, z) + lattice.x().domainLength,
-                        lap.frameX(x + lattice.x().domainLength, z), TOLERANCE, where + " one X lap on");
-                assertEquals(lap.frameX(x, z), lap.frameX(x + lattice.skew(), z + lattice.z().domainLength),
+                assertEquals(lap.frameX(x, z) + lattice.getX().domainLength,
+                        lap.frameX(x + lattice.getX().domainLength, z), TOLERANCE, where + " one X lap on");
+                assertEquals(lap.frameX(x, z), lap.frameX(x + lattice.getSkew(), z + lattice.getZ().domainLength),
                         TOLERANCE, where + " one Z lap on");
             }
         }
@@ -78,18 +78,18 @@ class EndTerrainLapTest {
     void onASkewedEndTheWarpAndDetailNoiseReadTheSameAlongBothLatticeVectors() {
         EndTerrainLap lap = skewed();
         TranslationLattice lattice = lattice();
-        int widthX = lattice.x().domainLength;
-        int widthZ = lattice.z().domainLength;
+        int widthX = lattice.getX().domainLength;
+        int widthZ = lattice.getZ().domainLength;
         for (double frequency : FREQUENCIES) {
-            for (int x = lattice.x().lowerBound; x < lattice.x().upperBound; x += STEP) {
-                for (int z = lattice.z().lowerBound; z < lattice.z().upperBound; z += STEP) {
+            for (int x = lattice.getX().lowerBound; x < lattice.getX().upperBound; x += STEP) {
+                for (int z = lattice.getZ().lowerBound; z < lattice.getZ().upperBound; z += STEP) {
                     String where = x + ", " + z + " at " + frequency;
                     assertEquals(warp(lap, x, z, frequency), warp(lap, x + widthX, z, frequency), TOLERANCE,
                             where + " one X lap on");
-                    assertEquals(warp(lap, x, z, frequency), warp(lap, x + lattice.skew(), z + widthZ, frequency),
+                    assertEquals(warp(lap, x, z, frequency), warp(lap, x + lattice.getSkew(), z + widthZ, frequency),
                             TOLERANCE, where + " one Z lap on");
                     assertEquals(detail(lap, x, z, frequency),
-                            detail(lap, x + lattice.skew(), z + widthZ, frequency), TOLERANCE,
+                            detail(lap, x + lattice.getSkew(), z + widthZ, frequency), TOLERANCE,
                             where + " one Z lap on in three dimensions");
                 }
             }
@@ -99,12 +99,12 @@ class EndTerrainLapTest {
     @Test
     void anUnskewedEndKeepsTheFrameAndTheFoldPerAxis() {
         EndTerrainLap lap = lapOn(WorldFolds.of(ShapeFixtures.torus(BOUNDS)));
-        TranslationLattice lattice = WorldFolds.of(ShapeFixtures.torus(BOUNDS)).blockLattice();
-        for (int x = 3 * lattice.x().lowerBound; x < 3 * lattice.x().upperBound; x += STEP) {
-            for (int z = 3 * lattice.z().lowerBound; z < 3 * lattice.z().upperBound; z += STEP) {
+        TranslationLattice lattice = WorldFolds.of(ShapeFixtures.torus(BOUNDS)).getBlockLattice();
+        for (int x = 3 * lattice.getX().lowerBound; x < 3 * lattice.getX().upperBound; x += STEP) {
+            for (int z = 3 * lattice.getZ().lowerBound; z < 3 * lattice.getZ().upperBound; z += STEP) {
                 assertEquals(x, lap.frameX(x, z), x + ", " + z);
-                assertEquals(lattice.x().wrap(x), lap.foldX(x, z), x + ", " + z);
-                assertEquals(lattice.z().wrap(z), lap.foldZ(z), x + ", " + z);
+                assertEquals(lattice.getX().wrap(x), lap.foldX(x, z), x + ", " + z);
+                assertEquals(lattice.getZ().wrap(z), lap.foldZ(z), x + ", " + z);
             }
         }
     }
@@ -117,12 +117,12 @@ class EndTerrainLapTest {
     }
 
     private static double warp(EndTerrainLap lap, int x, int z, double frequency) {
-        return lap.first().eval(lap.frameX(x, z) * frequency, z * frequency,
+        return lap.getFirst().eval(lap.frameX(x, z) * frequency, z * frequency,
                 lap.period(Direction.Axis.X, 1.0) * frequency, lap.period(Direction.Axis.Z, 1.0) * frequency);
     }
 
     private static double detail(EndTerrainLap lap, int x, int z, double frequency) {
-        return lap.second().eval(lap.frameX(x, z) * frequency, SURFACE_Y * frequency, z * frequency,
+        return lap.getSecond().eval(lap.frameX(x, z) * frequency, SURFACE_Y * frequency, z * frequency,
                 lap.period(Direction.Axis.X, 1.0) * frequency, lap.period(Direction.Axis.Z, 1.0) * frequency);
     }
 
@@ -137,6 +137,6 @@ class EndTerrainLapTest {
     }
 
     private static TranslationLattice lattice() {
-        return WorldFolds.of(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS)).blockLattice();
+        return WorldFolds.of(FlatShape.latticeTorus(BOUNDS, SKEW_CHUNKS)).getBlockLattice();
     }
 }

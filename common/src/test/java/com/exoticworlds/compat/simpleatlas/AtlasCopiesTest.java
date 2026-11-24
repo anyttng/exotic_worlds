@@ -8,7 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.map.MapFolds;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 class AtlasCopiesTest {
     private static final int TILE_BLOCKS = 128;

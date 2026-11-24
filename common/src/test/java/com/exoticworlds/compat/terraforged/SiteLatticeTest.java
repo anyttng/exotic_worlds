@@ -35,7 +35,7 @@ class SiteLatticeTest {
         for (float spacing : SPACINGS) {
             SiteLattice lattice = SiteLattice.over(LAP, NARROW_LAP, RtfLap.NO_SKEW, spacing);
             for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
-                float snapped = lattice.spacing(axis);
+                float snapped = lattice.getSpacing(axis);
                 assertTrue(snapped <= spacing, spacing + " grew to " + snapped + " on " + axis);
                 int cells = axis == Direction.Axis.X ? lattice.xCells() : lattice.zCells();
                 double lap = axis == Direction.Axis.X ? LAP : NARROW_LAP;

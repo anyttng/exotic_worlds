@@ -33,8 +33,8 @@ public class TemperatureContextFactoryMixin {
             return original.call(noise, x, z, scale);
         }
 
-        return sample.lap().noise(((BandNoises) noise).exotic_worlds$large(), scale, sample.signedX(), z,
-                sample.blockZ());
+        return sample.getLap().noise(((BandNoises) noise).exotic_worlds$getLarge(), scale, sample.signedX(), z,
+                sample.getBlockZ());
     }
 
     @WrapOperation(
@@ -47,8 +47,8 @@ public class TemperatureContextFactoryMixin {
             return original.call(noise, x, z, scale);
         }
 
-        return sample.lap().noise(((BandNoises) noise).exotic_worlds$detail(), scale, sample.signedX(), z,
-                sample.blockZ());
+        return sample.getLap().noise(((BandNoises) noise).exotic_worlds$getDetail(), scale, sample.signedX(), z,
+                sample.getBlockZ());
     }
 
     @WrapOperation(
@@ -58,11 +58,11 @@ public class TemperatureContextFactoryMixin {
             Operation<Double> original, @Local(name = WAVE_FREQUENCY) double waveFrequency,
             @Local(name = MAGNIFICATION) double magnification) {
         PinnedSample sample = PinnedSample.current();
-        if (sample == null || !sample.lap().closesXWave()) {
+        if (sample == null || !sample.getLap().isXWaveClosed()) {
             return original.call(x, amplitude, frequency, seed);
         }
 
-        return sample.lap().xWave(NaturalWaveCells.INSTANCE, seed, sample.signedX(), amplitude,
+        return sample.getLap().xWave(NaturalWaveCells.INSTANCE, seed, sample.signedX(), amplitude,
                 waveFrequency / magnification);
     }
 
@@ -70,6 +70,6 @@ public class TemperatureContextFactoryMixin {
     private static double exotic_worlds$foldAfterTheWave(double wave, @Local(argsOnly = true, ordinal = 2) int z,
             @Local(name = "distorsion") double distortion) {
         PinnedSample sample = PinnedSample.current();
-        return sample == null ? wave : sample.lap().carriedWave(sample.blockZ(), z, wave, distortion);
+        return sample == null ? wave : sample.getLap().carriedWave(sample.getBlockZ(), z, wave, distortion);
     }
 }

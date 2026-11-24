@@ -9,9 +9,9 @@ import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.StartupRegistry;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.registry.StartupRegistry;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.mixin.InitializeBorderPacketAccessor;
 import com.exoticworlds.mixin.SetBorderCenterPacketAccessor;
 
@@ -148,7 +148,7 @@ public final class PacketTranslator {
 
     private static Packet<?> clientboundPayload(ClientboundCustomPayloadPacket packet, TranslationContext context) {
         BiFunction<CustomPacketPayload, TranslationContext, CustomPacketPayload> chunkRewriter =
-                CHUNK_PAYLOAD_REWRITERS.entries().get(packet.payload().getClass());
+                CHUNK_PAYLOAD_REWRITERS.getEntries().get(packet.payload().getClass());
         return chunkRewriter == null
                 ? CLIENTBOUND_PAYLOADS.rewrite(packet, packet.payload(), context)
                 : perCopy((sent, seated) -> CLIENTBOUND_PAYLOADS.rewrite(packet, packet.payload(), seated, chunkRewriter),
@@ -174,8 +174,8 @@ public final class PacketTranslator {
                 (particle, context, clientOrigin) -> particleRewriter.rewrite(particleType.cast(particle), context, clientOrigin));
     }
 
-    static @Nullable ParticleTranslation<ParticleOptions> particleRewriterFor(ParticleOptions particle) {
-        return PARTICLE_REWRITERS.entries().get(particle.getClass());
+    static @Nullable ParticleTranslation<ParticleOptions> getParticleRewriter(ParticleOptions particle) {
+        return PARTICLE_REWRITERS.getEntries().get(particle.getClass());
     }
 
     private static final Map<Class<?>, BiFunction<Packet<?>, TranslationContext, Packet<?>>> TO_SERVER = Map.ofEntries(
@@ -215,7 +215,7 @@ public final class PacketTranslator {
 
     public static <T extends net.minecraft.network.PacketListener> Packet<T> toClient(Packet<T> packet,
             ServerPlayer player) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(player.level());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(player.level());
         if (fold == null) {
             return packet;
         }
@@ -241,9 +241,9 @@ public final class PacketTranslator {
             Supplier<TranslationContext> contextOf) {
         TranslationContext context = null;
         List<Packet<? super ClientGamePacketListener>> translated = new ArrayList<>();
-        boolean changed = false;
+        boolean isChanged = false;
         for (Packet<? super ClientGamePacketListener> sub : bundle.subPackets()) {
-            BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = CLIENTBOUND.rewriterOf(sub, fold);
+            BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = CLIENTBOUND.getRewriter(sub, fold);
             if (rewriter == null) {
                 translated.add(sub);
                 continue;
@@ -255,7 +255,7 @@ public final class PacketTranslator {
 
             Packet<? super ClientGamePacketListener> translatedSub =
                     (Packet<? super ClientGamePacketListener>) rewriter.apply(sub, context);
-            changed |= translatedSub != sub;
+            isChanged |= translatedSub != sub;
             if (translatedSub instanceof ClientboundBundlePacket copies) {
                 copies.subPackets().forEach(translated::add);
             } else {
@@ -263,11 +263,11 @@ public final class PacketTranslator {
             }
         }
 
-        return changed ? new ClientboundBundlePacket(translated) : bundle;
+        return isChanged ? new ClientboundBundlePacket(translated) : bundle;
     }
 
     public static <T extends net.minecraft.network.PacketListener> Packet<T> toServer(Packet<T> packet, ServerPlayer player) {
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(player.level());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(player.level());
         if (fold == null) {
             return packet;
         }
@@ -281,13 +281,13 @@ public final class PacketTranslator {
 
     private static <T extends net.minecraft.network.PacketListener> Packet<T> dispatch(PacketRoute route,
             Packet<T> packet, ServerPlayer player, WorldFold fold) {
-        BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = route.rewriterOf(packet, fold);
+        BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = route.getRewriter(packet, fold);
         return rewriter == null ? packet
                 : castPacket(rewriter.apply(packet, route.contextOf().apply(player, fold)));
     }
 
     private static Packet<?> rewrite(PacketRoute route, Packet<?> packet, TranslationContext context) {
-        BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = route.rewriterOf(packet, context.fold());
+        BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = route.getRewriter(packet, context.fold());
         return rewriter == null ? packet : rewriter.apply(packet, context);
     }
 
@@ -313,7 +313,7 @@ public final class PacketTranslator {
         SeatPass seatPass = context.seatPass();
         seatPass.reset();
         Packet<?> held = once.apply(packet, context);
-        int seats = seatPass.seats();
+        int seats = seatPass.getSeats();
         if (seats == SINGLE_SEAT) {
             return held;
         }
@@ -337,18 +337,18 @@ public final class PacketTranslator {
             StartupRegistry<Class<?>, BiFunction<Packet<?>, TranslationContext, Packet<?>>> rewriters,
             BiFunction<Packet<?>, TranslationContext, Packet<?>> recordFold,
             BiFunction<ServerPlayer, WorldFold, TranslationContext> contextOf) {
-        @Nullable BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriterOf(Packet<?> packet, WorldFold fold) {
+        @Nullable BiFunction<Packet<?>, TranslationContext, Packet<?>> getRewriter(Packet<?> packet, WorldFold fold) {
             BiFunction<Packet<?>, TranslationContext, Packet<?>> rewriter = this.table.get(packet.getClass());
-            if (rewriter == null && !fold.preservesLocalIndices()) {
+            if (rewriter == null && !fold.isPreservingLocalIndices()) {
                 rewriter = this.turnedTable.get(packet.getClass());
             }
 
             if (rewriter == null) {
-                rewriter = this.rewriters.entries().get(packet.getClass());
+                rewriter = this.rewriters.getEntries().get(packet.getClass());
             }
 
             if (rewriter == null && isModPacket(packet)
-                    && RecordPayloadFold.formOf(packet.getClass()).carriesPositions()) {
+                    && RecordPayloadFold.getForm(packet.getClass()).hasPositions()) {
                 rewriter = this.recordFold;
             }
 
@@ -366,7 +366,7 @@ public final class PacketTranslator {
             Function<CustomPacketPayload, P> wrap) {
         Packet<?> rewrite(P packet, CustomPacketPayload payload, TranslationContext context) {
             BiFunction<CustomPacketPayload, TranslationContext, CustomPacketPayload> payloadRewriter =
-                    this.rewriters.entries().get(payload.getClass());
+                    this.rewriters.getEntries().get(payload.getClass());
             return rewrite(packet, payload, context, payloadRewriter == null ? this.recordFold : payloadRewriter);
         }
 

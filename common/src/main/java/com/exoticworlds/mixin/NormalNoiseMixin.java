@@ -55,12 +55,12 @@ public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, Noise
     }
 
     @Override
-    public double exotic_worlds$coastLift() {
+    public double exotic_worlds$getCoastLift() {
         return this.exotic_worlds$coastLift;
     }
 
     @Override
-    public void exotic_worlds$coastLift(double lift) {
+    public void exotic_worlds$setCoastLift(double lift) {
         this.exotic_worlds$coastLift = lift;
     }
 
@@ -94,12 +94,12 @@ public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, Noise
 
     @Override
     public boolean exotic_worlds$indexable(Context context) {
-        Boolean cached = this.exotic_worlds$indexability.find(context.fold(), context);
+        Boolean cached = this.exotic_worlds$indexability.find(context.getFold(), context);
         if (cached != null) {
             return cached;
         }
 
-        return this.exotic_worlds$indexability.put(context.fold(), context, exotic_worlds$decideIndexable(context));
+        return this.exotic_worlds$indexability.put(context.getFold(), context, exotic_worlds$decideIndexable(context));
     }
 
     @Unique
@@ -118,7 +118,7 @@ public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, Noise
         double firstValue = ((WrappedPerlinNoise) (Object) this.first).exotic_worlds$sampleWrapped(generation, x, y, z,
                 0.0, 0.0);
         try (Context.ScaleScope _ = exotic_worlds$detuned(generation)) {
-            double detunedY = generation.slotAxes().y().carriesWorldAxis()
+            double detunedY = generation.getSlotAxes().y().hasWorldAxis()
                     ? y
                     : y * NoiseConstants.SECOND_LAYER_DETUNE;
             double secondValue = ((WrappedPerlinNoise) (Object) this.second).exotic_worlds$sampleWrapped(generation,
@@ -129,7 +129,7 @@ public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, Noise
 
     @Unique
     private static Context.ScaleScope exotic_worlds$detuned(Context generation) {
-        return generation.withScales(generation.horizontalScale() * NoiseConstants.SECOND_LAYER_DETUNE,
+        return generation.withScales(generation.getHorizontalScale() * NoiseConstants.SECOND_LAYER_DETUNE,
                 generation.vanillaScale() * NoiseConstants.SECOND_LAYER_DETUNE);
     }
 }

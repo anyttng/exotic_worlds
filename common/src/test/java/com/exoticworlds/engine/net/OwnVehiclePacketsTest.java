@@ -6,10 +6,10 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.seam.ClientPosition;
 
 import net.minecraft.network.protocol.game.ClientboundEntityPositionSyncPacket;
@@ -20,8 +20,8 @@ import net.minecraft.world.phys.Vec3;
 
 class OwnVehiclePacketsTest {
     private static final int WIDTH_IN_CHUNKS = 32;
-    private static final int WIDTH = WIDTH_IN_CHUNKS * 16;
-    private static final int VIEW_DISTANCE = 12;
+    private static final int WIDTH_BLOCKS = WIDTH_IN_CHUNKS * 16;
+    private static final int VIEW_DISTANCE_CHUNKS = 12;
     private static final int VEHICLE_ID = 7;
 
     private static final WorldFold TORUS = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDTH_IN_CHUNKS)));
@@ -39,8 +39,8 @@ class OwnVehiclePacketsTest {
                     throw new UnsupportedOperationException();
                 },
                 Level.OVERWORLD,
-                VIEW_DISTANCE,
-                VIEW_DISTANCE,
+                VIEW_DISTANCE_CHUNKS,
+                VIEW_DISTANCE_CHUNKS,
                 entityId -> null,
                 entityId -> null,
                 () -> {
@@ -55,7 +55,7 @@ class OwnVehiclePacketsTest {
                 contextRidingTheVehicle());
 
         assertEquals(VEHICLE_ID, sync.id());
-        assertEquals(VEHICLE.subtract(WIDTH, 0.0, 0.0), sync.values().position());
+        assertEquals(VEHICLE.subtract(WIDTH_BLOCKS, 0.0, 0.0), sync.values().position());
     }
 
     @Test
@@ -66,6 +66,6 @@ class OwnVehiclePacketsTest {
                 contextRidingTheVehicle());
 
         assertEquals(VEHICLE_ID, teleport.id());
-        assertEquals(VEHICLE.subtract(WIDTH, 0.0, 0.0), teleport.change().position());
+        assertEquals(VEHICLE.subtract(WIDTH_BLOCKS, 0.0, 0.0), teleport.change().position());
     }
 }

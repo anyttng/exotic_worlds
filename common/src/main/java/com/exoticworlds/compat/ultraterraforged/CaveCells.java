@@ -17,17 +17,17 @@ public final class CaveCells {
     }
 
     public static int pointX(float spacing, int minX, int pointX) {
-        SiteLattice lattice = SiteLattice.bound(spacing);
+        SiteLattice lattice = SiteLattice.getBound(spacing);
         return lattice == null ? pointX : lattice.cellX(minX);
     }
 
     public static int pointZ(float spacing, int minZ, int pointZ) {
-        SiteLattice lattice = SiteLattice.bound(spacing);
+        SiteLattice lattice = SiteLattice.getBound(spacing);
         return lattice == null ? pointZ : lattice.cellZ(minZ);
     }
 
     public static @Nullable Cell gate(float spacing, int cellX, int cellZ, CaveCarving carving, int pointX) {
-        SiteLattice lattice = SiteLattice.bound(spacing);
+        SiteLattice lattice = SiteLattice.getBound(spacing);
         if (lattice == null) {
             return null;
         }
@@ -37,18 +37,18 @@ public final class CaveCells {
     }
 
     public static int copyX(float spacing, int cellX, int cellZ, CaveCarving carving, int pointX) {
-        SiteLattice lattice = SiteLattice.bound(spacing);
+        SiteLattice lattice = SiteLattice.getBound(spacing);
         return lattice == null ? cellX : lattice.copyX(cellX, cellZ, pointX, carving.minX);
     }
 
     public static SiteCache.Finder<?> canonical(float spacing, SiteCache.Finder<?> finder) {
-        SiteLattice lattice = SiteLattice.bound(spacing);
+        SiteLattice lattice = SiteLattice.getBound(spacing);
         return lattice == null ? finder
                 : (copyX, copyZ) -> finder.find(lattice.canonicalX(copyX), lattice.canonicalZ(copyZ));
     }
 
     public static void enter(float spacing, CaveCarving carving, int copyX, int copyZ) {
-        SiteLattice lattice = SiteLattice.bound(spacing);
+        SiteLattice lattice = SiteLattice.getBound(spacing);
         if (lattice != null) {
             ((CaveFrame) (Object) carving).exotic_worlds$shift(lattice.shiftX(copyX, copyZ), lattice.shiftZ(copyZ));
         }
@@ -59,23 +59,23 @@ public final class CaveCells {
     }
 
     public static int frameX(CaveCarving carving, int x) {
-        return x - ((CaveFrame) (Object) carving).exotic_worlds$shiftX();
+        return x - ((CaveFrame) (Object) carving).exotic_worlds$getShiftX();
     }
 
     public static int frameZ(CaveCarving carving, int z) {
-        return z - ((CaveFrame) (Object) carving).exotic_worlds$shiftZ();
+        return z - ((CaveFrame) (Object) carving).exotic_worlds$getShiftZ();
     }
 
     public static float frameX(CaveCarving carving, float x) {
-        return x - ((CaveFrame) (Object) carving).exotic_worlds$shiftX();
+        return x - ((CaveFrame) (Object) carving).exotic_worlds$getShiftX();
     }
 
     public static float frameZ(CaveCarving carving, float z) {
-        return z - ((CaveFrame) (Object) carving).exotic_worlds$shiftZ();
+        return z - ((CaveFrame) (Object) carving).exotic_worlds$getShiftZ();
     }
 
     public static SiteCache.Finder<?> seated(float spacing, SiteCache.Finder<?> finder) {
-        SiteLattice lattice = SiteLattice.bound(spacing);
+        SiteLattice lattice = SiteLattice.getBound(spacing);
         return lattice == null ? finder : (copyX, copyZ) -> find(lattice, finder, copyX, copyZ);
     }
 

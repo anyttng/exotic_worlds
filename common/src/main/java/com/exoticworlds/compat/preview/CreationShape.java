@@ -2,10 +2,10 @@ package com.exoticworlds.compat.preview;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.ShapedChunkGenerator;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.WorldShapes;
 
@@ -16,7 +16,7 @@ public final class CreationShape {
     public static @Nullable CarriedShape carried(WorldCreationContext settings) {
         return WorldShapes.applyAtCreation(settings.worldgenLoadContext(), settings.selectedDimensions())
                 .get(LevelStem.OVERWORLD)
-                .map(stem -> ShapedChunkGenerator.carriedShapeOf(stem.generator()))
+                .map(stem -> ShapedChunkGenerator.getCarriedShape(stem.generator()))
                 .orElse(null);
     }
 
@@ -31,8 +31,8 @@ public final class CreationShape {
         });
     }
 
-    public static WorldFold routerBuildFold() {
-        WorldFold fold = GenerationFoldContext.context().routerBuildFold();
+    public static WorldFold getRouterBuildFold() {
+        WorldFold fold = GenerationFoldContext.getContext().getRouterBuildFold();
         return fold != null ? fold : WorldFolds.NOOP;
     }
 

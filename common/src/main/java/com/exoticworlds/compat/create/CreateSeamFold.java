@@ -2,10 +2,10 @@ package com.exoticworlds.compat.create;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.engine.seam.MapSeamFold;
@@ -22,29 +22,29 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public final class CreateSeamFold {
-    public static @Nullable WorldFold wrappedFoldOf(@Nullable Level level, @Nullable ResourceKey<Level> dimension) {
+    public static @Nullable WorldFold getWrappedFold(@Nullable Level level, @Nullable ResourceKey<Level> dimension) {
         if (level != null) {
-            return WorldLoopAttachments.wrappedFoldOfReader(level);
+            return WorldLoopAttachments.getWrappedFoldOfReader(level);
         }
 
-        return dimension == null ? null : MapSeamFold.foldFor(null, dimension);
+        return dimension == null ? null : MapSeamFold.getWrappedFold(null, dimension);
     }
 
     public static Vec3 nearestCopy(@Nullable ResourceKey<Level> dimension, Vec3 anchor, Vec3 target) {
-        return NearestCopy.toward(wrappedFoldOf(null, dimension), anchor, target);
+        return NearestCopy.toward(getWrappedFold(null, dimension), anchor, target);
     }
 
     public static Vec3 nearestCopy(@Nullable Level level, @Nullable ResourceKey<Level> dimension, Vec3 anchor,
             Vec3 target) {
-        return NearestCopy.toward(wrappedFoldOf(level, dimension), anchor, target);
+        return NearestCopy.toward(getWrappedFold(level, dimension), anchor, target);
     }
 
     public static Vec3i foldPositionToBox(@Nullable Level level, BoundingBox box, Vec3i position) {
-        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(level), box, position);
+        return NearestCopy.toward(WorldLoopAttachments.getWrappedFoldOfReader(level), box, position);
     }
 
     public static BlockPos foldPositionToBox(@Nullable Level level, BoundingBox box, BlockPos position) {
-        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(level), box, position);
+        return NearestCopy.toward(WorldLoopAttachments.getWrappedFoldOfReader(level), box, position);
     }
 
     public static Vec3 inFrameOf(WorldFold fold, Vec3 viewer, Vec3 anchor, Vec3 point) {
@@ -56,7 +56,7 @@ public final class CreateSeamFold {
             return rawDelta;
         }
 
-        return delta(WorldLoopAttachments.wrappedFoldOfReader(level), NearestCopy.asBlockPos(anchor), target, rawDelta);
+        return delta(WorldLoopAttachments.getWrappedFoldOfReader(level), NearestCopy.asBlockPos(anchor), target, rawDelta);
     }
 
     public static BlockPos farEndDelta(@Nullable Level level, BlockPos anchor, BlockPos delta, BlockPos rawFarEnd) {
@@ -64,31 +64,31 @@ public final class CreateSeamFold {
             return rawFarEnd;
         }
 
-        return farEndDelta(WorldLoopAttachments.foldOfReader(level), anchor, delta, rawFarEnd);
+        return farEndDelta(WorldLoopAttachments.getFoldOfReader(level), anchor, delta, rawFarEnd);
     }
 
     public static BlockPos nearestCopy(@Nullable Level level, Vec3i anchor, BlockPos target) {
-        return nearest(WorldLoopAttachments.wrappedFoldOfReader(level), NearestCopy.asBlockPos(anchor), target);
+        return nearest(WorldLoopAttachments.getWrappedFoldOfReader(level), NearestCopy.asBlockPos(anchor), target);
     }
 
     public static Vec3 nearestCopy(@Nullable Level level, Vec3 anchor, Vec3 target) {
-        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(level), anchor, target);
+        return NearestCopy.toward(WorldLoopAttachments.getWrappedFoldOfReader(level), anchor, target);
     }
 
     public static Vec3 foldPointToBox(@Nullable Level level, AABB box, Vec3 point) {
-        return NearestCopy.toward(WorldLoopAttachments.wrappedFoldOfReader(level), box.getCenter(), point);
+        return NearestCopy.toward(WorldLoopAttachments.getWrappedFoldOfReader(level), box.getCenter(), point);
     }
 
     public static DeckTransformation nearestCopyTransformation(@Nullable Level level, Vec3 anchor, Vec3 target) {
-        return NearestCopy.transformationToward(WorldLoopAttachments.wrappedFoldOfReader(level), anchor, target);
+        return NearestCopy.transformationToward(WorldLoopAttachments.getWrappedFoldOfReader(level), anchor, target);
     }
 
     public static BlockPos canonical(@Nullable ServerLevel level, BlockPos position) {
-        return WorldLoopAttachments.foldOfReader(level).fold(position);
+        return WorldLoopAttachments.getFoldOfReader(level).fold(position);
     }
 
     public static BlockPos canonical(@Nullable ResourceKey<Level> dimension, BlockPos position) {
-        WorldFold fold = wrappedFoldOf(null, dimension);
+        WorldFold fold = getWrappedFold(null, dimension);
         return (fold == null ? WorldFolds.NOOP : fold).fold(position);
     }
 
@@ -98,7 +98,7 @@ public final class CreateSeamFold {
 
     public static Vec3 canonicalOnServer(@Nullable BlockGetter level, Vec3 position) {
         return level instanceof ServerLevel serverLevel
-                ? WorldLoopAttachments.foldOfReader(serverLevel).fold(position)
+                ? WorldLoopAttachments.getFoldOfReader(serverLevel).fold(position)
                 : position;
     }
 
@@ -109,7 +109,7 @@ public final class CreateSeamFold {
             return position;
         }
 
-        return WorldLoopAttachments.foldIfLevel(server.getLevel(dimension)).fold(position);
+        return WorldLoopAttachments.getFoldIfLevel(server.getLevel(dimension)).fold(position);
     }
 
     static BlockPos delta(@Nullable WorldFold fold, BlockPos anchor, BlockPos target, BlockPos rawDelta) {

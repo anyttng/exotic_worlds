@@ -6,12 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.Direction;
 
@@ -42,8 +42,8 @@ class RtfLapTest {
     void aFeatureOnTheLapIsNeverLargerThanTheModsOwn() {
         for (WorldFold fold : new WorldFold[] {torus(NARROW_CHUNKS), torus(WIDE_CHUNKS),
                 cylinder(Direction.Axis.X, NARROW_CHUNKS), cylinder(Direction.Axis.Z, NARROW_CHUNKS)}) {
-            try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(fold)) {
-                RtfLap.Frame frame = RtfLap.frame();
+            try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(fold)) {
+                RtfLap.Frame frame = RtfLap.getFrame();
                 for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
                     for (double frequency : FREQUENCIES) {
                         float snapped = frame.snappedFrequency(axis, (float) frequency);
@@ -58,11 +58,11 @@ class RtfLapTest {
     @Test
     void aLatticeClosesOnWholeCellsPerLap() {
         WorldFold fold = torus(NARROW_CHUNKS);
-        int lap = fold.blockDomain(Direction.Axis.X).domainLength;
-        try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(fold)) {
-            RtfLap.Frame frame = RtfLap.frame();
+        int lapBlocks = fold.getBlockDomain(Direction.Axis.X).domainLength;
+        try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(fold)) {
+            RtfLap.Frame frame = RtfLap.getFrame();
             int cells = frame.cells(Direction.Axis.X, CONTINENT_FREQUENCY);
-            assertEquals(cells, lap * frame.snappedFrequency(Direction.Axis.X, (float) CONTINENT_FREQUENCY), 1.0E-4);
+            assertEquals(cells, lapBlocks * frame.snappedFrequency(Direction.Axis.X, (float) CONTINENT_FREQUENCY), 1.0E-4);
             assertTrue(cells >= 2, "a torus keeps at least two cells per lap");
         }
     }
@@ -71,8 +71,8 @@ class RtfLapTest {
     void anOpenAxisShrinksByTheLoopingAxisFactorOnACylinder() {
         for (Direction.Axis loop : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
             Direction.Axis open = loop == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X;
-            try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(cylinder(loop, NARROW_CHUNKS))) {
-                RtfLap.Frame frame = RtfLap.frame();
+            try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(cylinder(loop, NARROW_CHUNKS))) {
+                RtfLap.Frame frame = RtfLap.getFrame();
                 for (double frequency : FREQUENCIES) {
                     assertEquals(RtfLap.NO_PERIOD, frame.cells(open, frequency));
                     double factor = frame.snappedFrequency(loop, (float) frequency) / frequency;
@@ -84,8 +84,8 @@ class RtfLapTest {
                             frame.snappedAngular(open, (float) frequency),
                             "looping on " + loop + " at frequency " + frequency);
                     try (RtfLap.Frame.Scope _ = frame.octave(frequency)) {
-                        float loopScale = loop == Direction.Axis.X ? frame.xScale() : frame.zScale();
-                        float openScale = loop == Direction.Axis.X ? frame.zScale() : frame.xScale();
+                        float loopScale = loop == Direction.Axis.X ? frame.getXScale() : frame.getZScale();
+                        float openScale = loop == Direction.Axis.X ? frame.getZScale() : frame.getXScale();
                         assertEquals(loopScale, openScale, "looping on " + loop + " at frequency " + frequency);
                     }
                 }
@@ -96,8 +96,8 @@ class RtfLapTest {
     @Test
     void aTorusSnapsEachAxisOnItsOwnLap() {
         WorldFold fold = skewed(NARROW_CHUNKS);
-        try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(fold)) {
-            RtfLap.Frame frame = RtfLap.frame();
+        try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(fold)) {
+            RtfLap.Frame frame = RtfLap.getFrame();
             for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
                 double lap = frame.lap(axis);
                 for (double frequency : FREQUENCIES) {
@@ -113,7 +113,7 @@ class RtfLapTest {
 
     @Test
     void anUnshapedWorldKeepsTheModsOwnFrequency() {
-        RtfLap.Frame frame = RtfLap.frame();
+        RtfLap.Frame frame = RtfLap.getFrame();
         for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
             for (double frequency : FREQUENCIES) {
                 assertEquals((float) frequency, frame.snappedFrequency(axis, (float) frequency));
@@ -126,49 +126,49 @@ class RtfLapTest {
     @Test
     void aScaleCarriesTheLapIntoTheScaledUnits() {
         WorldFold fold = torus(NARROW_CHUNKS);
-        int lap = fold.blockDomain(Direction.Axis.X).domainLength;
-        try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(fold);
-                RtfLap.Frame.Scope _ = RtfLap.frame().scale(0.5, 0.25)) {
-            assertEquals(lap * 0.5, RtfLap.frame().lap(Direction.Axis.X));
-            assertEquals(lap * 0.25, RtfLap.frame().lap(Direction.Axis.Z));
+        int lapBlocks = fold.getBlockDomain(Direction.Axis.X).domainLength;
+        try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(fold);
+                RtfLap.Frame.Scope _ = RtfLap.getFrame().scale(0.5, 0.25)) {
+            assertEquals(lapBlocks * 0.5, RtfLap.getFrame().lap(Direction.Axis.X));
+            assertEquals(lapBlocks * 0.25, RtfLap.getFrame().lap(Direction.Axis.Z));
         }
 
-        assertFalse(RtfLap.frame().bound());
+        assertFalse(RtfLap.getFrame().isBound());
     }
 
     @Test
     void aPointIsSeatedOnTheCopyNearestItsAnchor() {
         WorldFold fold = torus(NARROW_CHUNKS);
-        int lap = fold.blockDomain(Direction.Axis.X).domainLength;
-        try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(fold)) {
-            RtfLap.Frame frame = RtfLap.frame();
-            assertEquals(100.0 + lap, frame.seatX(100.0, 0.0, lap - 50.0, 0.0));
-            assertEquals(-100.0, frame.seatX(-100.0 + lap, 0.0, 0.0, 0.0));
+        int lapBlocks = fold.getBlockDomain(Direction.Axis.X).domainLength;
+        try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(fold)) {
+            RtfLap.Frame frame = RtfLap.getFrame();
+            assertEquals(100.0 + lapBlocks, frame.seatX(100.0, 0.0, lapBlocks - 50.0, 0.0));
+            assertEquals(-100.0, frame.seatX(-100.0 + lapBlocks, 0.0, 0.0, 0.0));
         }
     }
 
     @Test
     void aSkewedLatticeBindsTheFrameWithItsSkew() {
         WorldFold fold = skewed(NARROW_CHUNKS);
-        try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(fold)) {
-            RtfLap.Frame frame = RtfLap.frame();
-            assertEquals(fold.blockLattice().x().domainLength, frame.lap(Direction.Axis.X));
-            assertEquals(fold.blockLattice().z().domainLength, frame.lap(Direction.Axis.Z));
-            assertEquals(fold.blockLattice().skew(), frame.skew());
+        try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(fold)) {
+            RtfLap.Frame frame = RtfLap.getFrame();
+            assertEquals(fold.getBlockLattice().getX().domainLength, frame.lap(Direction.Axis.X));
+            assertEquals(fold.getBlockLattice().getZ().domainLength, frame.lap(Direction.Axis.Z));
+            assertEquals(fold.getBlockLattice().getSkew(), frame.getSkew());
         }
 
-        assertEquals(RtfLap.NO_SKEW, RtfLap.frame().skew());
+        assertEquals(RtfLap.NO_SKEW, RtfLap.getFrame().getSkew());
     }
 
     @Test
     void aCellOneZLapOnFoldsAsTheCellItCopies() {
-        try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(skewed(NARROW_CHUNKS))) {
-            RtfLap.Frame frame = RtfLap.frame();
+        try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(skewed(NARROW_CHUNKS))) {
+            RtfLap.Frame frame = RtfLap.getFrame();
             for (double frequency : FREQUENCIES) {
                 try (RtfLap.Frame.Scope _ = frame.octave(frequency)) {
                     int xPeriod = frame.cells(Direction.Axis.X, frequency);
                     int zPeriod = frame.cells(Direction.Axis.Z, frequency);
-                    int skewCells = (int) Math.round(frame.skew() * frame.xScale());
+                    int skewCells = (int) Math.round(frame.getSkew() * frame.getXScale());
                     for (int cellZ = -CELL_REACH; cellZ <= CELL_REACH; cellZ++) {
                         for (int cellX = -CELL_REACH; cellX <= CELL_REACH; cellX++) {
                             int folded = frame.foldX(cellX, cellZ);
@@ -185,25 +185,25 @@ class RtfLapTest {
     @Test
     void theSkewedSeamStepsByAWholeCellLatticeVector() {
         WorldFold fold = skewed(NARROW_CHUNKS);
-        int xLap = fold.blockLattice().x().domainLength;
-        float seam = fold.blockLattice().z().domainLength;
-        try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(fold)) {
-            RtfLap.Frame frame = RtfLap.frame();
+        int xLapBlocks = fold.getBlockLattice().getX().domainLength;
+        float seam = fold.getBlockLattice().getZ().domainLength;
+        try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(fold)) {
+            RtfLap.Frame frame = RtfLap.getFrame();
             for (double frequency : FREQUENCIES) {
                 try (RtfLap.Frame.Scope _ = frame.octave(frequency)) {
                     int xPeriod = frame.cells(Direction.Axis.X, frequency);
                     int zPeriod = frame.cells(Direction.Axis.Z, frequency);
-                    int skewCells = (int) Math.round(frame.skew() * frame.xScale());
+                    int skewCells = (int) Math.round(frame.getSkew() * frame.getXScale());
                     for (float fraction : ALONG_FRACTIONS) {
-                        float x = fraction * xLap;
+                        float x = fraction * xLapBlocks;
                         double uStep = (frame.latticeX(x, seam - SEAM_STEP) - frame.latticeX(x, seam + SEAM_STEP))
-                                * (double) frame.xScale() - skewCells;
+                                * (double) frame.getXScale() - skewCells;
                         double vStep = (frame.shiftZ(seam - SEAM_STEP) - frame.shiftZ(seam + SEAM_STEP))
-                                * (double) frame.zScale() - zPeriod;
+                                * (double) frame.getZScale() - zPeriod;
                         double uResidual = uStep - xPeriod * Math.rint(uStep / xPeriod);
-                        assertEquals(0.0, uResidual, CLOSE + 2.0 * SEAM_STEP * frame.xScale(),
+                        assertEquals(0.0, uResidual, CLOSE + 2.0 * SEAM_STEP * frame.getXScale(),
                                 "x " + x + " at frequency " + frequency);
-                        assertEquals(0.0, vStep, CLOSE + 2.0 * SEAM_STEP * frame.zScale(),
+                        assertEquals(0.0, vStep, CLOSE + 2.0 * SEAM_STEP * frame.getZScale(),
                                 "x " + x + " at frequency " + frequency);
                     }
                 }
@@ -214,14 +214,14 @@ class RtfLapTest {
     @Test
     void aLatticePositionReadsBackAsTheBlockItCameFrom() {
         WorldFold fold = skewed(NARROW_CHUNKS);
-        int xLap = fold.blockLattice().x().domainLength;
-        int zLap = fold.blockLattice().z().domainLength;
-        try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(fold)) {
-            RtfLap.Frame frame = RtfLap.frame();
+        int xLapBlocks = fold.getBlockLattice().getX().domainLength;
+        int zLapBlocks = fold.getBlockLattice().getZ().domainLength;
+        try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(fold)) {
+            RtfLap.Frame frame = RtfLap.getFrame();
             for (double frequency : FREQUENCIES) {
                 try (RtfLap.Frame.Scope _ = frame.octave(frequency)) {
-                    float x = ALONG_FRACTIONS[1] * xLap;
-                    float z = ALONG_FRACTIONS[2] * zLap;
+                    float x = ALONG_FRACTIONS[1] * xLapBlocks;
+                    float z = ALONG_FRACTIONS[2] * zLapBlocks;
                     assertEquals(x, frame.outerX(frame.latticeX(x, z), frame.shiftZ(z)), CLOSE,
                             "at frequency " + frequency);
                 }
@@ -232,13 +232,13 @@ class RtfLapTest {
     @Test
     void aPointOneZLapFromItsAnchorIsSeatedOnTheAnchorsCopy() {
         WorldFold fold = skewed(NARROW_CHUNKS);
-        int zLap = fold.blockLattice().z().domainLength;
-        int skew = fold.blockLattice().skew();
-        try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(fold)) {
-            RtfLap.Frame frame = RtfLap.frame();
-            assertEquals(200.0, frame.seatZ(200.0 + zLap, 200.0));
-            assertEquals(100.0, frame.seatX(100.0 + skew, 200.0 + zLap, 100.0, 200.0));
-            assertEquals(100.0, frame.seatX(100.0 - skew, 200.0 - zLap, 100.0, 200.0));
+        int zLapBlocks = fold.getBlockLattice().getZ().domainLength;
+        int skewBlocks = fold.getBlockLattice().getSkew();
+        try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(fold)) {
+            RtfLap.Frame frame = RtfLap.getFrame();
+            assertEquals(200.0, frame.seatZ(200.0 + zLapBlocks, 200.0));
+            assertEquals(100.0, frame.seatX(100.0 + skewBlocks, 200.0 + zLapBlocks, 100.0, 200.0));
+            assertEquals(100.0, frame.seatX(100.0 - skewBlocks, 200.0 - zLapBlocks, 100.0, 200.0));
         }
     }
 
@@ -247,11 +247,11 @@ class RtfLapTest {
         Object loopedServer = new Object();
         Object plainServer = new Object();
         RtfLap.follow(loopedServer, true);
-        assertTrue(RtfLap.active());
+        assertTrue(RtfLap.isActive());
         RtfLap.follow(loopedServer, false);
-        assertTrue(RtfLap.active(), "a plain dimension of the same server cleared the flag");
+        assertTrue(RtfLap.isActive(), "a plain dimension of the same server cleared the flag");
         RtfLap.follow(plainServer, false);
-        assertFalse(RtfLap.active(), "the flag outlived the server that set it");
+        assertFalse(RtfLap.isActive(), "the flag outlived the server that set it");
     }
 
     private static WorldFold skewed(int chunks) {

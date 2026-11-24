@@ -1,8 +1,8 @@
 package com.exoticworlds.compat.distanthorizons;
 
 import com.exoticworlds.compat.lod.AlignedPeriod;
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
@@ -18,7 +18,7 @@ public final class DhFold {
     }
 
     public static long periodBlocks(WorldFold fold, Direction.Axis axis, byte detailLevel) {
-        return AlignedPeriod.blocks(fold.widthBlocks(axis), detailLevel);
+        return AlignedPeriod.blocks(fold.getWidthBlocks(axis), detailLevel);
     }
 
     public static int periodSections(WorldFold fold, Direction.Axis axis, byte detailLevel) {
@@ -58,45 +58,45 @@ public final class DhFold {
 
     public static boolean isCompleteSection(DhLattice lattice, byte leafDetailLevel, byte detailLevel, int sectionX,
             int sectionZ) {
-        return detailLevel <= leafDetailLevel || foldedSpanInsideTheWorld(lattice, detailLevel, sectionX, sectionZ);
+        return detailLevel <= leafDetailLevel || isFoldedSpanInsideTheWorld(lattice, detailLevel, sectionX, sectionZ);
     }
 
-    public static boolean foldedSpanInsideTheWorld(DhLattice lattice, byte detailLevel, int sectionX, int sectionZ) {
-        return spanInside(lattice.fold(), Direction.Axis.X, detailLevel,
+    public static boolean isFoldedSpanInsideTheWorld(DhLattice lattice, byte detailLevel, int sectionX, int sectionZ) {
+        return isSpanInside(lattice.fold(), Direction.Axis.X, detailLevel,
                 foldSectionX(lattice, detailLevel, sectionX, sectionZ))
-                && spanInside(lattice.fold(), Direction.Axis.Z, detailLevel,
+                && isSpanInside(lattice.fold(), Direction.Axis.Z, detailLevel,
                         foldSectionZ(lattice, detailLevel, sectionZ));
     }
 
-    private static boolean spanInside(WorldFold fold, Direction.Axis axis, byte detailLevel, int foldedSection) {
-        if (!fold.loops(axis)) {
+    private static boolean isSpanInside(WorldFold fold, Direction.Axis axis, byte detailLevel, int foldedSection) {
+        if (!fold.isLooped(axis)) {
             return true;
         }
 
-        int width = sectionWidthBlocks(detailLevel);
-        return (long) foldedSection * width + width <= fold.maxBlock(axis);
+        int widthBlocks = sectionWidthBlocks(detailLevel);
+        return (long) foldedSection * widthBlocks + widthBlocks <= fold.getMaxBlock(axis);
     }
 
-    public static boolean containsACopy(DhLattice lattice, byte detailLevel, int sectionX, int sectionZ,
+    public static boolean isContainingACopy(DhLattice lattice, byte detailLevel, int sectionX, int sectionZ,
             byte copyDetailLevel, int copySectionX, int copySectionZ) {
         WorldFold fold = lattice.fold();
-        long width = sectionWidthBlocks(detailLevel);
-        long cornerX = (long) sectionX * width;
-        long cornerZ = (long) sectionZ * width;
+        long widthBlocks = sectionWidthBlocks(detailLevel);
+        long cornerX = (long) sectionX * widthBlocks;
+        long cornerZ = (long) sectionZ * widthBlocks;
         long copyX = (long) copySectionX * sectionWidthBlocks(copyDetailLevel);
         long copyZ = (long) copySectionZ * sectionWidthBlocks(copyDetailLevel);
         AlignedPeriod period = period(lattice, copyDetailLevel);
-        if (!fold.loops(Direction.Axis.Z)) {
-            return copyZ >= cornerZ && copyZ < cornerZ + width && copyXInside(fold, period, cornerX, width, copyX);
+        if (!fold.isLooped(Direction.Axis.Z)) {
+            return copyZ >= cornerZ && copyZ < cornerZ + widthBlocks && isCopyXInside(fold, period, cornerX, widthBlocks, copyX);
         }
 
         long firstLap = Math.ceilDiv(cornerZ - copyZ, period.zBlocks());
-        long laps = Math.ceilDiv(cornerZ + width - copyZ, period.zBlocks()) - firstLap;
-        long distinctShifts = fold.loops(Direction.Axis.X) && period.xShiftBlocks() != 0L
+        long laps = Math.ceilDiv(cornerZ + widthBlocks - copyZ, period.zBlocks()) - firstLap;
+        long distinctShifts = fold.isLooped(Direction.Axis.X) && period.xShiftBlocks() != 0L
                 ? period.xBlocks() / gcd(period.xBlocks(), period.xShiftBlocks())
                 : 1L;
         for (long lap = firstLap; lap < firstLap + Math.min(laps, distinctShifts); lap++) {
-            if (copyXInside(fold, period, cornerX, width, copyX + lap * period.xShiftBlocks())) {
+            if (isCopyXInside(fold, period, cornerX, widthBlocks, copyX + lap * period.xShiftBlocks())) {
                 return true;
             }
         }
@@ -104,13 +104,13 @@ public final class DhFold {
         return false;
     }
 
-    private static boolean copyXInside(WorldFold fold, AlignedPeriod period, long cornerX, long width,
+    private static boolean isCopyXInside(WorldFold fold, AlignedPeriod period, long cornerX, long widthBlocks,
             long copyX) {
-        if (fold.loops(Direction.Axis.X)) {
+        if (fold.isLooped(Direction.Axis.X)) {
             copyX += Math.ceilDiv(cornerX - copyX, period.xBlocks()) * period.xBlocks();
         }
 
-        return cornerX <= copyX && copyX < cornerX + width;
+        return cornerX <= copyX && copyX < cornerX + widthBlocks;
     }
 
     private static long gcd(long first, long second) {
@@ -129,8 +129,8 @@ public final class DhFold {
         WorldFold fold = lattice.fold();
         int narrowest = Integer.MAX_VALUE;
         for (Direction.Axis axis : CoordinateConstants.HORIZONTAL_AXES) {
-            if (fold.loops(axis)) {
-                narrowest = Math.min(narrowest, fold.widthBlocks(axis));
+            if (fold.isLooped(axis)) {
+                narrowest = Math.min(narrowest, fold.getWidthBlocks(axis));
             }
         }
 
@@ -147,18 +147,18 @@ public final class DhFold {
             int refBlockZ, int sectionX, int sectionZ) {
         WorldFold fold = lattice.fold();
         AlignedPeriod period = period(lattice, detailLevel);
-        int width = sectionWidthBlocks(detailLevel);
+        int widthBlocks = sectionWidthBlocks(detailLevel);
         long x = sectionX;
         long z = sectionZ;
-        if (fold.loops(Direction.Axis.Z)) {
+        if (fold.isLooped(Direction.Axis.Z)) {
             long laps = lapsToward(period.zBlocks(), windowCenterBlock(snapLevel, detailLevel, z) - refBlockZ);
-            z -= laps * (period.zBlocks() / width);
-            x -= laps * (period.xShiftBlocks() / width);
+            z -= laps * (period.zBlocks() / widthBlocks);
+            x -= laps * (period.xShiftBlocks() / widthBlocks);
         }
 
-        if (fold.loops(Direction.Axis.X)) {
+        if (fold.isLooped(Direction.Axis.X)) {
             long laps = lapsToward(period.xBlocks(), windowCenterBlock(snapLevel, detailLevel, x) - refBlockX);
-            x -= laps * (period.xBlocks() / width);
+            x -= laps * (period.xBlocks() / widthBlocks);
         }
 
         return new Section((int) x, (int) z);
@@ -173,24 +173,24 @@ public final class DhFold {
     public static boolean isNearestSection(DhLattice lattice, Direction.Axis axis, byte snapLevel,
             byte detailLevel, int refBlock, int section) {
         WorldFold fold = lattice.fold();
-        if (!fold.loops(axis)) {
+        if (!fold.isLooped(axis)) {
             return true;
         }
 
-        long worldWidth = fold.widthBlocks(axis);
+        long worldWidthBlocks = fold.getWidthBlocks(axis);
         if (detailLevel <= snapLevel) {
-            return lapsToward(worldWidth, windowCenterBlock(snapLevel, detailLevel, section) - refBlock) == 0;
+            return lapsToward(worldWidthBlocks, windowCenterBlock(snapLevel, detailLevel, section) - refBlock) == 0;
         }
 
         long first = sectionCenterBlock(snapLevel, firstCell(snapLevel, detailLevel, section));
         long last = sectionCenterBlock(snapLevel, lastCell(snapLevel, detailLevel, section));
-        return lapsToward(worldWidth, first - refBlock) == 0 && lapsToward(worldWidth, last - refBlock) == 0;
+        return lapsToward(worldWidthBlocks, first - refBlock) == 0 && lapsToward(worldWidthBlocks, last - refBlock) == 0;
     }
 
-    public static boolean overlapsNearestWindow(DhLattice lattice, Direction.Axis axis, byte snapLevel,
+    public static boolean isOverlappingNearestWindow(DhLattice lattice, Direction.Axis axis, byte snapLevel,
             byte detailLevel, int refBlock, int section) {
         WorldFold fold = lattice.fold();
-        if (!fold.loops(axis)) {
+        if (!fold.isLooped(axis)) {
             return true;
         }
 
@@ -198,10 +198,10 @@ public final class DhFold {
             return isNearestSection(lattice, axis, snapLevel, detailLevel, refBlock, section);
         }
 
-        long worldWidth = fold.widthBlocks(axis);
+        long worldWidthBlocks = fold.getWidthBlocks(axis);
         long first = sectionCenterBlock(snapLevel, firstCell(snapLevel, detailLevel, section));
         long last = sectionCenterBlock(snapLevel, lastCell(snapLevel, detailLevel, section));
-        return lapsToward(worldWidth, first - refBlock) <= 0 && lapsToward(worldWidth, last - refBlock) >= 0;
+        return lapsToward(worldWidthBlocks, first - refBlock) <= 0 && lapsToward(worldWidthBlocks, last - refBlock) >= 0;
     }
 
     private static long firstCell(byte snapLevel, byte detailLevel, int section) {
@@ -213,30 +213,30 @@ public final class DhFold {
     }
 
     private static long sectionCenterBlock(byte detailLevel, long section) {
-        int width = sectionWidthBlocks(detailLevel);
-        return section * width + width / 2;
+        int widthBlocks = sectionWidthBlocks(detailLevel);
+        return section * widthBlocks + widthBlocks / 2;
     }
 
-    private static long lapsToward(long worldWidth, long delta) {
-        return Math.floorDiv(2 * delta - 1 + worldWidth, 2 * worldWidth);
+    private static long lapsToward(long worldWidthBlocks, long delta) {
+        return Math.floorDiv(2 * delta - 1 + worldWidthBlocks, 2 * worldWidthBlocks);
     }
 
-    public static long seamChebyshevDistance(DhLattice lattice, long fromX, long fromZ, long toX, long toZ) {
+    public static long seamChebyshevDistanceBlocks(DhLattice lattice, long fromX, long fromZ, long toX, long toZ) {
         WorldFold fold = lattice.fold();
         long deltaX = toX - fromX;
         long deltaZ = toZ - fromZ;
-        if (!fold.loops(Direction.Axis.Z)) {
-            return Math.max(axisDistance(fold, deltaX), Math.abs(deltaZ));
+        if (!fold.isLooped(Direction.Axis.Z)) {
+            return Math.max(axisDistanceBlocks(fold, deltaX), Math.abs(deltaZ));
         }
 
-        long widthZ = fold.widthBlocks(Direction.Axis.Z);
+        long widthZ = fold.getWidthBlocks(Direction.Axis.Z);
         long below = Math.floorDiv(deltaZ, widthZ);
         long reach = rowsThatCanWin(fold, lattice.skewBlocks());
         long nearest = Long.MAX_VALUE;
         for (long row = below - reach; row <= below + 1 + reach; row++) {
-            long distance = Math.max(axisDistance(fold, deltaX - row * lattice.skewBlocks()),
+            long distanceBlocks = Math.max(axisDistanceBlocks(fold, deltaX - row * lattice.skewBlocks()),
                     Math.abs(deltaZ - row * widthZ));
-            nearest = Math.min(nearest, distance);
+            nearest = Math.min(nearest, distanceBlocks);
         }
 
         return nearest;
@@ -247,27 +247,27 @@ public final class DhFold {
             return 0L;
         }
 
-        return Math.ceilDiv(fold.widthBlocks(Direction.Axis.X), 2L * fold.widthBlocks(Direction.Axis.Z));
+        return Math.ceilDiv(fold.getWidthBlocks(Direction.Axis.X), 2L * fold.getWidthBlocks(Direction.Axis.Z));
     }
 
-    private static long axisDistance(WorldFold fold, long deltaX) {
-        if (!fold.loops(Direction.Axis.X)) {
+    private static long axisDistanceBlocks(WorldFold fold, long deltaX) {
+        if (!fold.isLooped(Direction.Axis.X)) {
             return Math.abs(deltaX);
         }
 
-        long width = fold.widthBlocks(Direction.Axis.X);
-        long lapped = Math.floorMod(deltaX, width);
-        return Math.min(lapped, width - lapped);
+        long widthBlocks = fold.getWidthBlocks(Direction.Axis.X);
+        long lapped = Math.floorMod(deltaX, widthBlocks);
+        return Math.min(lapped, widthBlocks - lapped);
     }
 
-    public static boolean overlapsNearestLap(DhLattice lattice, Direction.Axis axis, int refBlock, int minBlock,
+    public static boolean isOverlappingNearestLap(DhLattice lattice, Direction.Axis axis, int refBlock, int minBlock,
             int widthBlocks) {
         WorldFold fold = lattice.fold();
-        if (!fold.loops(axis)) {
+        if (!fold.isLooped(axis)) {
             return true;
         }
 
-        long half = fold.widthBlocks(axis) / 2L;
+        long half = fold.getWidthBlocks(axis) / 2L;
         return minBlock < refBlock + half && minBlock + (long) widthBlocks > refBlock - half;
     }
 

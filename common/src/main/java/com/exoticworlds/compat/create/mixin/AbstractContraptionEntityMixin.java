@@ -29,14 +29,14 @@ public abstract class AbstractContraptionEntityMixin {
 
     @ModifyVariable(method = "toLocalVector(Lnet/minecraft/world/phys/Vec3;FZ)Lnet/minecraft/world/phys/Vec3;",
             at = @At("HEAD"), argsOnly = true, ordinal = 0)
-    private Vec3 exotic_worlds$globalVecInTheAnchorFrame(Vec3 globalVec, @Local(argsOnly = true) boolean prevAnchor) {
-        Vec3 anchor = prevAnchor ? getPrevAnchorVec() : getAnchorVec();
-        return CreateSeamFold.nearestCopy(exotic_worlds$self().level(), anchor, globalVec);
+    private Vec3 exotic_worlds$globalVecInTheAnchorFrame(Vec3 globalVec, @Local(argsOnly = true) boolean isPrevAnchor) {
+        Vec3 anchor = isPrevAnchor ? getPrevAnchorVec() : getAnchorVec();
+        return CreateSeamFold.nearestCopy(exotic_worlds$getSelf().level(), anchor, globalVec);
     }
 
     @ModifyVariable(method = "getContactPointMotion", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private Vec3 exotic_worlds$contactPointInTheAnchorFrame(Vec3 globalContactPoint) {
-        return CreateSeamFold.nearestCopy(exotic_worlds$self().level(), getPrevAnchorVec(), globalContactPoint);
+        return CreateSeamFold.nearestCopy(exotic_worlds$getSelf().level(), getPrevAnchorVec(), globalContactPoint);
     }
 
     @ModifyExpressionValue(method = "shouldActorTrigger",
@@ -49,7 +49,7 @@ public abstract class AbstractContraptionEntityMixin {
             return null;
         }
 
-        return CreateSeamFold.nearestCopy(exotic_worlds$self().level(), actorPosition, previousPosition);
+        return CreateSeamFold.nearestCopy(exotic_worlds$getSelf().level(), actorPosition, previousPosition);
     }
 
     @WrapOperation(method = "moveCollidedEntitiesOnDisassembly",
@@ -58,12 +58,12 @@ public abstract class AbstractContraptionEntityMixin {
                             + "apply(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;"))
     private Vec3 exotic_worlds$disassemblyLandingInTheAnchorFrame(StructureTransform transform, Vec3 localVec,
             Operation<Vec3> original) {
-        return CreateSeamFold.nearestCopy(exotic_worlds$self().level(), getAnchorVec(),
+        return CreateSeamFold.nearestCopy(exotic_worlds$getSelf().level(), getAnchorVec(),
                 original.call(transform, localVec));
     }
 
     @Unique
-    private Entity exotic_worlds$self() {
+    private Entity exotic_worlds$getSelf() {
         return (Entity) (Object) this;
     }
 }

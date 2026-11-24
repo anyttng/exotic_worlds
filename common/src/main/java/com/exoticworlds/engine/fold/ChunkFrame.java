@@ -2,8 +2,8 @@ package com.exoticworlds.engine.fold;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.FoldOrientation;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.FoldOrientation;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
@@ -11,12 +11,12 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public final class ChunkFrame {
     public static WorldFold.@Nullable Folded<BlockPos> seat(WorldFold fold, ChunkPos own, BlockPos pos) {
-        if (ChunkSeat.sitsIn(own, pos.getX(), pos.getZ()) || fold.preservesLocalIndices()) {
+        if (ChunkSeat.isSittingIn(own, pos.getX(), pos.getZ()) || fold.isPreservingLocalIndices()) {
             return null;
         }
 
         WorldFold.Folded<BlockPos> folded = fold.foldOriented(pos);
-        return ChunkSeat.sitsIn(own, folded.value().getX(), folded.value().getZ()) ? folded : null;
+        return ChunkSeat.isSittingIn(own, folded.value().getX(), folded.value().getZ()) ? folded : null;
     }
 
     public static BlockPos seatPos(WorldFold fold, ChunkPos own, BlockPos pos) {
@@ -26,12 +26,12 @@ public final class ChunkFrame {
 
     public static long seatColumn(WorldFold fold, ChunkPos own, int x, int z) {
         long raw = BlockPos.asLong(x, 0, z);
-        if (ChunkSeat.sitsIn(own, x, z) || fold.preservesLocalIndices()) {
+        if (ChunkSeat.isSittingIn(own, x, z) || fold.isPreservingLocalIndices()) {
             return raw;
         }
 
         long folded = fold.foldBlockNode(raw);
-        return ChunkSeat.sitsIn(own, BlockPos.getX(folded), BlockPos.getZ(folded)) ? folded : raw;
+        return ChunkSeat.isSittingIn(own, BlockPos.getX(folded), BlockPos.getZ(folded)) ? folded : raw;
     }
 
     public static BlockState toReader(BlockState state, FoldOrientation orientation) {
@@ -39,7 +39,7 @@ public final class ChunkFrame {
     }
 
     public static BlockState toChunk(WorldFold fold, BlockPos pos, BlockState state) {
-        return fold.preservesLocalIndices() ? state : fold.foldOriented(pos).orientation().applyToState(state);
+        return fold.isPreservingLocalIndices() ? state : fold.foldOriented(pos).orientation().applyToState(state);
     }
 
     private ChunkFrame() {

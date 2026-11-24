@@ -2,7 +2,7 @@ package com.exoticworlds.compat.ultimatemapatlases;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.seam.MapSeamFold;
 
@@ -11,7 +11,7 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
 public final class AtlasBannerSeat {
     public static BlockPos toward(MapItemSavedData data, int x, int z, BlockPos banner) {
-        return toward(MapSeamFold.foldFor(null, data.dimension), x, z, banner);
+        return toward(MapSeamFold.getWrappedFold(null, data.dimension), x, z, banner);
     }
 
     static BlockPos toward(@Nullable WorldFold fold, int x, int z, BlockPos banner) {

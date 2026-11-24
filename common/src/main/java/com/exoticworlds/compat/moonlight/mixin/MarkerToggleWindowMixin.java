@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.exoticworlds.compat.moonlight.MoonlightMapFold;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.llamalad7.mixinextras.sugar.Local;
 

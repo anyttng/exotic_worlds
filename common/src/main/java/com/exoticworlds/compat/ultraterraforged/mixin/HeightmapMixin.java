@@ -11,7 +11,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.exoticworlds.compat.terraforged.RtfLap;
 import com.exoticworlds.compat.ultraterraforged.LapCarrier;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 
 import com.pandaismyname1.ultraterraforged.world.worldgen.cell.Cell;
@@ -36,13 +36,13 @@ public abstract class HeightmapMixin {
 
     @WrapMethod(method = "applyContinent")
     private void exotic_worlds$bindContinent(Cell cell, float x, float z, Operation<Void> original) {
-        WorldFold fold = LapCarrier.foldOf(this.levels);
+        WorldFold fold = LapCarrier.getFold(this.levels);
         if (fold == null) {
             original.call(cell, x, z);
             return;
         }
 
-        RtfLap.Frame frame = RtfLap.frame();
+        RtfLap.Frame frame = RtfLap.getFrame();
         try (RtfLap.Frame.Scope _ = frame.bind(fold)) {
             original.call(cell, frame.shiftX(x, z), frame.shiftZ(z));
         }
@@ -50,13 +50,13 @@ public abstract class HeightmapMixin {
 
     @WrapMethod(method = "applyTerrain")
     private void exotic_worlds$bindTerrain(Cell cell, float x, float z, Rivermap rivermap, Operation<Void> original) {
-        WorldFold fold = LapCarrier.foldOf(this.levels);
+        WorldFold fold = LapCarrier.getFold(this.levels);
         if (fold == null) {
             original.call(cell, x, z, rivermap);
             return;
         }
 
-        RtfLap.Frame frame = RtfLap.frame();
+        RtfLap.Frame frame = RtfLap.getFrame();
         try (RtfLap.Frame.Scope _ = frame.bind(fold)) {
             original.call(cell, frame.shiftX(x, z), frame.shiftZ(z), rivermap);
         }
@@ -64,13 +64,13 @@ public abstract class HeightmapMixin {
 
     @WrapMethod(method = "applyClimate")
     private void exotic_worlds$bindClimate(Cell cell, float x, float z, Operation<Void> original) {
-        WorldFold fold = LapCarrier.foldOf(this.levels);
+        WorldFold fold = LapCarrier.getFold(this.levels);
         if (fold == null) {
             original.call(cell, x, z);
             return;
         }
 
-        RtfLap.Frame frame = RtfLap.frame();
+        RtfLap.Frame frame = RtfLap.getFrame();
         try (RtfLap.Frame.Scope _ = frame.bind(fold)) {
             original.call(cell, frame.shiftX(x, z), frame.shiftZ(z));
         }
@@ -78,13 +78,13 @@ public abstract class HeightmapMixin {
 
     @WrapMethod(method = "applyPost")
     private void exotic_worlds$bindPost(Cell cell, float x, float z, Operation<Void> original) {
-        WorldFold fold = LapCarrier.foldOf(this.levels);
+        WorldFold fold = LapCarrier.getFold(this.levels);
         if (fold == null) {
             original.call(cell, x, z);
             return;
         }
 
-        RtfLap.Frame frame = RtfLap.frame();
+        RtfLap.Frame frame = RtfLap.getFrame();
         try (RtfLap.Frame.Scope _ = frame.bind(fold)) {
             original.call(cell, frame.shiftX(x, z), frame.shiftZ(z));
         }
@@ -92,12 +92,12 @@ public abstract class HeightmapMixin {
 
     @WrapMethod(method = "sampleGround")
     private Cell exotic_worlds$bindGround(float x, float z, Operation<Cell> original) {
-        WorldFold fold = LapCarrier.foldOf(this.levels);
+        WorldFold fold = LapCarrier.getFold(this.levels);
         if (fold == null) {
             return original.call(x, z);
         }
 
-        RtfLap.Frame frame = RtfLap.frame();
+        RtfLap.Frame frame = RtfLap.getFrame();
         try (RtfLap.Frame.Scope _ = frame.bind(fold)) {
             return original.call(frame.shiftX(x, z), frame.shiftZ(z));
         }
@@ -105,12 +105,12 @@ public abstract class HeightmapMixin {
 
     @WrapMethod(method = "sampleTerrain")
     private Cell exotic_worlds$bindSampledTerrain(float x, float z, Operation<Cell> original) {
-        WorldFold fold = LapCarrier.foldOf(this.levels);
+        WorldFold fold = LapCarrier.getFold(this.levels);
         if (fold == null) {
             return original.call(x, z);
         }
 
-        RtfLap.Frame frame = RtfLap.frame();
+        RtfLap.Frame frame = RtfLap.getFrame();
         try (RtfLap.Frame.Scope _ = frame.bind(fold)) {
             return original.call(frame.shiftX(x, z), frame.shiftZ(z));
         }
@@ -121,8 +121,8 @@ public abstract class HeightmapMixin {
                     + "(Lcom/pandaismyname1/ultraterraforged/world/worldgen/cell/Cell;FF)V"))
     private void exotic_worlds$compressClimate(Climate climate, Cell cell, float x, float z,
             Operation<Void> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
-        double factor = LapCarrier.climateCompressionOf(this.levels);
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
+        double factor = LapCarrier.getClimateCompression(this.levels);
         if (frame == null || factor == ClimateScaleCompression.NO_COMPRESSION) {
             original.call(climate, cell, x, z);
             return;
@@ -139,7 +139,7 @@ public abstract class HeightmapMixin {
             ordinal = TERRAIN_POPULATOR_ORDINAL))
     private void exotic_worlds$scaleTerrainLap(CellPopulator populator, Cell cell, float x, float z,
             Operation<Void> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             original.call(populator, cell, x, z);
             return;

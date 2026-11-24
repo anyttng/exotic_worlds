@@ -15,11 +15,11 @@ import net.minecraft.world.level.storage.LevelStorageSource;
 @Mixin(MinecraftServer.class)
 public interface MinecraftServerAccessor {
     @Accessor("executor")
-    Executor exotic_worlds$executor();
+    Executor exotic_worlds$getExecutor();
 
     @Accessor("storageSource")
-    LevelStorageSource.LevelStorageAccess exotic_worlds$storageSource();
+    LevelStorageSource.LevelStorageAccess exotic_worlds$getStorageSource();
 
     @Accessor("levels")
-    Map<ResourceKey<Level>, ServerLevel> exotic_worlds$levels();
+    Map<ResourceKey<Level>, ServerLevel> exotic_worlds$getLevels();
 }

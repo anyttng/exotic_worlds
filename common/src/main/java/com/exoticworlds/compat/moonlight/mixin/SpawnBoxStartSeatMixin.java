@@ -6,9 +6,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.accessors.FramedStructureStart;
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.mixin.StructureManagerAccessor;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -34,7 +34,7 @@ public interface SpawnBoxStartSeatMixin {
             LongSet references, Consumer<StructureStart> consumer, Operation<Void> original,
             @Local(argsOnly = true) BlockPos pos) {
         LevelAccessor level = ((StructureManagerAccessor) manager).exotic_worlds$level();
-        WorldFold fold = WorldLoopAttachments.foldOfReader(level);
+        WorldFold fold = WorldLoopAttachments.getFoldOfReader(level);
         if (!fold.isWrapped() || !(level instanceof WorldGenLevel genLevel)) {
             original.call(manager, structure, references, consumer);
             return;

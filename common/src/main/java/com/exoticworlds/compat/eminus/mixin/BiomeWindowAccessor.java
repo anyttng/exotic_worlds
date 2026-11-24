@@ -10,5 +10,5 @@ import net.minecraft.world.level.biome.BiomeManager;
 @Mixin(BiomeWindow.class)
 public interface BiomeWindowAccessor {
     @Accessor("manager")
-    BiomeManager exotic_worlds$manager();
+    BiomeManager exotic_worlds$getManager();
 }

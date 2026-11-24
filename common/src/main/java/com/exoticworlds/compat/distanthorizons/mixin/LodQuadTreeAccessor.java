@@ -9,5 +9,5 @@ import com.seibel.distanthorizons.core.render.QuadTree.LodQuadTree;
 @Mixin(LodQuadTree.class)
 public interface LodQuadTreeAccessor {
     @Accessor("level")
-    IDhClientLevel exotic_worlds$level();
+    IDhClientLevel exotic_worlds$getLevel();
 }

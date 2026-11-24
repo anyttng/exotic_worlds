@@ -24,7 +24,7 @@ public class PlacedFeatureMixin {
     @WrapMethod(method = "placeWithContext")
     private boolean exotic_worlds$recordPlacedFeature(PlacementContext context, RandomSource random, BlockPos origin,
             Operation<Boolean> original) {
-        FeatureRecording recording = FeatureRecording.current();
+        FeatureRecording recording = FeatureRecording.getCurrent();
         if (recording == null) {
             return original.call(context, random, origin);
         }
@@ -45,7 +45,7 @@ public class PlacedFeatureMixin {
     private static Stream<BlockPos> exotic_worlds$recordModifier(PlacementModifier modifier, PlacementContext context,
             RandomSource random, BlockPos origin, Operation<Stream<BlockPos>> original) {
         Stream<BlockPos> outputs = original.call(modifier, context, random, origin);
-        FeatureRecording recording = FeatureRecording.current();
+        FeatureRecording recording = FeatureRecording.getCurrent();
         return recording != null ? recording.modifying(modifier, origin, outputs) : outputs;
     }
 
@@ -56,7 +56,7 @@ public class PlacedFeatureMixin {
                     target = "Lnet/minecraft/world/level/levelgen/feature/ConfiguredFeature;place(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;)Z"))
     private static boolean exotic_worlds$recordFeature(ConfiguredFeature<?, ?> feature, WorldGenLevel level,
             ChunkGenerator generator, RandomSource random, BlockPos pos, Operation<Boolean> original) {
-        FeatureRecording recording = FeatureRecording.current();
+        FeatureRecording recording = FeatureRecording.getCurrent();
         if (recording == null) {
             return original.call(feature, level, generator, random, pos);
         }

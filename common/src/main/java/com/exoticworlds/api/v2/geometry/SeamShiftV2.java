@@ -15,7 +15,7 @@ import net.minecraft.world.phys.Vec3;
  * instead, and the group arrives whole.</p>
  *
  * <p>A shift is not a vector. It may also turn the space it moves, which is why subtracting the anchor's nearest copy
- * from the original and adding that difference to the rest is wrong there; {@link #orientation()} is what that turn
+ * from the original and adding that difference to the rest is wrong there; {@link #getOrientation()} is what that turn
  * does to any direction, velocity or offset carried along.</p>
  *
  * <p>Every {@code apply} hands back the argument instance itself where the shift moved nothing, and an
@@ -27,7 +27,7 @@ public interface SeamShiftV2 {
     boolean isIdentity();
 
     /** What this shift does to the space it moves; apply it to any direction or velocity carried with the group. */
-    OrientationV2 orientation();
+    OrientationV2 getOrientation();
 
     /** {@code pos} moved by this shift. */
     Vec3 apply(Vec3 pos);

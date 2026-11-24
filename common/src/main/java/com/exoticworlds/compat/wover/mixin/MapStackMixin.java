@@ -21,7 +21,7 @@ import com.mojang.logging.LogUtils;
 import com.exoticworlds.compat.wover.LapMap;
 import com.exoticworlds.compat.wover.LapMapStack;
 import com.exoticworlds.compat.wover.StackLayers;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 @Mixin(MapStack.class)
@@ -72,7 +72,7 @@ public class MapStackMixin {
     @Inject(method = "getBiome", at = @At("HEAD"), cancellable = true)
     private void exotic_worlds$lapLayer(double x, double y, double z,
             CallbackInfoReturnable<WoverBiomePicker.PickableBiome> cir) {
-        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
         if (fold != null) {
             cir.setReturnValue(this.maps[exotic_worlds$lapStack(fold).layer(x, y, z)].getBiome(x, y, z));
         }
@@ -81,13 +81,13 @@ public class MapStackMixin {
     @Unique
     private LapMapStack<WoverBiomePicker.PickableBiome> exotic_worlds$lapStack(WorldFold fold) {
         LapMapStack<WoverBiomePicker.PickableBiome> stack = this.exotic_worlds$lapStack;
-        if (stack != null && stack.covers(fold)) {
+        if (stack != null && stack.isCovering(fold)) {
             return stack;
         }
 
         synchronized (this) {
             stack = this.exotic_worlds$lapStack;
-            if (stack == null || !stack.covers(fold)) {
+            if (stack == null || !stack.isCovering(fold)) {
                 stack = new LapMapStack<>(fold, exotic_worlds$layers(fold), biome -> biome.isVertical,
                         new LapMapStack.Layering(this.minValue, this.maxValue, this.maxIndex, this.worldHeight,
                                 this.layerDistortion),

@@ -10,7 +10,7 @@ import net.minecraft.world.level.levelgen.structure.StructureCheck;
 @Mixin(StructureManager.class)
 public interface StructureManagerAccessor {
     @Accessor("structureCheck")
-    StructureCheck exotic_worlds$structureCheck();
+    StructureCheck exotic_worlds$getStructureCheck();
 
     @Accessor("level")
     LevelAccessor exotic_worlds$level();

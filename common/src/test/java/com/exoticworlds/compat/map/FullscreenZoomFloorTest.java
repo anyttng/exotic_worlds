@@ -4,12 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 class FullscreenZoomFloorTest {
     @Test
@@ -160,6 +160,6 @@ class FullscreenZoomFloorTest {
     }
 
     private static AxisBounds looped(int widthBlocks) {
-        return new AxisBounds.Looped(0, widthBlocks / CoordinateConstants.CHUNK_WIDTH);
+        return new AxisBounds.Looped(0, widthBlocks / CoordinateConstants.CHUNK_WIDTH_BLOCKS);
     }
 }

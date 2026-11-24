@@ -6,11 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.shape.LoopSpans;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.Direction;
 

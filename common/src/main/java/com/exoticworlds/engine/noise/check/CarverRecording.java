@@ -21,11 +21,11 @@ public final class CarverRecording {
     }
 
     public static long @Nullable [] before(CarvingMask mask) {
-        return SCOPE.current() != null ? mask.toArray() : null;
+        return SCOPE.getCurrent() != null ? mask.toArray() : null;
     }
 
     public static void after(ConfiguredWorldCarver<?> carver, CarvingMask mask, long @Nullable [] before) {
-        CarverRecording recording = SCOPE.current();
+        CarverRecording recording = SCOPE.getCurrent();
         if (recording == null || before == null) {
             return;
         }
@@ -35,7 +35,7 @@ public final class CarverRecording {
         recording.carved.computeIfAbsent(carver, _ -> new BitSet()).or(added);
     }
 
-    IdentityHashMap<ConfiguredWorldCarver<?>, BitSet> carved() {
+    IdentityHashMap<ConfiguredWorldCarver<?>, BitSet> getCarved() {
         return this.carved;
     }
 }

@@ -15,7 +15,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 public class ColumnCoverageHoldsMixin {
     @WrapOperation(method = "holds", at = @At(value = "INVOKE", target = EminusInjectionTargets.COVERAGE_PACK))
     private long exotic_worlds$packFoldedHeldChunk(int chunkX, int chunkZ, Operation<Long> original) {
-        CellFold fold = CellFoldHolder.foldOf((Object) this);
+        CellFold fold = CellFoldHolder.getFold((Object) this);
         return original.call(fold.foldChunkX(chunkX, chunkZ), fold.foldChunkZ(chunkZ));
     }
 }

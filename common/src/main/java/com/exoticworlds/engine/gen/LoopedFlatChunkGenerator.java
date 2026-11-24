@@ -1,8 +1,8 @@
 package com.exoticworlds.engine.gen;
 
-import com.exoticworlds.core.CarriedShape;
+import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.FoldGenerators;
-import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -14,7 +14,7 @@ public final class LoopedFlatChunkGenerator extends FlatLevelSource implements S
     public static final MapCodec<LoopedFlatChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(
                     FlatLevelGeneratorSettings.CODEC.fieldOf(SETTINGS_KEY).forGetter(LoopedFlatChunkGenerator::settings),
-                    CARRIED_CODEC.forGetter(LoopedFlatChunkGenerator::carriedShape)
+                    CARRIED_CODEC.forGetter(LoopedFlatChunkGenerator::getCarriedShape)
             ).apply(instance, instance.stable(LoopedFlatChunkGenerator::new)));
 
     private final CarriedShape carriedShape;
@@ -26,12 +26,12 @@ public final class LoopedFlatChunkGenerator extends FlatLevelSource implements S
     }
 
     @Override
-    public CarriedShape carriedShape() {
+    public CarriedShape getCarriedShape() {
         return this.carriedShape;
     }
 
     @Override
-    public ChunkGenerator unshaped() {
+    public ChunkGenerator getUnshaped() {
         return new FlatLevelSource(settings());
     }
 

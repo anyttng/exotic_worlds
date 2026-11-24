@@ -25,8 +25,8 @@ public class MoveToBlockGoalMixin {
             method = "tick",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.BLOCK_POS_CLOSER_TO_CENTER_THAN))
-    private boolean exotic_worlds$arrivalThroughSeam(BlockPos moveToTarget, Position bodyPosition, double distance,
+    private boolean exotic_worlds$arrivalThroughSeam(BlockPos moveToTarget, Position bodyPosition, double distanceBlocks,
             Operation<Boolean> original) {
-        return original.call(moveToTarget, SeamRange.towardCenterOf(this.mob, moveToTarget, bodyPosition), distance);
+        return original.call(moveToTarget, SeamRange.towardCenterOf(this.mob, moveToTarget, bodyPosition), distanceBlocks);
     }
 }

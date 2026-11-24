@@ -4,7 +4,7 @@ import org.betterx.betterend.noise.OpenSimplexNoise;
 
 import com.exoticworlds.compat.worldgen.LapNoise;
 import com.exoticworlds.compat.worldgen.StandInHolder;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 public final class BetterEndSurfaceNoise {
     public static final double UMBRA_BROAD_SCALE = 0.03;
@@ -22,7 +22,7 @@ public final class BetterEndSurfaceNoise {
     }
 
     private static double lap(OpenSimplexNoise noise, WorldFold fold, double x, double z, double scale) {
-        return LapNoise.eval(((StandInHolder) (Object) noise).exotic_worlds$standIn(), fold, x, z, scale, scale);
+        return LapNoise.eval(((StandInHolder) (Object) noise).exotic_worlds$getStandIn(), fold, x, z, scale, scale);
     }
 
     private BetterEndSurfaceNoise() {

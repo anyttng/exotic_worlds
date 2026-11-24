@@ -6,7 +6,7 @@ import java.util.function.DoubleSupplier;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.ClimateCompressionCache;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 import com.exoticworlds.shape.noise.DensityNoises;
 
@@ -39,20 +39,20 @@ public final class ClimateCompression {
         return xzScale * factor(fold, noise, xzScale, verticalShare);
     }
 
-    public static double factor(WorldFold fold, boolean climateField, DoubleList amplitudes,
+    public static double factor(WorldFold fold, boolean isClimateField, DoubleList amplitudes,
             double lowestFreqInputFactor, double baseScale, double verticalShare) {
-        return factor(fold, climateField, verticalShare,
+        return factor(fold, isClimateField, verticalShare,
                 () -> ClimateScaleCompression.fitted(fold, amplitudes, lowestFreqInputFactor, baseScale));
     }
 
-    public static double factor(WorldFold fold, boolean climateField, double verticalShare, DoubleSupplier fitted) {
-        ClimateScale scale = fold.options().get(CompactBiomes.OPTION);
+    public static double factor(WorldFold fold, boolean isClimateField, double verticalShare, DoubleSupplier fitted) {
+        ClimateScale scale = fold.getOptions().get(CompactBiomes.OPTION);
         if (scale.mode() == ClimateScale.Mode.OFF
-                || !ClimateScaleCompression.compressible(fold, verticalShare)) {
+                || !ClimateScaleCompression.isCompressible(fold, verticalShare)) {
             return ClimateScaleCompression.NO_COMPRESSION;
         }
 
-        if (scale.isFixed() && !climateField) {
+        if (scale.isFixed() && !isClimateField) {
             return ClimateScaleCompression.NO_COMPRESSION;
         }
 

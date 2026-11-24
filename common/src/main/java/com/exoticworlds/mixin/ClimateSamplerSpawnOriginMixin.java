@@ -3,7 +3,7 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.SpawnPoint;
+import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.engine.gen.SpawnSearch;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
@@ -15,7 +15,7 @@ public class ClimateSamplerSpawnOriginMixin {
     @ModifyExpressionValue(method = "findSpawnPosition",
             at = @At(value = "FIELD", target = "Lnet/minecraft/core/BlockPos;ZERO:Lnet/minecraft/core/BlockPos;"))
     private BlockPos exotic_worlds$originAtTheSpawnPoint(BlockPos origin) {
-        SpawnPoint point = SpawnSearch.bound();
-        return point.isCustom() ? new BlockPos(point.blockX(), origin.getY(), point.blockZ()) : origin;
+        SpawnPoint point = SpawnSearch.getBound();
+        return point.isCustom() ? new BlockPos(point.getBlockX(), origin.getY(), point.getBlockZ()) : origin;
     }
 }

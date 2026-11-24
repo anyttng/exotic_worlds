@@ -21,7 +21,7 @@ import net.minecraft.world.phys.Vec3;
 public interface SeamContextV2 {
 
     /** The geometry of the level this connection is in: every fold not tied to the client's frame. */
-    WorldGeometryV2 geometry();
+    WorldGeometryV2 getGeometry();
 
     /** The copy of {@code pos} this client holds, placed in the copy of its own chunk. */
     BlockPos toClient(BlockPos pos);

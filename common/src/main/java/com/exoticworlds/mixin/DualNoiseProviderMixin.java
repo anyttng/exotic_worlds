@@ -26,8 +26,8 @@ public class DualNoiseProviderMixin {
 
     @WrapMethod(method = "getSlowNoiseValue(Lnet/minecraft/core/BlockPos;)D")
     private double exotic_worlds$rawCoordinateNoise(BlockPos pos, Operation<Double> original) {
-        Context generation = GenerationFoldContext.context();
-        if (!generation.fold().isWrapped()) {
+        Context generation = GenerationFoldContext.getContext();
+        if (!generation.getFold().isWrapped()) {
             return original.call(pos);
         }
 

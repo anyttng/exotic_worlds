@@ -69,7 +69,7 @@ final class SeamMessages {
             return List.of(Component.translatable(UNCHECKED_KEY, dimension), causeLine(unchecked));
         }
 
-        if (!verdict.broken()) {
+        if (!verdict.isBroken()) {
             return List.of(Component.translatable(HOLDS_KEY, dimension).withStyle(ChatFormatting.GREEN));
         }
 
@@ -107,7 +107,7 @@ final class SeamMessages {
 
     private static Component causeOf(SeamCause cause) {
         return switch (cause) {
-            case SeamCause.Node node when node.vanilla() -> node.candidates().isEmpty()
+            case SeamCause.Node node when node.isVanilla() -> node.candidates().isEmpty()
                     ? Component.translatable(CAUSE_VANILLA_NONE_KEY, node.type())
                     : Component.translatable(CAUSE_VANILLA_KEY, node.type(),
                             ComponentUtils.formatList(namesOf(node.candidates())));
@@ -126,7 +126,7 @@ final class SeamMessages {
 
     private static Stream<String> modsOf(SeamCause cause) {
         return switch (cause) {
-            case SeamCause.Node node when node.vanilla() -> namesOf(node.candidates()).stream();
+            case SeamCause.Node node when node.isVanilla() -> namesOf(node.candidates()).stream();
             case SeamCause.Node node -> Stream.of(ownerOf(node.namespace(), node.type()));
             case SeamCause.Biomes biomes -> Stream.of(ownerOf(biomes.namespace(), biomes.type()));
             case SeamCause.Generator generator -> Stream.of(ownerOf(generator.namespace(), generator.type()));

@@ -66,7 +66,7 @@ public abstract class RegionMapPanelMixin extends Panel {
     @Inject(method = "draw", at = @At("HEAD"))
     private void exotic_worlds$stopScrollAtTheEdge(GuiGraphicsExtractor graphics, Theme theme, int x, int y, int w, int h,
             CallbackInfo ci) {
-        if (MapCopies.current() != MapCopies.SINGLE) {
+        if (MapCopies.getCurrent() != MapCopies.SINGLE) {
             return;
         }
 
@@ -99,7 +99,7 @@ public abstract class RegionMapPanelMixin extends Panel {
         double pixelsPerBlock = tilePixels / (double) FtbChunksFold.REGION_BLOCKS;
         int originX = panel.getX() - this.regionMinX * tilePixels;
         int originY = panel.getY() - this.regionMinZ * tilePixels;
-        MapCopies mapCopies = MapCopies.current();
+        MapCopies mapCopies = MapCopies.getCurrent();
         List<WorldCopies.Copy> copies = FtbChunksFold.drawnCopies(dimension,
                 Mth.floor((x - originX) / pixelsPerBlock), Mth.floor((y - originY) / pixelsPerBlock),
                 Mth.ceil((x + w - originX) / pixelsPerBlock), Mth.ceil((y + h - originY) / pixelsPerBlock), mapCopies);
@@ -125,7 +125,7 @@ public abstract class RegionMapPanelMixin extends Panel {
 
         panel.setOffset(false);
 
-        exotic_worlds$seamView = !mapCopies.drawsSeamLines()
+        exotic_worlds$seamView = !mapCopies.isDrawingSeamLines()
                 ? null
                 : new SeamView(originX, originY, tilePixels, x, y, w, h);
         original.call(panel, graphics, theme, x, y, w, h);

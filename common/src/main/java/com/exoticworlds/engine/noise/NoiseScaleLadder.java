@@ -11,7 +11,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import com.exoticworlds.accessors.NoiseScaleRungs;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.periodic.LapFloor;
 
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -122,20 +122,20 @@ public final class NoiseScaleLadder {
         return false;
     }
 
-    private static Map<Double, Double> rungs(int lap, SortedSet<Double> ascending, double lowestFrequency) {
+    private static Map<Double, Double> rungs(int lapBlocks, SortedSet<Double> ascending, double lowestFrequency) {
         Map<Double, Double> rungs = new HashMap<>();
         long previous = 0L;
         for (double scale : ascending) {
-            long cells = Math.max(cells(lap, scale, lowestFrequency), previous + 1L);
-            rungs.put(scale, cells / (lap * lowestFrequency));
+            long cells = Math.max(cells(lapBlocks, scale, lowestFrequency), previous + 1L);
+            rungs.put(scale, cells / (lapBlocks * lowestFrequency));
             previous = cells;
         }
 
         return Map.copyOf(rungs);
     }
 
-    private static long cells(int lap, double scale, double frequency) {
-        return Math.max(FLOOR_CELLS, Math.round(lap * scale * frequency));
+    private static long cells(int lapBlocks, double scale, double frequency) {
+        return Math.max(FLOOR_CELLS, Math.round(lapBlocks * scale * frequency));
     }
 
     private static double lowestFrequency(double[] frequencies) {

@@ -10,7 +10,7 @@ import com.ascendiacore.client.createworld.WorldTabRows;
 import com.exoticworlds.client.shape.OptionLines;
 import com.exoticworlds.client.shape.climate.CompactBiomesLine;
 import com.exoticworlds.client.shape.WorldShapeRow;
-import com.exoticworlds.core.DimensionTable;
+import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.shape.WorldShapes;
 import com.exoticworlds.shape.climate.CompactBiomes;
 import com.exoticworlds.shape.layout.LayoutShape;
@@ -34,13 +34,13 @@ public final class LayoutShapeSetup {
         CompactBiomesLine factor = new CompactBiomesLine();
         OptionLines.register(CompactBiomes.OPTION,
                 (scale, spans) -> Minecraft.getInstance().screen instanceof WorldShapeSettingsScreen open
-                        ? factor.line(open, open.creationScreen(), scale, spans)
+                        ? factor.line(open, open.getCreationScreen(), scale, spans)
                         : Component.empty());
     }
 
     private static Screen createScreen(Screen parent) {
         if (!(parent instanceof CreateWorldScreen create)) {
-            return WorldShapeSettingsScreen.forNewWorld(parent, LayoutShape.layout(), List.of(),
+            return WorldShapeSettingsScreen.forNewWorld(parent, LayoutShape.getLayout(), List.of(),
                     new CoordinateScales(Map.of()), LayoutShapeSetup::choose);
         }
 
@@ -48,10 +48,10 @@ public final class LayoutShapeSetup {
         CoordinateScales scales = scalesOf(settings);
         if (recognizedFor.get() != create) {
             recognizedFor = new WeakReference<>(create);
-            LayoutShape.choose(ShapeRecognition.recognize(LayoutShape.layout(), scales::of));
+            LayoutShape.choose(ShapeRecognition.recognize(LayoutShape.getLayout(), scales::of));
         }
 
-        return WorldShapeSettingsScreen.forNewWorld(parent, LayoutShape.layout(),
+        return WorldShapeSettingsScreen.forNewWorld(parent, LayoutShape.getLayout(),
                 modDimensions(settings.datapackDimensions()), scales, LayoutShapeSetup::choose);
     }
 
@@ -65,13 +65,13 @@ public final class LayoutShapeSetup {
     private static CoordinateScales scalesOf(WorldCreationContext settings) {
         Map<ResourceKey<LevelStem>, Double> scales = new HashMap<>();
         settings.datapackDimensions().entrySet()
-                .forEach(stem -> scales.put(stem.getKey(), coordinateScale(stem.getValue())));
+                .forEach(stem -> scales.put(stem.getKey(), getCoordinateScale(stem.getValue())));
         settings.selectedDimensions().dimensions()
-                .forEach((key, stem) -> scales.put(key, coordinateScale(stem)));
+                .forEach((key, stem) -> scales.put(key, getCoordinateScale(stem)));
         return new CoordinateScales(scales);
     }
 
-    private static double coordinateScale(LevelStem stem) {
+    private static double getCoordinateScale(LevelStem stem) {
         return stem.type().value().coordinateScale();
     }
 

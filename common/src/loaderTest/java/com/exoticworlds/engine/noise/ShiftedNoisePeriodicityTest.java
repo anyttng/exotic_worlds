@@ -1,6 +1,6 @@
 package com.exoticworlds.engine.noise;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.CLIMATE_XZ_SCALE;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.NOISE_DATA;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.SEED;
@@ -17,7 +17,7 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.TranslationLattice;
+import com.exoticworlds.core.fold.TranslationLattice;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -85,13 +85,13 @@ class ShiftedNoisePeriodicityTest {
     private static void assertVanillaAtFoldedBlock(DensityFunction function) {
         Random random = new Random(SEED);
         for (WorldFold fold : WORLDS) {
-            TranslationLattice lattice = fold.blockLattice();
-            int xWidth = fold.blockDomain(Direction.Axis.X).domainLength;
-            int zWidth = fold.blockDomain(Direction.Axis.Z).domainLength;
+            TranslationLattice lattice = fold.getBlockLattice();
+            int xWidth = fold.getBlockDomain(Direction.Axis.X).domainLength;
+            int zWidth = fold.getBlockDomain(Direction.Axis.Z).domainLength;
             for (int i = 0; i < SAMPLES; i++) {
-                int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
+                int x = blockIn(random, fold.getBlockDomain(Direction.Axis.X));
                 int y = blockY(random);
-                int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
+                int z = blockIn(random, fold.getBlockDomain(Direction.Axis.Z));
                 for (int[] block : new int[][] {{x, z}, {x + xWidth, z}, {x, z + zWidth}}) {
                     double expected = function.compute(new DensityFunction.SinglePointContext(
                             lattice.foldX(block[0], block[1]), y, lattice.foldZ(block[1])));
@@ -107,13 +107,13 @@ class ShiftedNoisePeriodicityTest {
     void warpedNoiseAgreesOneWorldWidthApartInX() {
         Random random = new Random(SEED);
         for (WorldFold fold : WORLDS) {
-            int width = fold.blockDomain(Direction.Axis.X).domainLength;
+            int widthBlocks = fold.getBlockDomain(Direction.Axis.X).domainLength;
             for (int i = 0; i < SAMPLES; i++) {
-                int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
+                int x = blockIn(random, fold.getBlockDomain(Direction.Axis.X));
                 int y = blockY(random);
-                int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
-                assertEquals(sample(WARPED, fold, x, y, z), sample(WARPED, fold, x + width, y, z),
-                        at(fold, "x", x, x + width, y, z));
+                int z = blockIn(random, fold.getBlockDomain(Direction.Axis.Z));
+                assertEquals(sample(WARPED, fold, x, y, z), sample(WARPED, fold, x + widthBlocks, y, z),
+                        at(fold, "x", x, x + widthBlocks, y, z));
             }
         }
     }
@@ -122,13 +122,13 @@ class ShiftedNoisePeriodicityTest {
     void warpedNoiseAgreesOneWorldWidthApartInZ() {
         Random random = new Random(SEED);
         for (WorldFold fold : WORLDS) {
-            int width = fold.blockDomain(Direction.Axis.Z).domainLength;
+            int widthBlocks = fold.getBlockDomain(Direction.Axis.Z).domainLength;
             for (int i = 0; i < SAMPLES; i++) {
-                int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
+                int x = blockIn(random, fold.getBlockDomain(Direction.Axis.X));
                 int y = blockY(random);
-                int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
-                assertEquals(sample(WARPED, fold, x, y, z), sample(WARPED, fold, x, y, z + width),
-                        at(fold, "z", z, z + width, x, y));
+                int z = blockIn(random, fold.getBlockDomain(Direction.Axis.Z));
+                assertEquals(sample(WARPED, fold, x, y, z), sample(WARPED, fold, x, y, z + widthBlocks),
+                        at(fold, "z", z, z + widthBlocks, x, y));
             }
         }
     }
@@ -138,9 +138,9 @@ class ShiftedNoisePeriodicityTest {
         Random random = new Random(SEED);
         int moved = 0;
         for (int i = 0; i < SAMPLES; i++) {
-            int x = blockIn(random, SQUARE.blockDomain(Direction.Axis.X));
+            int x = blockIn(random, SQUARE.getBlockDomain(Direction.Axis.X));
             int y = blockY(random);
-            int z = blockIn(random, SQUARE.blockDomain(Direction.Axis.Z));
+            int z = blockIn(random, SQUARE.getBlockDomain(Direction.Axis.Z));
             if (sample(WARPED, SQUARE, x, y, z) != sample(UNWARPED, SQUARE, x, y, z)) {
                 moved++;
             }

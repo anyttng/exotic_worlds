@@ -20,12 +20,12 @@ public class BeaconBeamRepoMixin {
     @WrapMethod(method = "setPreparedStatementWhereClause(Ljava/sql/PreparedStatement;ILcom/seibel/distanthorizons/core/pos/blockPos/DhBlockPos;)I")
     private int exotic_worlds$foldWhereKey(PreparedStatement statement, int index, DhBlockPos pos,
             Operation<Integer> original) {
-        return original.call(statement, index, DhKeys.foldBlock(DhRepoLevel.latticeOf(this), pos));
+        return original.call(statement, index, DhKeys.foldBlock(DhRepoLevel.getLattice(this), pos));
     }
 
     @WrapMethod(method = "createUpsertStatement(Lcom/seibel/distanthorizons/core/sql/dto/BeaconBeamDTO;)Ljava/sql/PreparedStatement;")
     private PreparedStatement exotic_worlds$foldUpsert(BeaconBeamDTO dto, Operation<PreparedStatement> original) {
-        Object raw = DhKeys.seatFolded(DhRepoLevel.latticeOf(this), dto);
+        Object raw = DhKeys.seatFolded(DhRepoLevel.getLattice(this), dto);
         try {
             return original.call(dto);
         } finally {
@@ -36,7 +36,7 @@ public class BeaconBeamRepoMixin {
     @WrapMethod(method = "getAllBeamsInBlockPosRange")
     private ArrayList<BeaconBeamDTO> exotic_worlds$foldRange(int minBlockX, int maxBlockX, int minBlockZ, int maxBlockZ,
             Operation<ArrayList<BeaconBeamDTO>> original) {
-        DhLattice lattice = DhRepoLevel.latticeOf(this);
+        DhLattice lattice = DhRepoLevel.getLattice(this);
         if (lattice == null) {
             return original.call(minBlockX, maxBlockX, minBlockZ, maxBlockZ);
         }

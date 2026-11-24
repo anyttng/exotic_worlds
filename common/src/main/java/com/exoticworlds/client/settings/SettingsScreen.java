@@ -47,15 +47,15 @@ public class SettingsScreen extends OptionsSubScreen {
                 chosen -> Tooltip.create(mapCopiesHint(chosen)),
                 (caption, value) -> label(value),
                 new OptionInstance.Enum<>(List.of(MapCopies.values()), MAP_COPIES_CODEC),
-                SettingsService.get().settings().mapCopies(),
+                SettingsService.get().getSettings().mapCopies(),
                 value -> {
-                    SettingsService.get().update(SettingsService.get().settings().withMapCopies(value));
+                    SettingsService.get().update(SettingsService.get().getSettings().withMapCopies(value));
                     this.offerSeamLinesFor(value);
                 });
         this.seamLines = OptionInstance.createBoolean(SEAM_LINES_KEY,
                 OptionInstance.cachedConstantTooltip(seamLinesHint()),
-                SettingsService.get().settings().seamLines(),
-                value -> SettingsService.get().update(SettingsService.get().settings().withSeamLines(value)));
+                SettingsService.get().getSettings().seamLines(),
+                value -> SettingsService.get().update(SettingsService.get().getSettings().withSeamLines(value)));
     }
 
     @Override
@@ -74,7 +74,7 @@ public class SettingsScreen extends OptionsSubScreen {
     private void offerSeamLinesFor(MapCopies copies) {
         AbstractWidget button = this.list == null ? null : this.list.findOption(this.seamLines);
         if (button != null) {
-            button.active = copies.allowsSeamLines();
+            button.active = copies.canDrawSeamLines();
         }
     }
 

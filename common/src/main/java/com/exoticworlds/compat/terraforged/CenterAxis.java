@@ -11,7 +11,7 @@ public final class CenterAxis implements AutoCloseable {
     private float xQuotient;
     private float zQuotient;
 
-    public static CenterAxis current() {
+    public static CenterAxis getCurrent() {
         return CURRENT.get();
     }
 
@@ -34,11 +34,11 @@ public final class CenterAxis implements AutoCloseable {
         return quotient;
     }
 
-    public float xQuotient() {
+    public float getXQuotient() {
         return this.xQuotient;
     }
 
-    public float zQuotient() {
+    public float getZQuotient() {
         return this.zQuotient;
     }
 

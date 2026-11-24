@@ -7,7 +7,7 @@ import com.ascendiacore.client.createworld.WorldTabRow;
 import com.ascendiacore.gui.base.component.GuiComponent;
 import com.ascendiacore.gui.theme.Themes;
 import com.ascendiacore.gui.widget.button.Button;
-import com.exoticworlds.core.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.ShapedChunkGenerator;
 import com.exoticworlds.shape.WorldShapes;
 
 import net.minecraft.client.Minecraft;
@@ -35,8 +35,8 @@ public final class WorldShapeRow implements WorldTabRow {
         worldType.follow(state);
 
         Button button = Button.text(Themes.VANILLA.button(), LABEL, this::openSettings);
-        button.setEnabled(worldType::takesShape);
-        button.setTooltip(Themes.VANILLA.tooltip(), () -> worldType.tilesAtSeam() ? HINT : SEAM_WARNING);
+        button.setEnabled(worldType::canTakeShape);
+        button.setTooltip(Themes.VANILLA.tooltip(), () -> worldType.isTilingAtSeam() ? HINT : SEAM_WARNING);
         return List.of(button);
     }
 
@@ -49,27 +49,27 @@ public final class WorldShapeRow implements WorldTabRow {
     }
 
     private static final class WorldType {
-        private boolean takesShape;
-        private boolean tilesAtSeam = true;
+        private boolean canTakeShape;
+        private boolean isTilingAtSeam = true;
 
         private void follow(WorldCreationUiState state) {
             LevelStem overworld =state.getSettings().selectedDimensions().get(LevelStem.OVERWORLD).orElse(null);
-            this.takesShape = overworld != null;
+            this.canTakeShape = overworld != null;
             if (overworld == null) {
                 WorldShapes.select(WorldShapes.NORMAL);
-                this.tilesAtSeam = true;
+                this.isTilingAtSeam = true;
                 return;
             }
 
-            this.tilesAtSeam = ShapedChunkGenerator.tilesAtSeam(overworld.generator());
+            this.isTilingAtSeam = ShapedChunkGenerator.isTilingAtSeam(overworld.generator());
         }
 
-        private boolean takesShape() {
-            return this.takesShape;
+        private boolean canTakeShape() {
+            return this.canTakeShape;
         }
 
-        private boolean tilesAtSeam() {
-            return this.tilesAtSeam;
+        private boolean isTilingAtSeam() {
+            return this.isTilingAtSeam;
         }
     }
 }

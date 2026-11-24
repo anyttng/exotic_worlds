@@ -38,8 +38,8 @@ public class SurfaceSystemMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/synth/NormalNoise;getValue(DDD)D"))
     private double exotic_worlds$rawCoordinateNoise(NormalNoise noise, double x, double y, double z, Operation<Double> original) {
         double scale = exotic_worlds$scaleOf(noise);
-        Context generation = GenerationFoldContext.context();
-        if (scale == NoiseConstants.UNSCALED || !generation.fold().isWrapped()) {
+        Context generation = GenerationFoldContext.getContext();
+        if (scale == NoiseConstants.UNSCALED || !generation.getFold().isWrapped()) {
             return original.call(noise, x, y, z);
         }
 

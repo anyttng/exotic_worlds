@@ -5,7 +5,7 @@ import org.jspecify.annotations.Nullable;
 public interface LayeredArea {
     void exotic_worlds$register(RegionLayerStack stack, int depth);
 
-    @Nullable RegionLayerStack exotic_worlds$stack();
+    @Nullable RegionLayerStack exotic_worlds$getStack();
 
-    int exotic_worlds$depth();
+    int exotic_worlds$getDepth();
 }

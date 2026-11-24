@@ -22,6 +22,6 @@ public abstract class SkyLightEmptySectionStepMixin {
             expect = 2)
     private Direction exotic_worlds$turnStepDirection(Direction propagationDirection) {
         return LightStep.inTargetFrame(
-                ((LightStepFrame) (Object) this).exotic_worlds$stepOrientation(), propagationDirection);
+                ((LightStepFrame) (Object) this).exotic_worlds$getStepOrientation(), propagationDirection);
     }
 }

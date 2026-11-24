@@ -12,5 +12,5 @@ import net.minecraft.world.entity.Entity;
 @Mixin(AbstractContraptionEntity.class)
 public interface ContraptionColliderAccessor {
     @Accessor("collidingEntities")
-    Map<Entity, ?> exotic_worlds$collidingEntities();
+    Map<Entity, ?> exotic_worlds$getCollidingEntities();
 }

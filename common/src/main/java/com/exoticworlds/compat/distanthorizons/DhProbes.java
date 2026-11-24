@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 import com.exoticworlds.compat.lod.AlignedPeriod;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.seibel.distanthorizons.core.level.IDhLevel;
 import com.seibel.distanthorizons.core.pos.DhSectionPos;
 import com.seibel.distanthorizons.core.pos.blockPos.DhBlockPos;
@@ -37,7 +37,7 @@ public final class DhProbes {
             this.label = label;
         }
 
-        private boolean firstFold() {
+        private boolean tryClaimFirstFold() {
             return this.lines.get() == 0 && this.lines.getAndIncrement() == 0;
         }
     }
@@ -61,20 +61,20 @@ public final class DhProbes {
     }
 
     static String widthValue(WorldFold fold, Direction.Axis axis) {
-        return fold.loops(axis) ? String.valueOf(fold.widthBlocks(axis)) : NONE;
+        return fold.isLooped(axis) ? String.valueOf(fold.getWidthBlocks(axis)) : NONE;
     }
 
     static String periodValue(WorldFold fold, Direction.Axis axis, long periodBlocks) {
-        return fold.loops(axis) ? String.valueOf(periodBlocks) : NONE;
+        return fold.isLooped(axis) ? String.valueOf(periodBlocks) : NONE;
     }
 
     static String lapsValue(WorldFold fold, Direction.Axis axis, AlignedPeriod period) {
-        return fold.loops(axis) ? String.valueOf(period.laps(fold, axis)) : NONE;
+        return fold.isLooped(axis) ? String.valueOf(period.laps(fold, axis)) : NONE;
     }
 
-    public static void repoShape(Object repo, IDhLevel level, boolean present) {
+    public static void repoShape(Object repo, IDhLevel level, boolean isPresent) {
         LOGGER.info("[ew/dh-compat] repo_shape repo={} level={} fold={}",
-                repo.getClass().getSimpleName(), levelName(level), present ? "present" : "absent");
+                repo.getClass().getSimpleName(), levelName(level), isPresent ? "present" : "absent");
     }
 
     private static String levelName(IDhLevel level) {
@@ -82,19 +82,19 @@ public final class DhProbes {
     }
 
     static void sectionKeyFolded(long raw, long folded) {
-        if (Key.SECTION.firstFold()) {
+        if (Key.SECTION.tryClaimFirstFold()) {
             LOGGER.info(foldedKeyLine(Key.SECTION, DhSectionPos.toString(raw), DhSectionPos.toString(folded)));
         }
     }
 
     static void chunkKeyFolded(int rawX, int rawZ, int foldedX, int foldedZ) {
-        if (Key.CHUNK.firstFold()) {
+        if (Key.CHUNK.tryClaimFirstFold()) {
             LOGGER.info(foldedKeyLine(Key.CHUNK, chunkValue(rawX, rawZ), chunkValue(foldedX, foldedZ)));
         }
     }
 
     static void beaconKeyFolded(DhBlockPos raw, DhBlockPos folded) {
-        if (Key.BEACON.firstFold()) {
+        if (Key.BEACON.tryClaimFirstFold()) {
             LOGGER.info(foldedKeyLine(Key.BEACON, beaconValue(raw), beaconValue(folded)));
         }
     }
@@ -116,21 +116,21 @@ public final class DhProbes {
         return pos.getX() + "," + pos.getY() + "," + pos.getZ();
     }
 
-    static void seamSql(DhSeamSql.Site site, boolean matched) {
+    static void seamSql(DhSeamSql.Site site, boolean isMatched) {
         if (SEEN_SEAM_SQL_SITES.add(site)) {
-            LOGGER.info(seamSqlLine(site, matched));
+            LOGGER.info(seamSqlLine(site, isMatched));
         }
     }
 
-    static String seamSqlLine(DhSeamSql.Site site, boolean matched) {
-        return "[ew/dh-compat] seam_sql site=" + site.label + " matched=" + matched;
+    static String seamSqlLine(DhSeamSql.Site site, boolean isMatched) {
+        return "[ew/dh-compat] seam_sql site=" + site.label + " matched=" + isMatched;
     }
 
-    static int foldedKeyLines(Key key) {
+    static int getFoldedKeyLines(Key key) {
         return key.lines.get();
     }
 
-    static long unchangedKeys(Key key) {
+    static long getUnchangedKeys(Key key) {
         return key.kept.sum();
     }
 

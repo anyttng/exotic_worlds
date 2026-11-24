@@ -3,7 +3,7 @@ package com.exoticworlds.platform.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -20,6 +20,6 @@ public class BlockApiCacheImplMixin {
                     target = "Lnet/fabricmc/fabric/impl/lookup/block/ServerLevelCache;fabric_registerCache(Lnet/minecraft/core/BlockPos;Lnet/fabricmc/fabric/impl/lookup/block/BlockApiCacheImpl;)V"))
     private void exotic_worlds$registerUnderCanonicalKey(ServerLevelCache level, BlockPos pos,
             BlockApiCacheImpl<?, ?> cache, Operation<Void> original) {
-        original.call(level, WorldLoopAttachments.foldOf((ServerLevel) level).fold(pos), cache);
+        original.call(level, WorldLoopAttachments.getFold((ServerLevel) level).fold(pos), cache);
     }
 }

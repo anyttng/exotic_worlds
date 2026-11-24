@@ -8,7 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.map.MapFolds;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;

@@ -10,7 +10,7 @@ import com.exoticworlds.compat.map.AxisCopies;
 import com.exoticworlds.compat.map.WorldCopies;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TileArea;
 import com.exoticworlds.compat.xaero.XaeroWorldMapFold.TilePiece;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ChunkPos;
@@ -27,7 +27,7 @@ import xaero.map.region.MapTileChunk;
 public final class XaeroMinimapTiles {
     private int fetchRegionX;
     private int fetchRegionZ;
-    private boolean fetchIsLeaf;
+    private boolean isFetchLeaf;
     private int fetchLeafLayer;
     private int mirrorTileX;
     private int mirrorTileZ;
@@ -55,7 +55,7 @@ public final class XaeroMinimapTiles {
     }
 
     public void begin(int minViewX, int maxViewX, int minViewZ, int maxViewZ) {
-        WorldFold fold = XaeroWorldMapFold.browsedFold();
+        WorldFold fold = XaeroWorldMapFold.getBrowsedFold();
         this.fold = fold;
         this.copiesX = AxisCopies.of(fold, Direction.Axis.X);
         this.copiesZ = AxisCopies.of(fold, Direction.Axis.Z);
@@ -67,14 +67,14 @@ public final class XaeroMinimapTiles {
     public @Nullable MapRegion minimapRegion(int regX, int regZ, RegionFetch original) {
         this.fetchRegionX = regX;
         this.fetchRegionZ = regZ;
-        this.fetchIsLeaf = false;
+        this.isFetchLeaf = false;
         return foldedFetch(regX, regZ, original);
     }
 
     public @Nullable MapRegion leafRegion(int caveLayer, int regX, int regZ, RegionFetch original) {
         this.fetchRegionX = regX;
         this.fetchRegionZ = regZ;
-        this.fetchIsLeaf = true;
+        this.isFetchLeaf = true;
         this.fetchLeafLayer = caveLayer;
         return foldedFetch(regX, regZ, original);
     }
@@ -100,7 +100,7 @@ public final class XaeroMinimapTiles {
         this.areas = null;
         WorldCopies.Window window = this.window;
         WorldMapSession session = window == null
-                || !XaeroWorldMapFold.tileLeavesWorld(this.copiesX, this.copiesZ, mirrorTileX, mirrorTileZ)
+                || !XaeroWorldMapFold.isTileLeavingWorld(this.copiesX, this.copiesZ, mirrorTileX, mirrorTileZ)
                 ? null : WorldMapSession.getCurrentSession();
         if (window == null || session == null) {
             return region == null ? null : original.fetch(region, localX, localZ);
@@ -134,7 +134,7 @@ public final class XaeroMinimapTiles {
 
             MapTileChunk chunk = original.fetch(canonicalRegion, XaeroWorldMapFold.tileChunkInRegion(canonicalTileX),
                     XaeroWorldMapFold.tileChunkInRegion(canonicalTileZ));
-            if (chunk != null && (shown == null || (textureOf(shown) == null && textureOf(chunk) != null))) {
+            if (chunk != null && (shown == null || (getTexture(shown) == null && getTexture(chunk) != null))) {
                 shown = chunk;
                 this.foldedRegion = canonicalRegion;
             }
@@ -160,7 +160,7 @@ public final class XaeroMinimapTiles {
             MapTileChunk piece = canonicalRegion == null ? null : canonicalRegion.getChunk(
                     XaeroWorldMapFold.tileChunkInRegion(pieceX.canonicalTile()),
                     XaeroWorldMapFold.tileChunkInRegion(pieceZ.canonicalTile()));
-            GpuTextureAndView texture = piece == null ? null : textureOf(piece);
+            GpuTextureAndView texture = piece == null ? null : getTexture(piece);
             if (canonicalRegion == null || piece == null || texture == null) {
                 continue;
             }
@@ -170,7 +170,7 @@ public final class XaeroMinimapTiles {
             }
 
             XaeroPieceRect rect = XaeroPieceRect.of(tile, pieceX, pieceZ);
-            if (XaeroPieceRect.startsOnTileRow(pieceZ)) {
+            if (XaeroPieceRect.isStartingOnTileRow(pieceZ)) {
                 original.draw(rect, piece);
                 continue;
             }
@@ -185,20 +185,20 @@ public final class XaeroMinimapTiles {
     private @Nullable MapRegion canonicalRegion(MapProcessor processor, int canonicalTileX, int canonicalTileZ) {
         int regionX = XaeroWorldMapFold.regionOfTileChunk(canonicalTileX);
         int regionZ = XaeroWorldMapFold.regionOfTileChunk(canonicalTileZ);
-        return this.fetchIsLeaf
+        return this.isFetchLeaf
                 ? processor.getLeafMapRegion(this.fetchLeafLayer, regionX, regionZ, false)
                 : processor.getMinimapMapRegion(regionX, regionZ);
     }
 
-    private static @Nullable GpuTextureAndView textureOf(MapTileChunk chunk) {
+    private static @Nullable GpuTextureAndView getTexture(MapTileChunk chunk) {
         return chunk.getLeafTexture().getGlColorTexture();
     }
 
-    public int placedTileX(int raw) {
+    public int getPlacedTileX(int raw) {
         return this.fold != null ? this.mirrorTileX : raw;
     }
 
-    public int placedTileZ(int raw) {
+    public int getPlacedTileZ(int raw) {
         return this.fold != null ? this.mirrorTileZ : raw;
     }
 

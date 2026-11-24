@@ -17,18 +17,18 @@ public final class SeamNotice {
         MinecraftServer server = player.level().getServer();
         SeamNoticeRecord record = SeamNoticeRecord.of(server);
         List<SeamVerdict> unseen = PeriodicityCheck.verdictsOf(server).stream()
-                .filter(SeamVerdict::broken)
-                .filter(verdict -> !record.contains(verdict.fingerprint()))
+                .filter(SeamVerdict::isBroken)
+                .filter(verdict -> !record.isShown(verdict.getFingerprint()))
                 .toList();
         if (unseen.isEmpty()) {
             return;
         }
 
         unseen.forEach(verdict -> player.sendSystemMessage(SeamMessages.notice(verdict)));
-        record.add(unseen.stream().map(SeamVerdict::fingerprint).toList());
+        record.add(unseen.stream().map(SeamVerdict::getFingerprint).toList());
         SeamDetailsPending.of(server).mark(player.getUUID());
         ExoticWorlds.LOGGER.info("[ew/edge] notice player={} shown={}", player.getName().getString(),
-                unseen.stream().map(SeamVerdict::fingerprint).toList());
+                unseen.stream().map(SeamVerdict::getFingerprint).toList());
     }
 
     private SeamNotice() {

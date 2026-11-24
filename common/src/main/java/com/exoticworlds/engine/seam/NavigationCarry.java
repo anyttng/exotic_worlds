@@ -1,6 +1,6 @@
 package com.exoticworlds.engine.seam;
 
-import com.exoticworlds.core.SeamTransform;
+import com.exoticworlds.core.fold.SeamTransform;
 
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;

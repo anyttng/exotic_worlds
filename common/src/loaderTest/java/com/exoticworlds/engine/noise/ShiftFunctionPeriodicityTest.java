@@ -1,6 +1,6 @@
 package com.exoticworlds.engine.noise;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.NOISE_DATA;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.SEED;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.SQUARE;
@@ -17,7 +17,7 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.TranslationLattice;
+import com.exoticworlds.core.fold.TranslationLattice;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -51,13 +51,13 @@ class ShiftFunctionPeriodicityTest {
         Random random = new Random(SEED);
         for (ShiftFunction shift : UNINDEXABLE_SHIFTS) {
             for (WorldFold fold : WORLDS) {
-                TranslationLattice lattice = fold.blockLattice();
-                int xWidth = fold.blockDomain(Direction.Axis.X).domainLength;
-                int zWidth = fold.blockDomain(Direction.Axis.Z).domainLength;
+                TranslationLattice lattice = fold.getBlockLattice();
+                int xWidth = fold.getBlockDomain(Direction.Axis.X).domainLength;
+                int zWidth = fold.getBlockDomain(Direction.Axis.Z).domainLength;
                 for (int i = 0; i < SAMPLES; i++) {
-                    int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
+                    int x = blockIn(random, fold.getBlockDomain(Direction.Axis.X));
                     int y = blockY(random);
-                    int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
+                    int z = blockIn(random, fold.getBlockDomain(Direction.Axis.Z));
                     for (int[] block : new int[][] {{x, z}, {x + xWidth, z}, {x, z + zWidth}}) {
                         double expected = shift.function().compute(new DensityFunction.SinglePointContext(
                                 lattice.foldX(block[0], block[1]), y, lattice.foldZ(block[1])));
@@ -74,15 +74,15 @@ class ShiftFunctionPeriodicityTest {
     void everyShiftFunctionAgreesOneWorldWidthApartInX() {
         Random random = new Random(SEED);
         for (WorldFold fold : WORLDS) {
-            int width = fold.blockDomain(Direction.Axis.X).domainLength;
+            int widthBlocks = fold.getBlockDomain(Direction.Axis.X).domainLength;
             for (ShiftFunction shift : SHIFTS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
+                    int x = blockIn(random, fold.getBlockDomain(Direction.Axis.X));
                     int y = blockY(random);
-                    int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
+                    int z = blockIn(random, fold.getBlockDomain(Direction.Axis.Z));
                     assertEquals(sample(shift, fold, x, y, z),
-                            sample(shift, fold, x + width, y, z),
-                            at(shift, fold, "x", x, x + width, y, z));
+                            sample(shift, fold, x + widthBlocks, y, z),
+                            at(shift, fold, "x", x, x + widthBlocks, y, z));
                 }
             }
         }
@@ -92,15 +92,15 @@ class ShiftFunctionPeriodicityTest {
     void everyShiftFunctionAgreesOneWorldWidthApartInZ() {
         Random random = new Random(SEED);
         for (WorldFold fold : WORLDS) {
-            int width = fold.blockDomain(Direction.Axis.Z).domainLength;
+            int widthBlocks = fold.getBlockDomain(Direction.Axis.Z).domainLength;
             for (ShiftFunction shift : SHIFTS) {
                 for (int i = 0; i < SAMPLES; i++) {
-                    int x = blockIn(random, fold.blockDomain(Direction.Axis.X));
+                    int x = blockIn(random, fold.getBlockDomain(Direction.Axis.X));
                     int y = blockY(random);
-                    int z = blockIn(random, fold.blockDomain(Direction.Axis.Z));
+                    int z = blockIn(random, fold.getBlockDomain(Direction.Axis.Z));
                     assertEquals(sample(shift, fold, x, y, z),
-                            sample(shift, fold, x, y, z + width),
-                            at(shift, fold, "z", z, z + width, x, y));
+                            sample(shift, fold, x, y, z + widthBlocks),
+                            at(shift, fold, "z", z, z + widthBlocks, x, y));
                 }
             }
         }
@@ -114,8 +114,8 @@ class ShiftFunctionPeriodicityTest {
             double highest = -Double.MAX_VALUE;
             for (int i = 0; i < SAMPLES; i++) {
                 double value = sample(shift, SQUARE,
-                        blockIn(random, SQUARE.blockDomain(Direction.Axis.X)), blockY(random),
-                        blockIn(random, SQUARE.blockDomain(Direction.Axis.Z)));
+                        blockIn(random, SQUARE.getBlockDomain(Direction.Axis.X)), blockY(random),
+                        blockIn(random, SQUARE.getBlockDomain(Direction.Axis.Z)));
                 lowest = Math.min(lowest, value);
                 highest = Math.max(highest, value);
             }

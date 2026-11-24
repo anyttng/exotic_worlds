@@ -18,6 +18,6 @@ public class GeneratedFullDataSourceProviderMixin {
     private CompletableFuture<DataSourceRetrievalResult> exotic_worlds$retrieveTheOneSection(Long genPos,
             Operation<CompletableFuture<DataSourceRetrievalResult>> original) {
         return original.call(DhKeys.foldSection(
-                DhRepoLevel.latticeOf(((FullDataSourceProviderV2) (Object) this).repo), genPos));
+                DhRepoLevel.getLattice(((FullDataSourceProviderV2) (Object) this).repo), genPos));
     }
 }

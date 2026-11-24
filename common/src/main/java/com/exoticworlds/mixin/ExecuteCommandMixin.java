@@ -3,7 +3,7 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.SeamSpans;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -22,6 +22,6 @@ public class ExecuteCommandMixin {
                     ordinal = 0))
     private static BoundingBox exotic_worlds$foldComparedRegion(BoundingBox region,
             @Local(argsOnly = true) ServerLevel level) {
-        return SeamSpans.foldAcrossSeam(WorldLoopAttachments.foldOf(level), region);
+        return SeamSpans.foldAcrossSeam(WorldLoopAttachments.getFold(level), region);
     }
 }

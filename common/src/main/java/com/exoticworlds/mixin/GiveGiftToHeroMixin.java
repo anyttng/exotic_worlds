@@ -19,8 +19,8 @@ public class GiveGiftToHeroMixin {
     @WrapOperation(
             method = "isWithinThrowingDistance",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_CLOSER_THAN))
-    private boolean exotic_worlds$throwingReachThroughSeam(BlockPos villagerPos, Vec3i playerPos, double distance,
+    private boolean exotic_worlds$throwingReachThroughSeam(BlockPos villagerPos, Vec3i playerPos, double distanceBlocks,
             Operation<Boolean> original, @Local(argsOnly = true) Villager villager) {
-        return original.call(villagerPos, SeamRange.toward(villager, villagerPos, playerPos), distance);
+        return original.call(villagerPos, SeamRange.toward(villager, villagerPos, playerPos), distanceBlocks);
     }
 }

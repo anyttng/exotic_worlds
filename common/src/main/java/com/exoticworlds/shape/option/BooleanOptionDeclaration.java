@@ -2,8 +2,8 @@ package com.exoticworlds.shape.option;
 
 import java.util.List;
 
-import com.exoticworlds.core.ShapeOption;
-import com.exoticworlds.core.ShapeOptionRegistry;
+import com.exoticworlds.core.option.ShapeOption;
+import com.exoticworlds.core.option.ShapeOptionRegistry;
 
 import com.mojang.serialization.Codec;
 

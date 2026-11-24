@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.accessors.FoldedClimateSampler;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
@@ -28,9 +28,9 @@ public class NoiseChunkMixin {
 
     @ModifyReturnValue(method = "cachedClimateSampler", at = @At("RETURN"))
     private Climate.Sampler exotic_worlds$stampTheFold(Climate.Sampler sampler) {
-        WorldFold fold = GenerationFoldContext.context().fold();
+        WorldFold fold = GenerationFoldContext.getContext().getFold();
         ChunkPos chunk = new ChunkPos(QuartPos.toSection(this.firstNoiseX), QuartPos.toSection(this.firstNoiseZ));
-        ((FoldedClimateSampler) (Object) sampler).exotic_worlds$fold(fold.isOver(chunk) ? WorldFolds.NOOP : fold);
+        ((FoldedClimateSampler) (Object) sampler).exotic_worlds$setFold(fold.isOver(chunk) ? WorldFolds.NOOP : fold);
         return sampler;
     }
 }

@@ -16,8 +16,8 @@ import net.minecraft.world.phys.Vec3;
 @Mixin(CarriageContraptionEntity.class)
 public class CarriageContraptionEntityMixin {
     @WrapOperation(method = "control", at = @At(value = "INVOKE", target = InjectionTargets.VEC3_CLOSER_THAN))
-    private boolean exotic_worlds$controlsReachThroughSeam(Vec3 controls, Position player, double distance,
+    private boolean exotic_worlds$controlsReachThroughSeam(Vec3 controls, Position player, double distanceBlocks,
             Operation<Boolean> original) {
-        return original.call(controls, SeamRange.toward((Entity) (Object) this, controls, player), distance);
+        return original.call(controls, SeamRange.toward((Entity) (Object) this, controls, player), distanceBlocks);
     }
 }

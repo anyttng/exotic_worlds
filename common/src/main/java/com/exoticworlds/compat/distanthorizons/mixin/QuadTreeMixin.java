@@ -18,19 +18,19 @@ import net.minecraft.core.Direction;
 public class QuadTreeMixin {
     @WrapMethod(method = "isSectionPosInBounds(J)Z")
     private boolean exotic_worlds$holdOneLapAroundTheCenter(long pos, Operation<Boolean> original) {
-        boolean inSquare = original.call(pos);
-        if (!inSquare || !((Object) this instanceof LodQuadTree tree)) {
-            return inSquare;
+        boolean isInSquare = original.call(pos);
+        if (!isInSquare || !((Object) this instanceof LodQuadTree tree)) {
+            return isInSquare;
         }
 
-        DhLattice lattice = DhShapes.of(((LodQuadTreeAccessor) tree).exotic_worlds$level());
+        DhLattice lattice = DhShapes.of(((LodQuadTreeAccessor) tree).exotic_worlds$getLevel());
         if (lattice == null) {
             return true;
         }
 
         DhBlockPos2D center = tree.getCenterBlockPos();
-        int width = DhSectionPos.getBlockWidth(pos);
-        return DhFold.overlapsNearestLap(lattice, Direction.Axis.X, center.x, DhSectionPos.getX(pos) * width, width)
-                && DhFold.overlapsNearestLap(lattice, Direction.Axis.Z, center.z, DhSectionPos.getZ(pos) * width, width);
+        int widthBlocks = DhSectionPos.getBlockWidth(pos);
+        return DhFold.isOverlappingNearestLap(lattice, Direction.Axis.X, center.x, DhSectionPos.getX(pos) * widthBlocks, widthBlocks)
+                && DhFold.isOverlappingNearestLap(lattice, Direction.Axis.Z, center.z, DhSectionPos.getZ(pos) * widthBlocks, widthBlocks);
     }
 }

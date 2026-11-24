@@ -1,6 +1,6 @@
 package com.exoticworlds.compat.c2me;
 
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.SEED;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.SQUARE;
@@ -87,14 +87,14 @@ class C2meCompiledDensityFunctionTest {
     @Test
     void theCompiledEndIslandFunctionRepeatsOneWorldWidthAwayAcrossTheSeam() {
         DensityFunction compiled = C2meCompiledFunctions.compileFolded("toroidal_end_islands", END_ISLANDS, TORUS);
-        WrapDomain xDomain = TORUS.blockDomain(Direction.Axis.X);
+        WrapDomain xDomain = TORUS.getBlockDomain(Direction.Axis.X);
         Random random = new Random(SEED);
         int hits = 0;
 
         for (int i = 0; i < SEAM_SAMPLES; i++) {
             int x = acrossTheSeam(random, xDomain);
             int y = blockY(random);
-            int z = blockIn(random, TORUS.blockDomain(Direction.Axis.Z));
+            int z = blockIn(random, TORUS.getBlockDomain(Direction.Axis.Z));
             DensityFunction.FunctionContext at = new DensityFunction.SinglePointContext(x, y, z);
             DensityFunction.FunctionContext lap = new DensityFunction.SinglePointContext(x + xDomain.domainLength, y, z);
             double vanilla = GenerationFoldContext.withFold(TORUS, () -> END_ISLANDS.compute(at));

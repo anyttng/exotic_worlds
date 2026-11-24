@@ -7,7 +7,7 @@ import java.util.function.ToDoubleFunction;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.FlatShape;
+import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.dimension.DimensionContext;
 import com.exoticworlds.shape.dimension.DimensionShape;
@@ -38,9 +38,9 @@ public final class ShapeRecognition {
 
         DimensionContext context = new DimensionContext(dimension, stored.options(), overworld,
                 scales.applyAsDouble(LevelStem.OVERWORLD), scales.applyAsDouble(dimension));
-        for (DimensionShape shape : DeclaredShapes.all()) {
+        for (DimensionShape shape : DeclaredShapes.getAll()) {
             if (Objects.equals(DeclaredShapes.resolve(shape, context), spans)) {
-                return DimensionLayout.declared(shape.id(), spans, stored.options());
+                return DimensionLayout.declared(shape.getId(), spans, stored.options());
             }
         }
 

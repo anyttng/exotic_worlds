@@ -1,9 +1,9 @@
 package com.exoticworlds.compat.northbound;
 
 import com.exoticworlds.compat.worldgen.LevelClimateCompression;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.exoticworlds.engine.noise.DensityRewrites;
 
 import net.minecraft.core.registries.Registries;
@@ -48,13 +48,13 @@ public final class NorthboundLatitude {
 
     private static DensityFunction laidOut(DensityFunction latitude, WorldFold fold, NoiseRouter router,
             Variant variant) {
-        TranslationLattice lattice = fold.blockLattice();
-        if (!lattice.bothLoop()) {
+        TranslationLattice lattice = fold.getBlockLattice();
+        if (!lattice.areBothLooped()) {
             return latitude;
         }
 
         double factor = LevelClimateCompression.factor(fold, router.temperature());
-        return DensityRewrites.replaceKeyed(latitude, COORD_Z, coordinate(lattice.z(), variant, factor));
+        return DensityRewrites.replaceKeyed(latitude, COORD_Z, coordinate(lattice.getZ(), variant, factor));
     }
 
     static LatitudeCoordinate coordinate(WrapDomain z, Variant variant, double factor) {

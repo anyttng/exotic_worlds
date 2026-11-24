@@ -13,12 +13,12 @@ import org.junit.jupiter.api.Test;
 import com.exoticworlds.api.v1.shape.LoopSpans;
 import com.exoticworlds.api.v1.shape.ShapeDimensions;
 import com.exoticworlds.bridge.v1.option.OptionBridge;
-import com.exoticworlds.core.DimensionTable;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.NetherScales;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.SpawnPoint;
+import com.exoticworlds.core.world.DimensionTable;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.NetherScales;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
 import com.exoticworlds.shape.torus.GuaranteedLand;
@@ -112,7 +112,7 @@ class LayoutDimensionsTest {
                 DimensionLayout.fromOverworld(PLAIN),
                 Map.of(), 8);
 
-        assertEquals(ShapeFixtures.torus(16), chosen.netherSpans());
+        assertEquals(ShapeFixtures.torus(16), chosen.getNetherSpans());
         assertEquals(2, roundTrip(chosen).netherScale());
     }
 
@@ -164,8 +164,8 @@ class LayoutDimensionsTest {
 
         WorldLayout withRow = WorldLayout.DEFAULT.withModDimension(MOD_STEM, own);
 
-        assertEquals(ShapeKind.FROM_OVERWORLD, WorldLayout.DEFAULT.modDimension(MOD_STEM).kind());
-        assertEquals(own, withRow.modDimension(MOD_STEM));
+        assertEquals(ShapeKind.FROM_OVERWORLD, WorldLayout.DEFAULT.getModDimension(MOD_STEM).kind());
+        assertEquals(own, withRow.getModDimension(MOD_STEM));
         assertEquals(Map.of(), withRow.withModDimension(MOD_STEM, DimensionLayout.fromOverworld(PLAIN)).modDimensions());
     }
 

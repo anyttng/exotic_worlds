@@ -7,22 +7,22 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.world.phys.Vec3;
 
 class SpawnPacketSeatTest {
     private static final int WORLD_CHUNKS = 16;
-    private static final int WORLD_BLOCKS = WORLD_CHUNKS * 2 * CoordinateConstants.CHUNK_WIDTH;
+    private static final int WORLD_BLOCKS = WORLD_CHUNKS * 2 * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
     private static final int SKEW_CHUNKS = 3;
-    private static final int SKEW_BLOCKS = SKEW_CHUNKS * CoordinateConstants.CHUNK_WIDTH;
+    private static final int SKEW_BLOCKS = SKEW_CHUNKS * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
 
     private static final WorldLoopBounds BOUNDS =
             ShapeFixtures.loopedBounds(-WORLD_CHUNKS, WORLD_CHUNKS, -WORLD_CHUNKS, WORLD_CHUNKS);

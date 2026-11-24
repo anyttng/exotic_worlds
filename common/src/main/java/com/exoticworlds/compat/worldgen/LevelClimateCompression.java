@@ -2,7 +2,7 @@ package com.exoticworlds.compat.worldgen;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.climate.ClimateCompression;
@@ -16,22 +16,22 @@ import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 
 public final class LevelClimateCompression {
     public static DensityFunction temperatureOf(ChunkGenerator own, @Nullable ChunkGenerator overworld) {
-        return temperatureOf(routerTemperatureOf(own), routerTemperatureOf(overworld));
+        return temperatureOf(getRouterTemperature(own), getRouterTemperature(overworld));
     }
 
     static DensityFunction temperatureOf(DensityFunction own, DensityFunction overworld) {
         return ClimateCompression.climateNoiseOf(own) != null ? own : overworld;
     }
 
-    static DensityFunction overworldTemperatureOf(@Nullable ServerLevel level) {
-        return routerTemperatureOf(level != null ? level.getServer().overworld() : null);
+    static DensityFunction getOverworldTemperature(@Nullable ServerLevel level) {
+        return getRouterTemperature(level != null ? level.getServer().overworld() : null);
     }
 
-    static DensityFunction routerTemperatureOf(@Nullable ServerLevel level) {
-        return routerTemperatureOf(level != null ? level.getChunkSource().getGenerator() : null);
+    static DensityFunction getRouterTemperature(@Nullable ServerLevel level) {
+        return getRouterTemperature(level != null ? level.getChunkSource().getGenerator() : null);
     }
 
-    private static DensityFunction routerTemperatureOf(@Nullable ChunkGenerator generator) {
+    private static DensityFunction getRouterTemperature(@Nullable ChunkGenerator generator) {
         if (generator instanceof NoiseBasedChunkGenerator noise) {
             return noise.generatorSettings().value().noiseRouter().temperature();
         }

@@ -30,10 +30,10 @@ public class TreeChangesMixin {
     private NodeTable nodes;
 
     @Unique
-    private boolean exotic_worlds$coveringCopies;
+    private boolean exotic_worlds$isCoveringCopies;
 
     @Unique
-    private boolean exotic_worlds$copyWalkDue;
+    private boolean exotic_worlds$isCopyWalkDue;
 
     @Shadow
     private void requestBuild(TreeNode node, @Nullable CameraFrame camera) {
@@ -48,8 +48,8 @@ public class TreeChangesMixin {
             at = @At(value = "INVOKE", target = EminusInjectionTargets.NODE_TABLE_GET))
     private @Nullable TreeNode exotic_worlds$everyNodeOfTheStoredKey(NodeTable table, long key,
             Operation<@Nullable TreeNode> original, @Local(argsOnly = true) @Nullable CameraFrame camera) {
-        CellFold fold = CellFoldHolder.foldOf(nodes);
-        if (!fold.repeats()) {
+        CellFold fold = CellFoldHolder.getFold(nodes);
+        if (!fold.isRepeating()) {
             return original.call(table, key);
         }
 
@@ -60,36 +60,36 @@ public class TreeChangesMixin {
             at = @At(value = "INVOKE", target = "Lcom/eminus/render/tree/TreeNode;changeOccupancy(IJ)Z"))
     private boolean exotic_worlds$changeEveryLapCopy(TreeNode node, int occupancy, long sequence,
             Operation<Boolean> original) {
-        boolean changed = original.call(node, occupancy, sequence);
-        CellFold fold = CellFoldHolder.foldOf(nodes);
-        if (fold.repeats()) {
-            exotic_worlds$copyWalkDue = StoredKeyRebuilds.changeLapCopies(fold, nodes, node.key(),
+        boolean isChanged = original.call(node, occupancy, sequence);
+        CellFold fold = CellFoldHolder.getFold(nodes);
+        if (fold.isRepeating()) {
+            exotic_worlds$isCopyWalkDue = StoredKeyRebuilds.isWalkDueAfterChangingLapCopies(fold, nodes, node.key(),
                     copy -> original.call(copy, occupancy, sequence)
-                            && ((TreeNodeAccessor) (Object) copy).exotic_worlds$gaveWay());
+                            && ((TreeNodeAccessor) (Object) copy).exotic_worlds$hasGivenWay());
         }
 
-        return changed;
+        return isChanged;
     }
 
     @ModifyReturnValue(method = "changed", at = @At("RETURN"))
-    private boolean exotic_worlds$walkForLapCopies(boolean walkDue) {
-        boolean due = walkDue || exotic_worlds$copyWalkDue;
-        exotic_worlds$copyWalkDue = false;
-        return due;
+    private boolean exotic_worlds$walkForLapCopies(boolean isWalkDue) {
+        boolean isDue = isWalkDue || exotic_worlds$isCopyWalkDue;
+        exotic_worlds$isCopyWalkDue = false;
+        return isDue;
     }
 
     @Inject(method = "covered", at = @At("HEAD"))
     private void exotic_worlds$coverEveryLapCopy(int chunkX, int chunkZ, @Nullable CameraFrame camera, CallbackInfo ci) {
-        if (exotic_worlds$coveringCopies) {
+        if (exotic_worlds$isCoveringCopies) {
             return;
         }
 
-        exotic_worlds$coveringCopies = true;
+        exotic_worlds$isCoveringCopies = true;
         try {
-            StoredKeyRebuilds.coverLapCopies(CellFoldHolder.foldOf(nodes), chunkX, chunkZ,
+            StoredKeyRebuilds.coverLapCopies(CellFoldHolder.getFold(nodes), chunkX, chunkZ,
                     (copyX, copyZ) -> covered(copyX, copyZ, camera));
         } finally {
-            exotic_worlds$coveringCopies = false;
+            exotic_worlds$isCoveringCopies = false;
         }
     }
 }

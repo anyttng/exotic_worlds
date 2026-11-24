@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.lod.AlignedPeriod;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.seibel.distanthorizons.core.pos.DhSectionPos;
 import com.seibel.distanthorizons.core.pos.blockPos.DhBlockPos;
 
@@ -35,7 +35,7 @@ class DhLatticeFoldTest {
     }
 
     private static int minChunk() {
-        return lattice(LEAF_SKEW_CHUNKS).fold().minChunk(Direction.Axis.X);
+        return lattice(LEAF_SKEW_CHUNKS).fold().getMinChunk(Direction.Axis.X);
     }
 
     @Nested
@@ -161,10 +161,10 @@ class DhLatticeFoldTest {
         void aSectionPastTheZSeamContainsTheLeavesTheSkewMovesUnderIt() {
             int x = this.origin / 2 + 1;
             int z = this.origin / 2 + LEAVES_PER_WORLD / 2;
-            assertTrue(DhFold.containsACopy(this.lattice, SECTION_128, x, z, LEAF, this.origin + 1, this.origin));
-            assertTrue(DhFold.containsACopy(this.lattice, SECTION_128, x, z, LEAF, this.origin + 2, this.origin));
-            assertFalse(DhFold.containsACopy(this.lattice, SECTION_128, x, z, LEAF, this.origin + 3, this.origin));
-            assertFalse(DhFold.containsACopy(this.lattice, SECTION_128, x, z, LEAF, this.origin, this.origin));
+            assertTrue(DhFold.isContainingACopy(this.lattice, SECTION_128, x, z, LEAF, this.origin + 1, this.origin));
+            assertTrue(DhFold.isContainingACopy(this.lattice, SECTION_128, x, z, LEAF, this.origin + 2, this.origin));
+            assertFalse(DhFold.isContainingACopy(this.lattice, SECTION_128, x, z, LEAF, this.origin + 3, this.origin));
+            assertFalse(DhFold.isContainingACopy(this.lattice, SECTION_128, x, z, LEAF, this.origin, this.origin));
         }
 
         @Test
@@ -207,8 +207,8 @@ class DhLatticeFoldTest {
                                 int drawn = 0;
                                 for (int i = -radiusLaps; i <= radiusLaps; i++) {
                                     for (int j = -radiusLaps; j <= radiusLaps; j++) {
-                                        int skew = shape.skewBlocks() * j;
-                                        DhBlockPos copy = new DhBlockPos(beaconX + i * WIDTH_BLOCKS + skew, 64,
+                                        int skewBlocks = shape.skewBlocks() * j;
+                                        DhBlockPos copy = new DhBlockPos(beaconX + i * WIDTH_BLOCKS + skewBlocks, 64,
                                                 beaconZ + j * WIDTH_BLOCKS);
                                         if (DhKeys.isNearestBeam(shape, refX, refZ, copy)) {
                                             drawn++;
@@ -252,7 +252,7 @@ class DhLatticeFoldTest {
         @Test
         void aPointOneZLapOnIsBesideItsSkewedCopy() {
             int min = minChunk() * 16;
-            assertEquals(34, DhFold.seamChebyshevDistance(this.lattice, min + 100, min + WIDTH_BLOCKS - 24,
+            assertEquals(34, DhFold.seamChebyshevDistanceBlocks(this.lattice, min + 100, min + WIDTH_BLOCKS - 24,
                     min + 36, min + 10));
         }
 
@@ -269,7 +269,7 @@ class DhLatticeFoldTest {
                         }
                     }
 
-                    assertEquals(nearest, DhFold.seamChebyshevDistance(this.lattice, 0, 0, toX, toZ),
+                    assertEquals(nearest, DhFold.seamChebyshevDistanceBlocks(this.lattice, 0, 0, toX, toZ),
                             "to " + toX + "," + toZ);
                 }
             }

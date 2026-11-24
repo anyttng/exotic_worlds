@@ -4,11 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.Direction;
 
@@ -49,16 +49,16 @@ class RiverReachTest {
     void aRootStopsItsCarveWidthShortOfHalfTheNarrowestLap() {
         WorldFold fold = WorldFolds.of(ShapeFixtures.torus(ShapeFixtures.loopedBounds(-NARROW_CHUNKS, NARROW_CHUNKS,
                 -HALF_NARROW_CHUNKS, HALF_NARROW_CHUNKS)));
-        int lapZ = fold.blockDomain(Direction.Axis.Z).domainLength;
-        try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(fold)) {
-            assertEquals(lapZ / 2.0F - CARVE_BLOCKS, REACH.clamp(RtfLap.frame(), Float.MAX_VALUE),
+        int lapZ = fold.getBlockDomain(Direction.Axis.Z).domainLength;
+        try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(fold)) {
+            assertEquals(lapZ / 2.0F - CARVE_BLOCKS, REACH.clamp(RtfLap.getFrame(), Float.MAX_VALUE),
                     "the narrower lap caps a root on every direction");
         }
 
         WorldFold cylinder = cylinder(NARROW_CHUNKS);
-        int lapX = cylinder.blockDomain(Direction.Axis.X).domainLength;
-        try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(cylinder)) {
-            assertEquals(lapX / 2.0F - CARVE_BLOCKS, REACH.clamp(RtfLap.frame(), Float.MAX_VALUE),
+        int lapX = cylinder.getBlockDomain(Direction.Axis.X).domainLength;
+        try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(cylinder)) {
+            assertEquals(lapX / 2.0F - CARVE_BLOCKS, REACH.clamp(RtfLap.getFrame(), Float.MAX_VALUE),
                     "a cylinder caps a root by its looping lap alone");
         }
     }
@@ -81,16 +81,16 @@ class RiverReachTest {
 
     private static void assertNarrowed(WorldFold fold, int lap) {
         float scale = lap / 2.0F / (CARVE_BLOCKS + RUN_PER_START * ROOT_START);
-        try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(fold)) {
-            assertEquals(scale, REACH.scale(RtfLap.frame()), SCALE_TOLERANCE, "a lap of " + lap + " blocks");
-            assertEquals(RUN_PER_START * ROOT_START * scale, REACH.clamp(RtfLap.frame(), Float.MAX_VALUE),
+        try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(fold)) {
+            assertEquals(scale, REACH.scale(RtfLap.getFrame()), SCALE_TOLERANCE, "a lap of " + lap + " blocks");
+            assertEquals(RUN_PER_START * ROOT_START * scale, REACH.clamp(RtfLap.getFrame(), Float.MAX_VALUE),
                     CAP_TOLERANCE, "a lap of " + lap + " blocks caps a root at twice its start");
         }
     }
 
     private static float scale(WorldFold fold) {
-        try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(fold)) {
-            return REACH.scale(RtfLap.frame());
+        try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(fold)) {
+            return REACH.scale(RtfLap.getFrame());
         }
     }
 
@@ -112,8 +112,8 @@ class RiverReachTest {
     }
 
     private static int rootCount(WorldFold fold) {
-        try (RtfLap.Frame.Scope _ = RtfLap.frame().bind(fold)) {
-            return RiverReach.rootCount(RtfLap.frame(), PRESET_ROOTS, CONTINENT_SCALE);
+        try (RtfLap.Frame.Scope _ = RtfLap.getFrame().bind(fold)) {
+            return RiverReach.rootCount(RtfLap.getFrame(), PRESET_ROOTS, CONTINENT_SCALE);
         }
     }
 

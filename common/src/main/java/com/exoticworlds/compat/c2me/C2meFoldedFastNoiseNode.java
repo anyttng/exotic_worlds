@@ -3,7 +3,7 @@ package com.exoticworlds.compat.c2me;
 import java.util.Objects;
 
 import com.exoticworlds.accessors.FoldableFastNoise;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.ishland.c2me.base.common.integration.lithostitched.FNLBindings;
 import com.ishland.c2me.opts.dfc.common.ast.AstNode;
 import com.ishland.c2me.opts.dfc.common.ast.AstTransformer;

@@ -21,17 +21,17 @@ record ShapeChoice(@Nullable ShapeKind own, @Nullable DimensionShape declared) {
         return new ShapeChoice(null, declared);
     }
 
-    Component name() {
+    Component getName() {
         return this.declared != null
-                ? WorldShape.label(this.declared.id())
-                : SettingsLines.shapeName(this.ownOrNormal());
+                ? WorldShape.label(this.declared.getId())
+                : SettingsLines.shapeName(this.getOwnOrNormal());
     }
 
-    String hintKey() {
-        return this.declared != null ? DECLARED_HINT : this.ownOrNormal().name().toLowerCase(Locale.ROOT);
+    String getHintKey() {
+        return this.declared != null ? DECLARED_HINT : this.getOwnOrNormal().name().toLowerCase(Locale.ROOT);
     }
 
-    private ShapeKind ownOrNormal() {
+    private ShapeKind getOwnOrNormal() {
         return this.own != null ? this.own : ShapeKind.NORMAL;
     }
 }

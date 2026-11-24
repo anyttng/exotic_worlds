@@ -1,6 +1,6 @@
 package com.exoticworlds.engine.noise.periodic;
 
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import net.minecraft.util.Mth;
 
@@ -66,7 +66,7 @@ public final class OctaveVarianceCorrection {
 
     private static double flooredCellsPerLap(WrapDomain xDomain, WrapDomain zDomain, double scale,
             double verticalShare) {
-        if (verticalShare < 0.0 || !xDomain.loops() || !zDomain.loops()) {
+        if (verticalShare < 0.0 || !xDomain.isLooped() || !zDomain.isLooped()) {
             return NOT_FLOORED;
         }
 

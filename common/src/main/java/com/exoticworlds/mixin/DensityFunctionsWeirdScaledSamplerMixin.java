@@ -26,8 +26,8 @@ public class DensityFunctionsWeirdScaledSamplerMixin {
             Operation<Double> original,
             @Local(argsOnly = true) DensityFunction.FunctionContext context,
             @Local(ordinal = 1) double rarity) {
-        Context generation = GenerationFoldContext.context();
-        if (!generation.fold().isWrapped()) {
+        Context generation = GenerationFoldContext.getContext();
+        if (!generation.getFold().isWrapped()) {
             return original.call(noiseHolder, scaledX, scaledY, scaledZ);
         }
 

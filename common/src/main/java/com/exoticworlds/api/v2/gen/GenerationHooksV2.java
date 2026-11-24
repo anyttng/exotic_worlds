@@ -50,7 +50,7 @@ public final class GenerationHooksV2 {
      *
      * <p><strong>A hook gates itself</strong>, as a {@link RandomStateHook} does: it runs for every set of every
      * folding level. Return an empty list unless the set, the geometry and the options are what this hook is for, and
-     * before calling {@link StructureStartsV2#picks()}, which costs a structure check per picked chunk.</p>
+     * before calling {@link StructureStartsV2#getPicks()}, which costs a structure check per picked chunk.</p>
      */
     @FunctionalInterface
     public interface StructureStartsHook {

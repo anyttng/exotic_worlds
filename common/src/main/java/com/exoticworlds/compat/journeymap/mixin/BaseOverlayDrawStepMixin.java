@@ -27,7 +27,7 @@ public abstract class BaseOverlayDrawStepMixin implements OverlayCopies {
     private double[][] exotic_worlds$copies = EXOTIC_WORLDS$NONE;
 
     @Override
-    public double[][] exotic_worlds$copies() {
+    public double[][] exotic_worlds$getCopies() {
         return exotic_worlds$copies;
     }
 
@@ -35,11 +35,11 @@ public abstract class BaseOverlayDrawStepMixin implements OverlayCopies {
             at = @At(value = "INVOKE",
                     target = "Ljourneymap/client/render/map/Renderer;isOnScreen(Ljava/awt/geom/Rectangle2D$Double;)Z"))
     private boolean exotic_worlds$onScreenOnAnyCopy(Renderer renderer, Rectangle2D.Double bounds, Operation<Boolean> original) {
-        Rectangle2D.Double screen = renderer instanceof MapRendererAccessor canvas ? canvas.exotic_worlds$screenBounds() : null;
-        if (screen == null || !JourneyMapFold.active()) {
-            boolean onScreen = original.call(renderer, bounds);
-            exotic_worlds$copies = onScreen ? EXOTIC_WORLDS$BASE_ONLY : EXOTIC_WORLDS$NONE;
-            return onScreen;
+        Rectangle2D.Double screen = renderer instanceof MapRendererAccessor canvas ? canvas.exotic_worlds$getScreenBounds() : null;
+        if (screen == null || !JourneyMapFold.isActive()) {
+            boolean isOnScreen = original.call(renderer, bounds);
+            exotic_worlds$copies = isOnScreen ? EXOTIC_WORLDS$BASE_ONLY : EXOTIC_WORLDS$NONE;
+            return isOnScreen;
         }
 
         exotic_worlds$copies = JourneyMapFold.copyOffsets(renderer.getContext(), renderer.getZoom(), bounds, screen);
@@ -54,10 +54,10 @@ public abstract class BaseOverlayDrawStepMixin implements OverlayCopies {
                     ordinal = 0))
     private void exotic_worlds$labelOnEveryCopy(GuiGraphicsExtractor graphics, String[] lines, double x, double y,
             DrawUtil.HAlign hAlign, DrawUtil.VAlign vAlign, Integer background, float backgroundOpacity, Integer color,
-            float opacity, double scale, boolean shadow, double rotation, Operation<Void> original) {
+            float opacity, double scale, boolean hasShadow, double rotation, Operation<Void> original) {
         for (double[] copy : exotic_worlds$copies) {
             original.call(graphics, lines, x + copy[0], y + copy[1], hAlign, vAlign, background, backgroundOpacity,
-                    color, opacity, scale, shadow, rotation);
+                    color, opacity, scale, hasShadow, rotation);
         }
     }
 }

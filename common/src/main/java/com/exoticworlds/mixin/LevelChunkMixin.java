@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.client.engine.SyncedTagFold;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.BlockEntitySeat;
 import com.exoticworlds.engine.fold.ChunkFrame;
 import com.exoticworlds.engine.fold.ChunkSeat;
@@ -50,23 +50,23 @@ public class LevelChunkMixin {
             },
             at = @At("HEAD"), argsOnly = true, require = 4)
     private BlockPos exotic_worlds$wrapPos(BlockPos pos) {
-        WorldFold fold = WorldLoopAttachments.foldOf(this.level);
+        WorldFold fold = WorldLoopAttachments.getFold(this.level);
         if (fold.isWrapped()) {
             return fold.fold(pos);
         }
 
-        return ChunkSeat.onto(WorldLoopAttachments.clientBoundsFoldOf(this.level),
+        return ChunkSeat.onto(WorldLoopAttachments.getClientBoundsFold(this.level),
                 ((LevelChunk) (Object) this).getPos(), pos);
     }
 
     @WrapMethod(method = "getBlockState")
     private BlockState exotic_worlds$readInOwnFrame(BlockPos pos, Operation<BlockState> original) {
         ChunkPos own = ((LevelChunk) (Object) this).getPos();
-        if (ChunkSeat.sitsIn(own, pos.getX(), pos.getZ())) {
+        if (ChunkSeat.isSittingIn(own, pos.getX(), pos.getZ())) {
             return original.call(pos);
         }
 
-        WorldFold.Folded<BlockPos> seated = ChunkFrame.seat(WorldLoopAttachments.foldOf(this.level), own, pos);
+        WorldFold.Folded<BlockPos> seated = ChunkFrame.seat(WorldLoopAttachments.getFold(this.level), own, pos);
         return seated == null
                 ? original.call(pos)
                 : ChunkFrame.toReader(original.call(seated.value()), seated.orientation());
@@ -75,17 +75,17 @@ public class LevelChunkMixin {
     @WrapMethod(method = "getFluidState(III)Lnet/minecraft/world/level/material/FluidState;")
     private FluidState exotic_worlds$readFluidInOwnFrame(int x, int y, int z, Operation<FluidState> original) {
         ChunkPos own = ((LevelChunk) (Object) this).getPos();
-        if (ChunkSeat.sitsIn(own, x, z)) {
+        if (ChunkSeat.isSittingIn(own, x, z)) {
             return original.call(x, y, z);
         }
 
-        long seated = ChunkFrame.seatColumn(WorldLoopAttachments.foldOf(this.level), own, x, z);
+        long seated = ChunkFrame.seatColumn(WorldLoopAttachments.getFold(this.level), own, x, z);
         return original.call(BlockPos.getX(seated), y, BlockPos.getZ(seated));
     }
 
     @Inject(method = "setBlockEntity", at = @At("HEAD"))
     private void exotic_worlds$wrapBlockEntityIdentity(BlockEntity blockEntity, CallbackInfo ci) {
-        BlockEntitySeat.intoBounds(WorldLoopAttachments.foldOf(this.level), blockEntity);
+        BlockEntitySeat.intoBounds(WorldLoopAttachments.getFold(this.level), blockEntity);
     }
 
     @WrapOperation(

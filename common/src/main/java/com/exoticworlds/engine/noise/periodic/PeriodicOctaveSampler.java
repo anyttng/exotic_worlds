@@ -21,7 +21,7 @@ public final class PeriodicOctaveSampler {
             double z,
             double yScale,
             double yFudge) {
-        boolean yCarriesWorldAxis = generation.slotAxes().y().carriesWorldAxis();
+        boolean yCarriesWorldAxis = generation.getSlotAxes().y().hasWorldAxis();
         double value = 0.0;
         double factor = lowestFreqInputFactor;
         double valueFactor = lowestFreqValueFactor;

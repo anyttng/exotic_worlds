@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.SeamTransform;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.SeamTransform;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -22,15 +22,15 @@ import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
 
 @Timeout(60)
 class MovedStructureStartPiecesTest {
-    private static final int X_SHIFT = 1024;
-    private static final int Z_SHIFT = -512;
+    private static final int X_SHIFT_BLOCKS = 1024;
+    private static final int Z_SHIFT_BLOCKS = -512;
 
     private static final DeckTransformation CLOCKWISE =
-            new DeckTransformation(new SeamTransform(-1, 1, X_SHIFT, Z_SHIFT, true));
+            new DeckTransformation(new SeamTransform(-1, 1, X_SHIFT_BLOCKS, Z_SHIFT_BLOCKS, true));
     private static final DeckTransformation COUNTERCLOCKWISE =
-            new DeckTransformation(new SeamTransform(1, -1, X_SHIFT, Z_SHIFT, true));
+            new DeckTransformation(new SeamTransform(1, -1, X_SHIFT_BLOCKS, Z_SHIFT_BLOCKS, true));
     private static final DeckTransformation LAP =
-            new DeckTransformation(SeamTransform.translation(-X_SHIFT, X_SHIFT));
+            new DeckTransformation(SeamTransform.translation(-X_SHIFT_BLOCKS, X_SHIFT_BLOCKS));
 
     @Test
     void aClockwiseTurnLaysThePieceBoxAlongTheOtherAxis() {

@@ -41,7 +41,7 @@ public abstract class CarriagePairMixin {
             Operation<Void> original) {
         original.call(dce, anchor == null
                 ? null
-                : CreateSeamFold.canonicalOnServer(((CarriageEntityFrame) dce).exotic_worlds$carriageDimension(),
+                : CreateSeamFold.canonicalOnServer(((CarriageEntityFrame) dce).exotic_worlds$getCarriageDimension(),
                         anchor));
     }
 
@@ -51,7 +51,7 @@ public abstract class CarriagePairMixin {
     private double exotic_worlds$foldAnchorSpan(Vec3 leading, Vec3 trailing, Operation<Double> original,
             @Local(ordinal = 0) Carriage.DimensionalCarriageEntity dce) {
         return original.call(leading, CreateSeamFold.nearestCopy(
-                ((CarriageEntityFrame) dce).exotic_worlds$carriageDimension(), leading, trailing));
+                ((CarriageEntityFrame) dce).exotic_worlds$getCarriageDimension(), leading, trailing));
     }
 
     @ModifyReturnValue(method = "getPositionInDimension", at = @At("RETURN"))
@@ -67,7 +67,7 @@ public abstract class CarriagePairMixin {
             @Local(argsOnly = true) Carriage.DimensionalCarriageEntity dce,
             @Local(argsOnly = true) ResourceKey<Level> dimension,
             @Local(ordinal = 0) Vec3 startVec) {
-        return CreateSeamFold.nearestCopy(((CarriageEntityFrame) dce).exotic_worlds$carriageLevel(), dimension,
+        return CreateSeamFold.nearestCopy(((CarriageEntityFrame) dce).exotic_worlds$getCarriageLevel(), dimension,
                 startVec, portalVec);
     }
 }

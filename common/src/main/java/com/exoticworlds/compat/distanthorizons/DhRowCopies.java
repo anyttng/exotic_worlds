@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.compat.lod.AlignedPeriod;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.ThreadScope;
 
 import net.minecraft.core.Direction;
@@ -26,8 +26,8 @@ public final class DhRowCopies {
             return List.of();
         }
 
-        int widthX = fold.loops(Direction.Axis.X) ? fold.widthChunks(Direction.Axis.X) : 0;
-        int widthZ = fold.loops(Direction.Axis.Z) ? fold.widthChunks(Direction.Axis.Z) : 0;
+        int widthX = fold.isLooped(Direction.Axis.X) ? fold.getWidthChunks(Direction.Axis.X) : 0;
+        int widthZ = fold.isLooped(Direction.Axis.Z) ? fold.getWidthChunks(Direction.Axis.Z) : 0;
         int skewChunks = lattice.skewBlocks() / SectionPos.SECTION_SIZE;
         List<ChunkPos> copies = new ArrayList<>(lapsX * lapsZ - 1);
         for (int lapZ = 0; lapZ < lapsZ; lapZ++) {
@@ -45,8 +45,8 @@ public final class DhRowCopies {
         return PENDING_COPY.with(copy, build);
     }
 
-    public static @Nullable ChunkPos pendingCopy() {
-        return PENDING_COPY.current();
+    public static @Nullable ChunkPos getPendingCopy() {
+        return PENDING_COPY.getCurrent();
     }
 
     private DhRowCopies() {

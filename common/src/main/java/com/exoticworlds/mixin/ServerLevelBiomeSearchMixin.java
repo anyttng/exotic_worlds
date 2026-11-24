@@ -6,8 +6,8 @@ import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -24,21 +24,21 @@ public class ServerLevelBiomeSearchMixin {
     private @Nullable Pair<BlockPos, Holder<Biome>> exotic_worlds$biomeSearchThroughSeam(
             Predicate<Holder<Biome>> biomeTest,
             BlockPos origin,
-            int maxSearchRadius,
+            int maxSearchRadiusBlocks,
             int sampleResolutionHorizontal,
             int sampleResolutionVertical,
             Operation<@Nullable Pair<BlockPos, Holder<Biome>>> original) {
         WorldFold fold =
-                WorldLoopAttachments.wrappedFoldOf((ServerLevel) (Object) this);
+                WorldLoopAttachments.getWrappedFold((ServerLevel) (Object) this);
         if (fold == null) {
-            return original.call(biomeTest, origin, maxSearchRadius, sampleResolutionHorizontal,
+            return original.call(biomeTest, origin, maxSearchRadiusBlocks, sampleResolutionHorizontal,
                     sampleResolutionVertical);
         }
 
-        int searchRadius = exotic_worlds$radiusToCoverTheWorld(fold, maxSearchRadius, sampleResolutionHorizontal);
+        int searchRadiusBlocks = exotic_worlds$radiusToCoverTheWorld(fold, maxSearchRadiusBlocks, sampleResolutionHorizontal);
         Pair<BlockPos, Holder<Biome>> found;
-        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.context().withFold(fold)) {
-            found = original.call(biomeTest, origin, searchRadius, sampleResolutionHorizontal,
+        try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
+            found = original.call(biomeTest, origin, searchRadiusBlocks, sampleResolutionHorizontal,
                     sampleResolutionVertical);
         }
 
@@ -46,11 +46,11 @@ public class ServerLevelBiomeSearchMixin {
     }
 
     @Unique
-    private static int exotic_worlds$radiusToCoverTheWorld(WorldFold fold, int maxSearchRadius,
+    private static int exotic_worlds$radiusToCoverTheWorld(WorldFold fold, int maxSearchRadiusBlocks,
             int sampleResolutionHorizontal) {
         int steps = Math.max(
-                fold.blockLattice().x().stepsToCoverTheWorld(sampleResolutionHorizontal),
-                fold.blockLattice().z().stepsToCoverTheWorld(sampleResolutionHorizontal));
-        return (int) Math.min(maxSearchRadius, (long) steps * sampleResolutionHorizontal);
+                fold.getBlockLattice().getX().stepsToCoverTheWorld(sampleResolutionHorizontal),
+                fold.getBlockLattice().getZ().stepsToCoverTheWorld(sampleResolutionHorizontal));
+        return (int) Math.min(maxSearchRadiusBlocks, (long) steps * sampleResolutionHorizontal);
     }
 }

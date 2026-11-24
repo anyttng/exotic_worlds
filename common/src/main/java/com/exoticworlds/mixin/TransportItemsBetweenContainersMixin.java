@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.exoticworlds.engine.seam.SeamSteering;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -57,7 +57,7 @@ public class TransportItemsBetweenContainersMixin {
     private static BlockHitResult exotic_worlds$sightHitThroughSeam(BlockHitResult hit,
             @Local(argsOnly = true) PathfinderMob body) {
         BlockPos hitPos = hit.getBlockPos();
-        BlockPos wrapped = WorldLoopAttachments.foldOf(body.level()).fold(hitPos);
+        BlockPos wrapped = WorldLoopAttachments.getFold(body.level()).fold(hitPos);
         return wrapped == hitPos ? hit : hit.withPosition(wrapped);
     }
 }

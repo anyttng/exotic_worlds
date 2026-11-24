@@ -18,7 +18,7 @@ import com.exoticworlds.compat.map.FullscreenZoomFloor;
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.MapViewSpan;
 import com.exoticworlds.compat.map.WorldCopies;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.logging.LogUtils;
 
@@ -44,7 +44,7 @@ public final class JourneyMapFold {
     private static @Nullable View minimapView;
 
     public static ChunkPos foldRegionChunk(ChunkPos chunk) {
-        return foldRegionChunk(ClientFolds.current(), chunk);
+        return foldRegionChunk(ClientFolds.getCurrent(), chunk);
     }
 
     static ChunkPos foldRegionChunk(@Nullable WorldFold fold, ChunkPos chunk) {
@@ -52,7 +52,7 @@ public final class JourneyMapFold {
     }
 
     public static Vec3 seatPixel(double refX, double refZ, double blockX, double blockZ, MapCopies copies) {
-        return seatPixel(ClientFolds.current(), refX, refZ, blockX, blockZ, copies);
+        return seatPixel(ClientFolds.getCurrent(), refX, refZ, blockX, blockZ, copies);
     }
 
     static Vec3 seatPixel(@Nullable WorldFold fold, double refX, double refZ, double blockX, double blockZ,
@@ -65,22 +65,22 @@ public final class JourneyMapFold {
         return copies == MapCopies.SINGLE ? fold.fold(pixel) : fold.nearestCopy(new Vec3(refX, 0.0, refZ), pixel);
     }
 
-    public static MapCopies copiesOf(Context.UI ui) {
-        return ui == Context.UI.Fullscreen ? MapCopies.current() : MapCopies.REPEATED;
+    public static MapCopies getCopies(Context.UI ui) {
+        return ui == Context.UI.Fullscreen ? MapCopies.getCurrent() : MapCopies.REPEATED;
     }
 
     public static double clampedMove(Direction.Axis axis, double center, double delta, int zoom, int windowPixels) {
-        return clampedMove(copies(axis), center, delta, halfViewBlocks(zoom, windowPixels));
+        return clampedMove(axisCopies(axis), center, delta, halfViewBlocks(zoom, windowPixels));
     }
 
-    static double clampedMove(AxisCopies copies, double center, double delta, double halfSpan) {
+    static double clampedMove(AxisCopies copies, double center, double delta, double halfSpanBlocks) {
         double target = center + delta;
-        double clamped = copies.clampView(target, halfSpan);
+        double clamped = copies.clampView(target, halfSpanBlocks);
         return clamped == target ? delta : clamped - center;
     }
 
     public static double moveDelta(Context.UI ui, Direction.Axis axis, double center, double delta, int zoom) {
-        if (copiesOf(ui) != MapCopies.SINGLE) {
+        if (getCopies(ui) != MapCopies.SINGLE) {
             return delta;
         }
 
@@ -94,20 +94,20 @@ public final class JourneyMapFold {
     }
 
     public static Center centerView(Context.UI ui, double blockX, double blockZ, int zoom) {
-        Vec3 folded = ClientFolds.fold(ClientFolds.current(), blockX, blockZ);
-        if (copiesOf(ui) != MapCopies.SINGLE || !active()) {
+        Vec3 folded = ClientFolds.fold(ClientFolds.getCurrent(), blockX, blockZ);
+        if (getCopies(ui) != MapCopies.SINGLE || !isActive()) {
             return new Center(folded.x, folded.z, zoom);
         }
 
         Window window = Minecraft.getInstance().getWindow();
-        return singleCenter(ClientFolds.current(), folded, Math.max(zoom, fullscreenZoomFloor()), window.getWidth(),
+        return singleCenter(ClientFolds.getCurrent(), folded, Math.max(zoom, fullscreenZoomFloor()), window.getWidth(),
                 window.getHeight());
     }
 
-    static Center singleCenter(@Nullable WorldFold fold, Vec3 folded, int flooredZoom, int windowWidth,
-            int windowHeight) {
-        return new Center(clampSingleCenter(fold, Direction.Axis.X, folded.x, flooredZoom, windowWidth),
-                clampSingleCenter(fold, Direction.Axis.Z, folded.z, flooredZoom, windowHeight), flooredZoom);
+    static Center singleCenter(@Nullable WorldFold fold, Vec3 folded, int flooredZoom, int windowWidthPixels,
+            int windowHeightPixels) {
+        return new Center(clampSingleCenter(fold, Direction.Axis.X, folded.x, flooredZoom, windowWidthPixels),
+                clampSingleCenter(fold, Direction.Axis.Z, folded.z, flooredZoom, windowHeightPixels), flooredZoom);
     }
 
     public record Center(double x, double z, int zoom) {
@@ -126,20 +126,20 @@ public final class JourneyMapFold {
         return ClientFrame.nearestToPlayer(position);
     }
 
-    public static boolean active() {
-        return ClientFolds.current() != null;
+    public static boolean isActive() {
+        return ClientFolds.getCurrent() != null;
     }
 
     public static @Nullable BlockPos foldUiBlock(@Nullable BlockPos pos) {
-        return foldUiBlock(ClientFolds.current(), pos);
+        return foldUiBlock(ClientFolds.getCurrent(), pos);
     }
 
     static @Nullable BlockPos foldUiBlock(@Nullable WorldFold fold, @Nullable BlockPos pos) {
         return pos == null ? null : ClientFolds.fold(fold, pos);
     }
 
-    public static AxisCopies copies(Direction.Axis axis) {
-        return AxisCopies.of(ClientFolds.current(), axis);
+    public static AxisCopies axisCopies(Direction.Axis axis) {
+        return AxisCopies.of(ClientFolds.getCurrent(), axis);
     }
 
     public static double pixelsPerBlock(int zoom) {
@@ -147,26 +147,26 @@ public final class JourneyMapFold {
     }
 
     public static int loopedAxes() {
-        WorldFold fold = ClientFolds.current();
+        WorldFold fold = ClientFolds.getCurrent();
         if (fold == null) {
             return 0;
         }
 
-        return (fold.loops(Direction.Axis.X) ? 1 : 0) + (fold.loops(Direction.Axis.Z) ? 1 : 0);
+        return (fold.isLooped(Direction.Axis.X) ? 1 : 0) + (fold.isLooped(Direction.Axis.Z) ? 1 : 0);
     }
 
     public static int zoomFloor() {
-        WorldFold fold = ClientFolds.current();
+        WorldFold fold = ClientFolds.getCurrent();
         return fold == null ? 0 : FullscreenZoomFloor.journeyMapZoom(fold);
     }
 
     public static int fullscreenZoomFloor() {
-        WorldFold fold = ClientFolds.current();
+        WorldFold fold = ClientFolds.getCurrent();
         if (fold == null) {
             return 0;
         }
 
-        if (MapCopies.current() != MapCopies.SINGLE) {
+        if (MapCopies.getCurrent() != MapCopies.SINGLE) {
             return FullscreenZoomFloor.journeyMapZoom(fold);
         }
 
@@ -175,15 +175,15 @@ public final class JourneyMapFold {
     }
 
     public static int seatFullscreenZoom(int zoom) {
-        return FullscreenZoomFloor.journeyMapSeatedZoom(zoom, fullscreenZoomFloor(), MapCopies.current());
+        return FullscreenZoomFloor.journeyMapSeatedZoom(zoom, fullscreenZoomFloor(), MapCopies.getCurrent());
     }
 
-    public static int[] viewSpan(double centerBlock, int windowPixels, int zoom) {
+    public static int[] viewSpanBlocks(double centerBlock, int windowPixels, int zoom) {
         return MapViewSpan.of(centerBlock, windowPixels, pixelsPerBlock(Math.max(1, zoom)), 0);
     }
 
     public static List<WorldCopies.Copy> drawnCopies(int gridTiles, int[] spanX, int[] spanZ, MapCopies copies) {
-        return drawnCopies(ClientFolds.current(), gridTiles, spanX, spanZ, copies);
+        return drawnCopies(ClientFolds.getCurrent(), gridTiles, spanX, spanZ, copies);
     }
 
     static List<WorldCopies.Copy> drawnCopies(@Nullable WorldFold fold, int gridTiles, int[] spanX, int[] spanZ,
@@ -210,17 +210,17 @@ public final class JourneyMapFold {
 
     private static double worldCenter(@Nullable WorldFold fold, Direction.Axis axis) {
         AxisCopies copies = AxisCopies.of(fold, axis);
-        return copies.loops() ? (copies.min() + copies.max()) / 2.0 : 0.0;
+        return copies.isLooped() ? (copies.getMin() + copies.getMax()) / 2.0 : 0.0;
     }
 
     public static List<WorldCopies.Copy> tileCopies(List<WorldCopies.Copy> drawn, int tileMinX, int tileMinZ,
-            int tileSize, int[] spanX, int[] spanZ) {
+            int tileSizeBlocks, int[] spanX, int[] spanZ) {
         List<WorldCopies.Copy> copies = new ArrayList<>();
         for (WorldCopies.Copy copy : drawn) {
             int minX = tileMinX + copy.dx();
             int minZ = tileMinZ + copy.dz();
-            if (!copy.isIdentity() && minX + tileSize > spanX[0] && minX < spanX[1]
-                    && minZ + tileSize > spanZ[0] && minZ < spanZ[1]) {
+            if (!copy.isIdentity() && minX + tileSizeBlocks > spanX[0] && minX < spanX[1]
+                    && minZ + tileSizeBlocks > spanZ[0] && minZ < spanZ[1]) {
                 copies.add(copy);
             }
         }
@@ -228,11 +228,11 @@ public final class JourneyMapFold {
         return copies;
     }
 
-    public static boolean regionInView(Rectangle2D regionBounds, int regionX, int regionZ) {
-        return regionInView(ClientFolds.current(), regionBounds, regionX, regionZ);
+    public static boolean isRegionInView(Rectangle2D regionBounds, int regionX, int regionZ) {
+        return isRegionInView(ClientFolds.getCurrent(), regionBounds, regionX, regionZ);
     }
 
-    static boolean regionInView(@Nullable WorldFold fold, Rectangle2D regionBounds, int regionX, int regionZ) {
+    static boolean isRegionInView(@Nullable WorldFold fold, Rectangle2D regionBounds, int regionX, int regionZ) {
         double boundsMinX = regionBounds.getMinX();
         double boundsMinZ = regionBounds.getMinY();
         double boundsMaxX = regionBounds.getMaxX();
@@ -242,8 +242,8 @@ public final class JourneyMapFold {
         List<WorldCopies.Copy> copies = WorldCopies.meeting(fold, spanMin(boundsMinX), spanMin(boundsMinZ),
                 spanMax(boundsMaxX), spanMax(boundsMaxZ));
         for (WorldCopies.Copy copy : copies) {
-            if (regionMeets(x, regionX, copy.dx(), boundsMinX, boundsMaxX)
-                    && regionMeets(z, regionZ, copy.dz(), boundsMinZ, boundsMaxZ)) {
+            if (isRegionMeeting(x, regionX, copy.dx(), boundsMinX, boundsMaxX)
+                    && isRegionMeeting(z, regionZ, copy.dz(), boundsMinZ, boundsMaxZ)) {
                 return true;
             }
         }
@@ -251,8 +251,8 @@ public final class JourneyMapFold {
         return false;
     }
 
-    private static boolean regionMeets(AxisCopies axis, int region, int move, double boundsMin, double boundsMax) {
-        if (!axis.loops()) {
+    private static boolean isRegionMeeting(AxisCopies axis, int region, int move, double boundsMin, double boundsMax) {
+        if (!axis.isLooped()) {
             return region >= boundsMin && region < boundsMax;
         }
 
@@ -269,7 +269,7 @@ public final class JourneyMapFold {
     }
 
     public static long[] gridRegions(int firstRegionX, int firstRegionZ, int lastRegionX, int lastRegionZ) {
-        return gridRegions(ClientFolds.current(), firstRegionX, firstRegionZ, lastRegionX, lastRegionZ);
+        return gridRegions(ClientFolds.getCurrent(), firstRegionX, firstRegionZ, lastRegionX, lastRegionZ);
     }
 
     static long[] gridRegions(@Nullable WorldFold fold, int firstRegionX, int firstRegionZ, int lastRegionX,
@@ -280,7 +280,7 @@ public final class JourneyMapFold {
     }
 
     public static long[] farSideRegions(Set<String> imageFiles, int centerRegionX, int centerRegionZ, int gridSize) {
-        return farSideRegions(ClientFolds.current(), imageFiles, centerRegionX, centerRegionZ, gridSize);
+        return farSideRegions(ClientFolds.getCurrent(), imageFiles, centerRegionX, centerRegionZ, gridSize);
     }
 
     static long[] farSideRegions(@Nullable WorldFold fold, Set<String> imageFiles, int centerRegionX,
@@ -297,8 +297,8 @@ public final class JourneyMapFold {
         return Arrays.stream(gridRegions(fold, minX, minZ, maxX, maxZ)).filter(region -> {
             int x = ChunkPos.getX(region);
             int z = ChunkPos.getZ(region);
-            boolean walkedByJourneyMap = x >= minX && x <= maxX && z >= minZ && z <= maxZ;
-            return !walkedByJourneyMap && imageFiles.contains(x + "," + z + ".png");
+            boolean isWalkedByJourneyMap = x >= minX && x <= maxX && z >= minZ && z <= maxZ;
+            return !isWalkedByJourneyMap && imageFiles.contains(x + "," + z + ".png");
         }).toArray();
     }
 
@@ -307,16 +307,17 @@ public final class JourneyMapFold {
     }
 
     public static List<WorldCopies.Edge> fullscreenSeams(Context.UI ui, double centerX, double centerZ, int zoom) {
-        if (ui != Context.UI.Fullscreen || loopedAxes() == 0 || !copiesOf(Context.UI.Fullscreen).drawsSeamLines()) {
+        if (ui != Context.UI.Fullscreen || loopedAxes() == 0
+                || !getCopies(Context.UI.Fullscreen).isDrawingSeamLines()) {
             return List.of();
         }
 
         Window window = Minecraft.getInstance().getWindow();
-        return seams(viewSpan(centerX, window.getWidth(), zoom), viewSpan(centerZ, window.getHeight(), zoom));
+        return seams(viewSpanBlocks(centerX, window.getWidth(), zoom), viewSpanBlocks(centerZ, window.getHeight(), zoom));
     }
 
     public static List<WorldCopies.Edge> seams(int[] spanX, int[] spanZ) {
-        return WorldCopies.seams(ClientFolds.current(), spanX[0], spanZ[0], spanX[1], spanZ[1]);
+        return WorldCopies.seams(ClientFolds.getCurrent(), spanX[0], spanZ[0], spanX[1], spanZ[1]);
     }
 
     public static void recordView(Context.UI ui, double centerX, double centerZ, int tiles) {
@@ -328,7 +329,7 @@ public final class JourneyMapFold {
         }
     }
 
-    public static @Nullable View viewOf(Context.UI ui) {
+    public static @Nullable View getView(Context.UI ui) {
         return ui == Context.UI.Fullscreen ? fullscreenView : ui == Context.UI.Minimap ? minimapView : null;
     }
 
@@ -371,13 +372,13 @@ public final class JourneyMapFold {
         }
 
         double[] nearest = offsets[0];
-        double nearestDistance = Double.MAX_VALUE;
+        double nearestSqrDistance = Double.MAX_VALUE;
         for (double[] offset : offsets) {
             double dx = bounds.getCenterX() + offset[0] - screen.getCenterX();
             double dz = bounds.getCenterY() + offset[1] - screen.getCenterY();
-            double distance = dx * dx + dz * dz;
-            if (distance < nearestDistance) {
-                nearestDistance = distance;
+            double sqrDistance = dx * dx + dz * dz;
+            if (sqrDistance < nearestSqrDistance) {
+                nearestSqrDistance = sqrDistance;
                 nearest = offset;
             }
         }
@@ -398,7 +399,7 @@ public final class JourneyMapFold {
         return null;
     }
 
-    public static boolean dropsGrid(@Nullable String lastDimension, String dimension, @Nullable File lastWorldDir,
+    public static boolean shouldDropGrid(@Nullable String lastDimension, String dimension, @Nullable File lastWorldDir,
             @Nullable File worldDir, int tiles) {
         String reason = staleGridReason(lastDimension, dimension, lastWorldDir, worldDir);
         if (WORLD_CHANGED.equals(reason) && lastWorldDir != null && worldDir != null) {

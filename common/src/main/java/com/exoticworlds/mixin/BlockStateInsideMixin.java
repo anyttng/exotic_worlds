@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.core.BlockPos;
@@ -19,7 +19,7 @@ public abstract class BlockStateInsideMixin {
             at = @At("HEAD"),
             argsOnly = true)
     private BlockPos exotic_worlds$canonicalInsidePos(BlockPos pos, @Local(argsOnly = true) Level level) {
-        return WorldLoopAttachments.foldOf(level).fold(pos);
+        return WorldLoopAttachments.getFold(level).fold(pos);
     }
 
     @ModifyVariable(
@@ -27,6 +27,6 @@ public abstract class BlockStateInsideMixin {
             at = @At("HEAD"),
             argsOnly = true)
     private BlockPos exotic_worlds$canonicalShapePos(BlockPos pos, @Local(argsOnly = true) BlockGetter getter) {
-        return WorldLoopAttachments.foldIfLevel(getter).fold(pos);
+        return WorldLoopAttachments.getFoldIfLevel(getter).fold(pos);
     }
 }

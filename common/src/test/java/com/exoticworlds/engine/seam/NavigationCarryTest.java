@@ -7,25 +7,25 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FoldOrientation;
-import com.exoticworlds.core.SeamTransform;
+import com.exoticworlds.core.fold.FoldOrientation;
+import com.exoticworlds.core.fold.SeamTransform;
 
 import net.minecraft.core.Vec3i;
 
 class NavigationCarryTest {
     private static final int[] FOOTPRINTS = {1, 2, 5};
     private static final int[] COORDS = {0, 1, -1, 7, -7, 255, -256};
-    private static final int[] SHIFTS = {0, 1, -96, 512};
-    private static final int NODE_HEIGHT = 64;
+    private static final int[] SHIFTS_BLOCKS = {0, 1, -96, 512};
+    private static final int NODE_Y = 64;
     private static final double HALF_BLOCK = 0.5;
     private static final double EXACT = 0.0;
 
     private static List<SeamTransform> moves() {
         List<SeamTransform> built = new ArrayList<>();
         for (FoldOrientation orientation : FoldOrientation.values()) {
-            for (int shift : SHIFTS) {
-                built.add(new SeamTransform(orientation.flipsX() ? -1 : 1, orientation.flipsZ() ? -1 : 1,
-                        shift, -shift, orientation.swapsAxes()));
+            for (int shiftBlocks : SHIFTS_BLOCKS) {
+                built.add(new SeamTransform(orientation.isXFlipped() ? -1 : 1, orientation.isZFlipped() ? -1 : 1,
+                        shiftBlocks, -shiftBlocks, orientation.isSwappingAxes()));
             }
         }
 
@@ -49,8 +49,8 @@ class NavigationCarryTest {
     void aTranslationAddsItsShift() {
         SeamTransform move = SeamTransform.translation(512, -96);
         for (int footprint : FOOTPRINTS) {
-            assertEquals(new Vec3i(519, NODE_HEIGHT, -103),
-                    NavigationCarry.node(move, new Vec3i(7, NODE_HEIGHT, -7), footprint));
+            assertEquals(new Vec3i(519, NODE_Y, -103),
+                    NavigationCarry.node(move, new Vec3i(7, NODE_Y, -7), footprint));
         }
     }
 

@@ -33,7 +33,7 @@ public abstract class RegionModuleMixin {
 
     @WrapMethod(method = "apply")
     private void exotic_worlds$closeApply(Cell cell, float x, float z, Operation<Void> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             original.call(cell, x, z);
             return;

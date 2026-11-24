@@ -9,7 +9,7 @@ import com.exoticworlds.accessors.FoldableFastNoise;
 import com.exoticworlds.compat.lithostitched.ClosedNoise;
 import com.exoticworlds.compat.lithostitched.LapFastNoise;
 import com.exoticworlds.compat.lithostitched.LapFastNoiseConfig;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -43,7 +43,7 @@ public class FastNoiseDensityFunctionMixin implements FoldableFastNoise {
         }
 
         FastNoiseDensityFunction self = (FastNoiseDensityFunction) (Object) this;
-        LapFastNoise noise = this.exotic_worlds$closedNoise(generation.fold(), self);
+        LapFastNoise noise = this.exotic_worlds$closedNoise(generation.getFold(), self);
         if (noise == null) {
             return original.call(context);
         }
@@ -67,14 +67,14 @@ public class FastNoiseDensityFunctionMixin implements FoldableFastNoise {
     @Unique
     private static @Nullable LapFastNoise exotic_worlds$lapOf(WorldFold fold, FastNoiseDensityFunction self) {
         FastNoiseConfig config = self.config().value();
-        if (!LapFastNoise.samplesXz(self.xzScale())) {
+        if (!LapFastNoise.isSamplingXz(self.xzScale())) {
             return null;
         }
 
         LapFastNoise.Refusal refusal = LapFastNoise.refusal(config);
         if (refusal != null) {
             exotic_worlds$LOGGER.warn("[ew/lithostitched-compat] fast_noise_left_open config={} reason={} value={}",
-                    self.config().getRegisteredName(), refusal.reason().id(), refusal.value());
+                    self.config().getRegisteredName(), refusal.reason().getId(), refusal.value());
             return null;
         }
 

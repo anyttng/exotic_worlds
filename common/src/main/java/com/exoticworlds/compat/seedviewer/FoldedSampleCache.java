@@ -2,7 +2,7 @@ package com.exoticworlds.compat.seedviewer;
 
 import java.util.function.Supplier;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;

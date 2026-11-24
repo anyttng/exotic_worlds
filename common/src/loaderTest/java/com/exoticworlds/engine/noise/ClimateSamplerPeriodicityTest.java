@@ -1,6 +1,6 @@
 package com.exoticworlds.engine.noise;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScanFixture.WorldType;
 import com.exoticworlds.engine.noise.check.ClimateTargets;
 import com.exoticworlds.shape.WorldLoopPresets;
@@ -37,20 +37,20 @@ class ClimateSamplerPeriodicityTest {
     void theSamplerRepeatsOneWidthAwayOnATorus() {
         WorldType type = TYPES.getFirst();
         MultiNoiseBiomeSource source = biomeSource(type);
-        int width = WorldLoopPresets.TINY.blockWidth();
-        WorldFold fold = torusOfWidth(width);
+        int widthBlocks = WorldLoopPresets.TINY.getWidthBlocks();
+        WorldFold fold = torusOfWidth(widthBlocks);
         Climate.Sampler sampler = randomState(type, fold, SEED_BASE).sampler();
         int quartY = QuartPos.fromBlock(SCAN_Y_BLOCKS);
         Map<String, Integer> broken = new HashMap<>();
 
         GenerationFoldContext.runWithFold(fold, () -> {
             for (int i = 0; i < SAMPLES; i++) {
-                int x = i * (width / SAMPLES);
-                int z = (i * 37) % width;
+                int x = i * (widthBlocks / SAMPLES);
+                int z = (i * 37) % widthBlocks;
                 Climate.TargetPoint here =
                         ClimateTargets.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z));
                 Climate.TargetPoint lapAway =
-                        ClimateTargets.at(sampler, QuartPos.fromBlock(x + width), quartY, QuartPos.fromBlock(z));
+                        ClimateTargets.at(sampler, QuartPos.fromBlock(x + widthBlocks), quartY, QuartPos.fromBlock(z));
                 collect(broken, "temperature", here.temperature(), lapAway.temperature());
                 collect(broken, "humidity", here.humidity(), lapAway.humidity());
                 collect(broken, "continentalness", here.continentalness(), lapAway.continentalness());
@@ -68,8 +68,8 @@ class ClimateSamplerPeriodicityTest {
     @Test
     void theCylinderSamplerRepeatsOnItsLoopedAxisAlone() {
         WorldType type = TYPES.getFirst();
-        int width = WorldLoopPresets.TINY.blockWidth();
-        WorldFold fold = cylinderOfWidth(width);
+        int widthBlocks = WorldLoopPresets.TINY.getWidthBlocks();
+        WorldFold fold = cylinderOfWidth(widthBlocks);
         Climate.Sampler sampler = randomState(type, fold, SEED_BASE).sampler();
         int quartY = QuartPos.fromBlock(SCAN_Y_BLOCKS);
         Map<String, Integer> broken = new HashMap<>();
@@ -77,14 +77,14 @@ class ClimateSamplerPeriodicityTest {
 
         GenerationFoldContext.runWithFold(fold, () -> {
             for (int i = 0; i < SAMPLES; i++) {
-                int x = i * (width / SAMPLES);
-                int z = (i * 37) % width;
+                int x = i * (widthBlocks / SAMPLES);
+                int z = (i * 37) % widthBlocks;
                 Climate.TargetPoint here =
                         ClimateTargets.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z));
                 Climate.TargetPoint alongX =
-                        ClimateTargets.at(sampler, QuartPos.fromBlock(x + width), quartY, QuartPos.fromBlock(z));
+                        ClimateTargets.at(sampler, QuartPos.fromBlock(x + widthBlocks), quartY, QuartPos.fromBlock(z));
                 Climate.TargetPoint alongZ =
-                        ClimateTargets.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z + width));
+                        ClimateTargets.at(sampler, QuartPos.fromBlock(x), quartY, QuartPos.fromBlock(z + widthBlocks));
                 collect(broken, "temperature", here.temperature(), alongX.temperature());
                 collect(broken, "humidity", here.humidity(), alongX.humidity());
                 collect(broken, "continentalness", here.continentalness(), alongX.continentalness());
@@ -96,10 +96,10 @@ class ClimateSamplerPeriodicityTest {
             }
         });
 
-        assertTrue(broken.isEmpty(), "the looped axis does not repeat one width away, mismatches of " + SAMPLES
+        assertTrue(broken.isEmpty(), "the looped axis does not repeat one widthBlocks away, mismatches of " + SAMPLES
                 + " samples per field: " + broken);
         assertEquals(2, varyingAcross.size(),
-                "the unbounded axis repeats one width away, so the sampler is not reading a cylinder");
+                "the unbounded axis repeats one widthBlocks away, so the sampler is not reading a cylinder");
     }
 
     private static void collect(Map<String, Integer> broken, String field, long here, long lapAway) {

@@ -8,16 +8,16 @@ public enum MapCopies {
     REPEATED,
     SINGLE;
 
-    public static MapCopies current() {
-        return SettingsService.get().settings().mapCopies();
+    public static MapCopies getCurrent() {
+        return SettingsService.get().getSettings().mapCopies();
     }
 
-    public boolean allowsSeamLines() {
+    public boolean canDrawSeamLines() {
         return this == REPEATED;
     }
 
-    public boolean drawsSeamLines() {
-        return allowsSeamLines() && SettingsService.get().settings().seamLines();
+    public boolean isDrawingSeamLines() {
+        return canDrawSeamLines() && SettingsService.get().getSettings().seamLines();
     }
 
     public static Optional<MapCopies> fromName(String name) {

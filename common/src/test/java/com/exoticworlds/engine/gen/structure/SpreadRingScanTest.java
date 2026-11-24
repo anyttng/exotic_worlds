@@ -10,11 +10,11 @@ import java.util.List;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
@@ -22,7 +22,7 @@ import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 
 class SpreadRingScanTest {
     private static final int SKEW_CHUNKS = 16;
-    private static final int SPACING = 8;
+    private static final int SPACING_CHUNKS = 8;
     private static final int SEPARATION = 4;
     private static final int SALT = 14357617;
     private static final long SEED = 0x5EEDL;
@@ -31,30 +31,30 @@ class SpreadRingScanTest {
     private static final WorldFold FOLD =
             WorldFolds.of(FlatShape.latticeTorus(ShapeFixtures.loopedBounds(-32, 32, -32, 32), SKEW_CHUNKS));
     private static final RandomSpreadStructurePlacement PLACEMENT =
-            new RandomSpreadStructurePlacement(SPACING, SEPARATION, RandomSpreadType.LINEAR, SALT);
+            new RandomSpreadStructurePlacement(SPACING_CHUNKS, SEPARATION, RandomSpreadType.LINEAR, SALT);
 
     private static SpreadRingScan scanAround(ChunkPos center) {
         return SpreadRingScan.of(FOLD, AddedStructureStarts.NONE, PLACEMENT, SEED, center);
     }
 
     private static int offsetCap(ChunkPos center) {
-        TranslationLattice lattice = FOLD.chunkLattice();
-        return Math.max(SectorGridAxis.of(lattice.x(), SPACING, center.x()).offsetCap(),
-                SectorGridAxis.of(lattice.z(), SPACING, center.z()).offsetCap());
+        TranslationLattice lattice = FOLD.getChunkLattice();
+        return Math.max(SectorGridAxis.of(lattice.getX(), SPACING_CHUNKS, center.x()).getOffsetCap(),
+                SectorGridAxis.of(lattice.getZ(), SPACING_CHUNKS, center.z()).getOffsetCap());
     }
 
     @ParameterizedTest
     @ValueSource(ints = {-32, 24})
     void everyCellProbesThePickOfTheCellItsPositionFoldsTo(int centerZ) {
         ChunkPos center = new ChunkPos(CENTER_X, centerZ);
-        TranslationLattice lattice = FOLD.chunkLattice();
+        TranslationLattice lattice = FOLD.getChunkLattice();
         SpreadRingScan scan = scanAround(center);
         int cap = offsetCap(center);
         boolean crossedTheZSeam = false;
         for (int x = -cap; x <= cap; x++) {
             for (int z = -cap; z <= cap; z++) {
-                int unwrappedX = center.x() + x * SPACING;
-                int unwrappedZ = center.z() + z * SPACING;
+                int unwrappedX = center.x() + x * SPACING_CHUNKS;
+                int unwrappedZ = center.z() + z * SPACING_CHUNKS;
                 ChunkPos expected = PLACEMENT.getPotentialStructureChunk(SEED,
                         lattice.foldX(unwrappedX, unwrappedZ), lattice.foldZ(unwrappedZ));
                 assertEquals(expected, scan.cell(x, z, chunk -> chunk, added -> null), "cell " + x + ", " + z);

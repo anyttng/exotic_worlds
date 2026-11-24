@@ -12,14 +12,14 @@ public final class SeamDetailsPending {
     private final Set<UUID> players = ConcurrentHashMap.newKeySet();
 
     static SeamDetailsPending of(MinecraftServer server) {
-        return ((SeamDetailsPendingHolder) server).exotic_worlds$seamDetailsPending();
+        return ((SeamDetailsPendingHolder) server).exotic_worlds$getSeamDetailsPending();
     }
 
     void mark(UUID player) {
         this.players.add(player);
     }
 
-    boolean take(UUID player) {
+    boolean tryTake(UUID player) {
         return this.players.remove(player);
     }
 }

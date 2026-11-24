@@ -13,7 +13,7 @@ import com.pandaismyname1.ultraterraforged.world.worldgen.rivermap.RiverRoutes;
 public abstract class RiverRoutesMixin {
     @WrapMethod(method = "unwarp")
     private static long exotic_worlds$unwarpOpen(float x, float z, Domain warp, Operation<Long> original) {
-        RtfLap.Frame frame = RtfLap.boundFrame();
+        RtfLap.Frame frame = RtfLap.getBoundFrame();
         if (frame == null) {
             return original.call(x, z, warp);
         }

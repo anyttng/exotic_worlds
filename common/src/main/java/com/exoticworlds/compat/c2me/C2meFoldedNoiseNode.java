@@ -2,7 +2,7 @@ package com.exoticworlds.compat.c2me;
 
 import java.util.Objects;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.SlotAxes;
 
 import com.ishland.c2me.opts.dfc.common.ast.AstNode;

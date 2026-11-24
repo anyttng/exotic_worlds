@@ -5,10 +5,10 @@ import java.util.List;
 
 import com.exoticworlds.api.v1.SeamShift;
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.FoldOrientation;
-import com.exoticworlds.core.RectangleCopies;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.FoldOrientation;
+import com.exoticworlds.core.fold.RectangleCopies;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,37 +25,37 @@ final class ToroidalShapeView implements ToroidalShape {
 
     @Override
     public boolean loops(Direction.Axis axis) {
-        return this.fold.loops(axis);
+        return this.fold.isLooped(axis);
     }
 
     @Override
     public int minChunk(Direction.Axis axis) {
-        return this.fold.minChunk(axis);
+        return this.fold.getMinChunk(axis);
     }
 
     @Override
     public int maxChunk(Direction.Axis axis) {
-        return this.fold.maxChunk(axis);
+        return this.fold.getMaxChunk(axis);
     }
 
     @Override
     public int widthChunks(Direction.Axis axis) {
-        return this.fold.widthChunks(axis);
+        return this.fold.getWidthChunks(axis);
     }
 
     @Override
     public int minBlock(Direction.Axis axis) {
-        return this.fold.minBlock(axis);
+        return this.fold.getMinBlock(axis);
     }
 
     @Override
     public int maxBlock(Direction.Axis axis) {
-        return this.fold.maxBlock(axis);
+        return this.fold.getMaxBlock(axis);
     }
 
     @Override
     public int widthBlocks(Direction.Axis axis) {
-        return this.fold.widthBlocks(axis);
+        return this.fold.getWidthBlocks(axis);
     }
 
     @Override
@@ -110,12 +110,12 @@ final class ToroidalShapeView implements ToroidalShape {
 
     @Override
     public double sqrDistance(Vec3 from, Vec3 to) {
-        return this.fold.sqrDistance(from.x, from.y, from.z, to.x, to.y, to.z);
+        return this.fold.sqrDistanceBlocks(from.x, from.y, from.z, to.x, to.y, to.z);
     }
 
     @Override
     public boolean boxesOverlap(AABB first, AABB second) {
-        return this.fold.boxesOverlap(first, second);
+        return this.fold.areBoxesOverlapping(first, second);
     }
 
     @Override
@@ -152,12 +152,12 @@ final class ToroidalShapeView implements ToroidalShape {
 
     @Override
     public boolean decomposesPerAxis() {
-        return this.fold.decomposesPerAxis();
+        return this.fold.isDecomposedPerAxis();
     }
 
     @Override
     public boolean preservesLocalIndices() {
-        return this.fold.preservesLocalIndices();
+        return this.fold.isPreservingLocalIndices();
     }
 
     @Override
@@ -214,10 +214,10 @@ final class ToroidalShapeView implements ToroidalShape {
     }
 
     static Orientation orientationOf(FoldOrientation orientation) {
-        if (orientation.swapsAxes()) {
+        if (orientation.isSwappingAxes()) {
             throw new IllegalStateException("The api's Orientation carries no quarter turn, got " + orientation);
         }
 
-        return new Orientation(orientation.flipsX(), orientation.flipsZ());
+        return new Orientation(orientation.isXFlipped(), orientation.isZFlipped());
     }
 }

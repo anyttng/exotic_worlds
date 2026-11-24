@@ -10,7 +10,7 @@ import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.compat.map.FullscreenZoomFloor;
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.WorldCopies;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -32,11 +32,11 @@ public final class XaeroWorldMapFold {
 
     private static final int TILE_CHUNK_CHUNKS = 4;
 
-    private static final int COMPARISON_CHUNK_OFFSET = 16;
+    private static final int COMPARISON_OFFSET_CHUNKS = 16;
 
     private static final long[] NO_REGIONS = new long[0];
 
-    public static @Nullable WorldFold browsedFold() {
+    public static @Nullable WorldFold getBrowsedFold() {
         WorldMapSession session = WorldMapSession.getCurrentSession();
         MapProcessor processor = session == null ? null : session.getMapProcessor();
         MapWorld mapWorld = processor == null ? null : processor.getMapWorld();
@@ -56,7 +56,7 @@ public final class XaeroWorldMapFold {
         int maxX = chunkBlock(firstChunkX + TILE_CHUNK_CHUNKS);
         int maxZ = chunkBlock(firstChunkZ + TILE_CHUNK_CHUNKS);
         List<TileArea> areas = new ArrayList<>();
-        for (WorldCopies.Piece piece : window.within(minX, minZ, maxX, maxZ).pieces()) {
+        for (WorldCopies.Piece piece : window.within(minX, minZ, maxX, maxZ).getPieces()) {
             List<TilePiece> piecesX = axisPieces(SectionPos.blockToSectionCoord(piece.minX()),
                     SectionPos.blockToSectionCoord(piece.maxX()),
                     SectionPos.blockToSectionCoord(piece.copy().dx()) - firstChunkX);
@@ -73,11 +73,11 @@ public final class XaeroWorldMapFold {
         return areas;
     }
 
-    public static boolean tileLeavesWorld(AxisCopies blockCopiesX, AxisCopies blockCopiesZ, int rawTileX,
+    public static boolean isTileLeavingWorld(AxisCopies blockCopiesX, AxisCopies blockCopiesZ, int rawTileX,
             int rawTileZ) {
         int tileBlocks = chunkBlock(TILE_CHUNK_CHUNKS);
-        return spanLeavesWorld(blockCopiesX, rawTileX * tileBlocks, tileBlocks)
-                || spanLeavesWorld(blockCopiesZ, rawTileZ * tileBlocks, tileBlocks);
+        return isSpanLeavingWorld(blockCopiesX, rawTileX * tileBlocks, tileBlocks)
+                || isSpanLeavingWorld(blockCopiesZ, rawTileZ * tileBlocks, tileBlocks);
     }
 
     private static List<TilePiece> axisPieces(int minChunk, int maxChunk, int rawShift) {
@@ -119,8 +119,8 @@ public final class XaeroWorldMapFold {
     }
 
     public static int lastInsideTile(AxisCopies chunkCopies, int canonicalChunk) {
-        boolean lastInWorld = chunkCopies.loops() && canonicalChunk == chunkCopies.max() - 1;
-        return lastInWorld ? TILE_CHUNK_CHUNKS - 1 : insideTile(canonicalChunk);
+        boolean isLastInWorld = chunkCopies.isLooped() && canonicalChunk == chunkCopies.getMax() - 1;
+        return isLastInWorld ? TILE_CHUNK_CHUNKS - 1 : insideTile(canonicalChunk);
     }
 
     public static ChunkPos tileOfChunk(@Nullable WorldFold fold, int chunkX, int chunkZ) {
@@ -155,24 +155,24 @@ public final class XaeroWorldMapFold {
 
     public static long[] canonicalRegionCorners(@Nullable WorldFold fold, int leveledRegX, int leveledRegZ,
             int level) {
-        int side = REGION_BLOCKS << level;
-        int minX = leveledRegX * side;
-        int minZ = leveledRegZ * side;
-        int maxX = minX + side - 1;
-        int maxZ = minZ + side - 1;
-        return new long[] {canonicalRegion(fold, minX, minZ, side), canonicalRegion(fold, maxX, minZ, side),
-                canonicalRegion(fold, minX, maxZ, side), canonicalRegion(fold, maxX, maxZ, side)};
+        int sideBlocks = REGION_BLOCKS << level;
+        int minX = leveledRegX * sideBlocks;
+        int minZ = leveledRegZ * sideBlocks;
+        int maxX = minX + sideBlocks - 1;
+        int maxZ = minZ + sideBlocks - 1;
+        return new long[] {canonicalRegion(fold, minX, minZ, sideBlocks), canonicalRegion(fold, maxX, minZ, sideBlocks),
+                canonicalRegion(fold, minX, maxZ, sideBlocks), canonicalRegion(fold, maxX, maxZ, sideBlocks)};
     }
 
-    private static long canonicalRegion(@Nullable WorldFold fold, int blockX, int blockZ, int side) {
+    private static long canonicalRegion(@Nullable WorldFold fold, int blockX, int blockZ, int sideBlocks) {
         BlockPos folded = foldBlock(fold, blockX, blockZ);
-        return ChunkPos.pack(Math.floorDiv(folded.getX(), side), Math.floorDiv(folded.getZ(), side));
+        return ChunkPos.pack(Math.floorDiv(folded.getX(), sideBlocks), Math.floorDiv(folded.getZ(), sideBlocks));
     }
 
     public static ChunkPos foldComparison(@Nullable WorldFold fold, int comparisonX, int comparisonZ) {
-        ChunkPos canonical = canonicalChunk(fold, comparisonX + COMPARISON_CHUNK_OFFSET,
-                comparisonZ + COMPARISON_CHUNK_OFFSET);
-        return new ChunkPos(canonical.x() - COMPARISON_CHUNK_OFFSET, canonical.z() - COMPARISON_CHUNK_OFFSET);
+        ChunkPos canonical = canonicalChunk(fold, comparisonX + COMPARISON_OFFSET_CHUNKS,
+                comparisonZ + COMPARISON_OFFSET_CHUNKS);
+        return new ChunkPos(canonical.x() - COMPARISON_OFFSET_CHUNKS, canonical.z() - COMPARISON_OFFSET_CHUNKS);
     }
 
     public static long[] canonicalRegions(@Nullable WorldFold fold, int startTileChunkX, int startTileChunkZ,
@@ -183,32 +183,32 @@ public final class XaeroWorldMapFold {
                 .canonicalCells(REGION_BLOCKS);
     }
 
-    public static long[] canonicalSlotOrigins(WorldCopies.Window window, int viewBlockX, int viewBlockZ, int slotSize) {
-        long[] slots = slotCells(window, viewBlockX, viewBlockZ, slotSize);
+    public static long[] canonicalSlotOrigins(WorldCopies.Window window, int viewBlockX, int viewBlockZ, int slotSizeBlocks) {
+        long[] slots = slotCells(window, viewBlockX, viewBlockZ, slotSizeBlocks);
         for (int i = 0; i < slots.length; i++) {
-            slots[i] = ChunkPos.pack(ChunkPos.getX(slots[i]) * slotSize, ChunkPos.getZ(slots[i]) * slotSize);
+            slots[i] = ChunkPos.pack(ChunkPos.getX(slots[i]) * slotSizeBlocks, ChunkPos.getZ(slots[i]) * slotSizeBlocks);
         }
 
         return slots;
     }
 
-    private static long[] slotCells(WorldCopies.Window window, int viewBlockX, int viewBlockZ, int slotSize) {
-        int maxX = viewBlockX + slotSize;
-        int maxZ = viewBlockZ + slotSize;
-        return window.within(viewBlockX, viewBlockZ, maxX, maxZ).canonicalCells(slotSize);
+    private static long[] slotCells(WorldCopies.Window window, int viewBlockX, int viewBlockZ, int slotSizeBlocks) {
+        int maxX = viewBlockX + slotSizeBlocks;
+        int maxZ = viewBlockZ + slotSizeBlocks;
+        return window.within(viewBlockX, viewBlockZ, maxX, maxZ).canonicalCells(slotSizeBlocks);
     }
 
     public static long @Nullable [] frameRegions(int minTileChunkX, int minTileChunkZ, int maxTileChunkX,
             int maxTileChunkZ) {
-        return frameRegions(browsedFold(), minTileChunkX, minTileChunkZ, maxTileChunkX, maxTileChunkZ);
+        return frameRegions(getBrowsedFold(), minTileChunkX, minTileChunkZ, maxTileChunkX, maxTileChunkZ);
     }
 
     static long @Nullable [] frameRegions(@Nullable WorldFold fold, int minTileChunkX, int minTileChunkZ,
             int maxTileChunkX, int maxTileChunkZ) {
         if (fold == null
-                || (!spanLeavesWorld(AxisCopies.of(fold, Direction.Axis.X), minTileChunkX * SLOT_BLOCKS,
+                || (!isSpanLeavingWorld(AxisCopies.of(fold, Direction.Axis.X), minTileChunkX * SLOT_BLOCKS,
                         (maxTileChunkX + 1 - minTileChunkX) * SLOT_BLOCKS)
-                && !spanLeavesWorld(AxisCopies.of(fold, Direction.Axis.Z), minTileChunkZ * SLOT_BLOCKS,
+                && !isSpanLeavingWorld(AxisCopies.of(fold, Direction.Axis.Z), minTileChunkZ * SLOT_BLOCKS,
                         (maxTileChunkZ + 1 - minTileChunkZ) * SLOT_BLOCKS))) {
             return null;
         }
@@ -218,14 +218,14 @@ public final class XaeroWorldMapFold {
 
     public static long[] fannedRegions(WorldCopies.Window window, int leveledRegX, int leveledRegZ, int level) {
         WorldFold fold = window.fold();
-        int side = REGION_BLOCKS << level;
+        int sideBlocks = REGION_BLOCKS << level;
         if (fold == null
-                || (!spanLeavesWorld(AxisCopies.of(fold, Direction.Axis.X), leveledRegX * side, side)
-                && !spanLeavesWorld(AxisCopies.of(fold, Direction.Axis.Z), leveledRegZ * side, side))) {
+                || (!isSpanLeavingWorld(AxisCopies.of(fold, Direction.Axis.X), leveledRegX * sideBlocks, sideBlocks)
+                && !isSpanLeavingWorld(AxisCopies.of(fold, Direction.Axis.Z), leveledRegZ * sideBlocks, sideBlocks))) {
             return NO_REGIONS;
         }
 
-        return slotCells(window, leveledRegX * side, leveledRegZ * side, side);
+        return slotCells(window, leveledRegX * sideBlocks, leveledRegZ * sideBlocks, sideBlocks);
     }
 
     public static long[] fannedLeaves(WorldCopies.Window window, int leveledRegX, int leveledRegZ, int level) {
@@ -245,26 +245,26 @@ public final class XaeroWorldMapFold {
         return fanned;
     }
 
-    public static List<TilePlacement> placements(int originX, int originZ, int size, List<WorldCopies.Copy> copies) {
-        return placements(browsedFold(), originX, originZ, size, copies);
+    public static List<TilePlacement> placements(int originX, int originZ, int sizeBlocks, List<WorldCopies.Copy> copies) {
+        return placements(getBrowsedFold(), originX, originZ, sizeBlocks, copies);
     }
 
-    public static List<TilePlacement> placements(@Nullable WorldFold fold, int originX, int originZ, int size,
+    public static List<TilePlacement> placements(@Nullable WorldFold fold, int originX, int originZ, int sizeBlocks,
             List<WorldCopies.Copy> copies) {
         AxisCopies x = AxisCopies.of(fold, Direction.Axis.X);
         AxisCopies z = AxisCopies.of(fold, Direction.Axis.Z);
         int minX = x.clipMin(originX);
-        int maxX = x.clipMax(originX + size);
+        int maxX = x.clipMax(originX + sizeBlocks);
         int minZ = z.clipMin(originZ);
-        int maxZ = z.clipMax(originZ + size);
+        int maxZ = z.clipMax(originZ + sizeBlocks);
         if (minX >= maxX || minZ >= maxZ) {
             return List.of();
         }
 
-        float u1 = (float) (minX - originX) / size;
-        float u2 = (float) (maxX - originX) / size;
-        float v1 = (float) (minZ - originZ) / size;
-        float v2 = (float) (maxZ - originZ) / size;
+        float u1 = (float) (minX - originX) / sizeBlocks;
+        float u2 = (float) (maxX - originX) / sizeBlocks;
+        float v1 = (float) (minZ - originZ) / sizeBlocks;
+        float v2 = (float) (maxZ - originZ) / sizeBlocks;
         List<TilePlacement> placements = new ArrayList<>(copies.size());
         for (WorldCopies.Copy copy : copies) {
             placements.add(new TilePlacement(minX + copy.dx(), minZ + copy.dz(), maxX - minX, maxZ - minZ,
@@ -274,41 +274,41 @@ public final class XaeroWorldMapFold {
         return placements;
     }
 
-    public record TilePlacement(int minX, int minZ, int width, int height, float u1, float v1, float u2, float v2) {
-        public boolean meets(int spanMinX, int spanMinZ, int spanMaxX, int spanMaxZ) {
-            return this.minX < spanMaxX && this.minX + this.width > spanMinX
-                    && this.minZ < spanMaxZ && this.minZ + this.height > spanMinZ;
+    public record TilePlacement(int minX, int minZ, int widthBlocks, int heightBlocks, float u1, float v1, float u2, float v2) {
+        public boolean isMeeting(int spanMinX, int spanMinZ, int spanMaxX, int spanMaxZ) {
+            return this.minX < spanMaxX && this.minX + this.widthBlocks > spanMinX
+                    && this.minZ < spanMaxZ && this.minZ + this.heightBlocks > spanMinZ;
         }
     }
 
-    public static boolean spanLeavesWorld(AxisCopies copies, int first, int size) {
+    public static boolean isSpanLeavingWorld(AxisCopies copies, int first, int size) {
         int end = first + size;
         return copies.clipMin(first) != first || copies.clipMax(end) != end;
     }
 
     public static BlockPos foldBlock(int blockX, int blockZ) {
-        return foldBlock(browsedFold(), blockX, blockZ);
+        return foldBlock(getBrowsedFold(), blockX, blockZ);
     }
 
     public static BlockPos foldBlock(@Nullable WorldFold fold, int blockX, int blockZ) {
         return ClientFolds.fold(fold, new BlockPos(blockX, 0, blockZ));
     }
 
-    public static boolean glueableAt(@Nullable WorldFold fold, int slotSizeBlocks) {
+    public static boolean isGlueableAt(@Nullable WorldFold fold, int slotSizeBlocks) {
         if (fold == null) {
             return false;
         }
 
         AxisCopies x = AxisCopies.of(fold, Direction.Axis.X);
         AxisCopies z = AxisCopies.of(fold, Direction.Axis.Z);
-        if ((x.loops() && Math.floorMod(x.min(), slotSizeBlocks) != 0)
-                || (z.loops() && Math.floorMod(z.min(), slotSizeBlocks) != 0)) {
+        if ((x.isLooped() && Math.floorMod(x.getMin(), slotSizeBlocks) != 0)
+                || (z.isLooped() && Math.floorMod(z.getMin(), slotSizeBlocks) != 0)) {
             return false;
         }
 
         List<WorldCopies.Copy> neighbors = WorldCopies.meeting(fold,
-                x.loops() ? x.min() - x.width() : 0, z.loops() ? z.min() - z.width() : 0,
-                x.loops() ? x.max() + x.width() : 1, z.loops() ? z.max() + z.width() : 1);
+                x.isLooped() ? x.getMin() - x.getWidth() : 0, z.isLooped() ? z.getMin() - z.getWidth() : 0,
+                x.isLooped() ? x.getMax() + x.getWidth() : 1, z.isLooped() ? z.getMax() + z.getWidth() : 1);
         for (WorldCopies.Copy copy : neighbors) {
             if (Math.floorMod(copy.dx(), slotSizeBlocks) != 0 || Math.floorMod(copy.dz(), slotSizeBlocks) != 0) {
                 return false;
@@ -319,7 +319,7 @@ public final class XaeroWorldMapFold {
     }
 
     public static List<WorldCopies.Copy> drawnCopies(int[] spanX, int[] spanZ, MapCopies mapCopies) {
-        return drawnCopies(browsedFold(), spanX, spanZ, mapCopies);
+        return drawnCopies(getBrowsedFold(), spanX, spanZ, mapCopies);
     }
 
     public static List<WorldCopies.Copy> drawnCopies(@Nullable WorldFold fold, int[] spanX, int[] spanZ,
@@ -335,14 +335,14 @@ public final class XaeroWorldMapFold {
         return copies.contains(WorldCopies.IDENTITY) ? List.of(WorldCopies.IDENTITY) : List.of();
     }
 
-    public static double zoomFloorScale(double scaleMultiplier, MapCopies mapCopies, int windowWidth, int windowHeight) {
-        WorldFold fold = browsedFold();
+    public static double zoomFloorScale(double scaleMultiplier, MapCopies mapCopies, int windowWidthPixels, int windowHeightPixels) {
+        WorldFold fold = getBrowsedFold();
         if (fold == null) {
             return 0.0;
         }
 
         return mapCopies == MapCopies.SINGLE
-                ? FullscreenZoomFloor.xaeroCoverScale(fold, scaleMultiplier, windowWidth, windowHeight)
+                ? FullscreenZoomFloor.xaeroCoverScale(fold, scaleMultiplier, windowWidthPixels, windowHeightPixels)
                 : FullscreenZoomFloor.xaeroScale(fold, scaleMultiplier);
     }
 

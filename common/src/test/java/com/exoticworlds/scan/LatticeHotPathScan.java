@@ -11,12 +11,12 @@ import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.sun.management.ThreadMXBean;
 
 import net.minecraft.core.BlockPos;
@@ -74,10 +74,10 @@ class LatticeHotPathScan {
                 index -> fold.nearestCopy(in.refBlocks[index], in.targetBlocks[index]).getX()));
         rows.add(
                 row(threads, "sqr_distance", world, named, in,
-                        index -> (int) fold.sqrDistance(in.refs[index].x, in.refs[index].y, in.refs[index].z,
+                        index -> (int) fold.sqrDistanceBlocks(in.refs[index].x, in.refs[index].y, in.refs[index].z,
                                 in.targets[index].x, in.targets[index].y, in.targets[index].z)));
         rows.add(row(threads, "sqr_chunk_distance", world, named, in,
-                index -> fold.sqrChunkDistance(in.refChunks[index], in.targetChunks[index])));
+                index -> fold.sqrDistanceChunks(in.refChunks[index], in.targetChunks[index])));
         return rows;
     }
 
@@ -148,8 +148,8 @@ class LatticeHotPathScan {
 
         static Inputs sameHalf(World world) {
             Inputs inputs = new Inputs("same_half");
-            double centerX = (world.xAxis().minBlock() + world.xAxis().maxBlock()) / 2.0;
-            double centerZ = (world.zAxis().minBlock() + world.zAxis().maxBlock()) / 2.0;
+            double centerX = (world.xAxis().getMinBlock() + world.xAxis().getMaxBlock()) / 2.0;
+            double centerZ = (world.zAxis().getMinBlock() + world.zAxis().getMaxBlock()) / 2.0;
             for (int index = 0; index < POINTS; index++) {
                 double offset = spread(index);
                 inputs.fill(index, new Vec3(centerX + 0.5, FLOOR_Y, centerZ + 0.5),
@@ -164,15 +164,15 @@ class LatticeHotPathScan {
             Inputs inputs = new Inputs("across_the_seam");
             WorldLoopBounds.AxisBounds.Looped x = world.xAxis();
             WorldLoopBounds.AxisBounds.Looped z = world.zAxis();
-            double centerZ = (z.minBlock() + z.maxBlock()) / 2.0;
+            double centerZ = (z.getMinBlock() + z.getMaxBlock()) / 2.0;
             for (int index = 0; index < POINTS; index++) {
                 double offset = spread(index);
                 Vec3 lapOutside = (index & 1) == 0
-                        ? new Vec3(x.maxBlock() + LAP_OVERSHOOT_BLOCKS + offset, FLOOR_Y, centerZ + offset)
-                        : new Vec3(x.minBlock() + x.chunkWidth() * CoordinateConstants.CHUNK_WIDTH / 2.0 + offset, FLOOR_Y,
-                                z.maxBlock() + LAP_OVERSHOOT_BLOCKS + offset);
-                inputs.fill(index, new Vec3(x.maxBlock() - SEAM_INSET_BLOCKS, FLOOR_Y, centerZ + offset),
-                        new Vec3(x.minBlock() + SEAM_INSET_BLOCKS + Math.abs(offset), FLOOR_Y, centerZ - offset),
+                        ? new Vec3(x.getMaxBlock() + LAP_OVERSHOOT_BLOCKS + offset, FLOOR_Y, centerZ + offset)
+                        : new Vec3(x.getMinBlock() + x.getWidthChunks() * CoordinateConstants.CHUNK_WIDTH_BLOCKS / 2.0 + offset, FLOOR_Y,
+                                z.getMaxBlock() + LAP_OVERSHOOT_BLOCKS + offset);
+                inputs.fill(index, new Vec3(x.getMaxBlock() - SEAM_INSET_BLOCKS, FLOOR_Y, centerZ + offset),
+                        new Vec3(x.getMinBlock() + SEAM_INSET_BLOCKS + Math.abs(offset), FLOOR_Y, centerZ - offset),
                         lapOutside);
             }
 

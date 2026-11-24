@@ -20,8 +20,8 @@ public class MobEffectUtilMixin {
             method = "lambda$addEffectToPlayersAround$0",
             at = @At(value = "INVOKE",
                     target = InjectionTargets.VEC3_CLOSER_THAN))
-    private static boolean exotic_worlds$effectRadiusThroughSeam(Vec3 origin, Position playerPosition, double radius,
+    private static boolean exotic_worlds$effectRadiusThroughSeam(Vec3 origin, Position playerPosition, double radiusBlocks,
             Operation<Boolean> original, @Local(argsOnly = true) ServerPlayer player) {
-        return original.call(origin, SeamRange.toward(player, origin, playerPosition), radius);
+        return original.call(origin, SeamRange.toward(player, origin, playerPosition), radiusBlocks);
     }
 }

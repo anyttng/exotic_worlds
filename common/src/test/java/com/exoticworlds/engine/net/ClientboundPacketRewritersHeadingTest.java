@@ -8,12 +8,12 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.SeamTransform;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.SeamTransform;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.seam.ClientPosition;
 
 import net.minecraft.network.protocol.game.ClientboundMoveVehiclePacket;
@@ -26,14 +26,14 @@ import net.minecraft.world.phys.Vec3;
 
 class ClientboundPacketRewritersHeadingTest {
     private static final double TOLERANCE = 1.0e-6;
-    private static final int FACE_WIDTH = 64;
-    private static final int VIEW_DISTANCE = 12;
+    private static final int FACE_WIDTH_BLOCKS = 64;
+    private static final int VIEW_DISTANCE_CHUNKS = 12;
     private static final int TORUS_WIDTH_IN_CHUNKS = 32;
     private static final int TELEPORT_ID = 3;
 
     private static final SeamTransform QUARTER_TURN_TO_THE_CLIENT =
-            new SeamTransform(-1, 1, FACE_WIDTH, -FACE_WIDTH, true);
-    private static final SeamTransform MIRROR_TO_THE_CLIENT = new SeamTransform(-1, 1, FACE_WIDTH, 0);
+            new SeamTransform(-1, 1, FACE_WIDTH_BLOCKS, -FACE_WIDTH_BLOCKS, true);
+    private static final SeamTransform MIRROR_TO_THE_CLIENT = new SeamTransform(-1, 1, FACE_WIDTH_BLOCKS, 0);
 
     private static final WorldFold TORUS =
             WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(TORUS_WIDTH_IN_CHUNKS)));
@@ -50,7 +50,7 @@ class ClientboundPacketRewritersHeadingTest {
                 WorldFold.class.getClassLoader(),
                 new Class<?>[] {WorldFold.class},
                 (proxy, method, arguments) -> switch (method.getName()) {
-                    case "preservesLocalIndices" -> false;
+                    case "isPreservingLocalIndices" -> false;
                     case "nearestCopy" -> arguments[1];
                     case "foldTransformation" -> new DeckTransformation(toTheClient.inverse());
                     default -> throw new UnsupportedOperationException(method.getName());
@@ -67,8 +67,8 @@ class ClientboundPacketRewritersHeadingTest {
                     throw new UnsupportedOperationException();
                 },
                 Level.OVERWORLD,
-                VIEW_DISTANCE,
-                VIEW_DISTANCE,
+                VIEW_DISTANCE_CHUNKS,
+                VIEW_DISTANCE_CHUNKS,
                 entityId -> null,
                 entityId -> null,
                 () -> {
@@ -127,8 +127,8 @@ class ClientboundPacketRewritersHeadingTest {
                 teleport(STEP, Set.of(Relative.X, Relative.Y, Relative.Z)), context);
 
         assertClose(new Vec3(0.0, STEP.y, STEP.x), sent.change().position(), "the step");
-        assertEquals(ANCHOR_X, context.clientPosition().x(), TOLERANCE);
-        assertEquals(STEP.x, context.clientPosition().z(), TOLERANCE);
+        assertEquals(ANCHOR_X, context.clientPosition().getX(), TOLERANCE);
+        assertEquals(STEP.x, context.clientPosition().getZ(), TOLERANCE);
     }
 
     @Test

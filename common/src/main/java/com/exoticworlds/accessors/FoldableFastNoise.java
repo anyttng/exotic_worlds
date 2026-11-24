@@ -2,7 +2,7 @@ package com.exoticworlds.accessors;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 public interface FoldableFastNoise {
     @Nullable

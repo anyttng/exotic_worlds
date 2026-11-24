@@ -11,11 +11,11 @@ import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ChunkTrackingView;
@@ -37,14 +37,14 @@ class SeamTeleportTest {
     private static final WorldFold SKEWED =
             WorldFolds.of(FlatShape.latticeTorus(WorldLoopBounds.ofWidth(LATTICE_WIDTH_CHUNKS), SKEW_CHUNKS));
 
-    private static final int VIEW_RADIUS = 14;
+    private static final int VIEW_RADIUS_CHUNKS = 14;
     private static final int NEAR_SEAM_CHUNK = 14;
     private static final int STEP_CHUNKS = 5;
     private static final int LAST_FLIPPED_CHUNK = 2;
 
     @Test
     void aTeleportInsideOneLapFlipsNoChunk() {
-        ChunkTrackingView view = ChunkTrackingView.of(new ChunkPos(0, 0), VIEW_RADIUS);
+        ChunkTrackingView view = ChunkTrackingView.of(new ChunkPos(0, 0), VIEW_RADIUS_CHUNKS);
         ChunkPos to = new ChunkPos(1, 1);
 
         assertEquals(List.of(), SeamTeleport.flipped(TORUS, new ChunkPos(0, 0), to, view));
@@ -56,7 +56,7 @@ class SeamTeleportTest {
     void aTeleportAcrossTheSeamFlipsTheChunksPastTheNewHalfWorld() {
         ChunkPos from = new ChunkPos(NEAR_SEAM_CHUNK, 0);
         ChunkPos to = new ChunkPos(NEAR_SEAM_CHUNK + STEP_CHUNKS, 0);
-        ChunkTrackingView view = ChunkTrackingView.of(from, VIEW_RADIUS);
+        ChunkTrackingView view = ChunkTrackingView.of(from, VIEW_RADIUS_CHUNKS);
         Set<ChunkPos> expected = viewChunks(view, pos -> pos.x() <= LAST_FLIPPED_CHUNK);
 
         assertEquals(expected, new HashSet<>(SeamTeleport.flipped(TORUS, from, to, view)));
@@ -67,7 +67,7 @@ class SeamTeleportTest {
     void theCylinderFlipsNothingAlongItsOpenAxis() {
         ChunkPos from = new ChunkPos(0, NEAR_SEAM_CHUNK);
         ChunkPos to = new ChunkPos(0, NEAR_SEAM_CHUNK + STEP_CHUNKS);
-        ChunkTrackingView view = ChunkTrackingView.of(from, VIEW_RADIUS);
+        ChunkTrackingView view = ChunkTrackingView.of(from, VIEW_RADIUS_CHUNKS);
 
         assertEquals(List.of(), SeamTeleport.flipped(CYLINDER_X, from, to, view));
         assertEquals(viewChunks(view, pos -> pos.z() <= LAST_FLIPPED_CHUNK),
@@ -78,7 +78,7 @@ class SeamTeleportTest {
     void aWholeLatticeLapFlipsEveryChunkInView() {
         ChunkPos from = new ChunkPos(0, 0);
         ChunkPos to = new ChunkPos(SKEW_CHUNKS, LATTICE_WIDTH_CHUNKS);
-        ChunkTrackingView view = ChunkTrackingView.of(from, VIEW_RADIUS);
+        ChunkTrackingView view = ChunkTrackingView.of(from, VIEW_RADIUS_CHUNKS);
 
         assertEquals(viewChunks(view, pos -> true), new HashSet<>(SeamTeleport.flipped(SKEWED, from, to, view)));
     }

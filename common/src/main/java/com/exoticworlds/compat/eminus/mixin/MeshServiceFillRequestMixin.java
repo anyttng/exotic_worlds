@@ -16,9 +16,9 @@ public class MeshServiceFillRequestMixin {
     @Inject(method = "request" + EminusInjectionTargets.MESH_SERVICE_FILL_REQUEST, at = @At("HEAD"),
             cancellable = true)
     private void exotic_worlds$joinAWaitingCopy(long key, @Nullable CellHandle held, int references, long request,
-            float priority, boolean fills, CallbackInfo ci) {
-        if (((MeshServiceCopies) (Object) this).exotic_worlds$joined(key, held, references, request, priority,
-                fills)) {
+            float priority, boolean isFill, CallbackInfo ci) {
+        if (((MeshServiceCopies) (Object) this).exotic_worlds$tryJoin(key, held, references, request, priority,
+                isFill)) {
             ci.cancel();
         }
     }

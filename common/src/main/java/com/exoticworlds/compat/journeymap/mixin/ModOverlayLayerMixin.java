@@ -23,7 +23,7 @@ public abstract class ModOverlayLayerMixin {
             return original.call(bounds, mouse);
         }
 
-        for (double[] copy : copies.exotic_worlds$copies()) {
+        for (double[] copy : copies.exotic_worlds$getCopies()) {
             if (bounds.contains(mouse.getX() - copy[0], mouse.getY() - copy[1])) {
                 return true;
             }

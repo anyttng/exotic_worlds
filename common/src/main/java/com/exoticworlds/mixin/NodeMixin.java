@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 
 import com.exoticworlds.accessors.PathCarry;
-import com.exoticworlds.core.DeckTransformation;
-import com.exoticworlds.core.SeamTransform;
+import com.exoticworlds.core.fold.DeckTransformation;
+import com.exoticworlds.core.fold.SeamTransform;
 import com.exoticworlds.engine.seam.NavigationCarry;
 
 import net.minecraft.world.level.pathfinder.Node;

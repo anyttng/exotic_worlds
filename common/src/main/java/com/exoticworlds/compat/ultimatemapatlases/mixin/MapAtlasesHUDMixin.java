@@ -15,6 +15,6 @@ public class MapAtlasesHUDMixin {
             method = "drawHudText",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;position()Lnet/minecraft/world/phys/Vec3;"))
     private Vec3 exotic_worlds$foldedReadout(Vec3 position) {
-        return ClientFolds.fold(ClientFolds.current(), position);
+        return ClientFolds.fold(ClientFolds.getCurrent(), position);
     }
 }

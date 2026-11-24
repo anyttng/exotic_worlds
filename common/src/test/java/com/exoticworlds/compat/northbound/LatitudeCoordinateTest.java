@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.WorldLoopSizes;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.world.WorldLoopSizes;
+import com.exoticworlds.core.fold.WrapDomain;
 
 import net.minecraft.world.level.levelgen.DensityFunction;
 
@@ -81,7 +81,7 @@ class LatitudeCoordinateTest {
     @Test
     void layOneBandOnEveryPresetWithoutCompression() {
         for (int chunkWidth : PRESET_CHUNK_WIDTHS) {
-            int lap = chunkWidth * CoordinateConstants.CHUNK_WIDTH;
+            int lap = chunkWidth * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
             for (NorthboundLatitude.Variant variant : NorthboundLatitude.Variant.values()) {
                 assertEquals(1, NorthboundLatitude.bands(lap, variant.poleToEquatorBlocks()), "lap " + lap);
             }
@@ -90,9 +90,9 @@ class LatitudeCoordinateTest {
 
     @Test
     void layTheFewestOddBandsNoWiderThanTheCap() {
-        for (int chunkWidth = WorldLoopSizes.MIN_CHUNK_WIDTH; chunkWidth <= WorldLoopSizes.MAX_CHUNK_WIDTH;
+        for (int chunkWidth = WorldLoopSizes.MIN_WIDTH_CHUNKS; chunkWidth <= WorldLoopSizes.MAX_WIDTH_CHUNKS;
                 chunkWidth = chunkWidth * 3 / 2) {
-            int lap = chunkWidth * CoordinateConstants.CHUNK_WIDTH;
+            int lap = chunkWidth * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
             for (NorthboundLatitude.Variant variant : NorthboundLatitude.Variant.values()) {
                 for (double factor : FACTORS) {
                     double cap = variant.poleToEquatorBlocks() / factor;

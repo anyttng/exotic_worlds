@@ -16,8 +16,8 @@ import com.exoticworlds.compat.map.FullscreenZoomFloor;
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.map.WorldCopies;
-import com.exoticworlds.core.RectangleCopies;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.RectangleCopies;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -43,12 +43,12 @@ public final class FtbChunksFold {
     private static final int MINIMAP_CENTRE_CHUNK = 7;
 
     public static XZ chunkOf(int chunkX, int chunkZ) {
-        ChunkPos folded = foldedChunk(ClientFolds.current(), chunkX, chunkZ);
+        ChunkPos folded = foldedChunk(ClientFolds.getCurrent(), chunkX, chunkZ);
         return XZ.of(folded.x(), folded.z());
     }
 
     public static XZ chunkOf(XZ chunk) {
-        return foldedKey(ClientFolds.current(), chunk);
+        return foldedKey(ClientFolds.getCurrent(), chunk);
     }
 
     public static XZ chunkOf(ResourceKey<Level> dimension, int chunkX, int chunkZ) {
@@ -74,7 +74,7 @@ public final class FtbChunksFold {
     }
 
     public static Set<XZ> foldedChunks(Set<XZ> chunks) {
-        return foldedChunks(ClientFolds.current(), chunks);
+        return foldedChunks(ClientFolds.getCurrent(), chunks);
     }
 
     static Set<XZ> foldedChunks(@Nullable WorldFold fold, Set<XZ> chunks) {
@@ -91,7 +91,7 @@ public final class FtbChunksFold {
     }
 
     public static BlockPos foldBlock(int x, int z) {
-        return foldBlock(ClientFolds.current(), x, z);
+        return foldBlock(ClientFolds.getCurrent(), x, z);
     }
 
     public static BlockPos foldBlock(ResourceKey<Level> dimension, int x, int z) {
@@ -116,7 +116,7 @@ public final class FtbChunksFold {
             return 0;
         }
 
-        return (fold.loops(Direction.Axis.X) ? 1 : 0) + (fold.loops(Direction.Axis.Z) ? 1 : 0);
+        return (fold.isLooped(Direction.Axis.X) ? 1 : 0) + (fold.isLooped(Direction.Axis.Z) ? 1 : 0);
     }
 
     public static List<WorldCopies.Copy> drawnCopies(ResourceKey<Level> dimension, int minX, int minZ, int maxX,
@@ -174,7 +174,7 @@ public final class FtbChunksFold {
             return 0;
         }
 
-        return MapCopies.current() == MapCopies.SINGLE
+        return MapCopies.getCurrent() == MapCopies.SINGLE
                 ? FullscreenZoomFloor.ftbChunksCoverZoom(fold, windowWidth, windowHeight)
                 : FullscreenZoomFloor.ftbChunksZoom(fold);
     }
@@ -209,12 +209,12 @@ public final class FtbChunksFold {
 
     static int[] worldSpanInRegion(@Nullable WorldFold fold, Direction.Axis axis, int region) {
         int regionStart = region * REGION_BLOCKS;
-        if (fold == null || !fold.loops(axis)) {
+        if (fold == null || !fold.isLooped(axis)) {
             return new int[] {0, REGION_BLOCKS};
         }
 
-        int from = Math.max(fold.minBlock(axis), regionStart) - regionStart;
-        int to = Math.min(fold.maxBlock(axis), regionStart + REGION_BLOCKS) - regionStart;
+        int from = Math.max(fold.getMinBlock(axis), regionStart) - regionStart;
+        int to = Math.min(fold.getMaxBlock(axis), regionStart + REGION_BLOCKS) - regionStart;
         return new int[] {from, Math.max(from, to)};
     }
 
@@ -273,15 +273,15 @@ public final class FtbChunksFold {
     }
 
     private static int ringMin(WorldFold fold, Direction.Axis axis, int chunkMin) {
-        return fold.loops(axis) ? fold.minBlock(axis) - 1 : chunkMin;
+        return fold.isLooped(axis) ? fold.getMinBlock(axis) - 1 : chunkMin;
     }
 
     private static int ringMax(WorldFold fold, Direction.Axis axis, int chunkMin) {
-        return fold.loops(axis) ? fold.maxBlock(axis) + 1 : chunkMin + CHUNK_BLOCKS;
+        return fold.isLooped(axis) ? fold.getMaxBlock(axis) + 1 : chunkMin + CHUNK_BLOCKS;
     }
 
     private static boolean onWorldEdge(WorldFold fold, Direction.Axis axis, int coord) {
-        return fold.loops(axis) && (coord == fold.minBlock(axis) || coord == fold.maxBlock(axis) - 1);
+        return fold.isLooped(axis) && (coord == fold.getMinBlock(axis) || coord == fold.getMaxBlock(axis) - 1);
     }
 
     private static int regionIndex(int x, int z) {
@@ -312,12 +312,12 @@ public final class FtbChunksFold {
     }
 
     public static int[] minimapSplits(Direction.Axis axis, XZ centreChunk, int[] unfolded) {
-        return minimapSplits(ClientFolds.current(), axis, centreChunk.x(), centreChunk.z(), unfolded);
+        return minimapSplits(ClientFolds.getCurrent(), axis, centreChunk.x(), centreChunk.z(), unfolded);
     }
 
     static int[] minimapSplits(@Nullable WorldFold fold, Direction.Axis axis, int centreChunkX, int centreChunkZ,
             int[] unfolded) {
-        if (fold == null || !fold.loops(axis)) {
+        if (fold == null || !fold.isLooped(axis)) {
             return unfolded;
         }
 
@@ -354,7 +354,7 @@ public final class FtbChunksFold {
 
     public static int minimapSourcePixel(Direction.Axis axis, int stored, int chunkX, int chunkZ,
             int chunksPerRegion) {
-        return minimapSourcePixel(ClientFolds.current(), axis, stored, chunkX, chunkZ, chunksPerRegion);
+        return minimapSourcePixel(ClientFolds.getCurrent(), axis, stored, chunkX, chunkZ, chunksPerRegion);
     }
 
     static int minimapSourcePixel(@Nullable WorldFold fold, Direction.Axis axis, int stored, int chunkX,

@@ -9,8 +9,8 @@ import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.StartupRegistry;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.registry.StartupRegistry;
 import com.exoticworlds.shape.option.DeclaredOptions;
 import com.exoticworlds.shape.option.DimensionOption;
 
@@ -27,36 +27,36 @@ public final class DeclaredShapes {
             new StartupRegistry<>("Dimension shapes");
 
     public static void register(DimensionShape shape) {
-        SHAPES.register(shape.id(), shape);
+        SHAPES.register(shape.getId(), shape);
     }
 
-    public static List<DimensionShape> all() {
-        return List.copyOf(SHAPES.entries().values());
+    public static List<DimensionShape> getAll() {
+        return List.copyOf(SHAPES.getEntries().values());
     }
 
     public static @Nullable DimensionShape of(Identifier id) {
-        return SHAPES.entries().get(id);
+        return SHAPES.getEntries().get(id);
     }
 
     public static @Nullable FlatShape resolve(DimensionShape shape, DimensionContext context) {
         FlatShape resolved = shape.spans(context);
-        return resolved.identification() == FlatShape.Identification.RECTANGLE ? null : resolved;
+        return resolved.getIdentification() == FlatShape.Identification.RECTANGLE ? null : resolved;
     }
 
     public static void warnOfUnknownOptionShapes() {
-        Set<Identifier> known = new HashSet<>(SHAPES.entries().keySet());
+        Set<Identifier> known = new HashSet<>(SHAPES.getEntries().keySet());
         known.add(TORUS);
         known.add(CYLINDER);
-        unknownOptionShapes(DeclaredOptions.all(), known).forEach(
+        unknownOptionShapes(DeclaredOptions.getAll(), known).forEach(
                 unknown -> ExoticWorlds.LOGGER.warn("[ew/option] unknown_shape {}", unknown));
     }
 
     static List<String> unknownOptionShapes(Collection<DimensionOption<?>> options, Set<Identifier> known) {
         List<String> unknown = new ArrayList<>();
         for (DimensionOption<?> declared : options) {
-            declared.shapes().stream()
+            declared.getShapes().stream()
                     .filter(shape -> !known.contains(shape))
-                    .forEach(shape -> unknown.add("option=" + declared.option().key() + " shape=" + shape));
+                    .forEach(shape -> unknown.add("option=" + declared.getOption().key() + " shape=" + shape));
         }
 
         return unknown;

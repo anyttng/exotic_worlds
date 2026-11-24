@@ -19,9 +19,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.api.v1.option.WorldOption;
 import com.exoticworlds.api.v1.option.WorldOptions;
 
@@ -80,7 +80,7 @@ class DatapackTemplatesJsonTest {
                 identification, statesOptions);
 
         WorldShapeReport.Note width = WorldShapeReport.endWidthNote(end);
-        assertFalse(width.broken(), template + width.text());
+        assertFalse(width.isBroken(), template + width.text());
     }
 
     private static WorldLoopBounds assertDimension(String template, JsonObject dimensions, String dimensionId,
@@ -97,7 +97,7 @@ class DatapackTemplatesJsonTest {
         FlatShape shape = CarriedShape.SHAPE_CODEC
                 .parse(JsonOps.INSTANCE, generator.get(CarriedShape.WRAPPING_KEY))
                 .getOrThrow(message -> new AssertionError(context + ": wrapping is refused: " + message));
-        assertEquals(identification, shape.identification(), context + ": identification");
+        assertEquals(identification, shape.getIdentification(), context + ": identification");
 
         WorldOptions.all().stream()
                 .filter(option -> !option.key().startsWith(TEST_OPTION_PREFIX))

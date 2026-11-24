@@ -15,7 +15,7 @@ public interface OrientationV2 {
     boolean isIdentity();
 
     /** Whether handedness was kept: a half turn or a quarter turn keeps it, a mirror does not. */
-    boolean preservesHandedness();
+    boolean isHandednessPreserved();
 
     /**
      * A direction, velocity or offset carried through the same turn. Apply this to any vector that traveled with the

@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.option.WorldOptions;
 import com.exoticworlds.bridge.v1.option.OptionBridge;
-import com.exoticworlds.core.CarriedShape;
-import com.exoticworlds.core.ShapeOption;
-import com.exoticworlds.core.ShapeOptionRegistry;
-import com.exoticworlds.core.ShapeOptions;
+import com.exoticworlds.core.world.CarriedShape;
+import com.exoticworlds.core.option.ShapeOption;
+import com.exoticworlds.core.option.ShapeOptionRegistry;
+import com.exoticworlds.core.option.ShapeOptions;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
@@ -27,14 +27,14 @@ class ShapeOptionV2RegistrationTest {
 
     @BeforeAll
     static void registerOption() {
-        if (ShapeOptionRegistry.all().stream().noneMatch(known -> known.key().equals(HEIGHT.key()))) {
+        if (ShapeOptionRegistry.getAll().stream().noneMatch(known -> known.key().equals(HEIGHT.key()))) {
             HEIGHT.register();
         }
     }
 
     @Test
     void aRegisteredOptionIsKnownInsideAndShownToV1() {
-        assertTrue(ShapeOptionRegistry.all().contains(KEY));
+        assertTrue(ShapeOptionRegistry.getAll().contains(KEY));
         assertTrue(WorldOptions.all().stream().anyMatch(option -> option.key().equals(HEIGHT.key())));
     }
 

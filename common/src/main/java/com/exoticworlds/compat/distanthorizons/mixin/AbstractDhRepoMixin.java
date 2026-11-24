@@ -21,7 +21,7 @@ public class AbstractDhRepoMixin implements DhRepoLevel {
     private IDhLevel exotic_worlds$level;
 
     @Unique
-    private Boolean exotic_worlds$shapeSeen;
+    private Boolean exotic_worlds$isShapePresent;
 
     @Override
     public void exotic_worlds$bindLevel(IDhLevel level) {
@@ -29,12 +29,12 @@ public class AbstractDhRepoMixin implements DhRepoLevel {
     }
 
     @Override
-    public @Nullable DhLattice exotic_worlds$lattice() {
+    public @Nullable DhLattice exotic_worlds$getLattice() {
         DhLattice lattice = DhShapes.of(this.exotic_worlds$level);
-        boolean present = lattice != null;
-        if (this.exotic_worlds$shapeSeen == null || this.exotic_worlds$shapeSeen != present) {
-            this.exotic_worlds$shapeSeen = present;
-            DhProbes.repoShape(this, this.exotic_worlds$level, present);
+        boolean isPresent = lattice != null;
+        if (this.exotic_worlds$isShapePresent == null || this.exotic_worlds$isShapePresent != isPresent) {
+            this.exotic_worlds$isShapePresent = isPresent;
+            DhProbes.repoShape(this, this.exotic_worlds$level, isPresent);
         }
 
         return lattice;
@@ -43,7 +43,7 @@ public class AbstractDhRepoMixin implements DhRepoLevel {
     @WrapMethod(method = "getByKey(Ljava/lang/Object;)Lcom/seibel/distanthorizons/core/sql/dto/IBaseDTO;")
     private @Nullable IBaseDTO<?> exotic_worlds$answerTheAskedKey(Object key, Operation<@Nullable IBaseDTO<?>> original) {
         IBaseDTO<?> dto = original.call(key);
-        if (dto != null && this.exotic_worlds$lattice() != null) {
+        if (dto != null && this.exotic_worlds$getLattice() != null) {
             DhKeys.reseat(dto, key);
         }
 

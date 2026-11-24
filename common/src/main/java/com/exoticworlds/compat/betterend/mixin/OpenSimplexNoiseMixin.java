@@ -24,7 +24,7 @@ public class OpenSimplexNoiseMixin implements StandInHolder {
     }
 
     @Override
-    public OpenSimplexStandIn exotic_worlds$standIn() {
+    public OpenSimplexStandIn exotic_worlds$getStandIn() {
         OpenSimplexStandIn standIn = this.exotic_worlds$standIn;
         if (standIn == null) {
             standIn = new OpenSimplexStandIn(this.exotic_worlds$seed);

@@ -7,8 +7,8 @@ import java.util.TreeSet;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.compat.map.WorldCopies;
-import com.exoticworlds.core.RectangleCopies;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.RectangleCopies;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -55,7 +55,7 @@ public final class AtlasTileCopies {
 
             int moveX = copy.value().getX() - x;
             int moveZ = copy.value().getZ() - z;
-            if ((moveX != 0 || moveZ != 0) && wholeMaps(moveX, moveZ, mapBlocks)) {
+            if ((moveX != 0 || moveZ != 0) && isWholeMapMove(moveX, moveZ, mapBlocks)) {
                 centers.add(new TileCenter(copy.value().getX(), copy.value().getZ()));
             }
         }
@@ -69,15 +69,15 @@ public final class AtlasTileCopies {
             return List.of();
         }
 
-        int reach = reachTiles * mapBlocks + mapBlocks / 2;
-        int minX = center.x() - reach;
-        int minZ = center.z() - reach;
-        int maxX = center.x() + reach;
-        int maxZ = center.z() + reach;
+        int reachBlocks = reachTiles * mapBlocks + mapBlocks / 2;
+        int minX = center.x() - reachBlocks;
+        int minZ = center.z() - reachBlocks;
+        int maxX = center.x() + reachBlocks;
+        int maxZ = center.z() + reachBlocks;
         List<Placed<T>> placed = new ArrayList<>();
         for (WorldCopies.Copy move : WorldCopies.meeting(fold, minX - mapBlocks, minZ - mapBlocks, maxX + mapBlocks,
                 maxZ + mapBlocks)) {
-            if (wholeMaps(move.dx(), move.dz(), mapBlocks)) {
+            if (isWholeMapMove(move.dx(), move.dz(), mapBlocks)) {
                 continue;
             }
 
@@ -97,7 +97,7 @@ public final class AtlasTileCopies {
         return placed;
     }
 
-    public static <T> boolean coveredByShifted(@Nullable WorldFold fold, TileCenter tile, int mapBlocks,
+    public static <T> boolean isCoveredByShifted(@Nullable WorldFold fold, TileCenter tile, int mapBlocks,
             TileLookup<T> lookup) {
         List<Placed<T>> copies = shifted(fold, tile, 0, mapBlocks, lookup);
         if (copies.isEmpty()) {
@@ -134,7 +134,7 @@ public final class AtlasTileCopies {
         return List.copyOf(edges);
     }
 
-    private static boolean wholeMaps(int moveX, int moveZ, int mapBlocks) {
+    private static boolean isWholeMapMove(int moveX, int moveZ, int mapBlocks) {
         return moveX % mapBlocks == 0 && moveZ % mapBlocks == 0;
     }
 
@@ -166,11 +166,11 @@ public final class AtlasTileCopies {
     }
 
     private static int lower(WorldFold fold, Direction.Axis axis, int coord) {
-        return fold.loops(axis) ? fold.minBlock(axis) : coord;
+        return fold.isLooped(axis) ? fold.getMinBlock(axis) : coord;
     }
 
     private static int upper(WorldFold fold, Direction.Axis axis, int coord) {
-        return fold.loops(axis) ? fold.minBlock(axis) + fold.widthBlocks(axis) : coord;
+        return fold.isLooped(axis) ? fold.getMinBlock(axis) + fold.getWidthBlocks(axis) : coord;
     }
 
     private AtlasTileCopies() {

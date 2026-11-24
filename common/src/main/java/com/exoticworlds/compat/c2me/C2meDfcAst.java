@@ -10,7 +10,7 @@ import com.mojang.logging.LogUtils;
 import com.exoticworlds.accessors.FoldableFastNoise;
 import com.exoticworlds.accessors.ScaledShiftedNoise;
 import com.exoticworlds.compat.worldgen.ShiftedNoiseFold;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.DensityFunctionSlotAxes;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.NoiseConstants;
@@ -39,7 +39,7 @@ public final class C2meDfcAst {
     private static @Nullable WorldFold reportedMissesFor;
 
     public static AstNode fold(DensityFunction source, AstNode produced) {
-        WorldFold worldFold = GenerationFoldContext.context().routerBuildFold();
+        WorldFold worldFold = GenerationFoldContext.getContext().getRouterBuildFold();
         if (source instanceof DensityFunctions.WeirdScaledSampler) {
             return worldFold != null ? new DelegateNode(source) : produced;
         }

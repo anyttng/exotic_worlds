@@ -1,11 +1,11 @@
 package com.exoticworlds.scan;
 
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.NetherScales;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.NetherScales;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopSizes;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
 import com.exoticworlds.engine.noise.ClimateScanFixture.WorldType;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
@@ -66,12 +66,12 @@ class ClimateScan {
 
     private static final Path AXIS_REPORT = ScanReports.DIRECTORY.resolve("climate-cylinder-axis.txt");
 
-    record Width(String id, int chunkWidth, int netherScale) {
+    record Width(String id, int widthChunks, int netherScale) {
         int widthBlocks(WorldType type) {
-            int blocks = this.chunkWidth * CoordinateConstants.CHUNK_WIDTH;
+            int blocks = this.widthChunks * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
             return type.nether()
                     ? blocks / NetherScales.normalize(this.netherScale,
-                            NetherScales.allowedFor(this.chunkWidth, this.chunkWidth, FlatShape.NO_SKEW))
+                            NetherScales.allowedFor(this.widthChunks, this.widthChunks, FlatShape.NO_SKEW))
                     : blocks;
         }
     }
@@ -80,9 +80,9 @@ class ClimateScan {
 
     private static List<Width> widths() {
         List<Width> widths = new ArrayList<>();
-        widths.add(new Width("min", WorldLoopSizes.MIN_CHUNK_WIDTH, NetherScales.DEFAULT));
+        widths.add(new Width("min", WorldLoopSizes.MIN_WIDTH_CHUNKS, NetherScales.DEFAULT));
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
-            widths.add(new Width(preset.id(), preset.chunkWidth(), preset.netherScale()));
+            widths.add(new Width(preset.getId(), preset.getWidthChunks(), preset.getNetherScale()));
         }
 
         return List.copyOf(widths);
@@ -278,19 +278,19 @@ class ClimateScan {
             WorldFold fold, long seed) {
         Climate.Sampler sampler = randomState(type, fold, seed).sampler();
         int quartY = QuartPos.fromBlock(SCAN_Y_BLOCKS);
-        double xStep = lineSpreadBlocks / (double) GRID;
-        double zStep = UNBOUNDED_SPAN_BLOCKS / (double) GRID;
+        double xStepBlocks = lineSpreadBlocks / (double) GRID;
+        double zStepBlocks = UNBOUNDED_SPAN_BLOCKS / (double) GRID;
         double[] totals = new double[2];
 
         GenerationFoldContext.runWithFold(fold, () -> {
             double[] temperatures = new double[GRID];
 
             for (int ix = 0; ix < GRID; ix++) {
-                int quartX = QuartPos.fromBlock((int) Math.round(ix * xStep));
+                int quartX = QuartPos.fromBlock((int) Math.round(ix * xStepBlocks));
                 Set<Holder<Biome>> biomes = new HashSet<>();
 
                 for (int iz = 0; iz < GRID; iz++) {
-                    int quartZ = QuartPos.fromBlock((int) Math.round(iz * zStep));
+                    int quartZ = QuartPos.fromBlock((int) Math.round(iz * zStepBlocks));
                     biomes.add(source.getNoiseBiome(quartX, quartY, quartZ, sampler));
                     temperatures[iz] = Climate.unquantizeCoord(sampler.sample(quartX, quartY, quartZ).temperature());
                 }
@@ -345,15 +345,15 @@ class ClimateScan {
     private static GridSample sampleGrid(Climate.Sampler sampler, DensityFunction density,
             MultiNoiseBiomeSource source, int seaLevel, int widthBlocks) {
         int quartY = QuartPos.fromBlock(SCAN_Y_BLOCKS);
-        double step = widthBlocks / (double) GRID;
+        double stepBlocks = widthBlocks / (double) GRID;
         Map<Holder<Biome>, Integer> counts = new HashMap<>();
         double[] temperatures = new double[GRID * GRID];
         int land = 0;
 
         for (int ix = 0; ix < GRID; ix++) {
             for (int iz = 0; iz < GRID; iz++) {
-                int blockX = (int) Math.round(ix * step);
-                int blockZ = (int) Math.round(iz * step);
+                int blockX = (int) Math.round(ix * stepBlocks);
+                int blockZ = (int) Math.round(iz * stepBlocks);
                 int quartX = QuartPos.fromBlock(blockX);
                 int quartZ = QuartPos.fromBlock(blockZ);
                 counts.merge(source.getNoiseBiome(quartX, quartY, quartZ, sampler), 1, Integer::sum);

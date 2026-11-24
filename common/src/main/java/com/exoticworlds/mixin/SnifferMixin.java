@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.animal.sniffer.Sniffer;
@@ -13,6 +13,6 @@ import net.minecraft.world.entity.animal.sniffer.Sniffer;
 public class SnifferMixin {
     @ModifyVariable(method = "canDig(Lnet/minecraft/core/BlockPos;)Z", at = @At("HEAD"), argsOnly = true)
     private BlockPos exotic_worlds$canonicalDigCandidate(BlockPos position) {
-        return WorldLoopAttachments.foldOf(((Sniffer) (Object) this).level()).fold(position);
+        return WorldLoopAttachments.getFold(((Sniffer) (Object) this).level()).fold(position);
     }
 }

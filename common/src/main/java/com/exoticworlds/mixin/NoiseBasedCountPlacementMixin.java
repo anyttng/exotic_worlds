@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.FoldedBiomeInfo;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
@@ -31,8 +31,8 @@ public class NoiseBasedCountPlacementMixin {
 
     @WrapMethod(method = "count(Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;)I")
     private int exotic_worlds$foldedCount(RandomSource random, BlockPos origin, Operation<Integer> original) {
-        Context generation = GenerationFoldContext.context();
-        WorldFold fold = generation.wrappedFold();
+        Context generation = GenerationFoldContext.getContext();
+        WorldFold fold = generation.getWrappedFold();
         if (fold == null) {
             return original.call(random, origin);
         }

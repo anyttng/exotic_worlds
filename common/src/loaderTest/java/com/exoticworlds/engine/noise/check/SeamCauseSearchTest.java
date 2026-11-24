@@ -18,11 +18,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.accessors.InterpretedDensity;
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
 
 import net.minecraft.core.Direction;
@@ -116,7 +116,7 @@ class SeamCauseSearchTest {
         assertEquals(RawX.class.getName(), node.type());
         assertNull(node.holder());
         assertNull(node.namespace());
-        assertFalse(node.vanilla());
+        assertFalse(node.isVanilla());
         assertEquals(List.of(), node.candidates());
     }
 
@@ -144,17 +144,17 @@ class SeamCauseSearchTest {
 
     @Test
     void aTorusHasALapOnEachAxis() {
-        assertEquals(List.of(LAP, Z_LAP), SeamCauseSearch.Lap.of(torusOfWidth(WIDTH_BLOCKS).blockLattice()));
+        assertEquals(List.of(LAP, Z_LAP), SeamCauseSearch.Lap.of(torusOfWidth(WIDTH_BLOCKS).getBlockLattice()));
     }
 
     @Test
     void aCylinderHasItsOneLap() {
-        assertEquals(List.of(LAP), SeamCauseSearch.Lap.of(cylinderOfWidth(WIDTH_BLOCKS).blockLattice()));
+        assertEquals(List.of(LAP), SeamCauseSearch.Lap.of(cylinderOfWidth(WIDTH_BLOCKS).getBlockLattice()));
     }
 
     @Test
     void theZLapOfASkewedTorusMovesXByTheSkew() {
-        assertEquals(List.of(LAP, SKEWED_Z_LAP), SeamCauseSearch.Lap.of(skewedTorus().blockLattice()));
+        assertEquals(List.of(LAP, SKEWED_Z_LAP), SeamCauseSearch.Lap.of(skewedTorus().getBlockLattice()));
     }
 
     @Test
@@ -192,7 +192,7 @@ class SeamCauseSearchTest {
 
         List<SeamVerdict.Break> breaks = SeamCauseSearch.causesOf(broken, LAP, overworld(), FOLD, overworldBiomes());
 
-        assertEquals(new SeamVerdict.Break(SeamField.BIOME.id(), new SeamCause.Follows(SeamField.EROSION.id())),
+        assertEquals(new SeamVerdict.Break(SeamField.BIOME.getId(), new SeamCause.Follows(SeamField.EROSION.getId())),
                 breaks.get(1));
     }
 
@@ -201,7 +201,7 @@ class SeamCauseSearchTest {
         List<SeamVerdict.Break> breaks = SeamCauseSearch.causesOf(Map.of(SeamField.BIOME, POINTS), LAP,
                 overworld(), FOLD, overworldBiomes());
 
-        assertEquals(List.of(new SeamVerdict.Break(SeamField.BIOME.id(),
+        assertEquals(List.of(new SeamVerdict.Break(SeamField.BIOME.getId(),
                 new SeamCause.Biomes(MULTI_NOISE.toString(), Identifier.DEFAULT_NAMESPACE))), breaks);
     }
 

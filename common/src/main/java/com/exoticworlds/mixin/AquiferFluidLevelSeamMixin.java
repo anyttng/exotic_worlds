@@ -29,7 +29,7 @@ public class AquiferFluidLevelSeamMixin {
             @Local(argsOnly = true, ordinal = 0) int blockX,
             @Local(argsOnly = true, ordinal = 2) int blockZ) {
         if (this.exotic_worlds$levelSampler == null) {
-            this.exotic_worlds$levelSampler = new CanonicalCellSampler(NoiseConstants.AQUIFER_FLUID_LEVEL_CELL_WIDTH);
+            this.exotic_worlds$levelSampler = new CanonicalCellSampler(NoiseConstants.AQUIFER_FLUID_LEVEL_CELL_WIDTH_BLOCKS);
         }
 
         return this.exotic_worlds$levelSampler.sample(cell, blockX, blockZ, folded -> original.call(noise, folded));

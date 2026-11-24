@@ -17,12 +17,12 @@ import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.MapFolds;
 import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.map.WorldCopies;
-import com.exoticworlds.core.CoordinateConstants;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.world.CoordinateConstants;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 import com.exoticworlds.engine.level.PublishedShapes;
 
 import net.minecraft.core.Direction;
@@ -35,7 +35,7 @@ class FtbChunksFoldTest {
     private static final int[] ONE_PIECE = {0, 15};
     private static final int ROWS_INSIDE = 7;
     private static final int SKEW_CHUNKS = 8;
-    private static final int SKEW = SKEW_CHUNKS * CoordinateConstants.CHUNK_WIDTH;
+    private static final int SKEW = SKEW_CHUNKS * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
     private static final int WIDTH = 512;
 
     private static final WorldFold LATTICE = MapFolds.latticeTorus(0, 32, SKEW_CHUNKS);
@@ -338,7 +338,7 @@ class FtbChunksFoldTest {
     private static Set<SeamLine> verticalLines(List<SeamLine> lines) {
         Set<SeamLine> vertical = new HashSet<>();
         for (SeamLine line : lines) {
-            if (line.vertical()) {
+            if (line.isVertical()) {
                 vertical.add(line);
             }
         }
@@ -359,6 +359,6 @@ class FtbChunksFoldTest {
     }
 
     private static AxisBounds looped(int widthBlocks) {
-        return new AxisBounds.Looped(0, widthBlocks / CoordinateConstants.CHUNK_WIDTH);
+        return new AxisBounds.Looped(0, widthBlocks / CoordinateConstants.CHUNK_WIDTH_BLOCKS);
     }
 }

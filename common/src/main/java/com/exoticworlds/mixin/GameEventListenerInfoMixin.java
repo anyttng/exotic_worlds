@@ -25,7 +25,7 @@ public class GameEventListenerInfoMixin implements RecipientPositionHolder {
     }
 
     @Override
-    public Vec3 exotic_worlds$recipientPos() {
+    public Vec3 exotic_worlds$getRecipientPos() {
         return this.exotic_worlds$recipientPos;
     }
 }

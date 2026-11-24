@@ -32,7 +32,7 @@ public class FarRendererMixin {
                             + "Lcom/eminus/cell/CellFrame;DDD)V"))
     private void exotic_worlds$drawTheLapOfThisFrame(MeshOrder order, RenderList list, CellFrame frame, double eyeX,
             double eyeY, double eyeZ, Operation<Void> original) {
-        original.call(order, exotic_worlds$lap.of(CellFoldHolder.foldOf(runtime), list, eyeX, eyeZ), frame, eyeX, eyeY,
+        original.call(order, exotic_worlds$lap.of(CellFoldHolder.getFold(runtime), list, eyeX, eyeZ), frame, eyeX, eyeY,
                 eyeZ);
     }
 }

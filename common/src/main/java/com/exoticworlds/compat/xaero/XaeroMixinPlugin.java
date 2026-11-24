@@ -43,8 +43,8 @@ public class XaeroMixinPlugin extends ModPresenceGatePlugin {
             .probing(WORLDMAP_RESOURCE)
             .checking(CONFIG, mixin -> mixin.startsWith(WORLDMAP_MIXIN_PACKAGE)
                     && !mixin.equals(SUPPORT_WORLDMAP_MIXIN))
-            .withholding(GUI_MAP_REGION_MIXIN, XaeroFrameBudget::exceeded)
-            .withholding(GUI_MAP_VIEW_MIXIN, XaeroFrameBudget::exceeded)
+            .withholding(GUI_MAP_REGION_MIXIN, XaeroFrameBudget::isExceeded)
+            .withholding(GUI_MAP_VIEW_MIXIN, XaeroFrameBudget::isExceeded)
             .modPackages(WORLDMAP_PACKAGE, XAERO_LIB_PACKAGE)
             .scanning(WORLDMAP_CLASSES::contains)
             .build();

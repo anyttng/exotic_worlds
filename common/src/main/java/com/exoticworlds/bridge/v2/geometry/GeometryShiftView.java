@@ -2,7 +2,7 @@ package com.exoticworlds.bridge.v2.geometry;
 
 import com.exoticworlds.api.v2.geometry.OrientationV2;
 import com.exoticworlds.api.v2.geometry.SeamShiftV2;
-import com.exoticworlds.core.DeckTransformation;
+import com.exoticworlds.core.fold.DeckTransformation;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
@@ -22,8 +22,8 @@ final class GeometryShiftView implements SeamShiftV2 {
     }
 
     @Override
-    public OrientationV2 orientation() {
-        return OrientationView.of(this.transformation.orientation());
+    public OrientationV2 getOrientation() {
+        return OrientationView.of(this.transformation.getOrientation());
     }
 
     @Override

@@ -7,14 +7,14 @@ import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
@@ -50,7 +50,7 @@ class SimplexSlotsGoldenValuesTest {
                     int x = (int) Math.floor(coord(random));
                     int z = (int) Math.floor(coord(random));
                     double value = GenerationFoldContext.withFold(fold,
-                            () -> FoldedBiomeInfo.sample(GenerationFoldContext.context(), fold, divisor, x, z));
+                            () -> FoldedBiomeInfo.sample(GenerationFoldContext.getContext(), fold, divisor, x, z));
                     hash = mix(hash, Double.doubleToRawLongBits(value));
                 }
             }
@@ -79,7 +79,7 @@ class SimplexSlotsGoldenValuesTest {
 
     private static double sampleAt(PerlinSimplexNoise noise, WorldFold fold, double scale, double x, double z) {
         return GenerationFoldContext.withFold(fold, () -> {
-            try (GenerationFoldContext.Context.ScaleScope _ = GenerationFoldContext.context().withScale(scale)) {
+            try (GenerationFoldContext.Context.ScaleScope _ = GenerationFoldContext.getContext().withScale(scale)) {
                 return noise.getValue(x, z, false);
             }
         });

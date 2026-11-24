@@ -2,7 +2,7 @@ package com.exoticworlds.shape.layout;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.client.shape.layout.LayoutShapeSetup;
-import com.exoticworlds.core.SpawnPoint;
+import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.shape.WorldShape;
 import com.exoticworlds.shape.WorldShapes;
 
@@ -16,7 +16,7 @@ public final class LayoutShape {
 
     private static WorldLayout chosen = WorldLayout.DEFAULT;
 
-    public static WorldLayout layout() {
+    public static WorldLayout getLayout() {
         return chosen;
     }
 
@@ -24,19 +24,19 @@ public final class LayoutShape {
         chosen = layout;
     }
 
-    public static void register(boolean client) {
+    public static void register(boolean isClient) {
         WorldShapes.register(WorldShape.of(ID, WorldShape.label(ID), WorldShape.hint(ID),
                 (registries, dimensions) -> LayoutDimensions.apply(dimensions, chosen),
                 () -> chosen = WorldLayout.DEFAULT,
-                (registries, dimensions) -> adopt(dimensions)));
-        WorldShapes.takesSpawn(ID, LayoutShape::moveSpawn);
+                (registries, dimensions) -> tryAdopt(dimensions)));
+        WorldShapes.takesSpawn(ID, LayoutShape::tryMoveSpawn);
 
-        if (client) {
+        if (isClient) {
             LayoutShapeSetup.register();
         }
     }
 
-    private static boolean adopt(WorldDimensions dimensions) {
+    private static boolean tryAdopt(WorldDimensions dimensions) {
         WorldLayout read = LayoutDimensions.read(dimensions);
         if (read == null) {
             return false;
@@ -46,7 +46,7 @@ public final class LayoutShape {
         return true;
     }
 
-    private static boolean moveSpawn(SpawnPoint spawn) {
+    private static boolean tryMoveSpawn(SpawnPoint spawn) {
         WorldLayout moved = chosen.withSpawn(spawn);
         if (moved == null) {
             return false;

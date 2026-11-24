@@ -8,14 +8,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.core.DeckGroupFold;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.SeamTransform;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopBounds.AxisBounds;
+import com.exoticworlds.core.fold.deck.DeckGroupFold;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.fold.SeamTransform;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -107,7 +107,7 @@ class SeamHitTest {
 
         private static BlockHitResult reseatTurned(BlockHitResult hit) {
             return SeamHit.reseat(hit,
-                    new WorldFold.Folded<>(CLOCKWISE.apply(hit.getBlockPos()), CLOCKWISE.orientation()));
+                    new WorldFold.Folded<>(CLOCKWISE.apply(hit.getBlockPos()), CLOCKWISE.getOrientation()));
         }
 
         @Test

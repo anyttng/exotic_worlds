@@ -9,8 +9,8 @@ public final class LevelTemperature {
     private volatile @Nullable Resolved resolved;
 
     public DensityFunction of(@Nullable ServerLevel level) {
-        DensityFunction own = LevelClimateCompression.routerTemperatureOf(level);
-        DensityFunction overworld = LevelClimateCompression.overworldTemperatureOf(level);
+        DensityFunction own = LevelClimateCompression.getRouterTemperature(level);
+        DensityFunction overworld = LevelClimateCompression.getOverworldTemperature(level);
         Resolved held = this.resolved;
         if (held != null && held.own() == own && held.overworld() == overworld) {
             return held.temperature();

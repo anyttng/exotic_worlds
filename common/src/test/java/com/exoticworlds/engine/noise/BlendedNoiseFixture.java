@@ -2,7 +2,7 @@ package com.exoticworlds.engine.noise;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.periodic.LapFloor;
 import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
 
@@ -200,7 +200,7 @@ final class BlendedNoiseFixture {
     static double sample(byte[] permutations, double xOffset, double yOffset, double zOffset,
             WorldFold fold, double scale,
             double x, double y, double z, double yScale, double yFudge, double verticalShare, LapFloor floor) {
-        GenerationFoldContext.Context context = GenerationFoldContext.context();
+        GenerationFoldContext.Context context = GenerationFoldContext.getContext();
 
         try (GenerationFoldContext.Context.ScaleScope _ = context.withScale(scale, verticalShare)) {
             return PeriodicNoiseSampler.sample(PeriodicNoiseSampler.lattice(permutations, xOffset, yOffset, zOffset,

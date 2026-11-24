@@ -16,7 +16,7 @@ import net.minecraft.world.level.storage.ValueInput;
 @Mixin(MechanicalCrafterBlockEntity.class)
 public abstract class MechanicalCrafterBlockEntityMixin implements SeamKeyedBlockEntity {
     @Inject(method = "read", at = @At("RETURN"))
-    private void exotic_worlds$normalizeOnRead(ValueInput view, boolean clientPacket, CallbackInfo ci) {
+    private void exotic_worlds$normalizeOnRead(ValueInput view, boolean isClientPacket, CallbackInfo ci) {
         exotic_worlds$normalizeWithLevel();
     }
 

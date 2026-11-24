@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.accessors.IndexableNoise;
 import com.exoticworlds.accessors.WrappedImprovedNoise;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.PeriodicLattices;
@@ -50,13 +50,13 @@ public class ImprovedNoiseMixin implements IndexableNoise, WrappedImprovedNoise 
     @Override
     public double exotic_worlds$sampleWrapped(Context context, double x, double y, double z, double yScale,
             double yFudge) {
-        return this.exotic_worlds$lattices.sample(this.p, this.xo, this.yo, this.zo, context.fold(),
+        return this.exotic_worlds$lattices.sample(this.p, this.xo, this.yo, this.zo, context.getFold(),
                 context, x, y, z, yScale, yFudge);
     }
 
     @Override
     public boolean exotic_worlds$indexable(Context context) {
-        WorldFold fold = context.wrappedFold();
+        WorldFold fold = context.getWrappedFold();
         return fold == null
                 || this.exotic_worlds$lattices.indexable(this.p, this.xo, this.yo, this.zo, fold, context);
     }

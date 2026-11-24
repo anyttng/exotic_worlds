@@ -3,7 +3,7 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.gen.CanonicalRandomFactory;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -21,7 +21,7 @@ public class VerticalGradientSeamMixin {
                             + "Lnet/minecraft/resources/Identifier;)"
                             + "Lnet/minecraft/world/level/levelgen/PositionalRandomFactory;"))
     private PositionalRandomFactory exotic_worlds$seedGradientFromCanonical(PositionalRandomFactory factory) {
-        WorldFold fold = GenerationFoldContext.context().wrappedFold();
+        WorldFold fold = GenerationFoldContext.getContext().getWrappedFold();
         return fold == null ? factory : new CanonicalRandomFactory(factory, fold);
     }
 }

@@ -20,17 +20,17 @@ final class HexLapChunk<T> extends LapChunk<T> {
 
     private static final int[][] ODD_ROW_NEIGHBORS = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}, {-1, 1}, {-1, -1}};
 
-    private final boolean wrapX;
+    private final boolean isWrappingX;
 
-    private final boolean wrapZ;
+    private final boolean isWrappingZ;
 
     private final int zOrigin;
 
-    HexLapChunk(int sideX, int sideZ, boolean wrapX, boolean wrapZ, int zOrigin, WorldgenRandom random,
+    HexLapChunk(int sideX, int sideZ, boolean isWrappingX, boolean isWrappingZ, int zOrigin, WorldgenRandom random,
             LapPicker<T> picker) {
         super(sideX, sideZ);
-        this.wrapX = wrapX;
-        this.wrapZ = wrapZ;
+        this.isWrappingX = isWrappingX;
+        this.isWrappingZ = isWrappingZ;
         this.zOrigin = zOrigin;
         fill(random, picker);
     }
@@ -46,8 +46,8 @@ final class HexLapChunk<T> extends LapChunk<T> {
             bufferIndex ^= 1;
             Object[] out = buffers[bufferIndex];
             hasEmptyCells = false;
-            for (int x = interiorStart(this.wrapX); x < interiorEnd(sideX(), this.wrapX); x++) {
-                for (int z = interiorStart(this.wrapZ); z < interiorEnd(sideZ(), this.wrapZ); z++) {
+            for (int x = interiorStart(this.isWrappingX); x < interiorEnd(getSideX(), this.isWrappingX); x++) {
+                for (int z = interiorStart(this.isWrappingZ); z < interiorEnd(getSideZ(), this.isWrappingZ); z++) {
                     int index = index(x, z);
                     if (in[index] == null) {
                         hasEmptyCells = true;
@@ -70,8 +70,8 @@ final class HexLapChunk<T> extends LapChunk<T> {
 
         Object[] out = this.cells;
         copyBorders(out);
-        for (int x = 0; x < sideX(); x++) {
-            for (int z = 0; z < sideZ(); z++) {
+        for (int x = 0; x < getSideX(); x++) {
+            for (int z = 0; z < getSideZ(); z++) {
                 int index = index(x, z);
                 if (out[index] == null) {
                     out[index] = picker.pick().apply(random);
@@ -85,9 +85,9 @@ final class HexLapChunk<T> extends LapChunk<T> {
     }
 
     private void seed(Object[] buffer, WorldgenRandom random, LapPicker<T> picker) {
-        int columns = seedLines(sideX(), this.wrapX);
-        int rows = seedLines(sideZ(), this.wrapZ);
-        int seeds = seedCount(sideX(), sideZ(), this.wrapX, this.wrapZ);
+        int columns = seedLines(getSideX(), this.isWrappingX);
+        int rows = seedLines(getSideZ(), this.isWrappingZ);
+        int seeds = seedCount(getSideX(), getSideZ(), this.isWrappingX, this.isWrappingZ);
         IntArrayList slots = new IntArrayList(columns * rows);
         for (int slot = 0; slot < columns * rows; slot++) {
             slots.add(slot);
@@ -98,28 +98,28 @@ final class HexLapChunk<T> extends LapChunk<T> {
         }
 
         for (int slot : slots) {
-            int x = seedCoordinate(sideX(), columns, slot / rows, random);
-            int z = seedCoordinate(sideZ(), rows, slot % rows, random);
+            int x = seedCoordinate(getSideX(), columns, slot / rows, random);
+            int z = seedCoordinate(getSideZ(), rows, slot % rows, random);
             circle(buffer, x, z, picker.pick().apply(random), null);
         }
 
         for (int extra = slots.size(); extra < seeds; extra++) {
-            circle(buffer, random.nextInt(sideX()), random.nextInt(sideZ()), picker.pick().apply(random), null);
+            circle(buffer, random.nextInt(getSideX()), random.nextInt(getSideZ()), picker.pick().apply(random), null);
         }
     }
 
-    static int seedLines(int side, boolean wraps) {
+    static int seedLines(int side, boolean isWrapping) {
         int lines = Math.max(1, Math.round((float) side / SEED_SPACING));
-        return wraps ? Math.max(lines, Math.min(side, MIN_WRAPPED_SEED_LINES)) : lines;
+        return isWrapping ? Math.max(lines, Math.min(side, MIN_WRAPPED_SEED_LINES)) : lines;
     }
 
-    static int seedCount(int sideX, int sideZ, boolean wrapX, boolean wrapZ) {
-        int floor = wrappedSeedFloor(sideX, wrapX) * wrappedSeedFloor(sideZ, wrapZ);
+    static int seedCount(int sideX, int sideZ, boolean isWrappingX, boolean isWrappingZ) {
+        int floor = wrappedSeedFloor(sideX, isWrappingX) * wrappedSeedFloor(sideZ, isWrappingZ);
         return Math.max(floor, Math.round((float) sideX * sideZ / CELLS_PER_SEED));
     }
 
-    private static int wrappedSeedFloor(int side, boolean wraps) {
-        return wraps ? Math.min(side, MIN_WRAPPED_SEED_LINES) : 1;
+    private static int wrappedSeedFloor(int side, boolean isWrapping) {
+        return isWrapping ? Math.min(side, MIN_WRAPPED_SEED_LINES) : 1;
     }
 
     private static int seedCoordinate(int side, int lines, int line, WorldgenRandom random) {
@@ -129,17 +129,17 @@ final class HexLapChunk<T> extends LapChunk<T> {
     }
 
     private void copyBorders(Object[] buffer) {
-        if (!this.wrapZ) {
-            for (int x = 0; x < sideX(); x++) {
+        if (!this.isWrappingZ) {
+            for (int x = 0; x < getSideX(); x++) {
                 buffer[index(x, 0)] = buffer[index(x, BORDER_SOURCE_STEP)];
-                buffer[index(x, sideZ() - 1)] = buffer[index(x, sideZ() - 1 - BORDER_SOURCE_STEP)];
+                buffer[index(x, getSideZ() - 1)] = buffer[index(x, getSideZ() - 1 - BORDER_SOURCE_STEP)];
             }
         }
 
-        if (!this.wrapX) {
-            for (int z = 0; z < sideZ(); z++) {
+        if (!this.isWrappingX) {
+            for (int z = 0; z < getSideZ(); z++) {
                 buffer[index(0, z)] = buffer[index(BORDER_SOURCE_STEP, z)];
-                buffer[index(sideX() - 1, z)] = buffer[index(sideX() - 1 - BORDER_SOURCE_STEP, z)];
+                buffer[index(getSideX() - 1, z)] = buffer[index(getSideX() - 1 - BORDER_SOURCE_STEP, z)];
             }
         }
     }
@@ -165,26 +165,26 @@ final class HexLapChunk<T> extends LapChunk<T> {
     private int neighbor(int x, int z, int[] step) {
         int nx = x + step[0];
         int nz = z + step[1];
-        if (this.wrapX) {
-            nx = Math.floorMod(nx, sideX());
-        } else if (nx < 0 || nx >= sideX()) {
+        if (this.isWrappingX) {
+            nx = Math.floorMod(nx, getSideX());
+        } else if (nx < 0 || nx >= getSideX()) {
             return -1;
         }
 
-        if (this.wrapZ) {
-            nz = Math.floorMod(nz, sideZ());
-        } else if (nz < 0 || nz >= sideZ()) {
+        if (this.isWrappingZ) {
+            nz = Math.floorMod(nz, getSideZ());
+        } else if (nz < 0 || nz >= getSideZ()) {
             return -1;
         }
 
         return index(nx, nz);
     }
 
-    private static int interiorStart(boolean wraps) {
-        return wraps ? 0 : 1;
+    private static int interiorStart(boolean isWrapping) {
+        return isWrapping ? 0 : 1;
     }
 
-    private static int interiorEnd(int side, boolean wraps) {
-        return wraps ? side : side - 1;
+    private static int interiorEnd(int side, boolean isWrapping) {
+        return isWrapping ? side : side - 1;
     }
 }

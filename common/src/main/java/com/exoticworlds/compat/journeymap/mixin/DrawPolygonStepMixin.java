@@ -47,20 +47,20 @@ public abstract class DrawPolygonStepMixin {
 
     @WrapOperation(method = GUI_GEOMETRY, at = @At(value = "INVOKE", target = GUI_POLYGON))
     private void exotic_worlds$polygonOnEveryCopy(Matrix3x2fStack pose, MultiBufferSource.BufferSource buffers,
-            double xOffset, double yOffset, List<?> fillPoints, List<?> strokePoints, List<?> texturePoints,
+            double xOffsetPixels, double yOffsetPixels, List<?> fillPoints, List<?> strokePoints, List<?> texturePoints,
             AbstractTexture texture, Identifier textureId, ShapeProperties properties, Operation<Void> original) {
-        for (double[] copy : ((OverlayCopies) (Object) this).exotic_worlds$copies()) {
-            original.call(pose, buffers, xOffset + copy[0], yOffset + copy[1], fillPoints, strokePoints,
+        for (double[] copy : ((OverlayCopies) (Object) this).exotic_worlds$getCopies()) {
+            original.call(pose, buffers, xOffsetPixels + copy[0], yOffsetPixels + copy[1], fillPoints, strokePoints,
                     texturePoints, texture, textureId, properties);
         }
     }
 
     @WrapOperation(method = POSE_GEOMETRY, at = @At(value = "INVOKE", target = POSE_POLYGON))
     private void exotic_worlds$posePolygonOnEveryCopy(PoseStack pose, MultiBufferSource.BufferSource buffers,
-            double xOffset, double yOffset, List<?> fillPoints, List<?> strokePoints, List<?> texturePoints,
+            double xOffsetPixels, double yOffsetPixels, List<?> fillPoints, List<?> strokePoints, List<?> texturePoints,
             AbstractTexture texture, Identifier textureId, ShapeProperties properties, Operation<Void> original) {
-        for (double[] copy : ((OverlayCopies) (Object) this).exotic_worlds$copies()) {
-            original.call(pose, buffers, xOffset + copy[0], yOffset + copy[1], fillPoints, strokePoints,
+        for (double[] copy : ((OverlayCopies) (Object) this).exotic_worlds$getCopies()) {
+            original.call(pose, buffers, xOffsetPixels + copy[0], yOffsetPixels + copy[1], fillPoints, strokePoints,
                     texturePoints, texture, textureId, properties);
         }
     }

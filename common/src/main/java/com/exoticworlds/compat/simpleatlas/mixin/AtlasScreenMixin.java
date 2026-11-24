@@ -108,7 +108,7 @@ public abstract class AtlasScreenMixin {
         Minecraft minecraft = Minecraft.getInstance();
         List<AtlasTilePayload> relaid = AtlasLayoutFold.relaid(this.tiles,
                 tile -> AtlasTileFold.blocksPerTile(minecraft.level, tile), AtlasTileFold::foldOf,
-                MapCopies.current());
+                MapCopies.getCurrent());
         if (relaid == this.tiles) {
             return;
         }
@@ -121,7 +121,7 @@ public abstract class AtlasScreenMixin {
 
     @Inject(method = "extractRenderState", at = @At("HEAD"))
     private void exotic_worlds$readSeamLines(CallbackInfo ci) {
-        this.exotic_worlds$seamLines = MapCopies.current().drawsSeamLines();
+        this.exotic_worlds$seamLines = MapCopies.getCurrent().isDrawingSeamLines();
     }
 
     @ModifyArg(method = "screenToWorldPoint", at = @At(value = "INVOKE", target = WORLD_POINT_INIT), index = 0)
@@ -263,7 +263,7 @@ public abstract class AtlasScreenMixin {
 
     @Unique
     private List<AtlasCopies.Offset> exotic_worlds$iconCopies(float mapOriginX, float mapOriginY, float scaledTileSize) {
-        return MapCopies.current() == MapCopies.SINGLE
+        return MapCopies.getCurrent() == MapCopies.SINGLE
                 ? AtlasCopies.BASE_ONLY
                 : exotic_worlds$tileCopies(mapOriginX, mapOriginY, scaledTileSize);
     }
@@ -278,7 +278,7 @@ public abstract class AtlasScreenMixin {
 
     @Unique
     private List<AtlasCopies.Offset> exotic_worlds$tileCopies(float mapOriginX, float mapOriginY, float scaledTileSize) {
-        MapCopies mode = MapCopies.current();
+        MapCopies mode = MapCopies.getCurrent();
         AtlasViews views = exotic_worlds$views();
         AtlasView area = mode == MapCopies.SINGLE ? views.exotic_worlds$singleWorld() : views.exotic_worlds$view();
         if (area == null) {

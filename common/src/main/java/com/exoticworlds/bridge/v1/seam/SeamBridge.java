@@ -2,8 +2,8 @@ package com.exoticworlds.bridge.v1.seam;
 
 import java.util.OptionalDouble;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.seam.circumnavigation.SeamTravel;
 
 import net.minecraft.core.Direction;
@@ -16,13 +16,13 @@ public final class SeamBridge {
             return OptionalDouble.empty();
         }
 
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(player.level());
-        if (fold == null || !fold.bounds().loops(axis)) {
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(player.level());
+        if (fold == null || !fold.getBounds().isLooped(axis)) {
             return OptionalDouble.empty();
         }
 
         return OptionalDouble.of(
-                SeamTravel.of(player).in(player.level().dimension()).on(axis));
+                SeamTravel.of(player).getProgressIn(player.level().dimension()).on(axis));
     }
 
     private SeamBridge() {

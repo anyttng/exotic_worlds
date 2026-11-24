@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.map.MapFolds;
-import com.exoticworlds.core.SpawnPoint;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.core.world.SpawnPoint;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.world.WorldLoopSizes;
 
 import net.minecraft.core.BlockPos;
 

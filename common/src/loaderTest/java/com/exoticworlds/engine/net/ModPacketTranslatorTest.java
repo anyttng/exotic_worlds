@@ -137,13 +137,14 @@ class ModPacketTranslatorTest {
         PacketRewriters.registerClientboundPacket(RewrittenProbePacket.class,
                 (packet, context) -> new RewrittenProbePacket(BlockPos.ZERO));
         com.exoticworlds.api.v2.net.PacketRewritersV2.registerClientboundPacket(GeometryProbePacket.class,
-                (packet, context) -> new GeometryProbePacket(context.geometry().fold(context.toClient(packet.pos()))));
+                (packet, context) -> new GeometryProbePacket(
+                        context.getGeometry().fold(context.toClient(packet.pos()))));
         PacketRewriters.registerClientboundPacket(TwiceRegisteredProbePacket.class, (packet, context) -> packet);
         PacketRewriters.registerParticle(ProbeParticle.class,
                 (particle, context, clientOrigin) -> new ProbeParticle(context.toClient(particle.target())));
         com.exoticworlds.api.v2.net.PacketRewritersV2.registerParticle(GeometryProbeParticle.class,
                 (particle, context, clientOrigin) -> new GeometryProbeParticle(
-                        context.geometry().fold(particle.target())));
+                        context.getGeometry().fold(particle.target())));
     }
 
     @AfterEach

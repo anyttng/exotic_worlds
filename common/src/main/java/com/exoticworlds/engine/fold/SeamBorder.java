@@ -3,8 +3,8 @@ package com.exoticworlds.engine.fold;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WrapDomain;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WrapDomain;
 import com.google.common.math.IntMath;
 
 import net.minecraft.util.Mth;
@@ -13,31 +13,31 @@ import net.minecraft.world.phys.Vec3;
 public record SeamBorder(TranslationLattice lattice, double minX, double maxX, double minZ, double maxZ) {
     private static final double CLAMP_INSET = 1.0E-5F;
 
-    public boolean inside(double x, double z, double margin) {
-        WrapDomain xDomain = this.lattice.x();
-        WrapDomain zDomain = this.lattice.z();
-        double dx = x - centerX();
-        double dz = z - centerZ();
-        if (xDomain.coversWorld(spanX())) {
-            return zDomain.coversWorld(spanZ()) || offsetInside(zDomain.unwrapAround(0.0, dz), halfZ(), margin);
+    public boolean isInside(double x, double z, double marginBlocks) {
+        WrapDomain xDomain = this.lattice.getX();
+        WrapDomain zDomain = this.lattice.getZ();
+        double dx = x - getCenterX();
+        double dz = z - getCenterZ();
+        if (xDomain.isCoveringWorld(getSpanX())) {
+            return zDomain.isCoveringWorld(getSpanZ()) || isOffsetInside(zDomain.unwrapAround(0.0, dz), getHalfZ(), marginBlocks);
         }
 
-        if (zDomain.coversWorld(spanZ())) {
+        if (zDomain.isCoveringWorld(getSpanZ())) {
             return this.lattice.isSkewed()
-                    ? someSkewInside(xDomain.domainLength, dx, margin)
-                    : offsetInside(xDomain.unwrapAround(0.0, dx), halfX(), margin);
+                    ? isSomeSkewInside(xDomain.domainLength, dx, marginBlocks)
+                    : isOffsetInside(xDomain.unwrapAround(0.0, dx), getHalfX(), marginBlocks);
         }
 
-        if (!zDomain.loops()) {
-            return offsetInside(dz, halfZ(), margin) && offsetInside(xDomain.unwrapAround(0.0, dx), halfX(), margin);
+        if (!zDomain.isLooped()) {
+            return isOffsetInside(dz, getHalfZ(), marginBlocks) && isOffsetInside(xDomain.unwrapAround(0.0, dx), getHalfX(), marginBlocks);
         }
 
-        long firstLaps = (long) Math.floor((dz - halfZ() - margin) / zDomain.domainLength) + 1;
-        long lastLaps = (long) Math.floor((dz + halfZ() + margin) / zDomain.domainLength);
+        long firstLaps = (long) Math.floor((dz - getHalfZ() - marginBlocks) / zDomain.domainLength) + 1;
+        long lastLaps = (long) Math.floor((dz + getHalfZ() + marginBlocks) / zDomain.domainLength);
         for (long laps = firstLaps; laps <= lastLaps; laps++) {
-            if (offsetInside(dz - (double) laps * zDomain.domainLength, halfZ(), margin)
-                    && offsetInside(xDomain.unwrapAround(0.0, dx - (double) laps * this.lattice.skew()), halfX(),
-                    margin)) {
+            if (isOffsetInside(dz - (double) laps * zDomain.domainLength, getHalfZ(), marginBlocks)
+                    && isOffsetInside(xDomain.unwrapAround(0.0, dx - (double) laps * this.lattice.getSkew()), getHalfX(),
+                    marginBlocks)) {
                 return true;
             }
         }
@@ -45,18 +45,18 @@ public record SeamBorder(TranslationLattice lattice, double minX, double maxX, d
         return false;
     }
 
-    public double distanceToEdge(double x, double z) {
-        WrapDomain zDomain = this.lattice.z();
-        double dx = x - centerX();
-        double dz = z - centerZ();
+    public double distanceToEdgeBlocks(double x, double z) {
+        WrapDomain zDomain = this.lattice.getZ();
+        double dx = x - getCenterX();
+        double dz = z - getCenterZ();
         double best = Double.NEGATIVE_INFINITY;
         long first = this.lattice.nearFirst(dx, dz);
         long second = this.lattice.nearSecond(dx, dz);
-        for (int index = 0; index < this.lattice.nearCount(); index++) {
+        for (int index = 0; index < this.lattice.getNearCount(); index++) {
             long laps = this.lattice.nearZLap(first, second, index);
-            double zOffset = dz - (double) laps * zDomain.domainLength;
-            double xOffset = this.lattice.x().unwrapAround(0.0, dx - (double) laps * this.lattice.skew());
-            best = Math.max(best, Math.min(halfX() - Math.abs(xOffset), halfZ() - Math.abs(zOffset)));
+            double zOffsetBlocks = dz - (double) laps * zDomain.domainLength;
+            double xOffsetBlocks = this.lattice.getX().unwrapAround(0.0, dx - (double) laps * this.lattice.getSkew());
+            best = Math.max(best, Math.min(getHalfX() - Math.abs(xOffsetBlocks), getHalfZ() - Math.abs(zOffsetBlocks)));
         }
 
         return best;
@@ -65,26 +65,26 @@ public record SeamBorder(TranslationLattice lattice, double minX, double maxX, d
     public Vec3 clamped(double x, double y, double z) {
         Vec3 box = nearestBoxCenter(x, z);
         return new Vec3(
-                clampToBox(this.lattice.x(), spanX(), box.x, halfX(), x),
+                clampToBox(this.lattice.getX(), getSpanX(), box.x, getHalfX(), x),
                 y,
-                clampToBox(this.lattice.z(), spanZ(), box.z, halfZ(), z));
+                clampToBox(this.lattice.getZ(), getSpanZ(), box.z, getHalfZ(), z));
     }
 
     private Vec3 nearestBoxCenter(double x, double z) {
-        WrapDomain xDomain = this.lattice.x();
-        WrapDomain zDomain = this.lattice.z();
-        double boxX = centerX();
-        double boxZ = centerZ();
-        double bestGap = Double.NEGATIVE_INFINITY;
-        long first = this.lattice.nearFirst(x - centerX(), z - centerZ());
-        long second = this.lattice.nearSecond(x - centerX(), z - centerZ());
-        for (int index = 0; index < this.lattice.nearCount(); index++) {
+        WrapDomain xDomain = this.lattice.getX();
+        WrapDomain zDomain = this.lattice.getZ();
+        double boxX = getCenterX();
+        double boxZ = getCenterZ();
+        double bestGapBlocks = Double.NEGATIVE_INFINITY;
+        long first = this.lattice.nearFirst(x - getCenterX(), z - getCenterZ());
+        long second = this.lattice.nearSecond(x - getCenterX(), z - getCenterZ());
+        for (int index = 0; index < this.lattice.getNearCount(); index++) {
             long laps = this.lattice.nearZLap(first, second, index);
-            double copyZ = centerZ() + (double) laps * zDomain.domainLength;
-            double copyX = xDomain.unwrapAround(x, centerX() + (double) laps * this.lattice.skew());
-            double gap = Math.min(halfX() - Math.abs(x - copyX), halfZ() - Math.abs(z - copyZ));
-            if (gap > bestGap) {
-                bestGap = gap;
+            double copyZ = getCenterZ() + (double) laps * zDomain.domainLength;
+            double copyX = xDomain.unwrapAround(x, getCenterX() + (double) laps * this.lattice.getSkew());
+            double gapBlocks = Math.min(getHalfX() - Math.abs(x - copyX), getHalfZ() - Math.abs(z - copyZ));
+            if (gapBlocks > bestGapBlocks) {
+                bestGapBlocks = gapBlocks;
                 boxX = copyX;
                 boxZ = copyZ;
             }
@@ -93,63 +93,63 @@ public record SeamBorder(TranslationLattice lattice, double minX, double maxX, d
         return new Vec3(boxX, 0.0, boxZ);
     }
 
-    public List<Vec3> wallShifts() {
+    public List<Vec3> getWallShifts() {
         List<Vec3> shifts = new ArrayList<>(9);
-        for (int xLaps : neighborLaps(this.lattice.x())) {
-            for (int zLaps : neighborLaps(this.lattice.z())) {
+        for (int xLaps : neighborLaps(this.lattice.getX())) {
+            for (int zLaps : neighborLaps(this.lattice.getZ())) {
                 shifts.add(new Vec3(
-                        (double) xLaps * this.lattice.x().domainLength + (double) zLaps * this.lattice.skew(),
+                        (double) xLaps * this.lattice.getX().domainLength + (double) zLaps * this.lattice.getSkew(),
                         0.0,
-                        (double) zLaps * this.lattice.z().domainLength));
+                        (double) zLaps * this.lattice.getZ().domainLength));
             }
         }
 
         return shifts;
     }
 
-    private boolean someSkewInside(int width, double dx, double margin) {
-        int step = IntMath.gcd(Math.abs(this.lattice.skew()), width);
-        double span = 2.0 * (halfX() + margin);
-        return span >= step || Mth.positiveModulo(dx + halfX() + margin, (double) step) < span;
+    private boolean isSomeSkewInside(int widthBlocks, double dx, double marginBlocks) {
+        int stepBlocks = IntMath.gcd(Math.abs(this.lattice.getSkew()), widthBlocks);
+        double spanBlocks = 2.0 * (getHalfX() + marginBlocks);
+        return spanBlocks >= stepBlocks || Mth.positiveModulo(dx + getHalfX() + marginBlocks, (double) stepBlocks) < spanBlocks;
     }
 
     private static int[] neighborLaps(WrapDomain domain) {
-        return domain.loops() ? new int[] {-1, 0, 1} : new int[] {0};
+        return domain.isLooped() ? new int[] {-1, 0, 1} : new int[] {0};
     }
 
-    private static boolean offsetInside(double offset, double half, double margin) {
-        return offset >= -half - margin && offset < half + margin;
+    private static boolean isOffsetInside(double offsetBlocks, double half, double marginBlocks) {
+        return offsetBlocks >= -half - marginBlocks && offsetBlocks < half + marginBlocks;
     }
 
-    private static double clampToBox(WrapDomain domain, double span, double center, double half, double coord) {
-        if (domain.coversWorld(span)) {
+    private static double clampToBox(WrapDomain domain, double spanBlocks, double center, double half, double coord) {
+        if (domain.isCoveringWorld(spanBlocks)) {
             return coord;
         }
 
         return Mth.clamp(coord, center - half, center + half - CLAMP_INSET);
     }
 
-    private double centerX() {
+    private double getCenterX() {
         return (this.minX + this.maxX) / 2.0;
     }
 
-    private double centerZ() {
+    private double getCenterZ() {
         return (this.minZ + this.maxZ) / 2.0;
     }
 
-    private double spanX() {
+    private double getSpanX() {
         return this.maxX - this.minX;
     }
 
-    private double spanZ() {
+    private double getSpanZ() {
         return this.maxZ - this.minZ;
     }
 
-    private double halfX() {
-        return spanX() / 2.0;
+    private double getHalfX() {
+        return getSpanX() / 2.0;
     }
 
-    private double halfZ() {
-        return spanZ() / 2.0;
+    private double getHalfZ() {
+        return getSpanZ() / 2.0;
     }
 }

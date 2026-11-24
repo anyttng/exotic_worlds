@@ -14,10 +14,10 @@ class AxisCopiesTest {
     @Test
     void aLoopedAxisNamesItsBounds() {
         AxisCopies axis = AxisCopies.looped(MIN, WIDTH);
-        assertTrue(axis.loops(), "the looped axis reads as unbounded");
-        assertEquals(MIN, axis.min(), "the first block moved");
-        assertEquals(MIN + WIDTH, axis.max(), "the exclusive bound is not min + width");
-        assertEquals(WIDTH, axis.width(), "the width is not the extent");
+        assertTrue(axis.isLooped(), "the looped axis reads as unbounded");
+        assertEquals(MIN, axis.getMin(), "the first block moved");
+        assertEquals(MIN + WIDTH, axis.getMax(), "the exclusive bound is not min + width");
+        assertEquals(WIDTH, axis.getWidth(), "the width is not the extent");
     }
 
     @Test
@@ -34,8 +34,8 @@ class AxisCopiesTest {
     @Test
     void anUnboundedAxisHasNoExtent() {
         AxisCopies axis = AxisCopies.UNBOUNDED;
-        assertFalse(axis.loops(), "the unbounded axis reads as looped");
-        assertEquals(0, axis.width(), "an unbounded axis has a width");
+        assertFalse(axis.isLooped(), "the unbounded axis reads as looped");
+        assertEquals(0, axis.getWidth(), "an unbounded axis has a width");
     }
 
     @Test
@@ -57,8 +57,8 @@ class AxisCopiesTest {
     @Test
     void anUnboundedAxisHasNoBounds() {
         AxisCopies axis = AxisCopies.UNBOUNDED;
-        assertThrows(IllegalStateException.class, axis::min, "min answered on an unbounded axis");
-        assertThrows(IllegalStateException.class, axis::max, "max answered on an unbounded axis");
+        assertThrows(IllegalStateException.class, axis::getMin, "min answered on an unbounded axis");
+        assertThrows(IllegalStateException.class, axis::getMax, "max answered on an unbounded axis");
     }
 
     @Test

@@ -1,7 +1,7 @@
 package com.exoticworlds.compat.create;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
 
 import net.minecraft.core.Direction;
@@ -14,7 +14,7 @@ public final class CreateContraptionFold {
     }
 
     public static double axisInFrameOf(Entity entity, Direction.Axis axis, double canonicalCoord) {
-        return axisInFrameOf(WorldLoopAttachments.foldOfReader(entity.level()), entity.position(), axis,
+        return axisInFrameOf(WorldLoopAttachments.getFoldOfReader(entity.level()), entity.position(), axis,
                 canonicalCoord);
     }
 

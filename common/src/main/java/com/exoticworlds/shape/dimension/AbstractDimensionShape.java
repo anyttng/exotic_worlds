@@ -1,7 +1,7 @@
 package com.exoticworlds.shape.dimension;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeOptions;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.option.ShapeOptions;
 
 import net.minecraft.resources.Identifier;
 
@@ -13,17 +13,17 @@ public abstract class AbstractDimensionShape implements DimensionShape {
     }
 
     @Override
-    public final Identifier id() {
+    public final Identifier getId() {
         return this.id;
     }
 
     @Override
-    public boolean takesPresets() {
+    public boolean canTakePresets() {
         return false;
     }
 
     @Override
-    public ShapeOptions withPreset(int chunkWidth, ShapeOptions options) {
+    public ShapeOptions withPreset(int widthChunks, ShapeOptions options) {
         return options;
     }
 

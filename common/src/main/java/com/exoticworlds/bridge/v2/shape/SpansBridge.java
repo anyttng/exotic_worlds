@@ -3,9 +3,9 @@ package com.exoticworlds.bridge.v2.shape;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v2.shape.LoopSpansV2;
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopSizes;
 
 import net.minecraft.core.Direction;
 
@@ -15,24 +15,24 @@ public final class SpansBridge {
         new WorldLoopBounds.AxisBounds.Looped(minChunk, maxChunk);
     }
 
-    public static int normalizedSkew(LoopSpansV2.@Nullable Span x, LoopSpansV2.@Nullable Span z, int skewChunks) {
+    public static int normalizedSkewChunks(LoopSpansV2.@Nullable Span x, LoopSpansV2.@Nullable Span z, int skewChunks) {
         return FlatShape.latticeTorus(ShapeSpansAdapter.bounds(x, z), skewChunks).skewChunks();
     }
 
-    public static int minChunkWidth() {
-        return WorldLoopSizes.MIN_CHUNK_WIDTH;
+    public static int getMinWidthChunks() {
+        return WorldLoopSizes.MIN_WIDTH_CHUNKS;
     }
 
-    public static LoopSpansV2 ofWidth(int chunkWidth) {
-        return ShapeSpansAdapter.loopSpans(FlatShape.unskewed(WorldLoopBounds.ofWidth(chunkWidth)));
+    public static LoopSpansV2 ofWidth(int widthChunks) {
+        return ShapeSpansAdapter.loopSpans(FlatShape.unskewed(WorldLoopBounds.ofWidth(widthChunks)));
     }
 
-    public static LoopSpansV2 ofWidths(int xChunkWidth, int zChunkWidth) {
-        return ShapeSpansAdapter.loopSpans(FlatShape.unskewed(WorldLoopBounds.ofWidths(xChunkWidth, zChunkWidth)));
+    public static LoopSpansV2 ofWidths(int xWidthChunks, int zWidthChunks) {
+        return ShapeSpansAdapter.loopSpans(FlatShape.unskewed(WorldLoopBounds.ofWidths(xWidthChunks, zWidthChunks)));
     }
 
-    public static LoopSpansV2 ofWidth(Direction.Axis axis, int chunkWidth) {
-        return ShapeSpansAdapter.loopSpans(FlatShape.unskewed(WorldLoopBounds.ofWidth(axis, chunkWidth)));
+    public static LoopSpansV2 ofWidth(Direction.Axis axis, int widthChunks) {
+        return ShapeSpansAdapter.loopSpans(FlatShape.unskewed(WorldLoopBounds.ofWidth(axis, widthChunks)));
     }
 
     public static LoopSpansV2 scaledDown(LoopSpansV2 spans, int scale) {

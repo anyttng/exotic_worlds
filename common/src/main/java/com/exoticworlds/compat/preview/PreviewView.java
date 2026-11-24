@@ -9,8 +9,8 @@ import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.MapViewSpan;
 import com.exoticworlds.compat.map.SeamLine;
 import com.exoticworlds.compat.map.WorldCopies;
-import com.exoticworlds.core.RectangleCopies;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.RectangleCopies;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

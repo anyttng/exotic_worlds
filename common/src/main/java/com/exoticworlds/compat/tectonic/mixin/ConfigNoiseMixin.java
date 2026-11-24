@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.accessors.ScaledShiftedNoise;
 import com.exoticworlds.compat.worldgen.ShiftedNoiseFold;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.DomainWarp.Divisor;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
@@ -49,7 +49,7 @@ public class ConfigNoiseMixin implements ScaledShiftedNoise {
         ConfigNoise self = (ConfigNoise) (Object) this;
         ShiftedNoiseFold fold = this.exotic_worlds$shiftedNoiseFold();
         double value = fold.sample(generation, context.blockX(), context.blockZ(), self.shiftX().compute(context),
-                self.shiftZ().compute(context), this.exotic_worlds$warpDivisor(generation.fold(), fold));
+                self.shiftZ().compute(context), this.exotic_worlds$warpDivisor(generation.getFold(), fold));
         return value * self.multiplier() + self.offset();
     }
 

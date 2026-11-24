@@ -13,9 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.eminus.store.SqliteCellStore;
-import com.exoticworlds.core.ShapeFixtures;
-import com.exoticworlds.core.WorldFolds;
-import com.exoticworlds.core.WorldLoopBounds;
+import com.exoticworlds.core.world.ShapeFixtures;
+import com.exoticworlds.core.fold.WorldFolds;
+import com.exoticworlds.core.world.WorldLoopBounds;
 
 class EminusShapesTest {
     private static final int TINY_CHUNKS = 32;
@@ -53,7 +53,7 @@ class EminusShapesTest {
     void aMarkerHoldingTheShapeAloneResets() throws IOException {
         CellFold fold = torus(TINY_CHUNKS);
         writeStore();
-        Files.writeString(folder.resolve(MARKER_FILE), fold.signature(), StandardCharsets.UTF_8);
+        Files.writeString(folder.resolve(MARKER_FILE), fold.getSignature(), StandardCharsets.UTF_8);
 
         EminusShapes.matchStore(folder, fold);
 

@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.map.MapFolds;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
@@ -62,12 +62,12 @@ class XaeroWorldMapFoldSeatTest {
 
     @Test
     void aSlotGluesOnlyWhereTheSkewIsAWholeNumberOfSlots() {
-        assertTrue(XaeroWorldMapFold.glueableAt(TORUS, 256));
-        assertTrue(XaeroWorldMapFold.glueableAt(CYLINDER, 256));
-        assertTrue(XaeroWorldMapFold.glueableAt(LATTICE, 256));
-        assertFalse(XaeroWorldMapFold.glueableAt(HALF_SKEW_LATTICE, 256),
+        assertTrue(XaeroWorldMapFold.isGlueableAt(TORUS, 256));
+        assertTrue(XaeroWorldMapFold.isGlueableAt(CYLINDER, 256));
+        assertTrue(XaeroWorldMapFold.isGlueableAt(LATTICE, 256));
+        assertFalse(XaeroWorldMapFold.isGlueableAt(HALF_SKEW_LATTICE, 256),
                 "a 128-block skew moves a 256-block slot past the Z seam across two canonical slots");
-        assertTrue(XaeroWorldMapFold.glueableAt(HALF_SKEW_LATTICE, 128));
-        assertFalse(XaeroWorldMapFold.glueableAt(null, 256));
+        assertTrue(XaeroWorldMapFold.isGlueableAt(HALF_SKEW_LATTICE, 128));
+        assertFalse(XaeroWorldMapFold.isGlueableAt(null, 256));
     }
 }

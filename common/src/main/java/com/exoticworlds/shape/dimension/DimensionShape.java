@@ -1,18 +1,18 @@
 package com.exoticworlds.shape.dimension;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeOptions;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.option.ShapeOptions;
 
 import net.minecraft.resources.Identifier;
 
 public interface DimensionShape {
-    Identifier id();
+    Identifier getId();
 
     FlatShape spans(DimensionContext context);
 
-    boolean takesPresets();
+    boolean canTakePresets();
 
-    ShapeOptions withPreset(int chunkWidth, ShapeOptions options);
+    ShapeOptions withPreset(int widthChunks, ShapeOptions options);
 
     ShapeOptions optionsFor(FlatShape spans);
 }

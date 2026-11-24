@@ -29,7 +29,7 @@ public class NodeTableMixin implements CellFoldHolder, StoredKeyIndex {
     private CellFold exotic_worlds$fold = CellFold.NONE;
 
     @Override
-    public CellFold exotic_worlds$fold() {
+    public CellFold exotic_worlds$getFold() {
         return exotic_worlds$fold;
     }
 

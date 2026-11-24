@@ -5,10 +5,10 @@ import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.NetherScales;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.NetherScales;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopSizes;
 import com.exoticworlds.engine.gen.ShapedDimensions;
 
 import net.minecraft.core.Direction;
@@ -28,9 +28,9 @@ public final class OverworldDerivation {
 
         return switch (ShapeKind.of(overworld)) {
             case TORUS -> FlatShape.unskewed(WorldLoopBounds.ofWidths(
-                    endWidth(overworld, Direction.Axis.X), endWidth(overworld, Direction.Axis.Z)));
+                    endWidthChunks(overworld, Direction.Axis.X), endWidthChunks(overworld, Direction.Axis.Z)));
             case CYLINDER -> FlatShape.unskewed(
-                    WorldLoopBounds.ofWidth(loopedAxis(overworld), endWidth(overworld, loopedAxis(overworld))));
+                    WorldLoopBounds.ofWidth(loopedAxis(overworld), endWidthChunks(overworld, loopedAxis(overworld))));
             case NORMAL, FROM_OVERWORLD -> null;
         };
     }
@@ -55,18 +55,18 @@ public final class OverworldDerivation {
     }
 
     public static List<Integer> netherScales(FlatShape overworld) {
-        int looped = overworld.bounds().chunkWidth(loopedAxis(overworld));
-        int xChunkWidth = overworld.bounds().loops(Direction.Axis.X) ? overworld.bounds().chunkWidth(Direction.Axis.X) : looped;
-        int zChunkWidth = overworld.bounds().loops(Direction.Axis.Z) ? overworld.bounds().chunkWidth(Direction.Axis.Z) : looped;
-        return NetherScales.allowedFor(xChunkWidth, zChunkWidth, overworld.skewChunks());
+        int looped = overworld.bounds().getWidthChunks(loopedAxis(overworld));
+        int xWidthChunks = overworld.bounds().isLooped(Direction.Axis.X) ? overworld.bounds().getWidthChunks(Direction.Axis.X) : looped;
+        int zWidthChunks = overworld.bounds().isLooped(Direction.Axis.Z) ? overworld.bounds().getWidthChunks(Direction.Axis.Z) : looped;
+        return NetherScales.allowedFor(xWidthChunks, zWidthChunks, overworld.skewChunks());
     }
 
     private static Direction.Axis loopedAxis(FlatShape spans) {
-        return spans.bounds().loops(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
+        return spans.bounds().isLooped(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
     }
 
-    private static int endWidth(FlatShape overworld, Direction.Axis axis) {
-        return WorldLoopSizes.endChunkWidthFor(overworld.bounds().chunkWidth(axis));
+    private static int endWidthChunks(FlatShape overworld, Direction.Axis axis) {
+        return WorldLoopSizes.endWidthChunksFor(overworld.bounds().getWidthChunks(axis));
     }
 
     private OverworldDerivation() {

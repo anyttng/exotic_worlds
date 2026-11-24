@@ -18,11 +18,11 @@ import net.minecraft.world.level.levelgen.structure.StructureSet;
  */
 public interface StructureStartsV2 {
 
-    WorldGeometryV2 geometry();
+    WorldGeometryV2 getGeometry();
 
-    ShapeOptionsV2 options();
+    ShapeOptionsV2 getOptions();
 
-    Holder<StructureSet> structureSet();
+    Holder<StructureSet> getStructureSet();
 
     /**
      * The chunks inside the bounds the set's own placement picks, each with the structure the game's weighted choice
@@ -31,7 +31,7 @@ public interface StructureStartsV2 {
      *
      * @throws IllegalStateException if either horizontal axis does not loop
      */
-    List<Pick> picks();
+    List<Pick> getPicks();
 
     /**
      * Whether {@code structure} finds a valid generation point in {@code chunk}: the same test the game runs before

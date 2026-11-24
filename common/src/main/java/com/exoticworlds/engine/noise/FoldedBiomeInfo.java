@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.noise;
 
-import com.exoticworlds.core.TranslationLattice;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.TranslationLattice;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.periodic.PeriodicSimplexSampler;
 
@@ -17,7 +17,7 @@ public final class FoldedBiomeInfo {
             }
         }
 
-        TranslationLattice lattice = fold.blockLattice();
+        TranslationLattice lattice = fold.getBlockLattice();
         try (Context.BindingScope _ = generation.unbound()) {
             return Biome.BIOME_INFO_NOISE.getValue(lattice.foldX(x, z) / divisor, lattice.foldZ(z) / divisor, false);
         }

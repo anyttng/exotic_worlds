@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.ClientPositionHolder;
 import com.exoticworlds.accessors.MoveCheckpoints;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.seam.ClientPosition;
 import com.exoticworlds.engine.seam.SeamMove;
 import com.exoticworlds.engine.seam.SeamTeleport;
@@ -45,7 +45,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder, 
     private final ClientPosition exotic_worlds$clientPosition = new ClientPosition();
 
     @Override
-    public ClientPosition exotic_worlds$clientPosition() {
+    public ClientPosition exotic_worlds$getClientPosition() {
         return this.exotic_worlds$clientPosition;
     }
 
@@ -136,7 +136,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder, 
             @Local(argsOnly = true) ServerboundMovePlayerPacket packet,
             @Share("continuous") LocalRef<Vec3> continuous) {
         double clampedX = original.call(requestedX);
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.player.level());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(this.player.level());
         if (fold == null) {
             return clampedX;
         }
@@ -175,7 +175,7 @@ public class ServerGamePacketListenerImplMixin implements ClientPositionHolder, 
             @Local(argsOnly = true) ServerboundMoveVehiclePacket packet,
             @Share("vehicleContinuous") LocalRef<Vec3> continuous) {
         double clampedX = original.call(clientX);
-        WorldFold fold = WorldLoopAttachments.wrappedFoldOf(this.player.level());
+        WorldFold fold = WorldLoopAttachments.getWrappedFold(this.player.level());
         if (fold == null) {
             return clampedX;
         }

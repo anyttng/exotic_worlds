@@ -8,7 +8,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.zurrtum.create.content.contraptions.ContraptionCollider;
 import com.exoticworlds.compat.create.CreateSeamFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 
 import net.minecraft.world.entity.Entity;
@@ -35,7 +35,7 @@ public class ContraptionColliderMixin {
                             + "getBoundingBox()Lnet/minecraft/world/phys/AABB;"))
     private static AABB exotic_worlds$otherContraptionBoxInThisFrame(AABB otherBounds,
             @Local(name = "world") Level level, @Local(name = "position") Vec3 position) {
-        return FoldedBoxQuery.toward(WorldLoopAttachments.wrappedFoldOfReader(level), position, otherBounds);
+        return FoldedBoxQuery.toward(WorldLoopAttachments.getWrappedFoldOfReader(level), position, otherBounds);
     }
 
     @ModifyExpressionValue(method = "collideBlocks",

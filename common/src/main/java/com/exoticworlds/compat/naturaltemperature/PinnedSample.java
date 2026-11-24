@@ -43,11 +43,11 @@ public final class PinnedSample {
         return pinned != null ? pinned.context : asked;
     }
 
-    public ClimateLap lap() {
+    public ClimateLap getLap() {
         return this.lap;
     }
 
-    public int blockZ() {
+    public int getBlockZ() {
         return this.blockZ;
     }
 

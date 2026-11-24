@@ -3,8 +3,8 @@ package com.exoticworlds.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldLoopAttachments;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.DimensionMapping;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -33,8 +33,8 @@ public class NetherPortalBlockMixin {
             boolean toNether,
             WorldBorder worldBorder,
             Operation<TeleportTransition> original) {
-        WorldFold destination = WorldLoopAttachments.wrappedFoldOf(newLevel);
-        WorldFold source = WorldLoopAttachments.wrappedFoldOf(entity.level());
+        WorldFold destination = WorldLoopAttachments.getWrappedFold(newLevel);
+        WorldFold source = WorldLoopAttachments.getWrappedFold(entity.level());
         if (destination == null || source == null) {
             return original.call(self, newLevel, entity, portalEntryPos, approximateExitPos, toNether, worldBorder);
         }

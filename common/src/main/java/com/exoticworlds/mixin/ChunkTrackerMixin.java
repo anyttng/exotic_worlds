@@ -27,6 +27,6 @@ public class ChunkTrackerMixin implements LevelBindable {
             at = @At(value = "INVOKE", target = InjectionTargets.CHUNK_POS_PACK),
             expect = 2)
     private long exotic_worlds$physicalNeighborKey(long key) {
-        return this.exotic_worlds$bound.fold().foldChunkKey(key);
+        return this.exotic_worlds$bound.getFold().foldChunkKey(key);
     }
 }

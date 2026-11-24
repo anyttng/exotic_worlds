@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.accessors.FoldHolder;
-import com.exoticworlds.core.WorldFold;
-import com.exoticworlds.core.WorldFolds;
+import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.fold.WorldFolds;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -19,7 +19,7 @@ public class PotentialCalculatorMixin implements FoldHolder {
     private WorldFold exotic_worlds$fold = WorldFolds.NOOP;
 
     @Override
-    public WorldFold exotic_worlds$fold() {
+    public WorldFold exotic_worlds$getFold() {
         return this.exotic_worlds$fold;
     }
 

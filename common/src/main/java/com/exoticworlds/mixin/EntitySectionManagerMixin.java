@@ -42,7 +42,7 @@ public class EntitySectionManagerMixin<T extends EntityAccess> implements LevelB
             require = 1)
     private void exotic_worlds$wrapJoiningEntity(EntityAccess entity, boolean loaded, CallbackInfoReturnable<Boolean> cir) {
         if (entity instanceof Entity actualEntity) {
-            SeamSnap.intoBounds(actualEntity);
+            SeamSnap.trySnapIntoBounds(actualEntity);
         }
     }
 
@@ -52,6 +52,6 @@ public class EntitySectionManagerMixin<T extends EntityAccess> implements LevelB
             index = 0,
             expect = 4)
     private long exotic_worlds$askThePhysicalChunk(long chunkKey) {
-        return this.exotic_worlds$bound.fold().foldChunkKey(chunkKey);
+        return this.exotic_worlds$bound.getFold().foldChunkKey(chunkKey);
     }
 }

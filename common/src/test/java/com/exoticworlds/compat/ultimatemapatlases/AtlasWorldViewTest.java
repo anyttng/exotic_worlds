@@ -6,23 +6,23 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.compat.map.MapCopies;
 import com.exoticworlds.compat.map.MapFolds;
-import com.exoticworlds.core.WorldFold;
+import com.exoticworlds.core.fold.WorldFold;
 
 import net.minecraft.world.phys.Vec3;
 
 class AtlasWorldViewTest {
     private static final int MAP_BLOCKS = 128;
-    private static final int WIDTH = 256;
-    private static final int HEIGHT = 128;
+    private static final int WIDTH_PIXELS = 256;
+    private static final int HEIGHT_PIXELS = 128;
 
     @Test
     void theCeilingFollowsTheCopiesSetting() {
         WorldFold shape = MapFolds.torus(-16, 16);
-        assertEquals(4.0F, AtlasWorldView.zoomCeiling(shape, MapCopies.SINGLE, WIDTH, HEIGHT, MAP_BLOCKS),
+        assertEquals(4.0F, AtlasWorldView.zoomCeiling(shape, MapCopies.SINGLE, WIDTH_PIXELS, HEIGHT_PIXELS, MAP_BLOCKS),
                 "one copy: the 512-block world covers a 256 px view at 4 maps across");
-        assertEquals(16.0F, AtlasWorldView.zoomCeiling(shape, MapCopies.REPEATED, WIDTH, HEIGHT, MAP_BLOCKS),
+        assertEquals(16.0F, AtlasWorldView.zoomCeiling(shape, MapCopies.REPEATED, WIDTH_PIXELS, HEIGHT_PIXELS, MAP_BLOCKS),
                 "repeated copies: the world stays 64 px wide at 16 maps across");
-        assertEquals(Float.MAX_VALUE, AtlasWorldView.zoomCeiling(null, MapCopies.SINGLE, WIDTH, HEIGHT, MAP_BLOCKS),
+        assertEquals(Float.MAX_VALUE, AtlasWorldView.zoomCeiling(null, MapCopies.SINGLE, WIDTH_PIXELS, HEIGHT_PIXELS, MAP_BLOCKS),
                 "an unwrapped level has no ceiling");
     }
 
@@ -37,10 +37,10 @@ class AtlasWorldViewTest {
     void aSingleViewFoldsThenHoldsInsideTheWorld() {
         WorldFold shape = MapFolds.torus(-16, 16);
         assertEquals(new Vec3(88.0, 0.0, 0.0),
-                AtlasWorldView.held(shape, new Vec3(600.0, 0.0, 0.0), 2.0F, WIDTH, HEIGHT, MAP_BLOCKS, true),
+                AtlasWorldView.held(shape, new Vec3(600.0, 0.0, 0.0), 2.0F, WIDTH_PIXELS, HEIGHT_PIXELS, MAP_BLOCKS, true),
                 "600 folds to 88, already half a 256-block window inside the world");
         assertEquals(new Vec3(128.0, 0.0, 192.0),
-                AtlasWorldView.held(shape, new Vec3(600.0, 0.0, 300.0), 2.0F, WIDTH, HEIGHT, MAP_BLOCKS, false),
+                AtlasWorldView.held(shape, new Vec3(600.0, 0.0, 300.0), 2.0F, WIDTH_PIXELS, HEIGHT_PIXELS, MAP_BLOCKS, false),
                 "unfolded, X stops 128 blocks inside the bound and Z, with a 64-block half height, 64 inside");
     }
 
@@ -49,14 +49,14 @@ class AtlasWorldViewTest {
         WorldFold shape = MapFolds.latticeTorus(-16, 16, 8);
         Vec3 folded = shape.fold(new Vec3(0.0, 0.0, 300.0));
         assertEquals(new Vec3(folded.x, 0.0, folded.z),
-                AtlasWorldView.held(shape, new Vec3(0.0, 0.0, 300.0), 1.0F, WIDTH, HEIGHT, MAP_BLOCKS, true),
+                AtlasWorldView.held(shape, new Vec3(0.0, 0.0, 300.0), 1.0F, WIDTH_PIXELS, HEIGHT_PIXELS, MAP_BLOCKS, true),
                 "the Z lap moves X by the skew, and both land inside the held window");
     }
 
     @Test
     void aCylinderHoldsItsLoopedAxisAlone() {
         assertEquals(new Vec3(128.0, 0.0, 5000.0), AtlasWorldView.held(MapFolds.cylinder(-16, 16),
-                new Vec3(600.0, 0.0, 5000.0), 2.0F, WIDTH, HEIGHT, MAP_BLOCKS, false),
+                new Vec3(600.0, 0.0, 5000.0), 2.0F, WIDTH_PIXELS, HEIGHT_PIXELS, MAP_BLOCKS, false),
                 "X holds inside the world and the unbounded Z goes where it was asked");
     }
 }

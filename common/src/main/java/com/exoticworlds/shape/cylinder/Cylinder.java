@@ -1,10 +1,10 @@
 package com.exoticworlds.shape.cylinder;
 
-import com.exoticworlds.core.FlatShape;
-import com.exoticworlds.core.ShapeOption;
-import com.exoticworlds.core.ShapeOptions;
-import com.exoticworlds.core.WorldLoopBounds;
-import com.exoticworlds.core.WorldLoopSizes;
+import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.option.ShapeOption;
+import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.core.world.WorldLoopSizes;
 import com.exoticworlds.shape.dimension.AbstractDimensionShape;
 import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.dimension.DimensionContext;
@@ -18,7 +18,7 @@ public final class Cylinder extends AbstractDimensionShape {
     public static final ShapeOption<Direction.Axis> AXIS =
             new ShapeOption<>("cylinder_axis", SIZE_POSITION, Direction.Axis.CODEC, Direction.Axis.X);
     public static final ShapeOption<Integer> WIDTH =
-            new ShapeOption<>("cylinder_width", SIZE_POSITION, Codec.INT, WorldLoopSizes.DEFAULT_CHUNK_WIDTH);
+            new ShapeOption<>("cylinder_width", SIZE_POSITION, Codec.INT, WorldLoopSizes.DEFAULT_WIDTH_CHUNKS);
 
     public static final Cylinder SHAPE = new Cylinder();
 
@@ -33,13 +33,13 @@ public final class Cylinder extends AbstractDimensionShape {
     }
 
     @Override
-    public ShapeOptions withPreset(int chunkWidth, ShapeOptions options) {
-        return options.with(WIDTH, chunkWidth);
+    public ShapeOptions withPreset(int widthChunks, ShapeOptions options) {
+        return options.with(WIDTH, widthChunks);
     }
 
     @Override
     public ShapeOptions optionsFor(FlatShape spans) {
-        Direction.Axis axis = spans.bounds().loops(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
-        return ShapeOptions.DEFAULT.with(AXIS, axis).with(WIDTH, spans.bounds().chunkWidth(axis));
+        Direction.Axis axis = spans.bounds().isLooped(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
+        return ShapeOptions.DEFAULT.with(AXIS, axis).with(WIDTH, spans.bounds().getWidthChunks(axis));
     }
 }
