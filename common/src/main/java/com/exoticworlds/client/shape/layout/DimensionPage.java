@@ -112,7 +112,7 @@ final class DimensionPage {
             return DimensionLayout.fromOverworld(chosenOptions);
         }
 
-        FlatShape spans = own == null ? null : this.loops.spans(own);
+        FlatShape spans = own == null ? null : this.ownSpans(own);
         return spans == null ? null : DimensionLayout.looped(spans, chosenOptions);
     }
 
@@ -235,7 +235,7 @@ final class DimensionPage {
 
         ShapeKind own = choice.own();
         if (own != ShapeKind.FROM_OVERWORLD) {
-            return own == null ? null : this.loops.spans(own);
+            return own == null ? null : this.ownSpans(own);
         }
 
         var derivation = this.offer.derivation();
@@ -252,6 +252,17 @@ final class DimensionPage {
         return DeclaredShapes.resolve(shape, new DimensionContext(this.offer.dimension(), chosenOptions,
                 overworldItself ? null : this.overworld.get().spans(), this.scales.of(LevelStem.OVERWORLD),
                 this.scales.of(this.offer.dimension())));
+    }
+
+    private @Nullable FlatShape ownSpans(ShapeKind kind) {
+        DimensionShape shape = kind.builtIn();
+        if (shape == null) {
+            return null;
+        }
+
+        ShapeOptions size = this.loops.size(kind);
+        return size == null ? null : shape.spans(new DimensionContext(this.offer.dimension(), size, null,
+                this.scales.of(LevelStem.OVERWORLD), this.scales.of(this.offer.dimension())));
     }
 
     private @Nullable ShapeKind own() {
@@ -290,7 +301,7 @@ final class DimensionPage {
         ShapeChoice choice = this.chosen.get();
         DimensionShape shape = choice.declared();
         ShapeKind own = choice.own();
-        FlatShape spans = shape != null ? this.declaredSpans(shape) : own == null ? null : this.loops.spans(own);
+        FlatShape spans = shape != null ? this.declaredSpans(shape) : own == null ? null : this.ownSpans(own);
         if (spans == null) {
             return null;
         }
