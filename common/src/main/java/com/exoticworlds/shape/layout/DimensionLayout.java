@@ -12,7 +12,7 @@ import net.minecraft.resources.Identifier;
 public record DimensionLayout(ShapeKind kind, @Nullable Identifier shape, @Nullable FlatShape spans,
         ShapeOptions options) {
     public static final ShapeOptions DEFAULT_OPTIONS =
-            ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
+            ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF);
 
     public DimensionLayout {
         boolean isLooped = kind == ShapeKind.TORUS || kind == ShapeKind.CYLINDER;

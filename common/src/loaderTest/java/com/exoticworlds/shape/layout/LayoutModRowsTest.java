@@ -54,7 +54,7 @@ class LayoutModRowsTest {
         Bootstrap.bootStrap();
         StartupRegistrations.options();
         worldgen = VanillaRegistries.createWorldLookup();
-        compact6 = PLAIN.with(CompactBiomes.OPTION, ClimateScale.custom(6));
+        compact6 = PLAIN.with(CompactBiomes.FEATURE.getOption(), ClimateScale.custom(6));
     }
 
     @Test

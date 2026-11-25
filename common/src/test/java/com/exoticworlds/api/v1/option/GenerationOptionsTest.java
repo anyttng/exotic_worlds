@@ -21,8 +21,8 @@ class GenerationOptionsTest {
 
     private static final List<String> PREFIXES = List.of(NO_PREFIX, STAMP_PREFIX);
 
-    private static final WorldOption<ClimateScale> COMPACT_BIOMES = OptionBridge.twin(CompactBiomes.OPTION);
-    private static final WorldOption<Boolean> GUARANTEED_LAND = OptionBridge.twin(GuaranteedLand.OPTION);
+    private static final WorldOption<ClimateScale> COMPACT_BIOMES = OptionBridge.twin(CompactBiomes.FEATURE.getOption());
+    private static final WorldOption<Boolean> GUARANTEED_LAND = OptionBridge.twin(GuaranteedLand.FEATURE.getOption());
 
     private static final GenerationOptions CHOSEN = GenerationOptions.DEFAULT
             .with(COMPACT_BIOMES, ClimateScale.OFF)

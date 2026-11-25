@@ -43,9 +43,9 @@ class LayoutDimensionsTest {
 
     private static final ShapeOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
 
-    private static final ShapeOptions COMPACT_6 = PLAIN.with(CompactBiomes.OPTION, ClimateScale.custom(6));
+    private static final ShapeOptions COMPACT_6 = PLAIN.with(CompactBiomes.FEATURE.getOption(), ClimateScale.custom(6));
 
-    private static final ShapeOptions LAND = PLAIN.with(GuaranteedLand.OPTION, true);
+    private static final ShapeOptions LAND = PLAIN.with(GuaranteedLand.FEATURE.getOption(), true);
 
     private static final ResourceKey<LevelStem> MOD_STEM = ResourceKey.create(Registries.LEVEL_STEM,
             Identifier.fromNamespaceAndPath("example_mod", "sky"));

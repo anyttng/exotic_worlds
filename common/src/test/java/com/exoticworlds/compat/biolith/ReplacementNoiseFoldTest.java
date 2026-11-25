@@ -124,7 +124,7 @@ class ReplacementNoiseFoldTest {
     }
 
     private static WorldFold compressed(int chunkMin, int chunkMax, ClimateScale scale) {
-        return torus(chunkMin, chunkMax, ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, scale));
+        return torus(chunkMin, chunkMax, ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), scale));
     }
 
     private static final class VanillaWorldgen {

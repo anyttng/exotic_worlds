@@ -6,14 +6,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.climate.ClimateScale;
 import com.exoticworlds.shape.climate.CompactBiomes;
-import com.exoticworlds.shape.dimension.DeclaredShapes;
+import com.exoticworlds.shape.cylinder.Cylinder;
+import com.exoticworlds.shape.dimension.DimensionShape;
 import com.exoticworlds.shape.torus.GuaranteedLand;
 import com.exoticworlds.shape.torus.GuaranteedNetherComplexes;
+import com.exoticworlds.shape.torus.Torus;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -21,36 +24,36 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 
 class DeclaredOptionsTest {
-    private static final Identifier MOD_SHAPE = Identifier.fromNamespaceAndPath("example_mod", "band");
-
     private static final ResourceKey<LevelStem> MOD_DIMENSION = ResourceKey.create(Registries.LEVEL_STEM,
             Identifier.fromNamespaceAndPath("example_mod", "sky"));
 
-    @Test
-    void theModsOwnOptionsAreDeclaredInTheOrderOfTheirPositions() {
+    @BeforeAll
+    static void registerOptions() {
         StartupRegistrations.options();
-
-        assertEquals(List.of(CompactBiomes.SHOWN, GuaranteedLand.SHOWN, GuaranteedNetherComplexes.SHOWN),
-                DeclaredOptions.getAll());
     }
 
     @Test
-    void theModsOwnOptionsNameTheirShapesAndDimensions() {
-        assertTrue(CompactBiomes.SHOWN.isOfferedFor(DeclaredShapes.CYLINDER, LevelStem.END));
-        assertTrue(CompactBiomes.SHOWN.isOfferedFor(MOD_SHAPE, MOD_DIMENSION));
+    void eachShapeHoldsItsOwnOptionsInTheOrderTheyAreRegistered() {
+        assertEquals(List.of(CompactBiomes.FEATURE.getShown(), GuaranteedLand.FEATURE.getShown(), GuaranteedNetherComplexes.FEATURE.getShown()),
+                optionsOf(Torus.SHAPE));
+        assertEquals(List.of(CompactBiomes.FEATURE.getShown()), optionsOf(Cylinder.SHAPE));
+    }
 
-        assertTrue(GuaranteedLand.SHOWN.isOfferedFor(DeclaredShapes.TORUS, LevelStem.OVERWORLD));
-        assertFalse(GuaranteedLand.SHOWN.isOfferedFor(DeclaredShapes.CYLINDER, LevelStem.OVERWORLD));
-        assertFalse(GuaranteedLand.SHOWN.isOfferedFor(DeclaredShapes.TORUS, LevelStem.NETHER));
-        assertFalse(GuaranteedLand.SHOWN.isOfferedFor(MOD_SHAPE, LevelStem.OVERWORLD));
+    @Test
+    void anOptionIsOfferedOnlyInTheDimensionsOfItsScope() {
+        assertTrue(scopeOf(Torus.SHAPE, CompactBiomes.FEATURE.getShown()).contains(MOD_DIMENSION));
+        assertTrue(scopeOf(Cylinder.SHAPE, CompactBiomes.FEATURE.getShown()).contains(LevelStem.END));
 
-        assertTrue(GuaranteedNetherComplexes.SHOWN.isOfferedFor(DeclaredShapes.TORUS, LevelStem.NETHER));
-        assertFalse(GuaranteedNetherComplexes.SHOWN.isOfferedFor(DeclaredShapes.TORUS, LevelStem.OVERWORLD));
+        assertTrue(scopeOf(Torus.SHAPE, GuaranteedLand.FEATURE.getShown()).contains(LevelStem.OVERWORLD));
+        assertFalse(scopeOf(Torus.SHAPE, GuaranteedLand.FEATURE.getShown()).contains(LevelStem.NETHER));
+
+        assertTrue(scopeOf(Torus.SHAPE, GuaranteedNetherComplexes.FEATURE.getShown()).contains(LevelStem.NETHER));
+        assertFalse(scopeOf(Torus.SHAPE, GuaranteedNetherComplexes.FEATURE.getShown()).contains(LevelStem.OVERWORLD));
     }
 
     @Test
     void compactBiomesIsAChoiceOfModeWithAFactorShownForCustomAlone() {
-        List<OptionPart<ClimateScale>> parts = CompactBiomes.SHOWN.getParts();
+        List<OptionPart<ClimateScale>> parts = CompactBiomes.FEATURE.getShown().getParts();
         OptionPart.WholeNumber<ClimateScale> factor = (OptionPart.WholeNumber<ClimateScale>) parts.get(1);
 
         assertEquals(2, parts.size());
@@ -59,5 +62,17 @@ class DeclaredOptionsTest {
         assertTrue(factor.shownWhen().test(ClimateScale.custom(6)));
         assertEquals(6, factor.read().apply(ClimateScale.custom(6)));
         assertEquals(ClimateScale.custom(9), factor.write().apply(ClimateScale.custom(6), 9));
+    }
+
+    private static List<DimensionOption<?>> optionsOf(DimensionShape shape) {
+        return shape.getOptions().stream().<DimensionOption<?>>map(ScopedOption::option).toList();
+    }
+
+    private static DimensionScope scopeOf(DimensionShape shape, DimensionOption<?> option) {
+        return shape.getOptions().stream()
+                .filter(scoped -> scoped.option() == option)
+                .findFirst()
+                .orElseThrow()
+                .scope();
     }
 }

@@ -1,8 +1,11 @@
 package com.exoticworlds.client.shape.layout;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
@@ -33,6 +36,7 @@ import com.exoticworlds.shape.option.DimensionOption;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 
 final class DimensionPage {
@@ -58,7 +62,7 @@ final class DimensionPage {
         this.parameters = new OptionControls(theme, fill, offer.dimension(), getParameters(), this::getChosenShape,
                 this::getResolvedSpans);
         this.spawn = new SpawnFields(theme, fill, this::spawnWidthChunks);
-        this.declared = new OptionControls(theme, fill, offer.dimension(), DeclaredOptions.getAll(),
+        this.declared = new OptionControls(theme, fill, offer.dimension(), getAdditionalOptions(offer.dimension()),
                 this::getResolvedShape, this::getResolvedSpans);
         this.build(theme, fill, lockReason);
         this.show(shown);
@@ -294,7 +298,7 @@ final class DimensionPage {
     private ShapeOptions getShownParameters(DimensionLayout layout) {
         FlatShape spans = layout.shape() == null ? layout.spans() : null;
         ShapeOptions shown = ShapeOptions.DEFAULT;
-        for (DimensionShape shape : getParameterShapes()) {
+        for (DimensionShape shape : getKnownShapes()) {
             ShapeOptions source = (spans == null ? Optional.<ShapeOptions>empty() : shape.optionsFor(spans))
                     .orElseGet(() -> shape.defaultOptions(this.offer.dimension()));
             for (DimensionOption<?> parameter : shape.getParameters()) {
@@ -305,16 +309,34 @@ final class DimensionPage {
         return shown;
     }
 
-    private static List<DimensionOption<?>> getParameters() {
-        List<DimensionOption<?>> parameters = new ArrayList<>();
-        for (DimensionShape shape : getParameterShapes()) {
-            shape.getParameters().forEach(parameter -> parameters.add(parameter.forShapes(List.of(shape.getId()))));
+    private static List<OptionControls.Offer> getParameters() {
+        List<OptionControls.Offer> parameters = new ArrayList<>();
+        for (DimensionShape shape : getKnownShapes()) {
+            Identifier owner = shape.getId();
+            shape.getParameters().forEach(parameter -> parameters.add(new OptionControls.Offer(parameter, owner::equals)));
         }
 
         return parameters;
     }
 
-    private static List<DimensionShape> getParameterShapes() {
+    private static List<OptionControls.Offer> getAdditionalOptions(ResourceKey<LevelStem> dimension) {
+        Map<DimensionOption<?>, Predicate<Identifier>> offered = new LinkedHashMap<>();
+        for (DimensionShape shape : getKnownShapes()) {
+            Identifier owner = shape.getId();
+            shape.getOptions().stream()
+                    .filter(scoped -> scoped.scope().contains(dimension))
+                    .forEach(scoped -> offered.merge(scoped.option(), owner::equals, Predicate::or));
+        }
+
+        DeclaredOptions.getAll().stream()
+                .filter(declared -> declared.scope().contains(dimension))
+                .forEach(declared -> offered.merge(declared.option(), declared::isForShape, Predicate::or));
+        return offered.entrySet().stream()
+                .map(entry -> new OptionControls.Offer(entry.getKey(), entry.getValue()))
+                .toList();
+    }
+
+    private static List<DimensionShape> getKnownShapes() {
         List<DimensionShape> shapes = new ArrayList<>(ShapeKind.getBuiltIns());
         shapes.addAll(DeclaredShapes.getAll());
         return shapes;
