@@ -11,7 +11,7 @@ import java.util.Set;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import com.exoticworlds.client.engine.ClientFrame;
+import com.exoticworlds.engine.client.ClientFrame;
 import com.exoticworlds.compat.map.AxisCopies;
 import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.compat.map.FullscreenZoomFloor;

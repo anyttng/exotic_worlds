@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.client.engine.ClientFrame;
+import com.exoticworlds.engine.client.ClientFrame;
 import com.exoticworlds.compat.create.CreateSeamFold;
 import com.exoticworlds.core.fold.DeckTransformation;
 import com.exoticworlds.core.fold.WorldFold;

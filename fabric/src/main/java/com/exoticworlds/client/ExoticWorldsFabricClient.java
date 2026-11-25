@@ -1,6 +1,6 @@
 package com.exoticworlds.client;
 
-import com.exoticworlds.client.engine.WorldLoopClientNetwork;
+import com.exoticworlds.engine.client.WorldLoopClientNetwork;
 import com.exoticworlds.engine.net.DimensionChoicesPayload;
 import com.exoticworlds.engine.net.PositionRowsPayload;
 import com.exoticworlds.engine.net.WrappingSettingsPayload;
