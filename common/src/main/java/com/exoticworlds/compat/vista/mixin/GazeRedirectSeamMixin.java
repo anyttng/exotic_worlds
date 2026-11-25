@@ -34,9 +34,7 @@ public class GazeRedirectSeamMixin {
         return original.call(viewFinder, SeamRange.toward(level, viewFinder, watched));
     }
 
-    @WrapOperation(method = "traceGazeTo", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/phys/AABB;clip(Lnet/minecraft/world/phys/Vec3;"
-                    + "Lnet/minecraft/world/phys/Vec3;)Ljava/util/Optional;"))
+    @WrapOperation(method = "traceGazeTo", at = @At(value = "INVOKE", target = InjectionTargets.AABB_CLIP))
     private static Optional<Vec3> exotic_worlds$watchedNearestRay(AABB watched, Vec3 from, Vec3 to,
             Operation<Optional<Vec3>> original, @Local(argsOnly = true) Level level) {
         return original.call(FoldedBoxQuery.toward(WorldLoopAttachments.wrappedFoldOf(level), from, watched), from,

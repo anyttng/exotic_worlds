@@ -19,7 +19,8 @@
     "RegenCloudParticlesPacketAccessor",
     "ShockwaveParticlesPacketAccessor",
     "SyncCastingMobAimingDataPacketAccessor",
-    "TeleportParticlesPacketAccessor"
+    "TeleportParticlesPacketAccessor",
+    "UtilsMixin"
   ],
   "client": [
     "WallOfFireEntityMixin"

@@ -1,6 +1,9 @@
 package com.exoticworlds;
 
 public final class InjectionTargets {
+    public static final String AABB_CLIP = "Lnet/minecraft/world/phys/AABB;clip(Lnet/minecraft/world/phys/Vec3;"
+            + "Lnet/minecraft/world/phys/Vec3;)Ljava/util/Optional;";
+
     public static final String AABB_CONTAINS =
             "Lnet/minecraft/world/phys/AABB;contains(Lnet/minecraft/world/phys/Vec3;)Z";
 
