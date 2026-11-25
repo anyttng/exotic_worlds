@@ -70,11 +70,11 @@ class WorldShapesSpawnTest {
 
     @Test
     void aLayoutWithAPlainOverworldRefusesTheSpawnPoint() {
-        LayoutShape.choose(WorldLayout.DEFAULT);
+        LayoutShape.choose(WorldLayout.newWorld());
         WorldShapes.select(LayoutShape.ID);
 
         assertFalse(WorldShapes.tryMoveSpawn(PICKED));
-        assertEquals(WorldLayout.DEFAULT, LayoutShape.getLayout());
+        assertEquals(WorldLayout.newWorld(), LayoutShape.getLayout());
     }
 
     @Test

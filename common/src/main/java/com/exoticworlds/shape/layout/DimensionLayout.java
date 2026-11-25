@@ -4,16 +4,11 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.option.ShapeOptions;
-import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
-import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 
 import net.minecraft.resources.Identifier;
 
 public record DimensionLayout(ShapeKind kind, @Nullable Identifier shape, @Nullable FlatShape spans,
         ShapeOptions options) {
-    public static final ShapeOptions DEFAULT_OPTIONS =
-            ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF);
-
     public DimensionLayout {
         if (kind == ShapeKind.SHAPED ? shape == null : shape != null || spans != null) {
             throw new IllegalArgumentException("A " + kind + " dimension cannot hold the shape " + shape

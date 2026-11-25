@@ -6,21 +6,16 @@ import java.util.List;
 import java.util.Map;
 
 import com.ascendiacore.client.createworld.WorldTabRows;
-import com.exoticworlds.client.shape.OptionLines;
-import com.exoticworlds.client.shape.feature.compactbiomes.CompactBiomesLine;
 import com.exoticworlds.client.shape.WorldShapeRow;
 import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.shape.WorldShapes;
-import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 import com.exoticworlds.shape.layout.LayoutShape;
 import com.exoticworlds.shape.layout.WorldLayout;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
 import net.minecraft.core.Registry;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 
@@ -28,11 +23,6 @@ public final class LayoutShapeSetup {
 
     public static void register() {
         WorldTabRows.register(new WorldShapeRow(LayoutShapeSetup::createScreen));
-        CompactBiomesLine factor = new CompactBiomesLine();
-        OptionLines.register(CompactBiomes.FEATURE.getOption(),
-                (scale, spans) -> Minecraft.getInstance().screen instanceof WorldShapeSettingsScreen open
-                        ? factor.line(open, open.getCreationScreen(), scale, spans)
-                        : Component.empty());
     }
 
     private static Screen createScreen(Screen parent) {

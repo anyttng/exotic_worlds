@@ -19,6 +19,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
+import com.exoticworlds.shape.layout.LayoutFixtures;
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.core.option.ShapeOption;
 import com.exoticworlds.core.option.ShapeOptionRegistry;
@@ -49,7 +50,7 @@ class WorldLoopPresetsJsonTest {
     void everyPresetShipsATorusWorldPresetMatchingItsConfiguration() throws IOException {
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
             assertPreset(TORUS_PRESET_PREFIX + preset.getId(), preset, WorldLoopBounds::ofWidth,
-                    TORUS_OPTIONS, DimensionLayout.DEFAULT_OPTIONS);
+                    TORUS_OPTIONS, LayoutFixtures.PLAIN);
         }
     }
 
@@ -72,7 +73,7 @@ class WorldLoopPresetsJsonTest {
         Direction.Axis axis = Direction.Axis.X;
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
             assertPreset(CYLINDER_PRESET_PREFIX + preset.getId(), preset, width -> WorldLoopBounds.ofWidth(axis, width),
-                    CYLINDER_OPTIONS, DimensionLayout.DEFAULT_OPTIONS);
+                    CYLINDER_OPTIONS, LayoutFixtures.PLAIN);
         }
     }
 

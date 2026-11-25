@@ -22,7 +22,6 @@ import com.ascendiacore.gui.widget.panel.model.FillStyle;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.NetherScales;
 import com.exoticworlds.core.option.ShapeOptions;
-import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.core.world.WorldLoopSizes;
 import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.dimension.DimensionContext;
@@ -34,6 +33,7 @@ import com.exoticworlds.shape.option.DeclaredOptions;
 import com.exoticworlds.shape.option.DimensionOption;
 
 import net.minecraft.core.Direction;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -48,22 +48,21 @@ final class DimensionPage {
     private final Value<ShapeChoice> chosen = Value.of(ShapeChoice.of(ShapeKind.NORMAL));
     private final Value<Integer> netherScale = Value.of(NetherScales.DEFAULT);
     private final OptionControls parameters;
-    private final SpawnFields spawn;
     private final OptionControls declared;
     private final Column page = new Column();
     private ShapeOptions options;
 
     DimensionPage(DimensionOffer offer, Theme theme, FillStyle fill, CoordinateScales scales,
-            Supplier<DimensionLayout> overworld, DimensionLayout shown, @Nullable Component lockReason) {
+            Supplier<DimensionLayout> overworld, DimensionLayout shown, @Nullable Component lockReason,
+            @Nullable Screen creation) {
         this.offer = offer;
         this.scales = scales;
         this.overworld = overworld;
         this.options = shown.options();
         this.parameters = new OptionControls(theme, fill, offer.dimension(), getParameters(), this::getChosenShape,
-                this::getResolvedSpans);
-        this.spawn = new SpawnFields(theme, fill, this::spawnWidthChunks);
+                this::getResolvedSpans, creation);
         this.declared = new OptionControls(theme, fill, offer.dimension(), getAdditionalOptions(offer.dimension()),
-                this::getResolvedShape, this::getResolvedSpans);
+                this::getResolvedShape, this::getResolvedSpans, creation);
         this.build(theme, fill, lockReason);
         this.show(shown);
     }
@@ -88,7 +87,6 @@ final class DimensionPage {
                 ? ShapeChoice.of(shape)
                 : ShapeChoice.of(layout.kind() == ShapeKind.FROM_OVERWORLD ? ShapeKind.FROM_OVERWORLD : ShapeKind.NORMAL));
         this.parameters.show(this.getShownParameters(layout));
-        this.spawn.show(this.options.get(SpawnPoint.OPTION));
         this.declared.show(this.options);
     }
 
@@ -126,8 +124,7 @@ final class DimensionPage {
             return this.options;
         }
 
-        SpawnPoint point = this.offer.hasSpawnPoint() ? this.spawn.getPoint() : this.options.get(SpawnPoint.OPTION);
-        return point == null ? null : this.declared.commit(this.options.with(SpawnPoint.OPTION, point));
+        return this.declared.commit(this.options);
     }
 
     private void build(Theme theme, FillStyle fill, @Nullable Component lockReason) {
@@ -140,7 +137,6 @@ final class DimensionPage {
         additional.add(Heading.of(fill, SettingsLines.ADDITIONAL));
         additional.add(this.declared.getSection());
 
-        this.spawn.getSection().setVisible(() -> this.offer.hasSpawnPoint() && this.getResolvedSpans() != null);
         additional.setVisible(this.declared::isAnyOffered);
 
         this.page.setGapPixels(GAP_PIXELS);
@@ -155,7 +151,6 @@ final class DimensionPage {
         this.page.add(this.derivedLine(fill));
         this.page.add(this.sizeErrorLine(fill));
         this.page.add(this.parameters.getSection());
-        this.page.add(this.spawn.getSection());
         this.page.add(additional);
     }
 
@@ -307,15 +302,5 @@ final class DimensionPage {
 
     private static <T> ShapeOptions copied(DimensionOption<T> parameter, ShapeOptions from, ShapeOptions into) {
         return into.with(parameter.getOption(), from.get(parameter.getOption()));
-    }
-
-    private @Nullable Integer spawnWidthChunks(Direction.Axis axis) {
-        DimensionShape shape = this.chosen.get().shape();
-        FlatShape spans = shape == null ? null : this.getShapeSpans(shape);
-        if (spans == null) {
-            return null;
-        }
-
-        return spans.bounds().isLooped(axis) ? spans.bounds().getWidthChunks(axis) : WorldLoopSizes.ENDLESS_AXIS_WIDTH;
     }
 }

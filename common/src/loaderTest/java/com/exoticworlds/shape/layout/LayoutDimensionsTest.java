@@ -49,7 +49,7 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
 class LayoutDimensionsTest {
     private static HolderLookup.Provider worldgen;
 
-    private static final ShapeOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
+    private static final ShapeOptions PLAIN = LayoutFixtures.PLAIN;
 
     private static final ShapeOptions COMPACT_6 = PLAIN.with(CompactBiomes.FEATURE.getOption(), ClimateScale.custom(6));
 
@@ -71,7 +71,7 @@ class LayoutDimensionsTest {
 
     @Test
     void theDefaultLayoutLeavesTheWorldAsItWas() {
-        WorldDimensions created = LayoutDimensions.apply(vanillaDimensions(), WorldLayout.DEFAULT);
+        WorldDimensions created = LayoutDimensions.apply(vanillaDimensions(), WorldLayout.newWorld());
 
         assertNull(ShapeDimensions.spansOf(created, LevelStem.OVERWORLD));
         assertNull(ShapeDimensions.spansOf(created, LevelStem.NETHER));
@@ -178,9 +178,9 @@ class LayoutDimensionsTest {
     void aModDimensionWithNoRowIsFromTheOverworldAndChoosingThatDropsItsRow() {
         DimensionLayout own = LayoutFixtures.looped(ShapeFixtures.torus(48), COMPACT_6);
 
-        WorldLayout withRow = WorldLayout.DEFAULT.withModDimension(MOD_STEM, own);
+        WorldLayout withRow = WorldLayout.newWorld().withModDimension(MOD_STEM, own);
 
-        assertEquals(ShapeKind.FROM_OVERWORLD, WorldLayout.DEFAULT.getModDimension(MOD_STEM).kind());
+        assertEquals(ShapeKind.FROM_OVERWORLD, WorldLayout.newWorld().getModDimension(MOD_STEM).kind());
         assertEquals(own, withRow.getModDimension(MOD_STEM));
         assertEquals(Map.of(), withRow.withModDimension(MOD_STEM, DimensionLayout.fromOverworld(PLAIN)).modDimensions());
     }
@@ -240,7 +240,7 @@ class LayoutDimensionsTest {
 
         assertNotNull(moved);
         assertEquals(spawn, moved.overworld().options().get(SpawnPoint.OPTION));
-        assertNull(WorldLayout.DEFAULT.withSpawn(spawn));
+        assertNull(WorldLayout.newWorld().withSpawn(spawn));
     }
 
     @Test

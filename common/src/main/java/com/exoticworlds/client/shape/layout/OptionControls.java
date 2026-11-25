@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -17,18 +18,19 @@ import com.ascendiacore.gui.layout.Row;
 import com.ascendiacore.gui.layout.model.Length;
 import com.ascendiacore.gui.theme.Theme;
 import com.ascendiacore.gui.widget.cyclebutton.CycleButton;
-import com.ascendiacore.gui.widget.label.Label;
-import com.ascendiacore.gui.widget.label.model.LabelRole;
 import com.ascendiacore.gui.widget.numberfield.NumberField;
 import com.ascendiacore.gui.widget.numberfield.model.Bounds;
 import com.ascendiacore.gui.widget.panel.model.FillStyle;
-import com.exoticworlds.client.shape.OptionLines;
+import com.exoticworlds.client.shape.feature.FeaturePanel;
+import com.exoticworlds.client.shape.feature.FeatureView;
+import com.exoticworlds.client.shape.feature.FeatureViews;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.shape.option.DimensionOption;
 import com.exoticworlds.shape.option.NumberRange;
 import com.exoticworlds.shape.option.OptionPart;
 
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -47,6 +49,7 @@ final class OptionControls {
     private final ResourceKey<LevelStem> dimension;
     private final Supplier<@Nullable Identifier> shape;
     private final Supplier<@Nullable FlatShape> spans;
+    private final @Nullable Screen creation;
     private final List<Bound<?>> bound = new ArrayList<>();
     private final Column section = new Column();
 
@@ -54,12 +57,13 @@ final class OptionControls {
     }
 
     OptionControls(Theme theme, FillStyle fill, ResourceKey<LevelStem> dimension, List<Offer> offered,
-            Supplier<@Nullable Identifier> shape, Supplier<@Nullable FlatShape> spans) {
+            Supplier<@Nullable Identifier> shape, Supplier<@Nullable FlatShape> spans, @Nullable Screen creation) {
         this.theme = theme;
         this.fill = fill;
         this.dimension = dimension;
         this.shape = shape;
         this.spans = spans;
+        this.creation = creation;
         this.section.setGapPixels(DimensionPage.GAP_PIXELS);
         for (Offer offer : offered) {
             this.bound.add(this.bind(offer.option(), offer.isForShape()));
@@ -101,26 +105,78 @@ final class OptionControls {
     private record NumberPart<T>(OptionPart.WholeNumber<T> part, NumberField field) {
     }
 
-    private final class Bound<T> {
+    private final class Bound<T> implements FeaturePanel<T> {
         private final DimensionOption<T> declared;
         private final Predicate<Identifier> isForShape;
         private final List<Runnable> shownValues = new ArrayList<>();
         private final List<NumberPart<T>> numbers = new ArrayList<>();
+        private @Nullable Supplier<@Nullable T> ownValue;
         private T value;
         private boolean isShowing;
+        private boolean isResolvingSpans;
 
         Bound(DimensionOption<T> declared, Predicate<Identifier> isForShape) {
             this.declared = declared;
             this.isForShape = isForShape;
             this.value = declared.getOption().defaultValue();
             declared.getParts().forEach(part -> OptionControls.this.section.add(this.control(part)));
-            BiFunction<T, FlatShape, Component> line = OptionLines.of(declared.getOption());
-            if (line != null) {
-                this.addLine(line);
+            FeatureView<T> view = FeatureViews.of(declared.getOption());
+            if (view != null) {
+                view.extend(this);
             }
         }
 
-        boolean isOffered() {
+        @Override
+        public @Nullable T getValue() {
+            return this.getChosen();
+        }
+
+        @Override
+        public @Nullable FlatShape getSpans() {
+            if (this.isResolvingSpans) {
+                return OptionControls.this.spans.get();
+            }
+
+            this.isResolvingSpans = true;
+            try {
+                return OptionControls.this.spans.get();
+            } finally {
+                this.isResolvingSpans = false;
+            }
+        }
+
+        @Override
+        public @Nullable Screen getCreationScreen() {
+            return OptionControls.this.creation;
+        }
+
+        @Override
+        public Theme getTheme() {
+            return OptionControls.this.theme;
+        }
+
+        @Override
+        public FillStyle getFill() {
+            return OptionControls.this.fill;
+        }
+
+        @Override
+        public void add(GuiComponent component) {
+            OptionControls.this.section.add(component);
+        }
+
+        @Override
+        public void onShow(Consumer<T> shown) {
+            this.shownValues.add(() -> shown.accept(this.value));
+        }
+
+        @Override
+        public void takeValueFrom(Supplier<@Nullable T> chosen) {
+            this.ownValue = chosen;
+        }
+
+        @Override
+        public boolean isOffered() {
             Identifier chosen = OptionControls.this.shape.get();
             return chosen != null && this.isForShape.test(chosen);
         }
@@ -142,6 +198,10 @@ final class OptionControls {
         }
 
         private @Nullable T getChosen() {
+            if (this.ownValue != null) {
+                return this.isResolvingSpans ? this.value : this.ownValue.get();
+            }
+
             T chosen = this.value;
             for (NumberPart<T> number : this.numbers) {
                 if (!number.part().shownWhen().test(this.value)) {
@@ -228,19 +288,6 @@ final class OptionControls {
             this.numbers.add(new NumberPart<>(part, field));
             this.shownValues.add(() -> field.setValue(part.read().apply(this.value)));
             return field;
-        }
-
-        private void addLine(BiFunction<T, FlatShape, Component> line) {
-            Label label = new Label(OptionControls.this.fill, LabelRole.MUTED, Component.empty());
-            label.setText(() -> this.lineText(line));
-            label.setVisible(() -> this.isOffered() && !this.lineText(line).getString().isEmpty());
-            OptionControls.this.section.add(label);
-        }
-
-        private Component lineText(BiFunction<T, FlatShape, Component> line) {
-            T chosen = this.getChosen();
-            FlatShape dimensionSpans = OptionControls.this.spans.get();
-            return chosen == null || dimensionSpans == null ? Component.empty() : line.apply(chosen, dimensionSpans);
         }
     }
 }

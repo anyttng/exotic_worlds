@@ -15,6 +15,7 @@ import com.exoticworlds.core.world.NetherScales;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.engine.gen.ShapedDimensions;
 import com.exoticworlds.shape.dimension.DeclaredShapes;
+import com.exoticworlds.shape.feature.OptionFeatures;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -66,7 +67,7 @@ public final class LayoutDimensions {
             ResourceKey<LevelStem> key) {
         DimensionTable.Entry entry = rows.get(key);
         DimensionLayout layout = entry == null ? null : layoutOf(entry);
-        return layout != null ? layout : DimensionLayout.normal(DimensionLayout.DEFAULT_OPTIONS);
+        return layout != null ? layout : DimensionLayout.normal(OptionFeatures.newWorldOptions());
     }
 
     private static WorldLayout derived(DimensionLayout overworld, DimensionLayout nether, DimensionLayout end,
@@ -89,7 +90,7 @@ public final class LayoutDimensions {
         FlatShape spans = stored == null || stored.mirror() != null ? null : stored;
         if (spans == null) {
             return ShapedDimensions.getCarriedShape(dimensions, key) == null
-                    ? DimensionLayout.normal(DimensionLayout.DEFAULT_OPTIONS)
+                    ? DimensionLayout.normal(OptionFeatures.newWorldOptions())
                     : null;
         }
 
@@ -120,7 +121,7 @@ public final class LayoutDimensions {
     private static @Nullable DimensionLayout layoutOf(DimensionTable.Entry entry) {
         CarriedShape carried = entry.carried();
         if (carried == null) {
-            return DimensionLayout.normal(DimensionLayout.DEFAULT_OPTIONS);
+            return DimensionLayout.normal(OptionFeatures.newWorldOptions());
         }
 
         FlatShape shape = carried.getShape();
