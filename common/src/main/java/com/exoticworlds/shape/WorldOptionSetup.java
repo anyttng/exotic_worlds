@@ -4,11 +4,11 @@ import java.util.List;
 
 import com.exoticworlds.core.option.ShapeOptionRegistry;
 import com.exoticworlds.core.world.SpawnPoint;
-import com.exoticworlds.shape.climate.CompactBiomes;
+import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 import com.exoticworlds.shape.cylinder.Cylinder;
 import com.exoticworlds.shape.option.DimensionScope;
-import com.exoticworlds.shape.torus.GuaranteedLand;
-import com.exoticworlds.shape.torus.GuaranteedNetherComplexes;
+import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
+import com.exoticworlds.shape.feature.guaranteednethercomplexes.GuaranteedNetherComplexes;
 import com.exoticworlds.shape.torus.Torus;
 
 import net.minecraft.world.level.dimension.LevelStem;

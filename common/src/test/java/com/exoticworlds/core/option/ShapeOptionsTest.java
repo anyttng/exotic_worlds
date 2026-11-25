@@ -12,9 +12,9 @@ import com.exoticworlds.api.v1.option.GenerationOptions;
 import com.exoticworlds.bridge.v1.option.OptionBridge;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.shape.StartupRegistrations;
-import com.exoticworlds.shape.climate.ClimateScale;
-import com.exoticworlds.shape.climate.CompactBiomes;
-import com.exoticworlds.shape.torus.GuaranteedLand;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
+import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
+import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 

@@ -1,4 +1,4 @@
-package com.exoticworlds.shape.torus;
+package com.exoticworlds.shape.feature.guaranteedland;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;

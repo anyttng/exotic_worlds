@@ -1,4 +1,4 @@
-package com.exoticworlds.client.shape.climate;
+package com.exoticworlds.client.shape.feature.compactbiomes;
 
 import java.util.OptionalDouble;
 
@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.fold.WorldFolds;
-import com.exoticworlds.shape.climate.ClimateCompression;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
 import com.exoticworlds.shape.noise.DensityNoises;
 
 import net.minecraft.client.gui.screens.Screen;

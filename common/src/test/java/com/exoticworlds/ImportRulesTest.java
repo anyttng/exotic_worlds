@@ -38,8 +38,8 @@ class ImportRulesTest {
             Set.of("WorldLoop", "WorldLoopNetwork", "ExoticWorldsNeoForge", "ExoticWorldsFabric",
                     "ExoticWorldsFabricClient", "VanillaBootstrapListener");
     private static final Set<String> EXCEPTIONS = Set.of(
-            "shape.climate.ClimateCompression -> engine.noise.ClimateScaleCompression",
-            "shape.torus.CoastFieldLift -> engine.noise.GenerationFoldContext",
+            "shape.feature.compactbiomes.ClimateCompression -> engine.noise.ClimateScaleCompression",
+            "shape.feature.guaranteedland.CoastFieldLift -> engine.noise.GenerationFoldContext",
             "shape.WorldShapes -> engine.gen.ShapedDimensions",
             "shape.layout.LayoutDimensions -> engine.gen.ShapedDimensions",
             "shape.layout.OverworldDerivation -> engine.gen.ShapedDimensions");

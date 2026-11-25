@@ -17,7 +17,7 @@ import com.exoticworlds.engine.noise.NoiseConstants;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
 import com.exoticworlds.engine.noise.SlotAxes;
 import com.exoticworlds.engine.noise.SlotAxis;
-import com.exoticworlds.shape.climate.ClimateCompression;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
 import com.ishland.c2me.opts.dfc.common.ast.AstNode;
 import com.ishland.c2me.opts.dfc.common.ast.binary.AddNode;
 import com.ishland.c2me.opts.dfc.common.ast.binary.MulNode;

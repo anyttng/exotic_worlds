@@ -24,9 +24,9 @@ import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 import com.exoticworlds.core.world.WorldLoopSizes;
-import com.exoticworlds.shape.climate.ClimateScale;
-import com.exoticworlds.shape.climate.CompactBiomes;
-import com.exoticworlds.shape.torus.GuaranteedLand;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
+import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
+import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;

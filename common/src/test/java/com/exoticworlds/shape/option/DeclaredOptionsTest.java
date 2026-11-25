@@ -10,12 +10,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.shape.StartupRegistrations;
-import com.exoticworlds.shape.climate.ClimateScale;
-import com.exoticworlds.shape.climate.CompactBiomes;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
+import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 import com.exoticworlds.shape.cylinder.Cylinder;
 import com.exoticworlds.shape.dimension.DimensionShape;
-import com.exoticworlds.shape.torus.GuaranteedLand;
-import com.exoticworlds.shape.torus.GuaranteedNetherComplexes;
+import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
+import com.exoticworlds.shape.feature.guaranteednethercomplexes.GuaranteedNetherComplexes;
 import com.exoticworlds.shape.torus.Torus;
 
 import net.minecraft.core.registries.Registries;

@@ -12,8 +12,8 @@ import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldFolds;
-import com.exoticworlds.shape.climate.ClimateScale;
-import com.exoticworlds.shape.climate.CompactBiomes;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
+import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;

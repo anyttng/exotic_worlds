@@ -5,7 +5,7 @@ import com.exoticworlds.compat.worldgen.ShiftedNoiseFold;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.shape.climate.ClimateCompression;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.CLIMATE_AMPLITUDES;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.CLIMATE_FIRST_OCTAVE;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.CLIMATE_NOISE_DATA;

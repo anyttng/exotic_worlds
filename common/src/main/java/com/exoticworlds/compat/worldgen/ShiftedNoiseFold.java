@@ -6,7 +6,7 @@ import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
-import com.exoticworlds.shape.climate.ClimateCompression;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
 
 import net.minecraft.world.level.levelgen.DensityFunction;
 

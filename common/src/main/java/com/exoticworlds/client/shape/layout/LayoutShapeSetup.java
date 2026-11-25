@@ -8,11 +8,11 @@ import java.util.Map;
 
 import com.ascendiacore.client.createworld.WorldTabRows;
 import com.exoticworlds.client.shape.OptionLines;
-import com.exoticworlds.client.shape.climate.CompactBiomesLine;
+import com.exoticworlds.client.shape.feature.compactbiomes.CompactBiomesLine;
 import com.exoticworlds.client.shape.WorldShapeRow;
 import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.shape.WorldShapes;
-import com.exoticworlds.shape.climate.CompactBiomes;
+import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 import com.exoticworlds.shape.layout.LayoutShape;
 import com.exoticworlds.shape.layout.ShapeRecognition;
 import com.exoticworlds.shape.layout.WorldLayout;

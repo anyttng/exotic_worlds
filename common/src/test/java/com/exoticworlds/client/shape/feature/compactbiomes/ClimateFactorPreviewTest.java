@@ -1,4 +1,4 @@
-package com.exoticworlds.client.shape.climate;
+package com.exoticworlds.client.shape.feature.compactbiomes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.shape.climate.ClimateCompression;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
 import com.exoticworlds.shape.noise.DensityNoises;
 
 import net.minecraft.SharedConstants;

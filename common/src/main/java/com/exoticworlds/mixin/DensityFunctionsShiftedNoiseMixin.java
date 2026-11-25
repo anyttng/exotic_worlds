@@ -12,7 +12,7 @@ import com.exoticworlds.engine.noise.DomainWarp.Divisor;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
-import com.exoticworlds.shape.climate.ClimateCompression;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
