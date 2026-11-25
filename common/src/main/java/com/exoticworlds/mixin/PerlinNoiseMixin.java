@@ -1,5 +1,7 @@
 package com.exoticworlds.mixin;
 
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -9,9 +11,13 @@ import org.spongepowered.asm.mixin.Unique;
 import com.exoticworlds.accessors.ClimateCompressionCache;
 import com.exoticworlds.accessors.ClimateFieldMark;
 import com.exoticworlds.accessors.IndexableNoise;
+import com.exoticworlds.accessors.NoiseFeatureHolder;
 import com.exoticworlds.accessors.WrappedPerlinNoise;
+import com.exoticworlds.core.feature.NoiseFeature;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
+import com.exoticworlds.engine.noise.NoiseFeatures;
 import com.exoticworlds.engine.noise.periodic.PeriodicOctaveSampler;
 import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
 import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression.Resolved;
@@ -24,12 +30,15 @@ import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
 @Mixin(PerlinNoise.class)
 public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMark, IndexableNoise,
-        WrappedPerlinNoise {
+        NoiseFeatureHolder, WrappedPerlinNoise {
     @Unique
     private @Nullable Resolved exotic_worlds$climateCompression;
 
     @Unique
     private volatile boolean exotic_worlds$climateField;
+
+    @Unique
+    private volatile List<NoiseFeature> exotic_worlds$noiseFeatures = List.of();
 
     @Shadow
     @Final
@@ -73,9 +82,22 @@ public class PerlinNoiseMixin implements ClimateCompressionCache, ClimateFieldMa
     @Unique
     private double exotic_worlds$baseScale(Context generation) {
         double declaredScale = generation.getHorizontalScale();
-        return declaredScale * ClimateCompression.resolve(this, generation.getFold(),
-                this.exotic_worlds$climateField, this.amplitudes, this.lowestFreqInputFactor, declaredScale,
-                generation.verticalShare());
+        WorldFold fold = generation.getFold();
+        double verticalShare = generation.verticalShare();
+        return declaredScale * ClimateCompression.resolve(this, fold, declaredScale, verticalShare,
+                () -> NoiseFeatures.scaleFactor(this.exotic_worlds$noiseFeatures, fold, this.exotic_worlds$climateField,
+                        this.amplitudes, this.lowestFreqInputFactor, declaredScale, verticalShare));
+    }
+
+    @Override
+    public List<NoiseFeature> exotic_worlds$getNoiseFeatures() {
+        return this.exotic_worlds$noiseFeatures;
+    }
+
+    @Override
+    public void exotic_worlds$setNoiseFeatures(List<NoiseFeature> features) {
+        this.exotic_worlds$noiseFeatures = features;
+        this.exotic_worlds$climateCompression = null;
     }
 
     @Override

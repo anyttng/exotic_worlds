@@ -11,8 +11,8 @@ import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.DomainWarp.Divisor;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
+import com.exoticworlds.engine.noise.NoiseFeatures;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
-import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -72,8 +72,8 @@ public class DensityFunctionsShiftedNoiseMixin {
     private double exotic_worlds$warpDivisor(WorldFold fold, double xzScale) {
         Divisor divisor = this.exotic_worlds$warpDivisor;
         if (divisor == null || divisor.fold() != fold) {
-            divisor = new Divisor(fold, ClimateCompression.warpDivisor(this.noise, fold,
-                    xzScale, GenerationFoldContext.verticalShare(xzScale, this.yScale)));
+            divisor = new Divisor(fold, NoiseFeatures.warpDivisor(NoiseFeatures.getFeatures(this.noise), fold,
+                    this.noise, xzScale, GenerationFoldContext.verticalShare(xzScale, this.yScale)));
             this.exotic_worlds$warpDivisor = divisor;
         }
 

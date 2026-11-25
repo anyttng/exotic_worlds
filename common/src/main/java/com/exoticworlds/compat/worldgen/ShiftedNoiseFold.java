@@ -5,8 +5,8 @@ import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
+import com.exoticworlds.engine.noise.NoiseFeatures;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
-import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
 
 import net.minecraft.world.level.levelgen.DensityFunction;
 
@@ -26,7 +26,8 @@ public record ShiftedNoiseFold(DensityFunction.NoiseHolder noise, double horizon
     }
 
     public double warpDivisor(WorldFold fold) {
-        return ClimateCompression.warpDivisor(this.noise, fold, this.horizontalScale, this.verticalShare);
+        return NoiseFeatures.warpDivisor(NoiseFeatures.getFeatures(this.noise), fold, this.noise, this.horizontalScale,
+                this.verticalShare);
     }
 
     public double sample(Context generation, int blockX, int blockZ, double shiftX, double shiftZ,

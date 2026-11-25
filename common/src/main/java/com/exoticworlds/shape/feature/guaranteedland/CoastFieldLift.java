@@ -1,17 +1,13 @@
 package com.exoticworlds.shape.feature.guaranteedland;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.exoticworlds.accessors.CoastLiftCache;
+import com.exoticworlds.accessors.NoiseOffsetsHolder;
+import com.exoticworlds.core.feature.NoiseOffsets;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.noise.DensityNoises;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.levelgen.DensityFunction;
-import net.minecraft.world.level.levelgen.DensityFunction.NoiseHolder;
-import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.RandomState;
 
 public final class CoastFieldLift {
@@ -35,52 +31,34 @@ public final class CoastFieldLift {
             return;
         }
 
-        List<CoastLiftCache> coasts = coastNoises(randomState.router());
-        if (coasts.isEmpty()) {
+        if (DensityNoises.matching(randomState.router().continents(), CoastFields::isCoast).isEmpty()) {
             return;
         }
 
-        searchLift(randomState, coasts, fold, dimensionFold, seaLevel);
+        searchLift(randomState, fold, dimensionFold, seaLevel);
     }
 
-    private static void searchLift(RandomState randomState, List<CoastLiftCache> coasts, WorldFold fold,
-            WorldFold dimensionFold, int seaLevel) {
-        int xLength = dimensionFold.getWidthBlocks(Direction.Axis.X);
-        int zLength = dimensionFold.getWidthBlocks(Direction.Axis.Z);
+    private static void searchLift(RandomState randomState, WorldFold fold, WorldFold dimensionFold, int seaLevel) {
+        int xLengthBlocks = dimensionFold.getWidthBlocks(Direction.Axis.X);
+        int zLengthBlocks = dimensionFold.getWidthBlocks(Direction.Axis.Z);
+        NoiseOffsets lift = ((NoiseOffsetsHolder) (Object) randomState).exotic_worlds$getNoiseOffsets();
         DensityFunction density = randomState.router().finalDensity();
-        int stride = Math.max(STRIDE_BLOCKS, Math.max(xLength, zLength) / GRID_CAP);
-        int xGrid = Math.max(1, xLength / stride);
-        int zGrid = Math.max(1, zLength / stride);
-        long cellBlocks = (long) stride * stride;
-        int skewCells = (int) Math.round((double) fold.getBlockLattice().getSkew() / stride);
+        int strideBlocks = Math.max(STRIDE_BLOCKS, Math.max(xLengthBlocks, zLengthBlocks) / GRID_CAP);
+        int xGrid = Math.max(1, xLengthBlocks / strideBlocks);
+        int zGrid = Math.max(1, zLengthBlocks / strideBlocks);
+        long cellBlocks = (long) strideBlocks * strideBlocks;
+        int skewCells = (int) Math.round((double) fold.getBlockLattice().getSkew() / strideBlocks);
 
         for (double candidate : CANDIDATES) {
-            apply(coasts, candidate);
+            lift.set(GuaranteedLand.KEY, candidate);
             long patch = GenerationFoldContext.withFold(fold,
-                    () -> largestPatch(density, seaLevel, stride, xGrid, zGrid, skewCells)) * cellBlocks;
+                    () -> largestPatch(density, seaLevel, strideBlocks, xGrid, zGrid, skewCells)) * cellBlocks;
             if (patch >= LAND_FLOOR_BLOCKS) {
                 return;
             }
         }
 
-        apply(coasts, CANDIDATES[CANDIDATES.length - 1]);
-    }
-
-    private static void apply(List<CoastLiftCache> coasts, double lift) {
-        for (CoastLiftCache coast : coasts) {
-            coast.exotic_worlds$setCoastLift(lift);
-        }
-    }
-
-    private static List<CoastLiftCache> coastNoises(NoiseRouter router) {
-        List<CoastLiftCache> coasts = new ArrayList<>();
-        for (NoiseHolder noise : DensityNoises.matching(router.continents(), CoastFields::isCoast)) {
-            if (noise.noise() instanceof CoastLiftCache coast) {
-                coasts.add(coast);
-            }
-        }
-
-        return coasts;
+        lift.set(GuaranteedLand.KEY, CANDIDATES[CANDIDATES.length - 1]);
     }
 
     private static int largestPatch(DensityFunction density, int seaLevel, int stride, int xGrid, int zGrid,

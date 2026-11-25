@@ -116,7 +116,8 @@ public final class ClimateScanFixture {
     }
 
     public static RandomState randomState(NoiseGeneratorSettings settings, WorldFold fold, long seed) {
-        return randomState(settings, fold, seed, List.of());
+        return randomState(settings, fold, seed,
+                List.copyOf(StartupRegistrations.noiseFeaturesFor(fold.getOptions())));
     }
 
     public static RandomState randomState(NoiseGeneratorSettings settings, WorldFold fold, long seed,
