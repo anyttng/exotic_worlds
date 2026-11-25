@@ -14,15 +14,14 @@ import net.minecraft.world.entity.Entity;
 
 @Mixin(value = EntityProjectileSpell.class, remap = false)
 public abstract class EntityProjectileSpellMixin {
-    @Unique
-    private static final String ON_HIT = "onHit(Lnet/minecraft/world/phys/HitResult;)V";
-
-    @ModifyArg(method = ON_HIT, at = @At(value = "INVOKE", target = InjectionTargets.SET_CONTAINS))
+    @ModifyArg(method = InjectionTargets.PROJECTILE_ON_HIT,
+            at = @At(value = "INVOKE", target = InjectionTargets.SET_CONTAINS))
     private Object exotic_worlds$hitListLookupThroughSeam(Object hitBlock) {
         return exotic_worlds$canonical(hitBlock);
     }
 
-    @ModifyArg(method = ON_HIT, at = @At(value = "INVOKE", target = "Ljava/util/Set;add(Ljava/lang/Object;)Z"))
+    @ModifyArg(method = InjectionTargets.PROJECTILE_ON_HIT,
+            at = @At(value = "INVOKE", target = "Ljava/util/Set;add(Ljava/lang/Object;)Z"))
     private Object exotic_worlds$hitListEntryThroughSeam(Object hitBlock) {
         return exotic_worlds$canonical(hitBlock);
     }

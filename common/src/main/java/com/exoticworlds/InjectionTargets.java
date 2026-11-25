@@ -153,6 +153,8 @@ public final class InjectionTargets {
     public static final String POSITIONAL_RANDOM_FACTORY_AT =
             "Lnet/minecraft/world/level/levelgen/PositionalRandomFactory;at(III)Lnet/minecraft/util/RandomSource;";
 
+    public static final String PROJECTILE_ON_HIT = "onHit(Lnet/minecraft/world/phys/HitResult;)V";
+
     public static final String SECTION_POS_OFFSET = "Lnet/minecraft/core/SectionPos;offset(JIII)J";
 
     public static final String SERVER_PLAYER_GET_X = "Lnet/minecraft/server/level/ServerPlayer;getX()D";
