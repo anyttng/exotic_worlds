@@ -14,17 +14,25 @@
     "DeepSensorObservationsPacketAccessor",
     "ExplorersCaneMixin",
     "ForceFieldDefenseEffectPacketAccessor",
+    "FrostRuneMixin",
     "HealingBloomPulsePacketAccessor",
     "HeavenlyFistPulsePacketAccessor",
     "LightningArrowEntityAccessor",
+    "LinearBuildMixin",
+    "LinearBuildPlacementTargetAccessor",
+    "MageLightMixin",
     "ManaSiphonOrbEffectPacketAccessor",
+    "OtherworldLensSessionManagerMixin",
+    "OtherworldLensTargetSafetyMixin",
     "SenseEvilHighlightsPacketAccessor",
     "ShockBoltEntityMixin",
     "SilentAssassinRifleEntityMixin",
     "SyncRemoteEyeStatePacketAccessor",
     "TerraResonanceHighlightsPacketAccessor",
+    "TerraResonanceMixin",
     "TerraResonancePulsePacketAccessor",
-    "TotemOfPermafrostPulsePacketAccessor"
+    "TotemOfPermafrostPulsePacketAccessor",
+    "WizardlampMixin"
   ],
   "injectors": {
     "defaultRequire": 1
