@@ -51,8 +51,8 @@ public abstract class ShapeV2 {
     }
 
     /**
-     * The spans of one dimension the shape is chosen for. Spans that loop no axis leave the dimension as the game
-     * makes it; a looped axis outside the sizes the dimension allows holds the screen's Done.
+     * The spans of one dimension the shape is chosen for. Spans that loop no axis leave the dimension as the game makes
+     * it. A looped axis outside the sizes the dimension allows holds the screen's Done.
      */
     public abstract LoopSpansV2 spansIn(ShapeDimensionV2 dimension);
 

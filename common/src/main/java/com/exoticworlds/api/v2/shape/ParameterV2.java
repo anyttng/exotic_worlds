@@ -12,11 +12,11 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 
 /**
- * One value a shape is tuned with, a width for example. The world stores it per dimension under the parameter's id,
- * the shape's page draws it from its parts, and the shape reads it with {@link ShapeValuesV2#getValue}.
+ * One value a shape is tuned with, a width for example. The world stores it per dimension under the parameter's id, the
+ * shape's page draws it from its parts, and the shape reads it with {@link ShapeValuesV2#getValue}.
  *
- * <p>Build one with {@link #of} and keep it in a constant; the shape returns it from
- * {@link ShapeV2#getParameters()}.</p>
+ * <p>Build one with {@link #of} and keep it in a constant. The shape returns it from {@link
+ * ShapeV2#getParameters()}.</p>
  *
  * @param <T> the type of the value
  */
@@ -48,7 +48,7 @@ public final class ParameterV2<T> {
      *
      * @param id the id the value is saved under, in your mod's namespace
      * @param codec how the value is saved
-     * @param storedDefault the value of a dimension that never stated one; it is not written to the save
+     * @param storedDefault the value of a dimension that never stated one, which is not written to the save
      * @param captionKey the translation key of the caption on the shape's page
      * @param parts the controls the value is drawn with, top to bottom
      */
@@ -65,7 +65,7 @@ public final class ParameterV2<T> {
     }
 
     /**
-     * This parameter taking the size presets of the screen: {@code write} gives the value with a preset width, in
+     * This parameter taking the size presets of the screen. {@code write} gives the value with a preset width, in
      * chunks, applied. A shape with at least one such parameter is offered the preset row.
      */
     public ParameterV2<T> withPresetWidth(BiFunction<T, Integer, T> write) {
@@ -108,7 +108,7 @@ public final class ParameterV2<T> {
         return this.isTakingPresets;
     }
 
-    /** {@code value} with a preset width of {@code widthChunks} chunks applied; unchanged without a preset rule. */
+    /** {@code value} with a preset width of {@code widthChunks} chunks applied, unchanged without a preset rule. */
     public T withPresetWidth(T value, int widthChunks) {
         return this.presetWidth.apply(value, widthChunks);
     }

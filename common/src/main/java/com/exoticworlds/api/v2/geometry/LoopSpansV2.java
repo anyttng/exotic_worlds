@@ -7,18 +7,18 @@ import com.exoticworlds.bridge.v2.geometry.SpansBridge;
 import net.minecraft.core.Direction;
 
 /**
- * What a shape states about one dimension: which horizontal axes loop, over what span of chunks, and, where both loop,
- * how far crossing the Z seam shifts X. An axis with no span does not loop and stretches to the vanilla world border.
- * {@link Direction.Axis#Y} never loops and is refused by every member that takes an axis.
+ * What a shape states about one dimension. It says which horizontal axes loop, over what span of chunks, and, where
+ * both loop, how far crossing the Z seam shifts X. An axis with no span does not loop and stretches to the vanilla
+ * world border. {@link Direction.Axis#Y} never loops and is refused by every member that takes an axis.
  *
- * <p>Which flat surface the world becomes is read off the spans, not declared: both axes give a torus (a lattice torus
+ * <p>Which flat surface the world becomes is read off the spans, not declared. Both axes give a torus (a lattice torus
  * where it is skewed), one gives a cylinder, neither gives an ordinary world. A skew other than {@code 0} where either
- * axis does not loop is refused with an {@link IllegalArgumentException}. Immutable; every wither hands back a new
- * instance.</p>
+ * axis does not loop is refused with an {@link IllegalArgumentException}. The record is immutable, and every wither
+ * hands back a new instance.</p>
  *
  * @param x the span X loops over, or {@code null} where X does not loop
  * @param z the span Z loops over, or {@code null} where Z does not loop
- * @param skewChunks how far crossing the Z seam shifts X, in chunks; any whole number of X widths may be added without
+ * @param skewChunks how far crossing the Z seam shifts X, in chunks. Any whole number of X widths may be added without
  *        changing the world, and the spans keep it brought into {@code (-xWidth/2, xWidth/2]}, {@code 0} unskewed
  */
 public record LoopSpansV2(@Nullable Span x, @Nullable Span z, int skewChunks) {
@@ -26,11 +26,11 @@ public record LoopSpansV2(@Nullable Span x, @Nullable Span z, int skewChunks) {
     private static final String DOES_NOT_LOOP = " does not loop, check isLooped(axis) first";
     private static final String NOT_HORIZONTAL = " is not a horizontal axis";
 
-    /** Neither axis loops: an ordinary world. */
+    /** Neither axis loops, an ordinary world. */
     public static final LoopSpansV2 NONE = new LoopSpansV2(null, null, 0);
 
     /**
-     * One looping axis as a half-open span of chunks: {@code minChunk} is the first chunk inside the world,
+     * One looping axis as a half-open span of chunks, where {@code minChunk} is the first chunk inside the world and
      * {@code maxChunk} the first one past it. A span whose {@code minChunk} is not below its {@code maxChunk} is
      * refused with an {@link IllegalArgumentException}.
      *
@@ -70,12 +70,12 @@ public record LoopSpansV2(@Nullable Span x, @Nullable Span z, int skewChunks) {
         return SpansBridge.ofWidths(xWidthChunks, zWidthChunks);
     }
 
-    /** One axis looping over {@code widthChunks} chunks, centered on the origin; the other does not loop. */
+    /** One axis looping over {@code widthChunks} chunks, centered on the origin. The other does not loop. */
     public static LoopSpansV2 ofWidth(Direction.Axis axis, int widthChunks) {
         return SpansBridge.ofWidth(axis, widthChunks);
     }
 
-    /** One axis looping over the half-open chunk span {@code [minChunk, maxChunk)}; the other does not loop. */
+    /** One axis looping over the half-open chunk span {@code [minChunk, maxChunk)}. The other does not loop. */
     public static LoopSpansV2 of(Direction.Axis axis, int minChunk, int maxChunk) {
         return NONE.and(axis, minChunk, maxChunk);
     }
@@ -91,7 +91,7 @@ public record LoopSpansV2(@Nullable Span x, @Nullable Span z, int skewChunks) {
     }
 
     /**
-     * These spans with crossing the Z seam also shifting X by {@code skewChunks} chunks: a lattice torus.
+     * These spans with crossing the Z seam also shifting X by {@code skewChunks} chunks, which makes a lattice torus.
      *
      * @throws IllegalArgumentException if {@code skewChunks} is not {@code 0} and either axis does not loop
      */
@@ -137,12 +137,12 @@ public record LoopSpansV2(@Nullable Span x, @Nullable Span z, int skewChunks) {
     }
 
     /**
-     * These spans with every looping axis and the skew divided by {@code scale} and re-centered: how the nether of a
-     * shaped world is normally derived from its overworld, so that the vanilla portal ratio still lands inside the
+     * These spans with every looping axis and the skew divided by {@code scale} and re-centered. The nether of a shaped
+     * world is normally derived from its overworld this way, so that the vanilla portal ratio still lands inside the
      * world and every copy of an overworld position maps onto a copy of the same nether position.
      *
      * @throws IllegalArgumentException if {@code scale} is not positive, leaves a looping axis narrower than a chunk,
-     *         or does not divide the skew
+     *        or does not divide the skew
      */
     public LoopSpansV2 scaledDown(int scale) {
         return SpansBridge.scaledDown(this, scale);

@@ -10,7 +10,7 @@ public interface StructureStartsMomentV2 {
     /**
      * Called once for each structure set of the dimension.
      *
-     * @return the starts to add to this set; an added start the set cannot take is dropped and logged
+     * @return the starts to add to this set. An added start the set cannot take is dropped and logged
      */
     List<StructureStartsV2.Added> atStructureStarts(StructureStartsV2 starts);
 }

@@ -6,7 +6,7 @@ import com.exoticworlds.bridge.v2.feature.client.FeatureViewBridge;
 
 /**
  * What a feature shows on the World Shape Settings screen beyond its controls. A feature has at most one view. Call
- * these from your mod's client entry point, after {@code FeaturesV2.register}; a dedicated server never loads this
+ * these from your mod's client entry point, after {@code FeaturesV2.register}. A dedicated server never loads this
  * package.
  */
 public final class FeatureViewsV2 {
@@ -14,7 +14,7 @@ public final class FeatureViewsV2 {
      * Shows one line of text under {@code feature}'s controls.
      *
      * @throws IllegalStateException if the feature was never registered, if it already has a view, or if a world has
-     *         already started
+     *        already started
      */
     public static <T> void registerLine(OptionFeatureV2<T> feature, LineViewV2<T> line) {
         FeatureViewBridge.registerLine(feature, line);
@@ -24,7 +24,7 @@ public final class FeatureViewsV2 {
      * Puts widgets of your own under {@code feature}'s controls.
      *
      * @throws IllegalStateException if the feature was never registered, if it already has a view, or if a world has
-     *         already started
+     *        already started
      */
     @ExperimentalV2
     public static <T> void register(OptionFeatureV2<T> feature, FeatureViewV2<T> view) {

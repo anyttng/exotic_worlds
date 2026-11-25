@@ -7,7 +7,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
 
 /**
- * A feature the player switches on or off: off in every world until it is switched on, and its moments are called
+ * A feature the player switches on or off. It is off in every world until it is switched on, and its moments are called
  * only while it is on.
  */
 public abstract class ToggleFeatureV2 extends OptionFeatureV2<Boolean> {
