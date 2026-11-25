@@ -4,7 +4,6 @@ import java.util.Locale;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.shape.WorldShape;
 import com.exoticworlds.shape.dimension.DimensionShape;
 import com.exoticworlds.shape.layout.ShapeKind;
 
@@ -22,9 +21,12 @@ record ShapeChoice(@Nullable ShapeKind own, @Nullable DimensionShape declared) {
     }
 
     Component getName() {
-        return this.declared != null
-                ? WorldShape.label(this.declared.getId())
-                : SettingsLines.shapeName(this.getOwnOrNormal());
+        if (this.declared != null) {
+            return this.declared.getName();
+        }
+
+        DimensionShape builtIn = this.getOwnOrNormal().getBuiltIn();
+        return builtIn != null ? builtIn.getName() : SettingsLines.shapeName(this.getOwnOrNormal());
     }
 
     String getHintKey() {

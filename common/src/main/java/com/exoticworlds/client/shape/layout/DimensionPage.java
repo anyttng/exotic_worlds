@@ -2,6 +2,7 @@ package com.exoticworlds.client.shape.layout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
@@ -27,6 +28,8 @@ import com.exoticworlds.shape.dimension.DimensionShape;
 import com.exoticworlds.shape.layout.DimensionLayout;
 import com.exoticworlds.shape.layout.OverworldDerivation;
 import com.exoticworlds.shape.layout.ShapeKind;
+import com.exoticworlds.shape.option.DeclaredOptions;
+import com.exoticworlds.shape.option.DimensionOption;
 
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -34,17 +37,18 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.dimension.LevelStem;
 
 final class DimensionPage {
+    static final int GAP_PIXELS = 4;
+
     private final DimensionOffer offer;
     private final CoordinateScales scales;
     private final Supplier<DimensionLayout> overworld;
     private final Value<ShapeChoice> chosen = Value.of(ShapeChoice.of(ShapeKind.NORMAL));
     private final Value<Integer> netherScale = Value.of(NetherScales.DEFAULT);
-    private final LoopFields loops;
+    private final OptionControls parameters;
     private final SpawnFields spawn;
     private final OptionControls declared;
     private final Column page = new Column();
     private ShapeOptions options;
-    private ShapeKind shownKind = ShapeKind.NORMAL;
 
     DimensionPage(DimensionOffer offer, Theme theme, FillStyle fill, CoordinateScales scales,
             Supplier<DimensionLayout> overworld, DimensionLayout shown, @Nullable Component lockReason) {
@@ -52,9 +56,11 @@ final class DimensionPage {
         this.scales = scales;
         this.overworld = overworld;
         this.options = shown.options();
-        this.loops = new LoopFields(theme, fill, offer.minWidthChunks(), offer.defaultWidthChunks());
+        this.parameters = new OptionControls(theme, fill, offer.dimension(), getParameters(), this::getChosenShape,
+                this::getResolvedSpans);
         this.spawn = new SpawnFields(theme, fill, this::spawnWidthChunks);
-        this.declared = new OptionControls(theme, fill, offer.dimension(), this::getResolvedShape, this::getResolvedSpans);
+        this.declared = new OptionControls(theme, fill, offer.dimension(), DeclaredOptions.getAll(),
+                this::getResolvedShape, this::getResolvedSpans);
         this.build(theme, fill, lockReason);
         this.show(shown);
     }
@@ -76,8 +82,7 @@ final class DimensionPage {
         Identifier declaredId = layout.shape();
         DimensionShape shape = declaredId == null ? null : DeclaredShapes.of(declaredId);
         this.chosen.set(shape != null ? ShapeChoice.of(shape) : ShapeChoice.of(layout.kind()));
-        this.shownKind = layout.kind();
-        this.loops.show(layout.spans());
+        this.parameters.show(this.getShownParameters(layout));
         this.spawn.show(this.options.get(SpawnPoint.OPTION));
         this.declared.show(this.options);
     }
@@ -129,19 +134,16 @@ final class DimensionPage {
         CycleButton<ShapeChoice> shape = new CycleButton<>(theme.button(),
                 Component.translatable(SettingsLines.SHAPE_KEY), this::getChoices, this.chosen, ShapeChoice::getName);
         shape.setHint(theme.tooltip(), SettingsLines.SHAPE_KEY, ShapeChoice::getHintKey);
-        shape.setOnChange(this::changeShape);
 
         Column additional = new Column();
-        additional.setGap(LoopFields.GAP_PIXELS);
+        additional.setGap(GAP_PIXELS);
         additional.add(Heading.of(fill, SettingsLines.ADDITIONAL));
         additional.add(this.declared.getSection());
 
-        this.loops.getTorus().setVisible(() -> this.getOwn() == ShapeKind.TORUS);
-        this.loops.getCylinder().setVisible(() -> this.getOwn() == ShapeKind.CYLINDER);
         this.spawn.getSection().setVisible(() -> this.offer.hasSpawnPoint() && this.getResolvedKind() != ShapeKind.NORMAL);
         additional.setVisible(this.declared::isAnyOffered);
 
-        this.page.setGap(LoopFields.GAP_PIXELS);
+        this.page.setGap(GAP_PIXELS);
         this.page.add(Heading.of(fill, this.offer.title()));
         if (lockReason != null) {
             this.page.add(new Label(fill, LabelRole.MUTED, lockReason));
@@ -153,8 +155,7 @@ final class DimensionPage {
         this.page.add(this.netherScaleField(theme, fill));
         this.page.add(this.derivedLine(fill));
         this.page.add(this.sizeErrorLine(fill));
-        this.page.add(this.loops.getTorus());
-        this.page.add(this.loops.getCylinder());
+        this.page.add(this.parameters.getSection());
         this.page.add(this.spawn.getSection());
         this.page.add(additional);
     }
@@ -210,7 +211,8 @@ final class DimensionPage {
 
         for (Direction.Axis axis : List.of(Direction.Axis.X, Direction.Axis.Z)) {
             if (spans.bounds().isLooped(axis) && !this.isAllowed(spans.bounds().getWidthChunks(axis))) {
-                return SettingsLines.shapeSizeError(spans.bounds().getWidthChunks(axis), this.offer.minWidthChunks());
+                return SettingsLines.shapeSizeError(spans.bounds().getWidthChunks(axis),
+                        WorldLoopSizes.getMinWidthChunks(this.offer.dimension()));
             }
         }
 
@@ -218,7 +220,8 @@ final class DimensionPage {
     }
 
     private boolean isAllowed(int widthChunks) {
-        return widthChunks >= this.offer.minWidthChunks() && widthChunks <= WorldLoopSizes.MAX_WIDTH_CHUNKS;
+        return widthChunks >= WorldLoopSizes.getMinWidthChunks(this.offer.dimension())
+                && widthChunks <= WorldLoopSizes.MAX_WIDTH_CHUNKS;
     }
 
     private List<Integer> getNetherScales() {
@@ -260,7 +263,7 @@ final class DimensionPage {
             return null;
         }
 
-        ShapeOptions size = this.loops.size(kind);
+        ShapeOptions size = this.parameters.commit(ShapeOptions.DEFAULT);
         return size == null ? null : shape.spans(new DimensionContext(this.offer.dimension(), size, null,
                 this.scales.of(LevelStem.OVERWORLD), this.scales.of(this.offer.dimension())));
     }
@@ -289,12 +292,48 @@ final class DimensionPage {
         return resolved == ShapeKind.TORUS ? DeclaredShapes.TORUS : DeclaredShapes.CYLINDER;
     }
 
-    private void changeShape(ShapeChoice picked) {
-        ShapeKind own = picked.own();
-        if (own != null) {
-            this.loops.carryWidth(this.shownKind, own);
-            this.shownKind = own;
+    private @Nullable Identifier getChosenShape() {
+        ShapeChoice choice = this.chosen.get();
+        DimensionShape declared = choice.declared();
+        if (declared != null) {
+            return declared.getId();
         }
+
+        DimensionShape own = choice.own() == null ? null : choice.own().getBuiltIn();
+        return own == null ? null : own.getId();
+    }
+
+    private ShapeOptions getShownParameters(DimensionLayout layout) {
+        FlatShape spans = layout.shape() == null ? layout.spans() : null;
+        ShapeOptions shown = ShapeOptions.DEFAULT;
+        for (DimensionShape shape : getParameterShapes()) {
+            ShapeOptions source = (spans == null ? Optional.<ShapeOptions>empty() : shape.optionsFor(spans))
+                    .orElseGet(() -> shape.defaultOptions(this.offer.dimension()));
+            for (DimensionOption<?> parameter : shape.getParameters()) {
+                shown = copied(parameter, source, shown);
+            }
+        }
+
+        return shown;
+    }
+
+    private static List<DimensionOption<?>> getParameters() {
+        List<DimensionOption<?>> parameters = new ArrayList<>();
+        for (DimensionShape shape : getParameterShapes()) {
+            shape.getParameters().forEach(parameter -> parameters.add(parameter.forShapes(List.of(shape.getId()))));
+        }
+
+        return parameters;
+    }
+
+    private static List<DimensionShape> getParameterShapes() {
+        List<DimensionShape> shapes = new ArrayList<>(ShapeKind.getBuiltIns());
+        shapes.addAll(DeclaredShapes.getAll());
+        return shapes;
+    }
+
+    private static <T> ShapeOptions copied(DimensionOption<T> parameter, ShapeOptions from, ShapeOptions into) {
+        return into.with(parameter.getOption(), from.get(parameter.getOption()));
     }
 
     private @Nullable Integer spawnWidthChunks(Direction.Axis axis) {

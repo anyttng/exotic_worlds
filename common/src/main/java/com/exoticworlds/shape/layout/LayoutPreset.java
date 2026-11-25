@@ -41,7 +41,7 @@ public final class LayoutPreset {
         if (declared != null) {
             DimensionShape shape = getPresetShape(declared);
             ShapeOptions chosen = overworld.options();
-            return shape != null && shape.withPreset(preset.getWidthChunks(), chosen).equals(chosen);
+            return shape != null && shape.withPreset(preset, chosen).equals(chosen);
         }
 
         DimensionShape shape = overworld.kind().getBuiltIn();
@@ -50,8 +50,7 @@ public final class LayoutPreset {
             return false;
         }
 
-        ShapeOptions size = shape.optionsFor(spans);
-        return shape.withPreset(preset.getWidthChunks(), size).equals(size);
+        return shape.optionsFor(spans).map(size -> shape.withPreset(preset, size).equals(size)).orElse(false);
     }
 
     private static @Nullable DimensionLayout sized(DimensionLayout overworld, WorldLoopPresets preset,
@@ -63,7 +62,7 @@ public final class LayoutPreset {
                 return null;
             }
 
-            ShapeOptions options = shape.withPreset(preset.getWidthChunks(), overworld.options());
+            ShapeOptions options = shape.withPreset(preset, overworld.options());
             return DimensionLayout.declared(declared, DeclaredShapes.resolve(shape, new DimensionContext(
                     LevelStem.OVERWORLD, options, null, overworldScale, overworldScale)), options);
         }
@@ -71,9 +70,9 @@ public final class LayoutPreset {
         DimensionShape own = overworld.kind().getBuiltIn();
         DimensionShape shape = own != null ? own : Torus.SHAPE;
         FlatShape current = overworld.spans();
-        ShapeOptions size = own != null && current != null ? shape.optionsFor(current) : ShapeOptions.DEFAULT;
+        ShapeOptions size = current == null ? ShapeOptions.DEFAULT : shape.optionsFor(current).orElse(ShapeOptions.DEFAULT);
         FlatShape spans = shape.spans(new DimensionContext(LevelStem.OVERWORLD,
-                shape.withPreset(preset.getWidthChunks(), size), null, overworldScale, overworldScale));
+                shape.withPreset(preset, size), null, overworldScale, overworldScale));
         return DimensionLayout.looped(spans, overworld.options());
     }
 
