@@ -7,34 +7,24 @@ import com.exoticworlds.shape.layout.ShapeKind;
 
 import net.minecraft.network.chat.Component;
 
-record ShapeChoice(@Nullable ShapeKind own, @Nullable DimensionShape declared) {
-    static ShapeChoice of(ShapeKind own) {
-        return new ShapeChoice(own, null);
+record ShapeChoice(@Nullable ShapeKind mode, @Nullable DimensionShape shape) {
+    static ShapeChoice of(ShapeKind mode) {
+        return new ShapeChoice(mode, null);
     }
 
-    static ShapeChoice of(DimensionShape declared) {
-        return new ShapeChoice(null, declared);
+    static ShapeChoice of(DimensionShape shape) {
+        return new ShapeChoice(null, shape);
     }
 
     Component getName() {
-        if (this.declared != null) {
-            return this.declared.getName();
-        }
-
-        DimensionShape builtIn = this.getOwnOrNormal().getBuiltIn();
-        return builtIn != null ? builtIn.getName() : SettingsLines.shapeName(this.getOwnOrNormal());
+        return this.shape != null ? this.shape.getName() : SettingsLines.shapeName(this.getModeOrNormal());
     }
 
     Component getHint() {
-        if (this.declared != null) {
-            return this.declared.getHint();
-        }
-
-        DimensionShape builtIn = this.getOwnOrNormal().getBuiltIn();
-        return builtIn != null ? builtIn.getHint() : SettingsLines.modeHint(this.getOwnOrNormal());
+        return this.shape != null ? this.shape.getHint() : SettingsLines.modeHint(this.getModeOrNormal());
     }
 
-    private ShapeKind getOwnOrNormal() {
-        return this.own != null ? this.own : ShapeKind.NORMAL;
+    private ShapeKind getModeOrNormal() {
+        return this.mode != null ? this.mode : ShapeKind.NORMAL;
     }
 }

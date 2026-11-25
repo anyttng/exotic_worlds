@@ -2,7 +2,7 @@ package com.exoticworlds.engine.gen;
 
 import java.util.function.Supplier;
 
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.engine.ThreadScope;
 
@@ -12,7 +12,7 @@ public final class SpawnSearch {
     private static final ThreadScope<SpawnPoint> BOUND = new ThreadScope<>();
 
     public static <T> T from(ChunkGenerator generator, Supplier<T> search) {
-        SpawnPoint point = SpawnPoint.of(ShapedChunkGenerator.getFold(generator));
+        SpawnPoint point = SpawnPoint.of(GeneratorShapes.getFold(generator));
         return BOUND.with(point.isCustom() ? point : null, search);
     }
 

@@ -2,8 +2,9 @@ package com.exoticworlds.engine.gen;
 
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.core.option.ShapeOptions;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 import com.exoticworlds.shape.layout.LayoutDimensions;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -32,13 +34,19 @@ import org.junit.jupiter.api.Timeout;
 
 
 import net.minecraft.SharedConstants;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.FlatLevelSource;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldDimensions;
+import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 
 @Timeout(60)
 class CreationShapeTest {
@@ -59,9 +67,9 @@ class CreationShapeTest {
 
     @Test
     void terrainTilesAtTheSeamForNoiseGeneratorsAndNotForAForeignOne() {
-        assertTrue(ShapedChunkGenerator.isTilingAtSeam(noiseGenerator(worldgen)));
-        assertTrue(ShapedChunkGenerator.isTilingAtSeam(noiseSubclassGenerator(worldgen)));
-        assertFalse(ShapedChunkGenerator.isTilingAtSeam(foreignGenerator()));
+        assertTrue(GeneratorShapes.isTilingAtSeam(noiseGenerator(worldgen)));
+        assertTrue(GeneratorShapes.isTilingAtSeam(noiseSubclassGenerator(worldgen)));
+        assertFalse(GeneratorShapes.isTilingAtSeam(foreignGenerator()));
     }
 
     @Test
@@ -71,7 +79,7 @@ class CreationShapeTest {
         FlatShape shape = squareTorus(CHOSEN_WIDTH_CHUNKS);
 
         WorldDimensions shaped = ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
-                new CarriedShape(shape, ShapeOptions.DEFAULT));
+                new CarriedShape(null, shape, ShapeOptions.DEFAULT));
 
         assertNotSame(dimensions, shaped, "the shaped dimensions are the object the apply guard compares");
         assertEquals(shape, ShapedDimensions.getShape(shaped, LevelStem.OVERWORLD));
@@ -85,7 +93,7 @@ class CreationShapeTest {
         FlatShape shape = squareTorus(CHOSEN_WIDTH_CHUNKS);
 
         WorldDimensions shaped = ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
-                new CarriedShape(shape, ShapeOptions.DEFAULT));
+                new CarriedShape(null, shape, ShapeOptions.DEFAULT));
 
         assertNotSame(dimensions, shaped, "the shaped dimensions are the object the apply guard compares");
         assertEquals(shape, ShapedDimensions.getShape(shaped, LevelStem.OVERWORLD));
@@ -124,9 +132,99 @@ class CreationShapeTest {
     void strippingClearsAShapeStampedByAnEarlierAttempt() {
         ChunkGenerator overworld = noiseSubclassGenerator(worldgen);
         WorldDimensions shaped = ShapedDimensions.withShape(overworldOnly(overworld), LevelStem.OVERWORLD,
-                new CarriedShape(squareTorus(CHOSEN_WIDTH_CHUNKS), ShapeOptions.DEFAULT));
+                new CarriedShape(null, squareTorus(CHOSEN_WIDTH_CHUNKS), ShapeOptions.DEFAULT));
 
-        assertNull(ShapedDimensions.getShape(ShapedDimensions.stripShapes(shaped), LevelStem.OVERWORLD));
+        ShapedDimensions.stripShapes(shaped);
+
+        assertNull(ShapedDimensions.getShape(shaped, LevelStem.OVERWORLD));
+    }
+
+    @Test
+    void aVanillaNoiseOverworldTakesTheShapeOnACopyAndLeavesThePresetsOwnGeneratorUnshaped() {
+        NoiseBasedChunkGenerator overworld = (NoiseBasedChunkGenerator) noiseGenerator(worldgen);
+        FlatShape shape = squareTorus(CHOSEN_WIDTH_CHUNKS);
+
+        WorldDimensions shaped = ShapedDimensions.withShape(overworldOnly(overworld), LevelStem.OVERWORLD,
+                new CarriedShape(null, shape, ShapeOptions.DEFAULT));
+
+        NoiseBasedChunkGenerator copy = (NoiseBasedChunkGenerator) overworldGeneratorOf(shaped);
+        assertNotSame(overworld, copy);
+        assertEquals(NoiseBasedChunkGenerator.class, copy.getClass());
+        assertSame(overworld.getBiomeSource(), copy.getBiomeSource());
+        assertSame(overworld.generatorSettings(), copy.generatorSettings());
+        assertEquals(shape, ShapedDimensions.getShape(shaped, LevelStem.OVERWORLD));
+        assertNull(GeneratorShapes.getCarriedShape(overworld));
+    }
+
+    @Test
+    void aSuperflatOverworldTakesTheShapeOnACopyOfItsOwnSettings() {
+        FlatLevelSource overworld = flatGenerator();
+        FlatShape shape = squareTorus(CHOSEN_WIDTH_CHUNKS);
+
+        WorldDimensions shaped = ShapedDimensions.withShape(overworldOnly(overworld), LevelStem.OVERWORLD,
+                new CarriedShape(null, shape, ShapeOptions.DEFAULT));
+
+        FlatLevelSource copy = (FlatLevelSource) overworldGeneratorOf(shaped);
+        assertNotSame(overworld, copy);
+        assertEquals(FlatLevelSource.class, copy.getClass());
+        assertSame(overworld.settings(), copy.settings());
+        assertEquals(shape, ShapedDimensions.getShape(shaped, LevelStem.OVERWORLD));
+        assertNull(GeneratorShapes.getCarriedShape(overworld));
+    }
+
+    @Test
+    void reShapingASuperflatWorldTakesTheNewShapeOnItsOwnSettings() {
+        FlatLevelSource overworld = flatGenerator();
+        FlatShape cylinder = ShapeFixtures.cylinder(Direction.Axis.X, CHOSEN_WIDTH_CHUNKS);
+        WorldDimensions torus = ShapedDimensions.withShape(overworldOnly(overworld), LevelStem.OVERWORLD,
+                new CarriedShape(null, squareTorus(CHOSEN_WIDTH_CHUNKS), ShapeOptions.DEFAULT));
+
+        WorldDimensions reshaped = ShapedDimensions.withShape(torus, LevelStem.OVERWORLD,
+                new CarriedShape(null, cylinder, ShapeOptions.DEFAULT));
+
+        assertEquals(cylinder, ShapedDimensions.getShape(reshaped, LevelStem.OVERWORLD));
+        assertSame(overworld.settings(), ((FlatLevelSource) overworldGeneratorOf(reshaped)).settings());
+    }
+
+    @Test
+    void strippingAVanillaWorldLeavesItsGeneratorsPlain() {
+        WorldDimensions shaped = LayoutDimensions.apply(vanillaThree(noiseGenerator(worldgen)),
+                LayoutFixtures.defaultTorus());
+
+        ShapedDimensions.stripShapes(shaped);
+
+        for (ResourceKey<LevelStem> key : List.of(LevelStem.OVERWORLD, LevelStem.NETHER, LevelStem.END)) {
+            assertNull(ShapedDimensions.getShape(shaped, key), key.identifier().toString());
+        }
+        assertEquals(NoiseBasedChunkGenerator.class, overworldGeneratorOf(shaped).getClass());
+    }
+
+    @Test
+    void aShapedChosenPresetReplacesAnUnshapedResult() {
+        WorldDimensions chosen = LayoutDimensions.apply(vanillaThree(noiseGenerator(worldgen)),
+                LayoutFixtures.defaultTorus());
+        WorldDimensions replaced = overworldOnly(noiseGenerator(worldgen));
+
+        assertSame(chosen, ShapedDimensions.keepChosenShape(replaced, chosen));
+    }
+
+    @Test
+    void aShapedResultStandsOverAShapedChosenPreset() {
+        WorldDimensions chosen = LayoutDimensions.apply(vanillaThree(noiseGenerator(worldgen)),
+                LayoutFixtures.defaultTorus());
+        WorldDimensions created = LayoutDimensions.apply(vanillaThree(noiseGenerator(worldgen)),
+                LayoutFixtures.defaultCylinder());
+
+        assertSame(created, ShapedDimensions.keepChosenShape(created, chosen));
+    }
+
+    private static ChunkGenerator overworldGeneratorOf(WorldDimensions dimensions) {
+        return dimensions.get(LevelStem.OVERWORLD).orElseThrow().generator();
+    }
+
+    private static FlatLevelSource flatGenerator() {
+        return new FlatLevelSource(new FlatLevelGeneratorSettings(Optional.empty(),
+                worldgen.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS), List.of()));
     }
 
     private static WorldDimensions overworldOnly(ChunkGenerator overworld) {

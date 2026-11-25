@@ -44,8 +44,6 @@ public final class DeclaredShapes {
 
     public static void warnOfUnknownOptionShapes() {
         Set<Identifier> known = new HashSet<>(SHAPES.getEntries().keySet());
-        known.add(TORUS);
-        known.add(CYLINDER);
         unknownOptionShapes(DeclaredOptions.getAll(), known).forEach(
                 unknown -> ExoticWorlds.LOGGER.warn("[ew/option] unknown_shape {}", unknown));
     }

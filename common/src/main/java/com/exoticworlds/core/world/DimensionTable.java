@@ -13,6 +13,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 
@@ -22,6 +23,7 @@ public final class DimensionTable {
     public static final DimensionTable EMPTY = new DimensionTable(Map.of());
 
     private static final String FROM_OVERWORLD_KEY = "from_overworld";
+    public static final String SHAPE_ID_KEY = "shape";
 
     public static final Codec<DimensionTable> CODEC = Codec
             .unboundedMap(ResourceKey.codec(Registries.LEVEL_STEM), Entry.CODEC)
@@ -100,6 +102,7 @@ public final class DimensionTable {
 
         public static final Codec<Entry> CODEC = RecordCodecBuilder.<Stated>mapCodec(instance -> instance.group(
                 Codec.BOOL.optionalFieldOf(FROM_OVERWORLD_KEY, false).forGetter(Stated::isFromOverworld),
+                Identifier.CODEC.optionalFieldOf(SHAPE_ID_KEY).forGetter(Stated::shapeId),
                 CarriedShape.SHAPE_CODEC.optionalFieldOf(CarriedShape.WRAPPING_KEY).forGetter(Stated::shape),
                 ShapeOptions.mapCodec(CarriedShape.NO_KEY_PREFIX).forGetter(Stated::options)
         ).apply(instance, Stated::new)).xmap(Stated::entry, Stated::of).codec();
@@ -115,12 +118,13 @@ public final class DimensionTable {
         }
     }
 
-    private record Stated(boolean isFromOverworld, Optional<FlatShape> shape, ShapeOptions options) {
+    private record Stated(boolean isFromOverworld, Optional<Identifier> shapeId, Optional<FlatShape> shape,
+            ShapeOptions options) {
         private static Stated of(Entry entry) {
             CarriedShape carried = entry.carried();
             return carried == null
-                    ? new Stated(entry.isFromOverworld(), Optional.empty(), ShapeOptions.DEFAULT)
-                    : new Stated(false, Optional.of(carried.getShape()), carried.getOptions());
+                    ? new Stated(entry.isFromOverworld(), Optional.empty(), Optional.empty(), ShapeOptions.DEFAULT)
+                    : new Stated(false, carried.getShapeId(), Optional.of(carried.getShape()), carried.getOptions());
         }
 
         private Entry entry() {
@@ -128,7 +132,8 @@ public final class DimensionTable {
                 return Entry.FROM_OVERWORLD;
             }
 
-            return this.shape.map(flat -> new Entry(new CarriedShape(flat, this.options))).orElse(Entry.UNWRAPPED);
+            return this.shape.map(flat -> new Entry(new CarriedShape(this.shapeId.orElse(null), flat, this.options)))
+                    .orElse(Entry.UNWRAPPED);
         }
     }
 }

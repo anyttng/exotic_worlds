@@ -84,7 +84,9 @@ final class DimensionPage {
         this.options = layout.options();
         Identifier declaredId = layout.shape();
         DimensionShape shape = declaredId == null ? null : DeclaredShapes.of(declaredId);
-        this.chosen.set(shape != null ? ShapeChoice.of(shape) : ShapeChoice.of(layout.kind()));
+        this.chosen.set(shape != null
+                ? ShapeChoice.of(shape)
+                : ShapeChoice.of(layout.kind() == ShapeKind.FROM_OVERWORLD ? ShapeKind.FROM_OVERWORLD : ShapeKind.NORMAL));
         this.parameters.show(this.getShownParameters(layout));
         this.spawn.show(this.options.get(SpawnPoint.OPTION));
         this.declared.show(this.options);
@@ -99,8 +101,8 @@ final class DimensionPage {
     }
 
     @Nullable DimensionLayout layout() {
-        ShapeKind own = this.getOwn();
-        if (own == ShapeKind.NORMAL) {
+        ShapeChoice choice = this.chosen.get();
+        if (choice.mode() == ShapeKind.NORMAL) {
             return DimensionLayout.normal(this.options);
         }
 
@@ -109,19 +111,14 @@ final class DimensionPage {
             return null;
         }
 
-        DimensionShape shape = this.chosen.get().declared();
-        if (shape != null) {
-            return this.getSizeError().getString().isEmpty()
-                    ? DimensionLayout.declared(shape.getId(), this.declaredSpans(shape), chosenOptions)
-                    : null;
-        }
-
-        if (own == ShapeKind.FROM_OVERWORLD) {
+        DimensionShape shape = choice.shape();
+        if (shape == null) {
             return DimensionLayout.fromOverworld(chosenOptions);
         }
 
-        FlatShape spans = own == null ? null : this.ownSpans(own);
-        return spans == null ? null : DimensionLayout.looped(spans, chosenOptions);
+        return this.getSizeError().getString().isEmpty()
+                ? DimensionLayout.shaped(shape.getId(), this.getShapeSpans(shape), chosenOptions)
+                : null;
     }
 
     private @Nullable ShapeOptions getChosenOptions() {
@@ -143,7 +140,7 @@ final class DimensionPage {
         additional.add(Heading.of(fill, SettingsLines.ADDITIONAL));
         additional.add(this.declared.getSection());
 
-        this.spawn.getSection().setVisible(() -> this.offer.hasSpawnPoint() && this.getResolvedKind() != ShapeKind.NORMAL);
+        this.spawn.getSection().setVisible(() -> this.offer.hasSpawnPoint() && this.getResolvedSpans() != null);
         additional.setVisible(this.declared::isAnyOffered);
 
         this.page.setGapPixels(GAP_PIXELS);
@@ -175,15 +172,15 @@ final class DimensionPage {
         scale.showValueOnly();
         Field field = new Field(fill, SettingsLines.NETHER_SCALE, scale);
         field.setValueLine(() -> SettingsLines.shapeSummary(this.getResolvedSpans()));
-        field.setVisible(() -> this.offer.hasNetherScale() && this.getOwn() == ShapeKind.FROM_OVERWORLD);
+        field.setVisible(() -> this.offer.hasNetherScale() && this.getMode() == ShapeKind.FROM_OVERWORLD);
         return field;
     }
 
     private Label derivedLine(FillStyle fill) {
         Label line = new Label(fill, LabelRole.MUTED, Component.empty());
         line.setText(() -> SettingsLines.shapeSummary(this.getResolvedSpans()));
-        line.setVisible(() -> this.chosen.get().declared() != null
-                || (this.isDerivationKnown() && !this.offer.hasNetherScale() && this.getOwn() == ShapeKind.FROM_OVERWORLD));
+        line.setVisible(() -> this.isShowingOwnSummary()
+                || (this.isDerivationKnown() && !this.offer.hasNetherScale() && this.getMode() == ShapeKind.FROM_OVERWORLD));
         return line;
     }
 
@@ -195,8 +192,8 @@ final class DimensionPage {
     }
 
     private Component getSizeError() {
-        DimensionShape shape = this.chosen.get().declared();
-        FlatShape spans = shape == null ? null : this.declaredSpans(shape);
+        DimensionShape shape = this.chosen.get().shape();
+        FlatShape spans = shape == null ? null : this.getShapeSpans(shape);
         if (spans == null) {
             return Component.empty();
         }
@@ -223,22 +220,22 @@ final class DimensionPage {
 
     private @Nullable FlatShape getResolvedSpans() {
         ShapeChoice choice = this.chosen.get();
-        DimensionShape shape = choice.declared();
+        DimensionShape shape = choice.shape();
         if (shape != null) {
-            return this.declaredSpans(shape);
+            return this.getShapeSpans(shape);
         }
 
-        ShapeKind own = choice.own();
-        if (own != ShapeKind.FROM_OVERWORLD) {
-            return own == null ? null : this.ownSpans(own);
+        if (choice.mode() != ShapeKind.FROM_OVERWORLD) {
+            return null;
         }
 
         var derivation = this.offer.derivation();
         return derivation == null ? null : derivation.apply(this.overworld.get().spans(), this.netherScale.get());
     }
 
-    private @Nullable FlatShape declaredSpans(DimensionShape shape) {
-        ShapeOptions chosenOptions = this.declared.commit(this.options);
+    private @Nullable FlatShape getShapeSpans(DimensionShape shape) {
+        ShapeOptions additional = this.declared.commit(this.options);
+        ShapeOptions chosenOptions = additional == null ? null : this.parameters.commit(additional);
         if (chosenOptions == null) {
             return null;
         }
@@ -249,56 +246,28 @@ final class DimensionPage {
                 this.scales.of(this.offer.dimension())));
     }
 
-    private @Nullable FlatShape ownSpans(ShapeKind kind) {
-        DimensionShape shape = kind.getBuiltIn();
-        if (shape == null) {
-            return null;
-        }
-
-        ShapeOptions size = this.parameters.commit(ShapeOptions.DEFAULT);
-        return size == null ? null : shape.spans(new DimensionContext(this.offer.dimension(), size, null,
-                this.scales.of(LevelStem.OVERWORLD), this.scales.of(this.offer.dimension())));
+    private boolean isShowingOwnSummary() {
+        DimensionShape shape = this.chosen.get().shape();
+        return shape != null && shape.getParameters().isEmpty();
     }
 
-    private @Nullable ShapeKind getOwn() {
-        return this.chosen.get().own();
-    }
-
-    private ShapeKind getResolvedKind() {
-        ShapeKind own = this.getOwn();
-        return own == null || own == ShapeKind.FROM_OVERWORLD ? ShapeKind.of(this.getResolvedSpans()) : own;
+    private @Nullable ShapeKind getMode() {
+        return this.chosen.get().mode();
     }
 
     private @Nullable Identifier getResolvedShape() {
-        DimensionShape shape = this.chosen.get().declared();
-        if (shape != null) {
-            return shape.getId();
-        }
-
-        ShapeKind resolved = this.getResolvedKind();
-        Identifier fromOverworld = this.getOwn() == ShapeKind.FROM_OVERWORLD ? this.overworld.get().shape() : null;
-        if (resolved == ShapeKind.NORMAL || fromOverworld != null) {
-            return resolved == ShapeKind.NORMAL ? null : fromOverworld;
-        }
-
-        return resolved == ShapeKind.TORUS ? DeclaredShapes.TORUS : DeclaredShapes.CYLINDER;
+        return this.getMode() == ShapeKind.FROM_OVERWORLD ? this.overworld.get().shape() : this.getChosenShape();
     }
 
     private @Nullable Identifier getChosenShape() {
-        ShapeChoice choice = this.chosen.get();
-        DimensionShape declared = choice.declared();
-        if (declared != null) {
-            return declared.getId();
-        }
-
-        DimensionShape own = choice.own() == null ? null : choice.own().getBuiltIn();
-        return own == null ? null : own.getId();
+        DimensionShape shape = this.chosen.get().shape();
+        return shape == null ? null : shape.getId();
     }
 
     private ShapeOptions getShownParameters(DimensionLayout layout) {
-        FlatShape spans = layout.shape() == null ? layout.spans() : null;
+        FlatShape spans = layout.spans();
         ShapeOptions shown = ShapeOptions.DEFAULT;
-        for (DimensionShape shape : getKnownShapes()) {
+        for (DimensionShape shape : DeclaredShapes.getAll()) {
             ShapeOptions source = (spans == null ? Optional.<ShapeOptions>empty() : shape.optionsFor(spans))
                     .orElseGet(() -> shape.defaultOptions(this.offer.dimension()));
             for (DimensionOption<?> parameter : shape.getParameters()) {
@@ -311,7 +280,7 @@ final class DimensionPage {
 
     private static List<OptionControls.Offer> getParameters() {
         List<OptionControls.Offer> parameters = new ArrayList<>();
-        for (DimensionShape shape : getKnownShapes()) {
+        for (DimensionShape shape : DeclaredShapes.getAll()) {
             Identifier owner = shape.getId();
             shape.getParameters().forEach(parameter -> parameters.add(new OptionControls.Offer(parameter, owner::equals)));
         }
@@ -321,7 +290,7 @@ final class DimensionPage {
 
     private static List<OptionControls.Offer> getAdditionalOptions(ResourceKey<LevelStem> dimension) {
         Map<DimensionOption<?>, Predicate<Identifier>> offered = new LinkedHashMap<>();
-        for (DimensionShape shape : getKnownShapes()) {
+        for (DimensionShape shape : DeclaredShapes.getAll()) {
             Identifier owner = shape.getId();
             shape.getOptions().stream()
                     .filter(scoped -> scoped.scope().contains(dimension))
@@ -336,21 +305,13 @@ final class DimensionPage {
                 .toList();
     }
 
-    private static List<DimensionShape> getKnownShapes() {
-        List<DimensionShape> shapes = new ArrayList<>(ShapeKind.getBuiltIns());
-        shapes.addAll(DeclaredShapes.getAll());
-        return shapes;
-    }
-
     private static <T> ShapeOptions copied(DimensionOption<T> parameter, ShapeOptions from, ShapeOptions into) {
         return into.with(parameter.getOption(), from.get(parameter.getOption()));
     }
 
     private @Nullable Integer spawnWidthChunks(Direction.Axis axis) {
-        ShapeChoice choice = this.chosen.get();
-        DimensionShape shape = choice.declared();
-        ShapeKind own = choice.own();
-        FlatShape spans = shape != null ? this.declaredSpans(shape) : own == null ? null : this.ownSpans(own);
+        DimensionShape shape = this.chosen.get().shape();
+        FlatShape spans = shape == null ? null : this.getShapeSpans(shape);
         if (spans == null) {
             return null;
         }

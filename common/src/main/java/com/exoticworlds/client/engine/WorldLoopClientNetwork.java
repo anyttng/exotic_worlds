@@ -21,7 +21,6 @@ import com.exoticworlds.engine.net.DimensionChoicesUpdatePayload;
 import com.exoticworlds.engine.net.PositionRowsPayload;
 import com.exoticworlds.platform.Platforms;
 import com.exoticworlds.shape.layout.LayoutDimensions;
-import com.exoticworlds.shape.layout.ShapeRecognition;
 import com.exoticworlds.shape.layout.WorldLayout;
 
 import net.minecraft.client.Minecraft;
@@ -61,7 +60,7 @@ public final class WorldLoopClientNetwork {
 
         CoordinateScales coordinateScales = new CoordinateScales(scales);
         Minecraft.getInstance().setScreen(WorldShapeSettingsScreen.forExistingWorld(
-                ShapeRecognition.recognize(LayoutDimensions.ofRows(entries), coordinateScales::of), modStems,
+                LayoutDimensions.ofRows(entries), modStems,
                 coordinateScales, locks,
                 chosen -> send(chosen, modStems, locks)));
     }

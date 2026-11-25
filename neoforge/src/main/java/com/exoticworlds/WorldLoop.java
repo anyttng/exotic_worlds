@@ -3,9 +3,7 @@ package com.exoticworlds;
 import com.exoticworlds.client.settings.SettingsScreenFactory;
 import com.exoticworlds.compat.moonlight.MoonlightParticles;
 import com.exoticworlds.compat.northbound.NorthboundLatitude;
-import com.exoticworlds.engine.gen.LoopedChunkGenerator;
-import com.exoticworlds.engine.gen.LoopedFlatChunkGenerator;
-import com.exoticworlds.engine.gen.WorldLoopGenerators;
+import com.exoticworlds.engine.gen.LegacyGenerators;
 import com.exoticworlds.engine.net.AuxiliaryLightTranslation;
 import com.exoticworlds.engine.net.BlockParticleTranslation;
 import com.exoticworlds.engine.net.SpawnBufferTranslation;
@@ -36,8 +34,8 @@ public final class WorldLoop {
         NorthboundLatitude.register();
         MoonlightParticles.register();
 
-        CHUNK_GENERATORS.register(WorldLoopGenerators.TOROIDAL_ID, () -> LoopedChunkGenerator.CODEC);
-        CHUNK_GENERATORS.register(WorldLoopGenerators.TOROIDAL_FLAT_ID, () -> LoopedFlatChunkGenerator.CODEC);
+        CHUNK_GENERATORS.register(LegacyGenerators.TOROIDAL_ID, () -> LegacyGenerators.TOROIDAL_CODEC);
+        CHUNK_GENERATORS.register(LegacyGenerators.TOROIDAL_FLAT_ID, () -> LegacyGenerators.TOROIDAL_FLAT_CODEC);
         CHUNK_GENERATORS.register(modEventBus);
 
         CRITERIA.register(WorldLoopCriteria.CIRCUMNAVIGATE_ID, () -> WorldLoopCriteria.CIRCUMNAVIGATE);

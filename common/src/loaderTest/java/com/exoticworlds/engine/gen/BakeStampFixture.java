@@ -15,7 +15,7 @@ import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.core.option.ShapeOptions;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.world.WorldLoopBounds;
 
 import net.minecraft.core.BlockPos;
@@ -88,12 +88,12 @@ final class BakeStampFixture {
     }
 
     static ChunkGenerator stamped(ChunkGenerator generator, FlatShape shape, ShapeOptions options) {
-        ((ShapeStamp) generator).exotic_worlds$stamp(new CarriedShape(shape, options));
+        ((ShapeStamp) generator).exotic_worlds$stamp(new CarriedShape(null, shape, options));
         return generator;
     }
 
     static ChunkGenerator shapedGenerator(FlatShape shape) {
-        return new ShapedForeignChunkGenerator(shape);
+        return stamped(new ForeignChunkGenerator(), shape);
     }
 
     static ChunkGenerator noiseGenerator(HolderLookup.Provider worldgen) {
@@ -129,7 +129,7 @@ final class BakeStampFixture {
     }
 
     static @Nullable CarriedShape carriedShapeOf(Registry<LevelStem> baked, ResourceKey<LevelStem> key) {
-        return ShapedChunkGenerator.getCarriedShape(generatorOf(baked, key));
+        return GeneratorShapes.getCarriedShape(generatorOf(baked, key));
     }
 
     static ChunkGenerator generatorOf(Registry<LevelStem> baked, ResourceKey<LevelStem> key) {
@@ -227,25 +227,6 @@ final class BakeStampFixture {
 
         @Override
         public void addDebugScreenInfo(List<String> result, RandomState randomState, BlockPos feetPos) {
-        }
-    }
-
-    private static final class ShapedForeignChunkGenerator extends ForeignChunkGenerator
-            implements ShapedChunkGenerator {
-        private final CarriedShape carriedShape;
-
-        private ShapedForeignChunkGenerator(FlatShape shape) {
-            this.carriedShape = new CarriedShape(shape, ShapeOptions.DEFAULT);
-        }
-
-        @Override
-        public CarriedShape getCarriedShape() {
-            return this.carriedShape;
-        }
-
-        @Override
-        public ChunkGenerator getUnshaped() {
-            return new ForeignChunkGenerator();
         }
     }
 

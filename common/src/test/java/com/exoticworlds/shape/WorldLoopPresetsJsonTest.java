@@ -19,20 +19,25 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
+import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.core.option.ShapeOption;
 import com.exoticworlds.core.option.ShapeOptionRegistry;
 import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.WorldLoopBounds;
+import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 import com.exoticworlds.shape.layout.DimensionLayout;
 import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
 import com.exoticworlds.shape.feature.guaranteednethercomplexes.GuaranteedNetherComplexes;
 
 import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
 
 class WorldLoopPresetsJsonTest {
     private static final String PRESET_RESOURCE_DIR = "/data/exotic_worlds/worldgen/world_preset/";
-    private static final String LOOPED_GENERATOR_ID = "exotic_worlds:toroidal";
+    private static final String BASE_GENERATOR_ID = "minecraft:noise";
+    private static final String STAMP_KEY = ExoticWorlds.MODID + ":shape";
     private static final String CYLINDER_PRESET_PREFIX = "cylinder_";
     private static final String TORUS_PRESET_PREFIX = "torus_";
     private static final String PRESET_FILE_EXTENSION = ".json";
@@ -95,25 +100,28 @@ class WorldLoopPresetsJsonTest {
         assertEquals(dimensionId, dimension.get("type").getAsString(), context + ": dimension type");
 
         JsonObject generator = dimension.getAsJsonObject("generator");
-        assertEquals(LOOPED_GENERATOR_ID, generator.get("type").getAsString(), context + ": generator type");
+        assertEquals(BASE_GENERATOR_ID, generator.get("type").getAsString(), context + ": generator type");
         assertEquals(noiseSettingsId, generator.get("settings").getAsString(), context + ": noise settings");
 
-        WorldLoopBounds wrapping = WorldLoopBounds.CODEC.parse(JsonOps.INSTANCE, generator.get("wrapping"))
+        JsonObject stamp = generator.getAsJsonObject(STAMP_KEY);
+        WorldLoopBounds wrapping = WorldLoopBounds.CODEC.parse(JsonOps.INSTANCE, stamp.get(CarriedShape.WRAPPING_KEY))
                 .getOrThrow(message -> new AssertionError(context + ": wrapping does not parse: " + message));
         assertEquals(expected, wrapping, context + ": wrapping");
+        Identifier shape = presetId.startsWith(CYLINDER_PRESET_PREFIX) ? DeclaredShapes.CYLINDER : DeclaredShapes.TORUS;
+        assertEquals(shape.toString(), stamp.get(CarriedShape.ID_KEY).getAsString(), context + ": shape");
 
         for (ShapeOption<?> option : ShapeOptionRegistry.getAll()) {
             if (offered.contains(option)) {
-                assertStatedOption(context, generator, option, defaults);
+                assertStatedOption(context, stamp, option, defaults);
             } else {
-                assertFalse(generator.has(option.key()), context + ": the shape offers no " + option.key());
+                assertFalse(stamp.has(option.key()), context + ": the shape offers no " + option.key());
             }
         }
     }
 
-    private static <V> void assertStatedOption(String context, JsonObject generator, ShapeOption<V> option,
+    private static <V> void assertStatedOption(String context, JsonObject stamp, ShapeOption<V> option,
             ShapeOptions defaults) {
-        JsonElement stated = generator.get(option.key());
+        JsonElement stated = stamp.get(option.key());
         assertNotNull(stated, context + ": " + option.key() + " is not stated");
 
         V value = option.codec().parse(JsonOps.INSTANCE, stated)

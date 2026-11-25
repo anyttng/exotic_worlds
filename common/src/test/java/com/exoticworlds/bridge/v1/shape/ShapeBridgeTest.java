@@ -28,11 +28,11 @@ class ShapeBridgeTest {
     void spansAtTheStatedFloorAreCarriedAndSpansUnderItAreRefused() {
         int floor = LoopSpans.minChunkWidth();
 
-        new CarriedShape(ShapeBridge.flatShapeOf(LoopSpans.ofWidth(floor)), ShapeOptions.DEFAULT);
-        new CarriedShape(ShapeBridge.flatShapeOf(LoopSpans.ofWidth(Direction.Axis.Z, floor)), ShapeOptions.DEFAULT);
+        new CarriedShape(null, ShapeBridge.flatShapeOf(LoopSpans.ofWidth(floor)), ShapeOptions.DEFAULT);
+        new CarriedShape(null, ShapeBridge.flatShapeOf(LoopSpans.ofWidth(Direction.Axis.Z, floor)), ShapeOptions.DEFAULT);
         assertThrows(IllegalArgumentException.class,
-                () -> new CarriedShape(ShapeBridge.flatShapeOf(LoopSpans.ofWidth(floor - 2)), ShapeOptions.DEFAULT));
-        assertThrows(IllegalArgumentException.class, () -> new CarriedShape(
+                () -> new CarriedShape(null, ShapeBridge.flatShapeOf(LoopSpans.ofWidth(floor - 2)), ShapeOptions.DEFAULT));
+        assertThrows(IllegalArgumentException.class, () -> new CarriedShape(null, 
                 ShapeBridge.flatShapeOf(LoopSpans.ofWidths(floor, floor - 2)), ShapeOptions.DEFAULT));
     }
 }

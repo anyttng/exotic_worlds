@@ -14,6 +14,7 @@ import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.core.world.WorldLoopSizes;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.WorldShape;
+import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.dimension.DimensionShape;
 import com.exoticworlds.shape.dimension.LoopSizeLines;
 import com.exoticworlds.shape.layout.DimensionLayout;
@@ -97,9 +98,10 @@ final class SettingsLines {
     }
 
     static Component summary(DimensionLayout layout, @Nullable FlatShape spans, boolean isDerivationKnown) {
-        Identifier declared = layout.shape();
-        if (declared != null) {
-            return WorldShape.label(declared);
+        Identifier chosen = layout.shape();
+        DimensionShape shape = chosen == null ? null : DeclaredShapes.of(chosen);
+        if (chosen != null && (shape == null || shape.getParameters().isEmpty())) {
+            return shape == null ? WorldShape.label(chosen) : shape.getName();
         }
 
         if (layout.kind() != ShapeKind.FROM_OVERWORLD) {
@@ -112,7 +114,7 @@ final class SettingsLines {
 
     static Component shapeSummary(@Nullable FlatShape spans) {
         if (spans != null) {
-            for (DimensionShape shape : ShapeKind.getBuiltIns()) {
+            for (DimensionShape shape : DeclaredShapes.getAll()) {
                 Optional<ShapeOptions> recognized = shape.optionsFor(spans);
                 if (recognized.isPresent()) {
                     return shape.describe(recognized.get());

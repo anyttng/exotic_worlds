@@ -15,9 +15,8 @@ import net.minecraft.world.level.dimension.LevelStem;
 
 record DimensionOffer(ResourceKey<LevelStem> dimension, Component title, List<ShapeKind> kinds, boolean hasSpawnPoint,
         boolean hasNetherScale, @Nullable BiFunction<@Nullable FlatShape, Integer, @Nullable FlatShape> derivation) {
-    private static final List<ShapeKind> OWN_KINDS = List.of(ShapeKind.NORMAL, ShapeKind.TORUS, ShapeKind.CYLINDER);
-    private static final List<ShapeKind> DERIVED_KINDS =
-            List.of(ShapeKind.FROM_OVERWORLD, ShapeKind.NORMAL, ShapeKind.TORUS, ShapeKind.CYLINDER);
+    private static final List<ShapeKind> OWN_KINDS = List.of(ShapeKind.NORMAL);
+    private static final List<ShapeKind> DERIVED_KINDS = List.of(ShapeKind.FROM_OVERWORLD, ShapeKind.NORMAL);
 
     static final DimensionOffer OVERWORLD = new DimensionOffer(LevelStem.OVERWORLD, SettingsLines.OVERWORLD, OWN_KINDS,
             true, false, null);

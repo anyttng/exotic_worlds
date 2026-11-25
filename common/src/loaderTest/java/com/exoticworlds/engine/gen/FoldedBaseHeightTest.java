@@ -8,6 +8,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.accessors.ShapeStamp;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.core.option.ShapeOptions;
@@ -25,16 +27,19 @@ import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.RandomState;
 
-class LoopedChunkGeneratorBaseHeightTest {
+class FoldedBaseHeightTest {
     private static final long SEED_A = 1383L;
     private static final long SEED_B = 90_210L;
     private static final int LAP_CHUNKS = 64;
     private static final int LAP_BLOCKS = LAP_CHUNKS * 16;
     private static final Heightmap.Types TYPE = Heightmap.Types.WORLD_SURFACE_WG;
+    private static final CarriedShape TORUS =
+            new CarriedShape(null, ShapeFixtures.torus(WorldLoopBounds.ofWidth(LAP_CHUNKS)), ShapeOptions.DEFAULT);
     private static final List<int[]> COLUMNS = List.of(
             new int[] {8, 8}, new int[] {200, 620}, new int[] {410, 90}, new int[] {700, 333},
             new int[] {950, 870}, new int[] {123, 456});
@@ -66,8 +71,8 @@ class LoopedChunkGeneratorBaseHeightTest {
     }
 
     @Test
-    void aStateWithoutAFoldReadsUncachedHeights() {
-        LoopedChunkGenerator shared = generator();
+    void aStateWithoutAFoldReadsEachLapItsOwnHeight() {
+        NoiseBasedChunkGenerator shared = generator();
         RandomState unfolded = unfoldedState(SEED_A);
         for (int[] column : COLUMNS) {
             int here = shared.getBaseHeight(column[0], column[1], TYPE, heightAccessor, unfolded);
@@ -84,7 +89,7 @@ class LoopedChunkGeneratorBaseHeightTest {
         int[] firstExpected = freshHeights(readFirst);
         int[] secondExpected = freshHeights(readSecond);
 
-        LoopedChunkGenerator shared = generator();
+        NoiseBasedChunkGenerator shared = generator();
         RandomState first = foldedState(shared, readFirst);
         RandomState second = foldedState(shared, readSecond);
         int differing = 0;
@@ -102,7 +107,7 @@ class LoopedChunkGeneratorBaseHeightTest {
     }
 
     private static int[] freshHeights(long seed) {
-        LoopedChunkGenerator fresh = generator();
+        NoiseBasedChunkGenerator fresh = generator();
         RandomState state = foldedState(fresh, seed);
         int[] heights = new int[COLUMNS.size()];
         for (int i = 0; i < COLUMNS.size(); i++) {
@@ -116,15 +121,16 @@ class LoopedChunkGeneratorBaseHeightTest {
         return generator().getBaseHeight(x, z, TYPE, heightAccessor, state);
     }
 
-    private static LoopedChunkGenerator generator() {
-        return new LoopedChunkGenerator(
+    private static NoiseBasedChunkGenerator generator() {
+        NoiseBasedChunkGenerator generator = new NoiseBasedChunkGenerator(
                 new FixedBiomeSource(holders.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)),
-                overworldSettings,
-                new CarriedShape(ShapeFixtures.torus(WorldLoopBounds.ofWidth(LAP_CHUNKS)), ShapeOptions.DEFAULT));
+                overworldSettings);
+        ((ShapeStamp) generator).exotic_worlds$stamp(TORUS);
+        return generator;
     }
 
-    private static RandomState foldedState(LoopedChunkGenerator generator, long seed) {
-        return GenerationFoldContext.withRouterBuild(generator.getCarriedShape().getFold(),
+    private static RandomState foldedState(NoiseBasedChunkGenerator generator, long seed) {
+        return GenerationFoldContext.withRouterBuild(GeneratorShapes.getFold(generator),
                 () -> RandomState.create(overworldSettings.value(), holders.lookupOrThrow(Registries.NOISE), seed));
     }
 

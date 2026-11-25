@@ -132,7 +132,7 @@ class DimensionTableBakeTest {
 
     private static DimensionTable wrappedTable() {
         return DimensionTable.of(Map.of(LISTED,
-                new DimensionTable.Entry(new CarriedShape(TABLE_SHAPE, ShapeOptions.DEFAULT))));
+                new DimensionTable.Entry(new CarriedShape(null, TABLE_SHAPE, ShapeOptions.DEFAULT))));
     }
 
     private static WorldDimensions unwrappedOverworld(DimensionTable table) {

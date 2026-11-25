@@ -16,7 +16,7 @@ import net.minecraft.core.Direction;
 public final class OverworldDerivation {
 
     public static @Nullable FlatShape nether(@Nullable FlatShape overworld, int netherScale) {
-        return overworld == null || ShapeKind.of(overworld) == ShapeKind.NORMAL
+        return overworld == null || !isLooping(overworld)
                 ? null
                 : overworld.scaledDown(NetherScales.normalize(netherScale, netherScales(overworld)));
     }
@@ -26,18 +26,22 @@ public final class OverworldDerivation {
             return null;
         }
 
-        return switch (ShapeKind.of(overworld)) {
-            case TORUS -> FlatShape.unskewed(WorldLoopBounds.ofWidths(
+        boolean isXLooped = overworld.bounds().isLooped(Direction.Axis.X);
+        boolean isZLooped = overworld.bounds().isLooped(Direction.Axis.Z);
+        if (isXLooped && isZLooped) {
+            return FlatShape.unskewed(WorldLoopBounds.ofWidths(
                     endWidthChunks(overworld, Direction.Axis.X), endWidthChunks(overworld, Direction.Axis.Z)));
-            case CYLINDER -> FlatShape.unskewed(
-                    WorldLoopBounds.ofWidth(loopedAxis(overworld), endWidthChunks(overworld, loopedAxis(overworld))));
-            case NORMAL, FROM_OVERWORLD -> null;
-        };
+        }
+
+        return isXLooped || isZLooped
+                ? FlatShape.unskewed(
+                        WorldLoopBounds.ofWidth(loopedAxis(overworld), endWidthChunks(overworld, loopedAxis(overworld))))
+                : null;
     }
 
     public static @Nullable FlatShape modDimension(@Nullable FlatShape overworld, double overworldScale,
             double coordinateScale) {
-        if (overworld == null || ShapeKind.of(overworld) == ShapeKind.NORMAL) {
+        if (overworld == null || !isLooping(overworld)) {
             return null;
         }
 
@@ -59,6 +63,10 @@ public final class OverworldDerivation {
         int xWidthChunks = overworld.bounds().isLooped(Direction.Axis.X) ? overworld.bounds().getWidthChunks(Direction.Axis.X) : looped;
         int zWidthChunks = overworld.bounds().isLooped(Direction.Axis.Z) ? overworld.bounds().getWidthChunks(Direction.Axis.Z) : looped;
         return NetherScales.allowedFor(xWidthChunks, zWidthChunks, overworld.skewChunks());
+    }
+
+    private static boolean isLooping(FlatShape spans) {
+        return spans.bounds().isLooped(Direction.Axis.X) || spans.bounds().isLooped(Direction.Axis.Z);
     }
 
     private static Direction.Axis loopedAxis(FlatShape spans) {

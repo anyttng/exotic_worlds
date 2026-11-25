@@ -4,7 +4,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -26,7 +26,7 @@ public class StructureCheckMixin {
     @WrapMethod(method = "checkStart")
     private StructureCheckResult exotic_worlds$noStartPastTheBounds(ChunkPos pos, Structure structure,
             StructurePlacement placement, boolean requireUnreferenced, Operation<StructureCheckResult> original) {
-        return ShapedChunkGenerator.getFold(this.chunkGenerator).isOver(pos)
+        return GeneratorShapes.getFold(this.chunkGenerator).isOver(pos)
                 ? StructureCheckResult.START_NOT_PRESENT
                 : original.call(pos, structure, placement, requireUnreferenced);
     }
@@ -34,7 +34,7 @@ public class StructureCheckMixin {
     @WrapMethod(method = "canCreateStructure")
     private boolean exotic_worlds$validateAgainstThisWorldsBiomes(ChunkPos pos, Structure structure,
             Operation<Boolean> original) {
-        WorldFold fold = ShapedChunkGenerator.getFold(this.chunkGenerator);
+        WorldFold fold = GeneratorShapes.getFold(this.chunkGenerator);
         try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             return original.call(pos, structure);
         }

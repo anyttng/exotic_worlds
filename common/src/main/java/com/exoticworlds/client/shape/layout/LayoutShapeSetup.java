@@ -1,6 +1,5 @@
 package com.exoticworlds.client.shape.layout;
 
-import java.lang.ref.WeakReference;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +13,6 @@ import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.shape.WorldShapes;
 import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 import com.exoticworlds.shape.layout.LayoutShape;
-import com.exoticworlds.shape.layout.ShapeRecognition;
 import com.exoticworlds.shape.layout.WorldLayout;
 
 import net.minecraft.client.Minecraft;
@@ -27,7 +25,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 
 public final class LayoutShapeSetup {
-    private static WeakReference<CreateWorldScreen> recognizedFor = new WeakReference<>(null);
 
     public static void register() {
         WorldTabRows.register(new WorldShapeRow(LayoutShapeSetup::createScreen));
@@ -46,11 +43,6 @@ public final class LayoutShapeSetup {
 
         WorldCreationContext settings = create.getUiState().getSettings();
         CoordinateScales scales = scalesOf(settings);
-        if (recognizedFor.get() != create) {
-            recognizedFor = new WeakReference<>(create);
-            LayoutShape.choose(ShapeRecognition.recognize(LayoutShape.getLayout(), scales::of));
-        }
-
         return WorldShapeSettingsScreen.forNewWorld(parent, LayoutShape.getLayout(),
                 modDimensions(settings.datapackDimensions()), scales, LayoutShapeSetup::choose);
     }

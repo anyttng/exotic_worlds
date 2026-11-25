@@ -14,7 +14,7 @@ import com.exoticworlds.accessors.CrumbSweepCache;
 import com.exoticworlds.accessors.PeriodicityMark;
 import com.exoticworlds.accessors.TerrainMaskCache;
 import com.exoticworlds.accessors.FoldCache;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
@@ -209,7 +209,7 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
         }
 
         return level == (Object) this
-                ? ShapedChunkGenerator.getFold(level.getChunkSource().getGenerator())
+                ? GeneratorShapes.getFold(level.getChunkSource().getGenerator())
                 : WorldLoopAttachments.getFold(level);
     }
 

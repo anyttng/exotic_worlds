@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import com.exoticworlds.core.FoldGenerators;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.core.option.ShapeOptions;
-import com.exoticworlds.engine.gen.LoopedChunkGenerator;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
 import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
@@ -20,6 +20,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.FixedBiomeSource;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 
 class FoldCompressionTest {
@@ -32,10 +33,10 @@ class FoldCompressionTest {
     @Test
     void aShapedGeneratorsFoldTakesItsFactorWithNoServer() {
         CarriedShape carried = compactTiny();
-        LoopedChunkGenerator generator = new LoopedChunkGenerator(
+        NoiseBasedChunkGenerator generator = new NoiseBasedChunkGenerator(
                 new FixedBiomeSource(LOOKUP.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)),
-                LOOKUP.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.OVERWORLD),
-                carried);
+                LOOKUP.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.OVERWORLD));
+        FoldGenerators.fileFold(generator, carried);
         double expected = LevelClimateCompression.factor(carried.getFold(),
                 LevelClimateCompression.temperatureOf(generator, null));
 
@@ -50,7 +51,7 @@ class FoldCompressionTest {
     }
 
     private static CarriedShape compactTiny() {
-        return new CarriedShape(
+        return new CarriedShape(null,
                 ShapeFixtures.torus(
                         ShapeFixtures.loopedBounds(TINY_CHUNK_MIN, TINY_CHUNK_MAX, TINY_CHUNK_MIN, TINY_CHUNK_MAX)),
                 ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.STRONG));

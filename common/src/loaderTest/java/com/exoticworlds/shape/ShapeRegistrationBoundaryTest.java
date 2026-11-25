@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
@@ -25,7 +26,7 @@ import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.core.option.ShapeOptions;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
@@ -34,6 +35,7 @@ import com.exoticworlds.engine.net.WrappingSettingsPayload;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.Direction;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -41,6 +43,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.Bootstrap;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
@@ -54,10 +57,9 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.WorldDimensions;
 
 class ShapeRegistrationBoundaryTest {
-    private static final RegistryAccess.Frozen REGISTRIES =
-            RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
+    private static RegistryAccess.Frozen registries;
 
-    private static final HolderLookup.Provider WORLDGEN = VanillaRegistries.createLookup();
+    private static HolderLookup.Provider worldgen;
 
     private static final Identifier CYLINDER_ID =
             Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, "boundary_test_cylinder");
@@ -80,7 +82,7 @@ class ShapeRegistrationBoundaryTest {
             CYLINDER,
             (dimensions, shape) ->
                     ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
-                            new CarriedShape(shape, ShapeOptions.DEFAULT)),
+                            new CarriedShape(null, shape, ShapeOptions.DEFAULT)),
             dimensions -> {
                 FlatShape shape = ShapedDimensions.getShape(dimensions, LevelStem.OVERWORLD);
                 return WIDER_CYLINDER.equals(shape) ? shape : null;
@@ -90,12 +92,16 @@ class ShapeRegistrationBoundaryTest {
 
     @BeforeAll
     static void registerTheShapeThroughThePublicSeamsAlone() {
+        SharedConstants.tryDetectVersion();
+        Bootstrap.bootStrap();
+        registries = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
+        worldgen = VanillaRegistries.createLookup();
         cylinder = WorldShape.of(
                 CYLINDER_ID,
                 Component.literal("Boundary test cylinder"),
                 Component.literal("A cylinder registered by the boundary test"),
                 (registries, dimensions) -> ShapedDimensions.withShape(dimensions, LevelStem.OVERWORLD,
-                        new CarriedShape(CYLINDER, ShapeOptions.DEFAULT)),
+                        new CarriedShape(null, CYLINDER, ShapeOptions.DEFAULT)),
                 () -> settingsWereReset = true,
                 (registries, dimensions) ->
                         CYLINDER.equals(ShapedDimensions.getShape(dimensions, LevelStem.OVERWORLD)));
@@ -119,21 +125,21 @@ class ShapeRegistrationBoundaryTest {
 
     private static WorldDimensions vanillaOverworld() {
         NoiseBasedChunkGenerator generator = new NoiseBasedChunkGenerator(
-                new FixedBiomeSource(WORLDGEN.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)),
-                WORLDGEN.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.OVERWORLD));
+                new FixedBiomeSource(worldgen.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)),
+                worldgen.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.OVERWORLD));
 
         return new WorldDimensions(Map.of(LevelStem.OVERWORLD, new LevelStem(
-                WORLDGEN.lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(BuiltinDimensionTypes.OVERWORLD),
+                worldgen.lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(BuiltinDimensionTypes.OVERWORLD),
                 generator)));
     }
 
     private static WorldDimensions vanillaOverworldAndNether() {
         Map<ResourceKey<LevelStem>, LevelStem> stems = new HashMap<>(vanillaOverworld().dimensions());
         stems.put(LevelStem.NETHER, new LevelStem(
-                WORLDGEN.lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(BuiltinDimensionTypes.NETHER),
+                worldgen.lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(BuiltinDimensionTypes.NETHER),
                 new NoiseBasedChunkGenerator(
-                        new FixedBiomeSource(WORLDGEN.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.NETHER_WASTES)),
-                        WORLDGEN.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.NETHER))));
+                        new FixedBiomeSource(worldgen.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.NETHER_WASTES)),
+                        worldgen.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.NETHER))));
         return new WorldDimensions(stems);
     }
 
@@ -163,33 +169,33 @@ class ShapeRegistrationBoundaryTest {
         assertNull(ShapedDimensions.getShape(plain, LevelStem.OVERWORLD));
 
         WorldShapes.select(cylinder);
-        WorldDimensions created = WorldShapes.applyAtCreation(REGISTRIES, plain);
+        WorldDimensions created = WorldShapes.applyAtCreation(registries, plain);
 
         assertEquals(CYLINDER, ShapedDimensions.getShape(created, LevelStem.OVERWORLD));
     }
 
     @Test
     void reCreateAdoptsTheShapeThatClaimsTheWorld() {
-        WorldShapes.restoreFromExisting(REGISTRIES, vanillaOverworld());
+        WorldShapes.restoreFromExisting(registries, vanillaOverworld());
         assertNull(createdOverworldShape());
 
-        WorldDimensions created = cylinder.atCreation().apply(REGISTRIES, vanillaOverworld());
-        WorldShapes.restoreFromExisting(REGISTRIES, created);
+        WorldDimensions created = cylinder.atCreation().apply(registries, vanillaOverworld());
+        WorldShapes.restoreFromExisting(registries, created);
 
         assertEquals(CYLINDER, createdOverworldShape());
     }
 
     @Test
     void reCreatingWithNormalSelectedDropsTheInheritedShape() {
-        WorldDimensions inherited = cylinder.atCreation().apply(REGISTRIES, vanillaOverworld());
+        WorldDimensions inherited = cylinder.atCreation().apply(registries, vanillaOverworld());
         NoiseBasedChunkGenerator vanilla = overworldGenerator(vanillaOverworld());
 
         WorldShapes.select(WorldShapes.NORMAL);
-        WorldDimensions created = WorldShapes.applyAtCreation(REGISTRIES, inherited);
+        WorldDimensions created = WorldShapes.applyAtCreation(registries, inherited);
 
         ChunkGenerator generator = created.dimensions().get(LevelStem.OVERWORLD).generator();
         assertNull(ShapedDimensions.getShape(created, LevelStem.OVERWORLD));
-        assertFalse(generator instanceof ShapedChunkGenerator, generator.getClass().getName());
+        assertEquals(NoiseBasedChunkGenerator.class, generator.getClass());
         assertEquals(vanilla.generatorSettings(), ((NoiseBasedChunkGenerator) generator).generatorSettings());
     }
 
@@ -197,11 +203,11 @@ class ShapeRegistrationBoundaryTest {
     void reCreatingIntoAShapeLeavesNoStemTheNewShapeDoesNotWrite() {
         WorldDimensions inherited = ShapedDimensions.withShape(
                 ShapedDimensions.withShape(vanillaOverworldAndNether(), LevelStem.OVERWORLD,
-                        new CarriedShape(CYLINDER, ShapeOptions.DEFAULT)),
-                LevelStem.NETHER, new CarriedShape(CYLINDER, ShapeOptions.DEFAULT));
+                        new CarriedShape(null, CYLINDER, ShapeOptions.DEFAULT)),
+                LevelStem.NETHER, new CarriedShape(null, CYLINDER, ShapeOptions.DEFAULT));
 
         WorldShapes.select(cylinder);
-        WorldDimensions created = WorldShapes.applyAtCreation(REGISTRIES, inherited);
+        WorldDimensions created = WorldShapes.applyAtCreation(registries, inherited);
 
         assertEquals(CYLINDER, ShapedDimensions.getShape(created, LevelStem.OVERWORLD));
         assertNull(ShapedDimensions.getShape(created, LevelStem.NETHER));
@@ -211,10 +217,10 @@ class ShapeRegistrationBoundaryTest {
     void reCreatingFromOneShapeIntoAnotherTakesTheNewGeometry() {
         WorldDimensions inherited =
                 ShapedDimensions.withShape(vanillaOverworld(), LevelStem.OVERWORLD,
-                        new CarriedShape(WIDER_CYLINDER, ShapeOptions.DEFAULT));
+                        new CarriedShape(null, WIDER_CYLINDER, ShapeOptions.DEFAULT));
 
         WorldShapes.select(cylinder);
-        WorldDimensions created = WorldShapes.applyAtCreation(REGISTRIES, inherited);
+        WorldDimensions created = WorldShapes.applyAtCreation(registries, inherited);
 
         assertEquals(CYLINDER, ShapedDimensions.getShape(created, LevelStem.OVERWORLD));
     }
@@ -239,9 +245,10 @@ class ShapeRegistrationBoundaryTest {
     void aModuleAdoptsTheWorldItRecognisesAndResetsBackToItsOwnDefault() {
         WorldShape registered = registeredModuleShape();
         WorldDimensions wider = ShapedDimensions.withShape(
-                vanillaOverworld(), LevelStem.OVERWORLD, new CarriedShape(WIDER_CYLINDER, ShapeOptions.DEFAULT));
+                vanillaOverworld(), LevelStem.OVERWORLD, new CarriedShape(null, WIDER_CYLINDER, ShapeOptions.DEFAULT));
 
-        WorldShapes.restoreFromExisting(REGISTRIES, wider);
+        assertTrue(Objects.requireNonNull(registered.fromExisting()).tryAdopt(registries, wider));
+        WorldShapes.select(registered);
 
         assertEquals(WIDER_CYLINDER, createdOverworldShape());
         assertEquals(WIDER_CYLINDER, MODULE.settings());
@@ -250,11 +257,11 @@ class ShapeRegistrationBoundaryTest {
 
         assertEquals(CYLINDER, MODULE.settings());
         assertEquals(CYLINDER, ShapedDimensions.getShape(
-                registered.atCreation().apply(REGISTRIES, vanillaOverworld()), LevelStem.OVERWORLD));
+                registered.atCreation().apply(registries, vanillaOverworld()), LevelStem.OVERWORLD));
     }
 
     private static @Nullable FlatShape createdOverworldShape() {
-        return ShapedDimensions.getShape(WorldShapes.applyAtCreation(REGISTRIES, vanillaOverworld()), LevelStem.OVERWORLD);
+        return ShapedDimensions.getShape(WorldShapes.applyAtCreation(registries, vanillaOverworld()), LevelStem.OVERWORLD);
     }
 
     private static WorldShape registeredModuleShape() {
@@ -270,7 +277,7 @@ class ShapeRegistrationBoundaryTest {
         assertEquals(CYLINDER, CarriedShape.SHAPE_CODEC.parse(JsonOps.INSTANCE, stored).getOrThrow(),
                 stored.toString());
 
-        RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), REGISTRIES);
+        RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), registries);
         WrappingSettingsPayload.STREAM_CODEC.encode(buffer, new WrappingSettingsPayload(Level.OVERWORLD, CYLINDER));
         assertEquals(CYLINDER, WrappingSettingsPayload.STREAM_CODEC.decode(buffer).shape());
         assertEquals(0, buffer.readableBytes());
