@@ -1,5 +1,6 @@
 package com.exoticworlds.api.v1.shape;
 
+import com.exoticworlds.api.v1.Broken;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.bridge.v1.shape.ModuleBridge;
@@ -24,6 +25,8 @@ import net.minecraft.world.level.levelgen.WorldDimensions;
  *     {@link com.exoticworlds.api.v2.shape.ShapeV2} instead.
  */
 @Deprecated
+@Broken("No screen lists a shape declared here, so it is never chosen, applied or read back."
+        + " Declare an api.v2.shape.ShapeV2.")
 public final class ShapeModule<S> {
 
     /** What the shape does to the dimensions at creation — normally one {@link ShapeDimensions#withSpans} call. */

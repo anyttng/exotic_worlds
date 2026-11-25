@@ -1,5 +1,6 @@
 package com.exoticworlds.api.v1.client;
 
+import com.exoticworlds.api.v1.Broken;
 import com.exoticworlds.api.v1.option.GenerationOptions;
 
 import net.minecraft.client.gui.Font;
@@ -15,6 +16,8 @@ import net.minecraft.client.gui.layouts.LinearLayout;
  *     the World Shape Settings screen draws it.
  */
 @Deprecated
+@Broken("No screen builds these controls, so a control registered for an option is never shown."
+        + " Declare the option as an api.v2.feature.OptionFeatureV2.")
 public interface WorldOptionControl {
 
     /** Adds this option's widgets to the screen's vertical contents, in registry order with the other options. */
