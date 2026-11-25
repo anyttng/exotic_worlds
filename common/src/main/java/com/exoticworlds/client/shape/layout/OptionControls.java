@@ -56,7 +56,7 @@ final class OptionControls {
         this.dimension = dimension;
         this.shape = shape;
         this.spans = spans;
-        this.section.setGap(DimensionPage.GAP_PIXELS);
+        this.section.setGapPixels(DimensionPage.GAP_PIXELS);
         for (DimensionOption<?> declared : offered) {
             this.bound.add(new Bound<>(declared));
         }
@@ -138,7 +138,7 @@ final class OptionControls {
                     continue;
                 }
 
-                Integer typed = number.field().value();
+                Integer typed = number.field().getValue();
                 if (typed == null) {
                     return null;
                 }
@@ -155,7 +155,7 @@ final class OptionControls {
             }
 
             for (NumberPart<T> number : this.numbers) {
-                Integer typed = number.field().value();
+                Integer typed = number.field().getValue();
                 if (typed != null && number.part().shownWhen().test(this.value)) {
                     this.value = number.part().write().apply(this.value, typed);
                 }
@@ -180,7 +180,7 @@ final class OptionControls {
 
         private GuiComponent row(OptionPart.Row<T> part) {
             Row row = new Row();
-            row.setGap(ROW_GAP_PIXELS);
+            row.setGapPixels(ROW_GAP_PIXELS);
             part.parts().forEach(child -> row.add(this.control(child), Length.fill()));
             return row;
         }
@@ -212,7 +212,7 @@ final class OptionControls {
                     () -> Optional.of(boundsOf(part.range().apply(OptionControls.this.dimension, this.value))),
                     this::takeTypedNumbers);
             field.setSigned(shown.min() < 0);
-            field.setMaxLength(NUMBER_MAX_LENGTH);
+            field.setMaxCharacterCount(NUMBER_MAX_LENGTH);
             field.setValueLine(number -> part.valueLine().apply(this.value, number));
             field.setValue(part.read().apply(this.value));
             this.numbers.add(new NumberPart<>(part, field));

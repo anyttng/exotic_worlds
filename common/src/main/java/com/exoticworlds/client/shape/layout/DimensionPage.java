@@ -102,7 +102,7 @@ final class DimensionPage {
         }
 
         ShapeOptions chosenOptions = this.getChosenOptions();
-        if (!this.page.fieldsValid() || chosenOptions == null) {
+        if (!this.page.areFieldsValid() || chosenOptions == null) {
             return null;
         }
 
@@ -136,14 +136,14 @@ final class DimensionPage {
         shape.setHint(theme.tooltip(), SettingsLines.SHAPE_KEY, ShapeChoice::getHintKey);
 
         Column additional = new Column();
-        additional.setGap(GAP_PIXELS);
+        additional.setGapPixels(GAP_PIXELS);
         additional.add(Heading.of(fill, SettingsLines.ADDITIONAL));
         additional.add(this.declared.getSection());
 
         this.spawn.getSection().setVisible(() -> this.offer.hasSpawnPoint() && this.getResolvedKind() != ShapeKind.NORMAL);
         additional.setVisible(this.declared::isAnyOffered);
 
-        this.page.setGap(GAP_PIXELS);
+        this.page.setGapPixels(GAP_PIXELS);
         this.page.add(Heading.of(fill, this.offer.title()));
         if (lockReason != null) {
             this.page.add(new Label(fill, LabelRole.MUTED, lockReason));
