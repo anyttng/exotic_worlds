@@ -132,6 +132,9 @@ public final class InjectionTargets {
 
     public static final String LIVING_ENTITY_GET_Z = "Lnet/minecraft/world/entity/LivingEntity;getZ()D";
 
+    public static final String LIVING_ENTITY_POSITION =
+            "Lnet/minecraft/world/entity/LivingEntity;position()Lnet/minecraft/world/phys/Vec3;";
+
     public static final String MAP_PUT = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;";
 
     public static final String MTH_ATAN2 = "Lnet/minecraft/util/Mth;atan2(DD)D";

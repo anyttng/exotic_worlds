@@ -7,9 +7,14 @@
   "mixins": [
     "AbsorptionParticlesPacketAccessor",
     "AbstractMagicProjectileMixin",
+    "AbstractSpellCastingMobMixin",
+    "AlchemistAttackGoalMixin",
+    "AnimatedActionGoalAccessor",
     "BloodSiphonParticlesPacketAccessor",
     "CameraShakeDataAccessor",
     "CastingMobAimingDataAccessor",
+    "CastingMobAimingDataMixin",
+    "DeadKingAnimatedWarlockAttackGoalMixin",
     "DeadKingSoulEntityAccessor",
     "DeadKingSoulEntityMixin",
     "EchoingArrowProjectileMixin",
@@ -19,15 +24,21 @@
     "FieryExplosionParticlesPacketAccessor",
     "FortifyAreaParticlesPacketAccessor",
     "FrostStepParticlesPacketAccessor",
+    "GenericAnimatedWarlockAttackGoalMixin",
     "GuidingBoltManagerMixin",
     "HealParticlesPacketAccessor",
     "IceBlockProjectileMixin",
+    "KeeperAnimatedWarlockAttackGoalMixin",
     "OakskinParticlesPacketAccessor",
+    "PounceGrappleGoalMixin",
     "RegenCloudParticlesPacketAccessor",
     "ShockwaveParticlesPacketAccessor",
+    "SummonedVexChargeAttackGoalMixin",
     "SyncCastingMobAimingDataPacketAccessor",
     "TeleportParticlesPacketAccessor",
-    "UtilsMixin"
+    "UtilsMixin",
+    "WispEntityMixin",
+    "WizardAttackGoalAccessor"
   ],
   "client": [
     "WallOfFireEntityMixin"
