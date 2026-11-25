@@ -7,7 +7,17 @@
   "mixins": [
     "BlockTargetDataAccessor",
     "BlockTargetingHelperMixin",
-    "ClientBlockTargetCastPacketAccessor"
+    "ClientBlockTargetCastPacketAccessor",
+    "DeepSensorObservationsPacketAccessor",
+    "ForceFieldDefenseEffectPacketAccessor",
+    "HealingBloomPulsePacketAccessor",
+    "HeavenlyFistPulsePacketAccessor",
+    "ManaSiphonOrbEffectPacketAccessor",
+    "SenseEvilHighlightsPacketAccessor",
+    "SyncRemoteEyeStatePacketAccessor",
+    "TerraResonanceHighlightsPacketAccessor",
+    "TerraResonancePulsePacketAccessor",
+    "TotemOfPermafrostPulsePacketAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
