@@ -1,0 +1,15 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.apprenticecodex.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.apprenticecodex.ApprenticeCodexMixinPlugin",
+  "mixins": [
+    "BlockTargetDataAccessor",
+    "BlockTargetingHelperMixin",
+    "ClientBlockTargetCastPacketAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

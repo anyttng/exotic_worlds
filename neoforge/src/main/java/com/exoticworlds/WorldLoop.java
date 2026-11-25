@@ -2,6 +2,7 @@ package com.exoticworlds;
 
 import com.exoticworlds.client.settings.SettingsScreenFactory;
 import com.exoticworlds.compat.aeronautics.AeronauticsTranslation;
+import com.exoticworlds.compat.apprenticecodex.ApprenticeCodexPackets;
 import com.exoticworlds.compat.arsnouveau.ArsNouveauPackets;
 import com.exoticworlds.compat.cobblemon.CobblemonPackets;
 import com.exoticworlds.compat.create.CreateTranslation;
@@ -55,6 +56,7 @@ public final class WorldLoop {
         CobblemonPackets.register();
         ArsNouveauPackets.register();
         IronsSpellbooksPackets.register();
+        ApprenticeCodexPackets.register();
 
         CHUNK_GENERATORS.register(WorldLoopGenerators.TOROIDAL_ID, () -> LoopedChunkGenerator.CODEC);
         CHUNK_GENERATORS.register(WorldLoopGenerators.TOROIDAL_FLAT_ID, () -> LoopedFlatChunkGenerator.CODEC);

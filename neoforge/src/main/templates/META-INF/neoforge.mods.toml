@@ -175,6 +175,9 @@ config="exotic_worlds.compat.arsnouveau.mixins.json"
 config="exotic_worlds.compat.ironsspellbooks.mixins.json"
 
 [[mixins]]
+config="exotic_worlds.compat.apprenticecodex.mixins.json"
+
+[[mixins]]
 config="exotic_worlds.compat.electroenergetics.mixins.json"
 
 [[mixins]]
