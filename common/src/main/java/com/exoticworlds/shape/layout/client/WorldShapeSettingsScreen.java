@@ -32,7 +32,7 @@ import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.layout.DimensionLayout;
 import com.exoticworlds.shape.layout.LayoutPreset;
-import com.exoticworlds.shape.layout.ShapeKind;
+import com.exoticworlds.shape.layout.DimensionMode;
 import com.exoticworlds.shape.layout.WorldLayout;
 import com.uber.nullaway.annotations.Initializer;
 
@@ -159,8 +159,8 @@ public final class WorldShapeSettingsScreen extends Screen {
 
     private @Nullable FlatShape modSpans(WorldLayout layout, ResourceKey<LevelStem> key) {
         DimensionLayout chosen = layout.getModDimension(key);
-        return chosen.kind() == ShapeKind.FROM_OVERWORLD
-                ? this.scales.modDimension(key, layout.overworld().spans())
+        return chosen.mode() == DimensionMode.FROM_OVERWORLD
+                ? this.scales.modDimension(key, layout.overworld())
                 : chosen.spans();
     }
 

@@ -33,7 +33,7 @@ public final class LayoutPreset {
 
     public static boolean isMatching(WorldLayout layout, WorldLoopPresets preset) {
         DimensionLayout overworld = layout.overworld();
-        if (layout.nether().kind() != ShapeKind.FROM_OVERWORLD || layout.end().kind() != ShapeKind.FROM_OVERWORLD
+        if (layout.nether().mode() != DimensionMode.FROM_OVERWORLD || layout.end().mode() != DimensionMode.FROM_OVERWORLD
                 || layout.netherScale() != preset.getNetherScale() || overworld.shape() == null) {
             return false;
         }

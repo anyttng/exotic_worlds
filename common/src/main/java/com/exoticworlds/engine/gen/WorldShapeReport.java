@@ -12,6 +12,7 @@ import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.CoordinateConstants;
 import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeDerivations;
 import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
@@ -102,7 +103,9 @@ public final class WorldShapeReport {
     private static String underivedReason(MinecraftServer server, ServerLevel level, FlatShape overworldShape) {
         double overworldScale = server.overworld().dimensionType().coordinateScale();
         double scale = level.dimensionType().coordinateScale();
-        FlatShape derived = ShapedDimensions.derivedShape(overworldShape, overworldScale, scale);
+        CarriedShape overworld = GeneratorShapes.getCarriedShape(server.overworld());
+        FlatShape derived = ShapeDerivations.derive(overworld == null ? null : overworld.getShapeId().orElse(null),
+                overworldShape, Registries.levelToLevelStem(level.dimension()), overworldScale, scale);
         return derived == null
                 ? "coordinate scale " + scale + " derives no whole-chunk width in range or whole-chunk skew from the"
                         + " overworld's " + widths(overworldShape.bounds()) + skew(overworldShape)

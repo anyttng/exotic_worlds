@@ -50,7 +50,7 @@ public final class GeneratorShapes {
         return fold != null ? fold : WorldFolds.NOOP;
     }
 
-    private static @Nullable CarriedShape getStampedShape(ShapeStamp stamp) {
+    public static @Nullable CarriedShape getStampedShape(ShapeStamp stamp) {
         CarriedShape own = stamp.exotic_worlds$getCarriedShape();
         return own != null ? own : stamp.exotic_worlds$getBakedShape();
     }

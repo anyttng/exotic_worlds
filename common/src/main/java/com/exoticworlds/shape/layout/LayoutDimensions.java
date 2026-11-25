@@ -77,12 +77,27 @@ public final class LayoutDimensions {
             return new WorldLayout(overworld, nether, end, modDimensions, NetherScales.DEFAULT);
         }
 
-        Integer netherScale = OverworldDerivation.netherScaleOf(spans, nether.spans());
-        FlatShape derivedEnd = OverworldDerivation.end(spans);
+        Integer netherScale = netherScaleOf(overworld, nether.spans());
+        FlatShape derivedEnd = WorldLayout.derivedEnd(overworld);
         return new WorldLayout(overworld,
                 netherScale == null ? nether : DimensionLayout.fromOverworld(nether.options()),
                 derivedEnd != null && Objects.equals(derivedEnd, end.spans()) ?DimensionLayout.fromOverworld(end.options()) : end,
                 modDimensions, netherScale == null ? NetherScales.DEFAULT : netherScale);
+    }
+
+    private static @Nullable Integer netherScaleOf(DimensionLayout overworld, @Nullable FlatShape nether) {
+        FlatShape spans = overworld.spans();
+        if (spans == null) {
+            return null;
+        }
+
+        for (int scale : NetherScales.allowedFor(spans)) {
+            if (Objects.equals(WorldLayout.derivedNether(overworld, scale), nether)) {
+                return scale;
+            }
+        }
+
+        return null;
     }
 
     private static @Nullable DimensionLayout readStem(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
@@ -146,7 +161,7 @@ public final class LayoutDimensions {
     }
 
     public static DimensionTable.Entry entryOf(DimensionLayout layout) {
-        if (layout.kind() == ShapeKind.FROM_OVERWORLD) {
+        if (layout.mode() == DimensionMode.FROM_OVERWORLD) {
             return DimensionTable.Entry.FROM_OVERWORLD;
         }
 
@@ -168,7 +183,7 @@ public final class LayoutDimensions {
     }
 
     private static @Nullable Identifier getShapeId(DimensionLayout layout, @Nullable Identifier overworldId) {
-        return layout.kind() == ShapeKind.FROM_OVERWORLD ? overworldId : layout.shape();
+        return layout.mode() == DimensionMode.FROM_OVERWORLD ? overworldId : layout.shape();
     }
 
     private LayoutDimensions() {

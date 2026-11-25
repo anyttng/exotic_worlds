@@ -6,29 +6,30 @@ import java.util.function.BiFunction;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.world.FlatShape;
-import com.exoticworlds.shape.layout.OverworldDerivation;
-import com.exoticworlds.shape.layout.ShapeKind;
+import com.exoticworlds.shape.layout.DimensionLayout;
+import com.exoticworlds.shape.layout.DimensionMode;
+import com.exoticworlds.shape.layout.WorldLayout;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 
-record DimensionOffer(ResourceKey<LevelStem> dimension, Component title, List<ShapeKind> kinds, boolean hasNetherScale,
-        @Nullable BiFunction<@Nullable FlatShape, Integer, @Nullable FlatShape> derivation) {
-    private static final List<ShapeKind> OWN_KINDS = List.of(ShapeKind.NORMAL);
-    private static final List<ShapeKind> DERIVED_KINDS = List.of(ShapeKind.FROM_OVERWORLD, ShapeKind.NORMAL);
+record DimensionOffer(ResourceKey<LevelStem> dimension, Component title, List<DimensionMode> modes, boolean hasNetherScale,
+        @Nullable BiFunction<DimensionLayout, Integer, @Nullable FlatShape> derivation) {
+    private static final List<DimensionMode> OWN_MODES = List.of(DimensionMode.NORMAL);
+    private static final List<DimensionMode> DERIVED_MODES = List.of(DimensionMode.FROM_OVERWORLD, DimensionMode.NORMAL);
 
-    static final DimensionOffer OVERWORLD = new DimensionOffer(LevelStem.OVERWORLD, SettingsLines.OVERWORLD, OWN_KINDS,
+    static final DimensionOffer OVERWORLD = new DimensionOffer(LevelStem.OVERWORLD, SettingsLines.OVERWORLD, OWN_MODES,
             false, null);
 
-    static final DimensionOffer NETHER = new DimensionOffer(LevelStem.NETHER, SettingsLines.NETHER, DERIVED_KINDS,
-            true, OverworldDerivation::nether);
+    static final DimensionOffer NETHER = new DimensionOffer(LevelStem.NETHER, SettingsLines.NETHER, DERIVED_MODES,
+            true, WorldLayout::derivedNether);
 
-    static final DimensionOffer END = new DimensionOffer(LevelStem.END, SettingsLines.END, DERIVED_KINDS, false,
-            (overworld, netherScale) -> OverworldDerivation.end(overworld));
+    static final DimensionOffer END = new DimensionOffer(LevelStem.END, SettingsLines.END, DERIVED_MODES, false,
+            (overworld, netherScale) -> WorldLayout.derivedEnd(overworld));
 
     static DimensionOffer modDimension(ResourceKey<LevelStem> dimension, CoordinateScales scales) {
-        return new DimensionOffer(dimension, Component.literal(dimension.identifier().toString()), DERIVED_KINDS,
+        return new DimensionOffer(dimension, Component.literal(dimension.identifier().toString()), DERIVED_MODES,
                 false, (overworld, netherScale) -> scales.modDimension(dimension, overworld));
     }
 }

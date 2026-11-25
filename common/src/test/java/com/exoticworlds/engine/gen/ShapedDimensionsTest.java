@@ -34,21 +34,6 @@ class ShapedDimensionsTest {
     private static final FlatShape TORUS = ShapeFixtures.torus(WorldLoopBounds.ofWidth(32));
 
     @Test
-    void aDerivedStemScalesTheSkewWithTheWidths() {
-        FlatShape overworld = FlatShape.latticeTorus(WorldLoopBounds.ofWidths(256, 128), 16);
-
-        assertEquals(FlatShape.latticeTorus(WorldLoopBounds.ofWidths(32, 16), 2),
-                ShapedDimensions.derivedShape(overworld, 1.0, 8.0));
-    }
-
-    @Test
-    void aSkewThatScalesToNoWholeChunkDerivesNothing() {
-        FlatShape overworld = FlatShape.latticeTorus(WorldLoopBounds.ofWidths(256, 128), 12);
-
-        assertNull(ShapedDimensions.derivedShape(overworld, 1.0, 8.0));
-    }
-
-    @Test
     void anOverworldThatRefusesTheShapeLeavesTheNetherUntouched() {
         WorldDimensions foreign = overworldAndNetherOf(
                 new ForeignChunkGenerator(plainsBiomeSource(), overworldNoiseSettings()),

@@ -9,10 +9,9 @@ import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.ShapeDerivations;
 import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.world.WorldLoopBounds;
-import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
-import com.exoticworlds.core.world.WorldLoopSizes;
 import com.exoticworlds.engine.gen.DatapackStemOverrides.Outcome;
 import com.exoticworlds.engine.gen.DatapackStemOverrides.StemOverride;
 import com.exoticworlds.platform.Platforms;
@@ -137,11 +136,17 @@ public final class ShapedDimensions {
         dimensions.listElements().forEach(entry -> derivation.stamp(entry.key(), entry.value()));
     }
 
-    public static void stampDerived(Registry<LevelStem> dimensions, ResourceKey<LevelStem> key) {
+    public static void rederive(Registry<LevelStem> dimensions, ResourceKey<LevelStem> key) {
         LevelStem stem = dimensions.getValue(key);
-        if (stem != null) {
-            Derivation.of(dimensions).stamp(key, stem);
+        if (stem == null) {
+            return;
         }
+
+        if (stem.generator() instanceof ShapeStamp stamp) {
+            stamp.exotic_worlds$clearStamp();
+        }
+
+        Derivation.of(dimensions).stamp(key, stem);
     }
 
     private record Derivation(@Nullable CarriedShape overworld, DimensionTable table, double overworldScale) {
@@ -163,17 +168,18 @@ public final class ShapedDimensions {
             DimensionTable.Entry chosen = this.table.getEntry(key);
             stamp.exotic_worlds$stampBaked(chosen != null && !chosen.isFromOverworld()
                     ? chosen.carried()
-                    : derivedCarried(this.overworld, this.overworldScale, stem.type().value().coordinateScale()));
+                    : derivedCarried(this.overworld, key, this.overworldScale, stem.type().value().coordinateScale()));
         }
     }
 
-    private static @Nullable CarriedShape derivedCarried(@Nullable CarriedShape overworld, double overworldScale,
-            double scale) {
-        if (overworld == null || overworld.getShape().mirror() != null) {
+    private static @Nullable CarriedShape derivedCarried(@Nullable CarriedShape overworld,
+            ResourceKey<LevelStem> dimension, double overworldScale, double coordinateScale) {
+        if (overworld == null) {
             return null;
         }
 
-        FlatShape derived = derivedShape(overworld.getShape(), overworldScale, scale);
+        FlatShape derived = ShapeDerivations.derive(overworld.getShapeId().orElse(null), overworld.getShape(),
+                dimension, overworldScale, coordinateScale);
         return derived == null ? null : overworld.withShape(derived);
     }
 
@@ -212,36 +218,6 @@ public final class ShapedDimensions {
     public static @Nullable FlatShape getShape(WorldDimensions dimensions, ResourceKey<LevelStem> key) {
         CarriedShape carried = getCarriedShape(dimensions, key);
         return carried == null ? null : carried.getShape();
-    }
-
-    public static @Nullable FlatShape derivedShape(FlatShape worldShape, double overworldScale, double scale) {
-        if (overworldScale <= 0.0 || scale <= 0.0) {
-            return null;
-        }
-
-        AxisBounds x = derivedAxis(worldShape.bounds().x(), overworldScale, scale);
-        AxisBounds z = derivedAxis(worldShape.bounds().z(), overworldScale, scale);
-        Integer skewChunks = derivedChunks(worldShape.skewChunks(), overworldScale, scale);
-        return x == null || z == null || skewChunks == null
-                ? null
-                : new FlatShape(new WorldLoopBounds(x, z), skewChunks, null);
-    }
-
-    private static @Nullable Integer derivedChunks(int chunks, double overworldScale, double scale) {
-        double derived = chunks * overworldScale / scale;
-        int whole = (int) derived;
-        return derived == whole ? whole : null;
-    }
-
-    private static @Nullable AxisBounds derivedAxis(AxisBounds axis, double overworldScale, double scale) {
-        if (!(axis instanceof AxisBounds.Looped looped)) {
-            return axis;
-        }
-
-        Integer widthChunks = derivedChunks(looped.getWidthChunks(), overworldScale, scale);
-        return widthChunks != null && WorldLoopSizes.isInRange(widthChunks)
-                ? AxisBounds.Looped.ofWidth(widthChunks)
-                : null;
     }
 
     private static @Nullable ChunkGenerator shapedGeneratorFor(ChunkGenerator generator, CarriedShape carried) {
