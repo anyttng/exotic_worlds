@@ -7,8 +7,8 @@ import com.exoticworlds.api.v2.client.DimensionOptionLinesV2;
 import com.exoticworlds.api.v2.option.DimensionOptionV2;
 import com.exoticworlds.bridge.v2.option.ShapeOptionsAdapter;
 import com.exoticworlds.bridge.v2.shape.ShapeSpansAdapter;
-import com.exoticworlds.client.shape.feature.FeatureViews;
-import com.exoticworlds.client.shape.feature.LineView;
+import com.exoticworlds.shape.feature.client.FeatureViews;
+import com.exoticworlds.shape.feature.client.LineView;
 
 
 public final class OptionLinesBridge {

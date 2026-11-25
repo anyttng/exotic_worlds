@@ -3,7 +3,7 @@ package com.exoticworlds.compat.xaero;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import com.exoticworlds.client.engine.ClientFrame;
+import com.exoticworlds.engine.client.ClientFrame;
 import com.exoticworlds.compat.map.ClientFolds;
 import com.exoticworlds.core.fold.WorldFold;
 import com.mojang.logging.LogUtils;

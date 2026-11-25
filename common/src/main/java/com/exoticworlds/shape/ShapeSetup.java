@@ -3,8 +3,8 @@ package com.exoticworlds.shape;
 import java.util.List;
 import java.util.Optional;
 
-import com.exoticworlds.client.shape.feature.compactbiomes.CompactBiomesView;
-import com.exoticworlds.client.shape.feature.spawnpoint.ChosenSpawnView;
+import com.exoticworlds.shape.feature.compactbiomes.client.CompactBiomesView;
+import com.exoticworlds.shape.feature.spawnpoint.client.ChosenSpawnView;
 import com.exoticworlds.core.option.ShapeOptionRegistry;
 import com.exoticworlds.core.registry.RegistrationBoundary;
 import com.exoticworlds.core.world.FlatShape;

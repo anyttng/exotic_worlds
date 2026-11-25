@@ -1,6 +1,5 @@
 package com.exoticworlds;
 
-import com.exoticworlds.client.settings.SettingsScreenFactory;
 import com.exoticworlds.compat.northbound.NorthboundLatitude;
 import com.exoticworlds.engine.gen.LegacyGenerators;
 import com.exoticworlds.engine.net.AuxiliaryLightTranslation;
@@ -10,6 +9,7 @@ import com.exoticworlds.engine.seam.circumnavigation.WorldLoopCriteria;
 import com.exoticworlds.platform.NeoForgePlatform;
 import com.exoticworlds.platform.Platforms;
 import com.exoticworlds.settings.SettingsService;
+import com.exoticworlds.settings.client.SettingsScreenFactory;
 import com.exoticworlds.shape.StartupSetup;
 import com.mojang.serialization.MapCodec;
 

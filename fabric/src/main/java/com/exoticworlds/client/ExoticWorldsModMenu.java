@@ -2,7 +2,7 @@ package com.exoticworlds.client;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-import com.exoticworlds.client.settings.SettingsScreen;
+import com.exoticworlds.settings.client.SettingsScreen;
 
 public class ExoticWorldsModMenu implements ModMenuApi {
     @Override
