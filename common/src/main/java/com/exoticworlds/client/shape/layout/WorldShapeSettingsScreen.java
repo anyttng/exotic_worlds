@@ -169,7 +169,7 @@ public final class WorldShapeSettingsScreen extends Screen {
         Supplier<DimensionLayout> overworld = () -> this.chosen.overworld();
         DimensionLock lock = this.locks.get(key);
         DimensionPage page = new DimensionPage(offer, this.theme, this.fill, this.scales, overworld, shown.apply(this.chosen),
-                lock == null ? null : SettingsLines.lockReason(lock));
+                lock == null ? null : SettingsLines.lockReason(lock), this.parent);
         extra.accept(page, this.chosen);
         return new Slot(page, lock != null, shown, spans, fold, extra);
     }

@@ -24,7 +24,7 @@ import com.exoticworlds.shape.feature.guaranteednethercomplexes.GuaranteedNether
 
 import net.minecraft.core.Direction;
 
-class WorldOptionSetupTest {
+class ShapeSetupTest {
     private static final List<ShapeOption<?>> OWN = List.of(SpawnPoint.OPTION, CompactBiomes.FEATURE.getOption(),
             GuaranteedLand.FEATURE.getOption(), GuaranteedNetherComplexes.FEATURE.getOption());
 

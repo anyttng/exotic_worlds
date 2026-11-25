@@ -7,12 +7,14 @@ import com.exoticworlds.core.world.NetherScales;
 import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.WorldLoopSizes;
+import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.shape.dimension.DeclaredShapes;
+import com.exoticworlds.shape.feature.OptionFeatures;
 
 import net.minecraft.core.Direction;
 
 public final class LayoutFixtures {
-    public static final ShapeOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
+    public static final ShapeOptions PLAIN = plain();
 
     public static WorldLayout shaped(FlatShape overworld, int netherScale, FlatShape end, ShapeOptions options) {
         return new WorldLayout(looped(overworld, options), DimensionLayout.fromOverworld(options),
@@ -32,6 +34,11 @@ public final class LayoutFixtures {
     public static WorldLayout defaultCylinder() {
         return shaped(ShapeFixtures.cylinder(Direction.Axis.X, WorldLoopSizes.DEFAULT_WIDTH_CHUNKS), NetherScales.DEFAULT,
                 ShapeFixtures.cylinder(Direction.Axis.X, WorldLoopSizes.END_DEFAULT_WIDTH_CHUNKS), PLAIN);
+    }
+
+    private static ShapeOptions plain() {
+        StartupRegistrations.options();
+        return OptionFeatures.newWorldOptions();
     }
 
     private LayoutFixtures() {

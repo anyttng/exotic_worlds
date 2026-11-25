@@ -17,7 +17,7 @@ import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
 import net.minecraft.core.Direction;
 
 class LayoutPresetTest {
-    private static final ShapeOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
+    private static final ShapeOptions PLAIN = LayoutFixtures.PLAIN;
 
     private static final ShapeOptions LAND = PLAIN.with(GuaranteedLand.FEATURE.getOption(), true);
 
@@ -47,15 +47,15 @@ class LayoutPresetTest {
 
     @Test
     void aPresetOnANormalOverworldMakesItATorus() {
-        WorldLayout medium = LayoutPreset.apply(WorldLayout.DEFAULT, WorldLoopPresets.MEDIUM, 1.0);
+        WorldLayout medium = LayoutPreset.apply(WorldLayout.newWorld(), WorldLoopPresets.MEDIUM, 1.0);
 
         assertEquals(ShapeFixtures.torus(WorldLoopPresets.MEDIUM.getWidthChunks()), medium.overworld().spans());
-        assertFalse(LayoutPreset.isMatching(WorldLayout.DEFAULT, WorldLoopPresets.MEDIUM));
+        assertFalse(LayoutPreset.isMatching(WorldLayout.newWorld(), WorldLoopPresets.MEDIUM));
     }
 
     @Test
     void onlyThePresetJustAppliedMatches() {
-        WorldLayout small = LayoutPreset.apply(WorldLayout.DEFAULT, WorldLoopPresets.SMALL, 1.0);
+        WorldLayout small = LayoutPreset.apply(WorldLayout.newWorld(), WorldLoopPresets.SMALL, 1.0);
 
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
             assertEquals(preset == WorldLoopPresets.SMALL, LayoutPreset.isMatching(small, preset), preset.getId());
@@ -64,7 +64,7 @@ class LayoutPresetTest {
 
     @Test
     void aPresetStopsMatchingOnceTheSizeOrTheShiftChanges() {
-        WorldLayout small = LayoutPreset.apply(WorldLayout.DEFAULT, WorldLoopPresets.SMALL, 1.0);
+        WorldLayout small = LayoutPreset.apply(WorldLayout.newWorld(), WorldLoopPresets.SMALL, 1.0);
         int widthChunks = WorldLoopPresets.SMALL.getWidthChunks();
 
         assertFalse(LayoutPreset.isMatching(

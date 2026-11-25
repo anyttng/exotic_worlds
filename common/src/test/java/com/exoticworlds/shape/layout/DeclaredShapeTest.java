@@ -45,7 +45,7 @@ class DeclaredShapeTest {
 
     private static final ShapeOption<Integer> WIDTH = ShapeOptionsAdapter.fromV2(SHAPE_WIDTH);
 
-    private static final ShapeOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
+    private static final ShapeOptions PLAIN = LayoutFixtures.PLAIN;
 
     private static final ShapeOptions WIDE = PLAIN.with(WIDTH, 128);
 
@@ -103,7 +103,7 @@ class DeclaredShapeTest {
 
     @Test
     void aPresetOnAShapeThatTakesOneChangesItsOptionsAndTheSpansTheyComeTo() {
-        WorldLayout band = WorldLayout.DEFAULT.withOverworld(
+        WorldLayout band = WorldLayout.newWorld().withOverworld(
                 DimensionLayout.shaped(BAND.getId(), ShapeFixtures.cylinder(Direction.Axis.X, 128), WIDE));
 
         WorldLayout large = LayoutPreset.apply(band, WorldLoopPresets.LARGE, 1.0);
@@ -118,13 +118,13 @@ class DeclaredShapeTest {
 
     @Test
     void aShapeThatTakesNoPresetLeavesTheLayoutAsItIs() {
-        WorldLayout strip = WorldLayout.DEFAULT.withOverworld(
+        WorldLayout strip = WorldLayout.newWorld().withOverworld(
                 DimensionLayout.shaped(STRIP.getId(), ShapeFixtures.cylinder(Direction.Axis.Z, 48), PLAIN));
 
         assertFalse(LayoutPreset.isOffered(strip));
         assertSame(strip, LayoutPreset.apply(strip, WorldLoopPresets.LARGE, 1.0));
         assertFalse(LayoutPreset.isMatching(strip, WorldLoopPresets.LARGE));
-        assertTrue(LayoutPreset.isOffered(WorldLayout.DEFAULT));
+        assertTrue(LayoutPreset.isOffered(WorldLayout.newWorld()));
     }
 
     private static DimensionContext context(ResourceKey<LevelStem> dimension, ShapeOptions options,

@@ -26,14 +26,19 @@ public final class CompactBiomes extends OptionFeature<ClimateScale> implements 
     public static final CompactBiomes FEATURE = new CompactBiomes();
 
     private CompactBiomes() {
-        super(new ShapeOption<>(KEY, POSITION, ClimateScale.CODEC, ClimateScale.AUTO), CAPTION_KEY, List.of(
+        super(new ShapeOption<>(KEY, POSITION, ClimateScale.CODEC, ClimateScale.AUTO), ClimateScale.OFF, CAPTION_KEY,
+                parts());
+    }
+
+    private static List<OptionPart<ClimateScale>> parts() {
+        return List.of(
                 new OptionPart.Choice<>(OptionPart.OWN_CAPTION, List.of(ClimateScale.Mode.values()),
                         ClimateScale.Mode::getSerializedName,
                         mode -> mode == ClimateScale.Mode.OFF ? CommonComponents.OPTION_OFF : null,
                         ClimateScale::mode, ClimateScale::withMode, scale -> true),
                 new OptionPart.WholeNumber<>(FACTOR_KEY, ClimateScale.CUSTOM_MIN, ClimateScale.CUSTOM_MAX,
                         ClimateScale::factor, (scale, factor) -> ClimateScale.custom(factor),
-                        scale -> scale.mode() == ClimateScale.Mode.CUSTOM)));
+                        scale -> scale.mode() == ClimateScale.Mode.CUSTOM));
     }
 
     @Override
