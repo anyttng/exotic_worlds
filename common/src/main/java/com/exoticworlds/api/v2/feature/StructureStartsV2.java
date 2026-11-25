@@ -16,7 +16,10 @@ public interface StructureStartsV2 extends MomentV2 {
     /** Every start the set's own placement puts inside the loop. */
     List<Pick> getPicks();
 
-    /** Whether {@code structure} can start in {@code chunk}: the biome allows it and the structure fits. */
+    /**
+     * Whether {@code structure} can start in {@code chunk}, which takes a biome that allows it and room for the
+     * structure.
+     */
     boolean canStart(Holder<Structure> structure, ChunkPos chunk);
 
     /**
@@ -33,7 +36,7 @@ public interface StructureStartsV2 extends MomentV2 {
      * One start a feature adds.
      *
      * @param structure a structure of this set
-     * @param chunk the chunk it starts in; a chunk past the edge is taken at its copy inside the loop
+     * @param chunk the chunk it starts in, inside the loop. A start past the edge is dropped and logged
      */
     record Added(Holder<Structure> structure, ChunkPos chunk) {
     }

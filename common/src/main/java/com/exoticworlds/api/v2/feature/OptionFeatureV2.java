@@ -7,11 +7,11 @@ import com.mojang.serialization.Codec;
 import net.minecraft.resources.Identifier;
 
 /**
- * A feature the player sets through one option on the World Shape Settings screen. The feature owns the option
- * whole: how it is saved, what a world reads when it never stated it, what a new world starts with, and the controls
+ * A feature the player sets through one option on the World Shape Settings screen. The feature owns the option whole,
+ * from how it is saved and what a world reads when it never stated it to what a new world starts with and the controls
  * that edit it. Inside a moment the value comes typed from {@link MomentV2#getValue}.
  *
- * @param <T> the option's value type; an immutable value with {@code equals}
+ * @param <T> the option's value type, an immutable value with {@code equals}
  */
 public abstract class OptionFeatureV2<T> extends FeatureV2 {
     private final Codec<T> codec;
@@ -23,9 +23,9 @@ public abstract class OptionFeatureV2<T> extends FeatureV2 {
     /**
      * @param id the feature's id, also the key the value is saved under
      * @param codec how the value is saved
-     * @param storedDefault what a world reads when it never stated the option; a value equal to it is not written
-     * @param newWorldValue what the screen starts a new world with; may differ from {@code storedDefault}
-     * @param captionKey the translation key of the option's caption; a part's own key and a choice's value keys are
+     * @param storedDefault what a world reads when it never stated the option. A value equal to it is not written
+     * @param newWorldValue what the screen starts a new world with, which may differ from {@code storedDefault}
+     * @param captionKey the translation key of the option's caption. A part's own key and a choice's value keys are
      *        appended to it with a dot
      * @param parts the controls that edit the value, in the order they are shown
      */

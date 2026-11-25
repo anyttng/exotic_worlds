@@ -14,8 +14,8 @@ import net.minecraft.world.level.Level;
 public final class WorldGeometriesV2 {
 
     /**
-     * The geometry of {@code level}, or empty when that level does not wrap. The view is immutable and cheap; callers
-     * may hold it for as long as the level lives.
+     * The geometry of {@code level}, or empty when that level does not wrap. The view is immutable and cheap, and
+     * callers may hold it for as long as the level lives.
      */
     public static Optional<WorldGeometryV2> of(Level level) {
         return GeometryBridge.of(level);

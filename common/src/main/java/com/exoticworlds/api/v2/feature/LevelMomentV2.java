@@ -5,8 +5,8 @@ import com.exoticworlds.api.v2.ExperimentalV2;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * What the moments that run on a loaded level share: a check, made once per level, of whether the feature works there
- * at all.
+ * The check the moments that run on a loaded level share. It is made once per level and says whether the feature works
+ * there at all.
  */
 @ExperimentalV2
 public interface LevelMomentV2 {
