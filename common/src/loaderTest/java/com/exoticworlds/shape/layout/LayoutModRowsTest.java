@@ -42,7 +42,7 @@ class LayoutModRowsTest {
     private static final ResourceKey<LevelStem> SKY = stemKey("sky");
     private static final ResourceKey<LevelStem> MINE = stemKey("mine");
 
-    private static final ShapeOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
+    private static final ShapeOptions PLAIN = LayoutFixtures.PLAIN;
     private static final DimensionLayout NORMAL = DimensionLayout.normal(PLAIN);
 
     private static HolderLookup.Provider worldgen;

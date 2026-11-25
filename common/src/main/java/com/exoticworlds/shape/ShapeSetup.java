@@ -3,7 +3,10 @@ package com.exoticworlds.shape;
 import java.util.List;
 import java.util.Optional;
 
+import com.exoticworlds.client.shape.feature.compactbiomes.CompactBiomesView;
+import com.exoticworlds.client.shape.feature.spawnpoint.ChosenSpawnView;
 import com.exoticworlds.core.option.ShapeOptionRegistry;
+import com.exoticworlds.core.registry.RegistrationBoundary;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.LegacyShapeIds;
 import com.exoticworlds.core.world.SpawnPoint;
@@ -16,19 +19,26 @@ import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.shape.feature.floatingcrumbs.FloatingCrumbs;
 import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
 import com.exoticworlds.shape.feature.guaranteednethercomplexes.GuaranteedNetherComplexes;
+import com.exoticworlds.shape.feature.spawnpoint.ChosenSpawn;
+import com.exoticworlds.shape.layout.LayoutShape;
 import com.exoticworlds.shape.torus.Torus;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.dimension.LevelStem;
 
-public final class WorldOptionSetup {
+public final class ShapeSetup {
 
-    public static void registerAll() {
-        LegacyShapeIds.register(WorldOptionSetup::recognizeLegacy);
+    public static void registerAll(boolean isClient) {
+        LegacyShapeIds.register(ShapeSetup::recognizeLegacy);
         registerSavedOptions();
         registerFeatures();
+        if (isClient) {
+            registerFeatureViews();
+        }
+
         registerTorus();
         registerCylinder();
+        registerLayout(isClient);
     }
 
     private static void registerSavedOptions() {
@@ -39,14 +49,26 @@ public final class WorldOptionSetup {
     }
 
     private static void registerFeatures() {
+        ShapeFeatures.register(ChosenSpawn.FEATURE);
         ShapeFeatures.register(CompactBiomes.FEATURE);
         ShapeFeatures.register(GuaranteedLand.FEATURE);
         ShapeFeatures.register(GuaranteedNetherComplexes.FEATURE);
         ShapeFeatures.register(FloatingCrumbs.FEATURE);
     }
 
+    private static void registerFeatureViews() {
+        ChosenSpawnView.register();
+        CompactBiomesView.register();
+    }
+
+    private static void registerLayout(boolean isClient) {
+        LayoutShape.register(isClient);
+        RegistrationBoundary.STARTUP.atFirstClose(DeclaredShapes::warnOfUnknownOptionShapes);
+    }
+
     private static void registerTorus() {
         DeclaredShapes.register(Torus.SHAPE);
+        Torus.SHAPE.registerFeature(ChosenSpawn.FEATURE, DimensionScope.of(List.of(LevelStem.OVERWORLD)));
         Torus.SHAPE.registerFeature(CompactBiomes.FEATURE, DimensionScope.ALL);
         Torus.SHAPE.registerFeature(GuaranteedLand.FEATURE, DimensionScope.of(List.of(LevelStem.OVERWORLD)));
         Torus.SHAPE.registerFeature(GuaranteedNetherComplexes.FEATURE, DimensionScope.of(List.of(LevelStem.NETHER)));
@@ -55,6 +77,7 @@ public final class WorldOptionSetup {
 
     private static void registerCylinder() {
         DeclaredShapes.register(Cylinder.SHAPE);
+        Cylinder.SHAPE.registerFeature(ChosenSpawn.FEATURE, DimensionScope.of(List.of(LevelStem.OVERWORLD)));
         Cylinder.SHAPE.registerFeature(CompactBiomes.FEATURE, DimensionScope.ALL);
         Cylinder.SHAPE.registerFeature(FloatingCrumbs.FEATURE, DimensionScope.ALL);
     }
@@ -66,6 +89,6 @@ public final class WorldOptionSetup {
                 .findFirst();
     }
 
-    private WorldOptionSetup() {
+    private ShapeSetup() {
     }
 }

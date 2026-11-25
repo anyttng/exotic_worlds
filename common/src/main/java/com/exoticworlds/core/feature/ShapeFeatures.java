@@ -45,6 +45,11 @@ public final class ShapeFeatures {
                 .toList();
     }
 
+    public static boolean isAttached(Identifier shape, GenerationFeature feature, ResourceKey<LevelStem> dimension) {
+        Map<String, DimensionScope> scopes = SCOPES.getEntries().get(shape);
+        return scopes != null && isInScope(scopes.get(feature.getKey()), dimension);
+    }
+
     public static <F extends GenerationFeature> List<F> activeAt(CarriedShape carried, ResourceKey<LevelStem> dimension,
             Class<F> moment) {
         return atMoment(activeFeatures(carried, dimension), moment);

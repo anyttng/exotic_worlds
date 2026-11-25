@@ -26,6 +26,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biomes;
@@ -43,6 +44,9 @@ class SpawnSearchTest {
     private static final int WIDE_CHUNKS = 1024;
     private static final SpawnPoint FAR_POINT = new SpawnPoint(300, -300);
     private static final int SEARCH_REACH_BLOCKS = 2560;
+
+    private static final Identifier SHAPE_WITHOUT_SPAWN =
+            Identifier.fromNamespaceAndPath("example_mod", "shape_without_spawn");
 
     private static HolderLookup.Provider holders;
     private static Holder<NoiseGeneratorSettings> overworldSettings;
@@ -74,6 +78,23 @@ class SpawnSearchTest {
         Climate.Sampler sampler = randomState(generator, overworldSettings.value()).sampler();
 
         assertEquals(sampler.findSpawnPosition(), SpawnSearch.from(generator, sampler::findSpawnPosition));
+    }
+
+    @Test
+    void aShapeWithoutTheSpawnFeatureKeepsTheVanillaSearch() {
+        NoiseBasedChunkGenerator generator = new NoiseBasedChunkGenerator(
+                new FixedBiomeSource(holders.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)),
+                overworldSettings);
+        ((ShapeStamp) generator).exotic_worlds$stamp(new CarriedShape(SHAPE_WITHOUT_SPAWN,
+                ShapeFixtures.torus(WorldLoopBounds.ofWidth(WIDE_CHUNKS)), ShapeOptions.DEFAULT.with(SpawnPoint.OPTION, FAR_POINT)));
+        List<SpawnPoint> seen = new ArrayList<>();
+
+        SpawnSearch.from(generator, () -> {
+            seen.add(SpawnSearch.getBound());
+            return ChunkPos.ZERO;
+        });
+
+        assertEquals(List.of(SpawnPoint.DEFAULT), seen);
     }
 
     @Test

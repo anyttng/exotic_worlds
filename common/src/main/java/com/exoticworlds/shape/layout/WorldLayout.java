@@ -7,18 +7,23 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.NetherScales;
+import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.SpawnPoint;
+import com.exoticworlds.core.feature.ShapeFeatures;
+import com.exoticworlds.shape.feature.OptionFeatures;
+import com.exoticworlds.shape.feature.spawnpoint.ChosenSpawn;
 
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 
 public record WorldLayout(DimensionLayout overworld, DimensionLayout nether, DimensionLayout end,
         Map<ResourceKey<LevelStem>, DimensionLayout> modDimensions, int netherScale) {
-    public static final WorldLayout DEFAULT = new WorldLayout(
-            DimensionLayout.normal(DimensionLayout.DEFAULT_OPTIONS),
-            DimensionLayout.fromOverworld(DimensionLayout.DEFAULT_OPTIONS),
-            DimensionLayout.fromOverworld(DimensionLayout.DEFAULT_OPTIONS),
-            Map.of(), NetherScales.DEFAULT);
+    public static WorldLayout newWorld() {
+        ShapeOptions options = OptionFeatures.newWorldOptions();
+        return new WorldLayout(DimensionLayout.normal(options), DimensionLayout.fromOverworld(options),
+                DimensionLayout.fromOverworld(options), Map.of(), NetherScales.DEFAULT);
+    }
 
     public WorldLayout {
         modDimensions = Map.copyOf(modDimensions);
@@ -45,7 +50,7 @@ public record WorldLayout(DimensionLayout overworld, DimensionLayout nether, Dim
 
     public DimensionLayout getModDimension(ResourceKey<LevelStem> key) {
         DimensionLayout row = this.modDimensions.get(key);
-        return row != null ? row : DimensionLayout.fromOverworld(DimensionLayout.DEFAULT_OPTIONS);
+        return row != null ? row : DimensionLayout.fromOverworld(OptionFeatures.newWorldOptions());
     }
 
     public WorldLayout withModDimension(ResourceKey<LevelStem> key, DimensionLayout chosen) {
@@ -72,7 +77,9 @@ public record WorldLayout(DimensionLayout overworld, DimensionLayout nether, Dim
     }
 
     public @Nullable WorldLayout withSpawn(SpawnPoint spawn) {
-        if (this.overworld.spans() == null) {
+        Identifier shape = this.overworld.shape();
+        if (shape == null || this.overworld.spans() == null
+                || !ShapeFeatures.isAttached(shape, ChosenSpawn.FEATURE, LevelStem.OVERWORLD)) {
             return null;
         }
 

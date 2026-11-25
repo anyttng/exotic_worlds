@@ -10,7 +10,6 @@ import com.ascendiacore.gui.base.hint.Hint;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.CoordinateConstants;
 import com.exoticworlds.core.world.FlatShape;
-import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.core.world.WorldLoopSizes;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.WorldShape;
@@ -40,8 +39,6 @@ final class SettingsLines {
 
     static final String SHAPE_KEY = PREFIX + ".shape";
     private static final String SHAPE_HINT_PREFIX = SHAPE_KEY + ".hint.";
-    static final String SPAWN_KEY = PREFIX + ".spawn";
-
     static final Component TITLE = Component.translatable(PREFIX);
     static final Component EXISTING_WORLD = Component.translatable(PREFIX + ".existing_world");
     static final Component VANILLA_DIMENSIONS = Component.translatable(PREFIX + ".dimensions.vanilla");
@@ -50,7 +47,6 @@ final class SettingsLines {
     static final Component OVERWORLD = Component.translatable(PREFIX + ".dimension.overworld");
     static final Component NETHER = Component.translatable(PREFIX + ".dimension.nether");
     static final Component END = Component.translatable(PREFIX + ".dimension.end");
-    static final Component SPAWN_POINT = Component.translatable(PREFIX + ".spawn.point");
     static final Component NETHER_SCALE = Component.translatable(PREFIX + ".nether_scale");
     static final Component ADDITIONAL = Component.translatable(PREFIX + ".additional");
 
@@ -82,10 +78,6 @@ final class SettingsLines {
 
     static Component modeHint(ShapeKind kind) {
         return Component.translatable(SHAPE_HINT_PREFIX + kind.name().toLowerCase(Locale.ROOT));
-    }
-
-    static Component spawnModeName(SpawnPoint.Mode mode) {
-        return Component.translatable(SPAWN_KEY + "." + mode.getSerializedName());
     }
 
     static Component netherScaleName(int scale) {

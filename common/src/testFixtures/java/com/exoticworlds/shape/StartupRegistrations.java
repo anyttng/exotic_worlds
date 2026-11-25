@@ -12,7 +12,7 @@ import com.exoticworlds.shape.layout.LayoutShape;
 public final class StartupRegistrations {
     public static synchronized void options() {
         if (!ShapeOptionRegistry.getAll().contains(SpawnPoint.OPTION)) {
-            WorldOptionSetup.registerAll();
+            ShapeSetup.registerAll(false);
         }
     }
 

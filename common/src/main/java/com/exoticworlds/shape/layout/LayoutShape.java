@@ -14,7 +14,7 @@ public final class LayoutShape {
 
     public static final Identifier ID = Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, LAYOUT_PATH);
 
-    private static WorldLayout chosen = WorldLayout.DEFAULT;
+    private static WorldLayout chosen = WorldLayout.newWorld();
 
     public static WorldLayout getLayout() {
         return chosen;
@@ -25,9 +25,10 @@ public final class LayoutShape {
     }
 
     public static void register(boolean isClient) {
+        chosen = WorldLayout.newWorld();
         WorldShapes.register(WorldShape.of(ID, WorldShape.label(ID), WorldShape.hint(ID),
                 (registries, dimensions) -> LayoutDimensions.apply(dimensions, chosen),
-                () -> chosen = WorldLayout.DEFAULT,
+                () -> chosen = WorldLayout.newWorld(),
                 (registries, dimensions) -> tryAdopt(dimensions)));
         WorldShapes.takesSpawn(ID, LayoutShape::tryMoveSpawn);
 

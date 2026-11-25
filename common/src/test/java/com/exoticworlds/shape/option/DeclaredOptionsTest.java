@@ -17,6 +17,7 @@ import com.exoticworlds.shape.cylinder.Cylinder;
 import com.exoticworlds.shape.dimension.DimensionShape;
 import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
 import com.exoticworlds.shape.feature.guaranteednethercomplexes.GuaranteedNetherComplexes;
+import com.exoticworlds.shape.feature.spawnpoint.ChosenSpawn;
 import com.exoticworlds.shape.torus.Torus;
 
 import net.minecraft.core.registries.Registries;
@@ -35,9 +36,10 @@ class DeclaredOptionsTest {
 
     @Test
     void eachShapeHoldsItsOwnOptionsInTheOrderTheyAreRegistered() {
-        assertEquals(List.of(CompactBiomes.FEATURE.getShown(), GuaranteedLand.FEATURE.getShown(), GuaranteedNetherComplexes.FEATURE.getShown()),
-                optionsOf(Torus.SHAPE));
-        assertEquals(List.of(CompactBiomes.FEATURE.getShown()), optionsOf(Cylinder.SHAPE));
+        assertEquals(List.of(ChosenSpawn.FEATURE.getShown(), CompactBiomes.FEATURE.getShown(),
+                GuaranteedLand.FEATURE.getShown(), GuaranteedNetherComplexes.FEATURE.getShown()), optionsOf(Torus.SHAPE));
+        assertEquals(List.of(ChosenSpawn.FEATURE.getShown(), CompactBiomes.FEATURE.getShown()),
+                optionsOf(Cylinder.SHAPE));
     }
 
     @Test
