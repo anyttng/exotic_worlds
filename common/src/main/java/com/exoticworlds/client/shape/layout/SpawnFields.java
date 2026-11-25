@@ -42,12 +42,12 @@ final class SpawnFields {
         modeButton.setHint(theme.tooltip(), SettingsLines.SPAWN_KEY, SpawnPoint.Mode::getSerializedName);
 
         Row point = new Row();
-        point.setGap(PAIR_GAP_PIXELS);
+        point.setGapPixels(PAIR_GAP_PIXELS);
         point.add(this.x, Length.fill());
         point.add(this.z, Length.fill());
         point.setEnabled(() -> this.mode.get() == SpawnPoint.Mode.CUSTOM);
 
-        this.section.setGap(DimensionPage.GAP_PIXELS);
+        this.section.setGapPixels(DimensionPage.GAP_PIXELS);
         this.section.add(modeButton);
         this.section.add(new Label(fill, LabelRole.NORMAL, SettingsLines.SPAWN_POINT));
         this.section.add(point);
@@ -68,8 +68,8 @@ final class SpawnFields {
             return SpawnPoint.DEFAULT;
         }
 
-        Integer chunkX = this.x.value();
-        Integer chunkZ = this.z.value();
+        Integer chunkX = this.x.getValue();
+        Integer chunkZ = this.z.getValue();
         return chunkX == null || chunkZ == null ? null : new SpawnPoint(chunkX, chunkZ);
     }
 
@@ -79,7 +79,7 @@ final class SpawnFields {
                 () -> bounds(widthChunks.apply(axis)), () -> {
                 });
         field.setSigned(true);
-        field.setMaxLength(MAX_LENGTH);
+        field.setMaxCharacterCount(MAX_LENGTH);
         return field;
     }
 

@@ -5,6 +5,7 @@ import java.util.function.UnaryOperator;
 
 import com.ascendiacore.client.createworld.WorldTabRow;
 import com.ascendiacore.gui.base.component.GuiComponent;
+import com.ascendiacore.gui.theme.Theme;
 import com.ascendiacore.gui.theme.Themes;
 import com.ascendiacore.gui.widget.button.Button;
 import com.exoticworlds.core.gen.ShapedChunkGenerator;
@@ -34,9 +35,10 @@ public final class WorldShapeRow implements WorldTabRow {
         state.addListener(worldType::follow);
         worldType.follow(state);
 
-        Button button = Button.text(Themes.VANILLA.button(), LABEL, this::openSettings);
+        Theme theme = Themes.get(Themes.VANILLA);
+        Button button = Button.text(theme.button(), LABEL, this::openSettings);
         button.setEnabled(worldType::canTakeShape);
-        button.setTooltip(Themes.VANILLA.tooltip(), () -> worldType.isTilingAtSeam() ? HINT : SEAM_WARNING);
+        button.setTooltip(theme.tooltip(), () -> worldType.isTilingAtSeam() ? HINT : SEAM_WARNING);
         return List.of(button);
     }
 

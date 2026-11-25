@@ -45,8 +45,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 
 public final class WorldShapeSettingsScreen extends Screen {
-    private static final Theme THEME = Themes.VANILLA;
-    private static final FillStyle FILL = THEME.panel().fills().of(FillKind.PARCHMENT);
     private static final int CONTENT_WIDTH_PIXELS = 468;
     private static final int SIDE_MARGIN_PIXELS = 10;
     private static final int BODY_GAP_PIXELS = 6;
@@ -68,6 +66,8 @@ public final class WorldShapeSettingsScreen extends Screen {
     private HeaderAndFooterLayout frame;
     private ComponentTree contents;
     private @Nullable Roots roots;
+    private Theme theme;
+    private FillStyle fill;
 
     private record Roots(Column header, Column body, Row footer) {
     }
@@ -112,6 +112,8 @@ public final class WorldShapeSettingsScreen extends Screen {
     @Override
     @Initializer
     protected void init() {
+        this.theme = Themes.get(Themes.VANILLA);
+        this.fill = this.theme.panel().fills().getFill(FillKind.PARCHMENT);
         Roots built = this.roots != null ? this.roots : this.buildRoots();
         this.roots = built;
         this.frame = new HeaderAndFooterLayout(this);
@@ -166,7 +168,7 @@ public final class WorldShapeSettingsScreen extends Screen {
             Function<WorldLayout, @Nullable FlatShape> spans, Fold fold, BiConsumer<DimensionPage, WorldLayout> extra) {
         Supplier<DimensionLayout> overworld = () -> this.chosen.overworld();
         DimensionLock lock = this.locks.get(key);
-        DimensionPage page = new DimensionPage(offer, THEME, FILL, this.scales, overworld, shown.apply(this.chosen),
+        DimensionPage page = new DimensionPage(offer, this.theme, this.fill, this.scales, overworld, shown.apply(this.chosen),
                 lock == null ? null : SettingsLines.lockReason(lock));
         extra.accept(page, this.chosen);
         return new Slot(page, lock != null, shown, spans, fold, extra);
@@ -174,9 +176,9 @@ public final class WorldShapeSettingsScreen extends Screen {
 
     private Column header() {
         Column header = new Column();
-        header.add(Heading.of(FILL, SettingsLines.TITLE));
+        header.add(Heading.of(this.fill, SettingsLines.TITLE));
         if (this.isExistingWorld) {
-            Label note = new Label(FILL, LabelRole.MUTED, SettingsLines.EXISTING_WORLD);
+            Label note = new Label(this.fill, LabelRole.MUTED, SettingsLines.EXISTING_WORLD);
             note.setAlign(TextAlign.CENTER);
             header.add(note);
         }
@@ -186,7 +188,7 @@ public final class WorldShapeSettingsScreen extends Screen {
 
     private Column body() {
         Column body = new Column();
-        body.setGap(BODY_GAP_PIXELS);
+        body.setGapPixels(BODY_GAP_PIXELS);
         body.add(this.presetRow());
         body.add(this.split(), Length.fill());
         return body;
@@ -194,12 +196,12 @@ public final class WorldShapeSettingsScreen extends Screen {
 
     private Row presetRow() {
         Row row = new Row();
-        row.setGap(PRESET_GAP_PIXELS);
+        row.setGapPixels(PRESET_GAP_PIXELS);
         row.setEnabled(() -> !this.isExistingWorld && LayoutPreset.isOffered(this.getCurrent()));
         for (WorldLoopPresets preset : WorldLoopPresets.values()) {
-            Button button = Button.text(THEME.button(), SettingsLines.presetLabel(preset), () -> this.apply(preset));
+            Button button = Button.text(this.theme.button(), SettingsLines.presetLabel(preset), () -> this.apply(preset));
             button.setSelected(() -> LayoutPreset.isMatching(this.getCurrent(), preset));
-            button.setTooltip(THEME.tooltip(), SettingsLines.presetHint(THEME.tooltip(), preset));
+            button.setTooltip(this.theme.tooltip(), SettingsLines.presetHint(this.theme.tooltip(), preset));
             row.add(button, Length.fill());
         }
 
@@ -207,7 +209,7 @@ public final class WorldShapeSettingsScreen extends Screen {
     }
 
     private Row split() {
-        ListBox dimensions = new ListBox(THEME, FILL, RowStyle.FRAMED, selected -> {
+        ListBox dimensions = new ListBox(this.theme, this.fill, RowStyle.FRAMED, selected -> {
         });
         Column pages = new Column();
         List<Slot> listed = new ArrayList<>();
@@ -226,14 +228,14 @@ public final class WorldShapeSettingsScreen extends Screen {
             this.addRow(dimensions, listed.get(index));
             int row = index;
             Column page = listed.get(index).page().getPage();
-            page.setVisible(() -> dimensions.selected() == row);
+            page.setVisible(() -> dimensions.getSelectedIndex() == row);
             pages.add(page);
         }
 
         Row split = new Row();
-        split.setGap(SPLIT_GAP_PIXELS);
+        split.setGapPixels(SPLIT_GAP_PIXELS);
         split.add(dimensions, Length.flexible(LIST_MIN_WIDTH_PIXELS, LIST_WIDTH_PIXELS));
-        split.add(new ScrollArea(THEME.scrollbar(), pages), Length.fill());
+        split.add(new ScrollArea(this.theme.scrollbar(), pages), Length.fill());
         return split;
     }
 
@@ -256,8 +258,8 @@ public final class WorldShapeSettingsScreen extends Screen {
     private void addRow(ListBox dimensions, Slot slot) {
         Component name = slot.page().getTitle();
         ListRow row = dimensions.addRow(name);
-        row.add(new Label(row.fill(), slot.isLocked() ? LabelRole.MUTED : LabelRole.NORMAL, name));
-        Label line = new Label(row.fill(), LabelRole.MUTED, Component.empty());
+        row.add(new Label(row.getFill(), slot.isLocked() ? LabelRole.MUTED : LabelRole.NORMAL, name));
+        Label line = new Label(row.getFill(), LabelRole.MUTED, Component.empty());
         line.setText(() -> this.summary(slot));
         row.add(line);
     }
@@ -269,12 +271,12 @@ public final class WorldShapeSettingsScreen extends Screen {
     }
 
     private Row footer() {
-        Button done = Button.text(THEME.button(), CommonComponents.GUI_DONE, this::commit);
+        Button done = Button.text(this.theme.button(), CommonComponents.GUI_DONE, this::commit);
         done.setEnabled(() -> this.slots.stream().allMatch(slot -> slot.isLocked() || slot.page().layout() != null));
         Row footer = new Row();
-        footer.setGap(FOOTER_GAP_PIXELS);
+        footer.setGapPixels(FOOTER_GAP_PIXELS);
         footer.add(done, Length.fixed(FOOTER_BUTTON_WIDTH_PIXELS));
-        footer.add(Button.text(THEME.button(), CommonComponents.GUI_CANCEL, this::onClose),
+        footer.add(Button.text(this.theme.button(), CommonComponents.GUI_CANCEL, this::onClose),
                 Length.fixed(FOOTER_BUTTON_WIDTH_PIXELS));
         return footer;
     }
