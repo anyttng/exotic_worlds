@@ -70,6 +70,7 @@ Exotic Worlds ships for Minecraft 26.3, 26.2, 26.1.2 and 1.21.1, on NeoForge and
 | [Cobblemon](https://modrinth.com/mod/cobblemon) | 1.21.1 | NeoForge, Fabric | Supported | |
 | [Ars Nouveau](https://modrinth.com/mod/ars-nouveau) | 1.21.1 | NeoForge | Supported | |
 | Vista | 1.21.1 | NeoForge, Fabric | Supported | |
+| [Iron's Spells 'n Spellbooks](https://modrinth.com/mod/irons-spells-n-spellbooks) | 1.21.1 | NeoForge | Supported | |
 | Immersive Portals | 1.21.1 | NeoForge, Fabric | Partially supported | What lies past the world's edge does not show next to you |
 
 ## World generation
