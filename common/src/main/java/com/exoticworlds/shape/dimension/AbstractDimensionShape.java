@@ -3,13 +3,15 @@ package com.exoticworlds.shape.dimension;
 import java.util.List;
 import java.util.Optional;
 
+import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.registry.StartupRegistry;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.shape.WorldLoopPresets;
+import com.exoticworlds.shape.feature.OptionFeature;
 import com.exoticworlds.shape.feature.ShapeFeature;
 import com.exoticworlds.shape.option.DimensionOption;
-import com.exoticworlds.shape.option.DimensionScope;
+import com.exoticworlds.core.feature.DimensionScope;
 import com.exoticworlds.shape.option.ScopedOption;
 
 import net.minecraft.resources.Identifier;
@@ -29,8 +31,12 @@ public abstract class AbstractDimensionShape implements DimensionShape {
         this.options = new StartupRegistry<>("Options of shape " + id);
     }
 
-    public final void registerFeature(ShapeFeature<?> feature, DimensionScope scope) {
-        this.options.register(feature.getOption().key(), new ScopedOption(feature.getShown(), scope));
+    public final void registerFeature(ShapeFeature feature, DimensionScope scope) {
+        if (feature instanceof OptionFeature<?> offered) {
+            this.options.register(offered.getOption().key(), new ScopedOption(offered.getShown(), scope));
+        }
+
+        ShapeFeatures.attach(this.id, feature, scope);
     }
 
     @Override

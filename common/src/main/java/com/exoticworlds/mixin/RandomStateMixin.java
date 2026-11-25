@@ -15,6 +15,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.exoticworlds.accessors.BaseHeightsHolder;
 import com.exoticworlds.accessors.FoldedClimateSampler;
+import com.exoticworlds.core.feature.GenerationFeature;
+import com.exoticworlds.core.feature.RandomStateFeature;
+import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.gen.GenerationMoments;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.gen.BaseHeights;
@@ -93,7 +96,12 @@ public class RandomStateMixin implements BaseHeightsHolder {
         if (fold != null) {
             ((FoldedClimateSampler) (Object) ((RandomState) (Object) this).sampler()).exotic_worlds$setFold(fold);
             this.exotic_worlds$baseHeights = new BaseHeights(fold);
-            GenerationMoments.runAtRandomState((RandomState) (Object) this, fold, settings.seaLevel());
+            RandomState randomState = (RandomState) (Object) this;
+            List<GenerationFeature> features = GenerationFoldContext.getContext().getRouterBuildFeatures();
+            for (RandomStateFeature feature : ShapeFeatures.atMoment(features, RandomStateFeature.class)) {
+                feature.atRandomState(randomState, fold, settings.seaLevel());
+            }
+            GenerationMoments.runAtRandomState(randomState, fold, settings.seaLevel());
         }
     }
 

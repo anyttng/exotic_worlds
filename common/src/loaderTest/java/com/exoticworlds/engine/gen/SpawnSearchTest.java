@@ -52,7 +52,6 @@ class SpawnSearchTest {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
         StartupRegistrations.options();
-        StartupRegistrations.generationHooks();
         holders = VanillaRegistries.createLookup();
         overworldSettings = holders.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.OVERWORLD);
     }
@@ -121,7 +120,7 @@ class SpawnSearchTest {
     }
 
     private static RandomState randomState(NoiseBasedChunkGenerator generator, NoiseGeneratorSettings settings) {
-        return GenerationFoldContext.withRouterBuild(GeneratorShapes.getFold(generator),
+        return GenerationFoldContext.withRouterBuild(GeneratorShapes.getFold(generator), List.of(),
                 () -> RandomState.create(settings, holders.lookupOrThrow(Registries.NOISE), SEED));
     }
 }

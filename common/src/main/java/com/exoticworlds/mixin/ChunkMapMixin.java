@@ -19,11 +19,12 @@ import com.exoticworlds.accessors.LevelHolder;
 import com.exoticworlds.accessors.SeamDriveScheduler;
 import com.exoticworlds.accessors.TrackedEntityRefresher;
 import com.exoticworlds.accessors.FoldHolder;
+import com.exoticworlds.core.feature.ChunkDataFeature;
+import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
-import com.exoticworlds.engine.gen.terrain.FloatingCrumbs;
 import com.exoticworlds.engine.gen.SeamDriveRequest;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.gen.terrain.TerrainCeiling;
@@ -99,7 +100,9 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
     private void exotic_worlds$releaseTerrainMask(ChunkAccess chunk, CallbackInfoReturnable<Boolean> callback) {
         long key = chunk.getPos().pack();
         if (this.getUpdatingChunkIfPresent(key) == null && !this.pendingUnloads.containsKey(key)) {
-            FloatingCrumbs.releaseMask(this.level, chunk.getPos());
+            for (ChunkDataFeature feature : ShapeFeatures.onLevel(this.level, ChunkDataFeature.class)) {
+                feature.releaseData(this.level, chunk.getPos());
+            }
         }
     }
 
@@ -231,7 +234,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             @Local(argsOnly = true) ServerLevel level) {
         WorldFold fold = GeneratorShapes.getWrappedFold(generator);
         NoiseGeneratorSettings shaped = TerrainCeiling.shaped(fold, settings);
-        return GenerationFoldContext.withRouterBuild(fold,
+        return GenerationFoldContext.withRouterBuild(fold, GeneratorShapes.activeFeatures(generator, level.dimension()),
                 () -> original.call(shaped, noiseParameters, seed));
     }
 

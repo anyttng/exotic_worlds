@@ -10,7 +10,7 @@ import com.exoticworlds.core.option.ShapeOption;
 import com.exoticworlds.core.option.ShapeOptionRegistry;
 import com.exoticworlds.shape.option.DeclaredOptions;
 import com.exoticworlds.shape.option.DimensionOption;
-import com.exoticworlds.shape.option.DimensionScope;
+import com.exoticworlds.core.feature.DimensionScope;
 import com.exoticworlds.shape.option.OptionPart;
 
 public final class OptionBridge {

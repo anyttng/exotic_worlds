@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.gen.terrain;
+package com.exoticworlds.shape.feature.floatingcrumbs;
 
 final class CellGrid {
     static final int NO_CELL = -1;

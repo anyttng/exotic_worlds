@@ -39,6 +39,7 @@ class ImportRulesTest {
                     "ExoticWorldsFabricClient", "VanillaBootstrapListener");
     private static final Set<String> EXCEPTIONS = Set.of(
             "shape.feature.compactbiomes.ClimateCompression -> engine.noise.ClimateScaleCompression",
+            "shape.feature.floatingcrumbs.FloatingCrumbs -> engine.gen.terrain.TerrainCeiling",
             "shape.feature.guaranteedland.CoastFieldLift -> engine.noise.GenerationFoldContext",
             "shape.WorldShapes -> engine.gen.ShapedDimensions",
             "shape.layout.LayoutDimensions -> engine.gen.ShapedDimensions",

@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.gen.terrain;
+package com.exoticworlds.shape.feature.floatingcrumbs;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

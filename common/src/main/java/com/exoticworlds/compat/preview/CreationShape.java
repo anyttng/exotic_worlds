@@ -1,7 +1,11 @@
 package com.exoticworlds.compat.preview;
 
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.core.feature.GenerationFeature;
+import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFold;
@@ -20,12 +24,13 @@ public final class CreationShape {
                 .orElse(null);
     }
 
-    public static Runnable underRouterBuild(@Nullable WorldFold fold, Runnable task) {
-        if (fold == null || !fold.isWrapped()) {
+    public static Runnable underRouterBuild(@Nullable CarriedShape shown, Runnable task) {
+        if (shown == null || !shown.getFold().isWrapped()) {
             return task;
         }
 
-        return () ->GenerationFoldContext.withRouterBuild(fold, () -> {
+        List<GenerationFeature> features = ShapeFeatures.activeFeatures(shown, LevelStem.OVERWORLD);
+        return () -> GenerationFoldContext.withRouterBuild(shown.getFold(), features, () -> {
             task.run();
             return null;
         });

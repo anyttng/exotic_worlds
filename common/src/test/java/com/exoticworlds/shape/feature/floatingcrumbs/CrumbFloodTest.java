@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.gen.terrain;
+package com.exoticworlds.shape.feature.floatingcrumbs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
