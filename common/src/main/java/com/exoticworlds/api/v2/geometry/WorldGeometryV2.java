@@ -2,7 +2,6 @@ package com.exoticworlds.api.v2.geometry;
 
 import java.util.List;
 
-import com.exoticworlds.api.v2.shape.LoopSpansV2;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,7 +12,7 @@ import net.minecraft.world.phys.Vec3;
 /**
  * The geometry of one wrapped level: the spans it folds into and the folding operations that geometry defines. Obtain
  * one from {@link WorldGeometriesV2#of(net.minecraft.world.level.Level)} on the server or from
- * {@link com.exoticworlds.api.v2.client.ClientGeometriesV2} on the client; a geometry exists only for a level that
+ * {@link com.exoticworlds.api.v2.geometry.client.ClientGeometriesV2} on the client; a geometry exists only for a level that
  * wraps.
  *
  * <p>Every member takes a whole position. No member folds one axis alone, because crossing a seam on one axis may
@@ -32,8 +31,6 @@ public interface WorldGeometryV2 {
      * Which horizontal axes loop, over what span of chunks, and how far crossing the Z seam shifts X. A bound or a
      * width is read here; a copy of the world is never rebuilt from a width, since a skewed copy one row over is also
      * moved sideways: {@link #copiesMeeting(AABB)} lists the copies.
-     *
-     * @throws IllegalStateException if this geometry is no flat shape that spans can state
      */
     LoopSpansV2 getSpans();
 

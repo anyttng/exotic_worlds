@@ -12,6 +12,7 @@ public final class PeriodicOctaveSampler {
     public static double sample(
             Context generation,
             double baseScale,
+            DoubleList octaveFactors,
             ImprovedNoise[] noiseLevels,
             DoubleList amplitudes,
             double lowestFreqInputFactor,
@@ -30,7 +31,7 @@ public final class PeriodicOctaveSampler {
             for (int i = 0; i < noiseLevels.length; i++) {
                 ImprovedNoise noise = noiseLevels[i];
                 if (noise != null) {
-                    scope.rescale(baseScale * factor);
+                    scope.rescale(baseScale * octaveFactors.getDouble(i) * factor);
                     double slotY = yCarriesWorldAxis ? y : PerlinNoise.wrap(y * factor);
                     double noiseValue = ((WrappedImprovedNoise) (Object) noise).exotic_worlds$sampleWrapped(
                             generation, x, slotY, z, yScale * factor, yFudge * factor);
@@ -45,21 +46,25 @@ public final class PeriodicOctaveSampler {
         return value;
     }
 
-    // The period grows with the scale, so the finest octave is the first to outgrow the cell index.
-    public static boolean indexable(Context generation, double baseScale, ImprovedNoise[] noiseLevels,
-            double lowestFreqInputFactor) {
-        int finest = noiseLevels.length - 1;
-        while (finest >= 0 && noiseLevels[finest] == null) {
-            finest--;
+    public static boolean indexable(Context generation, double baseScale, DoubleList octaveFactors,
+            ImprovedNoise[] noiseLevels, double lowestFreqInputFactor) {
+        int widest = -1;
+        double widestScale = 0.0;
+        for (int i = 0; i < noiseLevels.length; i++) {
+            double octaveScale = octaveFactors.getDouble(i) * Math.scalb(lowestFreqInputFactor, i);
+            if (noiseLevels[i] != null && octaveScale >= widestScale) {
+                widest = i;
+                widestScale = octaveScale;
+            }
         }
 
-        if (finest < 0) {
+        if (widest < 0) {
             return true;
         }
 
         try (Context.ScaleScope scope = generation.openScale()) {
-            scope.rescale(baseScale * Math.scalb(lowestFreqInputFactor, finest));
-            return ((IndexableNoise) (Object) noiseLevels[finest]).exotic_worlds$indexable(generation);
+            scope.rescale(baseScale * widestScale);
+            return ((IndexableNoise) (Object) noiseLevels[widest]).exotic_worlds$indexable(generation);
         }
     }
 

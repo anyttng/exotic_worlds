@@ -43,7 +43,7 @@ public final class LevelClimateCompression {
         DensityNoises.ScaledNoise climate = ClimateCompression.climateNoiseOf(temperature);
         return climate == null
                 ? ClimateScaleCompression.NO_COMPRESSION
-                : ClimateCompression.factor(fold, climate.noise(), climate.xzScale(),
+                : ClimateCompression.factor(fold, climate.noise().noiseData(), climate.xzScale(),
                         GenerationFoldContext.verticalShare(climate.xzScale(), climate.yScale()));
     }
 

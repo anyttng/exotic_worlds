@@ -20,6 +20,7 @@ import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.StartupRegistrations;
 
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -141,7 +142,7 @@ class SpawnSearchTest {
     }
 
     private static RandomState randomState(NoiseBasedChunkGenerator generator, NoiseGeneratorSettings settings) {
-        return GenerationFoldContext.withRouterBuild(GeneratorShapes.getFold(generator), List.of(),
+        return GenerationFoldContext.withRouterBuild(GeneratorShapes.getFold(generator), LevelStem.OVERWORLD, List.of(),
                 () -> RandomState.create(settings, holders.lookupOrThrow(Registries.NOISE), SEED));
     }
 }

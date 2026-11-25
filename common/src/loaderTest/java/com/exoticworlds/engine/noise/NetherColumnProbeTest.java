@@ -20,6 +20,7 @@ import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.shape.StartupRegistrations;
 
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;

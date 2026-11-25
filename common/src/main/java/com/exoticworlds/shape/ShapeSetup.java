@@ -12,6 +12,7 @@ import com.exoticworlds.core.world.LegacyShapeIds;
 import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 import com.exoticworlds.shape.cylinder.Cylinder;
+import com.exoticworlds.shape.dimension.AttachedFeatures;
 import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.dimension.DimensionShape;
 import com.exoticworlds.core.feature.DimensionScope;
@@ -63,23 +64,23 @@ public final class ShapeSetup {
 
     private static void registerLayout(boolean isClient) {
         LayoutShape.register(isClient);
-        RegistrationBoundary.STARTUP.atFirstClose(DeclaredShapes::warnOfUnknownOptionShapes);
+        RegistrationBoundary.STARTUP.atFirstClose(DeclaredShapes::warnOfUnknownShapes);
     }
 
     private static void registerTorus() {
         DeclaredShapes.register(Torus.SHAPE);
-        Torus.SHAPE.registerFeature(ChosenSpawn.FEATURE, DimensionScope.of(List.of(LevelStem.OVERWORLD)));
-        Torus.SHAPE.registerFeature(CompactBiomes.FEATURE, DimensionScope.ALL);
-        Torus.SHAPE.registerFeature(GuaranteedLand.FEATURE, DimensionScope.of(List.of(LevelStem.OVERWORLD)));
-        Torus.SHAPE.registerFeature(GuaranteedNetherComplexes.FEATURE, DimensionScope.of(List.of(LevelStem.NETHER)));
-        Torus.SHAPE.registerFeature(FloatingCrumbs.FEATURE, DimensionScope.ALL);
+        AttachedFeatures.attach(DeclaredShapes.TORUS, ChosenSpawn.FEATURE, DimensionScope.of(List.of(LevelStem.OVERWORLD)));
+        AttachedFeatures.attach(DeclaredShapes.TORUS, CompactBiomes.FEATURE, DimensionScope.ALL);
+        AttachedFeatures.attach(DeclaredShapes.TORUS, GuaranteedLand.FEATURE, DimensionScope.of(List.of(LevelStem.OVERWORLD)));
+        AttachedFeatures.attach(DeclaredShapes.TORUS, GuaranteedNetherComplexes.FEATURE, DimensionScope.of(List.of(LevelStem.NETHER)));
+        AttachedFeatures.attach(DeclaredShapes.TORUS, FloatingCrumbs.FEATURE, DimensionScope.ALL);
     }
 
     private static void registerCylinder() {
         DeclaredShapes.register(Cylinder.SHAPE);
-        Cylinder.SHAPE.registerFeature(ChosenSpawn.FEATURE, DimensionScope.of(List.of(LevelStem.OVERWORLD)));
-        Cylinder.SHAPE.registerFeature(CompactBiomes.FEATURE, DimensionScope.ALL);
-        Cylinder.SHAPE.registerFeature(FloatingCrumbs.FEATURE, DimensionScope.ALL);
+        AttachedFeatures.attach(DeclaredShapes.CYLINDER, ChosenSpawn.FEATURE, DimensionScope.of(List.of(LevelStem.OVERWORLD)));
+        AttachedFeatures.attach(DeclaredShapes.CYLINDER, CompactBiomes.FEATURE, DimensionScope.ALL);
+        AttachedFeatures.attach(DeclaredShapes.CYLINDER, FloatingCrumbs.FEATURE, DimensionScope.ALL);
     }
 
     private static Optional<Identifier> recognizeLegacy(FlatShape spans) {

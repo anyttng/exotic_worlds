@@ -26,8 +26,7 @@ public record ShiftedNoiseFold(DensityFunction.NoiseHolder noise, double horizon
     }
 
     public double warpDivisor(WorldFold fold) {
-        return NoiseFeatures.warpDivisor(NoiseFeatures.getFeatures(this.noise), fold, this.noise, this.horizontalScale,
-                this.verticalShare);
+        return NoiseFeatures.getOrigin(this.noise).warpDivisorAt(fold, this.horizontalScale, this.verticalShare);
     }
 
     public double sample(Context generation, int blockX, int blockZ, double shiftX, double shiftZ,

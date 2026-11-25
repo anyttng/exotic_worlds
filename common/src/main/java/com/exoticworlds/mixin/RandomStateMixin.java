@@ -15,10 +15,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.exoticworlds.accessors.BaseHeightsHolder;
 import com.exoticworlds.accessors.FoldedClimateSampler;
-import com.exoticworlds.accessors.NoiseOffsetsHolder;
 import com.exoticworlds.core.feature.GenerationFeature;
-import com.exoticworlds.core.feature.NoiseOffsets;
 import com.exoticworlds.core.feature.RandomStateFeature;
+import com.exoticworlds.core.feature.RandomStateMoment;
 import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.gen.GenerationMoments;
 import com.exoticworlds.core.fold.WorldFold;
@@ -37,15 +36,12 @@ import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 @Mixin(RandomState.class)
-public class RandomStateMixin implements BaseHeightsHolder, NoiseOffsetsHolder {
+public class RandomStateMixin implements BaseHeightsHolder {
     private static final String CONSTRUCTOR = "<init>(Lnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;"
             + "Lnet/minecraft/core/HolderGetter;J)V";
 
     @Unique
     private @Nullable BaseHeights exotic_worlds$baseHeights;
-
-    @Unique
-    private volatile NoiseOffsets exotic_worlds$noiseOffsets = new NoiseOffsets();
 
     @ModifyExpressionValue(method = CONSTRUCTOR, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/levelgen/NoiseGeneratorSettings;noiseRouter()Lnet/minecraft/world/level/levelgen/NoiseRouter;"))
@@ -101,11 +97,13 @@ public class RandomStateMixin implements BaseHeightsHolder, NoiseOffsetsHolder {
         if (fold != null) {
             ((FoldedClimateSampler) (Object) ((RandomState) (Object) this).sampler()).exotic_worlds$setFold(fold);
             this.exotic_worlds$baseHeights = new BaseHeights(fold);
-            this.exotic_worlds$noiseOffsets = GenerationFoldContext.getContext().getRouterBuildOffsets();
             RandomState randomState = (RandomState) (Object) this;
-            List<GenerationFeature> features = GenerationFoldContext.getContext().getRouterBuildFeatures();
+            GenerationFoldContext.Context context = GenerationFoldContext.getContext();
+            List<GenerationFeature> features = context.getRouterBuildFeatures();
+            RandomStateMoment moment = new RandomStateMoment(randomState, fold, context.getRouterBuildDimension(),
+                    settings.seaLevel(), context.getRouterBuildOffsets());
             for (RandomStateFeature feature : ShapeFeatures.atMoment(features, RandomStateFeature.class)) {
-                feature.atRandomState(randomState, fold, settings.seaLevel());
+                feature.atRandomState(moment);
             }
             GenerationMoments.runAtRandomState(randomState, fold, settings.seaLevel());
         }
@@ -126,10 +124,5 @@ public class RandomStateMixin implements BaseHeightsHolder, NoiseOffsetsHolder {
     @Override
     public @Nullable BaseHeights exotic_worlds$getBaseHeights() {
         return this.exotic_worlds$baseHeights;
-    }
-
-    @Override
-    public NoiseOffsets exotic_worlds$getNoiseOffsets() {
-        return this.exotic_worlds$noiseOffsets;
     }
 }

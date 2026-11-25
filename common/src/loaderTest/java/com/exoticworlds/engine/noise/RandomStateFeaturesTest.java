@@ -11,8 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import com.exoticworlds.core.feature.RandomStateFeature;
+import com.exoticworlds.core.feature.RandomStateMoment;
 import com.exoticworlds.core.fold.WorldFold;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
 
@@ -40,6 +43,16 @@ class RandomStateFeaturesTest {
     }
 
     @Test
+    void theMomentNamesTheDimensionTheStateIsBuiltFor() {
+        Counting feature = new Counting();
+
+        ClimateScanFixture.randomState(overworld(), ClimateScanFixture.torusOfWidth(WIDTH_BLOCKS), SEED,
+                LevelStem.NETHER, List.of(feature));
+
+        assertEquals(LevelStem.NETHER, feature.lastDimension);
+    }
+
+    @Test
     void aFeatureOfOneRouterBuildDoesNotRunInTheNext() {
         WorldFold fold = ClimateScanFixture.torusOfWidth(WIDTH_BLOCKS);
         Counting feature = new Counting();
@@ -58,6 +71,7 @@ class RandomStateFeaturesTest {
         private final AtomicInteger runs = new AtomicInteger();
         private volatile RandomState lastState;
         private volatile WorldFold lastFold;
+        private volatile ResourceKey<LevelStem> lastDimension;
 
         @Override
         public String getKey() {
@@ -65,10 +79,11 @@ class RandomStateFeaturesTest {
         }
 
         @Override
-        public void atRandomState(RandomState randomState, WorldFold fold, int seaLevel) {
+        public void atRandomState(RandomStateMoment moment) {
             this.runs.incrementAndGet();
-            this.lastState = randomState;
-            this.lastFold = fold;
+            this.lastState = moment.randomState();
+            this.lastFold = moment.fold();
+            this.lastDimension = moment.dimension();
         }
     }
 }

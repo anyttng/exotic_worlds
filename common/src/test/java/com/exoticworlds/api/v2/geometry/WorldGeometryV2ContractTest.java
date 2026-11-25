@@ -10,7 +10,6 @@ import java.util.Random;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.api.v1.ToroidalShape;
-import com.exoticworlds.api.v2.shape.LoopSpansV2;
 import com.exoticworlds.bridge.v2.geometry.GeometryBridge;
 import com.exoticworlds.core.fold.deck.DeckGroupFold;
 import com.exoticworlds.core.world.FlatShape;

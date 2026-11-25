@@ -168,9 +168,8 @@ public final class C2meDfcAst {
             return new C2meFoldedNoiseNode(noise.inputX, noise.inputY, noise.inputZ, noise.noise,
                     shiftOf(source, CoordinateNode.Axis.X, noise.inputX), slotY,
                     shiftOf(source, CoordinateNode.Axis.Z, noise.inputZ), axes, fold.horizontalScale(),
-                    fold.vanillaScale(), fold.verticalShare(), NoiseFeatures.warpDivisor(
-                            NoiseFeatures.getFeatures(noise.noise), worldFold, noise.noise, fold.horizontalScale(),
-                            fold.verticalShare()), worldFold);
+                    fold.vanillaScale(), fold.verticalShare(), NoiseFeatures.getOrigin(noise.noise)
+                            .warpDivisorAt(worldFold, fold.horizontalScale(), fold.verticalShare()), worldFold);
         }
 
         return new C2meFoldedNoiseNode(noise.inputX, noise.inputY, noise.inputZ, noise.noise,

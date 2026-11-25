@@ -95,8 +95,8 @@ class ClimateCompressionTest {
     private static double resolved(Storing cache, Field field, WorldFold fold, double xzScale,
             double verticalShare) {
         return ClimateCompression.resolve(cache, fold, xzScale, verticalShare,
-                () -> ClimateCompression.factor(fold, field.climate(), field.amplitudes(),
-                        Math.pow(2.0, field.firstOctave()), xzScale, verticalShare));
+                () -> DoubleList.of(ClimateCompression.factor(fold, field.climate(), field.amplitudes(),
+                        Math.pow(2.0, field.firstOctave()), xzScale, verticalShare))).getDouble(0);
     }
 
     private static WorldFold square(int chunkWidth) {

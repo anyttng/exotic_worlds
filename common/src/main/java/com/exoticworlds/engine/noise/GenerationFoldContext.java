@@ -12,6 +12,9 @@ import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.DoubleStack;
 import com.exoticworlds.engine.ObjectStack;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.dimension.LevelStem;
+
 public final class GenerationFoldContext {
     public static final double UNDECLARED_VERTICAL_SHARE = -1.0;
 
@@ -22,6 +25,7 @@ public final class GenerationFoldContext {
     public static final class Context {
         private WorldFold fold = WorldFolds.NOOP;
         private @Nullable WorldFold routerBuild;
+        private ResourceKey<LevelStem> routerBuildDimension = LevelStem.OVERWORLD;
         private List<GenerationFeature> routerBuildFeatures = List.of();
         private NoiseOffsets routerBuildOffsets = new NoiseOffsets();
         private double horizontalScale = NoiseConstants.UNSCALED;
@@ -45,6 +49,10 @@ public final class GenerationFoldContext {
 
         public @Nullable WorldFold getRouterBuildFold() {
             return this.routerBuild;
+        }
+
+        public ResourceKey<LevelStem> getRouterBuildDimension() {
+            return this.routerBuildDimension;
         }
 
         public List<GenerationFeature> getRouterBuildFeatures() {
@@ -273,15 +281,17 @@ public final class GenerationFoldContext {
         }
     }
 
-    public static <T> T withRouterBuild(@Nullable WorldFold fold, List<GenerationFeature> features,
-            Supplier<T> action) {
+    public static <T> T withRouterBuild(@Nullable WorldFold fold, ResourceKey<LevelStem> dimension,
+            List<GenerationFeature> features, Supplier<T> action) {
         Context context = CONTEXT.get();
         WorldFold previous = context.routerBuild;
         List<GenerationFeature> previousFeatures = context.routerBuildFeatures;
         NoiseOffsets previousOffsets = context.routerBuildOffsets;
+        ResourceKey<LevelStem> previousDimension = context.routerBuildDimension;
         context.routerBuild = fold;
         context.routerBuildFeatures = features;
         context.routerBuildOffsets = new NoiseOffsets();
+        context.routerBuildDimension = dimension;
 
         try {
             return action.get();
@@ -289,6 +299,7 @@ public final class GenerationFoldContext {
             context.routerBuild = previous;
             context.routerBuildFeatures = previousFeatures;
             context.routerBuildOffsets = previousOffsets;
+            context.routerBuildDimension = previousDimension;
         }
     }
 

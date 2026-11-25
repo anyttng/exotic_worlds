@@ -33,6 +33,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.Structure;
@@ -64,11 +65,12 @@ public final class AddedStructureStarts {
         synchronized (holder) {
             known = holder.exotic_worlds$getAddedStarts();
             if (known == null) {
-                List<StructureStartsFeature> features = ShapeFeatures.activeAt(carried,
-                        Registries.levelToLevelStem(level), StructureStartsFeature.class);
+                ResourceKey<LevelStem> dimension = Registries.levelToLevelStem(level);
+                List<StructureStartsFeature> features =
+                        ShapeFeatures.activeAt(carried, dimension, StructureStartsFeature.class);
                 known = features.isEmpty() && !GenerationMoments.hasStructureStartHooks()
                         ? NONE
-                        : compute(state, check, carried, features);
+                        : compute(state, check, carried, dimension, features);
                 holder.exotic_worlds$setAddedStarts(known);
             }
 
@@ -95,12 +97,12 @@ public final class AddedStructureStarts {
     }
 
     private static AddedStructureStarts compute(ChunkGeneratorStructureState state, StructureCheck check,
-            CarriedShape carried, List<StructureStartsFeature> features) {
+            CarriedShape carried, ResourceKey<LevelStem> dimension, List<StructureStartsFeature> features) {
         WorldFold fold = carried.getFold();
         Long2ObjectMap<List<StructureSet.StructureSelectionEntry>> byChunk = new Long2ObjectOpenHashMap<>();
         Map<StructurePlacement, List<AddedStart>> byPlacement = new HashMap<>();
         for (Holder<StructureSet> set : state.possibleStructureSets()) {
-            SetView view = new SetView(state, check, fold, carried.getOptions(), set);
+            SetView view = new SetView(state, check, fold, carried.getOptions(), dimension, set);
             List<AddedStart> accepted = view.accepted(startsIn(view, features));
             if (accepted.isEmpty()) {
                 continue;
@@ -121,11 +123,13 @@ public final class AddedStructureStarts {
         private final StructureCheck check;
         private final WorldFold fold;
         private final ShapeOptions options;
+        private final ResourceKey<LevelStem> dimension;
         private final Holder<StructureSet> set;
         private @Nullable List<StructurePick> picks;
 
         private SetView(ChunkGeneratorStructureState state, StructureCheck check, WorldFold fold,
-                ShapeOptions options, Holder<StructureSet> set) {
+                ShapeOptions options, ResourceKey<LevelStem> dimension, Holder<StructureSet> set) {
+            this.dimension = dimension;
             this.state = state;
             this.check = check;
             this.fold = fold;
@@ -141,6 +145,11 @@ public final class AddedStructureStarts {
         @Override
         public ShapeOptions getOptions() {
             return this.options;
+        }
+
+        @Override
+        public ResourceKey<LevelStem> getDimension() {
+            return this.dimension;
         }
 
         @Override

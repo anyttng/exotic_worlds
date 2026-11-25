@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.noise;
 
 import com.exoticworlds.accessors.IndexableNoise;
-import com.exoticworlds.accessors.NoiseOffsetHolder;
+import com.exoticworlds.accessors.NoiseOriginHolder;
 import com.exoticworlds.accessors.WrappedNormalNoise;
 import com.exoticworlds.core.fold.TranslationLattice;
 import com.exoticworlds.core.fold.WorldFold;
@@ -122,8 +122,8 @@ public final class ContextScaledNoise {
             value = noise.getValue(x, y, z);
         }
 
-        return noise.noise() instanceof NoiseOffsetHolder offset
-                ? value + offset.exotic_worlds$getNoiseOffset().get()
+        return noise.noise() instanceof NoiseOriginHolder origin
+                ? value + origin.exotic_worlds$getOffsetAt(context)
                 : value;
     }
 

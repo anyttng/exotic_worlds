@@ -20,6 +20,7 @@ import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 import com.exoticworlds.core.fold.WrapDomain;
 
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.DensityFunction;

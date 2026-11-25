@@ -11,7 +11,7 @@ import net.minecraft.client.gui.layouts.LinearLayout;
  * screen around it only through its {@link WorldOptionContext}.
  *
  * @deprecated no screen builds these controls any more, so a control registered for an option is never shown.
- *     Declare how the option is offered and drawn with a {@link com.exoticworlds.api.v2.option.DimensionOptionV2};
+ *     Declare how the option is offered and drawn with a {@link com.exoticworlds.api.v2.feature.OptionFeatureV2};
  *     the World Shape Settings screen draws it.
  */
 @Deprecated

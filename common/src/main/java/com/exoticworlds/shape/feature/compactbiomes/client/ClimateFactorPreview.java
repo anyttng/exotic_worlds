@@ -29,7 +29,7 @@ final class ClimateFactorPreview {
 
         return OptionalDouble.of(ClimateCompression.factor(
                 WorldFolds.of(spans, options),
-                temperature.noise(),
+                temperature.noise().noiseData(),
                 CLIMATE_XZ_SCALE,
                 HORIZONTAL_SHARE));
     }

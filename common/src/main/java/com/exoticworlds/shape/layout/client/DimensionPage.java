@@ -25,10 +25,10 @@ import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.WorldLoopSizes;
 import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.dimension.DimensionContext;
+import com.exoticworlds.shape.dimension.AttachedFeatures;
 import com.exoticworlds.shape.dimension.DimensionShape;
 import com.exoticworlds.shape.layout.DimensionLayout;
 import com.exoticworlds.shape.layout.DimensionMode;
-import com.exoticworlds.shape.option.DeclaredOptions;
 import com.exoticworlds.shape.option.DimensionOption;
 
 import net.minecraft.core.Direction;
@@ -286,14 +286,11 @@ final class DimensionPage {
         Map<DimensionOption<?>, Predicate<Identifier>> offered = new LinkedHashMap<>();
         for (DimensionShape shape : DeclaredShapes.getAll()) {
             Identifier owner = shape.getId();
-            shape.getOptions().stream()
+            AttachedFeatures.optionsOf(owner).stream()
                     .filter(scoped -> scoped.scope().contains(dimension))
                     .forEach(scoped -> offered.merge(scoped.option(), owner::equals, Predicate::or));
         }
 
-        DeclaredOptions.getAll().stream()
-                .filter(declared -> declared.scope().contains(dimension))
-                .forEach(declared -> offered.merge(declared.option(), declared::isForShape, Predicate::or));
         return offered.entrySet().stream()
                 .map(entry -> new OptionControls.Offer(entry.getKey(), entry.getValue()))
                 .toList();

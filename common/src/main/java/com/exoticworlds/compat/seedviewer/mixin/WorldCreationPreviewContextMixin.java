@@ -17,6 +17,7 @@ import net.acenia.seedviewer.client.screen.createworld.WorldCreationPreviewConte
 import net.acenia.seedviewer.client.screen.createworld.WorldgenEditorState;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
+import net.minecraft.world.level.dimension.LevelStem;
 
 @Mixin(WorldCreationPreviewContext.class)
 public class WorldCreationPreviewContextMixin {
@@ -36,7 +37,7 @@ public class WorldCreationPreviewContextMixin {
     private static WorldCreationPreviewContext exotic_worlds$buildForTheChosenShape(CreateWorldScreen screen,
             WorldCreationUiState uiState, WorldgenEditorState editorState, boolean applyEditorEdits,
             Operation<WorldCreationPreviewContext> original) {
-        return GenerationFoldContext.withRouterBuild(CreationShape.fold(uiState.getSettings()),
+        return GenerationFoldContext.withRouterBuild(CreationShape.fold(uiState.getSettings()), LevelStem.OVERWORLD,
                 CreationShape.activeFeatures(uiState.getSettings()),
                 () -> original.call(screen, uiState, editorState, applyEditorEdits));
     }
