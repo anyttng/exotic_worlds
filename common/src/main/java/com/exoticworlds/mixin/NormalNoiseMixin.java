@@ -1,5 +1,6 @@
 package com.exoticworlds.mixin;
 
+import java.util.List;
 import java.util.Map;
 
 import org.spongepowered.asm.mixin.Final;
@@ -8,11 +9,14 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.accessors.ClimateFieldMark;
-import com.exoticworlds.accessors.CoastLiftCache;
 import com.exoticworlds.accessors.IndexableNoise;
+import com.exoticworlds.accessors.NoiseFeatureHolder;
+import com.exoticworlds.accessors.NoiseOffsetHolder;
 import com.exoticworlds.accessors.NoiseScaleRungs;
 import com.exoticworlds.accessors.WrappedNormalNoise;
 import com.exoticworlds.accessors.WrappedPerlinNoise;
+import com.exoticworlds.core.feature.NoiseFeature;
+import com.exoticworlds.core.feature.NoiseOffset;
 import com.exoticworlds.engine.noise.ContextKeyedCache;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
@@ -25,7 +29,8 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
 @Mixin(NormalNoise.class)
-public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, NoiseScaleRungs, IndexableNoise,
+public class NormalNoiseMixin implements ClimateFieldMark, NoiseFeatureHolder, NoiseOffsetHolder, NoiseScaleRungs,
+        IndexableNoise,
         WrappedNormalNoise {
     @Shadow
     @Final
@@ -40,7 +45,10 @@ public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, Noise
     private double valueFactor;
 
     @Unique
-    private volatile double exotic_worlds$coastLift;
+    private volatile List<NoiseFeature> exotic_worlds$noiseFeatures = List.of();
+
+    @Unique
+    private volatile NoiseOffset exotic_worlds$noiseOffset = NoiseOffset.NONE;
 
     @Unique
     private volatile Map<Double, Double> exotic_worlds$scaleRungs = Map.of();
@@ -55,13 +63,25 @@ public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, Noise
     }
 
     @Override
-    public double exotic_worlds$getCoastLift() {
-        return this.exotic_worlds$coastLift;
+    public List<NoiseFeature> exotic_worlds$getNoiseFeatures() {
+        return this.exotic_worlds$noiseFeatures;
     }
 
     @Override
-    public void exotic_worlds$setCoastLift(double lift) {
-        this.exotic_worlds$coastLift = lift;
+    public void exotic_worlds$setNoiseFeatures(List<NoiseFeature> features) {
+        this.exotic_worlds$noiseFeatures = features;
+        ((NoiseFeatureHolder) (Object) this.first).exotic_worlds$setNoiseFeatures(features);
+        ((NoiseFeatureHolder) (Object) this.second).exotic_worlds$setNoiseFeatures(features);
+    }
+
+    @Override
+    public NoiseOffset exotic_worlds$getNoiseOffset() {
+        return this.exotic_worlds$noiseOffset;
+    }
+
+    @Override
+    public void exotic_worlds$setNoiseOffset(NoiseOffset offset) {
+        this.exotic_worlds$noiseOffset = offset;
     }
 
     @Override
@@ -89,7 +109,7 @@ public class NormalNoiseMixin implements ClimateFieldMark, CoastLiftCache, Noise
         double value = this.exotic_worlds$indexable(generation)
                 ? this.exotic_worlds$foldedValue(generation, x, y, z)
                 : ContextScaledNoise.vanillaAtFoldedSlots(generation, (NormalNoise) (Object) this, x, y, z);
-        return value + this.exotic_worlds$coastLift;
+        return value + this.exotic_worlds$noiseOffset.get();
     }
 
     @Override

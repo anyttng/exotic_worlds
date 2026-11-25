@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.noise;
 
-import com.exoticworlds.accessors.CoastLiftCache;
 import com.exoticworlds.accessors.IndexableNoise;
+import com.exoticworlds.accessors.NoiseOffsetHolder;
 import com.exoticworlds.accessors.WrappedNormalNoise;
 import com.exoticworlds.core.fold.TranslationLattice;
 import com.exoticworlds.core.fold.WorldFold;
@@ -122,7 +122,9 @@ public final class ContextScaledNoise {
             value = noise.getValue(x, y, z);
         }
 
-        return noise.noise() instanceof CoastLiftCache coast ? value + coast.exotic_worlds$getCoastLift() : value;
+        return noise.noise() instanceof NoiseOffsetHolder offset
+                ? value + offset.exotic_worlds$getNoiseOffset().get()
+                : value;
     }
 
     private static double worldCoord(SlotAxes axes, SlotAxis axis, double x, double y, double z) {

@@ -14,10 +14,10 @@ import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.DensityFunctionSlotAxes;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.NoiseConstants;
+import com.exoticworlds.engine.noise.NoiseFeatures;
 import com.exoticworlds.engine.noise.NoiseScaleLadder;
 import com.exoticworlds.engine.noise.SlotAxes;
 import com.exoticworlds.engine.noise.SlotAxis;
-import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
 import com.ishland.c2me.opts.dfc.common.ast.AstNode;
 import com.ishland.c2me.opts.dfc.common.ast.binary.AddNode;
 import com.ishland.c2me.opts.dfc.common.ast.binary.MulNode;
@@ -163,8 +163,9 @@ public final class C2meDfcAst {
             return new C2meFoldedNoiseNode(noise.inputX, noise.inputY, noise.inputZ, noise.noise,
                     shiftOf(source, CoordinateNode.Axis.X, noise.inputX), slotY,
                     shiftOf(source, CoordinateNode.Axis.Z, noise.inputZ), axes, fold.horizontalScale(),
-                    fold.vanillaScale(), fold.verticalShare(), ClimateCompression.warpDivisor(noise.noise,
-                            worldFold, fold.horizontalScale(), fold.verticalShare()), worldFold);
+                    fold.vanillaScale(), fold.verticalShare(), NoiseFeatures.warpDivisor(
+                            NoiseFeatures.getFeatures(noise.noise), worldFold, noise.noise, fold.horizontalScale(),
+                            fold.verticalShare()), worldFold);
         }
 
         return new C2meFoldedNoiseNode(noise.inputX, noise.inputY, noise.inputZ, noise.noise,

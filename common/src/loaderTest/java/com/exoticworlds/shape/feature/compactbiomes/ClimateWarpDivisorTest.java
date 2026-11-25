@@ -8,7 +8,11 @@ import static com.exoticworlds.engine.noise.DensityFunctionFixture.SQUARE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
+
+import com.exoticworlds.engine.noise.NoiseFeatures;
 
 class ClimateWarpDivisorTest {
     private static final double HORIZONTAL_SHARE = 0.0;
@@ -22,6 +26,7 @@ class ClimateWarpDivisorTest {
 
         assertTrue(factor > 1.0, "the fixture sits outside the compressed regime, so the case proves nothing");
         assertEquals(CLIMATE_XZ_SCALE * factor,
-                ClimateCompression.warpDivisor(CLIMATE_NOISE, SQUARE, CLIMATE_XZ_SCALE, HORIZONTAL_SHARE));
+                NoiseFeatures.warpDivisor(List.of(CompactBiomes.FEATURE), SQUARE, CLIMATE_NOISE, CLIMATE_XZ_SCALE,
+                        HORIZONTAL_SHARE));
     }
 }

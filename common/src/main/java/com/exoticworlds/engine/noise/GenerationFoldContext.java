@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.feature.GenerationFeature;
+import com.exoticworlds.core.feature.NoiseOffsets;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.DoubleStack;
@@ -22,6 +23,7 @@ public final class GenerationFoldContext {
         private WorldFold fold = WorldFolds.NOOP;
         private @Nullable WorldFold routerBuild;
         private List<GenerationFeature> routerBuildFeatures = List.of();
+        private NoiseOffsets routerBuildOffsets = new NoiseOffsets();
         private double horizontalScale = NoiseConstants.UNSCALED;
         private double vanillaScale = NoiseConstants.UNSCALED;
         private double verticalShare = UNDECLARED_VERTICAL_SHARE;
@@ -47,6 +49,10 @@ public final class GenerationFoldContext {
 
         public List<GenerationFeature> getRouterBuildFeatures() {
             return this.routerBuildFeatures;
+        }
+
+        public NoiseOffsets getRouterBuildOffsets() {
+            return this.routerBuildOffsets;
         }
 
         // mc/26.2: the noise samplers and C2ME's compiled tree read the scale through it.
@@ -272,14 +278,17 @@ public final class GenerationFoldContext {
         Context context = CONTEXT.get();
         WorldFold previous = context.routerBuild;
         List<GenerationFeature> previousFeatures = context.routerBuildFeatures;
+        NoiseOffsets previousOffsets = context.routerBuildOffsets;
         context.routerBuild = fold;
         context.routerBuildFeatures = features;
+        context.routerBuildOffsets = new NoiseOffsets();
 
         try {
             return action.get();
         } finally {
             context.routerBuild = previous;
             context.routerBuildFeatures = previousFeatures;
+            context.routerBuildOffsets = previousOffsets;
         }
     }
 
