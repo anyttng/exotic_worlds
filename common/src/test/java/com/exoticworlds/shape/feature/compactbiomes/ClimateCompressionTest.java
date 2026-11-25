@@ -1,4 +1,4 @@
-package com.exoticworlds.shape.climate;
+package com.exoticworlds.shape.feature.compactbiomes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -18,7 +18,7 @@ import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.shape.climate.ClimateCompressionCacheFixture.Storing;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateCompressionCacheFixture.Storing;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;

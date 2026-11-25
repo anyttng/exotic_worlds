@@ -23,10 +23,10 @@ import com.exoticworlds.core.option.ShapeOption;
 import com.exoticworlds.core.option.ShapeOptionRegistry;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.WorldLoopBounds;
-import com.exoticworlds.shape.climate.CompactBiomes;
+import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 import com.exoticworlds.shape.layout.DimensionLayout;
-import com.exoticworlds.shape.torus.GuaranteedLand;
-import com.exoticworlds.shape.torus.GuaranteedNetherComplexes;
+import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
+import com.exoticworlds.shape.feature.guaranteednethercomplexes.GuaranteedNetherComplexes;
 
 import net.minecraft.core.Direction;
 

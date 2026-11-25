@@ -2,7 +2,7 @@ package com.exoticworlds.accessors;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.shape.climate.ClimateCompression.Resolved;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression.Resolved;
 
 public interface ClimateCompressionCache {
     @Nullable Resolved exotic_worlds$climateCompression();

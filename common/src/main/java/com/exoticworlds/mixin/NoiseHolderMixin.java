@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.ClimateFieldMark;
-import com.exoticworlds.shape.climate.ClimateFields;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateFields;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.levelgen.DensityFunction;

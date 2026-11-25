@@ -1,4 +1,4 @@
-package com.exoticworlds.shape.climate;
+package com.exoticworlds.shape.feature.compactbiomes;
 
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.CLIMATE_AMPLITUDES;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.CLIMATE_FIRST_OCTAVE;

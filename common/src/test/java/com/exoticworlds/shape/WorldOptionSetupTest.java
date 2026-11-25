@@ -12,9 +12,9 @@ import com.exoticworlds.bridge.v1.option.OptionBridge;
 import com.exoticworlds.core.option.ShapeOption;
 import com.exoticworlds.core.option.ShapeOptionRegistry;
 import com.exoticworlds.core.world.SpawnPoint;
-import com.exoticworlds.shape.climate.CompactBiomes;
-import com.exoticworlds.shape.torus.GuaranteedLand;
-import com.exoticworlds.shape.torus.GuaranteedNetherComplexes;
+import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
+import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
+import com.exoticworlds.shape.feature.guaranteednethercomplexes.GuaranteedNetherComplexes;
 
 class WorldOptionSetupTest {
     private static final List<ShapeOption<?>> OWN = List.of(SpawnPoint.OPTION, CompactBiomes.FEATURE.getOption(),

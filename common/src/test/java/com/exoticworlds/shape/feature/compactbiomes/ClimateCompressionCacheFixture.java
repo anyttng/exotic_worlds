@@ -1,9 +1,9 @@
-package com.exoticworlds.shape.climate;
+package com.exoticworlds.shape.feature.compactbiomes;
 
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.ClimateCompressionCache;
-import com.exoticworlds.shape.climate.ClimateCompression.Resolved;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression.Resolved;
 
 final class ClimateCompressionCacheFixture {
     static final class Storing implements ClimateCompressionCache {
