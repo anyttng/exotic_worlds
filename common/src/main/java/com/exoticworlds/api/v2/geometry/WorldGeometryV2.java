@@ -10,49 +10,44 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * The geometry of one wrapped level: the spans it folds into and the folding operations that geometry defines. Obtain
- * one from {@link WorldGeometriesV2#of(net.minecraft.world.level.Level)} on the server or from
- * {@link com.exoticworlds.api.v2.geometry.client.ClientGeometriesV2} on the client; a geometry exists only for a level that
+ * The geometry of one wrapped level, which is the spans it folds into and the folding operations that geometry defines.
+ * Obtain one from {@link WorldGeometriesV2#of(net.minecraft.world.level.Level)} on the server or from {@link
+ * com.exoticworlds.api.v2.geometry.client.ClientGeometriesV2} on the client. A geometry exists only for a level that
  * wraps.
  *
- * <p>Every member takes a whole position. No member folds one axis alone, because crossing a seam on one axis may
- * move or turn the other. {@link Direction.Axis#Y} passes through every member untouched. A geometry is an immutable
- * view: cheap to hold, valid as long as its level.</p>
+ * <p>Every member takes a whole position. No member folds one axis alone, because crossing a seam on one axis may move
+ * or turn the other. {@link Direction.Axis#Y} passes through every member untouched. A geometry is an immutable view,
+ * cheap to hold and valid as long as its level.</p>
  *
- * <p>Every fold here hands back the argument instance itself when it moved nothing: {@code fold(pos) == pos},
+ * <p>Every fold here hands back the argument instance itself when it moved nothing, so {@code fold(pos) == pos} and
  * {@code nearestCopy(ref, target) == target}, and likewise for the {@code value()} of an {@link OrientedV2} result. A
- * caller may read that {@code ==} as "nothing moved" and skip the copy, the allocation or the write it would
- * otherwise make. {@link #shortestDelta(Vec3, Vec3)} is the one exception: its result is not one of its arguments,
- * so it can only answer by value.</p>
+ * caller may read that {@code ==} as "nothing moved" and skip the copy, the allocation or the write it would otherwise
+ * make. {@link #shortestDelta(Vec3, Vec3)} is the one exception. Its result is not one of its arguments, so it can only
+ * answer by value.</p>
  */
 public interface WorldGeometryV2 {
 
     /**
      * Which horizontal axes loop, over what span of chunks, and how far crossing the Z seam shifts X. A bound or a
-     * width is read here; a copy of the world is never rebuilt from a width, since a skewed copy one row over is also
-     * moved sideways: {@link #copiesMeeting(AABB)} lists the copies.
+     * width is read here. A copy of the world is never rebuilt from a width, since a skewed copy one row over is also
+     * moved sideways, and {@link #copiesMeeting(AABB)} lists the copies.
      */
     LoopSpansV2 getSpans();
 
-    /**
-     * The position folded into the world; an in-bounds position comes back as the argument instance itself.
-     */
+    /** The position folded into the world. An in-bounds position comes back as the argument instance itself. */
     BlockPos fold(BlockPos pos);
 
-    /**
-     * The position folded into the world; an in-bounds position comes back as the argument instance itself.
-     */
+    /** The position folded into the world. An in-bounds position comes back as the argument instance itself. */
     Vec3 fold(Vec3 pos);
 
-    /**
-     * The chunk position folded into the world; an in-bounds position comes back as the argument instance itself.
-     */
+    /** The chunk position folded into the world. An in-bounds position comes back as the argument instance itself. */
     ChunkPos fold(ChunkPos pos);
 
     /**
-     * The copy of {@code target} nearest {@code ref}: the coordinates a renderer or a distance check should use so
-     * that something just across the seam reads as beside the reference, not a world away. {@code target} may lie any
-     * number of laps out. A {@code target} already nearest {@code ref} comes back as the argument instance itself.
+     * The copy of {@code target} nearest {@code ref}. These are the coordinates a renderer or a distance check should
+     * use so that something just across the seam reads as beside the reference, not a world away. {@code target} may
+     * lie any number of laps out. A {@code target} already nearest {@code ref} comes back as the argument instance
+     * itself.
      */
     Vec3 nearestCopy(Vec3 ref, Vec3 target);
 
@@ -60,18 +55,17 @@ public interface WorldGeometryV2 {
     BlockPos nearestCopy(BlockPos ref, BlockPos target);
 
     /**
-     * The whole box carried into the copy nearest {@code ref}, chosen by where its center lands. The box moves
-     * rigidly: its size never changes and it is never split at a seam, so a box straddling one comes back straddling
-     * it. That is what a range check, a selection or a rendered bound wants: one box in the frame the reference is
-     * in, not the pieces the world would cut it into. A box already nearest {@code ref} comes back as the argument
-     * instance itself.
+     * The whole box carried into the copy nearest {@code ref}, chosen by where its center lands. The box moves rigidly.
+     * Its size never changes and it is never split at a seam, so a box straddling one comes back straddling it. A range
+     * check, a selection or a rendered bound wants exactly that, one box in the frame the reference is in and not the
+     * pieces the world would cut it into. A box already nearest {@code ref} comes back as the argument instance itself.
      */
     AABB nearestCopy(Vec3 ref, AABB box);
 
     /**
-     * The one move that carries a whole rigid group into the copy nearest {@code ref}, chosen by where
-     * {@code anchor}, one position of the group, lands. Apply the result to every member: moving each member on its
-     * own with {@link #nearestCopy(Vec3, Vec3)} lets two of them pick different copies and tears the group in half.
+     * The one move that carries a whole rigid group into the copy nearest {@code ref}, chosen by where {@code anchor},
+     * one position of the group, lands. Apply the result to every member. Moving each member on its own with {@link
+     * #nearestCopy(Vec3, Vec3)} lets two of them pick different copies and tears the group in half.
      */
     SeamShiftV2 shiftToNearestCopy(Vec3 ref, Vec3 anchor);
 
@@ -79,48 +73,47 @@ public interface WorldGeometryV2 {
     SeamShiftV2 shiftToNearestCopy(BlockPos ref, BlockPos anchor);
 
     /**
-     * The shortest vector from {@code from} to {@code to}, measured through the seam where that is shorter: what a
-     * waypoint arrow, a distance readout or a direction indicator needs. Equal to
-     * {@code nearestCopy(from, to).subtract(from)}. Always a fresh vector: unlike the folds, it never hands an
-     * argument back.
+     * The shortest vector from {@code from} to {@code to}, measured through the seam where that is shorter. A waypoint
+     * arrow, a distance readout or a direction indicator needs it. Equal to {@code nearestCopy(from,
+     * to).subtract(from)}. It is always a fresh vector and, unlike the folds, never hands an argument back.
      */
     Vec3 shortestDelta(Vec3 from, Vec3 to);
 
     /**
-     * The squared distance from {@code from} to {@code to}, measured through the seam where that is shorter: what a
-     * range check or a nearest-target search asks once per candidate. Equal to
-     * {@code shortestDelta(from, to).lengthSqr()}, Y included, without building either vector.
+     * The squared distance from {@code from} to {@code to}, measured through the seam where that is shorter. A range
+     * check or a nearest-target search asks it once per candidate. Equal to {@code shortestDelta(from,
+     * to).lengthSqr()}, Y included, without building either vector.
      */
     double sqrDistanceBlocks(Vec3 from, Vec3 to);
 
     /**
-     * Whether two boxes overlap in some copy of the world: what an area query asks of a box that may straddle the
-     * seam or lie any number of laps out. Faces that only touch do not overlap, as in {@link AABB#intersects(AABB)}.
+     * Whether two boxes overlap in some copy of the world. An area query asks it of a box that may straddle the seam or
+     * lie any number of laps out. Faces that only touch do not overlap, as in {@link AABB#intersects(AABB)}.
      */
     boolean areBoxesOverlapping(AABB first, AABB second);
 
     /**
-     * The pieces the world cuts {@code box} into at the seam, each folded into the world: what a mod scanning the
-     * blocks or entities of an area walks instead of the box itself. A box inside the world comes back as the one
-     * piece, the argument instance itself; one wider than the world is cut down to a single lap. Each piece reports
-     * the orientation its fold applied.
+     * The pieces the world cuts {@code box} into at the seam, each folded into the world. A mod scanning the blocks or
+     * entities of an area walks them instead of the box itself. A box inside the world comes back as the one piece, the
+     * argument instance itself, and one wider than the world is cut down to a single lap. Each piece reports the
+     * orientation its fold applied.
      */
     List<OrientedV2<AABB>> split(AABB box);
 
     /**
-     * Every copy of the world that meets a horizontal rectangle, as the one move that carries the world into it:
-     * what a map drawing its tiles asks once per frame. Near a seam, or where the rectangle is wider than the world,
-     * that is more than one copy. The rectangle is {@code box} on X and Z, half-open like every span; its Y is
-     * ignored, and an empty one meets nothing. Where the world itself meets the rectangle, its
-     * {@linkplain SeamShiftV2#isIdentity() identity} shift comes first.
+     * Every copy of the world that meets a horizontal rectangle, as the one move that carries the world into it. A map
+     * drawing its tiles asks it once per frame. Near a seam, or where the rectangle is wider than the world, that is
+     * more than one copy. The rectangle is {@code box} on X and Z, half-open like every span. Its Y is ignored, and an
+     * empty one meets nothing. Where the world itself meets the rectangle, its {@linkplain SeamShiftV2#isIdentity()
+     * identity} shift comes first.
      */
     List<SeamShiftV2> copiesMeeting(AABB box);
 
     /**
-     * Every copy of {@code pos} lying inside a horizontal rectangle: what a marker drawn on a map asks. The rectangle
-     * is read as in {@link #copiesMeeting(AABB)}: a position on its min edge is inside, one on its max edge is not.
-     * {@code pos} may lie any number of laps out, and a copy that lands where {@code pos} already is comes back as
-     * the argument instance itself.
+     * Every copy of {@code pos} lying inside a horizontal rectangle. A marker drawn on a map asks it. The rectangle is
+     * read as in {@link #copiesMeeting(AABB)}, so a position on its min edge is inside and one on its max edge is not.
+     * {@code pos} may lie any number of laps out, and a copy that lands where {@code pos} already is comes back as the
+     * argument instance itself.
      */
     List<OrientedV2<Vec3>> copiesInside(AABB box, Vec3 pos);
 

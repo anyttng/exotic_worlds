@@ -17,6 +17,6 @@ public interface NoiseV2 extends MomentV2 {
     /** The horizontal scale the terrain samples this noise at. */
     double getScale();
 
-    /** The noise's vertical scale as a share of its horizontal one; negative where the noise declares none. */
+    /** The noise's vertical scale as a share of its horizontal one, negative where the noise declares none. */
     double getVerticalShare();
 }

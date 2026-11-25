@@ -39,15 +39,15 @@ public interface FeaturePanelV2<T> {
     /** The fill of the page, for widgets that draw over it. */
     FillStyle getFill();
 
-    /** Adds a widget under the feature's controls; widgets stack top to bottom in the order they are added. */
+    /** Adds a widget under the feature's controls. Widgets stack top to bottom in the order they are added. */
     void add(GuiComponent component);
 
-    /** Calls {@code shown} with the stored value each time the page is shown: set your widgets from it. */
+    /** Calls {@code shown} with the stored value each time the page is shown, so that you set your widgets from it. */
     void onShow(Consumer<T> shown);
 
     /**
-     * Makes your widgets the source of the value: {@code chosen} is asked when the player confirms, and a
-     * {@code null} answer holds the screen's Done.
+     * Makes your widgets the source of the value. {@code chosen} is asked when the player confirms, and a {@code null}
+     * answer holds the screen's Done.
      */
     void takeValueFrom(Supplier<@Nullable T> chosen);
 }

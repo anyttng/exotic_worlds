@@ -6,9 +6,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
- * One control of an option on the World Shape Settings screen. An option of a plain value has one part made by
- * {@link #toggle()}, {@link #choice} or {@link #number}; an option of a compound value lists several, each reading
- * its piece of the value and writing it back.
+ * One control of an option on the World Shape Settings screen. An option of a plain value has one part made by {@link
+ * #toggle()}, {@link #choice} or {@link #number}. An option of a compound value lists several, each reading its piece
+ * of the value and writing it back.
  *
  * @param <T> the option's value type
  */
@@ -17,7 +17,9 @@ public sealed interface OptionPartV2<T>
     /** The key of a part that takes the option's own caption. */
     String OWN_CAPTION = "";
 
-    /** The part's key, appended to the option's caption key with a dot; {@link #OWN_CAPTION} for the caption itself. */
+    /**
+     * The part's key, appended to the option's caption key with a dot, or {@link #OWN_CAPTION} for the caption itself.
+     */
     String key();
 
     /** Whether the part is shown while the option holds the value. */

@@ -12,7 +12,7 @@ public interface NoiseMomentV2 {
     double UNCHANGED = 1.0;
 
     /**
-     * How many times finer each layer of the noise becomes: one factor per layer, in the noise's own layer order. A
+     * How many times finer each layer of the noise becomes, one factor per layer, in the noise's own layer order. A
      * factor of two halves the size of what that layer draws.
      */
     default double[] layerFactors(NoiseV2 noise) {

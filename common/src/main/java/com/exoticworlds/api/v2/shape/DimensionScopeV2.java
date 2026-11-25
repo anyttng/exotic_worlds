@@ -7,7 +7,7 @@ import net.minecraft.world.level.dimension.LevelStem;
 
 /**
  * The dimensions a feature works in on one shape. A feature attached with {@link #ALL} works in every dimension that
- * takes the shape, a mod's own dimensions included; one attached with {@link #of} works in the named dimensions alone,
+ * takes the shape, a mod's own dimensions included. One attached with {@link #of} works in the named dimensions alone,
  * and its line is shown on those dimensions' pages only.
  */
 public final class DimensionScopeV2 {
@@ -23,7 +23,7 @@ public final class DimensionScopeV2 {
     /**
      * The named dimensions alone.
      *
-     * @throws IllegalArgumentException if no dimension is named: use {@link #ALL} for every dimension
+     * @throws IllegalArgumentException if no dimension is named, where {@link #ALL} is the scope for every dimension
      */
     public static DimensionScopeV2 of(List<ResourceKey<LevelStem>> dimensions) {
         if (dimensions.isEmpty()) {

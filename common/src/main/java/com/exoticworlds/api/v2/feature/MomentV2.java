@@ -6,9 +6,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 
 /**
- * What every moment tells a feature: the looped world it is called in, the dimension, and the value of the feature's
- * own option. Each moment interface takes one object that extends this one, so a later release can tell a feature
- * more without changing a single signature.
+ * What every moment tells a feature, which is the looped world it is called in, the dimension, and the value of the
+ * feature's own option. Each moment interface takes one object that extends this one, so a later release can tell a
+ * feature more without changing a single signature.
  */
 public interface MomentV2 {
     /** The geometry of the dimension the moment is called in. */
@@ -18,7 +18,7 @@ public interface MomentV2 {
     ResourceKey<LevelStem> getDimension();
 
     /**
-     * The value {@code feature}'s option holds in this dimension: what the world stored, or the option's stored
+     * The value {@code feature}'s option holds in this dimension. It is what the world stored, or the option's stored
      * default where the world never stated it.
      *
      * @throws IllegalStateException if {@code feature} was never registered

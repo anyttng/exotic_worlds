@@ -37,7 +37,9 @@ class DatapackTemplatesJsonTest {
     private static final String TORUS = "torus";
     private static final String CYLINDER = "cylinder";
 
-    private static final String GENERATOR_ID = "exotic_worlds:toroidal";
+    private static final String GENERATOR_ID = "minecraft:noise";
+    private static final String TORUS_ID = "exotic_worlds:torus";
+    private static final String CYLINDER_ID = "exotic_worlds:cylinder";
     private static final int VANILLA_DIMENSIONS = 3;
 
     private static final String TEST_OPTION_PREFIX = "example_";
@@ -94,21 +96,26 @@ class DatapackTemplatesJsonTest {
         assertEquals(GENERATOR_ID, generator.get("type").getAsString(), context + ": generator type");
         assertEquals(noiseSettingsId, generator.get("settings").getAsString(), context + ": noise settings");
 
+        JsonObject stated = generator.getAsJsonObject(StampedGeneratorCodec.SHAPE_KEY);
+        assertNotNull(stated, context + ": no " + StampedGeneratorCodec.SHAPE_KEY + " object");
+        assertEquals(identification == FlatShape.Identification.TORUS ? TORUS_ID : CYLINDER_ID,
+                stated.get(CarriedShape.ID_KEY).getAsString(), context + ": shape id");
         FlatShape shape = CarriedShape.SHAPE_CODEC
-                .parse(JsonOps.INSTANCE, generator.get(CarriedShape.WRAPPING_KEY))
+                .parse(JsonOps.INSTANCE, stated.get(CarriedShape.WRAPPING_KEY))
                 .getOrThrow(message -> new AssertionError(context + ": wrapping is refused: " + message));
         assertEquals(identification, shape.getIdentification(), context + ": identification");
 
         WorldOptions.all().stream()
                 .filter(option -> !option.key().startsWith(TEST_OPTION_PREFIX))
-                .forEach(option -> assertOption(context, generator, option, statesOptions));
+                .forEach(option -> assertOption(context, stated, option, statesOptions));
 
         return shape.bounds();
     }
 
-    private static <V> void assertOption(String context, JsonObject generator, WorldOption<V> option, boolean stated) {
-        JsonElement value = generator.get(option.key());
-        if (!stated) {
+    private static <V> void assertOption(String context, JsonObject shape, WorldOption<V> option,
+            boolean isStated) {
+        JsonElement value = shape.get(option.key());
+        if (!isStated) {
             assertNull(value, context + ": a cylinder states no " + option.key());
             return;
         }
