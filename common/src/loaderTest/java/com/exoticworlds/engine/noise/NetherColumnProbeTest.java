@@ -67,7 +67,6 @@ class NetherColumnProbeTest {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
         StartupRegistrations.options();
-        StartupRegistrations.generationHooks();
         holders = VanillaRegistries.createWorldLookup();
         Holder<NoiseGeneratorSettings> settingsHolder =
                 holders.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.NETHER);
@@ -143,7 +142,8 @@ class NetherColumnProbeTest {
                 long seed = SEED_BASE + s * SEED_STEP;
                 RandomState controlState = RandomState.create(holders.lookupOrThrow(Registries.NOISE), seed,
                         netherSettings);
-                RandomState foldedState = GenerationFoldContext.withRouterBuild(fold, List.of(),
+                RandomState foldedState = GenerationFoldContext.withRouterBuild(fold,
+                        List.copyOf(StartupRegistrations.noiseFeaturesFor(fold.getOptions())),
                         () -> RandomState.create(holders.lookupOrThrow(Registries.NOISE), seed, netherSettings));
                 int windowX = (int) (windows.nextDouble() * VANILLA_WINDOW_SPAN);
                 int windowZ = (int) (windows.nextDouble() * VANILLA_WINDOW_SPAN);

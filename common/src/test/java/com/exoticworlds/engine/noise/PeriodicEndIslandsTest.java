@@ -9,7 +9,7 @@ import java.util.Random;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.accessors.CoastLiftCache;
+import com.exoticworlds.core.feature.NoiseOffsets;
 import com.exoticworlds.core.fold.deck.DeckGroupFold;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.ShapeFixtures;
@@ -75,17 +75,6 @@ class PeriodicEndIslandsTest {
         @Deprecated
         public RandomSource createEndIslandRandom() {
             return new LegacyRandomSource(SEED);
-        }
-    };
-
-    private static final CoastLiftCache NO_LIFT = new CoastLiftCache() {
-        @Override
-        public double exotic_worlds$getCoastLift() {
-            return 0.0;
-        }
-
-        @Override
-        public void exotic_worlds$setCoastLift(double lift) {
         }
     };
 
@@ -197,7 +186,7 @@ class PeriodicEndIslandsTest {
         @Test
         void theMainIslandIsTheSameAtEveryDeckCopy() {
             DensitySampler distance = FoldedSamplers.distanceToPoint(
-                    new FoldedCompileContext(SEEDED, SKEWED, NO_LIFT, NoiseScaleLadder.NONE),
+                    new FoldedCompileContext(SEEDED, SKEWED, List.of(), new NoiseOffsets(), NoiseScaleLadder.NONE),
                     Vec3i.ZERO, DistanceMetric.EUCLIDEAN);
             Random random = new Random(SEED);
             for (int i = 0; i < SAMPLES; i++) {
@@ -259,7 +248,7 @@ class PeriodicEndIslandsTest {
 
     private static float mainIslandHeight(WorldFold fold, Direction.Axis axis, int along, int across) {
         DensitySampler distance = FoldedSamplers.distanceToPoint(
-                new FoldedCompileContext(SEEDED, fold, NO_LIFT, NoiseScaleLadder.NONE),
+                new FoldedCompileContext(SEEDED, fold, List.of(), new NoiseOffsets(), NoiseScaleLadder.NONE),
                 Vec3i.ZERO, DistanceMetric.EUCLIDEAN);
         float blocks = axis == Direction.Axis.X
                 ? distance.sampleValue(SamplerContext.EMPTY_UNCACHED, along, 0, across)

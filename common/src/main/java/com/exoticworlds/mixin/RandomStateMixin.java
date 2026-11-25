@@ -10,12 +10,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.exoticworlds.accessors.CoastLiftCache;
+import com.exoticworlds.accessors.NoiseOffsetsHolder;
 import com.exoticworlds.accessors.FoldedClimateSampler;
 import com.exoticworlds.accessors.FoldedCompileSource;
 import com.exoticworlds.accessors.FoldedRandomState;
 import com.exoticworlds.accessors.FoldSource;
 import com.exoticworlds.core.feature.GenerationFeature;
+import com.exoticworlds.core.feature.NoiseFeature;
+import com.exoticworlds.core.feature.NoiseOffsets;
 import com.exoticworlds.core.feature.RandomStateFeature;
 import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.gen.GenerationMoments;
@@ -39,13 +41,13 @@ import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 @Mixin(RandomState.class)
-public class RandomStateMixin implements CoastLiftCache, FoldSource, FoldedRandomState {
+public class RandomStateMixin implements NoiseOffsetsHolder, FoldSource, FoldedRandomState {
     @Unique
     private static final String exotic_worlds$CONSTRUCTOR = "<init>(Lnet/minecraft/core/HolderGetter;JZ"
             + "Lnet/minecraft/world/level/block/state/BlockState;ILnet/minecraft/world/level/levelgen/NoiseRouter;)V";
 
     @Unique
-    private volatile double exotic_worlds$coastLift;
+    private volatile @Nullable NoiseOffsets exotic_worlds$noiseOffsets;
 
     @Unique
     private @Nullable WorldFold exotic_worlds$fold;
@@ -87,8 +89,10 @@ public class RandomStateMixin implements CoastLiftCache, FoldSource, FoldedRando
             return context;
         }
 
-        this.exotic_worlds$compileContext = new FoldedCompileContext(context, fold, this,
-                NoiseScaleLadder.of(fold, exotic_worlds$roots(router), context));
+        List<NoiseFeature> features = ShapeFeatures.atMoment(
+                GenerationFoldContext.getContext().getRouterBuildFeatures(), NoiseFeature.class);
+        this.exotic_worlds$compileContext = new FoldedCompileContext(context, fold, features,
+                exotic_worlds$getNoiseOffsets(), NoiseScaleLadder.of(fold, exotic_worlds$roots(router), context));
         ((FoldedCompileSource) context).exotic_worlds$setFoldedCompile(this.exotic_worlds$compileContext);
         return context;
     }
@@ -149,12 +153,11 @@ public class RandomStateMixin implements CoastLiftCache, FoldSource, FoldedRando
     }
 
     @Override
-    public double exotic_worlds$getCoastLift() {
-        return this.exotic_worlds$coastLift;
-    }
+    public NoiseOffsets exotic_worlds$getNoiseOffsets() {
+        if (this.exotic_worlds$noiseOffsets == null) {
+            this.exotic_worlds$noiseOffsets = new NoiseOffsets();
+        }
 
-    @Override
-    public void exotic_worlds$setCoastLift(double lift) {
-        this.exotic_worlds$coastLift = lift;
+        return this.exotic_worlds$noiseOffsets;
     }
 }

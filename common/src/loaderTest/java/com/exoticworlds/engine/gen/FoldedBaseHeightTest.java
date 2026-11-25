@@ -53,7 +53,6 @@ class FoldedBaseHeightTest {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
         StartupRegistrations.options();
-        StartupRegistrations.generationHooks();
         holders = VanillaRegistries.createWorldLookup();
         overworldSettings = holders.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.OVERWORLD);
         NoiseSettings noise = overworldSettings.value().noiseSettings();

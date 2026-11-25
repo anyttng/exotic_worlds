@@ -23,11 +23,6 @@ public final class ClimateCompression {
 
     private static final double LN_2 = Math.log(2.0);
 
-    public static double warpDivisor(Holder<NormalNoise> noise, WorldFold fold, double xzScale,
-            double verticalShare) {
-        return xzScale * factor(fold, noise, xzScale, verticalShare);
-    }
-
     public static double[] layerFactors(WorldFold fold, Holder<NormalNoise> noise, NoiseStack stack,
             double baseScale, double verticalShare) {
         NoiseStack.Layer[] layers = stack.layers;

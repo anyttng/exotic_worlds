@@ -5,8 +5,9 @@ import java.util.Random;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.accessors.CoastLiftCache;
+import com.exoticworlds.core.feature.NoiseOffsets;
 import com.exoticworlds.accessors.FoldedCompileSource;
+import com.exoticworlds.shape.StartupRegistrations;
 import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldFolds;
@@ -72,17 +73,6 @@ public final class DensityFunctionFixture {
         }
     };
 
-    private static final CoastLiftCache NO_LIFT = new CoastLiftCache() {
-        @Override
-        public double exotic_worlds$getCoastLift() {
-            return 0.0;
-        }
-
-        @Override
-        public void exotic_worlds$setCoastLift(double lift) {
-        }
-    };
-
     public static DensitySampler compile(DensityFunction function, WorldFold fold) {
         return compileFolded(function, fold, NoiseScaleLadder.NONE);
     }
@@ -97,7 +87,8 @@ public final class DensityFunctionFixture {
 
     private static DensitySampler compileFolded(DensityFunction function, WorldFold fold, NoiseScaleLadder ladder) {
         FoldedSeeded context = new FoldedSeeded();
-        context.exotic_worlds$setFoldedCompile(new FoldedCompileContext(context, fold, NO_LIFT, ladder));
+        context.exotic_worlds$setFoldedCompile(new FoldedCompileContext(context, fold,
+                StartupRegistrations.noiseFeaturesFor(fold.getOptions()), new NoiseOffsets(), ladder));
         return new DensityFunctionCompiler(context).getSampler(function);
     }
 

@@ -1,6 +1,7 @@
 package com.exoticworlds.shape.feature.guaranteedland;
 
-import com.exoticworlds.accessors.CoastLiftCache;
+import com.exoticworlds.accessors.NoiseOffsetsHolder;
+import com.exoticworlds.core.feature.NoiseOffsets;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.noise.DensityNoises;
@@ -44,7 +45,7 @@ public final class CoastFieldLift {
             int seaLevel) {
         int xLengthBlocks = dimensionFold.getWidthBlocks(Direction.Axis.X);
         int zLengthBlocks = dimensionFold.getWidthBlocks(Direction.Axis.Z);
-        CoastLiftCache lift = (CoastLiftCache) (Object) randomState;
+        NoiseOffsets lift = ((NoiseOffsetsHolder) (Object) randomState).exotic_worlds$getNoiseOffsets();
         DensitySampler density = randomState.getSampler(router.finalDensity());
         int strideBlocks = Math.max(STRIDE_BLOCKS, Math.max(xLengthBlocks, zLengthBlocks) / GRID_CAP);
         int xGrid = Math.max(1, xLengthBlocks / strideBlocks);
@@ -53,14 +54,14 @@ public final class CoastFieldLift {
         int skewCells = (int) Math.round((double) fold.getBlockLattice().getSkew() / strideBlocks);
 
         for (double candidate : CANDIDATES) {
-            lift.exotic_worlds$setCoastLift(candidate);
+            lift.set(GuaranteedLand.KEY, candidate);
             long patch = largestPatch(density, seaLevel, strideBlocks, xGrid, zGrid, skewCells) * cellBlocks;
             if (patch >= LAND_FLOOR_BLOCKS) {
                 return;
             }
         }
 
-        lift.exotic_worlds$setCoastLift(CANDIDATES[CANDIDATES.length - 1]);
+        lift.set(GuaranteedLand.KEY, CANDIDATES[CANDIDATES.length - 1]);
     }
 
     private static int largestPatch(DensitySampler density, int seaLevel, int strideBlocks, int xGrid, int zGrid,

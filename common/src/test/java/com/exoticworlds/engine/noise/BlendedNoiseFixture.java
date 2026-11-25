@@ -3,7 +3,9 @@ package com.exoticworlds.engine.noise;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.exoticworlds.accessors.CoastLiftCache;
+import java.util.List;
+
+import com.exoticworlds.core.feature.NoiseOffsets;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.periodic.LapFloor;
 import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
@@ -60,17 +62,6 @@ final class BlendedNoiseFixture {
     private record FoldedKey(Params params, WorldFold fold) {
     }
 
-    private static final CoastLiftCache NO_LIFT = new CoastLiftCache() {
-        @Override
-        public double exotic_worlds$getCoastLift() {
-            return 0.0;
-        }
-
-        @Override
-        public void exotic_worlds$setCoastLift(double lift) {
-        }
-    };
-
     static double vanilla(Replica replica, Params params, double blockX, double blockY, double blockZ) {
         return replica.samplers().computeIfAbsent(params, key -> params.noise().compileSampler(replica.random()))
                 .sampleValue(SamplerContext.EMPTY_UNCACHED, Mth.floor(blockX), Mth.floor(blockY), Mth.floor(blockZ));
@@ -79,7 +70,7 @@ final class BlendedNoiseFixture {
     static double folded(Replica replica, Params params, WorldFold fold,
             double blockX, double blockY, double blockZ) {
         return replica.samplers().computeIfAbsent(new FoldedKey(params, fold), key -> FoldedSamplers.blended(
-                        new FoldedCompileContext(contextOf(replica), fold, NO_LIFT,
+                        new FoldedCompileContext(contextOf(replica), fold, List.of(), new NoiseOffsets(),
                                 NoiseScaleLadder.NONE), params.noise()))
                 .sampleValue(SamplerContext.EMPTY_UNCACHED, Mth.floor(blockX), Mth.floor(blockY), Mth.floor(blockZ));
     }
