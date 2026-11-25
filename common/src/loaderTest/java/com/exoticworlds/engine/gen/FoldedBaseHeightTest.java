@@ -17,6 +17,7 @@ import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.StartupRegistrations;
 
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -133,7 +134,8 @@ class FoldedBaseHeightTest {
     }
 
     private static RandomState foldedState(NoiseBasedChunkGenerator generator, long seed) {
-        return GenerationFoldContext.withRouterBuild(GeneratorShapes.getFold(generator), List.of(),
+        return GenerationFoldContext.withRouterBuild(GeneratorShapes.getFold(generator), LevelStem.OVERWORLD,
+                List.of(),
                 () -> RandomState.create(holders.lookupOrThrow(Registries.NOISE), seed, overworldSettings.value()));
     }
 

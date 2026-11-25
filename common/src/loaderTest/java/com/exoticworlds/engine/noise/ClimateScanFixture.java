@@ -13,6 +13,7 @@ import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
 import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
 
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -131,7 +132,12 @@ public final class ClimateScanFixture {
 
     public static RandomState randomState(NoiseGeneratorSettings settings, WorldFold fold, long seed,
             List<GenerationFeature> features) {
-        return GenerationFoldContext.withRouterBuild(fold.isWrapped() ? fold : null, features,
+        return randomState(settings, fold, seed, LevelStem.OVERWORLD, features);
+    }
+
+    public static RandomState randomState(NoiseGeneratorSettings settings, WorldFold fold, long seed,
+            ResourceKey<LevelStem> dimension, List<GenerationFeature> features) {
+        return GenerationFoldContext.withRouterBuild(fold.isWrapped() ? fold : null, dimension, features,
                 () -> RandomState.create(noises, seed, settings));
     }
 

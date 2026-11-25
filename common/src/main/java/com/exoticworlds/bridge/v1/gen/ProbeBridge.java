@@ -35,7 +35,8 @@ public final class ProbeBridge {
         @Nullable WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         NoiseGeneratorSettings settings = noise.generatorSettings().value();
         NoiseGeneratorSettings shaped = fold != null ? TerrainCeiling.withCeiling(settings) : settings;
-        return GenerationFoldContext.withRouterBuild(fold, GeneratorShapes.activeFeatures(generator, level.dimension()),
+        return GenerationFoldContext.withRouterBuild(fold, Registries.levelToLevelStem(level.dimension()),
+                GeneratorShapes.activeFeatures(generator, level.dimension()),
                 () -> RandomState.create(level.registryAccess().lookupOrThrow(Registries.NOISE), seed, shaped));
     }
 

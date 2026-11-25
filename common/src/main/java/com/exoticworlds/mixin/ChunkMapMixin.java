@@ -41,6 +41,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.GenerationChunkHolder;
@@ -240,8 +241,8 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             @Local(argsOnly = true) ChunkGenerator generator) {
         WorldFold fold = GeneratorShapes.getWrappedFold(generator);
         NoiseGeneratorSettings shaped = TerrainCeiling.shaped(fold, settings);
-        return GenerationFoldContext.withRouterBuild(fold, GeneratorShapes.activeFeatures(generator, level.dimension()),
-                () -> original.call(noises, seed, shaped));
+        return GenerationFoldContext.withRouterBuild(fold, Registries.levelToLevelStem(level.dimension()),
+                GeneratorShapes.activeFeatures(generator, level.dimension()), () -> original.call(noises, seed, shaped));
     }
 
     @WrapOperation(
@@ -264,6 +265,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             @Local(argsOnly = true) ServerLevel level,
             @Local(argsOnly = true) ChunkGenerator generator) {
         return GenerationFoldContext.withRouterBuild(GeneratorShapes.getWrappedFold(generator),
+                Registries.levelToLevelStem(level.dimension()),
                 GeneratorShapes.activeFeatures(generator, level.dimension()),
                 () -> original.call(noises, seed, useLegacyRandom, defaultBlock, seaLevel, router));
     }

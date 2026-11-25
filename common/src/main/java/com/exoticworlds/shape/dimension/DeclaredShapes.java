@@ -1,18 +1,16 @@
 package com.exoticworlds.shape.dimension;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.ExoticWorlds;
+import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.registry.StartupRegistry;
 import com.exoticworlds.core.world.ShapeDerivations;
-import com.exoticworlds.shape.option.DeclaredOptions;
 
 import net.minecraft.resources.Identifier;
 
@@ -44,21 +42,13 @@ public final class DeclaredShapes {
         return resolved.getIdentification() == FlatShape.Identification.RECTANGLE ? null : resolved;
     }
 
-    public static void warnOfUnknownOptionShapes() {
-        Set<Identifier> known = new HashSet<>(SHAPES.getEntries().keySet());
-        unknownOptionShapes(DeclaredOptions.getAll(), known).forEach(
-                unknown -> ExoticWorlds.LOGGER.warn("[ew/option] unknown_shape {}", unknown));
+    public static void warnOfUnknownShapes() {
+        unknownShapes(ShapeFeatures.getShapes(), SHAPES.getEntries().keySet()).forEach(
+                unknown -> ExoticWorlds.LOGGER.warn("[ew/feature] unknown_shape shape={}", unknown));
     }
 
-    static List<String> unknownOptionShapes(Collection<DeclaredOptions.Entry> options, Set<Identifier> known) {
-        List<String> unknown = new ArrayList<>();
-        for (DeclaredOptions.Entry declared : options) {
-            declared.shapes().stream()
-                    .filter(shape -> !known.contains(shape))
-                    .forEach(shape -> unknown.add("option=" + declared.option().getOption().key() + " shape=" + shape));
-        }
-
-        return unknown;
+    static List<Identifier> unknownShapes(Collection<Identifier> attachedTo, Set<Identifier> known) {
+        return attachedTo.stream().filter(shape -> !known.contains(shape)).toList();
     }
 
     private DeclaredShapes() {

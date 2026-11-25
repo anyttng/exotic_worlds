@@ -15,6 +15,7 @@ import com.exoticworlds.core.fold.WrapDomain;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
@@ -87,7 +88,7 @@ public final class DensityFunctionFixture {
 
     private static DensitySampler compileFolded(DensityFunction function, WorldFold fold, NoiseScaleLadder ladder) {
         FoldedSeeded context = new FoldedSeeded();
-        context.exotic_worlds$setFoldedCompile(new FoldedCompileContext(context, fold,
+        context.exotic_worlds$setFoldedCompile(new FoldedCompileContext(context, fold, LevelStem.OVERWORLD,
                 StartupRegistrations.noiseFeaturesFor(fold.getOptions()), new NoiseOffsets(), ladder));
         return new DensityFunctionCompiler(context).getSampler(function);
     }

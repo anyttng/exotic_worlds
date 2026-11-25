@@ -1,5 +1,6 @@
 package com.exoticworlds.engine.noise;
 
+import com.exoticworlds.core.feature.NoiseMoment;
 import com.exoticworlds.core.feature.NoiseOffset;
 import com.exoticworlds.core.fold.TranslationLattice;
 import com.exoticworlds.core.fold.WorldFold;
@@ -49,17 +50,16 @@ public final class FoldedSamplers {
         double xzScale = context.ladder().getSeparated(noise, vanillaXzScale);
         double verticalShare = GenerationFoldContext.verticalShare(xzScale, yScale);
         NoiseStack stack = stack(context, noise);
-        double[] layerFactors = NoiseFeatures.layerFactors(context.noiseFeatures(), context.fold(), noise, stack,
-                xzScale, verticalShare);
-        NoiseOffset offset = NoiseFeatures.offsetOf(context.noiseFeatures(), context.offsets(), noise);
+        NoiseMoment moment = new NoiseMoment(context.fold(), context.dimension(), noise, stack, xzScale, verticalShare);
+        double[] layerFactors = NoiseFeatures.layerFactors(context.noiseFeatures(), moment);
+        NoiseOffset offset = NoiseFeatures.offsetOf(context.noiseFeatures(), context.offsets(), moment);
         DensityFunction zero = DensityFunctions.zero();
         if (shiftX.equals(zero) && shiftY.equals(zero) && shiftZ.equals(zero)) {
             return noise(context, stack, xzScale, vanillaXzScale, yScale, layerFactors, offset);
         }
 
         return shiftedNoise(context, stack, xzScale, vanillaXzScale, yScale, layerFactors, offset,
-                NoiseFeatures.warpDivisor(context.noiseFeatures(), context.fold(), noise, xzScale, verticalShare),
-                shiftX, shiftY, shiftZ);
+                NoiseFeatures.warpDivisor(context.noiseFeatures(), moment), shiftX, shiftY, shiftZ);
     }
 
     private static DensitySampler noise(FoldedCompileContext context, NoiseStack stack, double xzScale,

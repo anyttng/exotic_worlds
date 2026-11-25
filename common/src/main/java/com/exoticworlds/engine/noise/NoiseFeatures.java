@@ -5,22 +5,17 @@ import java.util.List;
 
 import com.exoticworlds.core.feature.GenerationFeature;
 import com.exoticworlds.core.feature.NoiseFeature;
+import com.exoticworlds.core.feature.NoiseMoment;
 import com.exoticworlds.core.feature.NoiseOffset;
 import com.exoticworlds.core.feature.NoiseOffsets;
-import com.exoticworlds.core.fold.WorldFold;
-
-import net.minecraft.core.Holder;
-import net.minecraft.world.level.levelgen.synth.NoiseStack;
-import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public final class NoiseFeatures {
 
-    public static double[] layerFactors(List<NoiseFeature> features, WorldFold fold, Holder<NormalNoise> noise,
-            NoiseStack stack, double baseScale, double verticalShare) {
-        double[] product = new double[stack.layers.length];
+    public static double[] layerFactors(List<NoiseFeature> features, NoiseMoment moment) {
+        double[] product = new double[moment.stack().layers.length];
         Arrays.fill(product, NoiseFeature.UNCHANGED);
         for (NoiseFeature feature : features) {
-            double[] factors = feature.layerFactors(fold, noise, stack, baseScale, verticalShare);
+            double[] factors = feature.layerFactors(moment);
             for (int layer = 0; layer < product.length; layer++) {
                 product[layer] *= factors[layer];
             }
@@ -29,19 +24,18 @@ public final class NoiseFeatures {
         return product;
     }
 
-    public static double warpDivisor(List<NoiseFeature> features, WorldFold fold, Holder<NormalNoise> noise,
-            double xzScale, double verticalShare) {
-        double divisor = xzScale;
+    public static double warpDivisor(List<NoiseFeature> features, NoiseMoment moment) {
+        double divisor = moment.xzScale();
         for (NoiseFeature feature : features) {
-            divisor *= feature.warpFactor(fold, noise, xzScale, verticalShare);
+            divisor *= feature.warpFactor(moment);
         }
 
         return divisor;
     }
 
-    public static NoiseOffset offsetOf(List<NoiseFeature> features, NoiseOffsets offsets, Holder<NormalNoise> noise) {
+    public static NoiseOffset offsetOf(List<NoiseFeature> features, NoiseOffsets offsets, NoiseMoment moment) {
         return offsets.sumOf(features.stream()
-                .filter(feature -> feature.isOffsetting(noise))
+                .filter(feature -> feature.isOffsetting(moment))
                 .map(GenerationFeature::getKey)
                 .toList());
     }

@@ -10,6 +10,7 @@ import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.periodic.LapFloor;
 import com.exoticworlds.engine.noise.periodic.PeriodicNoiseSampler;
 
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -70,7 +71,7 @@ final class BlendedNoiseFixture {
     static double folded(Replica replica, Params params, WorldFold fold,
             double blockX, double blockY, double blockZ) {
         return replica.samplers().computeIfAbsent(new FoldedKey(params, fold), key -> FoldedSamplers.blended(
-                        new FoldedCompileContext(contextOf(replica), fold, List.of(), new NoiseOffsets(),
+                        new FoldedCompileContext(contextOf(replica), fold, LevelStem.OVERWORLD, List.of(), new NoiseOffsets(),
                                 NoiseScaleLadder.NONE), params.noise()))
                 .sampleValue(SamplerContext.EMPTY_UNCACHED, Mth.floor(blockX), Mth.floor(blockY), Mth.floor(blockZ));
     }

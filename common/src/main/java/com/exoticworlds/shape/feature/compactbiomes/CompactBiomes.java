@@ -4,15 +4,12 @@ import java.util.List;
 
 import com.exoticworlds.core.option.ShapeOption;
 import com.exoticworlds.core.feature.NoiseFeature;
-import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.feature.NoiseMoment;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.shape.feature.OptionFeature;
 import com.exoticworlds.shape.option.OptionPart;
 
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.world.level.levelgen.synth.NoiseStack;
-import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public final class CompactBiomes extends OptionFeature<ClimateScale> implements NoiseFeature {
     public static final String KEY = "climate_compression";
@@ -47,13 +44,13 @@ public final class CompactBiomes extends OptionFeature<ClimateScale> implements 
     }
 
     @Override
-    public double[] layerFactors(WorldFold fold, Holder<NormalNoise> noise, NoiseStack stack, double baseScale,
-            double verticalShare) {
-        return ClimateCompression.layerFactors(fold, noise, stack, baseScale, verticalShare);
+    public double[] layerFactors(NoiseMoment moment) {
+        return ClimateCompression.layerFactors(moment.fold(), moment.noise(), moment.stack(), moment.xzScale(),
+                moment.verticalShare());
     }
 
     @Override
-    public double warpFactor(WorldFold fold, Holder<NormalNoise> noise, double xzScale, double verticalShare) {
-        return ClimateCompression.factor(fold, noise, xzScale, verticalShare);
+    public double warpFactor(NoiseMoment moment) {
+        return ClimateCompression.factor(moment.fold(), moment.noise(), moment.xzScale(), moment.verticalShare());
     }
 }

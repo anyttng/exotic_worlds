@@ -11,6 +11,9 @@ import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.DoubleStack;
 import com.exoticworlds.engine.ObjectStack;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.dimension.LevelStem;
+
 public final class GenerationFoldContext {
     public static final double UNDECLARED_VERTICAL_SHARE = -1.0;
 
@@ -21,6 +24,7 @@ public final class GenerationFoldContext {
     public static final class Context {
         private WorldFold fold = WorldFolds.NOOP;
         private @Nullable WorldFold routerBuild;
+        private ResourceKey<LevelStem> routerBuildDimension = LevelStem.OVERWORLD;
         private List<GenerationFeature> routerBuildFeatures = List.of();
         private double horizontalScale = NoiseConstants.UNSCALED;
         private double verticalShare = UNDECLARED_VERTICAL_SHARE;
@@ -42,6 +46,10 @@ public final class GenerationFoldContext {
 
         public @Nullable WorldFold getRouterBuildFold() {
             return this.routerBuild;
+        }
+
+        public ResourceKey<LevelStem> getRouterBuildDimension() {
+            return this.routerBuildDimension;
         }
 
         public List<GenerationFeature> getRouterBuildFeatures() {
@@ -223,18 +231,21 @@ public final class GenerationFoldContext {
         }
     }
 
-    public static <T> T withRouterBuild(@Nullable WorldFold fold, List<GenerationFeature> features,
-            Supplier<T> action) {
+    public static <T> T withRouterBuild(@Nullable WorldFold fold, ResourceKey<LevelStem> dimension,
+            List<GenerationFeature> features, Supplier<T> action) {
         Context context = CONTEXT.get();
         WorldFold previous = context.routerBuild;
+        ResourceKey<LevelStem> previousDimension = context.routerBuildDimension;
         List<GenerationFeature> previousFeatures = context.routerBuildFeatures;
         context.routerBuild = fold;
+        context.routerBuildDimension = dimension;
         context.routerBuildFeatures = features;
 
         try {
             return action.get();
         } finally {
             context.routerBuild = previous;
+            context.routerBuildDimension = previousDimension;
             context.routerBuildFeatures = previousFeatures;
         }
     }

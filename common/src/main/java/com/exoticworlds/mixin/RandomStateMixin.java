@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.exoticworlds.accessors.NoiseOffsetsHolder;
 import com.exoticworlds.accessors.FoldedClimateSampler;
 import com.exoticworlds.accessors.FoldedCompileSource;
 import com.exoticworlds.accessors.FoldedRandomState;
@@ -19,6 +18,7 @@ import com.exoticworlds.core.feature.GenerationFeature;
 import com.exoticworlds.core.feature.NoiseFeature;
 import com.exoticworlds.core.feature.NoiseOffsets;
 import com.exoticworlds.core.feature.RandomStateFeature;
+import com.exoticworlds.core.feature.RandomStateMoment;
 import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.gen.GenerationMoments;
 import com.exoticworlds.core.fold.WorldFold;
@@ -41,7 +41,7 @@ import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 @Mixin(RandomState.class)
-public class RandomStateMixin implements NoiseOffsetsHolder, FoldSource, FoldedRandomState {
+public class RandomStateMixin implements FoldSource, FoldedRandomState {
     @Unique
     private static final String exotic_worlds$CONSTRUCTOR = "<init>(Lnet/minecraft/core/HolderGetter;JZ"
             + "Lnet/minecraft/world/level/block/state/BlockState;ILnet/minecraft/world/level/levelgen/NoiseRouter;)V";
@@ -91,8 +91,8 @@ public class RandomStateMixin implements NoiseOffsetsHolder, FoldSource, FoldedR
 
         List<NoiseFeature> features = ShapeFeatures.atMoment(
                 GenerationFoldContext.getContext().getRouterBuildFeatures(), NoiseFeature.class);
-        this.exotic_worlds$compileContext = new FoldedCompileContext(context, fold, features,
-                exotic_worlds$getNoiseOffsets(), NoiseScaleLadder.of(fold, exotic_worlds$roots(router), context));
+        this.exotic_worlds$compileContext = new FoldedCompileContext(context, fold,
+                GenerationFoldContext.getContext().getRouterBuildDimension(), features, exotic_worlds$getNoiseOffsets(), NoiseScaleLadder.of(fold, exotic_worlds$roots(router), context));
         ((FoldedCompileSource) context).exotic_worlds$setFoldedCompile(this.exotic_worlds$compileContext);
         return context;
     }
@@ -106,8 +106,11 @@ public class RandomStateMixin implements NoiseOffsetsHolder, FoldSource, FoldedR
             this.exotic_worlds$baseHeights = new BaseHeights(fold);
             RandomState randomState = (RandomState) (Object) this;
             List<GenerationFeature> features = GenerationFoldContext.getContext().getRouterBuildFeatures();
+            RandomStateMoment moment = new RandomStateMoment(randomState, fold,
+                    GenerationFoldContext.getContext().getRouterBuildDimension(), seaLevel,
+                    exotic_worlds$getNoiseOffsets());
             for (RandomStateFeature feature : ShapeFeatures.atMoment(features, RandomStateFeature.class)) {
-                feature.atRandomState(randomState, fold, seaLevel);
+                feature.atRandomState(moment);
             }
             GenerationMoments.runAtRandomState(randomState, fold, seaLevel);
         }
@@ -152,8 +155,8 @@ public class RandomStateMixin implements NoiseOffsetsHolder, FoldSource, FoldedR
         return this.exotic_worlds$fold;
     }
 
-    @Override
-    public NoiseOffsets exotic_worlds$getNoiseOffsets() {
+    @Unique
+    private NoiseOffsets exotic_worlds$getNoiseOffsets() {
         if (this.exotic_worlds$noiseOffsets == null) {
             this.exotic_worlds$noiseOffsets = new NoiseOffsets();
         }

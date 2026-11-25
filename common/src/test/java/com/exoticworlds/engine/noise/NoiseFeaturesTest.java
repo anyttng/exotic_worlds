@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.feature.NoiseFeature;
+import com.exoticworlds.core.feature.NoiseMoment;
 import com.exoticworlds.core.feature.NoiseOffset;
 import com.exoticworlds.core.feature.NoiseOffsets;
 import com.exoticworlds.core.fold.WorldFold;
@@ -17,6 +18,7 @@ import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.core.world.ShapeFixtures;
 
 import net.minecraft.core.Holder;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.synth.NoiseStack;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
@@ -38,8 +40,8 @@ class NoiseFeaturesTest {
 
     @Test
     void theLayerFactorsOfTwoFeaturesMultiply() {
-        double[] product = NoiseFeatures.layerFactors(List.of(new Scaling("a", 2.0), new Scaling("b", 3.0)), FOLD,
-                NOISE, STACK, XZ_SCALE, SHARE);
+        double[] product =
+                NoiseFeatures.layerFactors(List.of(new Scaling("a", 2.0), new Scaling("b", 3.0)), moment(NOISE));
 
         double[] expected = new double[STACK.layers.length];
         Arrays.fill(expected, 6.0);
@@ -49,14 +51,15 @@ class NoiseFeaturesTest {
     @Test
     void theWarpDivisorIsTheScaleTimesTheProductOfTheWarpFactors() {
         assertEquals(XZ_SCALE * 2.0 * 3.0, NoiseFeatures.warpDivisor(
-                List.of(new Scaling("a", 2.0), new Scaling("b", 3.0)), FOLD, NOISE, XZ_SCALE, SHARE));
-        assertEquals(XZ_SCALE, NoiseFeatures.warpDivisor(List.of(), FOLD, NOISE, XZ_SCALE, SHARE));
+                List.of(new Scaling("a", 2.0), new Scaling("b", 3.0)), moment(NOISE)));
+        assertEquals(XZ_SCALE, NoiseFeatures.warpDivisor(List.of(), moment(NOISE)));
     }
 
     @Test
     void theOffsetsOfTwoFeaturesOnOneNoiseAdd() {
         NoiseOffsets offsets = new NoiseOffsets();
-        NoiseOffset offset = NoiseFeatures.offsetOf(List.of(new Offsetting("a"), new Offsetting("b")), offsets, NOISE);
+        NoiseOffset offset = NoiseFeatures.offsetOf(List.of(new Offsetting("a"), new Offsetting("b")), offsets,
+                moment(NOISE));
 
         offsets.set("a", 0.25);
         offsets.set("b", 0.5);
@@ -70,7 +73,11 @@ class NoiseFeaturesTest {
         offsets.set("a", 0.25);
 
         assertSame(NoiseOffset.NONE,
-                NoiseFeatures.offsetOf(List.of(new Offsetting("a")), offsets, OTHER_NOISE));
+                NoiseFeatures.offsetOf(List.of(new Offsetting("a")), offsets, moment(OTHER_NOISE)));
+    }
+
+    private static NoiseMoment moment(Holder<NormalNoise> noise) {
+        return new NoiseMoment(FOLD, LevelStem.OVERWORLD, noise, STACK, XZ_SCALE, SHARE);
     }
 
     private record Scaling(String key, double factor) implements NoiseFeature {
@@ -80,15 +87,14 @@ class NoiseFeaturesTest {
         }
 
         @Override
-        public double[] layerFactors(WorldFold fold, Holder<NormalNoise> noise, NoiseStack stack, double baseScale,
-                double verticalShare) {
-            double[] factors = new double[stack.layers.length];
+        public double[] layerFactors(NoiseMoment moment) {
+            double[] factors = new double[moment.stack().layers.length];
             Arrays.fill(factors, this.factor);
             return factors;
         }
 
         @Override
-        public double warpFactor(WorldFold fold, Holder<NormalNoise> noise, double xzScale, double verticalShare) {
+        public double warpFactor(NoiseMoment moment) {
             return this.factor;
         }
     }
@@ -100,8 +106,8 @@ class NoiseFeaturesTest {
         }
 
         @Override
-        public boolean isOffsetting(Holder<NormalNoise> noise) {
-            return noise == NOISE;
+        public boolean isOffsetting(NoiseMoment moment) {
+            return moment.noise() == NOISE;
         }
     }
 }
