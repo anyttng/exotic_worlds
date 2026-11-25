@@ -13,7 +13,7 @@ import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.ChunkFrame;
 import com.exoticworlds.engine.fold.ChunkSeat;
-import com.exoticworlds.engine.gen.terrain.TerrainMask;
+import com.exoticworlds.shape.feature.floatingcrumbs.TerrainMask;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 

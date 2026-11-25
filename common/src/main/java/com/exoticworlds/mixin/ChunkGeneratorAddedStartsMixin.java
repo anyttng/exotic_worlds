@@ -44,7 +44,8 @@ public class ChunkGeneratorAddedStartsMixin {
         ChunkPos chunk = centerChunk.getPos();
         SectionPos section = SectionPos.bottomOf(centerChunk);
         List<StructureSet.StructureSelectionEntry> added = AddedStructureStarts.of(state,
-                ((StructureManagerAccessor) structureManager).exotic_worlds$getStructureCheck(), carried).getEntriesAt(chunk);
+                ((StructureManagerAccessor) structureManager).exotic_worlds$getStructureCheck(), carried, level)
+                .getEntriesAt(chunk);
         if (added.isEmpty()) {
             return;
         }

@@ -1,4 +1,4 @@
-package com.exoticworlds.engine.gen.terrain;
+package com.exoticworlds.shape.feature.floatingcrumbs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,14 +9,17 @@ import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.accessors.CrumbSweepCache;
 import com.exoticworlds.accessors.TerrainMaskCache;
 import com.exoticworlds.accessors.TerrainMaskHolder;
+import com.exoticworlds.core.feature.CarvedChunkFeature;
+import com.exoticworlds.core.feature.ChunkDataFeature;
+import com.exoticworlds.core.feature.LitChunkFeature;
 import com.exoticworlds.core.world.CoordinateConstants;
 import com.exoticworlds.core.fold.FoldOrientation;
-import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
+import com.exoticworlds.engine.gen.terrain.TerrainCeiling;
+import com.exoticworlds.shape.feature.ShapeFeature;
 
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 
@@ -31,13 +34,17 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.status.ChunkPyramid;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.material.FluidState;
 
-public final class FloatingCrumbs {
+public final class FloatingCrumbs extends ShapeFeature
+        implements CarvedChunkFeature, LitChunkFeature, ChunkDataFeature {
+    public static final String KEY = "floating_crumbs";
+
+    private static final String DATA_KEY = "terrain_mask";
+
     private static final int WINDOW_CHUNKS = 3;
 
     private static final int WINDOW_WIDTH_BLOCKS = WINDOW_CHUNKS * CoordinateConstants.CHUNK_WIDTH_BLOCKS;
@@ -101,15 +108,57 @@ public final class FloatingCrumbs {
         }
     }
 
-    public static boolean isInstalledOn(ServerLevel level) {
-        ChunkGenerator generator = level.getChunkSource().getGenerator();
-        return GeneratorShapes.getWrappedFold(generator) != null
-                && generator instanceof NoiseBasedChunkGenerator noise
+    public static final FloatingCrumbs FEATURE = new FloatingCrumbs();
+
+    private FloatingCrumbs() {
+        super(KEY);
+    }
+
+    @Override
+    public boolean isInstalledOn(ServerLevel level) {
+        return level.getChunkSource().getGenerator() instanceof NoiseBasedChunkGenerator noise
                 && TerrainCeiling.ceiling(noise.generatorSettings().value()) != null;
     }
 
-    private static boolean isSweepingCrumbs(ServerLevel level) {
-        return ((CrumbSweepCache) level).exotic_worlds$isSweepingCrumbs();
+    @Override
+    public void atCarved(ServerLevel level, ChunkAccess chunk) {
+        sweep(level, chunk);
+        registerMask(level, chunk);
+    }
+
+    @Override
+    public void atLit(ServerLevel level, ChunkAccess chunk, StaticCache2D<GenerationChunkHolder> chunks,
+            Executor mainThread) {
+        TerrainMasks masks = getTerrainMasks(level);
+        Window window = windowAround(masks, chunks, chunk.getPos());
+        // The LIGHT step declares no write radius, so a region on it reports every read of a neighbor as unsafe.
+        sweepWindow(chunk, window.masks, () -> new WorldGenRegion(level, chunks,
+                ChunkPyramid.GENERATION_PYRAMID.getStepTo(ChunkStatus.FEATURES), chunk));
+        markRead(masks, window, mainThread);
+    }
+
+    @Override
+    public String getDataKey() {
+        return DATA_KEY;
+    }
+
+    @Override
+    public @Nullable CompoundTag getSavedData(ServerLevel level, ChunkPos pos) {
+        return getTerrainMasks(level).getSaved(pos);
+    }
+
+    @Override
+    public void restoreData(ServerLevel level, ChunkAccess chunk, CompoundTag data) {
+        TerrainMask mask = getTerrainMasks(level).restore(chunk.getPos(), data, chunk.getMinY(), chunk.getHeight(),
+                getTurningFold(level));
+        if (mask != null) {
+            attachTerrainMask(chunk, mask);
+        }
+    }
+
+    @Override
+    public void releaseData(ServerLevel level, ChunkPos pos) {
+        getTerrainMasks(level).release(pos);
     }
 
     private static TerrainMasks getTerrainMasks(ServerLevel level) {
@@ -132,10 +181,6 @@ public final class FloatingCrumbs {
     }
 
     public static void sweep(ServerLevel level, ChunkAccess chunk) {
-        if (!isSweepingCrumbs(level)) {
-            return;
-        }
-
         int minY = chunk.getMinY();
         CellGrid grid = new CellGrid(CoordinateConstants.CHUNK_WIDTH_BLOCKS, chunk.getHeight());
         boolean[] solid = new boolean[grid.getCellCount()];
@@ -151,47 +196,11 @@ public final class FloatingCrumbs {
         attachTerrainMask(chunk, TerrainMask.of(solid, chunk.getPos(), minY, grid, getTurningFold(level)));
     }
 
-    public static void registerMask(ServerLevel level, ChunkAccess chunk) {
+    private static void registerMask(ServerLevel level, ChunkAccess chunk) {
         TerrainMask mask = getTerrainMask(chunk);
         if (mask != null) {
             getTerrainMasks(level).put(chunk.getPos(), mask);
         }
-    }
-
-    public static @Nullable CompoundTag getSavedMask(ServerLevel level, ChunkPos pos) {
-        return isSweepingCrumbs(level) ? getTerrainMasks(level).getSaved(pos) : null;
-    }
-
-    public static void restoreMask(ServerLevel level, ChunkAccess chunk, CompoundTag saved) {
-        if (!isSweepingCrumbs(level)) {
-            return;
-        }
-
-        TerrainMask mask = getTerrainMasks(level).restore(chunk.getPos(), saved, chunk.getMinY(), chunk.getHeight(),
-                getTurningFold(level));
-        if (mask != null) {
-            attachTerrainMask(chunk, mask);
-        }
-    }
-
-    public static void releaseMask(ServerLevel level, ChunkPos pos) {
-        if (isSweepingCrumbs(level)) {
-            getTerrainMasks(level).release(pos);
-        }
-    }
-
-    public static void sweepAcross(ServerLevel level, ChunkAccess chunk,
-            StaticCache2D<GenerationChunkHolder> chunks, Executor mainThread) {
-        if (!isSweepingCrumbs(level)) {
-            return;
-        }
-
-        TerrainMasks masks = getTerrainMasks(level);
-        Window window = windowAround(masks, chunks, chunk.getPos());
-        // The LIGHT step declares no write radius, so a region on it reports every read of a neighbor as unsafe.
-        sweepWindow(chunk, window.masks, () -> new WorldGenRegion(level, chunks,
-                ChunkPyramid.GENERATION_PYRAMID.getStepTo(ChunkStatus.FEATURES), chunk));
-        markRead(masks, window, mainThread);
     }
 
     private static Window windowAround(TerrainMasks masks, StaticCache2D<GenerationChunkHolder> chunks,
@@ -471,6 +480,4 @@ public final class FloatingCrumbs {
                 + grid.localX(cell) / CoordinateConstants.CHUNK_WIDTH_BLOCKS;
     }
 
-    private FloatingCrumbs() {
-    }
 }

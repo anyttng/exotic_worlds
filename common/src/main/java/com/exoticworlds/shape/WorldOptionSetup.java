@@ -11,7 +11,9 @@ import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 import com.exoticworlds.shape.cylinder.Cylinder;
 import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.dimension.DimensionShape;
-import com.exoticworlds.shape.option.DimensionScope;
+import com.exoticworlds.core.feature.DimensionScope;
+import com.exoticworlds.core.feature.ShapeFeatures;
+import com.exoticworlds.shape.feature.floatingcrumbs.FloatingCrumbs;
 import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
 import com.exoticworlds.shape.feature.guaranteednethercomplexes.GuaranteedNetherComplexes;
 import com.exoticworlds.shape.torus.Torus;
@@ -24,6 +26,7 @@ public final class WorldOptionSetup {
     public static void registerAll() {
         LegacyShapeIds.register(WorldOptionSetup::recognizeLegacy);
         registerSavedOptions();
+        registerFeatures();
         registerTorus();
         registerCylinder();
     }
@@ -35,16 +38,25 @@ public final class WorldOptionSetup {
         ShapeOptionRegistry.register(GuaranteedNetherComplexes.FEATURE.getOption());
     }
 
+    private static void registerFeatures() {
+        ShapeFeatures.register(CompactBiomes.FEATURE);
+        ShapeFeatures.register(GuaranteedLand.FEATURE);
+        ShapeFeatures.register(GuaranteedNetherComplexes.FEATURE);
+        ShapeFeatures.register(FloatingCrumbs.FEATURE);
+    }
+
     private static void registerTorus() {
         DeclaredShapes.register(Torus.SHAPE);
         Torus.SHAPE.registerFeature(CompactBiomes.FEATURE, DimensionScope.ALL);
         Torus.SHAPE.registerFeature(GuaranteedLand.FEATURE, DimensionScope.of(List.of(LevelStem.OVERWORLD)));
         Torus.SHAPE.registerFeature(GuaranteedNetherComplexes.FEATURE, DimensionScope.of(List.of(LevelStem.NETHER)));
+        Torus.SHAPE.registerFeature(FloatingCrumbs.FEATURE, DimensionScope.ALL);
     }
 
     private static void registerCylinder() {
         DeclaredShapes.register(Cylinder.SHAPE);
         Cylinder.SHAPE.registerFeature(CompactBiomes.FEATURE, DimensionScope.ALL);
+        Cylinder.SHAPE.registerFeature(FloatingCrumbs.FEATURE, DimensionScope.ALL);
     }
 
     private static Optional<Identifier> recognizeLegacy(FlatShape spans) {

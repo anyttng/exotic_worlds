@@ -3,11 +3,14 @@ package com.exoticworlds.bridge.v1.gen;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.gen.TerrainSnapshot;
+import com.exoticworlds.core.feature.CarvedChunkFeature;
+import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
-import com.exoticworlds.engine.gen.terrain.FloatingCrumbs;
+import com.exoticworlds.shape.feature.floatingcrumbs.FloatingCrumbs;
 import com.exoticworlds.engine.gen.terrain.TerrainCeiling;
-import com.exoticworlds.engine.gen.terrain.TerrainMask;
+import com.exoticworlds.shape.feature.floatingcrumbs.TerrainMask;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 
 import net.minecraft.core.registries.Registries;
@@ -32,7 +35,7 @@ public final class ProbeBridge {
         @Nullable WorldFold fold = WorldLoopAttachments.getWrappedFold(level);
         NoiseGeneratorSettings settings = noise.generatorSettings().value();
         NoiseGeneratorSettings shaped = fold != null ? TerrainCeiling.withCeiling(settings) : settings;
-        return GenerationFoldContext.withRouterBuild(fold,
+        return GenerationFoldContext.withRouterBuild(fold, GeneratorShapes.activeFeatures(generator, level.dimension()),
                 () -> RandomState.create(shaped, level.registryAccess().lookupOrThrow(Registries.NOISE), seed));
     }
 
@@ -41,7 +44,9 @@ public final class ProbeBridge {
     }
 
     public static void sweepCrumbs(ServerLevel level, ChunkAccess chunk) {
-        FloatingCrumbs.sweep(level, chunk);
+        if (ShapeFeatures.onLevel(level, CarvedChunkFeature.class).contains(FloatingCrumbs.FEATURE)) {
+            FloatingCrumbs.sweep(level, chunk);
+        }
     }
 
     public static @Nullable TerrainSnapshot snapshotOf(ChunkAccess chunk) {

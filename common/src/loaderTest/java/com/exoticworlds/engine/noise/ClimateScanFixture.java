@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.core.option.ShapeOptions;
+import com.exoticworlds.core.feature.GenerationFeature;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.core.world.WorldLoopBounds;
@@ -59,7 +60,6 @@ public final class ClimateScanFixture {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
         StartupRegistrations.options();
-        StartupRegistrations.generationHooks();
         holders = VanillaRegistries.createLookup();
         noises = holders.lookupOrThrow(Registries.NOISE);
     }
@@ -116,7 +116,12 @@ public final class ClimateScanFixture {
     }
 
     public static RandomState randomState(NoiseGeneratorSettings settings, WorldFold fold, long seed) {
-        return GenerationFoldContext.withRouterBuild(fold.isWrapped() ? fold : null,
+        return randomState(settings, fold, seed, List.of());
+    }
+
+    public static RandomState randomState(NoiseGeneratorSettings settings, WorldFold fold, long seed,
+            List<GenerationFeature> features) {
+        return GenerationFoldContext.withRouterBuild(fold.isWrapped() ? fold : null, features,
                 () -> RandomState.create(settings, noises, seed));
     }
 

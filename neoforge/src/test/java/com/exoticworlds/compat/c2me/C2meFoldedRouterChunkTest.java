@@ -1,5 +1,7 @@
 package com.exoticworlds.compat.c2me;
 
+import java.util.List;
+
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.StartupRegistrations;
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.SQUARE;
@@ -59,7 +61,6 @@ class C2meFoldedRouterChunkTest {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
         StartupRegistrations.options();
-        StartupRegistrations.generationHooks();
         holders = VanillaRegistries.createLookup();
         noises = holders.lookupOrThrow(Registries.NOISE);
         overworld = holders.lookupOrThrow(Registries.NOISE_SETTINGS)
@@ -101,11 +102,11 @@ class C2meFoldedRouterChunkTest {
     }
 
     private static RandomState foldedState() {
-        return GenerationFoldContext.withRouterBuild(SQUARE, () -> RandomState.create(overworld, noises, SEED));
+        return GenerationFoldContext.withRouterBuild(SQUARE, List.of(), () -> RandomState.create(overworld, noises, SEED));
     }
 
     private static RandomState unfoldedState() {
-        return GenerationFoldContext.withRouterBuild(null, () -> RandomState.create(overworld, noises, SEED));
+        return GenerationFoldContext.withRouterBuild(null, List.of(), () -> RandomState.create(overworld, noises, SEED));
     }
 
     private static Terrain fillOneChunk(RandomState state) {

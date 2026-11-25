@@ -1,13 +1,20 @@
 package com.exoticworlds.core.gen;
 
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.accessors.ShapeStamp;
+import com.exoticworlds.core.feature.GenerationFeature;
+import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.core.world.CarriedShape;
 
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
@@ -20,6 +27,13 @@ public final class GeneratorShapes {
 
     public static boolean isTilingAtSeam(ChunkGenerator generator) {
         return generator instanceof NoiseBasedChunkGenerator || generator.getClass() == FlatLevelSource.class;
+    }
+
+    public static List<GenerationFeature> activeFeatures(ChunkGenerator generator, ResourceKey<Level> level) {
+        CarriedShape carried = getCarriedShape(generator);
+        return carried == null
+                ? List.of()
+                : ShapeFeatures.activeFeatures(carried, Registries.levelToLevelStem(level));
     }
 
     public static @Nullable CarriedShape getCarriedShape(ServerLevel level) {

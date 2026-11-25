@@ -65,6 +65,15 @@ class ShapedStemSeedOverrideTest {
     }
 
     @Test
+    void stripShapesKeepsTheSeedOverride() {
+        LevelStem declared = declaredStem(noiseGenerator(worldgen));
+
+        WorldDimensions stripped = ShapedDimensions.stripShapes(selected(Map.of(LevelStem.OVERWORLD, declared)));
+
+        assertReshapedAlone(declared, stripped.get(LevelStem.OVERWORLD).orElseThrow());
+    }
+
+    @Test
     void restoreStoredShapesKeepsTheSeedOverrideOnARebuiltStem() {
         LevelStem declared = declaredStem(noiseGenerator(worldgen));
 

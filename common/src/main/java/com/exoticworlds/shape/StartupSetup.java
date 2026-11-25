@@ -5,7 +5,6 @@ public final class StartupSetup {
     public static void registerAll() {
         WorldOptionSetup.registerAll();
         WorldShapeSetup.registerAll();
-        GenerationHookSetup.registerAll();
     }
 
     private StartupSetup() {

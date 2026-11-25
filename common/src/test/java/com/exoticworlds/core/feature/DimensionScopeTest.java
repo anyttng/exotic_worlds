@@ -1,4 +1,4 @@
-package com.exoticworlds.shape.option;
+package com.exoticworlds.core.feature;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;

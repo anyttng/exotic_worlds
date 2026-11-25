@@ -37,6 +37,7 @@ public class WorldCreationPreviewContextMixin {
             WorldCreationUiState uiState, WorldgenEditorState editorState, boolean applyEditorEdits,
             Operation<WorldCreationPreviewContext> original) {
         return GenerationFoldContext.withRouterBuild(CreationShape.fold(uiState.getSettings()),
+                CreationShape.activeFeatures(uiState.getSettings()),
                 () -> original.call(screen, uiState, editorState, applyEditorEdits));
     }
 

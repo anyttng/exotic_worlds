@@ -87,8 +87,7 @@ public final class WorldShapes {
     }
 
     public static WorldDimensions applyAtCreation(RegistryAccess.Frozen registries, WorldDimensions dimensions) {
-        ShapedDimensions.stripShapes(dimensions);
-        return selected.atCreation().apply(registries, dimensions);
+        return selected.atCreation().apply(registries, ShapedDimensions.stripShapes(dimensions));
     }
 
     private WorldShapes() {

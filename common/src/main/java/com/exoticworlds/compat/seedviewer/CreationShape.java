@@ -1,10 +1,13 @@
 package com.exoticworlds.compat.seedviewer;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jspecify.annotations.Nullable;
 
+import com.exoticworlds.core.feature.GenerationFeature;
+import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.fold.WorldFold;
@@ -45,6 +48,11 @@ public final class CreationShape {
     public static @Nullable WorldFold fold(WorldCreationContext settings) {
         CarriedShape carried = chosen(settings).carried();
         return carried != null ? carried.getFold() : null;
+    }
+
+    public static List<GenerationFeature> activeFeatures(WorldCreationContext settings) {
+        CarriedShape carried = chosen(settings).carried();
+        return carried != null ? ShapeFeatures.activeFeatures(carried, LevelStem.OVERWORLD) : List.of();
     }
 
     public static String fingerprinted(String foreign, WorldCreationContext settings) {

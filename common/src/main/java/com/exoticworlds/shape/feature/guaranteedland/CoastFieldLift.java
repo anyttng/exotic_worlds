@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.exoticworlds.accessors.CoastLiftCache;
-import com.exoticworlds.core.gen.GenerationMoments;
-import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.shape.noise.DensityNoises;
@@ -27,16 +25,7 @@ public final class CoastFieldLift {
 
     private static final int[][] NEIGHBORS = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
-    public static void register() {
-        GenerationMoments.atRandomState(GuaranteedLand.KEY,
-                (randomState, fold, seaLevel) -> solve(randomState, fold, fold.getOptions(), seaLevel));
-    }
-
-    private static void solve(RandomState randomState, WorldFold dimensionFold, ShapeOptions options, int seaLevel) {
-        if (!options.get(GuaranteedLand.FEATURE.getOption())) {
-            return;
-        }
-
+    static void lift(RandomState randomState, WorldFold dimensionFold, int seaLevel) {
         if (!dimensionFold.isLooped(Direction.Axis.X) || !dimensionFold.isLooped(Direction.Axis.Z)) {
             return;
         }

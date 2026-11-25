@@ -12,6 +12,7 @@ import static com.exoticworlds.engine.noise.DensityFunctionFixture.withClimateNo
 import static com.exoticworlds.engine.noise.DensityFunctionFixture.withLiveNoise;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
+import java.util.List;
 import java.util.Random;
 
 import com.ishland.c2me.opts.dfc.common.gen.jvm.AbstractCompiledDensityFunction;
@@ -67,7 +68,7 @@ final class C2meCompiledFunctions {
     }
 
     static DensityFunction compileFolded(String name, DensityFunction source, WorldFold fold) {
-        DensityFunction compiled = GenerationFoldContext.withRouterBuild(fold, () -> {
+        DensityFunction compiled = GenerationFoldContext.withRouterBuild(fold, List.of(), () -> {
             BytecodeGen.Context context = BytecodeGen.initContext();
             DensityFunction function = context.compileDelayed(name, source);
             BytecodeGen.finalizeCompilation(context);

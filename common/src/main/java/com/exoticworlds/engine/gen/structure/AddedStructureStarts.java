@@ -12,6 +12,8 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.AddedStartsHolder;
+import com.exoticworlds.core.feature.ShapeFeatures;
+import com.exoticworlds.core.feature.StructureStartsFeature;
 import com.exoticworlds.core.gen.AddedStart;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.gen.GenerationMoments;
@@ -26,7 +28,10 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
@@ -49,7 +54,7 @@ public final class AddedStructureStarts {
     }
 
     public static AddedStructureStarts of(ChunkGeneratorStructureState state, StructureCheck check,
-            CarriedShape carried) {
+            CarriedShape carried, ResourceKey<Level> level) {
         AddedStartsHolder holder = (AddedStartsHolder) (Object) state;
         AddedStructureStarts known = holder.exotic_worlds$getAddedStarts();
         if (known != null) {
@@ -59,12 +64,25 @@ public final class AddedStructureStarts {
         synchronized (holder) {
             known = holder.exotic_worlds$getAddedStarts();
             if (known == null) {
-                known = GenerationMoments.hasStructureStartHooks() ? compute(state, check, carried) : NONE;
+                List<StructureStartsFeature> features = ShapeFeatures.activeAt(carried,
+                        Registries.levelToLevelStem(level), StructureStartsFeature.class);
+                known = features.isEmpty() && !GenerationMoments.hasStructureStartHooks()
+                        ? NONE
+                        : compute(state, check, carried, features);
                 holder.exotic_worlds$setAddedStarts(known);
             }
 
             return known;
         }
+    }
+
+    private static List<AddedStart> startsIn(StructureStartSet view, List<StructureStartsFeature> features) {
+        List<AddedStart> starts = new ArrayList<>();
+        for (StructureStartsFeature feature : features) {
+            starts.addAll(feature.startsIn(view));
+        }
+        starts.addAll(GenerationMoments.runAtStructureStarts(view));
+        return starts;
     }
 
     public List<StructureSet.StructureSelectionEntry> getEntriesAt(ChunkPos chunk) {
@@ -77,13 +95,13 @@ public final class AddedStructureStarts {
     }
 
     private static AddedStructureStarts compute(ChunkGeneratorStructureState state, StructureCheck check,
-            CarriedShape carried) {
+            CarriedShape carried, List<StructureStartsFeature> features) {
         WorldFold fold = carried.getFold();
         Long2ObjectMap<List<StructureSet.StructureSelectionEntry>> byChunk = new Long2ObjectOpenHashMap<>();
         Map<StructurePlacement, List<AddedStart>> byPlacement = new HashMap<>();
         for (Holder<StructureSet> set : state.possibleStructureSets()) {
             SetView view = new SetView(state, check, fold, carried.getOptions(), set);
-            List<AddedStart> accepted = view.accepted(GenerationMoments.runAtStructureStarts(view));
+            List<AddedStart> accepted = view.accepted(startsIn(view, features));
             if (accepted.isEmpty()) {
                 continue;
             }
