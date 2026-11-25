@@ -18,6 +18,8 @@ public interface DimensionShape {
 
     Component getName();
 
+    Component getHint();
+
     Component describe(ShapeOptions options);
 
     FlatShape spans(DimensionContext context);

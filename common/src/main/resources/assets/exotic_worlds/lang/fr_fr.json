@@ -67,7 +67,6 @@
   "gui.exotic_worlds.world_shape_settings.shape.hint.torus": "se referme d'est en ouest et du nord au sud : marchez assez loin dans n'importe quelle direction et vous revenez à votre point de départ.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.cylinder": "un axe horizontal se referme sur lui-même, l'autre continue à l'infini comme dans le monde classique.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.from_overworld": "prend la forme de la Surface à la taille propre à cette dimension.",
-  "gui.exotic_worlds.world_shape_settings.shape.hint.declared": "une forme ajoutée par un autre mod ; sa description s'affiche sous ce bouton.",
   "gui.exotic_worlds.world_shape_settings.shape.size_error": "Cette forme fait %s chunks de large ; cette dimension accepte de %s à %s.",
   "gui.exotic_worlds.world_shape_settings.nether_scale": "Échelle du Nether",
   "gui.exotic_worlds.world_shape_settings.size": "Taille du monde en chunks (%s-%s)",

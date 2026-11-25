@@ -67,7 +67,6 @@
   "gui.exotic_worlds.world_shape_settings.shape.hint.torus": "loops east to west and north to south. Walk far enough in any direction and you return to where you started.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.cylinder": "one horizontal axis loops, the other goes on forever like vanilla.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.from_overworld": "takes the Overworld's shape at this dimension's own size.",
-  "gui.exotic_worlds.world_shape_settings.shape.hint.declared": "a shape added by another mod; its description is shown under this button.",
   "gui.exotic_worlds.world_shape_settings.shape.size_error": "This shape comes out %s chunks wide; this dimension takes %s to %s.",
   "gui.exotic_worlds.world_shape_settings.nether_scale": "Nether scale",
   "gui.exotic_worlds.world_shape_settings.size": "World size in chunks (%s-%s)",

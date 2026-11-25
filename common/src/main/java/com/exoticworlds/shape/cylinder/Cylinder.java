@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 
 public final class Cylinder extends AbstractDimensionShape {
     private static final String NAME_KEY = LoopSizeLines.CAPTION_KEY + ".shape.cylinder";
+    private static final String HINT_KEY = LoopSizeLines.CAPTION_KEY + ".shape.hint.cylinder";
     private static final String AXIS_SEPARATOR = " ";
 
     public static final Cylinder SHAPE = new Cylinder();
@@ -20,6 +21,11 @@ public final class Cylinder extends AbstractDimensionShape {
     @Override
     public Component getName() {
         return Component.translatable(NAME_KEY);
+    }
+
+    @Override
+    public Component getHint() {
+        return Component.translatable(HINT_KEY);
     }
 
     @Override
