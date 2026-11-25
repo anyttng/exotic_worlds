@@ -5,6 +5,7 @@ public final class ApprenticeCodexPackets {
         if (ApprenticeCodexMod.admitted()) {
             BlockTargetPacketRewriters.register();
             EffectPacketRewriters.register();
+            EntityDataRewriters.register();
             HighlightPacketRewriters.register();
             RemoteEyePacketRewriter.register();
         }
