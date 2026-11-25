@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
+import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.engine.seam.SeamAim;
 import com.hollingsworth.arsnouveau.common.entity.goal.whirlisprig.FollowPlayerGoal;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -21,13 +22,13 @@ public abstract class FollowPlayerGoalMixin {
     private Mob entity;
 
     @WrapOperation(method = "tick",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getX()D"))
+            at = @At(value = "INVOKE", target = InjectionTargets.PLAYER_GET_X))
     private double exotic_worlds$followedX(Player followed, Operation<Double> original) {
         return SeamAim.nearestCoord(this.entity, followed, Direction.Axis.X, original.call(followed));
     }
 
     @WrapOperation(method = "tick",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getZ()D"))
+            at = @At(value = "INVOKE", target = InjectionTargets.PLAYER_GET_Z))
     private double exotic_worlds$followedZ(Player followed, Operation<Double> original) {
         return SeamAim.nearestCoord(this.entity, followed, Direction.Axis.Z, original.call(followed));
     }
