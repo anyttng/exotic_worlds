@@ -9,7 +9,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.zurrtum.create.client.content.schematics.cannon.SchematicannonScreen;
 import com.zurrtum.create.content.schematics.cannon.SchematicannonBlockEntity;
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.client.engine.SyncedTagFold;
+import com.exoticworlds.engine.client.SyncedTagFold;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;

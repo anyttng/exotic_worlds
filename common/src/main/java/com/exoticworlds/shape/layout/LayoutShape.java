@@ -1,7 +1,7 @@
 package com.exoticworlds.shape.layout;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.client.shape.layout.LayoutShapeSetup;
+import com.exoticworlds.shape.layout.client.LayoutShapeSetup;
 import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.shape.WorldShape;
 import com.exoticworlds.shape.WorldShapes;

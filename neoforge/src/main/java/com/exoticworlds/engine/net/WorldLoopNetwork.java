@@ -1,7 +1,7 @@
 package com.exoticworlds.engine.net;
 
 import com.exoticworlds.ExoticWorlds;
-import com.exoticworlds.client.engine.WorldLoopClientNetwork;
+import com.exoticworlds.engine.client.WorldLoopClientNetwork;
 import com.exoticworlds.engine.gen.DimensionChoicesCommand;
 
 import net.minecraft.server.level.ServerPlayer;

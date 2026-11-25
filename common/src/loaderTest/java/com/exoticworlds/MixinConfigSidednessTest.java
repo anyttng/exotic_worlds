@@ -48,7 +48,7 @@ class MixinConfigSidednessTest {
     private static final int CONSTANT_LONG = 5;
     private static final int CONSTANT_DOUBLE = 6;
 
-    private static final String CLIENT_MIXIN_PACKAGE = "com.exoticworlds.client.shape.mixin";
+    private static final String CLIENT_MIXIN_PACKAGE = "com.exoticworlds.shape.client.mixin";
     private static final String CLIENT_MIXIN_CLASS = "CreateWorldScreenMixin";
 
     private record Violation(String config, String owner, String clientType) {

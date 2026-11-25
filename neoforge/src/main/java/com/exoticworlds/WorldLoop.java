@@ -1,6 +1,6 @@
 package com.exoticworlds;
 
-import com.exoticworlds.client.settings.SettingsScreenFactory;
+import com.exoticworlds.settings.client.SettingsScreenFactory;
 import com.exoticworlds.engine.gen.LegacyGenerators;
 import com.exoticworlds.engine.net.AuxiliaryLightTranslation;
 import com.exoticworlds.engine.net.BlockParticleTranslation;

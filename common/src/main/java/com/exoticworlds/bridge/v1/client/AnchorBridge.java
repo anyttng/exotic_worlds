@@ -4,7 +4,7 @@ import java.util.function.Predicate;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.client.engine.ClientFrame;
+import com.exoticworlds.engine.client.ClientFrame;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;

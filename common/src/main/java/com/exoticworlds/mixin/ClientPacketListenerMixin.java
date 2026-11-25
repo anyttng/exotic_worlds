@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.client.engine.SyncedTagFold;
+import com.exoticworlds.engine.client.SyncedTagFold;
 import com.exoticworlds.engine.level.PublishedShapes;
 import com.exoticworlds.engine.net.ComponentPositions;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;

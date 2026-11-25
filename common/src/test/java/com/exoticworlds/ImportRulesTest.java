@@ -26,13 +26,17 @@ class ImportRulesTest {
     private static final String MIXIN_SEGMENT = "mixin";
     private static final String ROOT_GROUP = "";
     private static final String API_GROUP = "api";
+    private static final String ENGINE_CLIENT_GROUP = "engine.client";
     private static final String BRIDGE_GROUP = "bridge";
     private static final Set<String> VERSIONED_ROOTS = Set.of(API_GROUP, BRIDGE_GROUP);
     private static final Set<String> VERSIONS = Set.of("v1", "v2");
 
     private static final Set<String> ENGINE_READERS =
-            Set.of("engine", "mixin", "accessors", "compat", "platform", "client.engine", BRIDGE_GROUP);
+            Set.of("engine", "mixin", "accessors", "compat", "platform", ENGINE_CLIENT_GROUP, BRIDGE_GROUP);
     private static final String MIGRATION_GROUP = "migration";
+    private static final String CLIENT_SEGMENT = "client";
+    private static final String GAME_CLIENT_IMPORT = "import net.minecraft.client.";
+    private static final Set<String> SIDE_NEUTRAL_GROUPS = Set.of("core", "engine", "shape", "settings", "platform");
     private static final Set<String> MIGRATION_READERS = Set.of(MIGRATION_GROUP, "engine", MIXIN_SEGMENT);
     private static final Set<String> LOADER_ENTRIES =
             Set.of("WorldLoop", "WorldLoopNetwork", "ExoticWorldsNeoForge", "ExoticWorldsFabric",
@@ -83,9 +87,10 @@ class ImportRulesTest {
         if (importedGroup.equals("engine")
                 && !ENGINE_READERS.contains(readerGroup)
                 && !LOADER_ENTRIES.contains(simpleNameOf(reader))) {
-            return "engine is read by mixins, accessors, compat, platform, client/engine and the loader entries alone";
+            return "engine is read by mixins, accessors, compat, platform, engine/client and the loader entries alone";
         }
-        if (readerGroup.equals("engine") && (importedGroup.equals("shape") || importedGroup.equals("client"))) {
+        if (readerGroup.equals("engine") && (importedGroup.equals("shape")
+                || (isClientSide(packageOf(imported)) && !importedGroup.equals(ENGINE_CLIENT_GROUP)))) {
             return "engine never reads a shape or the client";
         }
         if (readerGroup.equals("core") && !importedGroup.equals("core") && !isVocabulary(importedGroup)) {
@@ -99,6 +104,30 @@ class ImportRulesTest {
             return "migration reads only the package root";
         }
         return null;
+    }
+
+    @Test
+    void theGameClientIsReadFromClientPackagesAlone() throws IOException {
+        List<String> violations = new ArrayList<>();
+        for (Path source : sourceFiles()) {
+            String type = typeOf(source);
+            String packageName = packageOf(type);
+            if (!SIDE_NEUTRAL_GROUPS.contains(groupOf(packageName)) || isClientSide(packageName)) {
+                continue;
+            }
+
+            if (Files.readAllLines(source, StandardCharsets.UTF_8).stream()
+                    .anyMatch(line -> line.strip().startsWith(GAME_CLIENT_IMPORT))) {
+                violations.add(type);
+            }
+        }
+
+        assertTrue(violations.isEmpty(),
+                "types outside a client package that import the game client: " + violations.stream().sorted().toList());
+    }
+
+    private static boolean isClientSide(String packageName) {
+        return List.of(packageName.split("\\.")).contains(CLIENT_SEGMENT);
     }
 
     private static boolean isVocabulary(String group) {
@@ -123,8 +152,8 @@ class ImportRulesTest {
         if (segments.contains(MIXIN_SEGMENT)) {
             return MIXIN_SEGMENT;
         }
-        if (packageName.startsWith("client.engine")) {
-            return "client.engine";
+        if (packageName.startsWith(ENGINE_CLIENT_GROUP)) {
+            return ENGINE_CLIENT_GROUP;
         }
         return segments.isEmpty() ? ROOT_GROUP : segments.get(0);
     }
