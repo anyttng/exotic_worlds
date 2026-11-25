@@ -11,6 +11,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.registry.StartupRegistry;
+import com.exoticworlds.core.world.ShapeDerivations;
 import com.exoticworlds.shape.option.DeclaredOptions;
 
 import net.minecraft.resources.Identifier;
@@ -27,6 +28,7 @@ public final class DeclaredShapes {
 
     public static void register(DimensionShape shape) {
         SHAPES.register(shape.getId(), shape);
+        ShapeDerivations.register(shape.getId(), shape::derive);
     }
 
     public static List<DimensionShape> getAll() {

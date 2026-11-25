@@ -46,8 +46,7 @@ class ImportRulesTest {
             "shape.feature.floatingcrumbs.FloatingCrumbs -> engine.gen.terrain.TerrainCeiling",
             "shape.feature.guaranteedland.CoastFieldLift -> engine.noise.GenerationFoldContext",
             "shape.WorldShapes -> engine.gen.ShapedDimensions",
-            "shape.layout.LayoutDimensions -> engine.gen.ShapedDimensions",
-            "shape.layout.OverworldDerivation -> engine.gen.ShapedDimensions");
+            "shape.layout.LayoutDimensions -> engine.gen.ShapedDimensions");
 
     @Test
     void everyImportStaysInsideItsGroup() throws IOException {

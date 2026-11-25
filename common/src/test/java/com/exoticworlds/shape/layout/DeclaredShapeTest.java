@@ -82,7 +82,7 @@ class DeclaredShapeTest {
         DimensionLayout layout = DimensionLayout.shaped(BAND.getId(), none, PLAIN);
 
         assertNull(none);
-        assertEquals(ShapeKind.SHAPED, layout.kind());
+        assertEquals(DimensionMode.SHAPED, layout.mode());
         assertNull(layout.spans());
         assertEquals(BAND.getId(), layout.shape());
     }

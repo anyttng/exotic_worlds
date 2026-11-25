@@ -28,8 +28,8 @@ class LayoutPresetTest {
         WorldLayout large = LayoutPreset.apply(skewed, WorldLoopPresets.LARGE, 1.0);
 
         assertEquals(LayoutFixtures.looped(ShapeFixtures.torus(256), LAND), large.overworld());
-        assertEquals(ShapeKind.FROM_OVERWORLD, large.nether().kind());
-        assertEquals(ShapeKind.FROM_OVERWORLD, large.end().kind());
+        assertEquals(DimensionMode.FROM_OVERWORLD, large.nether().mode());
+        assertEquals(DimensionMode.FROM_OVERWORLD, large.end().mode());
         assertEquals(WorldLoopPresets.LARGE.getNetherScale(), large.netherScale());
     }
 

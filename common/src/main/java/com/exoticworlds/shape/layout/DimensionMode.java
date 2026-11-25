@@ -1,6 +1,6 @@
 package com.exoticworlds.shape.layout;
 
-public enum ShapeKind {
+public enum DimensionMode {
     NORMAL,
     SHAPED,
     FROM_OVERWORLD

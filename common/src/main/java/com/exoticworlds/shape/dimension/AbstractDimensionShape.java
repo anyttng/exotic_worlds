@@ -3,6 +3,8 @@ package com.exoticworlds.shape.dimension;
 import java.util.List;
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
+
 import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.registry.StartupRegistry;
@@ -77,5 +79,11 @@ public abstract class AbstractDimensionShape implements DimensionShape {
     @Override
     public final Optional<ShapeOptions> optionsFor(FlatShape spans) {
         return this.logic.optionsFor(spans);
+    }
+
+    @Override
+    public final @Nullable FlatShape derive(FlatShape overworld, ResourceKey<LevelStem> dimension, double overworldScale,
+            double coordinateScale) {
+        return this.logic.derive(overworld, dimension, overworldScale, coordinateScale);
     }
 }
