@@ -19,7 +19,7 @@ import com.exoticworlds.accessors.LevelHolder;
 import com.exoticworlds.accessors.SeamDriveScheduler;
 import com.exoticworlds.accessors.TrackedEntityRefresher;
 import com.exoticworlds.accessors.FoldHolder;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.NearestCopy;
@@ -234,7 +234,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             NoiseGeneratorSettings settings,
             Operation<RandomState> original,
             @Local(argsOnly = true) ChunkGenerator generator) {
-        WorldFold fold = ShapedChunkGenerator.getWrappedFold(generator);
+        WorldFold fold = GeneratorShapes.getWrappedFold(generator);
         NoiseGeneratorSettings shaped = TerrainCeiling.shaped(fold, settings);
         return GenerationFoldContext.withRouterBuild(fold,
                 () -> original.call(noises, seed, shaped));
@@ -258,7 +258,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
             NoiseRouter router,
             Operation<RandomState> original,
             @Local(argsOnly = true) ChunkGenerator generator) {
-        return GenerationFoldContext.withRouterBuild(ShapedChunkGenerator.getWrappedFold(generator),
+        return GenerationFoldContext.withRouterBuild(GeneratorShapes.getWrappedFold(generator),
                 () -> original.call(noises, seed, useLegacyRandom, defaultBlock, seaLevel, router));
     }
 
@@ -272,7 +272,7 @@ public class ChunkMapMixin implements LevelHolder, ChunkResender, SeamDriveSched
                             + "Lnet/minecraft/world/level/chunk/ChunkGeneratorStructureState;"))
     private ChunkGeneratorStructureState exotic_worlds$stampStructureStateFold(ChunkGeneratorStructureState state,
             @Local(argsOnly = true) ChunkGenerator generator) {
-        ((FoldHolder) (Object) state).exotic_worlds$setFold(ShapedChunkGenerator.getFold(generator));
+        ((FoldHolder) (Object) state).exotic_worlds$setFold(GeneratorShapes.getFold(generator));
         return state;
     }
 

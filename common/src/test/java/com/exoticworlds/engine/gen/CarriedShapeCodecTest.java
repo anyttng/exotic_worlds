@@ -6,12 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
@@ -29,21 +29,13 @@ import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
 
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.data.registries.VanillaRegistries;
-import net.minecraft.resources.RegistryOps;
-import net.minecraft.world.level.biome.Biomes;
-import net.minecraft.world.level.biome.FixedBiomeSource;
-import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 
-class ShapedChunkGeneratorCodecTest {
+class CarriedShapeCodecTest {
     private static final WorldLoopBounds SQUARE = WorldLoopBounds.ofWidth(32);
     private static final WorldLoopBounds X_ONLY =
             new WorldLoopBounds(new AxisBounds.Looped(-16, 16), AxisBounds.Unbounded.INSTANCE);
 
-    private static final HolderLookup.Provider WORLDGEN = VanillaRegistries.createWorldLookup();
+    private static final Codec<CarriedShape> CARRIED = CarriedShape.mapCodec(CarriedShape.NO_KEY_PREFIX).codec();
 
     private static final String FROZEN_ON_DISK_KEY = "wrapping";
     private static final String CLIMATE_SCALE_KEY = CompactBiomes.KEY;
@@ -112,13 +104,13 @@ class ShapedChunkGeneratorCodecTest {
     }
 
     @Test
-    void theNoiseGeneratorReadsItsShapeThroughTheGate() {
-        assertGated(LoopedChunkGenerator.CODEC);
+    void theFormerNoiseGeneratorReadsItsShapeThroughTheGate() {
+        assertGated(LegacyGenerators.TOROIDAL_CODEC);
     }
 
     @Test
-    void theFlatGeneratorReadsItsShapeThroughTheGate() {
-        assertGated(LoopedFlatChunkGenerator.CODEC);
+    void theFormerFlatGeneratorReadsItsShapeThroughTheGate() {
+        assertGated(LegacyGenerators.TOROIDAL_FLAT_CODEC);
     }
 
     private static void assertGated(MapCodec<?> generatorCodec) {
@@ -144,153 +136,89 @@ class ShapedChunkGeneratorCodecTest {
     }
 
     @Test
-    void aSkewedNoiseGeneratorReadsBackItsShape() {
-        RegistryOps<JsonElement> ops = WORLDGEN.createSerializationContext(JsonOps.INSTANCE);
+    void aSkewedShapeReadsBack() {
         FlatShape skewed = FlatShape.latticeTorus(SQUARE, 5);
 
-        JsonElement encoded =
-                LoopedChunkGenerator.CODEC.codec().encodeStart(ops, noiseGenerator(skewed)).getOrThrow();
-
-        assertEquals(skewed,
-                LoopedChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow().getCarriedShape().getShape());
+        assertEquals(skewed, roundTrip(carried(skewed, ShapeOptions.DEFAULT)).getShape());
     }
 
     @Test
-    void aFlatGeneratorCannotBeBuiltAroundAMirroredShape() {
+    void aShapeCannotBeCarriedMirrored() {
         IllegalArgumentException refused = assertThrows(IllegalArgumentException.class,
-                () -> flatGenerator(ShapeFixtures.mirrored(SQUARE, Direction.Axis.Z, -7)));
+                () -> carried(ShapeFixtures.mirrored(SQUARE, Direction.Axis.Z, -7), ShapeOptions.DEFAULT));
 
         assertTrue(refused.getMessage().contains(Identification.KLEIN.toString()), refused.getMessage());
     }
 
     @Test
-    void aTorusSitsUnderTheSameKeyAndValueInTheGeneratorsOwnEncoding() {
-        RegistryOps<JsonElement> ops = WORLDGEN.createSerializationContext(JsonOps.INSTANCE);
+    void aTorusSitsUnderTheWrappingKey() {
         FlatShape torus = ShapeFixtures.torus(SQUARE);
-
-        JsonElement encoded =
-                LoopedChunkGenerator.CODEC.codec().encodeStart(ops, noiseGenerator(torus)).getOrThrow();
+        JsonElement encoded = encoded(carried(torus, ShapeOptions.DEFAULT));
 
         assertEquals(WorldLoopBounds.CODEC.encodeStart(JsonOps.INSTANCE, SQUARE).getOrThrow(),
                 encoded.getAsJsonObject().get(FROZEN_ON_DISK_KEY),
                 encoded.toString());
-        assertEquals(torus, LoopedChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow().getCarriedShape().getShape());
-    }
-
-    @Test
-    void aSuperflatTorusSitsThereToo() {
-        RegistryOps<JsonElement> ops = WORLDGEN.createSerializationContext(JsonOps.INSTANCE);
-        FlatShape torus = ShapeFixtures.torus(SQUARE);
-
-        JsonElement encoded =
-                LoopedFlatChunkGenerator.CODEC.codec().encodeStart(ops, flatGenerator(torus)).getOrThrow();
-
-        assertEquals(WorldLoopBounds.CODEC.encodeStart(JsonOps.INSTANCE, SQUARE).getOrThrow(),
-                encoded.getAsJsonObject().get(FROZEN_ON_DISK_KEY),
-                encoded.toString());
-        assertEquals(torus, LoopedFlatChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow().getCarriedShape().getShape());
+        assertEquals(torus, parsed(encoded).getShape());
     }
 
     @Test
     void aTorusThatCompressesItsClimateWritesTheLayoutOfASaveMadeBeforeTheChoiceExisted() {
-        RegistryOps<JsonElement> ops = WORLDGEN.createSerializationContext(JsonOps.INSTANCE);
-
-        JsonElement encoded = LoopedChunkGenerator.CODEC.codec()
-                .encodeStart(ops,
-                        noiseGenerator(ShapeFixtures.torus(SQUARE),
-                                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.AUTO))).getOrThrow();
+        JsonElement encoded = encoded(carried(ShapeFixtures.torus(SQUARE),
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.AUTO)));
 
         assertFalse(encoded.getAsJsonObject().has(CLIMATE_SCALE_KEY), encoded.toString());
-        assertEquals(ClimateScale.AUTO,
-                LoopedChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow().getCarriedShape().getOptions().get(CompactBiomes.FEATURE.getOption()));
+        assertEquals(ClimateScale.AUTO, parsed(encoded).getOptions().get(CompactBiomes.FEATURE.getOption()));
     }
 
     @Test
     void aTorusThatDeclinedCompressionWritesTheChoiceAndReadsItBack() {
-        RegistryOps<JsonElement> ops = WORLDGEN.createSerializationContext(JsonOps.INSTANCE);
-
-        JsonElement encoded = LoopedChunkGenerator.CODEC.codec()
-                .encodeStart(ops,
-                        noiseGenerator(ShapeFixtures.torus(SQUARE),
-                                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF))).getOrThrow();
+        JsonElement encoded = encoded(carried(ShapeFixtures.torus(SQUARE),
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF)));
 
         assertFalse(encoded.getAsJsonObject().get(CLIMATE_SCALE_KEY).getAsBoolean(), encoded.toString());
-        assertEquals(ClimateScale.OFF,
-                LoopedChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow().getCarriedShape().getOptions().get(CompactBiomes.FEATURE.getOption()));
+        assertEquals(ClimateScale.OFF, parsed(encoded).getOptions().get(CompactBiomes.FEATURE.getOption()));
     }
 
     @Test
     void aWorldFileWithoutTheChoiceLoadsCompressed() {
-        RegistryOps<JsonElement> ops = WORLDGEN.createSerializationContext(JsonOps.INSTANCE);
-        JsonElement encoded = LoopedChunkGenerator.CODEC.codec()
-                .encodeStart(ops,
-                        noiseGenerator(ShapeFixtures.torus(SQUARE),
-                                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF))).getOrThrow();
+        JsonElement encoded = encoded(carried(ShapeFixtures.torus(SQUARE),
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF)));
         encoded.getAsJsonObject().remove(CLIMATE_SCALE_KEY);
 
-        assertEquals(ClimateScale.AUTO,
-                LoopedChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow().getCarriedShape().getOptions().get(CompactBiomes.FEATURE.getOption()));
+        assertEquals(ClimateScale.AUTO, parsed(encoded).getOptions().get(CompactBiomes.FEATURE.getOption()));
     }
 
     @Test
     void aTorusThatGuaranteesLandWritesTheChoiceAndReadsItBack() {
-        RegistryOps<JsonElement> ops = WORLDGEN.createSerializationContext(JsonOps.INSTANCE);
-
-        JsonElement encoded = LoopedChunkGenerator.CODEC.codec()
-                .encodeStart(ops, noiseGenerator(ShapeFixtures.torus(SQUARE),
-                        ShapeOptions.DEFAULT.with(GuaranteedLand.FEATURE.getOption(), true))).getOrThrow();
+        JsonElement encoded = encoded(carried(ShapeFixtures.torus(SQUARE),
+                ShapeOptions.DEFAULT.with(GuaranteedLand.FEATURE.getOption(), true)));
 
         assertTrue(encoded.getAsJsonObject().get(GUARANTEED_LAND_KEY).getAsBoolean(), encoded.toString());
-        assertTrue(LoopedChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow()
-                .getCarriedShape().getOptions().get(GuaranteedLand.FEATURE.getOption()));
+        assertTrue(parsed(encoded).getOptions().get(GuaranteedLand.FEATURE.getOption()));
     }
 
     @Test
     void aWorldFileWithoutTheLandChoiceLoadsWithoutTheGuarantee() {
-        RegistryOps<JsonElement> ops = WORLDGEN.createSerializationContext(JsonOps.INSTANCE);
-
-        JsonElement encoded = LoopedChunkGenerator.CODEC.codec()
-                .encodeStart(ops, noiseGenerator(ShapeFixtures.torus(SQUARE), ShapeOptions.DEFAULT)).getOrThrow();
+        JsonElement encoded = encoded(carried(ShapeFixtures.torus(SQUARE), ShapeOptions.DEFAULT));
 
         assertFalse(encoded.getAsJsonObject().has(GUARANTEED_LAND_KEY), encoded.toString());
-        assertFalse(LoopedChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow()
-                .getCarriedShape().getOptions().get(GuaranteedLand.FEATURE.getOption()));
+        assertFalse(parsed(encoded).getOptions().get(GuaranteedLand.FEATURE.getOption()));
     }
 
-    @Test
-    void aSuperflatTorusCarriesTheChoiceTheSameWay() {
-        RegistryOps<JsonElement> ops = WORLDGEN.createSerializationContext(JsonOps.INSTANCE);
-
-        JsonElement encoded = LoopedFlatChunkGenerator.CODEC.codec()
-                .encodeStart(ops,
-                        flatGenerator(ShapeFixtures.torus(SQUARE),
-                                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF))).getOrThrow();
-
-        assertFalse(encoded.getAsJsonObject().get(CLIMATE_SCALE_KEY).getAsBoolean(), encoded.toString());
-        assertEquals(ClimateScale.OFF,
-                LoopedFlatChunkGenerator.CODEC.codec().parse(ops, encoded).getOrThrow().getCarriedShape().getOptions().get(CompactBiomes.FEATURE.getOption()));
+    private static CarriedShape carried(FlatShape shape, ShapeOptions options) {
+        return new CarriedShape(null, shape, options);
     }
 
-    private static LoopedChunkGenerator noiseGenerator(FlatShape shape) {
-        return noiseGenerator(shape, ShapeOptions.DEFAULT);
+    private static JsonElement encoded(CarriedShape carried) {
+        return CARRIED.encodeStart(JsonOps.INSTANCE, carried).getOrThrow();
     }
 
-    private static LoopedChunkGenerator noiseGenerator(FlatShape shape, ShapeOptions generationOptions) {
-        return new LoopedChunkGenerator(
-                new FixedBiomeSource(WORLDGEN.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)),
-                WORLDGEN.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.OVERWORLD),
-                new CarriedShape(shape, generationOptions));
+    private static CarriedShape parsed(JsonElement encoded) {
+        return CARRIED.parse(JsonOps.INSTANCE, encoded).getOrThrow();
     }
 
-    private static LoopedFlatChunkGenerator flatGenerator(FlatShape shape) {
-        return flatGenerator(shape, ShapeOptions.DEFAULT);
-    }
-
-    private static LoopedFlatChunkGenerator flatGenerator(FlatShape shape, ShapeOptions generationOptions) {
-        return new LoopedFlatChunkGenerator(new FlatLevelGeneratorSettings(
-                Optional.empty(),
-                WORLDGEN.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS),
-                List.of()), new CarriedShape(shape, generationOptions));
+    private static CarriedShape roundTrip(CarriedShape carried) {
+        return parsed(encoded(carried));
     }
 
     private static String readError(String json) {

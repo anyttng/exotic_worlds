@@ -3,7 +3,7 @@ package com.exoticworlds.compat.preview;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.world.CarriedShape;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
@@ -16,7 +16,7 @@ public final class CreationShape {
     public static @Nullable CarriedShape carried(WorldCreationContext settings) {
         return WorldShapes.applyAtCreation(settings.worldgenLoadContext(), settings.selectedDimensions())
                 .get(LevelStem.OVERWORLD)
-                .map(stem -> ShapedChunkGenerator.getCarriedShape(stem.generator()))
+                .map(stem -> GeneratorShapes.getCarriedShape(stem.generator()))
                 .orElse(null);
     }
 

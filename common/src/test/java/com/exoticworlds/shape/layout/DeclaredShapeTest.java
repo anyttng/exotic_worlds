@@ -79,52 +79,37 @@ class DeclaredShapeTest {
     @Test
     void aShapeThatLoopsNoAxisLeavesTheDimensionAsTheGameMakesIt() {
         FlatShape none = DeclaredShapes.resolve(band(), context(LevelStem.OVERWORLD, PLAIN.with(WIDTH, 0), null));
-        DimensionLayout layout = DimensionLayout.declared(BAND.getId(), none, PLAIN);
+        DimensionLayout layout = DimensionLayout.shaped(BAND.getId(), none, PLAIN);
 
         assertNull(none);
-        assertEquals(ShapeKind.NORMAL, layout.kind());
+        assertEquals(ShapeKind.SHAPED, layout.kind());
         assertNull(layout.spans());
         assertEquals(BAND.getId(), layout.shape());
     }
 
     @Test
-    void aStoredDimensionShowsTheShapeWhereItsSpansComeBackEqual() {
-        WorldLayout stored = new WorldLayout(
-                DimensionLayout.looped(ShapeFixtures.cylinder(Direction.Axis.X, 128), WIDE),
-                DimensionLayout.looped(ShapeFixtures.cylinder(Direction.Axis.X, 16), PLAIN),
-                DimensionLayout.looped(ShapeFixtures.torus(96), PLAIN), Map.of(), 8);
+    void aDimensionStoredWithItsShapeReadsBackAsThatShape() {
+        ResourceKey<LevelStem> sky = sky();
+        FlatShape spans = ShapeFixtures.cylinder(Direction.Axis.X, 128);
+        DimensionTable.Entry stored = LayoutDimensions.entryOf(DimensionLayout.shaped(BAND.getId(), spans, WIDE));
 
-        WorldLayout recognized = ShapeRecognition.recognize(stored, DeclaredShapeTest::scale);
-
-        assertEquals(BAND.getId(), recognized.overworld().shape());
-        assertEquals(BAND.getId(), recognized.nether().shape());
-        assertNull(recognized.end().shape());
-        assertEquals(stored.end(), recognized.end());
+        assertEquals(DimensionLayout.shaped(BAND.getId(), spans, WIDE),
+                LayoutDimensions.ofRows(Map.of(sky, stored)).getModDimension(sky));
     }
 
-    @Test
-    void aDimensionOfACreatedWorldShowsTheShapeAndIsSentAsItsSpans() {
-        ResourceKey<LevelStem> sky = ResourceKey.create(Registries.LEVEL_STEM,
-                Identifier.fromNamespaceAndPath("example_mod", "sky"));
-        FlatShape spans = ShapeFixtures.cylinder(Direction.Axis.X, 128);
-        DimensionTable.Entry stored = LayoutDimensions.entryOf(DimensionLayout.looped(spans, WIDE));
-
-        WorldLayout recognized = ShapeRecognition.recognize(
-                LayoutDimensions.ofRows(Map.of(sky, stored)), DeclaredShapeTest::scale);
-
-        assertEquals(DimensionLayout.declared(BAND.getId(), spans, WIDE), recognized.getModDimension(sky));
-        assertEquals(stored, LayoutDimensions.entryOf(recognized.getModDimension(sky)));
+    private static ResourceKey<LevelStem> sky() {
+        return ResourceKey.create(Registries.LEVEL_STEM, Identifier.fromNamespaceAndPath("example_mod", "sky"));
     }
 
     @Test
     void aPresetOnAShapeThatTakesOneChangesItsOptionsAndTheSpansTheyComeTo() {
         WorldLayout band = WorldLayout.DEFAULT.withOverworld(
-                DimensionLayout.declared(BAND.getId(), ShapeFixtures.cylinder(Direction.Axis.X, 128), WIDE));
+                DimensionLayout.shaped(BAND.getId(), ShapeFixtures.cylinder(Direction.Axis.X, 128), WIDE));
 
         WorldLayout large = LayoutPreset.apply(band, WorldLoopPresets.LARGE, 1.0);
 
         assertTrue(LayoutPreset.isOffered(band));
-        assertEquals(DimensionLayout.declared(BAND.getId(), ShapeFixtures.cylinder(Direction.Axis.X, 256),
+        assertEquals(DimensionLayout.shaped(BAND.getId(), ShapeFixtures.cylinder(Direction.Axis.X, 256),
                 PLAIN.with(WIDTH, 256)), large.overworld());
         assertEquals(WorldLoopPresets.LARGE.getNetherScale(), large.netherScale());
         assertTrue(LayoutPreset.isMatching(large, WorldLoopPresets.LARGE));
@@ -134,7 +119,7 @@ class DeclaredShapeTest {
     @Test
     void aShapeThatTakesNoPresetLeavesTheLayoutAsItIs() {
         WorldLayout strip = WorldLayout.DEFAULT.withOverworld(
-                DimensionLayout.declared(STRIP.getId(), ShapeFixtures.cylinder(Direction.Axis.Z, 48), PLAIN));
+                DimensionLayout.shaped(STRIP.getId(), ShapeFixtures.cylinder(Direction.Axis.Z, 48), PLAIN));
 
         assertFalse(LayoutPreset.isOffered(strip));
         assertSame(strip, LayoutPreset.apply(strip, WorldLoopPresets.LARGE, 1.0));

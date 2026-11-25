@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFold;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -36,7 +36,7 @@ public class ChunkGeneratorReferencesMixin {
             Operation<Map<Structure, StructureStart>> original, @Local(argsOnly = true) ChunkAccess centerChunk,
             @Local(name = "sourceX") int sourceX, @Local(name = "sourceZ") int sourceZ,
             @Share(SOURCE_POS) LocalRef<@Nullable ChunkPos> sourcePos) {
-        WorldFold fold = ShapedChunkGenerator.getWrappedFold((ChunkGenerator) (Object) this);
+        WorldFold fold = GeneratorShapes.getWrappedFold((ChunkGenerator) (Object) this);
         if (fold == null) {
             return original.call(sourceChunk);
         }
@@ -59,7 +59,7 @@ public class ChunkGeneratorReferencesMixin {
             Operation<Boolean> original, @Local(argsOnly = true) ChunkAccess centerChunk,
             @Local(name = "sourceX") int sourceX, @Local(name = "sourceZ") int sourceZ,
             @Share(SOURCE_POS) LocalRef<@Nullable ChunkPos> sourcePos) {
-        WorldFold fold = ShapedChunkGenerator.getWrappedFold((ChunkGenerator) (Object) this);
+        WorldFold fold = GeneratorShapes.getWrappedFold((ChunkGenerator) (Object) this);
         ChunkPos physical = sourcePos.get();
         if (fold == null || physical == null) {
             return original.call(box, minX, minZ, maxX, maxZ);

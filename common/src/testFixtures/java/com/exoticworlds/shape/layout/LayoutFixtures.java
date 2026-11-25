@@ -7,6 +7,7 @@ import com.exoticworlds.core.world.NetherScales;
 import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.WorldLoopSizes;
+import com.exoticworlds.shape.dimension.DeclaredShapes;
 
 import net.minecraft.core.Direction;
 
@@ -14,8 +15,13 @@ public final class LayoutFixtures {
     public static final ShapeOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
 
     public static WorldLayout shaped(FlatShape overworld, int netherScale, FlatShape end, ShapeOptions options) {
-        return new WorldLayout(DimensionLayout.looped(overworld, options), DimensionLayout.fromOverworld(options),
-                DimensionLayout.looped(end, options), Map.of(), netherScale);
+        return new WorldLayout(looped(overworld, options), DimensionLayout.fromOverworld(options),
+                looped(end, options), Map.of(), netherScale);
+    }
+
+    public static DimensionLayout looped(FlatShape spans, ShapeOptions options) {
+        boolean isTorus = spans.bounds().isLooped(Direction.Axis.X) && spans.bounds().isLooped(Direction.Axis.Z);
+        return DimensionLayout.shaped(isTorus ? DeclaredShapes.TORUS : DeclaredShapes.CYLINDER, spans, options);
     }
 
     public static WorldLayout defaultTorus() {

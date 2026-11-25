@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.core.world.CarriedShape;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.engine.gen.structure.AddedStructureStarts;
 
 import net.minecraft.SharedConstants;
@@ -37,7 +37,7 @@ public class ChunkGeneratorAddedStartsMixin {
         }
 
         ChunkGenerator generator = (ChunkGenerator) (Object) this;
-        CarriedShape carried = ShapedChunkGenerator.getCarriedShape(generator);
+        CarriedShape carried = GeneratorShapes.getCarriedShape(generator);
         if (carried == null) {
             return;
         }

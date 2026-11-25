@@ -10,8 +10,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.BinderOrder;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.accessors.FoldedRandomState;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.engine.gen.BaseHeights;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -28,6 +30,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseChunk;
 import net.minecraft.world.level.levelgen.RandomState;
@@ -44,7 +47,7 @@ public class NoiseBasedChunkGeneratorMixin {
                     target = "Lnet/minecraft/world/level/levelgen/NoiseRouter;finalDensity()"
                             + "Lnet/minecraft/world/level/levelgen/densityfunction/DensityFunction;"))
     private DensityFunction exotic_worlds$fillUnderTheCeiling(DensityFunction finalDensity, @Local NoiseChunk noiseChunk) {
-        if (ShapedChunkGenerator.getWrappedFold((NoiseBasedChunkGenerator) (Object) this) == null) {
+        if (GeneratorShapes.getWrappedFold((NoiseBasedChunkGenerator) (Object) this) == null) {
             return finalDensity;
         }
 
@@ -53,7 +56,7 @@ public class NoiseBasedChunkGeneratorMixin {
 
     @WrapMethod(method = "doFill", order = BinderOrder.FOLD)
     private void exotic_worlds$bindWhileFilling(NoiseChunk noiseChunk, ChunkAccess chunk, Operation<Void> original) {
-        WorldFold fold = ShapedChunkGenerator.getFold((NoiseBasedChunkGenerator) (Object) this);
+        WorldFold fold = GeneratorShapes.getFold((NoiseBasedChunkGenerator) (Object) this);
         try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             original.call(noiseChunk, chunk);
         }
@@ -63,7 +66,7 @@ public class NoiseBasedChunkGeneratorMixin {
     private void exotic_worlds$bindWhileBuildingSurface(ChunkAccess chunk, NoiseChunk noiseChunk, RandomState randomState,
             BiomeManager biomeManager, Set<Holder<Biome>> possibleBiomes, MaterialRule materialRule,
             Operation<Void> original) {
-        WorldFold fold = ShapedChunkGenerator.getFold((NoiseBasedChunkGenerator) (Object) this);
+        WorldFold fold = GeneratorShapes.getFold((NoiseBasedChunkGenerator) (Object) this);
         try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             original.call(chunk, noiseChunk, randomState, biomeManager, possibleBiomes, materialRule);
         }
@@ -73,7 +76,7 @@ public class NoiseBasedChunkGeneratorMixin {
     private void exotic_worlds$bindWhileCarving(ChunkAccess chunk, Blender blender, NoiseChunk noiseChunk,
             RandomState randomState, BiomeManager biomeManager, WorldGenRegion carverBiomeRegion,
             MaterialRule materialRule, Operation<Void> original) {
-        WorldFold fold = ShapedChunkGenerator.getFold((NoiseBasedChunkGenerator) (Object) this);
+        WorldFold fold = GeneratorShapes.getFold((NoiseBasedChunkGenerator) (Object) this);
         try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             original.call(chunk, blender, noiseChunk, randomState, biomeManager, carverBiomeRegion, materialRule);
         }
@@ -83,14 +86,25 @@ public class NoiseBasedChunkGeneratorMixin {
     private OptionalInt exotic_worlds$bindWhileReadingColumn(LevelHeightAccessor heightAccessor, RandomState randomState,
             int blockX, int blockZ, @Nullable MutableObject<NoiseColumn> columnReference,
             @Nullable Predicate<BlockState> tester, Operation<OptionalInt> original) {
-        WorldFold fold = ShapedChunkGenerator.getFold((NoiseBasedChunkGenerator) (Object) this);
+        WorldFold fold = GeneratorShapes.getFold((NoiseBasedChunkGenerator) (Object) this);
         try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             return original.call(heightAccessor, randomState, blockX, blockZ, columnReference, tester);
         }
     }
 
+    @WrapMethod(method = "getBaseHeight")
+    private int exotic_worlds$readFoldedBaseHeight(int x, int z, Heightmap.Types type, LevelHeightAccessor heightAccessor,
+            RandomState randomState, Operation<Integer> original) {
+        BaseHeights heights = ((FoldedRandomState) (Object) randomState).exotic_worlds$getBaseHeights();
+        if (heights == null) {
+            return original.call(x, z, type, heightAccessor, randomState);
+        }
+
+        return heights.heightAt(x, z, type, () -> original.call(x, z, type, heightAccessor, randomState));
+    }
+
     @ModifyReturnValue(method = "getOrigin", at = @At("RETURN"))
     private ChunkPos exotic_worlds$originInsideBounds(ChunkPos origin) {
-        return ShapedChunkGenerator.getFold((NoiseBasedChunkGenerator) (Object) this).fold(origin);
+        return GeneratorShapes.getFold((NoiseBasedChunkGenerator) (Object) this).fold(origin);
     }
 }

@@ -8,7 +8,7 @@ import com.ascendiacore.gui.base.component.GuiComponent;
 import com.ascendiacore.gui.theme.Theme;
 import com.ascendiacore.gui.theme.Themes;
 import com.ascendiacore.gui.widget.button.Button;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.shape.WorldShapes;
 
 import net.minecraft.client.Minecraft;
@@ -63,7 +63,7 @@ public final class WorldShapeRow implements WorldTabRow {
                 return;
             }
 
-            this.isTilingAtSeam = ShapedChunkGenerator.isTilingAtSeam(overworld.generator());
+            this.isTilingAtSeam = GeneratorShapes.isTilingAtSeam(overworld.generator());
         }
 
         private boolean canTakeShape() {

@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.core.world.CarriedShape;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.fold.NearestCopy;
 import com.exoticworlds.engine.gen.structure.AddedStructureStarts;
@@ -49,7 +49,7 @@ public class ChunkGeneratorRandomSpreadSearchMixin {
             RandomSpreadStructurePlacement placement,
             Operation<@Nullable Pair<BlockPos, Holder<Structure>>> original,
             @Local(argsOnly = true) ServerLevel serverLevel) {
-        CarriedShape carried = ShapedChunkGenerator.getCarriedShape((ChunkGenerator) (Object) this);
+        CarriedShape carried = GeneratorShapes.getCarriedShape((ChunkGenerator) (Object) this);
         if (carried == null) {
             return original.call(structures, level, structureManager, chunkOriginX, chunkOriginZ, radiusChunks,
                     createReference, seed, placement);
@@ -71,7 +71,7 @@ public class ChunkGeneratorRandomSpreadSearchMixin {
             method = "findNearestMapStructure",
             at = @At(value = "INVOKE", target = InjectionTargets.BLOCK_POS_DIST_SQR))
     private double exotic_worlds$rankThroughTheSeam(BlockPos origin, Vec3i candidate, Operation<Double> original) {
-        WorldFold fold = ShapedChunkGenerator.getWrappedFold((ChunkGenerator) (Object) this);
+        WorldFold fold = GeneratorShapes.getWrappedFold((ChunkGenerator) (Object) this);
         return original.call(origin, NearestCopy.toward(fold, origin, candidate));
     }
 }

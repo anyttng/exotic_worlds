@@ -248,8 +248,7 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
 
     @Unique
     private static @Nullable CarriedShape exotic_worlds$terrainOf(@Nullable CarriedShape carried) {
-        return carried == null ? null : new CarriedShape(carried.getShape(),
-                carried.getOptions().with(SpawnPoint.OPTION, SpawnPoint.DEFAULT));
+        return carried == null ? null : carried.withOptions(carried.getOptions().with(SpawnPoint.OPTION, SpawnPoint.DEFAULT));
     }
 
     @WrapOperation(method = "refresh", at = @At(value = "INVOKE",

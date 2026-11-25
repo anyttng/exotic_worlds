@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 
 import com.exoticworlds.accessors.BiomeZoomOwner;
 import com.exoticworlds.accessors.PeriodicityMark;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
@@ -101,7 +101,7 @@ public final class PeriodicityCheck {
     private static SeamVerdict check(ServerLevel level) {
         String levelName = level.dimension().identifier().toString();
         ChunkGenerator generator = level.getChunkSource().getGenerator();
-        if (!ShapedChunkGenerator.isTilingAtSeam(generator)) {
+        if (!GeneratorShapes.isTilingAtSeam(generator)) {
             LOGGER.info("[ew/world-loop] periodicity_skipped level={} generator={}",
                     levelName, generator.getClass().getSimpleName());
             return new SeamVerdict(level.dimension(), List.of(), SeamCauseSearch.generatorCause(generator), 0);

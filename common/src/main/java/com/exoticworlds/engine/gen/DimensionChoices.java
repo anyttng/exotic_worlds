@@ -16,7 +16,7 @@ import org.jspecify.annotations.Nullable;
 import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.DimensionTable;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.engine.level.LevelRebuild;
 import com.exoticworlds.engine.net.DimensionChoicesPayload;
 import com.exoticworlds.engine.net.WorldShapeSync;
@@ -171,7 +171,7 @@ public final class DimensionChoices {
 
     private static boolean isShaped(MinecraftServer server) {
         return !getStoredTable(server).isEmpty() || getLiveStems(server).stream()
-                .anyMatch(stem -> ShapedChunkGenerator.getCarriedShape(stem.generator()) != null);
+                .anyMatch(stem -> GeneratorShapes.getCarriedShape(stem.generator()) != null);
     }
 
     private static double coordinateScale(MinecraftServer server, ResourceKey<LevelStem> key) {
@@ -181,7 +181,7 @@ public final class DimensionChoices {
 
     private static DimensionTable.Entry getLiveEntry(MinecraftServer server, ResourceKey<LevelStem> key) {
         LevelStem stem = getLiveStems(server).getValue(key);
-        CarriedShape carried = stem == null ? null : ShapedChunkGenerator.getCarriedShape(stem.generator());
+        CarriedShape carried = stem == null ? null : GeneratorShapes.getCarriedShape(stem.generator());
         return carried == null ? DimensionTable.Entry.UNWRAPPED : new DimensionTable.Entry(carried);
     }
 

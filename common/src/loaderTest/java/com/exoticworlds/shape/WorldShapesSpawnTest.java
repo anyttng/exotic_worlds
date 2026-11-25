@@ -14,17 +14,19 @@ import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.option.ShapeOptions;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.shape.layout.LayoutFixtures;
 import com.exoticworlds.shape.layout.LayoutShape;
 import com.exoticworlds.shape.layout.WorldLayout;
 
+import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.registries.VanillaRegistries;
+import net.minecraft.server.Bootstrap;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.FixedBiomeSource;
@@ -36,16 +38,19 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.WorldDimensions;
 
 class WorldShapesSpawnTest {
-    private static final RegistryAccess.Frozen REGISTRIES =
-            RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
+    private static RegistryAccess.Frozen registries;
 
-    private static final HolderLookup.Provider WORLDGEN = VanillaRegistries.createWorldLookup();
+    private static HolderLookup.Provider worldgen;
 
     private static final SpawnPoint PICKED = new SpawnPoint(3, -5);
 
     @BeforeAll
     static void registerTheModsShape() {
-        LayoutShape.register(false);
+        SharedConstants.tryDetectVersion();
+        Bootstrap.bootStrap();
+        registries = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
+        worldgen = VanillaRegistries.createWorldLookup();
+        StartupRegistrations.layoutShape();
     }
 
     @AfterEach
@@ -85,8 +90,8 @@ class WorldShapesSpawnTest {
 
         assertTrue(WorldShapes.tryMoveSpawn(PICKED));
 
-        WorldDimensions created = WorldShapes.applyAtCreation(REGISTRIES, vanillaDimensions());
-        CarriedShape overworld = ShapedChunkGenerator.getCarriedShape(
+        WorldDimensions created = WorldShapes.applyAtCreation(registries, vanillaDimensions());
+        CarriedShape overworld = GeneratorShapes.getCarriedShape(
                 created.dimensions().get(LevelStem.OVERWORLD).generator());
         assertNotNull(overworld);
         assertEquals(PICKED, overworld.getOptions().get(SpawnPoint.OPTION));
@@ -102,8 +107,8 @@ class WorldShapesSpawnTest {
 
     private static LevelStem stem(ResourceKey<DimensionType> type, ResourceKey<NoiseGeneratorSettings> noise) {
         NoiseBasedChunkGenerator generator = new NoiseBasedChunkGenerator(
-                new FixedBiomeSource(WORLDGEN.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)),
-                WORLDGEN.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(noise));
-        return new LevelStem(WORLDGEN.lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(type), generator);
+                new FixedBiomeSource(worldgen.lookupOrThrow(Registries.BIOME).getOrThrow(Biomes.PLAINS)),
+                worldgen.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(noise));
+        return new LevelStem(worldgen.lookupOrThrow(Registries.DIMENSION_TYPE).getOrThrow(type), generator);
     }
 }

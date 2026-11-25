@@ -163,7 +163,7 @@ class BakeStampTest {
         Registry<LevelStem> baked = bake(storedToroidalWorld(),
                 Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, datapackOverworld)));
 
-        LoopedChunkGenerator restored = assertInstanceOf(LoopedChunkGenerator.class,
+        NoiseBasedChunkGenerator restored = assertInstanceOf(NoiseBasedChunkGenerator.class,
                 generatorOf(baked, LevelStem.OVERWORLD));
         assertSame(datapackOverworld.getBiomeSource(), restored.getBiomeSource());
         assertSame(((NoiseBasedChunkGenerator) datapackOverworld).generatorSettings(), restored.generatorSettings());
@@ -313,7 +313,7 @@ class BakeStampTest {
                 Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, stored)),
                 Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, noiseGenerator(worldgen))));
 
-        assertInstanceOf(LoopedChunkGenerator.class, generatorOf(baked, LevelStem.OVERWORLD));
+        assertEquals(NoiseBasedChunkGenerator.class, generatorOf(baked, LevelStem.OVERWORLD).getClass());
 
         FlatShape shape = shapeOf(baked, LevelStem.OVERWORLD);
         assertNotNull(shape, "the datapack overworld carries no fold");
@@ -341,9 +341,9 @@ class BakeStampTest {
                 Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, stored)),
                 Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, noiseGenerator(worldgen))));
 
-        LoopedChunkGenerator restored = assertInstanceOf(LoopedChunkGenerator.class,
-                generatorOf(baked, LevelStem.OVERWORLD));
-        assertEquals(ClimateScale.OFF, restored.getCarriedShape().getOptions().get(CompactBiomes.FEATURE.getOption()));
+        CarriedShape restored = carriedShapeOf(baked, LevelStem.OVERWORLD);
+        assertNotNull(restored, "the datapack overworld carries no fold");
+        assertEquals(ClimateScale.OFF, restored.getOptions().get(CompactBiomes.FEATURE.getOption()));
     }
 
     private static Map<ResourceKey<LevelStem>, LevelStem> storedToroidalWorld() {

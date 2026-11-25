@@ -1,6 +1,6 @@
 package com.exoticworlds.compat.worldgen;
 
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.level.CurrentServer;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
@@ -21,7 +21,7 @@ public final class FoldCompression {
         Registry<LevelStem> stems = server.registryAccess().lookupOrThrow(Registries.LEVEL_STEM);
         for (LevelStem stem : stems) {
             ChunkGenerator generator = stem.generator();
-            if (ShapedChunkGenerator.getFold(generator) == fold) {
+            if (GeneratorShapes.getFold(generator) == fold) {
                 LevelStem overworld = stems.getValue(LevelStem.OVERWORLD);
                 return LevelClimateCompression.factor(fold, LevelClimateCompression.temperatureOf(generator,
                         overworld != null ? overworld.generator() : null));

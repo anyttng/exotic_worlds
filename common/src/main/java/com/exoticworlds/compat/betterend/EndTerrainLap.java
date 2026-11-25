@@ -7,7 +7,7 @@ import com.exoticworlds.compat.worldgen.LapFrame;
 import com.exoticworlds.compat.worldgen.OpenSimplexStandIn;
 import com.exoticworlds.compat.worldgen.StandInHolder;
 import com.exoticworlds.compat.betterend.mixin.TerrainGeneratorAccessor;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.TranslationLattice;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WrapDomain;
@@ -37,7 +37,7 @@ public final class EndTerrainLap {
     }
 
     public static void capture(ServerLevel level) {
-        WorldFold fold = ShapedChunkGenerator.getWrappedFold(level.getChunkSource().getGenerator());
+        WorldFold fold = GeneratorShapes.getWrappedFold(level.getChunkSource().getGenerator());
         OpenSimplexNoise first = TerrainGeneratorAccessor.exotic_worlds$getNoise1();
         OpenSimplexNoise second = TerrainGeneratorAccessor.exotic_worlds$getNoise2();
         current = fold == null || first == null || second == null

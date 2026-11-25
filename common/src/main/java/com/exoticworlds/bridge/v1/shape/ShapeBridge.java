@@ -8,6 +8,7 @@ import com.exoticworlds.bridge.v1.option.OptionBridge;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.CoordinateConstants;
 import com.exoticworlds.core.world.FlatShape;
+import com.exoticworlds.core.world.LegacyShapeIds;
 import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 import com.exoticworlds.engine.gen.ShapedDimensions;
@@ -38,7 +39,8 @@ public final class ShapeBridge {
     }
 
     private static CarriedShape carried(LoopSpans spans, GenerationOptions options) {
-        return new CarriedShape(flatShapeOf(spans), OptionBridge.fromV1(options));
+        FlatShape shape = flatShapeOf(spans);
+        return new CarriedShape(LegacyShapeIds.recognize(shape).orElse(null), shape, OptionBridge.fromV1(options));
     }
 
     private static LoopSpans spansOf(FlatShape shape) {

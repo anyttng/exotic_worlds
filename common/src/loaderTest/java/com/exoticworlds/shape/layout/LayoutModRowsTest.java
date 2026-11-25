@@ -60,7 +60,7 @@ class LayoutModRowsTest {
     @Test
     void modRowsBesideANormalWorldRoundTrip() {
         WorldLayout chosen = new WorldLayout(NORMAL, NORMAL, NORMAL, Map.of(
-                SKY, DimensionLayout.looped(ShapeFixtures.torus(48, 32), compact6),
+                SKY, LayoutFixtures.looped(ShapeFixtures.torus(48, 32), compact6),
                 MINE, NORMAL), NetherScales.DEFAULT);
 
         WorldDimensions created = LayoutDimensions.apply(vanillaDimensions(), chosen);
@@ -72,8 +72,8 @@ class LayoutModRowsTest {
 
     @Test
     void modRowsBesideAWrappedOverworldRoundTrip() {
-        WorldLayout chosen = new WorldLayout(DimensionLayout.looped(ShapeFixtures.torus(64), PLAIN), NORMAL, NORMAL,
-                Map.of(SKY, DimensionLayout.looped(ShapeFixtures.cylinder(Direction.Axis.Z, 40), compact6)),
+        WorldLayout chosen = new WorldLayout(LayoutFixtures.looped(ShapeFixtures.torus(64), PLAIN), NORMAL, NORMAL,
+                Map.of(SKY, LayoutFixtures.looped(ShapeFixtures.cylinder(Direction.Axis.Z, 40), compact6)),
                 NetherScales.DEFAULT);
 
         assertEquals(chosen, LayoutDimensions.read(LayoutDimensions.apply(vanillaDimensions(), chosen)));

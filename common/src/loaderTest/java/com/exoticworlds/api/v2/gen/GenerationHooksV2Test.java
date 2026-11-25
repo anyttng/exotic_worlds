@@ -195,6 +195,6 @@ class GenerationHooksV2Test {
     }
 
     private static CarriedShape torus(ShapeOptions options) {
-        return new CarriedShape(ShapeFixtures.torus(WorldLoopBounds.ofWidth(TORUS_WIDTH_CHUNKS)), options);
+        return new CarriedShape(null, ShapeFixtures.torus(WorldLoopBounds.ofWidth(TORUS_WIDTH_CHUNKS)), options);
     }
 }
