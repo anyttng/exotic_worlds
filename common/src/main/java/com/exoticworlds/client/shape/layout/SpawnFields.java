@@ -19,6 +19,7 @@ import com.ascendiacore.gui.widget.numberfield.model.Bounds;
 import com.ascendiacore.gui.widget.panel.model.FillStyle;
 import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.core.world.WorldLoopSizes;
+import com.exoticworlds.shape.dimension.LoopSizeLines;
 
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -46,7 +47,7 @@ final class SpawnFields {
         point.add(this.z, Length.fill());
         point.setEnabled(() -> this.mode.get() == SpawnPoint.Mode.CUSTOM);
 
-        this.section.setGap(LoopFields.GAP_PIXELS);
+        this.section.setGap(DimensionPage.GAP_PIXELS);
         this.section.add(modeButton);
         this.section.add(new Label(fill, LabelRole.NORMAL, SettingsLines.SPAWN_POINT));
         this.section.add(point);
@@ -74,7 +75,7 @@ final class SpawnFields {
 
     private static NumberField chunkField(Theme theme, FillStyle fill, Direction.Axis axis,
             Function<Direction.Axis, @Nullable Integer> widthChunks) {
-        NumberField field = new NumberField(fill, theme.textField(), SettingsLines.axisName(axis),
+        NumberField field = new NumberField(fill, theme.textField(), LoopSizeLines.axisName(axis),
                 () -> bounds(widthChunks.apply(axis)), () -> {
                 });
         field.setSigned(true);
