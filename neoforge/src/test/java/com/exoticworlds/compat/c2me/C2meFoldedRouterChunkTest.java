@@ -24,6 +24,7 @@ import net.minecraft.server.Bootstrap;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.Beardifier;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -102,11 +103,11 @@ class C2meFoldedRouterChunkTest {
     }
 
     private static RandomState foldedState() {
-        return GenerationFoldContext.withRouterBuild(SQUARE, List.of(), () -> RandomState.create(overworld, noises, SEED));
+        return GenerationFoldContext.withRouterBuild(SQUARE, LevelStem.OVERWORLD, List.of(), () -> RandomState.create(overworld, noises, SEED));
     }
 
     private static RandomState unfoldedState() {
-        return GenerationFoldContext.withRouterBuild(null, List.of(), () -> RandomState.create(overworld, noises, SEED));
+        return GenerationFoldContext.withRouterBuild(null, LevelStem.OVERWORLD, List.of(), () -> RandomState.create(overworld, noises, SEED));
     }
 
     private static Terrain fillOneChunk(RandomState state) {

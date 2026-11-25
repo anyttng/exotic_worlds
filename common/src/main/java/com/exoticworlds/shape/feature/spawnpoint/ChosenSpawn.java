@@ -3,6 +3,7 @@ package com.exoticworlds.shape.feature.spawnpoint;
 import java.util.List;
 
 import com.exoticworlds.core.feature.SpawnFeature;
+import com.exoticworlds.core.feature.SpawnMoment;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.shape.feature.OptionFeature;
@@ -22,7 +23,7 @@ public final class ChosenSpawn extends OptionFeature<SpawnPoint> implements Spaw
     }
 
     @Override
-    public SpawnPoint spawnPointIn(ShapeOptions options) {
-        return options.get(SpawnPoint.OPTION);
+    public SpawnPoint spawnPointIn(SpawnMoment moment) {
+        return moment.options().get(SpawnPoint.OPTION);
     }
 }

@@ -25,7 +25,7 @@ public final class StartupRegistry<K, V> {
         requireOpen();
         if (entries.containsKey(key)) {
             throw new IllegalStateException(subject + " already holds " + key + "; a second registration under it"
-                    + " would replace the first.");
+                    + " would replace the first. Register it once.");
         }
 
         put(key, value);

@@ -6,19 +6,16 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.api.v2.option.ShapeOptionV2;
-import com.exoticworlds.api.v2.option.ShapeOptionsV2;
-import com.exoticworlds.api.v2.shape.DimensionContextV2;
-import com.exoticworlds.api.v2.shape.DimensionShapeV2;
-import com.exoticworlds.api.v2.shape.LoopSpansV2;
-import com.exoticworlds.bridge.v2.option.ShapeOptionsAdapter;
+import com.exoticworlds.bridge.v2.geometry.ShapeSpansAdapter;
 import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.ShapeFixtures;
@@ -29,10 +26,12 @@ import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.dimension.DimensionContext;
 import com.exoticworlds.shape.dimension.DimensionShape;
+import com.exoticworlds.shape.option.DimensionOption;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -40,28 +39,25 @@ import net.minecraft.world.level.dimension.LevelStem;
 class DeclaredShapeTest {
     private static final double NETHER_SCALE = 8.0;
 
-    private static final ShapeOptionV2<Integer> SHAPE_WIDTH =
-            new ShapeOptionV2<>("example_band_width", 200, Codec.INT, 64);
-
-    private static final ShapeOption<Integer> WIDTH = ShapeOptionsAdapter.fromV2(SHAPE_WIDTH);
+    private static final ShapeOption<Integer> WIDTH = new ShapeOption<>("example_band_width", 200, Codec.INT, 64);
 
     private static final ShapeOptions PLAIN = LayoutFixtures.PLAIN;
 
     private static final ShapeOptions WIDE = PLAIN.with(WIDTH, 128);
 
-    private static final DimensionShapeV2 BAND = new Band();
+    private static final DimensionShape BAND = new Band();
 
-    private static final DimensionShapeV2 STRIP = new Strip();
+    private static final DimensionShape STRIP = new Strip();
 
     @BeforeAll
     static void registerShapes() {
         if (!ShapeOptionRegistry.getAll().contains(WIDTH)) {
-            SHAPE_WIDTH.register();
+            ShapeOptionRegistry.register(WIDTH);
         }
 
         if (DeclaredShapes.of(BAND.getId()) == null) {
-            BAND.register();
-            STRIP.register();
+            DeclaredShapes.register(BAND);
+            DeclaredShapes.register(STRIP);
         }
     }
 
@@ -140,20 +136,72 @@ class DeclaredShapeTest {
         return dimension == LevelStem.NETHER ? NETHER_SCALE : 1.0;
     }
 
-    private static final class Band implements DimensionShapeV2 {
-        @Override
-        public Identifier getId() {
-            return Identifier.fromNamespaceAndPath("example_mod", "band");
+    private abstract static class FixtureShape implements DimensionShape {
+        private final Identifier id;
+
+        FixtureShape(String path) {
+            this.id = Identifier.fromNamespaceAndPath("example_mod", path);
         }
 
         @Override
-        public LoopSpansV2 spans(DimensionContextV2 context) {
-            LoopSpansV2 overworld = context.overworld();
+        public final Identifier getId() {
+            return this.id;
+        }
+
+        @Override
+        public final Component getName() {
+            return Component.literal(this.id.getPath());
+        }
+
+        @Override
+        public final Component getHint() {
+            return getName();
+        }
+
+        @Override
+        public final Component describe(ShapeOptions options) {
+            return getName();
+        }
+
+        @Override
+        public final List<DimensionOption<?>> getParameters() {
+            return List.of();
+        }
+
+        @Override
+        public final ShapeOptions defaultOptions(ResourceKey<LevelStem> dimension) {
+            return ShapeOptions.DEFAULT;
+        }
+
+        @Override
+        public boolean canTakePresets() {
+            return false;
+        }
+
+        @Override
+        public ShapeOptions withPreset(WorldLoopPresets preset, ShapeOptions options) {
+            return options;
+        }
+
+        @Override
+        public final Optional<ShapeOptions> optionsFor(FlatShape spans) {
+            return Optional.empty();
+        }
+    }
+
+    private static final class Band extends FixtureShape {
+        Band() {
+            super("band");
+        }
+
+        @Override
+        public FlatShape spans(DimensionContext context) {
+            FlatShape overworld = context.overworld();
             int widthChunks = overworld == null
-                    ? context.options().get(SHAPE_WIDTH)
-                    : (int) (overworld.getWidthChunks(Direction.Axis.X) * context.overworldScale()
+                    ? context.options().get(WIDTH)
+                    : (int) (ShapeSpansAdapter.loopSpans(overworld).getWidthChunks(Direction.Axis.X) * context.overworldScale()
                             / context.coordinateScale());
-            return widthChunks == 0 ? LoopSpansV2.NONE : LoopSpansV2.ofWidth(Direction.Axis.X, widthChunks);
+            return widthChunks == 0 ? FlatShape.rectangle() : ShapeFixtures.cylinder(Direction.Axis.X, widthChunks);
         }
 
         @Override
@@ -162,20 +210,19 @@ class DeclaredShapeTest {
         }
 
         @Override
-        public ShapeOptionsV2 withPreset(int widthChunks, ShapeOptionsV2 options) {
-            return options.with(SHAPE_WIDTH, widthChunks);
+        public ShapeOptions withPreset(WorldLoopPresets preset, ShapeOptions options) {
+            return options.with(WIDTH, preset.getWidthChunks());
         }
     }
 
-    private static final class Strip implements DimensionShapeV2 {
-        @Override
-        public Identifier getId() {
-            return Identifier.fromNamespaceAndPath("example_mod", "strip");
+    private static final class Strip extends FixtureShape {
+        Strip() {
+            super("strip");
         }
 
         @Override
-        public LoopSpansV2 spans(DimensionContextV2 context) {
-            return LoopSpansV2.ofWidth(Direction.Axis.Z, 48);
+        public FlatShape spans(DimensionContext context) {
+            return ShapeFixtures.cylinder(Direction.Axis.Z, 48);
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.exoticworlds.mixin;
 
-import java.util.List;
 import java.util.Map;
 
 import org.spongepowered.asm.mixin.Final;
@@ -10,18 +9,19 @@ import org.spongepowered.asm.mixin.Unique;
 
 import com.exoticworlds.accessors.ClimateFieldMark;
 import com.exoticworlds.accessors.IndexableNoise;
-import com.exoticworlds.accessors.NoiseFeatureHolder;
-import com.exoticworlds.accessors.NoiseOffsetHolder;
+import com.exoticworlds.accessors.NoiseHalfHolder;
+import com.exoticworlds.accessors.NoiseOriginHolder;
 import com.exoticworlds.accessors.NoiseScaleRungs;
 import com.exoticworlds.accessors.WrappedNormalNoise;
 import com.exoticworlds.accessors.WrappedPerlinNoise;
-import com.exoticworlds.core.feature.NoiseFeature;
 import com.exoticworlds.core.feature.NoiseOffset;
+import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ContextKeyedCache;
 import com.exoticworlds.engine.noise.ContextScaledNoise;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.GenerationFoldContext.Context;
 import com.exoticworlds.engine.noise.NoiseConstants;
+import com.exoticworlds.engine.noise.NoiseOrigin;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -29,8 +29,7 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 
 @Mixin(NormalNoise.class)
-public class NormalNoiseMixin implements ClimateFieldMark, NoiseFeatureHolder, NoiseOffsetHolder, NoiseScaleRungs,
-        IndexableNoise,
+public class NormalNoiseMixin implements ClimateFieldMark, NoiseOriginHolder, NoiseScaleRungs, IndexableNoise,
         WrappedNormalNoise {
     @Shadow
     @Final
@@ -45,10 +44,10 @@ public class NormalNoiseMixin implements ClimateFieldMark, NoiseFeatureHolder, N
     private double valueFactor;
 
     @Unique
-    private volatile List<NoiseFeature> exotic_worlds$noiseFeatures = List.of();
+    private volatile NoiseOrigin exotic_worlds$noiseOrigin = NoiseOrigin.NONE;
 
     @Unique
-    private volatile NoiseOffset exotic_worlds$noiseOffset = NoiseOffset.NONE;
+    private final ContextKeyedCache<NoiseOffset> exotic_worlds$offsets = new ContextKeyedCache<>();
 
     @Unique
     private volatile Map<Double, Double> exotic_worlds$scaleRungs = Map.of();
@@ -63,25 +62,32 @@ public class NormalNoiseMixin implements ClimateFieldMark, NoiseFeatureHolder, N
     }
 
     @Override
-    public List<NoiseFeature> exotic_worlds$getNoiseFeatures() {
-        return this.exotic_worlds$noiseFeatures;
+    public NoiseOrigin exotic_worlds$getNoiseOrigin() {
+        return this.exotic_worlds$noiseOrigin;
     }
 
     @Override
-    public void exotic_worlds$setNoiseFeatures(List<NoiseFeature> features) {
-        this.exotic_worlds$noiseFeatures = features;
-        ((NoiseFeatureHolder) (Object) this.first).exotic_worlds$setNoiseFeatures(features);
-        ((NoiseFeatureHolder) (Object) this.second).exotic_worlds$setNoiseFeatures(features);
+    public void exotic_worlds$setNoiseOrigin(NoiseOrigin origin) {
+        this.exotic_worlds$noiseOrigin = origin;
+        ((NoiseHalfHolder) (Object) this.first).exotic_worlds$setNoiseOrigin(origin, false);
+        ((NoiseHalfHolder) (Object) this.second).exotic_worlds$setNoiseOrigin(origin, true);
     }
 
     @Override
-    public NoiseOffset exotic_worlds$getNoiseOffset() {
-        return this.exotic_worlds$noiseOffset;
-    }
+    public double exotic_worlds$getOffsetAt(Context context) {
+        NoiseOrigin origin = this.exotic_worlds$noiseOrigin;
+        if (origin.noise() == null) {
+            return 0.0;
+        }
 
-    @Override
-    public void exotic_worlds$setNoiseOffset(NoiseOffset offset) {
-        this.exotic_worlds$noiseOffset = offset;
+        WorldFold fold = context.getFold();
+        NoiseOffset offset = this.exotic_worlds$offsets.find(fold, context);
+        if (offset == null) {
+            offset = this.exotic_worlds$offsets.put(fold, context,
+                    origin.offsetAt(fold, context.getHorizontalScale(), context.verticalShare()));
+        }
+
+        return offset.get();
     }
 
     @Override
@@ -109,7 +115,7 @@ public class NormalNoiseMixin implements ClimateFieldMark, NoiseFeatureHolder, N
         double value = this.exotic_worlds$indexable(generation)
                 ? this.exotic_worlds$foldedValue(generation, x, y, z)
                 : ContextScaledNoise.vanillaAtFoldedSlots(generation, (NormalNoise) (Object) this, x, y, z);
-        return value + this.exotic_worlds$noiseOffset.get();
+        return value + exotic_worlds$getOffsetAt(generation);
     }
 
     @Override

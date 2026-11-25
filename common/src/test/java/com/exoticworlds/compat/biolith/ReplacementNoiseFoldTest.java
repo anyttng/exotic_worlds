@@ -142,7 +142,7 @@ class ReplacementNoiseFoldTest {
         static double temperatureFactor(WorldFold worldFold,
                 ResourceKey<NormalNoise.NoiseParameters> temperature) {
             return ClimateCompression.factor(worldFold,
-                    new DensityFunction.NoiseHolder(LOOKUP.lookupOrThrow(Registries.NOISE).getOrThrow(temperature)),
+                    LOOKUP.lookupOrThrow(Registries.NOISE).getOrThrow(temperature),
                     CLIMATE_XZ_SCALE, HORIZONTAL_SHARE);
         }
     }

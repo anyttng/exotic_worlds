@@ -9,7 +9,7 @@ import net.minecraft.world.level.Level;
 /**
  * Entry point for reading a level's geometry on the logical server, or for any {@link Level} whose own engine knows
  * its bounds. On the client the level is deliberately told the world is infinite, so its geometry is read through
- * {@link com.exoticworlds.api.v2.client.ClientGeometriesV2} instead.
+ * {@link com.exoticworlds.api.v2.geometry.client.ClientGeometriesV2} instead.
  */
 public final class WorldGeometriesV2 {
 

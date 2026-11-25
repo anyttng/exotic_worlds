@@ -30,7 +30,7 @@ public final class CreationShape {
         }
 
         List<GenerationFeature> features = ShapeFeatures.activeFeatures(shown, LevelStem.OVERWORLD);
-        return () -> GenerationFoldContext.withRouterBuild(shown.getFold(), features, () -> {
+        return () -> GenerationFoldContext.withRouterBuild(shown.getFold(), LevelStem.OVERWORLD, features, () -> {
             task.run();
             return null;
         });

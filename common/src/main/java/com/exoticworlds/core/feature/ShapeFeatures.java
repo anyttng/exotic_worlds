@@ -3,6 +3,8 @@ package com.exoticworlds.core.feature;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 
@@ -35,6 +37,10 @@ public final class ShapeFeatures {
         SCOPES.merge(shape, Map.of(feature.getKey(), scope), (held, added) -> merged(shape, held, added));
     }
 
+    public static Set<Identifier> getShapes() {
+        return SCOPES.getEntries().keySet();
+    }
+
     public static List<GenerationFeature> activeFeatures(CarriedShape carried, ResourceKey<LevelStem> dimension) {
         Map<String, DimensionScope> scopes = carried.findShapeId()
                 .map(shape -> SCOPES.getEntries().get(shape))
@@ -65,15 +71,20 @@ public final class ShapeFeatures {
 
     public static List<GenerationFeature> installedOn(ServerLevel level) {
         return GeneratorShapes.activeFeatures(level.getChunkSource().getGenerator(), level.dimension()).stream()
-                .filter(feature -> !(feature instanceof LevelFeature installed) || installed.isInstalledOn(level))
+                .filter(feature -> isInstalledOn(feature, level))
                 .toList();
     }
 
     public static <F extends GenerationFeature> List<F> atMoment(List<GenerationFeature> features, Class<F> moment) {
         return features.stream()
-                .filter(moment::isInstance)
-                .map(moment::cast)
+                .map(feature -> feature.asMoment(moment))
+                .filter(Objects::nonNull)
                 .toList();
+    }
+
+    private static boolean isInstalledOn(GenerationFeature feature, ServerLevel level) {
+        LevelFeature installed = feature.asMoment(LevelFeature.class);
+        return installed == null || installed.isInstalledOn(level);
     }
 
     private static boolean isInScope(@Nullable DimensionScope scope, ResourceKey<LevelStem> dimension) {
@@ -85,7 +96,8 @@ public final class ShapeFeatures {
         Map<String, DimensionScope> merged = new HashMap<>(held);
         added.forEach((key, scope) -> {
             if (merged.putIfAbsent(key, scope) != null) {
-                throw new IllegalStateException("The shape " + shape + " already carries the feature " + key + ".");
+                throw new IllegalStateException("The shape " + shape + " already carries the feature " + key
+                        + ": attach a feature to a shape once.");
             }
         });
         return Map.copyOf(merged);

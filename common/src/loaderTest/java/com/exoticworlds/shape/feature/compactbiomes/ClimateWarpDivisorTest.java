@@ -12,7 +12,10 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.exoticworlds.engine.noise.NoiseFeatures;
+import com.exoticworlds.core.feature.NoiseOffsets;
+import com.exoticworlds.engine.noise.NoiseOrigin;
+
+import net.minecraft.world.level.dimension.LevelStem;
 
 class ClimateWarpDivisorTest {
     private static final double HORIZONTAL_SHARE = 0.0;
@@ -26,7 +29,7 @@ class ClimateWarpDivisorTest {
 
         assertTrue(factor > 1.0, "the fixture sits outside the compressed regime, so the case proves nothing");
         assertEquals(CLIMATE_XZ_SCALE * factor,
-                NoiseFeatures.warpDivisor(List.of(CompactBiomes.FEATURE), SQUARE, CLIMATE_NOISE, CLIMATE_XZ_SCALE,
-                        HORIZONTAL_SHARE));
+                NoiseOrigin.of(List.of(CompactBiomes.FEATURE), LevelStem.OVERWORLD, CLIMATE_NOISE.noiseData(),
+                        new NoiseOffsets()).warpDivisorAt(SQUARE, CLIMATE_XZ_SCALE, HORIZONTAL_SHARE));
     }
 }

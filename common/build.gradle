@@ -202,6 +202,8 @@ neoForge.addModdingDependenciesTo(sourceSets.test)
 sourceSets.test.java.srcDir 'src/testFixtures/java'
 
 dependencies {
+    testCompileOnly rootProject.ext.ascendiaCoreModule
+    testRuntimeOnly rootProject.ext.ascendiaCoreModule
     testCompileOnly files(c2meModuleJars).asFileTree.matching { include '*.jar' }
     testRuntimeOnly files(c2meModuleJars).asFileTree.matching { include '*.jar' }
     testCompileOnly "maven.modrinth:distanthorizons:${distanthorizons_version}"

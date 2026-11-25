@@ -72,8 +72,8 @@ public class DensityFunctionsShiftedNoiseMixin {
     private double exotic_worlds$warpDivisor(WorldFold fold, double xzScale) {
         Divisor divisor = this.exotic_worlds$warpDivisor;
         if (divisor == null || divisor.fold() != fold) {
-            divisor = new Divisor(fold, NoiseFeatures.warpDivisor(NoiseFeatures.getFeatures(this.noise), fold,
-                    this.noise, xzScale, GenerationFoldContext.verticalShare(xzScale, this.yScale)));
+            divisor = new Divisor(fold, NoiseFeatures.getOrigin(this.noise).warpDivisorAt(fold, xzScale,
+                    GenerationFoldContext.verticalShare(xzScale, this.yScale)));
             this.exotic_worlds$warpDivisor = divisor;
         }
 

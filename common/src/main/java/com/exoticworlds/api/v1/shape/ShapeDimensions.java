@@ -28,7 +28,7 @@ public final class ShapeDimensions {
      * @throws IllegalArgumentException if a looping axis of any of the three spans is narrower than
      *         {@link LoopSpans#minChunkWidth()}
      * @deprecated nothing calls this at world creation any more: it was what a {@link ShapeModule} applied, and no
-     *     screen lists one. A {@link com.exoticworlds.api.v2.shape.DimensionShapeV2} answers its spans and Exotic Worlds
+     *     screen lists one. A {@link com.exoticworlds.api.v2.shape.ShapeV2} answers its spans and Exotic Worlds
      *     writes them.
      */
     @Deprecated

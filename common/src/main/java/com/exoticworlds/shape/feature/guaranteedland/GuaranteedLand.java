@@ -1,13 +1,10 @@
 package com.exoticworlds.shape.feature.guaranteedland;
 
 import com.exoticworlds.core.feature.NoiseFeature;
+import com.exoticworlds.core.feature.NoiseMoment;
 import com.exoticworlds.core.feature.RandomStateFeature;
-import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.core.feature.RandomStateMoment;
 import com.exoticworlds.shape.feature.ToggleFeature;
-
-import net.minecraft.core.Holder;
-import net.minecraft.world.level.levelgen.RandomState;
-import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public final class GuaranteedLand extends ToggleFeature implements RandomStateFeature, NoiseFeature {
     public static final String KEY = "guaranteed_land";
@@ -23,12 +20,12 @@ public final class GuaranteedLand extends ToggleFeature implements RandomStateFe
     }
 
     @Override
-    public void atRandomState(RandomState randomState, WorldFold fold, int seaLevel) {
-        CoastFieldLift.lift(randomState, fold, seaLevel);
+    public void atRandomState(RandomStateMoment moment) {
+        CoastFieldLift.lift(this, moment);
     }
 
     @Override
-    public boolean isOffsetting(Holder<NormalNoise.NoiseParameters> noise) {
-        return noise.unwrapKey().filter(CoastFields::isCoast).isPresent();
+    public boolean isOffsetting(NoiseMoment moment) {
+        return moment.noise().unwrapKey().filter(CoastFields::isCoast).isPresent();
     }
 }

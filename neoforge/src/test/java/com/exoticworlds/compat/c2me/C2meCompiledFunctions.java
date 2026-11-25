@@ -19,6 +19,7 @@ import com.ishland.c2me.opts.dfc.common.gen.jvm.AbstractCompiledDensityFunction;
 import com.ishland.c2me.opts.dfc.common.gen.jvm.BytecodeGen;
 
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 
@@ -68,7 +69,7 @@ final class C2meCompiledFunctions {
     }
 
     static DensityFunction compileFolded(String name, DensityFunction source, WorldFold fold) {
-        DensityFunction compiled = GenerationFoldContext.withRouterBuild(fold, List.of(), () -> {
+        DensityFunction compiled = GenerationFoldContext.withRouterBuild(fold, LevelStem.OVERWORLD, List.of(), () -> {
             BytecodeGen.Context context = BytecodeGen.initContext();
             DensityFunction function = context.compileDelayed(name, source);
             BytecodeGen.finalizeCompilation(context);

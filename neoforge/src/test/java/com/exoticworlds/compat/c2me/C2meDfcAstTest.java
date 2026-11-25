@@ -43,6 +43,7 @@ import com.ishland.c2me.opts.dfc.common.ast.noise.GenericShiftedNoiseNode;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.util.KeyDispatchDataCodec;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
@@ -131,7 +132,7 @@ class C2meDfcAstTest {
         DensityFunction source = withClimateNoise(DensityFunctions.shiftedNoise2d(
                 DensityFunctions.constant(SHIFT_X), DensityFunctions.constant(SHIFT_Z),
                 CLIMATE_XZ_SCALE, CLIMATE_NOISE_DATA));
-        AstNode folded = GenerationFoldContext.withRouterBuild(SQUARE, List.of(), () -> McToAst.toAst(source));
+        AstNode folded = GenerationFoldContext.withRouterBuild(SQUARE, LevelStem.OVERWORLD, List.of(), () -> McToAst.toAst(source));
         Random random = new Random(SEED);
         int xWidth = SQUARE.getBlockDomain(Direction.Axis.X).domainLength;
         int zWidth = SQUARE.getBlockDomain(Direction.Axis.Z).domainLength;
@@ -179,7 +180,7 @@ class C2meDfcAstTest {
                 withLiveNoise(DensityFunctions.shiftA(NOISE_DATA)),
                 withLiveNoise(DensityFunctions.shiftB(NOISE_DATA)))) {
             for (WorldFold worldFold : WORLDS) {
-                AstNode folded = GenerationFoldContext.withRouterBuild(worldFold, List.of(), () -> McToAst.toAst(source));
+                AstNode folded = GenerationFoldContext.withRouterBuild(worldFold, LevelStem.OVERWORLD, List.of(), () -> McToAst.toAst(source));
                 int xWidth = worldFold.getBlockDomain(Direction.Axis.X).domainLength;
                 int zWidth = worldFold.getBlockDomain(Direction.Axis.Z).domainLength;
 
@@ -242,7 +243,7 @@ class C2meDfcAstTest {
     void unexpectedNodeShapeFailsTheCompile() {
         DensityFunction source = withLiveNoise(DensityFunctions.noise(NOISE_DATA, XZ_SCALE, Y_SCALE));
 
-        assertThrows(IllegalStateException.class, () -> GenerationFoldContext.withRouterBuild(SQUARE, List.of(),
+        assertThrows(IllegalStateException.class, () -> GenerationFoldContext.withRouterBuild(SQUARE, LevelStem.OVERWORLD, List.of(),
                 () -> C2meDfcAst.fold(source, new ConstantNode(0.0))));
     }
 
@@ -261,7 +262,7 @@ class C2meDfcAstTest {
         DensityFunction source = DensityFunctions.blendDensity(
                 withLiveNoise(DensityFunctions.noise(NOISE_DATA, XZ_SCALE, Y_SCALE)));
 
-        AstNode produced = GenerationFoldContext.withRouterBuild(SQUARE, List.of(), () -> McToAst.toAst(source));
+        AstNode produced = GenerationFoldContext.withRouterBuild(SQUARE, LevelStem.OVERWORLD, List.of(), () -> McToAst.toAst(source));
 
         assertInstanceOf(C2meFoldedNoiseNode.class, produced,
                 "blend_density hands its input's node straight back, so the fixture proves nothing otherwise");
@@ -293,7 +294,7 @@ class C2meDfcAstTest {
 
     private static void assertScaledShiftedFoldMatchesVanilla(boolean shiftsScaled) {
         ScaledShiftedStandIn source = scaledShiftedNoise(shiftsScaled);
-        AstNode folded = GenerationFoldContext.withRouterBuild(SQUARE, List.of(),
+        AstNode folded = GenerationFoldContext.withRouterBuild(SQUARE, LevelStem.OVERWORLD, List.of(),
                 () -> C2meDfcAst.fold(source, c2meTreeOf(source)));
         AddNode offset = assertInstanceOf(AddNode.class, folded);
         MulNode multiplied = assertInstanceOf(MulNode.class, offset.left);
@@ -347,7 +348,7 @@ class C2meDfcAstTest {
     }
 
     private static void assertFoldMatchesVanillaOverGrid(DensityFunction source, WorldFold fold) {
-        AstNode folded = GenerationFoldContext.withRouterBuild(fold, List.of(), () -> McToAst.toAst(source));
+        AstNode folded = GenerationFoldContext.withRouterBuild(fold, LevelStem.OVERWORLD, List.of(), () -> McToAst.toAst(source));
         Random random = new Random(SEED);
 
         for (int i = 0; i < GRID_SAMPLES; i++) {
@@ -365,7 +366,7 @@ class C2meDfcAstTest {
     }
 
     private static void assertFoldMatchesVanilla(DensityFunction source) {
-        AstNode folded = GenerationFoldContext.withRouterBuild(SQUARE, List.of(), () -> McToAst.toAst(source));
+        AstNode folded = GenerationFoldContext.withRouterBuild(SQUARE, LevelStem.OVERWORLD, List.of(), () -> McToAst.toAst(source));
         DensityFunction.FunctionContext at = new DensityFunction.SinglePointContext(SAMPLE_X, SAMPLE_Y, SAMPLE_Z);
 
         double vanilla = GenerationFoldContext.withFold(SQUARE, () -> source.compute(at));

@@ -1,7 +1,8 @@
 package com.exoticworlds.shape.feature.compactbiomes;
 
 import java.util.List;
-import java.util.function.DoubleSupplier;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 
@@ -10,27 +11,41 @@ import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.noise.ClimateScaleCompression;
 import com.exoticworlds.shape.noise.DensityNoises;
 
-import it.unimi.dsi.fastutil.doubles.DoubleList;
+import it.unimi.dsi.fastutil.doubles.DoubleList;
+import net.minecraft.core.Holder;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public final class ClimateCompression {
+    private static final double LN_2 = Math.log(2.0);
 
-    public record Resolved(WorldFold fold, double baseScale, double verticalShare, double factor) {
+
+    public record Resolved(WorldFold fold, double baseScale, double verticalShare, DoubleList factors) {
         boolean covers(WorldFold fold, double baseScale, double verticalShare) {
             return this.fold == fold && this.baseScale == baseScale && this.verticalShare == verticalShare;
         }
     }
 
-    public static double resolve(ClimateCompressionCache cache, WorldFold fold, double baseScale,
-            double verticalShare, DoubleSupplier factor) {
+    public static DoubleList resolve(ClimateCompressionCache cache, WorldFold fold, double baseScale,
+            double verticalShare, Supplier<DoubleList> factors) {
         Resolved resolved = cache.exotic_worlds$climateCompression();
         if (resolved == null || !resolved.covers(fold, baseScale, verticalShare)) {
-            resolved = new Resolved(fold, baseScale, verticalShare, factor.getAsDouble());
+            resolved = new Resolved(fold, baseScale, verticalShare, factors.get());
             cache.exotic_worlds$climateCompression(resolved);
         }
 
-        return resolved.factor();
+        return resolved.factors();
+    }
+
+    public static double[] layerFactors(WorldFold fold, Holder<NormalNoise.NoiseParameters> noise,
+            DoubleList layerFrequencies, double baseScale, double verticalShare) {
+        double[] factors = new double[layerFrequencies.size()];
+        for (int layer = 0; layer < factors.length; layer++) {
+            factors[layer] = factor(fold, noise, baseScale * detuneOf(layerFrequencies.getDouble(layer)),
+                    verticalShare);
+        }
+
+        return factors;
     }
 
     public static double factor(WorldFold fold, boolean isClimateField, DoubleList amplitudes,
@@ -60,10 +75,10 @@ public final class ClimateCompression {
                 : fit;
     }
 
-    public static double factor(WorldFold fold, DensityFunction.NoiseHolder noise, double baseScale,
+    public static double factor(WorldFold fold, Holder<NormalNoise.NoiseParameters> noise, double baseScale,
             double verticalShare) {
-        NormalNoise.NoiseParameters parameters = noise.noiseData().value();
-        boolean climateField = noise.noiseData().unwrapKey().filter(ClimateFields::isClimate).isPresent();
+        NormalNoise.NoiseParameters parameters = noise.value();
+        boolean climateField = noise.unwrapKey().filter(ClimateFields::isClimate).isPresent();
 
         return factor(fold, climateField, parameters.amplitudes(), Math.pow(2.0, parameters.firstOctave()),
                 baseScale, verticalShare);
@@ -72,6 +87,10 @@ public final class ClimateCompression {
     public static DensityNoises.@Nullable ScaledNoise climateNoiseOf(DensityFunction function) {
         List<DensityNoises.ScaledNoise> climate = DensityNoises.scaledMatching(function, ClimateFields::isClimate);
         return climate.isEmpty() ? null : climate.getFirst();
+    }
+
+    private static double detuneOf(double frequency) {
+        return frequency / Math.pow(2.0, (double) Math.round(Math.log(frequency) / LN_2));
     }
 
     private ClimateCompression() {

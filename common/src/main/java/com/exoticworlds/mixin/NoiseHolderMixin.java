@@ -9,12 +9,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.accessors.ClimateFieldMark;
-import com.exoticworlds.accessors.NoiseFeatureHolder;
-import com.exoticworlds.accessors.NoiseOffsetHolder;
+import com.exoticworlds.accessors.NoiseOriginHolder;
 import com.exoticworlds.core.feature.NoiseFeature;
 import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
-import com.exoticworlds.engine.noise.NoiseFeatures;
+import com.exoticworlds.engine.noise.NoiseOrigin;
 import com.exoticworlds.shape.feature.compactbiomes.ClimateFields;
 
 import net.minecraft.core.Holder;
@@ -36,7 +35,7 @@ public class NoiseHolderMixin {
     }
 
     @Inject(method = CONSTRUCTOR, at = @At("RETURN"))
-    private void exotic_worlds$stampNoiseFeatures(Holder<NormalNoise.NoiseParameters> noiseData,
+    private void exotic_worlds$stampNoiseOrigin(Holder<NormalNoise.NoiseParameters> noiseData,
             @Nullable NormalNoise noise, CallbackInfo callback) {
         GenerationFoldContext.Context context = GenerationFoldContext.getContext();
         if (noise == null || context.getRouterBuildFold() == null) {
@@ -44,8 +43,7 @@ public class NoiseHolderMixin {
         }
 
         List<NoiseFeature> features = ShapeFeatures.atMoment(context.getRouterBuildFeatures(), NoiseFeature.class);
-        ((NoiseFeatureHolder) noise).exotic_worlds$setNoiseFeatures(features);
-        ((NoiseOffsetHolder) noise).exotic_worlds$setNoiseOffset(
-                NoiseFeatures.offsetOf(features, context.getRouterBuildOffsets(), noiseData));
+        ((NoiseOriginHolder) noise).exotic_worlds$setNoiseOrigin(NoiseOrigin.of(features,
+                context.getRouterBuildDimension(), noiseData, context.getRouterBuildOffsets()));
     }
 }

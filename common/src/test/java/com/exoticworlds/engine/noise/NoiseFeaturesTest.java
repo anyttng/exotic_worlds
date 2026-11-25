@@ -1,23 +1,25 @@
 package com.exoticworlds.engine.noise;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import com.exoticworlds.core.feature.NoiseFeature;
+import com.exoticworlds.core.feature.NoiseMoment;
 import com.exoticworlds.core.feature.NoiseOffset;
 import com.exoticworlds.core.feature.NoiseOffsets;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldFolds;
 import com.exoticworlds.core.world.ShapeFixtures;
 
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 import net.minecraft.core.Holder;
-import net.minecraft.world.level.levelgen.DensityFunction;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 class NoiseFeaturesTest {
@@ -29,31 +31,35 @@ class NoiseFeaturesTest {
     private static final Holder<NormalNoise.NoiseParameters> OTHER_NOISE =
             Holder.direct(new NormalNoise.NoiseParameters(-9, 1.0));
 
-    private static final DensityFunction.NoiseHolder HOLDER = new DensityFunction.NoiseHolder(NOISE);
-
-    private static final DoubleList AMPLITUDES = DoubleArrayList.of(1.0, 1.0);
+    private static final DoubleList LAYER_FREQUENCIES = DoubleList.of(1.0, NoiseConstants.SECOND_LAYER_DETUNE, 2.0,
+            2.0 * NoiseConstants.SECOND_LAYER_DETUNE);
 
     private static final double XZ_SCALE = 0.25;
 
     private static final double SHARE = 0.0;
 
     @Test
-    void theScaleFactorsOfTwoFeaturesMultiply() {
-        assertEquals(6.0, NoiseFeatures.scaleFactor(List.of(new Scaling("a", 2.0), new Scaling("b", 3.0)), FOLD,
-                true, AMPLITUDES, 1.0, XZ_SCALE, SHARE));
+    void theLayerFactorsOfTwoFeaturesMultiply() {
+        double[] product =
+                NoiseFeatures.layerFactors(List.of(new Scaling("a", 2.0), new Scaling("b", 3.0)), moment(NOISE));
+
+        double[] expected = new double[LAYER_FREQUENCIES.size()];
+        Arrays.fill(expected, 6.0);
+        assertArrayEquals(expected, product);
     }
 
     @Test
     void theWarpDivisorIsTheScaleTimesTheProductOfTheWarpFactors() {
         assertEquals(XZ_SCALE * 2.0 * 3.0, NoiseFeatures.warpDivisor(
-                List.of(new Scaling("a", 2.0), new Scaling("b", 3.0)), FOLD, HOLDER, XZ_SCALE, SHARE));
-        assertEquals(XZ_SCALE, NoiseFeatures.warpDivisor(List.of(), FOLD, HOLDER, XZ_SCALE, SHARE));
+                List.of(new Scaling("a", 2.0), new Scaling("b", 3.0)), moment(NOISE)));
+        assertEquals(XZ_SCALE, NoiseFeatures.warpDivisor(List.of(), moment(NOISE)));
     }
 
     @Test
     void theOffsetsOfTwoFeaturesOnOneNoiseAdd() {
         NoiseOffsets offsets = new NoiseOffsets();
-        NoiseOffset offset = NoiseFeatures.offsetOf(List.of(new Offsetting("a"), new Offsetting("b")), offsets, NOISE);
+        NoiseOffset offset = NoiseFeatures.offsetOf(List.of(new Offsetting("a"), new Offsetting("b")), offsets,
+                moment(NOISE));
 
         offsets.set("a", 0.25);
         offsets.set("b", 0.5);
@@ -67,7 +73,20 @@ class NoiseFeaturesTest {
         offsets.set("a", 0.25);
 
         assertSame(NoiseOffset.NONE,
-                NoiseFeatures.offsetOf(List.of(new Offsetting("a")), offsets, OTHER_NOISE));
+                NoiseFeatures.offsetOf(List.of(new Offsetting("a")), offsets, moment(OTHER_NOISE)));
+    }
+
+    @Test
+    void anOriginListsTwoDetunedLayersForEveryAudibleOctave() {
+        NoiseOrigin origin = NoiseOrigin.of(List.of(), LevelStem.OVERWORLD,
+                Holder.direct(new NormalNoise.NoiseParameters(0, 1.0, 0.0, 1.0)), new NoiseOffsets());
+
+        assertEquals(DoubleList.of(1.0, NoiseConstants.SECOND_LAYER_DETUNE, 4.0,
+                4.0 * NoiseConstants.SECOND_LAYER_DETUNE), origin.layerFrequencies());
+    }
+
+    private static NoiseMoment moment(Holder<NormalNoise.NoiseParameters> noise) {
+        return new NoiseMoment(FOLD, LevelStem.OVERWORLD, noise, LAYER_FREQUENCIES, XZ_SCALE, SHARE);
     }
 
     private record Scaling(String key, double factor) implements NoiseFeature {
@@ -77,14 +96,14 @@ class NoiseFeaturesTest {
         }
 
         @Override
-        public double scaleFactor(WorldFold fold, boolean isClimateField, DoubleList amplitudes,
-                double lowestFreqInputFactor, double baseScale, double verticalShare) {
-            return this.factor;
+        public double[] layerFactors(NoiseMoment moment) {
+            double[] factors = new double[moment.layerFrequencies().size()];
+            Arrays.fill(factors, this.factor);
+            return factors;
         }
 
         @Override
-        public double warpFactor(WorldFold fold, DensityFunction.NoiseHolder noise, double xzScale,
-                double verticalShare) {
+        public double warpFactor(NoiseMoment moment) {
             return this.factor;
         }
     }
@@ -96,8 +115,8 @@ class NoiseFeaturesTest {
         }
 
         @Override
-        public boolean isOffsetting(Holder<NormalNoise.NoiseParameters> noise) {
-            return noise == NOISE;
+        public boolean isOffsetting(NoiseMoment moment) {
+            return moment.noise() == NOISE;
         }
     }
 }

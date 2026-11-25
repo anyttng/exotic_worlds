@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.feature.SpawnFeature;
+import com.exoticworlds.core.feature.SpawnMoment;
 import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.SpawnPoint;
@@ -28,7 +29,7 @@ public final class SpawnSearch {
 
         return ShapeFeatures.activeAt(carried, LevelStem.OVERWORLD, SpawnFeature.class).stream()
                 .findFirst()
-                .map(feature -> feature.spawnPointIn(carried.getOptions()))
+                .map(feature -> feature.spawnPointIn(new SpawnMoment(carried.getFold(), carried.getOptions())))
                 .orElse(SpawnPoint.DEFAULT);
     }
 
