@@ -21,7 +21,6 @@ import com.exoticworlds.core.world.NetherScales;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.SpawnPoint;
 import com.exoticworlds.core.world.WorldLoopSizes;
-import com.exoticworlds.shape.WorldShape;
 import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.dimension.DimensionContext;
 import com.exoticworlds.shape.dimension.DimensionShape;
@@ -133,7 +132,7 @@ final class DimensionPage {
     private void build(Theme theme, FillStyle fill, @Nullable Component lockReason) {
         CycleButton<ShapeChoice> shape = new CycleButton<>(theme.button(),
                 Component.translatable(SettingsLines.SHAPE_KEY), this::getChoices, this.chosen, ShapeChoice::getName);
-        shape.setHint(theme.tooltip(), SettingsLines.SHAPE_KEY, ShapeChoice::getHintKey);
+        shape.setValueHints(theme.tooltip(), SettingsLines.SHAPE_KEY, ShapeChoice::getHint);
 
         Column additional = new Column();
         additional.setGapPixels(GAP_PIXELS);
@@ -151,7 +150,6 @@ final class DimensionPage {
         }
 
         this.page.add(shape);
-        this.page.add(this.declaredHint(fill));
         this.page.add(this.netherScaleField(theme, fill));
         this.page.add(this.derivedLine(fill));
         this.page.add(this.sizeErrorLine(fill));
@@ -165,16 +163,6 @@ final class DimensionPage {
         this.offer.kinds().forEach(kind -> choices.add(ShapeChoice.of(kind)));
         DeclaredShapes.getAll().forEach(shape -> choices.add(ShapeChoice.of(shape)));
         return choices;
-    }
-
-    private Label declaredHint(FillStyle fill) {
-        Label hint = new Label(fill, LabelRole.MUTED, Component.empty());
-        hint.setText(() -> {
-            DimensionShape shape = this.chosen.get().declared();
-            return shape == null ? Component.empty() : WorldShape.hint(shape.getId());
-        });
-        hint.setVisible(() -> this.chosen.get().declared() != null);
-        return hint;
     }
 
     private Field netherScaleField(Theme theme, FillStyle fill) {

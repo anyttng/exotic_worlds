@@ -38,6 +38,7 @@ final class SettingsLines {
     private static final int STRONGHOLD_RING_CHUNKS = 336;
 
     static final String SHAPE_KEY = PREFIX + ".shape";
+    private static final String SHAPE_HINT_PREFIX = SHAPE_KEY + ".hint.";
     static final String SPAWN_KEY = PREFIX + ".spawn";
 
     static final Component TITLE = Component.translatable(PREFIX);
@@ -76,6 +77,10 @@ final class SettingsLines {
 
     static Component shapeName(ShapeKind kind) {
         return Component.translatable(SHAPE_KEY + "." + kind.name().toLowerCase(Locale.ROOT));
+    }
+
+    static Component modeHint(ShapeKind kind) {
+        return Component.translatable(SHAPE_HINT_PREFIX + kind.name().toLowerCase(Locale.ROOT));
     }
 
     static Component spawnModeName(SpawnPoint.Mode mode) {

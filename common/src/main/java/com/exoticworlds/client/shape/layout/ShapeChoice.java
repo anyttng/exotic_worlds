@@ -1,7 +1,5 @@
 package com.exoticworlds.client.shape.layout;
 
-import java.util.Locale;
-
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.shape.dimension.DimensionShape;
@@ -10,8 +8,6 @@ import com.exoticworlds.shape.layout.ShapeKind;
 import net.minecraft.network.chat.Component;
 
 record ShapeChoice(@Nullable ShapeKind own, @Nullable DimensionShape declared) {
-    private static final String DECLARED_HINT = "declared";
-
     static ShapeChoice of(ShapeKind own) {
         return new ShapeChoice(own, null);
     }
@@ -29,8 +25,13 @@ record ShapeChoice(@Nullable ShapeKind own, @Nullable DimensionShape declared) {
         return builtIn != null ? builtIn.getName() : SettingsLines.shapeName(this.getOwnOrNormal());
     }
 
-    String getHintKey() {
-        return this.declared != null ? DECLARED_HINT : this.getOwnOrNormal().name().toLowerCase(Locale.ROOT);
+    Component getHint() {
+        if (this.declared != null) {
+            return this.declared.getHint();
+        }
+
+        DimensionShape builtIn = this.getOwnOrNormal().getBuiltIn();
+        return builtIn != null ? builtIn.getHint() : SettingsLines.modeHint(this.getOwnOrNormal());
     }
 
     private ShapeKind getOwnOrNormal() {

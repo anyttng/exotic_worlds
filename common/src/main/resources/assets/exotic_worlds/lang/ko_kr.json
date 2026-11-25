@@ -67,7 +67,6 @@
   "gui.exotic_worlds.world_shape_settings.shape.hint.torus": "동서로도 남북으로도 순환합니다. 어느 방향으로든 충분히 가면 출발한 곳으로 돌아옵니다.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.cylinder": "수평 축 하나는 순환하고, 다른 하나는 일반 세계처럼 끝없이 이어집니다.",
   "gui.exotic_worlds.world_shape_settings.shape.hint.from_overworld": "오버월드의 형태를 이 차원 고유의 크기로 이어받습니다.",
-  "gui.exotic_worlds.world_shape_settings.shape.hint.declared": "다른 모드가 추가한 형태입니다. 설명은 이 버튼 아래에 표시됩니다.",
   "gui.exotic_worlds.world_shape_settings.shape.size_error": "이 형태의 너비는 %s 청크입니다. 이 차원에서는 %s~%s만 가능합니다.",
   "gui.exotic_worlds.world_shape_settings.nether_scale": "네더 배율",
   "gui.exotic_worlds.world_shape_settings.size": "청크 단위 세계 크기 (%s-%s)",
