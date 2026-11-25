@@ -32,7 +32,6 @@ public class SettingsScreen extends OptionsSubScreen {
     private static final String INTRO = "intro";
     private static final String NOTE = "note";
     private static final String REQUIREMENT = "requirement";
-    private static final TooltipStyle HINT_STYLE = Themes.VANILLA.tooltip();
 
     private static final Codec<MapCopies> MAP_COPIES_CODEC = Codec.STRING.xmap(
             name -> MapCopies.fromName(name).orElse(Settings.DEFAULT_MAP_COPIES), MapCopies::name);
@@ -79,7 +78,7 @@ public class SettingsScreen extends OptionsSubScreen {
     }
 
     private static Component mapCopiesHint(MapCopies chosen) {
-        return Hint.of(HINT_STYLE)
+        return Hint.of(hintStyle())
                 .intro(Component.translatable(MAP_COPIES_HINT_PREFIX + INTRO))
                 .values(Stream.of(MapCopies.values())
                         .map(copies -> new HintValue(label(copies),
@@ -90,11 +89,15 @@ public class SettingsScreen extends OptionsSubScreen {
     }
 
     private static Component seamLinesHint() {
-        return Hint.of(HINT_STYLE)
+        return Hint.of(hintStyle())
                 .intro(Component.translatable(SEAM_LINES_HINT_PREFIX + INTRO))
                 .requirement(Component.translatable(SEAM_LINES_HINT_PREFIX + REQUIREMENT,
                         label(MapCopies.REPEATED), label(MapCopies.SINGLE)))
                 .build();
+    }
+
+    private static TooltipStyle hintStyle() {
+        return Themes.get(Themes.VANILLA).tooltip();
     }
 
     private static Component label(MapCopies copies) {
