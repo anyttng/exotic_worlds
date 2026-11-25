@@ -7,6 +7,7 @@ import com.exoticworlds.compat.cobblemon.CobblemonPackets;
 import com.exoticworlds.compat.create.CreateTranslation;
 import com.exoticworlds.compat.electroenergetics.ElectroEnergeticsTranslation;
 import com.exoticworlds.compat.aeronautics.AeronauticsMod;
+import com.exoticworlds.compat.ironsspellbooks.IronsSpellbooksPackets;
 import com.exoticworlds.compat.moonlight.MoonlightParticles;
 import com.exoticworlds.compat.northbound.NorthboundLatitude;
 import com.exoticworlds.compat.sable.SableMod;
@@ -53,6 +54,7 @@ public final class WorldLoop {
         VistaPackets.register();
         CobblemonPackets.register();
         ArsNouveauPackets.register();
+        IronsSpellbooksPackets.register();
 
         CHUNK_GENERATORS.register(WorldLoopGenerators.TOROIDAL_ID, () -> LoopedChunkGenerator.CODEC);
         CHUNK_GENERATORS.register(WorldLoopGenerators.TOROIDAL_FLAT_ID, () -> LoopedFlatChunkGenerator.CODEC);

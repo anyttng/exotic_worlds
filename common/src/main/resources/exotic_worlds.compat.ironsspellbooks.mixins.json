@@ -1,0 +1,28 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.exoticworlds.compat.ironsspellbooks.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.exoticworlds.compat.ironsspellbooks.IronsSpellbooksMixinPlugin",
+  "mixins": [
+    "AbsorptionParticlesPacketAccessor",
+    "BloodSiphonParticlesPacketAccessor",
+    "CameraShakeDataAccessor",
+    "CastingMobAimingDataAccessor",
+    "FieryExplosionParticlesPacketAccessor",
+    "FortifyAreaParticlesPacketAccessor",
+    "FrostStepParticlesPacketAccessor",
+    "HealParticlesPacketAccessor",
+    "OakskinParticlesPacketAccessor",
+    "RegenCloudParticlesPacketAccessor",
+    "ShockwaveParticlesPacketAccessor",
+    "SyncCastingMobAimingDataPacketAccessor",
+    "TeleportParticlesPacketAccessor"
+  ],
+  "client": [
+    "WallOfFireEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

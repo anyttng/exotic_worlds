@@ -172,6 +172,9 @@ config="exotic_worlds.compat.astikorcarts.mixins.json"
 config="exotic_worlds.compat.arsnouveau.mixins.json"
 
 [[mixins]]
+config="exotic_worlds.compat.ironsspellbooks.mixins.json"
+
+[[mixins]]
 config="exotic_worlds.compat.electroenergetics.mixins.json"
 
 [[mixins]]
