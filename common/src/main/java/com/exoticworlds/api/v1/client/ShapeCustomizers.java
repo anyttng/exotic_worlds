@@ -1,5 +1,6 @@
 package com.exoticworlds.api.v1.client;
 
+import com.exoticworlds.api.v1.Broken;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.bridge.v1.client.CustomizerBridge;
@@ -17,6 +18,8 @@ import net.minecraft.resources.Identifier;
  *     options, declared as a {@link com.exoticworlds.api.v2.feature.OptionFeatureV2}.
  */
 @Deprecated
+@Broken("No screen shows a Customize button, so a customizer is never opened."
+        + " Declare what the player tunes as an api.v2.feature.OptionFeatureV2.")
 public final class ShapeCustomizers {
 
     /** Builds the settings screen for one shape. {@code parent} is the screen to return to when it closes. */

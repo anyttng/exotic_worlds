@@ -1,5 +1,6 @@
 package com.exoticworlds.api.v1.client;
 
+import com.exoticworlds.api.v1.Broken;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,6 +17,8 @@ import com.exoticworlds.bridge.v1.client.OptionControlsBridge;
  *     the World Shape Settings screen draws it.
  */
 @Deprecated
+@Broken("No screen builds these controls, so a control registered for an option is never shown."
+        + " Declare the option as an api.v2.feature.OptionFeatureV2.")
 public final class WorldOptionControls {
 
     /** Builds the control for one option on one screen. */
