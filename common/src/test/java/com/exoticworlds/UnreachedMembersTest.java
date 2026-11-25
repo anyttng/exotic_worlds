@@ -61,7 +61,6 @@ class UnreachedMembersTest {
 
     private static final Set<String> READ_BY_TESTS = Set.of(
             "compat.distanthorizons.DhProbes.getFoldedKeyLines",
-            "core.world.CarriedShape.findShapeId",
             "compat.distanthorizons.DhProbes.getUnchangedKeys",
             "compat.distanthorizons.DhProbes.resetKeyGates",
             "engine.fold.ChunkViewSweep.positions",

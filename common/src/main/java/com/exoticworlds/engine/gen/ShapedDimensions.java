@@ -60,12 +60,19 @@ public final class ShapedDimensions {
         return withShape(withShape(withOverworld, LevelStem.NETHER, nether), LevelStem.END, end);
     }
 
-    public static void stripShapes(WorldDimensions dimensions) {
-        for (LevelStem stem : dimensions.dimensions().values()) {
-            if (stem.generator() instanceof ShapeStamp stamp) {
+    public static WorldDimensions stripShapes(WorldDimensions dimensions) {
+        Map<ResourceKey<LevelStem>, LevelStem> stripped = new HashMap<>(dimensions.dimensions());
+        for (Map.Entry<ResourceKey<LevelStem>, LevelStem> entry : dimensions.dimensions().entrySet()) {
+            LevelStem stem = entry.getValue();
+            ChunkGenerator copy = copyOf(stem.generator());
+            if (copy != null) {
+                stripped.put(entry.getKey(), Platforms.get().withGenerator(stem, copy));
+            } else if (stem.generator() instanceof ShapeStamp stamp) {
                 stamp.exotic_worlds$clearStamp();
             }
         }
+
+        return new WorldDimensions(stripped);
     }
 
     public static Registry<LevelStem> restoreStoredShapes(WorldDimensions stored, Registry<LevelStem> datapackDimensions) {

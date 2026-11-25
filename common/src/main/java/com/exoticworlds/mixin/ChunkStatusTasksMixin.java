@@ -8,7 +8,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.exoticworlds.BinderOrder;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
-import com.exoticworlds.engine.gen.terrain.FloatingCrumbs;
+import com.exoticworlds.core.feature.CarvedChunkFeature;
+import com.exoticworlds.core.feature.LitChunkFeature;
+import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.check.PeriodicityCheck;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -60,8 +62,9 @@ public class ChunkStatusTasksMixin {
             StaticCache2D<GenerationChunkHolder> chunks,
             ChunkAccess chunk) {
         return original.thenApply(carved -> {
-            FloatingCrumbs.sweep(context.level(), carved);
-            FloatingCrumbs.registerMask(context.level(), carved);
+            for (CarvedChunkFeature feature : ShapeFeatures.onLevel(context.level(), CarvedChunkFeature.class)) {
+                feature.atCarved(context.level(), carved);
+            }
             return carved;
         });
     }
@@ -74,7 +77,9 @@ public class ChunkStatusTasksMixin {
             StaticCache2D<GenerationChunkHolder> chunks,
             ChunkAccess chunk) {
         return original.thenApply(lit -> {
-            FloatingCrumbs.sweepAcross(context.level(), lit, chunks, context.mainThreadExecutor());
+            for (LitChunkFeature feature : ShapeFeatures.onLevel(context.level(), LitChunkFeature.class)) {
+                feature.atLit(context.level(), lit, chunks, context.mainThreadExecutor());
+            }
             return lit;
         });
     }

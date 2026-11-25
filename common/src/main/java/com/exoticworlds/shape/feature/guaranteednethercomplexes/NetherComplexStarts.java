@@ -10,7 +10,6 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.core.gen.AddedStart;
-import com.exoticworlds.core.gen.GenerationMoments;
 import com.exoticworlds.core.gen.StructurePick;
 import com.exoticworlds.core.gen.StructureStartSet;
 import com.exoticworlds.core.fold.WorldFold;
@@ -28,13 +27,8 @@ import net.minecraft.world.phys.Vec3;
 public final class NetherComplexStarts {
     private static final ChunkPos WORLD_ORIGIN = new ChunkPos(0, 0);
 
-    public static void register() {
-        GenerationMoments.atStructureStarts(GuaranteedNetherComplexes.KEY, NetherComplexStarts::starts);
-    }
-
-    private static List<AddedStart> starts(StructureStartSet set) {
-        if (!set.getOptions().get(GuaranteedNetherComplexes.FEATURE.getOption())
-                || !set.getStructureSet().is(BuiltinStructureSets.NETHER_COMPLEXES)) {
+    static List<AddedStart> starts(StructureStartSet set) {
+        if (!set.getStructureSet().is(BuiltinStructureSets.NETHER_COMPLEXES)) {
             return List.of();
         }
 

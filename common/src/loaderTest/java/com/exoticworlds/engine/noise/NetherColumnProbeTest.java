@@ -143,7 +143,7 @@ class NetherColumnProbeTest {
                 long seed = SEED_BASE + s * SEED_STEP;
                 RandomState controlState = RandomState.create(holders.lookupOrThrow(Registries.NOISE), seed,
                         netherSettings);
-                RandomState foldedState = GenerationFoldContext.withRouterBuild(fold,
+                RandomState foldedState = GenerationFoldContext.withRouterBuild(fold, List.of(),
                         () -> RandomState.create(holders.lookupOrThrow(Registries.NOISE), seed, netherSettings));
                 int windowX = (int) (windows.nextDouble() * VANILLA_WINDOW_SPAN);
                 int windowZ = (int) (windows.nextDouble() * VANILLA_WINDOW_SPAN);

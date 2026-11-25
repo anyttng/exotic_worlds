@@ -134,9 +134,7 @@ class CreationShapeTest {
         WorldDimensions shaped = ShapedDimensions.withShape(overworldOnly(overworld), LevelStem.OVERWORLD,
                 new CarriedShape(null, squareTorus(CHOSEN_WIDTH_CHUNKS), ShapeOptions.DEFAULT));
 
-        ShapedDimensions.stripShapes(shaped);
-
-        assertNull(ShapedDimensions.getShape(shaped, LevelStem.OVERWORLD));
+        assertNull(ShapedDimensions.getShape(ShapedDimensions.stripShapes(shaped), LevelStem.OVERWORLD));
     }
 
     @Test
@@ -187,16 +185,17 @@ class CreationShapeTest {
     }
 
     @Test
-    void strippingAVanillaWorldLeavesItsGeneratorsPlain() {
+    void strippingAVanillaWorldHandsBackPlainCopiesAndLeavesTheShapedGeneratorsAsTheyWere() {
         WorldDimensions shaped = LayoutDimensions.apply(vanillaThree(noiseGenerator(worldgen)),
                 LayoutFixtures.defaultTorus());
 
-        ShapedDimensions.stripShapes(shaped);
+        WorldDimensions stripped = ShapedDimensions.stripShapes(shaped);
 
         for (ResourceKey<LevelStem> key : List.of(LevelStem.OVERWORLD, LevelStem.NETHER, LevelStem.END)) {
-            assertNull(ShapedDimensions.getShape(shaped, key), key.identifier().toString());
+            assertNull(ShapedDimensions.getShape(stripped, key), key.identifier().toString());
+            assertNotNull(ShapedDimensions.getShape(shaped, key), key.identifier().toString());
         }
-        assertEquals(NoiseBasedChunkGenerator.class, overworldGeneratorOf(shaped).getClass());
+        assertEquals(NoiseBasedChunkGenerator.class, overworldGeneratorOf(stripped).getClass());
     }
 
     @Test

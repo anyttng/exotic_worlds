@@ -56,7 +56,8 @@ public class ChunkGeneratorRandomSpreadSearchMixin {
         }
 
         AddedStructureStarts added = AddedStructureStarts.of(serverLevel.getChunkSource().getGeneratorState(),
-                ((StructureManagerAccessor) structureManager).exotic_worlds$getStructureCheck(), carried);
+                ((StructureManagerAccessor) structureManager).exotic_worlds$getStructureCheck(), carried,
+                serverLevel.dimension());
         return SpreadRingScan.of(carried.getFold(), added, placement, seed, new ChunkPos(chunkOriginX, chunkOriginZ))
                 .ring(radiusChunks,
                         candidate -> ChunkGeneratorAccessor.exotic_worlds$structureGeneratingAt(

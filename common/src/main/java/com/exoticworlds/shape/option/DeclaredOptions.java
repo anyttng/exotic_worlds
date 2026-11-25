@@ -3,6 +3,7 @@ package com.exoticworlds.shape.option;
 import java.util.Comparator;
 import java.util.List;
 
+import com.exoticworlds.core.feature.DimensionScope;
 import com.exoticworlds.core.registry.StartupRegistry;
 
 import net.minecraft.resources.Identifier;

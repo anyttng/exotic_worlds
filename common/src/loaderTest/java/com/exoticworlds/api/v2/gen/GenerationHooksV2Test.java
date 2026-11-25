@@ -33,6 +33,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.FixedBiomeSource;
@@ -183,7 +184,7 @@ class GenerationHooksV2Test {
                 new ChunkPos(0, 0), new FixedBiomeSource(plains), Stream.of(first, second));
 
         List<StructureSet.StructureSelectionEntry> added =
-                AddedStructureStarts.of(state, null, carried).getEntriesAt(ADDED_CHUNK);
+                AddedStructureStarts.of(state, null, carried, Level.OVERWORLD).getEntriesAt(ADDED_CHUNK);
 
         assertEquals(List.of(first, second), ASKED);
         assertEquals(1, added.size());

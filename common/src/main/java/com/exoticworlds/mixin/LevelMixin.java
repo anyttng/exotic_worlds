@@ -10,10 +10,12 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.InjectionTargets;
-import com.exoticworlds.accessors.CrumbSweepCache;
+import com.exoticworlds.accessors.ActiveFeaturesHolder;
 import com.exoticworlds.accessors.PeriodicityMark;
 import com.exoticworlds.accessors.TerrainMaskCache;
 import com.exoticworlds.accessors.FoldCache;
+import com.exoticworlds.core.feature.GenerationFeature;
+import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldFolds;
@@ -22,8 +24,7 @@ import com.exoticworlds.engine.fold.BlockEntitySeat;
 import com.exoticworlds.engine.fold.ChunkFrame;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.exoticworlds.engine.fold.SeamEntitySearch;
-import com.exoticworlds.engine.gen.terrain.FloatingCrumbs;
-import com.exoticworlds.engine.gen.terrain.TerrainMasks;
+import com.exoticworlds.shape.feature.floatingcrumbs.TerrainMasks;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.check.SeamVerdict;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -31,6 +32,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -52,7 +54,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 
 @Mixin(Level.class)
-public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache, PeriodicityMark {
+public class LevelMixin implements FoldCache, ActiveFeaturesHolder, TerrainMaskCache, PeriodicityMark {
     @Unique
     private static final String exotic_worlds$GET_ENTITIES =
             "getEntities(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;";
@@ -73,7 +75,7 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
     private WorldFold exotic_worlds$fold;
 
     @Unique
-    private @Nullable Boolean exotic_worlds$isSweepingCrumbs;
+    private @Nullable List<GenerationFeature> exotic_worlds$activeFeatures;
 
     @Unique
     private final TerrainMasks exotic_worlds$terrainMasks = new TerrainMasks();
@@ -181,13 +183,13 @@ public class LevelMixin implements FoldCache, CrumbSweepCache, TerrainMaskCache,
     }
 
     @Override
-    public boolean exotic_worlds$isSweepingCrumbs() {
-        if (this.exotic_worlds$isSweepingCrumbs == null) {
+    public List<GenerationFeature> exotic_worlds$getActiveFeatures() {
+        if (this.exotic_worlds$activeFeatures == null) {
             ServerLevel level = WorldLoopAttachments.getServerLevel((Level) (Object) this);
-            this.exotic_worlds$isSweepingCrumbs = level == (Object) this && FloatingCrumbs.isInstalledOn(level);
+            this.exotic_worlds$activeFeatures = level == (Object) this ? ShapeFeatures.installedOn(level) : List.of();
         }
 
-        return this.exotic_worlds$isSweepingCrumbs;
+        return this.exotic_worlds$activeFeatures;
     }
 
     @Override

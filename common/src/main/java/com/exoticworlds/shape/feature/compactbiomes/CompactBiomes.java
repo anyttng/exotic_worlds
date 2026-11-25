@@ -3,12 +3,12 @@ package com.exoticworlds.shape.feature.compactbiomes;
 import java.util.List;
 
 import com.exoticworlds.core.option.ShapeOption;
-import com.exoticworlds.shape.feature.ShapeFeature;
+import com.exoticworlds.shape.feature.OptionFeature;
 import com.exoticworlds.shape.option.OptionPart;
 
 import net.minecraft.network.chat.CommonComponents;
 
-public final class CompactBiomes extends ShapeFeature<ClimateScale> {
+public final class CompactBiomes extends OptionFeature<ClimateScale> {
     public static final String KEY = "climate_compression";
 
     private static final String CAPTION_KEY = "gui.exotic_worlds.world_shape_settings.compact_biomes";

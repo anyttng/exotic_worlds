@@ -15,6 +15,9 @@ import com.exoticworlds.accessors.FoldedClimateSampler;
 import com.exoticworlds.accessors.FoldedCompileSource;
 import com.exoticworlds.accessors.FoldedRandomState;
 import com.exoticworlds.accessors.FoldSource;
+import com.exoticworlds.core.feature.GenerationFeature;
+import com.exoticworlds.core.feature.RandomStateFeature;
+import com.exoticworlds.core.feature.ShapeFeatures;
 import com.exoticworlds.core.gen.GenerationMoments;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.engine.gen.BaseHeights;
@@ -97,7 +100,12 @@ public class RandomStateMixin implements CoastLiftCache, FoldSource, FoldedRando
         this.exotic_worlds$fold = fold;
         if (fold != null) {
             this.exotic_worlds$baseHeights = new BaseHeights(fold);
-            GenerationMoments.runAtRandomState((RandomState) (Object) this, fold, seaLevel);
+            RandomState randomState = (RandomState) (Object) this;
+            List<GenerationFeature> features = GenerationFoldContext.getContext().getRouterBuildFeatures();
+            for (RandomStateFeature feature : ShapeFeatures.atMoment(features, RandomStateFeature.class)) {
+                feature.atRandomState(randomState, fold, seaLevel);
+            }
+            GenerationMoments.runAtRandomState(randomState, fold, seaLevel);
         }
     }
 

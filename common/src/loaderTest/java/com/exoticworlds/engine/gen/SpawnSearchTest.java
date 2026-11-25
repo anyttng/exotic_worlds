@@ -127,7 +127,7 @@ class SpawnSearchTest {
     }
 
     private static RandomState randomState(NoiseBasedChunkGenerator generator) {
-        return GenerationFoldContext.withRouterBuild(GeneratorShapes.getFold(generator),
+        return GenerationFoldContext.withRouterBuild(GeneratorShapes.getFold(generator), List.of(),
                 () -> RandomState.create(holders.lookupOrThrow(Registries.NOISE), SEED, overworldSettings.value()));
     }
 }

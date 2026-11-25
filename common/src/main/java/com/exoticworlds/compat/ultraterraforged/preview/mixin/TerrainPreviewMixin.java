@@ -259,7 +259,7 @@ public abstract class TerrainPreviewMixin extends AbstractWidget {
             Runnable generate, long delay, TimeUnit unit, Operation<ScheduledFuture<?>> original) {
         CarriedShape shown = this.exotic_worlds$shown;
         return original.call(executor,
-                CreationShape.underRouterBuild(shown != null ? shown.getFold() : null, generate), delay, unit);
+                CreationShape.underRouterBuild(shown, generate), delay, unit);
     }
 
     @WrapOperation(method = "generate", at = @At(value = "INVOKE",

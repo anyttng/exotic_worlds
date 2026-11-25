@@ -134,7 +134,7 @@ class FoldedBaseHeightTest {
     }
 
     private static RandomState foldedState(NoiseBasedChunkGenerator generator, long seed) {
-        return GenerationFoldContext.withRouterBuild(GeneratorShapes.getFold(generator),
+        return GenerationFoldContext.withRouterBuild(GeneratorShapes.getFold(generator), List.of(),
                 () -> RandomState.create(holders.lookupOrThrow(Registries.NOISE), seed, overworldSettings.value()));
     }
 

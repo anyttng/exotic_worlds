@@ -1,4 +1,4 @@
-package com.exoticworlds.shape.option;
+package com.exoticworlds.core.feature;
 
 import java.util.List;
 import java.util.Set;
