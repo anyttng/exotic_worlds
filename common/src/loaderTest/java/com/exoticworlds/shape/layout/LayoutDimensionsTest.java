@@ -19,6 +19,7 @@ import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.world.NetherScales;
+import com.exoticworlds.core.world.ShapeDerivations;
 import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.SpawnPoint;
@@ -142,7 +143,7 @@ class LayoutDimensionsTest {
 
         assertNotNull(read);
         assertEquals(LayoutFixtures.looped(ShapeFixtures.latticeTorus(64, 128, 16), LAND), read.overworld());
-        assertEquals(ShapeKind.FROM_OVERWORLD, read.nether().kind());
+        assertEquals(DimensionMode.FROM_OVERWORLD, read.nether().mode());
         assertEquals(4, read.netherScale());
         assertEquals(ShapeFixtures.torus(320), read.end().spans());
         assertSameShapes(made, LayoutDimensions.apply(vanillaDimensions(), read));
@@ -180,7 +181,7 @@ class LayoutDimensionsTest {
 
         WorldLayout withRow = WorldLayout.newWorld().withModDimension(MOD_STEM, own);
 
-        assertEquals(ShapeKind.FROM_OVERWORLD, WorldLayout.newWorld().getModDimension(MOD_STEM).kind());
+        assertEquals(DimensionMode.FROM_OVERWORLD, WorldLayout.newWorld().getModDimension(MOD_STEM).mode());
         assertEquals(own, withRow.getModDimension(MOD_STEM));
         assertEquals(Map.of(), withRow.withModDimension(MOD_STEM, DimensionLayout.fromOverworld(PLAIN)).modDimensions());
     }
@@ -189,10 +190,10 @@ class LayoutDimensionsTest {
     void aModDimensionFromTheOverworldTakesItsSizeOverTheCoordinateScales() {
         FlatShape overworld = ShapeFixtures.latticeTorus(128, 64, 16);
 
-        assertEquals(overworld, OverworldDerivation.modDimension(overworld, 1.0, 1.0));
-        assertEquals(ShapeFixtures.latticeTorus(32, 16, 4), OverworldDerivation.modDimension(overworld, 1.0, 4.0));
-        assertNull(OverworldDerivation.modDimension(ShapeFixtures.torus(100), 1.0, 8.0));
-        assertNull(OverworldDerivation.modDimension(null, 1.0, 1.0));
+        assertEquals(overworld, ShapeDerivations.derive(null, overworld, MOD_STEM, 1.0, 1.0));
+        assertEquals(ShapeFixtures.latticeTorus(32, 16, 4), ShapeDerivations.derive(null, overworld, MOD_STEM, 1.0, 4.0));
+        assertNull(ShapeDerivations.derive(null, ShapeFixtures.torus(100), MOD_STEM, 1.0, 8.0));
+        assertNull(ShapeDerivations.derive(null, null, MOD_STEM, 1.0, 1.0));
     }
 
     @Test
@@ -209,9 +210,9 @@ class LayoutDimensionsTest {
         WorldLayout read = LayoutDimensions.ofRows(rows);
 
         assertEquals(overworld, read.overworld());
-        assertEquals(ShapeKind.FROM_OVERWORLD, read.nether().kind());
+        assertEquals(DimensionMode.FROM_OVERWORLD, read.nether().mode());
         assertEquals(4, read.netherScale());
-        assertEquals(ShapeKind.NORMAL, read.end().kind());
+        assertEquals(DimensionMode.NORMAL, read.end().mode());
         assertEquals(Map.of(MOD_STEM, sky), read.modDimensions());
     }
 

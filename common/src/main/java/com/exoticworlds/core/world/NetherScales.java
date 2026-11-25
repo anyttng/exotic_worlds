@@ -5,10 +5,21 @@ import java.util.List;
 
 import com.google.common.math.IntMath;
 
+import net.minecraft.core.Direction;
+
 public final class NetherScales {
     public static final int DEFAULT = 8;
 
     private static final int SMALLEST = 1;
+
+    public static List<Integer> allowedFor(FlatShape overworld) {
+        WorldLoopBounds bounds = overworld.bounds();
+        Direction.Axis looped = bounds.isLooped(Direction.Axis.X) ? Direction.Axis.X : Direction.Axis.Z;
+        int loopedWidthChunks = bounds.getWidthChunks(looped);
+        int xWidthChunks = bounds.isLooped(Direction.Axis.X) ? bounds.getWidthChunks(Direction.Axis.X) : loopedWidthChunks;
+        int zWidthChunks = bounds.isLooped(Direction.Axis.Z) ? bounds.getWidthChunks(Direction.Axis.Z) : loopedWidthChunks;
+        return allowedFor(xWidthChunks, zWidthChunks, overworld.skewChunks());
+    }
 
     public static List<Integer> allowedFor(int overworldXWidthChunks, int overworldZWidthChunks,
             int overworldSkewChunks) {

@@ -17,7 +17,7 @@ import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.dimension.DimensionShape;
 import com.exoticworlds.shape.dimension.LoopSizeLines;
 import com.exoticworlds.shape.layout.DimensionLayout;
-import com.exoticworlds.shape.layout.ShapeKind;
+import com.exoticworlds.shape.layout.DimensionMode;
 
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -72,12 +72,12 @@ final class SettingsLines {
                 .build();
     }
 
-    static Component shapeName(ShapeKind kind) {
-        return Component.translatable(SHAPE_KEY + "." + kind.name().toLowerCase(Locale.ROOT));
+    static Component modeName(DimensionMode mode) {
+        return Component.translatable(SHAPE_KEY + "." + mode.name().toLowerCase(Locale.ROOT));
     }
 
-    static Component modeHint(ShapeKind kind) {
-        return Component.translatable(SHAPE_HINT_PREFIX + kind.name().toLowerCase(Locale.ROOT));
+    static Component modeHint(DimensionMode mode) {
+        return Component.translatable(SHAPE_HINT_PREFIX + mode.name().toLowerCase(Locale.ROOT));
     }
 
     static Component netherScaleName(int scale) {
@@ -96,11 +96,11 @@ final class SettingsLines {
             return shape == null ? WorldShape.label(chosen) : shape.getName();
         }
 
-        if (layout.kind() != ShapeKind.FROM_OVERWORLD) {
+        if (layout.mode() != DimensionMode.FROM_OVERWORLD) {
             return shapeSummary(spans);
         }
 
-        Component fromOverworld = shapeName(ShapeKind.FROM_OVERWORLD);
+        Component fromOverworld = modeName(DimensionMode.FROM_OVERWORLD);
         return isDerivationKnown ? fromOverworld.copy().append(LoopSizeLines.SEPARATOR).append(shapeSummary(spans)) : fromOverworld;
     }
 
@@ -114,7 +114,7 @@ final class SettingsLines {
             }
         }
 
-        return shapeName(ShapeKind.NORMAL);
+        return modeName(DimensionMode.NORMAL);
     }
 
     private static String structureRoom(int widthChunks) {

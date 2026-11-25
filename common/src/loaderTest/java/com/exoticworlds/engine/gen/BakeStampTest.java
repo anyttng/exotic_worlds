@@ -1,9 +1,13 @@
 package com.exoticworlds.engine.gen;
 
+import com.exoticworlds.core.gen.GeneratorShapes;
+import com.exoticworlds.accessors.ShapeStamp;
+import com.exoticworlds.core.world.WorldLoopSizes;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.shape.StartupRegistrations;
+import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
 import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 import static com.exoticworlds.engine.gen.BakeStampFixture.OVERWORLD_WIDTH_CHUNKS;
@@ -39,6 +43,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.data.registries.VanillaRegistries;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -78,6 +85,68 @@ class BakeStampTest {
         Bootstrap.bootStrap();
         StartupRegistrations.options();
         worldgen = VanillaRegistries.createLookup();
+    }
+
+    @Test
+    void aDerivedShapeIsWrittenWithItsGeneratorAndReadBackUnchanged() {
+        Registry<LevelStem> baked = bake(Map.of(SIBLING, stem(SAME_SCALE, noiseGenerator(worldgen))));
+        FlatShape derived = shapeOf(baked, SIBLING);
+        assertNotNull(derived, "the sibling stem took no derived shape, so this run says nothing about the save");
+
+        RegistryOps<Tag> ops = worldgen.createSerializationContext(NbtOps.INSTANCE);
+        ChunkGenerator read = ChunkGenerator.CODEC.parse(ops,
+                ChunkGenerator.CODEC.encodeStart(ops, generatorOf(baked, SIBLING)).getOrThrow()).getOrThrow();
+
+        CarriedShape carried = GeneratorShapes.getCarriedShape(read);
+        assertNotNull(carried, "the saved generator carries no shape");
+        assertEquals(derived, carried.getShape());
+    }
+
+    @Test
+    void aWrittenDerivedShapeOutlivesAChangeOfTheDimensionsScale() {
+        ChunkGenerator written = stamped(noiseGenerator(worldgen), squareTorus(SAME_SCALE_WIDTH_CHUNKS));
+        Registry<LevelStem> baked = bake(
+                Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, shapedGenerator(squareTorus(OVERWORLD_WIDTH_CHUNKS))),
+                        SIBLING, stem(SAME_SCALE, written)),
+                Map.of(SIBLING, stem(DOUBLE_SCALE, noiseGenerator(worldgen))));
+
+        FlatShape shape = shapeOf(baked, SIBLING);
+        assertNotNull(shape, "the sibling stem lost its written shape");
+        assertEquals(SAME_SCALE_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.X));
+    }
+
+    @Test
+    void aLiveChoiceDerivesAgainOverAWrittenShape() {
+        Registry<LevelStem> baked = bake(Map.of(SIBLING, stem(SAME_SCALE, noiseGenerator(worldgen))));
+        stamped(generatorOf(baked, SIBLING), squareTorus(DATAPACK_DECLARED_WIDTH_CHUNKS));
+
+        ShapedDimensions.rederive(baked, SIBLING);
+
+        FlatShape shape = shapeOf(baked, SIBLING);
+        assertNotNull(shape, "the sibling stem lost its shape on the new derivation");
+        assertEquals(SAME_SCALE_WIDTH_CHUNKS, widthChunks(shape, Direction.Axis.X));
+    }
+
+    @Test
+    void anEndBakedUnderATorusWithAStoredIdTakesTheLoopsEndRule() {
+        ChunkGenerator overworld = foreignGenerator();
+        ((ShapeStamp) overworld).exotic_worlds$stamp(new CarriedShape(DeclaredShapes.TORUS,
+                squareTorus(OVERWORLD_WIDTH_CHUNKS), ShapeOptions.DEFAULT));
+        Registry<LevelStem> baked = bake(Map.of(LevelStem.OVERWORLD, stem(SAME_SCALE, overworld)),
+                Map.of(LevelStem.END, stem(SAME_SCALE, foreignGenerator())));
+
+        FlatShape end = shapeOf(baked, LevelStem.END);
+        assertNotNull(end, "the End took no derived shape");
+        assertEquals(WorldLoopSizes.endWidthChunksFor(OVERWORLD_WIDTH_CHUNKS), widthChunks(end, Direction.Axis.X));
+    }
+
+    @Test
+    void anEndBakedUnderAnOverworldWithoutAStoredIdKeepsTheOverworldsWidth() {
+        Registry<LevelStem> baked = bake(Map.of(LevelStem.END, stem(SAME_SCALE, foreignGenerator())));
+
+        FlatShape end = shapeOf(baked, LevelStem.END);
+        assertNotNull(end, "the End took no derived shape");
+        assertEquals(OVERWORLD_WIDTH_CHUNKS, widthChunks(end, Direction.Axis.X));
     }
 
     @Test

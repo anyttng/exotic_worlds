@@ -106,7 +106,7 @@ public final class DimensionChoices {
     private static void applyLive(MinecraftServer server, ResourceKey<LevelStem> key) {
         ServerLevel level = Objects.requireNonNull(server.getLevel(Registries.levelStemToLevel(key)),
                 "A choice is accepted only for a live level");
-        ShapedDimensions.stampDerived(getLiveStems(server), key);
+        ShapedDimensions.rederive(getLiveStems(server), key);
         WorldShapeSync.sendToAll(LevelRebuild.rebuild(server, level));
     }
 

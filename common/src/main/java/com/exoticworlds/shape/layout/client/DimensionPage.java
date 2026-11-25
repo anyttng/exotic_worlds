@@ -27,8 +27,7 @@ import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.dimension.DimensionContext;
 import com.exoticworlds.shape.dimension.DimensionShape;
 import com.exoticworlds.shape.layout.DimensionLayout;
-import com.exoticworlds.shape.layout.OverworldDerivation;
-import com.exoticworlds.shape.layout.ShapeKind;
+import com.exoticworlds.shape.layout.DimensionMode;
 import com.exoticworlds.shape.option.DeclaredOptions;
 import com.exoticworlds.shape.option.DimensionOption;
 
@@ -45,7 +44,7 @@ final class DimensionPage {
     private final DimensionOffer offer;
     private final CoordinateScales scales;
     private final Supplier<DimensionLayout> overworld;
-    private final Value<ShapeChoice> chosen = Value.of(ShapeChoice.of(ShapeKind.NORMAL));
+    private final Value<ShapeChoice> chosen = Value.of(ShapeChoice.of(DimensionMode.NORMAL));
     private final Value<Integer> netherScale = Value.of(NetherScales.DEFAULT);
     private final OptionControls parameters;
     private final OptionControls declared;
@@ -85,7 +84,7 @@ final class DimensionPage {
         DimensionShape shape = declaredId == null ? null : DeclaredShapes.of(declaredId);
         this.chosen.set(shape != null
                 ? ShapeChoice.of(shape)
-                : ShapeChoice.of(layout.kind() == ShapeKind.FROM_OVERWORLD ? ShapeKind.FROM_OVERWORLD : ShapeKind.NORMAL));
+                : ShapeChoice.of(layout.mode() == DimensionMode.FROM_OVERWORLD ? DimensionMode.FROM_OVERWORLD : DimensionMode.NORMAL));
         this.parameters.show(this.getShownParameters(layout));
         this.declared.show(this.options);
     }
@@ -100,7 +99,7 @@ final class DimensionPage {
 
     @Nullable DimensionLayout layout() {
         ShapeChoice choice = this.chosen.get();
-        if (choice.mode() == ShapeKind.NORMAL) {
+        if (choice.mode() == DimensionMode.NORMAL) {
             return DimensionLayout.normal(this.options);
         }
 
@@ -156,7 +155,7 @@ final class DimensionPage {
 
     private List<ShapeChoice> getChoices() {
         List<ShapeChoice> choices = new ArrayList<>();
-        this.offer.kinds().forEach(kind -> choices.add(ShapeChoice.of(kind)));
+        this.offer.modes().forEach(mode -> choices.add(ShapeChoice.of(mode)));
         DeclaredShapes.getAll().forEach(shape -> choices.add(ShapeChoice.of(shape)));
         return choices;
     }
@@ -167,7 +166,7 @@ final class DimensionPage {
         scale.showValueOnly();
         Field field = new Field(fill, SettingsLines.NETHER_SCALE, scale);
         field.setValueLine(() -> SettingsLines.shapeSummary(this.getResolvedSpans()));
-        field.setVisible(() -> this.offer.hasNetherScale() && this.getMode() == ShapeKind.FROM_OVERWORLD);
+        field.setVisible(() -> this.offer.hasNetherScale() && this.getMode() == DimensionMode.FROM_OVERWORLD);
         return field;
     }
 
@@ -175,7 +174,7 @@ final class DimensionPage {
         Label line = new Label(fill, LabelRole.MUTED, Component.empty());
         line.setText(() -> SettingsLines.shapeSummary(this.getResolvedSpans()));
         line.setVisible(() -> this.isShowingOwnSummary()
-                || (this.isDerivationKnown() && !this.offer.hasNetherScale() && this.getMode() == ShapeKind.FROM_OVERWORLD));
+                || (this.isDerivationKnown() && !this.offer.hasNetherScale() && this.getMode() == DimensionMode.FROM_OVERWORLD));
         return line;
     }
 
@@ -210,7 +209,7 @@ final class DimensionPage {
 
     private List<Integer> getNetherScales() {
         FlatShape spans = this.overworld.get().spans();
-        return spans == null ? List.of(this.netherScale.get()) : OverworldDerivation.netherScales(spans);
+        return spans == null ? List.of(this.netherScale.get()) : NetherScales.allowedFor(spans);
     }
 
     private @Nullable FlatShape getResolvedSpans() {
@@ -220,12 +219,12 @@ final class DimensionPage {
             return this.getShapeSpans(shape);
         }
 
-        if (choice.mode() != ShapeKind.FROM_OVERWORLD) {
+        if (choice.mode() != DimensionMode.FROM_OVERWORLD) {
             return null;
         }
 
         var derivation = this.offer.derivation();
-        return derivation == null ? null : derivation.apply(this.overworld.get().spans(), this.netherScale.get());
+        return derivation == null ? null : derivation.apply(this.overworld.get(), this.netherScale.get());
     }
 
     private @Nullable FlatShape getShapeSpans(DimensionShape shape) {
@@ -246,12 +245,12 @@ final class DimensionPage {
         return shape != null && shape.getParameters().isEmpty();
     }
 
-    private @Nullable ShapeKind getMode() {
+    private @Nullable DimensionMode getMode() {
         return this.chosen.get().mode();
     }
 
     private @Nullable Identifier getResolvedShape() {
-        return this.getMode() == ShapeKind.FROM_OVERWORLD ? this.overworld.get().shape() : this.getChosenShape();
+        return this.getMode() == DimensionMode.FROM_OVERWORLD ? this.overworld.get().shape() : this.getChosenShape();
     }
 
     private @Nullable Identifier getChosenShape() {
