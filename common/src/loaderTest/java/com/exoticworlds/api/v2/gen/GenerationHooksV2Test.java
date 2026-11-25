@@ -26,8 +26,8 @@ import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.engine.gen.structure.AddedStructureStarts;
 import com.exoticworlds.engine.noise.ClimateScanFixture;
-import com.exoticworlds.shape.torus.GuaranteedLand;
-import com.exoticworlds.shape.torus.GuaranteedNetherComplexes;
+import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
+import com.exoticworlds.shape.feature.guaranteednethercomplexes.GuaranteedNetherComplexes;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.core.Holder;

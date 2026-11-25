@@ -1,4 +1,4 @@
-package com.exoticworlds.shape.torus;
+package com.exoticworlds.shape.feature.guaranteedland;
 
 import com.exoticworlds.accessors.CoastLiftCache;
 import com.exoticworlds.core.gen.GenerationMoments;

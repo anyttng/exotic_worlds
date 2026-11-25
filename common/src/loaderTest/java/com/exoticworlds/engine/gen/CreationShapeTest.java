@@ -5,7 +5,7 @@ import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.gen.ShapedChunkGenerator;
 import com.exoticworlds.shape.StartupRegistrations;
-import com.exoticworlds.shape.climate.CompactBiomes;
+import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 import com.exoticworlds.shape.layout.LayoutDimensions;
 import com.exoticworlds.shape.layout.LayoutFixtures;
 import com.exoticworlds.shape.layout.WorldLayout;

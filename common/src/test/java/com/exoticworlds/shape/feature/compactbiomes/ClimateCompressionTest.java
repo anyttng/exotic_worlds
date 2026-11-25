@@ -1,4 +1,4 @@
-package com.exoticworlds.shape.climate;
+package com.exoticworlds.shape.feature.compactbiomes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

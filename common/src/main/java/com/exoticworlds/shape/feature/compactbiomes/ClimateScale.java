@@ -1,4 +1,4 @@
-package com.exoticworlds.shape.climate;
+package com.exoticworlds.shape.feature.compactbiomes;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;

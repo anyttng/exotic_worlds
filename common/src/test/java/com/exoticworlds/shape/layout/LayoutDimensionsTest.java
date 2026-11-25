@@ -19,9 +19,9 @@ import com.exoticworlds.core.world.NetherScales;
 import com.exoticworlds.core.world.ShapeFixtures;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.core.world.SpawnPoint;
-import com.exoticworlds.shape.climate.ClimateScale;
-import com.exoticworlds.shape.climate.CompactBiomes;
-import com.exoticworlds.shape.torus.GuaranteedLand;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
+import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
+import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;

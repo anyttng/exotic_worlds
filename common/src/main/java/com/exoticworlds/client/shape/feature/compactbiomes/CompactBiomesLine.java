@@ -1,4 +1,4 @@
-package com.exoticworlds.client.shape.climate;
+package com.exoticworlds.client.shape.feature.compactbiomes;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -9,8 +9,8 @@ import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.option.ShapeOptions;
-import com.exoticworlds.shape.climate.ClimateScale;
-import com.exoticworlds.shape.climate.CompactBiomes;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
+import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;

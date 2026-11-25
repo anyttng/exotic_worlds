@@ -1,4 +1,4 @@
-package com.exoticworlds.shape.torus;
+package com.exoticworlds.shape.feature.guaranteednethercomplexes;
 
 import com.exoticworlds.shape.feature.ToggleFeature;
 

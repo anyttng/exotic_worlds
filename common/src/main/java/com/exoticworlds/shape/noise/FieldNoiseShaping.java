@@ -3,8 +3,8 @@ package com.exoticworlds.shape.noise;
 import com.exoticworlds.core.gen.NoiseShaping;
 import com.exoticworlds.core.gen.NoiseShapings;
 import com.exoticworlds.core.fold.WorldFold;
-import com.exoticworlds.shape.climate.ClimateCompression;
-import com.exoticworlds.shape.torus.CoastFields;
+import com.exoticworlds.shape.feature.compactbiomes.ClimateCompression;
+import com.exoticworlds.shape.feature.guaranteedland.CoastFields;
 
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.levelgen.synth.NoiseStack;

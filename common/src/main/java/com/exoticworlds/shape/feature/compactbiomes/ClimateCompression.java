@@ -1,4 +1,4 @@
-package com.exoticworlds.shape.climate;
+package com.exoticworlds.shape.feature.compactbiomes;
 
 import java.util.Collections;
 import java.util.List;

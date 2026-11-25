@@ -1,4 +1,4 @@
-package com.exoticworlds.shape.torus;
+package com.exoticworlds.shape.feature.guaranteednethercomplexes;
 
 import java.util.ArrayList;
 import java.util.HashSet;
