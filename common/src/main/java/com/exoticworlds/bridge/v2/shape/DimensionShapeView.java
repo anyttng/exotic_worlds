@@ -13,6 +13,7 @@ import com.exoticworlds.shape.WorldShape;
 import com.exoticworlds.shape.dimension.DimensionContext;
 import com.exoticworlds.shape.dimension.DimensionShape;
 import com.exoticworlds.shape.option.DimensionOption;
+import com.exoticworlds.shape.option.ScopedOption;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -53,6 +54,11 @@ final class DimensionShapeView implements DimensionShape {
 
     @Override
     public List<DimensionOption<?>> getParameters() {
+        return List.of();
+    }
+
+    @Override
+    public List<ScopedOption> getOptions() {
         return List.of();
     }
 

@@ -53,6 +53,6 @@ class FoldCompressionTest {
         return new CarriedShape(
                 ShapeFixtures.torus(
                         ShapeFixtures.loopedBounds(TINY_CHUNK_MIN, TINY_CHUNK_MAX, TINY_CHUNK_MIN, TINY_CHUNK_MAX)),
-                ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.STRONG));
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.STRONG));
     }
 }

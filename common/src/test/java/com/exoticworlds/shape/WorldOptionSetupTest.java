@@ -17,8 +17,8 @@ import com.exoticworlds.shape.torus.GuaranteedLand;
 import com.exoticworlds.shape.torus.GuaranteedNetherComplexes;
 
 class WorldOptionSetupTest {
-    private static final List<ShapeOption<?>> OWN = List.of(SpawnPoint.OPTION, CompactBiomes.OPTION,
-            GuaranteedLand.OPTION, GuaranteedNetherComplexes.OPTION);
+    private static final List<ShapeOption<?>> OWN = List.of(SpawnPoint.OPTION, CompactBiomes.FEATURE.getOption(),
+            GuaranteedLand.FEATURE.getOption(), GuaranteedNetherComplexes.FEATURE.getOption());
 
     @BeforeAll
     static void registerOptions() {

@@ -128,7 +128,7 @@ class GenerationHooksV2Test {
 
     @Test
     void aRandomStateHookRunsOncePerRandomStateWithTheFoldsGeometryAndOptions() {
-        WorldFold fold = torus(ShapeOptions.DEFAULT.with(GuaranteedNetherComplexes.OPTION, true)).getFold();
+        WorldFold fold = torus(ShapeOptions.DEFAULT.with(GuaranteedNetherComplexes.FEATURE.getOption(), true)).getFold();
         randomState(settingsOf(ClimateScanFixture.TYPES.getFirst()), fold, SEED_BASE);
 
         assertEquals(1, SEEN.size());

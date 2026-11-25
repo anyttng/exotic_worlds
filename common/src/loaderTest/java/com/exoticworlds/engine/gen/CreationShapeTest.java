@@ -111,13 +111,13 @@ class CreationShapeTest {
         for (ResourceKey<LevelStem> key : List.of(LevelStem.OVERWORLD, LevelStem.NETHER, LevelStem.END)) {
             CarriedShape carried = ShapedDimensions.getCarriedShape(shaped, key);
             assertNotNull(carried, key.identifier().toString());
-            assertEquals(LayoutFixtures.PLAIN.get(CompactBiomes.OPTION),
-                    carried.getOptions().get(CompactBiomes.OPTION), key.identifier().toString());
+            assertEquals(LayoutFixtures.PLAIN.get(CompactBiomes.FEATURE.getOption()),
+                    carried.getOptions().get(CompactBiomes.FEATURE.getOption()), key.identifier().toString());
         }
         WorldLayout read = LayoutDimensions.read(shaped);
         assertNotNull(read, "the shaped world does not read back as a layout");
-        assertEquals(LayoutFixtures.PLAIN.get(CompactBiomes.OPTION),
-                read.overworld().options().get(CompactBiomes.OPTION));
+        assertEquals(LayoutFixtures.PLAIN.get(CompactBiomes.FEATURE.getOption()),
+                read.overworld().options().get(CompactBiomes.FEATURE.getOption()));
     }
 
     @Test

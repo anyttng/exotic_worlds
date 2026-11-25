@@ -65,7 +65,7 @@ class BakeStampTest {
     private static final int DATAPACK_DECLARED_WIDTH_CHUNKS = 128;
 
     private static final ShapeOptions UNCOMPRESSED =
-            ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
+            ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF);
 
     private static final ResourceKey<LevelStem> FOREIGN = stemKey("foreign");
     private static final ResourceKey<LevelStem> SIBLING = stemKey("sibling");
@@ -330,7 +330,7 @@ class BakeStampTest {
 
         CarriedShape foreign = carriedShapeOf(baked, FOREIGN);
         assertNotNull(foreign, "the foreign stem carries no fold, so this run says nothing");
-        assertEquals(ClimateScale.OFF, foreign.getOptions().get(CompactBiomes.OPTION));
+        assertEquals(ClimateScale.OFF, foreign.getOptions().get(CompactBiomes.FEATURE.getOption()));
     }
 
     @Test
@@ -343,7 +343,7 @@ class BakeStampTest {
 
         LoopedChunkGenerator restored = assertInstanceOf(LoopedChunkGenerator.class,
                 generatorOf(baked, LevelStem.OVERWORLD));
-        assertEquals(ClimateScale.OFF, restored.getCarriedShape().getOptions().get(CompactBiomes.OPTION));
+        assertEquals(ClimateScale.OFF, restored.getCarriedShape().getOptions().get(CompactBiomes.FEATURE.getOption()));
     }
 
     private static Map<ResourceKey<LevelStem>, LevelStem> storedToroidalWorld() {

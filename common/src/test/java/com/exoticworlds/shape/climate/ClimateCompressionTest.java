@@ -104,17 +104,17 @@ class ClimateCompressionTest {
 
     private static WorldFold uncompressedSquare(int widthChunks) {
         return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthChunks)),
-                ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF));
     }
 
     private static WorldFold strongSquare(int widthChunks) {
         return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthChunks)),
-                ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.STRONG));
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.STRONG));
     }
 
     private static WorldFold customSquare(int widthChunks, int factor) {
         return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthChunks)),
-                ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.custom(factor)));
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.custom(factor)));
     }
 
     private static void assertFactor(Field field, int widthChunks) {
@@ -221,7 +221,7 @@ class ClimateCompressionTest {
             for (int widthChunks : PRESET_WIDTHS_CHUNKS) {
                 for (ClimateScale scale : List.of(ClimateScale.OFF, ClimateScale.AUTO, ClimateScale.STRONG,
                         ClimateScale.custom(6))) {
-                    ShapeOptions options = ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, scale);
+                    ShapeOptions options = ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), scale);
                     WorldFold cylinder = WorldFolds.of(
                             ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(axis, widthChunks)), options);
                     WorldFold torus = WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthChunks)), options);
@@ -240,7 +240,7 @@ class ClimateCompressionTest {
     void aCylinderThatDeclinedCompressionIsMultipliedByExactlyOne() {
         for (Direction.Axis axis : new Direction.Axis[] {Direction.Axis.X, Direction.Axis.Z}) {
             WorldFold cylinder = WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(axis, 32)),
-                    ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
+                    ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF));
 
             assertEquals(1.0, actual(TEMPERATURE, cylinder, HORIZONTAL), 0.0, "temperature on an " + axis + " cylinder");
             assertEquals(1.0, actual(VEGETATION, cylinder, HORIZONTAL), 0.0, "vegetation on an " + axis + " cylinder");

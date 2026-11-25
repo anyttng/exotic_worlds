@@ -22,8 +22,8 @@ class ShapeOptionsTest {
     private static final List<String> PREFIXES = List.of(CarriedShape.NO_KEY_PREFIX, ExoticWorlds.MODID + ":");
 
     private static final GenerationOptions CHOSEN_V1 = GenerationOptions.DEFAULT
-            .with(OptionBridge.twin(CompactBiomes.OPTION), ClimateScale.OFF)
-            .with(OptionBridge.twin(GuaranteedLand.OPTION), true);
+            .with(OptionBridge.twin(CompactBiomes.FEATURE.getOption()), ClimateScale.OFF)
+            .with(OptionBridge.twin(GuaranteedLand.FEATURE.getOption()), true);
 
     @BeforeAll
     static void registerOptions() {

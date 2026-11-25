@@ -33,7 +33,7 @@ public final class CoastFieldLift {
     }
 
     private static void solve(RandomState randomState, WorldFold dimensionFold, ShapeOptions options, int seaLevel) {
-        if (!options.get(GuaranteedLand.OPTION)) {
+        if (!options.get(GuaranteedLand.FEATURE.getOption())) {
             return;
         }
 

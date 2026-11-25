@@ -42,7 +42,7 @@ public final class CompactBiomesLine {
 
     private static Component factorLine(Screen creation, Shown shown) {
         OptionalDouble factor = ClimateFactorPreview.temperatureFactor(creation,
-                ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, shown.scale()), shown.spans());
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), shown.scale()), shown.spans());
         if (factor.isEmpty()) {
             return Component.empty();
         }

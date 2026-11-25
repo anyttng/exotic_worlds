@@ -12,7 +12,6 @@ import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.registry.StartupRegistry;
 import com.exoticworlds.shape.option.DeclaredOptions;
-import com.exoticworlds.shape.option.DimensionOption;
 
 import net.minecraft.resources.Identifier;
 
@@ -51,12 +50,12 @@ public final class DeclaredShapes {
                 unknown -> ExoticWorlds.LOGGER.warn("[ew/option] unknown_shape {}", unknown));
     }
 
-    static List<String> unknownOptionShapes(Collection<DimensionOption<?>> options, Set<Identifier> known) {
+    static List<String> unknownOptionShapes(Collection<DeclaredOptions.Entry> options, Set<Identifier> known) {
         List<String> unknown = new ArrayList<>();
-        for (DimensionOption<?> declared : options) {
-            declared.getShapes().stream()
+        for (DeclaredOptions.Entry declared : options) {
+            declared.shapes().stream()
                     .filter(shape -> !known.contains(shape))
-                    .forEach(shape -> unknown.add("option=" + declared.getOption().key() + " shape=" + shape));
+                    .forEach(shape -> unknown.add("option=" + declared.option().getOption().key() + " shape=" + shape));
         }
 
         return unknown;

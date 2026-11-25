@@ -37,8 +37,8 @@ class WorldLoopPresetsJsonTest {
     private static final String TORUS_PRESET_PREFIX = "torus_";
     private static final String PRESET_FILE_EXTENSION = ".json";
     private static final List<ShapeOption<?>> TORUS_OPTIONS =
-            List.of(CompactBiomes.OPTION, GuaranteedLand.OPTION, GuaranteedNetherComplexes.OPTION);
-    private static final List<ShapeOption<?>> CYLINDER_OPTIONS = List.of(CompactBiomes.OPTION);
+            List.of(CompactBiomes.FEATURE.getOption(), GuaranteedLand.FEATURE.getOption(), GuaranteedNetherComplexes.FEATURE.getOption());
+    private static final List<ShapeOption<?>> CYLINDER_OPTIONS = List.of(CompactBiomes.FEATURE.getOption());
 
     @Test
     void everyPresetShipsATorusWorldPresetMatchingItsConfiguration() throws IOException {

@@ -46,7 +46,7 @@ public final class ClimateCompression {
     }
 
     public static double factor(WorldFold fold, boolean isClimateField, double verticalShare, DoubleSupplier fitted) {
-        ClimateScale scale = fold.getOptions().get(CompactBiomes.OPTION);
+        ClimateScale scale = fold.getOptions().get(CompactBiomes.FEATURE.getOption());
         if (scale.mode() == ClimateScale.Mode.OFF
                 || !ClimateScaleCompression.isCompressible(fold, verticalShare)) {
             return ClimateScaleCompression.NO_COMPRESSION;
