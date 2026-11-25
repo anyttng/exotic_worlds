@@ -23,11 +23,11 @@ class LayoutPresetTest {
 
     @Test
     void aPresetOnATorusSetsItsSizeAndPutsTheNetherAndTheEndOnTheOverworld() {
-        WorldLayout skewed = withOverworld(DimensionLayout.looped(ShapeFixtures.latticeTorus(48, 64, 4), LAND));
+        WorldLayout skewed = withOverworld(LayoutFixtures.looped(ShapeFixtures.latticeTorus(48, 64, 4), LAND));
 
         WorldLayout large = LayoutPreset.apply(skewed, WorldLoopPresets.LARGE, 1.0);
 
-        assertEquals(DimensionLayout.looped(ShapeFixtures.torus(256), LAND), large.overworld());
+        assertEquals(LayoutFixtures.looped(ShapeFixtures.torus(256), LAND), large.overworld());
         assertEquals(ShapeKind.FROM_OVERWORLD, large.nether().kind());
         assertEquals(ShapeKind.FROM_OVERWORLD, large.end().kind());
         assertEquals(WorldLoopPresets.LARGE.getNetherScale(), large.netherScale());
@@ -36,7 +36,7 @@ class LayoutPresetTest {
     @Test
     void aPresetOnACylinderKeepsItsLoopingAxis() {
         WorldLayout cylinder =
-                withOverworld(DimensionLayout.looped(ShapeFixtures.cylinder(Direction.Axis.Z, 48), PLAIN));
+                withOverworld(LayoutFixtures.looped(ShapeFixtures.cylinder(Direction.Axis.Z, 48), PLAIN));
 
         WorldLayout tiny = LayoutPreset.apply(cylinder, WorldLoopPresets.TINY, 1.0);
 
@@ -68,11 +68,11 @@ class LayoutPresetTest {
         int widthChunks = WorldLoopPresets.SMALL.getWidthChunks();
 
         assertFalse(LayoutPreset.isMatching(
-                small.withOverworld(DimensionLayout.looped(ShapeFixtures.torus(widthChunks, widthChunks * 2), PLAIN)),
+                small.withOverworld(LayoutFixtures.looped(ShapeFixtures.torus(widthChunks, widthChunks * 2), PLAIN)),
                 WorldLoopPresets.SMALL));
         assertFalse(LayoutPreset.isMatching(
                 small.withOverworld(
-                        DimensionLayout.looped(ShapeFixtures.latticeTorus(widthChunks, widthChunks, 2), PLAIN)),
+                        LayoutFixtures.looped(ShapeFixtures.latticeTorus(widthChunks, widthChunks, 2), PLAIN)),
                 WorldLoopPresets.SMALL));
     }
 

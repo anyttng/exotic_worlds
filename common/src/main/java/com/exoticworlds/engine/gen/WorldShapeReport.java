@@ -7,13 +7,12 @@ import org.jspecify.annotations.Nullable;
 
 import com.google.common.math.IntMath;
 import com.google.common.math.LongMath;
-import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.CoordinateConstants;
 import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.core.world.FlatShape;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.world.WorldLoopBounds;
 import com.exoticworlds.core.world.WorldLoopBounds.AxisBounds;
 import com.exoticworlds.core.world.WorldLoopSizes;
@@ -29,7 +28,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 
 public final class WorldShapeReport {
-    private static final String CODEC_SOURCE = "codec";
     private static final String STAMP_SOURCE = "stamp";
     private static final String RESTORED_SOURCE = "restored";
     private static final String STORED_SOURCE = "stored";
@@ -112,7 +110,7 @@ public final class WorldShapeReport {
     }
 
     private static String seamTerrain(ChunkGenerator generator) {
-        return ShapedChunkGenerator.isTilingAtSeam(generator) ? "" : NOT_PERIODIC_NOTE;
+        return GeneratorShapes.isTilingAtSeam(generator) ? "" : NOT_PERIODIC_NOTE;
     }
 
     private static String shapeSource(MinecraftServer server, ServerLevel level, @Nullable StemOverride override) {
@@ -125,10 +123,6 @@ public final class WorldShapeReport {
         }
 
         ChunkGenerator generator = level.getChunkSource().getGenerator();
-        if (generator instanceof ShapedChunkGenerator) {
-            return CODEC_SOURCE;
-        }
-
         boolean hasOwnStamp = generator instanceof ShapeStamp stamp && stamp.exotic_worlds$getCarriedShape() != null;
         return !hasOwnStamp && getTableEntry(server, level) != null ? TABLE_SOURCE : STAMP_SOURCE;
     }
@@ -156,16 +150,12 @@ public final class WorldShapeReport {
     }
 
     private static @Nullable FlatShape getShape(@Nullable ServerLevel level) {
-        CarriedShape carried = level == null ? null : ShapedChunkGenerator.getCarriedShape(level);
+        CarriedShape carried = level == null ? null : GeneratorShapes.getCarriedShape(level);
         return carried == null ? null : carried.getShape();
     }
 
     private static String generatorId(ChunkGenerator generator) {
-        return switch (generator) {
-            case LoopedFlatChunkGenerator flat -> ExoticWorlds.MODID + ":" + WorldLoopGenerators.TOROIDAL_FLAT_ID;
-            case LoopedChunkGenerator looped -> ExoticWorlds.MODID + ":" + WorldLoopGenerators.TOROIDAL_ID;
-            default -> generator.getClass().getSimpleName();
-        };
+        return generator.getClass().getSimpleName();
     }
 
     private static String widths(WorldLoopBounds bounds) {

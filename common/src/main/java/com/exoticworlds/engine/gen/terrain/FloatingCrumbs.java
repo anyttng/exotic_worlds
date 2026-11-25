@@ -14,7 +14,7 @@ import com.exoticworlds.accessors.TerrainMaskCache;
 import com.exoticworlds.accessors.TerrainMaskHolder;
 import com.exoticworlds.core.world.CoordinateConstants;
 import com.exoticworlds.core.fold.FoldOrientation;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
 
@@ -103,7 +103,7 @@ public final class FloatingCrumbs {
 
     public static boolean isInstalledOn(ServerLevel level) {
         ChunkGenerator generator = level.getChunkSource().getGenerator();
-        return ShapedChunkGenerator.getWrappedFold(generator) != null
+        return GeneratorShapes.getWrappedFold(generator) != null
                 && generator instanceof NoiseBasedChunkGenerator noise
                 && TerrainCeiling.ceiling(noise.generatorSettings().value()) != null;
     }

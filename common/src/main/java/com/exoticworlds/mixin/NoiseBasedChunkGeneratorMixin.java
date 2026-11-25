@@ -9,8 +9,10 @@ import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 
 import com.exoticworlds.BinderOrder;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.accessors.BaseHeightsHolder;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldFold;
+import com.exoticworlds.engine.gen.BaseHeights;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -23,6 +25,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
@@ -39,7 +42,7 @@ public class NoiseBasedChunkGeneratorMixin {
             int cellYMin,
             int cellCountY,
             Operation<ChunkAccess> original) {
-        WorldFold fold = ShapedChunkGenerator.getFold((NoiseBasedChunkGenerator) (Object) this);
+        WorldFold fold = GeneratorShapes.getFold((NoiseBasedChunkGenerator) (Object) this);
         try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             return original.call(blender, structureManager, randomState, centerChunk, cellYMin, cellCountY);
         }
@@ -52,7 +55,7 @@ public class NoiseBasedChunkGeneratorMixin {
             StructureManager structureManager,
             ChunkAccess protoChunk,
             Operation<Void> original) {
-        WorldFold fold = ShapedChunkGenerator.getFold((NoiseBasedChunkGenerator) (Object) this);
+        WorldFold fold = GeneratorShapes.getFold((NoiseBasedChunkGenerator) (Object) this);
         try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             original.call(blender, randomState, structureManager, protoChunk);
         }
@@ -74,10 +77,21 @@ public class NoiseBasedChunkGeneratorMixin {
             Blender blender,
             @Nullable Set<Holder<Biome>> possibleBiomes,
             Operation<Void> original) {
-        WorldFold fold = ShapedChunkGenerator.getFold((NoiseBasedChunkGenerator) (Object) this);
+        WorldFold fold = GeneratorShapes.getFold((NoiseBasedChunkGenerator) (Object) this);
         try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             original.call(protoChunk, context, randomState, structureManager, biomeManager, blender, possibleBiomes);
         }
+    }
+
+    @WrapMethod(method = "getBaseHeight")
+    private int exotic_worlds$readFoldedBaseHeight(int x, int z, Heightmap.Types type, LevelHeightAccessor heightAccessor,
+            RandomState randomState, Operation<Integer> original) {
+        BaseHeights heights = ((BaseHeightsHolder) (Object) randomState).exotic_worlds$getBaseHeights();
+        if (heights == null) {
+            return original.call(x, z, type, heightAccessor, randomState);
+        }
+
+        return heights.heightAt(x, z, type, () -> original.call(x, z, type, heightAccessor, randomState));
     }
 
     @WrapMethod(method = "iterateNoiseColumn", order = BinderOrder.FOLD)
@@ -89,7 +103,7 @@ public class NoiseBasedChunkGeneratorMixin {
             @Nullable MutableObject<NoiseColumn> columnReference,
             @Nullable Predicate<BlockState> tester,
             Operation<OptionalInt> original) {
-        WorldFold fold = ShapedChunkGenerator.getFold((NoiseBasedChunkGenerator) (Object) this);
+        WorldFold fold = GeneratorShapes.getFold((NoiseBasedChunkGenerator) (Object) this);
         try (GenerationFoldContext.Context.FoldScope _ = GenerationFoldContext.getContext().withFold(fold)) {
             return original.call(heightAccessor, randomState, blockX, blockZ, columnReference, tester);
         }

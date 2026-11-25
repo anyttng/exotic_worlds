@@ -6,7 +6,6 @@ import static com.exoticworlds.engine.gen.BakeStampFixture.squareTorus;
 import static com.exoticworlds.engine.gen.BakeStampFixture.stem;
 import static com.exoticworlds.engine.gen.BakeStampFixture.stemKey;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import java.util.Map;
 
@@ -18,7 +17,7 @@ import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.DimensionTable;
 import com.exoticworlds.core.option.ShapeOptions;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.shape.StartupRegistrations;
 
 import net.minecraft.SharedConstants;
@@ -30,9 +29,10 @@ import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 
 @Timeout(60)
-class OwnGeneratorTableCodecTest {
+class ShapedGeneratorTableCodecTest {
     private static final double OVERWORLD_SCALE = 1.0;
     private static final int OVERWORLD_WIDTH_CHUNKS = 64;
 
@@ -47,13 +47,13 @@ class OwnGeneratorTableCodecTest {
     }
 
     @Test
-    void aDimensionTableOnOurOwnGeneratorSurvivesTheRoundTrip() {
-        CarriedShape overworldShape = new CarriedShape(squareTorus(OVERWORLD_WIDTH_CHUNKS), ShapeOptions.DEFAULT);
+    void aDimensionTableOnAShapedVanillaGeneratorSurvivesTheRoundTrip() {
+        CarriedShape overworldShape = new CarriedShape(null, squareTorus(OVERWORLD_WIDTH_CHUNKS), ShapeOptions.DEFAULT);
         ChunkGenerator generator = ShapedDimensions.withShape(
                 selected(Map.of(LevelStem.OVERWORLD, stem(OVERWORLD_SCALE, noiseGenerator(worldgen)))),
                 LevelStem.OVERWORLD, overworldShape)
                 .get(LevelStem.OVERWORLD).orElseThrow().generator();
-        assertInstanceOf(LoopedChunkGenerator.class, generator);
+        assertEquals(NoiseBasedChunkGenerator.class, generator.getClass());
         DimensionTable table = DimensionTable.of(Map.of(stemKey("unwrapped"), DimensionTable.Entry.UNWRAPPED));
         ((ShapeStamp) generator).exotic_worlds$stampDimensionTable(table);
 
@@ -62,6 +62,6 @@ class OwnGeneratorTableCodecTest {
                 ChunkGenerator.CODEC.encodeStart(ops, generator).getOrThrow()).getOrThrow();
 
         assertEquals(table, ShapedDimensions.getDimensionTable(decoded));
-        assertEquals(overworldShape, ShapedChunkGenerator.getCarriedShape(decoded));
+        assertEquals(overworldShape, GeneratorShapes.getCarriedShape(decoded));
     }
 }

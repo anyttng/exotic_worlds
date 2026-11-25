@@ -2,7 +2,7 @@ package com.exoticworlds.engine.net;
 
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.FlatShape;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
+import com.exoticworlds.core.gen.GeneratorShapes;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.platform.Platforms;
 
@@ -56,7 +56,7 @@ public final class WorldShapeSync {
     }
 
     public static void sendToAll(ServerLevel level) {
-        CarriedShape carried = ShapedChunkGenerator.getCarriedShape(level);
+        CarriedShape carried = GeneratorShapes.getCarriedShape(level);
         FlatShape shape = carried == null ? FlatShape.rectangle() : carried.getShape();
         for (ServerPlayer player : level.getServer().getPlayerList().getPlayers()) {
             Platforms.get().sendWorldShape(player, level.dimension(), shape);
@@ -68,7 +68,7 @@ public final class WorldShapeSync {
     }
 
     private static void send(ServerPlayer player, ServerLevel level) {
-        CarriedShape carried = ShapedChunkGenerator.getCarriedShape(level);
+        CarriedShape carried = GeneratorShapes.getCarriedShape(level);
         if (carried != null) {
             Platforms.get().sendWorldShape(player, level.dimension(), carried.getShape());
         }

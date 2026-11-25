@@ -66,7 +66,7 @@ class BaseHeightsTest {
 
     private static BaseHeights heights() {
         return new BaseHeights(
-                new CarriedShape(ShapeFixtures.torus(WorldLoopBounds.ofWidth(LAP_CHUNKS)), ShapeOptions.DEFAULT)
+                new CarriedShape(null, ShapeFixtures.torus(WorldLoopBounds.ofWidth(LAP_CHUNKS)), ShapeOptions.DEFAULT)
                         .getFold());
     }
 }

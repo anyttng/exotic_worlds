@@ -6,7 +6,6 @@ import com.exoticworlds.ExoticWorlds;
 import com.exoticworlds.accessors.ShapeStamp;
 import com.exoticworlds.core.world.CarriedShape;
 import com.exoticworlds.core.world.DimensionTable;
-import com.exoticworlds.core.gen.ShapedChunkGenerator;
 import com.exoticworlds.migration.FormerNamespace;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
@@ -21,11 +20,17 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 public final class StampedGeneratorCodec {
     private static final String KEY_PREFIX = ExoticWorlds.MODID + ":";
 
-    static final String SHAPE_KEY = KEY_PREFIX + CarriedShape.WRAPPING_KEY;
+    private static final String SHAPE_PATH = "shape";
 
-    private static final MapCodec<CarriedShape> CARRIED_CODEC = CarriedShape.mapCodec(KEY_PREFIX);
+    static final String SHAPE_KEY = KEY_PREFIX + SHAPE_PATH;
 
-    private static final String FORMER_SHAPE_KEY = FormerNamespace.formerKey(SHAPE_KEY);
+    private static final MapCodec<CarriedShape> CARRIED_CODEC = CarriedShape.CODEC.fieldOf(SHAPE_KEY);
+
+    private static final String FLAT_SHAPE_KEY = KEY_PREFIX + CarriedShape.WRAPPING_KEY;
+
+    private static final MapCodec<CarriedShape> FLAT_CARRIED_CODEC = CarriedShape.mapCodec(KEY_PREFIX);
+
+    private static final String FORMER_SHAPE_KEY = FormerNamespace.formerKey(FLAT_SHAPE_KEY);
 
     private static final MapCodec<CarriedShape> FORMER_CARRIED_CODEC = CarriedShape.mapCodec(FormerNamespace.KEY_PREFIX);
 
@@ -38,14 +43,6 @@ public final class StampedGeneratorCodec {
     }
 
     private static @Nullable ShapeStamp stampOf(ChunkGenerator generator) {
-        if (generator instanceof ShapedChunkGenerator) {
-            return null;
-        }
-
-        return tableStampOf(generator);
-    }
-
-    private static @Nullable ShapeStamp tableStampOf(ChunkGenerator generator) {
         return generator instanceof ShapeStamp stamp ? stamp : null;
     }
 
@@ -55,8 +52,7 @@ public final class StampedGeneratorCodec {
             DataResult<T> encoded = this.dispatch.encode(input, ops, prefix);
             ShapeStamp stamp = stampOf(input);
             CarriedShape carried = stamp == null ? null : stamp.exotic_worlds$getCarriedShape();
-            ShapeStamp tableStamp = tableStampOf(input);
-            DimensionTable table = tableStamp == null ? DimensionTable.EMPTY : tableStamp.exotic_worlds$getDimensionTable();
+            DimensionTable table = stamp == null ? DimensionTable.EMPTY : stamp.exotic_worlds$getDimensionTable();
             if (carried == null && table.isEmpty()) {
                 return encoded;
             }
@@ -99,7 +95,7 @@ public final class StampedGeneratorCodec {
 
         private static <T> DataResult<Pair<ChunkGenerator, T>> fillTable(DynamicOps<T> ops, T input,
                 Pair<ChunkGenerator, T> decoded) {
-            ShapeStamp stamp = tableStampOf(decoded.getFirst());
+            ShapeStamp stamp = stampOf(decoded.getFirst());
             MapLike<T> map = ops.getMap(input).result().orElse(null);
             if (stamp == null || map == null || map.get(TABLE_KEY) == null) {
                 return DataResult.success(decoded);
@@ -114,6 +110,10 @@ public final class StampedGeneratorCodec {
         private static <T> @Nullable MapCodec<CarriedShape> stampCodecOf(MapLike<T> map) {
             if (map.get(SHAPE_KEY) != null) {
                 return CARRIED_CODEC;
+            }
+
+            if (map.get(FLAT_SHAPE_KEY) != null) {
+                return FLAT_CARRIED_CODEC;
             }
 
             return map.get(FORMER_SHAPE_KEY) != null ? FORMER_CARRIED_CODEC : null;
