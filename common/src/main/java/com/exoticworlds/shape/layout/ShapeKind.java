@@ -1,5 +1,8 @@
 package com.exoticworlds.shape.layout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.core.world.FlatShape;
@@ -27,6 +30,18 @@ public enum ShapeKind {
         }
 
         return isXLooped || isZLooped ? CYLINDER : NORMAL;
+    }
+
+    public static List<DimensionShape> getBuiltIns() {
+        List<DimensionShape> builtIns = new ArrayList<>();
+        for (ShapeKind kind : values()) {
+            DimensionShape builtIn = kind.getBuiltIn();
+            if (builtIn != null) {
+                builtIns.add(builtIn);
+            }
+        }
+
+        return builtIns;
     }
 
     public @Nullable DimensionShape getBuiltIn() {

@@ -12,6 +12,8 @@ import org.jspecify.annotations.Nullable;
 import com.ascendiacore.gui.base.component.GuiComponent;
 import com.ascendiacore.gui.base.property.Value;
 import com.ascendiacore.gui.layout.Column;
+import com.ascendiacore.gui.layout.Row;
+import com.ascendiacore.gui.layout.model.Length;
 import com.ascendiacore.gui.theme.Theme;
 import com.ascendiacore.gui.widget.cyclebutton.CycleButton;
 import com.ascendiacore.gui.widget.label.Label;
@@ -22,8 +24,8 @@ import com.ascendiacore.gui.widget.panel.model.FillStyle;
 import com.exoticworlds.client.shape.OptionLines;
 import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.option.ShapeOptions;
-import com.exoticworlds.shape.option.DeclaredOptions;
 import com.exoticworlds.shape.option.DimensionOption;
+import com.exoticworlds.shape.option.NumberRange;
 import com.exoticworlds.shape.option.OptionPart;
 
 import net.minecraft.network.chat.CommonComponents;
@@ -36,7 +38,8 @@ final class OptionControls {
     private static final String HINT_ON = "on";
     private static final String HINT_OFF = "off";
     private static final String KEY_SEPARATOR = ".";
-    private static final int OVERFLOW_ROOM = 1;
+    private static final int NUMBER_MAX_LENGTH = 7;
+    private static final int ROW_GAP_PIXELS = 6;
 
     private final Theme theme;
     private final FillStyle fill;
@@ -46,15 +49,15 @@ final class OptionControls {
     private final List<Bound<?>> bound = new ArrayList<>();
     private final Column section = new Column();
 
-    OptionControls(Theme theme, FillStyle fill, ResourceKey<LevelStem> dimension, Supplier<@Nullable Identifier> shape,
-            Supplier<@Nullable FlatShape> spans) {
+    OptionControls(Theme theme, FillStyle fill, ResourceKey<LevelStem> dimension, List<DimensionOption<?>> offered,
+            Supplier<@Nullable Identifier> shape, Supplier<@Nullable FlatShape> spans) {
         this.theme = theme;
         this.fill = fill;
         this.dimension = dimension;
         this.shape = shape;
         this.spans = spans;
-        this.section.setGap(LoopFields.GAP_PIXELS);
-        for (DimensionOption<?> declared : DeclaredOptions.getAll()) {
+        this.section.setGap(DimensionPage.GAP_PIXELS);
+        for (DimensionOption<?> declared : offered) {
             this.bound.add(new Bound<>(declared));
         }
     }
@@ -83,6 +86,10 @@ final class OptionControls {
         return chosen;
     }
 
+    private static Bounds boundsOf(NumberRange range) {
+        return new Bounds(range.min(), range.max());
+    }
+
     private record NumberPart<T>(OptionPart.WholeNumber<T> part, NumberField field) {
     }
 
@@ -91,11 +98,12 @@ final class OptionControls {
         private final List<Runnable> shownValues = new ArrayList<>();
         private final List<NumberPart<T>> numbers = new ArrayList<>();
         private T value;
+        private boolean isShowing;
 
         Bound(DimensionOption<T> declared) {
             this.declared = declared;
             this.value = declared.getOption().defaultValue();
-            declared.getParts().forEach(this::add);
+            declared.getParts().forEach(part -> OptionControls.this.section.add(this.control(part)));
             BiFunction<T, FlatShape, Component> line = OptionLines.of(declared.getOption());
             if (line != null) {
                 this.addLine(line);
@@ -108,8 +116,10 @@ final class OptionControls {
         }
 
         void show(ShapeOptions options) {
+            this.isShowing = true;
             this.value = options.get(this.declared.getOption());
             this.shownValues.forEach(Runnable::run);
+            this.isShowing = false;
         }
 
         @Nullable ShapeOptions commit(ShapeOptions into) {
@@ -139,7 +149,20 @@ final class OptionControls {
             return chosen;
         }
 
-        private void add(OptionPart<T> part) {
+        private void takeTypedNumbers() {
+            if (this.isShowing) {
+                return;
+            }
+
+            for (NumberPart<T> number : this.numbers) {
+                Integer typed = number.field().value();
+                if (typed != null && number.part().shownWhen().test(this.value)) {
+                    this.value = number.part().write().apply(this.value, typed);
+                }
+            }
+        }
+
+        private GuiComponent control(OptionPart<T> part) {
             String captionKey = part.key().isEmpty()
                     ? this.declared.getCaptionKey()
                     : this.declared.getCaptionKey() + KEY_SEPARATOR + part.key();
@@ -149,9 +172,17 @@ final class OptionControls {
                         on -> on ? HINT_ON : HINT_OFF, toggle.read(), toggle.write());
                 case OptionPart.Choice<T, ?> choice -> this.choice(captionKey, choice);
                 case OptionPart.WholeNumber<T> number -> this.number(captionKey, number);
+                case OptionPart.Row<T> row -> this.row(row);
             };
             control.setVisible(() -> this.isOffered() && part.shownWhen().test(this.value));
-            OptionControls.this.section.add(control);
+            return control;
+        }
+
+        private GuiComponent row(OptionPart.Row<T> part) {
+            Row row = new Row();
+            row.setGap(ROW_GAP_PIXELS);
+            part.parts().forEach(child -> row.add(this.control(child), Length.fill()));
+            return row;
         }
 
         private <V> GuiComponent choice(String captionKey, OptionPart.Choice<T, V> part) {
@@ -175,13 +206,14 @@ final class OptionControls {
         }
 
         private GuiComponent number(String captionKey, OptionPart.WholeNumber<T> part) {
-            Optional<Bounds> bounds = Optional.of(new Bounds(part.min(), part.max()));
+            NumberRange shown = part.range().apply(OptionControls.this.dimension, this.value);
             NumberField field = new NumberField(OptionControls.this.fill, OptionControls.this.theme.textField(),
-                    Component.translatable(captionKey), () -> bounds, () -> {
-                    });
-            field.setSigned(part.min() < 0);
-            field.setMaxLength(Math.max(String.valueOf(part.min()).length(), String.valueOf(part.max()).length())
-                    + OVERFLOW_ROOM);
+                    Component.translatable(captionKey, shown.min(), shown.max()),
+                    () -> Optional.of(boundsOf(part.range().apply(OptionControls.this.dimension, this.value))),
+                    this::takeTypedNumbers);
+            field.setSigned(shown.min() < 0);
+            field.setMaxLength(NUMBER_MAX_LENGTH);
+            field.setValueLine(number -> part.valueLine().apply(this.value, number));
             field.setValue(part.read().apply(this.value));
             this.numbers.add(new NumberPart<>(part, field));
             this.shownValues.add(() -> field.setValue(part.read().apply(this.value)));

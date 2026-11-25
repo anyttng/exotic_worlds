@@ -8,8 +8,11 @@ import java.util.function.Predicate;
 import org.jspecify.annotations.Nullable;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.dimension.LevelStem;
 
-public sealed interface OptionPart<T> permits OptionPart.Toggle, OptionPart.Choice, OptionPart.WholeNumber {
+public sealed interface OptionPart<T>
+        permits OptionPart.Toggle, OptionPart.Choice, OptionPart.WholeNumber, OptionPart.Row {
     String OWN_CAPTION = "";
 
     String key();
@@ -28,12 +31,32 @@ public sealed interface OptionPart<T> permits OptionPart.Toggle, OptionPart.Choi
         }
     }
 
-    record WholeNumber<T>(String key, int min, int max, Function<T, Integer> read, BiFunction<T, Integer, T> write,
+    record WholeNumber<T>(String key, BiFunction<ResourceKey<LevelStem>, T, NumberRange> range,
+            Function<T, Integer> read, BiFunction<T, Integer, T> write, BiFunction<T, Integer, Component> valueLine,
             Predicate<T> shownWhen) implements OptionPart<T> {
-        public WholeNumber {
-            if (min > max) {
-                throw new IllegalArgumentException("A number part needs min <= max, got " + min + " and " + max);
-            }
+        public WholeNumber(String key, int min, int max, Function<T, Integer> read, BiFunction<T, Integer, T> write,
+                Predicate<T> shownWhen) {
+            this(key, fixed(new NumberRange(min, max)), read, write, (value, number) -> Component.empty(), shownWhen);
+        }
+
+        private static <T> BiFunction<ResourceKey<LevelStem>, T, NumberRange> fixed(NumberRange range) {
+            return (dimension, value) -> range;
+        }
+    }
+
+    record Row<T>(List<OptionPart<T>> parts) implements OptionPart<T> {
+        public Row {
+            parts = List.copyOf(parts);
+        }
+
+        @Override
+        public String key() {
+            return OWN_CAPTION;
+        }
+
+        @Override
+        public Predicate<T> shownWhen() {
+            return value -> true;
         }
     }
 

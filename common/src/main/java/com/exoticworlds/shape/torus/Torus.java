@@ -1,51 +1,34 @@
 package com.exoticworlds.shape.torus;
 
-import com.exoticworlds.core.world.FlatShape;
-import com.exoticworlds.core.option.ShapeOption;
 import com.exoticworlds.core.option.ShapeOptions;
-import com.exoticworlds.core.world.WorldLoopBounds;
-import com.exoticworlds.core.world.WorldLoopSizes;
 import com.exoticworlds.shape.dimension.AbstractDimensionShape;
 import com.exoticworlds.shape.dimension.DeclaredShapes;
-import com.exoticworlds.shape.dimension.DimensionContext;
-import com.mojang.serialization.Codec;
+import com.exoticworlds.shape.dimension.LoopSizeLines;
 
-import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 public final class Torus extends AbstractDimensionShape {
-    private static final int SIZE_POSITION = 0;
-
-    public static final ShapeOption<Integer> X_WIDTH =
-            new ShapeOption<>("torus_x_width", SIZE_POSITION, Codec.INT, WorldLoopSizes.DEFAULT_WIDTH_CHUNKS);
-    public static final ShapeOption<Integer> Z_WIDTH =
-            new ShapeOption<>("torus_z_width", SIZE_POSITION, Codec.INT, WorldLoopSizes.DEFAULT_WIDTH_CHUNKS);
-    public static final ShapeOption<Integer> SHIFT =
-            new ShapeOption<>("torus_shift", SIZE_POSITION, Codec.INT, FlatShape.NO_SKEW);
+    private static final String NAME_KEY = LoopSizeLines.CAPTION_KEY + ".shape.torus";
 
     public static final Torus SHAPE = new Torus();
 
     private Torus() {
-        super(DeclaredShapes.TORUS);
+        super(DeclaredShapes.TORUS, new TorusLogic(), new TorusParameters());
     }
 
     @Override
-    public FlatShape spans(DimensionContext context) {
-        ShapeOptions options = context.options();
-        return FlatShape.latticeTorus(WorldLoopBounds.ofWidths(options.get(X_WIDTH), options.get(Z_WIDTH)),
-                options.get(SHIFT));
+    public Component getName() {
+        return Component.translatable(NAME_KEY);
     }
 
     @Override
-    public ShapeOptions withPreset(int widthChunks, ShapeOptions options) {
-        return options.with(X_WIDTH, widthChunks).with(Z_WIDTH, widthChunks).with(SHIFT, FlatShape.NO_SKEW);
-    }
-
-    @Override
-    public ShapeOptions optionsFor(FlatShape spans) {
-        int xWidthChunks = spans.bounds().getWidthChunks(Direction.Axis.X);
-        return ShapeOptions.DEFAULT
-                .with(X_WIDTH, xWidthChunks)
-                .with(Z_WIDTH, spans.bounds().getWidthChunks(Direction.Axis.Z))
-                .with(SHIFT, Math.floorMod(spans.skewChunks(), xWidthChunks));
+    public Component describe(ShapeOptions options) {
+        TorusSize size = options.get(TorusParameters.SIZE);
+        MutableComponent summary = this.getName().copy().append(LoopSizeLines.SEPARATOR + size.xWidthChunks()
+                + LoopSizeLines.TIMES + size.zWidthChunks());
+        return size.shiftChunks() == 0
+                ? summary
+                : summary.append(LoopSizeLines.SEPARATOR).append(LoopSizeLines.shiftSummary(size.shiftChunks()));
     }
 }
