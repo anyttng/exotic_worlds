@@ -11,6 +11,8 @@
     "AcidOrbMixin",
     "AlchemistAttackGoalMixin",
     "AnimatedActionGoalAccessor",
+    "ArmorStandAttackGoalMixin",
+    "ArmorStandReturnToHomeGoalMixin",
     "ArrowVolleySpellMixin",
     "BlackHoleMixin",
     "BloodSiphonParticlesPacketAccessor",
