@@ -1,5 +1,6 @@
 package com.exoticworlds.api.v1.client;
 
+import com.exoticworlds.api.v1.Broken;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.option.GenerationOptions;
@@ -17,6 +18,8 @@ import net.minecraft.core.Direction;
  *     the World Shape Settings screen draws it.
  */
 @Deprecated
+@Broken("No screen builds these controls, so a control registered for an option is never shown."
+        + " Declare the option as an api.v2.feature.OptionFeatureV2.")
 public interface WorldOptionContext {
 
     /** The screen the control lives on — what a sub-screen it opens returns to. */

@@ -1,5 +1,6 @@
 package com.exoticworlds.api.v1.shape;
 
+import com.exoticworlds.api.v1.Broken;
 import org.jspecify.annotations.Nullable;
 
 import com.exoticworlds.api.v1.option.GenerationOptions;
@@ -32,6 +33,8 @@ public final class ShapeDimensions {
      *     writes them.
      */
     @Deprecated
+    @Broken("Only a ShapeModule called this at world creation, and no screen lists one."
+            + " An api.v2.shape.ShapeV2 answers its spans and Exotic Worlds writes them.")
     @SuppressWarnings("InlineMeSuggester")
     public static WorldDimensions withSpans(WorldDimensions dimensions, LoopSpans overworld, LoopSpans nether,
             LoopSpans end, GenerationOptions options) {
