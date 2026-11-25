@@ -49,6 +49,7 @@
     "HealParticlesPacketAccessor",
     "IceBlockProjectileMixin",
     "IceSpiderEggBlockMixin",
+    "IceSpiderPatrolSpawnerMixin",
     "IceSpikesSpellMixin",
     "KeeperAnimatedWarlockAttackGoalMixin",
     "MagmaThrowBossAbilityGoalMixin",
