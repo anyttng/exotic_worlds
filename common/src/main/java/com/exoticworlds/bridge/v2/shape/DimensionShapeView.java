@@ -37,6 +37,11 @@ final class DimensionShapeView implements DimensionShape {
     }
 
     @Override
+    public Component getHint() {
+        return WorldShape.hint(this.getId());
+    }
+
+    @Override
     public Component describe(ShapeOptions options) {
         return this.getName();
     }

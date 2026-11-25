@@ -10,6 +10,7 @@ import net.minecraft.network.chat.MutableComponent;
 
 public final class Torus extends AbstractDimensionShape {
     private static final String NAME_KEY = LoopSizeLines.CAPTION_KEY + ".shape.torus";
+    private static final String HINT_KEY = LoopSizeLines.CAPTION_KEY + ".shape.hint.torus";
 
     public static final Torus SHAPE = new Torus();
 
@@ -20,6 +21,11 @@ public final class Torus extends AbstractDimensionShape {
     @Override
     public Component getName() {
         return Component.translatable(NAME_KEY);
+    }
+
+    @Override
+    public Component getHint() {
+        return Component.translatable(HINT_KEY);
     }
 
     @Override

@@ -67,7 +67,6 @@
   "gui.exotic_worlds.world_shape_settings.shape.hint.torus": "东西方向和南北方向都循环。朝任意方向走得足够远，就会回到出发的地方。",
   "gui.exotic_worlds.world_shape_settings.shape.hint.cylinder": "一条水平轴循环，另一条像普通世界一样无限延伸。",
   "gui.exotic_worlds.world_shape_settings.shape.hint.from_overworld": "沿用主世界的形状，大小按此维度自身计算。",
-  "gui.exotic_worlds.world_shape_settings.shape.hint.declared": "由其他模组添加的形状；其说明显示在此按钮下方。",
   "gui.exotic_worlds.world_shape_settings.shape.size_error": "此形状的宽度为 %s 区块；此维度允许 %s 到 %s。",
   "gui.exotic_worlds.world_shape_settings.nether_scale": "下界比例",
   "gui.exotic_worlds.world_shape_settings.size": "世界大小（%s-%s 区块）",
