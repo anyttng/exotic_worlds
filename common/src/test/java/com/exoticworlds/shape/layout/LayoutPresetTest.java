@@ -19,7 +19,7 @@ import net.minecraft.core.Direction;
 class LayoutPresetTest {
     private static final ShapeOptions PLAIN = DimensionLayout.DEFAULT_OPTIONS;
 
-    private static final ShapeOptions LAND = PLAIN.with(GuaranteedLand.OPTION, true);
+    private static final ShapeOptions LAND = PLAIN.with(GuaranteedLand.FEATURE.getOption(), true);
 
     @Test
     void aPresetOnATorusSetsItsSizeAndPutsTheNetherAndTheEndOnTheOverworld() {

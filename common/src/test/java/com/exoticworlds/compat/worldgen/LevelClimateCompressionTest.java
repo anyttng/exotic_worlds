@@ -82,6 +82,6 @@ class LevelClimateCompressionTest {
         return WorldFolds.of(
                 ShapeFixtures.torus(
                         ShapeFixtures.loopedBounds(TINY_CHUNK_MIN, TINY_CHUNK_MAX, TINY_CHUNK_MIN, TINY_CHUNK_MAX)),
-                ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, scale));
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), scale));
     }
 }

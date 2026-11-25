@@ -7,6 +7,7 @@ import com.exoticworlds.core.world.FlatShape;
 import com.exoticworlds.core.option.ShapeOptions;
 import com.exoticworlds.shape.WorldLoopPresets;
 import com.exoticworlds.shape.option.DimensionOption;
+import com.exoticworlds.shape.option.ScopedOption;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -25,6 +26,8 @@ public interface DimensionShape {
     FlatShape spans(DimensionContext context);
 
     List<DimensionOption<?>> getParameters();
+
+    List<ScopedOption> getOptions();
 
     ShapeOptions defaultOptions(ResourceKey<LevelStem> dimension);
 

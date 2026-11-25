@@ -50,7 +50,7 @@ class StampedGeneratorCodecTest {
             ExoticWorlds.MODID + ":" + CompactBiomes.KEY;
 
     private static final ShapeOptions UNCOMPRESSED =
-            ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
+            ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF);
 
     private static final int STAMPED_WIDTH_CHUNKS = 64;
 
@@ -84,7 +84,7 @@ class StampedGeneratorCodecTest {
 
         CarriedShape decoded = carriedShapeOf(decode(encoded).getOrThrow());
         assertEquals(shape, decoded.getShape());
-        assertEquals(ClimateScale.AUTO, decoded.getOptions().get(CompactBiomes.OPTION));
+        assertEquals(ClimateScale.AUTO, decoded.getOptions().get(CompactBiomes.FEATURE.getOption()));
     }
 
     @Test
@@ -96,7 +96,7 @@ class StampedGeneratorCodecTest {
 
         CarriedShape decoded = carriedShapeOf(decode(encoded).getOrThrow());
         assertEquals(shape, decoded.getShape());
-        assertEquals(ClimateScale.OFF, decoded.getOptions().get(CompactBiomes.OPTION));
+        assertEquals(ClimateScale.OFF, decoded.getOptions().get(CompactBiomes.FEATURE.getOption()));
     }
 
     @Test
@@ -111,7 +111,7 @@ class StampedGeneratorCodecTest {
         ChunkGenerator decoded = decode(former).getOrThrow();
         CarriedShape carried = carriedShapeOf(decoded);
         assertEquals(shape, carried.getShape());
-        assertEquals(ClimateScale.OFF, carried.getOptions().get(CompactBiomes.OPTION));
+        assertEquals(ClimateScale.OFF, carried.getOptions().get(CompactBiomes.FEATURE.getOption()));
 
         CompoundTag rewritten = encode(decoded);
         assertTrue(rewritten.contains(SHAPE_KEY));

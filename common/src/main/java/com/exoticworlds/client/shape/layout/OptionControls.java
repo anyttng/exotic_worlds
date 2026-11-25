@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
@@ -49,7 +50,10 @@ final class OptionControls {
     private final List<Bound<?>> bound = new ArrayList<>();
     private final Column section = new Column();
 
-    OptionControls(Theme theme, FillStyle fill, ResourceKey<LevelStem> dimension, List<DimensionOption<?>> offered,
+    record Offer(DimensionOption<?> option, Predicate<Identifier> isForShape) {
+    }
+
+    OptionControls(Theme theme, FillStyle fill, ResourceKey<LevelStem> dimension, List<Offer> offered,
             Supplier<@Nullable Identifier> shape, Supplier<@Nullable FlatShape> spans) {
         this.theme = theme;
         this.fill = fill;
@@ -57,8 +61,8 @@ final class OptionControls {
         this.shape = shape;
         this.spans = spans;
         this.section.setGapPixels(DimensionPage.GAP_PIXELS);
-        for (DimensionOption<?> declared : offered) {
-            this.bound.add(new Bound<>(declared));
+        for (Offer offer : offered) {
+            this.bound.add(this.bind(offer.option(), offer.isForShape()));
         }
     }
 
@@ -86,6 +90,10 @@ final class OptionControls {
         return chosen;
     }
 
+    private <T> Bound<T> bind(DimensionOption<T> option, Predicate<Identifier> isForShape) {
+        return new Bound<>(option, isForShape);
+    }
+
     private static Bounds boundsOf(NumberRange range) {
         return new Bounds(range.min(), range.max());
     }
@@ -95,13 +103,15 @@ final class OptionControls {
 
     private final class Bound<T> {
         private final DimensionOption<T> declared;
+        private final Predicate<Identifier> isForShape;
         private final List<Runnable> shownValues = new ArrayList<>();
         private final List<NumberPart<T>> numbers = new ArrayList<>();
         private T value;
         private boolean isShowing;
 
-        Bound(DimensionOption<T> declared) {
+        Bound(DimensionOption<T> declared, Predicate<Identifier> isForShape) {
             this.declared = declared;
+            this.isForShape = isForShape;
             this.value = declared.getOption().defaultValue();
             declared.getParts().forEach(part -> OptionControls.this.section.add(this.control(part)));
             BiFunction<T, FlatShape, Component> line = OptionLines.of(declared.getOption());
@@ -112,7 +122,7 @@ final class OptionControls {
 
         boolean isOffered() {
             Identifier chosen = OptionControls.this.shape.get();
-            return chosen != null && this.declared.isOfferedFor(chosen, OptionControls.this.dimension);
+            return chosen != null && this.isForShape.test(chosen);
         }
 
         void show(ShapeOptions options) {

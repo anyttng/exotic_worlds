@@ -35,7 +35,7 @@ class WorldDimensionsNbtRoundTripTest {
     private static final int NETHER_SCALE = 8;
     private static final int END_WIDTH_CHUNKS = 256;
     private static final ShapeOptions GENERATION_OPTIONS =
-            ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF);
+            ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF);
 
     private static HolderLookup.Provider worldgen;
 

@@ -10,12 +10,14 @@ import com.exoticworlds.core.option.ShapeOption;
 import com.exoticworlds.core.option.ShapeOptionRegistry;
 import com.exoticworlds.shape.option.DeclaredOptions;
 import com.exoticworlds.shape.option.DimensionOption;
+import com.exoticworlds.shape.option.DimensionScope;
 import com.exoticworlds.shape.option.OptionPart;
 
 public final class OptionBridge {
 
     public static void register(DimensionOptionV2<?> declared) {
-        DeclaredOptions.register(internal(declared));
+        DeclaredOptions.register(new DeclaredOptions.Entry(internal(declared), declared.getShapes(),
+                declared.getDimensions().isEmpty() ? DimensionScope.ALL : DimensionScope.of(declared.getDimensions())));
     }
 
     public static void register(ShapeOptionV2<?> option) {
@@ -28,9 +30,7 @@ public final class OptionBridge {
             parts.add(internal(part));
         }
 
-        return DimensionOption.of(keyOf(declared.getOption()), declared.getCaptionKey(), parts)
-                .forShapes(declared.getShapes())
-                .forDimensions(declared.getDimensions());
+        return DimensionOption.of(keyOf(declared.getOption()), declared.getCaptionKey(), parts);
     }
 
     private static <T> OptionPart<T> internal(OptionPartV2<T> part) {

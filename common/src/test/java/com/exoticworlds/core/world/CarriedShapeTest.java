@@ -32,7 +32,7 @@ class CarriedShapeTest {
     @Test
     void everyPrefixCarriesTheShapeAndTheChosenOptionsBackUnchanged() {
         CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE),
-                ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF));
 
         for (String prefix : PREFIXES) {
             MapCodec<CarriedShape> codec = CarriedShape.mapCodec(prefix);
@@ -68,7 +68,7 @@ class CarriedShapeTest {
     @Test
     void aDerivedShapeKeepsTheOptionsItWasCarriedWith() {
         CarriedShape carried = new CarriedShape(ShapeFixtures.torus(SQUARE),
-                ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF));
 
         CarriedShape derived = carried.withShape(ShapeFixtures.torus(NARROWER));
 

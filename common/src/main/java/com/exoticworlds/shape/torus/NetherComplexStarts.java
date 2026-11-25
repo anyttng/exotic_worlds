@@ -33,7 +33,7 @@ public final class NetherComplexStarts {
     }
 
     private static List<AddedStart> starts(StructureStartSet set) {
-        if (!set.getOptions().get(GuaranteedNetherComplexes.OPTION)
+        if (!set.getOptions().get(GuaranteedNetherComplexes.FEATURE.getOption())
                 || !set.getStructureSet().is(BuiltinStructureSets.NETHER_COMPLEXES)) {
             return List.of();
         }

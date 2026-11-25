@@ -77,17 +77,17 @@ public final class ClimateScanFixture {
 
     public static WorldFold strongTorusOfWidth(int widthBlocks) {
         return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)),
-                ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.STRONG));
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.STRONG));
     }
 
     public static WorldFold guaranteedTorusOfWidth(int widthBlocks) {
         return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)),
-                ShapeOptions.DEFAULT.with(GuaranteedLand.OPTION, true));
+                ShapeOptions.DEFAULT.with(GuaranteedLand.FEATURE.getOption(), true));
     }
 
     public static WorldFold uncompressedTorusOfWidth(int widthBlocks) {
         return WorldFolds.of(ShapeFixtures.torus(WorldLoopBounds.ofWidth(widthBlocks / 16)),
-                ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF));
     }
 
     public static WorldFold cylinderOfWidth(int widthBlocks) {
@@ -96,7 +96,7 @@ public final class ClimateScanFixture {
 
     public static WorldFold uncompressedCylinderOfWidth(int widthBlocks) {
         return WorldFolds.of(ShapeFixtures.cylinder(WorldLoopBounds.ofWidth(Direction.Axis.X, widthBlocks / 16)),
-                ShapeOptions.DEFAULT.with(CompactBiomes.OPTION, ClimateScale.OFF));
+                ShapeOptions.DEFAULT.with(CompactBiomes.FEATURE.getOption(), ClimateScale.OFF));
     }
 
     public static NormalNoise.NoiseParameters noiseParameters(ResourceKey<NormalNoise.NoiseParameters> key) {
