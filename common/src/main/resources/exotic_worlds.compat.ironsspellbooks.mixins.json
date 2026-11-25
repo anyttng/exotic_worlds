@@ -9,6 +9,8 @@
     "BloodSiphonParticlesPacketAccessor",
     "CameraShakeDataAccessor",
     "CastingMobAimingDataAccessor",
+    "DeadKingSoulEntityAccessor",
+    "DeadKingSoulEntityMixin",
     "FieryExplosionParticlesPacketAccessor",
     "FortifyAreaParticlesPacketAccessor",
     "FrostStepParticlesPacketAccessor",

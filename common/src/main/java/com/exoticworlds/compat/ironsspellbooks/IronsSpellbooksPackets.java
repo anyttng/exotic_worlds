@@ -6,6 +6,7 @@ public final class IronsSpellbooksPackets {
             ParticlePacketRewriters.register();
             CastDataPacketRewriters.register();
             ParticleOptionRewriters.register();
+            EntityDataRewriters.register();
         }
     }
 
