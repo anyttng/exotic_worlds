@@ -9,8 +9,8 @@ import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 
-import com.exoticworlds.accessors.TerrainMaskCache;
-import com.exoticworlds.accessors.TerrainMaskHolder;
+import com.exoticworlds.accessors.FeatureStateHolder;
+import com.exoticworlds.accessors.ChunkWriteListenerHolder;
 import com.exoticworlds.core.feature.CarvedChunkFeature;
 import com.exoticworlds.core.feature.ChunkDataFeature;
 import com.exoticworlds.core.feature.LitChunkFeature;
@@ -162,7 +162,7 @@ public final class FloatingCrumbs extends ShapeFeature
     }
 
     private static TerrainMasks getTerrainMasks(ServerLevel level) {
-        return ((TerrainMaskCache) level).exotic_worlds$getTerrainMasks();
+        return ((FeatureStateHolder) level).exotic_worlds$featureState(FEATURE, TerrainMasks::new);
     }
 
     private static @Nullable WorldFold getTurningFold(ServerLevel level) {
@@ -171,12 +171,13 @@ public final class FloatingCrumbs extends ShapeFeature
     }
 
     public static @Nullable TerrainMask getTerrainMask(ChunkAccess chunk) {
-        return chunk instanceof TerrainMaskHolder holder ? holder.exotic_worlds$getTerrainMask() : null;
+        return chunk instanceof ChunkWriteListenerHolder holder
+                && holder.exotic_worlds$getWriteListener() instanceof TerrainMask mask ? mask : null;
     }
 
     private static void attachTerrainMask(ChunkAccess chunk, TerrainMask mask) {
-        if (chunk instanceof TerrainMaskHolder holder) {
-            holder.exotic_worlds$setTerrainMask(mask);
+        if (chunk instanceof ChunkWriteListenerHolder holder) {
+            holder.exotic_worlds$setWriteListener(mask);
         }
     }
 

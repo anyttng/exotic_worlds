@@ -29,6 +29,7 @@ import com.exoticworlds.shape.dimension.DeclaredShapes;
 import com.exoticworlds.shape.feature.compactbiomes.ClimateScale;
 import com.exoticworlds.shape.feature.compactbiomes.CompactBiomes;
 import com.exoticworlds.shape.feature.guaranteedland.GuaranteedLand;
+import com.exoticworlds.shape.feature.spawnpoint.ChosenSpawn;
 
 import net.minecraft.core.Direction;
 import net.minecraft.SharedConstants;
@@ -237,11 +238,11 @@ class LayoutDimensionsTest {
                 DimensionLayout.fromOverworld(PLAIN), DimensionLayout.fromOverworld(PLAIN), Map.of(),
                 NetherScales.DEFAULT);
 
-        WorldLayout moved = looped.withSpawn(spawn);
+        WorldLayout moved = looped.withOverworldValue(ChosenSpawn.FEATURE, spawn);
 
         assertNotNull(moved);
         assertEquals(spawn, moved.overworld().options().get(SpawnPoint.OPTION));
-        assertNull(WorldLayout.newWorld().withSpawn(spawn));
+        assertNull(WorldLayout.newWorld().withOverworldValue(ChosenSpawn.FEATURE, spawn));
     }
 
     @Test

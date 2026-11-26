@@ -103,8 +103,6 @@
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.intro": "Незер матиме щонайменше одну незерську фортецю й одні залишки бастіону, кожну споруду в біомі, де вона може стояти. Без цього в малому Незері часто немає жодної з них.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.on": "Незер, у якому не було б жодної, отримує одну незерську фортецю й одні залишки бастіону.",
   "gui.exotic_worlds.world_shape_settings.guaranteed_nether_complexes.hint.off": "малий Незер може не мати жодної з них.",
-  "gui.exotic_worlds.world_shape.normal": "Звичайна",
-  "gui.exotic_worlds.world_shape.normal.hint": "Звичайний світ: нескінченна площина в усі боки.",
   "gui.exotic_worlds.world_shape.seam_warning": "Цей тип світу має власний генератор світу: Форма світу все одно обмежить і зациклить світ, але рельєф на краю світу не зійдеться.",
 
   "gui.exotic_worlds.settings.title": "Налаштування Exotic Worlds",

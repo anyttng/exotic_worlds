@@ -20,11 +20,7 @@ public final class WorldShapes {
 
     private static final Identifier NORMAL_ID = Identifier.fromNamespaceAndPath(ExoticWorlds.MODID, NORMAL_PATH);
 
-    public static final WorldShape NORMAL = WorldShape.of(
-            NORMAL_ID,
-            WorldShape.label(NORMAL_ID),
-            WorldShape.hint(NORMAL_ID),
-            (registries, dimensions) -> dimensions);
+    public static final WorldShape NORMAL = WorldShape.of(NORMAL_ID, (registries, dimensions) -> dimensions);
 
     private static final StartupRegistry<Identifier, WorldShape> SHAPES = new StartupRegistry<>("World shapes");
 

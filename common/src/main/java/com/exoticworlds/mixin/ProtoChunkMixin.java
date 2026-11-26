@@ -8,12 +8,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.exoticworlds.accessors.TerrainMaskHolder;
+import com.exoticworlds.accessors.ChunkWriteListenerHolder;
+import com.exoticworlds.core.feature.ChunkWriteListener;
 import com.exoticworlds.core.fold.WorldFold;
 import com.exoticworlds.core.fold.WorldLoopAttachments;
 import com.exoticworlds.engine.fold.ChunkFrame;
 import com.exoticworlds.engine.fold.ChunkSeat;
-import com.exoticworlds.shape.feature.floatingcrumbs.TerrainMask;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 
@@ -23,23 +23,23 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ProtoChunk;
 
 @Mixin(ProtoChunk.class)
-public class ProtoChunkMixin implements TerrainMaskHolder {
+public class ProtoChunkMixin implements ChunkWriteListenerHolder {
     @Unique
     private static final String SET_BLOCK_STATE =
             "setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)"
                     + "Lnet/minecraft/world/level/block/state/BlockState;";
 
     @Unique
-    private @Nullable TerrainMask exotic_worlds$terrainMask;
+    private @Nullable ChunkWriteListener exotic_worlds$writeListener;
 
     @Override
-    public @Nullable TerrainMask exotic_worlds$getTerrainMask() {
-        return this.exotic_worlds$terrainMask;
+    public @Nullable ChunkWriteListener exotic_worlds$getWriteListener() {
+        return this.exotic_worlds$writeListener;
     }
 
     @Override
-    public void exotic_worlds$setTerrainMask(TerrainMask mask) {
-        this.exotic_worlds$terrainMask = mask;
+    public void exotic_worlds$setWriteListener(ChunkWriteListener listener) {
+        this.exotic_worlds$writeListener = listener;
     }
 
     @Unique
@@ -60,7 +60,7 @@ public class ProtoChunkMixin implements TerrainMaskHolder {
                 : ChunkFrame.toReader(original.call(seated.value()), seated.orientation());
     }
 
-    // Must stay above markWritten: Mixin runs them in declaration order, and the terrain mask takes the seated position.
+    // Must stay above markWritten: Mixin runs them in declaration order, and the write listener takes the seated position.
     @ModifyVariable(
             method = {SET_BLOCK_STATE, "getFluidState", "markPosForPostProcessing"},
             at = @At("HEAD"), argsOnly = true, require = 3)
@@ -76,9 +76,9 @@ public class ProtoChunkMixin implements TerrainMaskHolder {
     @Inject(method = SET_BLOCK_STATE, at = @At("HEAD"))
     private void exotic_worlds$markWritten(BlockPos pos, BlockState state, int flags,
             CallbackInfoReturnable<@Nullable BlockState> callback) {
-        TerrainMask mask = this.exotic_worlds$terrainMask;
-        if (mask != null) {
-            mask.wrote(pos);
+        ChunkWriteListener listener = this.exotic_worlds$writeListener;
+        if (listener != null) {
+            listener.beforeBlockWrite(pos);
         }
     }
 }

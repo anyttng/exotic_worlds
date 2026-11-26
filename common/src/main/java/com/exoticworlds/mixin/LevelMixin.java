@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.exoticworlds.InjectionTargets;
 import com.exoticworlds.accessors.ActiveFeaturesHolder;
+import com.exoticworlds.accessors.FeatureStateHolder;
 import com.exoticworlds.accessors.PeriodicityMark;
-import com.exoticworlds.accessors.TerrainMaskCache;
 import com.exoticworlds.accessors.FoldCache;
 import com.exoticworlds.core.feature.GenerationFeature;
 import com.exoticworlds.core.feature.ShapeFeatures;
@@ -24,7 +24,6 @@ import com.exoticworlds.engine.fold.BlockEntitySeat;
 import com.exoticworlds.engine.fold.ChunkFrame;
 import com.exoticworlds.engine.fold.FoldedBoxQuery;
 import com.exoticworlds.engine.fold.SeamEntitySearch;
-import com.exoticworlds.shape.feature.floatingcrumbs.TerrainMasks;
 import com.exoticworlds.engine.noise.GenerationFoldContext;
 import com.exoticworlds.engine.noise.check.SeamVerdict;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -33,8 +32,11 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -54,7 +56,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 
 @Mixin(Level.class)
-public class LevelMixin implements FoldCache, ActiveFeaturesHolder, TerrainMaskCache, PeriodicityMark {
+public class LevelMixin implements FoldCache, ActiveFeaturesHolder, FeatureStateHolder, PeriodicityMark {
     @Unique
     private static final String GET_CHUNK =
             "getChunk(IILnet/minecraft/world/level/chunk/status/ChunkStatus;Z)Lnet/minecraft/world/level/chunk/ChunkAccess;";
@@ -74,7 +76,7 @@ public class LevelMixin implements FoldCache, ActiveFeaturesHolder, TerrainMaskC
     private @Nullable List<GenerationFeature> exotic_worlds$activeFeatures;
 
     @Unique
-    private final TerrainMasks exotic_worlds$terrainMasks = new TerrainMasks();
+    private final Map<String, Object> exotic_worlds$featureStates = new ConcurrentHashMap<>();
 
     @Unique
     private final AtomicReference<SeamVerdict> exotic_worlds$seamVerdict = new AtomicReference<>();
@@ -189,8 +191,9 @@ public class LevelMixin implements FoldCache, ActiveFeaturesHolder, TerrainMaskC
     }
 
     @Override
-    public TerrainMasks exotic_worlds$getTerrainMasks() {
-        return this.exotic_worlds$terrainMasks;
+    @SuppressWarnings("unchecked")
+    public <S> S exotic_worlds$featureState(GenerationFeature feature, Supplier<S> created) {
+        return (S) this.exotic_worlds$featureStates.computeIfAbsent(feature.getKey(), key -> created.get());
     }
 
     @Override

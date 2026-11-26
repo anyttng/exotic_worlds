@@ -28,6 +28,8 @@ class ApiSurfaceTest {
     private static final String API_PACKAGE = "com.exoticworlds.api";
     private static final String API_PREFIX = API_PACKAGE + ".";
     private static final String MOD_PREFIX = "com.exoticworlds.";
+    private static final List<String> OTHER_MOD_PREFIXES =
+            List.of("com.ascendiacore.", "com.ascendia.", "com.eminus.", "com.testingmod.");
     private static final String JAVA_SUFFIX = ".java";
     private static final String PACKAGE_INFO = "package-info";
 
@@ -97,7 +99,8 @@ class ApiSurfaceTest {
                     element = element.getComponentType();
                 }
                 String name = element.getName();
-                if (name.startsWith(MOD_PREFIX) && !name.startsWith(API_PREFIX)) {
+                if ((name.startsWith(MOD_PREFIX) && !name.startsWith(API_PREFIX))
+                        || OTHER_MOD_PREFIXES.stream().anyMatch(name::startsWith)) {
                     violations.add(where + " -> " + name);
                 }
             }

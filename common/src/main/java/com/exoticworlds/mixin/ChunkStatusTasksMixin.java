@@ -57,7 +57,7 @@ public class ChunkStatusTasksMixin {
     }
 
     @ModifyReturnValue(method = "generateCarvers", at = @At("RETURN"))
-    private static CompletableFuture<ChunkAccess> exotic_worlds$sweepFloatingCrumbs(
+    private static CompletableFuture<ChunkAccess> exotic_worlds$runCarvedChunkFeatures(
             CompletableFuture<ChunkAccess> original,
             WorldGenContext context,
             ChunkStep step,
@@ -72,7 +72,7 @@ public class ChunkStatusTasksMixin {
     }
 
     @ModifyReturnValue(method = "light", at = @At("RETURN"))
-    private static CompletableFuture<ChunkAccess> exotic_worlds$sweepBorderCrumbs(
+    private static CompletableFuture<ChunkAccess> exotic_worlds$runLitChunkFeatures(
             CompletableFuture<ChunkAccess> original,
             WorldGenContext context,
             ChunkStep step,
