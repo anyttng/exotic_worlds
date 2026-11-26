@@ -13,12 +13,9 @@ public class EminusMixinPlugin extends ModPresenceGatePlugin {
     private static final String EMINUS_PACKAGE = "com/eminus/";
 
     private static final String TREE_CHANGES_CLASS = "com/eminus/render/tree/TreeChanges.class";
-    private static final String NEAR_BOX_CLASS = "com/eminus/handoff/NearBox.class";
-    private static final String FAR_QUADS_MIXIN = "FarQuadsMixin";
-    private static final String FAR_QUADS_EVERY_PIPELINE_MIXIN = "FarQuadsEveryPipelineMixin";
-    private static final String FAR_QUADS_PIPELINE_MIXIN = "FarQuadsPipelineMixin";
-    private static final String FAR_QUADS = "com/eminus/client/render/far/FarQuads";
-    private static final String PIPELINE = "pipeline";
+    private static final String PIPELINE_SPEC_MIXIN = "PipelineSpecMixin";
+    private static final String PIPELINE_SPEC = "com/eminus/gpu/pipeline/PipelineSpec";
+    private static final String BUILDER = "builder";
     private static final String TREE_MANAGER_CHANGES_MIXIN = "TreeManagerChangesMixin";
     private static final String TREE_CHANGES_MIXIN = "TreeChangesMixin";
     private static final String TREE_NODE_ACCESSOR = "TreeNodeAccessor";
@@ -52,11 +49,7 @@ public class EminusMixinPlugin extends ModPresenceGatePlugin {
             .withholding(MESH_FAILURES_MIXIN, () -> !areChangesInTreeChanges())
             .withholding(MISSING_COLUMNS_MIXIN, () -> !areChangesInTreeChanges())
             .withholding(WAITING_MIXIN, () -> !areChangesInTreeChanges())
-            .withholding(FAR_QUADS_MIXIN, EminusMixinPlugin::isSolidPipelineSplit)
-            .withholding(FAR_QUADS_EVERY_PIPELINE_MIXIN, () -> !isSolidPipelineSplit()
-                    || !canBuildFarPipelineBy(EminusInjectionTargets.FAR_PIPELINE_BUILDER_WITH_CUTOUT))
-            .withholding(FAR_QUADS_PIPELINE_MIXIN,
-                    () -> !canBuildFarPipelineBy(EminusInjectionTargets.FAR_PIPELINE_BUILDER))
+            .withholding(PIPELINE_SPEC_MIXIN, () -> !canBuildPipelineSpecs())
             .withholding(REQUEST_MIXIN, EminusMixinPlugin::isFillCarriedByRequest)
             .withholding(FILL_REQUEST_MIXIN, () -> !isFillCarriedByRequest())
             .withholding(BEAM_SET_MIXIN, () -> !canDrawBeams())
@@ -73,10 +66,6 @@ public class EminusMixinPlugin extends ModPresenceGatePlugin {
         return ModPresence.hasResource(TREE_CHANGES_CLASS);
     }
 
-    private static boolean isSolidPipelineSplit() {
-        return ModPresence.hasResource(NEAR_BOX_CLASS);
-    }
-
     private static boolean canDrawBeams() {
         return ModPresence.hasResource(BEAM_PASS_CLASS);
     }
@@ -89,8 +78,8 @@ public class EminusMixinPlugin extends ModPresenceGatePlugin {
         return gate;
     }
 
-    private static boolean canBuildFarPipelineBy(String descriptor) {
-        return ModPresence.hasMethod(FAR_QUADS, PIPELINE, descriptor);
+    private static boolean canBuildPipelineSpecs() {
+        return ModPresence.hasMethod(PIPELINE_SPEC, BUILDER, EminusInjectionTargets.PIPELINE_SPEC_BUILDER);
     }
 
     private static boolean canImportSaves() {

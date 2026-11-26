@@ -7,6 +7,7 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import com.eminus.client.session.ClientSession;
+import com.eminus.gpu.Location;
 import com.eminus.gpu.pipeline.PipelineSpec;
 import com.mojang.logging.LogUtils;
 
@@ -64,7 +65,15 @@ public final class LapClip {
                 "");
     }
 
-    public static PipelineSpec.Builder clipped(PipelineSpec.Builder builder) {
+    public static boolean isRewritten(String namespace, @Nullable String path) {
+        return NAMESPACE.equals(namespace) && path != null && ENTRIES.containsKey(path);
+    }
+
+    public static PipelineSpec.Builder clipped(PipelineSpec.Builder builder, Location fragmentShader) {
+        if (!isRewritten(fragmentShader.namespace(), fragmentShader.path())) {
+            return builder;
+        }
+
         CellFold fold = CellFoldHolder.getFold(ClientSession.runtime());
         if (!fold.isRepeating()) {
             return builder;
