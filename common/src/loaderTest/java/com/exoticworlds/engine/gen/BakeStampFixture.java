@@ -99,6 +99,11 @@ final class BakeStampFixture {
         return new NoiseBasedChunkGenerator(plainsBiomes(worldgen), overworldNoiseSettings(worldgen));
     }
 
+    static ChunkGenerator endIslandsGenerator(HolderLookup.Provider worldgen) {
+        return new NoiseBasedChunkGenerator(plainsBiomes(worldgen),
+                worldgen.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.END));
+    }
+
     static ChunkGenerator noiseSubclassGenerator(HolderLookup.Provider worldgen) {
         return new ForeignNoiseChunkGenerator(plainsBiomes(worldgen), overworldNoiseSettings(worldgen));
     }
